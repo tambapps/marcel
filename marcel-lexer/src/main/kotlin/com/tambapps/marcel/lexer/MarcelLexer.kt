@@ -1,5 +1,7 @@
 package com.tambapps.marcel.lexer
 
+// TODO use flex
+// https://jflex.de/manual.html#Example
 class MarcelLexer {
   private var index = 0
 

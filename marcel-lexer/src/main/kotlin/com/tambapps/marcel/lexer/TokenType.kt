@@ -1,11 +1,8 @@
 package com.tambapps.marcel.lexer
 
-enum class TokenType(val string: String?) {
+enum class TokenType {
   IDENTIFIER,
   TEXT,
-  QUOTE("\"");
-
-  constructor() : this(null)
-
-
+  QUOTE,
+  BLOCK_COMMENT
 }
