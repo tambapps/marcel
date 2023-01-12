@@ -3,7 +3,7 @@
 // source: /Users/nfonkoua/workspace/marcel/marcel-lexer/src/main/java/com/tambapps/marcel/lexer/Marcel.flex
 
 package com.tambapps.marcel.lexer;
-import static com.tambapps.marcel.lexer.TokenTypes.*;
+import static com.tambapps.marcel.lexer.TokenType.*;
 
 /**
   * Marcel lang lexer
@@ -466,10 +466,10 @@ class MarcelJflexer {
 
   /* user code: */
   // tokens for which we need to save current buffer
-  private LexToken valueToken(int tokenType) {
+  private LexToken valueToken(TokenType tokenType) {
     return new LexToken(tokenType, new String(zzBuffer, zzCurrentPos, zzMarkedPos - zzCurrentPos));
   }
-  private LexToken token(int tokenType) {
+  private LexToken token(TokenType tokenType) {
     return new LexToken(tokenType, null);
   }
 

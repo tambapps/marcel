@@ -5,6 +5,6 @@ import lombok.Value;
 
 @Value
 public class LexToken {
-  int type;
+  TokenType type;
   String value;
 }

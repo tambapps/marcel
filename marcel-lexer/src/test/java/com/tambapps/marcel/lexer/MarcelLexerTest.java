@@ -18,10 +18,10 @@ public class MarcelLexerTest {
 
   @Test
   public void test() {
-    assertEquals(Arrays.asList(new LexToken(TokenTypes.IDENTIFIER, "println"),
-            new LexToken(TokenTypes.LPAR, null),
-            new LexToken(TokenTypes.INTEGER, "8"),
-            new LexToken(TokenTypes.RPAR, null)
+    assertEquals(Arrays.asList(new LexToken(TokenType.IDENTIFIER, "println"),
+            new LexToken(TokenType.LPAR, null),
+            new LexToken(TokenType.INTEGER, "8"),
+            new LexToken(TokenType.RPAR, null)
         )
         , lexer.lex("println(8)"));
   }
