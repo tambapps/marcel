@@ -14,11 +14,11 @@ class MarcelLexerTest {
     }
     @Test
     fun test() {
-        assertEquals(listOf(Token(TokenType.IDENTIFIER, "println"),
-            Token(TokenType.QUOTE, null),
-            Token(TokenType.TEXT, "Hello World"),
-            Token(TokenType.QUOTE, null)
+        assertEquals(listOf(LexToken(TokenTypes.IDENTIFIER, "println"),
+            LexToken(TokenTypes.QUOTE, null),
+            LexToken(TokenTypes.INTEGER, "8"),
+            LexToken(TokenTypes.QUOTE, null)
         )
-            , lexer.lex("println(\"Hello World\")"))
+            , lexer.lex("println(8)"))
     }
 }

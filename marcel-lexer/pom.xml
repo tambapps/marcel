@@ -11,6 +11,7 @@
   </parent>
   <artifactId>marcel-lexer</artifactId>
 
+  <!-- TODO make this project Java only, as we auto-generate the lexer -->
   <dependencies>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
