@@ -9,12 +9,17 @@
     <artifactId>marcel</artifactId>
     <version>0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>marcel-parser</artifactId>
+  <artifactId>marcel-compiler</artifactId>
 
   <dependencies>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
       <artifactId>marcel-lexer</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.tambapps.marcel</groupId>
+      <artifactId>marcel-parser</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
