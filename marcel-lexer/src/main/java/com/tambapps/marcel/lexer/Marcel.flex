@@ -10,7 +10,7 @@ import static com.tambapps.marcel.lexer.TokenTypes.*;
 %{
   // tokens for which we need to save current buffer
   private LexToken valueToken(int tokenType) {
-    return new LexToken(tokenType, new String(zzBuffer, 0, zzEndRead));
+    return new LexToken(tokenType, new String(zzBuffer, zzCurrentPos, zzMarkedPos - zzCurrentPos));
   }
   private LexToken token(int tokenType) {
     return new LexToken(tokenType, null);
@@ -58,5 +58,5 @@ TYPED_INTEGER_SUFFIX = {UNSIGNED_SUFFIX}?{LONG_SUFFIX}?
 
 {IDENTIFIER} {  return valueToken(IDENTIFIER); }
 
-"("          { return valueToken(LPAR); }
-")"          { return valueToken(RPAR); }
+"("          { return token(LPAR); }
+")"          { return token(RPAR); }

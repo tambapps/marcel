@@ -467,7 +467,7 @@ class MarcelJflexer {
   /* user code: */
   // tokens for which we need to save current buffer
   private LexToken valueToken(int tokenType) {
-    return new LexToken(tokenType, new String(zzBuffer, 0, zzEndRead));
+    return new LexToken(tokenType, new String(zzBuffer, zzCurrentPos, zzMarkedPos - zzCurrentPos));
   }
   private LexToken token(int tokenType) {
     return new LexToken(tokenType, null);
@@ -882,12 +882,12 @@ class MarcelJflexer {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1:
-            { return valueToken(LPAR);
+            { return token(LPAR);
             }
             // fall through
           case 5: break;
           case 2:
-            { return valueToken(RPAR);
+            { return token(RPAR);
             }
             // fall through
           case 6: break;
