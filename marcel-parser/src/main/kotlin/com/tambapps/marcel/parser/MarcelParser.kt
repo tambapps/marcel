@@ -2,14 +2,15 @@ package com.tambapps.marcel.parser
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
-import com.tambapps.marcel.parser.node.FunctionCallNode
-import com.tambapps.marcel.parser.node.TernaryNode
+import com.tambapps.marcel.parser.node.*
 
 import com.tambapps.marcel.parser.node.TokenNodeType.*
-import com.tambapps.marcel.parser.node.TokenNode
-import com.tambapps.marcel.parser.node.TokenNodeWithValue
+import java.util.UUID
+import java.util.concurrent.ThreadLocalRandom
 
-class MarcelParser(private val tokens: List<LexToken>) {
+class MarcelParser(private val className: String, private val tokens: List<LexToken>) {
+
+  constructor(tokens: List<LexToken>): this("MarcelRandomClass_" + ThreadLocalRandom.current().nextInt(), tokens)
 
   private var currentIndex = 0
 
@@ -20,7 +21,7 @@ class MarcelParser(private val tokens: List<LexToken>) {
     }
 
   fun parse(): TokenNode {
-    return statement()
+    return ScriptNode(className, mutableListOf(statement()))
   }
 
   private fun statement(): TokenNode {
