@@ -3,7 +3,7 @@ package com.tambapps.marcel.parser
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.ast.BinaryOperatorNode
-import com.tambapps.marcel.parser.ast.ConstantValueNode
+import com.tambapps.marcel.parser.ast.IntConstantNode
 import com.tambapps.marcel.parser.ast.TokenNodeType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -34,8 +34,8 @@ class MarcelParserTest {
         ))
         val result = parser.expression()
         assertEquals(BinaryOperatorNode(TokenType.MUL).apply {
-                                                             leftOperand = ConstantValueNode(TokenNodeType.INTEGER, "2")
-                                                             rightOperand = ConstantValueNode(TokenNodeType.INTEGER, "3")
+                                                             leftOperand = IntConstantNode(2)
+                                                             rightOperand = IntConstantNode(3)
         }, result)
     }
 }

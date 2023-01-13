@@ -6,7 +6,6 @@ import com.tambapps.marcel.parser.ast.*
 
 import com.tambapps.marcel.parser.ast.TokenNodeType.*
 import org.objectweb.asm.Opcodes
-import org.objectweb.asm.Type
 import java.util.concurrent.ThreadLocalRandom
 
 class MarcelParser(private val className: String, private val tokens: List<LexToken>) {
@@ -89,7 +88,7 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
   private fun atom(): ExpressionNode {
     val token = next()
     return when (token.type) {
-      TokenType.INTEGER -> ConstantValueNode(INTEGER, token.value)
+      TokenType.INTEGER -> IntConstantNode(token.value.toInt())
       TokenType.IDENTIFIER -> {
         if (current.type == TokenType.LPAR) {
           skip()
