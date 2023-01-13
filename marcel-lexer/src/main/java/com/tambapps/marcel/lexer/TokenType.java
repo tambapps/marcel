@@ -6,7 +6,10 @@ public enum TokenType {
   COMMA,
   QUESTION_MARK,
   COLON,
+  SEMI_COLON,
+  TYPE_INT,
   INTEGER,
   LPAR,
   RPAR,
+  END_OF_FILE
 }

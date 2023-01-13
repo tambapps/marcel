@@ -21,6 +21,12 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
       return tokens[currentIndex]
     }
 
+  private val eof: Boolean
+    get() = currentIndex >= tokens.size
+  private val currentSafe: LexToken?
+    get() = if (eof) null else tokens[currentIndex]
+
+
   fun parse(): ModuleNode {
     return ModuleNode(mutableListOf(ClassNode(
       Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, className, Types.OBJECT, mutableListOf(
@@ -33,27 +39,15 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
 
   private fun statement(): TokenNode {
     val token = next()
-    when (token.type) {
-      TokenType.IDENTIFIER -> {
-        if (current.type == TokenType.LPAR) {
-          skip()
-          val fCall = TokenNode(FUNCTION_CALL, token.value)
-          while (current.type != TokenType.RPAR) {
-            fCall.addChild(expression())
-            if (current.type == TokenType.RPAR) {
-              break
-            } else {
-              accept(TokenType.COMMA)
-            }
-          }
-          skip() // skipping PARENT_CLOSE
-          return fCall
-        } else {
-          throw UnsupportedOperationException("Not supported yet")
-        }
+    return when (token.type) {
+      TokenType.TYPE_INT -> {
+        TODO("variable declaration")
       }
       else -> {
-        throw MarcelParsingException("Unexpected token of type ${token.type}")
+        rollback()
+        val node = expression()
+        acceptOptional(TokenType.SEMI_COLON)
+        node
       }
     }
   }
@@ -90,6 +84,24 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
     val token = next()
     return when (token.type) {
       TokenType.INTEGER -> TokenNode(INTEGER, token.value)
+      TokenType.IDENTIFIER -> {
+        if (current.type == TokenType.LPAR) {
+          skip()
+          val fCall = TokenNode(FUNCTION_CALL, token.value)
+          while (current.type != TokenType.RPAR) {
+            fCall.addChild(expression())
+            if (current.type == TokenType.RPAR) {
+              break
+            } else {
+              accept(TokenType.COMMA)
+            }
+          }
+          skip() // skipping PARENT_CLOSE
+          return fCall
+        } else {
+          throw UnsupportedOperationException("Not supported yet")
+        }
+      }
       else -> {
         throw UnsupportedOperationException("Not supported yet")
       }
@@ -133,14 +145,16 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
     return token
   }
 
-  private fun accept(t: TokenType, required: Boolean): LexToken {
-    val token = current
-    if (token.type == t) {
+  private fun acceptOptional(t: TokenType): LexToken? {
+    val token = currentSafe
+    if (token?.type == t) {
       currentIndex++
-    } else if (required) {
-      throw MarcelParsingException("Expected token of type $t but got ${token.type}")
     }
     return token
+  }
+
+  private fun rollback() {
+    currentIndex--
   }
 
   private fun skip() {
@@ -156,7 +170,7 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
   }
 
   private fun checkEof() {
-    if (currentIndex >= tokens.size) {
+    if (eof) {
       throw MarcelParsingException("Unexpected end of file")
     }
   }

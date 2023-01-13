@@ -22,6 +22,7 @@ fun main(args : Array<String>) {
     return
   } catch (e: MarcelLexerException) {
     println("Lexer error: ${e.message}")
+    e.printStackTrace()
     return
   }
 
@@ -30,6 +31,7 @@ fun main(args : Array<String>) {
     MarcelParser(className, tokens).parse()
   } catch (e: MarcelParsingException) {
     println("Parsing error: ${e.message}")
+    e.printStackTrace()
     return
   }
 

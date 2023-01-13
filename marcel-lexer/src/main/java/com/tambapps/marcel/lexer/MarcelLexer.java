@@ -23,6 +23,7 @@ public class MarcelLexer {
     while ((token = jflexer.nextToken()) != null) {
       tokens.add(token);
     }
+    tokens.add(new LexToken(TokenType.END_OF_FILE));
     return tokens;
   }
 
