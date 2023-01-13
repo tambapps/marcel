@@ -19,10 +19,12 @@ public class MarcelLexerTest {
   @Test
   public void test() {
     assertEquals(Arrays.asList(new LexToken(TokenType.IDENTIFIER, "println"),
-            new LexToken(TokenType.LPAR, null),
+            new LexToken(TokenType.LPAR),
             new LexToken(TokenType.INTEGER, "8"),
-            new LexToken(TokenType.RPAR, null)
+            new LexToken(TokenType.RPAR),
+            new LexToken(TokenType.SEMI_COLON),
+            new LexToken(TokenType.END_OF_FILE)
         )
-        , lexer.lex("println(8)"));
+        , lexer.lex("println(8);"));
   }
 }
