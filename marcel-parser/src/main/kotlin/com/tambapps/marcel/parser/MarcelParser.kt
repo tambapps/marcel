@@ -20,16 +20,16 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
     }
 
   fun parse(): TokenNode {
-    return ScriptNode(className, mutableListOf(statement()))
+    return TokenNode(SCRIPT, className, mutableListOf(statement()))
   }
 
-  private fun statement(): Statement {
+  private fun statement(): TokenNode {
     val token = next()
     when (token.type) {
       TokenType.IDENTIFIER -> {
         if (current.type == TokenType.LPAR) {
           skip()
-          val fCall = FunctionCallNode(token.value)
+          val fCall = TokenNode(FUNCTION_CALL, token.value)
           while (current.type != TokenType.RPAR) {
             fCall.addChild(expression())
             if (current.type == TokenType.RPAR) {
@@ -57,7 +57,7 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
       val trueExpr = expression()
       accept(TokenType.COLON)
       val falseExpr = expression()
-      return TernaryNode(expr, trueExpr, falseExpr)
+      return TokenNode(TERNARY, mutableListOf(expr, trueExpr, falseExpr))
     }
     return expr
   }
@@ -81,7 +81,7 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
   private fun atom(): TokenNode {
     val token = next()
     return when (token.type) {
-      TokenType.INTEGER -> TokenNodeWithValue(INTEGER, token.value)
+      TokenType.INTEGER -> TokenNode(INTEGER, token.value)
       else -> {
         throw UnsupportedOperationException("Not supported yet")
       }

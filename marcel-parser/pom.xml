@@ -22,11 +22,6 @@
       <artifactId>kotlin-stdlib</artifactId>
       <version>1.7.22</version>
     </dependency>
-    <!-- bytecode manipulation -->
-    <dependency>
-      <groupId>org.ow2.asm</groupId>
-      <artifactId>asm</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>

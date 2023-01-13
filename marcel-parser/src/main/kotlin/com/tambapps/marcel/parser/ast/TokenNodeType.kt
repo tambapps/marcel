@@ -1,8 +1,11 @@
 package com.tambapps.marcel.parser.ast
 
 enum class TokenNodeType {
-  FUNCTION_CALL,
   INTEGER,
+  // statements
+  FUNCTION_CALL,
   TERNARY,
+
+  // class or script
   SCRIPT
 }

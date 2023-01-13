@@ -1,10 +1,7 @@
 package com.tambapps.marcel.compiler
 
 import com.tambapps.marcel.compiler.bytecode.BytecodeGenerator
-import com.tambapps.marcel.parser.ast.FunctionCallNode
-import com.tambapps.marcel.parser.ast.ScriptNode
-import com.tambapps.marcel.parser.ast.TokenNodeType
-import com.tambapps.marcel.parser.ast.TokenNodeWithValue
+import com.tambapps.marcel.parser.ast.*
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
@@ -16,9 +13,9 @@ class MarcelCompilerTest {
     @Test
     fun test() {
         val name = "Test"
-        val node = ScriptNode(name, mutableListOf(
-            FunctionCallNode("println").apply {
-                addChild(TokenNodeWithValue(TokenNodeType.INTEGER, "8"))
+        val node = TokenNode(TokenNodeType.SCRIPT, name, mutableListOf(
+            TokenNode(TokenNodeType.FUNCTION_CALL, "println").apply {
+                addChild(TokenNode(TokenNodeType.INTEGER, "8"))
             }
         ))
         val bytecodeGenerator = BytecodeGenerator()
