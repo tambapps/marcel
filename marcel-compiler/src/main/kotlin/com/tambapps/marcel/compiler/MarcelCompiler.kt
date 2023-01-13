@@ -39,6 +39,7 @@ fun main(args : Array<String>) {
     classFile.writeBytes(BytecodeGenerator().generate(ast))
   } catch (e: Exception) {
     println("Error while writing class: ${e.message}")
+    e.printStackTrace()
   }
 }
 

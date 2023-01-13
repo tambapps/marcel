@@ -6,6 +6,7 @@ import com.tambapps.marcel.parser.ast.TokenNodeType
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
+import org.objectweb.asm.Type
 
 // https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
 class BytecodeGenerator {
@@ -52,9 +53,8 @@ class BytecodeGenerator {
         for (argumentNode in statement.children) {
           when (argumentNode.type) {
             TokenNodeType.INTEGER -> {
-              // TODO don't work for large integers. might need to push many times
               val value = argumentNode.value.toInt()
-              visitor.visitIntInsn(Opcodes.BIPUSH, value)
+              visitor.visitLdcInsn(value) // write primitive value, from an Object class e.g. Integer -> int
             }
              else -> throw UnsupportedOperationException("Cannot handle arguments of type ${statement.type} yet")
           }
