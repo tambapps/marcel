@@ -1,6 +1,6 @@
 package com.tambapps.marcel.parser.ast
 
-class TokenNode(val type: TokenNodeType, val value: String?) {
+class TokenNode(val type: TokenNodeType, val _value: String?) {
   private var _children: MutableList<TokenNode>? = null
   val children: MutableList<TokenNode>
     get() {
@@ -12,6 +12,8 @@ class TokenNode(val type: TokenNodeType, val value: String?) {
         _children!!
       }
   }
+  val value: String
+    get() = _value!!
   constructor(type: TokenNodeType, children: MutableList<TokenNode>): this(type, null, children) {
 
   }

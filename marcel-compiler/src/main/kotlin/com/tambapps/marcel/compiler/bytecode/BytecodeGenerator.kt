@@ -45,9 +45,17 @@ class BytecodeGenerator {
         } else {
           throw UnsupportedOperationException("Cannot handle function call yet")
         }
-        // TODO write argument from children
-        visitor.visitIntInsn(Opcodes.BIPUSH, 8);
-        visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false);
+        for (argumentNode in statement.children) {
+          when (argumentNode.type) {
+            TokenNodeType.INTEGER -> {
+              // TODO don't work for large integers. might need to push many times
+              val value = argumentNode.value.toInt()
+              visitor.visitIntInsn(Opcodes.BIPUSH, value)
+            }
+             else -> throw UnsupportedOperationException("Cannot handle arguments of type ${statement.type} yet")
+          }
+        }
+        visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false)
       }
       else -> throw UnsupportedOperationException("Cannot handle ${statement.type} yet")
     }
