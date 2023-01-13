@@ -62,3 +62,7 @@ TYPED_INTEGER_SUFFIX = {UNSIGNED_SUFFIX}?{LONG_SUFFIX}?
 ")"          { return token(RPAR); }
 ":"          { return token(COLON); }
 ";"          { return token(SEMI_COLON); }
+"+"          { return token(PLUS); }
+"-"          { return token(MINUS); }
+"/"          { return token(DIV); }
+"*"          { return token(MUL); }

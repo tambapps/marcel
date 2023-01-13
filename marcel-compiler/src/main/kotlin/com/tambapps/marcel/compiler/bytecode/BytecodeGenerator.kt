@@ -1,12 +1,8 @@
 package com.tambapps.marcel.compiler.bytecode
 
 import com.tambapps.marcel.parser.ast.ModuleNode
-import com.tambapps.marcel.parser.ast.TokenNode
-import com.tambapps.marcel.parser.ast.TokenNodeType
 import org.objectweb.asm.ClassWriter
-import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
-import org.objectweb.asm.Type
 
 // https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
 class BytecodeGenerator {
@@ -32,7 +28,7 @@ class BytecodeGenerator {
 
     // writing statements
     for (statement in methodNode.statements) {
-      writeStatement(mv, statement)
+      statement.writeInstructions(mv)
     }
     mv.visitInsn(Opcodes.RETURN)
     mv.visitMaxs(maxStack, localVariablesCount) //set max stack and max local variables
@@ -42,26 +38,4 @@ class BytecodeGenerator {
     return classWriter.toByteArray()
   }
 
-  private fun writeStatement(visitor: MethodVisitor, statement: TokenNode) {
-    when(statement.type) {
-      TokenNodeType.FUNCTION_CALL -> {
-        if (statement.value == "println") {
-          visitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;")
-        } else {
-          throw UnsupportedOperationException("Cannot handle function call yet")
-        }
-        for (argumentNode in statement.children) {
-          when (argumentNode.type) {
-            TokenNodeType.INTEGER -> {
-              val value = argumentNode.value.toInt()
-              visitor.visitLdcInsn(value) // write primitive value, from an Object class e.g. Integer -> int
-            }
-             else -> throw UnsupportedOperationException("Cannot handle arguments of type ${statement.type} yet")
-          }
-        }
-        visitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false)
-      }
-      else -> throw UnsupportedOperationException("Cannot handle ${statement.type} yet")
-    }
-  }
 }

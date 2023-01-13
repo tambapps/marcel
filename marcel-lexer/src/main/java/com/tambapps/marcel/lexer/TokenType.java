@@ -2,14 +2,10 @@ package com.tambapps.marcel.lexer;
 
 public enum TokenType {
   IDENTIFIER,
-  QUOTE, // "
-  COMMA,
-  QUESTION_MARK,
-  COLON,
-  SEMI_COLON,
   TYPE_INT,
   INTEGER,
-  LPAR,
-  RPAR,
+  // symbols
+  PLUS, MINUS, DIV, MUL, QUOTE, COMMA, QUESTION_MARK, LPAR, RPAR, COLON, SEMI_COLON,
+  POWER, NOT, MODULO, AND, EQUAL, NOT_EQUAL, GT, LT, GOE, LOE, OR, ASSIGNEMENT,
   END_OF_FILE
 }

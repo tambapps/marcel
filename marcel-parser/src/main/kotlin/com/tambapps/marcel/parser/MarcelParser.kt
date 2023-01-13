@@ -37,7 +37,7 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
       )))))
   }
 
-  private fun statement(): TokenNode {
+  private fun statement(): StatementNode {
     val token = next()
     return when (token.type) {
       TokenType.TYPE_INT -> {
@@ -47,27 +47,33 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
         rollback()
         val node = expression()
         acceptOptional(TokenType.SEMI_COLON)
-        node
+        DropNode(node)
       }
     }
   }
 
-  private fun expression(): TokenNode {
+  private fun expression(): ExpressionNode {
     val expr = expression(Int.MAX_VALUE)
     if (current.type == TokenType.QUESTION_MARK) {
       skip()
       val trueExpr = expression()
       accept(TokenType.COLON)
       val falseExpr = expression()
-      return TokenNode(TERNARY, mutableListOf(expr, trueExpr, falseExpr))
+      return TernaryNode(expr, trueExpr, falseExpr)
     }
     return expr
   }
 
-  private fun expression(maxPriority: Int): TokenNode {
+  private fun expression(maxPriority: Int): ExpressionNode {
     var a = atom()
     var t = current
     while (ParserUtils.isBinaryOperator(t.type) && ParserUtils.getPriority(t.type) < maxPriority) {
+      next()
+      val n = BinaryOperatorNode(t.type)
+      n.leftOperand = a
+      n.rightOperand = expression(ParserUtils.getPriority(t.type) + ParserUtils.getAssociativity(t.type))
+      a = n
+      t = current
       /* TODO
       moveForward()
       TokenNode N = new TokenNode(T, BINARY_OPERATOR_MAP.get(T.type))
@@ -80,16 +86,16 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
     return a
   }
 
-  private fun atom(): TokenNode {
+  private fun atom(): ExpressionNode {
     val token = next()
     return when (token.type) {
-      TokenType.INTEGER -> TokenNode(INTEGER, token.value)
+      TokenType.INTEGER -> ConstantValueNode(INTEGER, token.value)
       TokenType.IDENTIFIER -> {
         if (current.type == TokenType.LPAR) {
           skip()
-          val fCall = TokenNode(FUNCTION_CALL, token.value)
+          val fCall = FunctionCallNode(token.value)
           while (current.type != TokenType.RPAR) {
-            fCall.addChild(expression())
+            fCall.arguments.add(expression())
             if (current.type == TokenType.RPAR) {
               break
             } else {
