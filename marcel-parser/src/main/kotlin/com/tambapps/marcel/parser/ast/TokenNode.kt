@@ -1,4 +1,4 @@
-package com.tambapps.marcel.parser.node
+package com.tambapps.marcel.parser.ast
 
 open class TokenNode(val type: TokenNodeType) {
 

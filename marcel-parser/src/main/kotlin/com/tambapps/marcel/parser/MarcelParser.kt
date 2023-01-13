@@ -2,9 +2,9 @@ package com.tambapps.marcel.parser
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
-import com.tambapps.marcel.parser.node.*
+import com.tambapps.marcel.parser.ast.*
 
-import com.tambapps.marcel.parser.node.TokenNodeType.*
+import com.tambapps.marcel.parser.ast.TokenNodeType.*
 import java.util.UUID
 import java.util.concurrent.ThreadLocalRandom
 

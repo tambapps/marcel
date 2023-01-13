@@ -1,4 +1,4 @@
-package com.tambapps.marcel.parser.node
+package com.tambapps.marcel.parser.ast
 
 open class TokenNodeWithChild(type: TokenNodeType, val children: MutableList<TokenNode>): TokenNode(type) {
 

@@ -1,4 +1,4 @@
-package com.tambapps.marcel.parser.node
+package com.tambapps.marcel.parser.ast
 
 enum class TokenNodeType {
   FUNCTION_CALL,

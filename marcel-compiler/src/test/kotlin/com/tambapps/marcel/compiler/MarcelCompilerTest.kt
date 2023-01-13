@@ -1,7 +1,7 @@
 package com.tambapps.marcel.compiler
 
 import com.tambapps.marcel.compiler.bytecode.BytecodeGenerator
-import com.tambapps.marcel.parser.node.ScriptNode
+import com.tambapps.marcel.parser.ast.ScriptNode
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
