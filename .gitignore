@@ -26,3 +26,7 @@ volumes/
 /nbdist/
 /.nb-gradle/
 /build/
+
+# me, for testing
+/Test.class
+/Test.marcel

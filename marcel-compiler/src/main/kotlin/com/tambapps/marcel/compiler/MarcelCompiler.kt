@@ -1,4 +1,51 @@
 package com.tambapps.marcel.compiler
 
-class MarcelCompiler {
+import com.tambapps.marcel.compiler.bytecode.BytecodeGenerator
+import com.tambapps.marcel.lexer.MarcelLexer
+import com.tambapps.marcel.lexer.MarcelLexerException
+import com.tambapps.marcel.parser.MarcelParser
+import com.tambapps.marcel.parser.MarcelParsingException
+import java.io.File
+import java.io.IOException
+import java.nio.file.Files
+
+fun main(args : Array<String>) {
+  val file = File(args[0])
+  if (!file.isFile) {
+    println("File $file does not exists or isn't a file")
+    return
+  }
+  val tokens = try {
+    MarcelLexer().lex(file.reader())
+  } catch (e: IOException) {
+    println("An error occurred while reading file: ${e.message}")
+    return
+  } catch (e: MarcelLexerException) {
+    println("Lexer error: ${e.message}")
+    return
+  }
+
+  val className = generateClassName(file.name)
+  val ast = try {
+    MarcelParser(className, tokens).parse()
+  } catch (e: MarcelParsingException) {
+    println("Parsing error: ${e.message}")
+    return
+  }
+
+  val classFile = Files.createTempFile("MarcelLang_$className", ".marcel").toFile()
+  try {
+    classFile.writeBytes(BytecodeGenerator().generate(ast))
+  } catch (e: Exception) {
+    println("Error while writing class: ${e.message}")
+  }
+}
+
+private fun generateClassName(fileName: String): String {
+  val i = fileName.indexOf('.')
+  if (i < 0) {
+    return fileName
+  } else {
+    return fileName.substring(0, i)
+  }
 }
