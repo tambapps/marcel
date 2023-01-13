@@ -17,7 +17,7 @@ class BytecodeGenerator {
     val classWriter = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
 
     // creating class
-    classWriter.visit(52,  Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, classNode.name, null, "java/lang/Object", null)
+    classWriter.visit(52,  Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, classNode.name, null, classNode.parentClassInternalName, null)
     //https://github.com/JakubDziworski/Enkel-JVM-language/blob/master/compiler/src/main/java/com/kubadziworski/bytecodegeneration/MethodGenerator.java
 
     // handling only one class for now
