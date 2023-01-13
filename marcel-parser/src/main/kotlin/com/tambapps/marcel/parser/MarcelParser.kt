@@ -19,8 +19,12 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
       return tokens[currentIndex]
     }
 
-  fun parse(): TokenNode {
-    return TokenNode(SCRIPT, className, mutableListOf(statement()))
+  fun parse(): ModuleNode {
+    return ModuleNode(mutableListOf(ClassNode(className, mutableListOf(
+      MethodNode("main",
+        mutableListOf(
+          statement()
+    ))))))
   }
 
   private fun statement(): TokenNode {

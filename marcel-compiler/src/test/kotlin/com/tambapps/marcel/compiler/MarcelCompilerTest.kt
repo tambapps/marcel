@@ -13,6 +13,8 @@ class MarcelCompilerTest {
     @Test
     fun test() {
         val name = "Test"
+        // TODO rewrite it
+        /*
         val node = TokenNode(TokenNodeType.SCRIPT, name, mutableListOf(
             TokenNode(TokenNodeType.FUNCTION_CALL, "println").apply {
                 addChild(TokenNode(TokenNodeType.INTEGER, "8"))
@@ -21,5 +23,7 @@ class MarcelCompilerTest {
         val bytecodeGenerator = BytecodeGenerator()
 
         Files.write(Paths.get("/home/nfonkoua/Downloads/marcel/$name.class"), bytecodeGenerator.generate(node))
+
+         */
     }
 }

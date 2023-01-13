@@ -1,5 +1,6 @@
 package com.tambapps.marcel.compiler.bytecode
 
+import com.tambapps.marcel.parser.ast.ModuleNode
 import com.tambapps.marcel.parser.ast.TokenNode
 import com.tambapps.marcel.parser.ast.TokenNodeType
 import org.objectweb.asm.ClassWriter
@@ -10,23 +11,25 @@ class BytecodeGenerator {
 
   // TODO make java class version configurable https://www.baeldung.com/java-find-class-version
 
-  fun generate(node: TokenNode): ByteArray {
-    if (node.type != TokenNodeType.SCRIPT) {
-      throw UnsupportedOperationException("sdfmldsfls")
-    }
+  fun generate(moduleNode: ModuleNode): ByteArray {
+    // handling only one class for now
+    val classNode = moduleNode.classes.first()
     val classWriter = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
 
     // creating class
-    classWriter.visit(52,  Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, node.value, null, "java/lang/Object", null)
+    classWriter.visit(52,  Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, classNode.name, null, "java/lang/Object", null)
     //https://github.com/JakubDziworski/Enkel-JVM-language/blob/master/compiler/src/main/java/com/kubadziworski/bytecodegeneration/MethodGenerator.java
 
+    // handling only one class for now
+    val methodNode = classNode.methods.first()
+
     // creating main (psvm) function
-    val mv = classWriter.visitMethod(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null)
+    val mv = classWriter.visitMethod(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, methodNode.name, "([Ljava/lang/String;)V", null, null)
     val maxStack = 100; //TODO - do that properly
     val localVariablesCount = 0 // TODO
 
     // writing statements
-    for (statement in node.children) {
+    for (statement in methodNode.statements) {
       writeStatement(mv, statement)
     }
     mv.visitInsn(Opcodes.RETURN)

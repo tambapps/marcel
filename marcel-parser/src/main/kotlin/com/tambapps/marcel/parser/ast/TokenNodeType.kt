@@ -5,7 +5,4 @@ enum class TokenNodeType {
   // statements
   FUNCTION_CALL,
   TERNARY,
-
-  // class or script
-  SCRIPT
 }
