@@ -5,7 +5,6 @@ import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.ast.*
 
 import com.tambapps.marcel.parser.ast.TokenNodeType.*
-import java.util.UUID
 import java.util.concurrent.ThreadLocalRandom
 
 class MarcelParser(private val className: String, private val tokens: List<LexToken>) {
@@ -24,7 +23,7 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
     return ScriptNode(className, mutableListOf(statement()))
   }
 
-  private fun statement(): TokenNode {
+  private fun statement(): Statement {
     val token = next()
     when (token.type) {
       TokenType.IDENTIFIER -> {

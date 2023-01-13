@@ -18,6 +18,9 @@ class BytecodeGenerator {
     val mv = classWriter.visitMethod(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null)
     val maxStack = 100; //TODO - do that properly
     val localVariablesCount = 0 // TODO
+    for (statement in node.children) {
+      statement.write(mv)
+    }
     // TODO write instruction
     mv.visitInsn(Opcodes.RETURN)
     mv.visitMaxs(maxStack, localVariablesCount) //set max stack and max local variables
