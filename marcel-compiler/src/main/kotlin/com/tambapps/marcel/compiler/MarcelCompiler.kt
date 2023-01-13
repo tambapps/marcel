@@ -7,7 +7,6 @@ import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParsingException
 import java.io.File
 import java.io.IOException
-import java.nio.file.Files
 
 fun main(args : Array<String>) {
   val file = File(args[0])
@@ -33,7 +32,8 @@ fun main(args : Array<String>) {
     return
   }
 
-  val classFile = Files.createTempFile("MarcelLang_$className", ".marcel").toFile()
+  // TODO create file in temp directory and directly execute it
+  val classFile = File(file.parentFile, "$className.class")
   try {
     classFile.writeBytes(BytecodeGenerator().generate(ast))
   } catch (e: Exception) {
