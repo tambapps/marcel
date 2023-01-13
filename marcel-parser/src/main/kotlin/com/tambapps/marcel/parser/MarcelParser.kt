@@ -52,7 +52,7 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
     }
   }
 
-  private fun expression(): ExpressionNode {
+  fun expression(): ExpressionNode {
     val expr = expression(Int.MAX_VALUE)
     if (current.type == TokenType.QUESTION_MARK) {
       skip()

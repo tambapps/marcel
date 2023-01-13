@@ -5,7 +5,9 @@ import com.tambapps.marcel.lexer.TokenType.*
 
 object ParserUtils {
 
-  private val BINARY_OPERATOR = setOf<TokenType>()
+  private val BINARY_OPERATOR = setOf(
+    POWER, MUL, MODULO, PLUS, MINUS, AND, EQUAL, NOT_EQUAL, GT, LT, GOE, LOE, OR, ASSIGNEMENT
+  )
   const val LEFT = 0
   const val RIGHT = 1
   private val PRIORITY_MAP = mapOf(

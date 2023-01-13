@@ -2,7 +2,7 @@ package com.tambapps.marcel.parser.ast
 
 import org.objectweb.asm.MethodVisitor
 
-class ConstantValueNode(private val type: TokenNodeType, private val value: String): ExpressionNode {
+data class ConstantValueNode(private val type: TokenNodeType, private val value: String): ExpressionNode {
 
   override fun writeInstructions(mv: MethodVisitor) {
     when (type) {
