@@ -6,6 +6,7 @@ import com.tambapps.marcel.parser.ast.*
 
 import com.tambapps.marcel.parser.ast.TokenNodeType.*
 import org.objectweb.asm.Opcodes
+import org.objectweb.asm.Type
 import java.util.concurrent.ThreadLocalRandom
 
 class MarcelParser(private val className: String, private val tokens: List<LexToken>) {
@@ -22,11 +23,12 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
 
   fun parse(): ModuleNode {
     return ModuleNode(mutableListOf(ClassNode(
-      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, className, mutableListOf(
+      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, className, Types.OBJECT, mutableListOf(
       MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, "main",
         mutableListOf(
           statement()
-    ))))))
+    ), arrayOf(Types.STRING_ARRAY), Types.VOID
+      )))))
   }
 
   private fun statement(): TokenNode {

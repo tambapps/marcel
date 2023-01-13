@@ -3,6 +3,7 @@ package com.tambapps.marcel.parser
 import com.tambapps.marcel.lexer.TokenType
 
 object ParserUtils {
+
   private val BINARY_OPERATOR = setOf<TokenType>()
   private val PRIORITY_MAP = mapOf<TokenType, Int>()
 

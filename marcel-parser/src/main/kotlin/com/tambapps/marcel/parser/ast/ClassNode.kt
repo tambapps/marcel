@@ -1,10 +1,7 @@
 package com.tambapps.marcel.parser.ast
 
-import org.objectweb.asm.Type
+import com.tambapps.marcel.parser.type.JavaType
 
-class ClassNode(val access: Int, val name: String, val parentClassInternalName: String, val methods: MutableList<MethodNode>) {
-
-  constructor(access: Int, name: String, clazz: Class<*>, methods: MutableList<MethodNode>): this(access, name, Type.getInternalName(clazz), methods)
-  constructor(access: Int, name: String, methods: MutableList<MethodNode>): this(access, name, Object::class.java, methods)
+class ClassNode(val access: Int, val name: String, val parentType: JavaType, val methods: MutableList<MethodNode>) {
 
 }
