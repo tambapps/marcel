@@ -8,4 +8,6 @@ class ClassType(clazz: Class<*>): JavaType {
   override val descriptor = Type.getDescriptor(clazz)
   override val storeCode: Int
     get() = TODO("Not yet implemented")
+  override val loadCode: Int
+    get() = TODO("Not yet implemented")
 }

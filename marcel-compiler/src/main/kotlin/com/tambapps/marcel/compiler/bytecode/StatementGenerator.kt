@@ -1,6 +1,6 @@
 package com.tambapps.marcel.compiler.bytecode
 
-import com.tambapps.marcel.compiler.scope.Scope
+import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.variable.VariableAssignmentNode
 import com.tambapps.marcel.parser.ast.statement.variable.VariableDeclarationNode
@@ -16,7 +16,6 @@ class StatementGenerator(private val mv: MethodVisitor, val scope: Scope): State
   }
 
   override fun visit(variableDeclarationNode: VariableDeclarationNode) {
-    scope.addLocalVariable(variableDeclarationNode.type, variableDeclarationNode.name)
     expressionGenerator.visit(variableDeclarationNode as VariableAssignmentNode)
   }
 

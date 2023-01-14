@@ -1,7 +1,7 @@
-package com.tambapps.marcel.compiler.scope
+package com.tambapps.marcel.parser.scope
 
-import com.tambapps.marcel.compiler.exception.SemanticException
-import com.tambapps.marcel.compiler.variable.LocalVariable
+import com.tambapps.marcel.parser.scope.LocalVariable
+import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.type.JavaType
 
 class Scope {
@@ -16,8 +16,12 @@ class Scope {
     localVariables[name] = LocalVariable(type, name)
   }
 
+  fun getLocalVariable(name: String): LocalVariable {
+    return localVariables[name] ?: throw SemanticException("Variable $name is not defined")
+  }
+
   fun getLocalVariableWithIndex(name: String): Pair<LocalVariable, Int> {
-    val variable = localVariables[name] ?: throw SemanticException("Variable $name is not defined")
+    val variable = getLocalVariable(name)
     return Pair(variable, getLocalVariableIndex(name))
   }
 

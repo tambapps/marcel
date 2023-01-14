@@ -8,7 +8,7 @@ import org.objectweb.asm.Opcodes.*
 enum class JavaPrimitiveType(override val className: String,
                              override val internalName: String,
                              override val descriptor: String,
-                             val loadCode: Int,
+                             override val loadCode: Int,
                              override val storeCode: Int,
                              val retCode: Int,
                              val addCode: Int,

@@ -1,4 +1,4 @@
-package com.tambapps.marcel.compiler.variable
+package com.tambapps.marcel.parser.scope
 
 import com.tambapps.marcel.parser.type.JavaType
 

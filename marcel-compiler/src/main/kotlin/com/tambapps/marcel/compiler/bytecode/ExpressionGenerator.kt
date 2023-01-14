@@ -1,8 +1,9 @@
 package com.tambapps.marcel.compiler.bytecode
 
-import com.tambapps.marcel.compiler.exception.SemanticException
+import com.tambapps.marcel.parser.exception.SemanticException
 
-import com.tambapps.marcel.compiler.scope.Scope
+import com.tambapps.marcel.parser.ast.expression.variable.*
+import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
@@ -26,6 +27,10 @@ private interface IUnpushedExpressionGenerator: ExpressionVisitor {
 
   override fun visit(integer: IntConstantNode) {
     // don't need to write constants
+  }
+
+  override fun visit(variableReferenceExpression: VariableReferenceExpression) {
+    // don't need to push value to the stack by default
   }
 
   override fun visit(operator: TernaryNode) {
@@ -127,6 +132,11 @@ class ExpressionGenerator(override val mv: MethodVisitor, override val scope: Sc
 
   override fun visit(integer: IntConstantNode) {
     mv.visitLdcInsn(integer.value) // write primitive value, from an Object class e.g. Integer -> int
+  }
+
+  override fun visit(variableReferenceExpression: VariableReferenceExpression) {
+    val (variable, index) = scope.getLocalVariableWithIndex(variableReferenceExpression.name)
+    mv.visitVarInsn(variable.type.loadCode, index)
   }
 
   override fun visit(operator: FunctionCallNode) {

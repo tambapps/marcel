@@ -12,10 +12,12 @@ import com.tambapps.marcel.parser.ast.expression.operator.binary.DivOperator
 import com.tambapps.marcel.parser.ast.expression.operator.binary.MinusOperator
 import com.tambapps.marcel.parser.ast.expression.operator.binary.MulOperator
 import com.tambapps.marcel.parser.ast.expression.operator.binary.PlusOperator
+import com.tambapps.marcel.parser.ast.expression.variable.VariableReferenceExpression
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.variable.VariableAssignmentNode
 import com.tambapps.marcel.parser.ast.statement.variable.VariableDeclarationNode
+import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 
@@ -46,25 +48,26 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
 
   fun script(): ModuleNode {
     val statements = mutableListOf<StatementNode>()
+    val scope = Scope()
     while (current.type != TokenType.END_OF_FILE) {
-      statements.add(statement())
+      statements.add(statement(scope))
     }
     return  ModuleNode(mutableListOf(ClassNode(
       Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, className, Types.OBJECT, mutableListOf(
         MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, "main",
-          statements, arrayOf(Types.STRING_ARRAY), Types.VOID
+          statements, arrayOf(Types.STRING_ARRAY), Types.VOID, scope
         )))))
   }
-  private fun statement(): StatementNode {
+  private fun statement(scope: Scope): StatementNode {
     val token = next()
     return when (token.type) {
-      TokenType.TYPE_INT -> variableDeclaration(JavaPrimitiveType.INT)
-      TokenType.TYPE_LONG -> variableDeclaration(JavaPrimitiveType.LONG)
-      TokenType.TYPE_FLOAT -> variableDeclaration(JavaPrimitiveType.FLOAT)
-      TokenType.TYPE_DOUBLE -> variableDeclaration(JavaPrimitiveType.DOUBLE)
+      TokenType.TYPE_INT -> variableDeclaration(scope, JavaPrimitiveType.INT)
+      TokenType.TYPE_LONG -> variableDeclaration(scope, JavaPrimitiveType.LONG)
+      TokenType.TYPE_FLOAT -> variableDeclaration(scope, JavaPrimitiveType.FLOAT)
+      TokenType.TYPE_DOUBLE -> variableDeclaration(scope, JavaPrimitiveType.DOUBLE)
       else -> {
         rollback()
-        val node = expression()
+        val node = expression(scope)
         acceptOptional(TokenType.SEMI_COLON)
         ExpressionStatementNode(node)
       }
@@ -72,39 +75,41 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
   }
 
   // assuming type has already been accepted
-  private fun variableDeclaration(type: JavaType): VariableDeclarationNode {
+  private fun variableDeclaration(scope: Scope, type: JavaType): VariableDeclarationNode {
     val identifier = accept(TokenType.IDENTIFIER)
     accept(TokenType.ASSIGNEMENT)
-    val expressionNode = expression()
-    return VariableDeclarationNode(type, identifier.value, expressionNode)
+    val variableDeclarationNode = VariableDeclarationNode(type, identifier.value, expression(scope))
+    scope.addLocalVariable(variableDeclarationNode.type, variableDeclarationNode.name)
+    return variableDeclarationNode
   }
 
-  fun expression(): ExpressionNode {
-    val expr = expression(Int.MAX_VALUE)
+  fun expression(scope: Scope): ExpressionNode {
+    val expr = expression(scope, Int.MAX_VALUE)
     if (current.type == TokenType.QUESTION_MARK) {
       skip()
-      val trueExpr = expression()
+      val trueExpr = expression(scope)
       accept(TokenType.COLON)
-      val falseExpr = expression()
+      val falseExpr = expression(scope)
       return TernaryNode(expr, trueExpr, falseExpr)
     }
     return expr
   }
 
-  private fun expression(maxPriority: Int): ExpressionNode {
-    var a = atom()
+  // TODO problem with priorities
+  private fun expression(scope: Scope, maxPriority: Int): ExpressionNode {
+    var a = atom(scope)
     var t = current
     while (ParserUtils.isBinaryOperator(t.type) && ParserUtils.getPriority(t.type) < maxPriority) {
       next()
       val leftOperand = a
-      val rightOperand = expression(ParserUtils.getPriority(t.type) + ParserUtils.getAssociativity(t.type))
+      val rightOperand = expression(scope, ParserUtils.getPriority(t.type) + ParserUtils.getAssociativity(t.type))
       a = operator(t.type, leftOperand, rightOperand)
       t = current
     }
     return a
   }
 
-  private fun atom(): ExpressionNode {
+  private fun atom(scope: Scope): ExpressionNode {
     val token = next()
     return when (token.type) {
       TokenType.INTEGER -> IntConstantNode(token.value.toInt())
@@ -113,7 +118,7 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
           skip()
           val fCall = FunctionCallNode(token.value)
           while (current.type != TokenType.RPAR) {
-            fCall.arguments.add(expression())
+            fCall.arguments.add(expression(scope))
             if (current.type == TokenType.RPAR) {
               break
             } else {
@@ -124,9 +129,9 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
           return fCall
         } else if (current.type == TokenType.ASSIGNEMENT) {
           skip()
-          VariableAssignmentNode(token.value, expression())
+          VariableAssignmentNode(token.value, expression(scope))
         } else {
-          throw UnsupportedOperationException("Not supported yet")
+          VariableReferenceExpression(token.value, scope)
         }
       }
       else -> {

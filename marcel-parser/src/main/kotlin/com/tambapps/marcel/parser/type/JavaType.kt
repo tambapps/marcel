@@ -7,4 +7,5 @@ interface JavaType {
   val internalName: String
   val descriptor: String
   val storeCode: Int
+  val loadCode: Int
 }
