@@ -8,4 +8,5 @@ interface JavaType {
   val descriptor: String
   val storeCode: Int
   val loadCode: Int
+  val returnCode: Int
 }

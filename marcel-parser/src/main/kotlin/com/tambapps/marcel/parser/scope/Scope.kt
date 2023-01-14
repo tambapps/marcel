@@ -26,7 +26,7 @@ class Scope(val classMethods: List<MethodNode>) {
   }
 
   fun getMethod(name: String): MethodNode {
-    return classMethods.find { it.name == name } ?: throw SemanticException("Variable $name is not defined")
+    return classMethods.find { it.name == name } ?: throw SemanticException("Method $name is not defined")
   }
   fun getLocalVariableWithIndex(name: String): Pair<LocalVariable, Int> {
     val variable = getLocalVariable(name)

@@ -55,15 +55,17 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
   }
 
   fun script(): ModuleNode {
-    val scope = Scope()
+    val classMethods = mutableListOf<MethodNode>()
+    val scope = Scope(classMethods)
     val statements = mutableListOf<StatementNode>()
-    val mainBlock = FunctionBlockNode(statements)
+    val mainBlock = FunctionBlockNode(Types.VOID, statements)
     val mainFunction = MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, StaticOwner(className),
       "main",
-      mainBlock, mutableListOf(MethodParameter(Types.STRING_ARRAY, "args")), Types.VOID, scope
+      mainBlock, mutableListOf(MethodParameter(Types.STRING_ARRAY, "args")), mainBlock.methodReturnType, scope
     )
+    classMethods.add(mainFunction)
     val classNode = ClassNode(
-      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, className, Types.OBJECT, mutableListOf(mainFunction))
+      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, className, Types.OBJECT, classMethods)
     val moduleNode = ModuleNode(mutableListOf(classNode))
 
     while (current.type != TokenType.END_OF_FILE) {
@@ -113,7 +115,7 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
     if (returnType != JavaPrimitiveType.VOID && block.type != returnType) {
       throw SemanticException("Return type of block doesn't match method's return type")
     }
-    return MethodNode(Opcodes.ACC_PUBLIC, StaticOwner(classNode.name), methodName, block.toFunctionBlock(), parameters, returnType, scope)
+    return MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC, StaticOwner(classNode.name), methodName, block.toFunctionBlock(returnType), parameters, returnType, scope)
   }
 
 

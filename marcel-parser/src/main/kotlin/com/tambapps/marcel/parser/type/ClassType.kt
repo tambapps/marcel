@@ -11,6 +11,8 @@ class ClassType(clazz: Class<*>): JavaType {
     get() = TODO("Not yet implemented")
   override val loadCode: Int
     get() = TODO("Not yet implemented")
+  override val returnCode: Int
+    get() = TODO("Not yet implemented")
 
   override fun toString(): String {
     return simpleName

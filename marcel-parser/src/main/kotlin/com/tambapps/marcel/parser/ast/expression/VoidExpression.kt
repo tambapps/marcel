@@ -8,6 +8,6 @@ class VoidExpression: ExpressionNode {
   override val type = JavaPrimitiveType.VOID
 
   override fun accept(expressionVisitor: ExpressionVisitor) {
-    TODO("Not yet implemented")
+    expressionVisitor.visit(this)
   }
 }
