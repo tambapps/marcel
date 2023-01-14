@@ -1,13 +1,16 @@
-package com.tambapps.marcel.parser.ast
+package com.tambapps.marcel.parser.ast.expression
 
+import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.visitor.ExpressionVisitor
 
-data class IntConstantNode(val value: Int): ExpressionNode {
+class FunctionCallNode(val name: String, val arguments: MutableList<ExpressionNode>): ExpressionNode {
   // for now only ints are handled
   override val type = JavaPrimitiveType.INT
+
+  constructor(name: String): this(name, mutableListOf())
+
   override fun accept(expressionVisitor: ExpressionVisitor) {
     expressionVisitor.visit(this)
   }
-
 }

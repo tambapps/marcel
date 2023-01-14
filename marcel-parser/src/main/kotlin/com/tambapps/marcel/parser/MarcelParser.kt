@@ -3,12 +3,18 @@ package com.tambapps.marcel.parser
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.ast.*
-import com.tambapps.marcel.parser.ast.operator.binary.BinaryOperatorNode
-import com.tambapps.marcel.parser.ast.operator.binary.DivOperator
-import com.tambapps.marcel.parser.ast.operator.binary.MinusOperator
-import com.tambapps.marcel.parser.ast.operator.binary.MulOperator
-import com.tambapps.marcel.parser.ast.operator.binary.PlusOperator
-import com.tambapps.marcel.parser.ast.variable.VariableDeclarationNode
+import com.tambapps.marcel.parser.ast.expression.ExpressionNode
+import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
+import com.tambapps.marcel.parser.ast.expression.IntConstantNode
+import com.tambapps.marcel.parser.ast.expression.TernaryNode
+import com.tambapps.marcel.parser.ast.expression.operator.binary.BinaryOperatorNode
+import com.tambapps.marcel.parser.ast.expression.operator.binary.DivOperator
+import com.tambapps.marcel.parser.ast.expression.operator.binary.MinusOperator
+import com.tambapps.marcel.parser.ast.expression.operator.binary.MulOperator
+import com.tambapps.marcel.parser.ast.expression.operator.binary.PlusOperator
+import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
+import com.tambapps.marcel.parser.ast.statement.StatementNode
+import com.tambapps.marcel.parser.ast.statement.variable.VariableDeclarationNode
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 

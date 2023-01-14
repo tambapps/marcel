@@ -1,7 +1,7 @@
-package com.tambapps.marcel.parser.ast.variable
+package com.tambapps.marcel.parser.ast.statement.variable
 
-import com.tambapps.marcel.parser.ast.ExpressionNode
-import com.tambapps.marcel.parser.ast.StatementNode
+import com.tambapps.marcel.parser.ast.expression.ExpressionNode
+import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.visitor.StatementVisitor
 

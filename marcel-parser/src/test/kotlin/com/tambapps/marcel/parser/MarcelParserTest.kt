@@ -2,8 +2,8 @@ package com.tambapps.marcel.parser
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
-import com.tambapps.marcel.parser.ast.operator.binary.BinaryOperatorNode
-import com.tambapps.marcel.parser.ast.IntConstantNode
+import com.tambapps.marcel.parser.ast.expression.operator.binary.BinaryOperatorNode
+import com.tambapps.marcel.parser.ast.expression.IntConstantNode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 

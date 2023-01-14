@@ -1,7 +1,7 @@
 package com.tambapps.marcel.parser.visitor
 
-import com.tambapps.marcel.parser.ast.ExpressionStatementNode
-import com.tambapps.marcel.parser.ast.variable.VariableDeclarationNode
+import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
+import com.tambapps.marcel.parser.ast.statement.variable.VariableDeclarationNode
 
 interface StatementVisitor {
 

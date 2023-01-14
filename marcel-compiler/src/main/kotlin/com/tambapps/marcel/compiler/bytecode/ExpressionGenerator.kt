@@ -2,12 +2,15 @@ package com.tambapps.marcel.compiler.bytecode
 
 import com.tambapps.marcel.compiler.scope.Scope
 import com.tambapps.marcel.parser.ast.*
-import com.tambapps.marcel.parser.ast.operator.binary.BinaryOperatorNode
-import com.tambapps.marcel.parser.ast.operator.binary.DivOperator
-import com.tambapps.marcel.parser.ast.operator.binary.MinusOperator
-import com.tambapps.marcel.parser.ast.operator.binary.MulOperator
-import com.tambapps.marcel.parser.ast.operator.binary.PlusOperator
-import com.tambapps.marcel.parser.ast.operator.binary.PowOperator
+import com.tambapps.marcel.parser.ast.expression.*
+import com.tambapps.marcel.parser.ast.expression.ExpressionNode
+import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
+import com.tambapps.marcel.parser.ast.expression.operator.binary.BinaryOperatorNode
+import com.tambapps.marcel.parser.ast.expression.operator.binary.DivOperator
+import com.tambapps.marcel.parser.ast.expression.operator.binary.MinusOperator
+import com.tambapps.marcel.parser.ast.expression.operator.binary.MulOperator
+import com.tambapps.marcel.parser.ast.expression.operator.binary.PlusOperator
+import com.tambapps.marcel.parser.ast.expression.operator.binary.PowOperator
 import com.tambapps.marcel.parser.visitor.ExpressionVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes

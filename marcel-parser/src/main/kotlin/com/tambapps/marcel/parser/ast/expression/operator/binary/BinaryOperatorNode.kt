@@ -1,8 +1,7 @@
-package com.tambapps.marcel.parser.ast.operator.binary
+package com.tambapps.marcel.parser.ast.expression.operator.binary
 
-import com.tambapps.marcel.parser.ast.ExpressionNode
+import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
-import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.visitor.ExpressionVisitor
 
 abstract class BinaryOperatorNode(val leftOperand: ExpressionNode, val rightOperand: ExpressionNode): ExpressionNode {
