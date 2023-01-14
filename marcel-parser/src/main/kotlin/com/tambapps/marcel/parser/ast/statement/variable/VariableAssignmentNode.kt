@@ -2,7 +2,7 @@ package com.tambapps.marcel.parser.ast.statement.variable
 
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.type.JavaType
-import com.tambapps.marcel.parser.visitor.ExpressionVisitor
+import com.tambapps.marcel.parser.ExpressionVisitor
 
 // TODO move this under expression.variable package
 open class VariableAssignmentNode(val name: String, val expression: ExpressionNode): ExpressionNode {

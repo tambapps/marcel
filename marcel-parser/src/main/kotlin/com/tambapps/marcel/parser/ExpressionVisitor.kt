@@ -1,4 +1,4 @@
-package com.tambapps.marcel.parser.visitor
+package com.tambapps.marcel.parser
 
 import com.tambapps.marcel.parser.ast.expression.BlockNode
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
@@ -15,6 +15,7 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.variable.VariableAssignmentNode
 import com.tambapps.marcel.parser.ast.statement.variable.VariableDeclarationNode
 
+// TODO rename AstNodeVisitor
 interface ExpressionVisitor {
 
   fun visit(integer: IntConstantNode)

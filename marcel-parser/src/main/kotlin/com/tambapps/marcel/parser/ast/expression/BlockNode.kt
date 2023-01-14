@@ -3,7 +3,7 @@ package com.tambapps.marcel.parser.ast.expression
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
-import com.tambapps.marcel.parser.visitor.ExpressionVisitor
+import com.tambapps.marcel.parser.ExpressionVisitor
 
 open class BlockNode(val statements: List<StatementNode>) : ExpressionNode {
 

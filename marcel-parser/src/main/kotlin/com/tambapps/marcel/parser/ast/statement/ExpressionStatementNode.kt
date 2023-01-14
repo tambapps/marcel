@@ -1,7 +1,7 @@
 package com.tambapps.marcel.parser.ast.statement
 
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
-import com.tambapps.marcel.parser.visitor.ExpressionVisitor
+import com.tambapps.marcel.parser.ExpressionVisitor
 
 class ExpressionStatementNode(override val expression: ExpressionNode): StatementNode {
 

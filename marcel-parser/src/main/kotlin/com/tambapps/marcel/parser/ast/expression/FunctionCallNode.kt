@@ -1,8 +1,7 @@
 package com.tambapps.marcel.parser.ast.expression
 
-import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
-import com.tambapps.marcel.parser.visitor.ExpressionVisitor
+import com.tambapps.marcel.parser.ExpressionVisitor
 
 class FunctionCallNode(val name: String, val arguments: MutableList<ExpressionNode>): ExpressionNode {
   // for now only ints are handled

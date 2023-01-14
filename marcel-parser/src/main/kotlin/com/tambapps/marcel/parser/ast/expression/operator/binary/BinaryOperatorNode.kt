@@ -2,7 +2,7 @@ package com.tambapps.marcel.parser.ast.expression.operator.binary
 
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
-import com.tambapps.marcel.parser.visitor.ExpressionVisitor
+import com.tambapps.marcel.parser.ExpressionVisitor
 
 abstract class BinaryOperatorNode(val leftOperand: ExpressionNode, val rightOperand: ExpressionNode): ExpressionNode {
   // for now only ints are handled

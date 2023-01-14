@@ -2,7 +2,7 @@ package com.tambapps.marcel.parser.ast.expression.operator.unary
 
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.type.JavaType
-import com.tambapps.marcel.parser.visitor.ExpressionVisitor
+import com.tambapps.marcel.parser.ExpressionVisitor
 
 abstract class UnaryOperator(val operand: ExpressionNode): ExpressionNode {
   override val type: JavaType

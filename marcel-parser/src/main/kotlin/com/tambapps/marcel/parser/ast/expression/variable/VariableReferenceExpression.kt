@@ -3,7 +3,7 @@ package com.tambapps.marcel.parser.ast.expression.variable
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaType
-import com.tambapps.marcel.parser.visitor.ExpressionVisitor
+import com.tambapps.marcel.parser.ExpressionVisitor
 
 class VariableReferenceExpression(override val type: JavaType, val name: String): ExpressionNode {
 

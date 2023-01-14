@@ -22,7 +22,7 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.variable.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.expression.ReturnNode
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
-import com.tambapps.marcel.parser.visitor.ExpressionVisitor
+import com.tambapps.marcel.parser.ExpressionVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 
