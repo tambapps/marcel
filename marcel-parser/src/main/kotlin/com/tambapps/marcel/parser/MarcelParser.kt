@@ -19,6 +19,7 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.variable.VariableAssignmentNode
 import com.tambapps.marcel.parser.ast.statement.variable.VariableDeclarationNode
+import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
@@ -49,18 +50,63 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
   }
 
   fun script(): ModuleNode {
-    val statements = mutableListOf<StatementNode>()
     val scope = Scope()
-    // TODO parse statements or functions
+    val mainFunction = MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, "main",
+      mutableListOf(), mutableListOf(MethodParameter(Types.STRING_ARRAY, "args")), Types.VOID, scope
+    )
+    val classNode = ClassNode(
+      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, className, Types.OBJECT, mutableListOf(mainFunction))
+    val moduleNode = ModuleNode(mutableListOf(classNode))
+
     while (current.type != TokenType.END_OF_FILE) {
+      when (current.type) {
+        TokenType.FUN, TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED,
+        TokenType.VISIBILITY_HIDDEN, TokenType.VISIBILITY_PRIVATE -> {
+          val method = method()
+          if (method.name == "main") {
+            throw SemanticException("Cannot have a \"main\" function in a script")
+          }
+          classNode.addMethod(method)
+        }
+        else -> mainFunction.statements.add(statement(scope))
+      }
+    }
+    return moduleNode
+  }
+
+  private fun method(): MethodNode {
+    val visibility = acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.VISIBILITY_HIDDEN, TokenType.VISIBILITY_PRIVATE)
+      ?: TokenType.VISIBILITY_PUBLIC
+    accept(TokenType.FUN)
+    val methodName = accept(TokenType.IDENTIFIER).value
+    accept(TokenType.LPAR)
+    val parameters = mutableListOf<MethodParameter>()
+    while (current.type != TokenType.RPAR) {
+      val type = parseType()
+      val argName = accept(TokenType.IDENTIFIER).value
+      if (parameters.any { it.name == argName }) {
+        throw SemanticException("Cannot two method parameters with the same name")
+      }
+      parameters.add(MethodParameter(type, argName))
+      if (current.type == TokenType.RPAR) {
+        break
+      } else {
+        // TODO handle argument default values
+        accept(TokenType.COMMA)
+      }
+    }
+    skip() // skipping RPAR
+    val returnType = parseType()
+    accept(TokenType.BRACKETS_OPEN)
+    val statements = mutableListOf<StatementNode>()
+    val scope = Scope() // TODO use scope from classNode to access class variables
+    while (current.type != TokenType.BRACKETS_CLOSE) {
       statements.add(statement(scope))
     }
-    return  ModuleNode(mutableListOf(ClassNode(
-      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, className, Types.OBJECT, mutableListOf(
-        MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, "main",
-          statements, arrayOf(Types.STRING_ARRAY), Types.VOID, scope
-        )))))
+    skip() // skipping BRACKETS_CLOSE
+    return MethodNode(access, methodName, statements, parameters, returnType, scope)
   }
+
   private fun statement(scope: Scope): StatementNode {
     val token = next()
     return when (token.type) {
@@ -128,7 +174,7 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
               accept(TokenType.COMMA)
             }
           }
-          skip() // skipping PARENT_CLOSE
+          skip() // skipping RPAR
           return fCall
         } else if (current.type == TokenType.ASSIGNMENT) {
           skip()
@@ -169,6 +215,14 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
       throw MarcelParsingException("Expected token of type $t but got ${token.type}")
     }
     currentIndex++
+    return token
+  }
+
+  private fun acceptOptional(vararg types: TokenType): LexToken? {
+    val token = currentSafe
+    if (token?.type in types) {
+      currentIndex++
+    }
     return token
   }
 

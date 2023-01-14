@@ -17,7 +17,7 @@ It supports the following primitive types
 here is the syntax to define a function
 
 ```
-private fun foo(arg1 int, arg2 int) int {
+private fun foo(int arg1, int arg2) int {
 
 }
 

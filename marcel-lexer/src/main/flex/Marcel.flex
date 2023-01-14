@@ -78,6 +78,8 @@ TYPED_INTEGER_SUFFIX = {UNSIGNED_SUFFIX}?{LONG_SUFFIX}?
 // symbols
 "("          { return token(LPAR); }
 ")"          { return token(RPAR); }
+"{"          { return token(BRACKETS_OPEN); }
+"}"          { return token(BRACKETS_CLOSE); }
 ":"          { return token(COLON); }
 ";"          { return token(SEMI_COLON); }
 "+"          { return token(PLUS); }
