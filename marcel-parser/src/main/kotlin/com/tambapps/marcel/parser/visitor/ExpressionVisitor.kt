@@ -4,6 +4,8 @@ import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.IntConstantNode
 import com.tambapps.marcel.parser.ast.expression.TernaryNode
 import com.tambapps.marcel.parser.ast.expression.operator.binary.*
+import com.tambapps.marcel.parser.ast.expression.operator.unary.UnaryMinus
+import com.tambapps.marcel.parser.ast.expression.operator.unary.UnaryPlus
 import com.tambapps.marcel.parser.ast.expression.variable.VariableReferenceExpression
 import com.tambapps.marcel.parser.ast.statement.variable.VariableAssignmentNode
 
@@ -19,5 +21,7 @@ interface ExpressionVisitor {
   fun visit(operator: PowOperator)
   fun visit(variableAssignmentNode: VariableAssignmentNode)
   fun visit(variableReferenceExpression: VariableReferenceExpression)
+  fun visit(unaryMinus: UnaryMinus)
+  fun visit(unaryPlus: UnaryPlus)
 
 }

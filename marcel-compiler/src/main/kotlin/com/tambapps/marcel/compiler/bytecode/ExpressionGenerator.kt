@@ -14,6 +14,8 @@ import com.tambapps.marcel.parser.ast.expression.operator.binary.MinusOperator
 import com.tambapps.marcel.parser.ast.expression.operator.binary.MulOperator
 import com.tambapps.marcel.parser.ast.expression.operator.binary.PlusOperator
 import com.tambapps.marcel.parser.ast.expression.operator.binary.PowOperator
+import com.tambapps.marcel.parser.ast.expression.operator.unary.UnaryMinus
+import com.tambapps.marcel.parser.ast.expression.operator.unary.UnaryPlus
 import com.tambapps.marcel.parser.ast.statement.variable.VariableAssignmentNode
 
 import com.tambapps.marcel.parser.visitor.ExpressionVisitor
@@ -24,6 +26,15 @@ private interface IUnpushedExpressionGenerator: ExpressionVisitor {
 
   val mv: MethodVisitor
   val scope: Scope
+
+
+  override fun visit(unaryMinus: UnaryMinus) {
+    TODO("Not yet implemented")
+  }
+
+  override fun visit(unaryPlus: UnaryPlus) {
+    TODO("Not yet implemented")
+  }
 
   override fun visit(integer: IntConstantNode) {
     // don't need to write constants

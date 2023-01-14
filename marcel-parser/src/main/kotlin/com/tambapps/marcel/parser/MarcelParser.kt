@@ -12,6 +12,9 @@ import com.tambapps.marcel.parser.ast.expression.operator.binary.DivOperator
 import com.tambapps.marcel.parser.ast.expression.operator.binary.MinusOperator
 import com.tambapps.marcel.parser.ast.expression.operator.binary.MulOperator
 import com.tambapps.marcel.parser.ast.expression.operator.binary.PlusOperator
+import com.tambapps.marcel.parser.ast.expression.operator.unary.UnaryMinus
+import com.tambapps.marcel.parser.ast.expression.operator.unary.UnaryOperator
+import com.tambapps.marcel.parser.ast.expression.operator.unary.UnaryPlus
 import com.tambapps.marcel.parser.ast.expression.variable.VariableReferenceExpression
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
@@ -134,6 +137,8 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
           VariableReferenceExpression(token.value, scope)
         }
       }
+      TokenType.MINUS -> UnaryMinus(atom(scope))
+      TokenType.PLUS -> UnaryPlus(atom(scope))
       TokenType.LPAR -> {
         val node = expression(scope)
         if (current.type != TokenType.RPAR) {
