@@ -12,4 +12,16 @@ public class LexToken {
   public LexToken(TokenType type) {
     this(type, null);
   }
+
+  @Override
+  public String toString() {
+    StringBuilder builder = new StringBuilder();
+    builder.append("LexToken(type=")
+        .append(type);
+    if (value != null) {
+      builder.append(" ,value=")
+          .append(value);
+    }
+    return builder.append("}").toString();
+  }
 }
