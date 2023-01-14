@@ -8,6 +8,9 @@ import com.tambapps.marcel.parser.ast.operator.binary.DivOperator
 import com.tambapps.marcel.parser.ast.operator.binary.MinusOperator
 import com.tambapps.marcel.parser.ast.operator.binary.MulOperator
 import com.tambapps.marcel.parser.ast.operator.binary.PlusOperator
+import com.tambapps.marcel.parser.ast.variable.VariableDeclarationNode
+import com.tambapps.marcel.parser.type.JavaPrimitiveType
+import com.tambapps.marcel.parser.type.JavaType
 
 import org.objectweb.asm.Opcodes
 import java.util.concurrent.ThreadLocalRandom
@@ -43,9 +46,10 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
   private fun statement(): StatementNode {
     val token = next()
     return when (token.type) {
-      TokenType.TYPE_INT -> {
-        TODO("variable declaration")
-      }
+      TokenType.TYPE_INT -> variableDeclaration(JavaPrimitiveType.INT)
+      TokenType.TYPE_LONG -> variableDeclaration(JavaPrimitiveType.LONG)
+      TokenType.TYPE_FLOAT -> variableDeclaration(JavaPrimitiveType.FLOAT)
+      TokenType.TYPE_DOUBLE -> variableDeclaration(JavaPrimitiveType.DOUBLE)
       else -> {
         rollback()
         val node = expression()
@@ -53,6 +57,17 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
         ExpressionStatementNode(node)
       }
     }
+  }
+
+  // assuming type has already been accepted
+  private fun variableDeclaration(type: JavaType): VariableDeclarationNode {
+    val identifier = accept(TokenType.IDENTIFIER)
+    accept(TokenType.ASSIGNEMENT)
+    val expressionNode = expression()
+    if (type != expressionNode.type) {
+      throw MarcelParsingException("Incompatible types")
+    }
+    return VariableDeclarationNode(type, identifier.value, expressionNode)
   }
 
   fun expression(): ExpressionNode {
@@ -76,14 +91,6 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
       val rightOperand = expression(ParserUtils.getPriority(t.type) + ParserUtils.getAssociativity(t.type))
       a = operator(t.type, leftOperand, rightOperand)
       t = current
-      /* TODO
-      moveForward()
-      TokenNode N = new TokenNode(T, BINARY_OPERATOR_MAP.get(T.type))
-      N.addChild(A)
-      N.addChild(expression(PRIORITY_MAP.get(T.type) + ASSOCIATIVITY_MAP.get(T.type)))
-      A = N
-      T = getCurrent()
-      */
     }
     return a
   }
@@ -115,35 +122,6 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
       }
     }
   }
-    /*
-
-    private TokenNode expression() {
-    TokenNode expr = expression(Integer.MAX_VALUE)
-    if (getCurrent().type == TokenType.QUESTION_MARK) {
-      //terNode children: 1)evaluation 2)true value 3)false value
-      TokenNode terNode = new TokenNode(accept(TokenType.QUESTION_MARK))
-      terNode.addChildren(expr, expression())
-      accept(TokenType.COLON)
-      terNode.addChild(expression())
-      return terNode
-    }
-    return expr
-  }
-
-  private TokenNode expression(int maxP) {
-    TokenNode A = atom()
-    Token T = getCurrent()
-    while (T.type.isBinaryOperator() && PRIORITY_MAP.get(T.type) < maxP) {
-      moveForward()
-      TokenNode N = new TokenNode(T, BINARY_OPERATOR_MAP.get(T.type))
-      N.addChild(A)
-      N.addChild(expression(PRIORITY_MAP.get(T.type) + ASSOCIATIVITY_MAP.get(T.type)))
-      A = N
-      T = getCurrent()
-    }
-    return A
-  }
-   */
 
   private fun operator(t: TokenType, leftOperand: ExpressionNode, rightOperand: ExpressionNode): BinaryOperatorNode {
     return when(t) {
