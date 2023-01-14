@@ -1,6 +1,12 @@
 package com.tambapps.marcel.compiler.bytecode
 
 import com.tambapps.marcel.parser.ast.*
+import com.tambapps.marcel.parser.ast.operator.binary.BinaryOperatorNode
+import com.tambapps.marcel.parser.ast.operator.binary.DivOperator
+import com.tambapps.marcel.parser.ast.operator.binary.MinusOperator
+import com.tambapps.marcel.parser.ast.operator.binary.MulOperator
+import com.tambapps.marcel.parser.ast.operator.binary.PlusOperator
+import com.tambapps.marcel.parser.ast.operator.binary.PowOperator
 import com.tambapps.marcel.parser.visitor.ExpressionVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
@@ -13,13 +19,42 @@ private interface IUnpushedExpressionGenerator: ExpressionVisitor {
     // don't need to write constants
   }
 
-  override fun visit(binaryOperatorNode: BinaryOperatorNode) {
-    TODO("Not yet implemented")
-  }
-
   override fun visit(ternaryNode: TernaryNode) {
     TODO("Not yet implemented")
   }
+
+  override fun visit(mulOperator: MulOperator) {
+    evaluateOperands(mulOperator)
+    onBinaryOperatorEnd(mulOperator)
+  }
+
+  override fun visit(divOperator: DivOperator) {
+    evaluateOperands(divOperator)
+    onBinaryOperatorEnd(divOperator)
+  }
+
+  override fun visit(minusOperator: MinusOperator) {
+    evaluateOperands(minusOperator)
+    onBinaryOperatorEnd(minusOperator)
+  }
+
+
+  override fun visit(plusOperator: PlusOperator) {
+    evaluateOperands(plusOperator)
+    onBinaryOperatorEnd(plusOperator)
+  }
+
+  override fun visit(powOperator: PowOperator) {
+    evaluateOperands(powOperator)
+    onBinaryOperatorEnd(powOperator)
+  }
+
+  private fun evaluateOperands(binaryOperatorNode: BinaryOperatorNode) {
+    pushArgument(binaryOperatorNode.leftOperand)
+    pushArgument(binaryOperatorNode.rightOperand)
+  }
+
+  fun onBinaryOperatorEnd(binaryOperatorNode: BinaryOperatorNode)
 
   override fun visit(functionCallNode: FunctionCallNode) {
     if (functionCallNode.name == "println") {
@@ -48,6 +83,9 @@ class UnpushedExpressionGenerator(override val mv: MethodVisitor): IUnpushedExpr
     expressionGenerator.pushArgument(expr)
   }
 
+  override fun onBinaryOperatorEnd(binaryOperatorNode: BinaryOperatorNode) {
+    TODO("Not yet implemented")
+  }
 }
 
 class ExpressionGenerator(override val mv: MethodVisitor): IUnpushedExpressionGenerator {
@@ -56,8 +94,8 @@ class ExpressionGenerator(override val mv: MethodVisitor): IUnpushedExpressionGe
     mv.visitLdcInsn(integer.value) // write primitive value, from an Object class e.g. Integer -> int
   }
 
-  override fun visit(binaryOperatorNode: BinaryOperatorNode) {
-    super.visit(binaryOperatorNode)
+  override fun visit(mulOperator: MulOperator) {
+    super.visit(mulOperator)
     // TODO push on stack
   }
 
@@ -73,5 +111,11 @@ class ExpressionGenerator(override val mv: MethodVisitor): IUnpushedExpressionGe
 
   override fun pushArgument(expr: ExpressionNode) {
     expr.accept(this)
+  }
+
+  override fun onBinaryOperatorEnd(binaryOperatorNode: BinaryOperatorNode) {
+    // TODO opcodes is specific per primitive type AND operation
+    mv.visitInsn(Opcodes.IADD)
+
   }
 }

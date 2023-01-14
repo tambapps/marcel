@@ -3,6 +3,11 @@ package com.tambapps.marcel.parser
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.ast.*
+import com.tambapps.marcel.parser.ast.operator.binary.BinaryOperatorNode
+import com.tambapps.marcel.parser.ast.operator.binary.DivOperator
+import com.tambapps.marcel.parser.ast.operator.binary.MinusOperator
+import com.tambapps.marcel.parser.ast.operator.binary.MulOperator
+import com.tambapps.marcel.parser.ast.operator.binary.PlusOperator
 
 import org.objectweb.asm.Opcodes
 import java.util.concurrent.ThreadLocalRandom
@@ -67,10 +72,9 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
     var t = current
     while (ParserUtils.isBinaryOperator(t.type) && ParserUtils.getPriority(t.type) < maxPriority) {
       next()
-      val n = BinaryOperatorNode(t.type)
-      n.leftOperand = a
-      n.rightOperand = expression(ParserUtils.getPriority(t.type) + ParserUtils.getAssociativity(t.type))
-      a = n
+      val leftOperand = a
+      val rightOperand = expression(ParserUtils.getPriority(t.type) + ParserUtils.getAssociativity(t.type))
+      a = operator(t.type, leftOperand, rightOperand)
       t = current
       /* TODO
       moveForward()
@@ -140,6 +144,17 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
     return A
   }
    */
+
+  private fun operator(t: TokenType, leftOperand: ExpressionNode, rightOperand: ExpressionNode): BinaryOperatorNode {
+    return when(t) {
+      TokenType.MUL -> MulOperator(leftOperand, rightOperand)
+      TokenType.DIV -> DivOperator(leftOperand, rightOperand)
+      TokenType.PLUS -> PlusOperator(leftOperand, rightOperand)
+      TokenType.MINUS -> MinusOperator(leftOperand, rightOperand)
+      else -> TODO()
+    }
+  }
+
   private fun accept(t: TokenType): LexToken {
     val token = current
     if (token.type != t) {
