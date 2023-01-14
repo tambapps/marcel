@@ -1,5 +1,6 @@
 package com.tambapps.marcel.compiler.bytecode
 
+import com.tambapps.marcel.compiler.scope.Scope
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.operator.binary.BinaryOperatorNode
 import com.tambapps.marcel.parser.ast.operator.binary.DivOperator
@@ -14,6 +15,7 @@ import org.objectweb.asm.Opcodes
 private interface IUnpushedExpressionGenerator: ExpressionVisitor {
 
   val mv: MethodVisitor
+  val scope: Scope
 
   override fun visit(integer: IntConstantNode) {
     // don't need to write constants
@@ -69,9 +71,9 @@ private interface IUnpushedExpressionGenerator: ExpressionVisitor {
 /**
  * Generates expression bytecode but don't push them to the stack. (Useful for statement expressions)
  */
-class UnpushedExpressionGenerator(override val mv: MethodVisitor): IUnpushedExpressionGenerator {
+class UnpushedExpressionGenerator(override val mv: MethodVisitor, override val scope: Scope): IUnpushedExpressionGenerator {
 
-  private val expressionGenerator = ExpressionGenerator(mv)
+  private val expressionGenerator = ExpressionGenerator(mv, scope)
   override fun pushArgument(expr: ExpressionNode) {
     expressionGenerator.pushArgument(expr)
   }
@@ -106,7 +108,7 @@ class UnpushedExpressionGenerator(override val mv: MethodVisitor): IUnpushedExpr
   }
 }
 
-class ExpressionGenerator(override val mv: MethodVisitor): IUnpushedExpressionGenerator {
+class ExpressionGenerator(override val mv: MethodVisitor, override val scope: Scope): IUnpushedExpressionGenerator {
 
   override fun visit(integer: IntConstantNode) {
     mv.visitLdcInsn(integer.value) // write primitive value, from an Object class e.g. Integer -> int

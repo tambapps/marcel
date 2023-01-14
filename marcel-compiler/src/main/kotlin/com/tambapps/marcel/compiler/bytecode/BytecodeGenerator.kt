@@ -1,5 +1,6 @@
 package com.tambapps.marcel.compiler.bytecode
 
+import com.tambapps.marcel.compiler.scope.Scope
 import com.tambapps.marcel.parser.ast.ModuleNode
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Opcodes
@@ -23,7 +24,7 @@ class BytecodeGenerator {
 
     // creating main (psvm) function
     val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.methodDescriptor, null, null)
-    val statementGenerator = StatementGenerator(mv)
+    val statementGenerator = StatementGenerator(mv, Scope())
     val maxStack = 100; //TODO - do that properly
     val localVariablesCount = 0 // TODO
 

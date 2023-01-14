@@ -6,4 +6,5 @@ interface JavaType {
   val className: String
   val internalName: String
   val descriptor: String
+  val storeCode: Int
 }

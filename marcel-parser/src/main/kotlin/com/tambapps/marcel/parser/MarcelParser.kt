@@ -64,9 +64,6 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
     val identifier = accept(TokenType.IDENTIFIER)
     accept(TokenType.ASSIGNEMENT)
     val expressionNode = expression()
-    if (type != expressionNode.type) {
-      throw MarcelParsingException("Incompatible types")
-    }
     return VariableDeclarationNode(type, identifier.value, expressionNode)
   }
 
