@@ -1,10 +1,15 @@
 package com.tambapps.marcel.parser.scope
 
-import com.tambapps.marcel.parser.scope.LocalVariable
+import com.tambapps.marcel.parser.ast.ClassNode
+import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.type.JavaType
 
-class Scope {
+class Scope(val classMethods: List<MethodNode>) {
+  constructor(): this(emptyList())
+
+  constructor(classNode: ClassNode): this(classNode.methods)
+
   private val localVariables: LinkedHashMap<String, LocalVariable> = LinkedHashMap()
   val localVariablesCount: Int
     get() = localVariables.size
@@ -20,6 +25,9 @@ class Scope {
     return localVariables[name] ?: throw SemanticException("Variable $name is not defined")
   }
 
+  fun getMethod(name: String): MethodNode {
+    return classMethods.find { it.name == name } ?: throw SemanticException("Variable $name is not defined")
+  }
   fun getLocalVariableWithIndex(name: String): Pair<LocalVariable, Int> {
     val variable = getLocalVariable(name)
     return Pair(variable, getLocalVariableIndex(name))

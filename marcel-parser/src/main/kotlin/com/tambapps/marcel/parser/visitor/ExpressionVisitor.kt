@@ -14,7 +14,7 @@ interface ExpressionVisitor {
   fun visit(integer: IntConstantNode)
   fun visit(operator: MulOperator)
   fun visit(operator: TernaryNode)
-  fun visit(operator: FunctionCallNode)
+  fun visit(fCall: FunctionCallNode)
   fun visit(operator: DivOperator)
   fun visit(operator: PlusOperator)
   fun visit(operator: MinusOperator)

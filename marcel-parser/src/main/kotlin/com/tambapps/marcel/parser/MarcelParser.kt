@@ -20,6 +20,7 @@ import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.variable.VariableAssignmentNode
 import com.tambapps.marcel.parser.ast.statement.variable.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.owner.StaticOwner
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
@@ -51,7 +52,8 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
 
   fun script(): ModuleNode {
     val scope = Scope()
-    val mainFunction = MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, "main",
+    val mainFunction = MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, StaticOwner(className),
+      "main",
       mutableListOf(), mutableListOf(MethodParameter(Types.STRING_ARRAY, "args")), Types.VOID, scope
     )
     val classNode = ClassNode(
@@ -62,7 +64,7 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
       when (current.type) {
         TokenType.FUN, TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED,
         TokenType.VISIBILITY_HIDDEN, TokenType.VISIBILITY_PRIVATE -> {
-          val method = method()
+          val method = method(classNode)
           if (method.name == "main") {
             throw SemanticException("Cannot have a \"main\" function in a script")
           }
@@ -74,7 +76,7 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
     return moduleNode
   }
 
-  private fun method(): MethodNode {
+  private fun method(classNode: ClassNode): MethodNode {
     // TODO handle static functions
     val visibility = acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.VISIBILITY_HIDDEN, TokenType.VISIBILITY_PRIVATE)
       ?: TokenType.VISIBILITY_PUBLIC
@@ -100,13 +102,13 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
     val returnType = if (current.type != TokenType.BRACKETS_OPEN) parseType() else JavaPrimitiveType.VOID
     accept(TokenType.BRACKETS_OPEN)
     val statements = mutableListOf<StatementNode>()
-    val scope = Scope() // TODO use scope from classNode to access class variables
+    val scope = Scope(classNode)
     while (current.type != TokenType.BRACKETS_CLOSE) {
       statements.add(statement(scope))
     }
     skip() // skipping BRACKETS_CLOSE
     // TODO determine access Opcodes based on visibility variable
-    return MethodNode(Opcodes.ACC_PUBLIC, methodName, statements, parameters, returnType, scope)
+    return MethodNode(Opcodes.ACC_PUBLIC, StaticOwner(classNode.name), methodName, statements, parameters, returnType, scope)
   }
 
   private fun parseType(): JavaType {

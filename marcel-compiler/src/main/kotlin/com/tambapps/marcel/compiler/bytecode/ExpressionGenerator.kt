@@ -74,18 +74,21 @@ private interface IUnpushedExpressionGenerator: ExpressionVisitor {
     pushArgument(binaryOperatorNode.rightOperand)
   }
 
-  override fun visit(operator: FunctionCallNode) {
-    if (operator.name == "println") {
+  override fun visit(fCall: FunctionCallNode) {
+    if (fCall.name == "println") {
       mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;")
+      for (argumentNode in fCall.arguments) {
+        // write argument on the stack
+        pushArgument(argumentNode)
+      }
+      mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false)
     } else {
-      throw UnsupportedOperationException("Cannot handle function call yet")
+      val method = scope.getMethod(fCall.name)
+      // TODO might need to push on stack variable/expression, if owner is not static
+      val owner = method.owner
+      mv.visitMethodInsn(owner.invokeCode, owner.classInternalName, fCall.name, method.methodDescriptor);
+
     }
-    // TODO add a type field and check types when calling functions
-    for (argumentNode in operator.arguments) {
-      // write argument on the stack
-      pushArgument(argumentNode)
-    }
-    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false)
   }
 
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
@@ -150,8 +153,8 @@ class ExpressionGenerator(override val mv: MethodVisitor, override val scope: Sc
     mv.visitVarInsn(variable.type.loadCode, index)
   }
 
-  override fun visit(operator: FunctionCallNode) {
-    super.visit(operator)
+  override fun visit(fCall: FunctionCallNode) {
+    super.visit(fCall)
     // TODO push on stack
   }
 
