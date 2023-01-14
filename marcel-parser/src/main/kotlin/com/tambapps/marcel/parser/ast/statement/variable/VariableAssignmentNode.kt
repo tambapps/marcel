@@ -5,15 +5,15 @@ import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.visitor.ExpressionVisitor
 
 // TODO move this under expression.variable package
-open class VariableAssignmentNode(val name: String, val expressionNode: ExpressionNode): ExpressionNode {
+open class VariableAssignmentNode(val name: String, val expression: ExpressionNode): ExpressionNode {
   override val type: JavaType
-    get() = expressionNode.type
+    get() = expression.type
 
-  override fun accept(expressionVisitor: ExpressionVisitor) {
-    expressionVisitor.visit(this)
+  override fun accept(mv: ExpressionVisitor) {
+    mv.visit(this)
   }
 
   override fun toString(): String {
-    return "$name = $expressionNode"
+    return "$name = $expression"
   }
 }

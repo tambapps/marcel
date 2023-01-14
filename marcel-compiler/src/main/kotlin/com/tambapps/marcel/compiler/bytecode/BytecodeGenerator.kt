@@ -24,16 +24,16 @@ class BytecodeGenerator {
 
     // creating main (psvm) function
     val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.methodDescriptor, null, null)
-    val statementGenerator = StatementGenerator(mv, methodNode.scope)
+    val instructionGenerator = InstructionGenerator(mv, methodNode.scope)
     val maxStack = 100; //TODO - do that properly
 
     // writing statements
     for (statement in methodNode.statements) {
-      statement.accept(statementGenerator)
+      statement.accept(instructionGenerator)
     }
     mv.visitInsn(Opcodes.RETURN)
     // TODO may need one day to treat inner scopes
-    mv.visitMaxs(maxStack, statementGenerator.scope.localVariablesCount) //set max stack and max local variables
+    mv.visitMaxs(maxStack, instructionGenerator.scope.localVariablesCount) //set max stack and max local variables
     mv.visitEnd()
 
     classWriter.visitEnd()

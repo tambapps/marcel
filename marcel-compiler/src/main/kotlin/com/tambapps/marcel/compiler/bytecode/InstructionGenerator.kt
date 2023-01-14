@@ -19,7 +19,9 @@ import com.tambapps.marcel.parser.ast.expression.operator.binary.PowOperator
 import com.tambapps.marcel.parser.ast.expression.operator.unary.UnaryMinus
 import com.tambapps.marcel.parser.ast.expression.operator.unary.UnaryPlus
 import com.tambapps.marcel.parser.ast.statement.variable.VariableAssignmentNode
-
+import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
+import com.tambapps.marcel.parser.ast.statement.variable.VariableDeclarationNode
+import com.tambapps.marcel.parser.ast.expression.ReturnNode
 import com.tambapps.marcel.parser.visitor.ExpressionVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
@@ -92,31 +94,19 @@ private interface IUnpushedExpressionGenerator: ExpressionVisitor {
     }
   }
 
-  override fun visit(blockNode: BlockNode) {
-    // TODO might need to merge ExpressionGenerator and StatementGenerator
-    /*
-    for (statement in blockNode.statements) {
-      visit()
-    }
-
-     */
-  }
-
   override fun visit(blockNode: FunctionBlockNode) {
-    /*
     val returnType = blockNode.type
     for (i in 0..(blockNode.statements.size - 2)) {
-      visit(blockNode.statements[i])
+      blockNode.statements[i].accept(this)
     }
     val lastStatement = blockNode.statements.lastOrNull() ?: return
     pushArgument(lastStatement.expression)
-
-     */
   }
+
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
-    pushArgument(variableAssignmentNode.expressionNode)
+    pushArgument(variableAssignmentNode.expression)
     val (variable, index) = scope.getLocalVariableWithIndex(variableAssignmentNode.name)
-    if (variable.type != variableAssignmentNode.expressionNode.type) {
+    if (variable.type != variableAssignmentNode.expression.type) {
       throw SemanticException("Incompatible types")
     }
     mv.visitVarInsn(variable.type.storeCode, index)
@@ -127,9 +117,14 @@ private interface IUnpushedExpressionGenerator: ExpressionVisitor {
 /**
  * Generates expression bytecode but don't push them to the stack. (Useful for statement expressions)
  */
-class UnpushedExpressionGenerator(override val mv: MethodVisitor, override val scope: Scope): IUnpushedExpressionGenerator {
+class InstructionGenerator(override val mv: MethodVisitor, override val scope: Scope): IUnpushedExpressionGenerator {
 
   private val expressionGenerator = ExpressionGenerator(mv, scope)
+
+  init {
+    expressionGenerator.instructionGenerator = this
+  }
+
   override fun pushArgument(expr: ExpressionNode) {
     expressionGenerator.pushArgument(expr)
   }
@@ -159,22 +154,50 @@ class UnpushedExpressionGenerator(override val mv: MethodVisitor, override val s
     drop2()
   }
 
+  override fun visit(expressionStatementNode: ExpressionStatementNode) {
+    expressionStatementNode.expression.accept(this)
+  }
+
+  override fun visit(variableDeclarationNode: VariableDeclarationNode) {
+    visit(variableDeclarationNode as VariableAssignmentNode)
+  }
+
   fun drop2() {
     TODO("Drop 2 args from the stack")
   }
+
+  override fun visit(blockNode: BlockNode) {
+    for (statement in blockNode.statements) {
+      statement.accept(this)
+    }
+  }
+
+  override fun visit(returnNode: ReturnNode) {
+    // should never be called. Blocks will always take care of return statements and they will use pushArgument
+    throw IllegalStateException("Compiler design error, sorry for that")
+  }
 }
 
-class ExpressionGenerator(override val mv: MethodVisitor, override val scope: Scope): IUnpushedExpressionGenerator {
+private class ExpressionGenerator(override val mv: MethodVisitor, override val scope: Scope): IUnpushedExpressionGenerator {
+  lateinit var instructionGenerator: InstructionGenerator
 
   override fun visit(integer: IntConstantNode) {
     mv.visitLdcInsn(integer.value) // write primitive value, from an Object class e.g. Integer -> int
   }
 
   override fun visit(variableReferenceExpression: VariableReferenceExpression) {
-    val (variable, index) = scope.getLocalVariableWithIndex(variableReferenceExpression.name)
-    mv.visitVarInsn(variable.type.loadCode, index)
+    pushVariable(variableReferenceExpression.name)
   }
 
+  override fun visit(variableAssignmentNode: VariableAssignmentNode) {
+    super.visit(variableAssignmentNode)
+    pushVariable(variableAssignmentNode.name)
+  }
+
+  private fun pushVariable(variableName: String) {
+    val (variable, index) = scope.getLocalVariableWithIndex(variableName)
+    mv.visitVarInsn(variable.type.loadCode, index)
+  }
   override fun visit(fCall: FunctionCallNode) {
     super.visit(fCall)
     // TODO push on stack
@@ -205,10 +228,6 @@ class ExpressionGenerator(override val mv: MethodVisitor, override val scope: Sc
   }
 
 
-  override fun visit(variableAssignmentNode: VariableAssignmentNode) {
-    super.visit(variableAssignmentNode)
-    // TODO push on stack
-  }
 
   override fun visit(operator: PlusOperator) {
     super.visit(operator)
@@ -220,4 +239,18 @@ class ExpressionGenerator(override val mv: MethodVisitor, override val scope: Sc
     TODO("Implement pow, or call function?")
   }
 
+  override fun visit(returnNode: ReturnNode) {
+    returnNode.expression.accept(this)
+  }
+
+  override fun visit(expressionStatementNode: ExpressionStatementNode) {
+    expressionStatementNode.expression.accept(this)
+  }
+
+  override fun visit(variableDeclarationNode: VariableDeclarationNode) {
+    instructionGenerator.visit(variableDeclarationNode)
+  }
+  override fun visit(blockNode: BlockNode) {
+    instructionGenerator.visit(blockNode)
+  }
 }

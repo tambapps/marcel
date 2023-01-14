@@ -4,12 +4,15 @@ import com.tambapps.marcel.parser.ast.expression.BlockNode
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.IntConstantNode
+import com.tambapps.marcel.parser.ast.expression.ReturnNode
 import com.tambapps.marcel.parser.ast.expression.TernaryNode
 import com.tambapps.marcel.parser.ast.expression.operator.binary.*
 import com.tambapps.marcel.parser.ast.expression.operator.unary.UnaryMinus
 import com.tambapps.marcel.parser.ast.expression.operator.unary.UnaryPlus
 import com.tambapps.marcel.parser.ast.expression.variable.VariableReferenceExpression
+import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.variable.VariableAssignmentNode
+import com.tambapps.marcel.parser.ast.statement.variable.VariableDeclarationNode
 
 interface ExpressionVisitor {
 
@@ -28,4 +31,7 @@ interface ExpressionVisitor {
   fun visit(blockNode: BlockNode)
   fun visit(blockNode: FunctionBlockNode)
 
+  fun visit(expressionStatementNode: ExpressionStatementNode)
+  fun visit(variableDeclarationNode: VariableDeclarationNode)
+  fun visit(returnNode: ReturnNode)
 }

@@ -6,7 +6,7 @@ import com.tambapps.marcel.parser.visitor.ExpressionVisitor
 
 open class BlockNode(val statements: List<StatementNode>) : ExpressionNode {
 
-  override val type = statements.lastOrNull()?.expressionType ?: JavaPrimitiveType.VOID
+  override val type = statements.lastOrNull()?.type ?: JavaPrimitiveType.VOID
 
   override fun accept(expressionVisitor: ExpressionVisitor) {
     expressionVisitor.visit(this)

@@ -2,18 +2,16 @@ package com.tambapps.marcel.parser.ast.statement.variable
 
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
-import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
-import com.tambapps.marcel.parser.visitor.StatementVisitor
+import com.tambapps.marcel.parser.visitor.ExpressionVisitor
 
-class VariableDeclarationNode(override val type: JavaType, name: String, expressionNode: ExpressionNode): VariableAssignmentNode(name, expressionNode), StatementNode {
+class VariableDeclarationNode(override val type: JavaType, name: String,  expression: ExpressionNode): VariableAssignmentNode(name, expression), StatementNode {
 
-  override val expressionType = JavaPrimitiveType.VOID
-  override fun accept(mv: StatementVisitor) {
+  override fun accept(mv: ExpressionVisitor) {
     mv.visit(this)
   }
 
   override fun toString(): String {
-    return "${type.className} $name = $expressionNode;"
+    return "${type.className} $name = $expression;"
   }
 }
