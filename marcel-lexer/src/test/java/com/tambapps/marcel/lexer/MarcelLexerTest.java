@@ -17,14 +17,33 @@ public class MarcelLexerTest {
   }
 
   @Test
-  public void test() {
-    assertEquals(Arrays.asList(new LexToken(TokenType.IDENTIFIER, "println"),
-            new LexToken(TokenType.LPAR),
-            new LexToken(TokenType.INTEGER, "8"),
-            new LexToken(TokenType.RPAR),
-            new LexToken(TokenType.SEMI_COLON),
-            new LexToken(TokenType.END_OF_FILE)
+  public void testPrintln() {
+    assertEquals(Arrays.asList(token(TokenType.IDENTIFIER, "println"),
+            token(TokenType.LPAR),
+            token(TokenType.INTEGER, "8"),
+            token(TokenType.RPAR),
+            token(TokenType.SEMI_COLON),
+            token(TokenType.END_OF_FILE)
         )
         , lexer.lex("println(8);"));
+  }
+
+  @Test
+  public void testVarDeclaration() {
+    assertEquals(Arrays.asList(
+            token(TokenType.TYPE_INT),
+            token(TokenType.IDENTIFIER, "myInt"),
+            token(TokenType.ASSIGNEMENT),
+            token(TokenType.INTEGER, "898"),
+            token(TokenType.END_OF_FILE)
+        )
+        , lexer.lex("int myInt = 898"));
+  }
+
+  private LexToken token(TokenType type) {
+    return token(type, null);
+  }
+  private LexToken token(TokenType type, String value) {
+    return new LexToken(type, value);
   }
 }

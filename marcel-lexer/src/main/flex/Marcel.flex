@@ -56,8 +56,21 @@ TYPED_INTEGER_SUFFIX = {UNSIGNED_SUFFIX}?{LONG_SUFFIX}?
 
 {INTEGER_LITERAL} { return valueToken(INTEGER); }
 
+
+({WHITE_SPACE_CHAR})+ { return token(WHITE_SPACE); }
+
+// keywords
+"byte"          { return token(TYPE_BYTE); }
+"short"          { return token(TYPE_SHORT); }
+"int"          { return token(TYPE_INT); }
+"long"          { return token(TYPE_LONG); }
+"float"          { return token(TYPE_FLOAT); }
+"double"          { return token(TYPE_DOUBLE); }
+"bool"          { return token(TYPE_BOOL); }
+
 {IDENTIFIER} {  return valueToken(IDENTIFIER); }
 
+// symbols
 "("          { return token(LPAR); }
 ")"          { return token(RPAR); }
 ":"          { return token(COLON); }
@@ -66,3 +79,4 @@ TYPED_INTEGER_SUFFIX = {UNSIGNED_SUFFIX}?{LONG_SUFFIX}?
 "-"          { return token(MINUS); }
 "/"          { return token(DIV); }
 "*"          { return token(MUL); }
+"="          { return token(ASSIGNEMENT); }

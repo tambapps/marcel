@@ -2,7 +2,9 @@ package com.tambapps.marcel.lexer;
 
 public enum TokenType {
   IDENTIFIER,
-  TYPE_INT,
+  WHITE_SPACE,
+  // keywords
+  TYPE_INT, TYPE_LONG, TYPE_SHORT, TYPE_FLOAT, TYPE_DOUBLE, TYPE_BOOL, TYPE_BYTE,
   INTEGER,
   // symbols
   PLUS, MINUS, DIV, MUL, QUOTE, COMMA, QUESTION_MARK, LPAR, RPAR, COLON, SEMI_COLON,
