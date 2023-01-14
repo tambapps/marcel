@@ -1,11 +1,11 @@
 package com.tambapps.marcel.parser.ast.statement
 
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
-import com.tambapps.marcel.parser.ExpressionVisitor
+import com.tambapps.marcel.parser.ast.AstNodeVisitor
 
 class ExpressionStatementNode(override val expression: ExpressionNode): StatementNode {
 
-  override fun accept(mv: ExpressionVisitor) {
+  override fun accept(mv: AstNodeVisitor) {
     mv.visit(this)
   }
 

@@ -1,4 +1,4 @@
-package com.tambapps.marcel.parser
+package com.tambapps.marcel.parser.ast
 
 import com.tambapps.marcel.parser.ast.expression.BlockNode
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
@@ -7,16 +7,19 @@ import com.tambapps.marcel.parser.ast.expression.IntConstantNode
 import com.tambapps.marcel.parser.ast.expression.ReturnNode
 import com.tambapps.marcel.parser.ast.expression.TernaryNode
 import com.tambapps.marcel.parser.ast.expression.VoidExpression
-import com.tambapps.marcel.parser.ast.expression.operator.binary.*
-import com.tambapps.marcel.parser.ast.expression.operator.unary.UnaryMinus
-import com.tambapps.marcel.parser.ast.expression.operator.unary.UnaryPlus
-import com.tambapps.marcel.parser.ast.expression.variable.VariableReferenceExpression
+import com.tambapps.marcel.parser.ast.expression.UnaryMinus
+import com.tambapps.marcel.parser.ast.expression.UnaryPlus
+import com.tambapps.marcel.parser.ast.expression.VariableReferenceExpression
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
-import com.tambapps.marcel.parser.ast.statement.variable.VariableAssignmentNode
-import com.tambapps.marcel.parser.ast.statement.variable.VariableDeclarationNode
+import com.tambapps.marcel.parser.ast.expression.VariableAssignmentNode
+import com.tambapps.marcel.parser.ast.expression.DivOperator
+import com.tambapps.marcel.parser.ast.expression.MinusOperator
+import com.tambapps.marcel.parser.ast.expression.MulOperator
+import com.tambapps.marcel.parser.ast.expression.PlusOperator
+import com.tambapps.marcel.parser.ast.expression.PowOperator
+import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 
-// TODO rename AstNodeVisitor
-interface ExpressionVisitor {
+interface AstNodeVisitor {
 
   fun visit(integer: IntConstantNode)
   fun visit(operator: MulOperator)

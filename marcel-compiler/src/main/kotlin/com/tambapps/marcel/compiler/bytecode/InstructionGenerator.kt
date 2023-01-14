@@ -2,31 +2,31 @@ package com.tambapps.marcel.compiler.bytecode
 
 import com.tambapps.marcel.parser.exception.SemanticException
 
-import com.tambapps.marcel.parser.ast.expression.variable.*
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.expression.BlockNode
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
-import com.tambapps.marcel.parser.ast.expression.operator.binary.BinaryOperatorNode
-import com.tambapps.marcel.parser.ast.expression.operator.binary.DivOperator
-import com.tambapps.marcel.parser.ast.expression.operator.binary.MinusOperator
-import com.tambapps.marcel.parser.ast.expression.operator.binary.MulOperator
-import com.tambapps.marcel.parser.ast.expression.operator.binary.PlusOperator
-import com.tambapps.marcel.parser.ast.expression.operator.binary.PowOperator
-import com.tambapps.marcel.parser.ast.expression.operator.unary.UnaryMinus
-import com.tambapps.marcel.parser.ast.expression.operator.unary.UnaryPlus
-import com.tambapps.marcel.parser.ast.statement.variable.VariableAssignmentNode
+import com.tambapps.marcel.parser.ast.expression.BinaryOperatorNode
+import com.tambapps.marcel.parser.ast.expression.DivOperator
+import com.tambapps.marcel.parser.ast.expression.MinusOperator
+import com.tambapps.marcel.parser.ast.expression.MulOperator
+import com.tambapps.marcel.parser.ast.expression.PlusOperator
+import com.tambapps.marcel.parser.ast.expression.PowOperator
+import com.tambapps.marcel.parser.ast.expression.UnaryMinus
+import com.tambapps.marcel.parser.ast.expression.UnaryPlus
+import com.tambapps.marcel.parser.ast.expression.VariableAssignmentNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
-import com.tambapps.marcel.parser.ast.statement.variable.VariableDeclarationNode
+import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.expression.ReturnNode
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
-import com.tambapps.marcel.parser.ExpressionVisitor
+import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.expression.VariableReferenceExpression
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 
-private interface IInstructionGenerator: ExpressionVisitor {
+private interface IInstructionGenerator: AstNodeVisitor {
 
   val mv: MethodVisitor
   val scope: Scope

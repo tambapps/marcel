@@ -1,7 +1,7 @@
 package com.tambapps.marcel.parser.ast.expression
 
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
-import com.tambapps.marcel.parser.ExpressionVisitor
+import com.tambapps.marcel.parser.ast.AstNodeVisitor
 
 class TernaryNode(boolExpression: ExpressionNode,
                   trueExpression: ExpressionNode,
@@ -9,8 +9,8 @@ class TernaryNode(boolExpression: ExpressionNode,
 ): ExpressionNode {
   // for now only ints are handled
   override val type = JavaPrimitiveType.INT
-  override fun accept(expressionVisitor: ExpressionVisitor) {
-    expressionVisitor.visit(this)
+  override fun accept(astNodeVisitor: AstNodeVisitor) {
+    astNodeVisitor.visit(this)
   }
 
 }

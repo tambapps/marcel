@@ -1,8 +1,7 @@
-package com.tambapps.marcel.parser.ast.expression.operator.binary
+package com.tambapps.marcel.parser.ast.expression
 
-import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
-import com.tambapps.marcel.parser.ExpressionVisitor
+import com.tambapps.marcel.parser.ast.AstNodeVisitor
 
 abstract class BinaryOperatorNode(val leftOperand: ExpressionNode, val rightOperand: ExpressionNode): ExpressionNode {
   // for now only ints are handled
@@ -11,8 +10,8 @@ abstract class BinaryOperatorNode(val leftOperand: ExpressionNode, val rightOper
 
 class MulOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   BinaryOperatorNode(leftOperand, rightOperand) {
-  override fun accept(expressionVisitor: ExpressionVisitor) {
-    expressionVisitor.visit(this)
+  override fun accept(astNodeVisitor: AstNodeVisitor) {
+    astNodeVisitor.visit(this)
   }
 
   override fun toString(): String {
@@ -22,8 +21,8 @@ class MulOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
 
 class DivOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   BinaryOperatorNode(leftOperand, rightOperand) {
-  override fun accept(expressionVisitor: ExpressionVisitor) {
-    expressionVisitor.visit(this)
+  override fun accept(astNodeVisitor: AstNodeVisitor) {
+    astNodeVisitor.visit(this)
   }
 
   override fun toString(): String {
@@ -33,8 +32,8 @@ class DivOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
 
 class PlusOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   BinaryOperatorNode(leftOperand, rightOperand) {
-  override fun accept(expressionVisitor: ExpressionVisitor) {
-    expressionVisitor.visit(this)
+  override fun accept(astNodeVisitor: AstNodeVisitor) {
+    astNodeVisitor.visit(this)
   }
 
   override fun toString(): String {
@@ -43,8 +42,8 @@ class PlusOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
 }
 class MinusOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   BinaryOperatorNode(leftOperand, rightOperand) {
-  override fun accept(expressionVisitor: ExpressionVisitor) {
-    expressionVisitor.visit(this)
+  override fun accept(astNodeVisitor: AstNodeVisitor) {
+    astNodeVisitor.visit(this)
   }
 
   override fun toString(): String {
@@ -54,8 +53,8 @@ class MinusOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
 
 class PowOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   BinaryOperatorNode(leftOperand, rightOperand) {
-  override fun accept(expressionVisitor: ExpressionVisitor) {
-    expressionVisitor.visit(this)
+  override fun accept(astNodeVisitor: AstNodeVisitor) {
+    astNodeVisitor.visit(this)
   }
 
   override fun toString(): String {

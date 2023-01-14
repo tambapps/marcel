@@ -93,7 +93,7 @@ UNSIGNED_SUFFIX=[Uu]
 TYPED_INTEGER_SUFFIX = {UNSIGNED_SUFFIX}?{LONG_SUFFIX}?
 
 CHARACTER_LITERAL="'"([^\\\'\n]|{ESCAPE_SEQUENCE})*("'"|\\)?
-// TODO: introduce symbols (e.g. 'foo) as another way to write string literals
+
 ESCAPE_SEQUENCE=\\(u{HEX_DIGIT}{HEX_DIGIT}{HEX_DIGIT}{HEX_DIGIT}|[^\n])
 
 // ANY_ESCAPE_SEQUENCE = \\[^]
