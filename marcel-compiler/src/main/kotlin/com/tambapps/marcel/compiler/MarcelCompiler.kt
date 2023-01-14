@@ -5,9 +5,10 @@ import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParsingException
-import org.objectweb.asm.Type
 import java.io.File
 import java.io.IOException
+import java.net.URLClassLoader
+import java.util.Arrays
 
 fun main(args : Array<String>) {
   val file = File(args[0])
@@ -35,14 +36,18 @@ fun main(args : Array<String>) {
     return
   }
 
-  // TODO create file in temp directory and directly execute it
   val classFile = File(file.parentFile, "$className.class")
-  try {
-    classFile.writeBytes(BytecodeGenerator().generate(ast))
+  val result = try {
+    BytecodeGenerator().generate(ast)
   } catch (e: Exception) {
     println("Error while writing class: ${e.message}")
     e.printStackTrace()
+    return
   }
+  classFile.writeBytes(result.bytes)
+  // TODO trying load class doesn't work
+//  val classLoader = URLClassLoader(arrayOf(File(".").toURI().toURL()), BytecodeGenerator::class.java.classLoader)
+  //classLoader.loadClass(result.className)
 }
 
 private fun generateClassName(fileName: String): String {

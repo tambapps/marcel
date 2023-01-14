@@ -4,6 +4,8 @@ import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.type.JavaType
 
 class ClassNode(val access: Int, val name: String, val parentType: JavaType, val methods: MutableList<MethodNode>): AstNode {
+
+  val internalName = name.replace('.', '/')
   fun addMethod(method: MethodNode) {
     if (methods.any { it.name == method.name }) {
       // TODO handle overloading

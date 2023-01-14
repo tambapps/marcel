@@ -1,5 +1,6 @@
 package com.tambapps.marcel.compiler.bytecode
 
+import com.tambapps.marcel.compiler.CompilationResult
 import com.tambapps.marcel.parser.ast.ModuleNode
 import org.objectweb.asm.ClassWriter
 
@@ -8,13 +9,13 @@ class BytecodeGenerator {
 
   // TODO make java class version configurable https://www.baeldung.com/java-find-class-version
 
-  fun generate(moduleNode: ModuleNode): ByteArray {
+  fun generate(moduleNode: ModuleNode): CompilationResult {
     // handling only one class for now
     val classNode = moduleNode.classes.first()
     val classWriter = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
 
     // creating class
-    classWriter.visit(52,  classNode.access, classNode.name, null, classNode.parentType.internalName, null)
+    classWriter.visit(52,  classNode.access, classNode.internalName, null, classNode.parentType.internalName, null)
     //https://github.com/JakubDziworski/Enkel-JVM-language/blob/master/compiler/src/main/java/com/kubadziworski/bytecodegeneration/MethodGenerator.java
 
     for (methodNode in classNode.methods) {
@@ -32,7 +33,7 @@ class BytecodeGenerator {
     }
 
     classWriter.visitEnd()
-    return classWriter.toByteArray()
+    return CompilationResult(classWriter.toByteArray(), classNode.name)
   }
 
 }

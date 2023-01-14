@@ -32,7 +32,7 @@ import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.Opcodes
 import java.util.concurrent.ThreadLocalRandom
 
-class MarcelParser(private val className: String, private val tokens: List<LexToken>) {
+class MarcelParser(private val classSimpleName: String, private val tokens: List<LexToken>) {
 
   constructor(tokens: List<LexToken>): this("MarcelRandomClass_" + ThreadLocalRandom.current().nextInt(), tokens)
 
@@ -59,7 +59,9 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
     val scope = Scope(classMethods)
     val statements = mutableListOf<StatementNode>()
     val mainBlock = FunctionBlockNode(Types.VOID, statements)
-    val mainFunction = MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, StaticOwner(className),
+    //val packageName = "marcellang.default_package" // TODO parse optional package or fallback to that
+    val className = classSimpleName //"$packageName.$classSimpleName"
+    val mainFunction = MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, StaticOwner(className.replace('.', '/')),
       "main",
       mainBlock, mutableListOf(MethodParameter(Types.STRING_ARRAY, "args")), mainBlock.methodReturnType, scope
     )
