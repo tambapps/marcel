@@ -7,7 +7,7 @@ import com.tambapps.marcel.parser.ast.variable.VariableDeclarationNode
 import com.tambapps.marcel.parser.visitor.StatementVisitor
 import org.objectweb.asm.MethodVisitor
 
-class StatementGenerator(private val mv: MethodVisitor, private val scope: Scope): StatementVisitor {
+class StatementGenerator(private val mv: MethodVisitor, val scope: Scope): StatementVisitor {
 
   private val expressionGenerator = UnpushedExpressionGenerator(mv, scope)
 

@@ -6,7 +6,8 @@ import com.tambapps.marcel.parser.type.JavaType
 
 class Scope {
   private val localVariables: LinkedHashMap<String, LocalVariable> = LinkedHashMap()
-
+  val localVariablesCount: Int
+    get() = localVariables.size
 
   fun addLocalVariable(type: JavaType, name: String) {
     if (localVariables.containsKey(name)) {

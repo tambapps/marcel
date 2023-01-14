@@ -26,14 +26,14 @@ class BytecodeGenerator {
     val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.methodDescriptor, null, null)
     val statementGenerator = StatementGenerator(mv, Scope())
     val maxStack = 100; //TODO - do that properly
-    val localVariablesCount = 0 // TODO
 
     // writing statements
     for (statement in methodNode.statements) {
       statement.accept(statementGenerator)
     }
     mv.visitInsn(Opcodes.RETURN)
-    mv.visitMaxs(maxStack, localVariablesCount) //set max stack and max local variables
+    // TODO may need one day to treat inner scopes
+    mv.visitMaxs(maxStack, statementGenerator.scope.localVariablesCount) //set max stack and max local variables
     mv.visitEnd()
 
     classWriter.visitEnd()
