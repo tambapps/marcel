@@ -9,6 +9,10 @@ class ClassNode(val access: Int, val name: String, val parentType: JavaType, val
       // TODO handle overloading
       throw SemanticException("Cannot have two methods with the same name")
     }
+    methods.add(method)
   }
 
+  override fun toString(): String {
+    return "class $name {\n" + methods.joinToString(separator = "\n", transform = { "  $it" }) + "\n}"
+  }
 }

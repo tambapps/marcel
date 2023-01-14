@@ -12,4 +12,8 @@ class VariableReferenceExpression(override val type: JavaType, val name: String)
   override fun accept(expressionVisitor: ExpressionVisitor) {
     expressionVisitor.visit(this)
   }
+
+  override fun toString(): String {
+    return name
+  }
 }

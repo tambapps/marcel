@@ -1148,7 +1148,7 @@ class MarcelJflexer {
           case 21:
             { if (lBraceCount == 0) {
                                              popState();
-                                             return valueToken(LONG_TEMPLATE_ENTRY_END);
+                                             return token(LONG_TEMPLATE_ENTRY_END);
                                            }
                                            lBraceCount--;
                                            return valueToken(RBRACE);
@@ -1158,12 +1158,12 @@ class MarcelJflexer {
           case 22:
             { pushState(SHORT_TEMPLATE_ENTRY);
                                                         yypushback(yylength() - 1);
-                                                        return valueToken(SHORT_TEMPLATE_ENTRY_START);
+                                                        return token(SHORT_TEMPLATE_ENTRY_START);
             }
             // fall through
           case 60: break;
           case 23:
-            { pushState(LONG_TEMPLATE_ENTRY); return valueToken(LONG_TEMPLATE_ENTRY_START);
+            { pushState(LONG_TEMPLATE_ENTRY); return token(LONG_TEMPLATE_ENTRY_START);
             }
             // fall through
           case 61: break;

@@ -160,6 +160,7 @@ LONELY_BACKTICK=`
 ({WHITE_SPACE_CHAR})+ { return token(WHITE_SPACE); }
 
 // keywords
+"void"          { return token(TYPE_VOID); }
 "byte"          { return token(TYPE_BYTE); }
 "short"          { return token(TYPE_SHORT); }
 "int"          { return token(TYPE_INT); }

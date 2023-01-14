@@ -75,6 +75,7 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
   }
 
   private fun method(): MethodNode {
+    // TODO handle static functions
     val visibility = acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.VISIBILITY_HIDDEN, TokenType.VISIBILITY_PRIVATE)
       ?: TokenType.VISIBILITY_PUBLIC
     accept(TokenType.FUN)
@@ -96,7 +97,7 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
       }
     }
     skip() // skipping RPAR
-    val returnType = parseType()
+    val returnType = if (current.type != TokenType.BRACKETS_OPEN) parseType() else JavaPrimitiveType.VOID
     accept(TokenType.BRACKETS_OPEN)
     val statements = mutableListOf<StatementNode>()
     val scope = Scope() // TODO use scope from classNode to access class variables
@@ -104,7 +105,20 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
       statements.add(statement(scope))
     }
     skip() // skipping BRACKETS_CLOSE
-    return MethodNode(access, methodName, statements, parameters, returnType, scope)
+    // TODO determine access Opcodes based on visibility variable
+    return MethodNode(Opcodes.ACC_PUBLIC, methodName, statements, parameters, returnType, scope)
+  }
+
+  private fun parseType(): JavaType {
+    val token = next()
+    return when (token.type) {
+      TokenType.TYPE_INT -> JavaPrimitiveType.INT
+      TokenType.TYPE_LONG -> JavaPrimitiveType.LONG
+      TokenType.TYPE_VOID -> JavaPrimitiveType.VOID
+      TokenType.TYPE_FLOAT -> JavaPrimitiveType.FLOAT
+      TokenType.TYPE_DOUBLE -> JavaPrimitiveType.DOUBLE
+      else -> throw java.lang.UnsupportedOperationException("Doesn't handle type ${token.type}")
+    }
   }
 
   private fun statement(scope: Scope): StatementNode {

@@ -30,4 +30,9 @@ enum class JavaPrimitiveType(override val className: String,
               mulCode: Int,
               divCode: Int): this(clazz.name, Type.getInternalName(clazz),
     Type.getDescriptor(clazz), loadCode, storeCode, retCode, addCode, subCode, mulCode, divCode)
+
+  override fun toString(): String {
+    return className
+  }
+
 }

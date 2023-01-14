@@ -16,4 +16,8 @@ class MethodNode(val access: Int, val name: String, val statements: MutableList<
         .append(returnType.descriptor)
         .toString()
     }
+
+  override fun toString(): String {
+    return "fun $name(" + parameters.joinToString(separator = ", ") + ") " + returnType
+  }
 }
