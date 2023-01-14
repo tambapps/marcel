@@ -4,7 +4,6 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.ast.*
 
-import com.tambapps.marcel.parser.ast.TokenNodeType.*
 import org.objectweb.asm.Opcodes
 import java.util.concurrent.ThreadLocalRandom
 
@@ -46,7 +45,7 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
         rollback()
         val node = expression()
         acceptOptional(TokenType.SEMI_COLON)
-        DropNode(node)
+        ExpressionStatementNode(node)
       }
     }
   }

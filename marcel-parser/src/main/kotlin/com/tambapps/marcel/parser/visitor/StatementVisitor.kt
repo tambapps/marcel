@@ -1,9 +1,9 @@
 package com.tambapps.marcel.parser.visitor
 
-import com.tambapps.marcel.parser.ast.DropNode
+import com.tambapps.marcel.parser.ast.ExpressionStatementNode
 
 interface StatementVisitor {
 
-  fun visit(dropNode: DropNode)
+  fun visit(expressionStatementNode: ExpressionStatementNode)
 
 }

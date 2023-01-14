@@ -1,18 +1,16 @@
 package com.tambapps.marcel.compiler.bytecode
 
-import com.tambapps.marcel.parser.ast.BinaryOperatorNode
-import com.tambapps.marcel.parser.ast.FunctionCallNode
-import com.tambapps.marcel.parser.ast.IntConstantNode
-import com.tambapps.marcel.parser.ast.TernaryNode
+import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.visitor.ExpressionVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 
-class ExpressionGenerator(private val mv: MethodVisitor): ExpressionVisitor {
+private interface IUnpushedExpressionGenerator: ExpressionVisitor {
 
+  val mv: MethodVisitor
 
   override fun visit(integer: IntConstantNode) {
-    mv.visitLdcInsn(integer.value) // write primitive value, from an Object class e.g. Integer -> int
+    // don't need to write constants
   }
 
   override fun visit(binaryOperatorNode: BinaryOperatorNode) {
@@ -32,9 +30,48 @@ class ExpressionGenerator(private val mv: MethodVisitor): ExpressionVisitor {
     // TODO add a type field and check types when calling functions
     for (argumentNode in functionCallNode.arguments) {
       // write argument on the stack
-      argumentNode.accept(this)
+      pushArgument(argumentNode)
     }
     mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false)
   }
 
+  fun pushArgument(expr: ExpressionNode)
+}
+
+/**
+ * Generates expression bytecode but don't push them to the stack. (Useful for statement expressions)
+ */
+class UnpushedExpressionGenerator(override val mv: MethodVisitor): IUnpushedExpressionGenerator {
+
+  private val expressionGenerator = ExpressionGenerator(mv)
+  override fun pushArgument(expr: ExpressionNode) {
+    expressionGenerator.pushArgument(expr)
+  }
+
+}
+
+class ExpressionGenerator(override val mv: MethodVisitor): IUnpushedExpressionGenerator {
+
+  override fun visit(integer: IntConstantNode) {
+    mv.visitLdcInsn(integer.value) // write primitive value, from an Object class e.g. Integer -> int
+  }
+
+  override fun visit(binaryOperatorNode: BinaryOperatorNode) {
+    super.visit(binaryOperatorNode)
+    // TODO push on stack
+  }
+
+  override fun visit(functionCallNode: FunctionCallNode) {
+    super.visit(functionCallNode)
+    // TODO push on stack
+  }
+
+  override fun visit(ternaryNode: TernaryNode) {
+    super.visit(ternaryNode)
+    // TODO push on stack
+  }
+
+  override fun pushArgument(expr: ExpressionNode) {
+    expr.accept(this)
+  }
 }
