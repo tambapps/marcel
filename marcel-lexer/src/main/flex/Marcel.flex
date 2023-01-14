@@ -173,6 +173,7 @@ LONELY_BACKTICK=`
 "hidden"          { return token(VISIBILITY_HIDDEN); }
 "private"          { return token(VISIBILITY_PRIVATE); }
 "fun"          { return token(FUN); }
+"return"          { return token(RETURN); }
 
 {IDENTIFIER} {  return valueToken(IDENTIFIER); }
 
