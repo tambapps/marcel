@@ -10,4 +10,8 @@ class VariableDeclarationNode(val type: JavaType, val name: String, val expressi
   override fun accept(mv: StatementVisitor) {
     mv.visit(this)
   }
+
+  override fun toString(): String {
+    return "${type.className} $name = $expressionNode;"
+  }
 }

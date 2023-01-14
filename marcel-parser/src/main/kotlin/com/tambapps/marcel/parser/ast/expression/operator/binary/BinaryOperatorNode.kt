@@ -14,12 +14,20 @@ class MulOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   override fun accept(expressionVisitor: ExpressionVisitor) {
     expressionVisitor.visit(this)
   }
+
+  override fun toString(): String {
+    return "$leftOperand * $rightOperand"
+  }
 }
 
 class DivOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   BinaryOperatorNode(leftOperand, rightOperand) {
   override fun accept(expressionVisitor: ExpressionVisitor) {
     expressionVisitor.visit(this)
+  }
+
+  override fun toString(): String {
+    return "$leftOperand / $rightOperand"
   }
 }
 
@@ -28,11 +36,19 @@ class PlusOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   override fun accept(expressionVisitor: ExpressionVisitor) {
     expressionVisitor.visit(this)
   }
+
+  override fun toString(): String {
+    return "$leftOperand + $rightOperand"
+  }
 }
 class MinusOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   BinaryOperatorNode(leftOperand, rightOperand) {
   override fun accept(expressionVisitor: ExpressionVisitor) {
     expressionVisitor.visit(this)
+  }
+
+  override fun toString(): String {
+    return "$leftOperand - $rightOperand"
   }
 }
 
@@ -40,5 +56,9 @@ class PowOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   BinaryOperatorNode(leftOperand, rightOperand) {
   override fun accept(expressionVisitor: ExpressionVisitor) {
     expressionVisitor.visit(this)
+  }
+
+  override fun toString(): String {
+    return "$leftOperand ^ $rightOperand"
   }
 }

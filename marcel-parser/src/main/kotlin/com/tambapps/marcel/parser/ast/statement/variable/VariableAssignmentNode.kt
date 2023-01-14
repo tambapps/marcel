@@ -11,4 +11,8 @@ class VariableAssignmentNode(val name: String, val expressionNode: ExpressionNod
   override fun accept(expressionVisitor: ExpressionVisitor) {
     expressionVisitor.visit(this)
   }
+
+  override fun toString(): String {
+    return "$name = $expressionNode"
+  }
 }

@@ -11,4 +11,7 @@ data class IntConstantNode(val value: Int): ExpressionNode {
     expressionVisitor.visit(this)
   }
 
+  override fun toString(): String {
+    return value.toString()
+  }
 }

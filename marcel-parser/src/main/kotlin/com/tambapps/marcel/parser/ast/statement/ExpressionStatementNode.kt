@@ -9,4 +9,7 @@ class ExpressionStatementNode(val expression: ExpressionNode): StatementNode {
     mv.visit(this)
   }
 
+  override fun toString(): String {
+    return "$expression;"
+  }
 }

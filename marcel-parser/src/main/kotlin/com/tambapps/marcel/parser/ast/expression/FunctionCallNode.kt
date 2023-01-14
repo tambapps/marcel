@@ -13,4 +13,8 @@ class FunctionCallNode(val name: String, val arguments: MutableList<ExpressionNo
   override fun accept(expressionVisitor: ExpressionVisitor) {
     expressionVisitor.visit(this)
   }
+
+  override fun toString(): String {
+    return name + "(" + arguments.joinToString(separator = ",") + ")"
+  }
 }
