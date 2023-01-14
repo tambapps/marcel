@@ -13,7 +13,6 @@ import com.tambapps.marcel.parser.ast.expression.operator.binary.MinusOperator
 import com.tambapps.marcel.parser.ast.expression.operator.binary.MulOperator
 import com.tambapps.marcel.parser.ast.expression.operator.binary.PlusOperator
 import com.tambapps.marcel.parser.ast.expression.operator.unary.UnaryMinus
-import com.tambapps.marcel.parser.ast.expression.operator.unary.UnaryOperator
 import com.tambapps.marcel.parser.ast.expression.operator.unary.UnaryPlus
 import com.tambapps.marcel.parser.ast.expression.variable.VariableReferenceExpression
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
@@ -52,6 +51,7 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
   fun script(): ModuleNode {
     val statements = mutableListOf<StatementNode>()
     val scope = Scope()
+    // TODO parse statements or functions
     while (current.type != TokenType.END_OF_FILE) {
       statements.add(statement(scope))
     }
@@ -80,7 +80,7 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
   // assuming type has already been accepted
   private fun variableDeclaration(scope: Scope, type: JavaType): VariableDeclarationNode {
     val identifier = accept(TokenType.IDENTIFIER)
-    accept(TokenType.ASSIGNEMENT)
+    accept(TokenType.ASSIGNMENT)
     val variableDeclarationNode = VariableDeclarationNode(type, identifier.value, expression(scope))
     scope.addLocalVariable(variableDeclarationNode.type, variableDeclarationNode.name)
     return variableDeclarationNode
@@ -130,7 +130,7 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
           }
           skip() // skipping PARENT_CLOSE
           return fCall
-        } else if (current.type == TokenType.ASSIGNEMENT) {
+        } else if (current.type == TokenType.ASSIGNMENT) {
           skip()
           VariableAssignmentNode(token.value, expression(scope))
         } else {

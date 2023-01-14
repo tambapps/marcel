@@ -28,3 +28,7 @@ private fun bar() {
 ```
 
 Functions are public by default
+
+### Visibility
+
+We have the `public`, `protected`, `private` and `hidden` (package-private) visibility.

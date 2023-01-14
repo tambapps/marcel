@@ -33,7 +33,7 @@ public class MarcelLexerTest {
     assertEquals(Arrays.asList(
             token(TokenType.TYPE_INT),
             token(TokenType.IDENTIFIER, "myInt"),
-            token(TokenType.ASSIGNEMENT),
+            token(TokenType.ASSIGNMENT),
             token(TokenType.INTEGER, "898"),
             token(TokenType.END_OF_FILE)
         )

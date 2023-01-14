@@ -67,6 +67,11 @@ TYPED_INTEGER_SUFFIX = {UNSIGNED_SUFFIX}?{LONG_SUFFIX}?
 "float"          { return token(TYPE_FLOAT); }
 "double"          { return token(TYPE_DOUBLE); }
 "bool"          { return token(TYPE_BOOL); }
+"public"          { return token(VISIBILITY_PUBLIC); }
+"protected"          { return token(VISIBILITY_PROTECTED); }
+"hidden"          { return token(VISIBILITY_HIDDEN); }
+"private"          { return token(VISIBILITY_PRIVATE); }
+"fun"          { return token(FUN); }
 
 {IDENTIFIER} {  return valueToken(IDENTIFIER); }
 
@@ -79,4 +84,4 @@ TYPED_INTEGER_SUFFIX = {UNSIGNED_SUFFIX}?{LONG_SUFFIX}?
 "-"          { return token(MINUS); }
 "/"          { return token(DIV); }
 "*"          { return token(MUL); }
-"="          { return token(ASSIGNEMENT); }
+"="          { return token(ASSIGNMENT); }
