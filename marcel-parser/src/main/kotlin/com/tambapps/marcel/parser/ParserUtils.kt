@@ -14,18 +14,19 @@ object ParserUtils {
     Pair(POWER, 1),
     Pair(NOT, 1),
     Pair(MUL, 2),
+    Pair(DIV, 2),
     Pair(MODULO, 2),
-    Pair(PLUS, 2),
-    Pair(MINUS, 2),
-    Pair(AND, 2),
-    Pair(EQUAL, 2),
-    Pair(NOT_EQUAL, 2),
-    Pair(GT, 2),
-    Pair(LT, 2),
-    Pair(GOE, 2),
-    Pair(LOE, 2),
-    Pair(OR, 2),
-    Pair(ASSIGNEMENT, 2)
+    Pair(PLUS, 3),
+    Pair(MINUS, 3),
+    Pair(AND, 4),
+    Pair(EQUAL, 5),
+    Pair(NOT_EQUAL, 5),
+    Pair(GT, 5),
+    Pair(LT, 5),
+    Pair(GOE, 5),
+    Pair(LOE, 5),
+    Pair(OR, 5),
+    Pair(ASSIGNEMENT, 6)
   )
 
   private val RIGHT_ASSOCIATIVITY_OPERATOR = listOf(POWER, ASSIGNEMENT)
