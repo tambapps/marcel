@@ -134,6 +134,14 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
           VariableReferenceExpression(token.value, scope)
         }
       }
+      TokenType.LPAR -> {
+        val node = expression(scope)
+        if (current.type != TokenType.RPAR) {
+          throw MarcelParsingException("Parenthesis should be close")
+        }
+        next()
+        return node
+      }
       else -> {
         throw UnsupportedOperationException("Not supported yet")
       }
