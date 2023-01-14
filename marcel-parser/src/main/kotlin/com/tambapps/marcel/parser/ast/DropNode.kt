@@ -1,12 +1,11 @@
 package com.tambapps.marcel.parser.ast
 
-import org.objectweb.asm.MethodVisitor
+import com.tambapps.marcel.parser.visitor.StatementVisitor
 
-class DropNode(private val child: ExpressionNode): StatementNode {
+class DropNode(val child: ExpressionNode): StatementNode {
 
-
-  override fun writeInstructions(mv: MethodVisitor) {
-    child.writeInstructions(mv)
-    // TODO drop what's on the stack if child is expression
+  override fun accept(mv: StatementVisitor) {
+    mv.visit(this)
   }
+
 }

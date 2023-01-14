@@ -1,9 +1,9 @@
 package com.tambapps.marcel.parser.ast
 
-import org.objectweb.asm.MethodVisitor
+import com.tambapps.marcel.parser.visitor.StatementVisitor
 
 interface StatementNode: AstNode {
 
-  fun writeInstructions(mv: MethodVisitor)
+  fun accept(mv: StatementVisitor)
 
 }

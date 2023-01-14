@@ -1,11 +1,12 @@
 package com.tambapps.marcel.parser.ast
 
-import org.objectweb.asm.MethodVisitor
+import com.tambapps.marcel.parser.visitor.ExpressionVisitor
 
 class TernaryNode(boolExpression: ExpressionNode,
                   trueExpression: ExpressionNode,
                   falseExpression: ExpressionNode): ExpressionNode {
-  override fun writeInstructions(mv: MethodVisitor) {
-    TODO("Not yet implemented")
+  override fun accept(expressionVisitor: ExpressionVisitor) {
+    expressionVisitor.visit(this)
   }
+
 }

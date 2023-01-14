@@ -1,10 +1,10 @@
 package com.tambapps.marcel.parser.ast
 
-import org.objectweb.asm.MethodVisitor
+import com.tambapps.marcel.parser.visitor.ExpressionVisitor
 
-data class IntConstantNode(private val value: Int): ExpressionNode {
-
-  override fun writeInstructions(mv: MethodVisitor) {
-    mv.visitLdcInsn(value) // write primitive value, from an Object class e.g. Integer -> int
+data class IntConstantNode(val value: Int): ExpressionNode {
+  override fun accept(expressionVisitor: ExpressionVisitor) {
+    expressionVisitor.visit(this)
   }
+
 }
