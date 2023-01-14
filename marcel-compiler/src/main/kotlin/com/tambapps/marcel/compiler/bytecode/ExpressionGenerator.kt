@@ -6,6 +6,8 @@ import com.tambapps.marcel.parser.ast.expression.variable.*
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
+import com.tambapps.marcel.parser.ast.expression.BlockNode
+import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.operator.binary.BinaryOperatorNode
@@ -86,11 +88,31 @@ private interface IUnpushedExpressionGenerator: ExpressionVisitor {
       val method = scope.getMethod(fCall.name)
       // TODO might need to push on stack variable/expression, if owner is not static
       val owner = method.owner
-      mv.visitMethodInsn(owner.invokeCode, owner.classInternalName, fCall.name, method.methodDescriptor);
-
+      mv.visitMethodInsn(owner.invokeCode, owner.classInternalName, fCall.name, method.methodDescriptor)
     }
   }
 
+  override fun visit(blockNode: BlockNode) {
+    // TODO might need to merge ExpressionGenerator and StatementGenerator
+    /*
+    for (statement in blockNode.statements) {
+      visit()
+    }
+
+     */
+  }
+
+  override fun visit(blockNode: FunctionBlockNode) {
+    /*
+    val returnType = blockNode.type
+    for (i in 0..(blockNode.statements.size - 2)) {
+      visit(blockNode.statements[i])
+    }
+    val lastStatement = blockNode.statements.lastOrNull() ?: return
+    pushArgument(lastStatement.expression)
+
+     */
+  }
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     pushArgument(variableAssignmentNode.expressionNode)
     val (variable, index) = scope.getLocalVariableWithIndex(variableAssignmentNode.name)

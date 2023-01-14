@@ -1,5 +1,7 @@
 package com.tambapps.marcel.parser.visitor
 
+import com.tambapps.marcel.parser.ast.expression.BlockNode
+import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.IntConstantNode
 import com.tambapps.marcel.parser.ast.expression.TernaryNode
@@ -23,5 +25,7 @@ interface ExpressionVisitor {
   fun visit(variableReferenceExpression: VariableReferenceExpression)
   fun visit(unaryMinus: UnaryMinus)
   fun visit(unaryPlus: UnaryPlus)
+  fun visit(blockNode: BlockNode)
+  fun visit(blockNode: FunctionBlockNode)
 
 }

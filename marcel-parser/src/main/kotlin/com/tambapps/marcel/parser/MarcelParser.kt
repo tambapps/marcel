@@ -5,6 +5,7 @@ import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.BlockNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
+import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.IntConstantNode
 import com.tambapps.marcel.parser.ast.expression.ReturnNode
@@ -56,7 +57,7 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
   fun script(): ModuleNode {
     val scope = Scope()
     val statements = mutableListOf<StatementNode>()
-    val mainBlock = BlockNode(statements)
+    val mainBlock = FunctionBlockNode(statements)
     val mainFunction = MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, StaticOwner(className),
       "main",
       mainBlock, mutableListOf(MethodParameter(Types.STRING_ARRAY, "args")), Types.VOID, scope
@@ -112,7 +113,7 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
     if (returnType != JavaPrimitiveType.VOID && block.type != returnType) {
       throw SemanticException("Return type of block doesn't match method's return type")
     }
-    return MethodNode(Opcodes.ACC_PUBLIC, StaticOwner(classNode.name), methodName, block, parameters, returnType, scope)
+    return MethodNode(Opcodes.ACC_PUBLIC, StaticOwner(classNode.name), methodName, block.toFunctionBlock(), parameters, returnType, scope)
   }
 
 
