@@ -1,5 +1,7 @@
 package com.tambapps.marcel.compiler.bytecode
 
+import com.tambapps.marcel.compiler.exception.SemanticException
+
 import com.tambapps.marcel.compiler.scope.Scope
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
@@ -71,8 +73,13 @@ private interface IUnpushedExpressionGenerator: ExpressionVisitor {
   }
 
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
-    TODO("Not yet implemented")
-}
+    pushArgument(variableAssignmentNode.expressionNode)
+    val (variable, index) = scope.getLocalVariableWithIndex(variableAssignmentNode.name)
+    if (variable.type != variableAssignmentNode.expressionNode.type) {
+      throw SemanticException("Incompatible types")
+    }
+    mv.visitVarInsn(variable.type.storeCode, index)
+  }
   fun pushArgument(expr: ExpressionNode)
 }
 
@@ -152,6 +159,11 @@ class ExpressionGenerator(override val mv: MethodVisitor, override val scope: Sc
   }
 
 
+  override fun visit(variableAssignmentNode: VariableAssignmentNode) {
+    super.visit(variableAssignmentNode)
+    // TODO push on stack
+  }
+
   override fun visit(operator: PlusOperator) {
     super.visit(operator)
     mv.visitInsn(operator.type.addCode)
@@ -161,4 +173,5 @@ class ExpressionGenerator(override val mv: MethodVisitor, override val scope: Sc
     super.visit(operator)
     TODO("Implement pow, or call function?")
   }
+
 }
