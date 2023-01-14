@@ -1,14 +1,16 @@
 package com.tambapps.marcel.parser.ast
 
 import com.tambapps.marcel.parser.MethodParameter
+import com.tambapps.marcel.parser.ast.expression.BlockNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.owner.Owner
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaType
 
-class MethodNode(val access: Int, val owner: Owner, val name: String, val statements: MutableList<StatementNode>,
+class MethodNode(val access: Int, val owner: Owner, val name: String, val statement: BlockNode,
                  val parameters: MutableList<MethodParameter>, val returnType: JavaType, val scope: Scope): AstNode {
 
+  val statements: List<StatementNode> = statement.statements
   val methodDescriptor: String
     get() {
       val builder = StringBuilder().append('(')

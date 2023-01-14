@@ -3,10 +3,13 @@ package com.tambapps.marcel.parser
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.ast.*
+import com.tambapps.marcel.parser.ast.expression.BlockNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.IntConstantNode
+import com.tambapps.marcel.parser.ast.expression.ReturnNode
 import com.tambapps.marcel.parser.ast.expression.TernaryNode
+import com.tambapps.marcel.parser.ast.expression.VoidExpression
 import com.tambapps.marcel.parser.ast.expression.operator.binary.BinaryOperatorNode
 import com.tambapps.marcel.parser.ast.expression.operator.binary.DivOperator
 import com.tambapps.marcel.parser.ast.expression.operator.binary.MinusOperator
@@ -52,9 +55,11 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
 
   fun script(): ModuleNode {
     val scope = Scope()
+    val statements = mutableListOf<StatementNode>()
+    val mainBlock = BlockNode(statements)
     val mainFunction = MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, StaticOwner(className),
       "main",
-      mutableListOf(), mutableListOf(MethodParameter(Types.STRING_ARRAY, "args")), Types.VOID, scope
+      mainBlock, mutableListOf(MethodParameter(Types.STRING_ARRAY, "args")), Types.VOID, scope
     )
     val classNode = ClassNode(
       Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, className, Types.OBJECT, mutableListOf(mainFunction))
@@ -70,11 +75,12 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
           }
           classNode.addMethod(method)
         }
-        else -> mainFunction.statements.add(statement(scope))
+        else -> statements.add(statement(scope, JavaPrimitiveType.VOID))
       }
     }
     return moduleNode
   }
+
 
   private fun method(classNode: ClassNode): MethodNode {
     // TODO handle static functions
@@ -100,15 +106,30 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
     }
     skip() // skipping RPAR
     val returnType = if (current.type != TokenType.BRACKETS_OPEN) parseType() else JavaPrimitiveType.VOID
+    val scope = Scope(classNode)
+    val block = block(scope, returnType)
+    // TODO determine access Opcodes based on visibility variable
+    if (returnType != JavaPrimitiveType.VOID && block.type != returnType) {
+      throw SemanticException("Return type of block doesn't match method's return type")
+    }
+    return MethodNode(Opcodes.ACC_PUBLIC, StaticOwner(classNode.name), methodName, block, parameters, returnType, scope)
+  }
+
+
+  fun block(scope: Scope, returnType: JavaType): BlockNode {
     accept(TokenType.BRACKETS_OPEN)
     val statements = mutableListOf<StatementNode>()
-    val scope = Scope(classNode)
     while (current.type != TokenType.BRACKETS_CLOSE) {
-      statements.add(statement(scope))
+      // TODO check if statement is return, if the return type matches the returnType
+      val statement = statement(scope, returnType)
+      if (statements.lastOrNull() is ReturnNode) {
+        // we have another statement after a return? shouldn't be possible
+        throw SemanticException("Cannot have other statements after a return")
+      }
+      statements.add(statement)
     }
     skip() // skipping BRACKETS_CLOSE
-    // TODO determine access Opcodes based on visibility variable
-    return MethodNode(Opcodes.ACC_PUBLIC, StaticOwner(classNode.name), methodName, statements, parameters, returnType, scope)
+    return BlockNode(statements)
   }
 
   private fun parseType(): JavaType {
@@ -123,13 +144,20 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
     }
   }
 
-  private fun statement(scope: Scope): StatementNode {
+  private fun statement(scope: Scope, returnType: JavaType): StatementNode {
     val token = next()
     return when (token.type) {
       TokenType.TYPE_INT -> variableDeclaration(scope, JavaPrimitiveType.INT)
       TokenType.TYPE_LONG -> variableDeclaration(scope, JavaPrimitiveType.LONG)
       TokenType.TYPE_FLOAT -> variableDeclaration(scope, JavaPrimitiveType.FLOAT)
       TokenType.TYPE_DOUBLE -> variableDeclaration(scope, JavaPrimitiveType.DOUBLE)
+      TokenType.RETURN -> {
+        val expression = if (current.type == TokenType.SEMI_COLON) VoidExpression() else expression(scope)
+        if (returnType != expression.type) {
+          throw SemanticException("Cannot return ${expression.type} when return type is $returnType")
+        }
+        ReturnNode(expression)
+      }
       else -> {
         rollback()
         val node = expression(scope)
