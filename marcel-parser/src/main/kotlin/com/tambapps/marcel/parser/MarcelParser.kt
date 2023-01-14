@@ -14,6 +14,7 @@ import com.tambapps.marcel.parser.ast.expression.operator.binary.MulOperator
 import com.tambapps.marcel.parser.ast.expression.operator.binary.PlusOperator
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
+import com.tambapps.marcel.parser.ast.statement.variable.VariableAssignmentNode
 import com.tambapps.marcel.parser.ast.statement.variable.VariableDeclarationNode
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
@@ -40,15 +41,20 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
 
 
   fun parse(): ModuleNode {
-    return ModuleNode(mutableListOf(ClassNode(
-      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, className, Types.OBJECT, mutableListOf(
-      MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, "main",
-        mutableListOf(
-          statement()
-    ), arrayOf(Types.STRING_ARRAY), Types.VOID
-      )))))
+    return script()
   }
 
+  fun script(): ModuleNode {
+    val statements = mutableListOf<StatementNode>()
+    while (current.type != TokenType.END_OF_FILE) {
+      statements.add(statement())
+    }
+    return  ModuleNode(mutableListOf(ClassNode(
+      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, className, Types.OBJECT, mutableListOf(
+        MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, "main",
+          statements, arrayOf(Types.STRING_ARRAY), Types.VOID
+        )))))
+  }
   private fun statement(): StatementNode {
     val token = next()
     return when (token.type) {
@@ -116,6 +122,9 @@ class MarcelParser(private val className: String, private val tokens: List<LexTo
           }
           skip() // skipping PARENT_CLOSE
           return fCall
+        } else if (current.type == TokenType.ASSIGNEMENT) {
+          skip()
+          VariableAssignmentNode(token.value, expression())
         } else {
           throw UnsupportedOperationException("Not supported yet")
         }

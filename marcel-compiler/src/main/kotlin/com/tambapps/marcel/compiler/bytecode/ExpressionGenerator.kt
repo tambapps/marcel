@@ -11,6 +11,8 @@ import com.tambapps.marcel.parser.ast.expression.operator.binary.MinusOperator
 import com.tambapps.marcel.parser.ast.expression.operator.binary.MulOperator
 import com.tambapps.marcel.parser.ast.expression.operator.binary.PlusOperator
 import com.tambapps.marcel.parser.ast.expression.operator.binary.PowOperator
+import com.tambapps.marcel.parser.ast.statement.variable.VariableAssignmentNode
+
 import com.tambapps.marcel.parser.visitor.ExpressionVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
@@ -68,6 +70,9 @@ private interface IUnpushedExpressionGenerator: ExpressionVisitor {
     mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false)
   }
 
+  override fun visit(variableAssignmentNode: VariableAssignmentNode) {
+    TODO("Not yet implemented")
+}
   fun pushArgument(expr: ExpressionNode)
 }
 
