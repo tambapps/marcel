@@ -1,9 +1,14 @@
 package com.tambapps.marcel.parser.ast.operator.binary
 
 import com.tambapps.marcel.parser.ast.ExpressionNode
+import com.tambapps.marcel.parser.type.JavaPrimitiveType
+import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.visitor.ExpressionVisitor
 
-abstract class BinaryOperatorNode(val leftOperand: ExpressionNode, val rightOperand: ExpressionNode): ExpressionNode
+abstract class BinaryOperatorNode(val leftOperand: ExpressionNode, val rightOperand: ExpressionNode): ExpressionNode {
+  // for now only ints are handled
+  override val type = JavaPrimitiveType.INT
+}
 
 class MulOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   BinaryOperatorNode(leftOperand, rightOperand) {

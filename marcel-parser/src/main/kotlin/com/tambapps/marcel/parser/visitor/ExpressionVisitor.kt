@@ -5,15 +5,15 @@ import com.tambapps.marcel.parser.ast.IntConstantNode
 import com.tambapps.marcel.parser.ast.TernaryNode
 import com.tambapps.marcel.parser.ast.operator.binary.*
 
-public interface ExpressionVisitor {
+interface ExpressionVisitor {
 
   fun visit(integer: IntConstantNode)
-  fun visit(mulOperator: MulOperator)
-  fun visit(ternaryNode: TernaryNode)
-  fun visit(functionCallNode: FunctionCallNode)
-  fun visit(divOperator: DivOperator)
-  fun visit(plusOperator: PlusOperator)
-  fun visit(minusOperator: MinusOperator)
-  fun visit(powOperator: PowOperator)
+  fun visit(operator: MulOperator)
+  fun visit(operator: TernaryNode)
+  fun visit(operator: FunctionCallNode)
+  fun visit(operator: DivOperator)
+  fun visit(operator: PlusOperator)
+  fun visit(operator: MinusOperator)
+  fun visit(operator: PowOperator)
 
 }
