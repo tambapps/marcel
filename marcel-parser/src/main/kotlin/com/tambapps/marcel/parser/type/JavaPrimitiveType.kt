@@ -1,6 +1,6 @@
 package com.tambapps.marcel.parser.type
 
-import com.tambapps.marcel.parser.Types
+import com.tambapps.marcel.parser.PrimitiveTypes
 import org.objectweb.asm.Type
 import org.objectweb.asm.Opcodes.*
 
@@ -15,11 +15,11 @@ enum class JavaPrimitiveType(override val className: String,
                              val subCode: Int,
                              val mulCode: Int,
                              val divCode: Int): JavaType {
-  INT(Types.INT, ILOAD, ISTORE, IRETURN,IADD,ISUB,IMUL,IDIV),
-  LONG(Types.LONG, LLOAD, LSTORE, LRETURN,LADD,LSUB,LMUL,LDIV),
-  FLOAT(Types.FLOAT, FLOAD, FSTORE, FRETURN,FADD,FSUB,FMUL,FDIV),
-  DOUBLE(Types.DOUBLE, DLOAD, DSTORE, DRETURN,DADD,DSUB,DMUL,DDIV),
-  VOID(Types.VOID_P, ALOAD, ASTORE, RETURN, 0,0,0,0);
+  INT(PrimitiveTypes.INT, ILOAD, ISTORE, IRETURN,IADD,ISUB,IMUL,IDIV),
+  LONG(PrimitiveTypes.LONG, LLOAD, LSTORE, LRETURN,LADD,LSUB,LMUL,LDIV),
+  FLOAT(PrimitiveTypes.FLOAT, FLOAD, FSTORE, FRETURN,FADD,FSUB,FMUL,FDIV),
+  DOUBLE(PrimitiveTypes.DOUBLE, DLOAD, DSTORE, DRETURN,DADD,DSUB,DMUL,DDIV),
+  VOID(PrimitiveTypes.VOID, ALOAD, ASTORE, RETURN, 0,0,0,0);
 
   constructor(clazz: Class<*>,
               loadCode: Int,
