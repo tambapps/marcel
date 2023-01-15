@@ -1,6 +1,6 @@
 package com.tambapps.marcel.compiler
 
-import com.tambapps.marcel.compiler.bytecode.BytecodeGenerator
+import com.tambapps.marcel.compiler.bytecode.BytecodeWriter
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
@@ -8,7 +8,6 @@ import com.tambapps.marcel.parser.MarcelParsingException
 import java.io.File
 import java.io.IOException
 import java.net.URLClassLoader
-import java.util.Arrays
 
 fun main(args : Array<String>) {
   val file = File(args[0])
@@ -38,7 +37,7 @@ fun main(args : Array<String>) {
 
   val classFile = File(file.parentFile, "$className.class")
   val result = try {
-    BytecodeGenerator().generate(ast)
+    BytecodeWriter().generate(ast)
   } catch (e: Exception) {
     println("Error while writing class: ${e.message}")
     e.printStackTrace()
@@ -46,7 +45,7 @@ fun main(args : Array<String>) {
   }
   classFile.writeBytes(result.bytes)
   // TODO trying load class doesn't work
-//  val classLoader = URLClassLoader(arrayOf(File(".").toURI().toURL()), BytecodeGenerator::class.java.classLoader)
+  val classLoader = URLClassLoader(arrayOf(File(".").toURI().toURL()), BytecodeWriter::class.java.classLoader)
   //classLoader.loadClass(result.className)
 }
 

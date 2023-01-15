@@ -1,11 +1,7 @@
 package com.tambapps.marcel.compiler
 
-import com.tambapps.marcel.compiler.bytecode.BytecodeGenerator
-import com.tambapps.marcel.parser.ast.*
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import java.nio.file.Files
-import java.nio.file.Paths
 
 class MarcelCompilerTest {
 

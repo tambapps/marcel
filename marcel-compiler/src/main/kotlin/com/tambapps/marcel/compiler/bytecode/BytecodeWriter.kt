@@ -5,7 +5,7 @@ import com.tambapps.marcel.parser.ast.ModuleNode
 import org.objectweb.asm.ClassWriter
 
 // https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
-class BytecodeGenerator {
+class BytecodeWriter {
 
   // TODO make java class version configurable https://www.baeldung.com/java-find-class-version
 
