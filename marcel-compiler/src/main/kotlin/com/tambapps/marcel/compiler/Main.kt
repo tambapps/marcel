@@ -15,8 +15,12 @@ fun main(args : Array<String>) {
     println("File $file does not exists or isn't a file")
     return
   }
-  val tokens = try {
-    MarcelLexer().lex(file.reader())
+
+  val className = generateClassName(file.name)
+  val classFile = File(file.parentFile, "$className.class")
+
+  val result = try {
+    MarcelCompiler().compile(file.reader(), className)
   } catch (e: IOException) {
     println("An error occurred while reading file: ${e.message}")
     return
@@ -24,28 +28,19 @@ fun main(args : Array<String>) {
     println("Lexer error: ${e.message}")
     e.printStackTrace()
     return
-  }
-
-  val className = generateClassName(file.name)
-  val ast = try {
-    MarcelParser(className, tokens).parse()
   } catch (e: MarcelParsingException) {
     println("Parsing error: ${e.message}")
     e.printStackTrace()
     return
-  }
-
-  val classFile = File(file.parentFile, "$className.class")
-  val result = try {
-    BytecodeWriter().generate(ast)
   } catch (e: Exception) {
-    println("Error while writing class: ${e.message}")
+    println("An unexpected error occured while: ${e.message}")
     e.printStackTrace()
     return
   }
+
   classFile.writeBytes(result.bytes)
-  // TODO trying load class doesn't work
-  val classLoader = URLClassLoader(arrayOf(File(".").toURI().toURL()), BytecodeWriter::class.java.classLoader)
+  // TODO trying load class doesn't work (maybe it is just on mac?)
+  //val classLoader = URLClassLoader(arrayOf(File(".").toURI().toURL()), BytecodeWriter::class.java.classLoader)
   //classLoader.loadClass(result.className)
 }
 
