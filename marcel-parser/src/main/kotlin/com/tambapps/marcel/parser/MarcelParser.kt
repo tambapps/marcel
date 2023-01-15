@@ -27,7 +27,7 @@ import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.owner.StaticOwner
 import com.tambapps.marcel.parser.scope.Scope
-import com.tambapps.marcel.parser.type.ClassType
+import com.tambapps.marcel.parser.type.JavaClassType
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.Script
@@ -71,7 +71,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     )
     classMethods.add(mainFunction)
     val classNode = ClassNode(
-      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, className, ClassType(Script::class.java), classMethods)
+      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, className, JavaClassType(Script::class.java), classMethods)
     val moduleNode = ModuleNode(mutableListOf(classNode))
 
     while (current.type != TokenType.END_OF_FILE) {

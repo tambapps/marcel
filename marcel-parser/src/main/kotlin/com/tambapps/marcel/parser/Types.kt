@@ -1,11 +1,11 @@
 package com.tambapps.marcel.parser
 
-import com.tambapps.marcel.parser.type.ClassType
+import com.tambapps.marcel.parser.type.JavaClassType
 
 object Types {
-  val VOID = ClassType(Void::class.javaPrimitiveType!!)
-  val OBJECT = ClassType(Object::class.java)
-  val STRING_ARRAY = ClassType(Array<String>::class.java)
-  val STRING = ClassType(String::class.java)
+  val VOID = JavaClassType(Void::class.javaPrimitiveType!!)
+  val OBJECT = JavaClassType(Object::class.java)
+  val STRING_ARRAY = JavaClassType(Array<String>::class.java)
+  val STRING = JavaClassType(String::class.java)
 
 }

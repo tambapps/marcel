@@ -2,7 +2,7 @@ package com.tambapps.marcel.parser.type
 
 import org.objectweb.asm.Type
 
-class ClassType(clazz: Class<*>): JavaType {
+class JavaClassType(clazz: Class<*>): JavaType {
   override val className = clazz.name
   val simpleName = clazz.simpleName
   override val internalName = Type.getInternalName(clazz)
