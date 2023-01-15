@@ -32,3 +32,6 @@ volumes/
 /Test.marcel
 
 marcel-lexer/src/main/java/com/tambapps/marcel/lexer/MarcelJflexer.java~
+
+*.jar
+*.class
