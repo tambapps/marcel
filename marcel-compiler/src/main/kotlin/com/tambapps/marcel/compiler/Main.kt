@@ -30,7 +30,7 @@ fun main(args : Array<String>) {
     e.printStackTrace()
     return
   } catch (e: Exception) {
-    println("An unexpected error occured while: ${e.message}")
+    println("An unexpected error occurred while: ${e.message}")
     e.printStackTrace()
     return
   }
