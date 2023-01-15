@@ -64,7 +64,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val classMethods = mutableListOf<MethodNode>()
     val scope = Scope(AsmUtils.getInternalName(Script::class.java), classMethods)
     val statements = mutableListOf<StatementNode>()
-    val mainBlock = FunctionBlockNode(Types.VOID, statements)
+    val mainBlock = FunctionBlockNode(JavaPrimitiveType.VOID, statements)
     //val packageName = "marcellang.default_package" // TODO parse optional package or fallback to that
     val className = classSimpleName //"$packageName.$classSimpleName"
     val mainFunction = MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, StaticOwner(AsmUtils.getInternalName(className)),

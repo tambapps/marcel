@@ -35,7 +35,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
     mv.visitVarInsn(Opcodes.ALOAD, 0)
     pushFunctionCallArguments(fCall)
     mv.visitMethodInsn(Opcodes.INVOKESPECIAL, scope.superClassInternalName, fCall.name,
-      AsmUtils.getDescriptor(fCall.arguments.map { it.type }, Types.VOID), false)
+      AsmUtils.getDescriptor(fCall.arguments.map { it.type }, JavaPrimitiveType.VOID), false)
   }
 
   private fun pushFunctionCallArguments(fCall: FunctionCallNode) {

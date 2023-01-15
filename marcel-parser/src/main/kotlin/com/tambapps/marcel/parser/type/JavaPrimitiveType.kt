@@ -4,8 +4,9 @@ import com.tambapps.marcel.parser.PrimitiveTypes
 import org.objectweb.asm.Type
 import org.objectweb.asm.Opcodes.*
 
+// TODO merge this with JavaClassType and JavaType
 
-enum class JavaPrimitiveType(override val className: String,
+class JavaPrimitiveType(override val className: String,
                              override val internalName: String,
                              override val descriptor: String,
                              override val loadCode: Int,
@@ -15,11 +16,13 @@ enum class JavaPrimitiveType(override val className: String,
                              val subCode: Int,
                              val mulCode: Int,
                              val divCode: Int): JavaType {
-  INT(PrimitiveTypes.INT, ILOAD, ISTORE, IRETURN,IADD,ISUB,IMUL,IDIV),
-  LONG(PrimitiveTypes.LONG, LLOAD, LSTORE, LRETURN,LADD,LSUB,LMUL,LDIV),
-  FLOAT(PrimitiveTypes.FLOAT, FLOAD, FSTORE, FRETURN,FADD,FSUB,FMUL,FDIV),
-  DOUBLE(PrimitiveTypes.DOUBLE, DLOAD, DSTORE, DRETURN,DADD,DSUB,DMUL,DDIV),
-  VOID(PrimitiveTypes.VOID, ALOAD, ASTORE, RETURN, 0,0,0,0);
+  companion object {
+    val INT = JavaPrimitiveType(PrimitiveTypes.INT, ILOAD, ISTORE, IRETURN,IADD,ISUB,IMUL,IDIV)
+    val LONG = JavaPrimitiveType(PrimitiveTypes.LONG, LLOAD, LSTORE, LRETURN,LADD,LSUB,LMUL,LDIV)
+    val FLOAT = JavaPrimitiveType(PrimitiveTypes.FLOAT, FLOAD, FSTORE, FRETURN,FADD,FSUB,FMUL,FDIV)
+    val DOUBLE = JavaPrimitiveType(PrimitiveTypes.DOUBLE, DLOAD, DSTORE, DRETURN,DADD,DSUB,DMUL,DDIV)
+    val VOID = JavaPrimitiveType(PrimitiveTypes.VOID, ALOAD, ASTORE, RETURN, 0,0,0,0)
+  }
 
   constructor(clazz: Class<*>,
               loadCode: Int,
@@ -35,4 +38,4 @@ enum class JavaPrimitiveType(override val className: String,
     return className
   }
 
-}
+  }
