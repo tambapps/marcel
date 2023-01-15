@@ -1,12 +1,11 @@
 package com.tambapps.marcel.parser.ast.expression
 
 import com.tambapps.marcel.parser.ast.AstNode
-import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.TypedNode
 
-interface ExpressionNode: AstNode {
+interface ExpressionNode: AstNode, TypedNode {
 
-  val type: JavaType
   fun accept(astNodeVisitor: AstNodeVisitor)
 
 }

@@ -1,28 +1,14 @@
 package com.tambapps.marcel.compiler.bytecode
 
-import com.tambapps.marcel.parser.exception.SemanticException
-
-import com.tambapps.marcel.parser.scope.Scope
+import com.tambapps.marcel.parser.Types
+import com.tambapps.marcel.parser.asm.AsmUtils
+import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.expression.*
-import com.tambapps.marcel.parser.ast.expression.BlockNode
-import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
-import com.tambapps.marcel.parser.ast.expression.ExpressionNode
-import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
-import com.tambapps.marcel.parser.ast.expression.BinaryOperatorNode
-import com.tambapps.marcel.parser.ast.expression.DivOperator
-import com.tambapps.marcel.parser.ast.expression.MinusOperator
-import com.tambapps.marcel.parser.ast.expression.MulOperator
-import com.tambapps.marcel.parser.ast.expression.PlusOperator
-import com.tambapps.marcel.parser.ast.expression.PowOperator
-import com.tambapps.marcel.parser.ast.expression.UnaryMinus
-import com.tambapps.marcel.parser.ast.expression.UnaryPlus
-import com.tambapps.marcel.parser.ast.expression.VariableAssignmentNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
-import com.tambapps.marcel.parser.ast.expression.ReturnNode
+import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
-import com.tambapps.marcel.parser.ast.AstNodeVisitor
-import com.tambapps.marcel.parser.ast.expression.VariableReferenceExpression
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 
@@ -45,6 +31,22 @@ private interface IInstructionGenerator: AstNodeVisitor {
     TODO("Not yet implemented")
   }
 
+  override fun visit(fCall: SuperConstructorCallNode) {
+    mv.visitVarInsn(Opcodes.ALOAD, 0)
+    pushFunctionCallArguments(fCall)
+    mv.visitMethodInsn(Opcodes.INVOKESPECIAL, scope.superClassInternalName, fCall.name,
+      AsmUtils.getDescriptor(fCall.arguments.map { it.type }, Types.VOID), false)
+  }
+
+  private fun pushFunctionCallArguments(fCall: FunctionCallNode) {
+    val method = scope.getMethod(fCall.name, fCall.arguments)
+    if (method.parameters.size != fCall.arguments.size) {
+      throw SemanticException("Tried to call function $method with ${fCall.arguments.size} instead of ${method.parameters.size}")
+    }
+    for (argument in fCall.arguments) {
+      pushArgument(argument)
+    }
+  }
   override fun visit(operator: MulOperator) {
     evaluateOperands(operator)
   }
@@ -80,10 +82,12 @@ private interface IInstructionGenerator: AstNodeVisitor {
       }
       mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false)
     } else {
-      val method = scope.getMethod(fCall.name)
-      // TODO might need to push on stack variable/expression, if owner is not static
+      val method = scope.getMethod(fCall.name, fCall.arguments)
+      pushFunctionCallArguments(fCall)
+
+      // TODO might need to push on stack variable/expression, if owner is not static, and need not to push for unpushedblabla
       val owner = method.owner
-      mv.visitMethodInsn(owner.invokeCode, owner.classInternalName, fCall.name, method.methodDescriptor)
+      mv.visitMethodInsn(owner.invokeCode, owner.classInternalName, fCall.name, method.methodDescriptor, false)
     }
   }
 

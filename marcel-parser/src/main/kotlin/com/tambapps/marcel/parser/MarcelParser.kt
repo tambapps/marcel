@@ -17,6 +17,7 @@ import com.tambapps.marcel.parser.ast.expression.DivOperator
 import com.tambapps.marcel.parser.ast.expression.MinusOperator
 import com.tambapps.marcel.parser.ast.expression.MulOperator
 import com.tambapps.marcel.parser.ast.expression.PlusOperator
+import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.UnaryMinus
 import com.tambapps.marcel.parser.ast.expression.UnaryPlus
 import com.tambapps.marcel.parser.ast.expression.VariableReferenceExpression
@@ -30,6 +31,7 @@ import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaClassType
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
+import marcel.lang.Binding
 import marcel.lang.Script
 
 import org.objectweb.asm.Opcodes
@@ -60,7 +62,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
 
   fun script(): ModuleNode {
     val classMethods = mutableListOf<MethodNode>()
-    val scope = Scope(classMethods)
+    val scope = Scope(AsmUtils.getInternalName(Script::class.java), classMethods)
     val statements = mutableListOf<StatementNode>()
     val mainBlock = FunctionBlockNode(Types.VOID, statements)
     //val packageName = "marcellang.default_package" // TODO parse optional package or fallback to that
@@ -68,6 +70,17 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val mainFunction = MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, StaticOwner(AsmUtils.getInternalName(className)),
       "main",
       mainBlock, mutableListOf(MethodParameter(Types.STRING_ARRAY, "args")), mainBlock.methodReturnType, scope
+    )
+
+    // adding script constructors script have 2 constructors. One no-arg constructor, and one for Binding
+    val bindingType = JavaClassType(Binding::class.java)
+    classMethods.add(
+      ConstructorNode(Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaPrimitiveType.VOID, emptyList()), mutableListOf(), scope),
+    )
+    classMethods.add(
+      ConstructorNode(Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaPrimitiveType.VOID, listOf(
+        ExpressionStatementNode(SuperConstructorCallNode(mutableListOf(VariableReferenceExpression(bindingType, "binding"))))
+      )), mutableListOf(MethodParameter(bindingType, "binding")), scope)
     )
     classMethods.add(mainFunction)
     val classNode = ClassNode(

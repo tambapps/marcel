@@ -17,6 +17,7 @@ import com.tambapps.marcel.parser.ast.expression.MinusOperator
 import com.tambapps.marcel.parser.ast.expression.MulOperator
 import com.tambapps.marcel.parser.ast.expression.PlusOperator
 import com.tambapps.marcel.parser.ast.expression.PowOperator
+import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 
 interface AstNodeVisitor {
@@ -25,6 +26,7 @@ interface AstNodeVisitor {
   fun visit(operator: MulOperator)
   fun visit(operator: TernaryNode)
   fun visit(fCall: FunctionCallNode)
+  fun visit(fCall: SuperConstructorCallNode)
   fun visit(operator: DivOperator)
   fun visit(operator: PlusOperator)
   fun visit(operator: MinusOperator)

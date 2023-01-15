@@ -1,8 +1,10 @@
 package com.tambapps.marcel.compiler.bytecode
 
 import com.tambapps.marcel.compiler.CompilationResult
+import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.ModuleNode
 import org.objectweb.asm.ClassWriter
+import org.objectweb.asm.MethodVisitor
 
 // https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
 class BytecodeWriter {
@@ -19,21 +21,24 @@ class BytecodeWriter {
     //https://github.com/JakubDziworski/Enkel-JVM-language/blob/master/compiler/src/main/java/com/kubadziworski/bytecodegeneration/MethodGenerator.java
 
     for (methodNode in classNode.methods) {
-      val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.methodDescriptor, null, null)
-      mv.visitCode()
-
-      val instructionGenerator = InstructionGenerator(mv, methodNode.scope)
-      val maxStack = 100; //TODO - do that properly
-
-      // writing method
-      instructionGenerator.visit(methodNode.block)
-      // TODO may need one day to treat inner scopes
-      mv.visitMaxs(maxStack, instructionGenerator.scope.localVariablesCount) //set max stack and max local variables
-      mv.visitEnd()
+      writeMethod(classWriter, methodNode)
     }
 
     classWriter.visitEnd()
     return CompilationResult(classWriter.toByteArray(), classNode.name)
   }
 
+  private fun writeMethod(classWriter: ClassWriter, methodNode: MethodNode) {
+    val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.methodDescriptor, null, null)
+    mv.visitCode()
+
+    val instructionGenerator = InstructionGenerator(mv, methodNode.scope)
+    val maxStack = 100; //TODO - do that properly
+
+    // writing method
+    instructionGenerator.visit(methodNode.block)
+    // TODO may need one day to treat inner scopes
+    mv.visitMaxs(maxStack, instructionGenerator.scope.localVariablesCount) //set max stack and max local variables
+    mv.visitEnd()
+  }
 }
