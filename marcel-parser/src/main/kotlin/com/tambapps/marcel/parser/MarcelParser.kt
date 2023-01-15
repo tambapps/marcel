@@ -31,10 +31,11 @@ import com.tambapps.marcel.parser.type.JavaType
 
 import org.objectweb.asm.Opcodes
 import java.util.concurrent.ThreadLocalRandom
+import kotlin.math.abs
 
 class MarcelParser(private val classSimpleName: String, private val tokens: List<LexToken>) {
 
-  constructor(tokens: List<LexToken>): this("MarcelRandomClass_" + ThreadLocalRandom.current().nextInt(), tokens)
+  constructor(tokens: List<LexToken>): this("MarcelRandomClass_" + abs(ThreadLocalRandom.current().nextInt()), tokens)
 
   private var currentIndex = 0
 

@@ -4,6 +4,8 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.ast.expression.BinaryOperatorNode
 import com.tambapps.marcel.parser.ast.expression.IntConstantNode
+import com.tambapps.marcel.parser.ast.expression.MulOperator
+import com.tambapps.marcel.parser.scope.Scope
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -31,10 +33,7 @@ class MarcelParserTest {
             LexToken(TokenType.INTEGER, "3"),
             LexToken(TokenType.END_OF_FILE, null)
         ))
-        val result = parser.expression()
-        assertEquals(BinaryOperatorNode(TokenType.MUL).apply {
-                                                             leftOperand = IntConstantNode(2)
-                                                             rightOperand = IntConstantNode(3)
-        }, result)
+        val result = parser.expression(Scope())
+        assertEquals(MulOperator(IntConstantNode(2), IntConstantNode(3)), result)
     }
 }
