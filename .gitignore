@@ -30,3 +30,5 @@ volumes/
 # me, for testing
 /Test.class
 /Test.marcel
+
+marcel-lexer/src/main/java/com/tambapps/marcel/lexer/MarcelJflexer.java~
