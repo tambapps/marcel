@@ -61,3 +61,5 @@ class PowOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
     return "$leftOperand ^ $rightOperand"
   }
 }
+
+// TODO do all booleans operator

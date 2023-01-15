@@ -161,6 +161,8 @@ LONELY_BACKTICK=`
 
 // keywords
 "void"          { return token(TYPE_VOID); }
+"true"          { return token(VALUE_TRUE); }
+"false"          { return token(VALUE_FALSE); }
 "byte"          { return token(TYPE_BYTE); }
 "short"          { return token(TYPE_SHORT); }
 "int"          { return token(TYPE_INT); }
@@ -188,4 +190,14 @@ LONELY_BACKTICK=`
 "-"          { return token(MINUS); }
 "/"          { return token(DIV); }
 "*"          { return token(MUL); }
+"%"          { return token(MODULO); }
+"!"          { return token(NOT); }
+"&&"          { return token(AND); }
+"||"          { return token(OR); }
+">="          { return token(GOE); }
+">"          { return token(GT); }
+"<="          { return token(LOE); }
+"<"          { return token(LT); }
+"=="          { return token(EQUAL); }
+"!="          { return token(NOT_EQUAL); }
 "="          { return token(ASSIGNMENT); }
