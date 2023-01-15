@@ -1,9 +1,11 @@
 package com.tambapps.marcel.compiler
 
+import com.tambapps.marcel.compiler.bytecode.BytecodeWriter
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParsingException
 import java.io.File
 import java.io.IOException
+import java.net.URLClassLoader
 
 fun main(args : Array<String>) {
   val file = File(args[0])
@@ -13,7 +15,6 @@ fun main(args : Array<String>) {
   }
 
   val className = generateClassName(file.name)
-  val classFile = File(file.parentFile, "$className.class")
 
   val result = try {
     MarcelCompiler().compile(file.reader(), className)
@@ -34,10 +35,15 @@ fun main(args : Array<String>) {
     return
   }
 
-  classFile.writeBytes(result.bytes)
-  // TODO trying load class doesn't work (maybe it is just on mac?)
-  //val classLoader = URLClassLoader(arrayOf(File(".").toURI().toURL()), BytecodeWriter::class.java.classLoader)
-  //classLoader.loadClass(result.className)
+  // just for debuging purpose
+  File("$className.class").writeBytes(result.bytes)
+
+  val jarFile = File(file.parentFile, "$className.jar")
+  JarWriter().writeScriptJar(result.className, result.bytes, jarFile)
+
+  val classLoader = URLClassLoader(arrayOf(jarFile.toURI().toURL()), BytecodeWriter::class.java.classLoader)
+  val clazz = classLoader.loadClass(result.className)
+  clazz.getMethod("main", Array<String>::class.java).invoke(null, args)
 }
 
 private fun generateClassName(fileName: String): String {
