@@ -2,6 +2,7 @@ package com.tambapps.marcel.parser
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
+import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.BlockNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
@@ -26,8 +27,10 @@ import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.owner.StaticOwner
 import com.tambapps.marcel.parser.scope.Scope
+import com.tambapps.marcel.parser.type.ClassType
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
+import marcel.lang.Script
 
 import org.objectweb.asm.Opcodes
 import java.util.concurrent.ThreadLocalRandom
@@ -62,13 +65,13 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val mainBlock = FunctionBlockNode(Types.VOID, statements)
     //val packageName = "marcellang.default_package" // TODO parse optional package or fallback to that
     val className = classSimpleName //"$packageName.$classSimpleName"
-    val mainFunction = MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, StaticOwner(className.replace('.', '/')),
+    val mainFunction = MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, StaticOwner(AsmUtils.getInternalName(className)),
       "main",
       mainBlock, mutableListOf(MethodParameter(Types.STRING_ARRAY, "args")), mainBlock.methodReturnType, scope
     )
     classMethods.add(mainFunction)
     val classNode = ClassNode(
-      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, className, Types.OBJECT, classMethods)
+      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, className, ClassType(Script::class.java), classMethods)
     val moduleNode = ModuleNode(mutableListOf(classNode))
 
     while (current.type != TokenType.END_OF_FILE) {

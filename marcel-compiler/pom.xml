@@ -22,6 +22,11 @@
       <artifactId>marcel-parser</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.tambapps.marcel</groupId>
+      <artifactId>marcel-stdlib</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <!-- bytecode manipulation -->
     <dependency>
       <groupId>org.ow2.asm</groupId>

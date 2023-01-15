@@ -1,13 +1,9 @@
 package com.tambapps.marcel.compiler
 
-import com.tambapps.marcel.compiler.bytecode.BytecodeWriter
-import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
-import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParsingException
 import java.io.File
 import java.io.IOException
-import java.net.URLClassLoader
 
 fun main(args : Array<String>) {
   val file = File(args[0])

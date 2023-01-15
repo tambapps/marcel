@@ -14,6 +14,7 @@
     <module>marcel-lexer</module>
     <module>marcel-parser</module>
     <module>marcel-compiler</module>
+    <module>marcel-stdlib</module>
   </modules>
 
   <dependencyManagement>
