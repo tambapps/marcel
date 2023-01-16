@@ -34,7 +34,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
     mv.visitVarInsn(Opcodes.ALOAD, 0)
     pushFunctionCallArguments(fCall)
     mv.visitMethodInsn(Opcodes.INVOKESPECIAL, scope.superClassInternalName, fCall.name,
-      AsmUtils.getDescriptor(fCall.arguments.map { it.type }, JavaType.VOID), false)
+      AsmUtils.getDescriptor(fCall.arguments.map { it.type }, JavaType.void), false)
   }
 
   private fun pushFunctionCallArguments(fCall: FunctionCallNode) {
@@ -133,7 +133,7 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: S
       blockNode.statements[i].accept(this)
     }
     val lastStatement = blockNode.statements.lastOrNull() ?: ExpressionStatementNode(VoidExpression())
-    if (blockNode.methodReturnType == JavaType.VOID) {
+    if (blockNode.methodReturnType == JavaType.void) {
       lastStatement.accept(this)
       mv.visitInsn(Opcodes.RETURN)
     } else {

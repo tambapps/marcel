@@ -62,7 +62,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val classMethods = mutableListOf<MethodNode>()
     val scope = Scope(AsmUtils.getInternalName(Script::class.java), classMethods)
     val statements = mutableListOf<StatementNode>()
-    val mainBlock = FunctionBlockNode(JavaType.VOID, statements)
+    val mainBlock = FunctionBlockNode(JavaType.void, statements)
     //val packageName = "marcellang.default_package" // TODO parse optional package or fallback to that
     val className = classSimpleName //"$packageName.$classSimpleName"
     val mainFunction = MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, StaticOwner(AsmUtils.getInternalName(className)),
@@ -73,10 +73,10 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     // adding script constructors script have 2 constructors. One no-arg constructor, and one for Binding
     val bindingType = JavaType(Binding::class.java)
     classMethods.add(
-      ConstructorNode(Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.VOID, emptyList()), mutableListOf(), scope),
+      ConstructorNode(Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, emptyList()), mutableListOf(), scope),
     )
     classMethods.add(
-      ConstructorNode(Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.VOID, listOf(
+      ConstructorNode(Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, listOf(
         ExpressionStatementNode(SuperConstructorCallNode(mutableListOf(VariableReferenceExpression(bindingType, "binding"))))
       )), mutableListOf(MethodParameter(bindingType, "binding")), scope)
     )
@@ -95,7 +95,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           }
           classNode.addMethod(method)
         }
-        else -> statements.add(statement(scope, JavaType.VOID))
+        else -> statements.add(statement(scope, JavaType.void))
       }
     }
     return moduleNode
@@ -125,11 +125,11 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       }
     }
     skip() // skipping RPAR
-    val returnType = if (current.type != TokenType.BRACKETS_OPEN) parseType() else JavaType.VOID
+    val returnType = if (current.type != TokenType.BRACKETS_OPEN) parseType() else JavaType.void
     val scope = Scope(classNode)
     val block = block(scope, returnType)
     // TODO determine access Opcodes based on visibility variable
-    if (returnType != JavaType.VOID && block.type != returnType) {
+    if (returnType != JavaType.void && block.type != returnType) {
       throw SemanticException("Return type of block doesn't match method's return type")
     }
     return MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC, StaticOwner(classNode.name), methodName, block.toFunctionBlock(returnType), parameters, returnType, scope)

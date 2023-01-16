@@ -1,14 +1,13 @@
 package com.tambapps.marcel.parser.ast.expression
 
 import com.tambapps.marcel.parser.ast.statement.StatementNode
-import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 
 open class BlockNode(val statements: List<StatementNode>) : ExpressionNode {
 
   override val type
-    get() = statements.lastOrNull()?.type ?: JavaType.VOID
+    get() = statements.lastOrNull()?.type ?: JavaType.void
 
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)

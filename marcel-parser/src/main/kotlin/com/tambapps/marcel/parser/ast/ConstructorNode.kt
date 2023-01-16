@@ -7,7 +7,6 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.owner.NoOpOwner
 import com.tambapps.marcel.parser.scope.Scope
-import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 
 class ConstructorNode(
@@ -15,7 +14,7 @@ class ConstructorNode(
   block: FunctionBlockNode,
   parameters: MutableList<MethodParameter>,
   scope: Scope
-) : MethodNode(access, NoOpOwner(), "<init>", blockWithSuperCall(block), parameters, JavaType.VOID, scope) {
+) : MethodNode(access, NoOpOwner(), "<init>", blockWithSuperCall(block), parameters, JavaType.void, scope) {
 
   companion object {
     private fun blockWithSuperCall(block: FunctionBlockNode): FunctionBlockNode {

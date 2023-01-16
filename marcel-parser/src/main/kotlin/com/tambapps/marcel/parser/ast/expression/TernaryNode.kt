@@ -8,7 +8,7 @@ class TernaryNode(boolExpression: ExpressionNode,
                   falseExpression: ExpressionNode
 ): ExpressionNode {
   // for now only ints are handled
-  override val type = JavaType.INT
+  override val type = JavaType.int
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)
   }
