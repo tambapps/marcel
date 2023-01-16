@@ -206,6 +206,10 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         }
       }
       else -> {
+        if (token.type == TokenType.IDENTIFIER && current.type == TokenType.IDENTIFIER) {
+          val className = scope.resolveClassName(token.value)
+          return variableDeclaration(scope, JavaType(className))
+        }
         rollback()
         val node = expression(scope)
         acceptOptional(TokenType.SEMI_COLON)

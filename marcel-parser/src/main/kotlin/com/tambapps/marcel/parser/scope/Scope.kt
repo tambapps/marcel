@@ -43,6 +43,17 @@ open class Scope(val imports: List<ImportNode>, val superClassInternalName: Stri
     return Scope(imports, superClassInternalName, classMethods)
   }
 
+  fun resolveClassName(classSimpleName: String): String {
+    val matchedClasses = imports.mapNotNull { it.resolve(classSimpleName) }.toSet()
+    if (matchedClasses.isEmpty()) {
+      return classSimpleName
+    } else if (matchedClasses.size == 1) {
+      return matchedClasses.first()
+    } else {
+      throw SemanticException("Ambiguous import for class $classSimpleName")
+    }
+  }
+
 }
 
 class InMethodScope(imports: List<ImportNode>, superClassInternalName: String, classMethods: List<MethodNode>, val currentMethod: MethodNode)

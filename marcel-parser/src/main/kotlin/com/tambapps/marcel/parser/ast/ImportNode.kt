@@ -6,7 +6,7 @@ interface ImportNode: AstNode {
 class SimpleImportNode(private val value: String, private val asName: String? = null): ImportNode {
   override fun resolve(classSimpleName: String): String? {
     return if (asName != null) {
-      if (classSimpleName == asName) classSimpleName
+      if (classSimpleName == asName) value
       else null
     } else {
       if (classSimpleName == value.substring(value.lastIndexOf('.') + 1)) value
