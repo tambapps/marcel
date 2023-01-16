@@ -1,21 +1,24 @@
 package com.tambapps.marcel.parser.scope
 
-import com.tambapps.marcel.parser.Types
-import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.TypedNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.type.JavaType
 
+// be careful to have one scope instance per method!!
 class Scope(val superClassInternalName: String, val classMethods: List<MethodNode>) {
-  constructor(): this(Types.OBJECT.internalName, emptyList())
+  constructor(): this(JavaType.OBJECT.internalName, emptyList())
 
   constructor(classNode: ClassNode): this(classNode.parentType.internalName, classNode.methods)
 
   private val localVariables: LinkedHashMap<String, LocalVariable> = LinkedHashMap()
   val localVariablesCount: Int
     get() = localVariables.size
+
+  fun copy(): Scope {
+    return Scope(superClassInternalName, classMethods)
+  }
 
   fun addLocalVariable(type: JavaType, name: String) {
     if (localVariables.containsKey(name)) {

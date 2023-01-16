@@ -28,8 +28,6 @@ import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.owner.StaticOwner
 import com.tambapps.marcel.parser.scope.Scope
-import com.tambapps.marcel.parser.type.JavaClassType
-import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.Binding
 import marcel.lang.Script
@@ -62,29 +60,31 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
 
   fun script(): ModuleNode {
     val classMethods = mutableListOf<MethodNode>()
-    val scope = Scope(AsmUtils.getInternalName(Script::class.java), classMethods)
-    val statements = mutableListOf<StatementNode>()
-    val mainBlock = FunctionBlockNode(JavaPrimitiveType.VOID, statements)
+    val scriptClass = AsmUtils.getInternalName(Script::class.java)
+    val mainMethodScope = Scope(scriptClass, classMethods)
+    val mainMethodStatements = mutableListOf<StatementNode>()
+    val mainBlock = FunctionBlockNode(JavaType.void, mainMethodStatements)
     //val packageName = "marcellang.default_package" // TODO parse optional package or fallback to that
     val className = classSimpleName //"$packageName.$classSimpleName"
     val mainFunction = MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, StaticOwner(AsmUtils.getInternalName(className)),
       "main",
-      mainBlock, mutableListOf(MethodParameter(Types.STRING_ARRAY, "args")), mainBlock.methodReturnType, scope
+      mainBlock, mutableListOf(MethodParameter(JavaType(Array<String>::class.java), "args")), mainBlock.methodReturnType,
+      mainMethodScope
     )
 
     // adding script constructors script have 2 constructors. One no-arg constructor, and one for Binding
-    val bindingType = JavaClassType(Binding::class.java)
+    val bindingType = JavaType(Binding::class.java)
     classMethods.add(
-      ConstructorNode(Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaPrimitiveType.VOID, emptyList()), mutableListOf(), scope),
+      ConstructorNode(Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, emptyList()), mutableListOf(), Scope(scriptClass, classMethods)),
     )
     classMethods.add(
-      ConstructorNode(Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaPrimitiveType.VOID, listOf(
+      ConstructorNode(Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, listOf(
         ExpressionStatementNode(SuperConstructorCallNode(mutableListOf(VariableReferenceExpression(bindingType, "binding"))))
-      )), mutableListOf(MethodParameter(bindingType, "binding")), scope)
+      )), mutableListOf(MethodParameter(bindingType, "binding")), Scope(scriptClass, classMethods))
     )
     classMethods.add(mainFunction)
     val classNode = ClassNode(
-      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, className, JavaClassType(Script::class.java), classMethods)
+      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, className, JavaType(Script::class.java), classMethods)
     val moduleNode = ModuleNode(mutableListOf(classNode))
 
     while (current.type != TokenType.END_OF_FILE) {
@@ -97,7 +97,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           }
           classNode.addMethod(method)
         }
-        else -> statements.add(statement(scope, JavaPrimitiveType.VOID))
+        else -> mainMethodStatements.add(statement(mainMethodScope, JavaType.void))
       }
     }
     return moduleNode
@@ -127,11 +127,11 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       }
     }
     skip() // skipping RPAR
-    val returnType = if (current.type != TokenType.BRACKETS_OPEN) parseType() else JavaPrimitiveType.VOID
+    val returnType = if (current.type != TokenType.BRACKETS_OPEN) parseType() else JavaType.void
     val scope = Scope(classNode)
     val block = block(scope, returnType)
     // TODO determine access Opcodes based on visibility variable
-    if (returnType != JavaPrimitiveType.VOID && block.type != returnType) {
+    if (returnType != JavaType.void && block.type != returnType) {
       throw SemanticException("Return type of block doesn't match method's return type")
     }
     return MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC, StaticOwner(classNode.name), methodName, block.toFunctionBlock(returnType), parameters, returnType, scope)
@@ -157,11 +157,11 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   private fun parseType(): JavaType {
     val token = next()
     return when (token.type) {
-      TokenType.TYPE_INT -> JavaPrimitiveType.INT
-      TokenType.TYPE_LONG -> JavaPrimitiveType.LONG
-      TokenType.TYPE_VOID -> JavaPrimitiveType.VOID
-      TokenType.TYPE_FLOAT -> JavaPrimitiveType.FLOAT
-      TokenType.TYPE_DOUBLE -> JavaPrimitiveType.DOUBLE
+      TokenType.TYPE_INT -> JavaType.int
+      TokenType.TYPE_LONG -> JavaType.long
+      TokenType.TYPE_VOID -> JavaType.void
+      TokenType.TYPE_FLOAT -> JavaType.float
+      TokenType.TYPE_DOUBLE -> JavaType.double
       else -> throw java.lang.UnsupportedOperationException("Doesn't handle type ${token.type}")
     }
   }
@@ -169,10 +169,10 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   private fun statement(scope: Scope, returnType: JavaType): StatementNode {
     val token = next()
     return when (token.type) {
-      TokenType.TYPE_INT -> variableDeclaration(scope, JavaPrimitiveType.INT)
-      TokenType.TYPE_LONG -> variableDeclaration(scope, JavaPrimitiveType.LONG)
-      TokenType.TYPE_FLOAT -> variableDeclaration(scope, JavaPrimitiveType.FLOAT)
-      TokenType.TYPE_DOUBLE -> variableDeclaration(scope, JavaPrimitiveType.DOUBLE)
+      TokenType.TYPE_INT -> variableDeclaration(scope, JavaType.int)
+      TokenType.TYPE_LONG -> variableDeclaration(scope, JavaType.long)
+      TokenType.TYPE_FLOAT -> variableDeclaration(scope, JavaType.float)
+      TokenType.TYPE_DOUBLE -> variableDeclaration(scope, JavaType.double)
       TokenType.RETURN -> {
         val expression = if (current.type == TokenType.SEMI_COLON) VoidExpression() else expression(scope)
         if (returnType != expression.type) {
@@ -231,7 +231,8 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       TokenType.IDENTIFIER -> {
         if (current.type == TokenType.LPAR) {
           skip()
-          val fCall = FunctionCallNode(token.value)
+          // TODO
+          val fCall = FunctionCallNode(JavaType.int, token.value)
           while (current.type != TokenType.RPAR) {
             fCall.arguments.add(expression(scope))
             if (current.type == TokenType.RPAR) {

@@ -1,6 +1,5 @@
 package com.tambapps.marcel.compiler.bytecode
 
-import com.tambapps.marcel.parser.Types
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.expression.*
@@ -8,7 +7,7 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.Scope
-import com.tambapps.marcel.parser.type.JavaPrimitiveType
+import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 
@@ -35,7 +34,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
     mv.visitVarInsn(Opcodes.ALOAD, 0)
     pushFunctionCallArguments(fCall)
     mv.visitMethodInsn(Opcodes.INVOKESPECIAL, scope.superClassInternalName, fCall.name,
-      AsmUtils.getDescriptor(fCall.arguments.map { it.type }, JavaPrimitiveType.VOID), false)
+      AsmUtils.getDescriptor(fCall.arguments.map { it.type }, JavaType.void), false)
   }
 
   private fun pushFunctionCallArguments(fCall: FunctionCallNode) {
@@ -134,7 +133,7 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: S
       blockNode.statements[i].accept(this)
     }
     val lastStatement = blockNode.statements.lastOrNull() ?: ExpressionStatementNode(VoidExpression())
-    if (blockNode.methodReturnType == JavaPrimitiveType.VOID) {
+    if (blockNode.methodReturnType == JavaType.void) {
       lastStatement.accept(this)
       mv.visitInsn(Opcodes.RETURN)
     } else {
@@ -219,23 +218,23 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor, overri
 
   override fun visit(operator: MulOperator) {
     super.visit(operator)
-    mv.visitInsn(operator.type.mulCode)
+    mv.visitInsn(JavaType.MUL_OPERATOR[operator.type]!!)
   }
 
   override fun visit(operator: DivOperator) {
     super.visit(operator)
-    mv.visitInsn(operator.type.divCode)
+    mv.visitInsn(JavaType.DIV_OPERATOR[operator.type]!!)
   }
 
   override fun visit(operator: MinusOperator) {
     super.visit(operator)
-    mv.visitInsn(operator.type.subCode)
+    mv.visitInsn(JavaType.SUB_OPERATOR[operator.type]!!)
   }
 
 
   override fun visit(operator: PlusOperator) {
     super.visit(operator)
-    mv.visitInsn(operator.type.addCode)
+    mv.visitInsn(JavaType.ADD_OPERATOR[operator.type]!!)
   }
 
   override fun visit(operator: PowOperator) {
