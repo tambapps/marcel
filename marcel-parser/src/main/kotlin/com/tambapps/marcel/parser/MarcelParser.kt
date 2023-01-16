@@ -67,7 +67,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val className = classSimpleName //"$packageName.$classSimpleName"
     val mainFunction = MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, StaticOwner(AsmUtils.getInternalName(className)),
       "main",
-      mainBlock, mutableListOf(MethodParameter(Types.STRING_ARRAY, "args")), mainBlock.methodReturnType, scope
+      mainBlock, mutableListOf(MethodParameter(JavaType(Array<String>::class.java), "args")), mainBlock.methodReturnType, scope
     )
 
     // adding script constructors script have 2 constructors. One no-arg constructor, and one for Binding

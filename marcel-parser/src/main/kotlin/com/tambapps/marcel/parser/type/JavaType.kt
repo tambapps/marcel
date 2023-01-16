@@ -18,6 +18,9 @@ open class JavaType(
   Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN)
   companion object {
 
+    val OBJECT = JavaType(Object::class.java)
+
+
     val VOID = JavaPrimitiveType(PrimitiveTypes.VOID, Opcodes.ALOAD, Opcodes.ASTORE, Opcodes.RETURN, 0,0,0,0)
     val INT = JavaPrimitiveType(PrimitiveTypes.INT, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV)
     val LONG = JavaPrimitiveType(PrimitiveTypes.LONG, Opcodes.LLOAD, Opcodes.LSTORE, Opcodes.LRETURN, Opcodes.LADD, Opcodes.LSUB, Opcodes.LMUL, Opcodes.LDIV)
@@ -46,5 +49,28 @@ open class JavaType(
   override fun toString(): String {
     return className
   }
+
+}
+
+class JavaPrimitiveType(className: String,
+                        internalName: String,
+                        descriptor: String,
+                        loadCode: Int,
+                        storeCode: Int,
+                        returnCode: Int,
+                        val addCode: Int,
+                        val subCode: Int,
+                        val mulCode: Int,
+                        val divCode: Int): JavaType(className, internalName, descriptor, storeCode, loadCode, returnCode) {
+
+  constructor(clazz: Class<*>,
+              loadCode: Int,
+              storeCode: Int,
+              retCode: Int,
+              addCode: Int,
+              subCode: Int,
+              mulCode: Int,
+              divCode: Int): this(clazz.name, Type.getInternalName(clazz),
+      Type.getDescriptor(clazz), loadCode, storeCode, retCode, addCode, subCode, mulCode, divCode)
 
 }

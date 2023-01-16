@@ -1,6 +1,5 @@
 package com.tambapps.marcel.compiler.bytecode
 
-import com.tambapps.marcel.parser.Types
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.expression.*
@@ -8,7 +7,6 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.Scope
-import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
