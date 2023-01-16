@@ -157,11 +157,8 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   private fun parseType(): JavaType {
     val token = next()
     return when (token.type) {
-      TokenType.TYPE_INT -> JavaPrimitiveType.INT
-      TokenType.TYPE_LONG -> JavaPrimitiveType.LONG
-      TokenType.TYPE_VOID -> JavaType.VOID
-      TokenType.TYPE_FLOAT -> JavaPrimitiveType.FLOAT
-      TokenType.TYPE_DOUBLE -> JavaPrimitiveType.DOUBLE
+      TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_VOID,
+      TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE -> JavaType.TOKEN_TYPE_MAP.getValue(token.type)
       else -> throw java.lang.UnsupportedOperationException("Doesn't handle type ${token.type}")
     }
   }
@@ -169,10 +166,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   private fun statement(scope: Scope, returnType: JavaType): StatementNode {
     val token = next()
     return when (token.type) {
-      TokenType.TYPE_INT -> variableDeclaration(scope, JavaPrimitiveType.INT)
-      TokenType.TYPE_LONG -> variableDeclaration(scope, JavaPrimitiveType.LONG)
-      TokenType.TYPE_FLOAT -> variableDeclaration(scope, JavaPrimitiveType.FLOAT)
-      TokenType.TYPE_DOUBLE -> variableDeclaration(scope, JavaPrimitiveType.DOUBLE)
+      TokenType.TYPE_INT, TokenType.TYPE_LONG,
+      TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE  -> variableDeclaration(scope,
+          JavaType.TOKEN_TYPE_MAP.getValue(token.type))
       TokenType.RETURN -> {
         val expression = if (current.type == TokenType.SEMI_COLON) VoidExpression() else expression(scope)
         if (returnType != expression.type) {

@@ -16,12 +16,6 @@ class JavaPrimitiveType(override val className: String,
                              val subCode: Int,
                              val mulCode: Int,
                              val divCode: Int): JavaType {
-  companion object {
-    val INT = JavaPrimitiveType(PrimitiveTypes.INT, ILOAD, ISTORE, IRETURN,IADD,ISUB,IMUL,IDIV)
-    val LONG = JavaPrimitiveType(PrimitiveTypes.LONG, LLOAD, LSTORE, LRETURN,LADD,LSUB,LMUL,LDIV)
-    val FLOAT = JavaPrimitiveType(PrimitiveTypes.FLOAT, FLOAD, FSTORE, FRETURN,FADD,FSUB,FMUL,FDIV)
-    val DOUBLE = JavaPrimitiveType(PrimitiveTypes.DOUBLE, DLOAD, DSTORE, DRETURN,DADD,DSUB,DMUL,DDIV)
-  }
 
   constructor(clazz: Class<*>,
               loadCode: Int,
