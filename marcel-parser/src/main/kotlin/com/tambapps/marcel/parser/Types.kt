@@ -1,10 +1,10 @@
 package com.tambapps.marcel.parser
 
-import com.tambapps.marcel.parser.type.JavaClassType
+import com.tambapps.marcel.parser.type.JavaType
 
 object Types {
-  val OBJECT = JavaClassType(Object::class.java)
-  val STRING_ARRAY = JavaClassType(Array<String>::class.java)
-  val STRING = JavaClassType(String::class.java)
+  val OBJECT = JavaType(Object::class.java)
+  val STRING_ARRAY = JavaType(Array<String>::class.java)
+  val STRING = JavaType(String::class.java)
 
 }

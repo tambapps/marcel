@@ -28,8 +28,6 @@ import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.owner.StaticOwner
 import com.tambapps.marcel.parser.scope.Scope
-import com.tambapps.marcel.parser.type.JavaClassType
-import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.Binding
 import marcel.lang.Script
@@ -73,7 +71,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     )
 
     // adding script constructors script have 2 constructors. One no-arg constructor, and one for Binding
-    val bindingType = JavaClassType(Binding::class.java)
+    val bindingType = JavaType(Binding::class.java)
     classMethods.add(
       ConstructorNode(Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.VOID, emptyList()), mutableListOf(), scope),
     )
@@ -84,7 +82,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     )
     classMethods.add(mainFunction)
     val classNode = ClassNode(
-      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, className, JavaClassType(Script::class.java), classMethods)
+      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, className, JavaType(Script::class.java), classMethods)
     val moduleNode = ModuleNode(mutableListOf(classNode))
 
     while (current.type != TokenType.END_OF_FILE) {

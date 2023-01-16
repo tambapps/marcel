@@ -3,6 +3,7 @@ package com.tambapps.marcel.parser.type
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.PrimitiveTypes
 import org.objectweb.asm.Opcodes
+import org.objectweb.asm.Type
 
 // TODO add an imple for dynamic types e.g. class defined in a marcel script
 open class JavaType(
@@ -13,6 +14,8 @@ open class JavaType(
     val loadCode: Int,
     val returnCode: Int) {
 
+  constructor(clazz: Class<*>): this(clazz.name, Type.getInternalName(clazz), Type.getDescriptor(clazz),
+  Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN)
   companion object {
 
     val VOID = JavaPrimitiveType(PrimitiveTypes.VOID, Opcodes.ALOAD, Opcodes.ASTORE, Opcodes.RETURN, 0,0,0,0)
