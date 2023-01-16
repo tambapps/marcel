@@ -176,7 +176,6 @@ LONELY_BACKTICK=`
 "private"          { return token(VISIBILITY_PRIVATE); }
 "fun"          { return token(FUN); }
 "return"          { return token(RETURN); }
-"new"          { return token(NEW); }
 
 {IDENTIFIER} {  return valueToken(IDENTIFIER); }
 
@@ -202,3 +201,4 @@ LONELY_BACKTICK=`
 "=="          { return token(EQUAL); }
 "!="          { return token(NOT_EQUAL); }
 "="          { return token(ASSIGNMENT); }
+"."          { return token(DOT); }
