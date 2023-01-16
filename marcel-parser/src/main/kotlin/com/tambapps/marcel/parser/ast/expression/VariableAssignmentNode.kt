@@ -1,10 +1,8 @@
 package com.tambapps.marcel.parser.ast.expression
 
-import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 
-// TODO move this under expression.variable package
 open class VariableAssignmentNode(val name: String, val expression: ExpressionNode): ExpressionNode {
   override val type: JavaType
     get() = expression.type
