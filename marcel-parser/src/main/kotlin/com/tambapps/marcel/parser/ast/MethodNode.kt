@@ -11,7 +11,7 @@ import com.tambapps.marcel.parser.type.JavaType
 open class MethodNode(val access: Int, val owner: Owner, val name: String, val block: FunctionBlockNode,
                  val parameters: MutableList<MethodParameter>, val returnType: JavaType, val scope: Scope): AstNode {
 
-  val methodDescriptor = AsmUtils.getDescriptor(parameters.map { it.type }, returnType)
+  val methodDescriptor = AsmUtils.getDescriptor(parameters, returnType)
 
   init {
     for (parameter in parameters) {

@@ -4,26 +4,9 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.*
-import com.tambapps.marcel.parser.ast.expression.BlockNode
-import com.tambapps.marcel.parser.ast.expression.ExpressionNode
-import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
-import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
-import com.tambapps.marcel.parser.ast.expression.IntConstantNode
-import com.tambapps.marcel.parser.ast.expression.ReturnNode
-import com.tambapps.marcel.parser.ast.expression.TernaryNode
-import com.tambapps.marcel.parser.ast.expression.VoidExpression
-import com.tambapps.marcel.parser.ast.expression.BinaryOperatorNode
-import com.tambapps.marcel.parser.ast.expression.DivOperator
-import com.tambapps.marcel.parser.ast.expression.MinusOperator
-import com.tambapps.marcel.parser.ast.expression.MulOperator
-import com.tambapps.marcel.parser.ast.expression.PlusOperator
-import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
-import com.tambapps.marcel.parser.ast.expression.UnaryMinus
-import com.tambapps.marcel.parser.ast.expression.UnaryPlus
-import com.tambapps.marcel.parser.ast.expression.VariableReferenceExpression
+import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
-import com.tambapps.marcel.parser.ast.expression.VariableAssignmentNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.owner.StaticOwner
@@ -234,20 +217,16 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val token = next()
     return when (token.type) {
       TokenType.INTEGER -> IntConstantNode(token.value.toInt())
+      TokenType.NEW -> {
+        val identifier = accept(TokenType.IDENTIFIER).value
+        // TODO resolve with imports
+        ConstructorCallNode(JavaType(identifier), parseFunctionArguments(scope))
+      }
       TokenType.IDENTIFIER -> {
         if (current.type == TokenType.LPAR) {
           skip()
-          val fCall = FunctionCallNode(token.value)
-          while (current.type != TokenType.RPAR) {
-            fCall.arguments.add(expression(scope))
-            if (current.type == TokenType.RPAR) {
-              break
-            } else {
-              accept(TokenType.COMMA)
-            }
-          }
-          skip() // skipping RPAR
-          return fCall
+          // TODO for now only ints are handled
+          return FunctionCallNode(JavaType.int, token.value, parseFunctionArguments(scope))
         } else if (current.type == TokenType.ASSIGNMENT) {
           skip()
           VariableAssignmentNode(token.value, expression(scope))
@@ -269,6 +248,20 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         throw UnsupportedOperationException("Not supported yet")
       }
     }
+  }
+
+  private fun parseFunctionArguments(scope: Scope): MutableList<ExpressionNode> {
+    val arguments = mutableListOf<ExpressionNode>()
+    while (current.type != TokenType.RPAR) {
+      arguments.add(expression(scope))
+      if (current.type == TokenType.RPAR) {
+        break
+      } else {
+        accept(TokenType.COMMA)
+      }
+    }
+    skip() // skipping RPAR
+    return arguments
   }
 
   private fun operator(t: TokenType, leftOperand: ExpressionNode, rightOperand: ExpressionNode): BinaryOperatorNode {

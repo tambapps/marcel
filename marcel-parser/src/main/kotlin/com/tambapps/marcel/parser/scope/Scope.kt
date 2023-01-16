@@ -41,4 +41,8 @@ class Scope(val superClassInternalName: String, val classMethods: List<MethodNod
   fun copy(): Scope {
     return Scope(superClassInternalName, classMethods)
   }
+
+  fun getClassFullName() {
+
+  }
 }

@@ -1,7 +1,9 @@
 package com.tambapps.marcel.parser.asm
 
 import com.tambapps.marcel.parser.MethodParameter
+import com.tambapps.marcel.parser.ast.TypedNode
 import com.tambapps.marcel.parser.type.JavaType
+import org.objectweb.asm.Type
 
 object AsmUtils {
 
@@ -17,9 +19,15 @@ object AsmUtils {
     return className.replace('.', '/')
   }
 
-  fun getDescriptor(parameters: List<JavaType>, returnType: JavaType): String {
+  fun getClassDescriptor(clazz: Class<*>): String {
+    return Type.getDescriptor(clazz)
+  }
+  fun getObjectClassDescriptor(className: String): String {
+    return "L" + getInternalName(className) + ";"
+  }
+  fun getDescriptor(parameters: List<TypedNode>, returnType: JavaType): String {
     val builder = StringBuilder().append('(')
-    parameters.joinTo(builder, separator = "", transform = { it.descriptor })
+    parameters.joinTo(builder, separator = "", transform = { it.type.descriptor })
     return builder.append(')')
       .append(returnType.descriptor)
       .toString()

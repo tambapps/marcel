@@ -2,8 +2,8 @@ package com.tambapps.marcel.parser.type
 
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.PrimitiveTypes
+import com.tambapps.marcel.parser.asm.AsmUtils
 import org.objectweb.asm.Opcodes
-import org.objectweb.asm.Type
 
 // TODO add an imple for dynamic types e.g. class defined in a marcel script
 open class JavaType(
@@ -14,7 +14,11 @@ open class JavaType(
     val loadCode: Int,
     val returnCode: Int) {
 
-  constructor(clazz: Class<*>): this(clazz.name, Type.getInternalName(clazz), Type.getDescriptor(clazz),
+  open val primitive = false
+
+  constructor(clazz: Class<*>): this(clazz.name, AsmUtils.getInternalName(clazz), AsmUtils.getClassDescriptor(clazz),
+  Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN)
+  constructor(clazz: String): this(clazz, AsmUtils.getInternalName(clazz), AsmUtils.getObjectClassDescriptor(clazz),
   Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN)
   companion object {
 
@@ -62,7 +66,7 @@ class JavaPrimitiveType(className: String,
                         val subCode: Int,
                         val mulCode: Int,
                         val divCode: Int): JavaType(className, internalName, descriptor, storeCode, loadCode, returnCode) {
-
+  override val primitive = true
   internal constructor(clazz: Class<*>,
               loadCode: Int,
               storeCode: Int,
@@ -70,7 +74,7 @@ class JavaPrimitiveType(className: String,
               addCode: Int,
               subCode: Int,
               mulCode: Int,
-              divCode: Int): this(clazz.name, Type.getInternalName(clazz),
-      Type.getDescriptor(clazz), loadCode, storeCode, retCode, addCode, subCode, mulCode, divCode)
+              divCode: Int): this(clazz.name, AsmUtils.getInternalName(clazz),
+      AsmUtils.getClassDescriptor(clazz), loadCode, storeCode, retCode, addCode, subCode, mulCode, divCode)
 
 }
