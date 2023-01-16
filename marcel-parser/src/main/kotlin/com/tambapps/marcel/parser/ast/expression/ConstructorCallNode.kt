@@ -12,4 +12,8 @@ class ConstructorCallNode(override var type: JavaType, arguments: MutableList<Ex
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)
   }
+
+  override fun toString(): String {
+    return "new $type(" + arguments.joinToString(separator = ",") + ")"
+  }
 }

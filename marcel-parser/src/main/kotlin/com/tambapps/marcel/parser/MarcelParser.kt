@@ -258,9 +258,10 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     return when (token.type) {
       TokenType.INTEGER -> IntConstantNode(token.value.toInt())
       TokenType.NEW -> {
-        val identifier = accept(TokenType.IDENTIFIER).value
-        // TODO resolve with imports
-        ConstructorCallNode(JavaType(identifier), parseFunctionArguments(scope))
+        val classSimpleName = accept(TokenType.IDENTIFIER).value
+        val className = scope.resolveClassName(classSimpleName)
+        accept(TokenType.LPAR)
+        ConstructorCallNode(JavaType(className), parseFunctionArguments(scope))
       }
       TokenType.IDENTIFIER -> {
         if (current.type == TokenType.LPAR) {
@@ -299,6 +300,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     }
   }
 
+  // assuming we already passed LPAR
   private fun parseFunctionArguments(scope: Scope): MutableList<ExpressionNode> {
     val arguments = mutableListOf<ExpressionNode>()
     while (current.type != TokenType.RPAR) {
