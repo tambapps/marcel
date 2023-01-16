@@ -47,9 +47,15 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
 
   // TODO pass args as parameter
   fun script(): ModuleNode {
+
+    // TODO use import when resolving class names
+    val imports = mutableListOf<ImportNode>()
+    while (current.type == TokenType.IMPORT) {
+      imports.add(import())
+    }
     val classMethods = mutableListOf<MethodNode>()
     val superType = JavaType(Script::class.java)
-    val scope = Scope(AsmUtils.getInternalName(superType), classMethods)
+    val scope = Scope(imports, AsmUtils.getInternalName(superType), classMethods)
     val statements = mutableListOf<StatementNode>()
     val runBlock = FunctionBlockNode(JavaType.void, statements)
     val className = classSimpleName
@@ -79,7 +85,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       when (current.type) {
         TokenType.FUN, TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED,
         TokenType.VISIBILITY_HIDDEN, TokenType.VISIBILITY_PRIVATE -> {
-          val method = method(classNode)
+          val method = method(imports, classNode)
           if (method.name == "main") {
             throw SemanticException("Cannot have a \"main\" function in a script")
           }
@@ -108,7 +114,27 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     )
   }
 
-  private fun method(classNode: ClassNode): MethodNode {
+  private fun import(): ImportNode {
+    accept(TokenType.IMPORT)
+    val classParts = mutableListOf(accept(TokenType.IDENTIFIER).value)
+    while (current.type == TokenType.DOT) {
+      skip()
+      if (current.type == TokenType.MUL) {
+        skip()
+        acceptOptional(TokenType.SEMI_COLON)
+        return WildcardImportNode(classParts.joinToString(separator = ".", postfix = "."))
+      }
+      classParts.add(accept(TokenType.IDENTIFIER).value)
+    }
+    if (classParts.size <= 1) {
+      throw MarcelParsingException("Invalid class full name" + classParts.joinToString(separator = "."))
+    }
+    val asName = if (acceptOptional(TokenType.AS) != null) accept(TokenType.IDENTIFIER).value else null
+    acceptOptional(TokenType.SEMI_COLON)
+    return ImportNode(classParts.joinToString(separator = "."), asName)
+  }
+
+   private fun method(imports: List<ImportNode>, classNode: ClassNode): MethodNode {
     // TODO handle static functions
     val visibility = acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.VISIBILITY_HIDDEN, TokenType.VISIBILITY_PRIVATE)
       ?: TokenType.VISIBILITY_PUBLIC
@@ -132,7 +158,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     }
     skip() // skipping RPAR
     val returnType = if (current.type != TokenType.BRACKETS_OPEN) parseType() else JavaType.void
-    val scope = Scope(classNode)
+    val scope = Scope(imports, classNode)
     val statements = mutableListOf<StatementNode>()
     val methodNode = MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC, StaticOwner(classNode.name), methodName, FunctionBlockNode(returnType, statements), parameters, returnType, scope)
     resolvableNodes.add(Pair(methodNode, scope))
@@ -314,8 +340,10 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val token = currentSafe
     if (token?.type == t) {
       currentIndex++
+      return token
+    } else {
+      return null
     }
-    return token
   }
 
   private fun rollback() {

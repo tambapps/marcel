@@ -1,15 +1,16 @@
 package com.tambapps.marcel.parser.scope
 
 import com.tambapps.marcel.parser.ast.ClassNode
+import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.TypedNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.type.JavaType
 
-open class Scope(val superClassInternalName: String, val classMethods: List<MethodNode>) {
-  constructor(): this(JavaType.OBJECT.internalName, emptyList())
+open class Scope(val imports: List<ImportNode>, val superClassInternalName: String, val classMethods: List<MethodNode>) {
+  constructor(): this(emptyList(), JavaType.OBJECT.internalName, emptyList())
 
-  constructor(classNode: ClassNode): this(classNode.parentType.internalName, classNode.methods)
+  constructor(imports: List<ImportNode>, classNode: ClassNode): this(imports, classNode.parentType.internalName, classNode.methods)
 
   private val localVariables: LinkedHashMap<String, LocalVariable> = LinkedHashMap()
   val localVariablesCount: Int
@@ -39,15 +40,12 @@ open class Scope(val superClassInternalName: String, val classMethods: List<Meth
   }
 
   fun copy(): Scope {
-    return Scope(superClassInternalName, classMethods)
+    return Scope(imports, superClassInternalName, classMethods)
   }
 
-  fun getClassFullName() {
-
-  }
 }
 
-class InMethodScope(superClassInternalName: String, classMethods: List<MethodNode>, val currentMethod: MethodNode)
-  : Scope(superClassInternalName, classMethods) {
-    constructor(scope: Scope, methodNode: MethodNode): this(scope.superClassInternalName, scope.classMethods, methodNode)
+class InMethodScope(imports: List<ImportNode>, superClassInternalName: String, classMethods: List<MethodNode>, val currentMethod: MethodNode)
+  : Scope(imports, superClassInternalName, classMethods) {
+    constructor(scope: Scope, methodNode: MethodNode): this(scope.imports, scope.superClassInternalName, scope.classMethods, methodNode)
 }
