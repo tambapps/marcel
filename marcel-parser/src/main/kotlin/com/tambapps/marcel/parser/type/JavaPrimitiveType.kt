@@ -21,7 +21,6 @@ class JavaPrimitiveType(override val className: String,
     val LONG = JavaPrimitiveType(PrimitiveTypes.LONG, LLOAD, LSTORE, LRETURN,LADD,LSUB,LMUL,LDIV)
     val FLOAT = JavaPrimitiveType(PrimitiveTypes.FLOAT, FLOAD, FSTORE, FRETURN,FADD,FSUB,FMUL,FDIV)
     val DOUBLE = JavaPrimitiveType(PrimitiveTypes.DOUBLE, DLOAD, DSTORE, DRETURN,DADD,DSUB,DMUL,DDIV)
-    val VOID = JavaPrimitiveType(PrimitiveTypes.VOID, ALOAD, ASTORE, RETURN, 0,0,0,0)
   }
 
   constructor(clazz: Class<*>,

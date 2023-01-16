@@ -9,6 +9,7 @@ import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
+import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 
@@ -35,7 +36,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
     mv.visitVarInsn(Opcodes.ALOAD, 0)
     pushFunctionCallArguments(fCall)
     mv.visitMethodInsn(Opcodes.INVOKESPECIAL, scope.superClassInternalName, fCall.name,
-      AsmUtils.getDescriptor(fCall.arguments.map { it.type }, JavaPrimitiveType.VOID), false)
+      AsmUtils.getDescriptor(fCall.arguments.map { it.type }, JavaType.VOID), false)
   }
 
   private fun pushFunctionCallArguments(fCall: FunctionCallNode) {
@@ -134,7 +135,7 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: S
       blockNode.statements[i].accept(this)
     }
     val lastStatement = blockNode.statements.lastOrNull() ?: ExpressionStatementNode(VoidExpression())
-    if (blockNode.methodReturnType == JavaPrimitiveType.VOID) {
+    if (blockNode.methodReturnType == JavaType.VOID) {
       lastStatement.accept(this)
       mv.visitInsn(Opcodes.RETURN)
     } else {

@@ -8,13 +8,14 @@ import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.owner.NoOpOwner
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
+import com.tambapps.marcel.parser.type.JavaType
 
 class ConstructorNode(
   access: Int,
   block: FunctionBlockNode,
   parameters: MutableList<MethodParameter>,
   scope: Scope
-) : MethodNode(access, NoOpOwner(), "<init>", blockWithSuperCall(block), parameters, JavaPrimitiveType.VOID, scope) {
+) : MethodNode(access, NoOpOwner(), "<init>", blockWithSuperCall(block), parameters, JavaType.VOID, scope) {
 
   companion object {
     private fun blockWithSuperCall(block: FunctionBlockNode): FunctionBlockNode {
