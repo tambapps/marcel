@@ -6,6 +6,7 @@ import com.tambapps.marcel.parser.ast.AstNodeVisitor
 
 open class BlockNode(val statements: List<StatementNode>) : ExpressionNode {
 
+  // it is important it is a getter, because statements could be modified after this object being constructed
   override val type
     get() = statements.lastOrNull()?.type ?: JavaType.void
 

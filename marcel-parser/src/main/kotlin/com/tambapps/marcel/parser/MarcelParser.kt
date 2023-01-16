@@ -127,12 +127,14 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     skip() // skipping RPAR
     val returnType = if (current.type != TokenType.BRACKETS_OPEN) parseType() else JavaType.void
     val scope = Scope(classNode)
-    val block = block(scope, returnType)
+    val statements = mutableListOf<StatementNode>()
+    val methodNode = MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC, StaticOwner(classNode.name), methodName, FunctionBlockNode(returnType, statements), parameters, returnType, scope)
+    statements.addAll(block(scope, returnType).statements)
     // TODO determine access Opcodes based on visibility variable
-    if (returnType != JavaType.void && block.type != returnType) {
+    if (returnType != JavaType.void && methodNode.block.type != returnType) {
       throw SemanticException("Return type of block doesn't match method's return type")
     }
-    return MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC, StaticOwner(classNode.name), methodName, block.toFunctionBlock(returnType), parameters, returnType, scope)
+    return methodNode
   }
 
 
