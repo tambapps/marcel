@@ -58,16 +58,17 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     return script()
   }
 
+  // TODO pass args as parameter
   fun script(): ModuleNode {
     val classMethods = mutableListOf<MethodNode>()
     val superType = JavaType(Script::class.java)
     val scope = Scope(AsmUtils.getInternalName(superType), classMethods)
     val statements = mutableListOf<StatementNode>()
-    val mainBlock = FunctionBlockNode(JavaType.void, statements)
+    val runBlock = FunctionBlockNode(JavaType.void, statements)
     val className = classSimpleName
-    val mainFunction = MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, StaticOwner(AsmUtils.getInternalName(className)),
-      "main",
-      mainBlock, mutableListOf(MethodParameter(JavaType(Array<String>::class.java), "args")), mainBlock.methodReturnType, scope
+    val runFunction = MethodNode(Opcodes.ACC_PUBLIC, StaticOwner(AsmUtils.getInternalName(className)),
+      "run",
+      runBlock, mutableListOf(), runBlock.methodReturnType, scope
     )
 
     // adding script constructors script have 2 constructors. One no-arg constructor, and one for Binding
@@ -80,7 +81,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         ExpressionStatementNode(SuperConstructorCallNode(mutableListOf(VariableReferenceExpression(bindingType, "binding"))))
       )), mutableListOf(MethodParameter(bindingType, "binding")), scope.copy())
     )
-    classMethods.add(mainFunction)
+    classMethods.add(runFunction)
+    // TODO copy scope once generating right main block
+    classMethods.add(generateMainMethod(className, scope, runBlock))
     val classNode = ClassNode(
       Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, className, JavaType(Script::class.java), classMethods)
     val moduleNode = ModuleNode(mutableListOf(classNode))
@@ -101,6 +104,13 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     return moduleNode
   }
 
+  private fun generateMainMethod(className: String, scope: Scope, blockNode: FunctionBlockNode): MethodNode {
+    // TODO remove blockNode argument and generate my own function block. In it I should instantiate a $className and call the method run(args)
+    return MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, StaticOwner(AsmUtils.getInternalName(className)),
+        "main",
+        blockNode /*FunctionBlockNode(JavaType.void, blockNode)*/, mutableListOf(MethodParameter(JavaType(Array<String>::class.java), "args")), JavaType.void, scope
+    )
+  }
 
   private fun method(classNode: ClassNode): MethodNode {
     // TODO handle static functions
