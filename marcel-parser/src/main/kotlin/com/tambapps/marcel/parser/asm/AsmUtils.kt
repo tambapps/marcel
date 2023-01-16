@@ -9,6 +9,10 @@ object AsmUtils {
     return getInternalName(clazz.name)
   }
 
+  fun getInternalName(javaType: JavaType): String {
+    return getInternalName(javaType.className)
+  }
+
   fun getInternalName(className: String): String {
     return className.replace('.', '/')
   }

@@ -37,4 +37,8 @@ class Scope(val superClassInternalName: String, val classMethods: List<MethodNod
   fun getLocalVariableIndex(name: String): Int {
     return localVariables.values.indexOfFirst { it.name == name }
   }
+
+  fun copy(): Scope {
+    return Scope(superClassInternalName, classMethods)
+  }
 }

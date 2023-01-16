@@ -60,7 +60,8 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
 
   fun script(): ModuleNode {
     val classMethods = mutableListOf<MethodNode>()
-    val scope = Scope(AsmUtils.getInternalName(Script::class.java), classMethods)
+    val superType = JavaType(Script::class.java)
+    val scope = Scope(AsmUtils.getInternalName(superType), classMethods)
     val statements = mutableListOf<StatementNode>()
     val mainBlock = FunctionBlockNode(JavaType.void, statements)
     val className = classSimpleName
@@ -72,12 +73,12 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     // adding script constructors script have 2 constructors. One no-arg constructor, and one for Binding
     val bindingType = JavaType(Binding::class.java)
     classMethods.add(
-      ConstructorNode(Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, emptyList()), mutableListOf(), scope),
+      ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, emptyList()), mutableListOf(), scope.copy()),
     )
     classMethods.add(
-      ConstructorNode(Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, listOf(
+      ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, listOf(
         ExpressionStatementNode(SuperConstructorCallNode(mutableListOf(VariableReferenceExpression(bindingType, "binding"))))
-      )), mutableListOf(MethodParameter(bindingType, "binding")), scope)
+      )), mutableListOf(MethodParameter(bindingType, "binding")), scope.copy())
     )
     classMethods.add(mainFunction)
     val classNode = ClassNode(
