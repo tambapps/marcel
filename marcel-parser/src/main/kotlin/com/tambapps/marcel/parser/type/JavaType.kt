@@ -63,7 +63,7 @@ class JavaPrimitiveType(className: String,
                         val mulCode: Int,
                         val divCode: Int): JavaType(className, internalName, descriptor, storeCode, loadCode, returnCode) {
 
-  constructor(clazz: Class<*>,
+  internal constructor(clazz: Class<*>,
               loadCode: Int,
               storeCode: Int,
               retCode: Int,
