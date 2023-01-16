@@ -6,16 +6,16 @@ import org.objectweb.asm.Opcodes.*
 
 // TODO merge this with JavaClassType and JavaType
 
-class JavaPrimitiveType(override val className: String,
-                             override val internalName: String,
-                             override val descriptor: String,
-                             override val loadCode: Int,
-                             override val storeCode: Int,
-                             override val returnCode: Int,
-                             val addCode: Int,
-                             val subCode: Int,
-                             val mulCode: Int,
-                             val divCode: Int): JavaType {
+class JavaPrimitiveType(className: String,
+                        internalName: String,
+                        descriptor: String,
+                        loadCode: Int,
+                        storeCode: Int,
+                        returnCode: Int,
+                        val addCode: Int,
+                        val subCode: Int,
+                        val mulCode: Int,
+                        val divCode: Int): JavaType(className, internalName, descriptor, storeCode, loadCode, returnCode) {
 
   constructor(clazz: Class<*>,
               loadCode: Int,
@@ -30,5 +30,4 @@ class JavaPrimitiveType(override val className: String,
   override fun toString(): String {
     return className
   }
-
-  }
+}

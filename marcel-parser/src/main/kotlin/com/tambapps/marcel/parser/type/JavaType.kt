@@ -5,7 +5,13 @@ import com.tambapps.marcel.parser.PrimitiveTypes
 import org.objectweb.asm.Opcodes
 
 // TODO add an imple for dynamic types e.g. class defined in a marcel script
-interface JavaType {
+open class JavaType(
+    val className: String,
+    val internalName: String,
+    val descriptor: String,
+    val storeCode: Int,
+    val loadCode: Int,
+    val returnCode: Int) {
 
   companion object {
 
@@ -15,7 +21,6 @@ interface JavaType {
     val FLOAT = JavaPrimitiveType(PrimitiveTypes.FLOAT, Opcodes.FLOAD, Opcodes.FSTORE, Opcodes.FRETURN, Opcodes.FADD, Opcodes.FSUB, Opcodes.FMUL, Opcodes.FDIV)
     val DOUBLE = JavaPrimitiveType(PrimitiveTypes.DOUBLE, Opcodes.DLOAD, Opcodes.DSTORE, Opcodes.DRETURN, Opcodes.DADD, Opcodes.DSUB, Opcodes.DMUL, Opcodes.DDIV)
 
-    // TODO might be useless
     val TOKEN_TYPE_MAP = mapOf(
         Pair(TokenType.TYPE_INT, INT),
         Pair(TokenType.TYPE_LONG, LONG),
@@ -25,11 +30,18 @@ interface JavaType {
     )
   }
 
-  val className: String
-  val internalName: String
-  val descriptor: String
-  val storeCode: Int
-  val loadCode: Int
-  val returnCode: Int
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is JavaType) return false
+    return className == other.className
+  }
+
+  override fun hashCode(): Int {
+    return className.hashCode()
+  }
+
+  override fun toString(): String {
+    return className
+  }
 
 }
