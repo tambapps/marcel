@@ -176,6 +176,8 @@ LONELY_BACKTICK=`
 "private"          { return token(VISIBILITY_PRIVATE); }
 "fun"          { return token(FUN); }
 "return"          { return token(RETURN); }
+"import"          { return token(IMPORT); }
+"as"          { return token(AS); }
 
 {IDENTIFIER} {  return valueToken(IDENTIFIER); }
 
