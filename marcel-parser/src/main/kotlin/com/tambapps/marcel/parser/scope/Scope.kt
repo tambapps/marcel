@@ -6,7 +6,7 @@ import com.tambapps.marcel.parser.ast.TypedNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.type.JavaType
 
-class Scope(val superClassInternalName: String, val classMethods: List<MethodNode>) {
+open class Scope(val superClassInternalName: String, val classMethods: List<MethodNode>) {
   constructor(): this(JavaType.OBJECT.internalName, emptyList())
 
   constructor(classNode: ClassNode): this(classNode.parentType.internalName, classNode.methods)
@@ -45,4 +45,9 @@ class Scope(val superClassInternalName: String, val classMethods: List<MethodNod
   fun getClassFullName() {
 
   }
+}
+
+class InMethodScope(superClassInternalName: String, classMethods: List<MethodNode>, val currentMethod: MethodNode)
+  : Scope(superClassInternalName, classMethods) {
+    constructor(scope: Scope, methodNode: MethodNode): this(scope.superClassInternalName, scope.classMethods, methodNode)
 }

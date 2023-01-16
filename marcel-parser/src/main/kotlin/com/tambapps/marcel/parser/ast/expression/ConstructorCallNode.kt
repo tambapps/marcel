@@ -7,7 +7,7 @@ import com.tambapps.marcel.parser.type.JavaType
 /**
  * Node for new MyClass()
  */
-class ConstructorCallNode(type: JavaType, arguments: MutableList<ExpressionNode>): FunctionCallNode(type, "<init>", arguments) {
+class ConstructorCallNode(override var type: JavaType, arguments: MutableList<ExpressionNode>): FunctionCallNode("<init>", arguments) {
 
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)

@@ -10,6 +10,7 @@ import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.owner.StaticOwner
+import com.tambapps.marcel.parser.scope.InMethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.Binding
@@ -24,6 +25,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   constructor(tokens: List<LexToken>): this("MarcelRandomClass_" + abs(ThreadLocalRandom.current().nextInt()), tokens)
 
   private var currentIndex = 0
+  private val resolvableNodes = mutableListOf<Pair<ResolvableNode, Scope>>()
 
   private val current: LexToken
     get() {
@@ -38,7 +40,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
 
 
   fun parse(): ModuleNode {
-    return script()
+    val node = script()
+    resolvableNodes.forEach { it.first.resolve(it.second) }
+    return node
   }
 
   // TODO pass args as parameter
@@ -81,7 +85,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           }
           classNode.addMethod(method)
         }
-        else -> statements.add(statement(scope, JavaType.void))
+        else -> statements.add(statement(scope))
       }
     }
     return moduleNode
@@ -90,7 +94,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   private fun generateMainMethod(className: String, scope: Scope, blockNode: FunctionBlockNode): MethodNode {
     // TODO remove blockNode argument and generate my own function block. In it I should instantiate a $className and call the method run(args)
     val statements = mutableListOf<StatementNode>()
-    val blockNode = FunctionBlockNode(JavaType.void, statements)
+    val mainBlockNode = FunctionBlockNode(JavaType.void, statements)
     val scriptVar = "script"
     val scriptType = JavaType(className)
     statements.addAll(listOf(
@@ -131,21 +135,19 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val scope = Scope(classNode)
     val statements = mutableListOf<StatementNode>()
     val methodNode = MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC, StaticOwner(classNode.name), methodName, FunctionBlockNode(returnType, statements), parameters, returnType, scope)
-    statements.addAll(block(scope, returnType).statements)
+    resolvableNodes.add(Pair(methodNode, scope))
+    statements.addAll(block(InMethodScope(scope, methodNode)).statements)
     // TODO determine access Opcodes based on visibility variable
-    if (returnType != JavaType.void && methodNode.block.type != returnType) {
-      throw SemanticException("Return type of block doesn't match method's return type")
-    }
     return methodNode
   }
 
 
-  fun block(scope: Scope, returnType: JavaType): BlockNode {
+  fun block(scope: Scope): BlockNode {
     accept(TokenType.BRACKETS_OPEN)
     val statements = mutableListOf<StatementNode>()
     while (current.type != TokenType.BRACKETS_CLOSE) {
       // TODO check if statement is return, if the return type matches the returnType
-      val statement = statement(scope, returnType)
+      val statement = statement(scope)
       if (statements.lastOrNull() is ReturnNode) {
         // we have another statement after a return? shouldn't be possible
         throw SemanticException("Cannot have other statements after a return")
@@ -165,7 +167,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     }
   }
 
-  private fun statement(scope: Scope, returnType: JavaType): StatementNode {
+  private fun statement(scope: Scope): StatementNode {
     val token = next()
     return when (token.type) {
       TokenType.TYPE_INT, TokenType.TYPE_LONG,
@@ -173,10 +175,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           JavaType.TOKEN_TYPE_MAP.getValue(token.type))
       TokenType.RETURN -> {
         val expression = if (current.type == TokenType.SEMI_COLON) VoidExpression() else expression(scope)
-        if (returnType != expression.type) {
-          throw SemanticException("Cannot return ${expression.type} when return type is $returnType")
+        ReturnNode(expression).apply {
+          resolvableNodes.add(Pair(this, scope))
         }
-        ReturnNode(expression)
       }
       else -> {
         rollback()
@@ -234,8 +235,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       TokenType.IDENTIFIER -> {
         if (current.type == TokenType.LPAR) {
           skip()
-          // TODO for now only ints are handled
-          return FunctionCallNode(JavaType.int, token.value, parseFunctionArguments(scope))
+          return FunctionCallNode(token.value, parseFunctionArguments(scope)).apply {
+            resolvableNodes.add(Pair(this, scope))
+          }
         } else if (current.type == TokenType.ASSIGNMENT) {
           skip()
           VariableAssignmentNode(token.value, expression(scope))
