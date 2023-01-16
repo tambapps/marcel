@@ -34,12 +34,13 @@ private interface IInstructionGenerator: AstNodeVisitor {
     if (fCall.type.primitive) {
       throw SemanticException("Cannot instantiate a primitive type")
     }
-    val ownerDescriptor = fCall.type.descriptor
-    mv.visitTypeInsn(Opcodes.NEW, ownerDescriptor)
+    val classInternalName = fCall.type.internalName
+    mv.visitTypeInsn(Opcodes.NEW, classInternalName)
     mv.visitInsn(Opcodes.DUP)
     pushFunctionCallArguments(fCall)
-    mv.visitMethodInsn(Opcodes.INVOKESPECIAL, ownerDescriptor, fCall.name,
-        AsmUtils.getDescriptor(fCall.arguments, fCall.type), false)
+    val constructorMethod = scope.getMethod("<init>", fCall.arguments)
+    mv.visitMethodInsn(Opcodes.INVOKESPECIAL, classInternalName, fCall.name,
+        constructorMethod.methodDescriptor, false)
 
   }
   override fun visit(fCall: SuperConstructorCallNode) {

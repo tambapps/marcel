@@ -89,6 +89,15 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
 
   private fun generateMainMethod(className: String, scope: Scope, blockNode: FunctionBlockNode): MethodNode {
     // TODO remove blockNode argument and generate my own function block. In it I should instantiate a $className and call the method run(args)
+    val statements = mutableListOf<StatementNode>()
+    val blockNode = FunctionBlockNode(JavaType.void, statements)
+    val scriptVar = "script"
+    val scriptType = JavaType(className)
+    statements.addAll(listOf(
+        VariableDeclarationNode(scriptType, scriptVar, ConstructorCallNode(scriptType, mutableListOf())),
+    ))
+    // TODO need to handle myVar.methodCall() to be able to have a
+    scope.addLocalVariable(scriptType, scriptVar)
     return MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, StaticOwner(AsmUtils.getInternalName(className)),
         "main",
         blockNode /*FunctionBlockNode(JavaType.void, blockNode)*/, mutableListOf(MethodParameter(JavaType(Array<String>::class.java), "args")), JavaType.void, scope
