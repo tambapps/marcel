@@ -3,16 +3,16 @@ package com.tambapps.marcel.parser.ast
 import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
-import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.owner.Owner
 import com.tambapps.marcel.parser.scope.Scope
+import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 
 open class MethodNode(val access: Int, val owner: Owner, val name: String, val block: FunctionBlockNode,
-                 val parameters: MutableList<MethodParameter>, val returnType: JavaType, val scope: Scope): AstNode, ResolvableNode {
+                 val parameters: MutableList<MethodParameter>, val returnType: JavaType, val scope: Scope): AstNode, ResolvableNode, JavaMethod {
 
-  val methodDescriptor = AsmUtils.getDescriptor(parameters, returnType)
+  override val descriptor = AsmUtils.getDescriptor(parameters, returnType)
 
   init {
     for (parameter in parameters) {

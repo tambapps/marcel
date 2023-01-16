@@ -40,7 +40,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
     pushFunctionCallArguments(fCall)
     val constructorMethod = scope.getMethod("<init>", fCall.arguments)
     mv.visitMethodInsn(Opcodes.INVOKESPECIAL, classInternalName, fCall.name,
-        constructorMethod.methodDescriptor, false)
+        constructorMethod.descriptor, false)
 
   }
   override fun visit(fCall: SuperConstructorCallNode) {
@@ -99,7 +99,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
 
       // TODO might need to push on stack variable/expression, if owner is not static, and need not to push for unpushedblabla
       val owner = method.owner
-      mv.visitMethodInsn(owner.invokeCode, owner.classInternalName, fCall.name, method.methodDescriptor, false)
+      mv.visitMethodInsn(owner.invokeCode, owner.classInternalName, fCall.name, method.descriptor, false)
     }
   }
 

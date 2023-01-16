@@ -4,7 +4,6 @@ import com.tambapps.marcel.compiler.CompilationResult
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.ModuleNode
 import org.objectweb.asm.ClassWriter
-import org.objectweb.asm.MethodVisitor
 
 // https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
 class BytecodeWriter {
@@ -29,7 +28,7 @@ class BytecodeWriter {
   }
 
   private fun writeMethod(classWriter: ClassWriter, methodNode: MethodNode) {
-    val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.methodDescriptor, null, null)
+    val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.descriptor, null, null)
     mv.visitCode()
 
     val instructionGenerator = InstructionGenerator(mv, methodNode.scope)
