@@ -122,7 +122,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       if (current.type == TokenType.MUL) {
         skip()
         acceptOptional(TokenType.SEMI_COLON)
-        return WildcardImportNode(classParts.joinToString(separator = ".", postfix = "."))
+        return WildcardImportNode(classParts.joinToString(separator = "."))
       }
       classParts.add(accept(TokenType.IDENTIFIER).value)
     }
@@ -131,7 +131,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     }
     val asName = if (acceptOptional(TokenType.AS) != null) accept(TokenType.IDENTIFIER).value else null
     acceptOptional(TokenType.SEMI_COLON)
-    return ImportNode(classParts.joinToString(separator = "."), asName)
+    return SimpleImportNode(classParts.joinToString(separator = "."), asName)
   }
 
    private fun method(imports: List<ImportNode>, classNode: ClassNode): MethodNode {
