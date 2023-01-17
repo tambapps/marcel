@@ -205,3 +205,4 @@ LONELY_BACKTICK=`
 "!="          { return token(NOT_EQUAL); }
 "="          { return token(ASSIGNMENT); }
 "."          { return token(DOT); }
+","          { return token(COMMA); }
