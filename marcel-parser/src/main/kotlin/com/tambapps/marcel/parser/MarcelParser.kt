@@ -75,7 +75,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       )), mutableListOf(MethodParameter(bindingType, "binding")), MethodScope(scope, JavaMethod.CONSTRUCTOR_NAME, listOf(MethodParameter(bindingType, "binding")), JavaType.void))
     )
     classMethods.add(runFunction)
-    // TODO copy scope once generating right main block
     classMethods.add(generateMainMethod(className, scope, runBlock))
     val classNode = ClassNode(
       Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, classType, JavaType(Script::class.java), classMethods)
@@ -97,21 +96,26 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     return moduleNode
   }
 
-  private fun generateMainMethod(className: String, scope: Scope, blockNode: FunctionBlockNode): MethodNode {
-    // TODO remove blockNode argument and generate my own function block. In it I should instantiate a $className and call the method run(args)
+  private fun generateMainMethod(className: String, classScope: Scope, blockNode: FunctionBlockNode): MethodNode {
     val statements = mutableListOf<StatementNode>()
     val mainBlockNode = FunctionBlockNode(JavaType.void, statements)
     val scriptVar = "script"
     val scriptType = JavaType(className)
+    val methodScope = MethodScope(classScope, "main", listOf(MethodParameter(JavaType(Array<String>::class.java), "args")), JavaType.void)
     statements.addAll(listOf(
-        VariableDeclarationNode(scriptType, scriptVar, ConstructorCallNode(Scope(), scriptType, mutableListOf())),
+        VariableDeclarationNode(scriptType, scriptVar, ConstructorCallNode(methodScope, scriptType, mutableListOf())),
+      ExpressionStatementNode(
+        AccessOperator(VariableReferenceExpression(methodScope, scriptVar), FunctionCallNode(methodScope, "run",
+          mutableListOf(VariableReferenceExpression(methodScope, "args"))
+        ))
+      )
     ))
-    scope.addLocalVariable(scriptType, scriptVar)
+    methodScope.addLocalVariable(scriptType, scriptVar)
     return MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, scriptType,
         "main",
-        blockNode /*FunctionBlockNode(JavaType.void, blockNode)*/, mutableListOf(MethodParameter(JavaType(Array<String>::class.java), "args")), JavaType.void,
-      MethodScope(scope, "main", listOf(MethodParameter(JavaType(Array<String>::class.java), "args")), JavaType.void),
-    )
+      // TODO use main block node. TODO it's weird that we add variable in parser AND istruction generator for variableDeclaration node
+        blockNode, mutableListOf(MethodParameter(JavaType(Array<String>::class.java), "args")), JavaType.void,
+      methodScope)
   }
 
   private fun import(): ImportNode {
