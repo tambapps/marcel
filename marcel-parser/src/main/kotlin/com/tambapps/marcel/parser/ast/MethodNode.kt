@@ -10,7 +10,7 @@ import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 
 open class MethodNode(val access: Int, val owner: Owner, val name: String, val block: FunctionBlockNode,
-                 val parameters: MutableList<MethodParameter>, val returnType: JavaType, val scope: Scope): AstNode, ResolvableNode, JavaMethod {
+                 val parameters: MutableList<MethodParameter>, val returnType: JavaType, val scope: Scope): AstNode, JavaMethod {
 
   override val descriptor = AsmUtils.getDescriptor(parameters, returnType)
   override val parameterTypes get() = parameters.map { it.type.realClassOrObject }.toTypedArray()
@@ -32,9 +32,4 @@ open class MethodNode(val access: Int, val owner: Owner, val name: String, val b
     return this.name == name
   }
 
-  override fun resolve(scope: Scope) {
-    if (returnType != JavaType.void && block.type != returnType) {
-      throw SemanticException("Return type of block doesn't match method's return type")
-    }
-  }
 }

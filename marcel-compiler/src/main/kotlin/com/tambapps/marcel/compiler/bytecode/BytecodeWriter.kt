@@ -3,6 +3,8 @@ package com.tambapps.marcel.compiler.bytecode
 import com.tambapps.marcel.compiler.CompilationResult
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.ModuleNode
+import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.ClassWriter
 
 // https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
@@ -34,6 +36,9 @@ class BytecodeWriter {
     val instructionGenerator = InstructionGenerator(mv, methodNode.scope)
     val maxStack = 100; //TODO - do that properly
 
+    if (methodNode.returnType != JavaType.void && methodNode.block.type != methodNode.returnType) {
+      throw SemanticException("Return type of block doesn't match method's return type")
+    }
     // writing method
     instructionGenerator.visit(methodNode.block)
     // TODO may need one day to treat inner scopes

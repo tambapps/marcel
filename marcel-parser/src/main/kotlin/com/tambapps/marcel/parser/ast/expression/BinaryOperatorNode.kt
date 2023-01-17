@@ -1,9 +1,6 @@
 package com.tambapps.marcel.parser.ast.expression
 
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
-import com.tambapps.marcel.parser.ast.ResolvableNode
-import com.tambapps.marcel.parser.scope.Scope
-import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 
 abstract class BinaryOperatorNode(val leftOperand: ExpressionNode, val rightOperand: ExpressionNode): ExpressionNode {
@@ -85,15 +82,11 @@ class PowOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
 }
 
 class AccessOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
-    BinaryOperatorNode(leftOperand, rightOperand), ResolvableNode {
+    BinaryOperatorNode(leftOperand, rightOperand) {
 
   override lateinit var type: JavaType
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)
-  }
-
-  override fun resolve(scope: Scope) {
-    TODO("Not yet implemented")
   }
 
   override fun toString(): String {

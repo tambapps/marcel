@@ -16,17 +16,17 @@ class ConstructorNode(
   block: FunctionBlockNode,
   parameters: MutableList<MethodParameter>,
   scope: Scope
-) : MethodNode(access, NoOpOwner(), "<init>", blockWithSuperCall(block), parameters, JavaType.void,
+) : MethodNode(access, NoOpOwner(), "<init>", blockWithSuperCall(scope, block), parameters, JavaType.void,
     // TODO don't know if it's the right way, don't know if we should also add it in parameters
     scope.apply { addLocalVariable(superType, "super") }) {
 
   companion object {
-    private fun blockWithSuperCall(block: FunctionBlockNode): FunctionBlockNode {
+    private fun blockWithSuperCall(scope: Scope, block: FunctionBlockNode): FunctionBlockNode {
       if (block.statements.firstOrNull()?.expression is SuperConstructorCallNode) {
         return block
       }
       val statements = mutableListOf<StatementNode>()
-      statements.add(ExpressionStatementNode(SuperConstructorCallNode(mutableListOf())))
+      statements.add(ExpressionStatementNode(SuperConstructorCallNode(scope, mutableListOf())))
       statements.addAll(block.statements)
       return FunctionBlockNode(block.methodReturnType, statements)
     }

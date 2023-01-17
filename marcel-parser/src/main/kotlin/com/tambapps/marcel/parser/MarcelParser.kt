@@ -25,7 +25,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   constructor(tokens: List<LexToken>): this("MarcelRandomClass_" + abs(ThreadLocalRandom.current().nextInt()), tokens)
 
   private var currentIndex = 0
-  private val resolvableNodes = mutableListOf<Pair<ResolvableNode, Scope>>()
 
   private val current: LexToken
     get() {
@@ -41,7 +40,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
 
   fun parse(): ModuleNode {
     val node = script()
-    resolvableNodes.forEach { it.first.resolve(it.second) }
     return node
   }
 
@@ -70,7 +68,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     )
     classMethods.add(
       ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, listOf(
-        ExpressionStatementNode(SuperConstructorCallNode(mutableListOf(VariableReferenceExpression(bindingType, "binding"))))
+        ExpressionStatementNode(SuperConstructorCallNode(scope, mutableListOf(VariableReferenceExpression(
+          Scope().apply { addLocalVariable(bindingType, "binding") }
+          , "binding"))))
       )), mutableListOf(MethodParameter(bindingType, "binding")), scope.copy())
     )
     classMethods.add(runFunction)
@@ -103,7 +103,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val scriptVar = "script"
     val scriptType = JavaType(className)
     statements.addAll(listOf(
-        VariableDeclarationNode(scriptType, scriptVar, ConstructorCallNode(scriptType, mutableListOf())),
+        VariableDeclarationNode(scriptType, scriptVar, ConstructorCallNode(Scope(), scriptType, mutableListOf())),
     ))
     // TODO need to handle myVar.methodCall() to be able to have a
     scope.addLocalVariable(scriptType, scriptVar)
@@ -161,7 +161,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val statements = mutableListOf<StatementNode>()
     // TODO determine access Opcodes based on visibility variable
     val methodNode = MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC, StaticOwner(classNode.name), methodName, FunctionBlockNode(returnType, statements), parameters, returnType, scope)
-    resolvableNodes.add(Pair(methodNode, scope))
     statements.addAll(block(InMethodScope(scope, methodNode)).statements)
     return methodNode
   }
@@ -200,9 +199,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           JavaType.TOKEN_TYPE_MAP.getValue(token.type))
       TokenType.RETURN -> {
         val expression = if (current.type == TokenType.SEMI_COLON) VoidExpression() else expression(scope)
-        ReturnNode(expression).apply {
-          resolvableNodes.add(Pair(this, scope))
-        }
+        ReturnNode(expression)
       }
       else -> {
         if (token.type == TokenType.IDENTIFIER && current.type == TokenType.IDENTIFIER) {
@@ -267,21 +264,18 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         val classSimpleName = accept(TokenType.IDENTIFIER).value
         val className = scope.resolveClassName(classSimpleName)
         accept(TokenType.LPAR)
-        ConstructorCallNode(JavaType(className), parseFunctionArguments(scope))
+        // TODO add parameters in scope
+        ConstructorCallNode(Scope(), JavaType(className), parseFunctionArguments(scope))
       }
       TokenType.IDENTIFIER -> {
         if (current.type == TokenType.LPAR) {
           skip()
-          return FunctionCallNode(token.value, parseFunctionArguments(scope)).apply {
-            resolvableNodes.add(Pair(this, scope))
-          }
+          return FunctionCallNode(scope, token.value, parseFunctionArguments(scope))
         } else if (current.type == TokenType.ASSIGNMENT) {
           skip()
           VariableAssignmentNode(token.value, expression(scope))
         } else {
-          VariableReferenceExpression(token.value).apply {
-            resolvableNodes.add(Pair(this, scope))
-          }
+          VariableReferenceExpression(scope, token.value)
         }
       }
       TokenType.MINUS -> UnaryMinus(atom(scope))
@@ -304,9 +298,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val token = next()
     return when (token.type) {
       TokenType.REGULAR_STRING_PART -> StringConstantNode(token.value)
-      TokenType.SHORT_TEMPLATE_ENTRY_START -> VariableReferenceExpression(accept(TokenType.IDENTIFIER).value).apply {
-        resolvableNodes.add(Pair( this, scope))
-      }
+      TokenType.SHORT_TEMPLATE_ENTRY_START -> VariableReferenceExpression(scope, accept(TokenType.IDENTIFIER).value)
       TokenType.LONG_TEMPLATE_ENTRY_START -> {
         val expr = expression(scope)
         accept(TokenType.LONG_TEMPLATE_ENTRY_END)

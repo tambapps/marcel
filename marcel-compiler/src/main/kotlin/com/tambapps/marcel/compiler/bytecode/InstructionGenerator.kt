@@ -6,6 +6,7 @@ import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.scope.InMethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
@@ -289,7 +290,7 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor, overri
       return
     }
     // new StringBuilder()
-    visit(ConstructorCallNode(JavaType(StringBuilder::class.java), mutableListOf()))
+    visit(ConstructorCallNode(scope, JavaType(StringBuilder::class.java), mutableListOf()))
     for (part in stringNode.parts) {
       // chained calls
       val argumentClass = part.type.realClassOrObject
@@ -349,6 +350,15 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor, overri
   }
 
   override fun visit(returnNode: ReturnNode) {
+    returnNode.apply {
+      if (scope !is InMethodScope) {
+        throw SemanticException("Tried to return a value not from a method")
+      }
+      val method = scope.currentMethod
+      if (method.returnType != expression.type) {
+        throw SemanticException("Cannot return ${expression.type} when return type is ${method.returnType}")
+      }
+    }
     returnNode.expression.accept(this)
   }
 
