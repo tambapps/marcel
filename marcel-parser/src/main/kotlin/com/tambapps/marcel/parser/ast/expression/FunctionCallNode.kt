@@ -6,7 +6,7 @@ import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 
-open class FunctionCallNode(val scope: Scope, val name: String, val arguments: MutableList<ExpressionNode>): ExpressionNode, JavaMethod {
+open class FunctionCallNode(val scope: Scope, val name: String, val arguments: MutableList<ExpressionNode>): ExpressionNode {
 
   var owner: ExpressionNode? = null
 
@@ -18,9 +18,9 @@ open class FunctionCallNode(val scope: Scope, val name: String, val arguments: M
     }
 
 
-  override val descriptor: String
+  val descriptor: String
     get() = AsmUtils.getDescriptor(arguments, type)
-  override val parameterTypes: Array<Class<*>>
+  val parameterTypes: Array<Class<*>>
     get() = arguments.map { it.type.realClassOrObject }.toTypedArray()
 
   override fun accept(astNodeVisitor: AstNodeVisitor) {

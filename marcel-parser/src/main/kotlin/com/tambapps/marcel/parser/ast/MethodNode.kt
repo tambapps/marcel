@@ -13,12 +13,12 @@ import org.objectweb.asm.Opcodes
 
 open class MethodNode constructor(val access: Int, val ownerClass: JavaType, val name: String, val block: FunctionBlockNode,
                  val parameters: MutableList<MethodParameter>, val returnType: JavaType, val scope: MethodScope
-): AstNode, JavaMethod {
+): AstNode {
 
   val invokeCode = Opcodes.INVOKESTATIC
 
-  override val descriptor = AsmUtils.getDescriptor(parameters, returnType)
-  override val parameterTypes get() = parameters.map { it.type.realClassOrObject }.toTypedArray()
+  val descriptor = AsmUtils.getDescriptor(parameters, returnType)
+  val parameterTypes get() = parameters.map { it.type.realClassOrObject }.toTypedArray()
 
   override fun toString(): String {
     return "fun $name(" + parameters.joinToString(separator = ", ") + ") " + returnType
