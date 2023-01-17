@@ -27,4 +27,7 @@ interface AstNodeVisitor {
   fun visit(variableDeclarationNode: VariableDeclarationNode)
   fun visit(returnNode: ReturnNode)
   fun visit(voidExpression: VoidExpression)
+  fun visit(stringNode: StringNode)
+  fun visit(stringConstantNode: StringConstantNode)
+  fun visit(toStringNode: ToStringNode)
 }

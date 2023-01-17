@@ -257,6 +257,14 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val token = next()
     return when (token.type) {
       TokenType.INTEGER -> IntConstantNode(token.value.toInt())
+      TokenType.OPEN_QUOTE -> {
+        val parts = mutableListOf<ExpressionNode>()
+        while (current.type != TokenType.CLOSING_QUOTE) {
+          parts.add(stringPart(scope))
+        }
+        skip() // skip last quote
+        StringNode(parts)
+      }
       TokenType.NEW -> {
         val classSimpleName = accept(TokenType.IDENTIFIER).value
         val className = scope.resolveClassName(classSimpleName)
@@ -295,11 +303,27 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         return node
       }
       else -> {
-        throw UnsupportedOperationException("Not supported yet")
+        throw UnsupportedOperationException("Not supported yet $token")
       }
     }
   }
 
+  private fun stringPart(scope: Scope): ExpressionNode {
+    val token = next()
+    return when (token.type) {
+      TokenType.REGULAR_STRING_PART -> StringConstantNode(token.value)
+      TokenType.SHORT_TEMPLATE_ENTRY_START -> VariableReferenceExpression(accept(TokenType.IDENTIFIER).value, scope)
+      TokenType.LONG_TEMPLATE_ENTRY_START -> {
+        val expr = expression(scope)
+        accept(TokenType.LONG_TEMPLATE_ENTRY_END)
+        expr
+      }
+      else -> {
+        rollback()
+        expression(scope)
+      }
+    }
+  }
   // assuming we already passed LPAR
   private fun parseFunctionArguments(scope: Scope): MutableList<ExpressionNode> {
     val arguments = mutableListOf<ExpressionNode>()

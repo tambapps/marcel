@@ -16,11 +16,13 @@ open class Scope(val imports: List<ImportNode>, val superClassInternalName: Stri
   val localVariablesCount: Int
     get() = localVariables.size
 
-  fun addLocalVariable(type: JavaType, name: String) {
+  fun addLocalVariable(type: JavaType, name: String): LocalVariable {
     if (localVariables.containsKey(name)) {
       throw SemanticException("a variable with name $name is already defined")
     }
-    localVariables[name] = LocalVariable(type, name)
+    val v = LocalVariable(type, name)
+    localVariables[name] = v
+    return v
   }
 
   fun getLocalVariable(name: String): LocalVariable {

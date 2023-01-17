@@ -7,12 +7,11 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.Scope
-import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import java.io.PrintStream
-import java.util.Arrays
+import java.lang.StringBuilder
 
 private interface IInstructionGenerator: AstNodeVisitor {
 
@@ -142,6 +141,19 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: S
     // don't need to write constants
   }
 
+  override fun visit(stringConstantNode: StringConstantNode) {
+    // don't need to write constants
+  }
+
+  override fun visit(toStringNode: ToStringNode) {
+    toStringNode.expressionNode.accept(this)
+  }
+  override fun visit(stringNode: StringNode) {
+    for (part in stringNode.parts) {
+      part.accept(this)
+    }
+  }
+
   override fun visit(variableReferenceExpression: VariableReferenceExpression) {
     // don't need to push value to the stack by default
   }
@@ -215,6 +227,44 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: S
 
 private class PushingInstructionGenerator(override val mv: MethodVisitor, override val scope: Scope): IInstructionGenerator {
   lateinit var instructionGenerator: InstructionGenerator
+
+
+  override fun visit(stringConstantNode: StringConstantNode) {
+    mv.visitLdcInsn(stringConstantNode.value)
+  }
+
+  override fun visit(toStringNode: ToStringNode) {
+    val expr = toStringNode.expressionNode
+    // TODO call Object.toString() method for non primitive type
+    if (expr.type == JavaType.STRING) {
+      expr.accept(this)
+    } else {
+      val argumentClass = expr.type.realClassOrObject
+      val method = String::class.java.getDeclaredMethod("valueOf", if (argumentClass.isPrimitive) argumentClass else Object::class.java)
+      pushArgument(expr)
+      mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/String", "valueOf", AsmUtils.getDescriptor(method), false)
+    }
+  }
+  override fun visit(stringNode: StringNode) {
+    if (stringNode.parts.isEmpty()) {
+      // empty string
+      StringConstantNode("").accept(this)
+      return
+    } else if (stringNode.parts.size == 1) {
+      ToStringNode(stringNode.parts.first()).accept(this)
+      return
+    }
+    // new StringBuilder()
+    instructionGenerator.visit(ConstructorCallNode(JavaType(StringBuilder::class.java), mutableListOf()))
+    for (part in stringNode.parts) {
+      // chained calls
+      val argumentClass = part.type.realClassOrObject
+      val method = StringBuilder::class.java.getDeclaredMethod("append", if (argumentClass.isPrimitive) argumentClass else Object::class.java)
+      pushArgument(part)
+      mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "append", AsmUtils.getDescriptor(method), false)
+    }
+    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", AsmUtils.getDescriptor(emptyList(), JavaType.STRING), false)
+  }
 
   override fun visit(integer: IntConstantNode) {
     mv.visitLdcInsn(integer.value) // write primitive value, from an Object class e.g. Integer -> int

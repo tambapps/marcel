@@ -24,6 +24,7 @@ open class JavaType(
   companion object {
 
     val OBJECT = JavaType(Object::class.java)
+    val STRING = JavaType(String::class.java)
 
 
     val void = JavaPrimitiveType(PrimitiveTypes.VOID, Opcodes.ALOAD, Opcodes.ASTORE, Opcodes.RETURN, 0,0,0,0)
