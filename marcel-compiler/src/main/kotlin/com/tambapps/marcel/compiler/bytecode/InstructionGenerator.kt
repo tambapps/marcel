@@ -145,6 +145,16 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: S
     // don't need to write constants
   }
 
+  override fun visit(fCall: ConstructorCallNode) {
+    super.visit(fCall)
+    mv.visitInsn(Opcodes.POP) // don't really know if it's necessary
+  }
+  override fun visit(fCall: FunctionCallNode) {
+    super.visit(fCall)
+    if (fCall.type != JavaType.void) {
+      mv.visitInsn(Opcodes.POP) // don't really know if it's necessary
+    }
+  }
   override fun visit(toStringNode: ToStringNode) {
     toStringNode.expressionNode.accept(this)
   }
@@ -210,7 +220,8 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: S
   }
 
   fun drop2() {
-    TODO("Drop 2 args from the stack")
+    // TODO verify it does what I think
+    mv.visitInsn(Opcodes.POP2)
   }
 
   override fun visit(blockNode: BlockNode) {
@@ -255,7 +266,7 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor, overri
       return
     }
     // new StringBuilder()
-    instructionGenerator.visit(ConstructorCallNode(JavaType(StringBuilder::class.java), mutableListOf()))
+    visit(ConstructorCallNode(JavaType(StringBuilder::class.java), mutableListOf()))
     for (part in stringNode.parts) {
       // chained calls
       val argumentClass = part.type.realClassOrObject
