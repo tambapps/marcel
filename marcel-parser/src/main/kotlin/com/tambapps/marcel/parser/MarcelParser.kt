@@ -48,7 +48,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   // TODO pass args as parameter
   fun script(): ModuleNode {
 
-    // TODO use import when resolving class names
     val imports = mutableListOf<ImportNode>()
     while (current.type == TokenType.IMPORT) {
       imports.add(import())
@@ -160,10 +159,10 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     skip() // skipping RPAR
     val returnType = if (current.type != TokenType.BRACKETS_OPEN) parseType(scope) else JavaType.void
     val statements = mutableListOf<StatementNode>()
+    // TODO determine access Opcodes based on visibility variable
     val methodNode = MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC, StaticOwner(classNode.name), methodName, FunctionBlockNode(returnType, statements), parameters, returnType, scope)
     resolvableNodes.add(Pair(methodNode, scope))
     statements.addAll(block(InMethodScope(scope, methodNode)).statements)
-    // TODO determine access Opcodes based on visibility variable
     return methodNode
   }
 
@@ -172,7 +171,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     accept(TokenType.BRACKETS_OPEN)
     val statements = mutableListOf<StatementNode>()
     while (current.type != TokenType.BRACKETS_CLOSE) {
-      // TODO check if statement is return, if the return type matches the returnType
       val statement = statement(scope)
       if (statements.lastOrNull() is ReturnNode) {
         // we have another statement after a return? shouldn't be possible
@@ -240,7 +238,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     return expr
   }
 
-  // TODO problem with priorities
   private fun expression(scope: Scope, maxPriority: Int): ExpressionNode {
     var a = atom(scope)
     var t = current
