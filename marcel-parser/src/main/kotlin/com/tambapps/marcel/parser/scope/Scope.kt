@@ -29,6 +29,17 @@ open class Scope(val imports: List<ImportNode>, val superClassInternalName: Stri
     return localVariables[name] ?: throw SemanticException("Variable $name is not defined")
   }
 
+  fun getMethodForType(type: JavaType, name: String, argumentTypes: List<TypedNode>): MethodNode {
+    // TODO for now only searching on outside classes
+    val clazz = try {
+      Class.forName(type.className)
+    } catch (e: ClassNotFoundException) {
+      throw SemanticException("Unkown class $type")
+    }
+    val method = clazz.getDeclaredMethod(name, *argumentTypes.map { it.type.realClassOrObject }.toTypedArray())
+    TODO("I was here")
+  }
+
   fun getMethod(name: String, argumentTypes: List<TypedNode>): MethodNode {
     return classMethods.find { it.matches(name, argumentTypes) } ?: throw SemanticException("Method $name is not defined")
   }

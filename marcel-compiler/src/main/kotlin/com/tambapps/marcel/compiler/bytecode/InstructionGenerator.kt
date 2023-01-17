@@ -85,7 +85,24 @@ private interface IInstructionGenerator: AstNodeVisitor {
 
   // TODO drop stack for Instruction operator
   override fun visit(accessOperator: AccessOperator) {
-    TODO("Not yet implemented")
+    TODO()
+    /*
+    val methodOwner = accessOperator.leftOperand
+    val access = accessOperator.rightOperand
+    if (access is FunctionCallNode) {
+      val method = scope.getMethodForType(methodOwner.type, access.name, access.arguments)
+      if (method.parameters.size != access.arguments.size) {
+        throw SemanticException("Tried to call function $method with ${access.arguments.size} instead of ${method.parameters.size}")
+      }
+      for (argument in access.arguments) {
+        pushArgument(argument)
+      }
+      mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodOwner.type.internalName, method.name, AsmUtils.getDescriptor(method), false)
+    } else {
+      throw UnsupportedOperationException("Cannot handle such access")
+    }
+
+     */
   }
 
   private fun evaluateOperands(binaryOperatorNode: BinaryOperatorNode) {

@@ -1,6 +1,7 @@
 package com.tambapps.marcel.parser.asm
 
 import com.tambapps.marcel.parser.MethodParameter
+import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.TypedNode
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.Type
@@ -33,6 +34,9 @@ object AsmUtils {
     return builder.append(')')
       .append(getClassDescriptor(method.returnType))
       .toString()
+  }
+  fun getDescriptor(method: MethodNode): String {
+    return getDescriptor(method.parameters, method.returnType)
   }
   fun getDescriptor(parameters: List<TypedNode>, returnType: JavaType): String {
     val builder = StringBuilder().append('(')
