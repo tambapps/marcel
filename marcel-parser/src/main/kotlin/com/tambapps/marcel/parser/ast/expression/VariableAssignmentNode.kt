@@ -14,4 +14,20 @@ open class VariableAssignmentNode(val name: String, val expression: ExpressionNo
   override fun toString(): String {
     return "$name = $expression"
   }
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is VariableAssignmentNode) return false
+
+    if (name != other.name) return false
+    if (expression != other.expression) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = name.hashCode()
+    result = 31 * result + expression.hashCode()
+    return result
+  }
 }

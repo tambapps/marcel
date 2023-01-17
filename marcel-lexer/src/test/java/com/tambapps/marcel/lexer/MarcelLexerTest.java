@@ -62,6 +62,50 @@ public class MarcelLexerTest {
     );
   }
 
+  @Test
+  public void testAssignment() {
+    List<LexToken> tokens = lexer.lex("int a = foo(bar, 2)");
+    assertEquals(
+        Arrays.asList(
+            token(TYPE_INT),
+            token(IDENTIFIER, "a"),
+            token(ASSIGNMENT),
+            token(IDENTIFIER, "foo"),
+            token(LPAR),
+            token(IDENTIFIER, "bar"),
+            token(COMMA),
+            token(INTEGER, "2"),
+            token(RPAR),
+            token(END_OF_FILE)
+        ), tokens
+    );
+  }
+
+  @Test
+  public void testFunctionDefinition() {
+    List<LexToken> tokens = lexer.lex("fun sum(int a, int b) { return a + b }");
+    assertEquals(
+        Arrays.asList(
+            token(FUN),
+            token(IDENTIFIER, "sum"),
+            token(LPAR),
+            token(TYPE_INT),
+            token(IDENTIFIER, "a"),
+            token(COMMA),
+            token(TYPE_INT),
+            token(IDENTIFIER, "b"),
+            token(RPAR),
+            token(BRACKETS_OPEN),
+            token(RETURN),
+            token(IDENTIFIER, "a"),
+            token(PLUS),
+            token(IDENTIFIER, "b"),
+            token(BRACKETS_CLOSE),
+            token(END_OF_FILE)
+        ), tokens
+    );
+  }
+
   private LexToken token(TokenType type) {
     return token(type, null);
   }

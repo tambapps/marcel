@@ -22,4 +22,17 @@ class ReturnNode(override val expression: ExpressionNode) : StatementNode, Resol
       throw SemanticException("Cannot return ${expression.type} when return type is ${method.returnType}")
     }
   }
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is ReturnNode) return false
+
+    if (expression != other.expression) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    return expression.hashCode()
+  }
 }

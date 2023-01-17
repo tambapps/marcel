@@ -15,4 +15,20 @@ class VariableDeclarationNode(override val type: JavaType, name: String,  expres
   override fun toString(): String {
     return "${type.className} $name = $expression;"
   }
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is VariableDeclarationNode) return false
+    if (!super.equals(other)) return false
+
+    if (type != other.type) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = super.hashCode()
+    result = 31 * result + type.hashCode()
+    return result
+  }
 }
