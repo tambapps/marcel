@@ -10,6 +10,8 @@ import com.tambapps.marcel.parser.type.JavaType
 open class FunctionCallNode(val name: String, val arguments: MutableList<ExpressionNode>): ExpressionNode, ResolvableNode, JavaMethod {
 
   override lateinit var type: JavaType
+  // TODO initialize this and use it to get method
+  lateinit var callerType: JavaType
   override val descriptor: String
     get() = AsmUtils.getDescriptor(arguments, type)
   override val parameterTypes: Array<Class<*>>

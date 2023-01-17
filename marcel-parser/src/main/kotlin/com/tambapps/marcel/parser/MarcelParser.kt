@@ -287,7 +287,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           }
           AccessMethodNode(token.value, expression)
         } else {
-          VariableReferenceExpression(token.value, scope)
+          VariableReferenceExpression(token.value).apply {
+            resolvableNodes.add(Pair(this, scope))
+          }
         }
       }
       TokenType.MINUS -> UnaryMinus(atom(scope))
@@ -310,7 +312,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val token = next()
     return when (token.type) {
       TokenType.REGULAR_STRING_PART -> StringConstantNode(token.value)
-      TokenType.SHORT_TEMPLATE_ENTRY_START -> VariableReferenceExpression(accept(TokenType.IDENTIFIER).value, scope)
+      TokenType.SHORT_TEMPLATE_ENTRY_START -> VariableReferenceExpression(accept(TokenType.IDENTIFIER).value)
       TokenType.LONG_TEMPLATE_ENTRY_START -> {
         val expr = expression(scope)
         accept(TokenType.LONG_TEMPLATE_ENTRY_END)
