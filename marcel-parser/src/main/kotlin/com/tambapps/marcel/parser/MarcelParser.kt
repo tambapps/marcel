@@ -134,7 +134,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     return SimpleImportNode(classParts.joinToString(separator = "."), asName)
   }
 
-   private fun method(imports: List<ImportNode>, classNode: ClassNode): MethodNode {
+  internal fun method(imports: List<ImportNode>, classNode: ClassNode): MethodNode {
     // TODO handle static functions
     val visibility = acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.VISIBILITY_HIDDEN, TokenType.VISIBILITY_PRIVATE)
       ?: TokenType.VISIBILITY_PUBLIC
@@ -142,8 +142,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val methodName = accept(TokenType.IDENTIFIER).value
     accept(TokenType.LPAR)
     val parameters = mutableListOf<MethodParameter>()
+    val scope = Scope(imports, classNode)
     while (current.type != TokenType.RPAR) {
-      val type = parseType()
+      val type = parseType(scope)
       val argName = accept(TokenType.IDENTIFIER).value
       if (parameters.any { it.name == argName }) {
         throw SemanticException("Cannot two method parameters with the same name")
@@ -157,8 +158,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       }
     }
     skip() // skipping RPAR
-    val returnType = if (current.type != TokenType.BRACKETS_OPEN) parseType() else JavaType.void
-    val scope = Scope(imports, classNode)
+    val returnType = if (current.type != TokenType.BRACKETS_OPEN) parseType(scope) else JavaType.void
     val statements = mutableListOf<StatementNode>()
     val methodNode = MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC, StaticOwner(classNode.name), methodName, FunctionBlockNode(returnType, statements), parameters, returnType, scope)
     resolvableNodes.add(Pair(methodNode, scope))
@@ -184,16 +184,17 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     return BlockNode(statements)
   }
 
-  private fun parseType(): JavaType {
+  private fun parseType(scope: Scope): JavaType {
     val token = next()
     return when (token.type) {
       TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_VOID,
       TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE -> JavaType.TOKEN_TYPE_MAP.getValue(token.type)
+      TokenType.IDENTIFIER -> JavaType(scope.resolveClassName(token.value))
       else -> throw java.lang.UnsupportedOperationException("Doesn't handle type ${token.type}")
     }
   }
 
-  private fun statement(scope: Scope): StatementNode {
+  internal fun statement(scope: Scope): StatementNode {
     val token = next()
     return when (token.type) {
       TokenType.TYPE_INT, TokenType.TYPE_LONG,
