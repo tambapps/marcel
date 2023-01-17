@@ -45,12 +45,23 @@ import java.util.Stack;
 
   // tokens for which we need to save current buffer
   private LexToken valueToken(TokenType tokenType) {
-    return new LexToken(tokenType, new String(zzBuffer, zzCurrentPos, zzMarkedPos - zzCurrentPos));
+    return new LexToken(tokenType, getTokenString());
   }
   private LexToken token(TokenType tokenType) {
     return new LexToken(tokenType, null);
   }
 
+  public String getTokenString() {
+    return new String(zzBuffer, getTokenStart(), getTokenEnd() - getTokenStart());
+  }
+
+  public final int getTokenStart() {
+    return zzStartRead;
+  }
+
+  public final int getTokenEnd() {
+    return getTokenStart() + yylength();
+  }
 %}
 
 %unicode
