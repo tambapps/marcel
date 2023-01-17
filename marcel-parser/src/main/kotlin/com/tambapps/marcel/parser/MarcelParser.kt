@@ -244,7 +244,8 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     while (ParserUtils.isBinaryOperator(t.type) && ParserUtils.getPriority(t.type) < maxPriority) {
       next()
       val leftOperand = a
-      val rightOperand = expression(scope, ParserUtils.getPriority(t.type) + ParserUtils.getAssociativity(t.type))
+      val rightOpScope = if (t.type == TokenType.DOT) null else scope // TODO initialize lazy scope with right class
+      val rightOperand = expression(rightOpScope!!, ParserUtils.getPriority(t.type) + ParserUtils.getAssociativity(t.type))
       a = operator(t.type, leftOperand, rightOperand)
       t = current
     }

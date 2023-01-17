@@ -10,8 +10,6 @@ import com.tambapps.marcel.parser.type.JavaType
 open class FunctionCallNode(val name: String, val arguments: MutableList<ExpressionNode>): ExpressionNode, ResolvableNode, JavaMethod {
 
   override lateinit var type: JavaType
-  // TODO initialize this and use it to get method
-  lateinit var callerType: JavaType
   override val descriptor: String
     get() = AsmUtils.getDescriptor(arguments, type)
   override val parameterTypes: Array<Class<*>>
@@ -33,5 +31,25 @@ open class FunctionCallNode(val name: String, val arguments: MutableList<Express
 
   override fun toString(): String {
     return name + "(" + arguments.joinToString(separator = ",") + ")"
+  }
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (javaClass != other?.javaClass) return false
+
+    other as FunctionCallNode
+
+    if (name != other.name) return false
+    if (arguments != other.arguments) return false
+    if (type != other.type) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = name.hashCode()
+    result = 31 * result + arguments.hashCode()
+    result = 31 * result + type.hashCode()
+    return result
   }
 }
