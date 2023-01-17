@@ -8,6 +8,7 @@ import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.owner.NoOpOwner
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
+import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.Script
 
@@ -17,8 +18,7 @@ class ConstructorNode(
   block: FunctionBlockNode,
   parameters: MutableList<MethodParameter>,
   scope: MethodScope
-) : MethodNode(access, JavaType.void, "<init>", blockWithSuperCall(scope, block), parameters, JavaType.void,
-    // TODO don't know if it's the right way, don't know if we should also add it in parameters
+) : MethodNode(access, JavaType.void, JavaMethod.CONSTRUCTOR_NAME, blockWithSuperCall(scope, block), parameters, JavaType.void,
     scope.apply { addLocalVariable(superType, "super") }) {
 
   companion object {

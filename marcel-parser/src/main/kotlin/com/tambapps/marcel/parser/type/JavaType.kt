@@ -3,6 +3,7 @@ package com.tambapps.marcel.parser.type
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.PrimitiveTypes
 import com.tambapps.marcel.parser.asm.AsmUtils
+import com.tambapps.marcel.parser.ast.TypedNode
 import org.objectweb.asm.Opcodes
 
 // TODO add an imple for dynamic types e.g. class defined in a marcel script
@@ -13,8 +14,9 @@ open class JavaType(
     val descriptor: String,
     val storeCode: Int,
     val loadCode: Int,
-    val returnCode: Int) {
+    val returnCode: Int): TypedNode {
 
+  override val type: JavaType get() = this
   open val primitive = false
 
   constructor(clazz: Class<*>): this(clazz, clazz.name, AsmUtils.getInternalName(clazz), AsmUtils.getClassDescriptor(clazz),

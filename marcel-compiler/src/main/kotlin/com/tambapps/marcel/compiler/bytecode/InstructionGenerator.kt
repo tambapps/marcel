@@ -8,6 +8,7 @@ import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
+import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.MethodVisitor
@@ -42,7 +43,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
     mv.visitTypeInsn(Opcodes.NEW, classInternalName)
     mv.visitInsn(Opcodes.DUP)
     pushFunctionCallArguments(fCall)
-    val constructorMethod = scope.getMethod("<init>", fCall.arguments)
+    val constructorMethod = scope.getMethod(JavaMethod.CONSTRUCTOR_NAME, fCall.arguments)
     mv.visitMethodInsn(Opcodes.INVOKESPECIAL, classInternalName, fCall.name,
         constructorMethod.descriptor, false)
 
@@ -55,7 +56,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
   }
 
   private fun pushFunctionCallArguments(fCall: FunctionCallNode) {
-    val method = scope.getMethod(fCall.name, fCall.arguments)
+    val method = fCall.method
     if (method.parameters.size != fCall.arguments.size) {
       throw SemanticException("Tried to call function $method with ${fCall.arguments.size} instead of ${method.parameters.size}")
     }
@@ -86,24 +87,14 @@ private interface IInstructionGenerator: AstNodeVisitor {
 
   // TODO drop stack for Instruction operator
   override fun visit(accessOperator: AccessOperator) {
-    TODO()
-    /*
     val methodOwner = accessOperator.leftOperand
     val access = accessOperator.rightOperand
     if (access is FunctionCallNode) {
-      val method = scope.getMethodForType(methodOwner.type, access.name, access.arguments)
-      if (method.parameters.size != access.arguments.size) {
-        throw SemanticException("Tried to call function $method with ${access.arguments.size} instead of ${method.parameters.size}")
-      }
-      for (argument in access.arguments) {
-        pushArgument(argument)
-      }
-      mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, methodOwner.type.internalName, method.name, AsmUtils.getDescriptor(method), false)
+      pushArgument(methodOwner)
+      access.accept(this)
     } else {
       throw UnsupportedOperationException("Cannot handle such access")
     }
-
-     */
   }
 
   private fun evaluateOperands(binaryOperatorNode: BinaryOperatorNode) {
@@ -112,7 +103,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
   }
 
   override fun visit(fCall: FunctionCallNode) {
-    if (fCall.name == "println") {
+    if (fCall.name == "println") { // TODO big hack for println. Maybe just call a static function from Marcel stdlib
       mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;")
 
       if (fCall.parameterTypes.size != 1) {
@@ -126,10 +117,8 @@ private interface IInstructionGenerator: AstNodeVisitor {
       }
       mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", AsmUtils.getDescriptor(method), false)
     } else {
-      val method = scope.getMethod(fCall.name, fCall.arguments)
+      val method = fCall.method
       pushFunctionCallArguments(fCall)
-
-      // TODO might need to push on stack variable/expression, if owner is not static, and need not to push for unpushedblabla
       mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, fCall.name, method.descriptor, false)
     }
   }

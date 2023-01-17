@@ -8,6 +8,8 @@ import com.tambapps.marcel.parser.ast.TypedNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
+import com.tambapps.marcel.parser.type.ReflectJavaConstructor
+import com.tambapps.marcel.parser.type.ReflectJavaMethod
 
 open class Scope constructor(val imports: List<ImportNode>, val className: String, val superClassInternalName: String, val classMethods: List<JavaMethod>) {
   constructor(): this(emptyList(), "Test", JavaType.OBJECT.internalName, emptyList())
@@ -31,15 +33,15 @@ open class Scope constructor(val imports: List<ImportNode>, val className: Strin
     return localVariables[name] ?: throw SemanticException("Variable $name is not defined")
   }
 
-  fun getMethodForType(type: JavaType, name: String, argumentTypes: List<TypedNode>): MethodNode {
-    // TODO for now only searching on outside classes
+  fun getMethodForType(type: JavaType, name: String, argumentTypes: List<TypedNode>): JavaMethod {
     val clazz = try {
       Class.forName(type.className)
     } catch (e: ClassNotFoundException) {
-      throw SemanticException("Unkown class $type")
+      throw SemanticException("Unknown class $type")
     }
-    val method = clazz.getDeclaredMethod(name, *argumentTypes.map { it.type.realClassOrObject }.toTypedArray())
-    TODO("I was here")
+
+    return if (name == JavaMethod.CONSTRUCTOR_NAME) ReflectJavaConstructor(clazz.getDeclaredConstructor(*argumentTypes.map { it.type.realClassOrObject }.toTypedArray()))
+    else ReflectJavaMethod(clazz.getDeclaredMethod(name, *argumentTypes.map { it.type.realClassOrObject }.toTypedArray()))
   }
 
   fun getMethod(name: String, argumentTypes: List<TypedNode>): JavaMethod {

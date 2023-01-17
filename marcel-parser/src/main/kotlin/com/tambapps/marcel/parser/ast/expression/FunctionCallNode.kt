@@ -2,21 +2,23 @@ package com.tambapps.marcel.parser.ast.expression
 
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.TypedNode
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 
 open class FunctionCallNode(val scope: Scope, val name: String, val arguments: MutableList<ExpressionNode>): ExpressionNode {
 
-  var owner: ExpressionNode? = null
+  var methodOwnerType: TypedNode? = null
 
   override val type: JavaType
-    get() = if (name != "println") { // TODO BIG HACK
-      scope.getMethod(name, arguments).returnType
-    } else {
-      JavaType.void
-    }
+    // TODO BIG HACK for println
+    get() = if (name == "println")  JavaType.void
+     else method.returnType
 
+  val method: JavaMethod
+    get() = if (methodOwnerType != null) scope.getMethodForType(methodOwnerType!!.type, name, arguments)
+   else scope.getMethod(name, arguments)
 
   val descriptor: String
     get() = AsmUtils.getDescriptor(arguments, type)

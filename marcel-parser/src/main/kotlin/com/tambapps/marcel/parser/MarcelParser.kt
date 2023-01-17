@@ -9,9 +9,9 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
-import com.tambapps.marcel.parser.owner.StaticOwner
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
+import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.Binding
 import marcel.lang.Script
@@ -65,14 +65,14 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     // adding script constructors script have 2 constructors. One no-arg constructor, and one for Binding
     val bindingType = JavaType(Binding::class.java)
     classMethods.add(
-      ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, emptyList()), mutableListOf(), MethodScope(scope, "<init>", emptyList(), JavaType.void)),
+      ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, emptyList()), mutableListOf(), MethodScope(scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)),
     )
     classMethods.add(
       ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, listOf(
         ExpressionStatementNode(SuperConstructorCallNode(scope, mutableListOf(VariableReferenceExpression(
           Scope().apply { addLocalVariable(bindingType, "binding") }
           , "binding"))))
-      )), mutableListOf(MethodParameter(bindingType, "binding")), MethodScope(scope, "<init>", listOf(MethodParameter(bindingType, "binding")), JavaType.void))
+      )), mutableListOf(MethodParameter(bindingType, "binding")), MethodScope(scope, JavaMethod.CONSTRUCTOR_NAME, listOf(MethodParameter(bindingType, "binding")), JavaType.void))
     )
     classMethods.add(runFunction)
     // TODO copy scope once generating right main block
@@ -266,7 +266,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         val className = scope.resolveClassName(classSimpleName)
         accept(TokenType.LPAR)
         // TODO add parameters in scope
-        ConstructorCallNode(Scope(), JavaType(className), parseFunctionArguments(scope))
+        ConstructorCallNode(Scope(), JavaType(className), parseFunctionArguments(scope)).apply {
+          methodOwnerType = JavaType(className)
+        }
       }
       TokenType.IDENTIFIER -> {
         if (current.type == TokenType.LPAR) {
@@ -337,7 +339,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           throw MarcelParsingException("Can only handle function calls with dot operators")
         }
         AccessOperator(leftOperand, rightOperand.apply {
-          owner = leftOperand
+          methodOwnerType = leftOperand
         })
       }
       else -> TODO()
