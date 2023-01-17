@@ -1,11 +1,14 @@
 package com.tambapps.marcel.parser.ast.expression
 
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.ResolvableNode
+import com.tambapps.marcel.parser.scope.Scope
+import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 
 abstract class BinaryOperatorNode(val leftOperand: ExpressionNode, val rightOperand: ExpressionNode): ExpressionNode {
   // for now only ints are handled
-  override val type = JavaType.int
+  override val type: JavaType = JavaType.int
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (javaClass != other?.javaClass) return false
@@ -78,6 +81,23 @@ class PowOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
 
   override fun toString(): String {
     return "$leftOperand ^ $rightOperand"
+  }
+}
+
+class AccessOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
+    BinaryOperatorNode(leftOperand, rightOperand), ResolvableNode {
+
+  override lateinit var type: JavaType
+  override fun accept(astNodeVisitor: AstNodeVisitor) {
+    astNodeVisitor.visit(this)
+  }
+
+  override fun resolve(scope: Scope) {
+    TODO("Not yet implemented")
+  }
+
+  override fun toString(): String {
+    return "$leftOperand.$rightOperand"
   }
 }
 

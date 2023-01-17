@@ -6,12 +6,13 @@ import com.tambapps.marcel.lexer.TokenType.*
 object ParserUtils {
 
   private val BINARY_OPERATOR = setOf(
-    POWER, MUL, MODULO, PLUS, MINUS, AND, EQUAL, NOT_EQUAL, GT, LT, GOE, LOE, OR, ASSIGNMENT
+    POWER, MUL, MODULO, PLUS, MINUS, AND, EQUAL, NOT_EQUAL, GT, LT, GOE, LOE, OR, ASSIGNMENT, DOT
   )
   const val LEFT = 0
   const val RIGHT = 1
   private val PRIORITY_MAP = mapOf(
     Pair(POWER, 1),
+    Pair(DOT, 1),
     Pair(NOT, 1),
     Pair(MUL, 2),
     Pair(DIV, 2),

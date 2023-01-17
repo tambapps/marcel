@@ -278,14 +278,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         } else if (current.type == TokenType.ASSIGNMENT) {
           skip()
           VariableAssignmentNode(token.value, expression(scope))
-        }  else if (current.type == TokenType.DOT) {
-          skip()
-          // TODO pass right scope
-          val expression = atom(scope)
-          if (expression !is FunctionCallNode) {
-            throw SemanticException("Only supports function calls after a dot")
-          }
-          AccessMethodNode(token.value, expression)
         } else {
           VariableReferenceExpression(token.value).apply {
             resolvableNodes.add(Pair(this, scope))
@@ -345,6 +337,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       TokenType.DIV -> DivOperator(leftOperand, rightOperand)
       TokenType.PLUS -> PlusOperator(leftOperand, rightOperand)
       TokenType.MINUS -> MinusOperator(leftOperand, rightOperand)
+      TokenType.DOT -> AccessOperator(leftOperand, rightOperand)
       else -> TODO()
     }
   }

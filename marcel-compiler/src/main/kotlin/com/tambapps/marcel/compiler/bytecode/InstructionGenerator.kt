@@ -7,6 +7,7 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.Scope
+import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
@@ -80,6 +81,11 @@ private interface IInstructionGenerator: AstNodeVisitor {
 
   override fun visit(operator: PowOperator) {
     evaluateOperands(operator)
+  }
+
+  // TODO drop stack for Instruction operator
+  override fun visit(accessOperator: AccessOperator) {
+    TODO("Not yet implemented")
   }
 
   private fun evaluateOperands(binaryOperatorNode: BinaryOperatorNode) {
@@ -301,23 +307,23 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor, overri
 
   override fun visit(operator: MulOperator) {
     super.visit(operator)
-    mv.visitInsn(operator.type.mulCode)
+    mv.visitInsn((operator.type as JavaPrimitiveType).mulCode)
   }
 
   override fun visit(operator: DivOperator) {
     super.visit(operator)
-    mv.visitInsn(operator.type.divCode)
+    mv.visitInsn((operator.type as JavaPrimitiveType).divCode)
   }
 
   override fun visit(operator: MinusOperator) {
     super.visit(operator)
-    mv.visitInsn(operator.type.subCode)
+    mv.visitInsn((operator.type as JavaPrimitiveType).subCode)
   }
 
 
   override fun visit(operator: PlusOperator) {
     super.visit(operator)
-    mv.visitInsn(operator.type.addCode)
+    mv.visitInsn((operator.type as JavaPrimitiveType).addCode)
   }
 
   override fun visit(operator: PowOperator) {
