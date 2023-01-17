@@ -6,9 +6,10 @@ import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.TypedNode
 import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 
-open class Scope constructor(val imports: List<ImportNode>, val className: String, val superClassInternalName: String, val classMethods: List<MethodNode>) {
+open class Scope constructor(val imports: List<ImportNode>, val className: String, val superClassInternalName: String, val classMethods: List<JavaMethod>) {
   constructor(): this(emptyList(), "Test", JavaType.OBJECT.internalName, emptyList())
 
   constructor( className: String, imports: List<ImportNode>, classNode: ClassNode): this(imports, className, classNode.parentType.internalName, classNode.methods)
@@ -41,7 +42,7 @@ open class Scope constructor(val imports: List<ImportNode>, val className: Strin
     TODO("I was here")
   }
 
-  fun getMethod(name: String, argumentTypes: List<TypedNode>): MethodNode {
+  fun getMethod(name: String, argumentTypes: List<TypedNode>): JavaMethod {
     return classMethods.find { it.matches(name, argumentTypes) } ?: throw SemanticException("Method $name is not defined")
   }
   fun getLocalVariableWithIndex(name: String): Pair<LocalVariable, Int> {
@@ -70,7 +71,7 @@ open class Scope constructor(val imports: List<ImportNode>, val className: Strin
 
 }
 
-class MethodScope(imports: List<ImportNode>, className: String, superClassInternalName: String, classMethods: List<MethodNode>, val methodName: String,
+class MethodScope(imports: List<ImportNode>, className: String, superClassInternalName: String, classMethods: List<JavaMethod>, val methodName: String,
   val parameters: List<MethodParameter>, val returnType: JavaType)
   : Scope(imports, className, superClassInternalName, classMethods) {
     constructor(scope: Scope,
