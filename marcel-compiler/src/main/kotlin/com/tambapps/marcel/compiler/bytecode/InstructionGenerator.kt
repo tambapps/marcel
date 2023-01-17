@@ -130,8 +130,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
       pushFunctionCallArguments(fCall)
 
       // TODO might need to push on stack variable/expression, if owner is not static, and need not to push for unpushedblabla
-      val owner = method.owner
-      mv.visitMethodInsn(owner.invokeCode, owner.classInternalName, fCall.name, method.descriptor, false)
+      mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, fCall.name, method.descriptor, false)
     }
   }
 

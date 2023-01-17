@@ -19,8 +19,9 @@ open class JavaType(
 
   constructor(clazz: Class<*>): this(clazz, clazz.name, AsmUtils.getInternalName(clazz), AsmUtils.getClassDescriptor(clazz),
   Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN)
-  constructor(clazz: String): this(OBJECT.realClassOrObject, clazz, AsmUtils.getInternalName(clazz), AsmUtils.getObjectClassDescriptor(clazz),
-  Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN)
+
+  // constructors for class defined in a script
+  constructor(clazz: String): this(OBJECT.realClassOrObject, clazz, AsmUtils.getInternalName(clazz), AsmUtils.getObjectClassDescriptor(clazz), Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN)
   companion object {
 
     val OBJECT = JavaType(Object::class.java)

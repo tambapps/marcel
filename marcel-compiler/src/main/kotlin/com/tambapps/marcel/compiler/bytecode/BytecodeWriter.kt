@@ -26,7 +26,7 @@ class BytecodeWriter {
     }
 
     classWriter.visitEnd()
-    return CompilationResult(classWriter.toByteArray(), classNode.name)
+    return CompilationResult(classWriter.toByteArray(), classNode.type.className)
   }
 
   private fun writeMethod(classWriter: ClassWriter, methodNode: MethodNode) {

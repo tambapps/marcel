@@ -53,10 +53,11 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val classMethods = mutableListOf<MethodNode>()
     val superType = JavaType(Script::class.java)
     val className = classSimpleName
+    val classType = JavaType(className)
     val scope = Scope(imports, className, AsmUtils.getInternalName(superType), classMethods)
     val statements = mutableListOf<StatementNode>()
     val runBlock = FunctionBlockNode(JavaType.void, statements)
-    val runFunction = MethodNode(Opcodes.ACC_PUBLIC, StaticOwner(AsmUtils.getInternalName(className)),
+    val runFunction = MethodNode(Opcodes.ACC_PUBLIC, classType,
       "run",
       runBlock, mutableListOf(), runBlock.methodReturnType, MethodScope(scope, className, emptyList(), JavaType.OBJECT)
     )
@@ -77,7 +78,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     // TODO copy scope once generating right main block
     classMethods.add(generateMainMethod(className, scope, runBlock))
     val classNode = ClassNode(
-      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, className, JavaType(Script::class.java), classMethods)
+      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, classType, JavaType(Script::class.java), classMethods)
     val moduleNode = ModuleNode(mutableListOf(classNode))
 
     while (current.type != TokenType.END_OF_FILE) {
@@ -105,9 +106,8 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     statements.addAll(listOf(
         VariableDeclarationNode(scriptType, scriptVar, ConstructorCallNode(Scope(), scriptType, mutableListOf())),
     ))
-    // TODO need to handle myVar.methodCall() to be able to have a
     scope.addLocalVariable(scriptType, scriptVar)
-    return MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, StaticOwner(AsmUtils.getInternalName(className)),
+    return MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, scriptType,
         "main",
         blockNode /*FunctionBlockNode(JavaType.void, blockNode)*/, mutableListOf(MethodParameter(JavaType(Array<String>::class.java), "args")), JavaType.void,
       MethodScope(scope, "main", listOf(MethodParameter(JavaType(Array<String>::class.java), "args")), JavaType.void),
@@ -161,7 +161,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val statements = mutableListOf<StatementNode>()
     // TODO determine access Opcodes based on visibility variable
     val methodScope = MethodScope(classScope, methodName, parameters, returnType)
-    val methodNode = MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC, StaticOwner(classNode.name), methodName, FunctionBlockNode(returnType, statements), parameters, returnType, methodScope)
+    val methodNode = MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC, classNode.type, methodName, FunctionBlockNode(returnType, statements), parameters, returnType, methodScope)
     statements.addAll(block(methodScope).statements)
     return methodNode
   }
@@ -332,7 +332,14 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       TokenType.DIV -> DivOperator(leftOperand, rightOperand)
       TokenType.PLUS -> PlusOperator(leftOperand, rightOperand)
       TokenType.MINUS -> MinusOperator(leftOperand, rightOperand)
-      TokenType.DOT -> AccessOperator(leftOperand, rightOperand)
+      TokenType.DOT -> {
+        if (rightOperand !is FunctionCallNode) {
+          throw MarcelParsingException("Can only handle function calls with dot operators")
+        }
+        AccessOperator(leftOperand, rightOperand.apply {
+          owner = leftOperand
+        })
+      }
       else -> TODO()
     }
   }

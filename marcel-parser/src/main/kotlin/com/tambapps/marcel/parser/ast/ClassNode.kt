@@ -4,10 +4,10 @@ import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.type.JavaType
 
-class ClassNode(val access: Int, val name: String, val parentType: JavaType,
+class ClassNode(val access: Int, val type: JavaType, val parentType: JavaType,
                 val methods: MutableList<MethodNode>): AstNode {
 
-  val internalName = AsmUtils.getInternalName(name)
+  val internalName = AsmUtils.getInternalName(type)
   fun addMethod(method: MethodNode) {
     if (methods.any { it.name == method.name }) {
       // TODO handle overloading
@@ -17,6 +17,6 @@ class ClassNode(val access: Int, val name: String, val parentType: JavaType,
   }
 
   override fun toString(): String {
-    return "class $name {\n" + methods.joinToString(separator = "\n", transform = { "  $it" }) + "\n}"
+    return "class $type {\n" + methods.joinToString(separator = "\n", transform = { "  $it" }) + "\n}"
   }
 }

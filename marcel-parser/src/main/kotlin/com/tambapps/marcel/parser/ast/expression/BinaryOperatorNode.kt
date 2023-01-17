@@ -84,7 +84,8 @@ class PowOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
 class AccessOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
     BinaryOperatorNode(leftOperand, rightOperand) {
 
-  override lateinit var type: JavaType
+  override val type: JavaType
+    get() = rightOperand.type
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)
   }

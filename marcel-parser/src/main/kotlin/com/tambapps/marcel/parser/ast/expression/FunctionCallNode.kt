@@ -8,6 +8,8 @@ import com.tambapps.marcel.parser.type.JavaType
 
 open class FunctionCallNode(val scope: Scope, val name: String, val arguments: MutableList<ExpressionNode>): ExpressionNode, JavaMethod {
 
+  var owner: ExpressionNode? = null
+
   override val type: JavaType
     get() = if (name != "println") { // TODO BIG HACK
       scope.getMethod(name, arguments).returnType

@@ -17,7 +17,7 @@ class ConstructorNode(
   block: FunctionBlockNode,
   parameters: MutableList<MethodParameter>,
   scope: MethodScope
-) : MethodNode(access, NoOpOwner(), "<init>", blockWithSuperCall(scope, block), parameters, JavaType.void,
+) : MethodNode(access, JavaType.void, "<init>", blockWithSuperCall(scope, block), parameters, JavaType.void,
     // TODO don't know if it's the right way, don't know if we should also add it in parameters
     scope.apply { addLocalVariable(superType, "super") }) {
 

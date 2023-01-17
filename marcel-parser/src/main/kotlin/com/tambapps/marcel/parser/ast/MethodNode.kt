@@ -9,10 +9,13 @@ import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
+import org.objectweb.asm.Opcodes
 
-open class MethodNode constructor(val access: Int, val owner: Owner, val name: String, val block: FunctionBlockNode,
+open class MethodNode constructor(val access: Int, val ownerClass: JavaType, val name: String, val block: FunctionBlockNode,
                  val parameters: MutableList<MethodParameter>, val returnType: JavaType, val scope: MethodScope
 ): AstNode, JavaMethod {
+
+  val invokeCode = Opcodes.INVOKESTATIC
 
   override val descriptor = AsmUtils.getDescriptor(parameters, returnType)
   override val parameterTypes get() = parameters.map { it.type.realClassOrObject }.toTypedArray()
