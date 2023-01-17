@@ -10,7 +10,7 @@ import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.owner.StaticOwner
-import com.tambapps.marcel.parser.scope.InMethodScope
+import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.Binding
@@ -52,26 +52,26 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     }
     val classMethods = mutableListOf<MethodNode>()
     val superType = JavaType(Script::class.java)
-    val scope = Scope(imports, AsmUtils.getInternalName(superType), classMethods)
+    val className = classSimpleName
+    val scope = Scope(imports, className, AsmUtils.getInternalName(superType), classMethods)
     val statements = mutableListOf<StatementNode>()
     val runBlock = FunctionBlockNode(JavaType.void, statements)
-    val className = classSimpleName
     val runFunction = MethodNode(Opcodes.ACC_PUBLIC, StaticOwner(AsmUtils.getInternalName(className)),
       "run",
-      runBlock, mutableListOf(), runBlock.methodReturnType, scope
+      runBlock, mutableListOf(), runBlock.methodReturnType, MethodScope(scope, className, emptyList(), JavaType.OBJECT)
     )
 
     // adding script constructors script have 2 constructors. One no-arg constructor, and one for Binding
     val bindingType = JavaType(Binding::class.java)
     classMethods.add(
-      ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, emptyList()), mutableListOf(), scope.copy()),
+      ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, emptyList()), mutableListOf(), MethodScope(scope, "<init>", emptyList(), JavaType.void)),
     )
     classMethods.add(
       ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, listOf(
         ExpressionStatementNode(SuperConstructorCallNode(scope, mutableListOf(VariableReferenceExpression(
           Scope().apply { addLocalVariable(bindingType, "binding") }
           , "binding"))))
-      )), mutableListOf(MethodParameter(bindingType, "binding")), scope.copy())
+      )), mutableListOf(MethodParameter(bindingType, "binding")), MethodScope(scope, "<init>", listOf(MethodParameter(bindingType, "binding")), JavaType.void))
     )
     classMethods.add(runFunction)
     // TODO copy scope once generating right main block
@@ -84,7 +84,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       when (current.type) {
         TokenType.FUN, TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED,
         TokenType.VISIBILITY_HIDDEN, TokenType.VISIBILITY_PRIVATE -> {
-          val method = method(imports, classNode)
+          val method = method(scope, classNode)
           if (method.name == "main") {
             throw SemanticException("Cannot have a \"main\" function in a script")
           }
@@ -109,7 +109,8 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     scope.addLocalVariable(scriptType, scriptVar)
     return MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, StaticOwner(AsmUtils.getInternalName(className)),
         "main",
-        blockNode /*FunctionBlockNode(JavaType.void, blockNode)*/, mutableListOf(MethodParameter(JavaType(Array<String>::class.java), "args")), JavaType.void, scope
+        blockNode /*FunctionBlockNode(JavaType.void, blockNode)*/, mutableListOf(MethodParameter(JavaType(Array<String>::class.java), "args")), JavaType.void,
+      MethodScope(scope, "main", listOf(MethodParameter(JavaType(Array<String>::class.java), "args")), JavaType.void),
     )
   }
 
@@ -133,7 +134,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     return SimpleImportNode(classParts.joinToString(separator = "."), asName)
   }
 
-  internal fun method(imports: List<ImportNode>, classNode: ClassNode): MethodNode {
+  internal fun method(classScope: Scope, classNode: ClassNode): MethodNode {
     // TODO handle static functions
     val visibility = acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.VISIBILITY_HIDDEN, TokenType.VISIBILITY_PRIVATE)
       ?: TokenType.VISIBILITY_PUBLIC
@@ -141,9 +142,8 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val methodName = accept(TokenType.IDENTIFIER).value
     accept(TokenType.LPAR)
     val parameters = mutableListOf<MethodParameter>()
-    val scope = Scope(imports, classNode)
     while (current.type != TokenType.RPAR) {
-      val type = parseType(scope)
+      val type = parseType(classScope)
       val argName = accept(TokenType.IDENTIFIER).value
       if (parameters.any { it.name == argName }) {
         throw SemanticException("Cannot two method parameters with the same name")
@@ -157,11 +157,12 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       }
     }
     skip() // skipping RPAR
-    val returnType = if (current.type != TokenType.BRACKETS_OPEN) parseType(scope) else JavaType.void
+    val returnType = if (current.type != TokenType.BRACKETS_OPEN) parseType(classScope) else JavaType.void
     val statements = mutableListOf<StatementNode>()
     // TODO determine access Opcodes based on visibility variable
-    val methodNode = MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC, StaticOwner(classNode.name), methodName, FunctionBlockNode(returnType, statements), parameters, returnType, scope)
-    statements.addAll(block(InMethodScope(scope, methodNode)).statements)
+    val methodScope = MethodScope(classScope, methodName, parameters, returnType)
+    val methodNode = MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC, StaticOwner(classNode.name), methodName, FunctionBlockNode(returnType, statements), parameters, returnType, methodScope)
+    statements.addAll(block(methodScope).statements)
     return methodNode
   }
 

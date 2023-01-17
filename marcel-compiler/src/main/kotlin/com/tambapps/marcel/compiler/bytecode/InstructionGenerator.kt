@@ -6,7 +6,7 @@ import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
-import com.tambapps.marcel.parser.scope.InMethodScope
+import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
@@ -18,7 +18,7 @@ import java.lang.StringBuilder
 private interface IInstructionGenerator: AstNodeVisitor {
 
   val mv: MethodVisitor
-  val scope: Scope
+  val scope: MethodScope
 
 
   //TODO don't forget to push or not these TODOs() once done, based on the IUnpushedExpressionGenerator implementation
@@ -153,7 +153,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
 /**
  * Generates expression bytecode but don't push them to the stack. (Useful for statement expressions)
  */
-class InstructionGenerator(override val mv: MethodVisitor, override val scope: Scope): IInstructionGenerator {
+class InstructionGenerator(override val mv: MethodVisitor, override val scope: MethodScope): IInstructionGenerator {
 
   private val pushingInstructionGenerator = PushingInstructionGenerator(mv, scope)
 
@@ -240,6 +240,7 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: S
   }
 
   override fun visit(variableDeclarationNode: VariableDeclarationNode) {
+    scope.addLocalVariable(variableDeclarationNode.type, variableDeclarationNode.name)
     visit(variableDeclarationNode as VariableAssignmentNode)
   }
 
@@ -260,7 +261,7 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: S
   }
 }
 
-private class PushingInstructionGenerator(override val mv: MethodVisitor, override val scope: Scope): IInstructionGenerator {
+private class PushingInstructionGenerator(override val mv: MethodVisitor, override val scope: MethodScope): IInstructionGenerator {
   lateinit var instructionGenerator: InstructionGenerator
 
 
@@ -351,12 +352,8 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor, overri
 
   override fun visit(returnNode: ReturnNode) {
     returnNode.apply {
-      if (scope !is InMethodScope) {
-        throw SemanticException("Tried to return a value not from a method")
-      }
-      val method = scope.currentMethod
-      if (method.returnType != expression.type) {
-        throw SemanticException("Cannot return ${expression.type} when return type is ${method.returnType}")
+      if (scope.returnType != expression.type) {
+        throw SemanticException("Cannot return ${expression.type} when return type is ${scope.returnType}")
       }
     }
     returnNode.expression.accept(this)

@@ -1,5 +1,6 @@
 package com.tambapps.marcel.parser.scope
 
+import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.ast.MethodNode
@@ -7,10 +8,10 @@ import com.tambapps.marcel.parser.ast.TypedNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.type.JavaType
 
-open class Scope(val imports: List<ImportNode>, val superClassInternalName: String, val classMethods: List<MethodNode>) {
-  constructor(): this(emptyList(), JavaType.OBJECT.internalName, emptyList())
+open class Scope constructor(val imports: List<ImportNode>, val className: String, val superClassInternalName: String, val classMethods: List<MethodNode>) {
+  constructor(): this(emptyList(), "Test", JavaType.OBJECT.internalName, emptyList())
 
-  constructor(imports: List<ImportNode>, classNode: ClassNode): this(imports, classNode.parentType.internalName, classNode.methods)
+  constructor( className: String, imports: List<ImportNode>, classNode: ClassNode): this(imports, className, classNode.parentType.internalName, classNode.methods)
 
   private val localVariables: LinkedHashMap<String, LocalVariable> = LinkedHashMap()
   val localVariablesCount: Int
@@ -53,7 +54,7 @@ open class Scope(val imports: List<ImportNode>, val superClassInternalName: Stri
   }
 
   fun copy(): Scope {
-    return Scope(imports, superClassInternalName, classMethods)
+    return Scope(imports, className, superClassInternalName, classMethods)
   }
 
   fun resolveClassName(classSimpleName: String): String {
@@ -69,7 +70,11 @@ open class Scope(val imports: List<ImportNode>, val superClassInternalName: Stri
 
 }
 
-class InMethodScope(imports: List<ImportNode>, superClassInternalName: String, classMethods: List<MethodNode>, val currentMethod: MethodNode)
-  : Scope(imports, superClassInternalName, classMethods) {
-    constructor(scope: Scope, methodNode: MethodNode): this(scope.imports, scope.superClassInternalName, scope.classMethods, methodNode)
+class MethodScope(imports: List<ImportNode>, className: String, superClassInternalName: String, classMethods: List<MethodNode>, val methodName: String,
+  val parameters: List<MethodParameter>, val returnType: JavaType)
+  : Scope(imports, className, superClassInternalName, classMethods) {
+    constructor(scope: Scope,
+                methodName: String,
+                parameters: List<MethodParameter>, returnType: JavaType):
+        this(scope.imports, scope.className, scope.superClassInternalName, scope.classMethods, methodName, parameters, returnType)
 }

@@ -33,6 +33,9 @@ class BytecodeWriter {
     val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.descriptor, null, null)
     mv.visitCode()
 
+    for (param in methodNode.scope.parameters) {
+      methodNode.scope.addLocalVariable(param.type, param.name)
+    }
     val instructionGenerator = InstructionGenerator(mv, methodNode.scope)
     val maxStack = 100; //TODO - do that properly
 

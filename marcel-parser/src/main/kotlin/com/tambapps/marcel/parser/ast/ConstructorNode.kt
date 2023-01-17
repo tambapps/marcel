@@ -6,6 +6,7 @@ import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.owner.NoOpOwner
+import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.Script
@@ -15,7 +16,7 @@ class ConstructorNode(
   access: Int,
   block: FunctionBlockNode,
   parameters: MutableList<MethodParameter>,
-  scope: Scope
+  scope: MethodScope
 ) : MethodNode(access, NoOpOwner(), "<init>", blockWithSuperCall(scope, block), parameters, JavaType.void,
     // TODO don't know if it's the right way, don't know if we should also add it in parameters
     scope.apply { addLocalVariable(superType, "super") }) {
