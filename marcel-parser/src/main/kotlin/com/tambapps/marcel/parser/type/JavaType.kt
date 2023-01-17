@@ -7,6 +7,7 @@ import org.objectweb.asm.Opcodes
 
 // TODO add an imple for dynamic types e.g. class defined in a marcel script
 open class JavaType(
+  val realClassOrObject: Class<*>,
     val className: String,
     val internalName: String,
     val descriptor: String,
@@ -16,9 +17,9 @@ open class JavaType(
 
   open val primitive = false
 
-  constructor(clazz: Class<*>): this(clazz.name, AsmUtils.getInternalName(clazz), AsmUtils.getClassDescriptor(clazz),
+  constructor(clazz: Class<*>): this(clazz, clazz.name, AsmUtils.getInternalName(clazz), AsmUtils.getClassDescriptor(clazz),
   Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN)
-  constructor(clazz: String): this(clazz, AsmUtils.getInternalName(clazz), AsmUtils.getObjectClassDescriptor(clazz),
+  constructor(clazz: String): this(OBJECT.realClassOrObject, clazz, AsmUtils.getInternalName(clazz), AsmUtils.getObjectClassDescriptor(clazz),
   Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN)
   companion object {
 
@@ -56,7 +57,9 @@ open class JavaType(
 
 }
 
-class JavaPrimitiveType(className: String,
+class JavaPrimitiveType(
+  realClassOrObject: Class<*>,
+  className: String,
                         internalName: String,
                         descriptor: String,
                         loadCode: Int,
@@ -65,7 +68,7 @@ class JavaPrimitiveType(className: String,
                         val addCode: Int,
                         val subCode: Int,
                         val mulCode: Int,
-                        val divCode: Int): JavaType(className, internalName, descriptor, storeCode, loadCode, returnCode) {
+                        val divCode: Int): JavaType(realClassOrObject, className, internalName, descriptor, storeCode, loadCode, returnCode) {
   override val primitive = true
   internal constructor(clazz: Class<*>,
               loadCode: Int,
@@ -74,7 +77,7 @@ class JavaPrimitiveType(className: String,
               addCode: Int,
               subCode: Int,
               mulCode: Int,
-              divCode: Int): this(clazz.name, AsmUtils.getInternalName(clazz),
+              divCode: Int): this(clazz, clazz.name, AsmUtils.getInternalName(clazz),
       AsmUtils.getClassDescriptor(clazz), loadCode, storeCode, retCode, addCode, subCode, mulCode, divCode)
 
 }

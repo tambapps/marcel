@@ -13,6 +13,7 @@ open class MethodNode(val access: Int, val owner: Owner, val name: String, val b
                  val parameters: MutableList<MethodParameter>, val returnType: JavaType, val scope: Scope): AstNode, ResolvableNode, JavaMethod {
 
   override val descriptor = AsmUtils.getDescriptor(parameters, returnType)
+  override val parameterTypes get() = parameters.map { it.type.realClassOrObject }.toTypedArray()
 
   init {
     for (parameter in parameters) {

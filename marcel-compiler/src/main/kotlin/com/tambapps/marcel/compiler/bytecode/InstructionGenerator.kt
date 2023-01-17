@@ -7,9 +7,12 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.Scope
+import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
+import java.io.PrintStream
+import java.util.Arrays
 
 private interface IInstructionGenerator: AstNodeVisitor {
 
@@ -88,11 +91,17 @@ private interface IInstructionGenerator: AstNodeVisitor {
   override fun visit(fCall: FunctionCallNode) {
     if (fCall.name == "println") {
       mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;")
+
+      if (fCall.parameterTypes.size != 1) {
+        throw SemanticException("Invalid call of println")
+      }
+      val argumentClass = fCall.arguments.first().type.realClassOrObject
+      val method = PrintStream::class.java.getDeclaredMethod("println", if (argumentClass.isPrimitive) argumentClass else Object::class.java)
       for (argumentNode in fCall.arguments) {
         // write argument on the stack
         pushArgument(argumentNode)
       }
-      mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false)
+      mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", AsmUtils.getDescriptor(method), false)
     } else {
       val method = scope.getMethod(fCall.name, fCall.arguments)
       pushFunctionCallArguments(fCall)
