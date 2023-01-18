@@ -82,7 +82,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     while (current.type != TokenType.END_OF_FILE) {
       when (current.type) {
         TokenType.FUN, TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED,
-        TokenType.VISIBILITY_HIDDEN, TokenType.VISIBILITY_PRIVATE -> {
+        TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE -> {
           val method = method(classScope, classNode)
           if (method.name == "main") {
             throw SemanticException("Cannot have a \"main\" function in a script")
@@ -117,7 +117,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
 
   internal fun method(classScope: Scope, classNode: ClassNode): MethodNode {
     // TODO handle static functions
-    val visibility = acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.VISIBILITY_HIDDEN, TokenType.VISIBILITY_PRIVATE)
+    val visibility = acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE)
       ?: TokenType.VISIBILITY_PUBLIC
     accept(TokenType.FUN)
     val methodName = accept(TokenType.IDENTIFIER).value
