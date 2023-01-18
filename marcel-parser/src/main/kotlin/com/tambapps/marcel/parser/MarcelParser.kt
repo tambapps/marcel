@@ -82,7 +82,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     while (current.type != TokenType.END_OF_FILE) {
       when (current.type) {
         TokenType.FUN, TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED,
-        TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE -> {
+        TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE, TokenType.STATIC -> {
           val method = method(classScope, classNode)
           if (method.name == "main") {
             throw SemanticException("Cannot have a \"main\" function in a script")
@@ -116,9 +116,16 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   }
 
   internal fun method(classScope: Scope, classNode: ClassNode): MethodNode {
-    // TODO handle static functions
-    val visibility = acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE)
+    val staticFlag = if (acceptOptional(TokenType.STATIC) != null) Opcodes.ACC_STATIC else 0
+    val accessTokenType = acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE)?.type
       ?: TokenType.VISIBILITY_PUBLIC
+    val visibilityFlag = when (accessTokenType) {
+      TokenType.VISIBILITY_PUBLIC -> Opcodes.ACC_PUBLIC
+      TokenType.VISIBILITY_PROTECTED -> Opcodes.ACC_PROTECTED
+      TokenType.VISIBILITY_INTERNAL -> 0
+      TokenType.VISIBILITY_PRIVATE -> Opcodes.ACC_PRIVATE
+      else -> throw MarcelParsingException("Unexpected token encountered")
+    }
     accept(TokenType.FUN)
     val methodName = accept(TokenType.IDENTIFIER).value
     accept(TokenType.LPAR)
@@ -140,9 +147,8 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     skip() // skipping RPAR
     val returnType = if (current.type != TokenType.BRACKETS_OPEN) parseType(classScope) else JavaType.void
     val statements = mutableListOf<StatementNode>()
-    // TODO determine access Opcodes based on visibility variable
     val methodScope = MethodScope(classScope, methodName, parameters, returnType)
-    val methodNode = MethodNode(Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC, classNode.type, methodName, FunctionBlockNode(returnType, statements), parameters, returnType, methodScope)
+    val methodNode = MethodNode(staticFlag or visibilityFlag, classNode.type, methodName, FunctionBlockNode(returnType, statements), parameters, returnType, methodScope)
     statements.addAll(block(methodScope).statements)
     return methodNode
   }
@@ -338,8 +344,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val token = currentSafe
     if (token?.type in types) {
       currentIndex++
+      return token
     }
-    return token
+    return null
   }
 
   private fun acceptOptional(t: TokenType): LexToken? {
