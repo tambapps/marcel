@@ -1,5 +1,7 @@
-package com.tambapps.marcel.compiler
+package com.tambapps.marcel.cl
 
+import com.tambapps.marcel.compiler.JarWriter
+import com.tambapps.marcel.compiler.MarcelCompiler
 import com.tambapps.marcel.compiler.bytecode.BytecodeWriter
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParsingException
@@ -7,7 +9,9 @@ import java.io.File
 import java.io.IOException
 import java.net.URLClassLoader
 
+
 fun main(args : Array<String>) {
+  // TODO accept command line parameters (e.g. -c for compile to class)
   val file = File(args[0])
   if (!file.isFile) {
     println("File $file does not exists or isn't a file")
@@ -35,9 +39,10 @@ fun main(args : Array<String>) {
     return
   }
 
-  // just for debuging purpose
+  // TODO for debugging purpose
   File("$className.class").writeBytes(result.bytes)
 
+  // TODO delete me once run
   val jarFile = File(file.parentFile, "$className.jar")
   JarWriter().writeScriptJar(result.className, result.bytes, jarFile)
 
