@@ -43,7 +43,7 @@ fun main(args : Array<String>) {
 
   val classLoader = URLClassLoader(arrayOf(jarFile.toURI().toURL()), BytecodeWriter::class.java.classLoader)
   val clazz = classLoader.loadClass(result.className)
-  clazz.getMethod("main", Array<String>::class.java).invoke(null, args)
+  clazz.getMethod("run", Array<String>::class.java).invoke(clazz.getDeclaredConstructor().newInstance(), args)
 }
 
 private fun generateClassName(fileName: String): String {

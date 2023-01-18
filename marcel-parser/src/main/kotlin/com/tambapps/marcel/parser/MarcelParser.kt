@@ -75,7 +75,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       )), mutableListOf(MethodParameter(bindingType, "binding")), MethodScope(classScope, JavaMethod.CONSTRUCTOR_NAME, listOf(MethodParameter(bindingType, "binding")), JavaType.void))
     )
     classMethods.add(runFunction)
-    classMethods.add(generateMainMethod(className, classScope, runBlock))
     val classNode = ClassNode(
       Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, classType, JavaType(Script::class.java), classMethods)
     val moduleNode = ModuleNode(mutableListOf(classNode))
@@ -94,27 +93,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       }
     }
     return moduleNode
-  }
-
-  private fun generateMainMethod(className: String, classScope: Scope, blockNode: FunctionBlockNode): MethodNode {
-    val statements = mutableListOf<StatementNode>()
-    val mainBlockNode = FunctionBlockNode(JavaType.void, statements)
-    val scriptVar = "script"
-    val scriptType = JavaType(className)
-    val methodScope = MethodScope(classScope, "main", listOf(MethodParameter(JavaType(Array<String>::class.java), "args")), JavaType.void)
-    statements.addAll(listOf(
-        VariableDeclarationNode(scriptType, scriptVar, ConstructorCallNode(methodScope, scriptType, mutableListOf())),
-      ExpressionStatementNode(
-        AccessOperator(VariableReferenceExpression(methodScope, scriptVar), FunctionCallNode(methodScope, "run",
-          mutableListOf(VariableReferenceExpression(methodScope, "args"))
-        ))
-      )
-    ))
-    return MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, scriptType,
-      methodScope.methodName,
-      // TODO use main block node. TODO it's weird that we add variable in parser AND istruction generator for variableDeclaration node
-        mainBlockNode, mutableListOf(MethodParameter(JavaType(Array<String>::class.java), "args")), JavaType.void,
-      methodScope)
   }
 
   private fun import(): ImportNode {
