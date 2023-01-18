@@ -191,6 +191,8 @@ LONELY_BACKTICK=`
 "import"          { return token(IMPORT); }
 "as"          { return token(AS); }
 "new"          { return token(NEW); }
+"for"          { return token(FOR); }
+"in"          { return token(IN); }
 
 {IDENTIFIER} {  return valueToken(IDENTIFIER); }
 
