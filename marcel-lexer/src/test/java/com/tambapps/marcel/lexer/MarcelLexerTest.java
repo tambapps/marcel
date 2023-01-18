@@ -43,6 +43,18 @@ public class MarcelLexerTest {
   }
 
   @Test
+  public void testBoolDeclaration() {
+    assertEquals(Arrays.asList(
+            token(TYPE_BOOL),
+            token(IDENTIFIER, "myBool"),
+            token(ASSIGNMENT),
+            token(VALUE_TRUE),
+            token(END_OF_FILE)
+        )
+        , lexer.lex("bool myBool = true"));
+  }
+
+  @Test
   public void testString() {
     List<LexToken> tokens = lexer.lex("\"mystring \\\"$variable ${variable2}\"");
     assertEquals(

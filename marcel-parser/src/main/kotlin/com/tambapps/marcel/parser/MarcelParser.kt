@@ -178,7 +178,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val token = next()
     return when (token.type) {
       TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_VOID,
-      TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE -> JavaType.TOKEN_TYPE_MAP.getValue(token.type)
+      TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL -> JavaType.TOKEN_TYPE_MAP.getValue(token.type)
       TokenType.IDENTIFIER -> JavaType(scope.resolveClassName(token.value))
       else -> throw java.lang.UnsupportedOperationException("Doesn't handle type ${token.type}")
     }
@@ -188,7 +188,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val token = next()
     return when (token.type) {
       TokenType.TYPE_INT, TokenType.TYPE_LONG,
-      TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE  -> variableDeclaration(scope,
+      TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL  -> variableDeclaration(scope,
           JavaType.TOKEN_TYPE_MAP.getValue(token.type))
       TokenType.RETURN -> {
         val expression = if (current.type == TokenType.SEMI_COLON) VoidExpression() else expression(scope)
@@ -212,6 +212,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val identifier = accept(TokenType.IDENTIFIER)
     accept(TokenType.ASSIGNMENT)
     val variableDeclarationNode = VariableDeclarationNode(type, identifier.value, expression(scope))
+    scope.addLocalVariable(variableDeclarationNode.type, variableDeclarationNode.name)
     return variableDeclarationNode
   }
 
@@ -244,6 +245,8 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val token = next()
     return when (token.type) {
       TokenType.INTEGER -> IntConstantNode(token.value.toInt())
+      TokenType.VALUE_TRUE -> BooleanConstantNode(true)
+      TokenType.VALUE_FALSE -> BooleanConstantNode(false)
       TokenType.OPEN_QUOTE -> {
         val parts = mutableListOf<ExpressionNode>()
         while (current.type != TokenType.CLOSING_QUOTE) {

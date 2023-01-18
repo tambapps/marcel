@@ -4,6 +4,7 @@ import com.tambapps.marcel.parser.type.JavaType
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.net.URLClassLoader
 import java.nio.file.Files
@@ -23,6 +24,12 @@ class MarcelCompilerTest {
   fun testReturnNull() {
     val eval = eval("/test_return_null.marcel")
     assertNull(eval)
+  }
+
+  @Test
+  fun testBool() {
+    val eval = eval("/test_bool.marcel")
+    assertTrue(eval as Boolean)
   }
 
 

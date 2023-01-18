@@ -43,7 +43,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
     mv.visitTypeInsn(Opcodes.NEW, classInternalName)
     mv.visitInsn(Opcodes.DUP)
     pushFunctionCallArguments(fCall)
-    val constructorMethod = scope.getMethod(JavaMethod.CONSTRUCTOR_NAME, fCall.arguments)
+    val constructorMethod = scope.getMethodForType(fCall.type, JavaMethod.CONSTRUCTOR_NAME, fCall.arguments)
     mv.visitMethodInsn(Opcodes.INVOKESPECIAL, classInternalName, fCall.name,
         constructorMethod.descriptor, false)
   }
@@ -156,6 +156,9 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: M
     // don't need to write constants
   }
 
+  override fun visit(booleanConstantNode: BooleanConstantNode) {
+    // don't need to write constants
+  }
   override fun visit(stringConstantNode: StringConstantNode) {
     // don't need to write constants
   }
@@ -236,7 +239,6 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: M
   }
 
   override fun visit(variableDeclarationNode: VariableDeclarationNode) {
-    scope.addLocalVariable(variableDeclarationNode.type, variableDeclarationNode.name)
     visit(variableDeclarationNode as VariableAssignmentNode)
   }
 
@@ -302,6 +304,9 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor, overri
     mv.visitLdcInsn(integer.value) // write primitive value, from an Object class e.g. Integer -> int
   }
 
+  override fun visit(booleanConstantNode: BooleanConstantNode) {
+    mv.visitInsn(if (booleanConstantNode.value) Opcodes.ICONST_1 else Opcodes.ICONST_0)
+  }
   override fun visit(variableReferenceExpression: VariableReferenceExpression) {
     pushVariable(variableReferenceExpression.name)
   }

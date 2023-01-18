@@ -26,3 +26,11 @@ data class StringConstantNode(val value: String): ExpressionNode {
     return "\"$value\""
   }
 }
+
+data class BooleanConstantNode(val value: Boolean): ExpressionNode {
+  override fun accept(astNodeVisitor: AstNodeVisitor) {
+    astNodeVisitor.visit(this)
+  }
+
+  override val type = JavaType.boolean
+}

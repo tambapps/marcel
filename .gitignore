@@ -30,7 +30,7 @@ volumes/
 # me, for testing
 /Test.class
 /Test.marcel
-
+/GroovyTest.groovy
 marcel-lexer/src/main/java/com/tambapps/marcel/lexer/MarcelJflexer.java~
 
 *.jar

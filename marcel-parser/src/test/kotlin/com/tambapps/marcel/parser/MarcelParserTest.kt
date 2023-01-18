@@ -22,20 +22,6 @@ class MarcelParserTest {
     private val lexer = MarcelLexer()
 
     @Test
-    fun test() {
-        val parser = MarcelParser(listOf(
-            LexToken(TokenType.IDENTIFIER, "println"),
-            LexToken(TokenType.LPAR, null),
-            LexToken(TokenType.INTEGER, "8"),
-            LexToken(TokenType.RPAR, null),
-            LexToken(TokenType.END_OF_FILE, null)
-
-        ))
-        val result = parser.parse()
-        println(result)
-    }
-
-    @Test
     fun testExpression() {
         val parser = MarcelParser(listOf(
             LexToken(TokenType.INTEGER, "2"),
@@ -48,10 +34,18 @@ class MarcelParserTest {
     }
 
     @Test
-    fun testAssignment() {
+    fun testIntDeclaration() {
         val parser = parser("int a = 22")
         assertEquals(
             VariableDeclarationNode(JavaType.int, "a", IntConstantNode(22)),
+            parser.statement(Scope()))
+    }
+
+    @Test
+    fun testBoolDeclaration() {
+        val parser = parser("bool b = false")
+        assertEquals(
+            VariableDeclarationNode(JavaType.boolean, "b", BooleanConstantNode(false)),
             parser.statement(Scope()))
     }
 

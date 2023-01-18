@@ -35,6 +35,8 @@ open class JavaType(
     val long = JavaPrimitiveType(PrimitiveTypes.LONG, Opcodes.LLOAD, Opcodes.LSTORE, Opcodes.LRETURN, Opcodes.LADD, Opcodes.LSUB, Opcodes.LMUL, Opcodes.LDIV)
     val float = JavaPrimitiveType(PrimitiveTypes.FLOAT, Opcodes.FLOAD, Opcodes.FSTORE, Opcodes.FRETURN, Opcodes.FADD, Opcodes.FSUB, Opcodes.FMUL, Opcodes.FDIV)
     val double = JavaPrimitiveType(PrimitiveTypes.DOUBLE, Opcodes.DLOAD, Opcodes.DSTORE, Opcodes.DRETURN, Opcodes.DADD, Opcodes.DSUB, Opcodes.DMUL, Opcodes.DDIV)
+    // apparently we use int instructions to store booleans
+    val boolean = JavaPrimitiveType(PrimitiveTypes.BOOL, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN,  0,0,0,0)
 
     val TOKEN_TYPE_MAP = mapOf(
         Pair(TokenType.TYPE_INT, int),
@@ -42,6 +44,7 @@ open class JavaType(
         Pair(TokenType.TYPE_VOID, void),
         Pair(TokenType.TYPE_FLOAT, float),
         Pair(TokenType.TYPE_DOUBLE, double),
+        Pair(TokenType.TYPE_BOOL, boolean),
     )
   }
 

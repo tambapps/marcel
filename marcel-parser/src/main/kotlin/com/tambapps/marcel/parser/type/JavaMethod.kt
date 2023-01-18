@@ -46,7 +46,7 @@ class ReflectJavaConstructor(constructor: Constructor<*>): JavaMethod {
   override val access = constructor.modifiers
   override val name: String = constructor.name
   override val parameters = constructor.parameters.map { MethodParameter(JavaType(it.type), it.name) }
-  override val returnType = ownerClass
+  override val returnType = JavaType.void // yes, constructor returns void, especially for the descriptor
   override val descriptor = AsmUtils.getDescriptor(parameters, returnType)
   override val invokeCode = Opcodes.INVOKESPECIAL
 
