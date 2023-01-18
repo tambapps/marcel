@@ -117,8 +117,9 @@ private interface IInstructionGenerator: AstNodeVisitor {
       val method = fCall.method
       val methodOwner = fCall.methodOwnerType
       if (methodOwner is ExpressionNode) {
-        // for instance method, we need to push owner
-       pushArgument(methodOwner)
+       pushArgument(methodOwner) // for instance method, we need to push owner
+      } else if (!method.isStatic) {
+        pushArgument(VariableReferenceExpression(scope, "this"))
       }
       pushFunctionCallArguments(fCall)
       mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, fCall.name, method.descriptor, false)
@@ -191,15 +192,20 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: M
       blockNode.statements[i].accept(this)
     }
     val lastStatement = blockNode.statements.lastOrNull() ?: ExpressionStatementNode(VoidExpression())
-    if (blockNode.methodReturnType == JavaType.void) {
+    if (scope.returnType == JavaType.void) {
       lastStatement.accept(this)
       mv.visitInsn(Opcodes.RETURN)
     } else {
-      pushArgument(lastStatement.expression)
-      mv.visitInsn(blockNode.type.returnCode)
+      if (lastStatement.type != JavaType.void) {
+        pushArgument(lastStatement.expression)
+      } else {
+        // method expects an object but nothing was returned? let's return null
+        mv.visitInsn(Opcodes.ACONST_NULL)
+      }
+      mv.visitInsn(scope.returnType.returnCode)
     }
-
   }
+
   override fun visit(operator: MulOperator) {
     super.visit(operator)
     drop2()

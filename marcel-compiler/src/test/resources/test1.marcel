@@ -12,7 +12,7 @@ println(o.hashCode())
 
 new Object()
 
-static fun foo(int bar) int {
+ fun foo(int bar) int {
   return  bar + 1
 }
 

@@ -52,8 +52,12 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
     val maxStack = 100; //TODO - do that properly
 
     // TODO handle class inheritance when checking type here
-    if (methodNode.returnType != JavaType.void && methodNode.block.type != methodNode.returnType) {
-      throw SemanticException("Return type of block doesn't match method's return type")
+    val methodReturnType = methodNode.returnType
+    val blockReturnType = methodNode.block.type
+    if (methodReturnType != JavaType.void && !methodReturnType.isAssignableFrom(blockReturnType)
+      && methodReturnType.primitive && !blockReturnType.primitive) {
+      throw SemanticException("Return type of block doesn't match method return type. " +
+          "Expected $methodReturnType but got $blockReturnType")
     }
     // writing method
     instructionGenerator.visit(methodNode.block)

@@ -57,6 +57,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val classType = JavaType(className)
     val classScope = Scope(imports, className, AsmUtils.getInternalName(superType), classMethods)
     val runScope = MethodScope(classScope, className, emptyList(), JavaType.OBJECT)
+    runScope.addLocalVariable(classType, "this")
     val statements = mutableListOf<StatementNode>()
     val runBlock = FunctionBlockNode(JavaType.OBJECT, statements)
     val runFunction = MethodNode(Opcodes.ACC_PUBLIC, classType,
@@ -150,6 +151,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val statements = mutableListOf<StatementNode>()
     val methodScope = MethodScope(classScope, methodName, parameters, returnType)
     val methodNode = MethodNode(staticFlag or visibilityFlag, classNode.type, methodName, FunctionBlockNode(returnType, statements), parameters, returnType, methodScope)
+    if (!methodNode.isStatic) {
+      methodScope.addLocalVariable(classNode.type, "this")
+    }
     statements.addAll(block(methodScope).statements)
     return methodNode
   }
