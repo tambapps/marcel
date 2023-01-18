@@ -43,7 +43,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     return node
   }
 
-  // TODO pass args as parameter
+  // TODO handle args when handling class methods/variables
   fun script(): ModuleNode {
 
     val imports = mutableListOf<ImportNode>()
@@ -245,7 +245,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         val classSimpleName = accept(TokenType.IDENTIFIER).value
         val className = scope.resolveClassName(classSimpleName)
         accept(TokenType.LPAR)
-        // TODO add parameters in scope
         ConstructorCallNode(Scope(), JavaType(className), parseFunctionArguments(scope)).apply {
           methodOwnerType = JavaType(className)
         }

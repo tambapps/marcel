@@ -45,7 +45,6 @@ open class Scope constructor(val imports: List<ImportNode>, val className: Strin
   }
 
   fun getMethod(name: String, argumentTypes: List<TypedNode>): JavaMethod {
-    // TODO can't find method run(String[] args) because it is defined in parent type.
     return classMethods.find { it.matches(name, argumentTypes) } ?: throw SemanticException("Method $name is not defined")
   }
   fun getLocalVariableWithIndex(name: String): Pair<LocalVariable, Int> {
