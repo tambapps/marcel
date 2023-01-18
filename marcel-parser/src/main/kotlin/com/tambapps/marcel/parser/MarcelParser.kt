@@ -312,7 +312,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     return arguments
   }
 
-  private fun operator(t: TokenType, leftOperand: ExpressionNode, rightOperand: ExpressionNode): BinaryOperatorNode {
+  private fun operator(t: TokenType, leftOperand: ExpressionNode, rightOperand: ExpressionNode): ExpressionNode {
     return when(t) {
       TokenType.MUL -> MulOperator(leftOperand, rightOperand)
       TokenType.DIV -> DivOperator(leftOperand, rightOperand)
@@ -322,9 +322,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         if (rightOperand !is FunctionCallNode) {
           throw MarcelParsingException("Can only handle function calls with dot operators")
         }
-        AccessOperator(leftOperand, rightOperand.apply {
-          methodOwnerType = leftOperand
-        })
+        AccessOperator(leftOperand, rightOperand)
       }
       else -> TODO()
     }

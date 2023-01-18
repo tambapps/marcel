@@ -85,7 +85,6 @@ private interface IInstructionGenerator: AstNodeVisitor {
     evaluateOperands(operator)
   }
 
-  // TODO drop stack for Instruction operator
   override fun visit(accessOperator: AccessOperator) {
     val access = accessOperator.rightOperand
     if (access is FunctionCallNode) {
