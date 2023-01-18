@@ -20,9 +20,11 @@ interface JavaMethod {
   val returnType: JavaType
   val descriptor: String
 
+  val isStatic: Boolean
+    get() = (access and Opcodes.ACC_STATIC) != 0
   val invokeCode: Int
     get() {
-      return if ((access and Opcodes.ACC_STATIC) != 0) {
+      return if (isStatic) {
         Opcodes.INVOKESTATIC
       } else {
         Opcodes.INVOKEVIRTUAL
