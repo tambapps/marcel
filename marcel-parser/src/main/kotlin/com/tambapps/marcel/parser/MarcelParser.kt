@@ -252,9 +252,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         val classSimpleName = accept(TokenType.IDENTIFIER).value
         val className = scope.resolveClassName(classSimpleName)
         accept(TokenType.LPAR)
-        ConstructorCallNode(Scope(), JavaType(className), parseFunctionArguments(scope)).apply {
-          methodOwnerType = JavaType(className)
-        }
+        ConstructorCallNode(Scope(), JavaType(className), parseFunctionArguments(scope))
       }
       TokenType.IDENTIFIER -> {
         if (current.type == TokenType.LPAR) {

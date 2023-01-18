@@ -34,6 +34,9 @@ open class Scope constructor(val imports: List<ImportNode>, val className: Strin
   }
 
   fun getMethodForType(type: JavaType, name: String, argumentTypes: List<TypedNode>): JavaMethod {
+    if (type.className == className) {
+      return getMethod(name, argumentTypes)
+    }
     val clazz = try {
       Class.forName(type.className)
     } catch (e: ClassNotFoundException) {

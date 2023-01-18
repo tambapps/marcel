@@ -46,8 +46,8 @@ private interface IInstructionGenerator: AstNodeVisitor {
     val constructorMethod = scope.getMethod(JavaMethod.CONSTRUCTOR_NAME, fCall.arguments)
     mv.visitMethodInsn(Opcodes.INVOKESPECIAL, classInternalName, fCall.name,
         constructorMethod.descriptor, false)
-
   }
+
   override fun visit(fCall: SuperConstructorCallNode) {
     mv.visitVarInsn(Opcodes.ALOAD, 0)
     pushFunctionCallArguments(fCall)
@@ -87,10 +87,8 @@ private interface IInstructionGenerator: AstNodeVisitor {
 
   // TODO drop stack for Instruction operator
   override fun visit(accessOperator: AccessOperator) {
-    val methodOwner = accessOperator.leftOperand
     val access = accessOperator.rightOperand
     if (access is FunctionCallNode) {
-      pushArgument(methodOwner)
       access.accept(this)
     } else {
       throw UnsupportedOperationException("Cannot handle such access")
@@ -118,6 +116,11 @@ private interface IInstructionGenerator: AstNodeVisitor {
       mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", AsmUtils.getDescriptor(method), false)
     } else {
       val method = fCall.method
+      val methodOwner = fCall.methodOwnerType
+      if (methodOwner is ExpressionNode) {
+        // for instance method, we need to push owner
+       pushArgument(methodOwner)
+      }
       pushFunctionCallArguments(fCall)
       mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, fCall.name, method.descriptor, false)
     }

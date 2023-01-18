@@ -81,6 +81,7 @@ class PowOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   }
 }
 
+// TODO might be useless: just initialize the method owner from function call
 class AccessOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
     BinaryOperatorNode(leftOperand, rightOperand) {
 
