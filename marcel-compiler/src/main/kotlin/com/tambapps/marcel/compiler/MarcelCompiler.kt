@@ -1,6 +1,5 @@
 package com.tambapps.marcel.compiler
 
-import com.tambapps.marcel.compiler.bytecode.InstructionGenerator
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
