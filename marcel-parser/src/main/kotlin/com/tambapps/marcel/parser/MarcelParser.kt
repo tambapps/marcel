@@ -54,28 +54,28 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val superType = JavaType(Script::class.java)
     val className = classSimpleName
     val classType = JavaType(className)
-    val scope = Scope(imports, className, AsmUtils.getInternalName(superType), classMethods)
+    val classScope = Scope(imports, className, AsmUtils.getInternalName(superType), classMethods)
+    val runScope = MethodScope(classScope, className, emptyList(), JavaType.OBJECT)
     val statements = mutableListOf<StatementNode>()
     val runBlock = FunctionBlockNode(JavaType.void, statements)
     val runFunction = MethodNode(Opcodes.ACC_PUBLIC, classType,
       "run",
-      runBlock, mutableListOf(), runBlock.methodReturnType, MethodScope(scope, className, emptyList(), JavaType.OBJECT)
-    )
+      runBlock, mutableListOf(), runBlock.methodReturnType, runScope)
 
     // adding script constructors script have 2 constructors. One no-arg constructor, and one for Binding
     val bindingType = JavaType(Binding::class.java)
     classMethods.add(
-      ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, emptyList()), mutableListOf(), MethodScope(scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)),
+      ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, emptyList()), mutableListOf(), MethodScope(classScope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)),
     )
     classMethods.add(
       ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, listOf(
-        ExpressionStatementNode(SuperConstructorCallNode(scope, mutableListOf(VariableReferenceExpression(
+        ExpressionStatementNode(SuperConstructorCallNode(classScope, mutableListOf(VariableReferenceExpression(
           Scope().apply { addLocalVariable(bindingType, "binding") }
           , "binding"))))
-      )), mutableListOf(MethodParameter(bindingType, "binding")), MethodScope(scope, JavaMethod.CONSTRUCTOR_NAME, listOf(MethodParameter(bindingType, "binding")), JavaType.void))
+      )), mutableListOf(MethodParameter(bindingType, "binding")), MethodScope(classScope, JavaMethod.CONSTRUCTOR_NAME, listOf(MethodParameter(bindingType, "binding")), JavaType.void))
     )
     classMethods.add(runFunction)
-    classMethods.add(generateMainMethod(className, scope, runBlock))
+    classMethods.add(generateMainMethod(className, classScope, runBlock))
     val classNode = ClassNode(
       Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, classType, JavaType(Script::class.java), classMethods)
     val moduleNode = ModuleNode(mutableListOf(classNode))
@@ -84,13 +84,13 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       when (current.type) {
         TokenType.FUN, TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED,
         TokenType.VISIBILITY_HIDDEN, TokenType.VISIBILITY_PRIVATE -> {
-          val method = method(scope, classNode)
+          val method = method(classScope, classNode)
           if (method.name == "main") {
             throw SemanticException("Cannot have a \"main\" function in a script")
           }
           classNode.addMethod(method)
         }
-        else -> statements.add(statement(scope))
+        else -> statements.add(statement(runScope))
       }
     }
     return moduleNode
@@ -110,11 +110,10 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         ))
       )
     ))
-    methodScope.addLocalVariable(scriptType, scriptVar)
     return MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, scriptType,
-        "main",
+      methodScope.methodName,
       // TODO use main block node. TODO it's weird that we add variable in parser AND istruction generator for variableDeclaration node
-        blockNode, mutableListOf(MethodParameter(JavaType(Array<String>::class.java), "args")), JavaType.void,
+        mainBlockNode, mutableListOf(MethodParameter(JavaType(Array<String>::class.java), "args")), JavaType.void,
       methodScope)
   }
 
@@ -224,7 +223,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val identifier = accept(TokenType.IDENTIFIER)
     accept(TokenType.ASSIGNMENT)
     val variableDeclarationNode = VariableDeclarationNode(type, identifier.value, expression(scope))
-    scope.addLocalVariable(variableDeclarationNode.type, variableDeclarationNode.name)
     return variableDeclarationNode
   }
 
