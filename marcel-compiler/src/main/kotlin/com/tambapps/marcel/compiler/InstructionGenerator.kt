@@ -7,15 +7,15 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.MethodScope
-import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
+import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import java.io.PrintStream
-import java.lang.StringBuilder
 
+// https://en.wikipedia.org/wiki/List_of_Java_bytecode_instructions
 private interface IInstructionGenerator: AstNodeVisitor {
 
   val mv: MethodVisitor
@@ -85,6 +85,10 @@ private interface IInstructionGenerator: AstNodeVisitor {
     evaluateOperands(operator)
   }
 
+  override fun visit(lowerEqualOperator: LowerEqualOperator) {
+    // TODO cast as boolean if needed
+    evaluateOperands(lowerEqualOperator)
+  }
   override fun visit(accessOperator: AccessOperator) {
     val access = accessOperator.rightOperand
     if (access is FunctionCallNode) {
@@ -234,6 +238,10 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: M
     drop2()
   }
 
+  override fun visit(lowerEqualOperator: LowerEqualOperator) {
+    super.visit(lowerEqualOperator)
+    drop2()
+  }
   override fun visit(expressionStatementNode: ExpressionStatementNode) {
     expressionStatementNode.expression.accept(this)
   }
@@ -351,6 +359,17 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor, overri
     TODO("Implement pow, or call function?")
   }
 
+  override fun visit(lowerEqualOperator: LowerEqualOperator) {
+    super.visit(lowerEqualOperator)
+    val endLabel = Label()
+    val trueLabel = Label()
+    mv.visitJumpInsn(Opcodes.IF_ICMPLE, trueLabel)
+    mv.visitInsn(Opcodes.ICONST_0)
+    mv.visitJumpInsn(Opcodes.GOTO, endLabel)
+    mv.visitLabel(trueLabel)
+    mv.visitInsn(Opcodes.ICONST_1)
+    mv.visitLabel(endLabel)
+  }
   override fun visit(returnNode: ReturnNode) {
     returnNode.apply {
       if (!scope.returnType.isAssignableFrom(expression.type)) {

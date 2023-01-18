@@ -325,6 +325,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       TokenType.DIV -> DivOperator(leftOperand, rightOperand)
       TokenType.PLUS -> PlusOperator(leftOperand, rightOperand)
       TokenType.MINUS -> MinusOperator(leftOperand, rightOperand)
+      TokenType.LOE -> LowerEqualOperator(leftOperand, rightOperand)
       TokenType.DOT -> {
         if (rightOperand !is FunctionCallNode) {
           throw MarcelParsingException("Can only handle function calls with dot operators")

@@ -32,4 +32,5 @@ interface AstNodeVisitor {
   fun visit(toStringNode: ToStringNode)
   fun visit(accessOperator: AccessOperator)
   fun visit(booleanConstantNode: BooleanConstantNode)
+  fun visit(lowerEqualOperator: LowerEqualOperator)
 }

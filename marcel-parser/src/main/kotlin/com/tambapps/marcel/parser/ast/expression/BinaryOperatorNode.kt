@@ -101,4 +101,16 @@ class AccessOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) 
   }
 }
 
+class LowerEqualOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
+  BinaryOperatorNode(leftOperand, rightOperand) {
+
+  override val type = JavaType.boolean
+  override fun accept(astNodeVisitor: AstNodeVisitor) {
+    astNodeVisitor.visit(this)
+  }
+
+  override fun toString(): String {
+    return "$leftOperand <= $rightOperand"
+  }
+}
 // TODO do all booleans operator
