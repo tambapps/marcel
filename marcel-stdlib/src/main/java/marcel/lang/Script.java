@@ -25,11 +25,11 @@ public abstract class Script {
     this(new Binding());
   }
 
-  public abstract void run();
+  public abstract Object run();
 
-  public void run(String[] args) {
+  public Object run(String[] args) {
     binding.setVariable("args", args);
-    run();
+    return run();
   }
 
 }

@@ -15,7 +15,7 @@ open class BlockNode(val statements: List<StatementNode>) : ExpressionNode {
   }
 
   override fun toString(): String {
-    return "{\n" + statements.joinToString { "\n  $it" } + "\n}"
+    return "{\n" + statements.joinToString(transform = { "\n  $it" }) + "\n}"
   }
 
   fun toFunctionBlock(methodReturnType: JavaType): FunctionBlockNode {

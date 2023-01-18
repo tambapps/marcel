@@ -58,7 +58,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val classScope = Scope(imports, className, AsmUtils.getInternalName(superType), classMethods)
     val runScope = MethodScope(classScope, className, emptyList(), JavaType.OBJECT)
     val statements = mutableListOf<StatementNode>()
-    val runBlock = FunctionBlockNode(JavaType.void, statements)
+    val runBlock = FunctionBlockNode(JavaType.OBJECT, statements)
     val runFunction = MethodNode(Opcodes.ACC_PUBLIC, classType,
       "run",
       runBlock, mutableListOf(), runBlock.methodReturnType, runScope)

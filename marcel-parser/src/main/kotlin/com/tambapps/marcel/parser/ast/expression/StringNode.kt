@@ -10,4 +10,8 @@ class StringNode(val parts: List<ExpressionNode>): ExpressionNode {
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)
   }
+
+  override fun toString(): String {
+    return parts.joinToString(separator = " + ")
+  }
 }
