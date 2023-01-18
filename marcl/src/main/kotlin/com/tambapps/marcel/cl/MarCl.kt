@@ -2,7 +2,6 @@ package com.tambapps.marcel.cl
 
 import com.tambapps.marcel.compiler.JarWriter
 import com.tambapps.marcel.compiler.MarcelCompiler
-import com.tambapps.marcel.compiler.bytecode.BytecodeWriter
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParsingException
 import java.io.File
@@ -46,7 +45,7 @@ fun main(args : Array<String>) {
   val jarFile = File(file.parentFile, "$className.jar")
   JarWriter().writeScriptJar(result.className, result.bytes, jarFile)
 
-  val classLoader = URLClassLoader(arrayOf(jarFile.toURI().toURL()), BytecodeWriter::class.java.classLoader)
+  val classLoader = URLClassLoader(arrayOf(jarFile.toURI().toURL()), MarcelCompiler::class.java.classLoader)
   val clazz = classLoader.loadClass(result.className)
   clazz.getMethod("run", Array<String>::class.java).invoke(clazz.getDeclaredConstructor().newInstance(), args)
 }

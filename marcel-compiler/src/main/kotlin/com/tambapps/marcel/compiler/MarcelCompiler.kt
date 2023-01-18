@@ -1,22 +1,63 @@
 package com.tambapps.marcel.compiler
 
-import com.tambapps.marcel.compiler.bytecode.BytecodeWriter
+import com.tambapps.marcel.compiler.bytecode.InstructionGenerator
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParsingException
+import com.tambapps.marcel.parser.ast.MethodNode
+import com.tambapps.marcel.parser.ast.ModuleNode
 import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.type.JavaType
+import org.objectweb.asm.ClassWriter
 import java.io.IOException
 import java.io.Reader
 
-class MarcelCompiler {
+class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
 
-  @Throws( IOException::class, MarcelLexerException::class, MarcelParsingException::class, SemanticException::class)
+  constructor(): this(CompilerConfiguration.DEFAULT_CONFIGURATION)
+
+  @Throws(IOException::class, MarcelLexerException::class, MarcelParsingException::class, SemanticException::class)
   fun compile(reader: Reader, className: String? = null): CompilationResult {
     val tokens = MarcelLexer().lex(reader)
     val parser = if (className != null) MarcelParser(className, tokens) else MarcelParser(tokens)
     val ast = parser.parse()
-    return BytecodeWriter().generate(ast)
+    return compile(ast)
   }
 
+  private fun compile(moduleNode: ModuleNode): CompilationResult {
+    // handling only one class for now
+    val classNode = moduleNode.classes.first()
+    val classWriter = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
+
+    // creating class
+    classWriter.visit(compilerConfiguration.classVersion,  classNode.access, classNode.internalName, null, classNode.parentType.internalName, null)
+    //https://github.com/JakubDziworski/Enkel-JVM-language/blob/master/compiler/src/main/java/com/kubadziworski/bytecodegeneration/MethodGenerator.java
+
+    for (methodNode in classNode.methods) {
+      writeMethod(classWriter, methodNode)
+    }
+
+    classWriter.visitEnd()
+    return CompilationResult(classWriter.toByteArray(), classNode.type.className)
+  }
+
+  private fun writeMethod(classWriter: ClassWriter, methodNode: MethodNode) {
+    val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.descriptor, null, null)
+    mv.visitCode()
+
+    for (param in methodNode.scope.parameters) {
+      methodNode.scope.addLocalVariable(param.type, param.name)
+    }
+    val instructionGenerator = InstructionGenerator(mv, methodNode.scope)
+    val maxStack = 100; //TODO - do that properly
+
+    if (methodNode.returnType != JavaType.void && methodNode.block.type != methodNode.returnType) {
+      throw SemanticException("Return type of block doesn't match method's return type")
+    }
+    // writing method
+    instructionGenerator.visit(methodNode.block)
+    mv.visitMaxs(maxStack, instructionGenerator.scope.localVariablesCount) //set max stack and max local variables
+    mv.visitEnd()
+  }
 }
