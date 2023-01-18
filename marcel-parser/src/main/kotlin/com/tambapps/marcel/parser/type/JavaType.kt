@@ -45,6 +45,15 @@ open class JavaType(
     )
   }
 
+  fun isAssignableFrom(javaType: JavaType): Boolean {
+    if (primitive || javaType.primitive) {
+      return this == javaType
+    }
+    // TODO only handle classes already defined, not parsed class
+    val thisClass = Class.forName(className)
+    val otherClass = Class.forName(javaType.className)
+    return thisClass.isAssignableFrom(otherClass)
+  }
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is JavaType) return false

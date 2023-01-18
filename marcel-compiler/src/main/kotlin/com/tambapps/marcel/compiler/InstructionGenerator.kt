@@ -340,7 +340,7 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor, overri
 
   override fun visit(returnNode: ReturnNode) {
     returnNode.apply {
-      if (scope.returnType != expression.type) {
+      if (!scope.returnType.isAssignableFrom(expression.type)) {
         throw SemanticException("Cannot return ${expression.type} when return type is ${scope.returnType}")
       }
     }
