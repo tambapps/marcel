@@ -39,4 +39,5 @@ interface AstNodeVisitor {
   fun visit(ifStatementNode: IfStatementNode)
   fun visit(forStatement: ForStatement)
   fun visit(whileStatement: WhileStatement)
+  fun visit(booleanExpression: BooleanExpressionNode)
 }

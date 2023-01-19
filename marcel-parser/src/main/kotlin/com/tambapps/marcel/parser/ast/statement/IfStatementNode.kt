@@ -1,10 +1,11 @@
 package com.tambapps.marcel.parser.ast.statement
 
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.expression.BooleanExpressionNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.type.JavaType
 
-class IfStatementNode(val condition: ExpressionNode, val trueStatementNode: StatementNode,
+class IfStatementNode(val condition: BooleanExpressionNode, val trueStatementNode: StatementNode,
                       var falseStatementNode: StatementNode?):
   StatementNode {
 

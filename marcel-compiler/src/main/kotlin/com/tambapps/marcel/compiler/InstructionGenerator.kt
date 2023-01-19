@@ -6,6 +6,7 @@ import com.tambapps.marcel.parser.ast.expression.AccessOperator
 import com.tambapps.marcel.parser.ast.expression.BinaryOperatorNode
 import com.tambapps.marcel.parser.ast.expression.BlockNode
 import com.tambapps.marcel.parser.ast.expression.BooleanConstantNode
+import com.tambapps.marcel.parser.ast.expression.BooleanExpressionNode
 import com.tambapps.marcel.parser.ast.expression.ComparisonOperatorNode
 import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.DivOperator
@@ -195,7 +196,6 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
     mv.visitLabel(loopStart)
 
     // Verifying condition
-    // TODO push it as boolean (Marcel truth)
     whileStatement.condition.accept(pushingInstructionGenerator)
     val loopEnd = Label()
     mv.visitJumpInsn(Opcodes.IFEQ, loopEnd)
@@ -218,7 +218,6 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
     mv.visitLabel(loopStart)
 
     // Verifying condition
-    // TODO push it as boolean (Marcel truth)
     forStatement.endCondition.accept(pushingInstructionGenerator)
     val loopEnd = Label()
     mv.visitJumpInsn(Opcodes.IFEQ, loopEnd)
@@ -234,7 +233,6 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
     mv.visitLabel(loopEnd)
   }
   override fun visit(ifStatementNode: IfStatementNode) {
-    // TODO handle expression Marcel truth
     ifStatementNode.condition.accept(pushingInstructionGenerator)
     val endLabel = Label()
     if (ifStatementNode.falseStatementNode == null) {
@@ -280,6 +278,10 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
     for (part in stringNode.parts) {
       part.accept(this)
     }
+  }
+
+  override fun visit(booleanExpression: BooleanExpressionNode) {
+    booleanExpression.innerExpression.accept(this)
   }
 
   override fun visit(variableReferenceExpression: VariableReferenceExpression) {
@@ -386,6 +388,15 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor): IInst
     mv.visitLdcInsn(stringConstantNode.value)
   }
 
+  override fun visit(booleanExpression: BooleanExpressionNode) {
+    if (booleanExpression.innerExpression.type == JavaType.boolean) {
+      booleanExpression.innerExpression.accept(this)
+    } else if (booleanExpression.innerExpression.type.primitive) {
+      visit(BooleanConstantNode(true))
+    } else {
+      TODO("Doesn't handle yet Marcel truth for objects")
+    }
+  }
   override fun visit(toStringNode: ToStringNode) {
     val expr = toStringNode.expressionNode
     // TODO call Object.toString() method for non primitive type

@@ -213,7 +213,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       }
       TokenType.IF -> {
         accept(TokenType.LPAR)
-        val condition = expression(scope)
+        val condition = BooleanExpressionNode(expression(scope))
         accept(TokenType.RPAR)
         val rootIf = IfStatementNode(condition, statement(scope), null)
         var currentIf = rootIf
@@ -221,7 +221,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           skip()
           if (acceptOptional(TokenType.IF) != null) {
             accept(TokenType.LPAR)
-            val elseIfCondition = expression(scope)
+            val elseIfCondition = BooleanExpressionNode(expression(scope))
             accept(TokenType.RPAR)
             val newIf = IfStatementNode(elseIfCondition, statement(scope), null)
             currentIf.falseStatementNode = newIf
@@ -234,7 +234,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       }
       TokenType.WHILE -> {
         accept(TokenType.LPAR)
-        val condition = expression(scope)
+        val condition = BooleanExpressionNode(expression(scope))
         accept(TokenType.RPAR)
         WhileStatement(condition, statement(scope))
       }
@@ -245,7 +245,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           throw MarcelParsingException("For loops should start with variable declaration/assignment")
         }
         acceptOptional(TokenType.SEMI_COLON)
-        val condition = expression(scope)
+        val condition = BooleanExpressionNode(expression(scope))
         accept(TokenType.SEMI_COLON)
         val iteratorStatement = statement(scope)
         if (iteratorStatement !is VariableAssignmentNode && iteratorStatement !is ExpressionStatementNode) {
