@@ -193,6 +193,8 @@ LONELY_BACKTICK=`
 "new"          { return token(NEW); }
 "for"          { return token(FOR); }
 "in"          { return token(IN); }
+"if"          { return token(IF); }
+"else"          { return token(ELSE); }
 
 {IDENTIFIER} {  return valueToken(IDENTIFIER); }
 

@@ -32,6 +32,12 @@ class MarcelCompilerTest {
     assertTrue(eval as Boolean)
   }
 
+  @Test
+  fun testIf() {
+    val eval = eval("/test_if.marcel")
+    assertTrue(eval as Boolean)
+  }
+
 
   private fun eval(resourceName: String): Any? {
     val result = javaClass.getResourceAsStream(resourceName).reader().use {

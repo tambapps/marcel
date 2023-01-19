@@ -6,6 +6,7 @@ import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
+import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
@@ -193,6 +194,16 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       TokenType.RETURN -> {
         val expression = if (current.type == TokenType.SEMI_COLON) VoidExpression() else expression(scope)
         ReturnNode(expression)
+      }
+      TokenType.BRACKETS_OPEN -> {
+        rollback()
+        ExpressionStatementNode(block(scope))
+      }
+      TokenType.IF -> {
+        accept(TokenType.LPAR)
+        val condition = expression(scope)
+        accept(TokenType.RPAR)
+        IfStatementNode(condition, statement(scope))
       }
       else -> {
         if (token.type == TokenType.IDENTIFIER && current.type == TokenType.IDENTIFIER) {

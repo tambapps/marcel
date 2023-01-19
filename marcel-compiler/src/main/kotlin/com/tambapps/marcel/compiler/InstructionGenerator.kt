@@ -4,6 +4,7 @@ import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
+import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.MethodScope
@@ -91,6 +92,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
     }
     evaluateOperands(comparisonOperator)
   }
+
   override fun visit(accessOperator: AccessOperator) {
     val access = accessOperator.rightOperand
     if (access is FunctionCallNode) {
@@ -158,6 +160,17 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: M
     pushingInstructionGenerator.instructionGenerator = this
   }
 
+  override fun visit(ifStatementNode: IfStatementNode) {
+    // TODO handle expression Marcel truth
+    ifStatementNode.condition.accept(pushingInstructionGenerator)
+    val trueLabel = Label()
+    val endLabel = Label()
+    mv.visitJumpInsn(Opcodes.IFNE, trueLabel)
+    mv.visitJumpInsn(Opcodes.GOTO, endLabel);
+    mv.visitLabel(trueLabel);
+    ifStatementNode.statementNode.accept(this)
+    mv.visitLabel(endLabel)
+  }
   override fun visit(integer: IntConstantNode) {
     // don't need to write constants
   }
@@ -273,6 +286,9 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor, overri
   lateinit var instructionGenerator: InstructionGenerator
 
 
+  override fun visit(ifStatementNode: IfStatementNode) {
+    instructionGenerator.visit(ifStatementNode)
+  }
   override fun visit(stringConstantNode: StringConstantNode) {
     mv.visitLdcInsn(stringConstantNode.value)
   }

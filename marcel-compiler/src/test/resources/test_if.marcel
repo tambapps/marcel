@@ -1,0 +1,9 @@
+import java.lang.Boolean
+
+bool b = false
+if (1 >= 0) {
+  b = true
+}
+
+
+new Boolean(b)
