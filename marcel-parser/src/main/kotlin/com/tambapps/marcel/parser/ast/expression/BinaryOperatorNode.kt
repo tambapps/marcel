@@ -1,6 +1,8 @@
 package com.tambapps.marcel.parser.ast.expression
 
+import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.ComparisonOperator
 import com.tambapps.marcel.parser.type.JavaType
 
 abstract class BinaryOperatorNode(val leftOperand: ExpressionNode, val rightOperand: ExpressionNode): ExpressionNode {
@@ -101,9 +103,10 @@ class AccessOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) 
   }
 }
 
-class LowerEqualOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
+class ComparisonOperatorNode(tokenType: TokenType, leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   BinaryOperatorNode(leftOperand, rightOperand) {
 
+  val operator = ComparisonOperator.fromTokenType(tokenType)
   override val type = JavaType.boolean
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)

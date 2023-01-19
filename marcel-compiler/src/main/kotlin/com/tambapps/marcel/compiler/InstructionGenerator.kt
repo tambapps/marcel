@@ -85,9 +85,11 @@ private interface IInstructionGenerator: AstNodeVisitor {
     evaluateOperands(operator)
   }
 
-  override fun visit(lowerEqualOperator: LowerEqualOperator) {
-    // TODO cast as boolean if needed
-    evaluateOperands(lowerEqualOperator)
+  override fun visit(comparisonOperator: ComparisonOperatorNode) {
+    if (!comparisonOperator.leftOperand.type.primitive || !comparisonOperator.rightOperand.type.primitive) {
+      TODO("Doesn't handle comparison for non primitive types for now")
+    }
+    evaluateOperands(comparisonOperator)
   }
   override fun visit(accessOperator: AccessOperator) {
     val access = accessOperator.rightOperand
@@ -238,8 +240,8 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: M
     drop2()
   }
 
-  override fun visit(lowerEqualOperator: LowerEqualOperator) {
-    super.visit(lowerEqualOperator)
+  override fun visit(comparisonOperatorNode: ComparisonOperatorNode) {
+    super.visit(comparisonOperatorNode)
     drop2()
   }
   override fun visit(expressionStatementNode: ExpressionStatementNode) {
@@ -359,11 +361,12 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor, overri
     TODO("Implement pow, or call function?")
   }
 
-  override fun visit(lowerEqualOperator: LowerEqualOperator) {
-    super.visit(lowerEqualOperator)
+  override fun visit(comparisonOperator: ComparisonOperatorNode) {
+    super.visit(comparisonOperator)
+    // TODO for now only handling primitive
     val endLabel = Label()
     val trueLabel = Label()
-    mv.visitJumpInsn(Opcodes.IF_ICMPLE, trueLabel)
+    mv.visitJumpInsn(comparisonOperator.operator.iOpCode, trueLabel)
     mv.visitInsn(Opcodes.ICONST_0)
     mv.visitJumpInsn(Opcodes.GOTO, endLabel)
     mv.visitLabel(trueLabel)
