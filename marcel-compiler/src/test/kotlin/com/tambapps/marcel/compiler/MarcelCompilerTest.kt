@@ -1,6 +1,7 @@
 package com.tambapps.marcel.compiler
 
 import com.tambapps.marcel.parser.type.JavaType
+import marcel.lang.Script
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -36,6 +37,18 @@ class MarcelCompilerTest {
   fun testIf() {
     val eval = eval("/test_if.marcel")
     assertTrue(eval as Boolean)
+  }
+
+  @Test
+  fun testScope() {
+    val eval = eval("/test_scope.marcel")
+    assertEquals(5, eval)
+  }
+
+  @Test
+  fun testThis() {
+    val eval = eval("/test_this.marcel")
+    assertTrue(eval is Script)
   }
 
 

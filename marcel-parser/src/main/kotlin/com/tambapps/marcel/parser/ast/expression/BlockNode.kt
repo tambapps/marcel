@@ -18,9 +18,6 @@ open class BlockNode(val statements: List<StatementNode>) : ExpressionNode {
     return "{\n" + statements.joinToString(transform = { "\n  $it" }) + "\n}"
   }
 
-  fun toFunctionBlock(methodReturnType: JavaType): FunctionBlockNode {
-    return FunctionBlockNode(methodReturnType, statements)
-  }
 }
 
 // need to differentiate both because we don't always want to push on stack values for "normal" block nodes

@@ -49,6 +49,9 @@ open class JavaType(
   }
 
   fun isAssignableFrom(javaType: JavaType): Boolean {
+    if (this == javaType || this == OBJECT) {
+      return true
+    }
     if (primitive || javaType.primitive) {
       return this == javaType
     }

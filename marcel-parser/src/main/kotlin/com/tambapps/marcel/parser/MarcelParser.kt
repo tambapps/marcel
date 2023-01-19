@@ -152,9 +152,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val statements = mutableListOf<StatementNode>()
     val methodScope = MethodScope(classScope, methodName, parameters, returnType)
     val methodNode = MethodNode(staticFlag or visibilityFlag, classNode.type, methodName, FunctionBlockNode(returnType, statements), parameters, returnType, methodScope)
-    if (!methodNode.isStatic) {
-      methodScope.addLocalVariable(classNode.type, "this")
-    }
     statements.addAll(block(methodScope).statements)
     return methodNode
   }

@@ -281,8 +281,10 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: M
   }
 
   override fun visit(blockNode: BlockNode) {
+    val newScope = MethodScope(scope)
+    val blockGenerator = InstructionGenerator(mv, newScope)
     for (statement in blockNode.statements) {
-      statement.accept(this)
+      statement.accept(blockGenerator)
     }
   }
 

@@ -4,6 +4,7 @@ import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParsingException
+import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.ModuleNode
 import com.tambapps.marcel.parser.exception.SemanticException
@@ -34,17 +35,20 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
     //https://github.com/JakubDziworski/Enkel-JVM-language/blob/master/compiler/src/main/java/com/kubadziworski/bytecodegeneration/MethodGenerator.java
 
     for (methodNode in classNode.methods) {
-      writeMethod(classWriter, methodNode)
+      writeMethod(classWriter, classNode, methodNode)
     }
 
     classWriter.visitEnd()
     return CompilationResult(classWriter.toByteArray(), classNode.type.className)
   }
 
-  private fun writeMethod(classWriter: ClassWriter, methodNode: MethodNode) {
+  private fun writeMethod(classWriter: ClassWriter, classNode: ClassNode, methodNode: MethodNode) {
     val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.descriptor, null, null)
     mv.visitCode()
 
+    if (!methodNode.isStatic) {
+// TODO don't know if its the right way      methodNode.scope.addLocalVariable(classNode.type, "this")
+    }
     for (param in methodNode.scope.parameters) {
       methodNode.scope.addLocalVariable(param.type, param.name)
     }

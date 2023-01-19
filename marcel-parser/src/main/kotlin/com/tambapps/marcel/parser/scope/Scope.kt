@@ -14,15 +14,15 @@ import com.tambapps.marcel.parser.type.ReflectJavaMethod
 open class Scope constructor(val imports: List<ImportNode>, val className: String, val superClassInternalName: String, val classMethods: List<JavaMethod>) {
   constructor(): this(emptyList(), "Test", JavaType.OBJECT.internalName, emptyList())
 
-  constructor( className: String, imports: List<ImportNode>, classNode: ClassNode): this(imports, className, classNode.parentType.internalName, classNode.methods)
+  constructor(className: String, imports: List<ImportNode>, classNode: ClassNode): this(imports, className, classNode.parentType.internalName, classNode.methods)
 
-  private val localVariables: LinkedHashMap<String, LocalVariable> = LinkedHashMap()
+  protected val localVariables: LinkedHashMap<String, LocalVariable> = LinkedHashMap()
   val localVariablesCount: Int
     get() = localVariables.size
 
   fun addLocalVariable(type: JavaType, name: String): LocalVariable {
     if (localVariables.containsKey(name)) {
-      throw SemanticException("a variable with name $name is already defined")
+      throw SemanticException("A variable with name $name is already defined")
     }
     val v = LocalVariable(type, name)
     localVariables[name] = v
@@ -79,6 +79,12 @@ open class Scope constructor(val imports: List<ImportNode>, val className: Strin
 class MethodScope(imports: List<ImportNode>, className: String, superClassInternalName: String, classMethods: List<JavaMethod>, val methodName: String,
   val parameters: List<MethodParameter>, val returnType: JavaType)
   : Scope(imports, className, superClassInternalName, classMethods) {
+
+  constructor(methodScope: MethodScope) :
+    this(methodScope, methodScope.methodName, methodScope.parameters, methodScope.returnType) {
+    localVariables.putAll(methodScope.localVariables)
+    }
+
     constructor(scope: Scope,
                 methodName: String,
                 parameters: List<MethodParameter>, returnType: JavaType):
