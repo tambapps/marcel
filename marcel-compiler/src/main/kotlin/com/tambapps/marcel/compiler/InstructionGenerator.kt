@@ -272,6 +272,7 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: M
   }
 
   override fun visit(variableDeclarationNode: VariableDeclarationNode) {
+    scope.addLocalVariable(variableDeclarationNode.type, variableDeclarationNode.name)
     visit(variableDeclarationNode as VariableAssignmentNode)
   }
 

@@ -235,9 +235,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   private fun variableDeclaration(scope: Scope, type: JavaType): VariableDeclarationNode {
     val identifier = accept(TokenType.IDENTIFIER)
     accept(TokenType.ASSIGNMENT)
-    val variableDeclarationNode = VariableDeclarationNode(type, identifier.value, expression(scope))
-    scope.addLocalVariable(variableDeclarationNode.type, variableDeclarationNode.name)
-    return variableDeclarationNode
+    return VariableDeclarationNode(type, identifier.value, expression(scope))
   }
 
   fun expression(scope: Scope): ExpressionNode {
