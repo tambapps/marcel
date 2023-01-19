@@ -16,6 +16,8 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import java.io.PrintStream
 
+// https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.if_icmp_cond
+// https://asm.ow2.io/asm4-guide.pdf
 // https://en.wikipedia.org/wiki/List_of_Java_bytecode_instructions
 private interface IInstructionGenerator: AstNodeVisitor {
 
