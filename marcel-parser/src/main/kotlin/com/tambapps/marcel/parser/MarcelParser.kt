@@ -314,6 +314,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         skip() // skip last quote
         StringNode(parts)
       }
+      TokenType.NULL -> NullValueNode()
       TokenType.NEW -> {
         val classSimpleName = accept(TokenType.IDENTIFIER).value
         val className = scope.resolveClassName(classSimpleName)

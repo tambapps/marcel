@@ -196,6 +196,7 @@ LONELY_BACKTICK=`
 "if"          { return token(IF); }
 "else"          { return token(ELSE); }
 "while"          { return token(WHILE); }
+"null"          { return token(NULL); }
 
 {IDENTIFIER} {  return valueToken(IDENTIFIER); }
 

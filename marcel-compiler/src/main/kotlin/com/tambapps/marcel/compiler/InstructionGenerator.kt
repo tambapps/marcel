@@ -16,6 +16,7 @@ import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.IntConstantNode
 import com.tambapps.marcel.parser.ast.expression.MinusOperator
 import com.tambapps.marcel.parser.ast.expression.MulOperator
+import com.tambapps.marcel.parser.ast.expression.NullValueNode
 import com.tambapps.marcel.parser.ast.expression.PlusOperator
 import com.tambapps.marcel.parser.ast.expression.PowOperator
 import com.tambapps.marcel.parser.ast.expression.ReturnNode
@@ -167,7 +168,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     pushArgument(variableAssignmentNode.expression)
     val (variable, index) = variableAssignmentNode.scope.getLocalVariableWithIndex(variableAssignmentNode.name)
-    if (variable.type != variableAssignmentNode.expression.type) {
+    if (!variable.type.isAssignableFrom(variableAssignmentNode.expression.type)) {
       throw SemanticException("Incompatible types")
     }
     mv.visitVarInsn(variable.type.storeCode, index)
@@ -282,6 +283,10 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
 
   override fun visit(booleanExpression: BooleanExpressionNode) {
     booleanExpression.innerExpression.accept(this)
+  }
+
+  override fun visit(nullValueNode: NullValueNode) {
+    // no need to push anything
   }
 
   override fun visit(variableReferenceExpression: VariableReferenceExpression) {
@@ -432,6 +437,10 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor): IInst
 
   override fun visit(integer: IntConstantNode) {
     mv.visitLdcInsn(integer.value) // write primitive value, from an Object class e.g. Integer -> int
+  }
+
+  override fun visit(nullValueNode: NullValueNode) {
+    mv.visitInsn(Opcodes.ACONST_NULL)
   }
 
   override fun visit(booleanConstantNode: BooleanConstantNode) {
