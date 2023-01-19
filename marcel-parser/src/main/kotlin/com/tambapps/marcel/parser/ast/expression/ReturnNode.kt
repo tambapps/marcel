@@ -2,8 +2,9 @@ package com.tambapps.marcel.parser.ast.expression
 
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.scope.MethodScope
 
-class ReturnNode(override val expression: ExpressionNode) : StatementNode {
+class ReturnNode(val scope: MethodScope, override val expression: ExpressionNode) : StatementNode {
 
   override fun accept(mv: AstNodeVisitor) {
     mv.visit(this)

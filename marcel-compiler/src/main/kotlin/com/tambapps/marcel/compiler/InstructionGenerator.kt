@@ -7,7 +7,9 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.scope.MethodScope
+import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
@@ -22,7 +24,6 @@ import java.io.PrintStream
 private interface IInstructionGenerator: AstNodeVisitor {
 
   val mv: MethodVisitor
-  val scope: MethodScope
 
 
   //TODO don't forget to push or not these TODOs() once done, based on the IUnpushedExpressionGenerator implementation
@@ -46,7 +47,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
     mv.visitTypeInsn(Opcodes.NEW, classInternalName)
     mv.visitInsn(Opcodes.DUP)
     pushFunctionCallArguments(fCall)
-    val constructorMethod = scope.getMethodForType(fCall.type, JavaMethod.CONSTRUCTOR_NAME, fCall.arguments)
+    val constructorMethod = fCall.scope.getMethodForType(fCall.type, JavaMethod.CONSTRUCTOR_NAME, fCall.arguments)
     mv.visitMethodInsn(Opcodes.INVOKESPECIAL, classInternalName, fCall.name,
         constructorMethod.descriptor, false)
   }
@@ -54,7 +55,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
   override fun visit(fCall: SuperConstructorCallNode) {
     mv.visitVarInsn(Opcodes.ALOAD, 0)
     pushFunctionCallArguments(fCall)
-    mv.visitMethodInsn(Opcodes.INVOKESPECIAL, scope.superClassInternalName, fCall.name,
+    mv.visitMethodInsn(Opcodes.INVOKESPECIAL, fCall.scope.superClassInternalName, fCall.name,
       AsmUtils.getDescriptor(fCall.arguments, JavaType.void), false)
   }
 
@@ -129,7 +130,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
       if (methodOwner is ExpressionNode) {
        pushArgument(methodOwner) // for instance method, we need to push owner
       } else if (!method.isStatic) {
-        pushArgument(VariableReferenceExpression(scope, "this"))
+        pushArgument(VariableReferenceExpression(fCall.scope, "this"))
       }
       pushFunctionCallArguments(fCall)
       mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, fCall.name, method.descriptor, false)
@@ -138,7 +139,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
 
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     pushArgument(variableAssignmentNode.expression)
-    val (variable, index) = scope.getLocalVariableWithIndex(variableAssignmentNode.name)
+    val (variable, index) = variableAssignmentNode.scope.getLocalVariableWithIndex(variableAssignmentNode.name)
     if (variable.type != variableAssignmentNode.expression.type) {
       throw SemanticException("Incompatible types")
     }
@@ -154,9 +155,9 @@ private interface IInstructionGenerator: AstNodeVisitor {
 /**
  * Generates expression bytecode but don't push them to the stack. (Useful for statement expressions)
  */
-class InstructionGenerator(override val mv: MethodVisitor, override val scope: MethodScope): IInstructionGenerator {
+class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerator {
 
-  private val pushingInstructionGenerator = PushingInstructionGenerator(mv, scope)
+  private val pushingInstructionGenerator = PushingInstructionGenerator(mv)
 
   init {
     pushingInstructionGenerator.instructionGenerator = this
@@ -224,7 +225,7 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: M
       blockNode.statements[i].accept(this)
     }
     val lastStatement = blockNode.statements.lastOrNull() ?: ExpressionStatementNode(VoidExpression())
-    if (scope.returnType == JavaType.void) {
+    if (blockNode.scope.returnType == JavaType.void) {
       lastStatement.accept(this)
       mv.visitInsn(Opcodes.RETURN)
     } else {
@@ -234,7 +235,7 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: M
         // method expects an object but nothing was returned? let's return null
         mv.visitInsn(Opcodes.ACONST_NULL)
       }
-      mv.visitInsn(scope.returnType.returnCode)
+      mv.visitInsn(blockNode.scope.returnType.returnCode)
     }
   }
 
@@ -272,7 +273,7 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: M
   }
 
   override fun visit(variableDeclarationNode: VariableDeclarationNode) {
-    scope.addLocalVariable(variableDeclarationNode.type, variableDeclarationNode.name)
+    variableDeclarationNode.scope.addLocalVariable(variableDeclarationNode.type, variableDeclarationNode.name)
     visit(variableDeclarationNode as VariableAssignmentNode)
   }
 
@@ -282,10 +283,12 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: M
   }
 
   override fun visit(blockNode: BlockNode) {
-    val newScope = MethodScope(scope)
-    val blockGenerator = InstructionGenerator(mv, newScope)
     for (statement in blockNode.statements) {
-      statement.accept(blockGenerator)
+      statement.accept(this)
+    }
+    val scope = blockNode.scope
+    if (scope is InnerScope) {
+      scope.clearInnerScopeLocalVariables()
     }
   }
 
@@ -295,7 +298,7 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: M
   }
 }
 
-private class PushingInstructionGenerator(override val mv: MethodVisitor, override val scope: MethodScope): IInstructionGenerator {
+private class PushingInstructionGenerator(override val mv: MethodVisitor): IInstructionGenerator {
   lateinit var instructionGenerator: InstructionGenerator
 
 
@@ -327,8 +330,8 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor, overri
       ToStringNode(stringNode.parts.first()).accept(this)
       return
     }
-    // new StringBuilder()
-    visit(ConstructorCallNode(scope, JavaType(StringBuilder::class.java), mutableListOf()))
+    // new StringBuilder() can just provide an empty new scope as we'll just use it to extract the method from StringBuilder which already exists in the JDK
+    visit(ConstructorCallNode(Scope(), JavaType(StringBuilder::class.java), mutableListOf()))
     for (part in stringNode.parts) {
       // chained calls
       val argumentClass = part.type.realClassOrObject
@@ -347,15 +350,15 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor, overri
     mv.visitInsn(if (booleanConstantNode.value) Opcodes.ICONST_1 else Opcodes.ICONST_0)
   }
   override fun visit(variableReferenceExpression: VariableReferenceExpression) {
-    pushVariable(variableReferenceExpression.name)
+    pushVariable(variableReferenceExpression.scope, variableReferenceExpression.name)
   }
 
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     super.visit(variableAssignmentNode)
-    pushVariable(variableAssignmentNode.name)
+    pushVariable(variableAssignmentNode.scope, variableAssignmentNode.name)
   }
 
-  private fun pushVariable(variableName: String) {
+  private fun pushVariable(scope: Scope, variableName: String) {
     val (variable, index) = scope.getLocalVariableWithIndex(variableName)
     mv.visitVarInsn(variable.type.loadCode, index)
   }
@@ -404,8 +407,8 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor, overri
   }
   override fun visit(returnNode: ReturnNode) {
     returnNode.apply {
-      if (!scope.returnType.isAssignableFrom(expression.type)) {
-        throw SemanticException("Cannot return ${expression.type} when return type is ${scope.returnType}")
+      if (!returnNode.scope.returnType.isAssignableFrom(expression.type)) {
+        throw SemanticException("Cannot return ${expression.type} when return type is ${returnNode.scope.returnType}")
       }
     }
     returnNode.expression.accept(this)

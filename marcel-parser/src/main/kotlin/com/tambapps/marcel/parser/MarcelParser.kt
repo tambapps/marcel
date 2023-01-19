@@ -10,6 +10,7 @@ import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
@@ -59,21 +60,25 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val classScope = Scope(imports, className, AsmUtils.getInternalName(superType), classMethods)
     val runScope = MethodScope(classScope, className, emptyList(), JavaType.OBJECT)
     val statements = mutableListOf<StatementNode>()
-    val runBlock = FunctionBlockNode(JavaType.OBJECT, statements)
+    val runBlock = FunctionBlockNode(runScope, statements)
     val runFunction = MethodNode(Opcodes.ACC_PUBLIC, classType,
       "run",
-      runBlock, mutableListOf(), runBlock.methodReturnType, runScope)
+      runBlock, mutableListOf(), runScope.returnType, runScope)
 
     // adding script constructors script have 2 constructors. One no-arg constructor, and one for Binding
-    val bindingType = JavaType(Binding::class.java)
+
+    val emptyConstructorScope = MethodScope(classScope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)
     classMethods.add(
-      ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, emptyList()), mutableListOf(), MethodScope(classScope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)),
+      ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(emptyConstructorScope, emptyList()), mutableListOf(), emptyConstructorScope),
     )
+
+    // second constructor with binding parameter
+    val bindingType = JavaType(Binding::class.java)
     val bindingParameterName = "binding"
     val bindingConstructorParameters = mutableListOf(MethodParameter(bindingType, bindingParameterName))
     val bindingConstructorScope = MethodScope(classScope, JavaMethod.CONSTRUCTOR_NAME, bindingConstructorParameters, JavaType.void)
     classMethods.add(
-      ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, listOf(
+      ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(bindingConstructorScope, listOf(
         ExpressionStatementNode(SuperConstructorCallNode(classScope, mutableListOf(VariableReferenceExpression(
           bindingConstructorScope, bindingParameterName))))
       )), bindingConstructorParameters, bindingConstructorScope)
@@ -152,13 +157,13 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val returnType = if (current.type != TokenType.BRACKETS_OPEN) parseType(classScope) else JavaType.void
     val statements = mutableListOf<StatementNode>()
     val methodScope = MethodScope(classScope, methodName, parameters, returnType)
-    val methodNode = MethodNode(staticFlag or visibilityFlag, classNode.type, methodName, FunctionBlockNode(returnType, statements), parameters, returnType, methodScope)
+    val methodNode = MethodNode(staticFlag or visibilityFlag, classNode.type, methodName, FunctionBlockNode(methodScope, statements), parameters, returnType, methodScope)
     statements.addAll(block(methodScope).statements)
     return methodNode
   }
 
 
-  fun block(scope: Scope): BlockNode {
+  fun block(scope: MethodScope): BlockNode {
     accept(TokenType.BRACKETS_OPEN)
     val statements = mutableListOf<StatementNode>()
     while (current.type != TokenType.BRACKETS_CLOSE) {
@@ -170,7 +175,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       statements.add(statement)
     }
     skip() // skipping BRACKETS_CLOSE
-    return BlockNode(statements)
+    return BlockNode(scope, statements)
   }
 
   private fun parseType(scope: Scope): JavaType {
@@ -191,11 +196,18 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           JavaType.TOKEN_TYPE_MAP.getValue(token.type))
       TokenType.RETURN -> {
         val expression = if (current.type == TokenType.SEMI_COLON) VoidExpression() else expression(scope)
-        ReturnNode(expression)
+        if (scope !is MethodScope) {
+          throw MarcelParsingException("Cannot have a return instruction outside of a function")
+        }
+        ReturnNode(scope, expression)
       }
       TokenType.BRACKETS_OPEN -> {
         rollback()
-        ExpressionStatementNode(block(scope))
+        if (scope !is MethodScope) {
+          throw MarcelParsingException("Cannot have blocks outside of a method")
+        }
+        // starting a new inner scope for the block
+        ExpressionStatementNode(block(InnerScope(scope)))
       }
       TokenType.IF -> {
         accept(TokenType.LPAR)
@@ -235,7 +247,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   private fun variableDeclaration(scope: Scope, type: JavaType): VariableDeclarationNode {
     val identifier = accept(TokenType.IDENTIFIER)
     accept(TokenType.ASSIGNMENT)
-    return VariableDeclarationNode(type, identifier.value, expression(scope))
+    return VariableDeclarationNode(scope, type, identifier.value, expression(scope))
   }
 
   fun expression(scope: Scope): ExpressionNode {
@@ -289,7 +301,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           return FunctionCallNode(scope, token.value, parseFunctionArguments(scope))
         } else if (current.type == TokenType.ASSIGNMENT) {
           skip()
-          VariableAssignmentNode(token.value, expression(scope))
+          VariableAssignmentNode(scope, token.value, expression(scope))
         } else {
           VariableReferenceExpression(scope, token.value)
         }

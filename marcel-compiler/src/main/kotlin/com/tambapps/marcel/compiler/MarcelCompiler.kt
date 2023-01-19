@@ -52,7 +52,7 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
     for (param in methodNode.scope.parameters) {
       methodNode.scope.addLocalVariable(param.type, param.name)
     }
-    val instructionGenerator = InstructionGenerator(mv, methodNode.scope)
+    val instructionGenerator = InstructionGenerator(mv)
     val maxStack = 100; //TODO - do that properly
 
     // writing method
@@ -68,7 +68,7 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
           "Expected $methodReturnType but got $blockReturnType")
     }
 
-    mv.visitMaxs(maxStack, instructionGenerator.scope.localVariablesCount) //set max stack and max local variables
+    mv.visitMaxs(maxStack, methodNode.scope.localVariablesCount) //set max stack and max local variables
     mv.visitEnd()
   }
 }

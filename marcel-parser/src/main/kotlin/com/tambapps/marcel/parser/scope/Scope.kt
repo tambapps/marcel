@@ -17,11 +17,9 @@ open class Scope constructor(val imports: List<ImportNode>, val className: Strin
   constructor(className: String, imports: List<ImportNode>, classNode: ClassNode): this(imports, className, classNode.parentType.internalName, classNode.methods)
 
   // Linked because we need it to be sorted by insertion order
-  protected val localVariables: LinkedHashMap<String, LocalVariable> = LinkedHashMap()
-  val localVariablesCount: Int
-    get() = localVariables.size
+  internal open val localVariables: LinkedHashMap<String, LocalVariable> = LinkedHashMap()
 
-  fun addLocalVariable(type: JavaType, name: String): LocalVariable {
+  open fun addLocalVariable(type: JavaType, name: String): LocalVariable {
     if (localVariables.containsKey(name)) {
       throw SemanticException("A variable with name $name is already defined")
     }
@@ -85,17 +83,38 @@ open class Scope constructor(val imports: List<ImportNode>, val className: Strin
 
 }
 
-class MethodScope(imports: List<ImportNode>, className: String, superClassInternalName: String, classMethods: List<JavaMethod>, val methodName: String,
-  val parameters: List<MethodParameter>, val returnType: JavaType)
+open class MethodScope(imports: List<ImportNode>, className: String, superClassInternalName: String, classMethods: List<JavaMethod>, val methodName: String,
+                       val parameters: List<MethodParameter>, val returnType: JavaType)
   : Scope(imports, className, superClassInternalName, classMethods) {
 
-  constructor(methodScope: MethodScope) :
-    this(methodScope, methodScope.methodName, methodScope.parameters, methodScope.returnType) {
-    localVariables.putAll(methodScope.localVariables)
-    }
+  val localVariablesCount: Int
+    get() = localVariables.size + innerScopeVariablesCount
+  internal var innerScopeVariablesCount = 0
 
     constructor(scope: Scope,
                 methodName: String,
                 parameters: List<MethodParameter>, returnType: JavaType):
         this(scope.imports, scope.className, scope.superClassInternalName, scope.classMethods, methodName, parameters, returnType)
+}
+
+class InnerScope constructor(private val parentScope: MethodScope)
+  : MethodScope(parentScope.imports, parentScope.className, parentScope.superClassInternalName, parentScope.classMethods, parentScope.methodName, parentScope.parameters, parentScope.returnType) {
+
+  // we want to access local variable defined in parent scope
+  override val localVariables: LinkedHashMap<String, LocalVariable>
+    get() = parentScope.localVariables
+
+  private val innerScopeLocalVariables = mutableListOf<String>()
+
+  override fun addLocalVariable(type: JavaType, name: String): LocalVariable {
+    val variable = super.addLocalVariable(type, name)
+    innerScopeLocalVariables.add(name)
+    parentScope.innerScopeVariablesCount++
+    return variable
+  }
+
+  // to clean variables defined in inner scope, once we don't need the inner scope anymore
+  fun clearInnerScopeLocalVariables() {
+    innerScopeLocalVariables.forEach { localVariables.remove(it) }
+  }
 }

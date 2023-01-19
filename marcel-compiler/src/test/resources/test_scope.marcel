@@ -8,5 +8,5 @@ if (true) {
   println(b)
 }
 
-int b = 5
-println(b)
+bool b = true
+new Boolean(b)

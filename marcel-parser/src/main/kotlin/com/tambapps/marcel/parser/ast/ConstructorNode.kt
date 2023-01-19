@@ -30,7 +30,7 @@ class ConstructorNode(
       val statements = mutableListOf<StatementNode>()
       statements.add(ExpressionStatementNode(SuperConstructorCallNode(scope, mutableListOf())))
       statements.addAll(block.statements)
-      return FunctionBlockNode(block.methodReturnType, statements)
+      return FunctionBlockNode(block.scope, statements)
     }
   }
 }

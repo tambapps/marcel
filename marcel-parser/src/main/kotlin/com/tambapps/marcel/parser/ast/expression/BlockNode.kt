@@ -3,8 +3,9 @@ package com.tambapps.marcel.parser.ast.expression
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.scope.MethodScope
 
-open class BlockNode(val statements: List<StatementNode>) : ExpressionNode {
+open class BlockNode(val scope: MethodScope, val statements: List<StatementNode>) : ExpressionNode {
 
   // it is important it is a getter, because statements could be modified after this object being constructed
   override val type
@@ -21,7 +22,7 @@ open class BlockNode(val statements: List<StatementNode>) : ExpressionNode {
 }
 
 // need to differentiate both because we don't always want to push on stack values for "normal" block nodes
-class FunctionBlockNode(val methodReturnType: JavaType, statements: List<StatementNode>) : BlockNode(statements) {
+class FunctionBlockNode constructor(scope: MethodScope, statements: List<StatementNode>) : BlockNode(scope, statements) {
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)
   }

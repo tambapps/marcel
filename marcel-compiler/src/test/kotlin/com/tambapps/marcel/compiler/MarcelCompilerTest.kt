@@ -42,7 +42,7 @@ class MarcelCompilerTest {
   @Test
   fun testScope() {
     val eval = eval("/test_scope.marcel")
-    assertEquals(5, eval)
+    assertEquals(true, eval)
   }
 
   @Test

@@ -20,6 +20,7 @@ import org.objectweb.asm.Opcodes
 class MarcelParserTest {
 
     private val lexer = MarcelLexer()
+    private val scope = MethodScope(emptyList(), "Test", JavaType.OBJECT.internalName, emptyList(), "test", emptyList(), JavaType.void)
 
     @Test
     fun testExpression() {
@@ -37,7 +38,7 @@ class MarcelParserTest {
     fun testIntDeclaration() {
         val parser = parser("int a = 22")
         assertEquals(
-            VariableDeclarationNode(JavaType.int, "a", IntConstantNode(22)),
+            VariableDeclarationNode(scope, JavaType.int, "a", IntConstantNode(22)),
             parser.statement(Scope()))
     }
 
@@ -45,7 +46,7 @@ class MarcelParserTest {
     fun testBoolDeclaration() {
         val parser = parser("bool b = false")
         assertEquals(
-            VariableDeclarationNode(JavaType.boolean, "b", BooleanConstantNode(false)),
+            VariableDeclarationNode(scope, JavaType.boolean, "b", BooleanConstantNode(false)),
             parser.statement(Scope()))
     }
 
@@ -55,8 +56,8 @@ class MarcelParserTest {
         val imports = listOf<ImportNode>(WildcardImportNode("java.lang"))
         val classScope = Scope(imports, "Test", JavaType.OBJECT.internalName, emptyList())
         val expected = MethodNode(Opcodes.ACC_PUBLIC, JavaType.OBJECT, "foo",
-            FunctionBlockNode(JavaType.int, listOf(
-                ReturnNode(IntConstantNode(1))
+            FunctionBlockNode(scope, listOf(
+                ReturnNode(scope, IntConstantNode(1))
             )), mutableListOf(MethodParameter(JavaType.int, "a"),
             MethodParameter(JavaType.STRING, "b")), JavaType.int, MethodScope(classScope, "foo",
                 listOf(MethodParameter(JavaType.int, "a"), MethodParameter(JavaType.int, "b")), JavaType.int)
