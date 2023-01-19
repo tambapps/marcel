@@ -203,7 +203,22 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         accept(TokenType.LPAR)
         val condition = expression(scope)
         accept(TokenType.RPAR)
-        IfStatementNode(condition, statement(scope))
+        val rootIf = IfStatementNode(condition, statement(scope), null)
+        var currentIf = rootIf
+        while (current.type == TokenType.ELSE) {
+          skip()
+          if (acceptOptional(TokenType.IF) != null) {
+            accept(TokenType.LPAR)
+            val elseIfCondition = expression(scope)
+            accept(TokenType.RPAR)
+            val newIf = IfStatementNode(elseIfCondition, statement(scope), null)
+            currentIf.falseStatementNode = newIf
+            currentIf = newIf
+          } else {
+            currentIf.falseStatementNode = statement(scope)
+          }
+        }
+        rootIf
       }
       else -> {
         if (token.type == TokenType.IDENTIFIER && current.type == TokenType.IDENTIFIER) {

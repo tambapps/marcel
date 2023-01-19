@@ -4,16 +4,24 @@ import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.type.JavaType
 
-class IfStatementNode(val condition: ExpressionNode, val statementNode: StatementNode):
+class IfStatementNode(val condition: ExpressionNode, val trueStatementNode: StatementNode,
+                      var falseStatementNode: StatementNode?):
   StatementNode {
 
   override val expression: ExpressionNode
     get() = throw RuntimeException("Compiler design problem")
   override val type: JavaType
-    get() = statementNode.type
+    get() = trueStatementNode.type
 
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)
   }
 
+  override fun toString(): String {
+    var s = "if ($condition) $trueStatementNode"
+    if (falseStatementNode != null) {
+      s += " else $falseStatementNode"
+    }
+    return s
+  }
 }

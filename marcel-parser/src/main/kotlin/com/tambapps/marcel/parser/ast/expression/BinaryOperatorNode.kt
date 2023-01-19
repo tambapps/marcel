@@ -113,7 +113,7 @@ class ComparisonOperatorNode(tokenType: TokenType, leftOperand: ExpressionNode, 
   }
 
   override fun toString(): String {
-    return "$leftOperand <= $rightOperand"
+    return "$leftOperand $operator $rightOperand"
   }
 }
 // TODO do all booleans operator

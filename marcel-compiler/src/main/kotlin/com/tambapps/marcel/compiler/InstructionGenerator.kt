@@ -163,13 +163,21 @@ class InstructionGenerator(override val mv: MethodVisitor, override val scope: M
   override fun visit(ifStatementNode: IfStatementNode) {
     // TODO handle expression Marcel truth
     ifStatementNode.condition.accept(pushingInstructionGenerator)
-    val trueLabel = Label()
     val endLabel = Label()
-    mv.visitJumpInsn(Opcodes.IFNE, trueLabel)
-    mv.visitJumpInsn(Opcodes.GOTO, endLabel);
-    mv.visitLabel(trueLabel);
-    ifStatementNode.statementNode.accept(this)
-    mv.visitLabel(endLabel)
+    if (ifStatementNode.falseStatementNode == null) {
+      mv.visitJumpInsn(Opcodes.IFEQ, endLabel)
+      ifStatementNode.trueStatementNode.accept(this)
+      mv.visitLabel(endLabel)
+    } else {
+      val falseStatementNode = ifStatementNode.falseStatementNode!!
+      val falseLabel = Label()
+      mv.visitJumpInsn(Opcodes.IFEQ, falseLabel)
+      ifStatementNode.trueStatementNode.accept(this)
+      mv.visitJumpInsn(Opcodes.GOTO, endLabel)
+      mv.visitLabel(falseLabel)
+      falseStatementNode.accept(this)
+      mv.visitLabel(endLabel)
+    }
   }
   override fun visit(integer: IntConstantNode) {
     // don't need to write constants
