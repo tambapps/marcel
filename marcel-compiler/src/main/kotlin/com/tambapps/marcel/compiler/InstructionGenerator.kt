@@ -32,6 +32,7 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
+import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.scope.Scope
@@ -188,8 +189,27 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
     pushingInstructionGenerator.instructionGenerator = this
   }
 
-  override fun visit(forStatement: ForStatement) {
+  override fun visit(whileStatement: WhileStatement) {
+    // loop start
+    val loopStart = Label()
+    mv.visitLabel(loopStart)
 
+    // Verifying condition
+    // TODO push it as boolean (Marcel truth)
+    whileStatement.condition.accept(pushingInstructionGenerator)
+    val loopEnd = Label()
+    mv.visitJumpInsn(Opcodes.IFEQ, loopEnd)
+
+    // loop body
+    whileStatement.body.accept(this)
+
+    // Return to the beginning of the loop
+    mv.visitJumpInsn(Opcodes.GOTO, loopStart)
+
+    // loop end
+    mv.visitLabel(loopEnd)
+  }
+  override fun visit(forStatement: ForStatement) {
     // initialization
     forStatement.initStatement.accept(this)
 
@@ -200,8 +220,8 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
     // Verifying condition
     // TODO push it as boolean (Marcel truth)
     forStatement.endCondition.accept(pushingInstructionGenerator)
-    val l2 = Label()
-    mv.visitJumpInsn(Opcodes.IFEQ, l2)
+    val loopEnd = Label()
+    mv.visitJumpInsn(Opcodes.IFEQ, loopEnd)
 
     // loop body
     forStatement.statement.accept(this)
@@ -211,7 +231,7 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
     mv.visitJumpInsn(Opcodes.GOTO, loopStart)
 
     // loop end
-    mv.visitLabel(l2)
+    mv.visitLabel(loopEnd)
   }
   override fun visit(ifStatementNode: IfStatementNode) {
     // TODO handle expression Marcel truth
@@ -354,6 +374,10 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor): IInst
 
   override fun visit(forStatement: ForStatement) {
     instructionGenerator.visit(forStatement)
+  }
+
+  override fun visit(whileStatement: WhileStatement) {
+    instructionGenerator.visit(whileStatement)
   }
   override fun visit(ifStatementNode: IfStatementNode) {
     instructionGenerator.visit(ifStatementNode)

@@ -10,6 +10,7 @@ import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
+import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.scope.MethodScope
@@ -230,6 +231,12 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           }
         }
         rootIf
+      }
+      TokenType.WHILE -> {
+        accept(TokenType.LPAR)
+        val condition = expression(scope)
+        accept(TokenType.RPAR)
+        WhileStatement(condition, statement(scope))
       }
       TokenType.FOR -> {
         accept(TokenType.LPAR)

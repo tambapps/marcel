@@ -46,6 +46,12 @@ class MarcelCompilerTest {
   }
 
   @Test
+  fun testWhileLoop() {
+    val eval = eval("/test_while_loop.marcel")
+    assertEquals(45, eval)
+  }
+
+  @Test
   fun testScope() {
     val eval = eval("/test_scope.marcel")
     assertEquals(true, eval)

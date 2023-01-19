@@ -5,6 +5,7 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
+import com.tambapps.marcel.parser.ast.statement.WhileStatement
 
 interface AstNodeVisitor {
 
@@ -37,4 +38,5 @@ interface AstNodeVisitor {
   fun visit(comparisonOperator: ComparisonOperatorNode)
   fun visit(ifStatementNode: IfStatementNode)
   fun visit(forStatement: ForStatement)
+  fun visit(whileStatement: WhileStatement)
 }
