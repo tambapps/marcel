@@ -69,12 +69,14 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     classMethods.add(
       ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, emptyList()), mutableListOf(), MethodScope(classScope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)),
     )
+    val bindingParameterName = "binding"
+    val bindingConstructorParameters = mutableListOf(MethodParameter(bindingType, bindingParameterName))
+    val bindingConstructorScope = MethodScope(classScope, JavaMethod.CONSTRUCTOR_NAME, bindingConstructorParameters, JavaType.void)
     classMethods.add(
       ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(JavaType.void, listOf(
         ExpressionStatementNode(SuperConstructorCallNode(classScope, mutableListOf(VariableReferenceExpression(
-          Scope().apply { addLocalVariable(bindingType, "binding") }
-          , "binding"))))
-      )), mutableListOf(MethodParameter(bindingType, "binding")), MethodScope(classScope, JavaMethod.CONSTRUCTOR_NAME, listOf(MethodParameter(bindingType, "binding")), JavaType.void))
+          bindingConstructorScope, bindingParameterName))))
+      )), bindingConstructorParameters, bindingConstructorScope)
     )
     classMethods.add(runFunction)
     val classNode = ClassNode(
