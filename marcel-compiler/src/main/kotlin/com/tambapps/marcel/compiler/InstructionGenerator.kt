@@ -306,9 +306,13 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
       lastStatement.accept(this)
       mv.visitInsn(Opcodes.RETURN)
     } else {
+      if (!blockNode.scope.returnType.isAssignableFrom(lastStatement.type)) {
+        throw SemanticException("Expected return type ${blockNode.scope.returnType} but got ${lastStatement.type}")
+      }
       if (lastStatement.type != JavaType.void) {
         pushArgument(lastStatement.expression)
       } else {
+        lastStatement.accept(this)
         // method expects an object but nothing was returned? let's return null
         mv.visitInsn(Opcodes.ACONST_NULL)
       }

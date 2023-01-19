@@ -3,6 +3,7 @@ package com.tambapps.marcel.parser.ast.statement
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.expression.BooleanExpressionNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
+import com.tambapps.marcel.parser.ast.expression.VoidExpression
 import com.tambapps.marcel.parser.type.JavaType
 
 class IfStatementNode(val condition: BooleanExpressionNode, val trueStatementNode: StatementNode,
@@ -10,7 +11,7 @@ class IfStatementNode(val condition: BooleanExpressionNode, val trueStatementNod
   StatementNode {
 
   override val expression: ExpressionNode
-    get() = throw RuntimeException("Compiler design problem")
+    get() = VoidExpression()
   override val type: JavaType
     get() = trueStatementNode.type
 
