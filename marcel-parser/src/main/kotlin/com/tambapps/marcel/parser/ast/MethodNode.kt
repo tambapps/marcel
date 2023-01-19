@@ -11,6 +11,8 @@ open class MethodNode constructor(override val access: Int, override val ownerCl
                                   override val parameters: MutableList<MethodParameter>, override val returnType: JavaType, val scope: MethodScope
 ): AstNode, JavaMethod {
 
+  override val isConstructor = false
+
   override val descriptor get() = AsmUtils.getDescriptor(parameters, returnType)
   val parameterTypes get() = parameters.map { it.type.realClassOrObject }.toTypedArray()
 

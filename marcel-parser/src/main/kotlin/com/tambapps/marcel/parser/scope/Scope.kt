@@ -16,6 +16,7 @@ open class Scope constructor(val imports: List<ImportNode>, val className: Strin
 
   constructor(className: String, imports: List<ImportNode>, classNode: ClassNode): this(imports, className, classNode.parentType.internalName, classNode.methods)
 
+  // Linked because we need it to be sorted by insertion order
   protected val localVariables: LinkedHashMap<String, LocalVariable> = LinkedHashMap()
   val localVariablesCount: Int
     get() = localVariables.size
@@ -25,7 +26,15 @@ open class Scope constructor(val imports: List<ImportNode>, val className: Strin
       throw SemanticException("A variable with name $name is already defined")
     }
     val v = LocalVariable(type, name)
-    localVariables[name] = v
+    if (name == "this") {
+      // this should always be the first element in the map
+      val copy = LinkedHashMap(localVariables)
+      localVariables.clear()
+      localVariables[name] = v
+      localVariables.putAll(copy)
+    } else {
+      localVariables[name] = v
+    }
     return v
   }
 

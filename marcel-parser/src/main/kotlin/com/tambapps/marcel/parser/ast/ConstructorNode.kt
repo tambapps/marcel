@@ -21,6 +21,7 @@ class ConstructorNode(
 ) : MethodNode(access, JavaType.void, JavaMethod.CONSTRUCTOR_NAME, blockWithSuperCall(scope, block), parameters, JavaType.void,
     scope.apply { addLocalVariable(superType, "super") }) {
 
+  override val isConstructor = true
   companion object {
     private fun blockWithSuperCall(scope: Scope, block: FunctionBlockNode): FunctionBlockNode {
       if (block.statements.firstOrNull()?.expression is SuperConstructorCallNode) {

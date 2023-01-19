@@ -46,8 +46,8 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
     val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.descriptor, null, null)
     mv.visitCode()
 
-    if (!methodNode.isStatic) {
-// TODO don't know if its the right way      methodNode.scope.addLocalVariable(classNode.type, "this")
+    if (!methodNode.isStatic && !methodNode.isConstructor) {
+      methodNode.scope.addLocalVariable(classNode.type, "this")
     }
     for (param in methodNode.scope.parameters) {
       methodNode.scope.addLocalVariable(param.type, param.name)

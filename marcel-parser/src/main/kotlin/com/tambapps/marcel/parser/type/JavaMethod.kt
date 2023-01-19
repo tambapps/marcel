@@ -22,6 +22,7 @@ interface JavaMethod {
 
   val isStatic: Boolean
     get() = (access and Opcodes.ACC_STATIC) != 0
+  val isConstructor: Boolean
   val invokeCode: Int
     get() {
       return if (isStatic) {
@@ -49,6 +50,7 @@ class ReflectJavaConstructor(constructor: Constructor<*>): JavaMethod {
   override val returnType = JavaType.void // yes, constructor returns void, especially for the descriptor
   override val descriptor = AsmUtils.getDescriptor(parameters, returnType)
   override val invokeCode = Opcodes.INVOKESPECIAL
+  override val isConstructor = true
 
 }
 class ReflectJavaMethod(method: Method): JavaMethod {
@@ -60,4 +62,5 @@ class ReflectJavaMethod(method: Method): JavaMethod {
   override val parameters = method.parameters.map { MethodParameter(JavaType(it.type), it.name) }
   override val returnType = JavaType(method.returnType)
   override val descriptor = AsmUtils.getDescriptor(parameters, returnType)
+  override val isConstructor = false
 }
