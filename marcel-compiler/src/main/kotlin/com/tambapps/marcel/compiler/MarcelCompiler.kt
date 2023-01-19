@@ -55,7 +55,11 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
     val instructionGenerator = InstructionGenerator(mv, methodNode.scope)
     val maxStack = 100; //TODO - do that properly
 
+    // writing method
+    instructionGenerator.visit(methodNode.block)
+
     // TODO handle class inheritance when checking type here
+    // checking return type AFTER having generated code because we want variable types to have been resolved
     val methodReturnType = methodNode.returnType
     val blockReturnType = methodNode.block.type
     if (methodReturnType != JavaType.void && !methodReturnType.isAssignableFrom(blockReturnType)
@@ -63,8 +67,7 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
       throw SemanticException("Return type of block doesn't match method return type. " +
           "Expected $methodReturnType but got $blockReturnType")
     }
-    // writing method
-    instructionGenerator.visit(methodNode.block)
+
     mv.visitMaxs(maxStack, instructionGenerator.scope.localVariablesCount) //set max stack and max local variables
     mv.visitEnd()
   }
