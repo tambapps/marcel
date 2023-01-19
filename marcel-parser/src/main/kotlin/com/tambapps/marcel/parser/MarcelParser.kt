@@ -6,6 +6,7 @@ import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
+import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
@@ -229,6 +230,23 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           }
         }
         rootIf
+      }
+      TokenType.FOR -> {
+        accept(TokenType.LPAR)
+        val initStatement = statement(scope)
+        if (initStatement !is VariableAssignmentNode) {
+          throw MarcelParsingException("For loops should start with variable declaration/assignment")
+        }
+        acceptOptional(TokenType.SEMI_COLON)
+        val condition = expression(scope)
+        accept(TokenType.SEMI_COLON)
+        val iteratorStatement = statement(scope)
+        if (iteratorStatement !is VariableAssignmentNode && iteratorStatement !is ExpressionStatementNode) {
+          throw MarcelParsingException("Invalid for loop")
+        }
+        accept(TokenType.RPAR)
+        val forStatement = statement(scope)
+        ForStatement(initStatement, condition, iteratorStatement, forStatement)
       }
       else -> {
         if (token.type == TokenType.IDENTIFIER && current.type == TokenType.IDENTIFIER) {

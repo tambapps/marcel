@@ -40,6 +40,12 @@ class MarcelCompilerTest {
   }
 
   @Test
+  fun testLoop() {
+    val eval = eval("/test_loop.marcel")
+    assertEquals(45, eval)
+  }
+
+  @Test
   fun testScope() {
     val eval = eval("/test_scope.marcel")
     assertEquals(true, eval)
