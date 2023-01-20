@@ -5,7 +5,7 @@ import com.tambapps.marcel.parser.ast.expression.BooleanExpressionNode
 import com.tambapps.marcel.parser.ast.expression.VoidExpression
 
 class ForStatement(val initStatement: StatementNode,
-                   val endCondition: BooleanExpressionNode, val iteratorStatement: StatementNode, val statement: StatementNode): StatementNode {
+                   val endCondition: BooleanExpressionNode, val iteratorStatement: StatementNode, val body: StatementNode): StatementNode {
 
   override val expression = VoidExpression()
 

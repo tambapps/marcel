@@ -37,6 +37,7 @@ import com.tambapps.marcel.parser.ast.statement.ContinueLoopNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
+import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.SemanticException
@@ -207,13 +208,7 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
     mv.visitJumpInsn(Opcodes.IFEQ, loopEnd)
 
     // loop body
-    val body = whileStatement.body
-    if (body is ExpressionStatementNode && body.expression is BlockNode && (body.expression as BlockNode).scope is InnerScope) {
-      val scope = (body.expression as BlockNode).scope as InnerScope
-      scope.continueLabel = loopStart
-      scope.breakLabel = loopEnd
-    }
-    body.accept(this)
+    loopBody(whileStatement.body, loopStart, loopEnd)
 
     // Return to the beginning of the loop
     mv.visitJumpInsn(Opcodes.GOTO, loopStart)
@@ -236,13 +231,7 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
 
     // loop body
     val incrementLabel = Label()
-    val body = forStatement.statement // TODO rename this property body
-    if (body is ExpressionStatementNode && body.expression is BlockNode && (body.expression as BlockNode).scope is InnerScope) {
-      val scope = (body.expression as BlockNode).scope as InnerScope
-      scope.continueLabel = incrementLabel
-      scope.breakLabel = loopEnd
-    }
-    body.accept(this)
+    loopBody(forStatement.body, incrementLabel, loopEnd)
 
     // iteration
     mv.visitLabel(incrementLabel)
@@ -253,6 +242,14 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
     mv.visitLabel(loopEnd)
   }
 
+  private fun loopBody(body: StatementNode, continueLabel: Label, breakLabel: Label) {
+    if (body is ExpressionStatementNode && body.expression is BlockNode && (body.expression as BlockNode).scope is InnerScope) {
+      val scope = (body.expression as BlockNode).scope as InnerScope
+      scope.continueLabel = continueLabel
+      scope.breakLabel = breakLabel
+    }
+    body.accept(this)
+  }
   override fun visit(breakLoopNode: BreakLoopNode) {
     val label = breakLoopNode.scope.breakLabel ?: throw SemanticException("Cannot use break statement outside of a loop")
     mv.visitJumpInsn(Opcodes.GOTO, label)
