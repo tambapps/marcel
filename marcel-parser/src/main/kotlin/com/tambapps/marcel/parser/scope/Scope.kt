@@ -1,7 +1,6 @@
 package com.tambapps.marcel.parser.scope
 
 import com.tambapps.marcel.parser.MethodParameter
-import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.ast.TypedNode
 import com.tambapps.marcel.parser.exception.SemanticException
@@ -11,10 +10,8 @@ import com.tambapps.marcel.parser.type.ReflectJavaConstructor
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import org.objectweb.asm.Label
 
-open class Scope constructor(val imports: List<ImportNode>, val className: String, val superClassInternalName: String, val classMethods: List<JavaMethod>) {
-  constructor(): this(emptyList(), "Test", JavaType.Object.internalName, emptyList())
-
-  constructor(className: String, imports: List<ImportNode>, classNode: ClassNode): this(imports, className, classNode.parentType.internalName, classNode.methods)
+open class Scope constructor(val imports: List<ImportNode>, val classType: JavaType, val superClassInternalName: String, val classMethods: List<JavaMethod>) {
+  constructor(): this(emptyList(), JavaType("Test"), JavaType.Object.internalName, emptyList())
 
   // Linked because we need it to be sorted by insertion order
   internal open val localVariables: LinkedHashMap<String, LocalVariable> = LinkedHashMap()
@@ -41,7 +38,7 @@ open class Scope constructor(val imports: List<ImportNode>, val className: Strin
   }
 
   fun getMethodForType(type: JavaType, name: String, argumentTypes: List<TypedNode>): JavaMethod {
-    if (type.className == className) {
+    if (type == classType) {
       return getMethod(name, argumentTypes)
     }
     val clazz = try {
@@ -67,7 +64,7 @@ open class Scope constructor(val imports: List<ImportNode>, val className: Strin
   }
 
   fun copy(): Scope {
-    return Scope(imports, className, superClassInternalName, classMethods)
+    return Scope(imports, classType, superClassInternalName, classMethods)
   }
 
   fun resolveClassName(classSimpleName: String): String {
@@ -83,9 +80,9 @@ open class Scope constructor(val imports: List<ImportNode>, val className: Strin
 
 }
 
-open class MethodScope(imports: List<ImportNode>, className: String, superClassInternalName: String, classMethods: List<JavaMethod>, val methodName: String,
+open class MethodScope(imports: List<ImportNode>, classType: JavaType, superClassInternalName: String, classMethods: List<JavaMethod>, val methodName: String,
                        val parameters: List<MethodParameter>, val returnType: JavaType)
-  : Scope(imports, className, superClassInternalName, classMethods) {
+  : Scope(imports, classType, superClassInternalName, classMethods) {
 
   val localVariablesCount: Int
     get() = localVariables.size + innerScopeVariablesCount
@@ -94,11 +91,11 @@ open class MethodScope(imports: List<ImportNode>, className: String, superClassI
     constructor(scope: Scope,
                 methodName: String,
                 parameters: List<MethodParameter>, returnType: JavaType):
-        this(scope.imports, scope.className, scope.superClassInternalName, scope.classMethods, methodName, parameters, returnType)
+        this(scope.imports, scope.classType, scope.superClassInternalName, scope.classMethods, methodName, parameters, returnType)
 }
 
 class InnerScope constructor(private val parentScope: MethodScope)
-  : MethodScope(parentScope.imports, parentScope.className, parentScope.superClassInternalName, parentScope.classMethods, parentScope.methodName, parentScope.parameters, parentScope.returnType) {
+  : MethodScope(parentScope.imports, parentScope.classType, parentScope.superClassInternalName, parentScope.classMethods, parentScope.methodName, parentScope.parameters, parentScope.returnType) {
 
   // we want to access local variable defined in parent scope
   override val localVariables: LinkedHashMap<String, LocalVariable>
