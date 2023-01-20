@@ -54,6 +54,8 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   fun script(): ModuleNode {
 
     val imports = mutableListOf<ImportNode>()
+    imports.addAll(Scope.DEFAULT_IMPORTS)
+
     while (current.type == TokenType.IMPORT) {
       imports.add(import())
     }

@@ -19,7 +19,7 @@ import org.objectweb.asm.Opcodes
 class MarcelParserTest {
 
     private val lexer = MarcelLexer()
-    private val scope = MethodScope(emptyList(), JavaType("Test"), JavaType.Object.internalName, emptyList(), "test", emptyList(), JavaType.void)
+    private val scope = MethodScope(mutableListOf(), JavaType("Test"), JavaType.Object.internalName, emptyList(), "test", emptyList(), JavaType.void)
 
     @Test
     fun testExpression() {
@@ -52,7 +52,7 @@ class MarcelParserTest {
     @Test
     fun testFunction() {
         val parser = parser("fun foo(int a, String b) int { return 1 }")
-        val imports = listOf<ImportNode>(WildcardImportNode("java.lang"))
+        val imports = mutableListOf<ImportNode>(WildcardImportNode("java.lang"))
         val classScope = Scope(imports, JavaType("Test"), JavaType.Object.internalName, emptyList())
         val expected = MethodNode(Opcodes.ACC_PUBLIC, JavaType.Object, "foo",
             FunctionBlockNode(scope, listOf(

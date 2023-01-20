@@ -3,6 +3,7 @@ package com.tambapps.marcel.parser.scope
 import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.ast.TypedNode
+import com.tambapps.marcel.parser.ast.WildcardImportNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
@@ -10,8 +11,17 @@ import com.tambapps.marcel.parser.type.ReflectJavaConstructor
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import org.objectweb.asm.Label
 
-open class Scope constructor(val imports: List<ImportNode>, val classType: JavaType, val superClassInternalName: String, val classMethods: List<JavaMethod>) {
-  constructor(): this(emptyList(), JavaType("Test"), JavaType.Object.internalName, emptyList())
+open class Scope constructor(val imports: MutableList<ImportNode>, val classType: JavaType, val superClassInternalName: String, val classMethods: List<JavaMethod>) {
+  constructor(): this(mutableListOf(), JavaType("Test"), JavaType.Object.internalName, emptyList()) {
+    imports.addAll(DEFAULT_IMPORTS)
+  }
+
+  companion object {
+    val DEFAULT_IMPORTS = listOf(
+      WildcardImportNode("java.lang"),
+      WildcardImportNode("marcel.lang"),
+    )
+  }
 
   // Linked because we need it to be sorted by insertion order
   internal open val localVariables: LinkedHashMap<String, LocalVariable> = LinkedHashMap()
@@ -80,7 +90,7 @@ open class Scope constructor(val imports: List<ImportNode>, val classType: JavaT
 
 }
 
-open class MethodScope(imports: List<ImportNode>, classType: JavaType, superClassInternalName: String, classMethods: List<JavaMethod>, val methodName: String,
+open class MethodScope(imports: MutableList<ImportNode>, classType: JavaType, superClassInternalName: String, classMethods: List<JavaMethod>, val methodName: String,
                        val parameters: List<MethodParameter>, val returnType: JavaType)
   : Scope(imports, classType, superClassInternalName, classMethods) {
 
