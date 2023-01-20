@@ -189,7 +189,20 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     return when (token.type) {
       TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_VOID,
       TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL -> JavaType.TOKEN_TYPE_MAP.getValue(token.type)
-      TokenType.IDENTIFIER -> JavaType(scope.resolveClassName(token.value))
+      TokenType.IDENTIFIER -> {
+        val className = scope.resolveClassName(token.value)
+        val genericTypes = mutableListOf<JavaType>()
+        if (current.type == TokenType.LT) { // generic types
+          skip()
+          genericTypes.add(parseType(scope))
+          while (current.type == TokenType.COMMA) {
+            skip()
+            genericTypes.add(parseType(scope))
+          }
+          accept(TokenType.GT)
+        }
+        JavaType(className, genericTypes)
+      }
       else -> throw java.lang.UnsupportedOperationException("Doesn't handle type ${token.type}")
     }
   }

@@ -1,6 +1,7 @@
 package com.tambapps.marcel.parser.type
 
 import com.tambapps.marcel.lexer.TokenType
+import com.tambapps.marcel.parser.MarcelParsingException
 import com.tambapps.marcel.parser.PrimitiveTypes
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.TypedNode
@@ -23,8 +24,16 @@ open class JavaType(
   constructor(clazz: Class<*>): this(clazz, clazz.name, AsmUtils.getInternalName(clazz), AsmUtils.getClassDescriptor(clazz),
   Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN, emptyList())
 
+  init {
+    if (genericTypes.any { it.primitive }) {
+      throw MarcelParsingException("Cannot have a primitive type as generic type")
+    }
+  }
+
   // constructors for class defined in a script
-  constructor(clazz: String): this(Object.realClassOrObject, clazz, AsmUtils.getInternalName(clazz), AsmUtils.getObjectClassDescriptor(clazz), Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN, emptyList())
+  constructor(clazz: String): this(clazz, emptyList())
+  constructor(clazz: String, genericTypes: List<JavaType>): this(Object.realClassOrObject, clazz, AsmUtils.getInternalName(clazz), AsmUtils.getObjectClassDescriptor(clazz), Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN, genericTypes)
+
   companion object {
 
     val Object = JavaType(Object::class.java)
@@ -75,6 +84,9 @@ open class JavaType(
   }
 
   override fun toString(): String {
+    if (genericTypes.isNotEmpty()) {
+      return className + "<" + genericTypes.joinToString(separator = ", ") + ">"
+    }
     return className
   }
 

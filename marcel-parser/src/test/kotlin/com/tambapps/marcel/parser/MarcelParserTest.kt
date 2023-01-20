@@ -69,25 +69,17 @@ class MarcelParserTest {
         assertEquals(expected.block.statements, actual.block.statements)
     }
 
+    @Test
+    fun testGenricTypeVarDeclaration() {
+        val parser = parser("Type<Integer, Object> b = null")
 
-    /* too painful with lateinit properties
-
-@Test
-fun testMethodAccess() {
-    val parser = parser("myVariable.myMethod().myField")
-    val type = JavaType("Test")
-    assertEquals(
-        AccessOperator(
-            AccessOperator(VariableReferenceExpression(type, "myVariable"), FunctionCallNode(type, "myMethod")).apply {
-                                                                                                                      this.type = type
-            },
-            VariableReferenceExpression(type, "myField")).apply {
-                                                                this.type = type
-        },
-        parser.expression(Scope()))
-
+        assertEquals(
+            VariableDeclarationNode(scope, JavaType("Type", listOf(
+                JavaType(Class.forName("java.lang.Integer")),
+                JavaType(Class.forName("java.lang.Object"))
+            )), "b", NullValueNode()),
+            parser.statement(Scope()))
     }
-     */
 
     private fun tokens(s: String): List<LexToken> {
         return lexer.lex(s)

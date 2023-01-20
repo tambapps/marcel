@@ -35,7 +35,7 @@ data class BooleanConstantNode(val value: Boolean): ExpressionNode {
   override val type = JavaType.boolean
 }
 
-class NullValueNode(): ExpressionNode {
+class NullValueNode: ExpressionNode {
 
   // treating null as void
   override val type = JavaType.void
@@ -44,4 +44,7 @@ class NullValueNode(): ExpressionNode {
     astNodeVisitor.visit(this)
   }
 
+  override fun equals(other: Any?): Boolean {
+    return other is NullValueNode
+  }
 }
