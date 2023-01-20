@@ -46,6 +46,7 @@ import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
+import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
@@ -430,23 +431,25 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor): IInst
   override fun visit(notNode: NotNode) {
     when (notNode.operand.type) {
       JavaType.Boolean -> {
-        TODO("Doesn't handle Boolean negation for now")
+        pushArgument(notNode.operand)
+        val method = ReflectJavaMethod(Class.forName("java.lang.Boolean").getMethod("booleanValue"))
+        mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, method.name, method.descriptor, false)
       }
       JavaType.boolean -> {
         notNode.operand.accept(this)
-        val endLabel = Label()
-        val trueLabel = Label()
-        mv.visitJumpInsn(Opcodes.IFEQ, trueLabel)
-        mv.visitInsn(Opcodes.ICONST_0)
-        mv.visitJumpInsn(Opcodes.GOTO, endLabel)
-        mv.visitLabel(trueLabel)
-        mv.visitInsn(Opcodes.ICONST_1)
-        mv.visitLabel(endLabel)
       }
       else -> {
         throw SemanticException("Cannot negate something other than a boolean")
       }
     }
+    val endLabel = Label()
+    val trueLabel = Label()
+    mv.visitJumpInsn(Opcodes.IFEQ, trueLabel)
+    mv.visitInsn(Opcodes.ICONST_0)
+    mv.visitJumpInsn(Opcodes.GOTO, endLabel)
+    mv.visitLabel(trueLabel)
+    mv.visitInsn(Opcodes.ICONST_1)
+    mv.visitLabel(endLabel)
   }
   override fun visit(whileStatement: WhileStatement) {
     instructionGenerator.visit(whileStatement)

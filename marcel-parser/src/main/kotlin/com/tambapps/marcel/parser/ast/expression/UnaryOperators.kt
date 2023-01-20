@@ -22,6 +22,7 @@ class UnaryPlus(operand: ExpressionNode) : UnaryOperator(operand) {
 }
 
 class NotNode(operand: ExpressionNode) : UnaryOperator(operand) {
+  override val type = JavaType.boolean
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)
   }
