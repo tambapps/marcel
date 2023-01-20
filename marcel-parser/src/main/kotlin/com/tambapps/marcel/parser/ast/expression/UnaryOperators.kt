@@ -20,3 +20,9 @@ class UnaryPlus(operand: ExpressionNode) : UnaryOperator(operand) {
     astNodeVisitor.visit(this)
   }
 }
+
+class IncrNode(val variableReference: VariableReferenceExpression, val amount: Int, val returnValueBefore: Boolean) : UnaryOperator(variableReference) {
+  override fun accept(astNodeVisitor: AstNodeVisitor) {
+    astNodeVisitor.visit(this)
+  }
+}

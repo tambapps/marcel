@@ -224,3 +224,5 @@ LONELY_BACKTICK=`
 "="          { return token(ASSIGNMENT); }
 "."          { return token(DOT); }
 ","          { return token(COMMA); }
+"++"          { return token(INCR); }
+"--"          { return token(DECR); }

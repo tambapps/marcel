@@ -41,4 +41,5 @@ interface AstNodeVisitor {
   fun visit(whileStatement: WhileStatement)
   fun visit(booleanExpression: BooleanExpressionNode)
   fun visit(nullValueNode: NullValueNode)
+  fun visit(incrNode: IncrNode)
 }

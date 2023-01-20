@@ -3,10 +3,16 @@ package com.tambapps.marcel.parser.ast.expression
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.scope.LocalVariable
 
 class VariableReferenceExpression(val scope: Scope, val name: String): ExpressionNode {
   override val type: JavaType
     get() = scope.getLocalVariable(name).type
+
+  val variable: LocalVariable
+    get() = scope.getLocalVariable(name)
+  val index: Int
+    get() = scope.getLocalVariableIndex(name)
 
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)

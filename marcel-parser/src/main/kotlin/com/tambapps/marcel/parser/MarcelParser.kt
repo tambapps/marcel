@@ -303,6 +303,8 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   private fun atom(scope: Scope): ExpressionNode {
     val token = next()
     return when (token.type) {
+      TokenType.INCR -> IncrNode(VariableReferenceExpression(scope, accept(TokenType.IDENTIFIER).value), 1, false)
+      TokenType.DECR -> IncrNode(VariableReferenceExpression(scope, accept(TokenType.IDENTIFIER).value), -1, false)
       TokenType.INTEGER -> IntConstantNode(token.value.toInt())
       TokenType.VALUE_TRUE -> BooleanConstantNode(true)
       TokenType.VALUE_FALSE -> BooleanConstantNode(false)
@@ -322,7 +324,14 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         ConstructorCallNode(Scope(), JavaType(className), parseFunctionArguments(scope))
       }
       TokenType.IDENTIFIER -> {
-        if (current.type == TokenType.LPAR) {
+        if (current.type == TokenType.INCR) {
+          skip()
+          return IncrNode(VariableReferenceExpression(scope, token.value), 1, true)
+        } else  if (current.type == TokenType.DECR) {
+          skip()
+          return IncrNode(VariableReferenceExpression(scope, token.value), -1, true)
+        }
+        else if (current.type == TokenType.LPAR) {
           skip()
           return FunctionCallNode(scope, token.value, parseFunctionArguments(scope))
         } else if (current.type == TokenType.ASSIGNMENT) {

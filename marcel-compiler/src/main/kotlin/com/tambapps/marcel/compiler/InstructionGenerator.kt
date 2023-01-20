@@ -13,6 +13,7 @@ import com.tambapps.marcel.parser.ast.expression.DivOperator
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
+import com.tambapps.marcel.parser.ast.expression.IncrNode
 import com.tambapps.marcel.parser.ast.expression.IntConstantNode
 import com.tambapps.marcel.parser.ast.expression.MinusOperator
 import com.tambapps.marcel.parser.ast.expression.MulOperator
@@ -285,6 +286,14 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
     booleanExpression.innerExpression.accept(this)
   }
 
+  override fun visit(incrNode: IncrNode) {
+    if (incrNode.variableReference.type == JavaType.int) {
+      mv.visitIincInsn(incrNode.variableReference.index, incrNode.amount)
+    } else {
+      TODO("Don't support other types than int for increment")
+    }
+  }
+
   override fun visit(nullValueNode: NullValueNode) {
     // no need to push anything
   }
@@ -447,6 +456,15 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor): IInst
     mv.visitInsn(Opcodes.ACONST_NULL)
   }
 
+  override fun visit(incrNode: IncrNode) {
+    if (incrNode.returnValueBefore) {
+      pushVariable(incrNode.variableReference.scope, incrNode.variableReference.name)
+      instructionGenerator.visit(incrNode)
+    } else {
+      instructionGenerator.visit(incrNode)
+      pushVariable(incrNode.variableReference.scope, incrNode.variableReference.name)
+    }
+  }
   override fun visit(booleanConstantNode: BooleanConstantNode) {
     mv.visitInsn(if (booleanConstantNode.value) Opcodes.ICONST_1 else Opcodes.ICONST_0)
   }
