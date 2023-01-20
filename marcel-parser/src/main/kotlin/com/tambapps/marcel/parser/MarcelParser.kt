@@ -353,6 +353,22 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         } else if (current.type == TokenType.ASSIGNMENT) {
           skip()
           VariableAssignmentNode(scope, token.value, expression(scope))
+        } else if (current.type == TokenType.PLUS_ASSIGNMENT) {
+          skip()
+          val expr = expression(scope)
+          VariableAssignmentNode(scope, token.value, PlusOperator(VariableReferenceExpression(scope, token.value), expr))
+        } else if (current.type == TokenType.MINUS_ASSIGNMENT) {
+          skip()
+          val expr = expression(scope)
+          VariableAssignmentNode(scope, token.value, MinusOperator(VariableReferenceExpression(scope, token.value), expr))
+        } else if (current.type == TokenType.DIV_ASSIGNMENT) {
+          skip()
+          val expr = expression(scope)
+          VariableAssignmentNode(scope, token.value, DivOperator(VariableReferenceExpression(scope, token.value), expr))
+        } else if (current.type == TokenType.MUL) {
+          skip()
+          val expr = expression(scope)
+          VariableAssignmentNode(scope, token.value, MulOperator(VariableReferenceExpression(scope, token.value), expr))
         } else {
           VariableReferenceExpression(scope, token.value)
         }

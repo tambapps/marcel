@@ -199,6 +199,10 @@ LONELY_BACKTICK=`
 "null"          { return token(NULL); }
 "break"          { return token(BREAK); }
 "continue"          { return token(CONTINUE); }
+"+="          { return token(PLUS_ASSIGNMENT); }
+"-="          { return token(MINUS_ASSIGNMENT); }
+"*="          { return token(MUL_ASSIGNMENT); }
+"/="          { return token(DIV_ASSIGNMENT); }
 
 {IDENTIFIER} {  return valueToken(IDENTIFIER); }
 
