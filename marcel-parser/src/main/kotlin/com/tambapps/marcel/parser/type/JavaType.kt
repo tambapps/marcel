@@ -14,16 +14,17 @@ open class JavaType(
     val descriptor: String,
     val storeCode: Int,
     val loadCode: Int,
-    val returnCode: Int): TypedNode {
+    val returnCode: Int,
+    val genericTypes: List<JavaType>): TypedNode {
 
   override val type: JavaType get() = this
   open val primitive = false
 
   constructor(clazz: Class<*>): this(clazz, clazz.name, AsmUtils.getInternalName(clazz), AsmUtils.getClassDescriptor(clazz),
-  Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN)
+  Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN, emptyList())
 
   // constructors for class defined in a script
-  constructor(clazz: String): this(Object.realClassOrObject, clazz, AsmUtils.getInternalName(clazz), AsmUtils.getObjectClassDescriptor(clazz), Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN)
+  constructor(clazz: String): this(Object.realClassOrObject, clazz, AsmUtils.getInternalName(clazz), AsmUtils.getObjectClassDescriptor(clazz), Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN, emptyList())
   companion object {
 
     val Object = JavaType(Object::class.java)
@@ -90,7 +91,7 @@ class JavaPrimitiveType(
                         val addCode: Int,
                         val subCode: Int,
                         val mulCode: Int,
-                        val divCode: Int): JavaType(realClassOrObject, className, internalName, descriptor, storeCode, loadCode, returnCode) {
+                        val divCode: Int): JavaType(realClassOrObject, className, internalName, descriptor, storeCode, loadCode, returnCode, emptyList()) {
   override val primitive = true
   internal constructor(clazz: Class<*>,
               loadCode: Int,

@@ -198,8 +198,12 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val token = next()
     return when (token.type) {
       TokenType.TYPE_INT, TokenType.TYPE_LONG,
-      TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL  -> variableDeclaration(scope,
-          JavaType.TOKEN_TYPE_MAP.getValue(token.type))
+      TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL  -> {
+        val identifier = accept(TokenType.IDENTIFIER)
+        accept(TokenType.ASSIGNMENT)
+        acceptOptional(TokenType.SEMI_COLON)
+        VariableDeclarationNode(scope, JavaType.TOKEN_TYPE_MAP.getValue(token.type), identifier.value, expression(scope))
+      }
       TokenType.RETURN -> {
         val expression = if (current.type == TokenType.SEMI_COLON) VoidExpression() else expression(scope)
         if (scope !is MethodScope) {
@@ -273,9 +277,16 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         BreakLoopNode(scope)
       }
       else -> {
-        if (token.type == TokenType.IDENTIFIER && current.type == TokenType.IDENTIFIER) {
-          val className = scope.resolveClassName(token.value)
-          return variableDeclaration(scope, JavaType(className))
+        if (token.type == TokenType.IDENTIFIER && current.type == TokenType.IDENTIFIER
+            // generic type
+            || token.type == TokenType.IDENTIFIER && current.type == TokenType.LT) {
+          rollback()
+          val type = parseType(scope)
+          val variableName = accept(TokenType.IDENTIFIER).value
+          accept(TokenType.ASSIGNMENT)
+          val v = VariableDeclarationNode(scope, type, variableName, expression(scope))
+          acceptOptional(TokenType.SEMI_COLON)
+          return v
         }
         rollback()
         val node = expression(scope)
@@ -283,14 +294,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         ExpressionStatementNode(node)
       }
     }
-  }
-
-  // assuming type has already been accepted
-  private fun variableDeclaration(scope: Scope, type: JavaType): VariableDeclarationNode {
-    val identifier = accept(TokenType.IDENTIFIER)
-    accept(TokenType.ASSIGNMENT)
-    acceptOptional(TokenType.SEMI_COLON)
-    return VariableDeclarationNode(scope, type, identifier.value, expression(scope))
   }
 
   fun expression(scope: Scope): ExpressionNode {
