@@ -1,0 +1,11 @@
+import java.lang.*
+
+int a = 0
+int sum = 0
+
+while (true) {
+  sum = sum + a++
+  if (a == 5) break
+}
+
+new Integer(sum)

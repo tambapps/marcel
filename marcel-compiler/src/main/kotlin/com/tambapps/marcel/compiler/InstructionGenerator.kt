@@ -31,6 +31,8 @@ import com.tambapps.marcel.parser.ast.expression.UnaryPlus
 import com.tambapps.marcel.parser.ast.expression.VariableAssignmentNode
 import com.tambapps.marcel.parser.ast.expression.VariableReferenceExpression
 import com.tambapps.marcel.parser.ast.expression.VoidExpression
+import com.tambapps.marcel.parser.ast.statement.BreakLoopNode
+import com.tambapps.marcel.parser.ast.statement.ContinueLoopNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
@@ -203,7 +205,13 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
     mv.visitJumpInsn(Opcodes.IFEQ, loopEnd)
 
     // loop body
-    whileStatement.body.accept(this)
+    val body = whileStatement.body
+    if (body is ExpressionStatementNode && body.expression is BlockNode && (body.expression as BlockNode).scope is InnerScope) {
+      val scope = (body.expression as BlockNode).scope as InnerScope
+      scope.continueLabel = loopStart
+      scope.breakLabel = loopEnd
+    }
+    body.accept(this)
 
     // Return to the beginning of the loop
     mv.visitJumpInsn(Opcodes.GOTO, loopStart)
@@ -225,15 +233,34 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
     mv.visitJumpInsn(Opcodes.IFEQ, loopEnd)
 
     // loop body
-    forStatement.statement.accept(this)
+    val incrementLabel = Label()
+    val body = forStatement.statement // TODO rename this property body
+    if (body is ExpressionStatementNode && body.expression is BlockNode && (body.expression as BlockNode).scope is InnerScope) {
+      val scope = (body.expression as BlockNode).scope as InnerScope
+      scope.continueLabel = incrementLabel
+      scope.breakLabel = loopEnd
+    }
+    body.accept(this)
 
     // iteration
+    mv.visitLabel(incrementLabel)
     forStatement.iteratorStatement.accept(this)
     mv.visitJumpInsn(Opcodes.GOTO, loopStart)
 
     // loop end
     mv.visitLabel(loopEnd)
   }
+
+  override fun visit(breakLoopNode: BreakLoopNode) {
+    val label = breakLoopNode.scope.breakLabel ?: throw SemanticException("Cannot use break statement outside of a loop")
+    mv.visitJumpInsn(Opcodes.GOTO, label)
+  }
+
+  override fun visit(continueLoopNode: ContinueLoopNode) {
+    val label = continueLoopNode.scope.continueLabel ?: throw SemanticException("Cannot use break statement outside of a loop")
+    mv.visitJumpInsn(Opcodes.GOTO, label)
+  }
+
   override fun visit(ifStatementNode: IfStatementNode) {
     ifStatementNode.condition.accept(pushingInstructionGenerator)
     val endLabel = Label()
@@ -406,6 +433,13 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor): IInst
     mv.visitLdcInsn(stringConstantNode.value)
   }
 
+  override fun visit(breakLoopNode: BreakLoopNode) {
+    instructionGenerator.visit(breakLoopNode)
+  }
+
+  override fun visit(continueLoopNode: ContinueLoopNode) {
+    instructionGenerator.visit(continueLoopNode)
+  }
   override fun visit(booleanExpression: BooleanExpressionNode) {
     if (booleanExpression.innerExpression.type == JavaType.boolean) {
       booleanExpression.innerExpression.accept(this)

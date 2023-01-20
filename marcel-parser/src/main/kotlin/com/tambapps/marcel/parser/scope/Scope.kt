@@ -10,6 +10,7 @@ import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaConstructor
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
+import org.objectweb.asm.Label
 
 open class Scope constructor(val imports: List<ImportNode>, val className: String, val superClassInternalName: String, val classMethods: List<JavaMethod>) {
   constructor(): this(emptyList(), "Test", JavaType.OBJECT.internalName, emptyList())
@@ -105,6 +106,16 @@ class InnerScope constructor(private val parentScope: MethodScope)
     get() = parentScope.localVariables
 
   private val innerScopeLocalVariables = mutableListOf<String>()
+
+  var continueLabel: Label? = null
+    get() = if (field != null) field
+      else if (parentScope is InnerScope) parentScope.continueLabel
+      else null
+
+  var breakLabel: Label? = null
+    get() = if (field != null) field
+    else if (parentScope is InnerScope) parentScope.breakLabel
+    else null
 
   override fun addLocalVariable(type: JavaType, name: String): LocalVariable {
     val variable = super.addLocalVariable(type, name)

@@ -1,6 +1,8 @@
 package com.tambapps.marcel.parser.ast
 
 import com.tambapps.marcel.parser.ast.expression.*
+import com.tambapps.marcel.parser.ast.statement.BreakLoopNode
+import com.tambapps.marcel.parser.ast.statement.ContinueLoopNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
@@ -42,4 +44,6 @@ interface AstNodeVisitor {
   fun visit(booleanExpression: BooleanExpressionNode)
   fun visit(nullValueNode: NullValueNode)
   fun visit(incrNode: IncrNode)
+  fun visit(breakLoopNode: BreakLoopNode)
+  fun visit(continueLoopNode: ContinueLoopNode)
 }

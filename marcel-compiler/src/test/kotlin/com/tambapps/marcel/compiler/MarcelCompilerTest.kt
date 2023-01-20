@@ -52,6 +52,18 @@ class MarcelCompilerTest {
   }
 
   @Test
+  fun testBreakLoop() {
+    val eval = eval("/test_break.marcel")
+    assertEquals(10, eval)
+  }
+
+  @Test
+  fun testContinueLoop() {
+    val eval = eval("/test_continue.marcel")
+    assertEquals(1 + 2 + 4, eval)
+  }
+
+  @Test
   fun testScope() {
     val eval = eval("/test_scope.marcel")
     assertEquals(true, eval)

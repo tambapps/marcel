@@ -5,6 +5,8 @@ import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
+import com.tambapps.marcel.parser.ast.statement.BreakLoopNode
+import com.tambapps.marcel.parser.ast.statement.ContinueLoopNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
@@ -201,6 +203,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         if (scope !is MethodScope) {
           throw MarcelParsingException("Cannot have a return instruction outside of a function")
         }
+        acceptOptional(TokenType.SEMI_COLON)
         ReturnNode(scope, expression)
       }
       TokenType.BRACKETS_OPEN -> {
@@ -255,6 +258,18 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         val forStatement = statement(scope)
         ForStatement(initStatement, condition, iteratorStatement, forStatement)
       }
+      TokenType.CONTINUE -> {
+        if (scope !is InnerScope) {
+          throw MarcelParsingException("Cannot have a continue outside of an inner block")
+        }
+        ContinueLoopNode(scope)
+      }
+      TokenType.BREAK -> {
+        if (scope !is InnerScope) {
+          throw MarcelParsingException("Cannot have a continue outside of an inner block")
+        }
+        BreakLoopNode(scope)
+      }
       else -> {
         if (token.type == TokenType.IDENTIFIER && current.type == TokenType.IDENTIFIER) {
           val className = scope.resolveClassName(token.value)
@@ -272,6 +287,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   private fun variableDeclaration(scope: Scope, type: JavaType): VariableDeclarationNode {
     val identifier = accept(TokenType.IDENTIFIER)
     accept(TokenType.ASSIGNMENT)
+    acceptOptional(TokenType.SEMI_COLON)
     return VariableDeclarationNode(scope, type, identifier.value, expression(scope))
   }
 
