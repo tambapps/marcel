@@ -38,6 +38,7 @@ interface AstNodeVisitor {
   fun visit(accessOperator: AccessOperator)
   fun visit(booleanConstantNode: BooleanConstantNode)
   fun visit(comparisonOperator: ComparisonOperatorNode)
+  fun visit(notNode: NotNode)
   fun visit(ifStatementNode: IfStatementNode)
   fun visit(forStatement: ForStatement)
   fun visit(whileStatement: WhileStatement)

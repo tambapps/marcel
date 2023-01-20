@@ -28,6 +28,7 @@ open class JavaType(
 
     val OBJECT = JavaType(Object::class.java)
     val STRING = JavaType(String::class.java)
+    val Boolean = JavaType(Class.forName("java.lang.Boolean"))
 
 
     val void = JavaPrimitiveType(PrimitiveTypes.VOID, Opcodes.ALOAD, Opcodes.ASTORE, Opcodes.RETURN, 0,0,0,0)

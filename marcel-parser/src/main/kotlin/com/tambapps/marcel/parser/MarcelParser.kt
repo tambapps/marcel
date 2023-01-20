@@ -333,6 +333,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         StringNode(parts)
       }
       TokenType.NULL -> NullValueNode()
+      TokenType.NOT -> NotNode(expression(scope))
       TokenType.NEW -> {
         val classSimpleName = accept(TokenType.IDENTIFIER).value
         val className = scope.resolveClassName(classSimpleName)

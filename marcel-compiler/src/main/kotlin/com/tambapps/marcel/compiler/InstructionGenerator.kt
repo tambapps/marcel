@@ -17,6 +17,7 @@ import com.tambapps.marcel.parser.ast.expression.IncrNode
 import com.tambapps.marcel.parser.ast.expression.IntConstantNode
 import com.tambapps.marcel.parser.ast.expression.MinusOperator
 import com.tambapps.marcel.parser.ast.expression.MulOperator
+import com.tambapps.marcel.parser.ast.expression.NotNode
 import com.tambapps.marcel.parser.ast.expression.NullValueNode
 import com.tambapps.marcel.parser.ast.expression.PlusOperator
 import com.tambapps.marcel.parser.ast.expression.PowOperator
@@ -386,6 +387,11 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
     super.visit(comparisonOperatorNode)
     drop2()
   }
+
+  override fun visit(notNode: NotNode) {
+    notNode.operand.accept(this)
+  }
+
   override fun visit(expressionStatementNode: ExpressionStatementNode) {
     expressionStatementNode.expression.accept(this)
   }
@@ -424,6 +430,27 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor): IInst
     instructionGenerator.visit(forStatement)
   }
 
+  override fun visit(notNode: NotNode) {
+    when (notNode.operand.type) {
+      JavaType.Boolean -> {
+        TODO("Doesn't handle Boolean negation for now")
+      }
+      JavaType.boolean -> {
+        notNode.operand.accept(this)
+        val endLabel = Label()
+        val trueLabel = Label()
+        mv.visitJumpInsn(Opcodes.IFEQ, trueLabel)
+        mv.visitInsn(Opcodes.ICONST_0)
+        mv.visitJumpInsn(Opcodes.GOTO, endLabel)
+        mv.visitLabel(trueLabel)
+        mv.visitInsn(Opcodes.ICONST_1)
+        mv.visitLabel(endLabel)
+      }
+      else -> {
+        throw SemanticException("Cannot negate something other than a boolean")
+      }
+    }
+  }
   override fun visit(whileStatement: WhileStatement) {
     instructionGenerator.visit(whileStatement)
   }
