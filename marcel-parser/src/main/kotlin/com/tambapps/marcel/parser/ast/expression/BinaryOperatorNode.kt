@@ -116,4 +116,3 @@ class ComparisonOperatorNode(tokenType: TokenType, leftOperand: ExpressionNode, 
     return "$leftOperand $operator $rightOperand"
   }
 }
-// TODO do all booleans operator

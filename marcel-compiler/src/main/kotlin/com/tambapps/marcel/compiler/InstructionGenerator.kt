@@ -59,16 +59,17 @@ private interface IInstructionGenerator: AstNodeVisitor {
 
   //TODO don't forget to push or not these TODOs() once done, based on the IUnpushedExpressionGenerator implementation
   override fun visit(unaryMinus: UnaryMinus) {
-    TODO("Not yet implemented")
+   visit(MinusOperator(IntConstantNode(0), unaryMinus.operand))
   }
 
   override fun visit(unaryPlus: UnaryPlus) {
-    TODO("Not yet implemented")
+    unaryPlus.operand.accept(this)
   }
 
   override fun visit(operator: TernaryNode) {
     TODO("Not yet implemented")
   }
+
 
   override fun visit(fCall: ConstructorCallNode) {
     if (fCall.type.primitive) {
