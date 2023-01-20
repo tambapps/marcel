@@ -19,6 +19,7 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
   companion object {
     val DEFAULT_IMPORTS = listOf(
       WildcardImportNode("java.lang"),
+      WildcardImportNode("java.util"),
       WildcardImportNode("marcel.lang"),
     )
   }
