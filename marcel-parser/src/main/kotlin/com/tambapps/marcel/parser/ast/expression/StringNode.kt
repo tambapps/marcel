@@ -5,7 +5,7 @@ import com.tambapps.marcel.parser.type.JavaType
 
 class StringNode(val parts: List<ExpressionNode>): ExpressionNode {
 
-  override val type = JavaType.STRING
+  override val type = JavaType.String
 
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)

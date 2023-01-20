@@ -3,7 +3,6 @@ package com.tambapps.marcel.parser.scope
 import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ImportNode
-import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.TypedNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.type.JavaMethod
@@ -13,7 +12,7 @@ import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import org.objectweb.asm.Label
 
 open class Scope constructor(val imports: List<ImportNode>, val className: String, val superClassInternalName: String, val classMethods: List<JavaMethod>) {
-  constructor(): this(emptyList(), "Test", JavaType.OBJECT.internalName, emptyList())
+  constructor(): this(emptyList(), "Test", JavaType.Object.internalName, emptyList())
 
   constructor(className: String, imports: List<ImportNode>, classNode: ClassNode): this(imports, className, classNode.parentType.internalName, classNode.methods)
 

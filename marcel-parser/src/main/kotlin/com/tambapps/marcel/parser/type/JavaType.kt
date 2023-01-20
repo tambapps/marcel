@@ -23,11 +23,11 @@ open class JavaType(
   Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN)
 
   // constructors for class defined in a script
-  constructor(clazz: String): this(OBJECT.realClassOrObject, clazz, AsmUtils.getInternalName(clazz), AsmUtils.getObjectClassDescriptor(clazz), Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN)
+  constructor(clazz: String): this(Object.realClassOrObject, clazz, AsmUtils.getInternalName(clazz), AsmUtils.getObjectClassDescriptor(clazz), Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN)
   companion object {
 
-    val OBJECT = JavaType(Object::class.java)
-    val STRING = JavaType(String::class.java)
+    val Object = JavaType(Object::class.java)
+    val String = JavaType(String::class.java)
     val Boolean = JavaType(Class.forName("java.lang.Boolean"))
 
 
@@ -50,7 +50,7 @@ open class JavaType(
   }
 
   fun isAssignableFrom(javaType: JavaType): Boolean {
-    if (this == javaType || this == OBJECT
+    if (this == javaType || this == Object
       // to handle null values that can be cast to anything
       || !primitive && javaType == void) {
       return true

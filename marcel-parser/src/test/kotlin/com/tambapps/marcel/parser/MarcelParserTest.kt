@@ -9,7 +9,6 @@ import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.WildcardImportNode
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
-import com.tambapps.marcel.parser.owner.StaticOwner
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaType
@@ -20,7 +19,7 @@ import org.objectweb.asm.Opcodes
 class MarcelParserTest {
 
     private val lexer = MarcelLexer()
-    private val scope = MethodScope(emptyList(), "Test", JavaType.OBJECT.internalName, emptyList(), "test", emptyList(), JavaType.void)
+    private val scope = MethodScope(emptyList(), "Test", JavaType.Object.internalName, emptyList(), "test", emptyList(), JavaType.void)
 
     @Test
     fun testExpression() {
@@ -54,16 +53,16 @@ class MarcelParserTest {
     fun testFunction() {
         val parser = parser("fun foo(int a, String b) int { return 1 }")
         val imports = listOf<ImportNode>(WildcardImportNode("java.lang"))
-        val classScope = Scope(imports, "Test", JavaType.OBJECT.internalName, emptyList())
-        val expected = MethodNode(Opcodes.ACC_PUBLIC, JavaType.OBJECT, "foo",
+        val classScope = Scope(imports, "Test", JavaType.Object.internalName, emptyList())
+        val expected = MethodNode(Opcodes.ACC_PUBLIC, JavaType.Object, "foo",
             FunctionBlockNode(scope, listOf(
                 ReturnNode(scope, IntConstantNode(1))
             )), mutableListOf(MethodParameter(JavaType.int, "a"),
-            MethodParameter(JavaType.STRING, "b")), JavaType.int, MethodScope(classScope, "foo",
+            MethodParameter(JavaType.String, "b")), JavaType.int, MethodScope(classScope, "foo",
                 listOf(MethodParameter(JavaType.int, "a"), MethodParameter(JavaType.int, "b")), JavaType.int)
             )
 
-        val actual = parser.method(classScope, ClassNode(Opcodes.ACC_PUBLIC, JavaType("Test"), JavaType.OBJECT, mutableListOf()))
+        val actual = parser.method(classScope, ClassNode(Opcodes.ACC_PUBLIC, JavaType("Test"), JavaType.Object, mutableListOf()))
         // verifying method signature
         assertEquals(expected.toString(), actual.toString())
 

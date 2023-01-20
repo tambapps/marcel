@@ -8,5 +8,5 @@ class ToStringNode(val expressionNode: ExpressionNode): ExpressionNode {
     astNodeVisitor.visit(this)
   }
 
-  override val type = JavaType.STRING
+  override val type = JavaType.String
 }

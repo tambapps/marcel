@@ -18,7 +18,7 @@ class MarcelCompilerTest {
   fun testScript() {
     val eval = eval("/test1.marcel")!!
     assertNotNull(eval)
-    assertEquals(JavaType.OBJECT.realClassOrObject, eval.javaClass)
+    assertEquals(JavaType.Object.realClassOrObject, eval.javaClass)
   }
 
   @Test

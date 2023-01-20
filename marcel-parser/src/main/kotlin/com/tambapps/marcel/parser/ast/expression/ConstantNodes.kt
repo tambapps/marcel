@@ -16,7 +16,7 @@ data class IntConstantNode(val value: Int): ExpressionNode {
 }
 
 data class StringConstantNode(val value: String): ExpressionNode {
-  override val type = JavaType.STRING
+  override val type = JavaType.String
 
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)

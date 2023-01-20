@@ -480,7 +480,7 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor): IInst
   override fun visit(toStringNode: ToStringNode) {
     val expr = toStringNode.expressionNode
     // TODO call Object.toString() method for non primitive type
-    if (expr.type == JavaType.STRING) {
+    if (expr.type == JavaType.String) {
       expr.accept(this)
     } else {
       val argumentClass = expr.type.realClassOrObject
@@ -507,7 +507,7 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor): IInst
       pushArgument(part)
       mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "append", AsmUtils.getDescriptor(method), false)
     }
-    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", AsmUtils.getDescriptor(emptyList(), JavaType.STRING), false)
+    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", AsmUtils.getDescriptor(emptyList(), JavaType.String), false)
   }
 
   override fun visit(integer: IntConstantNode) {
