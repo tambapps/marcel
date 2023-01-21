@@ -1,4 +1,4 @@
-
+import static org.junit.jupiter.api.Assertions.assertEquals
 int i = 0
 int sum = 0
 
@@ -8,4 +8,4 @@ while (i < 10) {
   i = i + 1
 }
 
-new Integer(sum)
+assertEquals(45, sum)

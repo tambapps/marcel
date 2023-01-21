@@ -112,10 +112,14 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
 
   private fun import(): ImportNode {
     accept(TokenType.IMPORT)
+    val staticImport = acceptOptional(TokenType.STATIC) != null
     val classParts = mutableListOf(accept(TokenType.IDENTIFIER).value)
     while (current.type == TokenType.DOT) {
       skip()
       if (current.type == TokenType.MUL) {
+        if (staticImport) {
+          throw MarcelParsingException("Invalid static import")
+        }
         skip()
         acceptOptional(TokenType.SEMI_COLON)
         return WildcardImportNode(classParts.joinToString(separator = "."))
@@ -125,9 +129,16 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     if (classParts.size <= 1) {
       throw MarcelParsingException("Invalid class full name" + classParts.joinToString(separator = "."))
     }
-    val asName = if (acceptOptional(TokenType.AS) != null) accept(TokenType.IDENTIFIER).value else null
+    val node = if (staticImport) {
+      val className = classParts.subList(0, classParts.size - 1).joinToString(separator = ".")
+      val method = classParts.last()
+      StaticImportNode(className, method)
+    } else {
+      val asName = if (acceptOptional(TokenType.AS) != null) accept(TokenType.IDENTIFIER).value else null
+      SimpleImportNode(classParts.joinToString(separator = "."), asName)
+    }
     acceptOptional(TokenType.SEMI_COLON)
-    return SimpleImportNode(classParts.joinToString(separator = "."), asName)
+    return node
   }
 
   internal fun method(classScope: Scope, classNode: ClassNode): MethodNode {

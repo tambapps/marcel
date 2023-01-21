@@ -1,10 +1,17 @@
 package com.tambapps.marcel.parser.ast
+
+import com.tambapps.marcel.parser.type.JavaMethod
+import com.tambapps.marcel.parser.type.ReflectJavaMethod
+
 interface ImportNode: AstNode {
-  fun resolve(classSimpleName: String): String?
+  fun resolveClassName(classSimpleName: String): String?
+  fun resolveMethod(methodName: String, argumentTypes: List<TypedNode>): JavaMethod? {
+    return null
+  }
 
   }
 class SimpleImportNode(private val value: String, private val asName: String? = null): ImportNode {
-  override fun resolve(classSimpleName: String): String? {
+  override fun resolveClassName(classSimpleName: String): String? {
     return if (asName != null) {
       if (classSimpleName == asName) value
       else null
@@ -37,9 +44,21 @@ class SimpleImportNode(private val value: String, private val asName: String? = 
   }
 }
 
+class StaticImportNode(private val className: String, private val methodName: String): ImportNode {
+  override fun resolveClassName(classSimpleName: String): String? {
+    return null
+  }
+
+  override fun resolveMethod(methodName: String, argumentTypes: List<TypedNode>): JavaMethod? {
+    val candidates = Class.forName(className).declaredMethods.filter { it.name == methodName }
+      .map { ReflectJavaMethod(it) }
+    return candidates.find { it.matches(methodName, argumentTypes) }
+  }
+}
+
 class WildcardImportNode(private val prefix: String): ImportNode {
 
-  override fun resolve(classSimpleName: String): String? {
+  override fun resolveClassName(classSimpleName: String): String? {
     return try {
       Class.forName("$prefix.$classSimpleName").name
     } catch (e: ClassNotFoundException) {

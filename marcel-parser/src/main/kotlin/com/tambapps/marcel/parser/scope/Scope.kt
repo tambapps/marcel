@@ -63,7 +63,10 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
   }
 
   fun getMethod(name: String, argumentTypes: List<TypedNode>): JavaMethod {
-    return classMethods.find { it.matches(name, argumentTypes) } ?: throw SemanticException("Method $name is not defined")
+    return (classMethods.find { it.matches(name, argumentTypes) }
+      // fallback on static imported method
+      ?: imports.asSequence().mapNotNull { it.resolveMethod(name, argumentTypes) }.firstOrNull())
+      ?: throw SemanticException("Method $name is not defined")
   }
   fun getLocalVariableWithIndex(name: String): Pair<LocalVariable, Int> {
     val variable = getLocalVariable(name)
@@ -79,7 +82,7 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
   }
 
   fun resolveClassName(classSimpleName: String): String {
-    val matchedClasses = imports.mapNotNull { it.resolve(classSimpleName) }.toSet()
+    val matchedClasses = imports.mapNotNull { it.resolveClassName(classSimpleName) }.toSet()
     if (matchedClasses.isEmpty()) {
       return classSimpleName
     } else if (matchedClasses.size == 1) {
