@@ -44,7 +44,6 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
   }
 
   fun invokeMethod(method: JavaMethod) {
-    // TODO when handling interfaces, might need to pass true sometimes
     mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, method.name, method.descriptor, !method.isStatic && method.ownerClass.isInterface)
   }
 
