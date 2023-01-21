@@ -1,10 +1,11 @@
 package com.tambapps.marcel.parser.ast.statement
 
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.ast.expression.VoidExpression
 import com.tambapps.marcel.parser.scope.InnerScope
 
-class BreakLoopNode(val scope: InnerScope): StatementNode {
+class BreakLoopNode(override val scope: InnerScope): StatementNode, ScopedNode<InnerScope> {
 
   override val expression = VoidExpression()
   override fun accept(mv: AstNodeVisitor) {

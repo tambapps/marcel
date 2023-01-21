@@ -1,6 +1,7 @@
 package com.tambapps.marcel.parser.ast.statement
 
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.ast.expression.BlockNode
 import com.tambapps.marcel.parser.ast.expression.BooleanExpressionNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
@@ -8,8 +9,9 @@ import com.tambapps.marcel.parser.ast.expression.VoidExpression
 import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.type.JavaType
 
-abstract class AbstractForStatement(val body: BlockNode): StatementNode {
-  val scope: InnerScope
+abstract class AbstractForStatement(val body: BlockNode): StatementNode, ScopedNode<InnerScope> {
+
+  override val scope: InnerScope
     get() = body.scope as? InnerScope ?: throw RuntimeException("Compiler design error")
 
 }

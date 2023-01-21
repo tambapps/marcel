@@ -3,10 +3,11 @@ package com.tambapps.marcel.parser.ast.expression
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.scope.MethodScope
 
 
-open class BlockNode(val scope: MethodScope, val statements: List<StatementNode>) : ExpressionNode {
+open class BlockNode(override val scope: MethodScope, val statements: List<StatementNode>) : ExpressionNode, ScopedNode<MethodScope> {
 
   // it is important it is a getter, because statements could be modified after this object being constructed
   override val type

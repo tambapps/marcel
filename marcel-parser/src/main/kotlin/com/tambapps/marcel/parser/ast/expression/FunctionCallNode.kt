@@ -2,12 +2,13 @@ package com.tambapps.marcel.parser.ast.expression
 
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.ast.TypedNode
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 
-open class FunctionCallNode(val scope: Scope, val name: String, val arguments: MutableList<ExpressionNode>): ExpressionNode {
+open class FunctionCallNode(override val scope: Scope, val name: String, val arguments: MutableList<ExpressionNode>): ExpressionNode, ScopedNode<Scope> {
 
   constructor(scope: Scope, name: String, arguments: MutableList<ExpressionNode>, methodOwnerType: TypedNode): this(scope, name, arguments) {
     this.methodOwnerType = methodOwnerType

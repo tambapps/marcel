@@ -2,6 +2,7 @@ package com.tambapps.marcel.compiler
 
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.ast.expression.AccessOperator
 import com.tambapps.marcel.parser.ast.expression.BinaryOperatorNode
 import com.tambapps.marcel.parser.ast.expression.BlockNode
@@ -230,6 +231,10 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
 
     // loop end
     mv.visitLabel(loopEnd)
+    if (forStatement.initStatement is VariableDeclarationNode) {
+      val initStatementScope = (forStatement.initStatement as VariableDeclarationNode).scope as? InnerScope
+      initStatementScope?.clearInnerScopeLocalVariables()
+    }
   }
 
   override fun visit(forInStatement: ForInStatement) {
