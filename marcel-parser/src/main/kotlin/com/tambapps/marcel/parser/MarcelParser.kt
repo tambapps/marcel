@@ -24,6 +24,7 @@ import marcel.lang.Binding
 import marcel.lang.Script
 
 import org.objectweb.asm.Opcodes
+import java.lang.NumberFormatException
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.abs
 
@@ -375,7 +376,12 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
        return if (current.type == TokenType.LT || current.type == TokenType.GT || current.type == TokenType.TWO_DOTS) {
          rangeNode(scope, IntConstantNode(token.value.toInt()))
         } else {
-          IntConstantNode(token.value.toInt())
+          val value = try {
+            token.value.toInt()
+          } catch (e: NumberFormatException) {
+            throw MarcelParsingException(e)
+          }
+          IntConstantNode(value)
         }
       }
       TokenType.VALUE_TRUE -> BooleanConstantNode(true)
