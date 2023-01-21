@@ -137,6 +137,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     mv.visitVarInsn(variable.type.loadCode, index)
   }
 
+  // TODO rename this function castIfNecessary and use it propery for variablrAssignement
   // must push expression before calling this method
   fun visitVariableAssignment(variableAssignmentNode: VariableAssignmentNode) {
     val (variable, index) = variableAssignmentNode.scope.getLocalVariableWithIndex(variableAssignmentNode.name)
@@ -151,12 +152,45 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
           throw SemanticException("Cannot cast primitive $expressionType to primitive $variableType")
         }
       } else if (!variableType.primitive && !expressionType.primitive) {
-        // both Object classses
+        // both Object classes
+        // TODO may need to cast sometimes
         if (!variable.type.isAssignableFrom(variableAssignmentNode.expression.type)) {
           throw SemanticException("Incompatible types. Variable is of type ${variable.type} but gave an expression of type ${variableAssignmentNode.expression.type}")
         }
       } else {
-        TODO("Doesn't handle primitive to Object and vice versa yet")
+        if (variableType.primitive) {
+          // cast Object to primitive
+          when (variableType) {
+            JavaType.int -> {
+              if (variableType == JavaType.Integer) {
+                throw SemanticException("Cannot cast $variableType to int")
+              }
+              invokeMethod(Class.forName(JavaType.Integer.className).getMethod("intValue"))
+            }
+            JavaType.long -> {
+              if (variableType == JavaType.Long) {
+                throw SemanticException("Cannot cast $variableType to float")
+              }
+              invokeMethod(Class.forName(JavaType.Long.className).getMethod("longValue"))
+            }
+            JavaType.float -> {
+              if (variableType == JavaType.Float) {
+                throw SemanticException("Cannot cast $variableType to float")
+              }
+              invokeMethod(Class.forName(JavaType.Float.className).getMethod("floatValue"))
+            }
+            JavaType.double -> {
+              if (variableType == JavaType.Double) {
+                throw SemanticException("Cannot cast $variableType to float")
+              }
+              invokeMethod(Class.forName(JavaType.Double.className).getMethod("doubleValue"))
+            }
+            else -> throw SemanticException("Doesn't handle conversion from $expressionType to $variableType")
+          }
+        } else {
+          // cast primitive to Object
+          TODO("Doesn't handle primitive to Object and vice versa yet")
+        }
       }
     }
     mv.visitVarInsn(variable.type.storeCode, index)

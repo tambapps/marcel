@@ -1,0 +1,6 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+
+float f = 2f
+float f2 = new Float(2f)
+assertEquals(f, f2)

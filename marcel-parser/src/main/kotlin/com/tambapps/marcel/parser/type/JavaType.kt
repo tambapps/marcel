@@ -41,6 +41,10 @@ open class JavaType(
     val Object = JavaType(Object::class.java)
     val String = JavaType(String::class.java)
     val Boolean = JavaType(Class.forName("java.lang.Boolean"))
+    val Integer = JavaType(Class.forName("java.lang.Integer"))
+    val Long = JavaType(Class.forName("java.lang.Long"))
+    val Float = JavaType(Class.forName("java.lang.Float"))
+    val Double = JavaType(Class.forName("java.lang.Double"))
 
 
     val void = JavaPrimitiveType(PrimitiveTypes.VOID, Opcodes.ALOAD, Opcodes.ASTORE, Opcodes.RETURN, 0,0,0,0)
