@@ -21,6 +21,8 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
       WildcardImportNode("java.lang"),
       WildcardImportNode("java.util"),
       WildcardImportNode("marcel.lang"),
+      WildcardImportNode("marcel.lang"),
+      WildcardImportNode("it.unimi.dsi.fastutil.ints"),
     )
   }
 

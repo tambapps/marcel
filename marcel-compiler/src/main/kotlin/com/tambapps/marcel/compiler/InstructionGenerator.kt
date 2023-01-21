@@ -232,7 +232,7 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
 
   override fun visit(forInStatement: ForInStatement) {
     val expression = forInStatement.inExpression
-    if (expression.type != JavaType(IntRange::class.java)) {
+    if (!JavaType(Iterable::class.java).isAssignableFrom(expression.type)) {
       throw SemanticException("Only support for in of ranges for now")
     }
     // initialization
@@ -242,7 +242,11 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
 
     // creating iterator
     val iteratorVarName = "_tempIterator"
-    visit(VariableDeclarationNode(scope, JavaType(IntIterator::class.java), iteratorVarName,
+    val getIteratorMethod = scope.getMethodForType(expression.type, "iterator", emptyList())
+    val methodName = if (JavaType(IntIterator::class.java).isAssignableFrom(getIteratorMethod.returnType)) "nextInt"
+    else if (JavaType(IntIterator::class.java).isAssignableFrom(getIteratorMethod.returnType)) "next"
+    else throw UnsupportedOperationException("wtf")
+    visit(VariableDeclarationNode(scope, getIteratorMethod.returnType, iteratorVarName,
       FunctionCallNode(scope, "iterator", mutableListOf(), expression)))
 
     // loop start
@@ -258,7 +262,7 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
     mv.jumpIfEq(loopEnd)
 
     // loop body
-    visit(VariableAssignmentNode(scope, forInStatement.variableName, FunctionCallNode(scope, "nextInt", mutableListOf(), iteratorVarReference)))
+    visit(VariableAssignmentNode(scope, forInStatement.variableName, FunctionCallNode(scope, methodName, mutableListOf(), iteratorVarReference)))
     loopBody(ExpressionStatementNode(forInStatement.body), loopStart, loopEnd)
     mv.jumpTo(loopStart)
 

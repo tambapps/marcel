@@ -137,7 +137,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
   fun visitVariableAssignment(variableAssignmentNode: VariableAssignmentNode) {
     val (variable, index) = variableAssignmentNode.scope.getLocalVariableWithIndex(variableAssignmentNode.name)
     if (!variable.type.isAssignableFrom(variableAssignmentNode.expression.type)) {
-      throw SemanticException("Incompatible types")
+      throw SemanticException("Incompatible types. Variable is of type ${variable.type} but gave an expression of type ${variableAssignmentNode.expression.type}")
     }
     mv.visitVarInsn(variable.type.storeCode, index)
   }

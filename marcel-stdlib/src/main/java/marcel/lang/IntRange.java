@@ -5,12 +5,13 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntList;
 
-public interface IntRange {
+public interface IntRange extends Iterable<Integer> {
 
   int getFrom();
 
   int getTo();
 
+  @Override
   IntIterator iterator();
 
   boolean isEmpty();
