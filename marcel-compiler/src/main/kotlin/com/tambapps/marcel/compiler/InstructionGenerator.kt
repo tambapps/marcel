@@ -45,23 +45,20 @@ import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.scope.Scope
-import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import marcel.lang.IntRange
 import marcel.lang.IntRanges
 import org.objectweb.asm.Label
-import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
-import java.io.PrintStream
 
 // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.if_icmp_cond
 // https://asm.ow2.io/asm4-guide.pdf
 // https://en.wikipedia.org/wiki/List_of_Java_bytecode_instructions
 private interface IInstructionGenerator: AstNodeVisitor {
 
-  val mv: MethodVisitor
+  val mv: MethodBytecodeVisitor
 
 
   //TODO don't forget to push or not these TODOs() once done, based on the IUnpushedExpressionGenerator implementation
@@ -82,31 +79,17 @@ private interface IInstructionGenerator: AstNodeVisitor {
     if (fCall.type.primitive) {
       throw SemanticException("Cannot instantiate a primitive type")
     }
-    val classInternalName = fCall.type.internalName
-    mv.visitTypeInsn(Opcodes.NEW, classInternalName)
-    mv.visitInsn(Opcodes.DUP)
-    pushFunctionCallArguments(fCall)
-    val constructorMethod = fCall.scope.getMethodForType(fCall.type, JavaMethod.CONSTRUCTOR_NAME, fCall.arguments)
-    mv.visitMethodInsn(Opcodes.INVOKESPECIAL, classInternalName, fCall.name,
-        constructorMethod.descriptor, false)
+    mv.visitConstructorCall(fCall) {
+      pushFunctionCallArguments(fCall)
+    }
   }
 
   override fun visit(fCall: SuperConstructorCallNode) {
-    mv.visitVarInsn(Opcodes.ALOAD, 0)
-    pushFunctionCallArguments(fCall)
-    mv.visitMethodInsn(Opcodes.INVOKESPECIAL, fCall.scope.superClassInternalName, fCall.name,
-      AsmUtils.getDescriptor(fCall.arguments, JavaType.void), false)
+    mv.visitSuperConstructorCall(fCall) {
+      pushFunctionCallArguments(fCall)
+    }
   }
 
-  private fun pushFunctionCallArguments(fCall: FunctionCallNode) {
-    val method = fCall.method
-    if (method.parameters.size != fCall.arguments.size) {
-      throw SemanticException("Tried to call function $method with ${fCall.arguments.size} instead of ${method.parameters.size}")
-    }
-    for (argument in fCall.arguments) {
-      pushArgument(argument)
-    }
-  }
   override fun visit(operator: MulOperator) {
     evaluateOperands(operator)
   }
@@ -151,18 +134,12 @@ private interface IInstructionGenerator: AstNodeVisitor {
 
   override fun visit(fCall: FunctionCallNode) {
     if (fCall.name == "println") { // TODO big hack for println. Maybe just call a static function from Marcel stdlib
-      mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;")
-
-      if (fCall.parameterTypes.size != 1) {
-        throw SemanticException("Invalid call of println")
+      mv.visitPrintlnCall(fCall) {
+        for (argumentNode in fCall.arguments) {
+          // write argument on the stack
+          pushArgument(argumentNode)
+        }
       }
-      val argumentClass = fCall.arguments.first().type.realClassOrObject
-      val method = PrintStream::class.java.getDeclaredMethod("println", if (argumentClass.isPrimitive) argumentClass else Object::class.java)
-      for (argumentNode in fCall.arguments) {
-        // write argument on the stack
-        pushArgument(argumentNode)
-      }
-      mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", AsmUtils.getDescriptor(method), false)
     } else {
       val method = fCall.method
       val methodOwner = fCall.methodOwnerType
@@ -172,17 +149,22 @@ private interface IInstructionGenerator: AstNodeVisitor {
         pushArgument(VariableReferenceExpression(fCall.scope, "this"))
       }
       pushFunctionCallArguments(fCall)
-      mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, fCall.name, method.descriptor, false)
+      mv.invokeMethod(method)
     }
   }
 
+  private fun pushFunctionCallArguments(fCall: FunctionCallNode) {
+    val method = fCall.method
+    if (method.parameters.size != fCall.arguments.size) {
+      throw SemanticException("Tried to call function $method with ${fCall.arguments.size} instead of ${method.parameters.size}")
+    }
+    for (argument in fCall.arguments) {
+      pushArgument(argument)
+    }
+  }
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     pushArgument(variableAssignmentNode.expression)
-    val (variable, index) = variableAssignmentNode.scope.getLocalVariableWithIndex(variableAssignmentNode.name)
-    if (!variable.type.isAssignableFrom(variableAssignmentNode.expression.type)) {
-      throw SemanticException("Incompatible types")
-    }
-    mv.visitVarInsn(variable.type.storeCode, index)
+    mv.visitVariableAssignment(variableAssignmentNode)
   }
 
   override fun visit(voidExpression: VoidExpression) {
@@ -194,7 +176,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
 /**
  * Generates expression bytecode but don't push them to the stack. (Useful for statement expressions)
  */
-class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerator {
+class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstructionGenerator {
 
   private val pushingInstructionGenerator = PushingInstructionGenerator(mv)
 
@@ -210,13 +192,13 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
     // Verifying condition
     whileStatement.condition.accept(pushingInstructionGenerator)
     val loopEnd = Label()
-    mv.visitJumpInsn(Opcodes.IFEQ, loopEnd)
+    mv.jumpIfEq(loopEnd)
 
     // loop body
     loopBody(whileStatement.body, loopStart, loopEnd)
 
     // Return to the beginning of the loop
-    mv.visitJumpInsn(Opcodes.GOTO, loopStart)
+    mv.jumpTo(loopStart)
 
     // loop end
     mv.visitLabel(loopEnd)
@@ -232,7 +214,7 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
     // Verifying condition
     forStatement.endCondition.accept(pushingInstructionGenerator)
     val loopEnd = Label()
-    mv.visitJumpInsn(Opcodes.IFEQ, loopEnd)
+    mv.jumpIfEq(loopEnd)
 
     // loop body
     val incrementLabel = Label()
@@ -241,7 +223,7 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
     // iteration
     mv.visitLabel(incrementLabel)
     forStatement.iteratorStatement.accept(this)
-    mv.visitJumpInsn(Opcodes.GOTO, loopStart)
+    mv.jumpTo(loopStart)
 
     // loop end
     mv.visitLabel(loopEnd)
@@ -273,27 +255,27 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
   }
   override fun visit(breakLoopNode: BreakLoopNode) {
     val label = breakLoopNode.scope.breakLabel ?: throw SemanticException("Cannot use break statement outside of a loop")
-    mv.visitJumpInsn(Opcodes.GOTO, label)
+    mv.jumpTo(label)
   }
 
   override fun visit(continueLoopNode: ContinueLoopNode) {
     val label = continueLoopNode.scope.continueLabel ?: throw SemanticException("Cannot use break statement outside of a loop")
-    mv.visitJumpInsn(Opcodes.GOTO, label)
+    mv.jumpTo(label)
   }
 
   override fun visit(ifStatementNode: IfStatementNode) {
     ifStatementNode.condition.accept(pushingInstructionGenerator)
     val endLabel = Label()
     if (ifStatementNode.falseStatementNode == null) {
-      mv.visitJumpInsn(Opcodes.IFEQ, endLabel)
+      mv.jumpIfEq(endLabel)
       ifStatementNode.trueStatementNode.accept(this)
       mv.visitLabel(endLabel)
     } else {
       val falseStatementNode = ifStatementNode.falseStatementNode!!
       val falseLabel = Label()
-      mv.visitJumpInsn(Opcodes.IFEQ, falseLabel)
+      mv.jumpIfEq(falseLabel)
       ifStatementNode.trueStatementNode.accept(this)
-      mv.visitJumpInsn(Opcodes.GOTO, endLabel)
+      mv.jumpTo(endLabel)
       mv.visitLabel(falseLabel)
       falseStatementNode.accept(this)
       mv.visitLabel(endLabel)
@@ -312,12 +294,12 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
 
   override fun visit(fCall: ConstructorCallNode) {
     super.visit(fCall)
-    mv.visitInsn(Opcodes.POP) // don't really know if it's necessary
+    mv.popStack() // don't really know if it's necessary
   }
   override fun visit(fCall: FunctionCallNode) {
     super.visit(fCall)
     if (fCall.type != JavaType.void) {
-      mv.visitInsn(Opcodes.POP) // don't really know if it's necessary
+      mv.popStack() // don't really know if it's necessary
     }
   }
   override fun visit(toStringNode: ToStringNode) {
@@ -331,7 +313,7 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
 
   override fun visit(rangeNode: RangeNode) {
     pushingInstructionGenerator.visit(rangeNode)
-    mv.visitInsn(Opcodes.POP)
+    mv.popStack()
   }
 
   override fun visit(booleanExpression: BooleanExpressionNode) {
@@ -340,7 +322,7 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
 
   override fun visit(incrNode: IncrNode) {
     if (incrNode.variableReference.type == JavaType.int) {
-      mv.visitIincInsn(incrNode.variableReference.index, incrNode.amount)
+      mv.incr(incrNode)
     } else {
       TODO("Don't support other types than int for increment")
     }
@@ -365,7 +347,7 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
     val lastStatement = blockNode.statements.lastOrNull() ?: ExpressionStatementNode(VoidExpression())
     if (blockNode.scope.returnType == JavaType.void) {
       lastStatement.accept(this)
-      mv.visitInsn(Opcodes.RETURN)
+      mv.returnVoid()
     } else {
       if (!blockNode.scope.returnType.isAssignableFrom(lastStatement.type)) {
         throw SemanticException("Expected return type ${blockNode.scope.returnType} but got ${lastStatement.type}")
@@ -375,9 +357,9 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
       } else {
         lastStatement.accept(this)
         // method expects an object but nothing was returned? let's return null
-        mv.visitInsn(Opcodes.ACONST_NULL)
+        mv.pushNull()
       }
-      mv.visitInsn(blockNode.scope.returnType.returnCode)
+      mv.returnCode(blockNode.scope.returnType.returnCode)
     }
   }
 
@@ -426,7 +408,7 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
 
   fun drop2() {
     // TODO verify it does what I think
-    mv.visitInsn(Opcodes.POP2)
+    mv.pop2Stack()
   }
 
   override fun visit(blockNode: BlockNode) {
@@ -445,7 +427,7 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
   }
 }
 
-private class PushingInstructionGenerator(override val mv: MethodVisitor): IInstructionGenerator {
+private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor): IInstructionGenerator {
   lateinit var instructionGenerator: InstructionGenerator
 
 
@@ -467,7 +449,7 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor): IInst
     }
     pushArgument(rangeNode.from)
     pushArgument(rangeNode.to)
-    mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, method.name, method.descriptor, false)
+    mv.invokeMethod(method)
   }
 
   override fun visit(notNode: NotNode) {
@@ -475,7 +457,7 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor): IInst
       JavaType.Boolean -> {
         pushArgument(notNode.operand)
         val method = ReflectJavaMethod(Class.forName("java.lang.Boolean").getMethod("booleanValue"))
-        mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, method.name, method.descriptor, false)
+        mv.invokeMethod(method)
       }
       JavaType.boolean -> {
         notNode.operand.accept(this)
@@ -484,14 +466,7 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor): IInst
         throw SemanticException("Cannot negate something other than a boolean")
       }
     }
-    val endLabel = Label()
-    val trueLabel = Label()
-    mv.visitJumpInsn(Opcodes.IFEQ, trueLabel)
-    mv.visitInsn(Opcodes.ICONST_0)
-    mv.visitJumpInsn(Opcodes.GOTO, endLabel)
-    mv.visitLabel(trueLabel)
-    mv.visitInsn(Opcodes.ICONST_1)
-    mv.visitLabel(endLabel)
+    mv.not()
   }
   override fun visit(whileStatement: WhileStatement) {
     instructionGenerator.visit(whileStatement)
@@ -500,7 +475,7 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor): IInst
     instructionGenerator.visit(ifStatementNode)
   }
   override fun visit(stringConstantNode: StringConstantNode) {
-    mv.visitLdcInsn(stringConstantNode.value)
+    mv.pushConstant(stringConstantNode.value)
   }
 
   override fun visit(breakLoopNode: BreakLoopNode) {
@@ -553,37 +528,32 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor): IInst
   }
 
   override fun visit(integer: IntConstantNode) {
-    mv.visitLdcInsn(integer.value) // write primitive value, from an Object class e.g. Integer -> int
+    mv.pushConstant(integer.value) // write primitive value, from an Object class e.g. Integer -> int
   }
 
   override fun visit(nullValueNode: NullValueNode) {
-    mv.visitInsn(Opcodes.ACONST_NULL)
+    mv.pushNull()
   }
 
   override fun visit(incrNode: IncrNode) {
     if (incrNode.returnValueBefore) {
-      pushVariable(incrNode.variableReference.scope, incrNode.variableReference.name)
+      mv.pushVariable(incrNode.variableReference.scope, incrNode.variableReference.name)
       instructionGenerator.visit(incrNode)
     } else {
       instructionGenerator.visit(incrNode)
-      pushVariable(incrNode.variableReference.scope, incrNode.variableReference.name)
+      mv.pushVariable(incrNode.variableReference.scope, incrNode.variableReference.name)
     }
   }
   override fun visit(booleanConstantNode: BooleanConstantNode) {
-    mv.visitInsn(if (booleanConstantNode.value) Opcodes.ICONST_1 else Opcodes.ICONST_0)
+    mv.pushConstant(booleanConstantNode.value)
   }
   override fun visit(variableReferenceExpression: VariableReferenceExpression) {
-    pushVariable(variableReferenceExpression.scope, variableReferenceExpression.name)
+    mv.pushVariable(variableReferenceExpression.scope, variableReferenceExpression.name)
   }
 
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     super.visit(variableAssignmentNode)
-    pushVariable(variableAssignmentNode.scope, variableAssignmentNode.name)
-  }
-
-  private fun pushVariable(scope: Scope, variableName: String) {
-    val (variable, index) = scope.getLocalVariableWithIndex(variableName)
-    mv.visitVarInsn(variable.type.loadCode, index)
+    mv.pushVariable(variableAssignmentNode.scope, variableAssignmentNode.name)
   }
 
   override fun pushArgument(expr: ExpressionNode) {
@@ -621,9 +591,9 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor): IInst
     // TODO for now only handling primitive
     val endLabel = Label()
     val trueLabel = Label()
-    mv.visitJumpInsn(comparisonOperator.operator.iOpCode, trueLabel)
+    mv.comparisonJump(comparisonOperator.operator, trueLabel)
     mv.visitInsn(Opcodes.ICONST_0)
-    mv.visitJumpInsn(Opcodes.GOTO, endLabel)
+    mv.jumpTo(endLabel)
     mv.visitLabel(trueLabel)
     mv.visitInsn(Opcodes.ICONST_1)
     mv.visitLabel(endLabel)

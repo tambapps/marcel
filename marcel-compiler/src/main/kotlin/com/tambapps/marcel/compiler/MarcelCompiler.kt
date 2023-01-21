@@ -52,7 +52,7 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
     for (param in methodNode.scope.parameters) {
       methodNode.scope.addLocalVariable(param.type, param.name)
     }
-    val instructionGenerator = InstructionGenerator(mv)
+    val instructionGenerator = InstructionGenerator(MethodBytecodeVisitor(mv))
     val maxStack = 100; //TODO - do that properly
 
     // writing method
