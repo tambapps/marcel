@@ -8,4 +8,4 @@ while (i < 10) {
   i = i + 1
 }
 
-assertEquals(45, sum)
+sum

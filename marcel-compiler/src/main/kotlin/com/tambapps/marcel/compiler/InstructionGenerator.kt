@@ -36,6 +36,7 @@ import com.tambapps.marcel.parser.ast.expression.VoidExpression
 import com.tambapps.marcel.parser.ast.statement.BreakLoopNode
 import com.tambapps.marcel.parser.ast.statement.ContinueLoopNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
+import com.tambapps.marcel.parser.ast.statement.ForInStatement
 import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
@@ -48,6 +49,7 @@ import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
+import marcel.lang.IntRange
 import marcel.lang.IntRanges
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
@@ -245,6 +247,22 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
     mv.visitLabel(loopEnd)
   }
 
+  override fun visit(forInStatement: ForInStatement) {
+    val expression = forInStatement.inExpression
+    if (expression !is IntRange) {
+      throw SemanticException("Only support for in of ranges for now")
+    }
+    // initialization
+    val body = forInStatement.body
+    val scope = body.scope
+    scope.addLocalVariable(forInStatement.variableType, forInStatement.variableName)
+
+    // creating iterator
+    TODO()
+    // Verifying condition
+
+
+  }
   private fun loopBody(body: StatementNode, continueLabel: Label, breakLabel: Label) {
     if (body is ExpressionStatementNode && body.expression is BlockNode && (body.expression as BlockNode).scope is InnerScope) {
       val scope = (body.expression as BlockNode).scope as InnerScope
@@ -435,6 +453,9 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor): IInst
     instructionGenerator.visit(forStatement)
   }
 
+  override fun visit(forInStatement: ForInStatement) {
+    instructionGenerator.visit(forInStatement)
+  }
   override fun visit(rangeNode: RangeNode) {
     val methodName = if (rangeNode.fromExclusive && rangeNode.toExclusive) "ofExclusive"
     else if (rangeNode.fromExclusive) "ofFromExclusive"

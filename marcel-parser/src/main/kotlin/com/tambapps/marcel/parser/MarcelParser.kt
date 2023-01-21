@@ -8,6 +8,7 @@ import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.BreakLoopNode
 import com.tambapps.marcel.parser.ast.statement.ContinueLoopNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
+import com.tambapps.marcel.parser.ast.statement.ForInStatement
 import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
@@ -273,20 +274,36 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       }
       TokenType.FOR -> {
         accept(TokenType.LPAR)
-        val initStatement = statement(scope)
-        if (initStatement !is VariableAssignmentNode) {
-          throw MarcelParsingException("For loops should start with variable declaration/assignment")
+        if (tokens.getOrNull(currentIndex + 1)?.type == TokenType.IDENTIFIER && tokens.getOrNull(currentIndex + 2)?.type == TokenType.IN) {
+          // for in statement
+          val type = parseType(scope)
+          val identifier = accept(TokenType.IDENTIFIER).value
+          accept(TokenType.IN)
+          val expression = expression(scope)
+          accept(TokenType.RPAR)
+          var statement = statement(scope)
+          if (statement.expression !is BlockNode) {
+            // TODO do the same for ForStatement below
+            val scope = scope as? MethodScope ?: throw MarcelParsingException("Cannot have for outside of a method")
+            statement = ExpressionStatementNode(BlockNode(InnerScope(scope), listOf(statement)))
+          }
+          ForInStatement(type, identifier, expression, statement.expression as BlockNode)
+        } else {
+          val initStatement = statement(scope)
+          if (initStatement !is VariableAssignmentNode) {
+            throw MarcelParsingException("For loops should start with variable declaration/assignment")
+          }
+          acceptOptional(TokenType.SEMI_COLON)
+          val condition = BooleanExpressionNode(expression(scope))
+          accept(TokenType.SEMI_COLON)
+          val iteratorStatement = statement(scope)
+          if (iteratorStatement !is VariableAssignmentNode && iteratorStatement !is ExpressionStatementNode) {
+            throw MarcelParsingException("Invalid for loop")
+          }
+          accept(TokenType.RPAR)
+          val forStatement = statement(scope)
+          ForStatement(initStatement, condition, iteratorStatement, forStatement)
         }
-        acceptOptional(TokenType.SEMI_COLON)
-        val condition = BooleanExpressionNode(expression(scope))
-        accept(TokenType.SEMI_COLON)
-        val iteratorStatement = statement(scope)
-        if (iteratorStatement !is VariableAssignmentNode && iteratorStatement !is ExpressionStatementNode) {
-          throw MarcelParsingException("Invalid for loop")
-        }
-        accept(TokenType.RPAR)
-        val forStatement = statement(scope)
-        ForStatement(initStatement, condition, iteratorStatement, forStatement)
       }
       TokenType.CONTINUE -> {
         if (scope !is InnerScope) {
