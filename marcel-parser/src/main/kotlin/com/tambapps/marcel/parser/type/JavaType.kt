@@ -62,7 +62,7 @@ open class JavaType(
   }
 
   fun isAssignableFrom(javaType: JavaType): Boolean {
-    if (this == javaType || this == Object
+    if (this == javaType || this == Object && !javaType.primitive
       // to handle null values that can be cast to anything
       || !primitive && javaType == void) {
       return true
