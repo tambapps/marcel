@@ -34,7 +34,7 @@ interface JavaMethod {
   fun matches(name: String, types: List<TypedNode>): Boolean {
     if (parameters.size != types.size) return false
     for (i in parameters.indices) {
-      if (parameters[i].type != types[i].type) return false
+      if (!parameters[i].type.isAssignableFrom(types[i].type)) return false
     }
     return this.name == name
   }

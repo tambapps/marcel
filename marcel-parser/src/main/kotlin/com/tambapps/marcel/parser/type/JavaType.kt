@@ -68,9 +68,9 @@ open class JavaType(
     if (primitive || javaType.primitive) {
       return this == javaType
     }
-    // TODO only handle classes already defined, not parsed class
-    val thisClass = Class.forName(className)
-    val otherClass = Class.forName(javaType.className)
+    // TODO only handle (properly) classes already defined, not parsed class
+    val thisClass = realClassOrObject
+    val otherClass = javaType.realClassOrObject
     return thisClass.isAssignableFrom(otherClass)
   }
 
