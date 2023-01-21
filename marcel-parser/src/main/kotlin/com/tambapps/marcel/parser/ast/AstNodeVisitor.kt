@@ -14,7 +14,8 @@ interface AstNodeVisitor {
 
   fun visit(integer: IntConstantNode)
   fun visit(longConstantNode: LongConstantNode)
-
+  fun visit(floatConstantNode: FloatConstantNode)
+  fun visit(doubleConstantNode: DoubleConstantNode)
   fun visit(operator: MulOperator)
   fun visit(operator: TernaryNode)
   fun visit(fCall: FunctionCallNode)
@@ -53,4 +54,5 @@ interface AstNodeVisitor {
   fun visit(breakLoopNode: BreakLoopNode)
   fun visit(continueLoopNode: ContinueLoopNode)
   fun visit(rangeNode: RangeNode)
+
 }

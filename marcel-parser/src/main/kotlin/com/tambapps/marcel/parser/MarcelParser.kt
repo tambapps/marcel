@@ -373,7 +373,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     return when (token.type) {
       TokenType.INCR -> IncrNode(VariableReferenceExpression(scope, accept(TokenType.IDENTIFIER).value), 1, false)
       TokenType.DECR -> IncrNode(VariableReferenceExpression(scope, accept(TokenType.IDENTIFIER).value), -1, false)
-      TokenType.INTEGER -> {
+      TokenType.INTEGER, TokenType.FLOAT -> {
        return if (current.type == TokenType.LT || current.type == TokenType.GT || current.type == TokenType.TWO_DOTS) {
          rangeNode(scope, parseNumberConstant(token))
         } else {
@@ -481,7 +481,25 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         IntConstantNode(value)
       }
     } else if (token.type == TokenType.FLOAT) {
-      TODO()
+      var valueString = token.value.lowercase(Locale.ENGLISH)
+      val isDouble = valueString.endsWith("d")
+      if (isDouble) valueString = valueString.substring(0, valueString.length - 1)
+
+      return if (isDouble) {
+        val value = try {
+          valueString.toDouble()
+        } catch (e: NumberFormatException) {
+          throw MarcelParsingException(e)
+        }
+        DoubleConstantNode(value)
+      } else {
+        val value = try {
+          valueString.toFloat()
+        } catch (e: NumberFormatException) {
+          throw MarcelParsingException(e)
+        }
+        FloatConstantNode(value)
+      }
     } else {
       throw MarcelParsingException("Unexpected token $token")
     }

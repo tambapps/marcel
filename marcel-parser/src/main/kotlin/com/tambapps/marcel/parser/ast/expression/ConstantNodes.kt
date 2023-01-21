@@ -27,6 +27,30 @@ data class LongConstantNode(val value: Long): ExpressionNode {
   }
 }
 
+data class FloatConstantNode(val value: Float): ExpressionNode {
+
+  override val type = JavaType.float
+  override fun accept(astNodeVisitor: AstNodeVisitor) {
+    astNodeVisitor.visit(this)
+  }
+
+  override fun toString(): String {
+    return value.toString()
+  }
+}
+
+data class DoubleConstantNode(val value: Double): ExpressionNode {
+
+  override val type = JavaType.double
+  override fun accept(astNodeVisitor: AstNodeVisitor) {
+    astNodeVisitor.visit(this)
+  }
+
+  override fun toString(): String {
+    return value.toString()
+  }
+}
+
 data class StringConstantNode(val value: String): ExpressionNode {
   override val type = JavaType.String
 
@@ -58,5 +82,9 @@ class NullValueNode: ExpressionNode {
 
   override fun equals(other: Any?): Boolean {
     return other is NullValueNode
+  }
+
+  override fun hashCode(): Int {
+    return 0
   }
 }

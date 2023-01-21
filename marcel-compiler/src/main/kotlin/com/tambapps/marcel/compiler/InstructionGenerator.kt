@@ -11,7 +11,9 @@ import com.tambapps.marcel.parser.ast.expression.BooleanExpressionNode
 import com.tambapps.marcel.parser.ast.expression.ComparisonOperatorNode
 import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.DivOperator
+import com.tambapps.marcel.parser.ast.expression.DoubleConstantNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
+import com.tambapps.marcel.parser.ast.expression.FloatConstantNode
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.IncrNode
@@ -320,6 +322,14 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
   override fun visit(longConstantNode: LongConstantNode) {
     // don't need to write constants
   }
+
+  override fun visit(floatConstantNode: FloatConstantNode) {
+    // don't need to write constants
+  }
+
+  override fun visit(doubleConstantNode: DoubleConstantNode) {
+    // don't need to write constants
+  }
   override fun visit(booleanConstantNode: BooleanConstantNode) {
     // don't need to write constants
   }
@@ -577,6 +587,13 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
     mv.pushConstant(longConstantNode.value)
   }
 
+  override fun visit(floatConstantNode: FloatConstantNode) {
+    mv.pushConstant(floatConstantNode.value)
+  }
+
+  override fun visit(doubleConstantNode: DoubleConstantNode) {
+    mv.pushConstant(doubleConstantNode.value)
+  }
   override fun visit(nullValueNode: NullValueNode) {
     mv.pushNull()
   }

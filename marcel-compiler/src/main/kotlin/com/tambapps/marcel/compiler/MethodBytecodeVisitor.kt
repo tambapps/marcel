@@ -84,6 +84,14 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     mv.visitInsn(if (boolean) Opcodes.ICONST_1 else Opcodes.ICONST_0)
   }
 
+  fun pushConstant(float: Float) {
+    mv.visitLdcInsn(float)
+  }
+
+  fun pushConstant(double: Double) {
+    mv.visitLdcInsn(double)
+  }
+
   fun pushConstant(long: Long) {
     mv.visitLdcInsn(long)
   }
