@@ -1,0 +1,8 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+
+int a = 2
+int b = 3
+String s = "$a + $b = ${ a + b }"
+
+assertEquals("2 + 3 = 5", s)

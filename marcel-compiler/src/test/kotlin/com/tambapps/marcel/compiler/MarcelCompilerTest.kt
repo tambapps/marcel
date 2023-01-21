@@ -7,8 +7,13 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.io.File
 import java.net.URLClassLoader
 import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.util.Arrays
+
 
 class MarcelCompilerTest {
 
@@ -47,6 +52,7 @@ class MarcelCompilerTest {
 
   @Test
   fun testWhileLoop() {
+
     val eval = eval("/test_while_loop.marcel")
     assertEquals(45, eval)
   }
@@ -71,11 +77,25 @@ class MarcelCompilerTest {
 
   @Test
   fun testThis() {
+    javaClass.getResource("/json")
+    val path: Path = Paths.get(javaClass.getResource("/").toURI())
+    println(Arrays.toString(path.toFile().list()))
     val eval = eval("/test_this.marcel")
     assertTrue(eval is Script)
   }
 
 
+  @Test
+  fun testAll() {
+    javaClass.getResource("/json")
+    val path: Path = Paths.get(javaClass.getResource("/").toURI())
+    val scriptPaths = path.toFile().list { dir, name -> name.endsWith(".marcel") }
+    for (path in scriptPaths) {
+      println("Running $path")
+      eval("/$path")
+    }
+
+  }
   private fun eval(resourceName: String): Any? {
     val result = javaClass.getResourceAsStream(resourceName).reader().use {
       compiler.compile(it, "Test")
