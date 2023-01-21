@@ -9,7 +9,7 @@ public enum TokenType {
 
 
 // type constants
-  INTEGER,
+  INTEGER, FLOAT,
 
 
   // symbols
