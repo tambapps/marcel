@@ -16,6 +16,7 @@ import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.IncrNode
 import com.tambapps.marcel.parser.ast.expression.IntConstantNode
+import com.tambapps.marcel.parser.ast.expression.LongConstantNode
 import com.tambapps.marcel.parser.ast.expression.MinusOperator
 import com.tambapps.marcel.parser.ast.expression.MulOperator
 import com.tambapps.marcel.parser.ast.expression.NotNode
@@ -316,6 +317,9 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
     // don't need to write constants
   }
 
+  override fun visit(longConstantNode: LongConstantNode) {
+    // don't need to write constants
+  }
   override fun visit(booleanConstantNode: BooleanConstantNode) {
     // don't need to write constants
   }
@@ -566,7 +570,11 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
   }
 
   override fun visit(integer: IntConstantNode) {
-    mv.pushConstant(integer.value) // write primitive value, from an Object class e.g. Integer -> int
+    mv.pushConstant(integer.value)
+  }
+
+  override fun visit(longConstantNode: LongConstantNode) {
+    mv.pushConstant(longConstantNode.value)
   }
 
   override fun visit(nullValueNode: NullValueNode) {

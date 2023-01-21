@@ -13,6 +13,8 @@ import com.tambapps.marcel.parser.ast.statement.WhileStatement
 interface AstNodeVisitor {
 
   fun visit(integer: IntConstantNode)
+  fun visit(longConstantNode: LongConstantNode)
+
   fun visit(operator: MulOperator)
   fun visit(operator: TernaryNode)
   fun visit(fCall: FunctionCallNode)

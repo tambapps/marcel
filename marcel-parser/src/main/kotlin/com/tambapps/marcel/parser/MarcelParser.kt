@@ -377,15 +377,29 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
        return if (current.type == TokenType.LT || current.type == TokenType.GT || current.type == TokenType.TWO_DOTS) {
          rangeNode(scope, IntConstantNode(token.value.toInt()))
         } else {
-          val value = try {
-            val value = token.value.lowercase(Locale.ENGLISH)
-            if (value.startsWith("0x")) token.value.substring(2).toInt(16)
-            else if (value.startsWith("0b")) token.value.substring(2).toInt(2)
-            else value.toInt()
-          } catch (e: NumberFormatException) {
-            throw MarcelParsingException(e)
-          }
-          IntConstantNode(value)
+         var valueString = token.value.lowercase(Locale.ENGLISH)
+         val isLong = valueString.endsWith("l")
+         if (isLong) valueString = valueString.substring(0, valueString.length - 1)
+
+         val radix = if (valueString.startsWith("0x")) 16
+         else if (valueString.startsWith("0b")) 2
+         else 10
+
+         return if (isLong) {
+           val value = try {
+             valueString.toLong(radix)
+           } catch (e: NumberFormatException) {
+             throw MarcelParsingException(e)
+           }
+           LongConstantNode(value)
+         } else {
+           val value = try {
+             valueString.toInt(radix)
+           } catch (e: NumberFormatException) {
+             throw MarcelParsingException(e)
+           }
+           IntConstantNode(value)
+         }
         }
       }
       TokenType.VALUE_TRUE -> BooleanConstantNode(true)

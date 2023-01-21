@@ -15,6 +15,18 @@ data class IntConstantNode(val value: Int): ExpressionNode {
   }
 }
 
+data class LongConstantNode(val value: Long): ExpressionNode {
+
+  override val type = JavaType.long
+  override fun accept(astNodeVisitor: AstNodeVisitor) {
+    astNodeVisitor.visit(this)
+  }
+
+  override fun toString(): String {
+    return value.toString()
+  }
+}
+
 data class StringConstantNode(val value: String): ExpressionNode {
   override val type = JavaType.String
 
