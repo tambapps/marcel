@@ -377,7 +377,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
          rangeNode(scope, IntConstantNode(token.value.toInt()))
         } else {
           val value = try {
-            token.value.toInt()
+            if (token.value.startsWith("0x")) token.value.substring(2).toInt(16)
+            else if (token.value.startsWith("0b")) token.value.substring(2).toInt(2)
+            else token.value.toInt()
           } catch (e: NumberFormatException) {
             throw MarcelParsingException(e)
           }
