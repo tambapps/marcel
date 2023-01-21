@@ -375,31 +375,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       TokenType.DECR -> IncrNode(VariableReferenceExpression(scope, accept(TokenType.IDENTIFIER).value), -1, false)
       TokenType.INTEGER -> {
        return if (current.type == TokenType.LT || current.type == TokenType.GT || current.type == TokenType.TWO_DOTS) {
-         rangeNode(scope, IntConstantNode(token.value.toInt()))
+         rangeNode(scope, parseNumberConstant(token))
         } else {
-         var valueString = token.value.lowercase(Locale.ENGLISH)
-         val isLong = valueString.endsWith("l")
-         if (isLong) valueString = valueString.substring(0, valueString.length - 1)
-
-         val radix = if (valueString.startsWith("0x")) 16
-         else if (valueString.startsWith("0b")) 2
-         else 10
-
-         return if (isLong) {
-           val value = try {
-             valueString.toLong(radix)
-           } catch (e: NumberFormatException) {
-             throw MarcelParsingException(e)
-           }
-           LongConstantNode(value)
-         } else {
-           val value = try {
-             valueString.toInt(radix)
-           } catch (e: NumberFormatException) {
-             throw MarcelParsingException(e)
-           }
-           IntConstantNode(value)
-         }
+         parseNumberConstant(token)
         }
       }
       TokenType.VALUE_TRUE -> BooleanConstantNode(true)
@@ -477,6 +455,37 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     }
   }
 
+  private fun parseNumberConstant(token: LexToken): ExpressionNode {
+    if (token.type == TokenType.INTEGER) {
+      var valueString = token.value.lowercase(Locale.ENGLISH)
+      val isLong = valueString.endsWith("l")
+      if (isLong) valueString = valueString.substring(0, valueString.length - 1)
+
+      val radix = if (valueString.startsWith("0x")) 16
+      else if (valueString.startsWith("0b")) 2
+      else 10
+
+      return if (isLong) {
+        val value = try {
+          valueString.toLong(radix)
+        } catch (e: NumberFormatException) {
+          throw MarcelParsingException(e)
+        }
+        LongConstantNode(value)
+      } else {
+        val value = try {
+          valueString.toInt(radix)
+        } catch (e: NumberFormatException) {
+          throw MarcelParsingException(e)
+        }
+        IntConstantNode(value)
+      }
+    } else if (token.type == TokenType.FLOAT) {
+      TODO()
+    } else {
+      throw MarcelParsingException("Unexpected token $token")
+    }
+  }
   private fun rangeNode(scope: Scope, fromExpression: ExpressionNode): RangeNode {
     val fromExclusive = acceptOptional(TokenType.LT, TokenType.GT) != null
     accept(TokenType.TWO_DOTS)
