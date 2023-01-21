@@ -3,12 +3,10 @@ package com.tambapps.marcel.compiler
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.ComparisonOperator
 import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
-import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.IncrNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.VariableAssignmentNode
-import com.tambapps.marcel.parser.ast.expression.VariableReferenceExpression
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
@@ -67,16 +65,6 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     mv.visitLabel(trueLabel)
     mv.visitInsn(Opcodes.ICONST_1)
     mv.visitLabel(endLabel)
-  }
-  fun visitMethodInsn(
-    opcode: Int,
-    owner: String?,
-    name: String?,
-    descriptor: String?,
-    isInterface: Boolean
-  ) {
-    // TODO delete me
-    mv.visitMethodInsn(opcode, owner, name, descriptor, isInterface)
   }
   fun popStack() {
     mv.visitInsn(Opcodes.POP)

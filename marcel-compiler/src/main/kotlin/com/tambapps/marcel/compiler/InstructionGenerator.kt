@@ -501,9 +501,15 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
       expr.accept(this)
     } else {
       val argumentClass = expr.type.realClassOrObject
-      val method = String::class.java.getDeclaredMethod("valueOf", if (argumentClass.isPrimitive) argumentClass else Object::class.java)
-      pushArgument(expr)
-      mv.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/String", "valueOf", AsmUtils.getDescriptor(method), false)
+      if (argumentClass.isPrimitive) {
+        val method = ReflectJavaMethod(String::class.java.getDeclaredMethod("valueOf", argumentClass))
+        pushArgument(expr)
+        mv.invokeMethod(method)
+      } else {
+        val method = ReflectJavaMethod(Object::class.java.getDeclaredMethod("toString", Object::class.java))
+        pushArgument(expr)
+        mv.invokeMethod(method)
+      }
     }
   }
   override fun visit(stringNode: StringNode) {
@@ -524,7 +530,8 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
       pushArgument(part)
       mv.invokeMethod(method)
     }
-    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", AsmUtils.getDescriptor(emptyList(), JavaType.String), false)
+    val toStringMethod = ReflectJavaMethod(StringBuilder::class.java.getDeclaredMethod("toString"))
+    mv.invokeMethod(toStringMethod)
   }
 
   override fun visit(integer: IntConstantNode) {
