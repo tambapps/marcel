@@ -50,9 +50,14 @@ class StaticImportNode(private val className: String, private val methodName: St
   }
 
   override fun resolveMethod(methodName: String, argumentTypes: List<TypedNode>): JavaMethod? {
+    if (methodName != this.methodName) return null
     val candidates = Class.forName(className).declaredMethods.filter { it.name == methodName }
       .map { ReflectJavaMethod(it) }
     return candidates.find { it.matches(methodName, argumentTypes) }
+  }
+
+  override fun toString(): String {
+    return "import static $className.$methodName"
   }
 }
 
