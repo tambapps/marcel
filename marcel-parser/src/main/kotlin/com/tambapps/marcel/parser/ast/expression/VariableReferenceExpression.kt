@@ -3,11 +3,17 @@ package com.tambapps.marcel.parser.ast.expression
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.LocalVariable
 
+// can be a class or variable reference
 class VariableReferenceExpression(val scope: Scope, val name: String): ExpressionNode {
   override val type: JavaType
-    get() = scope.getLocalVariable(name).type
+    get() = try {
+        scope.getLocalVariable(name).type
+      } catch (e: SemanticException) {
+        scope.getTypeOrNull(name) ?: throw e
+      }
 
   val variable: LocalVariable
     get() = scope.getLocalVariable(name)

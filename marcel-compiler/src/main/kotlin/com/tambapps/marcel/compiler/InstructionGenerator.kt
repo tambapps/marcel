@@ -144,10 +144,12 @@ private interface IInstructionGenerator: AstNodeVisitor {
     } else {
       val method = fCall.method
       val methodOwner = fCall.methodOwnerType
-      if (methodOwner is ExpressionNode) {
-       pushArgument(methodOwner) // for instance method, we need to push owner
-      } else if (!method.isStatic) {
-        pushArgument(VariableReferenceExpression(fCall.scope, "this"))
+      if (!method.isStatic) {
+        if (methodOwner is ExpressionNode) {
+          pushArgument(methodOwner) // for instance method, we need to push owner
+        } else {
+          pushArgument(VariableReferenceExpression(fCall.scope, "this"))
+        }
       }
       pushFunctionCallArguments(fCall)
       mv.invokeMethod(method)
