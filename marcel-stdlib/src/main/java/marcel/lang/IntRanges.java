@@ -12,6 +12,22 @@ import java.util.NoSuchElementException;
 
 public class IntRanges {
 
+  public static IntRange ofExclusive(int from, int to) {
+    return from <= to ? ofIncrExclusive(from, to) : ofDecrExclusive(from, to);
+  }
+
+  public static IntRange ofFromExclusive(int from, int to) {
+    return from <= to ? ofIncrFromExclusive(from, to) : ofDecrFromExclusive(from, to);
+  }
+
+  public static IntRange ofToExclusive(int from, int to) {
+    return from <= to ? ofIncrToExclusive(from, to) : ofDecrToExclusive(from, to);
+  }
+
+  public static IntRange of(int from, int to) {
+    return from <= to ? ofIncr(from, to) : ofDecr(from, to);
+  }
+
   public static IntRange ofDecrExclusive(int from, int to) {
     return from - to <= 1 ? new EmptyRange() : ofDecr(from - 1, to + 1);
   }
@@ -80,6 +96,7 @@ public class IntRanges {
     }
   }
 
+  // TODO equals and hashcode method for all ranges  (make abstract class?)
   @Getter
   @AllArgsConstructor
   private static final class IntRangeImpl implements IntRange {
@@ -98,6 +115,10 @@ public class IntRanges {
       return false;
     }
 
+    @Override
+    public String toString() {
+      return from + ".." + to;
+    }
   }
   private static final class EmptyRange implements IntRange {
 
@@ -129,6 +150,11 @@ public class IntRanges {
     @Override
     public IntList toList() {
       return IntLists.EMPTY_LIST;
+    }
+
+    @Override
+    public String toString() {
+      return "..";
     }
   }
 }

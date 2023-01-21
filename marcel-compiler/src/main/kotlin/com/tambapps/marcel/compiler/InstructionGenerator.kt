@@ -21,6 +21,7 @@ import com.tambapps.marcel.parser.ast.expression.NotNode
 import com.tambapps.marcel.parser.ast.expression.NullValueNode
 import com.tambapps.marcel.parser.ast.expression.PlusOperator
 import com.tambapps.marcel.parser.ast.expression.PowOperator
+import com.tambapps.marcel.parser.ast.expression.RangeNode
 import com.tambapps.marcel.parser.ast.expression.ReturnNode
 import com.tambapps.marcel.parser.ast.expression.StringConstantNode
 import com.tambapps.marcel.parser.ast.expression.StringNode
@@ -47,6 +48,7 @@ import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
+import marcel.lang.IntRanges
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
@@ -309,6 +311,11 @@ class InstructionGenerator(override val mv: MethodVisitor): IInstructionGenerato
     }
   }
 
+  override fun visit(rangeNode: RangeNode) {
+    pushingInstructionGenerator.visit(rangeNode)
+    mv.visitInsn(Opcodes.POP)
+  }
+
   override fun visit(booleanExpression: BooleanExpressionNode) {
     booleanExpression.innerExpression.accept(this)
   }
@@ -426,6 +433,20 @@ private class PushingInstructionGenerator(override val mv: MethodVisitor): IInst
 
   override fun visit(forStatement: ForStatement) {
     instructionGenerator.visit(forStatement)
+  }
+
+  override fun visit(rangeNode: RangeNode) {
+    val methodName = if (rangeNode.fromExclusive && rangeNode.toExclusive) "ofExclusive"
+    else if (rangeNode.fromExclusive) "ofFromExclusive"
+    else if (rangeNode.toExclusive) "ofToExclusive"
+    else "of"
+    val method = ReflectJavaMethod(IntRanges::class.java.getMethod(methodName, Int::class.java, Int::class.java))
+    if (rangeNode.from.type != JavaType.int || rangeNode.to.type != JavaType.int) {
+      throw SemanticException("Only handle ranges for int value for now")
+    }
+    pushArgument(rangeNode.from)
+    pushArgument(rangeNode.to)
+    mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, method.name, method.descriptor, false)
   }
 
   override fun visit(notNode: NotNode) {

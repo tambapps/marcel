@@ -339,7 +339,13 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     return when (token.type) {
       TokenType.INCR -> IncrNode(VariableReferenceExpression(scope, accept(TokenType.IDENTIFIER).value), 1, false)
       TokenType.DECR -> IncrNode(VariableReferenceExpression(scope, accept(TokenType.IDENTIFIER).value), -1, false)
-      TokenType.INTEGER -> IntConstantNode(token.value.toInt())
+      TokenType.INTEGER -> {
+       return if (current.type == TokenType.LT || current.type == TokenType.GT || current.type == TokenType.TWO_DOTS) {
+         rangeNode(scope, IntConstantNode(token.value.toInt()))
+        } else {
+          IntConstantNode(token.value.toInt())
+        }
+      }
       TokenType.VALUE_TRUE -> BooleanConstantNode(true)
       TokenType.VALUE_FALSE -> BooleanConstantNode(false)
       TokenType.OPEN_QUOTE -> {
@@ -388,6 +394,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           skip()
           val expr = expression(scope)
           VariableAssignmentNode(scope, token.value, MulOperator(VariableReferenceExpression(scope, token.value), expr))
+        } else if (current.type == TokenType.LT  && tokens.getOrNull(currentIndex + 1)?.type == TokenType.TWO_DOTS
+          || current.type == TokenType.GT && tokens.getOrNull(currentIndex + 1)?.type == TokenType.TWO_DOTS || current.type == TokenType.TWO_DOTS) {
+          rangeNode(scope, VariableReferenceExpression(scope, token.value))
         } else {
           VariableReferenceExpression(scope, token.value)
         }
@@ -400,12 +409,24 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           throw MarcelParsingException("Parenthesis should be close")
         }
         next()
+        if (current.type == TokenType.LT  && tokens.getOrNull(currentIndex + 1)?.type == TokenType.TWO_DOTS
+          || current.type == TokenType.GT && tokens.getOrNull(currentIndex + 1)?.type == TokenType.TWO_DOTS || current.type == TokenType.TWO_DOTS) {
+          return rangeNode(scope, VariableReferenceExpression(scope, token.value))
+        }
         return node
       }
       else -> {
         throw UnsupportedOperationException("Not supported yet $token")
       }
     }
+  }
+
+  private fun rangeNode(scope: Scope, fromExpression: ExpressionNode): RangeNode {
+    val fromExclusive = acceptOptional(TokenType.LT, TokenType.GT) != null
+    accept(TokenType.TWO_DOTS)
+    val toExclusive = acceptOptional(TokenType.LT, TokenType.GT) != null
+    val toExpression = atom(scope)
+    return RangeNode(fromExpression, toExpression, fromExclusive, toExclusive)
   }
 
   private fun stringPart(scope: Scope): ExpressionNode {

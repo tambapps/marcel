@@ -203,6 +203,7 @@ LONELY_BACKTICK=`
 "-="          { return token(MINUS_ASSIGNMENT); }
 "*="          { return token(MUL_ASSIGNMENT); }
 "/="          { return token(DIV_ASSIGNMENT); }
+".."          { return token(TWO_DOTS); }
 
 {IDENTIFIER} {  return valueToken(IDENTIFIER); }
 

@@ -47,4 +47,5 @@ interface AstNodeVisitor {
   fun visit(incrNode: IncrNode)
   fun visit(breakLoopNode: BreakLoopNode)
   fun visit(continueLoopNode: ContinueLoopNode)
+  fun visit(rangeNode: RangeNode)
 }
