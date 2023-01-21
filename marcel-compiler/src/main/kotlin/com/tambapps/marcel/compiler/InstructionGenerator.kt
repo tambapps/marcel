@@ -393,11 +393,9 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
       lastStatement.accept(this)
       mv.returnVoid()
     } else {
-      if (!blockNode.scope.returnType.isAssignableFrom(lastStatement.type)) {
-        throw SemanticException("Expected return type ${blockNode.scope.returnType} but got ${lastStatement.type}")
-      }
       if (lastStatement.type != JavaType.void) {
         pushArgument(lastStatement.expression)
+        mv.castIfNecessaryOrThrow(blockNode.scope.returnType, lastStatement.type)
       } else {
         lastStatement.accept(this)
         // method expects an object but nothing was returned? let's return null
@@ -667,6 +665,7 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
       }
     }
     returnNode.expression.accept(this)
+    mv.castIfNecessaryOrThrow(returnNode.scope.returnType, returnNode.expression.type)
   }
 
   override fun visit(expressionStatementNode: ExpressionStatementNode) {

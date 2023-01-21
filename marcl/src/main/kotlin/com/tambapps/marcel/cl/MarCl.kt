@@ -4,6 +4,7 @@ import com.tambapps.marcel.compiler.JarWriter
 import com.tambapps.marcel.compiler.MarcelCompiler
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParsingException
+import com.tambapps.marcel.parser.exception.SemanticException
 import java.io.File
 import java.io.IOException
 import java.net.URLClassLoader
@@ -30,6 +31,10 @@ fun main(args : Array<String>) {
     return
   } catch (e: MarcelParsingException) {
     println("Parsing error: ${e.message}")
+    e.printStackTrace()
+    return
+  } catch (e: SemanticException) {
+    println("Semantic error: ${e.message}")
     e.printStackTrace()
     return
   } catch (e: Exception) {
