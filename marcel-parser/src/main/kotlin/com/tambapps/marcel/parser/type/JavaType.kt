@@ -50,6 +50,24 @@ open class JavaType(
     val double = JavaPrimitiveType(PrimitiveTypes.DOUBLE, Opcodes.DLOAD, Opcodes.DSTORE, Opcodes.DRETURN, Opcodes.DADD, Opcodes.DSUB, Opcodes.DMUL, Opcodes.DDIV)
     // apparently we use int instructions to store booleans
     val boolean = JavaPrimitiveType(PrimitiveTypes.BOOL, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN,  0,0,0,0)
+    // Marcel doesn't support char, but we could still find char values from plain Java code
+    val char = JavaPrimitiveType(PrimitiveTypes.BOOL, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV)
+
+    val PRIMITIVE_CAST_INSTRUCTION_MAP = mapOf(
+      Pair(Pair(int, long), Opcodes.I2L),
+      Pair(Pair(int, float), Opcodes.I2F),
+      Pair(Pair(int, double), Opcodes.I2D),
+      Pair(Pair(int, boolean), Opcodes.I2B),
+      Pair(Pair(long, int), Opcodes.L2I),
+      Pair(Pair(long, float), Opcodes.L2F),
+      Pair(Pair(long, double), Opcodes.L2D),
+      Pair(Pair(float, int), Opcodes.F2I),
+      Pair(Pair(float, long), Opcodes.F2L),
+      Pair(Pair(float, double), Opcodes.F2D),
+      Pair(Pair(double, int), Opcodes.D2I),
+      Pair(Pair(double, long), Opcodes.D2L),
+      Pair(Pair(double, float), Opcodes.D2F),
+    )
 
     val TOKEN_TYPE_MAP = mapOf(
         Pair(TokenType.TYPE_INT, int),

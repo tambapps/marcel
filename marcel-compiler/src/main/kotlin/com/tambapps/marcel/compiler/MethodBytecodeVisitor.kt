@@ -140,8 +140,24 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
   // must push expression before calling this method
   fun visitVariableAssignment(variableAssignmentNode: VariableAssignmentNode) {
     val (variable, index) = variableAssignmentNode.scope.getLocalVariableWithIndex(variableAssignmentNode.name)
-    if (!variable.type.isAssignableFrom(variableAssignmentNode.expression.type)) {
-      throw SemanticException("Incompatible types. Variable is of type ${variable.type} but gave an expression of type ${variableAssignmentNode.expression.type}")
+    val variableType = variable.type
+    val expressionType = variableAssignmentNode.expression.type
+    if (variableType != expressionType) {
+      if (variableType.primitive && expressionType.primitive) {
+        val castInstruction = JavaType.PRIMITIVE_CAST_INSTRUCTION_MAP[Pair(expressionType, variableType)]
+        if (castInstruction != null) {
+          mv.visitInsn(castInstruction)
+        } else {
+          throw SemanticException("Cannot cast primitive $expressionType to primitive $variableType")
+        }
+      } else if (!variableType.primitive && !expressionType.primitive) {
+        // both Object classses
+        if (!variable.type.isAssignableFrom(variableAssignmentNode.expression.type)) {
+          throw SemanticException("Incompatible types. Variable is of type ${variable.type} but gave an expression of type ${variableAssignmentNode.expression.type}")
+        }
+      } else {
+        TODO("Doesn't handle primitive to Object and vice versa yet")
+      }
     }
     mv.visitVarInsn(variable.type.storeCode, index)
   }
