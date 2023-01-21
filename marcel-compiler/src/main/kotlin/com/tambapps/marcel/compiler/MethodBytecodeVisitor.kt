@@ -173,31 +173,57 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
               if (variableType == JavaType.Integer) {
                 throw SemanticException("Cannot cast $variableType to int")
               }
-              invokeMethod(Class.forName(JavaType.Integer.className).getMethod("intValue"))
+              invokeMethod(Class.forName(variableType.className).getMethod("intValue"))
             }
             JavaType.long -> {
               if (variableType == JavaType.Long) {
                 throw SemanticException("Cannot cast $variableType to float")
               }
-              invokeMethod(Class.forName(JavaType.Long.className).getMethod("longValue"))
+              invokeMethod(Class.forName(variableType.className).getMethod("longValue"))
             }
             JavaType.float -> {
               if (variableType == JavaType.Float) {
                 throw SemanticException("Cannot cast $variableType to float")
               }
-              invokeMethod(Class.forName(JavaType.Float.className).getMethod("floatValue"))
+              invokeMethod(Class.forName(variableType.className).getMethod("floatValue"))
             }
             JavaType.double -> {
               if (variableType == JavaType.Double) {
                 throw SemanticException("Cannot cast $variableType to float")
               }
-              invokeMethod(Class.forName(JavaType.Double.className).getMethod("doubleValue"))
+              invokeMethod(Class.forName(variableType.className).getMethod("doubleValue"))
             }
             else -> throw SemanticException("Doesn't handle conversion from $expressionType to $variableType")
           }
         } else {
           // cast primitive to Object
-          TODO("Doesn't handle primitive to Object and vice versa yet")
+          when (variableType) {
+            JavaType.Integer -> {
+              if (variableType == JavaType.int) {
+                throw SemanticException("Cannot cast $variableType to Integer")
+              }
+              invokeMethod(Class.forName(variableType.className).getMethod("valueOf", Int::class.java))
+            }
+            JavaType.Long -> {
+              if (variableType == JavaType.long) {
+                throw SemanticException("Cannot cast $variableType to Long")
+              }
+              invokeMethod(Class.forName(variableType.className).getMethod("valueOf", Long::class.java))
+            }
+            JavaType.Float -> {
+              if (variableType == JavaType.float) {
+                throw SemanticException("Cannot cast $variableType to Float")
+              }
+              invokeMethod(Class.forName(variableType.className).getMethod("valueOf", Float::class.java))
+            }
+            JavaType.Double -> {
+              if (variableType == JavaType.double) {
+                throw SemanticException("Cannot cast $variableType to Double")
+              }
+              invokeMethod(Class.forName(variableType.className).getMethod("valueOf", Double::class.java))
+            }
+            else -> throw SemanticException("Doesn't handle conversion from $expressionType to $variableType")
+          }
         }
       }
     }
