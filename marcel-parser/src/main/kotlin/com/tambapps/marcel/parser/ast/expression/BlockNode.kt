@@ -5,6 +5,7 @@ import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.scope.MethodScope
 
+
 open class BlockNode(val scope: MethodScope, val statements: List<StatementNode>) : ExpressionNode {
 
   // it is important it is a getter, because statements could be modified after this object being constructed

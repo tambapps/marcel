@@ -265,27 +265,27 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
 
     // loop body
     visit(VariableAssignmentNode(scope, forInStatement.variableName, FunctionCallNode(scope, methodName, mutableListOf(), iteratorVarReference)))
-    loopBody(ExpressionStatementNode(forInStatement.body), loopStart, loopEnd)
+    loopBody(forInStatement.body, loopStart, loopEnd)
     mv.jumpTo(loopStart)
 
     // loop end
     mv.visitLabel(loopEnd)
   }
-  private fun loopBody(body: StatementNode, continueLabel: Label, breakLabel: Label) {
-    if (body is ExpressionStatementNode && body.expression is BlockNode && (body.expression as BlockNode).scope is InnerScope) {
-      val scope = (body.expression as BlockNode).scope as InnerScope
-      scope.continueLabel = continueLabel
-      scope.breakLabel = breakLabel
-    }
+  private fun loopBody(body: BlockNode, continueLabel: Label, breakLabel: Label) {
+    val scope = body.scope as? InnerScope ?: throw RuntimeException("Compiler design bug")
+    scope.continueLabel = continueLabel
+    scope.breakLabel = breakLabel
     body.accept(this)
+    scope.clearInnerScopeLocalVariables()
   }
+
   override fun visit(breakLoopNode: BreakLoopNode) {
     val label = breakLoopNode.scope.breakLabel ?: throw SemanticException("Cannot use break statement outside of a loop")
     mv.jumpTo(label)
   }
 
   override fun visit(continueLoopNode: ContinueLoopNode) {
-    val label = continueLoopNode.scope.continueLabel ?: throw SemanticException("Cannot use break statement outside of a loop")
+    val label = continueLoopNode.scope.continueLabel ?: throw SemanticException("Cannot use continue statement outside of a loop")
     mv.jumpTo(label)
   }
 

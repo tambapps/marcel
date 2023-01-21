@@ -5,10 +5,16 @@ import com.tambapps.marcel.parser.ast.expression.BlockNode
 import com.tambapps.marcel.parser.ast.expression.BooleanExpressionNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.ast.expression.VoidExpression
+import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.type.JavaType
 
+abstract class AbstractForStatement(val body: BlockNode): StatementNode {
+  val scope: InnerScope
+    get() = body.scope as? InnerScope ?: throw RuntimeException("Compiler design error")
+
+}
 class ForStatement(val initStatement: StatementNode,
-                   val endCondition: BooleanExpressionNode, val iteratorStatement: StatementNode, val body: StatementNode): StatementNode {
+                   val endCondition: BooleanExpressionNode, val iteratorStatement: StatementNode, body: BlockNode): AbstractForStatement(body) {
 
   override val expression = VoidExpression()
 
@@ -22,7 +28,7 @@ class ForStatement(val initStatement: StatementNode,
   }
 }
 
-class ForInStatement(val variableType: JavaType, val variableName: String, val inExpression: ExpressionNode, val body: BlockNode): StatementNode {
+class ForInStatement(val variableType: JavaType, val variableName: String, val inExpression: ExpressionNode, body: BlockNode): AbstractForStatement(body) {
   override val expression = VoidExpression()
   override fun accept(mv: AstNodeVisitor) {
     mv.visit(this)
@@ -31,4 +37,5 @@ class ForInStatement(val variableType: JavaType, val variableName: String, val i
   override fun toString(): String {
     return "for ($variableType $variableName in $inExpression) {\n$body\n}"
   }
+
 }

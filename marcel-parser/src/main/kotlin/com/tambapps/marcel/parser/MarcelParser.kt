@@ -270,7 +270,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         accept(TokenType.LPAR)
         val condition = BooleanExpressionNode(expression(scope))
         accept(TokenType.RPAR)
-        WhileStatement(condition, statement(scope))
+        WhileStatement(condition, loopBody(scope))
       }
       TokenType.FOR -> {
         accept(TokenType.LPAR)
@@ -281,15 +281,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           accept(TokenType.IN)
           val expression = expression(scope)
           accept(TokenType.RPAR)
-          var statement = statement(scope)
-          if (statement.expression !is BlockNode) {
-            // TODO do the same for ForStatement below
-            val scope = scope as? MethodScope ?: throw MarcelParsingException("Cannot have for outside of a method")
-            statement = ExpressionStatementNode(BlockNode(InnerScope(scope), listOf(statement)))
-          }
-          ForInStatement(type, identifier, expression, statement.expression as BlockNode)
+          var forBlock = loopBody(scope)
+          ForInStatement(type, identifier, expression, forBlock)
         } else {
-          val scope = InnerScope(scope as? MethodScope ?: throw MarcelParsingException("Cannot have for outside of a method"))
           val initStatement = statement(scope)
           if (initStatement !is VariableAssignmentNode) {
             throw MarcelParsingException("For loops should start with variable declaration/assignment")
@@ -302,8 +296,8 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
             throw MarcelParsingException("Invalid for loop")
           }
           accept(TokenType.RPAR)
-          val forStatement = statement(scope)
-          ForStatement(initStatement, condition, iteratorStatement, forStatement)
+          var forBlock = loopBody(scope)
+          ForStatement(initStatement, condition, iteratorStatement, forBlock)
         }
       }
       TokenType.CONTINUE -> {
@@ -350,6 +344,12 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     return expr
   }
 
+  private fun loopBody(scope: Scope): BlockNode {
+    val loopStatement = statement(scope)
+    if (loopStatement.expression is BlockNode) return loopStatement.expression as BlockNode
+    val newScope = InnerScope(scope as? MethodScope ?: throw MarcelParsingException("Cannot have for outside of a method"))
+    return BlockNode(newScope, listOf(loopStatement))
+  }
   private fun expression(scope: Scope, maxPriority: Int): ExpressionNode {
     var a = atom(scope)
     var t = current
