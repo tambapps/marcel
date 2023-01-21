@@ -6,8 +6,8 @@ import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.IncrNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
-import com.tambapps.marcel.parser.ast.expression.VariableAssignmentNode
 import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.scope.LocalVariable
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
@@ -145,12 +145,8 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     mv.visitVarInsn(variable.type.loadCode, index)
   }
 
-  // TODO rename this function castIfNecessary and use it propery for variablrAssignement
   // must push expression before calling this method
-  fun visitVariableAssignment(variableAssignmentNode: VariableAssignmentNode) {
-    val (variable, index) = variableAssignmentNode.scope.getLocalVariableWithIndex(variableAssignmentNode.name)
-    val variableType = variable.type
-    val expressionType = variableAssignmentNode.expression.type
+  fun castIfNecessaryOrThrow(variableType: JavaType, expressionType: JavaType) {
     if (variableType != expressionType) {
       if (variableType.primitive && expressionType.primitive) {
         val castInstruction = JavaType.PRIMITIVE_CAST_INSTRUCTION_MAP[Pair(expressionType, variableType)]
@@ -162,8 +158,8 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
       } else if (!variableType.primitive && !expressionType.primitive) {
         // both Object classes
         // TODO may need to cast sometimes
-        if (!variable.type.isAssignableFrom(variableAssignmentNode.expression.type)) {
-          throw SemanticException("Incompatible types. Variable is of type ${variable.type} but gave an expression of type ${variableAssignmentNode.expression.type}")
+        if (!variableType.isAssignableFrom(expressionType)) {
+          throw SemanticException("Incompatible types. Variable is of type $variableType but gave an expression of type $expressionType")
         }
       } else {
         if (variableType.primitive) {
@@ -227,7 +223,9 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
         }
       }
     }
-    mv.visitVarInsn(variable.type.storeCode, index)
   }
 
+  fun storeInVariable(variable: LocalVariable, index: Int) {
+    mv.visitVarInsn(variable.type.storeCode, index)
+  }
 }

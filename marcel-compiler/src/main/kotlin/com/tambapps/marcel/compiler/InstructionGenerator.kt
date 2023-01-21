@@ -1,8 +1,6 @@
 package com.tambapps.marcel.compiler
 
-import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
-import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.ast.expression.AccessOperator
 import com.tambapps.marcel.parser.ast.expression.BinaryOperatorNode
 import com.tambapps.marcel.parser.ast.expression.BlockNode
@@ -43,7 +41,6 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.ForInStatement
 import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
-import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.SemanticException
@@ -53,7 +50,6 @@ import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import it.unimi.dsi.fastutil.ints.IntIterator
-import marcel.lang.IntRange
 import marcel.lang.IntRanges
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes
@@ -171,7 +167,9 @@ private interface IInstructionGenerator: AstNodeVisitor {
   }
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     pushArgument(variableAssignmentNode.expression)
-    mv.visitVariableAssignment(variableAssignmentNode)
+    val (variable, index) = variableAssignmentNode.scope.getLocalVariableWithIndex(variableAssignmentNode.name)
+    mv.castIfNecessaryOrThrow(variable.type, variableAssignmentNode.expression.type)
+    mv.storeInVariable(variable, index)
   }
 
   override fun visit(voidExpression: VoidExpression) {
