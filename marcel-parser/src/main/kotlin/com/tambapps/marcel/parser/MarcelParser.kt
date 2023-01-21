@@ -25,6 +25,7 @@ import marcel.lang.Script
 
 import org.objectweb.asm.Opcodes
 import java.lang.NumberFormatException
+import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.abs
 
@@ -377,9 +378,10 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
          rangeNode(scope, IntConstantNode(token.value.toInt()))
         } else {
           val value = try {
-            if (token.value.startsWith("0x")) token.value.substring(2).toInt(16)
-            else if (token.value.startsWith("0b")) token.value.substring(2).toInt(2)
-            else token.value.toInt()
+            val value = token.value.lowercase(Locale.ENGLISH)
+            if (value.startsWith("0x")) token.value.substring(2).toInt(16)
+            else if (value.startsWith("0b")) token.value.substring(2).toInt(2)
+            else value.toInt()
           } catch (e: NumberFormatException) {
             throw MarcelParsingException(e)
           }
