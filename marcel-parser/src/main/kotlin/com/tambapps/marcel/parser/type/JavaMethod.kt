@@ -24,13 +24,11 @@ interface JavaMethod {
     get() = (access and Opcodes.ACC_STATIC) != 0
   val isConstructor: Boolean
   val invokeCode: Int
-    get() {
-      return if (isStatic) {
-        Opcodes.INVOKESTATIC
-      } else {
-        Opcodes.INVOKEVIRTUAL
-      }
-    }
+    get() = if (isStatic) Opcodes.INVOKESTATIC
+    else if (ownerClass.isInterface) Opcodes.INVOKEINTERFACE
+    else Opcodes.INVOKEVIRTUAL
+
+
   fun matches(name: String, types: List<TypedNode>): Boolean {
     if (parameters.size != types.size) return false
     for (i in parameters.indices) {

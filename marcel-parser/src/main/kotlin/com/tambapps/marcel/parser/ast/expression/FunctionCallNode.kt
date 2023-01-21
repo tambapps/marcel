@@ -9,6 +9,10 @@ import com.tambapps.marcel.parser.type.JavaType
 
 open class FunctionCallNode(val scope: Scope, val name: String, val arguments: MutableList<ExpressionNode>): ExpressionNode {
 
+  constructor(scope: Scope, name: String, arguments: MutableList<ExpressionNode>, methodOwnerType: TypedNode): this(scope, name, arguments) {
+    this.methodOwnerType = methodOwnerType
+  }
+
   var methodOwnerType: TypedNode? = null
 
   override val type: JavaType

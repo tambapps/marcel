@@ -289,6 +289,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           }
           ForInStatement(type, identifier, expression, statement.expression as BlockNode)
         } else {
+          val scope = InnerScope(scope as? MethodScope ?: throw MarcelParsingException("Cannot have for outside of a method"))
           val initStatement = statement(scope)
           if (initStatement !is VariableAssignmentNode) {
             throw MarcelParsingException("For loops should start with variable declaration/assignment")

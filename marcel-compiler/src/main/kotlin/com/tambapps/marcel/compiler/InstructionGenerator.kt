@@ -48,6 +48,7 @@ import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
+import it.unimi.dsi.fastutil.ints.IntIterator
 import marcel.lang.IntRange
 import marcel.lang.IntRanges
 import org.objectweb.asm.Label
@@ -231,7 +232,7 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
 
   override fun visit(forInStatement: ForInStatement) {
     val expression = forInStatement.inExpression
-    if (expression !is IntRange) {
+    if (expression.type != JavaType(IntRange::class.java)) {
       throw SemanticException("Only support for in of ranges for now")
     }
     // initialization
@@ -240,10 +241,29 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
     scope.addLocalVariable(forInStatement.variableType, forInStatement.variableName)
 
     // creating iterator
-    TODO()
+    val iteratorVarName = "_tempIterator"
+    visit(VariableDeclarationNode(scope, JavaType(IntIterator::class.java), iteratorVarName,
+      FunctionCallNode(scope, "iterator", mutableListOf(), expression)))
+
+    // loop start
+    val loopStart = Label()
+    mv.visitLabel(loopStart)
+
     // Verifying condition
+    val iteratorVarReference = VariableReferenceExpression(scope, iteratorVarName)
+    pushArgument(iteratorVarReference)
+    mv.invokeMethod(IntIterator::class.java.getMethod("hasNext"))
 
+    val loopEnd = Label()
+    mv.jumpIfEq(loopEnd)
 
+    // loop body
+    visit(VariableAssignmentNode(scope, forInStatement.variableName, FunctionCallNode(scope, "nextInt", mutableListOf(), iteratorVarReference)))
+    loopBody(ExpressionStatementNode(forInStatement.body), loopStart, loopEnd)
+    mv.jumpTo(loopStart)
+
+    // loop end
+    mv.visitLabel(loopEnd)
   }
   private fun loopBody(body: StatementNode, continueLabel: Label, breakLabel: Label) {
     if (body is ExpressionStatementNode && body.expression is BlockNode && (body.expression as BlockNode).scope is InnerScope) {

@@ -11,10 +11,12 @@ import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
+import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import java.io.PrintStream
+import java.lang.reflect.Method
 
 class MethodBytecodeVisitor(private val mv: MethodVisitor) {
 
@@ -37,9 +39,13 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
   }
 
   // arguments should be pushed before calling this method
+  fun invokeMethod(method: Method) {
+    invokeMethod(ReflectJavaMethod(method))
+  }
+
   fun invokeMethod(method: JavaMethod) {
     // TODO when handling interfaces, might need to pass true sometimes
-    mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, method.name, method.descriptor, false)
+    mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, method.name, method.descriptor, !method.isStatic && method.ownerClass.isInterface)
   }
 
   fun visitLabel(label: Label) {
