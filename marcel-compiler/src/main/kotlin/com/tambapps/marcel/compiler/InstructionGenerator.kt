@@ -241,7 +241,7 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
   override fun visit(forInStatement: ForInStatement) {
     val expression = forInStatement.inExpression
     if (!JavaType(Iterable::class.java).isAssignableFrom(expression.type)) {
-      throw SemanticException("Only support for in of ranges for now")
+      throw SemanticException("Only support for in Iterable")
     }
     // initialization
     val body = forInStatement.body
@@ -251,6 +251,7 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
     // creating iterator
     val iteratorVarName = "_tempIterator"
     val getIteratorMethod = scope.getMethodForType(expression.type, "iterator", emptyList())
+    // get right method in function of types, to avoid auto-(un/debo)xing
     val methodName = if (JavaType(IntIterator::class.java).isAssignableFrom(getIteratorMethod.returnType)) "nextInt"
     else if (JavaType(IntIterator::class.java).isAssignableFrom(getIteratorMethod.returnType)) "next"
     else throw UnsupportedOperationException("wtf")

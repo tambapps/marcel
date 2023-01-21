@@ -145,79 +145,79 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
   }
 
   // must push expression before calling this method
-  fun castIfNecessaryOrThrow(variableType: JavaType, expressionType: JavaType) {
-    if (variableType != expressionType) {
-      if (variableType.primitive && expressionType.primitive) {
-        val castInstruction = JavaType.PRIMITIVE_CAST_INSTRUCTION_MAP[Pair(expressionType, variableType)]
+  fun castIfNecessaryOrThrow(expectedType: JavaType, actualType: JavaType) {
+    if (expectedType != actualType) {
+      if (expectedType.primitive && actualType.primitive) {
+        val castInstruction = JavaType.PRIMITIVE_CAST_INSTRUCTION_MAP[Pair(actualType, expectedType)]
         if (castInstruction != null) {
           mv.visitInsn(castInstruction)
         } else {
-          throw SemanticException("Cannot cast primitive $expressionType to primitive $variableType")
+          throw SemanticException("Cannot cast primitive $actualType to primitive $expectedType")
         }
-      } else if (!variableType.primitive && !expressionType.primitive) {
+      } else if (!expectedType.primitive && !actualType.primitive) {
         // both Object classes
         // TODO may need to cast sometimes
-        if (!variableType.isAssignableFrom(expressionType)) {
-          throw SemanticException("Incompatible types. Variable is of type $variableType but gave an expression of type $expressionType")
+        if (!expectedType.isAssignableFrom(actualType)) {
+          throw SemanticException("Incompatible types. Variable is of type $expectedType but gave an expression of type $actualType")
         }
       } else {
-        if (variableType.primitive) {
+        if (expectedType.primitive) {
           // cast Object to primitive
-          when (variableType) {
+          when (expectedType) {
             JavaType.int -> {
-              if (variableType == JavaType.Integer) {
-                throw SemanticException("Cannot cast $variableType to int")
+              if (expectedType == JavaType.Integer) {
+                throw SemanticException("Cannot cast $expectedType to int")
               }
-              invokeMethod(Class.forName(variableType.className).getMethod("intValue"))
+              invokeMethod(Class.forName(expectedType.className).getMethod("intValue"))
             }
             JavaType.long -> {
-              if (variableType == JavaType.Long) {
-                throw SemanticException("Cannot cast $variableType to float")
+              if (expectedType == JavaType.Long) {
+                throw SemanticException("Cannot cast $expectedType to float")
               }
-              invokeMethod(Class.forName(variableType.className).getMethod("longValue"))
+              invokeMethod(Class.forName(expectedType.className).getMethod("longValue"))
             }
             JavaType.float -> {
-              if (variableType == JavaType.Float) {
-                throw SemanticException("Cannot cast $variableType to float")
+              if (expectedType == JavaType.Float) {
+                throw SemanticException("Cannot cast $expectedType to float")
               }
-              invokeMethod(Class.forName(variableType.className).getMethod("floatValue"))
+              invokeMethod(Class.forName(expectedType.className).getMethod("floatValue"))
             }
             JavaType.double -> {
-              if (variableType == JavaType.Double) {
-                throw SemanticException("Cannot cast $variableType to float")
+              if (expectedType == JavaType.Double) {
+                throw SemanticException("Cannot cast $expectedType to float")
               }
-              invokeMethod(Class.forName(variableType.className).getMethod("doubleValue"))
+              invokeMethod(Class.forName(expectedType.className).getMethod("doubleValue"))
             }
-            else -> throw SemanticException("Doesn't handle conversion from $expressionType to $variableType")
+            else -> throw SemanticException("Doesn't handle conversion from $actualType to $expectedType")
           }
         } else {
           // cast primitive to Object
-          when (variableType) {
+          when (expectedType) {
             JavaType.Integer -> {
-              if (variableType == JavaType.int) {
-                throw SemanticException("Cannot cast $variableType to Integer")
+              if (expectedType == JavaType.int) {
+                throw SemanticException("Cannot cast $expectedType to Integer")
               }
-              invokeMethod(Class.forName(variableType.className).getMethod("valueOf", Int::class.java))
+              invokeMethod(Class.forName(expectedType.className).getMethod("valueOf", Int::class.java))
             }
             JavaType.Long -> {
-              if (variableType == JavaType.long) {
-                throw SemanticException("Cannot cast $variableType to Long")
+              if (expectedType == JavaType.long) {
+                throw SemanticException("Cannot cast $expectedType to Long")
               }
-              invokeMethod(Class.forName(variableType.className).getMethod("valueOf", Long::class.java))
+              invokeMethod(Class.forName(expectedType.className).getMethod("valueOf", Long::class.java))
             }
             JavaType.Float -> {
-              if (variableType == JavaType.float) {
-                throw SemanticException("Cannot cast $variableType to Float")
+              if (expectedType == JavaType.float) {
+                throw SemanticException("Cannot cast $expectedType to Float")
               }
-              invokeMethod(Class.forName(variableType.className).getMethod("valueOf", Float::class.java))
+              invokeMethod(Class.forName(expectedType.className).getMethod("valueOf", Float::class.java))
             }
             JavaType.Double -> {
-              if (variableType == JavaType.double) {
-                throw SemanticException("Cannot cast $variableType to Double")
+              if (expectedType == JavaType.double) {
+                throw SemanticException("Cannot cast $expectedType to Double")
               }
-              invokeMethod(Class.forName(variableType.className).getMethod("valueOf", Double::class.java))
+              invokeMethod(Class.forName(expectedType.className).getMethod("valueOf", Double::class.java))
             }
-            else -> throw SemanticException("Doesn't handle conversion from $expressionType to $variableType")
+            else -> throw SemanticException("Doesn't handle conversion from $actualType to $expectedType")
           }
         }
       }
