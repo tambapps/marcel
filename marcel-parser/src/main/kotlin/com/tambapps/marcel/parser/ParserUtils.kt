@@ -43,4 +43,9 @@ object ParserUtils {
   fun getPriority(t: TokenType): Int {
     return PRIORITY_MAP[t]!!
   }
+
+  fun isTypeToken(tokenType: TokenType): Boolean {
+    return tokenType in listOf(TYPE_BOOL, TYPE_FLOAT, TYPE_DOUBLE, TYPE_BYTE,
+      TYPE_LONG, TYPE_INT, TYPE_SHORT, TYPE_VOID, IDENTIFIER)
+  }
 }

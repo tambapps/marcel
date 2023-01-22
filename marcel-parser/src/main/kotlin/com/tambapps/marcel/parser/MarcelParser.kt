@@ -2,6 +2,7 @@ package com.tambapps.marcel.parser
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
+import com.tambapps.marcel.parser.ParserUtils.isTypeToken
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
@@ -217,7 +218,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         }
         JavaType(className, genericTypes)
       }
-      else -> throw java.lang.UnsupportedOperationException("Doesn't handle type ${token.type}")
+      else -> throw UnsupportedOperationException("Doesn't handle type ${token.type}")
     }
   }
 
@@ -248,8 +249,16 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         ExpressionStatementNode(block(InnerScope(scope)))
       }
       TokenType.IF -> {
+
         accept(TokenType.LPAR)
-        val condition = BooleanExpressionNode(expression(scope))
+        val condition = BooleanExpressionNode(
+          if (isTypeToken(current.type) && tokens.getOrNull(currentIndex+1)?.type == TokenType.IDENTIFIER) {
+            val type = parseType(scope)
+            val variableName = accept(TokenType.IDENTIFIER).value
+            accept(TokenType.ASSIGNMENT)
+            TruthyVariableDeclarationNode(scope, type, variableName, expression(scope))
+          } else expression(scope)
+        )
         accept(TokenType.RPAR)
         val rootIf = IfStatementNode(condition, statement(scope), null)
         var currentIf = rootIf

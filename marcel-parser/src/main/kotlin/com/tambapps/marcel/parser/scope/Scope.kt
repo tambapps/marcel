@@ -43,6 +43,10 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
     return v
   }
 
+  fun removeVariable(name: String) {
+    localVariables.removeIf { it.name == name }
+  }
+
   fun getLocalVariable(name: String): LocalVariable {
     return getLocalVariableWithIndex(name).first
   }

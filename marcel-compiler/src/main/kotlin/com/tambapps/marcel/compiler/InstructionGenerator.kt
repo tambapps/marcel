@@ -30,6 +30,7 @@ import com.tambapps.marcel.parser.ast.expression.StringNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.TernaryNode
 import com.tambapps.marcel.parser.ast.expression.ToStringNode
+import com.tambapps.marcel.parser.ast.expression.TruthyVariableDeclarationNode
 import com.tambapps.marcel.parser.ast.expression.UnaryMinus
 import com.tambapps.marcel.parser.ast.expression.UnaryPlus
 import com.tambapps.marcel.parser.ast.expression.VariableAssignmentNode
@@ -317,6 +318,10 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
       falseStatementNode.accept(this)
       mv.visitLabel(endLabel)
     }
+    if (ifStatementNode.condition.innerExpression is TruthyVariableDeclarationNode) {
+      val truthyExpression = ifStatementNode.condition.innerExpression as TruthyVariableDeclarationNode
+      truthyExpression.scope.removeVariable(truthyExpression.name)
+    }
   }
   override fun visit(integer: IntConstantNode) {
     // don't need to write constants
@@ -452,6 +457,12 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
     visit(variableDeclarationNode as VariableAssignmentNode)
   }
 
+  override fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode) {
+    visit(
+      VariableDeclarationNode(truthyVariableDeclarationNode.scope, truthyVariableDeclarationNode.variableType,
+      truthyVariableDeclarationNode.name, truthyVariableDeclarationNode.expression)
+    )
+  }
   fun drop2() {
     // TODO verify it does what I think
     mv.pop2Stack()
@@ -684,6 +695,16 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
 
   override fun visit(variableDeclarationNode: VariableDeclarationNode) {
     instructionGenerator.visit(variableDeclarationNode)
+  }
+
+  override fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode) {
+    instructionGenerator.visit(truthyVariableDeclarationNode)
+    if (truthyVariableDeclarationNode.variableType.primitive) {
+      visit(BooleanConstantNode(true))
+    } else {
+      pushArgument(VariableReferenceExpression(truthyVariableDeclarationNode.scope, truthyVariableDeclarationNode.name))
+      mv.invokeMethod(MarcelDefaultMethods::class.java.getDeclaredMethod("truthy", Object::class.java))
+    }
   }
   override fun visit(blockNode: BlockNode) {
     instructionGenerator.visit(blockNode)

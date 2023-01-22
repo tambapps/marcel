@@ -34,6 +34,7 @@ interface AstNodeVisitor {
 
   fun visit(expressionStatementNode: ExpressionStatementNode)
   fun visit(variableDeclarationNode: VariableDeclarationNode)
+  fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode)
   fun visit(returnNode: ReturnNode)
   fun visit(voidExpression: VoidExpression)
   fun visit(stringNode: StringNode)
