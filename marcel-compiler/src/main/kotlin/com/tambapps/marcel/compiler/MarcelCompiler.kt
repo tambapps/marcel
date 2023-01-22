@@ -68,7 +68,7 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
           "Expected $methodReturnType but got $blockReturnType")
     }
 
-    mv.visitMaxs(maxStack, methodNode.scope.localVariablesCount) //set max stack and max local variables
+    mv.visitMaxs(0, 0) // args ignored since we used the flags COMPUTE_MAXS and COMPUTE_FRAMES
     mv.visitEnd()
   }
 }
