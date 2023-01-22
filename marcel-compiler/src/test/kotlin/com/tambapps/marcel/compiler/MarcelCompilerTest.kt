@@ -15,7 +15,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
-import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.absoluteValue
 
 
@@ -39,7 +38,7 @@ class MarcelCompilerTest {
   fun testScript() {
     val eval = eval("/test1.marcel")!!
     assertNotNull(eval)
-    assertEquals(JavaType.Object.realClassOrObject, eval.javaClass)
+    assertEquals(JavaType.Object.realClazz, eval.javaClass)
   }
 
   @Test

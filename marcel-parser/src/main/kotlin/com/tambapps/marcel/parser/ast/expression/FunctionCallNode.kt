@@ -27,8 +27,6 @@ open class FunctionCallNode(override val scope: Scope, val name: String, val arg
 
   val descriptor: String
     get() = AsmUtils.getDescriptor(arguments, type)
-  val parameterTypes: Array<Class<*>>
-    get() = arguments.map { it.type.realClassOrObject }.toTypedArray()
 
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)

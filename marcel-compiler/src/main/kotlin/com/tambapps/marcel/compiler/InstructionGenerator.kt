@@ -563,9 +563,9 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
     if (expr.type == JavaType.String) {
       expr.accept(this)
     } else {
-      val argumentClass = expr.type.realClassOrObject
-      if (argumentClass.isPrimitive) {
-        val method = ReflectJavaMethod(String::class.java.getDeclaredMethod("valueOf", argumentClass))
+      val argumentType = expr.type
+      if (argumentType.primitive) {
+        val method = ReflectJavaMethod(String::class.java.getDeclaredMethod("valueOf", argumentType.realClazz))
         pushArgument(expr)
         mv.invokeMethod(method)
       } else {
@@ -589,8 +589,8 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
     visit(ConstructorCallNode(Scope(type), type, mutableListOf()))
     for (part in stringNode.parts) {
       // chained calls
-      val argumentClass = part.type.realClassOrObject
-      val method = ReflectJavaMethod(StringBuilder::class.java.getDeclaredMethod("append", if (argumentClass.isPrimitive) argumentClass else Object::class.java))
+      val argumentType = part.type
+      val method = ReflectJavaMethod(StringBuilder::class.java.getDeclaredMethod("append", argumentType.realClazzOrObject))
       pushArgument(part)
       mv.invokeMethod(method)
     }

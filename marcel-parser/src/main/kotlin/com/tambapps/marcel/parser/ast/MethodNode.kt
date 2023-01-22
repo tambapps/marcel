@@ -14,7 +14,6 @@ open class MethodNode constructor(override val access: Int, override val ownerCl
   override val isConstructor = false
 
   override val descriptor get() = AsmUtils.getDescriptor(parameters, returnType)
-  val parameterTypes get() = parameters.map { it.type.realClassOrObject }.toTypedArray()
 
   override fun toString(): String {
     return "fun $name(" + parameters.joinToString(separator = ", ") + ") " + returnType

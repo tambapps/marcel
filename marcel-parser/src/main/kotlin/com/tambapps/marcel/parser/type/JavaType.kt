@@ -8,21 +8,26 @@ import com.tambapps.marcel.parser.ast.TypedNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import org.objectweb.asm.Opcodes
 
-// TODO add an imple for dynamic types e.g. class defined in a marcel script
 open class JavaType internal constructor(
-  val isDefined: Boolean,
-  val realClassOrObject: Class<*>,
-    val className: String,
-    val internalName: String,
-    val descriptor: String,
-    val storeCode: Int,
-    val loadCode: Int,
-    val returnCode: Int,
-    val genericTypes: List<JavaType>,
-    val isInterface: Boolean): TypedNode {
+  // whether the class is in the classpath and therefore can be accessed with Class.forName(className)
+  val isLoaded: Boolean,
+  private val _realClazz: Class<*>?,
+  val className: String,
+  val internalName: String,
+  val descriptor: String,
+  val storeCode: Int,
+  val loadCode: Int,
+  val returnCode: Int,
+  val genericTypes: List<JavaType>,
+  val isInterface: Boolean): TypedNode {
 
   override val type: JavaType get() = this
   open val primitive = false
+
+  val realClazz: Class<*>
+    get() = _realClazz ?: throw RuntimeException("Cannot get real class on not loaded type")
+  val realClazzOrObject: Class<*>
+    get() = _realClazz ?: Object.realClazz
 
   constructor(clazz: Class<*>): this(true, clazz, clazz.name, AsmUtils.getInternalName(clazz), AsmUtils.getClassDescriptor(clazz),
   Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN, emptyList(), clazz.isInterface)
@@ -34,7 +39,7 @@ open class JavaType internal constructor(
   }
 
   // constructors for class defined in a script
-  private constructor(clazz: String): this(false, Object.realClassOrObject, clazz,
+  private constructor(clazz: String): this(false, null, clazz,
     AsmUtils.getInternalName(clazz), AsmUtils.getObjectClassDescriptor(clazz), Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN, emptyList(), false)
 
   companion object {
@@ -125,13 +130,14 @@ open class JavaType internal constructor(
       return this == javaType
     }
     // TODO only handle (properly) classes already defined, not parsed class
-    val thisClass = realClassOrObject
-    val otherClass = javaType.realClassOrObject
+    // TODO need to keep track of parent type in order to compare not defined class
+    val thisClass = realClazzOrObject
+    val otherClass = javaType.realClazzOrObject
     return thisClass.isAssignableFrom(otherClass)
   }
 
   open fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
-    return JavaType(isDefined, realClassOrObject, className, internalName, descriptor, storeCode, loadCode, returnCode, genericTypes, isInterface)
+    return JavaType(isLoaded, realClazz, className, internalName, descriptor, storeCode, loadCode, returnCode, genericTypes, isInterface)
   }
 
   override fun toString(): String {
