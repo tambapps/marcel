@@ -52,17 +52,13 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
   }
 
   fun getMethodForType(type: JavaType, name: String, argumentTypes: List<TypedNode>): JavaMethod {
-    try {
-      // TODO add method JavaType.isDefined to avoid this
-      val clazz = Class.forName(type.className)
-      return if (name == JavaMethod.CONSTRUCTOR_NAME) ReflectJavaConstructor(clazz.getDeclaredConstructor(*argumentTypes.map { it.type.realClassOrObject }.toTypedArray()))
+    return if (type.isDefined) {
+      val clazz = type.realClassOrObject
+      if (name == JavaMethod.CONSTRUCTOR_NAME) ReflectJavaConstructor(clazz.getDeclaredConstructor(*argumentTypes.map { it.type.realClassOrObject }.toTypedArray()))
       else ReflectJavaMethod(clazz.getDeclaredMethod(name, *argumentTypes.map { it.type.realClassOrObject }.toTypedArray()))
-    } catch (e: ClassNotFoundException) {
-      if (type == classType) {
-        return getMethod(name, argumentTypes)
-      } else throw SemanticException("Unknown class $type")
-
-    }
+    } else if (type == classType) {
+      getMethod(name, argumentTypes)
+    } else throw SemanticException("Unknown class $type")
   }
 
   fun getMethod(name: String, argumentTypes: List<TypedNode>): JavaMethod {

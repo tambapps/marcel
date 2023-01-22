@@ -10,6 +10,7 @@ import org.objectweb.asm.Opcodes
 
 // TODO add an imple for dynamic types e.g. class defined in a marcel script
 open class JavaType internal constructor(
+  val isDefined: Boolean,
   val realClassOrObject: Class<*>,
     val className: String,
     val internalName: String,
@@ -23,7 +24,7 @@ open class JavaType internal constructor(
   override val type: JavaType get() = this
   open val primitive = false
 
-  constructor(clazz: Class<*>): this(clazz, clazz.name, AsmUtils.getInternalName(clazz), AsmUtils.getClassDescriptor(clazz),
+  constructor(clazz: Class<*>): this(true, clazz, clazz.name, AsmUtils.getInternalName(clazz), AsmUtils.getClassDescriptor(clazz),
   Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN, emptyList(), clazz.isInterface)
 
   init {
@@ -33,15 +34,20 @@ open class JavaType internal constructor(
   }
 
   // constructors for class defined in a script
-  private constructor(clazz: String): this(clazz, emptyList())
-  private constructor(clazz: String, genericTypes: List<JavaType>): this(Object.realClassOrObject, clazz,
-    AsmUtils.getInternalName(clazz), AsmUtils.getObjectClassDescriptor(clazz), Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN, genericTypes, false)
+  private constructor(clazz: String): this(false, Object.realClassOrObject, clazz,
+    AsmUtils.getInternalName(clazz), AsmUtils.getObjectClassDescriptor(clazz), Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN, emptyList(), false)
 
   companion object {
 
     private val DEFINED_TYPES = mutableMapOf<String, JavaType>()
 
     fun defineClass(className: String): JavaType {
+      try {
+        Class.forName(className)
+        throw SemanticException("Class $className is already defined")
+      } catch (e: ClassNotFoundException) {
+        // ignore
+      }
       if (DEFINED_TYPES.containsKey(className)) throw SemanticException("Class $className is already defined")
       val type = JavaType(className)
       DEFINED_TYPES[className] = type
@@ -125,7 +131,7 @@ open class JavaType internal constructor(
   }
 
   open fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
-    return JavaType(realClassOrObject, className, internalName, descriptor, storeCode, loadCode, returnCode, genericTypes, isInterface)
+    return JavaType(isDefined, realClassOrObject, className, internalName, descriptor, storeCode, loadCode, returnCode, genericTypes, isInterface)
   }
 
   override fun toString(): String {
@@ -164,7 +170,7 @@ class JavaPrimitiveType(
                         val addCode: Int,
                         val subCode: Int,
                         val mulCode: Int,
-                        val divCode: Int): JavaType(realClassOrObject, className, internalName, descriptor, storeCode, loadCode, returnCode, emptyList(), false) {
+                        val divCode: Int): JavaType(true, realClassOrObject, className, internalName, descriptor, storeCode, loadCode, returnCode, emptyList(), false) {
   override val primitive = true
   internal constructor(clazz: Class<*>,
               loadCode: Int,
