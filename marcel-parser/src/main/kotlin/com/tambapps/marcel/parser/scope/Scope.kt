@@ -12,7 +12,7 @@ import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import org.objectweb.asm.Label
 
 open class Scope constructor(val imports: MutableList<ImportNode>, val classType: JavaType, val superClassInternalName: String, val classMethods: List<JavaMethod>) {
-  constructor(): this(mutableListOf(), JavaType("Test"), JavaType.Object.internalName, emptyList()) {
+  constructor(javaType: JavaType): this(mutableListOf(), javaType, JavaType.Object.internalName, emptyList()) {
     imports.addAll(DEFAULT_IMPORTS)
   }
 
@@ -52,20 +52,16 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
   }
 
   fun getMethodForType(type: JavaType, name: String, argumentTypes: List<TypedNode>): JavaMethod {
-    if (type == classType) {
-      return getMethod(name, argumentTypes)
-    }
-    val clazz = try {
-      Class.forName(type.className)
-    } catch (e: ClassNotFoundException) {
-      throw SemanticException("Unknown class $type")
-    }
-
-    return try {
+    try {
+      // TODO add method JavaType.isDefined to avoid this
+      val clazz = Class.forName(type.className)
       return if (name == JavaMethod.CONSTRUCTOR_NAME) ReflectJavaConstructor(clazz.getDeclaredConstructor(*argumentTypes.map { it.type.realClassOrObject }.toTypedArray()))
       else ReflectJavaMethod(clazz.getDeclaredMethod(name, *argumentTypes.map { it.type.realClassOrObject }.toTypedArray()))
-    } catch (e: NoSuchMethodException) {
-      throw SemanticException("Unknown method " + e.message)
+    } catch (e: ClassNotFoundException) {
+      if (type == classType) {
+        return getMethod(name, argumentTypes)
+      } else throw SemanticException("Unknown class $type")
+
     }
   }
 

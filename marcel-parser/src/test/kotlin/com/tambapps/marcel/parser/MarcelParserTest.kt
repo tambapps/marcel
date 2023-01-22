@@ -19,7 +19,8 @@ import org.objectweb.asm.Opcodes
 class MarcelParserTest {
 
     private val lexer = MarcelLexer()
-    private val scope = MethodScope(mutableListOf(), JavaType("Test"), JavaType.Object.internalName, emptyList(), "test", emptyList(), JavaType.void)
+    private val type = JavaType.defineClass("Test")
+    private val scope = MethodScope(mutableListOf(), type, JavaType.Object.internalName, emptyList(), "test", emptyList(), JavaType.void)
 
     @Test
     fun testExpression() {
@@ -29,7 +30,7 @@ class MarcelParserTest {
             LexToken(TokenType.INTEGER, "3"),
             LexToken(TokenType.END_OF_FILE, null)
         ))
-        val result = parser.expression(Scope())
+        val result = parser.expression(Scope(type))
         assertEquals(MulOperator(IntConstantNode(2), IntConstantNode(3)), result)
     }
 
@@ -38,7 +39,7 @@ class MarcelParserTest {
         val parser = parser("int a = 22")
         assertEquals(
             VariableDeclarationNode(scope, JavaType.int, "a", IntConstantNode(22)),
-            parser.statement(Scope()))
+            parser.statement(Scope(type)))
     }
 
     @Test
@@ -46,14 +47,14 @@ class MarcelParserTest {
         val parser = parser("bool b = false")
         assertEquals(
             VariableDeclarationNode(scope, JavaType.boolean, "b", BooleanConstantNode(false)),
-            parser.statement(Scope()))
+            parser.statement(Scope(type)))
     }
 
     @Test
     fun testFunction() {
         val parser = parser("fun foo(int a, String b) int { return 1 }")
         val imports = mutableListOf<ImportNode>(WildcardImportNode("java.lang"))
-        val classScope = Scope(imports, JavaType("Test"), JavaType.Object.internalName, emptyList())
+        val classScope = Scope(imports, type, JavaType.Object.internalName, emptyList())
         val expected = MethodNode(Opcodes.ACC_PUBLIC, JavaType.Object, "foo",
             FunctionBlockNode(scope, listOf(
                 ReturnNode(scope, IntConstantNode(1))
@@ -62,7 +63,7 @@ class MarcelParserTest {
                 listOf(MethodParameter(JavaType.int, "a"), MethodParameter(JavaType.int, "b")), JavaType.int)
             )
 
-        val actual = parser.method(classScope, ClassNode(Opcodes.ACC_PUBLIC, JavaType("Test"), JavaType.Object, mutableListOf()))
+        val actual = parser.method(classScope, ClassNode(Opcodes.ACC_PUBLIC, type, JavaType.Object, mutableListOf()))
         // verifying method signature
         assertEquals(expected.toString(), actual.toString())
 
@@ -74,11 +75,11 @@ class MarcelParserTest {
         val parser = parser("Type<Integer, Object> b = null")
 
         assertEquals(
-            VariableDeclarationNode(scope, JavaType("Type", listOf(
+            VariableDeclarationNode(scope, JavaType.of("Type").withGenericTypes(listOf(
                 JavaType(Class.forName("java.lang.Integer")),
                 JavaType(Class.forName("java.lang.Object"))
             )), "b", NullValueNode()),
-            parser.statement(Scope()))
+            parser.statement(Scope(type)))
     }
 
     private fun tokens(s: String): List<LexToken> {

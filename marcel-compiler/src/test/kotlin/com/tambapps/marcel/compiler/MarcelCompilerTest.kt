@@ -2,6 +2,7 @@ package com.tambapps.marcel.compiler
 
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.Script
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -14,6 +15,8 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
+import java.util.concurrent.ThreadLocalRandom
+import kotlin.math.absoluteValue
 
 
 class MarcelCompilerTest {
@@ -97,9 +100,14 @@ class MarcelCompilerTest {
     assertTrue(eval is Script)
   }
 
+  @AfterEach
+  fun dispose() {
+    JavaType.clear()
+  }
   private fun eval(resourceName: String): Any? {
     val result = javaClass.getResourceAsStream(resourceName).reader().use {
-      compiler.compile(it, "Test")
+      // using hashCode to have unique names
+      compiler.compile(it, "Test" + resourceName.hashCode().absoluteValue)
     }
 
     val jarFile = Files.createTempFile("", "${result.className}.jar").toFile()

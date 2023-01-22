@@ -66,7 +66,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val classMethods = mutableListOf<MethodNode>()
     val superType = JavaType(Script::class.java)
     val className = classSimpleName
-    val classType = JavaType(className)
+    val classType = JavaType.defineClass(className)
     val classScope = Scope(imports, classType, AsmUtils.getInternalName(superType), classMethods)
     val runScope = MethodScope(classScope, className, emptyList(), JavaType.Object)
     val statements = mutableListOf<StatementNode>()
@@ -216,7 +216,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           }
           accept(TokenType.GT)
         }
-        JavaType(className, genericTypes)
+        JavaType.of(className).withGenericTypes(genericTypes)
       }
       else -> throw UnsupportedOperationException("Doesn't handle type ${token.type}")
     }
@@ -405,7 +405,8 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         val classSimpleName = accept(TokenType.IDENTIFIER).value
         val className = scope.resolveClassName(classSimpleName)
         accept(TokenType.LPAR)
-        ConstructorCallNode(Scope(), JavaType(className), parseFunctionArguments(scope))
+        val type = JavaType.of(className)
+        ConstructorCallNode(Scope(type), type, parseFunctionArguments(scope))
       }
       TokenType.IDENTIFIER -> {
         if (current.type == TokenType.INCR) {

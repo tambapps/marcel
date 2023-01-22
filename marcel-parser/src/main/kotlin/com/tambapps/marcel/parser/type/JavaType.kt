@@ -5,10 +5,11 @@ import com.tambapps.marcel.parser.MarcelParsingException
 import com.tambapps.marcel.parser.PrimitiveTypes
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.TypedNode
+import com.tambapps.marcel.parser.exception.SemanticException
 import org.objectweb.asm.Opcodes
 
 // TODO add an imple for dynamic types e.g. class defined in a marcel script
-open class JavaType(
+open class JavaType internal constructor(
   val realClassOrObject: Class<*>,
     val className: String,
     val internalName: String,
@@ -32,11 +33,36 @@ open class JavaType(
   }
 
   // constructors for class defined in a script
-  constructor(clazz: String): this(clazz, emptyList())
-  constructor(clazz: String, genericTypes: List<JavaType>): this(Object.realClassOrObject, clazz,
+  private constructor(clazz: String): this(clazz, emptyList())
+  private constructor(clazz: String, genericTypes: List<JavaType>): this(Object.realClassOrObject, clazz,
     AsmUtils.getInternalName(clazz), AsmUtils.getObjectClassDescriptor(clazz), Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN, genericTypes, false)
 
   companion object {
+
+    private val DEFINED_TYPES = mutableMapOf<String, JavaType>()
+
+    fun defineClass(className: String): JavaType {
+      if (DEFINED_TYPES.containsKey(className)) throw SemanticException("Class $className is already defined")
+      val type = JavaType(className)
+      DEFINED_TYPES[className] = type
+      return type
+    }
+
+    fun of(className: String): JavaType {
+      if (DEFINED_TYPES.containsKey(className)) return DEFINED_TYPES.getValue(className)
+      try {
+        val clazz = Class.forName(className)
+        val type = JavaType(clazz)
+        DEFINED_TYPES[className] = type
+        return type
+      } catch (e: ClassNotFoundException) {
+        throw SemanticException("Class $className was not found")
+      }
+    }
+
+    fun clear() {
+      DEFINED_TYPES.clear()
+    }
 
     val Object = JavaType(Object::class.java)
     val String = JavaType(String::class.java)
@@ -98,6 +124,10 @@ open class JavaType(
     return thisClass.isAssignableFrom(otherClass)
   }
 
+  open fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
+    return JavaType(realClassOrObject, className, internalName, descriptor, storeCode, loadCode, returnCode, genericTypes, isInterface)
+  }
+
   override fun toString(): String {
     if (genericTypes.isNotEmpty()) {
       return className + "<" + genericTypes.joinToString(separator = ", ") + ">"
@@ -146,4 +176,7 @@ class JavaPrimitiveType(
               divCode: Int): this(clazz, clazz.name, AsmUtils.getInternalName(clazz),
       AsmUtils.getClassDescriptor(clazz), loadCode, storeCode, retCode, addCode, subCode, mulCode, divCode)
 
+  override fun withGenericTypes(genericTypes: List<JavaType>): JavaPrimitiveType {
+    throw SemanticException("Cannot have primitive type with generic types")
+  }
 }
