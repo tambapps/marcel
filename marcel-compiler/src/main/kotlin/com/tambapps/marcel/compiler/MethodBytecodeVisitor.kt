@@ -168,25 +168,25 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
               if (actualType != JavaType.Boolean) {
                 throw SemanticException("Cannot cast $actualType to boolean")
               }
-              invokeMethod(Class.forName(expectedType.className).getMethod("booleanValue"))
+              invokeMethod(Class.forName(JavaType.Boolean.className).getMethod("booleanValue"))
             }
             JavaType.int -> {
               if (actualType != JavaType.Integer) {
                 throw SemanticException("Cannot cast $actualType to int")
               }
-              invokeMethod(Class.forName(expectedType.className).getMethod("intValue"))
+              invokeMethod(Class.forName(JavaType.Integer.className).getMethod("intValue"))
             }
             JavaType.long -> {
               if (actualType != JavaType.Long) {
                 throw SemanticException("Cannot cast $actualType to float")
               }
-              invokeMethod(Class.forName(expectedType.className).getMethod("longValue"))
+              invokeMethod(Class.forName(JavaType.Long.className).getMethod("longValue"))
             }
             JavaType.float -> {
               if (actualType != JavaType.Float) {
                 throw SemanticException("Cannot cast $actualType to float")
               }
-              invokeMethod(Class.forName(expectedType.className).getMethod("floatValue"))
+              invokeMethod(Class.forName(JavaType.Float.className).getMethod("floatValue"))
             }
             JavaType.double -> {
               if (actualType != JavaType.Double) {
