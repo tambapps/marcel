@@ -398,7 +398,7 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
     } else {
       if (lastStatement.type != JavaType.void) {
         pushArgument(lastStatement.expression)
-        mv.castIfNecessaryOrThrow(blockNode.scope.returnType, lastStatement.type)
+        mv.castIfNecessaryOrThrow(blockNode.scope.returnType, lastStatement.expression.type)
       } else {
         lastStatement.accept(this)
         // method expects an object but nothing was returned? let's return null
