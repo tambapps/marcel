@@ -1,34 +1,18 @@
 # marcel
-JVM-based programming language guaranteed to work on Android.
+Marcel is language that compiles to Java bytecode, with a guaranteed support for Android. It also aims to use primitive types as much as possible when
+working with Collections. For that, it uses the [fastutil library](https://github.com/vigna/fastutil)
 
-## Specifications
+You can learn more about this programming language on the [wiki page](https://github.com/tambapps/marcel/wiki)
+## Example
 
-### Types
-It supports the following primitive types
-- int
-- long
-- float
-- double
-- boolean
-- void
+Here is an example on how to code the Fibonnaci suite in Marcel
 
-### Functions (on-going)
+```kotlin
+println(fibonnaci(10))
 
-here is the syntax to define a function
-
-```
-private fun foo(int arg1, int arg2) int {
-
-}
-
-// void function
-private fun bar() {
-
+fun fibonacci(int n) int {
+  if (n == 0) return 0
+  else if (n == 1 || n == 2) return 1
+  else return fibonacci(n - 1) + fibonacci(n - 2)
 }
 ```
-
-Functions are public by default
-
-### Visibility
-
-We have the `public`, `protected`, `private` and `hidden` (package-private) visibility.
