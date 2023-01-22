@@ -50,6 +50,9 @@ class ReflectJavaConstructor(constructor: Constructor<*>): JavaMethod {
   override val invokeCode = Opcodes.INVOKESPECIAL
   override val isConstructor = true
 
+  override fun toString(): String {
+    return "${ownerClass.className}(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType
+  }
 }
 class ReflectJavaMethod(method: Method): JavaMethod {
   override val ownerClass = JavaType(method.declaringClass)
@@ -61,4 +64,8 @@ class ReflectJavaMethod(method: Method): JavaMethod {
   override val returnType = JavaType(method.returnType)
   override val descriptor = AsmUtils.getDescriptor(parameters, returnType)
   override val isConstructor = false
+
+  override fun toString(): String {
+    return "$ownerClass.$name(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType
+  }
 }
