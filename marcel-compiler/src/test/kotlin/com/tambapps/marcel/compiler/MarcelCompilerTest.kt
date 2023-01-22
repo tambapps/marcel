@@ -6,18 +6,31 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
-import java.io.File
+import org.junit.jupiter.api.TestFactory
 import java.net.URLClassLoader
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.Arrays
+import java.util.*
 
 
 class MarcelCompilerTest {
 
   private val compiler = MarcelCompiler()
+
+  @TestFactory
+  fun testRunAllScripts(): Collection<DynamicTest?>? {
+    val path: Path = Paths.get(javaClass.getResource("/").toURI())
+    val scriptPaths = path.toFile().list { dir, name -> name.endsWith(".marcel") }
+
+    return  scriptPaths.map { path: String ->
+      DynamicTest.dynamicTest(path.removeSuffix(".marcel")) {
+        eval("/$path")
+      }
+    }
+  }
 
   @Test
   fun testScript() {
@@ -84,18 +97,6 @@ class MarcelCompilerTest {
     assertTrue(eval is Script)
   }
 
-
-  @Test
-  fun testAll() {
-    javaClass.getResource("/json")
-    val path: Path = Paths.get(javaClass.getResource("/").toURI())
-    val scriptPaths = path.toFile().list { dir, name -> name.endsWith(".marcel") }
-    for (path in scriptPaths) {
-      println("Running $path")
-      eval("/$path")
-    }
-
-  }
   private fun eval(resourceName: String): Any? {
     val result = javaClass.getResourceAsStream(resourceName).reader().use {
       compiler.compile(it, "Test")
