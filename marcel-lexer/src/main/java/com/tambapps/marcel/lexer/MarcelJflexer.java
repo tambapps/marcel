@@ -1421,7 +1421,7 @@ class MarcelJflexer {
             // fall through
           case 124: break;
           case 51:
-            { return token(TYPE_INT);
+            { return valueToken(TYPE_INT);
             }
             // fall through
           case 125: break;
@@ -1444,12 +1444,12 @@ class MarcelJflexer {
             // fall through
           case 127: break;
           case 54:
-            { return token(TYPE_BOOL);
+            { return valueToken(TYPE_BOOL);
             }
             // fall through
           case 128: break;
           case 55:
-            { return token(TYPE_BYTE);
+            { return valueToken(TYPE_BYTE);
             }
             // fall through
           case 129: break;
@@ -1459,7 +1459,7 @@ class MarcelJflexer {
             // fall through
           case 130: break;
           case 57:
-            { return token(TYPE_LONG);
+            { return valueToken(TYPE_LONG);
             }
             // fall through
           case 131: break;
@@ -1474,7 +1474,7 @@ class MarcelJflexer {
             // fall through
           case 133: break;
           case 60:
-            { return token(TYPE_VOID);
+            { return valueToken(TYPE_VOID);
             }
             // fall through
           case 134: break;
@@ -1489,12 +1489,12 @@ class MarcelJflexer {
             // fall through
           case 136: break;
           case 63:
-            { return token(TYPE_FLOAT);
+            { return valueToken(TYPE_FLOAT);
             }
             // fall through
           case 137: break;
           case 64:
-            { return token(TYPE_SHORT);
+            { return valueToken(TYPE_SHORT);
             }
             // fall through
           case 138: break;
@@ -1504,7 +1504,7 @@ class MarcelJflexer {
             // fall through
           case 139: break;
           case 66:
-            { return token(TYPE_DOUBLE);
+            { return valueToken(TYPE_DOUBLE);
             }
             // fall through
           case 140: break;

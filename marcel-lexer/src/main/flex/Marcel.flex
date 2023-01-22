@@ -186,16 +186,16 @@ LONELY_BACKTICK=`
 ({WHITE_SPACE_CHAR})+ { return token(WHITE_SPACE); }
 
 // keywords
-"void"          { return token(TYPE_VOID); }
+"void"          { return valueToken(TYPE_VOID); }
 "true"          { return token(VALUE_TRUE); }
 "false"          { return token(VALUE_FALSE); }
-"byte"          { return token(TYPE_BYTE); }
-"short"          { return token(TYPE_SHORT); }
-"int"          { return token(TYPE_INT); }
-"long"          { return token(TYPE_LONG); }
-"float"          { return token(TYPE_FLOAT); }
-"double"          { return token(TYPE_DOUBLE); }
-"bool"          { return token(TYPE_BOOL); }
+"byte"          { return valueToken(TYPE_BYTE); }
+"short"          { return valueToken(TYPE_SHORT); }
+"int"          { return valueToken(TYPE_INT); }
+"long"          { return valueToken(TYPE_LONG); }
+"float"          { return valueToken(TYPE_FLOAT); }
+"double"          { return valueToken(TYPE_DOUBLE); }
+"bool"          { return valueToken(TYPE_BOOL); }
 "public"          { return token(VISIBILITY_PUBLIC); }
 "protected"          { return token(VISIBILITY_PROTECTED); }
 "internal"          { return token(VISIBILITY_INTERNAL); }
