@@ -146,6 +146,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
 
   // must push expression before calling this method
   fun castIfNecessaryOrThrow(expectedType: JavaType, actualType: JavaType) {
+    // TODO handle booleans
     if (expectedType != actualType) {
       if (expectedType.primitive && actualType.primitive) {
         val castInstruction = JavaType.PRIMITIVE_CAST_INSTRUCTION_MAP[Pair(actualType, expectedType)]
@@ -192,32 +193,20 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
           }
         } else {
           // cast primitive to Object
-        //  val Number = JavaType(Number::class.java)
-          when (expectedType) {
-            JavaType.Integer -> {
-              if (actualType != JavaType.int) {
-                throw SemanticException("Cannot cast $actualType to Integer")
-              }
-              invokeMethod(Class.forName(expectedType.className).getMethod("valueOf", Int::class.java))
-            }
-            JavaType.Long -> {
-              if (actualType != JavaType.long) {
-                throw SemanticException("Cannot cast $actualType to Long")
-              }
-              invokeMethod(Class.forName(expectedType.className).getMethod("valueOf", Long::class.java))
-            }
-            JavaType.Float -> {
-              if (actualType != JavaType.float) {
-                throw SemanticException("Cannot cast $actualType to Float")
-              }
-              invokeMethod(Class.forName(expectedType.className).getMethod("valueOf", Float::class.java))
-            }
-            JavaType.Double -> {
-              if (actualType == JavaType.double) {
-                throw SemanticException("Cannot cast $actualType to Double")
-              }
-              invokeMethod(Class.forName(expectedType.className).getMethod("valueOf", Double::class.java))
-            }
+          if (expectedType == JavaType.Integer && actualType != JavaType.int
+            || expectedType == JavaType.Long && actualType != JavaType.long
+            || expectedType == JavaType.Float && actualType != JavaType.float
+            || expectedType == JavaType.Double && actualType != JavaType.double
+            || expectedType !in listOf(
+              JavaType.Integer, JavaType.Long, JavaType.Float, JavaType.Double, JavaType(Number::class.java), JavaType.Object
+            )) {
+            throw SemanticException("Cannot cast $actualType to $actualType")
+          }
+          when (actualType) {
+            JavaType.int -> invokeMethod(Class.forName(JavaType.Integer.className).getMethod("valueOf", Int::class.java))
+            JavaType.long -> invokeMethod(Class.forName(JavaType.Long.className).getMethod("valueOf", Long::class.java))
+            JavaType.float -> invokeMethod(Class.forName(JavaType.Float.className).getMethod("valueOf", Float::class.java))
+            JavaType.double -> invokeMethod(Class.forName(JavaType.Long.className).getMethod("valueOf", Double::class.java))
             else -> throw SemanticException("Doesn't handle conversion from $actualType to $expectedType")
           }
         }
