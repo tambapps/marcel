@@ -27,27 +27,24 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
   }
 
   // Linked because we need it to be sorted by insertion order
-  internal open val localVariables: LinkedHashMap<String, LocalVariable> = LinkedHashMap()
+  internal open val localVariables: MutableList<LocalVariable> = mutableListOf()
 
   open fun addLocalVariable(type: JavaType, name: String): LocalVariable {
-    if (localVariables.containsKey(name)) {
+    if (localVariables.any { it.name == name }) {
       throw SemanticException("A variable with name $name is already defined")
     }
     val v = LocalVariable(type, name)
     if (name == "this") {
       // this should always be the first element in the map
-      val copy = LinkedHashMap(localVariables)
-      localVariables.clear()
-      localVariables[name] = v
-      localVariables.putAll(copy)
+      localVariables.add(0, v)
     } else {
-      localVariables[name] = v
+      localVariables.add(v)
     }
     return v
   }
 
   fun getLocalVariable(name: String): LocalVariable {
-    return localVariables[name] ?: throw SemanticException("Variable $name is not defined")
+    return getLocalVariableWithIndex(name).first
   }
 
   fun getMethodForType(type: JavaType, name: String, argumentTypes: List<TypedNode>): JavaMethod {
@@ -75,12 +72,16 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
       ?: throw SemanticException("Method $name is not defined")
   }
   fun getLocalVariableWithIndex(name: String): Pair<LocalVariable, Int> {
-    val variable = getLocalVariable(name)
-    return Pair(variable, getLocalVariableIndex(name))
+    var index = 0
+    for (variable in localVariables) {
+      if (variable.name == name) return Pair(variable, index)
+      index+= variable.nbSlots
+    }
+    throw SemanticException("Variable $name is not defined")
   }
 
   fun getLocalVariableIndex(name: String): Int {
-    return localVariables.values.indexOfFirst { it.name == name }
+    return getLocalVariableWithIndex(name).second
   }
 
   fun copy(): Scope {
@@ -126,10 +127,10 @@ class InnerScope constructor(private val parentScope: MethodScope)
   : MethodScope(parentScope.imports, parentScope.classType, parentScope.superClassInternalName, parentScope.classMethods, parentScope.methodName, parentScope.parameters, parentScope.returnType) {
 
   // we want to access local variable defined in parent scope
-  override val localVariables: LinkedHashMap<String, LocalVariable>
+  override val localVariables: MutableList<LocalVariable>
     get() = parentScope.localVariables
 
-  private val innerScopeLocalVariables = mutableListOf<String>()
+  private val innerScopeLocalVariables = mutableListOf<LocalVariable>()
 
   var continueLabel: Label? = null
     get() = if (field != null) field
@@ -143,7 +144,7 @@ class InnerScope constructor(private val parentScope: MethodScope)
 
   override fun addLocalVariable(type: JavaType, name: String): LocalVariable {
     val variable = super.addLocalVariable(type, name)
-    innerScopeLocalVariables.add(name)
+    innerScopeLocalVariables.add(variable)
     parentScope.innerScopeVariablesCount++
     return variable
   }

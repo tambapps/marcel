@@ -9,6 +9,9 @@ interface Variable {
 }
 
 class LocalVariable(override val type: JavaType, override val name: String): Variable {
+
+  // yup, long and doubles takes 2 variable slots
+  val nbSlots = if (type == JavaType.long || type == JavaType.double) 2 else 1
   override fun toString(): String {
     return "LocalVariable(type=$type, name='$name')"
   }
