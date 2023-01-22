@@ -161,8 +161,11 @@ private interface IInstructionGenerator: AstNodeVisitor {
     if (method.parameters.size != fCall.arguments.size) {
       throw SemanticException("Tried to call function $method with ${fCall.arguments.size} instead of ${method.parameters.size}")
     }
-    for (argument in fCall.arguments) {
-      pushArgument(argument)
+    for (i in method.parameters.indices) {
+      val expectedType = method.parameters[i].type
+      val actualType = fCall.arguments[i].type
+      pushArgument(fCall.arguments[i])
+      mv.castIfNecessaryOrThrow(expectedType, actualType)
     }
   }
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {

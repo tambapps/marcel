@@ -192,7 +192,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
               if (actualType != JavaType.Double) {
                 throw SemanticException("Cannot cast $actualType to float")
               }
-              invokeMethod(Class.forName(expectedType.className).getMethod("doubleValue"))
+              invokeMethod(Class.forName(JavaType.Double.className).getMethod("doubleValue"))
             }
             else -> throw SemanticException("Doesn't handle conversion from $actualType to $expectedType")
           }
@@ -213,7 +213,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
             JavaType.int -> invokeMethod(Class.forName(JavaType.Integer.className).getMethod("valueOf", Int::class.java))
             JavaType.long -> invokeMethod(Class.forName(JavaType.Long.className).getMethod("valueOf", Long::class.java))
             JavaType.float -> invokeMethod(Class.forName(JavaType.Float.className).getMethod("valueOf", Float::class.java))
-            JavaType.double -> invokeMethod(Class.forName(JavaType.Long.className).getMethod("valueOf", Double::class.java))
+            JavaType.double -> invokeMethod(Class.forName(JavaType.Double.className).getMethod("valueOf", Double::class.java))
             else -> throw SemanticException("Doesn't handle conversion from $actualType to $expectedType")
           }
         }
