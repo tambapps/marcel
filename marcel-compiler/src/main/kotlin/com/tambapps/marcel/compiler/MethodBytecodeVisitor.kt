@@ -146,7 +146,6 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
 
   // must push expression before calling this method
   fun castIfNecessaryOrThrow(expectedType: JavaType, actualType: JavaType) {
-    // TODO handle booleans
     if (expectedType != actualType) {
       if (expectedType.primitive && actualType.primitive) {
         val castInstruction = JavaType.PRIMITIVE_CAST_INSTRUCTION_MAP[Pair(actualType, expectedType)]
@@ -165,6 +164,12 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
         if (expectedType.primitive) {
           // cast Object to primitive
           when (expectedType) {
+            JavaType.boolean -> {
+              if (actualType != JavaType.Boolean) {
+                throw SemanticException("Cannot cast $actualType to boolean")
+              }
+              invokeMethod(Class.forName(expectedType.className).getMethod("booleanValue"))
+            }
             JavaType.int -> {
               if (actualType != JavaType.Integer) {
                 throw SemanticException("Cannot cast $actualType to int")
@@ -193,16 +198,18 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
           }
         } else {
           // cast primitive to Object
-          if (expectedType == JavaType.Integer && actualType != JavaType.int
+          if (expectedType == JavaType.Boolean && actualType != JavaType.boolean
+            || expectedType == JavaType.Integer && actualType != JavaType.int
             || expectedType == JavaType.Long && actualType != JavaType.long
             || expectedType == JavaType.Float && actualType != JavaType.float
             || expectedType == JavaType.Double && actualType != JavaType.double
             || expectedType !in listOf(
-              JavaType.Integer, JavaType.Long, JavaType.Float, JavaType.Double, JavaType(Number::class.java), JavaType.Object
+              JavaType.Boolean, JavaType.Integer, JavaType.Long, JavaType.Float, JavaType.Double, JavaType(Number::class.java), JavaType.Object
             )) {
             throw SemanticException("Cannot cast $actualType to $actualType")
           }
           when (actualType) {
+            JavaType.boolean -> invokeMethod(Class.forName(JavaType.Boolean.className).getMethod("valueOf", Boolean::class.java))
             JavaType.int -> invokeMethod(Class.forName(JavaType.Integer.className).getMethod("valueOf", Int::class.java))
             JavaType.long -> invokeMethod(Class.forName(JavaType.Long.className).getMethod("valueOf", Long::class.java))
             JavaType.float -> invokeMethod(Class.forName(JavaType.Float.className).getMethod("valueOf", Float::class.java))
