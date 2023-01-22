@@ -51,6 +51,7 @@ import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import it.unimi.dsi.fastutil.ints.IntIterator
 import marcel.lang.IntRanges
+import marcel.lang.methods.MarcelDefaultMethods
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes
 
@@ -531,12 +532,18 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
     instructionGenerator.visit(continueLoopNode)
   }
   override fun visit(booleanExpression: BooleanExpressionNode) {
-    if (booleanExpression.innerExpression.type == JavaType.boolean) {
+    if (booleanExpression.innerExpression is NullValueNode) {
+      visit(BooleanConstantNode(false))
+    } else if (booleanExpression.innerExpression.type == JavaType.boolean
+      || booleanExpression.innerExpression.type == JavaType.Boolean) {
       booleanExpression.innerExpression.accept(this)
+      mv.castIfNecessaryOrThrow(JavaType.boolean, booleanExpression.innerExpression.type)
     } else if (booleanExpression.innerExpression.type.primitive) {
+      // according to marcel truth, all primitive are truthy
       visit(BooleanConstantNode(true))
     } else {
-      TODO("Doesn't handle yet Marcel truth for objects")
+      pushArgument(booleanExpression.innerExpression)
+      mv.invokeMethod(MarcelDefaultMethods::class.java.getDeclaredMethod("truthy", Object::class.java))
     }
   }
   override fun visit(toStringNode: ToStringNode) {
