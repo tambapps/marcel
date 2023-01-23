@@ -416,32 +416,32 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
 
   override fun visit(operator: MulOperator) {
     super.visit(operator)
-    drop2()
+    mv.pop2Stack()
   }
 
   override fun visit(operator: DivOperator) {
     super.visit(operator)
-    drop2()
+    mv.pop2Stack()
   }
 
   override fun visit(operator: MinusOperator) {
     super.visit(operator)
-    drop2()
+    mv.pop2Stack()
   }
 
   override fun visit(operator: PlusOperator) {
     super.visit(operator)
-    drop2()
+    mv.pop2Stack()
   }
 
   override fun visit(operator: PowOperator) {
     super.visit(operator)
-    drop2()
+    mv.pop2Stack()
   }
 
   override fun visit(comparisonOperatorNode: ComparisonOperatorNode) {
     super.visit(comparisonOperatorNode)
-    drop2()
+    mv.pop2Stack()
   }
 
   override fun visit(notNode: NotNode) {
@@ -462,10 +462,6 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
       VariableDeclarationNode(truthyVariableDeclarationNode.scope, truthyVariableDeclarationNode.variableType,
       truthyVariableDeclarationNode.name, truthyVariableDeclarationNode.expression)
     )
-  }
-  fun drop2() {
-    // TODO verify it does what I think
-    mv.pop2Stack()
   }
 
   override fun visit(blockNode: BlockNode) {

@@ -53,12 +53,10 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
       methodNode.scope.addLocalVariable(param.type, param.name)
     }
     val instructionGenerator = InstructionGenerator(MethodBytecodeVisitor(mv))
-    val maxStack = 100; //TODO - do that properly
 
     // writing method
     instructionGenerator.visit(methodNode.block)
 
-    // TODO handle class inheritance when checking type here
     // checking return type AFTER having generated code because we want variable types to have been resolved
     val methodReturnType = methodNode.returnType
     val blockReturnType = methodNode.block.type
