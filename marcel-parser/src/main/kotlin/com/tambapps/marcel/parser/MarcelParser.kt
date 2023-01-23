@@ -67,7 +67,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val superType = JavaType.of(Script::class.java)
     val className = classSimpleName
     val classType = JavaType.defineClass(className, superType.className, false)
-    val classScope = Scope(imports, classType, AsmUtils.getInternalName(superType), classMethods)
+    val classScope = Scope(imports, classType, AsmUtils.getInternalName(superType), mutableListOf())
     val runScope = MethodScope(classScope, className, emptyList(), JavaType.Object)
     val statements = mutableListOf<StatementNode>()
     val runBlock = FunctionBlockNode(runScope, statements)
@@ -76,7 +76,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       runBlock, mutableListOf(), runScope.returnType, runScope)
 
     // adding script constructors script have 2 constructors. One no-arg constructor, and one for Binding
-
     val emptyConstructorScope = MethodScope(classScope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)
     classMethods.add(
       ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(emptyConstructorScope, emptyList()), mutableListOf(), emptyConstructorScope),
@@ -94,7 +93,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       )), bindingConstructorParameters, bindingConstructorScope)
     )
     classMethods.add(runFunction)
-    val classNode = ClassNode(
+    val classNode = ClassNode(classScope,
       Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, classType, JavaType.of(Script::class.java), classMethods)
     val moduleNode = ModuleNode(mutableListOf(classNode))
 
@@ -102,7 +101,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       when (current.type) {
         TokenType.FUN, TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED,
         TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE, TokenType.STATIC -> {
-          val method = method(classScope, classNode)
+          val method = method(classNode)
           if (method.name == "main") {
             throw SemanticException("Cannot have a \"main\" function in a script")
           }
@@ -146,7 +145,8 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     return node
   }
 
-  internal fun method(classScope: Scope, classNode: ClassNode): MethodNode {
+  internal fun method(classNode: ClassNode): MethodNode {
+    val classScope = classNode.scope
     val staticFlag = if (acceptOptional(TokenType.STATIC) != null) Opcodes.ACC_STATIC else 0
     val accessTokenType = acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE)?.type
       ?: TokenType.VISIBILITY_PUBLIC

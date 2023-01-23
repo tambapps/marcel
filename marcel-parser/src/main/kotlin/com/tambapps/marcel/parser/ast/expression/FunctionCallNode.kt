@@ -17,9 +17,7 @@ open class FunctionCallNode(override val scope: Scope, val name: String, val arg
   var methodOwnerType: TypedNode? = null
 
   override val type: JavaType
-    // TODO BIG HACK for println. May be able to solve it by defining a println method on the defined class
-    get() = if (name == "println")  JavaType.void
-     else method.returnType
+    get() = method.returnType
 
   val method: JavaMethod
     get() = if (methodOwnerType != null) methodOwnerType!!.type.findMethodOrThrow(name, arguments)

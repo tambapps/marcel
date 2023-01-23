@@ -11,9 +11,9 @@ import com.tambapps.marcel.parser.type.ReflectJavaConstructor
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import org.objectweb.asm.Label
 
-// TODO remove classMethods field. methods are now defined on JavaType
-open class Scope constructor(val imports: MutableList<ImportNode>, val classType: JavaType, val superClassInternalName: String, val classMethods: List<JavaMethod>) {
-  constructor(javaType: JavaType): this(mutableListOf(), javaType, JavaType.Object.internalName, emptyList()) {
+// TODO rename classMethods to extension methods
+open class Scope constructor(val imports: MutableList<ImportNode>, val classType: JavaType, val superClassInternalName: String, val classMethods: MutableList<JavaMethod>) {
+  constructor(javaType: JavaType): this(mutableListOf(), javaType, JavaType.Object.internalName, mutableListOf()) {
     imports.addAll(DEFAULT_IMPORTS)
   }
 
@@ -53,10 +53,11 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
   }
 
   fun getMethod(name: String, argumentTypes: List<TypedNode>): JavaMethod {
-    // find first on class, then on imports
+    // find first on class, then on imports, then on extensions
     return (classType.findMethod(name, argumentTypes)
       // fallback on static imported method
       ?: imports.asSequence().mapNotNull { it.resolveMethod(name, argumentTypes) }.firstOrNull())
+      ?: classMethods.find { it.matches(name, argumentTypes) }
       ?: throw SemanticException("Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
   fun getLocalVariableWithIndex(name: String): Pair<LocalVariable, Int> {
@@ -97,13 +98,9 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
 
 }
 
-open class MethodScope(imports: MutableList<ImportNode>, classType: JavaType, superClassInternalName: String, classMethods: List<JavaMethod>, val methodName: String,
+open class MethodScope(imports: MutableList<ImportNode>, classType: JavaType, superClassInternalName: String, classMethods: MutableList<JavaMethod>, val methodName: String,
                        val parameters: List<MethodParameter>, val returnType: JavaType)
   : Scope(imports, classType, superClassInternalName, classMethods) {
-
-  val localVariablesCount: Int
-    get() = localVariables.size + innerScopeVariablesCount
-  internal var innerScopeVariablesCount = 0
 
     constructor(scope: Scope,
                 methodName: String,
@@ -133,7 +130,6 @@ class InnerScope constructor(private val parentScope: MethodScope)
   override fun addLocalVariable(type: JavaType, name: String): LocalVariable {
     val variable = super.addLocalVariable(type, name)
     innerScopeLocalVariables.add(variable)
-    parentScope.innerScopeVariablesCount++
     return variable
   }
 

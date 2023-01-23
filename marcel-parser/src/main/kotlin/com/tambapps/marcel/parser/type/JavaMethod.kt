@@ -32,7 +32,9 @@ interface JavaMethod {
   fun matches(name: String, types: List<TypedNode>): Boolean {
     if (parameters.size != types.size) return false
     for (i in parameters.indices) {
-      if (!parameters[i].type.isAssignableFrom(types[i].type)) return false
+      val expectedType = parameters[i].type
+      val actualType = types[i].type
+      if (!expectedType.isAssignableFrom(actualType)) return false
     }
     return this.name == name
   }
@@ -52,6 +54,28 @@ class ReflectJavaConstructor(constructor: Constructor<*>): JavaMethod {
 
   override fun toString(): String {
     return "${ownerClass.className}(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType
+  }
+}
+class SimpleJavaMethod(
+  override val ownerClass: JavaType,
+  override val access: Int,
+  override val name: String,
+  override val parameters: List<MethodParameter>,
+  override val returnType: JavaType,
+) : JavaMethod {
+
+  override val descriptor = AsmUtils.getDescriptor(parameters, returnType)
+
+  constructor(ownerClass: Class<*>,
+              access: Int,
+              name: String,
+              parameters: List<Class<*>>,
+              returnType: Class<*>): this(JavaType.of(ownerClass), access, name,
+    parameters.map { MethodParameter(JavaType.of(it), it.name) }, JavaType.of(returnType))
+  override val isConstructor = false
+
+  override fun toString(): String {
+    return "$ownerClass.$name(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType
   }
 }
 class ReflectJavaMethod(method: Method): JavaMethod {

@@ -2,9 +2,10 @@ package com.tambapps.marcel.parser.ast
 
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaType
 
-class ClassNode(val access: Int, val type: JavaType, val parentType: JavaType,
+class ClassNode(val scope: Scope, val access: Int, val type: JavaType, val parentType: JavaType,
                 val methods: MutableList<MethodNode>): AstNode {
 
   val internalName = AsmUtils.getInternalName(type)

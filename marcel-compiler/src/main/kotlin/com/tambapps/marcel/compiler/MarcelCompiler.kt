@@ -8,7 +8,10 @@ import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.ModuleNode
 import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
+import com.tambapps.marcel.parser.type.SimpleJavaMethod
+import marcel.lang.methods.MarcelDefaultMethods
 import org.objectweb.asm.ClassWriter
 import java.io.IOException
 import java.io.Reader
@@ -22,6 +25,9 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
     val tokens = MarcelLexer().lex(reader)
     val parser = if (className != null) MarcelParser(className, tokens) else MarcelParser(tokens)
     val ast = parser.parse()
+    ast.classes.forEach {
+      addExtenstions(it)
+    }
     return compile(ast)
   }
 
@@ -68,5 +74,11 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
 
     mv.visitMaxs(0, 0) // args ignored since we used the flags COMPUTE_MAXS and COMPUTE_FRAMES
     mv.visitEnd()
+  }
+
+  private fun addExtenstions(classNode: ClassNode) {
+    for (m in MarcelDefaultMethods::class.java.declaredMethods) {
+      classNode.scope.classMethods.add(SimpleJavaMethod(MarcelDefaultMethods::class.java, m.modifiers, m.name, m.parameters.map { it.type }, m.returnType))
+    }
   }
 }

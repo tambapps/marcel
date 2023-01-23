@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
+import java.lang.reflect.InvocationTargetException
 import java.net.URLClassLoader
 import java.nio.file.Files
 import java.nio.file.Path
@@ -115,7 +116,11 @@ class MarcelCompilerTest {
 
     val classLoader = URLClassLoader(arrayOf(jarFile.toURI().toURL()), MarcelCompiler::class.java.classLoader)
     val clazz = classLoader.loadClass(result.className)
-    return clazz.getMethod("run", Array<String>::class.java)
-      .invoke(clazz.getDeclaredConstructor().newInstance(), arrayOf<String>())
+    return try {
+      clazz.getMethod("run", Array<String>::class.java)
+        .invoke(clazz.getDeclaredConstructor().newInstance(), arrayOf<String>())
+    } catch (e: InvocationTargetException) {
+      throw e.targetException
+    }
   }
 }

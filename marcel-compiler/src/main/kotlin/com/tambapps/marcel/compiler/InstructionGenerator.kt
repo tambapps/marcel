@@ -145,26 +145,17 @@ private interface IInstructionGenerator: AstNodeVisitor {
   }
 
   override fun visit(fCall: FunctionCallNode) {
-    if (fCall.name == "println") { // TODO big hack for println. Maybe just call a static function from Marcel stdlib
-      mv.visitPrintlnCall(fCall) {
-        for (argumentNode in fCall.arguments) {
-          // write argument on the stack
-          pushArgument(argumentNode)
-        }
+    val method = fCall.method
+    val methodOwner = fCall.methodOwnerType
+    if (!method.isStatic) {
+      if (methodOwner is ExpressionNode) {
+        pushArgument(methodOwner) // for instance method, we need to push owner
+      } else {
+        pushArgument(VariableReferenceExpression(fCall.scope, "this"))
       }
-    } else {
-      val method = fCall.method
-      val methodOwner = fCall.methodOwnerType
-      if (!method.isStatic) {
-        if (methodOwner is ExpressionNode) {
-          pushArgument(methodOwner) // for instance method, we need to push owner
-        } else {
-          pushArgument(VariableReferenceExpression(fCall.scope, "this"))
-        }
-      }
-      pushFunctionCallArguments(fCall)
-      mv.invokeMethod(method)
     }
+    pushFunctionCallArguments(fCall)
+    mv.invokeMethod(method)
   }
 
   private fun pushFunctionCallArguments(fCall: FunctionCallNode) {
@@ -564,7 +555,6 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
   }
   override fun visit(toStringNode: ToStringNode) {
     val expr = toStringNode.expressionNode
-    // TODO call Object.toString() method for non primitive type
     if (expr.type == JavaType.String) {
       expr.accept(this)
     } else {
