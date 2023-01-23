@@ -8,7 +8,6 @@ import com.tambapps.marcel.parser.ast.TypedNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import org.objectweb.asm.Opcodes
 
-// TODO make this an interface
 interface JavaType: TypedNode {
 
   // whether the class is in the classpath and therefore can be accessed with Class.forName(className)
@@ -30,22 +29,27 @@ interface JavaType: TypedNode {
   val realClazzOrObject: Class<*>
 
   fun withGenericTypes(genericTypes: List<JavaType>): JavaType
-  fun isAssignableFrom(javaType: JavaType): Boolean {
-    if (this == javaType || this == Object && !javaType.primitive
+  fun isAssignableFrom(other: JavaType): Boolean {
+    if (genericTypes != other.genericTypes) return false
+    if (this == other || this == Object && !other.primitive
       // to handle null values that can be cast to anything
-      || !primitive && javaType == void) {
+      || !primitive && other == void) {
       return true
     }
-    if (primitive || javaType.primitive) {
-      return this == javaType
+    if (primitive || other.primitive) {
+      return this == other
     }
-    // TODO only handle (properly) classes already defined, not parsed class
-    // TODO need to keep track of parent type in order to compare not defined class
-    val thisClass = realClazzOrObject
-    val otherClass = javaType.realClazzOrObject
-    return thisClass.isAssignableFrom(otherClass)
+    if (isLoaded && other.isLoaded) {
+      return realClazz.isAssignableFrom(other.realClazz)
+    } else {
+      var otherSuperType = if (other.superClassName != null) of(other.superClassName!!) else null
+      while (otherSuperType != null) {
+        if (otherSuperType == this) return true
+        otherSuperType = if (otherSuperType.superClassName != null) of(otherSuperType.superClassName!!) else null
+      }
+      return false
+    }
   }
-
 
   fun defineMethod(method: JavaMethod)
 
