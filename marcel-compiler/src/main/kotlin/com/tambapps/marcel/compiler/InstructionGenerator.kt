@@ -53,6 +53,7 @@ import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import it.unimi.dsi.fastutil.ints.IntIterator
 import marcel.lang.IntRanges
 import marcel.lang.methods.MarcelDefaultMethods
+import marcel.lang.methods.MarcelTruth
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes
 
@@ -558,7 +559,7 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
       visit(BooleanConstantNode(true))
     } else {
       pushArgument(booleanExpression.innerExpression)
-      mv.invokeMethod(MarcelDefaultMethods::class.java.getDeclaredMethod("truthy", Object::class.java))
+      mv.invokeMethod(MarcelTruth::class.java.getDeclaredMethod("truthy", Object::class.java))
     }
   }
   override fun visit(toStringNode: ToStringNode) {
@@ -708,7 +709,7 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
       visit(BooleanConstantNode(true))
     } else {
       pushArgument(VariableReferenceExpression(truthyVariableDeclarationNode.scope, truthyVariableDeclarationNode.name))
-      mv.invokeMethod(MarcelDefaultMethods::class.java.getDeclaredMethod("truthy", Object::class.java))
+      mv.invokeMethod(MarcelTruth::class.java.getDeclaredMethod("truthy", Object::class.java))
     }
   }
   override fun visit(blockNode: BlockNode) {
