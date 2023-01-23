@@ -33,7 +33,7 @@ public class MarcelLexerTest {
   @Test
   public void testVarDeclaration() {
     assertEquals(Arrays.asList(
-            token(TYPE_INT),
+            token(TYPE_INT, "int"),
             token(IDENTIFIER, "myInt"),
             token(ASSIGNMENT),
             token(INTEGER, "898"),
@@ -45,7 +45,7 @@ public class MarcelLexerTest {
   @Test
   public void testBoolDeclaration() {
     assertEquals(Arrays.asList(
-            token(TYPE_BOOL),
+            token(TYPE_BOOL, "bool"),
             token(IDENTIFIER, "myBool"),
             token(ASSIGNMENT),
             token(VALUE_TRUE),
@@ -79,7 +79,7 @@ public class MarcelLexerTest {
     List<LexToken> tokens = lexer.lex("int a = foo(bar, 2)");
     assertEquals(
         Arrays.asList(
-            token(TYPE_INT),
+            token(TYPE_INT, "int"),
             token(IDENTIFIER, "a"),
             token(ASSIGNMENT),
             token(IDENTIFIER, "foo"),
@@ -101,10 +101,10 @@ public class MarcelLexerTest {
             token(FUN),
             token(IDENTIFIER, "sum"),
             token(LPAR),
-            token(TYPE_INT),
+            token(TYPE_INT, "int"),
             token(IDENTIFIER, "a"),
             token(COMMA),
-            token(TYPE_INT),
+            token(TYPE_INT, "int"),
             token(IDENTIFIER, "b"),
             token(RPAR),
             token(BRACKETS_OPEN),

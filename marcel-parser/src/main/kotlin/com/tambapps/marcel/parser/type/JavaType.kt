@@ -137,7 +137,7 @@ open class JavaType internal constructor(
   }
 
   open fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
-    return JavaType(isLoaded, realClazz, className, internalName, descriptor, storeCode, loadCode, returnCode, genericTypes, isInterface)
+    return JavaType(isLoaded, _realClazz, className, internalName, descriptor, storeCode, loadCode, returnCode, genericTypes, isInterface)
   }
 
   override fun toString(): String {

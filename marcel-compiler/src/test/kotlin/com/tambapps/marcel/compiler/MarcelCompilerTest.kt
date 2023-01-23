@@ -103,6 +103,7 @@ class MarcelCompilerTest {
   fun dispose() {
     JavaType.clear()
   }
+
   private fun eval(resourceName: String): Any? {
     val result = javaClass.getResourceAsStream(resourceName).reader().use {
       // using hashCode to have unique names
