@@ -9,6 +9,7 @@ import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.Label
 
+// note that extensionMethods may not be needed. It could be added directly on the Java Type
 open class Scope constructor(val imports: MutableList<ImportNode>, val classType: JavaType, val superClassInternalName: String, val extensionMethods: MutableList<JavaMethod>) {
   constructor(javaType: JavaType): this(mutableListOf(), javaType, JavaType.Object.internalName, mutableListOf()) {
     imports.addAll(DEFAULT_IMPORTS)
