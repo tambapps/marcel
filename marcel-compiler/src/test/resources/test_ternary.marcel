@@ -1,0 +1,15 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+int a = Optional.of(new Object()) ? foo() : bar()
+assertEquals(2, a)
+
+a = Optional.empty() ? foo() : bar()
+assertEquals(1, a)
+
+fun foo() int {
+  return 1
+}
+
+fun bar() int {
+  return 2
+}
