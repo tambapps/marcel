@@ -3,6 +3,7 @@ package com.tambapps.marcel.cl
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
@@ -20,7 +21,7 @@ import kotlin.system.exitProcess
 
 // useful commands to add later: doctor, upgrade
 val COMMANDS = listOf("execute", "compile", "doctor", "upgrade")
-class MarCl : CliktCommand() {
+class Marcl : CliktCommand(help = "MARCel Command Line tool") {
   override fun run() {
     // just run, subcommands will be executed
   }
@@ -48,6 +49,8 @@ class ExecuteCommand(private val scriptArguments: Array<String>) : CliktCommand(
   private val keepClassFile by option("-c", "--keep-class", help = "keep compiled class file after execution").flag()
   private val keepJarFile by option("-j", "--keep-jar", help = "keep compiled jar file after execution").flag()
   private val file by argument().file(mustExist = true, canBeFile = true, canBeDir = false, mustBeReadable = true)
+  // here for the usage message
+  private val arguments by argument(name = "SCRIPT_ARGUMENTS").multiple()
 
   override fun run() {
     val className = generateClassName(file.name)
@@ -74,10 +77,11 @@ class ExecuteCommand(private val scriptArguments: Array<String>) : CliktCommand(
 
 fun main(args : Array<String>) {
   val arguments = args.toMutableList()
-  if (arguments.firstOrNull() == "execute") {
+  val containsHelp = arguments.contains("-h") || arguments.contains("--help")
+  if (!containsHelp && arguments.firstOrNull() == "execute") {
     arguments.removeAt(0)
   }
-  if (arguments.firstOrNull() !in COMMANDS) {
+  if (arguments.firstOrNull() !in COMMANDS && !containsHelp) {
     // need special behaviour for execute command because there are marcl parameters, and script parameters
     val fileNameIndex = arguments.indexOfFirst { !it.startsWith("-") }
     if (fileNameIndex < 0) {
@@ -88,7 +92,8 @@ fun main(args : Array<String>) {
     val scriptArguments = arguments.subList(fileNameIndex + 1, arguments.size).toTypedArray()
     ExecuteCommand(scriptArguments).main(executeArguments)
   } else {
-    MarCl().subcommands(CompileCommand()).main(arguments)
+    // adding executeCommand for the help message
+    Marcl().subcommands(ExecuteCommand(emptyArray()), CompileCommand()).main(arguments)
   }
 }
 
