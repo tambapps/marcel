@@ -211,7 +211,7 @@ abstract class AbstractJavaType: JavaType {
     return m
   }
 }
-class NotLoadedJavaType(override val className: String, override val genericTypes: List<JavaType>, override val superClassName: String?, override val isInterface: Boolean): AbstractJavaType() {
+class NotLoadedJavaType internal constructor(override val className: String, override val genericTypes: List<JavaType>, override val superClassName: String?, override val isInterface: Boolean): AbstractJavaType() {
 
   override val isLoaded = false
   override val realClazz: Class<*>
@@ -232,7 +232,7 @@ class NotLoadedJavaType(override val className: String, override val genericType
   }
 
 }
-abstract class LoadedJavaType(final override val realClazz: Class<*>, final override val genericTypes: List<JavaType>,
+abstract class LoadedJavaType internal constructor(final override val realClazz: Class<*>, final override val genericTypes: List<JavaType>,
                               override val storeCode: Int, override val loadCode: Int, override val returnCode: Int): AbstractJavaType() {
   override val isLoaded = true
   override val descriptor: String
@@ -283,7 +283,7 @@ class LoadedObjectType(
 
 }
 
-class JavaPrimitiveType(
+class JavaPrimitiveType internal constructor(
   realClazz: Class<*>,
   loadCode: Int,
   storeCode: Int,
