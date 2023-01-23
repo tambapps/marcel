@@ -64,9 +64,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       imports.add(import())
     }
     val classMethods = mutableListOf<MethodNode>()
-    val superType = JavaType(Script::class.java)
+    val superType = JavaType.of(Script::class.java)
     val className = classSimpleName
-    val classType = JavaType.defineClass(className)
+    val classType = JavaType.defineClass(className, superType.className, false)
     val classScope = Scope(imports, classType, AsmUtils.getInternalName(superType), classMethods)
     val runScope = MethodScope(classScope, className, emptyList(), JavaType.Object)
     val statements = mutableListOf<StatementNode>()
@@ -83,7 +83,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     )
 
     // second constructor with binding parameter
-    val bindingType = JavaType(Binding::class.java)
+    val bindingType = JavaType.of(Binding::class.java)
     val bindingParameterName = "binding"
     val bindingConstructorParameters = mutableListOf(MethodParameter(bindingType, bindingParameterName))
     val bindingConstructorScope = MethodScope(classScope, JavaMethod.CONSTRUCTOR_NAME, bindingConstructorParameters, JavaType.void)
@@ -95,7 +95,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     )
     classMethods.add(runFunction)
     val classNode = ClassNode(
-      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, classType, JavaType(Script::class.java), classMethods)
+      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, classType, JavaType.of(Script::class.java), classMethods)
     val moduleNode = ModuleNode(mutableListOf(classNode))
 
     while (current.type != TokenType.END_OF_FILE) {

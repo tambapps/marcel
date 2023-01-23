@@ -12,6 +12,7 @@ import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaType
+import marcel.lang.Script
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -20,7 +21,7 @@ import org.objectweb.asm.Opcodes
 class MarcelParserTest {
 
     private val lexer = MarcelLexer()
-    private val type = JavaType.defineClass("Test")
+    private val type = JavaType.defineClass("Test", Script::class.java.name, false)
     private val scope = MethodScope(mutableListOf(), type, JavaType.Object.internalName, emptyList(), "test", emptyList(), JavaType.void)
 
     @Test
@@ -76,9 +77,9 @@ class MarcelParserTest {
         val parser = parser("Type<Integer, Object> b = null")
 
         assertEquals(
-            VariableDeclarationNode(scope, JavaType.defineClass("Type").withGenericTypes(listOf(
-                JavaType(Class.forName("java.lang.Integer")),
-                JavaType(Class.forName("java.lang.Object"))
+            VariableDeclarationNode(scope, JavaType.defineClass("Type", Script::class.java.name, false).withGenericTypes(listOf(
+                JavaType.of(Class.forName("java.lang.Integer")),
+                JavaType.of(Class.forName("java.lang.Object"))
             )), "b", NullValueNode()),
             parser.statement(Scope(type)))
     }

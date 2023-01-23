@@ -89,7 +89,7 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
 
   fun getTypeOrNull(name: String): JavaType? {
     return try {
-      JavaType(Class.forName(resolveClassName(name)))
+      JavaType.of(Class.forName(resolveClassName(name)))
     } catch (e: ClassNotFoundException) {
       null
     }

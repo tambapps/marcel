@@ -245,7 +245,7 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
 
   override fun visit(forInStatement: ForInStatement) {
     val expression = forInStatement.inExpression
-    if (!JavaType(Iterable::class.java).isAssignableFrom(expression.type)) {
+    if (!JavaType.of(Iterable::class.java).isAssignableFrom(expression.type)) {
       throw SemanticException("Only support for in Iterable")
     }
     // initialization
@@ -257,8 +257,8 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
     val iteratorVarName = "_tempIterator"
     val getIteratorMethod = expression.type.findMethodOrThrow("iterator", emptyList())
     // get right method in function of types, to avoid auto-(un/debo)xing
-    val methodName = if (JavaType(IntIterator::class.java).isAssignableFrom(getIteratorMethod.returnType)) "nextInt"
-    else if (JavaType(IntIterator::class.java).isAssignableFrom(getIteratorMethod.returnType)) "next"
+    val methodName = if (JavaType.of(IntIterator::class.java).isAssignableFrom(getIteratorMethod.returnType)) "nextInt"
+    else if (JavaType.of(IntIterator::class.java).isAssignableFrom(getIteratorMethod.returnType)) "next"
     else throw UnsupportedOperationException("wtf")
     visit(VariableDeclarationNode(scope, getIteratorMethod.returnType, iteratorVarName,
       FunctionCallNode(scope, "iterator", mutableListOf(), expression)))
@@ -581,7 +581,7 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
       return
     }
     // new StringBuilder() can just provide an empty new scope as we'll just use it to extract the method from StringBuilder which already exists in the JDK
-    val type = JavaType(StringBuilder::class.java)
+    val type = JavaType.of(StringBuilder::class.java)
     visit(ConstructorCallNode(Scope(type), type, mutableListOf()))
     for (part in stringNode.parts) {
       // chained calls

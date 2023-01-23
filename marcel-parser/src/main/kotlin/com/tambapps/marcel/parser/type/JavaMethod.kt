@@ -39,12 +39,12 @@ interface JavaMethod {
 }
 
 class ReflectJavaConstructor(constructor: Constructor<*>): JavaMethod {
-  override val ownerClass = JavaType(constructor.declaringClass)
+  override val ownerClass = JavaType.of(constructor.declaringClass)
 
   // see norm of modifiers flag in Modifier class. Seems to have the same norm as OpCodes.ACC_ modifiers
   override val access = constructor.modifiers
   override val name: String = constructor.name
-  override val parameters = constructor.parameters.map { MethodParameter(JavaType(it.type), it.name) }
+  override val parameters = constructor.parameters.map { MethodParameter(JavaType.of(it.type), it.name) }
   override val returnType = JavaType.void // yes, constructor returns void, especially for the descriptor
   override val descriptor = AsmUtils.getDescriptor(parameters, returnType)
   override val invokeCode = Opcodes.INVOKESPECIAL
@@ -55,13 +55,13 @@ class ReflectJavaConstructor(constructor: Constructor<*>): JavaMethod {
   }
 }
 class ReflectJavaMethod(method: Method): JavaMethod {
-  override val ownerClass = JavaType(method.declaringClass)
+  override val ownerClass = JavaType.of(method.declaringClass)
 
   // see norm of modifiers flag in Modifier class. Seems to have the same norm as OpCodes.ACC_ modifiers
   override val access = method.modifiers
   override val name: String = method.name
-  override val parameters = method.parameters.map { MethodParameter(JavaType(it.type), it.name) }
-  override val returnType = JavaType(method.returnType)
+  override val parameters = method.parameters.map { MethodParameter(JavaType.of(it.type), it.name) }
+  override val returnType = JavaType.of(method.returnType)
   override val descriptor = AsmUtils.getDescriptor(parameters, returnType)
   override val isConstructor = false
 

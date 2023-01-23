@@ -204,7 +204,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
             || expectedType == JavaType.Float && actualType != JavaType.float
             || expectedType == JavaType.Double && actualType != JavaType.double
             || expectedType !in listOf(
-              JavaType.Boolean, JavaType.Integer, JavaType.Long, JavaType.Float, JavaType.Double, JavaType(Number::class.java), JavaType.Object
+              JavaType.Boolean, JavaType.Integer, JavaType.Long, JavaType.Float, JavaType.Double, JavaType.of(Number::class.java), JavaType.Object
             )) {
             throw SemanticException("Cannot cast $actualType to $actualType")
           }

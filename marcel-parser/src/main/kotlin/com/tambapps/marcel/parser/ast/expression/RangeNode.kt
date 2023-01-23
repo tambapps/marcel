@@ -8,7 +8,7 @@ class RangeNode(val from: ExpressionNode, val to: ExpressionNode,
   val fromExclusive: Boolean, val toExclusive: Boolean): ExpressionNode {
 
   override val type: JavaType
-    get() = JavaType(IntRange::class.java)
+    get() = JavaType.of(IntRange::class.java)
 
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)
