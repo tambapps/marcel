@@ -23,9 +23,47 @@ open class JavaType internal constructor(
 
   override val type: JavaType get() = this
   open val primitive = false
+  private val methods = mutableListOf<JavaMethod>()
 
-  val realClazz: Class<*>
-    get() = _realClazz ?: throw RuntimeException("Cannot get real class on not loaded type")
+  fun defineMethod(method: JavaMethod) {
+    if (methods.any { it.matches(method.name, method.parameters) }) {
+      throw SemanticException("Method with $method is already defined")
+    }
+    methods.add(method)
+  }
+
+  fun findMethod(name: String, argumentTypes: List<TypedNode>): JavaMethod? {
+    var m = methods.find { it.matches(name, argumentTypes) }
+    if (m == null && isLoaded) {
+      val clazz = type.realClazz
+      if (name == JavaMethod.CONSTRUCTOR_NAME) {
+        try {
+          m = ReflectJavaConstructor(clazz.getDeclaredConstructor(*argumentTypes.map { it.type.realClazz }.toTypedArray()))
+        } catch (e: NoSuchMethodException) {
+          // ignored
+        }
+      } else {
+        try {
+          m = ReflectJavaMethod(clazz.getDeclaredMethod(name, *argumentTypes.map { it.type.realClazz }.toTypedArray()))
+        } catch (e: NoSuchMethodException) {
+          // ignored
+        }
+      }
+    }
+    return m
+  }
+
+  fun findConstructorOrThrow(argumentTypes: List<TypedNode>): JavaMethod {
+    return findMethodOrThrow(JavaMethod.CONSTRUCTOR_NAME, argumentTypes)
+  }
+
+  fun findMethodOrThrow(name: String, argumentTypes: List<TypedNode>): JavaMethod {
+    return findMethod(name, argumentTypes) ?: throw SemanticException("Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
+  }
+
+
+    val realClazz: Class<*>
+    get() = _realClazz ?: throw SemanticException("Class $className is not loaded")
   val realClazzOrObject: Class<*>
     get() = _realClazz ?: Object.realClazz
 

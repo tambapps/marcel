@@ -11,6 +11,7 @@ import com.tambapps.marcel.parser.type.ReflectJavaConstructor
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import org.objectweb.asm.Label
 
+// TODO remove classMethods field. methods are now defined on JavaType
 open class Scope constructor(val imports: MutableList<ImportNode>, val classType: JavaType, val superClassInternalName: String, val classMethods: List<JavaMethod>) {
   constructor(javaType: JavaType): this(mutableListOf(), javaType, JavaType.Object.internalName, emptyList()) {
     imports.addAll(DEFAULT_IMPORTS)
@@ -51,20 +52,12 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
     return getLocalVariableWithIndex(name).first
   }
 
-  fun getMethodForType(type: JavaType, name: String, argumentTypes: List<TypedNode>): JavaMethod {
-    return if (type.isLoaded) {
-      val clazz = type.realClazz
-      if (name == JavaMethod.CONSTRUCTOR_NAME) ReflectJavaConstructor(clazz.getDeclaredConstructor(*argumentTypes.map { it.type.realClazz }.toTypedArray()))
-      else ReflectJavaMethod(clazz.getDeclaredMethod(name, *argumentTypes.map { it.type.realClazz }.toTypedArray()))
-    } else if (type == classType) getMethod(name, argumentTypes)
-    else throw SemanticException("Unknown class $type")
-  }
-
   fun getMethod(name: String, argumentTypes: List<TypedNode>): JavaMethod {
-    return (classMethods.find { it.matches(name, argumentTypes) }
+    // find first on class, then on imports
+    return (classType.findMethod(name, argumentTypes)
       // fallback on static imported method
       ?: imports.asSequence().mapNotNull { it.resolveMethod(name, argumentTypes) }.firstOrNull())
-      ?: throw SemanticException("Method $name is not defined")
+      ?: throw SemanticException("Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
   fun getLocalVariableWithIndex(name: String): Pair<LocalVariable, Int> {
     var index = 0

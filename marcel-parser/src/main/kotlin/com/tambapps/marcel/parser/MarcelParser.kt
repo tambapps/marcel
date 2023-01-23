@@ -111,6 +111,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         else -> statements.add(statement(runScope))
       }
     }
+    classMethods.forEach { classType.defineMethod(it) }
     return moduleNode
   }
 
