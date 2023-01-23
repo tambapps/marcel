@@ -14,6 +14,7 @@ class VariableReferenceExpression(override val scope: Scope, val name: String): 
         scope.getLocalVariable(name).type
       } catch (e: SemanticException) {
         // TODO pass directly by JavaType?
+        // for static function calls
         scope.getTypeOrNull(name) ?: throw e
       }
 

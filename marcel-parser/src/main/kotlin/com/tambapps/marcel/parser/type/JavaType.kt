@@ -2,14 +2,13 @@ package com.tambapps.marcel.parser.type
 
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.MarcelParsingException
-import com.tambapps.marcel.parser.PrimitiveTypes
 import com.tambapps.marcel.parser.asm.AsmUtils
-import com.tambapps.marcel.parser.ast.TypedNode
+import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.exception.SemanticException
 import org.objectweb.asm.Opcodes
 import kotlin.reflect.KClass
 
-interface JavaType: TypedNode {
+interface JavaType: AstTypedObject {
 
   // whether the class is in the classpath and therefore can be accessed with Class.forName(className)
   val isLoaded: Boolean
@@ -56,13 +55,13 @@ interface JavaType: TypedNode {
 
   fun defineMethod(method: JavaMethod)
 
-  fun findMethod(name: String, argumentTypes: List<TypedNode>): JavaMethod?
+  fun findMethod(name: String, argumentTypes: List<AstTypedObject>): JavaMethod?
 
-  fun findConstructorOrThrow(argumentTypes: List<TypedNode>): JavaMethod {
+  fun findConstructorOrThrow(argumentTypes: List<AstTypedObject>): JavaMethod {
     return findMethodOrThrow(JavaMethod.CONSTRUCTOR_NAME, argumentTypes)
   }
 
-  fun findMethodOrThrow(name: String, argumentTypes: List<TypedNode>): JavaMethod {
+  fun findMethodOrThrow(name: String, argumentTypes: List<AstTypedObject>): JavaMethod {
     return findMethod(name, argumentTypes) ?: throw SemanticException("Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
 
@@ -193,7 +192,7 @@ abstract class AbstractJavaType: JavaType {
   }
 
 
-  override fun findMethod(name: String, argumentTypes: List<TypedNode>): JavaMethod? {
+  override fun findMethod(name: String, argumentTypes: List<AstTypedObject>): JavaMethod? {
     var m = methods.find { it.matches(name, argumentTypes) }
     if (m == null && isLoaded) {
       val clazz = type.realClazz

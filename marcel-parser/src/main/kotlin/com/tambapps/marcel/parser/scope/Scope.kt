@@ -2,7 +2,7 @@ package com.tambapps.marcel.parser.scope
 
 import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.ast.ImportNode
-import com.tambapps.marcel.parser.ast.TypedNode
+import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.ast.WildcardImportNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.type.JavaMethod
@@ -50,7 +50,7 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
     return getLocalVariableWithIndex(name).first
   }
 
-  fun getMethod(name: String, argumentTypes: List<TypedNode>): JavaMethod {
+  fun getMethod(name: String, argumentTypes: List<AstTypedObject>): JavaMethod {
     // find first on class, then on imports, then on extensions
     return (classType.findMethod(name, argumentTypes)
       // fallback on static imported method

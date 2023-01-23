@@ -1,8 +1,7 @@
 package com.tambapps.marcel.parser.asm
 
-import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.ast.MethodNode
-import com.tambapps.marcel.parser.ast.TypedNode
+import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.Type
 import java.lang.reflect.Method
@@ -38,7 +37,7 @@ object AsmUtils {
   fun getDescriptor(method: MethodNode): String {
     return getDescriptor(method.parameters, method.returnType)
   }
-  fun getDescriptor(parameters: List<TypedNode>, returnType: JavaType): String {
+  fun getDescriptor(parameters: List<AstTypedObject>, returnType: JavaType): String {
     val builder = StringBuilder().append('(')
     parameters.joinTo(builder, separator = "", transform = { it.type.descriptor })
     return builder.append(')')

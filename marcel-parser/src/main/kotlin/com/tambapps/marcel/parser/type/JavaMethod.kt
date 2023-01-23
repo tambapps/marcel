@@ -2,7 +2,7 @@ package com.tambapps.marcel.parser.type
 
 import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.asm.AsmUtils
-import com.tambapps.marcel.parser.ast.TypedNode
+import com.tambapps.marcel.parser.ast.AstTypedObject
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
@@ -29,7 +29,7 @@ interface JavaMethod {
     else Opcodes.INVOKEVIRTUAL
 
 
-  fun matches(name: String, types: List<TypedNode>): Boolean {
+  fun matches(name: String, types: List<AstTypedObject>): Boolean {
     if (parameters.size != types.size) return false
     for (i in parameters.indices) {
       val expectedType = parameters[i].type

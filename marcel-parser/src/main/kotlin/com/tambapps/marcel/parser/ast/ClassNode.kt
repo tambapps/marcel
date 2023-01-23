@@ -10,8 +10,7 @@ class ClassNode(val scope: Scope, val access: Int, val type: JavaType, val paren
 
   val internalName = AsmUtils.getInternalName(type)
   fun addMethod(method: MethodNode) {
-    if (methods.any { it.name == method.name }) {
-      // TODO handle overloading
+    if (methods.any { it.matches(method.name, method.parameters) }) {
       throw SemanticException("Cannot have two methods with the same name")
     }
     methods.add(method)
