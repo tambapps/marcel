@@ -74,7 +74,15 @@ private interface IInstructionGenerator: AstNodeVisitor {
   }
 
   override fun visit(operator: TernaryNode) {
-    TODO("Not yet implemented")
+    pushArgument(operator.boolExpression)
+    val endLabel = Label()
+    val falseLabel = Label()
+    mv.jumpIfEq(falseLabel)
+    operator.trueExpression.accept(this)
+    mv.jumpTo(endLabel)
+    mv.visitLabel(falseLabel)
+    operator.falseExpression.accept(this)
+    mv.visitLabel(endLabel)
   }
 
 

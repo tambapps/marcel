@@ -119,6 +119,9 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     mv.visitInsn(opCode)
   }
 
+  fun jumpIfNe(label: Label) {
+    mv.visitJumpInsn(Opcodes.IFNE, label)
+  }
   fun comparisonJump(comparisonOperator: ComparisonOperator, label: Label) {
     mv.visitJumpInsn(comparisonOperator.iOpCode, label)
   }

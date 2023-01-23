@@ -354,7 +354,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       val trueExpr = expression(scope)
       accept(TokenType.COLON)
       val falseExpr = expression(scope)
-      return TernaryNode(expr, trueExpr, falseExpr)
+      return TernaryNode(BooleanExpressionNode(expr), trueExpr, falseExpr)
     }
     return expr
   }

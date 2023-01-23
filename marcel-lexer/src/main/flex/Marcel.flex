@@ -235,6 +235,7 @@ LONELY_BACKTICK=`
 "*"          { return token(MUL); }
 "%"          { return token(MODULO); }
 "!"          { return token(NOT); }
+"?"          { return token(QUESTION_MARK); }
 "&&"          { return token(AND); }
 "||"          { return token(OR); }
 ">="          { return token(GOE); }
