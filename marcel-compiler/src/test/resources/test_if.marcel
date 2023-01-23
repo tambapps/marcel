@@ -1,8 +1,31 @@
+import static org.junit.jupiter.api.Assertions.assertTrue
+import static org.junit.jupiter.api.Assertions.assertFalse
 
 bool b = false
 if (1 >= 0) {
   b = true
 }
 
+assertTrue(b)
 
+if (Object o = Optional.of(new Object())) {
+  b = false
+}
+
+assertFalse(b)
+
+if (Object o = Optional.empty()) {
+  b = true
+}
+assertFalse(b)
+
+if (1) {
+  b = true
+}
+assertTrue(b)
+
+if (null) {
+  b = false
+}
+assertTrue(b)
 new Boolean(b)
