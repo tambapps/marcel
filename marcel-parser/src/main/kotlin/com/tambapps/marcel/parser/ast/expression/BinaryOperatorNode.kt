@@ -106,7 +106,7 @@ class GetFieldAccessOperator(leftOperand: ExpressionNode, override val rightOper
 
   // TODO find right way to get type
   override val type: JavaType
-    get() = rightOperand.type
+    get() = leftOperand.type.findFieldOrThrow(rightOperand.name).type
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)
   }

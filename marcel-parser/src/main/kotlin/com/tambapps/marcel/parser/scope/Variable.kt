@@ -18,4 +18,7 @@ class LocalVariable(override val type: JavaType, override val name: String): Var
 
 }
 
-class Field(override val type: JavaType, override val name: String, val owner: JavaType): Variable
+class ClassField(override val type: JavaType, override val name: String, val owner: JavaType): Variable
+
+// for getter/setters
+class MethodField(override val type: JavaType, override val name: String, val owner: JavaType): Variable

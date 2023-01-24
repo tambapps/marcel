@@ -5,6 +5,8 @@ import com.tambapps.marcel.parser.MarcelParsingException
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.scope.ClassField
+import com.tambapps.marcel.parser.scope.Variable
 import org.objectweb.asm.Opcodes
 import kotlin.reflect.KClass
 
@@ -75,6 +77,8 @@ interface JavaType: AstTypedObject {
   fun findMethodOrThrow(name: String, argumentTypes: List<AstTypedObject>, declared: Boolean = true): JavaMethod {
     return findMethod(name, argumentTypes, declared) ?: throw SemanticException("Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
+
+  fun findFieldOrThrow(name: String): Variable
 
   companion object {
 
@@ -202,6 +206,10 @@ abstract class AbstractJavaType: JavaType {
     methods.add(method)
   }
 
+  override fun findFieldOrThrow(name: String): Variable {
+    if (!isLoaded) TODO("Doesn't handle field of not loaded classes")
+    TODO()
+  }
 
   override fun findMethod(name: String, argumentTypes: List<AstTypedObject>, declared: Boolean): JavaMethod? {
     var m = methods.find { it.matches(name, argumentTypes) }
