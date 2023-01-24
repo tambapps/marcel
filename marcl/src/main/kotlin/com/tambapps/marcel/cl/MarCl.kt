@@ -31,10 +31,11 @@ class CompileCommand : CliktCommand(help = "Compiles a Marcel class to a .class 
   private val file by argument().file(mustExist = true, canBeFile = true, canBeDir = false, mustBeReadable = true)
   private val keepClassFile by option("-c", "--keep-class", help = "keep compiled class file after execution").flag()
   private val keepJarFile by option("-j", "--keep-jar", help = "keep compiled jar file after execution").flag()
+  private val printStackTrace by option("-p", "--print-stack-trace", help = "print stack trace on compilation error").flag()
 
   override fun run() {
     val className = generateClassName(file.name)
-    val result = compile(file, className) ?: return
+    val result = compile(file, className, printStackTrace) ?: return
     if (!keepClassFile && !keepJarFile || keepClassFile) { // if no option is specified
       File("$className.class").writeBytes(result.bytes)
     }
@@ -48,13 +49,14 @@ class ExecuteCommand(private val scriptArguments: Array<String>) : CliktCommand(
 
   private val keepClassFile by option("-c", "--keep-class", help = "keep compiled class file after execution").flag()
   private val keepJarFile by option("-j", "--keep-jar", help = "keep compiled jar file after execution").flag()
+  private val printStackTrace by option("-p", "--print-stack-trace", help = "print stack trace on compilation error").flag()
   private val file by argument().file(mustExist = true, canBeFile = true, canBeDir = false, mustBeReadable = true)
   // here for the usage message
   private val arguments by argument(name = "SCRIPT_ARGUMENTS").multiple()
 
   override fun run() {
     val className = generateClassName(file.name)
-    val result = compile(file, className) ?: return
+    val result = compile(file, className, printStackTrace) ?: return
 
     if (keepClassFile) {
       File("$className.class").writeBytes(result.bytes)
@@ -97,23 +99,28 @@ fun main(args : Array<String>) {
   }
 }
 
-fun compile(file: File, className: String): CompilationResult? {
+fun compile(file: File, className: String, printStackTrace: Boolean): CompilationResult? {
   return try {
     MarcelCompiler().compile(file.reader(), className)
   } catch (e: IOException) {
     println("An error occurred while reading file: ${e.message}")
+    if (printStackTrace) e.printStackTrace()
     return null
   } catch (e: MarcelLexerException) {
     println("Lexer error: ${e.message}")
+    if (printStackTrace) e.printStackTrace()
     return null
   } catch (e: MarcelParsingException) {
     println("Parsing error: ${e.message}")
+    if (printStackTrace) e.printStackTrace()
     return null
   } catch (e: SemanticException) {
     println("Semantic error: ${e.message}")
+    if (printStackTrace) e.printStackTrace()
     return null
   } catch (e: Exception) {
     println("An unexpected error occurred while: ${e.message}")
+    if (printStackTrace) e.printStackTrace()
     return null
   }
 }
