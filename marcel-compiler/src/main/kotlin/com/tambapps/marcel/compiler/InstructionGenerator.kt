@@ -564,7 +564,8 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
     for (part in stringNode.parts) {
       // chained calls
       val argumentType = part.type
-      val method = ReflectJavaMethod(StringBuilder::class.java.getDeclaredMethod("append", argumentType.realClazzOrObject))
+      val method = ReflectJavaMethod(StringBuilder::class.java.getDeclaredMethod("append",
+        if (argumentType.primitive) argumentType.realClazz else JavaType.Object.realClazz))
       pushArgument(part)
       mv.invokeMethod(method)
     }
