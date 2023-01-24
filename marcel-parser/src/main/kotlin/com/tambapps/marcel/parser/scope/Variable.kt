@@ -1,6 +1,7 @@
 package com.tambapps.marcel.parser.scope
 
 import com.tambapps.marcel.parser.type.JavaType
+import org.objectweb.asm.Opcodes
 
 interface Variable {
 
@@ -18,7 +19,17 @@ class LocalVariable(override val type: JavaType, override val name: String): Var
 
 }
 
-class ClassField(override val type: JavaType, override val name: String, val owner: JavaType): Variable
+// can be a java field or a java getter/setter
+interface MarcelField: Variable {
+  val owner: JavaType
+  val getCode: Int
+  val access: Int
+  val isStatic: Boolean
+    get() = (access and Opcodes.ACC_STATIC) != 0
+}
+class ClassField(override val type: JavaType, override val name: String, override val owner: JavaType, override val access: Int): MarcelField {
+  override val getCode = if (isStatic) Opcodes.GETSTATIC else Opcodes.GETFIELD
+}
 
 // for getter/setters
 class MethodField(override val type: JavaType, override val name: String, val owner: JavaType,

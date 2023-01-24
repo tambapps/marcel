@@ -106,7 +106,10 @@ private interface IInstructionGenerator: AstNodeVisitor {
 
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator) {
     val field = getFieldAccessOperator.fieldVariable
-    TODO("Not yet implemented")
+    if (!field.isStatic) {
+      pushArgument(getFieldAccessOperator.leftOperand)
+    }
+    mv.getField(field)
   }
 
   private fun evaluateOperands(binaryOperatorNode: BinaryOperatorNode) {
