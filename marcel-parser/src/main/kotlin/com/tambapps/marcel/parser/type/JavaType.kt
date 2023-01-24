@@ -215,10 +215,15 @@ abstract class AbstractJavaType: JavaType {
         }
       } else {
         try {
-          m = ReflectJavaMethod(
-            if (declared) clazz.getDeclaredMethod(name, *argumentTypes.map { it.type.realClazz }.toTypedArray())
-            else clazz.getMethod(name, *argumentTypes.map { it.type.realClazz }.toTypedArray())
-          )
+          val candidates = (if (declared) clazz.declaredMethods else clazz.methods).filter { it.name == name }
+            .map { ReflectJavaMethod(it) }
+            .filter { it.matches(argumentTypes) }
+          // now getting the method with the more specific returnType
+          for (candidate in candidates) {
+            if (m == null
+              || (m.returnType != candidate.returnType
+                  && m.returnType.isAssignableFrom(candidate.returnType))) m = candidate
+          }
         } catch (e: NoSuchMethodException) {
           // ignored
         }
