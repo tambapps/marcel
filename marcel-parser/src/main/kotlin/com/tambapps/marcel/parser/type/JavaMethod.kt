@@ -30,13 +30,17 @@ interface JavaMethod {
 
 
   fun matches(name: String, types: List<AstTypedObject>): Boolean {
+    return this.name == name && matches(types)
+  }
+
+  fun matches(types: List<AstTypedObject>): Boolean {
     if (parameters.size != types.size) return false
     for (i in parameters.indices) {
       val expectedType = parameters[i].type
       val actualType = types[i].type
       if (!expectedType.isAssignableFrom(actualType)) return false
     }
-    return this.name == name
+    return true
   }
 }
 
