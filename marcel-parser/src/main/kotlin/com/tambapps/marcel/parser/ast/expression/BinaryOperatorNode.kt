@@ -104,9 +104,9 @@ class InvokeAccessOperator(leftOperand: ExpressionNode, override val rightOperan
 class GetFieldAccessOperator(leftOperand: ExpressionNode, override val rightOperand: VariableReferenceExpression) :
     BinaryOperatorNode(leftOperand, rightOperand) {
 
-  // TODO find right way to get type
+  val fieldVariable get() = leftOperand.type.findFieldOrThrow(rightOperand.name)
   override val type: JavaType
-    get() = leftOperand.type.findFieldOrThrow(rightOperand.name).type
+    get() = fieldVariable.type
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)
   }

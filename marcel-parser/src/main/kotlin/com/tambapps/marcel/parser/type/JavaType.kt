@@ -6,6 +6,7 @@ import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.ClassField
+import com.tambapps.marcel.parser.scope.MethodField
 import com.tambapps.marcel.parser.scope.Variable
 import org.objectweb.asm.Opcodes
 import kotlin.reflect.KClass
@@ -78,7 +79,7 @@ interface JavaType: AstTypedObject {
     return findMethod(name, argumentTypes, declared) ?: throw SemanticException("Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
 
-  fun findFieldOrThrow(name: String): Variable
+  fun findFieldOrThrow(name: String, declared: Boolean = true): Variable
 
   companion object {
 
@@ -206,9 +207,25 @@ abstract class AbstractJavaType: JavaType {
     methods.add(method)
   }
 
-  override fun findFieldOrThrow(name: String): Variable {
+  override fun findFieldOrThrow(name: String, declared: Boolean): Variable {
     if (!isLoaded) TODO("Doesn't handle field of not loaded classes")
-    TODO()
+    val clazz = type.realClazz
+    val field = try {
+      clazz.getDeclaredField(name)
+    } catch (e: NoSuchFieldException) {
+      null
+    }
+    if (field != null) {
+      return MethodField(JavaType.of(field.type), field.name, this, field.modifiers)
+    }
+    // try to find getter
+    val methodFieldName = name.replaceFirstChar { it.uppercase() }
+    val getterMethod  = findMethod("get$methodFieldName", emptyList(), declared)
+    val setterMethod = findMethod("set$methodFieldName", listOf(this), declared)
+    if (getterMethod != null || setterMethod != null) {
+      TODO()
+    }
+    throw SemanticException("Field $name was not found")
   }
 
   override fun findMethod(name: String, argumentTypes: List<AstTypedObject>, declared: Boolean): JavaMethod? {

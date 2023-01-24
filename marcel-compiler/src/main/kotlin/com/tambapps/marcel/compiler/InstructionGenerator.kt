@@ -105,6 +105,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
   }
 
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator) {
+    val field = getFieldAccessOperator.fieldVariable
     TODO("Not yet implemented")
   }
 
