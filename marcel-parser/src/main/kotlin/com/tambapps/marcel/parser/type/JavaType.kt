@@ -204,30 +204,27 @@ abstract class AbstractJavaType: JavaType {
     var m = methods.find { it.matches(name, argumentTypes) }
     if (m == null && isLoaded) {
       val clazz = type.realClazz
-      if (name == JavaMethod.CONSTRUCTOR_NAME) {
-        try {
-          m = ReflectJavaConstructor(
-            if (declared) clazz.getDeclaredConstructor(*argumentTypes.map { it.type.realClazz }.toTypedArray())
-            else clazz.getConstructor(*argumentTypes.map { it.type.realClazz }.toTypedArray())
-          )
-        } catch (e: NoSuchMethodException) {
-          // ignored
-        }
+      val candidates = if (name == JavaMethod.CONSTRUCTOR_NAME) {
+        (if (declared) clazz.declaredConstructors else clazz.constructors)
+          .map { ReflectJavaConstructor(it) }
+          .filter { it.matches(argumentTypes) }
       } else {
-        try {
-          val candidates = (if (declared) clazz.declaredMethods else clazz.methods).filter { it.name == name }
-            .map { ReflectJavaMethod(it) }
-            .filter { it.matches(argumentTypes) }
-          // now getting the method with the more specific returnType
-          for (candidate in candidates) {
-            if (m == null
-              || (m.returnType != candidate.returnType
-                  && m.returnType.isAssignableFrom(candidate.returnType))) m = candidate
-          }
-        } catch (e: NoSuchMethodException) {
-          // ignored
-        }
+        (if (declared) clazz.declaredMethods else clazz.methods).filter { it.name == name }
+          .map { ReflectJavaMethod(it) }
+          .filter { it.matches(argumentTypes) }
       }
+      m = getMoreSpecificMethod(candidates)
+    }
+    return m
+  }
+
+  private fun getMoreSpecificMethod(candidates: List<JavaMethod>): JavaMethod? {
+    // inspired from Class.searchMethods()
+    var m: JavaMethod? = null
+    for (candidate in candidates) {
+      if (m == null
+        || (m.returnType != candidate.returnType
+            && m.returnType.isAssignableFrom(candidate.returnType))) m = candidate
     }
     return m
   }
