@@ -150,9 +150,13 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
         }
       } else if (!expectedType.primitive && !actualType.primitive) {
         // both Object classes
-        // TODO may need to cast sometimes
         if (!expectedType.isAssignableFrom(actualType)) {
-          throw SemanticException("Incompatible types. Expected type $expectedType but gave an expression of type $actualType")
+          if (actualType.isAssignableFrom(expectedType)) {
+            // actualType is a parent of expectedType? might be able to cast it
+            mv.visitTypeInsn(Opcodes.CHECKCAST, expectedType.internalName)
+          } else {
+            throw SemanticException("Incompatible types. Expected type $expectedType but gave an expression of type $actualType")
+          }
         }
       } else {
         if (expectedType.primitive) {

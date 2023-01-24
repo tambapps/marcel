@@ -672,14 +672,20 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
     instructionGenerator.visit(variableDeclarationNode)
   }
 
-  override fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode) {
+  override fun visit(aTruthyVariableDeclarationNode: TruthyVariableDeclarationNode) {
+    var truthyVariableDeclarationNode = aTruthyVariableDeclarationNode
     val variableType = truthyVariableDeclarationNode.variableType
     val expressionType = truthyVariableDeclarationNode.expression.type
     if (variableType.raw() != JavaType.of(Optional::class.java) && (
           listOf(Optional::class.java, OptionalInt::class.java, OptionalLong::class.java, OptionalDouble::class.java)
             .any {expressionType.raw().isAssignableFrom(JavaType.of(it)) }
           )) {
-      TODO("Does not handle Optional unboxing yet")
+      truthyVariableDeclarationNode = TruthyVariableDeclarationNode(
+        truthyVariableDeclarationNode.scope, truthyVariableDeclarationNode.variableType, truthyVariableDeclarationNode.name,
+        InvokeAccessOperator(truthyVariableDeclarationNode.expression,
+          FunctionCallNode(truthyVariableDeclarationNode.scope, "orElse", mutableListOf(NullValueNode(truthyVariableDeclarationNode.variableType)))
+        )
+      )
     }
     instructionGenerator.visit(truthyVariableDeclarationNode)
     if (truthyVariableDeclarationNode.variableType.primitive) {
