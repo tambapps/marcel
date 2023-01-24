@@ -63,14 +63,14 @@ interface JavaType: AstTypedObject {
 
   fun defineMethod(method: JavaMethod)
 
-  fun findMethod(name: String, argumentTypes: List<AstTypedObject>): JavaMethod?
+  fun findMethod(name: String, argumentTypes: List<AstTypedObject>, declared: Boolean): JavaMethod?
 
-  fun findConstructorOrThrow(argumentTypes: List<AstTypedObject>): JavaMethod {
-    return findMethodOrThrow(JavaMethod.CONSTRUCTOR_NAME, argumentTypes)
+  fun findDeclaredConstructorOrThrow(argumentTypes: List<AstTypedObject>): JavaMethod {
+    return findMethodOrThrow(JavaMethod.CONSTRUCTOR_NAME, argumentTypes, true)
   }
 
-  fun findMethodOrThrow(name: String, argumentTypes: List<AstTypedObject>): JavaMethod {
-    return findMethod(name, argumentTypes) ?: throw SemanticException("Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
+  fun findMethodOrThrow(name: String, argumentTypes: List<AstTypedObject>, declared: Boolean = true): JavaMethod {
+    return findMethod(name, argumentTypes, declared) ?: throw SemanticException("Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
 
   companion object {
@@ -200,19 +200,25 @@ abstract class AbstractJavaType: JavaType {
   }
 
 
-  override fun findMethod(name: String, argumentTypes: List<AstTypedObject>): JavaMethod? {
+  override fun findMethod(name: String, argumentTypes: List<AstTypedObject>, declared: Boolean): JavaMethod? {
     var m = methods.find { it.matches(name, argumentTypes) }
     if (m == null && isLoaded) {
       val clazz = type.realClazz
       if (name == JavaMethod.CONSTRUCTOR_NAME) {
         try {
-          m = ReflectJavaConstructor(clazz.getDeclaredConstructor(*argumentTypes.map { it.type.realClazz }.toTypedArray()))
+          m = ReflectJavaConstructor(
+            if (declared) clazz.getDeclaredConstructor(*argumentTypes.map { it.type.realClazz }.toTypedArray())
+            else clazz.getConstructor(*argumentTypes.map { it.type.realClazz }.toTypedArray())
+          )
         } catch (e: NoSuchMethodException) {
           // ignored
         }
       } else {
         try {
-          m = ReflectJavaMethod(clazz.getDeclaredMethod(name, *argumentTypes.map { it.type.realClazz }.toTypedArray()))
+          m = ReflectJavaMethod(
+            if (declared) clazz.getDeclaredMethod(name, *argumentTypes.map { it.type.realClazz }.toTypedArray())
+            else clazz.getMethod(name, *argumentTypes.map { it.type.realClazz }.toTypedArray())
+          )
         } catch (e: NoSuchMethodException) {
           // ignored
         }

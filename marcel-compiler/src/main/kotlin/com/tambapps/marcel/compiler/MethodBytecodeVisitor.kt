@@ -25,7 +25,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     mv.visitTypeInsn(Opcodes.NEW, classInternalName)
     mv.visitInsn(Opcodes.DUP)
     argumentsPusher.invoke()
-    val constructorMethod = fCall.type.findConstructorOrThrow(fCall.arguments)
+    val constructorMethod = fCall.type.findDeclaredConstructorOrThrow(fCall.arguments)
     mv.visitMethodInsn(
       Opcodes.INVOKESPECIAL, classInternalName, fCall.name, constructorMethod.descriptor, false)
   }

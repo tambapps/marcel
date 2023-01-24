@@ -255,7 +255,7 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
 
     // creating iterator
     val iteratorVarName = "_tempIterator"
-    val getIteratorMethod = expression.type.findMethodOrThrow("iterator", emptyList())
+    val getIteratorMethod = expression.type.findMethodOrThrow("iterator", emptyList(), true)
     // get right method in function of types, to avoid auto-(un/debo)xing
     val methodName = if (JavaType.of(IntIterator::class.java).isAssignableFrom(getIteratorMethod.returnType)) "nextInt"
     else if (JavaType.of(IntIterator::class.java).isAssignableFrom(getIteratorMethod.returnType)) "next"

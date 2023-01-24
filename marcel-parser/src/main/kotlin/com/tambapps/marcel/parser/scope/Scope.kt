@@ -52,7 +52,7 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
 
   fun getMethod(name: String, argumentTypes: List<AstTypedObject>): JavaMethod {
     // find first on class, then on imports, then on extensions
-    return (classType.findMethod(name, argumentTypes)
+    return (classType.findMethod(name, argumentTypes, true)
       // fallback on static imported method
       ?: imports.asSequence().mapNotNull { it.resolveMethod(name, argumentTypes) }.firstOrNull())
       ?: extensionMethods.find { it.matches(name, argumentTypes) }
