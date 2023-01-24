@@ -23,4 +23,8 @@ class ReturnNode(override val scope: MethodScope, override val expression: Expre
   override fun hashCode(): Int {
     return expression.hashCode()
   }
+
+  override fun toString(): String {
+    return "return $expression"
+  }
 }

@@ -82,7 +82,17 @@ class SimpleJavaMethod(
     return "$ownerClass.$name(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType
   }
 }
-class ReflectJavaMethod(method: Method): JavaMethod {
+class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): JavaMethod {
+
+  constructor(method: Method): this(method, null)
+
+  /* tried to handle generic types but then again no.
+  init {
+    if (fromType != null && fromType.genericTypes.isNotEmpty()) {
+      method
+    }
+  }
+   */
   override val ownerClass = JavaType.of(method.declaringClass)
 
   // see norm of modifiers flag in Modifier class. Seems to have the same norm as OpCodes.ACC_ modifiers

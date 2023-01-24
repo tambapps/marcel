@@ -35,15 +35,18 @@ interface JavaType: AstTypedObject {
   }
 
   fun isAssignableFrom(other: JavaType): Boolean {
-    if (genericTypes.size != other.genericTypes.size) return false
-    for (i in genericTypes.indices) {
-      if (!genericTypes[i].isAssignableFrom(other.genericTypes[i])) return false
-    }
     if (this == other || this == Object && !other.primitive
       // to handle null values that can be cast to anything
       || !primitive && other == void) {
       return true
     }
+    /*
+    ignoring generic types for now
+    if (genericTypes.size != other.genericTypes.size) return false
+    for (i in genericTypes.indices) {
+      if (!genericTypes[i].isAssignableFrom(other.genericTypes[i])) return false
+    }
+     */
     if (other.primitive && (
           this in listOf(of(java.lang.Object::class.java), of(Number::class.java), of((other as JavaPrimitiveType).objectClass))
         )) {
@@ -210,7 +213,7 @@ abstract class AbstractJavaType: JavaType {
           .filter { it.matches(argumentTypes) }
       } else {
         (if (declared) clazz.declaredMethods else clazz.methods).filter { it.name == name }
-          .map { ReflectJavaMethod(it) }
+          .map { ReflectJavaMethod(it, this) }
           .filter { it.matches(argumentTypes) }
       }
       m = getMoreSpecificMethod(candidates)

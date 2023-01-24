@@ -161,7 +161,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
         // both Object classes
         // TODO may need to cast sometimes
         if (!expectedType.isAssignableFrom(actualType)) {
-          throw SemanticException("Incompatible types. Variable is of type $expectedType but gave an expression of type $actualType")
+          throw SemanticException("Incompatible types. Expected type $expectedType but gave an expression of type $actualType")
         }
       } else {
         if (expectedType.primitive) {

@@ -56,6 +56,10 @@ import marcel.lang.methods.MarcelDefaultMethods
 import marcel.lang.methods.MarcelTruth
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes
+import java.util.Optional
+import java.util.OptionalDouble
+import java.util.OptionalInt
+import java.util.OptionalLong
 
 // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.if_icmp_cond
 // https://asm.ow2.io/asm4-guide.pdf
@@ -694,6 +698,14 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
   }
 
   override fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode) {
+    val variableType = truthyVariableDeclarationNode.variableType
+    val expressionType = truthyVariableDeclarationNode.expression.type
+    if (variableType.raw() != JavaType.of(Optional::class.java) && (
+          listOf(Optional::class.java, OptionalInt::class.java, OptionalLong::class.java, OptionalDouble::class.java)
+            .any {expressionType.raw().isAssignableFrom(JavaType.of(it)) }
+          )) {
+      TODO("Does not handle Optional unboxing yet")
+    }
     instructionGenerator.visit(truthyVariableDeclarationNode)
     if (truthyVariableDeclarationNode.variableType.primitive) {
       visit(BooleanConstantNode(true))
