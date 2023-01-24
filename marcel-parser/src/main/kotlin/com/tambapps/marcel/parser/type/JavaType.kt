@@ -29,8 +29,16 @@ interface JavaType: AstTypedObject {
   val realClazzOrObject: Class<*>
 
   fun withGenericTypes(genericTypes: List<JavaType>): JavaType
+  // return this type without generic types
+  fun raw(): JavaType {
+    return withGenericTypes(emptyList())
+  }
+
   fun isAssignableFrom(other: JavaType): Boolean {
-    if (genericTypes != other.genericTypes) return false
+    if (genericTypes.size != other.genericTypes.size) return false
+    for (i in genericTypes.indices) {
+      if (!genericTypes[i].isAssignableFrom(other.genericTypes[i])) return false
+    }
     if (this == other || this == Object && !other.primitive
       // to handle null values that can be cast to anything
       || !primitive && other == void) {
@@ -298,5 +306,9 @@ class JavaPrimitiveType internal constructor(
   val objectClass = objectKlazz.java
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaPrimitiveType {
     throw SemanticException("Cannot have primitive type with generic types")
+  }
+
+  override fun raw(): JavaType {
+    return this
   }
 }
