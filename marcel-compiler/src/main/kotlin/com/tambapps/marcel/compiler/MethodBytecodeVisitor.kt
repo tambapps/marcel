@@ -7,8 +7,10 @@ import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.IncrNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.scope.ClassField
 import com.tambapps.marcel.parser.scope.LocalVariable
 import com.tambapps.marcel.parser.scope.MarcelField
+import com.tambapps.marcel.parser.scope.MethodField
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
@@ -230,6 +232,19 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
   }
 
   fun getField(field: MarcelField) {
-    mv.visitFieldInsn(field.getCode, field.owner.internalName, field.name, field.type.descriptor)
+    when (field) {
+      is ClassField -> {
+        mv.visitFieldInsn(field.getCode, field.owner.internalName, field.name, field.type.descriptor)
+      }
+      is MethodField -> {
+        if (!field.canGet) {
+          throw SemanticException("Field ${field.name} of class ${field.owner} is not gettable")
+        }
+        mv.visitMethodInsn(field.invokeCode, field.owner.internalName, field.getterName, AsmUtils.getDescriptor(emptyList(), field.type), field.type.isInterface)
+      }
+      else -> {
+        throw RuntimeException("Compiler bug. Unknown field subclass ${field.javaClass}")
+      }
+    }
   }
 }

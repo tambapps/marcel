@@ -224,7 +224,7 @@ abstract class AbstractJavaType: JavaType {
     val getterMethod  = findMethod("get$methodFieldName", emptyList(), declared)
     val setterMethod = findMethod("set$methodFieldName", listOf(this), declared)
     if (getterMethod != null || setterMethod != null) {
-      TODO()
+      return MethodField.from(this, name, getterMethod, setterMethod)
     }
     throw SemanticException("Field $name was not found")
   }
