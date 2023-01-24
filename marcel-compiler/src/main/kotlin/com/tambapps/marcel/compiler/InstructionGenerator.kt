@@ -296,6 +296,12 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
       truthyExpression.scope.removeVariable(truthyExpression.name)
     }
   }
+
+  override fun visit(getFieldAccessOperator: GetFieldAccessOperator) {
+    super.visit(getFieldAccessOperator)
+    mv.popStack()
+  }
+
   override fun visit(integer: IntConstantNode) {
     // don't need to write constants
   }
