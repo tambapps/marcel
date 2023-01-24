@@ -43,6 +43,17 @@ import java.util.Stack;
         yybegin(state.state);
     }
 
+        private LexToken commentStateToTokenType(int state) {
+            switch (state) {
+                case BLOCK_COMMENT:
+                    return new LexToken(TokenType.BLOCK_COMMENT);
+                case DOC_COMMENT:
+                    return new LexToken(TokenType.DOC_COMMENT);
+                default:
+                    throw new IllegalArgumentException("Unexpected state: " + state);
+            }
+        }
+
   // tokens for which we need to save current buffer
   private LexToken valueToken(TokenType tokenType) {
     return new LexToken(tokenType, getTokenString());
@@ -94,6 +105,9 @@ DIGITS = {DIGIT} {DIGIT_OR_UNDERSCORE}*
 HEX_DIGIT=[0-9A-Fa-f]
 HEX_DIGIT_OR_UNDERSCORE = [_0-9A-Fa-f]
 WHITE_SPACE_CHAR=[\ \n\t\f]
+
+EOL_COMMENT="/""/"[^\n]*
+SHEBANG_COMMENT="#!"[^\n]*
 
 INTEGER_LITERAL={DECIMAL_INTEGER_LITERAL}|{HEX_INTEGER_LITERAL}|{BIN_INTEGER_LITERAL}
 DECIMAL_INTEGER_LITERAL=(0|([1-9]({DIGIT_OR_UNDERSCORE})*)){TYPED_INTEGER_SUFFIX}
@@ -182,8 +196,63 @@ LONELY_BACKTICK=`
                                            return valueToken(RBRACE);
                                        }
 
+// (Nested) comments
+
+"/**/" {
+    return token(TokenType.BLOCK_COMMENT);
+}
+
+"/**" {
+    pushState(DOC_COMMENT);
+    commentDepth = 0;
+    commentStart = getTokenStart();
+}
+
+"/*" {
+    pushState(BLOCK_COMMENT);
+    commentDepth = 0;
+    commentStart = getTokenStart();
+}
+
+<BLOCK_COMMENT, DOC_COMMENT> {
+    "/*" {
+         commentDepth++;
+    }
+
+    <<EOF>> {
+        int state = yystate();
+        popState();
+        zzStartRead = commentStart;
+        return commentStateToTokenType(state);
+    }
+
+    "*/" {
+        if (commentDepth > 0) {
+            commentDepth--;
+        }
+        else {
+             int state = yystate();
+             popState();
+             zzStartRead = commentStart;
+             return commentStateToTokenType(state);
+        }
+    }
+
+    [\s\S] {}
+}
 
 ({WHITE_SPACE_CHAR})+ { return token(WHITE_SPACE); }
+
+{EOL_COMMENT} { return token(TokenType.EOL_COMMENT); }
+{SHEBANG_COMMENT} {
+            if (zzCurrentPos == 0) {
+                return token(TokenType.SHEBANG_COMMENT);
+            }
+            else {
+                yypushback(yylength() - 1);
+                return token(HASH);
+            }
+          }
 
 // keywords
 "void"          { return valueToken(TYPE_VOID); }

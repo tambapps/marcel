@@ -6,11 +6,15 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @AllArgsConstructor
 public class MarcelLexer {
 
+  private static final List<TokenType> COMMENT_TOKENS = Arrays.asList(
+      TokenType.BLOCK_COMMENT, TokenType.DOC_COMMENT, TokenType.HASH, TokenType.SHEBANG_COMMENT, TokenType.EOL_COMMENT
+  );
   private final boolean ignoreWhitespaces;
 
   public MarcelLexer() {
@@ -30,7 +34,8 @@ public class MarcelLexer {
     List<LexToken> tokens = new ArrayList<>();
     LexToken token;
     while ((token = jflexer.nextToken()) != null) {
-      if (!ignoreWhitespaces || token.getType() != TokenType.WHITE_SPACE) {
+      TokenType type = token.getType();
+      if (!COMMENT_TOKENS.contains(type) && (!ignoreWhitespaces || type != TokenType.WHITE_SPACE)) {
         tokens.add(token);
       }
     }
