@@ -40,7 +40,9 @@ interface AstNodeVisitor {
   fun visit(stringNode: StringNode)
   fun visit(stringConstantNode: StringConstantNode)
   fun visit(toStringNode: ToStringNode)
-  fun visit(accessOperator: AccessOperator)
+  fun visit(accessOperator: InvokeAccessOperator)
+  fun visit(getFieldAccessOperator: GetFieldAccessOperator)
+
   fun visit(booleanConstantNode: BooleanConstantNode)
   fun visit(comparisonOperator: ComparisonOperatorNode)
   fun visit(notNode: NotNode)

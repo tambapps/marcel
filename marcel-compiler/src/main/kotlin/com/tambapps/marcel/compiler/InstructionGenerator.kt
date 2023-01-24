@@ -1,41 +1,7 @@
 package com.tambapps.marcel.compiler
 
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
-import com.tambapps.marcel.parser.ast.expression.AccessOperator
-import com.tambapps.marcel.parser.ast.expression.BinaryOperatorNode
-import com.tambapps.marcel.parser.ast.expression.BlockNode
-import com.tambapps.marcel.parser.ast.expression.BooleanConstantNode
-import com.tambapps.marcel.parser.ast.expression.BooleanExpressionNode
-import com.tambapps.marcel.parser.ast.expression.ComparisonOperatorNode
-import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
-import com.tambapps.marcel.parser.ast.expression.DivOperator
-import com.tambapps.marcel.parser.ast.expression.DoubleConstantNode
-import com.tambapps.marcel.parser.ast.expression.ExpressionNode
-import com.tambapps.marcel.parser.ast.expression.FloatConstantNode
-import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
-import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
-import com.tambapps.marcel.parser.ast.expression.IncrNode
-import com.tambapps.marcel.parser.ast.expression.IntConstantNode
-import com.tambapps.marcel.parser.ast.expression.LongConstantNode
-import com.tambapps.marcel.parser.ast.expression.MinusOperator
-import com.tambapps.marcel.parser.ast.expression.MulOperator
-import com.tambapps.marcel.parser.ast.expression.NotNode
-import com.tambapps.marcel.parser.ast.expression.NullValueNode
-import com.tambapps.marcel.parser.ast.expression.PlusOperator
-import com.tambapps.marcel.parser.ast.expression.PowOperator
-import com.tambapps.marcel.parser.ast.expression.RangeNode
-import com.tambapps.marcel.parser.ast.expression.ReturnNode
-import com.tambapps.marcel.parser.ast.expression.StringConstantNode
-import com.tambapps.marcel.parser.ast.expression.StringNode
-import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
-import com.tambapps.marcel.parser.ast.expression.TernaryNode
-import com.tambapps.marcel.parser.ast.expression.ToStringNode
-import com.tambapps.marcel.parser.ast.expression.TruthyVariableDeclarationNode
-import com.tambapps.marcel.parser.ast.expression.UnaryMinus
-import com.tambapps.marcel.parser.ast.expression.UnaryPlus
-import com.tambapps.marcel.parser.ast.expression.VariableAssignmentNode
-import com.tambapps.marcel.parser.ast.expression.VariableReferenceExpression
-import com.tambapps.marcel.parser.ast.expression.VoidExpression
+import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.BreakLoopNode
 import com.tambapps.marcel.parser.ast.statement.ContinueLoopNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
@@ -52,7 +18,6 @@ import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import it.unimi.dsi.fastutil.ints.IntIterator
 import marcel.lang.IntRanges
-import marcel.lang.methods.MarcelDefaultMethods
 import marcel.lang.methods.MarcelTruth
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes
@@ -134,13 +99,13 @@ private interface IInstructionGenerator: AstNodeVisitor {
     evaluateOperands(comparisonOperator)
   }
 
-  override fun visit(accessOperator: AccessOperator) {
+  override fun visit(accessOperator: InvokeAccessOperator) {
     val access = accessOperator.rightOperand
-    if (access is FunctionCallNode) {
-      access.accept(this)
-    } else {
-      throw UnsupportedOperationException("Cannot handle such access")
-    }
+    access.accept(this)
+  }
+
+  override fun visit(getFieldAccessOperator: GetFieldAccessOperator) {
+    TODO("Not yet implemented")
   }
 
   private fun evaluateOperands(binaryOperatorNode: BinaryOperatorNode) {

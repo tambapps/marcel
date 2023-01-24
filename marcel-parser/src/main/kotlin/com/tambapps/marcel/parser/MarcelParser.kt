@@ -561,13 +561,12 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       TokenType.PLUS -> PlusOperator(leftOperand, rightOperand)
       TokenType.MINUS -> MinusOperator(leftOperand, rightOperand)
       TokenType.EQUAL, TokenType.NOT_EQUAL, TokenType.LT, TokenType.GT, TokenType.LOE, TokenType.GOE -> ComparisonOperatorNode(t, leftOperand, rightOperand)
-      TokenType.DOT -> {
-        if (rightOperand !is FunctionCallNode) {
-          throw MarcelParsingException("Can only handle function calls with dot operators")
-        }
-        AccessOperator(leftOperand, rightOperand)
+      TokenType.DOT -> when (rightOperand) {
+        is FunctionCallNode -> InvokeAccessOperator(leftOperand, rightOperand)
+        is VariableReferenceExpression -> GetFieldAccessOperator(leftOperand, rightOperand)
+        else -> throw MarcelParsingException("Can only handle function calls and fields with dot operators")
       }
-      else -> TODO()
+      else -> throw MarcelParsingException("Doesn't handle operator with token type $t")
     }
   }
 

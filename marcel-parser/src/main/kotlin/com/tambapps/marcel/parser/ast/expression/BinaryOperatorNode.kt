@@ -5,7 +5,7 @@ import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.ComparisonOperator
 import com.tambapps.marcel.parser.type.JavaType
 
-abstract class BinaryOperatorNode(val leftOperand: ExpressionNode, val rightOperand: ExpressionNode): ExpressionNode {
+abstract class BinaryOperatorNode(val leftOperand: ExpressionNode, open val rightOperand: ExpressionNode): ExpressionNode {
   // for now only ints are handled
   override val type: JavaType = JavaType.int
   override fun equals(other: Any?): Boolean {
@@ -83,13 +83,11 @@ class PowOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   }
 }
 
-class AccessOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
+class InvokeAccessOperator(leftOperand: ExpressionNode, override val rightOperand: FunctionCallNode) :
     BinaryOperatorNode(leftOperand, rightOperand) {
 
   init {
-    if (rightOperand is FunctionCallNode) {
-      rightOperand.methodOwnerType = leftOperand
-    }
+    rightOperand.methodOwnerType = leftOperand
   }
 
   override val type: JavaType
@@ -99,7 +97,22 @@ class AccessOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) 
   }
 
   override fun toString(): String {
-    return "$leftOperand.$rightOperand"
+    return "$leftOperand.$rightOperand()"
+  }
+}
+
+class GetFieldAccessOperator(leftOperand: ExpressionNode, override val rightOperand: VariableReferenceExpression) :
+    BinaryOperatorNode(leftOperand, rightOperand) {
+
+  // TODO find right way to get type
+  override val type: JavaType
+    get() = rightOperand.type
+  override fun accept(astNodeVisitor: AstNodeVisitor) {
+    astNodeVisitor.visit(this)
+  }
+
+  override fun toString(): String {
+    return "$leftOperand.$rightOperand)"
   }
 }
 
