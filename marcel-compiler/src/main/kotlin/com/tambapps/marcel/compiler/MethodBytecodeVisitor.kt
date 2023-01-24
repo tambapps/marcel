@@ -133,18 +133,6 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     mv.visitInsn(opCode)
   }
 
-  fun visitPrintlnCall(fCall: FunctionCallNode, argumentsPusher: () -> Unit) {
-    mv.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;")
-
-    if (fCall.arguments.size != 1) {
-      throw SemanticException("Invalid call of println")
-    }
-    val argumentType = fCall.arguments.first().type
-    val method = PrintStream::class.java.getDeclaredMethod("println", argumentType.realClazzOrObject)
-    argumentsPusher.invoke()
-    mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", AsmUtils.getDescriptor(method), false)
-  }
-
   fun pushVariable(scope: Scope, variableName: String) {
     val (variable, index) = scope.getLocalVariableWithIndex(variableName)
     mv.visitVarInsn(variable.type.loadCode, index)
