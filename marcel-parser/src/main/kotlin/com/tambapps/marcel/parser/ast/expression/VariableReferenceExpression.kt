@@ -6,6 +6,7 @@ import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.LocalVariable
+import com.tambapps.marcel.parser.scope.Variable
 
 // can be a class or variable reference
 class VariableReferenceExpression(override val scope: Scope, val name: String): ExpressionNode, ScopedNode<Scope> {
@@ -18,11 +19,8 @@ class VariableReferenceExpression(override val scope: Scope, val name: String): 
         scope.getTypeOrNull(name) ?: throw e
       }
 
-  // TODO remove this
-  val variable: LocalVariable
+  val variable: Variable
     get() = scope.getLocalVariable(name)
-  val index: Int
-    get() = variable.index
 
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)

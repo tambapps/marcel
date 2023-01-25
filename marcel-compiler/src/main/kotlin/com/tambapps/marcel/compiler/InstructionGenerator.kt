@@ -354,7 +354,7 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
 
   override fun visit(incrNode: IncrNode) {
     if (incrNode.variableReference.type == JavaType.int) {
-      mv.incr(incrNode)
+      mv.incr(incrNode.variableReference.variable, incrNode.amount)
     } else {
       TODO("Don't support other types than int for increment")
     }

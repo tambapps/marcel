@@ -54,7 +54,7 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
       ?: extensionMethods.find { it.matches(name, argumentTypes) }
       ?: throw SemanticException("Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
-  fun getLocalVariable(name: String): LocalVariable {
+  fun getLocalVariable(name: String): Variable {
     var index = 0
     for (variable in localVariables) {
       if (variable.name == name) {
@@ -63,6 +63,7 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
       }
       index+= variable.nbSlots
     }
+    // TODO for now only searching on local variables but will need to search on fields
     throw SemanticException("Variable $name is not defined")
   }
 

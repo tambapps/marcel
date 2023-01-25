@@ -3,8 +3,6 @@ package com.tambapps.marcel.compiler
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.ComparisonOperator
 import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
-import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
-import com.tambapps.marcel.parser.ast.expression.IncrNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.*
@@ -14,7 +12,6 @@ import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
-import java.io.PrintStream
 import java.lang.reflect.Method
 
 class MethodBytecodeVisitor(private val mv: MethodVisitor) {
@@ -102,8 +99,11 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     mv.visitLdcInsn(string)
   }
 
-  fun incr(incrNode: IncrNode) {
-    mv.visitIincInsn(incrNode.variableReference.index, incrNode.amount)
+  fun incr(variable: Variable, amount: Int) {
+    when (variable) {
+      is LocalVariable -> mv.visitIincInsn(variable.index, amount)
+      else -> throw TODO("")
+    }
   }
 
   fun returnVoid() {
