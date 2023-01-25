@@ -144,9 +144,10 @@ private interface IInstructionGenerator: AstNodeVisitor {
     }
   }
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
-    // TODO get variable type and do custom stuff if it is collection
     pushArgument(variableAssignmentNode.expression)
     val variable = variableAssignmentNode.scope.findVariable(variableAssignmentNode.name)
+    // TODO if type is array and expected type is collection, handle casting in castIfNecessaryOrThrow method.
+    //  for now only handle int arrays, and the other when we made sure it works
     mv.castIfNecessaryOrThrow(variable.type, variableAssignmentNode.expression.type)
     mv.storeInVariable(variable)
   }
@@ -349,7 +350,7 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
     mv.popStack()
   }
 
-  override fun visit(literalListNode: LiteralListNode) {
+  override fun visit(literalListNode: LiteralArrayNode) {
     literalListNode.elements.forEach { it.accept(this) }
   }
 
@@ -476,8 +477,8 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
     instructionGenerator.visit(forInStatement)
   }
 
-  override fun visit(literalListNode: LiteralListNode) {
-    TODO("Not yet implemented")
+  override fun visit(literalListNode: LiteralArrayNode) {
+    TODO("Push array")
   }
 
   override fun visit(rangeNode: RangeNode) {

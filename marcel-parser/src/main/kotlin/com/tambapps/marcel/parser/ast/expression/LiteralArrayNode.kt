@@ -3,9 +3,9 @@ package com.tambapps.marcel.parser.ast.expression
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.type.JavaType
 
-class LiteralListNode(val elements: List<ExpressionNode>): ExpressionNode {
+class LiteralArrayNode(val elements: List<ExpressionNode>): ExpressionNode {
 
-  override var type = JavaType.of(ArrayList::class.java)
+  override val type = JavaType.arrayType(elementsType)
 
   val elementsType: JavaType
     get() = JavaType.commonType(elements)

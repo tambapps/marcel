@@ -155,6 +155,15 @@ interface JavaType: AstTypedObject {
       return of(PRIMITIVE_COLLECTION_TYPE_MAP.getValue(collectionTokenType).getValue(primitiveTokenType))
     }
 
+    fun arrayType(elementsType: JavaType): JavaType {
+      if (!elementsType.primitive) {
+        TODO("Doesn't handle object type for now")
+      }
+      return when (elementsType) {
+        int -> intArray
+        else -> TODO("Doesn't handle $elementsType array type for now")
+      }
+    }
     fun of(className: String): JavaType {
       if (PRIMITIVES.any { it.className == className })
       if (DEFINED_TYPES.containsKey(className)) return DEFINED_TYPES.getValue(className)
@@ -194,6 +203,8 @@ interface JavaType: AstTypedObject {
     val short = JavaPrimitiveType(java.lang.Short::class, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV)
 
     val PRIMITIVES = listOf(void, int, long, float, double, boolean, char, byte, short)
+
+    val intArray = JavaArrayType(Array<Int>::class.java, Opcodes.IALOAD, Opcodes.IASTORE)
 
     val PRIMITIVE_CAST_INSTRUCTION_MAP = mapOf(
       Pair(Pair(int, long), Opcodes.I2L),
@@ -402,6 +413,17 @@ class LoadedObjectType(
 
 }
 
+class JavaArrayType internal constructor(
+  realClazz: Class<*>,
+  loadCode: Int,
+  storeCode: Int
+  // TODO verify ARETURN for array types
+): LoadedJavaType(realClazz, emptyList(), storeCode, loadCode, Opcodes.ARETURN) {
+  override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
+    throw SemanticException("Cannot have array type with generic types")
+  }
+
+}
 class JavaPrimitiveType internal constructor(
   objectKlazz: KClass<*>,
   loadCode: Int,

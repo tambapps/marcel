@@ -3,6 +3,7 @@ package com.tambapps.marcel.compiler
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.ComparisonOperator
 import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
+import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.*
@@ -17,13 +18,16 @@ import java.lang.reflect.Method
 class MethodBytecodeVisitor(private val mv: MethodVisitor) {
 
   fun visitConstructorCall(fCall: ConstructorCallNode, argumentsPusher: () -> Unit) {
-    val classInternalName = fCall.type.internalName
+    invokeConstructor(fCall.type, fCall.arguments, argumentsPusher)
+  }
+  fun invokeConstructor(type: JavaType, arguments: List<ExpressionNode>, argumentsPusher: () -> Unit) {
+    val classInternalName = type.internalName
     mv.visitTypeInsn(Opcodes.NEW, classInternalName)
     mv.visitInsn(Opcodes.DUP)
     argumentsPusher.invoke()
-    val constructorMethod = fCall.type.findDeclaredConstructorOrThrow(fCall.arguments)
+    val constructorMethod = type.findDeclaredConstructorOrThrow(arguments)
     mv.visitMethodInsn(
-      Opcodes.INVOKESPECIAL, classInternalName, fCall.name, constructorMethod.descriptor, false)
+      Opcodes.INVOKESPECIAL, classInternalName, JavaMethod.CONSTRUCTOR_NAME, constructorMethod.descriptor, false)
   }
 
   fun visitSuperConstructorCall(fCall: SuperConstructorCallNode, argumentsPusher: () -> Unit) {
