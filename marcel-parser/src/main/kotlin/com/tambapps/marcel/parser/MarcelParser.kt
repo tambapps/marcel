@@ -203,6 +203,13 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   private fun parseType(scope: Scope): JavaType {
     val token = next()
     return when (token.type) {
+      TokenType.LIST, TokenType.SET, TokenType.QUEUE -> {
+        accept(TokenType.LT)
+        val primitiveTypeToken = accept(TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_VOID,
+          TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL)
+        accept(TokenType.GT)
+        JavaType.primitiveCollection(token.type, primitiveTypeToken.type)
+      }
       TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_VOID,
       TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL -> JavaType.TOKEN_TYPE_MAP.getValue(token.type)
       TokenType.IDENTIFIER -> {
@@ -227,11 +234,14 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val token = next()
     return when (token.type) {
       TokenType.TYPE_INT, TokenType.TYPE_LONG,
-      TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL  -> {
+      TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL, TokenType.LIST, TokenType.SET,
+      TokenType.QUEUE, TokenType.MAP -> {
+        rollback()
+        val type = parseType(scope)
         val identifier = accept(TokenType.IDENTIFIER)
         accept(TokenType.ASSIGNMENT)
         acceptOptional(TokenType.SEMI_COLON)
-        VariableDeclarationNode(scope, JavaType.TOKEN_TYPE_MAP.getValue(token.type), identifier.value, expression(scope))
+        VariableDeclarationNode(scope, type, identifier.value, expression(scope))
       }
       TokenType.RETURN -> {
         val expression = if (current.type == TokenType.SEMI_COLON) VoidExpression() else expression(scope)
@@ -460,6 +470,17 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         }
         return node
       }
+      TokenType.SQUARE_BRACKETS_OPEN -> {
+        val elements = mutableListOf<ExpressionNode>()
+        while (current.type != TokenType.SQUARE_BRACKETS_CLOSE) {
+          elements.add(expression(scope))
+          if (current.type == TokenType.COMMA) {
+            skip()
+          }
+        }
+        next() // skip square brackets close
+        return LiteralListNode(elements)
+      }
       else -> {
         throw UnsupportedOperationException("Not supported yet $token")
       }
@@ -574,6 +595,15 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val token = current
     if (token.type != t) {
       throw MarcelParsingException("Expected token of type $t but got ${token.type}")
+    }
+    currentIndex++
+    return token
+  }
+
+  private fun accept(vararg types: TokenType): LexToken {
+    val token = current
+    if (token.type !in types) {
+      throw MarcelParsingException("Expected token of type ${types.contentToString()} but got ${token.type}")
     }
     currentIndex++
     return token

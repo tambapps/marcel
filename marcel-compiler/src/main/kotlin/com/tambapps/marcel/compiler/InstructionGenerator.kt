@@ -144,6 +144,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
     }
   }
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
+    // TODO get variable type and do custom stuff if it is collection
     pushArgument(variableAssignmentNode.expression)
     val variable = variableAssignmentNode.scope.findVariable(variableAssignmentNode.name)
     mv.castIfNecessaryOrThrow(variable.type, variableAssignmentNode.expression.type)
@@ -348,6 +349,10 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
     mv.popStack()
   }
 
+  override fun visit(literalListNode: LiteralListNode) {
+    literalListNode.elements.forEach { it.accept(this) }
+  }
+
   override fun visit(booleanExpression: BooleanExpressionNode) {
     booleanExpression.innerExpression.accept(this)
   }
@@ -470,6 +475,11 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
   override fun visit(forInStatement: ForInStatement) {
     instructionGenerator.visit(forInStatement)
   }
+
+  override fun visit(literalListNode: LiteralListNode) {
+    TODO("Not yet implemented")
+  }
+
   override fun visit(rangeNode: RangeNode) {
     val methodName = if (rangeNode.fromExclusive && rangeNode.toExclusive) "ofExclusive"
     else if (rangeNode.fromExclusive) "ofFromExclusive"

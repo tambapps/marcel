@@ -9,6 +9,20 @@ import com.tambapps.marcel.parser.scope.ClassField
 import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.scope.MethodField
 import com.tambapps.marcel.parser.scope.Variable
+import it.unimi.dsi.fastutil.booleans.BooleanArrayList
+import it.unimi.dsi.fastutil.booleans.BooleanOpenHashSet
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList
+import it.unimi.dsi.fastutil.doubles.DoubleArrayPriorityQueue
+import it.unimi.dsi.fastutil.doubles.DoubleOpenHashSet
+import it.unimi.dsi.fastutil.floats.FloatArrayList
+import it.unimi.dsi.fastutil.floats.FloatArrayPriorityQueue
+import it.unimi.dsi.fastutil.floats.FloatOpenHashSet
+import it.unimi.dsi.fastutil.ints.IntArrayList
+import it.unimi.dsi.fastutil.ints.IntArrayPriorityQueue
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet
+import it.unimi.dsi.fastutil.longs.LongArrayList
+import it.unimi.dsi.fastutil.longs.LongArrayPriorityQueue
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import org.objectweb.asm.Opcodes
 import kotlin.reflect.KClass
 
@@ -86,22 +100,34 @@ interface JavaType: AstTypedObject {
 
     private val DEFINED_TYPES = mutableMapOf<String, JavaType>()
 
-    fun commonType(list: List<JavaType>): JavaType {
-      return list.reduce { acc, javaType -> commonType(acc, javaType) }
+    fun commonType(list: List<AstTypedObject>): JavaType {
+      if (list.isEmpty()) return void
+      return list.reduce { acc, javaType -> commonType(acc, javaType) } as JavaType
     }
 
-    fun commonType(a: JavaType, b: JavaType): JavaType {
+    fun commonType(aa: AstTypedObject, bb: AstTypedObject): JavaType {
+      val a = aa.type
+      val b = bb.type
+
+
       if (a == b) return a
       if (a.isAssignableFrom(b)) return a
       if (b.isAssignableFrom(a)) return b
 
-      var aType = a
-      var bType = b
-      while (aType.superClassName != null && bType.superClassName != null) {
-        aType = of(aType.superClassName!!)
-        bType = of(bType.superClassName!!)
-        if (aType.isAssignableFrom(bType)) return a
-        if (bType.isAssignableFrom(aType)) return b
+      if (a.primitive && b.primitive) {
+        if (a == int && b in listOf(long, double, float)) return b
+        if (b == int && a in listOf(long, double, float)) return a
+        if (a == float && b == double) return b
+        if (b == float && a == double) return a
+      } else {
+        var aType = a
+        var bType = b
+        while (aType.superClassName != null && bType.superClassName != null) {
+          aType = of(aType.superClassName!!)
+          bType = of(bType.superClassName!!)
+          if (aType.isAssignableFrom(bType)) return a
+          if (bType.isAssignableFrom(aType)) return b
+        }
       }
       return JavaType.Object
     }
@@ -123,6 +149,10 @@ interface JavaType: AstTypedObject {
         return PRIMITIVES.find { it.className == clazz.name } ?: throw RuntimeException("Compiler error. Primitive type $clazz is not being handled")
       }
       return of(clazz.name)
+    }
+
+    fun primitiveCollection(collectionTokenType: TokenType, primitiveTokenType: TokenType): JavaType {
+      return of(PRIMITIVE_COLLECTION_TYPE_MAP.getValue(collectionTokenType).getValue(primitiveTokenType))
     }
 
     fun of(className: String): JavaType {
@@ -188,6 +218,29 @@ interface JavaType: AstTypedObject {
       Pair(TokenType.TYPE_FLOAT, float),
       Pair(TokenType.TYPE_DOUBLE, double),
       Pair(TokenType.TYPE_BOOL, boolean),
+    )
+
+    private val PRIMITIVE_COLLECTION_TYPE_MAP = mapOf(
+      Pair(TokenType.LIST, mapOf(
+        Pair(TokenType.TYPE_INT, IntArrayList::class.java),
+        Pair(TokenType.TYPE_LONG, LongArrayList::class.java),
+        Pair(TokenType.TYPE_FLOAT, FloatArrayList::class.java),
+        Pair(TokenType.TYPE_DOUBLE, DoubleArrayList::class.java),
+        Pair(TokenType.TYPE_BOOL, BooleanArrayList::class.java),
+      )),
+      Pair(TokenType.SET, mapOf(
+        Pair(TokenType.TYPE_INT, IntOpenHashSet::class.java),
+        Pair(TokenType.TYPE_LONG, LongOpenHashSet::class.java),
+        Pair(TokenType.TYPE_FLOAT, FloatOpenHashSet::class.java),
+        Pair(TokenType.TYPE_DOUBLE, DoubleOpenHashSet::class.java),
+        Pair(TokenType.TYPE_BOOL, BooleanOpenHashSet::class.java),
+      )),
+      Pair(TokenType.QUEUE, mapOf(
+        Pair(TokenType.TYPE_INT, IntArrayPriorityQueue::class.java),
+        Pair(TokenType.TYPE_LONG, LongArrayPriorityQueue::class.java),
+        Pair(TokenType.TYPE_FLOAT, FloatArrayPriorityQueue::class.java),
+        Pair(TokenType.TYPE_DOUBLE, DoubleArrayPriorityQueue::class.java),
+      )),
     )
   }
 
