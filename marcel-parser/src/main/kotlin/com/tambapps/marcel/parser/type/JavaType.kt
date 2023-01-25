@@ -86,6 +86,25 @@ interface JavaType: AstTypedObject {
 
     private val DEFINED_TYPES = mutableMapOf<String, JavaType>()
 
+    fun commonType(list: List<JavaType>): JavaType {
+      return list.reduce { acc, javaType -> commonType(acc, javaType) }
+    }
+
+    fun commonType(a: JavaType, b: JavaType): JavaType {
+      if (a == b) return a
+      if (a.isAssignableFrom(b)) return a
+      if (b.isAssignableFrom(a)) return b
+
+      var aType = a
+      var bType = b
+      while (aType.superClassName != null && bType.superClassName != null) {
+        aType = of(aType.superClassName!!)
+        bType = of(bType.superClassName!!)
+        if (aType.isAssignableFrom(bType)) return a
+        if (bType.isAssignableFrom(aType)) return b
+      }
+      return JavaType.Object
+    }
     fun defineClass(className: String, superClassName: String, isInterface: Boolean): JavaType {
       try {
         Class.forName(className)
