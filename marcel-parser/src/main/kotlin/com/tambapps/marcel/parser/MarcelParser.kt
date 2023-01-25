@@ -88,7 +88,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val bindingConstructorScope = MethodScope(classScope, JavaMethod.CONSTRUCTOR_NAME, bindingConstructorParameters, JavaType.void)
     classMethods.add(
       ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(bindingConstructorScope, listOf(
-        ExpressionStatementNode(SuperConstructorCallNode(classScope, mutableListOf(VariableReferenceExpression(
+        ExpressionStatementNode(SuperConstructorCallNode(classScope, mutableListOf(ReferenceExpression(
           bindingConstructorScope, bindingParameterName))))
       )), bindingConstructorParameters, bindingConstructorScope)
     )
@@ -381,8 +381,8 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   private fun atom(scope: Scope): ExpressionNode {
     val token = next()
     return when (token.type) {
-      TokenType.INCR -> IncrNode(VariableReferenceExpression(scope, accept(TokenType.IDENTIFIER).value), 1, false)
-      TokenType.DECR -> IncrNode(VariableReferenceExpression(scope, accept(TokenType.IDENTIFIER).value), -1, false)
+      TokenType.INCR -> IncrNode(ReferenceExpression(scope, accept(TokenType.IDENTIFIER).value), 1, false)
+      TokenType.DECR -> IncrNode(ReferenceExpression(scope, accept(TokenType.IDENTIFIER).value), -1, false)
       TokenType.INTEGER, TokenType.FLOAT -> {
        return if (current.type == TokenType.LT || current.type == TokenType.GT || current.type == TokenType.TWO_DOTS) {
          rangeNode(scope, parseNumberConstant(token))
@@ -412,10 +412,10 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       TokenType.IDENTIFIER -> {
         if (current.type == TokenType.INCR) {
           skip()
-          return IncrNode(VariableReferenceExpression(scope, token.value), 1, true)
+          return IncrNode(ReferenceExpression(scope, token.value), 1, true)
         } else  if (current.type == TokenType.DECR) {
           skip()
-          return IncrNode(VariableReferenceExpression(scope, token.value), -1, true)
+          return IncrNode(ReferenceExpression(scope, token.value), -1, true)
         }
         else if (current.type == TokenType.LPAR) {
           skip()
@@ -426,24 +426,24 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         } else if (current.type == TokenType.PLUS_ASSIGNMENT) {
           skip()
           val expr = expression(scope)
-          VariableAssignmentNode(scope, token.value, PlusOperator(VariableReferenceExpression(scope, token.value), expr))
+          VariableAssignmentNode(scope, token.value, PlusOperator(ReferenceExpression(scope, token.value), expr))
         } else if (current.type == TokenType.MINUS_ASSIGNMENT) {
           skip()
           val expr = expression(scope)
-          VariableAssignmentNode(scope, token.value, MinusOperator(VariableReferenceExpression(scope, token.value), expr))
+          VariableAssignmentNode(scope, token.value, MinusOperator(ReferenceExpression(scope, token.value), expr))
         } else if (current.type == TokenType.DIV_ASSIGNMENT) {
           skip()
           val expr = expression(scope)
-          VariableAssignmentNode(scope, token.value, DivOperator(VariableReferenceExpression(scope, token.value), expr))
+          VariableAssignmentNode(scope, token.value, DivOperator(ReferenceExpression(scope, token.value), expr))
         } else if (current.type == TokenType.MUL) {
           skip()
           val expr = expression(scope)
-          VariableAssignmentNode(scope, token.value, MulOperator(VariableReferenceExpression(scope, token.value), expr))
+          VariableAssignmentNode(scope, token.value, MulOperator(ReferenceExpression(scope, token.value), expr))
         } else if (current.type == TokenType.LT  && tokens.getOrNull(currentIndex + 1)?.type == TokenType.TWO_DOTS
           || current.type == TokenType.GT && tokens.getOrNull(currentIndex + 1)?.type == TokenType.TWO_DOTS || current.type == TokenType.TWO_DOTS) {
-          rangeNode(scope, VariableReferenceExpression(scope, token.value))
+          rangeNode(scope, ReferenceExpression(scope, token.value))
         } else {
-          VariableReferenceExpression(scope, token.value)
+          ReferenceExpression(scope, token.value)
         }
       }
       TokenType.MINUS -> UnaryMinus(atom(scope))
@@ -456,7 +456,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         next()
         if (current.type == TokenType.LT  && tokens.getOrNull(currentIndex + 1)?.type == TokenType.TWO_DOTS
           || current.type == TokenType.GT && tokens.getOrNull(currentIndex + 1)?.type == TokenType.TWO_DOTS || current.type == TokenType.TWO_DOTS) {
-          return rangeNode(scope, VariableReferenceExpression(scope, token.value))
+          return rangeNode(scope, ReferenceExpression(scope, token.value))
         }
         return node
       }
@@ -527,7 +527,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val token = next()
     return when (token.type) {
       TokenType.REGULAR_STRING_PART -> StringConstantNode(token.value)
-      TokenType.SHORT_TEMPLATE_ENTRY_START -> VariableReferenceExpression(scope, accept(TokenType.IDENTIFIER).value)
+      TokenType.SHORT_TEMPLATE_ENTRY_START -> ReferenceExpression(scope, accept(TokenType.IDENTIFIER).value)
       TokenType.LONG_TEMPLATE_ENTRY_START -> {
         val expr = expression(scope)
         accept(TokenType.LONG_TEMPLATE_ENTRY_END)
@@ -563,7 +563,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       TokenType.EQUAL, TokenType.NOT_EQUAL, TokenType.LT, TokenType.GT, TokenType.LOE, TokenType.GOE -> ComparisonOperatorNode(t, leftOperand, rightOperand)
       TokenType.DOT -> when (rightOperand) {
         is FunctionCallNode -> InvokeAccessOperator(leftOperand, rightOperand)
-        is VariableReferenceExpression -> GetFieldAccessOperator(leftOperand, rightOperand)
+        is ReferenceExpression -> GetFieldAccessOperator(leftOperand, rightOperand)
         else -> throw MarcelParsingException("Can only handle function calls and fields with dot operators")
       }
       else -> throw MarcelParsingException("Doesn't handle operator with token type $t")

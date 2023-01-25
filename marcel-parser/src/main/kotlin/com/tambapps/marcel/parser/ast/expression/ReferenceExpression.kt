@@ -8,7 +8,7 @@ import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.Variable
 
 // can be a class or variable reference
-class VariableReferenceExpression(override val scope: Scope, val name: String): ExpressionNode, ScopedNode<Scope> {
+class ReferenceExpression(override val scope: Scope, val name: String): ExpressionNode, ScopedNode<Scope> {
   override val type: JavaType
     get() = try {
         scope.findVariable(name).type
@@ -33,7 +33,7 @@ class VariableReferenceExpression(override val scope: Scope, val name: String): 
     if (this === other) return true
     if (javaClass != other?.javaClass) return false
 
-    other as VariableReferenceExpression
+    other as ReferenceExpression
 
     if (name != other.name) return false
     if (type != other.type) return false

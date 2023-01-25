@@ -101,7 +101,7 @@ class InvokeAccessOperator(leftOperand: ExpressionNode, override val rightOperan
   }
 }
 
-class GetFieldAccessOperator(leftOperand: ExpressionNode, override val rightOperand: VariableReferenceExpression) :
+class GetFieldAccessOperator(leftOperand: ExpressionNode, override val rightOperand: ReferenceExpression) :
     BinaryOperatorNode(leftOperand, rightOperand) {
 
   val fieldVariable get() = leftOperand.type.findFieldOrThrow(rightOperand.name)

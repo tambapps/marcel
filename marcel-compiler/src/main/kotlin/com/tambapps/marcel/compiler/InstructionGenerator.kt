@@ -124,7 +124,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
       if (methodOwner is ExpressionNode) {
         pushArgument(methodOwner) // for instance method, we need to push owner
       } else {
-        pushArgument(VariableReferenceExpression(fCall.scope, "this"))
+        pushArgument(ReferenceExpression(fCall.scope, "this"))
       }
     }
     pushFunctionCallArguments(fCall)
@@ -241,7 +241,7 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
     mv.visitLabel(loopStart)
 
     // Verifying condition
-    val iteratorVarReference = VariableReferenceExpression(scope, iteratorVarName)
+    val iteratorVarReference = ReferenceExpression(scope, iteratorVarName)
     pushArgument(iteratorVarReference)
     mv.invokeMethod(IntIterator::class.java.getMethod("hasNext"))
 
@@ -364,7 +364,7 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
     // no need to push anything
   }
 
-  override fun visit(variableReferenceExpression: VariableReferenceExpression) {
+  override fun visit(referenceExpression: ReferenceExpression) {
     // don't need to push value to the stack by default
   }
   override fun pushArgument(expr: ExpressionNode) {
@@ -604,8 +604,8 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
   override fun visit(booleanConstantNode: BooleanConstantNode) {
     mv.pushConstant(booleanConstantNode.value)
   }
-  override fun visit(variableReferenceExpression: VariableReferenceExpression) {
-    mv.pushVariable(variableReferenceExpression.variable)
+  override fun visit(referenceExpression: ReferenceExpression) {
+    mv.pushVariable(referenceExpression.variable)
   }
 
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
@@ -692,7 +692,7 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
     if (truthyVariableDeclarationNode.variableType.primitive) {
       visit(BooleanConstantNode(true))
     } else {
-      pushArgument(VariableReferenceExpression(truthyVariableDeclarationNode.scope, truthyVariableDeclarationNode.name))
+      pushArgument(ReferenceExpression(truthyVariableDeclarationNode.scope, truthyVariableDeclarationNode.name))
       mv.invokeMethod(MarcelTruth::class.java.getDeclaredMethod("truthy", Object::class.java))
     }
   }

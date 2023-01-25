@@ -26,7 +26,7 @@ interface AstNodeVisitor {
   fun visit(operator: MinusOperator)
   fun visit(operator: PowOperator)
   fun visit(variableAssignmentNode: VariableAssignmentNode)
-  fun visit(variableReferenceExpression: VariableReferenceExpression)
+  fun visit(referenceExpression: ReferenceExpression)
   fun visit(unaryMinus: UnaryMinus)
   fun visit(unaryPlus: UnaryPlus)
   fun visit(blockNode: BlockNode)

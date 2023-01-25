@@ -28,7 +28,7 @@ class NotNode(operand: ExpressionNode) : UnaryOperator(operand) {
   }
 }
 
-class IncrNode(val variableReference: VariableReferenceExpression, val amount: Int, val returnValueBefore: Boolean) : UnaryOperator(variableReference) {
+class IncrNode(val variableReference: ReferenceExpression, val amount: Int, val returnValueBefore: Boolean) : UnaryOperator(variableReference) {
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)
   }
