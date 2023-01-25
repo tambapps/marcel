@@ -478,7 +478,11 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
   }
 
   override fun visit(literalListNode: LiteralArrayNode) {
-    TODO("Push array")
+    literalListNode.scope.tempVariable(literalListNode.type) { localVariable ->
+      mv.newArray(literalListNode.type, literalListNode.elements, localVariable) {
+        pushArgument(it)
+      }
+    }
   }
 
   override fun visit(rangeNode: RangeNode) {

@@ -90,6 +90,13 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
     }
   }
 
+  fun tempVariable(type: JavaType, function: (LocalVariable) -> Unit) {
+    val variable = LocalVariable(type, "__temp")
+    localVariables.add(variable)
+    function.invoke(variable)
+    localVariables.remove(variable)
+  }
+
 }
 
 open class MethodScope(imports: MutableList<ImportNode>, classType: JavaType, superClassInternalName: String, classMethods: MutableList<JavaMethod>, val methodName: String,

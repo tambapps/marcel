@@ -7,6 +7,7 @@ import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.*
+import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
@@ -243,5 +244,28 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
         throw RuntimeException("Compiler bug. Unknown field subclass ${field.javaClass}")
       }
     }
+  }
+
+  fun newArray(type: JavaArrayType, elements: List<ExpressionNode>, arrayVariable: Variable, argumentPusher: (ExpressionNode) -> Unit) {
+    // Push the size of the array to the stack
+    pushConstant(elements.size)
+    // Create an int array of size n
+    mv.visitIntInsn(Opcodes.NEWARRAY, type.typeCode)
+
+    // Store the array in a local variable
+    storeInVariable(arrayVariable)
+
+    for (i in elements.indices) {
+      // Push the array reference on the stack
+      pushVariable(arrayVariable)
+      // push the index
+      pushConstant(i)
+      // push the value
+      argumentPusher.invoke(elements[i])
+      // store value at index
+      mv.visitInsn(type.arrayStoreCode)
+    }
+    // push array at the end
+    pushVariable(arrayVariable)
   }
 }

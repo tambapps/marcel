@@ -155,7 +155,7 @@ interface JavaType: AstTypedObject {
       return of(PRIMITIVE_COLLECTION_TYPE_MAP.getValue(collectionTokenType).getValue(primitiveTokenType))
     }
 
-    fun arrayType(elementsType: JavaType): JavaType {
+    fun arrayType(elementsType: JavaType): JavaArrayType {
       if (!elementsType.primitive) {
         TODO("Doesn't handle object type for now")
       }
@@ -204,7 +204,7 @@ interface JavaType: AstTypedObject {
 
     val PRIMITIVES = listOf(void, int, long, float, double, boolean, char, byte, short)
 
-    val intArray = JavaArrayType(Array<Int>::class.java, Opcodes.IALOAD, Opcodes.IASTORE)
+    val intArray = JavaArrayType(Array<Int>::class.java, Opcodes.IASTORE, Opcodes.IALOAD, Opcodes.T_INT)
 
     val PRIMITIVE_CAST_INSTRUCTION_MAP = mapOf(
       Pair(Pair(int, long), Opcodes.I2L),
@@ -415,10 +415,12 @@ class LoadedObjectType(
 
 class JavaArrayType internal constructor(
   realClazz: Class<*>,
-  loadCode: Int,
-  storeCode: Int
+  val arrayStoreCode: Int,
+  val arrayLoadCode: Int,
+  val typeCode: Int
   // TODO verify ARETURN for array types
-): LoadedJavaType(realClazz, emptyList(), storeCode, loadCode, Opcodes.ARETURN) {
+  // TODO might need to handle differently Object[] because they don't seem to have a Table 6.5.newarray-A. Array type codes unlike primitive arrays
+): LoadedJavaType(realClazz, emptyList(), Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN) {
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
     throw SemanticException("Cannot have array type with generic types")
   }

@@ -479,7 +479,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           }
         }
         next() // skip square brackets close
-        return LiteralArrayNode(elements)
+        return LiteralArrayNode(scope, elements)
       }
       else -> {
         throw UnsupportedOperationException("Not supported yet $token")
