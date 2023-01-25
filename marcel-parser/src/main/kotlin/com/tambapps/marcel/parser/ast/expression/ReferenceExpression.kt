@@ -13,7 +13,6 @@ class ReferenceExpression(override val scope: Scope, val name: String): Expressi
     get() = try {
         scope.findVariable(name).type
       } catch (e: SemanticException) {
-        // TODO pass directly by JavaType?
         // for static function calls
         scope.getTypeOrNull(name) ?: throw e
       }
