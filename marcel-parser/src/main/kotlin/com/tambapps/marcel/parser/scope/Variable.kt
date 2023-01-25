@@ -5,13 +5,13 @@ import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.Opcodes
 
-interface Variable {
+sealed interface Variable {
 
   val type: JavaType
   val name: String
 }
 
-class LocalVariable(override val type: JavaType, override val name: String): Variable {
+class LocalVariable(override val type: JavaType, override val name: String, var index: Int = 0): Variable {
 
   // yup, long and doubles takes 2 variable slots
   val nbSlots = if (type == JavaType.long || type == JavaType.double) 2 else 1

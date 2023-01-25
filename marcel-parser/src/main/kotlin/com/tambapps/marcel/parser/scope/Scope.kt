@@ -46,10 +46,6 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
     localVariables.removeIf { it.name == name }
   }
 
-  fun getLocalVariable(name: String): LocalVariable {
-    return getLocalVariableWithIndex(name).first
-  }
-
   fun getMethod(name: String, argumentTypes: List<AstTypedObject>): JavaMethod {
     // find first on class, then on imports, then on extensions
     return (classType.findMethod(name, argumentTypes, true)
@@ -58,17 +54,16 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
       ?: extensionMethods.find { it.matches(name, argumentTypes) }
       ?: throw SemanticException("Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
-  fun getLocalVariableWithIndex(name: String): Pair<LocalVariable, Int> {
+  fun getLocalVariable(name: String): LocalVariable {
     var index = 0
     for (variable in localVariables) {
-      if (variable.name == name) return Pair(variable, index)
+      if (variable.name == name) {
+        variable.index = index
+        return variable
+      }
       index+= variable.nbSlots
     }
     throw SemanticException("Variable $name is not defined")
-  }
-
-  fun getLocalVariableIndex(name: String): Int {
-    return getLocalVariableWithIndex(name).second
   }
 
   fun copy(): Scope {

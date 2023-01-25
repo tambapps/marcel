@@ -145,9 +145,9 @@ private interface IInstructionGenerator: AstNodeVisitor {
   }
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     pushArgument(variableAssignmentNode.expression)
-    val (variable, index) = variableAssignmentNode.scope.getLocalVariableWithIndex(variableAssignmentNode.name)
+    val variable = variableAssignmentNode.scope.getLocalVariable(variableAssignmentNode.name)
     mv.castIfNecessaryOrThrow(variable.type, variableAssignmentNode.expression.type)
-    mv.storeInVariable(variable, index)
+    mv.storeInVariable(variable)
   }
 
   override fun visit(voidExpression: VoidExpression) {

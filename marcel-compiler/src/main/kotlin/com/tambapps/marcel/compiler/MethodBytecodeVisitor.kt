@@ -7,11 +7,7 @@ import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.IncrNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.exception.SemanticException
-import com.tambapps.marcel.parser.scope.ClassField
-import com.tambapps.marcel.parser.scope.LocalVariable
-import com.tambapps.marcel.parser.scope.MarcelField
-import com.tambapps.marcel.parser.scope.MethodField
-import com.tambapps.marcel.parser.scope.Scope
+import com.tambapps.marcel.parser.scope.*
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
@@ -134,8 +130,8 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
   }
 
   fun pushVariable(scope: Scope, variableName: String) {
-    val (variable, index) = scope.getLocalVariableWithIndex(variableName)
-    mv.visitVarInsn(variable.type.loadCode, index)
+    val variable = scope.getLocalVariable(variableName)
+    mv.visitVarInsn(variable.type.loadCode, variable.index)
   }
 
   // must push expression before calling this method
@@ -219,8 +215,11 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     }
   }
 
-  fun storeInVariable(variable: LocalVariable, index: Int) {
-    mv.visitVarInsn(variable.type.storeCode, index)
+  fun storeInVariable(variable: Variable) {
+    when (variable) {
+      is LocalVariable -> mv.visitVarInsn(variable.type.storeCode, variable.index)
+      else -> throw TODO("todo")
+    }
   }
 
   fun getField(field: MarcelField) {

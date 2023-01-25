@@ -18,10 +18,11 @@ class VariableReferenceExpression(override val scope: Scope, val name: String): 
         scope.getTypeOrNull(name) ?: throw e
       }
 
+  // TODO remove this
   val variable: LocalVariable
     get() = scope.getLocalVariable(name)
   val index: Int
-    get() = scope.getLocalVariableIndex(name)
+    get() = variable.index
 
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)
