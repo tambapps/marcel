@@ -129,9 +129,11 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     mv.visitInsn(opCode)
   }
 
-  fun pushVariable(scope: Scope, variableName: String) {
-    val variable = scope.getLocalVariable(variableName)
-    mv.visitVarInsn(variable.type.loadCode, variable.index)
+  fun pushVariable(variable: Variable) {
+    when (variable) {
+      is LocalVariable -> mv.visitVarInsn(variable.type.loadCode, variable.index)
+      else -> TODO("TODO")
+    }
   }
 
   // must push expression before calling this method
