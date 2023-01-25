@@ -5,9 +5,9 @@ import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.Opcodes
 
-sealed interface Variable {
+sealed interface Variable : AstTypedObject{
 
-  val type: JavaType
+  override val type: JavaType
   val name: String
 }
 
@@ -22,18 +22,18 @@ class LocalVariable(override val type: JavaType, override val name: String, var 
 }
 
 // can be a java field or a java getter/setter
-sealed interface MarcelField: AstTypedObject {
+sealed interface MarcelField: Variable {
   val owner: JavaType
   val access: Int
   val isStatic: Boolean
     get() = (access and Opcodes.ACC_STATIC) != 0
 }
-class ClassField(override val type: JavaType, val name: String, override val owner: JavaType, override val access: Int): MarcelField {
+class ClassField(override val type: JavaType, override val name: String, override val owner: JavaType, override val access: Int): MarcelField {
   val getCode = if (isStatic) Opcodes.GETSTATIC else Opcodes.GETFIELD
 }
 
 // for getter/setters
-class MethodField(override val type: JavaType, val name: String, override val owner: JavaType,
+class MethodField(override val type: JavaType, override val name: String, override val owner: JavaType,
                   private val _getterName: String?,
                   private val _setterName: String?,
                   override val access: Int): MarcelField {

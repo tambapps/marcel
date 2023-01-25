@@ -145,7 +145,7 @@ private interface IInstructionGenerator: AstNodeVisitor {
   }
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     pushArgument(variableAssignmentNode.expression)
-    val variable = variableAssignmentNode.scope.getLocalVariable(variableAssignmentNode.name)
+    val variable = variableAssignmentNode.scope.findVariable(variableAssignmentNode.name)
     mv.castIfNecessaryOrThrow(variable.type, variableAssignmentNode.expression.type)
     mv.storeInVariable(variable)
   }
@@ -610,7 +610,7 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
 
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     super.visit(variableAssignmentNode)
-    mv.pushVariable(variableAssignmentNode.scope.getLocalVariable(variableAssignmentNode.name))
+    mv.pushVariable(variableAssignmentNode.scope.findVariable(variableAssignmentNode.name))
   }
 
   override fun pushArgument(expr: ExpressionNode) {
