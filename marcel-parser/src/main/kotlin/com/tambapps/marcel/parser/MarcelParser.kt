@@ -464,14 +464,27 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       }
       TokenType.SQUARE_BRACKETS_OPEN -> {
         val elements = mutableListOf<ExpressionNode>()
+        var isMap = false
         while (current.type != TokenType.SQUARE_BRACKETS_CLOSE) {
           elements.add(expression(scope))
+          if (current.type == TokenType.COLON) {
+            isMap = true
+            skip()
+            elements.add(expression(scope))
+          }
           if (current.type == TokenType.COMMA) {
             skip()
           }
         }
         next() // skip square brackets close
-        return LiteralArrayNode(elements)
+        return if (isMap) {
+          val entries = mutableListOf<Pair<ExpressionNode, ExpressionNode>>()
+          for (i in elements.indices step 2) {
+            entries.add(Pair(elements[i], elements[i + 1]))
+          }
+          LiteralMapNode(entries)
+        }
+        else LiteralArrayNode(elements)
       }
       else -> {
         throw UnsupportedOperationException("Not supported yet $token")

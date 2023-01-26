@@ -58,5 +58,6 @@ interface AstNodeVisitor {
   fun visit(continueLoopNode: ContinueLoopNode)
   fun visit(rangeNode: RangeNode)
   fun visit(literalListNode: LiteralArrayNode)
+  fun visit(literalMapNode: LiteralMapNode)
 
 }

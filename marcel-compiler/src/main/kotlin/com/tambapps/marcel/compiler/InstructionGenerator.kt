@@ -19,6 +19,7 @@ import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import it.unimi.dsi.fastutil.ints.IntIterator
 import marcel.lang.IntRanges
 import marcel.lang.methods.MarcelTruth
+import marcel.lang.runtime.PrimitiveKeyMaps
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes
 import java.util.Optional
@@ -354,6 +355,12 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
     literalListNode.elements.forEach { it.accept(this) }
   }
 
+  override fun visit(literalMapNode: LiteralMapNode) {
+    literalMapNode.entries.forEach {
+      it.first.accept(this)
+      it.second.accept(this)
+    }
+  }
   override fun visit(booleanExpression: BooleanExpressionNode) {
     booleanExpression.innerExpression.accept(this)
   }
@@ -480,6 +487,31 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
   override fun visit(literalListNode: LiteralArrayNode) {
     mv.newArray(literalListNode.type, literalListNode.elements) {
       pushArgument(it)
+    }
+  }
+
+  override fun visit(literalMapNode: LiteralMapNode) {
+    val methodName = when (literalMapNode.type.raw()) {
+      JavaType.int2ObjectMap -> "newInt2ObjectMap"
+      JavaType.long2ObjectMap -> "newLong2ObjectMap"
+      JavaType.float2ObjectMap -> "newFloat2ObjectMap"
+      JavaType.double2ObjectMap -> "newDouble2ObjectMap"
+      else -> throw SemanticException("Doesn't handle maps of type ${literalMapNode.type}")
+    }
+    mv.invokeMethod(PrimitiveKeyMaps::class.java.getDeclaredMethod(methodName))
+    val keysType = literalMapNode.keysType
+    val putMethodKeysType = if (keysType.primitive) keysType else JavaType.Object
+
+    for (entry in literalMapNode.entries) {
+      mv.dup()
+      pushArgument(entry.first)
+      mv.castIfNecessaryOrThrow(putMethodKeysType, entry.first.type)
+      pushArgument(entry.second)
+      mv.castIfNecessaryOrThrow(JavaType.Object, entry.second.type)
+      mv.invokeMethod(literalMapNode.type.findMethodOrThrow("put",
+        listOf(putMethodKeysType, JavaType.Object)
+      ))
+      mv.popStack()
     }
   }
 

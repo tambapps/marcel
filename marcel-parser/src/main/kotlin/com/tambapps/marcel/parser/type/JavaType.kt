@@ -166,6 +166,11 @@ interface JavaType: AstTypedObject {
       return of(clazz.name)
     }
 
+    fun mapType(keysType: JavaType, valuesType: JavaType): JavaType {
+      return if (keysType.primitive) of("map", listOf(keysType, valuesType))
+      else of(java.util.Map::class.java.name, listOf(keysType, valuesType))
+    }
+
     fun arrayType(elementsType: JavaType): JavaArrayType {
       if (!elementsType.primitive) {
         TODO("Doesn't handle object type for now")

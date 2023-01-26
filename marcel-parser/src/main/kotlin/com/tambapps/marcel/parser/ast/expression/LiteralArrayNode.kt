@@ -7,7 +7,7 @@ import com.tambapps.marcel.parser.type.JavaType
 
 class LiteralArrayNode(val elements: List<ExpressionNode>): ExpressionNode {
 
-  override val type: JavaArrayType = JavaType.arrayType(elementsType)
+  override val type: JavaArrayType get() =  JavaType.arrayType(elementsType)
 
   val elementsType: JavaType
     get() = JavaType.commonType(elements)

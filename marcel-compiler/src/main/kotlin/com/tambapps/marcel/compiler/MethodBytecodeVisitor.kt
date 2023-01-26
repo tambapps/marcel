@@ -123,6 +123,10 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     mv.visitInsn(Opcodes.ACONST_NULL)
   }
 
+
+  fun dup() {
+    mv.visitInsn(Opcodes.DUP)
+  }
   fun returnCode(opCode: Int) {
     mv.visitInsn(opCode)
   }
