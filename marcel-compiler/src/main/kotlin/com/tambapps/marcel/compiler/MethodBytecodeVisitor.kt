@@ -238,7 +238,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
             || expectedType !in listOf(
               JavaType.Boolean, JavaType.Integer, JavaType.Long, JavaType.Float, JavaType.Double, JavaType.of(Number::class.java), JavaType.Object
             )) {
-            throw SemanticException("Cannot cast $actualType to $actualType")
+            throw SemanticException("Cannot cast $actualType to $expectedType")
           }
           when (actualType) {
             JavaType.boolean -> invokeMethod(Class.forName(JavaType.Boolean.className).getMethod("valueOf", Boolean::class.java))

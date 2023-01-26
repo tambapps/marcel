@@ -13,21 +13,25 @@ import it.unimi.dsi.fastutil.booleans.BooleanArrayList
 import it.unimi.dsi.fastutil.booleans.BooleanList
 import it.unimi.dsi.fastutil.booleans.BooleanOpenHashSet
 import it.unimi.dsi.fastutil.booleans.BooleanSet
+import it.unimi.dsi.fastutil.doubles.Double2ObjectMap
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList
 import it.unimi.dsi.fastutil.doubles.DoubleArrayPriorityQueue
 import it.unimi.dsi.fastutil.doubles.DoubleList
 import it.unimi.dsi.fastutil.doubles.DoubleOpenHashSet
 import it.unimi.dsi.fastutil.doubles.DoubleSet
+import it.unimi.dsi.fastutil.floats.Float2ObjectMap
 import it.unimi.dsi.fastutil.floats.FloatArrayList
 import it.unimi.dsi.fastutil.floats.FloatArrayPriorityQueue
 import it.unimi.dsi.fastutil.floats.FloatList
 import it.unimi.dsi.fastutil.floats.FloatOpenHashSet
 import it.unimi.dsi.fastutil.floats.FloatSet
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.IntArrayList
 import it.unimi.dsi.fastutil.ints.IntArrayPriorityQueue
 import it.unimi.dsi.fastutil.ints.IntList
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 import it.unimi.dsi.fastutil.ints.IntSet
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap
 import it.unimi.dsi.fastutil.longs.LongArrayList
 import it.unimi.dsi.fastutil.longs.LongArrayPriorityQueue
 import it.unimi.dsi.fastutil.longs.LongList
@@ -176,7 +180,7 @@ interface JavaType: AstTypedObject {
       }
     }
     fun of(className: String, genericTypes: List<JavaType>): JavaType {
-      if (genericTypes.size == 1) {
+      if (genericTypes.size == 1 || className == "map" && genericTypes.size == 2) {
         val type = PRIMITIVE_COLLECTION_TYPE_MAP[className]?.get(genericTypes.first())
         if (type != null) return type
       }
@@ -268,15 +272,16 @@ interface JavaType: AstTypedObject {
 
     // lists
     val intSet = of(IntSet::class.java)
-    val intSetImpl = of(IntOpenHashSet::class.java)
     val longSet = of(LongSet::class.java)
-    val longSetImpl = of(LongOpenHashSet::class.java)
     val floatSet = of(FloatSet::class.java)
-    val floatSetImpl = of(FloatOpenHashSet::class.java)
     val doubleSet = of(DoubleSet::class.java)
-    val doubleSetImpl = of(DoubleOpenHashSet::class.java)
     val booleanSet = of(BooleanSet::class.java)
-    val booleanSetImpl = of(BooleanOpenHashSet::class.java)
+
+    // maps with primitive key
+    val int2ObjectMap = of(Int2ObjectMap::class.java)
+    val long2ObjectMap = of(Long2ObjectMap::class.java)
+    val float2ObjectMap = of(Float2ObjectMap::class.java)
+    val double2ObjectMap = of(Double2ObjectMap::class.java)
 
     private val PRIMITIVE_COLLECTION_TYPE_MAP = mapOf(
       Pair("list", mapOf(
@@ -292,19 +297,14 @@ interface JavaType: AstTypedObject {
         Pair(float, floatSet),
         Pair(double, doubleSet),
         Pair(boolean, booleanSet),
-        /*
-
       )),
-      Pair("queue", mapOf(
-        Pair(TokenType.TYPE_INT, IntArrayPriorityQueue::class.java),
-        Pair(TokenType.TYPE_LONG, LongArrayPriorityQueue::class.java),
-        Pair(TokenType.TYPE_FLOAT, FloatArrayPriorityQueue::class.java),
-        Pair(TokenType.TYPE_DOUBLE, DoubleArrayPriorityQueue::class.java),
-
-         */
-      )),
+      Pair("map", mapOf(
+        Pair(int, int2ObjectMap),
+        Pair(long, long2ObjectMap),
+        Pair(float, float2ObjectMap),
+        Pair(double, double2ObjectMap),
+        )),
     )
-
   }
 
 }
