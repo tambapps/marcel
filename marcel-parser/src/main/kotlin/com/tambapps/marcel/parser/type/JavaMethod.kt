@@ -49,7 +49,7 @@ class ReflectJavaConstructor(constructor: Constructor<*>): JavaMethod {
 
   // see norm of modifiers flag in Modifier class. Seems to have the same norm as OpCodes.ACC_ modifiers
   override val access = constructor.modifiers
-  override val name: String = constructor.name
+  override val name: String = JavaMethod.CONSTRUCTOR_NAME
   override val parameters = constructor.parameters.map { MethodParameter(JavaType.of(it.type), it.name) }
   override val returnType = JavaType.void // yes, constructor returns void, especially for the descriptor
   override val descriptor = AsmUtils.getDescriptor(parameters, returnType)

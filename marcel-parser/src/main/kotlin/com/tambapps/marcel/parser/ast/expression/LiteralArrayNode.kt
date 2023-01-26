@@ -5,7 +5,7 @@ import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaType
 
-class LiteralArrayNode(val scope: Scope, val elements: List<ExpressionNode>): ExpressionNode {
+class LiteralArrayNode(val elements: List<ExpressionNode>): ExpressionNode {
 
   override val type: JavaArrayType = JavaType.arrayType(elementsType)
 

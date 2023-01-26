@@ -478,10 +478,8 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
   }
 
   override fun visit(literalListNode: LiteralArrayNode) {
-    literalListNode.scope.tempVariable(literalListNode.type) { localVariable ->
-      mv.newArray(literalListNode.type, literalListNode.elements, localVariable) {
-        pushArgument(it)
-      }
+    mv.newArray(literalListNode.type, literalListNode.elements) {
+      pushArgument(it)
     }
   }
 

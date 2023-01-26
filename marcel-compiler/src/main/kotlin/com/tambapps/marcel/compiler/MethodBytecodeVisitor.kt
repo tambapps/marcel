@@ -11,6 +11,8 @@ import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
+import it.unimi.dsi.fastutil.ints.IntArrayList
+import it.unimi.dsi.fastutil.ints.IntLists
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
@@ -45,6 +47,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
   }
 
   fun invokeMethod(method: JavaMethod) {
+    // TODO doesn't handle constructors because need to push arguments AFTER NEW instruction
     mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, method.name, method.descriptor, !method.isStatic && method.ownerClass.isInterface)
   }
 
@@ -151,6 +154,12 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
         } else {
           throw SemanticException("Cannot cast primitive $actualType to primitive $expectedType")
         }
+      } else if (actualType.isArray) {
+        if (expectedType == JavaType.intListImpl && actualType == JavaType.intArray) {
+          invokeMethod(JavaType.intListImpl.findMethodOrThrow("wrap", listOf(JavaType.intArray), true))
+        } else {
+          throw SemanticException("Incompatible types. Expected type $expectedType but gave an expression of type $actualType")
+        }
       } else if (!expectedType.primitive && !actualType.primitive) {
         // both Object classes
         if (!expectedType.isAssignableFrom(actualType)) {
@@ -246,18 +255,15 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     }
   }
 
-  fun newArray(type: JavaArrayType, elements: List<ExpressionNode>, arrayVariable: Variable, argumentPusher: (ExpressionNode) -> Unit) {
+  fun newArray(type: JavaArrayType, elements: List<ExpressionNode>, argumentPusher: (ExpressionNode) -> Unit) {
     // Push the size of the array to the stack
     pushConstant(elements.size)
     // Create an int array of size n
     mv.visitIntInsn(Opcodes.NEWARRAY, type.typeCode)
 
-    // Store the array in a local variable
-    storeInVariable(arrayVariable)
-
     for (i in elements.indices) {
       // Push the array reference on the stack
-      pushVariable(arrayVariable)
+      mv.visitInsn(Opcodes.DUP)
       // push the index
       pushConstant(i)
       // push the value
@@ -265,7 +271,5 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
       // store value at index
       mv.visitInsn(type.arrayStoreCode)
     }
-    // push array at the end
-    pushVariable(arrayVariable)
   }
 }
