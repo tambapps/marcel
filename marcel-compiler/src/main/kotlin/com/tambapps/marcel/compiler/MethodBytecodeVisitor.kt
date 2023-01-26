@@ -155,9 +155,10 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
           throw SemanticException("Cannot cast primitive $actualType to primitive $expectedType")
         }
       } else if (actualType.isArray) {
-        if (expectedType == JavaType.intListImpl && actualType == JavaType.intArray) {
+        if (JavaType.intList.isAssignableFrom(expectedType) && actualType == JavaType.intArray) {
           invokeMethod(JavaType.intListImpl.findMethodOrThrow("wrap", listOf(JavaType.intArray), true))
         } else {
+          // TODO do other primitive types
           throw SemanticException("Incompatible types. Expected type $expectedType but gave an expression of type $actualType")
         }
       } else if (!expectedType.primitive && !actualType.primitive) {

@@ -19,6 +19,7 @@ import it.unimi.dsi.fastutil.floats.FloatArrayPriorityQueue
 import it.unimi.dsi.fastutil.floats.FloatOpenHashSet
 import it.unimi.dsi.fastutil.ints.IntArrayList
 import it.unimi.dsi.fastutil.ints.IntArrayPriorityQueue
+import it.unimi.dsi.fastutil.ints.IntList
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 import it.unimi.dsi.fastutil.longs.LongArrayList
 import it.unimi.dsi.fastutil.longs.LongArrayPriorityQueue
@@ -232,6 +233,7 @@ interface JavaType: AstTypedObject {
       Pair(TokenType.TYPE_BOOL, boolean),
     )
 
+    val intList = of(IntList::class.java)
     val intListImpl = of(IntArrayList::class.java)
 
     private val PRIMITIVE_COLLECTION_TYPE_MAP = mapOf(
