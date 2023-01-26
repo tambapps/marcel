@@ -203,13 +203,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   private fun parseType(scope: Scope): JavaType {
     val token = next()
     return when (token.type) {
-      TokenType.LIST, TokenType.SET, TokenType.QUEUE -> {
-        accept(TokenType.LT)
-        val primitiveTypeToken = accept(TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_VOID,
-          TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL)
-        accept(TokenType.GT)
-        JavaType.primitiveCollection(token.type, primitiveTypeToken.type)
-      }
       TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_VOID,
       TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL -> JavaType.TOKEN_TYPE_MAP.getValue(token.type)
       TokenType.IDENTIFIER -> {
@@ -224,7 +217,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           }
           accept(TokenType.GT)
         }
-        JavaType.of(className).withGenericTypes(genericTypes)
+        JavaType.of(className, genericTypes)
       }
       else -> throw UnsupportedOperationException("Doesn't handle type ${token.type}")
     }
@@ -234,8 +227,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val token = next()
     return when (token.type) {
       TokenType.TYPE_INT, TokenType.TYPE_LONG,
-      TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL, TokenType.LIST, TokenType.SET,
-      TokenType.QUEUE, TokenType.MAP -> {
+      TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL -> {
         rollback()
         val type = parseType(scope)
         val identifier = accept(TokenType.IDENTIFIER)

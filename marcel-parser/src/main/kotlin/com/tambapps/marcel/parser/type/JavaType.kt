@@ -153,10 +153,6 @@ interface JavaType: AstTypedObject {
       return of(clazz.name)
     }
 
-    fun primitiveCollection(collectionTokenType: TokenType, primitiveTokenType: TokenType): JavaType {
-      return of(PRIMITIVE_COLLECTION_TYPE_MAP.getValue(collectionTokenType).getValue(primitiveTokenType))
-    }
-
     fun arrayType(elementsType: JavaType): JavaArrayType {
       if (!elementsType.primitive) {
         TODO("Doesn't handle object type for now")
@@ -165,6 +161,13 @@ interface JavaType: AstTypedObject {
         int -> intArray
         else -> TODO("Doesn't handle $elementsType array type for now")
       }
+    }
+    fun of(className: String, genericTypes: List<JavaType>): JavaType {
+      if (genericTypes.size == 1) {
+        val type = PRIMITIVE_COLLECTION_TYPE_MAP[className]?.get(genericTypes.first())
+        if (type != null) return type
+      }
+      return of(className).withGenericTypes(genericTypes)
     }
     fun of(className: String): JavaType {
       if (PRIMITIVES.any { it.className == className })
@@ -237,27 +240,31 @@ interface JavaType: AstTypedObject {
     val intListImpl = of(IntArrayList::class.java)
 
     private val PRIMITIVE_COLLECTION_TYPE_MAP = mapOf(
-      Pair(TokenType.LIST, mapOf(
-        Pair(TokenType.TYPE_INT, IntArrayList::class.java),
+      Pair("list", mapOf(
+        Pair(int, intList),
+        /* TODO
         Pair(TokenType.TYPE_LONG, LongArrayList::class.java),
         Pair(TokenType.TYPE_FLOAT, FloatArrayList::class.java),
         Pair(TokenType.TYPE_DOUBLE, DoubleArrayList::class.java),
         Pair(TokenType.TYPE_BOOL, BooleanArrayList::class.java),
       )),
-      Pair(TokenType.SET, mapOf(
+      Pair("set", mapOf(
         Pair(TokenType.TYPE_INT, IntOpenHashSet::class.java),
         Pair(TokenType.TYPE_LONG, LongOpenHashSet::class.java),
         Pair(TokenType.TYPE_FLOAT, FloatOpenHashSet::class.java),
         Pair(TokenType.TYPE_DOUBLE, DoubleOpenHashSet::class.java),
         Pair(TokenType.TYPE_BOOL, BooleanOpenHashSet::class.java),
       )),
-      Pair(TokenType.QUEUE, mapOf(
+      Pair("queue", mapOf(
         Pair(TokenType.TYPE_INT, IntArrayPriorityQueue::class.java),
         Pair(TokenType.TYPE_LONG, LongArrayPriorityQueue::class.java),
         Pair(TokenType.TYPE_FLOAT, FloatArrayPriorityQueue::class.java),
         Pair(TokenType.TYPE_DOUBLE, DoubleArrayPriorityQueue::class.java),
+
+         */
       )),
     )
+
   }
 
 }
@@ -413,6 +420,9 @@ class LoadedObjectType(
   constructor(realClazz: Class<*>): this(realClazz, emptyList())
 
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
+    if (className == "list") {
+
+    }
     return LoadedObjectType(realClazz, genericTypes)
   }
 
