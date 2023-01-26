@@ -12,22 +12,27 @@ import com.tambapps.marcel.parser.scope.Variable
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList
 import it.unimi.dsi.fastutil.booleans.BooleanList
 import it.unimi.dsi.fastutil.booleans.BooleanOpenHashSet
+import it.unimi.dsi.fastutil.booleans.BooleanSet
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList
 import it.unimi.dsi.fastutil.doubles.DoubleArrayPriorityQueue
 import it.unimi.dsi.fastutil.doubles.DoubleList
 import it.unimi.dsi.fastutil.doubles.DoubleOpenHashSet
+import it.unimi.dsi.fastutil.doubles.DoubleSet
 import it.unimi.dsi.fastutil.floats.FloatArrayList
 import it.unimi.dsi.fastutil.floats.FloatArrayPriorityQueue
 import it.unimi.dsi.fastutil.floats.FloatList
 import it.unimi.dsi.fastutil.floats.FloatOpenHashSet
+import it.unimi.dsi.fastutil.floats.FloatSet
 import it.unimi.dsi.fastutil.ints.IntArrayList
 import it.unimi.dsi.fastutil.ints.IntArrayPriorityQueue
 import it.unimi.dsi.fastutil.ints.IntList
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
+import it.unimi.dsi.fastutil.ints.IntSet
 import it.unimi.dsi.fastutil.longs.LongArrayList
 import it.unimi.dsi.fastutil.longs.LongArrayPriorityQueue
 import it.unimi.dsi.fastutil.longs.LongList
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
+import it.unimi.dsi.fastutil.longs.LongSet
 import org.objectweb.asm.Opcodes
 import kotlin.reflect.KClass
 
@@ -249,6 +254,7 @@ interface JavaType: AstTypedObject {
       Pair(TokenType.TYPE_BOOL, boolean),
     )
 
+    // lists
     val intList = of(IntList::class.java)
     val intListImpl = of(IntArrayList::class.java)
     val longList = of(LongList::class.java)
@@ -260,6 +266,18 @@ interface JavaType: AstTypedObject {
     val booleanList = of(BooleanList::class.java)
     val booleanListImpl = of(BooleanArrayList::class.java)
 
+    // lists
+    val intSet = of(IntSet::class.java)
+    val intSetImpl = of(IntOpenHashSet::class.java)
+    val longSet = of(LongSet::class.java)
+    val longSetImpl = of(LongOpenHashSet::class.java)
+    val floatSet = of(FloatSet::class.java)
+    val floatSetImpl = of(FloatOpenHashSet::class.java)
+    val doubleSet = of(DoubleSet::class.java)
+    val doubleSetImpl = of(DoubleOpenHashSet::class.java)
+    val booleanSet = of(BooleanSet::class.java)
+    val booleanSetImpl = of(BooleanOpenHashSet::class.java)
+
     private val PRIMITIVE_COLLECTION_TYPE_MAP = mapOf(
       Pair("list", mapOf(
         Pair(int, intList),
@@ -267,18 +285,15 @@ interface JavaType: AstTypedObject {
         Pair(float, floatList),
         Pair(double, doubleList),
         Pair(boolean, booleanList),
-        /* TODO
-        Pair(TokenType.TYPE_LONG, LongArrayList::class.java),
-        Pair(TokenType.TYPE_FLOAT, FloatArrayList::class.java),
-        Pair(TokenType.TYPE_DOUBLE, DoubleArrayList::class.java),
-        Pair(TokenType.TYPE_BOOL, BooleanArrayList::class.java),
       )),
       Pair("set", mapOf(
-        Pair(TokenType.TYPE_INT, IntOpenHashSet::class.java),
-        Pair(TokenType.TYPE_LONG, LongOpenHashSet::class.java),
-        Pair(TokenType.TYPE_FLOAT, FloatOpenHashSet::class.java),
-        Pair(TokenType.TYPE_DOUBLE, DoubleOpenHashSet::class.java),
-        Pair(TokenType.TYPE_BOOL, BooleanOpenHashSet::class.java),
+        Pair(int, intSet),
+        Pair(long, longSet),
+        Pair(float, floatSet),
+        Pair(double, doubleSet),
+        Pair(boolean, booleanSet),
+        /*
+
       )),
       Pair("queue", mapOf(
         Pair(TokenType.TYPE_INT, IntArrayPriorityQueue::class.java),
