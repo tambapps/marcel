@@ -10,12 +10,15 @@ import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.scope.MethodField
 import com.tambapps.marcel.parser.scope.Variable
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList
+import it.unimi.dsi.fastutil.booleans.BooleanList
 import it.unimi.dsi.fastutil.booleans.BooleanOpenHashSet
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList
 import it.unimi.dsi.fastutil.doubles.DoubleArrayPriorityQueue
+import it.unimi.dsi.fastutil.doubles.DoubleList
 import it.unimi.dsi.fastutil.doubles.DoubleOpenHashSet
 import it.unimi.dsi.fastutil.floats.FloatArrayList
 import it.unimi.dsi.fastutil.floats.FloatArrayPriorityQueue
+import it.unimi.dsi.fastutil.floats.FloatList
 import it.unimi.dsi.fastutil.floats.FloatOpenHashSet
 import it.unimi.dsi.fastutil.ints.IntArrayList
 import it.unimi.dsi.fastutil.ints.IntArrayPriorityQueue
@@ -23,6 +26,7 @@ import it.unimi.dsi.fastutil.ints.IntList
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 import it.unimi.dsi.fastutil.longs.LongArrayList
 import it.unimi.dsi.fastutil.longs.LongArrayPriorityQueue
+import it.unimi.dsi.fastutil.longs.LongList
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import org.objectweb.asm.Opcodes
 import kotlin.reflect.KClass
@@ -159,6 +163,10 @@ interface JavaType: AstTypedObject {
       }
       return when (elementsType) {
         int -> intArray
+        long -> longArray
+        float -> floatArray
+        double -> doubleArray
+        boolean -> booleanArray
         else -> TODO("Doesn't handle $elementsType array type for now")
       }
     }
@@ -210,6 +218,11 @@ interface JavaType: AstTypedObject {
     val PRIMITIVES = listOf(void, int, long, float, double, boolean, char, byte, short)
 
     val intArray = JavaArrayType(IntArray::class.java, Opcodes.IASTORE, Opcodes.IALOAD, Opcodes.T_INT)
+    val longArray = JavaArrayType(LongArray::class.java, Opcodes.LASTORE, Opcodes.LALOAD, Opcodes.T_LONG)
+    val floatArray = JavaArrayType(FloatArray::class.java, Opcodes.FASTORE, Opcodes.FALOAD, Opcodes.T_FLOAT)
+    val doubleArray = JavaArrayType(DoubleArray::class.java, Opcodes.DASTORE, Opcodes.DALOAD, Opcodes.T_DOUBLE)
+    val booleanArray = JavaArrayType(BooleanArray::class.java, Opcodes.BASTORE, Opcodes.BALOAD, Opcodes.T_BOOLEAN)
+    // TODO handle object array
 
     val PRIMITIVE_CAST_INSTRUCTION_MAP = mapOf(
       Pair(Pair(int, long), Opcodes.I2L),
@@ -238,10 +251,22 @@ interface JavaType: AstTypedObject {
 
     val intList = of(IntList::class.java)
     val intListImpl = of(IntArrayList::class.java)
+    val longList = of(LongList::class.java)
+    val longListImpl = of(LongArrayList::class.java)
+    val floatList = of(FloatList::class.java)
+    val floatListImpl = of(FloatArrayList::class.java)
+    val doubleList = of(DoubleList::class.java)
+    val doubleListImpl = of(DoubleArrayList::class.java)
+    val booleanList = of(BooleanList::class.java)
+    val booleanListImpl = of(BooleanArrayList::class.java)
 
     private val PRIMITIVE_COLLECTION_TYPE_MAP = mapOf(
       Pair("list", mapOf(
         Pair(int, intList),
+        Pair(long, longList),
+        Pair(float, floatList),
+        Pair(double, doubleList),
+        Pair(boolean, booleanList),
         /* TODO
         Pair(TokenType.TYPE_LONG, LongArrayList::class.java),
         Pair(TokenType.TYPE_FLOAT, FloatArrayList::class.java),

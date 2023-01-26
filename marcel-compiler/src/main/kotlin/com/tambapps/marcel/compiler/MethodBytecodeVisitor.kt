@@ -157,8 +157,15 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
       } else if (actualType.isArray) {
         if (JavaType.intList.isAssignableFrom(expectedType) && actualType == JavaType.intArray) {
           invokeMethod(JavaType.intListImpl.findMethodOrThrow("wrap", listOf(JavaType.intArray), true))
+        } else if (JavaType.longList.isAssignableFrom(expectedType) && actualType == JavaType.longArray) {
+          invokeMethod(JavaType.longListImpl.findMethodOrThrow("wrap", listOf(JavaType.longArray), true))
+        } else if (JavaType.floatList.isAssignableFrom(expectedType) && actualType == JavaType.floatArray) {
+          invokeMethod(JavaType.floatListImpl.findMethodOrThrow("wrap", listOf(JavaType.floatArray), true))
+        } else if (JavaType.doubleList.isAssignableFrom(expectedType) && actualType == JavaType.doubleArray) {
+          invokeMethod(JavaType.doubleListImpl.findMethodOrThrow("wrap", listOf(JavaType.doubleArray), true))
+        } else if (JavaType.booleanList.isAssignableFrom(expectedType) && actualType == JavaType.booleanArray) {
+          invokeMethod(JavaType.booleanListImpl.findMethodOrThrow("wrap", listOf(JavaType.booleanArray), true))
         } else {
-          // TODO do other primitive types
           throw SemanticException("Incompatible types. Expected type $expectedType but gave an expression of type $actualType")
         }
       } else if (!expectedType.primitive && !actualType.primitive) {
@@ -269,6 +276,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
       pushConstant(i)
       // push the value
       argumentPusher.invoke(elements[i])
+      // TODO cast if necessary
       // store value at index
       mv.visitInsn(type.arrayStoreCode)
     }
