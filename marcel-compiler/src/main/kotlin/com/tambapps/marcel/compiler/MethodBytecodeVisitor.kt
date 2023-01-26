@@ -276,7 +276,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
       pushConstant(i)
       // push the value
       argumentPusher.invoke(elements[i])
-      // TODO cast if necessary
+      castIfNecessaryOrThrow(type.elementsType, elements[i].type)
       // store value at index
       mv.visitInsn(type.arrayStoreCode)
     }

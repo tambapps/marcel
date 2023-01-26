@@ -217,11 +217,11 @@ interface JavaType: AstTypedObject {
 
     val PRIMITIVES = listOf(void, int, long, float, double, boolean, char, byte, short)
 
-    val intArray = JavaArrayType(IntArray::class.java, Opcodes.IASTORE, Opcodes.IALOAD, Opcodes.T_INT)
-    val longArray = JavaArrayType(LongArray::class.java, Opcodes.LASTORE, Opcodes.LALOAD, Opcodes.T_LONG)
-    val floatArray = JavaArrayType(FloatArray::class.java, Opcodes.FASTORE, Opcodes.FALOAD, Opcodes.T_FLOAT)
-    val doubleArray = JavaArrayType(DoubleArray::class.java, Opcodes.DASTORE, Opcodes.DALOAD, Opcodes.T_DOUBLE)
-    val booleanArray = JavaArrayType(BooleanArray::class.java, Opcodes.BASTORE, Opcodes.BALOAD, Opcodes.T_BOOLEAN)
+    val intArray = JavaArrayType(IntArray::class.java, int, Opcodes.IASTORE, Opcodes.IALOAD, Opcodes.T_INT)
+    val longArray = JavaArrayType(LongArray::class.java, long, Opcodes.LASTORE, Opcodes.LALOAD, Opcodes.T_LONG)
+    val floatArray = JavaArrayType(FloatArray::class.java, float, Opcodes.FASTORE, Opcodes.FALOAD, Opcodes.T_FLOAT)
+    val doubleArray = JavaArrayType(DoubleArray::class.java, double, Opcodes.DASTORE, Opcodes.DALOAD, Opcodes.T_DOUBLE)
+    val booleanArray = JavaArrayType(BooleanArray::class.java, boolean, Opcodes.BASTORE, Opcodes.BALOAD, Opcodes.T_BOOLEAN)
     // TODO handle object array
 
     val PRIMITIVE_CAST_INSTRUCTION_MAP = mapOf(
@@ -455,6 +455,7 @@ class LoadedObjectType(
 
 class JavaArrayType internal constructor(
   realClazz: Class<*>,
+  val elementsType: JavaType,
   val arrayStoreCode: Int,
   val arrayLoadCode: Int,
   val typeCode: Int
