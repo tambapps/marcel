@@ -30,6 +30,10 @@ import it.unimi.dsi.fastutil.longs.LongSet
 import org.objectweb.asm.Opcodes
 import kotlin.reflect.KClass
 
+// TODO might be better to reformat this class the following way (to load more properly extension methods)
+//  a JavaType has a reference to its parent JavaType? and all its interfaces
+//  when loading a function, for loaded classes, only search functions defined in self class (getDeclaredMethod)
+//  and then search on parent types and interface types
 interface JavaType: AstTypedObject {
 
   // whether the class is in the classpath and therefore can be accessed with Class.forName(className)
