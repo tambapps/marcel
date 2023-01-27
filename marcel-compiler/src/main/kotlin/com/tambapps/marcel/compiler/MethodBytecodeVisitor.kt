@@ -4,6 +4,7 @@ import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.ComparisonOperator
 import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
+import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.*
@@ -21,22 +22,21 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
 
   lateinit var argumentPusher: ArgumentPusher
 
-  fun visitConstructorCall(fCall: ConstructorCallNode, argumentsPusher: () -> Unit) {
-    invokeConstructor(fCall.type, fCall.arguments, argumentsPusher)
-  }
-  fun invokeConstructor(type: JavaType, arguments: List<ExpressionNode>, argumentsPusher: () -> Unit) {
+  fun visitConstructorCall(fCall: ConstructorCallNode) {
+    val type = fCall.type
     val classInternalName = type.internalName
     mv.visitTypeInsn(Opcodes.NEW, classInternalName)
     mv.visitInsn(Opcodes.DUP)
-    argumentsPusher.invoke()
-    val constructorMethod = type.findDeclaredConstructorOrThrow(arguments)
+    // TODO may not be needed. Could just call fCall.method
+    val constructorMethod = type.findDeclaredConstructorOrThrow(fCall.arguments)
+    pushFunctionCallArguments(constructorMethod, fCall.arguments)
     mv.visitMethodInsn(
       Opcodes.INVOKESPECIAL, classInternalName, JavaMethod.CONSTRUCTOR_NAME, constructorMethod.descriptor, false)
   }
 
-  fun visitSuperConstructorCall(fCall: SuperConstructorCallNode, argumentsPusher: () -> Unit) {
+  fun visitSuperConstructorCall(fCall: SuperConstructorCallNode) {
     mv.visitVarInsn(Opcodes.ALOAD, 0)
-    argumentsPusher.invoke()
+    pushFunctionCallArguments(fCall.method, fCall.arguments)
     mv.visitMethodInsn(Opcodes.INVOKESPECIAL, fCall.scope.superClassInternalName, fCall.name,
       // void return type for constructors
       AsmUtils.getDescriptor(fCall.arguments, JavaType.void), false)
@@ -52,6 +52,29 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
       throw RuntimeException("Compiler error. Shouldn't invoke constructor this way")
     }
     mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, method.name, method.descriptor, !method.isStatic && method.ownerClass.isInterface)
+  }
+
+  fun invokeMethodWithArguments(method: JavaMethod, vararg arguments: ExpressionNode) {
+    invokeMethodWithArguments(method, arguments.toList())
+  }
+  fun invokeMethodWithArguments(method: JavaMethod, arguments: List<ExpressionNode>) {
+    if (method.isConstructor) {
+      // TODO we could probably remove this check as this class now pushes the arguments itself
+      throw RuntimeException("Compiler error. Shouldn't invoke constructor this way")
+    }
+    pushFunctionCallArguments(method, arguments)
+    mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, method.name, method.descriptor, !method.isStatic && method.ownerClass.isInterface)
+  }
+  private fun pushFunctionCallArguments(method: JavaMethod, arguments: List<ExpressionNode>) {
+    if (method.parameters.size != arguments.size) {
+      throw SemanticException("Tried to call function $method with ${arguments.size} instead of ${method.parameters.size}")
+    }
+    for (i in method.parameters.indices) {
+      val expectedType = method.parameters[i].type
+      val actualType = arguments[i].type
+      argumentPusher.pushArgument(arguments[i])
+      castIfNecessaryOrThrow(expectedType, actualType)
+    }
   }
 
   fun visitLabel(label: Label) {

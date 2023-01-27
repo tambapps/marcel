@@ -61,15 +61,11 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
     if (fCall.type.primitive) {
       throw SemanticException("Cannot instantiate a primitive type")
     }
-    mv.visitConstructorCall(fCall) {
-      pushFunctionCallArguments(fCall)
-    }
+    mv.visitConstructorCall(fCall)
   }
 
   override fun visit(fCall: SuperConstructorCallNode) {
-    mv.visitSuperConstructorCall(fCall) {
-      pushFunctionCallArguments(fCall)
-    }
+    mv.visitSuperConstructorCall(fCall)
   }
 
   override fun visit(operator: MulOperator) {
@@ -158,22 +154,9 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
         pushArgument(ReferenceExpression(fCall.scope, "this"))
       }
     }
-    pushFunctionCallArguments(fCall)
-    mv.invokeMethod(method)
+    mv.invokeMethodWithArguments(method, fCall.arguments)
   }
 
-  private fun pushFunctionCallArguments(fCall: FunctionCallNode) {
-    val method = fCall.method
-    if (method.parameters.size != fCall.arguments.size) {
-      throw SemanticException("Tried to call function $method with ${fCall.arguments.size} instead of ${method.parameters.size}")
-    }
-    for (i in method.parameters.indices) {
-      val expectedType = method.parameters[i].type
-      val actualType = fCall.arguments[i].type
-      pushArgument(fCall.arguments[i])
-      mv.castIfNecessaryOrThrow(expectedType, actualType)
-    }
-  }
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     pushArgument(variableAssignmentNode.expression)
     val variable = variableAssignmentNode.scope.findVariable(variableAssignmentNode.name)
