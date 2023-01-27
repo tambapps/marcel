@@ -1,0 +1,16 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+
+List<int> ints = [1, 2, 3]
+assertEquals(3, ints.size())
+
+list<float> floats = [1f, 2f, 3]
+assertEquals(3, floats.size())
+assertEquals(3f, floats.get(2))
+
+map<double, Object> map = [1d: 2, 3: 4]
+assertEquals(2, map.get(1d))
+assertEquals(4, map.get(3d))
+
+set<int> set = [1, 2, 3, 3]
+assertEquals(3, set.size())
