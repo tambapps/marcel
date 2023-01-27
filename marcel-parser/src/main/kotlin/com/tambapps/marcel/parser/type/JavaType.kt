@@ -60,6 +60,7 @@ interface JavaType: AstTypedObject {
   open val isArray get() = isLoaded && realClazz.isArray
   override val type: JavaType get() = this
   val realClazzOrObject: Class<*>
+  val interfaces: List<JavaType>
 
   fun withGenericTypes(genericTypes: List<JavaType>): JavaType
   // return this type without generic types
@@ -362,7 +363,24 @@ abstract class AbstractJavaType: JavaType {
       }
       m = getMoreSpecificMethod(candidates)
     }
-    return m
+    if (m != null) return m
+    if (!isLoaded) {
+      // need to search on parent classes and interfaces
+      var className = superClassName
+      while (className != null) {
+        val type = JavaType.of(className)
+        m = type.findMethod(name, argumentTypes, declared)
+        if (m != null) return m
+        // if type is loaded we can exit because Java reflect API should have given us all methods, even the ones from interfaces
+        if (type.isLoaded) break
+        className = type.superClassName
+      }
+      for (type in interfaces) {
+        m = type.findMethod(name, argumentTypes, declared)
+        if (m != null) return m
+      }
+    }
+    return null
   }
 
   private fun getMoreSpecificMethod(candidates: List<JavaMethod>): JavaMethod? {
@@ -388,6 +406,21 @@ class NotLoadedJavaType internal constructor(override val className: String, ove
   override val returnCode = Opcodes.ARETURN
   override val descriptor: String
     get() = AsmUtils.getObjectClassDescriptor(className)
+
+  override val interfaces: List<JavaType>
+    get() {
+      // don't handle defining class with interfaces, so let's just look if parent types have interfaces
+      val interfaces = mutableListOf<JavaType>()
+      var className = superClassName
+      while (className != null) {
+        val type = JavaType.of(className)
+        interfaces.addAll(type.interfaces)
+        // if type is loaded we can exit because Java reflect API should have given us all methods, even the ones from interfaces
+        if (type.isLoaded) break
+        className = type.superClassName
+      }
+      return interfaces
+    }
 
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
     if (genericTypes.any { it.primitive }) {
@@ -419,6 +452,8 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
 
 
   override val isInterface = realClazz.isInterface
+  override val interfaces: List<JavaType>
+    get() = realClazz.interfaces.map { JavaType.of(it) }
   override val primitive = realClazz.isPrimitive
   override val realClazzOrObject = realClazz
 
