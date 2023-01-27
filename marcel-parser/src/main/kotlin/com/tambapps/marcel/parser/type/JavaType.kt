@@ -101,10 +101,6 @@ interface JavaType: AstTypedObject {
 
   fun findMethod(name: String, argumentTypes: List<AstTypedObject>, declared: Boolean): JavaMethod?
 
-  fun findDeclaredConstructorOrThrow(argumentTypes: List<AstTypedObject>): JavaMethod {
-    return findMethodOrThrow(JavaMethod.CONSTRUCTOR_NAME, argumentTypes, true)
-  }
-
   fun findMethodOrThrow(name: String, argumentTypes: List<AstTypedObject>, declared: Boolean = true): JavaMethod {
     return findMethod(name, argumentTypes, declared) ?: throw SemanticException("Method $this.$name with parameters ${argumentTypes.map { it.type }} is not defined")
   }

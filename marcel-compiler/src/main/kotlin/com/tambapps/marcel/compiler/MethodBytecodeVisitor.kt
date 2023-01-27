@@ -27,8 +27,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     val classInternalName = type.internalName
     mv.visitTypeInsn(Opcodes.NEW, classInternalName)
     mv.visitInsn(Opcodes.DUP)
-    // TODO may not be needed. Could just call fCall.method
-    val constructorMethod = type.findDeclaredConstructorOrThrow(fCall.arguments)
+    val constructorMethod = fCall.method
     pushFunctionCallArguments(constructorMethod, fCall.arguments)
     mv.visitMethodInsn(
       Opcodes.INVOKESPECIAL, classInternalName, JavaMethod.CONSTRUCTOR_NAME, constructorMethod.descriptor, false)
