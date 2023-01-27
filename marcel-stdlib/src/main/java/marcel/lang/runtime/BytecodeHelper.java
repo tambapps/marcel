@@ -21,10 +21,13 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+// methods are used by the compiler
 public final class BytecodeHelper {
 
   // list
@@ -75,5 +78,8 @@ public final class BytecodeHelper {
   }
   public static Double2ObjectMap<?> newDouble2ObjectMap() {
     return new Double2ObjectOpenHashMap<>();
+  }
+  public static Map<?, ?> newObject2ObjectMap() {
+    return new HashMap<>();
   }
 }

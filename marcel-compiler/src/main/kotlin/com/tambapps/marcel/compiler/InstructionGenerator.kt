@@ -491,12 +491,20 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
   }
 
   override fun visit(literalMapNode: LiteralMapNode) {
+    var objectKeys = false
     val methodName = when (literalMapNode.type.raw()) {
       JavaType.int2ObjectMap -> "newInt2ObjectMap"
       JavaType.long2ObjectMap -> "newLong2ObjectMap"
       JavaType.float2ObjectMap -> "newFloat2ObjectMap"
       JavaType.double2ObjectMap -> "newDouble2ObjectMap"
-      else -> throw SemanticException("Doesn't handle maps of type ${literalMapNode.type}")
+      else -> {
+        if (JavaType.of(Map::class.java).isAssignableFrom(literalMapNode.type.raw())) {
+          objectKeys = true
+          "newObject2ObjectMap"
+        } else {
+          throw SemanticException("Doesn't handle maps of type ${literalMapNode.type}")
+        }
+      }
     }
     mv.invokeMethod(BytecodeHelper::class.java.getDeclaredMethod(methodName))
     val keysType = literalMapNode.keysType
@@ -505,7 +513,11 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
     for (entry in literalMapNode.entries) {
       mv.dup()
       pushArgument(entry.first)
-      mv.castIfNecessaryOrThrow(putMethodKeysType, entry.first.type)
+      if (objectKeys) {
+        mv.castIfNecessaryOrThrow(JavaType.Object, entry.first.type)
+      } else {
+        mv.castIfNecessaryOrThrow(putMethodKeysType, entry.first.type)
+      }
       pushArgument(entry.second)
       mv.castIfNecessaryOrThrow(JavaType.Object, entry.second.type)
       mv.invokeMethod(literalMapNode.type.findMethodOrThrow("put",
