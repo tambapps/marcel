@@ -173,7 +173,7 @@ interface JavaType: AstTypedObject {
 
     fun arrayType(elementsType: JavaType): JavaArrayType {
       if (!elementsType.primitive) {
-        TODO("Doesn't handle object type for now")
+        return objectArray
       }
       return when (elementsType) {
         int -> intArray
@@ -181,7 +181,7 @@ interface JavaType: AstTypedObject {
         float -> floatArray
         double -> doubleArray
         boolean -> booleanArray
-        else -> TODO("Doesn't handle $elementsType array type for now")
+        else -> throw MarcelParsingException("Doesn't handle primitive $elementsType arrays")
       }
     }
     fun of(className: String, genericTypes: List<JavaType>): JavaType {
@@ -225,7 +225,7 @@ interface JavaType: AstTypedObject {
     val boolean = JavaPrimitiveType(java.lang.Boolean::class, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN,  0,0,0,0)
     // Marcel doesn't support char, but we could still find char values from plain Java code
     val char = JavaPrimitiveType(java.lang.Character::class, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV)
-    // TODO verify opcodes for these two below
+    // byte and short aren't supported in Marcel. The opcodes weren't verified
     val byte = JavaPrimitiveType(java.lang.Byte::class, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV)
     val short = JavaPrimitiveType(java.lang.Short::class, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV)
 
@@ -236,7 +236,7 @@ interface JavaType: AstTypedObject {
     val floatArray = JavaArrayType(FloatArray::class.java, float, Opcodes.FASTORE, Opcodes.FALOAD, Opcodes.T_FLOAT)
     val doubleArray = JavaArrayType(DoubleArray::class.java, double, Opcodes.DASTORE, Opcodes.DALOAD, Opcodes.T_DOUBLE)
     val booleanArray = JavaArrayType(BooleanArray::class.java, boolean, Opcodes.BASTORE, Opcodes.BALOAD, Opcodes.T_BOOLEAN)
-    // TODO handle object array
+    val objectArray = JavaArrayType(Array<Any>::class.java, Object, Opcodes.AALOAD, Opcodes.AASTORE, 0)
 
     val PRIMITIVE_CAST_INSTRUCTION_MAP = mapOf(
       Pair(Pair(int, long), Opcodes.I2L),
@@ -479,8 +479,6 @@ class JavaArrayType internal constructor(
   val arrayStoreCode: Int,
   val arrayLoadCode: Int,
   val typeCode: Int
-  // TODO verify ARETURN for array types
-  // TODO might need to handle differently Object[] because they don't seem to have a Table 6.5.newarray-A. Array type codes unlike primitive arrays
 ): LoadedJavaType(realClazz, emptyList(), Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN) {
   override val isArray get() = true
 

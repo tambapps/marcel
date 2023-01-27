@@ -53,8 +53,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     return node
   }
 
-  // TODO handle args when handling class methods/variables
-  // TODO handle class method calls, as we need to push this on the stack
   fun script(): ModuleNode {
 
     val imports = mutableListOf<ImportNode>()

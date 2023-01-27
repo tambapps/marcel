@@ -111,7 +111,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
   fun incr(variable: Variable, amount: Int) {
     when (variable) {
       is LocalVariable -> mv.visitIincInsn(variable.index, amount)
-      else -> throw TODO("")
+      else -> throw TODO("Doesn't handle increment of other kind")
     }
   }
 
@@ -285,7 +285,12 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     // Push the size of the array to the stack
     pushConstant(elements.size)
     // Create an int array of size n
-    mv.visitIntInsn(Opcodes.NEWARRAY, type.typeCode)
+    if (type.elementsType.primitive) {
+      mv.visitIntInsn(Opcodes.NEWARRAY, type.typeCode)
+    } else {
+      // TODO test this (handle Object Lists, and array to List/Set casting (java List/Sets)
+      mv.visitTypeInsn(Opcodes.ANEWARRAY, type.elementsType.internalName)
+    }
 
     for (i in elements.indices) {
       // Push the array reference on the stack
