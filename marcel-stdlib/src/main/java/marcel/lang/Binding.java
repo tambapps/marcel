@@ -18,7 +18,6 @@ public class Binding {
 
   public <T> T getVariable(Class<T> clazz, String name) {
     Object value = getVariable(name);
-    // TODO may need some changes to handle primitive types
     if (clazz.isInstance(value)) {
       return (T) value;
     } else if (!clazz.isPrimitive() && value == null) {

@@ -61,7 +61,6 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
   }
   fun invokeMethodWithArguments(method: JavaMethod, arguments: List<ExpressionNode>) {
     if (method.isConstructor) {
-      // TODO we could probably remove this check as this class now pushes the arguments itself
       throw RuntimeException("Compiler error. Shouldn't invoke constructor this way")
     }
     pushFunctionCallArguments(method, arguments)
@@ -186,7 +185,20 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
         }
         mv.visitFieldInsn(variable.getCode, variable.owner.internalName, variable.name, variable.type.descriptor)
       }
-      else -> TODO("TODO")
+      is MethodField -> {
+        if (!variable.isStatic) {
+          if (variable.owner.isAssignableFrom(scope.classType)) {
+            pushThis()
+          } else {
+            throw RuntimeException("Compiler error. Shouldn't push class field of not current class with this method")
+          }
+          if (!variable.canGet) {
+            throw SemanticException("Variable ${variable.name} has no getter")
+          }
+          invokeMethod(variable.getterMethod)
+        }
+      }
+      else -> throw SemanticException("Variable type ${variable.javaClass} is not handled")
     }
   }
 
@@ -305,7 +317,14 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
   fun storeInVariable(variable: Variable) {
     when (variable) {
       is LocalVariable -> mv.visitVarInsn(variable.type.storeCode, variable.index)
-      else -> throw TODO("todo")
+      is ClassField -> mv.visitFieldInsn(variable.putCode, variable.owner.internalName, variable.name, variable.type.descriptor)
+      is MethodField -> {
+        if (!variable.canSet) {
+          throw SemanticException("Field ${variable.name} of class ${variable.owner} is not settable")
+        }
+        invokeMethod(variable.setterMethod)
+      }
+      else -> throw RuntimeException("Compiler bug. Not handled variable subclass ${variable.javaClass}")
     }
   }
 
@@ -318,11 +337,9 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
         if (!field.canGet) {
           throw SemanticException("Field ${field.name} of class ${field.owner} is not gettable")
         }
-        mv.visitMethodInsn(field.invokeCode, field.owner.internalName, field.getterName, AsmUtils.getDescriptor(emptyList(), field.type), field.type.isInterface)
+        invokeMethod(field.getterMethod)
       }
-      else -> {
-        throw RuntimeException("Compiler bug. Unknown field subclass ${field.javaClass}")
-      }
+      else -> throw RuntimeException("Compiler bug. Not handled field subclass ${field.javaClass}")
     }
   }
 
@@ -333,7 +350,6 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     if (type.elementsType.primitive) {
       mv.visitIntInsn(Opcodes.NEWARRAY, type.typeCode)
     } else {
-      // TODO test this (handle Object Lists, and array to List/Set casting (java List/Sets)
       mv.visitTypeInsn(Opcodes.ANEWARRAY, type.elementsType.internalName)
     }
 

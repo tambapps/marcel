@@ -160,8 +160,6 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     pushArgument(variableAssignmentNode.expression)
     val variable = variableAssignmentNode.scope.findVariable(variableAssignmentNode.name)
-    // TODO if type is array and expected type is collection, handle casting in castIfNecessaryOrThrow method.
-    //  for now only handle int arrays, and the other when we made sure it works
     mv.castIfNecessaryOrThrow(variable.type, variableAssignmentNode.expression.type)
     mv.storeInVariable(variable)
   }

@@ -30,18 +30,19 @@ sealed interface MarcelField: Variable {
 }
 class ClassField constructor(override val type: JavaType, override val name: String, override val owner: JavaType, override val access: Int): MarcelField {
   val getCode = if (isStatic) Opcodes.GETSTATIC else Opcodes.GETFIELD
+  val putCode = if (isStatic) Opcodes.PUTSTATIC else Opcodes.PUTFIELD
 }
 
 // for getter/setters
-class MethodField(override val type: JavaType, override val name: String, override val owner: JavaType,
-                  private val _getterName: String?,
-                  private val _setterName: String?,
+class MethodField constructor(override val type: JavaType, override val name: String, override val owner: JavaType,
+                  private val _getterMethod: JavaMethod?,
+                  private val _setterMethod: JavaMethod?,
                   override val access: Int): MarcelField {
-  val canGet = _getterName != null
-  val canSrt = _setterName != null
+  val canGet = _getterMethod != null
+  val canSet = _setterMethod != null
 
-  val getterName get() = _getterName!!
-  val setterName get() = _setterName!!
+  val getterMethod get() = _getterMethod!!
+  val setterMethod get() = _setterMethod!!
   val invokeCode =  if (isStatic) Opcodes.INVOKESTATIC
   else if (owner.isInterface) Opcodes.INVOKEINTERFACE
   else Opcodes.INVOKEVIRTUAL
@@ -50,7 +51,7 @@ class MethodField(override val type: JavaType, override val name: String, overri
     fun from(owner: JavaType, name: String, getterMethod: JavaMethod?, setterMethod: JavaMethod?): MethodField {
       val type = getterMethod?.returnType ?: setterMethod?.parameters?.first()?.type!!
       val access = getterMethod?.access ?: setterMethod?.access!!
-      return MethodField(type, name, owner, getterMethod?.name, setterMethod?.name, access)
+      return MethodField(type, name, owner, getterMethod, setterMethod, access)
     }
   }
 
