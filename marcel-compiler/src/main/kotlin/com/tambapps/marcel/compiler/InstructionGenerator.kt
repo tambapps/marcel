@@ -27,7 +27,11 @@ import java.util.*
 // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.if_icmp_cond
 // https://asm.ow2.io/asm4-guide.pdf
 // https://en.wikipedia.org/wiki/List_of_Java_bytecode_instructions
-private interface IInstructionGenerator: AstNodeVisitor {
+interface ArgumentPusher {
+  fun pushArgument(expr: ExpressionNode)
+
+}
+private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
 
   val mv: MethodBytecodeVisitor
 
@@ -182,7 +186,6 @@ private interface IInstructionGenerator: AstNodeVisitor {
   override fun visit(voidExpression: VoidExpression) {
     // do nothing, it's void
   }
-  fun pushArgument(expr: ExpressionNode)
 }
 
 /**
@@ -191,7 +194,10 @@ private interface IInstructionGenerator: AstNodeVisitor {
 class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstructionGenerator {
 
   private val pushingInstructionGenerator = PushingInstructionGenerator(mv)
-
+  init {
+    mv.argumentPusher = this
+    pushingInstructionGenerator.mv.argumentPusher = pushingInstructionGenerator
+  }
   init {
     pushingInstructionGenerator.instructionGenerator = this
   }
@@ -521,9 +527,7 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
   }
 
   override fun visit(literalListNode: LiteralArrayNode) {
-    mv.newArray(literalListNode.type, literalListNode.elements) {
-      pushArgument(it)
-    }
+    mv.newArray(literalListNode.type, literalListNode.elements)
   }
 
   override fun visit(literalMapNode: LiteralMapNode) {

@@ -19,6 +19,8 @@ import java.lang.reflect.Method
 
 class MethodBytecodeVisitor(private val mv: MethodVisitor) {
 
+  lateinit var argumentPusher: ArgumentPusher
+
   fun visitConstructorCall(fCall: ConstructorCallNode, argumentsPusher: () -> Unit) {
     invokeConstructor(fCall.type, fCall.arguments, argumentsPusher)
   }
@@ -287,7 +289,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     }
   }
 
-  fun newArray(type: JavaArrayType, elements: List<ExpressionNode>, argumentPusher: (ExpressionNode) -> Unit) {
+  fun newArray(type: JavaArrayType, elements: List<ExpressionNode>) {
     // Push the size of the array to the stack
     pushConstant(elements.size)
     // Create an int array of size n
@@ -304,7 +306,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
       // push the index
       pushConstant(i)
       // push the value
-      argumentPusher.invoke(elements[i])
+      argumentPusher.pushArgument(elements[i])
       castIfNecessaryOrThrow(type.elementsType, elements[i].type)
       // store value at index
       mv.visitInsn(type.arrayStoreCode)
