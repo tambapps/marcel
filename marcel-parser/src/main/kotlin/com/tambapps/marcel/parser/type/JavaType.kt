@@ -57,7 +57,7 @@ interface JavaType: AstTypedObject {
   val genericTypes: List<JavaType>
   val isInterface: Boolean
   val primitive: Boolean
-  open val isArray get() = false
+  open val isArray get() = isLoaded && realClazz.isArray
   override val type: JavaType get() = this
   val realClazzOrObject: Class<*>
 

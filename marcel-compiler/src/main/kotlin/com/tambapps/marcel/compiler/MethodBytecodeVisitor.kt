@@ -169,8 +169,8 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
           invokeMethod(JavaType.doubleListImpl.findMethodOrThrow("wrap", listOf(JavaType.doubleArray), true))
         } else if (JavaType.booleanList.isAssignableFrom(expectedType) && actualType == JavaType.booleanArray) {
           invokeMethod(JavaType.booleanListImpl.findMethodOrThrow("wrap", listOf(JavaType.booleanArray), true))
-        } else if (JavaType.of(List::class.java).isAssignableFrom(expectedType) && actualType == JavaType.objectArray) {
-          invokeMethod(JavaType.booleanListImpl.findMethodOrThrow("wrap", listOf(JavaType.booleanArray), true))
+        } else if (JavaType.of(List::class.java).isAssignableFrom(expectedType) && actualType.isArray) {
+          invokeMethod(BytecodeHelper::class.java.getDeclaredMethod("createList", JavaType.Object.realClazz))
         }
         // sets
         else if (JavaType.intSet.isAssignableFrom(expectedType) && actualType == JavaType.intArray) {
@@ -183,6 +183,8 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
           invokeMethod(BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.doubleArray.realClazz))
         } else if (JavaType.booleanSet.isAssignableFrom(expectedType) && actualType == JavaType.booleanArray) {
           invokeMethod(BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.booleanArray.realClazz))
+        } else if (JavaType.of(Set::class.java).isAssignableFrom(expectedType) && actualType.isArray) {
+          invokeMethod(BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.Object.realClazz))
         } else {
           throw SemanticException("Incompatible types. Expected type $expectedType but gave an expression of type $actualType")
         }

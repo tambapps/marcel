@@ -19,8 +19,25 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 public final class BytecodeHelper {
 
+  // list
+  public static List<?> createList(Object array) {
+    int length = Array.getLength(array);
+    List<Object> list = new ArrayList<>(length);
+    for (int i = 0; i < length; i++) {
+      list.add(Array.get(array, i));
+    }
+    return list;
+  }
+
+  // sets
   public static IntSet createSet(int[] array) {
     return new IntOpenHashSet(array);
   }
@@ -37,6 +54,14 @@ public final class BytecodeHelper {
     return new BooleanOpenHashSet(array);
   }
 
+  public static Set<?> createSet(Object array) {
+    int length = Array.getLength(array);
+    Set<Object> set = new HashSet<>(length);
+    for (int i = 0; i < length; i++) {
+      set.add(Array.get(array, i));
+    }
+    return set;
+  }
 
   // maps
   public static Int2ObjectMap<?> newInt2ObjectMap() {
