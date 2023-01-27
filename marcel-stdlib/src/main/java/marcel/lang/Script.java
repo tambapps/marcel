@@ -18,11 +18,10 @@ public abstract class Script {
     this(new Binding());
   }
 
-  public abstract Object run();
+  public abstract Object run(String[] args);
 
-  public Object run(String[] args) {
-    binding.setVariable("args", args);
-    return run();
+  public Object run() {
+    return run(null);
   }
 
 }

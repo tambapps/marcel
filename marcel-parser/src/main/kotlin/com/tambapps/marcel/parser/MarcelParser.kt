@@ -69,9 +69,11 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val runScope = MethodScope(classScope, className, emptyList(), JavaType.Object)
     val statements = mutableListOf<StatementNode>()
     val runBlock = FunctionBlockNode(runScope, statements)
+    val argsParameter = MethodParameter(JavaType.of(Array<String>::class.java), "args")
     val runFunction = MethodNode(Opcodes.ACC_PUBLIC, classType,
       "run",
-      runBlock, mutableListOf(), runScope.returnType, runScope)
+      runBlock, mutableListOf(argsParameter), runScope.returnType, runScope)
+    runScope.addLocalVariable(argsParameter.type, argsParameter.name)
 
     // adding script constructors script have 2 constructors. One no-arg constructor, and one for Binding
     val emptyConstructorScope = MethodScope(classScope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)
