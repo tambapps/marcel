@@ -24,9 +24,6 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
     val tokens = MarcelLexer().lex(reader)
     val parser = if (className != null) MarcelParser(className, tokens) else MarcelParser(tokens)
     val ast = parser.parse()
-    ast.classes.forEach {
-      addExtenstions(it)
-    }
     return compile(ast)
   }
 
@@ -75,9 +72,4 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
     mv.visitEnd()
   }
 
-  private fun addExtenstions(classNode: ClassNode) {
-    for (m in DefaultMarcelStaticMethods::class.java.declaredMethods) {
-      classNode.scope.extensionMethods.add(ReflectJavaMethod(m))
-    }
-  }
 }

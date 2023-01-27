@@ -3,15 +3,17 @@ package com.tambapps.marcel.parser.scope
 import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.ast.AstTypedObject
+import com.tambapps.marcel.parser.ast.StaticImportNode
 import com.tambapps.marcel.parser.ast.WildcardImportNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
+import marcel.lang.methods.DefaultMarcelStaticMethods
 import org.objectweb.asm.Label
 
 // note that extensionMethods may not be needed. It could be added directly on the Java Type
-open class Scope constructor(val imports: MutableList<ImportNode>, val classType: JavaType, val superClassInternalName: String, val extensionMethods: MutableList<JavaMethod>) {
-  constructor(javaType: JavaType): this(mutableListOf(), javaType, JavaType.Object.internalName, mutableListOf()) {
+open class Scope constructor(val imports: MutableList<ImportNode>, val classType: JavaType, val superClassInternalName: String) {
+  constructor(javaType: JavaType): this(mutableListOf(), javaType, JavaType.Object.internalName) {
     imports.addAll(DEFAULT_IMPORTS)
   }
 
@@ -22,6 +24,7 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
       WildcardImportNode("marcel.lang"),
       WildcardImportNode("marcel.lang"),
       WildcardImportNode("it.unimi.dsi.fastutil.ints"),
+      StaticImportNode(DefaultMarcelStaticMethods::class.java.name, "println")
     )
   }
 
@@ -51,7 +54,6 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
     return (classType.findMethod(name, argumentTypes)
       // fallback on static imported method
       ?: imports.asSequence().mapNotNull { it.resolveMethod(name, argumentTypes) }.firstOrNull())
-      ?: extensionMethods.find { it.matches(name, argumentTypes) }
       ?: throw SemanticException("Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
   fun findVariable(name: String): Variable {
@@ -68,7 +70,7 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
   }
 
   fun copy(): Scope {
-    return Scope(imports, classType, superClassInternalName, extensionMethods)
+    return Scope(imports, classType, superClassInternalName)
   }
 
   fun resolveClassName(classSimpleName: String): String {
@@ -99,18 +101,18 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
 
 }
 
-open class MethodScope(imports: MutableList<ImportNode>, classType: JavaType, superClassInternalName: String, classMethods: MutableList<JavaMethod>, val methodName: String,
+open class MethodScope constructor(imports: MutableList<ImportNode>, classType: JavaType, superClassInternalName: String, val methodName: String,
                        val parameters: List<MethodParameter>, val returnType: JavaType)
-  : Scope(imports, classType, superClassInternalName, classMethods) {
+  : Scope(imports, classType, superClassInternalName) {
 
     constructor(scope: Scope,
                 methodName: String,
                 parameters: List<MethodParameter>, returnType: JavaType):
-        this(scope.imports, scope.classType, scope.superClassInternalName, scope.extensionMethods, methodName, parameters, returnType)
+        this(scope.imports, scope.classType, scope.superClassInternalName, methodName, parameters, returnType)
 }
 
 class InnerScope constructor(private val parentScope: MethodScope)
-  : MethodScope(parentScope.imports, parentScope.classType, parentScope.superClassInternalName, parentScope.extensionMethods, parentScope.methodName, parentScope.parameters, parentScope.returnType) {
+  : MethodScope(parentScope.imports, parentScope.classType, parentScope.superClassInternalName, parentScope.methodName, parentScope.parameters, parentScope.returnType) {
 
   // we want to access local variable defined in parent scope
   override val localVariables: MutableList<LocalVariable>

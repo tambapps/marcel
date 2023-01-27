@@ -65,7 +65,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val superType = JavaType.of(Script::class.java)
     val className = classSimpleName
     val classType = JavaType.defineClass(className, superType.className, false)
-    val classScope = Scope(imports, classType, AsmUtils.getInternalName(superType), mutableListOf())
+    val classScope = Scope(imports, classType, AsmUtils.getInternalName(superType))
     val runScope = MethodScope(classScope, className, emptyList(), JavaType.Object)
     val statements = mutableListOf<StatementNode>()
     val runBlock = FunctionBlockNode(runScope, statements)
