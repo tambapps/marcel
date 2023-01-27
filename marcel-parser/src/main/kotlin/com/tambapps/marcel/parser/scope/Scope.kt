@@ -63,8 +63,8 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
       }
       index+= variable.nbSlots
     }
-    // TODO for now only searching on local variables but will need to search on fields
-    throw SemanticException("Variable $name is not defined")
+    // now searching on fields
+    return classType.findField(name, true) ?: throw SemanticException("Variable $name is not defined")
   }
 
   fun copy(): Scope {

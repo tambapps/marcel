@@ -145,6 +145,8 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
   fun pushVariable(variable: Variable) {
     when (variable) {
       is LocalVariable -> mv.visitVarInsn(variable.type.loadCode, variable.index)
+      is ClassField -> mv.visitFieldInsn(variable.getCode, variable.owner.internalName,
+        variable.name, variable.type.descriptor) // TODO push class if not static
       else -> TODO("TODO")
     }
   }
@@ -159,7 +161,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
         } else {
           throw SemanticException("Cannot cast primitive $actualType to primitive $expectedType")
         }
-      } else if (actualType.isArray) {
+      } else if (expectedType != JavaType.Object && actualType.isArray) {
         // lists
         if (JavaType.intList.isAssignableFrom(expectedType) && actualType == JavaType.intArray) {
           invokeMethod(JavaType.intListImpl.findMethodOrThrow("wrap", listOf(JavaType.intArray), true))

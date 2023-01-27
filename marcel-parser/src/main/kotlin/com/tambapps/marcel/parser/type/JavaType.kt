@@ -109,7 +109,10 @@ interface JavaType: AstTypedObject {
     return findMethod(name, argumentTypes, declared) ?: throw SemanticException("Method $this.$name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
 
-  fun findFieldOrThrow(name: String, declared: Boolean = true): MarcelField
+  fun findField(name: String, declared: Boolean = true): MarcelField?
+  fun findFieldOrThrow(name: String, declared: Boolean = true): MarcelField {
+    return findField(name, declared) ?: throw SemanticException("Field $name was not found")
+  }
 
   companion object {
 
@@ -348,27 +351,6 @@ abstract class AbstractJavaType: JavaType {
     methods.add(method)
   }
 
-  override fun findFieldOrThrow(name: String, declared: Boolean): MarcelField {
-    if (!isLoaded) TODO("Doesn't handle field of not loaded classes")
-    val clazz = type.realClazz
-    val field = try {
-      clazz.getDeclaredField(name)
-    } catch (e: NoSuchFieldException) {
-      null
-    }
-    if (field != null) {
-      return ClassField(JavaType.of(field.type), field.name, this, field.modifiers)
-    }
-    // try to find getter
-    val methodFieldName = name.replaceFirstChar { it.uppercase() }
-    val getterMethod  = findMethod("get$methodFieldName", emptyList(), declared)
-    val setterMethod = findMethod("set$methodFieldName", listOf(this), declared)
-    if (getterMethod != null || setterMethod != null) {
-      return MethodField.from(this, name, getterMethod, setterMethod)
-    }
-    throw SemanticException("Field $name was not found")
-  }
-
   override fun findMethod(name: String, argumentTypes: List<AstTypedObject>, declared: Boolean): JavaMethod? {
     var m = methods.find { it.matches(name, argumentTypes) }
     if (m == null && isLoaded) {
@@ -418,6 +400,17 @@ class NotLoadedJavaType internal constructor(override val className: String, ove
     return NotLoadedJavaType(className, genericTypes, superClassName, isInterface)
   }
 
+  override fun findField(name: String, declared: Boolean): MarcelField? {
+    // TODO doesn't search on defined fields of notloaded type. Only search on super classes that are Loaded
+    // searching on super types
+    var type: JavaType? = JavaType.of(superClassName!!)
+    while (type != null) {
+      val f = type.findField(name, declared)
+      if (f != null) return f
+      type = if (type.superClassName != null) JavaType.of(type.superClassName!!) else null
+    }
+    return null
+  }
 }
 abstract class LoadedJavaType internal constructor(final override val realClazz: Class<*>, final override val genericTypes: List<JavaType>,
                               override val storeCode: Int, override val loadCode: Int, override val returnCode: Int): AbstractJavaType() {
@@ -454,6 +447,26 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
     if (genericTypes != other.genericTypes) return false
 
     return true
+  }
+
+  override fun findField(name: String, declared: Boolean): MarcelField? {
+    val clazz = realClazz
+    val field = try {
+      clazz.getDeclaredField(name)
+    } catch (e: NoSuchFieldException) {
+      null
+    }
+    if (field != null) {
+      return ClassField(JavaType.of(field.type), field.name, this, field.modifiers)
+    }
+    // try to find getter
+    val methodFieldName = name.replaceFirstChar { it.uppercase() }
+    val getterMethod  = findMethod("get$methodFieldName", emptyList(), declared)
+    val setterMethod = findMethod("set$methodFieldName", listOf(this), declared)
+    if (getterMethod != null || setterMethod != null) {
+      return MethodField.from(this, name, getterMethod, setterMethod)
+    }
+    return null
   }
 }
 
