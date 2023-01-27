@@ -339,7 +339,8 @@ abstract class AbstractJavaType: JavaType {
 
   override fun findMethod(name: String, argumentTypes: List<AstTypedObject>): JavaMethod? {
     var m = methods.find { it.matches(name, argumentTypes) }
-    if (m == null && isLoaded) {
+    if (m != null) return m
+    if (isLoaded) {
       val clazz = type.realClazz
       val candidates = if (name == JavaMethod.CONSTRUCTOR_NAME) {
         (clazz.declaredConstructors + clazz.constructors)
@@ -351,8 +352,14 @@ abstract class AbstractJavaType: JavaType {
           .filter { it.matches(argumentTypes) }
       }
       m = getMoreSpecificMethod(candidates)
+      if (m != null) return m
+      // now search on interfaces extensions
+      for (type in interfaces) {
+        m = type.findMethod(name, argumentTypes)
+        if (m != null) return m
+      }
     }
-    if (m != null) return m
+
     if (!isLoaded) {
       // need to search on parent classes and interfaces
       var className = superClassName
