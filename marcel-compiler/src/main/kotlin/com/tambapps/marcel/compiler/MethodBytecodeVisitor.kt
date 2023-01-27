@@ -4,7 +4,6 @@ import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.ComparisonOperator
 import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
-import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.*
@@ -215,15 +214,15 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
       } else if (expectedType != JavaType.Object && actualType.isArray) {
         // lists
         if (JavaType.intList.isAssignableFrom(expectedType) && actualType == JavaType.intArray) {
-          invokeMethod(JavaType.intListImpl.findMethodOrThrow("wrap", listOf(JavaType.intArray), true))
+          invokeMethod(JavaType.intListImpl.findMethodOrThrow("wrap", listOf(JavaType.intArray)))
         } else if (JavaType.longList.isAssignableFrom(expectedType) && actualType == JavaType.longArray) {
-          invokeMethod(JavaType.longListImpl.findMethodOrThrow("wrap", listOf(JavaType.longArray), true))
+          invokeMethod(JavaType.longListImpl.findMethodOrThrow("wrap", listOf(JavaType.longArray)))
         } else if (JavaType.floatList.isAssignableFrom(expectedType) && actualType == JavaType.floatArray) {
-          invokeMethod(JavaType.floatListImpl.findMethodOrThrow("wrap", listOf(JavaType.floatArray), true))
+          invokeMethod(JavaType.floatListImpl.findMethodOrThrow("wrap", listOf(JavaType.floatArray)))
         } else if (JavaType.doubleList.isAssignableFrom(expectedType) && actualType == JavaType.doubleArray) {
-          invokeMethod(JavaType.doubleListImpl.findMethodOrThrow("wrap", listOf(JavaType.doubleArray), true))
+          invokeMethod(JavaType.doubleListImpl.findMethodOrThrow("wrap", listOf(JavaType.doubleArray)))
         } else if (JavaType.booleanList.isAssignableFrom(expectedType) && actualType == JavaType.booleanArray) {
-          invokeMethod(JavaType.booleanListImpl.findMethodOrThrow("wrap", listOf(JavaType.booleanArray), true))
+          invokeMethod(JavaType.booleanListImpl.findMethodOrThrow("wrap", listOf(JavaType.booleanArray)))
         } else if (JavaType.of(List::class.java).isAssignableFrom(expectedType) && actualType.isArray) {
           invokeMethod(BytecodeHelper::class.java.getDeclaredMethod("createList", JavaType.Object.realClazz))
         }

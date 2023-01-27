@@ -244,7 +244,7 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
 
     // creating iterator
     val iteratorVarName = "_tempIterator"
-    val getIteratorMethod = expression.type.findMethodOrThrow("iterator", emptyList(), true)
+    val getIteratorMethod = expression.type.findMethodOrThrow("iterator", emptyList())
     // get right method in function of types, to avoid auto-(un/debo)xing
     val methodName = if (JavaType.of(IntIterator::class.java).isAssignableFrom(getIteratorMethod.returnType)) "nextInt"
     else if (JavaType.of(IntIterator::class.java).isAssignableFrom(getIteratorMethod.returnType)) "next"
@@ -541,7 +541,8 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
       }
       pushArgument(entry.second)
       mv.castIfNecessaryOrThrow(JavaType.Object, entry.second.type)
-      mv.invokeMethod(literalMapNode.type.findMethodOrThrow("put",
+      mv.invokeMethod(literalMapNode.type.findMethodOrThrow(
+        "put",
         listOf(putMethodKeysType, JavaType.Object)
       ))
       mv.popStack()

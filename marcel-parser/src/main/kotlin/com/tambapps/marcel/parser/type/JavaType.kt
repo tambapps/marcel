@@ -8,34 +8,24 @@ import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.ClassField
 import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.scope.MethodField
-import com.tambapps.marcel.parser.scope.Variable
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList
 import it.unimi.dsi.fastutil.booleans.BooleanList
-import it.unimi.dsi.fastutil.booleans.BooleanOpenHashSet
 import it.unimi.dsi.fastutil.booleans.BooleanSet
 import it.unimi.dsi.fastutil.doubles.Double2ObjectMap
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList
-import it.unimi.dsi.fastutil.doubles.DoubleArrayPriorityQueue
 import it.unimi.dsi.fastutil.doubles.DoubleList
-import it.unimi.dsi.fastutil.doubles.DoubleOpenHashSet
 import it.unimi.dsi.fastutil.doubles.DoubleSet
 import it.unimi.dsi.fastutil.floats.Float2ObjectMap
 import it.unimi.dsi.fastutil.floats.FloatArrayList
-import it.unimi.dsi.fastutil.floats.FloatArrayPriorityQueue
 import it.unimi.dsi.fastutil.floats.FloatList
-import it.unimi.dsi.fastutil.floats.FloatOpenHashSet
 import it.unimi.dsi.fastutil.floats.FloatSet
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.IntArrayList
-import it.unimi.dsi.fastutil.ints.IntArrayPriorityQueue
 import it.unimi.dsi.fastutil.ints.IntList
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet
 import it.unimi.dsi.fastutil.ints.IntSet
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap
 import it.unimi.dsi.fastutil.longs.LongArrayList
-import it.unimi.dsi.fastutil.longs.LongArrayPriorityQueue
 import it.unimi.dsi.fastutil.longs.LongList
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet
 import it.unimi.dsi.fastutil.longs.LongSet
 import org.objectweb.asm.Opcodes
 import kotlin.reflect.KClass
@@ -100,10 +90,10 @@ interface JavaType: AstTypedObject {
 
   fun defineMethod(method: JavaMethod)
 
-  fun findMethod(name: String, argumentTypes: List<AstTypedObject>, declared: Boolean): JavaMethod?
+  fun findMethod(name: String, argumentTypes: List<AstTypedObject>): JavaMethod?
 
-  fun findMethodOrThrow(name: String, argumentTypes: List<AstTypedObject>, declared: Boolean = true): JavaMethod {
-    return findMethod(name, argumentTypes, declared) ?: throw SemanticException("Method $this.$name with parameters ${argumentTypes.map { it.type }} is not defined")
+  fun findMethodOrThrow(name: String, argumentTypes: List<AstTypedObject>): JavaMethod {
+    return findMethod(name, argumentTypes) ?: throw SemanticException("Method $this.$name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
 
   fun findField(name: String, declared: Boolean = true): MarcelField?
@@ -348,16 +338,16 @@ abstract class AbstractJavaType: JavaType {
     methods.add(method)
   }
 
-  override fun findMethod(name: String, argumentTypes: List<AstTypedObject>, declared: Boolean): JavaMethod? {
+  override fun findMethod(name: String, argumentTypes: List<AstTypedObject>): JavaMethod? {
     var m = methods.find { it.matches(name, argumentTypes) }
     if (m == null && isLoaded) {
       val clazz = type.realClazz
       val candidates = if (name == JavaMethod.CONSTRUCTOR_NAME) {
-        (if (declared) clazz.declaredConstructors else clazz.constructors)
+        (clazz.declaredConstructors + clazz.constructors)
           .map { ReflectJavaConstructor(it) }
           .filter { it.matches(argumentTypes) }
       } else {
-        (if (declared) clazz.declaredMethods else clazz.methods).filter { it.name == name }
+        (clazz.declaredMethods + clazz.methods).filter { it.name == name }
           .map { ReflectJavaMethod(it, this) }
           .filter { it.matches(argumentTypes) }
       }
@@ -369,14 +359,14 @@ abstract class AbstractJavaType: JavaType {
       var className = superClassName
       while (className != null) {
         val type = JavaType.of(className)
-        m = type.findMethod(name, argumentTypes, declared)
+        m = type.findMethod(name, argumentTypes)
         if (m != null) return m
         // if type is loaded we can exit because Java reflect API should have given us all methods, even the ones from interfaces
         if (type.isLoaded) break
         className = type.superClassName
       }
       for (type in interfaces) {
-        m = type.findMethod(name, argumentTypes, declared)
+        m = type.findMethod(name, argumentTypes)
         if (m != null) return m
       }
     }
@@ -492,8 +482,8 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
     }
     // try to find getter
     val methodFieldName = name.replaceFirstChar { it.uppercase() }
-    val getterMethod  = findMethod("get$methodFieldName", emptyList(), declared)
-    val setterMethod = findMethod("set$methodFieldName", listOf(this), declared)
+    val getterMethod  = findMethod("get$methodFieldName", emptyList())
+    val setterMethod = findMethod("set$methodFieldName", listOf(this))
     if (getterMethod != null || setterMethod != null) {
       return MethodField.from(this, name, getterMethod, setterMethod)
     }
