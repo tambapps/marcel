@@ -53,6 +53,9 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, method.name, method.descriptor, !method.isStatic && method.ownerClass.isInterface)
   }
 
+  fun invokeMethodWithArguments(method: Method, vararg arguments: ExpressionNode) {
+    invokeMethodWithArguments(ReflectJavaMethod(method), *arguments)
+  }
   fun invokeMethodWithArguments(method: JavaMethod, vararg arguments: ExpressionNode) {
     invokeMethodWithArguments(method, arguments.toList())
   }

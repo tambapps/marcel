@@ -551,6 +551,7 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
   }
 
   override fun visit(rangeNode: RangeNode) {
+    // TODO only handle int ranges but not other types
     val methodName = if (rangeNode.fromExclusive && rangeNode.toExclusive) "ofExclusive"
     else if (rangeNode.fromExclusive) "ofFromExclusive"
     else if (rangeNode.toExclusive) "ofToExclusive"
@@ -559,24 +560,14 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
     if (rangeNode.from.type != JavaType.int || rangeNode.to.type != JavaType.int) {
       throw SemanticException("Only handle ranges for int value for now")
     }
-    pushArgument(rangeNode.from)
-    pushArgument(rangeNode.to)
-    mv.invokeMethod(method)
+    mv.invokeMethodWithArguments(method, rangeNode.from, rangeNode.to)
   }
 
   override fun visit(notNode: NotNode) {
     when (notNode.operand.type) {
-      JavaType.Boolean -> {
-        pushArgument(notNode.operand)
-        val method = ReflectJavaMethod(Class.forName("java.lang.Boolean").getMethod("booleanValue"))
-        mv.invokeMethod(method)
-      }
-      JavaType.boolean -> {
-        notNode.operand.accept(this)
-      }
-      else -> {
-        throw SemanticException("Cannot negate something other than a boolean")
-      }
+      JavaType.Boolean -> mv.invokeMethodWithArguments(JavaType.Boolean.findMethodOrThrow("booleanValue", emptyList()), notNode.operand)
+      JavaType.boolean -> notNode.operand.accept(this)
+      else -> throw SemanticException("Cannot negate something other than a boolean")
     }
     mv.not()
   }
@@ -608,8 +599,7 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
       // according to marcel truth, all primitive are truthy
       visit(BooleanConstantNode(true))
     } else {
-      pushArgument(booleanExpression.innerExpression)
-      mv.invokeMethod(MarcelTruth::class.java.getDeclaredMethod("truthy", Object::class.java))
+      mv.invokeMethodWithArguments(MarcelTruth::class.java.getDeclaredMethod("truthy", Object::class.java), booleanExpression.innerExpression)
     }
   }
   override fun visit(toStringNode: ToStringNode) {
@@ -619,13 +609,9 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
     } else {
       val argumentType = expr.type
       if (argumentType.primitive) {
-        val method = ReflectJavaMethod(String::class.java.getDeclaredMethod("valueOf", argumentType.realClazz))
-        pushArgument(expr)
-        mv.invokeMethod(method)
+        mv.invokeMethodWithArguments(String::class.java.getDeclaredMethod("valueOf", argumentType.realClazz), expr)
       } else {
-        val method = ReflectJavaMethod(Object::class.java.getDeclaredMethod("toString", Object::class.java))
-        pushArgument(expr)
-        mv.invokeMethod(method)
+        mv.invokeMethodWithArguments(Object::class.java.getDeclaredMethod("toString"), expr)
       }
     }
   }
@@ -646,11 +632,9 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
       val argumentType = part.type
       val method = ReflectJavaMethod(StringBuilder::class.java.getDeclaredMethod("append",
         if (argumentType.primitive) argumentType.realClazz else JavaType.Object.realClazz))
-      pushArgument(part)
-      mv.invokeMethod(method)
+      mv.invokeMethodWithArguments(method, part)
     }
-    val toStringMethod = ReflectJavaMethod(StringBuilder::class.java.getDeclaredMethod("toString"))
-    mv.invokeMethod(toStringMethod)
+    mv.invokeMethod(StringBuilder::class.java.getDeclaredMethod("toString"))
   }
 
   override fun visit(integer: IntConstantNode) {
