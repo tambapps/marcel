@@ -97,7 +97,17 @@ private interface IInstructionGenerator: AstNodeVisitor {
   }
 
   override fun visit(andOperator: AndOperator) {
-    TODO("TODO")
+    val labelFalse = Label()
+    val labelEnd = Label()
+    pushArgument(andOperator.leftOperand)
+    mv.jumpIfEq(labelFalse)
+    pushArgument(andOperator.rightOperand)
+    mv.jumpIfEq(labelFalse)
+    mv.visitInsn(Opcodes.ICONST_1)
+    mv.jumpTo(labelEnd)
+    mv.visitLabel(labelFalse)
+    mv.visitInsn(Opcodes.ICONST_0)
+    mv.visitLabel(labelEnd)
   }
 
   override fun visit(orOperator: OrOperator) {
