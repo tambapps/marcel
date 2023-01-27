@@ -1,6 +1,6 @@
 package marcel.lang.methods;
 
-public class MarcelDefaultMethods {
+public class DefaultMarcelStaticMethods {
 
   public static void println(Object o) {
     System.out.println(o);

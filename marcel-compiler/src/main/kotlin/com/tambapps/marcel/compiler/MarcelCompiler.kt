@@ -10,8 +10,7 @@ import com.tambapps.marcel.parser.ast.ModuleNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
-import com.tambapps.marcel.parser.type.SimpleJavaMethod
-import marcel.lang.methods.MarcelDefaultMethods
+import marcel.lang.methods.DefaultMarcelStaticMethods
 import org.objectweb.asm.ClassWriter
 import java.io.IOException
 import java.io.Reader
@@ -77,7 +76,7 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
   }
 
   private fun addExtenstions(classNode: ClassNode) {
-    for (m in MarcelDefaultMethods::class.java.declaredMethods) {
+    for (m in DefaultMarcelStaticMethods::class.java.declaredMethods) {
       classNode.scope.extensionMethods.add(ReflectJavaMethod(m))
     }
   }
