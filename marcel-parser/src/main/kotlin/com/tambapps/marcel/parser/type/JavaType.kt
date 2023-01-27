@@ -353,28 +353,18 @@ abstract class AbstractJavaType: JavaType {
       }
       m = getMoreSpecificMethod(candidates)
       if (m != null) return m
-      // now search on interfaces extensions
-      for (type in interfaces) {
-        m = type.findMethod(name, argumentTypes)
-        if (m != null) return m
-      }
     }
-
-    if (!isLoaded) {
-      // need to search on parent classes and interfaces
-      var className = superClassName
-      while (className != null) {
-        val type = JavaType.of(className)
-        m = type.findMethod(name, argumentTypes)
-        if (m != null) return m
-        // if type is loaded we can exit because Java reflect API should have given us all methods, even the ones from interfaces
-        if (type.isLoaded) break
-        className = type.superClassName
-      }
-      for (type in interfaces) {
-        m = type.findMethod(name, argumentTypes)
-        if (m != null) return m
-      }
+    // need to search on parent classes and interfaces, even for loaded classes because of possible extension methods
+    var className = superClassName
+    while (className != null) {
+      val type = JavaType.of(className)
+      m = type.findMethod(name, argumentTypes)
+      if (m != null) return m
+      className = type.superClassName
+    }
+    for (type in interfaces) {
+      m = type.findMethod(name, argumentTypes)
+      if (m != null) return m
     }
     return null
   }
