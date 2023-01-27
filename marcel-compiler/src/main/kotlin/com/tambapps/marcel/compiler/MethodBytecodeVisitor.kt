@@ -169,11 +169,23 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     mv.visitInsn(opCode)
   }
 
-  fun pushVariable(variable: Variable) {
+  fun pushThis() {
+    mv.visitVarInsn(Opcodes.ALOAD, 0)
+  }
+
+  fun pushVariable(scope: Scope, variable: Variable) {
     when (variable) {
       is LocalVariable -> mv.visitVarInsn(variable.type.loadCode, variable.index)
-      is ClassField -> mv.visitFieldInsn(variable.getCode, variable.owner.internalName,
-        variable.name, variable.type.descriptor) // TODO push class if not static
+      is ClassField ->   {
+        if (!variable.isStatic) {
+          if (variable.owner.isAssignableFrom(scope.classType)) {
+            pushThis()
+          } else {
+            throw RuntimeException("Compiler error. Shouldn't push class field of not current class with this method")
+          }
+        }
+        mv.visitFieldInsn(variable.getCode, variable.owner.internalName, variable.name, variable.type.descriptor)
+      }
       else -> TODO("TODO")
     }
   }

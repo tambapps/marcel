@@ -28,7 +28,7 @@ sealed interface MarcelField: Variable {
   val isStatic: Boolean
     get() = (access and Opcodes.ACC_STATIC) != 0
 }
-class ClassField(override val type: JavaType, override val name: String, override val owner: JavaType, override val access: Int): MarcelField {
+class ClassField constructor(override val type: JavaType, override val name: String, override val owner: JavaType, override val access: Int): MarcelField {
   val getCode = if (isStatic) Opcodes.GETSTATIC else Opcodes.GETFIELD
 }
 

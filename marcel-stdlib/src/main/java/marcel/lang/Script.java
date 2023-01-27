@@ -9,17 +9,10 @@ import lombok.Setter;
  */
 @AllArgsConstructor
 public abstract class Script {
-
-  final String[] args;
-
   @Getter
   @Setter
   private Binding binding;
 
-
-  public Script(Binding binding) {
-    this(null, binding);
-  }
 
   public Script() {
     this(new Binding());

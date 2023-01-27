@@ -658,23 +658,23 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
 
   override fun visit(incrNode: IncrNode) {
     if (incrNode.returnValueBefore) {
-      mv.pushVariable(incrNode.variableReference.variable)
+      mv.pushVariable(incrNode.variableReference.scope, incrNode.variableReference.variable)
       instructionGenerator.visit(incrNode)
     } else {
       instructionGenerator.visit(incrNode)
-      mv.pushVariable(incrNode.variableReference.variable)
+      mv.pushVariable(incrNode.variableReference.scope, incrNode.variableReference.variable)
     }
   }
   override fun visit(booleanConstantNode: BooleanConstantNode) {
     mv.pushConstant(booleanConstantNode.value)
   }
   override fun visit(referenceExpression: ReferenceExpression) {
-    mv.pushVariable(referenceExpression.variable)
+    mv.pushVariable(referenceExpression.scope, referenceExpression.variable)
   }
 
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     super.visit(variableAssignmentNode)
-    mv.pushVariable(variableAssignmentNode.scope.findVariable(variableAssignmentNode.name))
+    mv.pushVariable(variableAssignmentNode.scope, variableAssignmentNode.scope.findVariable(variableAssignmentNode.name))
   }
 
   override fun pushArgument(expr: ExpressionNode) {
