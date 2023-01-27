@@ -39,6 +39,8 @@ interface AstNodeVisitor {
   fun visit(voidExpression: VoidExpression)
   fun visit(stringNode: StringNode)
   fun visit(stringConstantNode: StringConstantNode)
+  fun visit(asNode: AsNode)
+
   fun visit(toStringNode: ToStringNode)
   fun visit(accessOperator: InvokeAccessOperator)
   fun visit(getFieldAccessOperator: GetFieldAccessOperator)

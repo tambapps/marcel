@@ -353,6 +353,10 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
   override fun visit(toStringNode: ToStringNode) {
     toStringNode.expressionNode.accept(this)
   }
+
+  override fun visit(asNode: AsNode) {
+    asNode.expressionNode.accept(this)
+  }
   override fun visit(stringNode: StringNode) {
     for (part in stringNode.parts) {
       part.accept(this)
@@ -601,6 +605,12 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
       mv.invokeMethodWithArguments(MarcelTruth::class.java.getDeclaredMethod("truthy", Object::class.java), booleanExpression.innerExpression)
     }
   }
+
+  override fun visit(asNode: AsNode) {
+    asNode.expressionNode.accept(this)
+    mv.castIfNecessaryOrThrow(asNode.type, asNode.expressionNode.type)
+  }
+
   override fun visit(toStringNode: ToStringNode) {
     val expr = toStringNode.expressionNode
     if (expr.type == JavaType.String) {

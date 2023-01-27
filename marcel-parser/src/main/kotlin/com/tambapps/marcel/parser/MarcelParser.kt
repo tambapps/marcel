@@ -357,6 +357,10 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       accept(TokenType.COLON)
       val falseExpr = expression(scope)
       return TernaryNode(BooleanExpressionNode(expr), trueExpr, falseExpr)
+    } else if (current.type == TokenType.AS) {
+      skip()
+      val type = parseType(scope)
+      return AsNode(type, expr)
     }
     return expr
   }
