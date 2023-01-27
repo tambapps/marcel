@@ -5,9 +5,6 @@ import com.tambapps.marcel.lexer.TokenType.*
 
 object ParserUtils {
 
-  private val BINARY_OPERATOR = setOf(
-    POWER, MUL, MODULO, PLUS, MINUS, AND, EQUAL, NOT_EQUAL, GT, LT, GOE, LOE, OR, ASSIGNMENT, DOT
-  )
   const val LEFT = 0
   const val RIGHT = 1
   private val PRIORITY_MAP = mapOf(
@@ -27,13 +24,15 @@ object ParserUtils {
     Pair(GOE, 5),
     Pair(LOE, 5),
     Pair(OR, 5),
+    Pair(LEFT_SHIFT, 5),
+    Pair(RIGHT_SHIFT, 5),
     Pair(ASSIGNMENT, 6)
   )
 
   private val RIGHT_ASSOCIATIVITY_OPERATOR = listOf(POWER, ASSIGNMENT)
 
   fun isBinaryOperator(t: TokenType): Boolean {
-    return t in BINARY_OPERATOR
+    return t in PRIORITY_MAP.keys
   }
 
   fun getAssociativity(t: TokenType): Int {

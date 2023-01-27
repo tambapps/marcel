@@ -592,6 +592,8 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       TokenType.MINUS -> MinusOperator(leftOperand, rightOperand)
       TokenType.AND -> AndOperator(leftOperand, rightOperand)
       TokenType.OR -> OrOperator(leftOperand, rightOperand)
+      TokenType.LEFT_SHIFT -> LeftShiftOperator(leftOperand, rightOperand)
+      TokenType.RIGHT_SHIFT -> RightShiftOperator(leftOperand, rightOperand)
       TokenType.EQUAL, TokenType.NOT_EQUAL, TokenType.LT, TokenType.GT, TokenType.LOE, TokenType.GOE -> ComparisonOperatorNode(t, leftOperand, rightOperand)
       TokenType.DOT -> when (rightOperand) {
         is FunctionCallNode -> InvokeAccessOperator(leftOperand, rightOperand)

@@ -153,3 +153,27 @@ class OrOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode):
     return "$leftOperand || $rightOperand"
   }
 }
+
+class LeftShiftOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode):
+  BinaryOperatorNode(leftOperand, rightOperand) {
+  override val type = JavaType.Object
+  override fun accept(astNodeVisitor: AstNodeVisitor) {
+    astNodeVisitor.visit(this)
+  }
+
+  override fun toString(): String {
+    return "$leftOperand << $rightOperand"
+  }
+}
+
+class RightShiftOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode):
+  BinaryOperatorNode(leftOperand, rightOperand) {
+  override val type = JavaType.Object
+  override fun accept(astNodeVisitor: AstNodeVisitor) {
+    astNodeVisitor.visit(this)
+  }
+
+  override fun toString(): String {
+    return "$leftOperand << $rightOperand"
+  }
+}

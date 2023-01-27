@@ -25,6 +25,8 @@ interface AstNodeVisitor {
   fun visit(operator: PlusOperator)
   fun visit(operator: MinusOperator)
   fun visit(operator: PowOperator)
+  fun visit(rightShiftOperator: RightShiftOperator)
+  fun visit(leftShiftOperator: LeftShiftOperator)
   fun visit(variableAssignmentNode: VariableAssignmentNode)
   fun visit(referenceExpression: ReferenceExpression)
   fun visit(unaryMinus: UnaryMinus)

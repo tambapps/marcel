@@ -89,6 +89,25 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
     evaluateOperands(operator)
   }
 
+  override fun visit(leftShiftOperator: LeftShiftOperator) {
+    marcelOperator(leftShiftOperator, "leftShift")
+  }
+
+  override fun visit(rightShiftOperator: RightShiftOperator) {
+    marcelOperator(rightShiftOperator, "rightShift")
+  }
+
+  fun marcelOperator(binaryOperatorNode: BinaryOperatorNode, operatorMethodName: String): JavaType {
+    val type1 = binaryOperatorNode.leftOperand.type
+    if (type1.primitive) {
+      throw SemanticException("Doesn't support left shirt operator for primitive type")
+    }
+    val leftShiftMethod = type1.findMethodOrThrow(operatorMethodName, listOf(binaryOperatorNode.rightOperand.type))
+    pushArgument(binaryOperatorNode.leftOperand)
+    mv.invokeMethodWithArguments(leftShiftMethod, binaryOperatorNode.rightOperand)
+    return leftShiftMethod.returnType
+  }
+
   override fun visit(comparisonOperator: ComparisonOperatorNode) {
     if (!comparisonOperator.leftOperand.type.primitive || !comparisonOperator.rightOperand.type.primitive) {
       TODO("Doesn't handle comparison for non primitive types for now")
@@ -181,6 +200,14 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
   }
   init {
     pushingInstructionGenerator.instructionGenerator = this
+  }
+
+  override fun marcelOperator(binaryOperatorNode: BinaryOperatorNode, operatorMethodName: String): JavaType {
+    val type = super.marcelOperator(binaryOperatorNode, operatorMethodName)
+    if (type != JavaType.void) {
+      mv.popStack()
+    }
+    return type
   }
 
   override fun visit(whileStatement: WhileStatement) {
