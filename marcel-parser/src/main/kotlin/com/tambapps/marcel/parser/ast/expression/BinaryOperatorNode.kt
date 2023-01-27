@@ -129,3 +129,27 @@ class ComparisonOperatorNode(tokenType: TokenType, leftOperand: ExpressionNode, 
     return "$leftOperand $operator $rightOperand"
   }
 }
+
+class AndOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode):
+  BinaryOperatorNode(BooleanExpressionNode(leftOperand), BooleanExpressionNode(rightOperand)) {
+  override val type = JavaType.boolean
+  override fun accept(astNodeVisitor: AstNodeVisitor) {
+    astNodeVisitor.visit(this)
+  }
+
+  override fun toString(): String {
+    return "$leftOperand && $rightOperand"
+  }
+}
+
+class OrOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode):
+  BinaryOperatorNode(BooleanExpressionNode(leftOperand), BooleanExpressionNode(rightOperand)) {
+  override val type = JavaType.boolean
+  override fun accept(astNodeVisitor: AstNodeVisitor) {
+    astNodeVisitor.visit(this)
+  }
+
+  override fun toString(): String {
+    return "$leftOperand || $rightOperand"
+  }
+}

@@ -22,10 +22,7 @@ import marcel.lang.methods.MarcelTruth
 import marcel.lang.runtime.BytecodeHelper
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes
-import java.util.Optional
-import java.util.OptionalDouble
-import java.util.OptionalInt
-import java.util.OptionalLong
+import java.util.*
 
 // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.if_icmp_cond
 // https://asm.ow2.io/asm4-guide.pdf
@@ -97,6 +94,26 @@ private interface IInstructionGenerator: AstNodeVisitor {
       TODO("Doesn't handle comparison for non primitive types for now")
     }
     evaluateOperands(comparisonOperator)
+  }
+
+  override fun visit(andOperator: AndOperator) {
+    TODO("TODO")
+  }
+
+  override fun visit(orOperator: OrOperator) {
+    val labelTrue = Label()
+    val labelFalse = Label()
+    val labelEnd = Label()
+    pushArgument(orOperator.leftOperand)
+    mv.jumpIfNe(labelTrue)
+    pushArgument(orOperator.rightOperand)
+    mv.jumpIfEq(labelFalse)
+    mv.visitLabel(labelTrue)
+    mv.visitInsn(Opcodes.ICONST_1)
+    mv.jumpTo(labelEnd)
+    mv.visitLabel(labelFalse)
+    mv.visitInsn(Opcodes.ICONST_0)
+    mv.visitLabel(labelEnd)
   }
 
   override fun visit(accessOperator: InvokeAccessOperator) {
@@ -433,6 +450,16 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
   override fun visit(comparisonOperatorNode: ComparisonOperatorNode) {
     super.visit(comparisonOperatorNode)
     mv.pop2Stack()
+  }
+
+  override fun visit(andOperator: AndOperator) {
+    super.visit(andOperator)
+    mv.popStack()
+  }
+
+  override fun visit(orOperator: OrOperator) {
+    super.visit(orOperator)
+    mv.popStack()
   }
 
   override fun visit(notNode: NotNode) {
