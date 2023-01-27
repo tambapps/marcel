@@ -46,7 +46,9 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
   }
 
   fun invokeMethod(method: JavaMethod) {
-    // TODO doesn't handle constructors because need to push arguments AFTER NEW instruction
+    if (method.isConstructor) {
+      throw RuntimeException("Compiler error. Shouldn't invoke constructor this way")
+    }
     mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, method.name, method.descriptor, !method.isStatic && method.ownerClass.isInterface)
   }
 

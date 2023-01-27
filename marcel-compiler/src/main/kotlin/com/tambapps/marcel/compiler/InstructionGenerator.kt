@@ -35,7 +35,6 @@ private interface IInstructionGenerator: AstNodeVisitor {
   val mv: MethodBytecodeVisitor
 
 
-  //TODO don't forget to push or not these TODOs() once done, based on the IUnpushedExpressionGenerator implementation
   override fun visit(unaryMinus: UnaryMinus) {
    visit(MinusOperator(IntConstantNode(0), unaryMinus.operand))
   }
