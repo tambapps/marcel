@@ -30,6 +30,7 @@ class MarcelCompilerTest {
 
     return  scriptPaths.map { path: String ->
       DynamicTest.dynamicTest(path.removeSuffix(".marcel")) {
+        JavaType.clear()
         eval("/$path")
       }
     }

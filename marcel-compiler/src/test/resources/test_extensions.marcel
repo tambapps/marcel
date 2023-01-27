@@ -1,0 +1,6 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+
+List<int> ints = [1, 2, 3]
+ints.reverse()
+assertEquals([3, 2, 1], ints)

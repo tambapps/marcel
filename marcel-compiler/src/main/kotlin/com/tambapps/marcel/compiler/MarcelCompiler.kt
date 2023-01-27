@@ -10,6 +10,7 @@ import com.tambapps.marcel.parser.ast.ModuleNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
+import marcel.lang.methods.DefaultMarcelMethods
 import marcel.lang.methods.DefaultMarcelStaticMethods
 import org.objectweb.asm.ClassWriter
 import java.io.IOException
@@ -22,6 +23,8 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
   @Throws(IOException::class, MarcelLexerException::class, MarcelParsingException::class, SemanticException::class)
   fun compile(reader: Reader, className: String? = null): CompilationResult {
     val tokens = MarcelLexer().lex(reader)
+    val extensionClassLoader = ExtensionClassLoader()
+    extensionClassLoader.loadExtensionMethods(DefaultMarcelMethods::class.java)
     val parser = if (className != null) MarcelParser(className, tokens) else MarcelParser(tokens)
     val ast = parser.parse()
     return compile(ast)

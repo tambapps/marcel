@@ -82,6 +82,27 @@ class SimpleJavaMethod(
     return "$ownerClass.$name(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType
   }
 }
+
+class ExtensionJavaMethod(
+  override val ownerClass: JavaType,
+  override val name: String,
+  override val parameters: List<MethodParameter>,
+  override val returnType: JavaType,
+  override val descriptor: String,
+) : JavaMethod {
+  override val isConstructor = false
+  // the static is excluded here in purpose so that self is pushed to the stack
+  override val access = Opcodes.ACC_PUBLIC
+  override val invokeCode = Opcodes.INVOKESTATIC
+
+  constructor(method: Method): this(JavaType.of(method.declaringClass), method.name,
+    method.parameters.takeLast(method.parameters.size - 1).map { MethodParameter(JavaType.of(it.type), it.name) },
+    JavaType.of(method.returnType), AsmUtils.getDescriptor(method))
+
+  override fun toString(): String {
+    return "$ownerClass.$name(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType
+  }
+}
 class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): JavaMethod {
 
   constructor(method: Method): this(method, null)

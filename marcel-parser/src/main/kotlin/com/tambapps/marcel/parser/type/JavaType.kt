@@ -182,7 +182,6 @@ interface JavaType: AstTypedObject {
       return of(className).withGenericTypes(genericTypes)
     }
     fun of(className: String): JavaType {
-      if (PRIMITIVES.any { it.className == className })
       if (DEFINED_TYPES.containsKey(className)) return DEFINED_TYPES.getValue(className)
       try {
         val clazz = Class.forName(className)
@@ -329,7 +328,7 @@ abstract class AbstractJavaType: JavaType {
     return true
   }
 
-  private val methods = mutableListOf<JavaMethod>()
+  protected val methods = mutableListOf<JavaMethod>()
 
   override fun defineMethod(method: JavaMethod) {
     if (methods.any { it.matches(method.name, method.parameters) }) {
@@ -416,7 +415,9 @@ class NotLoadedJavaType internal constructor(override val className: String, ove
     if (genericTypes.any { it.primitive }) {
       throw MarcelParsingException("Cannot have a primitive type as generic type")
     }
-    return NotLoadedJavaType(className, genericTypes, superClassName, isInterface)
+    val genericType = NotLoadedJavaType(className, genericTypes, superClassName, isInterface)
+    genericType.methods.addAll(methods)
+    return genericType
   }
 
   override fun findField(name: String, declared: Boolean): MarcelField? {
@@ -499,10 +500,9 @@ class LoadedObjectType(
   constructor(realClazz: Class<*>): this(realClazz, emptyList())
 
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
-    if (className == "list") {
-
-    }
-    return LoadedObjectType(realClazz, genericTypes)
+    val genericType = LoadedObjectType(realClazz, genericTypes)
+    genericType.methods.addAll(methods)
+    return genericType
   }
 
 }
