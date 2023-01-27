@@ -11,9 +11,7 @@ import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
-import it.unimi.dsi.fastutil.ints.IntArrayList
-import it.unimi.dsi.fastutil.ints.IntLists
-import marcel.lang.runtime.PrimitiveCollections
+import marcel.lang.runtime.BytecodeHelper
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
@@ -171,18 +169,20 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
           invokeMethod(JavaType.doubleListImpl.findMethodOrThrow("wrap", listOf(JavaType.doubleArray), true))
         } else if (JavaType.booleanList.isAssignableFrom(expectedType) && actualType == JavaType.booleanArray) {
           invokeMethod(JavaType.booleanListImpl.findMethodOrThrow("wrap", listOf(JavaType.booleanArray), true))
+        } else if (JavaType.of(List::class.java).isAssignableFrom(expectedType) && actualType == JavaType.objectArray) {
+          invokeMethod(JavaType.booleanListImpl.findMethodOrThrow("wrap", listOf(JavaType.booleanArray), true))
         }
         // sets
         else if (JavaType.intSet.isAssignableFrom(expectedType) && actualType == JavaType.intArray) {
-          invokeMethod(PrimitiveCollections::class.java.getDeclaredMethod("createSet", JavaType.intArray.realClazz))
+          invokeMethod(BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.intArray.realClazz))
         } else if (JavaType.longSet.isAssignableFrom(expectedType) && actualType == JavaType.longArray) {
-          invokeMethod(PrimitiveCollections::class.java.getDeclaredMethod("createSet", JavaType.longArray.realClazz))
+          invokeMethod(BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.longArray.realClazz))
         } else if (JavaType.floatSet.isAssignableFrom(expectedType) && actualType == JavaType.floatArray) {
-          invokeMethod(PrimitiveCollections::class.java.getDeclaredMethod("createSet", JavaType.floatArray.realClazz))
+          invokeMethod(BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.floatArray.realClazz))
         } else if (JavaType.doubleSet.isAssignableFrom(expectedType) && actualType == JavaType.doubleArray) {
-          invokeMethod(PrimitiveCollections::class.java.getDeclaredMethod("createSet", JavaType.doubleArray.realClazz))
+          invokeMethod(BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.doubleArray.realClazz))
         } else if (JavaType.booleanSet.isAssignableFrom(expectedType) && actualType == JavaType.booleanArray) {
-          invokeMethod(PrimitiveCollections::class.java.getDeclaredMethod("createSet", JavaType.booleanArray.realClazz))
+          invokeMethod(BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.booleanArray.realClazz))
         } else {
           throw SemanticException("Incompatible types. Expected type $expectedType but gave an expression of type $actualType")
         }

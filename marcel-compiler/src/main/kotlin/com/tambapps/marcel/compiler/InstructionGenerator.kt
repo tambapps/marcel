@@ -19,7 +19,7 @@ import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import it.unimi.dsi.fastutil.ints.IntIterator
 import marcel.lang.IntRanges
 import marcel.lang.methods.MarcelTruth
-import marcel.lang.runtime.PrimitiveKeyMaps
+import marcel.lang.runtime.BytecodeHelper
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes
 import java.util.Optional
@@ -498,7 +498,7 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
       JavaType.double2ObjectMap -> "newDouble2ObjectMap"
       else -> throw SemanticException("Doesn't handle maps of type ${literalMapNode.type}")
     }
-    mv.invokeMethod(PrimitiveKeyMaps::class.java.getDeclaredMethod(methodName))
+    mv.invokeMethod(BytecodeHelper::class.java.getDeclaredMethod(methodName))
     val keysType = literalMapNode.keysType
     val putMethodKeysType = if (keysType.primitive) keysType else JavaType.Object
 
