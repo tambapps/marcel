@@ -63,7 +63,7 @@ class MarcelParserTest {
             )), mutableListOf(MethodParameter(JavaType.int, "a"),
             MethodParameter(JavaType.String, "b")), JavaType.int, MethodScope(classScope, "foo",
                 listOf(MethodParameter(JavaType.int, "a"), MethodParameter(JavaType.int, "b")), JavaType.int)
-            )
+        , false)
 
         val actual = parser.method(ClassNode(classScope, Opcodes.ACC_PUBLIC, type, JavaType.Object, mutableListOf()))
         // verifying method signature

@@ -182,7 +182,8 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
       for (i in variables.indices) {
         visit(VariableAssignmentNode(innerScope, variables[i].name, fCall.arguments[i]))
       }
-      // TODO change scope of all children, so that they use the innerscope
+      // TODO change scope of all children, so that they use the innerscope done.
+      // TODO add AstVisitor, an interface to visit all possible nodes and implement it on all nodes
       visit(inlineBlock)
       innerScope.clearInnerScopeLocalVariables() // may not be useful but meh
     } else {

@@ -8,7 +8,7 @@ import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 
-open class FunctionCallNode(override val scope: Scope, val name: String, val arguments: MutableList<ExpressionNode>): ExpressionNode, ScopedNode<Scope> {
+open class FunctionCallNode(override var scope: Scope, val name: String, val arguments: MutableList<ExpressionNode>): ExpressionNode, ScopedNode<Scope> {
 
   constructor(scope: Scope, name: String, arguments: MutableList<ExpressionNode>, methodOwnerType: AstTypedObject): this(scope, name, arguments) {
     this.methodOwnerType = methodOwnerType

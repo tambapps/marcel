@@ -4,5 +4,5 @@ import com.tambapps.marcel.parser.scope.Scope
 
 interface ScopedNode<T: Scope> {
 
-  val scope: T
+  var scope: T
 }

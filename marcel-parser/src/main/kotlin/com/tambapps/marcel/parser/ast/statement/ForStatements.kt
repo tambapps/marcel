@@ -11,8 +11,7 @@ import com.tambapps.marcel.parser.type.JavaType
 
 abstract class AbstractForStatement(val body: BlockNode): StatementNode, ScopedNode<InnerScope> {
 
-  override val scope: InnerScope
-    get() = body.scope as? InnerScope ?: throw RuntimeException("Compiler design error")
+  override var scope = body.scope as? InnerScope ?: throw RuntimeException("Compiler design error")
 
 }
 class ForStatement(val initStatement: StatementNode,

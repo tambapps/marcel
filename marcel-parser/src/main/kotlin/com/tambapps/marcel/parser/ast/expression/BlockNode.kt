@@ -7,7 +7,7 @@ import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.scope.MethodScope
 
 
-open class BlockNode(override val scope: MethodScope, val statements: List<StatementNode>) : ExpressionNode, ScopedNode<MethodScope> {
+open class BlockNode(override var scope: MethodScope, val statements: List<StatementNode>) : ExpressionNode, ScopedNode<MethodScope> {
 
   // it is important it is a getter, because statements could be modified after this object being constructed
   override val type
