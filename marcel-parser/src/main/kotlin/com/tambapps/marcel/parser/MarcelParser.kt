@@ -576,11 +576,22 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   private fun operator(scope: Scope, t: TokenType, leftOperand: ExpressionNode, rightOperand: ExpressionNode): ExpressionNode {
     return when(t) {
       // TODO remove cast because we could have a[i]. Check type in instruction generaor
-      TokenType.ASSIGNMENT -> VariableAssignmentNode(scope, (leftOperand as ReferenceExpression).name, rightOperand)
-      TokenType.PLUS_ASSIGNMENT -> VariableAssignmentNode(scope, (leftOperand as ReferenceExpression).name, PlusOperator(leftOperand, rightOperand))
-      TokenType.MINUS_ASSIGNMENT -> VariableAssignmentNode(scope, (leftOperand as ReferenceExpression).name, MinusOperator(leftOperand, rightOperand))
-      TokenType.DIV_ASSIGNMENT -> VariableAssignmentNode(scope, (leftOperand as ReferenceExpression).name, DivOperator(leftOperand, rightOperand))
-      TokenType.MUL_ASSIGNMENT -> VariableAssignmentNode(scope, (leftOperand as ReferenceExpression).name, MulOperator(leftOperand, rightOperand))
+      TokenType.ASSIGNMENT, TokenType.PLUS_ASSIGNMENT, TokenType.MINUS_ASSIGNMENT, TokenType.MUL_ASSIGNMENT, TokenType.DIV_ASSIGNMENT -> {
+        if (t == TokenType.ASSIGNMENT) {
+          if (leftOperand !is ReferenceExpression) throw MarcelParsingException("Can only assign a variable")
+          VariableAssignmentNode(scope, (leftOperand as ReferenceExpression).name, rightOperand)
+        } else {
+          if (leftOperand !is ReferenceExpression) throw MarcelParsingException("Can only assign a variable")
+          val actualRightOperand = when(t) {
+            TokenType.PLUS_ASSIGNMENT -> PlusOperator(leftOperand, rightOperand)
+            TokenType.MINUS_ASSIGNMENT -> MinusOperator(leftOperand, rightOperand)
+            TokenType.DIV_ASSIGNMENT -> DivOperator(leftOperand, rightOperand)
+            TokenType.MUL_ASSIGNMENT -> MulOperator(leftOperand, rightOperand)
+            else -> throw RuntimeException("Compiler error")
+          }
+          VariableAssignmentNode(scope, leftOperand.name, actualRightOperand)
+        }
+      }
       TokenType.MUL -> MulOperator(leftOperand, rightOperand)
       TokenType.DIV -> DivOperator(leftOperand, rightOperand)
       TokenType.PLUS -> PlusOperator(leftOperand, rightOperand)
