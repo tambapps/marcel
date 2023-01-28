@@ -113,11 +113,11 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
     return leftShiftMethod.returnType
   }
 
-  override fun visit(comparisonOperator: ComparisonOperatorNode) {
-    if (!comparisonOperator.leftOperand.type.primitive || !comparisonOperator.rightOperand.type.primitive) {
+  override fun visit(comparisonOperatorNode: ComparisonOperatorNode) {
+    if (!comparisonOperatorNode.leftOperand.type.primitive || !comparisonOperatorNode.rightOperand.type.primitive) {
       TODO("Doesn't handle comparison for non primitive types for now")
     }
-    evaluateOperands(comparisonOperator)
+    evaluateOperands(comparisonOperatorNode)
   }
 
   override fun visit(andOperator: AndOperator) {
@@ -770,12 +770,12 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
     TODO("Implement pow, or call function?")
   }
 
-  override fun visit(comparisonOperator: ComparisonOperatorNode) {
-    super.visit(comparisonOperator)
+  override fun visit(comparisonOperatorNode: ComparisonOperatorNode) {
+    super.visit(comparisonOperatorNode)
     // TODO for now only handling primitive
     val endLabel = Label()
     val trueLabel = Label()
-    mv.comparisonJump(comparisonOperator.operator, trueLabel)
+    mv.comparisonJump(comparisonOperatorNode.operator, trueLabel)
     mv.visitInsn(Opcodes.ICONST_0)
     mv.jumpTo(endLabel)
     mv.visitLabel(trueLabel)
@@ -800,26 +800,26 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
     instructionGenerator.visit(variableDeclarationNode)
   }
 
-  override fun visit(aTruthyVariableDeclarationNode: TruthyVariableDeclarationNode) {
-    var truthyVariableDeclarationNode = aTruthyVariableDeclarationNode
-    val variableType = truthyVariableDeclarationNode.variableType
-    val expressionType = truthyVariableDeclarationNode.expression.type
+  override fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode) {
+    var actualTruthyVariableDeclarationNode = truthyVariableDeclarationNode
+    val variableType = actualTruthyVariableDeclarationNode.variableType
+    val expressionType = actualTruthyVariableDeclarationNode.expression.type
     if (variableType.raw() != JavaType.of(Optional::class.java) && (
           listOf(Optional::class.java, OptionalInt::class.java, OptionalLong::class.java, OptionalDouble::class.java)
             .any {expressionType.raw().isAssignableFrom(JavaType.of(it)) }
           )) {
-      truthyVariableDeclarationNode = TruthyVariableDeclarationNode(
-        truthyVariableDeclarationNode.scope, truthyVariableDeclarationNode.variableType, truthyVariableDeclarationNode.name,
-        InvokeAccessOperator(truthyVariableDeclarationNode.expression,
-          FunctionCallNode(truthyVariableDeclarationNode.scope, "orElse", mutableListOf(NullValueNode(truthyVariableDeclarationNode.variableType)))
+      actualTruthyVariableDeclarationNode = TruthyVariableDeclarationNode(
+        actualTruthyVariableDeclarationNode.scope, actualTruthyVariableDeclarationNode.variableType, actualTruthyVariableDeclarationNode.name,
+        InvokeAccessOperator(actualTruthyVariableDeclarationNode.expression,
+          FunctionCallNode(actualTruthyVariableDeclarationNode.scope, "orElse", mutableListOf(NullValueNode(actualTruthyVariableDeclarationNode.variableType)))
         )
       )
     }
-    instructionGenerator.visit(truthyVariableDeclarationNode)
-    if (truthyVariableDeclarationNode.variableType.primitive) {
+    instructionGenerator.visit(actualTruthyVariableDeclarationNode)
+    if (actualTruthyVariableDeclarationNode.variableType.primitive) {
       visit(BooleanConstantNode(true))
     } else {
-      pushArgument(ReferenceExpression(truthyVariableDeclarationNode.scope, truthyVariableDeclarationNode.name))
+      pushArgument(ReferenceExpression(actualTruthyVariableDeclarationNode.scope, actualTruthyVariableDeclarationNode.name))
       mv.invokeMethod(MarcelTruth::class.java.getDeclaredMethod("truthy", Object::class.java))
     }
   }

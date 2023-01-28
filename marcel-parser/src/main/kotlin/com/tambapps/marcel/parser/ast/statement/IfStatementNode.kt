@@ -16,8 +16,8 @@ class IfStatementNode(val condition: BooleanExpressionNode, val trueStatementNod
   override val type: JavaType
     get() = trueStatementNode.type
 
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
+  override fun accept(mv: AstNodeVisitor) {
+    mv.visit(this)
   }
 
   override fun accept(visitor: AstVisitor) {

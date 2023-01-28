@@ -48,7 +48,7 @@ interface AstNodeVisitor {
   fun visit(getFieldAccessOperator: GetFieldAccessOperator)
 
   fun visit(booleanConstantNode: BooleanConstantNode)
-  fun visit(comparisonOperator: ComparisonOperatorNode)
+  fun visit(comparisonOperatorNode: ComparisonOperatorNode)
   fun visit(andOperator: AndOperator)
   fun visit(orOperator: OrOperator)
 

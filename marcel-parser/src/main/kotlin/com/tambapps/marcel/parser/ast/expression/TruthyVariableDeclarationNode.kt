@@ -10,8 +10,8 @@ class TruthyVariableDeclarationNode(scope: Scope, val variableType: JavaType, na
 
   override val type = JavaType.boolean
 
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
+  override fun accept(mv: AstNodeVisitor) {
+    mv.visit(this)
   }
 
   override fun toString(): String {
