@@ -166,6 +166,9 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
   override fun visit(fCall: FunctionCallNode) {
     val method = fCall.method
     val methodOwner = fCall.methodOwnerType
+    if (method.isInline) {
+      TODO()
+    }
     if (!method.isStatic) {
       if (methodOwner is ExpressionNode) {
         pushArgument(methodOwner) // for instance method, we need to push owner

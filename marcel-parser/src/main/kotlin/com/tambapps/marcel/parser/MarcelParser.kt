@@ -72,7 +72,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val argsParameter = MethodParameter(JavaType.of(Array<String>::class.java), "args")
     val runFunction = MethodNode(Opcodes.ACC_PUBLIC, classType,
       "run",
-      runBlock, mutableListOf(argsParameter), runScope.returnType, runScope)
+      runBlock, mutableListOf(argsParameter), runScope.returnType, runScope, false)
     runScope.addLocalVariable(argsParameter.type, argsParameter.name)
 
     // adding script constructors script have 2 constructors. One no-arg constructor, and one for Binding
@@ -100,7 +100,8 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     while (current.type != TokenType.END_OF_FILE) {
       when (current.type) {
         TokenType.FUN, TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED,
-        TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE, TokenType.STATIC -> {
+        TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE, TokenType.STATIC,
+        TokenType.INLINE -> {
           val method = method(classNode)
           if (method.name == "main") {
             throw SemanticException("Cannot have a \"main\" function in a script")
@@ -150,6 +151,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val staticFlag = if (acceptOptional(TokenType.STATIC) != null) Opcodes.ACC_STATIC else 0
     val accessTokenType = acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE)?.type
       ?: TokenType.VISIBILITY_PUBLIC
+    val isInline = acceptOptional(TokenType.INLINE) != null
     val visibilityFlag = when (accessTokenType) {
       TokenType.VISIBILITY_PUBLIC -> Opcodes.ACC_PUBLIC
       TokenType.VISIBILITY_PROTECTED -> Opcodes.ACC_PROTECTED
@@ -179,7 +181,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val returnType = if (current.type != TokenType.BRACKETS_OPEN) parseType(classScope) else JavaType.void
     val statements = mutableListOf<StatementNode>()
     val methodScope = MethodScope(classScope, methodName, parameters, returnType)
-    val methodNode = MethodNode(staticFlag or visibilityFlag, classNode.type, methodName, FunctionBlockNode(methodScope, statements), parameters, returnType, methodScope)
+    val methodNode = MethodNode(staticFlag or visibilityFlag, classNode.type, methodName, FunctionBlockNode(methodScope, statements), parameters, returnType, methodScope, isInline)
     statements.addAll(block(methodScope).statements)
     return methodNode
   }

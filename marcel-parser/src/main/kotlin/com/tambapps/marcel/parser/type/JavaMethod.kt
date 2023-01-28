@@ -23,6 +23,7 @@ interface JavaMethod {
   val isStatic: Boolean
     get() = (access and Opcodes.ACC_STATIC) != 0
   val isConstructor: Boolean
+  val isInline: Boolean get() = false
   val invokeCode: Int
     get() = if (isStatic) Opcodes.INVOKESTATIC
     else if (ownerClass.isInterface) Opcodes.INVOKEINTERFACE
