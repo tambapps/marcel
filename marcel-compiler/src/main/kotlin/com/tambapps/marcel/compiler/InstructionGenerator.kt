@@ -191,7 +191,6 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
         visit(VariableAssignmentNode(innerScope, variables[i].name, fCall.arguments[i]))
       }
       visit(inlineBlock)
-      // TODO doesn't handle inline function return types
       innerScope.clearInnerScopeLocalVariables()
     } else {
       if (!method.isStatic) {
@@ -550,8 +549,7 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
   }
 
   override fun visit(returnNode: ReturnNode) {
-    // should never be called. Blocks will always take care of return statements and they will use pushArgument
-    throw IllegalStateException("Compiler design error, sorry for that")
+    pushArgument(returnNode.expression)
   }
 }
 
