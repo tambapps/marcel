@@ -21,7 +21,7 @@ import org.objectweb.asm.Opcodes
 class MarcelParserTest {
 
     private val lexer = MarcelLexer()
-    private val type = JavaType.defineClass("Test", Script::class.java.name, false)
+    private val type = JavaType.defineClass("Test", JavaType.of(Script::class.java), false)
     private val scope = MethodScope(mutableListOf(), type, JavaType.Object.internalName, "test", emptyList(), JavaType.void)
 
     @Test
@@ -77,7 +77,7 @@ class MarcelParserTest {
         val parser = parser("Type<Integer, Object> b = null")
 
         assertEquals(
-            VariableDeclarationNode(scope, JavaType.defineClass("Type", Script::class.java.name, false).withGenericTypes(listOf(
+            VariableDeclarationNode(scope, JavaType.defineClass("Type", JavaType.of(Script::class.java), false).withGenericTypes(listOf(
                 JavaType.of(Class.forName("java.lang.Integer")),
                 JavaType.of(Class.forName("java.lang.Object"))
             )), "b", NullValueNode()),
