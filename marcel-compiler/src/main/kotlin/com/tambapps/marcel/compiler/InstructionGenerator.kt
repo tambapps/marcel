@@ -13,6 +13,7 @@ import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.InnerScope
+import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
@@ -169,8 +170,21 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
     val methodOwner = fCall.methodOwnerType
     if (method.isInline) {
       val inlineMethod = method as MethodNode
-      // TODO doesn't handle arguments and returns in method (to cancel)
-      visit(inlineMethod.block as BlockNode)
+      val innerScope = InnerScope(
+        fCall.scope as? MethodScope ?: throw SemanticException("Can only call inline functions in a method"))
+      val inlineBlock = inlineMethod.block.asSimpleBlock(innerScope)
+
+      // initializing arguments
+      if (fCall.arguments.size != inlineMethod.parameters.size) {
+        throw SemanticException("Invalid number of arguments for method ${method.name}")
+      }
+      val variables = method.parameters.map { innerScope.addLocalVariable(it.type, it.name) }
+      for (i in variables.indices) {
+        visit(VariableAssignmentNode(innerScope, variables[i].name, fCall.arguments[i]))
+      }
+      // TODO change scope of all children, so that they use the innerscope
+      visit(inlineBlock)
+      innerScope.clearInnerScopeLocalVariables() // may not be useful but meh
     } else {
       if (!method.isStatic) {
         if (methodOwner is ExpressionNode) {

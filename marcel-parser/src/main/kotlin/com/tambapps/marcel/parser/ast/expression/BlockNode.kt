@@ -28,4 +28,8 @@ class FunctionBlockNode constructor(scope: MethodScope, statements: List<Stateme
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)
   }
+
+  fun asSimpleBlock(scope: MethodScope? = null): BlockNode {
+    return BlockNode(scope ?: this.scope, this.statements)
+  }
 }
