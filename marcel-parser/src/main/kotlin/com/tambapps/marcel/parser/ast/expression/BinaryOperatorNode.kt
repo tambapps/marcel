@@ -2,6 +2,7 @@ package com.tambapps.marcel.parser.ast.expression
 
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.ast.ComparisonOperator
 import com.tambapps.marcel.parser.type.JavaType
 
@@ -26,6 +27,12 @@ abstract class BinaryOperatorNode(val leftOperand: ExpressionNode, open val righ
     result = 31 * result + rightOperand.hashCode()
     result = 31 * result + type.hashCode()
     return result
+  }
+
+  override fun accept(visitor: AstVisitor) {
+    super.accept(visitor)
+    leftOperand.accept(visitor)
+    rightOperand.accept(visitor)
   }
 }
 

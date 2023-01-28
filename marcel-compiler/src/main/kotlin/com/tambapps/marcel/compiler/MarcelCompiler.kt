@@ -40,6 +40,7 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
     //https://github.com/JakubDziworski/Enkel-JVM-language/blob/master/compiler/src/main/java/com/kubadziworski/bytecodegeneration/MethodGenerator.java
 
     for (methodNode in classNode.methods) {
+      if (methodNode.isInline) continue // inline method are not to be written (?)
       writeMethod(classWriter, classNode, methodNode)
     }
 

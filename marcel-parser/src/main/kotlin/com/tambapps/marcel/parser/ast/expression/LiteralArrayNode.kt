@@ -1,6 +1,7 @@
 package com.tambapps.marcel.parser.ast.expression
 
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaType
@@ -16,4 +17,8 @@ class LiteralArrayNode(val elements: List<ExpressionNode>): ExpressionNode {
     astNodeVisitor.visit(this)
   }
 
+  override fun accept(visitor: AstVisitor) {
+    super.accept(visitor)
+    elements.forEach { it.accept(visitor) }
+  }
 }

@@ -2,6 +2,7 @@ package com.tambapps.marcel.parser.ast.expression
 
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.scope.MethodScope
 
@@ -26,5 +27,10 @@ class ReturnNode(override var scope: MethodScope, override val expression: Expre
 
   override fun toString(): String {
     return "return $expression"
+  }
+
+  override fun accept(visitor: AstVisitor) {
+    super.accept(visitor)
+    expression.accept(visitor)
   }
 }

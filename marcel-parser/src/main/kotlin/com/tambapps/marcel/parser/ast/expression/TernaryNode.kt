@@ -1,6 +1,7 @@
 package com.tambapps.marcel.parser.ast.expression
 
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.type.JavaType
 
 class TernaryNode(val boolExpression: BooleanExpressionNode,
@@ -13,4 +14,10 @@ class TernaryNode(val boolExpression: BooleanExpressionNode,
     astNodeVisitor.visit(this)
   }
 
+  override fun accept(visitor: AstVisitor) {
+    super.accept(visitor)
+    boolExpression.accept(visitor)
+    trueExpression.accept(visitor)
+    falseExpression.accept(visitor)
+  }
 }

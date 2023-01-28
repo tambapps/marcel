@@ -20,4 +20,8 @@ open class MethodNode constructor(override val access: Int, override val ownerCl
     return "fun $name(" + parameters.joinToString(separator = ", ") + ") " + returnType
   }
 
+  override fun accept(visitor: AstVisitor) {
+    super.accept(visitor)
+    block.accept(visitor)
+  }
 }

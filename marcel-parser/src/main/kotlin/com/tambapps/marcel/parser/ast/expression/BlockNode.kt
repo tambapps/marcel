@@ -3,6 +3,7 @@ package com.tambapps.marcel.parser.ast.expression
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.scope.MethodScope
 
@@ -21,6 +22,10 @@ open class BlockNode(override var scope: MethodScope, val statements: List<State
     return "{\n" + statements.joinToString(transform = { "\n  $it" }) + "\n}"
   }
 
+  override fun accept(visitor: AstVisitor) {
+    super.accept(visitor)
+    statements.forEach { it.accept(visitor) }
+  }
 }
 
 // need to differentiate both because we don't always want to push on stack values for "normal" block nodes

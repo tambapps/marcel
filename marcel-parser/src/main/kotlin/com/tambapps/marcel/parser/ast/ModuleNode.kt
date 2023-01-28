@@ -8,4 +8,9 @@ class ModuleNode(val classes: MutableList<ClassNode>): AstNode {
       "module (\n" + classes.joinToString(separator = "\n") + "\n)"
     }
   }
+
+  override fun accept(visitor: AstVisitor) {
+    super.accept(visitor)
+    classes.forEach { it.accept(visitor) }
+  }
 }

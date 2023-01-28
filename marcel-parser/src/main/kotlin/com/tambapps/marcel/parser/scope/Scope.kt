@@ -56,7 +56,7 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
       ?: imports.asSequence().mapNotNull { it.resolveMethod(name, argumentTypes) }.firstOrNull())
       ?: throw SemanticException("Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
-  fun findVariable(name: String): Variable {
+  open fun findVariable(name: String): Variable {
     var index = 0
     for (variable in localVariables) {
       if (variable.name == name) {
@@ -136,6 +136,9 @@ class InnerScope constructor(private val parentScope: MethodScope)
     return variable
   }
 
+  override fun findVariable(name: String): Variable {
+    return super.findVariable(name)
+  }
   // to clean variables defined in inner scope, once we don't need the inner scope anymore
   fun clearInnerScopeLocalVariables() {
     innerScopeLocalVariables.forEach { localVariables.remove(it) }

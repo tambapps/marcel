@@ -2,6 +2,7 @@ package com.tambapps.marcel.parser.ast.expression
 
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.scope.Scope
 
@@ -31,5 +32,10 @@ open class VariableAssignmentNode(override var scope: Scope, val name: String, v
     var result = name.hashCode()
     result = 31 * result + expression.hashCode()
     return result
+  }
+
+  override fun accept(visitor: AstVisitor) {
+    super.accept(visitor)
+    expression.accept(visitor)
   }
 }

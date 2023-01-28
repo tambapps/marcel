@@ -4,6 +4,7 @@ import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.ast.AstTypedObject
+import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
@@ -26,6 +27,10 @@ open class FunctionCallNode(override var scope: Scope, val name: String, val arg
   val descriptor: String
     get() = AsmUtils.getDescriptor(arguments, type)
 
+  override fun accept(visitor: AstVisitor) {
+    super.accept(visitor)
+    arguments.forEach { it.accept(visitor) }
+  }
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)
   }

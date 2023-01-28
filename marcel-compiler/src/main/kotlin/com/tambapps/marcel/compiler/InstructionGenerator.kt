@@ -1,7 +1,10 @@
 package com.tambapps.marcel.compiler
 
+import com.tambapps.marcel.parser.ast.AstNode
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.ast.MethodNode
+import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.BreakLoopNode
 import com.tambapps.marcel.parser.ast.statement.ContinueLoopNode
@@ -173,6 +176,11 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
       val innerScope = InnerScope(
         fCall.scope as? MethodScope ?: throw SemanticException("Can only call inline functions in a method"))
       val inlineBlock = inlineMethod.block.asSimpleBlock(innerScope)
+      inlineBlock.accept(object : AstVisitor {
+        override fun visit(node: AstNode) {
+          if (node is ScopedNode<*>) node.trySetScope(innerScope)
+        }
+      })
 
       // initializing arguments
       if (fCall.arguments.size != inlineMethod.parameters.size) {
@@ -182,10 +190,9 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
       for (i in variables.indices) {
         visit(VariableAssignmentNode(innerScope, variables[i].name, fCall.arguments[i]))
       }
-      // TODO change scope of all children, so that they use the innerscope done.
-      // TODO add AstVisitor, an interface to visit all possible nodes and implement it on all nodes
       visit(inlineBlock)
-      innerScope.clearInnerScopeLocalVariables() // may not be useful but meh
+      // TODO doesn't handle inline function return types
+      innerScope.clearInnerScopeLocalVariables()
     } else {
       if (!method.isStatic) {
         if (methodOwner is ExpressionNode) {

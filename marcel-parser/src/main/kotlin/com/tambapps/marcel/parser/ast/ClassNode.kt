@@ -16,6 +16,10 @@ class ClassNode(val scope: Scope, val access: Int, val type: JavaType, val paren
     methods.add(method)
   }
 
+  override fun accept(visitor: AstVisitor) {
+    super.accept(visitor)
+    methods.forEach { it.accept(visitor) }
+  }
   override fun toString(): String {
     return "class $type {\n" + methods.joinToString(separator = "\n", transform = { "  $it" }) + "\n}"
   }
