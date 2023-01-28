@@ -1,6 +1,7 @@
 package com.tambapps.marcel.compiler
 
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.BreakLoopNode
 import com.tambapps.marcel.parser.ast.statement.ContinueLoopNode
@@ -167,16 +168,19 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
     val method = fCall.method
     val methodOwner = fCall.methodOwnerType
     if (method.isInline) {
-      TODO()
-    }
-    if (!method.isStatic) {
-      if (methodOwner is ExpressionNode) {
-        pushArgument(methodOwner) // for instance method, we need to push owner
-      } else {
-        pushArgument(ReferenceExpression(fCall.scope, "this"))
+      val inlineMethod = method as MethodNode
+      // TODO doesn't handle arguments and returns in method (to cancel)
+      visit(inlineMethod.block as BlockNode)
+    } else {
+      if (!method.isStatic) {
+        if (methodOwner is ExpressionNode) {
+          pushArgument(methodOwner) // for instance method, we need to push owner
+        } else {
+          pushArgument(ReferenceExpression(fCall.scope, "this"))
+        }
       }
+      mv.invokeMethodWithArguments(method, fCall.arguments)
     }
-    mv.invokeMethodWithArguments(method, fCall.arguments)
   }
 
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
