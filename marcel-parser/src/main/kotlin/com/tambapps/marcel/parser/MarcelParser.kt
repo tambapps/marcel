@@ -443,7 +443,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           skip()
           val expr = expression(scope)
           VariableAssignmentNode(scope, token.value, DivOperator(ReferenceExpression(scope, token.value), expr))
-        } else if (current.type == TokenType.MUL) {
+        } else if (current.type == TokenType.MUL_ASSIGNMENT) {
           skip()
           val expr = expression(scope)
           VariableAssignmentNode(scope, token.value, MulOperator(ReferenceExpression(scope, token.value), expr))
@@ -483,14 +483,13 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           }
         }
         next() // skip square brackets close
-        return if (isMap) {
+        if (isMap) {
           val entries = mutableListOf<Pair<ExpressionNode, ExpressionNode>>()
           for (i in elements.indices step 2) {
             entries.add(Pair(elements[i], elements[i + 1]))
           }
           LiteralMapNode(entries)
-        }
-        else LiteralArrayNode(elements)
+        } else LiteralArrayNode(elements)
       }
       else -> {
         throw UnsupportedOperationException("Not supported yet $token")
