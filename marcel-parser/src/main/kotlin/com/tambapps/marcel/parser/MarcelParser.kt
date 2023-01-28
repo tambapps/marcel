@@ -353,6 +353,10 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
 
   fun expression(scope: Scope): ExpressionNode {
     val expr = expression(scope, Int.MAX_VALUE)
+    return completedExpression(scope, expr)
+  }
+
+  private fun completedExpression(scope: Scope, expr: ExpressionNode): ExpressionNode {
     if (current.type == TokenType.QUESTION_MARK) {
       skip()
       val trueExpr = expression(scope)
@@ -366,7 +370,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     }
     return expr
   }
-
   private fun loopBody(scope: Scope): BlockNode {
     val loopStatement = statement(scope)
     if (loopStatement.expression is BlockNode) return loopStatement.expression as BlockNode
@@ -379,8 +382,12 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     while (ParserUtils.isBinaryOperator(t.type) && ParserUtils.getPriority(t.type) < maxPriority) {
       next()
       val leftOperand = a
-      val rightOperand = expression(scope, ParserUtils.getPriority(t.type) + ParserUtils.getAssociativity(t.type))
-      a = operator(t.type, leftOperand, rightOperand)
+      var rightOperand = expression(scope, ParserUtils.getPriority(t.type) + ParserUtils.getAssociativity(t.type))
+      if (t.type in listOf(TokenType.ASSIGNMENT, TokenType.PLUS_ASSIGNMENT, TokenType.MINUS_ASSIGNMENT, TokenType.MUL_ASSIGNMENT, TokenType.DIV_ASSIGNMENT)) {
+        // need this because we want to be able to use ternary expressions for assignments
+        rightOperand = completedExpression(scope, rightOperand)
+      }
+      a = operator(scope, t.type, leftOperand, rightOperand)
       t = current
     }
     return a
@@ -428,25 +435,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         else if (current.type == TokenType.LPAR) {
           skip()
           return FunctionCallNode(scope, token.value, parseFunctionArguments(scope))
-        } else if (current.type == TokenType.ASSIGNMENT) {
-          skip()
-          VariableAssignmentNode(scope, token.value, expression(scope))
-        } else if (current.type == TokenType.PLUS_ASSIGNMENT) {
-          skip()
-          val expr = expression(scope)
-          VariableAssignmentNode(scope, token.value, PlusOperator(ReferenceExpression(scope, token.value), expr))
-        } else if (current.type == TokenType.MINUS_ASSIGNMENT) {
-          skip()
-          val expr = expression(scope)
-          VariableAssignmentNode(scope, token.value, MinusOperator(ReferenceExpression(scope, token.value), expr))
-        } else if (current.type == TokenType.DIV_ASSIGNMENT) {
-          skip()
-          val expr = expression(scope)
-          VariableAssignmentNode(scope, token.value, DivOperator(ReferenceExpression(scope, token.value), expr))
-        } else if (current.type == TokenType.MUL_ASSIGNMENT) {
-          skip()
-          val expr = expression(scope)
-          VariableAssignmentNode(scope, token.value, MulOperator(ReferenceExpression(scope, token.value), expr))
         } else if (current.type == TokenType.LT  && tokens.getOrNull(currentIndex + 1)?.type == TokenType.TWO_DOTS
           || current.type == TokenType.GT && tokens.getOrNull(currentIndex + 1)?.type == TokenType.TWO_DOTS || current.type == TokenType.TWO_DOTS) {
           rangeNode(scope, ReferenceExpression(scope, token.value))
@@ -585,8 +573,14 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     return arguments
   }
 
-  private fun operator(t: TokenType, leftOperand: ExpressionNode, rightOperand: ExpressionNode): ExpressionNode {
+  private fun operator(scope: Scope, t: TokenType, leftOperand: ExpressionNode, rightOperand: ExpressionNode): ExpressionNode {
     return when(t) {
+      // TODO remove cast because we could have a[i]. Check type in instruction generaor
+      TokenType.ASSIGNMENT -> VariableAssignmentNode(scope, (leftOperand as ReferenceExpression).name, rightOperand)
+      TokenType.PLUS_ASSIGNMENT -> VariableAssignmentNode(scope, (leftOperand as ReferenceExpression).name, PlusOperator(leftOperand, rightOperand))
+      TokenType.MINUS_ASSIGNMENT -> VariableAssignmentNode(scope, (leftOperand as ReferenceExpression).name, MinusOperator(leftOperand, rightOperand))
+      TokenType.DIV_ASSIGNMENT -> VariableAssignmentNode(scope, (leftOperand as ReferenceExpression).name, DivOperator(leftOperand, rightOperand))
+      TokenType.MUL_ASSIGNMENT -> VariableAssignmentNode(scope, (leftOperand as ReferenceExpression).name, MulOperator(leftOperand, rightOperand))
       TokenType.MUL -> MulOperator(leftOperand, rightOperand)
       TokenType.DIV -> DivOperator(leftOperand, rightOperand)
       TokenType.PLUS -> PlusOperator(leftOperand, rightOperand)

@@ -20,4 +20,8 @@ class TernaryNode(val boolExpression: BooleanExpressionNode,
     trueExpression.accept(visitor)
     falseExpression.accept(visitor)
   }
+
+  override fun toString(): String {
+    return "$boolExpression ? $trueExpression : $falseExpression"
+  }
 }

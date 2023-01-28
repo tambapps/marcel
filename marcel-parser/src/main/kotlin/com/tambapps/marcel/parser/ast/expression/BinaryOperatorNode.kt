@@ -104,7 +104,7 @@ class InvokeAccessOperator(leftOperand: ExpressionNode, override val rightOperan
   }
 
   override fun toString(): String {
-    return "$leftOperand.$rightOperand()"
+    return "$leftOperand.$rightOperand"
   }
 }
 
