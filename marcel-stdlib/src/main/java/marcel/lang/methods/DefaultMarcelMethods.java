@@ -13,8 +13,11 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
+// TODO do some inline or function aliases for methods like leftShift (may need to do JavaType refacto first)
+// TODO add visitor for inline functions?
 public final class DefaultMarcelMethods {
 
   public static void reverse(List<?> list) {

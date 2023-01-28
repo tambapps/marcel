@@ -40,7 +40,7 @@ interface JavaType: AstTypedObject {
   val isLoaded: Boolean
   val realClazz: Class<*>
   val className: String
-  val superClassName: String?
+  val superClass: JavaType?
   val internalName
     get() = AsmUtils.getInternalName(className)
   val descriptor: String
@@ -83,10 +83,10 @@ interface JavaType: AstTypedObject {
     if (isLoaded && other.isLoaded) {
       return realClazz.isAssignableFrom(other.realClazz)
     } else {
-      var otherSuperType = if (other.superClassName != null) of(other.superClassName!!) else null
+      var otherSuperType = if (other.superClass != null) of(other.superClass?.className!!) else null
       while (otherSuperType != null) {
         if (otherSuperType == this) return true
-        otherSuperType = if (otherSuperType.superClassName != null) of(otherSuperType.superClassName!!) else null
+        otherSuperType = if (otherSuperType.superClass != null) of(otherSuperType.superClass?.className!!) else null
       }
       return false
     }
@@ -131,9 +131,9 @@ interface JavaType: AstTypedObject {
       } else {
         var aType = a
         var bType = b
-        while (aType.superClassName != null && bType.superClassName != null) {
-          aType = of(aType.superClassName!!)
-          bType = of(bType.superClassName!!)
+        while (aType.superClass != null && bType.superClass != null) {
+          aType = aType.superClass!!
+          bType = bType.superClass!!
           if (aType.isAssignableFrom(bType)) return a
           if (bType.isAssignableFrom(aType)) return b
         }
@@ -148,7 +148,7 @@ interface JavaType: AstTypedObject {
         // ignore
       }
       if (DEFINED_TYPES.containsKey(className)) throw SemanticException("Class $className is already defined")
-      val type = NotLoadedJavaType(className, emptyList(), superClassName, isInterface)
+      val type = NotLoadedJavaType(className, emptyList(), of(superClassName), isInterface)
       DEFINED_TYPES[className] = type
       return type
     }
@@ -359,12 +359,12 @@ abstract class AbstractJavaType: JavaType {
       if (m != null) return m
     }
     // need to search on parent classes and interfaces, even for loaded classes because of possible extension methods
-    var className = superClassName
+    var className = superClass?.className
     while (className != null) {
       val type = JavaType.of(className)
       m = type.findMethod(name, argumentTypes)
       if (m != null) return m
-      className = type.superClassName
+      className = type.superClass?.className
     }
     for (type in interfaces) {
       m = type.findMethod(name, argumentTypes)
@@ -384,7 +384,7 @@ abstract class AbstractJavaType: JavaType {
     return m
   }
 }
-class NotLoadedJavaType internal constructor(override val className: String, override val genericTypes: List<JavaType>, override val superClassName: String?, override val isInterface: Boolean): AbstractJavaType() {
+class NotLoadedJavaType internal constructor(override val className: String, override val genericTypes: List<JavaType>, override val superClass: JavaType?, override val isInterface: Boolean): AbstractJavaType() {
 
   override val isLoaded = false
   override val realClazz: Class<*>
@@ -401,13 +401,13 @@ class NotLoadedJavaType internal constructor(override val className: String, ove
     get() {
       // don't handle defining class with interfaces, so let's just look if parent types have interfaces
       val interfaces = mutableListOf<JavaType>()
-      var className = superClassName
+      var className = superClass?.className
       while (className != null) {
         val type = JavaType.of(className)
         interfaces.addAll(type.interfaces)
         // if type is loaded we can exit because Java reflect API should have given us all methods, even the ones from interfaces
         if (type.isLoaded) break
-        className = type.superClassName
+        className = type.superClass?.className
       }
       return interfaces
     }
@@ -416,7 +416,7 @@ class NotLoadedJavaType internal constructor(override val className: String, ove
     if (genericTypes.any { it.primitive }) {
       throw MarcelParsingException("Cannot have a primitive type as generic type")
     }
-    val genericType = NotLoadedJavaType(className, genericTypes, superClassName, isInterface)
+    val genericType = NotLoadedJavaType(className, genericTypes, superClass, isInterface)
     genericType.methods.addAll(methods)
     return genericType
   }
@@ -424,11 +424,11 @@ class NotLoadedJavaType internal constructor(override val className: String, ove
   override fun findField(name: String, declared: Boolean): MarcelField? {
     // TODO doesn't search on defined fields of notloaded type. Only search on super classes that are Loaded
     // searching on super types
-    var type: JavaType? = JavaType.of(superClassName!!)
+    var type: JavaType? = JavaType.of(superClass?.className!!)
     while (type != null) {
       val f = type.findField(name, declared)
       if (f != null) return f
-      type = if (type.superClassName != null) JavaType.of(type.superClassName!!) else null
+      type = if (type.superClass != null) JavaType.of(type.superClass?.className!!) else null
     }
     return null
   }
@@ -440,7 +440,7 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
     get() = AsmUtils.getClassDescriptor(realClazz)
 
   override val className: String = realClazz.name
-  override val superClassName = realClazz.superclass?.name
+  override val superClass get() =  if (realClazz.superclass != null) JavaType.of(realClazz.superclass) else null
 
 
   override val isInterface = realClazz.isInterface
