@@ -107,7 +107,7 @@ interface JavaType: AstTypedObject {
 
     fun commonType(list: List<AstTypedObject>): JavaType {
       if (list.isEmpty()) return void
-      return list.reduce { acc, javaType -> commonType(acc, javaType) } as JavaType
+      return list.reduce { acc, javaType -> commonType(acc, javaType) }.type
     }
 
     fun commonType(aa: AstTypedObject, bb: AstTypedObject): JavaType {
