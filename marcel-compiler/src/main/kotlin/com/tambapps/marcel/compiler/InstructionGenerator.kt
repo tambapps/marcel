@@ -211,6 +211,18 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
     mv.storeInVariable(variable)
   }
 
+  override fun visit(indexedVariableAssignmentNode: IndexedVariableAssignmentNode) {
+    val indexedReference = indexedVariableAssignmentNode.indexedReference
+    mv.storeInVariablePutAt(
+      indexedReference.scope, indexedReference.variable,
+      indexedReference.indexArguments, indexedVariableAssignmentNode.expression
+    )
+  }
+  override fun visit(indexedReferenceExpression: IndexedReferenceExpression) {
+    mv.pushVariableGetAt(indexedReferenceExpression.scope, indexedReferenceExpression.variable,
+      indexedReferenceExpression.indexArguments)
+  }
+
   override fun visit(voidExpression: VoidExpression) {
     // do nothing, it's void
   }
@@ -452,6 +464,12 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
   override fun visit(referenceExpression: ReferenceExpression) {
     // don't need to push value to the stack by default
   }
+
+  override fun visit(indexedReferenceExpression: IndexedReferenceExpression) {
+    super.visit(indexedReferenceExpression)
+    mv.popStack()
+  }
+
   override fun pushArgument(expr: ExpressionNode) {
     pushingInstructionGenerator.pushArgument(expr)
   }
@@ -740,6 +758,10 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
     mv.pushVariable(variableAssignmentNode.scope, variableAssignmentNode.scope.findVariable(variableAssignmentNode.name))
   }
 
+  override fun visit(indexedVariableAssignmentNode: IndexedVariableAssignmentNode) {
+    super.visit(indexedVariableAssignmentNode)
+    pushArgument(indexedVariableAssignmentNode.indexedReference)
+  }
   override fun pushArgument(expr: ExpressionNode) {
     expr.accept(this)
   }

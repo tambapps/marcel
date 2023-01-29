@@ -588,15 +588,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       TokenType.ASSIGNMENT, TokenType.PLUS_ASSIGNMENT, TokenType.MINUS_ASSIGNMENT, TokenType.MUL_ASSIGNMENT, TokenType.DIV_ASSIGNMENT -> {
         if (t == TokenType.ASSIGNMENT) {
           when (leftOperand) {
-            is ReferenceExpression -> {
-              VariableAssignmentNode(scope, leftOperand.name, rightOperand)
-            }
-            is IndexedReferenceExpression -> {
-              TODO("Create indexed variable assignment")
-            }
-            else -> {
-              throw MarcelParsingException("Can only assign a variable")
-            }
+            is ReferenceExpression -> VariableAssignmentNode(scope, leftOperand.name, rightOperand)
+            is IndexedReferenceExpression -> IndexedVariableAssignmentNode(scope, leftOperand, rightOperand)
+            else -> throw MarcelParsingException("Can only assign a variable")
           }
         } else {
           if (leftOperand !is ReferenceExpression) throw MarcelParsingException("Can only assign a variable")
