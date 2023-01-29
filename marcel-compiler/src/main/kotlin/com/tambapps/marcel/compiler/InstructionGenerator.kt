@@ -207,7 +207,6 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
 
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     var expression = variableAssignmentNode.expression
-    // TODO do same thing on return statements
     val variable = variableAssignmentNode.scope.findVariable(variableAssignmentNode.name)
     val variableType = variable.type
     if (expression is LiteralArrayNode && expression.elements.isEmpty()) {
@@ -217,7 +216,7 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
       else if (JavaType.floatList.isAssignableFrom(variableType) || JavaType.floatSet.isAssignableFrom(variableType)) JavaType.float
       else if (JavaType.doubleList.isAssignableFrom(variableType) || JavaType.doubleSet.isAssignableFrom(variableType)) JavaType.double
       else if (JavaType.booleanList.isAssignableFrom(variableType) || JavaType.booleanSet.isAssignableFrom(variableType)) JavaType.boolean
-      else throw SemanticException("Couldn't guess type of empty array")
+      else throw SemanticException("Couldn't guess type of empty array. You can explicitely specify your wanted type with the 'as' keyword (e.g. '[] as int[]')")
       expression = EmptyArrayNode(JavaType.arrayType(elementsType))
     }
     pushArgument(expression)
@@ -436,7 +435,12 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
   }
 
   override fun visit(asNode: AsNode) {
-    asNode.expressionNode.accept(this)
+    val expression = asNode.expressionNode
+    if (expression is LiteralArrayNode && expression.elements.isEmpty()) {
+      visit(EmptyArrayNode(asNode.type as? JavaArrayType ?: throw SemanticException("Can only convert empty arrays to array types using 'as' keyword")))
+    } else {
+      asNode.expressionNode.accept(this)
+    }
   }
   override fun visit(stringNode: StringNode) {
     for (part in stringNode.parts) {
