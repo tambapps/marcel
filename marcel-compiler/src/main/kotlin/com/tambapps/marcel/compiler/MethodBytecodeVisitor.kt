@@ -349,6 +349,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     if (type.elementsType.primitive) {
       mv.visitIntInsn(Opcodes.NEWARRAY, type.typeCode)
     } else {
+      // TODO Object[] arrays don's seem to work
       mv.visitTypeInsn(Opcodes.ANEWARRAY, type.elementsType.internalName)
     }
 
