@@ -427,17 +427,26 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       TokenType.IDENTIFIER -> {
         if (current.type == TokenType.INCR) {
           skip()
-          return IncrNode(ReferenceExpression(scope, token.value), 1, true)
+          IncrNode(ReferenceExpression(scope, token.value), 1, true)
         } else  if (current.type == TokenType.DECR) {
           skip()
-          return IncrNode(ReferenceExpression(scope, token.value), -1, true)
+          IncrNode(ReferenceExpression(scope, token.value), -1, true)
         }
         else if (current.type == TokenType.LPAR) {
           skip()
-          return FunctionCallNode(scope, token.value, parseFunctionArguments(scope))
+          FunctionCallNode(scope, token.value, parseFunctionArguments(scope))
         } else if (current.type == TokenType.LT  && tokens.getOrNull(currentIndex + 1)?.type == TokenType.TWO_DOTS
           || current.type == TokenType.GT && tokens.getOrNull(currentIndex + 1)?.type == TokenType.TWO_DOTS || current.type == TokenType.TWO_DOTS) {
           rangeNode(scope, ReferenceExpression(scope, token.value))
+        } else if (current.type == TokenType.SQUARE_BRACKETS_OPEN) {
+          skip()
+          val indexArguments = mutableListOf<ExpressionNode>()
+          while (current.type != TokenType.SQUARE_BRACKETS_CLOSE) {
+            indexArguments.add(expression(scope))
+            if (current.type == TokenType.COMMA) skip()
+          }
+          skip() // skip brackets close
+          IndexedReferenceExpression(scope, token.value, indexArguments)
         } else {
           ReferenceExpression(scope, token.value)
         }
@@ -578,8 +587,17 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       // TODO remove cast because we could have a[i]. Check type in instruction generaor
       TokenType.ASSIGNMENT, TokenType.PLUS_ASSIGNMENT, TokenType.MINUS_ASSIGNMENT, TokenType.MUL_ASSIGNMENT, TokenType.DIV_ASSIGNMENT -> {
         if (t == TokenType.ASSIGNMENT) {
-          if (leftOperand !is ReferenceExpression) throw MarcelParsingException("Can only assign a variable")
-          VariableAssignmentNode(scope, (leftOperand as ReferenceExpression).name, rightOperand)
+          when (leftOperand) {
+            is ReferenceExpression -> {
+              VariableAssignmentNode(scope, leftOperand.name, rightOperand)
+            }
+            is IndexedReferenceExpression -> {
+              TODO("Create indexed variable assignment")
+            }
+            else -> {
+              throw MarcelParsingException("Can only assign a variable")
+            }
+          }
         } else {
           if (leftOperand !is ReferenceExpression) throw MarcelParsingException("Can only assign a variable")
           val actualRightOperand = when(t) {
