@@ -7,8 +7,7 @@ import com.tambapps.marcel.parser.ast.ComparisonOperator
 import com.tambapps.marcel.parser.type.JavaType
 
 abstract class BinaryOperatorNode(val leftOperand: ExpressionNode, open val rightOperand: ExpressionNode): ExpressionNode {
-  // for now only ints are handled
-  override val type: JavaType = JavaType.int
+  override val type: JavaType get() = JavaType.commonType(leftOperand, rightOperand)
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (javaClass != other?.javaClass) return false
