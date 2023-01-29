@@ -16,6 +16,7 @@ import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.InnerScope
+import com.tambapps.marcel.parser.scope.LocalVariable
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaArrayType
@@ -476,8 +477,8 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
   }
 
   override fun visit(incrNode: IncrNode) {
-    if (incrNode.variableReference.type == JavaType.int) {
-      mv.incr(incrNode.variableReference.variable, incrNode.amount)
+    if (incrNode.variableReference.type == JavaType.int && incrNode.variableReference.variable is LocalVariable) {
+      mv.incrLocalVariable(incrNode.variableReference.variable as LocalVariable, incrNode.amount)
     } else {
       val ref = incrNode.variableReference
       visit(VariableAssignmentNode(ref.scope, ref.name, PlusOperator(ref, IntConstantNode(incrNode.amount))))

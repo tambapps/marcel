@@ -133,11 +133,8 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     mv.visitLdcInsn(string)
   }
 
-  fun incr(variable: Variable, amount: Int) {
-    when (variable) {
-      is LocalVariable -> mv.visitIincInsn(variable.index, amount)
-      else -> throw TODO("Doesn't handle increment of other kind")
-    }
+  fun incrLocalVariable(variable: LocalVariable, amount: Int) {
+    mv.visitIincInsn(variable.index, amount)
   }
 
   fun returnVoid() {
@@ -349,7 +346,6 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     if (type.elementsType.primitive) {
       mv.visitIntInsn(Opcodes.NEWARRAY, type.typeCode)
     } else {
-      // TODO Object[] arrays don's seem to work
       mv.visitTypeInsn(Opcodes.ANEWARRAY, type.elementsType.internalName)
     }
 

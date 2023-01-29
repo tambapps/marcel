@@ -80,7 +80,6 @@ import java.util.Stack;
 %column
 
 /** spec of the function lexing **/
-// TODO find way of including line and column when throwing exception
 %scanerror MarcelLexerException
 %function nextToken
 %type LexToken
