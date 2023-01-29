@@ -368,7 +368,16 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
   fun pushVariableGetAt(scope: Scope, variable: Variable, indexArguments: List<ExpressionNode>) {
     val variableType = variable.type
     if (variableType is JavaArrayType) {
-      arrayAccess(scope, variable, indexArguments, true)
+      if (indexArguments.size != 1) throw SemanticException("Need only one int argument to get an array")
+      val arg = indexArguments.first()
+      // push array
+      pushVariable(scope, variable)
+      // push index
+      argumentPusher.pushArgument(arg)
+      // cast if necessary (e.g. Integer to int)
+      castIfNecessaryOrThrow(JavaType.int, arg.type)
+      // load value in pushed array int pushed index
+      mv.visitInsn(variableType.arrayLoadCode)
     } else {
       // must call getAt
       pushVariable(scope, variable)
@@ -383,26 +392,26 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     expression: ExpressionNode
   ) {
     if (variable.type is JavaArrayType) {
-      arrayAccess(scope, variable, indexArguments, false)
+      val variableType = variable.type as JavaArrayType
+      if (indexArguments.size != 1) throw SemanticException("Need only one int argument to get an array")
+      val arg = indexArguments.first()
+      // push array
+      pushVariable(scope, variable)
+      // push index
+      argumentPusher.pushArgument(arg)
+      // cast if necessary (e.g. Integer to int)
+      castIfNecessaryOrThrow(JavaType.int, arg.type)
+      // push value to set
+      argumentPusher.pushArgument(expression)
+      castIfNecessaryOrThrow(variableType.elementsType, arg.type)
+
+      // load/store value in pushed array int pushed index
+      mv.visitInsn(variableType.arrayStoreCode)
     } else {
       // must call putAt
       pushVariable(scope, variable)
       val putAtArguments = indexArguments + expression
       invokeMethodWithArguments(variable.type.findMethodOrThrow("putAt", putAtArguments), putAtArguments)
     }
-  }
-
-  private fun arrayAccess(scope: Scope, variable: Variable, indexArguments: List<ExpressionNode>, load: Boolean) {
-    val variableType = variable.type as JavaArrayType
-    if (indexArguments.size != 1) throw SemanticException("Need only one int argument to get an array")
-    val arg = indexArguments.first()
-    // push array
-    pushVariable(scope, variable)
-    // push index
-    argumentPusher.pushArgument(arg)
-    // cast if necessary (e.g. Integer to int)
-    castIfNecessaryOrThrow(JavaType.int, arg.type)
-    // load/store value in pushed array int pushed index
-    mv.visitInsn(if (load) variableType.arrayLoadCode else variableType.arrayStoreCode)
   }
 }

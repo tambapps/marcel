@@ -206,8 +206,15 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val token = next()
     return when (token.type) {
       TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_VOID,
-      TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL -> JavaType.TOKEN_TYPE_MAP.getValue(token.type)
+      TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL -> {
+        val type = JavaType.TOKEN_TYPE_MAP.getValue(token.type)
+        if (acceptOptional(TokenType.SQUARE_BRACKETS_OPEN) != null) {
+          accept(TokenType.SQUARE_BRACKETS_CLOSE)
+          JavaType.ARRAYS.find { it.elementsType == type } ?: throw MarcelParsingException("Doesn't handle array of $type")
+        } else type
+      }
       TokenType.IDENTIFIER -> {
+        // TODO parse Object[] type
         val className = scope.resolveClassName(token.value)
         val genericTypes = mutableListOf<JavaType>()
         if (current.type == TokenType.LT) { // generic types

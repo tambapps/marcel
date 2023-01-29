@@ -226,6 +226,8 @@ interface JavaType: AstTypedObject {
     val doubleArray = JavaArrayType(DoubleArray::class.java, double, Opcodes.DASTORE, Opcodes.DALOAD, Opcodes.T_DOUBLE)
     val booleanArray = JavaArrayType(BooleanArray::class.java, boolean, Opcodes.BASTORE, Opcodes.BALOAD, Opcodes.T_BOOLEAN)
     val objectArray = JavaArrayType(Array<Any>::class.java, Object, Opcodes.AALOAD, Opcodes.AASTORE, 0)
+    val ARRAYS = listOf(intArray, longArray, floatArray, doubleArray, booleanArray, objectArray)
+
 
     val PRIMITIVE_CAST_INSTRUCTION_MAP = mapOf(
       Pair(Pair(int, long), Opcodes.I2L),
