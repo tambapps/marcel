@@ -119,6 +119,14 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
       TODO("Doesn't handle comparison for non primitive types for now")
     }
     evaluateOperands(comparisonOperatorNode)
+    val endLabel = Label()
+    val trueLabel = Label()
+    mv.comparisonJump(comparisonOperatorNode.operator, trueLabel)
+    mv.visitInsn(Opcodes.ICONST_0)
+    mv.jumpTo(endLabel)
+    mv.visitLabel(trueLabel)
+    mv.visitInsn(Opcodes.ICONST_1)
+    mv.visitLabel(endLabel)
   }
 
   override fun visit(andOperator: AndOperator) {
@@ -472,7 +480,7 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
       mv.incr(incrNode.variableReference.variable, incrNode.amount)
     } else {
       val ref = incrNode.variableReference
-      VariableAssignmentNode(ref.scope, ref.name, PlusOperator(ref, IntConstantNode(incrNode.amount)))
+      visit(VariableAssignmentNode(ref.scope, ref.name, PlusOperator(ref, IntConstantNode(incrNode.amount))))
     }
   }
 
@@ -542,7 +550,7 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
 
   override fun visit(comparisonOperatorNode: ComparisonOperatorNode) {
     super.visit(comparisonOperatorNode)
-    mv.pop2Stack()
+    mv.popStack()
   }
 
   override fun visit(andOperator: AndOperator) {
@@ -811,18 +819,6 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
     TODO("Implement pow, or call function?")
   }
 
-  override fun visit(comparisonOperatorNode: ComparisonOperatorNode) {
-    super.visit(comparisonOperatorNode)
-    // TODO for now only handling primitive. invoke (a.compareTo(b) > 0) for non object
-    val endLabel = Label()
-    val trueLabel = Label()
-    mv.comparisonJump(comparisonOperatorNode.operator, trueLabel)
-    mv.visitInsn(Opcodes.ICONST_0)
-    mv.jumpTo(endLabel)
-    mv.visitLabel(trueLabel)
-    mv.visitInsn(Opcodes.ICONST_1)
-    mv.visitLabel(endLabel)
-  }
   override fun visit(returnNode: ReturnNode) {
     returnNode.apply {
       if (!returnNode.scope.returnType.isAssignableFrom(expression.type)) {
