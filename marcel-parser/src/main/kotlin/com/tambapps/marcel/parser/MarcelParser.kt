@@ -216,17 +216,22 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       TokenType.IDENTIFIER -> {
         // TODO parse Object[] type
         val className = scope.resolveClassName(token.value)
-        val genericTypes = mutableListOf<JavaType>()
-        if (current.type == TokenType.LT) { // generic types
-          skip()
-          genericTypes.add(parseType(scope))
-          while (current.type == TokenType.COMMA) {
+        if (className == JavaType.Object.className && acceptOptional(TokenType.SQUARE_BRACKETS_OPEN) != null) {
+          accept(TokenType.SQUARE_BRACKETS_CLOSE)
+          JavaType.objectArray
+        } else {
+          val genericTypes = mutableListOf<JavaType>()
+          if (current.type == TokenType.LT) { // generic types
             skip()
             genericTypes.add(parseType(scope))
+            while (current.type == TokenType.COMMA) {
+              skip()
+              genericTypes.add(parseType(scope))
+            }
+            accept(TokenType.GT)
           }
-          accept(TokenType.GT)
+          JavaType.of(className, genericTypes)
         }
-        JavaType.of(className, genericTypes)
       }
       else -> throw UnsupportedOperationException("Doesn't handle type ${token.type}")
     }
@@ -261,7 +266,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         ExpressionStatementNode(block(InnerScope(scope)))
       }
       TokenType.IF -> {
-
         accept(TokenType.LPAR)
         val condition = BooleanExpressionNode(
           if (isTypeToken(current.type) && tokens.getOrNull(currentIndex+1)?.type == TokenType.IDENTIFIER) {
@@ -341,7 +345,8 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       else -> {
         if (token.type == TokenType.IDENTIFIER && current.type == TokenType.IDENTIFIER
             // generic type
-            || token.type == TokenType.IDENTIFIER && current.type == TokenType.LT) {
+            || token.type == TokenType.IDENTIFIER && current.type == TokenType.LT
+          || token.type == TokenType.IDENTIFIER && current.type == TokenType.SQUARE_BRACKETS_OPEN && tokens.getOrNull(currentIndex+ 1)?.type == TokenType.SQUARE_BRACKETS_CLOSE) {
           rollback()
           val type = parseType(scope)
           val variableName = accept(TokenType.IDENTIFIER).value

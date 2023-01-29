@@ -403,7 +403,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
       castIfNecessaryOrThrow(JavaType.int, arg.type)
       // push value to set
       argumentPusher.pushArgument(expression)
-      castIfNecessaryOrThrow(variableType.elementsType, arg.type)
+      castIfNecessaryOrThrow(variableType.elementsType, expression.type)
 
       // load/store value in pushed array int pushed index
       mv.visitInsn(variableType.arrayStoreCode)
