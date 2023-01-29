@@ -214,7 +214,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         } else type
       }
       TokenType.IDENTIFIER -> {
-        // TODO parse Object[] type
         val className = scope.resolveClassName(token.value)
         if (className == JavaType.Object.className && acceptOptional(TokenType.SQUARE_BRACKETS_OPEN) != null) {
           accept(TokenType.SQUARE_BRACKETS_CLOSE)
@@ -596,7 +595,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
 
   private fun operator(scope: Scope, t: TokenType, leftOperand: ExpressionNode, rightOperand: ExpressionNode): ExpressionNode {
     return when(t) {
-      // TODO remove cast because we could have a[i]. Check type in instruction generaor
       TokenType.ASSIGNMENT, TokenType.PLUS_ASSIGNMENT, TokenType.MINUS_ASSIGNMENT, TokenType.MUL_ASSIGNMENT, TokenType.DIV_ASSIGNMENT -> {
         if (t == TokenType.ASSIGNMENT) {
           when (leftOperand) {

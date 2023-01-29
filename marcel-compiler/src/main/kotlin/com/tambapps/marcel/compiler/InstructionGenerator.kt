@@ -471,7 +471,8 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
     if (incrNode.variableReference.type == JavaType.int) {
       mv.incr(incrNode.variableReference.variable, incrNode.amount)
     } else {
-      TODO("Don't support other types than int for increment")
+      val ref = incrNode.variableReference
+      VariableAssignmentNode(ref.scope, ref.name, PlusOperator(ref, IntConstantNode(incrNode.amount)))
     }
   }
 
@@ -812,7 +813,7 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
 
   override fun visit(comparisonOperatorNode: ComparisonOperatorNode) {
     super.visit(comparisonOperatorNode)
-    // TODO for now only handling primitive
+    // TODO for now only handling primitive. invoke (a.compareTo(b) > 0) for non object
     val endLabel = Label()
     val trueLabel = Label()
     mv.comparisonJump(comparisonOperatorNode.operator, trueLabel)
