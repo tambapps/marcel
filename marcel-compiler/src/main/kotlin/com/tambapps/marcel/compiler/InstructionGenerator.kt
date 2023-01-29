@@ -18,6 +18,7 @@ import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
+import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
@@ -205,9 +206,22 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
   }
 
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
-    pushArgument(variableAssignmentNode.expression)
+    var expression = variableAssignmentNode.expression
+    // TODO do same thing on return statements
     val variable = variableAssignmentNode.scope.findVariable(variableAssignmentNode.name)
-    mv.castIfNecessaryOrThrow(variable.type, variableAssignmentNode.expression.type)
+    val variableType = variable.type
+    if (expression is LiteralArrayNode && expression.elements.isEmpty()) {
+      val elementsType = if (variableType is JavaArrayType) variableType.elementsType
+      else if (JavaType.intList.isAssignableFrom(variableType) || JavaType.intSet.isAssignableFrom(variableType)) JavaType.int
+      else if (JavaType.longList.isAssignableFrom(variableType) || JavaType.longSet.isAssignableFrom(variableType)) JavaType.long
+      else if (JavaType.floatList.isAssignableFrom(variableType) || JavaType.floatSet.isAssignableFrom(variableType)) JavaType.float
+      else if (JavaType.doubleList.isAssignableFrom(variableType) || JavaType.doubleSet.isAssignableFrom(variableType)) JavaType.double
+      else if (JavaType.booleanList.isAssignableFrom(variableType) || JavaType.booleanSet.isAssignableFrom(variableType)) JavaType.boolean
+      else throw SemanticException("Couldn't guess type of empty array")
+      expression = EmptyArrayNode(JavaType.arrayType(elementsType))
+    }
+    pushArgument(expression)
+    mv.castIfNecessaryOrThrow(variable.type, expression.type)
     mv.storeInVariable(variable)
   }
 
