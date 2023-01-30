@@ -159,6 +159,9 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
   fun comparisonJump(comparisonOperator: ComparisonOperator, label: Label) {
     mv.visitJumpInsn(comparisonOperator.iOpCode, label)
   }
+  fun jump(opCode: Int, label: Label) {
+    mv.visitJumpInsn(opCode, label)
+  }
 
   fun visitInsn(opCode: Int) {
     mv.visitInsn(opCode)

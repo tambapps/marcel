@@ -1,10 +1,6 @@
 package com.tambapps.marcel.compiler
 
-import com.tambapps.marcel.parser.ast.AstNode
-import com.tambapps.marcel.parser.ast.AstNodeVisitor
-import com.tambapps.marcel.parser.ast.AstVisitor
-import com.tambapps.marcel.parser.ast.MethodNode
-import com.tambapps.marcel.parser.ast.ScopedNode
+import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.BreakLoopNode
 import com.tambapps.marcel.parser.ast.statement.ContinueLoopNode
@@ -116,13 +112,28 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
   }
 
   override fun visit(comparisonOperatorNode: ComparisonOperatorNode) {
-    if (!comparisonOperatorNode.leftOperand.type.primitive || !comparisonOperatorNode.rightOperand.type.primitive) {
-      TODO("Doesn't handle comparison for non primitive types for now")
-    }
-    evaluateOperands(comparisonOperatorNode)
     val endLabel = Label()
     val trueLabel = Label()
-    mv.comparisonJump(comparisonOperatorNode.operator, trueLabel)
+    val operator = comparisonOperatorNode.operator
+    var objectcomparison = false
+    if (!comparisonOperatorNode.leftOperand.type.primitive && !comparisonOperatorNode.rightOperand.type.primitive) {
+      objectcomparison = true
+      pushArgument(comparisonOperatorNode.leftOperand)
+      mv.castIfNecessaryOrThrow(JavaType.Object, comparisonOperatorNode.leftOperand.type)
+      pushArgument(comparisonOperatorNode.rightOperand)
+      mv.castIfNecessaryOrThrow(JavaType.Object, comparisonOperatorNode.rightOperand.type)
+      if ((comparisonOperatorNode.leftOperand is NullValueNode || comparisonOperatorNode.rightOperand is NullValueNode)
+          && operator != ComparisonOperator.EQUAL && operator != ComparisonOperator.NOT_EQUAL) {
+        throw SemanticException("Cannot compare null value with ${operator.symbolString} operator")
+      } else {
+        TODO("Cannot compare two objects yet")
+      }
+    } else if (comparisonOperatorNode.leftOperand.type == JavaType.int && comparisonOperatorNode.rightOperand.type == JavaType.int) {
+      evaluateOperands(comparisonOperatorNode)
+    } else {
+      TODO("Doesn't handle comparison for non primitive types for now")
+    }
+    mv.jump(if (objectcomparison) comparisonOperatorNode.operator.objectOpCode else comparisonOperatorNode.operator.iOpCode, trueLabel)
     mv.visitInsn(Opcodes.ICONST_0)
     mv.jumpTo(endLabel)
     mv.visitLabel(trueLabel)
