@@ -135,8 +135,12 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
             if (operator == ComparisonOperator.NOT_EQUAL) mv.not()
             return // the above method returns a boolean
           }
-          else -> mv.invokeMethod(leftOperand.type
-              .findMethodOrThrow("compareTo", listOf(rightOperand.type))) // TODO doesn't work
+          else -> {
+            // TODO doesn't work
+            val method = leftOperand.type.findMethodOrThrow("compareTo", listOf(rightOperand.type))
+            if (method.returnType != JavaType.int) throw SemanticException("compareTo method should return an int in order to be used in comparator")
+            mv.invokeMethod(method)
+          }
         }
       }
     } else if (leftOperand.type == JavaType.int && rightOperand.type == JavaType.int) {
