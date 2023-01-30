@@ -117,21 +117,30 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
     val operator = comparisonOperatorNode.operator
     var objectcomparison = false
     if (!comparisonOperatorNode.leftOperand.type.primitive && !comparisonOperatorNode.rightOperand.type.primitive) {
-      objectcomparison = true
       pushArgument(comparisonOperatorNode.leftOperand)
       mv.castIfNecessaryOrThrow(JavaType.Object, comparisonOperatorNode.leftOperand.type)
       pushArgument(comparisonOperatorNode.rightOperand)
       mv.castIfNecessaryOrThrow(JavaType.Object, comparisonOperatorNode.rightOperand.type)
-      if ((comparisonOperatorNode.leftOperand is NullValueNode || comparisonOperatorNode.rightOperand is NullValueNode)
-          && operator != ComparisonOperator.EQUAL && operator != ComparisonOperator.NOT_EQUAL) {
-        throw SemanticException("Cannot compare null value with ${operator.symbolString} operator")
+      if ((comparisonOperatorNode.leftOperand is NullValueNode || comparisonOperatorNode.rightOperand is NullValueNode)) {
+        objectcomparison = true
+        if (operator != ComparisonOperator.EQUAL && operator != ComparisonOperator.NOT_EQUAL) {
+          throw SemanticException("Cannot compare null value with ${operator.symbolString} operator")
+        }
       } else {
-        TODO("Cannot compare two objects yet")
+        when (operator) {
+          ComparisonOperator.EQUAL, ComparisonOperator.NOT_EQUAL -> {
+            mv.invokeMethod(BytecodeHelper::class.java.getDeclaredMethod("objectsEqual", JavaType.Object.realClazz, JavaType.Object.realClazz))
+            if (operator == ComparisonOperator.NOT_EQUAL) mv.not()
+            return // the above method returns a boolean
+          }
+          else -> mv.invokeMethod(comparisonOperatorNode.leftOperand.type
+              .findMethodOrThrow("compareTo", listOf(comparisonOperatorNode.rightOperand.type)))
+        }
       }
     } else if (comparisonOperatorNode.leftOperand.type == JavaType.int && comparisonOperatorNode.rightOperand.type == JavaType.int) {
       evaluateOperands(comparisonOperatorNode)
     } else {
-      TODO("Doesn't handle comparison for non primitive types for now")
+      TODO("Doesn't handle comparison for non int primitive types for now")
     }
     mv.jump(if (objectcomparison) comparisonOperatorNode.operator.objectOpCode else comparisonOperatorNode.operator.iOpCode, trueLabel)
     mv.visitInsn(Opcodes.ICONST_0)

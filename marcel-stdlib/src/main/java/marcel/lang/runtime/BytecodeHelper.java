@@ -82,4 +82,14 @@ public final class BytecodeHelper {
   public static Map<?, ?> newObject2ObjectMap() {
     return new HashMap<>();
   }
+
+  public static boolean objectsEqual(Object left, Object right) {
+    if (left == right) return true;
+    if (left == null) return right == null;
+    if (right == null) return left == null;
+
+    return left.equals(right);
+
+    // TODO handle arrays, handle list with arrays comparison
+  }
 }
