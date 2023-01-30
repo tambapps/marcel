@@ -59,6 +59,12 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
     mv.visitLabel(endLabel)
   }
 
+  override fun visit(elvisOperator: ElvisOperator) {
+    visit(TernaryNode(
+      BooleanExpressionNode(elvisOperator.leftOperand),
+      elvisOperator.leftOperand, elvisOperator.rightOperand
+    ))
+  }
 
   override fun visit(fCall: ConstructorCallNode) {
     if (fCall.type.primitive) {

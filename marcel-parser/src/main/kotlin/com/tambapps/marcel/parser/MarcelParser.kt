@@ -370,10 +370,16 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   private fun completedExpression(scope: Scope, expr: ExpressionNode): ExpressionNode {
     if (current.type == TokenType.QUESTION_MARK) {
       skip()
-      val trueExpr = expression(scope)
-      accept(TokenType.COLON)
-      val falseExpr = expression(scope)
-      return TernaryNode(BooleanExpressionNode(expr), trueExpr, falseExpr)
+      if (current.type == TokenType.COLON) {
+        skip()
+        val onNullExpression = expression(scope)
+        return ElvisOperator(expr, onNullExpression)
+      } else {
+        val trueExpr = expression(scope)
+        accept(TokenType.COLON)
+        val falseExpr = expression(scope)
+        return TernaryNode(BooleanExpressionNode(expr), trueExpr, falseExpr)
+      }
     } else if (current.type == TokenType.AS) {
       skip()
       val type = parseType(scope)
@@ -622,7 +628,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       TokenType.OR -> OrOperator(leftOperand, rightOperand)
       TokenType.LEFT_SHIFT -> LeftShiftOperator(leftOperand, rightOperand)
       TokenType.RIGHT_SHIFT -> RightShiftOperator(leftOperand, rightOperand)
-      TokenType.EQUAL, TokenType.NOT_EQUAL, TokenType.LT, TokenType.GT, TokenType.LOE, TokenType.GOE -> ComparisonOperatorNode(t, leftOperand, rightOperand)
+      TokenType.EQUAL, TokenType.NOT_EQUAL, TokenType.LT, TokenType.GT, TokenType.LOE, TokenType.GOE -> ComparisonOperatorNode(ComparisonOperator.fromTokenType(t), leftOperand, rightOperand)
       TokenType.DOT -> when (rightOperand) {
         is FunctionCallNode -> InvokeAccessOperator(leftOperand, rightOperand)
         is ReferenceExpression -> GetFieldAccessOperator(leftOperand, rightOperand)

@@ -18,6 +18,8 @@ interface AstNodeVisitor {
   fun visit(doubleConstantNode: DoubleConstantNode)
   fun visit(operator: MulOperator)
   fun visit(operator: TernaryNode)
+  fun visit(elvisOperator: ElvisOperator)
+
   fun visit(fCall: FunctionCallNode)
   fun visit(fCall: ConstructorCallNode)
   fun visit(fCall: SuperConstructorCallNode)

@@ -122,10 +122,9 @@ class GetFieldAccessOperator(leftOperand: ExpressionNode, override val rightOper
   }
 }
 
-class ComparisonOperatorNode(tokenType: TokenType, leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
+class ComparisonOperatorNode(val operator: ComparisonOperator, leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   BinaryOperatorNode(leftOperand, rightOperand) {
 
-  val operator = ComparisonOperator.fromTokenType(tokenType)
   override val type = JavaType.boolean
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)
@@ -181,5 +180,17 @@ class RightShiftOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNo
 
   override fun toString(): String {
     return "$leftOperand << $rightOperand"
+  }
+}
+
+class ElvisOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode):
+  BinaryOperatorNode(leftOperand, rightOperand) {
+  override val type = JavaType.commonType(leftOperand, rightOperand)
+  override fun accept(astNodeVisitor: AstNodeVisitor) {
+    astNodeVisitor.visit(this)
+  }
+
+  override fun toString(): String {
+    return "$leftOperand ?: $rightOperand"
   }
 }
