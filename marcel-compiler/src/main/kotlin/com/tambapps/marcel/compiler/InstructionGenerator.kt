@@ -865,7 +865,7 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
 
   override fun visit(operator: PowOperator) {
     super.visit(operator)
-    TODO("Implement pow, or call function?")
+    throw UnsupportedOperationException("Doesn't handle power operator for now (or ever?)")
   }
 
   override fun visit(returnNode: ReturnNode) {

@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 // TODO do some inline or function aliases for methods like leftShift (may need to do JavaType refacto first)
-// TODO add visitor for inline functions?
+//  add visitor for inline functions?
 public final class DefaultMarcelMethods {
 
   public static void reverse(List<?> list) {
