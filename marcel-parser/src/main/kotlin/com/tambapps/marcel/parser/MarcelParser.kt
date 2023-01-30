@@ -455,7 +455,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         } else if (current.type == TokenType.LT  && tokens.getOrNull(currentIndex + 1)?.type == TokenType.TWO_DOTS
           || current.type == TokenType.GT && tokens.getOrNull(currentIndex + 1)?.type == TokenType.TWO_DOTS || current.type == TokenType.TWO_DOTS) {
           rangeNode(scope, ReferenceExpression(scope, token.value))
-        } else if (current.type == TokenType.SQUARE_BRACKETS_OPEN) {
+        } else if (current.type == TokenType.SQUARE_BRACKETS_OPEN
+          || (current.type == TokenType.QUESTION_MARK && tokens.getOrNull(currentIndex+1)?.type == TokenType.SQUARE_BRACKETS_OPEN)) {
+          val isSafeIndex = acceptOptional(TokenType.QUESTION_MARK) != null
           skip()
           val indexArguments = mutableListOf<ExpressionNode>()
           while (current.type != TokenType.SQUARE_BRACKETS_CLOSE) {
@@ -463,7 +465,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
             if (current.type == TokenType.COMMA) skip()
           }
           skip() // skip brackets close
-          IndexedReferenceExpression(scope, token.value, indexArguments)
+          IndexedReferenceExpression(scope, token.value, indexArguments, isSafeIndex)
         } else {
           ReferenceExpression(scope, token.value)
         }

@@ -8,7 +8,7 @@ import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaType
 
 class IndexedReferenceExpression(override var scope: Scope, val name: String,
-  val indexArguments: List<ExpressionNode>): ExpressionNode, ScopedNode<Scope> {
+  val indexArguments: List<ExpressionNode>, val isSafeIndex: Boolean): ExpressionNode, ScopedNode<Scope> {
 
   val variable: Variable
     get() = scope.findVariable(name)

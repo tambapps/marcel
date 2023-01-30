@@ -294,6 +294,9 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
     )
   }
   override fun visit(indexedReferenceExpression: IndexedReferenceExpression) {
+    if (indexedReferenceExpression.isSafeIndex) {
+      // TODO push a ternary that checking if index is between 0 and size()
+    }
     mv.pushVariableGetAt(indexedReferenceExpression.scope, indexedReferenceExpression.variable,
       indexedReferenceExpression.indexArguments)
   }
