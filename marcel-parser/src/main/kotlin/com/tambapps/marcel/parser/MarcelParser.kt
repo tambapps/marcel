@@ -634,6 +634,11 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         is ReferenceExpression -> GetFieldAccessOperator(leftOperand, rightOperand)
         else -> throw MarcelParsingException("Can only handle function calls and fields with dot operators")
       }
+      TokenType.QUESTION_DOT -> when (rightOperand) {
+        is FunctionCallNode -> NullSafeInvokeAccessOperator(leftOperand, rightOperand)
+        is ReferenceExpression -> NullSafeGetFieldAccessOperator(leftOperand, rightOperand)
+        else -> throw MarcelParsingException("Can only handle function calls and fields with dot operators")
+      }
       else -> throw MarcelParsingException("Doesn't handle operator with token type $t")
     }
   }

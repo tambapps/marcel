@@ -288,6 +288,7 @@ LONELY_BACKTICK=`
 "*="          { return token(MUL_ASSIGNMENT); }
 "/="          { return token(DIV_ASSIGNMENT); }
 ".."          { return token(TWO_DOTS); }
+"?."          { return token(QUESTION_DOT); }
 
 {IDENTIFIER} {  return valueToken(IDENTIFIER); }
 

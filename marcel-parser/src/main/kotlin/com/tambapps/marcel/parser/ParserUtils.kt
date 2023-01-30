@@ -10,6 +10,7 @@ object ParserUtils {
   private val PRIORITY_MAP = mapOf(
     Pair(POWER, 1),
     Pair(DOT, 1),
+    Pair(QUESTION_DOT, 1),
     Pair(NOT, 1),
     Pair(MUL, 2),
     Pair(DIV, 2),
