@@ -73,8 +73,7 @@ data class BooleanConstantNode(val value: Boolean): ExpressionNode {
 
 class NullValueNode(override val type: JavaType): ExpressionNode {
 
-  // treating null as void. Might not be appropriate in some cases though
-  constructor(): this(JavaType.void)
+  constructor(): this(JavaType.Object)
 
   override fun accept(astNodeVisitor: AstNodeVisitor) {
     astNodeVisitor.visit(this)
