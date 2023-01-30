@@ -726,6 +726,7 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
       mv.castIfNecessaryOrThrow(JavaType.boolean, booleanExpression.innerExpression.type)
     } else if (booleanExpression.innerExpression.type.primitive) {
       // according to marcel truth, all primitive are truthy
+      booleanExpression.innerExpression.accept(instructionGenerator)
       visit(BooleanConstantNode(true))
     } else {
       mv.invokeMethodWithArguments(MarcelTruth::class.java.getDeclaredMethod("truthy", Object::class.java), booleanExpression.innerExpression)
