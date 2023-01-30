@@ -118,7 +118,7 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
     val trueLabel = Label()
     val operator = comparisonOperatorNode.operator
     var objectcomparison = false
-    if (!leftOperand.type.primitive && !rightOperand.type.primitive) {
+    if (!leftOperand.type.primitive || !rightOperand.type.primitive) {
       pushArgument(leftOperand)
       mv.castIfNecessaryOrThrow(JavaType.Object, leftOperand.type)
       pushArgument(rightOperand)
@@ -143,10 +143,31 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
           }
         }
       }
-    } else if (leftOperand.type == JavaType.int && rightOperand.type == JavaType.int) {
-      evaluateOperands(comparisonOperatorNode)
     } else {
-      TODO("Doesn't handle comparison for non int primitive types for now")
+      if (leftOperand.type != JavaType.int || rightOperand.type != JavaType.int) {
+        val otherType = if (leftOperand.type != JavaType.int) leftOperand.type else rightOperand.type
+        pushArgument(leftOperand)
+        mv.castIfNecessaryOrThrow(otherType, leftOperand.type)
+        pushArgument(rightOperand)
+        mv.castIfNecessaryOrThrow(otherType, rightOperand.type)
+        when (otherType) {
+          JavaType.double -> {
+            // could also be DCMPG.
+            // If at least one of value1' or value2' is NaN. The dcmpg instruction pushes the int value 1 onto the operand stack and the dcmpl instruction pushes the int value -1 onto the operand stack.
+            mv.visitInsn(Opcodes.DCMPL)
+          }
+          JavaType.float -> {
+            mv.visitInsn(Opcodes.FCMPL)
+          }
+          JavaType.long -> {
+            mv.visitInsn(Opcodes.LCMP)
+          }
+          else -> throw UnsupportedOperationException("Doesn't handle comparison of primitive type $otherType")
+        }
+        mv.pushConstant(0) // pushing 0 because we're comparing two numbers below
+      } else {
+        evaluateOperands(comparisonOperatorNode)
+      }
     }
     mv.jump(if (objectcomparison) comparisonOperatorNode.operator.objectOpCode else comparisonOperatorNode.operator.iOpCode, trueLabel)
     mv.visitInsn(Opcodes.ICONST_0)
