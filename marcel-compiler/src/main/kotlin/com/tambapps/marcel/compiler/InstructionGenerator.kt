@@ -112,16 +112,18 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
   }
 
   override fun visit(comparisonOperatorNode: ComparisonOperatorNode) {
+    val leftOperand = comparisonOperatorNode.leftOperand
+    val rightOperand = comparisonOperatorNode.rightOperand
     val endLabel = Label()
     val trueLabel = Label()
     val operator = comparisonOperatorNode.operator
     var objectcomparison = false
-    if (!comparisonOperatorNode.leftOperand.type.primitive && !comparisonOperatorNode.rightOperand.type.primitive) {
-      pushArgument(comparisonOperatorNode.leftOperand)
-      mv.castIfNecessaryOrThrow(JavaType.Object, comparisonOperatorNode.leftOperand.type)
-      pushArgument(comparisonOperatorNode.rightOperand)
-      mv.castIfNecessaryOrThrow(JavaType.Object, comparisonOperatorNode.rightOperand.type)
-      if ((comparisonOperatorNode.leftOperand is NullValueNode || comparisonOperatorNode.rightOperand is NullValueNode)) {
+    if (!leftOperand.type.primitive && !rightOperand.type.primitive) {
+      pushArgument(leftOperand)
+      mv.castIfNecessaryOrThrow(JavaType.Object, leftOperand.type)
+      pushArgument(rightOperand)
+      mv.castIfNecessaryOrThrow(JavaType.Object, rightOperand.type)
+      if ((leftOperand is NullValueNode || rightOperand is NullValueNode)) {
         objectcomparison = true
         if (operator != ComparisonOperator.EQUAL && operator != ComparisonOperator.NOT_EQUAL) {
           throw SemanticException("Cannot compare null value with ${operator.symbolString} operator")
@@ -133,11 +135,11 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
             if (operator == ComparisonOperator.NOT_EQUAL) mv.not()
             return // the above method returns a boolean
           }
-          else -> mv.invokeMethod(comparisonOperatorNode.leftOperand.type
-              .findMethodOrThrow("compareTo", listOf(comparisonOperatorNode.rightOperand.type)))
+          else -> mv.invokeMethod(leftOperand.type
+              .findMethodOrThrow("compareTo", listOf(rightOperand.type))) // TODO doesn't work
         }
       }
-    } else if (comparisonOperatorNode.leftOperand.type == JavaType.int && comparisonOperatorNode.rightOperand.type == JavaType.int) {
+    } else if (leftOperand.type == JavaType.int && rightOperand.type == JavaType.int) {
       evaluateOperands(comparisonOperatorNode)
     } else {
       TODO("Doesn't handle comparison for non int primitive types for now")
