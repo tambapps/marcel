@@ -66,9 +66,12 @@ class ExecuteCommand(private val scriptArguments: Array<String>) : CliktCommand(
     JarWriter().writeScriptJar(result.className, result.bytes, jarFile)
 
     val classLoader = URLClassLoader(arrayOf(jarFile.toURI().toURL()), MarcelCompiler::class.java.classLoader)
-    val script = classLoader.loadClass(result.className).getDeclaredConstructor().newInstance() as Script
     try {
-      script.run(scriptArguments)
+      val clazz = classLoader.loadClass(result.className)
+      if (Script::class.java.isAssignableFrom(clazz)) {
+        val script = clazz.getDeclaredConstructor().newInstance() as Script
+        script.run(scriptArguments)
+      }
     } finally {
       if (!keepJarFile) {
         jarFile.delete()

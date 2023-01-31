@@ -2,6 +2,7 @@ package com.tambapps.marcel.parser
 
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.lexer.TokenType.*
+import org.objectweb.asm.Opcodes
 
 object ParserUtils {
 
@@ -36,6 +37,12 @@ object ParserUtils {
 
   private val RIGHT_ASSOCIATIVITY_OPERATOR = listOf(POWER, ASSIGNMENT)
 
+  val TOKEN_VISIBILITY_MAP = mapOf(
+    Pair(VISIBILITY_PUBLIC, Opcodes.ACC_PUBLIC),
+    Pair(VISIBILITY_PROTECTED, Opcodes.ACC_PROTECTED),
+    Pair(VISIBILITY_INTERNAL, 0),
+    Pair(VISIBILITY_PRIVATE, Opcodes.ACC_PRIVATE)
+  )
   fun isBinaryOperator(t: TokenType): Boolean {
     return t in PRIORITY_MAP.keys
   }

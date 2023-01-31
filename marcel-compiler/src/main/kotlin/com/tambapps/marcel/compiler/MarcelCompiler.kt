@@ -31,6 +31,7 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
   }
 
   private fun compile(moduleNode: ModuleNode): CompilationResult {
+    if (moduleNode.classes.size > 1) throw UnsupportedOperationException("Doesn't support definition of multiple classes in one file")
     // handling only one class for now
     val classNode = moduleNode.classes.first()
     val classWriter = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)

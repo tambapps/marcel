@@ -49,7 +49,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
 
 
   fun parse(): ModuleNode {
-    // TODO parse class and then extension classes
     val imports = mutableListOf<ImportNode>()
     imports.addAll(Scope.DEFAULT_IMPORTS)
 
@@ -57,12 +56,37 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       imports.add(import())
     }
 
-
-    val node = script(imports)
-    return node
+    val moduleNode = ModuleNode()
+    while (current.type != TokenType.END_OF_FILE) {
+      if (current.type == TokenType.CLASS ||
+        lookup(1)?.type == TokenType.CLASS) {
+        moduleNode.classes.add(parseClass(imports))
+      } else {
+        moduleNode.classes.add(script(imports))
+      }
+    }
+    return moduleNode
   }
 
-  fun script(imports: MutableList<ImportNode>): ModuleNode {
+  private fun parseClass(imports: MutableList<ImportNode>): ClassNode {
+    val visibilityFlag = ParserUtils.TOKEN_VISIBILITY_MAP[acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE)?.type ?: TokenType.VISIBILITY_PUBLIC]!!
+    accept(TokenType.CLASS)
+    val className = accept(TokenType.IDENTIFIER).value
+    // TODO parse optional super type and interfaces
+    val classType = JavaType.defineClass(className, JavaType.Object, false)
+    val classScope = Scope(imports, classType, AsmUtils.getInternalName(JavaType.Object))
+    val methods = mutableListOf<MethodNode>()
+    val classNode = ClassNode(classScope, visibilityFlag, classType, JavaType.Object, methods)
+    accept(TokenType.BRACKETS_OPEN)
+
+    while (current.type != TokenType.BRACKETS_CLOSE) {
+      methods.add(method(classNode))
+    }
+    skip()
+    return classNode
+  }
+
+  private fun script(imports: MutableList<ImportNode>): ClassNode {
     val classMethods = mutableListOf<MethodNode>()
     val superType = JavaType.of(Script::class.java)
     val className = classSimpleName
@@ -97,7 +121,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     classMethods.add(runFunction)
     val classNode = ClassNode(classScope,
       Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, classType, JavaType.of(Script::class.java), classMethods)
-    val moduleNode = ModuleNode(mutableListOf(classNode))
 
     while (current.type != TokenType.END_OF_FILE) {
       when (current.type) {
@@ -114,7 +137,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       }
     }
     classMethods.forEach { classType.defineMethod(it) }
-    return moduleNode
+    return classNode
   }
 
   private fun import(): ImportNode {
@@ -151,16 +174,8 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   internal fun method(classNode: ClassNode): MethodNode {
     val classScope = classNode.scope
     val staticFlag = if (acceptOptional(TokenType.STATIC) != null) Opcodes.ACC_STATIC else 0
-    val accessTokenType = acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE)?.type
-      ?: TokenType.VISIBILITY_PUBLIC
     val isInline = acceptOptional(TokenType.INLINE) != null
-    val visibilityFlag = when (accessTokenType) {
-      TokenType.VISIBILITY_PUBLIC -> Opcodes.ACC_PUBLIC
-      TokenType.VISIBILITY_PROTECTED -> Opcodes.ACC_PROTECTED
-      TokenType.VISIBILITY_INTERNAL -> 0
-      TokenType.VISIBILITY_PRIVATE -> Opcodes.ACC_PRIVATE
-      else -> throw MarcelParsingException("Unexpected token encountered")
-    }
+    val visibilityFlag = ParserUtils.TOKEN_VISIBILITY_MAP[acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE)?.type ?: TokenType.VISIBILITY_PUBLIC]!!
     accept(TokenType.FUN)
     val methodName = accept(TokenType.IDENTIFIER).value
     accept(TokenType.LPAR)
