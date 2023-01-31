@@ -682,6 +682,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       skip()
       parts.add(accept(TokenType.IDENTIFIER).value)
     }
+    acceptOptional(TokenType.SEMI_COLON)
     return parts.joinToString(separator = ".")
   }
 
