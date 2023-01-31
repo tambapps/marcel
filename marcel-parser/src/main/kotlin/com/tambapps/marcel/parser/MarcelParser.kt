@@ -69,14 +69,15 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   }
 
   private fun parseClass(imports: MutableList<ImportNode>): ClassNode {
-    val visibilityFlag = ParserUtils.TOKEN_VISIBILITY_MAP[acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE)?.type ?: TokenType.VISIBILITY_PUBLIC]!!
+    val (access, isInline) = parseAccess()
+    if (isInline) throw MarcelParsingException("Cannot use 'inline' keyword for a class")
     accept(TokenType.CLASS)
     val className = accept(TokenType.IDENTIFIER).value
     // TODO parse optional super type and interfaces
     val classType = JavaType.defineClass(className, JavaType.Object, false)
     val classScope = Scope(imports, classType, AsmUtils.getInternalName(JavaType.Object))
     val methods = mutableListOf<MethodNode>()
-    val classNode = ClassNode(classScope, visibilityFlag, classType, JavaType.Object, methods)
+    val classNode = ClassNode(classScope, access, classType, JavaType.Object, methods)
     accept(TokenType.BRACKETS_OPEN)
 
     while (current.type != TokenType.BRACKETS_CLOSE) {
@@ -173,9 +174,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
 
   internal fun method(classNode: ClassNode): MethodNode {
     val classScope = classNode.scope
-    val staticFlag = if (acceptOptional(TokenType.STATIC) != null) Opcodes.ACC_STATIC else 0
-    val isInline = acceptOptional(TokenType.INLINE) != null
-    val visibilityFlag = ParserUtils.TOKEN_VISIBILITY_MAP[acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE)?.type ?: TokenType.VISIBILITY_PUBLIC]!!
+    val (access, isInline) = parseAccess()
     accept(TokenType.FUN)
     val methodName = accept(TokenType.IDENTIFIER).value
     accept(TokenType.LPAR)
@@ -198,11 +197,18 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val returnType = if (current.type != TokenType.BRACKETS_OPEN) parseType(classScope) else JavaType.void
     val statements = mutableListOf<StatementNode>()
     val methodScope = MethodScope(classScope, methodName, parameters, returnType)
-    val methodNode = MethodNode(staticFlag or visibilityFlag, classNode.type, methodName, FunctionBlockNode(methodScope, statements), parameters, returnType, methodScope, isInline)
+    val methodNode = MethodNode(access, classNode.type, methodName, FunctionBlockNode(methodScope, statements), parameters, returnType, methodScope, isInline)
     statements.addAll(block(methodScope).statements)
     return methodNode
   }
 
+
+  private fun parseAccess(): Pair<Int, Boolean> {
+    val staticFlag = if (acceptOptional(TokenType.STATIC) != null) Opcodes.ACC_STATIC else 0
+    val isInline = acceptOptional(TokenType.INLINE) != null
+    val visibilityFlag = ParserUtils.TOKEN_VISIBILITY_MAP[acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE)?.type ?: TokenType.VISIBILITY_PUBLIC]!!
+    return Pair(staticFlag or visibilityFlag, isInline)
+  }
 
   fun block(scope: MethodScope): BlockNode {
     accept(TokenType.BRACKETS_OPEN)
