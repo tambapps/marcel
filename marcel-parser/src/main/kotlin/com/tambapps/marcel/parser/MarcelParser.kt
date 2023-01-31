@@ -269,7 +269,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       TokenType.IF -> {
         accept(TokenType.LPAR)
         val condition = BooleanExpressionNode(
-          if (isTypeToken(current.type) && tokens.getOrNull(currentIndex+1)?.type == TokenType.IDENTIFIER) {
+          if (isTypeToken(current.type) && lookup(1)?.type == TokenType.IDENTIFIER) {
             val type = parseType(scope)
             val variableName = accept(TokenType.IDENTIFIER).value
             accept(TokenType.ASSIGNMENT)
@@ -302,7 +302,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       }
       TokenType.FOR -> {
         accept(TokenType.LPAR)
-        if (tokens.getOrNull(currentIndex + 1)?.type == TokenType.IDENTIFIER && tokens.getOrNull(currentIndex + 2)?.type == TokenType.IN) {
+        if (lookup(1)?.type == TokenType.IDENTIFIER && lookup(2)?.type == TokenType.IN) {
           // for in statement
           val type = parseType(scope)
           val identifier = accept(TokenType.IDENTIFIER).value
@@ -347,7 +347,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         if (token.type == TokenType.IDENTIFIER && current.type == TokenType.IDENTIFIER
             // generic type
             || token.type == TokenType.IDENTIFIER && current.type == TokenType.LT
-          || token.type == TokenType.IDENTIFIER && current.type == TokenType.SQUARE_BRACKETS_OPEN && tokens.getOrNull(currentIndex+ 1)?.type == TokenType.SQUARE_BRACKETS_CLOSE) {
+          || token.type == TokenType.IDENTIFIER && current.type == TokenType.SQUARE_BRACKETS_OPEN && lookup( 1)?.type == TokenType.SQUARE_BRACKETS_CLOSE) {
           rollback()
           val type = parseType(scope)
           val variableName = accept(TokenType.IDENTIFIER).value
@@ -454,11 +454,11 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         else if (current.type == TokenType.LPAR) {
           skip()
           FunctionCallNode(scope, token.value, parseFunctionArguments(scope))
-        } else if (current.type == TokenType.LT  && tokens.getOrNull(currentIndex + 1)?.type == TokenType.TWO_DOTS
-          || current.type == TokenType.GT && tokens.getOrNull(currentIndex + 1)?.type == TokenType.TWO_DOTS || current.type == TokenType.TWO_DOTS) {
+        } else if (current.type == TokenType.LT  && lookup(1)?.type == TokenType.TWO_DOTS
+          || current.type == TokenType.GT && lookup(1)?.type == TokenType.TWO_DOTS || current.type == TokenType.TWO_DOTS) {
           rangeNode(scope, ReferenceExpression(scope, token.value))
         } else if (current.type == TokenType.SQUARE_BRACKETS_OPEN
-          || (current.type == TokenType.QUESTION_MARK && tokens.getOrNull(currentIndex+1)?.type == TokenType.SQUARE_BRACKETS_OPEN)) {
+          || (current.type == TokenType.QUESTION_MARK && lookup(1)?.type == TokenType.SQUARE_BRACKETS_OPEN)) {
           val isSafeIndex = acceptOptional(TokenType.QUESTION_MARK) != null
           skip()
           val indexArguments = mutableListOf<ExpressionNode>()
@@ -480,8 +480,8 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
           throw MarcelParsingException("Parenthesis should be close")
         }
         next()
-        if (current.type == TokenType.LT  && tokens.getOrNull(currentIndex + 1)?.type == TokenType.TWO_DOTS
-          || current.type == TokenType.GT && tokens.getOrNull(currentIndex + 1)?.type == TokenType.TWO_DOTS || current.type == TokenType.TWO_DOTS) {
+        if (current.type == TokenType.LT  && lookup(1)?.type == TokenType.TWO_DOTS
+          || current.type == TokenType.GT && lookup(1)?.type == TokenType.TWO_DOTS || current.type == TokenType.TWO_DOTS) {
           return rangeNode(scope, ReferenceExpression(scope, token.value))
         }
         return node
@@ -696,6 +696,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     return tokens[currentIndex++]
   }
 
+  private fun lookup(howFar: Int): LexToken? {
+    return tokens.getOrNull(currentIndex + howFar)
+  }
   fun reset() {
     currentIndex = 0
   }
