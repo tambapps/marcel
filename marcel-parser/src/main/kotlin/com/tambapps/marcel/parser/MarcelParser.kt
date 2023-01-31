@@ -49,6 +49,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
 
 
   fun parse(): ModuleNode {
+    // TODO parse class and then extension classes
     val node = script()
     return node
   }
