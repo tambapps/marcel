@@ -50,18 +50,19 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
 
   fun parse(): ModuleNode {
     // TODO parse class and then extension classes
-    val node = script()
-    return node
-  }
-
-  fun script(): ModuleNode {
-
     val imports = mutableListOf<ImportNode>()
     imports.addAll(Scope.DEFAULT_IMPORTS)
 
     while (current.type == TokenType.IMPORT) {
       imports.add(import())
     }
+
+
+    val node = script(imports)
+    return node
+  }
+
+  fun script(imports: MutableList<ImportNode>): ModuleNode {
     val classMethods = mutableListOf<MethodNode>()
     val superType = JavaType.of(Script::class.java)
     val className = classSimpleName
