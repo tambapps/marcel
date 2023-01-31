@@ -49,6 +49,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
 
 
   fun parse(): ModuleNode {
+    val packageName =
+      if (current.type == TokenType.PACKAGE) parsePackage()
+      else null
     val imports = mutableListOf<ImportNode>()
     imports.addAll(Scope.DEFAULT_IMPORTS)
 
@@ -61,20 +64,21 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       if (current.type == TokenType.CLASS
         || lookup(1)?.type == TokenType.CLASS
         || lookup(2)?.type == TokenType.CLASS) {
-        moduleNode.classes.add(parseClass(imports))
+        moduleNode.classes.add(parseClass(imports, packageName))
       } else {
-        moduleNode.classes.add(script(imports))
+        moduleNode.classes.add(script(imports, packageName))
       }
     }
     return moduleNode
   }
 
-  private fun parseClass(imports: MutableList<ImportNode>): ClassNode {
+  private fun parseClass(imports: MutableList<ImportNode>, packageName: String?): ClassNode {
     val (access, isInline) = parseAccess()
     if (isInline) throw MarcelParsingException("Cannot use 'inline' keyword for a class")
     val isExtensionClass = acceptOptional(TokenType.EXTENSION) != null
     accept(TokenType.CLASS)
-    val className = accept(TokenType.IDENTIFIER).value
+    val classSimpleName = accept(TokenType.IDENTIFIER).value
+    val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
     // TODO parse optional super type and interfaces
     val classType = JavaType.defineClass(className, JavaType.Object, false)
     val classScope = Scope(imports, classType, AsmUtils.getInternalName(JavaType.Object))
@@ -89,10 +93,10 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     return classNode
   }
 
-  private fun script(imports: MutableList<ImportNode>): ClassNode {
+  private fun script(imports: MutableList<ImportNode>, packageName: String?): ClassNode {
     val classMethods = mutableListOf<MethodNode>()
     val superType = JavaType.of(Script::class.java)
-    val className = classSimpleName
+    val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
     val classType = JavaType.defineClass(className, superType, false)
     val classScope = Scope(imports, classType, AsmUtils.getInternalName(superType))
     val runScope = MethodScope(classScope, className, emptyList(), JavaType.Object)
@@ -669,6 +673,16 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
       }
       else -> throw MarcelParsingException("Doesn't handle operator with token type $t")
     }
+  }
+
+  private fun parsePackage(): String {
+    accept(TokenType.PACKAGE)
+    val parts = mutableListOf<String>(accept(TokenType.IDENTIFIER).value)
+    while (current.type == TokenType.DOT) {
+      skip()
+      parts.add(accept(TokenType.IDENTIFIER).value)
+    }
+    return parts.joinToString(separator = ".")
   }
 
   private fun accept(t: TokenType): LexToken {

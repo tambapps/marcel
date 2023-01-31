@@ -269,6 +269,7 @@ LONELY_BACKTICK=`
 "internal"          { return token(VISIBILITY_INTERNAL); }
 "private"          { return token(VISIBILITY_PRIVATE); }
 "static"          { return token(STATIC); }
+"package"          { return token(PACKAGE); }
 "class"          { return token(CLASS); }
 "extension"          { return token(EXTENSION); }
 "fun"          { return token(FUN); }
