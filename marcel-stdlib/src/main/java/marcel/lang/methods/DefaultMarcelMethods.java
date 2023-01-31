@@ -19,7 +19,8 @@ import java.util.List;
 //  add visitor for inline functions?
 public final class DefaultMarcelMethods {
 
-  public static void reverse(List<?> list) {
+  // TODO trying to migrate it to marcel. Remove it once its done
+  public static void reverse2(List<?> list) {
     Collections.reverse(list);
   }
 
