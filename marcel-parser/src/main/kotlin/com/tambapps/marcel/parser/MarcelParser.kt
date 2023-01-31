@@ -58,8 +58,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
 
     val moduleNode = ModuleNode()
     while (current.type != TokenType.END_OF_FILE) {
-      if (current.type == TokenType.CLASS ||
-        lookup(1)?.type == TokenType.CLASS) {
+      if (current.type == TokenType.CLASS
+        || lookup(1)?.type == TokenType.CLASS
+        || lookup(2)?.type == TokenType.CLASS) {
         moduleNode.classes.add(parseClass(imports))
       } else {
         moduleNode.classes.add(script(imports))
@@ -71,6 +72,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
   private fun parseClass(imports: MutableList<ImportNode>): ClassNode {
     val (access, isInline) = parseAccess()
     if (isInline) throw MarcelParsingException("Cannot use 'inline' keyword for a class")
+    val isExtensionClass = acceptOptional(TokenType.EXTENSION) != null
     accept(TokenType.CLASS)
     val className = accept(TokenType.IDENTIFIER).value
     // TODO parse optional super type and interfaces
@@ -81,7 +83,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     accept(TokenType.BRACKETS_OPEN)
 
     while (current.type != TokenType.BRACKETS_CLOSE) {
-      methods.add(method(classNode))
+      methods.add(method(classNode, isExtensionClass))
     }
     skip()
     return classNode
@@ -172,9 +174,10 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     return node
   }
 
-  internal fun method(classNode: ClassNode): MethodNode {
+  internal fun method(classNode: ClassNode, forceStatic: Boolean = false): MethodNode {
     val classScope = classNode.scope
-    val (access, isInline) = parseAccess()
+    val (acc, isInline) = parseAccess()
+    val access = if (forceStatic) acc or Opcodes.ACC_STATIC else acc
     accept(TokenType.FUN)
     val methodName = accept(TokenType.IDENTIFIER).value
     accept(TokenType.LPAR)
