@@ -15,12 +15,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-// TODO do some inline or function aliases for methods like leftShift (may need to do JavaType refacto first)
-//  add visitor for inline functions?
+// TODO do some inline or function aliases for methods like leftShift, and especially for functions accepting lambdas
+//  leads: see Kotlin MethodInliner class (in github)
 public final class DefaultMarcelMethods {
 
-  // TODO trying to migrate it to marcel. Remove it once its done
-  public static void reverse2(List<?> list) {
+  public static void reverse(List<?> list) {
     Collections.reverse(list);
   }
 
