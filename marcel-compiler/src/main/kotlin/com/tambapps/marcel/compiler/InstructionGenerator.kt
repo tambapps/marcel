@@ -157,17 +157,9 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
         pushArgument(rightOperand)
         mv.castIfNecessaryOrThrow(otherType, rightOperand.type)
         when (otherType) {
-          JavaType.double -> {
-            // could also be DCMPG.
-            // If at least one of value1' or value2' is NaN. The dcmpg instruction pushes the int value 1 onto the operand stack and the dcmpl instruction pushes the int value -1 onto the operand stack.
-            mv.visitInsn(Opcodes.DCMPL)
-          }
-          JavaType.float -> {
-            mv.visitInsn(Opcodes.FCMPL)
-          }
-          JavaType.long -> {
-            mv.visitInsn(Opcodes.LCMP)
-          }
+          JavaType.double -> mv.visitInsn(Opcodes.DCMPL)
+          JavaType.float -> mv.visitInsn(Opcodes.FCMPL)
+          JavaType.long -> mv.visitInsn(Opcodes.LCMP)
           else -> throw UnsupportedOperationException("Doesn't handle comparison of primitive type $otherType")
         }
         mv.pushConstant(0) // pushing 0 because we're comparing two numbers below
