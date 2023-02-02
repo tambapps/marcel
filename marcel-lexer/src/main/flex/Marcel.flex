@@ -326,3 +326,4 @@ LONELY_BACKTICK=`
 ","          { return token(COMMA); }
 "++"          { return token(INCR); }
 "--"          { return token(DECR); }
+"->"          { return token(ARROW); }

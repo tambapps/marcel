@@ -217,8 +217,8 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     return Pair(staticFlag or visibilityFlag, isInline)
   }
 
-  fun block(scope: MethodScope): BlockNode {
-    accept(TokenType.BRACKETS_OPEN)
+  fun block(scope: MethodScope, acceptBracketOpen: Boolean = true): BlockNode {
+    if (acceptBracketOpen) accept(TokenType.BRACKETS_OPEN)
     val statements = mutableListOf<StatementNode>()
     while (current.type != TokenType.BRACKETS_CLOSE) {
       val statement = statement(scope)
@@ -452,6 +452,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
          parseNumberConstant(token)
         }
       }
+      TokenType.BRACKETS_OPEN -> parseLambda(scope)
       TokenType.VALUE_TRUE -> BooleanConstantNode(true)
       TokenType.VALUE_FALSE -> BooleanConstantNode(false)
       TokenType.OPEN_QUOTE -> {
@@ -482,6 +483,9 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         else if (current.type == TokenType.LPAR) {
           skip()
           FunctionCallNode(scope, token.value, parseFunctionArguments(scope))
+        } else if (current.type == TokenType.BRACKETS_OPEN) { // function call with a lambda
+          skip()
+          FunctionCallNode(scope, token.value, mutableListOf(parseLambda(scope)))
         } else if (current.type == TokenType.LT  && lookup(1)?.type == TokenType.TWO_DOTS
           || current.type == TokenType.GT && lookup(1)?.type == TokenType.TWO_DOTS || current.type == TokenType.TWO_DOTS) {
           rangeNode(scope, ReferenceExpression(scope, token.value))
@@ -541,6 +545,26 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         throw UnsupportedOperationException("Not supported yet $token")
       }
     }
+  }
+
+  private fun parseLambda(scope: Scope): LambdaNode {
+    val parameters = mutableListOf<MethodParameter>()
+    val methodScope = MethodScope(scope, "TODO", parameters, JavaType.Object)
+    if (lookup(2)?.type == TokenType.ARROW || lookup(3)?.type == TokenType.ARROW
+        || lookup(2)?.type == TokenType.COMMA || lookup(3)?.type == TokenType.COMMA) {
+      while (current.type != TokenType.ARROW) {
+        val firstToken = accept(TokenType.IDENTIFIER)
+        val parameter = if (current.type == TokenType.IDENTIFIER) {
+          rollback()
+          MethodParameter(parseType(scope), accept(TokenType.IDENTIFIER).value)
+        } else MethodParameter(JavaType.Object, firstToken.value)
+        parameters.add(parameter)
+        if (current.type == TokenType.COMMA) skip()
+      }
+    }
+    // now parse function block
+    val block = block(MethodScope(scope, "TODO", parameters, JavaType.Object), false)
+    return LambdaNode(methodScope, parameters, block)
   }
 
   private fun parseNumberConstant(token: LexToken): ExpressionNode {
