@@ -22,7 +22,7 @@ class MarcelParserTest {
 
     private val lexer = MarcelLexer()
     private val type = JavaType.defineClass("Test", JavaType.of(Script::class.java), false)
-    private val scope = MethodScope(mutableListOf(), type, JavaType.Object.internalName, "test", emptyList(), JavaType.void)
+    private val scope = MethodScope(mutableListOf(), type, JavaType.Object, "test", emptyList(), JavaType.void)
 
     @Test
     fun testExpression() {
@@ -56,7 +56,7 @@ class MarcelParserTest {
     fun testFunction() {
         val parser = parser("fun foo(int a, String b) int { return 1 }")
         val imports = mutableListOf<ImportNode>(WildcardImportNode("java.lang"))
-        val classScope = Scope(imports, type, JavaType.Object.internalName)
+        val classScope = Scope(imports, type, JavaType.Object)
         val expected = MethodNode(Opcodes.ACC_PUBLIC, JavaType.Object, "foo",
             FunctionBlockNode(scope, listOf(
                 ReturnNode(scope, IntConstantNode(1))

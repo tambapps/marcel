@@ -12,8 +12,8 @@ import marcel.lang.methods.DefaultMarcelStaticMethods
 import org.objectweb.asm.Label
 
 // note that extensionMethods may not be needed. It could be added directly on the Java Type
-open class Scope constructor(val imports: MutableList<ImportNode>, val classType: JavaType, val superClassInternalName: String) {
-  constructor(javaType: JavaType): this(mutableListOf(), javaType, JavaType.Object.internalName) {
+open class Scope constructor(val imports: MutableList<ImportNode>, val classType: JavaType, val superClass: JavaType) {
+  constructor(javaType: JavaType): this(mutableListOf(), javaType, JavaType.Object) {
     imports.addAll(DEFAULT_IMPORTS)
   }
 
@@ -70,7 +70,7 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
   }
 
   fun copy(): Scope {
-    return Scope(imports, classType, superClassInternalName)
+    return Scope(imports, classType, superClass)
   }
 
   fun resolveClassName(classSimpleName: String): String {
@@ -101,18 +101,18 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
 
 }
 
-open class MethodScope constructor(imports: MutableList<ImportNode>, classType: JavaType, superClassInternalName: String, val methodName: String,
+open class MethodScope constructor(imports: MutableList<ImportNode>, classType: JavaType, superClass: JavaType, val methodName: String,
                        val parameters: List<MethodParameter>, val returnType: JavaType)
-  : Scope(imports, classType, superClassInternalName) {
+  : Scope(imports, classType, superClass) {
 
     constructor(scope: Scope,
                 methodName: String,
                 parameters: List<MethodParameter>, returnType: JavaType):
-        this(scope.imports, scope.classType, scope.superClassInternalName, methodName, parameters, returnType)
+        this(scope.imports, scope.classType, scope.superClass, methodName, parameters, returnType)
 }
 
 class InnerScope constructor(private val parentScope: MethodScope)
-  : MethodScope(parentScope.imports, parentScope.classType, parentScope.superClassInternalName, parentScope.methodName, parentScope.parameters, parentScope.returnType) {
+  : MethodScope(parentScope.imports, parentScope.classType, parentScope.superClass, parentScope.methodName, parentScope.parameters, parentScope.returnType) {
 
   // we want to access local variable defined in parent scope
   override val localVariables: MutableList<LocalVariable>

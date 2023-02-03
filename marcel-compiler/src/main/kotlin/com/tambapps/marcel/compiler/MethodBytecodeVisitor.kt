@@ -35,7 +35,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
   fun visitSuperConstructorCall(fCall: SuperConstructorCallNode) {
     mv.visitVarInsn(Opcodes.ALOAD, 0)
     pushFunctionCallArguments(fCall.method, fCall.arguments)
-    mv.visitMethodInsn(Opcodes.INVOKESPECIAL, fCall.scope.superClassInternalName, fCall.name,
+    mv.visitMethodInsn(Opcodes.INVOKESPECIAL, fCall.scope.superClass.internalName, fCall.name,
       // void return type for constructors
       AsmUtils.getDescriptor(fCall.arguments, JavaType.void), false)
   }

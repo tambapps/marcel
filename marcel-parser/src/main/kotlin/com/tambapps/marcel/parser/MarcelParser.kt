@@ -81,7 +81,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
     // TODO parse optional super type and interfaces
     val classType = JavaType.defineClass(className, JavaType.Object, false)
-    val classScope = Scope(imports, classType, AsmUtils.getInternalName(JavaType.Object))
+    val classScope = Scope(imports, classType, JavaType.Object)
     val methods = mutableListOf<MethodNode>()
     val classNode = ClassNode(classScope, access, classType, JavaType.Object, methods)
     accept(TokenType.BRACKETS_OPEN)
@@ -98,7 +98,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val superType = JavaType.of(Script::class.java)
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
     val classType = JavaType.defineClass(className, superType, false)
-    val classScope = Scope(imports, classType, AsmUtils.getInternalName(superType))
+    val classScope = Scope(imports, classType, superType)
     val runScope = MethodScope(classScope, className, emptyList(), JavaType.Object)
     val statements = mutableListOf<StatementNode>()
     val runBlock = FunctionBlockNode(runScope, statements)
