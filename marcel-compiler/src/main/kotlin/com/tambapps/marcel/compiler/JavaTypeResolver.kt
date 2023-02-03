@@ -6,6 +6,7 @@ import com.tambapps.marcel.compiler.util.getMethod
 import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.compiler.util.getValuesType
 import com.tambapps.marcel.parser.ast.AstNode
+import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.ast.expression.AndOperator
@@ -77,13 +78,10 @@ import com.tambapps.marcel.parser.type.ReflectJavaConstructor
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import marcel.lang.IntRange
 
-class JavaTypeResolver: AstNodeVisitor<JavaType> {
+class JavaTypeResolver: AstNodeTypeResolver() {
 
   private val classMethods = mutableMapOf<String, MutableList<JavaMethod>>()
 
-
-  fun resolve(node: ExpressionNode) = node.accept(this)
-  fun resolve(node: StatementNode) = node.accept(this)
 
   fun defineMethod(javaType: JavaType, method: JavaMethod) {
     // TODO defining in both durnig transition
@@ -188,133 +186,15 @@ class JavaTypeResolver: AstNodeVisitor<JavaType> {
     }
   }
 
-
-  //
-  override fun visit(integer: IntConstantNode) = JavaType.int
-
-  override fun visit(longConstantNode: LongConstantNode) = JavaType.long
-
-  override fun visit(floatConstantNode: FloatConstantNode) = JavaType.float
-  override fun visit(doubleConstantNode: DoubleConstantNode) = JavaType.double
-
-  override fun visit(booleanConstantNode: BooleanConstantNode) = JavaType.boolean
-
-  override fun visit(stringNode: StringNode) = JavaType.String
-
-  override fun visit(stringConstantNode: StringConstantNode) = JavaType.String
-
-  override fun visit(toStringNode: ToStringNode) = JavaType.String
-
-  override fun visit(operator: MulOperator) = visitBinaryOperator(operator)
-
-  private fun visitBinaryOperator(binaryOperatorNode: BinaryOperatorNode) =
-    JavaType.commonType(binaryOperatorNode.leftOperand.accept(this), binaryOperatorNode.rightOperand.accept(this))
-
-  override fun visit(operator: TernaryNode): JavaType {
-    if (operator is NullSafeInvokeAccessOperator || operator is NullSafeGetFieldAccessOperator) {
-      (operator.falseExpression as NullValueNode).type = operator.trueExpression.getType(this)
-    }
-    return JavaType.commonType(operator.trueExpression.accept(this), operator.falseExpression.accept(this))
-  }
-
-  override fun visit(elvisOperator: ElvisOperator) = visitBinaryOperator(elvisOperator)
-
-  override fun visit(fCall: FunctionCallNode) = fCall.getMethod(this).returnType
-
-  override fun visit(fCall: ConstructorCallNode) = fCall.type
-
-  override fun visit(fCall: SuperConstructorCallNode) = JavaType.void
-
-  override fun visit(operator: DivOperator) = visitBinaryOperator(operator)
-
-  override fun visit(operator: PlusOperator) = visitBinaryOperator(operator)
-
-  override fun visit(operator: MinusOperator) = visitBinaryOperator(operator)
-
-  override fun visit(operator: PowOperator) = visitBinaryOperator(operator)
-
-  override fun visit(rightShiftOperator: RightShiftOperator) = JavaType.Object
-
-  override fun visit(leftShiftOperator: LeftShiftOperator) = JavaType.Object
-
-  override fun visit(variableAssignmentNode: VariableAssignmentNode) = variableAssignmentNode.expression.accept(this)
-
-  override fun visit(indexedVariableAssignmentNode: IndexedVariableAssignmentNode) = indexedVariableAssignmentNode.expression.accept(this)
-
-  override fun visit(referenceExpression: ReferenceExpression) =
-    try {
-      referenceExpression.scope.findVariable(referenceExpression.name).type
-    } catch (e: SemanticException) {
-      // for static function calls
-      referenceExpression.scope.getTypeOrNull(referenceExpression.name) ?: throw e
-    }
-
-  override fun visit(indexedReferenceExpression: IndexedReferenceExpression) =
-    if (indexedReferenceExpression.variable.type.isArray) (indexedReferenceExpression.variable.type as JavaArrayType).elementsType
-    else indexedReferenceExpression.variable.type.findMethodOrThrow("getAt", indexedReferenceExpression.indexArguments.map { it.getType(this) }).returnType
-
-  private fun visitUnaryOperator(unaryOperator: UnaryOperator) = unaryOperator.operand.accept(this)
-
-  override fun visit(unaryMinus: UnaryMinus) = visitUnaryOperator(unaryMinus)
-
-  override fun visit(unaryPlus: UnaryPlus) = visitUnaryOperator(unaryPlus)
-
-  override fun visit(blockNode: BlockNode) = blockNode.statements.lastOrNull()?.accept(this) ?: JavaType.void
-
-  override fun visit(blockNode: FunctionBlockNode) = visit(blockNode as BlockNode)
-
-
-  override fun visit(expressionStatementNode: ExpressionStatementNode) = expressionStatementNode.expression.accept(this)
-
-  override fun visit(variableDeclarationNode: VariableDeclarationNode) = variableDeclarationNode.type
-
-  override fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode) = JavaType.boolean
-
-  override fun visit(returnNode: ReturnNode) = returnNode.expression.accept(this)
-
-  override fun visit(voidExpression: VoidExpression) = JavaType.void
-
-  override fun visit(asNode: AsNode) = asNode.type
-
-  override fun visit(accessOperator: InvokeAccessOperator) = accessOperator.rightOperand.accept(this)
-
+  // ast node type resolver methods
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator) =
     findFieldOrThrow(getFieldAccessOperator.leftOperand.accept(this), getFieldAccessOperator.rightOperand.name).type
-
-
-  override fun visit(comparisonOperatorNode: ComparisonOperatorNode) = JavaType.boolean
-
-  override fun visit(andOperator: AndOperator) = JavaType.boolean
-
-  override fun visit(orOperator: OrOperator) = JavaType.boolean
-
-  override fun visit(notNode: NotNode) = JavaType.boolean
-
-  override fun visit(ifStatementNode: IfStatementNode) =
-    if (ifStatementNode.falseStatementNode != null) JavaType.commonType(ifStatementNode.trueStatementNode.accept(this),
-      ifStatementNode.falseStatementNode!!.accept(this))
-    else ifStatementNode.trueStatementNode.accept(this)
-
-  override fun visit(forStatement: ForStatement) = JavaType.void
-
-  override fun visit(forInStatement: ForInStatement) = JavaType.void
-  override fun visit(whileStatement: WhileStatement) = JavaType.void
-
-  override fun visit(booleanExpression: BooleanExpressionNode) = JavaType.boolean
-
-  override fun visit(nullValueNode: NullValueNode) = nullValueNode.type ?: JavaType.Object
-
-  override fun visit(incrNode: IncrNode) = visitUnaryOperator(incrNode)
-
-  override fun visit(breakLoopNode: BreakLoopNode) = JavaType.void
-  override fun visit(continueLoopNode: ContinueLoopNode) = JavaType.void
-
-
-  // TODO change when supporting other primitive ranges
-  override fun visit(rangeNode: RangeNode) = JavaType.of(IntRange::class.java)
 
   override fun visit(literalListNode: LiteralArrayNode) = literalListNode.type ?: JavaType.arrayType(literalListNode.getElementsType(this))
 
   override fun visit(literalMapNode: LiteralMapNode) =
     JavaType.mapType(literalMapNode.getKeysType(this), literalMapNode.getValuesType(this))
+
+  override fun visit(fCall: FunctionCallNode) = fCall.getMethod(this).returnType
+
 }
