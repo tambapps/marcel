@@ -12,13 +12,10 @@ class IfStatementNode(val condition: BooleanExpressionNode, val trueStatementNod
   StatementNode {
 
   override val expression: ExpressionNode
-    get() = VoidExpression()
-  override val type: JavaType
-    get() = trueStatementNode.type
+    get() = trueStatementNode.expression
 
-  override fun accept(mv: AstNodeVisitor) {
-    mv.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
 
   override fun accept(visitor: AstVisitor) {
     super.accept(visitor)

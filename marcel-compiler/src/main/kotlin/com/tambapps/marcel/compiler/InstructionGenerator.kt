@@ -1,6 +1,8 @@
 package com.tambapps.marcel.compiler
 
+import com.tambapps.marcel.compiler.util.getKeysType
 import com.tambapps.marcel.compiler.util.getMethod
+import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.BreakLoopNode
@@ -35,7 +37,7 @@ interface ArgumentPusher {
   fun pushArgument(expr: ExpressionNode)
 
 }
-private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
+private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   val mv: MethodBytecodeVisitor
   val typeResolver: JavaTypeResolver
@@ -109,11 +111,11 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
   }
 
   fun marcelOperator(binaryOperatorNode: BinaryOperatorNode, operatorMethodName: String): JavaType {
-    val type1 = binaryOperatorNode.leftOperand.type
+    val type1 = binaryOperatorNode.leftOperand.getType(typeResolver)
     if (type1.primitive) {
       throw SemanticException("Doesn't support left shirt operator for primitive type")
     }
-    val leftShiftMethod = typeResolver.findMethodOrThrow(type1, operatorMethodName, listOf(binaryOperatorNode.rightOperand.type))
+    val leftShiftMethod = typeResolver.findMethodOrThrow(type1, operatorMethodName, listOf(binaryOperatorNode.rightOperand.getType(typeResolver)))
     pushArgument(binaryOperatorNode.leftOperand)
     mv.invokeMethodWithArguments(leftShiftMethod, binaryOperatorNode.rightOperand)
     return leftShiftMethod.returnType
@@ -126,11 +128,11 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
     val trueLabel = Label()
     val operator = comparisonOperatorNode.operator
     var objectcomparison = false
-    if (!leftOperand.type.primitive || !rightOperand.type.primitive) {
+    if (!leftOperand.getType(typeResolver).primitive || !rightOperand.getType(typeResolver).primitive) {
       pushArgument(leftOperand)
-      mv.castIfNecessaryOrThrow(JavaType.Object, leftOperand.type)
+      mv.castIfNecessaryOrThrow(JavaType.Object, leftOperand.getType(typeResolver))
       pushArgument(rightOperand)
-      mv.castIfNecessaryOrThrow(JavaType.Object, rightOperand.type)
+      mv.castIfNecessaryOrThrow(JavaType.Object, rightOperand.getType(typeResolver))
       if ((leftOperand is NullValueNode || rightOperand is NullValueNode)) {
         objectcomparison = true
         if (operator != ComparisonOperator.EQUAL && operator != ComparisonOperator.NOT_EQUAL) {
@@ -144,7 +146,7 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
             return // the above method returns a boolean
           }
           else -> {
-            val method = typeResolver.findMethodOrThrow(leftOperand.type, "compareTo", listOf(rightOperand.type))
+            val method = typeResolver.findMethodOrThrow(leftOperand.getType(typeResolver), "compareTo", listOf(rightOperand.getType(typeResolver)))
             if (method.returnType != JavaType.int) throw SemanticException("compareTo method should return an int in order to be used in comparator")
             mv.invokeMethod(method)
             mv.pushConstant(0) // pushing 0 because we're comparing two numbers below
@@ -152,12 +154,12 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
         }
       }
     } else {
-      if (leftOperand.type != JavaType.int || rightOperand.type != JavaType.int) {
-        val otherType = if (leftOperand.type != JavaType.int) leftOperand.type else rightOperand.type
+      if (leftOperand.getType(typeResolver) != JavaType.int || rightOperand.getType(typeResolver) != JavaType.int) {
+        val otherType = if (leftOperand.getType(typeResolver) != JavaType.int) leftOperand.getType(typeResolver) else rightOperand.getType(typeResolver)
         pushArgument(leftOperand)
-        mv.castIfNecessaryOrThrow(otherType, leftOperand.type)
+        mv.castIfNecessaryOrThrow(otherType, leftOperand.getType(typeResolver))
         pushArgument(rightOperand)
-        mv.castIfNecessaryOrThrow(otherType, rightOperand.type)
+        mv.castIfNecessaryOrThrow(otherType, rightOperand.getType(typeResolver))
         when (otherType) {
           JavaType.double -> mv.visitInsn(Opcodes.DCMPL)
           JavaType.float -> mv.visitInsn(Opcodes.FCMPL)
@@ -209,11 +211,12 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
 
   override fun visit(accessOperator: InvokeAccessOperator) {
     val access = accessOperator.rightOperand
+    access.methodOwnerType = accessOperator.leftOperand
     access.accept(this)
   }
 
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator) {
-    val field = typeResolver.findFieldOrThrow(getFieldAccessOperator.leftOperand.type, getFieldAccessOperator.rightOperand.name)
+    val field = typeResolver.findFieldOrThrow(getFieldAccessOperator.leftOperand.getType(typeResolver), getFieldAccessOperator.rightOperand.name)
     if (!field.isStatic) {
       pushArgument(getFieldAccessOperator.leftOperand)
     }
@@ -276,7 +279,7 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
       expression = EmptyArrayNode(JavaType.arrayType(elementsType))
     }
     pushArgument(expression)
-    mv.castIfNecessaryOrThrow(variable.type, expression.type)
+    mv.castIfNecessaryOrThrow(variable.type, expression.getType(typeResolver))
     mv.storeInVariable(variable)
   }
 
@@ -373,7 +376,7 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor, override val 
 
   override fun visit(forInStatement: ForInStatement) {
     val expression = forInStatement.inExpression
-    if (!JavaType.of(Iterable::class.java).isAssignableFrom(expression.type)) {
+    if (!JavaType.of(Iterable::class.java).isAssignableFrom(expression.getType(typeResolver))) {
       throw SemanticException("Only support for in Iterable")
     }
     // initialization
@@ -383,7 +386,7 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor, override val 
 
     // creating iterator
     val iteratorVarName = "_tempIterator"
-    val getIteratorMethod = typeResolver.findMethodOrThrow(expression.type, "iterator", emptyList())
+    val getIteratorMethod = typeResolver.findMethodOrThrow(expression.getType(typeResolver), "iterator", emptyList())
     // get right method in function of types, to avoid auto-(un/debo)xing
     val methodName = if (JavaType.of(IntIterator::class.java).isAssignableFrom(getIteratorMethod.returnType)) "nextInt"
     else if (JavaType.of(IntIterator::class.java).isAssignableFrom(getIteratorMethod.returnType)) "next"
@@ -485,7 +488,7 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor, override val 
   }
   override fun visit(fCall: FunctionCallNode) {
     super.visit(fCall)
-    if (fCall.type != JavaType.void) {
+    if (fCall.getType(typeResolver) != JavaType.void) {
       mv.popStack() // don't really know if it's necessary
     }
   }
@@ -527,7 +530,7 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor, override val 
   }
 
   override fun visit(incrNode: IncrNode) {
-    if (incrNode.variableReference.type == JavaType.int && incrNode.variableReference.variable is LocalVariable) {
+    if (incrNode.variableReference.getType(typeResolver) == JavaType.int && incrNode.variableReference.variable is LocalVariable) {
       mv.incrLocalVariable(incrNode.variableReference.variable as LocalVariable, incrNode.amount)
     } else {
       val ref = incrNode.variableReference
@@ -562,9 +565,9 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor, override val 
       lastStatement.accept(this)
       mv.returnVoid()
     } else {
-      if (lastStatement.type != JavaType.void) {
+      if (lastStatement.getType(typeResolver) != JavaType.void) {
         pushArgument(lastStatement.expression)
-        mv.castIfNecessaryOrThrow(blockNode.scope.returnType, lastStatement.expression.type)
+        mv.castIfNecessaryOrThrow(blockNode.scope.returnType, lastStatement.expression.getType(typeResolver))
       } else {
         lastStatement.accept(this)
         // method expects an object but nothing was returned? let's return null
@@ -663,40 +666,40 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
   }
 
   override fun visit(literalListNode: LiteralArrayNode) {
-    mv.newArray(literalListNode.type, literalListNode.elements)
+    mv.newArray(literalListNode.getType(typeResolver) as JavaArrayType, literalListNode.elements)
   }
 
   override fun visit(literalMapNode: LiteralMapNode) {
     var objectKeys = false
-    val methodName = when (literalMapNode.type.raw()) {
+    val methodName = when (literalMapNode.getType(typeResolver).raw()) {
       JavaType.int2ObjectMap -> "newInt2ObjectMap"
       JavaType.long2ObjectMap -> "newLong2ObjectMap"
       JavaType.float2ObjectMap -> "newFloat2ObjectMap"
       JavaType.double2ObjectMap -> "newDouble2ObjectMap"
       else -> {
-        if (JavaType.of(Map::class.java).isAssignableFrom(literalMapNode.type.raw())) {
+        if (JavaType.of(Map::class.java).isAssignableFrom(literalMapNode.getType(typeResolver).raw())) {
           objectKeys = true
           "newObject2ObjectMap"
         } else {
-          throw SemanticException("Doesn't handle maps of type ${literalMapNode.type}")
+          throw SemanticException("Doesn't handle maps of type ${literalMapNode.getType(typeResolver)}")
         }
       }
     }
     mv.invokeMethod(BytecodeHelper::class.java.getDeclaredMethod(methodName))
-    val keysType = literalMapNode.keysType
+    val keysType = literalMapNode.getKeysType(typeResolver)
     val putMethodKeysType = if (keysType.primitive) keysType else JavaType.Object
 
     for (entry in literalMapNode.entries) {
       mv.dup()
       pushArgument(entry.first)
       if (objectKeys) {
-        mv.castIfNecessaryOrThrow(JavaType.Object, entry.first.type)
+        mv.castIfNecessaryOrThrow(JavaType.Object, entry.first.getType(typeResolver))
       } else {
-        mv.castIfNecessaryOrThrow(putMethodKeysType, entry.first.type)
+        mv.castIfNecessaryOrThrow(putMethodKeysType, entry.first.getType(typeResolver))
       }
       pushArgument(entry.second)
-      mv.castIfNecessaryOrThrow(JavaType.Object, entry.second.type)
-      mv.invokeMethod(typeResolver.findMethodOrThrow(literalMapNode.type,
+      mv.castIfNecessaryOrThrow(JavaType.Object, entry.second.getType(typeResolver))
+      mv.invokeMethod(typeResolver.findMethodOrThrow(literalMapNode.getType(typeResolver),
         "put",
         listOf(putMethodKeysType, JavaType.Object)
       ))
@@ -711,14 +714,14 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
     else if (rangeNode.toExclusive) "ofToExclusive"
     else "of"
     val method = ReflectJavaMethod(IntRanges::class.java.getMethod(methodName, Int::class.java, Int::class.java))
-    if (rangeNode.from.type != JavaType.int || rangeNode.to.type != JavaType.int) {
+    if (rangeNode.from.getType(typeResolver) != JavaType.int || rangeNode.to.getType(typeResolver) != JavaType.int) {
       throw SemanticException("Only handle ranges for int value for now")
     }
     mv.invokeMethodWithArguments(method, rangeNode.from, rangeNode.to)
   }
 
   override fun visit(notNode: NotNode) {
-    when (notNode.operand.type) {
+    when (notNode.operand.getType(typeResolver)) {
       JavaType.Boolean -> mv.invokeMethodWithArguments(typeResolver.findMethodOrThrow(JavaType.Boolean, "booleanValue", emptyList()), notNode.operand)
       JavaType.boolean -> notNode.operand.accept(this)
       else -> throw SemanticException("Cannot negate something other than a boolean")
@@ -745,11 +748,11 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
   override fun visit(booleanExpression: BooleanExpressionNode) {
     if (booleanExpression.innerExpression is NullValueNode) {
       visit(BooleanConstantNode(false))
-    } else if (booleanExpression.innerExpression.type == JavaType.boolean
-      || booleanExpression.innerExpression.type == JavaType.Boolean) {
+    } else if (booleanExpression.innerExpression.getType(typeResolver) == JavaType.boolean
+      || booleanExpression.innerExpression.getType(typeResolver) == JavaType.Boolean) {
       booleanExpression.innerExpression.accept(this)
-      mv.castIfNecessaryOrThrow(JavaType.boolean, booleanExpression.innerExpression.type)
-    } else if (booleanExpression.innerExpression.type.primitive) {
+      mv.castIfNecessaryOrThrow(JavaType.boolean, booleanExpression.innerExpression.getType(typeResolver))
+    } else if (booleanExpression.innerExpression.getType(typeResolver).primitive) {
       // according to marcel truth, all primitive are truthy
       booleanExpression.innerExpression.accept(instructionGenerator)
       visit(BooleanConstantNode(true))
@@ -760,15 +763,15 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
 
   override fun visit(asNode: AsNode) {
     asNode.expressionNode.accept(this)
-    mv.castIfNecessaryOrThrow(asNode.type, asNode.expressionNode.type)
+    mv.castIfNecessaryOrThrow(asNode.type, asNode.expressionNode.getType(typeResolver))
   }
 
   override fun visit(toStringNode: ToStringNode) {
     val expr = toStringNode.expressionNode
-    if (expr.type == JavaType.String) {
+    if (expr.getType(typeResolver) == JavaType.String) {
       expr.accept(this)
     } else {
-      val argumentType = expr.type
+      val argumentType = expr.getType(typeResolver)
       if (argumentType.primitive) {
         mv.invokeMethodWithArguments(String::class.java.getDeclaredMethod("valueOf", argumentType.realClazz), expr)
       } else {
@@ -790,7 +793,7 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
     visit(ConstructorCallNode(Scope(type), type, mutableListOf()))
     for (part in stringNode.parts) {
       // chained calls
-      val argumentType = part.type
+      val argumentType = part.getType(typeResolver)
       val method = ReflectJavaMethod(StringBuilder::class.java.getDeclaredMethod("append",
         if (argumentType.primitive) argumentType.realClazz else JavaType.Object.realClazz))
       mv.invokeMethodWithArguments(method, part)
@@ -848,23 +851,23 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
 
   override fun visit(operator: MulOperator) {
     super.visit(operator)
-    mv.visitInsn((operator.type as JavaPrimitiveType).mulCode)
+    mv.visitInsn((operator.getType(typeResolver) as JavaPrimitiveType).mulCode)
   }
 
   override fun visit(operator: DivOperator) {
     super.visit(operator)
-    mv.visitInsn((operator.type as JavaPrimitiveType).divCode)
+    mv.visitInsn((operator.getType(typeResolver) as JavaPrimitiveType).divCode)
   }
 
   override fun visit(operator: MinusOperator) {
     super.visit(operator)
-    mv.visitInsn((operator.type as JavaPrimitiveType).subCode)
+    mv.visitInsn((operator.getType(typeResolver) as JavaPrimitiveType).subCode)
   }
 
 
   override fun visit(operator: PlusOperator) {
     super.visit(operator)
-    mv.visitInsn((operator.type as JavaPrimitiveType).addCode)
+    mv.visitInsn((operator.getType(typeResolver) as JavaPrimitiveType).addCode)
   }
 
   override fun visit(operator: PowOperator) {
@@ -874,12 +877,12 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
 
   override fun visit(returnNode: ReturnNode) {
     returnNode.apply {
-      if (!returnNode.scope.returnType.isAssignableFrom(expression.type)) {
-        throw SemanticException("Cannot return ${expression.type} when return type is ${returnNode.scope.returnType}")
+      if (!returnNode.scope.returnType.isAssignableFrom(expression.getType(typeResolver))) {
+        throw SemanticException("Cannot return ${expression.getType(typeResolver)} when return type is ${returnNode.scope.returnType}")
       }
     }
     returnNode.expression.accept(this)
-    mv.castIfNecessaryOrThrow(returnNode.scope.returnType, returnNode.expression.type)
+    mv.castIfNecessaryOrThrow(returnNode.scope.returnType, returnNode.expression.getType(typeResolver))
   }
 
   override fun visit(expressionStatementNode: ExpressionStatementNode) {
@@ -893,7 +896,7 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
   override fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode) {
     var actualTruthyVariableDeclarationNode = truthyVariableDeclarationNode
     val variableType = actualTruthyVariableDeclarationNode.variableType
-    val expressionType = actualTruthyVariableDeclarationNode.expression.type
+    val expressionType = actualTruthyVariableDeclarationNode.expression.getType(typeResolver)
     if (variableType.raw() != JavaType.of(Optional::class.java) && (
           listOf(Optional::class.java, OptionalInt::class.java, OptionalLong::class.java, OptionalDouble::class.java)
             .any {expressionType.raw().isAssignableFrom(JavaType.of(it)) }

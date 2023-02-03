@@ -9,7 +9,7 @@ interface ImportNode: AstNode {
     return null
   }
 
-  }
+}
 class SimpleImportNode(private val value: String, private val asName: String? = null): ImportNode {
   override fun resolveClassName(classSimpleName: String): String? {
     return if (asName != null) {

@@ -2,20 +2,13 @@ package com.tambapps.marcel.parser.ast.expression
 
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.AstVisitor
-import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaType
 
-open class LiteralArrayNode(val elements: List<ExpressionNode>): ExpressionNode {
+open class LiteralArrayNode(var type: JavaType?, val elements: List<ExpressionNode>): ExpressionNode {
 
-  override val type: JavaArrayType get() =  JavaType.arrayType(elementsType)
-
-  val elementsType: JavaType
-    get() = JavaType.commonType(elements)
-
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  constructor(elements: List<ExpressionNode>): this(null, elements)
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun accept(visitor: AstVisitor) {
     super.accept(visitor)
@@ -23,4 +16,4 @@ open class LiteralArrayNode(val elements: List<ExpressionNode>): ExpressionNode 
   }
 }
 
-class EmptyArrayNode(override val type: JavaArrayType): LiteralArrayNode(emptyList())
+class EmptyArrayNode(type: JavaArrayType): LiteralArrayNode(type, emptyList())

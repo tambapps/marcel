@@ -9,15 +9,13 @@ import com.tambapps.marcel.parser.type.JavaType
 /**
  * Node for new MyClass()
  */
-class ConstructorCallNode(scope: Scope, override var type: JavaType, arguments: MutableList<ExpressionNode>): FunctionCallNode(scope, JavaMethod.CONSTRUCTOR_NAME, arguments) {
+class ConstructorCallNode(scope: Scope, val type: JavaType, arguments: MutableList<ExpressionNode>): FunctionCallNode(scope, JavaMethod.CONSTRUCTOR_NAME, arguments) {
 
   init {
-    methodOwnerType = type
+    methodOwnerType = this
   }
 
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {
     return "new $type(" + arguments.joinToString(separator = ",") + ")"

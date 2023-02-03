@@ -8,13 +8,8 @@ import marcel.lang.IntRange
 class RangeNode(val from: ExpressionNode, val to: ExpressionNode,
   val fromExclusive: Boolean, val toExclusive: Boolean): ExpressionNode {
 
-  // TODO change when supporting other primitive ranges
-  override val type: JavaType
-    get() = JavaType.of(IntRange::class.java)
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
 
   override fun accept(visitor: AstVisitor) {
     super.accept(visitor)

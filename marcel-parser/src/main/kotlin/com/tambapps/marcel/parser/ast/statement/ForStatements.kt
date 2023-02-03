@@ -24,10 +24,8 @@ class ForStatement(val initStatement: StatementNode,
 
   override val expression = VoidExpression()
 
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
-  override fun accept(mv: AstNodeVisitor) {
-    mv.visit(this)
-  }
 
   override fun toString(): String {
     return "for ($initStatement $endCondition $iteratorStatement) {\n$body\n}"
@@ -43,9 +41,7 @@ class ForStatement(val initStatement: StatementNode,
 
 class ForInStatement(val variableType: JavaType, val variableName: String, val inExpression: ExpressionNode, body: BlockNode): AbstractForStatement(body) {
   override val expression = VoidExpression()
-  override fun accept(mv: AstNodeVisitor) {
-    mv.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {
     return "for ($variableType $variableName in $inExpression) {\n$body\n}"

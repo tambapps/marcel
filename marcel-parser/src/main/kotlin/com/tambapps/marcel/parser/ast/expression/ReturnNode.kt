@@ -8,9 +8,7 @@ import com.tambapps.marcel.parser.scope.MethodScope
 
 class ReturnNode(override var scope: MethodScope, override val expression: ExpressionNode) : StatementNode, ScopedNode<MethodScope> {
 
-  override fun accept(mv: AstNodeVisitor) {
-    mv.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

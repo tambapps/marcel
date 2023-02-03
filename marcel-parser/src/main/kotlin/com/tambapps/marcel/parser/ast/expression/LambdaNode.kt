@@ -6,13 +6,10 @@ import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.scope.MethodScope
-import com.tambapps.marcel.parser.type.JavaType
 
-// TODO type is not well chosen
 class LambdaNode(val scope: MethodScope, val parameters: List<MethodParameter>, val blockNode: BlockNode): ExpressionNode {
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    TODO("Not yet implemented")
-  }
+
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = TODO("Not yet implemented")
 
   override fun accept(visitor: AstVisitor) {
     super.accept(visitor)
@@ -24,6 +21,4 @@ class LambdaNode(val scope: MethodScope, val parameters: List<MethodParameter>, 
       }
     })
   }
-  override val type: JavaType
-    get() = JavaType.Object
 }

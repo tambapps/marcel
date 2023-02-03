@@ -1,18 +1,13 @@
 package com.tambapps.marcel.parser.ast.expression
 
-import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.scope.Scope
 
 open class VariableAssignmentNode(override var scope: Scope, val name: String, val expression: ExpressionNode): ExpressionNode, ScopedNode<Scope> {
-  override val type: JavaType
-    get() = expression.type
 
-  override fun accept(mv: AstNodeVisitor) {
-    mv.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {
     return "$name = $expression"

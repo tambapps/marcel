@@ -6,11 +6,8 @@ import com.tambapps.marcel.parser.type.JavaType
 
 class StringNode(val parts: List<ExpressionNode>): ExpressionNode {
 
-  override val type = JavaType.String
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
 
   override fun toString(): String {
     return parts.joinToString(separator = " + ")

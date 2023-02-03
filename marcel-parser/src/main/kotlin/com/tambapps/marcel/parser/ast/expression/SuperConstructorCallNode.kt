@@ -10,12 +10,6 @@ import com.tambapps.marcel.parser.type.JavaType
  */
 class SuperConstructorCallNode(scope: Scope, arguments: MutableList<ExpressionNode>) : FunctionCallNode(scope, JavaMethod.CONSTRUCTOR_NAME, arguments) {
 
-  override var type: JavaType
-    get() = JavaType.void
-    set(value) {
-      throw UnsupportedOperationException("Cannot change type of $javaClass")
-    }
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
 }

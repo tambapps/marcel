@@ -5,10 +5,7 @@ import com.tambapps.marcel.parser.type.JavaType
 
 data class IntConstantNode(val value: Int): ExpressionNode {
 
-  override val type = JavaType.int
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {
     return value.toString()
@@ -17,10 +14,7 @@ data class IntConstantNode(val value: Int): ExpressionNode {
 
 data class LongConstantNode(val value: Long): ExpressionNode {
 
-  override val type = JavaType.long
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {
     return value.toString()
@@ -29,10 +23,8 @@ data class LongConstantNode(val value: Long): ExpressionNode {
 
 data class FloatConstantNode(val value: Float): ExpressionNode {
 
-  override val type = JavaType.float
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
 
   override fun toString(): String {
     return value.toString()
@@ -41,10 +33,8 @@ data class FloatConstantNode(val value: Float): ExpressionNode {
 
 data class DoubleConstantNode(val value: Double): ExpressionNode {
 
-  override val type = JavaType.double
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
 
   override fun toString(): String {
     return value.toString()
@@ -52,11 +42,8 @@ data class DoubleConstantNode(val value: Double): ExpressionNode {
 }
 
 data class StringConstantNode(val value: String): ExpressionNode {
-  override val type = JavaType.String
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
 
   override fun toString(): String {
     return "\"$value\""
@@ -64,20 +51,16 @@ data class StringConstantNode(val value: String): ExpressionNode {
 }
 
 data class BooleanConstantNode(val value: Boolean): ExpressionNode {
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
-  override val type = JavaType.boolean
 }
 
-class NullValueNode(override val type: JavaType): ExpressionNode {
+class NullValueNode(var type: JavaType?): ExpressionNode {
 
-  constructor(): this(JavaType.Object)
+  constructor(): this(null)
 
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
 
   override fun equals(other: Any?): Boolean {
     return other is NullValueNode

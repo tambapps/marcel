@@ -13,13 +13,7 @@ class IndexedReferenceExpression(override var scope: Scope, val name: String,
   val variable: Variable
     get() = scope.findVariable(name)
 
-  override val type: JavaType
-    get() = if (variable.type.isArray) (variable.type as JavaArrayType).elementsType
-  else variable.type.findMethodOrThrow("getAt", indexArguments).returnType
-
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {
     return "$name[" + indexArguments.joinToString(separator = ", ") + "]"

@@ -6,11 +6,9 @@ import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 
 interface StatementNode: AstNode {
-  val type: JavaType
-    get() = expression.type
 
   val expression: ExpressionNode
 
-  fun accept(mv: AstNodeVisitor)
+  fun <T> accept(mv: AstNodeVisitor<T>): T
 
 }

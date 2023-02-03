@@ -6,9 +6,8 @@ import com.tambapps.marcel.parser.ast.AstVisitor
 
 class ExpressionStatementNode(override val expression: ExpressionNode): StatementNode {
 
-  override fun accept(mv: AstNodeVisitor) {
-    mv.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
 
   override fun accept(visitor: AstVisitor) {
     super.accept(visitor)

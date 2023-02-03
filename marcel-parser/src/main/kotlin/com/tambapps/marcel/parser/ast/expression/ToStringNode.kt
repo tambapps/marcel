@@ -5,11 +5,8 @@ import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.type.JavaType
 
 class ToStringNode(val expressionNode: ExpressionNode): ExpressionNode {
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
-  override val type = JavaType.String
 
   override fun accept(visitor: AstVisitor) {
     super.accept(visitor)

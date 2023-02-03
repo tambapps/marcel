@@ -1,6 +1,7 @@
 package com.tambapps.marcel.parser.ast.expression
 
 import com.tambapps.marcel.parser.asm.AsmUtils
+import com.tambapps.marcel.parser.ast.AstNode
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.ast.AstTypedObject
@@ -11,29 +12,18 @@ import com.tambapps.marcel.parser.type.JavaType
 
 open class FunctionCallNode(override var scope: Scope, val name: String, val arguments: MutableList<ExpressionNode>): ExpressionNode, ScopedNode<Scope> {
 
-  constructor(scope: Scope, name: String, arguments: MutableList<ExpressionNode>, methodOwnerType: AstTypedObject): this(scope, name, arguments) {
+  constructor(scope: Scope, name: String, arguments: MutableList<ExpressionNode>, methodOwnerType: ExpressionNode): this(scope, name, arguments) {
     this.methodOwnerType = methodOwnerType
   }
 
-  var methodOwnerType: AstTypedObject? = null
-
-  override val type: JavaType
-    get() = method.returnType
-
-  val method: JavaMethod
-    get() = if (methodOwnerType != null) methodOwnerType!!.type.findMethodOrThrow(name, arguments)
-   else scope.getMethod(name, arguments)
-
-  val descriptor: String
-    get() = AsmUtils.getDescriptor(arguments, type)
+  var methodOwnerType: ExpressionNode? = null
 
   override fun accept(visitor: AstVisitor) {
     super.accept(visitor)
     arguments.forEach { it.accept(visitor) }
   }
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
 
   override fun toString(): String {
     return name + "(" + arguments.joinToString(separator = ",") + ")"
@@ -47,7 +37,6 @@ open class FunctionCallNode(override var scope: Scope, val name: String, val arg
 
     if (name != other.name) return false
     if (arguments != other.arguments) return false
-    if (type != other.type) return false
 
     return true
   }
@@ -55,7 +44,6 @@ open class FunctionCallNode(override var scope: Scope, val name: String, val arg
   override fun hashCode(): Int {
     var result = name.hashCode()
     result = 31 * result + arguments.hashCode()
-    result = 31 * result + type.hashCode()
     return result
   }
 }

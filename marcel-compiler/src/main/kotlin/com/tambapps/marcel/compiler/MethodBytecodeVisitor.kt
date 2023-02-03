@@ -1,6 +1,7 @@
 package com.tambapps.marcel.compiler
 
 import com.tambapps.marcel.compiler.util.getMethod
+import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.ComparisonOperator
 import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
@@ -38,7 +39,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor, private val typeResol
     pushFunctionCallArguments(fCall.getMethod(typeResolver), fCall.arguments)
     mv.visitMethodInsn(Opcodes.INVOKESPECIAL, fCall.scope.superClass.internalName, fCall.name,
       // void return type for constructors
-      AsmUtils.getDescriptor(fCall.arguments, JavaType.void), false)
+      AsmUtils.getDescriptor(fCall.arguments.map { it.getType(typeResolver) }, JavaType.void), false)
   }
 
   // arguments should be pushed before calling this method
@@ -72,7 +73,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor, private val typeResol
     }
     for (i in method.parameters.indices) {
       val expectedType = method.parameters[i].type
-      val actualType = arguments[i].type
+      val actualType = arguments[i].getType(typeResolver)
       argumentPusher.pushArgument(arguments[i])
       castIfNecessaryOrThrow(expectedType, actualType)
     }
@@ -360,7 +361,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor, private val typeResol
       pushConstant(i)
       // push the value
       argumentPusher.pushArgument(elements[i])
-      castIfNecessaryOrThrow(type.elementsType, elements[i].type)
+      castIfNecessaryOrThrow(type.elementsType, elements[i].getType(typeResolver))
       // store value at index
       mv.visitInsn(type.arrayStoreCode)
     }
@@ -376,13 +377,13 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor, private val typeResol
       // push index
       argumentPusher.pushArgument(arg)
       // cast if necessary (e.g. Integer to int)
-      castIfNecessaryOrThrow(JavaType.int, arg.type)
+      castIfNecessaryOrThrow(JavaType.int, arg.getType(typeResolver))
       // load value in pushed array int pushed index
       mv.visitInsn(variableType.arrayLoadCode)
     } else {
       // must call getAt
       pushVariable(scope, variable)
-      invokeMethodWithArguments(typeResolver.findMethodOrThrow(variableType, "getAt", indexArguments), indexArguments)
+      invokeMethodWithArguments(typeResolver.findMethodOrThrow(variableType, "getAt", indexArguments.map { it.getType(typeResolver) }), indexArguments)
     }
   }
 
@@ -401,10 +402,10 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor, private val typeResol
       // push index
       argumentPusher.pushArgument(arg)
       // cast if necessary (e.g. Integer to int)
-      castIfNecessaryOrThrow(JavaType.int, arg.type)
+      castIfNecessaryOrThrow(JavaType.int, arg.getType(typeResolver))
       // push value to set
       argumentPusher.pushArgument(expression)
-      castIfNecessaryOrThrow(variableType.elementsType, expression.type)
+      castIfNecessaryOrThrow(variableType.elementsType, expression.getType(typeResolver))
 
       // load/store value in pushed array int pushed index
       mv.visitInsn(variableType.arrayStoreCode)
@@ -412,7 +413,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor, private val typeResol
       // must call putAt
       pushVariable(scope, variable)
       val putAtArguments = indexArguments + expression
-      invokeMethodWithArguments(typeResolver.findMethodOrThrow(variable.type, "putAt", putAtArguments), putAtArguments)
+      invokeMethodWithArguments(typeResolver.findMethodOrThrow(variable.type, "putAt", putAtArguments.map { it.getType(typeResolver) }), putAtArguments)
     }
   }
 }

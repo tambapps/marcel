@@ -9,9 +9,6 @@ class WhileStatement(val condition: BooleanExpressionNode, val body: BlockNode):
 
   override val expression = VoidExpression()
 
-
-  override fun accept(mv: AstNodeVisitor) {
-    mv.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
 }

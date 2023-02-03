@@ -8,14 +8,12 @@ import com.tambapps.marcel.parser.scope.InnerScope
 class BreakLoopNode(override var scope: InnerScope): StatementNode, ScopedNode<InnerScope> {
 
   override val expression = VoidExpression()
-  override fun accept(mv: AstNodeVisitor) {
-    mv.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
 }
 class ContinueLoopNode(val scope: InnerScope): StatementNode {
 
   override val expression = VoidExpression()
-  override fun accept(mv: AstNodeVisitor) {
-    mv.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
 }

@@ -1,5 +1,6 @@
 package com.tambapps.marcel.compiler
 
+import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
@@ -68,7 +69,7 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
 
     // checking return type AFTER having generated code because we want variable types to have been resolved
     val methodReturnType = methodNode.returnType
-    val blockReturnType = methodNode.block.type
+    val blockReturnType = methodNode.block.getType(typeResolver)
     if (methodReturnType != JavaType.void && !methodReturnType.isAssignableFrom(blockReturnType)
       && methodReturnType.primitive && !blockReturnType.primitive) {
       throw SemanticException("Return type of block doesn't match method return type. " +

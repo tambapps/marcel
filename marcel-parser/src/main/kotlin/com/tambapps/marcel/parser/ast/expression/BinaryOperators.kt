@@ -1,13 +1,11 @@
 package com.tambapps.marcel.parser.ast.expression
 
-import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.ast.ComparisonOperator
 import com.tambapps.marcel.parser.type.JavaType
 
 abstract class BinaryOperatorNode(val leftOperand: ExpressionNode, open val rightOperand: ExpressionNode): ExpressionNode {
-  override val type: JavaType get() = JavaType.commonType(leftOperand, rightOperand)
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (javaClass != other?.javaClass) return false
@@ -16,15 +14,12 @@ abstract class BinaryOperatorNode(val leftOperand: ExpressionNode, open val righ
 
     if (leftOperand != other.leftOperand) return false
     if (rightOperand != other.rightOperand) return false
-    if (type != other.type) return false
-
     return true
   }
 
   override fun hashCode(): Int {
     var result = leftOperand.hashCode()
     result = 31 * result + rightOperand.hashCode()
-    result = 31 * result + type.hashCode()
     return result
   }
 
@@ -37,9 +32,8 @@ abstract class BinaryOperatorNode(val leftOperand: ExpressionNode, open val righ
 
 class MulOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   BinaryOperatorNode(leftOperand, rightOperand) {
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
 
   override fun toString(): String {
     return "$leftOperand * $rightOperand"
@@ -48,9 +42,7 @@ class MulOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
 
 class DivOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   BinaryOperatorNode(leftOperand, rightOperand) {
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {
     return "$leftOperand / $rightOperand"
@@ -59,9 +51,8 @@ class DivOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
 
 class PlusOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   BinaryOperatorNode(leftOperand, rightOperand) {
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
 
   override fun toString(): String {
     return "$leftOperand + $rightOperand"
@@ -69,9 +60,8 @@ class PlusOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
 }
 class MinusOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   BinaryOperatorNode(leftOperand, rightOperand) {
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
 
   override fun toString(): String {
     return "$leftOperand - $rightOperand"
@@ -80,9 +70,7 @@ class MinusOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
 
 class PowOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   BinaryOperatorNode(leftOperand, rightOperand) {
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {
     return "$leftOperand ^ $rightOperand"
@@ -95,31 +83,23 @@ open class InvokeAccessOperator(leftOperand: ExpressionNode, final override val 
   init {
     rightOperand.methodOwnerType = leftOperand
   }
-
-  override val type: JavaType
-    get() = rightOperand.type
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {
     return "$leftOperand.$rightOperand"
   }
 }
 
-class NullSafeInvokeAccessOperator(leftOperand: ExpressionNode, override val rightOperand: FunctionCallNode) :
-  BinaryOperatorNode(leftOperand, rightOperand) {
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(
-      TernaryNode(
-        BooleanExpressionNode(
-          ComparisonOperatorNode(ComparisonOperator.NOT_EQUAL, NullValueNode(), leftOperand)
-        ),
-        InvokeAccessOperator(leftOperand, rightOperand), NullValueNode(leftOperand.type)
-      )
-    )
-  }
+class NullSafeInvokeAccessOperator(val leftOperand: ExpressionNode, val rightOperand: FunctionCallNode) :
+  TernaryNode(BooleanExpressionNode(
+    ComparisonOperatorNode(ComparisonOperator.NOT_EQUAL, NullValueNode(), leftOperand)
+  ),
+    InvokeAccessOperator(leftOperand, rightOperand),
+    NullValueNode()) {
 
+  init {
+    rightOperand.methodOwnerType = leftOperand
+  }
   override fun toString(): String {
     return "$leftOperand?.$rightOperand"
   }
@@ -128,42 +108,30 @@ class NullSafeInvokeAccessOperator(leftOperand: ExpressionNode, override val rig
 open class GetFieldAccessOperator(leftOperand: ExpressionNode, override val rightOperand: ReferenceExpression) :
     BinaryOperatorNode(leftOperand, rightOperand) {
 
-  val fieldVariable get() = leftOperand.type.findFieldOrThrow(rightOperand.name)
-  override val type: JavaType
-    get() = fieldVariable.type
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {
     return "$leftOperand.$rightOperand"
   }
 }
 
-class NullSafeGetFieldAccessOperator(leftOperand: ExpressionNode, override val rightOperand: ReferenceExpression) :
-  BinaryOperatorNode(leftOperand, rightOperand) {
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(
-      TernaryNode(
-        BooleanExpressionNode(
-          ComparisonOperatorNode(ComparisonOperator.NOT_EQUAL, NullValueNode(), leftOperand)
-        ),
-        GetFieldAccessOperator(leftOperand, rightOperand), NullValueNode(leftOperand.type)
-      )
-    )
-  }
+class NullSafeGetFieldAccessOperator(val leftOperand: ExpressionNode, val rightOperand: ReferenceExpression) :
+  TernaryNode(BooleanExpressionNode(
+    ComparisonOperatorNode(ComparisonOperator.NOT_EQUAL, NullValueNode(), leftOperand)
+  ),
+    GetFieldAccessOperator(leftOperand, rightOperand),
+    NullValueNode()) {
 
   override fun toString(): String {
     return "$leftOperand?.$rightOperand"
   }
 }
+
 class ComparisonOperatorNode(val operator: ComparisonOperator, leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   BinaryOperatorNode(leftOperand, rightOperand) {
 
-  override val type = JavaType.boolean
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
 
   override fun toString(): String {
     return "$leftOperand $operator $rightOperand"
@@ -172,10 +140,7 @@ class ComparisonOperatorNode(val operator: ComparisonOperator, leftOperand: Expr
 
 class AndOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode):
   BinaryOperatorNode(BooleanExpressionNode(leftOperand), BooleanExpressionNode(rightOperand)) {
-  override val type = JavaType.boolean
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {
     return "$leftOperand && $rightOperand"
@@ -184,10 +149,8 @@ class AndOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode):
 
 class OrOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode):
   BinaryOperatorNode(BooleanExpressionNode(leftOperand), BooleanExpressionNode(rightOperand)) {
-  override val type = JavaType.boolean
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
 
   override fun toString(): String {
     return "$leftOperand || $rightOperand"
@@ -196,10 +159,8 @@ class OrOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode):
 
 class LeftShiftOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode):
   BinaryOperatorNode(leftOperand, rightOperand) {
-  override val type = JavaType.Object
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
 
   override fun toString(): String {
     return "$leftOperand << $rightOperand"
@@ -208,10 +169,8 @@ class LeftShiftOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNod
 
 class RightShiftOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode):
   BinaryOperatorNode(leftOperand, rightOperand) {
-  override val type = JavaType.Object
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
 
   override fun toString(): String {
     return "$leftOperand << $rightOperand"
@@ -220,10 +179,8 @@ class RightShiftOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNo
 
 class ElvisOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode):
   BinaryOperatorNode(leftOperand, rightOperand) {
-  override val type = JavaType.commonType(leftOperand, rightOperand)
-  override fun accept(astNodeVisitor: AstNodeVisitor) {
-    astNodeVisitor.visit(this)
-  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
 
   override fun toString(): String {
     return "$leftOperand ?: $rightOperand"
