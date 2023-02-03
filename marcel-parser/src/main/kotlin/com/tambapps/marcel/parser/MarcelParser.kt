@@ -3,7 +3,6 @@ package com.tambapps.marcel.parser
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.ParserUtils.isTypeToken
-import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.BreakLoopNode
@@ -143,7 +142,6 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         else -> statements.add(statement(runScope))
       }
     }
-    classMethods.forEach { classType.defineMethod(it) }
     return classNode
   }
 

@@ -1,5 +1,6 @@
 package com.tambapps.marcel.compiler
 
+import com.tambapps.marcel.compiler.util.getMethod
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.ComparisonOperator
 import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
@@ -17,7 +18,7 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.Method
 
-class MethodBytecodeVisitor(private val mv: MethodVisitor) {
+class MethodBytecodeVisitor(private val mv: MethodVisitor, private val typeResolver: JavaTypeResolver) {
 
   lateinit var argumentPusher: ArgumentPusher
 
@@ -26,7 +27,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     val classInternalName = type.internalName
     mv.visitTypeInsn(Opcodes.NEW, classInternalName)
     mv.visitInsn(Opcodes.DUP)
-    val constructorMethod = fCall.method
+    val constructorMethod = fCall.getMethod(typeResolver)
     pushFunctionCallArguments(constructorMethod, fCall.arguments)
     mv.visitMethodInsn(
       Opcodes.INVOKESPECIAL, classInternalName, JavaMethod.CONSTRUCTOR_NAME, constructorMethod.descriptor, false)
@@ -34,7 +35,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
 
   fun visitSuperConstructorCall(fCall: SuperConstructorCallNode) {
     mv.visitVarInsn(Opcodes.ALOAD, 0)
-    pushFunctionCallArguments(fCall.method, fCall.arguments)
+    pushFunctionCallArguments(fCall.getMethod(typeResolver), fCall.arguments)
     mv.visitMethodInsn(Opcodes.INVOKESPECIAL, fCall.scope.superClass.internalName, fCall.name,
       // void return type for constructors
       AsmUtils.getDescriptor(fCall.arguments, JavaType.void), false)
@@ -214,15 +215,15 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
       } else if (expectedType != JavaType.Object && actualType.isArray) {
         // lists
         if (JavaType.intList.isAssignableFrom(expectedType) && actualType == JavaType.intArray) {
-          invokeMethod(JavaType.intListImpl.findMethodOrThrow("wrap", listOf(JavaType.intArray)))
+          invokeMethod(typeResolver.findMethodOrThrow(JavaType.intListImpl, "wrap", listOf(JavaType.intArray)))
         } else if (JavaType.longList.isAssignableFrom(expectedType) && actualType == JavaType.longArray) {
-          invokeMethod(JavaType.longListImpl.findMethodOrThrow("wrap", listOf(JavaType.longArray)))
+          invokeMethod(typeResolver.findMethodOrThrow(JavaType.longListImpl, "wrap", listOf(JavaType.longArray)))
         } else if (JavaType.floatList.isAssignableFrom(expectedType) && actualType == JavaType.floatArray) {
-          invokeMethod(JavaType.floatListImpl.findMethodOrThrow("wrap", listOf(JavaType.floatArray)))
+          invokeMethod(typeResolver.findMethodOrThrow(JavaType.floatListImpl, "wrap", listOf(JavaType.floatArray)))
         } else if (JavaType.doubleList.isAssignableFrom(expectedType) && actualType == JavaType.doubleArray) {
-          invokeMethod(JavaType.doubleListImpl.findMethodOrThrow("wrap", listOf(JavaType.doubleArray)))
+          invokeMethod(typeResolver.findMethodOrThrow(JavaType.doubleListImpl, "wrap", listOf(JavaType.doubleArray)))
         } else if (JavaType.booleanList.isAssignableFrom(expectedType) && actualType == JavaType.booleanArray) {
-          invokeMethod(JavaType.booleanListImpl.findMethodOrThrow("wrap", listOf(JavaType.booleanArray)))
+          invokeMethod(typeResolver.findMethodOrThrow(JavaType.booleanListImpl, "wrap", listOf(JavaType.booleanArray)))
         } else if (JavaType.of(List::class.java).isAssignableFrom(expectedType) && actualType.isArray) {
           invokeMethod(BytecodeHelper::class.java.getDeclaredMethod("createList", JavaType.Object.realClazz))
         }
@@ -381,7 +382,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
     } else {
       // must call getAt
       pushVariable(scope, variable)
-      invokeMethodWithArguments(variableType.findMethodOrThrow("getAt", indexArguments), indexArguments)
+      invokeMethodWithArguments(typeResolver.findMethodOrThrow(variableType, "getAt", indexArguments), indexArguments)
     }
   }
 
@@ -411,7 +412,7 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor) {
       // must call putAt
       pushVariable(scope, variable)
       val putAtArguments = indexArguments + expression
-      invokeMethodWithArguments(variable.type.findMethodOrThrow("putAt", putAtArguments), putAtArguments)
+      invokeMethodWithArguments(typeResolver.findMethodOrThrow(variable.type, "putAt", putAtArguments), putAtArguments)
     }
   }
 }

@@ -1,5 +1,6 @@
 package com.tambapps.marcel.compiler
 
+import com.tambapps.marcel.compiler.util.getMethod
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.BreakLoopNode
@@ -37,6 +38,7 @@ interface ArgumentPusher {
 private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
 
   val mv: MethodBytecodeVisitor
+  val typeResolver: JavaTypeResolver
 
 
   override fun visit(unaryMinus: UnaryMinus) {
@@ -111,7 +113,7 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
     if (type1.primitive) {
       throw SemanticException("Doesn't support left shirt operator for primitive type")
     }
-    val leftShiftMethod = type1.findMethodOrThrow(operatorMethodName, listOf(binaryOperatorNode.rightOperand.type))
+    val leftShiftMethod = typeResolver.findMethodOrThrow(type1, operatorMethodName, listOf(binaryOperatorNode.rightOperand.type))
     pushArgument(binaryOperatorNode.leftOperand)
     mv.invokeMethodWithArguments(leftShiftMethod, binaryOperatorNode.rightOperand)
     return leftShiftMethod.returnType
@@ -142,7 +144,7 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
             return // the above method returns a boolean
           }
           else -> {
-            val method = leftOperand.type.findMethodOrThrow("compareTo", listOf(rightOperand.type))
+            val method = typeResolver.findMethodOrThrow(leftOperand.type, "compareTo", listOf(rightOperand.type))
             if (method.returnType != JavaType.int) throw SemanticException("compareTo method should return an int in order to be used in comparator")
             mv.invokeMethod(method)
             mv.pushConstant(0) // pushing 0 because we're comparing two numbers below
@@ -211,7 +213,7 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
   }
 
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator) {
-    val field = getFieldAccessOperator.fieldVariable
+    val field = typeResolver.findFieldOrThrow(getFieldAccessOperator.leftOperand.type, getFieldAccessOperator.rightOperand.name)
     if (!field.isStatic) {
       pushArgument(getFieldAccessOperator.leftOperand)
     }
@@ -224,7 +226,7 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
   }
 
   override fun visit(fCall: FunctionCallNode) {
-    val method = fCall.method
+    val method = fCall.getMethod(typeResolver)
     val methodOwner = fCall.methodOwnerType
     if (method.isInline) {
       val inlineMethod = method as MethodNode
@@ -301,9 +303,9 @@ private interface IInstructionGenerator: AstNodeVisitor, ArgumentPusher {
 /**
  * Generates expression bytecode but don't push them to the stack. (Useful for statement expressions)
  */
-class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstructionGenerator {
+class InstructionGenerator(override val mv: MethodBytecodeVisitor, override val typeResolver: JavaTypeResolver): IInstructionGenerator {
 
-  private val pushingInstructionGenerator = PushingInstructionGenerator(mv)
+  private val pushingInstructionGenerator = PushingInstructionGenerator(mv, typeResolver)
   init {
     mv.argumentPusher = this
     pushingInstructionGenerator.mv.argumentPusher = pushingInstructionGenerator
@@ -381,7 +383,7 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
 
     // creating iterator
     val iteratorVarName = "_tempIterator"
-    val getIteratorMethod = expression.type.findMethodOrThrow("iterator", emptyList())
+    val getIteratorMethod = typeResolver.findMethodOrThrow(expression.type, "iterator", emptyList())
     // get right method in function of types, to avoid auto-(un/debo)xing
     val methodName = if (JavaType.of(IntIterator::class.java).isAssignableFrom(getIteratorMethod.returnType)) "nextInt"
     else if (JavaType.of(IntIterator::class.java).isAssignableFrom(getIteratorMethod.returnType)) "next"
@@ -647,7 +649,8 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor): IInstruction
   }
 }
 
-private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor): IInstructionGenerator {
+private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor,
+                                          override val typeResolver: JavaTypeResolver): IInstructionGenerator {
   lateinit var instructionGenerator: InstructionGenerator
 
 
@@ -693,7 +696,7 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
       }
       pushArgument(entry.second)
       mv.castIfNecessaryOrThrow(JavaType.Object, entry.second.type)
-      mv.invokeMethod(literalMapNode.type.findMethodOrThrow(
+      mv.invokeMethod(typeResolver.findMethodOrThrow(literalMapNode.type,
         "put",
         listOf(putMethodKeysType, JavaType.Object)
       ))
@@ -716,7 +719,7 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
 
   override fun visit(notNode: NotNode) {
     when (notNode.operand.type) {
-      JavaType.Boolean -> mv.invokeMethodWithArguments(JavaType.Boolean.findMethodOrThrow("booleanValue", emptyList()), notNode.operand)
+      JavaType.Boolean -> mv.invokeMethodWithArguments(typeResolver.findMethodOrThrow(JavaType.Boolean, "booleanValue", emptyList()), notNode.operand)
       JavaType.boolean -> notNode.operand.accept(this)
       else -> throw SemanticException("Cannot negate something other than a boolean")
     }

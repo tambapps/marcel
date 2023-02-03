@@ -9,9 +9,7 @@ import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.ModuleNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.type.JavaType
-import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import marcel.lang.methods.DefaultMarcelMethods
-import marcel.lang.methods.DefaultMarcelStaticMethods
 import org.objectweb.asm.ClassWriter
 import java.io.IOException
 import java.io.Reader
@@ -23,14 +21,18 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
   @Throws(IOException::class, MarcelLexerException::class, MarcelParsingException::class, SemanticException::class)
   fun compile(reader: Reader, className: String? = null): CompilationResult {
     val tokens = MarcelLexer().lex(reader)
-    val extensionClassLoader = ExtensionClassLoader()
+    val typeResolver = JavaTypeResolver()
+    val extensionClassLoader = ExtensionClassLoader(typeResolver)
     extensionClassLoader.loadExtensionMethods(DefaultMarcelMethods::class.java)
     val parser = if (className != null) MarcelParser(className, tokens) else MarcelParser(tokens)
     val ast = parser.parse()
-    return compile(ast)
+    ast.classes.forEach { classNode: ClassNode ->
+      classNode.methods.forEach { typeResolver.defineMethod(classNode.type, it) }
+    }
+    return compile(typeResolver, ast)
   }
 
-  private fun compile(moduleNode: ModuleNode): CompilationResult {
+  private fun compile(typeResolver: JavaTypeResolver, moduleNode: ModuleNode): CompilationResult {
     if (moduleNode.classes.size > 1) throw UnsupportedOperationException("Doesn't support definition of multiple classes in one file")
     // handling only one class for now
     val classNode = moduleNode.classes.first()
@@ -42,14 +44,14 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
 
     for (methodNode in classNode.methods) {
       if (methodNode.isInline) continue // inline method are not to be written (?)
-      writeMethod(classWriter, classNode, methodNode)
+      writeMethod(typeResolver, classWriter, classNode, methodNode)
     }
 
     classWriter.visitEnd()
     return CompilationResult(classWriter.toByteArray(), classNode.type.className)
   }
 
-  private fun writeMethod(classWriter: ClassWriter, classNode: ClassNode, methodNode: MethodNode) {
+  private fun writeMethod(typeResolver: JavaTypeResolver, classWriter: ClassWriter, classNode: ClassNode, methodNode: MethodNode) {
     val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.descriptor, null, null)
     mv.visitCode()
 
@@ -59,7 +61,7 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
     for (param in methodNode.scope.parameters) {
       methodNode.scope.addLocalVariable(param.type, param.name)
     }
-    val instructionGenerator = InstructionGenerator(MethodBytecodeVisitor(mv))
+    val instructionGenerator = InstructionGenerator(MethodBytecodeVisitor(mv, typeResolver), typeResolver)
 
     // writing method
     instructionGenerator.visit(methodNode.block)
