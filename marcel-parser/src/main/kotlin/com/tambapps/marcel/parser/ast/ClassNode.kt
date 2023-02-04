@@ -3,11 +3,15 @@ package com.tambapps.marcel.parser.ast
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.Scope
+import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 
-class ClassNode constructor(val scope: Scope, val access: Int, val type: JavaType, val parentType: JavaType,
-                val methods: MutableList<MethodNode>,
-                val innerClasses: MutableList<ClassNode>): AstNode {
+class ClassNode constructor(val scope: Scope, val access: Int, val type: JavaType, val superType: JavaType,
+                            val methods: MutableList<MethodNode>,
+                            val innerClasses: MutableList<ClassNode>): AstNode {
+
+  val constructorsCount: Int
+    get() = methods.count { it.name == JavaMethod.CONSTRUCTOR_NAME }
 
   val internalName = AsmUtils.getInternalName(type)
   fun addMethod(method: MethodNode) {

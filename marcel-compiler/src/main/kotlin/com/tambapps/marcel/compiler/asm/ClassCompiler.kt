@@ -5,10 +5,15 @@ import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.parser.ast.ClassNode
+import com.tambapps.marcel.parser.ast.ConstructorNode
 import com.tambapps.marcel.parser.ast.MethodNode
+import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.scope.MethodScope
+import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.ClassWriter
+import org.objectweb.asm.Opcodes
 
 class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
                     private val typeResolver: JavaTypeResolver) {
@@ -23,7 +28,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     classNode.methods.forEach { typeResolver.defineMethod(classNode.type, it) }
     val classWriter = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
     // creating class
-    classWriter.visit(compilerConfiguration.classVersion,  classNode.access, classNode.internalName, null, classNode.parentType.internalName, null)
+    classWriter.visit(compilerConfiguration.classVersion,  classNode.access, classNode.internalName, null, classNode.superType.internalName, null)
 
     for (innerClass in classNode.innerClasses) {
       // define inner class
@@ -32,6 +37,13 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
       classWriter.visitInnerClass(innerClass.type.internalName, classNode.type.internalName, innerClass.type.innerName, innerClass.access)
     }
 
+    if (classNode.constructorsCount == 0) {
+      // if no constructor is defined, we'll define one for you
+      val emptyConstructorScope = MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)
+      classNode.methods.add(
+        ConstructorNode(classNode.superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(emptyConstructorScope, emptyList()), mutableListOf(), emptyConstructorScope),
+      )
+    }
     for (methodNode in classNode.methods) {
       if (methodNode.isInline) continue // inline method are not to be written (?)
       writeMethod(typeResolver, classWriter, classNode, methodNode)
