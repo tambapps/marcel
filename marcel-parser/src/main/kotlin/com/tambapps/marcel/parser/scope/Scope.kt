@@ -1,6 +1,7 @@
 package com.tambapps.marcel.parser.scope
 
 import com.tambapps.marcel.parser.MethodParameter
+import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.ast.StaticImportNode
@@ -12,8 +13,8 @@ import marcel.lang.methods.DefaultMarcelStaticMethods
 import org.objectweb.asm.Label
 
 // note that extensionMethods may not be needed. It could be added directly on the Java Type
-open class Scope constructor(val imports: MutableList<ImportNode>, val classType: JavaType, val superClass: JavaType) {
-  constructor(javaType: JavaType): this(mutableListOf(), javaType, JavaType.Object) {
+open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports: MutableList<ImportNode>, val classType: JavaType, val superClass: JavaType) {
+  constructor(typeResolver: AstNodeTypeResolver, javaType: JavaType): this(typeResolver, mutableListOf(), javaType, JavaType.Object) {
     imports.addAll(DEFAULT_IMPORTS)
   }
 
@@ -70,7 +71,7 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
   }
 
   fun copy(): Scope {
-    return Scope(imports, classType, superClass)
+    return Scope(typeResolver, imports, classType, superClass)
   }
 
   fun resolveClassName(classSimpleName: String): String {
@@ -101,18 +102,18 @@ open class Scope constructor(val imports: MutableList<ImportNode>, val classType
 
 }
 
-open class MethodScope constructor(imports: MutableList<ImportNode>, classType: JavaType, superClass: JavaType, val methodName: String,
+open class MethodScope constructor(typeResolver: AstNodeTypeResolver, imports: MutableList<ImportNode>, classType: JavaType, superClass: JavaType, val methodName: String,
                        val parameters: List<MethodParameter>, val returnType: JavaType)
-  : Scope(imports, classType, superClass) {
+  : Scope(typeResolver, imports, classType, superClass) {
 
     constructor(scope: Scope,
                 methodName: String,
                 parameters: List<MethodParameter>, returnType: JavaType):
-        this(scope.imports, scope.classType, scope.superClass, methodName, parameters, returnType)
+        this(scope.typeResolver, scope.imports, scope.classType, scope.superClass, methodName, parameters, returnType)
 }
 
 class InnerScope constructor(private val parentScope: MethodScope)
-  : MethodScope(parentScope.imports, parentScope.classType, parentScope.superClass, parentScope.methodName, parentScope.parameters, parentScope.returnType) {
+  : MethodScope(parentScope.typeResolver, parentScope.imports, parentScope.classType, parentScope.superClass, parentScope.methodName, parentScope.parameters, parentScope.returnType) {
 
   // we want to access local variable defined in parent scope
   override val localVariables: MutableList<LocalVariable>

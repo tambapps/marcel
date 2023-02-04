@@ -29,9 +29,9 @@ import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.abs
 
-class MarcelParser(private val classSimpleName: String, private val tokens: List<LexToken>) {
+class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val classSimpleName: String, private val tokens: List<LexToken>) {
 
-  constructor(tokens: List<LexToken>): this("MarcelRandomClass_" + abs(ThreadLocalRandom.current().nextInt()), tokens)
+  constructor(typeResolver: AstNodeTypeResolver, tokens: List<LexToken>): this(typeResolver, "MarcelRandomClass_" + abs(ThreadLocalRandom.current().nextInt()), tokens)
 
   private var currentIndex = 0
 
@@ -80,7 +80,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
     // TODO parse optional super type and interfaces
     val classType = JavaType.defineClass(className, JavaType.Object, false)
-    val classScope = Scope(imports, classType, JavaType.Object)
+    val classScope = Scope(typeResolver, imports, classType, JavaType.Object)
     val methods = mutableListOf<MethodNode>()
     val classNode = ClassNode(classScope, access, classType, JavaType.Object, methods)
     accept(TokenType.BRACKETS_OPEN)
@@ -97,7 +97,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
     val superType = JavaType.of(Script::class.java)
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
     val classType = JavaType.defineClass(className, superType, false)
-    val classScope = Scope(imports, classType, superType)
+    val classScope = Scope(typeResolver, imports, classType, superType)
     val runScope = MethodScope(classScope, className, emptyList(), JavaType.Object)
     val statements = mutableListOf<StatementNode>()
     val runBlock = FunctionBlockNode(runScope, statements)
@@ -468,7 +468,7 @@ class MarcelParser(private val classSimpleName: String, private val tokens: List
         val className = scope.resolveClassName(classSimpleName)
         accept(TokenType.LPAR)
         val type = JavaType.of(className)
-        ConstructorCallNode(Scope(type), type, parseFunctionArguments(scope))
+        ConstructorCallNode(Scope(typeResolver, type), type, parseFunctionArguments(scope))
       }
       TokenType.IDENTIFIER -> {
         if (current.type == TokenType.INCR) {

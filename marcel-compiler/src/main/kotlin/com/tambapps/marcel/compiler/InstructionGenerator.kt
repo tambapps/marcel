@@ -790,7 +790,7 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor
     }
     // new StringBuilder() can just provide an empty new scope as we'll just use it to extract the method from StringBuilder which already exists in the JDK
     val type = JavaType.of(StringBuilder::class.java)
-    visit(ConstructorCallNode(Scope(type), type, mutableListOf()))
+    visit(ConstructorCallNode(Scope(typeResolver, type), type, mutableListOf()))
     for (part in stringNode.parts) {
       // chained calls
       val argumentType = part.getType(typeResolver)

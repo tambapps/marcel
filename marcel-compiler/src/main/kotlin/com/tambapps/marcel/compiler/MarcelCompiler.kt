@@ -25,7 +25,7 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
     val typeResolver = JavaTypeResolver()
     val extensionClassLoader = ExtensionClassLoader(typeResolver)
     extensionClassLoader.loadExtensionMethods(DefaultMarcelMethods::class.java)
-    val parser = if (className != null) MarcelParser(className, tokens) else MarcelParser(tokens)
+    val parser = if (className != null) MarcelParser(typeResolver, className, tokens) else MarcelParser(typeResolver, tokens)
     val ast = parser.parse()
     ast.classes.forEach { classNode: ClassNode ->
       classNode.methods.forEach { typeResolver.defineMethod(classNode.type, it) }
