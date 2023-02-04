@@ -39,6 +39,7 @@ interface AstNodeVisitor<T> {
   fun visit(unaryPlus: UnaryPlus): T
   fun visit(blockNode: BlockNode): T
   fun visit(blockNode: FunctionBlockNode): T
+  fun visit(lambdaNode: LambdaNode): T
 
   fun visit(expressionStatementNode: ExpressionStatementNode): T
   fun visit(variableDeclarationNode: VariableDeclarationNode): T

@@ -6,6 +6,7 @@ import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.ComparisonOperator
 import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
+import com.tambapps.marcel.parser.ast.expression.LambdaNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.*
@@ -73,8 +74,13 @@ class MethodBytecodeVisitor(private val mv: MethodVisitor, private val typeResol
     }
     for (i in method.parameters.indices) {
       val expectedType = method.parameters[i].type
-      val actualType = arguments[i].getType(typeResolver)
-      argumentPusher.pushArgument(arguments[i])
+      val argument = arguments[i]
+      if (argument is LambdaNode && expectedType.isInterface) {
+        // TODO find a cleaner way to do this
+        argument.interfaceType = expectedType
+      }
+      val actualType = argument.getType(typeResolver)
+      argumentPusher.pushArgument(argument)
       castIfNecessaryOrThrow(expectedType, actualType)
     }
   }

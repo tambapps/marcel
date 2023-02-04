@@ -264,6 +264,10 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     }
   }
 
+  override fun visit(lambdaNode: LambdaNode) {
+    // TODO add a lambdaHandler that will then write inner class
+    TODO("Not yet implemented")
+  }
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     var expression = variableAssignmentNode.expression
     val variable = variableAssignmentNode.scope.findVariable(variableAssignmentNode.name)
@@ -277,6 +281,8 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       else if (JavaType.booleanList.isAssignableFrom(variableType) || JavaType.booleanSet.isAssignableFrom(variableType)) JavaType.boolean
       else throw SemanticException("Couldn't guess type of empty array. You can explicitly specify your wanted type with the 'as' keyword (e.g. '[] as int[]')")
       expression = EmptyArrayNode(JavaType.arrayType(elementsType))
+    } else if (variableType.isInterface && variableAssignmentNode.expression is LambdaNode) {
+      (variableAssignmentNode.expression as LambdaNode).interfaceType = variableType
     }
     pushArgument(expression)
     mv.castIfNecessaryOrThrow(variable.type, expression.getType(typeResolver))

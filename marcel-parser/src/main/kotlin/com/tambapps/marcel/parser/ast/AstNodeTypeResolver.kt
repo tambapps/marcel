@@ -21,6 +21,7 @@ import com.tambapps.marcel.parser.ast.expression.IndexedReferenceExpression
 import com.tambapps.marcel.parser.ast.expression.IndexedVariableAssignmentNode
 import com.tambapps.marcel.parser.ast.expression.IntConstantNode
 import com.tambapps.marcel.parser.ast.expression.InvokeAccessOperator
+import com.tambapps.marcel.parser.ast.expression.LambdaNode
 import com.tambapps.marcel.parser.ast.expression.LeftShiftOperator
 import com.tambapps.marcel.parser.ast.expression.LiteralArrayNode
 import com.tambapps.marcel.parser.ast.expression.LiteralMapNode
@@ -159,6 +160,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
   override fun visit(blockNode: FunctionBlockNode) = visit(blockNode as BlockNode)
 
+  override fun visit(lambdaNode: LambdaNode) = lambdaNode.interfaceType ?: TODO()
 
   override fun visit(expressionStatementNode: ExpressionStatementNode) = expressionStatementNode.expression.accept(this)
 
