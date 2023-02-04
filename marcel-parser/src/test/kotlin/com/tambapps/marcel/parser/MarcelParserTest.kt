@@ -67,7 +67,7 @@ class MarcelParserTest {
                 listOf(MethodParameter(JavaType.int, "a"), MethodParameter(JavaType.int, "b")), JavaType.int)
         , false)
 
-        val actual = parser.method(ClassNode(classScope, Opcodes.ACC_PUBLIC, type, JavaType.Object, mutableListOf()))
+        val actual = parser.method(ClassNode(classScope, Opcodes.ACC_PUBLIC, type, JavaType.Object, mutableListOf(), mutableListOf()))
         // verifying method signature
         assertEquals(expected.toString(), actual.toString())
 

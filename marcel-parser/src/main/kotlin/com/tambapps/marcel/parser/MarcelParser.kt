@@ -82,13 +82,20 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     val classType = JavaType.defineClass(className, JavaType.Object, false)
     val classScope = Scope(typeResolver, imports, classType, JavaType.Object)
     val methods = mutableListOf<MethodNode>()
-    val classNode = ClassNode(classScope, access, classType, JavaType.Object, methods)
+    val innerClasses = mutableListOf<ClassNode>()
+    val classNode = ClassNode(classScope, access, classType, JavaType.Object, methods, innerClasses)
     accept(TokenType.BRACKETS_OPEN)
 
     while (current.type != TokenType.BRACKETS_CLOSE) {
-      methods.add(method(classNode, isExtensionClass))
+      if (current.type == TokenType.CLASS
+        || lookup(1)?.type == TokenType.CLASS
+        || lookup(2)?.type == TokenType.CLASS) {
+        innerClasses.add(parseClass(imports, packageName))
+      } else {
+        methods.add(method(classNode, isExtensionClass))
+      }
     }
-    skip()
+    skip() // skipping brackets close
     return classNode
   }
 
@@ -125,21 +132,28 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       )), bindingConstructorParameters, bindingConstructorScope)
     )
     classMethods.add(runFunction)
+    val innerClasses = mutableListOf<ClassNode>()
     val classNode = ClassNode(classScope,
-      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, classType, JavaType.of(Script::class.java), classMethods)
+      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, classType, JavaType.of(Script::class.java), classMethods, innerClasses)
 
     while (current.type != TokenType.END_OF_FILE) {
-      when (current.type) {
-        TokenType.FUN, TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED,
-        TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE, TokenType.STATIC,
-        TokenType.INLINE -> {
-          val method = method(classNode)
-          if (method.name == "main") {
-            throw SemanticException("Cannot have a \"main\" function in a script")
+      if (current.type == TokenType.CLASS
+        || lookup(1)?.type == TokenType.CLASS
+        || lookup(2)?.type == TokenType.CLASS) {
+        innerClasses.add(parseClass(imports, packageName))
+      } else {
+        when (current.type) {
+          TokenType.FUN, TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED,
+          TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE, TokenType.STATIC,
+          TokenType.INLINE -> {
+            val method = method(classNode)
+            if (method.name == "main") {
+              throw SemanticException("Cannot have a \"main\" function in a script")
+            }
+            classNode.addMethod(method)
           }
-          classNode.addMethod(method)
+          else -> statements.add(statement(runScope))
         }
-        else -> statements.add(statement(runScope))
       }
     }
     return classNode
