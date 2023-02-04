@@ -23,7 +23,7 @@ class JarWriter {
 
     for (compiledClass in compiledClasses) {
       JarOutputStream(FileOutputStream(outputFile), manifest).use { outputStream ->
-        val jarEntry = JarEntry(compiledClass.simpleClassName.replace('.', '/') + ".class")
+        val jarEntry = JarEntry(compiledClass.className.replace('.', '/') + ".class")
         outputStream.putNextEntry(jarEntry)
         outputStream.write(compiledClass.bytes)
         outputStream.closeEntry()

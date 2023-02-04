@@ -119,7 +119,7 @@ fun compile(file: File, className: String, keepClassFiles: Boolean, keepJarFile:
 
   for (compiledClass in result.classes) {
     if (!keepClassFiles && !keepJarFile || keepClassFiles) { // if no option is specified
-      File("${compiledClass.simpleClassName}.class").writeBytes(compiledClass.bytes)
+      File("${compiledClass.className}.class").writeBytes(compiledClass.bytes)
     }
   }
 
