@@ -13,21 +13,31 @@ import org.objectweb.asm.ClassWriter
 class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
                     private val typeResolver: JavaTypeResolver) {
 
-  fun compileClass(classNode: ClassNode): CompiledClass {
+  fun compileClass(classNode: ClassNode): List<CompiledClass> {
+    val classes = mutableListOf<CompiledClass>()
+    compileRec(classes, classNode)
+    return classes
+  }
+
+  private fun compileRec(classes: MutableList<CompiledClass>, classNode: ClassNode) {
     classNode.methods.forEach { typeResolver.defineMethod(classNode.type, it) }
     val classWriter = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
-
     // creating class
     classWriter.visit(compilerConfiguration.classVersion,  classNode.access, classNode.internalName, null, classNode.parentType.internalName, null)
-    //https://github.com/JakubDziworski/Enkel-JVM-language/blob/master/compiler/src/main/java/com/kubadziworski/bytecodegeneration/MethodGenerator.java
 
     for (methodNode in classNode.methods) {
       if (methodNode.isInline) continue // inline method are not to be written (?)
       writeMethod(typeResolver, classWriter, classNode, methodNode)
     }
 
+    for (innerClass in classNode.innerClasses) {
+      // define inner class
+      compileRec(classes, innerClass)
+      // Add the inner class to the outer class
+      classWriter.visitInnerClass(innerClass.type.internalName, classNode.type.internalName, innerClass.type.innerName, innerClass.access)
+    }
     classWriter.visitEnd()
-    return CompiledClass(classNode.type.className, classWriter.toByteArray())
+    classes.add(CompiledClass(classNode.type.className, classWriter.toByteArray()))
   }
 
   private fun writeMethod(typeResolver: JavaTypeResolver, classWriter: ClassWriter, classNode: ClassNode, methodNode: MethodNode) {

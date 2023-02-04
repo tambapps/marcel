@@ -37,6 +37,10 @@ interface JavaType: AstTypedObject {
   val internalName
     get() = AsmUtils.getInternalName(className)
   val descriptor: String
+  val innerName: String? get() {
+    val i = className.lastIndexOf('$')
+    return if (i < 0) null else className.substring(i + 1)
+  }
 
   val storeCode: Int
   val loadCode: Int
@@ -121,6 +125,10 @@ interface JavaType: AstTypedObject {
       return JavaType.Object
     }
     fun defineClass(className: String, superClass: JavaType, isInterface: Boolean): JavaType {
+      return defineClass(null, className, superClass, isInterface)
+    }
+    fun defineClass(outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean): JavaType {
+      val className = if (outerClassType != null) "${outerClassType.className}\$$cName" else cName
       try {
         Class.forName(className)
         throw SemanticException("Class $className is already defined")

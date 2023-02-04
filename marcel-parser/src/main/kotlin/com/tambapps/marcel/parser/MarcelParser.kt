@@ -71,7 +71,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     return moduleNode
   }
 
-  private fun parseClass(imports: MutableList<ImportNode>, packageName: String?): ClassNode {
+  private fun parseClass(imports: MutableList<ImportNode>, packageName: String?, outerClassType: JavaType? = null): ClassNode {
     val (access, isInline) = parseAccess()
     if (isInline) throw MarcelParsingException("Cannot use 'inline' keyword for a class")
     val isExtensionClass = acceptOptional(TokenType.EXTENSION) != null
@@ -79,7 +79,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     val classSimpleName = accept(TokenType.IDENTIFIER).value
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
     // TODO parse optional super type and interfaces
-    val classType = JavaType.defineClass(className, JavaType.Object, false)
+    val classType = JavaType.defineClass(outerClassType, className, JavaType.Object, false)
     val classScope = Scope(typeResolver, imports, classType, JavaType.Object)
     val methods = mutableListOf<MethodNode>()
     val innerClasses = mutableListOf<ClassNode>()
@@ -90,7 +90,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       if (current.type == TokenType.CLASS
         || lookup(1)?.type == TokenType.CLASS
         || lookup(2)?.type == TokenType.CLASS) {
-        innerClasses.add(parseClass(imports, packageName))
+        innerClasses.add(parseClass(imports, packageName, classType))
       } else {
         methods.add(method(classNode, isExtensionClass))
       }
@@ -140,7 +140,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       if (current.type == TokenType.CLASS
         || lookup(1)?.type == TokenType.CLASS
         || lookup(2)?.type == TokenType.CLASS) {
-        innerClasses.add(parseClass(imports, packageName))
+        innerClasses.add(parseClass(imports, packageName, classType))
       } else {
         when (current.type) {
           TokenType.FUN, TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED,

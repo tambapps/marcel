@@ -23,7 +23,7 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
     val parser = if (className != null) MarcelParser(typeResolver, className, tokens) else MarcelParser(typeResolver, tokens)
     val ast = parser.parse()
     val classCompiler = ClassCompiler(compilerConfiguration, typeResolver)
-    val compiledClasses = ast.classes.map { classCompiler.compileClass(it) }
+    val compiledClasses = ast.classes.flatMap { classCompiler.compileClass(it) }
     return CompilationResult(compiledClasses)
   }
 
