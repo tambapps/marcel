@@ -82,10 +82,7 @@ class JavaTypeResolver: AstNodeTypeResolver() {
 
   private val classMethods = mutableMapOf<String, MutableList<JavaMethod>>()
 
-
   fun defineMethod(javaType: JavaType, method: JavaMethod) {
-    // TODO defining in both durnig transition
-    javaType.defineMethod(method)
     val methods = getTypeMethods(javaType)
     if (methods.any { it.matches(method.name, method.parameters) }) {
       throw SemanticException("Method with $method is already defined")
@@ -93,11 +90,7 @@ class JavaTypeResolver: AstNodeTypeResolver() {
     methods.add(method)
   }
 
-  fun findMethodOrThrow(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>): JavaMethod {
-    return findMethod(javaType, name, argumentTypes) ?: throw SemanticException("Method $this.$name with parameters ${argumentTypes.map { it.type }} is not defined")
-  }
-
-  fun findMethod(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>, excludeInterfaces: Boolean = false): JavaMethod? {
+  override fun findMethod(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>, excludeInterfaces: Boolean): JavaMethod? {
     val methods = getTypeMethods(javaType)
     var m = methods.find { it.matches(name, argumentTypes) }
     if (m != null) return m
@@ -150,11 +143,7 @@ class JavaTypeResolver: AstNodeTypeResolver() {
     return classMethods.computeIfAbsent(javaType.className) { mutableListOf() }
   }
 
-  fun findFieldOrThrow(javaType: JavaType, name: String, declared: Boolean = true): MarcelField {
-    return findField(javaType, name, declared) ?: throw SemanticException("Field $name was not found")
-  }
-
-  fun findField(javaType: JavaType, name: String, declared: Boolean): MarcelField? {
+  override fun findField(javaType: JavaType, name: String, declared: Boolean): MarcelField? {
     if (javaType.isLoaded) {
       val clazz = javaType.realClazz
       val field = try {

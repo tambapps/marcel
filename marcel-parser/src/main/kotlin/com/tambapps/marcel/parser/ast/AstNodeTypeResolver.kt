@@ -59,11 +59,29 @@ import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.type.JavaArrayType
+import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.IntRange
 
 open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
+
+  fun findMethodOrThrow(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>): JavaMethod {
+    return findMethod(javaType, name, argumentTypes) ?: throw SemanticException("Method $this.$name with parameters ${argumentTypes.map { it.type }} is not defined")
+  }
+
+  open fun findMethod(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>, excludeInterfaces: Boolean = false): JavaMethod? {
+    return null
+  }
+
+  fun findFieldOrThrow(javaType: JavaType, name: String, declared: Boolean = true): MarcelField {
+    return findField(javaType, name, declared) ?: throw SemanticException("Field $name was not found")
+  }
+
+  open fun findField(javaType: JavaType, name: String, declared: Boolean): MarcelField? {
+    return null
+  }
 
   fun resolve(node: ExpressionNode) = node.accept(this)
   fun resolve(node: StatementNode) = node.accept(this)
@@ -129,7 +147,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
   override fun visit(indexedReferenceExpression: IndexedReferenceExpression) =
     if (indexedReferenceExpression.variable.type.isArray) (indexedReferenceExpression.variable.type as JavaArrayType).elementsType
-    else indexedReferenceExpression.variable.type.findMethodOrThrow("getAt", indexedReferenceExpression.indexArguments.map { it.accept(this) }).returnType
+    else findMethodOrThrow(indexedReferenceExpression.variable.type, "getAt", indexedReferenceExpression.indexArguments.map { it.accept(this) }).returnType
 
   private fun visitUnaryOperator(unaryOperator: UnaryOperator) = unaryOperator.operand.accept(this)
 

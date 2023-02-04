@@ -5,9 +5,6 @@ import com.tambapps.marcel.parser.MarcelParsingException
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.exception.SemanticException
-import com.tambapps.marcel.parser.scope.ClassField
-import com.tambapps.marcel.parser.scope.MarcelField
-import com.tambapps.marcel.parser.scope.MethodField
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList
 import it.unimi.dsi.fastutil.booleans.BooleanList
 import it.unimi.dsi.fastutil.booleans.BooleanSet
@@ -86,19 +83,6 @@ interface JavaType: AstTypedObject {
       }
       return false
     }
-  }
-
-  fun defineMethod(method: JavaMethod)
-
-  fun findMethod(name: String, argumentTypes: List<AstTypedObject>, excludeInterfaces: Boolean = false): JavaMethod?
-
-  fun findMethodOrThrow(name: String, argumentTypes: List<AstTypedObject>): JavaMethod {
-    return findMethod(name, argumentTypes) ?: throw SemanticException("Method $this.$name with parameters ${argumentTypes.map { it.type }} is not defined")
-  }
-
-  fun findField(name: String, declared: Boolean = true): MarcelField?
-  fun findFieldOrThrow(name: String, declared: Boolean = true): MarcelField {
-    return findField(name, declared) ?: throw SemanticException("Field $name was not found")
   }
 
   companion object {
@@ -329,63 +313,8 @@ abstract class AbstractJavaType: JavaType {
 
     return true
   }
-
-  protected val methods = mutableListOf<JavaMethod>()
-
-  override fun defineMethod(method: JavaMethod) {
-    if (methods.any { it.matches(method.name, method.parameters) }) {
-      throw SemanticException("Method with $method is already defined")
-    }
-    methods.add(method)
-  }
-
-  override fun findMethod(name: String, argumentTypes: List<AstTypedObject>, excludeInterfaces: Boolean): JavaMethod? {
-    var m = methods.find { it.matches(name, argumentTypes) }
-    if (m != null) return m
-
-    if (isLoaded) {
-      val clazz = type.realClazz
-      val candidates = if (name == JavaMethod.CONSTRUCTOR_NAME) {
-        clazz.declaredConstructors
-          .map { ReflectJavaConstructor(it) }
-          .filter { it.matches(argumentTypes) }
-      } else {
-        clazz.declaredMethods
-          .filter { it.name == name }
-          .map { ReflectJavaMethod(it, this) }
-          .filter { it.matches(argumentTypes) }
-      }
-      m = getMoreSpecificMethod(candidates)
-      if (m != null) return m
-    }
-
-    // search in super types
-    var type = superType
-    while (type != null) {
-      m = type.findMethod(name, argumentTypes, true)
-      if (m != null) return m
-      type = type.superType
-    }
-
-    // now search on all implemented interfaces
-    for (interfaze in allImplementedInterfaces) {
-      m = interfaze.findMethod(name, argumentTypes)
-      if (m != null) return m
-    }
-    return null
-  }
-
-  private fun getMoreSpecificMethod(candidates: List<JavaMethod>): JavaMethod? {
-    // inspired from Class.searchMethods()
-    var m: JavaMethod? = null
-    for (candidate in candidates) {
-      if (m == null
-        || (m.returnType != candidate.returnType
-            && m.returnType.isAssignableFrom(candidate.returnType))) m = candidate
-    }
-    return m
-  }
 }
+
 class NotLoadedJavaType internal constructor(override val className: String, override val genericTypes: List<JavaType>, override val superType: JavaType?, override val isInterface: Boolean): AbstractJavaType() {
 
   override val isLoaded = false
@@ -415,23 +344,10 @@ class NotLoadedJavaType internal constructor(override val className: String, ove
     if (genericTypes.any { it.primitive }) {
       throw MarcelParsingException("Cannot have a primitive type as generic type")
     }
-    val genericType = NotLoadedJavaType(className, genericTypes, superType, isInterface)
-    genericType.methods.addAll(methods)
-    return genericType
-  }
-
-  override fun findField(name: String, declared: Boolean): MarcelField? {
-    // TODO doesn't search on defined fields of notloaded type. Only search on super classes that are Loaded
-    // searching on super types
-    var type: JavaType? = JavaType.of(superType?.className!!)
-    while (type != null) {
-      val f = type.findField(name, declared)
-      if (f != null) return f
-      type = if (type.superType != null) JavaType.of(type.superType?.className!!) else null
-    }
-    return null
+    return NotLoadedJavaType(className, genericTypes, superType, isInterface)
   }
 }
+
 abstract class LoadedJavaType internal constructor(final override val realClazz: Class<*>, final override val genericTypes: List<JavaType>,
                               override val storeCode: Int, override val loadCode: Int, override val returnCode: Int): AbstractJavaType() {
   override val isLoaded = true
@@ -499,25 +415,6 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
     return true
   }
 
-  override fun findField(name: String, declared: Boolean): MarcelField? {
-    val clazz = realClazz
-    val field = try {
-      clazz.getDeclaredField(name)
-    } catch (e: NoSuchFieldException) {
-      null
-    }
-    if (field != null) {
-      return ClassField(JavaType.of(field.type), field.name, this, field.modifiers)
-    }
-    // try to find getter
-    val methodFieldName = name.replaceFirstChar { it.uppercase() }
-    val getterMethod  = findMethod("get$methodFieldName", emptyList())
-    val setterMethod = findMethod("set$methodFieldName", listOf(this))
-    if (getterMethod != null || setterMethod != null) {
-      return MethodField.from(this, name, getterMethod, setterMethod)
-    }
-    return null
-  }
 }
 
 class LoadedObjectType(
@@ -528,9 +425,7 @@ class LoadedObjectType(
   constructor(realClazz: Class<*>): this(realClazz, emptyList())
 
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
-    val genericType = LoadedObjectType(realClazz, genericTypes)
-    genericType.methods.addAll(methods)
-    return genericType
+    return LoadedObjectType(realClazz, genericTypes)
   }
 
 }

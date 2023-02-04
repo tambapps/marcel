@@ -52,7 +52,7 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
 
   fun getMethod(name: String, argumentTypes: List<AstTypedObject>): JavaMethod {
     // find first on class, then on imports, then on extensions
-    return (classType.findMethod(name, argumentTypes)
+    return (typeResolver.findMethod(classType, name, argumentTypes)
       // fallback on static imported method
       ?: imports.asSequence().mapNotNull { it.resolveMethod(name, argumentTypes) }.firstOrNull())
       ?: throw SemanticException("Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
@@ -67,7 +67,7 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
       index+= variable.nbSlots
     }
     // now searching on fields
-    return classType.findField(name, true) ?: throw SemanticException("Variable $name is not defined")
+    return typeResolver.findField(classType, name, true) ?: throw SemanticException("Variable $name is not defined")
   }
 
   fun copy(): Scope {
