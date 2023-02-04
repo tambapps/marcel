@@ -8,7 +8,6 @@ import java.util.jar.JarEntry
 import java.util.jar.JarOutputStream
 import java.util.jar.Manifest
 
-
 class JarWriter {
 
   fun writeScriptJar(compilationResult: CompilationResult, outputFile: File) {
@@ -20,9 +19,8 @@ class JarWriter {
       mainAttributes[Attributes.Name.MANIFEST_VERSION] = "1.0"
       mainAttributes[Attributes.Name("Created-By")] = "Marcel"
     }
-
-    for (compiledClass in compiledClasses) {
-      JarOutputStream(FileOutputStream(outputFile), manifest).use { outputStream ->
+    JarOutputStream(FileOutputStream(outputFile), manifest).use { outputStream ->
+      for (compiledClass in compiledClasses) {
         val jarEntry = JarEntry(compiledClass.className.replace('.', '/') + ".class")
         outputStream.putNextEntry(jarEntry)
         outputStream.write(compiledClass.bytes)
