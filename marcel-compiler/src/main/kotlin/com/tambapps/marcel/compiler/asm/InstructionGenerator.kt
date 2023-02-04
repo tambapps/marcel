@@ -1,5 +1,6 @@
-package com.tambapps.marcel.compiler
+package com.tambapps.marcel.compiler.asm
 
+import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.compiler.util.getKeysType
 import com.tambapps.marcel.compiler.util.getMethod
 import com.tambapps.marcel.compiler.util.getType
@@ -39,7 +40,7 @@ interface ArgumentPusher {
 }
 private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
-  val mv: MethodBytecodeVisitor
+  val mv: MethodBytecodeWriter
   val typeResolver: JavaTypeResolver
 
 
@@ -312,7 +313,8 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 /**
  * Generates expression bytecode but don't push them to the stack. (Useful for statement expressions)
  */
-class InstructionGenerator(override val mv: MethodBytecodeVisitor, override val typeResolver: JavaTypeResolver): IInstructionGenerator {
+class InstructionGenerator(override val mv: MethodBytecodeWriter, override val typeResolver: JavaTypeResolver):
+  IInstructionGenerator {
 
   private val pushingInstructionGenerator = PushingInstructionGenerator(mv, typeResolver)
   init {
@@ -658,8 +660,9 @@ class InstructionGenerator(override val mv: MethodBytecodeVisitor, override val 
   }
 }
 
-private class PushingInstructionGenerator(override val mv: MethodBytecodeVisitor,
-                                          override val typeResolver: JavaTypeResolver): IInstructionGenerator {
+private class PushingInstructionGenerator(override val mv: MethodBytecodeWriter,
+                                          override val typeResolver: JavaTypeResolver
+): IInstructionGenerator {
   lateinit var instructionGenerator: InstructionGenerator
 
 

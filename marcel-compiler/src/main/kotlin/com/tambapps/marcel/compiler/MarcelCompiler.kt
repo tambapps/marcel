@@ -1,5 +1,7 @@
 package com.tambapps.marcel.compiler
 
+import com.tambapps.marcel.compiler.asm.InstructionGenerator
+import com.tambapps.marcel.compiler.asm.MethodBytecodeWriter
 import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
@@ -64,7 +66,7 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
     for (param in methodNode.scope.parameters) {
       methodNode.scope.addLocalVariable(param.type, param.name)
     }
-    val instructionGenerator = InstructionGenerator(MethodBytecodeVisitor(mv, typeResolver), typeResolver)
+    val instructionGenerator = InstructionGenerator(MethodBytecodeWriter(mv, typeResolver), typeResolver)
 
     // writing method
     instructionGenerator.visit(methodNode.block)

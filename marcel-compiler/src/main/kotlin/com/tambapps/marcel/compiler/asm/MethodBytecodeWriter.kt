@@ -1,5 +1,6 @@
-package com.tambapps.marcel.compiler
+package com.tambapps.marcel.compiler.asm
 
+import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.compiler.util.getMethod
 import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.parser.asm.AsmUtils
@@ -20,7 +21,7 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.Method
 
-class MethodBytecodeVisitor(private val mv: MethodVisitor, private val typeResolver: JavaTypeResolver) {
+class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolver: JavaTypeResolver) {
 
   lateinit var argumentPusher: ArgumentPusher
 
