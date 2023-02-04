@@ -244,6 +244,8 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     return BlockNode(scope, statements)
   }
 
+  // TODO this function should return a String. type should not be resolved while parsing.
+  //  but before doing that we need to improve the JavaType.of(...) method so that it handles array types
   private fun parseType(scope: Scope): JavaType {
     val token = next()
     return when (token.type) {
