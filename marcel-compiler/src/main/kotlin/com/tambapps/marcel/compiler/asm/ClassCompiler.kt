@@ -25,16 +25,16 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     // creating class
     classWriter.visit(compilerConfiguration.classVersion,  classNode.access, classNode.internalName, null, classNode.parentType.internalName, null)
 
-    for (methodNode in classNode.methods) {
-      if (methodNode.isInline) continue // inline method are not to be written (?)
-      writeMethod(typeResolver, classWriter, classNode, methodNode)
-    }
-
     for (innerClass in classNode.innerClasses) {
       // define inner class
       compileRec(classes, innerClass)
       // Add the inner class to the outer class
       classWriter.visitInnerClass(innerClass.type.internalName, classNode.type.internalName, innerClass.type.innerName, innerClass.access)
+    }
+
+    for (methodNode in classNode.methods) {
+      if (methodNode.isInline) continue // inline method are not to be written (?)
+      writeMethod(typeResolver, classWriter, classNode, methodNode)
     }
     classWriter.visitEnd()
     classes.add(CompiledClass(classNode.type.className, classWriter.toByteArray()))

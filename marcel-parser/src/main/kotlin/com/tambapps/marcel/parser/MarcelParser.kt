@@ -271,7 +271,8 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
             }
             accept(TokenType.GT)
           }
-          JavaType.of(className, genericTypes)
+
+          JavaType.of(scope.resolveClassName(className), genericTypes)
         }
       }
       else -> throw UnsupportedOperationException("Doesn't handle type ${token.type}")

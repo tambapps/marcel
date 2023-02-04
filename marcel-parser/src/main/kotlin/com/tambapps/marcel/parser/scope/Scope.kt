@@ -75,6 +75,10 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
   }
 
   fun resolveClassName(classSimpleName: String): String {
+    try {
+      // try searching inner class
+      return JavaType.of(classType.className + '$' + classSimpleName).className
+    } catch (e: SemanticException) {}
     val matchedClasses = imports.mapNotNull { it.resolveClassName(classSimpleName) }.toSet()
     if (matchedClasses.isEmpty()) {
       return classSimpleName
