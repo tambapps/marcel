@@ -107,16 +107,17 @@ class MarcelCompilerTest {
   }
 
   private fun eval(resourceName: String): Any? {
+    val className = "Test" + resourceName.hashCode().absoluteValue
     val result = javaClass.getResourceAsStream(resourceName).reader().use {
       // using hashCode to have unique names
-      compiler.compile(it, "Test" + resourceName.hashCode().absoluteValue)
+      compiler.compile(it, className)
     }
 
-    val jarFile = Files.createTempFile("", "${result.className}.jar").toFile()
-    JarWriter().writeScriptJar(result.className, result.bytes, jarFile)
+    val jarFile = Files.createTempFile("", "$className.jar").toFile()
+    JarWriter().writeScriptJar(result, jarFile)
 
     val classLoader = URLClassLoader(arrayOf(jarFile.toURI().toURL()), MarcelCompiler::class.java.classLoader)
-    val clazz = classLoader.loadClass(result.className)
+    val clazz = classLoader.loadClass(className)
     return try {
       clazz.getMethod("run", Array<String>::class.java)
         .invoke(clazz.getDeclaredConstructor().newInstance(), arrayOf<String>())

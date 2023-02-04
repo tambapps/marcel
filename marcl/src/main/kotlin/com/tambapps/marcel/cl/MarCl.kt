@@ -124,9 +124,8 @@ fun compile(file: File, className: String, keepClassFiles: Boolean, keepJarFile:
   }
 
   if (!keepJarFile) return null
-  // TODO should include ALL compiled classes
   val jarFile = File(file.parentFile, "$className.jar")
-  JarWriter().writeScriptJar(result.classes.first().simpleClassName, result.classes.first().bytes, jarFile)
+  JarWriter().writeScriptJar(result.classes, jarFile)
   return jarFile
 }
 

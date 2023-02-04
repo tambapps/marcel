@@ -11,19 +11,23 @@ import java.util.jar.Manifest
 
 class JarWriter {
 
-  fun writeScriptJar(className: String, classBytes: ByteArray, outputFile: File) {
+  fun writeScriptJar(compilationResult: CompilationResult, outputFile: File) {
+    writeScriptJar(compilationResult.classes, outputFile)
+  }
+
+  fun writeScriptJar(compiledClasses: List<CompiledClass>, outputFile: File) {
     val manifest = Manifest().apply {
-      mainAttributes[Attributes.Name.MAIN_CLASS] = className
       mainAttributes[Attributes.Name.MANIFEST_VERSION] = "1.0"
       mainAttributes[Attributes.Name("Created-By")] = "Marcel"
     }
 
-    JarOutputStream(FileOutputStream(outputFile), manifest).use { outputStream ->
-      val jarEntry = JarEntry(className.replace('.', '/') + ".class")
-      outputStream.putNextEntry(jarEntry)
-      outputStream.write(classBytes)
-      outputStream.closeEntry()
+    for (compiledClass in compiledClasses) {
+      JarOutputStream(FileOutputStream(outputFile), manifest).use { outputStream ->
+        val jarEntry = JarEntry(compiledClass.simpleClassName.replace('.', '/') + ".class")
+        outputStream.putNextEntry(jarEntry)
+        outputStream.write(compiledClass.bytes)
+        outputStream.closeEntry()
+      }
     }
-
   }
 }
