@@ -78,9 +78,20 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     accept(TokenType.CLASS)
     val classSimpleName = accept(TokenType.IDENTIFIER).value
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
-    // TODO parse optional super type and interfaces
-    val classType = JavaType.defineClass(outerClassType, className, JavaType.Object, false)
-    val classScope = Scope(typeResolver, imports, classType, JavaType.Object)
+    // TODO types should be string for now, as we don't want to resolve types while parsing
+    var superType =
+      if (acceptOptional(TokenType.EXTENDS) != null) JavaType.of(accept(TokenType.IDENTIFIER).value)
+      else JavaType.Object
+    val interfaces = mutableListOf<String>()
+    if (acceptOptional(TokenType.IMPLEMENTS) != null) {
+      while (current.type == TokenType.IDENTIFIER) {
+        interfaces.add(accept(TokenType.IDENTIFIER).value)
+        acceptOptional(TokenType.COMMA)
+      }
+    }
+    // TODO use interfaces
+    val classType = JavaType.defineClass(outerClassType, className, superType, false)
+    val classScope = Scope(typeResolver, imports, classType, superType)
     val methods = mutableListOf<MethodNode>()
     val innerClasses = mutableListOf<ClassNode>()
     val classNode = ClassNode(classScope, access, classType, JavaType.Object, methods, innerClasses)
