@@ -63,7 +63,7 @@ import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.IntRange
 
-abstract class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
+open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
   fun resolve(node: ExpressionNode) = node.accept(this)
   fun resolve(node: StatementNode) = node.accept(this)
@@ -190,4 +190,12 @@ abstract class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
   // TODO change when supporting other primitive ranges
   override fun visit(rangeNode: RangeNode) = JavaType.of(IntRange::class.java)
 
+  // the below methods can't guess type without class info, so they just return objects
+  override fun visit(literalMapNode: LiteralMapNode): JavaType = JavaType.of(Map::class.java)
+
+  override fun visit(fCall: FunctionCallNode): JavaType = JavaType.Object
+
+  override fun visit(getFieldAccessOperator: GetFieldAccessOperator): JavaType = JavaType.Object
+
+  override fun visit(literalListNode: LiteralArrayNode): JavaArrayType = JavaType.objectArray
 }
