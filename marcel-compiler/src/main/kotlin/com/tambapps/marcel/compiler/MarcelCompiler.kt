@@ -49,7 +49,9 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
     }
 
     classWriter.visitEnd()
-    return CompilationResult(classWriter.toByteArray(), classNode.type.className)
+    val classes = mutableListOf<CompiledClass>()
+    classes.add(CompiledClass(classNode.type.className, classWriter.toByteArray()))
+    return CompilationResult(classes)
   }
 
   private fun writeMethod(typeResolver: JavaTypeResolver, classWriter: ClassWriter, classNode: ClassNode, methodNode: MethodNode) {

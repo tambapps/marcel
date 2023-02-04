@@ -7,7 +7,6 @@ import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
-import com.tambapps.marcel.compiler.CompilationResult
 import com.tambapps.marcel.compiler.JarWriter
 import com.tambapps.marcel.compiler.MarcelCompiler
 import com.tambapps.marcel.lexer.MarcelLexerException
@@ -29,25 +28,19 @@ class Marcl : CliktCommand(help = "MARCel Command Line tool") {
 }
 class CompileCommand : CliktCommand(help = "Compiles a Marcel class to a .class file and/or .jar file") {
   private val file by argument().file(mustExist = true, canBeFile = true, canBeDir = false, mustBeReadable = true)
-  private val keepClassFile by option("-c", "--keep-class", help = "keep compiled class file after execution").flag()
+  private val keepClassFiles by option("-c", "--keep-class", help = "keep compiled classes file after execution").flag()
   private val keepJarFile by option("-j", "--keep-jar", help = "keep compiled jar file after execution").flag()
   private val printStackTrace by option("-p", "--print-stack-trace", help = "print stack trace on compilation error").flag()
 
   override fun run() {
     val className = generateClassName(file.name)
-    val result = compile(file, className, printStackTrace) ?: return
-    if (!keepClassFile && !keepJarFile || keepClassFile) { // if no option is specified
-      File("$className.class").writeBytes(result.bytes)
-    }
-    if (keepJarFile) {
-      JarWriter().writeScriptJar(result.className, result.bytes, File(file.parentFile, "$className.jar"))
-    }
+    compile(file, className, keepClassFiles, keepJarFile, printStackTrace)
   }
 }
 
 class ExecuteCommand(private val scriptArguments: Array<String>) : CliktCommand(help = "Execute a marcel script") {
 
-  private val keepClassFile by option("-c", "--keep-class", help = "keep compiled class file after execution").flag()
+  private val keepClassFiles by option("-c", "--keep-class", help = "keep compiled class files after execution").flag()
   private val keepJarFile by option("-j", "--keep-jar", help = "keep compiled jar file after execution").flag()
   private val printStackTrace by option("-p", "--print-stack-trace", help = "print stack trace on compilation error").flag()
   private val file by argument().file(mustExist = true, canBeFile = true, canBeDir = false, mustBeReadable = true)
@@ -56,18 +49,15 @@ class ExecuteCommand(private val scriptArguments: Array<String>) : CliktCommand(
 
   override fun run() {
     val className = generateClassName(file.name)
-    val result = compile(file, className, printStackTrace) ?: return
 
-    if (keepClassFile) {
-      File("$className.class").writeBytes(result.bytes)
-    }
+    // we want to keep jar because we will run it
+    val jarFile = compile(file, className, keepClassFiles, true, printStackTrace)!!
 
-    val jarFile = File(file.parentFile, "$className.jar")
-    JarWriter().writeScriptJar(result.className, result.bytes, jarFile)
-
+    // load the jar into the classpath
     val classLoader = URLClassLoader(arrayOf(jarFile.toURI().toURL()), MarcelCompiler::class.java.classLoader)
     try {
-      val clazz = classLoader.loadClass(result.className)
+      // and then run it with the new classLoader
+      val clazz = classLoader.loadClass(className)
       if (Script::class.java.isAssignableFrom(clazz)) {
         val script = clazz.getDeclaredConstructor().newInstance() as Script
         script.run(scriptArguments)
@@ -102,8 +92,8 @@ fun main(args : Array<String>) {
   }
 }
 
-fun compile(file: File, className: String, printStackTrace: Boolean): CompilationResult? {
-  return try {
+fun compile(file: File, className: String, keepClassFiles: Boolean, keepJarFile: Boolean, printStackTrace: Boolean): File? {
+  val result = try {
     MarcelCompiler().compile(file.reader(), className)
   } catch (e: IOException) {
     println("An error occurred while reading file: ${e.message}")
@@ -126,6 +116,18 @@ fun compile(file: File, className: String, printStackTrace: Boolean): Compilatio
     if (printStackTrace) e.printStackTrace()
     return null
   }
+
+  for (compiledClass in result.classes) {
+    if (!keepClassFiles && !keepJarFile || keepClassFiles) { // if no option is specified
+      File("${compiledClass.simpleClassName}.class").writeBytes(compiledClass.bytes)
+    }
+  }
+
+  if (!keepJarFile) return null
+  // TODO should include ALL compiled classes
+  val jarFile = File(file.parentFile, "$className.jar")
+  JarWriter().writeScriptJar(result.classes.first().simpleClassName, result.classes.first().bytes, jarFile)
+  return jarFile
 }
 
 private fun generateClassName(fileName: String): String {
