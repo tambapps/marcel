@@ -147,7 +147,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
     }
 
   override fun visit(indexedReferenceExpression: IndexedReferenceExpression) =
-    if (indexedReferenceExpression.variable.type.isArray) (indexedReferenceExpression.variable.type as JavaArrayType).elementsType
+    if (indexedReferenceExpression.variable.type.isArray) (indexedReferenceExpression.variable.type.asArrayType).elementsType
     else findMethodOrThrow(indexedReferenceExpression.variable.type, "getAt", indexedReferenceExpression.indexArguments.map { it.accept(this) }).returnType
 
   private fun visitUnaryOperator(unaryOperator: UnaryOperator) = unaryOperator.operand.accept(this)

@@ -675,7 +675,7 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeWriter,
   }
 
   override fun visit(literalListNode: LiteralArrayNode) {
-    mv.newArray(literalListNode.getType(typeResolver) as JavaArrayType, literalListNode.elements)
+    mv.newArray(literalListNode.getType(typeResolver).asArrayType, literalListNode.elements)
   }
 
   override fun visit(literalMapNode: LiteralMapNode) {
@@ -860,23 +860,23 @@ private class PushingInstructionGenerator(override val mv: MethodBytecodeWriter,
 
   override fun visit(operator: MulOperator) {
     super.visit(operator)
-    mv.visitInsn((operator.getType(typeResolver) as JavaPrimitiveType).mulCode)
+    mv.visitInsn(operator.getType(typeResolver).asPrimitiveType.mulCode)
   }
 
   override fun visit(operator: DivOperator) {
     super.visit(operator)
-    mv.visitInsn((operator.getType(typeResolver) as JavaPrimitiveType).divCode)
+    mv.visitInsn(operator.getType(typeResolver).asPrimitiveType.divCode)
   }
 
   override fun visit(operator: MinusOperator) {
     super.visit(operator)
-    mv.visitInsn((operator.getType(typeResolver) as JavaPrimitiveType).subCode)
+    mv.visitInsn(operator.getType(typeResolver).asPrimitiveType.subCode)
   }
 
 
   override fun visit(operator: PlusOperator) {
     super.visit(operator)
-    mv.visitInsn((operator.getType(typeResolver) as JavaPrimitiveType).addCode)
+    mv.visitInsn(operator.getType(typeResolver).asPrimitiveType.addCode)
   }
 
   override fun visit(operator: PowOperator) {

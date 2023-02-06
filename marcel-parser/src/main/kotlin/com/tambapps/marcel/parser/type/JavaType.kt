@@ -52,6 +52,10 @@ interface JavaType: AstTypedObject {
   override val type: JavaType get() = this
   val realClazzOrObject: Class<*>
   val allImplementedInterfaces: Collection<JavaType>
+  val asPrimitiveType: JavaPrimitiveType
+    get() = throw RuntimeException("Compiler error: Illegal JavaType cast")
+  val asArrayType: JavaArrayType
+    get() = throw RuntimeException("Compiler error: Illegal JavaType cast")
 
   fun withGenericTypes(genericTypes: List<JavaType>): JavaType
   // return this type without generic types
@@ -73,7 +77,7 @@ interface JavaType: AstTypedObject {
     }
      */
     if (other.primitive && (
-          this in listOf(of(java.lang.Object::class.java), of(Number::class.java), of((other as JavaPrimitiveType).objectClass))
+          this in listOf(of(java.lang.Object::class.java), of(Number::class.java), of(other.asPrimitiveType.objectClass))
         )) {
       return true
     }
@@ -446,6 +450,8 @@ class JavaArrayType internal constructor(
   val typeCode: Int
 ): LoadedJavaType(realClazz, emptyList(), Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN) {
   override val isArray get() = true
+  override val asArrayType: JavaArrayType
+    get() = this
 
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
     throw SemanticException("Cannot have array type with generic types")
@@ -467,6 +473,8 @@ class JavaPrimitiveType internal constructor(
     throw SemanticException("Cannot have primitive type with generic types")
   }
 
+  override val asPrimitiveType: JavaPrimitiveType
+    get() = this
   override fun raw(): JavaType {
     return this
   }

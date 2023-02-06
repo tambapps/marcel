@@ -400,8 +400,8 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
     indexArguments: List<ExpressionNode>,
     expression: ExpressionNode
   ) {
-    if (variable.type is JavaArrayType) {
-      val variableType = variable.type as JavaArrayType
+    if (variable.type.isArray) {
+      val variableType = variable.type.asArrayType
       if (indexArguments.size != 1) throw SemanticException("Need only one int argument to get an array")
       val arg = indexArguments.first()
       // push array
