@@ -7,6 +7,7 @@ import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 
 class ClassNode constructor(val scope: Scope, val access: Int, val type: JavaType, val superType: JavaType,
+                            val isScript: Boolean,
                             val methods: MutableList<MethodNode>,
                             val innerClasses: MutableList<ClassNode>): AstNode {
 

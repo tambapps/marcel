@@ -93,7 +93,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     val classScope = Scope(typeResolver, imports, classType, superType)
     val methods = mutableListOf<MethodNode>()
     val innerClasses = mutableListOf<ClassNode>()
-    val classNode = ClassNode(classScope, access, classType, JavaType.Object, methods, innerClasses)
+    val classNode = ClassNode(classScope, access, classType, JavaType.Object, false, methods, innerClasses)
     accept(TokenType.BRACKETS_OPEN)
 
     while (current.type != TokenType.BRACKETS_CLOSE) {
@@ -124,27 +124,10 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       runBlock, mutableListOf(argsParameter), runScope.returnType, runScope, false)
     runScope.addLocalVariable(argsParameter.type, argsParameter.name)
 
-    // adding script constructors script have 2 constructors. One no-arg constructor, and one for Binding
-    val emptyConstructorScope = MethodScope(classScope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)
-    classMethods.add(
-      ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(emptyConstructorScope, emptyList()), mutableListOf(), emptyConstructorScope),
-    )
-
-    // second constructor with binding parameter
-    val bindingType = JavaType.of(Binding::class.java)
-    val bindingParameterName = "binding"
-    val bindingConstructorParameters = mutableListOf(MethodParameter(bindingType, bindingParameterName))
-    val bindingConstructorScope = MethodScope(classScope, JavaMethod.CONSTRUCTOR_NAME, bindingConstructorParameters, JavaType.void)
-    classMethods.add(
-      ConstructorNode(superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(bindingConstructorScope, listOf(
-        ExpressionStatementNode(SuperConstructorCallNode(classScope, mutableListOf(ReferenceExpression(
-          bindingConstructorScope, bindingParameterName))))
-      )), bindingConstructorParameters, bindingConstructorScope)
-    )
     classMethods.add(runFunction)
     val innerClasses = mutableListOf<ClassNode>()
     val classNode = ClassNode(classScope,
-      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, classType, JavaType.of(Script::class.java), classMethods, innerClasses)
+      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, classType, JavaType.of(Script::class.java), true, classMethods, innerClasses)
 
     while (current.type != TokenType.END_OF_FILE) {
       if (current.type == TokenType.CLASS
