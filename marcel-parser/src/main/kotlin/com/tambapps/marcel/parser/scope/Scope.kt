@@ -75,28 +75,22 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
   }
 
   fun resolveType(classSimpleName: String, genericTypes: List<JavaType>): JavaType {
+    val innerClassName = classType.className + '$' + classSimpleName
+    if (typeResolver.isDefined(innerClassName)) return typeResolver.of(innerClassName, emptyList())
     val className = resolveClassName(classSimpleName)
     return typeResolver.of(className, genericTypes)
   }
 
-  fun resolveClassName(classSimpleName: String): String {
-    try {
-      // try searching inner class
-      return JavaType.of(classType.className + '$' + classSimpleName).className
-    } catch (e: SemanticException) {}
+  private fun resolveClassName(classSimpleName: String): String {
     val matchedClasses = imports.mapNotNull { it.resolveClassName(classSimpleName) }.toSet()
-    if (matchedClasses.isEmpty()) {
-      return classSimpleName
-    } else if (matchedClasses.size == 1) {
-      return matchedClasses.first()
-    } else {
-      throw SemanticException("Ambiguous import for class $classSimpleName")
-    }
+    return if (matchedClasses.isEmpty()) classSimpleName
+    else if (matchedClasses.size == 1) matchedClasses.first()
+    else throw SemanticException("Ambiguous import for class $classSimpleName")
   }
 
   fun getTypeOrNull(name: String): JavaType? {
     return try {
-      JavaType.of(Class.forName(resolveClassName(name)))
+      resolveType(name, emptyList())
     } catch (e: ClassNotFoundException) {
       null
     }

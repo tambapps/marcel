@@ -23,7 +23,7 @@ class MarcelParserTest {
 
     private val lexer = MarcelLexer()
     private val typeResolver = AstNodeTypeResolver()
-    private val type = JavaType.of("Test")
+    private val type = JavaType.of("Test", emptyList())
     private val scope = MethodScope(typeResolver, mutableListOf(), type, JavaType.Object, "test", emptyList(), JavaType.void)
 
     @Test
@@ -79,7 +79,7 @@ class MarcelParserTest {
         val parser = parser("Type<Integer, Object> b = null")
 
         assertEquals(
-            VariableDeclarationNode(scope, JavaType.defineClass("Type", JavaType.of(Script::class.java), false).withGenericTypes(listOf(
+            VariableDeclarationNode(scope, typeResolver.defineClass("Type", JavaType.of(Script::class.java), false).withGenericTypes(listOf(
                 JavaType.of(Class.forName("java.lang.Integer")),
                 JavaType.of(Class.forName("java.lang.Object"))
             )), "b", NullValueNode()),
@@ -88,7 +88,7 @@ class MarcelParserTest {
 
     @AfterEach
     fun dispose() {
-        JavaType.clear()
+        typeResolver.clear()
     }
 
     private fun tokens(s: String): List<LexToken> {

@@ -90,7 +90,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     }
     // TODO use interfaces
     //  also, may need to be defined later, so just put string in class nodes
-    val classType = JavaType.defineClass(outerClassNode?.type, className, superType, false)
+    val classType = typeResolver.defineClass(outerClassNode?.type, className, superType, false)
     val classScope = Scope(typeResolver, imports, classType, superType)
     val methods = mutableListOf<MethodNode>()
     val innerClasses = mutableListOf<ClassNode>()
@@ -114,7 +114,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     val classMethods = mutableListOf<MethodNode>()
     val superType = JavaType.of(Script::class.java)
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
-    val classType = JavaType.defineClass(className, superType, false)
+    val classType = typeResolver.defineClass(className, superType, false)
     val classScope = Scope(typeResolver, imports, classType, superType)
     val runScope = MethodScope(classScope, className, emptyList(), JavaType.Object)
     val statements = mutableListOf<StatementNode>()
@@ -267,7 +267,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         } else type
       }
       TokenType.IDENTIFIER -> {
-        val className = scope.resolveClassName(token.value)
+        val className = token.value
         if (className == JavaType.Object.className && acceptOptional(TokenType.SQUARE_BRACKETS_OPEN) != null) {
           accept(TokenType.SQUARE_BRACKETS_CLOSE)
           JavaType.objectArray

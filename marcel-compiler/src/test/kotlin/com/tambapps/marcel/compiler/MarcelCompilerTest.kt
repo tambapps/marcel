@@ -30,7 +30,6 @@ class MarcelCompilerTest {
 
     return  scriptPaths.map { path: String ->
       DynamicTest.dynamicTest(path.removeSuffix(".marcel")) {
-        JavaType.clear()
         eval("/$path")
       }
     }
@@ -99,11 +98,6 @@ class MarcelCompilerTest {
     println(Arrays.toString(path.toFile().list()))
     val eval = eval("/test_this.marcel")
     assertTrue(eval is Script)
-  }
-
-  @AfterEach
-  fun dispose() {
-    JavaType.clear()
   }
 
   private fun eval(resourceName: String): Any? {

@@ -96,8 +96,6 @@ interface JavaType: AstTypedObject {
 
   companion object {
 
-    private val DEFINED_TYPES = mutableMapOf<String, JavaType>()
-
     fun commonType(list: List<AstTypedObject>): JavaType {
       if (list.isEmpty()) return void
       return list.reduce { acc, javaType -> commonType(acc, javaType) }.type
@@ -128,22 +126,6 @@ interface JavaType: AstTypedObject {
         }
       }
       return JavaType.Object
-    }
-    fun defineClass(className: String, superClass: JavaType, isInterface: Boolean): JavaType {
-      return defineClass(null, className, superClass, isInterface)
-    }
-    fun defineClass(outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean): JavaType {
-      val className = if (outerClassType != null) "${outerClassType.className}\$$cName" else cName
-      try {
-        Class.forName(className)
-        throw SemanticException("Class $className is already defined")
-      } catch (e: ClassNotFoundException) {
-        // ignore
-      }
-      if (DEFINED_TYPES.containsKey(className)) throw SemanticException("Class $className is already defined")
-      val type = NotLoadedJavaType(className, emptyList(), superClass, isInterface)
-      DEFINED_TYPES[className] = type
-      return type
     }
 
     fun of(clazz: Class<*>): JavaType {
@@ -182,15 +164,6 @@ interface JavaType: AstTypedObject {
         val type = PRIMITIVE_COLLECTION_TYPE_MAP[className]?.get(genericTypes.first())
         if (type != null) return type
       }
-      return of(className).withGenericTypes(genericTypes)
-    }
-
-    fun lazy(scope: Scope, className: String, genericTypes: List<JavaType>): JavaType {
-      return LazyJavaType(scope, className, genericTypes)
-    }
-
-    fun of(className: String): JavaType {
-      if (DEFINED_TYPES.containsKey(className)) return DEFINED_TYPES.getValue(className)
       try {
         return of(Class.forName(className))
       } catch (e: ClassNotFoundException) {
@@ -198,8 +171,8 @@ interface JavaType: AstTypedObject {
       }
     }
 
-    fun clear() {
-      DEFINED_TYPES.clear()
+    fun lazy(scope: Scope, className: String, genericTypes: List<JavaType>): JavaType {
+      return LazyJavaType(scope, className, genericTypes)
     }
 
     val Object = LoadedObjectType(Object::class.java)

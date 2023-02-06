@@ -74,6 +74,7 @@ import com.tambapps.marcel.parser.scope.MethodField
 import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
+import com.tambapps.marcel.parser.type.NotLoadedJavaType
 import com.tambapps.marcel.parser.type.ReflectJavaConstructor
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import marcel.lang.IntRange
@@ -169,7 +170,7 @@ class JavaTypeResolver: AstNodeTypeResolver() {
       while (type != null) {
         val f = findField(type, name, declared)
         if (f != null) return f
-        type = if (type.superType != null) JavaType.of(type.superType?.className!!) else null
+        type = type.superType
       }
       return null
     }

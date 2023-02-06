@@ -64,12 +64,45 @@ import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
+import com.tambapps.marcel.parser.type.NotLoadedJavaType
 import marcel.lang.IntRange
 
 open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
+  private val definedTypes = mutableMapOf<String, JavaType>()
+
+  fun defineClass(className: String, superClass: JavaType, isInterface: Boolean): JavaType {
+    return defineClass(null, className, superClass, isInterface)
+  }
+  fun defineClass(outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean): JavaType {
+    val className = if (outerClassType != null) "${outerClassType.className}\$$cName" else cName
+    try {
+      Class.forName(className)
+      throw SemanticException("Class $className is already defined")
+    } catch (e: ClassNotFoundException) {
+      // ignore
+    }
+    if (definedTypes.containsKey(className)) throw SemanticException("Class $className is already defined")
+    val type = NotLoadedJavaType(className, emptyList(), superClass, isInterface)
+    definedTypes[className] = type
+    return type
+  }
+
+  fun isDefined(className: String): Boolean {
+    return try {
+      of(className, emptyList())
+      true
+    } catch (e: SemanticException) {
+      false
+    }
+  }
+
+  fun clear() {
+    definedTypes.clear()
+  }
+
   open fun of(className: String, genericTypes: List<JavaType>): JavaType {
-    return JavaType.of(className, genericTypes)
+    return definedTypes[className] ?: JavaType.of(className, genericTypes)
   }
 
   fun findMethodOrThrow(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>): JavaMethod {
