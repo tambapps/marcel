@@ -80,7 +80,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
     // TODO types should be string for now, as we don't want to resolve types while parsing
     var superType =
-      if (acceptOptional(TokenType.EXTENDS) != null) JavaType.of(accept(TokenType.IDENTIFIER).value)
+      if (acceptOptional(TokenType.EXTENDS) != null) JavaType.lazy(accept(TokenType.IDENTIFIER).value)
       else JavaType.Object
     val interfaces = mutableListOf<String>()
     if (acceptOptional(TokenType.IMPLEMENTS) != null) {
@@ -255,8 +255,6 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     return BlockNode(scope, statements)
   }
 
-  // TODO this function should return a String. type should not be resolved while parsing.
-  //  but before doing that we need to improve the JavaType.of(...) method so that it handles array types
   private fun parseType(scope: Scope): JavaType {
     val token = next()
     return when (token.type) {
@@ -285,7 +283,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
             accept(TokenType.GT)
           }
 
-          JavaType.of(scope.resolveClassName(className), genericTypes)
+          JavaType.lazy(scope.resolveClassName(className), genericTypes)
         }
       }
       else -> throw UnsupportedOperationException("Doesn't handle type ${token.type}")
@@ -495,7 +493,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         val classSimpleName = accept(TokenType.IDENTIFIER).value
         val className = scope.resolveClassName(classSimpleName)
         accept(TokenType.LPAR)
-        val type = JavaType.of(className)
+        val type = JavaType.lazy(className)
         ConstructorCallNode(Scope(typeResolver, type), type, parseFunctionArguments(scope))
       }
       TokenType.IDENTIFIER -> {

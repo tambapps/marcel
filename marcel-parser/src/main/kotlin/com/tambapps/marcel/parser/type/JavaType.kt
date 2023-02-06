@@ -146,10 +146,8 @@ interface JavaType: AstTypedObject {
     }
 
     fun of(clazz: Class<*>): JavaType {
-      if (clazz.isPrimitive) {
-        return PRIMITIVES.find { it.className == clazz.name } ?: throw RuntimeException("Compiler error. Primitive type $clazz is not being handled")
-      }
-      return of(clazz.name)
+      return if (clazz.isPrimitive) PRIMITIVES.find { it.className == clazz.name } ?: throw RuntimeException("Primitive type $clazz is not being handled")
+      else LoadedObjectType(clazz)
     }
 
     fun mapType(keysType: JavaType, valuesType: JavaType): JavaType {
@@ -177,14 +175,17 @@ interface JavaType: AstTypedObject {
       }
       return of(className).withGenericTypes(genericTypes)
     }
+    fun lazy(className: String): JavaType {
+      return lazy(className, emptyList())
+    }
+    fun lazy(className: String, genericTypes: List<JavaType>): JavaType {
+      return LazyJavaType(className, genericTypes)
+    }
+
     fun of(className: String): JavaType {
-      // TODO defined types is only useful for not loaded classes.
       if (DEFINED_TYPES.containsKey(className)) return DEFINED_TYPES.getValue(className)
       try {
-        val clazz = Class.forName(className)
-        val type = LoadedObjectType(clazz)
-        DEFINED_TYPES[className] = type
-        return type
+        return of(Class.forName(className))
       } catch (e: ClassNotFoundException) {
         throw SemanticException("Class $className was not found")
       }
@@ -478,5 +479,52 @@ class JavaPrimitiveType internal constructor(
     get() = this
   override fun raw(): JavaType {
     return this
+  }
+}
+
+class LazyJavaType internal constructor(private val actualTypeName: String, private val _genericTypes: List<JavaType>): AbstractJavaType() {
+
+  private var _actualType: JavaType? = null
+  private val actualType: JavaType
+    get() {
+      if (_actualType == null) {
+        _actualType = JavaType.of(actualTypeName, _genericTypes)
+      }
+      return _actualType!!
+    }
+
+  override val isLoaded: Boolean
+    get() = actualType.isLoaded
+  override val realClazz: Class<*>
+    get() = actualType.realClazz
+  override val className: String
+    get() = actualType.className
+  override val superType: JavaType?
+    get() = actualType.superType
+  override val descriptor: String
+    get() = actualType.descriptor
+  override val storeCode: Int
+    get() = actualType.storeCode
+  override val loadCode: Int
+    get() = actualType.loadCode
+  override val returnCode: Int
+    get() = actualType.returnCode
+  override val genericTypes: List<JavaType>
+    get() = actualType.genericTypes
+  override val isInterface: Boolean
+    get() = actualType.isInterface
+  override val primitive: Boolean
+    get() = actualType.primitive
+  override val realClazzOrObject: Class<*>
+    get() = actualType.realClazzOrObject
+  override val allImplementedInterfaces: Collection<JavaType>
+    get() = actualType.allImplementedInterfaces
+
+  override val asArrayType: JavaArrayType
+    get() = actualType.asArrayType
+  override val asPrimitiveType: JavaPrimitiveType
+    get() = actualType.asPrimitiveType
+  override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
+    return actualType.withGenericTypes(genericTypes)
   }
 }
