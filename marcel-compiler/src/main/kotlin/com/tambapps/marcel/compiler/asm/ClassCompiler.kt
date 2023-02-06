@@ -30,13 +30,6 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     // creating class
     classWriter.visit(compilerConfiguration.classVersion,  classNode.access, classNode.internalName, null, classNode.superType.internalName, null)
 
-    for (innerClass in classNode.innerClasses) {
-      // define inner class
-      compileRec(classes, innerClass)
-      // Add the inner class to the outer class
-      classWriter.visitInnerClass(innerClass.type.internalName, classNode.type.internalName, innerClass.type.innerName, innerClass.access)
-    }
-
     if (classNode.constructorsCount == 0) {
       // if no constructor is defined, we'll define one for you
       val emptyConstructorScope = MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)
@@ -48,6 +41,14 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
       if (methodNode.isInline) continue // inline method are not to be written (?)
       writeMethod(typeResolver, classWriter, classNode, methodNode)
     }
+
+    for (innerClass in classNode.innerClasses) {
+      // define inner class
+      compileRec(classes, innerClass)
+      // Add the inner class to the outer class
+      classWriter.visitInnerClass(innerClass.type.internalName, classNode.type.internalName, innerClass.type.innerName, innerClass.access)
+    }
+
     classWriter.visitEnd()
     classes.add(CompiledClass(classNode.type.className, classWriter.toByteArray()))
   }
@@ -62,7 +63,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     for (param in methodNode.scope.parameters) {
       methodNode.scope.addLocalVariable(param.type, param.name)
     }
-    val instructionGenerator = InstructionGenerator(MethodBytecodeWriter(mv, typeResolver), typeResolver)
+    val instructionGenerator = InstructionGenerator(classNode, typeResolver, mv)
 
     // writing method
     instructionGenerator.visit(methodNode.block)

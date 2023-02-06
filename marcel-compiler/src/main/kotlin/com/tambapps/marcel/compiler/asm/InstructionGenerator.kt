@@ -28,6 +28,7 @@ import marcel.lang.IntRanges
 import marcel.lang.methods.MarcelTruth
 import marcel.lang.runtime.BytecodeHelper
 import org.objectweb.asm.Label
+import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import java.util.*
 
@@ -40,6 +41,7 @@ interface ArgumentPusher {
 }
 private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
+  val classNode: ClassNode
   val mv: MethodBytecodeWriter
   val typeResolver: JavaTypeResolver
 
@@ -312,10 +314,12 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 /**
  * Generates expression bytecode but don't push them to the stack. (Useful for statement expressions)
  */
-class InstructionGenerator(override val mv: MethodBytecodeWriter, override val typeResolver: JavaTypeResolver):
+class InstructionGenerator(override val classNode: ClassNode, override val typeResolver: JavaTypeResolver, methodVisitor: MethodVisitor):
   IInstructionGenerator {
 
-  private val pushingInstructionGenerator = PushingInstructionGenerator(mv, typeResolver)
+  override val mv = MethodBytecodeWriter(methodVisitor, typeResolver)
+
+  private val pushingInstructionGenerator = PushingInstructionGenerator(classNode, typeResolver, mv)
   init {
     mv.argumentPusher = this
     pushingInstructionGenerator.mv.argumentPusher = pushingInstructionGenerator
@@ -659,8 +663,10 @@ class InstructionGenerator(override val mv: MethodBytecodeWriter, override val t
   }
 }
 
-private class PushingInstructionGenerator(override val mv: MethodBytecodeWriter,
-                                          override val typeResolver: JavaTypeResolver
+private class PushingInstructionGenerator(
+  override val classNode: ClassNode,
+  override val typeResolver: JavaTypeResolver,
+  override val mv: MethodBytecodeWriter
 ): IInstructionGenerator {
   lateinit var instructionGenerator: InstructionGenerator
 
