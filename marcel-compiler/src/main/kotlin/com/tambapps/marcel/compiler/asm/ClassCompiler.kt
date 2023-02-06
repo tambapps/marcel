@@ -19,14 +19,13 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
                     private val typeResolver: JavaTypeResolver) {
 
   fun compileClass(classNode: ClassNode): List<CompiledClass> {
+    defineClassMembers(classNode)
     val classes = mutableListOf<CompiledClass>()
     compileRec(classes, classNode)
     return classes
   }
 
   private fun compileRec(classes: MutableList<CompiledClass>, classNode: ClassNode) {
-    // TODO first go through EACH class and subclasses to define methods, so that the instruction writer knows about them and their methods
-    classNode.methods.forEach { typeResolver.defineMethod(classNode.type, it) }
     val classWriter = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
     // creating class
     classWriter.visit(compilerConfiguration.classVersion,  classNode.access, classNode.internalName, null, classNode.superType.internalName, null)
@@ -81,4 +80,8 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     mv.visitEnd()
   }
 
+  private fun defineClassMembers(classNode: ClassNode) {
+    classNode.methods.forEach { typeResolver.defineMethod(classNode.type, it) }
+    classNode.innerClasses.forEach { defineClassMembers(it) }
+  }
 }

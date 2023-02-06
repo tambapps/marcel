@@ -11,7 +11,7 @@ sealed interface Variable : AstTypedObject{
   val name: String
 }
 
-class LocalVariable(override val type: JavaType, override val name: String, var index: Int = 0): Variable {
+class LocalVariable constructor(override val type: JavaType, override val name: String, var index: Int = 0): Variable {
 
   // yup, long and doubles takes 2 variable slots
   val nbSlots = if (type == JavaType.long || type == JavaType.double) 2 else 1
