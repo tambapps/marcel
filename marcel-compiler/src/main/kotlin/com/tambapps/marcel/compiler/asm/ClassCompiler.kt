@@ -63,7 +63,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     for (param in methodNode.scope.parameters) {
       methodNode.scope.addLocalVariable(param.type, param.name)
     }
-    val instructionGenerator = InstructionGenerator(classNode, typeResolver, mv)
+    val instructionGenerator = InstructionGenerator(classNode, methodNode, typeResolver, mv)
 
     // writing method
     instructionGenerator.visit(methodNode.block)

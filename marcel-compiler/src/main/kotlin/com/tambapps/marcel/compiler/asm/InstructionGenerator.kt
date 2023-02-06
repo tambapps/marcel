@@ -1,6 +1,7 @@
 package com.tambapps.marcel.compiler.asm
 
 import com.tambapps.marcel.compiler.JavaTypeResolver
+import com.tambapps.marcel.compiler.LambdaHandler
 import com.tambapps.marcel.compiler.util.getKeysType
 import com.tambapps.marcel.compiler.util.getMethod
 import com.tambapps.marcel.compiler.util.getType
@@ -20,7 +21,6 @@ import com.tambapps.marcel.parser.scope.LocalVariable
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaArrayType
-import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import it.unimi.dsi.fastutil.ints.IntIterator
@@ -41,9 +41,9 @@ interface ArgumentPusher {
 }
 private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
-  val classNode: ClassNode
   val mv: MethodBytecodeWriter
   val typeResolver: JavaTypeResolver
+  val lambdaHandler: LambdaHandler
 
 
   override fun visit(unaryMinus: UnaryMinus) {
@@ -314,12 +314,18 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 /**
  * Generates expression bytecode but don't push them to the stack. (Useful for statement expressions)
  */
-class InstructionGenerator(override val classNode: ClassNode, override val typeResolver: JavaTypeResolver, methodVisitor: MethodVisitor):
+class InstructionGenerator(
+  classNode: ClassNode,
+  methodNode: MethodNode,
+  override val typeResolver: JavaTypeResolver,
+  methodVisitor: MethodVisitor
+):
   IInstructionGenerator {
 
   override val mv = MethodBytecodeWriter(methodVisitor, typeResolver)
+  override val lambdaHandler = LambdaHandler(classNode, methodNode)
 
-  private val pushingInstructionGenerator = PushingInstructionGenerator(classNode, typeResolver, mv)
+  private val pushingInstructionGenerator = PushingInstructionGenerator(typeResolver, mv, lambdaHandler)
   init {
     mv.argumentPusher = this
     pushingInstructionGenerator.mv.argumentPusher = pushingInstructionGenerator
@@ -466,6 +472,10 @@ class InstructionGenerator(override val classNode: ClassNode, override val typeR
     }
   }
 
+  override fun visit(lambdaNode: LambdaNode) {
+    super.visit(lambdaNode)
+    mv.popStack()
+  }
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator) {
     super.visit(getFieldAccessOperator)
     mv.popStack()
@@ -664,10 +674,10 @@ class InstructionGenerator(override val classNode: ClassNode, override val typeR
 }
 
 private class PushingInstructionGenerator(
-  override val classNode: ClassNode,
   override val typeResolver: JavaTypeResolver,
-  override val mv: MethodBytecodeWriter
-): IInstructionGenerator {
+  override val mv: MethodBytecodeWriter,
+  override val lambdaHandler: LambdaHandler,
+  ): IInstructionGenerator {
   lateinit var instructionGenerator: InstructionGenerator
 
 
