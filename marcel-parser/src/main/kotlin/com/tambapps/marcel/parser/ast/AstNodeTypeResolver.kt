@@ -68,8 +68,8 @@ import marcel.lang.IntRange
 
 open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
-  fun of(className: String, genericTypes: String): JavaType {
-    TODO()
+  open fun of(className: String, genericTypes: List<JavaType>): JavaType {
+    return JavaType.of(className, genericTypes)
   }
 
   fun findMethodOrThrow(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>): JavaMethod {

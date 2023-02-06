@@ -496,7 +496,7 @@ class LazyJavaType internal constructor(private val scope: Scope,
   private val actualType: JavaType
     get() {
       if (_actualType == null) {
-        _actualType = JavaType.of(scope.resolveClassName(actualTypeName), _genericTypes)
+        _actualType = scope.resolveType(actualTypeName, _genericTypes)
       }
       return _actualType!!
     }
