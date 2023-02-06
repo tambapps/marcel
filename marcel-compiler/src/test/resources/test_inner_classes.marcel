@@ -1,6 +1,12 @@
 import static org.junit.jupiter.api.Assertions.assertEquals
 
 
+SomeObject o = new SomeObject()
+SomeObject$SomeInnerObject o2 = new SomeObject$SomeInnerObject()
+
+assertEquals("Hello World", o.foo())
+assertEquals("Goodbye world", o2.bar())
+
 class SomeObject {
 
   fun foo() String {
@@ -14,9 +20,3 @@ class SomeObject {
   }
 
 }
-
-SomeObject o = new SomeObject()
-SomeObject$SomeInnerObject o2 = new SomeObject$SomeInnerObject()
-
-assertEquals("Hello World", o.foo())
-assertEquals("Goodbye world", o2.bar())
