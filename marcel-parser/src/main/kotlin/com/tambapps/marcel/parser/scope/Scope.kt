@@ -12,8 +12,8 @@ import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.methods.DefaultMarcelStaticMethods
 import org.objectweb.asm.Label
 
-// note that extensionMethods may not be needed. It could be added directly on the Java Type
-open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports: MutableList<ImportNode>, val classType: JavaType, val superClass: JavaType) {
+// TODO classType should be resolved lazily
+open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports: MutableList<ImportNode>, open val classType: JavaType, val superClass: JavaType) {
   constructor(typeResolver: AstNodeTypeResolver, javaType: JavaType): this(typeResolver, mutableListOf(), javaType, JavaType.Object) {
     imports.addAll(DEFAULT_IMPORTS)
   }
@@ -115,6 +115,7 @@ open class MethodScope constructor(typeResolver: AstNodeTypeResolver, imports: M
                 parameters: List<MethodParameter>, returnType: JavaType):
         this(scope.typeResolver, scope.imports, scope.classType, scope.superClass, methodName, parameters, returnType)
 }
+
 
 class InnerScope constructor(private val parentScope: MethodScope)
   : MethodScope(parentScope.typeResolver, parentScope.imports, parentScope.classType, parentScope.superClass, parentScope.methodName, parentScope.parameters, parentScope.returnType) {

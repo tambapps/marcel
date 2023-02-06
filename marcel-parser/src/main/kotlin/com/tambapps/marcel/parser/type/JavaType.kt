@@ -5,6 +5,7 @@ import com.tambapps.marcel.parser.MarcelParsingException
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.scope.Scope
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList
 import it.unimi.dsi.fastutil.booleans.BooleanList
 import it.unimi.dsi.fastutil.booleans.BooleanSet
@@ -174,6 +175,8 @@ interface JavaType: AstTypedObject {
     fun of(className: String, genericTypes: List<JavaType>): JavaType {
       val optPrimitiveType = PRIMITIVES.find { it.className == className }
       if (optPrimitiveType != null) return optPrimitiveType
+      val optArrayType = ARRAYS.find { it.className == className }
+      if (optArrayType != null) return optArrayType
 
      if (genericTypes.size == 1 || className == "map" && genericTypes.size == 2) {
         val type = PRIMITIVE_COLLECTION_TYPE_MAP[className]?.get(genericTypes.first())
@@ -181,11 +184,9 @@ interface JavaType: AstTypedObject {
       }
       return of(className).withGenericTypes(genericTypes)
     }
-    fun lazy(className: String): JavaType {
-      return lazy(className, emptyList())
-    }
-    fun lazy(className: String, genericTypes: List<JavaType>): JavaType {
-      return LazyJavaType(className, genericTypes)
+
+    fun lazy(scope: Scope, className: String, genericTypes: List<JavaType>): JavaType {
+      return LazyJavaType(scope, className, genericTypes)
     }
 
     fun of(className: String): JavaType {
@@ -488,13 +489,14 @@ class JavaPrimitiveType internal constructor(
   }
 }
 
-class LazyJavaType internal constructor(private val actualTypeName: String, private val _genericTypes: List<JavaType>): AbstractJavaType() {
+class LazyJavaType internal constructor(private val scope: Scope,
+                                        private val actualTypeName: String, private val _genericTypes: List<JavaType>): AbstractJavaType() {
 
   private var _actualType: JavaType? = null
   private val actualType: JavaType
     get() {
       if (_actualType == null) {
-        _actualType = JavaType.of(actualTypeName, _genericTypes)
+        _actualType = JavaType.of(scope.resolveClassName(actualTypeName), _genericTypes)
       }
       return _actualType!!
     }

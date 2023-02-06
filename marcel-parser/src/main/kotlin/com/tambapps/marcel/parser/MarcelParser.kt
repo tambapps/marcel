@@ -71,16 +71,15 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     return moduleNode
   }
 
-  private fun parseClass(imports: MutableList<ImportNode>, packageName: String?, outerClassType: JavaType? = null): ClassNode {
+  private fun parseClass(imports: MutableList<ImportNode>, packageName: String?, outerClassNode: ClassNode? = null): ClassNode {
     val (access, isInline) = parseAccess()
     if (isInline) throw MarcelParsingException("Cannot use 'inline' keyword for a class")
     val isExtensionClass = acceptOptional(TokenType.EXTENSION) != null
     accept(TokenType.CLASS)
     val classSimpleName = accept(TokenType.IDENTIFIER).value
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
-    // TODO types should be string for now, as we don't want to resolve types while parsing
-    var superType =
-      if (acceptOptional(TokenType.EXTENDS) != null) JavaType.lazy(accept(TokenType.IDENTIFIER).value)
+    val superType =
+      if (acceptOptional(TokenType.EXTENDS) != null) parseType(outerClassNode?.scope ?: Scope(typeResolver, JavaType.Object))
       else JavaType.Object
     val interfaces = mutableListOf<String>()
     if (acceptOptional(TokenType.IMPLEMENTS) != null) {
@@ -90,7 +89,8 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       }
     }
     // TODO use interfaces
-    val classType = JavaType.defineClass(outerClassType, className, superType, false)
+    //  also, may need to be defined later, so just put string in class nodes
+    val classType = JavaType.defineClass(outerClassNode?.type, className, superType, false)
     val classScope = Scope(typeResolver, imports, classType, superType)
     val methods = mutableListOf<MethodNode>()
     val innerClasses = mutableListOf<ClassNode>()
@@ -101,7 +101,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       if (current.type == TokenType.CLASS
         || lookup(1)?.type == TokenType.CLASS
         || lookup(2)?.type == TokenType.CLASS) {
-        innerClasses.add(parseClass(imports, packageName, classType))
+        innerClasses.add(parseClass(imports, packageName, classNode))
       } else {
         methods.add(method(classNode, isExtensionClass))
       }
@@ -151,7 +151,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       if (current.type == TokenType.CLASS
         || lookup(1)?.type == TokenType.CLASS
         || lookup(2)?.type == TokenType.CLASS) {
-        innerClasses.add(parseClass(imports, packageName, classType))
+        innerClasses.add(parseClass(imports, packageName, classNode))
       } else {
         when (current.type) {
           TokenType.FUN, TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED,
@@ -282,8 +282,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
             }
             accept(TokenType.GT)
           }
-
-          JavaType.lazy(scope.resolveClassName(className), genericTypes)
+          JavaType.lazy(scope, className, genericTypes)
         }
       }
       else -> throw UnsupportedOperationException("Doesn't handle type ${token.type}")
@@ -490,10 +489,8 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       TokenType.NULL -> NullValueNode()
       TokenType.NOT -> NotNode(expression(scope))
       TokenType.NEW -> {
-        val classSimpleName = accept(TokenType.IDENTIFIER).value
-        val className = scope.resolveClassName(classSimpleName)
+        val type = parseType(scope)
         accept(TokenType.LPAR)
-        val type = JavaType.lazy(className)
         ConstructorCallNode(Scope(typeResolver, type), type, parseFunctionArguments(scope))
       }
       TokenType.IDENTIFIER -> {

@@ -68,6 +68,10 @@ import marcel.lang.IntRange
 
 open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
+  fun of(className: String, genericTypes: String): JavaType {
+    TODO()
+  }
+
   fun findMethodOrThrow(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>): JavaMethod {
     return findMethod(javaType, name, argumentTypes) ?: throw SemanticException("Method $javaType.$name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
