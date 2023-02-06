@@ -10,7 +10,7 @@ import java.lang.reflect.Method
 interface JavaMethod {
 
   companion object {
-    val CONSTRUCTOR_NAME = "<init>"
+    const val CONSTRUCTOR_NAME = "<init>"
   }
 
   val ownerClass: JavaType
