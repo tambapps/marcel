@@ -146,13 +146,16 @@ interface JavaType: AstTypedObject {
     }
 
     fun of(clazz: Class<*>): JavaType {
+      return of(clazz, emptyList())
+    }
+    fun of(clazz: Class<*>, genericTypes: List<JavaType>): JavaType {
       return if (clazz.isPrimitive) PRIMITIVES.find { it.className == clazz.name } ?: throw RuntimeException("Primitive type $clazz is not being handled")
-      else LoadedObjectType(clazz)
+      else LoadedObjectType(clazz, genericTypes)
     }
 
     fun mapType(keysType: JavaType, valuesType: JavaType): JavaType {
       return if (keysType.primitive) of("map", listOf(keysType, valuesType))
-      else of(java.util.Map::class.java.name, listOf(keysType, valuesType))
+      else of(java.util.Map::class.java, listOf(keysType, valuesType))
     }
 
     fun arrayType(elementsType: JavaType): JavaArrayType {
@@ -169,7 +172,10 @@ interface JavaType: AstTypedObject {
       }
     }
     fun of(className: String, genericTypes: List<JavaType>): JavaType {
-      if (genericTypes.size == 1 || className == "map" && genericTypes.size == 2) {
+      val optPrimitiveType = PRIMITIVES.find { it.className == className }
+      if (optPrimitiveType != null) return optPrimitiveType
+
+     if (genericTypes.size == 1 || className == "map" && genericTypes.size == 2) {
         val type = PRIMITIVE_COLLECTION_TYPE_MAP[className]?.get(genericTypes.first())
         if (type != null) return type
       }
