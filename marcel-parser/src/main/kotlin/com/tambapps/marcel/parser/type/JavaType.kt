@@ -178,6 +178,7 @@ interface JavaType: AstTypedObject {
       return of(className).withGenericTypes(genericTypes)
     }
     fun of(className: String): JavaType {
+      // TODO defined types is only useful for not loaded classes.
       if (DEFINED_TYPES.containsKey(className)) return DEFINED_TYPES.getValue(className)
       try {
         val clazz = Class.forName(className)
