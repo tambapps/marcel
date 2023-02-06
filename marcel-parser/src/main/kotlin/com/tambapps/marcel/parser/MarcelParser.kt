@@ -89,7 +89,6 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       }
     }
     // TODO use interfaces
-    //  also, may need to be defined later, so just put string in class nodes
     val classType = typeResolver.defineClass(outerClassNode?.type, className, superType, false)
     val classScope = Scope(typeResolver, imports, classType, superType)
     val methods = mutableListOf<MethodNode>()

@@ -12,7 +12,6 @@ import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.methods.DefaultMarcelStaticMethods
 import org.objectweb.asm.Label
 
-// TODO classType should be resolved lazily
 open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports: MutableList<ImportNode>, open val classType: JavaType, val superClass: JavaType) {
   constructor(typeResolver: AstNodeTypeResolver, javaType: JavaType): this(typeResolver, mutableListOf(), javaType, JavaType.Object) {
     imports.addAll(DEFAULT_IMPORTS)

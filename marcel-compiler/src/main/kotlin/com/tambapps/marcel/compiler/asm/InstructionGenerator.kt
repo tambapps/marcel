@@ -266,8 +266,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(lambdaNode: LambdaNode) {
-    // TODO add a lambdaHandler that will then write inner class
-    TODO("Not yet implemented")
+    TODO("Not yet implemented. Add a lambdaHandler that will then write inner class")
   }
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     var expression = variableAssignmentNode.expression
