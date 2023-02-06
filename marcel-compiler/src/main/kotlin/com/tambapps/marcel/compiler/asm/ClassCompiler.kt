@@ -28,7 +28,8 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
   private fun compileRec(classes: MutableList<CompiledClass>, classNode: ClassNode) {
     val classWriter = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
     // creating class
-    classWriter.visit(compilerConfiguration.classVersion,  classNode.access, classNode.internalName, null, classNode.superType.internalName, null)
+    classWriter.visit(compilerConfiguration.classVersion,  classNode.access, classNode.internalName, null, classNode.superType.internalName,
+      classNode.type.directlyImplementedInterfaces.map { it.internalName }.toTypedArray())
 
     if (classNode.constructorsCount == 0) {
       // if no constructor is defined, we'll define one for you

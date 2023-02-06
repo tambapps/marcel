@@ -71,10 +71,10 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
   private val definedTypes = mutableMapOf<String, JavaType>()
 
-  fun defineClass(className: String, superClass: JavaType, isInterface: Boolean): JavaType {
-    return defineClass(null, className, superClass, isInterface)
+  fun defineClass(className: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): JavaType {
+    return defineClass(null, className, superClass, isInterface, interfaces)
   }
-  fun defineClass(outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean): JavaType {
+  fun defineClass(outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): JavaType {
     val className = if (outerClassType != null) "${outerClassType.className}\$$cName" else cName
     try {
       Class.forName(className)
@@ -83,7 +83,8 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
       // ignore
     }
     if (definedTypes.containsKey(className)) throw SemanticException("Class $className is already defined")
-    val type = NotLoadedJavaType(className, emptyList(), superClass, isInterface)
+    // TODO only handle interfaces that are already loaded, as the type is not lazily loaded
+    val type = NotLoadedJavaType(className, emptyList(), superClass, isInterface, interfaces)
     definedTypes[className] = type
     return type
   }

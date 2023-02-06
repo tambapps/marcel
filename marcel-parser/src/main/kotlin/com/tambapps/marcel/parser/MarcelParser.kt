@@ -78,7 +78,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     accept(TokenType.CLASS)
     val classSimpleName = accept(TokenType.IDENTIFIER).value
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
-    val parseTypeScope = outerClassNode?.scope ?: Scope(typeResolver, JavaType.Object)
+    val parseTypeScope = outerClassNode?.scope ?: Scope(typeResolver, JavaType.Object, imports)
     val superType =
       if (acceptOptional(TokenType.EXTENDS) != null) parseType(parseTypeScope)
       else JavaType.Object

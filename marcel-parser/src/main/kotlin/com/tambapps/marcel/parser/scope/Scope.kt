@@ -16,7 +16,9 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
   constructor(typeResolver: AstNodeTypeResolver, javaType: JavaType): this(typeResolver, mutableListOf(), javaType, JavaType.Object) {
     imports.addAll(DEFAULT_IMPORTS)
   }
-
+  constructor(typeResolver: AstNodeTypeResolver, javaType: JavaType, imports: List<ImportNode>): this(typeResolver, javaType) {
+    this.imports.addAll(imports)
+  }
   companion object {
     val DEFAULT_IMPORTS = listOf(
       WildcardImportNode("java.lang"),

@@ -52,6 +52,7 @@ interface JavaType: AstTypedObject {
   open val isArray get() = isLoaded && realClazz.isArray
   override val type: JavaType get() = this
   val realClazzOrObject: Class<*>
+  val directlyImplementedInterfaces: Collection<JavaType>
   val allImplementedInterfaces: Collection<JavaType>
   val asPrimitiveType: JavaPrimitiveType
     get() = throw RuntimeException("Compiler error: Illegal JavaType cast")
@@ -309,7 +310,12 @@ abstract class AbstractJavaType: JavaType {
   }
 }
 
-class NotLoadedJavaType internal constructor(override val className: String, override val genericTypes: List<JavaType>, override val superType: JavaType?, override val isInterface: Boolean): AbstractJavaType() {
+class NotLoadedJavaType internal constructor(
+  override val className: String,
+  override val genericTypes: List<JavaType>,
+  override val superType: JavaType?,
+  override val isInterface: Boolean,
+  override val directlyImplementedInterfaces: Collection<JavaType>): AbstractJavaType() {
 
   override val isLoaded = false
   override val realClazz: Class<*>
@@ -324,21 +330,16 @@ class NotLoadedJavaType internal constructor(override val className: String, ove
 
   override val allImplementedInterfaces: Collection<JavaType>
     get() {
-      // don't handle defining class with interfaces, so let's just look at first loaded type's interfaces
-      val interfaces = mutableListOf<JavaType>()
-      var type = superType
-      while (type != null) {
-        if (type.isLoaded) return type.allImplementedInterfaces
-        type = type.superType
-      }
-      return emptyList()
+      val allInterfaces = directlyImplementedInterfaces.toMutableSet()
+      if (superType != null) allInterfaces.addAll(superType.allImplementedInterfaces)
+      return allInterfaces
     }
 
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
     if (genericTypes.any { it.primitive }) {
       throw MarcelParsingException("Cannot have a primitive type as generic type")
     }
-    return NotLoadedJavaType(className, genericTypes, superType, isInterface)
+    return NotLoadedJavaType(className, genericTypes, superType, isInterface, directlyImplementedInterfaces)
   }
 }
 
@@ -363,6 +364,9 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
       }
       return _interfaces!!
     }
+
+  override val directlyImplementedInterfaces: Collection<JavaType>
+    get() = realClazz.interfaces.map { JavaType.of(it) }
 
   private fun getAllImplementedInterfacesRecursively(c: Class<*>): Set<Class<*>> {
     var clazz = c
@@ -498,6 +502,9 @@ class LazyJavaType internal constructor(private val scope: Scope,
     get() = actualType.primitive
   override val realClazzOrObject: Class<*>
     get() = actualType.realClazzOrObject
+
+  override val directlyImplementedInterfaces: Collection<JavaType>
+    get() = actualType.directlyImplementedInterfaces
   override val allImplementedInterfaces: Collection<JavaType>
     get() = actualType.allImplementedInterfaces
 
