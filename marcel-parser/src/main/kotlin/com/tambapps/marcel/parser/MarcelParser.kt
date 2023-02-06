@@ -78,18 +78,19 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     accept(TokenType.CLASS)
     val classSimpleName = accept(TokenType.IDENTIFIER).value
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
+    val parseTypeScope = outerClassNode?.scope ?: Scope(typeResolver, JavaType.Object)
     val superType =
-      if (acceptOptional(TokenType.EXTENDS) != null) parseType(outerClassNode?.scope ?: Scope(typeResolver, JavaType.Object))
+      if (acceptOptional(TokenType.EXTENDS) != null) parseType(parseTypeScope)
       else JavaType.Object
-    val interfaces = mutableListOf<String>()
+    val interfaces = mutableListOf<JavaType>()
     if (acceptOptional(TokenType.IMPLEMENTS) != null) {
       while (current.type == TokenType.IDENTIFIER) {
-        interfaces.add(accept(TokenType.IDENTIFIER).value)
+        interfaces.add(parseType(parseTypeScope))
         acceptOptional(TokenType.COMMA)
       }
     }
     // TODO use interfaces
-    val classType = typeResolver.defineClass(outerClassNode?.type, className, superType, false)
+    val classType = typeResolver.defineClass(outerClassNode?.type, className, superType, false, interfaces)
     val classScope = Scope(typeResolver, imports, classType, superType)
     val methods = mutableListOf<MethodNode>()
     val innerClasses = mutableListOf<ClassNode>()
@@ -113,7 +114,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     val classMethods = mutableListOf<MethodNode>()
     val superType = JavaType.of(Script::class.java)
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
-    val classType = typeResolver.defineClass(className, superType, false)
+    val classType = typeResolver.defineClass(className, superType, false, emptyList())
     val classScope = Scope(typeResolver, imports, classType, superType)
     val runScope = MethodScope(classScope, className, emptyList(), JavaType.Object)
     val statements = mutableListOf<StatementNode>()

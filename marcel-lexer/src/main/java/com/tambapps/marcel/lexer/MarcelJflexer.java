@@ -304,15 +304,15 @@ class MarcelJflexer {
     "\14\24\1\67\1\70\1\0\1\71\2\72\2\0\1\73"+
     "\1\74\1\75\1\76\1\52\13\24\1\77\1\100\2\24"+
     "\1\101\1\24\1\102\13\24\2\0\1\103\1\34\1\104"+
-    "\1\105\1\24\1\106\3\24\1\107\6\24\1\110\1\111"+
+    "\1\105\1\24\1\106\3\24\1\107\7\24\1\110\1\111"+
     "\7\24\1\112\1\113\1\24\1\70\1\0\1\114\1\115"+
-    "\3\24\1\116\1\117\10\24\1\120\1\24\1\121\1\0"+
-    "\1\24\1\122\1\24\1\123\1\124\4\24\1\125\1\126"+
-    "\1\127\3\24\1\130\1\131\1\24\1\132\1\24\1\133"+
-    "\1\24\1\134\1\135";
+    "\3\24\1\116\1\117\11\24\1\120\1\24\1\121\1\0"+
+    "\1\24\1\122\3\24\1\123\1\124\4\24\1\125\1\126"+
+    "\1\127\1\24\1\130\3\24\1\131\1\132\1\24\1\133"+
+    "\2\24\1\134\1\24\1\135\1\24\1\136\1\137";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[239];
+    int [] result = new int[248];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -359,17 +359,18 @@ class MarcelJflexer {
     "\0\u05d7\0\u1b6c\0\u1bad\0\u1bee\0\u1c2f\0\u1c70\0\u1cb1\0\u1cf2"+
     "\0\u1d33\0\u1d74\0\u1db5\0\u1df6\0\u1e37\0\u1e78\0\u16da\0\u028a"+
     "\0\u028a\0\u05d7\0\u1eb9\0\u05d7\0\u1efa\0\u1f3b\0\u1f7c\0\u05d7"+
-    "\0\u1fbd\0\u1ffe\0\u203f\0\u2080\0\u20c1\0\u2102\0\u05d7\0\u05d7"+
-    "\0\u2143\0\u2184\0\u21c5\0\u2206\0\u2247\0\u2288\0\u22c9\0\u05d7"+
-    "\0\u05d7\0\u230a\0\u028a\0\u234b\0\u05d7\0\u05d7\0\u238c\0\u23cd"+
-    "\0\u240e\0\u05d7\0\u05d7\0\u244f\0\u2490\0\u24d1\0\u2512\0\u2553"+
-    "\0\u2594\0\u25d5\0\u2616\0\u05d7\0\u2657\0\u05d7\0\u2698\0\u26d9"+
-    "\0\u05d7\0\u271a\0\u05d7\0\u05d7\0\u275b\0\u279c\0\u27dd\0\u281e"+
-    "\0\u05d7\0\u05d7\0\u05d7\0\u285f\0\u28a0\0\u28e1\0\u05d7\0\u05d7"+
-    "\0\u2922\0\u05d7\0\u2963\0\u05d7\0\u29a4\0\u05d7\0\u05d7";
+    "\0\u1fbd\0\u1ffe\0\u203f\0\u2080\0\u20c1\0\u2102\0\u2143\0\u05d7"+
+    "\0\u05d7\0\u2184\0\u21c5\0\u2206\0\u2247\0\u2288\0\u22c9\0\u230a"+
+    "\0\u05d7\0\u05d7\0\u234b\0\u028a\0\u238c\0\u05d7\0\u05d7\0\u23cd"+
+    "\0\u240e\0\u244f\0\u05d7\0\u05d7\0\u2490\0\u24d1\0\u2512\0\u2553"+
+    "\0\u2594\0\u25d5\0\u2616\0\u2657\0\u2698\0\u05d7\0\u26d9\0\u05d7"+
+    "\0\u271a\0\u275b\0\u05d7\0\u279c\0\u27dd\0\u281e\0\u05d7\0\u05d7"+
+    "\0\u285f\0\u28a0\0\u28e1\0\u2922\0\u05d7\0\u05d7\0\u05d7\0\u2963"+
+    "\0\u05d7\0\u29a4\0\u29e5\0\u2a26\0\u05d7\0\u05d7\0\u2a67\0\u05d7"+
+    "\0\u2aa8\0\u2ae9\0\u05d7\0\u2b2a\0\u05d7\0\u2b6b\0\u05d7\0\u05d7";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[239];
+    int [] result = new int[248];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -537,111 +538,124 @@ class MarcelJflexer {
     "\3\0\1\35\1\0\20\35\1\262\6\35\3\0\1\35"+
     "\6\0\1\35\12\0\2\35\6\0\10\35\3\0\1\35"+
     "\1\0\1\263\26\35\3\0\1\35\6\0\1\35\12\0"+
-    "\2\35\6\0\10\35\3\0\1\35\1\0\15\35\1\264"+
-    "\11\35\3\0\1\35\6\0\1\35\12\0\2\35\6\0"+
-    "\10\35\3\0\1\35\1\0\10\35\1\265\16\35\3\0"+
+    "\2\35\6\0\10\35\3\0\1\35\1\0\12\35\1\264"+
+    "\2\35\1\265\11\35\3\0\1\35\6\0\1\35\12\0"+
+    "\2\35\6\0\10\35\3\0\1\35\1\0\10\35\1\266"+
+    "\16\35\3\0\1\35\6\0\1\35\12\0\2\35\6\0"+
+    "\10\35\3\0\1\35\1\0\4\35\1\267\22\35\3\0"+
     "\1\35\6\0\1\35\12\0\2\35\6\0\10\35\3\0"+
-    "\1\35\1\0\4\35\1\266\22\35\3\0\1\35\6\0"+
+    "\1\35\1\0\6\35\1\270\20\35\3\0\1\35\6\0"+
     "\1\35\12\0\2\35\6\0\10\35\3\0\1\35\1\0"+
-    "\6\35\1\267\20\35\3\0\1\35\6\0\1\35\12\0"+
-    "\2\35\6\0\10\35\3\0\1\35\1\0\12\35\1\270"+
-    "\14\35\3\0\1\35\6\0\1\35\12\0\2\35\6\0"+
-    "\10\35\3\0\1\35\1\0\11\35\1\271\15\35\3\0"+
+    "\12\35\1\271\14\35\3\0\1\35\6\0\1\35\12\0"+
+    "\2\35\6\0\10\35\3\0\1\35\1\0\11\35\1\272"+
+    "\15\35\3\0\1\35\6\0\1\35\12\0\2\35\6\0"+
+    "\10\35\3\0\1\35\1\0\23\35\1\273\3\35\3\0"+
     "\1\35\6\0\1\35\12\0\2\35\6\0\10\35\3\0"+
-    "\1\35\1\0\23\35\1\272\3\35\3\0\1\35\6\0"+
+    "\1\35\1\0\21\35\1\274\5\35\3\0\1\35\6\0"+
     "\1\35\12\0\2\35\6\0\10\35\3\0\1\35\1\0"+
-    "\21\35\1\273\5\35\3\0\1\35\6\0\1\35\12\0"+
-    "\2\35\6\0\10\35\3\0\1\35\1\0\12\35\1\274"+
-    "\14\35\3\0\1\35\6\0\1\35\12\0\2\35\6\0"+
-    "\10\35\3\0\1\35\1\0\22\35\1\275\4\35\3\0"+
+    "\12\35\1\275\14\35\3\0\1\35\6\0\1\35\12\0"+
+    "\2\35\6\0\10\35\3\0\1\35\1\0\22\35\1\276"+
+    "\4\35\3\0\1\35\6\0\1\35\12\0\2\35\6\0"+
+    "\10\35\3\0\1\35\1\0\17\35\1\277\7\35\3\0"+
     "\1\35\6\0\1\35\12\0\2\35\6\0\10\35\3\0"+
-    "\1\35\1\0\17\35\1\276\7\35\3\0\1\35\6\0"+
+    "\1\35\1\0\21\35\1\300\5\35\3\0\1\35\6\0"+
     "\1\35\12\0\2\35\6\0\10\35\3\0\1\35\1\0"+
-    "\21\35\1\277\5\35\3\0\1\35\6\0\1\35\12\0"+
-    "\2\35\6\0\10\35\3\0\1\35\1\0\4\35\1\300"+
-    "\22\35\3\0\1\35\6\0\1\35\12\0\2\35\6\0"+
-    "\10\35\3\0\1\35\1\0\3\35\1\301\23\35\3\0"+
-    "\1\35\6\0\1\35\12\0\2\35\6\0\10\35\3\0"+
-    "\1\35\1\0\12\35\1\302\14\35\3\0\1\35\2\245"+
-    "\1\0\42\245\1\303\33\245\21\0\2\304\6\0\4\304"+
-    "\11\0\6\304\33\0\1\35\12\0\2\35\6\0\10\35"+
-    "\3\0\1\35\1\0\11\35\1\305\15\35\3\0\1\35"+
-    "\6\0\1\35\12\0\2\35\6\0\10\35\3\0\1\35"+
-    "\1\0\20\35\1\306\6\35\3\0\1\35\6\0\1\35"+
-    "\12\0\2\35\6\0\10\35\3\0\1\35\1\0\10\35"+
-    "\1\307\16\35\3\0\1\35\6\0\1\35\12\0\2\35"+
-    "\6\0\10\35\3\0\1\35\1\0\12\35\1\310\14\35"+
+    "\4\35\1\301\22\35\3\0\1\35\6\0\1\35\12\0"+
+    "\2\35\6\0\10\35\3\0\1\35\1\0\3\35\1\302"+
+    "\23\35\3\0\1\35\6\0\1\35\12\0\2\35\6\0"+
+    "\10\35\3\0\1\35\1\0\12\35\1\303\14\35\3\0"+
+    "\1\35\2\245\1\0\42\245\1\304\33\245\21\0\2\305"+
+    "\6\0\4\305\11\0\6\305\33\0\1\35\12\0\2\35"+
+    "\6\0\10\35\3\0\1\35\1\0\11\35\1\306\15\35"+
     "\3\0\1\35\6\0\1\35\12\0\2\35\6\0\10\35"+
-    "\3\0\1\35\1\0\14\35\1\311\12\35\3\0\1\35"+
+    "\3\0\1\35\1\0\20\35\1\307\6\35\3\0\1\35"+
     "\6\0\1\35\12\0\2\35\6\0\10\35\3\0\1\35"+
-    "\1\0\4\35\1\312\22\35\3\0\1\35\6\0\1\35"+
-    "\12\0\2\35\6\0\10\35\3\0\1\35\1\0\21\35"+
-    "\1\313\5\35\3\0\1\35\6\0\1\35\12\0\2\35"+
-    "\6\0\10\35\3\0\1\35\1\0\17\35\1\314\7\35"+
+    "\1\0\10\35\1\310\16\35\3\0\1\35\6\0\1\35"+
+    "\12\0\2\35\6\0\10\35\3\0\1\35\1\0\12\35"+
+    "\1\311\14\35\3\0\1\35\6\0\1\35\12\0\2\35"+
+    "\6\0\10\35\3\0\1\35\1\0\14\35\1\312\12\35"+
     "\3\0\1\35\6\0\1\35\12\0\2\35\6\0\10\35"+
-    "\3\0\1\35\1\0\14\35\1\315\12\35\3\0\1\35"+
+    "\3\0\1\35\1\0\4\35\1\313\22\35\3\0\1\35"+
     "\6\0\1\35\12\0\2\35\6\0\10\35\3\0\1\35"+
-    "\1\0\17\35\1\316\7\35\3\0\1\35\6\0\1\35"+
-    "\12\0\2\35\6\0\10\35\3\0\1\35\1\0\1\317"+
-    "\26\35\3\0\1\35\6\0\1\35\12\0\2\35\6\0"+
-    "\10\35\3\0\1\35\1\0\1\320\26\35\3\0\1\35"+
-    "\6\0\1\35\12\0\2\35\6\0\10\35\3\0\1\35"+
-    "\1\0\4\35\1\321\22\35\3\0\1\35\6\0\1\35"+
-    "\12\0\2\35\6\0\10\35\3\0\1\35\1\0\10\35"+
-    "\1\322\16\35\3\0\1\35\6\0\1\35\12\0\2\35"+
-    "\6\0\10\35\3\0\1\35\1\0\17\35\1\323\7\35"+
-    "\3\0\1\35\6\0\1\35\12\0\2\35\6\0\10\35"+
-    "\3\0\1\35\1\0\21\35\1\324\5\35\3\0\1\35"+
-    "\6\0\1\35\12\0\2\35\6\0\10\35\3\0\1\35"+
-    "\1\0\10\35\1\325\16\35\3\0\1\35\6\0\1\35"+
+    "\1\0\21\35\1\314\5\35\3\0\1\35\6\0\1\35"+
     "\12\0\2\35\6\0\10\35\3\0\1\35\1\0\4\35"+
-    "\1\326\22\35\3\0\1\35\21\0\2\327\6\0\4\327"+
-    "\11\0\6\327\33\0\1\35\12\0\2\35\6\0\10\35"+
-    "\3\0\1\35\1\0\14\35\1\330\12\35\3\0\1\35"+
-    "\6\0\1\35\12\0\2\35\6\0\10\35\3\0\1\35"+
-    "\1\0\4\35\1\331\22\35\3\0\1\35\6\0\1\35"+
-    "\12\0\2\35\6\0\10\35\3\0\1\35\1\0\20\35"+
-    "\1\332\6\35\3\0\1\35\6\0\1\35\12\0\2\35"+
-    "\6\0\10\35\3\0\1\35\1\0\21\35\1\333\5\35"+
+    "\1\315\22\35\3\0\1\35\6\0\1\35\12\0\2\35"+
+    "\6\0\10\35\3\0\1\35\1\0\17\35\1\316\7\35"+
     "\3\0\1\35\6\0\1\35\12\0\2\35\6\0\10\35"+
-    "\3\0\1\35\1\0\4\35\1\334\22\35\3\0\1\35"+
+    "\3\0\1\35\1\0\14\35\1\317\12\35\3\0\1\35"+
     "\6\0\1\35\12\0\2\35\6\0\10\35\3\0\1\35"+
-    "\1\0\14\35\1\335\12\35\3\0\1\35\6\0\1\35"+
-    "\12\0\2\35\6\0\10\35\3\0\1\35\1\0\6\35"+
-    "\1\336\20\35\3\0\1\35\6\0\1\35\12\0\2\35"+
+    "\1\0\17\35\1\320\7\35\3\0\1\35\6\0\1\35"+
+    "\12\0\2\35\6\0\10\35\3\0\1\35\1\0\1\321"+
+    "\26\35\3\0\1\35\6\0\1\35\12\0\2\35\6\0"+
+    "\10\35\3\0\1\35\1\0\1\322\26\35\3\0\1\35"+
+    "\6\0\1\35\12\0\2\35\6\0\10\35\3\0\1\35"+
+    "\1\0\4\35\1\323\22\35\3\0\1\35\6\0\1\35"+
+    "\12\0\2\35\6\0\10\35\3\0\1\35\1\0\10\35"+
+    "\1\324\16\35\3\0\1\35\6\0\1\35\12\0\2\35"+
+    "\6\0\10\35\3\0\1\35\1\0\17\35\1\325\7\35"+
+    "\3\0\1\35\6\0\1\35\12\0\2\35\6\0\10\35"+
+    "\3\0\1\35\1\0\21\35\1\326\5\35\3\0\1\35"+
+    "\6\0\1\35\12\0\2\35\6\0\10\35\3\0\1\35"+
+    "\1\0\10\35\1\327\16\35\3\0\1\35\6\0\1\35"+
+    "\12\0\2\35\6\0\10\35\3\0\1\35\1\0\4\35"+
+    "\1\330\22\35\3\0\1\35\21\0\2\331\6\0\4\331"+
+    "\11\0\6\331\33\0\1\35\12\0\2\35\6\0\10\35"+
+    "\3\0\1\35\1\0\14\35\1\332\12\35\3\0\1\35"+
+    "\6\0\1\35\12\0\2\35\6\0\10\35\3\0\1\35"+
+    "\1\0\4\35\1\333\22\35\3\0\1\35\6\0\1\35"+
+    "\12\0\2\35\6\0\10\35\3\0\1\35\1\0\3\35"+
+    "\1\334\14\35\1\335\6\35\3\0\1\35\6\0\1\35"+
+    "\12\0\2\35\6\0\10\35\3\0\1\35\1\0\13\35"+
+    "\1\336\13\35\3\0\1\35\6\0\1\35\12\0\2\35"+
     "\6\0\10\35\3\0\1\35\1\0\21\35\1\337\5\35"+
     "\3\0\1\35\6\0\1\35\12\0\2\35\6\0\10\35"+
-    "\3\0\1\35\1\0\2\35\1\340\24\35\3\0\1\35"+
+    "\3\0\1\35\1\0\4\35\1\340\22\35\3\0\1\35"+
     "\6\0\1\35\12\0\2\35\6\0\10\35\3\0\1\35"+
-    "\1\0\2\35\1\341\24\35\3\0\1\35\6\0\1\35"+
+    "\1\0\14\35\1\341\12\35\3\0\1\35\6\0\1\35"+
+    "\12\0\2\35\6\0\10\35\3\0\1\35\1\0\6\35"+
+    "\1\342\20\35\3\0\1\35\6\0\1\35\12\0\2\35"+
+    "\6\0\10\35\3\0\1\35\1\0\21\35\1\343\5\35"+
+    "\3\0\1\35\6\0\1\35\12\0\2\35\6\0\10\35"+
+    "\3\0\1\35\1\0\2\35\1\344\24\35\3\0\1\35"+
+    "\6\0\1\35\12\0\2\35\6\0\10\35\3\0\1\35"+
+    "\1\0\2\35\1\345\24\35\3\0\1\35\6\0\1\35"+
     "\12\0\2\35\6\0\10\35\3\0\1\35\1\0\14\35"+
-    "\1\342\12\35\3\0\1\35\6\0\1\35\12\0\2\35"+
-    "\6\0\10\35\3\0\1\35\1\0\2\35\1\343\24\35"+
+    "\1\346\12\35\3\0\1\35\6\0\1\35\12\0\2\35"+
+    "\6\0\10\35\3\0\1\35\1\0\2\35\1\347\24\35"+
     "\3\0\1\35\21\0\2\177\6\0\4\177\11\0\6\177"+
     "\33\0\1\35\12\0\2\35\6\0\10\35\3\0\1\35"+
-    "\1\0\22\35\1\344\4\35\3\0\1\35\6\0\1\35"+
-    "\12\0\2\35\6\0\10\35\3\0\1\35\1\0\10\35"+
-    "\1\345\16\35\3\0\1\35\6\0\1\35\12\0\2\35"+
-    "\6\0\10\35\3\0\1\35\1\0\1\346\26\35\3\0"+
-    "\1\35\6\0\1\35\12\0\2\35\6\0\10\35\3\0"+
-    "\1\35\1\0\4\35\1\347\22\35\3\0\1\35\6\0"+
-    "\1\35\12\0\2\35\6\0\10\35\3\0\1\35\1\0"+
-    "\4\35\1\350\22\35\3\0\1\35\6\0\1\35\12\0"+
-    "\2\35\6\0\10\35\3\0\1\35\1\0\21\35\1\351"+
-    "\5\35\3\0\1\35\6\0\1\35\12\0\2\35\6\0"+
-    "\10\35\3\0\1\35\1\0\4\35\1\352\22\35\3\0"+
-    "\1\35\6\0\1\35\12\0\2\35\6\0\10\35\3\0"+
-    "\1\35\1\0\15\35\1\353\11\35\3\0\1\35\6\0"+
-    "\1\35\12\0\2\35\6\0\10\35\3\0\1\35\1\0"+
-    "\12\35\1\354\14\35\3\0\1\35\6\0\1\35\12\0"+
+    "\1\0\22\35\1\350\4\35\3\0\1\35\6\0\1\35"+
+    "\12\0\2\35\6\0\10\35\3\0\1\35\1\0\20\35"+
+    "\1\351\6\35\3\0\1\35\6\0\1\35\12\0\2\35"+
+    "\6\0\10\35\3\0\1\35\1\0\10\35\1\352\16\35"+
+    "\3\0\1\35\6\0\1\35\12\0\2\35\6\0\10\35"+
+    "\3\0\1\35\1\0\4\35\1\353\22\35\3\0\1\35"+
+    "\6\0\1\35\12\0\2\35\6\0\10\35\3\0\1\35"+
+    "\1\0\1\354\26\35\3\0\1\35\6\0\1\35\12\0"+
     "\2\35\6\0\10\35\3\0\1\35\1\0\4\35\1\355"+
     "\22\35\3\0\1\35\6\0\1\35\12\0\2\35\6\0"+
-    "\10\35\3\0\1\35\1\0\14\35\1\356\12\35\3\0"+
+    "\10\35\3\0\1\35\1\0\4\35\1\356\22\35\3\0"+
     "\1\35\6\0\1\35\12\0\2\35\6\0\10\35\3\0"+
-    "\1\35\1\0\3\35\1\357\23\35\3\0\1\35";
+    "\1\35\1\0\21\35\1\357\5\35\3\0\1\35\6\0"+
+    "\1\35\12\0\2\35\6\0\10\35\3\0\1\35\1\0"+
+    "\4\35\1\360\22\35\3\0\1\35\6\0\1\35\12\0"+
+    "\2\35\6\0\10\35\3\0\1\35\1\0\15\35\1\361"+
+    "\11\35\3\0\1\35\6\0\1\35\12\0\2\35\6\0"+
+    "\10\35\3\0\1\35\1\0\14\35\1\362\12\35\3\0"+
+    "\1\35\6\0\1\35\12\0\2\35\6\0\10\35\3\0"+
+    "\1\35\1\0\12\35\1\363\14\35\3\0\1\35\6\0"+
+    "\1\35\12\0\2\35\6\0\10\35\3\0\1\35\1\0"+
+    "\4\35\1\364\22\35\3\0\1\35\6\0\1\35\12\0"+
+    "\2\35\6\0\10\35\3\0\1\35\1\0\14\35\1\365"+
+    "\12\35\3\0\1\35\6\0\1\35\12\0\2\35\6\0"+
+    "\10\35\3\0\1\35\1\0\21\35\1\366\5\35\3\0"+
+    "\1\35\6\0\1\35\12\0\2\35\6\0\10\35\3\0"+
+    "\1\35\1\0\3\35\1\367\23\35\3\0\1\35\6\0"+
+    "\1\35\12\0\2\35\6\0\10\35\3\0\1\35\1\0"+
+    "\20\35\1\370\6\35\3\0\1\35";
 
   private static int [] zzUnpackTrans() {
-    int [] result = new int[10725];
+    int [] result = new int[11180];
     int offset = 0;
     offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -690,11 +704,11 @@ class MarcelJflexer {
     "\1\11\2\1\3\11\1\0\1\1\10\11\3\1\1\11"+
     "\2\0\1\1\1\11\1\1\1\11\2\1\6\11\1\0"+
     "\34\1\1\11\1\1\1\0\2\11\1\1\2\0\3\11"+
-    "\2\1\1\11\34\1\2\0\1\1\2\11\31\1\1\11"+
-    "\1\0\22\1\1\0\30\1";
+    "\2\1\1\11\34\1\2\0\1\1\2\11\32\1\1\11"+
+    "\1\0\23\1\1\0\37\1";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[239];
+    int [] result = new int[248];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -1246,14 +1260,14 @@ class MarcelJflexer {
         zzStartRead = commentStart;
         return commentStateToTokenType(state);
             }  // fall though
-            case 240: break;
+            case 249: break;
             case DOC_COMMENT: {
               int state = yystate();
         popState();
         zzStartRead = commentStart;
         return commentStateToTokenType(state);
             }  // fall though
-            case 241: break;
+            case 250: break;
             default:
         return null;
         }
@@ -1264,152 +1278,152 @@ class MarcelJflexer {
             { return token(WHITE_SPACE);
             }
             // fall through
-          case 94: break;
+          case 96: break;
           case 2:
             { return token(NOT);
             }
             // fall through
-          case 95: break;
+          case 97: break;
           case 3:
             { pushState(STRING); return token(OPEN_QUOTE);
             }
             // fall through
-          case 96: break;
+          case 98: break;
           case 4:
             { return token(MODULO);
             }
             // fall through
-          case 97: break;
+          case 99: break;
           case 5:
             { return token(LPAR);
             }
             // fall through
-          case 98: break;
+          case 100: break;
           case 6:
             { return token(RPAR);
             }
             // fall through
-          case 99: break;
+          case 101: break;
           case 7:
             { return token(MUL);
             }
             // fall through
-          case 100: break;
+          case 102: break;
           case 8:
             { return token(PLUS);
             }
             // fall through
-          case 101: break;
+          case 103: break;
           case 9:
             { return token(COMMA);
             }
             // fall through
-          case 102: break;
+          case 104: break;
           case 10:
             { return token(MINUS);
             }
             // fall through
-          case 103: break;
+          case 105: break;
           case 11:
             { return token(DOT);
             }
             // fall through
-          case 104: break;
+          case 106: break;
           case 12:
             { return token(DIV);
             }
             // fall through
-          case 105: break;
+          case 107: break;
           case 13:
             { return valueToken(INTEGER);
             }
             // fall through
-          case 106: break;
+          case 108: break;
           case 14:
             { return token(COLON);
             }
             // fall through
-          case 107: break;
+          case 109: break;
           case 15:
             { return token(SEMI_COLON);
             }
             // fall through
-          case 108: break;
+          case 110: break;
           case 16:
             { return token(LT);
             }
             // fall through
-          case 109: break;
+          case 111: break;
           case 17:
             { return token(ASSIGNMENT);
             }
             // fall through
-          case 110: break;
+          case 112: break;
           case 18:
             { return token(GT);
             }
             // fall through
-          case 111: break;
+          case 113: break;
           case 19:
             { return token(QUESTION_MARK);
             }
             // fall through
-          case 112: break;
+          case 114: break;
           case 20:
             { return valueToken(IDENTIFIER);
             }
             // fall through
-          case 113: break;
+          case 115: break;
           case 21:
             { return token(SQUARE_BRACKETS_OPEN);
             }
             // fall through
-          case 114: break;
+          case 116: break;
           case 22:
             { return token(SQUARE_BRACKETS_CLOSE);
             }
             // fall through
-          case 115: break;
+          case 117: break;
           case 23:
             { return token(BRACKETS_OPEN);
             }
             // fall through
-          case 116: break;
+          case 118: break;
           case 24:
             { return token(BRACKETS_CLOSE);
             }
             // fall through
-          case 117: break;
+          case 119: break;
           case 25:
             { return valueToken(REGULAR_STRING_PART);
             }
             // fall through
-          case 118: break;
+          case 120: break;
           case 26:
             { popState(); yypushback(1); return valueToken(DANGLING_NEWLINE);
             }
             // fall through
-          case 119: break;
+          case 121: break;
           case 27:
             { popState(); return token(CLOSING_QUOTE);
             }
             // fall through
-          case 120: break;
+          case 122: break;
           case 28:
             { popState(); return valueToken(IDENTIFIER);
             }
             // fall through
-          case 121: break;
+          case 123: break;
           case 29:
             { 
             }
             // fall through
-          case 122: break;
+          case 124: break;
           case 30:
             { lBraceCount++; return valueToken(LBRACE);
             }
             // fall through
-          case 123: break;
+          case 125: break;
           case 31:
             { if (lBraceCount == 0) {
                                              popState();
@@ -1419,12 +1433,12 @@ class MarcelJflexer {
                                            return valueToken(RBRACE);
             }
             // fall through
-          case 124: break;
+          case 126: break;
           case 32:
             { return token(NOT_EQUAL);
             }
             // fall through
-          case 125: break;
+          case 127: break;
           case 33:
             { if (zzCurrentPos == 0) {
                 return token(TokenType.SHEBANG_COMMENT);
@@ -1435,136 +1449,136 @@ class MarcelJflexer {
             }
             }
             // fall through
-          case 126: break;
+          case 128: break;
           case 34:
             { return token(AND);
             }
             // fall through
-          case 127: break;
+          case 129: break;
           case 35:
             { return token(MUL_ASSIGNMENT);
             }
             // fall through
-          case 128: break;
+          case 130: break;
           case 36:
             { return token(INCR);
             }
             // fall through
-          case 129: break;
+          case 131: break;
           case 37:
             { return token(PLUS_ASSIGNMENT);
             }
             // fall through
-          case 130: break;
+          case 132: break;
           case 38:
             { return token(DECR);
             }
             // fall through
-          case 131: break;
+          case 133: break;
           case 39:
             { return token(MINUS_ASSIGNMENT);
             }
             // fall through
-          case 132: break;
+          case 134: break;
           case 40:
             { return token(ARROW);
             }
             // fall through
-          case 133: break;
+          case 135: break;
           case 41:
             { return token(TWO_DOTS);
             }
             // fall through
-          case 134: break;
+          case 136: break;
           case 42:
             { return valueToken(FLOAT);
             }
             // fall through
-          case 135: break;
+          case 137: break;
           case 43:
             { pushState(BLOCK_COMMENT);
     commentDepth = 0;
     commentStart = getTokenStart();
             }
             // fall through
-          case 136: break;
+          case 138: break;
           case 44:
             { return token(TokenType.EOL_COMMENT);
             }
             // fall through
-          case 137: break;
+          case 139: break;
           case 45:
             { return token(DIV_ASSIGNMENT);
             }
             // fall through
-          case 138: break;
+          case 140: break;
           case 46:
             { return token(LEFT_SHIFT);
             }
             // fall through
-          case 139: break;
+          case 141: break;
           case 47:
             { return token(LOE);
             }
             // fall through
-          case 140: break;
+          case 142: break;
           case 48:
             { return token(EQUAL);
             }
             // fall through
-          case 141: break;
+          case 143: break;
           case 49:
             { return token(GOE);
             }
             // fall through
-          case 142: break;
+          case 144: break;
           case 50:
             { return token(RIGHT_SHIFT);
             }
             // fall through
-          case 143: break;
+          case 145: break;
           case 51:
             { return token(QUESTION_DOT);
             }
             // fall through
-          case 144: break;
+          case 146: break;
           case 52:
             { return token(AS);
             }
             // fall through
-          case 145: break;
+          case 147: break;
           case 53:
             { return token(IF);
             }
             // fall through
-          case 146: break;
+          case 148: break;
           case 54:
             { return token(IN);
             }
             // fall through
-          case 147: break;
+          case 149: break;
           case 55:
             { return token(OR);
             }
             // fall through
-          case 148: break;
+          case 150: break;
           case 56:
             { pushState(SHORT_TEMPLATE_ENTRY);
                                                         yypushback(yylength() - 1);
                                                         return token(SHORT_TEMPLATE_ENTRY_START);
             }
             // fall through
-          case 149: break;
+          case 151: break;
           case 57:
             { pushState(LONG_TEMPLATE_ENTRY); return token(LONG_TEMPLATE_ENTRY_START);
             }
             // fall through
-          case 150: break;
+          case 152: break;
           case 58:
             { return valueToken(ESCAPE_SEQUENCE);
             }
             // fall through
-          case 151: break;
+          case 153: break;
           case 59:
             { if (commentDepth > 0) {
             commentDepth--;
@@ -1577,44 +1591,44 @@ class MarcelJflexer {
         }
             }
             // fall through
-          case 152: break;
+          case 154: break;
           case 60:
             { commentDepth++;
             }
             // fall through
-          case 153: break;
+          case 155: break;
           case 61:
             { pushState(RAW_STRING); return token(OPEN_QUOTE);
             }
             // fall through
-          case 154: break;
+          case 156: break;
           case 62:
             { pushState(DOC_COMMENT);
     commentDepth = 0;
     commentStart = getTokenStart();
             }
             // fall through
-          case 155: break;
+          case 157: break;
           case 63:
             { return token(FOR);
             }
             // fall through
-          case 156: break;
+          case 158: break;
           case 64:
             { return token(FUN);
             }
             // fall through
-          case 157: break;
+          case 159: break;
           case 65:
             { return valueToken(TYPE_INT);
             }
             // fall through
-          case 158: break;
+          case 160: break;
           case 66:
             { return token(NEW);
             }
             // fall through
-          case 159: break;
+          case 161: break;
           case 67:
             { int length = yytext().length();
                                     if (length <= 3) { // closing """
@@ -1627,137 +1641,147 @@ class MarcelJflexer {
                                     }
             }
             // fall through
-          case 160: break;
+          case 162: break;
           case 68:
             { return token(TokenType.BLOCK_COMMENT);
             }
             // fall through
-          case 161: break;
+          case 163: break;
           case 69:
             { return valueToken(TYPE_BOOL);
             }
             // fall through
-          case 162: break;
+          case 164: break;
           case 70:
             { return valueToken(TYPE_BYTE);
             }
             // fall through
-          case 163: break;
+          case 165: break;
           case 71:
             { return token(ELSE);
             }
             // fall through
-          case 164: break;
+          case 166: break;
           case 72:
             { return valueToken(TYPE_LONG);
             }
             // fall through
-          case 165: break;
+          case 167: break;
           case 73:
             { return token(NULL);
             }
             // fall through
-          case 166: break;
+          case 168: break;
           case 74:
             { return token(VALUE_TRUE);
             }
             // fall through
-          case 167: break;
+          case 169: break;
           case 75:
             { return valueToken(TYPE_VOID);
             }
             // fall through
-          case 168: break;
+          case 170: break;
           case 76:
             { return token(BREAK);
             }
             // fall through
-          case 169: break;
+          case 171: break;
           case 77:
             { return token(CLASS);
             }
             // fall through
-          case 170: break;
+          case 172: break;
           case 78:
             { return token(VALUE_FALSE);
             }
             // fall through
-          case 171: break;
+          case 173: break;
           case 79:
             { return valueToken(TYPE_FLOAT);
             }
             // fall through
-          case 172: break;
+          case 174: break;
           case 80:
             { return valueToken(TYPE_SHORT);
             }
             // fall through
-          case 173: break;
+          case 175: break;
           case 81:
             { return token(WHILE);
             }
             // fall through
-          case 174: break;
+          case 176: break;
           case 82:
             { return valueToken(TYPE_DOUBLE);
             }
             // fall through
-          case 175: break;
+          case 177: break;
           case 83:
             { return token(IMPORT);
             }
             // fall through
-          case 176: break;
+          case 178: break;
           case 84:
             { return token(INLINE);
             }
             // fall through
-          case 177: break;
+          case 179: break;
           case 85:
             { return token(VISIBILITY_PUBLIC);
             }
             // fall through
-          case 178: break;
+          case 180: break;
           case 86:
             { return token(RETURN);
             }
             // fall through
-          case 179: break;
+          case 181: break;
           case 87:
             { return token(STATIC);
             }
             // fall through
-          case 180: break;
-          case 88:
-            { return token(PACKAGE);
-            }
-            // fall through
-          case 181: break;
-          case 89:
-            { return token(VISIBILITY_PRIVATE);
-            }
-            // fall through
           case 182: break;
-          case 90:
-            { return token(CONTINUE);
+          case 88:
+            { return token(EXTENDS);
             }
             // fall through
           case 183: break;
-          case 91:
-            { return token(VISIBILITY_INTERNAL);
+          case 89:
+            { return token(PACKAGE);
             }
             // fall through
           case 184: break;
-          case 92:
-            { return token(EXTENSION);
+          case 90:
+            { return token(VISIBILITY_PRIVATE);
             }
             // fall through
           case 185: break;
-          case 93:
-            { return token(VISIBILITY_PROTECTED);
+          case 91:
+            { return token(CONTINUE);
             }
             // fall through
           case 186: break;
+          case 92:
+            { return token(VISIBILITY_INTERNAL);
+            }
+            // fall through
+          case 187: break;
+          case 93:
+            { return token(EXTENSION);
+            }
+            // fall through
+          case 188: break;
+          case 94:
+            { return token(VISIBILITY_PROTECTED);
+            }
+            // fall through
+          case 189: break;
+          case 95:
+            { return token(IMPLEMENTS);
+            }
+            // fall through
+          case 190: break;
           default:
             zzScanError(ZZ_NO_MATCH);
         }
