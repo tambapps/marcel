@@ -186,5 +186,9 @@ class JavaTypeResolver: AstNodeTypeResolver() {
     JavaType.mapType(literalMapNode.getKeysType(this), literalMapNode.getValuesType(this))
 
   override fun visit(fCall: FunctionCallNode) = fCall.getMethod(this).returnType
+  fun getDeclaredMethods(interfaze: JavaType): List<JavaMethod> {
+    return if (interfaze.isLoaded) interfaze.realClazz.declaredMethods.map { ReflectJavaMethod(it) }
+    else classMethods[interfaze.className] ?: emptyList()
+  }
 
 }

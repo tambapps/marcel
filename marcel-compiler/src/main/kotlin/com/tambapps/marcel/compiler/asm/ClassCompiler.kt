@@ -26,6 +26,14 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
   }
 
   private fun compileRec(classes: MutableList<CompiledClass>, classNode: ClassNode) {
+    // check that all implemented interfaces methods are defined.
+    for (interfaze in classNode.type.directlyImplementedInterfaces) {
+      for (interfaceMethod in typeResolver.getDeclaredMethods(interfaze)) {
+        if (typeResolver.findMethod(classNode.type, interfaceMethod.name, interfaceMethod.parameters, true) == null) {
+          throw SemanticException("Class ${classNode.type} doesn't define method $interfaceMethod of interface $interfaze")
+        }
+      }
+    }
     val classWriter = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
     // creating class
     classWriter.visit(compilerConfiguration.classVersion,  classNode.access, classNode.internalName, null, classNode.superType.internalName,

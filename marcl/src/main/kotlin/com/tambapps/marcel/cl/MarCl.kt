@@ -51,7 +51,7 @@ class ExecuteCommand(private val scriptArguments: Array<String>) : CliktCommand(
     val className = generateClassName(file.name)
 
     // we want to keep jar because we will run it
-    val jarFile = compile(file, className, keepClassFiles, true, printStackTrace)!!
+    val jarFile = compile(file, className, keepClassFiles, true, printStackTrace) ?: return
 
     // load the jar into the classpath
     val classLoader = URLClassLoader(arrayOf(jarFile.toURI().toURL()), MarcelCompiler::class.java.classLoader)
