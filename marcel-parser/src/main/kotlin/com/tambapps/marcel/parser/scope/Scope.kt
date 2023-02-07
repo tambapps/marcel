@@ -92,7 +92,7 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
   fun getTypeOrNull(name: String): JavaType? {
     return try {
       resolveType(name, emptyList())
-    } catch (e: ClassNotFoundException) {
+    } catch (e: SemanticException) {
       null
     }
   }

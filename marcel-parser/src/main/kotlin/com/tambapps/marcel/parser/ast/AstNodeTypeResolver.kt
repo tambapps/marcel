@@ -189,7 +189,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
       referenceExpression.scope.findVariable(referenceExpression.name).type
     } catch (e: SemanticException) {
       // for static function calls
-      referenceExpression.scope.getTypeOrNull(referenceExpression.name) ?: throw e
+      referenceExpression.scope.getTypeOrNull(referenceExpression.name) ?: throw SemanticException("No variable or class named ${referenceExpression.name} was found")
     }
 
   override fun visit(indexedReferenceExpression: IndexedReferenceExpression) =

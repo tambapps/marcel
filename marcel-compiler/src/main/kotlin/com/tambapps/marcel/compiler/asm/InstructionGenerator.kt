@@ -239,12 +239,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       val innerScope = InnerScope(
         fCall.scope as? MethodScope ?: throw SemanticException("Can only call inline functions in a method"))
       val inlineBlock = inlineMethod.block.asSimpleBlock(innerScope)
-      inlineBlock.accept(object : AstVisitor {
-        override fun visit(node: AstNode) {
-          if (node is ScopedNode<*>) node.trySetScope(innerScope)
-        }
-      })
-
+      inlineBlock.trySetTreeScope(innerScope)
       // initializing arguments
       if (fCall.arguments.size != inlineMethod.parameters.size) {
         throw SemanticException("Invalid number of arguments for method ${method.name}")

@@ -79,7 +79,7 @@ class MarcelParserTest {
         val parser = parser("Type<Integer, Object> b = null")
 
         assertEquals(
-            VariableDeclarationNode(scope, typeResolver.defineClass("Type", JavaType.of(Script::class.java), false).withGenericTypes(listOf(
+            VariableDeclarationNode(scope, typeResolver.defineClass("Type", JavaType.of(Script::class.java), false, emptyList()).withGenericTypes(listOf(
                 JavaType.of(Class.forName("java.lang.Integer")),
                 JavaType.of(Class.forName("java.lang.Object"))
             )), "b", NullValueNode()),

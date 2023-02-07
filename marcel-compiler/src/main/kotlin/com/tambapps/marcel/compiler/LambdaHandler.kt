@@ -1,5 +1,6 @@
 package com.tambapps.marcel.compiler
 
+import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ConstructorNode
@@ -32,13 +33,19 @@ class LambdaHandler(private val classNode: ClassNode, private val methodNode: Me
     lambdaClassNode.methods.add(ConstructorNode.emptyConstructor(lambdaClassNode))
 
     // define lambda interfaceType method
-    // TODO need to rename method parameters properly
     val lambdaMethod = scope.typeResolver.getDeclaredMethods(lambdaInterfaceType).first()
-    val lambdaMethodScope = MethodScope(lambdaClassNode.scope, lambdaMethod.name, lambdaNode.parameters, lambdaMethod.returnType)
+    var parameters = lambdaMethod.parameters
+    if (parameters.size == 1 && lambdaNode.parameters.isEmpty()) {
+      parameters = listOf(MethodParameter(lambdaMethod.parameters.first().type, "it"))
+    }
+
+    val lambdaMethodScope = MethodScope(lambdaClassNode.scope, lambdaMethod.name, parameters, lambdaMethod.returnType)
+    val fblock = FunctionBlockNode(lambdaMethodScope, lambdaNode.blockNode.statements)
+    fblock.trySetTreeScope(lambdaMethodScope)
     lambdaClassNode.addMethod(
       MethodNode(Opcodes.ACC_PUBLIC, type, lambdaMethod.name,
-        FunctionBlockNode(lambdaMethodScope, lambdaNode.blockNode.statements),
-        lambdaMethod.parameters.toMutableList(),
+        fblock,
+        parameters.toMutableList(),
         lambdaMethod.returnType, lambdaMethodScope,
         false)
     )
@@ -51,18 +58,20 @@ class LambdaHandler(private val classNode: ClassNode, private val methodNode: Me
         throw SemanticException("Cannot make a lambda out of interface $interfaceType")
       }
       // TODO need to rename method parameters properly
+
       val interfaceMethod = declaredMethods.first()
-      val interfaceMethodScope = MethodScope(lambdaClassNode.scope, interfaceMethod.name, interfaceMethod.parameters, interfaceMethod.returnType)
+      val interfaceMethodScope = MethodScope(lambdaClassNode.scope, interfaceMethod.name, parameters, interfaceMethod.returnType)
+
 
       val lambdaMethodCall = FunctionCallNode(interfaceMethodScope, lambdaMethod.name,
-        interfaceMethod.parameters.map {
+        parameters.map {
           ReferenceExpression(interfaceMethodScope, it.name)
         }.toMutableList(), ReferenceExpression.thisRef(interfaceMethodScope))
 
       lambdaClassNode.addMethod(
         MethodNode(Opcodes.ACC_PUBLIC, type, interfaceMethod.name,
           FunctionBlockNode(interfaceMethodScope, listOf(ExpressionStatementNode(lambdaMethodCall))),
-          interfaceMethod.parameters.toMutableList(),
+          parameters.toMutableList(),
           interfaceMethod.returnType, interfaceMethodScope,
           false)
       )
