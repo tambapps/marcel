@@ -5,7 +5,10 @@ import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ConstructorNode
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
+import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.LambdaNode
+import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
+import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.LambdaScope
 import com.tambapps.marcel.parser.scope.MethodScope
@@ -50,9 +53,15 @@ class LambdaHandler(private val classNode: ClassNode, private val methodNode: Me
       // TODO need to rename method parameters properly
       val interfaceMethod = declaredMethods.first()
       val interfaceMethodScope = MethodScope(lambdaClassNode.scope, interfaceMethod.name, interfaceMethod.parameters, interfaceMethod.returnType)
+
+      val lambdaMethodCall = FunctionCallNode(interfaceMethodScope, lambdaMethod.name,
+        interfaceMethod.parameters.map {
+          ReferenceExpression(interfaceMethodScope, it.name)
+        }.toMutableList(), ReferenceExpression.thisRef(interfaceMethodScope))
+
       lambdaClassNode.addMethod(
         MethodNode(Opcodes.ACC_PUBLIC, type, interfaceMethod.name,
-          FunctionBlockNode(interfaceMethodScope, lambdaNode.blockNode.statements),
+          FunctionBlockNode(interfaceMethodScope, listOf(ExpressionStatementNode(lambdaMethodCall))),
           interfaceMethod.parameters.toMutableList(),
           interfaceMethod.returnType, interfaceMethodScope,
           false)

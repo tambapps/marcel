@@ -8,6 +8,11 @@ import com.tambapps.marcel.parser.scope.Variable
 // can be a class or variable reference
 class ReferenceExpression(override var scope: Scope, val name: String): ExpressionNode, ScopedNode<Scope> {
 
+  companion object {
+    fun thisRef(scope: Scope): ReferenceExpression {
+      return ReferenceExpression(scope, "this")
+    }
+  }
   val variable: Variable
     get() = scope.findVariable(name)
 
