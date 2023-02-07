@@ -103,6 +103,9 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
     definedTypes.clear()
   }
 
+  open fun defineMethod(javaType: JavaType, method: JavaMethod) {
+  }
+
   open fun getDeclaredMethods(javaType: JavaType): List<JavaMethod> {
     return emptyList()
   }

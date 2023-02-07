@@ -28,7 +28,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
   private fun compileRec(classes: MutableList<CompiledClass>, classNode: ClassNode) {
     // check that all implemented interfaces methods are defined.
     for (interfaze in classNode.type.directlyImplementedInterfaces) {
-      for (interfaceMethod in typeResolver.getDeclaredMethods(interfaze)) {
+      for (interfaceMethod in typeResolver.getDeclaredMethods(interfaze).filter { it.isAbstract }) {
         if (typeResolver.findMethod(classNode.type, interfaceMethod.name, interfaceMethod.parameters, true) == null) {
           throw SemanticException("Class ${classNode.type} doesn't define method $interfaceMethod of interface $interfaze")
         }
@@ -41,10 +41,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
 
     if (classNode.constructorsCount == 0) {
       // if no constructor is defined, we'll define one for you
-      val emptyConstructorScope = MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)
-      classNode.methods.add(
-        ConstructorNode(classNode.superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(emptyConstructorScope, emptyList()), mutableListOf(), emptyConstructorScope),
-      )
+      classNode.methods.add(ConstructorNode.emptyConstructor(classNode))
     }
     for (methodNode in classNode.methods) {
       if (methodNode.isInline) continue // inline method are not to be written (?)

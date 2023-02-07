@@ -5,10 +5,10 @@ import com.tambapps.marcel.parser.ast.AstNode
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.ast.ScopedNode
-import com.tambapps.marcel.parser.scope.MethodScope
+import com.tambapps.marcel.parser.scope.LambdaScope
 import com.tambapps.marcel.parser.type.JavaType
 
-class LambdaNode(val scope: MethodScope, val parameters: List<MethodParameter>, val blockNode: BlockNode): ExpressionNode {
+class LambdaNode constructor(val scope: LambdaScope, val parameters: List<MethodParameter>, val blockNode: BlockNode): ExpressionNode {
 
   var interfaceType: JavaType? = null
     set(value) {

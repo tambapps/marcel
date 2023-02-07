@@ -116,6 +116,8 @@ open class MethodScope constructor(typeResolver: AstNodeTypeResolver, imports: M
         this(scope.typeResolver, scope.imports, scope.classType, scope.superClass, methodName, parameters, returnType)
 }
 
+class LambdaScope constructor(val parentScope: Scope):
+    Scope(parentScope.typeResolver, parentScope.classType, parentScope.imports)
 
 class InnerScope constructor(private val parentScope: MethodScope)
   : MethodScope(parentScope.typeResolver, parentScope.imports, parentScope.classType, parentScope.superClass, parentScope.methodName, parentScope.parameters, parentScope.returnType) {

@@ -268,8 +268,10 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(lambdaNode: LambdaNode) {
-    TODO("Not yet implemented. Add a lambdaHandler that will then write inner class")
+    val lambdaType = lambdaHandler.defineLambda(lambdaNode)
+    visit(ConstructorCallNode(lambdaNode.scope, lambdaType, mutableListOf()))
   }
+
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     var expression = variableAssignmentNode.expression
     val variable = variableAssignmentNode.scope.findVariable(variableAssignmentNode.name)

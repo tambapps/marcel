@@ -16,6 +16,7 @@ import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.InnerScope
+import com.tambapps.marcel.parser.scope.LambdaScope
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
@@ -567,8 +568,8 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       }
     }
     // now parse function block
-    val block = block(MethodScope(scope, "TODO", parameters, JavaType.Object), false)
-    return LambdaNode(methodScope, parameters, block)
+    val block = block(MethodScope(scope, "invoke", parameters, JavaType.Object), false)
+    return LambdaNode(LambdaScope(scope), parameters, block)
   }
 
   private fun parseNumberConstant(token: LexToken): ExpressionNode {

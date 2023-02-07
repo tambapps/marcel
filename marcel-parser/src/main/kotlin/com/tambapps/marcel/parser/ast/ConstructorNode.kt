@@ -11,6 +11,7 @@ import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.Script
+import org.objectweb.asm.Opcodes
 
 class ConstructorNode(
   val superType: JavaType,
@@ -23,6 +24,13 @@ class ConstructorNode(
 
   override val isConstructor = true
   companion object {
+
+    fun emptyConstructor(classNode: ClassNode): ConstructorNode {
+      val emptyConstructorScope = MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)
+      return ConstructorNode(classNode.superType, Opcodes.ACC_PUBLIC,
+        FunctionBlockNode(emptyConstructorScope, emptyList()), mutableListOf(), emptyConstructorScope)
+    }
+
     private fun blockWithSuperCall(scope: Scope, block: FunctionBlockNode): FunctionBlockNode {
       if (block.statements.firstOrNull()?.expression is SuperConstructorCallNode) {
         return block

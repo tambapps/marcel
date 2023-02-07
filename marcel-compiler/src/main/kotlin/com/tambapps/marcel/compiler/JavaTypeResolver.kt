@@ -83,7 +83,7 @@ class JavaTypeResolver: AstNodeTypeResolver() {
 
   private val classMethods = mutableMapOf<String, MutableList<JavaMethod>>()
 
-  fun defineMethod(javaType: JavaType, method: JavaMethod) {
+  override fun defineMethod(javaType: JavaType, method: JavaMethod) {
     val methods = getTypeMethods(javaType)
     if (methods.any { it.matches(this, method.name, method.parameters) }) {
       throw SemanticException("Method with $method is already defined")

@@ -2,37 +2,70 @@ package com.tambapps.marcel.compiler
 
 import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.ClassNode
+import com.tambapps.marcel.parser.ast.ConstructorNode
 import com.tambapps.marcel.parser.ast.MethodNode
+import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.ast.expression.LambdaNode
+import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.scope.LambdaScope
 import com.tambapps.marcel.parser.scope.MethodScope
-import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaType
-import marcel.lang.lambda.Lambda1
 import org.objectweb.asm.Opcodes
 
 class LambdaHandler(private val classNode: ClassNode, private val methodNode: MethodNode) {
   private var lambdasCount = 0
 
-  fun defineLambda(lambdaNode: LambdaNode) {
+  fun defineLambda(lambdaNode: LambdaNode): JavaType {
     val scope = lambdaNode.scope
     val className = generateLambdaName(scope)
     val lambdaInterfaceType = AstNodeTypeResolver.getLambdaType(lambdaNode)
     val interfaceType = lambdaNode.interfaceType
-    val type = scope.typeResolver.defineClass(className, lambdaInterfaceType, false,
-        if (interfaceType != null) listOf(interfaceType)
+    val type = scope.typeResolver.defineClass(className, JavaType.Object, false,
+        if (interfaceType != null) listOf(interfaceType, lambdaInterfaceType)
         else listOf())
     val methods = mutableListOf<MethodNode>()
-    val classNode = ClassNode(scope.copy(), Opcodes.ACC_PRIVATE, type, type.superType!!, false, methods, mutableListOf())
+    val lambdaClassNode = ClassNode(scope.copy(), Opcodes.ACC_PRIVATE, type, type.superType!!, false, methods, mutableListOf())
+    // adding default constructor
+    lambdaClassNode.methods.add(ConstructorNode.emptyConstructor(lambdaClassNode))
+
     // define lambda interfaceType method
+    // TODO need to rename method parameters properly
+    val lambdaMethod = scope.typeResolver.getDeclaredMethods(lambdaInterfaceType).first()
+    val lambdaMethodScope = MethodScope(lambdaClassNode.scope, lambdaMethod.name, lambdaNode.parameters, lambdaMethod.returnType)
+    lambdaClassNode.addMethod(
+      MethodNode(Opcodes.ACC_PUBLIC, type, lambdaMethod.name,
+        FunctionBlockNode(lambdaMethodScope, lambdaNode.blockNode.statements),
+        lambdaMethod.parameters.toMutableList(),
+        lambdaMethod.returnType, lambdaMethodScope,
+        false)
+    )
 
-    val lambdaMethod = scope.typeResolver.getDeclaredMethods(type)
-    TODO()
-
-    // TODO generate class implementing the right interface(s)
+    // define the interface method if any
+    if (interfaceType != null) {
+      val declaredMethods = scope.typeResolver.getDeclaredMethods(interfaceType)
+        .filter { it.isAbstract }
+      if (declaredMethods.size != 1) {
+        throw SemanticException("Cannot make a lambda out of interface $interfaceType")
+      }
+      // TODO need to rename method parameters properly
+      val interfaceMethod = declaredMethods.first()
+      val interfaceMethodScope = MethodScope(lambdaClassNode.scope, interfaceMethod.name, interfaceMethod.parameters, interfaceMethod.returnType)
+      lambdaClassNode.addMethod(
+        MethodNode(Opcodes.ACC_PUBLIC, type, interfaceMethod.name,
+          FunctionBlockNode(interfaceMethodScope, lambdaNode.blockNode.statements),
+          interfaceMethod.parameters.toMutableList(),
+          interfaceMethod.returnType, interfaceMethodScope,
+          false)
+      )
+    }
+    lambdaClassNode.methods.forEach { scope.typeResolver.defineMethod(type, it) }
+    // add lambda class as an inner class of the class it was defined in
+    classNode.innerClasses.add(lambdaClassNode)
+    return type
   }
 
-  private fun generateLambdaName(scope: Scope): String {
-    return if (scope is MethodScope) "_" + scope.methodName + "_closure" + lambdasCount++
+  private fun generateLambdaName(scope: LambdaScope): String {
+    return if (scope.parentScope is MethodScope) "_" + (scope.parentScope as MethodScope).methodName + "_closure" + lambdasCount++
     else "_" + scope.classType.simpleName + "_closure" + lambdasCount++
   }
 }
