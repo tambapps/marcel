@@ -2,11 +2,13 @@ package com.tambapps.marcel.parser.type
 
 import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.asm.AsmUtils
+import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.AstTypedObject
 import marcel.lang.lambda.Lambda
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 
 interface JavaMethod {
 
@@ -20,6 +22,8 @@ interface JavaMethod {
   val parameters: List<MethodParameter>
   val returnType: JavaType
   val descriptor: String
+  val isDefault: Boolean
+  val isAbstract: Boolean
 
   val isStatic: Boolean
     get() = (access and Opcodes.ACC_STATIC) != 0
@@ -31,23 +35,28 @@ interface JavaMethod {
     else Opcodes.INVOKEVIRTUAL
 
 
-  fun matches(name: String, types: List<AstTypedObject>): Boolean {
-    return this.name == name && matches(types)
+  fun matches(typeResolver: AstNodeTypeResolver, name: String, types: List<AstTypedObject>): Boolean {
+    return this.name == name && matches(typeResolver, types)
   }
 
-  fun matches(types: List<AstTypedObject>): Boolean {
+  fun matches(typeResolver: AstNodeTypeResolver, types: List<AstTypedObject>): Boolean {
     if (parameters.size != types.size) return false
     for (i in parameters.indices) {
       val expectedType = parameters[i].type
       val actualType = types[i].type
-      if (!matches(expectedType, actualType)) return false
+      if (!matches(typeResolver, expectedType, actualType)) return false
     }
     return true
   }
 
-  private fun matches(expectedType: JavaType, actualType: JavaType): Boolean {
+  private fun matches(typeResolver: AstNodeTypeResolver, expectedType: JavaType, actualType: JavaType): Boolean {
     return if (expectedType.isInterface && actualType.isLambda) {
-      TODO("yayyy")
+      val declaredMethods = typeResolver.getDeclaredMethods(expectedType)
+        .filter { it.isAbstract }
+      if (declaredMethods.size != 1) return false
+      val interfaceMethod = declaredMethods.first()
+      val lambdaMethod = typeResolver.getDeclaredMethods(actualType).first { it.isAbstract }
+      return interfaceMethod.matches(typeResolver, lambdaMethod.parameters)
     } else expectedType.isAssignableFrom(actualType)
   }
 }
@@ -63,34 +72,13 @@ class ReflectJavaConstructor(constructor: Constructor<*>): JavaMethod {
   override val descriptor = AsmUtils.getDescriptor(parameters, returnType)
   override val invokeCode = Opcodes.INVOKESPECIAL
   override val isConstructor = true
+  override val isDefault = false
+  override val isAbstract = false
 
   override fun toString(): String {
     return "${ownerClass.className}(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType
   }
 }
-class SimpleJavaMethod(
-  override val ownerClass: JavaType,
-  override val access: Int,
-  override val name: String,
-  override val parameters: List<MethodParameter>,
-  override val returnType: JavaType,
-) : JavaMethod {
-
-  override val descriptor = AsmUtils.getDescriptor(parameters, returnType)
-
-  constructor(ownerClass: Class<*>,
-              access: Int,
-              name: String,
-              parameters: List<Class<*>>,
-              returnType: Class<*>): this(JavaType.of(ownerClass), access, name,
-    parameters.map { MethodParameter(JavaType.of(it), it.name) }, JavaType.of(returnType))
-  override val isConstructor = false
-
-  override fun toString(): String {
-    return "$ownerClass.$name(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType
-  }
-}
-
 class ExtensionJavaMethod(
   override val ownerClass: JavaType,
   override val name: String,
@@ -102,6 +90,8 @@ class ExtensionJavaMethod(
   // the static is excluded here in purpose so that self is pushed to the stack
   override val access = Opcodes.ACC_PUBLIC
   override val invokeCode = Opcodes.INVOKESTATIC
+  override val isAbstract = false
+  override val isDefault = false
 
   constructor(method: Method): this(JavaType.of(method.declaringClass), method.name,
     method.parameters.takeLast(method.parameters.size - 1).map { MethodParameter(JavaType.of(it.type), it.name) },
@@ -131,6 +121,8 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): JavaMe
   override val returnType = JavaType.of(method.returnType)
   override val descriptor = AsmUtils.getDescriptor(parameters, returnType)
   override val isConstructor = false
+  override val isAbstract = (method.modifiers and Modifier.ABSTRACT) != 0
+  override val isDefault = method.isDefault
 
   override fun toString(): String {
     return "$ownerClass.$name(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType

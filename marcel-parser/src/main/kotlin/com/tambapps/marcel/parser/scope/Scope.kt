@@ -55,7 +55,7 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
     // find first on class, then on imports, then on extensions
     return (typeResolver.findMethod(classType, name, argumentTypes)
       // fallback on static imported method
-      ?: imports.asSequence().mapNotNull { it.resolveMethod(name, argumentTypes) }.firstOrNull())
+      ?: imports.asSequence().mapNotNull { it.resolveMethod(typeResolver, name, argumentTypes) }.firstOrNull())
       ?: throw SemanticException("Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
   open fun findVariable(name: String): Variable {

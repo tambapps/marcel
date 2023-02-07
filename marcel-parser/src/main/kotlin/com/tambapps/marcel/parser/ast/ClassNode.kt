@@ -16,7 +16,7 @@ class ClassNode constructor(val scope: Scope, val access: Int, val type: JavaTyp
 
   val internalName = AsmUtils.getInternalName(type)
   fun addMethod(method: MethodNode) {
-    if (methods.any { it.matches(method.name, method.parameters) }) {
+    if (methods.any { it.matches(scope.typeResolver, method.name, method.parameters) }) {
       throw SemanticException("Cannot have two methods with the same name")
     }
     methods.add(method)

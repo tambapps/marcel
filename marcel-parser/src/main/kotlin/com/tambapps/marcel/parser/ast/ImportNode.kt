@@ -5,7 +5,7 @@ import com.tambapps.marcel.parser.type.ReflectJavaMethod
 
 interface ImportNode: AstNode {
   fun resolveClassName(classSimpleName: String): String?
-  fun resolveMethod(methodName: String, argumentTypes: List<AstTypedObject>): JavaMethod? {
+  fun resolveMethod(typeResolver: AstNodeTypeResolver, methodName: String, argumentTypes: List<AstTypedObject>): JavaMethod? {
     return null
   }
 
@@ -49,11 +49,11 @@ class StaticImportNode(private val className: String, private val methodName: St
     return null
   }
 
-  override fun resolveMethod(methodName: String, argumentTypes: List<AstTypedObject>): JavaMethod? {
+  override fun resolveMethod(typeResolver: AstNodeTypeResolver, methodName: String, argumentTypes: List<AstTypedObject>): JavaMethod? {
     if (methodName != this.methodName) return null
     val candidates = Class.forName(className).declaredMethods.filter { it.name == methodName }
       .map { ReflectJavaMethod(it) }
-    return candidates.find { it.matches(methodName, argumentTypes) }
+    return candidates.find { it.matches(typeResolver, methodName, argumentTypes) }
   }
 
   override fun toString(): String {

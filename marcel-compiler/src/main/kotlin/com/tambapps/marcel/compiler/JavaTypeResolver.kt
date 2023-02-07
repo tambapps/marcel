@@ -85,20 +85,20 @@ class JavaTypeResolver: AstNodeTypeResolver() {
 
   fun defineMethod(javaType: JavaType, method: JavaMethod) {
     val methods = getTypeMethods(javaType)
-    if (methods.any { it.matches(method.name, method.parameters) }) {
+    if (methods.any { it.matches(this, method.name, method.parameters) }) {
       throw SemanticException("Method with $method is already defined")
     }
     methods.add(method)
   }
 
-  override fun getDeclaredMethods(interfaze: JavaType): List<JavaMethod> {
-    return if (interfaze.isLoaded) interfaze.realClazz.declaredMethods.map { ReflectJavaMethod(it) }
-    else classMethods[interfaze.className] ?: emptyList()
+  override fun getDeclaredMethods(javaType: JavaType): List<JavaMethod> {
+    return if (javaType.isLoaded) javaType.realClazz.declaredMethods.map { ReflectJavaMethod(it) }
+    else classMethods[javaType.className] ?: emptyList()
   }
 
   override fun findMethod(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>, excludeInterfaces: Boolean): JavaMethod? {
     val methods = getTypeMethods(javaType)
-    var m = methods.find { it.matches(name, argumentTypes) }
+    var m = methods.find { it.matches(this, name, argumentTypes) }
     if (m != null) return m
 
     if (javaType.isLoaded) {
@@ -106,12 +106,12 @@ class JavaTypeResolver: AstNodeTypeResolver() {
       val candidates = if (name == JavaMethod.CONSTRUCTOR_NAME) {
         clazz.declaredConstructors
           .map { ReflectJavaConstructor(it) }
-          .filter { it.matches(argumentTypes) }
+          .filter { it.matches(this, argumentTypes) }
       } else {
         clazz.declaredMethods
           .filter { it.name == name }
           .map { ReflectJavaMethod(it, javaType) }
-          .filter { it.matches(argumentTypes) }
+          .filter { it.matches(this, argumentTypes) }
       }
       m = getMoreSpecificMethod(candidates)
       if (m != null) return m

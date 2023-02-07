@@ -13,6 +13,8 @@ open class MethodNode constructor(override val access: Int, override val ownerCl
 ): AstNode, JavaMethod {
 
   override val isConstructor = false
+  override val isAbstract = false
+  override val isDefault = false
 
   override val descriptor get() = AsmUtils.getDescriptor(parameters, returnType)
 
