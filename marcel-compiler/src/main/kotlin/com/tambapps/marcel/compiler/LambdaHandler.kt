@@ -9,10 +9,10 @@ class LambdaHandler(private val classNode: ClassNode, private val methodNode: Me
 
   fun defineLambda(lambdaNode: LambdaNode) {
     val className = generateLambdaName()
-    // TODO generate class implementing the right interface(s)
+    // TODO generate class implementing the right interface(s) and the right lambda interface (for now only handling Lambda1)
   }
 
   private fun generateLambdaName(): String {
-    return "_" + methodNode.name + "_closure" + lambdasCount++
+    return "_" + methodNode.name + "_lambda" + lambdasCount++
   }
 }
