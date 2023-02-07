@@ -42,6 +42,10 @@ interface JavaType: AstTypedObject {
     val i = className.lastIndexOf('$')
     return if (i < 0) null else className.substring(i + 1)
   }
+  val simpleName: String get() {
+    val i = className.lastIndexOf('.')
+    return if (i < 0) className else className.substring(i + 1)
+  }
 
   val storeCode: Int
   val loadCode: Int
