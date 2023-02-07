@@ -91,6 +91,11 @@ class JavaTypeResolver: AstNodeTypeResolver() {
     methods.add(method)
   }
 
+  override fun getDeclaredMethods(interfaze: JavaType): List<JavaMethod> {
+    return if (interfaze.isLoaded) interfaze.realClazz.declaredMethods.map { ReflectJavaMethod(it) }
+    else classMethods[interfaze.className] ?: emptyList()
+  }
+
   override fun findMethod(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>, excludeInterfaces: Boolean): JavaMethod? {
     val methods = getTypeMethods(javaType)
     var m = methods.find { it.matches(name, argumentTypes) }
@@ -186,9 +191,5 @@ class JavaTypeResolver: AstNodeTypeResolver() {
     JavaType.mapType(literalMapNode.getKeysType(this), literalMapNode.getValuesType(this))
 
   override fun visit(fCall: FunctionCallNode) = fCall.getMethod(this).returnType
-  fun getDeclaredMethods(interfaze: JavaType): List<JavaMethod> {
-    return if (interfaze.isLoaded) interfaze.realClazz.declaredMethods.map { ReflectJavaMethod(it) }
-    else classMethods[interfaze.className] ?: emptyList()
-  }
 
 }

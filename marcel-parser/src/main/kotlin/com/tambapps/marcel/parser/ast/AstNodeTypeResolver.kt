@@ -66,6 +66,7 @@ import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.NotLoadedJavaType
 import marcel.lang.IntRange
+import marcel.lang.lambda.Lambda1
 
 open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
@@ -102,7 +103,11 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
     definedTypes.clear()
   }
 
-  open fun of(className: String, genericTypes: List<JavaType>): JavaType {
+  open fun getDeclaredMethods(interfaze: JavaType): List<JavaMethod> {
+    return emptyList()
+  }
+
+    open fun of(className: String, genericTypes: List<JavaType>): JavaType {
     return definedTypes[className] ?: JavaType.of(className, genericTypes)
   }
 
@@ -198,7 +203,15 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
   override fun visit(blockNode: FunctionBlockNode) = visit(blockNode as BlockNode)
 
-  override fun visit(lambdaNode: LambdaNode) = lambdaNode.interfaceType ?: TODO()
+  companion object {
+    fun getLambdaType(lambdaNode: LambdaNode): JavaType {
+      return when (lambdaNode.parameters.size) {
+        0, 1 -> JavaType.of(Lambda1::class.java)
+        else -> TODO("Doesn't handle lambda with such parameters for now")
+      }
+    }
+  }
+  override fun visit(lambdaNode: LambdaNode) = lambdaNode.interfaceType ?: getLambdaType(lambdaNode)
 
   override fun visit(expressionStatementNode: ExpressionStatementNode) = expressionStatementNode.expression.accept(this)
 

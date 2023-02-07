@@ -3,6 +3,7 @@ package com.tambapps.marcel.parser.type
 import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstTypedObject
+import marcel.lang.lambda.Lambda
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
@@ -39,9 +40,15 @@ interface JavaMethod {
     for (i in parameters.indices) {
       val expectedType = parameters[i].type
       val actualType = types[i].type
-      if (!expectedType.isAssignableFrom(actualType)) return false
+      if (!matches(expectedType, actualType)) return false
     }
     return true
+  }
+
+  private fun matches(expectedType: JavaType, actualType: JavaType): Boolean {
+    return if (expectedType.isInterface && actualType.isLambda) {
+      TODO("yayyy")
+    } else expectedType.isAssignableFrom(actualType)
   }
 }
 

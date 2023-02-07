@@ -25,6 +25,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap
 import it.unimi.dsi.fastutil.longs.LongArrayList
 import it.unimi.dsi.fastutil.longs.LongList
 import it.unimi.dsi.fastutil.longs.LongSet
+import marcel.lang.lambda.Lambda
 import org.objectweb.asm.Opcodes
 import kotlin.reflect.KClass
 
@@ -52,6 +53,7 @@ interface JavaType: AstTypedObject {
   val returnCode: Int
   val genericTypes: List<JavaType>
   val isInterface: Boolean
+  val isLambda get() = JavaType.lambda.isAssignableFrom(this)
   val primitive: Boolean
   open val isArray get() = isLoaded && realClazz.isArray
   override val type: JavaType get() = this
@@ -211,6 +213,7 @@ interface JavaType: AstTypedObject {
     val objectArray = JavaArrayType(Array<Any>::class.java, Object, Opcodes.AASTORE, Opcodes.AALOAD, 0)
     val ARRAYS = listOf(intArray, longArray, floatArray, doubleArray, booleanArray, objectArray)
 
+    val lambda = of(Lambda::class.java)
 
     val PRIMITIVE_CAST_INSTRUCTION_MAP = mapOf(
       Pair(Pair(int, long), Opcodes.I2L),
