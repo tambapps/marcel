@@ -65,7 +65,8 @@ class LambdaHandler(private val classNode: ClassNode, private val methodNode: Me
   }
 
   private fun generateLambdaName(scope: LambdaScope): String {
-    return if (scope.parentScope is MethodScope) "_" + (scope.parentScope as MethodScope).methodName + "_closure" + lambdasCount++
-    else "_" + scope.classType.simpleName + "_closure" + lambdasCount++
+    val prefix = scope.classType.simpleName + "\$"
+    return if (scope.parentScope is MethodScope) "${prefix}_" + (scope.parentScope as MethodScope).methodName + "_closure" + lambdasCount++
+    else "${prefix}_" + scope.classType.simpleName + "_closure" + lambdasCount++
   }
 }
