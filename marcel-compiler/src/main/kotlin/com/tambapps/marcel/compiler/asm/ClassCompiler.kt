@@ -7,16 +7,10 @@ import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ConstructorNode
 import com.tambapps.marcel.parser.ast.MethodNode
-import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.exception.SemanticException
-import com.tambapps.marcel.parser.scope.LocalVariable
-import com.tambapps.marcel.parser.scope.MethodScope
-import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Label
-import org.objectweb.asm.Opcodes
-import java.lang.reflect.Method
 
 class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
                     private val typeResolver: JavaTypeResolver) {
@@ -39,7 +33,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     }
     val classWriter = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
     // creating class
-    classWriter.visit(compilerConfiguration.classVersion,  classNode.access, classNode.internalName, classNode.type.signature, classNode.superType.internalName,
+    classWriter.visit(compilerConfiguration.classVersion,  classNode.access, classNode.internalName, classNode.type.fullSignature, classNode.superType.internalName,
       classNode.type.directlyImplementedInterfaces.map { it.internalName }.toTypedArray())
 
     if (classNode.constructorsCount == 0) {
@@ -94,7 +88,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     mv.visitEnd()
 
     for (parameter in methodNode.parameters) {
-      mv.visitLocalVariable(parameter.name,  parameter.type.descriptor, parameter.type.signature,
+      mv.visitLocalVariable(parameter.name,  parameter.type.descriptor, parameter.type.fullSignature,
           methodStartLabel, methodEndLabel,
           methodNode.scope.findLocalVariable(parameter.name)!!.index)
     }

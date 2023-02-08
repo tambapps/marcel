@@ -40,14 +40,24 @@ interface JavaType: AstTypedObject {
   val internalName
     get() = AsmUtils.getInternalName(className)
   val descriptor: String
-  val signature: String? get() {
-    if (genericTypes.isEmpty() && directlyImplementedInterfaces.none { it.genericTypes.isNotEmpty() }) return null
+  val signature: String get() {
+    if (primitive) return descriptor
     val builder = StringBuilder("L$internalName")
     if (genericTypes.isNotEmpty()) {
       genericTypes.joinTo(buffer = builder, separator = "", prefix = "<", postfix = ">", transform = { it.descriptor })
     }
     builder.append(";")
-    directlyImplementedInterfaces.joinTo(buffer = builder, separator = "", transform = { it.signature ?: it.descriptor })
+    return builder.toString()
+  }
+
+  val fullSignature: String get() {
+    if (primitive) return descriptor
+    val builder = StringBuilder("L$internalName")
+    if (genericTypes.isNotEmpty()) {
+      genericTypes.joinTo(buffer = builder, separator = "", prefix = "<", postfix = ">", transform = { it.descriptor })
+    }
+    builder.append(";")
+    directlyImplementedInterfaces.joinTo(buffer = builder, separator = "", transform = { it.fullSignature })
     return builder.toString()
   }
   val hasGenericTypes: Boolean get() = genericTypes.isNotEmpty()
