@@ -369,7 +369,6 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
     get() {
       if (_interfaces == null) {
         _interfaces = getAllImplementedInterfacesRecursively(realClazz).asSequence()
-          .map { toJavaType(it) }
           .toSet()
       }
       return _interfaces!!
@@ -385,25 +384,27 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
     var type = JavaType.of(interfaze)
     if (genericInterface != null) {
       val thisClassGenericTypes = realClazz.typeParameters
-      val interfaceTypeParameters = interfaze.typeParameters
+      val interfaceTypeParameters = genericInterface.actualTypeArguments
       val genericTypes = interfaceTypeParameters.map { intTypeParam ->
-        val i = thisClassGenericTypes.indexOfFirst { it.name == intTypeParam.name }
-        return if (i >= 0) genericTypes[i] else JavaType.Object
+        val i = thisClassGenericTypes.indexOfFirst { it.name == intTypeParam.typeName }
+        return@map if (i >= 0) genericTypes[i] else JavaType.Object
       }
       type = type.withGenericTypes(genericTypes)
     }
     return type
   }
 
-  private fun getAllImplementedInterfacesRecursively(c: Class<*>): Set<Class<*>> {
+  private fun getAllImplementedInterfacesRecursively(c: Class<*>): Set<JavaType> {
     var clazz = c
-    val res = mutableSetOf<Class<*>>()
+    val res = mutableSetOf<JavaType>()
     do {
       // First, add all the interfaces implemented by this class
-      val interfaces = clazz.interfaces
+      val interfaces = clazz.interfaces.map {
+        toJavaType(it)
+      }
       res.addAll(interfaces)
       for (interfaze in interfaces) {
-        res.addAll(getAllImplementedInterfacesRecursively(interfaze))
+        res.addAll(getAllImplementedInterfacesRecursively(interfaze.realClazz))
       }
       // Add the super class
       val superClass = clazz.superclass ?: break

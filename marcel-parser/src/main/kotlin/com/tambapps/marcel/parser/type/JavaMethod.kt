@@ -112,8 +112,7 @@ class ExtensionJavaMethod(
 class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): JavaMethod {
 
   init {
-    fromType?.directlyImplementedInterfaces
-    if (fromType != null && fromType.genericTypes.isNotEmpty()) {
+    if (fromType != null && fromType.genericTypes.isNotEmpty() && method.genericParameterTypes.isNotEmpty()) {
       val realClazz = fromType.realClazz // we know we have a real class because the method is from Java Reflect
       // TODO doesn't seem to work for forEach (don't see generic type)
       method
