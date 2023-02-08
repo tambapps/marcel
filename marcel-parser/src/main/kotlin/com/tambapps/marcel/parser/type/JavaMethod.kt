@@ -111,15 +111,16 @@ class ExtensionJavaMethod(
 }
 class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): JavaMethod {
 
-  constructor(method: Method): this(method, null)
-
-  /* tried to handle generic types but then again no.
   init {
+    fromType?.directlyImplementedInterfaces
     if (fromType != null && fromType.genericTypes.isNotEmpty()) {
+      val realClazz = fromType.realClazz // we know we have a real class because the method is from Java Reflect
+      // TODO doesn't seem to work for forEach (don't see generic type)
       method
     }
   }
-   */
+  constructor(method: Method): this(method, null)
+
   override val ownerClass = JavaType.of(method.declaringClass)
 
   // see norm of modifiers flag in Modifier class. Seems to have the same norm as OpCodes.ACC_ modifiers

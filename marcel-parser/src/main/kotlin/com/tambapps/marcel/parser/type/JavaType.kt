@@ -27,6 +27,7 @@ import it.unimi.dsi.fastutil.longs.LongList
 import it.unimi.dsi.fastutil.longs.LongSet
 import marcel.lang.lambda.Lambda
 import org.objectweb.asm.Opcodes
+import java.lang.reflect.ParameterizedType
 import kotlin.reflect.KClass
 
 interface JavaType: AstTypedObject {
@@ -368,14 +369,31 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
     get() {
       if (_interfaces == null) {
         _interfaces = getAllImplementedInterfacesRecursively(realClazz).asSequence()
-          .map { JavaType.of(it) }
+          .map { toJavaType(it) }
           .toSet()
       }
       return _interfaces!!
     }
 
   override val directlyImplementedInterfaces: Collection<JavaType>
-    get() = realClazz.interfaces.map { JavaType.of(it) }
+    get() = realClazz.interfaces.map { toJavaType(it) }
+
+  private fun toJavaType(interfaze: Class<*>): JavaType {
+    val genericInterface = realClazz.genericInterfaces
+        .mapNotNull { it as? ParameterizedType }
+        .find { it.rawType.typeName == interfaze.typeName }
+    var type = JavaType.of(interfaze)
+    if (genericInterface != null) {
+      val thisClassGenericTypes = realClazz.typeParameters
+      val interfaceTypeParameters = interfaze.typeParameters
+      val genericTypes = interfaceTypeParameters.map { intTypeParam ->
+        val i = thisClassGenericTypes.indexOfFirst { it.name == intTypeParam.name }
+        return if (i >= 0) genericTypes[i] else JavaType.Object
+      }
+      type = type.withGenericTypes(genericTypes)
+    }
+    return type
+  }
 
   private fun getAllImplementedInterfacesRecursively(c: Class<*>): Set<Class<*>> {
     var clazz = c
@@ -432,6 +450,9 @@ class LoadedObjectType(
   constructor(realClazz: Class<*>): this(realClazz, emptyList())
 
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
+    if (genericTypes == this.genericTypes) return this
+    if (genericTypes.any { it.primitive }) throw SemanticException("Cannot have a primitive generic type")
+    if (genericTypes.size != realClazz.typeParameters.size) throw SemanticException("Typed $realClazz expects ${realClazz.typeParameters.size} parameters")
     return LoadedObjectType(realClazz, genericTypes)
   }
 
@@ -465,7 +486,8 @@ class JavaPrimitiveType internal constructor(
 
   val objectClass = objectKlazz.java
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaPrimitiveType {
-    throw SemanticException("Cannot have primitive type with generic types")
+    if (genericTypes.isNotEmpty()) throw SemanticException("Cannot have primitive type with generic types")
+    return this
   }
 
   override val asPrimitiveType: JavaPrimitiveType
