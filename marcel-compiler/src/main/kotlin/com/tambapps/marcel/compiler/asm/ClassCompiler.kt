@@ -9,10 +9,12 @@ import com.tambapps.marcel.parser.ast.ConstructorNode
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.scope.LocalVariable
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.ClassWriter
+import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes
 
 class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
@@ -62,11 +64,13 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
   private fun writeMethod(typeResolver: JavaTypeResolver, classWriter: ClassWriter, classNode: ClassNode, methodNode: MethodNode) {
     val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.descriptor, null, null)
     mv.visitCode()
+    val methodStartLabel = Label()
+    mv.visitLabel(methodStartLabel)
 
     if (!methodNode.isStatic && !methodNode.isConstructor) {
       methodNode.scope.addLocalVariable(classNode.type, "this")
     }
-    for (param in methodNode.scope.parameters) {
+    for (param in methodNode.parameters) {
       methodNode.scope.addLocalVariable(param.type, param.name)
     }
     val instructionGenerator = InstructionGenerator(classNode, methodNode, typeResolver, mv)
@@ -83,8 +87,16 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
           "Expected $methodReturnType but got $blockReturnType")
     }
 
+    val methodEndLabel = Label()
+    mv.visitLabel(methodEndLabel)
     mv.visitMaxs(0, 0) // args ignored since we used the flags COMPUTE_MAXS and COMPUTE_FRAMES
     mv.visitEnd()
+
+    for (parameter in methodNode.parameters) {
+      mv.visitLocalVariable(parameter.name, parameter.type.descriptor, parameter.type.signature,
+          methodStartLabel, methodEndLabel,
+          methodNode.scope.findLocalVariable(parameter.name)!!.index)
+    }
   }
 
   private fun defineClassMembers(classNode: ClassNode) {

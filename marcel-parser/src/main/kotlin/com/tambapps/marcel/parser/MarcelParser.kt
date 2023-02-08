@@ -117,14 +117,13 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
     val classType = typeResolver.defineClass(className, superType, false, emptyList())
     val classScope = Scope(typeResolver, imports, classType, superType)
-    val runScope = MethodScope(classScope, "run", emptyList(), JavaType.Object)
+    val argsParameter = MethodParameter(JavaType.of(Array<String>::class.java), "args")
+    val runScope = MethodScope(classScope, "run", listOf(argsParameter), JavaType.Object)
     val statements = mutableListOf<StatementNode>()
     val runBlock = FunctionBlockNode(runScope, statements)
-    val argsParameter = MethodParameter(JavaType.of(Array<String>::class.java), "args")
     val runFunction = MethodNode(Opcodes.ACC_PUBLIC, classType,
       "run",
       runBlock, mutableListOf(argsParameter), runScope.returnType, runScope, false)
-    runScope.addLocalVariable(argsParameter.type, argsParameter.name)
 
     classMethods.add(runFunction)
     val innerClasses = mutableListOf<ClassNode>()

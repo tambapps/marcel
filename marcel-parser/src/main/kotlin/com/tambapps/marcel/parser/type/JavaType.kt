@@ -39,6 +39,7 @@ interface JavaType: AstTypedObject {
   val internalName
     get() = AsmUtils.getInternalName(className)
   val descriptor: String
+  val signature: String? get() = null
   val innerName: String? get() {
     val i = className.lastIndexOf('$')
     return if (i < 0) null else className.substring(i + 1)

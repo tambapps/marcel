@@ -58,7 +58,7 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
       ?: imports.asSequence().mapNotNull { it.resolveMethod(typeResolver, name, argumentTypes) }.firstOrNull())
       ?: throw SemanticException("Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
-  open fun findVariable(name: String): Variable {
+  open fun findLocalVariable(name: String): LocalVariable? {
     var index = 0
     for (variable in localVariables) {
       if (variable.name == name) {
@@ -67,6 +67,12 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
       }
       index+= variable.nbSlots
     }
+    return null
+  }
+
+  open fun findVariable(name: String): Variable {
+    val localVariable = findLocalVariable(name)
+    if (localVariable != null) return localVariable
     // now searching on fields
     return typeResolver.findField(classType, name, true) ?: throw SemanticException("Variable $name is not defined")
   }
