@@ -39,7 +39,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     }
     val classWriter = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
     // creating class
-    classWriter.visit(compilerConfiguration.classVersion,  classNode.access, classNode.internalName, null, classNode.superType.internalName,
+    classWriter.visit(compilerConfiguration.classVersion,  classNode.access, classNode.internalName, classNode.type.signature, classNode.superType.internalName,
       classNode.type.directlyImplementedInterfaces.map { it.internalName }.toTypedArray())
 
     if (classNode.constructorsCount == 0) {

@@ -92,7 +92,7 @@ class JavaTypeResolver: AstNodeTypeResolver() {
   }
 
   override fun getDeclaredMethods(javaType: JavaType): List<JavaMethod> {
-    return if (javaType.isLoaded) javaType.realClazz.declaredMethods.map { ReflectJavaMethod(it) }
+    return if (javaType.isLoaded) javaType.realClazz.declaredMethods.map { ReflectJavaMethod(it, javaType) }
     else classMethods[javaType.className] ?: emptyList()
   }
 

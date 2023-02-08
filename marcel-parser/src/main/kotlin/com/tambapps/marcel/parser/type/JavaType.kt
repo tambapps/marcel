@@ -41,8 +41,14 @@ interface JavaType: AstTypedObject {
     get() = AsmUtils.getInternalName(className)
   val descriptor: String
   val signature: String? get() {
-    if (genericTypes.isEmpty()) return null
-    return "L" + internalName + genericTypes.joinToString(separator = ",", prefix = "<", postfix = ">;", transform = { it.descriptor })
+    if (genericTypes.isEmpty() && directlyImplementedInterfaces.none { it.genericTypes.isNotEmpty() }) return null
+    val builder = StringBuilder("L$internalName")
+    if (genericTypes.isNotEmpty()) {
+      genericTypes.joinTo(buffer = builder, separator = ",", prefix = "<", postfix = ">", transform = { it.descriptor })
+    }
+    builder.append(";")
+    directlyImplementedInterfaces.joinTo(buffer = builder, separator = "", transform = { it.signature ?: it.descriptor })
+    return builder.toString()
   }
   val hasGenericTypes: Boolean get() = genericTypes.isNotEmpty()
   val innerName: String? get() {
@@ -379,9 +385,9 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
     }
 
   override val directlyImplementedInterfaces: Collection<JavaType>
-    get() = realClazz.interfaces.map { toJavaType(it) }
+    get() = realClazz.interfaces.map { toJavaType(realClazz, it) }
 
-  private fun toJavaType(interfaze: Class<*>): JavaType {
+  private fun toJavaType(realClazz: Class<*>, interfaze: Class<*>): JavaType {
     val genericInterface = realClazz.genericInterfaces
         .mapNotNull { it as? ParameterizedType }
         .find { it.rawType.typeName == interfaze.typeName }
@@ -404,7 +410,7 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
     do {
       // First, add all the interfaces implemented by this class
       val interfaces = clazz.interfaces.map {
-        toJavaType(it)
+        toJavaType(clazz, it)
       }
       res.addAll(interfaces)
       for (interfaze in interfaces) {
@@ -457,7 +463,9 @@ class LoadedObjectType(
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
     if (genericTypes == this.genericTypes) return this
     if (genericTypes.any { it.primitive }) throw SemanticException("Cannot have a primitive generic type")
-    if (genericTypes.size != realClazz.typeParameters.size) throw SemanticException("Typed $realClazz expects ${realClazz.typeParameters.size} parameters")
+    if (genericTypes.size != realClazz.typeParameters.size
+      // for lambda, we can omit return type. It will be cast
+      && !isLambda && genericTypes.size != realClazz.typeParameters.size - 1) throw SemanticException("Typed $realClazz expects ${realClazz.typeParameters.size} parameters")
     return LoadedObjectType(realClazz, genericTypes)
   }
 

@@ -22,8 +22,9 @@ class LambdaHandler(private val classNode: ClassNode, private val methodNode: Me
   fun defineLambda(lambdaNode: LambdaNode): JavaType {
     val scope = lambdaNode.scope
     val className = generateLambdaName(scope)
-    val lambdaInterfaceType = AstNodeTypeResolver.getLambdaType(lambdaNode)
     val interfaceType = lambdaNode.interfaceType
+    var lambdaInterfaceType = AstNodeTypeResolver.getLambdaType(lambdaNode)
+    if (interfaceType != null) lambdaInterfaceType = lambdaInterfaceType.withGenericTypes(interfaceType.genericTypes)
     val type = scope.typeResolver.defineClass(className, JavaType.Object, false,
         if (interfaceType != null) listOf(interfaceType, lambdaInterfaceType)
         else listOf())

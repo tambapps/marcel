@@ -10,6 +10,7 @@ import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.lang.reflect.Parameter
 import java.lang.reflect.ParameterizedType
+import java.lang.reflect.TypeVariable
 import java.lang.reflect.WildcardType
 
 interface JavaMethod {
@@ -66,7 +67,8 @@ interface JavaMethod {
       if (declaredMethods.size != 1) return false
       val interfaceMethod = declaredMethods.first()
       val lambdaMethod = typeResolver.getDeclaredMethods(actualType).first { it.isAbstract }
-      return interfaceMethod.matches(typeResolver, lambdaMethod.parameters)
+      return interfaceMethod.parameters.size == lambdaMethod.parameters.size // TODO don't know if there's a better way for that
+    //return interfaceMethod.matches(typeResolver, lambdaMethod.parameters)
     } else expectedType.isAssignableFrom(actualType)
   }
 }
@@ -135,20 +137,26 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): JavaMe
     fun methodParameterType(javaType: JavaType?, methodParameter: Parameter): JavaType {
       val rawType = JavaType.of(methodParameter.type)
       if (javaType == null || javaType.genericTypes.isEmpty()) return rawType
-      val parameterizedType = methodParameter.parameterizedType as? ParameterizedType ?: return rawType
-
+      val parameterizedType = methodParameter.parameterizedType
       val parameterNames = javaType.genericParameterNames
+      if (parameterizedType is ParameterizedType) {
 
-      val genericTypes = parameterizedType.actualTypeArguments.map {
-        if (it is WildcardType) {
-          var index = parameterNames.indexOf(it.upperBounds.first().typeName)
-          if (index < 0) index = parameterNames.indexOf(it.lowerBounds.first().typeName)
-          return@map javaType.genericTypes.getOrNull(index) ?: JavaType.Object
-        } else {
-          TODO("Sounds difficult to implement")
+        val genericTypes = parameterizedType.actualTypeArguments.map {
+          if (it is WildcardType) {
+            var index = parameterNames.indexOf(it.upperBounds.first().typeName)
+            if (index < 0) index = parameterNames.indexOf(it.lowerBounds.first().typeName)
+            return@map javaType.genericTypes.getOrNull(index) ?: JavaType.Object
+          } else {
+            TODO("Sounds difficult to implement")
+          }
         }
+        return rawType.withGenericTypes(genericTypes)
+      } else if (parameterizedType is TypeVariable<*>) {
+        val index = parameterNames.indexOf(parameterizedType.name)
+        return javaType.genericTypes.getOrNull(index) ?: rawType
+      } else {
+        return rawType
       }
-      return rawType.withGenericTypes(genericTypes)
     }
   }
 }
