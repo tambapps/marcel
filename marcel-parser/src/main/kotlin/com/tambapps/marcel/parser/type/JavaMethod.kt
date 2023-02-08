@@ -4,11 +4,13 @@ import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.AstTypedObject
-import marcel.lang.lambda.Lambda
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
+import java.lang.reflect.Parameter
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.WildcardType
 
 interface JavaMethod {
 
@@ -111,13 +113,6 @@ class ExtensionJavaMethod(
 }
 class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): JavaMethod {
 
-  init {
-    if (fromType != null && fromType.genericTypes.isNotEmpty() && method.genericParameterTypes.isNotEmpty()) {
-      val realClazz = fromType.realClazz // we know we have a real class because the method is from Java Reflect
-      // TODO doesn't seem to work for forEach (don't see generic type)
-      method
-    }
-  }
   constructor(method: Method): this(method, null)
 
   override val ownerClass = JavaType.of(method.declaringClass)
@@ -125,7 +120,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): JavaMe
   // see norm of modifiers flag in Modifier class. Seems to have the same norm as OpCodes.ACC_ modifiers
   override val access = method.modifiers
   override val name: String = method.name
-  override val parameters = method.parameters.map { MethodParameter(JavaType.of(it.type), it.name) }
+  override val parameters = method.parameters.map { MethodParameter(methodParameterType(fromType, it), it.name) }
   override val returnType = JavaType.of(method.returnType)
   override val descriptor = AsmUtils.getDescriptor(parameters, returnType)
   override val isConstructor = false
@@ -134,5 +129,26 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): JavaMe
 
   override fun toString(): String {
     return "$ownerClass.$name(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType
+  }
+
+  companion object {
+    fun methodParameterType(javaType: JavaType?, methodParameter: Parameter): JavaType {
+      val rawType = JavaType.of(methodParameter.type)
+      if (javaType == null || javaType.genericTypes.isEmpty()) return rawType
+      val parameterizedType = methodParameter.parameterizedType as? ParameterizedType ?: return rawType
+
+      val parameterNames = javaType.genericParameterNames
+
+      val genericTypes = parameterizedType.actualTypeArguments.map {
+        if (it is WildcardType) {
+          var index = parameterNames.indexOf(it.upperBounds.first().typeName)
+          if (index < 0) index = parameterNames.indexOf(it.lowerBounds.first().typeName)
+          return@map javaType.genericTypes.getOrNull(index) ?: JavaType.Object
+        } else {
+          TODO("Sounds difficult to implement")
+        }
+      }
+      return rawType.withGenericTypes(genericTypes)
+    }
   }
 }

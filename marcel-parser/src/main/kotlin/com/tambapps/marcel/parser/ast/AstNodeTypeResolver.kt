@@ -85,7 +85,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
     }
     if (definedTypes.containsKey(className)) throw SemanticException("Class $className is already defined")
     // TODO only handle interfaces that are already loaded, as the type is not lazily loaded
-    val type = NotLoadedJavaType(className, emptyList(), superClass, isInterface, interfaces)
+    val type = NotLoadedJavaType(className, emptyList(), emptyList(),  superClass, isInterface, interfaces)
     definedTypes[className] = type
     return type
   }

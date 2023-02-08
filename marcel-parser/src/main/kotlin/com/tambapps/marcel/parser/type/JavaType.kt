@@ -58,6 +58,7 @@ interface JavaType: AstTypedObject {
   val loadCode: Int
   val returnCode: Int
   val genericTypes: List<JavaType>
+  val genericParameterNames: List<String>
   val isInterface: Boolean
   val isLambda get() = JavaType.lambda.isAssignableFrom(this)
   val primitive: Boolean
@@ -326,6 +327,7 @@ abstract class AbstractJavaType: JavaType {
 class NotLoadedJavaType internal constructor(
   override val className: String,
   override val genericTypes: List<JavaType>,
+  override val genericParameterNames: List<String>,
   override val superType: JavaType?,
   override val isInterface: Boolean,
   override val directlyImplementedInterfaces: Collection<JavaType>): AbstractJavaType() {
@@ -362,6 +364,8 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
   override val className: String = realClazz.name
   override val superType get() =  if (realClazz.superclass != null) JavaType.of(realClazz.superclass) else null
 
+  override val genericParameterNames: List<String>
+    get() = realClazz.typeParameters.map { it.name }
 
   override val isInterface = realClazz.isInterface
   private var _interfaces: Set<JavaType>? = null
@@ -528,6 +532,8 @@ class LazyJavaType internal constructor(private val scope: Scope,
     get() = actualType.returnCode
   override val genericTypes: List<JavaType>
     get() = actualType.genericTypes
+  override val genericParameterNames: List<String>
+    get() = actualType.genericParameterNames
   override val isInterface: Boolean
     get() = actualType.isInterface
   override val primitive: Boolean
