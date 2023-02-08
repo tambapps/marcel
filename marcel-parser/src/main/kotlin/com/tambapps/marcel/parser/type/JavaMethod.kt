@@ -22,6 +22,14 @@ interface JavaMethod {
   val parameters: List<MethodParameter>
   val returnType: JavaType
   val descriptor: String
+  val signature: String?
+    get() {
+      if (parameters.none { it.type.hasGenericTypes } && !returnType.hasGenericTypes) return null
+      val builder = StringBuilder()
+      parameters.joinTo(buffer = builder, separator = "", transform = { it.type.signature ?: it.type.descriptor }, prefix = "(", postfix = ")")
+      builder.append(returnType.signature ?: returnType.descriptor)
+      return builder.toString()
+    }
   val isDefault: Boolean
   val isAbstract: Boolean
 

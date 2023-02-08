@@ -43,6 +43,7 @@ interface JavaType: AstTypedObject {
     if (genericTypes.isEmpty()) return null
     return "L" + internalName + genericTypes.joinToString(separator = ",", prefix = "<", postfix = ">;", transform = { it.descriptor })
   }
+  val hasGenericTypes: Boolean get() = genericTypes.isNotEmpty()
   val innerName: String? get() {
     val i = className.lastIndexOf('$')
     return if (i < 0) null else className.substring(i + 1)

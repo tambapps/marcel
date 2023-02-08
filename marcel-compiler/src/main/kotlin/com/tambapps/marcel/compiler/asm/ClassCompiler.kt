@@ -16,6 +16,7 @@ import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Label
 import org.objectweb.asm.Opcodes
+import java.lang.reflect.Method
 
 class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
                     private val typeResolver: JavaTypeResolver) {
@@ -62,7 +63,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
   }
 
   private fun writeMethod(typeResolver: JavaTypeResolver, classWriter: ClassWriter, classNode: ClassNode, methodNode: MethodNode) {
-    val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.descriptor, null, null)
+    val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.descriptor, methodNode.signature, null)
     mv.visitCode()
     val methodStartLabel = Label()
     mv.visitLabel(methodStartLabel)
