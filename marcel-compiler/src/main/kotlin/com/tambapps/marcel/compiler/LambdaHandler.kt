@@ -37,7 +37,7 @@ class LambdaHandler(private val classNode: ClassNode, private val methodNode: Me
     val lambdaMethod = scope.typeResolver.getDeclaredMethods(lambdaInterfaceType).first()
     var parameters = lambdaMethod.parameters
     if (parameters.size == 1 && lambdaNode.parameters.isEmpty()) {
-      parameters = listOf(MethodParameter(lambdaMethod.parameters.first().type, "it"))
+      parameters = listOf(MethodParameter(lambdaMethod.parameters.first().type, lambdaMethod.parameters.first().rawType, "it"))
     }
 
     val lambdaMethodScope = MethodScope(lambdaClassNode.scope, lambdaMethod.name, parameters, lambdaMethod.returnType)

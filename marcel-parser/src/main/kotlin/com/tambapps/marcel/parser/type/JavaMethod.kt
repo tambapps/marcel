@@ -28,6 +28,7 @@ interface JavaMethod {
   val signature: String
     get() {
       val builder = StringBuilder()
+      // using rawType because these are the one used in compiled classes
       parameters.joinTo(buffer = builder, separator = "", transform = { it.type.signature }, prefix = "(", postfix = ")")
       builder.append(returnType.fullSignature)
       return builder.toString()
@@ -80,7 +81,7 @@ class ReflectJavaConstructor(constructor: Constructor<*>): JavaMethod {
   override val name: String = JavaMethod.CONSTRUCTOR_NAME
   override val parameters = constructor.parameters.map { MethodParameter(JavaType.of(it.type), it.name) }
   override val returnType = JavaType.void // yes, constructor returns void, especially for the descriptor
-  override val descriptor = AsmUtils.getDescriptor(parameters, returnType)
+  override val descriptor = AsmUtils.getMethodDescriptor(parameters, returnType)
   override val invokeCode = Opcodes.INVOKESPECIAL
   override val isConstructor = true
   override val isDefault = false
@@ -121,9 +122,9 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): JavaMe
   // see norm of modifiers flag in Modifier class. Seems to have the same norm as OpCodes.ACC_ modifiers
   override val access = method.modifiers
   override val name: String = method.name
-  override val parameters = method.parameters.map { MethodParameter(methodParameterType(fromType, it), it.name) }
+  override val parameters = method.parameters.map { methodParameter(fromType, it) }
   override val returnType = JavaType.of(method.returnType)
-  override val descriptor = AsmUtils.getDescriptor(parameters, returnType)
+  override val descriptor = AsmUtils.getMethodDescriptor(parameters, returnType)
   override val isConstructor = false
   override val isAbstract = (method.modifiers and Modifier.ABSTRACT) != 0
   override val isDefault = method.isDefault
@@ -133,6 +134,13 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): JavaMe
   }
 
   companion object {
+
+    fun methodParameter(fromType: JavaType?, parameter: Parameter): MethodParameter {
+      val type = methodParameterType(fromType, parameter)
+      val rawType = JavaType.of(parameter.type)
+      return MethodParameter(type, rawType, parameter.name)
+    }
+
     fun methodParameterType(javaType: JavaType?, methodParameter: Parameter): JavaType {
       val rawType = JavaType.of(methodParameter.type)
       if (javaType == null || javaType.genericTypes.isEmpty()) return rawType

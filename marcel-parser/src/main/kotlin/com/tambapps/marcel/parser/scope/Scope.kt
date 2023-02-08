@@ -44,7 +44,8 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
     } else {
       localVariables.add(v)
     }
-    return v
+    //  calling findLocalVariable() because we need to compute variable index
+    return findLocalVariable(name)!!
   }
 
   fun removeVariable(name: String) {

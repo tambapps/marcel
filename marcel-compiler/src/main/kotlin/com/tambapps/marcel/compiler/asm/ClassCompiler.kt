@@ -11,6 +11,7 @@ import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Label
+import org.objectweb.asm.Opcodes
 
 class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
                     private val typeResolver: JavaTypeResolver) {
@@ -66,8 +67,14 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
       methodNode.scope.addLocalVariable(classNode.type, "this")
     }
     for (param in methodNode.parameters) {
-      methodNode.scope.addLocalVariable(param.type, param.name)
+      val variable = methodNode.scope.addLocalVariable(param.type, param.name)
+      if (param.type != param.rawType) {
+        // TODO don't know if it's done right
+        mv.visitVarInsn(Opcodes.ALOAD, variable.index)
+        mv.visitTypeInsn(Opcodes.CHECKCAST, param.type.internalName)
+      }
     }
+    // TODO need to check cast when methodParameter.rawType != methodParameter.type
     val instructionGenerator = InstructionGenerator(classNode, methodNode, typeResolver, mv)
 
     // writing method
