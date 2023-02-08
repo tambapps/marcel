@@ -39,7 +39,10 @@ interface JavaType: AstTypedObject {
   val internalName
     get() = AsmUtils.getInternalName(className)
   val descriptor: String
-  val signature: String? get() = null
+  val signature: String? get() {
+    if (genericTypes.isEmpty()) return null
+    return "L" + internalName + genericTypes.joinToString(separator = ",", prefix = "<", postfix = ">;", transform = { it.descriptor })
+  }
   val innerName: String? get() {
     val i = className.lastIndexOf('$')
     return if (i < 0) null else className.substring(i + 1)
@@ -173,7 +176,7 @@ interface JavaType: AstTypedObject {
         if (type != null) return type
       }
       try {
-        return of(Class.forName(className))
+        return of(Class.forName(className)).withGenericTypes(genericTypes)
       } catch (e: ClassNotFoundException) {
         throw SemanticException("Class $className was not found")
       }
@@ -344,10 +347,7 @@ class NotLoadedJavaType internal constructor(
     }
 
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
-    if (genericTypes.any { it.primitive }) {
-      throw MarcelParsingException("Cannot have a primitive type as generic type")
-    }
-    return NotLoadedJavaType(className, genericTypes, superType, isInterface, directlyImplementedInterfaces)
+    throw UnsupportedOperationException("Doesn't support generics for marcel classes (for now)")
   }
 }
 

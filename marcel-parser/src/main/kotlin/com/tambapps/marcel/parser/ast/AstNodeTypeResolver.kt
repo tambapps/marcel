@@ -110,7 +110,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
     return emptyList()
   }
 
-    open fun of(className: String, genericTypes: List<JavaType>): JavaType {
+  open fun of(className: String, genericTypes: List<JavaType>): JavaType {
     return definedTypes[className] ?: JavaType.of(className, genericTypes)
   }
 

@@ -93,7 +93,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     mv.visitEnd()
 
     for (parameter in methodNode.parameters) {
-      mv.visitLocalVariable(parameter.name, parameter.type.descriptor, parameter.type.signature,
+      mv.visitLocalVariable(parameter.name,  parameter.type.descriptor, parameter.type.signature,
           methodStartLabel, methodEndLabel,
           methodNode.scope.findLocalVariable(parameter.name)!!.index)
     }

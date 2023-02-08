@@ -82,8 +82,9 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
   }
 
   fun resolveType(classSimpleName: String, genericTypes: List<JavaType>): JavaType {
+    // try to find inner class with this name
     val innerClassName = classType.className + '$' + classSimpleName
-    if (typeResolver.isDefined(innerClassName)) return typeResolver.of(innerClassName, emptyList())
+    if (typeResolver.isDefined(innerClassName)) return typeResolver.of(innerClassName, genericTypes)
     val className = resolveClassName(classSimpleName)
     return typeResolver.of(className, genericTypes)
   }
