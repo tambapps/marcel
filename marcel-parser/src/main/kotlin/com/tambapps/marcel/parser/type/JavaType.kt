@@ -44,7 +44,7 @@ interface JavaType: AstTypedObject {
     if (genericTypes.isEmpty() && directlyImplementedInterfaces.none { it.genericTypes.isNotEmpty() }) return null
     val builder = StringBuilder("L$internalName")
     if (genericTypes.isNotEmpty()) {
-      genericTypes.joinTo(buffer = builder, separator = ",", prefix = "<", postfix = ">", transform = { it.descriptor })
+      genericTypes.joinTo(buffer = builder, separator = "", prefix = "<", postfix = ">", transform = { it.descriptor })
     }
     builder.append(";")
     directlyImplementedInterfaces.joinTo(buffer = builder, separator = "", transform = { it.signature ?: it.descriptor })
@@ -463,6 +463,10 @@ class LoadedObjectType(
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
     if (genericTypes == this.genericTypes) return this
     if (genericTypes.any { it.primitive }) throw SemanticException("Cannot have a primitive generic type")
+    if (isLambda && genericTypes.size == realClazz.typeParameters.size - 1) {
+      return LoadedObjectType(realClazz, genericTypes + JavaType.Object)
+    }
+
     if (genericTypes.size != realClazz.typeParameters.size
       // for lambda, we can omit return type. It will be cast
       && !isLambda && genericTypes.size != realClazz.typeParameters.size - 1) throw SemanticException("Typed $realClazz expects ${realClazz.typeParameters.size} parameters")
