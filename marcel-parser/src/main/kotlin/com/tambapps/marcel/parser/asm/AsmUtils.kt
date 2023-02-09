@@ -38,7 +38,7 @@ object AsmUtils {
     return getMethodDescriptor(method.parameters, method.returnType)
   }
   fun getMethodDescriptor(parameters: List<MethodParameter>, returnType: JavaType): String {
-    return getDescriptor(parameters.map { it.rawType }, returnType)
+    return getDescriptor(parameters.map { it.type }, returnType)
   }
   fun getDescriptor(parameters: List<JavaType>, returnType: JavaType): String {
     val builder = StringBuilder().append('(')

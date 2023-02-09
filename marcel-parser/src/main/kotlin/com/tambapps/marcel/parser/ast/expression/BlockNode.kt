@@ -5,10 +5,11 @@ import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.ast.ScopedNode
+import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.scope.MethodScope
 
 
-open class BlockNode(override var scope: MethodScope, val statements: List<StatementNode>) : ExpressionNode, ScopedNode<MethodScope> {
+open class BlockNode constructor(override var scope: MethodScope, val statements: MutableList<StatementNode>) : ExpressionNode, ScopedNode<MethodScope> {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
@@ -17,6 +18,13 @@ open class BlockNode(override var scope: MethodScope, val statements: List<State
     return "{\n" + statements.joinToString(transform = { "\n  $it" }) + "\n}"
   }
 
+  fun addStatement(expression: ExpressionNode) {
+    addStatement(ExpressionStatementNode(expression))
+  }
+
+  fun addStatement(statementNode: StatementNode) {
+    statements.add(statementNode)
+  }
   override fun accept(visitor: AstVisitor) {
     super.accept(visitor)
     statements.forEach { it.accept(visitor) }
@@ -24,7 +32,7 @@ open class BlockNode(override var scope: MethodScope, val statements: List<State
 }
 
 // need to differentiate both because we don't always want to push on stack values for "normal" block nodes
-class FunctionBlockNode constructor(scope: MethodScope, statements: List<StatementNode>) : BlockNode(scope, statements) {
+class FunctionBlockNode constructor(scope: MethodScope, statements: MutableList<StatementNode>) : BlockNode(scope, statements) {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
 

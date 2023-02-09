@@ -5,6 +5,7 @@ import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.AstTypedObject
 import org.objectweb.asm.Opcodes
+import org.objectweb.asm.signature.SignatureWriter
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
@@ -29,8 +30,8 @@ interface JavaMethod {
     get() {
       val builder = StringBuilder()
       // using rawType because these are the one used in compiled classes
-      parameters.joinTo(buffer = builder, separator = "", transform = { it.rawType.signature }, prefix = "(", postfix = ")")
-      builder.append(returnType.fullSignature)
+      parameters.joinTo(buffer = builder, separator = "", transform = { it.type.descriptor }, prefix = "(", postfix = ")")
+      builder.append(returnType.descriptor)
       return builder.toString()
     }
   val isDefault: Boolean
@@ -72,8 +73,22 @@ interface JavaMethod {
     } else expectedType.isAssignableFrom(actualType)
   }
 }
+abstract class AbstractMethod: JavaMethod {
 
-class ReflectJavaConstructor(constructor: Constructor<*>): JavaMethod {
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is JavaMethod) return false
+    if (name != other.name) return false
+    if (parameters != other.parameters) return false
+    if (returnType != other.returnType) return false
+    return true
+  }
+
+  override fun hashCode(): Int {
+    return javaClass.hashCode()
+  }
+}
+class ReflectJavaConstructor(constructor: Constructor<*>): AbstractMethod() {
   override val ownerClass = JavaType.of(constructor.declaringClass)
 
   // see norm of modifiers flag in Modifier class. Seems to have the same norm as OpCodes.ACC_ modifiers
@@ -97,7 +112,7 @@ class ExtensionJavaMethod(
   override val parameters: List<MethodParameter>,
   override val returnType: JavaType,
   override val descriptor: String,
-) : JavaMethod {
+) : AbstractMethod() {
   override val isConstructor = false
   // the static is excluded here in purpose so that self is pushed to the stack
   override val access = Opcodes.ACC_PUBLIC
@@ -113,7 +128,7 @@ class ExtensionJavaMethod(
     return "$ownerClass.$name(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType
   }
 }
-class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): JavaMethod {
+class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): AbstractMethod() {
 
   constructor(method: Method): this(method, null)
 

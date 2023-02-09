@@ -427,7 +427,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     val loopStatement = statement(scope)
     if (loopStatement.expression is BlockNode) return loopStatement.expression as BlockNode
     val newScope = InnerScope(scope as? MethodScope ?: throw MarcelParsingException("Cannot have for outside of a method"))
-    return BlockNode(newScope, listOf(loopStatement))
+    return BlockNode(newScope, mutableListOf(loopStatement))
   }
   private fun expression(scope: Scope, maxPriority: Int): ExpressionNode {
     var a = atom(scope)

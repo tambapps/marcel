@@ -23,10 +23,10 @@ import com.tambapps.marcel.parser.type.JavaType
 
   But what I do (for now) is compiling only one method with the raw type (Object) and then cast to the generic type
  */
+// raw type may not be useful
 data class MethodParameter constructor(override val type: JavaType, val rawType: JavaType, val name: String): AstTypedObject {
   constructor(type: JavaType, name: String): this(type, type, name)
 
-  val rawVarName get() = if (rawType != type) "_rawArg_${name}" else name
   override fun toString(): String {
     return "$type $name"
   }

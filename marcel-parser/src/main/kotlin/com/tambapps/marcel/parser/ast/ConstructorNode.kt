@@ -28,7 +28,7 @@ class ConstructorNode(
     fun emptyConstructor(classNode: ClassNode): ConstructorNode {
       val emptyConstructorScope = MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)
       return ConstructorNode(classNode.superType, Opcodes.ACC_PUBLIC,
-        FunctionBlockNode(emptyConstructorScope, emptyList()), mutableListOf(), emptyConstructorScope)
+        FunctionBlockNode(emptyConstructorScope, mutableListOf()), mutableListOf(), emptyConstructorScope)
     }
 
     private fun blockWithSuperCall(scope: Scope, block: FunctionBlockNode): FunctionBlockNode {

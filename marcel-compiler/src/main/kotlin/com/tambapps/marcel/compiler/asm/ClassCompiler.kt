@@ -7,11 +7,11 @@ import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ConstructorNode
 import com.tambapps.marcel.parser.ast.MethodNode
+import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Label
-import org.objectweb.asm.Opcodes
 
 class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
                     private val typeResolver: JavaTypeResolver) {
@@ -27,14 +27,32 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     // check that all implemented interfaces methods are defined.
     for (interfaze in classNode.type.directlyImplementedInterfaces) {
       for (interfaceMethod in typeResolver.getDeclaredMethods(interfaze).filter { it.isAbstract }) {
-        if (typeResolver.findMethod(classNode.type, interfaceMethod.name, interfaceMethod.parameters, true) == null) {
+        val implementationMethod = typeResolver.findMethod(classNode.type, interfaceMethod.name, interfaceMethod.parameters, true)
+        if (implementationMethod == null || implementationMethod.isAbstract) {
+          // maybe there is a generic implementation, in which case we have to generate the method with raw types
           throw SemanticException("Class ${classNode.type} doesn't define method $interfaceMethod of interface $interfaze")
+        }
+        val rawInterfaceMethod = typeResolver.findMethod(interfaze.raw(), interfaceMethod.name, interfaceMethod.parameters, true)!!
+        if (rawInterfaceMethod != implementationMethod) {
+          // need to write implementation method with raw type
+          val rawMethodNode = MethodNode.fromJavaMethod(classNode.scope, rawInterfaceMethod)
+          val rawParameterExpressions = mutableListOf<ExpressionNode>()
+          for (i in rawMethodNode.parameters.indices) {
+            rawParameterExpressions.add(AsNode(
+                interfaceMethod.parameters[i].type,
+                ReferenceExpression(rawMethodNode.scope, rawMethodNode.parameters[i].name)
+            ))
+          }
+          rawMethodNode.block.addStatement(
+              FunctionCallNode(rawMethodNode.scope, implementationMethod.name, rawParameterExpressions,
+                  ReferenceExpression.thisRef(rawMethodNode.scope)))
+          classNode.methods.add(rawMethodNode)
         }
       }
     }
     val classWriter = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
     // creating class
-    classWriter.visit(compilerConfiguration.classVersion,  classNode.access, classNode.internalName, classNode.type.fullSignature, classNode.superType.internalName,
+    classWriter.visit(compilerConfiguration.classVersion,  classNode.access, classNode.internalName, classNode.type.signature, classNode.superType.internalName,
       classNode.type.directlyImplementedInterfaces.map { it.internalName }.toTypedArray())
 
     if (classNode.constructorsCount == 0) {
@@ -68,16 +86,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     }
 
     for (param in methodNode.parameters) {
-      methodNode.scope.addLocalVariable(param.rawType, param.rawVarName)
-    }
-    // TODO stop this hack and just generate two methods if the method is implementing an abstract method and it has
-    //   generic types. Or not? (it seems to work)
-    // then treat args
-    for (genericParameter in methodNode.parameters.filter { it.rawType != it.type }) {
-      val genericParameterVariable = methodNode.scope.addLocalVariable(genericParameter.type, genericParameter.name)
-      mv.visitVarInsn(Opcodes.ALOAD, methodNode.scope.findLocalVariable(genericParameter.rawVarName)!!.index)
-      mv.visitTypeInsn(Opcodes.CHECKCAST, genericParameter.type.internalName)
-      mv.visitVarInsn(Opcodes.ASTORE, genericParameterVariable.index)
+      methodNode.scope.addLocalVariable(param.type, param.name)
     }
     val instructionGenerator = InstructionGenerator(classNode, methodNode, typeResolver, mv)
 
@@ -99,9 +108,9 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     mv.visitEnd()
 
     for (parameter in methodNode.parameters) {
-      mv.visitLocalVariable(parameter.name,  parameter.rawType.descriptor, parameter.rawType.fullSignature,
+      mv.visitLocalVariable(parameter.name,  parameter.type.descriptor, parameter.type.signature,
           methodStartLabel, methodEndLabel,
-          methodNode.scope.findLocalVariable(parameter.rawVarName)!!.index)
+          methodNode.scope.findLocalVariable(parameter.name)!!.index)
     }
   }
 
