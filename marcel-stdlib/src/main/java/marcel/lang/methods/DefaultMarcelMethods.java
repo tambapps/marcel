@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongSet;
+import marcel.lang.IntRange;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -92,28 +93,53 @@ public final class DefaultMarcelMethods {
     return self.getBoolean(index);
   }
 
+  // getAt range
+  public static <T> List<T> getAt(List<T> self, IntRange range) {
+    return self.subList(range.getFrom(), range.getTo());
+  }
+
+  public static IntList getAt(IntList self, IntRange range) {
+    return self.subList(range.getFrom(), range.getTo());
+  }
+
+  public static LongList getAt(LongList self, IntRange range) {
+    return self.subList(range.getFrom(), range.getTo());
+  }
+
+  public static FloatList getAt(FloatList self, IntRange range) {
+    return self.subList(range.getFrom(), range.getTo());
+  }
+
+  public static DoubleList getAt(DoubleList self, IntRange range) {
+    return self.subList(range.getFrom(), range.getTo());
+  }
+
+  public static BooleanList getAt(BooleanList self, IntRange range) {
+    return self.subList(range.getFrom(), range.getTo());
+  }
+
   // putAt
   public static <T> void putAt(List<T> self, int index, T value) {
     self.set(index, value);
   }
 
-  public static void getAt(IntList self, int index, int value) {
+  public static void putAt(IntList self, int index, int value) {
     self.set(index, value);
   }
 
-  public static void getAt(LongList self, int index, long value) {
+  public static void putAt(LongList self, int index, long value) {
     self.set(index, value);
   }
 
-  public static void getAt(FloatList self, int index, float value) {
+  public static void putAt(FloatList self, int index, float value) {
     self.set(index, value);
   }
 
-  public static void getAt(DoubleList self, int index, double value) {
+  public static void putAt(DoubleList self, int index, double value) {
     self.set(index, value);
   }
 
-  public static void getAt(BooleanList self, int index, boolean value) {
+  public static void putAt(BooleanList self, int index, boolean value) {
     self.set(index, value);
   }
 }

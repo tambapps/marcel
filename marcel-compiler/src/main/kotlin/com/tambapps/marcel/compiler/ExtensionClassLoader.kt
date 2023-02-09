@@ -6,6 +6,9 @@ import java.lang.reflect.Modifier
 
 class ExtensionClassLoader(private val typeResolver: JavaTypeResolver) {
 
+  fun loadExtensionMethods(vararg classes: Class<*>) {
+    classes.forEach { loadExtensionMethods(it) }
+  }
   fun loadExtensionMethods(clazz: Class<*>) {
     clazz.declaredMethods.asSequence()
       .filter { (it.modifiers and Modifier.STATIC) != 0 && it.parameters.isNotEmpty() }
