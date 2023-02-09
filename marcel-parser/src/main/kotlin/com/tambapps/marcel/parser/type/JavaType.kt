@@ -279,7 +279,7 @@ interface JavaType: AstTypedObject {
     val float2ObjectMap = of(Float2ObjectMap::class.java)
     val double2ObjectMap = of(Double2ObjectMap::class.java)
 
-    private val PRIMITIVE_COLLECTION_TYPE_MAP = mapOf(
+    internal val PRIMITIVE_COLLECTION_TYPE_MAP = mapOf(
       Pair("list", mapOf(
         Pair(int, intList),
         Pair(long, longList),
@@ -398,7 +398,7 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
       val interfaceTypeParameters = genericInterface.actualTypeArguments
       val genericTypes = interfaceTypeParameters.map { intTypeParam ->
         val i = thisClassGenericTypes.indexOfFirst { it.name == intTypeParam.typeName }
-        return@map if (i >= 0) genericTypes[i] else JavaType.Object
+        return@map if (i >= 0 && i < genericTypes.size) genericTypes[i] else JavaType.Object
       }
       type = type.withGenericTypes(genericTypes)
     }

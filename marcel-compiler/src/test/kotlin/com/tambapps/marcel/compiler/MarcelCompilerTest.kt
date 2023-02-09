@@ -2,11 +2,11 @@ package com.tambapps.marcel.compiler
 
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.Script
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
@@ -98,6 +98,13 @@ class MarcelCompilerTest {
     println(Arrays.toString(path.toFile().list()))
     val eval = eval("/test_this.marcel")
     assertTrue(eval is Script)
+  }
+
+  @Disabled
+  @Test
+  fun manualTest() {
+    val eval = eval("/test_primitive_collections.marcel")
+    println(eval)
   }
 
   private fun eval(resourceName: String): Any? {

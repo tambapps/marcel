@@ -1,7 +1,7 @@
 import static org.junit.jupiter.api.Assertions.assertEquals
 
 
-List<int> ints = [1, 2, 3]
+list<int> ints = [1, 2, 3]
 assertEquals(3, ints.size())
 
 list<float> floats = [1f, 2f, 3]
