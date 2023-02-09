@@ -71,7 +71,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
       methodNode.scope.addLocalVariable(param.rawType, param.rawVarName)
     }
     // TODO stop this hack and just generate two methods if the method is implementing an abstract method and it has
-    // generic types
+    //   generic types. Or not? (it seems to work)
     // then treat args
     for (genericParameter in methodNode.parameters.filter { it.rawType != it.type }) {
       val genericParameterVariable = methodNode.scope.addLocalVariable(genericParameter.type, genericParameter.name)
@@ -101,7 +101,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     for (parameter in methodNode.parameters) {
       mv.visitLocalVariable(parameter.name,  parameter.rawType.descriptor, parameter.rawType.fullSignature,
           methodStartLabel, methodEndLabel,
-          methodNode.scope.findLocalVariable(parameter.name)!!.index)
+          methodNode.scope.findLocalVariable(parameter.rawVarName)!!.index)
     }
   }
 
