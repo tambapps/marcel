@@ -469,6 +469,11 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         skip() // skip last quote
         StringNode(parts)
       }
+      TokenType.ESCAPE_SEQUENCE -> {
+        val escapedSequence = token.value.substring(1)
+        if (escapedSequence == "n") StringConstantNode("\n")
+        else TODO("Doesn't handle \\$escapedSequence")
+      }
       TokenType.NULL -> NullValueNode()
       TokenType.NOT -> NotNode(expression(scope))
       TokenType.NEW -> {

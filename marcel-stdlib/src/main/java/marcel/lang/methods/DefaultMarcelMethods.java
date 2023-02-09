@@ -10,14 +10,12 @@ import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.floats.FloatList;
 import it.unimi.dsi.fastutil.floats.FloatSet;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import marcel.lang.IntRange;
-import marcel.lang.lambda.Lambda1;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,11 +23,18 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public final class DefaultMarcelMethods {
 
-  public static <T, U extends Comparable> void sort(List<T> list, Function<T, U> keyExtractor) {
-    list.sort(Comparator.comparing(keyExtractor));
+  public static String join(List<?> self, String separator) {
+    return self.stream()
+        .map(String::valueOf)
+        .collect(Collectors.joining(separator));
+  }
+
+  public static <T, U extends Comparable> void sort(List<T> self, Function<T, U> keyExtractor) {
+    self.sort(Comparator.comparing(keyExtractor));
   }
 
   public static void reverse(List<?> list) {

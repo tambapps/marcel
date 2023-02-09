@@ -915,8 +915,15 @@ private class PushingInstructionGenerator(
 
 
   override fun visit(operator: PlusOperator) {
-    super.visit(operator)
-    mv.visitInsn(operator.getType(typeResolver).asPrimitiveType.addCode)
+    val operatorType = operator.getType(typeResolver)
+    if (operatorType.primitive) {
+      super.visit(operator)
+      mv.visitInsn(operator.getType(typeResolver).asPrimitiveType.addCode)
+    } else if (operator.leftOperand.getType(typeResolver) == JavaType.String || operator.rightOperand.getType(typeResolver) == JavaType.String) {
+      visit(StringNode(listOf(operator.leftOperand, operator.rightOperand)))
+    } else {
+      TODO("Doesn't handle custom + operator yet")
+    }
   }
 
   override fun visit(operator: PowOperator) {
