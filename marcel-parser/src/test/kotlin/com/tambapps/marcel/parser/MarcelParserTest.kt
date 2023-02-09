@@ -60,7 +60,7 @@ class MarcelParserTest {
         val imports = mutableListOf<ImportNode>(WildcardImportNode("java.lang"))
         val classScope = Scope(typeResolver, imports, type, JavaType.Object)
         val expected = MethodNode(Opcodes.ACC_PUBLIC, JavaType.Object, "foo",
-            FunctionBlockNode(scope, listOf(
+            FunctionBlockNode(scope, mutableListOf(
                 ReturnNode(scope, IntConstantNode(1))
             )), mutableListOf(MethodParameter(JavaType.int, "a"),
             MethodParameter(JavaType.String, "b")), JavaType.int, MethodScope(classScope, "foo",
