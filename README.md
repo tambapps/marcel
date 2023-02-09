@@ -16,35 +16,3 @@ fun fibonacci(int n) int {
   else return fibonacci(n - 1) + fibonacci(n - 2)
 }
 ```
-
-
-## Roadmap
-
-### Inline functions
-
-```
-
-inline fun doSomething(int a, int b) {
-  println(a + b)
-}
-```
-TODO when inline is implemented, use this to create inline functions List.map { }, etc
-
-
-### Extension classes
-
-
-```
-public extension class {
-
-  // call self.foo() will be translated in println(self[0])
-  fun foo(List self) {
-    println(self[0])
-  }
-
-  // will avoid having to create function
-  inline fun map(List self, (Object) -> void consumer) {
-    // a for each
-  }
-}
-```

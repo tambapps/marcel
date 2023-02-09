@@ -3,13 +3,14 @@ package marcel.lang.io;
 import lombok.SneakyThrows;
 
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
 
-public class LineIterator implements Iterator<String> {
+public class LineIterator implements Iterator<String>, Closeable {
 
   private final BufferedReader reader;
   private String currentLine;
@@ -34,6 +35,12 @@ public class LineIterator implements Iterator<String> {
   public String next() {
     String lineToReturn = this.currentLine;
     this.currentLine = reader.readLine();
+    if (currentLine == null) close();
     return lineToReturn;
+  }
+
+  @Override
+  public void close() throws IOException {
+    reader.close();
   }
 }

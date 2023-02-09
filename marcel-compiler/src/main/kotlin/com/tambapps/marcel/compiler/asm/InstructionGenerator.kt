@@ -18,8 +18,10 @@ import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.scope.LocalVariable
+import com.tambapps.marcel.parser.scope.MethodField
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
+import com.tambapps.marcel.parser.scope.Variable
 import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
@@ -268,8 +270,13 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
-    var expression = variableAssignmentNode.expression
     val variable = variableAssignmentNode.scope.findVariable(variableAssignmentNode.name)
+    pushAssignementExpression(variable, variableAssignmentNode.expression)
+    mv.storeInVariable(variable)
+  }
+
+  private fun pushAssignementExpression(variable: Variable, expr: ExpressionNode) {
+    var expression = expr
     val variableType = variable.type
     if (expression is LiteralArrayNode && expression.elements.isEmpty()) {
       val elementsType = if (variableType is JavaArrayType) variableType.elementsType
@@ -280,12 +287,22 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       else if (JavaType.booleanList.isAssignableFrom(variableType) || JavaType.booleanSet.isAssignableFrom(variableType)) JavaType.boolean
       else throw SemanticException("Couldn't guess type of empty array. You can explicitly specify your wanted type with the 'as' keyword (e.g. '[] as int[]')")
       expression = EmptyArrayNode(JavaType.arrayType(elementsType))
-    } else if (variableType.isInterface && variableAssignmentNode.expression is LambdaNode) {
-      (variableAssignmentNode.expression as LambdaNode).interfaceType = variableType
+    } else if (variableType.isInterface && expression is LambdaNode) {
+      expression.interfaceType = variableType
     }
     pushArgument(expression)
     mv.castIfNecessaryOrThrow(variable.type, expression.getType(typeResolver))
-    mv.storeInVariable(variable)
+  }
+  override fun visit(fieldAssignmentNode: FieldAssignmentNode) {
+    val fieldVariable = typeResolver.findFieldOrThrow(
+      fieldAssignmentNode.fieldNode.leftOperand.getType(typeResolver),
+      fieldAssignmentNode.fieldNode.rightOperand.name
+    )
+    if (fieldVariable is MethodField && !fieldVariable.isStatic) {
+      pushArgument(fieldAssignmentNode.fieldNode.leftOperand)
+    }
+    pushAssignementExpression(fieldVariable, fieldAssignmentNode.expression)
+    mv.storeInVariable(fieldVariable)
   }
 
   override fun visit(indexedVariableAssignmentNode: IndexedVariableAssignmentNode) {
@@ -865,6 +882,12 @@ private class PushingInstructionGenerator(
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     super.visit(variableAssignmentNode)
     mv.pushVariable(variableAssignmentNode.scope, variableAssignmentNode.scope.findVariable(variableAssignmentNode.name))
+  }
+
+  override fun visit(fieldAssignmentNode: FieldAssignmentNode) {
+    super.visit(fieldAssignmentNode)
+    val field = typeResolver.findFieldOrThrow(fieldAssignmentNode.fieldNode.leftOperand.getType(typeResolver), fieldAssignmentNode.fieldNode.rightOperand.name)
+    mv.pushVariable(fieldAssignmentNode.scope, field)
   }
 
   override fun visit(indexedVariableAssignmentNode: IndexedVariableAssignmentNode) {

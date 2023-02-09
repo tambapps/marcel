@@ -30,6 +30,8 @@ interface AstNodeVisitor<T> {
   fun visit(rightShiftOperator: RightShiftOperator): T
   fun visit(leftShiftOperator: LeftShiftOperator): T
   fun visit(variableAssignmentNode: VariableAssignmentNode): T
+  fun visit(fieldAssignmentNode: FieldAssignmentNode): T
+
   fun visit(indexedVariableAssignmentNode: IndexedVariableAssignmentNode): T
 
   fun visit(referenceExpression: ReferenceExpression): T

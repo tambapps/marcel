@@ -1,24 +1,36 @@
 package marcel.lang.methods;
 
+import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import it.unimi.dsi.fastutil.booleans.BooleanList;
 import it.unimi.dsi.fastutil.booleans.BooleanSet;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 import it.unimi.dsi.fastutil.doubles.DoubleSet;
+import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.floats.FloatList;
 import it.unimi.dsi.fastutil.floats.FloatSet;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import marcel.lang.IntRange;
+import marcel.lang.lambda.Lambda1;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 
-// TODO do some inline or function aliases for methods like leftShift, and especially for functions accepting lambdas
-//  leads: see Kotlin MethodInliner class (in github)
 public final class DefaultMarcelMethods {
+
+  public static <T, U extends Comparable> void sort(List<T> list, Function<T, U> keyExtractor) {
+    list.sort(Comparator.comparing(keyExtractor));
+  }
 
   public static void reverse(List<?> list) {
     Collections.reverse(list);
@@ -68,6 +80,61 @@ public final class DefaultMarcelMethods {
     return self.add(value);
   }
 
+  // last
+  public static <T> T getLast(List<T> self) {
+    return self.get(self.size() - 1);
+  }
+
+  public static int getLast(IntList self) {
+    return self.getInt(self.size() - 1);
+  }
+
+  public static long getLast(LongList self) {
+    return self.getLong(self.size() - 1);
+  }
+
+  public static float getLast(FloatList self) {
+    return self.getFloat(self.size() - 1);
+  }
+
+  public static double getLast(DoubleList self) {
+    return self.getDouble(self.size() - 1);
+  }
+
+  public static boolean getLast(BooleanList self) {
+    return self.getBoolean(self.size() - 1);
+  }
+
+  // lastOrNull
+  public static <T> T getLastOrNull(List<T> self) {
+    if (self.isEmpty()) return null;
+    return self.get(self.size() - 1);
+  }
+
+  // setLast
+  public static void setLast(IntList self, int value) {
+    self.set(self.size() - 1, value);
+  }
+
+  public static void setLast(LongList self, long value) {
+    self.set(self.size() - 1, value);
+  }
+
+  public static void setLast(FloatList self, float value) {
+    self.set(self.size() - 1, value);
+  }
+
+  public static void setLast(DoubleList self, double value) {
+    self.set(self.size() - 1, value);
+  }
+
+  public static void setLast(BooleanList self, boolean value) {
+    self.set(self.size() - 1, value);
+  }
+  public static <T> void setLast(List<T> self, T value) {
+    self.set(self.size() - 1, value);
+  }
+
   // getAt
   public static <T> T getAt(List<T> self, int index) {
     return self.get(index);
@@ -95,27 +162,39 @@ public final class DefaultMarcelMethods {
 
   // getAt range
   public static <T> List<T> getAt(List<T> self, IntRange range) {
-    return self.subList(range.getFrom(), range.getTo());
+    List<T> subList = new ArrayList<>();
+    for (Integer integer : range) subList.add(self.get(integer));
+    return subList;
   }
 
   public static IntList getAt(IntList self, IntRange range) {
-    return self.subList(range.getFrom(), range.getTo());
+    IntList subList = new IntArrayList();
+    for (Integer integer : range) subList.add(self.getInt(integer));
+    return subList;
   }
 
   public static LongList getAt(LongList self, IntRange range) {
-    return self.subList(range.getFrom(), range.getTo());
+    LongList subList = new LongArrayList();
+    for (Integer integer : range) subList.add(self.getLong(integer));
+    return subList;
   }
 
   public static FloatList getAt(FloatList self, IntRange range) {
-    return self.subList(range.getFrom(), range.getTo());
+    FloatList subList = new FloatArrayList();
+    for (Integer integer : range) subList.add(self.getFloat(integer));
+    return subList;
   }
 
   public static DoubleList getAt(DoubleList self, IntRange range) {
-    return self.subList(range.getFrom(), range.getTo());
+    DoubleList subList = new DoubleArrayList();
+    for (Integer integer : range) subList.add(self.getDouble(integer));
+    return subList;
   }
 
   public static BooleanList getAt(BooleanList self, IntRange range) {
-    return self.subList(range.getFrom(), range.getTo());
+    BooleanList subList = new BooleanArrayList();
+    for (Integer integer : range) subList.add(self.getBoolean(integer));
+    return subList;
   }
 
   // putAt

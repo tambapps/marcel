@@ -666,10 +666,10 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           when (leftOperand) {
             is ReferenceExpression -> VariableAssignmentNode(scope, leftOperand.name, rightOperand)
             is IndexedReferenceExpression -> IndexedVariableAssignmentNode(scope, leftOperand, rightOperand)
-            else -> throw MarcelParsingException("Can only assign a variable")
+            is GetFieldAccessOperator -> FieldAssignmentNode(scope, leftOperand, rightOperand)
+            else -> throw MarcelParsingException("Cannot assign to $leftOperand")
           }
         } else {
-          if (leftOperand !is ReferenceExpression) throw MarcelParsingException("Can only assign a variable")
           val actualRightOperand = when(t) {
             TokenType.PLUS_ASSIGNMENT -> PlusOperator(leftOperand, rightOperand)
             TokenType.MINUS_ASSIGNMENT -> MinusOperator(leftOperand, rightOperand)
@@ -677,7 +677,12 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
             TokenType.MUL_ASSIGNMENT -> MulOperator(leftOperand, rightOperand)
             else -> throw RuntimeException("Compiler error")
           }
-          VariableAssignmentNode(scope, leftOperand.name, actualRightOperand)
+          when (leftOperand) {
+            is ReferenceExpression -> VariableAssignmentNode(scope, leftOperand.name, actualRightOperand)
+            is IndexedReferenceExpression -> IndexedVariableAssignmentNode(scope, leftOperand, actualRightOperand)
+            is GetFieldAccessOperator -> FieldAssignmentNode(scope, leftOperand, actualRightOperand)
+            else -> throw MarcelParsingException("Cannot assign to $leftOperand")
+          }
         }
       }
       TokenType.MUL -> MulOperator(leftOperand, rightOperand)

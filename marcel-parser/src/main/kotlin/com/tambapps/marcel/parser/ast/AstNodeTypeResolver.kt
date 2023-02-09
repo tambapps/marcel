@@ -12,6 +12,7 @@ import com.tambapps.marcel.parser.ast.expression.DivOperator
 import com.tambapps.marcel.parser.ast.expression.DoubleConstantNode
 import com.tambapps.marcel.parser.ast.expression.ElvisOperator
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
+import com.tambapps.marcel.parser.ast.expression.FieldAssignmentNode
 import com.tambapps.marcel.parser.ast.expression.FloatConstantNode
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
@@ -182,6 +183,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
   override fun visit(variableAssignmentNode: VariableAssignmentNode) = variableAssignmentNode.expression.accept(this)
 
+  override fun visit(fieldAssignmentNode: FieldAssignmentNode) = fieldAssignmentNode.expression.accept(this)
   override fun visit(indexedVariableAssignmentNode: IndexedVariableAssignmentNode) = indexedVariableAssignmentNode.expression.accept(this)
 
   override fun visit(referenceExpression: ReferenceExpression) =
