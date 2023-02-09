@@ -1,6 +1,6 @@
 # marcel
 Marcel is language that compiles to Java bytecode, with a guaranteed support for Android. It also aims to use primitive types as much as possible when
-working with Collections. For that, it uses the [fastutil library](https://github.com/vigna/fastutil)
+working with Collections. For that, it uses the [fastutil library](https://github.com/vigna/fastutil), but Marcel will (soonish) have it's own implementation.
 
 You can learn more about this programming language on the [wiki page](https://github.com/tambapps/marcel/wiki)
 ## Example

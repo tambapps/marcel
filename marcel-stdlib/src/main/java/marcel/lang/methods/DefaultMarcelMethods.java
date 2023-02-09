@@ -18,6 +18,7 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import marcel.lang.IntRange;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,6 +32,101 @@ public final class DefaultMarcelMethods {
     return self.stream()
         .map(String::valueOf)
         .collect(Collectors.joining(separator));
+  }
+
+  // sum
+  public static int sum(IntList self) {
+    int sum = 0;
+    for (int i = 0; i < self.size(); i++) {
+      sum += self.getInt(i);
+    }
+    return sum;
+  }
+
+  public static long sum(LongList self) {
+    long sum = 0;
+    for (int i = 0; i < self.size(); i++) {
+      sum += self.getLong(i);
+    }
+    return sum;
+  }
+
+  public static float sum(FloatList self) {
+    float sum = 0;
+    for (int i = 0; i < self.size(); i++) {
+      sum += self.getFloat(i);
+    }
+    return sum;
+  }
+
+  public static double sum(DoubleList self) {
+    double sum = 0;
+    for (int i = 0; i < self.size(); i++) {
+      sum += self.getDouble(i);
+    }
+    return sum;
+  }
+
+  // sort
+  public static void sort(IntList self) {
+    int[] ints = self.toIntArray();
+    Arrays.sort(ints);
+    for (int i = 0; i < ints.length; i++) {
+      self.set(i, ints[i]);
+    }
+  }
+
+  public static void sortReverse(IntList self) {
+    int[] ints = self.toIntArray();
+    Arrays.sort(ints);
+    for (int i = 0; i < ints.length; i++) {
+      self.set(i, ints[ints.length - 1 - i]);
+    }
+  }
+  public static void sort(LongList self) {
+    long[] ints = self.toLongArray();
+    Arrays.sort(ints);
+    for (int i = 0; i < ints.length; i++) {
+      self.set(i, ints[i]);
+    }
+  }
+
+  public static void sortReverse(LongList self) {
+    long[] ints = self.toLongArray();
+    Arrays.sort(ints);
+    for (int i = 0; i < ints.length; i++) {
+      self.set(i, ints[ints.length - 1 - i]);
+    }
+  }
+  public static void sort(FloatList self) {
+    float[] ints = self.toFloatArray();
+    Arrays.sort(ints);
+    for (int i = 0; i < ints.length; i++) {
+      self.set(i, ints[i]);
+    }
+  }
+
+  public static void sortReverse(FloatList self) {
+    float[] ints = self.toFloatArray();
+    Arrays.sort(ints);
+    for (int i = 0; i < ints.length; i++) {
+      self.set(i, ints[ints.length - 1 - i]);
+    }
+  }
+  public static void sort(DoubleList self) {
+    double[] ints = self.toDoubleArray();
+    Arrays.sort(ints);
+    for (int i = 0; i < ints.length; i++) {
+      self.set(i, ints[i]);
+    }
+  }
+
+  public static void sortReverse(DoubleList self) {
+    double[] ints = self.toDoubleArray();
+    Arrays.sort(ints);
+    for (int i = 0; i < ints.length; i++) {
+      self.set(i, ints[ints.length - 1 - i]);
+    }
   }
 
   public static <T, U extends Comparable> void sort(List<T> self, Function<T, U> keyExtractor) {
