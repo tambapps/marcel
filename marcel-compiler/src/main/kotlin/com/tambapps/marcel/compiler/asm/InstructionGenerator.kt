@@ -390,23 +390,28 @@ class InstructionGenerator(
 
   override fun visit(forInStatement: ForInStatement) {
     val expression = forInStatement.inExpression
-    if (!JavaType.of(Iterable::class.java).isAssignableFrom(expression.getType(typeResolver))) {
-      throw SemanticException("Only support for in Iterable")
-    }
+    val expressionType = expression.getType(typeResolver)
+
     // initialization
     val body = forInStatement.body
     val scope = body.scope
     scope.addLocalVariable(forInStatement.variableType, forInStatement.variableName)
 
     // creating iterator
+    val iteratorExpression = if (JavaType.of(Iterable::class.java).isAssignableFrom(expressionType)) {
+      FunctionCallNode(scope, "iterator", mutableListOf(), expression)
+    } else if (JavaType.of(Iterator::class.java).isAssignableFrom(expressionType)) expression
+    else throw SemanticException("Doesn't handle iterating on $expressionType")
+    val iteratorExpressionType = iteratorExpression.getType(typeResolver)
+
     val iteratorVarName = "_tempIterator"
-    val getIteratorMethod = typeResolver.findMethodOrThrow(expression.getType(typeResolver), "iterator", emptyList())
+
     // get right method in function of types, to avoid auto-(un/debo)xing
-    val methodName = if (JavaType.of(IntIterator::class.java).isAssignableFrom(getIteratorMethod.returnType)) "nextInt"
-    else if (JavaType.of(IntIterator::class.java).isAssignableFrom(getIteratorMethod.returnType)) "next"
+    val methodName = if (JavaType.of(IntIterator::class.java).isAssignableFrom(iteratorExpressionType)) "nextInt"
+    else if (JavaType.of(Iterator::class.java).isAssignableFrom(iteratorExpressionType)) "next"
     else throw UnsupportedOperationException("wtf")
-    visit(VariableDeclarationNode(scope, getIteratorMethod.returnType, iteratorVarName,
-      FunctionCallNode(scope, "iterator", mutableListOf(), expression)))
+    visit(VariableDeclarationNode(scope, iteratorExpressionType, iteratorVarName,
+      iteratorExpression))
 
     // loop start
     val loopStart = Label()

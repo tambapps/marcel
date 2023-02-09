@@ -18,6 +18,7 @@ import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.Binding
 import marcel.lang.methods.DefaultMarcelMethods
+import marcel.lang.methods.IoMarcelMethods
 import org.objectweb.asm.Opcodes
 import java.io.IOException
 import java.io.Reader
@@ -31,7 +32,7 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
     val tokens = MarcelLexer().lex(reader)
     val typeResolver = JavaTypeResolver()
     val extensionClassLoader = ExtensionClassLoader(typeResolver)
-    extensionClassLoader.loadExtensionMethods(DefaultMarcelMethods::class.java)
+    extensionClassLoader.loadExtensionMethods(DefaultMarcelMethods::class.java, IoMarcelMethods::class.java)
     val parser = if (className != null) MarcelParser(typeResolver, className, tokens) else MarcelParser(typeResolver, tokens)
     val ast = parser.parse()
     val classCompiler = ClassCompiler(compilerConfiguration, typeResolver)
