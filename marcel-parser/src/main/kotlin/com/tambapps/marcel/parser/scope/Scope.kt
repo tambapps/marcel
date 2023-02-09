@@ -23,7 +23,7 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
     val DEFAULT_IMPORTS = listOf(
       WildcardImportNode("java.lang"),
       WildcardImportNode("java.util"),
-      WildcardImportNode("marcel.lang"),
+      WildcardImportNode("java.io"),
       WildcardImportNode("marcel.lang"),
       WildcardImportNode("it.unimi.dsi.fastutil.ints"),
       StaticImportNode(DefaultMarcelStaticMethods::class.java.name, "println")
