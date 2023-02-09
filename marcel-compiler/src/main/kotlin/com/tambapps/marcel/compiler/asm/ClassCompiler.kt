@@ -66,15 +66,19 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     if (!methodNode.isStatic && !methodNode.isConstructor) {
       methodNode.scope.addLocalVariable(classNode.type, "this")
     }
+
     for (param in methodNode.parameters) {
-      val variable = methodNode.scope.addLocalVariable(param.type, param.name)
-      if (param.type != param.rawType) {
-        // TODO don't know if it's done right
-        mv.visitVarInsn(Opcodes.ALOAD, variable.index)
-        mv.visitTypeInsn(Opcodes.CHECKCAST, param.type.internalName)
-      }
+      methodNode.scope.addLocalVariable(param.rawType, param.rawVarName)
     }
-    // TODO need to check cast when methodParameter.rawType != methodParameter.type
+    // TODO stop this hack and just generate two methods if the method is implementing an abstract method and it has
+    // generic types
+    // then treat args
+    for (genericParameter in methodNode.parameters.filter { it.rawType != it.type }) {
+      val genericParameterVariable = methodNode.scope.addLocalVariable(genericParameter.type, genericParameter.name)
+      mv.visitVarInsn(Opcodes.ALOAD, methodNode.scope.findLocalVariable(genericParameter.rawVarName)!!.index)
+      mv.visitTypeInsn(Opcodes.CHECKCAST, genericParameter.type.internalName)
+      mv.visitVarInsn(Opcodes.ASTORE, genericParameterVariable.index)
+    }
     val instructionGenerator = InstructionGenerator(classNode, methodNode, typeResolver, mv)
 
     // writing method
@@ -95,7 +99,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     mv.visitEnd()
 
     for (parameter in methodNode.parameters) {
-      mv.visitLocalVariable(parameter.name,  parameter.type.descriptor, parameter.type.fullSignature,
+      mv.visitLocalVariable(parameter.name,  parameter.rawType.descriptor, parameter.rawType.fullSignature,
           methodStartLabel, methodEndLabel,
           methodNode.scope.findLocalVariable(parameter.name)!!.index)
     }

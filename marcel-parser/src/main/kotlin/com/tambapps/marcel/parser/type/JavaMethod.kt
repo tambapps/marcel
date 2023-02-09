@@ -29,7 +29,7 @@ interface JavaMethod {
     get() {
       val builder = StringBuilder()
       // using rawType because these are the one used in compiled classes
-      parameters.joinTo(buffer = builder, separator = "", transform = { it.type.signature }, prefix = "(", postfix = ")")
+      parameters.joinTo(buffer = builder, separator = "", transform = { it.rawType.signature }, prefix = "(", postfix = ")")
       builder.append(returnType.fullSignature)
       return builder.toString()
     }
