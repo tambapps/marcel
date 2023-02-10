@@ -463,7 +463,6 @@ public class IntArrayList extends AbstractIntList implements RandomAccess, Clone
 	  }
 	  int pos = from, otherPos = otherAFrom;
 	  // We have already assured that the two ranges are the same size, so we only need to check one bound.
-	  // TODO When minimum version of Java becomes Java 9, use the Arrays.equals which takes bounds, which is vectorized.
 	  // Make sure to split out the reference equality case when you do this.
      while (pos < to) {
        if (a[pos++] != otherA[otherPos++]) {
@@ -500,7 +499,6 @@ public class IntArrayList extends AbstractIntList implements RandomAccess, Clone
      if (a == otherA && from == otherAFrom && to == otherATo) {
        return 0;
      }
-	  // TODO When minimum version of Java becomes Java 9, use Arrays.compare, which vectorizes.
 	  int e1, e2;
 	  int r, i, j;
 	  for(i = from, j = otherAFrom; i < to && i < otherATo; i++, j++) {

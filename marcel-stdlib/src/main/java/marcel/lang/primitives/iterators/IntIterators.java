@@ -460,8 +460,6 @@ public final class IntIterators {
 	   action.accept(get(lastReturned = pos++));
 	  }
 	 }
-	 // TODO since this method doesn't depend on the type at all, should it be "hoisted" into a
-	 // non type-specific superclass in it.unimi.dsi.fastutil?
 	 @Override
 	 public int skip(int n) {
 	  if (n < 0) throw new IllegalArgumentException("Argument must be nonnegative: " + n);
@@ -530,8 +528,6 @@ public final class IntIterators {
 	  if (lastReturned == -1) throw new IllegalStateException();
 	  set(lastReturned, k);
 	 }
-	 // TODO since this method doesn't depend on the type at all, should it be "hoisted" into a
-	 // non type-specific superclass in it.unimi.dsi.fastutil?
 	// @Override
 	 public int back(int n) {
 	  if (n < 0) throw new IllegalArgumentException("Argument must be nonnegative: " + n);

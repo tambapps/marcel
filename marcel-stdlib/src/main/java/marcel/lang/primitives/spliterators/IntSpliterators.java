@@ -602,7 +602,6 @@ public final class IntSpliterators {
 	  return pos + ((getMaxPos() - pos) / 2);
 	 }
 	 private void splitPointCheck(final int splitPoint, final int observedMax) {
-	  // TODO When minimum Java version becomes Java 9, use Objects.checkFromToIndex​ (after first letting == max case pass through)
 	  if (splitPoint < pos || splitPoint > observedMax) {
 	   throw new IndexOutOfBoundsException("splitPoint " + splitPoint + " outside of range of current position " + pos + " and range end " + observedMax);
 	  }
@@ -624,8 +623,6 @@ public final class IntSpliterators {
 	   action.accept(get(pos));
 	  }
 	 }
-	 // TODO since this method doesn't depend on the type at all, should it be "hoisted" into a
-	 // non type-specific superclass in it.unimi.dsi.fastutil?
 	 @Override
 	 public long skip(long n) {
 	  if (n < 0) throw new IllegalArgumentException("Argument must be nonnegative: " + n);
@@ -640,8 +637,6 @@ public final class IntSpliterators {
 	  pos = max;
 	  return n;
 	 }
-	 // TODO since this method doesn't depend on the type at all, should it be "hoisted" into a
-	 // non type-specific superclass in it.unimi.dsi.fastutil?
 	 /** {@inheritDoc}
 		 *
 		 * @implSpec This implementation always returns a prefix of the elements, in order to comply with
@@ -1019,8 +1014,6 @@ public final class IntSpliterators {
 	 return new SpliteratorConcatenator (a, offset, length);
 	}
 	private static class SpliteratorFromIterator implements IntSpliterator {
-	 // TODO Expose this arithmetically incrementing split size logic as an abstract class.
-	 // Like java.util.Spliterators.AbstractSpliterator?
 	 private static final int BATCH_INCREMENT_SIZE = 1024;
 	 private static final int BATCH_MAX_SIZE = 1 << 25;
 	 private final IntIterator iter;
