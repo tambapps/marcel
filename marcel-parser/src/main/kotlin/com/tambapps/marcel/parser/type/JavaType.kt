@@ -18,14 +18,14 @@ import it.unimi.dsi.fastutil.floats.FloatSet
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.IntSet
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap
-import it.unimi.dsi.fastutil.longs.LongArrayList
-import it.unimi.dsi.fastutil.longs.LongList
 import it.unimi.dsi.fastutil.longs.LongSet
 import marcel.lang.lambda.Lambda
 import marcel.lang.primitives.collections.lists.FloatArrayList
 import marcel.lang.primitives.collections.lists.FloatList
 import marcel.lang.primitives.collections.lists.IntArrayList
 import marcel.lang.primitives.collections.lists.IntList
+import marcel.lang.primitives.collections.lists.LongArrayList
+import marcel.lang.primitives.collections.lists.LongList
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.ParameterizedType
 import kotlin.reflect.KClass

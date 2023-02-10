@@ -1,11 +1,10 @@
 package marcel.lang.primitives.collections.lists;
 
-import marcel.lang.primitives.collections.FloatCollection;
-import marcel.lang.primitives.floats.FloatConsumer;
-import marcel.lang.primitives.iterators.FloatIterator;
-import marcel.lang.primitives.iterators.list.FloatListIterator;
-import marcel.lang.primitives.spliterators.FloatSpliterator;
-import marcel.lang.primitives.spliterators.FloatSpliterators;
+import marcel.lang.primitives.collections.LongCollection;
+import marcel.lang.primitives.iterators.LongIterator;
+import marcel.lang.primitives.iterators.list.LongListIterator;
+import marcel.lang.primitives.spliterators.LongSpliterator;
+import marcel.lang.primitives.spliterators.LongSpliterators;
 import marcel.lang.util.Arrays;
 import marcel.lang.util.SafeMath;
 
@@ -13,13 +12,14 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
+import java.util.function.LongConsumer;
 
-public class FloatArrayList extends AbstractFloatList implements RandomAccess, Cloneable, java.io.Serializable {
+public class LongArrayList extends AbstractLongList implements RandomAccess, Cloneable, java.io.Serializable {
 	private static final long serialVersionUID = -7046029254386353130L;
 	/** The initial default capacity of an array list. */
 	public static final int DEFAULT_INITIAL_CAPACITY = 10;
 	/** The backing array. */
-	protected transient float[] a;
+	protected transient long[] a;
 	/** The current actual size of the list (never greater than the backing-array length). */
 	protected int size;
 	/** Ensures that the component type of the given array is the proper type.
@@ -29,13 +29,13 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 * with {@link #wrap}.
 	 */
 
-	private static final float[] copyArraySafe(float[] a, int length) {
+	private static final long[] copyArraySafe(long[] a, int length) {
     if (length == 0) {
-      return Arrays.EMPTY_FLOAT_ARRAY;
+      return Arrays.EMPTY_LONG_ARRAY;
     }
 	 return java.util.Arrays.copyOf(a, length);
 	}
-	private static final float[] copyArrayFromSafe(FloatArrayList l) {
+	private static final long[] copyArrayFromSafe(LongArrayList l) {
 	 return copyArraySafe(l.a, l.size);
 	}
 	/** Creates a new array list using a given array.
@@ -44,7 +44,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 *
 	 * @param a the array that will be used to back this array list.
 	 */
-	protected FloatArrayList(final float a[], @SuppressWarnings("unused") boolean wrapped) {
+	protected LongArrayList(final long a[], @SuppressWarnings("unused") boolean wrapped) {
 	 this.a = a;
 	}
 
@@ -53,39 +53,39 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
       throw new IllegalArgumentException("Initial capacity (" + capacity + ") is negative");
     }
     if (capacity == 0) {
-      a = Arrays.EMPTY_FLOAT_ARRAY;
+      a = Arrays.EMPTY_LONG_ARRAY;
     } else {
-      a = new float[capacity];
+      a = new long[capacity];
     }
 	}
 	/** Creates a new array list with given capacity.
 	 *
 	 * @param capacity the initial capacity of the array list (may be 0).
 	 */
-	public FloatArrayList(final int capacity) {
+	public LongArrayList(final int capacity) {
 	 initArrayFromCapacity(capacity);
 	}
 	/** Creates a new array list with {@link #DEFAULT_INITIAL_CAPACITY} capacity. */
 
-	public FloatArrayList() {
-	 a = Arrays.EMPTY_FLOAT_ARRAY; // We delay allocation
+	public LongArrayList() {
+	 a = Arrays.EMPTY_LONG_ARRAY; // We delay allocation
 	}
 	/** Creates a new array list and fills it with a given collection.
 	 *
 	 * @param c a collection that will be used to fill the array list.
 	 */
-	public FloatArrayList(final Collection<? extends Float> c) {
-	 if (c instanceof FloatArrayList) {
-	  a = copyArrayFromSafe((FloatArrayList)c);
+	public LongArrayList(final Collection<? extends Long> c) {
+	 if (c instanceof LongArrayList) {
+	  a = copyArrayFromSafe((LongArrayList)c);
 	  size = a.length;
 	 } else {
 	  initArrayFromCapacity(c.size());
-	  if (c instanceof FloatList) {
-	   ((FloatList )c).getElements(0, a, 0, size = c.size());
-	  } else if (c instanceof FloatCollection) {
-			size = ((FloatCollection) c).iterator().unwrap(a);
+	  if (c instanceof LongList) {
+	   ((LongList )c).getElements(0, a, 0, size = c.size());
+	  } else if (c instanceof LongCollection) {
+			size = ((LongCollection) c).iterator().unwrap(a);
 		} else {
-			Iterator<? extends Float> iterator = c.iterator();
+			Iterator<? extends Long> iterator = c.iterator();
 			int i = 0;
 			while (iterator.hasNext()) {
 				a[i++] = iterator.next();
@@ -98,14 +98,14 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 *
 	 * @param c a type-specific collection that will be used to fill the array list.
 	 */
-	public FloatArrayList(final FloatCollection c) {
-	 if (c instanceof FloatArrayList) {
-	  a = copyArrayFromSafe((FloatArrayList)c);
+	public LongArrayList(final LongCollection c) {
+	 if (c instanceof LongArrayList) {
+	  a = copyArrayFromSafe((LongArrayList)c);
 	  size = a.length;
 	 } else {
 	  initArrayFromCapacity(c.size());
-	  if (c instanceof FloatList) {
-	   ((FloatList )c).getElements(0, a, 0, size = c.size());
+	  if (c instanceof LongList) {
+	   ((LongList )c).getElements(0, a, 0, size = c.size());
 	  } else {
 	   size = c.iterator().unwrap(a);
 	  }
@@ -115,9 +115,9 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 *
 	 * @param l a type-specific list that will be used to fill the array list.
 	 */
-	public FloatArrayList(final FloatList l) {
-	 if (l instanceof FloatArrayList) {
-	  a = copyArrayFromSafe((FloatArrayList)l);
+	public LongArrayList(final LongList l) {
+	 if (l instanceof LongArrayList) {
+	  a = copyArrayFromSafe((LongArrayList)l);
 	  size = a.length;
 	 } else {
 	  initArrayFromCapacity(l.size());
@@ -128,7 +128,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 *
 	 * @param a an array whose elements will be used to fill the array list.
 	 */
-	public FloatArrayList(final int a[]) {
+	public LongArrayList(final int a[]) {
 	 this(a, 0, a.length);
 	}
 	/** Creates a new array list and fills it with the elements of a given array.
@@ -137,7 +137,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 * @param offset the first element to use.
 	 * @param length the number of elements to use.
 	 */
-	public FloatArrayList(final int a[], final int offset, final int length) {
+	public LongArrayList(final int a[], final int offset, final int length) {
 	 this(length);
 	 System.arraycopy(a, offset, this.a, 0, length);
 	 size = length;
@@ -146,7 +146,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 *
 	 * @param i an iterator whose returned elements will fill the array list.
 	 */
-	public FloatArrayList(final Iterator<? extends Float> i) {
+	public LongArrayList(final Iterator<? extends Long> i) {
 	 this();
     while (i.hasNext()) {
       this.add((i.next()).intValue());
@@ -156,17 +156,17 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 *
 	 * @param i a type-specific iterator whose returned elements will fill the array list.
 	 */
-	public FloatArrayList(final FloatIterator i) {
+	public LongArrayList(final LongIterator i) {
 	 this();
     while (i.hasNext()) {
-      this.add(i.nextFloat());
+      this.add(i.nextLong());
     }
 	}
 	/** Returns the backing array of this list.
 	 *
 	 * @return the backing array.
 	 */
-	public float[] elements() {
+	public long[] elements() {
 	 return a;
 	}
 	/** Wraps a given array into an array list of given size.
@@ -179,13 +179,13 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 * @param length the length of the resulting array list.
 	 * @return a new array list of the given size, wrapping the given array.
 	 */
-	public static FloatArrayList wrap(final float a[], final int length) {
+	public static LongArrayList wrap(final long a[], final int length) {
     if (length > a.length) {
       throw new IllegalArgumentException(
           "The specified length (" + length + ") is greater than the array size (" + a.length
               + ")");
     }
-	 final FloatArrayList l = new FloatArrayList(a, true);
+	 final LongArrayList l = new LongArrayList(a, true);
 	 l.size = length;
 	 return l;
 	}
@@ -198,15 +198,15 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 * @param a an array to wrap.
 	 * @return a new array list wrapping the given array.
 	 */
-	public static FloatArrayList wrap(final float a[]) {
+	public static LongArrayList wrap(final long a[]) {
 	 return wrap(a, a.length);
 	}
 	/** Creates a new empty array list.
 	 *
 	 * @return a new empty array list.
 	 */
-	public static FloatArrayList of() {
-	 return new FloatArrayList();
+	public static LongArrayList of() {
+	 return new LongArrayList();
 	}
 	/** Creates an array list using an array of elements.
 	 *
@@ -215,7 +215,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 * @see #wrap
 	 */
 
-	public static FloatArrayList of(final float... init) {
+	public static LongArrayList of(final long... init) {
 	 return wrap(init);
 	}
 	/** Collects the result of a primitive {@code Stream} into a new ArrayList.
@@ -226,16 +226,29 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 * {@link java.util.stream.Collector Collector} is necessary because there is no
 	 * primitive {@code Collector} equivalent in the Java API.
 	 */
-	 public static FloatArrayList toList(java.util.stream.Stream<Float> stream) {
+	 public static LongArrayList toList(java.util.stream.Stream<Long> stream) {
 	  return stream.collect(
-	   FloatArrayList::new,
-				(f, e) -> f.add(e.floatValue()),
-	   FloatArrayList::addAll);
+	   LongArrayList::new,
+				(f, e) -> f.add(e.longValue()),
+	   LongArrayList::addAll);
 	 }
 
-	public static float[] ensureCapacity(float[] array, int length, int preserve) {
+	/** Ensures that this array list can contain the given number of entries without resizing.
+	 *
+	 * @param capacity the new minimum capacity for this array list.
+	 */
+
+	public void ensureCapacity(final int capacity) {
+    if (capacity <= a.length || (a == Arrays.EMPTY_LONG_ARRAY
+        && capacity <= DEFAULT_INITIAL_CAPACITY)) {
+      return;
+    }
+	 a = ensureCapacity(a, capacity, size);
+	}
+
+	public static long[] ensureCapacity(long[] array, int length, int preserve) {
 		if (length > array.length) {
-			float[] t = new float[length];
+			long[] t = new long[length];
 			System.arraycopy(array, 0, t, 0, preserve);
 			return t;
 		} else {
@@ -253,7 +266,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
     if (capacity <= a.length) {
       return;
     }
-    if (a != Arrays.EMPTY_FLOAT_ARRAY) {
+    if (a != Arrays.EMPTY_LONG_ARRAY) {
       capacity = (int) Math.max(
           Math.min((long) a.length + (a.length >> 1), Arrays.MAX_ARRAY_SIZE),
           capacity);
@@ -263,7 +276,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 a = Arrays.forceCapacity(a, capacity, size);
 	}
 	@Override
-	public void add(final int index, final float k) {
+	public void add(final int index, final long k) {
 	 ensureIndex(index);
 	 grow(size + 1);
     if (index != size) {
@@ -273,13 +286,13 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 size++;
 	}
 	@Override
-	public boolean add(final float k) {
+	public boolean add(final long k) {
 	 grow(size + 1);
 	 a[size++] = k;
 	 return true;
 	}
 	@Override
-	public float getFloat(final int index) {
+	public long getLong(final int index) {
     if (index >= size) {
       throw new IndexOutOfBoundsException(
           "Index (" + index + ") is greater than or equal to list size (" + size + ")");
@@ -287,7 +300,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 return a[index];
 	}
 	@Override
-	public int indexOf(final float k) {
+	public int indexOf(final long k) {
 	 for(int i = 0; i < size; i++)
      if (((k) == (a[i]))) {
        return i;
@@ -295,7 +308,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 return -1;
 	}
 	@Override
-	public int lastIndexOf(final float k) {
+	public int lastIndexOf(final long k) {
 	 for(int i = size; i-- != 0;)
      if (((k) == (a[i]))) {
        return i;
@@ -303,12 +316,12 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 return -1;
 	}
 	@Override
-	public float removeAt(final int index) {
+	public long removeAt(final int index) {
     if (index >= size) {
       throw new IndexOutOfBoundsException(
           "Index (" + index + ") is greater than or equal to list size (" + size + ")");
     }
-	 final float old = a[index];
+	 final long old = a[index];
 	 size--;
     if (index != size) {
       System.arraycopy(a, index + 1, a, index, size - index);
@@ -316,7 +329,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 return old;
 	}
 	@Override
-	public boolean removeFloat(final float k) {
+	public boolean removeLong(final long k) {
 	 int index = indexOf(k);
     if (index == -1) {
       return false;
@@ -325,12 +338,12 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 return true;
 	}
 	@Override
-	public float set(final int index, final float k) {
+	public long set(final int index, final long k) {
     if (index >= size) {
       throw new IndexOutOfBoundsException(
           "Index (" + index + ") is greater than or equal to list size (" + size + ")");
     }
-		float old = a[index];
+		long old = a[index];
 	 a[index] = k;
 	 return old;
 	}
@@ -382,31 +395,31 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
     if (n >= a.length || size == a.length) {
       return;
     }
-	 final float t[] = new float[Math.max(n, size)];
+	 final long t[] = new long[Math.max(n, size)];
 	 System.arraycopy(a, 0, t, 0, size);
 	 a = t;
 	}
-	private class SubList extends FloatRandomAccessSubList {
+	private class SubList extends LongRandomAccessSubList {
 	 private static final long serialVersionUID = -3185226345314976296L;
 	 protected SubList(int from, int to) {
-	  super(FloatArrayList.this, from, to);
+	  super(LongArrayList.this, from, to);
 	 }
 	 // Most of the inherited methods should be fine, but we can override a few of them for performance.
 	 // Needed because we can't access the parent class' instance variables directly in a different instance of SubList.
-	 private float[] getParentArray() {
+	 private long[] getParentArray() {
 	  return a;
 	 }
 	 @Override
-	 public float getFloat(int i) {
+	 public long getLong(int i) {
 	  ensureRestrictedIndex(i);
 	  return a[i + from];
 	 }
 
 	 @Override
-	 public FloatListIterator listIterator(int index) {
+	 public LongListIterator listIterator(int index) {
 	  throw new RuntimeException("");
 	 }
-	 private final class SubListSpliterator extends FloatSpliterators.LateBindingSizeIndexBasedSpliterator {
+	 private final class SubListSpliterator extends LongSpliterators.LateBindingSizeIndexBasedSpliterator {
 	  // We are using pos == 0 to be 0 relative to real array 0
 	  SubListSpliterator() {
 	   super(from);
@@ -417,13 +430,13 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	  @Override
 	  protected final int getMaxPosFromBackingStore() { return to; }
 	   @Override
-	  protected final float get(int i) { return a[i]; }
+	  protected final long get(int i) { return a[i]; }
 	  @Override
 	  protected final SubListSpliterator makeForSplit(int pos, int maxPos) {
 	   return new SubListSpliterator(pos, maxPos);
 	  }
 	  @Override
-	  public boolean tryAdvance(final FloatConsumer action) {
+	  public boolean tryAdvance(final LongConsumer action) {
       if (pos >= getMaxPos()) {
         return false;
       }
@@ -431,7 +444,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	   return true;
 	  }
 	  @Override
-	  public void forEachRemaining(final FloatConsumer action) {
+	  public void forEachRemaining(final LongConsumer action) {
 	   final int max = getMaxPos();
 	   while(pos < max) {
 	    action.accept(a[pos++]);
@@ -439,10 +452,10 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	  }
 	 }
 	 @Override
-	 public FloatSpliterator spliterator() {
+	 public LongSpliterator spliterator() {
 	  return new SubListSpliterator();
 	 }
-	 boolean contentsEquals(float[] otherA, int otherAFrom, int otherATo) {
+	 boolean contentsEquals(long[] otherA, int otherAFrom, int otherATo) {
      if (a == otherA && from == otherAFrom && to == otherATo) {
        return true;
      }
@@ -470,29 +483,29 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
      if (!(o instanceof java.util.List)) {
        return false;
      }
-	  if (o instanceof FloatArrayList) {
+	  if (o instanceof LongArrayList) {
 	  
-	   FloatArrayList other = (FloatArrayList) o;
+	   LongArrayList other = (LongArrayList) o;
 	   return contentsEquals(other.a, 0, other.size());
 	  }
-	  if (o instanceof FloatArrayList.SubList) {
+	  if (o instanceof LongArrayList.SubList) {
 	  
-	   FloatArrayList.SubList other = (FloatArrayList.SubList) o;
+	   LongArrayList.SubList other = (LongArrayList.SubList) o;
 	   return contentsEquals(other.getParentArray(), other.from, other.to);
 	  }
 	  return super.equals(o);
 	 }
 	
-	 int contentsCompareTo(float[] otherA, int otherAFrom, int otherATo) {
+	 int contentsCompareTo(long[] otherA, int otherAFrom, int otherATo) {
      if (a == otherA && from == otherAFrom && to == otherATo) {
        return 0;
      }
-		 float e1, e2;
+		 long e1, e2;
 	  int r, i, j;
 	  for(i = from, j = otherAFrom; i < to && i < otherATo; i++, j++) {
 	   e1 = a[i];
 	   e2 = otherA[j];
-      if ((r = (Float.compare((e1), (e2)))) != 0) {
+      if ((r = (Long.compare((e1), (e2)))) != 0) {
         return r;
       }
 	  }
@@ -500,15 +513,15 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 }
 	
 	 @Override
-	 public int compareTo(final java.util.List <? extends Float> l) {
-	  if (l instanceof FloatArrayList) {
+	 public int compareTo(final java.util.List <? extends Long> l) {
+	  if (l instanceof LongArrayList) {
 	  
-	   FloatArrayList other = (FloatArrayList) l;
+	   LongArrayList other = (LongArrayList) l;
 	   return contentsCompareTo(other.a, 0, other.size());
 	  }
-	  if (l instanceof FloatArrayList.SubList) {
+	  if (l instanceof LongArrayList.SubList) {
 	  
-	   FloatArrayList.SubList other = (FloatArrayList.SubList) l;
+	   LongArrayList.SubList other = (LongArrayList.SubList) l;
 	   return contentsCompareTo(other.getParentArray(), other.from, other.to);
 	  }
 	  return super.compareTo(l);
@@ -523,14 +536,14 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 		public void sortReverse() {
 			sort();
 			for (int i = from; i < to / 2; i++) {
-				float temp = a[i];
+				long temp = a[i];
 				a[i] = a[size - 1 - i];
 				a[size - 1 - i] = temp;
 			}
 		}
 	}
 	@Override
-	public FloatList subList(int from, int to) {
+	public LongList subList(int from, int to) {
     if (from == 0 && to == size()) {
       return this;
     }
@@ -550,7 +563,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 * @param length the number of elements to be copied.
 	 */
 	@Override
-	public void getElements(final int from, final float[] a, final int offset, final int length) {
+	public void getElements(final int from, final long[] a, final int offset, final int length) {
 	 Arrays.ensureOffsetLength(a, offset, length);
 	 System.arraycopy(this.a, from, a, offset, length);
 	}
@@ -573,7 +586,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 * @param length the number of elements to add.
 	 */
 	@Override
-	public void addElements(final int index, final float a[], final int offset, final int length) {
+	public void addElements(final int index, final long a[], final int offset, final int length) {
 	 ensureIndex(index);
 		Arrays.ensureOffsetLength(a, offset, length);
 	 grow(size + length);
@@ -589,7 +602,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 * @param length the number of elements to add.
 	 */
 	@Override
-	public void setElements(final int index, final float a[], final int offset, final int length) {
+	public void setElements(final int index, final long a[], final int offset, final int length) {
 	 ensureIndex(index);
 		Arrays.ensureOffsetLength(a, offset, length);
     if (index + length > size) {
@@ -599,15 +612,15 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 System.arraycopy(a, offset, this.a, index, length);
 	}
 	@Override
-	public void forEach(final FloatConsumer action) {
+	public void forEach(final LongConsumer action) {
 	 for (int i = 0; i < size; ++i) {
 	  action.accept(a[i]);
 	 }
 	}
 	@Override
-	public boolean addAll(int index, final FloatCollection c) {
-	 if (c instanceof FloatList) {
-	  return addAll(index, (FloatList )c);
+	public boolean addAll(int index, final LongCollection c) {
+	 if (c instanceof LongList) {
+	  return addAll(index, (LongList )c);
 	 }
 	 ensureIndex(index);
 	 int n = c.size();
@@ -616,15 +629,15 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
     }
 	 grow(size + n);
 	 System.arraycopy(a, index, a, index + n, size - index);
-	 final FloatIterator i = c.iterator();
+	 final LongIterator i = c.iterator();
 	 size += n;
     while (n-- != 0) {
-      a[index++] = i.nextFloat();
+      a[index++] = i.nextLong();
     }
 	 return true;
 	}
 	@Override
-	public boolean addAll(final int index, final FloatList l) {
+	public boolean addAll(final int index, final LongList l) {
 	 ensureIndex(index);
 	 final int n = l.size();
     if (n == 0) {
@@ -637,8 +650,8 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 return true;
 	}
 	@Override
-	public boolean removeAll(final FloatCollection c) {
-	 final float[] a = this.a;
+	public boolean removeAll(final LongCollection c) {
+	 final long[] a = this.a;
 	 int j = 0;
 	 for(int i = 0; i < size; i++)
      if (!c.contains(a[i])) {
@@ -649,7 +662,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 return modified;
 	}
 	@Override
-	public float[] toArray(float a[]) {
+	public long[] toArray(long a[]) {
     if (a == null || a.length < size) {
       a = java.util.Arrays.copyOf(a, size);
     }
@@ -657,9 +670,9 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 return a;
 	}
 	@Override
-	public FloatListIterator listIterator(final int index) {
+	public LongListIterator listIterator(final int index) {
 	 ensureIndex(index);
-	 return new FloatListIterator () {
+	 return new LongListIterator () {
 	   int pos = index, last = -1;
 	   @Override
 	   public boolean hasNext() { return pos < size; }
@@ -667,13 +680,13 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	   public boolean hasPrevious() { return pos > 0; }
 
 		 @Override
-	   public float nextFloat() {
+	   public long nextLong() {
        if (!hasNext()) {
          throw new NoSuchElementException();
        }
        return a[last = pos++]; }
 	   @Override
-	   public float previousFloat() {
+	   public long previousLong() {
        if (!hasPrevious()) {
          throw new NoSuchElementException();
        }
@@ -683,23 +696,23 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	   @Override
 	   public int previousIndex() { return pos - 1; }
 	   @Override
-	   public void add(float k) {
-	    FloatArrayList.this.add(pos++, k);
+	   public void add(long k) {
+	    LongArrayList.this.add(pos++, k);
 	    last = -1;
 	   }
 	   @Override
-	   public void set(float k) {
+	   public void set(long k) {
        if (last == -1) {
          throw new IllegalStateException();
        }
-	    FloatArrayList.this.set(last, k);
+	    LongArrayList.this.set(last, k);
 	   }
 	   @Override
 	   public void remove() {
        if (last == -1) {
          throw new IllegalStateException();
        }
-	    FloatArrayList.this.removeFloat(last);
+	    LongArrayList.this.removeLong(last);
 	    /* If the last operation was a next(), we are removing an element *before* us, and we must decrease pos correspondingly. */
        if (last < pos) {
          pos--;
@@ -707,7 +720,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	    last = -1;
 	   }
 	   @Override
-	   public void forEachRemaining(final FloatConsumer action) {
+	   public void forEachRemaining(final LongConsumer action) {
 	    while (pos < size) {
 	     action.accept(a[last = pos++]);
 	    }
@@ -731,14 +744,14 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	  };
 	}
 	// If you update this, you will probably want to update ArraySet as well
-	private final class Spliterator implements FloatSpliterator {
+	private final class Spliterator implements LongSpliterator {
 	 // Until we split, we will track the size of the list.
 	 // Once we split, then we stop updating on structural modifications.
 	 // Aka, size is late-binding.
 	 boolean hasSplit = false;
 	 int pos, max;
 	 public Spliterator() {
-	  this(0, FloatArrayList.this.size, false);
+	  this(0, LongArrayList.this.size, false);
 	 }
 	 private Spliterator(int pos, int max, boolean hasSplit) {
 	  this.pos = pos;
@@ -746,14 +759,14 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	  this.hasSplit = hasSplit;
 	 }
 	 private int getWorkingMax() {
-	  return hasSplit ? max : FloatArrayList.this.size;
+	  return hasSplit ? max : LongArrayList.this.size;
 	 }
 	 @Override
-	 public int characteristics() { return FloatSpliterators.LIST_SPLITERATOR_CHARACTERISTICS; }
+	 public int characteristics() { return LongSpliterators.LIST_SPLITERATOR_CHARACTERISTICS; }
 	 @Override
 	 public long estimateSize() { return getWorkingMax() - pos; }
 	 @Override
-	 public boolean tryAdvance(final FloatConsumer action) {
+	 public boolean tryAdvance(final LongConsumer action) {
      if (pos >= getWorkingMax()) {
        return false;
      }
@@ -761,7 +774,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	  return true;
 	 }
 	 @Override
-	 public void forEachRemaining(final FloatConsumer action) {
+	 public void forEachRemaining(final LongConsumer action) {
 	  for (final int max = getWorkingMax(); pos < max; ++pos) {
 	   action.accept(a[pos]);
 	  }
@@ -785,7 +798,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	  return n;
 	 }
 	 @Override
-	 public FloatSpliterator trySplit() {
+	 public LongSpliterator trySplit() {
 	  final int max = getWorkingMax();
 	  int retLen = (max - pos) >> 1;
      if (retLen <= 1) {
@@ -810,7 +823,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 * {@link java.util.Spliterator#trySplit() trySplit()} will result in unspecified behavior.
 	 */
 	@Override
-	public FloatSpliterator spliterator() {
+	public LongSpliterator spliterator() {
 	 // If it wasn't for the possibility of the list being expanded or shrunk,
 	 // we could return SPLITERATORS.wrap(a, 0, size).
 	 return new Spliterator();
@@ -825,7 +838,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	public void sortReverse() {
 		sort();
 		for (int i = 0; i < size / 2; i++) {
-			float temp = a[i];
+			long temp = a[i];
 			a[i] = a[size - 1 - i];
 			a[size - 1 - i] = temp;
 		}
@@ -839,7 +852,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 * @param l a type-specific array list.
 	 * @return true if the argument contains the same elements of this type-specific array list.
 	 */
-	public boolean equals(final FloatArrayList l) {
+	public boolean equals(final LongArrayList l) {
     if (l == this) {
       return true;
     }
@@ -847,8 +860,8 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
     if (s != l.size()) {
       return false;
     }
-	 final float[] a1 = a;
-	 final float[] a2 = l.a;
+	 final long[] a1 = a;
+	 final long[] a2 = l.a;
     if (a1 == a2 && s == l.size()) {
       return true;
     }
@@ -871,14 +884,14 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
     if (!(o instanceof java.util.List)) {
       return false;
     }
-	 if (o instanceof FloatArrayList) {
+	 if (o instanceof LongArrayList) {
 	  // Safe cast because we are only going to take elements from other list, never give them
-	  return equals((FloatArrayList) o);
+	  return equals((LongArrayList) o);
 	 }
-	 if (o instanceof FloatArrayList.SubList) {
+	 if (o instanceof LongArrayList.SubList) {
 	  // Safe cast because we are only going to take elements from other list, never give them
 	  // Sublist has an optimized sub-array based comparison, reuse that.
-	  return ((FloatArrayList.SubList)o).equals(this);
+	  return ((LongArrayList.SubList)o).equals(this);
 	 }
 	 return super.equals(o);
 	}
@@ -893,18 +906,18 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 * to, or greater than the argument.
 	 */
 
-	public int compareTo(final FloatArrayList l) {
+	public int compareTo(final LongArrayList l) {
 	 final int s1 = size(), s2 = l.size();
-	 final float a1[] = a, a2[] = l.a;
+	 final long a1[] = a, a2[] = l.a;
     if (a1 == a2 && s1 == s2) {
       return 0;
     }
-		float e1, e2;
+		long e1, e2;
 	 int r, i;
 	 for(i = 0; i < s1 && i < s2; i++) {
 	  e1 = a1[i];
 	  e2 = a2[i];
-     if ((r = (Float.compare((e1), (e2)))) != 0) {
+     if ((r = (Long.compare((e1), (e2)))) != 0) {
        return r;
      }
 	 }
@@ -912,24 +925,24 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	}
 
 	@Override
-	public int compareTo(final java.util.List <? extends Float> l) {
-	 if (l instanceof FloatArrayList) {
-	  return compareTo((FloatArrayList)l);
+	public int compareTo(final java.util.List <? extends Long> l) {
+	 if (l instanceof LongArrayList) {
+	  return compareTo((LongArrayList)l);
 	 }
-	 if (l instanceof FloatArrayList.SubList) {
+	 if (l instanceof LongArrayList.SubList) {
 	  // Must negate because we are inverting the order of the comparison.
-	  return -((FloatArrayList.SubList) l).compareTo(this);
+	  return -((LongArrayList.SubList) l).compareTo(this);
 	 }
 	 return super.compareTo(l);
 	}
 	private void writeObject(java.io.ObjectOutputStream s) throws java.io.IOException {
 	 s.defaultWriteObject();
-	 for(int i = 0; i < size; i++) s.writeFloat(a[i]);
+	 for(int i = 0; i < size; i++) s.writeLong(a[i]);
 	}
 
 	private void readObject(java.io.ObjectInputStream s) throws java.io.IOException, ClassNotFoundException {
 	 s.defaultReadObject();
-	 a = new float[size];
-	 for(int i = 0; i < size; i++) a[i] = s.readFloat();
+	 a = new long[size];
+	 for(int i = 0; i < size; i++) a[i] = s.readLong();
 	}
 }
