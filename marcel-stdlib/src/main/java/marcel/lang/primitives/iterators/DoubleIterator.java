@@ -14,6 +14,9 @@
 	* limitations under the License.
 	*/
 package marcel.lang.primitives.iterators;
+
+import marcel.lang.primitives.collections.DoubleCollection;
+
 import java.util.Iterator;
 import java.util.PrimitiveIterator;
 
@@ -36,4 +39,31 @@ public interface DoubleIterator extends Iterator<Double>, PrimitiveIterator.OfDo
 	 return nextDouble();
 	}
 
+	default int unwrap(final double array[]) {
+		return unwrap(array, 0, array.length);
+	}
+
+	default int unwrap(final double array[], int offset, final int max) {
+		if (max < 0) throw new IllegalArgumentException("The maximum number of elements (" + max + ") is negative");
+		if (offset < 0 || offset + max > array.length) throw new IllegalArgumentException();
+		int j = max;
+		while(j-- != 0 && hasNext()) array[offset++] = nextDouble();
+		return max - j - 1;
+	}
+
+	default int skip(final int n) {
+		if (n < 0) throw new IllegalArgumentException("Argument must be nonnegative: " + n);
+		int i = n;
+		while(i-- != 0 && hasNext()) nextDouble();
+		return n - i - 1;
+	}
+
+	default long unwrap(final DoubleCollection c) {
+		long n = 0;
+		while(hasNext()) {
+			c.add(nextDouble());
+			n++;
+		}
+		return n;
+	}
 }
