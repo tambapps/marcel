@@ -4,9 +4,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 list<int> ints = [1, 2, 3]
 assertEquals(3, ints.size())
 
+list<long> longs = [1l, 2l, 3]
+assertEquals(3, longs.size())
+assertEquals(3l, longs.get(2))
+
 list<float> floats = [1f, 2f, 3]
 assertEquals(3, floats.size())
 assertEquals(3f, floats.get(2))
+
+list<double> doubles = [1d, 2d, 3]
+assertEquals(3, doubles.size())
+assertEquals(3d, doubles.get(2))
 
 map<double, Object> map = [1d: 2, 3: 4]
 assertEquals(2, map.get(1d))

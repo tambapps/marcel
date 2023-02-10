@@ -8,10 +8,24 @@ public class Arrays {
    *  throwing {@link OutOfMemoryError} on some JVMs. We adopt the same value. */
   public static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
   public static final int[] EMPTY_INT_ARRAY = new int[0];
+  public static final long[] EMPTY_LONG_ARRAY = new long[0];
+  public static final float[] EMPTY_FLOAT_ARRAY = new float[0];
+  public static final double[] EMPTY_DOUBLE_ARRAY = new double[0];
   public static void ensureOffsetLength(int[] a, int offset, int length) {
     Arrays.ensureOffsetLength(a.length, offset, length);
   }
 
+  public static void ensureOffsetLength(long[] a, int offset, int length) {
+    Arrays.ensureOffsetLength(a.length, offset, length);
+  }
+
+  public static void ensureOffsetLength(float[] a, int offset, int length) {
+    Arrays.ensureOffsetLength(a.length, offset, length);
+  }
+
+  public static void ensureOffsetLength(double[] a, int offset, int length) {
+    Arrays.ensureOffsetLength(a.length, offset, length);
+  }
   /** Forces an array to contain the given number of entries, preserving just a part of the array.
    *
    * @param array an array.
@@ -23,6 +37,27 @@ public class Arrays {
   public static int[] forceCapacity(final int[] array, final int length, final int preserve) {
     final int t[] =
         new int[length];
+    System.arraycopy(array, 0, t, 0, preserve);
+    return t;
+  }
+
+  public static long[] forceCapacity(final long[] array, final int length, final int preserve) {
+    final long t[] =
+        new long[length];
+    System.arraycopy(array, 0, t, 0, preserve);
+    return t;
+  }
+
+  public static float[] forceCapacity(final float[] array, final int length, final int preserve) {
+    final float t[] =
+        new float[length];
+    System.arraycopy(array, 0, t, 0, preserve);
+    return t;
+  }
+
+  public static double[] forceCapacity(final double[] array, final int length, final int preserve) {
+    final double t[] =
+        new double[length];
     System.arraycopy(array, 0, t, 0, preserve);
     return t;
   }

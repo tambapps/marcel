@@ -14,6 +14,8 @@
 	* limitations under the License.
 	*/
 package marcel.lang.primitives.iterators;
+import marcel.lang.primitives.collections.FloatCollection;
+import marcel.lang.primitives.collections.IntCollection;
 import marcel.lang.primitives.floats.FloatConsumer;
 
 import java.util.Iterator;
@@ -38,4 +40,31 @@ public interface FloatIterator extends Iterator<Float>, PrimitiveIterator<Float,
 	 return nextFloat();
 	}
 
+	default int unwrap(final float array[]) {
+		return unwrap(array, 0, array.length);
+	}
+
+	default int unwrap(final float array[], int offset, final int max) {
+		if (max < 0) throw new IllegalArgumentException("The maximum number of elements (" + max + ") is negative");
+		if (offset < 0 || offset + max > array.length) throw new IllegalArgumentException();
+		int j = max;
+		while(j-- != 0 && hasNext()) array[offset++] = nextFloat();
+		return max - j - 1;
+	}
+
+	default int skip(final int n) {
+		if (n < 0) throw new IllegalArgumentException("Argument must be nonnegative: " + n);
+		int i = n;
+		while(i-- != 0 && hasNext()) nextFloat();
+		return n - i - 1;
+	}
+
+	default long unwrap(final FloatCollection c) {
+		long n = 0;
+		while(hasNext()) {
+			c.add(nextFloat());
+			n++;
+		}
+		return n;
+	}
 }

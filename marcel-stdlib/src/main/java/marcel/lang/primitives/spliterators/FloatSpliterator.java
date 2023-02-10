@@ -18,6 +18,7 @@ package marcel.lang.primitives.spliterators;
 import marcel.lang.primitives.floats.FloatConsumer;
 
 import java.util.Spliterator;
+import java.util.function.Consumer;
 
 /** A type-specific {@link Spliterator}; provides an additional methods to avoid (un)boxing, and
 	* the possibility to skip elements.
@@ -54,4 +55,13 @@ public interface FloatSpliterator extends Spliterator.OfPrimitive<Float, FloatCo
 	  */
 	@Override
   FloatSpliterator trySplit();
+
+	default boolean tryAdvance(Consumer<? super Float> action) {
+		if (action instanceof FloatConsumer) {
+			return tryAdvance((FloatConsumer) action);
+		}
+		else {
+			return tryAdvance((FloatConsumer) action::accept);
+		}
+	}
 }

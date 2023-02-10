@@ -15,12 +15,13 @@
 	*/
 package marcel.lang.primitives.collections.lists;
 
-
-import marcel.lang.primitives.collections.IntCollection;
-import marcel.lang.primitives.iterators.list.IntListIterator;
-import marcel.lang.primitives.spliterators.IntSpliterator;
+import marcel.lang.primitives.collections.FloatCollection;
+import marcel.lang.primitives.iterators.list.FloatListIterator;
+import marcel.lang.primitives.spliterators.FloatSpliterator;
 import marcel.lang.util.Arrays;
+import marcel.lang.util.function.FloatUnaryOperator;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.Spliterator;
@@ -41,7 +42,7 @@ import java.util.Spliterator;
 	*
 	* @see List
 	*/
-public interface IntList extends List<Integer>, Comparable<List<? extends Integer>>, IntCollection {
+public interface FloatList extends List<Float>, Comparable<List<? extends Float>>, FloatCollection {
 	/** Returns a type-specific iterator on the elements of this list.
 	 *
 	 * @apiNote This specification strengthens the one given in {@link List#iterator()}.
@@ -52,7 +53,7 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	 * @return an iterator on the elements of this list.
 	 */
 	@Override
-  IntListIterator iterator();
+  FloatListIterator iterator();
 	/** Returns a type-specific spliterator on the elements of this list.
 	 *
 	 * <p>List spliterators must report at least {@link Spliterator#SIZED} and {@link Spliterator#ORDERED}.
@@ -88,19 +89,19 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	 * @since 8.5.0
 	 */
 	@Override
-	IntSpliterator spliterator();
+	FloatSpliterator spliterator();
 	/** Returns a type-specific list iterator on the list.
 	 *
 	 * @see List#listIterator()
 	 */
 	@Override
-	IntListIterator listIterator();
+	FloatListIterator listIterator();
 	/** Returns a type-specific list iterator on the list starting at a given index.
 	 *
 	 * @see List#listIterator(int)
 	 */
 	@Override
-	IntListIterator listIterator(int index);
+	FloatListIterator listIterator(int index);
 	/** Returns a type-specific view of the portion of this list from the index {@code from}, inclusive, to the index {@code to}, exclusive.
 	 *
 	 * @apiNote This specification strengthens the one given in {@link List#subList(int,int)}.
@@ -108,7 +109,7 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	 * @see List#subList(int,int)
 	 */
 	@Override
-	IntList subList(int from, int to);
+  FloatList subList(int from, int to);
 	/** Sets the size of this list.
 	 *
 	 * <p>If the specified size is smaller than the current size, the last elements are
@@ -124,7 +125,7 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	 * @param offset the offset into the destination array where to store the first element copied.
 	 * @param length the number of elements to be copied.
 	 */
-	void getElements(int from, int a[], int offset, int length);
+	void getElements(int from, float a[], int offset, int length);
 	/** Removes (hopefully quickly) elements of this type-specific list.
 	 *
 	 * @param from the start index (inclusive).
@@ -136,7 +137,7 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	 * @param index the index at which to add elements.
 	 * @param a the array containing the elements.
 	 */
-	void addElements(int index, int a[]);
+	void addElements(int index, float a[]);
 	/** Add (hopefully quickly) elements to this type-specific list.
 	 *
 	 * @param index the index at which to add elements.
@@ -144,12 +145,12 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	 * @param offset the offset of the first element to add.
 	 * @param length the number of elements to add.
 	 */
-	void addElements(int index, int a[], int offset, int length);
+	void addElements(int index, float a[], int offset, int length);
 	/** Set (hopefully quickly) elements to match the array given.
 	 * @param a the array containing the elements.
 	 * @since 8.3.0
 	 */
-	default void setElements(int a[]) {
+	default void setElements(float a[]) {
 	 setElements(0, a);
 	}
 	/** Set (hopefully quickly) elements to match the array given.
@@ -157,7 +158,7 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	 * @param a the array containing the elements.
 	 * @since 8.3.0
 	 */
-	default void setElements(int index, int a[]) {
+	default void setElements(int index, float a[]) {
 	 setElements(index, a, 0, a.length);
 	}
 	/** Set (hopefully quickly) elements to match the array given.
@@ -181,16 +182,16 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	 * @param length the number of elements to add.
 	 * @since 8.3.0
 	 */
-	default void setElements(int index, int a[], int offset, int length) {
+	default void setElements(int index, float a[], int offset, int length) {
 	 // We can't use AbstractList#ensureIndex, sadly.
 	 if (index < 0) throw new IndexOutOfBoundsException("Index (" + index + ") is negative");
 	 if (index > size()) throw new IndexOutOfBoundsException("Index (" + index + ") is greater than list size (" + (size()) + ")");
 	 Arrays.ensureOffsetLength(a, offset, length);
 	 if (index + length > size()) throw new IndexOutOfBoundsException("End index (" + (index + length) + ") is greater than list size (" + size() + ")");
-	 IntListIterator iter = listIterator(index);
+	 FloatListIterator iter = listIterator(index);
 	 int i = 0;
 	 while (i < length) {
-	  iter.nextInt();
+	  iter.nextFloat();
 	  iter.set(a[offset + i++]);
 	 }
 	}
@@ -198,36 +199,36 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	 * @see List#add(Object)
 	 */
 	@Override
-	boolean add(int key);
+	boolean add(float key);
 	/** Inserts the specified element at the specified position in this list (optional operation).
 	 * @see List#add(int,Object)
 	 */
-	void add(int index, int key);
+	void add(int index, float key);
 	/** {@inheritDoc}
 	 * @deprecated Please use the corresponding type-specific method instead. */
 	@Deprecated
 	@Override
-	default void add(int index, Integer key) {
-	 add(index, (key).intValue());
+	default void add(int index, Float key) {
+	 add(index, (key).floatValue());
 	}
 	/** Inserts all of the elements in the specified type-specific collection into this type-specific list at the specified position (optional operation).
 	 * @see List#addAll(int,java.util.Collection)
 	 */
-	boolean addAll(int index, IntCollection c);
+	boolean addAll(int index, FloatCollection c);
 	/** Replaces the element at the specified position in this list with the specified element (optional operation).
 	 * @see List#set(int,Object)
 	 */
-	int set(int index, int k);
+	float set(int index, float k);
 	/**
 	 * Replaces each element of this list with the result of applying the
 	 * operator to that element. 
 	 * @param operator the operator to apply to each element.
 	 * @see List#replaceAll
 	 */
-	default void replaceAll(final java.util.function.IntUnaryOperator operator) {
-	 final IntListIterator iter = listIterator();
+	default void replaceAll(final FloatUnaryOperator operator) {
+	 final FloatListIterator iter = listIterator();
 	 while(iter.hasNext()) {
-	  iter.set(operator.applyAsInt(iter.nextInt()));
+	  iter.set(operator.applyAsFloat(iter.nextFloat()));
 	 }
 	}
 
@@ -237,52 +238,52 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	@Deprecated
 	@Override
 	@SuppressWarnings("boxing")
-	default void replaceAll(final java.util.function.UnaryOperator<Integer> operator) {
+	default void replaceAll(final java.util.function.UnaryOperator<Float> operator) {
 	 java.util.Objects.requireNonNull(operator);
 	 // The instanceof and cast is required for performance. Without it, calls routed through this
 	 // overload using a primitive consumer would go through the slow lambda.
-	 replaceAll(operator instanceof java.util.function.IntUnaryOperator ? (java.util.function.IntUnaryOperator) operator : (java.util.function.IntUnaryOperator) operator::apply);
+	 replaceAll(operator instanceof FloatUnaryOperator ? (FloatUnaryOperator) operator : (FloatUnaryOperator) operator::apply);
 	}
 	/** Returns the element at the specified position in this list.
 	 * @see List#get(int)
 	 */
-	int getInt(int index);
+	float getFloat(int index);
 	/** Returns the index of the first occurrence of the specified element in this list, or -1 if this list does not contain the element.
 	 * @see List#indexOf(Object)
 	 */
-	int indexOf(int k);
+	int indexOf(float k);
 	/** Returns the index of the last occurrence of the specified element in this list, or -1 if this list does not contain the element.
 	 * @see List#lastIndexOf(Object)
 	 */
-	int lastIndexOf(int k);
+	int lastIndexOf(float k);
 	/** {@inheritDoc}
 	 * @deprecated Please use the corresponding type-specific method instead.
 	 */
 	@Deprecated
 	@Override
 	default boolean contains(final Object key) {
-	 return IntCollection.super.contains(key);
+	 return FloatCollection.super.contains(key);
 	}
 	/** {@inheritDoc}
 	 * @deprecated Please use the corresponding type-specific method instead. */
 	@Deprecated
 	@Override
-	default Integer get(int index) {
-	 return Integer.valueOf(getInt(index));
+	default Float get(int index) {
+	 return Float.valueOf(getFloat(index));
 	}
 	/** {@inheritDoc}
 	 * @deprecated Please use the corresponding type-specific method instead. */
 	@Deprecated
 	@Override
 	default int indexOf(Object o) {
-	 return indexOf(((Integer)(o)).intValue());
+	 return indexOf(((Float)(o)).floatValue());
 	}
 	/** {@inheritDoc}
 	 * @deprecated Please use the corresponding type-specific method instead. */
 	@Deprecated
 	@Override
 	default int lastIndexOf(Object o) {
-	 return lastIndexOf(((Integer)(o)).intValue());
+	 return lastIndexOf(((Float)(o)).floatValue());
 	}
 	/** {@inheritDoc}
 	 * <p>This method specification is a workaround for
@@ -290,48 +291,48 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	 * @deprecated Please use the corresponding type-specific method instead. */
 	@Deprecated
 	@Override
-	default boolean add(Integer k) {
-	 return add((k).intValue());
+	default boolean add(Float k) {
+	 return add((k).floatValue());
 	}
 	/** Removes the element at the specified position in this list (optional operation).
 	 * @see List#remove(int)
 	 */
-	int removeAt(int index);
+	float removeAt(int index);
 	/** {@inheritDoc}
 	 * @deprecated Please use the corresponding type-specific method instead.
 	 */
 	@Deprecated
 	@Override
 	default boolean remove(final Object key) {
-	 return IntCollection.super.remove(key);
+	 return FloatCollection.super.remove(key);
 	}
 	/** {@inheritDoc}
 	 * @deprecated Please use the corresponding type-specific method instead. */
 	@Deprecated
 	@Override
-	default Integer remove(int index) {
-	 return Integer.valueOf(removeAt(index));
+	default Float remove(int index) {
+	 return Float.valueOf(removeAt(index));
 	}
 	/** {@inheritDoc}
 	 * @deprecated Please use the corresponding type-specific method instead. */
 	@Deprecated
 	@Override
-	default Integer set(int index, Integer k) {
-	 return Integer.valueOf(set(index, (k).intValue()));
+	default Float set(int index, Float k) {
+	 return Float.valueOf(set(index, (k).floatValue()));
 	}
 	/** Inserts all of the elements in the specified type-specific list into this type-specific list at the specified position (optional operation).
 	 * @apiNote This method exists only for the sake of efficiency: override are expected to use {@link #getElements}/{@link #addElements}.
 	 * @implSpec This method delegates to the one accepting a collection, but it might be implemented more efficiently.
 	 * @see List#addAll(int,Collection)
 	 */
-	default boolean addAll(int index, IntList l) {
-	 return addAll(index, (IntCollection ) l);
+	default boolean addAll(int index, FloatList l) {
+	 return addAll(index, (FloatCollection ) l);
 	}
 	/** Appends all of the elements in the specified type-specific list to the end of this type-specific list (optional operation).
 	 * @implSpec This method delegates to the index-based version, passing {@link #size()} as first argument.
 	 * @see List#addAll(Collection)
 	 */
-	default boolean addAll(IntList l) {
+	default boolean addAll(FloatList l) {
 	 return addAll(size(), l);
 	}
 
@@ -340,13 +341,13 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	 */
 	@Deprecated
 	@Override
-	default void sort(final java.util.Comparator<? super Integer> comparator) {
+	default void sort(final Comparator<? super Float> comparator) {
 	 throw new UnsupportedOperationException("Not Implemented");
 	}
 	/** Sort a list using a type-specific comparator.
 	 *
 	 * <p>Pass {@code null} to sort using natural ordering.
-	 * @see List#sort(java.util.Comparator)
+	 * @see List#sort(Comparator)
 	 *
 	 * @implSpec The default implementation dumps the elements into an array using
 	 * {@link #toArray()}, sorts the array, then replaces all elements using the
@@ -365,8 +366,8 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	default void shuffle(final Random random) {
 		for(int i = size(); i-- != 0;) {
 			final int p = random.nextInt(i + 1);
-			final int t = getInt(i);
-			set(i, getInt(p));
+			final float t = getFloat(i);
+			set(i, getFloat(p));
 			set(p, t);
 		}
 	}
