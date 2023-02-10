@@ -16,6 +16,8 @@ interface AstNodeVisitor<T> {
   fun visit(longConstantNode: LongConstantNode): T
   fun visit(floatConstantNode: FloatConstantNode): T
   fun visit(doubleConstantNode: DoubleConstantNode): T
+  fun visit(charNode: CharNode): T
+
   fun visit(operator: MulOperator): T
   fun visit(operator: TernaryNode): T
   fun visit(elvisOperator: ElvisOperator): T

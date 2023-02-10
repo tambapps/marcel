@@ -461,6 +461,16 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       TokenType.BRACKETS_OPEN -> parseLambda(scope)
       TokenType.VALUE_TRUE -> BooleanConstantNode(true)
       TokenType.VALUE_FALSE -> BooleanConstantNode(false)
+      TokenType.OPEN_CHAR_QUOTE -> {
+        val valueToken = next()
+        val value = when (valueToken.type) {
+          TokenType.REGULAR_STRING_PART -> valueToken.value
+          TokenType.ESCAPE_SEQUENCE -> escapedSequenceValue(valueToken.value)
+          else -> throw MarcelParsingException("Unexpected token ${valueToken.type} for character constant")
+        }
+        accept(TokenType.CLOSING_CHAR_QUOTE)
+        CharNode(value)
+      }
       TokenType.OPEN_QUOTE -> {
         val parts = mutableListOf<ExpressionNode>()
         while (current.type != TokenType.CLOSING_QUOTE) {
@@ -469,11 +479,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         skip() // skip last quote
         StringNode(parts)
       }
-      TokenType.ESCAPE_SEQUENCE -> {
-        val escapedSequence = token.value.substring(1)
-        if (escapedSequence == "n") StringConstantNode("\n")
-        else TODO("Doesn't handle \\$escapedSequence")
-      }
+      TokenType.ESCAPE_SEQUENCE -> StringConstantNode(escapedSequenceValue(token.value))
       TokenType.NULL -> NullValueNode()
       TokenType.NOT -> NotNode(expression(scope))
       TokenType.NEW -> {
@@ -556,6 +562,11 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     }
   }
 
+  private fun escapedSequenceValue(tokenValue: String): String {
+    val escapedSequence = tokenValue.substring(1)
+    return if (escapedSequence == "n") "\n"
+    else TODO("Doesn't handle \\$escapedSequence")
+  }
   private fun parseLambda(scope: Scope): LambdaNode {
     val parameters = mutableListOf<MethodParameter>()
     val methodScope = MethodScope(scope, "TODO", parameters, JavaType.Object)

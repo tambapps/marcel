@@ -515,6 +515,10 @@ class InstructionGenerator(
   override fun visit(doubleConstantNode: DoubleConstantNode) {
     // don't need to write constants
   }
+
+  override fun visit(charNode: CharNode) {
+    // don't need to write constants
+  }
   override fun visit(booleanConstantNode: BooleanConstantNode) {
     // don't need to write constants
   }
@@ -858,6 +862,12 @@ private class PushingInstructionGenerator(
 
   override fun visit(doubleConstantNode: DoubleConstantNode) {
     mv.pushConstant(doubleConstantNode.value)
+  }
+
+  override fun visit(charNode: CharNode) {
+    val value = charNode.value
+    if (value.length != 1) throw SemanticException("Characters should be strings of exactly one char")
+    mv.pushConstant(value[0])
   }
   override fun visit(nullValueNode: NullValueNode) {
     mv.pushNull()

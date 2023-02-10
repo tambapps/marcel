@@ -203,6 +203,7 @@ interface JavaType: AstTypedObject {
     val Long = LoadedObjectType(Class.forName("java.lang.Long"))
     val Float = LoadedObjectType(Class.forName("java.lang.Float"))
     val Double = LoadedObjectType(Class.forName("java.lang.Double"))
+    val Character = LoadedObjectType(Class.forName("java.lang.Character"))
 
     val void = JavaPrimitiveType(java.lang.Void::class, Opcodes.ALOAD, Opcodes.ASTORE, Opcodes.RETURN, 0,0,0,0)
     val int = JavaPrimitiveType(java.lang.Integer::class, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV)

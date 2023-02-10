@@ -87,15 +87,14 @@ import java.util.Stack;
   // end of file
 %eof}
 
-%xstate STRING RAW_STRING SHORT_TEMPLATE_ENTRY BLOCK_COMMENT DOC_COMMENT
+%xstate STRING RAW_STRING SHORT_TEMPLATE_ENTRY BLOCK_COMMENT DOC_COMMENT, CHAR_STRING
 %state LONG_TEMPLATE_ENTRY UNMATCHED_BACKTICK
 
 LETTER = [:letter:]|_
 IDENTIFIER_PART=[:digit:]|{LETTER}|\$ // dollar for inner classes
 
-IDENTIFIER = {PLAIN_IDENTIFIER}|{ESCAPED_IDENTIFIER}
+IDENTIFIER = {PLAIN_IDENTIFIER}
 PLAIN_IDENTIFIER={LETTER} {IDENTIFIER_PART}*
-ESCAPED_IDENTIFIER = `[^`\n]+`
 
 /** Numbers **/
 DIGIT=[0-9]
@@ -138,6 +137,7 @@ THREE_QUO = (\"\"\")
 THREE_OR_MORE_QUO = ({THREE_QUO}\"*)
 
 REGULAR_STRING_PART=[^\\\"\n\$]+
+REGULAR_SIMPLE_CHAR_STRING_PART=[^\\`]+
 SHORT_TEMPLATE_ENTRY=\${IDENTIFIER}
 LONELY_DOLLAR=\$
 LONG_TEMPLATE_ENTRY_START=\$\{
@@ -166,12 +166,16 @@ LONELY_BACKTICK=`
                                     }
                                  }
 
+\`                          { pushState(CHAR_STRING); return token(OPEN_CHAR_QUOTE); }
 \"                          { pushState(STRING); return token(OPEN_QUOTE); }
 <STRING> \n                 { popState(); yypushback(1); return valueToken(DANGLING_NEWLINE); }
 <STRING> \"                 { popState(); return token(CLOSING_QUOTE); }
+<CHAR_STRING> \`                 { popState(); return token(CLOSING_CHAR_QUOTE); }
 <STRING> {ESCAPE_SEQUENCE}  { return valueToken(ESCAPE_SEQUENCE); }
+<CHAR_STRING> {ESCAPE_SEQUENCE}  { return valueToken(ESCAPE_SEQUENCE); }
 
 <STRING, RAW_STRING> {REGULAR_STRING_PART}         { return valueToken(REGULAR_STRING_PART); }
+<CHAR_STRING> {REGULAR_SIMPLE_CHAR_STRING_PART}         { return valueToken(REGULAR_STRING_PART); }
 <STRING, RAW_STRING> {SHORT_TEMPLATE_ENTRY}        {
                                                         pushState(SHORT_TEMPLATE_ENTRY);
                                                         yypushback(yylength() - 1);

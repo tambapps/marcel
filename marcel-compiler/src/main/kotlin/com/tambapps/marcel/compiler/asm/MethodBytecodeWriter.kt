@@ -142,6 +142,10 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
     mv.visitLdcInsn(string)
   }
 
+  fun pushConstant(char: Char) {
+    mv.visitLdcInsn(char)
+  }
+
   fun incrLocalVariable(variable: LocalVariable, amount: Int) {
     mv.visitIincInsn(variable.index, amount)
   }
@@ -315,6 +319,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
             JavaType.long -> invokeMethod(Class.forName(JavaType.Long.className).getMethod("valueOf", Long::class.java))
             JavaType.float -> invokeMethod(Class.forName(JavaType.Float.className).getMethod("valueOf", Float::class.java))
             JavaType.double -> invokeMethod(Class.forName(JavaType.Double.className).getMethod("valueOf", Double::class.java))
+            JavaType.char -> invokeMethod(Class.forName(JavaType.Character.className).getMethod("valueOf", JavaType.char.realClazz))
             else -> throw SemanticException("Doesn't handle conversion from $actualType to $expectedType")
           }
         }
