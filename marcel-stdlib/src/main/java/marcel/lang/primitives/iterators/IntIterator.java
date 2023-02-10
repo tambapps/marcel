@@ -14,6 +14,8 @@
 	* limitations under the License.
 	*/
 package marcel.lang.primitives.iterators;
+import marcel.lang.primitives.collections.IntCollection;
+
 import java.util.Iterator;
 import java.util.PrimitiveIterator;
 import java.util.function.Consumer;
@@ -52,5 +54,21 @@ public interface IntIterator extends Iterator<Integer>, PrimitiveIterator.OfInt 
 		int j = max;
 		while(j-- != 0 && hasNext()) array[offset++] = nextInt();
 		return max - j - 1;
+	}
+
+	default int skip(final int n) {
+		if (n < 0) throw new IllegalArgumentException("Argument must be nonnegative: " + n);
+		int i = n;
+		while(i-- != 0 && hasNext()) nextInt();
+		return n - i - 1;
+	}
+
+	default long unwrap(final IntCollection c) {
+		long n = 0;
+		while(hasNext()) {
+			c.add(nextInt());
+			n++;
+		}
+		return n;
 	}
 }

@@ -28,6 +28,14 @@ import java.util.function.IntConsumer;
 	*/
 public interface IntSpliterator extends Spliterator.OfInt {
 
+	static final int BASE_SPLITERATOR_CHARACTERISTICS = Spliterator.NONNULL;
+	// Default characteristics for various Collection implementations
+	public static final int COLLECTION_SPLITERATOR_CHARACTERISTICS = BASE_SPLITERATOR_CHARACTERISTICS | Spliterator.SIZED;
+	public static final int LIST_SPLITERATOR_CHARACTERISTICS = COLLECTION_SPLITERATOR_CHARACTERISTICS | Spliterator.ORDERED | Spliterator.SUBSIZED;
+	public static final int SET_SPLITERATOR_CHARACTERISTICS = COLLECTION_SPLITERATOR_CHARACTERISTICS | Spliterator.DISTINCT;
+	static final int SORTED_CHARACTERISTICS = Spliterator.ORDERED | Spliterator.SORTED;
+	public static final int SORTED_SET_SPLITERATOR_CHARACTERISTICS = SET_SPLITERATOR_CHARACTERISTICS | SORTED_CHARACTERISTICS;
+
 	/** Skips the given number of elements.
 	 *
 	 * <p>The effect of this call is exactly the same as that of calling {@link #tryAdvance} for

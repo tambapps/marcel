@@ -1,12 +1,12 @@
 package marcel.lang;
 
-import it.unimi.dsi.fastutil.ints.AbstractIntIterator;
-import it.unimi.dsi.fastutil.ints.IntIterator;
-import it.unimi.dsi.fastutil.ints.IntIterators;
-import it.unimi.dsi.fastutil.ints.IntList;
-import it.unimi.dsi.fastutil.ints.IntLists;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import marcel.lang.primitives.collections.lists.IntList;
+import marcel.lang.primitives.collections.lists.IntLists;
+import marcel.lang.primitives.iterators.AbstractIntIterator;
+import marcel.lang.primitives.iterators.IntIterator;
+import marcel.lang.primitives.iterators.IntIterators;
 
 import java.util.NoSuchElementException;
 

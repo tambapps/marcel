@@ -86,7 +86,7 @@ public abstract class AbstractIntCollection extends AbstractCollection<Integer> 
 	 * @apiNote This method exists to make final what should have been final in the interface.
 	 */
 	@Override
-	public final void forEach(final IntConsumer action) {
+	public void forEach(final IntConsumer action) {
 	 IntCollection.super.forEach(action);
 	}
 	/** {@inheritDoc}
@@ -94,7 +94,7 @@ public abstract class AbstractIntCollection extends AbstractCollection<Integer> 
 	 * @apiNote This method exists to make final what should have been final in the interface.
 	 */
 	@Override
-	public final boolean removeIf(final IntPredicate filter) {
+	public boolean removeIf(final IntPredicate filter) {
 	 return IntCollection.super.removeIf(filter);
 	}
 	@Override

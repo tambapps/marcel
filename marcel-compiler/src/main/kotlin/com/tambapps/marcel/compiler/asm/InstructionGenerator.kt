@@ -25,7 +25,7 @@ import com.tambapps.marcel.parser.scope.Variable
 import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
-import it.unimi.dsi.fastutil.ints.IntIterator
+import marcel.lang.primitives.iterators.IntIterator
 import marcel.lang.IntRanges
 import marcel.lang.methods.MarcelTruth
 import marcel.lang.runtime.BytecodeHelper

@@ -23,6 +23,7 @@ import marcel.lang.primitives.spliterators.IntSpliterator;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 import java.util.Spliterator;
 
 /** A type-specific {@link List}; provides some additional methods that use polymorphism to avoid (un)boxing.
@@ -341,7 +342,7 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	@Deprecated
 	@Override
 	default void sort(final java.util.Comparator<? super Integer> comparator) {
-	 sort(asIntComparator(comparator));
+	 throw new UnsupportedOperationException("Not Implemented");
 	}
 	/** Sort a list using a type-specific comparator.
 	 *
@@ -355,16 +356,20 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	 *
 	 * @since 8.3.0
 	 */
-	void sort(final IntComparator comparator);
+	void sort();
+	void sortReverse();
 
-	static IntComparator asIntComparator(final Comparator<? super Integer> c) {
-		if (c == null || c instanceof IntComparator) return (IntComparator) c;
-		return new IntComparator() {
-			@Override
-			public int compare(int x, int y) { return c.compare(Integer.valueOf(x), Integer.valueOf(y)); }
-			@SuppressWarnings("deprecation")
-			@Override
-			public int compare(Integer x, Integer y) { return c.compare(x, y); }
-		};
+	/** Shuffles the specified list using the specified pseudorandom number generator.
+	 *
+	 * @param random a pseudorandom number generator.
+	 */
+	default void shuffle(final Random random) {
+		for(int i = size(); i-- != 0;) {
+			final int p = random.nextInt(i + 1);
+			final int t = getInt(i);
+			set(i, getInt(p));
+			set(p, t);
+		}
 	}
+
 }

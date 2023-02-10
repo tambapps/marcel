@@ -1,12 +1,11 @@
 package marcel.lang.primitives.collections.lists;
 
-import it.unimi.dsi.fastutil.Arrays;
-import it.unimi.dsi.fastutil.ints.IntComparator;
 import marcel.lang.primitives.collections.AbstractIntCollection;
 import marcel.lang.primitives.collections.IntCollection;
 import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.iterators.list.IntListIterator;
 import marcel.lang.primitives.spliterators.IntSpliterator;
+import marcel.lang.util.Arrays;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -114,11 +113,6 @@ public abstract class AbstractIntList extends AbstractIntCollection implements I
 	@Override
 	public int removeAt(int index) {
 		return remove(index);
-	}
-
-	@Override public void sort(IntComparator comparator) {
-		// TODO
-		throw new UnsupportedOperationException("Will be implemented later");
 	}
 
 	
@@ -473,17 +467,11 @@ public abstract class AbstractIntList extends AbstractIntCollection implements I
 	  this.from = from;
 	  this.to = to;
 	 }
-	 private boolean assertRange() {
-	  assert from <= l.size();
-	  assert to <= l.size();
-	  assert to >= from;
-	  return true;
-	 }
+
 	 @Override
 	 public boolean add(final int k) {
 	  l.add(to, k);
 	  to++;
-	  assert assertRange();
 	  return true;
 	 }
 	 @Override
@@ -491,7 +479,6 @@ public abstract class AbstractIntList extends AbstractIntCollection implements I
 	  ensureIndex(index);
 	  l.add(from + index, k);
 	  to++;
-	  assert assertRange();
 	 }
 	 @Override
 	 public boolean addAll(final int index, final Collection<? extends Integer> c) {
@@ -534,32 +521,27 @@ public abstract class AbstractIntList extends AbstractIntCollection implements I
 	  ensureIndex(to);
 	  l.removeElements(this.from + from, this.from + to);
 	  this.to -= (to - from);
-	  assert assertRange();
 	 }
 	 @Override
 	 public void addElements(int index, final int a[], int offset, int length) {
 	  ensureIndex(index);
 	  l.addElements(this.from + index, a, offset, length);
 	  this.to += length;
-	  assert assertRange();
 	 }
 	 @Override
 	 public void setElements(int index, final int a[], int offset, int length) {
 	  ensureIndex(index);
 	  l.setElements(this.from + index, a, offset, length);
-	  assert assertRange();
 	 }
 
 
 	 @Override
 	 public IntListIterator listIterator(final int index) {
 	  ensureIndex(index);
-		// TODO
 		throw new UnsupportedOperationException("Not implemented yet");
 	 }
 	 @Override
 	 public IntSpliterator spliterator() {
-		 // TODO
 		 throw new UnsupportedOperationException("Not implemented yet");
 	 }
 	 @Override
@@ -585,6 +567,16 @@ public abstract class AbstractIntList extends AbstractIntCollection implements I
 	  ensureIndex(index);
 	  return super.addAll(index, l);
 	 }
+
+		@Override
+		public void sort() {
+			throw new UnsupportedOperationException("Not implemented yet");
+		}
+
+		@Override
+		public void sortReverse() {
+			throw new UnsupportedOperationException("Not implemented yet");
+		}
 	}
 	public static class IntRandomAccessSubList extends IntSubList implements java.util.RandomAccess {
 	 private static final long serialVersionUID = -107070782945191929L;

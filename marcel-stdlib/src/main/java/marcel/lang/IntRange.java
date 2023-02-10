@@ -1,9 +1,9 @@
 package marcel.lang;
 
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntIterator;
-import it.unimi.dsi.fastutil.ints.IntList;
+import marcel.lang.primitives.collections.lists.IntArrayList;
+import marcel.lang.primitives.collections.lists.IntList;
+import marcel.lang.primitives.iterators.IntIterator;
 
 public interface IntRange extends Iterable<Integer> {
 

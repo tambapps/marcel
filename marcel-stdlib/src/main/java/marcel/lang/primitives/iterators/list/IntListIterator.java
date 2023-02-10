@@ -5,6 +5,11 @@ import marcel.lang.primitives.iterators.IntIterator;
 import java.util.ListIterator;
 
 public interface IntListIterator extends IntIterator, ListIterator<Integer> {
+
+	default Integer next() {
+		return nextInt();
+	}
+
 	/**
 	 * Replaces the last element returned by {@link #next} or
 	 * {@link #previous} with the specified element (optional operation).
