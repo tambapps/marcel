@@ -14,7 +14,6 @@ import it.unimi.dsi.fastutil.doubles.DoubleSet
 import it.unimi.dsi.fastutil.floats.Float2ObjectMap
 import it.unimi.dsi.fastutil.floats.FloatSet
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
-import it.unimi.dsi.fastutil.ints.IntSet
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap
 import it.unimi.dsi.fastutil.longs.LongSet
 import marcel.lang.lambda.Lambda
@@ -26,6 +25,7 @@ import marcel.lang.primitives.collections.lists.IntArrayList
 import marcel.lang.primitives.collections.lists.IntList
 import marcel.lang.primitives.collections.lists.LongArrayList
 import marcel.lang.primitives.collections.lists.LongList
+import marcel.lang.primitives.collections.sets.IntSet
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.ParameterizedType
 import kotlin.reflect.KClass

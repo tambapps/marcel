@@ -1,6 +1,6 @@
 import static org.junit.jupiter.api.Assertions.assertEquals
 
-
+// lists
 list<int> ints = [1, 2, 3]
 assertEquals(3, ints.size())
 
@@ -16,6 +16,20 @@ list<double> doubles = [1d, 2d, 3]
 assertEquals(3, doubles.size())
 assertEquals(3d, doubles.get(2))
 
+// sets
+set<int> intSet = [1, 2, 3, 3]
+assertEquals(3, intSet.size())
+
+set<long> longSet = [1l, 2l, 3l, 3]
+assertEquals(3, longSet.size())
+
+set<float> floatSet = [1f, 2f, 3f, 3f]
+assertEquals(3, floatSet.size())
+
+set<double> doubleSet = [1d, 2d, 3d, 3]
+assertEquals(3, doubleSet.size())
+
+// maps
 map<double, Object> map = [1d: 2, 3: 4]
 assertEquals(2, map.get(1d))
 assertEquals(4, map.get(3d))
