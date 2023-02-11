@@ -268,6 +268,7 @@ LONELY_BACKTICK=`
 "float"          { return valueToken(TYPE_FLOAT); }
 "double"          { return valueToken(TYPE_DOUBLE); }
 "bool"          { return valueToken(TYPE_BOOL); }
+"char"          { return valueToken(TYPE_CHAR); }
 "public"          { return token(VISIBILITY_PUBLIC); }
 "protected"          { return token(VISIBILITY_PROTECTED); }
 "internal"          { return token(VISIBILITY_INTERNAL); }

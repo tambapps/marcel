@@ -712,7 +712,7 @@ public class DoubleArrayList extends AbstractDoubleList implements RandomAccess,
        if (last == -1) {
          throw new IllegalStateException();
        }
-	    DoubleArrayList.this.removeDouble(last);
+	    DoubleArrayList.this.removeAt(last);
 	    /* If the last operation was a next(), we are removing an element *before* us, and we must decrease pos correspondingly. */
        if (last < pos) {
          pos--;

@@ -11,6 +11,8 @@ import it.unimi.dsi.fastutil.booleans.BooleanList
 import it.unimi.dsi.fastutil.doubles.Double2ObjectMap
 import it.unimi.dsi.fastutil.floats.Float2ObjectMap
 import marcel.lang.lambda.Lambda
+import marcel.lang.primitives.collections.lists.CharacterArrayList
+import marcel.lang.primitives.collections.lists.CharacterList
 import marcel.lang.primitives.collections.lists.DoubleArrayList
 import marcel.lang.primitives.collections.lists.DoubleList
 import marcel.lang.primitives.collections.lists.FloatArrayList
@@ -171,6 +173,7 @@ interface JavaType: AstTypedObject {
         float -> floatArray
         double -> doubleArray
         boolean -> booleanArray
+        char -> charArray
         else -> throw MarcelParsingException("Doesn't handle primitive $elementsType arrays")
       }
     }
@@ -224,6 +227,7 @@ interface JavaType: AstTypedObject {
     val floatArray = JavaArrayType(FloatArray::class.java, float, Opcodes.FASTORE, Opcodes.FALOAD, Opcodes.T_FLOAT)
     val doubleArray = JavaArrayType(DoubleArray::class.java, double, Opcodes.DASTORE, Opcodes.DALOAD, Opcodes.T_DOUBLE)
     val booleanArray = JavaArrayType(BooleanArray::class.java, boolean, Opcodes.BASTORE, Opcodes.BALOAD, Opcodes.T_BOOLEAN)
+    val charArray = JavaArrayType(CharArray::class.java, char, Opcodes.SASTORE, Opcodes.SALOAD, Opcodes.T_CHAR)
     val objectArray = JavaArrayType(Array<Any>::class.java, Object, Opcodes.AASTORE, Opcodes.AALOAD, 0)
     val ARRAYS = listOf(intArray, longArray, floatArray, doubleArray, booleanArray, objectArray)
 
@@ -252,6 +256,7 @@ interface JavaType: AstTypedObject {
       Pair(TokenType.TYPE_FLOAT, float),
       Pair(TokenType.TYPE_DOUBLE, double),
       Pair(TokenType.TYPE_BOOL, boolean),
+      Pair(TokenType.TYPE_CHAR, char),
     )
 
     // lists
@@ -265,6 +270,8 @@ interface JavaType: AstTypedObject {
     val doubleListImpl = of(DoubleArrayList::class.java)
     val booleanList = of(BooleanList::class.java)
     val booleanListImpl = of(BooleanArrayList::class.java)
+    val charList = of(CharacterList::class.java)
+    val charListImpl = of(CharacterArrayList::class.java)
 
     // lists
     val intSet = of(IntSet::class.java)
@@ -283,6 +290,7 @@ interface JavaType: AstTypedObject {
         Pair(float, floatList),
         Pair(double, doubleList),
         Pair(boolean, booleanList),
+        Pair(char, charList),
       )),
       Pair("set", mapOf(
         Pair(int, intSet),

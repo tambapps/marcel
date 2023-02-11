@@ -159,8 +159,8 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
 
   CharacterSpliterator spliterator();
 
-  default java.util.stream.DoubleStream doubleStream() {
-    return stream().mapToDouble(Character::charValue);
+  default java.util.stream.IntStream charStream() {
+    return stream().mapToInt(Character::charValue);
   }
 
 }

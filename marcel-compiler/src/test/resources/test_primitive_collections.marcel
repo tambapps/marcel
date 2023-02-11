@@ -17,6 +17,10 @@ list<double> doubles = [1d, 2d, 3]
 assertEquals(3, doubles.size())
 assertEquals(3d, doubles.get(2))
 
+list<char> chars = [`a`, `b`, `c`]
+assertEquals(3, chars.size())
+assertEquals(`c`, doubles.get(2))
+
 // sets
 set<int> intSet = [1, 2, 3, 3]
 assertEquals(3, intSet.size())

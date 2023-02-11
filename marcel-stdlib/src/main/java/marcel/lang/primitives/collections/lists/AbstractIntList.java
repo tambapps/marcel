@@ -172,7 +172,7 @@ public abstract class AbstractIntList extends AbstractIntCollection implements I
       }
     } else {
       while (i-- != size) {
-        removeInt(i);
+        removeAt(i);
       }
     }
 	}

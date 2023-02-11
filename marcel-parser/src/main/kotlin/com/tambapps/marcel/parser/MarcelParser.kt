@@ -241,7 +241,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
   private fun parseType(scope: Scope): JavaType {
     val token = next()
     return when (token.type) {
-      TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_VOID,
+      TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_VOID, TokenType.TYPE_CHAR,
       TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL -> {
         val type = JavaType.TOKEN_TYPE_MAP.getValue(token.type)
         if (acceptOptional(TokenType.SQUARE_BRACKETS_OPEN) != null) {

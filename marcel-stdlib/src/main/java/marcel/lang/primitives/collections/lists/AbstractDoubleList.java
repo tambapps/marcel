@@ -171,7 +171,7 @@ public abstract class AbstractDoubleList extends AbstractDoubleCollection implem
       }
     } else {
       while (i-- != size) {
-        removeDouble(i);
+        removeAt(i);
       }
     }
 	}

@@ -88,7 +88,7 @@ public abstract class AbstractLongList extends AbstractLongCollection implements
 	 final Iterator<? extends Long> i = c.iterator();
 	 final boolean retVal = i.hasNext();
     while (i.hasNext()) {
-      add(index++, (i.next()).intValue());
+      add(index++, (i.next()).longValue());
     }
 	 return retVal;
 	}
@@ -171,7 +171,7 @@ public abstract class AbstractLongList extends AbstractLongCollection implements
       }
     } else {
       while (i-- != size) {
-        removeLong(i);
+        removeAt(i);
       }
     }
 	}

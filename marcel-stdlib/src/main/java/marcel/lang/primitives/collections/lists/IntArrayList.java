@@ -711,7 +711,7 @@ public class IntArrayList extends AbstractIntList implements RandomAccess, Clone
        if (last == -1) {
          throw new IllegalStateException();
        }
-	    IntArrayList.this.removeInt(last);
+	    IntArrayList.this.removeAt(last);
 	    /* If the last operation was a next(), we are removing an element *before* us, and we must decrease pos correspondingly. */
        if (last < pos) {
          pos--;

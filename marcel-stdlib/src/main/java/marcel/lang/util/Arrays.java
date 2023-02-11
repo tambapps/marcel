@@ -68,6 +68,12 @@ public class Arrays {
     return t;
   }
 
+  public static char[] forceCapacity(final char[] array, final int length, final int preserve) {
+    final char t[] = new char[length];
+    System.arraycopy(array, 0, t, 0, preserve);
+    return t;
+  }
+
   public static void ensureOffsetLength(int arrayLength, int offset, int length) {
     if (offset < 0) {
       throw new ArrayIndexOutOfBoundsException("Offset (" + offset + ") is negative");
