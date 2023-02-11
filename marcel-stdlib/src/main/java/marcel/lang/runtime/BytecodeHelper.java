@@ -14,10 +14,10 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
 import marcel.lang.primitives.collections.sets.IntOpenHashSet;
 import marcel.lang.primitives.collections.sets.IntSet;
+import marcel.lang.primitives.collections.sets.LongOpenHashSet;
+import marcel.lang.primitives.collections.sets.LongSet;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
