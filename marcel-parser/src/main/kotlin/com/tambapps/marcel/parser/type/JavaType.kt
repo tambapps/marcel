@@ -272,7 +272,6 @@ interface JavaType: AstTypedObject {
     val longSet = of(LongSet::class.java)
     val floatSet = of(FloatSet::class.java)
     val doubleSet = of(DoubleSet::class.java)
-    val booleanSet = of(BooleanSet::class.java)
 
     // maps with primitive key
     val int2ObjectMap = of(Int2ObjectMap::class.java)
@@ -293,7 +292,6 @@ interface JavaType: AstTypedObject {
         Pair(long, longSet),
         Pair(float, floatSet),
         Pair(double, doubleSet),
-        Pair(boolean, booleanSet),
       )),
       Pair("map", mapOf(
         Pair(int, int2ObjectMap),
