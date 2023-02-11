@@ -103,14 +103,6 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
       null
     }
   }
-
-  fun tempVariable(type: JavaType, function: (LocalVariable) -> Unit) {
-    val variable = LocalVariable(type, "__temp")
-    localVariables.add(variable)
-    function.invoke(variable)
-    localVariables.remove(variable)
-  }
-
 }
 
 open class MethodScope constructor(typeResolver: AstNodeTypeResolver, imports: MutableList<ImportNode>, classType: JavaType, superClass: JavaType, val methodName: String,

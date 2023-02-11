@@ -58,6 +58,7 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.ForInStatement
 import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
+import com.tambapps.marcel.parser.ast.statement.MultiVariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
@@ -225,6 +226,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
   override fun visit(variableDeclarationNode: VariableDeclarationNode) = variableDeclarationNode.type
 
   override fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode) = JavaType.boolean
+  override fun visit(multiVariableDeclarationNode: MultiVariableDeclarationNode) = JavaType.void
 
   override fun visit(returnNode: ReturnNode) = returnNode.expression.accept(this)
 

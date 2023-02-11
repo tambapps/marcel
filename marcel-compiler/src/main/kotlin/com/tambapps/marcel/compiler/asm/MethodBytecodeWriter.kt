@@ -381,21 +381,23 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
 
   fun pushVariableGetAt(scope: Scope, variable: Variable, indexArguments: List<ExpressionNode>) {
     val variableType = variable.type
-    if (variableType is JavaArrayType) {
+    // push array
+    pushVariable(scope, variable)
+    getAt(variableType, indexArguments)
+  }
+  fun getAt(type: JavaType, indexArguments: List<ExpressionNode>) {
+    if (type.isArray) {
       if (indexArguments.size != 1) throw SemanticException("Need only one int argument to get an array")
       val arg = indexArguments.first()
-      // push array
-      pushVariable(scope, variable)
       // push index
       argumentPusher.pushArgument(arg)
       // cast if necessary (e.g. Integer to int)
       castIfNecessaryOrThrow(JavaType.int, arg.getType(typeResolver))
       // load value in pushed array int pushed index
-      mv.visitInsn(variableType.arrayLoadCode)
+      mv.visitInsn(type.asArrayType.arrayLoadCode)
     } else {
       // must call getAt
-      pushVariable(scope, variable)
-      invokeMethodWithArguments(typeResolver.findMethodOrThrow(variableType, "getAt", indexArguments.map { it.getType(typeResolver) }), indexArguments)
+      invokeMethodWithArguments(typeResolver.findMethodOrThrow(type, "getAt", indexArguments.map { it.getType(typeResolver) }), indexArguments)
     }
   }
 

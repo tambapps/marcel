@@ -11,6 +11,7 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.ForInStatement
 import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
+import com.tambapps.marcel.parser.ast.statement.MultiVariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
@@ -283,6 +284,19 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         accept(TokenType.ASSIGNMENT)
         acceptOptional(TokenType.SEMI_COLON)
         VariableDeclarationNode(scope, type, identifier.value, expression(scope))
+      }
+      TokenType.DEF -> {
+        accept(TokenType.LPAR)
+        val declarations = mutableListOf<Pair<JavaType, String>>()
+        while (current.type != TokenType.RPAR) {
+          val varType = parseType(scope)
+          val varName = accept(TokenType.IDENTIFIER).value
+          declarations.add(Pair(varType, varName))
+          if (current.type == TokenType.COMMA) skip()
+        }
+        skip() // skip RPAR
+        accept(TokenType.ASSIGNMENT)
+        MultiVariableDeclarationNode(scope, declarations, expression(scope))
       }
       TokenType.RETURN -> {
         val expression = if (current.type == TokenType.SEMI_COLON) VoidExpression() else expression(scope)

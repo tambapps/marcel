@@ -153,6 +153,9 @@ interface JavaType: AstTypedObject {
     }
     fun of(clazz: Class<*>, genericTypes: List<JavaType>): JavaType {
       return if (clazz.isPrimitive) PRIMITIVES.find { it.className == clazz.name } ?: throw RuntimeException("Primitive type $clazz is not being handled")
+      else if (clazz.isArray)
+        // supposing if the array class wasn't found in array, it must be an object array
+        ARRAYS.find { it.realClazz == clazz } ?: JavaArrayType(clazz, Object, Opcodes.AASTORE, Opcodes.AALOAD, 0)
       else LoadedObjectType(clazz, genericTypes)
     }
 
@@ -225,9 +228,11 @@ interface JavaType: AstTypedObject {
     val floatArray = JavaArrayType(FloatArray::class.java, float, Opcodes.FASTORE, Opcodes.FALOAD, Opcodes.T_FLOAT)
     val doubleArray = JavaArrayType(DoubleArray::class.java, double, Opcodes.DASTORE, Opcodes.DALOAD, Opcodes.T_DOUBLE)
     val booleanArray = JavaArrayType(BooleanArray::class.java, boolean, Opcodes.BASTORE, Opcodes.BALOAD, Opcodes.T_BOOLEAN)
+    val shortArray = JavaArrayType(ShortArray::class.java, short, Opcodes.SASTORE, Opcodes.SALOAD, Opcodes.T_SHORT)
+    val byteArray = JavaArrayType(ByteArray::class.java, byte, Opcodes.BASTORE, Opcodes.BALOAD, Opcodes.T_BYTE)
     val charArray = JavaArrayType(CharArray::class.java, char, Opcodes.CASTORE, Opcodes.CALOAD, Opcodes.T_CHAR)
     val objectArray = JavaArrayType(Array<Any>::class.java, Object, Opcodes.AASTORE, Opcodes.AALOAD, 0)
-    val ARRAYS = listOf(intArray, longArray, floatArray, doubleArray, booleanArray, objectArray)
+    val ARRAYS = listOf(intArray, longArray, floatArray, doubleArray, booleanArray, shortArray, byteArray, objectArray)
 
     val lambda = of(Lambda::class.java)
 

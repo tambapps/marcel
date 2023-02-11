@@ -7,6 +7,7 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.ForInStatement
 import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
+import com.tambapps.marcel.parser.ast.statement.MultiVariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 
@@ -48,6 +49,8 @@ interface AstNodeVisitor<T> {
   fun visit(expressionStatementNode: ExpressionStatementNode): T
   fun visit(variableDeclarationNode: VariableDeclarationNode): T
   fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode): T
+  fun visit(multiVariableDeclarationNode: MultiVariableDeclarationNode): T
+
   fun visit(returnNode: ReturnNode): T
   fun visit(voidExpression: VoidExpression): T
   fun visit(stringNode: StringNode): T

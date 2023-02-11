@@ -269,6 +269,7 @@ LONELY_BACKTICK=`
 "double"          { return valueToken(TYPE_DOUBLE); }
 "bool"          { return valueToken(TYPE_BOOL); }
 "char"          { return valueToken(TYPE_CHAR); }
+"def"          { return valueToken(DEF); }
 "public"          { return token(VISIBILITY_PUBLIC); }
 "protected"          { return token(VISIBILITY_PROTECTED); }
 "internal"          { return token(VISIBILITY_INTERNAL); }

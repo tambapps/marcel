@@ -13,6 +13,7 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.ForInStatement
 import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
+import com.tambapps.marcel.parser.ast.statement.MultiVariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.SemanticException
@@ -33,6 +34,7 @@ import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import java.util.*
+import java.util.concurrent.ThreadLocalRandom
 
 // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.if_icmp_cond
 // https://asm.ow2.io/asm4-guide.pdf
@@ -673,6 +675,25 @@ class InstructionGenerator(
     visit(variableDeclarationNode as VariableAssignmentNode)
   }
 
+  override fun visit(multiVariableDeclarationNode: MultiVariableDeclarationNode) {
+    val scope = multiVariableDeclarationNode.scope
+    val expressionType = multiVariableDeclarationNode.expression.getType(typeResolver)
+    if (!JavaType.of(List::class.java).isAssignableFrom(expressionType) && !expressionType.isArray) {
+      throw SemanticException("Multi variable declarations must use an array or a list as the expression")
+    }
+    // TODO this localVariable is just used for these variable declarations and then becomes useless
+    //  might be better to implement a local variable pool (being able to reuse variables marked as unused)
+    val tempVar = scope.addLocalVariable(expressionType, "__tempMultiVarDecl_" + ThreadLocalRandom.current().nextInt())
+    // assign expression to variable
+    visit(VariableAssignmentNode(scope, tempVar.name, multiVariableDeclarationNode.expression))
+    // then process each variable declarations
+    for (i in multiVariableDeclarationNode.declarations.indices) {
+      val declaration = multiVariableDeclarationNode.declarations[i]
+      visit(VariableDeclarationNode(scope, declaration.first, declaration.second,
+        IndexedReferenceExpression(scope, tempVar.name, listOf(IntConstantNode(i)), false)))
+    }
+  }
+
   override fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode) {
     visit(
       VariableDeclarationNode(truthyVariableDeclarationNode.scope, truthyVariableDeclarationNode.variableType,
@@ -958,6 +979,9 @@ private class PushingInstructionGenerator(
     instructionGenerator.visit(variableDeclarationNode)
   }
 
+  override fun visit(multiVariableDeclarationNode: MultiVariableDeclarationNode) {
+    instructionGenerator.visit(multiVariableDeclarationNode)
+  }
   override fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode) {
     var actualTruthyVariableDeclarationNode = truthyVariableDeclarationNode
     val variableType = actualTruthyVariableDeclarationNode.variableType
