@@ -803,7 +803,8 @@ private class PushingInstructionGenerator(
       booleanExpression.innerExpression.accept(instructionGenerator)
       visit(BooleanConstantNode(true))
     } else {
-      mv.invokeMethodWithArguments(MarcelTruth::class.java.getDeclaredMethod("truthy", Object::class.java), booleanExpression.innerExpression)
+      val truthyMethod = typeResolver.findMethodOrThrow(JavaType.of(MarcelTruth::class.java), "truthy", listOf(booleanExpression.innerExpression.getType(typeResolver)))
+      mv.invokeMethodWithArguments(truthyMethod, booleanExpression.innerExpression)
     }
   }
 
@@ -978,7 +979,8 @@ private class PushingInstructionGenerator(
       visit(BooleanConstantNode(true))
     } else {
       pushArgument(ReferenceExpression(actualTruthyVariableDeclarationNode.scope, actualTruthyVariableDeclarationNode.name))
-      mv.invokeMethod(MarcelTruth::class.java.getDeclaredMethod("truthy", Object::class.java))
+      val truthyMethod = typeResolver.findMethodOrThrow(JavaType.of(MarcelTruth::class.java), "truthy", listOf(actualTruthyVariableDeclarationNode.expression.getType(typeResolver)))
+      mv.invokeMethod(truthyMethod)
     }
   }
   override fun visit(blockNode: BlockNode) {
