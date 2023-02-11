@@ -234,8 +234,6 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
           invokeMethod(typeResolver.findMethodOrThrow(JavaType.floatListImpl, "wrap", listOf(JavaType.floatArray)))
         } else if (JavaType.doubleList.isAssignableFrom(expectedType) && actualType == JavaType.doubleArray) {
           invokeMethod(typeResolver.findMethodOrThrow(JavaType.doubleListImpl, "wrap", listOf(JavaType.doubleArray)))
-        } else if (JavaType.booleanList.isAssignableFrom(expectedType) && actualType == JavaType.booleanArray) {
-          invokeMethod(typeResolver.findMethodOrThrow(JavaType.booleanListImpl, "wrap", listOf(JavaType.booleanArray)))
         } else if (JavaType.charList.isAssignableFrom(expectedType) && actualType == JavaType.charArray) {
           invokeMethod(typeResolver.findMethodOrThrow(JavaType.charListImpl, "wrap", listOf(JavaType.charArray)))
         } else if (JavaType.of(List::class.java).isAssignableFrom(expectedType) && actualType.isArray) {

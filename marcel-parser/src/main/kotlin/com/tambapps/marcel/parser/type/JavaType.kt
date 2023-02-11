@@ -6,10 +6,6 @@ import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.Scope
-import it.unimi.dsi.fastutil.booleans.BooleanArrayList
-import it.unimi.dsi.fastutil.booleans.BooleanList
-import it.unimi.dsi.fastutil.doubles.Double2ObjectMap
-import it.unimi.dsi.fastutil.floats.Float2ObjectMap
 import marcel.lang.lambda.Lambda
 import marcel.lang.primitives.collections.lists.CharacterArrayList
 import marcel.lang.primitives.collections.lists.CharacterList
@@ -270,8 +266,6 @@ interface JavaType: AstTypedObject {
     val floatListImpl = of(FloatArrayList::class.java)
     val doubleList = of(DoubleList::class.java)
     val doubleListImpl = of(DoubleArrayList::class.java)
-    val booleanList = of(BooleanList::class.java)
-    val booleanListImpl = of(BooleanArrayList::class.java)
     val charList = of(CharacterList::class.java)
     val charListImpl = of(CharacterArrayList::class.java)
 
@@ -293,7 +287,6 @@ interface JavaType: AstTypedObject {
         Pair(long, longList),
         Pair(float, floatList),
         Pair(double, doubleList),
-        Pair(boolean, booleanList),
         Pair(char, charList),
       )),
       Pair("set", mapOf(
