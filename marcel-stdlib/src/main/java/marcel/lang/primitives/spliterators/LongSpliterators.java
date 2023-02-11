@@ -58,16 +58,16 @@ public final class LongSpliterators {
 	public static final EmptySpliterator EMPTY_SPLITERATOR = new EmptySpliterator();
 	/** a spliterator returning a single element. */
 	private static class SingletonSpliterator implements LongSpliterator {
-	 private final int element;
+	 private final long element;
 	 private final LongComparator comparator;
 	 private boolean consumed = false;
 	 private static final int CHARACTERISTICS = BASE_SPLITERATOR_CHARACTERISTICS
 	  | Spliterator.SIZED | Spliterator.SUBSIZED | Spliterator.ORDERED
 	  | Spliterator.DISTINCT | Spliterator.SORTED | Spliterator.IMMUTABLE;
-	 public SingletonSpliterator(final int element) {
+	 public SingletonSpliterator(final long element) {
 	  this(element, null);
 	 }
-	 public SingletonSpliterator(final int element, final LongComparator comparator) {
+	 public SingletonSpliterator(final long element, final LongComparator comparator) {
 	  this.element = element;
 	  this.comparator = comparator;
 	 }
@@ -113,7 +113,7 @@ public final class LongSpliterators {
 	 * @param element the only element to be returned by a type-specific spliterator.
 	 * @return a spliterator that iterates just over {@code element}.
 	 */
-	public static LongSpliterator singleton(final int element) {
+	public static LongSpliterator singleton(final long element) {
 	 return new SingletonSpliterator (element);
 	}
 	/** Returns a spliterator that iterates just over the given element.
@@ -126,7 +126,7 @@ public final class LongSpliterators {
 	 * @param comparator the comparator to return when {@link Spliterator#getComparator()} is called.
 	 * @return a spliterator that iterates just over {@code element}.
 	 */
-	public static LongSpliterator singleton(final int element, final LongComparator comparator) {
+	public static LongSpliterator singleton(final long element, final LongComparator comparator) {
 	 return new SingletonSpliterator (element, comparator);
 	}
 	/** A class to wrap arrays in spiterators. */
@@ -741,8 +741,8 @@ public final class LongSpliterators {
 	 private static final int CHARACTERISTICS = BASE_SPLITERATOR_CHARACTERISTICS
 	  | Spliterator.SIZED | Spliterator.SUBSIZED | Spliterator.ORDERED
 	  | Spliterator.DISTINCT | Spliterator.SORTED | Spliterator.IMMUTABLE;
-	 private int curr, to;
-	 public IntervalSpliterator(final int from, final int to) {
+	 private long curr, to;
+	 public IntervalSpliterator(final long from, final long to) {
 	  this.curr = from;
 	  this.to = to;
 	 }
@@ -761,7 +761,7 @@ public final class LongSpliterators {
 	 }
 	 @Override
 	 public long estimateSize() {
-	  return (long)to - curr;
+	  return to - curr;
 	 }
 	 @Override
 	 public int characteristics() {
@@ -777,7 +777,7 @@ public final class LongSpliterators {
 	  long remaining = to - curr;
 	  int mid = (int)(curr + (remaining >> 1));
 	  if (remaining >= 0 && remaining <= DONT_SPLIT_THRESHOLD) return null;
-	  int old_curr = curr;
+	  long old_curr = curr;
 	  curr = mid;
 	  return new IntervalSpliterator(old_curr, mid);
 	 }

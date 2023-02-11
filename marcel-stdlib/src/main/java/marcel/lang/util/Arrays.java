@@ -11,6 +11,12 @@ public class Arrays {
   public static final long[] EMPTY_LONG_ARRAY = new long[0];
   public static final float[] EMPTY_FLOAT_ARRAY = new float[0];
   public static final double[] EMPTY_DOUBLE_ARRAY = new double[0];
+    public static final char[] EMPTY_CHARACTER_ARRAY = new char[0];
+
+  public static void ensureOffsetLength(char[] a, int offset, int length) {
+    Arrays.ensureOffsetLength(a.length, offset, length);
+  }
+
   public static void ensureOffsetLength(int[] a, int offset, int length) {
     Arrays.ensureOffsetLength(a.length, offset, length);
   }

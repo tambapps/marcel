@@ -1,19 +1,19 @@
 package marcel.lang.primitives.spliterators;
 
-import marcel.lang.primitives.iterators.FloatIterator;
+import marcel.lang.primitives.iterators.CharacterIterator;
 import marcel.lang.util.Arrays;
 import marcel.lang.util.Comparators;
 import marcel.lang.util.SafeMath;
-import marcel.lang.util.function.FloatComparator;
-import marcel.lang.util.function.FloatConsumer;
-import marcel.lang.util.function.FloatPredicate;
+import marcel.lang.util.function.CharacterComparator;
+import marcel.lang.util.function.CharacterConsumer;
+import marcel.lang.util.function.CharacterPredicate;
 
 import java.util.Objects;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-public final class FloatSpliterators {
-	private FloatSpliterators() {}
+public final class CharacterSpliterators {
+	private CharacterSpliterators() {}
 	static final int BASE_SPLITERATOR_CHARACTERISTICS = Spliterator.NONNULL;
 	// Default characteristics for various Collection implementations
 	public static final int COLLECTION_SPLITERATOR_CHARACTERISTICS = BASE_SPLITERATOR_CHARACTERISTICS | Spliterator.SIZED;
@@ -26,26 +26,26 @@ public final class FloatSpliterators {
 	 * <p>This class may be useful to implement your own in case you subclass
 	 * a type-specific spliterator.
 	 */
-	public static class EmptySpliterator implements FloatSpliterator , java.io.Serializable, Cloneable {
+	public static class EmptySpliterator implements CharacterSpliterator , java.io.Serializable, Cloneable {
 	 private static final long serialVersionUID = 8379247926738230492L;
 	 private static final int CHARACTERISTICS = Spliterator.SIZED | Spliterator.SUBSIZED;
 	 protected EmptySpliterator() {}
 	 @Override
-	 public boolean tryAdvance(final FloatConsumer action) { return false; }
+	 public boolean tryAdvance(final CharacterConsumer action) { return false; }
 	 @Deprecated
 	 @Override
-	 public boolean tryAdvance(final Consumer<? super Float> action) { return false; }
+	 public boolean tryAdvance(final Consumer<? super Character> action) { return false; }
 	 @Override
-	 public FloatSpliterator trySplit() { return null; }
+	 public CharacterSpliterator trySplit() { return null; }
 	 @Override
 	 public long estimateSize() { return 0; }
 	 @Override
 	 public int characteristics() { return CHARACTERISTICS; }
 	 @Override
-	 public void forEachRemaining(final FloatConsumer action) { }
+	 public void forEachRemaining(final CharacterConsumer action) { }
 	 @Deprecated
 	 @Override
-	 public void forEachRemaining(final Consumer<? super Float> action) { }
+	 public void forEachRemaining(final Consumer<? super Character> action) { }
 	 @Override
 	 public Object clone() { return EMPTY_SPLITERATOR; }
 	 private Object readResolve() { return EMPTY_SPLITERATOR; }
@@ -57,22 +57,22 @@ public final class FloatSpliterators {
 	 */
 	public static final EmptySpliterator EMPTY_SPLITERATOR = new EmptySpliterator();
 	/** a spliterator returning a single element. */
-	private static class SingletonSpliterator implements FloatSpliterator {
-	 private final float element;
-	 private final FloatComparator comparator;
+	private static class SingletonSpliterator implements CharacterSpliterator {
+	 private final char element;
+	 private final CharacterComparator comparator;
 	 private boolean consumed = false;
 	 private static final int CHARACTERISTICS = BASE_SPLITERATOR_CHARACTERISTICS
 	  | Spliterator.SIZED | Spliterator.SUBSIZED | Spliterator.ORDERED
 	  | Spliterator.DISTINCT | Spliterator.SORTED | Spliterator.IMMUTABLE;
-	 public SingletonSpliterator(final float element) {
+	 public SingletonSpliterator(final char element) {
 	  this(element, null);
 	 }
-	 public SingletonSpliterator(final float element, final FloatComparator comparator) {
+	 public SingletonSpliterator(final char element, final CharacterComparator comparator) {
 	  this.element = element;
 	  this.comparator = comparator;
 	 }
 	 @Override
-	 public boolean tryAdvance(FloatConsumer action) {
+	 public boolean tryAdvance(CharacterConsumer action) {
 	  Objects.requireNonNull(action);
 	  if (consumed) return false;
 	  // Existing JVM implementations advance even if the action throw.
@@ -81,7 +81,7 @@ public final class FloatSpliterators {
 	  return true;
 	 }
 	 @Override
-	 public FloatSpliterator trySplit() { return null; }
+	 public CharacterSpliterator trySplit() { return null; }
 	 @Override
 	 public long estimateSize() { return consumed ? 0 : 1; }
 	 @Override
@@ -89,7 +89,7 @@ public final class FloatSpliterators {
 	  return CHARACTERISTICS;
 	 }
 	 @Override
-	 public void forEachRemaining(final FloatConsumer action) {
+	 public void forEachRemaining(final CharacterConsumer action) {
 	  Objects.requireNonNull(action);
 	  if (!consumed) {
 	   consumed = true;
@@ -97,7 +97,7 @@ public final class FloatSpliterators {
 	  }
 	 }
 	 @Override
-	 public FloatComparator getComparator() {
+	 public CharacterComparator getComparator() {
 	  return comparator;
 	 }
 	 @Override
@@ -113,7 +113,7 @@ public final class FloatSpliterators {
 	 * @param element the only element to be returned by a type-specific spliterator.
 	 * @return a spliterator that iterates just over {@code element}.
 	 */
-	public static FloatSpliterator singleton(final float element) {
+	public static CharacterSpliterator singleton(final char element) {
 	 return new SingletonSpliterator (element);
 	}
 	/** Returns a spliterator that iterates just over the given element.
@@ -126,25 +126,25 @@ public final class FloatSpliterators {
 	 * @param comparator the comparator to return when {@link Spliterator#getComparator()} is called.
 	 * @return a spliterator that iterates just over {@code element}.
 	 */
-	public static FloatSpliterator singleton(final float element, final FloatComparator comparator) {
+	public static CharacterSpliterator singleton(final char element, final CharacterComparator comparator) {
 	 return new SingletonSpliterator (element, comparator);
 	}
 	/** A class to wrap arrays in spiterators. */
-	private static class ArraySpliterator implements FloatSpliterator {
+	private static class ArraySpliterator implements CharacterSpliterator {
 	 private static final int BASE_CHARACTERISTICS = BASE_SPLITERATOR_CHARACTERISTICS
 	  | Spliterator.SIZED | Spliterator.SUBSIZED | Spliterator.ORDERED;
-	 final float[] array;
+	 final char[] array;
 	 private final int offset;
 	 private int length, curr;
 	 final int characteristics;
-	 public ArraySpliterator(final float[] array, final int offset, final int length, int additionalCharacteristics) {
+	 public ArraySpliterator(final char[] array, final int offset, final int length, int additionalCharacteristics) {
 	  this.array = array;
 	  this.offset = offset;
 	  this.length = length;
 	  characteristics = BASE_CHARACTERISTICS | additionalCharacteristics;
 	 }
 	 @Override
-	 public boolean tryAdvance(FloatConsumer action) {
+	 public boolean tryAdvance(CharacterConsumer action) {
 	  if (curr >= length) return false;
 	  Objects.requireNonNull(action);
 	  action.accept(array[offset + curr++]);
@@ -158,7 +158,7 @@ public final class FloatSpliterators {
 	  return new ArraySpliterator (array, newOffset, newLength, characteristics);
 	 }
 	 @Override
-	 public FloatSpliterator trySplit() {
+	 public CharacterSpliterator trySplit() {
 	  int retLength = (length - curr) >> 1;
 	  if (retLength <= 1) return null;
 	  int myNewCurr = curr + retLength;
@@ -169,7 +169,7 @@ public final class FloatSpliterators {
 	  return makeForSplit(retOffset, retLength);
 	 }
 	 @Override
-	 public void forEachRemaining(final FloatConsumer action) {
+	 public void forEachRemaining(final CharacterConsumer action) {
 	  Objects.requireNonNull(action);
 	  for (; curr < length; ++curr) {
 	   action.accept(array[offset + curr]);
@@ -190,8 +190,8 @@ public final class FloatSpliterators {
 	 }
 	}
 	private static class ArraySpliteratorWithComparator extends ArraySpliterator {
-	 private final FloatComparator comparator;
-	 public ArraySpliteratorWithComparator(final float[] array, final int offset, final int length, int additionalCharacteristics, final FloatComparator comparator) {
+	 private final CharacterComparator comparator;
+	 public ArraySpliteratorWithComparator(final char[] array, final int offset, final int length, int additionalCharacteristics, final CharacterComparator comparator) {
 	  super(array, offset, length, additionalCharacteristics | SORTED_CHARACTERISTICS);
 	  this.comparator = comparator;
 	 }
@@ -200,7 +200,7 @@ public final class FloatSpliterators {
 	  return new ArraySpliteratorWithComparator (array, newOffset, newLength, characteristics, comparator);
 	 }
 	 @Override
-	 public FloatComparator getComparator() {
+	 public CharacterComparator getComparator() {
 	  return comparator;
 	 }
 	}
@@ -219,7 +219,7 @@ public final class FloatSpliterators {
 	 * @param length the number of elements to return.
 	 * @return a spliterator that will iterate over {@code length} elements of {@code array} starting at position {@code offset}.
 	 */
-	public static FloatSpliterator wrap(final float[] array, final int offset, final int length) {
+	public static CharacterSpliterator wrap(final char[] array, final int offset, final int length) {
 	 Arrays.ensureOffsetLength(array, offset, length);
 	 return new ArraySpliterator (array, offset, length, 0);
 	}
@@ -235,7 +235,7 @@ public final class FloatSpliterators {
 	 * @param array an array to wrap into a type-specific spliterator.
 	 * @return a spliterator that will iterate over the elements of {@code array}.
 	 */
-	public static FloatSpliterator wrap(final float[] array) {
+	public static CharacterSpliterator wrap(final char[] array) {
 	 return new ArraySpliterator (array, 0, array.length, 0);
 	}
 	/** Wraps the given part of an array into a type-specific spliterator.
@@ -256,7 +256,7 @@ public final class FloatSpliterators {
 	 * @param additionalCharacteristics any additional characteristics to report.
 	 * @return a spliterator that will iterate over {@code length} elements of {@code array} starting at position {@code offset}.
 	 */
-	public static FloatSpliterator wrap(final float[] array, final int offset, final int length, final int additionalCharacteristics) {
+	public static CharacterSpliterator wrap(final char[] array, final int offset, final int length, final int additionalCharacteristics) {
 	 Arrays.ensureOffsetLength(array, offset, length);
 	 return new ArraySpliterator (array, offset, length, additionalCharacteristics);
 	}
@@ -283,8 +283,8 @@ public final class FloatSpliterators {
 	 * @param comparator the comparator the array was sorted with (or {@code null} for natural ordering)
 	 * @return a spliterator that will iterate over {@code length} elements of {@code array} starting at position {@code offset}.
 	 */
-	public static FloatSpliterator wrapPreSorted(
-	  final float[] array, final int offset, final int length, final int additionalCharacteristics, FloatComparator comparator) {
+	public static CharacterSpliterator wrapPreSorted(
+	  final char[] array, final int offset, final int length, final int additionalCharacteristics, CharacterComparator comparator) {
 	 Arrays.ensureOffsetLength(array, offset, length);
 	 return new ArraySpliteratorWithComparator (array, offset, length, additionalCharacteristics, comparator);
 	}
@@ -308,8 +308,8 @@ public final class FloatSpliterators {
 	 * @param comparator the comparator the array was sorted with (or {@code null} for natural ordering)
 	 * @return a spliterator that will iterate over {@code length} elements of {@code array} starting at position {@code offset}.
 	 */
-	public static FloatSpliterator wrapPreSorted(
-	  final float[] array, final int offset, final int length, FloatComparator comparator) {
+	public static CharacterSpliterator wrapPreSorted(
+	  final char[] array, final int offset, final int length, CharacterComparator comparator) {
 	 return wrapPreSorted(array, offset, length, 0, comparator);
 	}
 	/** Wraps the given sorted array into a type-specific spliterator.
@@ -329,8 +329,8 @@ public final class FloatSpliterators {
 	 * @param comparator the comparator the array was sorted with (or {@code null} for natural ordering)
 	 * @return a spliterator that will iterate over {@code length} elements of {@code array} starting at position {@code offset}.
 	 */
-	public static FloatSpliterator wrapPreSorted(
-	  final float[] array, FloatComparator comparator) {
+	public static CharacterSpliterator wrapPreSorted(
+	  final char[] array, CharacterComparator comparator) {
 	 return wrapPreSorted(array, 0, array.length, comparator);
 	}
 	// There is no non-comparator version of wrapPreSorted; because Spliterator has to return the Comparator
@@ -338,9 +338,9 @@ public final class FloatSpliterators {
 	// wrap, unwrap, and pour are not provided because if you are using Spliterators, you typically
 	// are going to be using streams. That and Spliterator's API isn't well suited for these
 	// types of tasks.
-	private static class SpliteratorWrapper implements FloatSpliterator {
-	 final Spliterator<Float> i;
-	 public SpliteratorWrapper(final Spliterator<Float> i) {
+	private static class SpliteratorWrapper implements CharacterSpliterator {
+	 final Spliterator<Character> i;
+	 public SpliteratorWrapper(final Spliterator<Character> i) {
 	  this.i = i;
 	 }
 	 // This is pretty much the only time overriding this overload is correct; we want to
@@ -348,26 +348,26 @@ public final class FloatSpliterators {
 
 	 @SuppressWarnings("unchecked")
 	 @Override
-	 public boolean tryAdvance(final FloatConsumer action) {
+	 public boolean tryAdvance(final CharacterConsumer action) {
 	  Objects.requireNonNull(action);
-	  return i.tryAdvance(action instanceof Consumer ? (Consumer<? super Float>)action : action::accept);
+	  return i.tryAdvance(action instanceof Consumer ? (Consumer<? super Character>)action : action::accept);
 	 }
 	 @Deprecated
 	 @Override
-	 public boolean tryAdvance(final Consumer<? super Float> action) {
+	 public boolean tryAdvance(final Consumer<? super Character> action) {
 	  return i.tryAdvance(action);
 	 }
 	 // This is pretty much the only time overriding this overload is correct; we want to
 	 // delegate as an Object consumer, not wrap it as a primitive one.
 	 @SuppressWarnings("unchecked")
 	 @Override
-	 public void forEachRemaining(final FloatConsumer action) {
+	 public void forEachRemaining(final CharacterConsumer action) {
 	  Objects.requireNonNull(action);
-	  i.forEachRemaining(action instanceof Consumer ? (Consumer<? super Float>)action : action::accept);
+	  i.forEachRemaining(action instanceof Consumer ? (Consumer<? super Character>)action : action::accept);
 	 }
 	 @Deprecated
 	 @Override
-	 public void forEachRemaining(final Consumer<? super Float> action) {
+	 public void forEachRemaining(final Consumer<? super Character> action) {
 	  i.forEachRemaining(action);
 	 }
 	 @Override
@@ -375,44 +375,44 @@ public final class FloatSpliterators {
 	 @Override
 	 public int characteristics() { return i.characteristics(); }
 	 @Override
-	 public FloatComparator getComparator() {
-	  return Comparators.asFloatComparator(i.getComparator());
+	 public CharacterComparator getComparator() {
+	  return Comparators.asCharacterComparator(i.getComparator());
 	 }
 	 @Override
-	 public FloatSpliterator trySplit() {
-	  Spliterator<Float> innerSplit = i.trySplit();
+	 public CharacterSpliterator trySplit() {
+	  Spliterator<Character> innerSplit = i.trySplit();
 	  if (innerSplit == null) return null;
 	  return new SpliteratorWrapper (innerSplit);
 	 }
 	}
 	private static class SpliteratorWrapperWithComparator extends SpliteratorWrapper {
-	 final FloatComparator comparator;
-	 public SpliteratorWrapperWithComparator(final Spliterator<Float> i, final FloatComparator comparator) {
+	 final CharacterComparator comparator;
+	 public SpliteratorWrapperWithComparator(final Spliterator<Character> i, final CharacterComparator comparator) {
 	  super(i);
 	  this.comparator = comparator;
 	 }
 	 @Override
-	 public FloatComparator getComparator() {
+	 public CharacterComparator getComparator() {
 	  return comparator;
 	 }
 	 @Override
-	 public FloatSpliterator trySplit() {
-	  Spliterator<Float> innerSplit = i.trySplit();
+	 public CharacterSpliterator trySplit() {
+	  Spliterator<Character> innerSplit = i.trySplit();
 	  if (innerSplit == null) return null;
 	  return new SpliteratorWrapperWithComparator (innerSplit, comparator);
 	 }
 	}
-	private static class PrimitiveSpliteratorWrapper implements FloatSpliterator {
-	 final OfPrimitive<Float, FloatConsumer, FloatSpliterator> i;
-	 public PrimitiveSpliteratorWrapper(final OfPrimitive<Float, FloatConsumer, FloatSpliterator> i) {
+	private static class PrimitiveSpliteratorWrapper implements CharacterSpliterator {
+	 final OfPrimitive<Character, CharacterConsumer, CharacterSpliterator> i;
+	 public PrimitiveSpliteratorWrapper(final OfPrimitive<Character, CharacterConsumer, CharacterSpliterator> i) {
 	  this.i = i;
 	 }
 	 @Override
-	 public boolean tryAdvance(final FloatConsumer action) {
+	 public boolean tryAdvance(final CharacterConsumer action) {
 	  return i.tryAdvance(action);
 	 }
 	 @Override
-	 public void forEachRemaining(final FloatConsumer action) {
+	 public void forEachRemaining(final CharacterConsumer action) {
 	  i.forEachRemaining(action);
 	 }
 	 @Override
@@ -420,29 +420,29 @@ public final class FloatSpliterators {
 	 @Override
 	 public int characteristics() { return i.characteristics(); }
 	 @Override
-	 public FloatComparator getComparator() {
-	   return Comparators.asFloatComparator(i.getComparator());
+	 public CharacterComparator getComparator() {
+	   return Comparators.asCharacterComparator(i.getComparator());
 	 }
 	 @Override
-	 public FloatSpliterator trySplit() {
-		 OfPrimitive<Float, FloatConsumer, FloatSpliterator> innerSplit = i.trySplit();
+	 public CharacterSpliterator trySplit() {
+		 OfPrimitive<Character, CharacterConsumer, CharacterSpliterator> innerSplit = i.trySplit();
 	  if (innerSplit == null) return null;
 	  return new PrimitiveSpliteratorWrapper(innerSplit);
 	 }
 	}
 	private static class PrimitiveSpliteratorWrapperWithComparator extends PrimitiveSpliteratorWrapper {
-	 final FloatComparator comparator;
-	 public PrimitiveSpliteratorWrapperWithComparator(final OfPrimitive<Float, FloatConsumer, FloatSpliterator> i, final FloatComparator comparator) {
+	 final CharacterComparator comparator;
+	 public PrimitiveSpliteratorWrapperWithComparator(final OfPrimitive<Character, CharacterConsumer, CharacterSpliterator> i, final CharacterComparator comparator) {
 	  super(i);
 	  this.comparator = comparator;
 	 }
 	 @Override
-	 public FloatComparator getComparator() {
+	 public CharacterComparator getComparator() {
 	  return comparator;
 	 }
 	 @Override
-	 public FloatSpliterator trySplit() {
-		 OfPrimitive<Float, FloatConsumer, FloatSpliterator> innerSplit = i.trySplit();
+	 public CharacterSpliterator trySplit() {
+		 OfPrimitive<Character, CharacterConsumer, CharacterSpliterator> innerSplit = i.trySplit();
 	  if (innerSplit == null) return null;
 	  return new PrimitiveSpliteratorWrapperWithComparator(innerSplit, comparator);
 	 }
@@ -462,9 +462,9 @@ public final class FloatSpliterators {
 	 * @return a type-specific spliterator backed by {@code i}.
 	 */
 	@SuppressWarnings({"unchecked","rawtypes"})
-	public static FloatSpliterator asFloatSpliterator(final Spliterator i) {
-	 if (i instanceof FloatSpliterator) return (FloatSpliterator )i;
-	 if (i instanceof Spliterator.OfPrimitive) return new PrimitiveSpliteratorWrapper ((Spliterator.OfPrimitive<Float, FloatConsumer, FloatSpliterator>)i);
+	public static CharacterSpliterator asCharacterSpliterator(final Spliterator i) {
+	 if (i instanceof CharacterSpliterator) return (CharacterSpliterator )i;
+	 if (i instanceof Spliterator.OfPrimitive) return new PrimitiveSpliteratorWrapper ((Spliterator.OfPrimitive<Character, CharacterConsumer, CharacterSpliterator>)i);
 	 return new SpliteratorWrapper (i);
 	}
 	/** Wraps a standard spliterator into a type-specific spliterator.
@@ -490,9 +490,9 @@ public final class FloatSpliterators {
 	 * @return a type-specific spliterator backed by {@code i}.
 	 */
 	@SuppressWarnings({"unchecked","rawtypes"})
-	public static FloatSpliterator asFloatSpliterator(final Spliterator i, final FloatComparator comparatorOverride) {
-	 if (i instanceof FloatSpliterator) throw new IllegalArgumentException("Cannot override comparator on instance that is already a " + FloatSpliterator.class.getSimpleName());
-	 if (i instanceof Spliterator.OfPrimitive) return new PrimitiveSpliteratorWrapperWithComparator ((Spliterator.OfPrimitive<Float, FloatConsumer, FloatSpliterator>)i, comparatorOverride);
+	public static CharacterSpliterator asCharacterSpliterator(final Spliterator i, final CharacterComparator comparatorOverride) {
+	 if (i instanceof CharacterSpliterator) throw new IllegalArgumentException("Cannot override comparator on instance that is already a " + CharacterSpliterator.class.getSimpleName());
+	 if (i instanceof Spliterator.OfPrimitive) return new PrimitiveSpliteratorWrapperWithComparator ((Spliterator.OfPrimitive<Character, CharacterConsumer, CharacterSpliterator>)i, comparatorOverride);
 	 return new SpliteratorWrapperWithComparator (i, comparatorOverride);
 	}
 	/**
@@ -501,10 +501,10 @@ public final class FloatSpliterators {
 	 * <p>This is equivalent to {@code java.util.stream.StreamSupport.stream(spliterator).filter(predicate).forEach(action)}
 	 * (substitute the proper primitive stream as needed), except it may perform better (but no potential for parallelism).
 	 */
-	public static void onEachMatching(final FloatSpliterator spliterator, final FloatPredicate predicate, final FloatConsumer action) {
+	public static void onEachMatching(final CharacterSpliterator spliterator, final CharacterPredicate predicate, final CharacterConsumer action) {
 	 Objects.requireNonNull(predicate);
 	 Objects.requireNonNull(action);
-	 spliterator.forEachRemaining((float value) -> {
+	 spliterator.forEachRemaining((char value) -> {
 	  if (predicate.test(value)) {
 	   action.accept(value);
 	  }
@@ -516,7 +516,7 @@ public final class FloatSpliterators {
 	 * and just implement the interface directly, but should be decent for less
 	 * performance critical implementations.
 	 *
-	 * <p>This class is only appropriate for sequences that are at most {@link Float#MAX_VALUE} long.
+	 * <p>This class is only appropriate for sequences that are at most {@link Character#MAX_VALUE} long.
 	 * If your backing data store can be bigger then this, consider the equivalently named class in
 	 * the type specific {@code BigSpliterators} class.
 	 *
@@ -524,7 +524,7 @@ public final class FloatSpliterators {
 	 * good idea to override the class as {@code final} as to encourage the JVM to inline
 	 * them (or alternatively, override the abstract methods as final).
 	 */
-	public static abstract class AbstractIndexBasedSpliterator implements FloatSpliterator {
+	public static abstract class AbstractIndexBasedSpliterator implements CharacterSpliterator {
 	 /** The current position index, the index of the item to be given after the next call to {@link #tryAdvance}.
 		 *
 		 * <p>This value will be between {@code minPos} and {@link #getMaxPos()} (exclusive) (on a best effort, so concurrent
@@ -546,7 +546,7 @@ public final class FloatSpliterators {
 		 * Thus, a {@code location} of {@code minPos + 2} would mean {@link #tryAdvance} was called twice
 		 * and this method should return what the next call to {@link #tryAdvance()} should give.
 		 */
-	 protected abstract float get(int location);
+	 protected abstract char get(int location);
 	 /** The maximum pos can be, and is the logical end (exclusive) of the "range".
 		 *
 		 * <p>If pos is equal to the return of this method, this means the last element has been returned and the next call to {@link #tryAdvance} will return {@code false}.
@@ -575,7 +575,7 @@ public final class FloatSpliterators {
 		 * end point.
 		 * As such, this method should also not change what {@link #getMaxPos()} returns.
 		 */
-	 protected abstract FloatSpliterator makeForSplit(int pos, int maxPos);
+	 protected abstract CharacterSpliterator makeForSplit(int pos, int maxPos);
 	 /** Compute where to split on the next {@link #trySplit()}, given the current pos and
 		 * {@link #getMaxPos()} (or any other metric the implementation wishes to use).
 		 *
@@ -609,17 +609,17 @@ public final class FloatSpliterators {
 	 }
 	 // Since this is an index based spliterator, list characteristics make sense.
 	 @Override
-	 public int characteristics() { return FloatSpliterators.LIST_SPLITERATOR_CHARACTERISTICS; }
+	 public int characteristics() { return CharacterSpliterators.LIST_SPLITERATOR_CHARACTERISTICS; }
 	 @Override
 	 public long estimateSize() { return (long)getMaxPos() - pos; }
 	 @Override
-	 public boolean tryAdvance(final FloatConsumer action) {
+	 public boolean tryAdvance(final CharacterConsumer action) {
 	  if (pos >= getMaxPos()) return false;
 	  action.accept(get(pos++));
 	  return true;
 	 }
 	 @Override
-	 public void forEachRemaining(final FloatConsumer action) {
+	 public void forEachRemaining(final CharacterConsumer action) {
 	  for (final int max = getMaxPos(); pos < max; ++pos) {
 	   action.accept(get(pos));
 	  }
@@ -651,13 +651,13 @@ public final class FloatSpliterators {
 		 *  {@code < pos} or {@code > {@link #getMaxPos()}}.
 		 */
 	 @Override
-	 public FloatSpliterator trySplit() {
+	 public CharacterSpliterator trySplit() {
 	  final int max = getMaxPos();
 	  final int splitPoint = computeSplitPoint();
 	  if (splitPoint == pos || splitPoint == max) return null;
 	  splitPointCheck(splitPoint, max);
 	  int oldPos = pos;
-	  FloatSpliterator maybeSplit = makeForSplit(oldPos, splitPoint);
+	  CharacterSpliterator maybeSplit = makeForSplit(oldPos, splitPoint);
 	  if (maybeSplit != null) this.pos = splitPoint;
 	  return maybeSplit;
 	 }
@@ -727,8 +727,8 @@ public final class FloatSpliterators {
 	 @Override
 	 protected final int getMaxPos() { return maxPosFixed ? maxPos : getMaxPosFromBackingStore(); }
 	 @Override
-	 public FloatSpliterator trySplit() {
-	  FloatSpliterator maybeSplit = super.trySplit();
+	 public CharacterSpliterator trySplit() {
+	  CharacterSpliterator maybeSplit = super.trySplit();
 	  if (!maxPosFixed && maybeSplit != null) {
 	   maxPos = getMaxPosFromBackingStore();
 	   maxPosFixed = true;
@@ -736,24 +736,24 @@ public final class FloatSpliterators {
 	  return maybeSplit;
 	 }
 	}
-	private static class IntervalSpliterator implements FloatSpliterator {
+	private static class IntervalSpliterator implements CharacterSpliterator {
 	 private static final int DONT_SPLIT_THRESHOLD = 2;
 	 private static final int CHARACTERISTICS = BASE_SPLITERATOR_CHARACTERISTICS
 	  | Spliterator.SIZED | Spliterator.SUBSIZED | Spliterator.ORDERED
 	  | Spliterator.DISTINCT | Spliterator.SORTED | Spliterator.IMMUTABLE;
-	 private int curr, to;
-	 public IntervalSpliterator(final int from, final int to) {
+	 private char curr, to;
+	 public IntervalSpliterator(final char from, final char to) {
 	  this.curr = from;
 	  this.to = to;
 	 }
 	 @Override
-	 public boolean tryAdvance(final FloatConsumer action) {
+	 public boolean tryAdvance(final CharacterConsumer action) {
 	  if (curr >= to) return false;
 	  action.accept(curr++);
 	  return true;
 	 }
 	 @Override
-	 public void forEachRemaining(final FloatConsumer action) {
+	 public void forEachRemaining(final CharacterConsumer action) {
 	  Objects.requireNonNull(action);
 	  for (; curr < to; ++curr) {
 	   action.accept(curr);
@@ -768,16 +768,16 @@ public final class FloatSpliterators {
 	  return CHARACTERISTICS;
 	 }
 	 @Override
-	 public FloatComparator getComparator() {
+	 public CharacterComparator getComparator() {
 	  // Return null to indicate natural ordering.
 	  return null;
 	 }
 	 @Override
-	 public FloatSpliterator trySplit() {
+	 public CharacterSpliterator trySplit() {
 	  long remaining = to - curr;
-	  int mid = (int)(curr + (remaining >> 1));
+	  char mid = (char)(curr + (remaining >> 1));
 	  if (remaining >= 0 && remaining <= DONT_SPLIT_THRESHOLD) return null;
-	  int old_curr = curr;
+	  char old_curr = curr;
 	  curr = mid;
 	  return new IntervalSpliterator(old_curr, mid);
 	 }
@@ -790,7 +790,7 @@ public final class FloatSpliterators {
 	  long newCurr = curr + n;
 	  // Can be less then "curr" if overflow
 	  if (newCurr <= to && newCurr >= curr) {
-	   curr = SafeMath.safeLongToInt(newCurr);
+	   curr = (char) SafeMath.safeLongToInt(newCurr);
 	   return n;
 	  }
 	  n = to - curr;
@@ -807,21 +807,21 @@ public final class FloatSpliterators {
 	 * @param to the ending element (exclusive).
 	 * @return a type-specific spliterator enumerating the elements from {@code from} to {@code to}.
 	 */
-	public static FloatSpliterator fromTo(final int from, final int to) {
+	public static CharacterSpliterator fromTo(final char from, final char to) {
 	 return new IntervalSpliterator(from, to);
 	}
-	private static class SpliteratorConcatenator implements FloatSpliterator {
+	private static class SpliteratorConcatenator implements CharacterSpliterator {
 	 private static final int EMPTY_CHARACTERISTICS = Spliterator.SIZED | Spliterator.SUBSIZED;
 	 // Neither SORTED nor DISTINCT "combine". Two combined spliterators with these characteristics may not have it.
 	 // Example, {1, 2} and {1, 3}, both SORTED and DISTINCT, concat to {1, 2, 1, 3}, which isn't.
 	 private static final int CHARACTERISTICS_NOT_SUPPORTED_WHILE_MULTIPLE = Spliterator.SORTED | Spliterator.DISTINCT;
-	 final FloatSpliterator a[];
+	 final CharacterSpliterator a[];
 	 // Unlike the other classes in this file, length represents remaining, NOT the high mark for offset.
 	 int offset, length;
 	 /** The sum of estimatedRemaining <em>except</em> current offset */
 	 long remainingEstimatedExceptCurrent = Long.MAX_VALUE;
 	 int characteristics = 0;
-	 public SpliteratorConcatenator(final FloatSpliterator a[], int offset, int length) {
+	 public SpliteratorConcatenator(final CharacterSpliterator a[], int offset, int length) {
 	  this.a = a;
 	  this.offset = offset;
 	  this.length = length;
@@ -873,7 +873,7 @@ public final class FloatSpliterators {
 	  // return value on an instance is after a call to trySplt().
 	 }
 	 @Override
-	 public boolean tryAdvance(final FloatConsumer action) {
+	 public boolean tryAdvance(final CharacterConsumer action) {
 	  boolean any = false;
 	  while(length > 0) {
 	   if (a[offset].tryAdvance(action)) {
@@ -885,7 +885,7 @@ public final class FloatSpliterators {
 	  return any;
 	 }
 	 @Override
-	 public void forEachRemaining(final FloatConsumer action) {
+	 public void forEachRemaining(final CharacterConsumer action) {
 	  while (length > 0) {
 	   a[offset].forEachRemaining(action);
 	   advanceNextSpliterator();
@@ -893,7 +893,7 @@ public final class FloatSpliterators {
 	 }
 	 @Deprecated
 	 @Override
-	 public void forEachRemaining(final Consumer<? super Float> action) {
+	 public void forEachRemaining(final Consumer<? super Character> action) {
 	  while (length > 0) {
 	   a[offset].forEachRemaining(action);
 	   advanceNextSpliterator();
@@ -914,14 +914,14 @@ public final class FloatSpliterators {
 	  return characteristics;
 	 }
 	 @Override
-	 public FloatComparator getComparator() {
+	 public CharacterComparator getComparator() {
 	  if (length == 1 && ((characteristics & Spliterator.SORTED) != 0) ) {
-	   return (FloatComparator) a[offset].getComparator();
+	   return (CharacterComparator) a[offset].getComparator();
 	  }
 	  throw new IllegalStateException();
 	 }
 	 @Override
-	 public FloatSpliterator trySplit() {
+	 public CharacterSpliterator trySplit() {
 	  /* First we split on the spliterators array, with new concating spliterators for those array slices.
 			 * Then if we can't split anymore due to only 1 spliterator we are "concating", return the splits
 			 * of that single spliterator.
@@ -930,7 +930,7 @@ public final class FloatSpliterators {
 	   case 0: return null;
 	   case 1: {
 	    // We are on the last spliterator. So now we ask it to split.
-	    FloatSpliterator split = a[offset].trySplit();
+	    CharacterSpliterator split = a[offset].trySplit();
 	    // It is possible for a Spliterator to change characteristics after a split.
 	    // e.g. a SIZED but not SUBSIZED spliterator may split into non-SIZED spliterators.
 	    this.characteristics = a[offset].characteristics();
@@ -939,7 +939,7 @@ public final class FloatSpliterators {
 	   case 2: {
 	    // Per spec, this instance becomes suffix, and we return prefix.
 	    // Fetch first to return
-	    FloatSpliterator split = a[offset++];
+	    CharacterSpliterator split = a[offset++];
 	    --length;
 	    // assert length == 1;
 	    // We become the second
@@ -991,7 +991,7 @@ public final class FloatSpliterators {
 	 * @param a an array of spliterators.
 	 * @return a spliterator obtained by concatenation.
 	 */
-	public static FloatSpliterator concat(final FloatSpliterator ... a) {
+	public static CharacterSpliterator concat(final CharacterSpliterator ... a) {
 	 return concat(a, 0, a.length);
 	}
 	/** Concatenates a sequence of spliterators contained in an array.
@@ -1011,13 +1011,13 @@ public final class FloatSpliterators {
 	 * @param length the number of spliterators to concatenate.
 	 * @return a spliterator obtained by concatenation of {@code length} elements of {@code a} starting at {@code offset}.
 	 */
-	public static FloatSpliterator concat(final FloatSpliterator a[], final int offset, final int length) {
+	public static CharacterSpliterator concat(final CharacterSpliterator a[], final int offset, final int length) {
 	 return new SpliteratorConcatenator (a, offset, length);
 	}
-	private static class SpliteratorFromIterator implements FloatSpliterator {
+	private static class SpliteratorFromIterator implements CharacterSpliterator {
 	 private static final int BATCH_INCREMENT_SIZE = 1024;
 	 private static final int BATCH_MAX_SIZE = 1 << 25;
-	 private final FloatIterator iter;
+	 private final CharacterIterator iter;
 	 final int characteristics;
 	 private final boolean knownSize;
 	 /** If {@code knownSize}, then has the remaining size left.
@@ -1026,13 +1026,13 @@ public final class FloatSpliterators {
 	 private long size = Long.MAX_VALUE;
 	 private int nextBatchSize = BATCH_INCREMENT_SIZE;
 	 /** Used to "finish off" elements once we hit the end while splitting. */
-	 private FloatSpliterator delegate = null;
-	 SpliteratorFromIterator(final FloatIterator iter, int characteristics) {
+	 private CharacterSpliterator delegate = null;
+	 SpliteratorFromIterator(final CharacterIterator iter, int characteristics) {
 	  this.iter = iter;
 	  this.characteristics = BASE_SPLITERATOR_CHARACTERISTICS | characteristics;
 	  knownSize = false;
 	 }
-	 SpliteratorFromIterator(final FloatIterator iter, long size, int additionalCharacteristics) {
+	 SpliteratorFromIterator(final CharacterIterator iter, long size, int additionalCharacteristics) {
 	  this.iter = iter;
 	  knownSize = true;
 	  this.size = size;
@@ -1043,7 +1043,7 @@ public final class FloatSpliterators {
 	  }
 	 }
 	 @Override
-	 public boolean tryAdvance(final FloatConsumer action) {
+	 public boolean tryAdvance(final CharacterConsumer action) {
 	  if (delegate != null){
 	   boolean hadRemaining = delegate.tryAdvance(action);
 	   if (!hadRemaining) delegate = null;
@@ -1051,11 +1051,11 @@ public final class FloatSpliterators {
 	  }
 	  if (!iter.hasNext()) return false;
 	  --size;
-	  action.accept(iter.nextFloat());
+	  action.accept(iter.nextCharacter());
 	  return true;
 	 }
 	 @Override
-	 public void forEachRemaining(final FloatConsumer action) {
+	 public void forEachRemaining(final CharacterConsumer action) {
 	  if (delegate != null) {
 	   delegate.forEachRemaining(action);
 	   delegate = null;
@@ -1075,30 +1075,30 @@ public final class FloatSpliterators {
 	 public int characteristics() {
 	  return characteristics;
 	 }
-	 protected FloatSpliterator makeForSplit(float[] batch, int len) {
+	 protected CharacterSpliterator makeForSplit(char[] batch, int len) {
 	  return wrap(batch, 0, len, characteristics);
 	 }
 	 @Override
-	 public FloatSpliterator trySplit() {
+	 public CharacterSpliterator trySplit() {
 	  if (!iter.hasNext()) return null;
 	  int batchSizeEst = knownSize && size > 0 ? (int)Math.min(nextBatchSize, size) : nextBatchSize;
-	  float[] batch = new float[batchSizeEst];
+	  char[] batch = new char[batchSizeEst];
 	  int actualSeen = 0;
 	  while (actualSeen < batchSizeEst && iter.hasNext()) {
-	   batch[actualSeen++] = iter.nextFloat();
+	   batch[actualSeen++] = iter.nextCharacter();
 	   --size;
 	  }
 	  // Check if the local size variable fell behind the backing source, and if so, fill up remaining of batch
 	  if (batchSizeEst < nextBatchSize && iter.hasNext()) {
 	   batch = java.util.Arrays.copyOf(batch, nextBatchSize);
 	   while (iter.hasNext() && actualSeen < nextBatchSize) {
-	    batch[actualSeen++] = iter.nextFloat();
+	    batch[actualSeen++] = iter.nextCharacter();
 	    --size;
 	   }
 	  }
 	  nextBatchSize = Math.min(BATCH_MAX_SIZE, nextBatchSize + BATCH_INCREMENT_SIZE);
 	  // If we have none remaining, then set our delegate to "finish off" the batch we just made.
-	  FloatSpliterator split = makeForSplit(batch, actualSeen);
+	  CharacterSpliterator split = makeForSplit(batch, actualSeen);
 	  if (!iter.hasNext()) {
 	   delegate = split;
 	   return split.trySplit();
@@ -1119,21 +1119,21 @@ public final class FloatSpliterators {
 	 }
 	}
 	private static class SpliteratorFromIteratorWithComparator extends SpliteratorFromIterator {
-	 private final FloatComparator comparator;
-	 SpliteratorFromIteratorWithComparator(final FloatIterator iter, int additionalCharacteristics, final FloatComparator comparator) {
+	 private final CharacterComparator comparator;
+	 SpliteratorFromIteratorWithComparator(final CharacterIterator iter, int additionalCharacteristics, final CharacterComparator comparator) {
 	  super(iter, additionalCharacteristics | SORTED_CHARACTERISTICS);
 	  this.comparator = comparator;
 	 }
-	 SpliteratorFromIteratorWithComparator(final FloatIterator iter, long size, int additionalCharacteristics, final FloatComparator comparator) {
+	 SpliteratorFromIteratorWithComparator(final CharacterIterator iter, long size, int additionalCharacteristics, final CharacterComparator comparator) {
 	  super(iter, size, additionalCharacteristics | SORTED_CHARACTERISTICS);
 	  this.comparator = comparator;
 	 }
 	 @Override
-	 public FloatComparator getComparator() {
+	 public CharacterComparator getComparator() {
 	  return comparator;
 	 }
 	 @Override
-	 protected FloatSpliterator makeForSplit(float[] array, int len) {
+	 protected CharacterSpliterator makeForSplit(char[] array, int len) {
 	  return wrapPreSorted(array, 0, len, characteristics, comparator);
 	 }
 	}
@@ -1156,7 +1156,7 @@ public final class FloatSpliterators {
 	 * @return a type-specific {@code Spliterator} that will give the same elements the iterator will return.
 	 * @see java.util.Spliterators#spliterator(java.util.Iterator, long, int)
 	 */
-	public static FloatSpliterator asSpliterator(final FloatIterator iter, final long size, final int additionalCharacterisitcs) {
+	public static CharacterSpliterator asSpliterator(final CharacterIterator iter, final long size, final int additionalCharacterisitcs) {
 	 return new SpliteratorFromIterator (iter, size, additionalCharacterisitcs);
 	}
 	/** Wrap a type-specific, sorted {@link java.util.Iterator} of a known size as a type-specific {@link Spliterator}
@@ -1182,8 +1182,8 @@ public final class FloatSpliterators {
 	 * @param comparator the comparator the iterator is ordered on (or {@code null} for natural ordering)
 	 * @return a type-specific {@code Spliterator} that will give the same elements the iterator will return.
 	 */
-	public static FloatSpliterator asSpliteratorFromSorted(
-	  final FloatIterator iter, final long size, final int additionalCharacterisitcs, final FloatComparator comparator) {
+	public static CharacterSpliterator asSpliteratorFromSorted(
+	  final CharacterIterator iter, final long size, final int additionalCharacterisitcs, final CharacterComparator comparator) {
 	 return new SpliteratorFromIteratorWithComparator (iter, size, additionalCharacterisitcs, comparator);
 	}
 	/** Wrap a type-specific {@link java.util.Iterator} of an unknown size as a type-specific {@link Spliterator}
@@ -1200,7 +1200,7 @@ public final class FloatSpliterators {
 	 * @return a type-specific {@code Spliterator} that will give the same elements the iterator will return.
 	 * @see java.util.Spliterators#spliteratorUnknownSize(java.util.Iterator, int)
 	 */
-	public static FloatSpliterator asSpliteratorUnknownSize(final FloatIterator iter, final int characterisitcs) {
+	public static CharacterSpliterator asSpliteratorUnknownSize(final CharacterIterator iter, final int characterisitcs) {
 	 return new SpliteratorFromIterator (iter, characterisitcs);
 	}
 	/** Wrap a type-specific, sorted {@link java.util.Iterator} of an unknown size as a type-specific {@link Spliterator}
@@ -1222,19 +1222,19 @@ public final class FloatSpliterators {
 	 * @param comparator the comparator the iterator is ordered on (or {@code null} for natural ordering)
 	 * @return a type-specific {@code Spliterator} that will give the same elements the iterator will return.
 	 */
-	public static FloatSpliterator asSpliteratorFromSortedUnknownSize(final FloatIterator iter, final int additionalCharacterisitcs, final FloatComparator comparator) {
+	public static CharacterSpliterator asSpliteratorFromSortedUnknownSize(final CharacterIterator iter, final int additionalCharacterisitcs, final CharacterComparator comparator) {
 	 return new SpliteratorFromIteratorWithComparator (iter, additionalCharacterisitcs, comparator);
 	}
-	private static final class IteratorFromSpliterator implements FloatIterator , FloatConsumer {
-	 private final FloatSpliterator spliterator;
-	 private float holder = (0);
+	private static final class IteratorFromSpliterator implements CharacterIterator , CharacterConsumer {
+	 private final CharacterSpliterator spliterator;
+	 private char holder = (0);
 	 /** Whether we have an element "peeked" from a hasNext that we have yet to return */
 	 private boolean hasPeeked = false;
-	 IteratorFromSpliterator(final FloatSpliterator spliterator) {
+	 IteratorFromSpliterator(final CharacterSpliterator spliterator) {
 	  this.spliterator = spliterator;
 	 }
 	 @Override
-	 public void accept(final float item) {
+	 public void accept(final char item) {
 	  holder = item;
 	 }
 	 @Override
@@ -1246,7 +1246,7 @@ public final class FloatSpliterators {
 	  return true;
 	 }
 	 @Override
-	 public float nextFloat() {
+	 public char nextCharacter() {
 	  if (hasPeeked) {
 	   hasPeeked = false;
 	   return holder;
@@ -1256,7 +1256,7 @@ public final class FloatSpliterators {
 	  return holder;
 	 }
 	 @Override
-	 public void forEachRemaining(final FloatConsumer action) {
+	 public void forEachRemaining(final CharacterConsumer action) {
 	  if (hasPeeked) {
 	   hasPeeked = false;
 	   action.accept(holder);
@@ -1285,7 +1285,7 @@ public final class FloatSpliterators {
 	 * @return a type-specific {@code Iterator} that will return the same elements the spliterator will give.
 	 * @see java.util.Spliterators#iterator(Spliterator)
 	 */
-	public static FloatIterator asIterator(final FloatSpliterator spliterator) {
+	public static CharacterIterator asIterator(final CharacterSpliterator spliterator) {
 	 return new IteratorFromSpliterator (spliterator);
 	}
 
