@@ -33,6 +33,7 @@ import marcel.lang.runtime.BytecodeHelper
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
+import java.io.Closeable
 import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 
@@ -423,6 +424,7 @@ class InstructionGenerator(
     val iteratorExpressionType = iteratorExpression.getType(typeResolver)
 
     val iteratorVarName = "_tempIterator"
+    val iteratorType = iteratorExpression.getType(typeResolver)
 
     // get right method in function of types, to avoid auto-(un/debo)xing
     val methodName = if (JavaType.of(IntIterator::class.java).isAssignableFrom(iteratorExpressionType)) "nextInt"
@@ -450,6 +452,16 @@ class InstructionGenerator(
 
     // loop end
     mv.visitLabel(loopEnd)
+
+    // TODO need to remove unused variables once done. TODO removing variable might modify index of current used ones.
+    //    this is a problem
+
+    if (JavaType.of(Closeable::class.java).isAssignableFrom(iteratorExpressionType)) {
+      // TODO if in this case, the whole for loop should be surroundded in  a try/finally
+      // TODO +1 for local variable pooling with check about nbslots available
+     // pushArgument(iteratorVarReference)
+     // mv.invokeMethod(Closeable::class.java.getMethod("close"))
+    }
   }
   private fun loopBody(body: BlockNode, continueLabel: Label, breakLabel: Label) {
     val scope = body.scope as? InnerScope ?: throw RuntimeException("Compiler design bug")

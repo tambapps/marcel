@@ -8,7 +8,7 @@ import java.util.Iterator;
 
 public class IoMarcelMethods {
 
-  public static Iterator<String> lineIterator(File self) throws IOException {
+  public static LineIterator lineIterator(File self) throws IOException {
     return new LineIterator(self);
   }
 
