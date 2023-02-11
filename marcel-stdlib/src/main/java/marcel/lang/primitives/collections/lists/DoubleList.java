@@ -372,4 +372,11 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 		}
 	}
 
+	default double sum() {
+		double sum = 0;
+		for (int i = 0; i < size(); i++) {
+			sum += getDouble(i);
+		}
+		return sum;
+	}
 }

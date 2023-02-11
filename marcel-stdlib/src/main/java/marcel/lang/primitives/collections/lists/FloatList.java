@@ -372,4 +372,11 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 		}
 	}
 
+	default float sum() {
+		float sum = 0;
+		for (int i = 0; i < size(); i++) {
+			sum += getFloat(i);
+		}
+		return sum;
+	}
 }

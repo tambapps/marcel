@@ -371,4 +371,11 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 		}
 	}
 
+	default int sum() {
+		int sum = 0;
+		for (int i = 0; i < size(); i++) {
+			sum += getInt(i);
+		}
+		return sum;
+	}
 }

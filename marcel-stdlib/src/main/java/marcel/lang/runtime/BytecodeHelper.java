@@ -1,7 +1,5 @@
 package marcel.lang.runtime;
 
-import it.unimi.dsi.fastutil.booleans.BooleanOpenHashSet;
-import it.unimi.dsi.fastutil.booleans.BooleanSet;
 import marcel.lang.primitives.collections.maps.Character2ObjectMap;
 import marcel.lang.primitives.collections.maps.Character2ObjectOpenHashMap;
 import marcel.lang.primitives.collections.maps.Int2ObjectMap;
@@ -52,9 +50,6 @@ public final class BytecodeHelper {
   }
   public static DoubleSet createSet(double[] array) {
     return new DoubleOpenHashSet(array);
-  }
-  public static BooleanSet createSet(boolean[] array) {
-    return new BooleanOpenHashSet(array);
   }
   public static CharacterSet createSet(char[] array) {
     return new CharacterOpenHashSet(array);

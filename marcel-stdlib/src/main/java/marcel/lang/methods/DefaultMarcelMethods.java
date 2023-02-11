@@ -1,24 +1,20 @@
 package marcel.lang.methods;
 
-import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
-import it.unimi.dsi.fastutil.booleans.BooleanList;
-import it.unimi.dsi.fastutil.booleans.BooleanSet;
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
-import it.unimi.dsi.fastutil.doubles.DoubleList;
-import it.unimi.dsi.fastutil.doubles.DoubleSet;
-import it.unimi.dsi.fastutil.floats.FloatArrayList;
-import it.unimi.dsi.fastutil.floats.FloatList;
-import it.unimi.dsi.fastutil.floats.FloatSet;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
-import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.longs.LongArrayList;
-import it.unimi.dsi.fastutil.longs.LongList;
-import it.unimi.dsi.fastutil.longs.LongSet;
 import marcel.lang.IntRange;
+import marcel.lang.primitives.collections.lists.DoubleArrayList;
+import marcel.lang.primitives.collections.lists.DoubleList;
+import marcel.lang.primitives.collections.lists.FloatArrayList;
+import marcel.lang.primitives.collections.lists.FloatList;
+import marcel.lang.primitives.collections.lists.IntArrayList;
+import marcel.lang.primitives.collections.lists.IntList;
+import marcel.lang.primitives.collections.lists.LongArrayList;
+import marcel.lang.primitives.collections.lists.LongList;
+import marcel.lang.primitives.collections.sets.DoubleSet;
+import marcel.lang.primitives.collections.sets.FloatSet;
+import marcel.lang.primitives.collections.sets.IntSet;
+import marcel.lang.primitives.collections.sets.LongSet;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,101 +28,6 @@ public final class DefaultMarcelMethods {
     return self.stream()
         .map(String::valueOf)
         .collect(Collectors.joining(separator));
-  }
-
-  // sum
-  public static int sum(IntList self) {
-    int sum = 0;
-    for (int i = 0; i < self.size(); i++) {
-      sum += self.getInt(i);
-    }
-    return sum;
-  }
-
-  public static long sum(LongList self) {
-    long sum = 0;
-    for (int i = 0; i < self.size(); i++) {
-      sum += self.getLong(i);
-    }
-    return sum;
-  }
-
-  public static float sum(FloatList self) {
-    float sum = 0;
-    for (int i = 0; i < self.size(); i++) {
-      sum += self.getFloat(i);
-    }
-    return sum;
-  }
-
-  public static double sum(DoubleList self) {
-    double sum = 0;
-    for (int i = 0; i < self.size(); i++) {
-      sum += self.getDouble(i);
-    }
-    return sum;
-  }
-
-  // sort
-  public static void sort(IntList self) {
-    int[] ints = self.toIntArray();
-    Arrays.sort(ints);
-    for (int i = 0; i < ints.length; i++) {
-      self.set(i, ints[i]);
-    }
-  }
-
-  public static void sortReverse(IntList self) {
-    int[] ints = self.toIntArray();
-    Arrays.sort(ints);
-    for (int i = 0; i < ints.length; i++) {
-      self.set(i, ints[ints.length - 1 - i]);
-    }
-  }
-  public static void sort(LongList self) {
-    long[] ints = self.toLongArray();
-    Arrays.sort(ints);
-    for (int i = 0; i < ints.length; i++) {
-      self.set(i, ints[i]);
-    }
-  }
-
-  public static void sortReverse(LongList self) {
-    long[] ints = self.toLongArray();
-    Arrays.sort(ints);
-    for (int i = 0; i < ints.length; i++) {
-      self.set(i, ints[ints.length - 1 - i]);
-    }
-  }
-  public static void sort(FloatList self) {
-    float[] ints = self.toFloatArray();
-    Arrays.sort(ints);
-    for (int i = 0; i < ints.length; i++) {
-      self.set(i, ints[i]);
-    }
-  }
-
-  public static void sortReverse(FloatList self) {
-    float[] ints = self.toFloatArray();
-    Arrays.sort(ints);
-    for (int i = 0; i < ints.length; i++) {
-      self.set(i, ints[ints.length - 1 - i]);
-    }
-  }
-  public static void sort(DoubleList self) {
-    double[] ints = self.toDoubleArray();
-    Arrays.sort(ints);
-    for (int i = 0; i < ints.length; i++) {
-      self.set(i, ints[i]);
-    }
-  }
-
-  public static void sortReverse(DoubleList self) {
-    double[] ints = self.toDoubleArray();
-    Arrays.sort(ints);
-    for (int i = 0; i < ints.length; i++) {
-      self.set(i, ints[ints.length - 1 - i]);
-    }
   }
 
   public static <T, U extends Comparable> void sort(List<T> self, Function<T, U> keyExtractor) {
@@ -157,10 +58,6 @@ public final class DefaultMarcelMethods {
     return self.add(value);
   }
 
-  public static boolean leftShift(BooleanList self, boolean value) {
-    return self.add(value);
-  }
-
   public static boolean leftShift(IntSet self, int value) {
     return self.add(value);
   }
@@ -174,10 +71,6 @@ public final class DefaultMarcelMethods {
   }
 
   public static boolean leftShift(DoubleSet self, double value) {
-    return self.add(value);
-  }
-
-  public static boolean leftShift(BooleanSet self, boolean value) {
     return self.add(value);
   }
 
@@ -200,10 +93,6 @@ public final class DefaultMarcelMethods {
 
   public static double getLast(DoubleList self) {
     return self.getDouble(self.size() - 1);
-  }
-
-  public static boolean getLast(BooleanList self) {
-    return self.getBoolean(self.size() - 1);
   }
 
   // lastOrNull
@@ -229,9 +118,6 @@ public final class DefaultMarcelMethods {
     self.set(self.size() - 1, value);
   }
 
-  public static void setLast(BooleanList self, boolean value) {
-    self.set(self.size() - 1, value);
-  }
   public static <T> void setLast(List<T> self, T value) {
     self.set(self.size() - 1, value);
   }
@@ -257,9 +143,6 @@ public final class DefaultMarcelMethods {
     return self.getDouble(index);
   }
 
-  public static boolean getAt(BooleanList self, int index) {
-    return self.getBoolean(index);
-  }
 
   // getAt range
   public static <T> List<T> getAt(List<T> self, IntRange range) {
@@ -292,12 +175,6 @@ public final class DefaultMarcelMethods {
     return subList;
   }
 
-  public static BooleanList getAt(BooleanList self, IntRange range) {
-    BooleanList subList = new BooleanArrayList();
-    for (Integer integer : range) subList.add(self.getBoolean(integer));
-    return subList;
-  }
-
   // putAt
   public static <T> void putAt(List<T> self, int index, T value) {
     self.set(index, value);
@@ -319,7 +196,4 @@ public final class DefaultMarcelMethods {
     self.set(index, value);
   }
 
-  public static void putAt(BooleanList self, int index, boolean value) {
-    self.set(index, value);
-  }
 }

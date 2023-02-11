@@ -1,6 +1,5 @@
 package marcel.lang.primitives.iterators;
 
-import it.unimi.dsi.fastutil.ints.IntBidirectionalIterator;
 import marcel.lang.primitives.iterators.list.IntListIterator;
 import marcel.lang.util.Arrays;
 
@@ -10,7 +9,6 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.PrimitiveIterator;
 import java.util.function.Consumer;
-import java.util.function.IntConsumer;
 
 public final class IntIterators {
 	private IntIterators() {}
@@ -717,102 +715,4 @@ public final class IntIterators {
 	 }
 	}
 
-
-	/** A wrapper promoting the results of a ByteIterator. */
-	private final static class ByteIteratorWrapper implements IntIterator {
-	 final it.unimi.dsi.fastutil.bytes.ByteIterator iterator;
-	 public ByteIteratorWrapper(final it.unimi.dsi.fastutil.bytes.ByteIterator iterator) {
-	  this.iterator = iterator;
-	 }
-	 @Override
-	 public boolean hasNext() { return iterator.hasNext(); }
-	 @Deprecated
-	 @Override
-	 public Integer next() { return Integer.valueOf(iterator.nextByte()); }
-	 @Override
-	 public int nextInt() { return iterator.nextByte(); }
-	 @Override
-	 public void forEachRemaining(final java.util.function.IntConsumer action) {
-	  Objects.requireNonNull(action);
-	  iterator.forEachRemaining(action::accept);
-	 }
-	 @Override
-	 public void remove() { iterator.remove(); }
-	 @Override
-	 public int skip(final int n) { return iterator.skip(n); }
-	}
-	/** Returns an iterator backed by the specified byte iterator.
-	 * @param iterator a byte iterator.
-	 * @return an iterator backed by the specified byte iterator.
-	 */
-	public static IntIterator wrap(final it.unimi.dsi.fastutil.bytes.ByteIterator iterator) {
-	 return new ByteIteratorWrapper(iterator);
-	}
-	/** A wrapper promoting the results of a ShortIterator. */
-	private final static class ShortIteratorWrapper implements IntIterator {
-	 final it.unimi.dsi.fastutil.shorts.ShortIterator iterator;
-	 public ShortIteratorWrapper(final it.unimi.dsi.fastutil.shorts.ShortIterator iterator) {
-	  this.iterator = iterator;
-	 }
-	 @Override
-	 public boolean hasNext() { return iterator.hasNext(); }
-	 @Deprecated
-	 @Override
-	 public Integer next() { return Integer.valueOf(iterator.nextShort()); }
-	 @Override
-	 public int nextInt() { return iterator.nextShort(); }
-	 @Override
-	 public void forEachRemaining(final java.util.function.IntConsumer action) {
-	  Objects.requireNonNull(action);
-	  iterator.forEachRemaining(action::accept);
-	 }
-	 @Override
-	 public void remove() { iterator.remove(); }
-	 @Override
-	 public int skip(final int n) { return iterator.skip(n); }
-	}
-	/** Returns an iterator backed by the specified short iterator.
-	 * @param iterator a short iterator.
-	 * @return an iterator backed by the specified short iterator.
-	 */
-	public static IntIterator wrap(final it.unimi.dsi.fastutil.shorts.ShortIterator iterator) {
-	 return new ShortIteratorWrapper(iterator);
-	}
-	/** A wrapper promoting the results of a CharIterator. */
-	private final static class CharIteratorWrapper implements IntIterator {
-	 final it.unimi.dsi.fastutil.chars.CharIterator iterator;
-	 public CharIteratorWrapper(final it.unimi.dsi.fastutil.chars.CharIterator iterator) {
-	  this.iterator = iterator;
-	 }
-	 @Override
-	 public boolean hasNext() { return iterator.hasNext(); }
-	 @Deprecated
-	 @Override
-	 public Integer next() { return Integer.valueOf(iterator.nextChar()); }
-	 @Override
-	 public int nextInt() { return iterator.nextChar(); }
-	 @Override
-	 public void forEachRemaining(final java.util.function.IntConsumer action) {
-	  Objects.requireNonNull(action);
-	  iterator.forEachRemaining(action::accept);
-	 }
-	 @Override
-	 public void remove() { iterator.remove(); }
-	 @Override
-	 public int skip(final int n) { return iterator.skip(n); }
-	}
-	/** Returns an iterator backed by the specified char iterator.
-	 *
-	 * <p><b>WARNING</b>: This is <em>not</em> the same as converting the source to a sequence
-	 * of code points. This returned instance literally performs {@code (int)(charValue)} casts.
-	 * Surrogate pairs will be left as separate elements instead of combined into a single element
-	 * with the code point it represents. See {@link Character} for more discussion on code points,
-	 * char values, and surrogate pairs.
-	 *
-	 * @param iterator a char iterator.
-	 * @return an iterator backed by the specified char iterator.
-	 */
-	public static IntIterator wrap(final it.unimi.dsi.fastutil.chars.CharIterator iterator) {
-	 return new CharIteratorWrapper(iterator);
-	}
 }

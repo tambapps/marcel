@@ -1,7 +1,7 @@
 package marcel.lang.primitives.collections;
 
-import it.unimi.dsi.fastutil.ints.IntArrays;
 import marcel.lang.primitives.iterators.IntIterator;
+import marcel.lang.util.Arrays;
 
 import java.util.AbstractCollection;
 import java.util.Collection;
@@ -75,7 +75,7 @@ public abstract class AbstractIntCollection extends AbstractCollection<Integer> 
 	public int[] toIntArray() {
 		final int size = size();
 		if (size == 0) {
-			return IntArrays.EMPTY_ARRAY;
+			return Arrays.EMPTY_INT_ARRAY;
 		}
 		final int[] a = new int[size];
 		iterator().unwrap(a);

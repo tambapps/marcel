@@ -83,7 +83,7 @@ public class LongOpenHashSet extends AbstractLongSet implements java.io.Serializ
 	 * @param c a type-specific collection to be copied into the new hash set.
 	 * @param f the load factor.
 	 */
-	public LongOpenHashSet(final it.unimi.dsi.fastutil.longs.LongCollection c, final float f) {
+	public LongOpenHashSet(final LongCollection c, final float f) {
 		this(c.size(), f);
 		addAll(c);
 	}
@@ -92,7 +92,7 @@ public class LongOpenHashSet extends AbstractLongSet implements java.io.Serializ
 	 *
 	 * @param c a type-specific collection to be copied into the new hash set.
 	 */
-	public LongOpenHashSet(final it.unimi.dsi.fastutil.longs.LongCollection c) {
+	public LongOpenHashSet(final LongCollection c) {
 		this(c, DEFAULT_LOAD_FACTOR);
 	}
 	/** Creates a new hash set using elements provided by a type-specific iterator.

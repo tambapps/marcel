@@ -372,4 +372,11 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 		}
 	}
 
+	default long sum() {
+		long sum = 0;
+		for (int i = 0; i < size(); i++) {
+			sum += getLong(i);
+		}
+		return sum;
+	}
 }

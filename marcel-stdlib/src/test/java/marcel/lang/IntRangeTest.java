@@ -1,6 +1,5 @@
 package marcel.lang;
 
-import it.unimi.dsi.fastutil.ints.IntLists;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
