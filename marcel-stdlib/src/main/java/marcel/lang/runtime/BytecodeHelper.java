@@ -2,6 +2,8 @@ package marcel.lang.runtime;
 
 import it.unimi.dsi.fastutil.booleans.BooleanOpenHashSet;
 import it.unimi.dsi.fastutil.booleans.BooleanSet;
+import marcel.lang.primitives.collections.maps.Character2ObjectMap;
+import marcel.lang.primitives.collections.maps.Character2ObjectOpenHashMap;
 import marcel.lang.primitives.collections.maps.Int2ObjectMap;
 import marcel.lang.primitives.collections.maps.Int2ObjectOpenHashMap;
 import marcel.lang.primitives.collections.maps.Long2ObjectMap;
@@ -73,6 +75,9 @@ public final class BytecodeHelper {
   }
   public static Long2ObjectMap<?> newLong2ObjectMap() {
     return new Long2ObjectOpenHashMap<>();
+  }
+  public static Character2ObjectMap<?> newChar2ObjectMap() {
+    return new Character2ObjectOpenHashMap<>();
   }
   public static Map<?, ?> newObject2ObjectMap() {
     return new HashMap<>();

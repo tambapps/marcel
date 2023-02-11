@@ -1,14 +1,15 @@
 package marcel.lang.primitives.collections.maps;
 
 import marcel.lang.primitives.Hash;
-import marcel.lang.primitives.collections.lists.LongArrayList;
-import marcel.lang.primitives.collections.sets.AbstractLongSet;
-import marcel.lang.primitives.collections.sets.LongOpenHashSet;
-import marcel.lang.primitives.collections.sets.LongSet;
-import marcel.lang.primitives.iterators.LongIterator;
-import marcel.lang.primitives.spliterators.LongSpliterator;
-import marcel.lang.primitives.spliterators.LongSpliterators;
-import marcel.lang.util.function.Long2ObjectFunction;
+import marcel.lang.primitives.collections.lists.CharacterArrayList;
+import marcel.lang.primitives.collections.sets.AbstractCharacterSet;
+import marcel.lang.primitives.collections.sets.CharacterSet;
+import marcel.lang.primitives.iterators.CharacterIterator;
+import marcel.lang.primitives.spliterators.CharacterSpliterator;
+import marcel.lang.primitives.spliterators.CharacterSpliterators;
+import marcel.lang.util.function.Character2ObjectFunction;
+import marcel.lang.util.function.CharacterConsumer;
+import marcel.lang.util.function.CharacterFunction;
 
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
@@ -19,14 +20,13 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.function.Consumer;
-import java.util.function.LongConsumer;
 
 
-public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implements java.io.Serializable, Cloneable, Hash {
+public class Character2ObjectOpenHashMap<V> extends AbstractCharacter2ObjectMap<V> implements java.io.Serializable, Cloneable, Hash {
 	private static final long serialVersionUID = 0L;
 	private static final boolean ASSERTS = false;
 	/** The array of keys. */
-	protected transient long[] key;
+	protected transient char[] key;
 	/** The array of values. */
 	protected transient V[] value;
 	/** The mask for wrapping a position counter. */
@@ -46,7 +46,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	/** Cached set of entries. */
 	protected transient FastEntrySet <V> entries;
 	/** Cached set of keys. */
-	protected transient LongSet keys;
+	protected transient CharacterSet keys;
 	/** Cached collection of values. */
 	protected transient Collection<V> values;
 	/** Creates a new hash map.
@@ -57,27 +57,27 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	 * @param f the load factor.
 	 */
 	@SuppressWarnings("unchecked")
-	public Long2ObjectOpenHashMap(final int expected, final float f) {
+	public Character2ObjectOpenHashMap(final int expected, final float f) {
 		if (f <= 0 || f >= 1) throw new IllegalArgumentException("Load factor must be greater than 0 and smaller than 1");
 		if (expected < 0) throw new IllegalArgumentException("The expected number of elements must be nonnegative");
 		this.f = f;
 		minN = n = Hash.arraySize(expected, f);
 		mask = n - 1;
 		maxFill = Hash.maxFill(n, f);
-		key = new long[n + 1];
+		key = new char[n + 1];
 		value = (V[]) new Object[n + 1];
 	}
 	/** Creates a new hash map with {@link Hash#DEFAULT_LOAD_FACTOR} as load factor.
 	 *
 	 * @param expected the expected number of elements in the hash map.
 	 */
-	public Long2ObjectOpenHashMap(final int expected) {
+	public Character2ObjectOpenHashMap(final int expected) {
 		this(expected, DEFAULT_LOAD_FACTOR);
 	}
 	/** Creates a new hash map with initial expected {@link Hash#DEFAULT_INITIAL_SIZE} entries
 	 * and {@link Hash#DEFAULT_LOAD_FACTOR} as load factor.
 	 */
-	public Long2ObjectOpenHashMap() {
+	public Character2ObjectOpenHashMap() {
 		this(DEFAULT_INITIAL_SIZE, DEFAULT_LOAD_FACTOR);
 	}
 	/** Creates a new hash map copying a given one.
@@ -85,7 +85,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	 * @param m a {@link Map} to be copied into the new hash map.
 	 * @param f the load factor.
 	 */
-	public Long2ObjectOpenHashMap(final Map<? extends Long, ? extends V> m, final float f) {
+	public Character2ObjectOpenHashMap(final Map<? extends Character, ? extends V> m, final float f) {
 		this(m.size(), f);
 		putAll(m);
 	}
@@ -93,7 +93,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	 *
 	 * @param m a {@link Map} to be copied into the new hash map.
 	 */
-	public Long2ObjectOpenHashMap(final Map<? extends Long, ? extends V> m) {
+	public Character2ObjectOpenHashMap(final Map<? extends Character, ? extends V> m) {
 		this(m, DEFAULT_LOAD_FACTOR);
 	}
 	/** Creates a new hash map copying a given type-specific one.
@@ -101,7 +101,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	 * @param m a type-specific map to be copied into the new hash map.
 	 * @param f the load factor.
 	 */
-	public Long2ObjectOpenHashMap(final Long2ObjectMap<V> m, final float f) {
+	public Character2ObjectOpenHashMap(final Character2ObjectMap<V> m, final float f) {
 		this(m.size(), f);
 		putAll(m);
 	}
@@ -109,7 +109,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	 *
 	 * @param m a type-specific map to be copied into the new hash map.
 	 */
-	public Long2ObjectOpenHashMap(final Long2ObjectMap<V> m) {
+	public Character2ObjectOpenHashMap(final Character2ObjectMap<V> m) {
 		this(m, DEFAULT_LOAD_FACTOR);
 	}
 	/** Creates a new hash map using the elements of two parallel arrays.
@@ -119,7 +119,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	 * @param f the load factor.
 	 * @throws IllegalArgumentException if {@code k} and {@code v} have different lengths.
 	 */
-	public Long2ObjectOpenHashMap(final long[] k, final V[] v, final float f) {
+	public Character2ObjectOpenHashMap(final char[] k, final V[] v, final float f) {
 		this(k.length, f);
 		if (k.length != v.length) throw new IllegalArgumentException("The key array and the value array have different lengths (" + k.length + " and " + v.length + ")");
 		for(int i = 0; i < k.length; i++) this.put(k[i], v[i]);
@@ -130,7 +130,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	 * @param v the array of corresponding values in the new hash map.
 	 * @throws IllegalArgumentException if {@code k} and {@code v} have different lengths.
 	 */
-	public Long2ObjectOpenHashMap(final long[] k, final V[] v) {
+	public Character2ObjectOpenHashMap(final char[] k, final V[] v) {
 		this(k, v, DEFAULT_LOAD_FACTOR);
 	}
 	private int realSize() {
@@ -146,7 +146,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 		if (needed > n) rehash(needed);
 	}
 	private void tryCapacity(final long capacity) {
-		final int needed = (int)Math.min(1 << 30, Math.max(2, Hash.nextPowerOfTwo((long)Math.ceil(capacity / f))));
+		final int needed = (int)Math.min(1 << 30, Math.max(2, Hash.nextPowerOfTwo((char)Math.ceil(capacity / f))));
 		if (needed > n) rehash(needed);
 	}
 	private V removeEntry(final int pos) {
@@ -166,15 +166,15 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 		return oldValue;
 	}
 	@Override
-	public void putAll(Map<? extends Long,? extends V> m) {
+	public void putAll(Map<? extends Character,? extends V> m) {
 		if (f <= .5) ensureCapacity(m.size()); // The resulting map will be sized for m.size() elements
 		else tryCapacity(size() + m.size()); // The resulting map will be tentatively sized for size() + m.size() elements
 		super.putAll(m);
 	}
-	private int find(final long k) {
+	private int find(final char k) {
 		if (( (k) == (0) )) return containsNullKey ? n : -(n + 1);
-		long curr;
-		final long[] key = this.key;
+		char curr;
+		final char[] key = this.key;
 		int pos;
 		// The starting point.
 		if (( (curr = key[pos = (int)Hash.mix( (k) ) & mask]) == (0) )) return -(pos + 1);
@@ -185,14 +185,14 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 			if (( (k) == (curr) )) return pos;
 		}
 	}
-	private void insert(final int pos, final long k, final V v) {
+	private void insert(final int pos, final char k, final V v) {
 		if (pos == n) containsNullKey = true;
 		key[pos] = k;
 		value[pos] = v;
 		if (size++ >= maxFill) rehash(Hash.arraySize(size + 1, f));
 	}
 	@Override
-	public V put(final long k, final V v) {
+	public V put(final char k, final V v) {
 		final int pos = find(k);
 		if (pos < 0) {
 			insert(-pos - 1, k, v);
@@ -210,8 +210,8 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	protected final void shiftKeys(int pos) {
 		// Shift entries with the same hash.
 		int last, slot;
-		long curr;
-		final long[] key = this.key;
+		char curr;
+		final char[] key = this.key;
 		for(;;) {
 			pos = ((last = pos) + 1) & mask;
 			for(;;) {
@@ -229,13 +229,13 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 		}
 	}
 	@Override
-	public V remove(final long k) {
+	public V remove(final char k) {
 		if (( (k) == (0) )) {
 			if (containsNullKey) return removeNullEntry();
 			return null;
 		}
-		long curr;
-		final long[] key = this.key;
+		char curr;
+		final char[] key = this.key;
 		int pos;
 		// The starting point.
 		if (( (curr = key[pos = (int)Hash.mix( (k) ) & mask]) == (0) )) return null;
@@ -246,10 +246,10 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 		}
 	}
 	@Override
-	public V get(final long k) {
+	public V get(final char k) {
 		if (( (k) == (0) )) return containsNullKey ? value[n] : null;
-		long curr;
-		final long[] key = this.key;
+		char curr;
+		final char[] key = this.key;
 		int pos;
 		// The starting point.
 		if (( (curr = key[pos = (int)Hash.mix( (k) ) & mask]) == (0) )) return null;
@@ -261,10 +261,10 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 		}
 	}
 	@Override
-	public boolean containsKey(final long k) {
+	public boolean containsKey(final char k) {
 		if (( (k) == (0) )) return containsNullKey;
-		long curr;
-		final long[] key = this.key;
+		char curr;
+		final char[] key = this.key;
 		int pos;
 		// The starting point.
 		if (( (curr = key[pos = (int)Hash.mix( (k) ) & mask]) == (0) )) return false;
@@ -278,17 +278,17 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	@Override
 	public boolean containsValue(final Object v) {
 		final V value[] = this.value;
-		final long key[] = this.key;
+		final char key[] = this.key;
 		if (containsNullKey && java.util.Objects.equals(value[n], v)) return true;
 		for(int i = n; i-- != 0;) if (! ( (key[i]) == (0) ) && java.util.Objects.equals(value[i], v)) return true;
 		return false;
 	}
 	/** {@inheritDoc} */
 	@Override
-	public V getOrDefault(final long k, final V defaultValue) {
+	public V getOrDefault(final char k, final V defaultValue) {
 		if (( (k) == (0) )) return containsNullKey ? value[n] : defaultValue;
-		long curr;
-		final long[] key = this.key;
+		char curr;
+		final char[] key = this.key;
 		int pos;
 		// The starting point.
 		if (( (curr = key[pos = (int)Hash.mix( (k) ) & mask]) == (0) )) return defaultValue;
@@ -301,7 +301,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	}
 	/** {@inheritDoc} */
 	@Override
-	public V putIfAbsent(final long k, final V v) {
+	public V putIfAbsent(final char k, final V v) {
 		final int pos = find(k);
 		if (pos >= 0) return value[pos];
 		insert(-pos - 1, k, v);
@@ -309,7 +309,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	}
 	/** {@inheritDoc} */
 	@Override
-	public boolean remove(final long k, final Object v) {
+	public boolean remove(final char k, final Object v) {
 		if (( (k) == (0) )) {
 			if (containsNullKey && java.util.Objects.equals(v, value[n])) {
 				removeNullEntry();
@@ -317,8 +317,8 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 			}
 			return false;
 		}
-		long curr;
-		final long[] key = this.key;
+		char curr;
+		final char[] key = this.key;
 		int pos;
 		// The starting point.
 		if (( (curr = key[pos = (int)Hash.mix( (k) ) & mask]) == (0) )) return false;
@@ -336,7 +336,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	}
 	/** {@inheritDoc} */
 	@Override
-	public boolean replace(final long k, final V oldValue, final V v) {
+	public boolean replace(final char k, final V oldValue, final V v) {
 		final int pos = find(k);
 		if (pos < 0 || ! java.util.Objects.equals(oldValue, value[pos])) return false;
 		value[pos] = v;
@@ -344,7 +344,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	}
 	/** {@inheritDoc} */
 	@Override
-	public V replace(final long k, final V v) {
+	public V replace(final char k, final V v) {
 		final int pos = find(k);
 		if (pos < 0) return null;
 		final V oldValue = value[pos];
@@ -353,7 +353,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	}
 	/** {@inheritDoc} */
 	@Override
-	public V computeIfAbsent(final long k, final java.util.function.LongFunction <? extends V> mappingFunction) {
+	public V computeIfAbsent(final char k, final CharacterFunction<? extends V> mappingFunction) {
 		java.util.Objects.requireNonNull(mappingFunction);
 		final int pos = find(k);
 		if (pos >= 0) return value[pos];
@@ -363,7 +363,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	}
 	/** {@inheritDoc} */
 	@Override
-	public V computeIfAbsent(final long key, final Long2ObjectFunction <? extends V> mappingFunction) {
+	public V computeIfAbsent(final char key, final Character2ObjectFunction <? extends V> mappingFunction) {
 		java.util.Objects.requireNonNull(mappingFunction);
 		final int pos = find(key);
 		if (pos >= 0) return value[pos];
@@ -373,12 +373,12 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	}
 	/** {@inheritDoc} */
 	@Override
-	public V computeIfPresent(final long k, final java.util.function.BiFunction<? super Long, ? super V, ? extends V> remappingFunction) {
+	public V computeIfPresent(final char k, final java.util.function.BiFunction<? super Character, ? super V, ? extends V> remappingFunction) {
 		java.util.Objects.requireNonNull(remappingFunction);
 		final int pos = find(k);
 		if (pos < 0) return null;
 		if (value[pos] == null) return null;
-		final V newValue = remappingFunction.apply(Long.valueOf(k), (value[pos]));
+		final V newValue = remappingFunction.apply(Character.valueOf(k), (value[pos]));
 		if (newValue == null) {
 			if (( (k) == (0) )) removeNullEntry();
 			else removeEntry(pos);
@@ -388,10 +388,10 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	}
 	/** {@inheritDoc} */
 	@Override
-	public V compute(final long k, final java.util.function.BiFunction<? super Long, ? super V, ? extends V> remappingFunction) {
+	public V compute(final char k, final java.util.function.BiFunction<? super Character, ? super V, ? extends V> remappingFunction) {
 		java.util.Objects.requireNonNull(remappingFunction);
 		final int pos = find(k);
-		final V newValue = remappingFunction.apply(Long.valueOf(k), pos >= 0 ? (value[pos]) : null);
+		final V newValue = remappingFunction.apply(Character.valueOf(k), pos >= 0 ? (value[pos]) : null);
 		if (newValue == null) {
 			if (pos >= 0) {
 				if (( (k) == (0) )) removeNullEntry();
@@ -408,7 +408,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	}
 	/** {@inheritDoc} */
 	@Override
-	public V merge(final long k, final V v, final java.util.function.BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
+	public V merge(final char k, final V v, final java.util.function.BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
 		java.util.Objects.requireNonNull(remappingFunction);
 		java.util.Objects.requireNonNull(v);
 		final int pos = find(k);
@@ -436,7 +436,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 		if (size == 0) return;
 		size = 0;
 		containsNullKey = false;
-		Arrays.fill(key, (0));
+		Arrays.fill(key, (char)(0));
 		Arrays.fill(value, null);
 	}
 	@Override
@@ -449,9 +449,9 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	}
 	/** The entry class for a hash map does not record key and value, but
 	 * rather the position in the hash table of the corresponding entry. This
-	 * is necessary so that calls to {@link java.util.Map.Entry#setValue(Object)} are reflected in
+	 * is necessary so that calls to {@link Map.Entry#setValue(Object)} are reflected in
 	 * the map */
-	final class MapEntry implements Long2ObjectMap.Entry <V>, Map.Entry<Long, V> {
+	final class MapEntry implements Entry <V>, Map.Entry<Character, V> {
 		// The table index this entry refers to, or -1 if this entry has been deleted.
 		int index;
 		MapEntry(final int index) {
@@ -459,11 +459,11 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 		}
 		MapEntry() {}
 		@Override
-		public long getLongKey() {
+		public char getCharacterKey() {
 			return key[index];
 		}
 	//	@Override
-		public long leftLong() {
+		public char leftCharacter() {
 			return key[index];
 		}
 		@Override
@@ -485,19 +485,19 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 		 * @deprecated Please use the corresponding type-specific method instead. */
 		@Deprecated
 		@Override
-		public Long getKey() {
-			return Long.valueOf(key[index]);
+		public Character getKey() {
+			return Character.valueOf(key[index]);
 		}
 		@SuppressWarnings("unchecked")
 		@Override
 		public boolean equals(final Object o) {
 			if (!(o instanceof Map.Entry)) return false;
-			Map.Entry<Long, V> e = (Map.Entry<Long, V>)o;
-			return ( (key[index]) == ((e.getKey()).longValue()) ) && java.util.Objects.equals(value[index], (e.getValue()));
+			Map.Entry<Character, V> e = (Map.Entry<Character, V>)o;
+			return ( (key[index]) == ((e.getKey()).charValue()) ) && java.util.Objects.equals(value[index], (e.getValue()));
 		}
 		@Override
 		public int hashCode() {
-			return Hash.long2int(key[index]) ^ ( (value[index]) == null ? 0 : (value[index]).hashCode() );
+			return key[index] ^ ( (value[index]) == null ? 0 : (value[index]).hashCode() );
 		}
 		@Override
 		public String toString() {
@@ -516,9 +516,9 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 		/** A downward counter measuring how many entries must still be returned. */
 		int c = size;
 		/** A boolean telling us whether we should return the entry with the null key. */
-		boolean mustReturnNullKey = Long2ObjectOpenHashMap.this.containsNullKey;
+		boolean mustReturnNullKey = Character2ObjectOpenHashMap.this.containsNullKey;
 		/** A lazily allocated list containing keys of entries that have wrapped around the table because of removals. */
-		LongArrayList wrapped;
+		CharacterArrayList wrapped;
 		@SuppressWarnings("unused")
 		abstract void acceptOnIndex(final ConsumerType action, final int index);
 		public boolean hasNext() {
@@ -531,12 +531,12 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 				mustReturnNullKey = false;
 				return last = n;
 			}
-			final long key[] = Long2ObjectOpenHashMap.this.key;
+			final char key[] = Character2ObjectOpenHashMap.this.key;
 			for(;;) {
 				if (--pos < 0) {
 					// We are just enumerating elements from the wrapped list.
 					last = Integer.MIN_VALUE;
-					final long k = wrapped.getLong(- pos - 1);
+					final char k = wrapped.getCharacter(- pos - 1);
 					int p = (int)Hash.mix( (k) ) & mask;
 					while (! ( (k) == (key[p]) )) p = (p + 1) & mask;
 					return p;
@@ -550,12 +550,12 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 				acceptOnIndex(action, last = n);
 				c--;
 			}
-			final long key[] = Long2ObjectOpenHashMap.this.key;
+			final char key[] = Character2ObjectOpenHashMap.this.key;
 			while (c != 0) {
 				if (--pos < 0) {
 					// We are just enumerating elements from the wrapped list.
 					last = Integer.MIN_VALUE;
-					final long k = wrapped.getLong(- pos - 1);
+					final char k = wrapped.getCharacter(- pos - 1);
 					int p = (int)Hash.mix( (k) ) & mask;
 					while (! ( (k) == (key[p]) )) p = (p + 1) & mask;
 					acceptOnIndex(action, p);
@@ -574,8 +574,8 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 		private void shiftKeys(int pos) {
 			// Shift entries with the same hash.
 			int last, slot;
-			long curr;
-			final long[] key = Long2ObjectOpenHashMap.this.key;
+			char curr;
+			final char[] key = Character2ObjectOpenHashMap.this.key;
 			for(;;) {
 				pos = ((last = pos) + 1) & mask;
 				for(;;) {
@@ -589,7 +589,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 					pos = (pos + 1) & mask;
 				}
 				if (pos < last) { // Wrapped entry.
-					if (wrapped == null) wrapped = new LongArrayList(2);
+					if (wrapped == null) wrapped = new CharacterArrayList(2);
 					wrapped.add(key[pos]);
 				}
 				key[last] = curr;
@@ -605,12 +605,12 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 			else if (pos >= 0) shiftKeys(last);
 			else {
 				// We're removing wrapped entries.
-				Long2ObjectOpenHashMap.this.remove(wrapped.getLong(- pos - 1));
+				Character2ObjectOpenHashMap.this.remove(wrapped.getCharacter(- pos - 1));
 				last = -1; // Note that we must not decrement size
 				return;
 			}
 			size--;
-			last = -1; // You can no longer remove this entry.
+			last = -1; // You can no charer remove this entry.
 		}
 		public int skip(final int n) {
 			int i = n;
@@ -635,7 +635,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 			entry.index = -1; // You cannot use a deleted entry.
 		}
 	}
-	private final class FastEntryIterator extends MapIterator<Consumer<? super Entry <V> >> implements Iterator<Long2ObjectMap.Entry <V> > {
+	private final class FastEntryIterator extends MapIterator<Consumer<? super Entry <V> >> implements Iterator<Entry <V> > {
 		private final MapEntry entry = new MapEntry();
 		@Override
 		public MapEntry next() {
@@ -659,7 +659,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 		/** An upwards counter counting how many we have given */
 		int c = 0;
 		/** A boolean telling us whether we should return the null key. */
-		boolean mustReturnNull = Long2ObjectOpenHashMap.this.containsNullKey;
+		boolean mustReturnNull = Character2ObjectOpenHashMap.this.containsNullKey;
 		boolean hasSplit = false;
 		MapSpliterator() {}
 		MapSpliterator(int pos, int max, boolean mustReturnNull, boolean hasSplit) {
@@ -677,7 +677,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 				acceptOnIndex(action, n);
 				return true;
 			}
-			final long key[] = Long2ObjectOpenHashMap.this.key;
+			final char key[] = Character2ObjectOpenHashMap.this.key;
 			while (pos < max) {
 				if (! ( (key[pos]) == (0) )) {
 					++c;
@@ -694,7 +694,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 				++c;
 				acceptOnIndex(action, n);
 			}
-			final long key[] = Long2ObjectOpenHashMap.this.key;
+			final char key[] = Character2ObjectOpenHashMap.this.key;
 			while (pos < max) {
 				if (! ( (key[pos]) == (0) )) {
 					acceptOnIndex(action, pos);
@@ -708,9 +708,9 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 				// Root spliterator; we know how many are remaining.
 				return size - c;
 			} else {
-				// After we split, we can no longer know exactly how many we have (or at least not efficiently).
+				// After we split, we can no charer know exactly how many we have (or at least not efficiently).
 				// (size / n) * (max - pos) aka currentTableDensity * numberOfBucketsLeft seems like a good estimate.
-				return Math.min(size - c, (long)(((double)realSize() / n) * (max - pos)) + (mustReturnNull ? 1 : 0));
+				return Math.min(size - c, (char)(((double)realSize() / n) * (max - pos)) + (mustReturnNull ? 1 : 0));
 			}
 		}
 		public SplitType trySplit() {
@@ -728,16 +728,16 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 			this.hasSplit = true;
 			return split;
 		}
-		public long skip(long n) {
+		public char skip(char n) {
 			if (n < 0) throw new IllegalArgumentException("Argument must be nonnegative: " + n);
 			if (n == 0) return 0;
-			long skipped = 0;
+			char skipped = 0;
 			if (mustReturnNull) {
 				mustReturnNull = false;
 				++skipped;
 				--n;
 			}
-			final long key[] = Long2ObjectOpenHashMap.this.key;
+			final char key[] = Character2ObjectOpenHashMap.this.key;
 			while (pos < max && n > 0) {
 				if (! ( (key[pos++]) == (0) )) {
 					++skipped;
@@ -747,18 +747,18 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 			return skipped;
 		}
 	}
-	private final class EntrySpliterator extends MapSpliterator<Consumer<? super Long2ObjectMap.Entry <V> >, EntrySpliterator> implements Spliterator<Long2ObjectMap.Entry <V> > {
-		private static final int POST_SPLIT_CHARACTERISTICS = LongSpliterators.SET_SPLITERATOR_CHARACTERISTICS & ~java.util.Spliterator.SIZED;
+	private final class EntrySpliterator extends MapSpliterator<Consumer<? super Entry <V> >, EntrySpliterator> implements Spliterator<Entry <V> > {
+		private static final int POST_SPLIT_CHARACTERISTICS = CharacterSpliterators.SET_SPLITERATOR_CHARACTERISTICS & ~Spliterator.SIZED;
 		EntrySpliterator() {}
 		EntrySpliterator(int pos, int max, boolean mustReturnNull, boolean hasSplit) {
 			super(pos, max, mustReturnNull, hasSplit);
 		}
 		@Override
 		public int characteristics() {
-			return hasSplit ? POST_SPLIT_CHARACTERISTICS : LongSpliterators.SET_SPLITERATOR_CHARACTERISTICS;
+			return hasSplit ? POST_SPLIT_CHARACTERISTICS : CharacterSpliterators.SET_SPLITERATOR_CHARACTERISTICS;
 		}
 		@Override
-		final void acceptOnIndex(final Consumer<? super Long2ObjectMap.Entry <V> > action, final int index) {
+		final void acceptOnIndex(final Consumer<? super Entry <V> > action, final int index) {
 			action.accept(new MapEntry(index));
 		}
 		@Override
@@ -768,23 +768,23 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	}
 	private final class MapEntrySet extends AbstractSet<Entry <V> > implements FastEntrySet <V> {
 		@Override
-		public Iterator<Long2ObjectMap.Entry <V> > iterator() { return new Long2ObjectOpenHashMap.EntryIterator(); }
+		public Iterator<Entry <V> > iterator() { return new Character2ObjectOpenHashMap.EntryIterator(); }
 		@Override
-		public Iterator<Long2ObjectMap.Entry <V> > fastIterator() { return new FastEntryIterator(); }
+		public Iterator<Entry <V> > fastIterator() { return new FastEntryIterator(); }
 		@Override
-		public Spliterator<Long2ObjectMap.Entry <V> > spliterator() { return new EntrySpliterator(); }
+		public Spliterator<Entry <V> > spliterator() { return new EntrySpliterator(); }
 		// 
 		@Override
 		@SuppressWarnings("unchecked")
 		public boolean contains(final Object o) {
 			if (!(o instanceof Map.Entry)) return false;
 			final Map.Entry<?,?> e = (Map.Entry<?,?>)o;
-			if (e.getKey() == null || ! (e.getKey() instanceof Long)) return false;
-			final long k = ((Long)(e.getKey())).longValue();
+			if (e.getKey() == null || ! (e.getKey() instanceof Character)) return false;
+			final char k = ((Character)(e.getKey())).charValue();
 			final V v = ((V) e.getValue());
-			if (( (k) == (0) )) return Long2ObjectOpenHashMap.this.containsNullKey && java.util.Objects.equals(value[n], v);
-			long curr;
-			final long[] key = Long2ObjectOpenHashMap.this.key;
+			if (( (k) == (0) )) return Character2ObjectOpenHashMap.this.containsNullKey && java.util.Objects.equals(value[n], v);
+			char curr;
+			final char[] key = Character2ObjectOpenHashMap.this.key;
 			int pos;
 			// The starting point.
 			if (( (curr = key[pos = (int)Hash.mix( (k) ) & mask]) == (0) )) return false;
@@ -800,8 +800,8 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 		public boolean remove(final Object o) {
 			if (!(o instanceof Map.Entry)) return false;
 			final Map.Entry<?,?> e = (Map.Entry<?,?>)o;
-			if (e.getKey() == null || ! (e.getKey() instanceof Long)) return false;
-			final long k = ((Long)(e.getKey())).longValue();
+			if (e.getKey() == null || ! (e.getKey() instanceof Character)) return false;
+			final char k = ((Character)(e.getKey())).charValue();
 			final V v = ((V) e.getValue());
 			if (( (k) == (0) )) {
 				if (containsNullKey && java.util.Objects.equals(value[n], v)) {
@@ -810,8 +810,8 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 				}
 				return false;
 			}
-			long curr;
-			final long[] key = Long2ObjectOpenHashMap.this.key;
+			char curr;
+			final char[] key = Character2ObjectOpenHashMap.this.key;
 			int pos;
 			// The starting point.
 			if (( (curr = key[pos = (int)Hash.mix( (k) ) & mask]) == (0) )) return false;
@@ -838,19 +838,19 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 		}
 		@Override
 		public void clear() {
-			Long2ObjectOpenHashMap.this.clear();
+			Character2ObjectOpenHashMap.this.clear();
 		}
 		/** {@inheritDoc} */
 		@Override
-		public void forEach(final Consumer<? super Long2ObjectMap.Entry <V> > consumer) {
-			if (containsNullKey) consumer.accept(new AbstractLong2ObjectMap.BasicEntry <V>(key[n], value[n]));
+		public void forEach(final Consumer<? super Entry <V> > consumer) {
+			if (containsNullKey) consumer.accept(new BasicEntry <V>(key[n], value[n]));
 			for(int pos = n; pos-- != 0;)
-				if (! ( (key[pos]) == (0) )) consumer.accept(new AbstractLong2ObjectMap.BasicEntry <V>(key[pos], value[pos]));
+				if (! ( (key[pos]) == (0) )) consumer.accept(new BasicEntry <V>(key[pos], value[pos]));
 		}
 		/** {@inheritDoc} */
 		@Override
-		public void fastForEach(final Consumer<? super Long2ObjectMap.Entry <V> > consumer) {
-			final AbstractLong2ObjectMap.BasicEntry <V> entry = new AbstractLong2ObjectMap.BasicEntry <>();
+		public void fastForEach(final Consumer<? super Entry <V> > consumer) {
+			final BasicEntry <V> entry = new BasicEntry <>();
 			if (containsNullKey) {
 				entry.key = key[n];
 				entry.value = value[n];
@@ -865,7 +865,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 		}
 	}
 	@Override
-	public FastEntrySet <V> long2ObjectEntrySet() {
+	public FastEntrySet <V> char2ObjectEntrySet() {
 		if (entries == null) entries = new MapEntrySet();
 		return entries;
 	}
@@ -875,29 +875,29 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	 * (and possibly their type-specific counterparts) so that they return keys
 	 * instead of entries.
 	 */
-	private final class KeyIterator extends MapIterator<LongConsumer> implements LongIterator {
+	private final class KeyIterator extends MapIterator<CharacterConsumer> implements CharacterIterator {
 		public KeyIterator() { super(); }
 		// forEachRemaining inherited from MapIterator superclass.
 		// Despite the superclass declared with generics, the way Java inherits and generates bridge methods avoids the boxing/unboxing
 		@Override
-		final void acceptOnIndex(final java.util.function.LongConsumer action, final int index) {
+		final void acceptOnIndex(final CharacterConsumer action, final int index) {
 			action.accept(key[index]);
 		}
 		@Override
-		public long nextLong() { return key[nextEntry()]; }
+		public char nextCharacter() { return key[nextEntry()]; }
 	}
-	private final class KeySpliterator extends MapSpliterator<java.util.function.LongConsumer, KeySpliterator> implements LongSpliterator {
-		private static final int POST_SPLIT_CHARACTERISTICS = LongSpliterators.SET_SPLITERATOR_CHARACTERISTICS & ~java.util.Spliterator.SIZED;
+	private final class KeySpliterator extends MapSpliterator<CharacterConsumer, KeySpliterator> implements CharacterSpliterator {
+		private static final int POST_SPLIT_CHARACTERISTICS = CharacterSpliterators.SET_SPLITERATOR_CHARACTERISTICS & ~Spliterator.SIZED;
 		KeySpliterator() {}
 		KeySpliterator(int pos, int max, boolean mustReturnNull, boolean hasSplit) {
 			super(pos, max, mustReturnNull, hasSplit);
 		}
 		@Override
 		public int characteristics() {
-			return hasSplit ? POST_SPLIT_CHARACTERISTICS : LongSpliterators.SET_SPLITERATOR_CHARACTERISTICS;
+			return hasSplit ? POST_SPLIT_CHARACTERISTICS : CharacterSpliterators.SET_SPLITERATOR_CHARACTERISTICS;
 		}
 		@Override
-		final void acceptOnIndex(final java.util.function.LongConsumer action, final int index) {
+		final void acceptOnIndex(final CharacterConsumer action, final int index) {
 			action.accept(key[index]);
 		}
 		@Override
@@ -905,36 +905,36 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 			return new KeySpliterator(pos, max, mustReturnNull, true);
 		}
 	}
-	private final class KeySet extends AbstractLongSet {
+	private final class KeySet extends AbstractCharacterSet {
 		@Override
-		public LongIterator iterator() { return new Long2ObjectOpenHashMap.KeyIterator(); }
+		public CharacterIterator iterator() { return new KeyIterator(); }
 		@Override
-		public LongSpliterator spliterator() { return new KeySpliterator(); }
+		public CharacterSpliterator spliterator() { return new KeySpliterator(); }
 		/** {@inheritDoc} */
 		@Override
-		public void forEach(final java.util.function.LongConsumer consumer) {
+		public void forEach(final CharacterConsumer consumer) {
 			if (containsNullKey) consumer.accept(key[n]);
 			for(int pos = n; pos-- != 0;) {
-				final long k = key[pos];
+				final char k = key[pos];
 				if (! ( (k) == (0) )) consumer.accept(k);
 			}
 		}
 		@Override
 		public int size() { return size; }
 		@Override
-		public boolean contains(long k) { return containsKey(k); }
+		public boolean contains(char k) { return containsKey(k); }
 		@Override
-		public boolean remove(long k) {
+		public boolean remove(char k) {
 			final int oldSize = size;
-			Long2ObjectOpenHashMap.this.remove(k);
+			Character2ObjectOpenHashMap.this.remove(k);
 			return size != oldSize;
 		}
 		@Override
-		public void clear() { Long2ObjectOpenHashMap.this.clear();}
+		public void clear() { Character2ObjectOpenHashMap.this.clear();}
 	}
 	@Override
-	public LongSet keySet() {
-		if (keys == null) keys = new Long2ObjectOpenHashMap.KeySet();
+	public CharacterSet keySet() {
+		if (keys == null) keys = new KeySet();
 		return keys;
 	}
 	/** An iterator on values.
@@ -955,14 +955,14 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 		public V next() { return value[nextEntry()]; }
 	}
 	private final class ValueSpliterator extends MapSpliterator<Consumer <? super V>, ValueSpliterator> implements Spliterator <V> {
-		private static final int POST_SPLIT_CHARACTERISTICS = LongSpliterators.COLLECTION_SPLITERATOR_CHARACTERISTICS & ~java.util.Spliterator.SIZED;
+		private static final int POST_SPLIT_CHARACTERISTICS = CharacterSpliterators.COLLECTION_SPLITERATOR_CHARACTERISTICS & ~Spliterator.SIZED;
 		ValueSpliterator() {}
 		ValueSpliterator(int pos, int max, boolean mustReturnNull, boolean hasSplit) {
 			super(pos, max, mustReturnNull, hasSplit);
 		}
 		@Override
 		public int characteristics() {
-			return hasSplit ? POST_SPLIT_CHARACTERISTICS : LongSpliterators.COLLECTION_SPLITERATOR_CHARACTERISTICS;
+			return hasSplit ? POST_SPLIT_CHARACTERISTICS : CharacterSpliterators.COLLECTION_SPLITERATOR_CHARACTERISTICS;
 		}
 		@Override
 		final void acceptOnIndex(final Consumer <? super V> action, final int index) {
@@ -977,7 +977,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	public Collection <V> values() {
 		if (values == null) values = new AbstractCollection<V>() {
 			@Override
-			public Iterator <V> iterator() { return new Long2ObjectOpenHashMap.ValueIterator(); }
+			public Iterator <V> iterator() { return new Character2ObjectOpenHashMap.ValueIterator(); }
 			@Override
 			public Spliterator <V> spliterator() { return new ValueSpliterator(); }
 			/** {@inheritDoc} */
@@ -992,7 +992,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 			@Override
 			public boolean contains(Object v) { return containsValue(v); }
 			@Override
-			public void clear() { Long2ObjectOpenHashMap.this.clear(); }
+			public void clear() { Character2ObjectOpenHashMap.this.clear(); }
 		};
 		return values;
 	}
@@ -1049,10 +1049,10 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	 */
 	@SuppressWarnings("unchecked")
 	protected void rehash(final int newN) {
-		final long key[] = this.key;
+		final char key[] = this.key;
 		final V value[] = this.value;
 		final int mask = newN - 1; // Note that this is used by the hashing macro
-		final long newKey[] = new long[newN + 1];
+		final char newKey[] = new char[newN + 1];
 		final V newValue[] = (V[]) new Object[newN + 1];
 		int i = n, pos;
 		for(int j = realSize(); j-- != 0;) {
@@ -1078,10 +1078,10 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public Long2ObjectOpenHashMap<V> clone() {
-		Long2ObjectOpenHashMap<V> c;
+	public Character2ObjectOpenHashMap<V> clone() {
+		Character2ObjectOpenHashMap<V> c;
 		try {
-			c = (Long2ObjectOpenHashMap<V>)super.clone();
+			c = (Character2ObjectOpenHashMap<V>)super.clone();
 		}
 		catch(CloneNotSupportedException cantHappen) {
 			throw new InternalError();
@@ -1108,7 +1108,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 		int h = 0;
 		for(int j = realSize(), i = 0, t = 0; j-- != 0;) {
 			while(( (key[i]) == (0) )) i++;
-			t = Hash.long2int(key[i]);
+			t = (char) key[i];
 			if (this != value[i])
 				t ^= ( (value[i]) == null ? 0 : (value[i]).hashCode() );
 			h += t;

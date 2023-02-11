@@ -720,6 +720,7 @@ private class PushingInstructionGenerator(
     val methodName = when (literalMapNode.getType(typeResolver).raw()) {
       JavaType.int2ObjectMap -> "newInt2ObjectMap"
       JavaType.long2ObjectMap -> "newLong2ObjectMap"
+      JavaType.char2ObjectMap -> "newChar2ObjectMap"
       else -> {
         if (JavaType.of(Map::class.java).isAssignableFrom(literalMapNode.getType(typeResolver).raw())) {
           objectKeys = true

@@ -21,6 +21,7 @@ import marcel.lang.primitives.collections.lists.IntArrayList
 import marcel.lang.primitives.collections.lists.IntList
 import marcel.lang.primitives.collections.lists.LongArrayList
 import marcel.lang.primitives.collections.lists.LongList
+import marcel.lang.primitives.collections.maps.Character2ObjectMap
 import marcel.lang.primitives.collections.maps.Int2ObjectMap
 import marcel.lang.primitives.collections.maps.Long2ObjectMap
 import marcel.lang.primitives.collections.sets.CharacterSet
@@ -215,7 +216,7 @@ interface JavaType: AstTypedObject {
     val double = JavaPrimitiveType(java.lang.Double::class, Opcodes.DLOAD, Opcodes.DSTORE, Opcodes.DRETURN, Opcodes.DADD, Opcodes.DSUB, Opcodes.DMUL, Opcodes.DDIV)
     // apparently we use int instructions to store booleans
     val boolean = JavaPrimitiveType(java.lang.Boolean::class, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN,  0,0,0,0)
-    // Marcel doesn't support char, but we could still find char values from plain Java code
+
     val char = JavaPrimitiveType(java.lang.Character::class, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV)
     // byte and short aren't supported in Marcel. The opcodes weren't verified
     val byte = JavaPrimitiveType(java.lang.Byte::class, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV)
@@ -228,7 +229,7 @@ interface JavaType: AstTypedObject {
     val floatArray = JavaArrayType(FloatArray::class.java, float, Opcodes.FASTORE, Opcodes.FALOAD, Opcodes.T_FLOAT)
     val doubleArray = JavaArrayType(DoubleArray::class.java, double, Opcodes.DASTORE, Opcodes.DALOAD, Opcodes.T_DOUBLE)
     val booleanArray = JavaArrayType(BooleanArray::class.java, boolean, Opcodes.BASTORE, Opcodes.BALOAD, Opcodes.T_BOOLEAN)
-    val charArray = JavaArrayType(CharArray::class.java, char, Opcodes.SASTORE, Opcodes.SALOAD, Opcodes.T_CHAR)
+    val charArray = JavaArrayType(CharArray::class.java, char, Opcodes.CASTORE, Opcodes.CALOAD, Opcodes.T_CHAR)
     val objectArray = JavaArrayType(Array<Any>::class.java, Object, Opcodes.AASTORE, Opcodes.AALOAD, 0)
     val ARRAYS = listOf(intArray, longArray, floatArray, doubleArray, booleanArray, objectArray)
 
@@ -284,6 +285,7 @@ interface JavaType: AstTypedObject {
     // maps with primitive key
     val int2ObjectMap = of(Int2ObjectMap::class.java)
     val long2ObjectMap = of(Long2ObjectMap::class.java)
+    val char2ObjectMap = of(Character2ObjectMap::class.java)
 
     internal val PRIMITIVE_COLLECTION_TYPE_MAP = mapOf(
       Pair("list", mapOf(
@@ -299,11 +301,12 @@ interface JavaType: AstTypedObject {
         Pair(long, longSet),
         Pair(float, floatSet),
         Pair(double, doubleSet),
-        Pair(double, characterSet),
+        Pair(char, characterSet),
       )),
       Pair("map", mapOf(
         Pair(int, int2ObjectMap),
         Pair(long, long2ObjectMap),
+        Pair(char, char2ObjectMap),
         )),
     )
   }
