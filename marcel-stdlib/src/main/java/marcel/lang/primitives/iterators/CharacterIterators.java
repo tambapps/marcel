@@ -1,9 +1,9 @@
 package marcel.lang.primitives.iterators;
 
-import marcel.lang.primitives.iterators.list.FloatListIterator;
+import marcel.lang.primitives.iterators.list.CharacterListIterator;
 import marcel.lang.util.Arrays;
-import marcel.lang.util.function.FloatConsumer;
-import marcel.lang.util.function.FloatPredicate;
+import marcel.lang.util.function.CharacterConsumer;
+import marcel.lang.util.function.CharacterPredicate;
 
 import java.util.Iterator;
 import java.util.ListIterator;
@@ -12,14 +12,14 @@ import java.util.Objects;
 import java.util.PrimitiveIterator;
 import java.util.function.Consumer;
 
-public final class FloatIterators {
-	private FloatIterators() {}
+public final class CharacterIterators {
+	private CharacterIterators() {}
 	/** A class returning no elements and a type-specific iterator interface.
 	 *
 	 * <p>This class may be useful to implement your own in case you subclass
 	 * a type-specific iterator.
 	 */
-	public static class EmptyIterator implements FloatListIterator, java.io.Serializable, Cloneable {
+	public static class EmptyIterator implements CharacterListIterator, java.io.Serializable, Cloneable {
 	 private static final long serialVersionUID = -7046029254386353129L;
 	 protected EmptyIterator() {}
 	 @Override
@@ -27,9 +27,9 @@ public final class FloatIterators {
 	 @Override
 	 public boolean hasPrevious() { return false; }
 	 @Override
-	 public float nextFloat() { throw new NoSuchElementException(); }
+	 public char nextCharacter() { throw new NoSuchElementException(); }
 	 @Override
-	 public float previousFloat() { throw new NoSuchElementException(); }
+	 public char previousCharacter() { throw new NoSuchElementException(); }
 	 @Override
 	 public int nextIndex() { return 0; }
 	 @Override
@@ -39,10 +39,10 @@ public final class FloatIterators {
 	 //@Override
 	 public int back(int n) { return 0; }
 	 @Override
-	 public void forEachRemaining(final FloatConsumer action) { }
+	 public void forEachRemaining(final CharacterConsumer action) { }
 	 @Deprecated
 	 @Override
-	 public void forEachRemaining(final Consumer<? super Float> action) { }
+	 public void forEachRemaining(final Consumer<? super Character> action) { }
 	 @Override
 	 public Object clone() { return EMPTY_ITERATOR; }
 	 private Object readResolve() { return EMPTY_ITERATOR; }
@@ -54,10 +54,10 @@ public final class FloatIterators {
 	 */
 	public static final EmptyIterator EMPTY_ITERATOR = new EmptyIterator();
 	/** An iterator returning a single element. */
-	private static class SingletonIterator implements FloatListIterator {
-	 private final float element;
+	private static class SingletonIterator implements CharacterListIterator {
+	 private final char element;
 	 private byte curr;
-	 public SingletonIterator(final float element) {
+	 public SingletonIterator(final char element) {
 	  this.element = element;
 	 }
 	 @Override
@@ -65,19 +65,19 @@ public final class FloatIterators {
 	 @Override
 	 public boolean hasPrevious() { return curr == 1; }
 	 @Override
-	 public float nextFloat() {
+	 public char nextCharacter() {
 	  if (! hasNext()) throw new NoSuchElementException();
 	  curr = 1;
 	  return element;
 	 }
 	 @Override
-	 public float previousFloat() {
+	 public char previousCharacter() {
 	  if (! hasPrevious()) throw new NoSuchElementException();
 	  curr = 0;
 	  return element;
 	 }
 	 @Override
-	 public void forEachRemaining(final FloatConsumer action) {
+	 public void forEachRemaining(final CharacterConsumer action) {
 	  Objects.requireNonNull(action);
 	  if (curr == 0) {
 	   action.accept(element);
@@ -112,15 +112,15 @@ public final class FloatIterators {
 	 * @param element the only element to be returned by a type-specific list iterator.
 	 * @return an immutable iterator that iterates just over {@code element}.
 	 */
-	public static FloatListIterator singleton(final float element) {
+	public static CharacterListIterator singleton(final char element) {
 	 return new SingletonIterator (element);
 	}
 	/** A class to wrap arrays in iterators. */
-	private static class ArrayIterator implements FloatListIterator {
-	 private final float[] array;
+	private static class ArrayIterator implements CharacterListIterator {
+	 private final char[] array;
 	 private final int offset, length;
 	 private int curr;
-	 public ArrayIterator(final float[] array, final int offset, final int length) {
+	 public ArrayIterator(final char[] array, final int offset, final int length) {
 	  this.array = array;
 	  this.offset = offset;
 	  this.length = length;
@@ -130,17 +130,17 @@ public final class FloatIterators {
 	 @Override
 	 public boolean hasPrevious() { return curr > 0; }
 	 @Override
-	 public float nextFloat() {
+	 public char nextCharacter() {
 	  if (! hasNext()) throw new NoSuchElementException();
 	  return array[offset + curr++];
 	 }
 	 @Override
-	 public float previousFloat() {
+	 public char previousCharacter() {
 	  if (! hasPrevious()) throw new NoSuchElementException();
 	  return array[offset + --curr];
 	 }
 	 @Override
-	 public void forEachRemaining(final FloatConsumer action) {
+	 public void forEachRemaining(final CharacterConsumer action) {
 	  Objects.requireNonNull(action);
 	  for (; curr < length; ++curr) {
 	   action.accept(array[offset + curr]);
@@ -188,7 +188,7 @@ public final class FloatIterators {
 	 * @param length the number of elements to return.
 	 * @return an iterator that will return {@code length} elements of {@code array} starting at position {@code offset}.
 	 */
-	public static FloatListIterator wrap(final float[] array, final int offset, final int length) {
+	public static CharacterListIterator wrap(final char[] array, final int offset, final int length) {
 	 Arrays.ensureOffsetLength(array, offset, length);
 	 return new ArrayIterator (array, offset, length);
 	}
@@ -200,7 +200,7 @@ public final class FloatIterators {
 	 * @param array an array to wrap into a type-specific list iterator.
 	 * @return an iterator that will return the elements of {@code array}.
 	 */
-	public static FloatListIterator wrap(final float[] array) {
+	public static CharacterListIterator wrap(final char[] array) {
 	 return new ArrayIterator (array, 0, array.length);
 	}
 	/** Unwraps an iterator into an array starting at a given offset for a given number of elements.
@@ -216,17 +216,17 @@ public final class FloatIterators {
 	 * @param max the maximum number of elements to unwrap.
 	 * @return the number of elements unwrapped.
 	 */
-	public static int unwrap(final FloatIterator i, final float array[], int offset, final int max) {
+	public static int unwrap(final CharacterIterator i, final char array[], int offset, final int max) {
 	 if (max < 0) throw new IllegalArgumentException("The maximum number of elements (" + max + ") is negative");
 	 if (offset < 0 || offset + max > array.length) throw new IllegalArgumentException();
 	 int j = max;
-	 while(j-- != 0 && i.hasNext()) array[offset++] = i.nextFloat();
+	 while(j-- != 0 && i.hasNext()) array[offset++] = i.nextCharacter();
 	 return max - j - 1;
 	}
 
-	private static class IteratorWrapper implements FloatIterator {
-	 final Iterator<Float> i;
-	 public IteratorWrapper(final Iterator<Float> i) {
+	private static class IteratorWrapper implements CharacterIterator {
+	 final Iterator<Character> i;
+	 public IteratorWrapper(final Iterator<Character> i) {
 	  this.i = i;
 	 }
 	 @Override
@@ -234,23 +234,23 @@ public final class FloatIterators {
 	 @Override
 	 public void remove() { i.remove(); }
 	 @Override
-	 public float nextFloat() { return (i.next()).floatValue(); }
+	 public char nextCharacter() { return (i.next()).charValue(); }
 
 	 @SuppressWarnings("unchecked")
 	 @Override
-	 public void forEachRemaining(final FloatConsumer action) {
+	 public void forEachRemaining(final CharacterConsumer action) {
 	  Objects.requireNonNull(action);
-	  i.forEachRemaining(action instanceof Consumer ? (Consumer<? super Float>)action : action::accept);
+	  i.forEachRemaining(action instanceof Consumer ? (Consumer<? super Character>)action : action::accept);
 	 }
 	 @Deprecated
 	 @Override
-	 public void forEachRemaining(final Consumer<? super Float> action) {
+	 public void forEachRemaining(final Consumer<? super Character> action) {
 	  i.forEachRemaining(action);
 	 }
 	}
-	private static class PrimitiveIteratorWrapper implements FloatIterator {
-	 final PrimitiveIterator<Float, FloatConsumer> i;
-	 public PrimitiveIteratorWrapper(PrimitiveIterator<Float, FloatConsumer> i) {
+	private static class PrimitiveIteratorWrapper implements CharacterIterator {
+	 final PrimitiveIterator<Character, CharacterConsumer> i;
+	 public PrimitiveIteratorWrapper(PrimitiveIterator<Character, CharacterConsumer> i) {
 	  this.i = i;
 	 }
 	 @Override
@@ -258,9 +258,9 @@ public final class FloatIterators {
 	 @Override
 	 public void remove() { i.remove(); }
 	 @Override
-	 public float nextFloat() { return i.next(); }
+	 public char nextCharacter() { return i.next(); }
 	 @Override
-	 public void forEachRemaining(final FloatConsumer action) {
+	 public void forEachRemaining(final CharacterConsumer action) {
 	  i.forEachRemaining(action);
 	 }
 	}
@@ -279,14 +279,14 @@ public final class FloatIterators {
 	 * @return a type-specific iterator backed by {@code i}.
 	 */
 	@SuppressWarnings({"unchecked","rawtypes"})
-	public static FloatIterator asFloatIterator(final Iterator i) {
-	 if (i instanceof FloatIterator) return (FloatIterator )i;
-	 if (i instanceof PrimitiveIterator) return new PrimitiveIteratorWrapper ((PrimitiveIterator<Float, FloatConsumer>)i);
+	public static CharacterIterator asCharacterIterator(final Iterator i) {
+	 if (i instanceof CharacterIterator) return (CharacterIterator )i;
+	 if (i instanceof PrimitiveIterator) return new PrimitiveIteratorWrapper ((PrimitiveIterator<Character, CharacterConsumer>)i);
 	 return new IteratorWrapper (i);
 	}
-	private static class ListIteratorWrapper implements FloatListIterator {
-	 final ListIterator<Float> i;
-	 public ListIteratorWrapper(final ListIterator<Float> i) {
+	private static class ListIteratorWrapper implements CharacterListIterator {
+	 final ListIterator<Character> i;
+	 public ListIteratorWrapper(final ListIterator<Character> i) {
 	  this.i = i;
 	 }
 	 @Override
@@ -298,24 +298,24 @@ public final class FloatIterators {
 	 @Override
 	 public int previousIndex() { return i.previousIndex(); }
 	 @Override
-	 public void set(float k) { i.set(Float.valueOf(k)); }
+	 public void set(char k) { i.set(Character.valueOf(k)); }
 	 @Override
-	 public void add(float k) { i.add(Float.valueOf(k)); }
+	 public void add(char k) { i.add(Character.valueOf(k)); }
 	 @Override
 	 public void remove() { i.remove(); }
 	 @Override
-	 public float nextFloat() { return (i.next()).floatValue(); }
+	 public char nextCharacter() { return (i.next()).charValue(); }
 	 @Override
-	 public float previousFloat() { return (i.previous()).floatValue(); }
+	 public char previousCharacter() { return (i.previous()).charValue(); }
 	 @SuppressWarnings("unchecked")
 	 @Override
-	 public void forEachRemaining(final FloatConsumer action) {
+	 public void forEachRemaining(final CharacterConsumer action) {
 	  Objects.requireNonNull(action);
-	  i.forEachRemaining(action instanceof Consumer ? (Consumer<? super Float>)action : action::accept);
+	  i.forEachRemaining(action instanceof Consumer ? (Consumer<? super Character>)action : action::accept);
 	 }
 	 @Deprecated
 	 @Override
-	 public void forEachRemaining(final Consumer<? super Float> action) {
+	 public void forEachRemaining(final Consumer<? super Character> action) {
 	  i.forEachRemaining(action);
 	 }
 	}
@@ -335,8 +335,8 @@ public final class FloatIterators {
 	 * @return a type-specific list iterator backed by {@code i}.
 	 */
 	@SuppressWarnings({"unchecked","rawtypes"})
-	public static FloatListIterator asFloatIterator(final ListIterator i) {
-	 if (i instanceof FloatListIterator) return (FloatListIterator )i;
+	public static CharacterListIterator asCharacterIterator(final ListIterator i) {
+	 if (i instanceof CharacterListIterator) return (CharacterListIterator )i;
 	 return new ListIteratorWrapper (i);
 	}
 	/**
@@ -344,7 +344,7 @@ public final class FloatIterators {
 	 * <p>Short circuit evaluation is performed; the first {@code true} from the predicate terminates the loop.
 	 * @return true if an element returned by {@code iterator} satisfies {@code predicate}.
 	 */
-	public static boolean any(final FloatIterator iterator, final FloatPredicate predicate) {
+	public static boolean any(final CharacterIterator iterator, final CharacterPredicate predicate) {
 	 return indexOf(iterator, predicate) != -1;
 	}
 	/**
@@ -352,11 +352,11 @@ public final class FloatIterators {
 	 * <p>Short circuit evaluation is performed; the first {@code false} from the predicate terminates the loop.
 	 * @return true if all elements returned by {@code iterator} satisfy {@code predicate}.
 	 */
-	public static boolean all(final FloatIterator iterator, final FloatPredicate predicate) {
+	public static boolean all(final CharacterIterator iterator, final CharacterPredicate predicate) {
 	 Objects.requireNonNull(predicate);
 	 do {
 	  if (!iterator.hasNext()) return true;
-	 } while (predicate.test(iterator.nextFloat()));
+	 } while (predicate.test(iterator.nextCharacter()));
 	 return false;
 	}
 	/**
@@ -368,10 +368,10 @@ public final class FloatIterators {
 	 * @return the index of the first element returned by {@code iterator} that satisfies {@code predicate}, or &minus;1 if
 	 * no such element was found.
 	 */
-	public static int indexOf(final FloatIterator iterator, final FloatPredicate predicate) {
+	public static int indexOf(final CharacterIterator iterator, final CharacterPredicate predicate) {
 	 Objects.requireNonNull(predicate);
 	 for (int i = 0; iterator.hasNext(); ++i) {
-	  if (predicate.test(iterator.nextFloat())) return i;
+	  if (predicate.test(iterator.nextCharacter())) return i;
 	 }
 	 return -1;
 	}
@@ -381,7 +381,7 @@ public final class FloatIterators {
 	 * and just implement the interface directly, but should be decent for less
 	 * performance critical implementations.
 	 *
-	 * <p>This class is only appropriate for sequences that are at most {@link Long#MAX_VALUE} long.
+	 * <p>This class is only appropriate for sequences that are at most {@link Character#MAX_VALUE} char.
 	 * If your backing data store can be bigger then this, consider the equivalently named class in
 	 * the type specific {@code BigListIterators} class.
 	 *
@@ -389,7 +389,7 @@ public final class FloatIterators {
 	 * good idea to override the class as {@code final} as to encourage the JVM to inline
 	 * them (or alternatively, override the abstract methods as final).
 	 */
-	public static abstract class AbstractIndexBasedIterator extends AbstractFloatIterator {
+	public static abstract class AbstractIndexBasedIterator extends AbstractCharacterIterator {
 	 /** The minimum pos can be, and is the logical start of the "range".
 		 * Usually set to the initialPos unless it is a ListIterator, in which case it can vary.
 		 *
@@ -424,7 +424,7 @@ public final class FloatIterators {
 		 * Thus, a {@code location} of {@code minPos + 2} would mean {@link #next()} was called twice
 		 * and this method should return what the next call to {@link #next()} should return.
 		 */
-	 protected abstract float get(int location);
+	 protected abstract char get(int location);
 	 /** Remove the item at the given index.
 		 *
 		 * <p>Do <em>not</em> modify {@link #pos} in this method; the default {@code #remove()} method takes care of this.
@@ -445,7 +445,7 @@ public final class FloatIterators {
 	 @Override
 	 public boolean hasNext() { return pos < getMaxPos(); }
 	 @Override
-	 public float nextFloat() { if (! hasNext()) throw new NoSuchElementException(); return get(lastReturned = pos++); }
+	 public char nextCharacter() { if (! hasNext()) throw new NoSuchElementException(); return get(lastReturned = pos++); }
 	 @Override
 	 public void remove() {
 	  if (lastReturned == -1) throw new IllegalStateException();
@@ -455,7 +455,7 @@ public final class FloatIterators {
 	  lastReturned = -1;
 	 }
 	 @Override
-	 public void forEachRemaining(final FloatConsumer action) {
+	 public void forEachRemaining(final CharacterConsumer action) {
 	  while(pos < getMaxPos()) {
 	   action.accept(get(lastReturned = pos++));
 	  }
@@ -481,7 +481,7 @@ public final class FloatIterators {
 	 * and just implement the interface directly, but should be decent for less
 	 * performance critical implementations.
 	 *
-	 * <p>This class is only appropriate for sequences that are at most {@link Long#MAX_VALUE} long.
+	 * <p>This class is only appropriate for sequences that are at most {@link Character#MAX_VALUE} char.
 	 * If your backing data store can be bigger then this, consider the equivalently named class in
 	 * the type specific {@code BigListSpliterators} class.
 	 *
@@ -489,7 +489,7 @@ public final class FloatIterators {
 	 * good idea to override the class as {@code final} as to encourage the JVM to inline
 	 * them (or alternatively, override the abstract methods as final).
 	 */
-	public static abstract class AbstractIndexBasedListIterator extends AbstractIndexBasedIterator implements FloatListIterator {
+	public static abstract class AbstractIndexBasedListIterator extends AbstractIndexBasedIterator implements CharacterListIterator {
 	 protected AbstractIndexBasedListIterator(int minPos, int initialPos) {
 	  super(minPos, initialPos);
 	 }
@@ -504,27 +504,27 @@ public final class FloatIterators {
 		 *
 		 * <p>See {@link #pos} and {@link #get(int)} for discussion on what the location means.
 		 */
-	 protected abstract void add(int location, float k);
+	 protected abstract void add(int location, char k);
 	 /** Sets the given item at the given index.
 		 *
 		 * <p>See {@link #pos} and {@link #get(int)} for discussion on what the location means.
 		 */
-	 protected abstract void set(int location, float k);
+	 protected abstract void set(int location, char k);
 	 @Override
 	 public boolean hasPrevious() { return pos > minPos; }
 	 @Override
-	 public float previousFloat() { if (! hasPrevious()) throw new NoSuchElementException(); return get(lastReturned = --pos); }
+	 public char previousCharacter() { if (! hasPrevious()) throw new NoSuchElementException(); return get(lastReturned = --pos); }
 	 @Override
 	 public int nextIndex() { return pos; }
 	 @Override
 	 public int previousIndex() { return pos - 1; }
 	 @Override
-	 public void add(final float k) {
+	 public void add(final char k) {
 	  add(pos++, k);
 	  lastReturned = -1;
 	 }
 	 @Override
-	 public void set(final float k) {
+	 public void set(final char k) {
 	  if (lastReturned == -1) throw new IllegalStateException();
 	  set(lastReturned, k);
 	 }
@@ -542,10 +542,10 @@ public final class FloatIterators {
 	  return n;
 	 }
 	}
-	private static class FloatIntervalIterator implements FloatListIterator {
-	 private final float from, to;
-		float curr;
-	 public FloatIntervalIterator(final float from, final float to) {
+	private static class CharacterIntervalIterator implements CharacterListIterator {
+	 private final char from, to;
+	 char curr;
+	 public CharacterIntervalIterator(final char from, final char to) {
 	  this.from = this.curr = from;
 	  this.to = to;
 	 }
@@ -554,26 +554,26 @@ public final class FloatIterators {
 	 @Override
 	 public boolean hasPrevious() { return curr > from; }
 	 @Override
-	 public float nextFloat() {
+	 public char nextCharacter() {
 	  if (! hasNext()) throw new NoSuchElementException();
 	  return curr++;
 	 }
 	 @Override
-	 public float previousFloat() {
+	 public char previousCharacter() {
 	  if (! hasPrevious()) throw new NoSuchElementException();
 	  return --curr;
 	 }
 	 @Override
-	 public void forEachRemaining(final FloatConsumer action) {
+	 public void forEachRemaining(final CharacterConsumer action) {
 	  Objects.requireNonNull(action);
 	  for (; curr < to; ++curr) {
 	   action.accept(curr);
 	  }
 	 }
 	 @Override
-	 public int nextIndex() { return (int) (curr - from); }
+	 public int nextIndex() { return curr - from; }
 	 @Override
-	 public int previousIndex() { return (int) (curr - from - 1); }
+	 public int previousIndex() { return curr - from - 1; }
 	 @Override
 	 public int skip(int n) {
 	  if (n < 0) throw new IllegalArgumentException("Argument must be nonnegative: " + n);
@@ -581,7 +581,7 @@ public final class FloatIterators {
 	   curr += n;
 	   return n;
 	  }
-	  n = (int)( to - curr);
+	  n = to - curr;
 	  curr = to;
 	  return n;
 	 }
@@ -591,7 +591,7 @@ public final class FloatIterators {
 	   curr -= n;
 	   return n;
 	  }
-	  n = (int) (curr - from);
+	  n = curr - from ;
 	  curr = from;
 	  return n;
 	 }
@@ -605,13 +605,13 @@ public final class FloatIterators {
 	 * @param to the ending element (exclusive).
 	 * @return a type-specific list iterator enumerating the elements from {@code from} to {@code to}.
 	 */
-	public static FloatListIterator fromTo(final float from, final float to) {
-	 return new FloatIntervalIterator(from, to);
+	public static CharacterListIterator fromTo(final char from, final char to) {
+	 return new CharacterIntervalIterator(from, to);
 	}
-	private static class IteratorConcatenator implements FloatIterator {
-	 final FloatIterator a[];
+	private static class IteratorConcatenator implements CharacterIterator {
+	 final CharacterIterator a[];
 	 int offset, length, lastOffset = -1;
-	 public IteratorConcatenator(final FloatIterator a[], int offset, int length) {
+	 public IteratorConcatenator(final CharacterIterator a[], int offset, int length) {
 	  this.a = a;
 	  this.offset = offset;
 	  this.length = length;
@@ -630,14 +630,14 @@ public final class FloatIterators {
 	  return length > 0;
 	 }
 	 @Override
-	 public float nextFloat() {
+	 public char nextCharacter() {
 	  if (! hasNext()) throw new NoSuchElementException();
-		 float next = a[lastOffset = offset].nextFloat();
+		 char next = a[lastOffset = offset].nextCharacter();
 	  advance();
 	  return next;
 	 }
 	 @Override
-	 public void forEachRemaining(final FloatConsumer action) {
+	 public void forEachRemaining(final CharacterConsumer action) {
 	  while (length > 0) {
 	   a[lastOffset = offset].forEachRemaining(action);
 	   advance();
@@ -645,7 +645,7 @@ public final class FloatIterators {
 	 }
 	 @Deprecated
 	 @Override
-	 public void forEachRemaining(final Consumer<? super Float> action) {
+	 public void forEachRemaining(final Consumer<? super Character> action) {
 	  while (length > 0) {
 	   a[lastOffset = offset].forEachRemaining(action);
 	   advance();
@@ -678,7 +678,7 @@ public final class FloatIterators {
 	 * @param a an array of iterators.
 	 * @return an iterator obtained by concatenation.
 	 */
-	public static FloatIterator concat(final FloatIterator ... a) {
+	public static CharacterIterator concat(final CharacterIterator ... a) {
 	 return concat(a, 0, a.length);
 	}
 	/** Concatenates a sequence of iterators contained in an array.
@@ -693,26 +693,26 @@ public final class FloatIterators {
 	 * @param length the number of iterators to concatenate.
 	 * @return an iterator obtained by concatenation of {@code length} elements of {@code a} starting at {@code offset}.
 	 */
-	public static FloatIterator concat(final FloatIterator a[], final int offset, final int length) {
+	public static CharacterIterator concat(final CharacterIterator a[], final int offset, final int length) {
 	 return new IteratorConcatenator (a, offset, length);
 	}
 	/** An unmodifiable wrapper class for iterators. */
-	public static class UnmodifiableIterator implements FloatIterator {
-	 protected final FloatIterator i;
-	 public UnmodifiableIterator(final FloatIterator i) {
+	public static class UnmodifiableIterator implements CharacterIterator {
+	 protected final CharacterIterator i;
+	 public UnmodifiableIterator(final CharacterIterator i) {
 	  this.i = i;
 	 }
 	 @Override
 	 public boolean hasNext() { return i.hasNext(); }
 	 @Override
-	 public float nextFloat() { return i.nextFloat(); }
+	 public char nextCharacter() { return i.nextCharacter(); }
 	 @Override
-	 public void forEachRemaining(final FloatConsumer action) {
+	 public void forEachRemaining(final CharacterConsumer action) {
 	  i.forEachRemaining(action);
 	 }
 	 @Deprecated
 	 @Override
-	 public void forEachRemaining(final Consumer<? super Float> action) {
+	 public void forEachRemaining(final Consumer<? super Character> action) {
 	  i.forEachRemaining(action);
 	 }
 	}

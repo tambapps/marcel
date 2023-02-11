@@ -6,6 +6,8 @@ import marcel.lang.primitives.collections.maps.Int2ObjectMap;
 import marcel.lang.primitives.collections.maps.Int2ObjectOpenHashMap;
 import marcel.lang.primitives.collections.maps.Long2ObjectMap;
 import marcel.lang.primitives.collections.maps.Long2ObjectOpenHashMap;
+import marcel.lang.primitives.collections.sets.CharacterOpenHashSet;
+import marcel.lang.primitives.collections.sets.CharacterSet;
 import marcel.lang.primitives.collections.sets.DoubleOpenHashSet;
 import marcel.lang.primitives.collections.sets.DoubleSet;
 import marcel.lang.primitives.collections.sets.FloatOpenHashSet;
@@ -52,6 +54,9 @@ public final class BytecodeHelper {
   public static BooleanSet createSet(boolean[] array) {
     return new BooleanOpenHashSet(array);
   }
+  public static CharacterSet createSet(char[] array) {
+    return new CharacterOpenHashSet(array);
+  }
 
   public static Set<?> createSet(Object array) {
     int length = Array.getLength(array);
@@ -75,8 +80,8 @@ public final class BytecodeHelper {
 
   public static boolean objectsEqual(Object left, Object right) {
     if (left == right) return true;
-    if (left == null) return right == null;
-    if (right == null) return left == null;
+    if (left == null) return false;
+    if (right == null) return false;
 
     return left.equals(right);
 

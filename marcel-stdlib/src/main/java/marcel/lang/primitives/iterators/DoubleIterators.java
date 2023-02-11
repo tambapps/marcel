@@ -11,7 +11,6 @@ import java.util.PrimitiveIterator;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoublePredicate;
-import java.util.function.DoubleConsumer;
 
 public final class DoubleIterators {
 	private DoubleIterators() {}
@@ -56,9 +55,9 @@ public final class DoubleIterators {
 	public static final EmptyIterator EMPTY_ITERATOR = new EmptyIterator();
 	/** An iterator returning a single element. */
 	private static class SingletonIterator implements DoubleListIterator {
-	 private final int element;
+	 private final double element;
 	 private byte curr;
-	 public SingletonIterator(final int element) {
+	 public SingletonIterator(final double element) {
 	  this.element = element;
 	 }
 	 @Override
@@ -113,7 +112,7 @@ public final class DoubleIterators {
 	 * @param element the only element to be returned by a type-specific list iterator.
 	 * @return an immutable iterator that iterates just over {@code element}.
 	 */
-	public static DoubleListIterator singleton(final int element) {
+	public static DoubleListIterator singleton(final double element) {
 	 return new SingletonIterator (element);
 	}
 	/** A class to wrap arrays in iterators. */
@@ -425,7 +424,7 @@ public final class DoubleIterators {
 		 * Thus, a {@code location} of {@code minPos + 2} would mean {@link #next()} was called twice
 		 * and this method should return what the next call to {@link #next()} should return.
 		 */
-	 protected abstract int get(int location);
+	 protected abstract double get(int location);
 	 /** Remove the item at the given index.
 		 *
 		 * <p>Do <em>not</em> modify {@link #pos} in this method; the default {@code #remove()} method takes care of this.
@@ -543,10 +542,10 @@ public final class DoubleIterators {
 	  return n;
 	 }
 	}
-	private static class DoubleervalIterator implements DoubleListIterator {
-	 private final int from, to;
-	 int curr;
-	 public DoubleervalIterator(final int from, final int to) {
+	private static class DoubleIntervalIterator implements DoubleListIterator {
+	 private final double from, to;
+		double curr;
+	 public DoubleIntervalIterator(final double from, final double to) {
 	  this.from = this.curr = from;
 	  this.to = to;
 	 }
@@ -572,9 +571,9 @@ public final class DoubleIterators {
 	  }
 	 }
 	 @Override
-	 public int nextIndex() { return curr - from; }
+	 public int nextIndex() { return (int) (curr - from); }
 	 @Override
-	 public int previousIndex() { return curr - from - 1; }
+	 public int previousIndex() { return (int) (curr - from - 1); }
 	 @Override
 	 public int skip(int n) {
 	  if (n < 0) throw new IllegalArgumentException("Argument must be nonnegative: " + n);
@@ -582,7 +581,7 @@ public final class DoubleIterators {
 	   curr += n;
 	   return n;
 	  }
-	  n = to - curr;
+	  n = (int) (to - curr);
 	  curr = to;
 	  return n;
 	 }
@@ -592,7 +591,7 @@ public final class DoubleIterators {
 	   curr -= n;
 	   return n;
 	  }
-	  n = curr - from ;
+	  n = (int) (curr - from);
 	  curr = from;
 	  return n;
 	 }
@@ -607,7 +606,7 @@ public final class DoubleIterators {
 	 * @return a type-specific list iterator enumerating the elements from {@code from} to {@code to}.
 	 */
 	public static DoubleListIterator fromTo(final int from, final int to) {
-	 return new DoubleervalIterator(from, to);
+	 return new DoubleIntervalIterator(from, to);
 	}
 	private static class IteratorConcatenator implements DoubleIterator {
 	 final DoubleIterator a[];

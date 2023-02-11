@@ -54,9 +54,9 @@ public final class LongIterators {
 	public static final EmptyIterator EMPTY_ITERATOR = new EmptyIterator();
 	/** An iterator returning a single element. */
 	private static class SingletonIterator implements LongListIterator {
-	 private final int element;
+	 private final long element;
 	 private byte curr;
-	 public SingletonIterator(final int element) {
+	 public SingletonIterator(final long element) {
 	  this.element = element;
 	 }
 	 @Override
@@ -111,7 +111,7 @@ public final class LongIterators {
 	 * @param element the only element to be returned by a type-specific list iterator.
 	 * @return an immutable iterator that iterates just over {@code element}.
 	 */
-	public static LongListIterator singleton(final int element) {
+	public static LongListIterator singleton(final long element) {
 	 return new SingletonIterator (element);
 	}
 	/** A class to wrap arrays in iterators. */
@@ -423,7 +423,7 @@ public final class LongIterators {
 		 * Thus, a {@code location} of {@code minPos + 2} would mean {@link #next()} was called twice
 		 * and this method should return what the next call to {@link #next()} should return.
 		 */
-	 protected abstract int get(int location);
+	 protected abstract long get(int location);
 	 /** Remove the item at the given index.
 		 *
 		 * <p>Do <em>not</em> modify {@link #pos} in this method; the default {@code #remove()} method takes care of this.
@@ -541,10 +541,10 @@ public final class LongIterators {
 	  return n;
 	 }
 	}
-	private static class LongervalIterator implements LongListIterator {
-	 private final int from, to;
-	 int curr;
-	 public LongervalIterator(final int from, final int to) {
+	private static class LongIntervalIterator implements LongListIterator {
+	 private final long from, to;
+		long curr;
+	 public LongIntervalIterator(final long from, final long to) {
 	  this.from = this.curr = from;
 	  this.to = to;
 	 }
@@ -570,9 +570,9 @@ public final class LongIterators {
 	  }
 	 }
 	 @Override
-	 public int nextIndex() { return curr - from; }
+	 public int nextIndex() { return (int) (curr - from); }
 	 @Override
-	 public int previousIndex() { return curr - from - 1; }
+	 public int previousIndex() { return (int) (curr - from - 1); }
 	 @Override
 	 public int skip(int n) {
 	  if (n < 0) throw new IllegalArgumentException("Argument must be nonnegative: " + n);
@@ -580,7 +580,7 @@ public final class LongIterators {
 	   curr += n;
 	   return n;
 	  }
-	  n = to - curr;
+	  n = (int) (to - curr);
 	  curr = to;
 	  return n;
 	 }
@@ -590,7 +590,7 @@ public final class LongIterators {
 	   curr -= n;
 	   return n;
 	  }
-	  n = curr - from ;
+	  n = (int) (curr - from);
 	  curr = from;
 	  return n;
 	 }
@@ -605,7 +605,7 @@ public final class LongIterators {
 	 * @return a type-specific list iterator enumerating the elements from {@code from} to {@code to}.
 	 */
 	public static LongListIterator fromTo(final int from, final int to) {
-	 return new LongervalIterator(from, to);
+	 return new LongIntervalIterator(from, to);
 	}
 	private static class IteratorConcatenator implements LongIterator {
 	 final LongIterator a[];

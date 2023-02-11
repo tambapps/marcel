@@ -23,6 +23,7 @@ import marcel.lang.primitives.collections.lists.LongArrayList
 import marcel.lang.primitives.collections.lists.LongList
 import marcel.lang.primitives.collections.maps.Int2ObjectMap
 import marcel.lang.primitives.collections.maps.Long2ObjectMap
+import marcel.lang.primitives.collections.sets.CharacterSet
 import marcel.lang.primitives.collections.sets.DoubleSet
 import marcel.lang.primitives.collections.sets.FloatSet
 import marcel.lang.primitives.collections.sets.IntSet
@@ -278,6 +279,7 @@ interface JavaType: AstTypedObject {
     val longSet = of(LongSet::class.java)
     val floatSet = of(FloatSet::class.java)
     val doubleSet = of(DoubleSet::class.java)
+    val characterSet = of(CharacterSet::class.java)
 
     // maps with primitive key
     val int2ObjectMap = of(Int2ObjectMap::class.java)
@@ -297,6 +299,7 @@ interface JavaType: AstTypedObject {
         Pair(long, longSet),
         Pair(float, floatSet),
         Pair(double, doubleSet),
+        Pair(double, characterSet),
       )),
       Pair("map", mapOf(
         Pair(int, int2ObjectMap),
