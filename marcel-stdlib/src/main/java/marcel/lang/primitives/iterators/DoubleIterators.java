@@ -1,6 +1,6 @@
 package marcel.lang.primitives.iterators;
 
-import marcel.lang.primitives.iterators.list.LongListIterator;
+import marcel.lang.primitives.iterators.list.DoubleListIterator;
 import marcel.lang.util.Arrays;
 
 import java.util.Iterator;
@@ -9,16 +9,18 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.PrimitiveIterator;
 import java.util.function.Consumer;
-import java.util.function.LongConsumer;
+import java.util.function.DoubleConsumer;
+import java.util.function.DoublePredicate;
+import java.util.function.DoubleConsumer;
 
-public final class LongIterators {
-	private LongIterators() {}
+public final class DoubleIterators {
+	private DoubleIterators() {}
 	/** A class returning no elements and a type-specific iterator interface.
 	 *
 	 * <p>This class may be useful to implement your own in case you subclass
 	 * a type-specific iterator.
 	 */
-	public static class EmptyIterator implements LongListIterator, java.io.Serializable, Cloneable {
+	public static class EmptyIterator implements DoubleListIterator, java.io.Serializable, Cloneable {
 	 private static final long serialVersionUID = -7046029254386353129L;
 	 protected EmptyIterator() {}
 	 @Override
@@ -26,9 +28,9 @@ public final class LongIterators {
 	 @Override
 	 public boolean hasPrevious() { return false; }
 	 @Override
-	 public long nextLong() { throw new NoSuchElementException(); }
+	 public double nextDouble() { throw new NoSuchElementException(); }
 	 @Override
-	 public long previousLong() { throw new NoSuchElementException(); }
+	 public double previousDouble() { throw new NoSuchElementException(); }
 	 @Override
 	 public int nextIndex() { return 0; }
 	 @Override
@@ -38,10 +40,10 @@ public final class LongIterators {
 	 //@Override
 	 public int back(int n) { return 0; }
 	 @Override
-	 public void forEachRemaining(final LongConsumer action) { }
+	 public void forEachRemaining(final DoubleConsumer action) { }
 	 @Deprecated
 	 @Override
-	 public void forEachRemaining(final Consumer<? super Long> action) { }
+	 public void forEachRemaining(final Consumer<? super Double> action) { }
 	 @Override
 	 public Object clone() { return EMPTY_ITERATOR; }
 	 private Object readResolve() { return EMPTY_ITERATOR; }
@@ -53,7 +55,7 @@ public final class LongIterators {
 	 */
 	public static final EmptyIterator EMPTY_ITERATOR = new EmptyIterator();
 	/** An iterator returning a single element. */
-	private static class SingletonIterator implements LongListIterator {
+	private static class SingletonIterator implements DoubleListIterator {
 	 private final int element;
 	 private byte curr;
 	 public SingletonIterator(final int element) {
@@ -64,19 +66,19 @@ public final class LongIterators {
 	 @Override
 	 public boolean hasPrevious() { return curr == 1; }
 	 @Override
-	 public long nextLong() {
+	 public double nextDouble() {
 	  if (! hasNext()) throw new NoSuchElementException();
 	  curr = 1;
 	  return element;
 	 }
 	 @Override
-	 public long previousLong() {
+	 public double previousDouble() {
 	  if (! hasPrevious()) throw new NoSuchElementException();
 	  curr = 0;
 	  return element;
 	 }
 	 @Override
-	 public void forEachRemaining(final LongConsumer action) {
+	 public void forEachRemaining(final DoubleConsumer action) {
 	  Objects.requireNonNull(action);
 	  if (curr == 0) {
 	   action.accept(element);
@@ -111,15 +113,15 @@ public final class LongIterators {
 	 * @param element the only element to be returned by a type-specific list iterator.
 	 * @return an immutable iterator that iterates just over {@code element}.
 	 */
-	public static LongListIterator singleton(final int element) {
+	public static DoubleListIterator singleton(final int element) {
 	 return new SingletonIterator (element);
 	}
 	/** A class to wrap arrays in iterators. */
-	private static class ArrayIterator implements LongListIterator {
-	 private final long[] array;
+	private static class ArrayIterator implements DoubleListIterator {
+	 private final double[] array;
 	 private final int offset, length;
 	 private int curr;
-	 public ArrayIterator(final long[] array, final int offset, final int length) {
+	 public ArrayIterator(final double[] array, final int offset, final int length) {
 	  this.array = array;
 	  this.offset = offset;
 	  this.length = length;
@@ -129,17 +131,17 @@ public final class LongIterators {
 	 @Override
 	 public boolean hasPrevious() { return curr > 0; }
 	 @Override
-	 public long nextLong() {
+	 public double nextDouble() {
 	  if (! hasNext()) throw new NoSuchElementException();
 	  return array[offset + curr++];
 	 }
 	 @Override
-	 public long previousLong() {
+	 public double previousDouble() {
 	  if (! hasPrevious()) throw new NoSuchElementException();
 	  return array[offset + --curr];
 	 }
 	 @Override
-	 public void forEachRemaining(final LongConsumer action) {
+	 public void forEachRemaining(final DoubleConsumer action) {
 	  Objects.requireNonNull(action);
 	  for (; curr < length; ++curr) {
 	   action.accept(array[offset + curr]);
@@ -187,7 +189,7 @@ public final class LongIterators {
 	 * @param length the number of elements to return.
 	 * @return an iterator that will return {@code length} elements of {@code array} starting at position {@code offset}.
 	 */
-	public static LongListIterator wrap(final long[] array, final int offset, final int length) {
+	public static DoubleListIterator wrap(final double[] array, final int offset, final int length) {
 	 Arrays.ensureOffsetLength(array, offset, length);
 	 return new ArrayIterator (array, offset, length);
 	}
@@ -199,7 +201,7 @@ public final class LongIterators {
 	 * @param array an array to wrap into a type-specific list iterator.
 	 * @return an iterator that will return the elements of {@code array}.
 	 */
-	public static LongListIterator wrap(final long[] array) {
+	public static DoubleListIterator wrap(final double[] array) {
 	 return new ArrayIterator (array, 0, array.length);
 	}
 	/** Unwraps an iterator into an array starting at a given offset for a given number of elements.
@@ -215,17 +217,17 @@ public final class LongIterators {
 	 * @param max the maximum number of elements to unwrap.
 	 * @return the number of elements unwrapped.
 	 */
-	public static int unwrap(final LongIterator i, final long array[], int offset, final int max) {
+	public static int unwrap(final DoubleIterator i, final double array[], int offset, final int max) {
 	 if (max < 0) throw new IllegalArgumentException("The maximum number of elements (" + max + ") is negative");
 	 if (offset < 0 || offset + max > array.length) throw new IllegalArgumentException();
 	 int j = max;
-	 while(j-- != 0 && i.hasNext()) array[offset++] = i.nextLong();
+	 while(j-- != 0 && i.hasNext()) array[offset++] = i.nextDouble();
 	 return max - j - 1;
 	}
 
-	private static class IteratorWrapper implements LongIterator {
-	 final Iterator<Long> i;
-	 public IteratorWrapper(final Iterator<Long> i) {
+	private static class IteratorWrapper implements DoubleIterator {
+	 final Iterator<Double> i;
+	 public IteratorWrapper(final Iterator<Double> i) {
 	  this.i = i;
 	 }
 	 @Override
@@ -233,23 +235,23 @@ public final class LongIterators {
 	 @Override
 	 public void remove() { i.remove(); }
 	 @Override
-	 public long nextLong() { return (i.next()).longValue(); }
+	 public double nextDouble() { return (i.next()).doubleValue(); }
 
 	 @SuppressWarnings("unchecked")
 	 @Override
-	 public void forEachRemaining(final LongConsumer action) {
+	 public void forEachRemaining(final DoubleConsumer action) {
 	  Objects.requireNonNull(action);
-	  i.forEachRemaining(action instanceof Consumer ? (Consumer<? super Long>)action : action::accept);
+	  i.forEachRemaining(action instanceof Consumer ? (Consumer<? super Double>)action : action::accept);
 	 }
 	 @Deprecated
 	 @Override
-	 public void forEachRemaining(final Consumer<? super Long> action) {
+	 public void forEachRemaining(final Consumer<? super Double> action) {
 	  i.forEachRemaining(action);
 	 }
 	}
-	private static class PrimitiveIteratorWrapper implements LongIterator {
-	 final OfLong i;
-	 public PrimitiveIteratorWrapper(OfLong i) {
+	private static class PrimitiveIteratorWrapper implements DoubleIterator {
+	 final OfDouble i;
+	 public PrimitiveIteratorWrapper(OfDouble i) {
 	  this.i = i;
 	 }
 	 @Override
@@ -257,9 +259,9 @@ public final class LongIterators {
 	 @Override
 	 public void remove() { i.remove(); }
 	 @Override
-	 public long nextLong() { return i.nextLong(); }
+	 public double nextDouble() { return i.nextDouble(); }
 	 @Override
-	 public void forEachRemaining(final LongConsumer action) {
+	 public void forEachRemaining(final DoubleConsumer action) {
 	  i.forEachRemaining(action);
 	 }
 	}
@@ -278,14 +280,14 @@ public final class LongIterators {
 	 * @return a type-specific iterator backed by {@code i}.
 	 */
 	@SuppressWarnings({"unchecked","rawtypes"})
-	public static LongIterator asLongIterator(final Iterator i) {
-	 if (i instanceof LongIterator) return (LongIterator )i;
-	 if (i instanceof PrimitiveIterator.OfLong) return new PrimitiveIteratorWrapper ((PrimitiveIterator.OfLong)i);
+	public static DoubleIterator asDoubleIterator(final Iterator i) {
+	 if (i instanceof DoubleIterator) return (DoubleIterator )i;
+	 if (i instanceof PrimitiveIterator.OfDouble) return new PrimitiveIteratorWrapper ((PrimitiveIterator.OfDouble)i);
 	 return new IteratorWrapper (i);
 	}
-	private static class ListIteratorWrapper implements LongListIterator {
-	 final ListIterator<Long> i;
-	 public ListIteratorWrapper(final ListIterator<Long> i) {
+	private static class ListIteratorWrapper implements DoubleListIterator {
+	 final ListIterator<Double> i;
+	 public ListIteratorWrapper(final ListIterator<Double> i) {
 	  this.i = i;
 	 }
 	 @Override
@@ -297,24 +299,24 @@ public final class LongIterators {
 	 @Override
 	 public int previousIndex() { return i.previousIndex(); }
 	 @Override
-	 public void set(long k) { i.set(Long.valueOf(k)); }
+	 public void set(double k) { i.set(Double.valueOf(k)); }
 	 @Override
-	 public void add(long k) { i.add(Long.valueOf(k)); }
+	 public void add(double k) { i.add(Double.valueOf(k)); }
 	 @Override
 	 public void remove() { i.remove(); }
 	 @Override
-	 public long nextLong() { return (i.next()).longValue(); }
+	 public double nextDouble() { return (i.next()).doubleValue(); }
 	 @Override
-	 public long previousLong() { return (i.previous()).longValue(); }
+	 public double previousDouble() { return (i.previous()).doubleValue(); }
 	 @SuppressWarnings("unchecked")
 	 @Override
-	 public void forEachRemaining(final LongConsumer action) {
+	 public void forEachRemaining(final DoubleConsumer action) {
 	  Objects.requireNonNull(action);
-	  i.forEachRemaining(action instanceof Consumer ? (Consumer<? super Long>)action : action::accept);
+	  i.forEachRemaining(action instanceof Consumer ? (Consumer<? super Double>)action : action::accept);
 	 }
 	 @Deprecated
 	 @Override
-	 public void forEachRemaining(final Consumer<? super Long> action) {
+	 public void forEachRemaining(final Consumer<? super Double> action) {
 	  i.forEachRemaining(action);
 	 }
 	}
@@ -334,8 +336,8 @@ public final class LongIterators {
 	 * @return a type-specific list iterator backed by {@code i}.
 	 */
 	@SuppressWarnings({"unchecked","rawtypes"})
-	public static LongListIterator asLongIterator(final ListIterator i) {
-	 if (i instanceof LongListIterator) return (LongListIterator )i;
+	public static DoubleListIterator asDoubleIterator(final ListIterator i) {
+	 if (i instanceof DoubleListIterator) return (DoubleListIterator )i;
 	 return new ListIteratorWrapper (i);
 	}
 	/**
@@ -343,7 +345,7 @@ public final class LongIterators {
 	 * <p>Short circuit evaluation is performed; the first {@code true} from the predicate terminates the loop.
 	 * @return true if an element returned by {@code iterator} satisfies {@code predicate}.
 	 */
-	public static boolean any(final LongIterator iterator, final java.util.function.LongPredicate predicate) {
+	public static boolean any(final DoubleIterator iterator, final DoublePredicate predicate) {
 	 return indexOf(iterator, predicate) != -1;
 	}
 	/**
@@ -351,11 +353,11 @@ public final class LongIterators {
 	 * <p>Short circuit evaluation is performed; the first {@code false} from the predicate terminates the loop.
 	 * @return true if all elements returned by {@code iterator} satisfy {@code predicate}.
 	 */
-	public static boolean all(final LongIterator iterator, final java.util.function.LongPredicate predicate) {
+	public static boolean all(final DoubleIterator iterator, final java.util.function.DoublePredicate predicate) {
 	 Objects.requireNonNull(predicate);
 	 do {
 	  if (!iterator.hasNext()) return true;
-	 } while (predicate.test(iterator.nextLong()));
+	 } while (predicate.test(iterator.nextDouble()));
 	 return false;
 	}
 	/**
@@ -367,10 +369,10 @@ public final class LongIterators {
 	 * @return the index of the first element returned by {@code iterator} that satisfies {@code predicate}, or &minus;1 if
 	 * no such element was found.
 	 */
-	public static int indexOf(final LongIterator iterator, final java.util.function.LongPredicate predicate) {
+	public static int indexOf(final DoubleIterator iterator, final java.util.function.DoublePredicate predicate) {
 	 Objects.requireNonNull(predicate);
 	 for (int i = 0; iterator.hasNext(); ++i) {
-	  if (predicate.test(iterator.nextLong())) return i;
+	  if (predicate.test(iterator.nextDouble())) return i;
 	 }
 	 return -1;
 	}
@@ -388,7 +390,7 @@ public final class LongIterators {
 	 * good idea to override the class as {@code final} as to encourage the JVM to inline
 	 * them (or alternatively, override the abstract methods as final).
 	 */
-	public static abstract class AbstractIndexBasedIterator extends AbstractLongIterator {
+	public static abstract class AbstractIndexBasedIterator extends AbstractDoubleIterator {
 	 /** The minimum pos can be, and is the logical start of the "range".
 		 * Usually set to the initialPos unless it is a ListIterator, in which case it can vary.
 		 *
@@ -444,7 +446,7 @@ public final class LongIterators {
 	 @Override
 	 public boolean hasNext() { return pos < getMaxPos(); }
 	 @Override
-	 public long nextLong() { if (! hasNext()) throw new NoSuchElementException(); return get(lastReturned = pos++); }
+	 public double nextDouble() { if (! hasNext()) throw new NoSuchElementException(); return get(lastReturned = pos++); }
 	 @Override
 	 public void remove() {
 	  if (lastReturned == -1) throw new IllegalStateException();
@@ -454,7 +456,7 @@ public final class LongIterators {
 	  lastReturned = -1;
 	 }
 	 @Override
-	 public void forEachRemaining(final LongConsumer action) {
+	 public void forEachRemaining(final DoubleConsumer action) {
 	  while(pos < getMaxPos()) {
 	   action.accept(get(lastReturned = pos++));
 	  }
@@ -488,7 +490,7 @@ public final class LongIterators {
 	 * good idea to override the class as {@code final} as to encourage the JVM to inline
 	 * them (or alternatively, override the abstract methods as final).
 	 */
-	public static abstract class AbstractIndexBasedListIterator extends AbstractIndexBasedIterator implements LongListIterator {
+	public static abstract class AbstractIndexBasedListIterator extends AbstractIndexBasedIterator implements DoubleListIterator {
 	 protected AbstractIndexBasedListIterator(int minPos, int initialPos) {
 	  super(minPos, initialPos);
 	 }
@@ -503,27 +505,27 @@ public final class LongIterators {
 		 *
 		 * <p>See {@link #pos} and {@link #get(int)} for discussion on what the location means.
 		 */
-	 protected abstract void add(int location, long k);
+	 protected abstract void add(int location, double k);
 	 /** Sets the given item at the given index.
 		 *
 		 * <p>See {@link #pos} and {@link #get(int)} for discussion on what the location means.
 		 */
-	 protected abstract void set(int location, long k);
+	 protected abstract void set(int location, double k);
 	 @Override
 	 public boolean hasPrevious() { return pos > minPos; }
 	 @Override
-	 public long previousLong() { if (! hasPrevious()) throw new NoSuchElementException(); return get(lastReturned = --pos); }
+	 public double previousDouble() { if (! hasPrevious()) throw new NoSuchElementException(); return get(lastReturned = --pos); }
 	 @Override
 	 public int nextIndex() { return pos; }
 	 @Override
 	 public int previousIndex() { return pos - 1; }
 	 @Override
-	 public void add(final long k) {
+	 public void add(final double k) {
 	  add(pos++, k);
 	  lastReturned = -1;
 	 }
 	 @Override
-	 public void set(final long k) {
+	 public void set(final double k) {
 	  if (lastReturned == -1) throw new IllegalStateException();
 	  set(lastReturned, k);
 	 }
@@ -541,10 +543,10 @@ public final class LongIterators {
 	  return n;
 	 }
 	}
-	private static class LongervalIterator implements LongListIterator {
+	private static class DoubleervalIterator implements DoubleListIterator {
 	 private final int from, to;
 	 int curr;
-	 public LongervalIterator(final int from, final int to) {
+	 public DoubleervalIterator(final int from, final int to) {
 	  this.from = this.curr = from;
 	  this.to = to;
 	 }
@@ -553,17 +555,17 @@ public final class LongIterators {
 	 @Override
 	 public boolean hasPrevious() { return curr > from; }
 	 @Override
-	 public long nextLong() {
+	 public double nextDouble() {
 	  if (! hasNext()) throw new NoSuchElementException();
 	  return curr++;
 	 }
 	 @Override
-	 public long previousLong() {
+	 public double previousDouble() {
 	  if (! hasPrevious()) throw new NoSuchElementException();
 	  return --curr;
 	 }
 	 @Override
-	 public void forEachRemaining(final LongConsumer action) {
+	 public void forEachRemaining(final DoubleConsumer action) {
 	  Objects.requireNonNull(action);
 	  for (; curr < to; ++curr) {
 	   action.accept(curr);
@@ -604,13 +606,13 @@ public final class LongIterators {
 	 * @param to the ending element (exclusive).
 	 * @return a type-specific list iterator enumerating the elements from {@code from} to {@code to}.
 	 */
-	public static LongListIterator fromTo(final int from, final int to) {
-	 return new LongervalIterator(from, to);
+	public static DoubleListIterator fromTo(final int from, final int to) {
+	 return new DoubleervalIterator(from, to);
 	}
-	private static class IteratorConcatenator implements LongIterator {
-	 final LongIterator a[];
+	private static class IteratorConcatenator implements DoubleIterator {
+	 final DoubleIterator a[];
 	 int offset, length, lastOffset = -1;
-	 public IteratorConcatenator(final LongIterator a[], int offset, int length) {
+	 public IteratorConcatenator(final DoubleIterator a[], int offset, int length) {
 	  this.a = a;
 	  this.offset = offset;
 	  this.length = length;
@@ -629,14 +631,14 @@ public final class LongIterators {
 	  return length > 0;
 	 }
 	 @Override
-	 public long nextLong() {
+	 public double nextDouble() {
 	  if (! hasNext()) throw new NoSuchElementException();
-		 long next = a[lastOffset = offset].nextLong();
+		 double next = a[lastOffset = offset].nextDouble();
 	  advance();
 	  return next;
 	 }
 	 @Override
-	 public void forEachRemaining(final LongConsumer action) {
+	 public void forEachRemaining(final DoubleConsumer action) {
 	  while (length > 0) {
 	   a[lastOffset = offset].forEachRemaining(action);
 	   advance();
@@ -644,7 +646,7 @@ public final class LongIterators {
 	 }
 	 @Deprecated
 	 @Override
-	 public void forEachRemaining(final Consumer<? super Long> action) {
+	 public void forEachRemaining(final Consumer<? super Double> action) {
 	  while (length > 0) {
 	   a[lastOffset = offset].forEachRemaining(action);
 	   advance();
@@ -677,7 +679,7 @@ public final class LongIterators {
 	 * @param a an array of iterators.
 	 * @return an iterator obtained by concatenation.
 	 */
-	public static LongIterator concat(final LongIterator ... a) {
+	public static DoubleIterator concat(final DoubleIterator ... a) {
 	 return concat(a, 0, a.length);
 	}
 	/** Concatenates a sequence of iterators contained in an array.
@@ -692,26 +694,26 @@ public final class LongIterators {
 	 * @param length the number of iterators to concatenate.
 	 * @return an iterator obtained by concatenation of {@code length} elements of {@code a} starting at {@code offset}.
 	 */
-	public static LongIterator concat(final LongIterator a[], final int offset, final int length) {
+	public static DoubleIterator concat(final DoubleIterator a[], final int offset, final int length) {
 	 return new IteratorConcatenator (a, offset, length);
 	}
 	/** An unmodifiable wrapper class for iterators. */
-	public static class UnmodifiableIterator implements LongIterator {
-	 protected final LongIterator i;
-	 public UnmodifiableIterator(final LongIterator i) {
+	public static class UnmodifiableIterator implements DoubleIterator {
+	 protected final DoubleIterator i;
+	 public UnmodifiableIterator(final DoubleIterator i) {
 	  this.i = i;
 	 }
 	 @Override
 	 public boolean hasNext() { return i.hasNext(); }
 	 @Override
-	 public long nextLong() { return i.nextLong(); }
+	 public double nextDouble() { return i.nextDouble(); }
 	 @Override
-	 public void forEachRemaining(final LongConsumer action) {
+	 public void forEachRemaining(final DoubleConsumer action) {
 	  i.forEachRemaining(action);
 	 }
 	 @Deprecated
 	 @Override
-	 public void forEachRemaining(final Consumer<? super Long> action) {
+	 public void forEachRemaining(final Consumer<? super Double> action) {
 	  i.forEachRemaining(action);
 	 }
 	}
