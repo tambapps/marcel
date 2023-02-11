@@ -23,7 +23,7 @@ class MarcelParserTest {
 
     private val lexer = MarcelLexer()
     private val typeResolver = AstNodeTypeResolver()
-    private val type = JavaType.of("Test", emptyList())
+    private val type = typeResolver.defineClass("Test", JavaType.Object, false, emptyList())
     private val scope = MethodScope(typeResolver, mutableListOf(), type, JavaType.Object, "test", emptyList(), JavaType.void)
 
     @Test
@@ -76,10 +76,10 @@ class MarcelParserTest {
 
     @Test
     fun testGenricTypeVarDeclaration() {
-        val parser = parser("Type<Integer, Object> b = null")
+        val parser = parser("Map<Integer, Object> b = null")
 
         assertEquals(
-            VariableDeclarationNode(scope, typeResolver.defineClass("Type", JavaType.of(Script::class.java), false, emptyList()).withGenericTypes(listOf(
+            VariableDeclarationNode(scope, JavaType.of(Map::class.java, listOf(
                 JavaType.of(Class.forName("java.lang.Integer")),
                 JavaType.of(Class.forName("java.lang.Object"))
             )), "b", NullValueNode()),
