@@ -2,14 +2,10 @@ package marcel.lang.runtime;
 
 import it.unimi.dsi.fastutil.booleans.BooleanOpenHashSet;
 import it.unimi.dsi.fastutil.booleans.BooleanSet;
-import it.unimi.dsi.fastutil.doubles.Double2ObjectMap;
-import it.unimi.dsi.fastutil.doubles.Double2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.floats.Float2ObjectMap;
-import it.unimi.dsi.fastutil.floats.Float2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import marcel.lang.primitives.collections.maps.Int2ObjectMap;
 import marcel.lang.primitives.collections.maps.Int2ObjectOpenHashMap;
+import marcel.lang.primitives.collections.maps.Long2ObjectMap;
+import marcel.lang.primitives.collections.maps.Long2ObjectOpenHashMap;
 import marcel.lang.primitives.collections.sets.DoubleOpenHashSet;
 import marcel.lang.primitives.collections.sets.DoubleSet;
 import marcel.lang.primitives.collections.sets.FloatOpenHashSet;
@@ -72,12 +68,6 @@ public final class BytecodeHelper {
   }
   public static Long2ObjectMap<?> newLong2ObjectMap() {
     return new Long2ObjectOpenHashMap<>();
-  }
-  public static Float2ObjectMap<?> newFloat2ObjectMap() {
-    return new Float2ObjectOpenHashMap<>();
-  }
-  public static Double2ObjectMap<?> newDouble2ObjectMap() {
-    return new Double2ObjectOpenHashMap<>();
   }
   public static Map<?, ?> newObject2ObjectMap() {
     return new HashMap<>();

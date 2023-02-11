@@ -41,12 +41,7 @@ assertEquals(2, longMap.get(1l))
 assertEquals(4, longMap.get(3l))
 assertNull(longMap.get(88l))
 
-map<float, Object> floatMap = [1f: 2, 3: 4]
-assertEquals(2, floatMap.get(1f))
-assertEquals(4, floatMap.get(3f))
-assertNull(floatMap.get(88f))
-
-map<double, Object> doubleMap = [1d: 2, 3: 4]
-assertEquals(2, doubleMap.get(1d))
-assertEquals(4, doubleMap.get(3d))
-assertNull(doubleMap.get(88d))
+map<float, Object> charMap = [`c`: 2, `d`: 4]
+assertEquals(2, floatMap.get(`c`))
+assertEquals(4, floatMap.get(`d`))
+assertNull(floatMap.get(`e`))

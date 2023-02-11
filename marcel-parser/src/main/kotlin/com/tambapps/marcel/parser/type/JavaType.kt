@@ -10,7 +10,6 @@ import it.unimi.dsi.fastutil.booleans.BooleanArrayList
 import it.unimi.dsi.fastutil.booleans.BooleanList
 import it.unimi.dsi.fastutil.doubles.Double2ObjectMap
 import it.unimi.dsi.fastutil.floats.Float2ObjectMap
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap
 import marcel.lang.lambda.Lambda
 import marcel.lang.primitives.collections.lists.DoubleArrayList
 import marcel.lang.primitives.collections.lists.DoubleList
@@ -21,6 +20,7 @@ import marcel.lang.primitives.collections.lists.IntList
 import marcel.lang.primitives.collections.lists.LongArrayList
 import marcel.lang.primitives.collections.lists.LongList
 import marcel.lang.primitives.collections.maps.Int2ObjectMap
+import marcel.lang.primitives.collections.maps.Long2ObjectMap
 import marcel.lang.primitives.collections.sets.DoubleSet
 import marcel.lang.primitives.collections.sets.FloatSet
 import marcel.lang.primitives.collections.sets.IntSet
@@ -275,8 +275,6 @@ interface JavaType: AstTypedObject {
     // maps with primitive key
     val int2ObjectMap = of(Int2ObjectMap::class.java)
     val long2ObjectMap = of(Long2ObjectMap::class.java)
-    val float2ObjectMap = of(Float2ObjectMap::class.java)
-    val double2ObjectMap = of(Double2ObjectMap::class.java)
 
     internal val PRIMITIVE_COLLECTION_TYPE_MAP = mapOf(
       Pair("list", mapOf(
@@ -295,8 +293,6 @@ interface JavaType: AstTypedObject {
       Pair("map", mapOf(
         Pair(int, int2ObjectMap),
         Pair(long, long2ObjectMap),
-        Pair(float, float2ObjectMap),
-        Pair(double, double2ObjectMap),
         )),
     )
   }
