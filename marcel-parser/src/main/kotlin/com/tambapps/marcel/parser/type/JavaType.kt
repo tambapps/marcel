@@ -10,7 +10,6 @@ import it.unimi.dsi.fastutil.booleans.BooleanArrayList
 import it.unimi.dsi.fastutil.booleans.BooleanList
 import it.unimi.dsi.fastutil.booleans.BooleanSet
 import it.unimi.dsi.fastutil.doubles.Double2ObjectMap
-import it.unimi.dsi.fastutil.doubles.DoubleSet
 import it.unimi.dsi.fastutil.floats.Float2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap
@@ -23,6 +22,7 @@ import marcel.lang.primitives.collections.lists.IntArrayList
 import marcel.lang.primitives.collections.lists.IntList
 import marcel.lang.primitives.collections.lists.LongArrayList
 import marcel.lang.primitives.collections.lists.LongList
+import marcel.lang.primitives.collections.sets.DoubleSet
 import marcel.lang.primitives.collections.sets.FloatSet
 import marcel.lang.primitives.collections.sets.IntSet
 import marcel.lang.primitives.collections.sets.LongSet
