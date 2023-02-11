@@ -16,10 +16,10 @@
 package marcel.lang.primitives.collections;
 
 
-import marcel.lang.primitives.floats.FloatPredicate;
 import marcel.lang.primitives.iterable.FloatIterable;
 import marcel.lang.primitives.iterators.FloatIterator;
 import marcel.lang.primitives.spliterators.FloatSpliterator;
+import marcel.lang.util.function.FloatPredicate;
 
 import java.util.Collection;
 

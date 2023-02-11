@@ -15,7 +15,7 @@
 	*/
 package marcel.lang.primitives.spliterators;
 
-import marcel.lang.primitives.floats.FloatConsumer;
+import marcel.lang.util.function.FloatConsumer;
 
 import java.util.Spliterator;
 import java.util.function.Consumer;

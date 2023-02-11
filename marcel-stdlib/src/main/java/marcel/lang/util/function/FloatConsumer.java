@@ -1,4 +1,4 @@
-package marcel.lang.primitives.floats;
+package marcel.lang.util.function;
 
 import java.util.function.Consumer;
 

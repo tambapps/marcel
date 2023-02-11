@@ -14,9 +14,9 @@
 	* limitations under the License.
 	*/
 package marcel.lang.primitives.iterators;
+
 import marcel.lang.primitives.collections.FloatCollection;
-import marcel.lang.primitives.collections.IntCollection;
-import marcel.lang.primitives.floats.FloatConsumer;
+import marcel.lang.util.function.FloatConsumer;
 
 import java.util.Iterator;
 import java.util.PrimitiveIterator;

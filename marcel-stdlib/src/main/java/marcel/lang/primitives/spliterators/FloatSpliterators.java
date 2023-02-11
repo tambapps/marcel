@@ -1,12 +1,12 @@
 package marcel.lang.primitives.spliterators;
 
-import marcel.lang.primitives.floats.FloatConsumer;
-import marcel.lang.primitives.floats.FloatPredicate;
 import marcel.lang.primitives.iterators.FloatIterator;
 import marcel.lang.util.Arrays;
 import marcel.lang.util.Comparators;
 import marcel.lang.util.SafeMath;
 import marcel.lang.util.function.FloatComparator;
+import marcel.lang.util.function.FloatConsumer;
+import marcel.lang.util.function.FloatPredicate;
 
 import java.util.Objects;
 import java.util.Spliterator;

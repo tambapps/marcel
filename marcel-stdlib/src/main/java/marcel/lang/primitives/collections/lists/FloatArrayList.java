@@ -1,13 +1,13 @@
 package marcel.lang.primitives.collections.lists;
 
 import marcel.lang.primitives.collections.FloatCollection;
-import marcel.lang.primitives.floats.FloatConsumer;
 import marcel.lang.primitives.iterators.FloatIterator;
 import marcel.lang.primitives.iterators.list.FloatListIterator;
 import marcel.lang.primitives.spliterators.FloatSpliterator;
 import marcel.lang.primitives.spliterators.FloatSpliterators;
 import marcel.lang.util.Arrays;
 import marcel.lang.util.SafeMath;
+import marcel.lang.util.function.FloatConsumer;
 
 import java.util.Collection;
 import java.util.Iterator;
