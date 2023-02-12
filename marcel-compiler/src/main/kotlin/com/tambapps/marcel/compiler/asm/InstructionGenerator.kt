@@ -377,7 +377,7 @@ class InstructionGenerator(
 
     // loop end
     mv.visitLabel(loopEnd)
-    (whileStatement.body.scope as InnerScope).clearInnerScopeLocalVariables()
+    whileStatement.scope.clearInnerScopeLocalVariables()
   }
   override fun visit(forStatement: ForStatement) {
     // initialization
@@ -403,11 +403,11 @@ class InstructionGenerator(
 
     // loop end
     mv.visitLabel(loopEnd)
-    (forStatement.body.scope as InnerScope).clearInnerScopeLocalVariables()
     if (forStatement.initStatement is VariableDeclarationNode) {
       val initStatementScope = (forStatement.initStatement as VariableDeclarationNode).scope as? InnerScope
       initStatementScope?.clearInnerScopeLocalVariables()
     }
+    forStatement.scope.clearInnerScopeLocalVariables()
   }
 
   override fun visit(forInStatement: ForInStatement) {
@@ -458,7 +458,7 @@ class InstructionGenerator(
       pushArgument(iteratorVarReference)
       mv.invokeMethod(Closeable::class.java.getMethod("close"))
     }
-    (forInStatement.body.scope as InnerScope).clearInnerScopeLocalVariables()
+    scope.clearInnerScopeLocalVariables()
     scope.freeVariable(iteratorVariable.name)
   }
   private fun loopBody(body: BlockNode, continueLabel: Label, breakLabel: Label) {

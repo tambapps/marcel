@@ -346,7 +346,8 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         accept(TokenType.LPAR)
         val condition = BooleanExpressionNode(expression(scope))
         accept(TokenType.RPAR)
-        WhileStatement(condition, loopBody(scope))
+        val whileScope = InnerScope(scope as? MethodScope ?: throw MarcelParsingException("Cannot have for outside of a method"))
+        WhileStatement(whileScope, condition, loopBody(whileScope))
       }
       TokenType.FOR -> {
         accept(TokenType.LPAR)

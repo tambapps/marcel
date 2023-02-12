@@ -3,7 +3,7 @@ package com.tambapps.marcel.parser.scope
 import com.tambapps.marcel.parser.type.JavaType
 
 class LocalVariablePool {
-  private val variablePool = mutableListOf<LocalVariable>()
+  private val variablePool = mutableSetOf<LocalVariable>()
   private var maxSlot = 0
 
   fun obtain(type: JavaType, name: String): LocalVariable {
