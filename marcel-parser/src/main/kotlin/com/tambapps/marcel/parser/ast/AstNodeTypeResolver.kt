@@ -44,6 +44,8 @@ import com.tambapps.marcel.parser.ast.expression.RightShiftOperator
 import com.tambapps.marcel.parser.ast.expression.StringConstantNode
 import com.tambapps.marcel.parser.ast.expression.StringNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
+import com.tambapps.marcel.parser.ast.expression.SwitchBranchNode
+import com.tambapps.marcel.parser.ast.expression.SwitchNode
 import com.tambapps.marcel.parser.ast.expression.TernaryNode
 import com.tambapps.marcel.parser.ast.expression.ToStringNode
 import com.tambapps.marcel.parser.ast.expression.TruthyVariableDeclarationNode
@@ -278,4 +280,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator): JavaType = JavaType.Object
 
   override fun visit(literalListNode: LiteralArrayNode): JavaArrayType = JavaType.objectArray
+
+  override fun visit(switchNode: SwitchNode) = JavaType.commonType(switchNode.branches.map { it.accept(this) })
+  override fun visit(switchBranch: SwitchBranchNode): JavaType = switchBranch.statementNode.expression.accept(this)
 }

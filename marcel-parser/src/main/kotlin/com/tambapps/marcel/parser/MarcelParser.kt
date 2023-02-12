@@ -20,9 +20,7 @@ import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.scope.LambdaScope
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
-import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
-import marcel.lang.Binding
 import marcel.lang.Script
 
 import org.objectweb.asm.Opcodes
@@ -507,6 +505,26 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         val type = parseType(scope)
         accept(TokenType.LPAR)
         ConstructorCallNode(Scope(typeResolver, type), type, parseFunctionArguments(scope))
+      }
+      TokenType.SWITCH -> {
+        accept(TokenType.LPAR)
+        val switchExpression = expression(scope)
+        accept(TokenType.RPAR)
+        accept(TokenType.BRACKETS_OPEN)
+        val branches = mutableListOf<SwitchBranchNode>()
+        val switchScope = InnerScope(scope as? MethodScope ?: throw MarcelParsingException("Cannot have switch outside of method"))
+        while (current.type != TokenType.BRACKETS_CLOSE) {
+          if (current.type == TokenType.ELSE) {
+            accept(TokenType.ARROW)
+            branches.add(ElseBranchNode(statement(switchScope)))
+          } else {
+            val valueExpression = expression(scope)
+            accept(TokenType.ARROW)
+            branches.add(EqSwitchBranchNode(valueExpression, statement(switchScope)))
+          }
+        }
+        skip() // skip bracket_close
+        SwitchNode(switchExpression, branches)
       }
       TokenType.IDENTIFIER -> {
         if (current.type == TokenType.INCR) {

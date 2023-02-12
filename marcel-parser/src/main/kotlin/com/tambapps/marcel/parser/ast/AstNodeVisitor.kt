@@ -80,5 +80,7 @@ interface AstNodeVisitor<T> {
   fun visit(rangeNode: RangeNode): T
   fun visit(literalListNode: LiteralArrayNode): T
   fun visit(literalMapNode: LiteralMapNode): T
+  fun visit(switchBranch: SwitchBranchNode): T
+  fun visit(switchNode: SwitchNode): T
 
 }

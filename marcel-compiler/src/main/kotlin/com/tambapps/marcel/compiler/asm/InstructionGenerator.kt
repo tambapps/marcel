@@ -89,6 +89,13 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     mv.visitConstructorCall(fCall)
   }
 
+  override fun visit(switchNode: SwitchNode) {
+    TODO("Not yet implemented switch")
+  }
+
+  override fun visit(switchBranch: SwitchBranchNode) {
+    throw RuntimeException("Compiler error. Shouldn't happen")
+  }
   override fun visit(fCall: SuperConstructorCallNode) {
     mv.visitSuperConstructorCall(fCall)
   }
@@ -643,6 +650,10 @@ class InstructionGenerator(
     mv.pop2Stack()
   }
 
+  override fun visit(switchNode: SwitchNode) {
+    super.visit(switchNode)
+    if (switchNode.getType(typeResolver) != JavaType.void) mv.popStack()
+  }
   override fun visit(operator: DivOperator) {
     super.visit(operator)
     mv.pop2Stack()
