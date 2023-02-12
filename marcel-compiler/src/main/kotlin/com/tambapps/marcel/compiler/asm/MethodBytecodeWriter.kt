@@ -329,6 +329,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
   }
 
   fun storeInVariable(variable: Variable) {
+    if (variable.isFinal && variable.alreadySet) throw SemanticException("Cannot reset a value for final variable ${variable.name}")
     when (variable) {
       is LocalVariable -> mv.visitVarInsn(variable.type.storeCode, variable.index)
       is ClassField -> mv.visitFieldInsn(variable.putCode, variable.owner.internalName, variable.name, variable.type.descriptor)
@@ -340,6 +341,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       }
       else -> throw RuntimeException("Compiler bug. Not handled variable subclass ${variable.javaClass}")
     }
+    variable.alreadySet = true
   }
 
   fun getField(field: MarcelField) {

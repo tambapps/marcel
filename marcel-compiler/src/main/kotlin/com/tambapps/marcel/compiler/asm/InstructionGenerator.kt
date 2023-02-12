@@ -687,7 +687,8 @@ class InstructionGenerator(
   }
 
   override fun visit(variableDeclarationNode: VariableDeclarationNode) {
-    variableDeclarationNode.scope.addLocalVariable(variableDeclarationNode.type, variableDeclarationNode.name)
+    variableDeclarationNode.scope.addLocalVariable(variableDeclarationNode.type, variableDeclarationNode.name,
+      variableDeclarationNode.isFinal)
     visit(variableDeclarationNode as VariableAssignmentNode)
   }
 
@@ -703,7 +704,7 @@ class InstructionGenerator(
     // then process each variable declarations
     for (i in multiVariableDeclarationNode.declarations.indices) {
       val declaration = multiVariableDeclarationNode.declarations[i]
-      visit(VariableDeclarationNode(scope, declaration.first, declaration.second,
+      visit(VariableDeclarationNode(scope, declaration.first, declaration.second, false,
         IndexedReferenceExpression(scope, tempVar.name, listOf(IntConstantNode(i)), false)))
     }
     scope.freeVariable(tempVar.name)
@@ -712,7 +713,7 @@ class InstructionGenerator(
   override fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode) {
     visit(
       VariableDeclarationNode(truthyVariableDeclarationNode.scope, truthyVariableDeclarationNode.variableType,
-      truthyVariableDeclarationNode.name, truthyVariableDeclarationNode.expression)
+      truthyVariableDeclarationNode.name, false, truthyVariableDeclarationNode.expression)
     )
   }
 

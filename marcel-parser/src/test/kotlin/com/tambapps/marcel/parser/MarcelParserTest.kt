@@ -42,7 +42,7 @@ class MarcelParserTest {
     fun testIntDeclaration() {
         val parser = parser("int a = 22")
         assertEquals(
-            VariableDeclarationNode(scope, JavaType.int, "a", IntConstantNode(22)),
+            VariableDeclarationNode(scope, JavaType.int, "a", false,IntConstantNode(22)),
             parser.statement(Scope(typeResolver, type)))
     }
 
@@ -50,7 +50,7 @@ class MarcelParserTest {
     fun testBoolDeclaration() {
         val parser = parser("bool b = false")
         assertEquals(
-            VariableDeclarationNode(scope, JavaType.boolean, "b", BooleanConstantNode(false)),
+            VariableDeclarationNode(scope, JavaType.boolean, "b", false, BooleanConstantNode(false)),
             parser.statement(Scope(typeResolver, type)))
     }
 
@@ -82,7 +82,7 @@ class MarcelParserTest {
             VariableDeclarationNode(scope, JavaType.of(Map::class.java, listOf(
                 JavaType.of(Class.forName("java.lang.Integer")),
                 JavaType.of(Class.forName("java.lang.Object"))
-            )), "b", NullValueNode()),
+            )), "b", false, NullValueNode()),
             parser.statement(Scope(typeResolver, type)))
     }
 

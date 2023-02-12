@@ -6,7 +6,7 @@ import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.expression.VariableAssignmentNode
 import com.tambapps.marcel.parser.scope.Scope
 
-open class VariableDeclarationNode(scope: Scope, val type: JavaType, name: String,  expression: ExpressionNode): VariableAssignmentNode(scope, name, expression), StatementNode {
+open class VariableDeclarationNode constructor(scope: Scope, val type: JavaType, name: String, val isFinal: Boolean, expression: ExpressionNode): VariableAssignmentNode(scope, name, expression), StatementNode {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 

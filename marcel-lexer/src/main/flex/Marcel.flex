@@ -274,6 +274,7 @@ LONELY_BACKTICK=`
 "protected"          { return token(VISIBILITY_PROTECTED); }
 "internal"          { return token(VISIBILITY_INTERNAL); }
 "private"          { return token(VISIBILITY_PRIVATE); }
+"final"          { return token(FINAL); }
 "static"          { return token(STATIC); }
 "package"          { return token(PACKAGE); }
 "class"          { return token(CLASS); }

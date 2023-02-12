@@ -34,16 +34,16 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
   // Linked because we need it to be sorted by insertion order
   internal open val localVariables: MutableList<LocalVariable> = mutableListOf()
 
-  open fun addLocalVariable(type: JavaType): LocalVariable {
+  open fun addLocalVariable(type: JavaType, isFinal: Boolean = false): LocalVariable {
     val name = "__marcel_unnamed_" + this.hashCode().toString().replace('-', '_') + '_' +
         ThreadLocalRandom.current().nextInt().toString().replace('-', '_')
-    return addLocalVariable(type, name)
+    return addLocalVariable(type, name, isFinal)
   }
-  open fun addLocalVariable(type: JavaType, name: String): LocalVariable {
+  open fun addLocalVariable(type: JavaType, name: String, isFinal: Boolean = false): LocalVariable {
     if (localVariables.any { it.name == name }) {
       throw SemanticException("A variable with name $name is already defined")
     }
-    val v = localVariablePool.obtain(type, name)
+    val v = localVariablePool.obtain(type, name, isFinal)
     localVariables.add(v)
     return v
   }
@@ -134,8 +134,8 @@ class InnerScope constructor(private val parentScope: MethodScope)
     else if (parentScope is InnerScope) parentScope.breakLabel
     else null
 
-  override fun addLocalVariable(type: JavaType, name: String): LocalVariable {
-    val variable = super.addLocalVariable(type, name)
+  override fun addLocalVariable(type: JavaType, name: String, isfinal: Boolean): LocalVariable {
+    val variable = super.addLocalVariable(type, name, isfinal)
     innerScopeLocalVariables.add(variable)
     return variable
   }

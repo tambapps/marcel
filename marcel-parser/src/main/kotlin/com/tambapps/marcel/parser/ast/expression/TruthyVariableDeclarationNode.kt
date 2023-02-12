@@ -6,7 +6,7 @@ import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaType
 
 class TruthyVariableDeclarationNode(scope: Scope, val variableType: JavaType, name: String, expression: ExpressionNode) :
-  VariableDeclarationNode(scope, JavaType.boolean, name, expression) {
+  VariableDeclarationNode(scope, JavaType.boolean, name, false, expression) {
 
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)

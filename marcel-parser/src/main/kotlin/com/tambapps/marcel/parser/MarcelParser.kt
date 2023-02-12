@@ -274,7 +274,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
   }
 
   internal fun statement(scope: Scope): StatementNode {
-    val token = next()
+    var token = next()
     return when (token.type) {
       TokenType.TYPE_INT, TokenType.TYPE_LONG,
       TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL -> {
@@ -283,7 +283,8 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         val identifier = accept(TokenType.IDENTIFIER)
         accept(TokenType.ASSIGNMENT)
         acceptOptional(TokenType.SEMI_COLON)
-        VariableDeclarationNode(scope, type, identifier.value, expression(scope))
+        // TODO doesn't handle final variable declarations of primitive types (having special tokens for primitive types might be useless in the end, could remove them)
+        VariableDeclarationNode(scope, type, identifier.value, false, expression(scope))
       }
       TokenType.DEF -> {
         accept(TokenType.LPAR)
@@ -394,6 +395,10 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         BreakLoopNode(scope)
       }
       else -> {
+        val isFinal = if (token.type == TokenType.FINAL) {
+          token = next()
+          true
+        } else false
         if (token.type == TokenType.IDENTIFIER && current.type == TokenType.IDENTIFIER
             // generic type
             || token.type == TokenType.IDENTIFIER && current.type == TokenType.LT
@@ -402,7 +407,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           val type = parseType(scope)
           val variableName = accept(TokenType.IDENTIFIER).value
           accept(TokenType.ASSIGNMENT)
-          val v = VariableDeclarationNode(scope, type, variableName, expression(scope))
+          val v = VariableDeclarationNode(scope, type, variableName, isFinal, expression(scope))
           acceptOptional(TokenType.SEMI_COLON)
           return v
         }
