@@ -3,6 +3,7 @@ package com.tambapps.marcel.compiler.asm
 import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.compiler.util.getMethod
 import com.tambapps.marcel.compiler.util.getType
+import com.tambapps.marcel.compiler.util.javaType
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.ComparisonOperator
 import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
@@ -236,7 +237,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
           invokeMethod(typeResolver.findMethodOrThrow(JavaType.doubleListImpl, "wrap", listOf(JavaType.doubleArray)))
         } else if (JavaType.charList.isAssignableFrom(expectedType) && actualType == JavaType.charArray) {
           invokeMethod(typeResolver.findMethodOrThrow(JavaType.charListImpl, "wrap", listOf(JavaType.charArray)))
-        } else if (JavaType.of(List::class.java).isAssignableFrom(expectedType) && actualType.isArray) {
+        } else if (List::class.javaType.isAssignableFrom(expectedType) && actualType.isArray) {
           invokeMethod(BytecodeHelper::class.java.getDeclaredMethod("createList", JavaType.Object.realClazz))
         }
         // sets
@@ -250,7 +251,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
           invokeMethod(BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.doubleArray.realClazz))
         } else if (JavaType.characterSet.isAssignableFrom(expectedType) && actualType == JavaType.charArray) {
           invokeMethod(BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.charArray.realClazz))
-        } else if (JavaType.of(Set::class.java).isAssignableFrom(expectedType) && actualType.isArray) {
+        } else if (Set::class.javaType.isAssignableFrom(expectedType) && actualType.isArray) {
           invokeMethod(BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.Object.realClazz))
         } else {
           throw SemanticException("Incompatible types. Expected type $expectedType but gave an expression of type $actualType")
@@ -309,7 +310,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
             || expectedType == JavaType.Float && actualType != JavaType.float
             || expectedType == JavaType.Double && actualType != JavaType.double
             || expectedType !in listOf(
-              JavaType.Boolean, JavaType.Integer, JavaType.Long, JavaType.Float, JavaType.Double, JavaType.of(Number::class.java), JavaType.Object
+              JavaType.Boolean, JavaType.Integer, JavaType.Long, JavaType.Float, JavaType.Double, Number::class.javaType, JavaType.Object
             )) {
             throw SemanticException("Cannot cast $actualType to $expectedType")
           }

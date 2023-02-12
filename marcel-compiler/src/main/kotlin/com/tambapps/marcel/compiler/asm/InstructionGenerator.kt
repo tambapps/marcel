@@ -422,9 +422,9 @@ class InstructionGenerator(
     scope.addLocalVariable(forInStatement.variableType, forInStatement.variableName)
 
     // creating iterator
-    val iteratorExpression = if (JavaType.of(Iterable::class.java).isAssignableFrom(expressionType)) {
+    val iteratorExpression = if (Iterable::class.javaType.isAssignableFrom(expressionType)) {
       FunctionCallNode(scope, "iterator", mutableListOf(), expression)
-    } else if (JavaType.of(Iterator::class.java).isAssignableFrom(expressionType)) expression
+    } else if (Iterator::class.javaType.isAssignableFrom(expressionType)) expression
     else throw SemanticException("Doesn't handle iterating on $expressionType")
     val iteratorExpressionType = iteratorExpression.getType(typeResolver)
 
@@ -460,7 +460,7 @@ class InstructionGenerator(
     // loop end
     mv.visitLabel(loopEnd)
 
-    if (JavaType.of(Closeable::class.java).isAssignableFrom(iteratorExpressionType)) {
+    if (Closeable::class.javaType.isAssignableFrom(iteratorExpressionType)) {
       // TODO would need to be in a finally block (which means the loop should be in a try block)
       pushArgument(iteratorVarReference)
       mv.invokeMethod(Closeable::class.java.getMethod("close"))
@@ -694,7 +694,7 @@ class InstructionGenerator(
   override fun visit(multiVariableDeclarationNode: MultiVariableDeclarationNode) {
     val scope = multiVariableDeclarationNode.scope
     val expressionType = multiVariableDeclarationNode.expression.getType(typeResolver)
-    if (!JavaType.of(List::class.java).isAssignableFrom(expressionType) && !expressionType.isArray) {
+    if (!List::class.javaType.isAssignableFrom(expressionType) && !expressionType.isArray) {
       throw SemanticException("Multi variable declarations must use an array or a list as the expression")
     }
     val tempVar = scope.addLocalVariable(expressionType)
@@ -758,7 +758,7 @@ private class PushingInstructionGenerator(
       JavaType.long2ObjectMap -> "newLong2ObjectMap"
       JavaType.char2ObjectMap -> "newChar2ObjectMap"
       else -> {
-        if (JavaType.of(Map::class.java).isAssignableFrom(literalMapNode.getType(typeResolver).raw())) {
+        if (Map::class.javaType.isAssignableFrom(literalMapNode.getType(typeResolver).raw())) {
           objectKeys = true
           "newObject2ObjectMap"
         } else {
@@ -838,7 +838,7 @@ private class PushingInstructionGenerator(
       booleanExpression.innerExpression.accept(instructionGenerator)
       visit(BooleanConstantNode(true))
     } else {
-      val truthyMethod = typeResolver.findMethodOrThrow(JavaType.of(MarcelTruth::class.java), "truthy", listOf(booleanExpression.innerExpression.getType(typeResolver)))
+      val truthyMethod = typeResolver.findMethodOrThrow(MarcelTruth::class.javaType, "truthy", listOf(booleanExpression.innerExpression.getType(typeResolver)))
       mv.invokeMethodWithArguments(truthyMethod, booleanExpression.innerExpression)
     }
   }
@@ -871,7 +871,7 @@ private class PushingInstructionGenerator(
       return
     }
     // new StringBuilder() can just provide an empty new scope as we'll just use it to extract the method from StringBuilder which already exists in the JDK
-    val type = JavaType.of(StringBuilder::class.java)
+    val type = StringBuilder::class.javaType
     visit(ConstructorCallNode(Scope(typeResolver, type), type, mutableListOf()))
     for (part in stringNode.parts) {
       // chained calls
@@ -1001,9 +1001,9 @@ private class PushingInstructionGenerator(
     var actualTruthyVariableDeclarationNode = truthyVariableDeclarationNode
     val variableType = actualTruthyVariableDeclarationNode.variableType
     val expressionType = actualTruthyVariableDeclarationNode.expression.getType(typeResolver)
-    if (variableType.raw() != JavaType.of(Optional::class.java) && (
-          listOf(Optional::class.java, OptionalInt::class.java, OptionalLong::class.java, OptionalDouble::class.java)
-            .any {expressionType.raw().isAssignableFrom(JavaType.of(it)) }
+    if (variableType.raw() != Optional::class.javaType && (
+          listOf(Optional::class.javaType, OptionalInt::class.javaType, OptionalLong::class.javaType, OptionalDouble::class.javaType)
+            .any {expressionType.raw().isAssignableFrom(it) }
           )) {
       actualTruthyVariableDeclarationNode = TruthyVariableDeclarationNode(
         actualTruthyVariableDeclarationNode.scope, actualTruthyVariableDeclarationNode.variableType, actualTruthyVariableDeclarationNode.name,
@@ -1017,7 +1017,7 @@ private class PushingInstructionGenerator(
       visit(BooleanConstantNode(true))
     } else {
       pushArgument(ReferenceExpression(actualTruthyVariableDeclarationNode.scope, actualTruthyVariableDeclarationNode.name))
-      val truthyMethod = typeResolver.findMethodOrThrow(JavaType.of(MarcelTruth::class.java), "truthy", listOf(actualTruthyVariableDeclarationNode.expression.getType(typeResolver)))
+      val truthyMethod = typeResolver.findMethodOrThrow(MarcelTruth::class.javaType, "truthy", listOf(actualTruthyVariableDeclarationNode.expression.getType(typeResolver)))
       mv.invokeMethod(truthyMethod)
     }
   }
