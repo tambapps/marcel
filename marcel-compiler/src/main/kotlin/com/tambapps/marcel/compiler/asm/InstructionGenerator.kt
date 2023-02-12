@@ -6,6 +6,7 @@ import com.tambapps.marcel.compiler.util.getKeysType
 import com.tambapps.marcel.compiler.util.getMethod
 import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.compiler.util.javaType
+import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.BreakLoopNode
@@ -20,6 +21,7 @@ import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.InnerScope
+import com.tambapps.marcel.parser.scope.LambdaScope
 import com.tambapps.marcel.parser.scope.LocalVariable
 import com.tambapps.marcel.parser.scope.MethodField
 import com.tambapps.marcel.parser.scope.MethodScope
@@ -30,6 +32,7 @@ import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import marcel.lang.primitives.iterators.IntIterator
 import marcel.lang.IntRanges
+import marcel.lang.lambda.Lambda1
 import marcel.lang.methods.MarcelTruth
 import marcel.lang.primitives.iterators.CharacterIterator
 import marcel.lang.primitives.iterators.DoubleIterator
@@ -82,7 +85,6 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       throw SemanticException("Switch must have at least one branch")
     }
 
-    // TODO doesn't work. generate a closure for that
     if (switchNode.branches.count { it is ElseBranchNode } > 1) {
       throw SemanticException("Can only have one else branch")
     }
@@ -97,21 +99,35 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       return
     }
 
+    val switchExpressionType = switchNode.expressionNode.getType(typeResolver)
+
+    val parameters = listOf(MethodParameter(switchExpressionType, "it"))
+    val lambdaScope = LambdaScope(switchNode.scope)
+    val lambdaMethodScope = MethodScope(lambdaScope, "invoke", parameters, switchType)
+
+    val switchExpressionReference = ReferenceExpression(lambdaMethodScope, "it")
     val branches = switchNode.branches.filter { it !is ElseBranchNode }
     // marcel switch is just an if/elsif
-    val rootIf = switchBranchToIf(switchNode.expressionNode, branches.first())
+    val rootIf = switchBranchToIf(switchExpressionReference, branches.first())
     var currentIf = rootIf
     for (i in 1..branches.lastIndex) {
       val branch = branches[i]
       if (branch == elseBranch) continue
-      val newIfBranch = switchBranchToIf(switchNode.expressionNode, branch)
+      val newIfBranch = switchBranchToIf(switchExpressionReference, branch)
       currentIf.falseStatementNode = newIfBranch
       currentIf = newIfBranch
     }
-    if (elseBranch != null) {
-      currentIf.falseStatementNode = elseBranch.statementNode
-    }
-    visit(rootIf)
+    currentIf.falseStatementNode = elseBranch?.statementNode ?: ExpressionStatementNode(NullValueNode())
+
+    // TODO lambda invoke method body is weirdly generated
+    val lambdaNode = LambdaNode(lambdaScope, parameters,
+      BlockNode(lambdaMethodScope, mutableListOf(rootIf)))
+
+    val lambdaType = lambdaHandler.defineLambda(lambdaNode)
+    visit(ConstructorCallNode(lambdaNode.scope, lambdaType, mutableListOf()))
+    pushArgument(switchNode.expressionNode)
+    mv.castIfNecessaryOrThrow(JavaType.Object, switchExpressionType)
+    mv.invokeMethod(typeResolver.findMethodOrThrow(Lambda1::class.javaType, "invoke", listOf(JavaType.Object)))
   }
 
   private fun switchBranchToIf(switchExpression: ExpressionNode, branchNode: SwitchBranchNode): IfStatementNode {

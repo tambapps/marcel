@@ -525,7 +525,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           }
         }
         skip() // skip bracket_close
-        SwitchNode(switchExpression, branches)
+        SwitchNode(scope, switchExpression, branches)
       }
       TokenType.IDENTIFIER -> {
         if (current.type == TokenType.INCR) {

@@ -216,7 +216,9 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
   companion object {
     fun getLambdaType(lambdaNode: LambdaNode): JavaType {
       return when (lambdaNode.parameters.size) {
-        0, 1 -> JavaType.of(Lambda1::class.java)
+        0, 1 -> JavaType.of(Lambda1::class.java).withGenericTypes(
+          if (lambdaNode.parameters.isEmpty()) listOf(JavaType.Object, JavaType.Object) else listOf(lambdaNode.parameters.first().type.objectType, JavaType.Object)
+        )
         else -> TODO("Doesn't handle lambda with such parameters for now")
       }
     }

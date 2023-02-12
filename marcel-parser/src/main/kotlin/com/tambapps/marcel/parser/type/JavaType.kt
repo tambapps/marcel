@@ -39,6 +39,7 @@ interface JavaType: AstTypedObject {
   val internalName
     get() = AsmUtils.getInternalName(className)
   val descriptor: String
+  val objectType: JavaType get() = this
 
   val signature: String get() {
     if (primitive) return descriptor
@@ -510,6 +511,8 @@ class JavaPrimitiveType internal constructor(
   val divCode: Int): LoadedJavaType(objectKlazz.javaPrimitiveType!!, emptyList(), storeCode, loadCode, returnCode) {
 
   val objectClass = objectKlazz.java
+  override val objectType: JavaType
+    get() = JavaType.of(objectClass)
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaPrimitiveType {
     if (genericTypes.isNotEmpty()) throw SemanticException("Cannot have primitive type with generic types")
     return this
@@ -560,6 +563,8 @@ class LazyJavaType internal constructor(private val scope: Scope,
     get() = actualType.primitive
   override val realClazzOrObject: Class<*>
     get() = actualType.realClazzOrObject
+  override val objectType: JavaType
+    get() = actualType.objectType
 
   override val directlyImplementedInterfaces: Collection<JavaType>
     get() = actualType.directlyImplementedInterfaces

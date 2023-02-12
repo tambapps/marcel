@@ -27,7 +27,7 @@ class LambdaHandler(private val classNode: ClassNode, private val methodNode: Me
     if (interfaceType != null) lambdaInterfaceType = lambdaInterfaceType.withGenericTypes(interfaceType.genericTypes)
     val type = scope.typeResolver.defineClass(className, JavaType.Object, false,
         if (interfaceType != null) listOf(interfaceType, lambdaInterfaceType)
-        else listOf())
+        else listOf(lambdaInterfaceType))
     val methods = mutableListOf<MethodNode>()
     val lambdaClassNode = ClassNode(scope.copy(), Opcodes.ACC_PRIVATE, type, type.superType!!, false, methods, mutableListOf())
     // adding default constructor

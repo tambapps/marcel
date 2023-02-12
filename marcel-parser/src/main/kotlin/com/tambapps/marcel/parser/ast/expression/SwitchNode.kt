@@ -1,9 +1,12 @@
 package com.tambapps.marcel.parser.ast.expression
 
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
+import com.tambapps.marcel.parser.scope.Scope
 
-class SwitchNode(val expressionNode: ExpressionNode, val branches: List<SwitchBranchNode>): ExpressionNode {
+class SwitchNode constructor(override var scope: Scope,
+                 val expressionNode: ExpressionNode, val branches: List<SwitchBranchNode>): ExpressionNode, ScopedNode<Scope> {
 
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>): T {
