@@ -75,6 +75,29 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     mv.visitLabel(endLabel)
   }
 
+  override fun visit(ifStatementNode: IfStatementNode) {
+    pushArgument(ifStatementNode.condition)
+    val endLabel = Label()
+    if (ifStatementNode.falseStatementNode == null) {
+      mv.jumpIfEq(endLabel)
+      ifStatementNode.trueStatementNode.accept(this)
+      mv.visitLabel(endLabel)
+    } else {
+      val falseStatementNode = ifStatementNode.falseStatementNode!!
+      val falseLabel = Label()
+      mv.jumpIfEq(falseLabel)
+      ifStatementNode.trueStatementNode.accept(this)
+      mv.jumpTo(endLabel)
+      mv.visitLabel(falseLabel)
+      falseStatementNode.accept(this)
+      mv.visitLabel(endLabel)
+    }
+    if (ifStatementNode.condition.innerExpression is TruthyVariableDeclarationNode) {
+      val truthyExpression = ifStatementNode.condition.innerExpression as TruthyVariableDeclarationNode
+      truthyExpression.scope.freeVariable(truthyExpression.name)
+    }
+  }
+
   override fun visit(elvisOperator: ElvisOperator) {
     visit(TernaryNode(
       BooleanExpressionNode(elvisOperator.leftOperand),
@@ -490,29 +513,6 @@ class InstructionGenerator(
   override fun visit(continueLoopNode: ContinueLoopNode) {
     val label = continueLoopNode.scope.continueLabel ?: throw SemanticException("Cannot use continue statement outside of a loop")
     mv.jumpTo(label)
-  }
-
-  override fun visit(ifStatementNode: IfStatementNode) {
-    ifStatementNode.condition.accept(pushingInstructionGenerator)
-    val endLabel = Label()
-    if (ifStatementNode.falseStatementNode == null) {
-      mv.jumpIfEq(endLabel)
-      ifStatementNode.trueStatementNode.accept(this)
-      mv.visitLabel(endLabel)
-    } else {
-      val falseStatementNode = ifStatementNode.falseStatementNode!!
-      val falseLabel = Label()
-      mv.jumpIfEq(falseLabel)
-      ifStatementNode.trueStatementNode.accept(this)
-      mv.jumpTo(endLabel)
-      mv.visitLabel(falseLabel)
-      falseStatementNode.accept(this)
-      mv.visitLabel(endLabel)
-    }
-    if (ifStatementNode.condition.innerExpression is TruthyVariableDeclarationNode) {
-      val truthyExpression = ifStatementNode.condition.innerExpression as TruthyVariableDeclarationNode
-      truthyExpression.scope.freeVariable(truthyExpression.name)
-    }
   }
 
   override fun visit(lambdaNode: LambdaNode) {
