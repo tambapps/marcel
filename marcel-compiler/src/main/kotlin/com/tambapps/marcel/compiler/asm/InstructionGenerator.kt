@@ -5,6 +5,7 @@ import com.tambapps.marcel.compiler.LambdaHandler
 import com.tambapps.marcel.compiler.util.getKeysType
 import com.tambapps.marcel.compiler.util.getMethod
 import com.tambapps.marcel.compiler.util.getType
+import com.tambapps.marcel.compiler.util.javaType
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.BreakLoopNode
@@ -29,14 +30,16 @@ import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import marcel.lang.primitives.iterators.IntIterator
 import marcel.lang.IntRanges
 import marcel.lang.methods.MarcelTruth
+import marcel.lang.primitives.iterators.CharacterIterator
+import marcel.lang.primitives.iterators.DoubleIterator
+import marcel.lang.primitives.iterators.FloatIterator
+import marcel.lang.primitives.iterators.LongIterator
 import marcel.lang.runtime.BytecodeHelper
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import java.io.Closeable
 import java.util.*
-import java.util.concurrent.ThreadLocalRandom
-import kotlin.math.absoluteValue
 
 // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.if_icmp_cond
 // https://asm.ow2.io/asm4-guide.pdf
@@ -428,8 +431,12 @@ class InstructionGenerator(
     val iteratorVariable = scope.addLocalVariable(iteratorExpressionType)
 
     // get right method in function of types, to avoid auto-(un/debo)xing
-    val methodName = if (JavaType.of(IntIterator::class.java).isAssignableFrom(iteratorExpressionType)) "nextInt"
-    else if (JavaType.of(Iterator::class.java).isAssignableFrom(iteratorExpressionType)) "next"
+    val methodName = if (IntIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) "nextInt"
+    else if (LongIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) "nextLong"
+    else if (FloatIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) "nextFloat"
+    else if (DoubleIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) "nextDouble"
+    else if (CharacterIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) "nextCharacter"
+    else if (Iterator::class.javaType.isAssignableFrom(iteratorExpressionType)) "next"
     else throw UnsupportedOperationException("wtf")
     visit(VariableAssignmentNode(scope, iteratorVariable.name, iteratorExpression))
 
