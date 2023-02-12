@@ -222,7 +222,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
         val castInstruction = JavaType.PRIMITIVE_CAST_INSTRUCTION_MAP[Pair(actualType, expectedType)]
         if (castInstruction != null) {
           mv.visitInsn(castInstruction)
-        } else {
+        } else if (expectedType == JavaType.char && actualType == JavaType.int) { // no need to cast for char to int conversion
           throw SemanticException("Cannot cast primitive $actualType to primitive $expectedType")
         }
       } else if (expectedType != JavaType.Object && actualType.isArray) {

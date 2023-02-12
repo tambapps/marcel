@@ -241,6 +241,7 @@ interface JavaType: AstTypedObject {
       Pair(Pair(int, float), Opcodes.I2F),
       Pair(Pair(int, double), Opcodes.I2D),
       Pair(Pair(int, boolean), Opcodes.I2B),
+      Pair(Pair(int, char), Opcodes.I2C),
       Pair(Pair(long, int), Opcodes.L2I),
       Pair(Pair(long, float), Opcodes.L2F),
       Pair(Pair(long, double), Opcodes.L2D),
