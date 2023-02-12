@@ -11,6 +11,7 @@ import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.methods.DefaultMarcelStaticMethods
 import org.objectweb.asm.Label
+import java.util.concurrent.ThreadLocalRandom
 
 open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports: MutableList<ImportNode>, open val classType: JavaType, val superClass: JavaType) {
   constructor(typeResolver: AstNodeTypeResolver, javaType: JavaType): this(typeResolver, mutableListOf(), javaType, JavaType.Object) {
@@ -29,26 +30,30 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
     )
   }
 
+  internal open val localVariablePool = LocalVariablePool()
   // Linked because we need it to be sorted by insertion order
   internal open val localVariables: MutableList<LocalVariable> = mutableListOf()
 
+  open fun addLocalVariable(type: JavaType): LocalVariable {
+    val name = "__marcel_unnamed_" + this.hashCode().toString().replace('-', '_') + '_' +
+        ThreadLocalRandom.current().nextInt().toString().replace('-', '_')
+    return addLocalVariable(type, name)
+  }
   open fun addLocalVariable(type: JavaType, name: String): LocalVariable {
     if (localVariables.any { it.name == name }) {
       throw SemanticException("A variable with name $name is already defined")
     }
-    val v = LocalVariable(type, name)
-    if (name == "this") {
-      // this should always be the first element in the map
-      localVariables.add(0, v)
-    } else {
-      localVariables.add(v)
-    }
-    //  calling findLocalVariable() because we need to compute variable index
-    return findLocalVariable(name)!!
+    val v = localVariablePool.obtain(type, name)
+    localVariables.add(v)
+    return v
   }
 
-  fun removeVariable(name: String) {
-    localVariables.removeIf { it.name == name }
+  fun freeVariable(name: String) {
+    val v = localVariables.find { it.name == name }
+    if (v != null) {
+      localVariables.remove(v)
+      localVariablePool.free(v)
+    }
   }
 
   fun getMethod(name: String, argumentTypes: List<AstTypedObject>): JavaMethod {
@@ -59,15 +64,7 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
       ?: throw SemanticException("Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
   open fun findLocalVariable(name: String): LocalVariable? {
-    var index = 0
-    for (variable in localVariables) {
-      if (variable.name == name) {
-        variable.index = index
-        return variable
-      }
-      index+= variable.nbSlots
-    }
-    return null
+    return localVariables.find { it.name == name }
   }
 
   open fun findVariable(name: String): Variable {
@@ -121,9 +118,9 @@ class LambdaScope constructor(val parentScope: Scope):
 class InnerScope constructor(private val parentScope: MethodScope)
   : MethodScope(parentScope.typeResolver, parentScope.imports, parentScope.classType, parentScope.superClass, parentScope.methodName, parentScope.parameters, parentScope.returnType) {
 
+  override val localVariablePool = parentScope.localVariablePool
   // we want to access local variable defined in parent scope
-  override val localVariables: MutableList<LocalVariable>
-    get() = parentScope.localVariables
+  override val localVariables = parentScope.localVariables
 
   private val innerScopeLocalVariables = mutableListOf<LocalVariable>()
 
@@ -143,11 +140,11 @@ class InnerScope constructor(private val parentScope: MethodScope)
     return variable
   }
 
-  override fun findVariable(name: String): Variable {
-    return super.findVariable(name)
-  }
   // to clean variables defined in inner scope, once we don't need the inner scope anymore
   fun clearInnerScopeLocalVariables() {
-    innerScopeLocalVariables.forEach { localVariables.remove(it) }
+    innerScopeLocalVariables.forEach {
+      localVariables.remove(it)
+      localVariablePool.free(it)
+    }
   }
 }

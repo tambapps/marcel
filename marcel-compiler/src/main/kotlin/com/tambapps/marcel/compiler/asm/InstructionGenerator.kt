@@ -36,6 +36,7 @@ import org.objectweb.asm.Opcodes
 import java.io.Closeable
 import java.util.*
 import java.util.concurrent.ThreadLocalRandom
+import kotlin.math.absoluteValue
 
 // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.if_icmp_cond
 // https://asm.ow2.io/asm4-guide.pdf
@@ -376,6 +377,7 @@ class InstructionGenerator(
 
     // loop end
     mv.visitLabel(loopEnd)
+    (whileStatement.body.scope as InnerScope).clearInnerScopeLocalVariables()
   }
   override fun visit(forStatement: ForStatement) {
     // initialization
@@ -401,6 +403,7 @@ class InstructionGenerator(
 
     // loop end
     mv.visitLabel(loopEnd)
+    (forStatement.body.scope as InnerScope).clearInnerScopeLocalVariables()
     if (forStatement.initStatement is VariableDeclarationNode) {
       val initStatementScope = (forStatement.initStatement as VariableDeclarationNode).scope as? InnerScope
       initStatementScope?.clearInnerScopeLocalVariables()
@@ -412,8 +415,7 @@ class InstructionGenerator(
     val expressionType = expression.getType(typeResolver)
 
     // initialization
-    val body = forInStatement.body
-    val scope = body.scope
+    val scope = forInStatement.scope
     scope.addLocalVariable(forInStatement.variableType, forInStatement.variableName)
 
     // creating iterator
@@ -423,22 +425,20 @@ class InstructionGenerator(
     else throw SemanticException("Doesn't handle iterating on $expressionType")
     val iteratorExpressionType = iteratorExpression.getType(typeResolver)
 
-    val iteratorVarName = "_tempIterator"
-    val iteratorType = iteratorExpression.getType(typeResolver)
+    val iteratorVariable = scope.addLocalVariable(iteratorExpressionType)
 
     // get right method in function of types, to avoid auto-(un/debo)xing
     val methodName = if (JavaType.of(IntIterator::class.java).isAssignableFrom(iteratorExpressionType)) "nextInt"
     else if (JavaType.of(Iterator::class.java).isAssignableFrom(iteratorExpressionType)) "next"
     else throw UnsupportedOperationException("wtf")
-    visit(VariableDeclarationNode(scope, iteratorExpressionType, iteratorVarName,
-      iteratorExpression))
+    visit(VariableAssignmentNode(scope, iteratorVariable.name, iteratorExpression))
 
     // loop start
     val loopStart = Label()
     mv.visitLabel(loopStart)
 
     // Verifying condition
-    val iteratorVarReference = ReferenceExpression(scope, iteratorVarName)
+    val iteratorVarReference = ReferenceExpression(scope, iteratorVariable.name)
     pushArgument(iteratorVarReference)
     mv.invokeMethod(IntIterator::class.java.getMethod("hasNext"))
 
@@ -453,22 +453,19 @@ class InstructionGenerator(
     // loop end
     mv.visitLabel(loopEnd)
 
-    // TODO need to remove unused variables once done. TODO removing variable might modify index of current used ones.
-    //    this is a problem
-
     if (JavaType.of(Closeable::class.java).isAssignableFrom(iteratorExpressionType)) {
-      // TODO if in this case, the whole for loop should be surroundded in  a try/finally
-      // TODO +1 for local variable pooling with check about nbslots available
-     // pushArgument(iteratorVarReference)
-     // mv.invokeMethod(Closeable::class.java.getMethod("close"))
+      // TODO would need to be in a finally block (which means the loop should be in a try block)
+      pushArgument(iteratorVarReference)
+      mv.invokeMethod(Closeable::class.java.getMethod("close"))
     }
+    (forInStatement.body.scope as InnerScope).clearInnerScopeLocalVariables()
+    scope.freeVariable(iteratorVariable.name)
   }
   private fun loopBody(body: BlockNode, continueLabel: Label, breakLabel: Label) {
     val scope = body.scope as? InnerScope ?: throw RuntimeException("Compiler design bug")
     scope.continueLabel = continueLabel
     scope.breakLabel = breakLabel
     body.accept(this)
-    scope.clearInnerScopeLocalVariables()
   }
 
   override fun visit(breakLoopNode: BreakLoopNode) {
@@ -500,7 +497,7 @@ class InstructionGenerator(
     }
     if (ifStatementNode.condition.innerExpression is TruthyVariableDeclarationNode) {
       val truthyExpression = ifStatementNode.condition.innerExpression as TruthyVariableDeclarationNode
-      truthyExpression.scope.removeVariable(truthyExpression.name)
+      truthyExpression.scope.freeVariable(truthyExpression.name)
     }
   }
 
@@ -693,9 +690,7 @@ class InstructionGenerator(
     if (!JavaType.of(List::class.java).isAssignableFrom(expressionType) && !expressionType.isArray) {
       throw SemanticException("Multi variable declarations must use an array or a list as the expression")
     }
-    // TODO this localVariable is just used for these variable declarations and then becomes useless
-    //  might be better to implement a local variable pool (being able to reuse variables marked as unused)
-    val tempVar = scope.addLocalVariable(expressionType, "__tempMultiVarDecl_" + ThreadLocalRandom.current().nextInt())
+    val tempVar = scope.addLocalVariable(expressionType)
     // assign expression to variable
     visit(VariableAssignmentNode(scope, tempVar.name, multiVariableDeclarationNode.expression))
     // then process each variable declarations
@@ -704,6 +699,7 @@ class InstructionGenerator(
       visit(VariableDeclarationNode(scope, declaration.first, declaration.second,
         IndexedReferenceExpression(scope, tempVar.name, listOf(IntConstantNode(i)), false)))
     }
+    scope.freeVariable(tempVar.name)
   }
 
   override fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode) {

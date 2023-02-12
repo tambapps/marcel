@@ -35,7 +35,6 @@ public class LineIterator implements Iterator<String>, Closeable {
   public String next() {
     String lineToReturn = this.currentLine;
     this.currentLine = reader.readLine();
-    if (currentLine == null) close(); // TODO need to properly call close on instruction generator
     return lineToReturn;
   }
 

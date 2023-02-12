@@ -357,8 +357,9 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           accept(TokenType.IN)
           val expression = expression(scope)
           accept(TokenType.RPAR)
-          var forBlock = loopBody(scope)
-          ForInStatement(type, identifier, expression, forBlock)
+          val loopScope = InnerScope(scope as? MethodScope ?: throw MarcelParsingException("Cannot have for outside of a method"))
+          val forBlock = loopBody(loopScope)
+          ForInStatement(loopScope, type, identifier, expression, forBlock)
         } else {
           // for (;;)
           // needed especially if initStatement is var declaration
@@ -375,8 +376,8 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
             throw MarcelParsingException("Invalid for loop")
           }
           accept(TokenType.RPAR)
-          var forBlock = loopBody(scope)
-          ForStatement(initStatement, condition, iteratorStatement, forBlock)
+          val forBlock = loopBody(scope)
+          ForStatement(scope, initStatement, condition, iteratorStatement, forBlock)
         }
       }
       TokenType.CONTINUE -> {

@@ -12,14 +12,12 @@ import com.tambapps.marcel.parser.type.JavaType
 
 abstract class AbstractForStatement(val body: BlockNode): StatementNode, ScopedNode<InnerScope> {
 
-  override var scope = body.scope as? InnerScope ?: throw RuntimeException("Compiler design error")
-
   override fun accept(visitor: AstVisitor) {
     super.accept(visitor)
     body.accept(visitor)
   }
 }
-class ForStatement(val initStatement: StatementNode,
+class ForStatement(override var scope: InnerScope, val initStatement: StatementNode,
                    val endCondition: BooleanExpressionNode, val iteratorStatement: StatementNode, body: BlockNode): AbstractForStatement(body) {
 
   override val expression = VoidExpression()
@@ -39,7 +37,7 @@ class ForStatement(val initStatement: StatementNode,
   }
 }
 
-class ForInStatement(val variableType: JavaType, val variableName: String, val inExpression: ExpressionNode, body: BlockNode): AbstractForStatement(body) {
+class ForInStatement constructor(override var scope: InnerScope, val variableType: JavaType, val variableName: String, val inExpression: ExpressionNode, body: BlockNode): AbstractForStatement(body) {
   override val expression = VoidExpression()
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
