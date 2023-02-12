@@ -515,6 +515,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         val switchScope = InnerScope(scope as? MethodScope ?: throw MarcelParsingException("Cannot have switch outside of method"))
         while (current.type != TokenType.BRACKETS_CLOSE) {
           if (current.type == TokenType.ELSE) {
+            skip()
             accept(TokenType.ARROW)
             branches.add(ElseBranchNode(statement(switchScope)))
           } else {

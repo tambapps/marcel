@@ -11,6 +11,8 @@ class IfStatementNode(val condition: BooleanExpressionNode, val trueStatementNod
                       var falseStatementNode: StatementNode?):
   StatementNode {
 
+  constructor(condition: ExpressionNode, trueStatementNode: StatementNode,
+              falseStatementNode: StatementNode?): this(BooleanExpressionNode(condition), trueStatementNode, falseStatementNode)
   override val expression: ExpressionNode
     get() = trueStatementNode.expression
 

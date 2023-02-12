@@ -9,9 +9,13 @@ class SwitchNode(val expressionNode: ExpressionNode, val branches: List<SwitchBr
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>): T {
     return astNodeVisitor.visit(this)
   }
+
+  override fun toString(): String {
+    return "switch($expressionNode) {\n" + branches.joinToString(separator = "\n", prefix = "{", postfix = "}")
+  }
 }
 
-abstract class SwitchBranchNode(val statementNode: StatementNode): ExpressionNode {
+sealed class SwitchBranchNode(val statementNode: StatementNode): ExpressionNode {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>): T {
     return astNodeVisitor.visit(this)
   }
@@ -20,9 +24,15 @@ abstract class SwitchBranchNode(val statementNode: StatementNode): ExpressionNod
 class EqSwitchBranchNode(val valueExpression: ExpressionNode, statementNode: StatementNode): SwitchBranchNode(statementNode) {
 
 
+  override fun toString(): String {
+    return "$valueExpression -> $statementNode"
+  }
 }
 
 class ElseBranchNode(statementNode: StatementNode): SwitchBranchNode(statementNode) {
 
 
+  override fun toString(): String {
+    return "else -> $statementNode"
+  }
 }

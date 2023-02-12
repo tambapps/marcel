@@ -15,6 +15,7 @@ import com.tambapps.marcel.parser.ast.statement.ForInStatement
 import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.MultiVariableDeclarationNode
+import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.SemanticException
@@ -75,6 +76,55 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     mv.visitLabel(endLabel)
   }
 
+
+  override fun visit(switchNode: SwitchNode) {
+    if (switchNode.branches.isEmpty()) {
+      throw SemanticException("Switch must have at least one branch")
+    }
+
+    // TODO doesn't work. generate a closure for that
+    if (switchNode.branches.count { it is ElseBranchNode } > 1) {
+      throw SemanticException("Can only have one else branch")
+    }
+    val elseBranch = switchNode.branches.find { it is ElseBranchNode  } as? ElseBranchNode
+    val switchType = switchNode.getType(typeResolver)
+    if (switchType.primitive && elseBranch == null) {
+      throw SemanticException("Need to cover all cases (an else branch) for  switch returning primitives as they cannot be null")
+    }
+
+    if (switchNode.branches.size == 1 && elseBranch != null) {
+      elseBranch.statementNode.accept(this)
+      return
+    }
+
+    val branches = switchNode.branches.filter { it !is ElseBranchNode }
+    // marcel switch is just an if/elsif
+    val rootIf = switchBranchToIf(switchNode.expressionNode, branches.first())
+    var currentIf = rootIf
+    for (i in 1..branches.lastIndex) {
+      val branch = branches[i]
+      if (branch == elseBranch) continue
+      val newIfBranch = switchBranchToIf(switchNode.expressionNode, branch)
+      currentIf.falseStatementNode = newIfBranch
+      currentIf = newIfBranch
+    }
+    if (elseBranch != null) {
+      currentIf.falseStatementNode = elseBranch.statementNode
+    }
+    visit(rootIf)
+  }
+
+  private fun switchBranchToIf(switchExpression: ExpressionNode, branchNode: SwitchBranchNode): IfStatementNode {
+    return when (branchNode) {
+      is EqSwitchBranchNode -> IfStatementNode(ComparisonOperatorNode(ComparisonOperator.EQUAL, switchExpression, branchNode.valueExpression),
+        branchNode.statementNode, null)
+      else -> throw RuntimeException("Compiler error. Doesn't handle ${branchNode.javaClass.simpleName} switch branches")
+    }
+  }
+  override fun visit(switchBranch: SwitchBranchNode) {
+    throw RuntimeException("Compiler error. Shouldn't happen")
+  }
+
   override fun visit(ifStatementNode: IfStatementNode) {
     pushArgument(ifStatementNode.condition)
     val endLabel = Label()
@@ -112,13 +162,6 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     mv.visitConstructorCall(fCall)
   }
 
-  override fun visit(switchNode: SwitchNode) {
-    TODO("Not yet implemented switch")
-  }
-
-  override fun visit(switchBranch: SwitchBranchNode) {
-    throw RuntimeException("Compiler error. Shouldn't happen")
-  }
   override fun visit(fCall: SuperConstructorCallNode) {
     mv.visitSuperConstructorCall(fCall)
   }
@@ -649,11 +692,6 @@ class InstructionGenerator(
     super.visit(operator)
     mv.pop2Stack()
   }
-
-  override fun visit(switchNode: SwitchNode) {
-    super.visit(switchNode)
-    if (switchNode.getType(typeResolver) != JavaType.void) mv.popStack()
-  }
   override fun visit(operator: DivOperator) {
     super.visit(operator)
     mv.pop2Stack()
@@ -823,9 +861,6 @@ private class PushingInstructionGenerator(
   }
   override fun visit(whileStatement: WhileStatement) {
     instructionGenerator.visit(whileStatement)
-  }
-  override fun visit(ifStatementNode: IfStatementNode) {
-    instructionGenerator.visit(ifStatementNode)
   }
   override fun visit(stringConstantNode: StringConstantNode) {
     mv.pushConstant(stringConstantNode.value)
