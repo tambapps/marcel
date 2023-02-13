@@ -33,7 +33,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
           throw SemanticException("Class ${classNode.type} doesn't define method $interfaceMethod of interface $interfaze")
         }
         val rawInterfaceMethod = typeResolver.findMethod(interfaze.raw(), interfaceMethod.name, interfaceMethod.parameters, true)!!
-        if (rawInterfaceMethod != implementationMethod) {
+        if (!rawInterfaceMethod.matches(implementationMethod)) {
           // need to write implementation method with raw type
           val rawMethodNode = MethodNode.fromJavaMethod(classNode.scope, rawInterfaceMethod)
           val rawParameterExpressions = mutableListOf<ExpressionNode>()

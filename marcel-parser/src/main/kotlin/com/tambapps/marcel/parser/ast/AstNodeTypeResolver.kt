@@ -71,6 +71,7 @@ import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.NotLoadedJavaType
 import marcel.lang.IntRange
+import marcel.lang.lambda.IntLambda1
 import marcel.lang.lambda.Lambda1
 
 open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
@@ -216,9 +217,11 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
   companion object {
     fun getLambdaType(lambdaNode: LambdaNode): JavaType {
       return when (lambdaNode.parameters.size) {
-        0, 1 -> JavaType.of(Lambda1::class.java).withGenericTypes(
-          if (lambdaNode.parameters.isEmpty()) listOf(JavaType.Object, JavaType.Object) else listOf(lambdaNode.parameters.first().type.objectType, JavaType.Object)
-        )
+        0 -> JavaType.of(Lambda1::class.java).withGenericTypes(JavaType.Object)
+        1 -> when(lambdaNode.parameters.first().type) {
+            JavaType.int -> JavaType.of(IntLambda1::class.java).withGenericTypes(JavaType.Object)
+            else -> JavaType.of(Lambda1::class.java).withGenericTypes(lambdaNode.parameters.first().type.objectType, JavaType.Object)
+          }
         else -> TODO("Doesn't handle lambda with such parameters for now")
       }
     }

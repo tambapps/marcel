@@ -700,6 +700,7 @@ class InstructionGenerator(
       if (lastStatement is ExpressionStatementNode && lastStatement.expression.getType(typeResolver) != JavaType.void) {
         visit(ReturnNode(blockNode.scope, lastStatement.expression))
       } else if (!blockNode.scope.returnType.primitive) {
+        lastStatement?.accept(this)
         // just return null
         mv.pushNull()
         mv.returnCode(blockNode.scope.returnType.returnCode)

@@ -35,9 +35,21 @@ class LambdaHandler(private val classNode: ClassNode, private val methodNode: Me
 
     // define lambda interfaceType method
     val lambdaMethod = scope.typeResolver.getDeclaredMethods(lambdaInterfaceType).first()
-    var parameters = lambdaMethod.parameters
+    var parameters = lambdaMethod.parameters.toMutableList()
     if (parameters.size == 1 && lambdaNode.parameters.isEmpty()) {
-      parameters = listOf(MethodParameter(lambdaMethod.parameters.first().type, lambdaMethod.parameters.first().type, "it"))
+      parameters = mutableListOf(MethodParameter(lambdaMethod.parameters.first().type, lambdaMethod.parameters.first().type, "it"))
+    } else if (lambdaNode.parameters.isNotEmpty()) {
+      if (lambdaMethod.parameters.size != lambdaNode.parameters.size) {
+        throw SemanticException("Lambda method parameters count is not consistent")
+      }
+      for (i in lambdaMethod.parameters.indices) {
+        val methodParameter = lambdaMethod.parameters[i]
+        val nodeParameter = lambdaNode.parameters[i]
+        if (!nodeParameter.type.isAssignableFrom(methodParameter.type)) {
+          throw SemanticException("Bad parameter lambda ${nodeParameter.type} ${nodeParameter.name}")
+        }
+        parameters[i] = nodeParameter
+      }
     }
 
     val lambdaMethodScope = MethodScope(lambdaClassNode.scope, lambdaMethod.name, parameters, lambdaMethod.returnType)

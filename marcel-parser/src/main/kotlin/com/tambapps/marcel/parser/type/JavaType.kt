@@ -79,6 +79,10 @@ interface JavaType: AstTypedObject {
   val asArrayType: JavaArrayType
     get() = throw RuntimeException("Compiler error: Illegal JavaType cast")
 
+  fun withGenericTypes(vararg genericTypes: JavaType): JavaType {
+    return withGenericTypes(genericTypes.toList())
+  }
+
   fun withGenericTypes(genericTypes: List<JavaType>): JavaType
   // return this type without generic types
   fun raw(): JavaType {
