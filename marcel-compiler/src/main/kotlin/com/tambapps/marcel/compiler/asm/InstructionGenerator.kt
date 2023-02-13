@@ -721,7 +721,8 @@ class InstructionGenerator(
         mv.pushNull()
         mv.returnCode(blockNode.scope.returnType.returnCode)
       } else {
-        throw SemanticException("Function returning primitive types must explicitly return something as the last statement. (Someday maybe this will be checked a littler smarter)")
+        throw SemanticException("Function returning primitive types must explicitly return an expression as the last statement." +
+            "You must explicitly return an expression, a switch or a when.")
       }
     }
   }
