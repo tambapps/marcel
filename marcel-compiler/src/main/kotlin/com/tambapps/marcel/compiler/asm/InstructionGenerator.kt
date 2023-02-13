@@ -863,6 +863,7 @@ private class PushingInstructionGenerator(
     mv.invokeMethod(BytecodeHelper::class.java.getDeclaredMethod(methodName))
     val keysType = literalMapNode.getKeysType(typeResolver)
     val putMethodKeysType = if (keysType.primitive) keysType else JavaType.Object
+    val rawMapType = literalMapNode.getType(typeResolver).raw()
 
     for (entry in literalMapNode.entries) {
       mv.dup()
@@ -874,7 +875,7 @@ private class PushingInstructionGenerator(
       }
       pushArgument(entry.second)
       mv.castIfNecessaryOrThrow(JavaType.Object, entry.second.getType(typeResolver))
-      mv.invokeMethod(typeResolver.findMethodOrThrow(literalMapNode.getType(typeResolver),
+      mv.invokeMethod(typeResolver.findMethodOrThrow(rawMapType,
         "put",
         listOf(putMethodKeysType, JavaType.Object)
       ))

@@ -486,6 +486,9 @@ class LoadedObjectType(
     return LoadedObjectType(realClazz, genericTypes)
   }
 
+  override fun raw(): JavaType {
+    return LoadedObjectType(realClazz, emptyList())
+  }
 }
 
 class JavaArrayType internal constructor(

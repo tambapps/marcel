@@ -275,7 +275,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
   internal fun statement(scope: Scope): StatementNode {
     var token = next()
     return when (token.type) {
-      TokenType.TYPE_INT, TokenType.TYPE_LONG,
+      TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_CHAR,
       TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL -> {
         rollback()
         val type = parseType(scope)
@@ -398,10 +398,10 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           token = next()
           true
         } else false
-        if (token.type == TokenType.IDENTIFIER && current.type == TokenType.IDENTIFIER
+        if (isTypeToken(token.type) && current.type == TokenType.IDENTIFIER
             // generic type
-            || token.type == TokenType.IDENTIFIER && current.type == TokenType.LT
-          || token.type == TokenType.IDENTIFIER && current.type == TokenType.SQUARE_BRACKETS_OPEN && lookup( 1)?.type == TokenType.SQUARE_BRACKETS_CLOSE) {
+            || isTypeToken(token.type) && current.type == TokenType.LT
+          || isTypeToken(token.type) && current.type == TokenType.SQUARE_BRACKETS_OPEN && lookup( 1)?.type == TokenType.SQUARE_BRACKETS_CLOSE) {
           rollback()
           val type = parseType(scope)
           val variableName = accept(TokenType.IDENTIFIER).value
@@ -599,7 +599,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         } else LiteralArrayNode(elements)
       }
       else -> {
-        throw UnsupportedOperationException("Not supported yet $token")
+        throw UnsupportedOperationException("Not supported $token")
       }
     }
   }

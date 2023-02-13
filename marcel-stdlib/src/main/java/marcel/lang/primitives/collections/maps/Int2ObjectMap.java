@@ -28,6 +28,14 @@ public interface Int2ObjectMap <V> extends Map<Integer,V> {
 	 */
 	V get(int key);
 
+	default V getAt(int key) {
+		return get(key);
+	}
+
+	default V putAt(int key, V value) {
+		return put(key, value);
+	}
+
 	@Deprecated
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })

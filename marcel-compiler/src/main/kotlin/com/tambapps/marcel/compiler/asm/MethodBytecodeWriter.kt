@@ -272,32 +272,43 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
           when (expectedType) {
             JavaType.boolean -> {
               if (actualType != JavaType.Boolean) {
-                throw SemanticException("Cannot cast $actualType to boolean")
+                // try to cast Object to Boolean
+                castIfNecessaryOrThrow(JavaType.Boolean, actualType)
               }
               invokeMethod(Class.forName(JavaType.Boolean.className).getMethod("booleanValue"))
             }
             JavaType.int -> {
               if (actualType != JavaType.Integer) {
-                // try to cast object to Integer, and then
+                // try to cast Object to Integer
                 castIfNecessaryOrThrow(JavaType.Integer, actualType)
               }
               invokeMethod(Class.forName(JavaType.Integer.className).getMethod("intValue"))
             }
+            JavaType.char -> {
+              if (actualType != JavaType.Character) {
+                // try to cast Object to Character
+                castIfNecessaryOrThrow(JavaType.Character, actualType)
+              }
+              invokeMethod(Class.forName(JavaType.Character.className).getMethod("charValue"))
+            }
             JavaType.long -> {
               if (actualType != JavaType.Long) {
-                throw SemanticException("Cannot cast $actualType to float")
+                // try to cast Object to Long
+                castIfNecessaryOrThrow(JavaType.Long, actualType)
               }
               invokeMethod(Class.forName(JavaType.Long.className).getMethod("longValue"))
             }
             JavaType.float -> {
               if (actualType != JavaType.Float) {
-                throw SemanticException("Cannot cast $actualType to float")
+                // try to cast Object to Float
+                castIfNecessaryOrThrow(JavaType.Float, actualType)
               }
               invokeMethod(Class.forName(JavaType.Float.className).getMethod("floatValue"))
             }
             JavaType.double -> {
               if (actualType != JavaType.Double) {
-                throw SemanticException("Cannot cast $actualType to float")
+                // try to cast Object to Double
+                castIfNecessaryOrThrow(JavaType.Double, actualType)
               }
               invokeMethod(Class.forName(JavaType.Double.className).getMethod("doubleValue"))
             }

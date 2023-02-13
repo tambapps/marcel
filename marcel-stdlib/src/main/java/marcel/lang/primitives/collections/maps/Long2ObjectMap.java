@@ -28,6 +28,14 @@ public interface Long2ObjectMap<V> extends Map<Long,V> {
 	 */
 	V get(long key);
 
+	default V getAt(long key) {
+		return get(key);
+	}
+
+	default V putAt(long key, V value) {
+		return put(key, value);
+	}
+
 	@Deprecated
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })

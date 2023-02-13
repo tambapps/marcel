@@ -29,6 +29,14 @@ public interface Character2ObjectMap<V> extends Map<Character,V> {
 	 */
 	V get(char key);
 
+	default V getAt(char key) {
+		return get(key);
+	}
+
+	default V putAt(char key, V value) {
+		return put(key, value);
+	}
+
 	@Deprecated
 	@Override
 	@SuppressWarnings({ "unchecked", "rawtypes" })
