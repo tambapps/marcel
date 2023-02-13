@@ -10,7 +10,7 @@ import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaType
 
 class SwitchNode constructor(override var scope: Scope,
-                 val expressionNode: ExpressionNode, val branches: List<SwitchBranchNode>): ExpressionNode, ScopedNode<Scope> {
+                 val expressionNode: ExpressionNode, val branches: MutableList<SwitchBranchNode>): ExpressionNode, ScopedNode<Scope> {
 
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>): T {
@@ -18,7 +18,7 @@ class SwitchNode constructor(override var scope: Scope,
   }
 
   override fun toString(): String {
-    return "switch($expressionNode) {\n" + branches.joinToString(separator = "\n", prefix = "{", postfix = "}")
+    return "switch($expressionNode) " + branches.joinToString(separator = "\n", prefix = "{\n", postfix = "\n}")
   }
 }
 

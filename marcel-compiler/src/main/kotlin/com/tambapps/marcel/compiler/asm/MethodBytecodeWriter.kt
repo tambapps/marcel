@@ -278,7 +278,8 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
             }
             JavaType.int -> {
               if (actualType != JavaType.Integer) {
-                throw SemanticException("Cannot cast $actualType to int")
+                // try to cast object to Integer, and then
+                castIfNecessaryOrThrow(JavaType.Integer, actualType)
               }
               invokeMethod(Class.forName(JavaType.Integer.className).getMethod("intValue"))
             }

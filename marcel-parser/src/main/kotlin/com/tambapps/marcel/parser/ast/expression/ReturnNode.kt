@@ -4,10 +4,12 @@ import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.ast.ScopedNode
+import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.scope.MethodScope
 
 // TODO expression should be optional, for void function
-class ReturnNode(override var scope: MethodScope, val expression: ExpressionNode) : StatementNode, ScopedNode<MethodScope> {
+class ReturnNode(override var scope: MethodScope, expression: ExpressionNode) : StatementNode,
+  ScopedNode<MethodScope>, ExpressionStatementNode(expression) {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
@@ -26,10 +28,5 @@ class ReturnNode(override var scope: MethodScope, val expression: ExpressionNode
 
   override fun toString(): String {
     return "return $expression"
-  }
-
-  override fun accept(visitor: AstVisitor) {
-    super.accept(visitor)
-    expression.accept(visitor)
   }
 }

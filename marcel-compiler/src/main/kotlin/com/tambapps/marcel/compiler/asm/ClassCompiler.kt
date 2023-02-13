@@ -101,8 +101,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     val blockReturnType = methodNode.block.getType(typeResolver)
     if (methodReturnType != JavaType.void && !methodReturnType.isAssignableFrom(blockReturnType)
       && methodReturnType.primitive && !blockReturnType.primitive) {
-      throw SemanticException("Return type of block doesn't match method return type. " +
-          "Expected $methodReturnType but got $blockReturnType")
+ //     throw SemanticException("Return type of block doesn't match method return type. " + "Expected $methodReturnType but got $blockReturnType")
     }
 
     val methodEndLabel = Label()

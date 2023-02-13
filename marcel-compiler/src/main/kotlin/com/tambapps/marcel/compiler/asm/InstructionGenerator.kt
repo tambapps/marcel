@@ -89,12 +89,21 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     if (elseBranchCount > 1) {
       throw SemanticException("Can only have one else branch")
     }
+    val switchType = switchNode.getType(typeResolver) // will always be Object because we don't handle generic return types for lambdas
+    val actualSwitchType = JavaType.commonType(switchNode.branches.map { it.getType(typeResolver) })
     if (elseBranchCount == 0) {
+      if (actualSwitchType.primitive) {
+        throw SemanticException("Need to cover all cases (an else branch) for  switch returning primitives as they cannot be null")
+      } else {
+        // normally I should have specified the type for nullValueNode but since I don't handle generic return types properly it doesn't work
+        switchNode.branches.add(ElseBranchNode(ExpressionStatementNode(NullValueNode())))
+      }
+    }
+    if (elseBranchCount == 0 && switchType.primitive) {
       throw SemanticException("Need to cover all cases (an else branch) for  switch returning primitives as they cannot be null")
     }
 
-    val elseBranch = switchNode.branches.find { it is ElseBranchNode  } as? ElseBranchNode ?: ElseBranchNode(ExpressionStatementNode(NullValueNode()))
-    val switchType = switchNode.getType(typeResolver)
+    val elseBranch = switchNode.branches.find { it is ElseBranchNode  } as ElseBranchNode
 
     if (switchNode.branches.size == 1 && elseBranchCount > 0) {
       // if we only have an else branch, it will always be executed
@@ -108,6 +117,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
     val parameters = listOf(MethodParameter(switchExpressionType, "it"))
     val lambdaScope = LambdaScope(switchNode.scope)
+    // since the return type of a lambda is generic, it must always be an object
     val lambdaMethodScope = MethodScope(lambdaScope, "invoke", parameters, switchType)
 
     val switchExpressionReference = ReferenceExpression(lambdaMethodScope, "it")
@@ -809,7 +819,7 @@ class InstructionGenerator(
       throw SemanticException("Cannot return an expression in a void function")
     }
     pushArgument(returnNode.expression)
-    mv.castIfNecessaryOrThrow(returnNode.scope.returnType, returnNode.getType(typeResolver))
+    mv.castIfNecessaryOrThrow(returnNode.scope.returnType, returnNode.expression.getType(typeResolver))
     mv.returnCode(returnNode.scope.returnType.returnCode)
 
   }

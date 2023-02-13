@@ -70,6 +70,10 @@ class NullValueNode(var type: JavaType?): ExpressionNode {
   override fun hashCode(): Int {
     return 0
   }
+
+  override fun toString(): String {
+    return if (type != null) "($type) null" else "null"
+  }
 }
 
 class CharNode(val value: String): ExpressionNode {

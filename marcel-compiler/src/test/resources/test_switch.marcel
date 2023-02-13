@@ -1,0 +1,33 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertNull
+
+
+String s = switch (2) {
+  1 -> "youhou"
+  2 -> "yipi"
+  else -> null
+}
+
+assertEquals("youhou", testSwitch(1))
+assertEquals("yipi", testSwitch(2))
+assertNull(testSwitch(3))
+
+assertEquals(2, testSwitchInt(1))
+assertEquals(3, testSwitchInt(2))
+assertEquals(4, testSwitchInt(3))
+
+
+fun testSwitch(int c) String {
+  return switch (c) {
+           1 -> "youhou"
+           2 -> "yipi"
+         }
+}
+
+fun testSwitchInt(int c) int {
+  return switch (c) {
+           1 -> 2
+           2 -> 3
+           else -> 4
+         }
+}
