@@ -85,19 +85,24 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       throw SemanticException("Switch must have at least one branch")
     }
 
-    if (switchNode.branches.count { it is ElseBranchNode } > 1) {
+    val elseBranchCount = switchNode.branches.count { it is ElseBranchNode }
+    if (elseBranchCount > 1) {
       throw SemanticException("Can only have one else branch")
     }
-    val elseBranch = switchNode.branches.find { it is ElseBranchNode  } as? ElseBranchNode
-    val switchType = switchNode.getType(typeResolver)
-    if (switchType.primitive && elseBranch == null) {
+    if (elseBranchCount == 0) {
       throw SemanticException("Need to cover all cases (an else branch) for  switch returning primitives as they cannot be null")
     }
 
-    if (switchNode.branches.size == 1 && elseBranch != null) {
+    val elseBranch = switchNode.branches.find { it is ElseBranchNode  } as? ElseBranchNode ?: ElseBranchNode(ExpressionStatementNode(NullValueNode()))
+    val switchType = switchNode.getType(typeResolver)
+
+    if (switchNode.branches.size == 1 && elseBranchCount > 0) {
+      // if we only have an else branch, it will always be executed
       elseBranch.statementNode.accept(this)
       return
     }
+    // if we want here, it means we'll generate a lambda. All branches need to return something
+    elseBranch.returningLastStatement(switchNode.scope)
 
     val switchExpressionType = switchNode.expressionNode.getType(typeResolver)
 
@@ -107,6 +112,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
     val switchExpressionReference = ReferenceExpression(lambdaMethodScope, "it")
     val branches = switchNode.branches.filter { it !is ElseBranchNode }
+    branches.forEach { it.returningLastStatement(switchNode.scope) }
     // marcel switch is just an if/elsif
     val rootIf = switchBranchToIf(switchExpressionReference, branches.first())
     var currentIf = rootIf
@@ -117,7 +123,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       currentIf.falseStatementNode = newIfBranch
       currentIf = newIfBranch
     }
-    currentIf.falseStatementNode = elseBranch?.statementNode ?: ExpressionStatementNode(NullValueNode())
+    currentIf.falseStatementNode = elseBranch.statementNode
 
     // TODO lambda invoke method body is weirdly generated
     val lambdaNode = LambdaNode(lambdaScope, parameters,
