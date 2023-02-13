@@ -8,7 +8,7 @@ import com.tambapps.marcel.parser.scope.Scope
 
 open class MultiVariableDeclarationNode(val scope: Scope,
                                         val declarations: List<Pair<JavaType, String>>,
-                                        override val expression: ExpressionNode
+                                        val expression: ExpressionNode
 ): StatementNode {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)

@@ -3,6 +3,7 @@ package com.tambapps.marcel.parser.ast
 import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
+import com.tambapps.marcel.parser.ast.statement.BlockStatement
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.owner.NoOpOwner
@@ -13,7 +14,7 @@ import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.Script
 import org.objectweb.asm.Opcodes
 
-class ConstructorNode(
+class ConstructorNode constructor(
   val superType: JavaType,
   access: Int,
   block: FunctionBlockNode,
@@ -31,10 +32,13 @@ class ConstructorNode(
         FunctionBlockNode(emptyConstructorScope, mutableListOf()), mutableListOf(), emptyConstructorScope)
     }
 
+    // add super call if it isn't there
     private fun blockWithSuperCall(scope: Scope, block: FunctionBlockNode): FunctionBlockNode {
-      if (block.statements.firstOrNull()?.expression is SuperConstructorCallNode) {
+      val firstStatement = block.statements.firstOrNull()
+      if (firstStatement is ExpressionStatementNode && firstStatement.expression is SuperConstructorCallNode) {
         return block
       }
+
       val statements = mutableListOf<StatementNode>()
       statements.add(ExpressionStatementNode(SuperConstructorCallNode(scope, mutableListOf())))
       statements.addAll(block.statements)

@@ -5,6 +5,7 @@ import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.ParserUtils.isTypeToken
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
+import com.tambapps.marcel.parser.ast.statement.BlockStatement
 import com.tambapps.marcel.parser.ast.statement.BreakLoopNode
 import com.tambapps.marcel.parser.ast.statement.ContinueLoopNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
@@ -311,7 +312,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           throw MarcelParsingException("Cannot have blocks outside of a method")
         }
         // starting a new inner scope for the block
-        ExpressionStatementNode(block(InnerScope(scope)))
+        BlockStatement(block(InnerScope(scope)))
       }
       TokenType.IF -> {
         accept(TokenType.LPAR)
@@ -444,7 +445,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
   }
   private fun loopBody(scope: Scope): BlockNode {
     val loopStatement = statement(scope)
-    if (loopStatement.expression is BlockNode) return loopStatement.expression as BlockNode
+    if (loopStatement is BlockStatement) return loopStatement.block
     val newScope = InnerScope(scope as? MethodScope ?: throw MarcelParsingException("Cannot have for outside of a method"))
     return BlockNode(newScope, mutableListOf(loopStatement))
   }
@@ -517,6 +518,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           if (current.type == TokenType.ELSE) {
             skip()
             accept(TokenType.ARROW)
+
             branches.add(ElseBranchNode(statement(switchScope)))
           } else {
             val valueExpression = expression(scope)

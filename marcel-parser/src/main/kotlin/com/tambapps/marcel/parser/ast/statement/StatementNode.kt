@@ -7,8 +7,6 @@ import com.tambapps.marcel.parser.ast.AstNodeVisitor
 
 interface StatementNode: AstNode {
 
-  val expression: ExpressionNode
-
   fun <T> accept(mv: AstNodeVisitor<T>): T
 
 }

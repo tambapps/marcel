@@ -284,5 +284,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
   override fun visit(literalListNode: LiteralArrayNode): JavaArrayType = JavaType.objectArray
 
   override fun visit(switchNode: SwitchNode) = JavaType.commonType(switchNode.branches.map { it.accept(this) })
-  override fun visit(switchBranch: SwitchBranchNode): JavaType = switchBranch.statementNode.expression.accept(this)
+  override fun visit(switchBranch: SwitchBranchNode): JavaType =
+    if (switchBranch.statementNode is ExpressionStatementNode) switchBranch.statementNode.expression.accept(this)
+    else JavaType.void
 }

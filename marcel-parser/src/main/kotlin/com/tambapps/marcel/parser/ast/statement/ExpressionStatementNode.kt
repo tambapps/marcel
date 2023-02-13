@@ -3,8 +3,9 @@ package com.tambapps.marcel.parser.ast.statement
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.AstVisitor
+import com.tambapps.marcel.parser.ast.expression.BlockNode
 
-class ExpressionStatementNode(override val expression: ExpressionNode): StatementNode {
+open class ExpressionStatementNode(val expression: ExpressionNode): StatementNode {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
@@ -16,4 +17,8 @@ class ExpressionStatementNode(override val expression: ExpressionNode): Statemen
   override fun toString(): String {
     return "$expression;"
   }
+}
+
+class BlockStatement(val block: BlockNode): ExpressionStatementNode(block) {
+
 }

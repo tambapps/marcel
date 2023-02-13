@@ -4,8 +4,6 @@ import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.ast.expression.BooleanExpressionNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
-import com.tambapps.marcel.parser.ast.expression.VoidExpression
-import com.tambapps.marcel.parser.type.JavaType
 
 class IfStatementNode(val condition: BooleanExpressionNode, val trueStatementNode: StatementNode,
                       var falseStatementNode: StatementNode?):
@@ -13,8 +11,6 @@ class IfStatementNode(val condition: BooleanExpressionNode, val trueStatementNod
 
   constructor(condition: ExpressionNode, trueStatementNode: StatementNode,
               falseStatementNode: StatementNode?): this(BooleanExpressionNode(condition), trueStatementNode, falseStatementNode)
-  override val expression: ExpressionNode
-    get() = trueStatementNode.expression
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 

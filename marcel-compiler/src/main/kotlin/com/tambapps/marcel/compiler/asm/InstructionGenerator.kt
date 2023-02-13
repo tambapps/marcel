@@ -687,20 +687,25 @@ class InstructionGenerator(
     for (i in 0..(blockNode.statements.size - 2)) {
       blockNode.statements[i].accept(this)
     }
-    val lastStatement = blockNode.statements.lastOrNull() ?: ExpressionStatementNode(VoidExpression())
-    if (blockNode.scope.returnType == JavaType.void) {
+    val lastStatement = blockNode.statements.lastOrNull()
+    if (lastStatement is ReturnNode) {
+      // if this is return node, there is no ambiguity here. Just process it
       lastStatement.accept(this)
+      return
+    }
+    if (blockNode.scope.returnType == JavaType.void) {
+      lastStatement?.accept(this)
       mv.returnVoid()
     } else {
-      if (lastStatement.getType(typeResolver) != JavaType.void) {
-        pushArgument(lastStatement.expression)
-        mv.castIfNecessaryOrThrow(blockNode.scope.returnType, lastStatement.expression.getType(typeResolver))
-      } else {
-        lastStatement.accept(this)
-        // method expects an object but nothing was returned? let's return null
+      if (lastStatement is ExpressionStatementNode && lastStatement.expression.getType(typeResolver) != JavaType.void) {
+        visit(ReturnNode(blockNode.scope, lastStatement.expression))
+      } else if (!blockNode.scope.returnType.primitive) {
+        // just return null
         mv.pushNull()
+        mv.returnCode(blockNode.scope.returnType.returnCode)
+      } else {
+        throw SemanticException("Function returning primitive types must explicitly return something as the last statement. (Someday maybe this will be checked a littler smarter)")
       }
-      mv.returnCode(blockNode.scope.returnType.returnCode)
     }
   }
 
@@ -793,7 +798,13 @@ class InstructionGenerator(
   }
 
   override fun visit(returnNode: ReturnNode) {
+    if (returnNode.expression != null && returnNode.scope.returnType == JavaType.void) {
+      throw SemanticException("Cannot return an expression in a void function")
+    }
     pushArgument(returnNode.expression)
+    mv.castIfNecessaryOrThrow(returnNode.scope.returnType, returnNode.getType(typeResolver))
+    mv.returnCode(returnNode.scope.returnType.returnCode)
+
   }
 }
 

@@ -6,7 +6,8 @@ import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.scope.MethodScope
 
-class ReturnNode(override var scope: MethodScope, override val expression: ExpressionNode) : StatementNode, ScopedNode<MethodScope> {
+// TODO expression should be optional, for void function
+class ReturnNode(override var scope: MethodScope, val expression: ExpressionNode) : StatementNode, ScopedNode<MethodScope> {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
