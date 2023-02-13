@@ -62,7 +62,9 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
       // if no constructor is defined, we'll define one for you
       classNode.methods.add(ConstructorNode.emptyConstructor(classNode))
     }
-    for (methodNode in classNode.methods) {
+    var i = 0 // using plain old fori loop because while writting method we might add some other to write (e.g. for switch)
+    while (i < classNode.methods.size) {
+      val methodNode = classNode.methods[i++]
       if (methodNode.isInline) continue // inline method are not to be written (?)
       writeMethod(typeResolver, classWriter, classNode, methodNode)
     }

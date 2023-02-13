@@ -286,10 +286,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
   override fun visit(literalListNode: LiteralArrayNode): JavaArrayType = JavaType.objectArray
 
-  // TODO since we create a closure for it and that I don't handle generic return type, we need to consider Object class
-  // to perform all automatic casts when necessary
-  override fun visit(switchNode: SwitchNode) = JavaType.Object
-    //JavaType.commonType(switchNode.branches.map { it.accept(this) }).objectType
+  override fun visit(switchNode: SwitchNode) = JavaType.commonType(switchNode.branches.map { it.accept(this) })
   override fun visit(switchBranch: SwitchBranchNode): JavaType =
     if (switchBranch.statementNode is ExpressionStatementNode) (switchBranch.statementNode as ExpressionStatementNode).expression.accept(this)
     else JavaType.void

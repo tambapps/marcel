@@ -136,6 +136,7 @@ interface JavaType: AstTypedObject {
       if (b.isAssignableFrom(a)) return b
 
       if (a.primitive && b.primitive) {
+        if (a == int && b == char || a == char && b == int) return int
         if (a == int && b in listOf(long, double, float)) return b
         if (b == int && a in listOf(long, double, float)) return a
         if (a == float && b == double) return b

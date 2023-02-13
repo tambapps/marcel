@@ -16,12 +16,10 @@ import com.tambapps.marcel.parser.ast.statement.ForInStatement
 import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.MultiVariableDeclarationNode
-import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.InnerScope
-import com.tambapps.marcel.parser.scope.LambdaScope
 import com.tambapps.marcel.parser.scope.LocalVariable
 import com.tambapps.marcel.parser.scope.MethodField
 import com.tambapps.marcel.parser.scope.MethodScope
@@ -54,6 +52,7 @@ interface ArgumentPusher {
 }
 private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
+  val classNode: ClassNode
   val mv: MethodBytecodeWriter
   val typeResolver: JavaTypeResolver
   val lambdaHandler: LambdaHandler
@@ -90,13 +89,11 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       throw SemanticException("Can only have one else branch")
     }
     val switchType = switchNode.getType(typeResolver) // will always be Object because we don't handle generic return types for lambdas
-    val actualSwitchType = JavaType.commonType(switchNode.branches.map { it.getType(typeResolver) })
     if (elseBranchCount == 0) {
-      if (actualSwitchType.primitive) {
+      if (switchType.primitive) {
         throw SemanticException("Need to cover all cases (an else branch) for  switch returning primitives as they cannot be null")
       } else {
-        // normally I should have specified the type for nullValueNode but since I don't handle generic return types properly it doesn't work
-        switchNode.branches.add(ElseBranchNode(ExpressionStatementNode(NullValueNode())))
+        switchNode.branches.add(ElseBranchNode(ExpressionStatementNode(NullValueNode(switchType))))
       }
     }
     if (elseBranchCount == 0 && switchType.primitive) {
@@ -116,11 +113,12 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     val switchExpressionType = switchNode.expressionNode.getType(typeResolver)
 
     val parameters = listOf(MethodParameter(switchExpressionType, "it"))
-    val lambdaScope = LambdaScope(switchNode.scope)
-    // since the return type of a lambda is generic, it must always be an object
-    val lambdaMethodScope = MethodScope(lambdaScope, "invoke", parameters, switchType)
+    val switchMethodName = "__switch_" + ((switchNode.scope as? MethodScope)?.methodName ?: switchNode.scope.classType.simpleName) +
+        classNode.methods.size
 
-    val switchExpressionReference = ReferenceExpression(lambdaMethodScope, "it")
+    val switchMethodScope = MethodScope(classNode.scope, "invoke", parameters, switchType)
+
+    val switchExpressionReference = ReferenceExpression(switchMethodScope, "it")
     val branches = switchNode.branches.filter { it !is ElseBranchNode }
     branches.forEach { it.returningLastStatement(switchNode.scope) }
     // marcel switch is just an if/elsif
@@ -135,15 +133,14 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     }
     currentIf.falseStatementNode = elseBranch.statementNode
 
-    // TODO lambda invoke method body is weirdly generated
-    val lambdaNode = LambdaNode(lambdaScope, parameters,
-      BlockNode(lambdaMethodScope, mutableListOf(rootIf)))
-
-    val lambdaType = lambdaHandler.defineLambda(lambdaNode)
-    visit(ConstructorCallNode(lambdaNode.scope, lambdaType, mutableListOf()))
-    pushArgument(switchNode.expressionNode)
-    mv.castIfNecessaryOrThrow(JavaType.Object, switchExpressionType)
-    mv.invokeMethod(typeResolver.findMethodOrThrow(Lambda1::class.javaType, "invoke", listOf(JavaType.Object)))
+    val methodNode = MethodNode(Opcodes.ACC_PRIVATE, classNode.type,
+      switchMethodName, FunctionBlockNode(switchMethodScope, mutableListOf(rootIf)),
+      parameters.toMutableList(), switchType, switchMethodScope, false
+    )
+    classNode.addMethod(methodNode)
+    typeResolver.defineMethod(classNode.type, methodNode)
+    visit(FunctionCallNode(switchNode.scope, switchMethodName, mutableListOf(switchNode.expressionNode),
+      ReferenceExpression.thisRef(switchNode.scope)))
   }
 
   private fun switchBranchToIf(switchExpression: ExpressionNode, branchNode: SwitchBranchNode): IfStatementNode {
@@ -440,7 +437,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
  * Generates expression bytecode but don't push them to the stack. (Useful for statement expressions)
  */
 class InstructionGenerator(
-  classNode: ClassNode,
+  override val classNode: ClassNode,
   methodNode: MethodNode,
   override val typeResolver: JavaTypeResolver,
   methodVisitor: MethodVisitor
@@ -450,7 +447,7 @@ class InstructionGenerator(
   override val mv = MethodBytecodeWriter(methodVisitor, typeResolver)
   override val lambdaHandler = LambdaHandler(classNode, methodNode)
 
-  private val pushingInstructionGenerator = PushingInstructionGenerator(typeResolver, mv, lambdaHandler)
+  private val pushingInstructionGenerator = PushingInstructionGenerator(classNode, typeResolver, mv, lambdaHandler)
   init {
     mv.argumentPusher = this
     pushingInstructionGenerator.mv.argumentPusher = pushingInstructionGenerator
@@ -827,6 +824,7 @@ class InstructionGenerator(
 }
 
 private class PushingInstructionGenerator(
+  override val classNode: ClassNode,
   override val typeResolver: JavaTypeResolver,
   override val mv: MethodBytecodeWriter,
   override val lambdaHandler: LambdaHandler,
