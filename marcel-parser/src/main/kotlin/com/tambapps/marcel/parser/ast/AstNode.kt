@@ -1,5 +1,6 @@
 package com.tambapps.marcel.parser.ast
 
+import com.tambapps.marcel.parser.ast.visitor.CheckAllPathsReturnVisitor
 import com.tambapps.marcel.parser.scope.Scope
 
 interface AstNode {
