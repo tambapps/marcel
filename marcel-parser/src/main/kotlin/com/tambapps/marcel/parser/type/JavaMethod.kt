@@ -68,6 +68,10 @@ interface JavaMethod {
     return true
   }
 
+  fun exactMatch(name: String, types: List<AstTypedObject>): Boolean {
+    return this.name == name && this.parameters.map { it.type } == types.map { it.type }
+  }
+
   private fun matches(typeResolver: AstNodeTypeResolver, expectedType: JavaType, actualType: JavaType): Boolean {
     return if (expectedType.isInterface && actualType.isLambda) {
       val declaredMethods = typeResolver.getDeclaredMethods(expectedType)
@@ -79,6 +83,7 @@ interface JavaMethod {
     //return interfaceMethod.matches(typeResolver, lambdaMethod.parameters)
     } else expectedType.isAssignableFrom(actualType)
   }
+
 }
 abstract class AbstractMethod: JavaMethod {
 

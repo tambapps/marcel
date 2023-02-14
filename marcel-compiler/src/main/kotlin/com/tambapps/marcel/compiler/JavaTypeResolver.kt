@@ -53,7 +53,7 @@ class JavaTypeResolver: AstNodeTypeResolver() {
           .map { ReflectJavaMethod(it, javaType) }
           .filter { it.matches(this, argumentTypes) }
       }
-      m = getMoreSpecificMethod(candidates)
+      m = candidates.find { it.exactMatch(name, argumentTypes) }  ?: getMoreSpecificMethod(candidates)
       if (m != null) return m
     }
 
