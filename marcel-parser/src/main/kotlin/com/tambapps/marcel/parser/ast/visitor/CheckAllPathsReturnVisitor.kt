@@ -51,6 +51,8 @@ import com.tambapps.marcel.parser.ast.expression.UnaryMinus
 import com.tambapps.marcel.parser.ast.expression.UnaryPlus
 import com.tambapps.marcel.parser.ast.expression.VariableAssignmentNode
 import com.tambapps.marcel.parser.ast.expression.VoidExpression
+import com.tambapps.marcel.parser.ast.expression.WhenBranchNode
+import com.tambapps.marcel.parser.ast.expression.WhenNode
 import com.tambapps.marcel.parser.ast.statement.BreakLoopNode
 import com.tambapps.marcel.parser.ast.statement.ContinueLoopNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
@@ -295,5 +297,13 @@ class CheckAllPathsReturnVisitor: AstNodeVisitor<Boolean> {
 
   override fun visit(switchNode: SwitchNode): Boolean {
     return switchNode.branches.any { it is ElseBranchNode } && switchNode.branches.all { it.accept(this) }
+  }
+
+  override fun visit(whenBranchNode: WhenBranchNode): Boolean {
+    return whenBranchNode.statementNode.accept(this)
+  }
+
+  override fun visit(whenNode: WhenNode): Boolean {
+    return whenNode.elseStatement != null && whenNode.branches.all { it.accept(this) }
   }
 }

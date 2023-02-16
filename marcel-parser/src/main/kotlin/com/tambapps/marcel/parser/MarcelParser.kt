@@ -507,7 +507,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         accept(TokenType.LPAR)
         ConstructorCallNode(Scope(typeResolver, type), type, parseFunctionArguments(scope))
       }
-      TokenType.SWITCH -> {
+      TokenType.SWITCH -> { // TODO transform switch on when
         accept(TokenType.LPAR)
         val switchExpression = expression(scope)
         accept(TokenType.RPAR)
@@ -519,6 +519,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
             skip()
             accept(TokenType.ARROW)
 
+            if (branches.any { it is ElseBranchNode }) throw MarcelParsingException("Cannot have multiple else statements")
             branches.add(ElseBranchNode(statement(switchScope)))
           } else {
             val valueExpression = expression(scope)
@@ -528,6 +529,26 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         }
         skip() // skip bracket_close
         SwitchNode(scope, switchExpression, branches)
+      }
+      TokenType.WHEN -> {
+        accept(TokenType.BRACKETS_OPEN)
+        val branches = mutableListOf<WhenBranchNode>()
+        val whenScope = InnerScope(scope as? MethodScope ?: throw MarcelParsingException("Cannot have switch outside of method"))
+        var elseStatement: StatementNode? = null
+        while (current.type != TokenType.BRACKETS_CLOSE) {
+          if (current.type == TokenType.ELSE) {
+            skip()
+            accept(TokenType.ARROW)
+            if (elseStatement != null) throw MarcelParsingException("Cannot have multiple else statements")
+            elseStatement = statement(whenScope)
+          } else {
+            val conditionExpression = expression(scope)
+            accept(TokenType.ARROW)
+            branches.add(WhenBranchNode(conditionExpression, statement(whenScope)))
+          }
+        }
+        skip() // skip bracket_close
+        WhenNode(scope, branches, elseStatement)
       }
       TokenType.IDENTIFIER -> {
         if (current.type == TokenType.INCR) {

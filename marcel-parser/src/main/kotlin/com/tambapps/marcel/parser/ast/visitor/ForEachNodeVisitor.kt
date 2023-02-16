@@ -53,6 +53,8 @@ import com.tambapps.marcel.parser.ast.expression.UnaryOperator
 import com.tambapps.marcel.parser.ast.expression.UnaryPlus
 import com.tambapps.marcel.parser.ast.expression.VariableAssignmentNode
 import com.tambapps.marcel.parser.ast.expression.VoidExpression
+import com.tambapps.marcel.parser.ast.expression.WhenBranchNode
+import com.tambapps.marcel.parser.ast.expression.WhenNode
 import com.tambapps.marcel.parser.ast.statement.BreakLoopNode
 import com.tambapps.marcel.parser.ast.statement.ContinueLoopNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
@@ -297,5 +299,16 @@ class ForEachNodeVisitor(private val consumer: (AstNode) -> Unit): AstNodeVisito
     consumer.invoke(switchNode)
     switchNode.expressionNode.accept(this)
     switchNode.branches.forEach { it.accept(this) }
+  }
+
+  override fun visit(whenNode: WhenNode) {
+    consumer.invoke(whenNode)
+    whenNode.branches.forEach { it.accept(this) }
+  }
+
+  override fun visit(whenBranchNode: WhenBranchNode) {
+    consumer.invoke(whenBranchNode)
+    whenBranchNode.conditionExpressionNode.accept(this)
+    whenBranchNode.statementNode.accept(this)
   }
 }

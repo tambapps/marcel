@@ -291,6 +291,7 @@ LONELY_BACKTICK=`
 "in"          { return token(IN); }
 "if"          { return token(IF); }
 "switch"          { return token(SWITCH); }
+"when"          { return token(WHEN); }
 "else"          { return token(ELSE); }
 "while"          { return token(WHILE); }
 "null"          { return token(NULL); }

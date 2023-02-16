@@ -162,7 +162,15 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       else -> throw RuntimeException("Compiler error. Doesn't handle ${branchNode.javaClass.simpleName} switch branches")
     }
   }
+
+  override fun visit(whenNode: WhenNode) {
+    TODO("Not yet implemented")
+  }
   override fun visit(switchBranch: SwitchBranchNode) {
+    throw RuntimeException("Compiler error. Shouldn't happen")
+  }
+
+  override fun visit(whenBranchNode: WhenBranchNode) {
     throw RuntimeException("Compiler error. Shouldn't happen")
   }
 

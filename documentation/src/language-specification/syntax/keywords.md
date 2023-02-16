@@ -35,5 +35,4 @@ Marcel has the following keywords, which you cannot use as variable/function nam
 - implements
 - final
 - switch
-- get
-- set
+- when

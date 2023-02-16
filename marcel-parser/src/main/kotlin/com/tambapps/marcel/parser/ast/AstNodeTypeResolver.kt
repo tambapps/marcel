@@ -54,6 +54,8 @@ import com.tambapps.marcel.parser.ast.expression.UnaryOperator
 import com.tambapps.marcel.parser.ast.expression.UnaryPlus
 import com.tambapps.marcel.parser.ast.expression.VariableAssignmentNode
 import com.tambapps.marcel.parser.ast.expression.VoidExpression
+import com.tambapps.marcel.parser.ast.expression.WhenBranchNode
+import com.tambapps.marcel.parser.ast.expression.WhenNode
 import com.tambapps.marcel.parser.ast.statement.BreakLoopNode
 import com.tambapps.marcel.parser.ast.statement.ContinueLoopNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
@@ -296,7 +298,11 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
     }
     return type
   }
-  override fun visit(switchBranch: SwitchBranchNode): JavaType =
-    if (switchBranch.statementNode is ExpressionStatementNode) (switchBranch.statementNode as ExpressionStatementNode).expression.accept(this)
-    else JavaType.void
+
+  override fun visit(switchBranch: SwitchBranchNode): JavaType = switchBranch.statementNode.accept(this)
+
+  override fun visit(whenNode: WhenNode) = JavaType.commonType(whenNode.branches.map { it.accept(this) })
+
+  override fun visit(whenBranchNode: WhenBranchNode) = whenBranchNode.statementNode.accept(this)
+
 }
