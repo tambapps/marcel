@@ -5,7 +5,8 @@ Marcel is a programming language built with the following goals in mind:
 - Runnable on Android devices (this language is **guaranteed** to be compilable and executable on any Android devices)
 - use primitive types when possible (as opposed to the classes Integer, Float, etc...)
 
-Its features are inspired from many languages such as Groovy, Kotlin, Vlang and Perl.
+Its features are inspired from many languages such as Groovy, Kotlin, Vlang and Perl. You can consult the source code of
+this language [on GitHub](https://github.com/tambapps/marcel/wiki)
 
 <br/>
 Marcel compiles to Java classes. You can execute marcel script/projects on any JVMs, as long as the Marcel stdlib is included

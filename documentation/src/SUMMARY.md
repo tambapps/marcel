@@ -8,4 +8,4 @@
   - [Types and variables](./language_specification.md)
   - [Control flows](./language_specification.md)
   - [Lambdas](./language_specification.md)
-  - [Program structure](https://groovy-lang.org/structure.html) 
+  - [Program structure](./program_structure.md) 
