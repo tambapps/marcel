@@ -20,4 +20,5 @@
     - [Marcel Truth](./language-specification/control-flows/marcel-truth.md)
     - [If/Else Statements](./language-specification/control-flows/if-else.md)
     - [For loops](./language-specification/control-flows/for-loops.md)
+    - [Switch](./language-specification/control-flows/switch.md)
   - [Lambdas](language-specification/index.md)
