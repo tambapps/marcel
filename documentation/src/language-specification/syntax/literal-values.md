@@ -99,8 +99,7 @@ Create arrays with the square brackets
 int[] ints = [1, 2, 3, 4]
 ```
 
-[comment]: <> (TODO need to add link)
-Note that you can also use this syntax to create collections.
+Note that you can also use this syntax to [create collections](../types.md#collections-of-primitives).
 
 ## Maps
 

@@ -11,7 +11,7 @@
     - [Literal Values](language-specification/syntax/literal-values.md)
   - [Variables](language-specification/index.md)
   - [Types](language-specification/types.md)
-  - [Program Structure](./program-structure.md)
+  - [Source File Structure](./source-file-structure.md)
   - [Control Flows](./language-specification/control-flows/index.md)
     - [Marcel Truth](./language-specification/control-flows/marcel-truth.md)
     - [If/Else Statements](./language-specification/control-flows/if-else.md)
