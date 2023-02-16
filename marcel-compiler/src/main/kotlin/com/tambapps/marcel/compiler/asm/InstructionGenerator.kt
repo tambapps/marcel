@@ -30,7 +30,6 @@ import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import marcel.lang.primitives.iterators.IntIterator
 import marcel.lang.IntRanges
-import marcel.lang.lambda.Lambda1
 import marcel.lang.methods.MarcelTruth
 import marcel.lang.primitives.iterators.CharacterIterator
 import marcel.lang.primitives.iterators.DoubleIterator
@@ -607,7 +606,7 @@ class InstructionGenerator(
     // don't need to write constants
   }
 
-  override fun visit(charNode: CharNode) {
+  override fun visit(charNode: CharConstantNode) {
     // don't need to write constants
   }
   override fun visit(booleanConstantNode: BooleanConstantNode) {
@@ -989,7 +988,7 @@ private class PushingInstructionGenerator(
     mv.pushConstant(doubleConstantNode.value)
   }
 
-  override fun visit(charNode: CharNode) {
+  override fun visit(charNode: CharConstantNode) {
     val value = charNode.value
     if (value.length != 1) throw SemanticException("Characters should be strings of exactly one char")
     mv.pushConstant(value[0])

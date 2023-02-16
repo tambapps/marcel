@@ -8,7 +8,7 @@ import com.tambapps.marcel.parser.ast.expression.BinaryOperatorNode
 import com.tambapps.marcel.parser.ast.expression.BlockNode
 import com.tambapps.marcel.parser.ast.expression.BooleanConstantNode
 import com.tambapps.marcel.parser.ast.expression.BooleanExpressionNode
-import com.tambapps.marcel.parser.ast.expression.CharNode
+import com.tambapps.marcel.parser.ast.expression.CharConstantNode
 import com.tambapps.marcel.parser.ast.expression.ComparisonOperatorNode
 import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.DivOperator
@@ -74,8 +74,7 @@ class ForEachNodeVisitor(private val consumer: (AstNode) -> Unit): AstNodeVisito
 
   override fun visit(doubleConstantNode: DoubleConstantNode) = consumer.invoke(doubleConstantNode)
 
-  // TODO rename CharConstantNode
-  override fun visit(charNode: CharNode) = consumer.invoke(charNode)
+  override fun visit(charNode: CharConstantNode) = consumer.invoke(charNode)
 
   override fun visit(operator: MulOperator) = visitBinaryOperator(operator)
 

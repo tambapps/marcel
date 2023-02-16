@@ -6,7 +6,7 @@ import com.tambapps.marcel.parser.ast.expression.BinaryOperatorNode
 import com.tambapps.marcel.parser.ast.expression.BlockNode
 import com.tambapps.marcel.parser.ast.expression.BooleanConstantNode
 import com.tambapps.marcel.parser.ast.expression.BooleanExpressionNode
-import com.tambapps.marcel.parser.ast.expression.CharNode
+import com.tambapps.marcel.parser.ast.expression.CharConstantNode
 import com.tambapps.marcel.parser.ast.expression.ComparisonOperatorNode
 import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.DivOperator
@@ -146,7 +146,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
   override fun visit(floatConstantNode: FloatConstantNode) = JavaType.float
   override fun visit(doubleConstantNode: DoubleConstantNode) = JavaType.double
-  override fun visit(charNode: CharNode) = JavaType.char
+  override fun visit(charNode: CharConstantNode) = JavaType.char
 
   override fun visit(booleanConstantNode: BooleanConstantNode) = JavaType.boolean
 

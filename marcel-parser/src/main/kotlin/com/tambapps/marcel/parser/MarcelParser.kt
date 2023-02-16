@@ -489,7 +489,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           else -> throw MarcelParsingException("Unexpected token ${valueToken.type} for character constant")
         }
         accept(TokenType.CLOSING_CHAR_QUOTE)
-        CharNode(value)
+        CharConstantNode(value)
       }
       TokenType.OPEN_QUOTE -> {
         val parts = mutableListOf<ExpressionNode>()
