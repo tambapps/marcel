@@ -12,8 +12,8 @@ assertEquals("youhou", testSwitch(1))
 assertEquals("yipi", testSwitch(2))
 assertNull(testSwitch(3))
 
-assertEquals(2, testSwitchInt(1))
-assertEquals(3, testSwitchInt(2))
+assertEquals(1, testSwitchInt(1))
+assertEquals(2, testSwitchInt(2))
 assertEquals(4, testSwitchInt(3))
 
 
@@ -26,8 +26,8 @@ fun testSwitch(int c) String {
 
 fun testSwitchInt(int c) int {
   return switch (c) {
-           1 -> 2
-           2 -> 3
-           else -> 4
+           1 -> 1
+           2 -> c
+           else -> it + 1
          }
 }
