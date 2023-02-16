@@ -88,7 +88,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     if (elseBranchCount > 1) {
       throw SemanticException("Can only have one else branch")
     }
-    val switchType = switchNode.getType(typeResolver) // will always be Object because we don't handle generic return types for lambdas
+    val switchType = switchNode.getType(typeResolver)
     if (elseBranchCount == 0) {
       if (switchType.primitive) {
         throw SemanticException("Need to cover all cases (an else branch) for  switch returning primitives as they cannot be null")
@@ -102,25 +102,20 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
     val elseBranch = switchNode.branches.find { it is ElseBranchNode  } as ElseBranchNode
 
-    if (switchNode.branches.size == 1 && elseBranchCount > 0) {
-      // if we only have an else branch, it will always be executed
-      elseBranch.statementNode.accept(this)
-      return
-    }
-    // if we want here, it means we'll generate a lambda. All branches need to return something
-    elseBranch.returningLastStatement(switchNode.scope)
-
     val switchExpressionType = switchNode.expressionNode.getType(typeResolver)
-
     val parameters = listOf(MethodParameter(switchExpressionType, "it"))
     val switchMethodName = "__switch_" + ((switchNode.scope as? MethodScope)?.methodName ?: switchNode.scope.classType.simpleName) +
         classNode.methods.size
+    val switchMethodScope = MethodScope(classNode.scope, switchMethodName, parameters, switchType)
+    val currentScope = switchNode.scope
+    switchNode.trySetTreeScope(switchMethodScope)
 
-    val switchMethodScope = MethodScope(classNode.scope, "invoke", parameters, switchType)
+    elseBranch.returningLastStatement(switchMethodScope)
+
 
     val switchExpressionReference = ReferenceExpression(switchMethodScope, "it")
     val branches = switchNode.branches.filter { it !is ElseBranchNode }
-    branches.forEach { it.returningLastStatement(switchNode.scope) }
+    branches.forEach { it.returningLastStatement(switchMethodScope) }
     // marcel switch is just an if/elsif
     val rootIf = switchBranchToIf(switchExpressionReference, branches.first())
     var currentIf = rootIf
@@ -139,8 +134,8 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     )
     classNode.addMethod(methodNode)
     typeResolver.defineMethod(classNode.type, methodNode)
-    visit(FunctionCallNode(switchNode.scope, switchMethodName, mutableListOf(switchNode.expressionNode),
-      ReferenceExpression.thisRef(switchNode.scope)))
+    visit(FunctionCallNode(currentScope, switchMethodName, mutableListOf(switchNode.expressionNode),
+      ReferenceExpression.thisRef(currentScope), methodNode))
   }
 
   private fun switchBranchToIf(switchExpression: ExpressionNode, branchNode: SwitchBranchNode): IfStatementNode {
@@ -720,6 +715,10 @@ class InstructionGenerator(
       } else if (lastStatement == null || !lastStatement.allBranchesReturn()) {
         throw SemanticException("Function returning primitive types must explicitly return an expression as the last statement." +
             "You must explicitly return an expression, a switch or a when.")
+      } else {
+        lastStatement.accept(this)
+        mv.castIfNecessaryOrThrow(blockNode.scope.returnType, lastStatement.getType(typeResolver))
+        mv.returnCode(blockNode.scope.returnType.returnCode)
       }
     }
   }

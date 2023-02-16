@@ -21,9 +21,8 @@ class ConstructorNode constructor(
   parameters: MutableList<MethodParameter>,
   scope: MethodScope
 ) : MethodNode(access, JavaType.void, JavaMethod.CONSTRUCTOR_NAME, blockWithSuperCall(scope, block), parameters, JavaType.void,
-    scope.apply { addLocalVariable(superType, "super") }, false) {
+    scope.apply { addLocalVariable(superType, "super") }, false, true) {
 
-  override val isConstructor = true
   companion object {
 
     fun emptyConstructor(classNode: ClassNode): ConstructorNode {

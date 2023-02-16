@@ -103,7 +103,7 @@ class MarcelCompilerTest {
   @Disabled
   @Test
   fun manualTest() {
-    val eval = eval("/test_primitive_collections.marcel")
+    val eval = eval("/test_switch.marcel")
     println(eval)
   }
 

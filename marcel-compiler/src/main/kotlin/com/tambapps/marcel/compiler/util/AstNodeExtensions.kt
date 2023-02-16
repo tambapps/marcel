@@ -11,7 +11,8 @@ import com.tambapps.marcel.parser.type.JavaType
 
 
 fun FunctionCallNode.getMethod(typeResolver: JavaTypeResolver) =
-  if (methodOwnerType != null) typeResolver.findMethodOrThrow(methodOwnerType!!.getType(typeResolver), name,
+  if (this.method != null) this.method!!
+  else if (methodOwnerType != null) typeResolver.findMethodOrThrow(methodOwnerType!!.getType(typeResolver), name,
     arguments.map { it.accept(typeResolver) })
   else scope.getMethod(name, arguments.map { it.accept(typeResolver) })
 

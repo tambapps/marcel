@@ -280,13 +280,22 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
   // the below methods can't guess type without class info, so they just return objects
   override fun visit(literalMapNode: LiteralMapNode): JavaType = JavaType.of(Map::class.java)
 
-  override fun visit(fCall: FunctionCallNode): JavaType = JavaType.Object
+  override fun visit(fCall: FunctionCallNode): JavaType = findMethodOrThrow(fCall.methodOwnerType?.accept(this) ?: fCall.scope.classType,
+    fCall.name, fCall.arguments.map { it.accept(this) }).returnType
 
+  // TODO wtf, why is it object
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator): JavaType = JavaType.Object
 
   override fun visit(literalListNode: LiteralArrayNode): JavaArrayType = JavaType.objectArray
 
-  override fun visit(switchNode: SwitchNode) = JavaType.commonType(switchNode.branches.map { it.accept(this) })
+  override fun visit(switchNode: SwitchNode): JavaType {
+
+    val itVariableType = switchNode.expressionNode.accept(this)
+    val type = switchNode.scope.simulateVariable(itVariableType, "it") {
+      JavaType.commonType(switchNode.branches.map { it.accept(this) })
+    }
+    return type
+  }
   override fun visit(switchBranch: SwitchBranchNode): JavaType =
     if (switchBranch.statementNode is ExpressionStatementNode) (switchBranch.statementNode as ExpressionStatementNode).expression.accept(this)
     else JavaType.void

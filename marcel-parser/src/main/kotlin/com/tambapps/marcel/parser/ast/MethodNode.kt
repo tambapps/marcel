@@ -12,10 +12,15 @@ import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.Opcodes
 
-open class MethodNode constructor(override val access: Int, override val ownerClass: JavaType, override val name: String, val block: FunctionBlockNode,
-                                  override val parameters: MutableList<MethodParameter>, override val returnType: JavaType, val scope: MethodScope,
-                                  override val isInline: Boolean
+open class MethodNode constructor(override val access: Int, final override val ownerClass: JavaType, override val name: String, val block: FunctionBlockNode,
+                                  final override val parameters: MutableList<MethodParameter>, override val returnType: JavaType, val scope: MethodScope,
+                                  override val isInline: Boolean,
+                                  final override val isConstructor: Boolean
 ): AstNode, JavaMethod {
+
+  constructor(access: Int, ownerClass: JavaType, name: String, block: FunctionBlockNode,
+              parameters: MutableList<MethodParameter>, returnType: JavaType, scope: MethodScope,
+              isInline: Boolean): this(access, ownerClass, name, block, parameters, returnType, scope, isInline, false)
 
   companion object {
     fun fromJavaMethod(classScope: Scope, javaMethod: JavaMethod): MethodNode {
@@ -26,9 +31,18 @@ open class MethodNode constructor(override val access: Int, override val ownerCl
     }
   }
 
-  override val isConstructor = false
   override val isAbstract = false
   override val isDefault = false
+
+  init {
+    if (!isStatic && !isConstructor) {
+      scope.addLocalVariable(ownerClass, "this")
+    }
+    for (param in parameters) {
+      scope.addLocalVariable(param.type, param.name)
+    }
+
+  }
 
   override val descriptor get() = AsmUtils.getMethodDescriptor(parameters, returnType)
 

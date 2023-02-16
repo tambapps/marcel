@@ -6,6 +6,7 @@ import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.scope.MethodScope
+import com.tambapps.marcel.parser.scope.Scope
 
 // TODO expression should be optional, for void function
 class ReturnNode(override var scope: MethodScope, expression: ExpressionNode) : StatementNode,
@@ -28,5 +29,10 @@ class ReturnNode(override var scope: MethodScope, expression: ExpressionNode) : 
 
   override fun toString(): String {
     return "return $expression"
+  }
+
+  override fun trySetScope(scope: Scope) {
+    super.trySetScope(scope)
+    expression.trySetTreeScope(scope)
   }
 }

@@ -7,7 +7,6 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
-import com.tambapps.marcel.parser.type.JavaType
 
 class SwitchNode constructor(override var scope: Scope,
                  val expressionNode: ExpressionNode, val branches: MutableList<SwitchBranchNode>): ExpressionNode, ScopedNode<Scope> {
@@ -20,6 +19,11 @@ class SwitchNode constructor(override var scope: Scope,
   override fun toString(): String {
     return "switch($expressionNode) " + branches.joinToString(separator = "\n", prefix = "{\n", postfix = "\n}")
   }
+
+  override fun trySetScope(scope: Scope) {
+    super.trySetScope(scope)
+    branches.forEach { it.trySetTreeScope(scope) }
+  }
 }
 
 sealed class SwitchBranchNode(var statementNode: StatementNode): ExpressionNode {
@@ -27,8 +31,7 @@ sealed class SwitchBranchNode(var statementNode: StatementNode): ExpressionNode 
     return astNodeVisitor.visit(this)
   }
 
-  fun returningLastStatement(scope: Scope) {
-    val methodScope = MethodScope(scope, "invoke", emptyList(), JavaType.Object)
+  fun returningLastStatement(methodScope: MethodScope) {
     if (statementNode is BlockStatement) {
       val blockStatement = statementNode as BlockStatement
       val lastStatement = blockStatement.block.statements.lastOrNull()

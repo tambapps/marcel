@@ -100,10 +100,21 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
       null
     }
   }
+
+  fun <T> simulateVariable(type: JavaType, name: String, function: () -> T): T {
+    val fakeVariable = LocalVariable(type, name, 0, 0, false)
+    val optVar = localVariables.find { it.name == name }
+    if (optVar != null) localVariables[localVariables.indexOf(optVar)] = fakeVariable
+    else localVariables.add(fakeVariable)
+    val result = function.invoke()
+    if (optVar != null) localVariables[localVariables.indexOf(fakeVariable)] = optVar
+    else localVariables.remove(fakeVariable)
+    return result
+  }
 }
 
 open class MethodScope constructor(typeResolver: AstNodeTypeResolver, imports: MutableList<ImportNode>, classType: JavaType, superClass: JavaType, val methodName: String,
-                       val parameters: List<MethodParameter>, val returnType: JavaType)
+                       val parameters: List<MethodParameter>, var returnType: JavaType)
   : Scope(typeResolver, imports, classType, superClass) {
 
     constructor(scope: Scope,

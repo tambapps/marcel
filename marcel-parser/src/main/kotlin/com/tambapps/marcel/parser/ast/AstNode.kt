@@ -1,6 +1,5 @@
 package com.tambapps.marcel.parser.ast
 
-import com.tambapps.marcel.parser.ast.visitor.CheckAllPathsReturnVisitor
 import com.tambapps.marcel.parser.scope.Scope
 
 interface AstNode {
@@ -13,6 +12,7 @@ interface AstNode {
     })
   }
 
+  // TODO try replacing that with AstNodeVisitor
   fun accept(visitor: AstVisitor) {
     visitor.visit(this)
   }

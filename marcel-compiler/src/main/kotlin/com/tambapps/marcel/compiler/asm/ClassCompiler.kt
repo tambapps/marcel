@@ -86,13 +86,6 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     val methodStartLabel = Label()
     mv.visitLabel(methodStartLabel)
 
-    if (!methodNode.isStatic && !methodNode.isConstructor) {
-      methodNode.scope.addLocalVariable(classNode.type, "this")
-    }
-
-    for (param in methodNode.parameters) {
-      methodNode.scope.addLocalVariable(param.type, param.name)
-    }
     val instructionGenerator = InstructionGenerator(classNode, methodNode, typeResolver, mv)
 
     // writing method
@@ -103,7 +96,8 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     val blockReturnType = methodNode.block.getType(typeResolver)
     if (methodReturnType != JavaType.void && !methodReturnType.isAssignableFrom(blockReturnType)
       && methodReturnType.primitive && !blockReturnType.primitive) {
- //     throw SemanticException("Return type of block doesn't match method return type. " + "Expected $methodReturnType but got $blockReturnType")
+      throw SemanticException("Return type of block doesn't match method return type. "
+          + "Expected $methodReturnType but got $blockReturnType")
     }
 
     val methodEndLabel = Label()
