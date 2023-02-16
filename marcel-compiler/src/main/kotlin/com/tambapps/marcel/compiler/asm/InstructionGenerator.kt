@@ -95,8 +95,9 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
     // this part is to handle local variables referenced in the switch
     val currentScope = switchNode.scope
-    val referencedLocalVariables = mutableListOf<LocalVariable>()
-    switchNode.branches.forEach { branchNode ->
+    // sorted set by insertion order
+    val referencedLocalVariables = LinkedHashSet<LocalVariable>()
+    (switchNode.branches + elseStatement).forEach { branchNode ->
       branchNode.forEachNode {
         if (it is ReferenceExpression) {
           val variable = currentScope.findLocalVariable(it.name)
@@ -118,15 +119,14 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     switchNode.branches.forEach { it.setTreeScope(switchMethodScope) }
     elseStatement.setTreeScope(switchMethodScope)
 
-    val switchExpressionReference = ReferenceExpression(switchMethodScope, "it")
     val branches = switchNode.branches
     branches.forEach { it.statementNode = returningLastStatement(switchMethodScope, it.statementNode) }
     // marcel switch is just an if/elsif
-    val rootIf = switchBranchToIf(switchExpressionReference, branches.first())
+    val rootIf = branches.first().toIf()
     var currentIf = rootIf
     for (i in 1..branches.lastIndex) {
       val branch = branches[i]
-      val newIfBranch = switchBranchToIf(switchExpressionReference, branch)
+      val newIfBranch = branch.toIf()
       currentIf.falseStatementNode = newIfBranch
       currentIf = newIfBranch
     }
@@ -142,11 +142,6 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       (listOf(switchNode.expressionNode) + referencedLocalVariables.map { ReferenceExpression(currentScope, it.name) }
           ).toMutableList(),
       ReferenceExpression.thisRef(currentScope), methodNode))
-  }
-
-  private fun switchBranchToIf(switchExpression: ExpressionNode, branchNode: SwitchBranchNode): IfStatementNode {
-    return IfStatementNode(ComparisonOperatorNode(ComparisonOperator.EQUAL, switchExpression, branchNode.valueExpression),
-      branchNode.statementNode, null)
   }
 
   private fun returningLastStatement(methodScope: MethodScope, statementNode: StatementNode): StatementNode {

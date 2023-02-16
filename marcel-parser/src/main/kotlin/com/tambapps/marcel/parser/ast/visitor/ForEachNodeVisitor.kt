@@ -292,6 +292,8 @@ class ForEachNodeVisitor(private val consumer: (AstNode) -> Unit): AstNodeVisito
 
   override fun visit(switchBranch: SwitchBranchNode) {
     consumer.invoke(switchBranch)
+    // visiting valueExpression and not conditionExpressionNode to avoid visiting switch's expression multiple times
+    switchBranch.valueExpression.accept(this)
     switchBranch.statementNode.accept(this)
   }
 
