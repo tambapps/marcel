@@ -109,3 +109,23 @@ Square brackets can also be used to define maps
 ````groovy
 Map map = [1.3: "1", 1.4: "2", "myStringKey": "myStringValue", myRefKey: myRefValue]
 ````
+
+## Ranges
+
+You can create int (and soon long) ranges
+
+```groovy
+0..10 // 0 (inclusive) to 10 (inclusive)
+0<..10 // 0 (exclusive) to 10 (inclusive)
+0..<10 // 0 (inclusive) to 10 (exclusive)
+0<..<10 // 0 (exclusive) to 10 (exclusive)
+```
+
+Ranges also work in reverse order
+
+```groovy
+10..0 // 10 (inclusive) to 0 (inclusive)
+10>..0 // 10 (exclusive) to 0 (inclusive)
+10..>0 // 10 (inclusive) to 0 (exclusive)
+10>..>0 // 10 (exclusive) to 0 (exclusive)
+```

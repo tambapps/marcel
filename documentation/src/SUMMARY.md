@@ -10,7 +10,7 @@
     - [Identifier rules](language-specification/syntax/identifiers.md)
     - [Literal Values](language-specification/syntax/literal-values.md)
   - [Variables](language-specification/index.md)
-  - [Types](language-specification/index.md)
+  - [Types](language-specification/types.md)
   - [Program Structure](./program-structure.md)
   - [Control Flows](./language-specification/control-flows/index.md)
     - [Marcel Truth](./language-specification/control-flows/marcel-truth.md)

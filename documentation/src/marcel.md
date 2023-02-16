@@ -3,7 +3,7 @@
 Marcel is a programming language built with the following goals in mind:
 - Being simple, not too verbose, allowing to write programs quickly
 - Runnable on Android devices (this language is **guaranteed** to be compilable and executable on any Android devices)
-- use primitive types when possible (as opposed to the classes Integer, Float, etc...)
+- use primitive types when possible (e.g. [for collections](./language-specification/types.md#collections-of-primitives))
 
 Its features are inspired from many languages such as Groovy, Kotlin, Vlang and Perl. You can consult the source code of
 this language [on GitHub](https://github.com/tambapps/marcel/wiki)
