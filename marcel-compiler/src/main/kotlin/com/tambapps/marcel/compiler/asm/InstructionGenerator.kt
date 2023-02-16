@@ -102,11 +102,27 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     val elseBranch = switchNode.branches.find { it is ElseBranchNode  } as ElseBranchNode
 
     val switchExpressionType = switchNode.expressionNode.getType(typeResolver)
-    val parameters = listOf(MethodParameter(switchExpressionType, "it"))
+
+    // this part is to handle local variables referenced in the switch
+    val currentScope = switchNode.scope
+    val referencedLocalVariables = mutableListOf<LocalVariable>()
+    switchNode.branches.forEach { branchNode ->
+      branchNode.forEachNode {
+        if (it is ReferenceExpression) {
+          val variable = currentScope.findLocalVariable(it.name)
+          if (variable != null && it.name != "it") referencedLocalVariables.add(variable)
+        }
+      }
+    }
+    val parameters = listOf(MethodParameter(switchExpressionType, "it")) + referencedLocalVariables.map {
+    // TODO make these parameters final
+      MethodParameter(it.type, it.name)
+    }
+
+
     val switchMethodName = "__switch_" + ((switchNode.scope as? MethodScope)?.methodName ?: switchNode.scope.classType.simpleName) +
         classNode.methods.size
     val switchMethodScope = MethodScope(classNode.scope, switchMethodName, parameters, switchType)
-    val currentScope = switchNode.scope
     switchNode.branches.forEach { it.setTreeScope(switchMethodScope) }
 
     elseBranch.returningLastStatement(switchMethodScope)
@@ -133,7 +149,9 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     )
     classNode.addMethod(methodNode)
     typeResolver.defineMethod(classNode.type, methodNode)
-    visit(FunctionCallNode(currentScope, switchMethodName, mutableListOf(switchNode.expressionNode),
+    visit(FunctionCallNode(currentScope, switchMethodName,
+      (listOf(switchNode.expressionNode) + referencedLocalVariables.map { ReferenceExpression(currentScope, it.name) }
+          ).toMutableList(),
       ReferenceExpression.thisRef(currentScope), methodNode))
   }
 

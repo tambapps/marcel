@@ -9,9 +9,13 @@ interface AstInstructionNode: AstNode {
   fun <T> accept(astNodeVisitor: AstNodeVisitor<T>): T
   fun allBranchesReturn(): Boolean = accept(CheckAllPathsReturnVisitor())
 
+  fun forEachNode(consumer: (AstNode) -> Unit) {
+    accept(ForEachNodeVisitor(consumer))
+  }
+
   fun setTreeScope(scope: Scope) {
-    accept(ForEachNodeVisitor {
+    forEachNode {
       if (it is ScopedNode<*>) it.trySetScope(scope)
-    })
+    }
   }
 }
