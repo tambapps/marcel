@@ -4,3 +4,4 @@ language = "en"
 multilingual = false
 src = "src"
 title = "The Marcel Programming Language"
+# https://rust-lang.github.io/mdBook/
