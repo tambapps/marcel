@@ -6,7 +6,7 @@ Marcel is a programming language built with the following goals in mind:
 - use primitive types when possible (e.g. [for collections](./language-specification/types.md#collections-of-primitives))
 
 Its features are inspired from many languages such as Groovy, Kotlin, Vlang and Perl. You can consult the source code of
-this language [on GitHub](https://github.com/tambapps/marcel/wiki)
+this language [on GitHub](https://github.com/tambapps/marcel)
 
 <br/>
 Marcel compiles to Java classes. You can execute marcel script/projects on any JVMs, as long as the Marcel stdlib is included
