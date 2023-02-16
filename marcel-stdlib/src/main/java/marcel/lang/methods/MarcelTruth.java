@@ -25,7 +25,7 @@ public class MarcelTruth {
       return Array.getLength(o) > 0;
     } else {
       try {
-        Method truthyMethod = clazz.getDeclaredMethod("truthy");
+        Method truthyMethod = clazz.getDeclaredMethod("isTruthy");
         if (truthyMethod.getReturnType() == boolean.class) {
           return (boolean) truthyMethod.invoke(o);
         } else if (truthyMethod.getReturnType() == Boolean.class) {
