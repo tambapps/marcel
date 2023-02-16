@@ -1,6 +1,6 @@
 # If expression
 If statements are similar as Java's, but you can provide any expression in them. If the provided expression is not a boolean,
-the [Marcel truth](./marcel-truth.md) will decide if your expression is `true` or not.
+the [Marcel truth](marcel-truth.md) will decide if your expression is `true` or not.
 
 ```kotlin
 if (a == 1) {
@@ -13,7 +13,7 @@ if (a == 1) {
 ```
 
 ## if variable declaration
-The [marcel truth](./marcel-truth.md) allows you to declare variable in an `if` condition, and execute the code block if the variable is truthy
+The [marcel truth](marcel-truth.md) allows you to declare variable in an `if` condition, and execute the code block if the variable is truthy
 ```kotlin
 if (Something result = fetchSomething()) {
   println("Fetched $result")
