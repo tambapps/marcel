@@ -107,7 +107,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
         classNode.methods.size
     val switchMethodScope = MethodScope(classNode.scope, switchMethodName, parameters, switchType)
     val currentScope = switchNode.scope
-    switchNode.setTreeScope(switchMethodScope)
+    switchNode.branches.forEach { it.setTreeScope(switchMethodScope) }
 
     elseBranch.returningLastStatement(switchMethodScope)
 
