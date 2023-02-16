@@ -9,7 +9,7 @@
     - [Keywords](language-specification/syntax/keywords.md)
     - [Identifier rules](language-specification/syntax/identifiers.md)
     - [Literal Values](language-specification/syntax/literal-values.md)
-  - [Variables](language-specification/index.md)
+  - [Variables](language-specification/variables.md)
   - [Types](language-specification/types.md)
   - [Source File Structure](language-specification/source-file-structure/index.md)
     - [Imports](language-specification/source-file-structure/imports.md)
