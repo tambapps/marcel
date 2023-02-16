@@ -54,7 +54,7 @@ class LambdaHandler(private val classNode: ClassNode, private val methodNode: Me
 
     val lambdaMethodScope = MethodScope(lambdaClassNode.scope, lambdaMethod.name, parameters, lambdaMethod.returnType)
     val fblock = FunctionBlockNode(lambdaMethodScope, lambdaNode.blockNode.statements)
-    fblock.trySetTreeScope(lambdaMethodScope)
+    fblock.setTreeScope(lambdaMethodScope)
     lambdaClassNode.addMethod(
       MethodNode(Opcodes.ACC_PUBLIC, type, lambdaMethod.name,
         fblock,

@@ -31,8 +31,4 @@ class ReturnNode(override var scope: MethodScope, expression: ExpressionNode) : 
     return "return $expression"
   }
 
-  override fun trySetScope(scope: Scope) {
-    super.trySetScope(scope)
-    expression.trySetTreeScope(scope)
-  }
 }

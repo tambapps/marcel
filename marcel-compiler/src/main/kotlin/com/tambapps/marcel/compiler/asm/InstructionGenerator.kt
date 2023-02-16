@@ -108,7 +108,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
         classNode.methods.size
     val switchMethodScope = MethodScope(classNode.scope, switchMethodName, parameters, switchType)
     val currentScope = switchNode.scope
-    switchNode.trySetTreeScope(switchMethodScope)
+    switchNode.setTreeScope(switchMethodScope)
 
     elseBranch.returningLastStatement(switchMethodScope)
 
@@ -345,7 +345,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       val innerScope = InnerScope(
         fCall.scope as? MethodScope ?: throw SemanticException("Can only call inline functions in a method"))
       val inlineBlock = inlineMethod.block.asSimpleBlock(innerScope)
-      inlineBlock.trySetTreeScope(innerScope)
+      inlineBlock.setTreeScope(innerScope)
       // initializing arguments
       if (fCall.arguments.size != inlineMethod.parameters.size) {
         throw SemanticException("Invalid number of arguments for method ${method.name}")

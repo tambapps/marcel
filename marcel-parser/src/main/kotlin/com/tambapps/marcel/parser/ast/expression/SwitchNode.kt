@@ -20,10 +20,6 @@ class SwitchNode constructor(override var scope: Scope,
     return "switch($expressionNode) " + branches.joinToString(separator = "\n", prefix = "{\n", postfix = "\n}")
   }
 
-  override fun trySetScope(scope: Scope) {
-    super.trySetScope(scope)
-    branches.forEach { it.trySetTreeScope(scope) }
-  }
 }
 
 sealed class SwitchBranchNode(var statementNode: StatementNode): ExpressionNode {
