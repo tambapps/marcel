@@ -85,7 +85,4 @@ class CharNode(val value: String): ExpressionNode {
     return "`$value`"
   }
 
-  override fun accept(visitor: AstVisitor) {
-    super.accept(visitor)
-  }
 }

@@ -29,8 +29,4 @@ open class VariableAssignmentNode(override var scope: Scope, val name: String, v
     return result
   }
 
-  override fun accept(visitor: AstVisitor) {
-    super.accept(visitor)
-    expression.accept(visitor)
-  }
 }

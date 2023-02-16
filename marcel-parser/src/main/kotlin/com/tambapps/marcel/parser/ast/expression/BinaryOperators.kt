@@ -23,11 +23,6 @@ abstract class BinaryOperatorNode(val leftOperand: ExpressionNode, open val righ
     return result
   }
 
-  override fun accept(visitor: AstVisitor) {
-    super.accept(visitor)
-    leftOperand.accept(visitor)
-    rightOperand.accept(visitor)
-  }
 }
 
 class MulOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :

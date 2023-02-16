@@ -11,10 +11,6 @@ import com.tambapps.marcel.parser.type.JavaType
 
 abstract class AbstractForStatement(val body: BlockNode): StatementNode, ScopedNode<InnerScope> {
 
-  override fun accept(visitor: AstVisitor) {
-    super.accept(visitor)
-    body.accept(visitor)
-  }
 }
 class ForStatement(override var scope: InnerScope, val initStatement: StatementNode,
                    val endCondition: BooleanExpressionNode, val iteratorStatement: StatementNode, body: BlockNode): AbstractForStatement(body) {
@@ -26,12 +22,6 @@ class ForStatement(override var scope: InnerScope, val initStatement: StatementN
     return "for ($initStatement $endCondition $iteratorStatement) {\n$body\n}"
   }
 
-  override fun accept(visitor: AstVisitor) {
-    super.accept(visitor)
-    initStatement.accept(visitor)
-    endCondition.accept(visitor)
-    iteratorStatement.accept(visitor)
-  }
 }
 
 class ForInStatement constructor(override var scope: InnerScope, val variableType: JavaType, val variableName: String, val inExpression: ExpressionNode, body: BlockNode): AbstractForStatement(body) {
@@ -41,8 +31,4 @@ class ForInStatement constructor(override var scope: InnerScope, val variableTyp
     return "for ($variableType $variableName in $inExpression) {\n$body\n}"
   }
 
-  override fun accept(visitor: AstVisitor) {
-    super.accept(visitor)
-    inExpression.accept(visitor)
-  }
 }

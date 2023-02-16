@@ -10,10 +10,6 @@ open class ExpressionStatementNode(val expression: ExpressionNode): StatementNod
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
 
-  override fun accept(visitor: AstVisitor) {
-    super.accept(visitor)
-    expression.accept(visitor)
-  }
   override fun toString(): String {
     return "$expression;"
   }

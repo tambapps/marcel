@@ -11,13 +11,6 @@ open class TernaryNode(val boolExpression: BooleanExpressionNode,
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
-  override fun accept(visitor: AstVisitor) {
-    super.accept(visitor)
-    boolExpression.accept(visitor)
-    trueExpression.accept(visitor)
-    falseExpression.accept(visitor)
-  }
-
   override fun toString(): String {
     return "$boolExpression ? $trueExpression : $falseExpression"
   }

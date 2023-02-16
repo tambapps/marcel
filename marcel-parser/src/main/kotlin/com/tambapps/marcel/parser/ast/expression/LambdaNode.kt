@@ -18,14 +18,4 @@ class LambdaNode constructor(val scope: LambdaScope, val parameters: List<Method
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
-  override fun accept(visitor: AstVisitor) {
-    super.accept(visitor)
-    blockNode.accept(visitor)
-    // make sure the block has this lambda's body
-    blockNode.accept(object :AstVisitor {
-      override fun visit(node: AstNode) {
-        if (node is ScopedNode<*>) node.trySetScope(scope)
-      }
-    })
-  }
 }

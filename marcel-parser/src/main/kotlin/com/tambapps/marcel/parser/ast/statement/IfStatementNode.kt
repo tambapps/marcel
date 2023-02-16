@@ -14,13 +14,6 @@ class IfStatementNode(val condition: BooleanExpressionNode, val trueStatementNod
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
-
-  override fun accept(visitor: AstVisitor) {
-    super.accept(visitor)
-    condition.accept(visitor)
-    trueStatementNode.accept(visitor)
-    falseStatementNode?.accept(visitor)
-  }
   override fun toString(): String {
     var s = "if ($condition) $trueStatementNode"
     if (falseStatementNode != null) {

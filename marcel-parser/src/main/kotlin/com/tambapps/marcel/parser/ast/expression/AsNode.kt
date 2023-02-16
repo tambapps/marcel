@@ -8,8 +8,4 @@ class AsNode(val type: JavaType, val expressionNode: ExpressionNode): Expression
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
-  override fun accept(visitor: AstVisitor) {
-    super.accept(visitor)
-    expressionNode.accept(visitor)
-  }
 }

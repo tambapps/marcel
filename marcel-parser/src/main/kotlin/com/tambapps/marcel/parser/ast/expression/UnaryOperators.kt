@@ -6,10 +6,6 @@ import com.tambapps.marcel.parser.ast.AstVisitor
 
 abstract class UnaryOperator(val operand: ExpressionNode): ExpressionNode {
 
-  override fun accept(visitor: AstVisitor) {
-    super.accept(visitor)
-    operand.accept(visitor)
-  }
 }
 
 class UnaryMinus(operand: ExpressionNode) : UnaryOperator(operand) {

@@ -21,10 +21,6 @@ open class FunctionCallNode constructor(override var scope: Scope, val name: Str
 
   var methodOwnerType: ExpressionNode? = null
 
-  override fun accept(visitor: AstVisitor) {
-    super.accept(visitor)
-    arguments.forEach { it.accept(visitor) }
-  }
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
 

@@ -1,10 +1,4 @@
 package com.tambapps.marcel.parser.ast
 
-interface AstNode {
-
-
-  // TODO remove this method
-  fun accept(visitor: AstVisitor) {
-    visitor.visit(this)
-  }
-}
+// don't know if it's useful, but let's keep it for now
+interface AstNode

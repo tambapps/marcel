@@ -11,10 +11,4 @@ class RangeNode(val from: ExpressionNode, val to: ExpressionNode,
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
 
-  override fun accept(visitor: AstVisitor) {
-    super.accept(visitor)
-    from.accept(visitor)
-    to.accept(visitor)
-  }
-
 }

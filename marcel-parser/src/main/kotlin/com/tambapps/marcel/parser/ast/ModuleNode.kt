@@ -11,8 +11,4 @@ class ModuleNode(val classes: MutableList<ClassNode>): AstNode {
     }
   }
 
-  override fun accept(visitor: AstVisitor) {
-    super.accept(visitor)
-    classes.forEach { it.accept(visitor) }
-  }
 }

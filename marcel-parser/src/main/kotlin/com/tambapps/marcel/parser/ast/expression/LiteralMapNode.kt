@@ -7,11 +7,4 @@ class LiteralMapNode constructor(val entries: List<Pair<ExpressionNode, Expressi
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
-  override fun accept(visitor: AstVisitor) {
-    super.accept(visitor)
-    entries.forEach {
-      it.first.accept(visitor)
-      it.second.accept(visitor)
-    }
-  }
 }

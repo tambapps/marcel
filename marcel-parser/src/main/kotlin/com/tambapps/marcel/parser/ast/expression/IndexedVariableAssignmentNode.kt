@@ -30,8 +30,4 @@ open class IndexedVariableAssignmentNode(override var scope: Scope, val indexedR
     return result
   }
 
-  override fun accept(visitor: AstVisitor) {
-    super.accept(visitor)
-    expression.accept(visitor)
-  }
 }

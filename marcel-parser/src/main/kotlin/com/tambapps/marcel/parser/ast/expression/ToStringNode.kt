@@ -7,9 +7,4 @@ import com.tambapps.marcel.parser.type.JavaType
 class ToStringNode(val expressionNode: ExpressionNode): ExpressionNode {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
-
-  override fun accept(visitor: AstVisitor) {
-    super.accept(visitor)
-    expressionNode.accept(visitor)
-  }
 }

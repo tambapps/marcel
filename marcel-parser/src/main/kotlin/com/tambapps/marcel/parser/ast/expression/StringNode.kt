@@ -13,8 +13,4 @@ class StringNode(val parts: List<ExpressionNode>): ExpressionNode {
     return parts.joinToString(separator = " + ")
   }
 
-  override fun accept(visitor: AstVisitor) {
-    super.accept(visitor)
-    parts.forEach { it.accept(visitor) }
-  }
 }

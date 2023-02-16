@@ -25,10 +25,6 @@ open class BlockNode constructor(override var scope: MethodScope, val statements
   fun addStatement(statementNode: StatementNode) {
     statements.add(statementNode)
   }
-  override fun accept(visitor: AstVisitor) {
-    super.accept(visitor)
-    statements.forEach { it.accept(visitor) }
-  }
 }
 
 // need to differentiate both because we don't always want to push on stack values for "normal" block nodes
