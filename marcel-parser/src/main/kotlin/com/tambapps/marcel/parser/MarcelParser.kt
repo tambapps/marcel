@@ -513,22 +513,23 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         accept(TokenType.RPAR)
         accept(TokenType.BRACKETS_OPEN)
         val branches = mutableListOf<SwitchBranchNode>()
+        var elseStatement: StatementNode? = null
         val switchScope = InnerScope(scope as? MethodScope ?: throw MarcelParsingException("Cannot have switch outside of method"))
         while (current.type != TokenType.BRACKETS_CLOSE) {
           if (current.type == TokenType.ELSE) {
             skip()
             accept(TokenType.ARROW)
 
-            if (branches.any { it is ElseBranchNode }) throw MarcelParsingException("Cannot have multiple else statements")
-            branches.add(ElseBranchNode(statement(switchScope)))
+            if (elseStatement != null) throw MarcelParsingException("Cannot have multiple else statements")
+            elseStatement = statement(switchScope)
           } else {
             val valueExpression = expression(scope)
             accept(TokenType.ARROW)
-            branches.add(EqSwitchBranchNode(valueExpression, statement(switchScope)))
+            branches.add(SwitchBranchNode(valueExpression, statement(switchScope)))
           }
         }
         skip() // skip bracket_close
-        SwitchNode(scope, switchExpression, branches)
+        SwitchNode(scope, switchExpression, branches, elseStatement)
       }
       TokenType.WHEN -> {
         accept(TokenType.BRACKETS_OPEN)

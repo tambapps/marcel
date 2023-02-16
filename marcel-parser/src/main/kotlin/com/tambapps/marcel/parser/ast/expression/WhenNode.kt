@@ -16,10 +16,12 @@ class WhenNode constructor(override var scope: Scope, val branches: MutableList<
     return astNodeVisitor.visit(this)
   }
 
-  override fun toString(): String {
-    return "when " + branches.joinToString(separator = "\n", prefix = "{\n", postfix = "\n}")
-  }
 
+  override fun toString(): String {
+    var branchesString = branches.joinToString(separator = "\n")
+    if (elseStatement != null) branchesString += "else -> $elseStatement"
+    return "when {\n$branchesString\n}"
+  }
 }
 
 class WhenBranchNode(

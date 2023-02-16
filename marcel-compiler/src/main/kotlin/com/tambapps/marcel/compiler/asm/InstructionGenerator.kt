@@ -9,6 +9,7 @@ import com.tambapps.marcel.compiler.util.javaType
 import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
+import com.tambapps.marcel.parser.ast.statement.BlockStatement
 import com.tambapps.marcel.parser.ast.statement.BreakLoopNode
 import com.tambapps.marcel.parser.ast.statement.ContinueLoopNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
@@ -16,6 +17,7 @@ import com.tambapps.marcel.parser.ast.statement.ForInStatement
 import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.MultiVariableDeclarationNode
+import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.SemanticException
@@ -83,24 +85,12 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       throw SemanticException("Switch must have at least one branch")
     }
 
-    val elseBranchCount = switchNode.branches.count { it is ElseBranchNode }
-    if (elseBranchCount > 1) {
-      throw SemanticException("Can only have one else branch")
-    }
     val switchType = switchNode.getType(typeResolver)
-    if (elseBranchCount == 0) {
-      if (switchType.primitive) {
-        throw SemanticException("Need to cover all cases (an else branch) for  switch returning primitives as they cannot be null")
-      } else {
-        switchNode.branches.add(ElseBranchNode(ExpressionStatementNode(NullValueNode(switchType))))
-      }
-    }
-    if (elseBranchCount == 0 && switchType.primitive) {
+    if (switchNode.elseStatement == null && switchType.primitive) {
       throw SemanticException("Need to cover all cases (an else branch) for  switch returning primitives as they cannot be null")
     }
 
-    val elseBranch = switchNode.branches.find { it is ElseBranchNode  } as ElseBranchNode
-
+    val elseStatement = switchNode.elseStatement ?: ExpressionStatementNode(NullValueNode(switchType))
     val switchExpressionType = switchNode.expressionNode.getType(typeResolver)
 
     // this part is to handle local variables referenced in the switch
@@ -123,25 +113,24 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     val switchMethodName = "__switch_" + ((switchNode.scope as? MethodScope)?.methodName ?: switchNode.scope.classType.simpleName) +
         classNode.methods.size
     val switchMethodScope = MethodScope(classNode.scope, switchMethodName, parameters, switchType)
+
+    // set scope
     switchNode.branches.forEach { it.setTreeScope(switchMethodScope) }
-
-    elseBranch.returningLastStatement(switchMethodScope)
-
+    elseStatement.setTreeScope(switchMethodScope)
 
     val switchExpressionReference = ReferenceExpression(switchMethodScope, "it")
-    val branches = switchNode.branches.filter { it !is ElseBranchNode }
-    branches.forEach { it.returningLastStatement(switchMethodScope) }
+    val branches = switchNode.branches
+    branches.forEach { it.statementNode = returningLastStatement(switchMethodScope, it.statementNode) }
     // marcel switch is just an if/elsif
     val rootIf = switchBranchToIf(switchExpressionReference, branches.first())
     var currentIf = rootIf
     for (i in 1..branches.lastIndex) {
       val branch = branches[i]
-      if (branch == elseBranch) continue
       val newIfBranch = switchBranchToIf(switchExpressionReference, branch)
       currentIf.falseStatementNode = newIfBranch
       currentIf = newIfBranch
     }
-    currentIf.falseStatementNode = elseBranch.statementNode
+    currentIf.falseStatementNode = returningLastStatement(switchMethodScope, elseStatement)
 
     val methodNode = MethodNode(Opcodes.ACC_PRIVATE, classNode.type,
       switchMethodName, FunctionBlockNode(switchMethodScope, mutableListOf(rootIf)),
@@ -156,12 +145,33 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   private fun switchBranchToIf(switchExpression: ExpressionNode, branchNode: SwitchBranchNode): IfStatementNode {
-    return when (branchNode) {
-      is EqSwitchBranchNode -> IfStatementNode(ComparisonOperatorNode(ComparisonOperator.EQUAL, switchExpression, branchNode.valueExpression),
-        branchNode.statementNode, null)
-      else -> throw RuntimeException("Compiler error. Doesn't handle ${branchNode.javaClass.simpleName} switch branches")
+    return IfStatementNode(ComparisonOperatorNode(ComparisonOperator.EQUAL, switchExpression, branchNode.valueExpression),
+      branchNode.statementNode, null)
+  }
+
+  private fun returningLastStatement(methodScope: MethodScope, statementNode: StatementNode): StatementNode {
+    return when (statementNode) {
+      is BlockStatement -> {
+        val lastStatement = statementNode.block.statements.lastOrNull()
+        if (lastStatement == null) statementNode.block.addStatement(ReturnNode(methodScope, NullValueNode()))
+        else if (lastStatement is ExpressionStatementNode) statementNode.block.statements.set(
+          statementNode.block.statements.size - 1, ReturnNode(methodScope, lastStatement.expression)
+        ) else statementNode.block.addStatement(ReturnNode(methodScope, NullValueNode()))
+        statementNode
+      }
+      is ExpressionStatementNode -> return ReturnNode(methodScope, statementNode.expression)
+      else -> BlockStatement(
+          BlockNode(
+            // scope don't really matters here because it will be overriden in lambda
+            methodScope,
+            mutableListOf(
+              statementNode, ReturnNode(methodScope, NullValueNode())
+            )
+          )
+        )
     }
   }
+
 
   override fun visit(whenNode: WhenNode) {
     TODO("Not yet implemented")

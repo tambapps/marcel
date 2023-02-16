@@ -11,7 +11,6 @@ import com.tambapps.marcel.parser.ast.expression.ComparisonOperatorNode
 import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.DivOperator
 import com.tambapps.marcel.parser.ast.expression.DoubleConstantNode
-import com.tambapps.marcel.parser.ast.expression.ElseBranchNode
 import com.tambapps.marcel.parser.ast.expression.ElvisOperator
 import com.tambapps.marcel.parser.ast.expression.FieldAssignmentNode
 import com.tambapps.marcel.parser.ast.expression.FloatConstantNode
@@ -296,7 +295,7 @@ class CheckAllPathsReturnVisitor: AstNodeVisitor<Boolean> {
   }
 
   override fun visit(switchNode: SwitchNode): Boolean {
-    return switchNode.branches.any { it is ElseBranchNode } && switchNode.branches.all { it.accept(this) }
+    return switchNode.elseStatement != null && switchNode.branches.all { it.accept(this) }
   }
 
   override fun visit(whenBranchNode: WhenBranchNode): Boolean {
