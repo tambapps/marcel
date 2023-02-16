@@ -605,9 +605,16 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
   }
 
   private fun escapedSequenceValue(tokenValue: String): String {
-    val escapedSequence = tokenValue.substring(1)
-    return if (escapedSequence == "n") "\n"
-    else TODO("Doesn't handle \\$escapedSequence")
+    return when (val escapedSequence = tokenValue.substring(1)) {
+      "b" -> "\b"
+      "n" -> "\n"
+      "r" -> "\r"
+      "t" -> "\t"
+      "\\" -> "\\"
+      "\'" -> "'"
+      "\"" -> "\""
+      else -> throw MarcelParsingException("Unknown escaped sequence \\$escapedSequence")
+    }
   }
   private fun parseLambda(scope: Scope): LambdaNode {
     val parameters = mutableListOf<MethodParameter>()
