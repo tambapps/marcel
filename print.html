@@ -1,0 +1,671 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>The Marcel Programming Language</title>
+        <meta name="robots" content="noindex" />
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="marcel.html">The Marcel Programming Language</a></li><li class="chapter-item expanded "><a href="getting-started/index.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="getting-started/installation.html"><strong aria-hidden="true">1.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="getting-started/hello-world.html"><strong aria-hidden="true">1.2.</strong> Hello World</a></li></ol></li><li class="chapter-item expanded "><a href="language-specification/index.html"><strong aria-hidden="true">2.</strong> Language Specification</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="language-specification/syntax/index.html"><strong aria-hidden="true">2.1.</strong> Syntax</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="language-specification/syntax/comments.html"><strong aria-hidden="true">2.1.1.</strong> Comments</a></li><li class="chapter-item expanded "><a href="language-specification/syntax/keywords.html"><strong aria-hidden="true">2.1.2.</strong> Keywords</a></li><li class="chapter-item expanded "><a href="language-specification/syntax/identifiers.html"><strong aria-hidden="true">2.1.3.</strong> Identifier rules</a></li><li class="chapter-item expanded "><a href="language-specification/syntax/literal-values.html"><strong aria-hidden="true">2.1.4.</strong> Literal Values</a></li></ol></li><li class="chapter-item expanded "><a href="language-specification/variables.html"><strong aria-hidden="true">2.2.</strong> Variables</a></li><li class="chapter-item expanded "><a href="language-specification/types.html"><strong aria-hidden="true">2.3.</strong> Types</a></li><li class="chapter-item expanded "><a href="language-specification/source-file-structure/index.html"><strong aria-hidden="true">2.4.</strong> Source File Structure</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="language-specification/source-file-structure/imports.html"><strong aria-hidden="true">2.4.1.</strong> Imports</a></li><li class="chapter-item expanded "><a href="language-specification/source-file-structure/visibility.html"><strong aria-hidden="true">2.4.2.</strong> Visibilities</a></li><li class="chapter-item expanded "><a href="language-specification/source-file-structure/functions.html"><strong aria-hidden="true">2.4.3.</strong> Functions</a></li><li class="chapter-item expanded "><a href="language-specification/source-file-structure/classes.html"><strong aria-hidden="true">2.4.4.</strong> Classes</a></li></ol></li><li class="chapter-item expanded "><a href="language-specification/control-flows/index.html"><strong aria-hidden="true">2.5.</strong> Control Flows</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="language-specification/control-flows/marcel-truth.html"><strong aria-hidden="true">2.5.1.</strong> Marcel Truth</a></li><li class="chapter-item expanded "><a href="language-specification/control-flows/if-else.html"><strong aria-hidden="true">2.5.2.</strong> If/Else Statements</a></li><li class="chapter-item expanded "><a href="language-specification/control-flows/for-loops.html"><strong aria-hidden="true">2.5.3.</strong> For loops</a></li><li class="chapter-item expanded "><a href="language-specification/control-flows/switch.html"><strong aria-hidden="true">2.5.4.</strong> Switch</a></li></ol></li><li class="chapter-item expanded "><a href="language-specification/operators.html"><strong aria-hidden="true">2.6.</strong> Operators</a></li><li class="chapter-item expanded "><a href="language-specification/lambdas.html"><strong aria-hidden="true">2.7.</strong> Lambdas</a></li></ol></li><li class="chapter-item expanded "><a href="tools/index.html"><strong aria-hidden="true">3.</strong> Tools</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="tools/marcl.html"><strong aria-hidden="true">3.1.</strong> MarCL</a></li><li class="chapter-item expanded "><a href="tools/marshell.html"><strong aria-hidden="true">3.2.</strong> Marshell</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Marcel Programming Language</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="marcel-a-simple-and-efficient-programming-language-for-any-jvm"><a class="header" href="#marcel-a-simple-and-efficient-programming-language-for-any-jvm">Marcel, a simple and efficient programming language for any JVM</a></h1>
+<p>Marcel is a programming language built with the following goals in mind:</p>
+<ul>
+<li>Being simple, not too verbose, allowing to write programs quickly</li>
+<li>Runnable on Android devices (this language is <strong>guaranteed</strong> to be compilable and executable on any Android devices)</li>
+<li>use primitive types when possible (e.g. <a href="./language-specification/types.html#collections-of-primitives">for collections</a>)</li>
+</ul>
+<p>Its features are inspired from many languages such as Groovy, Kotlin, Vlang and Perl. You can consult the source code of
+this language <a href="https://github.com/tambapps/marcel/wiki">on GitHub</a></p>
+<br/>
+Marcel compiles to Java classes. You can execute marcel script/projects on any JVMs, as long as the Marcel stdlib is included
+in your classpath.
+<p>As stated above, marcel is guaranteed to be compilable and executable on any Android devices. An android app will come soon(-ish)
+for that.</p>
+<br/>
+<p>Some integrations with Android APIs should come at some point (e.g. send SMS from a Marcel script, run a Marcel script 
+on the background with Android's <a href="https://developer.android.com/topic/libraries/architecture/workmanager">WorkManager</a> 
+and get a notification once the work is finished)</p>
+<br/>
+<p>Note that this language is at an early development stage (it started on January 2023) and is therefore not stable yet. I will do my
+best not to bring radical changes, but I cannot guaranty that yet.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="getting-started"><a class="header" href="#getting-started">Getting Started</a></h1>
+<p>In this section we'll discuss:</p>
+<ul>
+<li>Installing Marcel</li>
+<li>Writing and running a Marcel program that prints <code>Hello World</code></li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
+<p>To be able to compile and execute marcel scripts, you'll need the
+<code>marcl</code>, MARcel Command Line tool.</p>
+<p>For now there is no proper way to install it. You'll have to clone my <a href="https://github.com/tambapps/marcel">repo</a> and 
+package the project using maven. Then, you can execute the <code>marcl</code> jar built on <code>marcl/target/</code>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="hello-world"><a class="header" href="#hello-world">Hello World</a></h1>
+<p>Let's dive in some code now. Marcel can be used as a scripting language, so you don't need to declare a <code>main()</code> function
+if you just want to run some code.</p>
+<pre><code class="language-kotlin">// HelloWorld.mcl
+println(&quot;Hello World!&quot;)
+</code></pre>
+<p>That's it! One line is all it takes to write the famous Hello World program.</p>
+<p>To execute it, use <a href="getting-started/../tools/marcl.html">marcl</a>.</p>
+<pre><code class="language-shell">marcl HelloWorld.mcl
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="language-specification"><a class="header" href="#language-specification">Language Specification</a></h1>
+<p>In this section, you'll learn all the little secrets of MarcelLang.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="syntax"><a class="header" href="#syntax">Syntax</a></h1>
+<p>This chapter covers the syntax of the Marcel programming language.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="comments"><a class="header" href="#comments">Comments</a></h1>
+<p>You can comment your code in Marcel the same way you would in Java.</p>
+<p>Define comments like you would in Java. <code>// ...</code> for a single line comment, and <code>/* ... */</code> for a multi-line comment</p>
+<pre><code class="language-kotlin">// this function does stuff
+doStuff()
+
+/* this function
+  does some
+  other stuff
+ */
+doOtherStuff()
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="keywords"><a class="header" href="#keywords">Keywords</a></h1>
+<p>Marcel has the following keywords, which you cannot use as variable/function names</p>
+<ul>
+<li>int</li>
+<li>long</li>
+<li>short</li>
+<li>float</li>
+<li>double</li>
+<li>bool</li>
+<li>byte</li>
+<li>void</li>
+<li>char</li>
+<li>fun</li>
+<li>return</li>
+<li>true</li>
+<li>false</li>
+<li>new</li>
+<li>import</li>
+<li>as</li>
+<li>inline</li>
+<li>static</li>
+<li>for</li>
+<li>in</li>
+<li>if</li>
+<li>else</li>
+<li>null</li>
+<li>break</li>
+<li>def</li>
+<li>class</li>
+<li>extension</li>
+<li>package</li>
+<li>extends</li>
+<li>implements</li>
+<li>final</li>
+<li>switch</li>
+<li>get</li>
+<li>set</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="identifiers"><a class="header" href="#identifiers">Identifiers</a></h1>
+<p>An identifier is a name that you can use to define a class, field, or variable/</p>
+<p>An identifier must follows all the below rules</p>
+<ul>
+<li>it must start with a letter ('a' to 'z' , and 'A' to 'Z'), or an underscore</li>
+<li>the following characters can be a letter, an underscore or a number</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="strings"><a class="header" href="#strings">Strings</a></h2>
+<p>There are different ways to create strings in Marcel</p>
+<h3 id="simple-strings-not-yet-implemented"><a class="header" href="#simple-strings-not-yet-implemented">Simple strings (not yet implemented)</a></h3>
+<p>You can use the single quote character (<code>'</code>) to create strings</p>
+<pre><code class="language-kotlin">'Hello world!'
+</code></pre>
+<h3 id="interpolated-strings"><a class="header" href="#interpolated-strings">Interpolated strings</a></h3>
+<p>You can use the double quote character (<code>&quot;</code>) to create strings resolving variables</p>
+<pre><code class="language-kotlin">&quot;$firstName $lastName is $age years old&quot;
+</code></pre>
+<p>If you need to access a property, use the brackets</p>
+<pre><code class="language-kotlin">&quot;${person.firstName} ${person.lastName} is ${person.age} years old&quot;
+</code></pre>
+<h3 id="character"><a class="header" href="#character">Character</a></h3>
+<p>Use the character backtick (<code>`</code>) to create characters.
+Only one character must be specified between the two backticks</p>
+<pre><code>`A`
+</code></pre>
+<h3 id="escaped-characters"><a class="header" href="#escaped-characters">Escaped characters</a></h3>
+<p>Use backslash to escape 'special' characters. Here is the list of escaped characters</p>
+<div class="table-wrapper"><table><thead><tr><th>escaped character</th><th>represented value</th></tr></thead><tbody>
+<tr><td>\b</td><td>backspace</td></tr>
+<tr><td>\n</td><td>newline</td></tr>
+<tr><td>\r</td><td>carriage return</td></tr>
+<tr><td>\t</td><td>tabulation</td></tr>
+<tr><td>\</td><td>backslash</td></tr>
+<tr><td>'</td><td>single quotes (useful in simple strings)</td></tr>
+<tr><td>&quot;</td><td>double quotes (useful in interpolated strings)</td></tr>
+</tbody></table>
+</div>
+<h2 id="literal-numbers"><a class="header" href="#literal-numbers">Literal Numbers</a></h2>
+<p>Marcel supports almost all Java primitives. The number primitive literals are the same as in Java</p>
+<pre><code class="language-java">// primitive types
+byte  b = 1
+char  c = 2
+short s = 3
+int   i = 4
+long  l = 5
+</code></pre>
+<h3 id="binary-representation"><a class="header" href="#binary-representation">Binary representation</a></h3>
+<p>You can also create numbers using their binary representation with the <code>0b</code> prefix</p>
+<pre><code class="language-java">int i = 0b10
+    long l = 0b11l
+</code></pre>
+<h3 id="hexadecimal-representation"><a class="header" href="#hexadecimal-representation">Hexadecimal representation</a></h3>
+<p>You can also create numbers using their hexadecimal representation with the <code>0x</code> prefix</p>
+<pre><code class="language-java">int i = 0x5
+long l = 0x5l
+</code></pre>
+<h2 id="literal-booleans"><a class="header" href="#literal-booleans">Literal Booleans</a></h2>
+<p>You can create booleans using the <code>true</code> or <code>false</code> keyword.</p>
+<pre><code class="language-java">bool b = true
+</code></pre>
+<h2 id="arrays"><a class="header" href="#arrays">Arrays</a></h2>
+<p>Create arrays with the square brackets</p>
+<pre><code class="language-groovy">int[] ints = [1, 2, 3, 4]
+</code></pre>
+<p>Note that you can also use this syntax to <a href="language-specification/syntax/../types.html#collections-of-primitives">create collections</a>.</p>
+<h2 id="maps"><a class="header" href="#maps">Maps</a></h2>
+<p>Square brackets can also be used to define maps</p>
+<pre><code class="language-groovy">Map map = [1.3: &quot;1&quot;, 1.4: &quot;2&quot;, &quot;myStringKey&quot;: &quot;myStringValue&quot;, myRefKey: myRefValue]
+</code></pre>
+<h2 id="ranges"><a class="header" href="#ranges">Ranges</a></h2>
+<p>You can create int (and soon long) ranges</p>
+<pre><code class="language-groovy">0..10 // 0 (inclusive) to 10 (inclusive)
+0&lt;..10 // 0 (exclusive) to 10 (inclusive)
+0..&lt;10 // 0 (inclusive) to 10 (exclusive)
+0&lt;..&lt;10 // 0 (exclusive) to 10 (exclusive)
+</code></pre>
+<p>Ranges also work in reverse order</p>
+<pre><code class="language-groovy">10..0 // 10 (inclusive) to 0 (inclusive)
+10&gt;..0 // 10 (exclusive) to 0 (inclusive)
+10..&gt;0 // 10 (inclusive) to 0 (exclusive)
+10&gt;..&gt;0 // 10 (exclusive) to 0 (exclusive)
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="variables"><a class="header" href="#variables">Variables</a></h1>
+<h2 id="declare-variables"><a class="header" href="#declare-variables">Declare variables</a></h2>
+<p>Marcel variable declarations are the same as Java's</p>
+<pre><code class="language-groovy">int a = 2
+Object o = new Object()
+
+list&lt;int&gt; l = [1, 2] // collection of primivites
+</code></pre>
+<h3 id="multiple-declarations"><a class="header" href="#multiple-declarations">Multiple declarations</a></h3>
+<p>Marcel supports multiple assignements in one statement</p>
+<pre><code class="language-groovy">def (int a, String b, Object c) = [1, &quot;2&quot;, new Object()]
+
+def (int d, String e, Object f) = functionReturningAnArray()
+
+</code></pre>
+<p>Note that if the array is shorter than the number of variable declared, this will lead to a runtime error</p>
+<h2 id="variable-assignments"><a class="header" href="#variable-assignments">Variable assignments</a></h2>
+<p>Just use <code>=</code> to assign values to defined variables</p>
+<pre><code class="language-java">int a = 2
+
+a = 3
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="types"><a class="header" href="#types">Types</a></h1>
+<h2 id="primitives"><a class="header" href="#primitives">Primitives</a></h2>
+<p>Marcel supports the following Java primitives</p>
+<ul>
+<li>void</li>
+<li>boolean</li>
+<li>byte</li>
+<li>int</li>
+<li>long</li>
+<li>float</li>
+<li>double</li>
+</ul>
+<p>To see how to create such types, go through the <a href="language-specification/./syntax/literal-values.html">Literal Values section</a></p>
+<h2 id="classes"><a class="header" href="#classes">Classes</a></h2>
+<p>Marcel is a JVM language, therefore you can use any classes defined in the JDK</p>
+<h2 id="collections-of-primitives"><a class="header" href="#collections-of-primitives">Collections of Primitives</a></h2>
+<p>Marcel allows to use collections with primitive elements. Such collections will not box all your primitives into their 
+related Object class (e.g. store an int into an Integer). The elements will be stored in an array of primitives.</p>
+<p>Iterating over such collections will only use primitives, no (un)boxing will be done.</p>
+<p>Let's learn by example</p>
+<h2 id="lists"><a class="header" href="#lists">Lists</a></h2>
+<pre><code class="language-groovy">list&lt;int&gt; list = [1, 2, 3, 4]
+
+println(list[1])
+
+list[1] = 1
+println(list[1])
+</code></pre>
+<p>Here, we're declaring a <code>list&lt;int&gt;</code>. This type isn't actually generic, it is actually an IntList (you can see this class in the marcel stdlib), and the
+literal array will be converted into a IntArrayList (a int list that store elements in an int array).</p>
+<p>Here is the list of all list of primitives supported</p>
+<ul>
+<li>list<int> -&gt; IntList</li>
+<li>list<long> -&gt; LongList</li>
+<li>list<char> -&gt; CharacterList</li>
+<li>list<float> -&gt; FloatList</li>
+<li>list<double> -&gt; DoubleList</li>
+</ul>
+<h2 id="sets"><a class="header" href="#sets">Sets</a></h2>
+<p>You can do the same with sets</p>
+<pre><code class="language-groovy">set&lt;int&gt; mySet = [1, 2, 3, 3] // will actually contain just 1, 2 and 3
+</code></pre>
+<p>Here is the list of all set of primitives supported</p>
+<ul>
+<li>set<int> -&gt; IntSet</li>
+<li>set<long> -&gt; LongSet</li>
+<li>set<char> -&gt; CharacterSet</li>
+</ul>
+<h2 id="maps-of-primitive-keys"><a class="header" href="#maps-of-primitive-keys">Maps of Primitive keys</a></h2>
+<p>You can also use maps using primitive keys (but all values will be Objects, meaning that your ints will be boxed into Integers)</p>
+<pre><code class="language-groovy">map&lt;int, Integer&gt; myMap = [1: 1, 2: 2, 3: 3] // will actually contain just 1, 2 and 3
+</code></pre>
+<p>Here is the list of all map of primitive keys supported</p>
+<ul>
+<li>map&lt;int, ?&gt; -&gt; Int2ObjectMap</li>
+<li>map&lt;long, ?&gt; -&gt; Long2ObjectMap</li>
+<li>map&lt;char, ?&gt; -&gt; Character2ObjectMap</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="program-structure"><a class="header" href="#program-structure">Program structure</a></h1>
+<h2 id="package"><a class="header" href="#package">Package</a></h2>
+<p>A Marcel source file can have a package. It is optional but if it is specified, it must be the first instruction in the file
+(excluding comments)</p>
+<p><code>java package my.package </code></p>
+<h2 id="imports"><a class="header" href="#imports">Imports</a></h2>
+<p>Then, some imports can follow. You can consult the default imported class/package <a href="language-specification/source-file-structure/./imports.html#default-imports">here</a></p>
+<h2 id="scripts"><a class="header" href="#scripts">Scripts</a></h2>
+<p>If you intend to write a script, there is no need to define a main() function. You can just start writing statements of your script.</p>
+<p>You can also define functions in scripts</p>
+<h2 id="class"><a class="header" href="#class">Class</a></h2>
+<p>You can define classes like in Java. </p>
+<p>Note that if you define a class in a script, it will be an inner class (its outer class being the script's class)</p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="imports-1"><a class="header" href="#imports-1">Imports</a></h2>
+<p>Marcel's imports are very similar to Java's.</p>
+<h3 id="class-import"><a class="header" href="#class-import">Class import</a></h3>
+<p>Such imports are like Java's</p>
+<pre><code class="language-groovy">import java.text.SimpleDateFormat
+</code></pre>
+<p>But Marcel adds the capability to import a class <code>as</code> a given name. All references to the given name will be replaced by the
+actual class imported when compiling</p>
+<pre><code class="language-groovy">import java.text.SimpleDateFormat as SDF
+
+SDF sdf = someSdf()
+</code></pre>
+<h3 id="wildcard-imports"><a class="header" href="#wildcard-imports">Wildcard imports</a></h3>
+<p>Again, just like Java</p>
+<pre><code class="language-groovy">import java.text.*
+</code></pre>
+<h3 id="static-imports"><a class="header" href="#static-imports">Static imports</a></h3>
+<p>Yup, like in Java</p>
+<pre><code class="language-groovy">import static org.junit.jupiter.api.Assertions.assertEquals
+</code></pre>
+<h3 id="default-imports"><a class="header" href="#default-imports">Default imports</a></h3>
+<p>Marcel import by default all the following packages</p>
+<ul>
+<li>java.lang.*</li>
+<li>java.util.*</li>
+<li>java.io.*</li>
+<li>marcel.lang.*</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="visibilities"><a class="header" href="#visibilities">Visibilities</a></h1>
+<p>In marcel, there are 4 kinds of visibility.</p>
+<ul>
+<li><code>public</code> -&gt; which refers to Java's public visibility. Your class/method/field may be accessible from any package</li>
+<li><code>protected</code> -&gt; which refers to Java's protected visibility. Your class/method/field may only be accessible from other classes in the same package or inheriting your class</li>
+<li><code>internal</code> -&gt; which refers to Java's package-private visibility. Your class/method/field may only be accessible from classes in the same package</li>
+<li><code>private</code> -&gt; Your method may be accessible only from the class it was defined in</li>
+</ul>
+<p>The default visibility is <code>public</code> (meaning that when it isn't specified, the class/method/field will be considered as public)</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="functions"><a class="header" href="#functions">Functions</a></h1>
+<p>Use the <code>fun</code> keyword to define functions</p>
+<pre><code class="language-marcel">fun sum(int a, int b) int {
+  return a + b
+}
+fun foo() {
+  // do nothing
+}
+</code></pre>
+<p>As shown in the above example, a function define has the following structures</p>
+<ol>
+<li>starts with the <a href="language-specification/source-file-structure/./visibility.html">visibility</a>  (you can also define static function with the <code>static</code> keyword)</li>
+<li>the list of your function's parameters. The parameter's type first, and then the parameter's name.</li>
+<li>the return type. If you're defining a void function, you can omit the return type.</li>
+</ol>
+<h2 id="function-visibility"><a class="header" href="#function-visibility">Function visibility</a></h2>
+<p>You can specify your function's <a href="language-specification/source-file-structure/./visibility.html">visibility</a> before the <code>class</code> keyword</p>
+<pre><code class="language-kotlin">public class Foo {
+
+}
+</code></pre>
+<h2 id="function-named-parameters-not-yet-implemented"><a class="header" href="#function-named-parameters-not-yet-implemented">Function named parameters (Not Yet Implemented)</a></h2>
+<p>Function arguments can have default constant values You can specify method argument names when calling a function. </p>
+<p>Following on our <code>sum()</code> example:</p>
+<pre><code class="language-kotlin">int result = sum(a = 1, b = 2)
+</code></pre>
+<h2 id="parameter-default-value-not-yet-implemented"><a class="header" href="#parameter-default-value-not-yet-implemented">Parameter default value (Not Yet Implemented)</a></h2>
+<p>Function parameters can have default values, which are used when you skip the corresponding argument.</p>
+<pre><code class="language-kotlin">fun sum(int a = 0, int b = 8) int {
+return a + b
+}
+
+sum(a = 2) // 2 + 8
+sum(b = 5) // 0 + 8
+sum(a = 2, b = 5) // 2 + 5
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="classes-1"><a class="header" href="#classes-1">Classes</a></h1>
+<p>You can define classes using the <code>class</code> keyword</p>
+<pre><code class="language-kotlin">class Foo {
+
+}
+</code></pre>
+<h2 id="extendingimplementing-classesinterfaces"><a class="header" href="#extendingimplementing-classesinterfaces">Extending/Implementing classes/interfaces</a></h2>
+<p>The syntax is like Java's</p>
+<pre><code class="language-java">class Foo extends Object implements List&lt;Integer&gt; {
+
+}
+</code></pre>
+<h2 id="class-visibility"><a class="header" href="#class-visibility">Class visibility</a></h2>
+<p>You can specify your class's <a href="language-specification/source-file-structure/./visibility.html">visibility</a> before the <code>class</code> keyword</p>
+<pre><code class="language-kotlin">public class Foo {
+
+}
+</code></pre>
+<h2 id="class-functions"><a class="header" href="#class-functions">Class functions</a></h2>
+<p>See the <a href="language-specification/source-file-structure/./functions.html">functions section</a> to see how to define functions</p>
+<h2 id="class-fields-not-yet-implemented"><a class="header" href="#class-fields-not-yet-implemented">Class fields (Not Yet Implemented)</a></h2>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="control-flows"><a class="header" href="#control-flows">Control flows</a></h1>
+<p>In this chapter you'll explore all control flows thar Marcels offers, in particular how to perform</p>
+<ul>
+<li>if/else statements</li>
+<li>for loops</li>
+<li>while loops</li>
+<li>switch</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="marcel-truth"><a class="header" href="#marcel-truth">Marcel truth</a></h1>
+<p>A truthy value is a value that is considered true for an if, or a while. </p>
+<p>A falsey value is a value that is considered false in those places.</p>
+<p>The only falsey values are the following:</p>
+<ul>
+<li><code>null</code></li>
+<li><code>Optional.empty()</code></li>
+<li>An empty collection</li>
+<li>An empty array</li>
+</ul>
+<p>Any other value is truthy.</p>
+<p>You can also override the truth for your class if you define a function <code>fun isTruthy() bool</code></p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="if-expression"><a class="header" href="#if-expression">If expression</a></h1>
+<p>If statements are similar as Java's, but you can provide any expression in them. If the provided expression is not a boolean,
+the <a href="language-specification/control-flows/marcel-truth.html">Marcel truth</a> will decide if your expression is <code>true</code> or not.</p>
+<pre><code class="language-kotlin">if (a == 1) {
+  println(&quot;a is 1&quot;)
+} else if (a == 2) {
+  println(&quot;a is 2&quot;)
+} else {
+  println(&quot;a is not 1 and not 2&quot;)
+}
+</code></pre>
+<h2 id="if-variable-declaration"><a class="header" href="#if-variable-declaration">if variable declaration</a></h2>
+<p>The <a href="language-specification/control-flows/marcel-truth.html">marcel truth</a> allows you to declare variable in an <code>if</code> condition, and execute the code block if the variable is truthy</p>
+<pre><code class="language-kotlin">if (Something result = fetchSomething()) {
+  println(&quot;Fetched $result&quot;)
+}
+</code></pre>
+<p>You can also unbox Optional values such as in the below example (NYI)</p>
+<pre><code class="language-kotlin">// assuming getOptionalInteger() returns an Optional&lt;Integer&gt;
+if (Integer result = getOptionalInteger()) {
+  println(result)
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="for-loops"><a class="header" href="#for-loops">For loops</a></h1>
+<p>There are different ways to iterate over elements</p>
+<h4 id="for-i"><a class="header" href="#for-i">For i</a></h4>
+<p>The Java for i is compatible with Marcel</p>
+<pre><code class="language-groovy">for (int i = 0; i &lt; 10; i++) {
+  println(i)
+}
+</code></pre>
+<h4 id="for-in"><a class="header" href="#for-in">For in</a></h4>
+<p>The <code>in</code> keyword allows to iterate over values in an array, any objects implementing Iterable (including all Collections) or Iterator.</p>
+<pre><code class="language-groovy">int[] ints = getInts()
+for (int i in ints) {
+  println(i)
+}
+</code></pre>
+<p>Marcel also have a Ranges, allowing you to iterate with the below syntax</p>
+<pre><code class="language-groovy">// inclusive range
+for (int i in 0..9) {
+  println(i)
+}
+
+// exclusive range
+for (int i in 0..&lt;10) {
+  println(i)
+}
+
+// also work in reverse orde
+for (int i in 9..0) {
+  println(i)
+}
+
+// exclusive range
+for (int i in 10&gt;..0) {
+  println(i)
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="switch"><a class="header" href="#switch">Switch</a></h1>
+<p>Marcel define switches, inspired from kotlin</p>
+<pre><code class="language-marcel">switch (string) {
+  &quot;foo&quot; -&gt; 2
+  &quot;bar&quot; -&gt; 3
+}
+</code></pre>
+<p>In marcel (and like in Kotlin), <strong>switches return values</strong></p>
+<p>In the above example, you can notice that a default case is missing.
+If nothing matched the provided expression, the switch will return <code>null</code>.</p>
+<p>This means that you must <strong>always</strong> specify an <code>else</code> branch for switch returning primitive types, as they cannot be null.</p>
+<pre><code class="language-marcel">int myInt = switch (c) {
+  1 -&gt; 2
+  2 -&gt; 3
+  3 -&gt; 4
+  else -&gt; 5
+}
+</code></pre>
+<h2 id="access-the-switched-expression"><a class="header" href="#access-the-switched-expression">Access the switched expression</a></h2>
+<p>The provided expression can be accessed in the switch branches using the implicit variable <code>it</code>.</p>
+<pre><code class="language-marcel">int myInt = switch (operator) {
+  1 -&gt; it + 1
+  else -&gt;  it + 4
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="operators"><a class="header" href="#operators">Operators</a></h1>
+<p>TODO</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="lambdas"><a class="header" href="#lambdas">Lambdas</a></h1>
+<p>TODO</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="tools"><a class="header" href="#tools">Tools</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="marcl"><a class="header" href="#marcl">Marcl</a></h1>
+<p>MarCL (MARcel Command Line tool) is useful to compile/execute marcel source files.</p>
+<h2 id="compile"><a class="header" href="#compile">Compile</a></h2>
+<p>TODO</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="marshell"><a class="header" href="#marshell">Marshell</a></h1>
+<p>Marshell is a shell that can be used to run marcel instructions, on the fly.</p>
+<p><strong>Coming soon</strong></p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+        <script>
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+
+    </div>
+    </body>
+</html>
