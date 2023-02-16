@@ -21,4 +21,9 @@
     - [If/Else Statements](./language-specification/control-flows/if-else.md)
     - [For loops](./language-specification/control-flows/for-loops.md)
     - [Switch](./language-specification/control-flows/switch.md)
-  - [Lambdas](language-specification/index.md)
+  - [Operators](./language-specification/operators.md)
+  - [Lambdas](language-specification/lambdas.md)
+- [Tools](./tools/index.md)
+  - [MarCL](./tools/marcl.md)
+  - [Marshell](./tools/marshell.md)
+
