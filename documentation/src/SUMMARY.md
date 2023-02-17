@@ -23,6 +23,8 @@
     - [Switch and When](./language-specification/control-flows/switch-when.md)
   - [Operators](language-specification/operators/index.md)
     - [Plus (+)](language-specification/operators/plus.md)
+    - [Comparison Operators](language-specification/operators/comparison.md)
+    - [Indexed Access (expr[index])](language-specification/operators/indexed-access.md)
     - [Safe Navigation (?.)](language-specification/operators/safe-navigation.md)
     - [Define your own operators](language-specification/operators/operator-overloading.md)
   - [Lambdas](language-specification/lambdas.md)

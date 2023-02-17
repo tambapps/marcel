@@ -90,7 +90,6 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         acceptOptional(TokenType.COMMA)
       }
     }
-    // TODO use interfaces
     val classType = typeResolver.defineClass(outerClassNode?.type, className, superType, false, interfaces)
     val classScope = Scope(typeResolver, imports, classType, superType)
     val methods = mutableListOf<MethodNode>()
@@ -507,7 +506,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         accept(TokenType.LPAR)
         ConstructorCallNode(Scope(typeResolver, type), type, parseFunctionArguments(scope))
       }
-      TokenType.SWITCH -> { // TODO transform switch on when
+      TokenType.SWITCH -> {
         accept(TokenType.LPAR)
         val switchExpression = expression(scope)
         accept(TokenType.RPAR)

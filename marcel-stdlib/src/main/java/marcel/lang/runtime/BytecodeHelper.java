@@ -19,8 +19,11 @@ import marcel.lang.primitives.collections.sets.LongSet;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -82,9 +85,14 @@ public final class BytecodeHelper {
     if (left == right) return true;
     if (left == null) return false;
     if (right == null) return false;
-
+    if (left.getClass().isArray() && right.getClass().isArray()) {
+      int length = Array.getLength(left);
+      if (length != Array.getLength(right)) return false;
+      for (int i = 0; i < length; i++) {
+        if (!objectsEqual(Array.get(left, i), Array.get(right, i))) return false;
+      }
+      return true;
+    }
     return left.equals(right);
-
-    // TODO handle arrays, handle list with arrays comparison
   }
 }
