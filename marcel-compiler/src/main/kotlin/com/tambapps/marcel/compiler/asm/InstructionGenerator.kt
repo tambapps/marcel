@@ -49,6 +49,7 @@ import java.util.*
 // https://en.wikipedia.org/wiki/List_of_Java_bytecode_instructions
 interface ArgumentPusher {
   fun pushArgument(expr: ExpressionNode)
+  fun visitWithoutPushing(astNode: AstInstructionNode)
 
 }
 private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
@@ -218,10 +219,18 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(elvisOperator: ElvisOperator) {
+    val scope = elvisOperator.scope
+    val type = elvisOperator.getType(typeResolver)
+
+    val tempVar = scope.addLocalVariable(type)
+
+    visitWithoutPushing(VariableAssignmentNode(scope, tempVar.name, elvisOperator.leftOperand))
+    val leftOperandRef = ReferenceExpression(scope, tempVar.name)
     visit(TernaryNode(
-      BooleanExpressionNode(elvisOperator.leftOperand),
-      elvisOperator.leftOperand, elvisOperator.rightOperand
+      BooleanExpressionNode(leftOperandRef),
+      leftOperandRef, elvisOperator.rightOperand
     ))
+    scope.freeVariable(tempVar.name)
   }
 
   override fun visit(fCall: ConstructorCallNode) {
@@ -872,6 +881,10 @@ class InstructionGenerator(
     mv.returnCode(returnNode.scope.returnType.returnCode)
 
   }
+
+  override fun visitWithoutPushing(astNode: AstInstructionNode) {
+    astNode.accept(this)
+  }
 }
 
 private class PushingInstructionGenerator(
@@ -1169,5 +1182,9 @@ private class PushingInstructionGenerator(
 
   override fun visit(blockNode: FunctionBlockNode) {
     instructionGenerator.visit(blockNode)
+  }
+
+  override fun visitWithoutPushing(astNode: AstInstructionNode) {
+    astNode.accept(instructionGenerator)
   }
 }

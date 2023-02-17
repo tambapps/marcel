@@ -3,6 +3,8 @@ package com.tambapps.marcel.parser.ast.expression
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.ast.ComparisonOperator
+import com.tambapps.marcel.parser.ast.ScopedNode
+import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaType
 
 abstract class BinaryOperatorNode(val leftOperand: ExpressionNode, open val rightOperand: ExpressionNode): ExpressionNode {
@@ -172,8 +174,8 @@ class RightShiftOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNo
   }
 }
 
-class ElvisOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode):
-  BinaryOperatorNode(leftOperand, rightOperand) {
+class ElvisOperator(override var scope: Scope, leftOperand: ExpressionNode, rightOperand: ExpressionNode):
+  BinaryOperatorNode(leftOperand, rightOperand), ScopedNode<Scope> {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
 

@@ -429,7 +429,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       if (current.type == TokenType.COLON) {
         skip()
         val onNullExpression = expression(scope)
-        return ElvisOperator(expr, onNullExpression)
+        return ElvisOperator(scope, expr, onNullExpression)
       } else {
         val trueExpr = expression(scope)
         accept(TokenType.COLON)
