@@ -4,6 +4,17 @@ import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.MarcelParsingException
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstTypedObject
+import com.tambapps.marcel.parser.ast.expression.BooleanConstantNode
+import com.tambapps.marcel.parser.ast.expression.ByteConstantNode
+import com.tambapps.marcel.parser.ast.expression.CharConstantNode
+import com.tambapps.marcel.parser.ast.expression.DoubleConstantNode
+import com.tambapps.marcel.parser.ast.expression.ExpressionNode
+import com.tambapps.marcel.parser.ast.expression.FloatConstantNode
+import com.tambapps.marcel.parser.ast.expression.IntConstantNode
+import com.tambapps.marcel.parser.ast.expression.LongConstantNode
+import com.tambapps.marcel.parser.ast.expression.NullValueNode
+import com.tambapps.marcel.parser.ast.expression.ShortConstantNode
+import com.tambapps.marcel.parser.ast.expression.VoidExpression
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.Scope
 import marcel.lang.lambda.Lambda
@@ -78,6 +89,7 @@ interface JavaType: AstTypedObject {
     get() = throw RuntimeException("Compiler error: Illegal JavaType cast")
   val asArrayType: JavaArrayType
     get() = throw RuntimeException("Compiler error: Illegal JavaType cast")
+  val defaultValueExpression: ExpressionNode
 
   fun withGenericTypes(vararg genericTypes: JavaType): JavaType {
     return withGenericTypes(genericTypes.toList())
@@ -214,18 +226,18 @@ interface JavaType: AstTypedObject {
     val Double = LoadedObjectType(Class.forName("java.lang.Double"))
     val Character = LoadedObjectType(Class.forName("java.lang.Character"))
 
-    val void = JavaPrimitiveType(java.lang.Void::class, Opcodes.ALOAD, Opcodes.ASTORE, Opcodes.RETURN, 0,0,0,0)
-    val int = JavaPrimitiveType(java.lang.Integer::class, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV)
-    val long = JavaPrimitiveType(java.lang.Long::class, Opcodes.LLOAD, Opcodes.LSTORE, Opcodes.LRETURN, Opcodes.LADD, Opcodes.LSUB, Opcodes.LMUL, Opcodes.LDIV)
-    val float = JavaPrimitiveType(java.lang.Float::class, Opcodes.FLOAD, Opcodes.FSTORE, Opcodes.FRETURN, Opcodes.FADD, Opcodes.FSUB, Opcodes.FMUL, Opcodes.FDIV)
-    val double = JavaPrimitiveType(java.lang.Double::class, Opcodes.DLOAD, Opcodes.DSTORE, Opcodes.DRETURN, Opcodes.DADD, Opcodes.DSUB, Opcodes.DMUL, Opcodes.DDIV)
+    val void = JavaPrimitiveType(java.lang.Void::class, Opcodes.ALOAD, Opcodes.ASTORE, Opcodes.RETURN, 0,0,0,0, VoidExpression())
+    val int = JavaPrimitiveType(java.lang.Integer::class, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV, IntConstantNode(0))
+    val long = JavaPrimitiveType(java.lang.Long::class, Opcodes.LLOAD, Opcodes.LSTORE, Opcodes.LRETURN, Opcodes.LADD, Opcodes.LSUB, Opcodes.LMUL, Opcodes.LDIV, LongConstantNode(0))
+    val float = JavaPrimitiveType(java.lang.Float::class, Opcodes.FLOAD, Opcodes.FSTORE, Opcodes.FRETURN, Opcodes.FADD, Opcodes.FSUB, Opcodes.FMUL, Opcodes.FDIV, FloatConstantNode(0f))
+    val double = JavaPrimitiveType(java.lang.Double::class, Opcodes.DLOAD, Opcodes.DSTORE, Opcodes.DRETURN, Opcodes.DADD, Opcodes.DSUB, Opcodes.DMUL, Opcodes.DDIV, DoubleConstantNode(0.0))
     // apparently we use int instructions to store booleans
-    val boolean = JavaPrimitiveType(java.lang.Boolean::class, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN,  0,0,0,0)
+    val boolean = JavaPrimitiveType(java.lang.Boolean::class, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN,  0,0,0,0, BooleanConstantNode(false))
 
-    val char = JavaPrimitiveType(java.lang.Character::class, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV)
+    val char = JavaPrimitiveType(java.lang.Character::class, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV, CharConstantNode(0.toChar() + ""))
     // byte and short aren't supported in Marcel. The opcodes weren't verified
-    val byte = JavaPrimitiveType(java.lang.Byte::class, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV)
-    val short = JavaPrimitiveType(java.lang.Short::class, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV)
+    val byte = JavaPrimitiveType(java.lang.Byte::class, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV, ByteConstantNode(0))
+    val short = JavaPrimitiveType(java.lang.Short::class, Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV, ShortConstantNode(0))
 
     val PRIMITIVES = listOf(void, int, long, float, double, boolean, char, byte, short)
 
@@ -320,6 +332,7 @@ interface JavaType: AstTypedObject {
 
 abstract class AbstractJavaType: JavaType {
 
+  override val defaultValueExpression: ExpressionNode = NullValueNode()
   override fun toString(): String {
     if (genericTypes.isNotEmpty()) {
       return className + "<" + genericTypes.joinToString(separator = ", ") + ">"
@@ -516,7 +529,8 @@ class JavaPrimitiveType internal constructor(
   val addCode: Int,
   val subCode: Int,
   val mulCode: Int,
-  val divCode: Int): LoadedJavaType(objectKlazz.javaPrimitiveType!!, emptyList(), storeCode, loadCode, returnCode) {
+  val divCode: Int,
+  override val defaultValueExpression: ExpressionNode): LoadedJavaType(objectKlazz.javaPrimitiveType!!, emptyList(), storeCode, loadCode, returnCode) {
 
   val objectClass = objectKlazz.java
   override val objectType: JavaType

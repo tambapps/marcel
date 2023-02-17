@@ -279,9 +279,10 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         rollback()
         val type = parseType(scope)
         val identifier = accept(TokenType.IDENTIFIER)
-        accept(TokenType.ASSIGNMENT)
+        val expression = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(scope)
+        else null
         acceptOptional(TokenType.SEMI_COLON)
-        VariableDeclarationNode(scope, type, identifier.value, false, expression(scope))
+        VariableDeclarationNode(scope, type, identifier.value, false, expression)
       }
       TokenType.DEF -> {
         accept(TokenType.LPAR)
@@ -403,8 +404,9 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           rollback()
           val type = parseType(scope)
           val variableName = accept(TokenType.IDENTIFIER).value
-          accept(TokenType.ASSIGNMENT)
-          val v = VariableDeclarationNode(scope, type, variableName, isFinal, expression(scope))
+          val expression = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(scope)
+          else null
+          val v = VariableDeclarationNode(scope, type, variableName, isFinal, expression)
           acceptOptional(TokenType.SEMI_COLON)
           return v
         }

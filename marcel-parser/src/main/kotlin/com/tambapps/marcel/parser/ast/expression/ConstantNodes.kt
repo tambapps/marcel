@@ -12,6 +12,24 @@ data class IntConstantNode(val value: Int): ExpressionNode {
   }
 }
 
+data class ByteConstantNode(val value: Byte): ExpressionNode {
+
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
+  override fun toString(): String {
+    return value.toString()
+  }
+}
+
+data class ShortConstantNode(val value: Short): ExpressionNode {
+
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
+  override fun toString(): String {
+    return value.toString()
+  }
+}
+
 data class LongConstantNode(val value: Long): ExpressionNode {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)

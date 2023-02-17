@@ -728,6 +728,13 @@ class InstructionGenerator(
     // don't need to write constants
   }
 
+  override fun visit(shortConstantNode: ShortConstantNode) {
+    // don't need to write constants
+  }
+
+  override fun visit(byteConstantNode: ByteConstantNode) {
+    // don't need to write constants
+  }
   override fun visit(longConstantNode: LongConstantNode) {
     // don't need to write constants
   }
@@ -1127,6 +1134,13 @@ private class PushingInstructionGenerator(
     mv.pushConstant(longConstantNode.value)
   }
 
+  override fun visit(shortConstantNode: ShortConstantNode) {
+    mv.pushConstant(shortConstantNode.value)
+  }
+
+  override fun visit(byteConstantNode: ByteConstantNode) {
+    mv.pushConstant(byteConstantNode.value)
+  }
   override fun visit(floatConstantNode: FloatConstantNode) {
     mv.pushConstant(floatConstantNode.value)
   }

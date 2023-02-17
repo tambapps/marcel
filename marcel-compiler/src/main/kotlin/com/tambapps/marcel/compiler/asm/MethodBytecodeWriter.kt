@@ -139,6 +139,14 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
     mv.visitLdcInsn(integer)
   }
 
+  fun pushConstant(value: Short) {
+    mv.visitIntInsn(Opcodes.SIPUSH, value.toInt())
+  }
+
+  fun pushConstant(value: Byte) {
+    mv.visitIntInsn(Opcodes.BIPUSH, value.toInt())
+  }
+
   fun pushConstant(string: String) {
     mv.visitLdcInsn(string)
   }

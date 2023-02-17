@@ -86,5 +86,7 @@ interface AstNodeVisitor<T> {
   fun visit(whenNode: WhenNode): T
   fun visit(isOperator: IsOperator): T
   fun visit(isNotOperator: IsNotOperator): T
+  fun visit(byteConstantNode: ByteConstantNode): T
+  fun visit(shortConstantNode: ShortConstantNode): T
 
 }

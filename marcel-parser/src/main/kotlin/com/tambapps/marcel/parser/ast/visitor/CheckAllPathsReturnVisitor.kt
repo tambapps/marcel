@@ -6,6 +6,7 @@ import com.tambapps.marcel.parser.ast.expression.AsNode
 import com.tambapps.marcel.parser.ast.expression.BlockNode
 import com.tambapps.marcel.parser.ast.expression.BooleanConstantNode
 import com.tambapps.marcel.parser.ast.expression.BooleanExpressionNode
+import com.tambapps.marcel.parser.ast.expression.ByteConstantNode
 import com.tambapps.marcel.parser.ast.expression.CharConstantNode
 import com.tambapps.marcel.parser.ast.expression.ComparisonOperatorNode
 import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
@@ -40,6 +41,7 @@ import com.tambapps.marcel.parser.ast.expression.RangeNode
 import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
 import com.tambapps.marcel.parser.ast.expression.ReturnNode
 import com.tambapps.marcel.parser.ast.expression.RightShiftOperator
+import com.tambapps.marcel.parser.ast.expression.ShortConstantNode
 import com.tambapps.marcel.parser.ast.expression.StringConstantNode
 import com.tambapps.marcel.parser.ast.expression.StringNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
@@ -310,4 +312,8 @@ class CheckAllPathsReturnVisitor: AstNodeVisitor<Boolean> {
 
   override fun visit(isOperator: IsOperator) = false
   override fun visit(isNotOperator: IsNotOperator) = false
+
+  override fun visit(shortConstantNode: ShortConstantNode) = false
+
+  override fun visit(byteConstantNode: ByteConstantNode) = false
 }
