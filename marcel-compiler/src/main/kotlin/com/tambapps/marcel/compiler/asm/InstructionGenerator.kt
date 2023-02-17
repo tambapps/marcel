@@ -116,8 +116,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     }
 
     val referencedParameters = referencedLocalVariables.map {
-      // TODO make these parameters final
-      MethodParameter(it.type, it.name)
+      MethodParameter(it.type, it.name, true)
     }
 
     val parameters = if (itParameter != null) listOf(itParameter) + referencedParameters

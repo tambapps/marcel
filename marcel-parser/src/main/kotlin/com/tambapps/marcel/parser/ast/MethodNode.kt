@@ -39,7 +39,7 @@ open class MethodNode constructor(override val access: Int, final override val o
       scope.addLocalVariable(ownerClass, "this")
     }
     for (param in parameters) {
-      scope.addLocalVariable(param.type, param.name)
+      scope.addLocalVariable(param.type, param.name, param.isFinal)
     }
 
   }
