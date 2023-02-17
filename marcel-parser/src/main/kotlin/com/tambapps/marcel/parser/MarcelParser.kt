@@ -77,6 +77,8 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     if (isInline) throw MarcelParsingException("Cannot use 'inline' keyword for a field")
     val type = parseType(classNode.scope)
     val name = accept(TokenType.IDENTIFIER).value
+
+    if (classNode.fields.any { it.name == name }) throw MarcelParsingException("Field with name $name was defined more than once")
     return FieldNode(type, name, classNode.type, access)
   }
 
