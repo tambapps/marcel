@@ -46,6 +46,10 @@ sealed interface MarcelField: Variable {
 
 sealed class AbstractField: AbstractVariable(), MarcelField {
   override var alreadySet = false
+
+  override fun toString(): String {
+    return "$type $name"
+  }
 }
 
 open class ClassField constructor(override val type: JavaType, override val name: String, override val owner: JavaType, override val access: Int): AbstractField() {

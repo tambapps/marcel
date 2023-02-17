@@ -22,6 +22,7 @@ import com.tambapps.marcel.parser.type.ReflectJavaMethod
 class JavaTypeResolver: AstNodeTypeResolver() {
 
   private val classMethods = mutableMapOf<String, MutableList<JavaMethod>>()
+  private val classFields = mutableMapOf<String, MutableList<MarcelField>>()
 
   override fun defineMethod(javaType: JavaType, method: JavaMethod) {
     val methods = getMarcelMethods(javaType)
@@ -29,6 +30,12 @@ class JavaTypeResolver: AstNodeTypeResolver() {
       throw SemanticException("Method with $method is already defined")
     }
     methods.add(method)
+  }
+
+  fun defineField(javaType: JavaType, field: MarcelField) {
+    if (javaType.isLoaded) throw SemanticException("Cannot define field on loaded class")
+    val fields = getMarcelFields(javaType)
+    fields.add(field)
   }
 
   override fun getDeclaredMethods(javaType: JavaType): List<JavaMethod> {
@@ -85,6 +92,10 @@ class JavaTypeResolver: AstNodeTypeResolver() {
     return m
   }
 
+  private fun getMarcelFields(javaType: JavaType): MutableList<MarcelField> {
+    return classFields.computeIfAbsent(javaType.className) { mutableListOf() }
+  }
+
   private fun getMarcelMethods(javaType: JavaType): MutableList<JavaMethod> {
     // return methods defined from MDK or from marcel source we're currently compiling
     return classMethods.computeIfAbsent(javaType.className) { mutableListOf() }
@@ -114,12 +125,16 @@ class JavaTypeResolver: AstNodeTypeResolver() {
       }
       return null
     } else {
-      // TODO doesn't search on defined fields of notloaded type. Only search on super classes that are Loaded
+      val fields = getMarcelFields(javaType)
+      val field = fields.find { it.name == name }
+      if (field != null) return field
+
       // searching on super types
       var type: JavaType? = javaType.superType!!
       while (type != null) {
         val f = findField(type, name, declared)
         if (f != null) return f
+        if (type.isLoaded) return null // in loaded classes, we already handle super types so no need to go further
         type = type.superType
       }
       return null

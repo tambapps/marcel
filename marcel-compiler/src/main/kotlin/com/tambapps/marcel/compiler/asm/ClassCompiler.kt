@@ -9,6 +9,7 @@ import com.tambapps.marcel.parser.ast.ConstructorNode
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Label
@@ -62,6 +63,10 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
       // if no constructor is defined, we'll define one for you
       classNode.methods.add(ConstructorNode.emptyConstructor(classNode))
     }
+    for (field in classNode.fields) {
+      writeField(classWriter, classNode, field)
+    }
+
     var i = 0 // using plain old fori loop because while writting method we might add some other to write (e.g. for switch)
     while (i < classNode.methods.size) {
       val methodNode = classNode.methods[i++]
@@ -80,6 +85,12 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     classes.add(CompiledClass(classNode.type.className, classWriter.toByteArray()))
   }
 
+  private fun writeField(classWriter: ClassWriter, classNode: ClassNode, marcelField: MarcelField) {
+    classWriter.visitField(marcelField.access, marcelField.name, marcelField.type.descriptor,
+      if (marcelField.type.superType?.hasGenericTypes == true || marcelField.type.directlyImplementedInterfaces.any { it.hasGenericTypes }) marcelField.type.signature else null,
+      null
+      )
+  }
   private fun writeMethod(typeResolver: JavaTypeResolver, classWriter: ClassWriter, classNode: ClassNode, methodNode: MethodNode) {
     val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.descriptor, methodNode.signature, null)
     mv.visitCode()
@@ -114,6 +125,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
 
   private fun defineClassMembers(classNode: ClassNode) {
     classNode.methods.forEach { typeResolver.defineMethod(classNode.type, it) }
+    classNode.fields.forEach { typeResolver.defineField(classNode.type, it) }
     classNode.innerClasses.forEach { defineClassMembers(it) }
   }
 }
