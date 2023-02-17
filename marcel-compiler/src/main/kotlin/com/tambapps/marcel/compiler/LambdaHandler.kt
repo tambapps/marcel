@@ -70,7 +70,6 @@ class LambdaHandler(private val classNode: ClassNode, private val methodNode: Me
       if (declaredMethods.size != 1) {
         throw SemanticException("Cannot make a lambda out of interface $interfaceType")
       }
-      // TODO need to rename method parameters properly
 
       val interfaceMethod = declaredMethods.first()
       val interfaceMethodScope = MethodScope(lambdaClassNode.scope, interfaceMethod.name, parameters, interfaceMethod.returnType)

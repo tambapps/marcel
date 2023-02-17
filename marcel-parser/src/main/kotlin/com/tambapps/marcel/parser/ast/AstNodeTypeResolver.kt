@@ -73,8 +73,11 @@ import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.NotLoadedJavaType
 import marcel.lang.IntRange
+import marcel.lang.lambda.DoubleLambda1
+import marcel.lang.lambda.FloatLambda1
 import marcel.lang.lambda.IntLambda1
 import marcel.lang.lambda.Lambda1
+import marcel.lang.lambda.LongLambda1
 
 open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
@@ -222,6 +225,9 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
         0 -> JavaType.of(Lambda1::class.java).withGenericTypes(JavaType.Object)
         1 -> when(lambdaNode.parameters.first().type) {
             JavaType.int -> JavaType.of(IntLambda1::class.java).withGenericTypes(JavaType.Object)
+            JavaType.long -> JavaType.of(LongLambda1::class.java).withGenericTypes(JavaType.Object)
+            JavaType.float -> JavaType.of(FloatLambda1::class.java).withGenericTypes(JavaType.Object)
+            JavaType.double -> JavaType.of(DoubleLambda1::class.java).withGenericTypes(JavaType.Object)
             else -> JavaType.of(Lambda1::class.java).withGenericTypes(lambdaNode.parameters.first().type.objectType, JavaType.Object)
           }
         else -> TODO("Doesn't handle lambda with such parameters for now")
