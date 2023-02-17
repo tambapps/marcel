@@ -37,57 +37,57 @@ class MarcelCompilerTest {
 
   @Test
   fun testScript() {
-    val eval = eval("/test1.marcel")!!
+    val eval = eval("/test1.mcl")!!
     assertNotNull(eval)
     assertEquals(JavaType.Object.realClazz, eval.javaClass)
   }
 
   @Test
   fun testReturnNull() {
-    val eval = eval("/test_return_null.marcel")
+    val eval = eval("/test_return_null.mcl")
     assertNull(eval)
   }
 
   @Test
   fun testBool() {
-    val eval = eval("/test_bool.marcel")
+    val eval = eval("/test_bool.mcl")
     assertTrue(eval as Boolean)
   }
 
   @Test
   fun testIf() {
-    val eval = eval("/test_if.marcel")
+    val eval = eval("/test_if.mcl")
     assertTrue(eval as Boolean)
   }
 
   @Test
   fun testForLoop() {
-    val eval = eval("/test_for_loop.marcel")
+    val eval = eval("/test_for_loop.mcl")
     assertEquals(45, eval)
   }
 
   @Test
   fun testWhileLoop() {
 
-    val eval = eval("/test_while_loop.marcel")
+    val eval = eval("/test_while_loop.mcl")
     assertEquals(45, eval)
   }
 
   @Test
   fun testBreakLoop() {
-    val eval = eval("/test_break.marcel")
+    val eval = eval("/test_break.mcl")
     assertEquals(10, eval)
   }
 
   @Test
   fun testContinueLoop() {
-    val eval = eval("/test_continue.marcel")
+    val eval = eval("/test_continue.mcl")
     assertEquals(1 + 2 + 4, eval)
   }
 
   @Test
   fun testScope() {
-    val eval = eval("/test_scope.marcel")
+    val eval = eval("/test_scope.mcl")
     assertEquals(true, eval)
   }
 
@@ -96,14 +96,14 @@ class MarcelCompilerTest {
     javaClass.getResource("/json")
     val path: Path = Paths.get(javaClass.getResource("/").toURI())
     println(Arrays.toString(path.toFile().list()))
-    val eval = eval("/test_this.marcel")
+    val eval = eval("/test_this.mcl")
     assertTrue(eval is Script)
   }
 
   @Disabled
   @Test
   fun manualTest() {
-    val eval = eval("/test_switch.marcel")
+    val eval = eval("/test_switch.mcl")
     println(eval)
   }
 
