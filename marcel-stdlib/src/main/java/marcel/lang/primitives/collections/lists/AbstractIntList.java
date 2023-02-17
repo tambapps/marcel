@@ -38,7 +38,6 @@ public abstract class AbstractIntList extends AbstractIntCollection implements I
 	 * @throws IndexOutOfBoundsException if the given index is negative or not smaller than the list size.
 	 */
 	protected void ensureRestrictedIndex(final int index) {
-	 // TODO When Java 9 becomes the minimum java, use Objects#checkIndex (as can be an intrinsic)
     if (index < 0) {
       throw new IndexOutOfBoundsException("Index (" + index + ") is negative");
     }

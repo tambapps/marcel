@@ -184,8 +184,7 @@ public final class IntLists {
 
 		@Override
 		public IntListIterator iterator() {
-		 // TODO
-			return null;
+			return IntIterators.EMPTY_ITERATOR;
 		}
 
 		@Override

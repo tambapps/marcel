@@ -80,7 +80,7 @@ public class IntRanges {
   }
 
   @AllArgsConstructor
-  private static class IntDeccrRangeIterator extends AbstractIntIterator {
+  private static class IntDecrRangeIterator extends AbstractIntIterator {
 
     private int current;
     private final int end;
@@ -96,10 +96,9 @@ public class IntRanges {
     }
   }
 
-  // TODO equals and hashcode method for all ranges  (make abstract class?)
   @Getter
   @AllArgsConstructor
-  private static final class IntRangeImpl implements IntRange {
+  private static final class IntRangeImpl extends AbstractIntRange {
 
     private final int from;
     private final int to;
@@ -107,7 +106,7 @@ public class IntRanges {
 
     @Override
     public IntIterator iterator() {
-      return reverse ? new IntDeccrRangeIterator(from, to) : new IntIncrRangeIterator(from, to);
+      return reverse ? new IntDecrRangeIterator(from, to) : new IntIncrRangeIterator(from, to);
     }
 
     @Override
@@ -120,7 +119,7 @@ public class IntRanges {
       return from + ".." + to;
     }
   }
-  private static final class EmptyRange implements IntRange {
+  private static final class EmptyRange extends AbstractIntRange {
 
     @Override
     public int getFrom() {
