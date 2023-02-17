@@ -23,6 +23,8 @@ import com.tambapps.marcel.parser.ast.expression.IndexedReferenceExpression
 import com.tambapps.marcel.parser.ast.expression.IndexedVariableAssignmentNode
 import com.tambapps.marcel.parser.ast.expression.IntConstantNode
 import com.tambapps.marcel.parser.ast.expression.InvokeAccessOperator
+import com.tambapps.marcel.parser.ast.expression.IsNotOperator
+import com.tambapps.marcel.parser.ast.expression.IsOperator
 import com.tambapps.marcel.parser.ast.expression.LambdaNode
 import com.tambapps.marcel.parser.ast.expression.LeftShiftOperator
 import com.tambapps.marcel.parser.ast.expression.LiteralArrayNode
@@ -308,4 +310,6 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
   override fun visit(whenBranchNode: WhenBranchNode) = whenBranchNode.statementNode.accept(this)
 
+  override fun visit(isOperator: IsOperator) = JavaType.boolean
+  override fun visit(isNotOperator: IsNotOperator) = JavaType.boolean
 }

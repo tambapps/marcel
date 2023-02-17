@@ -24,6 +24,8 @@ import com.tambapps.marcel.parser.ast.expression.IndexedReferenceExpression
 import com.tambapps.marcel.parser.ast.expression.IndexedVariableAssignmentNode
 import com.tambapps.marcel.parser.ast.expression.IntConstantNode
 import com.tambapps.marcel.parser.ast.expression.InvokeAccessOperator
+import com.tambapps.marcel.parser.ast.expression.IsNotOperator
+import com.tambapps.marcel.parser.ast.expression.IsOperator
 import com.tambapps.marcel.parser.ast.expression.LambdaNode
 import com.tambapps.marcel.parser.ast.expression.LeftShiftOperator
 import com.tambapps.marcel.parser.ast.expression.LiteralArrayNode
@@ -315,4 +317,7 @@ class ForEachNodeVisitor(private val consumer: (AstNode) -> Unit): AstNodeVisito
     whenBranchNode.conditionExpressionNode.accept(this)
     whenBranchNode.statementNode.accept(this)
   }
+
+  override fun visit(isOperator: IsOperator) = visitBinaryOperator(isOperator)
+  override fun visit(isNotOperator: IsNotOperator) = visitBinaryOperator(isNotOperator)
 }

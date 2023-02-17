@@ -161,3 +161,23 @@ class ElvisOperator(override var scope: Scope, leftOperand: ExpressionNode, righ
     return "$leftOperand ?: $rightOperand"
   }
 }
+
+class IsOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode):
+  BinaryOperatorNode(leftOperand, rightOperand) {
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
+
+  override fun toString(): String {
+    return "$leftOperand === $rightOperand"
+  }
+}
+
+class IsNotOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode):
+  BinaryOperatorNode(leftOperand, rightOperand) {
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
+
+  override fun toString(): String {
+    return "$leftOperand !== $rightOperand"
+  }
+}

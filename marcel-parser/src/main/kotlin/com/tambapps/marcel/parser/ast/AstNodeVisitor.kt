@@ -84,5 +84,7 @@ interface AstNodeVisitor<T> {
   fun visit(switchNode: SwitchNode): T
   fun visit(whenBranchNode: WhenBranchNode): T
   fun visit(whenNode: WhenNode): T
+  fun visit(isOperator: IsOperator): T
+  fun visit(isNotOperator: IsNotOperator): T
 
 }

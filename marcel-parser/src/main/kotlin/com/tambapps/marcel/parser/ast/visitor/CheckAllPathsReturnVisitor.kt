@@ -22,6 +22,8 @@ import com.tambapps.marcel.parser.ast.expression.IndexedReferenceExpression
 import com.tambapps.marcel.parser.ast.expression.IndexedVariableAssignmentNode
 import com.tambapps.marcel.parser.ast.expression.IntConstantNode
 import com.tambapps.marcel.parser.ast.expression.InvokeAccessOperator
+import com.tambapps.marcel.parser.ast.expression.IsNotOperator
+import com.tambapps.marcel.parser.ast.expression.IsOperator
 import com.tambapps.marcel.parser.ast.expression.LambdaNode
 import com.tambapps.marcel.parser.ast.expression.LeftShiftOperator
 import com.tambapps.marcel.parser.ast.expression.LiteralArrayNode
@@ -305,4 +307,7 @@ class CheckAllPathsReturnVisitor: AstNodeVisitor<Boolean> {
   override fun visit(whenNode: WhenNode): Boolean {
     return whenNode.elseStatement != null && whenNode.branches.all { it.accept(this) }
   }
+
+  override fun visit(isOperator: IsOperator) = false
+  override fun visit(isNotOperator: IsNotOperator) = false
 }

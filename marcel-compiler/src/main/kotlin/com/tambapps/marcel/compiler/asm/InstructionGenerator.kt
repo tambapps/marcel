@@ -30,12 +30,12 @@ import com.tambapps.marcel.parser.scope.Variable
 import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
-import marcel.lang.primitives.iterators.IntIterator
 import marcel.lang.IntRanges
 import marcel.lang.methods.MarcelTruth
 import marcel.lang.primitives.iterators.CharacterIterator
 import marcel.lang.primitives.iterators.DoubleIterator
 import marcel.lang.primitives.iterators.FloatIterator
+import marcel.lang.primitives.iterators.IntIterator
 import marcel.lang.primitives.iterators.LongIterator
 import marcel.lang.runtime.BytecodeHelper
 import org.objectweb.asm.Label
@@ -43,6 +43,7 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import java.io.Closeable
 import java.util.*
+
 
 // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.if_icmp_cond
 // https://asm.ow2.io/asm4-guide.pdf
@@ -247,24 +248,24 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(operator: MulOperator) {
-    evaluateOperands(operator)
+    pushOperands(operator)
   }
 
   override fun visit(operator: DivOperator) {
-    evaluateOperands(operator)
+    pushOperands(operator)
   }
 
   override fun visit(operator: MinusOperator) {
-    evaluateOperands(operator)
+    pushOperands(operator)
   }
 
 
   override fun visit(operator: PlusOperator) {
-    evaluateOperands(operator)
+    pushOperands(operator)
   }
 
   override fun visit(operator: PowOperator) {
-    evaluateOperands(operator)
+    pushOperands(operator)
   }
 
   override fun visit(leftShiftOperator: LeftShiftOperator) {
@@ -286,6 +287,37 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     return leftShiftMethod.returnType
   }
 
+  override fun visit(isOperator: IsOperator) {
+    if (isOperator.leftOperand.getType(typeResolver).primitive || isOperator.rightOperand.getType(typeResolver).primitive) {
+      throw SemanticException("Cannot apply '===' operator on primitive types")
+    }
+    pushOperands(isOperator)
+    val l1 = Label()
+    mv.jump(Opcodes.IF_ACMPEQ, l1) // Jump if the two object references are equal
+
+    mv.visitInsn(Opcodes.ICONST_0) // Load false on the stack
+    val l2 = Label()
+    mv.jumpTo(l2) // Jump to the end of the method
+    mv.visitLabel(l1)
+    mv.visitInsn(Opcodes.ICONST_1) // Load true on the stack
+    mv.visitLabel(l2)
+  }
+  override fun visit(isNotOperator: IsNotOperator) {
+    if (isNotOperator.leftOperand.getType(typeResolver).primitive || isNotOperator.rightOperand.getType(typeResolver).primitive) {
+      throw SemanticException("Cannot apply '!==' operator on primitive types")
+    }
+
+    pushOperands(isNotOperator)
+    val l1 = Label()
+    mv.jump(Opcodes.IF_ACMPNE, l1) // Jump if the two object references are equal
+
+    mv.visitInsn(Opcodes.ICONST_0) // Load false on the stack
+    val l2 = Label()
+    mv.jumpTo(l2) // Jump to the end of the method
+    mv.visitLabel(l1)
+    mv.visitInsn(Opcodes.ICONST_1) // Load true on the stack
+    mv.visitLabel(l2)
+  }
   override fun visit(comparisonOperatorNode: ComparisonOperatorNode) {
     val leftOperand = comparisonOperatorNode.leftOperand
     val rightOperand = comparisonOperatorNode.rightOperand
@@ -333,7 +365,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
         }
         mv.pushConstant(0) // pushing 0 because we're comparing two numbers below
       } else {
-        evaluateOperands(comparisonOperatorNode)
+        pushOperands(comparisonOperatorNode)
       }
     }
     mv.jump(if (objectcomparison) comparisonOperatorNode.operator.objectOpCode else comparisonOperatorNode.operator.iOpCode, trueLabel)
@@ -427,7 +459,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     }
   }
 
-  private fun evaluateOperands(binaryOperatorNode: BinaryOperatorNode) {
+  private fun pushOperands(binaryOperatorNode: BinaryOperatorNode) {
     pushArgument(binaryOperatorNode.leftOperand)
     pushArgument(binaryOperatorNode.rightOperand)
   }
@@ -851,6 +883,15 @@ class InstructionGenerator(
 
   override fun visit(comparisonOperatorNode: ComparisonOperatorNode) {
     super.visit(comparisonOperatorNode)
+    mv.popStack()
+  }
+
+  override fun visit(isOperator: IsOperator) {
+    super.visit(isOperator)
+    mv.popStack()
+  }
+  override fun visit(isNotOperator: IsNotOperator) {
+    super.visit(isNotOperator)
     mv.popStack()
   }
 
