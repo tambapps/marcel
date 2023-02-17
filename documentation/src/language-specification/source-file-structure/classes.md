@@ -32,4 +32,14 @@ public class Foo {
 
 See the [functions section](./functions.md) to see how to define functions
 
-## Class fields (Not Yet Implemented)
+## Class fields
+
+You can define class fields like you would in Java
+
+```java
+class Foo {
+  private int a;
+  double b = 3
+  Object c;
+}
+```

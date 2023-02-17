@@ -9,16 +9,18 @@ package my.package
 ``
 
 ## Imports
-Then, some imports can follow. You can consult the default imported class/package [here](./imports.md#default-imports)
-
-
-## Scripts
-If you intend to write a script, there is no need to define a main() function. You can just start writing statements of your script.
-
-You can also define functions in scripts
+Then, some [imports](./imports.md) can follow. You can consult the default imported class/package [here](./imports.md#default-imports)
 
 ## Class
 
-You can define classes like in Java. 
+You can define [classes](./classes.md) like in Java. 
 
-Note that if you define a class in a script, it will be an inner class (its outer class being the script's class)
+
+## Functions
+
+Classes can have [functions](./functions.md)
+
+
+## Fields
+
+Classes can also have [fields](./classes.md#class-fields)

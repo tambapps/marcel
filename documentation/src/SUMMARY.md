@@ -16,6 +16,7 @@
     - [Visibilities](language-specification/source-file-structure/visibility.md)
     - [Functions](language-specification/source-file-structure/functions.md)
     - [Classes](language-specification/source-file-structure/classes.md)
+    - [Script](language-specification/source-file-structure/script.md)
   - [Control Flows](./language-specification/control-flows/index.md)
     - [Marcel Truth](./language-specification/control-flows/marcel-truth.md)
     - [If/Else Statements](./language-specification/control-flows/if-else.md)
