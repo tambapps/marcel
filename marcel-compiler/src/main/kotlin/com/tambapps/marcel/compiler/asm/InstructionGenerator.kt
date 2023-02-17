@@ -74,9 +74,11 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     val falseLabel = Label()
     mv.jumpIfEq(falseLabel)
     operator.trueExpression.accept(this)
+    mv.castIfNecessaryOrThrow(operator.getType(typeResolver), operator.trueExpression.getType(typeResolver))
     mv.jumpTo(endLabel)
     mv.visitLabel(falseLabel)
     operator.falseExpression.accept(this)
+    mv.castIfNecessaryOrThrow(operator.getType(typeResolver), operator.falseExpression.getType(typeResolver))
     mv.visitLabel(endLabel)
   }
 

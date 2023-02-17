@@ -87,6 +87,7 @@ open class InvokeAccessOperator(leftOperand: ExpressionNode, final override val 
   }
 }
 
+// TODO separate this from TernaryNode
 class NullSafeInvokeAccessOperator(val leftOperand: ExpressionNode, val rightOperand: FunctionCallNode) :
   TernaryNode(BooleanExpressionNode(
     ComparisonOperatorNode(ComparisonOperator.NOT_EQUAL, NullValueNode(), leftOperand)
@@ -112,6 +113,7 @@ open class GetFieldAccessOperator(leftOperand: ExpressionNode, override val righ
   }
 }
 
+// TODO separate this from TernaryNode
 class NullSafeGetFieldAccessOperator(val leftOperand: ExpressionNode, val rightOperand: ReferenceExpression) :
   TernaryNode(BooleanExpressionNode(
     ComparisonOperatorNode(ComparisonOperator.NOT_EQUAL, NullValueNode(), leftOperand)
