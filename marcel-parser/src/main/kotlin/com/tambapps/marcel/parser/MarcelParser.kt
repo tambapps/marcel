@@ -782,13 +782,13 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       TokenType.RIGHT_SHIFT -> RightShiftOperator(leftOperand, rightOperand)
       TokenType.EQUAL, TokenType.NOT_EQUAL, TokenType.LT, TokenType.GT, TokenType.LOE, TokenType.GOE -> ComparisonOperatorNode(ComparisonOperator.fromTokenType(t), leftOperand, rightOperand)
       TokenType.DOT -> when (rightOperand) {
-        is FunctionCallNode -> InvokeAccessOperator(leftOperand, rightOperand)
-        is ReferenceExpression -> GetFieldAccessOperator(leftOperand, rightOperand)
+        is FunctionCallNode -> InvokeAccessOperator(leftOperand, rightOperand, false)
+        is ReferenceExpression -> GetFieldAccessOperator(leftOperand, rightOperand, false)
         else -> throw MarcelParsingException("Can only handle function calls and fields with dot operators")
       }
       TokenType.QUESTION_DOT -> when (rightOperand) {
-        is FunctionCallNode -> NullSafeInvokeAccessOperator(leftOperand, rightOperand)
-        is ReferenceExpression -> NullSafeGetFieldAccessOperator(leftOperand, rightOperand)
+        is FunctionCallNode -> InvokeAccessOperator(leftOperand, rightOperand, true)
+        is ReferenceExpression -> GetFieldAccessOperator(leftOperand, rightOperand, true)
         else -> throw MarcelParsingException("Can only handle function calls and fields with dot operators")
       }
       else -> throw MarcelParsingException("Doesn't handle operator with token type $t")

@@ -31,8 +31,6 @@ import com.tambapps.marcel.parser.ast.expression.LongConstantNode
 import com.tambapps.marcel.parser.ast.expression.MinusOperator
 import com.tambapps.marcel.parser.ast.expression.MulOperator
 import com.tambapps.marcel.parser.ast.expression.NotNode
-import com.tambapps.marcel.parser.ast.expression.NullSafeGetFieldAccessOperator
-import com.tambapps.marcel.parser.ast.expression.NullSafeInvokeAccessOperator
 import com.tambapps.marcel.parser.ast.expression.NullValueNode
 import com.tambapps.marcel.parser.ast.expression.OrOperator
 import com.tambapps.marcel.parser.ast.expression.PlusOperator
@@ -167,9 +165,6 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
     JavaType.commonType(binaryOperatorNode.leftOperand.accept(this), binaryOperatorNode.rightOperand.accept(this))
 
   override fun visit(operator: TernaryNode): JavaType {
-    if (operator is NullSafeInvokeAccessOperator || operator is NullSafeGetFieldAccessOperator) {
-      (operator.falseExpression as NullValueNode).type = operator.trueExpression.accept(this)
-    }
     return JavaType.commonType(operator.trueExpression.accept(this), operator.falseExpression.accept(this))
   }
 
@@ -252,11 +247,6 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
   override fun visit(asNode: AsNode) = asNode.type
 
-  override fun visit(accessOperator: InvokeAccessOperator) = accessOperator.rightOperand.accept(this)
-
-
-
-
   override fun visit(comparisonOperatorNode: ComparisonOperatorNode) = JavaType.boolean
 
   override fun visit(andOperator: AndOperator) = JavaType.boolean
@@ -294,8 +284,12 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
   override fun visit(fCall: FunctionCallNode): JavaType = findMethodOrThrow(fCall.methodOwnerType?.accept(this) ?: fCall.scope.classType,
     fCall.name, fCall.arguments.map { it.accept(this) }).returnType
 
-  // TODO wtf, why is it object
+  // it is object because we need type resolver in order to be able to get the real type. that's why it is overridden in JavaTypeResolver
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator): JavaType = JavaType.Object
+
+  override fun visit(accessOperator: InvokeAccessOperator) =
+    if (accessOperator.nullSafe) accessOperator.rightOperand.accept(this).objectType
+    else accessOperator.rightOperand.accept(this)
 
   override fun visit(literalListNode: LiteralArrayNode): JavaArrayType = JavaType.objectArray
 

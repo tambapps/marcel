@@ -376,16 +376,55 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   override fun visit(accessOperator: InvokeAccessOperator) {
     val access = accessOperator.rightOperand
-    access.methodOwnerType = accessOperator.leftOperand
-    access.accept(this)
+
+    if (accessOperator.nullSafe) {
+      val scope = access.scope
+
+      // need a local variable to avoid evaluating twice
+      val tempVar = scope.addLocalVariable(accessOperator.leftOperand.getType(typeResolver))
+      visitWithoutPushing(VariableAssignmentNode(scope, tempVar.name, accessOperator.leftOperand))
+      val tempRef = ReferenceExpression(scope, tempVar.name)
+
+      visit(TernaryNode(
+        BooleanExpressionNode(ComparisonOperatorNode(ComparisonOperator.NOT_EQUAL, tempRef, NullValueNode())),
+        // using a new function call because we need to use the tempRef instead of the actual leftOperand
+        FunctionCallNode(access.scope, access.name, access.arguments, access.method).apply {
+          methodOwnerType = tempRef
+        }
+        , NullValueNode()
+      ))
+      scope.freeVariable(tempVar.name)
+    } else {
+      access.methodOwnerType = accessOperator.leftOperand
+      access.accept(this)
+    }
   }
 
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator) {
     val field = typeResolver.findFieldOrThrow(getFieldAccessOperator.leftOperand.getType(typeResolver), getFieldAccessOperator.rightOperand.name)
-    if (!field.isStatic) {
-      pushArgument(getFieldAccessOperator.leftOperand)
+    if (field.isStatic) {
+      mv.getField(field)
+      return
     }
-    mv.getField(field)
+    if (getFieldAccessOperator.nullSafe) {
+      val scope = getFieldAccessOperator.scope
+
+      // need a local variable to avoid evaluating twice
+      val tempVar = scope.addLocalVariable(getFieldAccessOperator.leftOperand.getType(typeResolver))
+      visitWithoutPushing(VariableAssignmentNode(scope, tempVar.name, getFieldAccessOperator.leftOperand))
+      val tempRef = ReferenceExpression(scope, tempVar.name)
+
+      visit(TernaryNode(
+        BooleanExpressionNode(ComparisonOperatorNode(ComparisonOperator.NOT_EQUAL, tempRef, NullValueNode())),
+        // using a new GetFieldAccessOperator because we need to use the tempRef instead of the actual leftOperand
+        GetFieldAccessOperator(tempRef, getFieldAccessOperator.rightOperand, false)
+        , NullValueNode()
+      ))
+      scope.freeVariable(tempVar.name)
+    } else {
+      pushArgument(getFieldAccessOperator.leftOperand)
+      mv.getField(field)
+    }
   }
 
   private fun evaluateOperands(binaryOperatorNode: BinaryOperatorNode) {
@@ -1166,7 +1205,7 @@ private class PushingInstructionGenerator(
         actualTruthyVariableDeclarationNode.scope, actualTruthyVariableDeclarationNode.variableType, actualTruthyVariableDeclarationNode.name,
         InvokeAccessOperator(actualTruthyVariableDeclarationNode.expression,
           FunctionCallNode(actualTruthyVariableDeclarationNode.scope, "orElse", mutableListOf(NullValueNode(actualTruthyVariableDeclarationNode.variableType)))
-        )
+        , false)
       )
     }
     instructionGenerator.visit(actualTruthyVariableDeclarationNode)

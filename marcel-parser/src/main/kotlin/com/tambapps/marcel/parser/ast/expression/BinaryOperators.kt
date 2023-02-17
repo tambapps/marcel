@@ -74,55 +74,31 @@ class PowOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   }
 }
 
-open class InvokeAccessOperator(leftOperand: ExpressionNode, final override val rightOperand: FunctionCallNode) :
+open class InvokeAccessOperator(leftOperand: ExpressionNode, final override val rightOperand: FunctionCallNode,
+  val nullSafe: Boolean) :
     BinaryOperatorNode(leftOperand, rightOperand) {
 
+  val scope: Scope get() = rightOperand.scope
   init {
     rightOperand.methodOwnerType = leftOperand
   }
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {
-    return "$leftOperand.$rightOperand"
+    return if (nullSafe) "$leftOperand?.$rightOperand" else "$leftOperand.$rightOperand"
   }
 }
 
-// TODO separate this from TernaryNode
-class NullSafeInvokeAccessOperator(val leftOperand: ExpressionNode, val rightOperand: FunctionCallNode) :
-  TernaryNode(BooleanExpressionNode(
-    ComparisonOperatorNode(ComparisonOperator.NOT_EQUAL, NullValueNode(), leftOperand)
-  ),
-    InvokeAccessOperator(leftOperand, rightOperand),
-    NullValueNode()) {
 
-  init {
-    rightOperand.methodOwnerType = leftOperand
-  }
-  override fun toString(): String {
-    return "$leftOperand?.$rightOperand"
-  }
-}
-
-open class GetFieldAccessOperator(leftOperand: ExpressionNode, override val rightOperand: ReferenceExpression) :
+open class GetFieldAccessOperator(leftOperand: ExpressionNode, override val rightOperand: ReferenceExpression,
+                                  val nullSafe: Boolean) :
     BinaryOperatorNode(leftOperand, rightOperand) {
+  val scope: Scope get() = rightOperand.scope
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {
     return "$leftOperand.$rightOperand"
-  }
-}
-
-// TODO separate this from TernaryNode
-class NullSafeGetFieldAccessOperator(val leftOperand: ExpressionNode, val rightOperand: ReferenceExpression) :
-  TernaryNode(BooleanExpressionNode(
-    ComparisonOperatorNode(ComparisonOperator.NOT_EQUAL, NullValueNode(), leftOperand)
-  ),
-    GetFieldAccessOperator(leftOperand, rightOperand),
-    NullValueNode()) {
-
-  override fun toString(): String {
-    return "$leftOperand?.$rightOperand"
   }
 }
 

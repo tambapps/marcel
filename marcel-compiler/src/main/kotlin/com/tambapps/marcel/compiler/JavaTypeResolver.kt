@@ -128,7 +128,8 @@ class JavaTypeResolver: AstNodeTypeResolver() {
 
   // ast node type resolver methods
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator) =
-    findFieldOrThrow(getFieldAccessOperator.leftOperand.accept(this), getFieldAccessOperator.rightOperand.name).type
+    if (getFieldAccessOperator.nullSafe) findFieldOrThrow(getFieldAccessOperator.leftOperand.accept(this), getFieldAccessOperator.rightOperand.name).type.objectType
+    else findFieldOrThrow(getFieldAccessOperator.leftOperand.accept(this), getFieldAccessOperator.rightOperand.name).type
 
   override fun visit(literalListNode: LiteralArrayNode) = literalListNode.type ?: JavaType.arrayType(literalListNode.getElementsType(this))
 
