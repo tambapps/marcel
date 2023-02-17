@@ -82,16 +82,21 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   override fun visit(switchNode: SwitchNode) {
     val switchExpressionType = switchNode.expressionNode.getType(typeResolver)
-    visitConditionalBranchFlow(MethodParameter(switchExpressionType, "it"), switchNode.expressionNode, switchNode)
+    visitConditionalBranchFlow(switchNode, MethodParameter(switchExpressionType, "it"), switchNode.expressionNode)
   }
 
-  private fun visitConditionalBranchFlow(itParameter: MethodParameter?, itArgument: ExpressionNode?, switchNode: ConditionalBranchFlowNode<*>) {
+
+  override fun visit(whenNode: WhenNode) {
+    visitConditionalBranchFlow(whenNode)
+  }
+
+  private fun visitConditionalBranchFlow(switchNode: ConditionalBranchFlowNode<*>, itParameter: MethodParameter? = null, itArgument: ExpressionNode? = null) {
     if (switchNode.branches.isEmpty()) {
       throw SemanticException("Switch must have at least one branch")
     }
 
     val switchType = switchNode.getType(typeResolver)
-    if (switchNode.elseStatement == null && switchType.primitive) {
+    if (switchNode.elseStatement == null && switchType.primitive && switchType.type != JavaType.void) {
       throw SemanticException("Need to cover all cases (an else branch) for  switch returning primitives as they cannot be null")
     }
 
@@ -118,7 +123,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     val parameters = if (itParameter != null) listOf(itParameter) + referencedParameters
     else referencedParameters
 
-    val switchMethodName = "__switch_" + ((switchNode.scope as? MethodScope)?.methodName ?: switchNode.scope.classType.simpleName) +
+    val switchMethodName = "__when_" + ((switchNode.scope as? MethodScope)?.methodName ?: switchNode.scope.classType.simpleName) +
         classNode.methods.size
     val switchMethodScope = MethodScope(classNode.scope, switchMethodName, parameters, switchType)
 
@@ -127,7 +132,10 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     elseStatement.setTreeScope(switchMethodScope)
 
     val branches = switchNode.branches
-    branches.forEach { it.statementNode = returningLastStatement(switchMethodScope, it.statementNode) }
+    if (switchType != JavaType.void) {
+      branches.forEach { it.statementNode = returningLastStatement(switchMethodScope, it.statementNode) }
+    }
+
     // marcel switch is just an if/elsif
     val rootIf = branches.first().toIf()
     var currentIf = rootIf
@@ -137,7 +145,8 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       currentIf.falseStatementNode = newIfBranch
       currentIf = newIfBranch
     }
-    currentIf.falseStatementNode = returningLastStatement(switchMethodScope, elseStatement)
+    currentIf.falseStatementNode = if (switchType != JavaType.void) returningLastStatement(switchMethodScope, elseStatement)
+     else elseStatement
 
     val methodNode = MethodNode(Opcodes.ACC_PRIVATE, classNode.type,
       switchMethodName, FunctionBlockNode(switchMethodScope, mutableListOf(rootIf)),
@@ -178,10 +187,6 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     }
   }
 
-
-  override fun visit(whenNode: WhenNode) {
-    TODO("Not yet implemented")
-  }
   override fun visit(switchBranch: SwitchBranchNode) {
     throw RuntimeException("Compiler error. Shouldn't happen")
   }
