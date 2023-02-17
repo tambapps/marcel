@@ -16,6 +16,7 @@ class IndexedReferenceExpression(override var scope: Scope, val name: String,
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {
-    return "$name[" + indexArguments.joinToString(separator = ", ") + "]"
+    val safeString = if (isSafeIndex) "?" else ""
+    return "$name$safeString[" + indexArguments.joinToString(separator = ", ") + "]"
   }
 }

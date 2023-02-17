@@ -461,11 +461,18 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     )
   }
   override fun visit(indexedReferenceExpression: IndexedReferenceExpression) {
+    // TODO document this in operators
     if (indexedReferenceExpression.isSafeIndex) {
-       TODO("push a ternary that checking if index is between 0 and size()")
+      val funcCall = FunctionCallNode(indexedReferenceExpression.scope, "getAtSafe",
+        indexedReferenceExpression.indexArguments.toMutableList(),
+        ReferenceExpression(indexedReferenceExpression.scope, indexedReferenceExpression.name)
+        )
+       visit(funcCall)
+      mv.castIfNecessaryOrThrow(indexedReferenceExpression.getType(typeResolver), funcCall.getType(typeResolver))
+    } else {
+      mv.pushVariableGetAt(indexedReferenceExpression.scope, indexedReferenceExpression.variable,
+        indexedReferenceExpression.indexArguments)
     }
-    mv.pushVariableGetAt(indexedReferenceExpression.scope, indexedReferenceExpression.variable,
-      indexedReferenceExpression.indexArguments)
   }
 
   override fun visit(voidExpression: VoidExpression) {

@@ -24,6 +24,11 @@ import java.util.stream.Collectors;
 
 public final class DefaultMarcelMethods {
 
+
+  public static int getLength(List<?> self) {
+    return self.size();
+  }
+
   public static String join(List<?> self, String separator) {
     return self.stream()
         .map(String::valueOf)
@@ -173,6 +178,49 @@ public final class DefaultMarcelMethods {
     DoubleList subList = new DoubleArrayList();
     for (Integer integer : range) subList.add(self.getDouble(integer));
     return subList;
+  }
+
+
+
+  // getAtSafe
+  public static <T> T getAtSafe(List<T> self, int index) {
+    return index >= 0 && index < self.size() ? self.get(index) : null;
+  }
+
+  public static Integer getAtSafe(IntList self, int index) {
+    return index >= 0 && index < self.size() ? self.get(index) : null;
+  }
+
+  public static Long getAtSafe(LongList self, int index) {
+    return index >= 0 && index < self.size() ? self.get(index) : null;
+  }
+
+  public static Float getAtSafe(FloatList self, int index) {
+    return index >= 0 && index < self.size() ? self.get(index) : null;
+  }
+
+  public static Double getAtSafe(DoubleList self, int index) {
+    return index >= 0 && index < self.size() ? self.get(index) : null;
+  }
+
+  public static <T> T getAtSafe(T[] self, int index) {
+    return index >= 0 && index < self.length ? self[index] : null;
+  }
+
+  public static Integer getAtSafe(int[] self, int index) {
+    return index >= 0 && index < self.length ? self[index] : null;
+  }
+
+  public static Long getAtSafe(long[] self, int index) {
+    return index >= 0 && index < self.length ? self[index] : null;
+  }
+
+  public static Float getAtSafe(float[] self, int index) {
+    return index >= 0 && index < self.length ? self[index] : null;
+  }
+
+  public static Double getAtSafe(double[] self, int index) {
+    return index >= 0 && index < self.length ? self[index] : null;
   }
 
   // putAt

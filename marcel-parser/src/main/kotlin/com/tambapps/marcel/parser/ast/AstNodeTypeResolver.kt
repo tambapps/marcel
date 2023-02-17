@@ -205,9 +205,12 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
       referenceExpression.scope.getTypeOrNull(referenceExpression.name) ?: throw SemanticException("No variable or class named ${referenceExpression.name} was found")
     }
 
-  override fun visit(indexedReferenceExpression: IndexedReferenceExpression) =
-    if (indexedReferenceExpression.variable.type.isArray) (indexedReferenceExpression.variable.type.asArrayType).elementsType
+  override fun visit(indexedReferenceExpression: IndexedReferenceExpression): JavaType {
+    val elementType = if (indexedReferenceExpression.variable.type.isArray) (indexedReferenceExpression.variable.type.asArrayType).elementsType
     else findMethodOrThrow(indexedReferenceExpression.variable.type, "getAt", indexedReferenceExpression.indexArguments.map { it.accept(this) }).returnType
+    // need object class for safe index because returned elements are nullable
+    return if (indexedReferenceExpression.isSafeIndex) elementType.objectType else elementType
+  }
 
   private fun visitUnaryOperator(unaryOperator: UnaryOperator) = unaryOperator.operand.accept(this)
 
