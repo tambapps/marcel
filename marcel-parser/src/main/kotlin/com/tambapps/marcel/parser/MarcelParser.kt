@@ -525,7 +525,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           } else {
             val valueExpression = expression(scope)
             accept(TokenType.ARROW)
-            branches.add(SwitchBranchNode(switchExpression, valueExpression, statement(switchScope)))
+            branches.add(SwitchBranchNode(switchScope, valueExpression, statement(switchScope)))
           }
         }
         skip() // skip bracket_close

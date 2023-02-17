@@ -61,12 +61,17 @@ class SwitchNode constructor(override var scope: Scope,
   }
 
 }
-class SwitchBranchNode private constructor(conditionExpression: ExpressionNode, statementNode: StatementNode): ConditionalBranchNode(conditionExpression, statementNode) {
+class SwitchBranchNode private constructor(
+  val valueExpression: ExpressionNode,
+  val itReference: ReferenceExpression,
+  statementNode: StatementNode)
+  : ConditionalBranchNode(ComparisonOperatorNode(ComparisonOperator.EQUAL, valueExpression,
+  // using reference "it" to avoid evaluating more than once the value (e.g. executing more than once functon calls)
+  itReference), statementNode) {
 
-  constructor(switchExpression: ExpressionNode, valueExpression: ExpressionNode, statementNode: StatementNode)
-      : this(ComparisonOperatorNode(ComparisonOperator.EQUAL, valueExpression, switchExpression), statementNode)
-
-  val valueExpression = (conditionExpressionNode as ComparisonOperatorNode).leftOperand
+  constructor(scope: Scope,
+    valueExpression: ExpressionNode,
+    statementNode: StatementNode): this(valueExpression, ReferenceExpression(scope, "it"), statementNode)
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 

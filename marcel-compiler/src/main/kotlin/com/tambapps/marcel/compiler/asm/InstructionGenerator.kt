@@ -81,6 +81,11 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
 
   override fun visit(switchNode: SwitchNode) {
+    val switchExpressionType = switchNode.expressionNode.getType(typeResolver)
+    visitConditionalBranchFlow(MethodParameter(switchExpressionType, "it"), switchNode.expressionNode, switchNode)
+  }
+
+  private fun visitConditionalBranchFlow(itParameter: MethodParameter?, itArgument: ExpressionNode?, switchNode: ConditionalBranchFlowNode<*>) {
     if (switchNode.branches.isEmpty()) {
       throw SemanticException("Switch must have at least one branch")
     }
@@ -91,7 +96,6 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     }
 
     val elseStatement = switchNode.elseStatement ?: ExpressionStatementNode(NullValueNode(switchType))
-    val switchExpressionType = switchNode.expressionNode.getType(typeResolver)
 
     // this part is to handle local variables referenced in the switch
     val currentScope = switchNode.scope
@@ -105,11 +109,14 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
         }
       }
     }
-    val parameters = listOf(MethodParameter(switchExpressionType, "it")) + referencedLocalVariables.map {
-    // TODO make these parameters final
+
+    val referencedParameters = referencedLocalVariables.map {
+      // TODO make these parameters final
       MethodParameter(it.type, it.name)
     }
 
+    val parameters = if (itParameter != null) listOf(itParameter) + referencedParameters
+    else referencedParameters
 
     val switchMethodName = "__switch_" + ((switchNode.scope as? MethodScope)?.methodName ?: switchNode.scope.classType.simpleName) +
         classNode.methods.size
@@ -138,9 +145,13 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     )
     classNode.addMethod(methodNode)
     typeResolver.defineMethod(classNode.type, methodNode)
+
+    val referencedArguments = referencedLocalVariables.map { ReferenceExpression(currentScope, it.name) }
+    val callArguments =
+      if (itArgument != null) (listOf(itArgument) + referencedArguments)
+      else referencedArguments
     visit(FunctionCallNode(currentScope, switchMethodName,
-      (listOf(switchNode.expressionNode) + referencedLocalVariables.map { ReferenceExpression(currentScope, it.name) }
-          ).toMutableList(),
+      callArguments.toMutableList(),
       ReferenceExpression.thisRef(currentScope), methodNode))
   }
 
