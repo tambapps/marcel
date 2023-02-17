@@ -29,7 +29,7 @@ class LambdaHandler(private val classNode: ClassNode, private val methodNode: Me
         if (interfaceType != null) listOf(interfaceType, lambdaInterfaceType)
         else listOf(lambdaInterfaceType))
     val methods = mutableListOf<MethodNode>()
-    val lambdaClassNode = ClassNode(scope.copy(), Opcodes.ACC_PRIVATE, type, type.superType!!, false, methods, mutableListOf())
+    val lambdaClassNode = ClassNode(scope.copy(), Opcodes.ACC_PRIVATE, type, type.superType!!, false, methods, emptyList(), mutableListOf())
     // adding default constructor
     lambdaClassNode.methods.add(ConstructorNode.emptyConstructor(lambdaClassNode))
 

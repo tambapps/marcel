@@ -47,7 +47,8 @@ sealed interface MarcelField: Variable {
 sealed class AbstractField: AbstractVariable(), MarcelField {
   override var alreadySet = false
 }
-class ClassField constructor(override val type: JavaType, override val name: String, override val owner: JavaType, override val access: Int): AbstractField() {
+
+open class ClassField constructor(override val type: JavaType, override val name: String, override val owner: JavaType, override val access: Int): AbstractField() {
   val getCode = if (isStatic) Opcodes.GETSTATIC else Opcodes.GETFIELD
   val putCode = if (isStatic) Opcodes.PUTSTATIC else Opcodes.PUTFIELD
 }

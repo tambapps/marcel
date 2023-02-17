@@ -9,6 +9,7 @@ import com.tambapps.marcel.parser.type.JavaType
 class ClassNode constructor(val scope: Scope, val access: Int, val type: JavaType, val superType: JavaType,
                             val isScript: Boolean,
                             val methods: MutableList<MethodNode>,
+                            val fields: List<FieldNode>,
                             val innerClasses: MutableList<ClassNode>): AstNode {
 
   val constructorsCount: Int

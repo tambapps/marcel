@@ -72,6 +72,14 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     return moduleNode
   }
 
+  private fun parseField(classNode: ClassNode): FieldNode {
+    val (access, isInline) = parseAccess()
+    if (isInline) throw MarcelParsingException("Cannot use 'inline' keyword for a field")
+    val type = parseType(classNode.scope)
+    val name = accept(TokenType.IDENTIFIER).value
+    return FieldNode(type, name, classNode.type, access)
+  }
+
   private fun parseClass(imports: MutableList<ImportNode>, packageName: String?, outerClassNode: ClassNode? = null): ClassNode {
     val (access, isInline) = parseAccess()
     if (isInline) throw MarcelParsingException("Cannot use 'inline' keyword for a class")
@@ -93,17 +101,18 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     val classType = typeResolver.defineClass(outerClassNode?.type, className, superType, false, interfaces)
     val classScope = Scope(typeResolver, imports, classType, superType)
     val methods = mutableListOf<MethodNode>()
+    val classFields = mutableListOf<FieldNode>()
     val innerClasses = mutableListOf<ClassNode>()
-    val classNode = ClassNode(classScope, access, classType, JavaType.Object, false, methods, innerClasses)
+    val classNode = ClassNode(classScope, access, classType, JavaType.Object, false, methods, classFields, innerClasses)
     accept(TokenType.BRACKETS_OPEN)
 
     while (current.type != TokenType.BRACKETS_CLOSE) {
-      if (current.type == TokenType.CLASS
-        || lookup(1)?.type == TokenType.CLASS
-        || lookup(2)?.type == TokenType.CLASS) {
-        innerClasses.add(parseClass(imports, packageName, classNode))
-      } else {
-        methods.add(method(classNode, isExtensionClass))
+      // can be a class, a field or a function
+      when (getNextMemberToken()) {
+        TokenType.CLASS -> innerClasses.add(parseClass(imports, packageName, classNode))
+        TokenType.FUN -> methods.add(method(classNode, isExtensionClass))
+        // must be a type token
+        else -> classFields.add(parseField(classNode))
       }
     }
     skip() // skipping brackets close
@@ -112,6 +121,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
 
   private fun script(imports: MutableList<ImportNode>, packageName: String?): ClassNode {
     val classMethods = mutableListOf<MethodNode>()
+    val classFields = mutableListOf<FieldNode>()
     val superType = JavaType.of(Script::class.java)
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
     val classType = typeResolver.defineClass(className, superType, false, emptyList())
@@ -127,31 +137,40 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     classMethods.add(runFunction)
     val innerClasses = mutableListOf<ClassNode>()
     val classNode = ClassNode(classScope,
-      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, classType, JavaType.of(Script::class.java), true, classMethods, innerClasses)
+      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, classType, JavaType.of(Script::class.java), true, classMethods, classFields, innerClasses)
 
     while (current.type != TokenType.END_OF_FILE) {
-      if (current.type == TokenType.CLASS
-        || lookup(1)?.type == TokenType.CLASS
-        || lookup(2)?.type == TokenType.CLASS) {
-        innerClasses.add(parseClass(imports, packageName, classNode))
-      } else {
-        when (current.type) {
-          TokenType.FUN, TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED,
-          TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE, TokenType.STATIC,
-          TokenType.INLINE -> {
-            val method = method(classNode)
-            if (method.name == "main") {
-              throw SemanticException("Cannot have a \"main\" function in a script")
+      when (current.type) {
+        TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.FUN, TokenType.INLINE, TokenType.CLASS,
+        TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE, TokenType.STATIC, -> {
+          // can be a class, a field or a function
+          when (getNextMemberToken()) {
+            TokenType.CLASS -> innerClasses.add(parseClass(imports, packageName, classNode))
+            TokenType.FUN -> {
+              val method = method(classNode)
+              if (method.name == "main") {
+                throw SemanticException("Cannot have a \"main\" function in a script")
+              }
+              classNode.addMethod(method)
             }
-            classNode.addMethod(method)
+            // must be a type token
+            else -> classFields.add(parseField(classNode))
           }
-          else -> statements.add(statement(runScope))
         }
+        else -> statements.add(statement(runScope))
       }
+
     }
     return classNode
   }
 
+  // return next class, fun, or typetoken
+  private fun getNextMemberToken(): TokenType {
+    var i = currentIndex
+    while (i < tokens.size && tokens[i].type !in listOf(TokenType.CLASS, TokenType.FUN) && !isTypeToken(tokens[i].type)) i++
+    if (i >= tokens.size) throw MarcelParsingException("Unexpected tokens")
+    return tokens[i].type
+  }
   private fun import(): ImportNode {
     accept(TokenType.IMPORT)
     val staticImport = acceptOptional(TokenType.STATIC) != null
