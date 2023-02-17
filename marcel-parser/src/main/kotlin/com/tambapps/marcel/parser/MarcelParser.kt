@@ -87,6 +87,12 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     accept(TokenType.CLASS)
     val classSimpleName = accept(TokenType.IDENTIFIER).value
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
+
+    if (outerClassNode != null) {
+      val conflictClass = outerClassNode.innerClasses.find { it.type.className == className }
+      if (conflictClass != null) throw MarcelParsingException("Class with name $className was defined more than once")
+    }
+
     val parseTypeScope = outerClassNode?.scope ?: Scope(typeResolver, JavaType.Object, imports)
     val superType =
       if (acceptOptional(TokenType.EXTENDS) != null) parseType(parseTypeScope)
@@ -230,6 +236,10 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     val methodScope = MethodScope(classScope, methodName, parameters, returnType)
     val methodNode = MethodNode(access, classNode.type, methodName, FunctionBlockNode(methodScope, statements), parameters, returnType, methodScope, isInline)
     statements.addAll(block(methodScope).statements)
+
+    // check conflict
+    val conflictMethod = classNode.methods.find { it.matches(methodNode) }
+    if (conflictMethod != null) throw MarcelParsingException("Method $methodNode conflicts with $conflictMethod")
     return methodNode
   }
 
