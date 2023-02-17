@@ -8,7 +8,6 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 
-// TODO expression should be optional, for void function
 class ReturnNode(override var scope: MethodScope, expression: ExpressionNode) : StatementNode,
   ScopedNode<MethodScope>, ExpressionStatementNode(expression) {
 

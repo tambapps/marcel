@@ -281,7 +281,6 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         val identifier = accept(TokenType.IDENTIFIER)
         accept(TokenType.ASSIGNMENT)
         acceptOptional(TokenType.SEMI_COLON)
-        // TODO doesn't handle final variable declarations of primitive types (having special tokens for primitive types might be useless in the end, could remove them)
         VariableDeclarationNode(scope, type, identifier.value, false, expression(scope))
       }
       TokenType.DEF -> {

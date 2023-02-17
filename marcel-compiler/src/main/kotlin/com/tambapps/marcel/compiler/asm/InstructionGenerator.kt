@@ -543,7 +543,6 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     )
   }
   override fun visit(indexedReferenceExpression: IndexedReferenceExpression) {
-    // TODO document this in operators
     if (indexedReferenceExpression.isSafeIndex) {
       val funcCall = FunctionCallNode(indexedReferenceExpression.scope, "getAtSafe",
         indexedReferenceExpression.indexArguments.toMutableList(),
@@ -1045,7 +1044,7 @@ private class PushingInstructionGenerator(
     when (notNode.operand.getType(typeResolver)) {
       JavaType.Boolean -> mv.invokeMethodWithArguments(typeResolver.findMethodOrThrow(JavaType.Boolean, "booleanValue", emptyList()), notNode.operand)
       JavaType.boolean -> notNode.operand.accept(this)
-      else -> throw SemanticException("Cannot negate something other than a boolean")
+      else -> visit(BooleanExpressionNode(notNode.operand))
     }
     mv.not()
   }
