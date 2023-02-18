@@ -40,4 +40,12 @@ public class StringMarcelMethods {
   public static int getLength(String self) {
     return self.length();
   }
+
+
+  public static boolean contains(CharSequence self, char c) {
+    for (int i = 0; i < self.length(); i++) {
+      if (self.charAt(i) == c) return true;
+    }
+    return false;
+  }
 }
