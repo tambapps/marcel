@@ -28,9 +28,11 @@ volumes/
 /build/
 
 # me, for testing
+input.txt
 /Test.class
 /Test.marcel
 /GroovyTest.groovy
+/JavaTest.java
 marcel-lexer/src/main/java/com/tambapps/marcel/lexer/MarcelJflexer.java~
 
 *.jar
