@@ -30,6 +30,8 @@
     - [Define your own operators](language-specification/operators/operator-overloading.md)
   - [Lambdas](language-specification/lambdas.md)
 - [Tools](./tools/index.md)
-  - [MarCL](./tools/marcl.md)
-  - [Marshell](./tools/marshell.md)
+  - [MarCL - Marcel's Command Line tool](./tools/marcl.md)
+  - [Marshell - Marcel Shell](./tools/marshell.md)
+  - [Marshell for Android](./tools/marshell-for-android.md)
+  - [Dumbbell - Marcel's Dependency Manager](./tools/dumbbell.md)
 
