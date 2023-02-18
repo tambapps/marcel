@@ -96,13 +96,12 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     for (constructor in classNode.constructors) {
       // FIXME we might assign values twice, if a constructor calls another constructor
       constructor.block.addStatement(
-        // TODO use FieldAssignmentNode
-        VariableAssignmentNode(
-          constructor.scope, marcelField.name, marcelField.initialValue!!
+        FieldAssignmentNode(
+          constructor.scope, GetFieldAccessOperator(ReferenceExpression.thisRef(constructor.scope),
+            ReferenceExpression(constructor.scope, marcelField.name), false), marcelField.initialValue!!
         )
       )
     }
-    // TODO need to be able to parse field with initial values. These fields should be initialized in ALL constructors of the class
   }
   private fun writeMethod(typeResolver: JavaTypeResolver, classWriter: ClassWriter, classNode: ClassNode, methodNode: MethodNode) {
     val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.descriptor, methodNode.signature, null)
