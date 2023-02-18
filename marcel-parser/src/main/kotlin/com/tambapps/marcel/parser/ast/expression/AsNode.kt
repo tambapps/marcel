@@ -8,4 +8,7 @@ class AsNode(val type: JavaType, val expressionNode: ExpressionNode): Expression
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
+  override fun toString(): String {
+    return "$expressionNode as ${type.simpleName}"
+  }
 }

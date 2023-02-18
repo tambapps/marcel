@@ -153,7 +153,8 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     currentIf.falseStatementNode = if (switchType != JavaType.void) returningLastStatement(switchMethodScope, elseStatement)
      else elseStatement
 
-    val methodNode = MethodNode(Opcodes.ACC_PRIVATE, classNode.type,
+    // TODO reput private
+    val methodNode = MethodNode(Opcodes.ACC_PUBLIC, classNode.type,
       switchMethodName, FunctionBlockNode(switchMethodScope, mutableListOf(rootIf)),
       parameters.toMutableList(), switchType, switchMethodScope, false
     )
@@ -287,6 +288,17 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     pushArgument(binaryOperatorNode.leftOperand)
     mv.invokeMethodWithArguments(leftShiftMethod, binaryOperatorNode.rightOperand)
     return leftShiftMethod.returnType
+  }
+
+
+  override fun visit(asNode: AsNode) {
+    val expression = asNode.expressionNode
+    if (expression is LiteralArrayNode && expression.elements.isEmpty()) {
+      visit(EmptyArrayNode(asNode.type as? JavaArrayType ?: throw SemanticException("Can only convert empty arrays to array types using 'as' keyword")))
+    } else {
+      asNode.expressionNode.accept(this)
+      mv.castIfNecessaryOrThrow(asNode.type, asNode.expressionNode.getType(typeResolver))
+    }
   }
 
   override fun visit(isOperator: IsOperator) {
@@ -511,11 +523,11 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       }
     }
 
-    pushAssignementExpression(variable, variableAssignmentNode.expression)
+    pushAssignmentExpression(variable, variableAssignmentNode.expression)
     mv.storeInVariable(variable)
   }
 
-  private fun pushAssignementExpression(variable: Variable, expr: ExpressionNode) {
+  private fun pushAssignmentExpression(variable: Variable, expr: ExpressionNode) {
     var expression = expr
     val variableType = variable.type
     if (expression is LiteralArrayNode && expression.elements.isEmpty()) {
@@ -540,7 +552,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     if (fieldVariable is MethodField && !fieldVariable.isStatic) {
       pushArgument(fieldAssignmentNode.fieldNode.leftOperand)
     }
-    pushAssignementExpression(fieldVariable, fieldAssignmentNode.expression)
+    pushAssignmentExpression(fieldVariable, fieldAssignmentNode.expression)
     mv.storeInVariable(fieldVariable)
   }
 
@@ -781,14 +793,6 @@ class InstructionGenerator(
     toStringNode.expressionNode.accept(this)
   }
 
-  override fun visit(asNode: AsNode) {
-    val expression = asNode.expressionNode
-    if (expression is LiteralArrayNode && expression.elements.isEmpty()) {
-      visit(EmptyArrayNode(asNode.type as? JavaArrayType ?: throw SemanticException("Can only convert empty arrays to array types using 'as' keyword")))
-    } else {
-      asNode.expressionNode.accept(this)
-    }
-  }
   override fun visit(stringNode: StringNode) {
     for (part in stringNode.parts) {
       part.accept(this)
@@ -1092,11 +1096,6 @@ private class PushingInstructionGenerator(
     }
   }
 
-  override fun visit(asNode: AsNode) {
-    asNode.expressionNode.accept(this)
-    mv.castIfNecessaryOrThrow(asNode.type, asNode.expressionNode.getType(typeResolver))
-  }
-
   override fun visit(toStringNode: ToStringNode) {
     val expr = toStringNode.expressionNode
     if (expr.getType(typeResolver) == JavaType.String) {
@@ -1243,13 +1242,7 @@ private class PushingInstructionGenerator(
   }
 
   override fun visit(returnNode: ReturnNode) {
-    returnNode.apply {
-      if (!returnNode.scope.returnType.isAssignableFrom(expression.getType(typeResolver))) {
-        throw SemanticException("Cannot return ${expression.getType(typeResolver)} when return type is ${returnNode.scope.returnType}")
-      }
-    }
-    returnNode.expression.accept(this)
-    mv.castIfNecessaryOrThrow(returnNode.scope.returnType, returnNode.expression.getType(typeResolver))
+    instructionGenerator.visit(returnNode)
   }
 
   override fun visit(expressionStatementNode: ExpressionStatementNode) {
