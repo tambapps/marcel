@@ -256,10 +256,12 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
 
 
   private fun parseAccess(): Pair<Int, Boolean> {
-    val staticFlag = if (acceptOptional(TokenType.STATIC) != null) Opcodes.ACC_STATIC else 0
-    val isInline = acceptOptional(TokenType.INLINE) != null
     val visibilityFlag = ParserUtils.TOKEN_VISIBILITY_MAP[acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE)?.type ?: TokenType.VISIBILITY_PUBLIC]!!
-    return Pair(staticFlag or visibilityFlag, isInline)
+    val staticFlag = if (acceptOptional(TokenType.STATIC) != null) Opcodes.ACC_STATIC else 0
+    val finalFlag = if (acceptOptional(TokenType.FINAL) != null) Opcodes.ACC_FINAL else 0
+
+    val isInline = acceptOptional(TokenType.INLINE) != null
+    return Pair(staticFlag or visibilityFlag or finalFlag, isInline)
   }
 
   fun block(scope: MethodScope, acceptBracketOpen: Boolean = true): BlockNode {

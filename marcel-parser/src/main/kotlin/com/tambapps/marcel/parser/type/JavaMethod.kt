@@ -48,7 +48,7 @@ interface JavaMethod {
 
 
   fun matches(other: JavaMethod): Boolean {
-    if (other.name != other.name) return false
+    if (name != other.name) return false
     if (parameters.size != other.parameters.size) return false
     for (i in parameters.indices) if (parameters[i].type != other.parameters[i].type) return false
     if (returnType != other.returnType) return false
