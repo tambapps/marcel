@@ -1,4 +1,4 @@
-# Visibilities
+# Visibility and Access
 
 In marcel, there are 4 kinds of visibility.
 
@@ -8,3 +8,11 @@ In marcel, there are 4 kinds of visibility.
 - `private` -> Your method may be accessible only from the class it was defined in
 
 The default visibility is `public` (meaning that when it isn't specified, the class/method/field will be considered as public)
+
+## Access
+
+Class/method/fields access should be specified in the below order.
+
+1. public/protected/internal/private (or nothing, which would default to public visibility)
+2. static (Optional. only if you want your member to be static)
+3. final (Optional. only if you want your member to be final)

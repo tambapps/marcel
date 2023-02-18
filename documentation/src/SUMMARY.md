@@ -13,7 +13,7 @@
   - [Types](language-specification/types.md)
   - [Source File Structure](language-specification/source-file-structure/index.md)
     - [Imports](language-specification/source-file-structure/imports.md)
-    - [Visibilities](language-specification/source-file-structure/visibility.md)
+    - [Visibility and Access](language-specification/source-file-structure/visibility.md)
     - [Functions](language-specification/source-file-structure/functions.md)
     - [Classes](language-specification/source-file-structure/classes.md)
     - [Script](language-specification/source-file-structure/script.md)
