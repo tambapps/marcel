@@ -535,6 +535,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       else if (JavaType.longList.isAssignableFrom(variableType) || JavaType.longSet.isAssignableFrom(variableType)) JavaType.long
       else if (JavaType.floatList.isAssignableFrom(variableType) || JavaType.floatSet.isAssignableFrom(variableType)) JavaType.float
       else if (JavaType.doubleList.isAssignableFrom(variableType) || JavaType.doubleSet.isAssignableFrom(variableType)) JavaType.double
+      else if (JavaType.charList.isAssignableFrom(variableType) || JavaType.characterSet.isAssignableFrom(variableType)) JavaType.char
       else throw SemanticException("Couldn't guess type of empty array. You can explicitly specify your wanted type with the 'as' keyword (e.g. '[] as int[]')")
       expression = EmptyArrayNode(JavaType.arrayType(elementsType))
     } else if (variableType.isInterface && expression is LambdaNode) {
