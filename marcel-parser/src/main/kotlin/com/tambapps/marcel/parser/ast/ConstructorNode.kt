@@ -25,6 +25,14 @@ class ConstructorNode constructor(
 
   companion object {
 
+    fun of(classNode: ClassNode, parameters: MutableList<MethodParameter>, statements: MutableList<StatementNode>): ConstructorNode {
+      return of(classNode, MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, parameters, JavaType.void), parameters, statements)
+    }
+    fun of(classNode: ClassNode, scope: MethodScope, parameters: MutableList<MethodParameter>, statements: MutableList<StatementNode>): ConstructorNode {
+      return ConstructorNode(classNode.superType, Opcodes.ACC_PUBLIC,
+        FunctionBlockNode(scope, statements), parameters, scope)
+    }
+
     fun emptyConstructor(classNode: ClassNode): ConstructorNode {
       val emptyConstructorScope = MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)
       return ConstructorNode(classNode.superType, Opcodes.ACC_PUBLIC,

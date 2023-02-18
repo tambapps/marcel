@@ -32,7 +32,7 @@ class JavaTypeResolver: AstNodeTypeResolver() {
     methods.add(method)
   }
 
-  fun defineField(javaType: JavaType, field: MarcelField) {
+  override fun defineField(javaType: JavaType, field: MarcelField) {
     if (javaType.isLoaded) throw SemanticException("Cannot define field on loaded class")
     val fields = getMarcelFields(javaType)
     fields.add(field)

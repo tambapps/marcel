@@ -4,23 +4,32 @@ import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ConstructorNode
+import com.tambapps.marcel.parser.ast.FieldNode
 import com.tambapps.marcel.parser.ast.MethodNode
+import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
+import com.tambapps.marcel.parser.ast.expression.FieldAssignmentNode
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
+import com.tambapps.marcel.parser.ast.expression.GetFieldAccessOperator
 import com.tambapps.marcel.parser.ast.expression.LambdaNode
 import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
+import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
+import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.LambdaScope
+import com.tambapps.marcel.parser.scope.LocalVariable
 import com.tambapps.marcel.parser.scope.MethodScope
+import com.tambapps.marcel.parser.scope.Variable
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.Opcodes
+import java.util.LinkedHashSet
 
 class LambdaHandler(private val classNode: ClassNode, private val typeResolver: JavaTypeResolver) {
   private var lambdasCount = 0
 
-  fun defineLambda(lambdaNode: LambdaNode): JavaType {
+  fun defineLambda(lambdaNode: LambdaNode): ConstructorCallNode {
     val scope = lambdaNode.scope
     val className = generateLambdaName(scope)
     val interfaceType = lambdaNode.interfaceType
@@ -30,9 +39,35 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
         if (interfaceType != null) listOf(interfaceType, lambdaInterfaceType)
         else listOf(lambdaInterfaceType))
     val methods = mutableListOf<MethodNode>()
-    val lambdaClassNode = ClassNode(scope.copy(type), Opcodes.ACC_PRIVATE, type, type.superType!!, false, methods, emptyList(), mutableListOf())
+    val lambdaClassNode = ClassNode(scope.copy(type), Opcodes.ACC_PRIVATE, type, type.superType!!, false, methods, mutableListOf(), mutableListOf())
+
+    // getting all referenced variables so that the lambda can access them
+    val referencedLocalVariables = LinkedHashSet<Variable>()
+    lambdaNode.blockNode.forEachNode {
+      if (it is ReferenceExpression) {
+        val variable = scope.parentScope.findVariable(it.name)
+        if (variable != null && it.name != "it") referencedLocalVariables.add(variable)
+      }
+    }
+    val fields = referencedLocalVariables.map {
+      FieldNode(it.type, it.name, type, Opcodes.ACC_PRIVATE or Opcodes.ACC_FINAL, null)
+    }
+    lambdaClassNode.fields.addAll(fields)
+
+    // creating constructor that will initialize all fields
+    val constructorParameters = fields.map { MethodParameter(it.type, it.name, true) }
+
     // adding default constructor
-    lambdaClassNode.methods.add(ConstructorNode.emptyConstructor(lambdaClassNode))
+    val constructorScope = MethodScope(lambdaClassNode.scope, JavaMethod.CONSTRUCTOR_NAME, constructorParameters, JavaType.void)
+    val constructorBlock: MutableList<StatementNode> = fields.map {
+      ExpressionStatementNode(
+        FieldAssignmentNode(constructorScope, GetFieldAccessOperator(ReferenceExpression.thisRef(constructorScope),
+          ReferenceExpression(constructorScope, it.name), false), ReferenceExpression(constructorScope, it.name))
+      )
+    }.toMutableList()
+    constructorBlock.add(0, ExpressionStatementNode(SuperConstructorCallNode(constructorScope, mutableListOf())))
+    lambdaClassNode.methods.add(ConstructorNode.of(lambdaClassNode, constructorScope, constructorParameters.toMutableList(),
+      constructorBlock))
 
     // define lambda interfaceType method
     val lambdaMethod = scope.typeResolver.getDeclaredMethods(lambdaInterfaceType).first()
@@ -91,9 +126,12 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
       )
     }
     lambdaClassNode.methods.forEach { scope.typeResolver.defineMethod(type, it) }
+    lambdaClassNode.fields.forEach { scope.typeResolver.defineField(type, it) }
     // add lambda class as an inner class of the class it was defined in
     classNode.innerClasses.add(lambdaClassNode)
-    return type
+
+    return ConstructorCallNode(lambdaNode.scope, type,
+      referencedLocalVariables.map { ReferenceExpression(scope.parentScope, it.name) }.toMutableList())
   }
 
   private fun tryMatchParametersWithLambda(lambdaNode: LambdaNode) {

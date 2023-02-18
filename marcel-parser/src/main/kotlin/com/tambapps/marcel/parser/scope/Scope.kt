@@ -66,11 +66,16 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
     return localVariables.find { it.name == name }
   }
 
-  open fun findVariable(name: String): Variable {
+  open fun findVariableOrThrow(name: String): Variable {
+    return findVariable(name) ?: throw SemanticException("Variable $name is not defined")
+  }
+
+
+  open fun findVariable(name: String): Variable? {
     val localVariable = findLocalVariable(name)
     if (localVariable != null) return localVariable
     // now searching on fields
-    return typeResolver.findField(classType, name, true) ?: throw SemanticException("Variable $name is not defined")
+    return typeResolver.findField(classType, name, true)
   }
 
   fun copy(t: JavaType? = null): Scope {

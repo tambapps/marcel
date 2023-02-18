@@ -41,7 +41,7 @@ sealed interface MarcelField: Variable {
   val isStatic: Boolean
     get() = (access and Opcodes.ACC_STATIC) != 0
   override val isFinal: Boolean
-    get() = (access and Opcodes.ACC_FINAL) == 0
+    get() = (access and Opcodes.ACC_FINAL) != 0
 }
 
 sealed class AbstractField: AbstractVariable(), MarcelField {

@@ -508,12 +508,12 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(lambdaNode: LambdaNode) {
-    val lambdaType = lambdaHandler.defineLambda(lambdaNode)
-    visit(ConstructorCallNode(lambdaNode.scope, lambdaType, mutableListOf()))
+    val constructorCall = lambdaHandler.defineLambda(lambdaNode)
+    visit(constructorCall)
   }
 
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
-    val variable = variableAssignmentNode.scope.findVariable(variableAssignmentNode.name)
+    val variable = variableAssignmentNode.scope.findVariableOrThrow(variableAssignmentNode.name)
     if (variable is MarcelField && !variable.isStatic) {
       if (variable.owner.isAssignableFrom(variableAssignmentNode.scope.classType)) {
         pushArgument(ReferenceExpression.thisRef(variableAssignmentNode.scope))
@@ -548,7 +548,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       fieldAssignmentNode.fieldNode.leftOperand.getType(typeResolver),
       fieldAssignmentNode.fieldNode.rightOperand.name
     )
-    if (fieldVariable is MethodField && !fieldVariable.isStatic) {
+    if (!fieldVariable.isStatic) {
       pushArgument(fieldAssignmentNode.fieldNode.leftOperand)
     }
     pushAssignmentExpression(fieldVariable, fieldAssignmentNode.expression)
@@ -1190,12 +1190,15 @@ private class PushingInstructionGenerator(
 
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     super.visit(variableAssignmentNode)
-    mv.pushVariable(variableAssignmentNode.scope, variableAssignmentNode.scope.findVariable(variableAssignmentNode.name))
+    mv.pushVariable(variableAssignmentNode.scope, variableAssignmentNode.scope.findVariableOrThrow(variableAssignmentNode.name))
   }
 
   override fun visit(fieldAssignmentNode: FieldAssignmentNode) {
     super.visit(fieldAssignmentNode)
     val field = typeResolver.findFieldOrThrow(fieldAssignmentNode.fieldNode.leftOperand.getType(typeResolver), fieldAssignmentNode.fieldNode.rightOperand.name)
+    if (!field.isStatic) {
+      pushArgument(fieldAssignmentNode.fieldNode.leftOperand)
+    }
     mv.pushVariable(fieldAssignmentNode.scope, field)
   }
 

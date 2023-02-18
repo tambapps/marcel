@@ -126,7 +126,10 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
   open fun defineMethod(javaType: JavaType, method: JavaMethod) {
   }
 
-  open fun getDeclaredMethods(javaType: JavaType): List<JavaMethod> {
+  open fun defineField(javaType: JavaType, field: MarcelField) {
+  }
+
+    open fun getDeclaredMethods(javaType: JavaType): List<JavaMethod> {
     return emptyList()
   }
 
@@ -205,7 +208,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
   override fun visit(referenceExpression: ReferenceExpression) =
     try {
-      referenceExpression.scope.findVariable(referenceExpression.name).type
+      referenceExpression.scope.findVariableOrThrow(referenceExpression.name).type
     } catch (e: SemanticException) {
       // for static function calls
       referenceExpression.scope.getTypeOrNull(referenceExpression.name) ?: throw SemanticException("No variable or class named ${referenceExpression.name} was found")

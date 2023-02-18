@@ -17,7 +17,7 @@ class ReferenceExpression(override var scope: Scope, val name: String): Expressi
     }
   }
   val variable: Variable
-    get() = scope.findVariable(name)
+    get() = scope.findVariableOrThrow(name)
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
