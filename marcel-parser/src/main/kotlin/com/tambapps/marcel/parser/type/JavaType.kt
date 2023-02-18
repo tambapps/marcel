@@ -172,8 +172,7 @@ interface JavaType: AstTypedObject {
     fun of(clazz: Class<*>, genericTypes: List<JavaType>): JavaType {
       return if (clazz.isPrimitive) PRIMITIVES.find { it.className == clazz.name } ?: throw RuntimeException("Primitive type $clazz is not being handled")
       else if (clazz.isArray)
-        // supposing if the array class wasn't found in array, it must be an object array
-        ARRAYS.find { it.realClazz == clazz } ?: JavaArrayType(clazz, Object, Opcodes.AASTORE, Opcodes.AALOAD, 0)
+        ARRAYS.find { it.realClazz == clazz } ?: JavaArrayType(clazz, of(clazz.componentType), Opcodes.AASTORE, Opcodes.AALOAD, 0)
       else LoadedObjectType(clazz, genericTypes)
     }
 

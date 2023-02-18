@@ -267,7 +267,14 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       } else if (!expectedType.primitive && !actualType.primitive) {
         // both Object classes
         if (!expectedType.isAssignableFrom(actualType)) {
-          if (actualType.isAssignableFrom(expectedType)) {
+          if ((expectedType == JavaType.Character || expectedType == JavaType.char) && JavaType.of(CharSequence::class.java).isAssignableFrom(actualType)) {
+            // get the first char of the string
+            pushConstant(0)
+            invokeMethod(String::class.java.getMethod("charAt", Int::class.java))
+            if (expectedType == JavaType.Character) {
+              invokeMethod(Character::class.java.getMethod("valueOf", Char::class.java))
+            }
+          } else if (actualType.isAssignableFrom(expectedType)) {
             // actualType is a parent of expectedType? might be able to cast it
             mv.visitTypeInsn(Opcodes.CHECKCAST, expectedType.internalName)
           } else {
@@ -293,7 +300,12 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
               invokeMethod(Class.forName(JavaType.Integer.className).getMethod("intValue"))
             }
             JavaType.char -> {
-              if (actualType != JavaType.Character) {
+              if (actualType == JavaType.String) {
+                // get the first char of the string
+                pushConstant(0)
+                invokeMethod(String::class.java.getMethod("charAt", Int::class.java))
+                return
+              } else if (actualType != JavaType.Character) {
                 // try to cast Object to Character
                 castIfNecessaryOrThrow(JavaType.Character, actualType)
               }
