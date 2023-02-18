@@ -757,7 +757,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     val fromExclusive = acceptOptional(TokenType.LT, TokenType.GT) != null
     accept(TokenType.TWO_DOTS)
     val toExclusive = acceptOptional(TokenType.LT, TokenType.GT) != null
-    val toExpression = atom(scope)
+    val toExpression = expression(scope)
     return RangeNode(fromExpression, toExpression, fromExclusive, toExclusive)
   }
 
