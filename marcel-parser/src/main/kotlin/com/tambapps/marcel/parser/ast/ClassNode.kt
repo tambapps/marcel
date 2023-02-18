@@ -14,6 +14,8 @@ class ClassNode constructor(val scope: Scope, val access: Int, val type: JavaTyp
 
   val constructorsCount: Int
     get() = methods.count { it.name == JavaMethod.CONSTRUCTOR_NAME }
+  val constructors: List<ConstructorNode>
+    get() = methods.mapNotNull { it as? ConstructorNode }
 
   val internalName = AsmUtils.getInternalName(type)
   fun addMethod(method: MethodNode) {

@@ -21,7 +21,8 @@ class ConstructorNode constructor(
   parameters: MutableList<MethodParameter>,
   scope: MethodScope
 ) : MethodNode(access, JavaType.void, JavaMethod.CONSTRUCTOR_NAME, blockWithSuperCall(scope, block), parameters, JavaType.void,
-    scope.apply { addLocalVariable(superType, "super") }, false, true) {
+  // TODO this is a bad hack
+  scope.apply { addLocalVariable(superType, "super") }, false, true) {
 
   companion object {
 

@@ -6,6 +6,7 @@ import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ConstructorNode
+import com.tambapps.marcel.parser.ast.FieldNode
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.exception.SemanticException
@@ -85,11 +86,23 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     classes.add(CompiledClass(classNode.type.className, classWriter.toByteArray()))
   }
 
-  private fun writeField(classWriter: ClassWriter, classNode: ClassNode, marcelField: MarcelField) {
+  private fun writeField(classWriter: ClassWriter, classNode: ClassNode, marcelField: FieldNode) {
     classWriter.visitField(marcelField.access, marcelField.name, marcelField.type.descriptor,
       if (marcelField.type.superType?.hasGenericTypes == true || marcelField.type.directlyImplementedInterfaces.any { it.hasGenericTypes }) marcelField.type.signature else null,
       null
       )
+
+    if (marcelField.initialValue == null || marcelField.initialValue == marcelField.type.defaultValueExpression) return
+    for (constructor in classNode.constructors) {
+      // FIXME we might assign values twice, if a constructor calls another constructor
+      constructor.block.addStatement(
+        // TODO use FieldAssignmentNode
+        VariableAssignmentNode(
+          constructor.scope, marcelField.name, marcelField.initialValue!!
+        )
+      )
+    }
+    // TODO need to be able to parse field with initial values. These fields should be initialized in ALL constructors of the class
   }
   private fun writeMethod(typeResolver: JavaTypeResolver, classWriter: ClassWriter, classNode: ClassNode, methodNode: MethodNode) {
     val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.descriptor, methodNode.signature, null)
@@ -99,6 +112,9 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
 
     val instructionGenerator = InstructionGenerator(classNode, methodNode, typeResolver, mv)
 
+    if (methodNode.isConstructor) {
+      classNode.fields.forEach { it.alreadySet = false }
+    }
     // writing method
     instructionGenerator.visit(methodNode.block)
 

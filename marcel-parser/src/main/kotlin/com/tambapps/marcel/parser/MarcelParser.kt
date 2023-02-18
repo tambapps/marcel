@@ -21,6 +21,7 @@ import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.scope.LambdaScope
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
+import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.Script
 
@@ -79,7 +80,15 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     val name = accept(TokenType.IDENTIFIER).value
 
     if (classNode.fields.any { it.name == name }) throw MarcelParsingException("Field with name $name was defined more than once")
-    return FieldNode(type, name, classNode.type, access)
+
+    val expression = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(
+      // simulate a constructor scope as this would be executed in a constructor
+      MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), classNode.type)
+    )
+    else null
+    acceptOptional(TokenType.SEMI_COLON)
+
+    return FieldNode(type, name, classNode.type, access, expression)
   }
 
   private fun parseClass(imports: MutableList<ImportNode>, packageName: String?, outerClassNode: ClassNode? = null): ClassNode {

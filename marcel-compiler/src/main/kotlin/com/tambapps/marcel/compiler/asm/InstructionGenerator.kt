@@ -23,6 +23,7 @@ import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.SemanticException
 import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.scope.LocalVariable
+import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.scope.MethodField
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
@@ -502,6 +503,15 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     val variable = variableAssignmentNode.scope.findVariable(variableAssignmentNode.name)
+    if (variable is MarcelField && !variable.isStatic) {
+      if (variable.owner.isAssignableFrom(variableAssignmentNode.scope.classType)) {
+        // TODO should use this
+        pushArgument(ReferenceExpression(variableAssignmentNode.scope, "super"))
+      } else {
+        throw RuntimeException("Compiler error. Shouldn't push class field of not current class with this method")
+      }
+    }
+
     pushAssignementExpression(variable, variableAssignmentNode.expression)
     mv.storeInVariable(variable)
   }

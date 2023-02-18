@@ -352,6 +352,8 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
     if (variable.isFinal && variable.alreadySet) throw SemanticException("Cannot reset a value for final variable ${variable.name}")
     when (variable) {
       is LocalVariable -> mv.visitVarInsn(variable.type.storeCode, variable.index)
+
+      // for fields, the caller should push the field's owner
       is ClassField -> mv.visitFieldInsn(variable.putCode, variable.owner.internalName, variable.name, variable.type.descriptor)
       is MethodField -> {
         if (!variable.canSet) {
