@@ -12,6 +12,14 @@ class ClassNode constructor(val scope: Scope, val access: Int, val type: JavaTyp
                             val fields: List<FieldNode>,
                             val innerClasses: MutableList<ClassNode>): AstNode {
 
+  var staticInitializationNode: StaticInitializationNode? = null
+
+  fun getOrInitStaticInitializationNode(): StaticInitializationNode {
+    if (staticInitializationNode == null) {
+      staticInitializationNode = StaticInitializationNode.newInstance(this)
+    }
+    return staticInitializationNode!!
+  }
   val constructorsCount: Int
     get() = methods.count { it.name == JavaMethod.CONSTRUCTOR_NAME }
   val constructors: List<ConstructorNode>

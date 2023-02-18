@@ -18,6 +18,7 @@ interface JavaMethod {
 
   companion object {
     const val CONSTRUCTOR_NAME = "<init>"
+    const val STATIC_INITIALIZATION_BLOCK = "<clinit>"
   }
 
   val ownerClass: JavaType

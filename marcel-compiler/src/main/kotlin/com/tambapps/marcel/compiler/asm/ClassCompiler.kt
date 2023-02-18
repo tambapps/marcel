@@ -68,6 +68,10 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
       writeField(classWriter, classNode, field)
     }
 
+    if (classNode.staticInitializationNode != null) {
+      writeMethod(typeResolver, classWriter, classNode, classNode.staticInitializationNode!!)
+    }
+
     var i = 0 // using plain old fori loop because while writting method we might add some other to write (e.g. for switch)
     while (i < classNode.methods.size) {
       val methodNode = classNode.methods[i++]
@@ -93,14 +97,24 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
       )
 
     if (marcelField.initialValue == null || marcelField.initialValue == marcelField.type.defaultValueExpression) return
-    for (constructor in classNode.constructors) {
-      // FIXME we might assign values twice, if a constructor calls another constructor
-      constructor.block.addStatement(
-        FieldAssignmentNode(
-          constructor.scope, GetFieldAccessOperator(ReferenceExpression.thisRef(constructor.scope),
-            ReferenceExpression(constructor.scope, marcelField.name), false), marcelField.initialValue!!
+    if (!marcelField.isStatic) {
+      // non-static fields should be initialized in constructors
+      for (constructor in classNode.constructors) {
+        // FIXME we might assign values twice, if a constructor calls another constructor
+        constructor.block.addStatement(
+          FieldAssignmentNode(
+            constructor.scope, GetFieldAccessOperator(ReferenceExpression.thisRef(constructor.scope),
+              ReferenceExpression(constructor.scope, marcelField.name), false), marcelField.initialValue!!
+          )
         )
-      )
+      }
+    } else {
+      // static fields should be initialized in static initialization block
+      val staticInitializationNode = classNode.getOrInitStaticInitializationNode()
+      staticInitializationNode.block.addStatement(
+        VariableAssignmentNode(
+          staticInitializationNode.scope,
+          marcelField.name, marcelField.initialValue!!))
     }
   }
   private fun writeMethod(typeResolver: JavaTypeResolver, classWriter: ClassWriter, classNode: ClassNode, methodNode: MethodNode) {
