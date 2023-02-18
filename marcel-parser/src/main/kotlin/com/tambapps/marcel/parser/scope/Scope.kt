@@ -31,8 +31,7 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
   }
 
   internal open val localVariablePool = LocalVariablePool()
-  // Linked because we need it to be sorted by insertion order
-  internal open val localVariables: MutableList<LocalVariable> = mutableListOf()
+  private val localVariables: MutableList<LocalVariable> = mutableListOf()
 
   open fun addLocalVariable(type: JavaType, isFinal: Boolean = false): LocalVariable {
     val name = "__marcel_unnamed_" + this.hashCode().toString().replace('-', '_') + '_' +
@@ -130,10 +129,6 @@ class InnerScope constructor(private val parentScope: MethodScope)
   : MethodScope(parentScope.typeResolver, parentScope.imports, parentScope.classType, parentScope.superClass, parentScope.methodName, parentScope.parameters, parentScope.returnType) {
 
   override val localVariablePool = parentScope.localVariablePool
-  // we want to access local variable defined in parent scope
-  override val localVariables = parentScope.localVariables
-
-  private val innerScopeLocalVariables = mutableListOf<LocalVariable>()
 
   var continueLabel: Label? = null
     get() = if (field != null) field
@@ -145,17 +140,8 @@ class InnerScope constructor(private val parentScope: MethodScope)
     else if (parentScope is InnerScope) parentScope.breakLabel
     else null
 
-  override fun addLocalVariable(type: JavaType, name: String, isfinal: Boolean): LocalVariable {
-    val variable = super.addLocalVariable(type, name, isfinal)
-    innerScopeLocalVariables.add(variable)
-    return variable
+  override fun findLocalVariable(name: String): LocalVariable? {
+    return parentScope.findLocalVariable(name) ?: super.findLocalVariable(name)
   }
 
-  // to clean variables defined in inner scope, once we don't need the inner scope anymore
-  fun clearInnerScopeLocalVariables() {
-    innerScopeLocalVariables.forEach {
-      localVariables.remove(it)
-      localVariablePool.free(it)
-    }
-  }
 }

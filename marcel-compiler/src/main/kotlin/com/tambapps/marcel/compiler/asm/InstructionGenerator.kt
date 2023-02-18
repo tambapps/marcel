@@ -353,7 +353,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
         }
       }
     } else {
-      if (leftOperand.getType(typeResolver) != JavaType.int || rightOperand.getType(typeResolver) != JavaType.int) {
+      if (leftOperand.getType(typeResolver) !in ComparisonOperator.INT_LIKE_COMPARABLE_TYPES || rightOperand.getType(typeResolver) !in ComparisonOperator.INT_LIKE_COMPARABLE_TYPES) {
         val otherType = if (leftOperand.getType(typeResolver) != JavaType.int) leftOperand.getType(typeResolver) else rightOperand.getType(typeResolver)
         pushArgument(leftOperand)
         mv.castIfNecessaryOrThrow(otherType, leftOperand.getType(typeResolver))
@@ -484,7 +484,6 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
         visit(VariableAssignmentNode(innerScope, variables[i].name, fCall.arguments[i]))
       }
       visit(inlineBlock)
-      innerScope.clearInnerScopeLocalVariables()
     } else {
       if (!method.isStatic) {
         if (methodOwner is ExpressionNode) {
@@ -620,8 +619,8 @@ class InstructionGenerator(
 
     // loop end
     mv.visitLabel(loopEnd)
-    whileStatement.scope.clearInnerScopeLocalVariables()
   }
+
   override fun visit(forStatement: ForStatement) {
     // initialization
     forStatement.initStatement.accept(this)
@@ -646,11 +645,6 @@ class InstructionGenerator(
 
     // loop end
     mv.visitLabel(loopEnd)
-    if (forStatement.initStatement is VariableDeclarationNode) {
-      val initStatementScope = (forStatement.initStatement as VariableDeclarationNode).scope as? InnerScope
-      initStatementScope?.clearInnerScopeLocalVariables()
-    }
-    forStatement.scope.clearInnerScopeLocalVariables()
   }
 
   override fun visit(forInStatement: ForInStatement) {
@@ -705,7 +699,6 @@ class InstructionGenerator(
       pushArgument(iteratorVarReference)
       mv.invokeMethod(Closeable::class.java.getMethod("close"))
     }
-    scope.clearInnerScopeLocalVariables()
     scope.freeVariable(iteratorVariable.name)
   }
   private fun loopBody(body: BlockNode, continueLabel: Label, breakLabel: Label) {
@@ -970,10 +963,6 @@ class InstructionGenerator(
   override fun visit(blockNode: BlockNode) {
     for (statement in blockNode.statements) {
       statement.accept(this)
-    }
-    val scope = blockNode.scope
-    if (scope is InnerScope) {
-      scope.clearInnerScopeLocalVariables()
     }
   }
 

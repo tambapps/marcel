@@ -2,6 +2,7 @@ package com.tambapps.marcel.parser.ast
 
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.MarcelParsingException
+import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.Opcodes
 
 enum class ComparisonOperator(val tokenType: TokenType, val iOpCode: Int,
@@ -15,6 +16,8 @@ enum class ComparisonOperator(val tokenType: TokenType, val iOpCode: Int,
   GOE(TokenType.GOE,Opcodes.IF_ICMPGE, -1, ">=");
 
   companion object {
+
+    val INT_LIKE_COMPARABLE_TYPES = listOf(JavaType.int, JavaType.short, JavaType.byte, JavaType.char)
 
     fun fromTokenType(tokenType: TokenType): ComparisonOperator {
       return values().find { it.tokenType == tokenType }
