@@ -155,5 +155,10 @@ public class IntRanges {
     public String toString() {
       return "..";
     }
+
+    @Override
+    public int size() {
+      return 0;
+    }
   }
 }

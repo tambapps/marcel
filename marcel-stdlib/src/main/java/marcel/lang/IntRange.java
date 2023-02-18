@@ -26,4 +26,8 @@ public interface IntRange extends Iterable<Integer> {
     return list;
   }
 
+  int size();
+  default int getLength() {
+    return size();
+  }
 }

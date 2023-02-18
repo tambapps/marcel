@@ -27,4 +27,9 @@ abstract class AbstractIntRange implements IntRange {
     }
     return h;
   }
+
+  @Override
+  public int size() {
+    return Math.abs(getFrom() - getTo()) + 1;
+  }
 }

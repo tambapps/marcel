@@ -85,7 +85,7 @@ interface JavaMethod {
       if (declaredMethods.size != 1) return false
       val interfaceMethod = declaredMethods.first()
       val lambdaMethod = typeResolver.getInterfaceLambdaMethod(actualType)
-      return interfaceMethod.parameters.size == lambdaMethod.parameters.size // TODO don't know if there's a better way for that
+      return interfaceMethod.parameters.size == lambdaMethod.parameters.size // there's probably if there's a better way for that
     //return interfaceMethod.matches(typeResolver, lambdaMethod.parameters)
     } else expectedType.isAssignableFrom(actualType)
   }

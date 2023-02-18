@@ -613,7 +613,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           FunctionCallNode(scope, token.value, mutableListOf(parseLambda(scope)))
         } else if (current.type == TokenType.LT  && lookup(1)?.type == TokenType.TWO_DOTS
           || current.type == TokenType.GT && lookup(1)?.type == TokenType.TWO_DOTS || current.type == TokenType.TWO_DOTS) {
-          rangeNode(scope, ReferenceExpression(scope, token.value))
+          rangeNode(scope, expression(scope))
         } else if (current.type == TokenType.SQUARE_BRACKETS_OPEN
           || (current.type == TokenType.QUESTION_MARK && lookup(1)?.type == TokenType.SQUARE_BRACKETS_OPEN)) {
           val isSafeIndex = acceptOptional(TokenType.QUESTION_MARK) != null
@@ -639,7 +639,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         next()
         if (current.type == TokenType.LT  && lookup(1)?.type == TokenType.TWO_DOTS
           || current.type == TokenType.GT && lookup(1)?.type == TokenType.TWO_DOTS || current.type == TokenType.TWO_DOTS) {
-          return rangeNode(scope, ReferenceExpression(scope, token.value))
+          return rangeNode(scope, node)
         }
         return node
       }
