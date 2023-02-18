@@ -149,6 +149,7 @@ class ForEachNodeVisitor(private val consumer: (AstNode) -> Unit): AstNodeVisito
 
   override fun visit(indexedReferenceExpression: IndexedReferenceExpression) {
     consumer.invoke(indexedReferenceExpression)
+    indexedReferenceExpression.indexArguments.forEach { it.accept(this) }
   }
 
   override fun visit(unaryMinus: UnaryMinus) = visitUnaryOperator(unaryMinus)
@@ -251,7 +252,7 @@ class ForEachNodeVisitor(private val consumer: (AstNode) -> Unit): AstNodeVisito
 
   override fun visit(forInStatement: ForInStatement) {
     consumer.invoke(forInStatement)
-    consumer.invoke(forInStatement.inExpression)
+    forInStatement.inExpression.accept(this)
     forInStatement.body.accept(this)
   }
 
@@ -298,10 +299,7 @@ class ForEachNodeVisitor(private val consumer: (AstNode) -> Unit): AstNodeVisito
 
   override fun visit(switchBranch: SwitchBranchNode) {
     consumer.invoke(switchBranch)
-    // visiting valueExpression and not conditionExpressionNode to avoid visiting switch's expression multiple times
-    consumer.invoke(switchBranch.conditionExpressionNode)
-    switchBranch.valueExpression.accept(this)
-    switchBranch.itReference.accept(this)
+    switchBranch.conditionExpressionNode.accept(this)
     switchBranch.statementNode.accept(this)
   }
 

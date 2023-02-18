@@ -63,7 +63,7 @@ class SwitchNode constructor(override var scope: Scope,
 }
 class SwitchBranchNode private constructor(
   val valueExpression: ExpressionNode,
-  val itReference: ReferenceExpression,
+  itReference: ReferenceExpression,
   statementNode: StatementNode)
   : ConditionalBranchNode(ComparisonOperatorNode(ComparisonOperator.EQUAL, valueExpression,
   // using reference "it" to avoid evaluating more than once the value (e.g. executing more than once functon calls)
