@@ -1,8 +1,11 @@
 package marcel.lang.methods;
 
+import marcel.lang.IntRange;
 import marcel.lang.primitives.collections.lists.CharacterArrayList;
 import marcel.lang.primitives.collections.lists.CharacterList;
+import marcel.lang.primitives.iterators.IntIterator;
 
+@SuppressWarnings({"unused", "deprecation"})
 public class StringMarcelMethods {
 
   public static char getAt(String self, int i) {
@@ -26,4 +29,15 @@ public class StringMarcelMethods {
     return Double.parseDouble(self);
   }
 
+
+  public static CharacterList getAt(String self, IntRange range) {
+    CharacterList characters = new CharacterArrayList();
+    IntIterator iterator = range.iterator();
+    while (iterator.hasNext()) characters.add(self.charAt(iterator.nextInt()));
+    return characters;
+  }
+
+  public static int getLength(String self) {
+    return self.length();
+  }
 }

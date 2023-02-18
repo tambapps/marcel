@@ -1,6 +1,8 @@
 package marcel.lang.methods;
 
 import marcel.lang.IntRange;
+import marcel.lang.primitives.collections.lists.CharacterArrayList;
+import marcel.lang.primitives.collections.lists.CharacterList;
 import marcel.lang.primitives.collections.lists.DoubleArrayList;
 import marcel.lang.primitives.collections.lists.DoubleList;
 import marcel.lang.primitives.collections.lists.FloatArrayList;
@@ -13,6 +15,7 @@ import marcel.lang.primitives.collections.sets.DoubleSet;
 import marcel.lang.primitives.collections.sets.FloatSet;
 import marcel.lang.primitives.collections.sets.IntSet;
 import marcel.lang.primitives.collections.sets.LongSet;
+import marcel.lang.primitives.iterators.IntIterator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,9 +25,11 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@SuppressWarnings({"unused", "deprecation"})
 public final class DefaultMarcelMethods {
 
 
+  // getLength
   public static int getLength(List<?> self) {
     return self.size();
   }
@@ -152,37 +157,50 @@ public final class DefaultMarcelMethods {
   // getAt range
   public static <T> List<T> getAt(List<T> self, IntRange range) {
     List<T> subList = new ArrayList<>();
-    for (Integer integer : range) subList.add(self.get(integer));
+    IntIterator iterator = range.iterator();
+    while (iterator.hasNext()) subList.add(self.get(iterator.nextInt()));
     return subList;
   }
 
   public static IntList getAt(IntList self, IntRange range) {
     IntList subList = new IntArrayList();
-    for (Integer integer : range) subList.add(self.getInt(integer));
+    IntIterator iterator = range.iterator();
+    while (iterator.hasNext()) subList.add(self.get(iterator.nextInt()));
     return subList;
   }
 
   public static LongList getAt(LongList self, IntRange range) {
     LongList subList = new LongArrayList();
-    for (Integer integer : range) subList.add(self.getLong(integer));
+    IntIterator iterator = range.iterator();
+    while (iterator.hasNext()) subList.add(self.get(iterator.nextInt()));
     return subList;
   }
 
   public static FloatList getAt(FloatList self, IntRange range) {
     FloatList subList = new FloatArrayList();
-    for (Integer integer : range) subList.add(self.getFloat(integer));
+    IntIterator iterator = range.iterator();
+    while (iterator.hasNext()) subList.add(self.get(iterator.nextInt()));
     return subList;
   }
 
   public static DoubleList getAt(DoubleList self, IntRange range) {
     DoubleList subList = new DoubleArrayList();
-    for (Integer integer : range) subList.add(self.getDouble(integer));
+    IntIterator iterator = range.iterator();
+    while (iterator.hasNext()) subList.add(self.get(iterator.nextInt()));
     return subList;
   }
 
-
+  public static CharacterList getAt(CharacterList self, IntRange range) {
+    CharacterList subList = new CharacterArrayList();
+    IntIterator iterator = range.iterator();
+    while (iterator.hasNext()) subList.add(self.get(iterator.nextInt()));
+    return subList;
+  }
 
   // getAtSafe
+  public static Character getAtSafe(String self, int index) {
+    return index >= 0 && index < self.length() ? self.charAt(index) : null;
+  }
   public static <T> T getAtSafe(List<T> self, int index) {
     return index >= 0 && index < self.size() ? self.get(index) : null;
   }
