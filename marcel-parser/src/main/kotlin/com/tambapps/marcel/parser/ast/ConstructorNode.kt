@@ -3,19 +3,15 @@ package com.tambapps.marcel.parser.ast
 import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
-import com.tambapps.marcel.parser.ast.statement.BlockStatement
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
-import com.tambapps.marcel.parser.owner.NoOpOwner
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
-import marcel.lang.Script
 import org.objectweb.asm.Opcodes
 
-class ConstructorNode constructor(
-  val superType: JavaType, // TODO remove useless arg
+class ConstructorNode(
   access: Int,
   block: FunctionBlockNode,
   parameters: MutableList<MethodParameter>,
@@ -29,14 +25,18 @@ class ConstructorNode constructor(
       return of(classNode, MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, parameters, JavaType.void), parameters, statements)
     }
     fun of(classNode: ClassNode, scope: MethodScope, parameters: MutableList<MethodParameter>, statements: MutableList<StatementNode>): ConstructorNode {
-      return ConstructorNode(classNode.superType, Opcodes.ACC_PUBLIC,
-        FunctionBlockNode(scope, statements), parameters, scope)
+      return ConstructorNode(
+        Opcodes.ACC_PUBLIC, FunctionBlockNode(scope, statements),
+        parameters, scope
+      )
     }
 
     fun emptyConstructor(classNode: ClassNode): ConstructorNode {
       val emptyConstructorScope = MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)
-      return ConstructorNode(classNode.superType, Opcodes.ACC_PUBLIC,
-        FunctionBlockNode(emptyConstructorScope, mutableListOf()), mutableListOf(), emptyConstructorScope)
+      return ConstructorNode(
+        Opcodes.ACC_PUBLIC, FunctionBlockNode(emptyConstructorScope, mutableListOf()),
+        mutableListOf(), emptyConstructorScope
+      )
     }
 
     // add super call if it isn't there

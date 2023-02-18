@@ -54,21 +54,28 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
 
   private fun scriptEmptyConstructor(classNode: ClassNode): ConstructorNode {
     val emptyConstructorScope = MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)
-    return ConstructorNode(classNode.superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(emptyConstructorScope, mutableListOf()), mutableListOf(), emptyConstructorScope)
+    return ConstructorNode(
+      Opcodes.ACC_PUBLIC,
+      FunctionBlockNode(emptyConstructorScope, mutableListOf()),
+      mutableListOf(),
+      emptyConstructorScope
+    )
   }
   private fun scriptBindingConstructor(classNode: ClassNode): ConstructorNode {
     val bindingType = JavaType.of(Binding::class.java)
     val bindingParameterName = "binding"
     val bindingConstructorParameters = mutableListOf(MethodParameter(bindingType, bindingParameterName))
     val bindingConstructorScope = MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, bindingConstructorParameters, JavaType.void)
-    return ConstructorNode(classNode.superType, Opcodes.ACC_PUBLIC, FunctionBlockNode(bindingConstructorScope, mutableListOf(
-      ExpressionStatementNode(
-        SuperConstructorCallNode(classNode.scope, mutableListOf(
-          ReferenceExpression(
-        bindingConstructorScope, bindingParameterName)
-        ))
-      )
-    )), bindingConstructorParameters, bindingConstructorScope)
+    return ConstructorNode(
+      Opcodes.ACC_PUBLIC, FunctionBlockNode(bindingConstructorScope, mutableListOf(
+        ExpressionStatementNode(
+          SuperConstructorCallNode(classNode.scope, mutableListOf(
+            ReferenceExpression(
+          bindingConstructorScope, bindingParameterName)
+          ))
+        )
+      )), bindingConstructorParameters, bindingConstructorScope
+    )
 
   }
 }
