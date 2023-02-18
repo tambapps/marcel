@@ -32,6 +32,7 @@ import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import marcel.lang.IntRanges
+import marcel.lang.LongRanges
 import marcel.lang.methods.MarcelTruth
 import marcel.lang.primitives.iterators.CharacterIterator
 import marcel.lang.primitives.iterators.DoubleIterator
@@ -1048,15 +1049,16 @@ private class PushingInstructionGenerator(
   }
 
   override fun visit(rangeNode: RangeNode) {
-    // TODO only handle int ranges but not other types
     val methodName = if (rangeNode.fromExclusive && rangeNode.toExclusive) "ofExclusive"
     else if (rangeNode.fromExclusive) "ofFromExclusive"
     else if (rangeNode.toExclusive) "ofToExclusive"
     else "of"
-    val method = ReflectJavaMethod(IntRanges::class.java.getMethod(methodName, Int::class.java, Int::class.java))
-    if (rangeNode.from.getType(typeResolver) != JavaType.int || rangeNode.to.getType(typeResolver) != JavaType.int) {
-      throw SemanticException("Only handle ranges for int value for now")
-    }
+    val fromType = rangeNode.from.getType(typeResolver)
+    val toType = rangeNode.to.getType(typeResolver)
+    val method =
+      if (fromType == JavaType.long || fromType == JavaType.Long
+        || toType == JavaType.long || toType == JavaType.Long) ReflectJavaMethod(LongRanges::class.java.getMethod(methodName, Long::class.java, Long::class.java))
+      else ReflectJavaMethod(IntRanges::class.java.getMethod(methodName, Int::class.java, Int::class.java))
     mv.invokeMethodWithArguments(method, rangeNode.from, rangeNode.to)
   }
 

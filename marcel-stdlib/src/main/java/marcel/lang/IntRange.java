@@ -3,9 +3,10 @@ package marcel.lang;
 
 import marcel.lang.primitives.collections.lists.IntArrayList;
 import marcel.lang.primitives.collections.lists.IntList;
+import marcel.lang.primitives.iterable.IntIterable;
 import marcel.lang.primitives.iterators.IntIterator;
 
-public interface IntRange extends Iterable<Integer> {
+public interface IntRange extends IntIterable {
 
   int getFrom();
 

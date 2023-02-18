@@ -77,6 +77,7 @@ import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.NotLoadedJavaType
 import marcel.lang.IntRange
+import marcel.lang.LongRange
 import marcel.lang.lambda.CharacterLambda1
 import marcel.lang.lambda.DoubleLambda1
 import marcel.lang.lambda.FloatLambda1
@@ -293,9 +294,14 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
   override fun visit(breakLoopNode: BreakLoopNode) = JavaType.void
   override fun visit(continueLoopNode: ContinueLoopNode) = JavaType.void
 
+  override fun visit(rangeNode: RangeNode): JavaType {
+    val fromType = rangeNode.from.accept(this)
+    val toType = rangeNode.to.accept(this)
 
-  // TODO change when supporting other primitive ranges
-  override fun visit(rangeNode: RangeNode) = JavaType.of(IntRange::class.java)
+    return if (fromType == JavaType.long || fromType == JavaType.Long
+      || toType == JavaType.long || toType == JavaType.Long) JavaType.of(LongRange::class.java)
+    else JavaType.of(IntRange::class.java)
+  }
 
   // the below methods can't guess type without class info, so they just return objects
   override fun visit(literalMapNode: LiteralMapNode): JavaType = JavaType.of(Map::class.java)
