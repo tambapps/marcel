@@ -88,5 +88,7 @@ interface AstNodeVisitor<T> {
   fun visit(isNotOperator: IsNotOperator): T
   fun visit(byteConstantNode: ByteConstantNode): T
   fun visit(shortConstantNode: ShortConstantNode): T
+  fun visit(thisReference: ThisReference): T
+  fun visit(superReference: SuperReference): T
 
 }

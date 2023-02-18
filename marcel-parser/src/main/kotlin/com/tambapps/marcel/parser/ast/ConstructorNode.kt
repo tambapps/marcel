@@ -15,14 +15,13 @@ import marcel.lang.Script
 import org.objectweb.asm.Opcodes
 
 class ConstructorNode constructor(
-  val superType: JavaType,
+  val superType: JavaType, // TODO remove useless arg
   access: Int,
   block: FunctionBlockNode,
   parameters: MutableList<MethodParameter>,
   scope: MethodScope
 ) : MethodNode(access, JavaType.void, JavaMethod.CONSTRUCTOR_NAME, blockWithSuperCall(scope, block), parameters, JavaType.void,
-  // TODO this is a bad hack
-  scope.apply { addLocalVariable(superType, "super") }, false, true) {
+  scope, false, true) {
 
   companion object {
 

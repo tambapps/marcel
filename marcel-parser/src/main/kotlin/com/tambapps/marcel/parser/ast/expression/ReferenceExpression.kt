@@ -9,8 +9,11 @@ import com.tambapps.marcel.parser.scope.Variable
 class ReferenceExpression(override var scope: Scope, val name: String): ExpressionNode, ScopedNode<Scope> {
 
   companion object {
-    fun thisRef(scope: Scope): ReferenceExpression {
-      return ReferenceExpression(scope, "this")
+    fun thisRef(scope: Scope): ThisReference {
+      return ThisReference(scope)
+    }
+    fun superRef(scope: Scope): SuperReference {
+      return SuperReference(scope)
     }
   }
   val variable: Variable
@@ -35,5 +38,21 @@ class ReferenceExpression(override var scope: Scope, val name: String): Expressi
 
   override fun hashCode(): Int {
     return name.hashCode()
+  }
+}
+
+class ThisReference(override var scope: Scope): ExpressionNode, ScopedNode<Scope> {
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
+  override fun toString(): String {
+    return "this"
+  }
+}
+
+class SuperReference(override var scope: Scope): ExpressionNode, ScopedNode<Scope> {
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
+  override fun toString(): String {
+    return "super"
   }
 }

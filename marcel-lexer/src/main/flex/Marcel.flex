@@ -297,6 +297,8 @@ LONELY_BACKTICK=`
 "null"          { return token(NULL); }
 "break"          { return token(BREAK); }
 "continue"          { return token(CONTINUE); }
+"this"          { return token(THIS); }
+"super"          { return token(SUPER); }
 
 {IDENTIFIER} {  return valueToken(IDENTIFIER); }
 

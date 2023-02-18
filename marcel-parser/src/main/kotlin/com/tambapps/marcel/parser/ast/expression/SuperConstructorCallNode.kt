@@ -8,7 +8,7 @@ import com.tambapps.marcel.parser.type.JavaType
 /**
  * Node for a super call in a constructor
  */
-class SuperConstructorCallNode(scope: Scope, arguments: MutableList<ExpressionNode>) : FunctionCallNode(scope, JavaMethod.CONSTRUCTOR_NAME, arguments) {
+class SuperConstructorCallNode constructor(scope: Scope, arguments: MutableList<ExpressionNode>) : FunctionCallNode(scope, JavaMethod.CONSTRUCTOR_NAME, arguments) {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 

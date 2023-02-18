@@ -22,7 +22,7 @@ class LocalVariablePool {
 
   private fun newVariable(type: JavaType, name: String, isFinal: Boolean): LocalVariable {
     val nbSlots = nbSlots(type)
-    val index = maxSlot
+    val index = 1 + maxSlot // "1 +" because the slot 0 is reserved for this
     maxSlot+= nbSlots
     return LocalVariable(type, name, nbSlots, index, isFinal)
   }

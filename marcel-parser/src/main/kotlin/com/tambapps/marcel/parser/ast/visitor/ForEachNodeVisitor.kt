@@ -47,9 +47,11 @@ import com.tambapps.marcel.parser.ast.expression.ShortConstantNode
 import com.tambapps.marcel.parser.ast.expression.StringConstantNode
 import com.tambapps.marcel.parser.ast.expression.StringNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
+import com.tambapps.marcel.parser.ast.expression.SuperReference
 import com.tambapps.marcel.parser.ast.expression.SwitchBranchNode
 import com.tambapps.marcel.parser.ast.expression.SwitchNode
 import com.tambapps.marcel.parser.ast.expression.TernaryNode
+import com.tambapps.marcel.parser.ast.expression.ThisReference
 import com.tambapps.marcel.parser.ast.expression.ToStringNode
 import com.tambapps.marcel.parser.ast.expression.TruthyVariableDeclarationNode
 import com.tambapps.marcel.parser.ast.expression.UnaryMinus
@@ -326,4 +328,8 @@ class ForEachNodeVisitor(private val consumer: (AstNode) -> Unit): AstNodeVisito
   override fun visit(shortConstantNode: ShortConstantNode) = consumer.invoke(shortConstantNode)
 
   override fun visit(byteConstantNode: ByteConstantNode) = consumer.invoke(byteConstantNode)
+
+  override fun visit(thisReference: ThisReference) = consumer.invoke(thisReference)
+
+  override fun visit(superReference: SuperReference) = consumer.invoke(superReference)
 }

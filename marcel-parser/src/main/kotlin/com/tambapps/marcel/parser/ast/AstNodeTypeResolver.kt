@@ -46,9 +46,11 @@ import com.tambapps.marcel.parser.ast.expression.ShortConstantNode
 import com.tambapps.marcel.parser.ast.expression.StringConstantNode
 import com.tambapps.marcel.parser.ast.expression.StringNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
+import com.tambapps.marcel.parser.ast.expression.SuperReference
 import com.tambapps.marcel.parser.ast.expression.SwitchBranchNode
 import com.tambapps.marcel.parser.ast.expression.SwitchNode
 import com.tambapps.marcel.parser.ast.expression.TernaryNode
+import com.tambapps.marcel.parser.ast.expression.ThisReference
 import com.tambapps.marcel.parser.ast.expression.ToStringNode
 import com.tambapps.marcel.parser.ast.expression.TruthyVariableDeclarationNode
 import com.tambapps.marcel.parser.ast.expression.UnaryMinus
@@ -318,4 +320,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
   override fun visit(byteConstantNode: ByteConstantNode) = JavaType.byte
 
   override fun visit(shortConstantNode: ShortConstantNode) = JavaType.short
+
+  override fun visit(thisReference: ThisReference) = thisReference.scope.classType
+  override fun visit(superReference: SuperReference) = superReference.scope.superClass
 }

@@ -57,6 +57,7 @@ interface ArgumentPusher {
 private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   val classNode: ClassNode
+  val methodNode: MethodNode
   val mv: MethodBytecodeWriter
   val typeResolver: JavaTypeResolver
   val lambdaHandler: LambdaHandler
@@ -489,7 +490,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
         if (methodOwner is ExpressionNode) {
           pushArgument(methodOwner) // for instance method, we need to push owner
         } else {
-          pushArgument(ReferenceExpression(fCall.scope, "this"))
+          pushArgument(ReferenceExpression.thisRef(fCall.scope))
         }
       }
       mv.invokeMethodWithArguments(method, fCall.arguments)
@@ -505,8 +506,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     val variable = variableAssignmentNode.scope.findVariable(variableAssignmentNode.name)
     if (variable is MarcelField && !variable.isStatic) {
       if (variable.owner.isAssignableFrom(variableAssignmentNode.scope.classType)) {
-        // TODO should use this
-        pushArgument(ReferenceExpression(variableAssignmentNode.scope, "super"))
+        pushArgument(ReferenceExpression.thisRef(variableAssignmentNode.scope))
       } else {
         throw RuntimeException("Compiler error. Shouldn't push class field of not current class with this method")
       }
@@ -576,7 +576,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
  */
 class InstructionGenerator(
   override val classNode: ClassNode,
-  methodNode: MethodNode,
+  override val methodNode: MethodNode,
   override val typeResolver: JavaTypeResolver,
   methodVisitor: MethodVisitor
 ):
@@ -585,7 +585,7 @@ class InstructionGenerator(
   override val mv = MethodBytecodeWriter(methodVisitor, typeResolver)
   override val lambdaHandler = LambdaHandler(classNode, methodNode)
 
-  private val pushingInstructionGenerator = PushingInstructionGenerator(classNode, typeResolver, mv, lambdaHandler)
+  private val pushingInstructionGenerator = PushingInstructionGenerator(classNode, methodNode, typeResolver, mv, lambdaHandler)
   init {
     mv.argumentPusher = this
     pushingInstructionGenerator.mv.argumentPusher = pushingInstructionGenerator
@@ -767,6 +767,13 @@ class InstructionGenerator(
     // don't need to write constants
   }
 
+  override fun visit(thisReference: ThisReference) {
+    // don't need to write this if it isn't used
+  }
+
+  override fun visit(superReference: SuperReference) {
+    // don't need to write super if it isn't used
+  }
   override fun visit(fCall: ConstructorCallNode) {
     super.visit(fCall)
     mv.popStack() // don't really know if it's necessary
@@ -977,7 +984,6 @@ class InstructionGenerator(
     pushArgument(returnNode.expression)
     mv.castIfNecessaryOrThrow(returnNode.scope.returnType, returnNode.expression.getType(typeResolver))
     mv.returnCode(returnNode.scope.returnType.returnCode)
-
   }
 
   override fun visitWithoutPushing(astNode: AstInstructionNode) {
@@ -987,6 +993,7 @@ class InstructionGenerator(
 
 private class PushingInstructionGenerator(
   override val classNode: ClassNode,
+  override val methodNode: MethodNode,
   override val typeResolver: JavaTypeResolver,
   override val mv: MethodBytecodeWriter,
   override val lambdaHandler: LambdaHandler,
@@ -1166,6 +1173,16 @@ private class PushingInstructionGenerator(
   }
   override fun visit(nullValueNode: NullValueNode) {
     mv.pushNull()
+  }
+
+  override fun visit(superReference: SuperReference) {
+    if (methodNode.isStatic) throw SemanticException("Cannot reference 'super' in a static context")
+    mv.pushThis() // super is actually this. The difference is in the class internalName supplied when performing ASM instructions
+  }
+
+  override fun visit(thisReference: ThisReference) {
+    if (methodNode.isStatic) throw SemanticException("Cannot reference 'this' in a static context")
+    mv.pushThis()
   }
 
   override fun visit(incrNode: IncrNode) {

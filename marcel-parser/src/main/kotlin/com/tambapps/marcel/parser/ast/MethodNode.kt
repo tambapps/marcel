@@ -35,9 +35,6 @@ open class MethodNode constructor(override val access: Int, final override val o
   override val isDefault = false
 
   init {
-    if (!isStatic && !isConstructor) {
-      scope.addLocalVariable(ownerClass, "this")
-    }
     for (param in parameters) {
       scope.addLocalVariable(param.type, param.name, param.isFinal)
     }

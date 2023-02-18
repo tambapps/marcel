@@ -45,9 +45,11 @@ import com.tambapps.marcel.parser.ast.expression.ShortConstantNode
 import com.tambapps.marcel.parser.ast.expression.StringConstantNode
 import com.tambapps.marcel.parser.ast.expression.StringNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
+import com.tambapps.marcel.parser.ast.expression.SuperReference
 import com.tambapps.marcel.parser.ast.expression.SwitchBranchNode
 import com.tambapps.marcel.parser.ast.expression.SwitchNode
 import com.tambapps.marcel.parser.ast.expression.TernaryNode
+import com.tambapps.marcel.parser.ast.expression.ThisReference
 import com.tambapps.marcel.parser.ast.expression.ToStringNode
 import com.tambapps.marcel.parser.ast.expression.TruthyVariableDeclarationNode
 import com.tambapps.marcel.parser.ast.expression.UnaryMinus
@@ -316,4 +318,9 @@ class CheckAllPathsReturnVisitor: AstNodeVisitor<Boolean> {
   override fun visit(shortConstantNode: ShortConstantNode) = false
 
   override fun visit(byteConstantNode: ByteConstantNode) = false
+
+  override fun visit(superReference: SuperReference) = false
+
+  override fun visit(thisReference: ThisReference) = false
+
 }

@@ -518,6 +518,10 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
          parseNumberConstant(token)
         }
       }
+      TokenType.THIS -> ThisReference(scope) // TODO parse thisConstructorCall
+      TokenType.SUPER -> SuperReference(scope) // TODO parse SuperConstructorCall. Also handle super method calls.
+      //                                            They are like "normal" method calls but needs to use the super class internal name when performing the invokeSPECIAL instruciton
+
       TokenType.BRACKETS_OPEN -> parseLambda(scope)
       TokenType.VALUE_TRUE -> BooleanConstantNode(true)
       TokenType.VALUE_FALSE -> BooleanConstantNode(false)
