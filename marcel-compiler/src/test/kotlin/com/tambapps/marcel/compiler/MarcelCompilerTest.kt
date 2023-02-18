@@ -10,22 +10,16 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
-import java.lang.reflect.InvocationTargetException
-import java.net.URLClassLoader
-import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
-import kotlin.math.absoluteValue
 
 
-class MarcelCompilerTest {
-
-  private val compiler = MarcelCompiler()
+class MarcelCompilerTest: AbstractCompilerTest() {
 
   @TestFactory
   fun testRunAllScripts(): Collection<DynamicTest?>? {
-    val path: Path = Paths.get(javaClass.getResource("/").toURI())
+    val path: Path = Paths.get(javaClass.getResource("/tests").toURI())
     val scriptPaths = path.toFile().list { dir, name -> name.endsWith(".marcel") }
 
     return  scriptPaths.map { path: String ->
@@ -37,57 +31,57 @@ class MarcelCompilerTest {
 
   @Test
   fun testScript() {
-    val eval = eval("/test1.mcl")!!
+    val eval = eval("/tests/test1.mcl")!!
     assertNotNull(eval)
     assertEquals(JavaType.Object.realClazz, eval.javaClass)
   }
 
   @Test
   fun testReturnNull() {
-    val eval = eval("/test_return_null.mcl")
+    val eval = eval("/tests/test_return_null.mcl")
     assertNull(eval)
   }
 
   @Test
   fun testBool() {
-    val eval = eval("/test_bool.mcl")
+    val eval = eval("/tests/test_bool.mcl")
     assertTrue(eval as Boolean)
   }
 
   @Test
   fun testIf() {
-    val eval = eval("/test_if.mcl")
+    val eval = eval("/tests/test_if.mcl")
     assertTrue(eval as Boolean)
   }
 
   @Test
   fun testForLoop() {
-    val eval = eval("/test_for_loop.mcl")
+    val eval = eval("/tests/test_for_loop.mcl")
     assertEquals(45, eval)
   }
 
   @Test
   fun testWhileLoop() {
 
-    val eval = eval("/test_while_loop.mcl")
+    val eval = eval("/tests/test_while_loop.mcl")
     assertEquals(45, eval)
   }
 
   @Test
   fun testBreakLoop() {
-    val eval = eval("/test_break.mcl")
+    val eval = eval("/tests/test_break.mcl")
     assertEquals(10, eval)
   }
 
   @Test
   fun testContinueLoop() {
-    val eval = eval("/test_continue.mcl")
+    val eval = eval("/tests/test_continue.mcl")
     assertEquals(1 + 2 + 4, eval)
   }
 
   @Test
   fun testScope() {
-    val eval = eval("/test_scope.mcl")
+    val eval = eval("/tests/test_scope.mcl")
     assertEquals(true, eval)
   }
 
@@ -96,34 +90,14 @@ class MarcelCompilerTest {
     javaClass.getResource("/json")
     val path: Path = Paths.get(javaClass.getResource("/").toURI())
     println(Arrays.toString(path.toFile().list()))
-    val eval = eval("/test_this.mcl")
+    val eval = eval("/tests/test_this.mcl")
     assertTrue(eval is Script)
   }
 
   @Disabled
   @Test
   fun manualTest() {
-    val eval = eval("/test_switch.mcl")
+    val eval = eval("/tests/test_switch.mcl")
     println(eval)
-  }
-
-  private fun eval(resourceName: String): Any? {
-    val className = "Test" + resourceName.hashCode().absoluteValue
-    val result = javaClass.getResourceAsStream(resourceName).reader().use {
-      // using hashCode to have unique names
-      compiler.compile(it, className)
-    }
-
-    val jarFile = Files.createTempFile("", "$className.jar").toFile()
-    JarWriter().writeScriptJar(result, jarFile)
-
-    val classLoader = URLClassLoader(arrayOf(jarFile.toURI().toURL()), MarcelCompiler::class.java.classLoader)
-    val clazz = classLoader.loadClass(className)
-    return try {
-      clazz.getMethod("run", Array<String>::class.java)
-        .invoke(clazz.getDeclaredConstructor().newInstance(), arrayOf<String>())
-    } catch (e: InvocationTargetException) {
-      throw e.targetException
-    }
   }
 }
