@@ -39,6 +39,7 @@ import marcel.lang.primitives.iterators.FloatIterator
 import marcel.lang.primitives.iterators.IntIterator
 import marcel.lang.primitives.iterators.LongIterator
 import marcel.lang.runtime.BytecodeHelper
+import marcel.lang.util.CharSequenceIterator
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
@@ -536,6 +537,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       else if (JavaType.floatList.isAssignableFrom(variableType) || JavaType.floatSet.isAssignableFrom(variableType)) JavaType.float
       else if (JavaType.doubleList.isAssignableFrom(variableType) || JavaType.doubleSet.isAssignableFrom(variableType)) JavaType.double
       else if (JavaType.charList.isAssignableFrom(variableType) || JavaType.characterSet.isAssignableFrom(variableType)) JavaType.char
+      else if (JavaType.of(Collection::class.java).isAssignableFrom(variableType) && variableType.genericTypes.isNotEmpty()) variableType.genericTypes.first()
       else throw SemanticException("Couldn't guess type of empty array. You can explicitly specify your wanted type with the 'as' keyword (e.g. '[] as int[]')")
       expression = EmptyArrayNode(JavaType.arrayType(elementsType))
     } else if (variableType.isInterface && expression is LambdaNode) {
@@ -668,9 +670,10 @@ class InstructionGenerator(
     scope.addLocalVariable(forInStatement.variableType, forInStatement.variableName)
 
     // creating iterator
-    val iteratorExpression = if (Iterable::class.javaType.isAssignableFrom(expressionType)) {
-      FunctionCallNode(scope, "iterator", mutableListOf(), expression)
-    } else if (Iterator::class.javaType.isAssignableFrom(expressionType)) expression
+    val iteratorExpression = if (Iterable::class.javaType.isAssignableFrom(expressionType)) FunctionCallNode(scope, "iterator", mutableListOf(), expression)
+    else if (Iterator::class.javaType.isAssignableFrom(expressionType)) expression
+    else if (CharSequence::class.javaType.isAssignableFrom(expressionType)) ConstructorCallNode(scope, CharSequenceIterator::class.java.javaType,
+      mutableListOf(expression))
     else throw SemanticException("Doesn't handle iterating on $expressionType")
     val iteratorExpressionType = iteratorExpression.getType(typeResolver)
 
