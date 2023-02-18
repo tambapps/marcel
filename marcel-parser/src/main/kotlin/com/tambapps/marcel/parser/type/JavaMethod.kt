@@ -48,10 +48,15 @@ interface JavaMethod {
     else Opcodes.INVOKEVIRTUAL
 
 
-  fun matches(other: JavaMethod): Boolean {
-    if (name != other.name) return false
+  fun parameterMatches(other: JavaMethod): Boolean {
     if (parameters.size != other.parameters.size) return false
     for (i in parameters.indices) if (parameters[i].type != other.parameters[i].type) return false
+    return true
+  }
+
+  fun matches(other: JavaMethod): Boolean {
+    if (name != other.name) return false
+    if (!parameterMatches(other)) return false
     if (returnType != other.returnType) return false
     return true
   }
@@ -79,7 +84,7 @@ interface JavaMethod {
         .filter { it.isAbstract }
       if (declaredMethods.size != 1) return false
       val interfaceMethod = declaredMethods.first()
-      val lambdaMethod = typeResolver.getDeclaredMethods(actualType).first { it.isAbstract }
+      val lambdaMethod = typeResolver.getInterfaceLambdaMethod(actualType)
       return interfaceMethod.parameters.size == lambdaMethod.parameters.size // TODO don't know if there's a better way for that
     //return interfaceMethod.matches(typeResolver, lambdaMethod.parameters)
     } else expectedType.isAssignableFrom(actualType)

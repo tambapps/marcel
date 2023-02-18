@@ -116,7 +116,7 @@ interface JavaType: AstTypedObject {
      */
     if (other.primitive && (
           this in listOf(of(java.lang.Object::class.java), of(Number::class.java), of(other.asPrimitiveType.objectClass))
-        )) {
+          )) {
       return true
     }
     if (isLoaded && other.isLoaded) {

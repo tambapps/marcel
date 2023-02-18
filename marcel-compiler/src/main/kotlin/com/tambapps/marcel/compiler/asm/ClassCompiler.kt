@@ -35,7 +35,8 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
           throw SemanticException("Class ${classNode.type} doesn't define method $interfaceMethod of interface $interfaze")
         }
         val rawInterfaceMethod = typeResolver.findMethod(interfaze.raw(), interfaceMethod.name, interfaceMethod.parameters, true)!!
-        if (!rawInterfaceMethod.matches(implementationMethod)) {
+        // we only need the match on parameters (== ignoring return type) because returning a more specific type is still a valid definition that doesn't need another implementation
+        if (!rawInterfaceMethod.parameterMatches(implementationMethod)) {
           // need to write implementation method with raw type
           val rawMethodNode = MethodNode.fromJavaMethod(classNode.scope, rawInterfaceMethod)
           val rawParameterExpressions = mutableListOf<ExpressionNode>()
@@ -134,9 +135,10 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     // checking return type AFTER having generated code because we want variable types to have been resolved
     val methodReturnType = methodNode.returnType
     val blockReturnType = methodNode.block.getType(typeResolver)
-    if (methodReturnType != JavaType.void && !methodReturnType.isAssignableFrom(blockReturnType)
+    if (methodReturnType != JavaType.void && !methodReturnType.isAssignableFrom(blockReturnType) &&
+      !blockReturnType.isAssignableFrom(methodReturnType)
       && methodReturnType.primitive && !blockReturnType.primitive) {
-      throw SemanticException("Return type of block doesn't match method return type. "
+      throw SemanticException("Return type of method $methodNode doesn't match method return type. "
           + "Expected $methodReturnType but got $blockReturnType")
     }
 

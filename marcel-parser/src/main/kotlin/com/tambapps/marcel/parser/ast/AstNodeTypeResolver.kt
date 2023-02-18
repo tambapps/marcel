@@ -77,6 +77,7 @@ import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.NotLoadedJavaType
 import marcel.lang.IntRange
+import marcel.lang.lambda.CharacterLambda1
 import marcel.lang.lambda.DoubleLambda1
 import marcel.lang.lambda.FloatLambda1
 import marcel.lang.lambda.IntLambda1
@@ -86,6 +87,10 @@ import marcel.lang.lambda.LongLambda1
 open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
   private val definedTypes = mutableMapOf<String, JavaType>()
+
+  fun getInterfaceLambdaMethod(type: JavaType): JavaMethod {
+    return getDeclaredMethods(type).first { it.isAbstract }
+  }
 
   fun defineClass(className: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): JavaType {
     return defineClass(null, className, superClass, isInterface, interfaces)
@@ -224,21 +229,26 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
   override fun visit(blockNode: FunctionBlockNode) = visit(blockNode as BlockNode)
 
   companion object {
-    fun getLambdaType(lambdaNode: LambdaNode): JavaType {
+    fun getLambdaType(typeResolver: AstNodeTypeResolver, lambdaNode: LambdaNode): JavaType {
+      val returnType = if (lambdaNode.interfaceType != null)
+        typeResolver.getDeclaredMethods(lambdaNode.interfaceType!!).first { it.isAbstract }.returnType.objectType
+      else JavaType.Object
+
       return when (lambdaNode.parameters.size) {
         0 -> JavaType.of(Lambda1::class.java).withGenericTypes(JavaType.Object)
         1 -> when(lambdaNode.parameters.first().type) {
-            JavaType.int -> JavaType.of(IntLambda1::class.java).withGenericTypes(JavaType.Object)
-            JavaType.long -> JavaType.of(LongLambda1::class.java).withGenericTypes(JavaType.Object)
-            JavaType.float -> JavaType.of(FloatLambda1::class.java).withGenericTypes(JavaType.Object)
-            JavaType.double -> JavaType.of(DoubleLambda1::class.java).withGenericTypes(JavaType.Object)
-            else -> JavaType.of(Lambda1::class.java).withGenericTypes(lambdaNode.parameters.first().type.objectType, JavaType.Object)
+            JavaType.int -> JavaType.of(IntLambda1::class.java).withGenericTypes(returnType)
+            JavaType.long -> JavaType.of(LongLambda1::class.java).withGenericTypes(returnType)
+            JavaType.float -> JavaType.of(FloatLambda1::class.java).withGenericTypes(returnType)
+            JavaType.double -> JavaType.of(DoubleLambda1::class.java).withGenericTypes(returnType)
+            JavaType.char -> JavaType.of(CharacterLambda1::class.java).withGenericTypes(returnType)
+            else -> JavaType.of(Lambda1::class.java).withGenericTypes(lambdaNode.parameters.first().type.objectType, returnType)
           }
         else -> TODO("Doesn't handle lambda with such parameters for now")
       }
     }
   }
-  override fun visit(lambdaNode: LambdaNode) = lambdaNode.interfaceType ?: getLambdaType(lambdaNode)
+  override fun visit(lambdaNode: LambdaNode) = lambdaNode.interfaceType ?: getLambdaType(this, lambdaNode)
 
   override fun visit(expressionStatementNode: ExpressionStatementNode) = expressionStatementNode.expression.accept(this)
 

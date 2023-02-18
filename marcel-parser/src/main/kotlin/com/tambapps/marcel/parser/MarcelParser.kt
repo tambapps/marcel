@@ -686,9 +686,10 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
   }
   private fun parseLambda(scope: Scope): LambdaNode {
     val parameters = mutableListOf<MethodParameter>()
-    val methodScope = MethodScope(scope, "TODO", parameters, JavaType.Object)
+    var explicit0Parameters = false
     if (lookup(2)?.type == TokenType.ARROW || lookup(3)?.type == TokenType.ARROW
         || lookup(2)?.type == TokenType.COMMA || lookup(3)?.type == TokenType.COMMA) {
+      explicit0Parameters = true
       while (current.type != TokenType.ARROW) {
         val firstToken = accept(TokenType.IDENTIFIER)
         val parameter = if (current.type == TokenType.IDENTIFIER) {
@@ -701,7 +702,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     }
     // now parse function block
     val block = block(MethodScope(scope, "invoke", parameters, JavaType.Object), false)
-    return LambdaNode(LambdaScope(scope), parameters, block)
+    return LambdaNode(LambdaScope(scope), parameters, block, explicit0Parameters)
   }
 
   private fun parseNumberConstant(token: LexToken): ExpressionNode {

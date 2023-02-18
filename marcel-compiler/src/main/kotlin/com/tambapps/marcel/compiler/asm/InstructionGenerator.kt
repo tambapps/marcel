@@ -593,7 +593,7 @@ class InstructionGenerator(
   IInstructionGenerator {
 
   override val mv = MethodBytecodeWriter(methodVisitor, typeResolver)
-  override val lambdaHandler = LambdaHandler(classNode, methodNode)
+  override val lambdaHandler = LambdaHandler(classNode, typeResolver)
 
   private val pushingInstructionGenerator = PushingInstructionGenerator(classNode, methodNode, typeResolver, mv, lambdaHandler)
   init {

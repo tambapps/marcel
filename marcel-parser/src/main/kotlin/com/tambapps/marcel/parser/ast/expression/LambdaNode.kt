@@ -8,7 +8,8 @@ import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.scope.LambdaScope
 import com.tambapps.marcel.parser.type.JavaType
 
-class LambdaNode constructor(val scope: LambdaScope, val parameters: List<MethodParameter>, val blockNode: BlockNode): ExpressionNode {
+class LambdaNode constructor(val scope: LambdaScope, val parameters: MutableList<MethodParameter>, val blockNode: BlockNode,
+                             val explicit0Parameters: Boolean): ExpressionNode {
 
   var interfaceType: JavaType? = null
     set(value) {

@@ -73,8 +73,10 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
     return typeResolver.findField(classType, name, true) ?: throw SemanticException("Variable $name is not defined")
   }
 
-  fun copy(): Scope {
-    return Scope(typeResolver, imports, classType, superClass)
+  fun copy(t: JavaType? = null): Scope {
+    val classType = t ?: this.classType
+
+    return Scope(typeResolver, imports, classType, classType.superType ?: JavaType.Object)
   }
 
   fun resolveType(classSimpleName: String, genericTypes: List<JavaType>): JavaType {
