@@ -613,7 +613,9 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           FunctionCallNode(scope, token.value, mutableListOf(parseLambda(scope)))
         } else if (current.type == TokenType.LT  && lookup(1)?.type == TokenType.TWO_DOTS
           || current.type == TokenType.GT && lookup(1)?.type == TokenType.TWO_DOTS || current.type == TokenType.TWO_DOTS) {
-          rangeNode(scope, expression(scope))
+          val fromExpression = if (current.type == TokenType.TWO_DOTS) ReferenceExpression(scope, token.value)
+          else expression(scope)
+          rangeNode(scope, fromExpression)
         } else if (current.type == TokenType.SQUARE_BRACKETS_OPEN
           || (current.type == TokenType.QUESTION_MARK && lookup(1)?.type == TokenType.SQUARE_BRACKETS_OPEN)) {
           val isSafeIndex = acceptOptional(TokenType.QUESTION_MARK) != null
