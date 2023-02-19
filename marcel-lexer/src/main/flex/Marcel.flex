@@ -80,13 +80,11 @@ import java.io.StringReader;
 
   // useful for intelij marcel plugin
   public void reset(CharSequence buffer, int start, int end, int initialState) throws IOException {
-    zzReader = new StringReader(buffer.toString());
-    zzRefill();
-    zzCurrentPos = zzMarkedPos = zzStartRead = start;
-    zzAtEOF  = false;
-    zzAtBOL = true;
-    zzEndRead = end;
-    yybegin(initialState);
+     yyreset(new StringReader(buffer.toString()));
+     zzRefill();
+        zzCurrentPos = zzMarkedPos = zzStartRead = start;
+        zzEndRead = end;
+        yybegin(initialState);
   }
 %}
 
