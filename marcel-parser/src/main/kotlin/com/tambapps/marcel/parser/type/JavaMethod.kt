@@ -5,7 +5,6 @@ import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.AstTypedObject
 import org.objectweb.asm.Opcodes
-import org.objectweb.asm.signature.SignatureWriter
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
@@ -92,6 +91,11 @@ interface JavaMethod {
     } else expectedType.isAssignableFrom(actualType)
   }
 
+  fun withGenericTypes(types: List<JavaType>): JavaMethod {
+    // this is especially for ExtensionMethod, which don't have generic actual parameters since the type was gotten
+    // from the first method's parameter
+    return this
+  }
 }
 abstract class AbstractMethod: JavaMethod {
 
@@ -128,6 +132,7 @@ class ReflectJavaConstructor(constructor: Constructor<*>): AbstractMethod() {
   }
 }
 class ExtensionJavaMethod(
+  private val reflectMethod: Method,
   override val ownerClass: JavaType,
   override val name: String,
   override val parameters: List<MethodParameter>,
@@ -142,12 +147,20 @@ class ExtensionJavaMethod(
   override val isAbstract = false
   override val isDefault = false
 
-  constructor(method: Method): this(JavaType.of(method.declaringClass), method.name,
+  constructor(method: Method): this(method,
+    JavaType.of(method.declaringClass), method.name,
     method.parameters.takeLast(method.parameters.size - 1).map { MethodParameter(JavaType.of(it.type), it.name) },
     JavaType.of(method.returnType),
-    ReflectJavaMethod.methodReturnType(JavaType.of(method.parameters.first().type), method),
+    ReflectJavaMethod.actualMethodReturnType(JavaType.of(method.parameters.first().type), method, true),
     AsmUtils.getDescriptor(method))
 
+  override fun withGenericTypes(types: List<JavaType>): JavaMethod {
+    val actualOwnerClass = JavaType.of(reflectMethod.parameters.first().type).withGenericTypes(types)
+    return ExtensionJavaMethod(reflectMethod, ownerClass, name, parameters,
+      returnType,
+      ReflectJavaMethod.actualMethodReturnType(actualOwnerClass, reflectMethod, true)
+      , descriptor)
+  }
   override fun toString(): String {
     return "$ownerClass.$name(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType
   }
@@ -163,7 +176,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
   override val name: String = method.name
   override val parameters = method.parameters.map { methodParameter(fromType, it) }
   override val returnType = JavaType.of(method.returnType)
-  override val actualReturnType = methodReturnType(fromType, method)
+  override val actualReturnType = actualMethodReturnType(fromType, method)
   override val descriptor = AsmUtils.getMethodDescriptor(parameters, returnType)
   override val isConstructor = false
   override val isAbstract = (method.modifiers and Modifier.ABSTRACT) != 0
@@ -181,16 +194,26 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
       return MethodParameter(type, rawType, parameter.name)
     }
 
-    internal fun methodReturnType(fromType: JavaType?, method: Method): JavaType {
+    internal fun actualMethodReturnType(fromType: JavaType?, method: Method, extensionMethod: Boolean = false): JavaType {
       if (fromType == null) return JavaType.of(method.returnType)
-
       val genericReturnType = method.genericReturnType
-      val typeParameters = fromType.realClazz.typeParameters
-      val typeParameterIndex = typeParameters.indexOfFirst { it.name == genericReturnType.typeName }
-      if (typeParameterIndex < 0) return JavaType.of(method.returnType)
+      if (genericReturnType.typeName == method.returnType.typeName) return JavaType.of(method.returnType)
 
-      return fromType.genericTypes.getOrNull(typeParameterIndex) ?: JavaType.of(method.returnType)
+      // type is generic? let's get it from here
+      val typeParameters = fromType.realClazz.typeParameters
+      var typeParameterIndex = typeParameters.indexOfFirst { it.name == genericReturnType.typeName }
+      if (typeParameterIndex >= 0) return fromType.genericTypes.getOrNull(typeParameterIndex) ?: JavaType.of(method.returnType)
+      if (extensionMethod) {
+        val realOwnerType = method.parameters.first().parameterizedType as? ParameterizedType
+        if (realOwnerType != null) {
+          realOwnerType.actualTypeArguments
+          typeParameterIndex = realOwnerType.actualTypeArguments.indexOfFirst { it.typeName == genericReturnType.typeName }
+          if (typeParameterIndex >= 0) return fromType.genericTypes.getOrNull(typeParameterIndex) ?: JavaType.of(method.returnType)
+        }
+      }
+      return JavaType.of(method.returnType)
     }
+
     fun methodParameterType(javaType: JavaType?, methodParameter: Parameter): JavaType {
       val rawType = JavaType.of(methodParameter.type)
       if (javaType == null || javaType.genericTypes.isEmpty()) return rawType
