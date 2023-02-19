@@ -5,6 +5,8 @@
 package com.tambapps.marcel.lexer;
 import static com.tambapps.marcel.lexer.TokenType.*;
 import java.util.Stack;
+import java.io.IOException;
+import java.io.StringReader;
 
 /**
   * Marcel lang lexer
@@ -12,7 +14,7 @@ import java.util.Stack;
 
 // See https://github.com/jflex-de/jflex/issues/222
 @SuppressWarnings("FallThrough")
-class MarcelJflexer {
+public class MarcelJflexer {
 
   /** This character denotes the end of file. */
   public static final int YYEOF = -1;
@@ -818,7 +820,7 @@ class MarcelJflexer {
   private boolean zzEOFDone;
 
   /* user code: */
-
+    public MarcelJflexer() {}
      private static final class State {
             final int lBraceCount;
             final int state;
@@ -883,13 +885,24 @@ class MarcelJflexer {
     return getTokenStart() + yylength();
   }
 
+  // useful for intelij marcel plugin
+  public void reset(CharSequence buffer, int start, int end, int initialState) throws IOException {
+    zzReader = new StringReader(buffer.toString());
+    zzRefill();
+    zzCurrentPos = zzMarkedPos = zzStartRead = start;
+    zzAtEOF  = false;
+    zzAtBOL = true;
+    zzEndRead = end;
+    yybegin(initialState);
+  }
+
 
   /**
    * Creates a new scanner
    *
    * @param   in  the java.io.Reader to read input from.
    */
-  MarcelJflexer(java.io.Reader in) {
+  public MarcelJflexer(java.io.Reader in) {
     this.zzReader = in;
   }
 

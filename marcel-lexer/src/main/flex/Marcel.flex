@@ -1,15 +1,19 @@
 package com.tambapps.marcel.lexer;
 import static com.tambapps.marcel.lexer.TokenType.*;
 import java.util.Stack;
+import java.io.IOException;
+import java.io.StringReader;
 
 /**
   * Marcel lang lexer
   */
 %%
 %class MarcelJflexer
+%public
+
 
 %{
-
+    public MarcelJflexer() {}
      private static final class State {
             final int lBraceCount;
             final int state;
@@ -72,6 +76,17 @@ import java.util.Stack;
 
   public final int getTokenEnd() {
     return getTokenStart() + yylength();
+  }
+
+  // useful for intelij marcel plugin
+  public void reset(CharSequence buffer, int start, int end, int initialState) throws IOException {
+    zzReader = new StringReader(buffer.toString());
+    zzRefill();
+    zzCurrentPos = zzMarkedPos = zzStartRead = start;
+    zzAtEOF  = false;
+    zzAtBOL = true;
+    zzEndRead = end;
+    yybegin(initialState);
   }
 %}
 
