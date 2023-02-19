@@ -13,11 +13,12 @@ import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.Opcodes
 
 open class MethodNode constructor(override val access: Int, final override val ownerClass: JavaType, override val name: String, val block: FunctionBlockNode,
-                                  final override val parameters: MutableList<MethodParameter>, override val returnType: JavaType, val scope: MethodScope,
+                                  final override val parameters: MutableList<MethodParameter>, final override val returnType: JavaType, val scope: MethodScope,
                                   override val isInline: Boolean,
                                   final override val isConstructor: Boolean
 ): AstNode, JavaMethod {
 
+  override val actualReturnType = returnType
   constructor(access: Int, ownerClass: JavaType, name: String, block: FunctionBlockNode,
               parameters: MutableList<MethodParameter>, returnType: JavaType, scope: MethodScope,
               isInline: Boolean): this(access, ownerClass, name, block, parameters, returnType, scope, isInline, false)

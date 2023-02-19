@@ -217,7 +217,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
   override fun visit(indexedReferenceExpression: IndexedReferenceExpression): JavaType {
     val elementType = if (indexedReferenceExpression.variable.type.isArray) (indexedReferenceExpression.variable.type.asArrayType).elementsType
-    else findMethodOrThrow(indexedReferenceExpression.variable.type, "getAt", indexedReferenceExpression.indexArguments.map { it.accept(this) }).returnType
+    else findMethodOrThrow(indexedReferenceExpression.variable.type, "getAt", indexedReferenceExpression.indexArguments.map { it.accept(this) }).actualReturnType
     // need object class for safe index because returned elements are nullable
     return if (indexedReferenceExpression.isSafeIndex) elementType.objectType else elementType
   }
@@ -235,7 +235,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
   companion object {
     fun getLambdaType(typeResolver: AstNodeTypeResolver, lambdaNode: LambdaNode): JavaType {
       val returnType = if (lambdaNode.interfaceType != null)
-        typeResolver.getDeclaredMethods(lambdaNode.interfaceType!!).first { it.isAbstract }.returnType.objectType
+        typeResolver.getDeclaredMethods(lambdaNode.interfaceType!!).first { it.isAbstract }.actualReturnType.objectType
       else JavaType.Object
 
       return when (lambdaNode.parameters.size) {
@@ -307,7 +307,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
   override fun visit(literalMapNode: LiteralMapNode): JavaType = JavaType.of(Map::class.java)
 
   override fun visit(fCall: FunctionCallNode): JavaType = findMethodOrThrow(fCall.methodOwnerType?.accept(this) ?: fCall.scope.classType,
-    fCall.name, fCall.arguments.map { it.accept(this) }).returnType
+    fCall.name, fCall.arguments.map { it.accept(this) }).actualReturnType
 
   // it is object because we need type resolver in order to be able to get the real type. that's why it is overridden in JavaTypeResolver
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator): JavaType = JavaType.Object

@@ -151,6 +151,6 @@ class JavaTypeResolver: AstNodeTypeResolver() {
   override fun visit(literalMapNode: LiteralMapNode) =
     JavaType.mapType(literalMapNode.getKeysType(this), literalMapNode.getValuesType(this))
 
-  override fun visit(fCall: FunctionCallNode) = fCall.getMethod(this).returnType
+  override fun visit(fCall: FunctionCallNode) = fCall.getMethod(this).actualReturnType
 
 }

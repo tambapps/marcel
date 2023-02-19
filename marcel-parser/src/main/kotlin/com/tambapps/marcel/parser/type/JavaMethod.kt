@@ -26,6 +26,8 @@ interface JavaMethod {
   val name: String
   val parameters: List<MethodParameter>
   val returnType: JavaType
+  // for generic methods
+  val actualReturnType: JavaType
   val descriptor: String
   val signature: String
     get() {
@@ -114,6 +116,7 @@ class ReflectJavaConstructor(constructor: Constructor<*>): AbstractMethod() {
   override val name: String = JavaMethod.CONSTRUCTOR_NAME
   override val parameters = constructor.parameters.map { MethodParameter(JavaType.of(it.type), it.name) }
   override val returnType = JavaType.void // yes, constructor returns void, especially for the descriptor
+  override val actualReturnType = returnType
   override val descriptor = AsmUtils.getMethodDescriptor(parameters, returnType)
   override val invokeCode = Opcodes.INVOKESPECIAL
   override val isConstructor = true
@@ -129,6 +132,7 @@ class ExtensionJavaMethod(
   override val name: String,
   override val parameters: List<MethodParameter>,
   override val returnType: JavaType,
+  override val actualReturnType: JavaType,
   override val descriptor: String,
 ) : AbstractMethod() {
   override val isConstructor = false
@@ -140,7 +144,9 @@ class ExtensionJavaMethod(
 
   constructor(method: Method): this(JavaType.of(method.declaringClass), method.name,
     method.parameters.takeLast(method.parameters.size - 1).map { MethodParameter(JavaType.of(it.type), it.name) },
-    JavaType.of(method.returnType), AsmUtils.getDescriptor(method))
+    JavaType.of(method.returnType),
+    ReflectJavaMethod.methodReturnType(JavaType.of(method.parameters.first().type), method),
+    AsmUtils.getDescriptor(method))
 
   override fun toString(): String {
     return "$ownerClass.$name(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType
@@ -157,6 +163,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
   override val name: String = method.name
   override val parameters = method.parameters.map { methodParameter(fromType, it) }
   override val returnType = JavaType.of(method.returnType)
+  override val actualReturnType = methodReturnType(fromType, method)
   override val descriptor = AsmUtils.getMethodDescriptor(parameters, returnType)
   override val isConstructor = false
   override val isAbstract = (method.modifiers and Modifier.ABSTRACT) != 0
@@ -168,12 +175,22 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
 
   companion object {
 
-    fun methodParameter(fromType: JavaType?, parameter: Parameter): MethodParameter {
+    internal fun methodParameter(fromType: JavaType?, parameter: Parameter): MethodParameter {
       val type = methodParameterType(fromType, parameter)
       val rawType = JavaType.of(parameter.type)
       return MethodParameter(type, rawType, parameter.name)
     }
 
+    internal fun methodReturnType(fromType: JavaType?, method: Method): JavaType {
+      if (fromType == null) return JavaType.of(method.returnType)
+
+      val genericReturnType = method.genericReturnType
+      val typeParameters = fromType.realClazz.typeParameters
+      val typeParameterIndex = typeParameters.indexOfFirst { it.name == genericReturnType.typeName }
+      if (typeParameterIndex < 0) return JavaType.of(method.returnType)
+
+      return fromType.genericTypes.getOrNull(typeParameterIndex) ?: JavaType.of(method.returnType)
+    }
     fun methodParameterType(javaType: JavaType?, methodParameter: Parameter): JavaType {
       val rawType = JavaType.of(methodParameter.type)
       if (javaType == null || javaType.genericTypes.isEmpty()) return rawType

@@ -50,13 +50,6 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
     invokeMethod(ReflectJavaMethod(method))
   }
 
-  fun invokeMethod(method: JavaMethod) {
-    if (method.isConstructor) {
-      throw RuntimeException("Compiler error. Shouldn't invoke constructor this way")
-    }
-    mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, method.name, method.descriptor, !method.isStatic && method.ownerClass.isInterface)
-  }
-
   fun invokeMethodWithArguments(method: Method, vararg arguments: ExpressionNode) {
     invokeMethodWithArguments(ReflectJavaMethod(method), *arguments)
   }
@@ -68,7 +61,17 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       throw RuntimeException("Compiler error. Shouldn't invoke constructor this way")
     }
     pushFunctionCallArguments(method, arguments)
+    invokeMethod(method)
+  }
+
+  fun invokeMethod(method: JavaMethod) {
+    if (method.isConstructor) {
+      throw RuntimeException("Compiler error. Shouldn't invoke constructor this way")
+    }
     mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, method.name, method.descriptor, !method.isStatic && method.ownerClass.isInterface)
+    if (method.actualReturnType != method.returnType) {
+      castIfNecessaryOrThrow(method.actualReturnType, method.returnType)
+    }
   }
   private fun pushFunctionCallArguments(method: JavaMethod, arguments: List<ExpressionNode>) {
     if (method.parameters.size != arguments.size) {
