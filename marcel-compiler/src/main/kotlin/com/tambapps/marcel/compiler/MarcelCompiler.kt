@@ -30,7 +30,12 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParsingException::class, SemanticException::class)
   fun compile(reader: Reader, className: String? = null): CompilationResult {
-    val tokens = MarcelLexer().lex(reader)
+    return compile(reader.readText(), className)
+  }
+
+  @Throws(IOException::class, MarcelLexerException::class, MarcelParsingException::class, SemanticException::class)
+  fun compile(text: String, className: String? = null): CompilationResult {
+    val tokens = MarcelLexer().lex(text)
     val typeResolver = JavaTypeResolver()
     val extensionClassLoader = ExtensionClassLoader(typeResolver)
     extensionClassLoader.loadExtensionMethods(

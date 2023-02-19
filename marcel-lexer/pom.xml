@@ -24,27 +24,4 @@
     </dependency>
   </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <!-- mvn compile to re-generate the lexer -->
-        <groupId>de.jflex</groupId>
-        <artifactId>jflex-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>src/main/java</outputDirectory>
-              <lexDefinitions>
-                <lexDefinition>src/main/flex/Marcel.flex</lexDefinition>
-              </lexDefinitions>
-              <verbose>true</verbose>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
 </project>

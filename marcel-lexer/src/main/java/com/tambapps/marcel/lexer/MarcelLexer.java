@@ -1,6 +1,7 @@
 package com.tambapps.marcel.lexer;
 
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -21,20 +22,17 @@ public class MarcelLexer {
     this(true);
   }
 
+  @SneakyThrows
   public List<LexToken> lex(String content) throws MarcelLexerException {
-    try (Reader reader = new StringReader(content)) {
-      return lex(reader);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public List<LexToken> lex(Reader content) throws IOException, MarcelLexerException {
-    MarcelJflexer jflexer = new MarcelJflexer(content);
+    MarcelJflexer jflexer = new MarcelJflexer();
+    jflexer.reset(content, 0, content.length(), MarcelJflexer.YYINITIAL);
     List<LexToken> tokens = new ArrayList<>();
     LexToken token;
     while ((token = jflexer.nextToken()) != null) {
       TokenType type = token.getType();
+      if (type == TokenType.BAD_CHARACTER) {
+        throw new MarcelLexerException("Bad character " + token.getValue());
+      }
       if (!COMMENT_TOKENS.contains(type) && (!ignoreWhitespaces || type != TokenType.WHITE_SPACE)) {
         tokens.add(token);
       }

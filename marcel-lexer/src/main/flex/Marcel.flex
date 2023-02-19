@@ -8,12 +8,21 @@ import java.io.StringReader;
   * Marcel lang lexer
   */
 %%
+// use Jflex IntelIJ plugin to generate lexer. (Left click on the file in project tree)
+
+%unicode
+
 %class MarcelJflexer
 %public
 
 
 %{
-    public MarcelJflexer() {}
+
+     private int yyline;
+     private int yycolumn;
+
+     public MarcelJflexer() {}
+
      private static final class State {
             final int lBraceCount;
             final int state;
@@ -67,28 +76,11 @@ import java.io.StringReader;
   }
 
   public String getTokenString() {
-    return new String(zzBuffer, getTokenStart(), getTokenEnd() - getTokenStart());
+    return zzBuffer.subSequence(getTokenStart(), getTokenEnd()).toString();
   }
 
-  public final int getTokenStart() {
-    return zzStartRead;
-  }
-
-  public final int getTokenEnd() {
-    return getTokenStart() + yylength();
-  }
-
-  // useful for intelij marcel plugin
-  public void reset(CharSequence buffer, int start, int end, int initialState) throws IOException {
-     yyreset(new StringReader(buffer.toString()));
-     zzRefill();
-        zzCurrentPos = zzMarkedPos = zzStartRead = start;
-        zzEndRead = end;
-        yybegin(initialState);
-  }
 %}
 
-%unicode
 %line
 %column
 
@@ -100,7 +92,7 @@ import java.io.StringReader;
   // end of file
 %eof}
 
-%xstate STRING RAW_STRING SHORT_TEMPLATE_ENTRY BLOCK_COMMENT DOC_COMMENT, CHAR_STRING
+%xstate STRING RAW_STRING SHORT_TEMPLATE_ENTRY BLOCK_COMMENT DOC_COMMENT CHAR_STRING
 %state LONG_TEMPLATE_ENTRY UNMATCHED_BACKTICK
 
 LETTER = [:letter:]|_
@@ -355,3 +347,10 @@ LONELY_BACKTICK=`
 "++"          { return token(INCR); }
 "--"          { return token(DECR); }
 "->"          { return token(ARROW); }
+
+
+// error fallback
+[\s\S]       { return token(BAD_CHARACTER); }
+// error fallback for exclusive states
+<STRING, RAW_STRING, SHORT_TEMPLATE_ENTRY, BLOCK_COMMENT, DOC_COMMENT> .
+             { return token(BAD_CHARACTER); }

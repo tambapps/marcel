@@ -37,3 +37,6 @@ marcel-lexer/src/main/java/com/tambapps/marcel/lexer/MarcelJflexer.java~
 
 *.jar
 *.class
+
+# jflex intelij plugin
+idea-flex.skeleton
