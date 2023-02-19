@@ -34,5 +34,6 @@
   - [Marshell - Marcel Shell](./tools/marshell.md)
   - [Marshell for Android](./tools/marshell-for-android.md)
   - [Dumbbell - Marcel's Dependency Manager](./tools/dumbbell.md)
+  - [IntelIJ Plugin for Marcel](./tools/intelij-plugin.md)
 - [Marcel In Action](./marcel-in-action.md)
 
