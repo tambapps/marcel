@@ -17,16 +17,22 @@ With Marcel's [multiple variable declaration](../language-specification/variable
 matched groups in the following way
 
 ````groovy
-def (String wholeMatch, String groupMatch) = "Hello you" =~ /Hello (\w+)/
+def (String wholeMatch, String groupMatch) = ("Hello you" =~ /Hello (\w+)/).groups() // method from the Marcel Development Kit
 ````
 
 In some case, you might not care about the whole match (you just want the groups you declared in your regex).
 If that's so you can ignore it like this
 
 ````groovy
-def (_, String groupMatch) = "Hello you" =~ /Hello (\w+)/
+def (_, String groupMatch) = ("Hello you" =~ /Hello (\w+)/).groups()
 ````
 
+Wait for it, there's an even better way to do that
+````groovy
+def (String groupMatch) = ("Hello you" =~ /Hello (\w+)/).definedGroups()
+````
+
+The defined groups only return the groups you defined in the regex, and therefore skip the group corresponding to the whole match.
 
 ## Truthy pattern declaration
 

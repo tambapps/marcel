@@ -40,6 +40,16 @@ public final class DefaultMarcelMethods {
     return groups;
   }
 
+  public static List<String> definedGroups(Matcher self) {
+    if (!self.find()) return Collections.emptyList();
+    int count = self.groupCount();
+    List<String> groups = new ArrayList<>(count);
+    for (int i = 1; i <= count; i++) {
+      groups.add(self.group(i));
+    }
+    return groups;
+  }
+
   // getLength
   public static int getLength(List<?> self) {
     return self.size();
