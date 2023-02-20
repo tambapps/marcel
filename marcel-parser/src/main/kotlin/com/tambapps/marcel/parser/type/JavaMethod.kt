@@ -147,16 +147,18 @@ class ExtensionJavaMethod(
   override val isAbstract = false
   override val isDefault = false
 
+  // TODO could probably do some optimization here (with uses of java reflect API)
   constructor(method: Method): this(method,
     JavaType.of(method.declaringClass), method.name,
-    method.parameters.takeLast(method.parameters.size - 1).map { MethodParameter(JavaType.of(it.type), it.name) },
+    method.parameters.takeLast(method.parameters.size - 1).map { ReflectJavaMethod.methodParameter(method, JavaType.of(method.parameters.first().type), it) },
     JavaType.of(method.returnType),
     ReflectJavaMethod.actualMethodReturnType(JavaType.of(method.parameters.first().type), method, true),
     AsmUtils.getDescriptor(method))
 
   override fun withGenericTypes(types: List<JavaType>): JavaMethod {
     val actualOwnerClass = JavaType.of(reflectMethod.parameters.first().type).withGenericTypes(types)
-    return ExtensionJavaMethod(reflectMethod, ownerClass, name, parameters,
+    return ExtensionJavaMethod(reflectMethod, ownerClass, name,
+      reflectMethod.parameters.takeLast(reflectMethod.parameters.size - 1).map { ReflectJavaMethod.methodParameter(reflectMethod, actualOwnerClass, it) },
       returnType,
       ReflectJavaMethod.actualMethodReturnType(actualOwnerClass, reflectMethod, true)
       , descriptor)
@@ -174,7 +176,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
   // see norm of modifiers flag in Modifier class. Seems to have the same norm as OpCodes.ACC_ modifiers
   override val access = method.modifiers
   override val name: String = method.name
-  override val parameters = method.parameters.map { methodParameter(fromType, it) }
+  override val parameters = method.parameters.map { methodParameter(method, fromType, it) }
   override val returnType = JavaType.of(method.returnType)
   override val actualReturnType = actualMethodReturnType(fromType, method)
   override val descriptor = AsmUtils.getMethodDescriptor(parameters, returnType)
@@ -188,16 +190,13 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
 
   companion object {
 
-    internal fun methodParameter(fromType: JavaType?, parameter: Parameter): MethodParameter {
+    internal fun methodParameter(method: Method, fromType: JavaType?, parameter: Parameter): MethodParameter {
       val type = methodParameterType(fromType, parameter)
       val rawType = JavaType.of(parameter.type)
       return MethodParameter(type, rawType, parameter.name)
     }
 
     internal fun actualMethodReturnType(fromType: JavaType?, method: Method, extensionMethod: Boolean = false): JavaType {
-      if (method.name == "definedGroups") {
-        println()
-      }
       if (fromType == null) return JavaType.of(method.returnType)
       val genericReturnType = method.genericReturnType
       if (genericReturnType.typeName == method.returnType.typeName) return JavaType.of(method.returnType)
@@ -231,7 +230,14 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
             var index = parameterNames.indexOf(it.upperBounds.first().typeName)
             if (index < 0) index = parameterNames.indexOf(it.lowerBounds.first().typeName)
             return@map javaType.genericTypes.getOrNull(index) ?: JavaType.Object
-          } else {
+          } else if (it is TypeVariable<*>) {
+            val parameterizedType = methodParameter.parameterizedType
+            if (parameterizedType is ParameterizedType){
+              val index = parameterizedType.actualTypeArguments.indexOfFirst { at -> at.typeName == it.typeName }
+              return@map javaType.genericTypes.getOrNull(index) ?: JavaType.Object
+            }
+            TODO("Sounds difficult to implement")
+          } else{
             TODO("Sounds difficult to implement")
           }
         }
