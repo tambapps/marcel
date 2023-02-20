@@ -1,0 +1,13 @@
+import java.util.regex.*
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+Pattern pattern = /Hello (\w+)/;
+
+int a = 1
+if (Matcher m = "Helo me" =~ pattern) {
+  a = 2
+} else if (Matcher m = "Hello me" =~ pattern) {
+  a = 3
+}
+
+assertEquals(3, a)

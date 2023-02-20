@@ -281,10 +281,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
   override fun visit(notNode: NotNode) = JavaType.boolean
 
-  override fun visit(ifStatementNode: IfStatementNode) =
-    if (ifStatementNode.falseStatementNode != null) JavaType.commonType(ifStatementNode.trueStatementNode.accept(this),
-      ifStatementNode.falseStatementNode!!.accept(this))
-    else ifStatementNode.trueStatementNode.accept(this)
+  override fun visit(ifStatementNode: IfStatementNode) = JavaType.void
 
   override fun visit(forStatement: ForStatement) = JavaType.void
 

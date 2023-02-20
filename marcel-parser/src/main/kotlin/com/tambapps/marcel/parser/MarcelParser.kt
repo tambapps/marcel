@@ -340,7 +340,6 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         accept(TokenType.LPAR)
         val declarations = mutableListOf<Pair<JavaType, String>?>()
         while (current.type != TokenType.RPAR) {
-          // TODO document the '_' ignore variable when documenting this feature
           if (current.type == TokenType.IDENTIFIER && current.value.all { it == '_' }) {
             declarations.add(null)
             skip()
@@ -373,22 +372,15 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       }
       TokenType.IF -> {
         accept(TokenType.LPAR)
-        val condition = BooleanExpressionNode(
-          if (isTypeToken(current.type) && lookup(1)?.type == TokenType.IDENTIFIER) {
-            val type = parseType(scope)
-            val variableName = accept(TokenType.IDENTIFIER).value
-            accept(TokenType.ASSIGNMENT)
-            TruthyVariableDeclarationNode(scope, type, variableName, expression(scope))
-          } else expression(scope)
-        )
-        accept(TokenType.RPAR)
+        val condition = ifConditionExpression(scope)
+          accept(TokenType.RPAR)
         val rootIf = IfStatementNode(condition, statement(scope), null)
         var currentIf = rootIf
         while (current.type == TokenType.ELSE) {
           skip()
           if (acceptOptional(TokenType.IF) != null) {
             accept(TokenType.LPAR)
-            val elseIfCondition = BooleanExpressionNode(expression(scope))
+            val elseIfCondition = ifConditionExpression(scope)
             accept(TokenType.RPAR)
             val newIf = IfStatementNode(elseIfCondition, statement(scope), null)
             currentIf.falseStatementNode = newIf
@@ -483,6 +475,17 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         ExpressionStatementNode(node)
       }
     }
+  }
+
+  private fun ifConditionExpression(scope: Scope): BooleanExpressionNode {
+    return BooleanExpressionNode(
+      if (isTypeToken(current.type) && lookup(1)?.type == TokenType.IDENTIFIER) {
+        val type = parseType(scope)
+        val variableName = accept(TokenType.IDENTIFIER).value
+        accept(TokenType.ASSIGNMENT)
+        TruthyVariableDeclarationNode(scope, type, variableName, expression(scope))
+      } else expression(scope)
+    )
   }
 
   fun expression(scope: Scope): ExpressionNode {

@@ -204,25 +204,31 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(ifStatementNode: IfStatementNode) {
+    val optTruthyDeclarationNode = ifStatementNode.condition.innerExpression as? TruthyVariableDeclarationNode
+    if (optTruthyDeclarationNode != null) {
+      // declaring truthy variable (will and should only be used in trueStatement)
+      visit(VariableDeclarationNode(optTruthyDeclarationNode.scope, optTruthyDeclarationNode.variableType, optTruthyDeclarationNode.name,
+        optTruthyDeclarationNode.isFinal, optTruthyDeclarationNode.expression))
+    }
     pushArgument(ifStatementNode.condition)
     val endLabel = Label()
     if (ifStatementNode.falseStatementNode == null) {
       mv.jumpIfEq(endLabel)
       ifStatementNode.trueStatementNode.accept(this)
       mv.visitLabel(endLabel)
+      optTruthyDeclarationNode?.scope?.freeVariable(optTruthyDeclarationNode.name)
     } else {
       val falseStatementNode = ifStatementNode.falseStatementNode!!
       val falseLabel = Label()
       mv.jumpIfEq(falseLabel)
       ifStatementNode.trueStatementNode.accept(this)
+      // this variable is only accessible in true statement, we don't need it after (especially for the else statement. it should
+      //  be disposed before accepting it)
+      optTruthyDeclarationNode?.scope?.freeVariable(optTruthyDeclarationNode.name)
       mv.jumpTo(endLabel)
       mv.visitLabel(falseLabel)
       falseStatementNode.accept(this)
       mv.visitLabel(endLabel)
-    }
-    if (ifStatementNode.condition.innerExpression is TruthyVariableDeclarationNode) {
-      val truthyExpression = ifStatementNode.condition.innerExpression as TruthyVariableDeclarationNode
-      truthyExpression.scope.freeVariable(truthyExpression.name)
     }
   }
 
@@ -984,9 +990,9 @@ class InstructionGenerator(
   }
 
   override fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode) {
+    // variable should have been declared in the visit(ifStatementNode)
     visit(
-      VariableDeclarationNode(truthyVariableDeclarationNode.scope, truthyVariableDeclarationNode.variableType,
-      truthyVariableDeclarationNode.name, false, truthyVariableDeclarationNode.expression)
+      VariableAssignmentNode(truthyVariableDeclarationNode.scope, truthyVariableDeclarationNode.name, truthyVariableDeclarationNode.expression)
     )
   }
 
