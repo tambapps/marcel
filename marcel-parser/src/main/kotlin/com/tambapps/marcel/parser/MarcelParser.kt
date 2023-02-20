@@ -885,6 +885,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           }
         }
       }
+      TokenType.FIND -> FindOperator(leftOperand, rightOperand)
       TokenType.IS -> IsOperator(leftOperand, rightOperand)
       TokenType.IS_NOT -> IsNotOperator(leftOperand, rightOperand)
       TokenType.MUL -> MulOperator(leftOperand, rightOperand)

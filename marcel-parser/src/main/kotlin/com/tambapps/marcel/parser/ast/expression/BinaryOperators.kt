@@ -176,8 +176,16 @@ class IsNotOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode):
   BinaryOperatorNode(leftOperand, rightOperand) {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
-
   override fun toString(): String {
     return "$leftOperand !== $rightOperand"
+  }
+}
+
+class FindOperator(leftOperand: ExpressionNode, rightOperand: ExpressionNode):
+  BinaryOperatorNode(leftOperand, rightOperand) {
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
+  override fun toString(): String {
+    return "$leftOperand =~ $rightOperand"
   }
 }

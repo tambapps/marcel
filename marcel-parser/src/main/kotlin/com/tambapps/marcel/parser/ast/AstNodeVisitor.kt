@@ -91,5 +91,6 @@ interface AstNodeVisitor<T> {
   fun visit(thisReference: ThisReference): T
   fun visit(superReference: SuperReference): T
   fun visit(patternValueNode: LiteralPatternNode): T
+  fun visit(findOperator: FindOperator): T
 
 }

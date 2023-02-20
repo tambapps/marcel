@@ -421,6 +421,17 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     mv.visitLabel(labelEnd)
   }
 
+  override fun visit(findOperator: FindOperator) {
+    if (!CharSequence::class.java.javaType.isAssignableFrom(findOperator.leftOperand.getType(typeResolver))) {
+      throw MarcelSemanticException("Left operand of find operator should be a string")
+    }
+    if (!Pattern::class.java.javaType.isAssignableFrom(findOperator.rightOperand.getType(typeResolver))) {
+      throw MarcelSemanticException("Right operand of find operator should be a Pattern")
+    }
+    pushArgument(findOperator.rightOperand)
+    mv.invokeMethodWithArguments(Pattern::class.java.getMethod("matcher", CharSequence::class.java), findOperator.leftOperand)
+  }
+
   override fun visit(accessOperator: InvokeAccessOperator) {
     val access = accessOperator.rightOperand
 
@@ -926,6 +937,11 @@ class InstructionGenerator(
 
   override fun visit(andOperator: AndOperator) {
     super.visit(andOperator)
+    mv.popStack()
+  }
+
+  override fun visit(findOperator: FindOperator) {
+    super.visit(findOperator)
     mv.popStack()
   }
 

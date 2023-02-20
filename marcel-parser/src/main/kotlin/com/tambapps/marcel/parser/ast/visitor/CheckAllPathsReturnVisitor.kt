@@ -14,6 +14,7 @@ import com.tambapps.marcel.parser.ast.expression.DivOperator
 import com.tambapps.marcel.parser.ast.expression.DoubleConstantNode
 import com.tambapps.marcel.parser.ast.expression.ElvisOperator
 import com.tambapps.marcel.parser.ast.expression.FieldAssignmentNode
+import com.tambapps.marcel.parser.ast.expression.FindOperator
 import com.tambapps.marcel.parser.ast.expression.FloatConstantNode
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
@@ -324,5 +325,7 @@ class CheckAllPathsReturnVisitor: AstNodeVisitor<Boolean> {
 
   override fun visit(thisReference: ThisReference) = false
   override fun visit(patternValueNode: LiteralPatternNode) = false
+
+  override fun visit(findOperator: FindOperator) = false
 
 }

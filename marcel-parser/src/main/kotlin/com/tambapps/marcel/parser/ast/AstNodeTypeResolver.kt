@@ -15,6 +15,7 @@ import com.tambapps.marcel.parser.ast.expression.DoubleConstantNode
 import com.tambapps.marcel.parser.ast.expression.ElvisOperator
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.ast.expression.FieldAssignmentNode
+import com.tambapps.marcel.parser.ast.expression.FindOperator
 import com.tambapps.marcel.parser.ast.expression.FloatConstantNode
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
@@ -85,6 +86,7 @@ import marcel.lang.lambda.FloatLambda1
 import marcel.lang.lambda.IntLambda1
 import marcel.lang.lambda.Lambda1
 import marcel.lang.lambda.LongLambda1
+import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
@@ -349,4 +351,5 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
   override fun visit(superReference: SuperReference) = superReference.scope.superClass
 
   override fun visit(patternValueNode: LiteralPatternNode) = JavaType.of(Pattern::class.java)
+  override fun visit(findOperator: FindOperator) = JavaType.of(Matcher::class.java)
 }

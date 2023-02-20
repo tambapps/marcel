@@ -16,6 +16,7 @@ import com.tambapps.marcel.parser.ast.expression.DivOperator
 import com.tambapps.marcel.parser.ast.expression.DoubleConstantNode
 import com.tambapps.marcel.parser.ast.expression.ElvisOperator
 import com.tambapps.marcel.parser.ast.expression.FieldAssignmentNode
+import com.tambapps.marcel.parser.ast.expression.FindOperator
 import com.tambapps.marcel.parser.ast.expression.FloatConstantNode
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
@@ -86,6 +87,7 @@ class ForEachNodeVisitor(private val consumer: (AstNode) -> Unit): AstNodeVisito
   override fun visit(charNode: CharConstantNode) = consumer.invoke(charNode)
 
   override fun visit(operator: MulOperator) = visitBinaryOperator(operator)
+  override fun visit(findOperator: FindOperator) = visitBinaryOperator(findOperator)
 
   private fun visitBinaryOperator(operator: BinaryOperatorNode) {
     consumer.invoke(operator)

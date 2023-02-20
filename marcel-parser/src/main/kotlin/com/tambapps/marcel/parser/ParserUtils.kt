@@ -16,6 +16,7 @@ object ParserUtils {
     Pair(MUL, 2),
     Pair(DIV, 2),
     Pair(MODULO, 2),
+    Pair(FIND, 2),
     Pair(PLUS, 3),
     Pair(MINUS, 3),
     Pair(AND, 4),
