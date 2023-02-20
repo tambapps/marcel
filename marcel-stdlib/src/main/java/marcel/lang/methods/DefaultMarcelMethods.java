@@ -1,6 +1,8 @@
 package marcel.lang.methods;
 
 import marcel.lang.IntRange;
+import marcel.lang.lambda.IntLambda1;
+import marcel.lang.lambda.Lambda1;
 import marcel.lang.primitives.collections.lists.CharacterArrayList;
 import marcel.lang.primitives.collections.lists.CharacterList;
 import marcel.lang.primitives.collections.lists.DoubleArrayList;
@@ -23,6 +25,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.ToIntFunction;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
@@ -48,6 +51,16 @@ public final class DefaultMarcelMethods {
       groups.add(self.group(i));
     }
     return groups;
+  }
+
+  // mapToInt
+  // TODO add other map functions
+  public static <T> IntList mapToInt(List<T> list, ToIntFunction<T> lambda1) {
+    IntList intList = new IntArrayList(list.size());
+    for (int i = 0; i < list.size(); i++) {
+      intList.add(lambda1.applyAsInt(list.get(i)));
+    }
+    return intList;
   }
 
   // getLength

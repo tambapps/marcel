@@ -1,5 +1,6 @@
 package com.tambapps.marcel.compiler
 
+import com.tambapps.marcel.compiler.util.javaType
 import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.ClassNode
@@ -22,6 +23,7 @@ import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Variable
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
+import marcel.lang.lambda.Lambda
 import org.objectweb.asm.Opcodes
 import java.util.LinkedHashSet
 
@@ -31,7 +33,7 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
   fun defineLambda(lambdaNode: LambdaNode): ConstructorCallNode {
     val scope = lambdaNode.scope
     val className = generateLambdaName(scope)
-    val interfaceType = lambdaNode.interfaceType
+    val interfaceType = if (lambdaNode.interfaceType != null && !Lambda::class.javaType.isAssignableFrom(lambdaNode.interfaceType!!)) lambdaNode.interfaceType else null
     tryMatchParametersWithLambda(lambdaNode)
     val lambdaInterfaceType = AstNodeTypeResolver.getLambdaType(typeResolver, lambdaNode)
     val type = scope.typeResolver.defineClass(className, JavaType.Object, false,
