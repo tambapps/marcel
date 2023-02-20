@@ -9,6 +9,8 @@ The only falsey values are the following:
 - `Optional.empty()`
 - An empty collection
 - An empty array
+- An empty Map
+- A [Matcher](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html) who's `find()` method would return false
 
 Any other value is truthy.
 

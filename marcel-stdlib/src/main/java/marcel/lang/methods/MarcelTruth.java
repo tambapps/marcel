@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.regex.Matcher;
 
 public class MarcelTruth {
 
@@ -19,10 +20,18 @@ public class MarcelTruth {
     Class<?> clazz = o.getClass();
     if (clazz == Optional.class) {
       return truthy((Optional<?>) o);
+    } else if (clazz == OptionalInt.class) {
+      return truthy((OptionalInt) o);
+    } else if (clazz == OptionalLong.class) {
+      return truthy((OptionalLong) o);
+    } else if (clazz == OptionalDouble.class) {
+      return truthy((OptionalDouble) o);
     } else if (o instanceof Collection) {
       return truthy((Collection<?>) o);
     } else if (clazz.isArray()) {
       return Array.getLength(o) > 0;
+    } else if (clazz == Matcher.class) {
+      return truthy((Matcher) o);
     } else {
       try {
         Method truthyMethod = clazz.getDeclaredMethod("isTruthy");
@@ -39,6 +48,9 @@ public class MarcelTruth {
     }
   }
 
+  public static boolean truthy(Matcher matcher) {
+    return matcher.find();
+  }
 
   public static boolean truthy(Collection<?> collection) {
     return !collection.isEmpty();
