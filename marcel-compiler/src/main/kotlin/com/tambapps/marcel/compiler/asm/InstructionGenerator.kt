@@ -45,6 +45,7 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import java.io.Closeable
 import java.util.*
+import java.util.regex.Pattern
 
 
 // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.if_icmp_cond
@@ -779,6 +780,11 @@ class InstructionGenerator(
     // don't need to write this if it isn't used
   }
 
+
+  override fun visit(patternValueNode: LiteralPatternNode) {
+    // don't need to write this if it isn't used
+  }
+
   override fun visit(superReference: SuperReference) {
     // don't need to write super if it isn't used
   }
@@ -1109,7 +1115,7 @@ private class PushingInstructionGenerator(
       if (argumentType.primitive) {
         mv.invokeMethodWithArguments(String::class.java.getDeclaredMethod("valueOf", argumentType.realClazz), expr)
       } else {
-        mv.invokeMethodWithArguments(Object::class.java.getDeclaredMethod("toString"), expr)
+        mv.invokeMethodWithArguments(String::class.java.getDeclaredMethod("valueOf", JavaType.Object.realClazz), expr)
       }
     }
   }
@@ -1177,6 +1183,16 @@ private class PushingInstructionGenerator(
     mv.pushThis()
   }
 
+  override fun visit(patternValueNode: LiteralPatternNode) {
+    mv.pushConstant(patternValueNode.value)
+    if (patternValueNode.flags.isNotEmpty()) {
+      val flag = patternValueNode.flags.reduce { acc, i -> acc or i }
+      mv.pushConstant(flag)
+      mv.invokeMethod(Pattern::class.java.getMethod("compile", String::class.java, Int::class.java))
+    } else {
+      mv.invokeMethod(Pattern::class.java.getMethod("compile", String::class.java))
+    }
+  }
   override fun visit(incrNode: IncrNode) {
     if (incrNode.returnValueBefore) {
       mv.pushVariable(incrNode.variableReference.scope, incrNode.variableReference.variable)

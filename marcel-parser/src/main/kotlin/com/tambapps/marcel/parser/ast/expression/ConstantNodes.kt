@@ -2,6 +2,7 @@ package com.tambapps.marcel.parser.ast.expression
 
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.type.JavaType
+import java.util.regex.Pattern
 
 data class IntConstantNode(val value: Int): ExpressionNode {
 
@@ -67,6 +68,31 @@ data class StringConstantNode(val value: String): ExpressionNode {
     return "\"$value\""
   }
 }
+
+
+data class LiteralPatternNode(val value: String, val flags: List<Int>): ExpressionNode {
+
+  companion object {
+    val FLAGS_MAP = mapOf(
+      Pair('d', Pattern.UNIX_LINES),
+      Pair('i', Pattern.CASE_INSENSITIVE),
+      Pair('x', Pattern.COMMENTS),
+      Pair('m', Pattern.MULTILINE),
+      Pair('l', Pattern.LITERAL),
+      Pair('s', Pattern.DOTALL),
+      Pair('u', Pattern.UNICODE_CASE),
+      Pair('c', Pattern.CANON_EQ),
+      Pair('U', Pattern.UNICODE_CHARACTER_CLASS),
+    )
+  }
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
+  override fun toString(): String {
+    val flagsString = if (flags.isEmpty()) "" else ", " + flags.reduce{ a: Int, b: Int -> a or b }
+    return "Pattern.compile(\"$value\"$flagsString)"
+  }
+}
+
 
 data class BooleanConstantNode(val value: Boolean): ExpressionNode {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)

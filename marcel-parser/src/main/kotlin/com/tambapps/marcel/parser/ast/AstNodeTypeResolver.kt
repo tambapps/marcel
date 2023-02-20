@@ -36,6 +36,7 @@ import com.tambapps.marcel.parser.ast.expression.MulOperator
 import com.tambapps.marcel.parser.ast.expression.NotNode
 import com.tambapps.marcel.parser.ast.expression.NullValueNode
 import com.tambapps.marcel.parser.ast.expression.OrOperator
+import com.tambapps.marcel.parser.ast.expression.LiteralPatternNode
 import com.tambapps.marcel.parser.ast.expression.PlusOperator
 import com.tambapps.marcel.parser.ast.expression.PowOperator
 import com.tambapps.marcel.parser.ast.expression.RangeNode
@@ -84,6 +85,7 @@ import marcel.lang.lambda.FloatLambda1
 import marcel.lang.lambda.IntLambda1
 import marcel.lang.lambda.Lambda1
 import marcel.lang.lambda.LongLambda1
+import java.util.regex.Pattern
 
 open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
@@ -345,4 +347,6 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
   override fun visit(thisReference: ThisReference) = thisReference.scope.classType
   override fun visit(superReference: SuperReference) = superReference.scope.superClass
+
+  override fun visit(patternValueNode: LiteralPatternNode) = JavaType.of(Pattern::class.java)
 }

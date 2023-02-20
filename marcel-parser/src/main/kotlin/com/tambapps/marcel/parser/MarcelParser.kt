@@ -568,12 +568,28 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         StringNode(parts)
       }
       TokenType.OPEN_SIMPLE_QUOTE -> {
-        val parts = mutableListOf<ExpressionNode>()
+        val builder = StringBuilder()
         while (current.type != TokenType.CLOSING_SIMPLE_QUOTE) {
-          parts.add(stringPart(scope))
+          builder.append(simpleStringPart(scope))
         }
         skip() // skip last quote
-        StringNode(parts)
+        StringConstantNode(builder.toString())
+      }
+      TokenType.OPEN_REGEX_QUOTE -> {
+        val builder = StringBuilder()
+        while (current.type != TokenType.CLOSING_REGEX_QUOTE) {
+          builder.append(simpleStringPart(scope))
+        }
+        skip() // skip last quote
+        val flags = mutableListOf<Int>()
+        val optFlags = acceptOptional(TokenType.IDENTIFIER)?.value
+        if (optFlags != null) {
+          for (char in optFlags) {
+            LiteralPatternNode.FLAGS_MAP
+            flags.add(LiteralPatternNode.FLAGS_MAP[char] ?: throw MarcelParserException(previous, "Unknown pattern flag $char"))
+          }
+        }
+        LiteralPatternNode(builder.toString(), flags)
       }
       TokenType.ESCAPE_SEQUENCE -> StringConstantNode(escapedSequenceValue(token.value))
       TokenType.NULL -> NullValueNode()
@@ -719,6 +735,8 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       "\\" -> "\\"
       "\'" -> "'"
       "\"" -> "\""
+      "`" -> "`"
+      "/" -> "/"
       else -> throw MarcelParserException(previous, "Unknown escaped sequence \\$escapedSequence")
     }
   }
@@ -816,6 +834,15 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       }
     }
   }
+  private fun simpleStringPart(scope: Scope): String {
+    val token = next()
+    return when (token.type) {
+      TokenType.REGULAR_STRING_PART -> token.value
+      TokenType.ESCAPE_SEQUENCE -> escapedSequenceValue(token.value)
+      else -> throw MarcelParserException(token, "Illegal token ${token.type} when parsing literal string")
+    }
+  }
+
   // assuming we already passed LPAR
   private fun parseFunctionArguments(scope: Scope): MutableList<ExpressionNode> {
     val arguments = mutableListOf<ExpressionNode>()

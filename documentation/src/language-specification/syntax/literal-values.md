@@ -45,19 +45,56 @@ Note that such strings **doesn't** resolve variables. If you want to construct a
 Pattern.compile("$some $pattern")
 ```
 
+<br/>
+It is good practise to end such regexes with a semi-colon (`;`) character, to make it clear to the compiler that what follows
+is not a regex flag (we'll talk about that just after) but a 'real' identifier.
+
+E.g.
+
+```javascript
+Pattern pattern = /myPattern/; // without the semi-colon, Marcel would think that 'println' characters are regex flags
+println(pattern)
+```
+
+
+#### Pattern flags
+
+You can also specify flags by adding a suffix at the end of your regex String.
+
+
+```javascript
+Pattern pattern = /myPattern/iu; // you can specify many flags at once
+println(pattern)
+```
+
+Here is the list of flags (you can see the doc of each flag in the [Javadoc of the Pattern's class](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#UNIX_LINES)).
+
+
+| character | Java Pattern <br/>Flag  |
+|-----------|-------------------------|
+| d         | UNIX_LINES              |
+| i         | CASE_INSENSITIVE        |
+| x         | COMMENTS                |
+| m         | MULTILINE               |
+| l         | LITERAL                 |
+| s         | DOTALL                  |
+| u         | UNICODE_CASE            |
+| c         | CANON_EQ                |
+| U         | UNICODE_CHARACTER_CLASS |
+
+
 ### Character
-Use the character backtick (<code>`</code>) to create characters.
+Use the backtick (<code>`</code>) to create primitive characters.
 Only one character must be specified between the two backticks
 
 
+```java
+char c = `A`
 ```
-`A`
-```
-
 
 
 ### Escaped characters
-Use backslash to escape 'special' characters. Here is the list of escaped characters
+Use backslash to escape 'special' characters within strings/characters. Here is the list of escaped characters
 
 | escaped character | represented value                               | 
 |-------------------|-------------------------------------------------|
@@ -68,6 +105,7 @@ Use backslash to escape 'special' characters. Here is the list of escaped charac
 | \\                | backslash	                                      | 
 | \'                | single quotes (useful in simple strings)	       | 
 | \"                | double quotes (useful in interpolated strings)	 | 
+| \`                | backtick (useful in character strings)	         | 
 
 
 ## Literal Numbers

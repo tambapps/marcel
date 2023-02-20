@@ -37,6 +37,7 @@ import com.tambapps.marcel.parser.ast.expression.MulOperator
 import com.tambapps.marcel.parser.ast.expression.NotNode
 import com.tambapps.marcel.parser.ast.expression.NullValueNode
 import com.tambapps.marcel.parser.ast.expression.OrOperator
+import com.tambapps.marcel.parser.ast.expression.LiteralPatternNode
 import com.tambapps.marcel.parser.ast.expression.PlusOperator
 import com.tambapps.marcel.parser.ast.expression.PowOperator
 import com.tambapps.marcel.parser.ast.expression.RangeNode
@@ -330,4 +331,6 @@ class ForEachNodeVisitor(private val consumer: (AstNode) -> Unit): AstNodeVisito
   override fun visit(thisReference: ThisReference) = consumer.invoke(thisReference)
 
   override fun visit(superReference: SuperReference) = consumer.invoke(superReference)
+
+  override fun visit(patternValueNode: LiteralPatternNode) = consumer.invoke(patternValueNode)
 }

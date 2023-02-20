@@ -35,6 +35,7 @@ import com.tambapps.marcel.parser.ast.expression.MulOperator
 import com.tambapps.marcel.parser.ast.expression.NotNode
 import com.tambapps.marcel.parser.ast.expression.NullValueNode
 import com.tambapps.marcel.parser.ast.expression.OrOperator
+import com.tambapps.marcel.parser.ast.expression.LiteralPatternNode
 import com.tambapps.marcel.parser.ast.expression.PlusOperator
 import com.tambapps.marcel.parser.ast.expression.PowOperator
 import com.tambapps.marcel.parser.ast.expression.RangeNode
@@ -322,5 +323,6 @@ class CheckAllPathsReturnVisitor: AstNodeVisitor<Boolean> {
   override fun visit(superReference: SuperReference) = false
 
   override fun visit(thisReference: ThisReference) = false
+  override fun visit(patternValueNode: LiteralPatternNode) = false
 
 }
