@@ -976,7 +976,7 @@ class InstructionGenerator(
     visit(VariableAssignmentNode(scope, tempVar.name, multiVariableDeclarationNode.expression))
     // then process each variable declarations
     for (i in multiVariableDeclarationNode.declarations.indices) {
-      val declaration = multiVariableDeclarationNode.declarations[i]
+      val declaration = multiVariableDeclarationNode.declarations[i] ?: continue
       visit(VariableDeclarationNode(scope, declaration.first, declaration.second, false,
         IndexedReferenceExpression(scope, tempVar.name, listOf(IntConstantNode(i)), false)))
     }

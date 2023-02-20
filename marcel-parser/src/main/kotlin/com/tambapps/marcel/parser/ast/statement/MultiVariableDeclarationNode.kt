@@ -7,14 +7,17 @@ import com.tambapps.marcel.parser.ast.expression.VariableAssignmentNode
 import com.tambapps.marcel.parser.scope.Scope
 
 open class MultiVariableDeclarationNode(val scope: Scope,
-                                        val declarations: List<Pair<JavaType, String>>,
+                                        val declarations: List<Pair<JavaType, String>?>,
                                         val expression: ExpressionNode
 ): StatementNode {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {
-    return declarations.joinToString(separator = ", ", prefix = "(", postfix = ") = ", transform = { "${it.first} ${it.second}" }) +
+    return declarations.joinToString(separator = ", ", prefix = "(", postfix = ") = ", transform = {
+      if (it != null) "${it.first} ${it.second}"
+      else "_"
+    }) +
         expression
   }
 

@@ -338,11 +338,17 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       }
       TokenType.DEF -> {
         accept(TokenType.LPAR)
-        val declarations = mutableListOf<Pair<JavaType, String>>()
+        val declarations = mutableListOf<Pair<JavaType, String>?>()
         while (current.type != TokenType.RPAR) {
-          val varType = parseType(scope)
-          val varName = accept(TokenType.IDENTIFIER).value
-          declarations.add(Pair(varType, varName))
+          // TODO document the '_' ignore variable when documenting this feature
+          if (current.type == TokenType.IDENTIFIER && current.value.all { it == '_' }) {
+            declarations.add(null)
+            skip()
+          } else {
+            val varType = parseType(scope)
+            val varName = accept(TokenType.IDENTIFIER).value
+            declarations.add(Pair(varType, varName))
+          }
           if (current.type == TokenType.COMMA) skip()
         }
         skip() // skip RPAR
