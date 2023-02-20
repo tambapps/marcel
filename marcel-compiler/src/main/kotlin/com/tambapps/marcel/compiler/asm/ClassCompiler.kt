@@ -9,7 +9,7 @@ import com.tambapps.marcel.parser.ast.ConstructorNode
 import com.tambapps.marcel.parser.ast.FieldNode
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.expression.*
-import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.ClassWriter
@@ -32,7 +32,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
         val implementationMethod = typeResolver.findMethod(classNode.type, interfaceMethod.name, interfaceMethod.parameters, true)
         if (implementationMethod == null || implementationMethod.isAbstract) {
           // maybe there is a generic implementation, in which case we have to generate the method with raw types
-          throw SemanticException("Class ${classNode.type} doesn't define method $interfaceMethod of interface $interfaze")
+          throw MarcelSemanticException("Class ${classNode.type} doesn't define method $interfaceMethod of interface $interfaze")
         }
         val rawInterfaceMethod = typeResolver.findMethod(interfaze.raw(), interfaceMethod.name, interfaceMethod.parameters, true)!!
         // we only need the match on parameters (== ignoring return type) because returning a more specific type is still a valid definition that doesn't need another implementation
@@ -138,7 +138,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     if (methodReturnType != JavaType.void && !methodReturnType.isAssignableFrom(blockReturnType) &&
       !blockReturnType.isAssignableFrom(methodReturnType)
       && methodReturnType.primitive && !blockReturnType.primitive) {
-      throw SemanticException("Return type of method $methodNode doesn't match method return type. "
+      throw MarcelSemanticException("Return type of method $methodNode doesn't match method return type. "
           + "Expected $methodReturnType but got $blockReturnType")
     }
 

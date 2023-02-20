@@ -6,7 +6,7 @@ import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.ast.StaticImportNode
 import com.tambapps.marcel.parser.ast.WildcardImportNode
-import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.methods.DefaultMarcelStaticMethods
@@ -40,7 +40,7 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
   }
   open fun addLocalVariable(type: JavaType, name: String, isFinal: Boolean = false): LocalVariable {
     if (localVariables.any { it.name == name }) {
-      throw SemanticException("A variable with name $name is already defined")
+      throw MarcelSemanticException("A variable with name $name is already defined")
     }
     val v = localVariablePool.obtain(type, name, isFinal)
     localVariables.add(v)
@@ -60,14 +60,14 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
     return (typeResolver.findMethod(classType, name, argumentTypes)
       // fallback on static imported method
       ?: imports.asSequence().mapNotNull { it.resolveMethod(typeResolver, name, argumentTypes) }.firstOrNull())
-      ?: throw SemanticException("Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
+      ?: throw MarcelSemanticException("Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
   open fun findLocalVariable(name: String): LocalVariable? {
     return localVariables.find { it.name == name }
   }
 
   open fun findVariableOrThrow(name: String): Variable {
-    return findVariable(name) ?: throw SemanticException("Variable $name is not defined")
+    return findVariable(name) ?: throw MarcelSemanticException("Variable $name is not defined")
   }
 
 
@@ -96,13 +96,13 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
     val matchedClasses = imports.mapNotNull { it.resolveClassName(classSimpleName) }.toSet()
     return if (matchedClasses.isEmpty()) classSimpleName
     else if (matchedClasses.size == 1) matchedClasses.first()
-    else throw SemanticException("Ambiguous import for class $classSimpleName")
+    else throw MarcelSemanticException("Ambiguous import for class $classSimpleName")
   }
 
   fun getTypeOrNull(name: String): JavaType? {
     return try {
       resolveType(name, emptyList())
-    } catch (e: SemanticException) {
+    } catch (e: MarcelSemanticException) {
       null
     }
   }

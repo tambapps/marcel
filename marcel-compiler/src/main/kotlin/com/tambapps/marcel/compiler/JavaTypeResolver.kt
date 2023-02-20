@@ -10,7 +10,7 @@ import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.GetFieldAccessOperator
 import com.tambapps.marcel.parser.ast.expression.LiteralArrayNode
 import com.tambapps.marcel.parser.ast.expression.LiteralMapNode
-import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.ClassField
 import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.scope.MethodField
@@ -27,13 +27,13 @@ class JavaTypeResolver: AstNodeTypeResolver() {
   override fun defineMethod(javaType: JavaType, method: JavaMethod) {
     val methods = getMarcelMethods(javaType)
     if (methods.any { it.matches(this, method.name, method.parameters) }) {
-      throw SemanticException("Method with $method is already defined")
+      throw MarcelSemanticException("Method with $method is already defined")
     }
     methods.add(method)
   }
 
   override fun defineField(javaType: JavaType, field: MarcelField) {
-    if (javaType.isLoaded) throw SemanticException("Cannot define field on loaded class")
+    if (javaType.isLoaded) throw MarcelSemanticException("Cannot define field on loaded class")
     val fields = getMarcelFields(javaType)
     fields.add(field)
   }

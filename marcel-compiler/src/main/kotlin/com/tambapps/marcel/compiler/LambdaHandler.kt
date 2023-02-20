@@ -16,7 +16,7 @@ import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
-import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.LambdaScope
 import com.tambapps.marcel.parser.scope.LocalVariable
 import com.tambapps.marcel.parser.scope.MethodScope
@@ -77,13 +77,13 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
       parameters = mutableListOf(MethodParameter(lambdaMethod.parameters.first().type, lambdaMethod.parameters.first().type, "it"))
     } else if (lambdaNode.parameters.isNotEmpty()) {
       if (lambdaMethod.parameters.size != lambdaNode.parameters.size) {
-        throw SemanticException("Lambda method parameters count is not consistent")
+        throw MarcelSemanticException("Lambda method parameters count is not consistent")
       }
       for (i in lambdaMethod.parameters.indices) {
         val methodParameter = lambdaMethod.parameters[i]
         val nodeParameter = lambdaNode.parameters[i]
         if (!nodeParameter.type.isAssignableFrom(methodParameter.type)) {
-          throw SemanticException("Bad parameter lambda ${nodeParameter.type} ${nodeParameter.name}")
+          throw MarcelSemanticException("Bad parameter lambda ${nodeParameter.type} ${nodeParameter.name}")
         }
         parameters[i] = nodeParameter
       }
@@ -105,7 +105,7 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
       val declaredMethods = scope.typeResolver.getDeclaredMethods(interfaceType)
         .filter { it.isAbstract }
       if (declaredMethods.size != 1) {
-        throw SemanticException("Cannot make a lambda out of interface $interfaceType")
+        throw MarcelSemanticException("Cannot make a lambda out of interface $interfaceType")
       }
 
       val interfaceMethod = declaredMethods.first()

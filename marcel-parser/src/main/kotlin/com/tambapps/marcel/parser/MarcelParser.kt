@@ -16,7 +16,7 @@ import com.tambapps.marcel.parser.ast.statement.MultiVariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
-import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.scope.LambdaScope
 import com.tambapps.marcel.parser.scope.MethodScope
@@ -170,7 +170,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
             TokenType.FUN -> {
               val method = method(classNode)
               if (method.name == "main") {
-                throw SemanticException("Cannot have a \"main\" function in a script")
+                throw MarcelSemanticException("Cannot have a \"main\" function in a script")
               }
               classNode.addMethod(method)
             }
@@ -239,7 +239,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       val type = parseType(classScope)
       val argName = accept(TokenType.IDENTIFIER).value
       if (parameters.any { it.name == argName }) {
-        throw SemanticException("Cannot two method parameters with the same name")
+        throw MarcelSemanticException("Cannot two method parameters with the same name")
       }
       parameters.add(MethodParameter(type, argName))
       if (current.type == TokenType.RPAR) {
@@ -279,7 +279,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       val statement = statement(scope)
       if (statements.lastOrNull() is ReturnNode) {
         // we have another statement after a return? shouldn't be possible
-        throw SemanticException("Cannot have other statements after a return")
+        throw MarcelSemanticException("Cannot have other statements after a return")
       }
       statements.add(statement)
     }

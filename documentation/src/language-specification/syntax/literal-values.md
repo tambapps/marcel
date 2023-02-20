@@ -2,7 +2,7 @@
 
 There are different ways to create strings in Marcel
 
-### Simple strings (not yet implemented)
+### Strings
 You can use the single quote character (`'`) to create strings
 ```kotlin
 'Hello world!'
@@ -24,6 +24,26 @@ If you need to access a property, use the brackets
 "${person.firstName} ${person.lastName} is ${person.age} years old"
 ```
 
+
+### Regex strings (Java Patterns)
+
+You can instantiate [Patterns](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html) using backslash strings. 
+These strings are reserved for pattern only.
+
+
+The backslash is **not** considered as an escape, except for the backlash character
+(which would be escaped as `\/`).
+
+```javascript
+/some \w+/
+```
+
+Note that such strings **doesn't** resolve variables. If you want to construct a Pattern while resolving Strings, you could
+ do as below
+
+```kotlin
+Pattern.compile("$some $pattern")
+```
 
 ### Character
 Use the character backtick (<code>`</code>) to create characters.

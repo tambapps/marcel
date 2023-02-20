@@ -20,7 +20,7 @@ import com.tambapps.marcel.parser.ast.statement.MultiVariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
-import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.scope.LocalVariable
 import com.tambapps.marcel.parser.scope.MarcelField
@@ -100,12 +100,12 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   private fun visitConditionalBranchFlow(switchNode: ConditionalBranchFlowNode<*>, itParameter: MethodParameter? = null, itArgument: ExpressionNode? = null) {
     if (switchNode.branches.isEmpty()) {
-      throw SemanticException("Switch must have at least one branch")
+      throw MarcelSemanticException("Switch must have at least one branch")
     }
 
     val switchType = switchNode.getType(typeResolver)
     if (switchNode.elseStatement == null && switchType.primitive && switchType.type != JavaType.void) {
-      throw SemanticException("Need to cover all cases (an else branch) for  switch returning primitives as they cannot be null")
+      throw MarcelSemanticException("Need to cover all cases (an else branch) for  switch returning primitives as they cannot be null")
     }
 
     val elseStatement = switchNode.elseStatement ?: ExpressionStatementNode(NullValueNode(switchType))
@@ -242,7 +242,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   override fun visit(fCall: ConstructorCallNode) {
     if (fCall.type.primitive) {
-      throw SemanticException("Cannot instantiate a primitive type")
+      throw MarcelSemanticException("Cannot instantiate a primitive type")
     }
     mv.visitConstructorCall(fCall)
   }
@@ -283,7 +283,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   fun marcelOperator(binaryOperatorNode: BinaryOperatorNode, operatorMethodName: String): JavaType {
     val type1 = binaryOperatorNode.leftOperand.getType(typeResolver)
     if (type1.primitive) {
-      throw SemanticException("Doesn't support left shirt operator for primitive type")
+      throw MarcelSemanticException("Doesn't support left shirt operator for primitive type")
     }
     val leftShiftMethod = typeResolver.findMethodOrThrow(type1, operatorMethodName, listOf(binaryOperatorNode.rightOperand.getType(typeResolver)))
     pushArgument(binaryOperatorNode.leftOperand)
@@ -295,7 +295,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   override fun visit(asNode: AsNode) {
     val expression = asNode.expressionNode
     if (expression is LiteralArrayNode && expression.elements.isEmpty()) {
-      visit(EmptyArrayNode(asNode.type as? JavaArrayType ?: throw SemanticException("Can only convert empty arrays to array types using 'as' keyword")))
+      visit(EmptyArrayNode(asNode.type as? JavaArrayType ?: throw MarcelSemanticException("Can only convert empty arrays to array types using 'as' keyword")))
     } else {
       asNode.expressionNode.accept(this)
       mv.castIfNecessaryOrThrow(asNode.type, asNode.expressionNode.getType(typeResolver))
@@ -304,7 +304,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   override fun visit(isOperator: IsOperator) {
     if (isOperator.leftOperand.getType(typeResolver).primitive || isOperator.rightOperand.getType(typeResolver).primitive) {
-      throw SemanticException("Cannot apply '===' operator on primitive types")
+      throw MarcelSemanticException("Cannot apply '===' operator on primitive types")
     }
     pushOperands(isOperator)
     val l1 = Label()
@@ -319,7 +319,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
   override fun visit(isNotOperator: IsNotOperator) {
     if (isNotOperator.leftOperand.getType(typeResolver).primitive || isNotOperator.rightOperand.getType(typeResolver).primitive) {
-      throw SemanticException("Cannot apply '!==' operator on primitive types")
+      throw MarcelSemanticException("Cannot apply '!==' operator on primitive types")
     }
 
     pushOperands(isNotOperator)
@@ -348,7 +348,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       if ((leftOperand is NullValueNode || rightOperand is NullValueNode)) {
         objectcomparison = true
         if (operator != ComparisonOperator.EQUAL && operator != ComparisonOperator.NOT_EQUAL) {
-          throw SemanticException("Cannot compare null value with ${operator.symbolString} operator")
+          throw MarcelSemanticException("Cannot compare null value with ${operator.symbolString} operator")
         }
       } else {
         when (operator) {
@@ -359,7 +359,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
           }
           else -> {
             val method = typeResolver.findMethodOrThrow(leftOperand.getType(typeResolver), "compareTo", listOf(rightOperand.getType(typeResolver)))
-            if (method.returnType != JavaType.int) throw SemanticException("compareTo method should return an int in order to be used in comparator")
+            if (method.returnType != JavaType.int) throw MarcelSemanticException("compareTo method should return an int in order to be used in comparator")
             mv.invokeMethod(method)
             mv.pushConstant(0) // pushing 0 because we're comparing two numbers below
           }
@@ -485,12 +485,12 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     if (method.isInline) {
       val inlineMethod = method as MethodNode
       val innerScope = InnerScope(
-        fCall.scope as? MethodScope ?: throw SemanticException("Can only call inline functions in a method"))
+        fCall.scope as? MethodScope ?: throw MarcelSemanticException("Can only call inline functions in a method"))
       val inlineBlock = inlineMethod.block.asSimpleBlock(innerScope)
       inlineBlock.setTreeScope(innerScope)
       // initializing arguments
       if (fCall.arguments.size != inlineMethod.parameters.size) {
-        throw SemanticException("Invalid number of arguments for method ${method.name}")
+        throw MarcelSemanticException("Invalid number of arguments for method ${method.name}")
       }
       val variables = method.parameters.map { innerScope.addLocalVariable(it.type, it.name) }
       for (i in variables.indices) {
@@ -539,7 +539,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       else if (JavaType.doubleList.isAssignableFrom(variableType) || JavaType.doubleSet.isAssignableFrom(variableType)) JavaType.double
       else if (JavaType.charList.isAssignableFrom(variableType) || JavaType.characterSet.isAssignableFrom(variableType)) JavaType.char
       else if (JavaType.of(Collection::class.java).isAssignableFrom(variableType) && variableType.genericTypes.isNotEmpty()) variableType.genericTypes.first()
-      else throw SemanticException("Couldn't guess type of empty array. You can explicitly specify your wanted type with the 'as' keyword (e.g. '[] as int[]')")
+      else throw MarcelSemanticException("Couldn't guess type of empty array. You can explicitly specify your wanted type with the 'as' keyword (e.g. '[] as int[]')")
       expression = EmptyArrayNode(JavaType.arrayType(elementsType))
     } else if (variableType.isInterface && expression is LambdaNode) {
       expression.interfaceType = variableType
@@ -675,7 +675,7 @@ class InstructionGenerator(
     else if (Iterator::class.javaType.isAssignableFrom(expressionType)) expression
     else if (CharSequence::class.javaType.isAssignableFrom(expressionType)) ConstructorCallNode(scope, CharSequenceIterator::class.java.javaType,
       mutableListOf(expression))
-    else throw SemanticException("Doesn't handle iterating on $expressionType")
+    else throw MarcelSemanticException("Doesn't handle iterating on $expressionType")
     val iteratorExpressionType = iteratorExpression.getType(typeResolver)
 
     val iteratorVariable = scope.addLocalVariable(iteratorExpressionType)
@@ -725,12 +725,12 @@ class InstructionGenerator(
   }
 
   override fun visit(breakLoopNode: BreakLoopNode) {
-    val label = breakLoopNode.scope.breakLabel ?: throw SemanticException("Cannot use break statement outside of a loop")
+    val label = breakLoopNode.scope.breakLabel ?: throw MarcelSemanticException("Cannot use break statement outside of a loop")
     mv.jumpTo(label)
   }
 
   override fun visit(continueLoopNode: ContinueLoopNode) {
-    val label = continueLoopNode.scope.continueLabel ?: throw SemanticException("Cannot use continue statement outside of a loop")
+    val label = continueLoopNode.scope.continueLabel ?: throw MarcelSemanticException("Cannot use continue statement outside of a loop")
     mv.jumpTo(label)
   }
 
@@ -871,7 +871,7 @@ class InstructionGenerator(
         mv.pushNull()
         mv.returnCode(blockNode.scope.returnType.returnCode)
       } else if (lastStatement == null || !lastStatement.allBranchesReturn()) {
-        throw SemanticException("Function returning primitive types must explicitly return an expression as the last statement." +
+        throw MarcelSemanticException("Function returning primitive types must explicitly return an expression as the last statement." +
             "You must explicitly return an expression, a switch or a when.")
       } else {
         lastStatement.accept(this)
@@ -947,7 +947,7 @@ class InstructionGenerator(
     val scope = multiVariableDeclarationNode.scope
     val expressionType = multiVariableDeclarationNode.expression.getType(typeResolver)
     if (!List::class.javaType.isAssignableFrom(expressionType) && !expressionType.isArray) {
-      throw SemanticException("Multi variable declarations must use an array or a list as the expression")
+      throw MarcelSemanticException("Multi variable declarations must use an array or a list as the expression")
     }
     val tempVar = scope.addLocalVariable(expressionType)
     // assign expression to variable
@@ -976,7 +976,7 @@ class InstructionGenerator(
 
   override fun visit(returnNode: ReturnNode) {
     if (returnNode.expression != null && returnNode.scope.returnType == JavaType.void) {
-      throw SemanticException("Cannot return an expression in a void function")
+      throw MarcelSemanticException("Cannot return an expression in a void function")
     }
     pushArgument(returnNode.expression)
     mv.castIfNecessaryOrThrow(returnNode.scope.returnType, returnNode.expression.getType(typeResolver))
@@ -1021,7 +1021,7 @@ private class PushingInstructionGenerator(
           objectKeys = true
           "newObject2ObjectMap"
         } else {
-          throw SemanticException("Doesn't handle maps of type ${literalMapNode.getType(typeResolver)}")
+          throw MarcelSemanticException("Doesn't handle maps of type ${literalMapNode.getType(typeResolver)}")
         }
       }
     }
@@ -1161,7 +1161,7 @@ private class PushingInstructionGenerator(
 
   override fun visit(charNode: CharConstantNode) {
     val value = charNode.value
-    if (value.length != 1) throw SemanticException("Characters should be strings of exactly one char")
+    if (value.length != 1) throw MarcelSemanticException("Characters should be strings of exactly one char")
     mv.pushConstant(value[0])
   }
   override fun visit(nullValueNode: NullValueNode) {
@@ -1169,12 +1169,12 @@ private class PushingInstructionGenerator(
   }
 
   override fun visit(superReference: SuperReference) {
-    if (methodNode.isStatic) throw SemanticException("Cannot reference 'super' in a static context")
+    if (methodNode.isStatic) throw MarcelSemanticException("Cannot reference 'super' in a static context")
     mv.pushThis() // super is actually this. The difference is in the class internalName supplied when performing ASM instructions
   }
 
   override fun visit(thisReference: ThisReference) {
-    if (methodNode.isStatic) throw SemanticException("Cannot reference 'this' in a static context")
+    if (methodNode.isStatic) throw MarcelSemanticException("Cannot reference 'this' in a static context")
     mv.pushThis()
   }
 

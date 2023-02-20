@@ -70,7 +70,7 @@ import com.tambapps.marcel.parser.ast.statement.MultiVariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
-import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaMethod
@@ -100,11 +100,11 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
     val className = if (outerClassType != null) "${outerClassType.className}\$$cName" else cName
     try {
       Class.forName(className)
-      throw SemanticException("Class $className is already defined")
+      throw MarcelSemanticException("Class $className is already defined")
     } catch (e: ClassNotFoundException) {
       // ignore
     }
-    if (definedTypes.containsKey(className)) throw SemanticException("Class $className is already defined")
+    if (definedTypes.containsKey(className)) throw MarcelSemanticException("Class $className is already defined")
     // TODO only handle interfaces that are already loaded, as the type is not lazily loaded
     val type = NotLoadedJavaType(className, emptyList(), emptyList(),  superClass, isInterface, interfaces)
     definedTypes[className] = type
@@ -115,7 +115,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
     return try {
       of(className, emptyList())
       true
-    } catch (e: SemanticException) {
+    } catch (e: MarcelSemanticException) {
       false
     }
   }
@@ -139,7 +139,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
   }
 
   fun findMethodOrThrow(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>): JavaMethod {
-    val m =  findMethod(javaType, name, argumentTypes) ?: throw SemanticException("Method $javaType.$name with parameters ${argumentTypes.map { it.type }} is not defined")
+    val m =  findMethod(javaType, name, argumentTypes) ?: throw MarcelSemanticException("Method $javaType.$name with parameters ${argumentTypes.map { it.type }} is not defined")
     return if (javaType.genericTypes.isNotEmpty()) m.withGenericTypes(javaType.genericTypes)
      else m
 
@@ -150,7 +150,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
   }
 
   fun findFieldOrThrow(javaType: JavaType, name: String, declared: Boolean = true): MarcelField {
-    return findField(javaType, name, declared) ?: throw SemanticException("Field $name was not found")
+    return findField(javaType, name, declared) ?: throw MarcelSemanticException("Field $name was not found")
   }
 
   open fun findField(javaType: JavaType, name: String, declared: Boolean): MarcelField? {
@@ -213,9 +213,9 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
   override fun visit(referenceExpression: ReferenceExpression) =
     try {
       referenceExpression.scope.findVariableOrThrow(referenceExpression.name).type
-    } catch (e: SemanticException) {
+    } catch (e: MarcelSemanticException) {
       // for static function calls
-      referenceExpression.scope.getTypeOrNull(referenceExpression.name) ?: throw SemanticException("No variable or class named ${referenceExpression.name} was found")
+      referenceExpression.scope.getTypeOrNull(referenceExpression.name) ?: throw MarcelSemanticException("No variable or class named ${referenceExpression.name} was found")
     }
 
   override fun visit(indexedReferenceExpression: IndexedReferenceExpression): JavaType {

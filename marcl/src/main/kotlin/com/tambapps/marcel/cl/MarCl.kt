@@ -11,7 +11,7 @@ import com.tambapps.marcel.compiler.JarWriter
 import com.tambapps.marcel.compiler.MarcelCompiler
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParserException
-import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import marcel.lang.Script
 import java.io.File
 import java.io.IOException
@@ -107,7 +107,7 @@ fun compile(file: File, className: String, keepClassFiles: Boolean, keepJarFile:
     println("Parsing error: ${e.message}")
     if (printStackTrace) e.printStackTrace()
     return null
-  } catch (e: SemanticException) {
+  } catch (e: MarcelSemanticException) {
     println("Semantic error: ${e.message}")
     if (printStackTrace) e.printStackTrace()
     return null

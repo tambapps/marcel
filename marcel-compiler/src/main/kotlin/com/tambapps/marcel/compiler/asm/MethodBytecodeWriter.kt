@@ -10,7 +10,7 @@ import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.ast.expression.LambdaNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
-import com.tambapps.marcel.parser.exception.SemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.*
 import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaMethod
@@ -75,7 +75,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
   }
   private fun pushFunctionCallArguments(method: JavaMethod, arguments: List<ExpressionNode>) {
     if (method.parameters.size != arguments.size) {
-      throw SemanticException("Tried to call function $method with ${arguments.size} instead of ${method.parameters.size}")
+      throw MarcelSemanticException("Tried to call function $method with ${arguments.size} instead of ${method.parameters.size}")
     }
     for (i in method.parameters.indices) {
       val expectedType = method.parameters[i].type
@@ -217,12 +217,12 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
             throw RuntimeException("Compiler error. Shouldn't push class field of not current class with this method")
           }
           if (!variable.canGet) {
-            throw SemanticException("Variable ${variable.name} has no getter")
+            throw MarcelSemanticException("Variable ${variable.name} has no getter")
           }
           invokeMethod(variable.getterMethod)
         }
       }
-      else -> throw SemanticException("Variable type ${variable.javaClass} is not handled")
+      else -> throw MarcelSemanticException("Variable type ${variable.javaClass} is not handled")
     }
   }
 
@@ -234,7 +234,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
         if (castInstruction != null) {
           mv.visitInsn(castInstruction)
         } else if (expectedType == JavaType.char && actualType == JavaType.int) { // no need to cast for char to int conversion
-          throw SemanticException("Cannot cast primitive $actualType to primitive $expectedType")
+          throw MarcelSemanticException("Cannot cast primitive $actualType to primitive $expectedType")
         }
       } else if (expectedType != JavaType.Object && actualType.isArray) {
         // lists
@@ -265,7 +265,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
         } else if (Set::class.javaType.isAssignableFrom(expectedType) && actualType.isArray) {
           invokeMethod(BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.Object.realClazz))
         } else {
-          throw SemanticException("Incompatible types. Expected type $expectedType but gave an expression of type $actualType")
+          throw MarcelSemanticException("Incompatible types. Expected type $expectedType but gave an expression of type $actualType")
         }
       } else if (!expectedType.primitive && !actualType.primitive) {
         // both Object classes
@@ -281,7 +281,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
             // actualType is a parent of expectedType? might be able to cast it
             mv.visitTypeInsn(Opcodes.CHECKCAST, expectedType.internalName)
           } else {
-            throw SemanticException("Incompatible types. Expected type $expectedType but gave an expression of type $actualType")
+            throw MarcelSemanticException("Incompatible types. Expected type $expectedType but gave an expression of type $actualType")
           }
         }
       } else {
@@ -335,7 +335,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
               }
               invokeMethod(Class.forName(JavaType.Double.className).getMethod("doubleValue"))
             }
-            else -> throw SemanticException("Doesn't handle conversion from $actualType to $expectedType")
+            else -> throw MarcelSemanticException("Doesn't handle conversion from $actualType to $expectedType")
           }
         } else {
           // cast primitive to Object
@@ -347,7 +347,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
             || expectedType !in listOf(
               JavaType.Boolean, JavaType.Integer, JavaType.Long, JavaType.Float, JavaType.Double, Number::class.javaType, JavaType.Object
             )) {
-            throw SemanticException("Cannot cast $actualType to $expectedType")
+            throw MarcelSemanticException("Cannot cast $actualType to $expectedType")
           }
           when (actualType) {
             JavaType.boolean -> invokeMethod(Class.forName(JavaType.Boolean.className).getMethod("valueOf", Boolean::class.java))
@@ -356,7 +356,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
             JavaType.float -> invokeMethod(Class.forName(JavaType.Float.className).getMethod("valueOf", Float::class.java))
             JavaType.double -> invokeMethod(Class.forName(JavaType.Double.className).getMethod("valueOf", Double::class.java))
             JavaType.char -> invokeMethod(Class.forName(JavaType.Character.className).getMethod("valueOf", JavaType.char.realClazz))
-            else -> throw SemanticException("Doesn't handle conversion from $actualType to $expectedType")
+            else -> throw MarcelSemanticException("Doesn't handle conversion from $actualType to $expectedType")
           }
         }
       }
@@ -364,7 +364,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
   }
 
   fun storeInVariable(variable: Variable) {
-    if (variable.isFinal && variable.alreadySet) throw SemanticException("Cannot reset a value for final variable ${variable.name}")
+    if (variable.isFinal && variable.alreadySet) throw MarcelSemanticException("Cannot reset a value for final variable ${variable.name}")
     when (variable) {
       is LocalVariable -> mv.visitVarInsn(variable.type.storeCode, variable.index)
 
@@ -372,7 +372,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       is ClassField -> mv.visitFieldInsn(variable.putCode, variable.owner.internalName, variable.name, variable.type.descriptor)
       is MethodField -> {
         if (!variable.canSet) {
-          throw SemanticException("Field ${variable.name} of class ${variable.owner} is not settable")
+          throw MarcelSemanticException("Field ${variable.name} of class ${variable.owner} is not settable")
         }
         invokeMethod(variable.setterMethod)
       }
@@ -388,7 +388,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       }
       is MethodField -> {
         if (!field.canGet) {
-          throw SemanticException("Field ${field.name} of class ${field.owner} is not gettable")
+          throw MarcelSemanticException("Field ${field.name} of class ${field.owner} is not gettable")
         }
         invokeMethod(field.getterMethod)
       }
@@ -427,7 +427,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
   }
   fun getAt(type: JavaType, indexArguments: List<ExpressionNode>) {
     if (type.isArray) {
-      if (indexArguments.size != 1) throw SemanticException("Need only one int argument to get an array")
+      if (indexArguments.size != 1) throw MarcelSemanticException("Need only one int argument to get an array")
       val arg = indexArguments.first()
       // push index
       argumentPusher.pushArgument(arg)
@@ -449,7 +449,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
   ) {
     if (variable.type.isArray) {
       val variableType = variable.type.asArrayType
-      if (indexArguments.size != 1) throw SemanticException("Need only one int argument to get an array")
+      if (indexArguments.size != 1) throw MarcelSemanticException("Need only one int argument to get an array")
       val arg = indexArguments.first()
       // push array
       pushVariable(scope, variable)
