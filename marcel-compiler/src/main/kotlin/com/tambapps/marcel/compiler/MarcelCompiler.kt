@@ -4,7 +4,7 @@ import com.tambapps.marcel.compiler.asm.ClassCompiler
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
-import com.tambapps.marcel.parser.MarcelParsingException
+import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ConstructorNode
@@ -28,12 +28,12 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
 
   constructor(): this(CompilerConfiguration.DEFAULT_CONFIGURATION)
 
-  @Throws(IOException::class, MarcelLexerException::class, MarcelParsingException::class, SemanticException::class)
+  @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, SemanticException::class)
   fun compile(reader: Reader, className: String? = null): CompilationResult {
     return compile(reader.readText(), className)
   }
 
-  @Throws(IOException::class, MarcelLexerException::class, MarcelParsingException::class, SemanticException::class)
+  @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, SemanticException::class)
   fun compile(text: String, className: String? = null): CompilationResult {
     val tokens = MarcelLexer().lex(text)
     val typeResolver = JavaTypeResolver()

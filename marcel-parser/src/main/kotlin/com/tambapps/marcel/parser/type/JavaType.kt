@@ -1,7 +1,7 @@
 package com.tambapps.marcel.parser.type
 
 import com.tambapps.marcel.lexer.TokenType
-import com.tambapps.marcel.parser.MarcelParsingException
+import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.ast.expression.BooleanConstantNode
@@ -192,7 +192,7 @@ interface JavaType: AstTypedObject {
         double -> doubleArray
         boolean -> booleanArray
         char -> charArray
-        else -> throw MarcelParsingException("Doesn't handle primitive $elementsType arrays")
+        else -> throw SemanticException("Doesn't handle primitive $elementsType arrays")
       }
     }
     fun of(className: String, genericTypes: List<JavaType>): JavaType {

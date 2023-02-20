@@ -29,10 +29,10 @@ class MarcelParserTest {
     @Test
     fun testExpression() {
         val parser = MarcelParser(typeResolver, listOf(
-            LexToken(TokenType.INTEGER, "2"),
-            LexToken(TokenType.MUL, null),
-            LexToken(TokenType.INTEGER, "3"),
-            LexToken(TokenType.END_OF_FILE, null)
+            lexToken(TokenType.INTEGER, "2"),
+            lexToken(TokenType.MUL, null),
+            lexToken(TokenType.INTEGER, "3"),
+            lexToken(TokenType.END_OF_FILE, null)
         ))
         val result = parser.expression(Scope(typeResolver, type))
         assertEquals(MulOperator(IntConstantNode(2), IntConstantNode(3)), result)
@@ -97,5 +97,8 @@ class MarcelParserTest {
 
     private fun parser(s: String): MarcelParser {
         return MarcelParser(typeResolver, tokens(s))
+    }
+    private fun lexToken(type: TokenType, value: String? = null): LexToken {
+        return LexToken(0, 0, type, value)
     }
 }

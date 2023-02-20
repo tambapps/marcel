@@ -10,7 +10,7 @@ import com.github.ajalt.clikt.parameters.types.file
 import com.tambapps.marcel.compiler.JarWriter
 import com.tambapps.marcel.compiler.MarcelCompiler
 import com.tambapps.marcel.lexer.MarcelLexerException
-import com.tambapps.marcel.parser.MarcelParsingException
+import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.parser.exception.SemanticException
 import marcel.lang.Script
 import java.io.File
@@ -103,7 +103,7 @@ fun compile(file: File, className: String, keepClassFiles: Boolean, keepJarFile:
     println("Lexer error: ${e.message}")
     if (printStackTrace) e.printStackTrace()
     return null
-  } catch (e: MarcelParsingException) {
+  } catch (e: MarcelParserException) {
     println("Parsing error: ${e.message}")
     if (printStackTrace) e.printStackTrace()
     return null
