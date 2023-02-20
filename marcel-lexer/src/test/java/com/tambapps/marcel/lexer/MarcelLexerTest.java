@@ -2,6 +2,7 @@ package com.tambapps.marcel.lexer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static com.tambapps.marcel.lexer.TokenType.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -141,11 +142,19 @@ public class MarcelLexerTest {
     ), lexer.lex("'some$/\"\\''"));
   }
 
+  @Test
+  public void testFail() {
+    MarcelLexerException e = assertThrows(MarcelLexerException.class, () -> lexer.lex("'some$/\"\\"));
+    assertEquals(0, e.getLine());
+    assertEquals(8, e.getColumn());
+    System.out.println(e.getMessage());
+  }
+
 
   private LexToken token(TokenType type) {
     return token(type, null);
   }
   private LexToken token(TokenType type, String value) {
-    return new LexToken(type, value);
+    return new LexToken(0, 0, type, value);
   }
 }

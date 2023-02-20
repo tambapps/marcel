@@ -28,16 +28,30 @@ public class MarcelLexer {
     jflexer.reset(content, 0, content.length(), MarcelJflexer.YYINITIAL);
     List<LexToken> tokens = new ArrayList<>();
     LexToken token;
-    while ((token = jflexer.nextToken()) != null) {
-      TokenType type = token.getType();
-      if (type == TokenType.BAD_CHARACTER) {
-        throw new MarcelLexerException("Bad character " + token.getValue());
+    try {
+      while ((token = jflexer.nextToken()) != null) {
+        TokenType type = token.getType();
+        if (type == TokenType.BAD_CHARACTER) {
+          throw new MarcelLexerException(token.getLine(), token.getColumn(), "Bad character " + token.getValue());
+        }
+        if (!COMMENT_TOKENS.contains(type) && (!ignoreWhitespaces || type != TokenType.WHITE_SPACE)) {
+          tokens.add(token);
+        }
       }
-      if (!COMMENT_TOKENS.contains(type) && (!ignoreWhitespaces || type != TokenType.WHITE_SPACE)) {
-        tokens.add(token);
+    } catch (MarcelJfexerException e) {
+      int line = jflexer.getYyline();
+      int column = jflexer.getYycolumn();
+      String message = e.getMessage();
+      if (jflexer.getZzLexicalState() == MarcelJflexer.STRING
+      || jflexer.getZzLexicalState() == MarcelJflexer.SIMPLE_STRING
+      || jflexer.getZzLexicalState() == MarcelJflexer.CHAR_STRING
+      || jflexer.getZzLexicalState() == MarcelJflexer.RAW_STRING
+      || jflexer.getZzLexicalState() == MarcelJflexer.REGEX_STRING) {
+        message = "String is malformed";
       }
+      throw new MarcelLexerException(line, column, message);
     }
-    tokens.add(new LexToken(TokenType.END_OF_FILE));
+    tokens.add(new LexToken(jflexer.getYyline(), jflexer.getYycolumn(), TokenType.END_OF_FILE, null));
     return tokens;
   }
 

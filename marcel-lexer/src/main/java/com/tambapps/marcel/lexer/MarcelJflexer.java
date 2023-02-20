@@ -705,9 +705,9 @@ public class MarcelJflexer {
         private LexToken commentStateToTokenType(int state) {
             switch (state) {
                 case BLOCK_COMMENT:
-                    return new LexToken(TokenType.BLOCK_COMMENT);
+                    return new LexToken(yyline, yycolumn, TokenType.BLOCK_COMMENT, null);
                 case DOC_COMMENT:
-                    return new LexToken(TokenType.DOC_COMMENT);
+                    return new LexToken(yyline, yycolumn, TokenType.DOC_COMMENT, null);
                 default:
                     throw new IllegalArgumentException("Unexpected state: " + state);
             }
@@ -715,16 +715,19 @@ public class MarcelJflexer {
 
   // tokens for which we need to save current buffer
   private LexToken valueToken(TokenType tokenType) {
-    return new LexToken(tokenType, getTokenString());
+    return new LexToken(yyline, yycolumn, tokenType, getTokenString());
   }
   private LexToken token(TokenType tokenType) {
-    return new LexToken(tokenType, null);
+    return new LexToken(yyline, yycolumn, tokenType, null);
   }
 
   public String getTokenString() {
     return zzBuffer.subSequence(getTokenStart(), getTokenEnd()).toString();
   }
 
+  public int getYyline() { return yyline; }
+  public int getYycolumn() { return yycolumn; }
+  public int getZzLexicalState() { return zzLexicalState; }
 
 
   /**
@@ -852,7 +855,7 @@ public class MarcelJflexer {
    *
    * @param   errorCode  the code of the errormessage to display
    */
-  private void zzScanError(int errorCode) throws MarcelLexerException {
+  private void zzScanError(int errorCode) throws MarcelJfexerException {
     String message;
     try {
       message = ZZ_ERROR_MSG[errorCode];
@@ -861,7 +864,7 @@ public class MarcelJflexer {
       message = ZZ_ERROR_MSG[ZZ_UNKNOWN_ERROR];
     }
 
-    throw new MarcelLexerException(message);
+    throw new MarcelJfexerException(message);
   }
 
 
@@ -873,7 +876,7 @@ public class MarcelJflexer {
    * @param number  the number of characters to be read again.
    *                This number must not be greater than yylength()!
    */
-  public void yypushback(int number)  throws MarcelLexerException {
+  public void yypushback(int number)  throws MarcelJfexerException {
     if ( number > yylength() )
       zzScanError(ZZ_PUSHBACK_2BIG);
 
@@ -901,7 +904,7 @@ public class MarcelJflexer {
    * @return      the next token
    * @exception   java.io.IOException  if any I/O-Error occurs
    */
-  public LexToken nextToken() throws java.io.IOException, MarcelLexerException {
+  public LexToken nextToken() throws java.io.IOException, MarcelJfexerException {
     int zzInput;
     int zzAction;
 

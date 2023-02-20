@@ -1,17 +1,17 @@
 package com.tambapps.marcel.lexer;
 
 
-import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 
-@AllArgsConstructor
 @Value
 public class LexToken {
+  @EqualsAndHashCode.Exclude
+  int line;
+  @EqualsAndHashCode.Exclude
+  int column;
   TokenType type;
   String value;
-  public LexToken(TokenType type) {
-    this(type, null);
-  }
 
   @Override
   public String toString() {
