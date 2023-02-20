@@ -25,7 +25,7 @@ If you need to access a property, use the brackets
 ```
 
 
-### Regex strings (Java Patterns)
+### Pattern strings
 
 You can instantiate [Patterns](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html) using backslash strings. 
 These strings are reserved for pattern only.
