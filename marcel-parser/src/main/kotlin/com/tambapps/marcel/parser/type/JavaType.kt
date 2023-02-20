@@ -1,7 +1,6 @@
 package com.tambapps.marcel.parser.type
 
 import com.tambapps.marcel.lexer.TokenType
-import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.ast.expression.BooleanConstantNode
