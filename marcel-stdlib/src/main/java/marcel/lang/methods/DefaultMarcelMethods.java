@@ -23,11 +23,22 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
+// TODO document all that and make a Javadoc
 @SuppressWarnings({"unused", "deprecation"})
 public final class DefaultMarcelMethods {
 
+  public static List<String> groups(Matcher self) {
+    if (!self.find()) return Collections.emptyList();
+    int count = self.groupCount();
+    List<String> groups = new ArrayList<>(count);
+    for (int i = 0; i <= count; i++) {
+      groups.add(self.group(i));
+    }
+    return groups;
+  }
 
   // getLength
   public static int getLength(List<?> self) {
