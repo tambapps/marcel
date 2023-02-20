@@ -45,6 +45,7 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import java.io.Closeable
 import java.util.*
+import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 
@@ -1106,18 +1107,22 @@ private class PushingInstructionGenerator(
     instructionGenerator.visit(continueLoopNode)
   }
   override fun visit(booleanExpression: BooleanExpressionNode) {
+    val innerType = booleanExpression.innerExpression.getType(typeResolver)
     if (booleanExpression.innerExpression is NullValueNode) {
       visit(BooleanConstantNode(false))
-    } else if (booleanExpression.innerExpression.getType(typeResolver) == JavaType.boolean
-      || booleanExpression.innerExpression.getType(typeResolver) == JavaType.Boolean) {
+    } else if (innerType == JavaType.boolean
+      || innerType == JavaType.Boolean) {
       booleanExpression.innerExpression.accept(this)
-      mv.castIfNecessaryOrThrow(JavaType.boolean, booleanExpression.innerExpression.getType(typeResolver))
-    } else if (booleanExpression.innerExpression.getType(typeResolver).primitive) {
+      mv.castIfNecessaryOrThrow(JavaType.boolean, innerType)
+    } else if (innerType.primitive) {
       // according to marcel truth, all primitive are truthy
       booleanExpression.innerExpression.accept(instructionGenerator)
       visit(BooleanConstantNode(true))
+    } else if (Matcher::class.javaType.isAssignableFrom(innerType)) {
+      pushArgument(booleanExpression.innerExpression)
+      mv.invokeMethod(Matcher::class.java.getMethod("find"))
     } else {
-      val truthyMethod = typeResolver.findMethodOrThrow(MarcelTruth::class.javaType, "truthy", listOf(booleanExpression.innerExpression.getType(typeResolver)))
+      val truthyMethod = typeResolver.findMethodOrThrow(MarcelTruth::class.javaType, "truthy", listOf(innerType))
       mv.invokeMethodWithArguments(truthyMethod, booleanExpression.innerExpression)
     }
   }
@@ -1314,9 +1319,9 @@ private class PushingInstructionGenerator(
     if (actualTruthyVariableDeclarationNode.variableType.primitive) {
       visit(BooleanConstantNode(true))
     } else {
-      pushArgument(ReferenceExpression(actualTruthyVariableDeclarationNode.scope, actualTruthyVariableDeclarationNode.name))
-      val truthyMethod = typeResolver.findMethodOrThrow(MarcelTruth::class.javaType, "truthy", listOf(actualTruthyVariableDeclarationNode.expression.getType(typeResolver)))
-      mv.invokeMethod(truthyMethod)
+      pushArgument(BooleanExpressionNode(
+        ReferenceExpression(actualTruthyVariableDeclarationNode.scope, actualTruthyVariableDeclarationNode.name)
+      ))
     }
   }
   override fun visit(blockNode: BlockNode) {
