@@ -16,6 +16,9 @@
 package marcel.lang.primitives.collections.lists;
 
 import marcel.lang.primitives.collections.LongCollection;
+import marcel.lang.primitives.collections.sets.LongOpenHashSet;
+import marcel.lang.primitives.collections.sets.LongSet;
+import marcel.lang.primitives.iterators.LongIterator;
 import marcel.lang.primitives.iterators.list.LongListIterator;
 import marcel.lang.primitives.spliterators.LongSpliterator;
 import marcel.lang.util.Arrays;
@@ -378,5 +381,14 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 			sum += getLong(i);
 		}
 		return sum;
+	}
+
+	default LongSet toSet() {
+		LongIterator iterator = iterator();
+		LongSet set = new LongOpenHashSet(size());
+		while (iterator.hasNext()) {
+			set.add(iterator.nextLong());
+		}
+		return set;
 	}
 }

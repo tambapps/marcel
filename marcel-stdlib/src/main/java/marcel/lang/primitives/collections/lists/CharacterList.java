@@ -16,6 +16,8 @@
 package marcel.lang.primitives.collections.lists;
 
 import marcel.lang.primitives.collections.CharacterCollection;
+import marcel.lang.primitives.collections.sets.CharacterOpenHashSet;
+import marcel.lang.primitives.collections.sets.CharacterSet;
 import marcel.lang.primitives.iterators.CharacterIterator;
 import marcel.lang.primitives.iterators.list.CharacterListIterator;
 import marcel.lang.primitives.spliterators.CharacterSpliterator;
@@ -416,5 +418,14 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 			if (predicate.test(c)) return c;
 		}
 		throw new NoSuchElementException();
+	}
+
+	default CharacterSet toSet() {
+		CharacterIterator iterator = iterator();
+		CharacterSet set = new CharacterOpenHashSet(size());
+		while (iterator.hasNext()) {
+			set.add(iterator.nextCharacter());
+		}
+		return set;
 	}
 }

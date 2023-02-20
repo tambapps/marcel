@@ -372,23 +372,21 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
           }
         }
       }
-    } else {
-      if (leftOperand.getType(typeResolver) !in ComparisonOperator.INT_LIKE_COMPARABLE_TYPES || rightOperand.getType(typeResolver) !in ComparisonOperator.INT_LIKE_COMPARABLE_TYPES) {
-        val otherType = if (leftOperand.getType(typeResolver) != JavaType.int) leftOperand.getType(typeResolver) else rightOperand.getType(typeResolver)
-        pushArgument(leftOperand)
-        mv.castIfNecessaryOrThrow(otherType, leftOperand.getType(typeResolver))
-        pushArgument(rightOperand)
-        mv.castIfNecessaryOrThrow(otherType, rightOperand.getType(typeResolver))
-        when (otherType) {
-          JavaType.double -> mv.visitInsn(Opcodes.DCMPL)
-          JavaType.float -> mv.visitInsn(Opcodes.FCMPL)
-          JavaType.long -> mv.visitInsn(Opcodes.LCMP)
-          else -> throw UnsupportedOperationException("Doesn't handle comparison of primitive type $otherType")
-        }
-        mv.pushConstant(0) // pushing 0 because we're comparing two numbers below
-      } else {
-        pushOperands(comparisonOperatorNode)
+    } else if (leftOperand.getType(typeResolver) !in ComparisonOperator.INT_LIKE_COMPARABLE_TYPES || rightOperand.getType(typeResolver) !in ComparisonOperator.INT_LIKE_COMPARABLE_TYPES) {
+      val otherType = if (leftOperand.getType(typeResolver) != JavaType.int) leftOperand.getType(typeResolver) else rightOperand.getType(typeResolver)
+      pushArgument(leftOperand)
+      mv.castIfNecessaryOrThrow(otherType, leftOperand.getType(typeResolver))
+      pushArgument(rightOperand)
+      mv.castIfNecessaryOrThrow(otherType, rightOperand.getType(typeResolver))
+      when (otherType) {
+        JavaType.double -> mv.visitInsn(Opcodes.DCMPL)
+        JavaType.float -> mv.visitInsn(Opcodes.FCMPL)
+        JavaType.long -> mv.visitInsn(Opcodes.LCMP)
+        else -> throw UnsupportedOperationException("Doesn't handle comparison of primitive type $otherType")
       }
+      mv.pushConstant(0) // pushing 0 because we're comparing two numbers below
+    } else {
+      pushOperands(comparisonOperatorNode)
     }
     mv.jump(if (objectcomparison) comparisonOperatorNode.operator.objectOpCode else comparisonOperatorNode.operator.iOpCode, trueLabel)
     mv.visitInsn(Opcodes.ICONST_0)

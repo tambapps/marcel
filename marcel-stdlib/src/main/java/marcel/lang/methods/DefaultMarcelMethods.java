@@ -23,7 +23,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.ToIntFunction;
 import java.util.regex.Matcher;
@@ -51,6 +54,15 @@ public final class DefaultMarcelMethods {
       groups.add(self.group(i));
     }
     return groups;
+  }
+
+  public static <T> Set<T> toSet(List<T> list) {
+    Iterator<T> iterator = list.iterator();
+    Set<T> set = new HashSet<>();
+    while (iterator.hasNext()) {
+      set.add(iterator.next());
+    }
+    return set;
   }
 
   // mapToInt

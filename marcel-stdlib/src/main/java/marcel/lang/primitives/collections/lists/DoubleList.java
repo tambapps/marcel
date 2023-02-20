@@ -16,6 +16,9 @@
 package marcel.lang.primitives.collections.lists;
 
 import marcel.lang.primitives.collections.DoubleCollection;
+import marcel.lang.primitives.collections.sets.DoubleOpenHashSet;
+import marcel.lang.primitives.collections.sets.DoubleSet;
+import marcel.lang.primitives.iterators.DoubleIterator;
 import marcel.lang.primitives.iterators.list.DoubleListIterator;
 import marcel.lang.primitives.spliterators.DoubleSpliterator;
 import marcel.lang.util.Arrays;
@@ -378,5 +381,14 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 			sum += getDouble(i);
 		}
 		return sum;
+	}
+
+	default DoubleSet toSet() {
+		DoubleIterator iterator = iterator();
+		DoubleSet set = new DoubleOpenHashSet(size());
+		while (iterator.hasNext()) {
+			set.add(iterator.nextDouble());
+		}
+		return set;
 	}
 }

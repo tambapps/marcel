@@ -17,6 +17,9 @@ package marcel.lang.primitives.collections.lists;
 
 
 import marcel.lang.primitives.collections.IntCollection;
+import marcel.lang.primitives.collections.sets.IntOpenHashSet;
+import marcel.lang.primitives.collections.sets.IntSet;
+import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.iterators.list.IntListIterator;
 import marcel.lang.primitives.spliterators.IntSpliterator;
 import marcel.lang.util.Arrays;
@@ -377,5 +380,14 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 			sum += getInt(i);
 		}
 		return sum;
+	}
+
+	default IntSet toSet() {
+		IntIterator iterator = iterator();
+		IntSet set = new IntOpenHashSet(size());
+		while (iterator.hasNext()) {
+			set.add(iterator.nextInt());
+		}
+		return set;
 	}
 }
