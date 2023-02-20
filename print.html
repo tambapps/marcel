@@ -247,7 +247,7 @@ doOtherStuff()
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="strings"><a class="header" href="#strings">Strings</a></h2>
 <p>There are different ways to create strings in Marcel</p>
-<h3 id="simple-strings-not-yet-implemented"><a class="header" href="#simple-strings-not-yet-implemented">Simple strings (not yet implemented)</a></h3>
+<h3 id="strings-1"><a class="header" href="#strings-1">Strings</a></h3>
 <p>You can use the single quote character (<code>'</code>) to create strings</p>
 <pre><code class="language-kotlin">'Hello world!'
 </code></pre>
@@ -258,13 +258,49 @@ doOtherStuff()
 <p>If you need to access a property, use the brackets</p>
 <pre><code class="language-kotlin">&quot;${person.firstName} ${person.lastName} is ${person.age} years old&quot;
 </code></pre>
+<h3 id="regex-strings-java-patterns"><a class="header" href="#regex-strings-java-patterns">Regex strings (Java Patterns)</a></h3>
+<p>You can instantiate <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Patterns</a> using backslash strings. 
+These strings are reserved for pattern only.</p>
+<p>The backslash is <strong>not</strong> considered as an escape, except for the backlash character
+(which would be escaped as <code>\/</code>).</p>
+<pre><code class="language-javascript">/some \w+/
+</code></pre>
+<p>Note that such strings <strong>doesn't</strong> resolve variables. If you want to construct a Pattern while resolving Strings, you could
+do as below</p>
+<pre><code class="language-kotlin">Pattern.compile(&quot;$some $pattern&quot;)
+</code></pre>
+<br/>
+It is good practise to end such regexes with a semi-colon (`;`) character, to make it clear to the compiler that what follows
+is not a regex flag (we'll talk about that just after) but a 'real' identifier.
+<p>E.g.</p>
+<pre><code class="language-javascript">Pattern pattern = /myPattern/; // without the semi-colon, Marcel would think that 'println' characters are regex flags
+println(pattern)
+</code></pre>
+<h4 id="pattern-flags"><a class="header" href="#pattern-flags">Pattern flags</a></h4>
+<p>You can also specify flags by adding a suffix at the end of your regex String.</p>
+<pre><code class="language-javascript">Pattern pattern = /myPattern/iu; // you can specify many flags at once
+println(pattern)
+</code></pre>
+<p>Here is the list of flags (you can see the doc of each flag in the <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#UNIX_LINES">Javadoc of the Pattern's class</a>).</p>
+<div class="table-wrapper"><table><thead><tr><th>character</th><th>Java Pattern <br/>Flag</th></tr></thead><tbody>
+<tr><td>d</td><td>UNIX_LINES</td></tr>
+<tr><td>i</td><td>CASE_INSENSITIVE</td></tr>
+<tr><td>x</td><td>COMMENTS</td></tr>
+<tr><td>m</td><td>MULTILINE</td></tr>
+<tr><td>l</td><td>LITERAL</td></tr>
+<tr><td>s</td><td>DOTALL</td></tr>
+<tr><td>u</td><td>UNICODE_CASE</td></tr>
+<tr><td>c</td><td>CANON_EQ</td></tr>
+<tr><td>U</td><td>UNICODE_CHARACTER_CLASS</td></tr>
+</tbody></table>
+</div>
 <h3 id="character"><a class="header" href="#character">Character</a></h3>
-<p>Use the character backtick (<code>`</code>) to create characters.
+<p>Use the backtick (<code>`</code>) to create primitive characters.
 Only one character must be specified between the two backticks</p>
-<pre><code>`A`
+<pre><code class="language-java">char c = `A`
 </code></pre>
 <h3 id="escaped-characters"><a class="header" href="#escaped-characters">Escaped characters</a></h3>
-<p>Use backslash to escape 'special' characters. Here is the list of escaped characters</p>
+<p>Use backslash to escape 'special' characters within strings/characters. Here is the list of escaped characters</p>
 <div class="table-wrapper"><table><thead><tr><th>escaped character</th><th>represented value</th></tr></thead><tbody>
 <tr><td>\b</td><td>backspace</td></tr>
 <tr><td>\n</td><td>newline</td></tr>
@@ -273,6 +309,7 @@ Only one character must be specified between the two backticks</p>
 <tr><td>\</td><td>backslash</td></tr>
 <tr><td>'</td><td>single quotes (useful in simple strings)</td></tr>
 <tr><td>&quot;</td><td>double quotes (useful in interpolated strings)</td></tr>
+<tr><td>`</td><td>backtick (useful in character strings)</td></tr>
 </tbody></table>
 </div>
 <h2 id="literal-numbers"><a class="header" href="#literal-numbers">Literal Numbers</a></h2>
