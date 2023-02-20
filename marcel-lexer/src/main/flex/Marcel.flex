@@ -92,7 +92,7 @@ import java.io.StringReader;
   // end of file
 %eof}
 
-%xstate STRING RAW_STRING SHORT_TEMPLATE_ENTRY BLOCK_COMMENT DOC_COMMENT CHAR_STRING
+%xstate STRING RAW_STRING SHORT_TEMPLATE_ENTRY BLOCK_COMMENT DOC_COMMENT CHAR_STRING SIMPLE_STRING REGEX_STRING
 %state LONG_TEMPLATE_ENTRY UNMATCHED_BACKTICK
 
 LETTER = [:letter:]|_
@@ -143,6 +143,8 @@ THREE_OR_MORE_QUO = ({THREE_QUO}\"*)
 
 REGULAR_STRING_PART=[^\\\"\n\$]+
 REGULAR_SIMPLE_CHAR_STRING_PART=[^\\`]+
+REGULAR_SIMPLE_STRING_PART=[^\\']+
+REGULAR_REGEX_STRING_PART=[^\\/]+
 SHORT_TEMPLATE_ENTRY=\${IDENTIFIER}
 LONELY_DOLLAR=\$
 LONG_TEMPLATE_ENTRY_START=\$\{
@@ -171,15 +173,24 @@ LONELY_BACKTICK=`
                                     }
                                  }
 
+\'                          { pushState(SIMPLE_STRING); return token(OPEN_SIMPLE_QUOTE); }
+\/                          { pushState(REGEX_STRING); return token(OPEN_REGEX_QUOTE); }
 \`                          { pushState(CHAR_STRING); return token(OPEN_CHAR_QUOTE); }
 \"                          { pushState(STRING); return token(OPEN_QUOTE); }
 <STRING> \n                 { popState(); yypushback(1); return valueToken(DANGLING_NEWLINE); }
 <STRING> \"                 { popState(); return token(CLOSING_QUOTE); }
+<SIMPLE_STRING> \'                 { popState(); return token(CLOSING_SIMPLE_QUOTE); }
+<REGEX_STRING> \/                 { popState(); return token(CLOSING_REGEX_QUOTE); }
 <CHAR_STRING> \`                 { popState(); return token(CLOSING_CHAR_QUOTE); }
 <STRING> {ESCAPE_SEQUENCE}  { return valueToken(ESCAPE_SEQUENCE); }
+<SIMPLE_STRING> {ESCAPE_SEQUENCE}  { return valueToken(ESCAPE_SEQUENCE); }
+<REGEX_STRING> \\\/  { return valueToken(ESCAPE_SEQUENCE); } // in regex string, only / can be escaped. other is litteral
+<REGEX_STRING> {ESCAPE_SEQUENCE}  { return valueToken(REGULAR_STRING_PART); }
 <CHAR_STRING> {ESCAPE_SEQUENCE}  { return valueToken(ESCAPE_SEQUENCE); }
 
 <STRING, RAW_STRING> {REGULAR_STRING_PART}         { return valueToken(REGULAR_STRING_PART); }
+<SIMPLE_STRING> {REGULAR_SIMPLE_STRING_PART}         { return valueToken(REGULAR_STRING_PART); }
+<REGEX_STRING> {REGULAR_REGEX_STRING_PART}         { return valueToken(REGULAR_STRING_PART); }
 <CHAR_STRING> {REGULAR_SIMPLE_CHAR_STRING_PART}         { return valueToken(REGULAR_STRING_PART); }
 <STRING, RAW_STRING> {SHORT_TEMPLATE_ENTRY}        {
                                                         pushState(SHORT_TEMPLATE_ENTRY);

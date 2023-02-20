@@ -118,6 +118,30 @@ public class MarcelLexerTest {
     );
   }
 
+  @Test
+  public void testRegexString() {
+    assertEquals(Arrays.asList(
+        token(OPEN_REGEX_QUOTE),
+        token(REGULAR_STRING_PART, "some$'\""),
+        token(REGULAR_STRING_PART, "\\w"),
+        token(ESCAPE_SEQUENCE, "\\/"),
+        token(CLOSING_REGEX_QUOTE),
+        token(END_OF_FILE)
+    ), lexer.lex("/some$'\"\\w\\//"));
+  }
+
+  @Test
+  public void testSimpleString() {
+    assertEquals(Arrays.asList(
+        token(OPEN_SIMPLE_QUOTE),
+        token(REGULAR_STRING_PART, "some$/\""),
+        token(ESCAPE_SEQUENCE, "\\'"),
+        token(CLOSING_SIMPLE_QUOTE),
+        token(END_OF_FILE)
+    ), lexer.lex("'some$/\"\\''"));
+  }
+
+
   private LexToken token(TokenType type) {
     return token(type, null);
   }
