@@ -567,6 +567,14 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         skip() // skip last quote
         StringNode(parts)
       }
+      TokenType.OPEN_SIMPLE_QUOTE -> {
+        val parts = mutableListOf<ExpressionNode>()
+        while (current.type != TokenType.CLOSING_SIMPLE_QUOTE) {
+          parts.add(stringPart(scope))
+        }
+        skip() // skip last quote
+        StringNode(parts)
+      }
       TokenType.ESCAPE_SEQUENCE -> StringConstantNode(escapedSequenceValue(token.value))
       TokenType.NULL -> NullValueNode()
       TokenType.NOT -> NotNode(expression(scope))
