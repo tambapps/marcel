@@ -13,29 +13,37 @@ object ParserUtils {
     Pair(DOT, 1),
     Pair(QUESTION_DOT, 1),
     Pair(NOT, 1),
+
     Pair(MUL, 2),
     Pair(DIV, 2),
     Pair(MODULO, 2),
     Pair(FIND, 2),
+
     Pair(PLUS, 3),
     Pair(MINUS, 3),
-    Pair(AND, 4),
-    Pair(EQUAL, 5),
-    Pair(NOT_EQUAL, 5),
+
+    Pair(LEFT_SHIFT, 4),
+    Pair(RIGHT_SHIFT, 4),
+
     Pair(GT, 5),
     Pair(LT, 5),
     Pair(GOE, 5),
     Pair(LOE, 5),
-    Pair(OR, 5),
-    Pair(LEFT_SHIFT, 5),
-    Pair(RIGHT_SHIFT, 5),
-    Pair(ASSIGNMENT, 6),
-    Pair(MINUS_ASSIGNMENT, 6),
-    Pair(PLUS_ASSIGNMENT, 6),
-    Pair(MUL_ASSIGNMENT, 6),
-    Pair(DIV_ASSIGNMENT, 6),
-    Pair(IS, 7),
-    Pair(IS_NOT, 7),
+    // instanceof 5
+
+    Pair(EQUAL, 6),
+    Pair(NOT_EQUAL, 6),
+    Pair(IS, 6),
+    Pair(IS_NOT, 6),
+
+    Pair(AND, 7),
+    Pair(OR, 8),
+
+    Pair(ASSIGNMENT, 9),
+    Pair(MINUS_ASSIGNMENT, 9),
+    Pair(PLUS_ASSIGNMENT, 9),
+    Pair(MUL_ASSIGNMENT, 9),
+    Pair(DIV_ASSIGNMENT, 9),
   )
 
   private val RIGHT_ASSOCIATIVITY_OPERATOR = listOf(POWER, ASSIGNMENT)
