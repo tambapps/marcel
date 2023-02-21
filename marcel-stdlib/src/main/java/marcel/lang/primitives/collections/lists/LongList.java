@@ -25,6 +25,7 @@ import marcel.lang.util.Arrays;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Spliterator;
 import java.util.function.LongUnaryOperator;
@@ -373,6 +374,26 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 			set(i, getLong(p));
 			set(p, t);
 		}
+	}
+
+	default long min() {
+		if (isEmpty()) throw new NoSuchElementException();
+		long min = getLong(0);
+		for (int i = 1; i < size(); i++) {
+			long e = getLong(i);
+			if (e < min) min = e;
+		}
+		return min;
+	}
+
+	default long max() {
+		if (isEmpty()) throw new NoSuchElementException();
+		long max = getLong(0);
+		for (int i = 1; i < size(); i++) {
+			long e = getLong(i);
+			if (e > max) max = e;
+		}
+		return max;
 	}
 
 	default long sum() {

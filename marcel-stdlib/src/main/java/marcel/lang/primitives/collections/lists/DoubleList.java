@@ -25,6 +25,7 @@ import marcel.lang.util.Arrays;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Spliterator;
 import java.util.function.DoubleUnaryOperator;
@@ -381,6 +382,26 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 			sum += getDouble(i);
 		}
 		return sum;
+	}
+
+	default double min() {
+		if (isEmpty()) throw new NoSuchElementException();
+		double min = getDouble(0);
+		for (int i = 1; i < size(); i++) {
+			double e = getDouble(i);
+			if (e < min) min = e;
+		}
+		return min;
+	}
+
+	default double max() {
+		if (isEmpty()) throw new NoSuchElementException();
+		double max = getDouble(0);
+		for (int i = 1; i < size(); i++) {
+			double e = getDouble(i);
+			if (e > max) max = e;
+		}
+		return max;
 	}
 
 	default DoubleSet toSet() {

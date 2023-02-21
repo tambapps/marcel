@@ -25,6 +25,7 @@ import marcel.lang.primitives.spliterators.IntSpliterator;
 import marcel.lang.util.Arrays;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Spliterator;
 
@@ -380,6 +381,26 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 			sum += getInt(i);
 		}
 		return sum;
+	}
+
+	default int min() {
+		if (isEmpty()) throw new NoSuchElementException();
+		int min = getInt(0);
+		for (int i = 1; i < size(); i++) {
+			int e = getInt(i);
+			if (e < min) min = e;
+		}
+		return min;
+	}
+
+	default int max() {
+		if (isEmpty()) throw new NoSuchElementException();
+		int max = getInt(0);
+		for (int i = 1; i < size(); i++) {
+			int e = getInt(i);
+			if (e > max) max = e;
+		}
+		return max;
 	}
 
 	default IntSet toSet() {

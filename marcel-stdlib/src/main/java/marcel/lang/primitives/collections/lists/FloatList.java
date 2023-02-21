@@ -23,6 +23,7 @@ import marcel.lang.util.function.FloatUnaryOperator;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Spliterator;
 
@@ -370,6 +371,26 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 			set(i, getFloat(p));
 			set(p, t);
 		}
+	}
+
+	default float min() {
+		if (isEmpty()) throw new NoSuchElementException();
+		float min = getFloat(0);
+		for (int i = 1; i < size(); i++) {
+			float e = getFloat(i);
+			if (e < min) min = e;
+		}
+		return min;
+	}
+
+	default float max() {
+		if (isEmpty()) throw new NoSuchElementException();
+		float max = getFloat(0);
+		for (int i = 1; i < size(); i++) {
+			float e = getFloat(i);
+			if (e > max) max = e;
+		}
+		return max;
 	}
 
 	default float sum() {

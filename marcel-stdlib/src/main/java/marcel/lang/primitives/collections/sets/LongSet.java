@@ -1,10 +1,13 @@
 package marcel.lang.primitives.collections.sets;
 
 import marcel.lang.primitives.collections.LongCollection;
+import marcel.lang.primitives.collections.lists.LongArrayList;
+import marcel.lang.primitives.collections.lists.LongList;
 import marcel.lang.primitives.iterators.LongIterator;
 import marcel.lang.primitives.spliterators.LongSpliterator;
 import marcel.lang.primitives.spliterators.LongSpliterators;
 
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public interface LongSet extends LongCollection, Set<Long> {
@@ -94,4 +97,34 @@ public interface LongSet extends LongCollection, Set<Long> {
 	 return LongCollection.super.contains(o);
 	}
 
+	default long min() {
+		if (isEmpty()) throw new NoSuchElementException();
+		LongIterator iterator = iterator();
+		long min = iterator.nextLong();
+		while (iterator.hasNext()) {
+			long e = iterator.nextLong();
+			if (e < min) min = e;
+		}
+		return min;
+	}
+
+	default long max() {
+		if (isEmpty()) throw new NoSuchElementException();
+		LongIterator iterator = iterator();
+		long max = iterator.nextLong();
+		while (iterator.hasNext()) {
+			long e = iterator.nextLong();
+			if (e > max) max = e;
+		}
+		return max;
+	}
+
+	default LongList toList() {
+		LongIterator iterator = iterator();
+		LongList list = new LongArrayList(size());
+		while (iterator.hasNext()) {
+			list.add(iterator.nextLong());
+		}
+		return list;
+	}
 }

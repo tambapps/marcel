@@ -1,10 +1,14 @@
 package marcel.lang.primitives.collections.sets;
 
 import marcel.lang.primitives.collections.IntCollection;
+import marcel.lang.primitives.collections.lists.IntArrayList;
+import marcel.lang.primitives.collections.lists.IntList;
 import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.spliterators.IntSpliterator;
 import marcel.lang.primitives.spliterators.IntSpliterators;
 
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public interface IntSet extends IntCollection, Set<Integer> {
@@ -94,4 +98,34 @@ public interface IntSet extends IntCollection, Set<Integer> {
 	 return IntCollection.super.contains(o);
 	}
 
+	default int min() {
+		if (isEmpty()) throw new NoSuchElementException();
+		IntIterator iterator = iterator();
+		int min = iterator.nextInt();
+		while (iterator.hasNext()) {
+			int e = iterator.nextInt();
+			if (e < min) min = e;
+		}
+		return min;
+	}
+
+	default int max() {
+		if (isEmpty()) throw new NoSuchElementException();
+		IntIterator iterator = iterator();
+		int max = iterator.nextInt();
+		while (iterator.hasNext()) {
+			int e = iterator.nextInt();
+			if (e > max) max = e;
+		}
+		return max;
+	}
+
+	default IntList toList() {
+		IntIterator iterator = iterator();
+		IntList list = new IntArrayList(size());
+		while (iterator.hasNext()) {
+			list.add(iterator.nextInt());
+		}
+		return list;
+	}
 }
