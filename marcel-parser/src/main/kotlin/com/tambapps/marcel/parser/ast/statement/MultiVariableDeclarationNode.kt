@@ -3,13 +3,14 @@ package com.tambapps.marcel.parser.ast.statement
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.ast.expression.VariableAssignmentNode
 import com.tambapps.marcel.parser.scope.Scope
 
-open class MultiVariableDeclarationNode(val scope: Scope,
+open class MultiVariableDeclarationNode(override var scope: Scope,
                                         val declarations: List<Pair<JavaType, String>?>,
                                         val expression: ExpressionNode
-): StatementNode {
+): StatementNode, ScopedNode<Scope> {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 

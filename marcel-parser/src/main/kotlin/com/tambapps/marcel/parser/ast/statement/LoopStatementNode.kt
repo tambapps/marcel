@@ -9,7 +9,7 @@ class BreakLoopNode(override var scope: InnerScope): StatementNode, ScopedNode<I
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
 }
-class ContinueLoopNode(val scope: InnerScope): StatementNode {
+class ContinueLoopNode(override var scope: InnerScope): StatementNode, ScopedNode<InnerScope> {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 

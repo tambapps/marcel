@@ -156,10 +156,12 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     currentIf.falseStatementNode = if (switchType != JavaType.void) returningLastStatement(switchMethodScope, elseStatement)
      else elseStatement
 
-    val methodNode = MethodNode(Opcodes.ACC_PRIVATE, classNode.type,
+    val methodNode = MethodNode(Opcodes.ACC_PUBLIC, classNode.type,
       switchMethodName, FunctionBlockNode(switchMethodScope, mutableListOf(rootIf)),
       parameters.toMutableList(), switchType, switchMethodScope, false
     )
+    methodNode.block.setTreeScope(switchMethodScope)
+
     classNode.addMethod(methodNode)
     typeResolver.defineMethod(classNode.type, methodNode)
 
