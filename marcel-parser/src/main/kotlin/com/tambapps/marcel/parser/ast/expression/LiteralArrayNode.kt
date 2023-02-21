@@ -10,6 +10,10 @@ open class LiteralArrayNode constructor(var type: JavaArrayType?, val elements: 
   constructor(elements: List<ExpressionNode>): this(null, elements)
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
+  override fun toString(): String {
+    val s = elements.joinToString(separator = ", ", prefix = "[", postfix = "]")
+    return if (type != null) "$s as $type" else s
+  }
 }
 
 class EmptyArrayNode(type: JavaArrayType): LiteralArrayNode(type, emptyList())

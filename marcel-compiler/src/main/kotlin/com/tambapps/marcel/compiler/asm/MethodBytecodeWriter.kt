@@ -36,7 +36,6 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       argumentPusher.pushArgument(namedParameter.valueExpression)
       val field = typeResolver.findFieldOrThrow(type, namedParameter.name)
       if (field.isFinal) throw MarcelSemanticException("Cannot use named parameters constructor on a final field")
-      // TODO need to check visibility too
       storeInVariable(typeResolver.findFieldOrThrow(type, namedParameter.name))
     }
   }
@@ -383,6 +382,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
     when (variable) {
       is LocalVariable -> mv.visitVarInsn(variable.type.storeCode, variable.index)
 
+      // TODO need to check visibility too
       // for fields, the caller should push the field's owner
       is ClassField -> mv.visitFieldInsn(variable.putCode, variable.owner.internalName, variable.name, variable.type.descriptor)
       is MethodField -> {

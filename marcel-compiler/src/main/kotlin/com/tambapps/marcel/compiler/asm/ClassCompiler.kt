@@ -4,6 +4,7 @@ import com.tambapps.marcel.compiler.CompiledClass
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.compiler.util.getType
+import com.tambapps.marcel.compiler.util.javaType
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ConstructorNode
 import com.tambapps.marcel.parser.ast.FieldNode
@@ -102,10 +103,15 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
       // non-static fields should be initialized in constructors
       for (constructor in classNode.constructors) {
         // FIXME we might assign values twice, if a constructor calls another constructor
+        val initialValue = marcelField.initialValue!!
+        if (initialValue is LiteralArrayNode && initialValue.elements.isEmpty() &&
+          (marcelField.type.isArray || Collection::class.javaType.isAssignableFrom(marcelField.type))) {
+          initialValue.type = JavaType.arrayTypeFrom(marcelField.type)
+        }
         constructor.block.addStatement(
           FieldAssignmentNode(
             constructor.scope, GetFieldAccessOperator(ReferenceExpression.thisRef(constructor.scope),
-              ReferenceExpression(constructor.scope, marcelField.name), false), marcelField.initialValue!!
+              ReferenceExpression(constructor.scope, marcelField.name), false), initialValue
           )
         )
       }

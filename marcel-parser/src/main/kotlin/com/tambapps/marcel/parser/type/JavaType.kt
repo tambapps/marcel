@@ -180,6 +180,17 @@ interface JavaType: AstTypedObject {
       else of(java.util.Map::class.java, listOf(keysType, valuesType))
     }
 
+    fun arrayTypeFrom(type: JavaType): JavaArrayType? {
+      return if (type.isArray) return type.asArrayType
+      else if (intList.isAssignableFrom(type) || intSet.isAssignableFrom(type)) return intArray
+      else if (longList.isAssignableFrom(type) || longSet.isAssignableFrom(type)) return longArray
+      else if (charList.isAssignableFrom(type) || characterSet.isAssignableFrom(type)) return charArray
+      else if (floatList.isAssignableFrom(type)) return floatArray
+      else if (doubleList.isAssignableFrom(type)) return doubleArray
+      else if (of(List::class.java).isAssignableFrom(type)) return objectArray
+      else null
+    }
+
     fun arrayType(elementsType: JavaType): JavaArrayType {
       if (!elementsType.primitive) {
         return objectArray
