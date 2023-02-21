@@ -41,6 +41,7 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
     extensionClassLoader.loadExtensionMethods(
       DefaultMarcelMethods::class.java, IoMarcelMethods::class.java, StringMarcelMethods::class.java,
       // TODO document this (all Character class static methods are extensions, and that we can call functions from primitive types)
+      //  and that we can call functions on primitive types (because of extensions)
       JavaType.Character.realClazz)
     val parser = if (className != null) MarcelParser(typeResolver, className, tokens) else MarcelParser(typeResolver, tokens)
     val ast = parser.parse()
