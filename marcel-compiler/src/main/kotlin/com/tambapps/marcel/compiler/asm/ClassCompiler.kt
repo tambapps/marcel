@@ -47,7 +47,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
             ))
           }
           rawMethodNode.block.addStatement(
-              FunctionCallNode(rawMethodNode.scope, implementationMethod.name, rawParameterExpressions,
+            SimpleFunctionCallNode(rawMethodNode.scope, implementationMethod.name, rawParameterExpressions,
                   ReferenceExpression.thisRef(rawMethodNode.scope)))
           classNode.methods.add(rawMethodNode)
         }

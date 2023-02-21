@@ -1,20 +1,11 @@
 package com.tambapps.marcel.compiler.util
 
 import com.tambapps.marcel.compiler.JavaTypeResolver
-import com.tambapps.marcel.parser.ast.AstNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
-import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.LiteralArrayNode
 import com.tambapps.marcel.parser.ast.expression.LiteralMapNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.type.JavaType
-
-
-fun FunctionCallNode.getMethod(typeResolver: JavaTypeResolver) =
-  if (this.method != null) this.method!!
-  else if (methodOwnerType != null) typeResolver.findMethodOrThrow(methodOwnerType!!.getType(typeResolver), name,
-    arguments.map { it.accept(typeResolver) })
-  else scope.getMethod(name, arguments.map { it.accept(typeResolver) })
 
 fun LiteralArrayNode.getElementsType(typeResolver: JavaTypeResolver) =
   JavaType.commonType(elements.map { it.accept(typeResolver) })

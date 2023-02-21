@@ -61,6 +61,16 @@ interface JavaMethod {
     if (returnType != other.returnType) return false
     return true
   }
+  fun matchesUnorderedParameters(typeResolver: AstNodeTypeResolver, name: String, parameters: Collection<MethodParameter>): Boolean {
+    if (this.name != name) return false
+    for (p in parameters) {
+      if (this.parameters.none { it.type.isAssignableFrom(p.type) && it.name == p.name }) {
+        return false
+      }
+    }
+    return true
+  }
+
   fun matches(typeResolver: AstNodeTypeResolver, name: String, types: List<AstTypedObject>): Boolean {
     return this.name == name && matches(typeResolver, types)
   }

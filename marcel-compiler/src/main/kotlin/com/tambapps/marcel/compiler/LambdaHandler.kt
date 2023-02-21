@@ -14,6 +14,7 @@ import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.GetFieldAccessOperator
 import com.tambapps.marcel.parser.ast.expression.LambdaNode
 import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
+import com.tambapps.marcel.parser.ast.expression.SimpleFunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
@@ -113,7 +114,7 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
       val interfaceMethodScope = MethodScope(lambdaClassNode.scope, interfaceMethod.name, parameters, interfaceMethod.returnType)
 
 
-      val lambdaMethodCall = FunctionCallNode(interfaceMethodScope, lambdaMethod.name,
+      val lambdaMethodCall = SimpleFunctionCallNode(interfaceMethodScope, lambdaMethod.name,
         parameters.map {
           ReferenceExpression(interfaceMethodScope, it.name)
         }.toMutableList(), ReferenceExpression.thisRef(interfaceMethodScope))

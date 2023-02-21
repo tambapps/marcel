@@ -3,7 +3,6 @@ package com.tambapps.marcel.compiler.asm
 import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.compiler.LambdaHandler
 import com.tambapps.marcel.compiler.util.getKeysType
-import com.tambapps.marcel.compiler.util.getMethod
 import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.compiler.util.javaType
 import com.tambapps.marcel.parser.MethodParameter
@@ -167,7 +166,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     val callArguments =
       if (itArgument != null) (listOf(itArgument) + referencedArguments)
       else referencedArguments
-    visit(FunctionCallNode(currentScope, switchMethodName,
+    visit(SimpleFunctionCallNode(currentScope, switchMethodName,
       callArguments.toMutableList(),
       ReferenceExpression.thisRef(currentScope), methodNode))
   }
@@ -451,7 +450,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       visit(TernaryNode(
         BooleanExpressionNode(ComparisonOperatorNode(ComparisonOperator.NOT_EQUAL, tempRef, NullValueNode())),
         // using a new function call because we need to use the tempRef instead of the actual leftOperand
-        FunctionCallNode(access.scope, access.name, access.arguments, access.method).apply {
+        SimpleFunctionCallNode(access.scope, access.name, access.arguments, access.method).apply {
           methodOwnerType = tempRef
         }
         , NullValueNode()
@@ -584,7 +583,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
   override fun visit(indexedReferenceExpression: IndexedReferenceExpression) {
     if (indexedReferenceExpression.isSafeIndex) {
-      val funcCall = FunctionCallNode(indexedReferenceExpression.scope, "getAtSafe",
+      val funcCall = SimpleFunctionCallNode(indexedReferenceExpression.scope, "getAtSafe",
         indexedReferenceExpression.indexArguments.toMutableList(),
         ReferenceExpression(indexedReferenceExpression.scope, indexedReferenceExpression.name)
         )
@@ -687,7 +686,7 @@ class InstructionGenerator(
     scope.addLocalVariable(forInStatement.variableType, forInStatement.variableName)
 
     // creating iterator
-    val iteratorExpression = if (Iterable::class.javaType.isAssignableFrom(expressionType)) FunctionCallNode(scope, "iterator", mutableListOf(), expression)
+    val iteratorExpression = if (Iterable::class.javaType.isAssignableFrom(expressionType)) SimpleFunctionCallNode(scope, "iterator", mutableListOf(), expression)
     else if (Iterator::class.javaType.isAssignableFrom(expressionType)) expression
     else if (CharSequence::class.javaType.isAssignableFrom(expressionType)) ConstructorCallNode(scope, CharSequenceIterator::class.java.javaType,
       mutableListOf(expression))
@@ -719,7 +718,7 @@ class InstructionGenerator(
     mv.jumpIfEq(loopEnd)
 
     // loop body
-    visit(VariableAssignmentNode(scope, forInStatement.variableName, FunctionCallNode(scope, methodName, mutableListOf(), iteratorVarReference)))
+    visit(VariableAssignmentNode(scope, forInStatement.variableName, SimpleFunctionCallNode(scope, methodName, mutableListOf(), iteratorVarReference)))
     loopBody(forInStatement.body, loopStart, loopEnd)
     mv.jumpTo(loopStart)
 
@@ -1315,7 +1314,7 @@ private class PushingInstructionGenerator(
       actualTruthyVariableDeclarationNode = TruthyVariableDeclarationNode(
         actualTruthyVariableDeclarationNode.scope, actualTruthyVariableDeclarationNode.variableType, actualTruthyVariableDeclarationNode.name,
         InvokeAccessOperator(actualTruthyVariableDeclarationNode.expression,
-          FunctionCallNode(actualTruthyVariableDeclarationNode.scope, "orElse", mutableListOf(NullValueNode(actualTruthyVariableDeclarationNode.variableType)))
+          SimpleFunctionCallNode(actualTruthyVariableDeclarationNode.scope, "orElse", mutableListOf(NullValueNode(actualTruthyVariableDeclarationNode.variableType)))
         , false)
       )
     }

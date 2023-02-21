@@ -1,5 +1,6 @@
 package com.tambapps.marcel.parser.ast
 
+import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.ast.expression.AndOperator
 import com.tambapps.marcel.parser.ast.expression.AsNode
 import com.tambapps.marcel.parser.ast.expression.BinaryOperatorNode
@@ -142,13 +143,31 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
     return definedTypes[className] ?: JavaType.of(className, genericTypes)
   }
 
-  fun findMethodOrThrow(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>): JavaMethod {
-    val m =  findMethod(javaType, name, argumentTypes) ?: throw MarcelSemanticException("Method $javaType.$name with parameters ${argumentTypes.map { it.type }} is not defined")
+  fun findMethodByParametersOrThrow(javaType: JavaType, name: String, namedParameters: Collection<MethodParameter>): JavaMethod {
+    return findMethodByParameters(javaType, name, namedParameters)
+      ?: throw MarcelSemanticException("Method $javaType.$name with parameters $namedParameters is not defined")
+  }
+  fun findMethodByParameters(javaType: JavaType, name: String, namedParameters: Collection<MethodParameter>, excludeInterfaces: Boolean = false): JavaMethod? {
+    val m = doFindMethodByParameters(javaType, name, namedParameters, excludeInterfaces) ?: return null
     return if (javaType.genericTypes.isNotEmpty()) m.withGenericTypes(javaType.genericTypes)
-     else m
+    else m
   }
 
-  open fun findMethod(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>, excludeInterfaces: Boolean = false): JavaMethod? {
+  protected open fun doFindMethodByParameters(javaType: JavaType, name: String, namedParameters: Collection<MethodParameter>, excludeInterfaces: Boolean = false): JavaMethod? {
+    return null
+  }
+
+  fun findMethodOrThrow(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>): JavaMethod {
+    return findMethod(javaType, name, argumentTypes) ?: throw MarcelSemanticException("Method $javaType.$name with parameters ${argumentTypes.map { it.type }} is not defined")
+  }
+
+  fun findMethod(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>, excludeInterfaces: Boolean = false): JavaMethod? {
+    val m = doFindMethod(javaType, name, argumentTypes, excludeInterfaces) ?: return null
+    return if (javaType.genericTypes.isNotEmpty()) m.withGenericTypes(javaType.genericTypes)
+    else m
+  }
+
+  protected open fun doFindMethod(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>, excludeInterfaces: Boolean = false): JavaMethod? {
     return null
   }
 

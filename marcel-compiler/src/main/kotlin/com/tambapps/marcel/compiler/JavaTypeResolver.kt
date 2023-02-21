@@ -2,8 +2,8 @@ package com.tambapps.marcel.compiler
 
 import com.tambapps.marcel.compiler.util.getElementsType
 import com.tambapps.marcel.compiler.util.getKeysType
-import com.tambapps.marcel.compiler.util.getMethod
 import com.tambapps.marcel.compiler.util.getValuesType
+import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
@@ -43,9 +43,24 @@ class JavaTypeResolver: AstNodeTypeResolver() {
     else classMethods[javaType.className] ?: emptyList()
   }
 
-  override fun findMethod(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>, excludeInterfaces: Boolean): JavaMethod? {
+  override fun doFindMethodByParameters(javaType: JavaType, name: String,
+                                        namedParameters: Collection<MethodParameter>,
+                                        excludeInterfaces: Boolean): JavaMethod? {
+    return findMethod(javaType, name, { it.matchesUnorderedParameters(this, name, namedParameters) },
+      {candidates -> candidates.find { it.parameters.size == namedParameters.size }}, excludeInterfaces)
+  }
+
+  override fun doFindMethod(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>, excludeInterfaces: Boolean): JavaMethod? {
+    return findMethod(javaType, name, { it.matches(this, name, argumentTypes) },
+      {candidates -> candidates.find { it.exactMatch(name, argumentTypes) }}, excludeInterfaces)
+  }
+
+  private fun findMethod(javaType: JavaType, name: String,
+                         matcherPredicate: (JavaMethod) -> Boolean,
+                         candidatesPicker: (List<JavaMethod>) -> JavaMethod?,
+                         excludeInterfaces: Boolean): JavaMethod? {
     val methods = getMarcelMethods(javaType)
-    var m = methods.find { it.matches(this, name, argumentTypes) }
+    var m = methods.find(matcherPredicate)
     if (m != null) return m
 
     if (javaType.isLoaded) {
@@ -53,21 +68,21 @@ class JavaTypeResolver: AstNodeTypeResolver() {
       val candidates = if (name == JavaMethod.CONSTRUCTOR_NAME) {
         clazz.declaredConstructors
           .map { ReflectJavaConstructor(it) }
-          .filter { it.matches(this, argumentTypes) }
+          .filter(matcherPredicate)
       } else {
         clazz.declaredMethods
           .filter { it.name == name }
           .map { ReflectJavaMethod(it, javaType) }
-          .filter { it.matches(this, argumentTypes) }
+          .filter(matcherPredicate)
       }
-      m = candidates.find { it.exactMatch(name, argumentTypes) }  ?: getMoreSpecificMethod(candidates)
+      m = candidatesPicker.invoke(candidates)  ?: getMoreSpecificMethod(candidates)
       if (m != null) return m
     }
 
     // search in super types
     var type = javaType.superType
     while (type != null) {
-      m = findMethod(type, name, argumentTypes, true)
+      m = findMethod(type, name, matcherPredicate, candidatesPicker, true)
       if (m != null) return m
       type = type.superType
     }
@@ -75,7 +90,7 @@ class JavaTypeResolver: AstNodeTypeResolver() {
     if (excludeInterfaces) return null
     // now search on all implemented interfaces
     for (interfaze in javaType.allImplementedInterfaces) {
-      m = findMethod(interfaze, name, argumentTypes)
+      m = findMethod(interfaze, name, matcherPredicate, candidatesPicker, false)
       if (m != null) return m
     }
     return null

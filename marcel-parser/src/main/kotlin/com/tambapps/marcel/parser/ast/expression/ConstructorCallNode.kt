@@ -9,7 +9,7 @@ import com.tambapps.marcel.parser.type.JavaType
 /**
  * Node for new MyClass()
  */
-class ConstructorCallNode(scope: Scope, val type: JavaType, arguments: MutableList<ExpressionNode>): FunctionCallNode(scope, JavaMethod.CONSTRUCTOR_NAME, arguments) {
+class ConstructorCallNode(scope: Scope, val type: JavaType, arguments: MutableList<ExpressionNode>): SimpleFunctionCallNode(scope, JavaMethod.CONSTRUCTOR_NAME, arguments) {
 
   init {
     methodOwnerType = this

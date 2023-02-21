@@ -1,7 +1,6 @@
 package com.tambapps.marcel.compiler.asm
 
 import com.tambapps.marcel.compiler.JavaTypeResolver
-import com.tambapps.marcel.compiler.util.getMethod
 import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.compiler.util.javaType
 import com.tambapps.marcel.parser.asm.AsmUtils

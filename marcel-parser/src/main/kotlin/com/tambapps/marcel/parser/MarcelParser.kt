@@ -668,10 +668,12 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         }
         else if (current.type == TokenType.LPAR) {
           skip()
-          FunctionCallNode(scope, token.value, parseFunctionArguments(scope))
+          if (current.type == TokenType.IDENTIFIER && lookup(1)?.type == TokenType.COLON)
+            NamedParametersFunctionCall(scope, token.value, parseFunctionNamedArguments(scope))
+          else SimpleFunctionCallNode(scope, token.value, parseFunctionArguments(scope))
         } else if (current.type == TokenType.BRACKETS_OPEN) { // function call with a lambda
           skip()
-          FunctionCallNode(scope, token.value, mutableListOf(parseLambda(scope)))
+          SimpleFunctionCallNode(scope, token.value, mutableListOf(parseLambda(scope)))
         } else if (current.type == TokenType.LT  && lookup(1)?.type == TokenType.TWO_DOTS
           || current.type == TokenType.GT && lookup(1)?.type == TokenType.TWO_DOTS || current.type == TokenType.TWO_DOTS) {
           val fromExpression = if (current.type == TokenType.TWO_DOTS) ReferenceExpression(scope, token.value)
@@ -857,6 +859,26 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     val arguments = mutableListOf<ExpressionNode>()
     while (current.type != TokenType.RPAR) {
       arguments.add(expression(scope))
+      if (current.type == TokenType.RPAR) {
+        break
+      } else {
+        accept(TokenType.COMMA)
+      }
+    }
+    skip() // skipping RPAR
+    return arguments
+  }
+
+  private fun parseFunctionNamedArguments(scope: Scope): MutableList<NamedArgument> {
+    val arguments = mutableListOf<NamedArgument>()
+    while (current.type != TokenType.RPAR) {
+      val identifierToken = accept(TokenType.IDENTIFIER)
+      val name = identifierToken.value
+      if (arguments.any { it.name == name }) {
+        throw MarcelParserException(identifierToken, "Method parameter $name was specified more than one")
+      }
+      accept(TokenType.COLON)
+      arguments.add(NamedArgument(name, expression(scope)))
       if (current.type == TokenType.RPAR) {
         break
       } else {
