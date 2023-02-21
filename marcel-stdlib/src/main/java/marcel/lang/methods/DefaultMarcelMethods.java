@@ -1,8 +1,6 @@
 package marcel.lang.methods;
 
 import marcel.lang.IntRange;
-import marcel.lang.lambda.IntLambda1;
-import marcel.lang.lambda.Lambda1;
 import marcel.lang.primitives.collections.lists.CharacterArrayList;
 import marcel.lang.primitives.collections.lists.CharacterList;
 import marcel.lang.primitives.collections.lists.DoubleArrayList;
@@ -28,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
@@ -54,6 +53,13 @@ public final class DefaultMarcelMethods {
       groups.add(self.group(i));
     }
     return groups;
+  }
+
+  public static <T> T find(Collection<T> self, Predicate<T> predicate) {
+    for (T e : self) {
+      if (predicate.test(e)) return e;
+    }
+    return null;
   }
 
   public static <T> Set<T> toSet(List<T> list) {

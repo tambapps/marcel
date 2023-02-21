@@ -48,4 +48,8 @@ public class StringMarcelMethods {
     }
     return false;
   }
+
+  public static int lastIndexOf(String self, char c) {
+    return self.lastIndexOf(c);
+  }
 }
