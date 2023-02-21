@@ -163,9 +163,7 @@ These strings are reserved for pattern only.</p>
 <pre><code class="language-javascript">/some \w+/
 </code></pre>
 <p>Note that such strings <strong>doesn't</strong> resolve variables. If you want to construct a Pattern while resolving Strings, you could
-do as below</p>
-<pre><code class="language-kotlin">Pattern.compile(&quot;$some $pattern&quot;)
-</code></pre>
+just call the <code>Pattern.compile(String)</code> method with an interpolated string.</p>
 <br/>
 It is good practise to end such regexes with a semi-colon (`;`) character, to make it clear to the compiler that what follows
 is not a regex flag (we'll talk about that just after) but a 'real' identifier.
@@ -179,7 +177,7 @@ println(pattern)
 println(pattern)
 </code></pre>
 <p>Here is the list of flags (you can see the doc of each flag in the <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#UNIX_LINES">Javadoc of the Pattern's class</a>).</p>
-<div class="table-wrapper"><table><thead><tr><th>character</th><th>Java Pattern <br/>Flag</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>character</th><th>Java PatternFlag</th></tr></thead><tbody>
 <tr><td>d</td><td>UNIX_LINES</td></tr>
 <tr><td>i</td><td>CASE_INSENSITIVE</td></tr>
 <tr><td>x</td><td>COMMENTS</td></tr>
@@ -203,25 +201,26 @@ Only one character must be specified between the two backticks</p>
 <tr><td>\n</td><td>newline</td></tr>
 <tr><td>\r</td><td>carriage return</td></tr>
 <tr><td>\t</td><td>tabulation</td></tr>
-<tr><td>\</td><td>backslash</td></tr>
-<tr><td>'</td><td>single quotes (useful in simple strings)</td></tr>
-<tr><td>&quot;</td><td>double quotes (useful in interpolated strings)</td></tr>
-<tr><td>`</td><td>backtick (useful in character strings)</td></tr>
+<tr><td>\\</td><td>backslash</td></tr>
+<tr><td>\'</td><td>single quotes (useful in simple strings)</td></tr>
+<tr><td>\&quot;</td><td>double quotes (useful in interpolated strings)</td></tr>
+<tr><td>\`</td><td>backtick (useful in character strings)</td></tr>
 </tbody></table>
 </div>
 <h2 id="literal-numbers"><a class="header" href="#literal-numbers">Literal Numbers</a></h2>
 <p>Marcel supports almost all Java primitives. The number primitive literals are the same as in Java</p>
 <pre><code class="language-java">// primitive types
 byte  b = 1
-char  c = 2
-short s = 3
-int   i = 4
-long  l = 5
+short s = 2
+int   i = 3
+long  l = 4l
+float f = 5f
+double d = 6d
 </code></pre>
 <h3 id="binary-representation"><a class="header" href="#binary-representation">Binary representation</a></h3>
 <p>You can also create numbers using their binary representation with the <code>0b</code> prefix</p>
 <pre><code class="language-java">int i = 0b10
-    long l = 0b11l
+long l = 0b11l
 </code></pre>
 <h3 id="hexadecimal-representation"><a class="header" href="#hexadecimal-representation">Hexadecimal representation</a></h3>
 <p>You can also create numbers using their hexadecimal representation with the <code>0x</code> prefix</p>
@@ -253,6 +252,12 @@ long l = 0x5l
 10&gt;..0 // 10 (exclusive) to 0 (inclusive)
 10..&gt;0 // 10 (inclusive) to 0 (exclusive)
 10&gt;..&gt;0 // 10 (exclusive) to 0 (exclusive)
+</code></pre>
+<p>Ranges work with all kinds of int/long expressions</p>
+<pre><code class="language-groovy">int start = computeStart()
+int end = computeEnd()
+
+for (i in start..end) println(i)
 </code></pre>
 
                     </main>

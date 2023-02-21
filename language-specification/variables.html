@@ -151,14 +151,14 @@ Object o = new Object()
 list&lt;int&gt; l = [1, 2] // collection of primivites
 </code></pre>
 <h3 id="multiple-declarations"><a class="header" href="#multiple-declarations">Multiple declarations</a></h3>
-<p>Marcel supports multiple assignements in one statement</p>
+<p>Marcel supports multiple assignments in one statement</p>
 <pre><code class="language-groovy">def (int a, String b, Object c) = [1, &quot;2&quot;, new Object()]
 
-def (int d, String e, Object f) = functionReturningAnArray()
+def (int d, String e, Object f) = functionReturningAnArrayOrList()
 </code></pre>
-<p>Note that if the array is shorter than the number of variable declared, this will lead to a runtime error</p>
+<p>Note that if the array/list is shorter than the number of variable declared, this will lead to a runtime error</p>
 <br/>
-Sometimes, you might want to ignore a specific item of a list (e.g. the first group of a Matcher, which represents the whole match).
+Sometimes you might want to ignore a specific item of a list,
 You can use the `_` identifier to let the compiler know that.
 <p>E.g.</p>
 <pre><code class="language-groovy">def (_, String world) = (&quot;hello world&quot; =~ /hello (world)/).groups()

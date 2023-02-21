@@ -239,7 +239,7 @@ doOtherStuff()
 <li>when</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="identifiers"><a class="header" href="#identifiers">Identifiers</a></h1>
-<p>An identifier is a name that you can use to define a class, field, or variable/</p>
+<p>An identifier is a name that you can use to define a class, field, a function or variable.</p>
 <p>An identifier must follows all the below rules</p>
 <ul>
 <li>it must start with a letter ('a' to 'z' , and 'A' to 'Z'), or an underscore</li>
@@ -266,9 +266,7 @@ These strings are reserved for pattern only.</p>
 <pre><code class="language-javascript">/some \w+/
 </code></pre>
 <p>Note that such strings <strong>doesn't</strong> resolve variables. If you want to construct a Pattern while resolving Strings, you could
-do as below</p>
-<pre><code class="language-kotlin">Pattern.compile(&quot;$some $pattern&quot;)
-</code></pre>
+just call the <code>Pattern.compile(String)</code> method with an interpolated string.</p>
 <br/>
 It is good practise to end such regexes with a semi-colon (`;`) character, to make it clear to the compiler that what follows
 is not a regex flag (we'll talk about that just after) but a 'real' identifier.
@@ -282,7 +280,7 @@ println(pattern)
 println(pattern)
 </code></pre>
 <p>Here is the list of flags (you can see the doc of each flag in the <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#UNIX_LINES">Javadoc of the Pattern's class</a>).</p>
-<div class="table-wrapper"><table><thead><tr><th>character</th><th>Java Pattern <br/>Flag</th></tr></thead><tbody>
+<div class="table-wrapper"><table><thead><tr><th>character</th><th>Java PatternFlag</th></tr></thead><tbody>
 <tr><td>d</td><td>UNIX_LINES</td></tr>
 <tr><td>i</td><td>CASE_INSENSITIVE</td></tr>
 <tr><td>x</td><td>COMMENTS</td></tr>
@@ -306,25 +304,26 @@ Only one character must be specified between the two backticks</p>
 <tr><td>\n</td><td>newline</td></tr>
 <tr><td>\r</td><td>carriage return</td></tr>
 <tr><td>\t</td><td>tabulation</td></tr>
-<tr><td>\</td><td>backslash</td></tr>
-<tr><td>'</td><td>single quotes (useful in simple strings)</td></tr>
-<tr><td>&quot;</td><td>double quotes (useful in interpolated strings)</td></tr>
-<tr><td>`</td><td>backtick (useful in character strings)</td></tr>
+<tr><td>\\</td><td>backslash</td></tr>
+<tr><td>\'</td><td>single quotes (useful in simple strings)</td></tr>
+<tr><td>\&quot;</td><td>double quotes (useful in interpolated strings)</td></tr>
+<tr><td>\`</td><td>backtick (useful in character strings)</td></tr>
 </tbody></table>
 </div>
 <h2 id="literal-numbers"><a class="header" href="#literal-numbers">Literal Numbers</a></h2>
 <p>Marcel supports almost all Java primitives. The number primitive literals are the same as in Java</p>
 <pre><code class="language-java">// primitive types
 byte  b = 1
-char  c = 2
-short s = 3
-int   i = 4
-long  l = 5
+short s = 2
+int   i = 3
+long  l = 4l
+float f = 5f
+double d = 6d
 </code></pre>
 <h3 id="binary-representation"><a class="header" href="#binary-representation">Binary representation</a></h3>
 <p>You can also create numbers using their binary representation with the <code>0b</code> prefix</p>
 <pre><code class="language-java">int i = 0b10
-    long l = 0b11l
+long l = 0b11l
 </code></pre>
 <h3 id="hexadecimal-representation"><a class="header" href="#hexadecimal-representation">Hexadecimal representation</a></h3>
 <p>You can also create numbers using their hexadecimal representation with the <code>0x</code> prefix</p>
@@ -357,6 +356,12 @@ long l = 0x5l
 10..&gt;0 // 10 (inclusive) to 0 (exclusive)
 10&gt;..&gt;0 // 10 (exclusive) to 0 (exclusive)
 </code></pre>
+<p>Ranges work with all kinds of int/long expressions</p>
+<pre><code class="language-groovy">int start = computeStart()
+int end = computeEnd()
+
+for (i in start..end) println(i)
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="variables"><a class="header" href="#variables">Variables</a></h1>
 <h2 id="declare-variables"><a class="header" href="#declare-variables">Declare variables</a></h2>
 <p>Marcel variable declarations are the same as Java's</p>
@@ -366,14 +371,14 @@ Object o = new Object()
 list&lt;int&gt; l = [1, 2] // collection of primivites
 </code></pre>
 <h3 id="multiple-declarations"><a class="header" href="#multiple-declarations">Multiple declarations</a></h3>
-<p>Marcel supports multiple assignements in one statement</p>
+<p>Marcel supports multiple assignments in one statement</p>
 <pre><code class="language-groovy">def (int a, String b, Object c) = [1, &quot;2&quot;, new Object()]
 
-def (int d, String e, Object f) = functionReturningAnArray()
+def (int d, String e, Object f) = functionReturningAnArrayOrList()
 </code></pre>
-<p>Note that if the array is shorter than the number of variable declared, this will lead to a runtime error</p>
+<p>Note that if the array/list is shorter than the number of variable declared, this will lead to a runtime error</p>
 <br/>
-Sometimes, you might want to ignore a specific item of a list (e.g. the first group of a Matcher, which represents the whole match).
+Sometimes you might want to ignore a specific item of a list,
 You can use the `_` identifier to let the compiler know that.
 <p>E.g.</p>
 <pre><code class="language-groovy">def (_, String world) = (&quot;hello world&quot; =~ /hello (world)/).groups()
@@ -416,11 +421,11 @@ println(list[1])
 literal array will be converted into a IntArrayList (a int list that store elements in an int array).</p>
 <p>Here is the list of all list of primitives supported</p>
 <ul>
-<li>list<int> -&gt; IntList</li>
-<li>list<long> -&gt; LongList</li>
-<li>list<char> -&gt; CharacterList</li>
-<li>list<float> -&gt; FloatList</li>
-<li>list<double> -&gt; DoubleList</li>
+<li>list&lt;int&gt; -&gt; IntList</li>
+<li>list&lt;long&gt; -&gt; LongList</li>
+<li>list&lt;char&gt; -&gt; CharacterList</li>
+<li>list&lt;float&gt; -&gt; FloatList</li>
+<li>list&lt;double&gt; -&gt; DoubleList</li>
 </ul>
 <h2 id="sets"><a class="header" href="#sets">Sets</a></h2>
 <p>You can do the same with sets</p>
@@ -428,9 +433,9 @@ literal array will be converted into a IntArrayList (a int list that store eleme
 </code></pre>
 <p>Here is the list of all set of primitives supported</p>
 <ul>
-<li>set<int> -&gt; IntSet</li>
-<li>set<long> -&gt; LongSet</li>
-<li>set<char> -&gt; CharacterSet</li>
+<li>set&lt;int&gt; -&gt; IntSet</li>
+<li>set&lt;long&gt; -&gt; LongSet</li>
+<li>set&lt;char&gt; -&gt; CharacterSet</li>
 </ul>
 <h2 id="maps-of-primitive-keys"><a class="header" href="#maps-of-primitive-keys">Maps of Primitive keys</a></h2>
 <p>You can also use maps using primitive keys (but all values will be Objects, meaning that your ints will be boxed into Integers)</p>
@@ -446,7 +451,8 @@ literal array will be converted into a IntArrayList (a int list that store eleme
 <h2 id="package"><a class="header" href="#package">Package</a></h2>
 <p>A Marcel source file can have a package. It is optional but if it is specified, it must be the first instruction in the file
 (excluding comments)</p>
-<p><code>java package my.package </code></p>
+<pre><code class="language-java">package my.package
+</code></pre>
 <h2 id="imports"><a class="header" href="#imports">Imports</a></h2>
 <p>Then, some <a href="language-specification/source-file-structure/./imports.html">imports</a> can follow. You can consult the default imported class/package <a href="language-specification/source-file-structure/./imports.html#default-imports">here</a></p>
 <h2 id="class"><a class="header" href="#class">Class</a></h2>
