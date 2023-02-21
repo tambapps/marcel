@@ -41,11 +41,11 @@ literal array will be converted into a IntArrayList (a int list that store eleme
 
 
 Here is the list of all list of primitives supported
-- list<int> -> IntList
-- list<long> -> LongList
-- list<char> -> CharacterList
-- list<float> -> FloatList
-- list<double> -> DoubleList
+- list\<int> -> IntList
+- list\<long> -> LongList
+- list\<char> -> CharacterList
+- list\<float> -> FloatList
+- list\<double> -> DoubleList
 
 ## Sets
 You can do the same with sets
@@ -55,9 +55,9 @@ set<int> mySet = [1, 2, 3, 3] // will actually contain just 1, 2 and 3
 ````
 
 Here is the list of all set of primitives supported
-- set<int> -> IntSet
-- set<long> -> LongSet
-- set<char> -> CharacterSet
+- set\<int> -> IntSet
+- set\<long> -> LongSet
+- set\<char> -> CharacterSet
 
 ## Maps of Primitive keys
 You can also use maps using primitive keys (but all values will be Objects, meaning that your ints will be boxed into Integers)
@@ -67,6 +67,6 @@ map<int, Integer> myMap = [1: 1, 2: 2, 3: 3] // will actually contain just 1, 2 
 ````
 
 Here is the list of all map of primitive keys supported
-- map<int, ?> -> Int2ObjectMap
-- map<long, ?> -> Long2ObjectMap
-- map<char, ?> -> Character2ObjectMap
+- map\<int, ?> -> Int2ObjectMap
+- map\<long, ?> -> Long2ObjectMap
+- map\<char, ?> -> Character2ObjectMap

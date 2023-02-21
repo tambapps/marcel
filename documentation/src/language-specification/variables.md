@@ -12,18 +12,18 @@ list<int> l = [1, 2] // collection of primivites
 ````
 
 ### Multiple declarations
-Marcel supports multiple assignements in one statement
+Marcel supports multiple assignments in one statement
 
 ```groovy
 def (int a, String b, Object c) = [1, "2", new Object()]
 
-def (int d, String e, Object f) = functionReturningAnArray()
+def (int d, String e, Object f) = functionReturningAnArrayOrList()
 ```
 
-Note that if the array is shorter than the number of variable declared, this will lead to a runtime error
+Note that if the array/list is shorter than the number of variable declared, this will lead to a runtime error
 
 <br/>
-Sometimes, you might want to ignore a specific item of a list (e.g. the first group of a Matcher, which represents the whole match).
+Sometimes you might want to ignore a specific item of a list,
 You can use the `_` identifier to let the compiler know that.
 
 E.g.

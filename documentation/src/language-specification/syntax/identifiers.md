@@ -1,6 +1,6 @@
 # Identifiers
 
-An identifier is a name that you can use to define a class, field, or variable/
+An identifier is a name that you can use to define a class, field, a function or variable.
 
 An identifier must follows all the below rules
 

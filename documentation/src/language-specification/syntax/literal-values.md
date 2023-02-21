@@ -39,11 +39,7 @@ The backslash is **not** considered as an escape, except for the backlash charac
 ```
 
 Note that such strings **doesn't** resolve variables. If you want to construct a Pattern while resolving Strings, you could
- do as below
-
-```kotlin
-Pattern.compile("$some $pattern")
-```
+just call the `Pattern.compile(String)` method with an interpolated string.
 
 <br/>
 It is good practise to end such regexes with a semi-colon (`;`) character, to make it clear to the compiler that what follows
@@ -70,7 +66,7 @@ println(pattern)
 Here is the list of flags (you can see the doc of each flag in the [Javadoc of the Pattern's class](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#UNIX_LINES)).
 
 
-| character | Java Pattern <br/>Flag  |
+| character | Java PatternFlag        |
 |-----------|-------------------------|
 | d         | UNIX_LINES              |
 | i         | CASE_INSENSITIVE        |
@@ -96,16 +92,16 @@ char c = `A`
 ### Escaped characters
 Use backslash to escape 'special' characters within strings/characters. Here is the list of escaped characters
 
-| escaped character | represented value                               | 
-|-------------------|-------------------------------------------------|
-| \b                | backspace	                                      | 
-| \n                | newline	                                        | 
-| \r                | carriage return	                                | 
-| \t                | tabulation	                                     | 
-| \\                | backslash	                                      | 
-| \'                | single quotes (useful in simple strings)	       | 
-| \"                | double quotes (useful in interpolated strings)	 | 
-| \`                | backtick (useful in character strings)	         | 
+| escaped character | represented value                              | 
+|-------------------|------------------------------------------------|
+| \b                | backspace	                                     | 
+| \n                | newline	                                       | 
+| \r                | carriage return	                               | 
+| \t                | tabulation	                                    | 
+| \\\\              | backslash	                                     | 
+| \\\'              | single quotes (useful in simple strings)	      | 
+| \\\"              | double quotes (useful in interpolated strings) | 
+| \\\`              | backtick (useful in character strings)	        | 
 
 
 ## Literal Numbers
@@ -115,10 +111,11 @@ Marcel supports almost all Java primitives. The number primitive literals are th
 ```java
 // primitive types
 byte  b = 1
-char  c = 2
-short s = 3
-int   i = 4
-long  l = 5
+short s = 2
+int   i = 3
+long  l = 4l
+float f = 5f
+double d = 6d
 ```
 
 ### Binary representation
@@ -127,7 +124,7 @@ You can also create numbers using their binary representation with the `0b` pref
 
 ```java
 int i = 0b10
-    long l = 0b11l
+long l = 0b11l
 ```
 
 
@@ -185,4 +182,13 @@ Ranges also work in reverse order
 10>..0 // 10 (exclusive) to 0 (inclusive)
 10..>0 // 10 (inclusive) to 0 (exclusive)
 10>..>0 // 10 (exclusive) to 0 (exclusive)
+```
+
+Ranges work with all kinds of int/long expressions
+
+```groovy
+int start = computeStart()
+int end = computeEnd()
+
+for (i in start..end) println(i)
 ```
