@@ -186,7 +186,7 @@ you specify them doesn't matter.</p>
 int otherResult = sum(a: 1) // equivalent to sum(1, 0)
 </code></pre>
 <p>Such calls also work with constructors. You can specify class's field names with their values to set.
-Note that it will only work if your class has a no-arg constructor and that the fields referenced are <code>public</code></p>
+Note that it will only work if your class has a no-arg constructor and that the fields referenced are <code>public</code> and <strong>not</strong> <code>final</code>.</p>
 <pre><code class="language-groovy">
 Foo foo = new Foo(bar: 1, baz: &quot;baz&quot;)
 
