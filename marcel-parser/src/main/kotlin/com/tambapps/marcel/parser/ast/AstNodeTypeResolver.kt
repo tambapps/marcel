@@ -39,6 +39,7 @@ import com.tambapps.marcel.parser.ast.expression.NotNode
 import com.tambapps.marcel.parser.ast.expression.NullValueNode
 import com.tambapps.marcel.parser.ast.expression.OrOperator
 import com.tambapps.marcel.parser.ast.expression.LiteralPatternNode
+import com.tambapps.marcel.parser.ast.expression.NamedParametersConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.PlusOperator
 import com.tambapps.marcel.parser.ast.expression.PowOperator
 import com.tambapps.marcel.parser.ast.expression.RangeNode
@@ -212,6 +213,8 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
 
 
   override fun visit(fCall: ConstructorCallNode) = fCall.type
+
+  override fun visit(fCall: NamedParametersConstructorCallNode) = fCall.type
 
   override fun visit(fCall: SuperConstructorCallNode) = JavaType.void
 

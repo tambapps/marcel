@@ -39,6 +39,8 @@ import com.tambapps.marcel.parser.ast.expression.NotNode
 import com.tambapps.marcel.parser.ast.expression.NullValueNode
 import com.tambapps.marcel.parser.ast.expression.OrOperator
 import com.tambapps.marcel.parser.ast.expression.LiteralPatternNode
+import com.tambapps.marcel.parser.ast.expression.NamedParametersConstructorCallNode
+import com.tambapps.marcel.parser.ast.expression.NamedParametersFunctionCall
 import com.tambapps.marcel.parser.ast.expression.PlusOperator
 import com.tambapps.marcel.parser.ast.expression.PowOperator
 import com.tambapps.marcel.parser.ast.expression.RangeNode
@@ -106,7 +108,8 @@ class ForEachNodeVisitor(private val consumer: (AstNode) -> Unit): AstNodeVisito
 
   override fun visit(fCall: FunctionCallNode) {
     consumer.invoke(fCall)
-    fCall.arguments.forEach { it.accept(this) }
+    if (fCall is NamedParametersFunctionCall) fCall.namedArguments.forEach { it.valueExpression.accept(this) }
+    else fCall.arguments.forEach { it.accept(this) }
   }
 
   override fun visit(fCall: ConstructorCallNode) {
@@ -117,6 +120,11 @@ class ForEachNodeVisitor(private val consumer: (AstNode) -> Unit): AstNodeVisito
   override fun visit(fCall: SuperConstructorCallNode) {
     consumer.invoke(fCall)
     fCall.arguments.forEach { it.accept(this) }
+  }
+
+  override fun visit(fCall: NamedParametersConstructorCallNode) {
+    consumer.invoke(fCall)
+    fCall.namedArguments.forEach { it.valueExpression.accept(this) }
   }
 
   override fun visit(operator: DivOperator) = visitBinaryOperator(operator)

@@ -27,6 +27,7 @@ import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.scope.Variable
 import com.tambapps.marcel.parser.type.JavaArrayType
+import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import marcel.lang.IntRanges
@@ -253,6 +254,10 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     mv.visitConstructorCall(fCall)
   }
 
+  override fun visit(fCall: NamedParametersConstructorCallNode) {
+    val type = fCall.type
+    mv.visitNamedConstructorCall(fCall)
+  }
   override fun visit(fCall: SuperConstructorCallNode) {
     mv.visitSuperConstructorCall(fCall)
   }
@@ -807,6 +812,12 @@ class InstructionGenerator(
     super.visit(fCall)
     mv.popStack() // don't really know if it's necessary
   }
+
+  override fun visit(fCall: NamedParametersConstructorCallNode) {
+    super.visit(fCall)
+    mv.popStack() // don't really know if it's necessary
+  }
+
   override fun visit(fCall: FunctionCallNode) {
     super.visit(fCall)
     if (fCall.getType(typeResolver) != JavaType.void) {

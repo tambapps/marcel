@@ -94,4 +94,8 @@ open class NamedParametersFunctionCall constructor(override var scope: Scope, ov
     this.method = m // cache it for eventual future calls
     return m
   }
+
+  override fun toString(): String {
+    return name + "(" + namedArguments.joinToString(separator = ",", transform = { "${it.name}: ${it.valueExpression}"}) + ")"
+  }
 }

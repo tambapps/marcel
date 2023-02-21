@@ -63,7 +63,7 @@ int otherResult = sum(a: 1) // equivalent to sum(1, 0)
 
 
 Such calls also work with constructors. You can specify class's field names with their values to set.
-Note that it will only work if your class has a no-arg constructor and that the fields referenced are `public`
+Note that it will only work if your class has a no-arg constructor and that the fields referenced are `public` and **not** `final`.
 
 
 

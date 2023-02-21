@@ -606,7 +606,9 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       TokenType.NEW -> {
         val type = parseType(scope)
         accept(TokenType.LPAR)
-        ConstructorCallNode(Scope(typeResolver, type), type, parseFunctionArguments(scope))
+        if (current.type == TokenType.IDENTIFIER && lookup(1)?.type == TokenType.COLON)
+          NamedParametersConstructorCallNode(Scope(typeResolver, type), type, parseFunctionNamedArguments(scope))
+        else ConstructorCallNode(Scope(typeResolver, type), type, parseFunctionArguments(scope))
       }
       TokenType.SWITCH -> {
         accept(TokenType.LPAR)

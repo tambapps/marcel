@@ -8,6 +8,7 @@ import com.tambapps.marcel.parser.ast.ComparisonOperator
 import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.ast.expression.LambdaNode
+import com.tambapps.marcel.parser.ast.expression.NamedParametersConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.*
@@ -24,6 +25,21 @@ import java.lang.reflect.Method
 class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolver: JavaTypeResolver) {
 
   lateinit var argumentPusher: ArgumentPusher
+
+  fun visitNamedConstructorCall(fCall: NamedParametersConstructorCallNode) {
+    val type = fCall.type
+    if (typeResolver.findMethod(type, JavaMethod.CONSTRUCTOR_NAME, emptyList(), true) == null)
+      throw MarcelSemanticException("Cannot invoke named constructor on a type with no no-arg constructor")
+    visitConstructorCall(ConstructorCallNode(fCall.scope, type, mutableListOf()))
+    for (namedParameter in fCall.namedArguments) {
+      dup()
+      argumentPusher.pushArgument(namedParameter.valueExpression)
+      val field = typeResolver.findFieldOrThrow(type, namedParameter.name)
+      if (field.isFinal) throw MarcelSemanticException("Cannot use named parameters constructor on a final field")
+      // TODO need to check visibility too
+      storeInVariable(typeResolver.findFieldOrThrow(type, namedParameter.name))
+    }
+  }
 
   fun visitConstructorCall(fCall: ConstructorCallNode) {
     val type = fCall.type
