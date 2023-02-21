@@ -9,6 +9,7 @@ import marcel.lang.primitives.spliterators.LongSpliterators;
 
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.LongPredicate;
 
 public interface LongSet extends LongCollection, Set<Long> {
 	/** Returns a type-specific iterator on the elements of this set.
@@ -120,10 +121,20 @@ public interface LongSet extends LongCollection, Set<Long> {
 	}
 
 	default LongList toList() {
-		LongIterator iterator = iterator();
 		LongList list = new LongArrayList(size());
+		LongIterator iterator = iterator();
 		while (iterator.hasNext()) {
 			list.add(iterator.nextLong());
+		}
+		return list;
+	}
+
+	default LongSet filter(LongPredicate predicate) {
+		LongSet list = new LongOpenHashSet(size());
+		LongIterator iterator = iterator();
+		while (iterator.hasNext()) {
+			long e = iterator.nextLong();
+			if (predicate.test(e)) list.add(e);
 		}
 		return list;
 	}

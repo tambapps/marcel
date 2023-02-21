@@ -29,6 +29,7 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Spliterator;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.DoublePredicate;
 
 /** A type-specific {@link List}; provides some additional methods that use polymorphism to avoid (un)boxing.
 	*
@@ -411,5 +412,14 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 			set.add(iterator.nextDouble());
 		}
 		return set;
+	}
+
+	default DoubleList filter(DoublePredicate predicate) {
+		DoubleList list = new DoubleArrayList(size());
+		for (int i = 0; i < size(); i++) {
+			double e = getDouble(i);
+			if (predicate.test(e)) list.add(e);
+		}
+		return list;
 	}
 }

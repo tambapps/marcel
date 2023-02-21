@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Spliterator;
+import java.util.function.LongPredicate;
 import java.util.function.LongUnaryOperator;
 
 /** A type-specific {@link List}; provides some additional methods that use polymorphism to avoid (un)boxing.
@@ -412,4 +413,14 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 		}
 		return set;
 	}
+
+	default LongList filter(LongPredicate predicate) {
+		LongList list = new LongArrayList(size());
+		for (int i = 0; i < size(); i++) {
+			long e = getLong(i);
+			if (predicate.test(e)) list.add(e);
+		}
+		return list;
+	}
+
 }

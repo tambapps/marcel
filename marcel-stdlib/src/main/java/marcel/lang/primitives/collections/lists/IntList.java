@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Spliterator;
+import java.util.function.IntPredicate;
 
 /** A type-specific {@link List}; provides some additional methods that use polymorphism to avoid (un)boxing.
 	*
@@ -404,11 +405,20 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	}
 
 	default IntSet toSet() {
-		IntIterator iterator = iterator();
 		IntSet set = new IntOpenHashSet(size());
+		IntIterator iterator = iterator();
 		while (iterator.hasNext()) {
 			set.add(iterator.nextInt());
 		}
 		return set;
+	}
+
+	default IntList filter(IntPredicate predicate) {
+		IntList list = new IntArrayList(size());
+		for (int i = 0; i < size(); i++) {
+			int e = getInt(i);
+			if (predicate.test(e)) list.add(e);
+		}
+		return list;
 	}
 }

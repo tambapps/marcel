@@ -7,9 +7,9 @@ import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.spliterators.IntSpliterator;
 import marcel.lang.primitives.spliterators.IntSpliterators;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.IntPredicate;
 
 public interface IntSet extends IntCollection, Set<Integer> {
 	/** Returns a type-specific iterator on the elements of this set.
@@ -121,10 +121,20 @@ public interface IntSet extends IntCollection, Set<Integer> {
 	}
 
 	default IntList toList() {
-		IntIterator iterator = iterator();
 		IntList list = new IntArrayList(size());
+		IntIterator iterator = iterator();
 		while (iterator.hasNext()) {
 			list.add(iterator.nextInt());
+		}
+		return list;
+	}
+
+	default IntSet filter(IntPredicate predicate) {
+		IntSet list = new IntOpenHashSet(size());
+		IntIterator iterator = iterator();
+		while (iterator.hasNext()) {
+			int e = iterator.nextInt();
+			if (predicate.test(e)) list.add(e);
 		}
 		return list;
 	}

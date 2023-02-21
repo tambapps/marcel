@@ -16,9 +16,13 @@
 package marcel.lang.primitives.collections.lists;
 
 import marcel.lang.primitives.collections.FloatCollection;
+import marcel.lang.primitives.collections.sets.FloatOpenHashSet;
+import marcel.lang.primitives.collections.sets.FloatSet;
+import marcel.lang.primitives.iterators.FloatIterator;
 import marcel.lang.primitives.iterators.list.FloatListIterator;
 import marcel.lang.primitives.spliterators.FloatSpliterator;
 import marcel.lang.util.Arrays;
+import marcel.lang.util.function.FloatPredicate;
 import marcel.lang.util.function.FloatUnaryOperator;
 
 import java.util.Comparator;
@@ -399,5 +403,23 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 			sum += getFloat(i);
 		}
 		return sum;
+	}
+
+	default FloatList filter(FloatPredicate predicate) {
+		FloatList list = new FloatArrayList(size());
+		for (int i = 0; i < size(); i++) {
+			float e = getFloat(i);
+			if (predicate.test(e)) list.add(e);
+		}
+		return list;
+	}
+
+	default FloatSet toSet() {
+		FloatSet set = new FloatOpenHashSet(size());
+		FloatIterator iterator = iterator();
+		while (iterator.hasNext()) {
+			set.add(iterator.nextFloat());
+		}
+		return set;
 	}
 }
