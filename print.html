@@ -514,16 +514,10 @@ fun foo() {
 <li>the list of your function's parameters. The parameter's type first, and then the parameter's name.</li>
 <li>the return type. If you're defining a void function, you can omit the return type.</li>
 </ol>
-<h2 id="function-visibility"><a class="header" href="#function-visibility">Function visibility</a></h2>
-<p>You can specify your function's <a href="language-specification/source-file-structure/./visibility.html">visibility</a> before the <code>class</code> keyword</p>
-<pre><code class="language-kotlin">public class Foo {
-
+<h2 id="function-visibility"><a class="header" href="#function-visibility">Function Visibility</a></h2>
+<p>You can specify your function's <a href="language-specification/source-file-structure/./visibility.html">visibility</a> before the <code>fun</code> keyword</p>
+<pre><code class="language-kotlin">private fun foo() {
 }
-</code></pre>
-<h2 id="function-named-parameters-not-yet-implemented"><a class="header" href="#function-named-parameters-not-yet-implemented">Function named parameters (Not Yet Implemented)</a></h2>
-<p>Function arguments can have default constant values You can specify method argument names when calling a function. </p>
-<p>Following on our <code>sum()</code> example:</p>
-<pre><code class="language-kotlin">int result = sum(a = 1, b = 2)
 </code></pre>
 <h2 id="parameter-default-value-not-yet-implemented"><a class="header" href="#parameter-default-value-not-yet-implemented">Parameter default value (Not Yet Implemented)</a></h2>
 <p>Function parameters can have default values, which are used when you skip the corresponding argument.</p>
@@ -534,6 +528,29 @@ return a + b
 sum(a = 2) // 2 + 8
 sum(b = 5) // 0 + 8
 sum(a = 2, b = 5) // 2 + 5
+</code></pre>
+<h2 id="function-calls"><a class="header" href="#function-calls">Function Calls</a></h2>
+<p>Function calls are no different than  in any other language</p>
+<pre><code class="language-groovy">int result = sum(1, 2)
+</code></pre>
+<h3 id="named-parameters-call"><a class="header" href="#named-parameters-call">Named Parameters Call</a></h3>
+<p>You can also specify the name of your parameters. When doing so, the order in which
+you specify them doesn't matter.</p>
+<p>When you don't specify a parameter, it will default to the type's default value
+(0 for primitive types and <code>null</code> for Objects).</p>
+<p>Following on our <code>sum()</code> example:</p>
+<pre><code class="language-groovy">int result = sum(b: 2, a: 1) // equivalent to sum(1, 2)
+int otherResult = sum(a: 1) // equivalent to sum(1, 0)
+</code></pre>
+<p>Such calls also work with constructors. You can specify class's field names with their values to set.
+Note that it will only work if your class has a no-arg constructor and that the fields referenced are <code>public</code></p>
+<pre><code class="language-groovy">
+Foo foo = new Foo(bar: 1, baz: &quot;baz&quot;)
+
+class Foo {
+  int bar
+  String baz
+}
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="classes-1"><a class="header" href="#classes-1">Classes</a></h1>
 <p>You can define classes using the <code>class</code> keyword</p>
