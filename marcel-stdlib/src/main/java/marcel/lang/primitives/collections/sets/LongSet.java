@@ -7,7 +7,6 @@ import marcel.lang.primitives.iterators.LongIterator;
 import marcel.lang.primitives.spliterators.LongSpliterator;
 import marcel.lang.primitives.spliterators.LongSpliterators;
 
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.LongPredicate;
 
@@ -96,28 +95,6 @@ public interface LongSet extends LongCollection, Set<Long> {
 	@Override
 	default boolean contains(final Object o) {
 	 return LongCollection.super.contains(o);
-	}
-
-	default long min() {
-		if (isEmpty()) throw new NoSuchElementException();
-		LongIterator iterator = iterator();
-		long min = iterator.nextLong();
-		while (iterator.hasNext()) {
-			long e = iterator.nextLong();
-			if (e < min) min = e;
-		}
-		return min;
-	}
-
-	default long max() {
-		if (isEmpty()) throw new NoSuchElementException();
-		LongIterator iterator = iterator();
-		long max = iterator.nextLong();
-		while (iterator.hasNext()) {
-			long e = iterator.nextLong();
-			if (e > max) max = e;
-		}
-		return max;
 	}
 
 	default LongList toList() {

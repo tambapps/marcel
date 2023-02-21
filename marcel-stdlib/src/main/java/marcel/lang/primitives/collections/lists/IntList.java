@@ -384,27 +384,6 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 		return sum;
 	}
 
-	// TODO put these in IntColletcion
-	default int min() {
-		if (isEmpty()) throw new NoSuchElementException();
-		int min = getInt(0);
-		for (int i = 1; i < size(); i++) {
-			int e = getInt(i);
-			if (e < min) min = e;
-		}
-		return min;
-	}
-
-	default int max() {
-		if (isEmpty()) throw new NoSuchElementException();
-		int max = getInt(0);
-		for (int i = 1; i < size(); i++) {
-			int e = getInt(i);
-			if (e > max) max = e;
-		}
-		return max;
-	}
-
 	default IntSet toSet() {
 		IntSet set = new IntOpenHashSet(size());
 		IntIterator iterator = iterator();

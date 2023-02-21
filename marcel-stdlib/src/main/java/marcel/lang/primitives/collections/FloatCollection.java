@@ -183,4 +183,27 @@ public interface FloatCollection extends Collection<Float>, FloatIterable {
     }
     throw new NoSuchElementException();
   }
+
+
+  default float min() {
+    if (isEmpty()) throw new NoSuchElementException();
+    FloatIterator iterator = iterator();
+    float min = iterator.nextFloat();
+    while (iterator.hasNext()) {
+      float e = iterator.nextFloat();
+      if (e < min) min = e;
+    }
+    return min;
+  }
+
+  default float max() {
+    if (isEmpty()) throw new NoSuchElementException();
+    FloatIterator iterator = iterator();
+    float max = iterator.nextFloat();
+    while (iterator.hasNext()) {
+      float e = iterator.nextFloat();
+      if (e > max) max = e;
+    }
+    return max;
+  }
 }

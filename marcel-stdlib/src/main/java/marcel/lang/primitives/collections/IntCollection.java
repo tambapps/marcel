@@ -183,4 +183,27 @@ public interface IntCollection extends Collection<Integer>, IntIterable {
     }
     throw new NoSuchElementException();
   }
+
+  default int min() {
+    if (isEmpty()) throw new NoSuchElementException();
+    IntIterator iterator = iterator();
+    int min = iterator.nextInt();
+    while (iterator.hasNext()) {
+      int e = iterator.nextInt();
+      if (e < min) min = e;
+    }
+    return min;
+  }
+
+  default int max() {
+    if (isEmpty()) throw new NoSuchElementException();
+    IntIterator iterator = iterator();
+    int max = iterator.nextInt();
+    while (iterator.hasNext()) {
+      int e = iterator.nextInt();
+      if (e > max) max = e;
+    }
+    return max;
+  }
+
 }
