@@ -3,7 +3,11 @@ package marcel.lang.methods;
 import marcel.lang.IntRange;
 import marcel.lang.primitives.collections.lists.CharacterArrayList;
 import marcel.lang.primitives.collections.lists.CharacterList;
+import marcel.lang.primitives.iterators.CharacterIterator;
 import marcel.lang.primitives.iterators.IntIterator;
+import marcel.lang.util.function.CharacterPredicate;
+
+import java.util.NoSuchElementException;
 
 @SuppressWarnings({"unused", "deprecation"})
 public class StringMarcelMethods {
@@ -29,6 +33,23 @@ public class StringMarcelMethods {
     return Double.parseDouble(self);
   }
 
+  public static Character find(CharSequence self, CharacterPredicate predicate)  {
+    char c;
+    for (int i = 0; i < self.length(); i++) {
+      c = self.charAt(i);
+      if (predicate.test(c)) return c;
+    }
+    return null;
+  }
+
+  public static char findCharacter(CharSequence self, CharacterPredicate predicate)  {
+    char c;
+    for (int i = 0; i < self.length(); i++) {
+      c = self.charAt(i);
+      if (predicate.test(c)) return c;
+    }
+    throw new NoSuchElementException();
+  }
 
   public static CharacterList getAt(String self, IntRange range) {
     CharacterList characters = new CharacterArrayList();

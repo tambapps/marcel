@@ -164,7 +164,6 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
     return stream().mapToInt(Character::charValue);
   }
 
-  //  TODO add this method as an extension of String
   default Character find(CharacterPredicate predicate)  {
     CharacterIterator iterator = iterator();
     char c;
