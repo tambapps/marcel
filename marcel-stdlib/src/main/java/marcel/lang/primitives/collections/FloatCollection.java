@@ -15,13 +15,13 @@
  */
 package marcel.lang.primitives.collections;
 
-
 import marcel.lang.primitives.iterable.FloatIterable;
 import marcel.lang.primitives.iterators.FloatIterator;
 import marcel.lang.primitives.spliterators.FloatSpliterator;
 import marcel.lang.util.function.FloatPredicate;
 
 import java.util.Collection;
+import java.util.NoSuchElementException;
 
 /** A type-specific {@link Collection}; provides some additional methods
  * that use polymorphism to avoid (un)boxing.
@@ -163,4 +163,24 @@ public interface FloatCollection extends Collection<Float>, FloatIterable {
     return stream().mapToDouble(Float::doubleValue);
   }
 
+
+  default Float find(FloatPredicate predicate)  {
+    FloatIterator iterator = iterator();
+    float e;
+    while (iterator.hasNext()) {
+      e = iterator.nextFloat();
+      if (predicate.test(e)) return e;
+    }
+    return null;
+  }
+
+  default float findFloat(FloatPredicate predicate)  {
+    FloatIterator iterator = iterator();
+    float e;
+    while (iterator.hasNext()) {
+      e = iterator.nextFloat();
+      if (predicate.test(e)) return e;
+    }
+    throw new NoSuchElementException();
+  }
 }

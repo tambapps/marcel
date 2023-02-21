@@ -21,6 +21,7 @@ import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.spliterators.IntSpliterator;
 
 import java.util.Collection;
+import java.util.NoSuchElementException;
 import java.util.function.IntPredicate;
 
 /** A type-specific {@link Collection}; provides some additional methods
@@ -163,4 +164,23 @@ public interface IntCollection extends Collection<Integer>, IntIterable {
     return java.util.stream.StreamSupport.intStream(spliterator(), false);
   }
 
+  default Integer find(IntPredicate predicate)  {
+    IntIterator iterator = iterator();
+    int e;
+    while (iterator.hasNext()) {
+      e = iterator.nextInt();
+      if (predicate.test(e)) return e;
+    }
+    return null;
+  }
+
+  default int findInt(IntPredicate predicate)  {
+    IntIterator iterator = iterator();
+    int e;
+    while (iterator.hasNext()) {
+      e = iterator.nextInt();
+      if (predicate.test(e)) return e;
+    }
+    throw new NoSuchElementException();
+  }
 }

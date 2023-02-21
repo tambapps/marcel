@@ -21,6 +21,7 @@ import marcel.lang.primitives.iterators.LongIterator;
 import marcel.lang.primitives.spliterators.LongSpliterator;
 
 import java.util.Collection;
+import java.util.NoSuchElementException;
 import java.util.function.LongPredicate;
 
 /** A type-specific {@link Collection}; provides some additional methods
@@ -163,4 +164,23 @@ public interface LongCollection extends Collection<Long>, LongIterable {
     return java.util.stream.StreamSupport.longStream(spliterator(), false);
   }
 
+  default Long find(LongPredicate predicate)  {
+    LongIterator iterator = iterator();
+    long e;
+    while (iterator.hasNext()) {
+      e = iterator.nextLong();
+      if (predicate.test(e)) return e;
+    }
+    return null;
+  }
+
+  default long findLong(LongPredicate predicate)  {
+    LongIterator iterator = iterator();
+    long e;
+    while (iterator.hasNext()) {
+      e = iterator.nextLong();
+      if (predicate.test(e)) return e;
+    }
+    throw new NoSuchElementException();
+  }
 }

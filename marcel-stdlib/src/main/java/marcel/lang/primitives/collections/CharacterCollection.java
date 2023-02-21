@@ -22,6 +22,7 @@ import marcel.lang.primitives.spliterators.CharacterSpliterator;
 import marcel.lang.util.function.CharacterPredicate;
 
 import java.util.Collection;
+import java.util.NoSuchElementException;
 
 /** A type-specific {@link Collection}; provides some additional methods
  * that use polymorphism to avoid (un)boxing.
@@ -163,4 +164,25 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
     return stream().mapToInt(Character::charValue);
   }
 
+  // TODO do this method for other primitive collections
+  //  and add this method as an extension of String
+  default Character find(CharacterPredicate predicate)  {
+    CharacterIterator iterator = iterator();
+    char c;
+    while (iterator.hasNext()) {
+      c = iterator.nextCharacter();
+      if (predicate.test(c)) return c;
+    }
+    return null;
+  }
+
+  default char findCharacter(CharacterPredicate predicate)  {
+    CharacterIterator iterator = iterator();
+    char c;
+    while (iterator.hasNext()) {
+      c = iterator.nextCharacter();
+      if (predicate.test(c)) return c;
+    }
+    throw new NoSuchElementException();
+  }
 }

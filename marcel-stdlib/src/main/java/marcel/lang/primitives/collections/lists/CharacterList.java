@@ -22,12 +22,10 @@ import marcel.lang.primitives.iterators.CharacterIterator;
 import marcel.lang.primitives.iterators.list.CharacterListIterator;
 import marcel.lang.primitives.spliterators.CharacterSpliterator;
 import marcel.lang.util.Arrays;
-import marcel.lang.util.function.CharacterPredicate;
 import marcel.lang.util.function.CharacterUnaryOperator;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Spliterator;
 
@@ -396,28 +394,6 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 			set(i, getCharacter(p));
 			set(p, t);
 		}
-	}
-
-	// TODO do this method for other primitive collections
-	//  and add this method as an extension of String
-	default Character find(CharacterPredicate predicate)  {
-		CharacterIterator iterator = iterator();
-		char c;
-		while (iterator.hasNext()) {
-			c = iterator.nextCharacter();
-			if (predicate.test(c)) return c;
-		}
-		return null;
-	}
-
-	default char findCharacter(CharacterPredicate predicate)  {
-		CharacterIterator iterator = iterator();
-		char c;
-		while (iterator.hasNext()) {
-			c = iterator.nextCharacter();
-			if (predicate.test(c)) return c;
-		}
-		throw new NoSuchElementException();
 	}
 
 	default CharacterSet toSet() {

@@ -384,6 +384,7 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 		return sum;
 	}
 
+	// TODO put these in IntColletcion
 	default int min() {
 		if (isEmpty()) throw new NoSuchElementException();
 		int min = getInt(0);
