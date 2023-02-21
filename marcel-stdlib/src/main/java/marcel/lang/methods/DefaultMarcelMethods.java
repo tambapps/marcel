@@ -16,6 +16,7 @@ import marcel.lang.primitives.collections.sets.FloatSet;
 import marcel.lang.primitives.collections.sets.IntSet;
 import marcel.lang.primitives.collections.sets.LongSet;
 import marcel.lang.primitives.iterators.IntIterator;
+import marcel.lang.util.function.ToFloatFunction;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,7 +28,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
+import java.util.function.ToLongFunction;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
@@ -71,14 +74,36 @@ public final class DefaultMarcelMethods {
     return set;
   }
 
-  // mapToInt
-  // TODO add other map functions
   public static <T> IntList mapToInt(List<T> list, ToIntFunction<T> lambda1) {
     IntList intList = new IntArrayList(list.size());
     for (int i = 0; i < list.size(); i++) {
       intList.add(lambda1.applyAsInt(list.get(i)));
     }
     return intList;
+  }
+
+  public static <T> LongList mapToLong(List<T> list, ToLongFunction<T> lambda1) {
+    LongList longList = new LongArrayList(list.size());
+    for (int i = 0; i < list.size(); i++) {
+      longList.add(lambda1.applyAsLong(list.get(i)));
+    }
+    return longList;
+  }
+
+  public static <T> FloatList mapToFloat(List<T> list, ToFloatFunction<T> lambda1) {
+    FloatList floatList = new FloatArrayList(list.size());
+    for (int i = 0; i < list.size(); i++) {
+      floatList.add(lambda1.applyAsFloat(list.get(i)));
+    }
+    return floatList;
+  }
+
+  public static <T> DoubleList mapToDouble(List<T> list, ToDoubleFunction<T> lambda1) {
+    DoubleList floatList = new DoubleArrayList(list.size());
+    for (int i = 0; i < list.size(); i++) {
+      floatList.add(lambda1.applyAsDouble(list.get(i)));
+    }
+    return floatList;
   }
 
   // getLength
