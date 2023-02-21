@@ -25,6 +25,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
   }
 
   private fun compileRec(classes: MutableList<CompiledClass>, classNode: ClassNode) {
+    // TODO check for final fields not initizalized
     // check that all implemented interfaces methods are defined.
     for (interfaze in classNode.type.directlyImplementedInterfaces) {
       for (interfaceMethod in typeResolver.getDeclaredMethods(interfaze).filter { it.isAbstract }) {
