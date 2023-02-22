@@ -841,8 +841,44 @@ Bar bar = foo?.bar // Marcel recognize getters and translet '.bar' into '.getBar
 <p>This section describes the different tools to take your Marcel experience to the next level.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="marcl"><a class="header" href="#marcl">Marcl</a></h1>
 <p>MarCL (MARcel Command Line tool) is useful to compile/execute marcel source files.</p>
+<p>Let's explore all the commands it provides</p>
+<h2 id="execute"><a class="header" href="#execute">Execute</a></h2>
+<p>This is the default command, meaning that if you don't specify a command, it will
+use this one.</p>
+<pre><code class="language-text">Usage: marcl execute [OPTIONS] FILE [SCRIPT_ARGUMENTS]...
+
+  Execute a marcel script
+
+Options:
+  -c, --keep-class         keep compiled class files after execution
+  -j, --keep-jar           keep compiled jar file after execution
+  -p, --print-stack-trace  print stack trace on compilation error
+  -h, --help               Show this message and exit
+</code></pre>
+<h3 id="examples"><a class="header" href="#examples">Examples</a></h3>
+<pre><code class="language-shell">marcl execute script.mcl
+</code></pre>
+<pre><code class="language-shell">marcl -c script.mcl
+</code></pre>
+<pre><code class="language-shell">marcl execute -cj script.mcl myScriptArg1 myScriptArg2
+</code></pre>
 <h2 id="compile"><a class="header" href="#compile">Compile</a></h2>
-<p>TODO</p>
+<pre><code class="language-text">Usage: marcl compile [OPTIONS] FILE
+
+  Compiles a Marcel class to a .class file and/or .jar file
+
+Options:
+  -c, --class              Compile to class
+  -j, --jar                Compile to jar
+  -p, --print-stack-trace  print stack trace on compilation error
+  -h, --help               Show this message and exit
+
+</code></pre>
+<h3 id="examples-1"><a class="header" href="#examples-1">Examples</a></h3>
+<pre><code class="language-shell">marcl compile script.mcl
+</code></pre>
+<pre><code class="language-shell">marcl compile -cj script.mcl
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="marshell"><a class="header" href="#marshell">Marshell</a></h1>
 <p>Marshell is a shell that can be used to run marcel instructions, on the fly.</p>
 <p><strong>Coming soon(-ish)</strong></p>
