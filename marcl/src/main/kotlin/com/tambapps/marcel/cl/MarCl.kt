@@ -28,8 +28,8 @@ class Marcl : CliktCommand(help = "MARCel Command Line tool") {
 }
 class CompileCommand : CliktCommand(help = "Compiles a Marcel class to a .class file and/or .jar file") {
   private val file by argument().file(mustExist = true, canBeFile = true, canBeDir = false, mustBeReadable = true)
-  private val keepClassFiles by option("-c", "--keep-class", help = "keep compiled classes file after execution").flag()
-  private val keepJarFile by option("-j", "--keep-jar", help = "keep compiled jar file after execution").flag()
+  private val keepClassFiles by option("-c", "--class", help = "Compile to class").flag()
+  private val keepJarFile by option("-j", "--jar", help = "Compile to jar").flag()
   private val printStackTrace by option("-p", "--print-stack-trace", help = "print stack trace on compilation error").flag()
 
   override fun run() {
