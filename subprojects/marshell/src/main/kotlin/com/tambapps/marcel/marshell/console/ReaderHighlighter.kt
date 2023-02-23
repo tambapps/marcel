@@ -2,7 +2,7 @@ package com.tambapps.marcel.marshell.console
 
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.TokenType.*
-import com.tambapps.marcel.marshell.console.style.HighlightStyle
+import com.tambapps.marcel.marshell.console.style.HighlightTheme
 import org.jline.reader.Highlighter
 import org.jline.reader.LineReader
 import org.jline.utils.AttributedString
@@ -14,7 +14,7 @@ class ReaderHighlighter: Highlighter {
 
   // TODO add coloring on variable/types once parsing will have been implemented
   val lexer = MarcelLexer(false)
-  val style = HighlightStyle()
+  val style = HighlightTheme()
 
   override fun highlight(reader: LineReader, buffer: String): AttributedString {
     val highlightedString = AttributedStringBuilder()
@@ -30,7 +30,6 @@ class ReaderHighlighter: Highlighter {
         VISIBILITY_PUBLIC, VISIBILITY_PROTECTED, VISIBILITY_INTERNAL, VISIBILITY_PRIVATE -> style.keyword
         INTEGER, FLOAT -> style.number
         BLOCK_COMMENT, DOC_COMMENT, HASH, SHEBANG_COMMENT, EOL_COMMENT -> style.comment
-        LPAR, RPAR -> style.parenthesis
         OPEN_QUOTE, CLOSING_QUOTE, REGULAR_STRING_PART,
         OPEN_CHAR_QUOTE, CLOSING_CHAR_QUOTE,
         OPEN_REGEX_QUOTE, CLOSING_REGEX_QUOTE,
