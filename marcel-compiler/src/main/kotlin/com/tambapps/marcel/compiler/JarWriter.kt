@@ -14,6 +14,10 @@ class JarWriter {
     writeScriptJar(compilationResult.classes, outputFile)
   }
 
+  fun writeScriptJar(compiledClasses: CompiledClass, outputFile: File) {
+    writeScriptJar(listOf(compiledClasses), outputFile)
+  }
+
   fun writeScriptJar(compiledClasses: List<CompiledClass>, outputFile: File) {
     val manifest = Manifest().apply {
       mainAttributes[Attributes.Name.MANIFEST_VERSION] = "1.0"
