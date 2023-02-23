@@ -32,13 +32,14 @@ class Shell {
   fun run() {
     while (true) {
       try {
-        val line = reader.readLine("> ")
+        val prompt = if (buffer.isEmpty()) "> " else "  "
+        val line = reader.readLine(prompt)
         if (line.startsWith(":")) {
           // handle command
           println("Unknown command " + line.substring(1))
         } else {
           try {
-            val text = buffer.joinToString(separator = "\n", postfix = "\n$line").trim()
+            val text = buffer.joinToString(separator = "\n", postfix = if (buffer.isEmpty()) line else "\n$line")
             val eval = evaluator.eval(text)
             buffer.clear()
             println(eval)
