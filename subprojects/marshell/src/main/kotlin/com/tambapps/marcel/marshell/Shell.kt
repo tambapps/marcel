@@ -1,8 +1,10 @@
 package com.tambapps.marcel.marshell
 
 import com.tambapps.marcel.marshell.console.ReaderHighlighter
+import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReader
 import org.jline.reader.LineReaderBuilder
+import org.jline.reader.UserInterruptException
 
 class Shell {
 
@@ -18,9 +20,12 @@ class Shell {
 
   fun run() {
     while (true) {
-      val line = reader.readLine("> ")
-
+      try {
+        val line = reader.readLine("> ")
+        // TODO
+      } catch (e: UserInterruptException) { break }
+      catch (ee: EndOfFileException) { break }
+      catch (ex: Exception) { ex.printStackTrace() }
     }
-
   }
 }

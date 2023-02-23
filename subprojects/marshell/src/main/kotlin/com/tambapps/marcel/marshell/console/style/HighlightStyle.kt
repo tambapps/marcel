@@ -11,6 +11,7 @@ class HighlightStyle {
   AttributedStyle.YELLOW
   )
   val number = AttributedStyle.DEFAULT.foreground(AttributedStyle.CYAN)
+  val comment = AttributedStyle.DEFAULT.foreground(200, 200, 200)
   val parenthesis = AttributedStyle.DEFAULT.foreground(
   AttributedStyle.BRIGHT
   )
