@@ -140,7 +140,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     return classNode
   }
 
-  private fun script(imports: MutableList<ImportNode>, packageName: String?): ClassNode {
+  fun script(imports: MutableList<ImportNode>, packageName: String?): ClassNode {
     val classMethods = mutableListOf<MethodNode>()
     val classFields = mutableListOf<FieldNode>()
     val superType = JavaType.of(Script::class.java)
@@ -319,7 +319,8 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           JavaType.lazy(scope, className, genericTypes)
         }
       }
-      else -> throw UnsupportedOperationException("Doesn't handle type ${token.type}")
+      TokenType.END_OF_FILE -> throw MarcelParserException(token, "Unexpected end of file", true)
+      else -> throw MarcelParserException(token, "Doesn't handle type ${token.type}")
     }
   }
 
@@ -563,6 +564,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         val value = when (valueToken.type) {
           TokenType.REGULAR_STRING_PART -> valueToken.value
           TokenType.ESCAPE_SEQUENCE -> escapedSequenceValue(valueToken.value)
+          TokenType.END_OF_FILE -> throw MarcelParserException(token, "Unexpected end of file", true)
           else -> throw MarcelParserException(previous, "Unexpected token ${valueToken.type} for character constant")
         }
         accept(TokenType.CLOSING_CHAR_QUOTE)
@@ -733,9 +735,9 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           LiteralMapNode(entries)
         } else LiteralArrayNode(elements)
       }
-      else -> {
-        throw UnsupportedOperationException("Not supported $token")
-      }
+      TokenType.END_OF_FILE -> throw MarcelParserException(token, "Unexpected end of file", true)
+      else -> throw MarcelParserException(token, "Not supported $token")
+
     }
   }
 
@@ -820,7 +822,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         FloatConstantNode(value)
       }
     } else {
-      throw MarcelParserException(token, "Unexpected token $token")
+      throw MarcelParserException(token, "Unexpected token $token", token.type == TokenType.END_OF_FILE)
     }
   }
   private fun rangeNode(scope: Scope, fromExpression: ExpressionNode): RangeNode {
@@ -852,6 +854,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     return when (token.type) {
       TokenType.REGULAR_STRING_PART -> token.value
       TokenType.ESCAPE_SEQUENCE -> escapedSequenceValue(token.value)
+      TokenType.END_OF_FILE -> throw MarcelParserException(token, "Unexpected end of file", true)
       else -> throw MarcelParserException(token, "Illegal token ${token.type} when parsing literal string")
     }
   }
@@ -940,6 +943,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         is ReferenceExpression -> GetFieldAccessOperator(leftOperand, rightOperand, true)
         else -> throw MarcelParserException(token, "Can only handle function calls and fields with dot operators")
       }
+      TokenType.END_OF_FILE -> throw MarcelParserException(token, "Unexpected end of file", true)
       else -> throw MarcelParserException(token, "Doesn't handle operator with token type $t")
     }
   }
@@ -958,7 +962,8 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
   private fun accept(t: TokenType): LexToken {
     val token = current
     if (token.type != t) {
-      throw MarcelParserException(current, "Expected token of type $t but got ${token.type}")
+      throw MarcelParserException(current, "Expected token of type $t but got ${token.type}",
+        current.type == TokenType.END_OF_FILE)
     }
     currentIndex++
     return token
@@ -1013,7 +1018,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
 
   private fun checkEof() {
     if (eof) {
-      throw MarcelParserException(currentSafe ?: previous, "Unexpected end of file")
+      throw MarcelParserException(currentSafe ?: previous, "Unexpected end of file", true)
     }
   }
 }
