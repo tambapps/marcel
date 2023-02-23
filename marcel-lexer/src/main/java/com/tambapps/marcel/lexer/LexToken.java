@@ -6,6 +6,11 @@ import lombok.Value;
 
 @Value
 public class LexToken {
+
+  @EqualsAndHashCode.Exclude
+  int start;
+  @EqualsAndHashCode.Exclude
+  int end;
   @EqualsAndHashCode.Exclude
   int line;
   @EqualsAndHashCode.Exclude

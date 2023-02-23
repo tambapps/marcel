@@ -8,6 +8,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 @AllArgsConstructor
@@ -22,37 +23,49 @@ public class MarcelLexer {
     this(true);
   }
 
-  @SneakyThrows
   public List<LexToken> lex(String content) throws MarcelLexerException {
+    return lex(content, false);
+  }
+
+  public List<LexToken> lexSafely(String content) throws MarcelLexerException {
+    return lex(content, true);
+  }
+
+  @SneakyThrows
+  private List<LexToken> lex(String content, boolean catchAndStop) throws MarcelLexerException {
     MarcelJflexer jflexer = new MarcelJflexer();
     jflexer.reset(content, 0, content.length(), MarcelJflexer.YYINITIAL);
     List<LexToken> tokens = new ArrayList<>();
     LexToken token;
-    try {
-      while ((token = jflexer.nextToken()) != null) {
-        TokenType type = token.getType();
-        if (type == TokenType.BAD_CHARACTER) {
-          throw new MarcelLexerException(token.getLine(), token.getColumn(), "Bad character " + token.getValue());
+    while (true) {
+      try {
+        token = jflexer.nextToken();
+      } catch (MarcelJfexerException e) {
+        if (catchAndStop) {
+          return tokens;
         }
-        if (!COMMENT_TOKENS.contains(type) && (!ignoreWhitespaces || type != TokenType.WHITE_SPACE)) {
-          tokens.add(token);
+        int line = jflexer.getYyline();
+        int column = jflexer.getYycolumn();
+        String message = e.getMessage();
+        if (jflexer.getZzLexicalState() == MarcelJflexer.STRING
+            || jflexer.getZzLexicalState() == MarcelJflexer.SIMPLE_STRING
+            || jflexer.getZzLexicalState() == MarcelJflexer.CHAR_STRING
+            || jflexer.getZzLexicalState() == MarcelJflexer.RAW_STRING
+            || jflexer.getZzLexicalState() == MarcelJflexer.REGEX_STRING) {
+          message = "String is malformed";
         }
+        throw new MarcelLexerException(line, column, message);
       }
-    } catch (MarcelJfexerException e) {
-      int line = jflexer.getYyline();
-      int column = jflexer.getYycolumn();
-      String message = e.getMessage();
-      if (jflexer.getZzLexicalState() == MarcelJflexer.STRING
-      || jflexer.getZzLexicalState() == MarcelJflexer.SIMPLE_STRING
-      || jflexer.getZzLexicalState() == MarcelJflexer.CHAR_STRING
-      || jflexer.getZzLexicalState() == MarcelJflexer.RAW_STRING
-      || jflexer.getZzLexicalState() == MarcelJflexer.REGEX_STRING) {
-        message = "String is malformed";
+      if (token == null) break;
+      if (token.getType() == TokenType.BAD_CHARACTER) {
+        throw new MarcelLexerException(token.getLine(), token.getColumn(), "Bad character " + token.getValue());
       }
-      throw new MarcelLexerException(line, column, message);
+      if (!COMMENT_TOKENS.contains(token.getType()) && (!ignoreWhitespaces || token.getType() != TokenType.WHITE_SPACE)) {
+        tokens.add(token);
+      }
     }
-    tokens.add(new LexToken(jflexer.getYyline(), jflexer.getYycolumn(), TokenType.END_OF_FILE, null));
+    tokens.add(new LexToken(content.length(), content.length(),
+        jflexer.getYyline(), jflexer.getYycolumn(), TokenType.END_OF_FILE, null));
     return tokens;
   }
-
 }

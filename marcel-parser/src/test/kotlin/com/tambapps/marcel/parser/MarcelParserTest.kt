@@ -99,6 +99,6 @@ class MarcelParserTest {
         return MarcelParser(typeResolver, tokens(s))
     }
     private fun lexToken(type: TokenType, value: String? = null): LexToken {
-        return LexToken(0, 0, type, value)
+        return LexToken(0, 0, 0, 0, type, value)
     }
 }

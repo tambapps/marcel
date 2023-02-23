@@ -705,9 +705,9 @@ public class MarcelJflexer {
         private LexToken commentStateToTokenType(int state) {
             switch (state) {
                 case BLOCK_COMMENT:
-                    return new LexToken(yyline, yycolumn, TokenType.BLOCK_COMMENT, null);
+                    return new LexToken(getTokenStart(), getTokenEnd(), yyline, yycolumn, TokenType.BLOCK_COMMENT, null);
                 case DOC_COMMENT:
-                    return new LexToken(yyline, yycolumn, TokenType.DOC_COMMENT, null);
+                    return new LexToken(getTokenStart(), getTokenEnd(), yyline, yycolumn, TokenType.DOC_COMMENT, null);
                 default:
                     throw new IllegalArgumentException("Unexpected state: " + state);
             }
@@ -715,10 +715,10 @@ public class MarcelJflexer {
 
   // tokens for which we need to save current buffer
   private LexToken valueToken(TokenType tokenType) {
-    return new LexToken(yyline, yycolumn, tokenType, getTokenString());
+    return new LexToken(getTokenStart(), getTokenEnd(), yyline, yycolumn, tokenType, getTokenString());
   }
   private LexToken token(TokenType tokenType) {
-    return new LexToken(yyline, yycolumn, tokenType, null);
+    return new LexToken(getTokenStart(), getTokenEnd(), yyline, yycolumn, tokenType, null);
   }
 
   public String getTokenString() {

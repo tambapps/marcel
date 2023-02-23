@@ -155,6 +155,6 @@ public class MarcelLexerTest {
     return token(type, null);
   }
   private LexToken token(TokenType type, String value) {
-    return new LexToken(0, 0, type, value);
+    return new LexToken(0, 0, 0, 0, type, value);
   }
 }
