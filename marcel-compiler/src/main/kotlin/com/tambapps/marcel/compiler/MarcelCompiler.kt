@@ -33,18 +33,25 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
     return compile(reader.readText(), className)
   }
 
+
+  /*
+  @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class)
+  fun compile(text: String, className: String? = null): CompilationResult {
+
+  }
+
+   */
   @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class)
   fun compile(text: String, className: String? = null): CompilationResult {
     val tokens = MarcelLexer().lex(text)
     val typeResolver = JavaTypeResolver()
-    val extensionClassLoader = ExtensionClassLoader(typeResolver)
-    extensionClassLoader.loadExtensionMethods(
-      DefaultMarcelMethods::class.java, IoMarcelMethods::class.java, StringMarcelMethods::class.java,
-      // TODO document this (all Character class static methods are extensions, and that we can call functions from primitive types)
-      //  and that we can call functions on primitive types (because of extensions)
-      JavaType.Character.realClazz)
+
     val parser = if (className != null) MarcelParser(typeResolver, className, tokens) else MarcelParser(typeResolver, tokens)
     val ast = parser.parse()
+
+    // adding extensions
+    typeResolver.loadDefaultExtensions()
+
     val classCompiler = ClassCompiler(compilerConfiguration, typeResolver)
     val compiledClasses = ast.classes.flatMap {
       if (it.isScript) addScriptMethods(it)

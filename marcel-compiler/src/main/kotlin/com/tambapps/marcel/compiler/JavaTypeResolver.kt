@@ -14,15 +14,40 @@ import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.ClassField
 import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.scope.MethodField
+import com.tambapps.marcel.parser.type.ExtensionJavaMethod
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaConstructor
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
+import marcel.lang.methods.DefaultMarcelMethods
+import marcel.lang.methods.IoMarcelMethods
+import marcel.lang.methods.StringMarcelMethods
+import java.lang.reflect.Modifier
 
 class JavaTypeResolver: AstNodeTypeResolver() {
 
   private val classMethods = mutableMapOf<String, MutableList<JavaMethod>>()
   private val classFields = mutableMapOf<String, MutableList<MarcelField>>()
+
+
+  fun loadDefaultExtensions() {
+    loadExtensionMethods(
+      DefaultMarcelMethods::class.java, IoMarcelMethods::class.java, StringMarcelMethods::class.java,
+      // TODO document this (all Character class static methods are extensions, and that we can call functions from primitive types)
+      //  and that we can call functions on primitive types (because of extensions)
+      JavaType.Character.realClazz)
+  }
+  fun loadExtensionMethods(vararg classes: Class<*>) {
+    classes.forEach { loadExtensionMethods(it) }
+  }
+  fun loadExtensionMethods(clazz: Class<*>) {
+    clazz.declaredMethods.asSequence()
+      .filter { (it.modifiers and Modifier.STATIC) != 0 && it.parameters.isNotEmpty() }
+      .forEach {
+        val owner = JavaType.of(it.parameters.first().type)
+        defineMethod(owner, ExtensionJavaMethod(it))
+      }
+  }
 
   override fun defineMethod(javaType: JavaType, method: JavaMethod) {
     val methods = getMarcelMethods(javaType)
