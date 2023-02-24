@@ -7,6 +7,10 @@ import lombok.Value;
 @Value
 public class LexToken {
 
+  public static LexToken dummy() {
+    return new LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, "");
+  }
+
   @EqualsAndHashCode.Exclude
   int start;
   @EqualsAndHashCode.Exclude

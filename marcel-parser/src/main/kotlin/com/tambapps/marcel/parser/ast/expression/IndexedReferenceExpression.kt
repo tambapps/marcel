@@ -1,12 +1,13 @@
 package com.tambapps.marcel.parser.ast.expression
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.scope.Variable
 
-class IndexedReferenceExpression(override var scope: Scope, val name: String,
-  val indexArguments: List<ExpressionNode>, val isSafeIndex: Boolean): ExpressionNode, ScopedNode<Scope> {
+class IndexedReferenceExpression(token: LexToken, override var scope: Scope, val name: String,
+  val indexArguments: List<ExpressionNode>, val isSafeIndex: Boolean): AbstractExpressionNode(token), ScopedNode<Scope> {
 
   val variable: Variable
     get() = scope.findVariableOrThrow(name)

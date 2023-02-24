@@ -1,19 +1,20 @@
 package com.tambapps.marcel.parser.ast.expression
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.scope.Variable
 
 // can be a class or variable reference
-class ReferenceExpression(override var scope: Scope, val name: String): ExpressionNode, ScopedNode<Scope> {
+class ReferenceExpression(token: LexToken, override var scope: Scope, val name: String): AbstractExpressionNode(token), ScopedNode<Scope> {
 
   companion object {
     fun thisRef(scope: Scope): ThisReference {
-      return ThisReference(scope)
+      return ThisReference(LexToken.dummy(), scope)
     }
     fun superRef(scope: Scope): SuperReference {
-      return SuperReference(scope)
+      return SuperReference(LexToken.dummy(), scope)
     }
   }
   val variable: Variable
@@ -41,7 +42,7 @@ class ReferenceExpression(override var scope: Scope, val name: String): Expressi
   }
 }
 
-class ThisReference(override var scope: Scope): ExpressionNode, ScopedNode<Scope> {
+class ThisReference(token: LexToken, override var scope: Scope): AbstractExpressionNode(token), ScopedNode<Scope> {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {
@@ -49,7 +50,7 @@ class ThisReference(override var scope: Scope): ExpressionNode, ScopedNode<Scope
   }
 }
 
-class SuperReference(override var scope: Scope): ExpressionNode, ScopedNode<Scope> {
+class SuperReference(token: LexToken, override var scope: Scope): AbstractExpressionNode(token), ScopedNode<Scope> {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {

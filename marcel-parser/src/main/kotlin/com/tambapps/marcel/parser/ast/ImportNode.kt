@@ -1,5 +1,6 @@
 package com.tambapps.marcel.parser.ast
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 
@@ -10,7 +11,7 @@ interface ImportNode: AstNode {
   }
 
 }
-class SimpleImportNode(private val value: String, private val asName: String? = null): ImportNode {
+class SimpleImportNode(override val token: LexToken, private val value: String, private val asName: String? = null): ImportNode {
   override fun resolveClassName(classSimpleName: String): String? {
     return if (asName != null) {
       if (classSimpleName == asName) value
@@ -44,7 +45,10 @@ class SimpleImportNode(private val value: String, private val asName: String? = 
   }
 }
 
-class StaticImportNode(private val className: String, private val methodName: String): ImportNode {
+class StaticImportNode(override val token: LexToken, private val className: String, private val methodName: String): ImportNode {
+
+  constructor(className: String, methodName: String): this(LexToken.dummy(), className, methodName)
+
   override fun resolveClassName(classSimpleName: String): String? {
     return null
   }
@@ -61,7 +65,9 @@ class StaticImportNode(private val className: String, private val methodName: St
   }
 }
 
-class WildcardImportNode(private val prefix: String): ImportNode {
+class WildcardImportNode(override val token: LexToken, private val prefix: String): ImportNode {
+
+  constructor(prefix: String): this(LexToken.dummy(), prefix)
 
   override fun resolveClassName(classSimpleName: String): String? {
     return try {

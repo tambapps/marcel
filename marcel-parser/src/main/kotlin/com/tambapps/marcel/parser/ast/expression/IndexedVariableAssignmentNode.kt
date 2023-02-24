@@ -1,12 +1,13 @@
 package com.tambapps.marcel.parser.ast.expression
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.scope.Scope
 
-open class IndexedVariableAssignmentNode(override var scope: Scope, val indexedReference: IndexedReferenceExpression,
-                                         val expression: ExpressionNode): ExpressionNode, ScopedNode<Scope> {
+open class IndexedVariableAssignmentNode(token: LexToken, override var scope: Scope, val indexedReference: IndexedReferenceExpression,
+                                         val expression: ExpressionNode): AbstractExpressionNode(token), ScopedNode<Scope> {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 

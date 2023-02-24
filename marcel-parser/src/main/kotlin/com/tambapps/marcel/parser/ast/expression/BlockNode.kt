@@ -1,5 +1,6 @@
 package com.tambapps.marcel.parser.ast.expression
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
@@ -9,7 +10,7 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.scope.MethodScope
 
 
-open class BlockNode constructor(override var scope: MethodScope, val statements: MutableList<StatementNode>) : ExpressionNode, ScopedNode<MethodScope> {
+open class BlockNode constructor(token: LexToken, override var scope: MethodScope, val statements: MutableList<StatementNode>) : AbstractExpressionNode(token), ScopedNode<MethodScope> {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
@@ -19,7 +20,7 @@ open class BlockNode constructor(override var scope: MethodScope, val statements
   }
 
   fun addStatement(expression: ExpressionNode) {
-    addStatement(ExpressionStatementNode(expression))
+    addStatement(ExpressionStatementNode(expression.token, expression))
   }
 
   fun addStatement(statementNode: StatementNode) {
@@ -28,11 +29,11 @@ open class BlockNode constructor(override var scope: MethodScope, val statements
 }
 
 // need to differentiate both because we don't always want to push on stack values for "normal" block nodes
-class FunctionBlockNode constructor(scope: MethodScope, statements: MutableList<StatementNode>) : BlockNode(scope, statements) {
+class FunctionBlockNode constructor(lexToken: LexToken, scope: MethodScope, statements: MutableList<StatementNode>) : BlockNode(lexToken, scope, statements) {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
 
-  fun asSimpleBlock(scope: MethodScope? = null): BlockNode {
-    return BlockNode(scope ?: this.scope, this.statements)
+  fun asSimpleBlock(token: LexToken, scope: MethodScope? = null): BlockNode {
+    return BlockNode(token, scope ?: this.scope, this.statements)
   }
 }

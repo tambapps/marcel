@@ -1,13 +1,14 @@
 package com.tambapps.marcel.parser.ast.expression
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.type.JavaArrayType
 
 // var type useful for emptyArrayNode
-open class LiteralArrayNode constructor(var type: JavaArrayType?, val elements: List<ExpressionNode>): ExpressionNode {
+open class LiteralArrayNode constructor(token: LexToken, var type: JavaArrayType?, val elements: List<ExpressionNode>): AbstractExpressionNode(token) {
 
-  constructor(elements: List<ExpressionNode>): this(null, elements)
+  constructor(token: LexToken, elements: List<ExpressionNode>): this(token, null, elements)
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {
@@ -16,4 +17,4 @@ open class LiteralArrayNode constructor(var type: JavaArrayType?, val elements: 
   }
 }
 
-class EmptyArrayNode(type: JavaArrayType): LiteralArrayNode(type, emptyList())
+class EmptyArrayNode(token: LexToken, type: JavaArrayType): LiteralArrayNode(token, type, emptyList())

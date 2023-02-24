@@ -1,6 +1,10 @@
 package com.tambapps.marcel.parser.ast
 
+import com.tambapps.marcel.lexer.LexToken
+
 class ModuleNode(val classes: MutableList<ClassNode>): AstNode {
+
+  override val token = LexToken.dummy()
 
   constructor(): this(mutableListOf())
   override fun toString(): String {

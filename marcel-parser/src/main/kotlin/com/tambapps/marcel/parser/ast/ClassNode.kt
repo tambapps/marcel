@@ -1,11 +1,13 @@
 package com.tambapps.marcel.parser.ast
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
+import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
@@ -14,11 +16,10 @@ import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.Binding
 import org.objectweb.asm.Opcodes
 
-class ClassNode constructor(val scope: Scope, val access: Int, val type: JavaType, val superType: JavaType,
-                            val isScript: Boolean,
-                            val methods: MutableList<MethodNode>,
-                            val fields: MutableList<FieldNode>,
-                            val innerClasses: MutableList<ClassNode>): AstNode {
+class ClassNode constructor(override val token: LexToken,
+                            val scope: Scope, val access: Int, val type: JavaType, val superType: JavaType,
+                            val isScript: Boolean, val methods: MutableList<MethodNode>,
+                            val fields: MutableList<FieldNode>, val innerClasses: MutableList<ClassNode>): AstNode {
 
   var staticInitializationNode: StaticInitializationNode? = null
 
@@ -49,9 +50,9 @@ class ClassNode constructor(val scope: Scope, val access: Int, val type: JavaTyp
 
   private fun scriptEmptyConstructor(): ConstructorNode {
     val emptyConstructorScope = MethodScope(scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)
-    return ConstructorNode(
+    return ConstructorNode(LexToken.dummy(),
       Opcodes.ACC_PUBLIC,
-      FunctionBlockNode(emptyConstructorScope, mutableListOf()),
+      FunctionBlockNode(LexToken.dummy(), emptyConstructorScope, mutableListOf()),
       mutableListOf(),
       emptyConstructorScope
     )
@@ -61,11 +62,11 @@ class ClassNode constructor(val scope: Scope, val access: Int, val type: JavaTyp
     val bindingParameterName = "binding"
     val bindingConstructorParameters = mutableListOf(MethodParameter(bindingType, bindingParameterName))
     val bindingConstructorScope = MethodScope(scope, JavaMethod.CONSTRUCTOR_NAME, bindingConstructorParameters, JavaType.void)
-    return ConstructorNode(
-      Opcodes.ACC_PUBLIC, FunctionBlockNode(bindingConstructorScope, mutableListOf(
-        ExpressionStatementNode(
-          SuperConstructorCallNode(scope, mutableListOf(
-            ReferenceExpression(
+    return ConstructorNode(LexToken.dummy(),
+      Opcodes.ACC_PUBLIC, FunctionBlockNode(LexToken.dummy(), bindingConstructorScope, mutableListOf(
+        ExpressionStatementNode(LexToken.dummy(),
+          SuperConstructorCallNode(LexToken.dummy(), scope, mutableListOf(
+            ReferenceExpression(LexToken.dummy(),
               bindingConstructorScope, bindingParameterName)
           ))
         )

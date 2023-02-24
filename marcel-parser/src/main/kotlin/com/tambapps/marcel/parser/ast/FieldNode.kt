@@ -1,10 +1,11 @@
 package com.tambapps.marcel.parser.ast
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.scope.ClassField
 import com.tambapps.marcel.parser.type.JavaType
 
-class FieldNode constructor(type: JavaType, name: String, owner: JavaType, access: Int, val initialValue: ExpressionNode?) : AstNode,
+class FieldNode constructor(override val token: LexToken, type: JavaType, name: String, owner: JavaType, access: Int, val initialValue: ExpressionNode?) : AstNode,
   ClassField(type, name, owner, access) {
 
 

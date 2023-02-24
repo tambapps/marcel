@@ -67,7 +67,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
 
   override fun visit(unaryMinus: UnaryMinus) {
-   visit(MinusOperator(IntConstantNode(0), unaryMinus.operand))
+   visit(MinusOperator(unaryMinus.token, IntConstantNode(unaryMinus.token, 0), unaryMinus.operand))
   }
 
   override fun visit(unaryPlus: UnaryPlus) {
@@ -109,7 +109,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       throw MarcelSemanticException("Need to cover all cases (an else branch) for  switch returning primitives as they cannot be null")
     }
 
-    val elseStatement = switchNode.elseStatement ?: ExpressionStatementNode(NullValueNode(switchType))
+    val elseStatement = switchNode.elseStatement ?: ExpressionStatementNode(switchNode.token, NullValueNode(switchNode.token, switchType))
 
     // this part is to handle local variables referenced in the switch
     val currentScope = switchNode.scope
@@ -157,7 +157,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
      else elseStatement
 
     val methodNode = MethodNode(Opcodes.ACC_PUBLIC, classNode.type,
-      switchMethodName, FunctionBlockNode(switchMethodScope, mutableListOf(rootIf)),
+      switchMethodName, FunctionBlockNode(switchNode.token, switchMethodScope, mutableListOf(rootIf)),
       parameters.toMutableList(), switchType, switchMethodScope, false
     )
     methodNode.block.setTreeScope(switchMethodScope)
@@ -165,11 +165,11 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     classNode.addMethod(methodNode)
     typeResolver.defineMethod(classNode.type, methodNode)
 
-    val referencedArguments = referencedLocalVariables.map { ReferenceExpression(currentScope, it.name) }
+    val referencedArguments = referencedLocalVariables.map { ReferenceExpression(switchNode.token, currentScope, it.name) }
     val callArguments =
       if (itArgument != null) (listOf(itArgument) + referencedArguments)
       else referencedArguments
-    visit(SimpleFunctionCallNode(currentScope, switchMethodName,
+    visit(SimpleFunctionCallNode(switchNode.token, currentScope, switchMethodName,
       callArguments.toMutableList(),
       ReferenceExpression.thisRef(currentScope), methodNode))
   }
@@ -178,19 +178,19 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     return when (statementNode) {
       is BlockStatement -> {
         val lastStatement = statementNode.block.statements.lastOrNull()
-        if (lastStatement == null) statementNode.block.addStatement(ReturnNode(methodScope, NullValueNode()))
+        if (lastStatement == null) statementNode.block.addStatement(ReturnNode(statementNode.token, methodScope, NullValueNode(statementNode.token)))
         else if (lastStatement is ExpressionStatementNode) statementNode.block.statements.set(
-          statementNode.block.statements.size - 1, ReturnNode(methodScope, lastStatement.expression)
-        ) else statementNode.block.addStatement(ReturnNode(methodScope, NullValueNode()))
+          statementNode.block.statements.size - 1, ReturnNode(statementNode.token, methodScope, lastStatement.expression)
+        ) else statementNode.block.addStatement(ReturnNode(statementNode.token, methodScope, NullValueNode(statementNode.token)))
         statementNode
       }
-      is ExpressionStatementNode -> return ReturnNode(methodScope, statementNode.expression)
+      is ExpressionStatementNode -> return ReturnNode(statementNode.token, methodScope, statementNode.expression)
       else -> BlockStatement(
-          BlockNode(
+          BlockNode(statementNode.token,
             // scope don't really matters here because it will be overriden in lambda
             methodScope,
             mutableListOf(
-              statementNode, ReturnNode(methodScope, NullValueNode())
+              statementNode, ReturnNode(statementNode.token, methodScope, NullValueNode(statementNode.token))
             )
           )
         )
@@ -209,7 +209,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     val optTruthyDeclarationNode = ifStatementNode.condition.innerExpression as? TruthyVariableDeclarationNode
     if (optTruthyDeclarationNode != null) {
       // declaring truthy variable (will and should only be used in trueStatement)
-      visit(VariableDeclarationNode(optTruthyDeclarationNode.scope, optTruthyDeclarationNode.variableType, optTruthyDeclarationNode.name,
+      visit(VariableDeclarationNode(ifStatementNode.token, optTruthyDeclarationNode.scope, optTruthyDeclarationNode.variableType, optTruthyDeclarationNode.name,
         optTruthyDeclarationNode.isFinal, optTruthyDeclarationNode.expression))
     }
     pushArgument(ifStatementNode.condition)
@@ -240,10 +240,10 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
     val tempVar = scope.addLocalVariable(type)
 
-    visitWithoutPushing(VariableAssignmentNode(scope, tempVar.name, elvisOperator.leftOperand))
-    val leftOperandRef = ReferenceExpression(scope, tempVar.name)
-    visit(TernaryNode(
-      BooleanExpressionNode(leftOperandRef),
+    visitWithoutPushing(VariableAssignmentNode(elvisOperator.token, scope, tempVar.name, elvisOperator.leftOperand))
+    val leftOperandRef = ReferenceExpression(elvisOperator.token, scope, tempVar.name)
+    visit(TernaryNode(elvisOperator.token,
+      BooleanExpressionNode(elvisOperator.token, leftOperandRef),
       leftOperandRef, elvisOperator.rightOperand
     ))
     scope.freeVariable(tempVar.name)
@@ -308,7 +308,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   override fun visit(asNode: AsNode) {
     val expression = asNode.expressionNode
     if (expression is LiteralArrayNode && expression.elements.isEmpty()) {
-      visit(EmptyArrayNode(asNode.type as? JavaArrayType ?: throw MarcelSemanticException("Can only convert empty arrays to array types using 'as' keyword")))
+      visit(EmptyArrayNode(asNode.token, asNode.type as? JavaArrayType ?: throw MarcelSemanticException("Can only convert empty arrays to array types using 'as' keyword")))
     } else {
       asNode.expressionNode.accept(this)
       mv.castIfNecessaryOrThrow(asNode.type, asNode.expressionNode.getType(typeResolver))
@@ -451,16 +451,16 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
       // need a local variable to avoid evaluating twice
       val tempVar = scope.addLocalVariable(accessOperator.leftOperand.getType(typeResolver))
-      visitWithoutPushing(VariableAssignmentNode(scope, tempVar.name, accessOperator.leftOperand))
-      val tempRef = ReferenceExpression(scope, tempVar.name)
+      visitWithoutPushing(VariableAssignmentNode(accessOperator.token, scope, tempVar.name, accessOperator.leftOperand))
+      val tempRef = ReferenceExpression(accessOperator.token, scope, tempVar.name)
 
-      visit(TernaryNode(
-        BooleanExpressionNode(ComparisonOperatorNode(ComparisonOperator.NOT_EQUAL, tempRef, NullValueNode())),
+      visit(TernaryNode(accessOperator.token,
+        BooleanExpressionNode(accessOperator.token, ComparisonOperatorNode(accessOperator.token, ComparisonOperator.NOT_EQUAL, tempRef, NullValueNode(accessOperator.token))),
         // using a new function call because we need to use the tempRef instead of the actual leftOperand
-        SimpleFunctionCallNode(access.scope, access.name, access.arguments, access.method).apply {
+        SimpleFunctionCallNode(accessOperator.token, access.scope, access.name, access.arguments, access.method).apply {
           methodOwnerType = tempRef
         }
-        , NullValueNode()
+        , NullValueNode(accessOperator.token)
       ))
       scope.freeVariable(tempVar.name)
     } else {
@@ -480,14 +480,15 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
       // need a local variable to avoid evaluating twice
       val tempVar = scope.addLocalVariable(getFieldAccessOperator.leftOperand.getType(typeResolver))
-      visitWithoutPushing(VariableAssignmentNode(scope, tempVar.name, getFieldAccessOperator.leftOperand))
-      val tempRef = ReferenceExpression(scope, tempVar.name)
+      visitWithoutPushing(VariableAssignmentNode(getFieldAccessOperator.token, scope, tempVar.name, getFieldAccessOperator.leftOperand))
+      val tempRef = ReferenceExpression(getFieldAccessOperator.token, scope, tempVar.name)
 
-      visit(TernaryNode(
-        BooleanExpressionNode(ComparisonOperatorNode(ComparisonOperator.NOT_EQUAL, tempRef, NullValueNode())),
+      visit(TernaryNode(getFieldAccessOperator.token,
+        BooleanExpressionNode(getFieldAccessOperator.token, ComparisonOperatorNode(getFieldAccessOperator.token, ComparisonOperator.NOT_EQUAL, tempRef,
+          NullValueNode(getFieldAccessOperator.token))),
         // using a new GetFieldAccessOperator because we need to use the tempRef instead of the actual leftOperand
-        GetFieldAccessOperator(tempRef, getFieldAccessOperator.rightOperand, false)
-        , NullValueNode()
+        GetFieldAccessOperator(getFieldAccessOperator.token, tempRef, getFieldAccessOperator.rightOperand, false)
+        , NullValueNode(getFieldAccessOperator.token)
       ))
       scope.freeVariable(tempVar.name)
     } else {
@@ -508,7 +509,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       val inlineMethod = method as MethodNode
       val innerScope = InnerScope(
         fCall.scope as? MethodScope ?: throw MarcelSemanticException("Can only call inline functions in a method"))
-      val inlineBlock = inlineMethod.block.asSimpleBlock(innerScope)
+      val inlineBlock = inlineMethod.block.asSimpleBlock(inlineMethod.block.token, innerScope)
       inlineBlock.setTreeScope(innerScope)
       // initializing arguments
       if (fCall.arguments.size != inlineMethod.parameters.size) {
@@ -516,7 +517,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       }
       val variables = method.parameters.map { innerScope.addLocalVariable(it.type, it.name) }
       for (i in variables.indices) {
-        visit(VariableAssignmentNode(innerScope, variables[i].name, fCall.arguments[i]))
+        visit(VariableAssignmentNode(fCall.token, innerScope, variables[i].name, fCall.arguments[i]))
       }
       visit(inlineBlock)
     } else {
@@ -545,8 +546,9 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       // getter
       val getter = MethodNode.from(classNode.scope, classNode.type, "get$methodFieldName", emptyList(), expressionType).apply {
         block.addStatement(
-          ReturnNode(scope, AsNode(expressionType,
-            SimpleFunctionCallNode(scope, "getVariable", mutableListOf(StringConstantNode(propertyName)), ReferenceExpression.thisRef(scope))
+          ReturnNode(variableAssignmentNode.token, scope, AsNode(variableAssignmentNode.token, expressionType,
+            SimpleFunctionCallNode(variableAssignmentNode.token, scope, "getVariable",
+              mutableListOf(StringConstantNode(variableAssignmentNode.token, propertyName)), ReferenceExpression.thisRef(scope))
           ))
         )
       }
@@ -556,9 +558,9 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       // setter
       val setter = MethodNode.from(classNode.scope, classNode.type, "set$methodFieldName", listOf(MethodParameter(expressionType, "it")), JavaType.void).apply {
         block.addStatement(
-          SimpleFunctionCallNode(scope, "setVariable", mutableListOf(
-            StringConstantNode(propertyName),
-            ReferenceExpression(scope, "it")
+          SimpleFunctionCallNode(variableAssignmentNode.token, scope, "setVariable", mutableListOf(
+            StringConstantNode(variableAssignmentNode.token, propertyName),
+            ReferenceExpression(variableAssignmentNode.token, scope, "it")
           ), ReferenceExpression.thisRef(scope))
         )
       }
@@ -591,7 +593,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       else if (JavaType.charList.isAssignableFrom(variableType) || JavaType.characterSet.isAssignableFrom(variableType)) JavaType.char
       else if (JavaType.of(Collection::class.java).isAssignableFrom(variableType) && variableType.genericTypes.isNotEmpty()) variableType.genericTypes.first()
       else throw MarcelSemanticException("Couldn't guess type of empty array. You can explicitly specify your wanted type with the 'as' keyword (e.g. '[] as int[]')")
-      expression = EmptyArrayNode(JavaType.arrayType(elementsType))
+      expression = EmptyArrayNode(expr.token, JavaType.arrayType(elementsType))
     } else if (variableType.isInterface && expression is LambdaNode) {
       expression.interfaceType = variableType
     }
@@ -619,9 +621,9 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
   override fun visit(indexedReferenceExpression: IndexedReferenceExpression) {
     if (indexedReferenceExpression.isSafeIndex) {
-      val funcCall = SimpleFunctionCallNode(indexedReferenceExpression.scope, "getAtSafe",
+      val funcCall = SimpleFunctionCallNode(indexedReferenceExpression.token, indexedReferenceExpression.scope, "getAtSafe",
         indexedReferenceExpression.indexArguments.toMutableList(),
-        ReferenceExpression(indexedReferenceExpression.scope, indexedReferenceExpression.name)
+        ReferenceExpression(indexedReferenceExpression.token, indexedReferenceExpression.scope, indexedReferenceExpression.name)
         )
        visit(funcCall)
       mv.castIfNecessaryOrThrow(indexedReferenceExpression.getType(typeResolver), funcCall.getType(typeResolver))
@@ -722,9 +724,9 @@ class InstructionGenerator(
     scope.addLocalVariable(forInStatement.variableType, forInStatement.variableName)
 
     // creating iterator
-    val iteratorExpression = if (Iterable::class.javaType.isAssignableFrom(expressionType)) SimpleFunctionCallNode(scope, "iterator", mutableListOf(), expression)
+    val iteratorExpression = if (Iterable::class.javaType.isAssignableFrom(expressionType)) SimpleFunctionCallNode(forInStatement.token, scope, "iterator", mutableListOf(), expression)
     else if (Iterator::class.javaType.isAssignableFrom(expressionType)) expression
-    else if (CharSequence::class.javaType.isAssignableFrom(expressionType)) ConstructorCallNode(scope, CharSequenceIterator::class.java.javaType,
+    else if (CharSequence::class.javaType.isAssignableFrom(expressionType)) ConstructorCallNode(forInStatement.token, scope, CharSequenceIterator::class.java.javaType,
       mutableListOf(expression))
     else throw MarcelSemanticException("Doesn't handle iterating on $expressionType")
     val iteratorExpressionType = iteratorExpression.getType(typeResolver)
@@ -739,14 +741,14 @@ class InstructionGenerator(
     else if (CharacterIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) "nextCharacter"
     else if (Iterator::class.javaType.isAssignableFrom(iteratorExpressionType)) "next"
     else throw UnsupportedOperationException("wtf")
-    visit(VariableAssignmentNode(scope, iteratorVariable.name, iteratorExpression))
+    visit(VariableAssignmentNode(forInStatement.token, scope, iteratorVariable.name, iteratorExpression))
 
     // loop start
     val loopStart = Label()
     mv.visitLabel(loopStart)
 
     // Verifying condition
-    val iteratorVarReference = ReferenceExpression(scope, iteratorVariable.name)
+    val iteratorVarReference = ReferenceExpression(forInStatement.token, scope, iteratorVariable.name)
     pushArgument(iteratorVarReference)
     mv.invokeMethod(IntIterator::class.java.getMethod("hasNext"))
 
@@ -754,7 +756,7 @@ class InstructionGenerator(
     mv.jumpIfEq(loopEnd)
 
     // loop body
-    visit(VariableAssignmentNode(scope, forInStatement.variableName, SimpleFunctionCallNode(scope, methodName, mutableListOf(), iteratorVarReference)))
+    visit(VariableAssignmentNode(forInStatement.token, scope, forInStatement.variableName, SimpleFunctionCallNode(forInStatement.token, scope, methodName, mutableListOf(), iteratorVarReference)))
     loopBody(forInStatement.body, loopStart, loopEnd)
     mv.jumpTo(loopStart)
 
@@ -889,7 +891,7 @@ class InstructionGenerator(
       mv.incrLocalVariable(incrNode.variableReference.variable as LocalVariable, incrNode.amount)
     } else {
       val ref = incrNode.variableReference
-      visit(VariableAssignmentNode(ref.scope, ref.name, PlusOperator(ref, IntConstantNode(incrNode.amount))))
+      visit(VariableAssignmentNode(incrNode.token, ref.scope, ref.name, PlusOperator(incrNode.token, ref, IntConstantNode(incrNode.token, incrNode.amount))))
     }
   }
 
@@ -926,7 +928,7 @@ class InstructionGenerator(
       mv.returnVoid()
     } else {
       if (lastStatement is ExpressionStatementNode && lastStatement.expression.getType(typeResolver) != JavaType.void) {
-        visit(ReturnNode(blockNode.scope, lastStatement.expression))
+        visit(ReturnNode(blockNode.token, blockNode.scope, lastStatement.expression))
       } else if (!blockNode.scope.returnType.primitive) {
         lastStatement?.accept(this)
         // just return null
@@ -1018,12 +1020,12 @@ class InstructionGenerator(
     }
     val tempVar = scope.addLocalVariable(expressionType)
     // assign expression to variable
-    visit(VariableAssignmentNode(scope, tempVar.name, multiVariableDeclarationNode.expression))
+    visit(VariableAssignmentNode(multiVariableDeclarationNode.token, scope, tempVar.name, multiVariableDeclarationNode.expression))
     // then process each variable declarations
     for (i in multiVariableDeclarationNode.declarations.indices) {
       val declaration = multiVariableDeclarationNode.declarations[i] ?: continue
-      visit(VariableDeclarationNode(scope, declaration.first, declaration.second, false,
-        IndexedReferenceExpression(scope, tempVar.name, listOf(IntConstantNode(i)), false)))
+      visit(VariableDeclarationNode(multiVariableDeclarationNode.token, scope, declaration.first, declaration.second, false,
+        IndexedReferenceExpression(multiVariableDeclarationNode.token, scope, tempVar.name, listOf(IntConstantNode(multiVariableDeclarationNode.token, i)), false)))
     }
     scope.freeVariable(tempVar.name)
   }
@@ -1031,7 +1033,7 @@ class InstructionGenerator(
   override fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode) {
     // variable should have been declared in the visit(ifStatementNode)
     visit(
-      VariableAssignmentNode(truthyVariableDeclarationNode.scope, truthyVariableDeclarationNode.name, truthyVariableDeclarationNode.expression)
+      VariableAssignmentNode(truthyVariableDeclarationNode.token, truthyVariableDeclarationNode.scope, truthyVariableDeclarationNode.name, truthyVariableDeclarationNode.expression)
     )
   }
 
@@ -1133,7 +1135,7 @@ private class PushingInstructionGenerator(
     when (notNode.operand.getType(typeResolver)) {
       JavaType.Boolean -> mv.invokeMethodWithArguments(typeResolver.findMethodOrThrow(JavaType.Boolean, "booleanValue", emptyList()), notNode.operand)
       JavaType.boolean -> notNode.operand.accept(this)
-      else -> visit(BooleanExpressionNode(notNode.operand))
+      else -> visit(BooleanExpressionNode(notNode.token, notNode.operand))
     }
     mv.not()
   }
@@ -1154,7 +1156,7 @@ private class PushingInstructionGenerator(
   override fun visit(booleanExpression: BooleanExpressionNode) {
     val innerType = booleanExpression.innerExpression.getType(typeResolver)
     if (booleanExpression.innerExpression is NullValueNode) {
-      visit(BooleanConstantNode(false))
+      visit(BooleanConstantNode(booleanExpression.token, false))
     } else if (innerType == JavaType.boolean
       || innerType == JavaType.Boolean) {
       booleanExpression.innerExpression.accept(this)
@@ -1162,7 +1164,7 @@ private class PushingInstructionGenerator(
     } else if (innerType.primitive) {
       // according to marcel truth, all primitive are truthy
       booleanExpression.innerExpression.accept(instructionGenerator)
-      visit(BooleanConstantNode(true))
+      visit(BooleanConstantNode(booleanExpression.token, true))
     } else if (Matcher::class.javaType.isAssignableFrom(innerType)) {
       pushArgument(booleanExpression.innerExpression)
       mv.invokeMethod(Matcher::class.java.getMethod("find"))
@@ -1188,15 +1190,15 @@ private class PushingInstructionGenerator(
   override fun visit(stringNode: StringNode) {
     if (stringNode.parts.isEmpty()) {
       // empty string
-      StringConstantNode("").accept(this)
+      StringConstantNode(stringNode.token, "").accept(this)
       return
     } else if (stringNode.parts.size == 1) {
-      ToStringNode(stringNode.parts.first()).accept(this)
+      ToStringNode(stringNode.token, stringNode.parts.first()).accept(this)
       return
     }
     // new StringBuilder() can just provide an empty new scope as we'll just use it to extract the method from StringBuilder which already exists in the JDK
     val type = StringBuilder::class.javaType
-    visit(ConstructorCallNode(Scope(typeResolver, type), type, mutableListOf()))
+    visit(ConstructorCallNode(stringNode.token, Scope(typeResolver, type), type, mutableListOf()))
     for (part in stringNode.parts) {
       // chained calls
       val argumentType = part.getType(typeResolver)
@@ -1319,7 +1321,7 @@ private class PushingInstructionGenerator(
       super.visit(operator)
       mv.visitInsn(operator.getType(typeResolver).asPrimitiveType.addCode)
     } else if (operator.leftOperand.getType(typeResolver) == JavaType.String || operator.rightOperand.getType(typeResolver) == JavaType.String) {
-      visit(StringNode(listOf(operator.leftOperand, operator.rightOperand)))
+      visit(StringNode(operator.token, listOf(operator.leftOperand, operator.rightOperand)))
     } else {
       TODO("Doesn't handle custom + operator yet")
     }
@@ -1353,19 +1355,19 @@ private class PushingInstructionGenerator(
           listOf(Optional::class.javaType, OptionalInt::class.javaType, OptionalLong::class.javaType, OptionalDouble::class.javaType)
             .any {expressionType.raw().isAssignableFrom(it) }
           )) {
-      actualTruthyVariableDeclarationNode = TruthyVariableDeclarationNode(
+      actualTruthyVariableDeclarationNode = TruthyVariableDeclarationNode(truthyVariableDeclarationNode.token,
         actualTruthyVariableDeclarationNode.scope, actualTruthyVariableDeclarationNode.variableType, actualTruthyVariableDeclarationNode.name,
-        InvokeAccessOperator(actualTruthyVariableDeclarationNode.expression,
-          SimpleFunctionCallNode(actualTruthyVariableDeclarationNode.scope, "orElse", mutableListOf(NullValueNode(actualTruthyVariableDeclarationNode.variableType)))
+        InvokeAccessOperator(truthyVariableDeclarationNode.token, actualTruthyVariableDeclarationNode.expression,
+          SimpleFunctionCallNode(truthyVariableDeclarationNode.token, actualTruthyVariableDeclarationNode.scope, "orElse", mutableListOf(NullValueNode(truthyVariableDeclarationNode.token, actualTruthyVariableDeclarationNode.variableType)))
         , false)
       )
     }
     instructionGenerator.visit(actualTruthyVariableDeclarationNode)
     if (actualTruthyVariableDeclarationNode.variableType.primitive) {
-      visit(BooleanConstantNode(true))
+      visit(BooleanConstantNode(truthyVariableDeclarationNode.token, true))
     } else {
-      pushArgument(BooleanExpressionNode(
-        ReferenceExpression(actualTruthyVariableDeclarationNode.scope, actualTruthyVariableDeclarationNode.name)
+      pushArgument(BooleanExpressionNode(truthyVariableDeclarationNode.token,
+        ReferenceExpression(truthyVariableDeclarationNode.token, actualTruthyVariableDeclarationNode.scope, actualTruthyVariableDeclarationNode.name)
       ))
     }
   }

@@ -5,6 +5,7 @@ import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.compiler.util.javaType
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ConstructorNode
 import com.tambapps.marcel.parser.ast.FieldNode
@@ -26,7 +27,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
   }
 
   private fun compileRec(classes: MutableList<CompiledClass>, classNode: ClassNode) {
-    // TODO check for final fields not initizalized
+    // TODO check for final fields not initialized
     // check that all implemented interfaces methods are defined.
     for (interfaze in classNode.type.directlyImplementedInterfaces) {
       for (interfaceMethod in typeResolver.getDeclaredMethods(interfaze).filter { it.isAbstract }) {
@@ -42,13 +43,13 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
           val rawMethodNode = MethodNode.fromJavaMethod(classNode.scope, rawInterfaceMethod)
           val rawParameterExpressions = mutableListOf<ExpressionNode>()
           for (i in rawMethodNode.parameters.indices) {
-            rawParameterExpressions.add(AsNode(
+            rawParameterExpressions.add(AsNode(LexToken.dummy(),
                 interfaceMethod.parameters[i].type,
-                ReferenceExpression(rawMethodNode.scope, rawMethodNode.parameters[i].name)
+                ReferenceExpression(LexToken.dummy(), rawMethodNode.scope, rawMethodNode.parameters[i].name)
             ))
           }
           rawMethodNode.block.addStatement(
-            SimpleFunctionCallNode(rawMethodNode.scope, implementationMethod.name, rawParameterExpressions,
+            SimpleFunctionCallNode(LexToken.dummy(), rawMethodNode.scope, implementationMethod.name, rawParameterExpressions,
                   ReferenceExpression.thisRef(rawMethodNode.scope)))
           classNode.methods.add(rawMethodNode)
         }
@@ -109,9 +110,9 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
           initialValue.type = JavaType.arrayTypeFrom(marcelField.type)
         }
         constructor.block.addStatement(
-          FieldAssignmentNode(
-            constructor.scope, GetFieldAccessOperator(ReferenceExpression.thisRef(constructor.scope),
-              ReferenceExpression(constructor.scope, marcelField.name), false), initialValue
+          FieldAssignmentNode(LexToken.dummy(),
+            constructor.scope, GetFieldAccessOperator(LexToken.dummy(), ReferenceExpression.thisRef(constructor.scope),
+              ReferenceExpression(LexToken.dummy(), constructor.scope, marcelField.name), false), initialValue
           )
         )
       }
@@ -119,7 +120,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
       // static fields should be initialized in static initialization block
       val staticInitializationNode = classNode.getOrInitStaticInitializationNode()
       staticInitializationNode.block.addStatement(
-        VariableAssignmentNode(
+        VariableAssignmentNode(LexToken.dummy(),
           staticInitializationNode.scope,
           marcelField.name, marcelField.initialValue!!))
     }

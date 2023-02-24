@@ -1,5 +1,6 @@
 package com.tambapps.marcel.parser.ast.expression
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.ComparisonOperator
 import com.tambapps.marcel.parser.ast.ScopedNode
@@ -8,12 +9,13 @@ import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.scope.Scope
 
 sealed class ConditionalBranchFlowNode<T: ConditionalBranchNode>(
+  token: LexToken,
   override var scope: Scope, val branches: MutableList<T>,
   val elseStatement: StatementNode?
-): ExpressionNode, ScopedNode<Scope>
-open class WhenNode constructor(scope: Scope,
+): AbstractExpressionNode(token), ScopedNode<Scope>
+open class WhenNode constructor(token: LexToken, scope: Scope,
                                 branches: MutableList<WhenBranchNode>,
-                                elseStatement: StatementNode?): ConditionalBranchFlowNode<WhenBranchNode>(scope, branches, elseStatement) {
+                                elseStatement: StatementNode?): ConditionalBranchFlowNode<WhenBranchNode>(token, scope, branches, elseStatement) {
 
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>): T {
@@ -28,16 +30,16 @@ open class WhenNode constructor(scope: Scope,
   }
 }
 
-sealed class ConditionalBranchNode(val conditionExpressionNode: ExpressionNode,
-                                   var statementNode: StatementNode): ExpressionNode {
+sealed class ConditionalBranchNode(token: LexToken, val conditionExpressionNode: ExpressionNode,
+                                   var statementNode: StatementNode): AbstractExpressionNode(token) {
 
   fun toIf(): IfStatementNode {
     return IfStatementNode(conditionExpressionNode, statementNode, null)
   }
 
 }
-class WhenBranchNode(conditionExpressionNode: ExpressionNode,
-                     statementNode: StatementNode): ConditionalBranchNode(conditionExpressionNode, statementNode) {
+class WhenBranchNode(token: LexToken, conditionExpressionNode: ExpressionNode,
+                     statementNode: StatementNode): ConditionalBranchNode(token, conditionExpressionNode, statementNode) {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>): T {
     return astNodeVisitor.visit(this)
   }
@@ -48,9 +50,9 @@ class WhenBranchNode(conditionExpressionNode: ExpressionNode,
 }
 
 // switch nodes
-class SwitchNode constructor(override var scope: Scope,
+class SwitchNode constructor(token: LexToken, override var scope: Scope,
                              val expressionNode: ExpressionNode, branches: MutableList<SwitchBranchNode>,
-                             elseStatement: StatementNode?): ConditionalBranchFlowNode<SwitchBranchNode>(scope, branches, elseStatement) {
+                             elseStatement: StatementNode?): ConditionalBranchFlowNode<SwitchBranchNode>(token, scope, branches, elseStatement) {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
@@ -62,16 +64,17 @@ class SwitchNode constructor(override var scope: Scope,
 
 }
 class SwitchBranchNode private constructor(
+  token: LexToken,
   val valueExpression: ExpressionNode,
   itReference: ReferenceExpression,
   statementNode: StatementNode)
-  : ConditionalBranchNode(ComparisonOperatorNode(ComparisonOperator.EQUAL, valueExpression,
+  : ConditionalBranchNode(token, ComparisonOperatorNode(token, ComparisonOperator.EQUAL, valueExpression,
   // using reference "it" to avoid evaluating more than once the value (e.g. executing more than once functon calls)
   itReference), statementNode) {
 
-  constructor(scope: Scope,
+  constructor(token: LexToken, scope: Scope,
     valueExpression: ExpressionNode,
-    statementNode: StatementNode): this(valueExpression, ReferenceExpression(scope, "it"), statementNode)
+    statementNode: StatementNode): this(token, valueExpression, ReferenceExpression(token, scope, "it"), statementNode)
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 

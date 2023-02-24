@@ -1,5 +1,6 @@
 package com.tambapps.marcel.parser.ast
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
@@ -12,11 +13,12 @@ import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.Opcodes
 
 class ConstructorNode(
+  token: LexToken,
   access: Int,
   block: FunctionBlockNode,
   parameters: MutableList<MethodParameter>,
   scope: MethodScope
-) : MethodNode(access, JavaType.void, JavaMethod.CONSTRUCTOR_NAME, blockWithSuperCall(scope, block), parameters, JavaType.void,
+) : MethodNode(token, access, JavaType.void, JavaMethod.CONSTRUCTOR_NAME, blockWithSuperCall(scope, block), parameters, JavaType.void,
   scope, false, true) {
 
   companion object {
@@ -25,16 +27,16 @@ class ConstructorNode(
       return of(classNode, MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, parameters, JavaType.void), parameters, statements)
     }
     fun of(classNode: ClassNode, scope: MethodScope, parameters: MutableList<MethodParameter>, statements: MutableList<StatementNode>): ConstructorNode {
-      return ConstructorNode(
-        Opcodes.ACC_PUBLIC, FunctionBlockNode(scope, statements),
+      return ConstructorNode(classNode.token,
+        Opcodes.ACC_PUBLIC, FunctionBlockNode(LexToken.dummy(), scope, statements),
         parameters, scope
       )
     }
 
     fun emptyConstructor(classNode: ClassNode): ConstructorNode {
       val emptyConstructorScope = MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)
-      return ConstructorNode(
-        Opcodes.ACC_PUBLIC, FunctionBlockNode(emptyConstructorScope, mutableListOf()),
+      return ConstructorNode(classNode.token,
+        Opcodes.ACC_PUBLIC, FunctionBlockNode(classNode.token, emptyConstructorScope, mutableListOf()),
         mutableListOf(), emptyConstructorScope
       )
     }
@@ -47,9 +49,9 @@ class ConstructorNode(
       }
 
       val statements = mutableListOf<StatementNode>()
-      statements.add(ExpressionStatementNode(SuperConstructorCallNode(scope, mutableListOf())))
+      statements.add(ExpressionStatementNode(block.token, SuperConstructorCallNode(block.token, scope, mutableListOf())))
       statements.addAll(block.statements)
-      return FunctionBlockNode(block.scope, statements)
+      return FunctionBlockNode(block.token, block.scope, statements)
     }
   }
 }

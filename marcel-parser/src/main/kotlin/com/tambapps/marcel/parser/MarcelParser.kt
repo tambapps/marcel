@@ -79,7 +79,8 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     val (access, isInline) = parseAccess()
     if (isInline) throw MarcelParserException(previous, "Cannot use 'inline' keyword for a field")
     val type = parseType(classNode.scope)
-    val name = accept(TokenType.IDENTIFIER).value
+    val identifierToken = accept(TokenType.IDENTIFIER)
+    val name = identifierToken.value
 
     if (classNode.fields.any { it.name == name }) throw MarcelParserException(previous,
       "Field with name $name was defined more than once"
@@ -92,14 +93,14 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     else null
     acceptOptional(TokenType.SEMI_COLON)
 
-    return FieldNode(type, name, classNode.type, access, expression)
+    return FieldNode(identifierToken, type, name, classNode.type, access, expression)
   }
 
   private fun parseClass(imports: MutableList<ImportNode>, packageName: String?, outerClassNode: ClassNode? = null): ClassNode {
     val (access, isInline) = parseAccess()
     if (isInline) throw MarcelParserException(previous, "Cannot use 'inline' keyword for a class")
     val isExtensionClass = acceptOptional(TokenType.EXTENSION) != null
-    accept(TokenType.CLASS)
+    val classToken = accept(TokenType.CLASS)
     val classSimpleName = accept(TokenType.IDENTIFIER).value
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
 
@@ -124,7 +125,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     val methods = mutableListOf<MethodNode>()
     val classFields = mutableListOf<FieldNode>()
     val innerClasses = mutableListOf<ClassNode>()
-    val classNode = ClassNode(classScope, access, classType, JavaType.Object, false, methods, classFields, innerClasses)
+    val classNode = ClassNode(classToken, classScope, access, classType, JavaType.Object, false, methods, classFields, innerClasses)
     accept(TokenType.BRACKETS_OPEN)
 
     while (current.type != TokenType.BRACKETS_CLOSE) {
@@ -150,14 +151,14 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     val argsParameter = MethodParameter(JavaType.of(Array<String>::class.java), "args")
     val runScope = MethodScope(classScope, "run", listOf(argsParameter), JavaType.Object)
     val statements = mutableListOf<StatementNode>()
-    val runBlock = FunctionBlockNode(runScope, statements)
+    val runBlock = FunctionBlockNode(LexToken.dummy(), runScope, statements)
     val runFunction = MethodNode(Opcodes.ACC_PUBLIC, classType,
       "run",
       runBlock, mutableListOf(argsParameter), runScope.returnType, runScope, false)
 
     classMethods.add(runFunction)
     val innerClasses = mutableListOf<ClassNode>()
-    val classNode = ClassNode(classScope,
+    val classNode = ClassNode(LexToken.dummy(), classScope,
       Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, classType, JavaType.of(Script::class.java), true, classMethods, classFields, innerClasses)
 
     while (current.type != TokenType.END_OF_FILE) {
@@ -193,7 +194,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     return tokens[i].type
   }
   private fun import(): ImportNode {
-    accept(TokenType.IMPORT)
+    val importToken = accept(TokenType.IMPORT)
     val staticImport = acceptOptional(TokenType.STATIC) != null
     val classParts = mutableListOf(accept(TokenType.IDENTIFIER).value)
     while (current.type == TokenType.DOT) {
@@ -204,7 +205,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         }
         skip()
         acceptOptional(TokenType.SEMI_COLON)
-        return WildcardImportNode(classParts.joinToString(separator = "."))
+        return WildcardImportNode(importToken, classParts.joinToString(separator = "."))
       }
       classParts.add(accept(TokenType.IDENTIFIER).value)
     }
@@ -218,10 +219,10 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     val node = if (staticImport) {
       val className = classParts.subList(0, classParts.size - 1).joinToString(separator = ".")
       val method = classParts.last()
-      StaticImportNode(className, method)
+      StaticImportNode(importToken, className, method)
     } else {
       val asName = if (acceptOptional(TokenType.AS) != null) accept(TokenType.IDENTIFIER).value else null
-      SimpleImportNode(classParts.joinToString(separator = "."), asName)
+      SimpleImportNode(importToken, classParts.joinToString(separator = "."), asName)
     }
     acceptOptional(TokenType.SEMI_COLON)
     return node
@@ -250,10 +251,11 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       }
     }
     skip() // skipping RPAR
+    val currentToken = current
     val returnType = if (current.type != TokenType.BRACKETS_OPEN) parseType(classScope) else JavaType.void
     val statements = mutableListOf<StatementNode>()
     val methodScope = MethodScope(classScope, methodName, parameters, returnType)
-    val methodNode = MethodNode(access, classNode.type, methodName, FunctionBlockNode(methodScope, statements), parameters, returnType, methodScope, isInline)
+    val methodNode = MethodNode(access, classNode.type, methodName, FunctionBlockNode(currentToken, methodScope, statements), parameters, returnType, methodScope, isInline)
     statements.addAll(block(methodScope).statements)
 
     // check conflict
@@ -273,6 +275,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
   }
 
   fun block(scope: MethodScope, acceptBracketOpen: Boolean = true): BlockNode {
+    val token = current
     if (acceptBracketOpen) accept(TokenType.BRACKETS_OPEN)
     val statements = mutableListOf<StatementNode>()
     while (current.type != TokenType.BRACKETS_CLOSE) {
@@ -284,7 +287,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       statements.add(statement)
     }
     skip() // skipping BRACKETS_CLOSE
-    return BlockNode(scope, statements)
+    return BlockNode(token, scope, statements)
   }
 
   private fun parseType(scope: Scope): JavaType {
@@ -335,7 +338,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         val expression = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(scope)
         else null
         acceptOptional(TokenType.SEMI_COLON)
-        VariableDeclarationNode(scope, type, identifier.value, false, expression)
+        VariableDeclarationNode(token, scope, type, identifier.value, false, expression)
       }
       TokenType.DEF -> {
         accept(TokenType.LPAR)
@@ -353,15 +356,15 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         }
         skip() // skip RPAR
         accept(TokenType.ASSIGNMENT)
-        MultiVariableDeclarationNode(scope, declarations, expression(scope))
+        MultiVariableDeclarationNode(token, scope, declarations, expression(scope))
       }
       TokenType.RETURN -> {
-        val expression = if (current.type == TokenType.SEMI_COLON) VoidExpression() else expression(scope)
+        val expression = if (current.type == TokenType.SEMI_COLON) VoidExpression(token) else expression(scope)
         if (scope !is MethodScope) {
           throw MarcelParserException(previous, "Cannot have a return instruction outside of a function")
         }
         acceptOptional(TokenType.SEMI_COLON)
-        ReturnNode(scope, expression)
+        ReturnNode(token, scope, expression)
       }
       TokenType.BRACKETS_OPEN -> {
         rollback()
@@ -373,7 +376,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       }
       TokenType.IF -> {
         accept(TokenType.LPAR)
-        val condition = ifConditionExpression(scope)
+        val condition = ifConditionExpression(token, scope)
           accept(TokenType.RPAR)
         val rootIf = IfStatementNode(condition, statement(scope), null)
         var currentIf = rootIf
@@ -381,7 +384,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           skip()
           if (acceptOptional(TokenType.IF) != null) {
             accept(TokenType.LPAR)
-            val elseIfCondition = ifConditionExpression(scope)
+            val elseIfCondition = ifConditionExpression(token, scope)
             accept(TokenType.RPAR)
             val newIf = IfStatementNode(elseIfCondition, statement(scope), null)
             currentIf.falseStatementNode = newIf
@@ -394,13 +397,13 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       }
       TokenType.WHILE -> {
         accept(TokenType.LPAR)
-        val condition = BooleanExpressionNode(expression(scope))
+        val condition = BooleanExpressionNode(token, expression(scope))
         accept(TokenType.RPAR)
         val whileScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(previous,
           "Cannot have for outside of a method"
         )
         )
-        WhileStatement(whileScope, condition, loopBody(whileScope))
+        WhileStatement(token, whileScope, condition, loopBody(whileScope))
       }
       TokenType.FOR -> {
         accept(TokenType.LPAR)
@@ -416,7 +419,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           )
           )
           val forBlock = loopBody(loopScope)
-          ForInStatement(loopScope, type, identifier, expression, forBlock)
+          ForInStatement(token, loopScope, type, identifier, expression, forBlock)
         } else {
           // for (;;)
           // needed especially if initStatement is var declaration
@@ -429,7 +432,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
             throw MarcelParserException(previous, "For loops should start with variable declaration/assignment")
           }
           acceptOptional(TokenType.SEMI_COLON)
-          val condition = BooleanExpressionNode(expression(scope))
+          val condition = BooleanExpressionNode(token, expression(scope))
           accept(TokenType.SEMI_COLON)
           val iteratorStatement = statement(scope)
           if (iteratorStatement !is VariableAssignmentNode && iteratorStatement !is ExpressionStatementNode) {
@@ -437,20 +440,20 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           }
           accept(TokenType.RPAR)
           val forBlock = loopBody(scope)
-          ForStatement(scope, initStatement, condition, iteratorStatement, forBlock)
+          ForStatement(token, scope, initStatement, condition, iteratorStatement, forBlock)
         }
       }
       TokenType.CONTINUE -> {
         if (scope !is InnerScope) {
           throw MarcelParserException(previous, "Cannot have a continue outside of an inner block")
         }
-        ContinueLoopNode(scope)
+        ContinueLoopNode(token, scope)
       }
       TokenType.BREAK -> {
         if (scope !is InnerScope) {
           throw MarcelParserException(previous, "Cannot have a continue outside of an inner block")
         }
-        BreakLoopNode(scope)
+        BreakLoopNode(token, scope)
       }
       else -> {
         val isFinal = if (token.type == TokenType.FINAL) {
@@ -466,25 +469,25 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           val variableName = accept(TokenType.IDENTIFIER).value
           val expression = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(scope)
           else null
-          val v = VariableDeclarationNode(scope, type, variableName, isFinal, expression)
+          val v = VariableDeclarationNode(token, scope, type, variableName, isFinal, expression)
           acceptOptional(TokenType.SEMI_COLON)
           return v
         }
         rollback()
         val node = expression(scope)
         acceptOptional(TokenType.SEMI_COLON)
-        ExpressionStatementNode(node)
+        ExpressionStatementNode(token, node)
       }
     }
   }
 
-  private fun ifConditionExpression(scope: Scope): BooleanExpressionNode {
-    return BooleanExpressionNode(
+  private fun ifConditionExpression(token: LexToken, scope: Scope): BooleanExpressionNode {
+    return BooleanExpressionNode(token,
       if (isTypeToken(current.type) && lookup(1)?.type == TokenType.IDENTIFIER) {
         val type = parseType(scope)
         val variableName = accept(TokenType.IDENTIFIER).value
         accept(TokenType.ASSIGNMENT)
-        TruthyVariableDeclarationNode(scope, type, variableName, expression(scope))
+        TruthyVariableDeclarationNode(token, scope, type, variableName, expression(scope))
       } else expression(scope)
     )
   }
@@ -500,17 +503,17 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       if (current.type == TokenType.COLON) {
         skip()
         val onNullExpression = expression(scope)
-        return ElvisOperator(scope, expr, onNullExpression)
+        return ElvisOperator(expr.token, scope, expr, onNullExpression)
       } else {
         val trueExpr = expression(scope)
         accept(TokenType.COLON)
         val falseExpr = expression(scope)
-        return TernaryNode(BooleanExpressionNode(expr), trueExpr, falseExpr)
+        return TernaryNode(expr.token, BooleanExpressionNode(expr.token, expr), trueExpr, falseExpr)
       }
     } else if (current.type == TokenType.AS) {
       skip()
       val type = parseType(scope)
-      return AsNode(type, expr)
+      return AsNode(expr.token, type, expr)
     }
     return expr
   }
@@ -521,7 +524,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       "Cannot have for outside of a method"
     )
     )
-    return BlockNode(newScope, mutableListOf(loopStatement))
+    return BlockNode(loopStatement.token, newScope, mutableListOf(loopStatement))
   }
   private fun expression(scope: Scope, maxPriority: Int): ExpressionNode {
     var a = atom(scope)
@@ -543,8 +546,8 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
   private fun atom(scope: Scope): ExpressionNode {
     val token = next()
     return when (token.type) {
-      TokenType.INCR -> IncrNode(ReferenceExpression(scope, accept(TokenType.IDENTIFIER).value), 1, false)
-      TokenType.DECR -> IncrNode(ReferenceExpression(scope, accept(TokenType.IDENTIFIER).value), -1, false)
+      TokenType.INCR -> IncrNode(token, ReferenceExpression(token, scope, accept(TokenType.IDENTIFIER).value), 1, false)
+      TokenType.DECR -> IncrNode(token, ReferenceExpression(token, scope, accept(TokenType.IDENTIFIER).value), -1, false)
       TokenType.INTEGER, TokenType.FLOAT -> {
        return if (current.type == TokenType.LT || current.type == TokenType.GT || current.type == TokenType.TWO_DOTS) {
          rangeNode(scope, parseNumberConstant(token))
@@ -552,13 +555,13 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
          parseNumberConstant(token)
         }
       }
-      TokenType.THIS -> ThisReference(scope) // TODO parse thisConstructorCall
-      TokenType.SUPER -> SuperReference(scope) // TODO parse SuperConstructorCall. Also handle super method calls.
+      TokenType.THIS -> ThisReference(token, scope) // TODO parse thisConstructorCall
+      TokenType.SUPER -> SuperReference(token, scope) // TODO parse SuperConstructorCall. Also handle super method calls.
       //                                            They are like "normal" method calls but needs to use the super class internal name when performing the invokeSPECIAL instruciton
 
-      TokenType.BRACKETS_OPEN -> parseLambda(scope)
-      TokenType.VALUE_TRUE -> BooleanConstantNode(true)
-      TokenType.VALUE_FALSE -> BooleanConstantNode(false)
+      TokenType.BRACKETS_OPEN -> parseLambda(token, scope)
+      TokenType.VALUE_TRUE -> BooleanConstantNode(token, true)
+      TokenType.VALUE_FALSE -> BooleanConstantNode(token, false)
       TokenType.OPEN_CHAR_QUOTE -> {
         val valueToken = next()
         val value = when (valueToken.type) {
@@ -568,7 +571,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           else -> throw MarcelParserException(previous, "Unexpected token ${valueToken.type} for character constant")
         }
         accept(TokenType.CLOSING_CHAR_QUOTE)
-        CharConstantNode(value)
+        CharConstantNode(token, value)
       }
       TokenType.OPEN_QUOTE -> {
         val parts = mutableListOf<ExpressionNode>()
@@ -576,7 +579,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           parts.add(stringPart(scope))
         }
         skip() // skip last quote
-        StringNode(parts)
+        StringNode(token, parts)
       }
       TokenType.OPEN_SIMPLE_QUOTE -> {
         val builder = StringBuilder()
@@ -584,7 +587,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           builder.append(simpleStringPart(scope))
         }
         skip() // skip last quote
-        StringConstantNode(builder.toString())
+        StringConstantNode(token, builder.toString())
       }
       TokenType.OPEN_REGEX_QUOTE -> {
         val builder = StringBuilder()
@@ -600,17 +603,17 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
             flags.add(LiteralPatternNode.FLAGS_MAP[char] ?: throw MarcelParserException(previous, "Unknown pattern flag $char"))
           }
         }
-        LiteralPatternNode(builder.toString(), flags)
+        LiteralPatternNode(token, builder.toString(), flags)
       }
-      TokenType.ESCAPE_SEQUENCE -> StringConstantNode(escapedSequenceValue(token.value))
+      TokenType.ESCAPE_SEQUENCE -> StringConstantNode(token, escapedSequenceValue(token.value))
       TokenType.NULL -> NullValueNode()
-      TokenType.NOT -> NotNode(expression(scope))
+      TokenType.NOT -> NotNode(token, expression(scope))
       TokenType.NEW -> {
         val type = parseType(scope)
         accept(TokenType.LPAR)
         if (current.type == TokenType.IDENTIFIER && lookup(1)?.type == TokenType.COLON)
-          NamedParametersConstructorCallNode(Scope(typeResolver, type), type, parseFunctionNamedArguments(scope))
-        else ConstructorCallNode(Scope(typeResolver, type), type, parseFunctionArguments(scope))
+          NamedParametersConstructorCallNode(token, Scope(typeResolver, type), type, parseFunctionNamedArguments(scope))
+        else ConstructorCallNode(token, Scope(typeResolver, type), type, parseFunctionArguments(scope))
       }
       TokenType.SWITCH -> {
         accept(TokenType.LPAR)
@@ -633,11 +636,11 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           } else {
             val valueExpression = expression(scope)
             accept(TokenType.ARROW)
-            branches.add(SwitchBranchNode(switchScope, valueExpression, statement(switchScope)))
+            branches.add(SwitchBranchNode(token, switchScope, valueExpression, statement(switchScope)))
           }
         }
         skip() // skip bracket_close
-        SwitchNode(scope, switchExpression, branches, elseStatement)
+        SwitchNode(token, scope, switchExpression, branches, elseStatement)
       }
       TokenType.WHEN -> {
         accept(TokenType.BRACKETS_OPEN)
@@ -656,31 +659,31 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           } else {
             val conditionExpression = expression(scope)
             accept(TokenType.ARROW)
-            branches.add(WhenBranchNode(conditionExpression, statement(whenScope)))
+            branches.add(WhenBranchNode(token, conditionExpression, statement(whenScope)))
           }
         }
         skip() // skip bracket_close
-        WhenNode(scope, branches, elseStatement)
+        WhenNode(token, scope, branches, elseStatement)
       }
       TokenType.IDENTIFIER -> {
         if (current.type == TokenType.INCR) {
           skip()
-          IncrNode(ReferenceExpression(scope, token.value), 1, true)
+          IncrNode(token, ReferenceExpression(token, scope, token.value), 1, true)
         } else  if (current.type == TokenType.DECR) {
           skip()
-          IncrNode(ReferenceExpression(scope, token.value), -1, true)
+          IncrNode(token, ReferenceExpression(token, scope, token.value), -1, true)
         }
         else if (current.type == TokenType.LPAR) {
           skip()
           if (current.type == TokenType.IDENTIFIER && lookup(1)?.type == TokenType.COLON)
-            NamedParametersFunctionCall(scope, token.value, parseFunctionNamedArguments(scope))
-          else SimpleFunctionCallNode(scope, token.value, parseFunctionArguments(scope))
+            NamedParametersFunctionCall(token, scope, token.value, parseFunctionNamedArguments(scope))
+          else SimpleFunctionCallNode(token, scope, token.value, parseFunctionArguments(scope))
         } else if (current.type == TokenType.BRACKETS_OPEN) { // function call with a lambda
           skip()
-          SimpleFunctionCallNode(scope, token.value, mutableListOf(parseLambda(scope)))
+          SimpleFunctionCallNode(token, scope, token.value, mutableListOf(parseLambda(previous, scope)))
         } else if (current.type == TokenType.LT  && lookup(1)?.type == TokenType.TWO_DOTS
           || current.type == TokenType.GT && lookup(1)?.type == TokenType.TWO_DOTS || current.type == TokenType.TWO_DOTS) {
-          val fromExpression = if (current.type == TokenType.TWO_DOTS) ReferenceExpression(scope, token.value)
+          val fromExpression = if (current.type == TokenType.TWO_DOTS) ReferenceExpression(token, scope, token.value)
           else expression(scope)
           rangeNode(scope, fromExpression)
         } else if (current.type == TokenType.SQUARE_BRACKETS_OPEN
@@ -693,13 +696,13 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
             if (current.type == TokenType.COMMA) skip()
           }
           skip() // skip brackets close
-          IndexedReferenceExpression(scope, token.value, indexArguments, isSafeIndex)
+          IndexedReferenceExpression(token, scope, token.value, indexArguments, isSafeIndex)
         } else {
-          ReferenceExpression(scope, token.value)
+          ReferenceExpression(token, scope, token.value)
         }
       }
-      TokenType.MINUS -> UnaryMinus(atom(scope))
-      TokenType.PLUS -> UnaryPlus(atom(scope))
+      TokenType.MINUS -> UnaryMinus(token, atom(scope))
+      TokenType.PLUS -> UnaryPlus(token, atom(scope))
       TokenType.LPAR -> {
         val node = expression(scope)
         if (current.type != TokenType.RPAR) {
@@ -732,8 +735,8 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
           for (i in elements.indices step 2) {
             entries.add(Pair(elements[i], elements[i + 1]))
           }
-          LiteralMapNode(entries)
-        } else LiteralArrayNode(elements)
+          LiteralMapNode(token, entries)
+        } else LiteralArrayNode(token, elements)
       }
       TokenType.END_OF_FILE -> throw MarcelParserException(token, "Unexpected end of file", true)
       else -> throw MarcelParserException(token, "Not supported $token")
@@ -755,7 +758,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       else -> throw MarcelParserException(previous, "Unknown escaped sequence \\$escapedSequence")
     }
   }
-  private fun parseLambda(scope: Scope): LambdaNode {
+  private fun parseLambda(token: LexToken, scope: Scope): LambdaNode {
     val parameters = mutableListOf<MethodParameter>()
     var explicit0Parameters = false
     if (lookup(2)?.type == TokenType.ARROW || lookup(3)?.type == TokenType.ARROW
@@ -773,7 +776,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     }
     // now parse function block
     val block = block(MethodScope(scope, "invoke", parameters, JavaType.Object), false)
-    return LambdaNode(LambdaScope(scope), parameters, block, explicit0Parameters)
+    return LambdaNode(token, LambdaScope(scope), parameters, block, explicit0Parameters)
   }
 
   private fun parseNumberConstant(token: LexToken): ExpressionNode {
@@ -792,14 +795,14 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         } catch (e: NumberFormatException) {
           throw MarcelParserException.malformedNumber(token, e)
         }
-        LongConstantNode(value)
+        LongConstantNode(token, value)
       } else {
         val value = try {
           valueString.toInt(radix)
         } catch (e: NumberFormatException) {
           throw MarcelParserException.malformedNumber(token, e)
         }
-        IntConstantNode(value)
+        IntConstantNode(token, value)
       }
     } else if (token.type == TokenType.FLOAT) {
       var valueString = token.value.lowercase(Locale.ENGLISH)
@@ -812,14 +815,14 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         } catch (e: NumberFormatException) {
           throw MarcelParserException.malformedNumber(token, e)
         }
-        DoubleConstantNode(value)
+        DoubleConstantNode(token, value)
       } else {
         val value = try {
           valueString.toFloat()
         } catch (e: NumberFormatException) {
           throw MarcelParserException.malformedNumber(token, e)
         }
-        FloatConstantNode(value)
+        FloatConstantNode(token, value)
       }
     } else {
       throw MarcelParserException(token, "Unexpected token $token", token.type == TokenType.END_OF_FILE)
@@ -830,14 +833,14 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     accept(TokenType.TWO_DOTS)
     val toExclusive = acceptOptional(TokenType.LT, TokenType.GT) != null
     val toExpression = expression(scope)
-    return RangeNode(fromExpression, toExpression, fromExclusive, toExclusive)
+    return RangeNode(fromExpression.token, fromExpression, toExpression, fromExclusive, toExclusive)
   }
 
   private fun stringPart(scope: Scope): ExpressionNode {
     val token = next()
     return when (token.type) {
-      TokenType.REGULAR_STRING_PART -> StringConstantNode(token.value)
-      TokenType.SHORT_TEMPLATE_ENTRY_START -> ReferenceExpression(scope, accept(TokenType.IDENTIFIER).value)
+      TokenType.REGULAR_STRING_PART -> StringConstantNode(token, token.value)
+      TokenType.SHORT_TEMPLATE_ENTRY_START -> ReferenceExpression(token, scope, accept(TokenType.IDENTIFIER).value)
       TokenType.LONG_TEMPLATE_ENTRY_START -> {
         val expr = expression(scope)
         accept(TokenType.LONG_TEMPLATE_ENTRY_END)
@@ -900,47 +903,47 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       TokenType.ASSIGNMENT, TokenType.PLUS_ASSIGNMENT, TokenType.MINUS_ASSIGNMENT, TokenType.MUL_ASSIGNMENT, TokenType.DIV_ASSIGNMENT -> {
         if (t == TokenType.ASSIGNMENT) {
           when (leftOperand) {
-            is ReferenceExpression -> VariableAssignmentNode(scope, leftOperand.name, rightOperand)
-            is IndexedReferenceExpression -> IndexedVariableAssignmentNode(scope, leftOperand, rightOperand)
-            is GetFieldAccessOperator -> FieldAssignmentNode(scope, leftOperand, rightOperand)
+            is ReferenceExpression -> VariableAssignmentNode(token, scope, leftOperand.name, rightOperand)
+            is IndexedReferenceExpression -> IndexedVariableAssignmentNode(token, scope, leftOperand, rightOperand)
+            is GetFieldAccessOperator -> FieldAssignmentNode(token, scope, leftOperand, rightOperand)
             else -> throw MarcelParserException(token, "Cannot assign to $leftOperand")
           }
         } else {
           val actualRightOperand = when(t) {
-            TokenType.PLUS_ASSIGNMENT -> PlusOperator(leftOperand, rightOperand)
-            TokenType.MINUS_ASSIGNMENT -> MinusOperator(leftOperand, rightOperand)
-            TokenType.DIV_ASSIGNMENT -> DivOperator(leftOperand, rightOperand)
-            TokenType.MUL_ASSIGNMENT -> MulOperator(leftOperand, rightOperand)
+            TokenType.PLUS_ASSIGNMENT -> PlusOperator(token, leftOperand, rightOperand)
+            TokenType.MINUS_ASSIGNMENT -> MinusOperator(token, leftOperand, rightOperand)
+            TokenType.DIV_ASSIGNMENT -> DivOperator(token, leftOperand, rightOperand)
+            TokenType.MUL_ASSIGNMENT -> MulOperator(token, leftOperand, rightOperand)
             else -> throw RuntimeException("Compiler error")
           }
           when (leftOperand) {
-            is ReferenceExpression -> VariableAssignmentNode(scope, leftOperand.name, actualRightOperand)
-            is IndexedReferenceExpression -> IndexedVariableAssignmentNode(scope, leftOperand, actualRightOperand)
-            is GetFieldAccessOperator -> FieldAssignmentNode(scope, leftOperand, actualRightOperand)
+            is ReferenceExpression -> VariableAssignmentNode(token, scope, leftOperand.name, actualRightOperand)
+            is IndexedReferenceExpression -> IndexedVariableAssignmentNode(token, scope, leftOperand, actualRightOperand)
+            is GetFieldAccessOperator -> FieldAssignmentNode(token, scope, leftOperand, actualRightOperand)
             else -> throw MarcelParserException(token, "Cannot assign to $leftOperand")
           }
         }
       }
-      TokenType.FIND -> FindOperator(leftOperand, rightOperand)
-      TokenType.IS -> IsOperator(leftOperand, rightOperand)
-      TokenType.IS_NOT -> IsNotOperator(leftOperand, rightOperand)
-      TokenType.MUL -> MulOperator(leftOperand, rightOperand)
-      TokenType.DIV -> DivOperator(leftOperand, rightOperand)
-      TokenType.PLUS -> PlusOperator(leftOperand, rightOperand)
-      TokenType.MINUS -> MinusOperator(leftOperand, rightOperand)
-      TokenType.AND -> AndOperator(leftOperand, rightOperand)
-      TokenType.OR -> OrOperator(leftOperand, rightOperand)
-      TokenType.LEFT_SHIFT -> LeftShiftOperator(leftOperand, rightOperand)
-      TokenType.RIGHT_SHIFT -> RightShiftOperator(leftOperand, rightOperand)
-      TokenType.EQUAL, TokenType.NOT_EQUAL, TokenType.LT, TokenType.GT, TokenType.LOE, TokenType.GOE -> ComparisonOperatorNode(ComparisonOperator.fromTokenType(token), leftOperand, rightOperand)
+      TokenType.FIND -> FindOperator(token, leftOperand, rightOperand)
+      TokenType.IS -> IsOperator(token, leftOperand, rightOperand)
+      TokenType.IS_NOT -> IsNotOperator(token, leftOperand, rightOperand)
+      TokenType.MUL -> MulOperator(token, leftOperand, rightOperand)
+      TokenType.DIV -> DivOperator(token, leftOperand, rightOperand)
+      TokenType.PLUS -> PlusOperator(token, leftOperand, rightOperand)
+      TokenType.MINUS -> MinusOperator(token, leftOperand, rightOperand)
+      TokenType.AND -> AndOperator(token, leftOperand, rightOperand)
+      TokenType.OR -> OrOperator(token, leftOperand, rightOperand)
+      TokenType.LEFT_SHIFT -> LeftShiftOperator(token, leftOperand, rightOperand)
+      TokenType.RIGHT_SHIFT -> RightShiftOperator(token, leftOperand, rightOperand)
+      TokenType.EQUAL, TokenType.NOT_EQUAL, TokenType.LT, TokenType.GT, TokenType.LOE, TokenType.GOE -> ComparisonOperatorNode(token, ComparisonOperator.fromTokenType(token), leftOperand, rightOperand)
       TokenType.DOT -> when (rightOperand) {
-        is FunctionCallNode -> InvokeAccessOperator(leftOperand, rightOperand, false)
-        is ReferenceExpression -> GetFieldAccessOperator(leftOperand, rightOperand, false)
+        is FunctionCallNode -> InvokeAccessOperator(token, leftOperand, rightOperand, false)
+        is ReferenceExpression -> GetFieldAccessOperator(token, leftOperand, rightOperand, false)
         else -> throw MarcelParserException(token, "Can only handle function calls and fields with dot operators")
       }
       TokenType.QUESTION_DOT -> when (rightOperand) {
-        is FunctionCallNode -> InvokeAccessOperator(leftOperand, rightOperand, true)
-        is ReferenceExpression -> GetFieldAccessOperator(leftOperand, rightOperand, true)
+        is FunctionCallNode -> InvokeAccessOperator(token, leftOperand, rightOperand, true)
+        is ReferenceExpression -> GetFieldAccessOperator(token, leftOperand, rightOperand, true)
         else -> throw MarcelParserException(token, "Can only handle function calls and fields with dot operators")
       }
       TokenType.END_OF_FILE -> throw MarcelParserException(token, "Unexpected end of file", true)
