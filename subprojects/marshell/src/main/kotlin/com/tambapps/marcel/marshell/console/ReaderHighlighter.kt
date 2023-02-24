@@ -26,19 +26,22 @@ import java.util.regex.Pattern
 
 class ReaderHighlighter constructor(
   private val typeResolver: JavaTypeResolver,
-  private val nodeSupplier: (String) -> MarcelEvaluator.Result?): Highlighter {
+  private val marcelEvaluator: MarcelEvaluator): Highlighter {
 
   // TODO when parsing fails because of incomplete input, the coloring doesn't work
   // TODO match on just method names, don't care about argument types. Will probably to add new methods to JavaTypeResolver for that
-  val lexer = MarcelLexer(false)
-  val style = HighlightTheme()
+  private val lexer = MarcelLexer(false)
+  private val style = HighlightTheme()
+  private var lastResult: MarcelEvaluator.Result? = null
 
   override fun highlight(reader: LineReader, text: String): AttributedString {
     val highlightedString = AttributedStringBuilder()
-    val parseResult = nodeSupplier.invoke(text)
+    val parseResult = marcelEvaluator.tryParse(text)
+    if (parseResult != null) lastResult = parseResult
     val tokens = parseResult?.tokens?.toMutableList() ?: lexer.lexSafely(text)
     tokens.removeLast() // remove end of file
-    val node = parseResult?.scriptNode?.methods?.find { it.name == "run" && it.parameters.size == 1 }
+    val scriptNode = parseResult?.scriptNode ?: lastResult?.scriptNode
+    val node = scriptNode?.methods?.find { it.name == "run" && it.parameters.size == 1 }
 
     for (token in tokens) {
       val string = text.substring(token.start, token.end)

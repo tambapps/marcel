@@ -23,7 +23,7 @@ class Shell {
 
   init {
     val readerBuilder = LineReaderBuilder.builder()
-      .highlighter(ReaderHighlighter(typeResolver, evaluator::tryParse))
+      .highlighter(ReaderHighlighter(typeResolver, evaluator))
 
     reader = readerBuilder.build()
   }
@@ -34,7 +34,7 @@ class Shell {
       try {
         val prompt = if (buffer.isEmpty()) "> " else "  "
         val line = reader.readLine(prompt)
-        ReaderHighlighter(typeResolver, evaluator::tryParse).highlight(reader, line)
+       // ReaderHighlighter(typeResolver, evaluator).highlight(reader, line) this is for debug through intelij
         if (line.startsWith(":")) {
           // handle command
           println("Unknown command " + line.substring(1))
