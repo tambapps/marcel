@@ -20,13 +20,14 @@ class Shell {
   private val tempDir = Files.createTempDirectory("marshell")
   private val replCompiler = MarcelReplCompiler(CompilerConfiguration.DEFAULT_CONFIGURATION, typeResolver)
   private val evaluator = MarcelEvaluator(replCompiler, tempDir.toFile())
+  private val highlighter = ReaderHighlighter(typeResolver, replCompiler)
   private val reader: LineReader
   private val buffer = mutableListOf<String>()
 
   init {
     typeResolver.loadDefaultExtensions()
     val readerBuilder = LineReaderBuilder.builder()
-      .highlighter(ReaderHighlighter(typeResolver, replCompiler))
+      .highlighter(highlighter)
 
     reader = readerBuilder.build()
   }
@@ -37,7 +38,7 @@ class Shell {
       try {
         val prompt = if (buffer.isEmpty()) "> " else "  "
         val line = reader.readLine(prompt)
-       // ReaderHighlighter(typeResolver, evaluator).highlight(reader, line) this is for debug through intelij
+        //highlighter.highlight(reader, line) // this is for debug through intelij
         if (line.startsWith(":")) {
           // handle command
           println("Unknown command " + line.substring(1))
