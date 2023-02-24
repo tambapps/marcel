@@ -23,7 +23,7 @@ class Shell {
 
   init {
     val readerBuilder = LineReaderBuilder.builder()
-      .highlighter(ReaderHighlighter())
+      .highlighter(ReaderHighlighter(evaluator::lastScope))
 
     reader = readerBuilder.build()
   }

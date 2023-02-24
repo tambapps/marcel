@@ -1,8 +1,11 @@
 package com.tambapps.marcel.marshell.console
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.TokenType.*
 import com.tambapps.marcel.marshell.console.style.HighlightTheme
+import com.tambapps.marcel.parser.ast.MethodNode
+import com.tambapps.marcel.parser.scope.Scope
 import org.jline.reader.Highlighter
 import org.jline.reader.LineReader
 import org.jline.utils.AttributedString
@@ -10,7 +13,7 @@ import org.jline.utils.AttributedStringBuilder
 import org.jline.utils.AttributedStyle
 import java.util.regex.Pattern
 
-class ReaderHighlighter: Highlighter {
+class ReaderHighlighter(private val scopeSupplier: () -> MethodNode): Highlighter {
 
   // TODO add coloring on variable/types once parsing will have been implemented
   val lexer = MarcelLexer(false)
@@ -23,6 +26,7 @@ class ReaderHighlighter: Highlighter {
     for (token in tokens) {
       val string = buffer.substring(token.start, token.end)
       val style = when (token.type) {
+        IDENTIFIER -> identifierStyle(token)
         TYPE_INT, TYPE_LONG, TYPE_SHORT, TYPE_FLOAT, TYPE_DOUBLE, TYPE_BOOL, TYPE_BYTE, TYPE_VOID, TYPE_CHAR, FUN, RETURN,
         VALUE_TRUE, VALUE_FALSE, NEW, IMPORT, AS, INLINE, STATIC, FOR, IN, IF, ELSE, NULL, BREAK, CONTINUE, DEF,
         CLASS, EXTENSION, PACKAGE, EXTENDS, IMPLEMENTS, FINAL, SWITCH, WHEN, THIS, SUPER,
@@ -42,6 +46,22 @@ class ReaderHighlighter: Highlighter {
     return highlightedString.toAttributedString()
   }
 
+  private fun identifierStyle(token: LexToken): AttributedStyle {
+/*
+    val scope = scopeSupplier.invoke()
+    val variable = scope.findVariable(token.value)
+    when {
+      scope.findVariable(token.value) != null -> style.variable
+      scope.findMethodOrThrow(token.value) != null -> style.variable
+    }
+    var style = style.variable
+
+    println(scope.findVariable("a"))
+    AttributedStyle.DEFAULT
+
+ */
+    TODO()
+  }
   private fun highlight(builder: AttributedStringBuilder, style: AttributedStyle, string: String) {
     builder.style(style)
     builder.append(string)

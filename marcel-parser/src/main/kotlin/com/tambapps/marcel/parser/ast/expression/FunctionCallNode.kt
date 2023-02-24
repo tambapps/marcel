@@ -42,7 +42,7 @@ open class SimpleFunctionCallNode constructor(
     return if (this.method != null) this.method
     else if (methodOwnerType != null) typeResolver.findMethodOrThrow(typeResolver.resolve(methodOwnerType!!), name,
       arguments.map { it.accept(typeResolver) })
-    else scope.getMethod(name, arguments.map { it.accept(typeResolver) })
+    else scope.findMethodOrThrow(name, arguments.map { it.accept(typeResolver) })
   }
 
 

@@ -63,13 +63,17 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
       ?: throw MarcelSemanticException("Method $name with parameters $namedParameters is not defined")
   }
 
-  fun getMethod(name: String, argumentTypes: List<AstTypedObject>): JavaMethod {
+  fun findMethodOrThrow(name: String, argumentTypes: List<AstTypedObject>): JavaMethod {
     // find first on class, then on imports, then on extensions
-    return (typeResolver.findMethod(classType, name, argumentTypes)
-      // fallback on static imported method
-      ?: imports.asSequence().mapNotNull { it.resolveMethod(typeResolver, name, argumentTypes) }.firstOrNull())
-      ?: throw MarcelSemanticException("Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
+    return findMethod(name, argumentTypes) ?: throw MarcelSemanticException("Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
+
+  fun findMethod(name: String, argumentTypes: List<AstTypedObject>): JavaMethod? {
+   return typeResolver.findMethod(classType, name, argumentTypes)
+    // fallback on static imported method
+      ?: imports.asSequence().mapNotNull { it.resolveMethod(typeResolver, name, argumentTypes) }.firstOrNull()
+  }
+
 
   open fun findLocalVariable(name: String): LocalVariable? {
     return localVariables.find { it.name == name }

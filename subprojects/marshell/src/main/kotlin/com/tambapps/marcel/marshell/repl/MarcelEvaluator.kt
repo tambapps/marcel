@@ -13,6 +13,7 @@ import com.tambapps.marcel.parser.ast.MethodNode
 
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.Scope
+import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.Binding
 import marcel.lang.Script
 import org.objectweb.asm.Opcodes
@@ -28,6 +29,8 @@ class MarcelEvaluator constructor(
   private val classCompiler = ClassCompiler(compilerConfiguration, typeResolver)
   private val definedFunctions = mutableSetOf<MethodNode>()
   private val binding = Binding()
+  var lastScope: Scope = Scope(typeResolver, JavaType.Object) // just a dummy scope for start
+    private set
 
   init {
     typeResolver.loadDefaultExtensions()
@@ -37,7 +40,6 @@ class MarcelEvaluator constructor(
   fun eval(code: String): Any? {
     val tokens = lexer.lex(code)
     val parser = MarcelParser(typeResolver, tokens)
-
 
     val scriptNode = parser.script(Scope.DEFAULT_IMPORTS.toMutableList(), null)
 
@@ -65,6 +67,7 @@ class MarcelEvaluator constructor(
     if (scriptNode.fields.isNotEmpty()) {
       throw MarcelSemanticException("Cannot define field variables in Marshell. Use global or local variables only")
     }
+    lastScope = scriptNode.scope
     // TODO save methods and include them in each compilation
 
     // load the jar into the classpath
