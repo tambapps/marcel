@@ -5,6 +5,7 @@ import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.marshell.console.ReaderHighlighter
 import com.tambapps.marcel.marshell.repl.MarcelEvaluator
+import com.tambapps.marcel.marshell.repl.MarcelReplCompiler
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import org.jline.reader.EndOfFileException
@@ -17,13 +18,15 @@ class Shell {
 
   private val typeResolver = JavaTypeResolver()
   private val tempDir = Files.createTempDirectory("marshell")
-  private val evaluator = MarcelEvaluator(CompilerConfiguration.DEFAULT_CONFIGURATION, typeResolver, tempDir.toFile())
+  private val replCompiler = MarcelReplCompiler(CompilerConfiguration.DEFAULT_CONFIGURATION, typeResolver)
+  private val evaluator = MarcelEvaluator(replCompiler, tempDir.toFile())
   private val reader: LineReader
   private val buffer = mutableListOf<String>()
 
   init {
+    typeResolver.loadDefaultExtensions()
     val readerBuilder = LineReaderBuilder.builder()
-      .highlighter(ReaderHighlighter(typeResolver, evaluator))
+      .highlighter(ReaderHighlighter(typeResolver, replCompiler))
 
     reader = readerBuilder.build()
   }

@@ -6,6 +6,7 @@ import com.tambapps.marcel.compiler.util.getValuesType
 import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.AstTypedObject
+import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.GetFieldAccessOperator
 import com.tambapps.marcel.parser.ast.expression.LiteralArrayNode
@@ -192,5 +193,10 @@ class JavaTypeResolver: AstNodeTypeResolver() {
     JavaType.mapType(literalMapNode.getKeysType(this), literalMapNode.getValuesType(this))
 
   override fun visit(fCall: FunctionCallNode) = fCall.getMethod(this).actualReturnType
+  override fun disposeClass(scriptNode: ClassNode) {
+    super.disposeClass(scriptNode)
+    classMethods.remove(scriptNode.type.className)
+    classFields.remove(scriptNode.type.className)
+  }
 
 }

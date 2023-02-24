@@ -1,13 +1,12 @@
 package com.tambapps.marcel.marshell.console
 
 import com.tambapps.marcel.compiler.JavaTypeResolver
-import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.TokenType.*
 import com.tambapps.marcel.marshell.console.style.HighlightTheme
 import com.tambapps.marcel.marshell.repl.MarcelEvaluator
-import com.tambapps.marcel.parser.MarcelParserException
+import com.tambapps.marcel.marshell.repl.MarcelReplCompiler
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
@@ -15,7 +14,6 @@ import com.tambapps.marcel.parser.ast.expression.IndexedReferenceExpression
 import com.tambapps.marcel.parser.ast.expression.IndexedVariableAssignmentNode
 import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
 import com.tambapps.marcel.parser.ast.expression.VariableAssignmentNode
-import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import org.jline.reader.Highlighter
 import org.jline.reader.LineReader
@@ -26,17 +24,15 @@ import java.util.regex.Pattern
 
 class ReaderHighlighter constructor(
   private val typeResolver: JavaTypeResolver,
-  private val marcelEvaluator: MarcelEvaluator): Highlighter {
+  private val replCompiler: MarcelReplCompiler): Highlighter {
 
-  // TODO when parsing fails because of incomplete input, the coloring doesn't work
-  // TODO match on just method names, don't care about argument types. Will probably to add new methods to JavaTypeResolver for that
   private val lexer = MarcelLexer(false)
   private val style = HighlightTheme()
-  private var lastResult: MarcelEvaluator.Result? = null
+  private var lastResult: MarcelReplCompiler.ParserResult? = null
 
   override fun highlight(reader: LineReader, text: String): AttributedString {
     val highlightedString = AttributedStringBuilder()
-    val parseResult = marcelEvaluator.tryParse(text)
+    val parseResult = replCompiler.tryParse(text)
     if (parseResult != null) lastResult = parseResult
     val tokens = parseResult?.tokens?.toMutableList() ?: lexer.lexSafely(text)
     tokens.removeLast() // remove end of file
@@ -68,7 +64,7 @@ class ReaderHighlighter constructor(
 
   private fun identifierStyle(token: LexToken, scriptNode: MethodNode?): AttributedStyle {
     if (scriptNode == null) return AttributedStyle.DEFAULT
-    var node = scriptNode.block.find {
+    val node = scriptNode.block.find {
       it.token == token && (it is VariableAssignmentNode || it is ReferenceExpression || it is IndexedVariableAssignmentNode
           || it is IndexedReferenceExpression || it is FunctionCallNode)
 

@@ -136,6 +136,10 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
   open fun defineField(javaType: JavaType, field: MarcelField) {
   }
 
+  open fun disposeClass(scriptNode: ClassNode) {
+    definedTypes.remove(scriptNode.type.className)
+  }
+
   fun defineClassMembers(classNode: ClassNode) {
     classNode.methods.forEach { defineMethod(classNode.type, it) }
     classNode.fields.forEach { defineField(classNode.type, it) }
