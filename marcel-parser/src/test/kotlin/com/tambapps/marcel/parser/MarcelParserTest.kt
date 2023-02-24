@@ -24,7 +24,7 @@ class MarcelParserTest {
     private val lexer = MarcelLexer()
     private val typeResolver = AstNodeTypeResolver()
     private val type = typeResolver.defineClass("Test", JavaType.Object, false, emptyList())
-    private val scope = MethodScope(typeResolver, mutableListOf(), type, JavaType.Object, "test", emptyList(), JavaType.void)
+    private val scope = MethodScope(typeResolver, mutableListOf(), type, "test", emptyList(), JavaType.void)
 
     @Test
     fun testExpression() {
@@ -58,7 +58,7 @@ class MarcelParserTest {
     fun testFunction() {
         val parser = parser("fun foo(int a, String b) int { return 1 }")
         val imports = mutableListOf<ImportNode>(WildcardImportNode("java.lang"))
-        val classScope = Scope(typeResolver, imports, type, JavaType.Object)
+        val classScope = Scope(typeResolver, imports, type)
         val expected = MethodNode(Opcodes.ACC_PUBLIC, JavaType.Object, "foo",
             FunctionBlockNode(scope, mutableListOf(
                 ReturnNode(scope, IntConstantNode(1))

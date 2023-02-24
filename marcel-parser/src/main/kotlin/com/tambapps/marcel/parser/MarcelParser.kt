@@ -120,7 +120,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       }
     }
     val classType = typeResolver.defineClass(outerClassNode?.type, className, superType, false, interfaces)
-    val classScope = Scope(typeResolver, imports, classType, superType)
+    val classScope = Scope(typeResolver, imports, classType )
     val methods = mutableListOf<MethodNode>()
     val classFields = mutableListOf<FieldNode>()
     val innerClasses = mutableListOf<ClassNode>()
@@ -146,7 +146,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     val superType = JavaType.of(Script::class.java)
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
     val classType = typeResolver.defineClass(className, superType, false, emptyList())
-    val classScope = Scope(typeResolver, imports, classType, superType)
+    val classScope = Scope(typeResolver, imports, classType)
     val argsParameter = MethodParameter(JavaType.of(Array<String>::class.java), "args")
     val runScope = MethodScope(classScope, "run", listOf(argsParameter), JavaType.Object)
     val statements = mutableListOf<StatementNode>()

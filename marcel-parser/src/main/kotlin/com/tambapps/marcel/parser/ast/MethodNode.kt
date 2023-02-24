@@ -8,6 +8,7 @@ import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
+import com.tambapps.marcel.parser.type.AbstractMethod
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.Opcodes
@@ -16,7 +17,7 @@ open class MethodNode constructor(override val access: Int, final override val o
                                   final override val parameters: MutableList<MethodParameter>, final override val returnType: JavaType, val scope: MethodScope,
                                   override val isInline: Boolean,
                                   final override val isConstructor: Boolean
-): AstNode, JavaMethod {
+): AstNode, AbstractMethod() {
 
   override val actualReturnType = returnType
   constructor(access: Int, ownerClass: JavaType, name: String, block: FunctionBlockNode,

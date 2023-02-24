@@ -9,10 +9,13 @@ import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
-import com.tambapps.marcel.parser.ast.ModuleNode
+import com.tambapps.marcel.parser.ast.MethodNode
+
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.Scope
+import marcel.lang.Binding
 import marcel.lang.Script
+import org.objectweb.asm.Opcodes
 import java.io.File
 import java.net.URLClassLoader
 
@@ -23,6 +26,8 @@ class MarcelEvaluator constructor(
 
   private val lexer = MarcelLexer()
   private val classCompiler = ClassCompiler(compilerConfiguration, typeResolver)
+  private val definedFunctions = mutableSetOf<MethodNode>()
+  private val binding = Binding()
 
   init {
     typeResolver.loadDefaultExtensions()
@@ -35,12 +40,24 @@ class MarcelEvaluator constructor(
 
 
     val scriptNode = parser.script(Scope.DEFAULT_IMPORTS.toMutableList(), null)
-    val moduleNode = ModuleNode()
     // TODO will need to add constructor with binding
-    moduleNode.classes.add(scriptNode)
 
+    for (method in definedFunctions) {
+      if (scriptNode.methods.any { it.matches(method) }) {
+        throw MarcelSemanticException("Method $method is already defined")
+      }
+      val transformedMethod = MethodNode(method.access, scriptNode.type, method.name, method.block, method.parameters, method.returnType, method.scope, method.isInline, method.isConstructor)
+      transformedMethod.scope.classType = scriptNode.type
+      scriptNode.methods.add(transformedMethod)
+    }
 
-    // writting script
+    definedFunctions.addAll(
+      scriptNode.methods.filter {
+        !it.isConstructor && (it.access and Opcodes.ACC_PRIVATE) == 0 && it.name != "run" && it.name != "main"
+      }
+    )
+
+    // writing script
     val result = classCompiler.compileClass(scriptNode).first()
     val className = scriptNode.type.simpleName
     val jarFile = File(tempDir.parentFile, "$className.jar")

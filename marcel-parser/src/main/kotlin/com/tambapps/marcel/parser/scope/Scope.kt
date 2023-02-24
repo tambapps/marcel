@@ -13,13 +13,16 @@ import marcel.lang.methods.DefaultMarcelStaticMethods
 import org.objectweb.asm.Label
 import java.util.concurrent.ThreadLocalRandom
 
-open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports: MutableList<ImportNode>, open val classType: JavaType, val superClass: JavaType) {
-  constructor(typeResolver: AstNodeTypeResolver, javaType: JavaType): this(typeResolver, mutableListOf(), javaType, JavaType.Object) {
+open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports: MutableList<ImportNode>, open var classType: JavaType) {
+  constructor(typeResolver: AstNodeTypeResolver, javaType: JavaType): this(typeResolver, mutableListOf(), javaType) {
     imports.addAll(DEFAULT_IMPORTS)
   }
   constructor(typeResolver: AstNodeTypeResolver, javaType: JavaType, imports: List<ImportNode>): this(typeResolver, javaType) {
     this.imports.addAll(imports)
   }
+
+  val superClass get() = classType.superType!!
+
   companion object {
     val DEFAULT_IMPORTS = listOf(
       WildcardImportNode("java.lang"),
@@ -87,7 +90,7 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
   fun copy(t: JavaType? = null): Scope {
     val classType = t ?: this.classType
 
-    return Scope(typeResolver, imports, classType, classType.superType ?: JavaType.Object)
+    return Scope(typeResolver, imports, classType)
   }
 
   fun resolveType(classSimpleName: String, genericTypes: List<JavaType>): JavaType {
@@ -126,23 +129,31 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
   }
 }
 
-open class MethodScope constructor(typeResolver: AstNodeTypeResolver, imports: MutableList<ImportNode>, classType: JavaType, superClass: JavaType, val methodName: String,
+open class MethodScope constructor(typeResolver: AstNodeTypeResolver, imports: MutableList<ImportNode>, classType: JavaType, val methodName: String,
                        val parameters: List<MethodParameter>, var returnType: JavaType)
-  : Scope(typeResolver, imports, classType, superClass) {
+  : Scope(typeResolver, imports, classType) {
 
     constructor(scope: Scope,
                 methodName: String,
                 parameters: List<MethodParameter>, returnType: JavaType):
-        this(scope.typeResolver, scope.imports, scope.classType, scope.superClass, methodName, parameters, returnType)
+        this(scope.typeResolver, scope.imports, scope.classType, methodName, parameters, returnType)
 }
 
 class LambdaScope constructor(val parentScope: Scope):
-    Scope(parentScope.typeResolver, parentScope.classType, parentScope.imports)
+    Scope(parentScope.typeResolver, parentScope.classType, parentScope.imports) {
+  override var classType: JavaType
+    get() = parentScope.classType
+    set(value) { parentScope.classType = value }
+
+}
 
 class InnerScope constructor(private val parentScope: MethodScope)
-  : MethodScope(parentScope.typeResolver, parentScope.imports, parentScope.classType, parentScope.superClass, parentScope.methodName, parentScope.parameters, parentScope.returnType) {
+  : MethodScope(parentScope.typeResolver, parentScope.imports, parentScope.classType, parentScope.methodName, parentScope.parameters, parentScope.returnType) {
 
   override val localVariablePool = parentScope.localVariablePool
+  override var classType: JavaType
+    get() = parentScope.classType
+    set(value) { parentScope.classType = value }
 
   var continueLabel: Label? = null
     get() = if (field != null) field
