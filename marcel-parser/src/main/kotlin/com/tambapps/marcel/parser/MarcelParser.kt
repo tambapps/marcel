@@ -171,7 +171,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
             TokenType.FUN -> {
               val method = method(classNode)
               if (method.name == "main") {
-                throw MarcelSemanticException("Cannot have a \"main\" function in a script")
+                throw MarcelSemanticException(classNode.token, "Cannot have a \"main\" function in a script")
               }
               classNode.addMethod(method)
             }
@@ -232,7 +232,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     val classScope = classNode.scope
     val (acc, isInline) = parseAccess()
     val access = if (forceStatic) acc or Opcodes.ACC_STATIC else acc
-    accept(TokenType.FUN)
+    val token = accept(TokenType.FUN)
     val methodName = accept(TokenType.IDENTIFIER).value
     accept(TokenType.LPAR)
     val parameters = mutableListOf<MethodParameter>()
@@ -240,7 +240,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       val type = parseType(classScope)
       val argName = accept(TokenType.IDENTIFIER).value
       if (parameters.any { it.name == argName }) {
-        throw MarcelSemanticException("Cannot two method parameters with the same name")
+        throw MarcelSemanticException(token, "Cannot two method parameters with the same name")
       }
       parameters.add(MethodParameter(type, argName))
       if (current.type == TokenType.RPAR) {
@@ -282,7 +282,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       val statement = statement(scope)
       if (statements.lastOrNull() is ReturnNode) {
         // we have another statement after a return? shouldn't be possible
-        throw MarcelSemanticException("Cannot have other statements after a return")
+        throw MarcelSemanticException(statement.token, "Cannot have other statements after a return")
       }
       statements.add(statement)
     }

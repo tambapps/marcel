@@ -80,13 +80,13 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
       parameters = mutableListOf(MethodParameter(lambdaMethod.parameters.first().type, lambdaMethod.parameters.first().type, "it"))
     } else if (lambdaNode.parameters.isNotEmpty()) {
       if (lambdaMethod.parameters.size != lambdaNode.parameters.size) {
-        throw MarcelSemanticException("Lambda method parameters count is not consistent")
+        throw MarcelSemanticException(token, "Lambda method parameters count is not consistent")
       }
       for (i in lambdaMethod.parameters.indices) {
         val methodParameter = lambdaMethod.parameters[i]
         val nodeParameter = lambdaNode.parameters[i]
         if (!nodeParameter.type.isAssignableFrom(methodParameter.type)) {
-          throw MarcelSemanticException("Bad parameter lambda ${nodeParameter.type} ${nodeParameter.name}")
+          throw MarcelSemanticException(token, "Bad parameter lambda ${nodeParameter.type} ${nodeParameter.name}")
         }
         parameters[i] = nodeParameter
       }
@@ -108,7 +108,7 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
       val declaredMethods = scope.typeResolver.getDeclaredMethods(interfaceType)
         .filter { it.isAbstract }
       if (declaredMethods.size != 1) {
-        throw MarcelSemanticException("Cannot make a lambda out of interface $interfaceType")
+        throw MarcelSemanticException(token, "Cannot make a lambda out of interface $interfaceType")
       }
 
       val interfaceMethod = declaredMethods.first()

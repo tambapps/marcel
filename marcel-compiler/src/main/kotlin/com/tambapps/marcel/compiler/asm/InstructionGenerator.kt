@@ -27,7 +27,6 @@ import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.scope.Variable
 import com.tambapps.marcel.parser.type.JavaArrayType
-import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import marcel.lang.IntRanges
@@ -47,7 +46,6 @@ import java.io.Closeable
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-
 
 // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.if_icmp_cond
 // https://asm.ow2.io/asm4-guide.pdf
@@ -80,11 +78,11 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     val falseLabel = Label()
     mv.jumpIfEq(falseLabel)
     operator.trueExpression.accept(this)
-    mv.castIfNecessaryOrThrow(operator.getType(typeResolver), operator.trueExpression.getType(typeResolver))
+    mv.castIfNecessaryOrThrow(operator, operator.getType(typeResolver), operator.trueExpression.getType(typeResolver))
     mv.jumpTo(endLabel)
     mv.visitLabel(falseLabel)
     operator.falseExpression.accept(this)
-    mv.castIfNecessaryOrThrow(operator.getType(typeResolver), operator.falseExpression.getType(typeResolver))
+    mv.castIfNecessaryOrThrow(operator, operator.getType(typeResolver), operator.falseExpression.getType(typeResolver))
     mv.visitLabel(endLabel)
   }
 
@@ -101,12 +99,12 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   private fun visitConditionalBranchFlow(switchNode: ConditionalBranchFlowNode<*>, itParameter: MethodParameter? = null, itArgument: ExpressionNode? = null) {
     if (switchNode.branches.isEmpty()) {
-      throw MarcelSemanticException("Switch must have at least one branch")
+      throw MarcelSemanticException(switchNode.token, "Switch must have at least one branch")
     }
 
     val switchType = switchNode.getType(typeResolver)
     if (switchNode.elseStatement == null && switchType.primitive && switchType.type != JavaType.void) {
-      throw MarcelSemanticException("Need to cover all cases (an else branch) for  switch returning primitives as they cannot be null")
+      throw MarcelSemanticException(switchNode.token, "Need to cover all cases (an else branch) for  switch returning primitives as they cannot be null")
     }
 
     val elseStatement = switchNode.elseStatement ?: ExpressionStatementNode(switchNode.token, NullValueNode(switchNode.token, switchType))
@@ -251,7 +249,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   override fun visit(fCall: ConstructorCallNode) {
     if (fCall.type.primitive) {
-      throw MarcelSemanticException("Cannot instantiate a primitive type")
+      throw MarcelSemanticException(fCall.token, "Cannot instantiate a primitive type")
     }
     mv.visitConstructorCall(fCall)
   }
@@ -296,11 +294,11 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   fun marcelOperator(binaryOperatorNode: BinaryOperatorNode, operatorMethodName: String): JavaType {
     val type1 = binaryOperatorNode.leftOperand.getType(typeResolver)
     if (type1.primitive) {
-      throw MarcelSemanticException("Doesn't support left shirt operator for primitive type")
+      throw MarcelSemanticException(binaryOperatorNode.token, "Doesn't support left shirt operator for primitive type")
     }
     val leftShiftMethod = typeResolver.findMethodOrThrow(type1, operatorMethodName, listOf(binaryOperatorNode.rightOperand.getType(typeResolver)))
     pushArgument(binaryOperatorNode.leftOperand)
-    mv.invokeMethodWithArguments(leftShiftMethod, binaryOperatorNode.rightOperand)
+    mv.invokeMethodWithArguments(binaryOperatorNode, leftShiftMethod, binaryOperatorNode.rightOperand)
     return leftShiftMethod.returnType
   }
 
@@ -308,16 +306,16 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   override fun visit(asNode: AsNode) {
     val expression = asNode.expressionNode
     if (expression is LiteralArrayNode && expression.elements.isEmpty()) {
-      visit(EmptyArrayNode(asNode.token, asNode.type as? JavaArrayType ?: throw MarcelSemanticException("Can only convert empty arrays to array types using 'as' keyword")))
+      visit(EmptyArrayNode(asNode.token, asNode.type as? JavaArrayType ?: throw MarcelSemanticException(asNode.token, "Can only convert empty arrays to array types using 'as' keyword")))
     } else {
       asNode.expressionNode.accept(this)
-      mv.castIfNecessaryOrThrow(asNode.type, asNode.expressionNode.getType(typeResolver))
+      mv.castIfNecessaryOrThrow(asNode, asNode.type, asNode.expressionNode.getType(typeResolver))
     }
   }
 
   override fun visit(isOperator: IsOperator) {
     if (isOperator.leftOperand.getType(typeResolver).primitive || isOperator.rightOperand.getType(typeResolver).primitive) {
-      throw MarcelSemanticException("Cannot apply '===' operator on primitive types")
+      throw MarcelSemanticException(isOperator.token, "Cannot apply '===' operator on primitive types")
     }
     pushOperands(isOperator)
     val l1 = Label()
@@ -332,7 +330,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
   override fun visit(isNotOperator: IsNotOperator) {
     if (isNotOperator.leftOperand.getType(typeResolver).primitive || isNotOperator.rightOperand.getType(typeResolver).primitive) {
-      throw MarcelSemanticException("Cannot apply '!==' operator on primitive types")
+      throw MarcelSemanticException(isNotOperator.token, "Cannot apply '!==' operator on primitive types")
     }
 
     pushOperands(isNotOperator)
@@ -355,25 +353,25 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     var objectcomparison = false
     if (!leftOperand.getType(typeResolver).primitive || !rightOperand.getType(typeResolver).primitive) {
       pushArgument(leftOperand)
-      mv.castIfNecessaryOrThrow(JavaType.Object, leftOperand.getType(typeResolver))
+      mv.castIfNecessaryOrThrow(comparisonOperatorNode, JavaType.Object, leftOperand.getType(typeResolver))
       pushArgument(rightOperand)
-      mv.castIfNecessaryOrThrow(JavaType.Object, rightOperand.getType(typeResolver))
+      mv.castIfNecessaryOrThrow(comparisonOperatorNode, JavaType.Object, rightOperand.getType(typeResolver))
       if ((leftOperand is NullValueNode || rightOperand is NullValueNode)) {
         objectcomparison = true
         if (operator != ComparisonOperator.EQUAL && operator != ComparisonOperator.NOT_EQUAL) {
-          throw MarcelSemanticException("Cannot compare null value with ${operator.symbolString} operator")
+          throw MarcelSemanticException(comparisonOperatorNode.token, "Cannot compare null value with ${operator.symbolString} operator")
         }
       } else {
         when (operator) {
           ComparisonOperator.EQUAL, ComparisonOperator.NOT_EQUAL -> {
-            mv.invokeMethod(BytecodeHelper::class.java.getDeclaredMethod("objectsEqual", JavaType.Object.realClazz, JavaType.Object.realClazz))
+            mv.invokeMethod(comparisonOperatorNode, BytecodeHelper::class.java.getDeclaredMethod("objectsEqual", JavaType.Object.realClazz, JavaType.Object.realClazz))
             if (operator == ComparisonOperator.NOT_EQUAL) mv.not()
             return // the above method returns a boolean
           }
           else -> {
             val method = typeResolver.findMethodOrThrow(leftOperand.getType(typeResolver), "compareTo", listOf(rightOperand.getType(typeResolver)))
-            if (method.returnType != JavaType.int) throw MarcelSemanticException("compareTo method should return an int in order to be used in comparator")
-            mv.invokeMethod(method)
+            if (method.returnType != JavaType.int) throw MarcelSemanticException(comparisonOperatorNode.token, "compareTo method should return an int in order to be used in comparator")
+            mv.invokeMethod(comparisonOperatorNode, method)
             mv.pushConstant(0) // pushing 0 because we're comparing two numbers below
           }
         }
@@ -381,9 +379,9 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     } else if (leftOperand.getType(typeResolver) !in ComparisonOperator.INT_LIKE_COMPARABLE_TYPES || rightOperand.getType(typeResolver) !in ComparisonOperator.INT_LIKE_COMPARABLE_TYPES) {
       val otherType = if (leftOperand.getType(typeResolver) != JavaType.int) leftOperand.getType(typeResolver) else rightOperand.getType(typeResolver)
       pushArgument(leftOperand)
-      mv.castIfNecessaryOrThrow(otherType, leftOperand.getType(typeResolver))
+      mv.castIfNecessaryOrThrow(comparisonOperatorNode, otherType, leftOperand.getType(typeResolver))
       pushArgument(rightOperand)
-      mv.castIfNecessaryOrThrow(otherType, rightOperand.getType(typeResolver))
+      mv.castIfNecessaryOrThrow(comparisonOperatorNode, otherType, rightOperand.getType(typeResolver))
       when (otherType) {
         JavaType.double -> mv.visitInsn(Opcodes.DCMPL)
         JavaType.float -> mv.visitInsn(Opcodes.FCMPL)
@@ -434,13 +432,13 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   override fun visit(findOperator: FindOperator) {
     if (!CharSequence::class.java.javaType.isAssignableFrom(findOperator.leftOperand.getType(typeResolver))) {
-      throw MarcelSemanticException("Left operand of find operator should be a string")
+      throw MarcelSemanticException(findOperator.token, "Left operand of find operator should be a string")
     }
     if (!Pattern::class.java.javaType.isAssignableFrom(findOperator.rightOperand.getType(typeResolver))) {
-      throw MarcelSemanticException("Right operand of find operator should be a Pattern")
+      throw MarcelSemanticException(findOperator.token, "Right operand of find operator should be a Pattern")
     }
     pushArgument(findOperator.rightOperand)
-    mv.invokeMethodWithArguments(Pattern::class.java.getMethod("matcher", CharSequence::class.java), findOperator.leftOperand)
+    mv.invokeMethodWithArguments(findOperator, Pattern::class.java.getMethod("matcher", CharSequence::class.java), findOperator.leftOperand)
   }
 
   override fun visit(accessOperator: InvokeAccessOperator) {
@@ -472,7 +470,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator) {
     val field = typeResolver.findFieldOrThrow(getFieldAccessOperator.leftOperand.getType(typeResolver), getFieldAccessOperator.rightOperand.name)
     if (field.isStatic) {
-      mv.getField(field)
+      mv.getField(getFieldAccessOperator, field)
       return
     }
     if (getFieldAccessOperator.nullSafe) {
@@ -493,7 +491,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       scope.freeVariable(tempVar.name)
     } else {
       pushArgument(getFieldAccessOperator.leftOperand)
-      mv.getField(field)
+      mv.getField(getFieldAccessOperator, field)
     }
   }
 
@@ -508,12 +506,12 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     if (method.isInline) {
       val inlineMethod = method as MethodNode
       val innerScope = InnerScope(
-        fCall.scope as? MethodScope ?: throw MarcelSemanticException("Can only call inline functions in a method"))
+        fCall.scope as? MethodScope ?: throw MarcelSemanticException(fCall.token, "Can only call inline functions in a method"))
       val inlineBlock = inlineMethod.block.asSimpleBlock(inlineMethod.block.token, innerScope)
       inlineBlock.setTreeScope(innerScope)
       // initializing arguments
       if (fCall.arguments.size != inlineMethod.parameters.size) {
-        throw MarcelSemanticException("Invalid number of arguments for method ${method.name}")
+        throw MarcelSemanticException(fCall.token, "Invalid number of arguments for method ${method.name}")
       }
       val variables = method.parameters.map { innerScope.addLocalVariable(it.type, it.name) }
       for (i in variables.indices) {
@@ -528,7 +526,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
           pushArgument(ReferenceExpression.thisRef(fCall.scope))
         }
       }
-      mv.invokeMethodWithArguments(method, fCall.arguments)
+      mv.invokeMethodWithArguments(fCall, method, fCall.arguments)
     }
   }
 
@@ -578,7 +576,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     }
 
     pushAssignmentExpression(variable, variableAssignmentNode.expression)
-    mv.storeInVariable(variable)
+    mv.storeInVariable(variableAssignmentNode, variable)
   }
 
   private fun pushAssignmentExpression(variable: Variable, expr: ExpressionNode) {
@@ -592,13 +590,13 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       else if (JavaType.doubleList.isAssignableFrom(variableType) || JavaType.doubleSet.isAssignableFrom(variableType)) JavaType.double
       else if (JavaType.charList.isAssignableFrom(variableType) || JavaType.characterSet.isAssignableFrom(variableType)) JavaType.char
       else if (JavaType.of(Collection::class.java).isAssignableFrom(variableType) && variableType.genericTypes.isNotEmpty()) variableType.genericTypes.first()
-      else throw MarcelSemanticException("Couldn't guess type of empty array. You can explicitly specify your wanted type with the 'as' keyword (e.g. '[] as int[]')")
+      else throw MarcelSemanticException(expr.token, "Couldn't guess type of empty array. You can explicitly specify your wanted type with the 'as' keyword (e.g. '[] as int[]')")
       expression = EmptyArrayNode(expr.token, JavaType.arrayType(elementsType))
     } else if (variableType.isInterface && expression is LambdaNode) {
       expression.interfaceType = variableType
     }
     pushArgument(expression)
-    mv.castIfNecessaryOrThrow(variable.type, expression.getType(typeResolver))
+    mv.castIfNecessaryOrThrow(expr, variable.type, expression.getType(typeResolver))
   }
   override fun visit(fieldAssignmentNode: FieldAssignmentNode) {
     val fieldVariable = typeResolver.findFieldOrThrow(
@@ -609,12 +607,12 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       pushArgument(fieldAssignmentNode.fieldNode.leftOperand)
     }
     pushAssignmentExpression(fieldVariable, fieldAssignmentNode.expression)
-    mv.storeInVariable(fieldVariable)
+    mv.storeInVariable(fieldAssignmentNode, fieldVariable)
   }
 
   override fun visit(indexedVariableAssignmentNode: IndexedVariableAssignmentNode) {
     val indexedReference = indexedVariableAssignmentNode.indexedReference
-    mv.storeInVariablePutAt(
+    mv.storeInVariablePutAt(indexedVariableAssignmentNode,
       indexedReference.scope, indexedReference.variable,
       indexedReference.indexArguments, indexedVariableAssignmentNode.expression
     )
@@ -626,9 +624,9 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
         ReferenceExpression(indexedReferenceExpression.token, indexedReferenceExpression.scope, indexedReferenceExpression.name)
         )
        visit(funcCall)
-      mv.castIfNecessaryOrThrow(indexedReferenceExpression.getType(typeResolver), funcCall.getType(typeResolver))
+      mv.castIfNecessaryOrThrow(indexedReferenceExpression, indexedReferenceExpression.getType(typeResolver), funcCall.getType(typeResolver))
     } else {
-      mv.pushVariableGetAt(indexedReferenceExpression.scope, indexedReferenceExpression.variable,
+      mv.pushVariableGetAt(indexedReferenceExpression, indexedReferenceExpression.scope, indexedReferenceExpression.variable,
         indexedReferenceExpression.indexArguments)
     }
   }
@@ -728,7 +726,7 @@ class InstructionGenerator(
     else if (Iterator::class.javaType.isAssignableFrom(expressionType)) expression
     else if (CharSequence::class.javaType.isAssignableFrom(expressionType)) ConstructorCallNode(forInStatement.token, scope, CharSequenceIterator::class.java.javaType,
       mutableListOf(expression))
-    else throw MarcelSemanticException("Doesn't handle iterating on $expressionType")
+    else throw MarcelSemanticException(forInStatement.token, "Doesn't handle iterating on $expressionType")
     val iteratorExpressionType = iteratorExpression.getType(typeResolver)
 
     val iteratorVariable = scope.addLocalVariable(iteratorExpressionType)
@@ -750,7 +748,7 @@ class InstructionGenerator(
     // Verifying condition
     val iteratorVarReference = ReferenceExpression(forInStatement.token, scope, iteratorVariable.name)
     pushArgument(iteratorVarReference)
-    mv.invokeMethod(IntIterator::class.java.getMethod("hasNext"))
+    mv.invokeMethod(forInStatement, IntIterator::class.java.getMethod("hasNext"))
 
     val loopEnd = Label()
     mv.jumpIfEq(loopEnd)
@@ -766,7 +764,7 @@ class InstructionGenerator(
     if (Closeable::class.javaType.isAssignableFrom(iteratorExpressionType)) {
       // TODO would need to be in a finally block (which means the loop should be in a try block)
       pushArgument(iteratorVarReference)
-      mv.invokeMethod(Closeable::class.java.getMethod("close"))
+      mv.invokeMethod(forInStatement, Closeable::class.java.getMethod("close"))
     }
     scope.freeVariable(iteratorVariable.name)
   }
@@ -778,12 +776,12 @@ class InstructionGenerator(
   }
 
   override fun visit(breakLoopNode: BreakLoopNode) {
-    val label = breakLoopNode.scope.breakLabel ?: throw MarcelSemanticException("Cannot use break statement outside of a loop")
+    val label = breakLoopNode.scope.breakLabel ?: throw MarcelSemanticException(breakLoopNode.token, "Cannot use break statement outside of a loop")
     mv.jumpTo(label)
   }
 
   override fun visit(continueLoopNode: ContinueLoopNode) {
-    val label = continueLoopNode.scope.continueLabel ?: throw MarcelSemanticException("Cannot use continue statement outside of a loop")
+    val label = continueLoopNode.scope.continueLabel ?: throw MarcelSemanticException(continueLoopNode.token, "Cannot use continue statement outside of a loop")
     mv.jumpTo(label)
   }
 
@@ -935,11 +933,11 @@ class InstructionGenerator(
         mv.pushNull()
         mv.returnCode(blockNode.scope.returnType.returnCode)
       } else if (lastStatement == null || !lastStatement.allBranchesReturn()) {
-        throw MarcelSemanticException("Function returning primitive types must explicitly return an expression as the last statement." +
+        throw MarcelSemanticException(blockNode.token, "Function returning primitive types must explicitly return an expression as the last statement." +
             "You must explicitly return an expression, a switch or a when.")
       } else {
         lastStatement.accept(this)
-        mv.castIfNecessaryOrThrow(blockNode.scope.returnType, lastStatement.getType(typeResolver))
+        mv.castIfNecessaryOrThrow(blockNode, blockNode.scope.returnType, lastStatement.getType(typeResolver))
         mv.returnCode(blockNode.scope.returnType.returnCode)
       }
     }
@@ -1016,7 +1014,7 @@ class InstructionGenerator(
     val scope = multiVariableDeclarationNode.scope
     val expressionType = multiVariableDeclarationNode.expression.getType(typeResolver)
     if (!List::class.javaType.isAssignableFrom(expressionType) && !expressionType.isArray) {
-      throw MarcelSemanticException("Multi variable declarations must use an array or a list as the expression")
+      throw MarcelSemanticException(multiVariableDeclarationNode.token, "Multi variable declarations must use an array or a list as the expression")
     }
     val tempVar = scope.addLocalVariable(expressionType)
     // assign expression to variable
@@ -1045,10 +1043,10 @@ class InstructionGenerator(
 
   override fun visit(returnNode: ReturnNode) {
     if (returnNode.expression != null && returnNode.scope.returnType == JavaType.void) {
-      throw MarcelSemanticException("Cannot return an expression in a void function")
+      throw MarcelSemanticException(returnNode.token, "Cannot return an expression in a void function")
     }
     pushArgument(returnNode.expression)
-    mv.castIfNecessaryOrThrow(returnNode.scope.returnType, returnNode.expression.getType(typeResolver))
+    mv.castIfNecessaryOrThrow(returnNode, returnNode.scope.returnType, returnNode.expression.getType(typeResolver))
     mv.returnCode(returnNode.scope.returnType.returnCode)
   }
 
@@ -1076,7 +1074,7 @@ private class PushingInstructionGenerator(
   }
 
   override fun visit(literalListNode: LiteralArrayNode) {
-    mv.newArray(literalListNode.getType(typeResolver).asArrayType, literalListNode.elements)
+    mv.newArray(literalListNode, literalListNode.getType(typeResolver).asArrayType, literalListNode.elements)
   }
 
   override fun visit(literalMapNode: LiteralMapNode) {
@@ -1090,11 +1088,11 @@ private class PushingInstructionGenerator(
           objectKeys = true
           "newObject2ObjectMap"
         } else {
-          throw MarcelSemanticException("Doesn't handle maps of type ${literalMapNode.getType(typeResolver)}")
+          throw MarcelSemanticException(literalMapNode.token, "Doesn't handle maps of type ${literalMapNode.getType(typeResolver)}")
         }
       }
     }
-    mv.invokeMethod(BytecodeHelper::class.java.getDeclaredMethod(methodName))
+    mv.invokeMethod(literalMapNode, BytecodeHelper::class.java.getDeclaredMethod(methodName))
     val keysType = literalMapNode.getKeysType(typeResolver)
     val putMethodKeysType = if (keysType.primitive) keysType else JavaType.Object
     val rawMapType = literalMapNode.getType(typeResolver).raw()
@@ -1103,13 +1101,13 @@ private class PushingInstructionGenerator(
       mv.dup()
       pushArgument(entry.first)
       if (objectKeys) {
-        mv.castIfNecessaryOrThrow(JavaType.Object, entry.first.getType(typeResolver))
+        mv.castIfNecessaryOrThrow(literalMapNode, JavaType.Object, entry.first.getType(typeResolver))
       } else {
-        mv.castIfNecessaryOrThrow(putMethodKeysType, entry.first.getType(typeResolver))
+        mv.castIfNecessaryOrThrow(literalMapNode, putMethodKeysType, entry.first.getType(typeResolver))
       }
       pushArgument(entry.second)
-      mv.castIfNecessaryOrThrow(JavaType.Object, entry.second.getType(typeResolver))
-      mv.invokeMethod(typeResolver.findMethodOrThrow(rawMapType,
+      mv.castIfNecessaryOrThrow(literalMapNode, JavaType.Object, entry.second.getType(typeResolver))
+      mv.invokeMethod(literalMapNode, typeResolver.findMethodOrThrow(rawMapType,
         "put",
         listOf(putMethodKeysType, JavaType.Object)
       ))
@@ -1128,12 +1126,12 @@ private class PushingInstructionGenerator(
       if (fromType == JavaType.long || fromType == JavaType.Long
         || toType == JavaType.long || toType == JavaType.Long) ReflectJavaMethod(LongRanges::class.java.getMethod(methodName, Long::class.java, Long::class.java))
       else ReflectJavaMethod(IntRanges::class.java.getMethod(methodName, Int::class.java, Int::class.java))
-    mv.invokeMethodWithArguments(method, rangeNode.from, rangeNode.to)
+    mv.invokeMethodWithArguments(rangeNode, method, rangeNode.from, rangeNode.to)
   }
 
   override fun visit(notNode: NotNode) {
     when (notNode.operand.getType(typeResolver)) {
-      JavaType.Boolean -> mv.invokeMethodWithArguments(typeResolver.findMethodOrThrow(JavaType.Boolean, "booleanValue", emptyList()), notNode.operand)
+      JavaType.Boolean -> mv.invokeMethodWithArguments(notNode, typeResolver.findMethodOrThrow(JavaType.Boolean, "booleanValue", emptyList()), notNode.operand)
       JavaType.boolean -> notNode.operand.accept(this)
       else -> visit(BooleanExpressionNode(notNode.token, notNode.operand))
     }
@@ -1160,17 +1158,17 @@ private class PushingInstructionGenerator(
     } else if (innerType == JavaType.boolean
       || innerType == JavaType.Boolean) {
       booleanExpression.innerExpression.accept(this)
-      mv.castIfNecessaryOrThrow(JavaType.boolean, innerType)
+      mv.castIfNecessaryOrThrow(booleanExpression, JavaType.boolean, innerType)
     } else if (innerType.primitive) {
       // according to marcel truth, all primitive are truthy
       booleanExpression.innerExpression.accept(instructionGenerator)
       visit(BooleanConstantNode(booleanExpression.token, true))
     } else if (Matcher::class.javaType.isAssignableFrom(innerType)) {
       pushArgument(booleanExpression.innerExpression)
-      mv.invokeMethod(Matcher::class.java.getMethod("find"))
+      mv.invokeMethod(booleanExpression, Matcher::class.java.getMethod("find"))
     } else {
       val truthyMethod = typeResolver.findMethodOrThrow(MarcelTruth::class.javaType, "truthy", listOf(innerType))
-      mv.invokeMethodWithArguments(truthyMethod, booleanExpression.innerExpression)
+      mv.invokeMethodWithArguments(booleanExpression, truthyMethod, booleanExpression.innerExpression)
     }
   }
 
@@ -1181,9 +1179,9 @@ private class PushingInstructionGenerator(
     } else {
       val argumentType = expr.getType(typeResolver)
       if (argumentType.primitive) {
-        mv.invokeMethodWithArguments(String::class.java.getDeclaredMethod("valueOf", argumentType.realClazz), expr)
+        mv.invokeMethodWithArguments(toStringNode, String::class.java.getDeclaredMethod("valueOf", argumentType.realClazz), expr)
       } else {
-        mv.invokeMethodWithArguments(String::class.java.getDeclaredMethod("valueOf", JavaType.Object.realClazz), expr)
+        mv.invokeMethodWithArguments(toStringNode, String::class.java.getDeclaredMethod("valueOf", JavaType.Object.realClazz), expr)
       }
     }
   }
@@ -1204,9 +1202,9 @@ private class PushingInstructionGenerator(
       val argumentType = part.getType(typeResolver)
       val method = ReflectJavaMethod(StringBuilder::class.java.getDeclaredMethod("append",
         if (argumentType.primitive) argumentType.realClazz else JavaType.Object.realClazz))
-      mv.invokeMethodWithArguments(method, part)
+      mv.invokeMethodWithArguments(stringNode, method, part)
     }
-    mv.invokeMethod(StringBuilder::class.java.getDeclaredMethod("toString"))
+    mv.invokeMethod(stringNode, StringBuilder::class.java.getDeclaredMethod("toString"))
   }
 
   override fun visit(integer: IntConstantNode) {
@@ -1234,7 +1232,7 @@ private class PushingInstructionGenerator(
 
   override fun visit(charNode: CharConstantNode) {
     val value = charNode.value
-    if (value.length != 1) throw MarcelSemanticException("Characters should be strings of exactly one char")
+    if (value.length != 1) throw MarcelSemanticException(charNode.token, "Characters should be strings of exactly one char")
     mv.pushConstant(value[0])
   }
   override fun visit(nullValueNode: NullValueNode) {
@@ -1242,12 +1240,12 @@ private class PushingInstructionGenerator(
   }
 
   override fun visit(superReference: SuperReference) {
-    if (methodNode.isStatic) throw MarcelSemanticException("Cannot reference 'super' in a static context")
+    if (methodNode.isStatic) throw MarcelSemanticException(superReference.token, "Cannot reference 'super' in a static context")
     mv.pushThis() // super is actually this. The difference is in the class internalName supplied when performing ASM instructions
   }
 
   override fun visit(thisReference: ThisReference) {
-    if (methodNode.isStatic) throw MarcelSemanticException("Cannot reference 'this' in a static context")
+    if (methodNode.isStatic) throw MarcelSemanticException(thisReference.token, "Cannot reference 'this' in a static context")
     mv.pushThis()
   }
 
@@ -1256,30 +1254,30 @@ private class PushingInstructionGenerator(
     if (patternValueNode.flags.isNotEmpty()) {
       val flag = patternValueNode.flags.reduce { acc, i -> acc or i }
       mv.pushConstant(flag)
-      mv.invokeMethod(Pattern::class.java.getMethod("compile", String::class.java, Int::class.java))
+      mv.invokeMethod(patternValueNode, Pattern::class.java.getMethod("compile", String::class.java, Int::class.java))
     } else {
-      mv.invokeMethod(Pattern::class.java.getMethod("compile", String::class.java))
+      mv.invokeMethod(patternValueNode, Pattern::class.java.getMethod("compile", String::class.java))
     }
   }
   override fun visit(incrNode: IncrNode) {
     if (incrNode.returnValueBefore) {
-      mv.pushVariable(incrNode.variableReference.scope, incrNode.variableReference.variable)
+      mv.pushVariable(incrNode, incrNode.variableReference.scope, incrNode.variableReference.variable)
       instructionGenerator.visit(incrNode)
     } else {
       instructionGenerator.visit(incrNode)
-      mv.pushVariable(incrNode.variableReference.scope, incrNode.variableReference.variable)
+      mv.pushVariable(incrNode, incrNode.variableReference.scope, incrNode.variableReference.variable)
     }
   }
   override fun visit(booleanConstantNode: BooleanConstantNode) {
     mv.pushConstant(booleanConstantNode.value)
   }
   override fun visit(referenceExpression: ReferenceExpression) {
-    mv.pushVariable(referenceExpression.scope, referenceExpression.variable)
+    mv.pushVariable(referenceExpression, referenceExpression.scope, referenceExpression.variable)
   }
 
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     super.visit(variableAssignmentNode)
-    mv.pushVariable(variableAssignmentNode.scope, variableAssignmentNode.scope.findVariableOrThrow(variableAssignmentNode.name))
+    mv.pushVariable(variableAssignmentNode, variableAssignmentNode.scope, variableAssignmentNode.scope.findVariableOrThrow(variableAssignmentNode.name))
   }
 
   override fun visit(fieldAssignmentNode: FieldAssignmentNode) {
@@ -1288,7 +1286,7 @@ private class PushingInstructionGenerator(
     if (!field.isStatic) {
       pushArgument(fieldAssignmentNode.fieldNode.leftOperand)
     }
-    mv.pushVariable(fieldAssignmentNode.scope, field)
+    mv.pushVariable(fieldAssignmentNode, fieldAssignmentNode.scope, field)
   }
 
   override fun visit(indexedVariableAssignmentNode: IndexedVariableAssignmentNode) {
