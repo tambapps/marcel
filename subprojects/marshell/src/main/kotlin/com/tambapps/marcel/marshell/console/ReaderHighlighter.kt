@@ -5,7 +5,11 @@ import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.TokenType.*
 import com.tambapps.marcel.marshell.console.style.HighlightTheme
 import com.tambapps.marcel.parser.ast.MethodNode
-import com.tambapps.marcel.parser.scope.Scope
+import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
+import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
+import com.tambapps.marcel.parser.ast.expression.VariableAssignmentNode
+import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
+import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import org.jline.reader.Highlighter
 import org.jline.reader.LineReader
 import org.jline.utils.AttributedString
@@ -13,7 +17,7 @@ import org.jline.utils.AttributedStringBuilder
 import org.jline.utils.AttributedStyle
 import java.util.regex.Pattern
 
-class ReaderHighlighter(private val scopeSupplier: () -> MethodNode): Highlighter {
+class ReaderHighlighter constructor(private val nodeSupplier: () -> MethodNode?): Highlighter {
 
   // TODO add coloring on variable/types once parsing will have been implemented
   val lexer = MarcelLexer(false)
@@ -21,12 +25,14 @@ class ReaderHighlighter(private val scopeSupplier: () -> MethodNode): Highlighte
 
   override fun highlight(reader: LineReader, buffer: String): AttributedString {
     val highlightedString = AttributedStringBuilder()
+    val node = nodeSupplier.invoke() ?: return AttributedString(buffer)
     val tokens = lexer.lexSafely(buffer)
     tokens.removeLast() // remove end of file
+
     for (token in tokens) {
       val string = buffer.substring(token.start, token.end)
       val style = when (token.type) {
-        IDENTIFIER -> identifierStyle(token)
+        IDENTIFIER -> identifierStyle(token, node)
         TYPE_INT, TYPE_LONG, TYPE_SHORT, TYPE_FLOAT, TYPE_DOUBLE, TYPE_BOOL, TYPE_BYTE, TYPE_VOID, TYPE_CHAR, FUN, RETURN,
         VALUE_TRUE, VALUE_FALSE, NEW, IMPORT, AS, INLINE, STATIC, FOR, IN, IF, ELSE, NULL, BREAK, CONTINUE, DEF,
         CLASS, EXTENSION, PACKAGE, EXTENDS, IMPLEMENTS, FINAL, SWITCH, WHEN, THIS, SUPER,
@@ -46,7 +52,31 @@ class ReaderHighlighter(private val scopeSupplier: () -> MethodNode): Highlighte
     return highlightedString.toAttributedString()
   }
 
-  private fun identifierStyle(token: LexToken): AttributedStyle {
+  private fun identifierStyle(token: LexToken, scriptNode: MethodNode?): AttributedStyle {
+    if (scriptNode == null) return AttributedStyle.DEFAULT
+    var node = scriptNode.block.find { it.token == token } ?: return AttributedStyle.DEFAULT
+
+    if (node is ExpressionStatementNode) node = node.expression
+    return when (node) {
+      is VariableAssignmentNode -> {
+        val variable = node.scope.findVariable(node.name)
+        if (variable != null) style.variable
+        else AttributedStyle.DEFAULT
+      }
+      is ReferenceExpression -> {
+        val variable = node.scope.findVariable(node.name)
+
+        if (variable != null) style.variable
+        else AttributedStyle.DEFAULT
+      }
+      is FunctionCallNode -> {
+        // TODO
+        AttributedStyle.DEFAULT
+      }
+      else -> AttributedStyle.DEFAULT
+    }
+
+
 /*
     val scope = scopeSupplier.invoke()
     val variable = scope.findVariable(token.value)
@@ -60,7 +90,6 @@ class ReaderHighlighter(private val scopeSupplier: () -> MethodNode): Highlighte
     AttributedStyle.DEFAULT
 
  */
-    TODO()
   }
   private fun highlight(builder: AttributedStringBuilder, style: AttributedStyle, string: String) {
     builder.style(style)

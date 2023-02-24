@@ -29,7 +29,7 @@ class MarcelEvaluator constructor(
   private val classCompiler = ClassCompiler(compilerConfiguration, typeResolver)
   private val definedFunctions = mutableSetOf<MethodNode>()
   private val binding = Binding()
-  var lastScope: Scope = Scope(typeResolver, JavaType.Object) // just a dummy scope for start
+  var lastNode: MethodNode? = null // just a dummy scope for start
     private set
 
   init {
@@ -67,7 +67,7 @@ class MarcelEvaluator constructor(
     if (scriptNode.fields.isNotEmpty()) {
       throw MarcelSemanticException("Cannot define field variables in Marshell. Use global or local variables only")
     }
-    lastScope = scriptNode.scope
+    lastNode = scriptNode.methods.find { it.name == "run" && it.parameters.size == 1 }!!
     // TODO save methods and include them in each compilation
 
     // load the jar into the classpath

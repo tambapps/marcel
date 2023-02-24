@@ -4,6 +4,7 @@ package com.tambapps.marcel.lexer;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 
+@EqualsAndHashCode
 @Value
 public class LexToken {
 

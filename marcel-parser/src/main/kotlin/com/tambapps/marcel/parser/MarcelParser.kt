@@ -546,8 +546,14 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
   private fun atom(scope: Scope): ExpressionNode {
     val token = next()
     return when (token.type) {
-      TokenType.INCR -> IncrNode(token, ReferenceExpression(token, scope, accept(TokenType.IDENTIFIER).value), 1, false)
-      TokenType.DECR -> IncrNode(token, ReferenceExpression(token, scope, accept(TokenType.IDENTIFIER).value), -1, false)
+      TokenType.INCR -> {
+        val identifierToken = accept(TokenType.IDENTIFIER)
+        IncrNode(token, ReferenceExpression(identifierToken, scope, identifierToken.value), 1, false)
+      }
+      TokenType.DECR -> {
+        val identifierToken = accept(TokenType.IDENTIFIER)
+        IncrNode(token, ReferenceExpression(identifierToken, scope, identifierToken.value), -1, false)
+      }
       TokenType.INTEGER, TokenType.FLOAT -> {
        return if (current.type == TokenType.LT || current.type == TokenType.GT || current.type == TokenType.TWO_DOTS) {
          rangeNode(scope, parseNumberConstant(token))
@@ -840,7 +846,10 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     val token = next()
     return when (token.type) {
       TokenType.REGULAR_STRING_PART -> StringConstantNode(token, token.value)
-      TokenType.SHORT_TEMPLATE_ENTRY_START -> ReferenceExpression(token, scope, accept(TokenType.IDENTIFIER).value)
+      TokenType.SHORT_TEMPLATE_ENTRY_START -> {
+        val identifierToken = accept(TokenType.IDENTIFIER)
+        ReferenceExpression(identifierToken, scope, identifierToken.value)
+      }
       TokenType.LONG_TEMPLATE_ENTRY_START -> {
         val expr = expression(scope)
         accept(TokenType.LONG_TEMPLATE_ENTRY_END)
