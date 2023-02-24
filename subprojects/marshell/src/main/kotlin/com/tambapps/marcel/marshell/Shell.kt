@@ -23,7 +23,7 @@ class Shell {
 
   init {
     val readerBuilder = LineReaderBuilder.builder()
-      .highlighter(ReaderHighlighter(evaluator::lastNode))
+      .highlighter(ReaderHighlighter(typeResolver, evaluator::tryParse))
 
     reader = readerBuilder.build()
   }
@@ -34,6 +34,7 @@ class Shell {
       try {
         val prompt = if (buffer.isEmpty()) "> " else "  "
         val line = reader.readLine(prompt)
+        ReaderHighlighter(typeResolver, evaluator::tryParse).highlight(reader, line)
         if (line.startsWith(":")) {
           // handle command
           println("Unknown command " + line.substring(1))

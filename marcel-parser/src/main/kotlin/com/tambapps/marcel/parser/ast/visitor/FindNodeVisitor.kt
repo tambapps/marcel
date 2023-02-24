@@ -80,7 +80,7 @@ class FindNodeVisitor(private val predicate: (AstNode) -> Boolean): AstNodeVisit
   }
 
   private fun binaryNode(operator: BinaryOperatorNode): AstNode? {
-    return binaryNode(operator) ?: operator.leftOperand.accept(this) ?: operator.rightOperand.accept(this)
+    return node(operator) ?: operator.leftOperand.accept(this) ?: operator.rightOperand.accept(this)
   }
 
   override fun visit(integer: IntConstantNode) = node(integer)

@@ -31,7 +31,9 @@ import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.abs
 
-class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val classSimpleName: String, private val tokens: List<LexToken>) {
+class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val classSimpleName: String, tokens: List<LexToken>) {
+
+  private val tokens = tokens.filter { it.type != TokenType.WHITE_SPACE }
 
   constructor(typeResolver: AstNodeTypeResolver, tokens: List<LexToken>): this(typeResolver, "MarcelRandomClass_" + abs(ThreadLocalRandom.current().nextInt()), tokens)
 

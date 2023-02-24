@@ -5,7 +5,7 @@ import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.expression.BlockNode
 
-open class ExpressionStatementNode(token: LexToken, val expression: ExpressionNode): AbstractStatementNode(token) {
+open class ExpressionStatementNode constructor(token: LexToken, val expression: ExpressionNode): AbstractStatementNode(token) {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 

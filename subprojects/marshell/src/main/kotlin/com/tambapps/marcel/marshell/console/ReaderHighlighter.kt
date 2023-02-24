@@ -1,15 +1,22 @@
 package com.tambapps.marcel.marshell.console
 
+import com.tambapps.marcel.compiler.JavaTypeResolver
+import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.TokenType.*
 import com.tambapps.marcel.marshell.console.style.HighlightTheme
+import com.tambapps.marcel.marshell.repl.MarcelEvaluator
+import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.parser.ast.MethodNode
+import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
+import com.tambapps.marcel.parser.ast.expression.IndexedReferenceExpression
+import com.tambapps.marcel.parser.ast.expression.IndexedVariableAssignmentNode
 import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
 import com.tambapps.marcel.parser.ast.expression.VariableAssignmentNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
-import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
+import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import org.jline.reader.Highlighter
 import org.jline.reader.LineReader
 import org.jline.utils.AttributedString
@@ -17,20 +24,24 @@ import org.jline.utils.AttributedStringBuilder
 import org.jline.utils.AttributedStyle
 import java.util.regex.Pattern
 
-class ReaderHighlighter constructor(private val nodeSupplier: () -> MethodNode?): Highlighter {
+class ReaderHighlighter constructor(
+  private val typeResolver: JavaTypeResolver,
+  private val nodeSupplier: (String) -> MarcelEvaluator.Result?): Highlighter {
 
-  // TODO add coloring on variable/types once parsing will have been implemented
+  // TODO when parsing fails because of incomplete input, the coloring doesn't work
+  // TODO match on just method names, don't care about argument types. Will probably to add new methods to JavaTypeResolver for that
   val lexer = MarcelLexer(false)
   val style = HighlightTheme()
 
-  override fun highlight(reader: LineReader, buffer: String): AttributedString {
+  override fun highlight(reader: LineReader, text: String): AttributedString {
     val highlightedString = AttributedStringBuilder()
-    val node = nodeSupplier.invoke() ?: return AttributedString(buffer)
-    val tokens = lexer.lexSafely(buffer)
+    val parseResult = nodeSupplier.invoke(text)
+    val tokens = parseResult?.tokens?.toMutableList() ?: lexer.lexSafely(text)
     tokens.removeLast() // remove end of file
+    val node = parseResult?.scriptNode?.methods?.find { it.name == "run" && it.parameters.size == 1 }
 
     for (token in tokens) {
-      val string = buffer.substring(token.start, token.end)
+      val string = text.substring(token.start, token.end)
       val style = when (token.type) {
         IDENTIFIER -> identifierStyle(token, node)
         TYPE_INT, TYPE_LONG, TYPE_SHORT, TYPE_FLOAT, TYPE_DOUBLE, TYPE_BOOL, TYPE_BYTE, TYPE_VOID, TYPE_CHAR, FUN, RETURN,
@@ -54,42 +65,28 @@ class ReaderHighlighter constructor(private val nodeSupplier: () -> MethodNode?)
 
   private fun identifierStyle(token: LexToken, scriptNode: MethodNode?): AttributedStyle {
     if (scriptNode == null) return AttributedStyle.DEFAULT
-    var node = scriptNode.block.find { it.token == token } ?: return AttributedStyle.DEFAULT
+    var node = scriptNode.block.find {
+      it.token == token && (it is VariableAssignmentNode || it is ReferenceExpression || it is IndexedVariableAssignmentNode
+          || it is IndexedReferenceExpression || it is FunctionCallNode)
 
-    if (node is ExpressionStatementNode) node = node.expression
+    } ?: return AttributedStyle.DEFAULT
+
     return when (node) {
-      is VariableAssignmentNode -> {
-        val variable = node.scope.findVariable(node.name)
-        if (variable != null) style.variable
-        else AttributedStyle.DEFAULT
-      }
-      is ReferenceExpression -> {
-        val variable = node.scope.findVariable(node.name)
-
-        if (variable != null) style.variable
-        else AttributedStyle.DEFAULT
-      }
+      is VariableAssignmentNode -> variableHighlight(node, node.name)
+      is ReferenceExpression -> variableHighlight(node, node.name)
       is FunctionCallNode -> {
-        // TODO
-        AttributedStyle.DEFAULT
+        val method = try { node.getMethod(typeResolver) } catch (e: MarcelSemanticException) { null }
+        if (method != null) style.function
+        else AttributedStyle.DEFAULT
       }
       else -> AttributedStyle.DEFAULT
     }
+  }
 
-
-/*
-    val scope = scopeSupplier.invoke()
-    val variable = scope.findVariable(token.value)
-    when {
-      scope.findVariable(token.value) != null -> style.variable
-      scope.findMethodOrThrow(token.value) != null -> style.variable
-    }
-    var style = style.variable
-
-    println(scope.findVariable("a"))
-    AttributedStyle.DEFAULT
-
- */
+  private fun variableHighlight(node: ScopedNode<*>, name: String): AttributedStyle {
+    val variable = node.scope.findVariable(name)
+    return if (variable != null) style.variable
+    else AttributedStyle.DEFAULT
   }
   private fun highlight(builder: AttributedStringBuilder, style: AttributedStyle, string: String) {
     builder.style(style)

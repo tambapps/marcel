@@ -77,7 +77,7 @@ class PowOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: Ex
   }
 }
 
-open class InvokeAccessOperator(token: LexToken, leftOperand: ExpressionNode, final override val rightOperand: FunctionCallNode,
+open class InvokeAccessOperator constructor(token: LexToken, leftOperand: ExpressionNode, final override val rightOperand: FunctionCallNode,
   val nullSafe: Boolean) :
     BinaryOperatorNode(token, leftOperand, rightOperand) {
 

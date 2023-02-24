@@ -21,6 +21,10 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
 
   fun compileClass(classNode: ClassNode): List<CompiledClass> {
     defineClassMembers(classNode)
+   return compileDefinedClass(classNode)
+  }
+
+  fun compileDefinedClass(classNode: ClassNode): List<CompiledClass> {
     val classes = mutableListOf<CompiledClass>()
     compileRec(classes, classNode)
     return classes
