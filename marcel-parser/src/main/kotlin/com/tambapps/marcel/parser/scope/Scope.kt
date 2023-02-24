@@ -79,6 +79,9 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
     return findVariable(name) ?: throw MarcelSemanticException("Variable $name is not defined")
   }
 
+  fun hasVariable(name: String): Boolean {
+    return findVariable(name) != null
+  }
 
   open fun findVariable(name: String): Variable? {
     val localVariable = findLocalVariable(name)

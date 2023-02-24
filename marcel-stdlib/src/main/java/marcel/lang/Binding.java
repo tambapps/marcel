@@ -16,34 +16,15 @@ public class Binding {
     this(Collections.synchronizedMap(new HashMap<>()));
   }
 
-  public <T> T getVariable(Class<T> clazz, String name) {
-    Object value = getVariable(name);
-    if (clazz.isInstance(value)) {
-      return (T) value;
-    } else if (!clazz.isPrimitive() && value == null) {
-      return null;
-    } else {
-      throw new ClassCastException(String.format("Could not cast value %s as %s", value, clazz.getName()));
-    }
-  }
-
-  public Object getVariable(String name) {
+  public <T> T getVariable(String name) {
     if (!variables.containsKey(name)) {
-      throw new UndefinedVariableException("Variable with name '" + name + "' is not defined");
+      throw new NoSuchPropertyException("Property " + name + " was not defined");
     }
-    return variables.get(name);
+    return (T) variables.get(name);
   }
 
   public void setVariable(String name, Object value) {
-    Object currentValue = variables.get(name);
-    Class<?> clazz = currentValue != null ? currentValue.getClass() : Object.class;
-    if (clazz.isInstance(value)) {
-      variables.put(name, value);
-    } else if (!clazz.isPrimitive() && value == null) {
-      variables.put(name, null);
-    } else {
-      throw new IllegalArgumentException(String.format("Variable %s is of type %s but a value of type %s was provided", name, clazz, value.getClass()));
-    }
+    variables.put(name, value);
   }
 
 

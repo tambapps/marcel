@@ -40,25 +40,25 @@ class MarcelEvaluator constructor(
 
 
     val scriptNode = parser.script(Scope.DEFAULT_IMPORTS.toMutableList(), null)
-    // TODO will need to add constructor with binding
 
     for (method in definedFunctions) {
       if (scriptNode.methods.any { it.matches(method) }) {
         throw MarcelSemanticException("Method $method is already defined")
       }
-      val transformedMethod = MethodNode(method.access, scriptNode.type, method.name, method.block, method.parameters, method.returnType, method.scope, method.isInline, method.isConstructor)
-      transformedMethod.scope.classType = scriptNode.type
-      scriptNode.methods.add(transformedMethod)
+      method.ownerClass = scriptNode.type
+      method.scope.classType = scriptNode.type
+      scriptNode.methods.add(method)
     }
-
-    definedFunctions.addAll(
-      scriptNode.methods.filter {
-        !it.isConstructor && (it.access and Opcodes.ACC_PRIVATE) == 0 && it.name != "run" && it.name != "main"
-      }
-    )
 
     // writing script
     val result = classCompiler.compileClass(scriptNode).first()
+
+    definedFunctions.addAll(
+      scriptNode.methods.filter {
+        !it.isConstructor && it.name != "run" && it.name != "main"
+      }
+    )
+
     val className = scriptNode.type.simpleName
     val jarFile = File(tempDir.parentFile, "$className.jar")
     JarWriter().writeScriptJar(result, jarFile)
@@ -72,7 +72,7 @@ class MarcelEvaluator constructor(
     // and then run it with the new classLoader
     val clazz = classLoader.loadClass(className)
     if (Script::class.java.isAssignableFrom(clazz)) {
-      val script = clazz.getDeclaredConstructor().newInstance() as Script
+      val script = clazz.getDeclaredConstructor(Binding::class.java).newInstance(binding) as Script
       return script.run()
     } else {
       throw RuntimeException("This shouldn't happen")

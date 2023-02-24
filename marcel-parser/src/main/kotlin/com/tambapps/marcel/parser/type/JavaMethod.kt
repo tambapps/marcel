@@ -122,6 +122,7 @@ abstract class AbstractMethod: JavaMethod {
     return javaClass.hashCode()
   }
 }
+
 class ReflectJavaConstructor(constructor: Constructor<*>): AbstractMethod() {
   override val ownerClass = JavaType.of(constructor.declaringClass)
 

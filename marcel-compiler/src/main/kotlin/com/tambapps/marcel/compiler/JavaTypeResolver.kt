@@ -152,18 +152,6 @@ class JavaTypeResolver: AstNodeTypeResolver() {
       if (field != null) {
         return ClassField(JavaType.of(field.type), field.name, javaType, field.modifiers)
       }
-      // try to find getter
-      val methodFieldName = name.replaceFirstChar { it.uppercase() }
-      val getterMethod  = findMethod(javaType, "get$methodFieldName", emptyList())
-      val setterCandidates = getMarcelMethods(javaType).filter { it.name == "set$methodFieldName" && it.parameters.size  == 1}
-      val setterMethod =
-        if (setterCandidates.isEmpty()) findMethod(javaType, "set$methodFieldName", listOf(getterMethod?.returnType ?: JavaType.Object))
-        else if (setterCandidates.size == 1) setterCandidates.first()
-        else getMoreSpecificMethod(setterCandidates)
-      if (getterMethod != null || setterMethod != null) {
-        return MethodField.from(javaType, name, getterMethod, setterMethod)
-      }
-      return null
     } else {
       val fields = getMarcelFields(javaType)
       val field = fields.find { it.name == name }
@@ -174,11 +162,23 @@ class JavaTypeResolver: AstNodeTypeResolver() {
       while (type != null) {
         val f = findField(type, name, declared)
         if (f != null) return f
-        if (type.isLoaded) return null // in loaded classes, we already handle super types so no need to go further
+        if (type.isLoaded) break // in loaded classes, we already handle super types so no need to go further
         type = type.superType
       }
-      return null
     }
+
+    // try to find a method field
+    val methodFieldName = name.replaceFirstChar { it.uppercase() }
+    val getterMethod  = findMethod(javaType, "get$methodFieldName", emptyList())
+    val setterCandidates = getMarcelMethods(javaType).filter { it.name == "set$methodFieldName" && it.parameters.size  == 1}
+    val setterMethod =
+      if (setterCandidates.isEmpty()) findMethod(javaType, "set$methodFieldName", listOf(getterMethod?.returnType ?: JavaType.Object))
+      else if (setterCandidates.size == 1) setterCandidates.first()
+      else getMoreSpecificMethod(setterCandidates)
+    if (getterMethod != null || setterMethod != null) {
+      return MethodField.from(javaType, name, getterMethod, setterMethod)
+    }
+    return null
   }
 
   // ast node type resolver methods

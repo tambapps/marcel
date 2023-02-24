@@ -537,6 +537,35 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
+    val expressionType = variableAssignmentNode.expression.getType(typeResolver)
+    if (classNode.isScript && !variableAssignmentNode.scope.hasVariable(variableAssignmentNode.name)) {
+      // define property dynamically
+      val propertyName = variableAssignmentNode.name
+      val methodFieldName = propertyName.replaceFirstChar { it.uppercase() }
+      // getter
+      val getter = MethodNode.from(classNode.scope, classNode.type, "get$methodFieldName", emptyList(), expressionType).apply {
+        block.addStatement(
+          ReturnNode(scope, AsNode(expressionType,
+            SimpleFunctionCallNode(scope, "getVariable", mutableListOf(StringConstantNode(propertyName)), ReferenceExpression.thisRef(scope))
+          ))
+        )
+      }
+      classNode.addMethod(getter)
+      typeResolver.defineMethod(classNode.type, getter)
+
+      // setter
+      val setter = MethodNode.from(classNode.scope, classNode.type, "set$methodFieldName", listOf(MethodParameter(expressionType, "it")), JavaType.void).apply {
+        block.addStatement(
+          SimpleFunctionCallNode(scope, "setVariable", mutableListOf(
+            StringConstantNode(propertyName),
+            ReferenceExpression(scope, "it")
+          ), ReferenceExpression.thisRef(scope))
+        )
+      }
+      classNode.addMethod(setter)
+      typeResolver.defineMethod(classNode.type, setter)
+    }
+
     val variable = variableAssignmentNode.scope.findVariableOrThrow(variableAssignmentNode.name)
     if (variable is MarcelField && !variable.isStatic) {
       if (variable.owner.isAssignableFrom(variableAssignmentNode.scope.classType)) {

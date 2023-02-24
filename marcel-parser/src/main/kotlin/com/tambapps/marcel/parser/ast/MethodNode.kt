@@ -3,9 +3,6 @@ package com.tambapps.marcel.parser.ast
 import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
-import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
-import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
-import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.AbstractMethod
@@ -13,7 +10,7 @@ import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.Opcodes
 
-open class MethodNode constructor(override val access: Int, final override val ownerClass: JavaType, override val name: String, val block: FunctionBlockNode,
+open class MethodNode constructor(override val access: Int, final override var ownerClass: JavaType, override val name: String, val block: FunctionBlockNode,
                                   final override val parameters: MutableList<MethodParameter>, final override val returnType: JavaType, val scope: MethodScope,
                                   override val isInline: Boolean,
                                   final override val isConstructor: Boolean
@@ -26,10 +23,14 @@ open class MethodNode constructor(override val access: Int, final override val o
 
   companion object {
     fun fromJavaMethod(classScope: Scope, javaMethod: JavaMethod): MethodNode {
-      val methodScope = MethodScope(classScope, javaMethod.name, javaMethod.parameters, javaMethod.returnType)
-      return MethodNode(Opcodes.ACC_PUBLIC, javaMethod.ownerClass, javaMethod.name, FunctionBlockNode(methodScope,
+      return from(classScope, javaMethod.ownerClass, javaMethod.name, javaMethod.parameters, javaMethod.returnType)
+    }
+
+    fun from(classScope: Scope, ownerClass: JavaType, name: String, parameters: List<MethodParameter>, returnType: JavaType): MethodNode {
+      val methodScope = MethodScope(classScope,  name, parameters, returnType)
+      return MethodNode(Opcodes.ACC_PUBLIC, ownerClass,  name, FunctionBlockNode(methodScope,
           mutableListOf()
-      ), methodScope.parameters.toMutableList(), javaMethod.returnType, methodScope, false)
+      ), methodScope.parameters.toMutableList(),  returnType, methodScope, false)
     }
   }
 

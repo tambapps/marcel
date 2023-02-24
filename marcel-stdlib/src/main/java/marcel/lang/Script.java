@@ -24,4 +24,12 @@ public abstract class Script {
     return run(null);
   }
 
+
+  public <T> T getVariable(String name) {
+    return binding.getVariable(name);
+  }
+
+  public <T> void setVariable(String name, Object value) {
+    binding.setVariable(name, value);
+  }
 }
