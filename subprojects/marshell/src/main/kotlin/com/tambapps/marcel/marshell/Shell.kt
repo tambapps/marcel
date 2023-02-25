@@ -3,6 +3,7 @@ package com.tambapps.marcel.marshell
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.lexer.MarcelLexerException
+import com.tambapps.marcel.marshell.command.ExitCommand
 import com.tambapps.marcel.marshell.command.HelpCommand
 import com.tambapps.marcel.marshell.command.ShellCommand
 import com.tambapps.marcel.marshell.console.MarshellCompleter
@@ -31,7 +32,8 @@ class Shell {
     .build()
   private val buffer = mutableListOf<String>()
   private val commands = listOf<ShellCommand>(
-    HelpCommand()
+    HelpCommand(),
+    ExitCommand()
   )
 
   init {
@@ -46,8 +48,9 @@ class Shell {
         val line = reader.readLine(prompt)
         //highlighter.highlight(reader, line) // this is for debug through intelij
         if (isCommand(line)) {
-          val commandName = line.substring(1)
           val args = line.split(" ")
+          val commandName = args[0].substring(1)
+
           val command = findCommand(commandName)
           if (command != null) {
             command.run(this, args.subList(1, args.size), System.out)
@@ -91,6 +94,10 @@ class Shell {
 
   fun findCommand(name: String): ShellCommand? {
     return commands.find { it.name == name || it.shortName == name }
+  }
+
+  fun exit() {
+    // TODO
   }
 
   private fun isCommand(line: String): Boolean {
