@@ -133,6 +133,11 @@ interface JavaType: AstTypedObject {
 
   companion object {
 
+    fun newType(outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): JavaType {
+      val className = if (outerClassType != null) "${outerClassType.className}\$$cName" else cName
+      return NotLoadedJavaType(className, emptyList(), emptyList(),  superClass, isInterface, interfaces)
+    }
+
     fun commonType(list: List<AstTypedObject>): JavaType {
       if (list.isEmpty()) return void
       return list.reduce { acc, javaType -> commonType(acc, javaType) }.type

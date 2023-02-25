@@ -117,7 +117,11 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
     return type
   }
 
-  fun isDefined(className: String): Boolean {
+  fun registerType(type: JavaType) {
+    definedTypes[type.className] = type
+  }
+
+    fun isDefined(className: String): Boolean {
     return try {
       of(className, emptyList())
       true

@@ -31,11 +31,18 @@ import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.abs
 
-class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val classSimpleName: String, tokens: List<LexToken>) {
+class MarcelParser constructor(
+  private val typeResolver: AstNodeTypeResolver,
+  private val classSimpleName: String, tokens: List<LexToken>,
+  private val configuration: ParserConfiguration) {
+
+  constructor(typeResolver: AstNodeTypeResolver, classSimpleName: String, tokens: List<LexToken>):
+      this(typeResolver, classSimpleName, tokens, ParserConfiguration(false))
 
   private val tokens = tokens.filter { it.type != TokenType.WHITE_SPACE }
 
-  constructor(typeResolver: AstNodeTypeResolver, tokens: List<LexToken>): this(typeResolver, "MarcelRandomClass_" + abs(ThreadLocalRandom.current().nextInt()), tokens)
+  constructor(typeResolver: AstNodeTypeResolver, tokens: List<LexToken>, configuration: ParserConfiguration): this(typeResolver, "MarcelRandomClass_" + abs(ThreadLocalRandom.current().nextInt()), tokens, configuration)
+  constructor(typeResolver: AstNodeTypeResolver, tokens: List<LexToken>): this(typeResolver, tokens, ParserConfiguration(false))
 
   private var currentIndex = 0
 
@@ -71,7 +78,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         || lookup(2)?.type == TokenType.CLASS) {
         moduleNode.classes.add(parseClass(imports, packageName))
       } else {
-        moduleNode.classes.add(script(imports, packageName))
+        moduleNode.classes.addAll(script(imports, packageName))
       }
     }
     return moduleNode
@@ -122,7 +129,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         acceptOptional(TokenType.COMMA)
       }
     }
-    val classType = typeResolver.defineClass(outerClassNode?.type, className, superType, false, interfaces)
+    val classType = JavaType.newType(outerClassNode?.type, className, superType, false, interfaces)
     val classScope = Scope(typeResolver, imports, classType )
     val methods = mutableListOf<MethodNode>()
     val classFields = mutableListOf<FieldNode>()
@@ -143,12 +150,12 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     return classNode
   }
 
-  fun script(imports: MutableList<ImportNode>, packageName: String?): ClassNode {
+  fun script(imports: MutableList<ImportNode>, packageName: String?): List<ClassNode> {
     val classMethods = mutableListOf<MethodNode>()
     val classFields = mutableListOf<FieldNode>()
     val superType = JavaType.of(Script::class.java)
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
-    val classType = typeResolver.defineClass(className, superType, false, emptyList())
+    val classType = JavaType.newType(null, className, superType, false, emptyList())
     val classScope = Scope(typeResolver, imports, classType)
     val argsParameter = MethodParameter(JavaType.of(Array<String>::class.java), "args")
     val runScope = MethodScope(classScope, "run", listOf(argsParameter), JavaType.Object)
@@ -162,6 +169,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
     val innerClasses = mutableListOf<ClassNode>()
     val classNode = ClassNode(LexToken.dummy(), classScope,
       Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, classType, JavaType.of(Script::class.java), true, classMethods, classFields, innerClasses)
+    val classNodes = mutableListOf(classNode)
 
     while (current.type != TokenType.END_OF_FILE) {
       when (current.type) {
@@ -169,8 +177,14 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
         TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE, TokenType.STATIC, -> {
           // can be a class, a field or a function
           when (getNextMemberToken()) {
-            TokenType.CLASS -> innerClasses.add(parseClass(imports, packageName, classNode))
-            TokenType.FUN -> {
+            TokenType.CLASS -> {
+              if (configuration.independentScriptInnerClasses) {
+                classNodes.add(parseClass(imports, packageName, null))
+              } else {
+                innerClasses.add(parseClass(imports, packageName, classNode))
+              }
+            }
+              TokenType.FUN -> {
               val method = method(classNode)
               if (method.name == "main") {
                 throw MarcelSemanticException(classNode.token, "Cannot have a \"main\" function in a script")
@@ -185,7 +199,7 @@ class MarcelParser(private val typeResolver: AstNodeTypeResolver, private val cl
       }
 
     }
-    return classNode
+    return classNodes
   }
 
   // return next class, fun, or typetoken

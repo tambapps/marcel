@@ -24,6 +24,11 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
    return compileDefinedClass(classNode)
   }
 
+  fun compileDefinedClasses(classNodes: List<ClassNode>): List<CompiledClass> {
+    val classes = mutableListOf<CompiledClass>()
+    classNodes.forEach { classes.addAll(compileDefinedClass(it)) }
+    return classes
+  }
   fun compileDefinedClass(classNode: ClassNode): List<CompiledClass> {
     val classes = mutableListOf<CompiledClass>()
     compileRec(classes, classNode)
@@ -166,6 +171,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
   }
 
   private fun defineClassMembers(classNode: ClassNode) {
+    typeResolver.registerType(classNode.type)
     classNode.methods.forEach { typeResolver.defineMethod(classNode.type, it) }
     classNode.fields.forEach { typeResolver.defineField(classNode.type, it) }
     classNode.innerClasses.forEach { defineClassMembers(it) }
