@@ -4,7 +4,6 @@ import com.tambapps.marcel.compiler.CompiledClass
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.compiler.asm.ClassCompiler
-import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
@@ -21,10 +20,6 @@ class MarcelReplCompiler(
   compilerConfiguration: CompilerConfiguration,
   private val typeResolver: JavaTypeResolver,
 ) {
-
-  data class ParserResult(val tokens: List<LexToken>, val classes: List<ClassNode>, val textHashCode: Int) {
-    val scriptNode = classes.find { it.isScript }!!
-  }
 
   private val lexer = MarcelLexer(false)
   private val definedFunctions = mutableSetOf<MethodNode>()
