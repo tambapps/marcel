@@ -1,6 +1,6 @@
-package com.tambapps.marcel.marshell.command
+package com.tambapps.marcel.repl.command
 
-import com.tambapps.marcel.marshell.Shell
+import com.tambapps.marcel.repl.MarcelShell
 import java.io.PrintStream
 
 class HelpCommand: AbstractShellCommand() {
@@ -9,7 +9,7 @@ class HelpCommand: AbstractShellCommand() {
   override val usage = ":help or :help [commandName]"
   override val helpDescription = "print this summary or command-specific help"
 
-  override fun run(shell: Shell, args: List<String>, out: PrintStream) {
+  override fun run(shell: MarcelShell, args: List<String>, out: PrintStream) {
     if (args.isEmpty()) {
       shell.printHelp()
     } else {

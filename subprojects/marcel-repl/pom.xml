@@ -10,18 +10,13 @@
     <version>0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>marshell</artifactId>
+  <artifactId>marcel-repl</artifactId>
 
   <dependencies>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
-      <artifactId>marcel-repl</artifactId>
+      <artifactId>marcel-compiler</artifactId>
       <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jline</groupId>
-      <artifactId>jline</artifactId>
-      <version>3.22.0</version>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>

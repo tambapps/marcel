@@ -1,8 +1,8 @@
-package com.tambapps.marcel.marshell.command
+package com.tambapps.marcel.repl.command
 
-import com.tambapps.marcel.marshell.Shell
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.type.JavaType
+import com.tambapps.marcel.repl.MarcelShell
 import marcel.lang.Binding
 import java.io.PrintStream
 
@@ -14,7 +14,7 @@ class ListCommand: AbstractShellCommand() {
   override val helpDescription = "list defined members"
 
 
-  override fun run(shell: Shell, args: List<String>, out: PrintStream) {
+  override fun run(shell: MarcelShell, args: List<String>, out: PrintStream) {
     if (args.isEmpty()) {
       out.println("Variables:")
       printVariables(shell.binding, out)

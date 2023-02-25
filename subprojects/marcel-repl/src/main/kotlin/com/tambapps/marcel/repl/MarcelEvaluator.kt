@@ -1,4 +1,4 @@
-package com.tambapps.marcel.marshell.repl
+package com.tambapps.marcel.repl
 
 import com.tambapps.marcel.compiler.JarWriter
 import com.tambapps.marcel.compiler.MarcelCompiler
@@ -15,7 +15,6 @@ class MarcelEvaluator constructor(
   private val replCompiler: MarcelReplCompiler,
   private val tempDir: File
 ) {
-
 
   @Throws(MarcelLexerException::class, MarcelParserException::class)
   fun eval(code: String): Any? {

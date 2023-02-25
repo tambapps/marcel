@@ -1,4 +1,4 @@
-package com.tambapps.marcel.marshell.repl
+package com.tambapps.marcel.repl
 
 import com.tambapps.marcel.compiler.CompiledClass
 import com.tambapps.marcel.compiler.CompilerConfiguration
@@ -16,6 +16,7 @@ import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.Scope
 import kotlin.jvm.Throws
 
+// TODO need to add a library jar class in which to put definedClasses (they shouldn't be recompiled at each run)
 class MarcelReplCompiler(
   compilerConfiguration: CompilerConfiguration,
   private val typeResolver: JavaTypeResolver,
@@ -95,8 +96,6 @@ class MarcelReplCompiler(
     val tokens = lexer.lex(text)
     val parser = MarcelParser(typeResolver, tokens, parserConfiguration)
 
-    // TODO script now returns a list, the first element being the actual script and the others, the other defined classes.
-    //  these class are now NOT inner class. Handle them
     val classes = parser.script(Scope.DEFAULT_IMPORTS.toMutableList(), null)
     val scriptNode = classes.first()
 

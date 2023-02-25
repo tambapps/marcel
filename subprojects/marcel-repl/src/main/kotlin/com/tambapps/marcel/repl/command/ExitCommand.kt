@@ -1,6 +1,6 @@
-package com.tambapps.marcel.marshell.command
+package com.tambapps.marcel.repl.command
 
-import com.tambapps.marcel.marshell.Shell
+import com.tambapps.marcel.repl.MarcelShell
 import java.io.PrintStream
 
 class ExitCommand: AbstractShellCommand() {
@@ -10,7 +10,7 @@ class ExitCommand: AbstractShellCommand() {
   override val helpDescription = "Exit the shell"
   override val usage = ":exit"
 
-  override fun run(shell: Shell, args: List<String>, out: PrintStream) {
+  override fun run(shell: MarcelShell, args: List<String>, out: PrintStream) {
     shell.exit()
   }
 }

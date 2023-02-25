@@ -1,4 +1,4 @@
-package com.tambapps.marcel.marshell.command
+package com.tambapps.marcel.repl.command
 
 import java.io.PrintStream
 

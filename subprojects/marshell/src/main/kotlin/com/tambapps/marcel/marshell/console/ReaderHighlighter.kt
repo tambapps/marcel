@@ -5,7 +5,7 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.TokenType.*
 import com.tambapps.marcel.marshell.console.style.HighlightTheme
-import com.tambapps.marcel.marshell.repl.MarcelReplCompiler
+import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
@@ -23,7 +23,8 @@ import java.util.regex.Pattern
 
 class ReaderHighlighter constructor(
   private val typeResolver: JavaTypeResolver,
-  private val replCompiler: MarcelReplCompiler): Highlighter {
+  private val replCompiler: MarcelReplCompiler
+): Highlighter {
 
   private val lexer = MarcelLexer(false)
   private val style = HighlightTheme()

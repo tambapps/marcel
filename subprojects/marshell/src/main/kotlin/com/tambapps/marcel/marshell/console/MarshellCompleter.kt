@@ -2,7 +2,7 @@ package com.tambapps.marcel.marshell.console
 
 import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.compiler.util.getType
-import com.tambapps.marcel.marshell.repl.MarcelReplCompiler
+import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.parser.ast.AstInstructionNode
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.expression.GetFieldAccessOperator
