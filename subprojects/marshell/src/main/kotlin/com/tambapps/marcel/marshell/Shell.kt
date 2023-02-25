@@ -54,7 +54,7 @@ class Shell {
     println("Marshell (Marcel: ${MarcelVersion.VERSION}, Java: " + System.getProperty("java.version") + ")")
     while (true) {
       try {
-        val prompt = if (buffer.isEmpty()) "> " else "  "
+        val prompt = String.format("marshell:%03d> ", buffer.size)
         val line = reader.readLine(prompt)
         //highlighter.highlight(reader, line) // this is for debug through intelij
         if (isCommand(line)) {
