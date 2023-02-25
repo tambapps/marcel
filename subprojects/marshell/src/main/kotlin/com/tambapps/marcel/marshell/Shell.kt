@@ -17,6 +17,7 @@ import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.MarcelField
 import marcel.lang.Binding
+import marcel.lang.util.MarcelVersion
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.UserInterruptException
@@ -50,6 +51,7 @@ class Shell {
 
 
   fun run() {
+    println("Marshell (Marcel: ${MarcelVersion.VERSION}, Java: " + System.getProperty("java.version") + ")")
     while (true) {
       try {
         val prompt = if (buffer.isEmpty()) "> " else "  "
