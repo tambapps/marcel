@@ -9,6 +9,7 @@ import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
+import com.tambapps.marcel.parser.ParserConfiguration
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
@@ -20,12 +21,15 @@ class MarcelReplCompiler(
   private val typeResolver: JavaTypeResolver,
 ) {
 
-  data class ParserResult(val tokens: List<LexToken>, val scriptNode: ClassNode, val textHashCode: Int)
+  data class ParserResult(val tokens: List<LexToken>, val classes: List<ClassNode>, val textHashCode: Int) {
+    val scriptNode = classes.find { it.isScript }!!
+  }
 
   private val lexer = MarcelLexer(false)
   private val definedFunctions = mutableSetOf<MethodNode>()
   private val definedInnerClasses = mutableSetOf<ClassNode>()
   private val classCompiler = ClassCompiler(compilerConfiguration, typeResolver)
+  private val parserConfiguration = ParserConfiguration(true)
   @Volatile
   var parserResult: ParserResult? = null
     private set
@@ -34,7 +38,15 @@ class MarcelReplCompiler(
     val result = parse(text)
     val scriptNode = result.scriptNode
     // writing script. class members were defined when parsing
-    val classes = classCompiler.compileDefinedClass(scriptNode)
+    val classes = mutableListOf<CompiledClass>()
+
+    for (clazz in result.classes) {
+      if (clazz.isScript) classes.addAll(classCompiler.compileDefinedClass(clazz))
+      else classes.addAll(classCompiler.compileClass(clazz))
+    }
+    for (clazz in definedInnerClasses) {
+      classes.addAll(classCompiler.compileDefinedClass(clazz))
+    }
 
     // keeping function for next runs. Needs to be AFTER compilation because this step may add some methods (e.g. switch, properties...)
     definedFunctions.addAll(
@@ -42,8 +54,8 @@ class MarcelReplCompiler(
         !it.isConstructor && it.name != "run" && it.name != "main"
       }
     )
-    // same for inner classes
-    definedInnerClasses.addAll(scriptNode.innerClasses)
+    // same for classes
+    definedInnerClasses.addAll(result.classes.filter { !it.isScript })
     return Pair(result, classes)
   }
 
@@ -81,9 +93,12 @@ class MarcelReplCompiler(
       if (parserResult.hashCode() == text.hashCode()) return parserResult!!
     }
     val tokens = lexer.lex(text)
-    val parser = MarcelParser(typeResolver, tokens)
+    val parser = MarcelParser(typeResolver, tokens, parserConfiguration)
 
-    val scriptNode = parser.script(Scope.DEFAULT_IMPORTS.toMutableList(), null)
+    // TODO script now returns a list, the first element being the actual script and the others, the other defined classes.
+    //  these class are now NOT inner class. Handle them
+    val classes = parser.script(Scope.DEFAULT_IMPORTS.toMutableList(), null)
+    val scriptNode = classes.first()
 
     for (method in definedFunctions) {
       if (scriptNode.methods.any { it.matches(method) }) {
@@ -94,16 +109,8 @@ class MarcelReplCompiler(
       scriptNode.methods.add(method)
     }
 
-    for (c in definedInnerClasses) {
-      // TODO inner class instantiation doesn't work. probably because the outer class name s not the right one
-      if (scriptNode.innerClasses.any { it.type.className == c.type.className }) {
-        throw MarcelSemanticException("Class ${c.type.simpleName} is already defined")
-      }
-      scriptNode.innerClasses.add(c)
-    }
-
     typeResolver.defineClassMembers(scriptNode)
-    val r = ParserResult(tokens, scriptNode, text.hashCode())
+    val r = ParserResult(tokens, classes, text.hashCode())
     if (!skipUpdate) {
       this.parserResult = r
     }
