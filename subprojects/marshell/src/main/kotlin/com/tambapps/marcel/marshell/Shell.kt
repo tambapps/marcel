@@ -5,6 +5,7 @@ import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.marshell.command.ExitCommand
 import com.tambapps.marcel.marshell.command.HelpCommand
+import com.tambapps.marcel.marshell.command.ListCommand
 import com.tambapps.marcel.marshell.command.ShellCommand
 import com.tambapps.marcel.marshell.console.MarshellCompleter
 import com.tambapps.marcel.marshell.console.MarshellSnippetParser
@@ -12,6 +13,7 @@ import com.tambapps.marcel.marshell.console.ReaderHighlighter
 import com.tambapps.marcel.marshell.repl.MarcelEvaluator
 import com.tambapps.marcel.marshell.repl.MarcelReplCompiler
 import com.tambapps.marcel.parser.MarcelParserException
+import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.MarcelField
 import marcel.lang.Binding
@@ -22,7 +24,8 @@ import java.nio.file.Files
 
 class Shell {
 
-  private val binding = Binding()
+  val binding = Binding()
+  val lastNode: ClassNode? get() = replCompiler.parserResult?.scriptNode
   private val typeResolver = JavaTypeResolver()
   private val tempDir = Files.createTempDirectory("marshell")
   private val replCompiler = MarcelReplCompiler(CompilerConfiguration.DEFAULT_CONFIGURATION, typeResolver)
@@ -37,7 +40,8 @@ class Shell {
   private val buffer = mutableListOf<String>()
   private val commands = listOf<ShellCommand>(
     HelpCommand(),
-    ExitCommand()
+    ExitCommand(),
+    ListCommand()
   )
 
   init {
@@ -70,7 +74,7 @@ class Shell {
           } catch (e: MarcelLexerException) {
             println("Error: ${e.message}")
             buffer.clear()
-          } catch (e: MarcelSemanticException) {
+          } catch (e: MarcelSemanticException) {e.printStackTrace()
             println(e.message)
             buffer.clear()
           } catch (e: MarcelParserException) {

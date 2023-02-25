@@ -77,4 +77,17 @@ class ClassNode constructor(override val token: LexToken,
   override fun toString(): String {
     return "class $type {\n" + methods.joinToString(separator = "\n", transform = { "  $it" }) + "\n}"
   }
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is ClassNode) return false
+    if (type != other.type) return false
+    return true
+  }
+
+  override fun hashCode(): Int {
+    return type.hashCode()
+  }
+
+
 }

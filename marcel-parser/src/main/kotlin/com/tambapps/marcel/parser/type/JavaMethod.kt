@@ -12,6 +12,7 @@ import java.lang.reflect.Parameter
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.TypeVariable
 import java.lang.reflect.WildcardType
+import java.util.Objects
 
 interface JavaMethod {
 
@@ -118,8 +119,11 @@ abstract class AbstractMethod: JavaMethod {
     return true
   }
 
+  val isGetter get() = name.length > 3 && name.startsWith("get") && name[3].isUpperCase()
+  val isSetter get() = name.length > 3 && name.startsWith("set") && name[3].isUpperCase()
+
   override fun hashCode(): Int {
-    return javaClass.hashCode()
+    return Objects.hash(name, parameters, returnType)
   }
 }
 

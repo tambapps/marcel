@@ -13,7 +13,6 @@ import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.Scope
-import java.util.concurrent.atomic.AtomicReference
 import kotlin.jvm.Throws
 
 class MarcelReplCompiler(
@@ -25,8 +24,11 @@ class MarcelReplCompiler(
 
   private val lexer = MarcelLexer(false)
   private val definedFunctions = mutableSetOf<MethodNode>()
+  private val definedInnerClasses = mutableSetOf<ClassNode>()
   private val classCompiler = ClassCompiler(compilerConfiguration, typeResolver)
-  private val parserResultReference = AtomicReference<ParserResult>()
+  @Volatile
+  var parserResult: ParserResult? = null
+    private set
 
   fun compile(text: String): Pair<ParserResult, List<CompiledClass>> {
     val result = parse(text)
@@ -40,12 +42,14 @@ class MarcelReplCompiler(
         !it.isConstructor && it.name != "run" && it.name != "main"
       }
     )
+    // same for inner classes
+    definedInnerClasses.addAll(scriptNode.innerClasses)
     return Pair(result, classes)
   }
 
   fun tryParseWithoutUpdate(text: String): ParserResult? {
     return try {
-      updateAndGet(null, text)
+      updateAndGet(text, true)
     }  catch (e: Exception) {
       when (e) {
         is MarcelLexerException, is MarcelParserException, is MarcelSemanticException -> null
@@ -55,29 +59,27 @@ class MarcelReplCompiler(
   }
 
   fun tryParse(text: String): ParserResult? {
-    return parserResultReference.updateAndGet {
-      try {
-        updateAndGet(it, text)
-      }  catch (e: Exception) {
-        when (e) {
-          is MarcelLexerException, is MarcelParserException, is MarcelSemanticException -> null
-          else -> throw e
-        }
+    return try {
+      updateAndGet(text)
+    }  catch (e: Exception) {
+      when (e) {
+        is MarcelLexerException, is MarcelParserException, is MarcelSemanticException -> null
+        else -> throw e
       }
     }
   }
 
   @Throws(MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class)
   fun parse(text: String): ParserResult {
-    return parserResultReference.updateAndGet { updateAndGet(it, text) }
+    return updateAndGet(text)
   }
 
-  private fun updateAndGet(parserResult: ParserResult?, text: String): ParserResult {
+  @Synchronized
+  private fun updateAndGet(text: String, skipUpdate: Boolean = false): ParserResult {
     if (parserResult != null) {
-      typeResolver.disposeClass(parserResult.scriptNode) // some cleaning
-      if (parserResult.hashCode() == text.hashCode()) return parserResult
+      typeResolver.disposeClass(parserResult!!.scriptNode) // some cleaning
+      if (parserResult.hashCode() == text.hashCode()) return parserResult!!
     }
-
     val tokens = lexer.lex(text)
     val parser = MarcelParser(typeResolver, tokens)
 
@@ -92,7 +94,19 @@ class MarcelReplCompiler(
       scriptNode.methods.add(method)
     }
 
+    for (c in definedInnerClasses) {
+      // TODO inner class instantiation doesn't work. probably because the outer class name s not the right one
+      if (scriptNode.innerClasses.any { it.type.className == c.type.className }) {
+        throw MarcelSemanticException("Class ${c.type.simpleName} is already defined")
+      }
+      scriptNode.innerClasses.add(c)
+    }
+
     typeResolver.defineClassMembers(scriptNode)
-    return ParserResult(tokens, scriptNode, text.hashCode())
+    val r = ParserResult(tokens, scriptNode, text.hashCode())
+    if (!skipUpdate) {
+      this.parserResult = r
+    }
+    return r
   }
 }

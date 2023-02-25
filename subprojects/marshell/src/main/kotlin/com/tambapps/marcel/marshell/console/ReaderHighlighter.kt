@@ -27,15 +27,13 @@ class ReaderHighlighter constructor(
 
   private val lexer = MarcelLexer(false)
   private val style = HighlightTheme()
-  private var lastResult: MarcelReplCompiler.ParserResult? = null
 
   override fun highlight(reader: LineReader, text: String): AttributedString {
     val highlightedString = AttributedStringBuilder()
     val parseResult = replCompiler.tryParse(text)
-    if (parseResult != null) lastResult = parseResult
     val tokens = parseResult?.tokens?.toMutableList() ?: lexer.lexSafely(text)
     tokens.removeLast() // remove end of file
-    val scriptNode = parseResult?.scriptNode ?: lastResult?.scriptNode
+    val scriptNode = parseResult?.scriptNode ?: replCompiler.parserResult?.scriptNode
     val node = scriptNode?.methods?.find { it.name == "run" && it.parameters.size == 1 }
 
     for (token in tokens) {

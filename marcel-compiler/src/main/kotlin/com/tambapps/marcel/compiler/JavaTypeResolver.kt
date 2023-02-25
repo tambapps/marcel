@@ -203,6 +203,7 @@ class JavaTypeResolver: AstNodeTypeResolver() {
     super.disposeClass(scriptNode)
     classMethods.remove(scriptNode.type.className)
     classFields.remove(scriptNode.type.className)
+    scriptNode.innerClasses.forEach { disposeClass(it) }
   }
 
 }

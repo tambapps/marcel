@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @AllArgsConstructor
 public class Binding {
 
-  private final Map<String, Object> variables;
+  public final Map<String, Object> variables;
 
   public Binding() {
     this(Collections.synchronizedMap(new HashMap<>()));
