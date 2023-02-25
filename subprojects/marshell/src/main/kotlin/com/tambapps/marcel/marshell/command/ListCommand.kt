@@ -10,7 +10,7 @@ class ListCommand: AbstractShellCommand() {
 
   override val name = "list"
   override val shortName = "l"
-  override val usage = ":list or :list (Variables, Functions, Classes)"
+  override val usage = ":list or :list (variables|functions|classes)"
   override val helpDescription = "list defined members"
 
 

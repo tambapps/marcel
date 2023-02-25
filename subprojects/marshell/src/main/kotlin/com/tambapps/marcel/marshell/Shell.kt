@@ -3,6 +3,7 @@ package com.tambapps.marcel.marshell
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.lexer.MarcelLexerException
+import com.tambapps.marcel.marshell.command.ClearBufferCommand
 import com.tambapps.marcel.marshell.command.ExitCommand
 import com.tambapps.marcel.marshell.command.HelpCommand
 import com.tambapps.marcel.marshell.command.ListCommand
@@ -15,13 +16,13 @@ import com.tambapps.marcel.marshell.repl.MarcelReplCompiler
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
-import com.tambapps.marcel.parser.scope.MarcelField
 import marcel.lang.Binding
 import marcel.lang.util.MarcelVersion
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.UserInterruptException
 import java.nio.file.Files
+import java.util.concurrent.atomic.AtomicBoolean
 
 class Shell {
 
@@ -42,8 +43,10 @@ class Shell {
   private val commands = listOf<ShellCommand>(
     HelpCommand(),
     ExitCommand(),
-    ListCommand()
+    ListCommand(),
+    ClearBufferCommand()
   )
+  private val runningReference = AtomicBoolean()
 
   init {
     typeResolver.loadDefaultExtensions()
@@ -51,11 +54,13 @@ class Shell {
 
 
   fun run() {
+    runningReference.set(true)
     println("Marshell (Marcel: ${MarcelVersion.VERSION}, Java: " + System.getProperty("java.version") + ")")
-    while (true) {
+    while (runningReference.get()) {
       try {
         val prompt = String.format("marshell:%03d> ", buffer.size)
         val line = reader.readLine(prompt)
+        if (line.isEmpty()) continue
         //highlighter.highlight(reader, line) // this is for debug through intelij
         if (isCommand(line)) {
           val args = line.split(" ")
@@ -76,7 +81,7 @@ class Shell {
           } catch (e: MarcelLexerException) {
             println("Error: ${e.message}")
             buffer.clear()
-          } catch (e: MarcelSemanticException) {e.printStackTrace()
+          } catch (e: MarcelSemanticException) {
             println(e.message)
             buffer.clear()
           } catch (e: MarcelParserException) {
@@ -107,10 +112,14 @@ class Shell {
   }
 
   fun exit() {
-    // TODO
+    runningReference.set(false)
   }
 
   private fun isCommand(line: String): Boolean {
     return line.startsWith(":")
+  }
+
+  fun clearBuffer() {
+    buffer.clear()
   }
 }
