@@ -27,7 +27,7 @@ class MarcelReplCompiler(
 
   private val lexer = MarcelLexer(false)
   private val definedFunctions = mutableSetOf<MethodNode>()
-  private val definedInnerClasses = mutableSetOf<ClassNode>()
+  private val definedClasses = mutableSetOf<ClassNode>()
   private val classCompiler = ClassCompiler(compilerConfiguration, typeResolver)
   private val parserConfiguration = ParserConfiguration(true)
   @Volatile
@@ -44,7 +44,7 @@ class MarcelReplCompiler(
       if (clazz.isScript) classes.addAll(classCompiler.compileDefinedClass(clazz))
       else classes.addAll(classCompiler.compileClass(clazz))
     }
-    for (clazz in definedInnerClasses) {
+    for (clazz in definedClasses) {
       classes.addAll(classCompiler.compileDefinedClass(clazz))
     }
 
@@ -55,7 +55,7 @@ class MarcelReplCompiler(
       }
     )
     // same for classes
-    definedInnerClasses.addAll(result.classes.filter { !it.isScript })
+    definedClasses.addAll(result.classes.filter { !it.isScript })
     return Pair(result, classes)
   }
 
