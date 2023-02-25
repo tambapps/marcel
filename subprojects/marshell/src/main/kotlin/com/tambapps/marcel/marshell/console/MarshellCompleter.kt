@@ -4,6 +4,7 @@ import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.marshell.repl.MarcelReplCompiler
 import com.tambapps.marcel.parser.ast.AstInstructionNode
+import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.expression.GetFieldAccessOperator
 import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
@@ -37,7 +38,29 @@ class MarshellCompleter(
     if (endsWithDot && lastNode is ReferenceExpression) {
       lastNode = GetFieldAccessOperator(lastNode.token, lastNode, ReferenceExpression(lastNode.token, lastNode.scope, ""), false)
     }
-    if (lastNode !is GetFieldAccessOperator) return
+    if (lastNode is GetFieldAccessOperator) {
+      completeClassMember(lastNode, endsWithDot, candidates)
+    } else if (lastNode is ReferenceExpression) {
+      completeScriptMember(lastNode, result.scriptNode, candidates)
+    }
+  }
+
+  private fun completeScriptMember(lastNode: ReferenceExpression, scriptNode: ClassNode, candidates: MutableList<Candidate>) {
+    val prefix = lastNode.name
+    typeResolver.getDeclaredMethods(scriptNode.type).forEach {
+      if (it.name.startsWith(prefix) && it.name != "run" && it.name != "main") {
+        val suffix = if (it.parameters.isEmpty()) "()" else "("
+        candidates.add(Candidate(it.name + suffix))
+      }
+    }
+    typeResolver.getDeclaredFields(scriptNode.type).forEach {
+      if (it.name.startsWith(prefix)) {
+        candidates.add(Candidate(it.name))
+      }
+    }
+  }
+
+  private fun completeClassMember(lastNode: GetFieldAccessOperator, endsWithDot: Boolean, candidates: MutableList<Candidate>) {
     val type = try { lastNode.leftOperand.getType(typeResolver) } catch (e: MarcelSemanticException) { null } ?: return
 
     val methodFilter: (JavaMethod) -> Boolean
@@ -50,12 +73,16 @@ class MarshellCompleter(
       methodFilter = { it.name.startsWith(prefix) }
       fieldFilter = { it.name.startsWith(prefix) }
     }
-    typeResolver.getDeclaredMethods(type).filter(methodFilter).forEach {
-      val suffix = if (it.parameters.isEmpty()) "()" else "("
-      candidates.add(Candidate(it.name + suffix))
+    typeResolver.getDeclaredMethods(type).forEach {
+      if (methodFilter.invoke(it)) {
+        val suffix = if (it.parameters.isEmpty()) "()" else "("
+        candidates.add(Candidate(it.name + suffix))
+      }
     }
-    typeResolver.getDeclaredFields(type).filter(fieldFilter).forEach {
-      candidates.add(Candidate(it.name))
+    typeResolver.getDeclaredFields(type).forEach {
+      if (fieldFilter.invoke(it)) {
+        candidates.add(Candidate(it.name))
+      }
     }
   }
 }

@@ -1,25 +1,14 @@
 package com.tambapps.marcel.marshell.repl
 
-import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.JarWriter
-import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.compiler.MarcelCompiler
-import com.tambapps.marcel.compiler.asm.ClassCompiler
-import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
-import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
-import com.tambapps.marcel.parser.ast.ClassNode
-import com.tambapps.marcel.parser.ast.MethodNode
-
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
-import com.tambapps.marcel.parser.scope.Scope
 import marcel.lang.Binding
 import marcel.lang.Script
 import java.io.File
 import java.net.URLClassLoader
-import java.util.concurrent.atomic.AtomicReference
 
 class MarcelEvaluator constructor(
   private val replCompiler: MarcelReplCompiler,
