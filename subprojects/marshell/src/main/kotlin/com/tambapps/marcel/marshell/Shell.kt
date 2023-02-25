@@ -3,6 +3,8 @@ package com.tambapps.marcel.marshell
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.lexer.MarcelLexerException
+import com.tambapps.marcel.marshell.command.HelpCommand
+import com.tambapps.marcel.marshell.command.ShellCommand
 import com.tambapps.marcel.marshell.console.MarshellCompleter
 import com.tambapps.marcel.marshell.console.MarshellSnippetParser
 import com.tambapps.marcel.marshell.console.ReaderHighlighter
@@ -28,6 +30,9 @@ class Shell {
     .completer(MarshellCompleter(replCompiler, typeResolver))
     .build()
   private val buffer = mutableListOf<String>()
+  private val commands = listOf<ShellCommand>(
+    HelpCommand()
+  )
 
   init {
     typeResolver.loadDefaultExtensions()
@@ -40,9 +45,15 @@ class Shell {
         val prompt = if (buffer.isEmpty()) "> " else "  "
         val line = reader.readLine(prompt)
         //highlighter.highlight(reader, line) // this is for debug through intelij
-        if (line.startsWith(":")) {
-          // handle command
-          println("Unknown command " + line.substring(1))
+        if (isCommand(line)) {
+          val commandName = line.substring(1)
+          val args = line.split(" ")
+          val command = findCommand(commandName)
+          if (command != null) {
+            command.run(this, args.subList(1, args.size), System.out)
+          } else {
+            println("Unknown command $commandName")
+          }
         } else {
           try {
             val text = buffer.joinToString(separator = "\n", postfix = if (buffer.isEmpty()) line else "\n$line")
@@ -67,13 +78,19 @@ class Shell {
             buffer.clear()
           }
         }
-
-        // TODO
       } catch (e: UserInterruptException) { break }
       catch (ee: EndOfFileException) { break }
       catch (ex: Exception) { ex.printStackTrace() }
     }
     Files.delete(tempDir)
+  }
+
+  fun printHelp() {
+    commands.forEach { it.printHelp(System.out) }
+  }
+
+  fun findCommand(name: String): ShellCommand? {
+    return commands.find { it.name == name || it.shortName == name }
   }
 
   private fun isCommand(line: String): Boolean {

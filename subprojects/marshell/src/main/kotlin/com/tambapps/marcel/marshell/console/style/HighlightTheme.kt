@@ -7,7 +7,6 @@ class HighlightTheme {
   val function = AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW)
   val variable = AttributedStyle.DEFAULT.foreground(AttributedStyle.MAGENTA)
 
-  val type = AttributedStyle.DEFAULT.foreground(AttributedStyle.MAGENTA)
   val string = AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN)
   val stringTemplate = AttributedStyle.BOLD.foreground(
   AttributedStyle.YELLOW

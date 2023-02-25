@@ -5,7 +5,6 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.TokenType.*
 import com.tambapps.marcel.marshell.console.style.HighlightTheme
-import com.tambapps.marcel.marshell.repl.MarcelEvaluator
 import com.tambapps.marcel.marshell.repl.MarcelReplCompiler
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.ScopedNode
