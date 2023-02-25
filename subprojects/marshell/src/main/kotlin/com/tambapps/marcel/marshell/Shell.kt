@@ -13,6 +13,8 @@ import com.tambapps.marcel.marshell.repl.MarcelEvaluator
 import com.tambapps.marcel.marshell.repl.MarcelReplCompiler
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.scope.MarcelField
+import marcel.lang.Binding
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.UserInterruptException
@@ -20,16 +22,18 @@ import java.nio.file.Files
 
 class Shell {
 
+  private val binding = Binding()
   private val typeResolver = JavaTypeResolver()
   private val tempDir = Files.createTempDirectory("marshell")
   private val replCompiler = MarcelReplCompiler(CompilerConfiguration.DEFAULT_CONFIGURATION, typeResolver)
-  private val evaluator = MarcelEvaluator(replCompiler, tempDir.toFile())
+  private val evaluator = MarcelEvaluator(binding, replCompiler, tempDir.toFile())
   private val highlighter = ReaderHighlighter(typeResolver, replCompiler)
   private val reader =  LineReaderBuilder.builder()
     .highlighter(highlighter)
     .parser(MarshellSnippetParser()) // useful for completer. To know from where start completion
     .completer(MarshellCompleter(replCompiler, typeResolver))
     .build()
+
   private val buffer = mutableListOf<String>()
   private val commands = listOf<ShellCommand>(
     HelpCommand(),

@@ -11,11 +11,11 @@ import java.io.File
 import java.net.URLClassLoader
 
 class MarcelEvaluator constructor(
+  private val binding: Binding,
   private val replCompiler: MarcelReplCompiler,
   private val tempDir: File
 ) {
 
-  private val binding = Binding()
 
   @Throws(MarcelLexerException::class, MarcelParserException::class)
   fun eval(code: String): Any? {

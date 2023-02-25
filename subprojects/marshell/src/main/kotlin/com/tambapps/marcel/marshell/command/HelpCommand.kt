@@ -6,7 +6,7 @@ import java.io.PrintStream
 class HelpCommand: AbstractShellCommand() {
   override val name = "help"
   override val shortName = "h"
-  override val usage = ":help or :help command"
+  override val usage = ":help or :help [commandName]"
   override val helpDescription = "print this summary or command-specific help"
 
   override fun run(shell: Shell, args: List<String>, out: PrintStream) {

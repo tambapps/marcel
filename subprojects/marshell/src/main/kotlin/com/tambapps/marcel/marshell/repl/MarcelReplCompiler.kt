@@ -24,9 +24,9 @@ class MarcelReplCompiler(
   data class ParserResult(val tokens: List<LexToken>, val scriptNode: ClassNode, val textHashCode: Int)
 
   private val lexer = MarcelLexer(false)
-  private val parserResultReference = AtomicReference<ParserResult>()
   private val definedFunctions = mutableSetOf<MethodNode>()
   private val classCompiler = ClassCompiler(compilerConfiguration, typeResolver)
+  private val parserResultReference = AtomicReference<ParserResult>()
 
   fun compile(text: String): Pair<ParserResult, List<CompiledClass>> {
     val result = parse(text)
