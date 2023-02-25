@@ -146,10 +146,13 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
     classNode.innerClasses.forEach { defineClassMembers(it) }
   }
 
-    open fun getDeclaredMethods(javaType: JavaType): List<JavaMethod> {
+  open fun getDeclaredMethods(javaType: JavaType): List<JavaMethod> {
     return emptyList()
   }
 
+  open fun getDeclaredFields(javaType: JavaType): List<MarcelField> {
+    return emptyList()
+  }
   open fun of(className: String, genericTypes: List<JavaType>): JavaType {
     return definedTypes[className] ?: JavaType.of(className, genericTypes)
   }

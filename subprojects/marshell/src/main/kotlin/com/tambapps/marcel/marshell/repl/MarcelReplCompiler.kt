@@ -43,6 +43,17 @@ class MarcelReplCompiler(
     return Pair(result, classes)
   }
 
+  fun tryParseWithoutUpdate(text: String): ParserResult? {
+    return try {
+      updateAndGet(null, text)
+    }  catch (e: Exception) {
+      when (e) {
+        is MarcelLexerException, is MarcelParserException, is MarcelSemanticException -> null
+        else -> throw e
+      }
+    }
+  }
+
   fun tryParse(text: String): ParserResult? {
     return parserResultReference.updateAndGet {
       try {

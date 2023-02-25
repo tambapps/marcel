@@ -3,13 +3,14 @@ package com.tambapps.marcel.marshell
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.lexer.MarcelLexerException
+import com.tambapps.marcel.marshell.console.MarshellCompleter
+import com.tambapps.marcel.marshell.console.MarshellSnippetParser
 import com.tambapps.marcel.marshell.console.ReaderHighlighter
 import com.tambapps.marcel.marshell.repl.MarcelEvaluator
 import com.tambapps.marcel.marshell.repl.MarcelReplCompiler
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import org.jline.reader.EndOfFileException
-import org.jline.reader.LineReader
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.UserInterruptException
 import java.nio.file.Files
@@ -21,15 +22,15 @@ class Shell {
   private val replCompiler = MarcelReplCompiler(CompilerConfiguration.DEFAULT_CONFIGURATION, typeResolver)
   private val evaluator = MarcelEvaluator(replCompiler, tempDir.toFile())
   private val highlighter = ReaderHighlighter(typeResolver, replCompiler)
-  private val reader: LineReader
+  private val reader =  LineReaderBuilder.builder()
+    .highlighter(highlighter)
+    .parser(MarshellSnippetParser()) // useful for completer. To know from where start completion
+    .completer(MarshellCompleter(replCompiler, typeResolver))
+    .build()
   private val buffer = mutableListOf<String>()
 
   init {
     typeResolver.loadDefaultExtensions()
-    val readerBuilder = LineReaderBuilder.builder()
-      .highlighter(highlighter)
-
-    reader = readerBuilder.build()
   }
 
 

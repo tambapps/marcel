@@ -4,6 +4,7 @@ import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.Opcodes
+import java.lang.reflect.Field
 
 sealed interface Variable : AstTypedObject{
 
@@ -80,4 +81,13 @@ class MethodField constructor(override val type: JavaType, override val name: St
     }
   }
 
+}
+
+class ReflectMarcelField private constructor(
+  override val type: JavaType,
+  override val name: String,
+  override val owner: JavaType,
+  override val access: Int
+) : AbstractField() {
+  constructor(field: Field): this(JavaType.of(field.type), field.name, JavaType.of(field.declaringClass), field.modifiers)
 }

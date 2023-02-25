@@ -15,6 +15,7 @@ import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.ClassField
 import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.scope.MethodField
+import com.tambapps.marcel.parser.scope.ReflectMarcelField
 import com.tambapps.marcel.parser.type.ExtensionJavaMethod
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
@@ -67,6 +68,11 @@ class JavaTypeResolver: AstNodeTypeResolver() {
   override fun getDeclaredMethods(javaType: JavaType): List<JavaMethod> {
     return if (javaType.isLoaded) javaType.realClazz.declaredMethods.map { ReflectJavaMethod(it, javaType) }
     else classMethods[javaType.className] ?: emptyList()
+  }
+
+  override fun getDeclaredFields(javaType: JavaType): List<MarcelField> {
+    return if (javaType.isLoaded) javaType.realClazz.declaredFields.map { ReflectMarcelField(it) }
+    else classFields[javaType.className] ?: emptyList()
   }
 
   override fun doFindMethodByParameters(javaType: JavaType, name: String,
