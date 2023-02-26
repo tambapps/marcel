@@ -76,11 +76,14 @@ fun main(args : Array<String>) {
   if (!containsHelp && arguments.firstOrNull() == "execute") {
     arguments.removeAt(0)
   }
+  val marcl = Marcl().subcommands(ExecuteCommand(emptyArray()), CompileCommand())
   if (arguments.firstOrNull() !in COMMANDS && !containsHelp) {
     // need special behaviour for execute command because there are marcl parameters, and script parameters
     val fileNameIndex = arguments.indexOfFirst { !it.startsWith("-") }
     if (fileNameIndex < 0) {
       println("must provide a file")
+      // show help
+      marcl.main(arrayOf("-h"))
       exitProcess(1)
     }
     val executeArguments = arguments.subList(0, fileNameIndex + 1)
@@ -88,7 +91,7 @@ fun main(args : Array<String>) {
     ExecuteCommand(scriptArguments).main(executeArguments)
   } else {
     // adding executeCommand for the help message
-    Marcl().subcommands(ExecuteCommand(emptyArray()), CompileCommand()).main(arguments)
+    marcl.main(arguments)
   }
 }
 
