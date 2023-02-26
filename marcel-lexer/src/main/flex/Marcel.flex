@@ -318,6 +318,7 @@ LONELY_BACKTICK=`
 "continue"          { return token(CONTINUE); }
 "this"          { return token(THIS); }
 "super"          { return token(SUPER); }
+"dumbbell"          { return token(DUMBBELL); }
 
 {IDENTIFIER} {  return valueToken(IDENTIFIER); }
 

@@ -42,7 +42,8 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
         if (interfaceType != null) listOf(interfaceType, lambdaInterfaceType)
         else listOf(lambdaInterfaceType))
     val methods = mutableListOf<MethodNode>()
-    val lambdaClassNode = ClassNode(token, scope.copy(type), Opcodes.ACC_PRIVATE, type, type.superType!!, false, methods, mutableListOf(), mutableListOf())
+    val lambdaClassNode = ClassNode(token, scope.copy(type), Opcodes.ACC_PRIVATE, type, type.superType!!,
+      false, methods, mutableListOf(), mutableListOf())
 
     // getting all referenced variables so that the lambda can access them
     val referencedLocalVariables = LinkedHashSet<Variable>()

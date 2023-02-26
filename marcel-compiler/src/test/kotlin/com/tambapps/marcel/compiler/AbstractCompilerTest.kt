@@ -11,10 +11,10 @@ abstract class AbstractCompilerTest {
 
   protected fun eval(resourceName: String): Any? {
     val className = "Test" + resourceName.hashCode().absoluteValue
-    val result = javaClass.getResourceAsStream(resourceName).reader().use {
-      // using hashCode to have unique names
-      compiler.compile(it, className)
+    val text = javaClass.getResourceAsStream(resourceName).reader().use {
+      it.readText()
     }
+    val result = compiler.compile(text, className)
 
     val jarFile = Files.createTempFile("", "$className.jar").toFile()
     JarWriter(jarFile).use {

@@ -1,5 +1,7 @@
 package com.tambapps.marcel.compiler
 
-class CompilationResult(val classes: List<CompiledClass>)
+import com.tambapps.marcel.parser.ast.ModuleNode
+
+class CompilationResult(val ast: ModuleNode, val classes: List<CompiledClass>)
 
 class CompiledClass(val className: String, val bytes: ByteArray)

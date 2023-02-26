@@ -120,6 +120,9 @@ fun compile(file: File, className: String, keepClassFiles: Boolean, keepJarFile:
     return null
   }
 
+  if (result.ast.dumbbells.isNotEmpty()) {
+    // TODO
+  }
   for (compiledClass in result.classes) {
     if (!keepClassFiles && !keepJarFile || keepClassFiles) { // if no option is specified
       File("${compiledClass.className}.class").writeBytes(compiledClass.bytes)

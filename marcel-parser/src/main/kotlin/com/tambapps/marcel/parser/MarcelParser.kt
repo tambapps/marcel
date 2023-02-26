@@ -67,11 +67,16 @@ class MarcelParser constructor(
     val imports = mutableListOf<ImportNode>()
     imports.addAll(Scope.DEFAULT_IMPORTS)
 
+    val dumbbells = mutableListOf<String>()
+    while (current.type == TokenType.DUMBBELL) {
+      dumbbells.add(dumbbell())
+    }
+
     while (current.type == TokenType.IMPORT) {
       imports.add(import())
     }
 
-    val moduleNode = ModuleNode()
+    val moduleNode = ModuleNode(dumbbells)
     while (current.type != TokenType.END_OF_FILE) {
       if (current.type == TokenType.CLASS
         || lookup(1)?.type == TokenType.CLASS
@@ -168,7 +173,8 @@ class MarcelParser constructor(
     classMethods.add(runFunction)
     val innerClasses = mutableListOf<ClassNode>()
     val classNode = ClassNode(LexToken.dummy(), classScope,
-      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, classType, JavaType.of(Script::class.java), true, classMethods, classFields, innerClasses)
+      Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, classType, JavaType.of(Script::class.java),
+      true, classMethods, classFields, innerClasses)
     val classNodes = mutableListOf(classNode)
 
     while (current.type != TokenType.END_OF_FILE) {
@@ -209,6 +215,14 @@ class MarcelParser constructor(
     if (i >= tokens.size) throw MarcelParserException(current, "Unexpected tokens")
     return tokens[i].type
   }
+  private fun dumbbell(): String {
+    accept(TokenType.DUMBBELL)
+    accept(TokenType.OPEN_SIMPLE_QUOTE)
+    val d = simpleStringPart()
+    accept(TokenType.CLOSING_SIMPLE_QUOTE)
+    return d
+  }
+
   private fun import(): ImportNode {
     val importToken = accept(TokenType.IMPORT)
     val staticImport = acceptOptional(TokenType.STATIC) != null
@@ -606,7 +620,7 @@ class MarcelParser constructor(
       TokenType.OPEN_SIMPLE_QUOTE -> {
         val builder = StringBuilder()
         while (current.type != TokenType.CLOSING_SIMPLE_QUOTE) {
-          builder.append(simpleStringPart(scope))
+          builder.append(simpleStringPart())
         }
         skip() // skip last quote
         StringConstantNode(token, builder.toString())
@@ -614,7 +628,7 @@ class MarcelParser constructor(
       TokenType.OPEN_REGEX_QUOTE -> {
         val builder = StringBuilder()
         while (current.type != TokenType.CLOSING_REGEX_QUOTE) {
-          builder.append(simpleStringPart(scope))
+          builder.append(simpleStringPart())
         }
         skip() // skip last quote
         val flags = mutableListOf<Int>()
@@ -877,7 +891,7 @@ class MarcelParser constructor(
       }
     }
   }
-  private fun simpleStringPart(scope: Scope): String {
+  private fun simpleStringPart(): String {
     val token = next()
     return when (token.type) {
       TokenType.REGULAR_STRING_PART -> token.value
