@@ -3,12 +3,8 @@ package com.tambapps.marcel.lexer;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 @AllArgsConstructor
@@ -58,6 +54,9 @@ public class MarcelLexer {
       }
       if (token == null) break;
       if (token.getType() == TokenType.BAD_CHARACTER) {
+        if (catchAndStop) {
+          return tokens;
+        }
         throw new MarcelLexerException(token.getLine(), token.getColumn(), "Bad character " + token.getValue());
       }
       if (!COMMENT_TOKENS.contains(token.getType()) && (!ignoreWhitespaces || token.getType() != TokenType.WHITE_SPACE)) {
