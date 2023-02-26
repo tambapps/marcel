@@ -5,6 +5,7 @@ import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import marcel.lang.Binding
+import marcel.lang.MarcelScriptLoader
 import java.io.File
 
 class MarcelEvaluator constructor(

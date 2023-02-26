@@ -12,6 +12,7 @@ import com.tambapps.marcel.repl.command.HelpCommand
 import com.tambapps.marcel.repl.command.ListCommand
 import com.tambapps.marcel.repl.command.ShellCommand
 import marcel.lang.Binding
+import marcel.lang.MarcelScriptLoader
 import marcel.lang.util.MarcelVersion
 import java.nio.file.Files
 import java.util.concurrent.atomic.AtomicBoolean
