@@ -1,14 +1,16 @@
 package com.tambapps.marcel.marshell
 
+import com.tambapps.marcel.compiler.MarcelCompiler
 import com.tambapps.marcel.marshell.console.MarshellCompleter
 import com.tambapps.marcel.marshell.console.MarshellSnippetParser
 import com.tambapps.marcel.marshell.console.ReaderHighlighter
 import com.tambapps.marcel.repl.MarcelShell
+import com.tambapps.marcel.repl.URLMarcelScriptLoader
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.UserInterruptException
 
-class Marshell: MarcelShell() {
+class Marshell: MarcelShell(URLMarcelScriptLoader(MarcelCompiler::class.java.classLoader)) {
 
   private val highlighter = ReaderHighlighter(typeResolver, replCompiler)
   private val reader =  LineReaderBuilder.builder()

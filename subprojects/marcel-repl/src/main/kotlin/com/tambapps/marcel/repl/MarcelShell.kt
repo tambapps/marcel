@@ -16,13 +16,13 @@ import marcel.lang.util.MarcelVersion
 import java.nio.file.Files
 import java.util.concurrent.atomic.AtomicBoolean
 
-abstract class MarcelShell {
+abstract class MarcelShell constructor(marcelScriptLoader: MarcelScriptLoader) {
   val binding = Binding()
   val lastNode: ClassNode? get() = replCompiler.parserResult?.scriptNode
   protected val typeResolver = JavaTypeResolver()
   private val tempDir = Files.createTempDirectory("marshell")
   protected val replCompiler = MarcelReplCompiler(CompilerConfiguration.DEFAULT_CONFIGURATION, typeResolver)
-  private val evaluator = MarcelEvaluator(binding, replCompiler, tempDir.toFile())
+  private val evaluator = MarcelEvaluator(binding, replCompiler, marcelScriptLoader, tempDir.toFile())
 
 
   private val buffer = mutableListOf<String>()
