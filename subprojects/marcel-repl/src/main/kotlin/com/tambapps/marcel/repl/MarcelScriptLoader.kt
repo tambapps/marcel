@@ -4,11 +4,13 @@ import marcel.lang.Binding
 import marcel.lang.Script
 import java.io.File
 import java.net.URL
+import kotlin.jvm.Throws
 
 abstract class MarcelScriptLoader {
 
   private val libraryJars = mutableSetOf<File>()
 
+  @Throws(ClassNotFoundException::class)
   abstract fun loadScript(className: String, jarFile: File, binding: Binding? = null): Script
 
   fun addLibraryJar(jarFile: File): Boolean {

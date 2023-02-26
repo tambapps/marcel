@@ -9,13 +9,11 @@ import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.parser.ParserConfiguration
-import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.Scope
 import kotlin.jvm.Throws
 
-// TODO need to add a library jar class in which to put definedClasses (they shouldn't be recompiled at each run)
 class MarcelReplCompiler(
   compilerConfiguration: CompilerConfiguration,
   private val typeResolver: JavaTypeResolver,
@@ -23,25 +21,27 @@ class MarcelReplCompiler(
 
   private val lexer = MarcelLexer(false)
   private val definedFunctions = mutableSetOf<MethodNode>()
-  private val definedClasses = mutableSetOf<ClassNode>()
+  private val definedClasses = mutableSetOf<String>()
   private val classCompiler = ClassCompiler(compilerConfiguration, typeResolver)
   private val parserConfiguration = ParserConfiguration(true)
   @Volatile
   var parserResult: ParserResult? = null
     private set
 
-  fun compile(text: String): Pair<ParserResult, List<CompiledClass>> {
+  fun compile(text: String): ReplCompilerResult {
     val result = parse(text)
     val scriptNode = result.scriptNode
     // writing script. class members were defined when parsing
-    val classes = mutableListOf<CompiledClass>()
+    val compiledScriptClass = classCompiler.compileDefinedClass(scriptNode)
+    val otherClasses = mutableListOf<CompiledClass>()
 
     for (clazz in result.classes) {
-      if (clazz.isScript) classes.addAll(classCompiler.compileDefinedClass(clazz))
-      else classes.addAll(classCompiler.compileClass(clazz))
-    }
-    for (clazz in definedClasses) {
-      classes.addAll(classCompiler.compileDefinedClass(clazz))
+      if (!clazz.isScript) {
+        if (definedClasses.contains(clazz.type.className)) {
+          throw MarcelSemanticException("Class ${clazz.type.simpleName} is already defined")
+        }
+        otherClasses.addAll(classCompiler.compileClass(clazz))
+      }
     }
 
     // keeping function for next runs. Needs to be AFTER compilation because this step may add some methods (e.g. switch, properties...)
@@ -50,9 +50,8 @@ class MarcelReplCompiler(
         !it.isConstructor && it.name != "run" && it.name != "main"
       }
     )
-    // same for classes
-    definedClasses.addAll(result.classes.filter { !it.isScript })
-    return Pair(result, classes)
+    definedClasses.addAll(result.classes.filter { !it.isScript }.map { it.type.className })
+    return ReplCompilerResult(result, compiledScriptClass, otherClasses)
   }
 
   fun tryParseWithoutUpdate(text: String): ParserResult? {

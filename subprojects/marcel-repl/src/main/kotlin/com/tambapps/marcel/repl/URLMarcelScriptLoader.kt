@@ -4,6 +4,7 @@ import marcel.lang.Binding
 import marcel.lang.Script
 import java.io.File
 import java.net.URLClassLoader
+import kotlin.jvm.Throws
 
 class URLMarcelScriptLoader(
   private val parentLoader: ClassLoader
@@ -11,7 +12,7 @@ class URLMarcelScriptLoader(
 
   constructor(): this(URLMarcelScriptLoader::class.java.classLoader)
 
-
+  @Throws(ClassNotFoundException::class)
   override fun loadScript(className: String, jarFile: File, binding: Binding?): Script {
     if (!jarFile.isFile) throw IllegalArgumentException("File $jarFile is not a regular file")
 
