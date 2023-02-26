@@ -23,13 +23,15 @@ class ListCommand: AbstractShellCommand() {
       printFunctions(shell.lastNode, out)
       out.println()
       out.println("Classes:")
-      printInnerClasses(shell.lastNode, out)
+      printDefinedClasses(shell.definedClasses, out)
       out.println()
     } else {
-      when (args.first().lowercase()) {
+      val arg = args.first().lowercase()
+      when (arg) {
         "v", "variable", "variables" -> printVariables(shell.binding, out)
         "f", "function", "functions" -> printVariables(shell.binding, out)
-        "c", "class", "classes" -> printInnerClasses(shell.lastNode, out)
+        "c", "class", "classes" -> printDefinedClasses(shell.definedClasses, out)
+        else -> out.println("Unknown value $arg. Provide 'variables', 'functions' or 'classes'")
       }
     }
   }
@@ -65,20 +67,17 @@ class ListCommand: AbstractShellCommand() {
     }
   }
 
-  private fun printInnerClasses(classNode: ClassNode?, out: PrintStream) {
-    if (classNode == null || classNode.innerClasses.isEmpty()) {
+  private fun printDefinedClasses(classes: List<JavaType>, out: PrintStream) {
+    if (classes.isEmpty()) {
       out.println("No classes defined")
       return
     }
-    for (c in classNode.innerClasses) {
+    for (c in classes) {
       val className = c.type.className
       val displayedName = className.substring(className.indexOf('$') + 1)
       out.print("class $displayedName")
-      if (c.superType != JavaType.Object) out.print(" extends ${c.superType.simpleName}")
+      if (c.superType != null && c.superType != JavaType.Object) out.print(" extends ${c.superType!!.simpleName}")
       out.println()
-      for (innerC in c.innerClasses) {
-        printInnerClasses(innerC, out)
-      }
     }
   }
 

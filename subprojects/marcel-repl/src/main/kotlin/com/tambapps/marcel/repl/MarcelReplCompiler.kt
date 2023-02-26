@@ -12,6 +12,7 @@ import com.tambapps.marcel.parser.ParserConfiguration
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.Scope
+import com.tambapps.marcel.parser.type.JavaType
 import kotlin.jvm.Throws
 
 class MarcelReplCompiler(
@@ -21,7 +22,8 @@ class MarcelReplCompiler(
 
   private val lexer = MarcelLexer(false)
   private val definedFunctions = mutableSetOf<MethodNode>()
-  private val definedClasses = mutableSetOf<String>()
+  private val _definedClasses = mutableListOf<JavaType>()
+  val definedClasses: List<JavaType> get() = _definedClasses
   private val classCompiler = ClassCompiler(compilerConfiguration, typeResolver)
   private val parserConfiguration = ParserConfiguration(true)
   @Volatile
@@ -37,7 +39,7 @@ class MarcelReplCompiler(
 
     for (clazz in result.classes) {
       if (!clazz.isScript) {
-        if (definedClasses.contains(clazz.type.className)) {
+        if (_definedClasses.any { it.className == clazz.type.className }) {
           throw MarcelSemanticException("Class ${clazz.type.simpleName} is already defined")
         }
         otherClasses.addAll(classCompiler.compileClass(clazz))
@@ -50,7 +52,7 @@ class MarcelReplCompiler(
         !it.isConstructor && it.name != "run" && it.name != "main"
       }
     )
-    definedClasses.addAll(result.classes.filter { !it.isScript }.map { it.type.className })
+    _definedClasses.addAll(result.classes.filter { !it.isScript }.map { it.type })
     return ReplCompilerResult(result, compiledScriptClass, otherClasses)
   }
 
