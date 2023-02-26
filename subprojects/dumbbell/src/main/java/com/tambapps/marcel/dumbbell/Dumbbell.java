@@ -22,23 +22,23 @@ public class Dumbbell {
     return engine;
   }
 
-  public List<Artifact> pull(String endorsedModule) {
+  public static List<PulledArtifact> pull(String endorsedModule) {
     return getEngine().pull(endorsedModule);
   }
 
-  public List<Artifact> pull(Artifact artifact) {
+  public static List<PulledArtifact> pull(Artifact artifact) {
     return getEngine().pull(artifact);
   }
 
-  public List<Artifact> pull(String groupId, String artifactId, String version) {
+  public static List<PulledArtifact> pull(String groupId, String artifactId, String version) {
     return getEngine().pull(groupId, artifactId, version);
   }
 
-  public Map<String, Map<String, List<String>>> enumerateDumbbells() {
+  public static Map<String, Map<String, List<String>>> enumerateDumbbells() {
     return getEngine().enumerateDumbbells();
   }
 
-  public List<Artifact> getAllFetchedArtifacts() {
+  public static List<Artifact> getAllFetchedArtifacts() {
     return getEngine().getAllFetchedArtifacts();
   }
 }

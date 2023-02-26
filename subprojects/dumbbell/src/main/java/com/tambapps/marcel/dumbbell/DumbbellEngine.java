@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DumbbellEngine {
 
@@ -28,17 +29,17 @@ public class DumbbellEngine {
     this.repository = new RemoteSavingMavenRepository(repositoryRoot);
   }
 
-  public List<Artifact> pull(String endorsedModule) {
+  public List<PulledArtifact> pull(String endorsedModule) {
     String[] fields = Artifact.extractFields(endorsedModule);
     return pull(fields[0], fields[1], fields[2]);
   }
 
-  public List<Artifact> pull(Artifact artifact) {
+  public List<PulledArtifact> pull(Artifact artifact) {
     return pull(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion());
   }
 
   @SneakyThrows
-  public List<Artifact> pull(String groupId, String artifactId, String version) {
+  public List<PulledArtifact> pull(String groupId, String artifactId, String version) {
     DependencyResolver resolver = new DependencyResolver(repository);
     resolver.setExcludedArtifacts(new HashSet<>(Arrays.asList(
         new Artifact("com.squareup.okhttp3", "okhttp", "*"),
@@ -48,7 +49,10 @@ public class DumbbellEngine {
         new Artifact("org.jetbrains.kotlin", "kotlin-stdlib-common", "*")
     )));
     resolver.resolve(groupId, artifactId, version);
-    return resolver.getResults().getArtifacts(new FirstVersionFoundConflictResolver());
+    List<Artifact> artifacts = resolver.getResults().getArtifacts(new FirstVersionFoundConflictResolver());
+    return artifacts.stream()
+        .map(a -> new PulledArtifact(a, repository.getJarFile(a)))
+        .collect(Collectors.toList());
   }
   
   public Map<String, Map<String, List<String>>> enumerateDumbbells() {
