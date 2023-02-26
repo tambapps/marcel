@@ -64,7 +64,7 @@
             <configuration>
               <archive>
                 <manifest>
-                  <mainClass>com.tambapps.marcel.marshell.MarshellKt</mainClass>
+                  <mainClass>com.tambapps.marcel.marshell.MainKt</mainClass>
                 </manifest>
               </archive>
               <descriptorRefs>
