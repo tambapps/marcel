@@ -22,7 +22,9 @@ class MarcelEvaluator constructor(
 
     val className = scriptNode.type.simpleName
     val jarFile = File(tempDir.parentFile, "$className.jar")
-    JarWriter().writeScriptJar(result.compiledScript + result.otherClasses, jarFile)
+    JarWriter(jarFile).use {
+      it.writeScriptJar(result.compiledScript + result.otherClasses)
+    }
     if (scriptNode.fields.isNotEmpty()) {
       throw MarcelSemanticException("Cannot define field variables in Marshell. Use global or local variables only")
     }

@@ -128,7 +128,9 @@ fun compile(file: File, className: String, keepClassFiles: Boolean, keepJarFile:
 
   if (!keepJarFile) return null
   val jarFile = File(file.parentFile, "$className.jar")
-  JarWriter().writeScriptJar(result.classes, jarFile)
+  JarWriter(jarFile).use {
+    it.writeScriptJar(result.classes)
+  }
   return jarFile
 }
 
