@@ -36,3 +36,10 @@ Marcel has the following keywords, which you cannot use as variable/function nam
 - final
 - switch
 - when
+- this
+- super
+- dumbbell
+- try
+- catch
+- finally
+- instanceof
