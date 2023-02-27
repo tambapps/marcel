@@ -16,6 +16,7 @@ import com.tambapps.marcel.parser.ast.expression.ShortConstantNode
 import com.tambapps.marcel.parser.ast.expression.VoidExpression
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.Scope
+import marcel.lang.MarcelClassLoader
 import marcel.lang.lambda.Lambda
 import marcel.lang.primitives.collections.lists.CharacterArrayList
 import marcel.lang.primitives.collections.lists.CharacterList
@@ -212,6 +213,9 @@ interface JavaType: AstTypedObject {
       }
     }
     fun of(className: String, genericTypes: List<JavaType>): JavaType {
+      return of(null, className, genericTypes)
+    }
+    fun of(classLoader: MarcelClassLoader?, className: String, genericTypes: List<JavaType>): JavaType {
       val optPrimitiveType = PRIMITIVES.find { it.className == className }
       if (optPrimitiveType != null) return optPrimitiveType
       val optArrayType = ARRAYS.find { it.className == className }
@@ -222,7 +226,9 @@ interface JavaType: AstTypedObject {
         if (type != null) return type
       }
       try {
-        return of(Class.forName(className)).withGenericTypes(genericTypes)
+        val clazz = if (classLoader != null) classLoader.loadClass(className)
+        else Class.forName(className)
+        return of(clazz).withGenericTypes(genericTypes)
       } catch (e: ClassNotFoundException) {
         throw MarcelSemanticException("Class $className was not found")
       }

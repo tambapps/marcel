@@ -14,7 +14,7 @@ abstract class AbstractCompilerTest {
     val text = javaClass.getResourceAsStream(resourceName).reader().use {
       it.readText()
     }
-    val result = compiler.compile(text, className)
+    val result = compiler.compile(text = text, className = className)
 
     val jarFile = Files.createTempFile("", "$className.jar").toFile()
     JarWriter(jarFile).use {

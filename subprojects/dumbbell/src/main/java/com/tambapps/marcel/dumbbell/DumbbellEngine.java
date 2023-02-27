@@ -18,15 +18,9 @@ public class DumbbellEngine {
 
   private final RemoteSavingMavenRepository repository;
 
-  public DumbbellEngine(File rootDirectory) {
-    if (!rootDirectory.isDirectory() && !rootDirectory.mkdir()) {
-      throw new RuntimeException("Couldn't create dumbbell directory");
-    }
-    File repositoryRoot = new File(rootDirectory, "repository");
-    if (!repositoryRoot.isDirectory() && !repositoryRoot.mkdir()) {
-      throw new RuntimeException("Couldn't create dumbbell repository directory");
-    }
-    this.repository = new RemoteSavingMavenRepository(repositoryRoot);
+  public DumbbellEngine(File dumbbellRoot) {
+    // the LocalMavenRepository will take care of creating a subdirectory "repository"
+    this.repository = new RemoteSavingMavenRepository(dumbbellRoot);
   }
 
   public List<PulledArtifact> pull(String endorsedModule) {

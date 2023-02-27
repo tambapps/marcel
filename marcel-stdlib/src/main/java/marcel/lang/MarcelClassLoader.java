@@ -7,7 +7,7 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
-abstract public class MarcelScriptLoader {
+abstract public class MarcelClassLoader {
 
   private final Set<File> libraryJars = new HashSet<>();
 
@@ -18,13 +18,15 @@ abstract public class MarcelScriptLoader {
   public abstract Script loadScript(String className, File jarFile, Binding binding)
   throws ReflectiveOperationException;
 
-  public boolean addLibraryJar(File jarFile) {
-    return libraryJars.add(jarFile);
+  public Class<?> loadClass(String name) throws ClassNotFoundException {
+    return getClassLoader().loadClass(name);
   }
 
-  public boolean removeLibraryJar(File jarFile) {
-    return libraryJars.remove(jarFile);
-  }
+  abstract public void addLibraryJar(File jarFile);
+
+  abstract public void removeLibraryJar(File jarFile);
+
+  abstract public ClassLoader getClassLoader();
 
   @SneakyThrows
   protected URL[] getJarUrls(File mainJarFile) {

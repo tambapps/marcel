@@ -1,12 +1,13 @@
 package com.tambapps.marcel.compiler
 
 import com.tambapps.marcel.compiler.asm.ClassCompiler
+import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
-import com.tambapps.marcel.parser.ast.ModuleNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import marcel.lang.MarcelClassLoader
 import java.io.IOException
 import java.io.Reader
 
@@ -15,21 +16,26 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
   constructor(): this(CompilerConfiguration.DEFAULT_CONFIGURATION)
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class)
-  fun compile(reader: Reader, className: String? = null): CompilationResult {
-    return compile(reader.readText(), className)
+  fun compile(scriptLoader: MarcelClassLoader? = null, reader: Reader, className: String? = null): CompilationResult {
+    return compile(scriptLoader, reader.readText(), className)
   }
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class)
-  fun compile(text: String, className: String? = null): CompilationResult {
+  fun compile(scriptLoader: MarcelClassLoader? = null, text: String, className: String? = null): CompilationResult {
     val tokens = MarcelLexer().lex(text)
-    val typeResolver = JavaTypeResolver()
+    val typeResolver = JavaTypeResolver(scriptLoader)
 
     val parser = if (className != null) MarcelParser(typeResolver, className, tokens) else MarcelParser(typeResolver, tokens)
-    return compile(parser.parse(), typeResolver)
-  }
+    val ast = parser.parse()
 
-  @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class)
-  fun compile(ast: ModuleNode, typeResolver: JavaTypeResolver): CompilationResult {
+    if (ast.dumbbells.isNotEmpty() && scriptLoader != null) {
+      for (dumbbell in ast.dumbbells) {
+        val artifacts = Dumbbell.pull(dumbbell)
+        artifacts.forEach {
+          scriptLoader.addLibraryJar(it.jarFile)
+        }
+      }
+    }
 
     // adding extensions
     typeResolver.loadDefaultExtensions()

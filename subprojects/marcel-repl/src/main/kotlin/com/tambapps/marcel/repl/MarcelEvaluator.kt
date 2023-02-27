@@ -5,13 +5,13 @@ import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import marcel.lang.Binding
-import marcel.lang.MarcelScriptLoader
+import marcel.lang.MarcelClassLoader
 import java.io.File
 
 class MarcelEvaluator constructor(
   private val binding: Binding,
   private val replCompiler: MarcelReplCompiler,
-  private val scriptLoader: MarcelScriptLoader,
+  private val scriptLoader: MarcelClassLoader,
   private val tempDir: File
 ) {
 

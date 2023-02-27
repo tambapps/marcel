@@ -13,6 +13,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.tambapps.marcel</groupId>
+      <artifactId>dumbbell</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
     </dependency>

@@ -12,10 +12,10 @@ import com.tambapps.marcel.compiler.MarcelCompiler
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
-import marcel.lang.Script
+import marcel.lang.MarcelClassLoader
+import marcel.lang.URLMarcelClassLoader
 import java.io.File
 import java.io.IOException
-import java.net.URLClassLoader
 import kotlin.system.exitProcess
 
 // useful commands to add later: doctor, upgrade
@@ -49,19 +49,14 @@ class ExecuteCommand(private val scriptArguments: Array<String>) : CliktCommand(
 
   override fun run() {
     val className = generateClassName(file.name)
+    val scriptLoader = URLMarcelClassLoader()
 
     // we want to keep jar because we will run it
-    val jarFile = compile(file, className, keepClassFiles, true, printStackTrace) ?: return
+    val jarFile = compile(file, className, keepClassFiles, true, printStackTrace, scriptLoader) ?: return
 
-    // load the jar into the classpath
-    val classLoader = URLClassLoader(arrayOf(jarFile.toURI().toURL()), MarcelCompiler::class.java.classLoader)
     try {
       // and then run it with the new classLoader
-      val clazz = classLoader.loadClass(className)
-      if (Script::class.java.isAssignableFrom(clazz)) {
-        val script = clazz.getDeclaredConstructor().newInstance() as Script
-        script.run(scriptArguments)
-      }
+      scriptLoader.loadScript(className, jarFile).run(scriptArguments)
     } finally {
       if (!keepJarFile) {
         jarFile.delete()
@@ -95,9 +90,9 @@ fun main(args : Array<String>) {
   }
 }
 
-fun compile(file: File, className: String, keepClassFiles: Boolean, keepJarFile: Boolean, printStackTrace: Boolean): File? {
+fun compile(file: File, className: String, keepClassFiles: Boolean, keepJarFile: Boolean, printStackTrace: Boolean, scriptLoader: MarcelClassLoader? = null): File? {
   val result = try {
-    MarcelCompiler().compile(file.reader(), className)
+    MarcelCompiler().compile(scriptLoader, file.readText(), className)
   } catch (e: IOException) {
     println("An error occurred while reading file: ${e.message}")
     if (printStackTrace) e.printStackTrace()
@@ -120,9 +115,6 @@ fun compile(file: File, className: String, keepClassFiles: Boolean, keepJarFile:
     return null
   }
 
-  if (result.ast.dumbbells.isNotEmpty()) {
-    // TODO
-  }
   for (compiledClass in result.classes) {
     if (!keepClassFiles && !keepJarFile || keepClassFiles) { // if no option is specified
       File("${compiledClass.className}.class").writeBytes(compiledClass.bytes)

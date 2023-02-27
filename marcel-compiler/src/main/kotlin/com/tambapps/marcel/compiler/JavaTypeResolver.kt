@@ -21,12 +21,15 @@ import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaConstructor
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
+import marcel.lang.MarcelClassLoader
 import marcel.lang.methods.DefaultMarcelMethods
 import marcel.lang.methods.IoMarcelMethods
 import marcel.lang.methods.StringMarcelMethods
 import java.lang.reflect.Modifier
 
-class JavaTypeResolver: AstNodeTypeResolver() {
+class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNodeTypeResolver(classLoader) {
+
+  constructor(): this(null)
 
   private val classMethods = mutableMapOf<String, MutableList<JavaMethod>>()
   private val classFields = mutableMapOf<String, MutableList<MarcelField>>()

@@ -12,12 +12,12 @@ import com.tambapps.marcel.repl.command.HelpCommand
 import com.tambapps.marcel.repl.command.ListCommand
 import com.tambapps.marcel.repl.command.ShellCommand
 import marcel.lang.Binding
-import marcel.lang.MarcelScriptLoader
+import marcel.lang.MarcelClassLoader
 import marcel.lang.util.MarcelVersion
 import java.nio.file.Files
 import java.util.concurrent.atomic.AtomicBoolean
 
-abstract class MarcelShell constructor(marcelScriptLoader: MarcelScriptLoader) {
+abstract class MarcelShell constructor(marcelClassLoader: MarcelClassLoader) {
 
   val binding = Binding()
   val lastNode: ClassNode? get() = replCompiler.parserResult?.scriptNode
@@ -26,7 +26,7 @@ abstract class MarcelShell constructor(marcelScriptLoader: MarcelScriptLoader) {
   protected val typeResolver = JavaTypeResolver()
   private val tempDir = Files.createTempDirectory("marshell")
   protected val replCompiler = MarcelReplCompiler(CompilerConfiguration.DEFAULT_CONFIGURATION, typeResolver)
-  private val evaluator = MarcelEvaluator(binding, replCompiler, marcelScriptLoader, tempDir.toFile())
+  private val evaluator = MarcelEvaluator(binding, replCompiler, marcelClassLoader, tempDir.toFile())
   private val buffer = mutableListOf<String>()
   private val commands = listOf<ShellCommand>(
     HelpCommand(),

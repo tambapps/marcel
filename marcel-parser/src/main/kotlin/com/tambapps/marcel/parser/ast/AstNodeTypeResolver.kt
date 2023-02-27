@@ -82,6 +82,7 @@ import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.NotLoadedJavaType
 import marcel.lang.IntRange
 import marcel.lang.LongRange
+import marcel.lang.MarcelClassLoader
 import marcel.lang.lambda.CharacterLambda1
 import marcel.lang.lambda.DoubleLambda1
 import marcel.lang.lambda.FloatLambda1
@@ -91,7 +92,12 @@ import marcel.lang.lambda.LongLambda1
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
+// useful for pulled dumbbells
+open class AstNodeTypeResolver constructor(
+  private val classLoader: MarcelClassLoader?
+): AstNodeVisitor<JavaType> {
+
+  constructor(): this(null)
 
   private val definedTypes = mutableMapOf<String, JavaType>()
 
@@ -158,7 +164,7 @@ open class AstNodeTypeResolver: AstNodeVisitor<JavaType> {
     return emptyList()
   }
   open fun of(className: String, genericTypes: List<JavaType>): JavaType {
-    return definedTypes[className] ?: JavaType.of(className, genericTypes)
+    return definedTypes[className] ?: JavaType.of(classLoader, className, genericTypes)
   }
 
   fun findMethodByParametersOrThrow(javaType: JavaType, name: String, namedParameters: Collection<MethodParameter>): JavaMethod {
