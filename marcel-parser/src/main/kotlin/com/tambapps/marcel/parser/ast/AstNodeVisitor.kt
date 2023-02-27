@@ -8,6 +8,7 @@ import com.tambapps.marcel.parser.ast.statement.ForInStatement
 import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.MultiVariableDeclarationNode
+import com.tambapps.marcel.parser.ast.statement.TryCatchNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 
@@ -70,6 +71,7 @@ interface AstNodeVisitor<T> {
   fun visit(notNode: NotNode): T
   fun visit(ifStatementNode: IfStatementNode): T
   fun visit(forStatement: ForStatement): T
+  fun visit(tryCatchNode: TryCatchNode): T
   fun visit(forInStatement: ForInStatement): T
 
   fun visit(whileStatement: WhileStatement): T

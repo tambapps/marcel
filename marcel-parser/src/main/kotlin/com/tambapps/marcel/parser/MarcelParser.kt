@@ -14,6 +14,7 @@ import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.MultiVariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
+import com.tambapps.marcel.parser.ast.statement.TryCatchNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
@@ -473,16 +474,38 @@ class MarcelParser constructor(
           ForStatement(token, scope, initStatement, condition, iteratorStatement, forBlock)
         }
       }
+      TokenType.TRY -> {
+        val tryNode = statement(scope)
+        val catchNodes = mutableListOf<TryCatchNode.CatchBlock>()
+        while (current.type == TokenType.CATCH) {
+          skip()
+          accept(TokenType.LPAR)
+          val exceptions = mutableListOf(
+            parseType(scope)
+          )
+          while (current.type == TokenType.PIPE) {
+            skip()
+            exceptions.add(parseType(scope))
+          }
+          val exceptionVarName = accept(TokenType.IDENTIFIER).value
+          accept(TokenType.RPAR)
+          catchNodes.add(TryCatchNode.CatchBlock(exceptions, exceptionVarName, statement(scope)))
+        }
+        val finallyBlock = if (acceptOptional(TokenType.FINALLY) != null) statement(scope) else null
+        TryCatchNode(token, tryNode, catchNodes, finallyBlock)
+      }
       TokenType.CONTINUE -> {
         if (scope !is InnerScope) {
           throw MarcelParserException(previous, "Cannot have a continue outside of an inner block")
         }
+        acceptOptional(TokenType.SEMI_COLON)
         ContinueLoopNode(token, scope)
       }
       TokenType.BREAK -> {
         if (scope !is InnerScope) {
           throw MarcelParserException(previous, "Cannot have a continue outside of an inner block")
         }
+        acceptOptional(TokenType.SEMI_COLON)
         BreakLoopNode(token, scope)
       }
       else -> {

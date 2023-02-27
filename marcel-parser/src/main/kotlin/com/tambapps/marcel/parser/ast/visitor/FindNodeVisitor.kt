@@ -70,6 +70,7 @@ import com.tambapps.marcel.parser.ast.statement.ForInStatement
 import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.MultiVariableDeclarationNode
+import com.tambapps.marcel.parser.ast.statement.TryCatchNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 
@@ -186,6 +187,10 @@ class FindNodeVisitor(private val predicate: (AstNode) -> Boolean): AstNodeVisit
 
   override fun visit(forStatement: ForStatement) = node(forStatement) ?: forStatement.initStatement.accept(this)
   ?: forStatement.iteratorStatement.accept(this) ?: forStatement.endCondition.accept(this)
+
+  override fun visit(tryCatchNode: TryCatchNode) = tryCatchNode.tryStatementNode.accept(this)
+    ?: tryCatchNode.catchNodes.firstNotNullOfOrNull { it.statementNode.accept(this) }
+    ?: tryCatchNode.finallyBlock?.accept(this)
 
   override fun visit(forInStatement: ForInStatement) = node(forInStatement) ?: forInStatement.inExpression.accept(this)
 

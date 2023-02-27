@@ -17,6 +17,7 @@ import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.MultiVariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
+import com.tambapps.marcel.parser.ast.statement.TryCatchNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
@@ -720,6 +721,9 @@ class InstructionGenerator(
     mv.visitLabel(loopEnd)
   }
 
+  override fun visit(tryCatchNode: TryCatchNode) {
+    TODO("Not yet implemented")
+  }
   override fun visit(forInStatement: ForInStatement) {
     val expression = forInStatement.inExpression
     val expressionType = expression.getType(typeResolver)
@@ -1074,6 +1078,10 @@ private class PushingInstructionGenerator(
 
   override fun visit(forStatement: ForStatement) {
     instructionGenerator.visit(forStatement)
+  }
+
+  override fun visit(tryCatchNode: TryCatchNode) {
+    instructionGenerator.visit(tryCatchNode)
   }
 
   override fun visit(forInStatement: ForInStatement) {

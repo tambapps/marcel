@@ -318,11 +318,13 @@ LONELY_BACKTICK=`
 "continue"          { return token(CONTINUE); }
 "this"          { return token(THIS); }
 "super"          { return token(SUPER); }
-"super"          { return token(TRY); }
-"super"          { return token(CATCH); }
-"super"          { return token(FINALLY); }
+"try"          { return token(TRY); }
+"catch"          { return token(CATCH); }
+"finally"          { return token(FINALLY); }
 "dumbbell"          { return token(DUMBBELL); }
 "instanceof"          { return token(INSTANCEOF); }
+"throw"          { return token(THROW); }
+"throws"          { return token(THROWS); }
 
 {IDENTIFIER} {  return valueToken(IDENTIFIER); }
 
@@ -346,6 +348,7 @@ LONELY_BACKTICK=`
 ">>"          { return token(RIGHT_SHIFT); }
 "&&"          { return token(AND); }
 "||"          { return token(OR); }
+"|"          { return token(PIPE); }
 ">="          { return token(GOE); }
 ">"          { return token(GT); }
 "<="          { return token(LOE); }

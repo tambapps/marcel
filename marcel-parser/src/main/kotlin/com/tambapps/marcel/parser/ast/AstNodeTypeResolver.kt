@@ -72,6 +72,7 @@ import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.MultiVariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
+import com.tambapps.marcel.parser.ast.statement.TryCatchNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
@@ -329,6 +330,7 @@ open class AstNodeTypeResolver constructor(
   override fun visit(ifStatementNode: IfStatementNode) = JavaType.void
 
   override fun visit(forStatement: ForStatement) = JavaType.void
+  override fun visit(tryCatchNode: TryCatchNode) = JavaType.void
 
   override fun visit(forInStatement: ForInStatement) = JavaType.void
   override fun visit(whileStatement: WhileStatement) = JavaType.void

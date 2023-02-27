@@ -621,4 +621,8 @@ class LazyJavaType internal constructor(private val scope: Scope,
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
     return actualType.withGenericTypes(genericTypes)
   }
+
+  override fun toString(): String {
+    return _actualType?.className ?: actualTypeName
+  }
 }

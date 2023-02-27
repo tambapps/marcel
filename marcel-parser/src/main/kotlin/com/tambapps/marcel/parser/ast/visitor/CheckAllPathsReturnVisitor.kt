@@ -68,6 +68,7 @@ import com.tambapps.marcel.parser.ast.statement.ForInStatement
 import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.MultiVariableDeclarationNode
+import com.tambapps.marcel.parser.ast.statement.TryCatchNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 
@@ -178,6 +179,11 @@ class CheckAllPathsReturnVisitor: AstNodeVisitor<Boolean> {
 
   override fun visit(forStatement: ForStatement) = false
 
+  override fun visit(tryCatchNode: TryCatchNode): Boolean {
+    return tryCatchNode.tryStatementNode.accept(this) && (
+        tryCatchNode.catchNodes.isEmpty() || tryCatchNode.catchNodes.all { it.statementNode.accept(this) }
+        )
+  }
   override fun visit(forInStatement: ForInStatement) = false
 
   override fun visit(whileStatement: WhileStatement) = false
