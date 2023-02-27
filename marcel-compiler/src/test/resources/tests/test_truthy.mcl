@@ -1,0 +1,17 @@
+import static org.junit.jupiter.api.Assertions.assertTrue
+import static org.junit.jupiter.api.Assertions.assertFalse
+
+
+assertTrue(new A(a: 2) as bool)
+assertFalse(new A(a: 1) as bool)
+
+
+
+
+class A {
+  int a
+
+  fun truthy() bool {
+    return a == 2
+  }
+}

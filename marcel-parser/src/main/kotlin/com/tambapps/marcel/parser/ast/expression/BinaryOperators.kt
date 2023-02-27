@@ -117,7 +117,7 @@ class ComparisonOperatorNode(token: LexToken, val operator: ComparisonOperator, 
 }
 
 class AndOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: ExpressionNode):
-  BinaryOperatorNode(token, BooleanExpressionNode(token, leftOperand), BooleanExpressionNode(token, rightOperand)) {
+  BinaryOperatorNode(token, BooleanExpressionNode.of(token, leftOperand), BooleanExpressionNode.of(token, rightOperand)) {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {
@@ -126,7 +126,7 @@ class AndOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: Ex
 }
 
 class OrOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: ExpressionNode):
-  BinaryOperatorNode(token, BooleanExpressionNode(token, leftOperand), BooleanExpressionNode(token, rightOperand)) {
+  BinaryOperatorNode(token, BooleanExpressionNode.of(token, leftOperand), BooleanExpressionNode.of(token, rightOperand)) {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
 

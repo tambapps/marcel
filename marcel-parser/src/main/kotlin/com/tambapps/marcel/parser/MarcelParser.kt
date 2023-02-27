@@ -427,7 +427,7 @@ class MarcelParser constructor(
       }
       TokenType.WHILE -> {
         accept(TokenType.LPAR)
-        val condition = BooleanExpressionNode(token, expression(scope))
+        val condition = BooleanExpressionNode.of(token, expression(scope))
         accept(TokenType.RPAR)
         val whileScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(previous,
           "Cannot have for outside of a method"
@@ -462,7 +462,7 @@ class MarcelParser constructor(
             throw MarcelParserException(previous, "For loops should start with variable declaration/assignment")
           }
           acceptOptional(TokenType.SEMI_COLON)
-          val condition = BooleanExpressionNode(token, expression(scope))
+          val condition = BooleanExpressionNode.of(token, expression(scope))
           accept(TokenType.SEMI_COLON)
           val iteratorStatement = statement(scope)
           if (iteratorStatement !is VariableAssignmentNode && iteratorStatement !is ExpressionStatementNode) {
@@ -512,7 +512,7 @@ class MarcelParser constructor(
   }
 
   private fun ifConditionExpression(token: LexToken, scope: Scope): BooleanExpressionNode {
-    return BooleanExpressionNode(token,
+    return BooleanExpressionNode.of(token,
       if (isTypeToken(current.type) && lookup(1)?.type == TokenType.IDENTIFIER) {
         val type = parseType(scope)
         val variableName = accept(TokenType.IDENTIFIER).value
@@ -538,7 +538,7 @@ class MarcelParser constructor(
         val trueExpr = expression(scope)
         accept(TokenType.COLON)
         val falseExpr = expression(scope)
-        return TernaryNode(expr.token, BooleanExpressionNode(expr.token, expr), trueExpr, falseExpr)
+        return TernaryNode(expr.token, BooleanExpressionNode.of(expr.token, expr), trueExpr, falseExpr)
       }
     } else if (current.type == TokenType.AS) {
       skip()

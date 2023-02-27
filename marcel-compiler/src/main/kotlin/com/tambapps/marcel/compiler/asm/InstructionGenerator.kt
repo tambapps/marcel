@@ -241,7 +241,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     visitWithoutPushing(VariableAssignmentNode(elvisOperator.token, scope, tempVar.name, elvisOperator.leftOperand))
     val leftOperandRef = ReferenceExpression(elvisOperator.token, scope, tempVar.name)
     visit(TernaryNode(elvisOperator.token,
-      BooleanExpressionNode(elvisOperator.token, leftOperandRef),
+      BooleanExpressionNode.of(elvisOperator.token, leftOperandRef),
       leftOperandRef, elvisOperator.rightOperand
     ))
     scope.freeVariable(tempVar.name)
@@ -307,6 +307,13 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     val expression = asNode.expressionNode
     if (expression is LiteralArrayNode && expression.elements.isEmpty()) {
       visit(EmptyArrayNode(asNode.token, asNode.type as? JavaArrayType ?: throw MarcelSemanticException(asNode.token, "Can only convert empty arrays to array types using 'as' keyword")))
+    } else if (asNode.type == JavaType.boolean || asNode.type == JavaType.Boolean) {
+      visit(BooleanExpressionNode.of(asNode.token, asNode.expressionNode))
+      if (asNode.type == JavaType.Boolean) {
+        mv.castIfNecessaryOrThrow(asNode, JavaType.Boolean, JavaType.boolean)
+      }
+    } else if (asNode.type == JavaType.String) {
+      visit(ToStringNode.of(asNode.token, asNode.expressionNode))
     } else {
       asNode.expressionNode.accept(this)
       mv.castIfNecessaryOrThrow(asNode, asNode.type, asNode.expressionNode.getType(typeResolver))
@@ -453,7 +460,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       val tempRef = ReferenceExpression(accessOperator.token, scope, tempVar.name)
 
       visit(TernaryNode(accessOperator.token,
-        BooleanExpressionNode(accessOperator.token, ComparisonOperatorNode(accessOperator.token, ComparisonOperator.NOT_EQUAL, tempRef, NullValueNode(accessOperator.token))),
+        BooleanExpressionNode.of(accessOperator.token, ComparisonOperatorNode(accessOperator.token, ComparisonOperator.NOT_EQUAL, tempRef, NullValueNode(accessOperator.token))),
         // using a new function call because we need to use the tempRef instead of the actual leftOperand
         SimpleFunctionCallNode(accessOperator.token, access.scope, access.name, access.arguments, access.method).apply {
           methodOwnerType = tempRef
@@ -482,7 +489,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       val tempRef = ReferenceExpression(getFieldAccessOperator.token, scope, tempVar.name)
 
       visit(TernaryNode(getFieldAccessOperator.token,
-        BooleanExpressionNode(getFieldAccessOperator.token, ComparisonOperatorNode(getFieldAccessOperator.token, ComparisonOperator.NOT_EQUAL, tempRef,
+        BooleanExpressionNode.of(getFieldAccessOperator.token, ComparisonOperatorNode(getFieldAccessOperator.token, ComparisonOperator.NOT_EQUAL, tempRef,
           NullValueNode(getFieldAccessOperator.token))),
         // using a new GetFieldAccessOperator because we need to use the tempRef instead of the actual leftOperand
         GetFieldAccessOperator(getFieldAccessOperator.token, tempRef, getFieldAccessOperator.rightOperand, false)
@@ -1133,7 +1140,7 @@ private class PushingInstructionGenerator(
     when (notNode.operand.getType(typeResolver)) {
       JavaType.Boolean -> mv.invokeMethodWithArguments(notNode, typeResolver.findMethodOrThrow(JavaType.Boolean, "booleanValue", emptyList()), notNode.operand)
       JavaType.boolean -> notNode.operand.accept(this)
-      else -> visit(BooleanExpressionNode(notNode.token, notNode.operand))
+      else -> visit(BooleanExpressionNode.of(notNode.token, notNode.operand))
     }
     mv.not()
   }
@@ -1167,8 +1174,15 @@ private class PushingInstructionGenerator(
       pushArgument(booleanExpression.innerExpression)
       mv.invokeMethod(booleanExpression, Matcher::class.java.getMethod("find"))
     } else {
-      val truthyMethod = typeResolver.findMethodOrThrow(MarcelTruth::class.javaType, "truthy", listOf(innerType))
-      mv.invokeMethodWithArguments(booleanExpression, truthyMethod, booleanExpression.innerExpression)
+      val classTruthyMethod = typeResolver.findMethod(innerType, "isTruthy", emptyList())
+      if (classTruthyMethod != null) {
+        pushArgument(booleanExpression.innerExpression)
+        mv.invokeMethod(booleanExpression.innerExpression, classTruthyMethod)
+      } else {
+        // this is a static method. No need to push owner
+        val marcelTruthyMethod = typeResolver.findMethodOrThrow(MarcelTruth::class.javaType, "truthy", listOf(innerType))
+        mv.invokeMethodWithArguments(booleanExpression, marcelTruthyMethod, booleanExpression.innerExpression)
+      }
     }
   }
 
@@ -1191,7 +1205,7 @@ private class PushingInstructionGenerator(
       StringConstantNode(stringNode.token, "").accept(this)
       return
     } else if (stringNode.parts.size == 1) {
-      ToStringNode(stringNode.token, stringNode.parts.first()).accept(this)
+      ToStringNode.of(stringNode.token, stringNode.parts.first()).accept(this)
       return
     }
     // new StringBuilder() can just provide an empty new scope as we'll just use it to extract the method from StringBuilder which already exists in the JDK
@@ -1364,7 +1378,7 @@ private class PushingInstructionGenerator(
     if (actualTruthyVariableDeclarationNode.variableType.primitive) {
       visit(BooleanConstantNode(truthyVariableDeclarationNode.token, true))
     } else {
-      pushArgument(BooleanExpressionNode(truthyVariableDeclarationNode.token,
+      pushArgument(BooleanExpressionNode.of(truthyVariableDeclarationNode.token,
         ReferenceExpression(truthyVariableDeclarationNode.token, actualTruthyVariableDeclarationNode.scope, actualTruthyVariableDeclarationNode.name)
       ))
     }

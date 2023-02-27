@@ -10,7 +10,7 @@ class IfStatementNode(token: LexToken, val condition: BooleanExpressionNode, val
                       var falseStatementNode: StatementNode?): AbstractStatementNode(token) {
 
   constructor(condition: ExpressionNode, trueStatementNode: StatementNode,
-              falseStatementNode: StatementNode?): this(condition.token, BooleanExpressionNode(condition.token, condition), trueStatementNode, falseStatementNode)
+              falseStatementNode: StatementNode?): this(condition.token, BooleanExpressionNode.of(condition.token, condition), trueStatementNode, falseStatementNode)
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 

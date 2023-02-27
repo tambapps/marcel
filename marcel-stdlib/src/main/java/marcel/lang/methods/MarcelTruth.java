@@ -33,18 +33,7 @@ public class MarcelTruth {
     } else if (clazz == Matcher.class) {
       return truthy((Matcher) o);
     } else {
-      try {
-        Method truthyMethod = clazz.getDeclaredMethod("isTruthy");
-        if (truthyMethod.getReturnType() == boolean.class) {
-          return (boolean) truthyMethod.invoke(o);
-        } else if (truthyMethod.getReturnType() == Boolean.class) {
-          return (boolean) (Boolean) truthyMethod.invoke(o);
-        } else {
-          return true;
-        }
-      } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-        return true;
-      }
+      return true;
     }
   }
 
