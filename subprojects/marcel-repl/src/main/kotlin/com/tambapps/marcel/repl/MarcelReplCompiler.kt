@@ -9,17 +9,19 @@ import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.parser.ParserConfiguration
+import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaType
 import kotlin.jvm.Throws
 
-class MarcelReplCompiler(
+class MarcelReplCompiler constructor(
   compilerConfiguration: CompilerConfiguration,
   private val typeResolver: JavaTypeResolver,
 ) {
 
+  val imports = mutableListOf<ImportNode>()
   private val lexer = MarcelLexer(false)
   private val definedFunctions = mutableSetOf<MethodNode>()
   private val _definedClasses = mutableListOf<JavaType>()
@@ -30,9 +32,15 @@ class MarcelReplCompiler(
   var parserResult: ParserResult? = null
     private set
 
+  fun addImport(importString: String) {
+    val import = MarcelParser(typeResolver, lexer.lex(importString), parserConfiguration).import()
+    imports.add(import)
+  }
+
   fun compile(text: String): ReplCompilerResult {
     val result = parse(text)
     val scriptNode = result.scriptNode
+    scriptNode.scope.imports.addAll(imports)
     // writing script. class members were defined when parsing
     val compiledScriptClass = classCompiler.compileDefinedClass(scriptNode)
     val otherClasses = mutableListOf<CompiledClass>()

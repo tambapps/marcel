@@ -1,18 +1,19 @@
 package com.tambapps.marcel.parser.ast
 
 import com.tambapps.marcel.lexer.LexToken
+import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 
 interface ImportNode: AstNode {
-  fun resolveClassName(classSimpleName: String): String?
+  fun resolveClassName(typeResolver: AstNodeTypeResolver, classSimpleName: String): String?
   fun resolveMethod(typeResolver: AstNodeTypeResolver, methodName: String, argumentTypes: List<AstTypedObject>): JavaMethod? {
     return null
   }
 
 }
 class SimpleImportNode(override val token: LexToken, private val value: String, private val asName: String? = null): ImportNode {
-  override fun resolveClassName(classSimpleName: String): String? {
+  override fun resolveClassName(typeResolver: AstNodeTypeResolver, classSimpleName: String): String? {
     return if (asName != null) {
       if (classSimpleName == asName) value
       else null
@@ -49,12 +50,13 @@ class StaticImportNode(override val token: LexToken, private val className: Stri
 
   constructor(className: String, methodName: String): this(LexToken.dummy(), className, methodName)
 
-  override fun resolveClassName(classSimpleName: String): String? {
+  override fun resolveClassName(typeResolver: AstNodeTypeResolver, classSimpleName: String): String? {
     return null
   }
 
   override fun resolveMethod(typeResolver: AstNodeTypeResolver, methodName: String, argumentTypes: List<AstTypedObject>): JavaMethod? {
     if (methodName != this.methodName) return null
+    // TODO use typeResolver because it has the classLoader able to get classes from pulled dumbbells
     val candidates = Class.forName(className).declaredMethods.filter { it.name == methodName }
       .map { ReflectJavaMethod(it) }
     return candidates.find { it.matches(typeResolver, methodName, argumentTypes) }
@@ -69,10 +71,10 @@ class WildcardImportNode(override val token: LexToken, private val prefix: Strin
 
   constructor(prefix: String): this(LexToken.dummy(), prefix)
 
-  override fun resolveClassName(classSimpleName: String): String? {
+  override fun resolveClassName(typeResolver: AstNodeTypeResolver, classSimpleName: String): String? {
     return try {
-      Class.forName("$prefix.$classSimpleName").name
-    } catch (e: ClassNotFoundException) {
+      typeResolver.of("$prefix.$classSimpleName", emptyList()).className
+    } catch (e: MarcelSemanticException) {
        null
     }
   }

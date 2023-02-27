@@ -22,6 +22,5 @@ class PullDependencyCommand: AbstractShellCommand() {
     pulledArtifacts.forEach {
       shell.marcelClassLoader.addLibraryJar(it.jarFile)
     }
-    // TODO doesn't seem to actually work
   }
 }

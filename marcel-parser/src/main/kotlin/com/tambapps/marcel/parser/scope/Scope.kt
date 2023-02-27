@@ -110,7 +110,7 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
   }
 
   private fun resolveClassName(classSimpleName: String): String {
-    val matchedClasses = imports.mapNotNull { it.resolveClassName(classSimpleName) }.toSet()
+    val matchedClasses = imports.mapNotNull { it.resolveClassName(typeResolver, classSimpleName) }.toSet()
     return if (matchedClasses.isEmpty()) classSimpleName
     else if (matchedClasses.size == 1) matchedClasses.first()
     else throw MarcelSemanticException("Ambiguous import for class $classSimpleName")

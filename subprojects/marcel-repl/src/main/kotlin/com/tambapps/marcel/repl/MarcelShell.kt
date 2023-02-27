@@ -5,6 +5,7 @@ import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.parser.ast.ClassNode
+import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.repl.command.ClearBufferCommand
 import com.tambapps.marcel.repl.command.ExitCommand
@@ -24,6 +25,7 @@ abstract class MarcelShell constructor(val marcelClassLoader: MarcelClassLoader)
   val binding = Binding()
   val lastNode: ClassNode? get() = replCompiler.parserResult?.scriptNode
   val definedClasses get() = replCompiler.definedClasses
+  val imports: List<ImportNode> get() = replCompiler.imports
 
   protected val typeResolver = JavaTypeResolver(marcelClassLoader)
   private val tempDir = Files.createTempDirectory("marshell")
@@ -42,6 +44,10 @@ abstract class MarcelShell constructor(val marcelClassLoader: MarcelClassLoader)
 
   init {
     typeResolver.loadDefaultExtensions()
+  }
+
+  fun addImport(importArgs: String) {
+    replCompiler.addImport("import $importArgs")
   }
 
   abstract fun readLine(prompt: String): String

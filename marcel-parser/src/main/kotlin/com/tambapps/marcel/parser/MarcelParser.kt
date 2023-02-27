@@ -223,7 +223,7 @@ class MarcelParser constructor(
     return d
   }
 
-  private fun import(): ImportNode {
+  fun import(): ImportNode {
     val importToken = accept(TokenType.IMPORT)
     val staticImport = acceptOptional(TokenType.STATIC) != null
     val classParts = mutableListOf(accept(TokenType.IDENTIFIER).value)
