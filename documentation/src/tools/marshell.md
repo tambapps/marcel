@@ -37,6 +37,8 @@ are not inner class as they would be in a Marcel script).
 
 ## Run commands
 
+Marshell has some specific commands make your experience even better.
+
 
 Use the `:help` command to see all the commands (marshell-specific instructions) you can run
 
