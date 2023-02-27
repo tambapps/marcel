@@ -148,6 +148,16 @@ without having to create a Maven/Gradle project.</p>
 <p>It was inspired from <a href="https://groovy-lang.org/grape.html">Groovy's grapes</a></p>
 <br/>
 <p>Dumbbell doesn't exist yet, but I look forward to develop and release it.</p>
+<p>To import a dependency, use the <code>dumbbell</code> keyword.</p>
+<pre><code class="language-groovy">dumbbell 'com.google.code.gson:gson:2.10.1'
+import com.google.gson.Gson
+
+Gson gson = new com.google.gson.Gson()
+
+println(gson.toJson(['a': 'b']))
+</code></pre>
+<p>Dumbbell is also used in <a href="./marshell.html">Marshell</a>. Use the <code>:pull</code> command to pull the 
+dependency dynamically.</p>
 
                     </main>
 

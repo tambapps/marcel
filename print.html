@@ -880,8 +880,33 @@ Options:
 <pre><code class="language-shell">marcl compile -cj script.mcl
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="marshell"><a class="header" href="#marshell">Marshell</a></h1>
-<p>Marshell is a shell that can be used to run marcel instructions, on the fly.</p>
-<p><strong>Coming soon(-ish)</strong></p>
+<p>Marshell is a shell that can be used to run marcel instructions, on the fly. It is
+a Read Eval Print Loop tool.</p>
+<p>It is the equivalent of <a href="https://groovy-lang.org/groovysh.html">groovysh</a> for Marcel.</p>
+<p>This shell supports syntax highlighting and also highlights defined functions/variables.</p>
+<h2 id="define-variables"><a class="header" href="#define-variables">Define variables</a></h2>
+<p>In marshell, you can't have <a href="tools/../language-specification/source-file-structure/script.html#fields">class fields</a>, <strong>but</strong> you can use global variables.
+To de clare a global variable, just assign to a variable a value, without specifying its type</p>
+<pre><code class="language-groovy">a = 1 // this will create a global variable a
+</code></pre>
+<p>Global variables can't change type. Meaning that after having defining one, you can't assign to it
+a value that is of an incompatible type of the one you used when you first assigned it a value.</p>
+<p>To specify explicitly the type of the global variable, use the <code>as</code> keyword.</p>
+<pre><code class="language-groovy">a = [1, 2] as set&lt;int&gt;
+</code></pre>
+<h2 id="define-functions"><a class="header" href="#define-functions">Define functions</a></h2>
+<p>Define functions as you would in a Marcel script</p>
+<h2 id="define-classes"><a class="header" href="#define-classes">Define classes</a></h2>
+<p>Define classes as you would in a Marcel script. All defined classes are top-level classes (they
+are not inner class as they would be in a Marcel script).</p>
+<h2 id="run-commands"><a class="header" href="#run-commands">Run commands</a></h2>
+<p>Use the <code>:help</code> command to see all the commands (marshell-specific instructions) you can run</p>
+<h3 id="import-dependencies"><a class="header" href="#import-dependencies">Import dependencies</a></h3>
+<p>You can import dependencies on the fly with the <code>:pull</code> command</p>
+<pre><code class="language-text">marshell:000&gt; :pull com.google.code.gson:gson:2.10.1
+marshell:000&gt; :import com.google.gson.Gson
+marshell:000&gt; gson = new Gson()
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="marshell-for-android"><a class="header" href="#marshell-for-android">Marshell for Android</a></h1>
 <p><strong>Coming soon(-ish)</strong></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="dumbbell---marcels-dependency-manager"><a class="header" href="#dumbbell---marcels-dependency-manager">Dumbbell - Marcel's dependency manager</a></h1>
@@ -890,6 +915,16 @@ without having to create a Maven/Gradle project.</p>
 <p>It was inspired from <a href="https://groovy-lang.org/grape.html">Groovy's grapes</a></p>
 <br/>
 <p>Dumbbell doesn't exist yet, but I look forward to develop and release it.</p>
+<p>To import a dependency, use the <code>dumbbell</code> keyword.</p>
+<pre><code class="language-groovy">dumbbell 'com.google.code.gson:gson:2.10.1'
+import com.google.gson.Gson
+
+Gson gson = new com.google.gson.Gson()
+
+println(gson.toJson(['a': 'b']))
+</code></pre>
+<p>Dumbbell is also used in <a href="tools/./marshell.html">Marshell</a>. Use the <code>:pull</code> command to pull the 
+dependency dynamically.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="intelij-plugin-for-marcel"><a class="header" href="#intelij-plugin-for-marcel">IntelIJ Plugin for Marcel</a></h1>
 <p>You can find a plugin to support Marcel on the below link</p>
 <p><a href="https://github.com/tambapps/marcel-intelij-plugin">marcel-intelij-plugin</a></p>

@@ -143,8 +143,33 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="marshell"><a class="header" href="#marshell">Marshell</a></h1>
-<p>Marshell is a shell that can be used to run marcel instructions, on the fly.</p>
-<p><strong>Coming soon(-ish)</strong></p>
+<p>Marshell is a shell that can be used to run marcel instructions, on the fly. It is
+a Read Eval Print Loop tool.</p>
+<p>It is the equivalent of <a href="https://groovy-lang.org/groovysh.html">groovysh</a> for Marcel.</p>
+<p>This shell supports syntax highlighting and also highlights defined functions/variables.</p>
+<h2 id="define-variables"><a class="header" href="#define-variables">Define variables</a></h2>
+<p>In marshell, you can't have <a href="../language-specification/source-file-structure/script.html#fields">class fields</a>, <strong>but</strong> you can use global variables.
+To de clare a global variable, just assign to a variable a value, without specifying its type</p>
+<pre><code class="language-groovy">a = 1 // this will create a global variable a
+</code></pre>
+<p>Global variables can't change type. Meaning that after having defining one, you can't assign to it
+a value that is of an incompatible type of the one you used when you first assigned it a value.</p>
+<p>To specify explicitly the type of the global variable, use the <code>as</code> keyword.</p>
+<pre><code class="language-groovy">a = [1, 2] as set&lt;int&gt;
+</code></pre>
+<h2 id="define-functions"><a class="header" href="#define-functions">Define functions</a></h2>
+<p>Define functions as you would in a Marcel script</p>
+<h2 id="define-classes"><a class="header" href="#define-classes">Define classes</a></h2>
+<p>Define classes as you would in a Marcel script. All defined classes are top-level classes (they
+are not inner class as they would be in a Marcel script).</p>
+<h2 id="run-commands"><a class="header" href="#run-commands">Run commands</a></h2>
+<p>Use the <code>:help</code> command to see all the commands (marshell-specific instructions) you can run</p>
+<h3 id="import-dependencies"><a class="header" href="#import-dependencies">Import dependencies</a></h3>
+<p>You can import dependencies on the fly with the <code>:pull</code> command</p>
+<pre><code class="language-text">marshell:000&gt; :pull com.google.code.gson:gson:2.10.1
+marshell:000&gt; :import com.google.gson.Gson
+marshell:000&gt; gson = new Gson()
+</code></pre>
 
                     </main>
 
