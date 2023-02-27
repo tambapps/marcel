@@ -3,7 +3,6 @@ package com.tambapps.marcel.parser.ast
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.type.JavaMethod
-import com.tambapps.marcel.parser.type.ReflectJavaMethod
 
 interface ImportNode: AstNode {
   fun resolveClassName(typeResolver: AstNodeTypeResolver, classSimpleName: String): String?
@@ -56,9 +55,9 @@ class StaticImportNode(override val token: LexToken, private val className: Stri
 
   override fun resolveMethod(typeResolver: AstNodeTypeResolver, methodName: String, argumentTypes: List<AstTypedObject>): JavaMethod? {
     if (methodName != this.methodName) return null
-    // TODO use typeResolver because it has the classLoader able to get classes from pulled dumbbells
-    val candidates = Class.forName(className).declaredMethods.filter { it.name == methodName }
-      .map { ReflectJavaMethod(it) }
+    val type = typeResolver.of(className, emptyList())
+    typeResolver.getDeclaredMethods(type)
+    val candidates = typeResolver.getDeclaredMethods(type).filter { it.name == methodName }
     return candidates.find { it.matches(typeResolver, methodName, argumentTypes) }
   }
 
