@@ -5,6 +5,7 @@ import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.type.JavaType
 
+// TODO try-with-resource
 class TryCatchNode constructor(
   token: LexToken,
   val tryStatementNode: StatementNode,
