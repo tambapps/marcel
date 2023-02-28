@@ -790,6 +790,7 @@ class InstructionGenerator(
   }
 
   override fun visit(tryCatchNode: TryCatchNode) {
+    // TODO seems to work but compiled bytecode looks weird
     val tryStart = Label()
     val tryEnd = Label()
     val endLabel = Label()
@@ -797,21 +798,36 @@ class InstructionGenerator(
       // need one label for each catch block
       it to Label()
     }
-// TODO    val finallyWithLabel = if (tryCatchNode.finallyBlock != null) tryCatchNode.finallyBlock!! to Label() else null
+    val finallyWithLabel = if (tryCatchNode.finallyBlock != null) tryCatchNode.finallyBlock!! to Label() else null
     catchesWithLabel.forEach { c ->
       c.first.exceptionTypes.forEach { exceptionType ->
         mv.tryCatchBlock(tryStart, tryEnd, c.second, exceptionType)
       }
     }
+    if (finallyWithLabel != null) {
+      mv.tryFinallyBlock(tryStart, tryEnd, finallyWithLabel.second)
+    }
+
     mv.visitLabel(tryStart)
     tryCatchNode.tryStatementNode.accept(this)
     mv.visitLabel(tryEnd)
+    finallyWithLabel?.first?.statementNode?.accept(this)
+
     mv.jumpTo(endLabel)
 
     catchesWithLabel.forEach { c ->
       val excVar = c.first.scope.addLocalVariable(JavaType.commonType(c.first.exceptionTypes), c.first.exceptionVarName)
       mv.catchBlock(c.second, excVar.index)
       c.first.statementNode.accept(this)
+      finallyWithLabel?.first?.statementNode?.accept(this)
+      mv.jumpTo(endLabel)
+    }
+    if (finallyWithLabel != null) {
+      val excVar = finallyWithLabel.first.scope.addLocalVariable(Throwable::class.javaType)
+      mv.catchBlock(finallyWithLabel.second, excVar.index)
+      finallyWithLabel.first.statementNode.accept(this)
+      mv.pushVariable(tryCatchNode, finallyWithLabel.first.scope, excVar)
+      mv.visitInsn(Opcodes.ATHROW)
       mv.jumpTo(endLabel)
     }
 

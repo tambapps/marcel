@@ -9,7 +9,7 @@ class TryCatchNode constructor(
   token: LexToken,
   val tryStatementNode: StatementNode,
   val catchNodes: List<CatchBlock>,
-  val finallyBlock: StatementNode?
+  val finallyBlock: FinallyBlock?
 ): AbstractStatementNode(token) {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
@@ -19,4 +19,5 @@ class TryCatchNode constructor(
   class CatchBlock(val exceptionTypes: List<JavaType>, val exceptionVarName: String,
                    val scope: InnerScope,
                    val statementNode: StatementNode)
+  class FinallyBlock(val scope: InnerScope, val statementNode: StatementNode)
 }

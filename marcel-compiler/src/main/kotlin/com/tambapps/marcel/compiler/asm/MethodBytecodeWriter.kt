@@ -502,6 +502,10 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
 
   fun finallyBlock(label: Label) {
     mv.visitLabel(label)
-    popStack() // popping stack  because we don't care about the exception variable in the finally block
+   // popStack() // popping stack  because we don't care about the exception variable in the finally block
+  }
+  fun foo(i: Int) {
+    mv.visitVarInsn(Opcodes.ALOAD, i)
+    mv.visitInsn(Opcodes.ATHROW)
   }
 }

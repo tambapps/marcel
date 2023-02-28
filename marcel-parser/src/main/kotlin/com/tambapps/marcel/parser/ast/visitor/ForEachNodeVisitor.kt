@@ -266,7 +266,7 @@ class ForEachNodeVisitor(private val consumer: (AstNode) -> Unit): AstNodeVisito
     consumer.invoke(tryCatchNode)
     tryCatchNode.tryStatementNode.accept(this)
     tryCatchNode.catchNodes.forEach { it.statementNode.accept(this) }
-    tryCatchNode.finallyBlock?.accept(this)
+    tryCatchNode.finallyBlock?.statementNode?.accept(this)
   }
 
   override fun visit(forInStatement: ForInStatement) {
