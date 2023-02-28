@@ -793,12 +793,14 @@ class InstructionGenerator(
     val tryStart = Label()
     val tryEnd = Label()
     val endLabel = Label()
-    val catches = tryCatchNode.catchNodes.map {
-      Triple(it.exceptionTypes as List<JavaType?>, it.statementNode, Label())
+    val catchesWithLabel = tryCatchNode.catchNodes.map {
+      // need one label for each catch block
+      it to Label()
     }
-    catches.forEach { c ->
-      c.first.forEach { exceptionType ->
-        mv.tryCatchBlock(tryStart, tryEnd, c.third, exceptionType)
+// TODO    val finallyWithLabel = if (tryCatchNode.finallyBlock != null) tryCatchNode.finallyBlock!! to Label() else null
+    catchesWithLabel.forEach { c ->
+      c.first.exceptionTypes.forEach { exceptionType ->
+        mv.tryCatchBlock(tryStart, tryEnd, c.second, exceptionType)
       }
     }
     mv.visitLabel(tryStart)
@@ -806,10 +808,10 @@ class InstructionGenerator(
     mv.visitLabel(tryEnd)
     mv.jumpTo(endLabel)
 
-    catches.forEach { c ->
-      // TODO reserve index for exception
-      mv.catchBlock(c.third, 1)
-      c.second.accept(this)
+    catchesWithLabel.forEach { c ->
+      val excVar = c.first.scope.addLocalVariable(JavaType.commonType(c.first.exceptionTypes), c.first.exceptionVarName)
+      mv.catchBlock(c.second, excVar.index)
+      c.first.statementNode.accept(this)
       mv.jumpTo(endLabel)
     }
 

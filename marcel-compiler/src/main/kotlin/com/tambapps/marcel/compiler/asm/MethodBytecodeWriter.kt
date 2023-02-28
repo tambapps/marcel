@@ -3,7 +3,6 @@ package com.tambapps.marcel.compiler.asm
 import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.compiler.util.javaType
-import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstNode
 import com.tambapps.marcel.parser.ast.ComparisonOperator
@@ -489,12 +488,20 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
     }
   }
 
-  fun tryCatchBlock(startLabel: Label, endLabel: Label, catchLabel: Label, javaType: JavaType?) {
-    mv.visitTryCatchBlock(startLabel, endLabel, catchLabel, javaType?.internalName)
+  fun tryFinallyBlock(startLabel: Label, endLabel: Label, catchLabel: Label) {
+    mv.visitTryCatchBlock(startLabel, endLabel, catchLabel, null)
+  }
+  fun tryCatchBlock(startLabel: Label, endLabel: Label, catchLabel: Label, javaType: JavaType) {
+    mv.visitTryCatchBlock(startLabel, endLabel, catchLabel, javaType.internalName)
   }
 
   fun catchBlock(label: Label, exceptionVarIndex: Int) {
     mv.visitLabel(label)
     mv.visitVarInsn(Opcodes.ASTORE, exceptionVarIndex)
+  }
+
+  fun finallyBlock(label: Label) {
+    mv.visitLabel(label)
+    popStack() // popping stack  because we don't care about the exception variable in the finally block
   }
 }

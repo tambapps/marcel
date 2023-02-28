@@ -489,9 +489,20 @@ class MarcelParser constructor(
           }
           val exceptionVarName = accept(TokenType.IDENTIFIER).value
           accept(TokenType.RPAR)
-          catchNodes.add(TryCatchNode.CatchBlock(exceptions, exceptionVarName, statement(scope)))
+          val catchScope = InnerScope(
+            scope as? MethodScope ?: throw MarcelParserException(previous,
+              "Cannot have for outside of a method"
+            )
+          )
+          catchNodes.add(TryCatchNode.CatchBlock(exceptions, exceptionVarName, catchScope, statement(catchScope)))
         }
-        val finallyBlock = if (acceptOptional(TokenType.FINALLY) != null) statement(scope) else null
+        val finallyBlock = if (acceptOptional(TokenType.FINALLY) != null) statement(
+          InnerScope(
+            scope as? MethodScope ?: throw MarcelParserException(previous,
+              "Cannot have for outside of a method"
+            )
+          )
+        ) else null
         TryCatchNode(token, tryNode, catchNodes, finallyBlock)
       }
       TokenType.CONTINUE -> {
