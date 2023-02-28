@@ -6,3 +6,4 @@ In this chapter you'll explore all control flows thar Marcels offers, in particu
 - for loops
 - while loops
 - switch
+- try/catch/finally
