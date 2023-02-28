@@ -801,6 +801,9 @@ class InstructionGenerator(
     val finallyWithLabel = if (tryCatchNode.finallyBlock != null) tryCatchNode.finallyBlock!! to Label() else null
     catchesWithLabel.forEach { c ->
       c.first.exceptionTypes.forEach { exceptionType ->
+        if (!Throwable::class.javaType.isAssignableFrom(exceptionType)) {
+          throw MarcelSemanticException("Can only catch throwable")
+        }
         mv.tryCatchBlock(tryStart, tryEnd, c.second, exceptionType)
       }
     }
