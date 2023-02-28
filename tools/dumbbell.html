@@ -143,21 +143,21 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="dumbbell---marcels-dependency-manager"><a class="header" href="#dumbbell---marcels-dependency-manager">Dumbbell - Marcel's dependency manager</a></h1>
-<p>Dumbbell is a dependency manager for Marcel. It allows you to easily import dependencies (from Maven central) in your scripts,
+<p>Dumbbell is a dependency manager for Marcel. It allows you to easily import dependencies in your scripts,
 without having to create a Maven/Gradle project.</p>
-<p>It was inspired from <a href="https://groovy-lang.org/grape.html">Groovy's grapes</a></p>
+<p>It was inspired strongly from <a href="https://groovy-lang.org/grape.html">Groovy's grapes</a></p>
 <br/>
-<p>Dumbbell doesn't exist yet, but I look forward to develop and release it.</p>
 <p>To import a dependency, use the <code>dumbbell</code> keyword.</p>
 <pre><code class="language-groovy">dumbbell 'com.google.code.gson:gson:2.10.1'
 import com.google.gson.Gson
 
-Gson gson = new com.google.gson.Gson()
+Gson gson = new Gson()
 
 println(gson.toJson(['a': 'b']))
 </code></pre>
-<p>Dumbbell is also used in <a href="./marshell.html">Marshell</a>. Use the <code>:pull</code> command to pull the 
-dependency dynamically.</p>
+<p>Dependencies are pulled from Maven central. The list of repository to pull from will be configurable (someday).</p>
+<p>Dumbbell is also used in <a href="./marshell.html">Marshell</a>. Use the <code>:pull</code> command to pull 
+dependencies dynamically.</p>
 
                     </main>
 
