@@ -22,6 +22,7 @@
     - [If/Else Statements](./language-specification/control-flows/if-else.md)
     - [For loops](./language-specification/control-flows/for-loops.md)
     - [Switch and When](./language-specification/control-flows/switch-when.md)
+    - [Try/Catch/Finally](./language-specification/control-flows/try-catch.md)
   - [Operators](language-specification/operators/index.md)
     - [Plus (+)](language-specification/operators/plus.md)
     - [Comparison Operators](language-specification/operators/comparison.md)

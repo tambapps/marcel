@@ -1,6 +1,8 @@
 # Switch and When
 
-Marcel defines conditional control flows that can return values.
+Marcel defines conditional control flows that can return values. Note that in the below
+control flows described, you **can't** re-assign a value to **local variables** created **outside** 
+the switch/when scope.
 
 ## When
 
