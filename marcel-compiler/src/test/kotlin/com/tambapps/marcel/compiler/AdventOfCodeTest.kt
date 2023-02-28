@@ -23,8 +23,7 @@ class AdventOfCodeTest: AbstractCompilerTest() {
   @ParameterizedTest(name = "AOC day {arguments}")
   @ValueSource(ints = [1, 2, 3, 4, 6, 7])
   fun aocDay(day: Int) {
-    val inputText = URL(URL_TEMPLATE.format(day, "input.txt")).readText()
-    File("input.txt").writeText(inputText)
+    File("input.txt").writeText(URL(URL_TEMPLATE.format(day, "input.txt")).readText())
     val text = URL(URL_TEMPLATE.format(day, "solution.mcl")).readText()
     evalSource("AOC$day", text)
   }
