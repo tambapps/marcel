@@ -14,6 +14,10 @@ abstract class AbstractCompilerTest {
     val text = javaClass.getResourceAsStream(resourceName).reader().use {
       it.readText()
     }
+    return evalSource(className, text)
+  }
+
+  protected fun evalSource(className: String, text: String): Any? {
     val result = compiler.compile(text = text, className = className)
 
     val jarFile = Files.createTempFile("", "$className.jar").toFile()
