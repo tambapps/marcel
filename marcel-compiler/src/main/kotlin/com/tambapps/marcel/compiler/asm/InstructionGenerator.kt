@@ -332,24 +332,24 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(operator: MulOperator) {
-    pushOperands(operator)
+    pushArithmeticBinaryOperatorOperands(operator)
   }
 
   override fun visit(operator: DivOperator) {
-    pushOperands(operator)
+    pushArithmeticBinaryOperatorOperands(operator)
   }
 
   override fun visit(operator: MinusOperator) {
-    pushOperands(operator)
+    pushArithmeticBinaryOperatorOperands(operator)
   }
 
 
   override fun visit(operator: PlusOperator) {
-    pushOperands(operator)
+    pushArithmeticBinaryOperatorOperands(operator)
   }
 
   override fun visit(operator: PowOperator) {
-    pushOperands(operator)
+    pushArithmeticBinaryOperatorOperands(operator)
   }
 
   override fun visit(leftShiftOperator: LeftShiftOperator) {
@@ -363,7 +363,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   fun marcelOperator(binaryOperatorNode: BinaryOperatorNode, operatorMethodName: String): JavaType {
     val type1 = binaryOperatorNode.leftOperand.getType(typeResolver)
     if (type1.primitive) {
-      throw MarcelSemanticException(binaryOperatorNode.token, "Doesn't support left shirt operator for primitive type")
+      throw MarcelSemanticException(binaryOperatorNode.token, "Doesn't support left shirt operator for primitive type (for now)")
     }
     val leftShiftMethod = typeResolver.findMethodOrThrow(type1, operatorMethodName, listOf(binaryOperatorNode.rightOperand.getType(typeResolver)))
     pushArgument(binaryOperatorNode.leftOperand)
@@ -393,7 +393,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     if (isOperator.leftOperand.getType(typeResolver).primitive || isOperator.rightOperand.getType(typeResolver).primitive) {
       throw MarcelSemanticException(isOperator.token, "Cannot apply '===' operator on primitive types")
     }
-    pushOperands(isOperator)
+    pushBinaryOperatorOperands(isOperator)
     val l1 = Label()
     mv.jump(Opcodes.IF_ACMPEQ, l1) // Jump if the two object references are equal
 
@@ -409,7 +409,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       throw MarcelSemanticException(isNotOperator.token, "Cannot apply '!==' operator on primitive types")
     }
 
-    pushOperands(isNotOperator)
+    pushBinaryOperatorOperands(isNotOperator)
     val l1 = Label()
     mv.jump(Opcodes.IF_ACMPNE, l1) // Jump if the two object references are equal
 
@@ -466,7 +466,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       }
       mv.pushConstant(0) // pushing 0 because we're comparing two numbers below
     } else {
-      pushOperands(comparisonOperatorNode)
+      pushBinaryOperatorOperands(comparisonOperatorNode)
     }
     mv.jump(if (objectcomparison) comparisonOperatorNode.operator.objectOpCode else comparisonOperatorNode.operator.iOpCode, trueLabel)
     mv.visitInsn(Opcodes.ICONST_0)
@@ -571,9 +571,17 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     }
   }
 
-  private fun pushOperands(binaryOperatorNode: BinaryOperatorNode) {
+  private fun pushBinaryOperatorOperands(binaryOperatorNode: BinaryOperatorNode) {
     pushArgument(binaryOperatorNode.leftOperand)
     pushArgument(binaryOperatorNode.rightOperand)
+  }
+
+  private fun pushArithmeticBinaryOperatorOperands(binaryOperatorNode: BinaryOperatorNode) {
+    val type = binaryOperatorNode.getType(typeResolver)
+    pushArgument(binaryOperatorNode.leftOperand)
+    mv.castIfNecessaryOrThrow(binaryOperatorNode, type, binaryOperatorNode.leftOperand.getType(typeResolver))
+    pushArgument(binaryOperatorNode.rightOperand)
+    mv.castIfNecessaryOrThrow(binaryOperatorNode, type, binaryOperatorNode.rightOperand.getType(typeResolver))
   }
 
   override fun visit(fCall: FunctionCallNode) {
@@ -1455,7 +1463,7 @@ private class PushingInstructionGenerator(
     } else if (operator.leftOperand.getType(typeResolver) == JavaType.String || operator.rightOperand.getType(typeResolver) == JavaType.String) {
       visit(StringNode(operator.token, listOf(operator.leftOperand, operator.rightOperand)))
     } else {
-      TODO("Doesn't handle custom + operator yet")
+      TODO("Doesn't handle custom + operator yet (note to self: will need to handle them in type resolver too and in this super method")
     }
   }
 
