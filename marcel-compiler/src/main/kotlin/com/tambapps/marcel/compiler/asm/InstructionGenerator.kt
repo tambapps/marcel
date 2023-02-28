@@ -620,8 +620,8 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
-    val expressionType = variableAssignmentNode.expression.getType(typeResolver)
     if (classNode.isScript && !variableAssignmentNode.scope.hasVariable(variableAssignmentNode.name)) {
+      val expressionType = variableAssignmentNode.expression.getType(typeResolver)
       // define property dynamically
       val propertyName = variableAssignmentNode.name
       val methodFieldName = propertyName.replaceFirstChar { it.uppercase() }
@@ -663,9 +663,14 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     mv.storeInVariable(variableAssignmentNode, variable)
   }
 
-  private fun pushAssignmentExpression(variable: Variable, expr: ExpressionNode) {
-    var expression = expr
+  private fun pushAssignmentExpression(variable: Variable, expression: ExpressionNode) {
     val variableType = variable.type
+    guessExpressionTypeIfNeeded(variableType, expression)
+    pushArgument(expression)
+    mv.castIfNecessaryOrThrow(expression, variable.type, expression.getType(typeResolver))
+  }
+
+  private fun guessExpressionTypeIfNeeded(variableType: JavaType, expression: ExpressionNode) {
     if (expression is LiteralArrayNode && expression.elements.isEmpty()) {
       val elementsType = if (variableType is JavaArrayType) variableType.elementsType
       else if (JavaType.intList.isAssignableFrom(variableType) || JavaType.intSet.isAssignableFrom(variableType)) JavaType.int
@@ -674,14 +679,13 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       else if (JavaType.doubleList.isAssignableFrom(variableType) || JavaType.doubleSet.isAssignableFrom(variableType)) JavaType.double
       else if (JavaType.charList.isAssignableFrom(variableType) || JavaType.characterSet.isAssignableFrom(variableType)) JavaType.char
       else if (JavaType.of(Collection::class.java).isAssignableFrom(variableType) && variableType.genericTypes.isNotEmpty()) variableType.genericTypes.first()
-      else throw MarcelSemanticException(expr.token, "Couldn't guess type of empty array. You can explicitly specify your wanted type with the 'as' keyword (e.g. '[] as int[]')")
-      expression = EmptyArrayNode(expr.token, JavaType.arrayType(elementsType))
+      else throw MarcelSemanticException(expression.token, "Couldn't guess type of empty array. You can explicitly specify your wanted type with the 'as' keyword (e.g. '[] as int[]')")
+      expression.type = JavaType.arrayType(elementsType)
     } else if (variableType.isInterface && expression is LambdaNode) {
       expression.interfaceType = variableType
     }
-    pushArgument(expression)
-    mv.castIfNecessaryOrThrow(expr, variable.type, expression.getType(typeResolver))
   }
+
   override fun visit(fieldAssignmentNode: FieldAssignmentNode) {
     val fieldVariable = typeResolver.findFieldOrThrow(
       fieldAssignmentNode.fieldNode.leftOperand.getType(typeResolver),

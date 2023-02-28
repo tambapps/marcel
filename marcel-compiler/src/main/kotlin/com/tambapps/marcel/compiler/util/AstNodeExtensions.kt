@@ -8,7 +8,8 @@ import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.type.JavaType
 
 fun LiteralArrayNode.getElementsType(typeResolver: JavaTypeResolver) =
-  JavaType.commonType(elements.map { it.accept(typeResolver) })
+  if (elements.isNotEmpty()) JavaType.commonType(elements.map { it.accept(typeResolver) })
+  else null
 
 fun LiteralMapNode.getKeysType(typeResolver: JavaTypeResolver) =
   JavaType.commonType(entries.map { it.first.accept(typeResolver) })

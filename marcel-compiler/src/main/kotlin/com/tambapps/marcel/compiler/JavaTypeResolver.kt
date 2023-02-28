@@ -17,6 +17,7 @@ import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.scope.MethodField
 import com.tambapps.marcel.parser.scope.ReflectMarcelField
 import com.tambapps.marcel.parser.type.ExtensionJavaMethod
+import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaConstructor
@@ -196,7 +197,12 @@ class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNodeTyp
     if (getFieldAccessOperator.nullSafe) findFieldOrThrow(getFieldAccessOperator.leftOperand.accept(this), getFieldAccessOperator.rightOperand.name).type.objectType
     else findFieldOrThrow(getFieldAccessOperator.leftOperand.accept(this), getFieldAccessOperator.rightOperand.name).type
 
-  override fun visit(literalListNode: LiteralArrayNode) = literalListNode.type ?: JavaType.arrayType(literalListNode.getElementsType(this))
+  override fun visit(literalListNode: LiteralArrayNode): JavaArrayType {
+    if (literalListNode.type != null) return literalListNode.type!!
+    val elementsType = literalListNode.getElementsType(this)
+      ?: throw MarcelSemanticException(literalListNode.token, "Couldn't guess type of array. Use the 'as' keyword to explicitly specify the type")
+    return JavaType.arrayType(elementsType)
+  }
 
   override fun visit(literalMapNode: LiteralMapNode) =
     JavaType.mapType(literalMapNode.getKeysType(this), literalMapNode.getValuesType(this))
