@@ -43,3 +43,5 @@ Marcel has the following keywords, which you cannot use as variable/function nam
 - catch
 - finally
 - instanceof
+- throw
+- throws

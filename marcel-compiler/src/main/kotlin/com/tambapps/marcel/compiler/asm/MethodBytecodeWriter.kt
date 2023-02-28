@@ -488,4 +488,13 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       invokeMethodWithArguments(from, typeResolver.findMethodOrThrow(variable.type, "putAt", putAtArguments.map { it.getType(typeResolver) }), putAtArguments)
     }
   }
+
+  fun tryCatchBlock(startLabel: Label, endLabel: Label, catchLabel: Label, javaType: JavaType?) {
+    mv.visitTryCatchBlock(startLabel, endLabel, catchLabel, javaType?.internalName)
+  }
+
+  fun catchBlock(label: Label, exceptionVarIndex: Int) {
+    mv.visitLabel(label)
+    mv.visitVarInsn(Opcodes.ASTORE, exceptionVarIndex)
+  }
 }
