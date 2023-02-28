@@ -762,6 +762,16 @@ public class MarcelJflexer {
     return zzBuffer.subSequence(getTokenStart(), getTokenEnd()).toString();
   }
 
+  private Character getLastNonWhitespaceChar() {
+      int i = zzCurrentPos - 1;
+      while (i >= 0) {
+        char c = zzBuffer.charAt(i);
+        if (!Character.isWhitespace(c)) return c;
+        i--;
+      }
+      return null;
+  }
+
   public int getYyline() { return yyline; }
   public int getYycolumn() { return yycolumn; }
   public int getZzLexicalState() { return zzLexicalState; }
@@ -1119,7 +1129,13 @@ public class MarcelJflexer {
             // fall through
           case 123: break;
           case 5: 
-            { pushState(REGEX_STRING); return token(OPEN_REGEX_QUOTE);
+            { Character lastChar = getLastNonWhitespaceChar();
+      if (lastChar == null || !Character.isLetterOrDigit(lastChar)) {
+        pushState(REGEX_STRING);
+        return token(OPEN_REGEX_QUOTE);
+      } else {
+        return token(DIV);
+      }
             } 
             // fall through
           case 124: break;

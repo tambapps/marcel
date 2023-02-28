@@ -131,6 +131,19 @@ public class MarcelLexerTest {
     ), lexer.lex("/some$'\"\\w\\//"));
   }
 
+
+  @Test
+  public void testDiv() {
+    assertEquals(Arrays.asList(
+        token(INTEGER, "1"),
+        token(DIV),
+        token(IDENTIFIER, "a"),
+        token(DIV),
+        token(INTEGER, "2"),
+        token(END_OF_FILE)
+    ), lexer.lex("1 / a / 2"));
+  }
+
   @Test
   public void testSimpleString() {
     assertEquals(Arrays.asList(

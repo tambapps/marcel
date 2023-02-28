@@ -79,6 +79,16 @@ import java.io.StringReader;
     return zzBuffer.subSequence(getTokenStart(), getTokenEnd()).toString();
   }
 
+  private Character getLastNonWhitespaceChar() {
+      int i = zzCurrentPos - 1;
+      while (i >= 0) {
+        char c = zzBuffer.charAt(i);
+        if (!Character.isWhitespace(c)) return c;
+        i--;
+      }
+      return null;
+  }
+
   public int getYyline() { return yyline; }
   public int getYycolumn() { return yycolumn; }
   public int getZzLexicalState() { return zzLexicalState; }
@@ -177,7 +187,15 @@ LONELY_BACKTICK=`
                                  }
 
 \'                          { pushState(SIMPLE_STRING); return token(OPEN_SIMPLE_QUOTE); }
-\/                          { pushState(REGEX_STRING); return token(OPEN_REGEX_QUOTE); }
+\/                          {
+      Character lastChar = getLastNonWhitespaceChar();
+      if (lastChar == null || !Character.isLetterOrDigit(lastChar)) {
+        pushState(REGEX_STRING);
+        return token(OPEN_REGEX_QUOTE);
+      } else {
+        return token(DIV);
+      }
+      }
 \`                          { pushState(CHAR_STRING); return token(OPEN_CHAR_QUOTE); }
 \"                          { pushState(STRING); return token(OPEN_QUOTE); }
 <STRING> \n                 { popState(); yypushback(1); return valueToken(DANGLING_NEWLINE); }
