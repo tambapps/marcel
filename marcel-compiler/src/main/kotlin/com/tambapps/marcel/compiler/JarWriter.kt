@@ -4,13 +4,14 @@ import java.io.Closeable
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
+import java.util.function.Consumer
 import java.util.jar.Attributes
 import java.util.jar.JarEntry
 
 import java.util.jar.JarOutputStream
 import java.util.jar.Manifest
 
-class JarWriter constructor(outputStream: OutputStream): Closeable {
+class JarWriter constructor(outputStream: OutputStream): Closeable, Consumer<CompiledClass> {
   constructor(file: File): this(FileOutputStream(file))
 
   private val manifest = Manifest().apply {
@@ -23,6 +24,9 @@ class JarWriter constructor(outputStream: OutputStream): Closeable {
     writeScriptJar(compilationResult.classes)
   }
 
+  override fun accept(t: CompiledClass) {
+    writeScriptJar(t)
+  }
   fun writeScriptJar(compiledClasses: CompiledClass) {
     writeScriptJar(listOf(compiledClasses))
   }

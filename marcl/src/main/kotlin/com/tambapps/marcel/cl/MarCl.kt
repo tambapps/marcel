@@ -92,7 +92,7 @@ fun main(args : Array<String>) {
 }
 
 fun compile(file: File, className: String, keepClassFiles: Boolean, keepJarFile: Boolean, printStackTrace: Boolean, scriptLoader: MarcelClassLoader? = null): File? {
-  val result = try {
+  val classes = try {
     MarcelCompiler(CompilerConfiguration(dumbbellEnabled = true)).compile(scriptLoader, file.readText(), className)
   } catch (e: IOException) {
     println("An error occurred while reading file: ${e.message}")
@@ -116,7 +116,7 @@ fun compile(file: File, className: String, keepClassFiles: Boolean, keepJarFile:
     return null
   }
 
-  for (compiledClass in result.classes) {
+  for (compiledClass in classes) {
     if (!keepClassFiles && !keepJarFile || keepClassFiles) { // if no option is specified
       File("${compiledClass.className}.class").writeBytes(compiledClass.bytes)
     }
@@ -125,7 +125,7 @@ fun compile(file: File, className: String, keepClassFiles: Boolean, keepJarFile:
   if (!keepJarFile) return null
   val jarFile = File(file.parentFile, "$className.jar")
   JarWriter(jarFile).use {
-    it.writeScriptJar(result.classes)
+    it.writeScriptJar(classes)
   }
   return jarFile
 }

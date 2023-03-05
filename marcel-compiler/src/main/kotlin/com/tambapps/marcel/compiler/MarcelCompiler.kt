@@ -6,54 +6,63 @@ import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
-import com.tambapps.marcel.parser.ast.ClassNode
-import com.tambapps.marcel.parser.ast.ModuleNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import marcel.lang.MarcelClassLoader
 import java.io.File
 import java.io.IOException
 import java.io.Reader
+import java.util.function.Consumer
 
 class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
 
   constructor(): this(CompilerConfiguration())
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class)
-  fun compile(scriptLoader: MarcelClassLoader? = null, files: Collection<File>): CompilationResult {
-    return compileSourceFiles(scriptLoader, files.map { SourceFile.fromFile(it) })
+  fun compile(scriptLoader: MarcelClassLoader? = null, files: Collection<File>, classConsumer: Consumer<CompiledClass>) {
+    return compileSourceFiles(scriptLoader, files.map { SourceFile.fromFile(it) }, classConsumer)
   }
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class)
-  fun compile(scriptLoader: MarcelClassLoader? = null, reader: Reader, className: String? = null): CompilationResult {
-    return compile(scriptLoader, reader.readText(), className)
+  fun compile(scriptLoader: MarcelClassLoader? = null, reader: Reader, className: String? = null, classConsumer: Consumer<CompiledClass>) {
+    return compile(scriptLoader, reader.readText(), className, classConsumer)
   }
 
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class)
-  fun compile(scriptLoader: MarcelClassLoader? = null, file: File): CompilationResult {
-    return compile(scriptLoader, SourceFile.fromFile(file))
+  fun compile(scriptLoader: MarcelClassLoader? = null, file: File, classConsumer: Consumer<CompiledClass>) {
+    return compile(scriptLoader, SourceFile.fromFile(file), classConsumer)
   }
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class)
-  fun compile(scriptLoader: MarcelClassLoader? = null, text: String, className: String? = null): CompilationResult {
-    return compileSourceFiles(scriptLoader, listOf(SourceFile("$className.mcl") { text }))
+  fun compile(scriptLoader: MarcelClassLoader? = null, text: String, className: String? = null, classConsumer: Consumer<CompiledClass>) {
+    return compileSourceFiles(scriptLoader, listOf(SourceFile("$className.mcl") { text }), classConsumer)
   }
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class)
-  fun compile(scriptLoader: MarcelClassLoader? = null, sourceFile: SourceFile): CompilationResult {
-    return compileSourceFiles(scriptLoader, listOf(sourceFile))
+  fun compile(scriptLoader: MarcelClassLoader? = null, text: String, className: String? = null): List<CompiledClass> {
+    val classes = mutableListOf<CompiledClass>()
+    compileSourceFiles(scriptLoader, listOf(SourceFile("$className.mcl") { text }), classes::add)
+    return classes
   }
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class)
-  fun compileSourceFiles(scriptLoader: MarcelClassLoader? = null, sourceFiles: Collection<SourceFile>): CompilationResult {
+  fun compile(scriptLoader: MarcelClassLoader? = null, sourceFile: SourceFile): List<CompiledClass> {
+    val classes = mutableListOf<CompiledClass>()
+    compileSourceFiles(scriptLoader, listOf(sourceFile), classes::add)
+    return classes
+  }
+
+  @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class)
+  fun compile(scriptLoader: MarcelClassLoader? = null, sourceFile: SourceFile, classConsumer: Consumer<CompiledClass>) {
+    return compileSourceFiles(scriptLoader, listOf(sourceFile), classConsumer)
+  }
+
+  @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class)
+  fun compileSourceFiles(scriptLoader: MarcelClassLoader? = null, sourceFiles: Collection<SourceFile>, classConsumer: Consumer<CompiledClass>) {
     val typeResolver = JavaTypeResolver(scriptLoader)
     // adding extensions
     typeResolver.loadDefaultExtensions()
-    val dumbbells = mutableSetOf<String>()
-    val classes = mutableListOf<ClassNode>()
-    val module = ModuleNode(dumbbells, classes)
 
-    val compiledClasses = mutableListOf<CompiledClass>()
     for (sourceFile in sourceFiles) {
       val tokens = MarcelLexer().lex(sourceFile.text)
       val parser = MarcelParser(typeResolver, sourceFile.className, tokens) //if (className != null) MarcelParser(typeResolver, className, tokens) else MarcelParser(typeResolver, tokens)
@@ -73,12 +82,10 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
 
       val classCompiler = ClassCompiler(compilerConfiguration, typeResolver)
       ast.classes.forEach {
-        compiledClasses.addAll(classCompiler.compileClass(it))
+        val compiledClasses = classCompiler.compileClass(it)
+        compiledClasses.forEach(classConsumer)
       }
-      dumbbells.addAll(ast.dumbbells)
-      classes.addAll(ast.classes)
     }
-    return CompilationResult(module, compiledClasses)
   }
 
 }
