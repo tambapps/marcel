@@ -68,7 +68,7 @@ class MarcelParser constructor(
     val imports = mutableListOf<ImportNode>()
     imports.addAll(Scope.DEFAULT_IMPORTS)
 
-    val dumbbells = mutableListOf<String>()
+    val dumbbells = mutableSetOf<String>()
     while (current.type == TokenType.DUMBBELL) {
       dumbbells.add(dumbbell())
     }
