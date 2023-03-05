@@ -29,7 +29,7 @@ abstract class MarcelShell constructor(val marcelClassLoader: MarcelClassLoader)
 
   protected val typeResolver = JavaTypeResolver(marcelClassLoader)
   private val tempDir = Files.createTempDirectory("marshell")
-  protected val replCompiler = MarcelReplCompiler(CompilerConfiguration.DEFAULT_CONFIGURATION, typeResolver)
+  protected val replCompiler = MarcelReplCompiler(CompilerConfiguration(dumbbellEnabled = true), typeResolver)
   private val evaluator = MarcelEvaluator(binding, replCompiler, marcelClassLoader, tempDir.toFile())
   private val buffer = mutableListOf<String>()
   private val commands = listOf<ShellCommand>(

@@ -16,7 +16,7 @@ import java.io.Reader
 
 class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
 
-  constructor(): this(CompilerConfiguration.DEFAULT_CONFIGURATION)
+  constructor(): this(CompilerConfiguration())
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class)
   fun compile(scriptLoader: MarcelClassLoader? = null, files: Collection<File>): CompilationResult {
@@ -59,6 +59,9 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
       val parser = MarcelParser(typeResolver, sourceFile.className, tokens) //if (className != null) MarcelParser(typeResolver, className, tokens) else MarcelParser(typeResolver, tokens)
       val ast = parser.parse()
 
+      if (ast.dumbbells.isNotEmpty() && !compilerConfiguration.dumbbellEnabled) {
+        throw MarcelSemanticException("Cannot use dumbbells because dumbbell is not enabled")
+      }
       if (ast.dumbbells.isNotEmpty() && scriptLoader != null) {
         for (dumbbell in ast.dumbbells) {
           val artifacts = Dumbbell.pull(dumbbell)

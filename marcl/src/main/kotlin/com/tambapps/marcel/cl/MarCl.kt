@@ -7,6 +7,7 @@ import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
+import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.JarWriter
 import com.tambapps.marcel.compiler.MarcelCompiler
 import com.tambapps.marcel.lexer.MarcelLexerException
@@ -92,7 +93,7 @@ fun main(args : Array<String>) {
 
 fun compile(file: File, className: String, keepClassFiles: Boolean, keepJarFile: Boolean, printStackTrace: Boolean, scriptLoader: MarcelClassLoader? = null): File? {
   val result = try {
-    MarcelCompiler().compile(scriptLoader, file.readText(), className)
+    MarcelCompiler(CompilerConfiguration(dumbbellEnabled = true)).compile(scriptLoader, file.readText(), className)
   } catch (e: IOException) {
     println("An error occurred while reading file: ${e.message}")
     if (printStackTrace) e.printStackTrace()
