@@ -124,7 +124,9 @@ class MarcelParser constructor(
       if (conflictClass != null) throw MarcelParserException(previous, "Class with name $className was defined more than once")
     }
 
-    val parseTypeScope = outerClassNode?.scope ?: Scope(typeResolver, JavaType.Object, imports)
+    val parseTypeScope = outerClassNode?.scope
+      // will set the actual classType later, as we didn't parse the class type yet
+      ?: Scope(typeResolver, JavaType.Object, imports)
     val superType =
       if (acceptOptional(TokenType.EXTENDS) != null) parseType(parseTypeScope)
       else JavaType.Object
@@ -136,7 +138,8 @@ class MarcelParser constructor(
       }
     }
     val classType = JavaType.newType(outerClassNode?.type, className, superType, false, interfaces)
-    val classScope = Scope(typeResolver, imports, classType )
+    if (outerClassNode == null) parseTypeScope.classType = classType  // setting the classType here
+    val classScope = Scope(typeResolver, imports, classType)
     val methods = mutableListOf<MethodNode>()
     val classFields = mutableListOf<FieldNode>()
     val innerClasses = mutableListOf<ClassNode>()
