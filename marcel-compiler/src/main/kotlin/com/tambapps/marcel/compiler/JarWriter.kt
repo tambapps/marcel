@@ -20,10 +20,6 @@ class JarWriter constructor(outputStream: OutputStream): Closeable, Consumer<Com
   }
   private val outputStream = JarOutputStream(outputStream, manifest)
 
-  fun writeScriptJar(compilationResult: CompilationResult) {
-    writeScriptJar(compilationResult.classes)
-  }
-
   override fun accept(t: CompiledClass) {
     writeScriptJar(t)
   }

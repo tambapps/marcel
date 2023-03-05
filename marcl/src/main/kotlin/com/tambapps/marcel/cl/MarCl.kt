@@ -53,6 +53,7 @@ class ExecuteCommand(private val scriptArguments: Array<String>) : CliktCommand(
     val scriptLoader = URLMarcelClassLoader()
 
     // we want to keep jar because we will run it
+    // TODO doesn't work when script has package
     val jarFile = compile(file, className, keepClassFiles, true, printStackTrace, scriptLoader) ?: return
 
     try {

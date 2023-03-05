@@ -46,6 +46,7 @@ interface JavaType: AstTypedObject {
   val isLoaded: Boolean
   val realClazz: Class<*>
   val className: String
+  val packageName: String?
   val superType: JavaType?
   val internalName
     get() = AsmUtils.getInternalName(className)
@@ -386,6 +387,9 @@ class NotLoadedJavaType internal constructor(
   override val isInterface: Boolean,
   override val directlyImplementedInterfaces: Collection<JavaType>): AbstractJavaType() {
 
+  override val packageName: String?
+    get() = if (className.contains('.')) className.substring(0, className.lastIndexOf(".")) else null
+
   override val isLoaded = false
   override val realClazz: Class<*>
     get() = throw RuntimeException("Class $className is not loaded")
@@ -506,6 +510,7 @@ class LoadedObjectType(
   genericTypes: List<JavaType>,
 ): LoadedJavaType(realClazz, genericTypes, Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN) {
 
+  override val packageName: String? = realClazz.`package`?.name
   constructor(realClazz: Class<*>): this(realClazz, emptyList())
 
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
@@ -534,6 +539,7 @@ class JavaArrayType internal constructor(
   val typeCode: Int
 ): LoadedJavaType(realClazz, emptyList(), Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN) {
   override val isArray get() = true
+  override val packageName = null
   override val asArrayType: JavaArrayType
     get() = this
 
@@ -553,6 +559,7 @@ class JavaPrimitiveType internal constructor(
   val divCode: Int,
   override val defaultValueExpression: ExpressionNode): LoadedJavaType(objectKlazz.javaPrimitiveType!!, emptyList(), storeCode, loadCode, returnCode) {
 
+  override val packageName = null
   val objectClass = objectKlazz.java
   override val objectType: JavaType
     get() = JavaType.of(objectClass)
@@ -580,6 +587,9 @@ class LazyJavaType internal constructor(private val scope: Scope,
       return _actualType!!
     }
 
+
+  override val packageName: String?
+    get() = actualType.packageName
   override val isLoaded: Boolean
     get() = actualType.isLoaded
   override val realClazz: Class<*>

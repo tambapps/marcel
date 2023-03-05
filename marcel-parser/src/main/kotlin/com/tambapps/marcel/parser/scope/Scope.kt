@@ -105,6 +105,7 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
     val innerClassName = if (classType.innerName == classSimpleName) classType.className
     else classType.className + '$' + classSimpleName
     if (typeResolver.isDefined(innerClassName)) return typeResolver.of(innerClassName, genericTypes)
+    if (typeResolver.isDefined("${classType.packageName}.$classSimpleName")) return typeResolver.of("${classType.packageName}.$classSimpleName", genericTypes)
     val className = resolveClassName(classSimpleName)
     return typeResolver.of(className, genericTypes)
   }
