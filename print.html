@@ -945,6 +945,7 @@ marshell:000&gt; gson = new Gson()
 without having to create a Maven/Gradle project.</p>
 <p>It was inspired strongly from <a href="https://groovy-lang.org/grape.html">Groovy's grapes</a></p>
 <br/>
+<h2 id="import-dependencies-in-a-script"><a class="header" href="#import-dependencies-in-a-script">Import dependencies in a script</a></h2>
 <p>To import a dependency, use the <code>dumbbell</code> keyword.</p>
 <pre><code class="language-groovy">dumbbell 'com.google.code.gson:gson:2.10.1'
 import com.google.gson.Gson
@@ -954,6 +955,8 @@ Gson gson = new Gson()
 println(gson.toJson(['a': 'b']))
 </code></pre>
 <p>Dependencies are pulled from Maven central. The list of repository to pull from will be configurable (someday).</p>
+<p>Note that this feature <strong>only works when running scripts with <a href="tools/./marcl.html">MarCL</a></strong>.</p>
+<h2 id="import-dependencies-in-marshell"><a class="header" href="#import-dependencies-in-marshell">Import dependencies in Marshell</a></h2>
 <p>Dumbbell is also used in <a href="tools/./marshell.html">Marshell</a>. Use the <code>:pull</code> command to pull 
 dependencies dynamically.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="intelij-plugin-for-marcel"><a class="header" href="#intelij-plugin-for-marcel">IntelIJ Plugin for Marcel</a></h1>
