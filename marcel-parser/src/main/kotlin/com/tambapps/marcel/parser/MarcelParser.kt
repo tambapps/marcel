@@ -140,7 +140,7 @@ class MarcelParser constructor(
     val methods = mutableListOf<MethodNode>()
     val classFields = mutableListOf<FieldNode>()
     val innerClasses = mutableListOf<ClassNode>()
-    val classNode = ClassNode(classToken, classScope, access, classType, JavaType.Object, false, methods, classFields, innerClasses)
+    val classNode = ClassNode(classToken, classScope, access, classType, superType, false, methods, classFields, innerClasses)
     accept(TokenType.BRACKETS_OPEN)
 
     while (current.type != TokenType.BRACKETS_CLOSE) {
