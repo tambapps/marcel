@@ -21,13 +21,14 @@ class JarWriter constructor(outputStream: OutputStream): Closeable, Consumer<Com
   private val outputStream = JarOutputStream(outputStream, manifest)
 
   override fun accept(t: CompiledClass) {
-    writeScriptJar(t)
-  }
-  fun writeScriptJar(compiledClasses: CompiledClass) {
-    writeScriptJar(listOf(compiledClasses))
+    writeClass(t)
   }
 
-  fun writeScriptJar(compiledClasses: List<CompiledClass>) {
+  fun writeClass(compiledClasses: CompiledClass) {
+    writeClass(listOf(compiledClasses))
+  }
+
+  fun writeClass(compiledClasses: List<CompiledClass>) {
     for (compiledClass in compiledClasses) {
       val jarEntry = JarEntry(compiledClass.className.replace('.', '/') + ".class")
       outputStream.putNextEntry(jarEntry)
