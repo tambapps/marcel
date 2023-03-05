@@ -13,14 +13,14 @@ import org.objectweb.asm.Opcodes
 
 open class MethodNode constructor(
   override val token: LexToken, override val access: Int, final override var ownerClass: JavaType, override val name: String, val block: FunctionBlockNode,
-  final override val parameters: MutableList<MethodParameter>, final override val returnType: JavaType, val scope: MethodScope,
+  final override val parameters: MutableList<MethodParameterNode>, final override val returnType: JavaType, val scope: MethodScope,
   override val isInline: Boolean,
   final override val isConstructor: Boolean
 ): AstNode, AbstractMethod() {
 
   override val actualReturnType = returnType
   constructor(access: Int, ownerClass: JavaType, name: String, block: FunctionBlockNode,
-              parameters: MutableList<MethodParameter>, returnType: JavaType, scope: MethodScope,
+              parameters: MutableList<MethodParameterNode>, returnType: JavaType, scope: MethodScope,
               isInline: Boolean): this(LexToken.dummy(), access, ownerClass, name, block, parameters, returnType, scope, isInline, false)
 
   companion object {
@@ -32,7 +32,7 @@ open class MethodNode constructor(
       val methodScope = MethodScope(classScope,  name, parameters, returnType)
       return MethodNode(Opcodes.ACC_PUBLIC, ownerClass,  name, FunctionBlockNode(
         LexToken.dummy(), methodScope, mutableListOf()
-      ), methodScope.parameters.toMutableList(),  returnType, methodScope, false)
+      ), methodScope.parameters.map { MethodParameterNode(it) }.toMutableList(),  returnType, methodScope, false)
     }
   }
 

@@ -135,6 +135,9 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     }
   }
   private fun writeMethod(typeResolver: JavaTypeResolver, classWriter: ClassWriter, classNode: ClassNode, methodNode: MethodNode) {
+    if (methodNode.parameters.any { it.defaultValue != null }) {
+      TODO("Doesn't handle default values yet")
+    }
     val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.descriptor, methodNode.signature, null)
     mv.visitCode()
     val methodStartLabel = Label()

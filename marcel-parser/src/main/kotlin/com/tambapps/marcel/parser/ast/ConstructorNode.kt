@@ -16,17 +16,17 @@ class ConstructorNode(
   token: LexToken,
   access: Int,
   block: FunctionBlockNode,
-  parameters: MutableList<MethodParameter>,
+  parameters: MutableList<MethodParameterNode>,
   scope: MethodScope
 ) : MethodNode(token, access, JavaType.void, JavaMethod.CONSTRUCTOR_NAME, blockWithSuperCall(scope, block), parameters, JavaType.void,
   scope, false, true) {
 
   companion object {
 
-    fun of(classNode: ClassNode, parameters: MutableList<MethodParameter>, statements: MutableList<StatementNode>): ConstructorNode {
+    fun of(classNode: ClassNode, parameters: MutableList<MethodParameterNode>, statements: MutableList<StatementNode>): ConstructorNode {
       return of(classNode, MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, parameters, JavaType.void), parameters, statements)
     }
-    fun of(classNode: ClassNode, scope: MethodScope, parameters: MutableList<MethodParameter>, statements: MutableList<StatementNode>): ConstructorNode {
+    fun of(classNode: ClassNode, scope: MethodScope, parameters: MutableList<MethodParameterNode>, statements: MutableList<StatementNode>): ConstructorNode {
       return ConstructorNode(classNode.token,
         Opcodes.ACC_PUBLIC, FunctionBlockNode(LexToken.dummy(), scope, statements),
         parameters, scope

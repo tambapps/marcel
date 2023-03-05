@@ -7,6 +7,7 @@ import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ConstructorNode
 import com.tambapps.marcel.parser.ast.FieldNode
 import com.tambapps.marcel.parser.ast.MethodNode
+import com.tambapps.marcel.parser.ast.MethodParameterNode
 import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.FieldAssignmentNode
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
@@ -59,7 +60,7 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
     lambdaClassNode.fields.addAll(fields)
 
     // creating constructor that will initialize all fields
-    val constructorParameters = fields.map { MethodParameter(it.type, it.name, true) }
+    val constructorParameters = fields.map { MethodParameterNode(it.type, it.name, true) }
 
     // adding default constructor
     val constructorScope = MethodScope(lambdaClassNode.scope, JavaMethod.CONSTRUCTOR_NAME, constructorParameters, JavaType.void)
@@ -99,7 +100,7 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
     lambdaClassNode.addMethod(
       MethodNode(Opcodes.ACC_PUBLIC, type, lambdaMethod.name,
         fblock,
-        parameters.toMutableList(),
+        parameters.map { MethodParameterNode(it) }.toMutableList(),
         lambdaReturnType, lambdaMethodScope,
         false)
     )
@@ -124,7 +125,7 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
       lambdaClassNode.addMethod(
         MethodNode(Opcodes.ACC_PUBLIC, type, interfaceMethod.name,
           FunctionBlockNode(token, interfaceMethodScope, mutableListOf(ExpressionStatementNode(token, lambdaMethodCall))),
-          parameters.toMutableList(),
+          parameters.map { MethodParameterNode(it) }.toMutableList(),
           interfaceMethod.returnType, interfaceMethodScope,
           false)
       )

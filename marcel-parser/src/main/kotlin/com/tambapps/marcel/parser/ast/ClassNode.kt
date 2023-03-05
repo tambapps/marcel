@@ -60,7 +60,7 @@ class ClassNode constructor(override val token: LexToken,
   private fun scriptBindingConstructor(): ConstructorNode {
     val bindingType = JavaType.of(Binding::class.java)
     val bindingParameterName = "binding"
-    val bindingConstructorParameters = mutableListOf(MethodParameter(bindingType, bindingParameterName))
+    val bindingConstructorParameters = mutableListOf(MethodParameterNode(bindingType, bindingParameterName))
     val bindingConstructorScope = MethodScope(scope, JavaMethod.CONSTRUCTOR_NAME, bindingConstructorParameters, JavaType.void)
     return ConstructorNode(LexToken.dummy(),
       Opcodes.ACC_PUBLIC, FunctionBlockNode(LexToken.dummy(), bindingConstructorScope, mutableListOf(

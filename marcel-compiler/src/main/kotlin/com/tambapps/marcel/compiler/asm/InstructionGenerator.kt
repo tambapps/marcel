@@ -11,6 +11,7 @@ import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ComparisonOperator
 import com.tambapps.marcel.parser.ast.MethodNode
+import com.tambapps.marcel.parser.ast.MethodParameterNode
 import com.tambapps.marcel.parser.ast.expression.AndOperator
 import com.tambapps.marcel.parser.ast.expression.AsNode
 import com.tambapps.marcel.parser.ast.expression.BinaryOperatorNode
@@ -225,7 +226,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
     val methodNode = MethodNode(Opcodes.ACC_PUBLIC, classNode.type,
       switchMethodName, FunctionBlockNode(switchNode.token, switchMethodScope, mutableListOf(rootIf)),
-      parameters.toMutableList(), switchType, switchMethodScope, false
+      parameters.map { MethodParameterNode(it) }.toMutableList(), switchType, switchMethodScope, false
     )
     methodNode.block.setTreeScope(switchMethodScope)
 

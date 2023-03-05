@@ -7,6 +7,7 @@ import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.ast.MethodNode
+import com.tambapps.marcel.parser.ast.MethodParameterNode
 import com.tambapps.marcel.parser.ast.WildcardImportNode
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
@@ -62,8 +63,9 @@ class MarcelParserTest {
         val expected = MethodNode(Opcodes.ACC_PUBLIC, JavaType.Object, "foo",
             FunctionBlockNode(LexToken.dummy(), scope, mutableListOf(
                 ReturnNode(LexToken.dummy(), scope, IntConstantNode(LexToken.dummy(), 1))
-            )), mutableListOf(MethodParameter(JavaType.int, "a"),
-            MethodParameter(JavaType.String, "b")), JavaType.int, MethodScope(classScope, "foo",
+            )), mutableListOf(
+                MethodParameterNode(JavaType.int, "a"),
+                MethodParameterNode(JavaType.String, "b")), JavaType.int, MethodScope(classScope, "foo",
                 listOf(MethodParameter(JavaType.int, "a"), MethodParameter(JavaType.int, "b")), JavaType.int)
         , false)
 
