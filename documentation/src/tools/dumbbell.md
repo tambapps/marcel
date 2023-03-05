@@ -8,6 +8,7 @@ It was inspired strongly from [Groovy's grapes](https://groovy-lang.org/grape.ht
 
 <br/>
 
+## Import dependencies in a script
 
 To import a dependency, use the `dumbbell` keyword.
 
@@ -23,5 +24,10 @@ println(gson.toJson(['a': 'b']))
 Dependencies are pulled from Maven central. The list of repository to pull from will be configurable (someday).
 
 
+Note that this feature **only works when running scripts with [MarCL](./marcl.md)**.
+
+## Import dependencies in Marshell
 Dumbbell is also used in [Marshell](./marshell.md). Use the `:pull` command to pull 
 dependencies dynamically.
+
+
