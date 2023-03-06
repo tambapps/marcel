@@ -208,6 +208,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
     internal fun methodParameter(method: Method, fromType: JavaType?, parameter: Parameter): MethodParameter {
       val type = methodParameterType(fromType, parameter)
       val rawType = JavaType.of(parameter.type)
+      // TODO parse annotations
       return MethodParameter(type, rawType, parameter.name)
     }
 

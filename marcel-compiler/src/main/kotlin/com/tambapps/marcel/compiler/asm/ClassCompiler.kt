@@ -13,8 +13,10 @@ import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.type.JavaType
+import marcel.lang.DefaultValue
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Label
+import org.objectweb.asm.MethodVisitor
 
 class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
                     private val typeResolver: JavaTypeResolver) {
@@ -135,9 +137,6 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     }
   }
   private fun writeMethod(typeResolver: JavaTypeResolver, classWriter: ClassWriter, classNode: ClassNode, methodNode: MethodNode) {
-    if (methodNode.parameters.any { it.defaultValue != null }) {
-      TODO("Doesn't handle default values yet")
-    }
     val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.descriptor, methodNode.signature, null)
     mv.visitCode()
     val methodStartLabel = Label()
@@ -166,13 +165,34 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     mv.visitMaxs(0, 0) // args ignored since we used the flags COMPUTE_MAXS and COMPUTE_FRAMES
     mv.visitEnd()
 
-    for (parameter in methodNode.parameters) {
-      mv.visitLocalVariable(parameter.name,  parameter.type.descriptor, parameter.type.signature,
-          methodStartLabel, methodEndLabel,
-          methodNode.scope.findLocalVariable(parameter.name)!!.index)
-    }
+    defineMethodParameters(mv, methodNode, methodStartLabel, methodEndLabel)
   }
 
+  private fun defineMethodParameters(mv: MethodVisitor, methodNode: MethodNode, methodStartLabel: Label, methodEndLabel: Label) {
+    for (i in methodNode.parameters.indices) {
+      val parameter = methodNode.parameters[i]
+
+      if (parameter.defaultValue != null) {
+        val annotationVisitor = mv.visitParameterAnnotation(i, DefaultValue::class.javaType.descriptor, true)
+        when (parameter.type) {
+          JavaType.int, JavaType.Integer -> annotationVisitor.visit("defaultIntValue",
+            (parameter.defaultValue as? IntConstantNode)?.value ?: throw MarcelSemanticException("Must specify int constant for an int method default parameter"))
+          JavaType.long, JavaType.Long -> annotationVisitor.visit("defaultLongValue",
+            (parameter.defaultValue as? LongConstantNode)?.value ?: throw MarcelSemanticException("Must specify long constant for an int method default parameter"))
+          JavaType.float, JavaType.Float -> annotationVisitor.visit("defaultFloatValue",
+            (parameter.defaultValue as? FloatConstantNode)?.value ?: throw MarcelSemanticException("Must specify float constant for an int method default parameter"))
+          JavaType.double, JavaType.Double -> annotationVisitor.visit("defaultDoubleValue",
+            (parameter.defaultValue as? DoubleConstantNode)?.value ?: throw MarcelSemanticException("Must specify double constant for an int method default parameter"))
+          JavaType.char, JavaType.Character -> annotationVisitor.visit("defaultCharValue",
+            (parameter.defaultValue as? CharConstantNode)?.value?.get(0) ?: throw MarcelSemanticException("Must specify char constant for an int method default parameter"))
+          JavaType.String -> annotationVisitor.visit("defaultStringValue",
+            (parameter.defaultValue as? StringConstantNode)?.value ?: throw MarcelSemanticException("Must specify string constant for an int method default parameter"))
+        }
+      }
+      mv.visitLocalVariable(parameter.name,  parameter.type.descriptor, parameter.type.signature,
+        methodStartLabel, methodEndLabel, methodNode.scope.findLocalVariable(parameter.name)!!.index)
+    }
+  }
   private fun defineClassMembers(classNode: ClassNode) {
     typeResolver.registerType(classNode.type)
     classNode.methods.forEach { typeResolver.defineMethod(classNode.type, it) }

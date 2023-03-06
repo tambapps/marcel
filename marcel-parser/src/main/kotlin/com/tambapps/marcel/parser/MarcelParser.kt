@@ -281,7 +281,7 @@ class MarcelParser constructor(
       if (current.type == TokenType.RPAR) {
         break
       } else {
-        // TODO handle argument default values
+        /// TODO annotate default parameter with an annotation holding the default value. Only null can be the default value of Object types
         accept(TokenType.COMMA)
       }
     }
@@ -654,7 +654,7 @@ class MarcelParser constructor(
           parts.add(stringPart(scope))
         }
         skip() // skip last quote
-        StringNode(token, parts)
+        StringNode.of(token, parts)
       }
       TokenType.OPEN_SIMPLE_QUOTE -> {
         val builder = StringBuilder()

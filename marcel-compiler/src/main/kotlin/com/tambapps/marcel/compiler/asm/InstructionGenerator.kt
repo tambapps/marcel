@@ -1466,7 +1466,7 @@ private class PushingInstructionGenerator(
       super.visit(operator)
       mv.visitInsn(operator.getType(typeResolver).asPrimitiveType.addCode)
     } else if (operator.leftOperand.getType(typeResolver) == JavaType.String || operator.rightOperand.getType(typeResolver) == JavaType.String) {
-      visit(StringNode(operator.token, listOf(operator.leftOperand, operator.rightOperand)))
+      StringNode.of(operator.token, listOf(operator.leftOperand, operator.rightOperand)).accept(this)
     } else {
       TODO("Doesn't handle custom + operator yet (note to self: will need to handle them in type resolver too and in this super method")
     }

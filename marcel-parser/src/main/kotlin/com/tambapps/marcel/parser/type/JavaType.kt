@@ -48,6 +48,7 @@ interface JavaType: AstTypedObject {
   val className: String
   val packageName: String?
   val superType: JavaType?
+  val isAnnotation: Boolean
   val internalName
     get() = AsmUtils.getInternalName(className)
   val descriptor: String
@@ -399,7 +400,12 @@ class NotLoadedJavaType internal constructor(
   override val loadCode = Opcodes.ALOAD
   override val returnCode = Opcodes.ARETURN
   override val descriptor: String
-    get() = AsmUtils.getObjectClassDescriptor(className)
+    get() {
+      val descriptor = AsmUtils.getObjectClassDescriptor(className)
+      return if (isAnnotation) "@$descriptor" else descriptor
+    }
+  override val isAnnotation: Boolean
+    get() = false // TODO doesn't handle defined annotations yet
 
   override val allImplementedInterfaces: Collection<JavaType>
     get() {
@@ -421,6 +427,8 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
 
   override val className: String = realClazz.name
   override val superType get() =  if (realClazz.superclass != null) JavaType.of(realClazz.superclass) else null
+
+  override val isAnnotation = realClazz.isAnnotation
 
   override val genericParameterNames: List<String>
     get() = realClazz.typeParameters.map { it.name }
@@ -588,6 +596,8 @@ class LazyJavaType internal constructor(private val scope: Scope,
     }
 
 
+  override val isAnnotation: Boolean
+    get() = actualType.isAnnotation
   override val packageName: String?
     get() = actualType.packageName
   override val isLoaded: Boolean
