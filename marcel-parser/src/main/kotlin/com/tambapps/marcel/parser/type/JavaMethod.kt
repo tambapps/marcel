@@ -4,6 +4,14 @@ import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.AstTypedObject
+import com.tambapps.marcel.parser.ast.expression.CharConstantNode
+import com.tambapps.marcel.parser.ast.expression.DoubleConstantNode
+import com.tambapps.marcel.parser.ast.expression.FloatConstantNode
+import com.tambapps.marcel.parser.ast.expression.IntConstantNode
+import com.tambapps.marcel.parser.ast.expression.LongConstantNode
+import com.tambapps.marcel.parser.ast.expression.NullValueNode
+import com.tambapps.marcel.parser.ast.expression.StringConstantNode
+import marcel.lang.DefaultValue
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
@@ -12,7 +20,7 @@ import java.lang.reflect.Parameter
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.TypeVariable
 import java.lang.reflect.WildcardType
-import java.util.Objects
+import java.util.*
 
 interface JavaMethod {
 
@@ -208,8 +216,21 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
     internal fun methodParameter(method: Method, fromType: JavaType?, parameter: Parameter): MethodParameter {
       val type = methodParameterType(fromType, parameter)
       val rawType = JavaType.of(parameter.type)
-      // TODO parse annotations
-      return MethodParameter(type, rawType, parameter.name)
+      val annotations = parameter.annotations
+      val defaultValueAnnotation = annotations.firstNotNullOfOrNull { it as? DefaultValue }
+      // TODO check this
+      val defaultValue = if (defaultValueAnnotation != null) {
+        when (rawType) {
+          JavaType.int, JavaType.Integer -> IntConstantNode(value = defaultValueAnnotation.defaultIntValue)
+          JavaType.long, JavaType.Long -> LongConstantNode(value = defaultValueAnnotation.defaultLongValue)
+          JavaType.float, JavaType.Float -> FloatConstantNode(value = defaultValueAnnotation.defaultFloatValue)
+          JavaType.double, JavaType.Double -> DoubleConstantNode(value = defaultValueAnnotation.defaultDoubleValue)
+          JavaType.char, JavaType.Character -> CharConstantNode(value = defaultValueAnnotation.defaultCharValue + "")
+          JavaType.String -> StringConstantNode(value = defaultValueAnnotation.defaultStringValue)
+          else -> NullValueNode()
+        }
+      } else null
+      return MethodParameter(type, rawType, parameter.name, (parameter.modifiers and Modifier.FINAL) != 0, defaultValue)
     }
 
     internal fun actualMethodReturnType(fromType: JavaType?, method: Method, extensionMethod: Boolean = false): JavaType {

@@ -10,6 +10,7 @@ open class MethodParameter constructor(override val type: JavaType, val rawType:
   constructor(type: JavaType, name: String, isFinal: Boolean = false): this(type, type, name, isFinal, null)
 
   override fun toString(): String {
-    return "$type $name"
+    val s = "$type $name"
+    return if (defaultValue != null) "$s = $defaultValue" else s
   }
 }
