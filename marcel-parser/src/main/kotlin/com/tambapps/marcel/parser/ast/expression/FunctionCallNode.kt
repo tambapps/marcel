@@ -5,6 +5,7 @@ import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.ScopedNode
+import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
 
@@ -77,8 +78,14 @@ open class NamedParametersFunctionCall constructor(token: LexToken, override var
   override val arguments: MutableList<ExpressionNode>
     get() {
       val method = this.method ?: throw IllegalStateException("Method has not been retrieved")
+      val unknownParameter = namedArguments.find { na -> method.parameters.none { it.name == na.name } }
+      if (unknownParameter != null) {
+        throw MarcelSemanticException(token, "Unknown method parameter ${unknownParameter.name}")
+      }
       return  method.parameters.map { parameter: MethodParameter ->
-        namedArguments.find { it.name  == parameter.name }?.valueExpression ?: parameter.type.defaultValueExpression
+        namedArguments.find { it.name  == parameter.name }?.valueExpression
+          ?: parameter.defaultValue
+          ?: parameter.type.defaultValueExpression
       }.toMutableList()
     }
 

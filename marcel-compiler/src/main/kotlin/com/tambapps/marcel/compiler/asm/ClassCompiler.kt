@@ -187,6 +187,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
             (parameter.defaultValue as? CharConstantNode)?.value?.get(0) ?: throw MarcelSemanticException("Must specify char constant for an int method default parameter"))
           JavaType.String -> annotationVisitor.visit("defaultStringValue",
             (parameter.defaultValue as? StringConstantNode)?.value ?: throw MarcelSemanticException("Must specify string constant for an int method default parameter"))
+          else -> if (parameter.defaultValue !is NullValueNode) throw MarcelSemanticException(parameter.token, "Object parameters can only have null as default value")
         }
       }
       mv.visitLocalVariable(parameter.name,  parameter.type.descriptor, parameter.type.signature,

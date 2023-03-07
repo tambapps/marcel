@@ -272,12 +272,13 @@ class MarcelParser constructor(
     val parameters = mutableListOf<MethodParameterNode>()
     while (current.type != TokenType.RPAR) {
       val type = parseType(classScope)
-      val argName = accept(TokenType.IDENTIFIER).value
+      val identifierToken = accept(TokenType.IDENTIFIER)
+      val argName = identifierToken.value
       if (parameters.any { it.name == argName }) {
         throw MarcelSemanticException(token, "Cannot two method parameters with the same name")
       }
       val defaultValue = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(classScope) else null
-      parameters.add(MethodParameterNode(type, argName, defaultValue))
+      parameters.add(MethodParameterNode(identifierToken, type, argName, defaultValue))
       if (current.type == TokenType.RPAR) {
         break
       } else {
