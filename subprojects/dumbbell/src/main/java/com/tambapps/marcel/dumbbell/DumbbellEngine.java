@@ -4,6 +4,7 @@ import com.tambapps.maven.dependency.resolver.DependencyResolver;
 import com.tambapps.maven.dependency.resolver.data.Artifact;
 import com.tambapps.maven.dependency.resolver.repository.RemoteSavingMavenRepository;
 import com.tambapps.maven.dependency.resolver.version.FirstVersionFoundConflictResolver;
+import lombok.Getter;
 import lombok.SneakyThrows;
 
 import java.io.File;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 
 public class DumbbellEngine {
 
+  @Getter
   private final RemoteSavingMavenRepository repository;
 
   public DumbbellEngine(File dumbbellRoot) {

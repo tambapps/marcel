@@ -76,7 +76,9 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
         for (dumbbell in ast.dumbbells) {
           val artifacts = Dumbbell.pull(dumbbell)
           artifacts.forEach {
-            scriptLoader.addLibraryJar(it.jarFile)
+            if (it.jarFile != null) {
+              scriptLoader.addLibraryJar(it.jarFile)
+            }
           }
         }
       }

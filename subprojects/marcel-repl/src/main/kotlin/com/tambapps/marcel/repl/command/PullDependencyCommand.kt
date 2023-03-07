@@ -20,7 +20,9 @@ class PullDependencyCommand: AbstractShellCommand() {
     val pulledArtifacts = Dumbbell.pull(artifactString)
     out.println("Pulled dependency $artifactString")
     pulledArtifacts.forEach {
-      shell.marcelClassLoader.addLibraryJar(it.jarFile)
+      if (it.jarFile != null) {
+        shell.marcelClassLoader.addLibraryJar(it.jarFile)
+      }
     }
   }
 }
