@@ -32,6 +32,10 @@ public class DumbbellEngine {
     return pull(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion());
   }
 
+  public boolean deleteArtifact(Artifact artifact) {
+    return repository.deleteArtifact(artifact);
+  }
+
   @SneakyThrows
   public List<PulledArtifact> pull(String groupId, String artifactId, String version) {
     DependencyResolver resolver = new DependencyResolver(repository);
