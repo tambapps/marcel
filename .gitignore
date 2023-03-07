@@ -29,6 +29,7 @@ volumes/
 
 # me, for testing
 input.txt
+temp.txt
 /Test.class
 /Test.marcel
 /GroovyTest.groovy
