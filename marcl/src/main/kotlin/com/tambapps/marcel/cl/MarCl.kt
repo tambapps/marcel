@@ -34,8 +34,7 @@ class CompileCommand : CliktCommand(help = "Compiles a Marcel class to a .class 
   private val printStackTrace by option("-p", "--print-stack-trace", help = "print stack trace on compilation error").flag()
 
   override fun run() {
-    val className = generateClassName(file.name)
-    compile(file, className, keepClassFiles, keepJarFile, printStackTrace)
+    compile(file, keepClassFiles, keepJarFile, printStackTrace)
   }
 }
 
@@ -49,12 +48,10 @@ class ExecuteCommand(private val scriptArguments: Array<String>) : CliktCommand(
   private val arguments by argument(name = "SCRIPT_ARGUMENTS").multiple()
 
   override fun run() {
-    val className = generateClassName(file.name)
     val scriptLoader = URLMarcelClassLoader()
 
     // we want to keep jar because we will run it
-    // TODO doesn't work when script has package
-    val jarFile = compile(file, className, keepClassFiles, true, printStackTrace, scriptLoader) ?: return
+    val (className, jarFile) = compile(file, keepClassFiles, true, printStackTrace, scriptLoader) ?: return
 
     try {
       // and then run it with the new classLoader
@@ -92,9 +89,9 @@ fun main(args : Array<String>) {
   }
 }
 
-fun compile(file: File, className: String, keepClassFiles: Boolean, keepJarFile: Boolean, printStackTrace: Boolean, scriptLoader: MarcelClassLoader? = null): File? {
+fun compile(file: File, keepClassFiles: Boolean, keepJarFile: Boolean, printStackTrace: Boolean, scriptLoader: MarcelClassLoader? = null): Pair<String, File>? {
   val classes = try {
-    MarcelCompiler(CompilerConfiguration(dumbbellEnabled = true)).compile(scriptLoader, file.readText(), className)
+    MarcelCompiler(CompilerConfiguration(dumbbellEnabled = true)).compile(scriptLoader, file)
   } catch (e: IOException) {
     println("An error occurred while reading file: ${e.message}")
     if (printStackTrace) e.printStackTrace()
@@ -124,14 +121,12 @@ fun compile(file: File, className: String, keepClassFiles: Boolean, keepJarFile:
   }
 
   if (!keepJarFile) return null
-  val jarFile = File(file.parentFile, "$className.jar")
+  // script can have a package. That's why we need to lookup className from compiled classes
+  val scriptClassName = classes.find { it.isScript }!!.className
+
+  val jarFile = File(file.parentFile, "$scriptClassName.jar")
   JarWriter(jarFile).use {
     it.writeClass(classes)
   }
-  return jarFile
-}
-
-private fun generateClassName(fileName: String): String {
-  val i = fileName.indexOf('.')
-  return if (i < 0) fileName else fileName.substring(0, i)
+  return Pair(scriptClassName, jarFile)
 }

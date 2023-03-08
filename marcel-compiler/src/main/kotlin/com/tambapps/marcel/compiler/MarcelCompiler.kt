@@ -40,6 +40,13 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
   }
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class, MarcelCompilerException::class)
+  fun compile(scriptLoader: MarcelClassLoader? = null, file: File): List<CompiledClass> {
+    val classes = mutableListOf<CompiledClass>()
+    compileSourceFiles(scriptLoader, listOf(SourceFile.fromFile(file)), classes::add)
+    return classes
+  }
+
+  @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class, MarcelCompilerException::class)
   fun compile(scriptLoader: MarcelClassLoader? = null, text: String, className: String? = null): List<CompiledClass> {
     val classes = mutableListOf<CompiledClass>()
     compileSourceFiles(scriptLoader, listOf(SourceFile("$className.mcl") { text }), classes::add)

@@ -101,7 +101,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     }
 
     classWriter.visitEnd()
-    classes.add(CompiledClass(classNode.type.className, classWriter.toByteArray()))
+    classes.add(CompiledClass(classNode.type.className, classNode.isScript, classWriter.toByteArray()))
   }
 
   private fun writeField(classWriter: ClassWriter, classNode: ClassNode, marcelField: FieldNode) {

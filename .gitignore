@@ -32,6 +32,7 @@ input.txt
 temp.txt
 /Test.class
 /Test.marcel
+/Test.mcl
 /GroovyTest.groovy
 /JavaTest.java
 marcel-lexer/src/main/java/com/tambapps/marcel/lexer/MarcelJflexer.java~

@@ -1,6 +1,6 @@
 package com.tambapps.marcel.compiler
 
-data class CompiledClass constructor(val className: String, val bytes: ByteArray) {
+data class CompiledClass constructor(val className: String, val isScript: Boolean, val bytes: ByteArray) {
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is CompiledClass) return false
