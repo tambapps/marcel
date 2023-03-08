@@ -532,7 +532,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       visit(TernaryNode(accessOperator.token,
         BooleanExpressionNode.of(accessOperator.token, ComparisonOperatorNode(accessOperator.token, ComparisonOperator.NOT_EQUAL, tempRef, NullValueNode(accessOperator.token))),
         // using a new function call because we need to use the tempRef instead of the actual leftOperand
-        SimpleFunctionCallNode(accessOperator.token, access.scope, access.name, access.arguments, access.method).apply {
+        SimpleFunctionCallNode(accessOperator.token, access.scope, access.name, access.getArguments(typeResolver), access.getMethod(typeResolver)).apply {
           methodOwnerType = tempRef
         }
         , NullValueNode(accessOperator.token)
@@ -595,12 +595,12 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       val inlineBlock = inlineMethod.block.asSimpleBlock(inlineMethod.block.token, innerScope)
       inlineBlock.setTreeScope(innerScope)
       // initializing arguments
-      if (fCall.arguments.size != inlineMethod.parameters.size) {
+      if (fCall.getArguments(typeResolver).size != inlineMethod.parameters.size) {
         throw MarcelSemanticException(fCall.token, "Invalid number of arguments for method ${method.name}")
       }
       val variables = method.parameters.map { innerScope.addLocalVariable(it.type, it.name) }
       for (i in variables.indices) {
-        visit(VariableAssignmentNode(fCall.token, innerScope, variables[i].name, fCall.arguments[i]))
+        visit(VariableAssignmentNode(fCall.token, innerScope, variables[i].name, fCall.getArguments(typeResolver)[i]))
       }
       visit(inlineBlock)
     } else {
@@ -611,7 +611,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
           pushArgument(ReferenceExpression.thisRef(fCall.scope))
         }
       }
-      mv.invokeMethodWithArguments(fCall, method, fCall.arguments)
+      mv.invokeMethodWithArguments(fCall, method, fCall.getArguments(typeResolver))
     }
   }
 

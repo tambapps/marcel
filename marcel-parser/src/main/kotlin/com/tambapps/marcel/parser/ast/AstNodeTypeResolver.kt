@@ -357,7 +357,7 @@ open class AstNodeTypeResolver constructor(
   override fun visit(literalMapNode: LiteralMapNode): JavaType = JavaType.of(Map::class.java)
 
   override fun visit(fCall: FunctionCallNode): JavaType = findMethodOrThrow(fCall.methodOwnerType?.accept(this) ?: fCall.scope.classType,
-    fCall.name, fCall.arguments.map { it.accept(this) }).actualReturnType
+    fCall.name, fCall.getArguments(this).map { it.accept(this) }).actualReturnType
 
   // it is object because we need type resolver in order to be able to get the real type. that's why it is overridden in JavaTypeResolver
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator): JavaType = JavaType.Object

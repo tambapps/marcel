@@ -24,7 +24,6 @@ class ConstructorCallNode(token: LexToken, scope: Scope, val type: JavaType, arg
 
 class NamedParametersConstructorCallNode(token: LexToken, scope: Scope, val type: JavaType, namedArguments: List<NamedArgument>): NamedParametersFunctionCall(token, scope, JavaMethod.CONSTRUCTOR_NAME, namedArguments) {
 
-  override val arguments = mutableListOf<ExpressionNode>()
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {

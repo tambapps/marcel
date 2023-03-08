@@ -103,7 +103,7 @@ class FindNodeVisitor(private val predicate: (AstNode) -> Boolean): AstNodeVisit
 
   override fun visit(elvisOperator: ElvisOperator) = binaryNode(elvisOperator)
 
-  override fun visit(fCall: FunctionCallNode) = node(fCall) ?: fCall.arguments.firstNotNullOfOrNull { it.accept(this) }
+  override fun visit(fCall: FunctionCallNode) = node(fCall) ?: fCall.argumentNodes.firstNotNullOfOrNull { it.accept(this) }
 
   override fun visit(fCall: ConstructorCallNode) = node(fCall) ?: fCall.arguments.firstNotNullOfOrNull { it.accept(this) }
 

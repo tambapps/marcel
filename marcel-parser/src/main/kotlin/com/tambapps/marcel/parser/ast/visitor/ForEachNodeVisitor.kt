@@ -110,7 +110,7 @@ class ForEachNodeVisitor(private val consumer: (AstNode) -> Unit): AstNodeVisito
   override fun visit(fCall: FunctionCallNode) {
     consumer.invoke(fCall)
     if (fCall is NamedParametersFunctionCall) fCall.namedArguments.forEach { it.valueExpression.accept(this) }
-    else fCall.arguments.forEach { it.accept(this) }
+    else fCall.argumentNodes.forEach { it.accept(this) }
   }
 
   override fun visit(fCall: ConstructorCallNode) {
