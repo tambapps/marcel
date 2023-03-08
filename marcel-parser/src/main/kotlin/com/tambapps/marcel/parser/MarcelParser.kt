@@ -687,9 +687,12 @@ class MarcelParser constructor(
       TokenType.NEW -> {
         val type = parseType(scope)
         accept(TokenType.LPAR)
-        if (current.type == TokenType.IDENTIFIER && lookup(1)?.type == TokenType.COLON)
-          NamedParametersConstructorCallNode(token, Scope(typeResolver, type), type, parseFunctionNamedArguments(scope))
-        else ConstructorCallNode(token, Scope(typeResolver, type), type, parseFunctionArguments(scope))
+        val (arguments, namedArguments) = parseFunctionArguments(scope)
+        if (arguments.isNotEmpty() && namedArguments.isNotEmpty()) {
+          throw MarcelParserException(current, "Cannot have both positional and named arguments for constructor calls")
+        }
+        if (namedArguments.isNotEmpty()) NamedParametersConstructorCallNode(token, Scope(typeResolver, type), type, namedArguments)
+        else ConstructorCallNode(token, Scope(typeResolver, type), type, arguments)
       }
       TokenType.SWITCH -> {
         accept(TokenType.LPAR)
@@ -751,9 +754,9 @@ class MarcelParser constructor(
         }
         else if (current.type == TokenType.LPAR) {
           skip()
-          if (current.type == TokenType.IDENTIFIER && lookup(1)?.type == TokenType.COLON)
-            NamedParametersFunctionCall(token, scope, token.value, parseFunctionNamedArguments(scope))
-          else SimpleFunctionCallNode(token, scope, token.value, parseFunctionArguments(scope))
+          val (arguments, namedArguments) = parseFunctionArguments(scope)
+          if (namedArguments.isEmpty()) SimpleFunctionCallNode(token, scope, token.value, arguments)
+          else NamedParametersFunctionCall(token, scope, token.value, arguments, namedArguments)
         } else if (current.type == TokenType.BRACKETS_OPEN) { // function call with a lambda
           skip()
           SimpleFunctionCallNode(token, scope, token.value, mutableListOf(parseLambda(previous, scope)))
@@ -942,38 +945,31 @@ class MarcelParser constructor(
   }
 
   // assuming we already passed LPAR
-  private fun parseFunctionArguments(scope: Scope): MutableList<ExpressionNode> {
+  private fun parseFunctionArguments(scope: Scope): Pair<MutableList<ExpressionNode>, MutableList<NamedArgument>> {
     val arguments = mutableListOf<ExpressionNode>()
+    val namedArguments = mutableListOf<NamedArgument>()
     while (current.type != TokenType.RPAR) {
-      arguments.add(expression(scope))
-      if (current.type == TokenType.RPAR) {
-        break
+      if (current.type == TokenType.IDENTIFIER && lookup(1)?.type == TokenType.COLON) {
+        val identifierToken = accept(TokenType.IDENTIFIER)
+        val name = identifierToken.value
+        if (namedArguments.any { it.name == name }) {
+          throw MarcelParserException(identifierToken, "Method parameter $name was specified more than one")
+        }
+        accept(TokenType.COLON)
+        namedArguments.add(NamedArgument(name, expression(scope)))
       } else {
-        accept(TokenType.COMMA)
+        if (namedArguments.isNotEmpty()) {
+          throw MarcelParserException(current, "Cannot have a positional function argument after a named one")
+        }
+        arguments.add(expression(scope))
       }
-    }
-    skip() // skipping RPAR
-    return arguments
-  }
 
-  private fun parseFunctionNamedArguments(scope: Scope): MutableList<NamedArgument> {
-    val arguments = mutableListOf<NamedArgument>()
-    while (current.type != TokenType.RPAR) {
-      val identifierToken = accept(TokenType.IDENTIFIER)
-      val name = identifierToken.value
-      if (arguments.any { it.name == name }) {
-        throw MarcelParserException(identifierToken, "Method parameter $name was specified more than one")
-      }
-      accept(TokenType.COLON)
-      arguments.add(NamedArgument(name, expression(scope)))
-      if (current.type == TokenType.RPAR) {
-        break
-      } else {
+      if (current.type != TokenType.RPAR) {
         accept(TokenType.COMMA)
       }
     }
     skip() // skipping RPAR
-    return arguments
+    return Pair(arguments, namedArguments)
   }
 
   private fun operator(scope: Scope, token: LexToken, leftOperand: ExpressionNode, rightOperand: ExpressionNode): ExpressionNode {

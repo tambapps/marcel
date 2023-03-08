@@ -96,9 +96,14 @@ open class SimpleFunctionCallNode constructor(
 class NamedArgument(val name: String, val valueExpression: ExpressionNode)
 
 open class NamedParametersFunctionCall constructor(token: LexToken, override var scope: Scope, override val name: String,
+                                                   val arguments: List<ExpressionNode>,
                                                    val namedArguments: List<NamedArgument>
 ): AbstractFunctionCallNode(token) {
   override val argumentNodes = namedArguments.map { it.valueExpression }
+
+  init {
+    if (arguments.isNotEmpty()) TODO("Doesn't handle yet function calls with both positional and named arguments")
+  }
 
   override fun getArguments(typeResolver: AstNodeTypeResolver): List<ExpressionNode> {
     val method = getMethod(typeResolver)
