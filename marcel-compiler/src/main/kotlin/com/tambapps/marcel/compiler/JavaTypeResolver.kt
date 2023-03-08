@@ -89,6 +89,7 @@ class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNodeTyp
   override fun doFindMethod(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>, excludeInterfaces: Boolean): JavaMethod? {
     return findMethod(javaType, name, { it.matches(this, name, argumentTypes) },
       {candidates -> candidates.find { it.exactMatch(name, argumentTypes) }}, excludeInterfaces)
+      ?: findMethodByParameters(javaType, name, emptyList())
   }
 
   private fun findMethod(javaType: JavaType, name: String,

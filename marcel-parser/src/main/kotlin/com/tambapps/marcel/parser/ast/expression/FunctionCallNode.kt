@@ -62,6 +62,11 @@ open class SimpleFunctionCallNode constructor(
   }
 
   override fun getArguments(typeResolver: AstNodeTypeResolver): List<ExpressionNode> {
+    val method = getMethod(typeResolver)
+    if (arguments.isEmpty() && method.parameters.all { it.hasDefaultValue }) {
+      // if no parameter was given, it may be because we want to call a method that have default values for all its parameters
+      return method.parameters.map { it.defaultValue!! }
+    }
     return arguments
   }
 
