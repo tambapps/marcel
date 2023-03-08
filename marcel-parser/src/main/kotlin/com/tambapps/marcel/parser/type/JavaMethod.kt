@@ -72,6 +72,7 @@ interface JavaMethod {
   }
   fun matchesUnorderedParameters(typeResolver: AstNodeTypeResolver, name: String, parameters: Collection<MethodParameter>): Boolean {
     if (this.name != name) return false
+    if (parameters.size > this.parameters.size || parameters.any { p -> this.parameters.none { it.name == p.name } }) return false
     for (methodParameter in this.parameters) {
       if (parameters.none { methodParameter.type.isAssignableFrom(it.type) && it.name == methodParameter.name } && methodParameter.defaultValue == null) {
         return false

@@ -78,10 +78,6 @@ open class NamedParametersFunctionCall constructor(token: LexToken, override var
   override val arguments: MutableList<ExpressionNode>
     get() {
       val method = this.method ?: throw IllegalStateException("Method has not been retrieved")
-      val unknownParameter = namedArguments.find { na -> method.parameters.none { it.name == na.name } }
-      if (unknownParameter != null) {
-        throw MarcelSemanticException(token, "Unknown method parameter ${unknownParameter.name}")
-      }
       return  method.parameters.map { parameter: MethodParameter ->
         namedArguments.find { it.name  == parameter.name }?.valueExpression
           ?: parameter.defaultValue

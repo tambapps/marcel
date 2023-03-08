@@ -1,0 +1,10 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+
+assertEquals(7, sum(a: 3, b: 4))
+assertEquals(7, sum(a: 4, b: 3))
+assertEquals(7, sum(b: 3, a: 4))
+
+fun sum(int a, int b) int {
+  return a + b
+}
