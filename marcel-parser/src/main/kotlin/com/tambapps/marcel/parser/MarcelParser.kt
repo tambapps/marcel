@@ -964,7 +964,7 @@ class MarcelParser constructor(
         arguments.add(expression(scope))
       }
 
-      if (current.type != TokenType.RPAR) {
+      if (current.type == TokenType.COMMA) {
         accept(TokenType.COMMA)
       }
     }

@@ -101,10 +101,6 @@ open class NamedParametersFunctionCall constructor(token: LexToken, override var
 ): AbstractFunctionCallNode(token) {
   override val argumentNodes = namedArguments.map { it.valueExpression }
 
-  init {
-    if (arguments.isNotEmpty()) TODO("Doesn't handle yet function calls with both positional and named arguments")
-  }
-
   override fun getArguments(typeResolver: AstNodeTypeResolver): List<ExpressionNode> {
     val method = getMethod(typeResolver)
     return method.parameters.map { parameter: MethodParameter ->
@@ -123,8 +119,8 @@ open class NamedParametersFunctionCall constructor(token: LexToken, override var
     val methodParameters = toMethodParameters(typeResolver)
 
     val m =  if (methodOwnerType != null) typeResolver.findMethodByParametersOrThrow(
-      typeResolver.resolve(methodOwnerType!!), name, methodParameters)
-    else scope.getMethodWithParameters(name, methodParameters)
+      typeResolver.resolve(methodOwnerType!!), name, arguments.map { typeResolver.resolve(it) }, methodParameters)
+    else scope.getMethodWithParameters(name, arguments.map { typeResolver.resolve(it) }, methodParameters)
     return m
   }
 

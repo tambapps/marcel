@@ -80,8 +80,10 @@ class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNodeTyp
   }
 
   override fun doFindMethodByParameters(javaType: JavaType, name: String,
+                                        positionalArgumentTypes: List<AstTypedObject>,
                                         namedParameters: Collection<MethodParameter>,
                                         excludeInterfaces: Boolean): JavaMethod? {
+    if (positionalArgumentTypes.isNotEmpty()) TODO("Doesn't handle yet function calls with both positional and named arguments")
     return findMethod(javaType, name, { it.matchesUnorderedParameters(this, name, namedParameters) },
       {candidates -> candidates.find { it.parameters.size == namedParameters.size }}, excludeInterfaces)
   }
@@ -90,7 +92,7 @@ class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNodeTyp
     var m = findMethod(javaType, name, { it.matches(this, name, argumentTypes) },
       {candidates -> candidates.find { it.exactMatch(name, argumentTypes) }}, excludeInterfaces)
     if (m == null && argumentTypes.isEmpty()) {
-      m = findMethodByParameters(javaType, name, emptyList())
+      m = findMethodByParameters(javaType, name, argumentTypes, emptyList())
     }
     return m
   }

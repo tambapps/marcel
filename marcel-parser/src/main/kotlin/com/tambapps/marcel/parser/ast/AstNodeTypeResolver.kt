@@ -168,17 +168,23 @@ open class AstNodeTypeResolver constructor(
     return definedTypes[className] ?: JavaType.of(classLoader, className, genericTypes)
   }
 
-  fun findMethodByParametersOrThrow(javaType: JavaType, name: String, namedParameters: Collection<MethodParameter>): JavaMethod {
-    return findMethodByParameters(javaType, name, namedParameters)
+  fun findMethodByParametersOrThrow(javaType: JavaType, name: String,
+                                    positionalArgumentTypes: List<AstTypedObject>,
+                                    namedParameters: Collection<MethodParameter>): JavaMethod {
+    return findMethodByParameters(javaType, name, positionalArgumentTypes, namedParameters)
       ?: throw MarcelSemanticException("Method $javaType.$name with parameters $namedParameters is not defined")
   }
-  fun findMethodByParameters(javaType: JavaType, name: String, namedParameters: Collection<MethodParameter>, excludeInterfaces: Boolean = false): JavaMethod? {
-    val m = doFindMethodByParameters(javaType, name, namedParameters, excludeInterfaces) ?: return null
+  fun findMethodByParameters(javaType: JavaType, name: String,
+                             positionalArgumentTypes: List<AstTypedObject>,
+                             namedParameters: Collection<MethodParameter>, excludeInterfaces: Boolean = false): JavaMethod? {
+    val m = doFindMethodByParameters(javaType, name, positionalArgumentTypes, namedParameters, excludeInterfaces) ?: return null
     return if (javaType.genericTypes.isNotEmpty()) m.withGenericTypes(javaType.genericTypes)
     else m
   }
 
-  protected open fun doFindMethodByParameters(javaType: JavaType, name: String, namedParameters: Collection<MethodParameter>, excludeInterfaces: Boolean = false): JavaMethod? {
+  protected open fun doFindMethodByParameters(javaType: JavaType, name: String,
+                                              positionalArgumentTypes: List<AstTypedObject>,
+                                              namedParameters: Collection<MethodParameter>, excludeInterfaces: Boolean = false): JavaMethod? {
     return null
   }
 
