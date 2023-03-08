@@ -95,6 +95,7 @@ open class SimpleFunctionCallNode constructor(
 
 class NamedArgument(val name: String, val valueExpression: ExpressionNode)
 
+// TODO document that we can have positional parameters first
 open class NamedParametersFunctionCall constructor(token: LexToken, override var scope: Scope, override val name: String,
                                                    private val positionalArguments: List<ExpressionNode>,
                                                    protected val namedArguments: List<NamedArgument>
@@ -103,7 +104,7 @@ open class NamedParametersFunctionCall constructor(token: LexToken, override var
 
   override fun getArguments(typeResolver: AstNodeTypeResolver): List<ExpressionNode> {
     val method = getMethod(typeResolver)
-    return positionalArguments + method.parameters.map { parameter: MethodParameter ->
+    return positionalArguments + method.parameters.subList(positionalArguments.size, method.parameters.size).map { parameter: MethodParameter ->
       namedArguments.find { it.name  == parameter.name }?.valueExpression
         ?: parameter.defaultValue
         ?: parameter.type.defaultValueExpression

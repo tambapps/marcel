@@ -71,13 +71,21 @@ interface JavaMethod {
     return true
   }
   fun matchesUnorderedParameters(typeResolver: AstNodeTypeResolver, name: String,
-                                 positionalParameters: List<AstTypedObject>,
-                                 parameters: Collection<MethodParameter>): Boolean {
-    if (positionalParameters.isNotEmpty()) TODO()
+                                 positionalArguments: List<AstTypedObject>,
+                                 arguments: Collection<MethodParameter>): Boolean {
+    if (positionalArguments.isNotEmpty()) {
+      if (positionalArguments.size > this.parameters.size || positionalArguments.size + arguments.size > this.parameters.size) return false
+      for (i in positionalArguments.indices) {
+        if (!this.parameters[i].type.isAssignableFrom(positionalArguments[i].type)) {
+          return false
+        }
+      }
+    }
+    val methodParameters = this.parameters.subList(positionalArguments.size, this.parameters.size)
     if (this.name != name) return false
-    if (parameters.size > this.parameters.size || parameters.any { p -> this.parameters.none { it.name == p.name } }) return false
-    for (methodParameter in this.parameters) {
-      if (parameters.none { methodParameter.type.isAssignableFrom(it.type) && it.name == methodParameter.name } && methodParameter.defaultValue == null) {
+    if (arguments.size > methodParameters.size || arguments.any { p -> methodParameters.none { it.name == p.name } }) return false
+    for (methodParameter in methodParameters) {
+      if (arguments.none { methodParameter.type.isAssignableFrom(it.type) && it.name == methodParameter.name } && methodParameter.defaultValue == null) {
         return false
       }
     }

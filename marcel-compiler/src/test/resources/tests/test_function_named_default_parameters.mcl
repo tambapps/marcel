@@ -1,0 +1,8 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+
+assertEquals("GET bar?foo=5", get("bar", foo: 5))
+
+fun get(String path, int foo = 2) String {
+  return "GET $path?foo=$foo"
+}
