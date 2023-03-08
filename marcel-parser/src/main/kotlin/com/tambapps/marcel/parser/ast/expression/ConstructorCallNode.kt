@@ -22,8 +22,10 @@ class ConstructorCallNode(token: LexToken, scope: Scope, val type: JavaType, arg
   }
 }
 
-class NamedParametersConstructorCallNode(token: LexToken, scope: Scope, val type: JavaType, namedArguments: List<NamedArgument>): NamedParametersFunctionCall(token, scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(),  namedArguments) {
+class NamedParametersConstructorCallNode(token: LexToken, scope: Scope, val type: JavaType,
+                                         namedArguments: List<NamedArgument>): NamedParametersFunctionCall(token, scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(),  namedArguments) {
 
+  val constructorNamedArguments: List<NamedArgument> get() = super.namedArguments
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {

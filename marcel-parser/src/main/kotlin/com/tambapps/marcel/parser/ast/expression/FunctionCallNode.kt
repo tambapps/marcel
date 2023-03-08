@@ -96,14 +96,14 @@ open class SimpleFunctionCallNode constructor(
 class NamedArgument(val name: String, val valueExpression: ExpressionNode)
 
 open class NamedParametersFunctionCall constructor(token: LexToken, override var scope: Scope, override val name: String,
-                                                   val arguments: List<ExpressionNode>,
-                                                   val namedArguments: List<NamedArgument>
+                                                   private val positionalArguments: List<ExpressionNode>,
+                                                   protected val namedArguments: List<NamedArgument>
 ): AbstractFunctionCallNode(token) {
-  override val argumentNodes = namedArguments.map { it.valueExpression }
+  override val argumentNodes = positionalArguments + namedArguments.map { it.valueExpression }
 
   override fun getArguments(typeResolver: AstNodeTypeResolver): List<ExpressionNode> {
     val method = getMethod(typeResolver)
-    return method.parameters.map { parameter: MethodParameter ->
+    return positionalArguments + method.parameters.map { parameter: MethodParameter ->
       namedArguments.find { it.name  == parameter.name }?.valueExpression
         ?: parameter.defaultValue
         ?: parameter.type.defaultValueExpression
@@ -119,8 +119,8 @@ open class NamedParametersFunctionCall constructor(token: LexToken, override var
     val methodParameters = toMethodParameters(typeResolver)
 
     val m =  if (methodOwnerType != null) typeResolver.findMethodByParametersOrThrow(
-      typeResolver.resolve(methodOwnerType!!), name, arguments.map { typeResolver.resolve(it) }, methodParameters)
-    else scope.getMethodWithParameters(name, arguments.map { typeResolver.resolve(it) }, methodParameters)
+      typeResolver.resolve(methodOwnerType!!), name, positionalArguments.map { typeResolver.resolve(it) }, methodParameters)
+    else scope.getMethodWithParameters(name, positionalArguments.map { typeResolver.resolve(it) }, methodParameters)
     return m
   }
 

@@ -83,8 +83,7 @@ class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNodeTyp
                                         positionalArgumentTypes: List<AstTypedObject>,
                                         namedParameters: Collection<MethodParameter>,
                                         excludeInterfaces: Boolean): JavaMethod? {
-    if (positionalArgumentTypes.isNotEmpty()) TODO("Doesn't handle yet function calls with both positional and named arguments")
-    return findMethod(javaType, name, { it.matchesUnorderedParameters(this, name, namedParameters) },
+    return findMethod(javaType, name, { it.matchesUnorderedParameters(this, name, positionalArgumentTypes, namedParameters) },
       {candidates -> candidates.find { it.parameters.size == namedParameters.size }}, excludeInterfaces)
   }
 

@@ -32,7 +32,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
     if (typeResolver.findMethod(type, JavaMethod.CONSTRUCTOR_NAME, emptyList(), true) == null)
       throw MarcelSemanticException(fCall.token, "Cannot invoke named constructor on a type with no no-arg constructor")
     visitConstructorCall(ConstructorCallNode(fCall.token, fCall.scope, type, mutableListOf()))
-    for (namedParameter in fCall.namedArguments) {
+    for (namedParameter in fCall.constructorNamedArguments) {
       dup()
       argumentPusher.pushArgument(namedParameter.valueExpression)
       val field = typeResolver.findFieldOrThrow(type, namedParameter.name)

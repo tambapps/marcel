@@ -70,7 +70,10 @@ interface JavaMethod {
     if (returnType != other.returnType) return false
     return true
   }
-  fun matchesUnorderedParameters(typeResolver: AstNodeTypeResolver, name: String, parameters: Collection<MethodParameter>): Boolean {
+  fun matchesUnorderedParameters(typeResolver: AstNodeTypeResolver, name: String,
+                                 positionalParameters: List<AstTypedObject>,
+                                 parameters: Collection<MethodParameter>): Boolean {
+    if (positionalParameters.isNotEmpty()) TODO()
     if (this.name != name) return false
     if (parameters.size > this.parameters.size || parameters.any { p -> this.parameters.none { it.name == p.name } }) return false
     for (methodParameter in this.parameters) {
