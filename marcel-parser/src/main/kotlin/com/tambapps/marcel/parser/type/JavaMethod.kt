@@ -96,12 +96,20 @@ interface JavaMethod {
     return this.name == name && matches(typeResolver, types)
   }
 
-  fun matches(typeResolver: AstNodeTypeResolver, types: List<AstTypedObject>): Boolean {
-    if (parameters.size != types.size) return false
-    for (i in parameters.indices) {
+  fun matches(typeResolver: AstNodeTypeResolver, argumentTypes: List<AstTypedObject>): Boolean {
+    if (argumentTypes.size > parameters.size) return false
+    var i = 0
+    while (i < argumentTypes.size) {
       val expectedType = parameters[i].type
-      val actualType = types[i].type
+      val actualType = argumentTypes[i].type
       if (!matches(typeResolver, expectedType, actualType)) return false
+      i++
+    }
+
+    // if all remaining parameters have default value, this is a valid function call
+    while (i < parameters.size) {
+      if (!parameters[i].hasDefaultValue) return false
+      i++
     }
     return true
   }
