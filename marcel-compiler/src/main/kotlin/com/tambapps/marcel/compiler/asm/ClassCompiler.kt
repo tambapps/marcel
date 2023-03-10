@@ -17,6 +17,7 @@ import marcel.lang.DefaultValue
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
+import org.objectweb.asm.Opcodes
 
 class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
                     private val typeResolver: JavaTypeResolver) {
@@ -171,6 +172,8 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
   private fun defineMethodParameters(mv: MethodVisitor, methodNode: MethodNode, methodStartLabel: Label, methodEndLabel: Label) {
     for (i in methodNode.parameters.indices) {
       val parameter = methodNode.parameters[i]
+      // this is important, to be able to resolve marcel method parameter names
+      mv.visitParameter(parameter.name, if (parameter.isFinal) Opcodes.ACC_FINAL else 0)
 
       if (parameter.defaultValue != null) {
         val annotationVisitor = mv.visitParameterAnnotation(i, DefaultValue::class.javaType.descriptor, true)
