@@ -9,6 +9,11 @@ import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.UserInterruptException
 
+fun main(args: Array<String>) {
+  val marshell = Marshell()
+  marshell.run()
+}
+
 class Marshell: MarcelShell(URLMarcelClassLoader(Marshell::class.java.classLoader)) {
 
   private val highlighter = ReaderHighlighter(typeResolver, replCompiler)

@@ -34,6 +34,14 @@
     <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.0</version>
+        <configuration>
+          <compilerArgument>-parameters</compilerArgument>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.jetbrains.kotlin</groupId>
         <artifactId>kotlin-maven-plugin</artifactId>
         <executions>
@@ -63,7 +71,7 @@
             <configuration>
               <archive>
                 <manifest>
-                  <mainClass>com.tambapps.marcel.marshell.MainKt</mainClass>
+                  <mainClass>com.tambapps.marcel.marshell.MarshellKt</mainClass>
                 </manifest>
               </archive>
               <descriptorRefs>

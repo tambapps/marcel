@@ -82,7 +82,7 @@ EOF
 }
 
 create_executable marcl 'com.tambapps.marcel.cl.MarClKt'
-create_executable marshell 'com.tambapps.marcel.marshell.MainKt'
+create_executable marshell 'com.tambapps.marcel.marshell.MarshellKt'
 create_executable dumbbell 'com.tambapps.marcel.dumbbell.cl.DumbbellKt'
 
 echo "Marcel has been installed in $marcelDir."
