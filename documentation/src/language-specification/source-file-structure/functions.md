@@ -27,20 +27,6 @@ private fun foo() {
 }
 ```
 
-## Parameter default value (Not Yet Implemented)
-Function parameters can have default values, which are used when you skip the corresponding argument.
-
-```kotlin
-fun sum(int a = 0, int b = 8) int {
-return a + b
-}
-
-sum(a = 2) // 2 + 8
-sum(b = 5) // 0 + 8
-sum(a = 2, b = 5) // 2 + 5
-```
-
-
 ## Function Calls
 Function calls are no different than  in any other language
 
@@ -61,10 +47,30 @@ int result = sum(b: 2, a: 1) // equivalent to sum(1, 2)
 int otherResult = sum(a: 1) // equivalent to sum(1, 0)
 ```
 
+Note that you can only used named parameters call for functions of Marcel-compiled classes, because Java doesn't keep method parameter names available at runtime by default.
 
-Such calls also work with constructors. You can specify class's field names with their values to set.
+
+## Parameter default value
+Function parameters can have default values, which are used when you skip the corresponding argument. These can be useful especially
+with named parameters function calls. 
+
+```groovy
+fun sum(int a = 0, int b = 8) int {
+return a + b
+}
+
+sum(a: 2) // 2 + 8
+sum(b: 5) // 0 + 8
+sum(a: 2, b: 5) // 2 + 5
+```
+
+You can specify numbers, characters Strings, or `null`, meaning that Object types can only have `null` as default values
+(except String for which you can supply a literal string)
+
+### Fields Constructor Call
+
+Similar calls also work with constructors. You can specify class's field names with their values to set.
 Note that it will only work if your class has a no-arg constructor and that the fields referenced are `public` and **not** `final`.
-
 
 
 ```groovy
