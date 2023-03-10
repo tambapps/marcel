@@ -23,7 +23,7 @@ fun parseArtifact(s: String): Artifact? {
     return null
   }
 }
-class DumbbellCl : CliktCommand(help = "Dumbbell") {
+class DumbbellCl : CliktCommand(name = "dumbbell", help = "Dumbbell") {
   override fun run() {
     // just run, subcommands will be executed
   }

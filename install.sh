@@ -76,7 +76,7 @@ cp target/marcel-libs-$version-jar-with-dependencies.jar $marcelDir/lib/marcel-l
 create_executable() {
   cat <<EOF > $marcelDir/bin/$1
 #!/bin/bash
-java -cp '/home/nfonkoua/.marcel/lib/*' $2 "\$@"
+java -cp '$marcelDir/lib/*' $2 "\$@"
 EOF
   chmod u+x $marcelDir/bin/$1
 }
