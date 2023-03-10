@@ -534,16 +534,6 @@ fun foo() {
 <pre><code class="language-kotlin">private fun foo() {
 }
 </code></pre>
-<h2 id="parameter-default-value-not-yet-implemented"><a class="header" href="#parameter-default-value-not-yet-implemented">Parameter default value (Not Yet Implemented)</a></h2>
-<p>Function parameters can have default values, which are used when you skip the corresponding argument.</p>
-<pre><code class="language-kotlin">fun sum(int a = 0, int b = 8) int {
-return a + b
-}
-
-sum(a = 2) // 2 + 8
-sum(b = 5) // 0 + 8
-sum(a = 2, b = 5) // 2 + 5
-</code></pre>
 <h2 id="function-calls"><a class="header" href="#function-calls">Function Calls</a></h2>
 <p>Function calls are no different than  in any other language</p>
 <pre><code class="language-groovy">int result = sum(1, 2)
@@ -557,7 +547,22 @@ you specify them doesn't matter.</p>
 <pre><code class="language-groovy">int result = sum(b: 2, a: 1) // equivalent to sum(1, 2)
 int otherResult = sum(a: 1) // equivalent to sum(1, 0)
 </code></pre>
-<p>Such calls also work with constructors. You can specify class's field names with their values to set.
+<p>Note that you can only used named parameters call for functions of Marcel-compiled classes, because Java doesn't keep method parameter names available at runtime by default.</p>
+<h2 id="parameter-default-value"><a class="header" href="#parameter-default-value">Parameter default value</a></h2>
+<p>Function parameters can have default values, which are used when you skip the corresponding argument. These can be useful especially
+with named parameters function calls. </p>
+<pre><code class="language-groovy">fun sum(int a = 0, int b = 8) int {
+return a + b
+}
+
+sum(a: 2) // 2 + 8
+sum(b: 5) // 0 + 8
+sum(a: 2, b: 5) // 2 + 5
+</code></pre>
+<p>You can specify numbers, characters Strings, or <code>null</code>, meaning that Object types can only have <code>null</code> as default values
+(except String for which you can supply a literal string)</p>
+<h3 id="fields-constructor-call"><a class="header" href="#fields-constructor-call">Fields Constructor Call</a></h3>
+<p>Similar calls also work with constructors. You can specify class's field names with their values to set.
 Note that it will only work if your class has a no-arg constructor and that the fields referenced are <code>public</code> and <strong>not</strong> <code>final</code>.</p>
 <pre><code class="language-groovy">
 Foo foo = new Foo(bar: 1, baz: &quot;baz&quot;)
