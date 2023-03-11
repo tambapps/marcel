@@ -17,11 +17,11 @@ import com.tambapps.marcel.repl.command.ShellCommand
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
 import marcel.lang.util.MarcelVersion
+import java.io.PrintStream
 import java.nio.file.Files
 import java.util.concurrent.atomic.AtomicBoolean
 
-// TODO printStream should be passed in parameters, because it will not be stdout for android marshell
-abstract class MarcelShell constructor(val marcelClassLoader: MarcelClassLoader) {
+abstract class MarcelShell constructor(private val out: PrintStream, val marcelClassLoader: MarcelClassLoader) {
 
   val binding = Binding()
   val lastNode: ClassNode? get() = replCompiler.parserResult?.scriptNode
@@ -81,7 +81,7 @@ abstract class MarcelShell constructor(val marcelClassLoader: MarcelClassLoader)
 
       val command = findCommand(commandName)
       if (command != null) {
-        command.run(this, args.subList(1, args.size), System.out)
+        command.run(this, args.subList(1, args.size), out)
       } else {
         println("Unknown command $commandName")
       }
@@ -112,7 +112,7 @@ abstract class MarcelShell constructor(val marcelClassLoader: MarcelClassLoader)
   }
 
   fun printHelp() {
-    commands.forEach { it.printHelp(System.out) }
+    commands.forEach { it.printHelp(out) }
   }
 
   fun findCommand(name: String): ShellCommand? {
@@ -128,7 +128,7 @@ abstract class MarcelShell constructor(val marcelClassLoader: MarcelClassLoader)
   }
 
   fun listImports() {
-    findCommand("list")!!.run(this, listOf("imports"), System.out)
+    findCommand("list")!!.run(this, listOf("imports"), out)
 
   }
   fun clearBuffer() {

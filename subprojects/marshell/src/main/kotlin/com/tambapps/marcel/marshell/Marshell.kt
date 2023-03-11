@@ -14,7 +14,7 @@ fun main(args: Array<String>) {
   marshell.run()
 }
 
-class Marshell: MarcelShell(URLMarcelClassLoader(Marshell::class.java.classLoader)) {
+class Marshell: MarcelShell(System.out, URLMarcelClassLoader(Marshell::class.java.classLoader)) {
 
   private val highlighter = ReaderHighlighter(typeResolver, replCompiler)
   private val reader =  LineReaderBuilder.builder()
