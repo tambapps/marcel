@@ -20,12 +20,9 @@ import marcel.lang.util.MarcelVersion
 import java.nio.file.Files
 import java.util.concurrent.atomic.AtomicBoolean
 
+// TODO printStream should be passed in parameters, because it will not be stdout for android marshell
 abstract class MarcelShell constructor(val marcelClassLoader: MarcelClassLoader) {
 
-  companion object {
-    private val IMPORT_REGEX = "^import\\s".toRegex()
-    private val DUMBBELL_REGEX = "^dumbbel\\s".toRegex()
-  }
   val binding = Binding()
   val lastNode: ClassNode? get() = replCompiler.parserResult?.scriptNode
   val definedClasses get() = replCompiler.definedClasses
@@ -130,6 +127,10 @@ abstract class MarcelShell constructor(val marcelClassLoader: MarcelClassLoader)
     return line.startsWith(":")
   }
 
+  fun listImports() {
+    findCommand("list")!!.run(this, listOf("imports"), System.out)
+
+  }
   fun clearBuffer() {
     buffer.clear()
   }

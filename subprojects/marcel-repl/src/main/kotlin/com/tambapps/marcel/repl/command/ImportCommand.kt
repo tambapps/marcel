@@ -12,16 +12,17 @@ class ImportCommand: AbstractShellCommand() {
 
   override fun run(shell: MarcelShell, args: List<String>, out: PrintStream) {
     if (args.isEmpty()) {
-      out.println("Need to provide the package/class to import")
+      shell.listImports()
       return
     }
     val importArgs = args.joinToString(separator = " ")
 
     try {
       shell.addImport(importArgs)
-      shell.findCommand("list")!!.run(shell, listOf("imports"), out)
+      shell.listImports()
     } catch (e: Exception) {
       out.println("Couldn't add import: ${e.message}")
     }
   }
+
 }
