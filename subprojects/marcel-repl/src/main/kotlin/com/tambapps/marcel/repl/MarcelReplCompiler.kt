@@ -33,13 +33,15 @@ class MarcelReplCompiler constructor(
     private set
 
   fun addImport(importString: String) {
-    val import = MarcelParser(typeResolver, lexer.lex(importString), parserConfiguration).import()
-    imports.add(import)
+    addImport(MarcelParser(typeResolver, lexer.lex(importString), parserConfiguration).import())
+  }
+  fun addImport(importNode: ImportNode) {
+    imports.add(importNode)
   }
 
   fun compile(text: String): ReplCompilerResult {
     val result = parse(text)
-    val scriptNode = result.scriptNode
+    val scriptNode = result.scriptNode ?: return ReplCompilerResult(result, emptyList(), emptyList())
     scriptNode.scope.imports.addAll(imports)
     // writing script. class members were defined when parsing
     val compiledScriptClass = classCompiler.compileDefinedClass(scriptNode)
@@ -93,27 +95,28 @@ class MarcelReplCompiler constructor(
 
   @Synchronized
   private fun updateAndGet(text: String, skipUpdate: Boolean = false): ParserResult {
-    if (parserResult != null) {
-      typeResolver.disposeClass(parserResult!!.scriptNode) // some cleaning
+    if (parserResult != null && parserResult!!.scriptNode != null) {
+      typeResolver.disposeClass(parserResult!!.scriptNode!!) // some cleaning
       if (parserResult.hashCode() == text.hashCode()) return parserResult!!
     }
     val tokens = lexer.lex(text)
     val parser = MarcelParser(typeResolver, tokens, parserConfiguration)
 
-    val classes = parser.script(Scope.DEFAULT_IMPORTS.toMutableList(), null)
-    val scriptNode = classes.first()
+    val module = parser.parse()
 
-    for (method in definedFunctions) {
-      if (scriptNode.methods.any { it.matches(method) }) {
-        throw MarcelSemanticException("Method $method is already defined")
+    val scriptNode = module.classes.find { it.isScript }
+    if (scriptNode != null) {
+      for (method in definedFunctions) {
+        if (scriptNode.methods.any { it.matches(method) }) {
+          throw MarcelSemanticException("Method $method is already defined")
+        }
+        method.ownerClass = scriptNode.type
+        method.scope.classType = scriptNode.type
+        scriptNode.methods.add(method)
       }
-      method.ownerClass = scriptNode.type
-      method.scope.classType = scriptNode.type
-      scriptNode.methods.add(method)
+      typeResolver.defineClassMembers(scriptNode)
     }
-
-    typeResolver.defineClassMembers(scriptNode)
-    val r = ParserResult(tokens, classes, text.hashCode())
+    val r = ParserResult(tokens, module.classes, module.imports, module.dumbbells, text.hashCode())
     if (!skipUpdate) {
       this.parserResult = r
     }

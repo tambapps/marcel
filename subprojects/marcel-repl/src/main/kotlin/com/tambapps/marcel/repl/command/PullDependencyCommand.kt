@@ -25,4 +25,5 @@ class PullDependencyCommand: AbstractShellCommand() {
       }
     }
   }
+
 }

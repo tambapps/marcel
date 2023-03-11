@@ -22,6 +22,10 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 abstract class MarcelShell constructor(val marcelClassLoader: MarcelClassLoader) {
 
+  companion object {
+    private val IMPORT_REGEX = "^import\\s".toRegex()
+    private val DUMBBELL_REGEX = "^dumbbel\\s".toRegex()
+  }
   val binding = Binding()
   val lastNode: ClassNode? get() = replCompiler.parserResult?.scriptNode
   val definedClasses get() = replCompiler.definedClasses
@@ -63,7 +67,15 @@ abstract class MarcelShell constructor(val marcelClassLoader: MarcelClassLoader)
 
   open fun doRun() {
     val prompt = String.format("marshell:%03d> ", buffer.size)
-    val line = readLine(prompt)
+    var line = readLine(prompt)
+    /*
+    if (IMPORT_REGEX.matches(line)) {
+      line = ":$line"
+    } else if (DUMBBELL_REGEX.matches(line)) {
+
+    }
+
+     */
     if (line.isEmpty()) return
     //highlighter.highlight(reader, line) // this is for debug through intelij
     if (isCommand(line)) {

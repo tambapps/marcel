@@ -77,7 +77,7 @@ class MarcelParser constructor(
       imports.add(import())
     }
 
-    val moduleNode = ModuleNode(dumbbells)
+    val moduleNode = ModuleNode(imports, dumbbells)
     while (current.type != TokenType.END_OF_FILE) {
       if (current.type == TokenType.CLASS
         || lookup(1)?.type == TokenType.CLASS

@@ -1,6 +1,7 @@
 package com.tambapps.marcel.repl
 
 import com.tambapps.marcel.compiler.JarWriter
+import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
@@ -21,7 +22,18 @@ class MarcelEvaluator constructor(
   )
   fun eval(code: String): Any? {
     val result = replCompiler.compile(code)
-    val scriptNode = result.parserResult.scriptNode
+    for (importNode in result.parserResult.imports) {
+      replCompiler.addImport(importNode)
+    }
+    for (artifactString in result.parserResult.dumbbells) {
+      val pulledArtifacts = Dumbbell.pull(artifactString)
+      pulledArtifacts.forEach {
+        if (it.jarFile != null) {
+          scriptLoader.addLibraryJar(it.jarFile)
+        }
+      }
+    }
+    val scriptNode = result.parserResult.scriptNode ?: return null
 
     val className = scriptNode.type.simpleName
     val jarFile = File(tempDir.parentFile, "$className.jar")

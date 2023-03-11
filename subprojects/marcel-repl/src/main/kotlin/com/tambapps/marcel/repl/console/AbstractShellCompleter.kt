@@ -27,7 +27,8 @@ abstract class AbstractShellCompleter<T>(
       if (endsWithDot) line.substring(0, line.lastIndex) else line
     ) ?: return
 
-    var lastNode: AstInstructionNode = result.scriptNode.methods.find { it.name == "run" && it.parameters.size == 1 }!!
+    val scriptNode = result.scriptNode ?: return
+    var lastNode: AstInstructionNode = scriptNode.methods.find { it.name == "run" && it.parameters.size == 1 }!!
       .block
       .statements
       .lastOrNull() ?: return
@@ -38,7 +39,7 @@ abstract class AbstractShellCompleter<T>(
     if (lastNode is GetFieldAccessOperator) {
       completeClassMember(lastNode, endsWithDot, candidates)
     } else if (lastNode is ReferenceExpression) {
-      completeScriptMember(lastNode, result.scriptNode, candidates)
+      completeScriptMember(lastNode, scriptNode, candidates)
     }
   }
 
