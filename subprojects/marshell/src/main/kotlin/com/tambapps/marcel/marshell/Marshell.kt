@@ -1,13 +1,18 @@
 package com.tambapps.marcel.marshell
 
+import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.marshell.console.MarshellCompleter
 import com.tambapps.marcel.marshell.console.MarshellSnippetParser
 import com.tambapps.marcel.marshell.console.ReaderHighlighter
+import com.tambapps.marcel.parser.MarcelParserException
+import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.repl.MarcelShell
 import marcel.lang.URLMarcelClassLoader
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.UserInterruptException
+import java.io.File
+import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {
   val marshell = Marshell()
@@ -33,6 +38,34 @@ class Marshell: MarcelShell(System.out, URLMarcelClassLoader(Marshell::class.jav
     } catch (e: UserInterruptException) { exit() }
     catch (ee: EndOfFileException) { exit() }
     catch (ex: Exception) { ex.printStackTrace() }
+  }
+
+  override fun onStart() {
+    val marcelHome = File(
+      System.getenv("MARCEL_HOME")
+        ?: (System.getenv("HOME") + "/.marcel/")
+    )
+    val initScriptFile = File(marcelHome, "marshell/init.mcl")
+    if (initScriptFile.exists()) {
+      val text = initScriptFile.readText()
+      if (text.isNotBlank()) {
+        try {
+          evaluator.eval(text)
+        } catch (e: MarcelLexerException) {
+          println("Error from init script: ${e.message}")
+          exitProcess(1)
+        } catch (e: MarcelSemanticException) {
+          println("Error from init script: ${e.message}")
+          exitProcess(1)
+        } catch (e: MarcelParserException) {
+          println("Error from init script: ${e.message}")
+          exitProcess(1)
+        } catch (ex: Exception) {
+          println("Error from init script: ${ex.message}")
+          exitProcess(1)
+        }
+      }
+    }
   }
 
 }

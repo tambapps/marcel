@@ -17,6 +17,7 @@ import com.tambapps.marcel.repl.command.ShellCommand
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
 import marcel.lang.util.MarcelVersion
+import java.io.File
 import java.io.PrintStream
 import java.nio.file.Files
 import java.util.concurrent.atomic.AtomicBoolean
@@ -31,7 +32,7 @@ abstract class MarcelShell constructor(private val out: PrintStream, val marcelC
   protected val typeResolver = JavaTypeResolver(marcelClassLoader)
   private val tempDir = Files.createTempDirectory("marshell")
   protected val replCompiler = MarcelReplCompiler(CompilerConfiguration(dumbbellEnabled = true), typeResolver)
-  private val evaluator = MarcelEvaluator(binding, replCompiler, marcelClassLoader, tempDir.toFile())
+  protected val evaluator = MarcelEvaluator(binding, replCompiler, marcelClassLoader, tempDir.toFile())
   private val buffer = mutableListOf<String>()
   private val commands = listOf<ShellCommand>(
     HelpCommand(),
@@ -55,6 +56,7 @@ abstract class MarcelShell constructor(private val out: PrintStream, val marcelC
 
   fun run() {
     runningReference.set(true)
+    onStart()
     println("Marshell (Marcel: ${MarcelVersion.VERSION}, Java: " + System.getProperty("java.version") + ")")
     while (runningReference.get()) {
       doRun()
@@ -134,4 +136,7 @@ abstract class MarcelShell constructor(private val out: PrintStream, val marcelC
   fun clearBuffer() {
     buffer.clear()
   }
+
+
+  protected open fun onStart() {}
 }
