@@ -43,7 +43,7 @@ Marshell has some specific commands make your experience even better.
 Use the `:help` command to see all the commands (marshell-specific instructions) you can run
 
 
-### Import dependencies
+## Import dependencies
 You can import dependencies on the fly with the `:pull` command
 
 ```text
@@ -51,3 +51,10 @@ marshell:000> :pull com.google.code.gson:gson:2.10.1
 marshell:000> :import com.google.gson.Gson
 marshell:000> gson = new Gson()
 ```
+
+## Initialisation script
+If you want to always load some data everytime you run marshell, you can create a
+script in `$MARCEL_HOME/marshell/init.mcl`.
+
+In this script you **can't** use marcel commands. If you want to import a dependency/dumbbell,
+just do it like you would in a normal marcel script (`import ...` or `dumbbell '...'`)
