@@ -30,6 +30,7 @@
     - [Safe Navigation (?.)](language-specification/operators/safe-navigation.md)
     - [Define your own operators](language-specification/operators/operator-overloading.md)
   - [Lambdas](language-specification/lambdas.md)
+  - [Delegated Objects](language-specification/delegated-objects.md)
 - [Tools](./tools/index.md)
   - [MarCL - Marcel's Command Line tool](./tools/marcl.md)
   - [Marshell - Marcel Shell](./tools/marshell.md)
