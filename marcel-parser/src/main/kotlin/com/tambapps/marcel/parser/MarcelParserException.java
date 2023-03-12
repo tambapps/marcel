@@ -10,8 +10,12 @@ public class MarcelParserException extends RuntimeException {
   }
 
   public MarcelParserException(LexToken token, String message, boolean eof) {
-    super(String.format("Parser error at token %s (line %d, column %d): %s",
-        token.getType(), token.getLine(), token.getColumn(), message));
+    this(String.format("Parser error at token %s (line %d, column %d): %s",
+        token.getType(), token.getLine(), token.getColumn(), message), eof);
+  }
+
+  public MarcelParserException(String message, boolean eof) {
+    super(message);
     this.eof = eof;
   }
 

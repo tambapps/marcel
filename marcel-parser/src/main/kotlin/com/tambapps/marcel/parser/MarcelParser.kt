@@ -38,12 +38,12 @@ class MarcelParser constructor(
   private val configuration: ParserConfiguration) {
 
   constructor(typeResolver: AstNodeTypeResolver, classSimpleName: String, tokens: List<LexToken>):
-      this(typeResolver, classSimpleName, tokens, ParserConfiguration(false))
+      this(typeResolver, classSimpleName, tokens, ParserConfiguration(independentScriptInnerClasses= false))
 
   private val tokens = tokens.filter { it.type != TokenType.WHITE_SPACE }
 
   constructor(typeResolver: AstNodeTypeResolver, tokens: List<LexToken>, configuration: ParserConfiguration): this(typeResolver, "MarcelRandomClass_" + abs(ThreadLocalRandom.current().nextInt()), tokens, configuration)
-  constructor(typeResolver: AstNodeTypeResolver, tokens: List<LexToken>): this(typeResolver, tokens, ParserConfiguration(false))
+  constructor(typeResolver: AstNodeTypeResolver, tokens: List<LexToken>): this(typeResolver, tokens, ParserConfiguration(independentScriptInnerClasses = false))
 
   private var currentIndex = 0
 
@@ -60,6 +60,14 @@ class MarcelParser constructor(
   private val currentSafe: LexToken?
     get() = if (eof) null else tokens[currentIndex]
 
+  init {
+    if (configuration.scriptClass != null && !Script::class.java.isAssignableFrom(configuration.scriptClass)) {
+      throw MarcelParserException("scriptSuperClass should be a subclass of marcel.lang.Script", false)
+    }
+    if (configuration.scriptInterfaces.any { !it.isInterface }) {
+      throw MarcelParserException("Script interfaces should ve java interfaces", false)
+    }
+  }
 
   fun parse(): ModuleNode {
     val packageName =
@@ -164,7 +172,8 @@ class MarcelParser constructor(
     val classFields = mutableListOf<FieldNode>()
     val superType = JavaType.of(Script::class.java)
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
-    val classType = JavaType.newType(null, className, superType, false, emptyList())
+    val classType = JavaType.newType(null, className, superType, false,
+      configuration.scriptInterfaces.map { JavaType.of(it) })
     val classScope = Scope(typeResolver, imports, classType)
     val argsParameter = MethodParameterNode(JavaType.of(Array<String>::class.java), "args")
     val runScope = MethodScope(classScope, "run", listOf(argsParameter), JavaType.Object)

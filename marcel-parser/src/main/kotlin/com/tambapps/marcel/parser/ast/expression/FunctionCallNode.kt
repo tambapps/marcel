@@ -8,6 +8,8 @@ import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
+import com.tambapps.marcel.parser.type.JavaType
+import marcel.lang.DelegatedObject
 
 interface FunctionCallNode: ExpressionNode, ScopedNode<Scope> {
 
@@ -56,6 +58,17 @@ open class SimpleFunctionCallNode constructor(
   }
 
   override fun doGetMethod(typeResolver: AstNodeTypeResolver): JavaMethod {
+    // if there is no owner and the class implements DelegatedObject, the delegate is prioritised before this
+    if (methodOwnerType == null && scope.classType.implements(JavaType.of(DelegatedObject::class.java))) {
+      val delegateGetter = typeResolver.findMethod(scope.classType, "getDelegate", emptyList())
+      if (delegateGetter != null) {
+        val methodOfDelegate = typeResolver.findMethod(delegateGetter.returnType, name, emptyList())
+        if (methodOfDelegate != null) {
+          methodOwnerType = SimpleFunctionCallNode(token, scope,
+            "getDelegate", mutableListOf(), ReferenceExpression.thisRef(scope), delegateGetter)
+        }
+      }
+    }
    return if (methodOwnerType != null) typeResolver.findMethodOrThrow(typeResolver.resolve(methodOwnerType!!), name,
       arguments.map { it.accept(typeResolver) })
     else scope.findMethodOrThrow(name, arguments.map { it.accept(typeResolver) })

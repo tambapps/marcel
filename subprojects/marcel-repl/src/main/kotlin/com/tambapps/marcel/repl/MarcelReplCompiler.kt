@@ -14,6 +14,7 @@ import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaType
+import marcel.lang.DelegatedObject
 import kotlin.jvm.Throws
 
 class MarcelReplCompiler constructor(
@@ -27,13 +28,12 @@ class MarcelReplCompiler constructor(
   private val _definedClasses = mutableListOf<JavaType>()
   val definedClasses: List<JavaType> get() = _definedClasses
   private val classCompiler = ClassCompiler(compilerConfiguration, typeResolver)
-  private val parserConfiguration = ParserConfiguration(true)
   @Volatile
   var parserResult: ParserResult? = null
     private set
 
   fun addImport(importString: String) {
-    addImport(MarcelParser(typeResolver, lexer.lex(importString), parserConfiguration).import())
+    addImport(MarcelParser(typeResolver, lexer.lex(importString), ParserConfiguration()).import())
   }
   fun addImport(importNode: ImportNode) {
     imports.add(importNode)
@@ -100,7 +100,11 @@ class MarcelReplCompiler constructor(
       if (parserResult.hashCode() == text.hashCode()) return parserResult!!
     }
     val tokens = lexer.lex(text)
-    val parser = MarcelParser(typeResolver, tokens, parserConfiguration)
+    val parser = MarcelParser(typeResolver, tokens, ParserConfiguration(
+      independentScriptInnerClasses= true,
+      scriptInterfaces = if (definedFunctions.any { it.name == "getDelegate" && it.parameters.isEmpty() }) listOf(DelegatedObject::class.java)
+      else emptyList()
+    ))
 
     val module = parser.parse()
 
