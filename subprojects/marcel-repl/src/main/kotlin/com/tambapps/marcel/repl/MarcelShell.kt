@@ -96,7 +96,7 @@ abstract class MarcelShell constructor(private val out: PrintStream, val marcelC
       } catch (e: MarcelLexerException) {
         println("Error: ${e.message}")
         buffer.clear()
-      } catch (e: MarcelSemanticException) {e.printStackTrace()
+      } catch (e: MarcelSemanticException) {
         println(e.message)
         buffer.clear()
       } catch (e: MarcelParserException) {
