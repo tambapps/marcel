@@ -97,8 +97,10 @@ import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.scope.Variable
 import com.tambapps.marcel.parser.type.JavaArrayType
+import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
+import marcel.lang.DelegatedObject
 import marcel.lang.IntRanges
 import marcel.lang.LongRanges
 import marcel.lang.methods.MarcelTruth
@@ -586,6 +588,17 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(fCall: FunctionCallNode) {
+    // if there is no owner and the class implements DelegatedObject, the delegate is prioritised before this)
+    if (fCall.methodOwnerType == null && classNode.type.implements(DelegatedObject::class.javaType)) {
+      val delegateGetter = typeResolver.findMethod(classNode.type, "getDelegate", emptyList())
+      if (delegateGetter != null) {
+        val methodOfDelegate = typeResolver.findMethod(delegateGetter.returnType, fCall.name, emptyList())
+        if (methodOfDelegate != null) {
+          fCall.methodOwnerType = SimpleFunctionCallNode(fCall.token, fCall.scope,
+            "getDelegate", mutableListOf(), ReferenceExpression.thisRef(fCall.scope), delegateGetter)
+        }
+      }
+    }
     val method = fCall.getMethod(typeResolver)
     val methodOwner = fCall.methodOwnerType
     if (method.isInline) {

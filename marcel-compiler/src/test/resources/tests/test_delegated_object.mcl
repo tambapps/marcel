@@ -1,0 +1,22 @@
+import static org.junit.jupiter.api.Assertions.assertTrue
+import static org.junit.jupiter.api.Assertions.assertFalse
+
+class MyDelegatedObject implements DelegatedObject<Character> {
+  Character c
+
+  fun foo() bool {
+    return isUpperCase()
+  }
+
+  fun getDelegate() Character {
+    return c
+  }
+}
+
+
+MyDelegatedObject o = new MyDelegatedObject(c: `A`)
+MyDelegatedObject o2 = new MyDelegatedObject(c: `a`)
+
+
+assertTrue(o.foo())
+assertFalse(o2.foo())

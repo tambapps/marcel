@@ -134,6 +134,13 @@ interface JavaType: AstTypedObject {
     }
   }
 
+  fun implements(javaType: JavaType, compareGenerics: Boolean = false): Boolean {
+    return allImplementedInterfaces.any {
+      if (compareGenerics) javaType == it
+      else javaType.raw() == it.raw()
+    }
+  }
+
   companion object {
 
     fun newType(outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): JavaType {
