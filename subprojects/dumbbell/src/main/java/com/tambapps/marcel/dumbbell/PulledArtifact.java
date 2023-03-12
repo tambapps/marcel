@@ -1,10 +1,12 @@
 package com.tambapps.marcel.dumbbell;
 
 import com.tambapps.maven.dependency.resolver.data.Artifact;
+import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 import java.io.File;
 
+@EqualsAndHashCode(callSuper = true)
 @Value
 public class PulledArtifact extends Artifact {
 

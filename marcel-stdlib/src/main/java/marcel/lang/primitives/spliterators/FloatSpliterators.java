@@ -350,7 +350,7 @@ public final class FloatSpliterators {
 	 @Override
 	 public boolean tryAdvance(final FloatConsumer action) {
 	  Objects.requireNonNull(action);
-	  return i.tryAdvance(action instanceof Consumer ? (Consumer<? super Float>)action : action::accept);
+	  return i.tryAdvance(action);
 	 }
 	 @Deprecated
 	 @Override
@@ -363,7 +363,7 @@ public final class FloatSpliterators {
 	 @Override
 	 public void forEachRemaining(final FloatConsumer action) {
 	  Objects.requireNonNull(action);
-	  i.forEachRemaining(action instanceof Consumer ? (Consumer<? super Float>)action : action::accept);
+	  i.forEachRemaining(action);
 	 }
 	 @Deprecated
 	 @Override

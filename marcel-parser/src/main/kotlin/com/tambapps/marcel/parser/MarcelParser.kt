@@ -291,7 +291,6 @@ class MarcelParser constructor(
       if (current.type == TokenType.RPAR) {
         break
       } else {
-        /// TODO annotate default parameter with an annotation holding the default value. Only null can be the default value of Object types
         accept(TokenType.COMMA)
       }
     }
@@ -468,24 +467,23 @@ class MarcelParser constructor(
         } else {
           // for (;;)
           // needed especially if initStatement is var declaration
-          val scope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(previous,
-            "Cannot have for outside of a method"
+          val forScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(previous,
+            "Cannot have for outside of a method")
           )
-          )
-          val initStatement = statement(scope)
+          val initStatement = statement(forScope)
           if (initStatement !is VariableAssignmentNode) {
             throw MarcelParserException(previous, "For loops should start with variable declaration/assignment")
           }
           acceptOptional(TokenType.SEMI_COLON)
-          val condition = BooleanExpressionNode.of(token, expression(scope))
+          val condition = BooleanExpressionNode.of(token, expression(forScope))
           accept(TokenType.SEMI_COLON)
-          val iteratorStatement = statement(scope)
+          val iteratorStatement = statement(forScope)
           if (iteratorStatement !is VariableAssignmentNode && iteratorStatement !is ExpressionStatementNode) {
             throw MarcelParserException(previous, "Invalid for loop")
           }
           accept(TokenType.RPAR)
-          val forBlock = loopBody(scope)
-          ForStatement(token, scope, initStatement, condition, iteratorStatement, forBlock)
+          val forBlock = loopBody(forScope)
+          ForStatement(token, forScope, initStatement, condition, iteratorStatement, forBlock)
         }
       }
       TokenType.TRY -> {

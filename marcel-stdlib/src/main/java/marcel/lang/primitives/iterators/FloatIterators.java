@@ -216,7 +216,7 @@ public final class FloatIterators {
 	 * @param max the maximum number of elements to unwrap.
 	 * @return the number of elements unwrapped.
 	 */
-	public static int unwrap(final FloatIterator i, final float array[], int offset, final int max) {
+	public static int unwrap(final FloatIterator i, final float[] array, int offset, final int max) {
 	 if (max < 0) throw new IllegalArgumentException("The maximum number of elements (" + max + ") is negative");
 	 if (offset < 0 || offset + max > array.length) throw new IllegalArgumentException();
 	 int j = max;
@@ -240,7 +240,7 @@ public final class FloatIterators {
 	 @Override
 	 public void forEachRemaining(final FloatConsumer action) {
 	  Objects.requireNonNull(action);
-	  i.forEachRemaining(action instanceof Consumer ? (Consumer<? super Float>)action : action::accept);
+	  i.forEachRemaining(action);
 	 }
 	 @Deprecated
 	 @Override
@@ -311,7 +311,7 @@ public final class FloatIterators {
 	 @Override
 	 public void forEachRemaining(final FloatConsumer action) {
 	  Objects.requireNonNull(action);
-	  i.forEachRemaining(action instanceof Consumer ? (Consumer<? super Float>)action : action::accept);
+	  i.forEachRemaining(action);
 	 }
 	 @Deprecated
 	 @Override
@@ -609,9 +609,9 @@ public final class FloatIterators {
 	 return new FloatIntervalIterator(from, to);
 	}
 	private static class IteratorConcatenator implements FloatIterator {
-	 final FloatIterator a[];
+	 final FloatIterator[] a;
 	 int offset, length, lastOffset = -1;
-	 public IteratorConcatenator(final FloatIterator a[], int offset, int length) {
+	 public IteratorConcatenator(final FloatIterator[] a, int offset, int length) {
 	  this.a = a;
 	  this.offset = offset;
 	  this.length = length;
@@ -623,7 +623,6 @@ public final class FloatIterators {
 	   length--;
 	   offset++;
 	  }
-	  return;
 	 }
 	 @Override
 	 public boolean hasNext() {
@@ -693,7 +692,7 @@ public final class FloatIterators {
 	 * @param length the number of iterators to concatenate.
 	 * @return an iterator obtained by concatenation of {@code length} elements of {@code a} starting at {@code offset}.
 	 */
-	public static FloatIterator concat(final FloatIterator a[], final int offset, final int length) {
+	public static FloatIterator concat(final FloatIterator[] a, final int offset, final int length) {
 	 return new IteratorConcatenator (a, offset, length);
 	}
 	/** An unmodifiable wrapper class for iterators. */

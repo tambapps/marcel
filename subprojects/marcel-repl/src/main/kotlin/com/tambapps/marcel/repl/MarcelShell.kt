@@ -17,7 +17,6 @@ import com.tambapps.marcel.repl.command.ShellCommand
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
 import marcel.lang.util.MarcelVersion
-import java.io.File
 import java.io.PrintStream
 import java.nio.file.Files
 import java.util.concurrent.atomic.AtomicBoolean
@@ -66,17 +65,9 @@ abstract class MarcelShell constructor(private val out: PrintStream, val marcelC
 
   open fun doRun() {
     val prompt = String.format("marshell:%03d> ", buffer.size)
-    var line = readLine(prompt)
-    /*
-    if (IMPORT_REGEX.matches(line)) {
-      line = ":$line"
-    } else if (DUMBBELL_REGEX.matches(line)) {
-
-    }
-
-     */
+    val line = readLine(prompt)
     if (line.isEmpty()) return
-    //highlighter.highlight(reader, line) // this is for debug through intelij
+    //highlighter.highlight(reader, line) // this is for debug through IntelliJ
     if (isCommand(line)) {
       val args = line.split(" ")
       val commandName = args[0].substring(1)

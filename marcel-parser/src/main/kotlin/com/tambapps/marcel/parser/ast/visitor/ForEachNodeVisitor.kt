@@ -210,7 +210,7 @@ class ForEachNodeVisitor(private val consumer: (AstNode) -> Unit): AstNodeVisito
 
   override fun visit(returnNode: ReturnNode) {
     consumer.invoke(returnNode)
-    returnNode.expression?.accept(this)
+    returnNode.expression.accept(this)
   }
 
   override fun visit(voidExpression: VoidExpression) {

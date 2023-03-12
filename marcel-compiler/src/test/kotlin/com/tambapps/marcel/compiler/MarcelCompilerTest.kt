@@ -20,11 +20,11 @@ class MarcelCompilerTest: AbstractCompilerTest() {
   @TestFactory
   fun testRunAllScripts(): Collection<DynamicTest?> {
     val path: Path = Paths.get(javaClass.getResource("/tests").toURI())
-    val scriptPaths = path.toFile().list { dir, name -> name.endsWith(".mcl") }
+    val scriptPaths = path.toFile().list { _, name -> name.endsWith(".mcl") }
 
-    return  scriptPaths.map { path: String ->
-      DynamicTest.dynamicTest(path.removeSuffix(".mcl")) {
-        eval("/tests/$path")
+    return scriptPaths.map { p: String ->
+      DynamicTest.dynamicTest(p.removeSuffix(".mcl")) {
+        eval("/tests/$p")
       }
     }
   }
@@ -88,7 +88,6 @@ class MarcelCompilerTest: AbstractCompilerTest() {
   @Test
   fun testThis() {
     javaClass.getResource("/json")
-    val path: Path = Paths.get(javaClass.getResource("/").toURI())
     val eval = eval("/tests/test_this.mcl")
     assertTrue(eval is Script)
   }

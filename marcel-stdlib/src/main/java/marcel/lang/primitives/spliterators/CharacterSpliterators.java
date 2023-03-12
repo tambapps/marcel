@@ -135,7 +135,8 @@ public final class CharacterSpliterators {
 	  | Spliterator.SIZED | Spliterator.SUBSIZED | Spliterator.ORDERED;
 	 final char[] array;
 	 private final int offset;
-	 private int length, curr;
+	 private final int length;
+		private int curr;
 	 final int characteristics;
 	 public ArraySpliterator(final char[] array, final int offset, final int length, int additionalCharacteristics) {
 	  this.array = array;
@@ -350,7 +351,7 @@ public final class CharacterSpliterators {
 	 @Override
 	 public boolean tryAdvance(final CharacterConsumer action) {
 	  Objects.requireNonNull(action);
-	  return i.tryAdvance(action instanceof Consumer ? (Consumer<? super Character>)action : action::accept);
+	  return i.tryAdvance(action);
 	 }
 	 @Deprecated
 	 @Override
@@ -363,7 +364,7 @@ public final class CharacterSpliterators {
 	 @Override
 	 public void forEachRemaining(final CharacterConsumer action) {
 	  Objects.requireNonNull(action);
-	  i.forEachRemaining(action instanceof Consumer ? (Consumer<? super Character>)action : action::accept);
+	  i.forEachRemaining(action);
 	 }
 	 @Deprecated
 	 @Override
@@ -741,7 +742,8 @@ public final class CharacterSpliterators {
 	 private static final int CHARACTERISTICS = BASE_SPLITERATOR_CHARACTERISTICS
 	  | Spliterator.SIZED | Spliterator.SUBSIZED | Spliterator.ORDERED
 	  | Spliterator.DISTINCT | Spliterator.SORTED | Spliterator.IMMUTABLE;
-	 private char curr, to;
+	 private char curr;
+		private final char to;
 	 public IntervalSpliterator(final char from, final char to) {
 	  this.curr = from;
 	  this.to = to;
@@ -815,13 +817,13 @@ public final class CharacterSpliterators {
 	 // Neither SORTED nor DISTINCT "combine". Two combined spliterators with these characteristics may not have it.
 	 // Example, {1, 2} and {1, 3}, both SORTED and DISTINCT, concat to {1, 2, 1, 3}, which isn't.
 	 private static final int CHARACTERISTICS_NOT_SUPPORTED_WHILE_MULTIPLE = Spliterator.SORTED | Spliterator.DISTINCT;
-	 final CharacterSpliterator a[];
+	 final CharacterSpliterator[] a;
 	 // Unlike the other classes in this file, length represents remaining, NOT the high mark for offset.
 	 int offset, length;
 	 /** The sum of estimatedRemaining <em>except</em> current offset */
 	 long remainingEstimatedExceptCurrent = Long.MAX_VALUE;
 	 int characteristics = 0;
-	 public SpliteratorConcatenator(final CharacterSpliterator a[], int offset, int length) {
+	 public SpliteratorConcatenator(final CharacterSpliterator[] a, int offset, int length) {
 	  this.a = a;
 	  this.offset = offset;
 	  this.length = length;
@@ -1011,7 +1013,7 @@ public final class CharacterSpliterators {
 	 * @param length the number of spliterators to concatenate.
 	 * @return a spliterator obtained by concatenation of {@code length} elements of {@code a} starting at {@code offset}.
 	 */
-	public static CharacterSpliterator concat(final CharacterSpliterator a[], final int offset, final int length) {
+	public static CharacterSpliterator concat(final CharacterSpliterator[] a, final int offset, final int length) {
 	 return new SpliteratorConcatenator (a, offset, length);
 	}
 	private static class SpliteratorFromIterator implements CharacterSpliterator {

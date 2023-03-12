@@ -16,6 +16,7 @@ public class Binding {
     this(Collections.synchronizedMap(new HashMap<>()));
   }
 
+  @SuppressWarnings("unchecked")
   public <T> T getVariable(String name) {
     if (!variables.containsKey(name)) {
       throw new NoSuchPropertyException("Property " + name + " was not defined");

@@ -193,7 +193,10 @@ class ExtensionJavaMethod(
   // TODO could probably do some optimization here (with uses of java reflect API)
   constructor(method: Method): this(method,
     JavaType.of(method.declaringClass), method.name,
-    method.parameters.takeLast(method.parameters.size - 1).map { ReflectJavaMethod.methodParameter(method, JavaType.of(method.parameters.first().type), it) },
+    method.parameters.takeLast(method.parameters.size - 1).map { ReflectJavaMethod.methodParameter(
+      JavaType.of(method.parameters.first().type),
+      it
+    ) },
     JavaType.of(method.returnType),
     ReflectJavaMethod.actualMethodReturnType(JavaType.of(method.parameters.first().type), method, true),
     AsmUtils.getDescriptor(method))
@@ -201,7 +204,10 @@ class ExtensionJavaMethod(
   override fun withGenericTypes(types: List<JavaType>): JavaMethod {
     val actualOwnerClass = JavaType.of(reflectMethod.parameters.first().type).withGenericTypes(types)
     return ExtensionJavaMethod(reflectMethod, ownerClass, name,
-      reflectMethod.parameters.takeLast(reflectMethod.parameters.size - 1).map { ReflectJavaMethod.methodParameter(reflectMethod, actualOwnerClass, it) },
+      reflectMethod.parameters.takeLast(reflectMethod.parameters.size - 1).map { ReflectJavaMethod.methodParameter(
+        actualOwnerClass,
+        it
+      ) },
       returnType,
       ReflectJavaMethod.actualMethodReturnType(actualOwnerClass, reflectMethod, true)
       , descriptor)
@@ -219,7 +225,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
   // see norm of modifiers flag in Modifier class. Seems to have the same norm as OpCodes.ACC_ modifiers
   override val access = method.modifiers
   override val name: String = method.name
-  override val parameters = method.parameters.map { methodParameter(method, fromType, it) }
+  override val parameters = method.parameters.map { methodParameter(fromType, it) }
   override val returnType = JavaType.of(method.returnType)
   override val actualReturnType = actualMethodReturnType(fromType, method)
   override val descriptor = AsmUtils.getMethodDescriptor(parameters, returnType)
@@ -233,7 +239,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
 
   companion object {
 
-    internal fun methodParameter(method: Method, fromType: JavaType?, parameter: Parameter): MethodParameter {
+    internal fun methodParameter(fromType: JavaType?, parameter: Parameter): MethodParameter {
       val type = methodParameterType(fromType, parameter)
       val rawType = JavaType.of(parameter.type)
       val annotations = parameter.annotations
@@ -275,35 +281,38 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
       return JavaType.of(method.returnType)
     }
 
-    fun methodParameterType(javaType: JavaType?, methodParameter: Parameter): JavaType {
+    private fun methodParameterType(javaType: JavaType?, methodParameter: Parameter): JavaType {
       val rawType = JavaType.of(methodParameter.type)
       if (javaType == null || javaType.genericTypes.isEmpty()) return rawType
       val parameterizedType = methodParameter.parameterizedType
       val parameterNames = javaType.genericParameterNames
-      if (parameterizedType is ParameterizedType) {
+      when (parameterizedType) {
+        is ParameterizedType -> {
+          val genericTypes = parameterizedType.actualTypeArguments.map {
+            when (it) {
+              is WildcardType -> {
+                var index = parameterNames.indexOf(it.upperBounds.first().typeName)
+                if (index < 0) index = parameterNames.indexOf(it.lowerBounds.first().typeName)
+                return@map javaType.genericTypes.getOrNull(index) ?: JavaType.Object
+              }
 
-        val genericTypes = parameterizedType.actualTypeArguments.map {
-          if (it is WildcardType) {
-            var index = parameterNames.indexOf(it.upperBounds.first().typeName)
-            if (index < 0) index = parameterNames.indexOf(it.lowerBounds.first().typeName)
-            return@map javaType.genericTypes.getOrNull(index) ?: JavaType.Object
-          } else if (it is TypeVariable<*>) {
-            val parameterizedType = methodParameter.parameterizedType
-            if (parameterizedType is ParameterizedType){
-              val index = parameterizedType.actualTypeArguments.indexOfFirst { at -> at.typeName == it.typeName }
-              return@map javaType.genericTypes.getOrNull(index) ?: JavaType.Object
+              is TypeVariable<*> -> {
+                val index = parameterizedType.actualTypeArguments.indexOfFirst { at -> at.typeName == it.typeName }
+                return@map javaType.genericTypes.getOrNull(index) ?: JavaType.Object
+              }
+
+              else -> TODO("Sounds difficult to implement")
             }
-            TODO("Sounds difficult to implement")
-          } else{
-            TODO("Sounds difficult to implement")
           }
+          return rawType.withGenericTypes(genericTypes)
         }
-        return rawType.withGenericTypes(genericTypes)
-      } else if (parameterizedType is TypeVariable<*>) {
-        val index = parameterNames.indexOf(parameterizedType.name)
-        return javaType.genericTypes.getOrNull(index) ?: rawType
-      } else {
-        return rawType
+
+        is TypeVariable<*> -> {
+          val index = parameterNames.indexOf(parameterizedType.name)
+          return javaType.genericTypes.getOrNull(index) ?: rawType
+        }
+
+        else -> return rawType
       }
     }
   }

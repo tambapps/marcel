@@ -9,7 +9,7 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 
-class ReturnNode(token: LexToken, override var scope: MethodScope, expression: ExpressionNode) : StatementNode,
+class ReturnNode constructor(token: LexToken, override var scope: MethodScope, expression: ExpressionNode) : StatementNode,
   ScopedNode<MethodScope>, ExpressionStatementNode(token, expression) {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)

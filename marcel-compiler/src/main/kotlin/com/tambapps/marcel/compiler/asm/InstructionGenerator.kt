@@ -327,7 +327,6 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(fCall: NamedParametersConstructorCallNode) {
-    val type = fCall.type
     mv.visitNamedConstructorCall(fCall)
   }
   override fun visit(fCall: SuperConstructorCallNode) {
@@ -1180,7 +1179,7 @@ class InstructionGenerator(
   }
 
   override fun visit(returnNode: ReturnNode) {
-    if (returnNode.expression != null && returnNode.scope.returnType == JavaType.void) {
+    if (returnNode.scope.returnType == JavaType.void && returnNode.expression !is VoidExpression) {
       throw MarcelSemanticException(returnNode.token, "Cannot return an expression in a void function")
     }
     pushArgument(returnNode.expression)
