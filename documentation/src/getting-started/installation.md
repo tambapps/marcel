@@ -11,11 +11,11 @@ For now, the only way to install Marcel is compiling it from its source code.
 There is a [script in marcel repository](https://github.com/tambapps/marcel/blob/main/install.sh) for that.
 
 Note that this script **only works on Linux and Mac**.
-## Prerequisites
+### Prerequisites
 
 You'll need Maven for the installation.
 
-### Install
+### Run script
 
 Clone the repository
 ```shell
