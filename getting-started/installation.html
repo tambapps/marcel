@@ -143,10 +143,31 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="installation"><a class="header" href="#installation">Installation</a></h1>
-<p>To be able to compile and execute marcel scripts, you'll need the
-<code>marcl</code>, MARcel Command Line tool.</p>
-<p>For now there is no proper way to install it. You'll have to clone my <a href="https://github.com/tambapps/marcel">repo</a> and 
-package the project using maven. Then, you can execute the <code>marcl</code> jar built on <code>marcl/target/</code>.</p>
+<p>Marcel comes with</p>
+<ul>
+<li><a href="../tools/marcl.html">marcl</a></li>
+<li><a href="../tools/marshell.html">marshell</a></li>
+<li><a href="../tools/dumbbell.html">dumbbell</a></li>
+</ul>
+<p>For now, the only way to install Marcel is compiling it from its source code.</p>
+<h2 id="install-from-source-code"><a class="header" href="#install-from-source-code">Install from source code</a></h2>
+<p>There is a <a href="https://github.com/tambapps/marcel/blob/main/install.sh">script in marcel repository</a> for that.</p>
+<p>Note that this script <strong>only works on Linux and Mac</strong>.</p>
+<h2 id="prerequisites"><a class="header" href="#prerequisites">Prerequisites</a></h2>
+<p>You'll need Maven for the installation.</p>
+<h3 id="install"><a class="header" href="#install">Install</a></h3>
+<p>Clone the repository</p>
+<pre><code class="language-shell">git clone https://github.com/tambapps/marcel.git
+cd marcel
+</code></pre>
+<p>And then run the script</p>
+<pre><code class="language-shell">./install.sh
+</code></pre>
+<p>The script basically runs a lot of <code>mvn clean install</code> and then copy/create some files in <code>$HOME/.marcel/</code>.</p>
+<p>Lastly, you can add the following lines into your <code>$HOME/.bashrc</code> (or <code>$HOME/.zshrc</code> or whatever) to easily use marcel tools</p>
+<pre><code class="language-shell">MARCEL_HOME=&quot;$HOME/.marcel&quot;
+PATH=&quot;$PATH:/$MARCEL_HOME/bin&quot;
+</code></pre>
 
                     </main>
 
