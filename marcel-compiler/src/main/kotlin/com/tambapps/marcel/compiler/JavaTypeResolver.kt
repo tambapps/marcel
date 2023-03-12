@@ -83,12 +83,19 @@ class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNodeTyp
                                         namedParameters: Collection<MethodParameter>,
                                         excludeInterfaces: Boolean): JavaMethod? {
     return findMethod(javaType, name, { it.matchesUnorderedParameters(this, name, positionalArgumentTypes, namedParameters) },
-      {candidates -> candidates.find { it.parameters.size == namedParameters.size }}, excludeInterfaces)
+      {candidates ->
+        val exactCandidates = candidates.filter { it.parameters.size == namedParameters.size }
+        if (exactCandidates.size == 1) exactCandidates.first() else null// returning null because we wan't to get more specific method
+      }, excludeInterfaces)
   }
 
   override fun doFindMethod(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>, excludeInterfaces: Boolean): JavaMethod? {
     var m = findMethod(javaType, name, { it.matches(this, name, argumentTypes) },
-      {candidates -> candidates.find { it.exactMatch(name, argumentTypes) }}, excludeInterfaces)
+      {candidates ->
+        val exactCandidates = candidates.filter { it.exactMatch(name, argumentTypes) }
+        if (exactCandidates.size == 1) exactCandidates.first() else null// returning null because we wan't to get more specific method
+
+      }, excludeInterfaces)
     if (m == null && argumentTypes.isEmpty()) {
       m = findMethodByParameters(javaType, name, argumentTypes, emptyList())
     }
