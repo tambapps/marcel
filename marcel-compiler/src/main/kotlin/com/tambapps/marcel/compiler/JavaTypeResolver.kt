@@ -23,6 +23,7 @@ import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaConstructor
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import marcel.lang.MarcelClassLoader
+import marcel.lang.methods.CharacterMarcelMethods
 import marcel.lang.methods.DefaultMarcelMethods
 import marcel.lang.methods.IoMarcelMethods
 import marcel.lang.methods.StringMarcelMethods
@@ -39,9 +40,7 @@ class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNodeTyp
   fun loadDefaultExtensions() {
     loadExtensionMethods(
       DefaultMarcelMethods::class.java, IoMarcelMethods::class.java, StringMarcelMethods::class.java,
-      // TODO document this (all Character class static methods are extensions, and that we can call functions from primitive types)
-      //  and that we can call functions on primitive types (because of extensions)
-      JavaType.Character.realClazz)
+      CharacterMarcelMethods::class.java)
   }
   fun loadExtensionMethods(vararg classes: Class<*>) {
     classes.forEach { loadExtensionMethods(it) }

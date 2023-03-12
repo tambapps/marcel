@@ -37,7 +37,8 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       argumentPusher.pushArgument(namedParameter.valueExpression)
       val field = typeResolver.findFieldOrThrow(type, namedParameter.name)
       if (field.isFinal) throw MarcelSemanticException(fCall.token, "Cannot use named parameters constructor on a final field")
-      storeInVariable(fCall, typeResolver.findFieldOrThrow(type, namedParameter.name))
+      castIfNecessaryOrThrow(namedParameter.valueExpression, field.type, namedParameter.valueExpression.getType(typeResolver))
+      storeInVariable(fCall, field)
     }
   }
 
@@ -359,8 +360,9 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
             || expectedType == JavaType.Long && actualType != JavaType.long
             || expectedType == JavaType.Float && actualType != JavaType.float
             || expectedType == JavaType.Double && actualType != JavaType.double
+            || expectedType == JavaType.Character && actualType != JavaType.char
             || expectedType !in listOf(
-              JavaType.Boolean, JavaType.Integer, JavaType.Long, JavaType.Float, JavaType.Double, Number::class.javaType, JavaType.Object
+              JavaType.Boolean, JavaType.Integer, JavaType.Long, JavaType.Float, JavaType.Double, JavaType.Character, Number::class.javaType, JavaType.Object
             )) {
             throw MarcelSemanticException(from.token, "Cannot cast $actualType to $expectedType")
           }
