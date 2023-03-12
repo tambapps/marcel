@@ -24,16 +24,16 @@ class JarWriter constructor(outputStream: OutputStream): Closeable, Consumer<Com
     writeClass(t)
   }
 
-  fun writeClass(compiledClasses: CompiledClass) {
-    writeClass(listOf(compiledClasses))
+  fun writeClass(compiledClass: CompiledClass) {
+    val jarEntry = JarEntry(compiledClass.className.replace('.', '/') + ".class")
+    outputStream.putNextEntry(jarEntry)
+    outputStream.write(compiledClass.bytes)
+    outputStream.closeEntry()
   }
 
-  fun writeClass(compiledClasses: List<CompiledClass>) {
+  fun writeClasses(compiledClasses: List<CompiledClass>) {
     for (compiledClass in compiledClasses) {
-      val jarEntry = JarEntry(compiledClass.className.replace('.', '/') + ".class")
-      outputStream.putNextEntry(jarEntry)
-      outputStream.write(compiledClass.bytes)
-      outputStream.closeEntry()
+      writeClass(compiledClass)
     }
   }
 

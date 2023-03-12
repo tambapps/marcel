@@ -55,8 +55,13 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class, MarcelCompilerException::class)
   fun compile(scriptLoader: MarcelClassLoader? = null, sourceFile: SourceFile): List<CompiledClass> {
+    return compile(scriptLoader, listOf(sourceFile))
+  }
+
+  @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class, MarcelCompilerException::class)
+  fun compile(scriptLoader: MarcelClassLoader? = null, sourceFiles: Collection<SourceFile>): List<CompiledClass> {
     val classes = mutableListOf<CompiledClass>()
-    compileSourceFiles(scriptLoader, listOf(sourceFile), classes::add)
+    compileSourceFiles(scriptLoader, sourceFiles, classes::add)
     return classes
   }
 
@@ -98,4 +103,15 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
     }
   }
 
+  @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class, MarcelCompilerException::class)
+  fun compileToJar(scriptLoader: MarcelClassLoader? = null, files: Collection<SourceFile>, outputJar: File) {
+    val classes = mutableListOf<CompiledClass>()
+    compileSourceFiles(scriptLoader, files, classes::add)
+
+    JarWriter(outputJar).use {
+      classes.forEach { compiledClass ->
+        it.writeClass(compiledClass)
+      }
+    }
+  }
 }

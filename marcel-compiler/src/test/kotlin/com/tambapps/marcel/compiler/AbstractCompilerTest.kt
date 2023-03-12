@@ -22,7 +22,7 @@ abstract class AbstractCompilerTest {
 
     val jarFile = Files.createTempFile("", "$className.jar").toFile()
     JarWriter(jarFile).use {
-      it.writeClass(result)
+      it.writeClasses(result)
     }
 
     val classLoader = URLClassLoader(arrayOf(jarFile.toURI().toURL()), MarcelCompiler::class.java.classLoader)

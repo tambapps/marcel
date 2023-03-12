@@ -126,7 +126,7 @@ fun compile(file: File, keepClassFiles: Boolean, keepJarFile: Boolean, printStac
 
   val jarFile = File(file.parentFile, "$scriptClassName.jar")
   JarWriter(jarFile).use {
-    it.writeClass(classes)
+    it.writeClasses(classes)
   }
   return Pair(scriptClassName, jarFile)
 }
