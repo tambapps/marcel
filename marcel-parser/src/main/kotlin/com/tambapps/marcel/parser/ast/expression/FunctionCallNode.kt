@@ -59,7 +59,8 @@ open class SimpleFunctionCallNode constructor(
 
   override fun doGetMethod(typeResolver: AstNodeTypeResolver): JavaMethod {
     // if there is no owner and the class implements DelegatedObject, the delegate is prioritised before this
-    if (methodOwnerType == null && scope.classType.implements(JavaType.of(DelegatedObject::class.java))) {
+    if (javaClass == SimpleFunctionCallNode::class.java // checking type because we don't want this for constructor calls
+      && methodOwnerType == null && scope.classType.implements(JavaType.of(DelegatedObject::class.java))) {
       val delegateGetter = typeResolver.findMethod(scope.classType, "getDelegate", emptyList())
       if (delegateGetter != null) {
         val methodOfDelegate = typeResolver.findMethod(delegateGetter.returnType, name, emptyList())
@@ -132,6 +133,21 @@ open class NamedParametersFunctionCall constructor(token: LexToken, override var
   }
   override fun doGetMethod(typeResolver: AstNodeTypeResolver): JavaMethod {
     val methodParameters = toMethodParameters(typeResolver)
+
+    // if there is no owner and the class implements DelegatedObject, the delegate is prioritised before this
+    if (javaClass == NamedParametersFunctionCall::class.java // checking type because we don't want this for constructor calls
+      && methodOwnerType == null && scope.classType.implements(JavaType.of(DelegatedObject::class.java))) {
+      val delegateGetter = typeResolver.findMethod(scope.classType, "getDelegate", emptyList())
+      if (delegateGetter != null) {
+        val methodOfDelegate = typeResolver.findMethodByParameters(
+          delegateGetter.returnType, name, positionalArguments.map { typeResolver.resolve(it) }, methodParameters)
+
+        if (methodOfDelegate != null) {
+          methodOwnerType = SimpleFunctionCallNode(token, scope,
+            "getDelegate", mutableListOf(), ReferenceExpression.thisRef(scope), delegateGetter)
+        }
+      }
+    }
 
     val m =  if (methodOwnerType != null) typeResolver.findMethodByParametersOrThrow(
       typeResolver.resolve(methodOwnerType!!), name, positionalArguments.map { typeResolver.resolve(it) }, methodParameters)

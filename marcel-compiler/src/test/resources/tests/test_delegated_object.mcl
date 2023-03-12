@@ -8,6 +8,10 @@ class MyDelegatedObject implements DelegatedObject<Character> {
     return isUpperCase()
   }
 
+  fun bar(int dummy) bool {
+    return isUpperCase()
+  }
+
   fun getDelegate() Character {
     return c
   }
@@ -20,3 +24,6 @@ MyDelegatedObject o2 = new MyDelegatedObject(c: `a`)
 
 assertTrue(o.foo())
 assertFalse(o2.foo())
+
+assertTrue(o.bar(dummy: 1))
+assertFalse(o2.bar(dummy: 2))
