@@ -1,6 +1,7 @@
 package com.tambapps.marcel.compiler.asm
 
 import com.tambapps.marcel.compiler.JavaTypeResolver
+import com.tambapps.marcel.compiler.exception.MethodNotAccessibleException
 import com.tambapps.marcel.compiler.exception.VariableNotAccessibleException
 import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.compiler.util.javaType
@@ -38,7 +39,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       argumentPusher.pushArgument(namedParameter.valueExpression)
       val field = typeResolver.findFieldOrThrow(type, namedParameter.name)
       if (field.isFinal) throw MarcelSemanticException(fCall.token, "Cannot use named parameters constructor on a final field")
-      castIfNecessaryOrThrow(namedParameter.valueExpression, field.type, namedParameter.valueExpression.getType(typeResolver))
+      castIfNecessaryOrThrow(fCall.scope, namedParameter.valueExpression, field.type, namedParameter.valueExpression.getType(typeResolver))
       storeInVariable(fCall, fCall.scope, field)
     }
   }
@@ -49,49 +50,49 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
     mv.visitTypeInsn(Opcodes.NEW, classInternalName)
     mv.visitInsn(Opcodes.DUP)
     val constructorMethod = fCall.getMethod(typeResolver)
-    pushFunctionCallArguments(fCall, constructorMethod, fCall.arguments)
+    pushFunctionCallArguments(fCall, fCall.scope, constructorMethod, fCall.arguments)
     mv.visitMethodInsn(
       Opcodes.INVOKESPECIAL, classInternalName, JavaMethod.CONSTRUCTOR_NAME, constructorMethod.descriptor, false)
   }
 
   fun visitSuperConstructorCall(fCall: SuperConstructorCallNode) {
     mv.visitVarInsn(Opcodes.ALOAD, 0)
-    pushFunctionCallArguments(fCall, fCall.getMethod(typeResolver), fCall.arguments)
+    pushFunctionCallArguments(fCall, fCall.scope, fCall.getMethod(typeResolver), fCall.arguments)
     mv.visitMethodInsn(Opcodes.INVOKESPECIAL, fCall.scope.superClass.internalName, fCall.name,
       // void return type for constructors
       AsmUtils.getDescriptor(fCall.arguments.map { it.getType(typeResolver) }, JavaType.void), false)
   }
 
   // arguments should be pushed before calling this method
-  fun invokeMethod(from: AstNode, method: Method) {
-    invokeMethod(from, ReflectJavaMethod(method))
+  fun invokeMethod(from: AstNode, scope: Scope, method: Method) {
+    invokeMethod(from, scope, ReflectJavaMethod(method))
   }
 
-  fun invokeMethodWithArguments(from: AstNode, method: Method, vararg arguments: ExpressionNode) {
-    invokeMethodWithArguments(from, ReflectJavaMethod(method), *arguments)
+  fun invokeMethodWithArguments(from: AstNode, scope: Scope, method: Method, vararg arguments: ExpressionNode) {
+    invokeMethodWithArguments(from, scope, ReflectJavaMethod(method), *arguments)
   }
-  fun invokeMethodWithArguments(from: AstNode, method: JavaMethod, vararg arguments: ExpressionNode) {
-    invokeMethodWithArguments(from, method, arguments.toList())
+  fun invokeMethodWithArguments(from: AstNode, scope: Scope, method: JavaMethod, vararg arguments: ExpressionNode) {
+    invokeMethodWithArguments(from, scope, method, arguments.toList())
   }
-  fun invokeMethodWithArguments(from: AstNode, method: JavaMethod, arguments: List<ExpressionNode>) {
+  fun invokeMethodWithArguments(from: AstNode, scope: Scope, method: JavaMethod, arguments: List<ExpressionNode>) {
     if (method.isConstructor) {
       throw RuntimeException("Compiler error. Shouldn't invoke constructor this way")
     }
-    pushFunctionCallArguments(from, method, arguments)
-    invokeMethod(from, method)
+    pushFunctionCallArguments(from, scope, method, arguments)
+    invokeMethod(from, scope, method)
   }
 
-  fun invokeMethod(from: AstNode, method: JavaMethod) {
-    // TODO check for access
+  fun invokeMethod(from: AstNode, scope: Scope, method: JavaMethod) {
+    if (!method.isAccessibleFrom(scope)) throw MethodNotAccessibleException(from.token, method, scope.classType)
     if (method.isConstructor) {
       throw RuntimeException("Compiler error. Shouldn't invoke constructor this way")
     }
     mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, method.name, method.descriptor, !method.isStatic && method.ownerClass.isInterface)
     if (method.actualReturnType != method.returnType) {
-      castIfNecessaryOrThrow(from, method.actualReturnType, method.returnType)
+      castIfNecessaryOrThrow(scope, from, method.actualReturnType, method.returnType)
     }
   }
-  private fun pushFunctionCallArguments(from: AstNode, method: JavaMethod, arguments: List<ExpressionNode>) {
+  private fun pushFunctionCallArguments(from: AstNode, scope: Scope, method: JavaMethod, arguments: List<ExpressionNode>) {
     if (method.parameters.size != arguments.size) {
       throw MarcelSemanticException(from.token, "Tried to call function $method with ${arguments.size} instead of ${method.parameters.size}")
     }
@@ -104,7 +105,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       }
       val actualType = argument.getType(typeResolver)
       argumentPusher.pushArgument(argument)
-      castIfNecessaryOrThrow(from, expectedType, actualType)
+      castIfNecessaryOrThrow(scope, from, expectedType, actualType)
     }
   }
 
@@ -239,7 +240,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
           if (!variable.canGet) {
             throw MarcelSemanticException(from.token, "Variable ${variable.name} has no getter")
           }
-          invokeMethod(from, variable.getterMethod)
+          invokeMethod(from, scope, variable.getterMethod)
         }
       }
       else -> throw MarcelSemanticException(from.token, "Variable type ${variable.javaClass} is not handled")
@@ -247,7 +248,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
   }
 
   // must push expression before calling this method
-  fun castIfNecessaryOrThrow(from: AstNode, expectedType: JavaType, actualType: JavaType) {
+  fun castIfNecessaryOrThrow(scope: Scope, from: AstNode, expectedType: JavaType, actualType: JavaType) {
     if (expectedType != actualType) {
       if (expectedType.primitive && actualType.primitive) {
         val castInstruction = JavaType.PRIMITIVE_CAST_INSTRUCTION_MAP[Pair(actualType, expectedType)]
@@ -259,31 +260,31 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       } else if (expectedType != JavaType.Object && actualType.isArray) {
         // lists
         if (JavaType.intList.isAssignableFrom(expectedType) && actualType == JavaType.intArray) {
-          invokeMethod(from, typeResolver.findMethodOrThrow(JavaType.intListImpl, "wrap", listOf(JavaType.intArray)))
+          invokeMethod(from, scope, typeResolver.findMethodOrThrow(JavaType.intListImpl, "wrap", listOf(JavaType.intArray)))
         } else if (JavaType.longList.isAssignableFrom(expectedType) && actualType == JavaType.longArray) {
-          invokeMethod(from, typeResolver.findMethodOrThrow(JavaType.longListImpl, "wrap", listOf(JavaType.longArray)))
+          invokeMethod(from, scope, typeResolver.findMethodOrThrow(JavaType.longListImpl, "wrap", listOf(JavaType.longArray)))
         } else if (JavaType.floatList.isAssignableFrom(expectedType) && actualType == JavaType.floatArray) {
-          invokeMethod(from, typeResolver.findMethodOrThrow(JavaType.floatListImpl, "wrap", listOf(JavaType.floatArray)))
+          invokeMethod(from, scope, typeResolver.findMethodOrThrow(JavaType.floatListImpl, "wrap", listOf(JavaType.floatArray)))
         } else if (JavaType.doubleList.isAssignableFrom(expectedType) && actualType == JavaType.doubleArray) {
-          invokeMethod(from, typeResolver.findMethodOrThrow(JavaType.doubleListImpl, "wrap", listOf(JavaType.doubleArray)))
+          invokeMethod(from, scope, typeResolver.findMethodOrThrow(JavaType.doubleListImpl, "wrap", listOf(JavaType.doubleArray)))
         } else if (JavaType.charList.isAssignableFrom(expectedType) && actualType == JavaType.charArray) {
-          invokeMethod(from, typeResolver.findMethodOrThrow(JavaType.charListImpl, "wrap", listOf(JavaType.charArray)))
+          invokeMethod(from, scope, typeResolver.findMethodOrThrow(JavaType.charListImpl, "wrap", listOf(JavaType.charArray)))
         } else if (List::class.javaType.isAssignableFrom(expectedType) && actualType.isArray) {
-          invokeMethod(from, BytecodeHelper::class.java.getDeclaredMethod("createList", JavaType.Object.realClazz))
+          invokeMethod(from, scope, BytecodeHelper::class.java.getDeclaredMethod("createList", JavaType.Object.realClazz))
         }
         // sets
         else if (JavaType.intSet.isAssignableFrom(expectedType) && actualType == JavaType.intArray) {
-          invokeMethod(from, BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.intArray.realClazz))
+          invokeMethod(from, scope, BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.intArray.realClazz))
         } else if (JavaType.longSet.isAssignableFrom(expectedType) && actualType == JavaType.longArray) {
-          invokeMethod(from, BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.longArray.realClazz))
+          invokeMethod(from, scope, BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.longArray.realClazz))
         } else if (JavaType.floatSet.isAssignableFrom(expectedType) && actualType == JavaType.floatArray) {
-          invokeMethod(from, BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.floatArray.realClazz))
+          invokeMethod(from, scope, BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.floatArray.realClazz))
         } else if (JavaType.doubleSet.isAssignableFrom(expectedType) && actualType == JavaType.doubleArray) {
-          invokeMethod(from, BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.doubleArray.realClazz))
+          invokeMethod(from, scope, BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.doubleArray.realClazz))
         } else if (JavaType.characterSet.isAssignableFrom(expectedType) && actualType == JavaType.charArray) {
-          invokeMethod(from, BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.charArray.realClazz))
+          invokeMethod(from, scope, BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.charArray.realClazz))
         } else if (Set::class.javaType.isAssignableFrom(expectedType) && actualType.isArray) {
-          invokeMethod(from, BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.Object.realClazz))
+          invokeMethod(from, scope, BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.Object.realClazz))
         } else {
           throw MarcelSemanticException(from.token, "Incompatible types. Expected type $expectedType but gave an expression of type $actualType")
         }
@@ -293,9 +294,9 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
           if ((expectedType == JavaType.Character || expectedType == JavaType.char) && JavaType.of(CharSequence::class.java).isAssignableFrom(actualType)) {
             // get the first char of the string
             pushConstant(0)
-            invokeMethod(from, String::class.java.getMethod("charAt", Int::class.java))
+            invokeMethod(from, scope, String::class.java.getMethod("charAt", Int::class.java))
             if (expectedType == JavaType.Character) {
-              invokeMethod(from, Character::class.java.getMethod("valueOf", Char::class.java))
+              invokeMethod(from, scope, Character::class.java.getMethod("valueOf", Char::class.java))
             }
           } else if (actualType.isAssignableFrom(expectedType)) {
             // actualType is a parent of expectedType? might be able to cast it
@@ -311,49 +312,49 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
             JavaType.boolean -> {
               if (actualType != JavaType.Boolean) {
                 // try to cast Object to Boolean
-                castIfNecessaryOrThrow(from, JavaType.Boolean, actualType)
+                castIfNecessaryOrThrow(scope, from, JavaType.Boolean, actualType)
               }
-              invokeMethod(from, Class.forName(JavaType.Boolean.className).getMethod("booleanValue"))
+              invokeMethod(from, scope, Class.forName(JavaType.Boolean.className).getMethod("booleanValue"))
             }
             JavaType.int -> {
               if (actualType != JavaType.Integer) {
                 // try to cast Object to Integer
-                castIfNecessaryOrThrow(from, JavaType.Integer, actualType)
+                castIfNecessaryOrThrow(scope, from, JavaType.Integer, actualType)
               }
-              invokeMethod(from, Class.forName(JavaType.Integer.className).getMethod("intValue"))
+              invokeMethod(from, scope, Class.forName(JavaType.Integer.className).getMethod("intValue"))
             }
             JavaType.char -> {
               if (actualType == JavaType.String) {
                 // get the first char of the string
                 pushConstant(0)
-                invokeMethod(from, String::class.java.getMethod("charAt", Int::class.java))
+                invokeMethod(from, scope, String::class.java.getMethod("charAt", Int::class.java))
                 return
               } else if (actualType != JavaType.Character) {
                 // try to cast Object to Character
-                castIfNecessaryOrThrow(from, JavaType.Character, actualType)
+                castIfNecessaryOrThrow(scope, from, JavaType.Character, actualType)
               }
-              invokeMethod(from, Class.forName(JavaType.Character.className).getMethod("charValue"))
+              invokeMethod(from, scope, Class.forName(JavaType.Character.className).getMethod("charValue"))
             }
             JavaType.long -> {
               if (actualType != JavaType.Long) {
                 // try to cast Object to Long
-                castIfNecessaryOrThrow(from, JavaType.Long, actualType)
+                castIfNecessaryOrThrow(scope, from, JavaType.Long, actualType)
               }
-              invokeMethod(from, Class.forName(JavaType.Long.className).getMethod("longValue"))
+              invokeMethod(from, scope, Class.forName(JavaType.Long.className).getMethod("longValue"))
             }
             JavaType.float -> {
               if (actualType != JavaType.Float) {
                 // try to cast Object to Float
-                castIfNecessaryOrThrow(from, JavaType.Float, actualType)
+                castIfNecessaryOrThrow(scope, from, JavaType.Float, actualType)
               }
-              invokeMethod(from, Class.forName(JavaType.Float.className).getMethod("floatValue"))
+              invokeMethod(from, scope, Class.forName(JavaType.Float.className).getMethod("floatValue"))
             }
             JavaType.double -> {
               if (actualType != JavaType.Double) {
                 // try to cast Object to Double
-                castIfNecessaryOrThrow(from, JavaType.Double, actualType)
+                castIfNecessaryOrThrow(scope, from, JavaType.Double, actualType)
               }
-              invokeMethod(from, Class.forName(JavaType.Double.className).getMethod("doubleValue"))
+              invokeMethod(from, scope, Class.forName(JavaType.Double.className).getMethod("doubleValue"))
             }
             else -> throw MarcelSemanticException(from.token, "Doesn't handle conversion from $actualType to $expectedType")
           }
@@ -371,12 +372,12 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
             throw MarcelSemanticException(from.token, "Cannot cast $actualType to $expectedType")
           }
           when (actualType) {
-            JavaType.boolean -> invokeMethod(from, Class.forName(JavaType.Boolean.className).getMethod("valueOf", Boolean::class.java))
-            JavaType.int -> invokeMethod(from, Class.forName(JavaType.Integer.className).getMethod("valueOf", Int::class.java))
-            JavaType.long -> invokeMethod(from, Class.forName(JavaType.Long.className).getMethod("valueOf", Long::class.java))
-            JavaType.float -> invokeMethod(from, Class.forName(JavaType.Float.className).getMethod("valueOf", Float::class.java))
-            JavaType.double -> invokeMethod(from, Class.forName(JavaType.Double.className).getMethod("valueOf", Double::class.java))
-            JavaType.char -> invokeMethod(from, Class.forName(JavaType.Character.className).getMethod("valueOf", JavaType.char.realClazz))
+            JavaType.boolean -> invokeMethod(from, scope, Class.forName(JavaType.Boolean.className).getMethod("valueOf", Boolean::class.java))
+            JavaType.int -> invokeMethod(from, scope, Class.forName(JavaType.Integer.className).getMethod("valueOf", Int::class.java))
+            JavaType.long -> invokeMethod(from, scope, Class.forName(JavaType.Long.className).getMethod("valueOf", Long::class.java))
+            JavaType.float -> invokeMethod(from, scope, Class.forName(JavaType.Float.className).getMethod("valueOf", Float::class.java))
+            JavaType.double -> invokeMethod(from, scope, Class.forName(JavaType.Double.className).getMethod("valueOf", Double::class.java))
+            JavaType.char -> invokeMethod(from, scope, Class.forName(JavaType.Character.className).getMethod("valueOf", JavaType.char.realClazz))
             else -> throw MarcelSemanticException(from.token, "Doesn't handle conversion from $actualType to $expectedType")
           }
         }
@@ -396,7 +397,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
         if (!variable.canSet) {
           throw MarcelSemanticException(node.token, "Field ${variable.name} of class ${variable.owner} is not settable")
         }
-        invokeMethod(node, variable.setterMethod)
+        invokeMethod(node, scope, variable.setterMethod)
       }
       else -> throw RuntimeException("Compiler bug. Not handled variable subclass ${variable.javaClass}")
     }
@@ -413,13 +414,13 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
         if (!field.canGet) {
           throw MarcelSemanticException(from.token, "Field ${field.name} of class ${field.owner} is not gettable")
         }
-        invokeMethod(from, field.getterMethod)
+        invokeMethod(from, scope, field.getterMethod)
       }
       else -> throw RuntimeException("Compiler bug. Not handled field subclass ${field.javaClass}")
     }
   }
 
-  fun newArray(from: AstNode, type: JavaArrayType, elements: List<ExpressionNode>) {
+  fun newArray(scope: Scope, from: AstNode, type: JavaArrayType, elements: List<ExpressionNode>) {
     // Push the size of the array to the stack
     pushConstant(elements.size)
     // Create an int array of size n
@@ -436,7 +437,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       pushConstant(i)
       // push the value
       argumentPusher.pushArgument(elements[i])
-      castIfNecessaryOrThrow(from, type.elementsType, elements[i].getType(typeResolver))
+      castIfNecessaryOrThrow(scope, from, type.elementsType, elements[i].getType(typeResolver))
       // store value at index
       mv.visitInsn(type.arrayStoreCode)
     }
@@ -448,21 +449,21 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
     val variableType = variable.type
     // push array
     pushVariable(from, scope, variable)
-    getAt(from, variableType, indexArguments)
+    getAt(from, scope, variableType, indexArguments)
   }
-  fun getAt(from: AstNode, type: JavaType, indexArguments: List<ExpressionNode>) {
+  fun getAt(from: AstNode, scope: Scope, type: JavaType, indexArguments: List<ExpressionNode>) {
     if (type.isArray) {
       if (indexArguments.size != 1) throw MarcelSemanticException(from.token, "Need only one int argument to get an array")
       val arg = indexArguments.first()
       // push index
       argumentPusher.pushArgument(arg)
       // cast if necessary (e.g. Integer to int)
-      castIfNecessaryOrThrow(from, JavaType.int, arg.getType(typeResolver))
+      castIfNecessaryOrThrow(scope, from, JavaType.int, arg.getType(typeResolver))
       // load value in pushed array int pushed index
       mv.visitInsn(type.asArrayType.arrayLoadCode)
     } else {
       // must call getAt
-      invokeMethodWithArguments(from, typeResolver.findMethodOrThrow(type, "getAt", indexArguments.map { it.getType(typeResolver) }), indexArguments)
+      invokeMethodWithArguments(from, scope, typeResolver.findMethodOrThrow(type, "getAt", indexArguments.map { it.getType(typeResolver) }), indexArguments)
     }
   }
 
@@ -484,10 +485,10 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       // push index
       argumentPusher.pushArgument(arg)
       // cast if necessary (e.g. Integer to int)
-      castIfNecessaryOrThrow(from, JavaType.int, arg.getType(typeResolver))
+      castIfNecessaryOrThrow(scope, from, JavaType.int, arg.getType(typeResolver))
       // push value to set
       argumentPusher.pushArgument(expression)
-      castIfNecessaryOrThrow(from, variableType.elementsType, expression.getType(typeResolver))
+      castIfNecessaryOrThrow(scope, from, variableType.elementsType, expression.getType(typeResolver))
 
       // load/store value in pushed array int pushed index
       mv.visitInsn(variableType.arrayStoreCode)
@@ -495,7 +496,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       // must call putAt
       pushVariable(from, scope, variable)
       val putAtArguments = indexArguments + expression
-      invokeMethodWithArguments(from, typeResolver.findMethodOrThrow(variable.type, "putAt", putAtArguments.map { it.getType(typeResolver) }), putAtArguments)
+      invokeMethodWithArguments(from, scope, typeResolver.findMethodOrThrow(variable.type, "putAt", putAtArguments.map { it.getType(typeResolver) }), putAtArguments)
     }
   }
 

@@ -11,6 +11,7 @@ import com.tambapps.marcel.parser.ast.expression.IntConstantNode
 import com.tambapps.marcel.parser.ast.expression.LongConstantNode
 import com.tambapps.marcel.parser.ast.expression.NullValueNode
 import com.tambapps.marcel.parser.ast.expression.StringConstantNode
+import com.tambapps.marcel.parser.scope.Scope
 import marcel.lang.DefaultValue
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.Constructor
@@ -58,6 +59,9 @@ interface JavaMethod {
     else if (ownerClass.isInterface) Opcodes.INVOKEINTERFACE
     else Opcodes.INVOKEVIRTUAL
 
+  fun isAccessibleFrom(scope: Scope): Boolean {
+    return visibility.canAccess(scope.classType, ownerClass)
+  }
 
   fun parameterMatches(other: JavaMethod): Boolean {
     if (parameters.size != other.parameters.size) return false
@@ -137,7 +141,9 @@ interface JavaMethod {
     return this
   }
 }
-abstract class AbstractMethod(override val access: Int): JavaMethod {
+// see norm of modifiers flag in Modifier class. Seems to have the same norm as OpCodes.ACC_ modifiers
+abstract class AbstractMethod constructor(final override val access: Int): JavaMethod {
+
   override val visibility = Visibility.fromAccess(access)
 
   override fun equals(other: Any?): Boolean {
@@ -161,7 +167,6 @@ class ReflectJavaConstructor(constructor: Constructor<*>): AbstractMethod(constr
   override val ownerClass = JavaType.of(constructor.declaringClass)
 
   // see norm of modifiers flag in Modifier class. Seems to have the same norm as OpCodes.ACC_ modifiers
-  override val access = constructor.modifiers
   override val name: String = JavaMethod.CONSTRUCTOR_NAME
   override val parameters = constructor.parameters.map { MethodParameter(JavaType.of(it.type), it.name) }
   override val returnType = JavaType.void // yes, constructor returns void, especially for the descriptor
@@ -184,10 +189,9 @@ class ExtensionJavaMethod(
     override val returnType: JavaType,
     override val actualReturnType: JavaType,
     override val descriptor: String,
-) : AbstractMethod(reflectMethod.modifiers) {
+) : AbstractMethod(Opcodes.ACC_PUBLIC) {
   override val isConstructor = false
   // the static is excluded here in purpose so that self is pushed to the stack
-  override val access = Opcodes.ACC_PUBLIC
   override val invokeCode = Opcodes.INVOKESTATIC
   override val isAbstract = false
   override val isDefault = false
@@ -224,8 +228,6 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
 
   override val ownerClass = JavaType.of(method.declaringClass)
 
-  // see norm of modifiers flag in Modifier class. Seems to have the same norm as OpCodes.ACC_ modifiers
-  override val access = method.modifiers
   override val name: String = method.name
   override val parameters = method.parameters.map { methodParameter(fromType, it) }
   override val returnType = JavaType.of(method.returnType)

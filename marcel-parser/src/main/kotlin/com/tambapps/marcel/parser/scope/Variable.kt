@@ -54,7 +54,7 @@ sealed interface MarcelField: Variable {
 
 }
 
-sealed class AbstractField(override val access: Int): AbstractVariable(), MarcelField {
+sealed class AbstractField(final override val access: Int): AbstractVariable(), MarcelField {
   override var alreadySet = false
 
   override val visibility = Visibility.fromAccess(access)

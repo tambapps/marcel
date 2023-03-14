@@ -11,7 +11,7 @@ import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.Opcodes
 
 open class MethodNode constructor(
-  override val token: LexToken, override val access: Int, final override var ownerClass: JavaType, override val name: String, val block: FunctionBlockNode,
+  override val token: LexToken, access: Int, final override var ownerClass: JavaType, override val name: String, val block: FunctionBlockNode,
   final override val parameters: MutableList<MethodParameterNode>, final override val returnType: JavaType, val scope: MethodScope,
   override val isInline: Boolean,
   final override val isConstructor: Boolean
