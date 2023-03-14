@@ -15,6 +15,7 @@ import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import marcel.lang.MarcelClassLoader
 import marcel.lang.URLMarcelClassLoader
+import marcel.lang.util.MarcelVersion
 import java.io.File
 import java.io.IOException
 import kotlin.system.exitProcess
@@ -22,6 +23,8 @@ import kotlin.system.exitProcess
 // useful commands to add later: doctor, upgrade
 val COMMANDS = listOf("execute", "compile", "doctor", "upgrade")
 class Marcl : CliktCommand(help = "MARCel Command Line tool") {
+  private val version by option("-v", "--version", help = "Print Marcel version").flag()
+
   override fun run() {
     // just run, subcommands will be executed
   }
@@ -69,6 +72,10 @@ fun main(args : Array<String>) {
   val containsHelp = arguments.contains("-h") || arguments.contains("--help")
   if (!containsHelp && arguments.firstOrNull() == "execute") {
     arguments.removeAt(0)
+  }
+  if (args.size == 1 && (args[0] == "-v" || args[0] == "--version")) {
+    println("Marcel: " + MarcelVersion.VERSION + ", Java: " + System.getProperty("java.version"))
+    return
   }
   val marcl = Marcl().subcommands(ExecuteCommand(emptyArray()), CompileCommand())
   if (arguments.firstOrNull() !in COMMANDS && !containsHelp) {
