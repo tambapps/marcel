@@ -4,10 +4,7 @@ import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.tambapps.marcel.android.app.marcel.compiler.AndroidMarcelCompiler
-import com.tambapps.marcel.compiler.MarcelCompiler
 import com.tambapps.marcel.compiler.SourceFile
-import marcel.lang.android.dex.DexBytecodeTranslator
-import marcel.lang.android.dex.DexJarWriter
 import marcel.lang.android.dex.MarcelDexClassLoader
 
 import org.junit.Test
@@ -21,16 +18,25 @@ import java.io.File
  */
 @RunWith(AndroidJUnit4::class)
 class MarcelEvalTest {
+    private val dir get() = InstrumentationRegistry.getInstrumentation().targetContext
+        .getDir("classes", Context.MODE_PRIVATE)
+    private val classLoader = MarcelDexClassLoader()
+    private val compiler = AndroidMarcelCompiler(classLoader)
+
+
     @Test
-    fun testSimpleEval() {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val dir = context.getDir("classes", Context.MODE_PRIVATE)
-        val classLoader = MarcelDexClassLoader()
-        val compiler = AndroidMarcelCompiler(classLoader)
+    fun testSimpleEvalDex() {
+        val dexFile = File(dir, "Test.dex")
+        compiler.compileToDex(SourceFile("Test.mcl") { "1" }, dexFile)
 
+        val script = classLoader.loadScript("Test", dexFile)
+        assertEquals(1, script.run())
+    }
+
+    @Test
+    fun testSimpleEvalDexJar() {
         val dexJarFile = File(dir, "Test.jar")
-
-        compiler.compile(SourceFile("Test.mcl") { "1" }, dexJarFile)
+        compiler.compileToDexJar(SourceFile("Test.mcl") { "1" }, dexJarFile)
 
         val script = classLoader.loadScript("Test", dexJarFile)
         assertEquals(1, script.run())

@@ -36,10 +36,7 @@ public class MarcelDexClassLoader extends MarcelClassLoader {
 
     @Override
     public void addLibraryJar(File file) {
-        if (!DexUtils.isDexJar(file)) {
-                throw new IllegalArgumentException("Cannot load non dex jar");
-        }
-        // can also be a directory
+        // can also be a directory, or a dex class
         Object existing = getDexClassLoaderElements();
         if (containsDexPath(existing, file.getAbsolutePath())) {
             return;

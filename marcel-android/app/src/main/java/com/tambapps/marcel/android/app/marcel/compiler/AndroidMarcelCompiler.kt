@@ -1,5 +1,6 @@
 package com.tambapps.marcel.android.app.marcel.compiler
 
+import com.tambapps.marcel.compiler.CompiledClass
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.MarcelCompiler
 import com.tambapps.marcel.compiler.SourceFile
@@ -14,18 +15,34 @@ class AndroidMarcelCompiler(compilerConfiguration: CompilerConfiguration, privat
 
     private val compiler = MarcelCompiler(compilerConfiguration)
 
-    fun compile(sourceFile: SourceFile, dexJarFile: File) {
-        return compile(listOf(sourceFile), dexJarFile)
+    fun compileToDex(sourceFile: SourceFile, dexJarFile: File) {
+        return compileToDex(listOf(sourceFile), dexJarFile)
     }
 
-    fun compile(sourceFiles: Collection<SourceFile>, dexJarFile: File) {
-        val compiledClasses = compiler.compile(classLoader, sourceFiles)
-        val translator = DexBytecodeTranslator()
-        compiledClasses.forEach { translator.addClass(it.className, it.bytes) }
-        val bytes = translator.dexBytes
+    fun compileToDex(sourceFiles: Collection<SourceFile>, dexJarFile: File) {
+        val bytes = doCompileToDexFromSources(sourceFiles)
+        dexJarFile.writeBytes(bytes)
+    }
 
+    fun compileToDexJar(sourceFile: SourceFile, dexJarFile: File) {
+        compileToDexJar(listOf(sourceFile), dexJarFile)
+    }
+
+    fun compileToDexJar(sourceFiles: Collection<SourceFile>, dexJarFile: File) {
+        val compiledClasses = compiler.compile(classLoader, sourceFiles)
+        val bytes = doCompileToDex(compiledClasses)
         DexJarWriter(dexJarFile.outputStream()).use { writer ->
             writer.write(compiledClasses.map { it.className }, bytes)
         }
+    }
+
+    private fun doCompileToDexFromSources(sourceFiles: Collection<SourceFile>): ByteArray {
+        return doCompileToDex(compiler.compile(classLoader, sourceFiles))
+    }
+
+    private fun doCompileToDex(compiledClasses: Collection<CompiledClass>): ByteArray {
+        val translator = DexBytecodeTranslator()
+        compiledClasses.forEach { translator.addClass(it.className, it.bytes) }
+        return translator.dexBytes
     }
 }
