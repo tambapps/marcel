@@ -64,12 +64,7 @@ sealed class AbstractField(override val access: Int): AbstractVariable(), Marcel
   }
 
   override fun isAccessibleFrom(scope: Scope): Boolean {
-    return when (visibility) {
-      Visibility.PUBLIC -> true
-      Visibility.PROTECTED -> owner.packageName == scope.classType.packageName || owner.isAssignableFrom(scope.classType)
-      Visibility.INTERNAL -> owner.packageName == scope.classType.packageName
-      Visibility.PRIVATE -> scope.classType == owner
-    }
+    return visibility.canAccess(scope.classType, owner)
   }
 }
 

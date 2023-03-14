@@ -31,6 +31,7 @@ interface JavaMethod {
 
   val ownerClass: JavaType
   val access: Int
+  val visibility: Visibility
   val name: String
   val parameters: List<MethodParameter>
   val returnType: JavaType
@@ -136,7 +137,8 @@ interface JavaMethod {
     return this
   }
 }
-abstract class AbstractMethod: JavaMethod {
+abstract class AbstractMethod(override val access: Int): JavaMethod {
+  override val visibility = Visibility.fromAccess(access)
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
@@ -155,7 +157,7 @@ abstract class AbstractMethod: JavaMethod {
   }
 }
 
-class ReflectJavaConstructor(constructor: Constructor<*>): AbstractMethod() {
+class ReflectJavaConstructor(constructor: Constructor<*>): AbstractMethod(constructor.modifiers) {
   override val ownerClass = JavaType.of(constructor.declaringClass)
 
   // see norm of modifiers flag in Modifier class. Seems to have the same norm as OpCodes.ACC_ modifiers
@@ -182,7 +184,7 @@ class ExtensionJavaMethod(
     override val returnType: JavaType,
     override val actualReturnType: JavaType,
     override val descriptor: String,
-) : AbstractMethod() {
+) : AbstractMethod(reflectMethod.modifiers) {
   override val isConstructor = false
   // the static is excluded here in purpose so that self is pushed to the stack
   override val access = Opcodes.ACC_PUBLIC
@@ -216,7 +218,7 @@ class ExtensionJavaMethod(
     return "$ownerClass.$name(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType
   }
 }
-class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): AbstractMethod() {
+class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): AbstractMethod(method.modifiers) {
 
   constructor(method: Method): this(method, null)
 

@@ -6,22 +6,34 @@ enum class Visibility {
     /**
      * Public visibility
      */
-    PUBLIC,
+    PUBLIC {
+        override fun canAccess(from: JavaType, memberOwner: JavaType) = true
+    },
 
     /**
      * Protected visibility
      */
-    PROTECTED,
+    PROTECTED {
+        override fun canAccess(from: JavaType, memberOwner: JavaType) =
+            memberOwner.packageName == memberOwner.packageName || memberOwner.isAssignableFrom(from)
+    },
 
     /**
      * Package private
      */
-    INTERNAL,
+    INTERNAL {
+        override fun canAccess(from: JavaType, memberOwner: JavaType) =
+            memberOwner.packageName == from.packageName
+    },
 
     /**
      * Private
      */
-    PRIVATE;
+    PRIVATE {
+        override fun canAccess(from: JavaType, memberOwner: JavaType) = from == memberOwner
+    };
+
+    abstract fun canAccess(from: JavaType, memberOwner: JavaType): Boolean
 
     companion object {
         fun fromAccess(flags: Int): Visibility {
