@@ -3,12 +3,14 @@ package com.tambapps.marcel.parser.scope
 import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
+import com.tambapps.marcel.parser.type.Visibility
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.Field
 
 sealed interface Variable : AstTypedObject{
+  fun isAccessibleFrom(scope: Scope): Boolean
 
-  override val type: JavaType
+    override val type: JavaType
   val name: String
   val isFinal: Boolean
   var alreadySet: Boolean
@@ -33,27 +35,45 @@ class LocalVariable constructor(override var type: JavaType, override var name: 
     this.isFinal = isSettable
     alreadySet = false
   }
+
+  override fun isAccessibleFrom(scope: Scope): Boolean {
+    return true
+  }
 }
 
 // can be a java field or a java getter/setter
 sealed interface MarcelField: Variable {
   val owner: JavaType
   val access: Int
+  val visibility: Visibility
   val isStatic: Boolean
     get() = (access and Opcodes.ACC_STATIC) != 0
   override val isFinal: Boolean
     get() = (access and Opcodes.ACC_FINAL) != 0
+
+
 }
 
-sealed class AbstractField: AbstractVariable(), MarcelField {
+sealed class AbstractField(override val access: Int): AbstractVariable(), MarcelField {
   override var alreadySet = false
+
+  override val visibility = Visibility.fromAccess(access)
 
   override fun toString(): String {
     return "$type $name"
   }
+
+  override fun isAccessibleFrom(scope: Scope): Boolean {
+    return when (visibility) {
+      Visibility.PUBLIC -> true
+      Visibility.PROTECTED -> owner.packageName == scope.classType.packageName || owner.isAssignableFrom(scope.classType)
+      Visibility.INTERNAL -> owner.packageName == scope.classType.packageName
+      Visibility.PRIVATE -> scope.classType == owner
+    }
+  }
 }
 
-open class ClassField constructor(override val type: JavaType, override val name: String, override val owner: JavaType, override val access: Int): AbstractField() {
+open class ClassField constructor(override val type: JavaType, override val name: String, override val owner: JavaType, access: Int): AbstractField(access) {
   val getCode = if (isStatic) Opcodes.GETSTATIC else Opcodes.GETFIELD
   val putCode = if (isStatic) Opcodes.PUTSTATIC else Opcodes.PUTFIELD
 }
@@ -62,7 +82,7 @@ open class ClassField constructor(override val type: JavaType, override val name
 class MethodField constructor(override val type: JavaType, override val name: String, override val owner: JavaType,
                   private val _getterMethod: JavaMethod?,
                   private val _setterMethod: JavaMethod?,
-                  override val access: Int): AbstractField() {
+                              access: Int): AbstractField(access) {
   val canGet = _getterMethod != null
   val canSet = _setterMethod != null
   override val isFinal = false
@@ -87,7 +107,7 @@ class ReflectMarcelField private constructor(
   override val type: JavaType,
   override val name: String,
   override val owner: JavaType,
-  override val access: Int
-) : AbstractField() {
+  access: Int
+) : AbstractField(access) {
   constructor(field: Field): this(JavaType.of(field.type), field.name, JavaType.of(field.declaringClass), field.modifiers)
 }

@@ -1,6 +1,7 @@
 package com.tambapps.marcel.compiler.asm
 
 import com.tambapps.marcel.compiler.JavaTypeResolver
+import com.tambapps.marcel.compiler.exception.VariableNotAccessibleException
 import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.compiler.util.javaType
 import com.tambapps.marcel.parser.asm.AsmUtils
@@ -38,7 +39,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       val field = typeResolver.findFieldOrThrow(type, namedParameter.name)
       if (field.isFinal) throw MarcelSemanticException(fCall.token, "Cannot use named parameters constructor on a final field")
       castIfNecessaryOrThrow(namedParameter.valueExpression, field.type, namedParameter.valueExpression.getType(typeResolver))
-      storeInVariable(fCall, field)
+      storeInVariable(fCall, fCall.scope, field)
     }
   }
 
@@ -81,6 +82,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
   }
 
   fun invokeMethod(from: AstNode, method: JavaMethod) {
+    // TODO check for access
     if (method.isConstructor) {
       throw RuntimeException("Compiler error. Shouldn't invoke constructor this way")
     }
@@ -213,6 +215,8 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
   }
 
   fun pushVariable(from: AstNode, scope: Scope, variable: Variable) {
+    if (!variable.isAccessibleFrom(scope)) throw VariableNotAccessibleException(from.token, variable, scope.classType)
+
     when (variable) {
       is LocalVariable -> mv.visitVarInsn(variable.type.loadCode, variable.index)
       is ClassField ->   {
@@ -380,26 +384,27 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
     }
   }
 
-  fun storeInVariable(from: AstNode, variable: Variable) {
-    if (variable.isFinal && variable.alreadySet) throw MarcelSemanticException(from.token, "Cannot reset a value for final variable ${variable.name}")
+  fun storeInVariable(node: AstNode, scope: Scope, variable: Variable) {
+    if (variable.isFinal && variable.alreadySet) throw MarcelSemanticException(node.token, "Cannot reset a value for final variable ${variable.name}")
+    if (!variable.isAccessibleFrom(scope)) throw VariableNotAccessibleException(node.token, variable, scope.classType)
     when (variable) {
       is LocalVariable -> mv.visitVarInsn(variable.type.storeCode, variable.index)
 
-      // TODO need to check visibility too
       // for fields, the caller should push the field's owner
       is ClassField -> mv.visitFieldInsn(variable.putCode, variable.owner.internalName, variable.name, variable.type.descriptor)
       is MethodField -> {
         if (!variable.canSet) {
-          throw MarcelSemanticException(from.token, "Field ${variable.name} of class ${variable.owner} is not settable")
+          throw MarcelSemanticException(node.token, "Field ${variable.name} of class ${variable.owner} is not settable")
         }
-        invokeMethod(from, variable.setterMethod)
+        invokeMethod(node, variable.setterMethod)
       }
       else -> throw RuntimeException("Compiler bug. Not handled variable subclass ${variable.javaClass}")
     }
     variable.alreadySet = true
   }
 
-  fun getField(from: AstNode, field: MarcelField) {
+  fun getField(from: AstNode, scope: Scope, field: MarcelField) {
+    if (!field.isAccessibleFrom(scope)) throw VariableNotAccessibleException(from.token, field, scope.classType)
     when (field) {
       is ClassField -> {
         mv.visitFieldInsn(field.getCode, field.owner.internalName, field.name, field.type.descriptor)
@@ -438,6 +443,8 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
   }
 
   fun pushVariableGetAt(from: AstNode, scope: Scope, variable: Variable, indexArguments: List<ExpressionNode>) {
+    if (!variable.isAccessibleFrom(scope)) throw VariableNotAccessibleException(from.token, variable, scope.classType)
+
     val variableType = variable.type
     // push array
     pushVariable(from, scope, variable)
@@ -466,6 +473,8 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
     indexArguments: List<ExpressionNode>,
     expression: ExpressionNode
   ) {
+    if (!variable.isAccessibleFrom(scope)) throw VariableNotAccessibleException(from.token, variable, scope.classType)
+
     if (variable.type.isArray) {
       val variableType = variable.type.asArrayType
       if (indexArguments.size != 1) throw MarcelSemanticException(from.token, "Need only one int argument to get an array")
@@ -502,12 +511,4 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
     mv.visitVarInsn(Opcodes.ASTORE, exceptionVarIndex)
   }
 
-  fun finallyBlock(label: Label) {
-    mv.visitLabel(label)
-   // popStack() // popping stack  because we don't care about the exception variable in the finally block
-  }
-  fun foo(i: Int) {
-    mv.visitVarInsn(Opcodes.ALOAD, i)
-    mv.visitInsn(Opcodes.ATHROW)
-  }
 }

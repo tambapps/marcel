@@ -548,7 +548,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator) {
     val field = typeResolver.findFieldOrThrow(getFieldAccessOperator.leftOperand.getType(typeResolver), getFieldAccessOperator.rightOperand.name)
     if (field.isStatic) {
-      mv.getField(getFieldAccessOperator, field)
+      mv.getField(getFieldAccessOperator, getFieldAccessOperator.scope, field)
       return
     }
     if (getFieldAccessOperator.nullSafe) {
@@ -569,7 +569,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       scope.freeVariable(tempVar.name)
     } else {
       pushArgument(getFieldAccessOperator.leftOperand)
-      mv.getField(getFieldAccessOperator, field)
+      mv.getField(getFieldAccessOperator, getFieldAccessOperator.scope, field)
     }
   }
 
@@ -662,7 +662,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     }
 
     pushAssignmentExpression(variable, variableAssignmentNode.expression)
-    mv.storeInVariable(variableAssignmentNode, variable)
+    mv.storeInVariable(variableAssignmentNode, variableAssignmentNode.scope, variable)
   }
 
   private fun pushAssignmentExpression(variable: Variable, expression: ExpressionNode) {
@@ -697,7 +697,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       pushArgument(fieldAssignmentNode.fieldNode.leftOperand)
     }
     pushAssignmentExpression(fieldVariable, fieldAssignmentNode.expression)
-    mv.storeInVariable(fieldAssignmentNode, fieldVariable)
+    mv.storeInVariable(fieldAssignmentNode, fieldAssignmentNode.scope, fieldVariable)
   }
 
   override fun visit(indexedVariableAssignmentNode: IndexedVariableAssignmentNode) {
