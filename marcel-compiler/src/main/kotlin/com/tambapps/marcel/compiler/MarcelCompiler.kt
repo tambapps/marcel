@@ -6,7 +6,7 @@ import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
-import com.tambapps.marcel.parser.MarcelParserException
+import com.tambapps.marcel.parser.exception.MarcelParserException
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import marcel.lang.MarcelClassLoader
 import java.io.File

@@ -4,7 +4,7 @@ import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.marshell.console.MarshellCompleter
 import com.tambapps.marcel.marshell.console.MarshellSnippetParser
 import com.tambapps.marcel.marshell.console.ReaderHighlighter
-import com.tambapps.marcel.parser.MarcelParserException
+import com.tambapps.marcel.parser.exception.MarcelParserException
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.repl.MarcelShell
 import marcel.lang.URLMarcelClassLoader

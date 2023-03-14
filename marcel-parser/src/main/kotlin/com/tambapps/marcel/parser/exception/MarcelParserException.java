@@ -1,4 +1,4 @@
-package com.tambapps.marcel.parser;
+package com.tambapps.marcel.parser.exception;
 
 import com.tambapps.marcel.lexer.LexToken;
 

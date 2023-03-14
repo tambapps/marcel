@@ -3,7 +3,7 @@ package com.tambapps.marcel.repl
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.lexer.MarcelLexerException
-import com.tambapps.marcel.parser.MarcelParserException
+import com.tambapps.marcel.parser.exception.MarcelParserException
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException

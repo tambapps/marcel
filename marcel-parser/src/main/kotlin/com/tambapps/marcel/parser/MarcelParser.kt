@@ -17,6 +17,7 @@ import com.tambapps.marcel.parser.ast.statement.StatementNode
 import com.tambapps.marcel.parser.ast.statement.TryCatchNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
+import com.tambapps.marcel.parser.exception.MarcelParserException
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.scope.LambdaScope
@@ -62,10 +63,16 @@ class MarcelParser constructor(
 
   init {
     if (configuration.scriptClass != null && !Script::class.java.isAssignableFrom(configuration.scriptClass)) {
-      throw MarcelParserException("scriptSuperClass should be a subclass of marcel.lang.Script", false)
+      throw MarcelParserException(
+        "scriptSuperClass should be a subclass of marcel.lang.Script",
+        false
+      )
     }
     if (configuration.scriptInterfaces.any { !it.isInterface }) {
-      throw MarcelParserException("Script interfaces should ve java interfaces", false)
+      throw MarcelParserException(
+        "Script interfaces should ve java interfaces",
+        false
+      )
     }
   }
 
@@ -100,12 +107,16 @@ class MarcelParser constructor(
 
   private fun parseField(classNode: ClassNode): FieldNode {
     val (access, isInline) = parseAccess()
-    if (isInline) throw MarcelParserException(previous, "Cannot use 'inline' keyword for a field")
+    if (isInline) throw MarcelParserException(
+      previous,
+      "Cannot use 'inline' keyword for a field"
+    )
     val type = parseType(classNode.scope)
     val identifierToken = accept(TokenType.IDENTIFIER)
     val name = identifierToken.value
 
-    if (classNode.fields.any { it.name == name }) throw MarcelParserException(previous,
+    if (classNode.fields.any { it.name == name }) throw MarcelParserException(
+      previous,
       "Field with name $name was defined more than once"
     )
 
@@ -121,7 +132,10 @@ class MarcelParser constructor(
 
   private fun parseClass(imports: MutableList<ImportNode>, packageName: String?, outerClassNode: ClassNode? = null): ClassNode {
     val (access, isInline) = parseAccess()
-    if (isInline) throw MarcelParserException(previous, "Cannot use 'inline' keyword for a class")
+    if (isInline) throw MarcelParserException(
+      previous,
+      "Cannot use 'inline' keyword for a class"
+    )
     val isExtensionClass = acceptOptional(TokenType.EXTENSION) != null
     val classToken = accept(TokenType.CLASS)
     val classSimpleName = accept(TokenType.IDENTIFIER).value
@@ -129,7 +143,10 @@ class MarcelParser constructor(
 
     if (outerClassNode != null) {
       val conflictClass = outerClassNode.innerClasses.find { it.type.className == className }
-      if (conflictClass != null) throw MarcelParserException(previous, "Class with name $className was defined more than once")
+      if (conflictClass != null) throw MarcelParserException(
+        previous,
+        "Class with name $className was defined more than once"
+      )
     }
 
     val parseTypeScope = outerClassNode?.scope
@@ -225,7 +242,10 @@ class MarcelParser constructor(
   private fun getNextMemberToken(): TokenType {
     var i = currentIndex
     while (i < tokens.size && tokens[i].type !in listOf(TokenType.CLASS, TokenType.FUN) && !isTypeToken(tokens[i].type)) i++
-    if (i >= tokens.size) throw MarcelParserException(current, "Unexpected tokens")
+    if (i >= tokens.size) throw MarcelParserException(
+      current,
+      "Unexpected tokens"
+    )
     return tokens[i].type
   }
   private fun dumbbell(): String {
@@ -244,7 +264,10 @@ class MarcelParser constructor(
       skip()
       if (current.type == TokenType.MUL) {
         if (staticImport) {
-          throw MarcelParserException(current, "Invalid static import")
+          throw MarcelParserException(
+            current,
+            "Invalid static import"
+          )
         }
         skip()
         acceptOptional(TokenType.SEMI_COLON)
@@ -253,7 +276,8 @@ class MarcelParser constructor(
       classParts.add(accept(TokenType.IDENTIFIER).value)
     }
     if (classParts.size <= 1) {
-      throw MarcelParserException(previous,
+      throw MarcelParserException(
+        previous,
         "Invalid class full name" + classParts.joinToString(
           separator = "."
         )
@@ -304,7 +328,10 @@ class MarcelParser constructor(
 
     // check conflict
     val conflictMethod = classNode.methods.find { it.matches(methodNode) }
-    if (conflictMethod != null) throw MarcelParserException(previous, "Method $methodNode conflicts with $conflictMethod")
+    if (conflictMethod != null) throw MarcelParserException(
+      previous,
+      "Method $methodNode conflicts with $conflictMethod"
+    )
     return methodNode
   }
 
@@ -342,7 +369,8 @@ class MarcelParser constructor(
         val type = JavaType.TOKEN_TYPE_MAP.getValue(token.type)
         if (acceptOptional(TokenType.SQUARE_BRACKETS_OPEN) != null) {
           accept(TokenType.SQUARE_BRACKETS_CLOSE)
-          JavaType.ARRAYS.find { it.elementsType == type } ?: throw MarcelParserException(previous,
+          JavaType.ARRAYS.find { it.elementsType == type } ?: throw MarcelParserException(
+            previous,
             "Doesn't handle array of $type"
           )
         } else type
@@ -366,8 +394,15 @@ class MarcelParser constructor(
           JavaType.lazy(scope, className, genericTypes)
         }
       }
-      TokenType.END_OF_FILE -> throw MarcelParserException(token, "Unexpected end of file", true)
-      else -> throw MarcelParserException(token, "Doesn't handle type ${token.type}")
+      TokenType.END_OF_FILE -> throw MarcelParserException(
+        token,
+        "Unexpected end of file",
+        true
+      )
+      else -> throw MarcelParserException(
+        token,
+        "Doesn't handle type ${token.type}"
+      )
     }
   }
 
@@ -405,7 +440,10 @@ class MarcelParser constructor(
       TokenType.RETURN -> {
         val expression = if (current.type == TokenType.SEMI_COLON) VoidExpression(token) else expression(scope)
         if (scope !is MethodScope) {
-          throw MarcelParserException(previous, "Cannot have a return instruction outside of a function")
+          throw MarcelParserException(
+            previous,
+            "Cannot have a return instruction outside of a function"
+          )
         }
         acceptOptional(TokenType.SEMI_COLON)
         ReturnNode(token, scope, expression)
@@ -413,7 +451,10 @@ class MarcelParser constructor(
       TokenType.BRACKETS_OPEN -> {
         rollback()
         if (scope !is MethodScope) {
-          throw MarcelParserException(current, "Cannot have blocks outside of a method")
+          throw MarcelParserException(
+            current,
+            "Cannot have blocks outside of a method"
+          )
         }
         // starting a new inner scope for the block
         BlockStatement(block(InnerScope(scope)))
@@ -443,7 +484,8 @@ class MarcelParser constructor(
         accept(TokenType.LPAR)
         val condition = BooleanExpressionNode.of(token, expression(scope))
         accept(TokenType.RPAR)
-        val whileScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(previous,
+        val whileScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(
+          previous,
           "Cannot have for outside of a method"
         )
         )
@@ -458,7 +500,8 @@ class MarcelParser constructor(
           accept(TokenType.IN)
           val expression = expression(scope)
           accept(TokenType.RPAR)
-          val loopScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(previous,
+          val loopScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(
+            previous,
             "Cannot have for outside of a method"
           )
           )
@@ -467,19 +510,27 @@ class MarcelParser constructor(
         } else {
           // for (;;)
           // needed especially if initStatement is var declaration
-          val forScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(previous,
-            "Cannot have for outside of a method")
+          val forScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(
+            previous,
+            "Cannot have for outside of a method"
+          )
           )
           val initStatement = statement(forScope)
           if (initStatement !is VariableAssignmentNode) {
-            throw MarcelParserException(previous, "For loops should start with variable declaration/assignment")
+            throw MarcelParserException(
+              previous,
+              "For loops should start with variable declaration/assignment"
+            )
           }
           acceptOptional(TokenType.SEMI_COLON)
           val condition = BooleanExpressionNode.of(token, expression(forScope))
           accept(TokenType.SEMI_COLON)
           val iteratorStatement = statement(forScope)
           if (iteratorStatement !is VariableAssignmentNode && iteratorStatement !is ExpressionStatementNode) {
-            throw MarcelParserException(previous, "Invalid for loop")
+            throw MarcelParserException(
+              previous,
+              "Invalid for loop"
+            )
           }
           accept(TokenType.RPAR)
           val forBlock = loopBody(forScope)
@@ -502,14 +553,16 @@ class MarcelParser constructor(
           val exceptionVarName = accept(TokenType.IDENTIFIER).value
           accept(TokenType.RPAR)
           val catchScope = InnerScope(
-            scope as? MethodScope ?: throw MarcelParserException(previous,
+            scope as? MethodScope ?: throw MarcelParserException(
+              previous,
               "Cannot have for outside of a method"
             )
           )
           catchNodes.add(TryCatchNode.CatchBlock(exceptions, exceptionVarName, catchScope, statement(catchScope)))
         }
         val finallyScope = InnerScope(
-          scope as? MethodScope ?: throw MarcelParserException(previous,
+          scope as? MethodScope ?: throw MarcelParserException(
+            previous,
             "Cannot have for outside of a method"
           )
         )
@@ -520,14 +573,20 @@ class MarcelParser constructor(
       }
       TokenType.CONTINUE -> {
         if (scope !is InnerScope) {
-          throw MarcelParserException(previous, "Cannot have a continue outside of an inner block")
+          throw MarcelParserException(
+            previous,
+            "Cannot have a continue outside of an inner block"
+          )
         }
         acceptOptional(TokenType.SEMI_COLON)
         ContinueLoopNode(token, scope)
       }
       TokenType.BREAK -> {
         if (scope !is InnerScope) {
-          throw MarcelParserException(previous, "Cannot have a continue outside of an inner block")
+          throw MarcelParserException(
+            previous,
+            "Cannot have a continue outside of an inner block"
+          )
         }
         acceptOptional(TokenType.SEMI_COLON)
         BreakLoopNode(token, scope)
@@ -597,7 +656,8 @@ class MarcelParser constructor(
   private fun loopBody(scope: Scope): BlockNode {
     val loopStatement = statement(scope)
     if (loopStatement is BlockStatement) return loopStatement.block
-    val newScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(previous,
+    val newScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(
+      previous,
       "Cannot have for outside of a method"
     )
     )
@@ -650,8 +710,15 @@ class MarcelParser constructor(
         val value = when (valueToken.type) {
           TokenType.REGULAR_STRING_PART -> valueToken.value
           TokenType.ESCAPE_SEQUENCE -> escapedSequenceValue(valueToken.value)
-          TokenType.END_OF_FILE -> throw MarcelParserException(token, "Unexpected end of file", true)
-          else -> throw MarcelParserException(previous, "Unexpected token ${valueToken.type} for character constant")
+          TokenType.END_OF_FILE -> throw MarcelParserException(
+            token,
+            "Unexpected end of file",
+            true
+          )
+          else -> throw MarcelParserException(
+            previous,
+            "Unexpected token ${valueToken.type} for character constant"
+          )
         }
         accept(TokenType.CLOSING_CHAR_QUOTE)
         CharConstantNode(token, value)
@@ -683,7 +750,11 @@ class MarcelParser constructor(
         if (optFlags != null) {
           for (char in optFlags) {
             LiteralPatternNode.FLAGS_MAP
-            flags.add(LiteralPatternNode.FLAGS_MAP[char] ?: throw MarcelParserException(previous, "Unknown pattern flag $char"))
+            flags.add(LiteralPatternNode.FLAGS_MAP[char] ?: throw MarcelParserException(
+              previous,
+              "Unknown pattern flag $char"
+            )
+            )
           }
         }
         LiteralPatternNode(token, builder.toString(), flags)
@@ -696,7 +767,10 @@ class MarcelParser constructor(
         accept(TokenType.LPAR)
         val (arguments, namedArguments) = parseFunctionArguments(scope)
         if (arguments.isNotEmpty() && namedArguments.isNotEmpty()) {
-          throw MarcelParserException(current, "Cannot have both positional and named arguments for constructor calls")
+          throw MarcelParserException(
+            current,
+            "Cannot have both positional and named arguments for constructor calls"
+          )
         }
         if (namedArguments.isNotEmpty()) NamedParametersConstructorCallNode(token, Scope(typeResolver, type), type, namedArguments)
         else ConstructorCallNode(token, Scope(typeResolver, type), type, arguments)
@@ -708,7 +782,8 @@ class MarcelParser constructor(
         accept(TokenType.BRACKETS_OPEN)
         val branches = mutableListOf<SwitchBranchNode>()
         var elseStatement: StatementNode? = null
-        val switchScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(previous,
+        val switchScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(
+          previous,
           "Cannot have switch outside of method"
         )
         )
@@ -717,7 +792,10 @@ class MarcelParser constructor(
             skip()
             accept(TokenType.ARROW)
 
-            if (elseStatement != null) throw MarcelParserException(previous, "Cannot have multiple else statements")
+            if (elseStatement != null) throw MarcelParserException(
+              previous,
+              "Cannot have multiple else statements"
+            )
             elseStatement = statement(switchScope)
           } else {
             val valueExpression = expression(scope)
@@ -731,7 +809,8 @@ class MarcelParser constructor(
       TokenType.WHEN -> {
         accept(TokenType.BRACKETS_OPEN)
         val branches = mutableListOf<WhenBranchNode>()
-        val whenScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(previous,
+        val whenScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(
+          previous,
           "Cannot have switch outside of method"
         )
         )
@@ -740,7 +819,10 @@ class MarcelParser constructor(
           if (current.type == TokenType.ELSE) {
             skip()
             accept(TokenType.ARROW)
-            if (elseStatement != null) throw MarcelParserException(previous, "Cannot have multiple else statements")
+            if (elseStatement != null) throw MarcelParserException(
+              previous,
+              "Cannot have multiple else statements"
+            )
             elseStatement = statement(whenScope)
           } else {
             val conditionExpression = expression(scope)
@@ -792,7 +874,10 @@ class MarcelParser constructor(
       TokenType.LPAR -> {
         val node = expression(scope)
         if (current.type != TokenType.RPAR) {
-          throw MarcelParserException(previous, "Parenthesis should be close")
+          throw MarcelParserException(
+            previous,
+            "Parenthesis should be close"
+          )
         }
         next()
         if (current.type == TokenType.LT  && lookup(1)?.type == TokenType.TWO_DOTS
@@ -824,8 +909,15 @@ class MarcelParser constructor(
           LiteralMapNode(token, entries)
         } else LiteralArrayNode(token, elements)
       }
-      TokenType.END_OF_FILE -> throw MarcelParserException(token, "Unexpected end of file", true)
-      else -> throw MarcelParserException(token, "Not supported $token")
+      TokenType.END_OF_FILE -> throw MarcelParserException(
+        token,
+        "Unexpected end of file",
+        true
+      )
+      else -> throw MarcelParserException(
+        token,
+        "Not supported $token"
+      )
 
     }
   }
@@ -841,7 +933,10 @@ class MarcelParser constructor(
       "\"" -> "\""
       "`" -> "`"
       "/" -> "/"
-      else -> throw MarcelParserException(previous, "Unknown escaped sequence \\$escapedSequence")
+      else -> throw MarcelParserException(
+        previous,
+        "Unknown escaped sequence \\$escapedSequence"
+      )
     }
   }
   private fun parseLambda(token: LexToken, scope: Scope): LambdaNode {
@@ -911,7 +1006,11 @@ class MarcelParser constructor(
         FloatConstantNode(token, value)
       }
     } else {
-      throw MarcelParserException(token, "Unexpected token $token", token.type == TokenType.END_OF_FILE)
+      throw MarcelParserException(
+        token,
+        "Unexpected token $token",
+        token.type == TokenType.END_OF_FILE
+      )
     }
   }
   private fun rangeNode(scope: Scope, fromExpression: ExpressionNode): RangeNode {
@@ -946,8 +1045,15 @@ class MarcelParser constructor(
     return when (token.type) {
       TokenType.REGULAR_STRING_PART -> token.value
       TokenType.ESCAPE_SEQUENCE -> escapedSequenceValue(token.value)
-      TokenType.END_OF_FILE -> throw MarcelParserException(token, "Unexpected end of file", true)
-      else -> throw MarcelParserException(token, "Illegal token ${token.type} when parsing literal string")
+      TokenType.END_OF_FILE -> throw MarcelParserException(
+        token,
+        "Unexpected end of file",
+        true
+      )
+      else -> throw MarcelParserException(
+        token,
+        "Illegal token ${token.type} when parsing literal string"
+      )
     }
   }
 
@@ -960,13 +1066,19 @@ class MarcelParser constructor(
         val identifierToken = accept(TokenType.IDENTIFIER)
         val name = identifierToken.value
         if (namedArguments.any { it.name == name }) {
-          throw MarcelParserException(identifierToken, "Method parameter $name was specified more than one")
+          throw MarcelParserException(
+            identifierToken,
+            "Method parameter $name was specified more than one"
+          )
         }
         accept(TokenType.COLON)
         namedArguments.add(NamedArgument(name, expression(scope)))
       } else {
         if (namedArguments.isNotEmpty()) {
-          throw MarcelParserException(current, "Cannot have a positional function argument after a named one")
+          throw MarcelParserException(
+            current,
+            "Cannot have a positional function argument after a named one"
+          )
         }
         arguments.add(expression(scope))
       }
@@ -988,7 +1100,10 @@ class MarcelParser constructor(
             is ReferenceExpression -> VariableAssignmentNode(token, scope, leftOperand.name, rightOperand)
             is IndexedReferenceExpression -> IndexedVariableAssignmentNode(token, scope, leftOperand, rightOperand)
             is GetFieldAccessOperator -> FieldAssignmentNode(token, scope, leftOperand, rightOperand)
-            else -> throw MarcelParserException(token, "Cannot assign to $leftOperand")
+            else -> throw MarcelParserException(
+              token,
+              "Cannot assign to $leftOperand"
+            )
           }
         } else {
           val actualRightOperand = when(t) {
@@ -1002,7 +1117,10 @@ class MarcelParser constructor(
             is ReferenceExpression -> VariableAssignmentNode(token, scope, leftOperand.name, actualRightOperand)
             is IndexedReferenceExpression -> IndexedVariableAssignmentNode(token, scope, leftOperand, actualRightOperand)
             is GetFieldAccessOperator -> FieldAssignmentNode(token, scope, leftOperand, actualRightOperand)
-            else -> throw MarcelParserException(token, "Cannot assign to $leftOperand")
+            else -> throw MarcelParserException(
+              token,
+              "Cannot assign to $leftOperand"
+            )
           }
         }
       }
@@ -1021,15 +1139,28 @@ class MarcelParser constructor(
       TokenType.DOT -> when (rightOperand) {
         is FunctionCallNode -> InvokeAccessOperator(token, leftOperand, rightOperand, false)
         is ReferenceExpression -> GetFieldAccessOperator(token, leftOperand, rightOperand, false)
-        else -> throw MarcelParserException(token, "Can only handle function calls and fields with dot operators")
+        else -> throw MarcelParserException(
+          token,
+          "Can only handle function calls and fields with dot operators"
+        )
       }
       TokenType.QUESTION_DOT -> when (rightOperand) {
         is FunctionCallNode -> InvokeAccessOperator(token, leftOperand, rightOperand, true)
         is ReferenceExpression -> GetFieldAccessOperator(token, leftOperand, rightOperand, true)
-        else -> throw MarcelParserException(token, "Can only handle function calls and fields with dot operators")
+        else -> throw MarcelParserException(
+          token,
+          "Can only handle function calls and fields with dot operators"
+        )
       }
-      TokenType.END_OF_FILE -> throw MarcelParserException(token, "Unexpected end of file", true)
-      else -> throw MarcelParserException(token, "Doesn't handle operator with token type $t")
+      TokenType.END_OF_FILE -> throw MarcelParserException(
+        token,
+        "Unexpected end of file",
+        true
+      )
+      else -> throw MarcelParserException(
+        token,
+        "Doesn't handle operator with token type $t"
+      )
     }
   }
 
@@ -1047,8 +1178,10 @@ class MarcelParser constructor(
   private fun accept(t: TokenType): LexToken {
     val token = current
     if (token.type != t) {
-      throw MarcelParserException(current, "Expected token of type $t but got ${token.type}",
-        current.type == TokenType.END_OF_FILE)
+      throw MarcelParserException(
+        current, "Expected token of type $t but got ${token.type}",
+        current.type == TokenType.END_OF_FILE
+      )
     }
     currentIndex++
     return token
@@ -1057,7 +1190,10 @@ class MarcelParser constructor(
   private fun accept(vararg types: TokenType): LexToken {
     val token = current
     if (token.type !in types) {
-      throw MarcelParserException(current, "Expected token of type ${types.contentToString()} but got ${token.type}")
+      throw MarcelParserException(
+        current,
+        "Expected token of type ${types.contentToString()} but got ${token.type}"
+      )
     }
     currentIndex++
     return token
@@ -1103,7 +1239,11 @@ class MarcelParser constructor(
 
   private fun checkEof() {
     if (eof) {
-      throw MarcelParserException(currentSafe ?: previous, "Unexpected end of file", true)
+      throw MarcelParserException(
+        currentSafe ?: previous,
+        "Unexpected end of file",
+        true
+      )
     }
   }
 }

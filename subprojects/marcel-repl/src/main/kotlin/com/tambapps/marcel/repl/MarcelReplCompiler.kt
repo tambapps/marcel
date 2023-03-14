@@ -7,12 +7,11 @@ import com.tambapps.marcel.compiler.asm.ClassCompiler
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
-import com.tambapps.marcel.parser.MarcelParserException
+import com.tambapps.marcel.parser.exception.MarcelParserException
 import com.tambapps.marcel.parser.ParserConfiguration
 import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
-import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.DelegatedObject
 import kotlin.jvm.Throws

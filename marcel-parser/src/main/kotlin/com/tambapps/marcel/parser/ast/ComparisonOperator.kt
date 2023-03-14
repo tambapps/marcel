@@ -2,7 +2,7 @@ package com.tambapps.marcel.parser.ast
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
-import com.tambapps.marcel.parser.MarcelParserException
+import com.tambapps.marcel.parser.exception.MarcelParserException
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.Opcodes
 
@@ -22,7 +22,10 @@ enum class ComparisonOperator(val tokenType: TokenType, val iOpCode: Int,
 
     fun fromTokenType(token: LexToken): ComparisonOperator {
       return values().find { it.tokenType == token.type }
-        ?: throw MarcelParserException(token, "Invalid comparison operator token ${token.type}")
+        ?: throw MarcelParserException(
+            token,
+            "Invalid comparison operator token ${token.type}"
+        )
     }
   }
 
