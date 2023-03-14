@@ -3,7 +3,7 @@ package com.tambapps.marcel.compiler
 import com.tambapps.marcel.compiler.util.getElementsType
 import com.tambapps.marcel.compiler.util.getKeysType
 import com.tambapps.marcel.compiler.util.getValuesType
-import com.tambapps.marcel.parser.MethodParameter
+import com.tambapps.marcel.parser.ast.MethodParameter
 import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.ast.ClassNode

@@ -1,6 +1,6 @@
 package com.tambapps.marcel.parser.scope
 
-import com.tambapps.marcel.parser.MethodParameter
+import com.tambapps.marcel.parser.ast.MethodParameter
 import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.ast.AstTypedObject
@@ -138,7 +138,7 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
 }
 
 open class MethodScope constructor(typeResolver: AstNodeTypeResolver, imports: MutableList<ImportNode>, classType: JavaType, val methodName: String,
-                       val parameters: List<MethodParameter>, var returnType: JavaType)
+                                   val parameters: List<MethodParameter>, var returnType: JavaType)
   : Scope(typeResolver, imports, classType) {
 
     constructor(scope: Scope,

@@ -1,7 +1,6 @@
 package com.tambapps.marcel.parser.ast
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.scope.MethodScope

@@ -1,6 +1,5 @@
 package com.tambapps.marcel.parser.ast
 
-import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.ast.expression.AndOperator
 import com.tambapps.marcel.parser.ast.expression.AsNode
 import com.tambapps.marcel.parser.ast.expression.BinaryOperatorNode

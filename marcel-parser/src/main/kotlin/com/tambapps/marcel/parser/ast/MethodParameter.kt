@@ -1,4 +1,4 @@
-package com.tambapps.marcel.parser
+package com.tambapps.marcel.parser.ast
 
 import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode

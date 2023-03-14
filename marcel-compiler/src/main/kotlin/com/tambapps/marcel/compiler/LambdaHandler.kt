@@ -1,7 +1,7 @@
 package com.tambapps.marcel.compiler
 
 import com.tambapps.marcel.compiler.util.javaType
-import com.tambapps.marcel.parser.MethodParameter
+import com.tambapps.marcel.parser.ast.MethodParameter
 import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ConstructorNode
@@ -11,7 +11,6 @@ import com.tambapps.marcel.parser.ast.MethodParameterNode
 import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.FieldAssignmentNode
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
-import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.GetFieldAccessOperator
 import com.tambapps.marcel.parser.ast.expression.LambdaNode
 import com.tambapps.marcel.parser.ast.expression.ReferenceExpression

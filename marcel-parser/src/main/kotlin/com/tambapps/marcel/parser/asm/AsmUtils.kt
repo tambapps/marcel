@@ -1,6 +1,6 @@
 package com.tambapps.marcel.parser.asm
 
-import com.tambapps.marcel.parser.MethodParameter
+import com.tambapps.marcel.parser.ast.MethodParameter
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.Type

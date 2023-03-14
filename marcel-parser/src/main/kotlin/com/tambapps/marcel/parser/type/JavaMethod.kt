@@ -1,6 +1,6 @@
 package com.tambapps.marcel.parser.type
 
-import com.tambapps.marcel.parser.MethodParameter
+import com.tambapps.marcel.parser.ast.MethodParameter
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.AstTypedObject
@@ -175,13 +175,13 @@ class ReflectJavaConstructor(constructor: Constructor<*>): AbstractMethod() {
   }
 }
 class ExtensionJavaMethod(
-  private val reflectMethod: Method,
-  override val ownerClass: JavaType,
-  override val name: String,
-  override val parameters: List<MethodParameter>,
-  override val returnType: JavaType,
-  override val actualReturnType: JavaType,
-  override val descriptor: String,
+    private val reflectMethod: Method,
+    override val ownerClass: JavaType,
+    override val name: String,
+    override val parameters: List<MethodParameter>,
+    override val returnType: JavaType,
+    override val actualReturnType: JavaType,
+    override val descriptor: String,
 ) : AbstractMethod() {
   override val isConstructor = false
   // the static is excluded here in purpose so that self is pushed to the stack

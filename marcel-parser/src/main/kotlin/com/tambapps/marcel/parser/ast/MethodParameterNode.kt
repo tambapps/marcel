@@ -1,7 +1,6 @@
 package com.tambapps.marcel.parser.ast
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.parser.MethodParameter
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.type.JavaType
 
