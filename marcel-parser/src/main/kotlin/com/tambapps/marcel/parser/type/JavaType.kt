@@ -411,8 +411,7 @@ class NotLoadedJavaType internal constructor(
       val descriptor = AsmUtils.getObjectClassDescriptor(className)
       return if (isAnnotation) "@$descriptor" else descriptor
     }
-  override val isAnnotation: Boolean
-    get() = false // TODO doesn't handle defined annotations yet
+  override val isAnnotation = false
 
   override val allImplementedInterfaces: Collection<JavaType>
     get() {

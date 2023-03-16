@@ -83,12 +83,7 @@ import com.tambapps.marcel.parser.type.NotLoadedJavaType
 import marcel.lang.IntRange
 import marcel.lang.LongRange
 import marcel.lang.MarcelClassLoader
-import marcel.lang.lambda.CharacterLambda1
-import marcel.lang.lambda.DoubleLambda1
-import marcel.lang.lambda.FloatLambda1
-import marcel.lang.lambda.IntLambda1
-import marcel.lang.lambda.Lambda1
-import marcel.lang.lambda.LongLambda1
+import marcel.lang.lambda.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -117,7 +112,6 @@ open class AstNodeTypeResolver constructor(
       // ignore
     }
     if (definedTypes.containsKey(className)) throw MarcelSemanticException("Class $className is already defined")
-    // TODO only handle interfaces that are already loaded, as the type is not lazily loaded
     val type = NotLoadedJavaType(className, emptyList(), emptyList(),  superClass, isInterface, interfaces)
     definedTypes[className] = type
     return type
@@ -305,7 +299,16 @@ open class AstNodeTypeResolver constructor(
             JavaType.char -> JavaType.of(CharacterLambda1::class.java).withGenericTypes(returnType)
             else -> JavaType.of(Lambda1::class.java).withGenericTypes(lambdaNode.parameters.first().type.objectType, returnType)
           }
-        else -> TODO("Doesn't handle lambda with such parameters for now")
+        2 -> JavaType.of(Lambda2::class.java).withGenericTypes(lambdaNode.parameters.map { it.type } + returnType)
+        3 -> JavaType.of(Lambda3::class.java).withGenericTypes(lambdaNode.parameters.map { it.type } + returnType)
+        4 -> JavaType.of(Lambda4::class.java).withGenericTypes(lambdaNode.parameters.map { it.type } + returnType)
+        5 -> JavaType.of(Lambda5::class.java).withGenericTypes(lambdaNode.parameters.map { it.type } + returnType)
+        6 -> JavaType.of(Lambda6::class.java).withGenericTypes(lambdaNode.parameters.map { it.type } + returnType)
+        7 -> JavaType.of(Lambda7::class.java).withGenericTypes(lambdaNode.parameters.map { it.type } + returnType)
+        8 -> JavaType.of(Lambda8::class.java).withGenericTypes(lambdaNode.parameters.map { it.type } + returnType)
+        9 -> JavaType.of(Lambda9::class.java).withGenericTypes(lambdaNode.parameters.map { it.type } + returnType)
+        10 -> JavaType.of(Lambda10::class.java).withGenericTypes(lambdaNode.parameters.map { it.type } + returnType)
+        else -> throw MarcelSemanticException("Doesn't handle lambdas with more than 10 parameters")
       }
     }
   }

@@ -248,7 +248,6 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
       val rawType = JavaType.of(parameter.type)
       val annotations = parameter.annotations
       val defaultValueAnnotation = annotations.firstNotNullOfOrNull { it as? DefaultValue }
-      // TODO check this
       val defaultValue = if (defaultValueAnnotation != null) {
         when (rawType) {
           JavaType.int, JavaType.Integer -> IntConstantNode(value = defaultValueAnnotation.defaultIntValue)

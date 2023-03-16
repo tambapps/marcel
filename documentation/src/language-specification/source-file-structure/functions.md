@@ -47,6 +47,15 @@ int result = sum(b: 2, a: 1) // equivalent to sum(1, 2)
 int otherResult = sum(a: 1) // equivalent to sum(1, 0)
 ```
 
+named parameters calls can also start (and only start) with positional arguments.
+
+```groovy
+int result = sum(2, b: 1) // equivalent to sum(2, 1)
+
+
+int otherResult = sum(a: 2, 1) // ERROR, positional argument is not at the start 
+```
+
 Note that you can only used named parameters call for functions of Marcel-compiled classes, because Java doesn't keep method parameter names available at runtime by default.
 
 

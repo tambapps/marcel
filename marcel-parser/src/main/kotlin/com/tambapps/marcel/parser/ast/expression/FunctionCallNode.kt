@@ -110,7 +110,6 @@ open class SimpleFunctionCallNode constructor(
 
 class NamedArgument(val name: String, val valueExpression: ExpressionNode)
 
-// TODO document that we can have positional parameters first
 open class NamedParametersFunctionCall constructor(token: LexToken, override var scope: Scope, override val name: String,
                                                    private val positionalArguments: List<ExpressionNode>,
                                                    protected val namedArguments: List<NamedArgument>
