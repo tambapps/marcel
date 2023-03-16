@@ -175,6 +175,12 @@ you specify them doesn't matter.</p>
 <pre><code class="language-groovy">int result = sum(b: 2, a: 1) // equivalent to sum(1, 2)
 int otherResult = sum(a: 1) // equivalent to sum(1, 0)
 </code></pre>
+<p>named parameters calls can also start (and only start) with positional arguments.</p>
+<pre><code class="language-groovy">int result = sum(2, b: 1) // equivalent to sum(2, 1)
+
+
+int otherResult = sum(a: 2, 1) // ERROR, positional argument is not at the start 
+</code></pre>
 <p>Note that you can only used named parameters call for functions of Marcel-compiled classes, because Java doesn't keep method parameter names available at runtime by default.</p>
 <h2 id="parameter-default-value"><a class="header" href="#parameter-default-value">Parameter default value</a></h2>
 <p>Function parameters can have default values, which are used when you skip the corresponding argument. These can be useful especially
