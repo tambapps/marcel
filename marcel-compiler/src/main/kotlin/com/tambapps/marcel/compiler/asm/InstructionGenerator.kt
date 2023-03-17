@@ -1467,7 +1467,12 @@ private class PushingInstructionGenerator(
     } else if (operator.leftOperand.getType(typeResolver) == JavaType.String || operator.rightOperand.getType(typeResolver) == JavaType.String) {
       StringNode.of(operator.token, listOf(operator.leftOperand, operator.rightOperand)).accept(this)
     } else {
-      TODO("Doesn't handle custom + operator yet (note to self: will need to handle them in type resolver too and in this super method")
+      // TODO don't rely on super.visit(operator) which always expects integer-like types
+      // TODO handle other operators (will also need to modify TypeResolver method
+       visit(
+         SimpleFunctionCallNode(operator.token,
+           methodNode.scope, "plus", listOf(operator.rightOperand)
+         ).withOwner(operator.leftOperand))
     }
   }
 

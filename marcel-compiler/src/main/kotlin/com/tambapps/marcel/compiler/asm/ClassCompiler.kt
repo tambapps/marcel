@@ -67,6 +67,16 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
         }
       }
     }
+
+    // now check for conflicting methods
+    for (methodNode in classNode.methods) {
+      val conflictMethod = classNode.methods.find { methodNode !== it && it.matches(methodNode) }
+      if (conflictMethod != null) throw MarcelSemanticException(
+        conflictMethod.token,
+        "Method $methodNode conflicts with $conflictMethod"
+      )
+    }
+
     val classWriter = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
     // creating class
     classWriter.visit(compilerConfiguration.classVersion,  classNode.access, classNode.internalName,
@@ -138,6 +148,9 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     }
   }
   private fun writeMethod(typeResolver: JavaTypeResolver, classWriter: ClassWriter, classNode: ClassNode, methodNode: MethodNode) {
+    for (param in methodNode.parameters) {
+      methodNode.scope.addLocalVariable(param.type, param.name, param.isFinal)
+    }
     val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.descriptor, methodNode.signature, null)
     mv.visitCode()
     val methodStartLabel = Label()

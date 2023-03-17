@@ -1,0 +1,21 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+
+MyInt i1 = new MyInt(i: 1)
+MyInt i2 = new MyInt(i: 2)
+
+assertEquals(3, i1 + i2)
+assertEquals(4, i1 + 3)
+
+class MyInt {
+  int i
+
+  fun plus(MyInt mi) int {
+    return i + mi.i
+  }
+
+  fun plus(int i) int {
+    return this.i + i
+  }
+
+}

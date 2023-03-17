@@ -24,6 +24,10 @@ interface FunctionCallNode: ExpressionNode, ScopedNode<Scope> {
   fun getArguments(typeResolver: AstNodeTypeResolver): List<ExpressionNode>
   fun getMethod(typeResolver: AstNodeTypeResolver): JavaMethod
 
+  fun withOwner(owner: ExpressionNode): FunctionCallNode {
+    this.methodOwnerType = owner
+    return this
+  }
 }
 
 sealed class AbstractFunctionCallNode(token: LexToken) : FunctionCallNode, AbstractExpressionNode(token) {

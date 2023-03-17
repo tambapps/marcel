@@ -38,13 +38,6 @@ open class MethodNode constructor(
   override val isAbstract = false
   override val isDefault = false
 
-  init {
-    for (param in parameters) {
-      scope.addLocalVariable(param.type, param.name, param.isFinal)
-    }
-
-  }
-
   override val descriptor get() = AsmUtils.getMethodDescriptor(parameters, returnType)
 
   override fun toString(): String {

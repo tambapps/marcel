@@ -325,13 +325,6 @@ class MarcelParser constructor(
     val methodScope = MethodScope(classScope, methodName, parameters, returnType)
     val methodNode = MethodNode(access, classNode.type, methodName, FunctionBlockNode(currentToken, methodScope, statements), parameters, returnType, methodScope, isInline)
     statements.addAll(block(methodScope).statements)
-
-    // check conflict
-    val conflictMethod = classNode.methods.find { it.matches(methodNode) }
-    if (conflictMethod != null) throw MarcelParserException(
-      previous,
-      "Method $methodNode conflicts with $conflictMethod"
-    )
     return methodNode
   }
 
