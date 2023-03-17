@@ -4,6 +4,7 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.ast.MethodParameter
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.ScopedNode
+import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.LambdaScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaType
@@ -18,6 +19,9 @@ class LambdaNode constructor(token: LexToken, override var scope: LambdaScope, v
   var interfaceType: JavaType? = null
     set(value) {
       if (value != null && !value.isInterface) throw RuntimeException("Compiler error. This type should always be an interface")
+      if (field != null && value != null && !field!!.isAssignableFrom(value)) {
+        throw MarcelSemanticException("Lambda is expected to bo of type ${field?.simpleName} and ${value.simpleName} which are not compatible types")
+      }
       field = value
     }
 

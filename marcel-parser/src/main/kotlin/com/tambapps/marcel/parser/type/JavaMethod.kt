@@ -196,7 +196,7 @@ class ExtensionJavaMethod(
   override val isAbstract = false
   override val isDefault = false
 
-  // TODO could probably do some optimization here (with uses of java reflect API)
+  // could probably do some optimization here (with uses of java reflect API)
   constructor(method: Method): this(method,
     JavaType.of(method.declaringClass), method.name,
     method.parameters.takeLast(method.parameters.size - 1).map { ReflectJavaMethod.methodParameter(

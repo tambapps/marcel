@@ -100,7 +100,6 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       val expectedType = method.parameters[i].type
       val argument = arguments[i]
       if (argument is LambdaNode && expectedType.isInterface) {
-        // TODO find a cleaner way to do this
         argument.interfaceType = expectedType
       }
       val actualType = argument.getType(typeResolver)
