@@ -1,16 +1,14 @@
 package com.tambapps.marcel.android.app
 
 import android.content.Context
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.tambapps.marcel.android.app.marcel.compiler.AndroidMarcelCompiler
 import com.tambapps.marcel.compiler.SourceFile
 import marcel.lang.android.dex.MarcelDexClassLoader
-
+import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
-
-import org.junit.Assert.*
 import java.io.File
 
 /**
@@ -18,28 +16,29 @@ import java.io.File
  */
 @RunWith(AndroidJUnit4::class)
 class MarcelEvalTest {
-    private val dir get() = InstrumentationRegistry.getInstrumentation().targetContext
-        .getDir("classes", Context.MODE_PRIVATE)
-    private val classLoader = MarcelDexClassLoader()
-    private val compiler = AndroidMarcelCompiler(classLoader)
+  private val dir
+    get() = InstrumentationRegistry.getInstrumentation().targetContext
+      .getDir("classes", Context.MODE_PRIVATE)
+  private val classLoader = MarcelDexClassLoader()
+  private val compiler = AndroidMarcelCompiler(classLoader)
 
 
-    @Test
-    fun testSimpleEvalDex() {
-        val dexFile = File(dir, "Test.dex")
-        compiler.compileToDex(SourceFile("Test.mcl") { "1" }, dexFile)
+  @Test
+  fun testSimpleEvalDex() {
+    val dexFile = File(dir, "Test.dex")
+    compiler.compileToDex(SourceFile("Test.mcl") { "1" }, dexFile)
 
-        val script = classLoader.loadScript("Test", dexFile)
-        assertEquals(1, script.run())
-    }
+    val script = classLoader.loadScript("Test", dexFile)
+    assertEquals(1, script.run())
+  }
 
-    @Test
-    fun testSimpleEvalDexJar() {
-        val dexJarFile = File(dir, "Test.jar")
-        compiler.compileToDexJar(SourceFile("Test.mcl") { "1" }, dexJarFile)
+  @Test
+  fun testSimpleEvalDexJar() {
+    val dexJarFile = File(dir, "Test.jar")
+    compiler.compileToDexJar(SourceFile("Test.mcl") { "1" }, dexJarFile)
 
-        val script = classLoader.loadScript("Test", dexJarFile)
-        assertEquals(1, script.run())
-    }
+    val script = classLoader.loadScript("Test", dexJarFile)
+    assertEquals(1, script.run())
+  }
 
 }

@@ -1,7 +1,6 @@
 package com.tambapps.marcel.android.app.configuration
 
 import android.content.Context
-import android.content.SharedPreferences
 import com.tambapps.marcel.android.app.marcel.compiler.AndroidMarcelCompiler
 import dagger.Module
 import dagger.Provides
@@ -16,18 +15,18 @@ import java.io.File
 @InstallIn(ActivityComponent::class, FragmentComponent::class)
 class MarcelDroidConfiguration {
 
-    @Provides
-    fun classesDir(@ApplicationContext context: Context): File {
-        return context.getDir("classes", Context.MODE_PRIVATE)
-    }
+  @Provides
+  fun classesDir(@ApplicationContext context: Context): File {
+    return context.getDir("classes", Context.MODE_PRIVATE)
+  }
 
-    @Provides
-    fun marcelDexClassLoader(): MarcelDexClassLoader {
-        return MarcelDexClassLoader()
-    }
+  @Provides
+  fun marcelDexClassLoader(): MarcelDexClassLoader {
+    return MarcelDexClassLoader()
+  }
 
-    @Provides
-    fun marcelCompiler(dexClassLoader: MarcelDexClassLoader): AndroidMarcelCompiler {
-        return AndroidMarcelCompiler(dexClassLoader)
-    }
+  @Provides
+  fun marcelCompiler(dexClassLoader: MarcelDexClassLoader): AndroidMarcelCompiler {
+    return AndroidMarcelCompiler(dexClassLoader)
+  }
 }

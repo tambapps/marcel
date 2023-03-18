@@ -5,5 +5,5 @@ import dagger.hilt.android.HiltAndroidApp
 
 // for hilt
 @HiltAndroidApp
-class MarcelDroidApplication: Application() {
+class MarcelDroidApplication : Application() {
 }

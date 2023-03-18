@@ -13,15 +13,15 @@ import java.nio.file.Files;
 import marcel.lang.android.dex.DexJarWriter;
 
 public class DexJarWriterFactory implements JarWriterFactory {
-    @NonNull
-    @Override
-    public JarWriter newJarWriter(@NonNull OutputStream outputStream) throws IOException {
-        return new DexJarWriter(outputStream);
-    }
+  @NonNull
+  @Override
+  public JarWriter newJarWriter(@NonNull OutputStream outputStream) throws IOException {
+    return new DexJarWriter(outputStream);
+  }
 
-    @NonNull
-    @Override
-    public JarWriter newJarWriter(@NonNull File file) throws IOException {
-        return newJarWriter(Files.newOutputStream(file.toPath()));
-    }
+  @NonNull
+  @Override
+  public JarWriter newJarWriter(@NonNull File file) throws IOException {
+    return newJarWriter(Files.newOutputStream(file.toPath()));
+  }
 }

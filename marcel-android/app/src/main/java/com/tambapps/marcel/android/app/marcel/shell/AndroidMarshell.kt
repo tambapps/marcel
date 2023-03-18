@@ -6,12 +6,12 @@ import marcel.lang.MarcelClassLoader
 import java.io.PrintStream
 
 class AndroidMarshell(
-    out: PrintStream,
-    marcelClassLoader: MarcelClassLoader,
-    private val readLineFunction: (String) -> String
+  out: PrintStream,
+  marcelClassLoader: MarcelClassLoader,
+  private val readLineFunction: (String) -> String
 ) : MarcelShell(out, marcelClassLoader, DexJarWriterFactory()) {
 
-    override fun readLine(prompt: String): String {
-        return readLineFunction.invoke(prompt)
-    }
+  override fun readLine(prompt: String): String {
+    return readLineFunction.invoke(prompt)
+  }
 }
