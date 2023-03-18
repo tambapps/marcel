@@ -5,9 +5,13 @@ import com.tambapps.marcel.repl.MarcelShell
 import marcel.lang.MarcelClassLoader
 import java.io.PrintStream
 
-class AndroidMarshell(out: PrintStream, marcelClassLoader: MarcelClassLoader) :
-    MarcelShell(out, marcelClassLoader, DexJarWriterFactory()) {
+class AndroidMarshell(
+    out: PrintStream,
+    marcelClassLoader: MarcelClassLoader,
+    private val readLineFunction: (String) -> String
+) : MarcelShell(out, marcelClassLoader, DexJarWriterFactory()) {
+
     override fun readLine(prompt: String): String {
-        TODO("Use a supplier or function -> String")
+        return readLineFunction.invoke(prompt)
     }
 }
