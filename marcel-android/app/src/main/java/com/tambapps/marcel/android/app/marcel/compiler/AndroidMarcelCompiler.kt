@@ -30,9 +30,8 @@ class AndroidMarcelCompiler(compilerConfiguration: CompilerConfiguration, privat
 
     fun compileToDexJar(sourceFiles: Collection<SourceFile>, dexJarFile: File) {
         val compiledClasses = compiler.compile(classLoader, sourceFiles)
-        val bytes = doCompileToDex(compiledClasses)
         DexJarWriter(dexJarFile.outputStream()).use { writer ->
-            writer.write(compiledClasses.map { it.className }, bytes)
+            writer.writeClasses(compiledClasses)
         }
     }
 

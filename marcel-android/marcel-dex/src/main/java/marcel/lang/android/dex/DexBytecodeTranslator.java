@@ -25,6 +25,12 @@ public class DexBytecodeTranslator {
 
     private final DexFile dexFile;
 
+    public static byte[] translate(String className, byte[] originalByteCode) throws IOException {
+        DexBytecodeTranslator translator = new DexBytecodeTranslator();
+        translator.addClass(className, originalByteCode);
+        return translator.getDexBytes();
+    }
+
     public DexBytecodeTranslator() {
         dexOptions.minSdkVersion = BuildConfig.MIN_SDK_VERSION;
         cfOptions.positionInfo = PositionList.LINES;
