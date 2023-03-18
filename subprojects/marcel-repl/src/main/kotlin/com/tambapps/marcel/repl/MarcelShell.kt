@@ -14,6 +14,7 @@ import com.tambapps.marcel.repl.command.ImportCommand
 import com.tambapps.marcel.repl.command.ListCommand
 import com.tambapps.marcel.repl.command.PullDependencyCommand
 import com.tambapps.marcel.repl.command.ShellCommand
+import com.tambapps.marcel.repl.jar.JarWriterFactory
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
 import marcel.lang.util.MarcelVersion
@@ -21,7 +22,10 @@ import java.io.PrintStream
 import java.nio.file.Files
 import java.util.concurrent.atomic.AtomicBoolean
 
-abstract class MarcelShell constructor(private val out: PrintStream, val marcelClassLoader: MarcelClassLoader) {
+abstract class MarcelShell constructor(
+  private val out: PrintStream,
+  val marcelClassLoader: MarcelClassLoader,
+  jarWriterFactory: JarWriterFactory) {
 
   val binding = Binding()
   val lastNode: ClassNode? get() = replCompiler.parserResult?.scriptNode
@@ -31,7 +35,7 @@ abstract class MarcelShell constructor(private val out: PrintStream, val marcelC
   protected val typeResolver = JavaTypeResolver(marcelClassLoader)
   private val tempDir = Files.createTempDirectory("marshell")
   protected val replCompiler = MarcelReplCompiler(CompilerConfiguration(dumbbellEnabled = true), typeResolver)
-  protected val evaluator = MarcelEvaluator(binding, replCompiler, marcelClassLoader, tempDir.toFile())
+  protected val evaluator = MarcelEvaluator(binding, replCompiler, marcelClassLoader, jarWriterFactory, tempDir.toFile())
   private val buffer = mutableListOf<String>()
   private val commands = listOf<ShellCommand>(
     HelpCommand(),

@@ -1,10 +1,10 @@
 package com.tambapps.marcel.repl
 
-import com.tambapps.marcel.compiler.JarWriter
 import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.exception.MarcelParserException
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.repl.jar.JarWriterFactory
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
 import java.io.File
@@ -13,6 +13,7 @@ class MarcelEvaluator constructor(
   private val binding: Binding,
   private val replCompiler: MarcelReplCompiler,
   private val scriptLoader: MarcelClassLoader,
+  private val jarWriterFactory: JarWriterFactory,
   private val tempDir: File
 ) {
 
@@ -40,12 +41,12 @@ class MarcelEvaluator constructor(
 
     if (result.otherClasses.isNotEmpty()) {
       val libraryJar = File(tempDir.parentFile, "${className}_library.jar")
-      JarWriter(libraryJar).use {
+      jarWriterFactory.newJarWriter(libraryJar).use {
         it.writeClasses(result.otherClasses)
       }
       scriptLoader.addLibraryJar(libraryJar)
     }
-    JarWriter(jarFile).use {
+    jarWriterFactory.newJarWriter(jarFile).use {
       it.writeClasses(result.compiledScript)
     }
     if (scriptNode.fields.isNotEmpty()) {
