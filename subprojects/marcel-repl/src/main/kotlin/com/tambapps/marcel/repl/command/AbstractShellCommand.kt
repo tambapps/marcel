@@ -1,10 +1,10 @@
 package com.tambapps.marcel.repl.command
 
-import java.io.PrintStream
+import com.tambapps.marcel.repl.printer.Printer
 
 abstract class AbstractShellCommand: ShellCommand {
 
-  override fun printHelp(out: PrintStream) {
+  override fun printHelp(out: Printer) {
     out.println("$usage\t\t(:$shortName) $helpDescription")
   }
 }

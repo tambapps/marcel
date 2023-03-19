@@ -1,7 +1,7 @@
 package com.tambapps.marcel.repl.command
 
 import com.tambapps.marcel.repl.MarcelShell
-import java.io.PrintStream
+import com.tambapps.marcel.repl.printer.Printer
 
 class ImportCommand: AbstractShellCommand() {
 
@@ -10,7 +10,7 @@ class ImportCommand: AbstractShellCommand() {
   override val usage = ":import some.class"
   override val helpDescription = "Import a/some class(es) (wildcards and 'as' imports also work)"
 
-  override fun run(shell: MarcelShell, args: List<String>, out: PrintStream) {
+  override fun run(shell: MarcelShell, args: List<String>, out: Printer) {
     if (args.isEmpty()) {
       shell.listImports()
       return

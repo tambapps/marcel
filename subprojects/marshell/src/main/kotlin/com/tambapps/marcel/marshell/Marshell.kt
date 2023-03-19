@@ -8,6 +8,7 @@ import com.tambapps.marcel.parser.exception.MarcelParserException
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.repl.MarcelShell
 import com.tambapps.marcel.repl.jar.BasicJarWriterFactory
+import com.tambapps.marcel.repl.printer.StdOutPrinter
 import marcel.lang.URLMarcelClassLoader
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReaderBuilder
@@ -20,7 +21,7 @@ fun main(args: Array<String>) {
   marshell.run()
 }
 
-class Marshell: MarcelShell(System.out, URLMarcelClassLoader(Marshell::class.java.classLoader), BasicJarWriterFactory(),
+class Marshell: MarcelShell(StdOutPrinter(), URLMarcelClassLoader(Marshell::class.java.classLoader), BasicJarWriterFactory(),
   "marshell:%03d> ") {
 
   private val highlighter = ReaderHighlighter(typeResolver, replCompiler)

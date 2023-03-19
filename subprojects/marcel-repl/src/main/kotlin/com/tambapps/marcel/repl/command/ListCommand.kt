@@ -4,8 +4,8 @@ import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.repl.MarcelShell
+import com.tambapps.marcel.repl.printer.Printer
 import marcel.lang.Binding
-import java.io.PrintStream
 
 class ListCommand: AbstractShellCommand() {
 
@@ -15,7 +15,7 @@ class ListCommand: AbstractShellCommand() {
   override val helpDescription = "list defined members"
 
 
-  override fun run(shell: MarcelShell, args: List<String>, out: PrintStream) {
+  override fun run(shell: MarcelShell, args: List<String>, out: Printer) {
     if (args.isEmpty()) {
       out.println("Imports:")
       printImports(shell.imports, out)
@@ -40,7 +40,7 @@ class ListCommand: AbstractShellCommand() {
     }
   }
 
-  private fun printVariables(binding: Binding, out: PrintStream) {
+  private fun printVariables(binding: Binding, out: Printer) {
     if (binding.variables.isEmpty()) {
       out.println("No variables defined")
     }
@@ -54,7 +54,7 @@ class ListCommand: AbstractShellCommand() {
     }
   }
 
-  private fun printFunctions(classNode: ClassNode?, out: PrintStream) {
+  private fun printFunctions(classNode: ClassNode?, out: Printer) {
     if (classNode == null) {
       out.println("No functions defined")
       return
@@ -71,7 +71,7 @@ class ListCommand: AbstractShellCommand() {
     }
   }
 
-  private fun printDefinedClasses(classes: List<JavaType>, out: PrintStream) {
+  private fun printDefinedClasses(classes: List<JavaType>, out: Printer) {
     if (classes.isEmpty()) {
       out.println("No classes defined")
       return
@@ -85,7 +85,7 @@ class ListCommand: AbstractShellCommand() {
     }
   }
 
-  private fun printImports(imports: List<ImportNode>, out: PrintStream) {
+  private fun printImports(imports: List<ImportNode>, out: Printer) {
     if (imports.isEmpty()) {
       out.println("No imports added")
       return

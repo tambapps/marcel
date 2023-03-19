@@ -1,7 +1,7 @@
 package com.tambapps.marcel.repl.command
 
 import com.tambapps.marcel.repl.MarcelShell
-import java.io.PrintStream
+import com.tambapps.marcel.repl.printer.Printer
 
 interface ShellCommand {
   val name: String
@@ -10,6 +10,6 @@ interface ShellCommand {
 
   val helpDescription: String
 
-  fun run(shell: MarcelShell, args: List<String>, out: PrintStream)
-  fun printHelp(out: PrintStream)
+  fun run(shell: MarcelShell, args: List<String>, out: Printer)
+  fun printHelp(out: Printer)
 }

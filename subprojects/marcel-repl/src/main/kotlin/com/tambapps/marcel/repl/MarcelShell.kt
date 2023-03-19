@@ -15,18 +15,18 @@ import com.tambapps.marcel.repl.command.ListCommand
 import com.tambapps.marcel.repl.command.PullDependencyCommand
 import com.tambapps.marcel.repl.command.ShellCommand
 import com.tambapps.marcel.repl.jar.JarWriterFactory
+import com.tambapps.marcel.repl.printer.Printer
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
 import marcel.lang.util.MarcelVersion
-import java.io.PrintStream
 import java.nio.file.Files
 import java.util.concurrent.atomic.AtomicBoolean
 
 abstract class MarcelShell constructor(
-  private val out: PrintStream,
+  private val printer: Printer,
   val marcelClassLoader: MarcelClassLoader,
   jarWriterFactory: JarWriterFactory,
-  private val promptTemplate: String) {
+  private val promptTemplate: String = "marshell:%03d> ") {
 
   val binding = Binding()
   val lastNode: ClassNode? get() = replCompiler.parserResult?.scriptNode
@@ -79,13 +79,13 @@ abstract class MarcelShell constructor(
 
       val command = findCommand(commandName)
       if (command != null) {
-        command.run(this, args.subList(1, args.size), out)
+        command.run(this, args.subList(1, args.size), printer)
       } else {
         println("Unknown command $commandName")
       }
     } else {
       try {
-        val text = buffer.joinToString(separator = "\n", postfix = if (buffer.isEmpty()) line else "\n$line")
+        val text = buffer.joinToString(separator = System.lineSeparator(), postfix = if (buffer.isEmpty()) line else "\n$line")
         val eval = evaluator.eval(text)
         buffer.clear()
         println(eval)
@@ -110,7 +110,7 @@ abstract class MarcelShell constructor(
   }
 
   fun printHelp() {
-    commands.forEach { it.printHelp(out) }
+    commands.forEach { it.printHelp(printer) }
   }
 
   fun findCommand(name: String): ShellCommand? {
@@ -126,7 +126,7 @@ abstract class MarcelShell constructor(
   }
 
   fun listImports() {
-    findCommand("list")!!.run(this, listOf("imports"), out)
+    findCommand("list")!!.run(this, listOf("imports"), printer)
 
   }
   fun clearBuffer() {

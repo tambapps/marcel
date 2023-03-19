@@ -2,7 +2,7 @@ package com.tambapps.marcel.repl.command
 
 import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.repl.MarcelShell
-import java.io.PrintStream
+import com.tambapps.marcel.repl.printer.Printer
 
 class PullDependencyCommand: AbstractShellCommand() {
 
@@ -11,7 +11,7 @@ class PullDependencyCommand: AbstractShellCommand() {
   override val usage = ":pull artifactId:groupId:version"
   override val helpDescription = "Pull a dependency"
 
-  override fun run(shell: MarcelShell, args: List<String>, out: PrintStream) {
+  override fun run(shell: MarcelShell, args: List<String>, out: Printer) {
     if (args.size != 1) {
       out.println("Need to provide dependency to pull")
       return
