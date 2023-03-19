@@ -85,7 +85,7 @@ class ListCommand: AbstractShellCommand() {
     }
   }
 
-  private fun printImports(imports: List<ImportNode>, out: Printer) {
+  private fun printImports(imports: Collection<ImportNode>, out: Printer) {
     if (imports.isEmpty()) {
       out.println("No imports added")
       return

@@ -64,6 +64,22 @@ class StaticImportNode(override val token: LexToken, private val className: Stri
   override fun toString(): String {
     return "import static $className.$methodName"
   }
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is StaticImportNode) return false
+
+    if (className != other.className) return false
+    if (methodName != other.methodName) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = className.hashCode()
+    result = 31 * result + methodName.hashCode()
+    return result
+  }
 }
 
 class WildcardImportNode(override val token: LexToken, private val prefix: String): ImportNode {

@@ -21,7 +21,7 @@ class MarcelReplCompiler constructor(
   private val typeResolver: JavaTypeResolver,
 ) {
 
-  val imports = mutableListOf<ImportNode>()
+  val imports = LinkedHashSet<ImportNode>()
   private val lexer = MarcelLexer(false)
   private val definedFunctions = mutableSetOf<MethodNode>()
   private val _definedClasses = mutableListOf<JavaType>()

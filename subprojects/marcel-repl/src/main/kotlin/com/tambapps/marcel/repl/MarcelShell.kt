@@ -30,7 +30,7 @@ abstract class MarcelShell constructor(
   val binding = Binding()
   val lastNode: ClassNode? get() = replCompiler.parserResult?.scriptNode
   val definedClasses get() = replCompiler.definedClasses
-  val imports: List<ImportNode> get() = replCompiler.imports
+  val imports: Collection<ImportNode> get() = replCompiler.imports
 
   protected val typeResolver = JavaTypeResolver(marcelClassLoader)
   private val tempDir = Files.createTempDirectory("marshell")
