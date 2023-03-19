@@ -8,7 +8,9 @@ import androidx.fragment.app.Fragment
 import com.tambapps.marcel.android.app.databinding.FragmentHomeBinding
 import com.tambapps.marcel.android.app.marcel.shell.AndroidMarshell
 import dagger.hilt.android.AndroidEntryPoint
+import marcel.lang.MarcelSystem
 import marcel.lang.android.dex.MarcelDexClassLoader
+import marcel.lang.printer.Printer
 import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
@@ -26,6 +28,7 @@ class HomeFragment : Fragment() {
   private val binding get() = _binding!!
 
   private lateinit var marshell: AndroidMarshell
+  private lateinit var printer: Printer
   private val executor = Executors.newSingleThreadExecutor()
   private val promptQueue = LinkedBlockingQueue<String>()
 
@@ -49,7 +52,7 @@ class HomeFragment : Fragment() {
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    val printer = TextViewPrinter(requireActivity(), binding.historyText)
+    printer = TextViewPrinter(requireActivity(), binding.historyText)
     marshell = AndroidMarshell(printer, marcelDexClassLoader, this::readLine)
 
     executor.submit {
@@ -61,6 +64,11 @@ class HomeFragment : Fragment() {
     }
   }
 
+  override fun onStart() {
+    // TODO move this kind of thing in a MarcelEngine class
+    super.onStart()
+    MarcelSystem.setPrinter(printer)
+  }
   override fun onDestroyView() {
     super.onDestroyView()
     marshell.exit()
@@ -68,6 +76,11 @@ class HomeFragment : Fragment() {
     executor.shutdown()
   }
 
+  override fun onStop() {
+    super.onStop()
+    // TODO move this kind of thing in a MarcelEngine class
+    MarcelSystem.setPrinter(null)
+  }
   private fun readLine(prompt: String): String {
     requireActivity().runOnUiThread {
       binding.promptText.text = "$prompt"

@@ -5,7 +5,7 @@ import android.view.View
 import android.view.View.OnKeyListener
 import android.widget.TextView
 import com.tambapps.marcel.android.app.databinding.FragmentHomeBinding
-import com.tambapps.marcel.repl.printer.Printer
+import marcel.lang.printer.Printer
 import java.util.concurrent.LinkedBlockingQueue
 
 class PromptKeyListener(

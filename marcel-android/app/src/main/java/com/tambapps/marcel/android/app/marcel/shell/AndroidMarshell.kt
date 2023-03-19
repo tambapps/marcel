@@ -2,8 +2,8 @@ package com.tambapps.marcel.android.app.marcel.shell
 
 import com.tambapps.marcel.android.app.marcel.shell.jar.DexJarWriterFactory
 import com.tambapps.marcel.repl.MarcelShell
-import com.tambapps.marcel.repl.printer.Printer
 import marcel.lang.MarcelClassLoader
+import marcel.lang.printer.Printer
 
 class AndroidMarshell(
   out: Printer,
