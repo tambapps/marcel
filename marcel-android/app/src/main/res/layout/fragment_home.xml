@@ -34,6 +34,8 @@
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
                 android:maxLines="1"
+                android:background="@android:color/transparent"
+                android:inputType="textFilter"
                 />
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.constraintlayout.widget.ConstraintLayout>

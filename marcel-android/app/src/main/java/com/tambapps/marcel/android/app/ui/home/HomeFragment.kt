@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.tambapps.marcel.android.app.databinding.FragmentHomeBinding
 import com.tambapps.marcel.android.app.marcel.shell.AndroidMarshell
 import dagger.hilt.android.AndroidEntryPoint
@@ -56,13 +55,15 @@ class HomeFragment : Fragment() {
     executor.submit {
       marshell.run()
     }
-
-
-    binding.promptEditText.setOnKeyListener(PromptKeyListener(binding, printer, promptQueue))
+    binding.apply {
+      promptEditText.setOnKeyListener(PromptKeyListener(binding, printer, promptQueue))
+      promptEditText.requestFocus()
+    }
   }
 
   override fun onDestroyView() {
     super.onDestroyView()
+    marshell.exit()
     _binding = null
     executor.shutdown()
   }
