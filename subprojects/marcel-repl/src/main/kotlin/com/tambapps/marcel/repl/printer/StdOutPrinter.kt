@@ -13,7 +13,7 @@ class StdOutPrinter(private val out: PrintStream): Printer {
     out.println(s)
   }
 
-  override fun println(o: Any) {
+  override fun println(o: Any?) {
     out.println(o)
   }
 

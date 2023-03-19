@@ -18,12 +18,11 @@ import com.tambapps.marcel.repl.jar.JarWriterFactory
 import com.tambapps.marcel.repl.printer.Printer
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
-import marcel.lang.util.MarcelVersion
 import java.nio.file.Files
 import java.util.concurrent.atomic.AtomicBoolean
 
 abstract class MarcelShell constructor(
-  private val printer: Printer,
+  protected val printer: Printer,
   val marcelClassLoader: MarcelClassLoader,
   jarWriterFactory: JarWriterFactory,
   private val promptTemplate: String = "marshell:%03d> ") {
@@ -61,7 +60,6 @@ abstract class MarcelShell constructor(
   fun run() {
     runningReference.set(true)
     onStart()
-    println("Marshell (Marcel: ${MarcelVersion.VERSION}, Java: " + System.getProperty("java.version") + ")")
     while (runningReference.get()) {
       doRun()
     }
@@ -81,25 +79,25 @@ abstract class MarcelShell constructor(
       if (command != null) {
         command.run(this, args.subList(1, args.size), printer)
       } else {
-        println("Unknown command $commandName")
+        printer.println("Unknown command $commandName")
       }
     } else {
       try {
         val text = buffer.joinToString(separator = System.lineSeparator(), postfix = if (buffer.isEmpty()) line else "\n$line")
         val eval = evaluator.eval(text)
         buffer.clear()
-        println(eval)
+        printer.println(eval)
       } catch (e: MarcelLexerException) {
-        println("Error: ${e.message}")
+        printer.println("Error: ${e.message}")
         buffer.clear()
       } catch (e: MarcelSemanticException) {
-        println(e.message)
+        printer.println(e.message)
         buffer.clear()
       } catch (e: MarcelParserException) {
         if (e.eof) {
           buffer.add(line)
         } else {
-          println(e.message)
+          printer.println(e.message)
           buffer.clear()
         }
       } catch (ex: Exception) {

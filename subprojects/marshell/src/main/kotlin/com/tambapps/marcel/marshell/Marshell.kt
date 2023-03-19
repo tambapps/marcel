@@ -10,6 +10,7 @@ import com.tambapps.marcel.repl.MarcelShell
 import com.tambapps.marcel.repl.jar.BasicJarWriterFactory
 import com.tambapps.marcel.repl.printer.StdOutPrinter
 import marcel.lang.URLMarcelClassLoader
+import marcel.lang.util.MarcelVersion
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.UserInterruptException
@@ -44,6 +45,7 @@ class Marshell: MarcelShell(StdOutPrinter(), URLMarcelClassLoader(Marshell::clas
   }
 
   override fun onStart() {
+    printer.println("Marshell (Marcel: ${MarcelVersion.VERSION}, Java: " + System.getProperty("java.version") + ")")
     val marcelHome = File(
       System.getenv("MARCEL_HOME")
         ?: (System.getenv("HOME") + "/.marcel/")
