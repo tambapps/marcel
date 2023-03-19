@@ -12,7 +12,11 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.tambapps.marcel.android.app.databinding.ActivityMainBinding
+import com.tambapps.marcel.android.app.marcel.shell.AndroidMarshell
+import dagger.hilt.android.AndroidEntryPoint
+import java.util.concurrent.Executors
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
   private lateinit var appBarConfiguration: AppBarConfiguration
@@ -20,6 +24,7 @@ class MainActivity : AppCompatActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+
 
     binding = ActivityMainBinding.inflate(layoutInflater)
     setContentView(binding.root)
