@@ -1,13 +1,18 @@
 package marcel.lang.methods;
 
+import marcel.lang.MarcelSystem;
+
 public class DefaultMarcelStaticMethods {
 
   public static void println(Object o) {
-    System.out.println(o);
+    MarcelSystem.getPrinter().println(o);
   }
 
   public static void println() {
-    System.out.println();
+    MarcelSystem.getPrinter().println();
   }
 
+  public static void print(Object o) {
+    MarcelSystem.getPrinter().print(o);
+  }
 }

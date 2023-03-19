@@ -2,7 +2,7 @@ package com.tambapps.marcel.repl.command
 
 import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.repl.MarcelShell
-import com.tambapps.marcel.repl.printer.Printer
+import marcel.lang.printer.Printer
 
 class PullDependencyCommand: AbstractShellCommand() {
 

@@ -4,7 +4,7 @@ import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.repl.MarcelShell
-import com.tambapps.marcel.repl.printer.Printer
+import marcel.lang.printer.Printer
 import marcel.lang.Binding
 
 class ListCommand: AbstractShellCommand() {

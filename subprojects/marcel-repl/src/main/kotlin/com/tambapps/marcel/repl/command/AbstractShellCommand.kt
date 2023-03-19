@@ -1,6 +1,6 @@
 package com.tambapps.marcel.repl.command
 
-import com.tambapps.marcel.repl.printer.Printer
+import marcel.lang.printer.Printer
 
 abstract class AbstractShellCommand: ShellCommand {
 

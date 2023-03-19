@@ -15,7 +15,7 @@ import com.tambapps.marcel.repl.command.ListCommand
 import com.tambapps.marcel.repl.command.PullDependencyCommand
 import com.tambapps.marcel.repl.command.ShellCommand
 import com.tambapps.marcel.repl.jar.JarWriterFactory
-import com.tambapps.marcel.repl.printer.Printer
+import marcel.lang.printer.Printer
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
 import java.nio.file.Files
