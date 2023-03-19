@@ -649,6 +649,6 @@ class LazyJavaType internal constructor(private val scope: Scope,
   }
 
   override fun toString(): String {
-    return _actualType?.className ?: actualTypeName
+    return actualType.className
   }
 }
