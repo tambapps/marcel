@@ -25,7 +25,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 abstract class MarcelShell constructor(
   private val out: PrintStream,
   val marcelClassLoader: MarcelClassLoader,
-  jarWriterFactory: JarWriterFactory) {
+  jarWriterFactory: JarWriterFactory,
+  private val promptTemplate: String) {
 
   val binding = Binding()
   val lastNode: ClassNode? get() = replCompiler.parserResult?.scriptNode
@@ -68,7 +69,7 @@ abstract class MarcelShell constructor(
   }
 
   open fun doRun() {
-    val prompt = String.format("marshell:%03d> ", buffer.size)
+    val prompt = String.format(promptTemplate, buffer.size)
     val line = readLine(prompt)
     if (line.isEmpty()) return
     //highlighter.highlight(reader, line) // this is for debug through IntelliJ
