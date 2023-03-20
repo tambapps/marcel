@@ -225,11 +225,12 @@ open class AstNodeTypeResolver constructor(
 
   override fun visit(operator: MulOperator) = visitBinaryOperator(operator)
 
-  private fun visitBinaryOperator(binaryOperatorNode: BinaryOperatorNode, operatorMethod: String? = null): JavaType {
+  private fun visitBinaryOperator(binaryOperatorNode: BinaryOperatorNode): JavaType {
     val commonType = JavaType.commonType(binaryOperatorNode.leftOperand.accept(this), binaryOperatorNode.rightOperand.accept(this))
-    if (commonType.primitive || JavaType.PRIMITIVES.any { it.objectType == commonType }) return commonType
+    if (commonType.primitive || commonType.isPrimitiveObjectType) return commonType
     if (binaryOperatorNode is PlusOperator && commonType == JavaType.String) return commonType
-    return findMethodOrThrow(binaryOperatorNode.leftOperand.accept(this), "plus", listOf(binaryOperatorNode.rightOperand.accept(this))).returnType
+    if (binaryOperatorNode.operatorMethodName == null) return commonType
+    return findMethodOrThrow(binaryOperatorNode.leftOperand.accept(this), binaryOperatorNode.operatorMethodName, listOf(binaryOperatorNode.rightOperand.accept(this))).returnType
   }
 
   override fun visit(operator: TernaryNode): JavaType {
@@ -247,7 +248,7 @@ open class AstNodeTypeResolver constructor(
 
   override fun visit(operator: DivOperator) = visitBinaryOperator(operator)
 
-  override fun visit(operator: PlusOperator) = visitBinaryOperator(operator, "plus")
+  override fun visit(operator: PlusOperator) = visitBinaryOperator(operator)
 
   override fun visit(operator: MinusOperator) = visitBinaryOperator(operator)
 

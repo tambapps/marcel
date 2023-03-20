@@ -9,8 +9,15 @@ import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaType
 
-abstract class BinaryOperatorNode(token: LexToken, val leftOperand: ExpressionNode, open val rightOperand: ExpressionNode
+abstract class BinaryOperatorNode(
+  token: LexToken,
+  val leftOperand: ExpressionNode,
+  open val rightOperand: ExpressionNode,
+  val operatorMethodName: String?
 ):  AbstractExpressionNode(token) {
+
+  constructor(token: LexToken, leftOperand: ExpressionNode, rightOperand: ExpressionNode): this(token, leftOperand, rightOperand, null)
+
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (javaClass != other?.javaClass) return false
@@ -50,7 +57,8 @@ class DivOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: Ex
 }
 
 class PlusOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
-  BinaryOperatorNode(token, leftOperand, rightOperand) {
+  // TODO do others
+  BinaryOperatorNode(token, leftOperand, rightOperand, "plus") {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
 
@@ -136,7 +144,7 @@ class OrOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: Exp
 }
 
 class LeftShiftOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: ExpressionNode):
-  BinaryOperatorNode(token, leftOperand, rightOperand) {
+  BinaryOperatorNode(token, leftOperand, rightOperand, "leftShift") {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
 
@@ -146,7 +154,7 @@ class LeftShiftOperator(token: LexToken, leftOperand: ExpressionNode, rightOpera
 }
 
 class RightShiftOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: ExpressionNode):
-  BinaryOperatorNode(token, leftOperand, rightOperand) {
+  BinaryOperatorNode(token, leftOperand, rightOperand, "rightShift") {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
 

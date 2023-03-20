@@ -82,6 +82,8 @@ interface JavaType: AstTypedObject {
   val isInterface: Boolean
   val isLambda get() = JavaType.lambda.isAssignableFrom(this)
   val primitive: Boolean
+  val isPrimitiveObjectType get() = PRIMITIVES.any { it.objectType == this }
+  val isPrimitiveOrObjectPrimitive get() = primitive || isPrimitiveObjectType
   open val isArray get() = isLoaded && realClazz.isArray
   override val type: JavaType get() = this
   val realClazzOrObject: Class<*>

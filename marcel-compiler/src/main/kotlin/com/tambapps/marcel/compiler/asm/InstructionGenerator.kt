@@ -343,9 +343,9 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     pushArithmeticBinaryOperatorOperands(operator)
   }
 
-
   override fun visit(operator: PlusOperator) {
-    pushArithmeticBinaryOperatorOperands(operator)
+    // TODO do other operators (Minus, Div, Mul) and test them
+    arithmeticMarcelOperator(operator)
   }
 
   override fun visit(operator: PowOperator) {
@@ -353,19 +353,36 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(leftShiftOperator: LeftShiftOperator) {
-    marcelOperator(leftShiftOperator, "leftShift")
+    marcelOperator(leftShiftOperator)
   }
 
   override fun visit(rightShiftOperator: RightShiftOperator) {
-    marcelOperator(rightShiftOperator, "rightShift")
+    marcelOperator(rightShiftOperator)
   }
 
-  fun marcelOperator(binaryOperatorNode: BinaryOperatorNode, operatorMethodName: String): JavaType {
-    val type1 = binaryOperatorNode.leftOperand.getType(typeResolver)
-    if (type1.primitive) {
-      throw MarcelSemanticException(binaryOperatorNode.token, "Doesn't support left shirt operator for primitive type (for now)")
+  fun arithmeticMarcelOperator(operator: BinaryOperatorNode): JavaType {
+    val leftType = operator.leftOperand.getType(typeResolver)
+    val rightType = operator.rightOperand.getType(typeResolver)
+    if (leftType.isPrimitiveOrObjectPrimitive && rightType.isPrimitiveOrObjectPrimitive) {
+      val type = operator.getType(typeResolver)
+      pushArithmeticBinaryOperatorOperands(operator)
+      mv.visitInsn(operator.getType(typeResolver).asPrimitiveType.addCode)
+      return type
+    } else if (operator.leftOperand.getType(typeResolver) == JavaType.String || operator.rightOperand.getType(typeResolver) == JavaType.String) {
+      StringNode.of(operator.token, listOf(operator.leftOperand, operator.rightOperand)).accept(this)
+      return JavaType.String
+    } else {
+      return marcelOperator(operator)
     }
-    val leftShiftMethod = typeResolver.findMethodOrThrow(type1, operatorMethodName, listOf(binaryOperatorNode.rightOperand.getType(typeResolver)))
+  }
+
+  fun marcelOperator(binaryOperatorNode: BinaryOperatorNode): JavaType {
+    val type1 = binaryOperatorNode.leftOperand.getType(typeResolver)
+    if (binaryOperatorNode.operatorMethodName == null) {
+      val type2 = binaryOperatorNode.leftOperand.getType(typeResolver)
+      throw MarcelSemanticException(binaryOperatorNode.token, "Doesn't handle this operator with types $type1 $type2")
+    }
+    val leftShiftMethod = typeResolver.findMethodOrThrow(type1, binaryOperatorNode.operatorMethodName!!, listOf(binaryOperatorNode.rightOperand.getType(typeResolver)))
     pushArgument(binaryOperatorNode.leftOperand)
     mv.invokeMethodWithArguments(binaryOperatorNode, classNode.scope, leftShiftMethod, binaryOperatorNode.rightOperand)
     return leftShiftMethod.returnType
@@ -747,14 +764,6 @@ class InstructionGenerator(
     pushingInstructionGenerator.instructionGenerator = this
   }
 
-  override fun marcelOperator(binaryOperatorNode: BinaryOperatorNode, operatorMethodName: String): JavaType {
-    val type = super.marcelOperator(binaryOperatorNode, operatorMethodName)
-    if (type != JavaType.void) {
-      mv.popStack()
-    }
-    return type
-  }
-
   override fun visit(whileStatement: WhileStatement) {
     // loop start
     val loopStart = Label()
@@ -1080,26 +1089,26 @@ class InstructionGenerator(
 
   override fun visit(operator: MulOperator) {
     super.visit(operator)
-    mv.pop2Stack()
+    mv.popStack()
   }
   override fun visit(operator: DivOperator) {
     super.visit(operator)
-    mv.pop2Stack()
+    mv.popStack()
   }
 
   override fun visit(operator: MinusOperator) {
     super.visit(operator)
-    mv.pop2Stack()
+    mv.popStack()
   }
 
   override fun visit(operator: PlusOperator) {
     super.visit(operator)
-    mv.pop2Stack()
+    mv.popStack()
   }
 
   override fun visit(operator: PowOperator) {
     super.visit(operator)
-    mv.pop2Stack()
+    mv.popStack()
   }
 
   override fun visit(comparisonOperatorNode: ComparisonOperatorNode) {
@@ -1456,24 +1465,6 @@ private class PushingInstructionGenerator(
   override fun visit(operator: MinusOperator) {
     super.visit(operator)
     mv.visitInsn(operator.getType(typeResolver).asPrimitiveType.subCode)
-  }
-
-
-  override fun visit(operator: PlusOperator) {
-    val operatorType = operator.getType(typeResolver)
-    if (operatorType.primitive) {
-      super.visit(operator)
-      mv.visitInsn(operator.getType(typeResolver).asPrimitiveType.addCode)
-    } else if (operator.leftOperand.getType(typeResolver) == JavaType.String || operator.rightOperand.getType(typeResolver) == JavaType.String) {
-      StringNode.of(operator.token, listOf(operator.leftOperand, operator.rightOperand)).accept(this)
-    } else {
-      // TODO don't rely on super.visit(operator) which always expects integer-like types
-      // TODO handle other operators (will also need to modify TypeResolver method
-       visit(
-         SimpleFunctionCallNode(operator.token,
-           methodNode.scope, "plus", listOf(operator.rightOperand)
-         ).withOwner(operator.leftOperand))
-    }
   }
 
   override fun visit(operator: PowOperator) {
