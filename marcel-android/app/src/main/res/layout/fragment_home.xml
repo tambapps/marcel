@@ -34,6 +34,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/shellText"
+                android:text="@string/initial_prompt_text"
                 />
             <EditText
                 android:id="@+id/promptEditText"

@@ -10,7 +10,9 @@ import com.tambapps.marcel.android.app.marcel.shell.AndroidMarshell
 import com.tambapps.marcel.repl.printer.SuspendPrinter
 import dagger.hilt.android.AndroidEntryPoint
 import de.markusressel.kodehighlighter.core.util.EditTextHighlighter
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import marcel.lang.MarcelSystem
 import marcel.lang.android.dex.MarcelDexClassLoader
 import java.util.concurrent.Executors
@@ -33,7 +35,7 @@ class HomeFragment : Fragment() {
   private lateinit var printer: TextViewPrinter
   private lateinit var editTextHighlighter: EditTextHighlighter
   private val executor = Executors.newSingleThreadExecutor()
-  private val promptQueue = LinkedBlockingQueue<String>()
+  private val promptQueue = LinkedBlockingQueue<CharSequence>()
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -67,7 +69,7 @@ class HomeFragment : Fragment() {
       }
     }
     binding.apply {
-      promptEditText.setOnKeyListener(PromptKeyListener(binding, printer, promptQueue))
+      promptEditText.setOnKeyListener(PromptKeyListener(promptQueue))
       promptEditText.requestFocus()
     }
   }
@@ -92,9 +94,19 @@ class HomeFragment : Fragment() {
     editTextHighlighter.cancel()
   }
   private suspend fun readLine(prompt: String): String {
-    requireActivity().runOnUiThread {
+    val previousPromptText = withContext(Dispatchers.Main) {
+      val t = binding.promptText.text
       binding.promptText.text = "$prompt"
+      t
     }
-    return promptQueue.take()
+    val text = promptQueue.take()
+    printer.println()
+    /// TODO find out why text isn't colored
+    printer.print(previousPromptText)
+    printer.print(" ")
+    printer.print(text)
+    printer.println()
+
+    return text.toString()
   }
 }

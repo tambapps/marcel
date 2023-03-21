@@ -10,4 +10,5 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
+    <string name="initial_prompt_text"><![CDATA[marshell:00>]]> </string>
 </resources>
