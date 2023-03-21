@@ -133,7 +133,7 @@ abstract class MarcelShell constructor(
   }
 
 
-  fun printVersion() {
+  open fun printVersion() {
     printer.println("Marshell (Marcel: ${MarcelVersion.VERSION}, Java: " + System.getProperty("java.version") + ")")
   }
 
