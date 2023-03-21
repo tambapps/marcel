@@ -2,13 +2,13 @@ package marcel.lang.printer;
 
 public interface Printer {
 
-  void print(String s);
+  void print(CharSequence s);
   default void print(Object o) {
-    print(String.valueOf(o));
+    print(o instanceof CharSequence ? (CharSequence) o : String.valueOf(o));
   }
-  void println(String s);
+  void println(CharSequence s);
   default void println(Object o) {
-    println(String.valueOf(o));
+    println(o instanceof CharSequence ? (CharSequence) o : String.valueOf(o));
   }
   void println();
 

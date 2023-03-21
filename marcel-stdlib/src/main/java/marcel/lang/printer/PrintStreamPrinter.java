@@ -10,7 +10,7 @@ public class PrintStreamPrinter implements Printer {
   private final PrintStream printStream;
 
   @Override
-  public void print(String s) {
+  public void print(CharSequence s) {
     printStream.print(s);
   }
 
@@ -20,7 +20,7 @@ public class PrintStreamPrinter implements Printer {
   }
 
   @Override
-  public void println(String s) {
+  public void println(CharSequence s) {
     printStream.println(s);
   }
 
