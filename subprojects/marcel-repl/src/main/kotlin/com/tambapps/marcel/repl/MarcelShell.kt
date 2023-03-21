@@ -56,9 +56,9 @@ abstract class MarcelShell constructor(
     replCompiler.addImport("import $importArgs")
   }
 
-  abstract fun readLine(prompt: String): String
+  abstract suspend fun readLine(prompt: String): String
 
-  fun run() {
+  suspend fun run() {
     runningReference.set(true)
     onStart()
     while (runningReference.get()) {
@@ -67,7 +67,7 @@ abstract class MarcelShell constructor(
     Files.delete(tempDir)
   }
 
-  open fun doRun() {
+  open suspend fun doRun() {
     val prompt = String.format(promptTemplate, buffer.size)
     val line = readLine(prompt)
     if (line.isEmpty()) return
@@ -134,7 +134,7 @@ abstract class MarcelShell constructor(
 
 
   open fun printVersion() {
-    printer.println("Marshell (Marcel: ${MarcelVersion.VERSION}, Java: " + System.getProperty("java.version") + ")")
+    printer.print("Marshell (Marcel: ${MarcelVersion.VERSION}, Java: " + System.getProperty("java.version") + ")")
   }
 
   protected open fun onStart() {

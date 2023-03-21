@@ -17,7 +17,7 @@ import org.jline.reader.UserInterruptException
 import java.io.File
 import kotlin.system.exitProcess
 
-fun main(args: Array<String>) {
+suspend fun main(args: Array<String>) {
   val marshell = Marshell()
   marshell.run()
 }
@@ -33,12 +33,12 @@ class Marshell: MarcelShell(
     .completer(MarshellCompleter(replCompiler, typeResolver))
     .build()
 
-  override fun readLine(prompt: String): String {
+  override suspend fun readLine(prompt: String): String {
     println()
     return reader.readLine(prompt)
   }
 
-  override fun doRun() {
+  override suspend fun doRun() {
     try {
       super.doRun()
     } catch (e: UserInterruptException) { exit() }
