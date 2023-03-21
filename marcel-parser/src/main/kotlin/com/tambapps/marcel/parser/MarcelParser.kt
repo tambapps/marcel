@@ -692,7 +692,16 @@ class MarcelParser constructor(
         }
       }
       TokenType.THIS -> ThisReference(token, scope) // TODO parse thisConstructorCall
-      TokenType.SUPER -> SuperReference(token, scope) // TODO parse SuperConstructorCall. Also handle super method calls.
+      TokenType.SUPER -> {
+        if (current.type == TokenType.LPAR) {
+          skip()
+          val (arguments, namedArguments) = parseFunctionArguments(scope)
+          if (namedArguments.isNotEmpty()) {
+            throw MarcelParserException(token, "Cannot have named arguments on super constructor call")
+          }
+          SuperConstructorCallNode(token, scope, arguments)
+        } else SuperReference(token, scope)
+      }
       //                                            They are like "normal" method calls but needs to use the super class internal name when performing the invokeSPECIAL instruciton
 
       TokenType.BRACKETS_OPEN -> parseLambda(token, scope)
