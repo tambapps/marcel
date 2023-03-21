@@ -15,7 +15,7 @@ import com.tambapps.marcel.repl.command.ListCommand
 import com.tambapps.marcel.repl.command.PullDependencyCommand
 import com.tambapps.marcel.repl.command.ShellCommand
 import com.tambapps.marcel.repl.jar.JarWriterFactory
-import marcel.lang.printer.Printer
+import com.tambapps.marcel.repl.printer.SuspendPrinter
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
 import marcel.lang.util.MarcelVersion
@@ -23,7 +23,7 @@ import java.nio.file.Files
 import java.util.concurrent.atomic.AtomicBoolean
 
 abstract class MarcelShell constructor(
-  protected val printer: Printer,
+  protected val printer: SuspendPrinter,
   val marcelClassLoader: MarcelClassLoader,
   jarWriterFactory: JarWriterFactory,
   private val promptTemplate: String = "marshell:%03d> ") {
@@ -80,25 +80,25 @@ abstract class MarcelShell constructor(
       if (command != null) {
         command.run(this, args.subList(1, args.size), printer)
       } else {
-        printer.println("Unknown command $commandName")
+        printer.suspendPrintln("Unknown command $commandName")
       }
     } else {
       try {
         val text = buffer.joinToString(separator = System.lineSeparator(), postfix = if (buffer.isEmpty()) line else "\n$line")
         val eval = evaluator.eval(text)
         buffer.clear()
-        printer.print(eval)
+        printer.suspendPrint(eval)
       } catch (e: MarcelLexerException) {
-        printer.println("Error: ${e.message}")
+        printer.suspendPrintln("Error: ${e.message}")
         buffer.clear()
       } catch (e: MarcelSemanticException) {
-        printer.println(e.message)
+        printer.suspendPrintln(e.message)
         buffer.clear()
       } catch (e: MarcelParserException) {
         if (e.eof) {
           buffer.add(line)
         } else {
-          printer.println(e.message)
+          printer.suspendPrintln(e.message)
           buffer.clear()
         }
       } catch (ex: Exception) {
@@ -108,7 +108,7 @@ abstract class MarcelShell constructor(
     }
   }
 
-  fun printHelp() {
+  suspend fun printHelp() {
     commands.forEach { it.printHelp(printer) }
   }
 
@@ -116,7 +116,8 @@ abstract class MarcelShell constructor(
     return commands.find { it.name == name || it.shortName == name }
   }
 
-  fun exit() {
+  suspend fun exit() {
+    onExit()
     runningReference.set(false)
   }
 
@@ -124,7 +125,7 @@ abstract class MarcelShell constructor(
     return line.startsWith(":")
   }
 
-  fun listImports() {
+  suspend fun listImports() {
     findCommand("list")!!.run(this, listOf("imports"), printer)
 
   }
@@ -133,10 +134,13 @@ abstract class MarcelShell constructor(
   }
 
 
-  open fun printVersion() {
-    printer.print("Marshell (Marcel: ${MarcelVersion.VERSION}, Java: " + System.getProperty("java.version") + ")")
+  open suspend fun printVersion() {
+    printer.suspendPrint("Marshell (Marcel: ${MarcelVersion.VERSION}, Java: " + System.getProperty("java.version") + ")")
   }
 
-  protected open fun onStart() {
+  protected open suspend fun onStart() {
+  }
+
+  protected open suspend fun onExit() {
   }
 }

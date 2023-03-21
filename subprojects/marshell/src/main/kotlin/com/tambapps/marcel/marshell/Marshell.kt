@@ -8,9 +8,8 @@ import com.tambapps.marcel.parser.exception.MarcelParserException
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.repl.MarcelShell
 import com.tambapps.marcel.repl.jar.BasicJarWriterFactory
-import marcel.lang.printer.PrintStreamPrinter
+import com.tambapps.marcel.repl.printer.PrintStreamSuspendPrinter
 import marcel.lang.URLMarcelClassLoader
-import marcel.lang.util.MarcelVersion
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.UserInterruptException
@@ -23,7 +22,7 @@ suspend fun main(args: Array<String>) {
 }
 
 class Marshell: MarcelShell(
-  PrintStreamPrinter(System.out), URLMarcelClassLoader(Marshell::class.java.classLoader), BasicJarWriterFactory(),
+  PrintStreamSuspendPrinter(System.out), URLMarcelClassLoader(Marshell::class.java.classLoader), BasicJarWriterFactory(),
   "marshell:%03d> ") {
 
   private val highlighter = ReaderHighlighter(typeResolver, replCompiler)
@@ -46,7 +45,7 @@ class Marshell: MarcelShell(
     catch (ex: Exception) { ex.printStackTrace() }
   }
 
-  override fun onStart() {
+  override suspend fun onStart() {
     printVersion()
     val marcelHome = File(
       System.getenv("MARCEL_HOME")

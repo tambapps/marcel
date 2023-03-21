@@ -1,10 +1,10 @@
 package com.tambapps.marcel.repl.command
 
-import marcel.lang.printer.Printer
+import com.tambapps.marcel.repl.printer.SuspendPrinter
 
 abstract class AbstractShellCommand: ShellCommand {
 
-  override fun printHelp(out: Printer) {
-    out.println("$usage\t\t(:$shortName) $helpDescription")
+  override suspend fun printHelp(out: SuspendPrinter) {
+    out.suspendPrintln("$usage\t\t(:$shortName) $helpDescription")
   }
 }

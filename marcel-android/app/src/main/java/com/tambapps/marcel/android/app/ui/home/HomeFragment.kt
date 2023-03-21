@@ -7,15 +7,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.tambapps.marcel.android.app.databinding.FragmentHomeBinding
 import com.tambapps.marcel.android.app.marcel.shell.AndroidMarshell
-import com.tambapps.marcel.android.app.marcel.shell.TextViewHighlighter
+import com.tambapps.marcel.repl.printer.SuspendPrinter
 import dagger.hilt.android.AndroidEntryPoint
 import de.markusressel.kodehighlighter.core.util.EditTextHighlighter
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import marcel.lang.MarcelSystem
 import marcel.lang.android.dex.MarcelDexClassLoader
-import marcel.lang.printer.Printer
 import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
@@ -33,7 +30,7 @@ class HomeFragment : Fragment() {
   private val binding get() = _binding!!
 
   private lateinit var marshell: AndroidMarshell
-  private lateinit var printer: Printer
+  private lateinit var printer: TextViewPrinter
   private lateinit var editTextHighlighter: EditTextHighlighter
   private val executor = Executors.newSingleThreadExecutor()
   private val promptQueue = LinkedBlockingQueue<String>()
@@ -63,9 +60,9 @@ class HomeFragment : Fragment() {
     val highlighter = marshell.newHighlighter()
     editTextHighlighter = EditTextHighlighter(binding.promptEditText, highlighter)
 
-    marshell.printVersion()
     executor.submit {
       runBlocking {
+        marshell.printVersion()
         marshell.run()
       }
     }
@@ -83,7 +80,7 @@ class HomeFragment : Fragment() {
   }
   override fun onDestroyView() {
     super.onDestroyView()
-    marshell.exit()
+    runBlocking { marshell.exit() }
     _binding = null
     executor.shutdown()
   }

@@ -37,7 +37,7 @@ abstract class AbstractHighlighter<T, Style> constructor(
     val textStr = text.toString()
     val parseResult = replCompiler.tryParse(textStr)
     val tokens = parseResult?.tokens?.toMutableList() ?: lexer.lexSafely(textStr)
-    tokens.removeLast() // remove end of file
+    tokens.removeLastOrNull() // remove end of file
     val scriptNode = parseResult?.scriptNode ?: replCompiler.parserResult?.scriptNode
     val node = scriptNode?.methods?.find { it.name == "run" && it.parameters.size == 1 }
 

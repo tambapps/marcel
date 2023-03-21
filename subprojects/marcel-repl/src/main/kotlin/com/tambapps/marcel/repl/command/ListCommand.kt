@@ -4,7 +4,7 @@ import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.repl.MarcelShell
-import marcel.lang.printer.Printer
+import com.tambapps.marcel.repl.printer.SuspendPrinter
 import marcel.lang.Binding
 
 class ListCommand: AbstractShellCommand() {
@@ -15,82 +15,82 @@ class ListCommand: AbstractShellCommand() {
   override val helpDescription = "list defined members"
 
 
-  override fun run(shell: MarcelShell, args: List<String>, out: Printer) {
+  override suspend fun run(shell: MarcelShell, args: List<String>, out: SuspendPrinter) {
     if (args.isEmpty()) {
-      out.println("Imports:")
+      out.suspendPrintln("Imports:")
       printImports(shell.imports, out)
-      out.println()
-      out.println("Classes:")
+      out.suspendPrintln()
+      out.suspendPrintln("Classes:")
       printDefinedClasses(shell.definedClasses, out)
-      out.println()
-      out.println("Functions:")
+      out.suspendPrintln()
+      out.suspendPrintln("Functions:")
       printFunctions(shell.lastNode, out)
-      out.println()
-      out.println("Variables:")
+      out.suspendPrintln()
+      out.suspendPrintln("Variables:")
       printVariables(shell.binding, out)
-      out.println()
+      out.suspendPrintln()
     } else {
       when (val arg = args.first().lowercase()) {
         "v", "variable", "variables" -> printVariables(shell.binding, out)
         "f", "function", "functions" -> printVariables(shell.binding, out)
         "c", "class", "classes" -> printDefinedClasses(shell.definedClasses, out)
         "i", "import", "imports" -> printImports(shell.imports, out)
-        else -> out.println("Unknown value $arg. Provide 'variables', 'functions' or 'classes'")
+        else -> out.suspendPrintln("Unknown value $arg. Provide 'variables', 'functions' or 'classes'")
       }
     }
   }
 
-  private fun printVariables(binding: Binding, out: Printer) {
+  private suspend fun printVariables(binding: Binding, out: SuspendPrinter) {
     if (binding.variables.isEmpty()) {
-      out.println("No variables defined")
+      out.suspendPrintln("No variables defined")
     }
     binding.variables.forEach { (key, value) ->
       if (value == null) {
-        out.println("$key = $value")
+        out.suspendPrintln("$key = $value")
       } else {
         val type = value.javaClass.simpleName
-        out.println("$type $key = $value")
+        out.suspendPrintln("$type $key = $value")
       }
     }
   }
 
-  private fun printFunctions(classNode: ClassNode?, out: Printer) {
+  private suspend fun printFunctions(classNode: ClassNode?, out: SuspendPrinter) {
     if (classNode == null) {
-      out.println("No functions defined")
+      out.suspendPrintln("No functions defined")
       return
     }
     val definedMethods = classNode.methods.filter {
       !it.isGetter && !it.isSetter && it.name != "main" && it.name != "run" && !it.isConstructor
     }
     if (definedMethods.isEmpty()) {
-      out.println("No functions defined")
+      out.suspendPrintln("No functions defined")
       return
     }
     definedMethods.forEach {
-      out.println(it)
+      out.suspendPrintln(it)
     }
   }
 
-  private fun printDefinedClasses(classes: List<JavaType>, out: Printer) {
+  private suspend fun printDefinedClasses(classes: List<JavaType>, out: SuspendPrinter) {
     if (classes.isEmpty()) {
-      out.println("No classes defined")
+      out.suspendPrintln("No classes defined")
       return
     }
     for (c in classes) {
       val className = c.type.className
       val displayedName = className.substring(className.indexOf('$') + 1)
-      out.print("class $displayedName")
-      if (c.superType != null && c.superType != JavaType.Object) out.print(" extends ${c.superType!!.simpleName}")
-      out.println()
+      out.suspendPrint("class $displayedName")
+      if (c.superType != null && c.superType != JavaType.Object) out.suspendPrint(" extends ${c.superType!!.simpleName}")
+      out.suspendPrintln()
     }
   }
 
-  private fun printImports(imports: Collection<ImportNode>, out: Printer) {
+  private suspend fun printImports(imports: Collection<ImportNode>, out: SuspendPrinter) {
     if (imports.isEmpty()) {
-      out.println("No imports added")
+      out.suspendPrintln("No imports added")
       return
     }
-    imports.forEach { out.println(it) }
+    imports.forEach { out.suspendPrintln(it) }
   }
 
 }
