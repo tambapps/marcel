@@ -14,6 +14,12 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="shellText">
+        <item name="android:textColor">#fff</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">@font/ubuntu_family</item>
+    </style>
+
     <style name="Theme.MarcelDroid.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

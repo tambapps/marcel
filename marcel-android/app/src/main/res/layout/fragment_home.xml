@@ -8,13 +8,19 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        >
         <TextView
             android:id="@+id/historyText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
             android:textIsSelectable="true"
+            style="@style/shellText"
             />
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
@@ -27,16 +33,17 @@
                 android:id="@+id/promptText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                style="@style/shellText"
                 />
             <EditText
                 android:id="@+id/promptEditText"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:textSize="20sp"
                 android:maxLines="1"
                 android:background="@android:color/transparent"
                 android:inputType="textFilter"
+                style="@style/shellText"
                 />
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.constraintlayout.widget.ConstraintLayout>
