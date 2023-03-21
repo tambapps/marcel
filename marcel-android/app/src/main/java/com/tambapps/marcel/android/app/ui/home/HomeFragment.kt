@@ -7,7 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.tambapps.marcel.android.app.databinding.FragmentHomeBinding
 import com.tambapps.marcel.android.app.marcel.shell.AndroidMarshell
+import com.tambapps.marcel.android.app.marcel.shell.TextViewHighlighter
 import dagger.hilt.android.AndroidEntryPoint
+import de.markusressel.kodehighlighter.core.util.EditTextHighlighter
 import marcel.lang.MarcelSystem
 import marcel.lang.android.dex.MarcelDexClassLoader
 import marcel.lang.printer.Printer
@@ -29,6 +31,7 @@ class HomeFragment : Fragment() {
 
   private lateinit var marshell: AndroidMarshell
   private lateinit var printer: Printer
+  private lateinit var editTextHighlighter: EditTextHighlighter
   private val executor = Executors.newSingleThreadExecutor()
   private val promptQueue = LinkedBlockingQueue<String>()
 
@@ -54,6 +57,8 @@ class HomeFragment : Fragment() {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     printer = TextViewPrinter(requireActivity(), binding.historyText)
     marshell = AndroidMarshell(printer, marcelDexClassLoader, this::readLine)
+    val highlighter = marshell.newHighlighter()
+    editTextHighlighter = EditTextHighlighter(binding.promptEditText, highlighter)
 
     marshell.printVersion()
     executor.submit {
@@ -69,6 +74,7 @@ class HomeFragment : Fragment() {
     // TODO move this kind of thing in a MarcelEngine class
     super.onStart()
     MarcelSystem.setPrinter(printer)
+    editTextHighlighter.start()
   }
   override fun onDestroyView() {
     super.onDestroyView()
@@ -81,6 +87,7 @@ class HomeFragment : Fragment() {
     super.onStop()
     // TODO move this kind of thing in a MarcelEngine class
     MarcelSystem.setPrinter(null)
+    editTextHighlighter.cancel()
   }
   private fun readLine(prompt: String): String {
     requireActivity().runOnUiThread {

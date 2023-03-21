@@ -6,7 +6,7 @@ import marcel.lang.printer.Printer
 
 class TextViewPrinter constructor(private val activity: Activity, private val textView: TextView):
   Printer {
-  override fun print(s: String) {
+  override fun print(s: CharSequence) {
     activity.runOnUiThread {
       textView.append(s)
     }
@@ -16,11 +16,7 @@ class TextViewPrinter constructor(private val activity: Activity, private val te
     print("\n")
   }
 
-  override fun println(o: Any?) {
-    println("$o")
-  }
-
-  override fun println(s: String) {
+  override fun println(s: CharSequence) {
     print("$s\n")
   }
 }

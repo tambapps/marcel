@@ -21,4 +21,8 @@ class AndroidMarshell(
   override fun printVersion() {
     printer.print("Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSION.RELEASE})")
   }
+
+  fun newHighlighter(): TextViewHighlighter {
+    return TextViewHighlighter(typeResolver, replCompiler)
+  }
 }

@@ -16,9 +16,10 @@ class PromptKeyListener(
 
   override fun onKey(v: View, keyCode: Int, event: KeyEvent): Boolean {
     if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
-      val text = (v as TextView).text.toString()
-      promptQueue.add(text)
-      printer.println("\n" + binding.promptText.text.toString() + " " + text)
+      val originalText = (v as TextView).text.toString()
+      promptQueue.add(originalText)
+      // TODO test highlighter
+      printer.println("\n" + binding.promptText.text.toString() + " " + originalText)
       v.text = ""
       return true
     }
