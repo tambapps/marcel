@@ -148,6 +148,7 @@ open class MethodScope constructor(typeResolver: AstNodeTypeResolver, imports: M
                 parameters: List<MethodParameter>, returnType: JavaType, defineParametersAutomatically: Boolean = true):
         this(scope.typeResolver, scope.imports, scope.classType, methodName, parameters, returnType, defineParametersAutomatically)
 
+  private var methodParametersDefined = false
   init {
       if (defineParametersAutomatically) {
         // method parameters are (at least they should be) automatically defined only for methods generated while compiling
@@ -157,9 +158,11 @@ open class MethodScope constructor(typeResolver: AstNodeTypeResolver, imports: M
       }
   }
   fun defineParametersInScope() {
+    if (methodParametersDefined) return
     for (param in parameters) {
       addLocalVariable(param.type, param.name, param.isFinal)
     }
+    methodParametersDefined = true
   }
 }
 
