@@ -70,6 +70,8 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
 
     // now check for conflicting methods
     for (methodNode in classNode.methods) {
+      // also define method parameters. Couldn't do it in parser because it would mean parse the type
+      methodNode.scope.defineParametersInScope()
       val conflictMethod = classNode.methods.find { methodNode !== it && it.matches(methodNode) }
       if (conflictMethod != null) throw MarcelSemanticException(
         conflictMethod.token,
@@ -148,9 +150,6 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     }
   }
   private fun writeMethod(typeResolver: JavaTypeResolver, classWriter: ClassWriter, classNode: ClassNode, methodNode: MethodNode) {
-    for (param in methodNode.parameters) {
-      methodNode.scope.addLocalVariable(param.type, param.name, param.isFinal)
-    }
     val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.descriptor, methodNode.signature, null)
     mv.visitCode()
     val methodStartLabel = Label()

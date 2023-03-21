@@ -47,7 +47,7 @@ class ClassNode constructor(override val token: LexToken,
   }
 
   private fun scriptEmptyConstructor(): ConstructorNode {
-    val emptyConstructorScope = MethodScope(scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)
+    val emptyConstructorScope = MethodScope(scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void, false)
     return ConstructorNode(LexToken.dummy(),
       Opcodes.ACC_PUBLIC,
       FunctionBlockNode(LexToken.dummy(), emptyConstructorScope, mutableListOf()),
@@ -59,7 +59,7 @@ class ClassNode constructor(override val token: LexToken,
     val bindingType = JavaType.of(Binding::class.java)
     val bindingParameterName = "binding"
     val bindingConstructorParameters = mutableListOf(MethodParameterNode(bindingType, bindingParameterName))
-    val bindingConstructorScope = MethodScope(scope, JavaMethod.CONSTRUCTOR_NAME, bindingConstructorParameters, JavaType.void)
+    val bindingConstructorScope = MethodScope(scope, JavaMethod.CONSTRUCTOR_NAME, bindingConstructorParameters, JavaType.void, false)
     return ConstructorNode(LexToken.dummy(),
       Opcodes.ACC_PUBLIC, FunctionBlockNode(LexToken.dummy(), bindingConstructorScope, mutableListOf(
         ExpressionStatementNode(LexToken.dummy(),

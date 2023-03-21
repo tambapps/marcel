@@ -604,6 +604,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     val method = fCall.getMethod(typeResolver)
     val methodOwner = fCall.methodOwnerType
     if (method.isInline) {
+      // this probably doesn't work anymore, but hey, let's keep it for when I'll decide whether to implement this feature or not
       val inlineMethod = method as MethodNode
       val innerScope = InnerScope(
         fCall.scope as? MethodScope ?: throw MarcelSemanticException(fCall.token, "Can only call inline functions in a method"))

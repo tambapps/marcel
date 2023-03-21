@@ -122,7 +122,7 @@ class MarcelParser constructor(
 
     val expression = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(
       // simulate a constructor scope as this would be executed in a constructor
-      MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), classNode.type)
+      MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), classNode.type, false)
     )
     else null
     acceptOptional(TokenType.SEMI_COLON)
@@ -193,7 +193,7 @@ class MarcelParser constructor(
       configuration.scriptInterfaces.map { JavaType.of(it) })
     val classScope = Scope(typeResolver, imports, classType)
     val argsParameter = MethodParameterNode(JavaType.of(Array<String>::class.java), "args")
-    val runScope = MethodScope(classScope, "run", listOf(argsParameter), JavaType.Object)
+    val runScope = MethodScope(classScope, "run", listOf(argsParameter), JavaType.Object, false)
     val statements = mutableListOf<StatementNode>()
     val runBlock = FunctionBlockNode(LexToken.dummy(), runScope, statements)
     val runFunction = MethodNode(Opcodes.ACC_PUBLIC, classType,
@@ -322,7 +322,7 @@ class MarcelParser constructor(
     val currentToken = current
     val returnType = if (current.type != TokenType.BRACKETS_OPEN) parseType(classScope) else JavaType.void
     val statements = mutableListOf<StatementNode>()
-    val methodScope = MethodScope(classScope, methodName, parameters, returnType)
+    val methodScope = MethodScope(classScope, methodName, parameters, returnType, false)
     val methodNode = MethodNode(access, classNode.type, methodName, FunctionBlockNode(currentToken, methodScope, statements), parameters, returnType, methodScope, isInline)
     statements.addAll(block(methodScope).statements)
     return methodNode
@@ -949,7 +949,7 @@ class MarcelParser constructor(
       }
     }
     // now parse function block
-    val block = block(MethodScope(scope, "invoke", parameters, JavaType.Object), false)
+    val block = block(MethodScope(scope, "invoke", parameters, JavaType.Object, false), false)
     return LambdaNode(token, LambdaScope(scope), parameters, block, explicit0Parameters)
   }
 

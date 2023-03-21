@@ -138,13 +138,29 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
 }
 
 open class MethodScope constructor(typeResolver: AstNodeTypeResolver, imports: MutableList<ImportNode>, classType: JavaType, val methodName: String,
-                                   val parameters: List<MethodParameter>, var returnType: JavaType)
+                                   val parameters: List<MethodParameter>, var returnType: JavaType,
+                                   // because we don't want to define parameters in the Parsing phase, as we might need to resolve types for that
+                                   defineParametersAutomatically: Boolean = true)
   : Scope(typeResolver, imports, classType) {
 
     constructor(scope: Scope,
                 methodName: String,
-                parameters: List<MethodParameter>, returnType: JavaType):
-        this(scope.typeResolver, scope.imports, scope.classType, methodName, parameters, returnType)
+                parameters: List<MethodParameter>, returnType: JavaType, defineParametersAutomatically: Boolean = true):
+        this(scope.typeResolver, scope.imports, scope.classType, methodName, parameters, returnType, defineParametersAutomatically)
+
+  init {
+      if (defineParametersAutomatically) {
+        // method parameters are (at least they should be) automatically defined only for methods generated while compiling
+        // for other methods (method that we dot from parsing) we define them manually when starting the compiling phase. This is to avoid resolving types
+        // while parsing
+        defineParametersInScope()
+      }
+  }
+  fun defineParametersInScope() {
+    for (param in parameters) {
+      addLocalVariable(param.type, param.name, param.isFinal)
+    }
+  }
 }
 
 class LambdaScope constructor(val parentScope: Scope):
@@ -156,7 +172,7 @@ class LambdaScope constructor(val parentScope: Scope):
 }
 
 class InnerScope constructor(private val parentScope: MethodScope)
-  : MethodScope(parentScope.typeResolver, parentScope.imports, parentScope.classType, parentScope.methodName, parentScope.parameters, parentScope.returnType) {
+  : MethodScope(parentScope.typeResolver, parentScope.imports, parentScope.classType, parentScope.methodName, parentScope.parameters, parentScope.returnType, false) {
 
   override val localVariablePool = parentScope.localVariablePool
   override var classType: JavaType
