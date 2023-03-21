@@ -38,7 +38,7 @@ abstract class BinaryOperatorNode(
 }
 
 class MulOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
-  BinaryOperatorNode(token, leftOperand, rightOperand) {
+  BinaryOperatorNode(token, leftOperand, rightOperand, "multiply") {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
 
@@ -48,7 +48,7 @@ class MulOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: Ex
 }
 
 class DivOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
-  BinaryOperatorNode(token, leftOperand, rightOperand) {
+  BinaryOperatorNode(token, leftOperand, rightOperand, "div") {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {
@@ -57,7 +57,6 @@ class DivOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: Ex
 }
 
 class PlusOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
-  // TODO do others
   BinaryOperatorNode(token, leftOperand, rightOperand, "plus") {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
@@ -67,7 +66,7 @@ class PlusOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: E
   }
 }
 class MinusOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
-  BinaryOperatorNode(token, leftOperand, rightOperand) {
+  BinaryOperatorNode(token, leftOperand, rightOperand, "minus") {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
 
@@ -77,7 +76,7 @@ class MinusOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: 
 }
 
 class PowOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
-  BinaryOperatorNode(token, leftOperand, rightOperand) {
+  BinaryOperatorNode(token, leftOperand, rightOperand, "power") {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun toString(): String {

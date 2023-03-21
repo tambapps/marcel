@@ -332,24 +332,23 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(operator: MulOperator) {
-    pushArithmeticBinaryOperatorOperands(operator)
+    arithmeticMarcelOperator(operator)
   }
 
   override fun visit(operator: DivOperator) {
-    pushArithmeticBinaryOperatorOperands(operator)
+    arithmeticMarcelOperator(operator)
   }
 
   override fun visit(operator: MinusOperator) {
-    pushArithmeticBinaryOperatorOperands(operator)
+    arithmeticMarcelOperator(operator)
   }
 
   override fun visit(operator: PlusOperator) {
-    // TODO do other operators (Minus, Div, Mul) and test them
     arithmeticMarcelOperator(operator)
   }
 
   override fun visit(operator: PowOperator) {
-    pushArithmeticBinaryOperatorOperands(operator)
+    arithmeticMarcelOperator(operator)
   }
 
   override fun visit(leftShiftOperator: LeftShiftOperator) {
@@ -374,6 +373,14 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     } else {
       return marcelOperator(operator)
     }
+  }
+
+  private fun pushArithmeticBinaryOperatorOperands(binaryOperatorNode: BinaryOperatorNode) {
+    val type = binaryOperatorNode.getType(typeResolver)
+    pushArgument(binaryOperatorNode.leftOperand)
+    mv.castIfNecessaryOrThrow(classNode.scope, binaryOperatorNode, type, binaryOperatorNode.leftOperand.getType(typeResolver))
+    pushArgument(binaryOperatorNode.rightOperand)
+    mv.castIfNecessaryOrThrow(classNode.scope, binaryOperatorNode, type, binaryOperatorNode.rightOperand.getType(typeResolver))
   }
 
   fun marcelOperator(binaryOperatorNode: BinaryOperatorNode): JavaType {
@@ -591,14 +598,6 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   private fun pushBinaryOperatorOperands(binaryOperatorNode: BinaryOperatorNode) {
     pushArgument(binaryOperatorNode.leftOperand)
     pushArgument(binaryOperatorNode.rightOperand)
-  }
-
-  private fun pushArithmeticBinaryOperatorOperands(binaryOperatorNode: BinaryOperatorNode) {
-    val type = binaryOperatorNode.getType(typeResolver)
-    pushArgument(binaryOperatorNode.leftOperand)
-    mv.castIfNecessaryOrThrow(classNode.scope, binaryOperatorNode, type, binaryOperatorNode.leftOperand.getType(typeResolver))
-    pushArgument(binaryOperatorNode.rightOperand)
-    mv.castIfNecessaryOrThrow(classNode.scope, binaryOperatorNode, type, binaryOperatorNode.rightOperand.getType(typeResolver))
   }
 
   override fun visit(fCall: FunctionCallNode) {
