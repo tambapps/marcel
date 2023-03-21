@@ -30,12 +30,13 @@ abstract class AbstractHighlighter<T, Style> constructor(
   abstract val numberStyle: Style
   abstract val defaultStyle: Style
 
-  abstract fun newHighlightedString(text: String): T
+  abstract fun newHighlightedString(text: CharSequence): T
 
-  fun highlight(text: String): T {
+  fun highlight(text: CharSequence): T {
     val highlightedString = newHighlightedString(text)
-    val parseResult = replCompiler.tryParse(text)
-    val tokens = parseResult?.tokens?.toMutableList() ?: lexer.lexSafely(text)
+    val textStr = text.toString()
+    val parseResult = replCompiler.tryParse(textStr)
+    val tokens = parseResult?.tokens?.toMutableList() ?: lexer.lexSafely(textStr)
     tokens.removeLast() // remove end of file
     val scriptNode = parseResult?.scriptNode ?: replCompiler.parserResult?.scriptNode
     val node = scriptNode?.methods?.find { it.name == "run" && it.parameters.size == 1 }

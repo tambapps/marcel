@@ -30,7 +30,7 @@ class ReaderHighlighter constructor(
     return highlight(buffer).toAttributedString()
   }
 
-  override fun newHighlightedString(text: String): AttributedStringBuilder {
+  override fun newHighlightedString(text: CharSequence): AttributedStringBuilder {
     return AttributedStringBuilder()
   }
 
