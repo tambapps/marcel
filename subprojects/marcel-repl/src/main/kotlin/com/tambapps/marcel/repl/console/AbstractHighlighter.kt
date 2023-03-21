@@ -13,7 +13,6 @@ import com.tambapps.marcel.parser.ast.expression.IndexedVariableAssignmentNode
 import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
 import com.tambapps.marcel.parser.ast.expression.VariableAssignmentNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
-import java.util.regex.Pattern
 
 abstract class AbstractHighlighter<T, Style> constructor(
   private val typeResolver: JavaTypeResolver,
@@ -31,10 +30,10 @@ abstract class AbstractHighlighter<T, Style> constructor(
   abstract val numberStyle: Style
   abstract val defaultStyle: Style
 
-  abstract fun newHighlightedString(): T
+  abstract fun newHighlightedString(text: String): T
 
-  fun highlightt(text: String): T {
-    val highlightedString = newHighlightedString()
+  fun highlight(text: String): T {
+    val highlightedString = newHighlightedString(text)
     val parseResult = replCompiler.tryParse(text)
     val tokens = parseResult?.tokens?.toMutableList() ?: lexer.lexSafely(text)
     tokens.removeLast() // remove end of file
@@ -59,12 +58,14 @@ abstract class AbstractHighlighter<T, Style> constructor(
         SHORT_TEMPLATE_ENTRY_START, LONG_TEMPLATE_ENTRY_START, LONG_TEMPLATE_ENTRY_END -> stringTemplateStyle
         else -> defaultStyle
       }
-      highlight(highlightedString, style, string)
+      highlight(highlightedString, style, string, token.start, token.end)
     }
     return highlightedString
   }
 
-  protected abstract fun highlight(highlightedString: T, style: Style, string: String)
+  protected abstract fun highlight(highlightedString: T, style: Style, string: String, startIndex: Int,
+                                   // exclusive
+                                   endIndex: Int)
 
 
   private fun identifierStyle(token: LexToken, scriptNode: MethodNode?): Style {

@@ -27,14 +27,15 @@ class ReaderHighlighter constructor(
   override val defaultStyle: AttributedStyle = AttributedStyle.DEFAULT
 
   override fun highlight(reader: LineReader?, buffer: String): AttributedString {
-    return highlightt(buffer).toAttributedString()
+    return highlight(buffer).toAttributedString()
   }
 
-  override fun newHighlightedString(): AttributedStringBuilder {
+  override fun newHighlightedString(text: String): AttributedStringBuilder {
     return AttributedStringBuilder()
   }
 
-  override fun highlight(highlightedString: AttributedStringBuilder, style: AttributedStyle, string: String) {
+  override fun highlight(highlightedString: AttributedStringBuilder, style: AttributedStyle, string: String,
+                         startIndex: Int, endIndex: Int) {
     highlightedString.style(style)
     highlightedString.append(string)
   }

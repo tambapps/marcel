@@ -27,7 +27,7 @@ class Marshell: MarcelShell(
   "marshell:%03d> ") {
 
   private val highlighter = ReaderHighlighter(typeResolver, replCompiler)
-  private val reader =  LineReaderBuilder.builder()
+  private val reader = LineReaderBuilder.builder()
     .highlighter(highlighter)
     .parser(MarshellSnippetParser()) // useful for completer. To know from where start completion
     .completer(MarshellCompleter(replCompiler, typeResolver))
