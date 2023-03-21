@@ -18,6 +18,7 @@ import com.tambapps.marcel.repl.jar.JarWriterFactory
 import marcel.lang.printer.Printer
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
+import marcel.lang.util.MarcelVersion
 import java.nio.file.Files
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -86,7 +87,7 @@ abstract class MarcelShell constructor(
         val text = buffer.joinToString(separator = System.lineSeparator(), postfix = if (buffer.isEmpty()) line else "\n$line")
         val eval = evaluator.eval(text)
         buffer.clear()
-        printer.println(eval)
+        printer.print(eval)
       } catch (e: MarcelLexerException) {
         printer.println("Error: ${e.message}")
         buffer.clear()
@@ -132,5 +133,10 @@ abstract class MarcelShell constructor(
   }
 
 
-  protected open fun onStart() {}
+  fun printVersion() {
+    printer.println("Marshell (Marcel: ${MarcelVersion.VERSION}, Java: " + System.getProperty("java.version") + ")")
+  }
+
+  protected open fun onStart() {
+  }
 }

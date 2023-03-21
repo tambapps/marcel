@@ -34,6 +34,7 @@ class Marshell: MarcelShell(
     .build()
 
   override fun readLine(prompt: String): String {
+    println()
     return reader.readLine(prompt)
   }
 
@@ -46,7 +47,7 @@ class Marshell: MarcelShell(
   }
 
   override fun onStart() {
-    printer.println("Marshell (Marcel: ${MarcelVersion.VERSION}, Java: " + System.getProperty("java.version") + ")")
+    printVersion()
     val marcelHome = File(
       System.getenv("MARCEL_HOME")
         ?: (System.getenv("HOME") + "/.marcel/")
