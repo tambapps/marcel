@@ -55,6 +55,7 @@ class HomeFragment : Fragment() {
     printer = TextViewPrinter(requireActivity(), binding.historyText)
     marshell = AndroidMarshell(printer, marcelDexClassLoader, this::readLine)
 
+    marshell.printVersion()
     executor.submit {
       marshell.run()
     }

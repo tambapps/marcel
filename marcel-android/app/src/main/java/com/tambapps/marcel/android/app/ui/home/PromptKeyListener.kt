@@ -18,7 +18,7 @@ class PromptKeyListener(
     if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
       val text = (v as TextView).text.toString()
       promptQueue.add(text)
-      printer.println(binding.promptText.text.toString() + " " + text)
+      printer.println("\n" + binding.promptText.text.toString() + " " + text)
       v.text = ""
       return true
     }
