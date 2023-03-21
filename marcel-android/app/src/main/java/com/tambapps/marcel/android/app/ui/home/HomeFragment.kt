@@ -10,6 +10,9 @@ import com.tambapps.marcel.android.app.marcel.shell.AndroidMarshell
 import com.tambapps.marcel.android.app.marcel.shell.TextViewHighlighter
 import dagger.hilt.android.AndroidEntryPoint
 import de.markusressel.kodehighlighter.core.util.EditTextHighlighter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import marcel.lang.MarcelSystem
 import marcel.lang.android.dex.MarcelDexClassLoader
 import marcel.lang.printer.Printer
@@ -62,7 +65,9 @@ class HomeFragment : Fragment() {
 
     marshell.printVersion()
     executor.submit {
-      marshell.run()
+      runBlocking {
+        marshell.run()
+      }
     }
     binding.apply {
       promptEditText.setOnKeyListener(PromptKeyListener(binding, printer, promptQueue))
@@ -89,7 +94,7 @@ class HomeFragment : Fragment() {
     MarcelSystem.setPrinter(null)
     editTextHighlighter.cancel()
   }
-  private fun readLine(prompt: String): String {
+  private suspend fun readLine(prompt: String): String {
     requireActivity().runOnUiThread {
       binding.promptText.text = "$prompt"
     }

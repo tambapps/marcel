@@ -8,7 +8,7 @@ import com.tambapps.marcel.android.app.databinding.FragmentHomeBinding
 import marcel.lang.printer.Printer
 import java.util.concurrent.LinkedBlockingQueue
 
-class PromptKeyListener(
+class PromptKeyListener constructor(
   private val binding: FragmentHomeBinding,
   private val printer: Printer,
   private val promptQueue: LinkedBlockingQueue<String>

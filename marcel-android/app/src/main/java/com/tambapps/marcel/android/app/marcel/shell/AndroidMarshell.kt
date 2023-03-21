@@ -10,11 +10,11 @@ import marcel.lang.util.MarcelVersion
 class AndroidMarshell(
   out: Printer,
   marcelClassLoader: MarcelClassLoader,
-  private val readLineFunction: (String) -> String
+  private val readLineFunction: suspend (String) -> String
 ) : MarcelShell(out, marcelClassLoader, DexJarWriterFactory(),
   "marshell:%02d> ") {
 
-  override fun readLine(prompt: String): String {
+  override suspend fun readLine(prompt: String): String {
     return readLineFunction.invoke(prompt)
   }
 
