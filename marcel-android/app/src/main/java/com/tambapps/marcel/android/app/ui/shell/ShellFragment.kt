@@ -1,15 +1,13 @@
-package com.tambapps.marcel.android.app.ui.home
+package com.tambapps.marcel.android.app.ui.shell
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
-import com.tambapps.marcel.android.app.databinding.FragmentHomeBinding
+import com.tambapps.marcel.android.app.databinding.FragmentShellBinding
 import com.tambapps.marcel.android.app.marcel.shell.AndroidMarshell
 import dagger.hilt.android.AndroidEntryPoint
 import de.markusressel.kodehighlighter.core.util.EditTextHighlighter
@@ -24,9 +22,9 @@ import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class HomeFragment : Fragment() {
+class ShellFragment : Fragment() {
 
-  private var _binding: FragmentHomeBinding? = null
+  private var _binding: FragmentShellBinding? = null
 
 
   @Inject
@@ -46,17 +44,7 @@ class HomeFragment : Fragment() {
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-
-    _binding = FragmentHomeBinding.inflate(inflater, container, false)
-    /*
-    val homeViewModel =
-      ViewModelProvider(this).get(HomeViewModel::class.java)
-
-    val textView: TextView = binding.textHome
-    homeViewModel.text.observe(viewLifecycleOwner) {
-      textView.text = it
-    }
-     */
+    _binding = FragmentShellBinding.inflate(inflater, container, false)
     return binding.root
   }
 

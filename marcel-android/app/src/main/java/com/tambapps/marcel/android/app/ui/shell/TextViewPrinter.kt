@@ -1,10 +1,9 @@
-package com.tambapps.marcel.android.app.ui.home
+package com.tambapps.marcel.android.app.ui.shell
 
 import android.app.Activity
 import android.widget.TextView
 import com.tambapps.marcel.repl.printer.SuspendPrinter
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import marcel.lang.printer.Printer
 

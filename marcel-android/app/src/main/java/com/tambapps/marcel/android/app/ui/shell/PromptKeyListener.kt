@@ -1,11 +1,9 @@
-package com.tambapps.marcel.android.app.ui.home
+package com.tambapps.marcel.android.app.ui.shell
 
 import android.view.KeyEvent
 import android.view.View
 import android.view.View.OnKeyListener
 import android.widget.EditText
-import android.widget.TextView
-import com.tambapps.marcel.android.app.databinding.FragmentHomeBinding
 import java.util.concurrent.LinkedBlockingQueue
 
 class PromptKeyListener constructor(
