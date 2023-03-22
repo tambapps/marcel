@@ -97,6 +97,7 @@ import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.scope.Variable
 import com.tambapps.marcel.parser.type.JavaArrayType
+import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import marcel.lang.IntRanges
@@ -338,23 +339,25 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(operator: MulOperator) {
-    arithmeticMarcelOperator(operator)
+    arithmeticMarcelOperator(operator, JavaPrimitiveType::mulCode)
   }
 
   override fun visit(operator: DivOperator) {
-    arithmeticMarcelOperator(operator)
+    arithmeticMarcelOperator(operator, JavaPrimitiveType::divCode)
   }
 
   override fun visit(operator: MinusOperator) {
-    arithmeticMarcelOperator(operator)
+    arithmeticMarcelOperator(operator, JavaPrimitiveType::subCode)
   }
 
   override fun visit(operator: PlusOperator) {
-    arithmeticMarcelOperator(operator)
+    arithmeticMarcelOperator(operator, JavaPrimitiveType::addCode)
   }
 
   override fun visit(operator: PowOperator) {
-    arithmeticMarcelOperator(operator)
+    arithmeticMarcelOperator(operator) {
+      throw MarcelSemanticException("Operator pow is not handled yet")
+    }
   }
 
   override fun visit(leftShiftOperator: LeftShiftOperator) {
@@ -365,13 +368,14 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     marcelOperator(rightShiftOperator)
   }
 
-  fun arithmeticMarcelOperator(operator: BinaryOperatorNode): JavaType {
+  fun arithmeticMarcelOperator(operator: BinaryOperatorNode, insCodeExtractor: (JavaPrimitiveType) -> Int): JavaType {
     val leftType = operator.leftOperand.getType(typeResolver)
     val rightType = operator.rightOperand.getType(typeResolver)
     if (leftType.isPrimitiveOrObjectPrimitive && rightType.isPrimitiveOrObjectPrimitive) {
       val type = operator.getType(typeResolver)
       pushArithmeticBinaryOperatorOperands(operator)
-      mv.visitInsn(operator.getType(typeResolver).asPrimitiveType.addCode)
+      insCodeExtractor.invoke(type.asPrimitiveType)
+      mv.visitInsn(insCodeExtractor.invoke(type.asPrimitiveType))
       return type
     } else if (operator.leftOperand.getType(typeResolver) == JavaType.String || operator.rightOperand.getType(typeResolver) == JavaType.String) {
       StringNode.of(operator.token, listOf(operator.leftOperand, operator.rightOperand)).accept(this)
@@ -384,9 +388,9 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   private fun pushArithmeticBinaryOperatorOperands(binaryOperatorNode: BinaryOperatorNode) {
     val type = binaryOperatorNode.getType(typeResolver)
     pushArgument(binaryOperatorNode.leftOperand)
-    mv.castIfNecessaryOrThrow(classNode.scope, binaryOperatorNode, type, binaryOperatorNode.leftOperand.getType(typeResolver))
+    mv.castIfNecessaryOrThrow(methodNode.scope, binaryOperatorNode, type, binaryOperatorNode.leftOperand.getType(typeResolver))
     pushArgument(binaryOperatorNode.rightOperand)
-    mv.castIfNecessaryOrThrow(classNode.scope, binaryOperatorNode, type, binaryOperatorNode.rightOperand.getType(typeResolver))
+    mv.castIfNecessaryOrThrow(methodNode.scope, binaryOperatorNode, type, binaryOperatorNode.rightOperand.getType(typeResolver))
   }
 
   fun marcelOperator(binaryOperatorNode: BinaryOperatorNode): JavaType {
@@ -397,7 +401,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     }
     val leftShiftMethod = typeResolver.findMethodOrThrow(type1, binaryOperatorNode.operatorMethodName!!, listOf(binaryOperatorNode.rightOperand.getType(typeResolver)))
     pushArgument(binaryOperatorNode.leftOperand)
-    mv.invokeMethodWithArguments(binaryOperatorNode, classNode.scope, leftShiftMethod, binaryOperatorNode.rightOperand)
+    mv.invokeMethodWithArguments(binaryOperatorNode, methodNode.scope, leftShiftMethod, binaryOperatorNode.rightOperand)
     return leftShiftMethod.returnType
   }
 
@@ -1456,26 +1460,6 @@ private class PushingInstructionGenerator(
   }
   override fun pushArgument(expr: ExpressionNode) {
     expr.accept(this)
-  }
-
-  override fun visit(operator: MulOperator) {
-    super.visit(operator)
-    mv.visitInsn(operator.getType(typeResolver).asPrimitiveType.mulCode)
-  }
-
-  override fun visit(operator: DivOperator) {
-    super.visit(operator)
-    mv.visitInsn(operator.getType(typeResolver).asPrimitiveType.divCode)
-  }
-
-  override fun visit(operator: MinusOperator) {
-    super.visit(operator)
-    mv.visitInsn(operator.getType(typeResolver).asPrimitiveType.subCode)
-  }
-
-  override fun visit(operator: PowOperator) {
-    super.visit(operator)
-    throw UnsupportedOperationException("Doesn't handle power operator for now (or ever?)")
   }
 
   override fun visit(returnNode: ReturnNode) {

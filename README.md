@@ -8,7 +8,7 @@ You can learn more about this programming language on [its website](https://tamb
 Here is an example on how to code the Fibonnaci suite in Marcel
 
 ```kotlin
-println(fibonnaci(10))
+println(fibonacci(10))
 
 fun fibonacci(int n) int {
   if (n == 0) return 0
