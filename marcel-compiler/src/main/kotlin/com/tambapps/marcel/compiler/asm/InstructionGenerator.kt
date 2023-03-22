@@ -351,7 +351,11 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(operator: PlusOperator) {
-    arithmeticMarcelOperator(operator, JavaPrimitiveType::addCode)
+    if (operator.leftOperand.getType(typeResolver) == JavaType.String || operator.rightOperand.getType(typeResolver) == JavaType.String) {
+      StringNode.of(operator.token, listOf(operator.leftOperand, operator.rightOperand)).accept(this)
+    } else {
+      arithmeticMarcelOperator(operator, JavaPrimitiveType::addCode)
+    }
   }
 
   override fun visit(operator: PowOperator) {
@@ -377,9 +381,6 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       insCodeExtractor.invoke(type.asPrimitiveType)
       mv.visitInsn(insCodeExtractor.invoke(type.asPrimitiveType))
       return type
-    } else if (operator.leftOperand.getType(typeResolver) == JavaType.String || operator.rightOperand.getType(typeResolver) == JavaType.String) {
-      StringNode.of(operator.token, listOf(operator.leftOperand, operator.rightOperand)).accept(this)
-      return JavaType.String
     } else {
       return marcelOperator(operator)
     }
@@ -1113,6 +1114,16 @@ class InstructionGenerator(
 
   override fun visit(operator: PlusOperator) {
     super.visit(operator)
+    mv.popStack()
+  }
+
+  override fun visit(rightShiftOperator: RightShiftOperator) {
+    super.visit(rightShiftOperator)
+    mv.popStack()
+  }
+
+  override fun visit(leftShiftOperator: LeftShiftOperator) {
+    super.visit(leftShiftOperator)
     mv.popStack()
   }
 
