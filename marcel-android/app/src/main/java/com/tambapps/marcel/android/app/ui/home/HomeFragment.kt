@@ -98,7 +98,10 @@ class HomeFragment : Fragment() {
       binding.historyText.append(prompt)
     }
     val text = promptQueue.take()
-    printer.println(text)
+    withContext(Dispatchers.Main) {
+      printer.println(text)
+      binding.promptEditText.setText("")
+    }
     return text.toString()
   }
 }

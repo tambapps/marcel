@@ -16,7 +16,6 @@ class PromptKeyListener constructor(
     if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
       val originalText = (v as EditText).text
       promptQueue.add(originalText)
-      v.setText("")
       return true
     }
     return false
