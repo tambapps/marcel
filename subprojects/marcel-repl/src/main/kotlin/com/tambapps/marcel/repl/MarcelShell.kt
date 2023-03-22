@@ -34,6 +34,7 @@ abstract class MarcelShell constructor(
   val imports: Collection<ImportNode> get() = replCompiler.imports
 
   protected val typeResolver = JavaTypeResolver(marcelClassLoader)
+  // TODO make this a constructor argument as we want o construct it differently on android
   private val tempDir = Files.createTempDirectory("marshell")
   protected val replCompiler = MarcelReplCompiler(CompilerConfiguration(dumbbellEnabled = true), typeResolver)
   protected val evaluator = MarcelEvaluator(binding, replCompiler, marcelClassLoader, jarWriterFactory, tempDir.toFile())
