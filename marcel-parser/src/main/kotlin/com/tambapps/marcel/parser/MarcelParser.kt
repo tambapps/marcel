@@ -800,9 +800,16 @@ class MarcelParser constructor(
             )
             elseStatement = statement(switchScope)
           } else {
-            val valueExpression = expression(scope)
+            val valueExpressions = mutableListOf(expression(scope))
+            while (current.type == TokenType.COMMA) {
+              skip()
+              valueExpressions.add(expression(scope))
+            }
             accept(TokenType.ARROW)
-            branches.add(SwitchBranchNode(token, switchScope, valueExpression, statement(switchScope)))
+            val statement = statement(switchScope)
+            for (valueExpression in valueExpressions) {
+              branches.add(SwitchBranchNode(token, switchScope, valueExpression, statement))
+            }
           }
         }
         skip() // skip bracket_close

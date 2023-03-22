@@ -11,8 +11,9 @@ Here is an example on how to code the Fibonacci suite in Marcel
 println(fibonacci(10))
 
 fun fibonacci(int n) int {
-  if (n == 0) return 0
-  else if (n == 1 || n == 2) return 1
-  else return fibonacci(n - 1) + fibonacci(n - 2)
+  switch (n) {
+    0, 1 -> n
+    else -> fibonacci(n - 1) + fibonacci(n - 2)
+  }
 }
 ```
