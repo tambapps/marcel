@@ -3,8 +3,10 @@ package marcel.lang;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+/**
+ * Annotation used by the compiler to specify default values of method parameters
+ */
 @Retention(RetentionPolicy.RUNTIME)
-
 public @interface DefaultValue {
 
   int defaultIntValue() default 0;
