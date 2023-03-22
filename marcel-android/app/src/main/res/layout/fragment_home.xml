@@ -12,7 +12,6 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
         >
         <TextView
             android:id="@+id/historyText"
@@ -45,6 +44,7 @@
                 android:background="@android:color/transparent"
                 android:inputType="textFilter"
                 style="@style/shellText"
+                android:paddingBottom="8dp"
                 />
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.constraintlayout.widget.ConstraintLayout>
