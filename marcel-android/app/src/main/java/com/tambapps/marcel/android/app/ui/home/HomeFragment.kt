@@ -94,19 +94,11 @@ class HomeFragment : Fragment() {
     editTextHighlighter.cancel()
   }
   private suspend fun readLine(prompt: String): String {
-    val previousPromptText = withContext(Dispatchers.Main) {
-      val t = binding.promptText.text
-      binding.promptText.text = "$prompt"
-      t
+    withContext(Dispatchers.Main) {
+      binding.historyText.append(prompt)
     }
     val text = promptQueue.take()
-    printer.println()
-    /// TODO find out why text isn't colored
-    printer.print(previousPromptText)
-    printer.print(" ")
-    printer.print(text)
-    printer.println()
-
+    printer.println(text)
     return text.toString()
   }
 }

@@ -25,4 +25,8 @@ class AndroidMarshell(
   fun newHighlighter(): TextViewHighlighter {
     return TextViewHighlighter(typeResolver, replCompiler)
   }
+
+  override suspend fun printEval(eval: Any?) {
+    printer.suspendPrintln(eval)
+  }
 }

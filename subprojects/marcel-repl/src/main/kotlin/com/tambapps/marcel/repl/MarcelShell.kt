@@ -87,7 +87,7 @@ abstract class MarcelShell constructor(
         val text = buffer.joinToString(separator = System.lineSeparator(), postfix = if (buffer.isEmpty()) line else "\n$line")
         val eval = evaluator.eval(text)
         buffer.clear()
-        printer.suspendPrint(eval)
+        printEval(eval)
       } catch (e: MarcelLexerException) {
         printer.suspendPrintln("Error: ${e.message}")
         buffer.clear()
@@ -142,5 +142,9 @@ abstract class MarcelShell constructor(
   }
 
   protected open suspend fun onExit() {
+  }
+
+  protected open suspend fun printEval(eval: Any?) {
+    printer.suspendPrint(eval)
   }
 }
