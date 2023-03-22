@@ -30,6 +30,8 @@ class MainActivity : AppCompatActivity() {
 
     val drawerLayout: DrawerLayout = binding.drawerLayout
     val navView: NavigationView = binding.navView
+    // TODO nav controller sucks as it always forces you to change fragment and destrroy the current fragment.
+    //  use a similar mecanism as in groovy shell
     val navController = findNavController(R.id.nav_host_fragment_content_main)
     // Passing each menu ID as a set of Ids because each
     // menu should be considered as top level destinations.

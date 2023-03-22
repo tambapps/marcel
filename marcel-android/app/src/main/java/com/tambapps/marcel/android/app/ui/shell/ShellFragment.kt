@@ -16,6 +16,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import marcel.lang.MarcelSystem
 import marcel.lang.android.dex.MarcelDexClassLoader
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
@@ -29,15 +30,13 @@ class ShellFragment : Fragment() {
 
   @Inject
   lateinit var marcelDexClassLoader: MarcelDexClassLoader
-  // This property is only valid between onCreateView and
-  // onDestroyView.
   private val binding get() = _binding!!
 
   private lateinit var marshell: AndroidMarshell
   private lateinit var printer: TextViewPrinter
   private lateinit var editTextHighlighter: EditTextHighlighter
-  private val executor = Executors.newSingleThreadExecutor()
-  private val promptQueue = LinkedBlockingQueue<CharSequence>()
+  private lateinit var executor: ExecutorService
+  private lateinit var promptQueue: LinkedBlockingQueue<CharSequence>
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -49,6 +48,9 @@ class ShellFragment : Fragment() {
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    executor = Executors.newSingleThreadExecutor()
+    promptQueue = LinkedBlockingQueue<CharSequence>()
+
     printer = TextViewPrinter(requireActivity(), binding.historyText)
     marshell = AndroidMarshell(printer, marcelDexClassLoader, this::readLine)
     val highlighter = marshell.newHighlighter()
