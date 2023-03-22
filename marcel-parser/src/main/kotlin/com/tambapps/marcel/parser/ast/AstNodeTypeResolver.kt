@@ -256,9 +256,11 @@ open class AstNodeTypeResolver constructor(
 
   override fun visit(operator: PowOperator) = visitBinaryOperator(operator)
 
-  override fun visit(rightShiftOperator: RightShiftOperator) = JavaType.Object
+  override fun visit(rightShiftOperator: RightShiftOperator) =
+    findMethodOrThrow(rightShiftOperator.leftOperand.accept(this), rightShiftOperator.operatorMethodName!!, listOf(rightShiftOperator.rightOperand.accept(this))).returnType
 
-  override fun visit(leftShiftOperator: LeftShiftOperator) = JavaType.Object
+  override fun visit(leftShiftOperator: LeftShiftOperator) =
+    findMethodOrThrow(leftShiftOperator.leftOperand.accept(this), leftShiftOperator.operatorMethodName!!, listOf(leftShiftOperator.rightOperand.accept(this))).returnType
 
   override fun visit(variableAssignmentNode: VariableAssignmentNode) = variableAssignmentNode.expression.accept(this)
 
