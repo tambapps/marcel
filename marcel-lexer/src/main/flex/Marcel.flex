@@ -343,6 +343,8 @@ LONELY_BACKTICK=`
 "instanceof"          { return token(INSTANCEOF); }
 "throw"          { return token(THROW); }
 "throws"          { return token(THROWS); }
+"constructor"          { return token(CONSTRUCTOR); }
+"annotation"          { return token(ANNOTATION); }
 
 {IDENTIFIER} {  return valueToken(IDENTIFIER); }
 
@@ -388,6 +390,7 @@ LONELY_BACKTICK=`
 "--"          { return token(DECR); }
 "=~"          { return token(FIND); }
 "->"          { return token(ARROW); }
+"@"          { return token(AT); }
 
 
 // error fallback
