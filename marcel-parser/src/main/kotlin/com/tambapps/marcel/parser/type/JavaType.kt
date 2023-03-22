@@ -124,6 +124,12 @@ interface JavaType: AstTypedObject {
       return true
     }
 
+    // I remove these primitive checks at some point but forgot why...
+    // let's keep them for now
+    if (this == int && other == char || this == char && other == long) return true
+    if (this == long && other == int) return true
+    if (this == double && other == float) return true
+
     if (isLoaded && other.isLoaded) {
       return realClazz.isAssignableFrom(other.realClazz)
     } else {
