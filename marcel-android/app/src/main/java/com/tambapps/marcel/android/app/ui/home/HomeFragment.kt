@@ -1,13 +1,16 @@
 package com.tambapps.marcel.android.app.ui.home
 
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import com.tambapps.marcel.android.app.databinding.FragmentHomeBinding
 import com.tambapps.marcel.android.app.marcel.shell.AndroidMarshell
-import com.tambapps.marcel.repl.printer.SuspendPrinter
 import dagger.hilt.android.AndroidEntryPoint
 import de.markusressel.kodehighlighter.core.util.EditTextHighlighter
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +21,7 @@ import marcel.lang.android.dex.MarcelDexClassLoader
 import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -70,7 +74,16 @@ class HomeFragment : Fragment() {
     }
     binding.apply {
       promptEditText.setOnKeyListener(PromptKeyListener(promptQueue))
+      promptEditText.setOnFocusChangeListener { v, hasFocus ->
+        if (hasFocus) {
+          val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+          imm.showSoftInput(v, 0)
+        }
+      }
       promptEditText.requestFocus()
+      historyText.setOnClickListener {
+        promptEditText.requestFocus()
+      }
     }
   }
 

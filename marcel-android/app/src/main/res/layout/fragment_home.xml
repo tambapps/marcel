@@ -20,6 +20,7 @@
             app:layout_constraintTop_toTopOf="parent"
             android:textIsSelectable="true"
             style="@style/shellText"
+            android:clickable="true"
             />
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"

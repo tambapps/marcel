@@ -19,7 +19,7 @@ class AndroidMarshell(
   }
 
   override suspend fun printVersion() {
-    printer.suspendPrintln("Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSION.RELEASE})")
+    printer.suspendPrintln("Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSION.RELEASE})\n")
   }
 
   fun newHighlighter(): TextViewHighlighter {
