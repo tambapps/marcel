@@ -96,6 +96,7 @@ class HomeFragment : Fragment() {
   private suspend fun readLine(prompt: String): String {
     withContext(Dispatchers.Main) {
       binding.historyText.append(prompt)
+      binding.fakePromptText.text = prompt
     }
     val text = promptQueue.take()
     withContext(Dispatchers.Main) {

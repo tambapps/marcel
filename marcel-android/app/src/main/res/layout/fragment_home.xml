@@ -34,7 +34,10 @@
                 style="@style/shellText"
                 android:text="@string/initial_prompt_text"
                 android:visibility="invisible"
+                android:id="@+id/fakePromptText"
                 />
+
+            <!-- using inputType "textNoSuggestions|textVisiblePassword" to not show suggestions -->
             <EditText
                 android:id="@+id/promptEditText"
                 android:layout_width="0dp"
@@ -42,10 +45,8 @@
                 android:layout_height="wrap_content"
                 android:maxLines="1"
                 android:background="@android:color/transparent"
-                android:inputType="textFilter"
+                android:inputType="textNoSuggestions|textVisiblePassword"
                 style="@style/shellText"
-                app:layout_constraintBottom_toBottomOf="@id/historyText"
-                app:layout_constraintStart_toStartOf="parent"
                 />
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.constraintlayout.widget.ConstraintLayout>
