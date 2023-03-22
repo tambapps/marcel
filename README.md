@@ -5,7 +5,7 @@ working with Collections.
 You can learn more about this programming language on [its website](https://tambapps.github.io/marcel)
 ## Example
 
-Here is an example on how to code the Fibonnaci suite in Marcel
+Here is an example on how to code the Fibonacci suite in Marcel
 
 ```kotlin
 println(fibonacci(10))
