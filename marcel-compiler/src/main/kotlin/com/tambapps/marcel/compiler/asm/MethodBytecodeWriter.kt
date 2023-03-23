@@ -30,27 +30,37 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
   lateinit var argumentPusher: ArgumentPusher
 
   fun visitNamedConstructorCall(fCall: NamedParametersConstructorCallNode) {
+    // first try to find a constructor matching the named parameters, then try to find an empty args constructor to then set the fields
     val type = fCall.type
-    if (typeResolver.findMethod(type, JavaMethod.CONSTRUCTOR_NAME, emptyList(), true) == null)
-      throw MarcelSemanticException(fCall.token, "Cannot invoke named constructor on a type with no no-arg constructor")
-    visitConstructorCall(ConstructorCallNode(fCall.token, fCall.scope, type, mutableListOf()))
-    for (namedParameter in fCall.constructorNamedArguments) {
-      dup()
-      argumentPusher.pushArgument(namedParameter.valueExpression)
-      val field = typeResolver.findFieldOrThrow(type, namedParameter.name)
-      if (field.isFinal) throw MarcelSemanticException(fCall.token, "Cannot use named parameters constructor on a final field")
-      castIfNecessaryOrThrow(fCall.scope, namedParameter.valueExpression, field.type, namedParameter.valueExpression.getType(typeResolver))
-      storeInVariable(fCall, fCall.scope, field)
+    try {
+      val constructorMethod = fCall.getMethod(typeResolver)
+      val arguments = fCall.getArguments(typeResolver)
+      visitConstructorCall(fCall, type, constructorMethod, fCall.scope, arguments)
+    } catch (e: MarcelSemanticException) {
+      // finding an empty constructor to then set the fields manually
+      typeResolver.findMethod(type, JavaMethod.CONSTRUCTOR_NAME, emptyList(), true) ?: throw e
+      visitConstructorCall(ConstructorCallNode(fCall.token, fCall.scope, type, mutableListOf()))
+      for (namedParameter in fCall.constructorNamedArguments) {
+        dup()
+        argumentPusher.pushArgument(namedParameter.valueExpression)
+        val field = typeResolver.findFieldOrThrow(type, namedParameter.name)
+        if (field.isFinal) throw MarcelSemanticException(fCall.token, "Cannot use named parameters constructor on a final field")
+        castIfNecessaryOrThrow(fCall.scope, namedParameter.valueExpression, field.type, namedParameter.valueExpression.getType(typeResolver))
+        storeInVariable(fCall, fCall.scope, field)
+      }
     }
   }
 
   fun visitConstructorCall(fCall: ConstructorCallNode) {
-    val type = fCall.type
+    visitConstructorCall(fCall, fCall.type, fCall.getMethod(typeResolver), fCall.scope, fCall.arguments)
+  }
+  fun visitConstructorCall(from: AstNode, type: JavaType, constructorMethod: JavaMethod,
+                           scope: Scope,
+                           arguments: List<ExpressionNode>) {
     val classInternalName = type.internalName
     mv.visitTypeInsn(Opcodes.NEW, classInternalName)
     mv.visitInsn(Opcodes.DUP)
-    val constructorMethod = fCall.getMethod(typeResolver)
-    pushFunctionCallArguments(fCall, fCall.scope, constructorMethod, fCall.arguments)
+    pushFunctionCallArguments(from, scope, constructorMethod, arguments)
     mv.visitMethodInsn(
       Opcodes.INVOKESPECIAL, classInternalName, JavaMethod.CONSTRUCTOR_NAME, constructorMethod.descriptor, false)
   }

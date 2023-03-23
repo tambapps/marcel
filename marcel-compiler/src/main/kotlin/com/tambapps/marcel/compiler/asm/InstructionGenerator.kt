@@ -328,6 +328,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   override fun visit(fCall: NamedParametersConstructorCallNode) {
     mv.visitNamedConstructorCall(fCall)
   }
+
   override fun visit(fCall: SuperConstructorCallNode) {
     if (!methodNode.isConstructor) {
       throw MarcelSemanticException(fCall.token, "Cannot call super constructor in a non constructor method")

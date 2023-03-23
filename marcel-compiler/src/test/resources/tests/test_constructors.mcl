@@ -20,6 +20,11 @@ class B extends A1 {
   constructor(int i, int j, this.k): super(i, j)
 }
 
+class C {
+  int a
+  int b
+}
+
 A1 a1 = new A1(1, 2)
 assertEquals(1, a1.i)
 assertEquals(2, a1.j)
@@ -33,4 +38,12 @@ assertEquals(1, b.i)
 assertEquals(2, b.j)
 assertEquals(3, b.k)
 
-// TODO test named parameters
+B b1 = new B(i: 1, j: 2, k: 3)
+assertEquals(1, b1.i)
+assertEquals(2, b1.j)
+assertEquals(3, b1.k)
+
+// will set fields after having called no arg constructor
+C c = new C(a: 1, b: 2)
+assertEquals(1, c.a)
+assertEquals(2, c.b)

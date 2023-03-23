@@ -49,6 +49,31 @@ int otherResult = sum(a: 1) // equivalent to sum(1, 0)
 
 named parameters calls can also start (and only start) with positional arguments.
 
+#### Named parameters constructor calls
+Such calls also works with constructors. It will find a constructor having the given parameters, but if it can't find it
+and your class has a no args constructor (note that there's always one by default if you don't explicitly define one), it will use it
+and then initialize the fields having the provided names with their associated argument value.
+
+Here are some examples below.
+
+```groovy
+class B {
+  int i
+  int j
+  
+  constructor(this.i, this.j)
+
+}
+class C {
+  int a
+  int b
+}
+
+B b = new B(i: 1, j: 2) // will call new B(i, j) and the fields will be initialized in the constructor
+C c = new C(a: 1, b: 2) // will call new C() and then the fields will be initialized outside the constructor
+
+```
+
 ```groovy
 int result = sum(2, b: 1) // equivalent to sum(2, 1)
 
@@ -75,3 +100,19 @@ sum(a: 2, b: 5) // 2 + 5
 
 You can specify numbers, characters Strings, or `null`, meaning that Object types can only have `null` as default values
 (except String for which you can supply a literal string)
+
+### Fields Constructor Call
+
+Similar calls also work with constructors. You can specify class's field names with their values to set.
+Note that it will only work if your class has a no-arg constructor and that the fields referenced are `public` and **not** `final`.
+
+
+```groovy
+
+Foo foo = new Foo(bar: 1, baz: "baz")
+
+class Foo {
+  int bar
+  String baz
+}
+```
