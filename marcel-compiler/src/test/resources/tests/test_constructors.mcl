@@ -1,6 +1,5 @@
 import static org.junit.jupiter.api.Assertions.assertEquals
 
-
 class A1 {
   int i
   int j
@@ -16,6 +15,11 @@ class A2 {
   }
 }
 
+class B extends A1 {
+  int k
+  constructor(int i, int j, this.k): super(i, j)
+}
+
 A1 a1 = new A1(1, 2)
 assertEquals(1, a1.i)
 assertEquals(2, a1.j)
@@ -23,4 +27,10 @@ assertEquals(2, a1.j)
 A2 a2 = new A2(1, 2)
 assertEquals(1, a2.i)
 assertEquals(2, a2.j)
-// TODO test other examples as shown in classes documentation
+
+B b = new B(1, 2, 3)
+assertEquals(1, b.i)
+assertEquals(2, b.j)
+assertEquals(3, b.k)
+
+// TODO test named parameters

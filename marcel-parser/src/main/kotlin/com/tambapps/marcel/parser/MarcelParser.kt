@@ -344,6 +344,17 @@ class MarcelParser constructor(
     val methodNode =
       if (isConstructor) ConstructorNode(token, access, FunctionBlockNode(currentToken, methodScope, statements), parameters, methodScope)
      else MethodNode(access, classNode.type, methodName, FunctionBlockNode(currentToken, methodScope, statements), parameters, returnType, methodScope, isInline)
+
+
+    if (isConstructor && current.type == TokenType.COLON) {
+      skip()
+      when (val atom = atom(methodScope)) {
+        is SuperConstructorCallNode -> statements.add(ExpressionStatementNode(atom.token, atom))
+        // TODO handle this constructor calls when it exists
+        else -> throw MarcelParserException(atom.token, "Expected this or super constructor call")
+      }
+    }
+
     if (thisParameters.isNotEmpty()) {
       if (!isConstructor) throw MarcelParserException(token, "Methods cannot have this parameters")
       for (thisParameter in thisParameters) {
@@ -355,11 +366,9 @@ class MarcelParser constructor(
         )
       }
     }
-    // TODO remove FieldConstructorCalls (named constructor calls). These should be like named function calls
-    val methodStatements =
-      if (isConstructor && current.type != TokenType.BRACKETS_OPEN) BlockNode(token, methodScope, statements)
-      else block(methodScope)
-    statements.addAll(methodStatements.statements)
+    if (!isConstructor || current.type == TokenType.BRACKETS_OPEN) {
+      statements.addAll(block(methodScope).statements)
+    }
     return methodNode
   }
 
