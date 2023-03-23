@@ -19,13 +19,14 @@ import com.tambapps.marcel.repl.printer.SuspendPrinter
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
 import marcel.lang.util.MarcelVersion
-import java.nio.file.Files
+import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 
 abstract class MarcelShell constructor(
   protected val printer: SuspendPrinter,
   val marcelClassLoader: MarcelClassLoader,
   jarWriterFactory: JarWriterFactory,
+  protected val tempDir: File,
   private val promptTemplate: String = "marshell:%03d> ") {
 
   val binding = Binding()
@@ -34,10 +35,8 @@ abstract class MarcelShell constructor(
   val imports: Collection<ImportNode> get() = replCompiler.imports
 
   protected val typeResolver = JavaTypeResolver(marcelClassLoader)
-  // TODO make this a constructor argument as we want o construct it differently on android
-  private val tempDir = Files.createTempDirectory("marshell")
   protected val replCompiler = MarcelReplCompiler(CompilerConfiguration(dumbbellEnabled = true), typeResolver)
-  protected val evaluator = MarcelEvaluator(binding, replCompiler, marcelClassLoader, jarWriterFactory, tempDir.toFile())
+  protected val evaluator = MarcelEvaluator(binding, replCompiler, marcelClassLoader, jarWriterFactory, tempDir)
   private val buffer = mutableListOf<String>()
   private val commands = listOf<ShellCommand>(
     HelpCommand(),
@@ -65,14 +64,13 @@ abstract class MarcelShell constructor(
     while (runningReference.get()) {
       doRun()
     }
-    Files.delete(tempDir)
+    onFinish()
   }
 
   open suspend fun doRun() {
     val prompt = String.format(promptTemplate, buffer.size)
     val line = readLine(prompt)
     if (line.isEmpty()) return
-    //highlighter.highlight(reader, line) // this is for debug through IntelliJ
     if (isCommand(line)) {
       val args = line.split(" ")
       val commandName = args[0].substring(1)
@@ -117,7 +115,7 @@ abstract class MarcelShell constructor(
     return commands.find { it.name == name || it.shortName == name }
   }
 
-  suspend fun exit() {
+  open suspend fun exit() {
     onExit()
     runningReference.set(false)
   }
@@ -145,6 +143,9 @@ abstract class MarcelShell constructor(
   protected open suspend fun onExit() {
   }
 
+  protected open suspend fun onFinish() {
+
+  }
   protected open suspend fun printEval(eval: Any?) {
     printer.suspendPrint(eval)
   }

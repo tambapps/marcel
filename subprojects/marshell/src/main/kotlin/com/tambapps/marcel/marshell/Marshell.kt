@@ -14,6 +14,7 @@ import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.UserInterruptException
 import java.io.File
+import java.nio.file.Files
 import kotlin.system.exitProcess
 
 suspend fun main(args: Array<String>) {
@@ -23,6 +24,7 @@ suspend fun main(args: Array<String>) {
 
 class Marshell: MarcelShell(
   PrintStreamSuspendPrinter(System.out), URLMarcelClassLoader(Marshell::class.java.classLoader), BasicJarWriterFactory(),
+  Files.createTempDirectory("marshell").toFile(),
   "marshell:%03d> ") {
 
   private val highlighter = ReaderHighlighter(typeResolver, replCompiler)
@@ -74,4 +76,7 @@ class Marshell: MarcelShell(
     }
   }
 
+  override suspend fun onFinish() {
+    Files.delete(tempDir.toPath())
+  }
 }
