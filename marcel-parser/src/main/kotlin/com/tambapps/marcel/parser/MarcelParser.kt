@@ -305,12 +305,27 @@ class MarcelParser constructor(
     val methodName = if (isConstructor) JavaMethod.CONSTRUCTOR_NAME else accept(TokenType.IDENTIFIER).value
     accept(TokenType.LPAR)
     val parameters = mutableListOf<MethodParameterNode>()
+    // this parameters are parameters which are automatically assigned to the field
+    val thisParameters = mutableListOf<String>()
     while (current.type != TokenType.RPAR) {
-      val type = parseType(classScope)
-      val identifierToken = accept(TokenType.IDENTIFIER)
+      val isThisParameter = acceptOptional(TokenType.THIS) != null && acceptOptional(TokenType.DOT) != null
+      val type: JavaType
+      val identifierToken: LexToken
+
+      if (isThisParameter) {
+        identifierToken = accept(TokenType.IDENTIFIER)
+        type = classNode.fields.find { it.name == identifierToken.value }?.type ?: throw MarcelParserException(identifierToken,
+          "Cannot find field ${identifierToken.value}. Note that they should be defined before the constructor")
+      } else {
+        type = parseType(classScope)
+        identifierToken = accept(TokenType.IDENTIFIER)
+      }
       val argName = identifierToken.value
       if (parameters.any { it.name == argName }) {
         throw MarcelSemanticException(token, "Cannot two method parameters with the same name")
+      }
+      if (isThisParameter) {
+        thisParameters.add(argName)
       }
       val defaultValue = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(classScope) else null
       parameters.add(MethodParameterNode(identifierToken, type, argName, defaultValue))
@@ -329,7 +344,22 @@ class MarcelParser constructor(
     val methodNode =
       if (isConstructor) ConstructorNode(token, access, FunctionBlockNode(currentToken, methodScope, statements), parameters, methodScope)
      else MethodNode(access, classNode.type, methodName, FunctionBlockNode(currentToken, methodScope, statements), parameters, returnType, methodScope, isInline)
-    statements.addAll(block(methodScope).statements)
+    if (thisParameters.isNotEmpty()) {
+      if (!isConstructor) throw MarcelParserException(token, "Methods cannot have this parameters")
+      for (thisParameter in thisParameters) {
+        statements.add(
+          ExpressionStatementNode(token,
+            FieldAssignmentNode(token, methodScope, GetFieldAccessOperator(token, ReferenceExpression.thisRef(methodScope),
+              ReferenceExpression(token, methodScope, thisParameter), false),
+              ReferenceExpression(token, methodScope, thisParameter)))
+        )
+      }
+    }
+    // TODO remove FieldConstructorCalls (named constructor calls). These should be like named function calls
+    val methodStatements =
+      if (isConstructor && current.type != TokenType.BRACKETS_OPEN) BlockNode(token, methodScope, statements)
+      else block(methodScope)
+    statements.addAll(methodStatements.statements)
     return methodNode
   }
 

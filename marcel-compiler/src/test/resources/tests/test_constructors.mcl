@@ -1,0 +1,26 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+
+class A1 {
+  int i
+  int j
+  constructor(this.i, this.j)
+}
+
+class A2 {
+  int i
+  int j
+  protected constructor(int i, int j) {
+    this.i = i
+    this.j = j
+  }
+}
+
+A1 a1 = new A1(1, 2)
+assertEquals(1, a1.i)
+assertEquals(2, a1.j)
+
+A2 a2 = new A2(1, 2)
+assertEquals(1, a2.i)
+assertEquals(2, a2.j)
+// TODO test other examples as shown in classes documentation

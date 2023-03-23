@@ -75,19 +75,3 @@ sum(a: 2, b: 5) // 2 + 5
 
 You can specify numbers, characters Strings, or `null`, meaning that Object types can only have `null` as default values
 (except String for which you can supply a literal string)
-
-### Fields Constructor Call
-
-Similar calls also work with constructors. You can specify class's field names with their values to set.
-Note that it will only work if your class has a no-arg constructor and that the fields referenced are `public` and **not** `final`.
-
-
-```groovy
-
-Foo foo = new Foo(bar: 1, baz: "baz")
-
-class Foo {
-  int bar
-  String baz
-}
-```
