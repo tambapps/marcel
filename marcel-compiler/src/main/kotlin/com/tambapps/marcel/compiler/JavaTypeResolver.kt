@@ -78,6 +78,32 @@ class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNodeTyp
     else classFields[javaType.className] ?: emptyList()
   }
 
+  override fun getMethods(javaType: JavaType): List<JavaMethod> {
+    if (javaType.isLoaded) return javaType.realClazz.methods.map { ReflectJavaMethod(it, javaType) }
+    val methods = mutableListOf<JavaMethod>()
+    var t: JavaType? = javaType
+    while (t != null && !t.isLoaded) {
+      methods.addAll(getDeclaredMethods(t))
+      t = t.superType
+    }
+    // if it is not null at this point, then it must be a loaded type
+    if (t != null) methods.addAll(getMethods(t))
+    return methods
+  }
+
+  override fun getFields(javaType: JavaType): List<MarcelField> {
+    if (javaType.isLoaded) return javaType.realClazz.fields.map { ReflectMarcelField(it) }
+    val fields = mutableListOf<MarcelField>()
+    var t: JavaType? = javaType
+    while (t != null && !t.isLoaded) {
+      fields.addAll(getDeclaredFields(t))
+      t = t.superType
+    }
+    // if it is not null at this point, then it must be a loaded type
+    if (t != null) fields.addAll(getFields(t))
+    return fields
+  }
+
   override fun doFindMethodByParameters(javaType: JavaType, name: String,
                                         positionalArgumentTypes: List<AstTypedObject>,
                                         namedParameters: Collection<MethodParameter>,

@@ -157,6 +157,14 @@ open class AstNodeTypeResolver constructor(
   open fun getDeclaredFields(javaType: JavaType): List<MarcelField> {
     return emptyList()
   }
+
+  open fun getMethods(javaType: JavaType): List<JavaMethod> {
+    return emptyList()
+  }
+
+  open fun getFields(javaType: JavaType): List<MarcelField> {
+    return emptyList()
+  }
   open fun of(className: String, genericTypes: List<JavaType>): JavaType {
     return definedTypes[className] ?: JavaType.of(classLoader, className, genericTypes)
   }

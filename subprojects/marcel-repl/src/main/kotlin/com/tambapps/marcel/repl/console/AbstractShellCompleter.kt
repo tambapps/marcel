@@ -71,13 +71,13 @@ abstract class AbstractShellCompleter<T>(
       methodFilter = { it.name.startsWith(prefix) }
       fieldFilter = { it.name.startsWith(prefix) }
     }
-    typeResolver.getDeclaredMethods(type).forEach {
+    typeResolver.getMethods(type).forEach {
       if (methodFilter.invoke(it)) {
         val suffix = if (it.parameters.isEmpty()) "()" else "("
         candidates.add(newCandidate(it.name + suffix))
       }
     }
-    typeResolver.getDeclaredFields(type).forEach {
+    typeResolver.getFields(type).forEach {
       if (fieldFilter.invoke(it)) {
         candidates.add(newCandidate(it.name))
       }
