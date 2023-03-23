@@ -2,17 +2,22 @@ package com.tambapps.marcel.android.app.marcel.shell
 
 import android.os.Build
 import com.tambapps.marcel.android.app.marcel.shell.jar.DexJarWriterFactory
+import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.MarcelShell
 import com.tambapps.marcel.repl.printer.SuspendPrinter
 import marcel.lang.MarcelClassLoader
 import marcel.lang.util.MarcelVersion
+import java.io.File
 
-class AndroidMarshell(
+class AndroidMarshell constructor(
+  compilerConfiguration: CompilerConfiguration,
+  classesDir: File,
+  override val initScriptFile: File?,
   out: SuspendPrinter,
   marcelClassLoader: MarcelClassLoader,
   private val readLineFunction: suspend (String) -> String
-) : MarcelShell(out, marcelClassLoader, DexJarWriterFactory(),
-  "%03d> ") {
+) : MarcelShell(compilerConfiguration, out, marcelClassLoader, DexJarWriterFactory(),
+  classesDir, "%03d> ") {
 
   override suspend fun readLine(prompt: String): String {
     return readLineFunction.invoke(prompt)

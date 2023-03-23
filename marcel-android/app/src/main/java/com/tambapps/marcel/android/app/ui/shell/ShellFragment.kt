@@ -1,15 +1,14 @@
 package com.tambapps.marcel.android.app.ui.shell
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import com.tambapps.marcel.android.app.databinding.FragmentShellBinding
 import com.tambapps.marcel.android.app.marcel.shell.AndroidMarshell
 import com.tambapps.marcel.android.app.util.ContextUtils
+import com.tambapps.marcel.compiler.CompilerConfiguration
 import dagger.hilt.android.AndroidEntryPoint
 import de.markusressel.kodehighlighter.core.util.EditTextHighlighter
 import kotlinx.coroutines.Dispatchers
@@ -17,10 +16,12 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import marcel.lang.MarcelSystem
 import marcel.lang.android.dex.MarcelDexClassLoader
+import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
+import javax.inject.Named
 
 
 @AndroidEntryPoint
@@ -28,9 +29,16 @@ class ShellFragment : Fragment() {
 
   private var _binding: FragmentShellBinding? = null
 
-
+  // not a bean because we want to keep them independent per fragment
+  val marcelDexClassLoader = MarcelDexClassLoader()
   @Inject
-  lateinit var marcelDexClassLoader: MarcelDexClassLoader
+  lateinit var compilerConfiguration: CompilerConfiguration
+  @Named("classesDir")
+  @Inject
+  lateinit var classesDir: File
+  @Named("initScriptFile")
+  @Inject
+  lateinit var initScriptFile: File
   private val binding get() = _binding!!
 
   private lateinit var marshell: AndroidMarshell
@@ -53,7 +61,7 @@ class ShellFragment : Fragment() {
     promptQueue = LinkedBlockingQueue<CharSequence>()
 
     printer = TextViewPrinter(requireActivity(), binding.historyText)
-    marshell = AndroidMarshell(printer, marcelDexClassLoader, this::readLine)
+    marshell = AndroidMarshell(compilerConfiguration, classesDir, initScriptFile, printer, marcelDexClassLoader, this::readLine)
     val highlighter = marshell.newHighlighter()
     editTextHighlighter = EditTextHighlighter(binding.promptEditText, highlighter)
 

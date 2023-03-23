@@ -1,32 +1,36 @@
 package com.tambapps.marcel.android.app.configuration
 
 import android.content.Context
-import com.tambapps.marcel.android.app.marcel.compiler.AndroidMarcelCompiler
+import com.tambapps.marcel.compiler.CompilerConfiguration
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.components.FragmentComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
-import marcel.lang.android.dex.MarcelDexClassLoader
 import java.io.File
+import javax.inject.Named
 
 @Module
 @InstallIn(ActivityComponent::class, FragmentComponent::class)
 class MarcelDroidConfiguration {
 
+  @Named("classesDir")
   @Provides
   fun classesDir(@ApplicationContext context: Context): File {
     return context.getDir("classes", Context.MODE_PRIVATE)
   }
 
+  @Named("initScriptFile")
   @Provides
-  fun marcelDexClassLoader(): MarcelDexClassLoader {
-    return MarcelDexClassLoader()
+  fun initScriptFile(@ApplicationContext context: Context): File {
+    val dir = context.getDir("configuration", Context.MODE_PRIVATE)
+    return File(dir, "init.mcl")
   }
 
   @Provides
-  fun marcelCompiler(dexClassLoader: MarcelDexClassLoader): AndroidMarcelCompiler {
-    return AndroidMarcelCompiler(dexClassLoader)
+  fun compilerConfiguration(): CompilerConfiguration {
+    return CompilerConfiguration(dumbbellEnabled = true, classVersion = 52) // Java 8
   }
+
 }
