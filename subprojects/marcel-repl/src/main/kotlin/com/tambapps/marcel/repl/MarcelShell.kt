@@ -23,6 +23,7 @@ import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 
 abstract class MarcelShell constructor(
+  compilerConfiguration: CompilerConfiguration,
   protected val printer: SuspendPrinter,
   val marcelClassLoader: MarcelClassLoader,
   jarWriterFactory: JarWriterFactory,
@@ -36,7 +37,7 @@ abstract class MarcelShell constructor(
   abstract val initScriptFile: File?
 
   protected val typeResolver = JavaTypeResolver(marcelClassLoader)
-  protected val replCompiler = MarcelReplCompiler(CompilerConfiguration(dumbbellEnabled = true), typeResolver)
+  protected val replCompiler = MarcelReplCompiler(compilerConfiguration, typeResolver)
   protected val evaluator = MarcelEvaluator(binding, replCompiler, marcelClassLoader, jarWriterFactory, tempDir)
   private val buffer = mutableListOf<String>()
   private val commands = listOf<ShellCommand>(

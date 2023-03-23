@@ -1,5 +1,6 @@
 package com.tambapps.marcel.marshell
 
+import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.marshell.console.MarshellCompleter
 import com.tambapps.marcel.marshell.console.MarshellSnippetParser
 import com.tambapps.marcel.marshell.console.ReaderHighlighter
@@ -20,6 +21,7 @@ suspend fun main(args: Array<String>) {
 }
 
 class Marshell: MarcelShell(
+  CompilerConfiguration(dumbbellEnabled = true),
   PrintStreamSuspendPrinter(System.out), URLMarcelClassLoader(Marshell::class.java.classLoader), BasicJarWriterFactory(),
   Files.createTempDirectory("marshell").toFile(),
   "marshell:%03d> ") {
