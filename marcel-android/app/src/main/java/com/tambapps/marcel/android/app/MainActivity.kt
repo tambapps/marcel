@@ -1,23 +1,24 @@
 package com.tambapps.marcel.android.app
 
 import android.os.Bundle
-import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
+import androidx.navigation.ui.NavigationUI
 import com.google.android.material.navigation.NavigationView
 import com.tambapps.marcel.android.app.databinding.ActivityMainBinding
+import com.tambapps.marcel.android.app.util.ContextUtils
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
+  NavigationView.OnNavigationItemSelectedListener {
 
-  private lateinit var appBarConfiguration: AppBarConfiguration
   private lateinit var binding: ActivityMainBinding
+  private lateinit var navController: NavController
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -26,32 +27,50 @@ class MainActivity : AppCompatActivity() {
     binding = ActivityMainBinding.inflate(layoutInflater)
     setContentView(binding.root)
 
-    setSupportActionBar(binding.appBarMain.toolbar)
+    val drawer: DrawerLayout = binding.drawerLayout
+    val navigatorView: NavigationView = binding.navView
 
-    val drawerLayout: DrawerLayout = binding.drawerLayout
-    val navView: NavigationView = binding.navView
-    // TODO nav controller sucks as it always forces you to change fragment and destrroy the current fragment.
-    //  use a similar mecanism as in groovy shell
-    val navController = findNavController(R.id.nav_host_fragment_content_main)
-    // Passing each menu ID as a set of Ids because each
-    // menu should be considered as top level destinations.
-    appBarConfiguration = AppBarConfiguration(
-      setOf(
-        R.id.nav_shell, R.id.nav_gallery, R.id.nav_slideshow
-      ), drawerLayout
-    )
-    setupActionBarWithNavController(navController, appBarConfiguration)
-    navView.setupWithNavController(navController)
+    findViewById<View>(R.id.drawerButton).setOnClickListener {
+      if (drawer.isDrawerOpen(navigatorView)) {
+        drawer.closeDrawer(navigatorView)
+      } else {
+        drawer.openDrawer(navigatorView)
+        val view = currentFocus
+        if (view != null) {
+          ContextUtils.hideSoftBoard(this, view)
+        }
+      }
+    }
+    drawer.addDrawerListener(this)
+    navController = Navigation.findNavController(this, R.id.nav_host_fragment)
+    navigatorView.setNavigationItemSelectedListener(this)
+    navigatorView.setCheckedItem(R.id.nav_shell)
   }
 
-  override fun onCreateOptionsMenu(menu: Menu): Boolean {
-    // Inflate the menu; this adds items to the action bar if it is present.
-    menuInflater.inflate(R.menu.main, menu)
+  override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+  }
+
+  override fun onDrawerOpened(drawerView: View) {
+  }
+
+  override fun onDrawerClosed(drawerView: View) {
+    ContextUtils.hideSoftBoard(this, drawerView)
+  }
+
+  override fun onDrawerStateChanged(newState: Int) {
+  }
+
+  override fun onNavigationItemSelected(menuItem: MenuItem): Boolean {
+    if (!NavigationUI.onNavDestinationSelected(menuItem, navController)) {
+      // note to self we're only going here if there is no entry for the nav_something in the mobile_navigation.xml
+      when (menuItem.itemId) {
+        // to do
+      }
+    }
+
+    binding.drawerLayout.closeDrawer(binding.navView)
     return true
+
   }
 
-  override fun onSupportNavigateUp(): Boolean {
-    val navController = findNavController(R.id.nav_host_fragment_content_main)
-    return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-  }
 }

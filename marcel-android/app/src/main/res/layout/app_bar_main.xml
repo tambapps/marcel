@@ -6,20 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/Theme.MarcelDroid.AppBarOverlay">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/Theme.MarcelDroid.PopupOverlay" />
-
-    </com.google.android.material.appbar.AppBarLayout>
-
     <include layout="@layout/content_main" />
+
+    <ImageButton
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:scaleType="fitCenter"
+        android:layout_gravity="top|start"
+        android:layout_margin="8dp"
+        android:src="@drawable/drawer"
+        android:background="@null"
+        android:id="@+id/drawerButton"
+        android:foreground="?attr/selectableItemBackground"
+        />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

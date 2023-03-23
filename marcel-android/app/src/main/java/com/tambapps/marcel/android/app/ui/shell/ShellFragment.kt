@@ -9,6 +9,7 @@ import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import com.tambapps.marcel.android.app.databinding.FragmentShellBinding
 import com.tambapps.marcel.android.app.marcel.shell.AndroidMarshell
+import com.tambapps.marcel.android.app.util.ContextUtils
 import dagger.hilt.android.AndroidEntryPoint
 import de.markusressel.kodehighlighter.core.util.EditTextHighlighter
 import kotlinx.coroutines.Dispatchers
@@ -66,8 +67,7 @@ class ShellFragment : Fragment() {
       promptEditText.setOnKeyListener(PromptKeyListener(promptQueue))
       promptEditText.setOnFocusChangeListener { v, hasFocus ->
         if (hasFocus) {
-          val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-          imm.showSoftInput(v, 0)
+          ContextUtils.showSoftBoard(requireContext(), v)
         }
       }
       promptEditText.requestFocus()

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingTop="64dp"
     tools:context=".ui.shell.ShellFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
