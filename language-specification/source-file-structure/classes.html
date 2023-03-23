@@ -170,6 +170,46 @@
   Object c;
 }
 </code></pre>
+<h2 id="constructors"><a class="header" href="#constructors">Constructors</a></h2>
+<p>You can use the keyword <code>constructor</code> to define constructors. The definition is similar to a function</p>
+<pre><code class="language-kotlin">class Foo {
+  int bar
+  String zoo
+  
+  constructor(int bar, String zoo) {
+    this.bar = bar
+    this.zoo = zoo
+  }
+}
+</code></pre>
+<p>Constructors where you just want to assign values to your fields are common use-cases. Marcel has a syntax
+allowing you to write such constructors with a less verbose code.</p>
+<pre><code class="language-kotlin">class Foo {
+  int bar
+  String zoo
+  
+  constructor(this.bar, this.zoo)
+}
+</code></pre>
+<p>We didn't even specify a function block, but you can specify one if you want. The first statements
+of your class will be the field assignments (after the super() call of course).</p>
+<h3 id="calling-constructors-not-yet-implemented-for-this"><a class="header" href="#calling-constructors-not-yet-implemented-for-this">Calling constructors (Not Yet Implemented for <code>this</code>)</a></h3>
+<p>You can call specific <code>super</code> and <code>this</code> constructors.</p>
+<pre><code class="language-groovy">class A {
+  int foo
+  constructor(this.foo)
+}
+
+class B {
+  int bar
+  constructor(int foo, this.bar): super(foo) {
+    println(&quot;Yahoo&quot;)  
+  }
+  
+  constructor(this.bar): this(0, bar)
+
+}
+</code></pre>
 
                     </main>
 
