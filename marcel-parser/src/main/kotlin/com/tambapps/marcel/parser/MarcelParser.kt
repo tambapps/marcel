@@ -175,7 +175,7 @@ class MarcelParser constructor(
       // can be a class, a field or a function
       when (getNextMemberToken()) {
         TokenType.CLASS -> innerClasses.add(parseClass(imports, packageName, classNode))
-        TokenType.FUN -> methods.add(method(classNode, isExtensionClass))
+        TokenType.FUN, TokenType.CONSTRUCTOR -> methods.add(method(classNode, isExtensionClass))
         // must be a type token
         else -> classFields.add(parseField(classNode))
       }
@@ -220,13 +220,14 @@ class MarcelParser constructor(
                 innerClasses.add(parseClass(imports, packageName, classNode))
               }
             }
-              TokenType.FUN -> {
+            TokenType.FUN -> {
               val method = method(classNode)
               if (method.name == "main") {
                 throw MarcelSemanticException(classNode.token, "Cannot have a \"main\" function in a script")
               }
               classNode.addMethod(method)
             }
+            TokenType.CONSTRUCTOR -> throw MarcelParserException(current, "Scripts cannot have constructors")
             // must be a type token
             else -> classFields.add(parseField(classNode))
           }
@@ -241,7 +242,7 @@ class MarcelParser constructor(
   // return next class, fun, or typetoken
   private fun getNextMemberToken(): TokenType {
     var i = currentIndex
-    while (i < tokens.size && tokens[i].type !in listOf(TokenType.CLASS, TokenType.FUN) && !isTypeToken(tokens[i].type)) i++
+    while (i < tokens.size && tokens[i].type !in listOf(TokenType.CLASS, TokenType.FUN, TokenType.CONSTRUCTOR) && !isTypeToken(tokens[i].type)) i++
     if (i >= tokens.size) throw MarcelParserException(
       current,
       "Unexpected tokens"
@@ -299,8 +300,9 @@ class MarcelParser constructor(
     val classScope = classNode.scope
     val (acc, isInline) = parseAccess()
     val access = if (forceStatic) acc or Opcodes.ACC_STATIC else acc
-    val token = accept(TokenType.FUN)
-    val methodName = accept(TokenType.IDENTIFIER).value
+    val token = accept(TokenType.FUN, TokenType.CONSTRUCTOR)
+    val isConstructor = token.type == TokenType.CONSTRUCTOR
+    val methodName = if (isConstructor) JavaMethod.CONSTRUCTOR_NAME else accept(TokenType.IDENTIFIER).value
     accept(TokenType.LPAR)
     val parameters = mutableListOf<MethodParameterNode>()
     while (current.type != TokenType.RPAR) {
@@ -320,10 +322,13 @@ class MarcelParser constructor(
     }
     skip() // skipping RPAR
     val currentToken = current
-    val returnType = if (current.type != TokenType.BRACKETS_OPEN) parseType(classScope) else JavaType.void
+    // constructors return void
+    val returnType = if (isConstructor) JavaType.void else if (current.type != TokenType.BRACKETS_OPEN) parseType(classScope) else JavaType.void
     val statements = mutableListOf<StatementNode>()
     val methodScope = MethodScope(classScope, methodName, parameters, returnType, false)
-    val methodNode = MethodNode(access, classNode.type, methodName, FunctionBlockNode(currentToken, methodScope, statements), parameters, returnType, methodScope, isInline)
+    val methodNode =
+      if (isConstructor) ConstructorNode(token, access, FunctionBlockNode(currentToken, methodScope, statements), parameters, methodScope)
+     else MethodNode(access, classNode.type, methodName, FunctionBlockNode(currentToken, methodScope, statements), parameters, returnType, methodScope, isInline)
     statements.addAll(block(methodScope).statements)
     return methodNode
   }

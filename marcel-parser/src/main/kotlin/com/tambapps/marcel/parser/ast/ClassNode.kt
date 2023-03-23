@@ -48,27 +48,22 @@ class ClassNode constructor(override val token: LexToken,
 
   private fun scriptEmptyConstructor(): ConstructorNode {
     val emptyConstructorScope = MethodScope(scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void, false)
-    return ConstructorNode(LexToken.dummy(),
-      Opcodes.ACC_PUBLIC,
-      FunctionBlockNode(LexToken.dummy(), emptyConstructorScope, mutableListOf()),
-      mutableListOf(),
-      emptyConstructorScope
-    )
+    ConstructorNode.of(this, emptyConstructorScope, mutableListOf(), mutableListOf())
+    return ConstructorNode.of(this, emptyConstructorScope, mutableListOf(), mutableListOf())
   }
   private fun scriptBindingConstructor(): ConstructorNode {
     val bindingType = JavaType.of(Binding::class.java)
     val bindingParameterName = "binding"
     val bindingConstructorParameters = mutableListOf(MethodParameterNode(bindingType, bindingParameterName))
     val bindingConstructorScope = MethodScope(scope, JavaMethod.CONSTRUCTOR_NAME, bindingConstructorParameters, JavaType.void, false)
-    return ConstructorNode(LexToken.dummy(),
-      Opcodes.ACC_PUBLIC, FunctionBlockNode(LexToken.dummy(), bindingConstructorScope, mutableListOf(
-        ExpressionStatementNode(LexToken.dummy(),
-          SuperConstructorCallNode(LexToken.dummy(), scope, mutableListOf(
-            ReferenceExpression(LexToken.dummy(),
-              bindingConstructorScope, bindingParameterName)
-          ))
-        )
-      )), bindingConstructorParameters, bindingConstructorScope
+    return ConstructorNode.of(this, bindingConstructorScope, bindingConstructorParameters, mutableListOf(
+      ExpressionStatementNode(LexToken.dummy(),
+        SuperConstructorCallNode(LexToken.dummy(), scope, mutableListOf(
+          ReferenceExpression(LexToken.dummy(),
+            bindingConstructorScope, bindingParameterName)
+        ))
+      )
+    )
     )
   }
 

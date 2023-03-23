@@ -11,14 +11,19 @@ import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import org.objectweb.asm.Opcodes
 
-class ConstructorNode(
+class ConstructorNode constructor(
   token: LexToken,
   access: Int,
   block: FunctionBlockNode,
   parameters: MutableList<MethodParameterNode>,
   scope: MethodScope
-) : MethodNode(token, access, JavaType.void, JavaMethod.CONSTRUCTOR_NAME, blockWithSuperCall(scope, block), parameters, JavaType.void,
+) : MethodNode(token, access, JavaType.void, JavaMethod.CONSTRUCTOR_NAME, block, parameters, JavaType.void,
   scope, false, true) {
+
+  val startsWithSuperCall: Boolean get() {
+    val s = block.statements.firstOrNull() ?: return false
+    return s is ExpressionStatementNode && s.expression is SuperConstructorCallNode
+  }
 
   companion object {
 
@@ -27,7 +32,7 @@ class ConstructorNode(
     }
     fun of(classNode: ClassNode, scope: MethodScope, parameters: MutableList<MethodParameterNode>, statements: MutableList<StatementNode>): ConstructorNode {
       return ConstructorNode(classNode.token,
-        Opcodes.ACC_PUBLIC, FunctionBlockNode(LexToken.dummy(), scope, statements),
+        Opcodes.ACC_PUBLIC, blockWithSuperCall(scope, FunctionBlockNode(LexToken.dummy(), scope, statements)),
         parameters, scope
       )
     }
@@ -35,7 +40,7 @@ class ConstructorNode(
     fun emptyConstructor(classNode: ClassNode): ConstructorNode {
       val emptyConstructorScope = MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)
       return ConstructorNode(classNode.token,
-        Opcodes.ACC_PUBLIC, FunctionBlockNode(classNode.token, emptyConstructorScope, mutableListOf()),
+        Opcodes.ACC_PUBLIC, blockWithSuperCall(emptyConstructorScope, FunctionBlockNode(classNode.token, emptyConstructorScope, mutableListOf())),
         mutableListOf(), emptyConstructorScope
       )
     }

@@ -11,6 +11,7 @@ import com.tambapps.marcel.parser.ast.ConstructorNode
 import com.tambapps.marcel.parser.ast.FieldNode
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.expression.*
+import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.DefaultValue
@@ -90,6 +91,14 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     if (classNode.constructorsCount == 0) {
       // if no constructor is defined, we'll define one for you
       classNode.methods.add(ConstructorNode.emptyConstructor(classNode))
+    } else {
+      for (constructor in classNode.constructors) {
+        if (!constructor.startsWithSuperCall) {
+          constructor.block.statements.add(0, ExpressionStatementNode(LexToken.dummy(), SuperConstructorCallNode(
+            LexToken.dummy(), constructor.scope, mutableListOf()
+          )))
+        }
+      }
     }
     for (field in classNode.fields) {
       writeField(classWriter, classNode, field)
