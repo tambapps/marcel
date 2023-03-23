@@ -16,7 +16,7 @@
 
     <style name="shellText">
         <item name="android:textColor">#fff</item>
-        <item name="android:textSize">18sp</item>
+        <item name="android:textSize">@dimen/shell_text_size</item>
         <item name="android:fontFamily">@font/ubuntu_family</item>
     </style>
 

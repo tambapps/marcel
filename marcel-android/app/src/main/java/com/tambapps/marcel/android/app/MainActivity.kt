@@ -54,7 +54,6 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
   }
 
   override fun onDrawerClosed(drawerView: View) {
-    ContextUtils.hideSoftBoard(this, drawerView)
   }
 
   override fun onDrawerStateChanged(newState: Int) {
