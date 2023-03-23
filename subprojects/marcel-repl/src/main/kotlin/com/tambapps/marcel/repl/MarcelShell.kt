@@ -33,6 +33,7 @@ abstract class MarcelShell constructor(
   val lastNode: ClassNode? get() = replCompiler.parserResult?.scriptNode
   val definedClasses get() = replCompiler.definedClasses
   val imports: Collection<ImportNode> get() = replCompiler.imports
+  abstract val initScriptFile: File?
 
   protected val typeResolver = JavaTypeResolver(marcelClassLoader)
   protected val replCompiler = MarcelReplCompiler(CompilerConfiguration(dumbbellEnabled = true), typeResolver)
@@ -60,12 +61,34 @@ abstract class MarcelShell constructor(
 
   suspend fun run() {
     runningReference.set(true)
+    val initScriptFile = this.initScriptFile
+    if (initScriptFile != null && initScriptFile.isFile) {
+      val text = initScriptFile.readText()
+      if (text.isNotBlank()) {
+        try {
+          evaluator.eval(text)
+        } catch (e: MarcelLexerException) {
+          println("Error from init script: ${e.message}")
+          onInitScriptFail(e)
+        } catch (e: MarcelSemanticException) {
+          println("Error from init script: ${e.message}")
+          onInitScriptFail(e)
+        } catch (e: MarcelParserException) {
+          println("Error from init script: ${e.message}")
+          onInitScriptFail(e)
+        } catch (ex: Exception) {
+          println("Error from init script: ${ex.message}")
+          onInitScriptFail(ex)
+        }
+      }
+    }
     onStart()
     while (runningReference.get()) {
       doRun()
     }
     onFinish()
   }
+
 
   open suspend fun doRun() {
     val prompt = String.format(promptTemplate, buffer.size)
@@ -144,8 +167,12 @@ abstract class MarcelShell constructor(
   }
 
   protected open suspend fun onFinish() {
-
   }
+
+
+  protected open fun onInitScriptFail(e: Exception) {
+  }
+
   protected open suspend fun printEval(eval: Any?) {
     printer.suspendPrint(eval)
   }
