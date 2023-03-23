@@ -124,11 +124,7 @@ interface JavaType: AstTypedObject {
       return true
     }
 
-    // I remove these primitive checks at some point but forgot why...
-    // let's keep them for now
-    if (this == int && other == char || this == char && other == long) return true
-    if (this == long && other == int) return true
-    if (this == double && other == float) return true
+    // We don't smartly cast primitive types here because it would induce the compiler in error when checking types, especially when casting
 
     if (isLoaded && other.isLoaded) {
       return realClazz.isAssignableFrom(other.realClazz)
