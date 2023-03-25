@@ -1,12 +1,9 @@
-package com.tambapps.marcel.android.app.marcel.compiler
+package com.tambapps.marcel.dalvik.compiler
 
 import com.tambapps.marcel.compiler.CompiledClass
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.MarcelCompiler
 import com.tambapps.marcel.compiler.SourceFile
-import marcel.lang.android.dex.DexBytecodeTranslator
-import marcel.lang.android.dex.DexJarWriter
-import marcel.lang.android.dex.MarcelDexClassLoader
 import java.io.File
 
 class AndroidMarcelCompiler(
@@ -33,7 +30,8 @@ class AndroidMarcelCompiler(
 
   fun compileToDexJar(sourceFiles: Collection<SourceFile>, dexJarFile: File) {
     val compiledClasses = compiler.compile(classLoader, sourceFiles)
-    DexJarWriter(dexJarFile.outputStream()).use { writer ->
+    DexJarWriter(dexJarFile.outputStream())
+      .use { writer ->
       writer.writeClasses(compiledClasses)
     }
   }

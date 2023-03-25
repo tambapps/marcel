@@ -15,7 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import marcel.lang.MarcelSystem
-import marcel.lang.android.dex.MarcelDexClassLoader
+import com.tambapps.marcel.dalvik.compiler.MarcelDexClassLoader
 import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -30,7 +30,8 @@ class ShellFragment : Fragment() {
   private var _binding: FragmentShellBinding? = null
 
   // not a bean because we want to keep them independent per fragment
-  val marcelDexClassLoader = MarcelDexClassLoader()
+  val marcelDexClassLoader =
+    MarcelDexClassLoader()
   @Inject
   lateinit var compilerConfiguration: CompilerConfiguration
   @Named("classesDir")

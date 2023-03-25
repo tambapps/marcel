@@ -1,11 +1,11 @@
-package com.tambapps.marcel.android.app
+package com.tambapps.marcel.dalvik.compiler
 
 import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.tambapps.marcel.android.app.marcel.compiler.AndroidMarcelCompiler
+import com.tambapps.marcel.dalvik.compiler.AndroidMarcelCompiler
 import com.tambapps.marcel.compiler.SourceFile
-import marcel.lang.android.dex.MarcelDexClassLoader
+import com.tambapps.marcel.dalvik.compiler.MarcelDexClassLoader
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -19,7 +19,8 @@ class MarcelEvalTest {
   private val dir
     get() = InstrumentationRegistry.getInstrumentation().targetContext
       .getDir("classes", Context.MODE_PRIVATE)
-  private val classLoader = MarcelDexClassLoader()
+  private val classLoader =
+    MarcelDexClassLoader()
   private val compiler = AndroidMarcelCompiler(classLoader)
 
 

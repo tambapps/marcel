@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 
-import marcel.lang.android.dex.DexJarWriter;
+import com.tambapps.marcel.dalvik.compiler.DexJarWriter;
 
 public class DexJarWriterFactory implements JarWriterFactory {
   @NonNull

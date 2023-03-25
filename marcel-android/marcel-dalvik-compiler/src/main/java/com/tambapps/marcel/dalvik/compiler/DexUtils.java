@@ -1,4 +1,4 @@
-package marcel.lang.android.dex;
+package com.tambapps.marcel.dalvik.compiler;
 
 import java.io.File;
 import java.io.IOException;
