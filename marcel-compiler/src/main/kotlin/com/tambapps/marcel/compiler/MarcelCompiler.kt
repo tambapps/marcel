@@ -73,8 +73,6 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
   @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class, MarcelCompilerException::class)
   fun compileSourceFiles(scriptLoader: MarcelClassLoader? = null, sourceFiles: Collection<SourceFile>, classConsumer: Consumer<CompiledClass>) {
     val typeResolver = JavaTypeResolver(scriptLoader)
-    // adding extensions
-    typeResolver.loadDefaultExtensions()
 
     for (sourceFile in sourceFiles) {
       val tokens = MarcelLexer().lex(sourceFile.text)

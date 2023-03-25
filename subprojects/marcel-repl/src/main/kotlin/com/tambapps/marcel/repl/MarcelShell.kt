@@ -8,7 +8,6 @@ import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.repl.command.ClearBufferCommand
-import com.tambapps.marcel.repl.command.ExitCommand
 import com.tambapps.marcel.repl.command.HelpCommand
 import com.tambapps.marcel.repl.command.ImportCommand
 import com.tambapps.marcel.repl.command.ListCommand
@@ -38,25 +37,16 @@ abstract class MarcelShell constructor(
 
   protected val typeResolver = JavaTypeResolver(marcelClassLoader)
   protected val replCompiler = MarcelReplCompiler(compilerConfiguration, typeResolver)
-  protected val evaluator = MarcelEvaluator(binding, replCompiler, marcelClassLoader, jarWriterFactory, tempDir)
+  private val evaluator = MarcelEvaluator(binding, replCompiler, marcelClassLoader, jarWriterFactory, tempDir)
   private val buffer = mutableListOf<String>()
-  private val commands = listOf<ShellCommand>(
+  private val commands = mutableListOf<ShellCommand>(
     HelpCommand(),
-    ExitCommand(),
     ListCommand(),
     ClearBufferCommand(),
     PullDependencyCommand(),
     ImportCommand(),
   )
   private val runningReference = AtomicBoolean()
-
-  init {
-    typeResolver.loadDefaultExtensions()
-  }
-
-  fun addImport(importArgs: String) {
-    replCompiler.addImport("import $importArgs")
-  }
 
   abstract suspend fun readLine(prompt: String): String
 
@@ -177,4 +167,14 @@ abstract class MarcelShell constructor(
   protected open suspend fun printEval(eval: Any?) {
     printer.suspendPrint(eval)
   }
+
+
+  fun addCommand(c: ShellCommand) {
+    this.commands.add(c)
+  }
+
+  fun addImport(importArgs: String) {
+    replCompiler.addImport("import $importArgs")
+  }
+
 }

@@ -36,12 +36,15 @@ class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNodeTyp
   private val classMethods = mutableMapOf<String, MutableList<JavaMethod>>()
   private val classFields = mutableMapOf<String, MutableList<MarcelField>>()
 
-
-  fun loadDefaultExtensions() {
+  init {
+    loadDefaultExtensions()
+  }
+  private fun loadDefaultExtensions() {
     loadExtensionMethods(
       DefaultMarcelMethods::class.java, IoMarcelMethods::class.java, StringMarcelMethods::class.java,
       CharacterMarcelMethods::class.java)
   }
+
   fun loadExtensionMethods(vararg classes: Class<*>) {
     classes.forEach { loadExtensionMethods(it) }
   }

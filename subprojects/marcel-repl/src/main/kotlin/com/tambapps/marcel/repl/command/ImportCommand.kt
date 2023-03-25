@@ -8,7 +8,7 @@ class ImportCommand: AbstractShellCommand() {
   override val name = "import"
   override val shortName = "i"
   override val usage = ":import some.class"
-  override val helpDescription = "Import a/some class(es) (wildcards and 'as' imports also work)"
+  override val helpDescription = "Import a/some class(es)"
 
   override suspend fun run(shell: MarcelShell, args: List<String>, out: SuspendPrinter) {
     if (args.isEmpty()) {

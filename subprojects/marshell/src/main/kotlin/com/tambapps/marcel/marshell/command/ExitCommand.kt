@@ -1,6 +1,7 @@
-package com.tambapps.marcel.repl.command
+package com.tambapps.marcel.marshell.command
 
 import com.tambapps.marcel.repl.MarcelShell
+import com.tambapps.marcel.repl.command.AbstractShellCommand
 import com.tambapps.marcel.repl.printer.SuspendPrinter
 
 class ExitCommand: AbstractShellCommand() {
