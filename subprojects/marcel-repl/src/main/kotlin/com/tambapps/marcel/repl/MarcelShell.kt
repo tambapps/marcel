@@ -27,9 +27,9 @@ abstract class MarcelShell constructor(
   val marcelClassLoader: MarcelClassLoader,
   jarWriterFactory: JarWriterFactory,
   protected val tempDir: File,
+  val binding: Binding = Binding(),
   private val promptTemplate: String = "marshell:%03d> ") {
 
-  val binding = Binding()
   val lastNode: ClassNode? get() = replCompiler.parserResult?.scriptNode
   val definedClasses get() = replCompiler.definedClasses
   val imports: Collection<ImportNode> get() = replCompiler.imports

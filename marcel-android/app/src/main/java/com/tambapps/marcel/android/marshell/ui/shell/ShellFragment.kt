@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellBinding
 import com.tambapps.marcel.android.marshell.AndroidMarshell
+import com.tambapps.marcel.android.marshell.repl.AndroidMarshellFactory
 import com.tambapps.marcel.android.marshell.util.showSoftBoard
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,18 +29,8 @@ import javax.inject.Named
 class ShellFragment : Fragment() {
 
   private var _binding: FragmentShellBinding? = null
-
-  // not a bean because we want to keep them independent per fragment
-  val marcelDexClassLoader =
-    MarcelDexClassLoader()
   @Inject
-  lateinit var compilerConfiguration: CompilerConfiguration
-  @Named("classesDir")
-  @Inject
-  lateinit var classesDir: File
-  @Named("initScriptFile")
-  @Inject
-  lateinit var initScriptFile: File
+  lateinit var factory: AndroidMarshellFactory
   private val binding get() = _binding!!
 
   private lateinit var marshell: AndroidMarshell
@@ -62,7 +53,7 @@ class ShellFragment : Fragment() {
     promptQueue = LinkedBlockingQueue<CharSequence>()
 
     printer = TextViewPrinter(requireActivity(), binding.historyText)
-    marshell = AndroidMarshell(compilerConfiguration, classesDir, initScriptFile, printer, marcelDexClassLoader, this::readLine)
+    marshell = factory.newShell(printer, this::readLine)
     val highlighter = marshell.newHighlighter()
     editTextHighlighter = EditTextHighlighter(binding.promptEditText, highlighter)
 

@@ -8,6 +8,7 @@ import com.tambapps.marcel.marshell.console.ReaderHighlighter
 import com.tambapps.marcel.repl.MarcelShell
 import com.tambapps.marcel.repl.jar.BasicJarWriterFactory
 import com.tambapps.marcel.repl.printer.PrintStreamSuspendPrinter
+import marcel.lang.Binding
 import marcel.lang.URLMarcelClassLoader
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReaderBuilder
@@ -25,6 +26,7 @@ class Marshell: MarcelShell(
   CompilerConfiguration(dumbbellEnabled = true),
   PrintStreamSuspendPrinter(System.out), URLMarcelClassLoader(Marshell::class.java.classLoader), BasicJarWriterFactory(),
   Files.createTempDirectory("marshell").toFile(),
+  Binding(),
   "marshell:%03d> ") {
 
   init {
