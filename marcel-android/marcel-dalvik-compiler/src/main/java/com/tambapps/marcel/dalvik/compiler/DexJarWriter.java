@@ -1,7 +1,5 @@
 package com.tambapps.marcel.dalvik.compiler;
 
-import androidx.annotation.NonNull;
-
 import com.android.dx.Version;
 import com.tambapps.marcel.compiler.CompiledClass;
 import com.tambapps.marcel.compiler.JarWriter;
@@ -17,7 +15,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
-// TODO make it extends JarWriter and make a class JarWriterFactory to use on MarcelShell
 public class DexJarWriter extends JarWriter implements Closeable {
 
 
@@ -31,7 +28,7 @@ public class DexJarWriter extends JarWriter implements Closeable {
     }
 
     @Override
-    public void writeClass(@NonNull CompiledClass compiledClass) {
+    public void writeClass(CompiledClass compiledClass) {
         // will be actually written when closing
         compiledClasses.add(compiledClass);
     }
