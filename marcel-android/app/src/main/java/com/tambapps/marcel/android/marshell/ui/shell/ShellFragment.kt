@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellBinding
 import com.tambapps.marcel.android.marshell.AndroidMarshell
-import com.tambapps.marcel.android.marshell.util.ContextUtils
+import com.tambapps.marcel.android.marshell.util.showSoftBoard
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import dagger.hilt.android.AndroidEntryPoint
 import com.tambapps.marcel.android.marshell.view.EditTextHighlighter
@@ -76,7 +76,7 @@ class ShellFragment : Fragment() {
       promptEditText.setOnKeyListener(PromptKeyListener(promptQueue))
       promptEditText.setOnFocusChangeListener { v, hasFocus ->
         if (hasFocus) {
-          ContextUtils.showSoftBoard(requireContext(), v)
+          requireContext().showSoftBoard(v)
         }
       }
       promptEditText.requestFocus()

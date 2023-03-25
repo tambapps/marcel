@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.tambapps.marcel.android.marshell.databinding.FragmentEditorBinding
 import com.tambapps.marcel.android.marshell.repl.console.TextViewHighlighter
-import com.tambapps.marcel.android.marshell.util.ContextUtils
+import com.tambapps.marcel.android.marshell.util.showSoftBoard
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.repl.MarcelReplCompiler
@@ -46,7 +46,7 @@ class EditorFragment : Fragment() {
     binding.editText.addTextChangedListener(lineCountWatcher)
 
     if (binding.editText.requestFocus()) {
-      ContextUtils.showSoftBoard(requireContext(), binding.editText)
+      requireContext().showSoftBoard(binding.editText)
     }
     viewModel.linesCount.observe(requireActivity()) {
       binding.lineText.text = (1..(it + 1)).joinToString(separator = "\n")

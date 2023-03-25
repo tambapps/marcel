@@ -10,7 +10,7 @@ import androidx.navigation.Navigation
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.navigation.NavigationView
 import com.tambapps.marcel.android.marshell.databinding.ActivityMainBinding
-import com.tambapps.marcel.android.marshell.util.ContextUtils
+import com.tambapps.marcel.android.marshell.util.hideSoftBoard
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
         drawer.openDrawer(navigatorView)
         val view = currentFocus
         if (view != null) {
-          ContextUtils.hideSoftBoard(this, view)
+          hideSoftBoard(view)
         }
       }
     }
