@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.marshell.marcel.shell.jar;
+package com.tambapps.marcel.android.marshell.repl.jar;
 
 import androidx.annotation.NonNull;
 

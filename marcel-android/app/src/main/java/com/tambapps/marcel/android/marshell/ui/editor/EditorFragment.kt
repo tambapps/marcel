@@ -7,13 +7,13 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.tambapps.marcel.android.marshell.databinding.FragmentEditorBinding
-import com.tambapps.marcel.android.marshell.marcel.shell.TextViewHighlighter
+import com.tambapps.marcel.android.marshell.repl.console.TextViewHighlighter
 import com.tambapps.marcel.android.marshell.util.ContextUtils
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import dagger.hilt.android.AndroidEntryPoint
-import de.markusressel.kodehighlighter.core.util.EditTextHighlighter
+import com.tambapps.marcel.android.marshell.view.EditTextHighlighter
 import marcel.lang.MarcelDexClassLoader
 import javax.inject.Inject
 

@@ -1,7 +1,8 @@
-package com.tambapps.marcel.android.marshell.marcel.shell
+package com.tambapps.marcel.android.marshell
 
 import android.os.Build
-import com.tambapps.marcel.android.marshell.marcel.shell.jar.DexJarWriterFactory
+import com.tambapps.marcel.android.marshell.repl.console.TextViewHighlighter
+import com.tambapps.marcel.android.marshell.repl.jar.DexJarWriterFactory
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.MarcelShell
 import com.tambapps.marcel.repl.printer.SuspendPrinter
@@ -9,6 +10,7 @@ import marcel.lang.MarcelClassLoader
 import marcel.lang.util.MarcelVersion
 import java.io.File
 
+// TODO override some commands
 class AndroidMarshell constructor(
   compilerConfiguration: CompilerConfiguration,
   classesDir: File,
@@ -16,7 +18,8 @@ class AndroidMarshell constructor(
   out: SuspendPrinter,
   marcelClassLoader: MarcelClassLoader,
   private val readLineFunction: suspend (String) -> String
-) : MarcelShell(compilerConfiguration, out, marcelClassLoader, DexJarWriterFactory(),
+) : MarcelShell(compilerConfiguration, out, marcelClassLoader,
+  DexJarWriterFactory(),
   classesDir, "%03d> ") {
 
   override suspend fun readLine(prompt: String): String {

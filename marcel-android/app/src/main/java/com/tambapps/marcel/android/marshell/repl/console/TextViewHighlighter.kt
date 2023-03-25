@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.marshell.marcel.shell
+package com.tambapps.marcel.android.marshell.repl.console
 
 import android.graphics.Color
 import android.text.Spannable

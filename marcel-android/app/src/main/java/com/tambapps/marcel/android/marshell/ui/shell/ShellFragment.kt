@@ -6,11 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellBinding
-import com.tambapps.marcel.android.marshell.marcel.shell.AndroidMarshell
+import com.tambapps.marcel.android.marshell.AndroidMarshell
 import com.tambapps.marcel.android.marshell.util.ContextUtils
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import dagger.hilt.android.AndroidEntryPoint
-import de.markusressel.kodehighlighter.core.util.EditTextHighlighter
+import com.tambapps.marcel.android.marshell.view.EditTextHighlighter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext

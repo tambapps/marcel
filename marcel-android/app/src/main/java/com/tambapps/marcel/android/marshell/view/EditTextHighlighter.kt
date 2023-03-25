@@ -1,10 +1,11 @@
-package de.markusressel.kodehighlighter.core.util
+package com.tambapps.marcel.android.marshell.view
 
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
-import com.tambapps.marcel.android.marshell.marcel.shell.TextViewHighlighter
+import com.tambapps.marcel.android.marshell.repl.console.TextViewHighlighter
 import kotlinx.coroutines.*
+import java.util.*
 
 /**
  * Convenience class for using a [LanguageRuleBook] in an [EditText]
@@ -15,15 +16,15 @@ import kotlinx.coroutines.*
  * of an already highlighted [EditText].
  */
 open class EditTextHighlighter(
-        /**
+    /**
          * The target [EditText] to apply syntax highlighting to
          */
         target: EditText,
-        /**
+    /**
          * The [TextViewHighlighter] to use
          */
         private val highlighter: TextViewHighlighter,
-        /**
+    /**
          * Time in milliseconds to debounce user input
          */
         debounceMs: Long = 100) {
@@ -118,4 +119,36 @@ open class EditTextHighlighter(
         target.removeTextChangedListener(debouncedTextWatcher)
         continuousHighlight = false
     }
+
+    /**
+     * TextWatcher with built in support for debouncing fast input
+     *
+     * @param delayMs debounce delay in milliseconds
+     * @param action action to execute after the text has stabilized
+     */
+    private class DebouncedTextWatcher(
+        var delayMs: Long,
+        val action: ((CharSequence?) -> Unit))
+        : TextWatcher {
+
+        private var timer = Timer()
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            val text = s?.toString() ?: ""
+
+            timer.cancel()
+            timer = Timer()
+            timer.schedule(object : TimerTask() {
+                override fun run() {
+                    CoroutineScope(Dispatchers.Main).launch {
+                        action(text)
+                    }
+                }
+            }, delayMs)
+        }
+
+        override fun afterTextChanged(s: Editable?) = Unit
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+    }
+
 }
