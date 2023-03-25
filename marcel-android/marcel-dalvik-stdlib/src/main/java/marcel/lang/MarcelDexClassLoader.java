@@ -23,7 +23,7 @@ public class MarcelDexClassLoader extends MarcelClassLoader {
         }
     }
 
-    public final BaseDexClassLoader classLoader;
+    private final BaseDexClassLoader classLoader;
 
     public MarcelDexClassLoader() {
         ClassLoader classLoader = MarcelDexClassLoader.class.getClassLoader();
@@ -110,10 +110,10 @@ public class MarcelDexClassLoader extends MarcelClassLoader {
        try {
            Class<BaseDexClassLoader> dexClassLoaderClass = BaseDexClassLoader.class;
            Field pathListField = dexClassLoaderClass.getDeclaredField("pathList");
-           pathListField.setAccessible(true);
+           if (!pathListField.isAccessible())  pathListField.setAccessible(true);
            Object pathList = pathListField.get(classLoader);
            Field dexElementsField = pathList.getClass().getDeclaredField("dexElements");
-           dexElementsField.setAccessible(true);
+           if (!dexElementsField.isAccessible()) dexElementsField.setAccessible(true);
            Object dexElements = dexElementsField.get(pathList);
            return dexElements;
        } catch (ReflectiveOperationException e) {
