@@ -1,0 +1,1 @@
+-keep class com.tambapps.marcel.dalvik.compiler.** { *; }

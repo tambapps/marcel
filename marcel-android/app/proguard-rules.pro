@@ -19,3 +19,12 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-keep class java.** { *; }
+
+# Apache/Groovy stuff
+-keep class marcel.** { *; }
+-keep class com.tambapps.marcel.** { *; }
+-keep class org.codehaus.** { *; }
+
+# android stuff
+-keep class android.** { *; }
