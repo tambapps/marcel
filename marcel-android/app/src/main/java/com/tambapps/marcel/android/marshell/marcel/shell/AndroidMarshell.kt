@@ -1,7 +1,7 @@
-package com.tambapps.marcel.android.app.marcel.shell
+package com.tambapps.marcel.android.marshell.marcel.shell
 
 import android.os.Build
-import com.tambapps.marcel.android.app.marcel.shell.jar.DexJarWriterFactory
+import com.tambapps.marcel.android.marshell.marcel.shell.jar.DexJarWriterFactory
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.MarcelShell
 import com.tambapps.marcel.repl.printer.SuspendPrinter

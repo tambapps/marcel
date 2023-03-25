@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.app.configuration
+package com.tambapps.marcel.android.marshell.configuration
 
 import android.content.Context
 import com.tambapps.marcel.compiler.CompilerConfiguration

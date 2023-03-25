@@ -3,7 +3,7 @@ package de.markusressel.kodehighlighter.core.util
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
-import com.tambapps.marcel.android.app.marcel.shell.TextViewHighlighter
+import com.tambapps.marcel.android.marshell.marcel.shell.TextViewHighlighter
 import kotlinx.coroutines.*
 
 /**

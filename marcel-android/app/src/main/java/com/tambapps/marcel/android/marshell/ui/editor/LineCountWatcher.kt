@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.app.ui.editor
+package com.tambapps.marcel.android.marshell.ui.editor
 
 import android.text.Editable
 import android.text.TextWatcher

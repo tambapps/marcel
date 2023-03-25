@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.app.ui.shell
+package com.tambapps.marcel.android.marshell.ui.shell
 
 import android.app.Activity
 import android.widget.TextView

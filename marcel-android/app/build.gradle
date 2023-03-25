@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace 'com.tambapps.marcel.android.app'
+    namespace 'com.tambapps.marcel.android.marshell'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.tambapps.marcel.android.app"
+        applicationId "com.tambapps.marcel.android.marshell"
         minSdk 26
         targetSdk 33
         versionCode 1

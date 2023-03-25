@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.app
+package com.tambapps.marcel.android.marshell
 
 import android.os.Bundle
 import android.view.MenuItem
@@ -9,8 +9,8 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.navigation.NavigationView
-import com.tambapps.marcel.android.app.databinding.ActivityMainBinding
-import com.tambapps.marcel.android.app.util.ContextUtils
+import com.tambapps.marcel.android.marshell.databinding.ActivityMainBinding
+import com.tambapps.marcel.android.marshell.util.ContextUtils
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

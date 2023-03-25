@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.app.ui.slideshow
+package com.tambapps.marcel.android.marshell.ui.slideshow
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.tambapps.marcel.android.app.databinding.FragmentSlideshowBinding
+import com.tambapps.marcel.android.marshell.databinding.FragmentSlideshowBinding
 
 class SlideshowFragment : Fragment() {
 

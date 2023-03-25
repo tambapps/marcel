@@ -1,13 +1,13 @@
-package com.tambapps.marcel.android.app.ui.shell
+package com.tambapps.marcel.android.marshell.ui.shell
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.tambapps.marcel.android.app.databinding.FragmentShellBinding
-import com.tambapps.marcel.android.app.marcel.shell.AndroidMarshell
-import com.tambapps.marcel.android.app.util.ContextUtils
+import com.tambapps.marcel.android.marshell.databinding.FragmentShellBinding
+import com.tambapps.marcel.android.marshell.marcel.shell.AndroidMarshell
+import com.tambapps.marcel.android.marshell.util.ContextUtils
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import dagger.hilt.android.AndroidEntryPoint
 import de.markusressel.kodehighlighter.core.util.EditTextHighlighter

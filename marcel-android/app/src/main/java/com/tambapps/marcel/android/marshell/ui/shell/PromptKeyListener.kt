@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.app.ui.shell
+package com.tambapps.marcel.android.marshell.ui.shell
 
 import android.view.KeyEvent
 import android.view.View

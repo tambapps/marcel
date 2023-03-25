@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.app.util
+package com.tambapps.marcel.android.marshell.util
 
 import android.app.Activity
 import android.content.ClipData

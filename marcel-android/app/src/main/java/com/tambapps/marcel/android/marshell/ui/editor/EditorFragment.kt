@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.app.ui.editor
+package com.tambapps.marcel.android.marshell.ui.editor
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,9 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.tambapps.marcel.android.app.databinding.FragmentEditorBinding
-import com.tambapps.marcel.android.app.marcel.shell.TextViewHighlighter
-import com.tambapps.marcel.android.app.util.ContextUtils
+import com.tambapps.marcel.android.marshell.databinding.FragmentEditorBinding
+import com.tambapps.marcel.android.marshell.marcel.shell.TextViewHighlighter
+import com.tambapps.marcel.android.marshell.util.ContextUtils
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.repl.MarcelReplCompiler

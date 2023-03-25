@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.app
+package com.tambapps.marcel.android.marshell
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
