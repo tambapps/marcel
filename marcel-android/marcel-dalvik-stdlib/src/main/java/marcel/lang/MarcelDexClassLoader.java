@@ -1,4 +1,4 @@
-package com.tambapps.marcel.dalvik.compiler;
+package marcel.lang;
 
 import java.io.File;
 import java.lang.reflect.Array;
@@ -10,9 +10,7 @@ import java.util.List;
 
 import dalvik.system.BaseDexClassLoader;
 import dalvik.system.DexClassLoader;
-import marcel.lang.MarcelClassLoader;
 
-// TODO put this in a separate module marcel-dalvik-stdlib
 public class MarcelDexClassLoader extends MarcelClassLoader {
 
     private static final Class DEX_PATH_ELEMENT_CLASS;

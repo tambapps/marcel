@@ -1,10 +1,9 @@
 plugins {
     id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
 }
 
 android {
-    namespace 'marcel.lang.android'
+    namespace 'marcel.lang'
     compileSdk 33
 
     defaultConfig {
@@ -13,10 +12,6 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
-
-
-        // used to be able to access min sdk version from app
-        buildConfigField "int", "MIN_SDK_VERSION", "$minSdkVersion.apiLevel"
     }
 
     buildTypes {
@@ -29,20 +24,14 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
 }
 
 dependencies {
-
-    // need to have dalvik jar in libs
     implementation fileTree(dir: new File(rootDir, 'app/libs'), include: ['*.jar'])
 
-    implementation project(path: ':marcel-dalvik-stdlib')
-    implementation 'com.tambapps.marcel:marcel-compiler:0.1-SNAPSHOT'
+    implementation "com.tambapps.marcel:marcel-stdlib:0.1-SNAPSHOT"
 
-    implementation 'androidx.core:core-ktx:1.9.0'
+    // TODO maybe we can remove thr below implementations
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
     testImplementation 'junit:junit:4.13.2'

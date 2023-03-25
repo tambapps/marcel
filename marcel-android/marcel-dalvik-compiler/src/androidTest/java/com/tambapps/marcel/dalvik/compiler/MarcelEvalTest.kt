@@ -3,9 +3,8 @@ package com.tambapps.marcel.dalvik.compiler
 import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.tambapps.marcel.dalvik.compiler.AndroidMarcelCompiler
 import com.tambapps.marcel.compiler.SourceFile
-import com.tambapps.marcel.dalvik.compiler.MarcelDexClassLoader
+import marcel.lang.MarcelDexClassLoader
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith

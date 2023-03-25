@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 rootProject.name = "Marcel Droid"
 include ':app'
 include ':marcel-dalvik-compiler'
+include ':marcel-dalvik-stdlib'

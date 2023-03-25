@@ -14,7 +14,7 @@ import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import dagger.hilt.android.AndroidEntryPoint
 import de.markusressel.kodehighlighter.core.util.EditTextHighlighter
-import com.tambapps.marcel.dalvik.compiler.MarcelDexClassLoader
+import marcel.lang.MarcelDexClassLoader
 import javax.inject.Inject
 
 @AndroidEntryPoint

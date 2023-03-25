@@ -14,7 +14,7 @@ android {
         minSdk 26
         targetSdk 33
         versionCode 1
-        versionName "1.0"
+        versionName "0.1-SNAPSHOT"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -44,7 +44,7 @@ dependencies {
 
     implementation 'com.tambapps.marcel:marcel-repl:0.1-SNAPSHOT'
     implementation project(path: ':marcel-dalvik-compiler')
-
+    implementation project(path: ':marcel-dalvik-stdlib')
 
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'

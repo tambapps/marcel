@@ -15,7 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import marcel.lang.MarcelSystem
-import com.tambapps.marcel.dalvik.compiler.MarcelDexClassLoader
+import marcel.lang.MarcelDexClassLoader
 import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors

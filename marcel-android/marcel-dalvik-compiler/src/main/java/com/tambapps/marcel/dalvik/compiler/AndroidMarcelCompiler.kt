@@ -4,6 +4,7 @@ import com.tambapps.marcel.compiler.CompiledClass
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.MarcelCompiler
 import com.tambapps.marcel.compiler.SourceFile
+import marcel.lang.MarcelDexClassLoader
 import java.io.File
 
 class AndroidMarcelCompiler(
