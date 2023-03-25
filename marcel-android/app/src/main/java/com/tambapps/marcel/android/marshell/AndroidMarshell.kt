@@ -10,7 +10,6 @@ import marcel.lang.MarcelClassLoader
 import marcel.lang.util.MarcelVersion
 import java.io.File
 
-// TODO override some commands
 class AndroidMarshell constructor(
   compilerConfiguration: CompilerConfiguration,
   classesDir: File,
