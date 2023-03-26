@@ -1,5 +1,6 @@
 package com.tambapps.marcel.android.marshell.ui.shell
 
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,14 +9,17 @@ import androidx.fragment.app.Fragment
 import com.tambapps.marcel.android.marshell.ShellHandler
 import com.tambapps.marcel.android.marshell.data.ShellSession
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellWindowBinding
+import com.tambapps.marcel.android.marshell.repl.AndroidMarshell
 import com.tambapps.marcel.android.marshell.repl.AndroidMarshellFactory
 import com.tambapps.marcel.android.marshell.repl.AndroidMarshellRunner
 import com.tambapps.marcel.android.marshell.util.showSoftBoard
 import dagger.hilt.android.AndroidEntryPoint
 import com.tambapps.marcel.android.marshell.view.EditTextHighlighter
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import marcel.lang.MarcelSystem
+import marcel.lang.util.MarcelVersion
 import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
 
@@ -58,7 +62,7 @@ class ShellWindowFragment : Fragment() {
     shellSession = shellHandler.shellSessions[position]
 
     printer = TextViewPrinter(requireActivity(), binding.historyText)
-    marshellRunner = factory.newShellRunner(printer, shellSession.binding, this::readLine)
+    marshellRunner = factory.newShellRunner(shellSession, printer, this::readLine)
     val highlighter = marshellRunner.shell.newHighlighter()
     editTextHighlighter = EditTextHighlighter(binding.promptEditText, highlighter)
 
@@ -72,6 +76,20 @@ class ShellWindowFragment : Fragment() {
       promptEditText.requestFocus()
       historyText.setOnClickListener {
         promptEditText.requestFocus()
+      }
+    }
+
+    printer.println("Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSION.RELEASE})\n")
+    // now display history if any
+    if (shellSession.history.isNotEmpty()) {
+      val historyTextView = binding.historyText
+      for (prompt in shellSession.history) {
+        prompt.input.lines().forEachIndexed { index, promptLine ->
+          historyTextView.append(AndroidMarshell.PROMPT_TEMPLATE.format(index))
+          binding.historyText.append(highlighter.highlight(promptLine))
+          binding.historyText.append("\n")
+        }
+        historyTextView.append("${prompt.output}\n")
       }
     }
   }

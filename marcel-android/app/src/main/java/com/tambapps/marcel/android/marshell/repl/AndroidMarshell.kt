@@ -1,6 +1,8 @@
 package com.tambapps.marcel.android.marshell.repl
 
 import android.os.Build
+import android.util.Log
+import com.tambapps.marcel.android.marshell.data.Prompt
 import com.tambapps.marcel.android.marshell.repl.console.TextViewHighlighter
 import com.tambapps.marcel.android.marshell.repl.jar.DexJarWriterFactory
 import com.tambapps.marcel.compiler.CompilerConfiguration
@@ -18,17 +20,22 @@ class AndroidMarshell constructor(
   out: SuspendPrinter,
   marcelClassLoader: MarcelClassLoader,
   binding: Binding,
-  private val readLineFunction: suspend (String) -> String
+  private val readLineFunction: suspend (String) -> String,
+  private val history: MutableList<Prompt>
 ) : MarcelShell(compilerConfiguration, out, marcelClassLoader,
   DexJarWriterFactory(),
-  classesDir, binding, "%03d> ") {
+  classesDir, binding, PROMPT_TEMPLATE) {
+
+  companion object {
+    const val PROMPT_TEMPLATE = "%03d> "
+  }
 
   override suspend fun readLine(prompt: String): String {
     return readLineFunction.invoke(prompt)
   }
 
   override suspend fun printVersion() {
-    printer.suspendPrintln("Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSION.RELEASE})\n")
+    // version is printed manually anyway so this method shouldn't be called
   }
 
   fun newHighlighter(): TextViewHighlighter {
@@ -37,5 +44,10 @@ class AndroidMarshell constructor(
 
   override suspend fun printEval(eval: Any?) {
     printer.suspendPrintln(eval)
+  }
+
+  override suspend fun onPostEval(text: String, eval: Any?) {
+    history.add(Prompt(text, eval))
+    Log.e("cacaca", history.toString())
   }
 }

@@ -98,7 +98,9 @@ abstract class MarcelShell constructor(
     } else {
       try {
         val text = buffer.joinToString(separator = System.lineSeparator(), postfix = if (buffer.isEmpty()) line else "\n$line")
+        onPreEval(text)
         val eval = evaluator.eval(text)
+        onPostEval(text, eval)
         buffer.clear()
         printEval(eval)
       } catch (e: MarcelLexerException) {
@@ -167,6 +169,9 @@ abstract class MarcelShell constructor(
   protected open suspend fun printEval(eval: Any?) {
     printer.suspendPrint(eval)
   }
+
+  protected open suspend fun onPreEval(text: String) {}
+  protected open suspend fun onPostEval(text: String, eval: Any?) {}
 
 
   fun addCommand(c: ShellCommand) {

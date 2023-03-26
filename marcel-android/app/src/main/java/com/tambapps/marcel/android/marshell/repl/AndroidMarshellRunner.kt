@@ -11,7 +11,6 @@ class AndroidMarshellRunner(
   fun start() {
     executor.submit {
       runBlocking {
-        shell.printVersion()
         shell.run()
       }
     }
