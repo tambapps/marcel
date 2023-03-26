@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.marshell
+package com.tambapps.marcel.android.marshell.repl
 
 import android.os.Build
 import com.tambapps.marcel.android.marshell.repl.console.TextViewHighlighter

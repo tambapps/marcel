@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.tambapps.marcel.android.marshell.AndroidMarshell
+import com.tambapps.marcel.android.marshell.repl.AndroidMarshell
 import com.tambapps.marcel.android.marshell.ShellHandler
 import com.tambapps.marcel.android.marshell.data.ShellSession
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellWindowBinding

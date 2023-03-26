@@ -1,6 +1,5 @@
 package com.tambapps.marcel.android.marshell.repl
 
-import com.tambapps.marcel.android.marshell.AndroidMarshell
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.printer.SuspendPrinter
 import marcel.lang.Binding
