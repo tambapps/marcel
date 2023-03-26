@@ -23,11 +23,13 @@ class AndroidMarshellFactory @Inject constructor(
   private val initScriptFile = _initScriptFile
 
 
-  fun newShell(printer: SuspendPrinter, binding: Binding, lineReader: suspend (String) -> String): AndroidMarshell {
+  fun newShellRunner(printer: SuspendPrinter, binding: Binding, lineReader: suspend (String) -> String): AndroidMarshellRunner {
     // not a bean because we want to keep them independent per fragment
     val marcelDexClassLoader = MarcelDexClassLoader()
-    return AndroidMarshell(compilerConfiguration, classesDir, initScriptFile, printer, marcelDexClassLoader,
-      binding, lineReader)
+    return AndroidMarshellRunner(
+      AndroidMarshell(compilerConfiguration, classesDir, initScriptFile, printer, marcelDexClassLoader,
+        binding, lineReader)
+    )
   }
 
 }

@@ -5,23 +5,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.tambapps.marcel.android.marshell.repl.AndroidMarshell
 import com.tambapps.marcel.android.marshell.ShellHandler
 import com.tambapps.marcel.android.marshell.data.ShellSession
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellWindowBinding
 import com.tambapps.marcel.android.marshell.repl.AndroidMarshellFactory
+import com.tambapps.marcel.android.marshell.repl.AndroidMarshellRunner
 import com.tambapps.marcel.android.marshell.util.showSoftBoard
 import dagger.hilt.android.AndroidEntryPoint
 import com.tambapps.marcel.android.marshell.view.EditTextHighlighter
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import marcel.lang.MarcelSystem
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
-
 
 @AndroidEntryPoint
 class ShellWindowFragment : Fragment() {
@@ -39,16 +35,12 @@ class ShellWindowFragment : Fragment() {
   lateinit var factory: AndroidMarshellFactory
   private val binding get() = _binding!!
 
-  // TODO move this in a MarcelRunner class to abstract executor and everything
-  private lateinit var marshell: AndroidMarshell
+  private lateinit var marshellRunner: AndroidMarshellRunner
   private lateinit var printer: TextViewPrinter
   private lateinit var editTextHighlighter: EditTextHighlighter
-  private lateinit var executor: ExecutorService
   private lateinit var promptQueue: LinkedBlockingQueue<CharSequence>
-  private var position = 0
   lateinit var shellSession: ShellSession
   private lateinit var shellHandler: ShellHandler
-
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -60,23 +52,16 @@ class ShellWindowFragment : Fragment() {
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    executor = Executors.newSingleThreadExecutor()
     promptQueue = LinkedBlockingQueue<CharSequence>()
-    position = requireArguments().getInt(POSITION_KEY)
+    val position = requireArguments().getInt(POSITION_KEY)
     shellHandler = requireActivity() as ShellHandler
     shellSession = shellHandler.shellSessions[position]
 
     printer = TextViewPrinter(requireActivity(), binding.historyText)
-    marshell = factory.newShell(printer, shellSession.binding, this::readLine)
-    val highlighter = marshell.newHighlighter()
+    marshellRunner = factory.newShellRunner(printer, shellSession.binding, this::readLine)
+    val highlighter = marshellRunner.shell.newHighlighter()
     editTextHighlighter = EditTextHighlighter(binding.promptEditText, highlighter)
 
-    executor.submit {
-      runBlocking {
-        marshell.printVersion()
-        marshell.run()
-      }
-    }
     binding.apply {
       promptEditText.setOnKeyListener(PromptKeyListener(promptQueue))
       promptEditText.setOnFocusChangeListener { v, hasFocus ->
@@ -92,16 +77,16 @@ class ShellWindowFragment : Fragment() {
   }
 
   override fun onStart() {
-    // TODO move this kind of thing in a MarcelEngine class
     super.onStart()
+    marshellRunner.start()
+    // TODO put this in onShow because we can have different windows
     MarcelSystem.setPrinter(printer)
     editTextHighlighter.start()
   }
   override fun onDestroyView() {
     super.onDestroyView()
-    runBlocking { marshell.exit() }
     _binding = null
-    executor.shutdown()
+    marshellRunner.stop()
   }
 
   override fun onStop() {

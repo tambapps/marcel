@@ -13,6 +13,7 @@ import com.tambapps.marcel.android.marshell.data.ShellSession
 import com.tambapps.marcel.android.marshell.databinding.ActivityMainBinding
 import com.tambapps.marcel.android.marshell.util.hideSoftBoard
 import dagger.hilt.android.AndroidEntryPoint
+import marcel.lang.MarcelSystem
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
@@ -76,4 +77,8 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
 
   }
 
+  override fun onStop() {
+    super.onStop()
+    MarcelSystem.setPrinter(null)
+  }
 }
