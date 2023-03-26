@@ -9,21 +9,25 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.navigation.NavigationView
+import com.tambapps.marcel.android.marshell.data.ShellSession
 import com.tambapps.marcel.android.marshell.databinding.ActivityMainBinding
 import com.tambapps.marcel.android.marshell.util.hideSoftBoard
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
-  NavigationView.OnNavigationItemSelectedListener {
+  NavigationView.OnNavigationItemSelectedListener, ShellHandler {
 
   private lateinit var binding: ActivityMainBinding
   private lateinit var navController: NavController
 
+  private lateinit var _shellSessions: MutableList<ShellSession>
+  override val shellSessions: List<ShellSession> get() = _shellSessions
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-
+    _shellSessions = mutableListOf(ShellSession())
     binding = ActivityMainBinding.inflate(layoutInflater)
     setContentView(binding.root)
 

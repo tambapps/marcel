@@ -17,10 +17,11 @@ class AndroidMarshell constructor(
   override val initScriptFile: File?,
   out: SuspendPrinter,
   marcelClassLoader: MarcelClassLoader,
+  binding: Binding,
   private val readLineFunction: suspend (String) -> String
 ) : MarcelShell(compilerConfiguration, out, marcelClassLoader,
   DexJarWriterFactory(),
-  classesDir, Binding(), "%03d> ") {
+  classesDir, binding, "%03d> ") {
 
   override suspend fun readLine(prompt: String): String {
     return readLineFunction.invoke(prompt)

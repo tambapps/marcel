@@ -3,6 +3,7 @@ package com.tambapps.marcel.android.marshell.repl
 import com.tambapps.marcel.android.marshell.AndroidMarshell
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.printer.SuspendPrinter
+import marcel.lang.Binding
 import marcel.lang.MarcelDexClassLoader
 import java.io.File
 import javax.inject.Inject
@@ -23,10 +24,11 @@ class AndroidMarshellFactory @Inject constructor(
   private val initScriptFile = _initScriptFile
 
 
-  fun newShell(printer: SuspendPrinter, lineReader: suspend (String) -> String): AndroidMarshell {
+  fun newShell(printer: SuspendPrinter, binding: Binding, lineReader: suspend (String) -> String): AndroidMarshell {
     // not a bean because we want to keep them independent per fragment
     val marcelDexClassLoader = MarcelDexClassLoader()
-    return AndroidMarshell(compilerConfiguration, classesDir, initScriptFile, printer, marcelDexClassLoader, lineReader)
+    return AndroidMarshell(compilerConfiguration, classesDir, initScriptFile, printer, marcelDexClassLoader,
+      binding, lineReader)
   }
 
 }

@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.tambapps.marcel.android.marshell.ShellHandler
+import com.tambapps.marcel.android.marshell.data.ShellSession
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellBinding
 import com.tambapps.marcel.android.marshell.repl.AndroidMarshellFactory
 import dagger.hilt.android.AndroidEntryPoint
@@ -15,9 +17,10 @@ import javax.inject.Inject
 class ShellFragment : Fragment() {
 
   private var _binding: FragmentShellBinding? = null
+  private val binding get() = _binding!!
   @Inject
   lateinit var factory: AndroidMarshellFactory
-  private val binding get() = _binding!!
+  lateinit var shellHandler: ShellHandler
 
 
   override fun onCreateView(
@@ -30,7 +33,8 @@ class ShellFragment : Fragment() {
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    binding.viewPager.adapter = ShellWidowStateAdapter(this)
+    shellHandler = requireActivity() as ShellHandler
+    binding.viewPager.adapter = ShellWidowStateAdapter(this, shellHandler.shellSessions)
   }
 
   override fun onDestroyView() {
@@ -38,14 +42,13 @@ class ShellFragment : Fragment() {
     _binding = null
   }
 
-  private class ShellWidowStateAdapter(fragment: Fragment): FragmentStateAdapter(fragment) {
+  private class ShellWidowStateAdapter(fragment: Fragment, val sessions: List<ShellSession>): FragmentStateAdapter(fragment) {
     override fun getItemCount(): Int {
-      // TODO make tab layout and everything
-      return 2
+      return sessions.size
     }
 
     override fun createFragment(position: Int): Fragment {
-      return ShellWindowFragment.newInstance()
+      return ShellWindowFragment.newInstance(position)
     }
 
   }
