@@ -23,7 +23,8 @@ class MarcelReplCompiler constructor(
 
   val imports = LinkedHashSet<ImportNode>()
   private val lexer = MarcelLexer(false)
-  private val definedFunctions = mutableSetOf<MethodNode>()
+  private val _definedFunctions = mutableSetOf<MethodNode>()
+  val definedFunctions: Set<MethodNode> get() = _definedFunctions
   private val _definedClasses = mutableListOf<JavaType>()
   val definedClasses: List<JavaType> get() = _definedClasses
   private val classCompiler = ClassCompiler(compilerConfiguration, typeResolver)
@@ -56,7 +57,7 @@ class MarcelReplCompiler constructor(
     }
 
     // keeping function for next runs. Needs to be AFTER compilation because this step may add some methods (e.g. switch, properties...)
-    definedFunctions.addAll(
+    _definedFunctions.addAll(
       scriptNode.methods.filter { false &&
         !it.isConstructor && it.name != "run" && it.name != "main"
       }
@@ -101,7 +102,7 @@ class MarcelReplCompiler constructor(
     val tokens = lexer.lex(text)
     val parser = MarcelParser(typeResolver, tokens, ParserConfiguration(
       independentScriptInnerClasses= true,
-      scriptInterfaces = if (definedFunctions.any { it.name == "getDelegate" && it.parameters.isEmpty() }) listOf(DelegatedObject::class.java)
+      scriptInterfaces = if (_definedFunctions.any { it.name == "getDelegate" && it.parameters.isEmpty() }) listOf(DelegatedObject::class.java)
       else emptyList()
     ))
 
@@ -109,7 +110,7 @@ class MarcelReplCompiler constructor(
 
     val scriptNode = module.classes.find { it.isScript }
     if (scriptNode != null) {
-      for (method in definedFunctions) {
+      for (method in _definedFunctions) {
         if (scriptNode.methods.any { it.matches(method) }) {
           throw MarcelSemanticException("Method $method is already defined")
         }
