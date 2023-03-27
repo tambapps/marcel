@@ -31,6 +31,7 @@ abstract class MarcelShell constructor(
 
   val lastNode: ClassNode? get() = replCompiler.parserResult?.scriptNode
   val definedClasses get() = replCompiler.definedClasses
+  val definedFunctions get() = replCompiler.definedFunctions
   val imports: Collection<ImportNode> get() = replCompiler.imports
   abstract val initScriptFile: File?
 
@@ -85,7 +86,7 @@ abstract class MarcelShell constructor(
     val line = readLine(prompt)
     if (line.isEmpty()) return
     if (isCommand(line)) {
-      val args = line.split(" ")
+      val args = line.split("\\s+".toRegex())
       val commandName = args[0].substring(1)
 
       val command = findCommand(commandName)

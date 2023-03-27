@@ -1,7 +1,7 @@
 package com.tambapps.marcel.repl.command
 
-import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ImportNode
+import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.repl.MarcelShell
 import com.tambapps.marcel.repl.printer.SuspendPrinter
@@ -24,15 +24,15 @@ class ListCommand: AbstractShellCommand() {
       printDefinedClasses(shell.definedClasses, out)
       out.suspendPrintln()
       out.suspendPrintln("Functions:")
-      printFunctions(shell.lastNode, out)
+      printFunctions(shell.definedFunctions, out)
       out.suspendPrintln()
       out.suspendPrintln("Variables:")
       printVariables(shell.binding, out)
       out.suspendPrintln()
     } else {
       when (val arg = args.first().lowercase()) {
-        "v", "variable", "variables" -> printVariables(shell.binding, out)
-        "f", "function", "functions" -> printVariables(shell.binding, out)
+        "v", "var", "variable", "variables" -> printVariables(shell.binding, out)
+        "f", "func", "function", "functions" -> printFunctions(shell.definedFunctions, out)
         "c", "class", "classes" -> printDefinedClasses(shell.definedClasses, out)
         "i", "import", "imports" -> printImports(shell.imports, out)
         else -> out.suspendPrintln("Unknown value $arg. Provide 'variables', 'functions' or 'classes'")
@@ -54,14 +54,7 @@ class ListCommand: AbstractShellCommand() {
     }
   }
 
-  private suspend fun printFunctions(classNode: ClassNode?, out: SuspendPrinter) {
-    if (classNode == null) {
-      out.suspendPrintln("No functions defined")
-      return
-    }
-    val definedMethods = classNode.methods.filter {
-      !it.isGetter && !it.isSetter && it.name != "main" && it.name != "run" && !it.isConstructor
-    }
+  private suspend fun printFunctions(definedMethods: Collection<MethodNode>, out: SuspendPrinter) {
     if (definedMethods.isEmpty()) {
       out.suspendPrintln("No functions defined")
       return
