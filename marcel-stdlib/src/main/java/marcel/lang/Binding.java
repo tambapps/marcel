@@ -24,8 +24,15 @@ public class Binding {
     return (T) variables.get(name);
   }
 
-  public void setVariable(String name, Object value) {
-    variables.put(name, value);
+  public void setVariable(String name, Object newValue) {
+    if (variables.containsKey(name)) {
+      Object value = getVariable(name);
+      if (value != null && newValue != null && !value.getClass().isAssignableFrom(newValue.getClass())) {
+        throw new IllegalArgumentException(String.format("Cannot set variable %s: Expected expression of type %s but gave %s",
+            name, value.getClass(), newValue.getClass()));
+      }
+    }
+    variables.put(name, newValue);
   }
 
 
