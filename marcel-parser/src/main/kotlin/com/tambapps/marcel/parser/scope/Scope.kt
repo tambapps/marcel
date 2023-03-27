@@ -37,10 +37,14 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
   private val localVariables: MutableList<LocalVariable> = mutableListOf()
 
   open fun addLocalVariable(type: JavaType, isFinal: Boolean = false): LocalVariable {
-    val name = "__marcel_unnamed_" + this.hashCode().toString().replace('-', '_') + '_' +
-        ThreadLocalRandom.current().nextInt().toString().replace('-', '_')
+    val name = generateLocalVarName()
     return addLocalVariable(type, name, isFinal)
   }
+  private fun generateLocalVarName(): String {
+    return  "__marcel_unnamed_" + this.hashCode().toString().replace('-', '_') + '_' +
+        ThreadLocalRandom.current().nextInt().toString().replace('-', '_')
+  }
+
   open fun addLocalVariable(type: JavaType, name: String, isFinal: Boolean = false): LocalVariable {
     if (localVariables.any { it.name == name }) {
       throw MarcelSemanticException("A variable with name $name is already defined")
@@ -125,12 +129,15 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
     }
   }
 
-  fun <T> simulateVariable(type: JavaType, name: String, function: () -> T): T {
+  fun <T> simulateVariable(type: JavaType, function: (LocalVariable) -> T): T {
+    return simulateVariable(type, generateLocalVarName(), function)
+  }
+  fun <T> simulateVariable(type: JavaType, name: String, function: (LocalVariable) -> T): T {
     val fakeVariable = LocalVariable(type, name, 0, 0, false)
     val optVar = localVariables.find { it.name == name }
     if (optVar != null) localVariables[localVariables.indexOf(optVar)] = fakeVariable
     else localVariables.add(fakeVariable)
-    val result = function.invoke()
+    val result = function.invoke(fakeVariable)
     if (optVar != null) localVariables[localVariables.indexOf(fakeVariable)] = optVar
     else localVariables.remove(fakeVariable)
     return result

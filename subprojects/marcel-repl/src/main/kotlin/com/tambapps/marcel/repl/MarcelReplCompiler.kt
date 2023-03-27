@@ -57,7 +57,7 @@ class MarcelReplCompiler constructor(
 
     // keeping function for next runs. Needs to be AFTER compilation because this step may add some methods (e.g. switch, properties...)
     definedFunctions.addAll(
-      scriptNode.methods.filter {
+      scriptNode.methods.filter { false &&
         !it.isConstructor && it.name != "run" && it.name != "main"
       }
     )

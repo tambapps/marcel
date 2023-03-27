@@ -12,6 +12,8 @@ import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.ast.expression.LambdaNode
 import com.tambapps.marcel.parser.ast.expression.NamedParametersConstructorCallNode
+import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
+import com.tambapps.marcel.parser.ast.expression.StringConstantNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.*
@@ -252,6 +254,14 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
           invokeMethod(from, scope, variable.getterMethod)
         }
       }
+      is BoundField -> {
+        pushThis()
+        invokeMethodWithArguments(from, scope,
+          typeResolver.findMethodOrThrow(variable.owner, "getVariable", listOf(String::class.javaType)),
+          StringConstantNode(from.token, variable.name))
+        // need to cast because we store the value as an object
+        castIfNecessaryOrThrow(scope, from, variable.type, JavaType.Object)
+      }
       else -> throw MarcelSemanticException(from.token, "Variable type ${variable.javaClass} is not handled")
     }
   }
@@ -407,6 +417,17 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
           throw MarcelSemanticException(node.token, "Field ${variable.name} of class ${variable.owner} is not settable")
         }
         invokeMethod(node, scope, variable.setterMethod)
+      }
+      is BoundField -> {
+        val vari = scope.addLocalVariable(variable.type)
+        scope.simulateVariable(variable.type) {
+          // TODO doesn't seem to work with tempVar
+          storeInVariable(node, scope, vari)
+          pushThis()
+          invokeMethodWithArguments(node, scope,
+            typeResolver.findMethodOrThrow(variable.owner, "setVariable", listOf(String::class.javaType, Any::class.javaType)),
+            StringConstantNode(node.token, variable.name), ReferenceExpression(node.token, scope, vari.name))
+        }
       }
       else -> throw RuntimeException("Compiler bug. Not handled variable subclass ${variable.javaClass}")
     }

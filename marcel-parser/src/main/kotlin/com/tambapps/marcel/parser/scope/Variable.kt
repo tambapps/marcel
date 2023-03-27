@@ -108,11 +108,12 @@ class ReflectMarcelField private constructor(
   constructor(field: Field): this(JavaType.of(field.type), field.name, JavaType.of(field.declaringClass), field.modifiers)
 }
 
-// TODO handle it in method bytecode writer
-// field from binding, useful for scripts
+// field from binding, for scripts
 class BoundField constructor(
   override val type: JavaType,
-  override val name: String) : AbstractField(Opcodes.ACC_PUBLIC) {
-  override val owner = JavaType.of(Binding::class.java)
+  override val name: String,
+  override val owner: JavaType) : AbstractField(Opcodes.ACC_PUBLIC) {
+
+    fun withOwner(owner: JavaType) = BoundField(type, name, owner)
 
 }

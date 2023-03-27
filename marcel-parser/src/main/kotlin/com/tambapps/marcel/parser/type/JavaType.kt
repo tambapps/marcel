@@ -422,6 +422,7 @@ class NotLoadedJavaType internal constructor(
     get() {
       val allInterfaces = directlyImplementedInterfaces.toMutableSet()
       if (superType != null) allInterfaces.addAll(superType.allImplementedInterfaces)
+      if (this.isInterface) allInterfaces.add(this)
       return allInterfaces
     }
 
@@ -449,8 +450,7 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
   override val allImplementedInterfaces: Collection<JavaType>
     get() {
       if (_interfaces == null) {
-        _interfaces = getAllImplementedInterfacesRecursively(realClazz).asSequence()
-          .toSet()
+        _interfaces = getAllImplementedInterfacesRecursively(realClazz)
       }
       return _interfaces!!
     }
@@ -478,6 +478,7 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
   private fun getAllImplementedInterfacesRecursively(c: Class<*>): Set<JavaType> {
     var clazz = c
     val res = mutableSetOf<JavaType>()
+    if (c.isInterface) res.add(JavaType.of(c))
     do {
       // First, add all the interfaces implemented by this class
       val interfaces = clazz.interfaces.map {

@@ -10,15 +10,24 @@ import marcel.lang.MarcelClassLoader
 import marcel.lang.Script
 
 // TODO keep method nodes here
-class ReplJavaTypeResolver(classLoader: MarcelClassLoader?, val binding: Binding) : JavaTypeResolver(classLoader) {
+class ReplJavaTypeResolver(classLoader: MarcelClassLoader?, private val binding: Binding) : JavaTypeResolver(classLoader) {
+
+    private val scriptVariables = mutableMapOf<String, BoundField>()
+
+    override fun defineField(javaType: JavaType, field: MarcelField) {
+        if (field is BoundField) {
+            // those fields are reserved for scripts
+            scriptVariables[field.name] = field
+        }
+        super.defineField(javaType, field)
+    }
 
     override fun findField(javaType: JavaType, name: String, declared: Boolean): MarcelField? {
         val f = super.findField(javaType, name, declared)
-        if (f != null || javaType.implements(Script::class.javaType) && javaType.isTopLevel && binding.hasVariable(name)) {
-            val value = binding.getVariable<Any>(name)
-            val type = value?.javaClass?.javaType ?: JavaType.Object
-            return BoundField(type, name)
+        if (f == null && Script::class.javaType.isAssignableFrom(javaType) && javaType.isTopLevel && binding.hasVariable(name)) {
+            // if we're looking for a variable of a script, it may be a BoundField
+            return scriptVariables[name]?.withOwner(javaType)
         }
-        return null
+        return f
     }
 }

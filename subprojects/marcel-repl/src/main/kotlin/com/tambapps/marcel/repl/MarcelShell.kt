@@ -1,7 +1,6 @@
 package com.tambapps.marcel.repl
 
 import com.tambapps.marcel.compiler.CompilerConfiguration
-import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.exception.MarcelParserException
 import com.tambapps.marcel.parser.ast.ClassNode
@@ -35,7 +34,7 @@ abstract class MarcelShell constructor(
   val imports: Collection<ImportNode> get() = replCompiler.imports
   abstract val initScriptFile: File?
 
-  protected val typeResolver = JavaTypeResolver(marcelClassLoader)
+  protected val typeResolver = ReplJavaTypeResolver(marcelClassLoader, binding)
   protected val replCompiler = MarcelReplCompiler(compilerConfiguration, typeResolver)
   private val evaluator = MarcelEvaluator(binding, replCompiler, marcelClassLoader, jarWriterFactory, tempDir)
   private val buffer = mutableListOf<String>()

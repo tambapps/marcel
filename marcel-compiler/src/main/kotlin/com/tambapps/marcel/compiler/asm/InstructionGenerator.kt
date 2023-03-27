@@ -90,6 +90,7 @@ import com.tambapps.marcel.parser.ast.statement.TryCatchNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.scope.BoundField
 import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.scope.LocalVariable
 import com.tambapps.marcel.parser.scope.MarcelField
@@ -650,33 +651,9 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   override fun visit(variableAssignmentNode: VariableAssignmentNode) {
     if (classNode.isScript && !variableAssignmentNode.scope.hasVariable(variableAssignmentNode.name)) {
-      val expressionType = variableAssignmentNode.expression.getType(typeResolver)
-      // define property dynamically
-      val propertyName = variableAssignmentNode.name
-      val methodFieldName = propertyName.replaceFirstChar { it.uppercase() }
-      // getter
-      val getter = MethodNode.from(classNode.scope, classNode.type, "get$methodFieldName", emptyList(), expressionType).apply {
-        block.addStatement(
-          ReturnNode(variableAssignmentNode.token, scope, AsNode(variableAssignmentNode.token, expressionType,
-            SimpleFunctionCallNode(variableAssignmentNode.token, scope, "getVariable",
-              mutableListOf(StringConstantNode(variableAssignmentNode.token, propertyName)), ReferenceExpression.thisRef(scope))
-          ))
-        )
-      }
-      classNode.addMethod(getter)
-      typeResolver.defineMethod(classNode.type, getter)
-
-      // setter
-      val setter = MethodNode.from(classNode.scope, classNode.type, "set$methodFieldName", listOf(MethodParameter(expressionType, "it")), JavaType.void).apply {
-        block.addStatement(
-          SimpleFunctionCallNode(variableAssignmentNode.token, scope, "setVariable", mutableListOf(
-            StringConstantNode(variableAssignmentNode.token, propertyName),
-            ReferenceExpression(variableAssignmentNode.token, scope, "it")
-          ), ReferenceExpression.thisRef(scope))
-        )
-      }
-      classNode.addMethod(setter)
-      typeResolver.defineMethod(classNode.type, setter)
+      // we define the field dynamically for scripts
+      typeResolver.defineField(classNode.type, BoundField(variableAssignmentNode.expression.getType(typeResolver),
+        variableAssignmentNode.name, classNode.type))
     }
 
     val variable = variableAssignmentNode.scope.findVariableOrThrow(variableAssignmentNode.name)
