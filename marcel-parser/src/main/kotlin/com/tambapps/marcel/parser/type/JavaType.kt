@@ -53,6 +53,7 @@ interface JavaType: AstTypedObject {
     get() = AsmUtils.getInternalName(className)
   val descriptor: String
   val objectType: JavaType get() = this
+  val isTopLevel get() = !className.contains("$")
 
   val signature: String get() {
     if (primitive) return descriptor

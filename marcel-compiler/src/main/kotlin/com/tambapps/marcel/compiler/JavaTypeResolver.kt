@@ -29,7 +29,7 @@ import marcel.lang.methods.IoMarcelMethods
 import marcel.lang.methods.StringMarcelMethods
 import java.lang.reflect.Modifier
 
-class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNodeTypeResolver(classLoader) {
+open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNodeTypeResolver(classLoader) {
 
   constructor(): this(null)
 

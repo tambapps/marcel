@@ -4,6 +4,7 @@ import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.Visibility
+import marcel.lang.Binding
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.Field
 
@@ -105,4 +106,13 @@ class ReflectMarcelField private constructor(
   access: Int
 ) : AbstractField(access) {
   constructor(field: Field): this(JavaType.of(field.type), field.name, JavaType.of(field.declaringClass), field.modifiers)
+}
+
+// TODO handle it in method bytecode writer
+// field from binding, useful for scripts
+class BoundField constructor(
+  override val type: JavaType,
+  override val name: String) : AbstractField(Opcodes.ACC_PUBLIC) {
+  override val owner = JavaType.of(Binding::class.java)
+
 }
