@@ -419,14 +419,12 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
         invokeMethod(node, scope, variable.setterMethod)
       }
       is BoundField -> {
-        val vari = scope.addLocalVariable(variable.type)
-        scope.simulateVariable(variable.type) {
-          // TODO doesn't seem to work with tempVar
-          storeInVariable(node, scope, vari)
+        scope.useTempVariable(variable.type) {
+          storeInVariable(node, scope, it)
           pushThis()
           invokeMethodWithArguments(node, scope,
             typeResolver.findMethodOrThrow(variable.owner, "setVariable", listOf(String::class.javaType, Any::class.javaType)),
-            StringConstantNode(node.token, variable.name), ReferenceExpression(node.token, scope, vari.name))
+            StringConstantNode(node.token, variable.name), ReferenceExpression(node.token, scope, it.name))
         }
       }
       else -> throw RuntimeException("Compiler bug. Not handled variable subclass ${variable.javaClass}")

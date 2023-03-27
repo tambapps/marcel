@@ -129,17 +129,17 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
     }
   }
 
-  fun <T> simulateVariable(type: JavaType, function: (LocalVariable) -> T): T {
-    return simulateVariable(type, generateLocalVarName(), function)
+  fun <T> useTempVariable(type: JavaType, function: (LocalVariable) -> T): T {
+    return useTempVariable(type, generateLocalVarName(), function)
   }
-  fun <T> simulateVariable(type: JavaType, name: String, function: (LocalVariable) -> T): T {
-    val fakeVariable = LocalVariable(type, name, 0, 0, false)
+  fun <T> useTempVariable(type: JavaType, name: String, function: (LocalVariable) -> T): T {
+    val fakeVariable = addLocalVariable(type, name)
     val optVar = localVariables.find { it.name == name }
     if (optVar != null) localVariables[localVariables.indexOf(optVar)] = fakeVariable
     else localVariables.add(fakeVariable)
     val result = function.invoke(fakeVariable)
     if (optVar != null) localVariables[localVariables.indexOf(fakeVariable)] = optVar
-    else localVariables.remove(fakeVariable)
+    else freeVariable(fakeVariable.name)
     return result
   }
 }

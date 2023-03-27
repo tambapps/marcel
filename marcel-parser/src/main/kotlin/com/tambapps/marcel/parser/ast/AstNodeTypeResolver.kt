@@ -393,14 +393,7 @@ open class AstNodeTypeResolver constructor(
 
   override fun visit(literalListNode: LiteralArrayNode): JavaArrayType = JavaType.objectArray
 
-  override fun visit(switchNode: SwitchNode): JavaType {
-
-    val itVariableType = switchNode.expressionNode.accept(this)
-    val type = switchNode.scope.simulateVariable(itVariableType, "it") {
-      JavaType.commonType(switchNode.branches.map { it.accept(this) })
-    }
-    return type
-  }
+  override fun visit(switchNode: SwitchNode) = JavaType.commonType(switchNode.branches.map { it.accept(this) })
 
   override fun visit(switchBranch: SwitchBranchNode): JavaType = switchBranch.statementNode.accept(this)
 
