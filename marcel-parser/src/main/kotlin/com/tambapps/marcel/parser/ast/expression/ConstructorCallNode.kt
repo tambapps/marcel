@@ -1,6 +1,7 @@
 package com.tambapps.marcel.parser.ast.expression
 
 import com.tambapps.marcel.lexer.LexToken
+import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
@@ -11,8 +12,8 @@ import com.tambapps.marcel.parser.type.JavaType
  */
 class ConstructorCallNode(token: LexToken, scope: Scope, val type: JavaType, arguments: MutableList<ExpressionNode>): SimpleFunctionCallNode(token, scope, JavaMethod.CONSTRUCTOR_NAME, arguments) {
 
-  init {
-    methodOwnerType = this
+  override fun doGetMethod(typeResolver: AstNodeTypeResolver): JavaMethod {
+    return typeResolver.findMethodOrThrow(type, name, arguments.map { it.accept(typeResolver) })
   }
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)

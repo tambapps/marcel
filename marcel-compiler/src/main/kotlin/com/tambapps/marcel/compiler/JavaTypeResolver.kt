@@ -20,6 +20,7 @@ import com.tambapps.marcel.parser.type.ExtensionJavaMethod
 import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
+import com.tambapps.marcel.parser.type.NoArgJavaConstructor
 import com.tambapps.marcel.parser.type.ReflectJavaConstructor
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import marcel.lang.MarcelClassLoader
@@ -155,7 +156,18 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
       if (m != null) return m
     }
 
-    // search in super types
+    if (name == JavaMethod.CONSTRUCTOR_NAME) {
+      if (!javaType.isLoaded) {
+        val noArgConstructor = NoArgJavaConstructor(javaType)
+
+        // if no constructors is explicitly defined for a marcel type, there is a default no arg constructor
+        if (methods.count { it.isConstructor } == 0
+          && matcherPredicate.invoke(noArgConstructor)) return noArgConstructor
+      }
+      // for constructors, we don't want to look in super types
+      return null
+    }
+    // search in super types, but not for constructors
     var type = javaType.superType
     while (type != null) {
       m = findMethod(type, name, matcherPredicate, candidatesPicker, true)

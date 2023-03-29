@@ -163,12 +163,12 @@ abstract class AbstractMethod constructor(final override val access: Int): JavaM
   }
 }
 
-class ReflectJavaConstructor(constructor: Constructor<*>): AbstractMethod(constructor.modifiers) {
-  override val ownerClass = JavaType.of(constructor.declaringClass)
-
-  // see norm of modifiers flag in Modifier class. Seems to have the same norm as OpCodes.ACC_ modifiers
+abstract class AbstractConstructor(
+  override val ownerClass: JavaType,
+  access: Int,
+  override val parameters: List<MethodParameter>
+) : AbstractMethod(access) {
   override val name: String = JavaMethod.CONSTRUCTOR_NAME
-  override val parameters = constructor.parameters.map { MethodParameter(JavaType.of(it.type), it.name) }
   override val returnType = JavaType.void // yes, constructor returns void, especially for the descriptor
   override val actualReturnType = returnType
   override val descriptor = AsmUtils.getMethodDescriptor(parameters, returnType)
@@ -177,6 +177,16 @@ class ReflectJavaConstructor(constructor: Constructor<*>): AbstractMethod(constr
   override val isDefault = false
   override val isAbstract = false
 
+
+  override fun toString(): String {
+    return "${ownerClass.className}(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType
+  }
+}
+class ReflectJavaConstructor(constructor: Constructor<*>): AbstractConstructor(
+  JavaType.of(constructor.declaringClass),
+  constructor.modifiers,
+  constructor.parameters.map { MethodParameter(JavaType.of(it.type), it.name) }
+) {
   override fun toString(): String {
     return "${ownerClass.className}(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType
   }
@@ -319,4 +329,12 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
       }
     }
   }
+}
+
+class NoArgJavaConstructor(ownerClass: JavaType, access: Int) :
+  AbstractConstructor(ownerClass, access, emptyList()) {
+
+    constructor(ownerClass: JavaType): this(ownerClass, 0)
+
+
 }
