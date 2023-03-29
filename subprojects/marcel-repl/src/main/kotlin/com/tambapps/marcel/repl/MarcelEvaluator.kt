@@ -26,14 +26,6 @@ class MarcelEvaluator constructor(
     for (importNode in result.parserResult.imports) {
       replCompiler.addImport(importNode)
     }
-    for (artifactString in result.parserResult.dumbbells) {
-      val pulledArtifacts = Dumbbell.pull(artifactString)
-      pulledArtifacts.forEach {
-        if (it.jarFile != null) {
-          scriptLoader.addLibraryJar(it.jarFile)
-        }
-      }
-    }
     val scriptNode = result.parserResult.scriptNode ?: return null
 
     val className = scriptNode.type.simpleName

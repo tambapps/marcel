@@ -36,7 +36,7 @@ abstract class MarcelShell constructor(
   abstract val initScriptFile: File?
 
   protected val typeResolver = ReplJavaTypeResolver(marcelClassLoader, binding)
-  protected val replCompiler = MarcelReplCompiler(compilerConfiguration, typeResolver)
+  protected val replCompiler = MarcelReplCompiler(compilerConfiguration, marcelClassLoader, typeResolver)
   private val evaluator = MarcelEvaluator(binding, replCompiler, marcelClassLoader, jarWriterFactory, tempDir)
   private val buffer = mutableListOf<String>()
   private val commands = mutableListOf<ShellCommand>(
@@ -62,6 +62,7 @@ abstract class MarcelShell constructor(
           println("Error from init script: ${e.message}")
           onInitScriptFail(e)
         } catch (e: MarcelSemanticException) {
+          e.printStackTrace()
           println("Error from init script: ${e.message}")
           onInitScriptFail(e)
         } catch (e: MarcelParserException) {

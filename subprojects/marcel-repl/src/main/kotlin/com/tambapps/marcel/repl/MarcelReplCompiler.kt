@@ -4,6 +4,7 @@ import com.tambapps.marcel.compiler.CompiledClass
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.compiler.asm.ClassCompiler
+import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
@@ -14,10 +15,12 @@ import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.DelegatedObject
+import marcel.lang.MarcelClassLoader
 import kotlin.jvm.Throws
 
 class MarcelReplCompiler constructor(
   compilerConfiguration: CompilerConfiguration,
+  private val marcelClassLoader: MarcelClassLoader,
   private val typeResolver: JavaTypeResolver,
 ) {
 
@@ -41,7 +44,16 @@ class MarcelReplCompiler constructor(
 
   fun compile(text: String): ReplCompilerResult {
     val result = parse(text)
+
     val scriptNode = result.scriptNode ?: return ReplCompilerResult(result, emptyList(), emptyList())
+    for (artifactString in result.dumbbells) {
+      val pulledArtifacts = Dumbbell.pull(artifactString)
+      pulledArtifacts.forEach {
+        if (it.jarFile != null) {
+          marcelClassLoader.addLibraryJar(it.jarFile)
+        }
+      }
+    }
     scriptNode.scope.imports.addAll(imports)
     // writing script. class members were defined when parsing
     val compiledScriptClass = classCompiler.compileDefinedClass(scriptNode)
