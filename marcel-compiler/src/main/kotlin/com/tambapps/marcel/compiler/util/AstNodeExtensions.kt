@@ -12,9 +12,12 @@ fun LiteralArrayNode.getElementsType(typeResolver: JavaTypeResolver) =
   else null
 
 fun LiteralMapNode.getKeysType(typeResolver: JavaTypeResolver) =
-  JavaType.commonType(entries.map { it.first.accept(typeResolver) })
+  if (entries.isEmpty()) JavaType.Object
+  else JavaType.commonType(entries.map { it.first.accept(typeResolver) })
+
 fun LiteralMapNode.getValuesType(typeResolver: JavaTypeResolver) =
-  JavaType.commonType(entries.map { it.second.accept(typeResolver) })
+  if (entries.isEmpty()) JavaType.Object
+  else JavaType.commonType(entries.map { it.second.accept(typeResolver) })
 
 fun ExpressionNode.getType(typeResolver: JavaTypeResolver) = typeResolver.resolve(this)
 fun StatementNode.getType(typeResolver: JavaTypeResolver) = typeResolver.resolve(this)

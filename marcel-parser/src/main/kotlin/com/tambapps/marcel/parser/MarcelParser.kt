@@ -940,6 +940,11 @@ class MarcelParser constructor(
         return node
       }
       TokenType.SQUARE_BRACKETS_OPEN -> {
+        if (current.type == TokenType.COLON && lookup(1)?.type == TokenType.SQUARE_BRACKETS_CLOSE) {
+          skip()
+          skip()
+          return LiteralMapNode(token, emptyList())
+        }
         val elements = mutableListOf<ExpressionNode>()
         var isMap = false
         while (current.type != TokenType.SQUARE_BRACKETS_CLOSE) {
