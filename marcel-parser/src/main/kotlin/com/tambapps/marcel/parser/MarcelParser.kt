@@ -400,7 +400,7 @@ class MarcelParser constructor(
 
   private fun parseType(scope: Scope): JavaType {
     val token = next()
-    return when (token.type) {
+    var type = when (token.type) {
       TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_VOID, TokenType.TYPE_CHAR,
       TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL -> {
         val type = JavaType.TOKEN_TYPE_MAP.getValue(token.type)
@@ -441,6 +441,11 @@ class MarcelParser constructor(
         "Doesn't handle type ${token.type}"
       )
     }
+    while (current.type == TokenType.SQUARE_BRACKETS_OPEN && lookup(1)?.type == TokenType.SQUARE_BRACKETS_CLOSE) {
+      skip(2)
+      type = type.arrayType
+    }
+    return type
   }
 
   internal fun statement(scope: Scope): StatementNode {
@@ -1283,6 +1288,11 @@ class MarcelParser constructor(
   private fun skip() {
     currentIndex++
   }
+
+  private fun skip(howMuch: Int) {
+    currentIndex+= howMuch
+  }
+
   private fun next(): LexToken {
     checkEof()
     return tokens[currentIndex++]

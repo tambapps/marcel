@@ -85,6 +85,9 @@ interface JavaType: AstTypedObject {
   val primitive: Boolean
   val isPrimitiveObjectType get() = PRIMITIVES.any { it.objectType == this }
   val isPrimitiveOrObjectPrimitive get() = primitive || isPrimitiveObjectType
+
+  val arrayType: JavaArrayType get() = JavaType.arrayType(this)
+
   open val isArray get() = isLoaded && realClazz.isArray
   override val type: JavaType get() = this
   val realClazzOrObject: Class<*>
@@ -192,7 +195,7 @@ interface JavaType: AstTypedObject {
     fun of(clazz: Class<*>, genericTypes: List<JavaType>): JavaType {
       return if (clazz.isPrimitive) PRIMITIVES.find { it.className == clazz.name } ?: throw RuntimeException("Primitive type $clazz is not being handled")
       else if (clazz.isArray)
-        ARRAYS.find { it.realClazz == clazz } ?: JavaArrayType(clazz, of(clazz.componentType), Opcodes.AASTORE, Opcodes.AALOAD, 0)
+        ARRAYS.find { it.realClazz == clazz } ?: LoadedJavaArrayType(clazz)
       else LoadedObjectType(clazz, genericTypes)
     }
 
@@ -213,18 +216,19 @@ interface JavaType: AstTypedObject {
     }
 
     fun arrayType(elementsType: JavaType): JavaArrayType {
-      if (!elementsType.primitive) {
-        return objectArray
+      if (elementsType.primitive) {
+        return when (elementsType) {
+          int -> intArray
+          long -> longArray
+          float -> floatArray
+          double -> doubleArray
+          boolean -> booleanArray
+          char -> charArray
+          else -> throw MarcelSemanticException("Doesn't handle primitive $elementsType arrays")
+        }
       }
-      return when (elementsType) {
-        int -> intArray
-        long -> longArray
-        float -> floatArray
-        double -> doubleArray
-        boolean -> booleanArray
-        char -> charArray
-        else -> throw MarcelSemanticException("Doesn't handle primitive $elementsType arrays")
-      }
+      return if (elementsType.isLoaded) LoadedJavaArrayType(elementsType.realClazz.arrayType())
+      else NotLoadedJavaArrayType(elementsType)
     }
     fun of(className: String, genericTypes: List<JavaType>): JavaType {
       return of(null, className, genericTypes)
@@ -276,15 +280,15 @@ interface JavaType: AstTypedObject {
 
     val PRIMITIVES = listOf(void, int, long, float, double, boolean, char, byte, short)
 
-    val intArray = JavaArrayType(IntArray::class.java, int, Opcodes.IASTORE, Opcodes.IALOAD, Opcodes.T_INT)
-    val longArray = JavaArrayType(LongArray::class.java, long, Opcodes.LASTORE, Opcodes.LALOAD, Opcodes.T_LONG)
-    val floatArray = JavaArrayType(FloatArray::class.java, float, Opcodes.FASTORE, Opcodes.FALOAD, Opcodes.T_FLOAT)
-    val doubleArray = JavaArrayType(DoubleArray::class.java, double, Opcodes.DASTORE, Opcodes.DALOAD, Opcodes.T_DOUBLE)
-    val booleanArray = JavaArrayType(BooleanArray::class.java, boolean, Opcodes.BASTORE, Opcodes.BALOAD, Opcodes.T_BOOLEAN)
-    val shortArray = JavaArrayType(ShortArray::class.java, short, Opcodes.SASTORE, Opcodes.SALOAD, Opcodes.T_SHORT)
-    val byteArray = JavaArrayType(ByteArray::class.java, byte, Opcodes.BASTORE, Opcodes.BALOAD, Opcodes.T_BYTE)
-    val charArray = JavaArrayType(CharArray::class.java, char, Opcodes.CASTORE, Opcodes.CALOAD, Opcodes.T_CHAR)
-    val objectArray = JavaArrayType(Array<Any>::class.java, Object, Opcodes.AASTORE, Opcodes.AALOAD, 0)
+    val intArray = LoadedJavaArrayType(IntArray::class.java, int, Opcodes.IASTORE, Opcodes.IALOAD, Opcodes.T_INT)
+    val longArray = LoadedJavaArrayType(LongArray::class.java, long, Opcodes.LASTORE, Opcodes.LALOAD, Opcodes.T_LONG)
+    val floatArray = LoadedJavaArrayType(FloatArray::class.java, float, Opcodes.FASTORE, Opcodes.FALOAD, Opcodes.T_FLOAT)
+    val doubleArray = LoadedJavaArrayType(DoubleArray::class.java, double, Opcodes.DASTORE, Opcodes.DALOAD, Opcodes.T_DOUBLE)
+    val booleanArray = LoadedJavaArrayType(BooleanArray::class.java, boolean, Opcodes.BASTORE, Opcodes.BALOAD, Opcodes.T_BOOLEAN)
+    val shortArray = LoadedJavaArrayType(ShortArray::class.java, short, Opcodes.SASTORE, Opcodes.SALOAD, Opcodes.T_SHORT)
+    val byteArray = LoadedJavaArrayType(ByteArray::class.java, byte, Opcodes.BASTORE, Opcodes.BALOAD, Opcodes.T_BYTE)
+    val charArray = LoadedJavaArrayType(CharArray::class.java, char, Opcodes.CASTORE, Opcodes.CALOAD, Opcodes.T_CHAR)
+    val objectArray = LoadedJavaArrayType(Array<Any>::class.java, Object, Opcodes.AASTORE, Opcodes.AALOAD, 0)
     val ARRAYS = listOf(intArray, longArray, floatArray, doubleArray, booleanArray, shortArray, byteArray, objectArray)
 
     val lambda = of(Lambda::class.java)
@@ -392,13 +396,16 @@ abstract class AbstractJavaType: JavaType {
   }
 }
 
-class NotLoadedJavaType internal constructor(
+open class NotLoadedJavaType internal constructor(
   override val className: String,
   override val genericTypes: List<JavaType>,
   override val genericParameterNames: List<String>,
   override val superType: JavaType?,
   override val isInterface: Boolean,
   override val directlyImplementedInterfaces: Collection<JavaType>): AbstractJavaType() {
+
+  override val arrayType: JavaArrayType
+    get() = TODO("Not yet implemented")
 
   override val packageName: String?
     get() = if (className.contains('.')) className.substring(0, className.lastIndexOf(".")) else null
@@ -421,7 +428,7 @@ class NotLoadedJavaType internal constructor(
   override val allImplementedInterfaces: Collection<JavaType>
     get() {
       val allInterfaces = directlyImplementedInterfaces.toMutableSet()
-      if (superType != null) allInterfaces.addAll(superType.allImplementedInterfaces)
+      if (superType != null) allInterfaces.addAll(superType!!.allImplementedInterfaces)
       return allInterfaces
     }
 
@@ -550,13 +557,37 @@ class LoadedObjectType(
   }
 }
 
-class JavaArrayType internal constructor(
-  realClazz: Class<*>,
-  val elementsType: JavaType,
-  val arrayStoreCode: Int,
-  val arrayLoadCode: Int,
+interface JavaArrayType: JavaType {
+  val elementsType: JavaType
+  val arrayStoreCode: Int
+  val arrayLoadCode: Int
   val typeCode: Int
-): LoadedJavaType(realClazz, emptyList(), Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN) {
+}
+
+class NotLoadedJavaArrayType internal  constructor(
+  override val elementsType: JavaType
+): NotLoadedJavaType("", emptyList(), emptyList(), JavaType.Object, false, emptyList()), JavaArrayType {
+  override val arrayStoreCode: Int = Opcodes.AASTORE
+  override val arrayLoadCode: Int = Opcodes.AALOAD
+  override val typeCode: Int = 0
+
+  // TODO test this, it might only work for 1D arrays
+  override val internalName: String
+    get() = "[L" + AsmUtils.getInternalName(elementsType) + ";"
+}
+
+
+class LoadedJavaArrayType internal constructor(
+  realClazz: Class<*>,
+  override val elementsType: JavaType,
+  override val arrayStoreCode: Int,
+  override val arrayLoadCode: Int,
+  override val typeCode: Int
+): LoadedJavaType(realClazz, emptyList(), Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN), JavaArrayType {
+
+
+  // constructor for non-primitive arrays
+  constructor(realClazz: Class<*>): this(realClazz, JavaType.of(realClazz.componentType), Opcodes.AASTORE, Opcodes.AALOAD, 0)
   override val isArray get() = true
   override val packageName = null
   override val asArrayType: JavaArrayType
@@ -578,7 +609,7 @@ class JavaPrimitiveType internal constructor(
   val divCode: Int,
   override val defaultValueExpression: ExpressionNode): LoadedJavaType(objectKlazz.javaPrimitiveType!!, emptyList(), storeCode, loadCode, returnCode) {
 
-  override val packageName = null
+    override val packageName = null
   val objectClass = objectKlazz.java
   override val objectType: JavaType
     get() = JavaType.of(objectClass)
@@ -606,6 +637,8 @@ class LazyJavaType internal constructor(private val scope: Scope,
       return _actualType!!
     }
 
+  override val arrayType: JavaArrayType
+    get() = actualType.arrayType
 
   override val isAnnotation: Boolean
     get() = actualType.isAnnotation
