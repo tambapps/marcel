@@ -411,8 +411,14 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   override fun visit(asNode: AsNode) {
     val expression = asNode.expressionNode
-    if (expression is LiteralArrayNode && expression.elements.isEmpty()) {
-      visit(EmptyArrayNode(asNode.token, asNode.type as? JavaArrayType ?: throw MarcelSemanticException(asNode.token, "Can only convert empty arrays to array types using 'as' keyword")))
+    if (expression is LiteralArrayNode && asNode.type.isArray) {
+      // literral arrays can also be cast as collections (which will be handled in castIfNecessaryOrThrow
+      if (expression.elements.isEmpty()) {
+        visit(EmptyArrayNode(asNode.token, asNode.type.asArrayType))
+      } else {
+        expression.type = asNode.type.asArrayType
+        visit(expression)
+      }
     } else if (asNode.type == JavaType.boolean || asNode.type == JavaType.Boolean) {
       visit(BooleanExpressionNode.of(asNode.token, asNode.expressionNode))
       if (asNode.type == JavaType.Boolean) {

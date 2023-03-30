@@ -80,6 +80,10 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
       )
     }
 
+    if (classNode.type.superType != null && classNode.type.superType!!.isInterface) {
+      // TODO need deeper checks e.g. class is not a final, and is accessible from this package
+      throw MarcelSemanticException(classNode.token, "Cannot extend an interface")
+    }
     val classWriter = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
     // creating class
     classWriter.visit(compilerConfiguration.classVersion,  classNode.access, classNode.internalName,

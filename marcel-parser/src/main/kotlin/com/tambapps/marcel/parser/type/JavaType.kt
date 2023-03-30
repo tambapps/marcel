@@ -132,6 +132,8 @@ interface JavaType: AstTypedObject {
 
     if (isLoaded && other.isLoaded) {
       return realClazz.isAssignableFrom(other.realClazz)
+    } else if (this.isInterface) {
+      return other.implements(this, false)
     } else {
       var otherSuperType = other.superType
       while (otherSuperType != null) {
@@ -427,7 +429,9 @@ open class NotLoadedJavaType internal constructor(
 
   override val allImplementedInterfaces: Collection<JavaType>
     get() {
-      val allInterfaces = directlyImplementedInterfaces.toMutableSet()
+      val allInterfaces = directlyImplementedInterfaces.flatMap {
+        if (it.isLoaded) it.allImplementedInterfaces + it else listOf(it)
+      }.toMutableSet()
       if (superType != null) allInterfaces.addAll(superType!!.allImplementedInterfaces)
       return allInterfaces
     }
@@ -566,10 +570,13 @@ interface JavaArrayType: JavaType {
 
 class NotLoadedJavaArrayType internal  constructor(
   override val elementsType: JavaType
-): NotLoadedJavaType("", emptyList(), emptyList(), JavaType.Object, false, emptyList()), JavaArrayType {
+): NotLoadedJavaType("[L${elementsType.className};", emptyList(), emptyList(), JavaType.Object, false, emptyList()), JavaArrayType {
   override val arrayStoreCode: Int = Opcodes.AASTORE
   override val arrayLoadCode: Int = Opcodes.AALOAD
   override val typeCode: Int = 0
+
+  override val asArrayType: JavaArrayType
+    get() = this
 
   // TODO test this, it might only work for 1D arrays
   override val internalName: String
