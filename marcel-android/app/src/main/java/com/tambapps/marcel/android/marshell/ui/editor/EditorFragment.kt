@@ -50,8 +50,9 @@ class EditorFragment : Fragment() {
     if (binding.editText.requestFocus()) {
       requireContext().showSoftBoard(binding.editText)
     }
-    viewModel.linesCount.observe(requireActivity()) {
-      binding.lineText.text = (1..(it + 1)).joinToString(separator = "\n")
+    val lineText = binding.lineText
+    viewModel.linesCount.observe(viewLifecycleOwner) {
+      lineText.text = (1..(it + 1)).joinToString(separator = "\n")
     }
 
     // not a bean because we want to keep them independent per fragment
