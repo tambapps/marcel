@@ -24,7 +24,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
                     private val typeResolver: JavaTypeResolver) {
 
   fun compileClass(classNode: ClassNode): List<CompiledClass> {
-    defineClassMembers(classNode)
+    typeResolver.registerClass(classNode)
    return compileDefinedClass(classNode)
   }
 
@@ -221,11 +221,5 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
       mv.visitLocalVariable(parameter.name,  parameter.type.descriptor, parameter.type.signature,
         methodStartLabel, methodEndLabel, methodNode.scope.findLocalVariable(parameter.name)!!.index)
     }
-  }
-  private fun defineClassMembers(classNode: ClassNode) {
-    typeResolver.registerType(classNode.type)
-    classNode.methods.forEach { typeResolver.defineMethod(classNode.type, it) }
-    classNode.fields.forEach { typeResolver.defineField(classNode.type, it) }
-    classNode.innerClasses.forEach { defineClassMembers(it) }
   }
 }

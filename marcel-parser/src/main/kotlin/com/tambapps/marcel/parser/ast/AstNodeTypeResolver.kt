@@ -117,11 +117,14 @@ open class AstNodeTypeResolver constructor(
     return type
   }
 
-  fun registerType(type: JavaType) {
-    definedTypes[type.className] = type
+  fun registerClass(classNode: ClassNode) {
+    definedTypes[classNode.type.className] = classNode.type
+    classNode.methods.forEach { defineMethod(classNode.type, it) }
+    classNode.fields.forEach { defineField(classNode.type, it) }
+    classNode.innerClasses.forEach { registerClass(it) }
   }
 
-    fun isDefined(className: String): Boolean {
+  fun isDefined(className: String): Boolean {
     return try {
       of(className, emptyList())
       true
@@ -142,12 +145,6 @@ open class AstNodeTypeResolver constructor(
 
   open fun disposeClass(scriptNode: ClassNode) {
     definedTypes.remove(scriptNode.type.className)
-  }
-
-  fun defineClassMembers(classNode: ClassNode) {
-    classNode.methods.forEach { defineMethod(classNode.type, it) }
-    classNode.fields.forEach { defineField(classNode.type, it) }
-    classNode.innerClasses.forEach { defineClassMembers(it) }
   }
 
   open fun getDeclaredMethods(javaType: JavaType): List<JavaMethod> {
