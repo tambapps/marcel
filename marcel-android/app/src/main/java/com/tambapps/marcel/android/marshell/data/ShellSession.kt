@@ -27,6 +27,11 @@ class ShellSession constructor(context: Context) {
       Log.e("ShellSession", "Couldn't create shell session directory")
     }
   }
+
+
+  fun dispose() {
+    directory.deleteRecursively()
+  }
 }
 
 data class Prompt(val input: String, val output: Any?)

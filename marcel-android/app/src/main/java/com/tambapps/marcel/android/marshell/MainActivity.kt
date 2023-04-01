@@ -81,4 +81,9 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
     super.onStop()
     MarcelSystem.setPrinter(null)
   }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    shellSessions.forEach { it.dispose() }
+  }
 }
