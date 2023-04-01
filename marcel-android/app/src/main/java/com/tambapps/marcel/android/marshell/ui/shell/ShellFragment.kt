@@ -34,7 +34,15 @@ class ShellFragment : Fragment() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     shellHandler = requireActivity() as ShellHandler
-    binding.viewPager.adapter = ShellWidowStateAdapter(this, shellHandler.shellSessions)
+    val adapter = ShellWidowStateAdapter(this, shellHandler.shellSessions)
+    binding.viewPager.adapter = adapter
+    binding.plusButton.setOnClickListener {
+      if (shellHandler.startNewSession()) {
+        val position = shellHandler.shellSessions.size - 1
+        adapter.notifyItemInserted(position)
+        binding.viewPager.currentItem = position
+      }
+    }
   }
 
   override fun onDestroyView() {

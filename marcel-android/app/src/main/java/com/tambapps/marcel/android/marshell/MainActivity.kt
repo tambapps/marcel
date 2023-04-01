@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    _shellSessions = mutableListOf(ShellSession(this))
+    _shellSessions = mutableListOf()
     binding = ActivityMainBinding.inflate(layoutInflater)
     setContentView(binding.root)
 
@@ -50,6 +50,8 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
     navController = Navigation.findNavController(this, R.id.nav_host_fragment)
     navigatorView.setNavigationItemSelectedListener(this)
     navigatorView.setCheckedItem(R.id.nav_shell)
+
+    startNewSession()
   }
 
   override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
@@ -74,7 +76,14 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
 
     binding.drawerLayout.closeDrawer(binding.navView)
     return true
+  }
 
+  override fun startNewSession(): Boolean {
+    if (_shellSessions.size >= 8) {
+      return false
+    }
+    _shellSessions.add(ShellSession(this))
+    return true
   }
 
   override fun onStop() {
