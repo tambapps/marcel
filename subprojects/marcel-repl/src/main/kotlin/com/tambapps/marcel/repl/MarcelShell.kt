@@ -27,6 +27,7 @@ abstract class MarcelShell constructor(
   jarWriterFactory: JarWriterFactory,
   protected val tempDir: File,
   val binding: Binding = Binding(),
+  protected val typeResolver: ReplJavaTypeResolver = ReplJavaTypeResolver(marcelClassLoader, binding),
   private val promptTemplate: String = "marshell:%03d> ") {
 
   val lastNode: ClassNode? get() = replCompiler.parserResult?.scriptNode
@@ -35,7 +36,6 @@ abstract class MarcelShell constructor(
   val imports: Collection<ImportNode> get() = replCompiler.imports
   abstract val initScriptFile: File?
 
-  protected val typeResolver = ReplJavaTypeResolver(marcelClassLoader, binding)
   protected val replCompiler = MarcelReplCompiler(compilerConfiguration, marcelClassLoader, typeResolver)
   private val evaluator = MarcelEvaluator(binding, replCompiler, marcelClassLoader, jarWriterFactory, tempDir)
   private val buffer = mutableListOf<String>()

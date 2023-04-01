@@ -23,11 +23,13 @@ suspend fun main(args: Array<String>) {
 }
 
 class Marshell: MarcelShell(
-  CompilerConfiguration(dumbbellEnabled = true),
-  PrintStreamSuspendPrinter(System.out), URLMarcelClassLoader(Marshell::class.java.classLoader), BasicJarWriterFactory(),
-  Files.createTempDirectory("marshell").toFile(),
-  Binding(),
-  "marshell:%03d> ") {
+        compilerConfiguration = CompilerConfiguration(dumbbellEnabled = true),
+        printer = PrintStreamSuspendPrinter(System.out),
+        marcelClassLoader = URLMarcelClassLoader(Marshell::class.java.classLoader),
+        jarWriterFactory = BasicJarWriterFactory(),
+        tempDir = Files.createTempDirectory("marshell").toFile(),
+        binding = Binding(),
+        promptTemplate = "marshell:%03d> ") {
 
   init {
     addCommand(ExitCommand())

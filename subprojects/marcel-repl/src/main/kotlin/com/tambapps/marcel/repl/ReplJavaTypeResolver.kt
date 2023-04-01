@@ -10,7 +10,7 @@ import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
 import marcel.lang.Script
 
-class ReplJavaTypeResolver(classLoader: MarcelClassLoader?, private val binding: Binding) : JavaTypeResolver(classLoader) {
+class ReplJavaTypeResolver constructor(classLoader: MarcelClassLoader?, private val binding: Binding) : JavaTypeResolver(classLoader) {
 
     private val scriptVariables = mutableMapOf<String, BoundField>()
     private val _libraryClasses = mutableListOf<ClassNode>()
