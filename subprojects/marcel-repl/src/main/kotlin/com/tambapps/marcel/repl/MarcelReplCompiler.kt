@@ -45,7 +45,6 @@ class MarcelReplCompiler constructor(
   fun compile(text: String): ReplCompilerResult {
     val result = parse(text)
 
-    val scriptNode = result.scriptNode ?: return ReplCompilerResult(result, emptyList(), emptyList())
     for (artifactString in result.dumbbells) {
       val pulledArtifacts = Dumbbell.pull(artifactString)
       pulledArtifacts.forEach {
@@ -54,26 +53,22 @@ class MarcelReplCompiler constructor(
         }
       }
     }
-    scriptNode.scope.imports.addAll(imports)
-    // writing script. class members were defined when parsing
-    val compiledScriptClass = classCompiler.compileDefinedClass(scriptNode)
+    var compiledScriptClass = emptyList<CompiledClass>()
     val otherClasses = mutableListOf<CompiledClass>()
+    val scriptNode = result.scriptNode
+    if (scriptNode != null) {
+      scriptNode.scope.imports.addAll(imports)
+      // writing script. class members were defined when parsing
+      compiledScriptClass = classCompiler.compileDefinedClass(scriptNode)
 
-    for (clazz in result.classes) {
-      if (!clazz.isScript) {
-        if (_definedClasses.any { it.className == clazz.type.className }) {
-          throw MarcelSemanticException("Class ${clazz.type.simpleName} is already defined")
-        }
-        otherClasses.addAll(classCompiler.compileClass(clazz))
-      }
+      // keeping function for next runs. Needs to be AFTER compilation because this step may add some methods (e.g. switch, properties...)
+      _definedFunctions.addAll(
+              scriptNode.methods.filter {
+                      !it.isConstructor && it.name != "run" && it.name != "main"
+              }
+      )
     }
 
-    // keeping function for next runs. Needs to be AFTER compilation because this step may add some methods (e.g. switch, properties...)
-    _definedFunctions.addAll(
-      scriptNode.methods.filter { false &&
-        !it.isConstructor && it.name != "run" && it.name != "main"
-      }
-    )
     _definedClasses.addAll(result.classes.filter { !it.isScript }.map { it.type })
     return ReplCompilerResult(result, compiledScriptClass, otherClasses)
   }
