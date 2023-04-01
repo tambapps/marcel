@@ -21,7 +21,7 @@ class ListCommand: AbstractShellCommand() {
       printImports(shell.imports, out)
       out.suspendPrintln()
       out.suspendPrintln("Classes:")
-      printDefinedClasses(shell.definedClasses, out)
+      printDefinedClasses(shell.definedTypes, out)
       out.suspendPrintln()
       out.suspendPrintln("Functions:")
       printFunctions(shell.definedFunctions, out)
@@ -33,7 +33,7 @@ class ListCommand: AbstractShellCommand() {
       when (val arg = args.first().lowercase()) {
         "v", "var", "variable", "variables" -> printVariables(shell.binding, out)
         "f", "func", "function", "functions" -> printFunctions(shell.definedFunctions, out)
-        "c", "class", "classes" -> printDefinedClasses(shell.definedClasses, out)
+        "c", "class", "classes" -> printDefinedClasses(shell.definedTypes, out)
         "i", "import", "imports" -> printImports(shell.imports, out)
         else -> out.suspendPrintln("Unknown value $arg. Provide 'variables', 'functions' or 'classes'")
       }

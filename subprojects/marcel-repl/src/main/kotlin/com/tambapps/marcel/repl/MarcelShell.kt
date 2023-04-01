@@ -30,7 +30,7 @@ abstract class MarcelShell constructor(
   private val promptTemplate: String = "marshell:%03d> ") {
 
   val lastNode: ClassNode? get() = replCompiler.parserResult?.scriptNode
-  val definedClasses get() = replCompiler.definedClasses
+  val definedTypes get() = typeResolver.definedTypes.filter { !it.isScript }
   val definedFunctions get() = replCompiler.definedFunctions
   val imports: Collection<ImportNode> get() = replCompiler.imports
   abstract val initScriptFile: File?

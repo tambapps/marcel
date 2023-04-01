@@ -94,7 +94,8 @@ open class AstNodeTypeResolver constructor(
 
   constructor(): this(null)
 
-  private val definedTypes = mutableMapOf<String, JavaType>()
+  private val _definedTypes = mutableMapOf<String, JavaType>()
+  val definedTypes get() = _definedTypes.values.toList()
 
   fun getInterfaceLambdaMethod(type: JavaType): JavaMethod {
     return getDeclaredMethods(type).first { it.isAbstract }
@@ -111,14 +112,14 @@ open class AstNodeTypeResolver constructor(
     } catch (e: ClassNotFoundException) {
       // ignore
     }
-    if (definedTypes.containsKey(className)) throw MarcelSemanticException("Class $className is already defined")
+    if (_definedTypes.containsKey(className)) throw MarcelSemanticException("Class $className is already defined")
     val type = NotLoadedJavaType(className, emptyList(), emptyList(),  superClass, isInterface, interfaces)
-    definedTypes[className] = type
+    _definedTypes[className] = type
     return type
   }
 
   fun registerClass(classNode: ClassNode) {
-    definedTypes[classNode.type.className] = classNode.type
+    _definedTypes[classNode.type.className] = classNode.type
     classNode.methods.forEach { defineMethod(classNode.type, it) }
     classNode.fields.forEach { defineField(classNode.type, it) }
     classNode.innerClasses.forEach { registerClass(it) }
@@ -134,7 +135,7 @@ open class AstNodeTypeResolver constructor(
   }
 
   fun clear() {
-    definedTypes.clear()
+    _definedTypes.clear()
   }
 
   open fun defineMethod(javaType: JavaType, method: JavaMethod) {
@@ -144,7 +145,7 @@ open class AstNodeTypeResolver constructor(
   }
 
   open fun disposeClass(scriptNode: ClassNode) {
-    definedTypes.remove(scriptNode.type.className)
+    _definedTypes.remove(scriptNode.type.className)
   }
 
   open fun getDeclaredMethods(javaType: JavaType): List<JavaMethod> {
@@ -163,7 +164,7 @@ open class AstNodeTypeResolver constructor(
     return emptyList()
   }
   open fun of(className: String, genericTypes: List<JavaType>): JavaType {
-    return definedTypes[className] ?: JavaType.of(classLoader, className, genericTypes)
+    return _definedTypes[className] ?: JavaType.of(classLoader, className, genericTypes)
   }
 
   fun findMethodByParametersOrThrow(javaType: JavaType, name: String,

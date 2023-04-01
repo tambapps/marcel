@@ -21,15 +21,13 @@ import kotlin.jvm.Throws
 class MarcelReplCompiler constructor(
   compilerConfiguration: CompilerConfiguration,
   private val marcelClassLoader: MarcelClassLoader,
-  private val typeResolver: JavaTypeResolver,
+  private val typeResolver: ReplJavaTypeResolver,
 ) {
 
   val imports = LinkedHashSet<ImportNode>()
   private val lexer = MarcelLexer(false)
   private val _definedFunctions = mutableSetOf<MethodNode>()
   val definedFunctions: Set<MethodNode> get() = _definedFunctions
-  private val _definedClasses = mutableListOf<JavaType>()
-  val definedClasses: List<JavaType> get() = _definedClasses
   private val classCompiler = ClassCompiler(compilerConfiguration, typeResolver)
   @Volatile
   var parserResult: ParserResult? = null
@@ -54,7 +52,6 @@ class MarcelReplCompiler constructor(
       }
     }
     var compiledScriptClass = emptyList<CompiledClass>()
-    val otherClasses = mutableListOf<CompiledClass>()
     val scriptNode = result.scriptNode
     if (scriptNode != null) {
       scriptNode.scope.imports.addAll(imports)
@@ -68,8 +65,13 @@ class MarcelReplCompiler constructor(
               }
       )
     }
+    val otherClasses = result.classes
+            .filter { !it.isScript }
+            .flatMap {
+              typeResolver.registerLibraryClass(it)
+              classCompiler.compileDefinedClass(it)
+            }
 
-    _definedClasses.addAll(result.classes.filter { !it.isScript }.map { it.type })
     return ReplCompilerResult(result, compiledScriptClass, otherClasses)
   }
 
@@ -125,7 +127,6 @@ class MarcelReplCompiler constructor(
         method.scope.classType = scriptNode.type
         scriptNode.methods.add(method)
       }
-      typeResolver.defineClassMembers(scriptNode)
     }
     val r = ParserResult(tokens, module.classes, module.imports, module.dumbbells, text.hashCode())
     if (!skipUpdate) {

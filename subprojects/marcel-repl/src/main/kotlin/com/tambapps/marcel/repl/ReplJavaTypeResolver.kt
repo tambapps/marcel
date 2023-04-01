@@ -2,6 +2,7 @@ package com.tambapps.marcel.repl
 
 import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.compiler.util.javaType
+import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.scope.BoundField
 import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.type.JavaType
@@ -12,6 +13,13 @@ import marcel.lang.Script
 class ReplJavaTypeResolver(classLoader: MarcelClassLoader?, private val binding: Binding) : JavaTypeResolver(classLoader) {
 
     private val scriptVariables = mutableMapOf<String, BoundField>()
+    private val _libraryClasses = mutableListOf<ClassNode>()
+    val libraryClasses: List<ClassNode> get() = _libraryClasses
+
+    fun registerLibraryClass(classNode: ClassNode) {
+        registerClass(classNode)
+        _libraryClasses.add(classNode)
+    }
 
     override fun defineField(javaType: JavaType, field: MarcelField) {
         super.defineField(javaType, field)

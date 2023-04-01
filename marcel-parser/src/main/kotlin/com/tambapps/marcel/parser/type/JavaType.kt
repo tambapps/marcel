@@ -17,6 +17,7 @@ import com.tambapps.marcel.parser.ast.expression.VoidExpression
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.Scope
 import marcel.lang.MarcelClassLoader
+import marcel.lang.Script
 import marcel.lang.lambda.Lambda
 import marcel.lang.primitives.collections.lists.CharacterArrayList
 import marcel.lang.primitives.collections.lists.CharacterList
@@ -44,6 +45,7 @@ interface JavaType: AstTypedObject {
 
   // whether the class is in the classpath and therefore can be accessed with Class.forName(className)
   val isLoaded: Boolean
+  val isScript get() = JavaType.of(Script::class.java).isAssignableFrom(this)
   val realClazz: Class<*>
   val className: String
   val packageName: String?
