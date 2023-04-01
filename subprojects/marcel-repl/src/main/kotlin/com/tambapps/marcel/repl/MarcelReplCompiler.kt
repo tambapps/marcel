@@ -26,6 +26,8 @@ class MarcelReplCompiler constructor(
 
   val imports = LinkedHashSet<ImportNode>()
   private val lexer = MarcelLexer(false)
+  // TODO save this in ReplJavaTypeResolver. This is for android marshell, to be able to save them outside the shell which
+  //  needs a reference to an Android context because of the lineReader which reads from a EditText. With this, we would be able
   private val _definedFunctions = mutableSetOf<MethodNode>()
   val definedFunctions: Set<MethodNode> get() = _definedFunctions
   private val classCompiler = ClassCompiler(compilerConfiguration, typeResolver)
