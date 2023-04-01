@@ -13,23 +13,18 @@ import javax.inject.Named
 class AndroidMarshellFactory @Inject constructor(
   // these are not vals because hilt doesn't allow final fields when injecting
   _compilerConfiguration: CompilerConfiguration,
-  @Named("classesDir")
-  _classesDir: File,
   @Named("initScriptFile")
   _initScriptFile: File
   ) {
 
   private val compilerConfiguration = _compilerConfiguration
-  private val classesDir = _classesDir
   private val initScriptFile = _initScriptFile
 
 
   fun newShellRunner(session: ShellSession, printer: SuspendPrinter, lineReader: suspend (String) -> String): AndroidMarshellRunner {
-    // not a bean because we want to keep them independent per fragment
-    val marcelDexClassLoader = MarcelDexClassLoader()
     return AndroidMarshellRunner(
-      AndroidMarshell(compilerConfiguration, classesDir, initScriptFile, printer, marcelDexClassLoader,
-        session.binding, lineReader, session.history)
+      AndroidMarshell(compilerConfiguration, session.directory, initScriptFile, printer, session.classLoader,
+        session.binding, session.typeResolver, lineReader, session.history)
     )
   }
 

@@ -32,6 +32,8 @@ abstract class AbstractCompilerTest {
         .invoke(clazz.getDeclaredConstructor().newInstance(), arrayOf<String>())
     } catch (e: InvocationTargetException) {
       throw e.targetException
+    } finally {
+        jarFile.delete()
     }
   }
 }

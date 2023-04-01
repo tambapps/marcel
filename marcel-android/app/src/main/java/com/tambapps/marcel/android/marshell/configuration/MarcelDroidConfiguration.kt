@@ -15,12 +15,6 @@ import javax.inject.Named
 @InstallIn(ActivityComponent::class, FragmentComponent::class)
 class MarcelDroidConfiguration {
 
-  @Named("classesDir")
-  @Provides
-  fun classesDir(@ApplicationContext context: Context): File {
-    return context.getDir("classes", Context.MODE_PRIVATE)
-  }
-
   @Named("initScriptFile")
   @Provides
   fun initScriptFile(@ApplicationContext context: Context): File {

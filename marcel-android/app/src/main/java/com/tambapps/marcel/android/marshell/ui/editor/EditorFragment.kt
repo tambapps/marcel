@@ -14,6 +14,8 @@ import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import dagger.hilt.android.AndroidEntryPoint
 import com.tambapps.marcel.android.marshell.view.EditTextHighlighter
+import com.tambapps.marcel.repl.ReplJavaTypeResolver
+import marcel.lang.Binding
 import marcel.lang.MarcelDexClassLoader
 import javax.inject.Inject
 
@@ -55,8 +57,8 @@ class EditorFragment : Fragment() {
     // not a bean because we want to keep them independent per fragment
     val marcelDexClassLoader =
       MarcelDexClassLoader()
-    val javaTypeResolver = JavaTypeResolver(marcelDexClassLoader)
-    val replCompiler = MarcelReplCompiler(compilerConfiguration, javaTypeResolver)
+    val javaTypeResolver = ReplJavaTypeResolver(marcelDexClassLoader, Binding())
+    val replCompiler = MarcelReplCompiler(compilerConfiguration, marcelDexClassLoader, javaTypeResolver)
     val highlighter = TextViewHighlighter(javaTypeResolver, replCompiler)
     editTextHighlighter = EditTextHighlighter(binding.editText, highlighter)
   }

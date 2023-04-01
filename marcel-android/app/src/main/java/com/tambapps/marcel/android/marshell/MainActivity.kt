@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    _shellSessions = mutableListOf(ShellSession())
+    _shellSessions = mutableListOf(ShellSession(this))
     binding = ActivityMainBinding.inflate(layoutInflater)
     setContentView(binding.root)
 

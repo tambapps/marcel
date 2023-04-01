@@ -70,7 +70,7 @@ class Marshell: MarcelShell(
   }
 
   override suspend fun onFinish() {
-    Files.delete(tempDir.toPath())
+    tempDir.deleteRecursively()
   }
 
   override fun onInitScriptFail(e: Exception) {

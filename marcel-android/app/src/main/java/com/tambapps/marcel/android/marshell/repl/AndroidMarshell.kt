@@ -1,16 +1,15 @@
 package com.tambapps.marcel.android.marshell.repl
 
-import android.os.Build
 import android.util.Log
 import com.tambapps.marcel.android.marshell.data.Prompt
 import com.tambapps.marcel.android.marshell.repl.console.TextViewHighlighter
 import com.tambapps.marcel.android.marshell.repl.jar.DexJarWriterFactory
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.MarcelShell
+import com.tambapps.marcel.repl.ReplJavaTypeResolver
 import com.tambapps.marcel.repl.printer.SuspendPrinter
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
-import marcel.lang.util.MarcelVersion
 import java.io.File
 
 class AndroidMarshell constructor(
@@ -20,11 +19,18 @@ class AndroidMarshell constructor(
   out: SuspendPrinter,
   marcelClassLoader: MarcelClassLoader,
   binding: Binding,
+  typeResolver: ReplJavaTypeResolver,
   private val readLineFunction: suspend (String) -> String,
   private val history: MutableList<Prompt>
-) : MarcelShell(compilerConfiguration, out, marcelClassLoader,
-  DexJarWriterFactory(),
-  classesDir, binding, PROMPT_TEMPLATE) {
+) : MarcelShell(
+  compilerConfiguration = compilerConfiguration,
+  printer = out,
+  marcelClassLoader = marcelClassLoader,
+  jarWriterFactory = DexJarWriterFactory(),
+  tempDir = classesDir,
+  binding = binding,
+  typeResolver = typeResolver,
+  promptTemplate = PROMPT_TEMPLATE) {
 
   companion object {
     const val PROMPT_TEMPLATE = "%03d> "
