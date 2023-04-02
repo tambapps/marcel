@@ -9,11 +9,16 @@ import java.io.File
 import java.util.Collections
 import java.util.LinkedList
 
-// TODO variables are not well handled when they are defined
 /**
  * Class holding all objects holding a shell's data
  */
 class ShellSession constructor(context: Context) {
+
+  companion object {
+    var COUNT = 0
+  }
+
+  val name = if (++COUNT == 1) "marshell" else "marshell ($COUNT)"
   val binding = Binding()
   val classLoader = MarcelDexClassLoader()
   val typeResolver = ReplJavaTypeResolver(classLoader, binding)

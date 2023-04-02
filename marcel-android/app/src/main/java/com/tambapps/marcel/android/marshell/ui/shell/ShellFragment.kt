@@ -58,8 +58,8 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
   }
 
   override fun onConfigureTab(tab: TabLayout.Tab, position: Int) {
-    // TODO generate name and save it in sessions, so that it doesn't change when removing a session
-    tab.text = "Session $position"
+    val session = shellHandler.getSessionAt(position)
+    tab.text = session.name
   }
   override fun onDestroyView() {
     super.onDestroyView()
