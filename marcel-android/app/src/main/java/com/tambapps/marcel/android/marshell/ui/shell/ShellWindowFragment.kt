@@ -62,7 +62,10 @@ class ShellWindowFragment : Fragment() {
     shellSession = shellHandler.shellSessions[position]
 
     printer = TextViewPrinter(requireActivity(), binding.historyText)
-    marshellRunner = factory.newShellRunner(shellSession, printer, this::readLine)
+    marshellRunner = factory.newShellRunner(shellSession, printer, this::readLine) {
+      // TODO has some weird behaviour
+      if (shellHandler.stopSession(shellSession)) (parentFragment as? ShellFragment)?.notifySessionRemoved(position)
+    }
     val highlighter = marshellRunner.shell.newHighlighter()
     editTextHighlighter = EditTextHighlighter(binding.promptEditText, highlighter)
 

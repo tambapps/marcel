@@ -7,4 +7,5 @@ interface ShellHandler {
   val shellSessions: List<ShellSession>
 
   fun startNewSession(): Boolean // return true if actually started new session
+  fun stopSession(shellSession: ShellSession): Boolean
 }

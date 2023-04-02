@@ -52,6 +52,10 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy {
     binding.tabLayout.visibility = if (shellHandler.shellSessions.size > 1) View.VISIBLE else View.GONE
   }
 
+  fun notifySessionRemoved(i: Int) {
+    binding.viewPager.adapter?.notifyItemRemoved(i)
+  }
+
   override fun onConfigureTab(tab: TabLayout.Tab, position: Int) {
     // TODO generate name and save it in sessions, so that it doesn't change when removing a session
     tab.text = "Session $position"

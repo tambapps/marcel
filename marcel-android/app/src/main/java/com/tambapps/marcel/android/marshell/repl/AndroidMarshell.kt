@@ -1,6 +1,5 @@
 package com.tambapps.marcel.android.marshell.repl
 
-import android.util.Log
 import com.tambapps.marcel.android.marshell.data.Prompt
 import com.tambapps.marcel.android.marshell.repl.console.TextViewHighlighter
 import com.tambapps.marcel.android.marshell.repl.jar.DexJarWriterFactory
@@ -17,6 +16,7 @@ class AndroidMarshell constructor(
   classesDir: File,
   override val initScriptFile: File?,
   out: SuspendPrinter,
+  val exitFunc: () -> Unit,
   marcelClassLoader: MarcelClassLoader,
   binding: Binding,
   typeResolver: ReplJavaTypeResolver,
@@ -54,6 +54,10 @@ class AndroidMarshell constructor(
 
   override suspend fun onPostEval(text: String, eval: Any?) {
     history.add(Prompt(text, eval))
-    Log.e("cacaca", history.toString())
+  }
+
+  override suspend fun exit() {
+    super.exit()
+    exitFunc.invoke()
   }
 }

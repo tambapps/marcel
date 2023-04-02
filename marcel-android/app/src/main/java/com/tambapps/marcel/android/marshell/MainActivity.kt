@@ -86,6 +86,12 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
     return true
   }
 
+  override fun stopSession(shellSession: ShellSession): Boolean {
+    if (!_shellSessions.remove(shellSession)) return false
+    shellSession.dispose()
+    return true
+  }
+
   override fun onStop() {
     super.onStop()
     MarcelSystem.setPrinter(null)
