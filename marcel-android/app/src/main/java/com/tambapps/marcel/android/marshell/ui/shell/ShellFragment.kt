@@ -98,6 +98,7 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
   }
 
   override fun onRemoved(position: Int, count: Int) {
+    // TODO display something if there are no active sessions
     if (count == 1) {
       binding.viewPager.adapter?.notifyItemRemoved(position)
     } else {
