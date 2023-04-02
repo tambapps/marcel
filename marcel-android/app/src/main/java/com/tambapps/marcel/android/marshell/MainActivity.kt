@@ -8,9 +8,11 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.ui.NavigationUI
+import androidx.recyclerview.widget.ListUpdateCallback
 import com.google.android.material.navigation.NavigationView
 import com.tambapps.marcel.android.marshell.data.ShellSession
 import com.tambapps.marcel.android.marshell.databinding.ActivityMainBinding
+import com.tambapps.marcel.android.marshell.util.ListenableList
 import com.tambapps.marcel.android.marshell.util.hideSoftBoard
 import dagger.hilt.android.AndroidEntryPoint
 import marcel.lang.MarcelSystem
@@ -22,13 +24,13 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
   private lateinit var binding: ActivityMainBinding
   private lateinit var navController: NavController
 
-  private lateinit var _shellSessions: MutableList<ShellSession>
-  override val shellSessions: List<ShellSession> get() = _shellSessions
+  private lateinit var shellSessions: ListenableList<ShellSession>
+  override val sessionsCount get() = shellSessions.size
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    _shellSessions = mutableListOf()
+    shellSessions = ListenableList()
     binding = ActivityMainBinding.inflate(layoutInflater)
     setContentView(binding.root)
 
@@ -78,19 +80,29 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
     return true
   }
 
+  override fun getSessionAt(i: Int): ShellSession {
+    return shellSessions[i]
+  }
   override fun startNewSession(): Boolean {
-    if (_shellSessions.size >= 8) {
+    if (shellSessions.size >= 8) {
       return false
     }
-    _shellSessions.add(ShellSession(this))
+    shellSessions.add(ShellSession(this))
     return true
   }
 
   override fun stopSession(shellSession: ShellSession): Boolean {
-    if (!_shellSessions.remove(shellSession)) return false
+    if (!shellSessions.remove(shellSession)) return false
     shellSession.dispose()
+    if (shellSessions.isEmpty()) {
+      finish()
+    }
     return true
   }
+
+  override fun registerCallback(callback: ListUpdateCallback) = shellSessions.registerCallback(callback)
+
+  override fun unregisterCallback(callback: ListUpdateCallback) = shellSessions.unregisterCallback(callback)
 
   override fun onStop() {
     super.onStop()

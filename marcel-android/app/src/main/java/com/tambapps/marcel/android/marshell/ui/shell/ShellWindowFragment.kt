@@ -16,7 +16,6 @@ import com.tambapps.marcel.android.marshell.util.showSoftBoard
 import dagger.hilt.android.AndroidEntryPoint
 import com.tambapps.marcel.android.marshell.view.EditTextHighlighter
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import marcel.lang.MarcelSystem
 import marcel.lang.util.MarcelVersion
@@ -59,12 +58,11 @@ class ShellWindowFragment : Fragment() {
     promptQueue = LinkedBlockingQueue<CharSequence>()
     val position = requireArguments().getInt(POSITION_KEY)
     shellHandler = requireActivity() as ShellHandler
-    shellSession = shellHandler.shellSessions[position]
+    shellSession = shellHandler.getSessionAt(position)
 
     printer = TextViewPrinter(requireActivity(), binding.historyText)
     marshellRunner = factory.newShellRunner(shellSession, printer, this::readLine) {
-      // TODO has some weird behaviour
-      if (shellHandler.stopSession(shellSession)) (parentFragment as? ShellFragment)?.notifySessionRemoved(position)
+      shellHandler.stopSession(shellSession)
     }
     val highlighter = marshellRunner.shell.newHighlighter()
     editTextHighlighter = EditTextHighlighter(binding.promptEditText, highlighter)
