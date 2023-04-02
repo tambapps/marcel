@@ -6,12 +6,7 @@ import com.tambapps.marcel.parser.exception.MarcelParserException
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
-import com.tambapps.marcel.repl.command.ClearBufferCommand
-import com.tambapps.marcel.repl.command.HelpCommand
-import com.tambapps.marcel.repl.command.ImportCommand
-import com.tambapps.marcel.repl.command.ListCommand
-import com.tambapps.marcel.repl.command.PullDependencyCommand
-import com.tambapps.marcel.repl.command.ShellCommand
+import com.tambapps.marcel.repl.command.*
 import com.tambapps.marcel.repl.jar.JarWriterFactory
 import com.tambapps.marcel.repl.printer.SuspendPrinter
 import marcel.lang.Binding
@@ -40,11 +35,12 @@ abstract class MarcelShell constructor(
   private val evaluator = MarcelEvaluator(binding, replCompiler, marcelClassLoader, jarWriterFactory, tempDir)
   private val buffer = mutableListOf<String>()
   private val commands = mutableListOf<ShellCommand>(
-    HelpCommand(),
-    ListCommand(),
-    ClearBufferCommand(),
-    PullDependencyCommand(),
-    ImportCommand(),
+          ClearBufferCommand(),
+          ExitCommand(),
+          HelpCommand(),
+          ImportCommand(),
+          ListCommand(),
+          PullDependencyCommand(),
   )
   private val runningReference = AtomicBoolean()
 
@@ -133,7 +129,6 @@ abstract class MarcelShell constructor(
   }
 
   open suspend fun exit() {
-    onExit()
     runningReference.set(false)
   }
 
@@ -155,9 +150,6 @@ abstract class MarcelShell constructor(
   }
 
   protected open suspend fun onStart() {
-  }
-
-  protected open suspend fun onExit() {
   }
 
   protected open suspend fun onFinish() {

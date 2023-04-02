@@ -1,7 +1,6 @@
 package com.tambapps.marcel.marshell
 
 import com.tambapps.marcel.compiler.CompilerConfiguration
-import com.tambapps.marcel.marshell.command.ExitCommand
 import com.tambapps.marcel.marshell.console.MarshellCompleter
 import com.tambapps.marcel.marshell.console.MarshellSnippetParser
 import com.tambapps.marcel.marshell.console.ReaderHighlighter
@@ -30,10 +29,6 @@ class Marshell: MarcelShell(
         tempDir = Files.createTempDirectory("marshell").toFile(),
         binding = Binding(),
         promptTemplate = "marshell:%03d> ") {
-
-  init {
-    addCommand(ExitCommand())
-  }
 
   override val initScriptFile: File
     get() {
