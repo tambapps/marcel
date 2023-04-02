@@ -94,6 +94,9 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
   override fun stopSession(shellSession: ShellSession): Boolean {
     if (!shellSessions.remove(shellSession)) return false
     shellSession.dispose()
+    if (shellSessions.isEmpty()) {
+      finish()
+    }
     return true
   }
 

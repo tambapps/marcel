@@ -17,7 +17,7 @@ class AndroidMarshellRunner(
   }
 
   fun stop() {
-    runBlocking { shell.exit() }
+    runBlocking { shell.dispose() }
     executor.shutdown()
   }
 }

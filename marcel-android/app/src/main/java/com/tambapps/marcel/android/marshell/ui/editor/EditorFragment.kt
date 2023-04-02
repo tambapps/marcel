@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.tambapps.marcel.android.marshell.databinding.FragmentEditorBinding
@@ -62,6 +63,9 @@ class EditorFragment : Fragment() {
     val replCompiler = MarcelReplCompiler(compilerConfiguration, marcelDexClassLoader, javaTypeResolver)
     val highlighter = TextViewHighlighter(javaTypeResolver, replCompiler)
     editTextHighlighter = EditTextHighlighter(binding.editText, highlighter)
+    binding.runButton.setOnClickListener {
+      Toast.makeText(requireContext(), "TODO, run in shell", Toast.LENGTH_SHORT).show()
+    }
   }
 
   override fun onStart() {

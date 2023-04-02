@@ -86,6 +86,8 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
     }
   }
 
+  /// TODO there are some bugs in the below functions because they are sometimes executed while recyclevier
+  //   is scrolling/computing positions
   override fun onInserted(position: Int, count: Int) {
     if (count == 1) {
       binding.viewPager.adapter?.notifyItemInserted(position)

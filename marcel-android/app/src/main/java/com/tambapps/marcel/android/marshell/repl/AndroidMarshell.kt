@@ -7,6 +7,7 @@ import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.MarcelShell
 import com.tambapps.marcel.repl.ReplJavaTypeResolver
 import com.tambapps.marcel.repl.printer.SuspendPrinter
+import kotlinx.coroutines.runBlocking
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
 import java.io.File
@@ -59,5 +60,8 @@ class AndroidMarshell constructor(
   override suspend fun exit() {
     super.exit()
     exitFunc.invoke()
+  }
+  fun dispose() {
+    runBlocking { super.exit() }
   }
 }
