@@ -1029,20 +1029,20 @@ class MarcelParser constructor(
       val isLong = valueString.endsWith("l")
       if (isLong) valueString = valueString.substring(0, valueString.length - 1)
 
-      val radix = if (valueString.startsWith("0x")) 16
-      else if (valueString.startsWith("0b")) 2
-      else 10
+      val (radix, numberString) = if (valueString.startsWith("0x")) Pair(16, valueString.substring(2))
+      else if (valueString.startsWith("0b")) Pair(2, valueString.substring(2))
+      else Pair(10, valueString)
 
       return if (isLong) {
         val value = try {
-          valueString.toLong(radix)
+          numberString.toLong(radix)
         } catch (e: NumberFormatException) {
           throw MarcelParserException.malformedNumber(token, e)
         }
         LongConstantNode(token, value)
       } else {
         val value = try {
-          valueString.toInt(radix)
+          numberString.toInt(radix)
         } catch (e: NumberFormatException) {
           throw MarcelParserException.malformedNumber(token, e)
         }
