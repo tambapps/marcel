@@ -19,7 +19,7 @@
         android:src="@drawable/plus"
         android:background="@null"
         android:id="@+id/plusButton"
-        android:foreground="?attr/selectableItemBackground"
+        android:foreground="?actionBarItemBackground"
         />
 
     <androidx.appcompat.widget.LinearLayoutCompat

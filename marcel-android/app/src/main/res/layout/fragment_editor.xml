@@ -21,7 +21,7 @@
             android:src="@drawable/shell"
             android:background="@null"
             android:id="@+id/runButton"
-            android:foreground="?attr/selectableItemBackground"
+            android:foreground="?actionBarItemBackground"
             />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
