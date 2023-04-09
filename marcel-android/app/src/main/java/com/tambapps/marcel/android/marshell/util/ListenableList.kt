@@ -113,7 +113,7 @@ class ListenableList<T>: AbstractMutableList<T>() {
     override fun getNewListSize() = this@ListenableList.size
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
-      oldList.getOrNull(oldItemPosition) == this@ListenableList.getOrNull(newItemPosition)
+      oldList.getOrNull(oldItemPosition) === this@ListenableList.getOrNull(newItemPosition)
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
       areItemsTheSame(oldItemPosition, newItemPosition)

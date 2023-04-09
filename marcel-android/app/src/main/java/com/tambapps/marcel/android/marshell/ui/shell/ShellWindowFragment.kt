@@ -38,11 +38,10 @@ class ShellWindowFragment : Fragment() {
   lateinit var factory: AndroidMarshellFactory
   private val binding get() = _binding!!
 
-  private lateinit var marshellRunner: AndroidMarshellRunner
+  private var marshellRunner: AndroidMarshellRunner? = null
+  private var editTextHighlighter: EditTextHighlighter? = null
   private lateinit var printer: TextViewPrinter
-  private lateinit var editTextHighlighter: EditTextHighlighter
   private lateinit var promptQueue: LinkedBlockingQueue<CharSequence>
-  lateinit var shellSession: ShellSession
   private lateinit var shellHandler: ShellHandler
 
   override fun onCreateView(
@@ -56,16 +55,8 @@ class ShellWindowFragment : Fragment() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     promptQueue = LinkedBlockingQueue<CharSequence>()
-    val position = requireArguments().getInt(POSITION_KEY)
     shellHandler = requireActivity() as ShellHandler
-    shellSession = shellHandler.getSessionAt(position)
-
     printer = TextViewPrinter(requireActivity(), binding.historyText)
-    marshellRunner = factory.newShellRunner(shellSession, printer, this::readLine) {
-      shellHandler.stopSession(shellSession)
-    }
-    val highlighter = marshellRunner.shell.newHighlighter()
-    editTextHighlighter = EditTextHighlighter(binding.promptEditText, highlighter)
 
     binding.apply {
       promptEditText.setOnKeyListener(PromptKeyListener(promptQueue))
@@ -79,40 +70,24 @@ class ShellWindowFragment : Fragment() {
         promptEditText.requestFocus()
       }
     }
-
-    printer.println("Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSION.RELEASE})\n")
-    // now display history if any
-    if (shellSession.history.isNotEmpty()) {
-      val historyTextView = binding.historyText
-      for (prompt in shellSession.history) {
-        prompt.input.lines().forEachIndexed { index, promptLine ->
-          historyTextView.append(AndroidMarshell.PROMPT_TEMPLATE.format(index))
-          binding.historyText.append(highlighter.highlight(promptLine))
-          binding.historyText.append("\n")
-        }
-        historyTextView.append("${prompt.output}\n")
-      }
-    }
   }
 
   override fun onStart() {
     super.onStart()
-    marshellRunner.start()
     // TODO put this in onShow because we can have different windows
     MarcelSystem.setPrinter(printer)
-    editTextHighlighter.start()
   }
   override fun onDestroyView() {
     super.onDestroyView()
     _binding = null
-    marshellRunner.stop()
+    marshellRunner?.stop()
   }
 
   override fun onStop() {
     super.onStop()
     // TODO move this kind of thing in a MarcelEngine class
     MarcelSystem.setPrinter(null)
-    editTextHighlighter.cancel()
+    editTextHighlighter?.cancel()
   }
   private suspend fun readLine(prompt: String): String {
     withContext(Dispatchers.Main) {
@@ -125,5 +100,32 @@ class ShellWindowFragment : Fragment() {
       binding.promptEditText.setText("")
     }
     return text.toString()
+  }
+
+  fun bindTo(shellSession: ShellSession) {
+    marshellRunner?.stop()
+    marshellRunner = factory.newShellRunner(shellSession, printer, this::readLine) {
+      shellHandler.stopSession(shellSession)
+    }
+    marshellRunner?.start()
+    val highlighter = marshellRunner!!.shell.newHighlighter()
+    editTextHighlighter?.cancel()
+    editTextHighlighter = EditTextHighlighter(binding.promptEditText, highlighter)
+    editTextHighlighter?.start()
+    val historyTextView = binding.historyText
+    historyTextView.text = ""
+
+    printer.println("Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSION.RELEASE})\n")
+    // now display history if any
+    if (shellSession.history.isNotEmpty()) {
+      for (prompt in shellSession.history) {
+        prompt.input.lines().forEachIndexed { index, promptLine ->
+          historyTextView.append(AndroidMarshell.PROMPT_TEMPLATE.format(index))
+          binding.historyText.append(highlighter.highlight(promptLine))
+          binding.historyText.append("\n")
+        }
+        historyTextView.append("${prompt.output}\n")
+      }
+    }
   }
 }
