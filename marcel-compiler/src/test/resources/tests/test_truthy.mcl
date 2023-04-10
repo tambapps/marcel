@@ -7,7 +7,7 @@ assertFalse(new A(a: 1) as bool)
 class A {
   int a
 
-  fun isTruthy() bool {
+  fun bool isTruthy() {
     return a == 2
   }
 }

@@ -3,6 +3,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 
 assertEquals("GET bar?foo=5", get("bar", foo: 5))
 
-fun get(String path, int foo = 2) String {
+fun String get(String path, int foo = 2) {
   return "GET $path?foo=$foo"
 }

@@ -3,18 +3,21 @@
 Use the `fun` keyword to define functions
 
 ```marcel
-fun sum(int a, int b) int {
+fun int sum(int a, int b) {
   return a + b
 }
-fun foo() {
+
+protected fun void foo() {
   // do nothing
 }
 ```
 
 As shown in the above example, a function define has the following structures
-1. starts with the [visibility](./visibility.md)  (you can also define static function with the `static` keyword)
-2. the list of your function's parameters. The parameter's type first, and then the parameter's name.
-3. the return type. If you're defining a void function, you can omit the return type.
+1. starts with the [visibility](./visibility.md) which is optional and defaults to `public`.(you can also define static function with the `static` keyword)
+2. the `fun` keyword
+3. the return type
+4. the function's name
+5. the list of your function's parameters. The parameter's type first, and then the parameter's name.
 
 
 
@@ -89,7 +92,7 @@ Function parameters can have default values, which are used when you skip the co
 with named parameters function calls. 
 
 ```groovy
-fun sum(int a = 0, int b = 8) int {
+fun int sum(int a = 0, int b = 8) {
 return a + b
 }
 

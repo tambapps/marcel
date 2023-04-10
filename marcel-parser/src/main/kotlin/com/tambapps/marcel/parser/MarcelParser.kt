@@ -302,6 +302,9 @@ class MarcelParser constructor(
     val access = if (forceStatic) acc or Opcodes.ACC_STATIC else acc
     val token = accept(TokenType.FUN, TokenType.CONSTRUCTOR)
     val isConstructor = token.type == TokenType.CONSTRUCTOR
+    // constructors return void
+    val returnType = if (isConstructor) JavaType.void else parseType(classScope)
+
     val methodName = if (isConstructor) JavaMethod.CONSTRUCTOR_NAME else accept(TokenType.IDENTIFIER).value
     accept(TokenType.LPAR)
     val parameters = mutableListOf<MethodParameterNode>()
@@ -337,8 +340,6 @@ class MarcelParser constructor(
     }
     skip() // skipping RPAR
     val currentToken = current
-    // constructors return void
-    val returnType = if (isConstructor) JavaType.void else if (current.type != TokenType.BRACKETS_OPEN) parseType(classScope) else JavaType.void
     val statements = mutableListOf<StatementNode>()
     val methodScope = MethodScope(classScope, methodName, parameters, returnType, false)
     val methodNode =

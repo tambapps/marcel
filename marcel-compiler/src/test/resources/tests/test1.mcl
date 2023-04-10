@@ -10,10 +10,10 @@ println(o.hashCode())
 
 new Object()
 
- fun foo(int bar) int {
+ fun int foo(int bar) {
   return  bar + 1
 }
 
-protected fun bar() {
+protected fun void bar() {
 
 }

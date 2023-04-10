@@ -14,4 +14,4 @@ The only falsey values are the following:
 
 Any other value is truthy.
 
-You can also override the truth for your class if you define a function `fun isTruthy() bool`
+You can also override the truth for your class if you define a function `fun bool isTruthy()`

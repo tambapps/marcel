@@ -10,11 +10,11 @@ assertEquals(4, i1 + 3)
 class MyInt {
   int i
 
-  fun plus(MyInt mi) int {
+  fun int plus(MyInt mi) {
     return i + mi.i
   }
 
-  fun plus(int i) int {
+  fun int plus(int i) {
     return this.i + i
   }
 

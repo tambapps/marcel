@@ -6,6 +6,6 @@ assertEquals(7, sum(b: 7))
 assertEquals(1, sum())
 assertEquals(2, sum(1))
 
-fun sum(int a = 0, int b = 1) int {
+fun int sum(int a = 0, int b = 1) {
   return a + b
 }

@@ -4,15 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertFalse
 class MyDelegatedObject implements DelegatedObject<Character> {
   Character c
 
-  fun foo() bool {
+  fun bool foo() {
     return isUpperCase()
   }
 
-  fun bar(int dummy) bool {
+  fun bool bar(int dummy) {
     return isUpperCase()
   }
 
-  fun getDelegate() Character {
+  fun Character getDelegate() {
     return c
   }
 }

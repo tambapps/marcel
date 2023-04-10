@@ -9,12 +9,12 @@ assertEquals("Goodbye world", o2.bar())
 
 class SomeObject {
 
-  fun foo() String {
+  fun String foo() {
     return "Hello World"
   }
 
   class SomeInnerObject {
-    fun bar() String {
+    fun String bar() {
       return "Goodbye world"
     }
   }

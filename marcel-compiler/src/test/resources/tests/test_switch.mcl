@@ -17,14 +17,14 @@ assertEquals(2, testSwitchInt(2))
 assertEquals(4, testSwitchInt(3))
 
 
-fun testSwitch(int c) String {
+fun String testSwitch(int c) {
   return switch (c) {
            1 -> "youhou"
            2 -> "yipi"
          }
 }
 
-fun testSwitchInt(int c) int {
+fun int testSwitchInt(int c) {
   return switch (c) {
            1 -> 1
            2 -> c
