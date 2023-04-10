@@ -57,6 +57,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
           val rawParameterExpressions = mutableListOf<ExpressionNode>()
           for (i in rawMethodNode.parameters.indices) {
             rawParameterExpressions.add(AsNode(LexToken.dummy(),
+                    rawMethodNode.scope,
                 interfaceMethod.parameters[i].type,
                 ReferenceExpression(LexToken.dummy(), rawMethodNode.scope, rawMethodNode.parameters[i].name)
             ))

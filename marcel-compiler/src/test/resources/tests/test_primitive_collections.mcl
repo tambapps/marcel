@@ -34,7 +34,7 @@ assertEquals(3, floatSet.size())
 set<double> doubleSet = [1d, 2d, 3d, 3]
 assertEquals(3, doubleSet.size())
 
-set<double> charSet = [`a`, `b`, `c`, `c`]
+set<char> charSet = [`a`, `b`, `c`, `c`]
 assertEquals(3, doubleSet.size())
 
 // maps

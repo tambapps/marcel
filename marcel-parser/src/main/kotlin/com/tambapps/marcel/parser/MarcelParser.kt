@@ -692,7 +692,7 @@ class MarcelParser constructor(
     } else if (current.type == TokenType.AS) {
       skip()
       val type = parseType(scope)
-      return AsNode(expr.token, type, expr)
+      return AsNode(expr.token, scope, type, expr)
     }
     return expr
   }

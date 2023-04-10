@@ -411,14 +411,23 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   override fun visit(asNode: AsNode) {
     val expression = asNode.expressionNode
-    if (expression is LiteralArrayNode && asNode.type.isArray) {
-      // literral arrays can also be cast as collections (which will be handled in castIfNecessaryOrThrow
+    if (expression is LiteralArrayNode) {
+      val arrayType = if (asNode.type.isArray) asNode.type.asArrayType
+      else if (asNode.type == JavaType.intList || asNode.type == JavaType.intSet) JavaType.intArray
+      else if (asNode.type == JavaType.longList || asNode.type == JavaType.longSet) JavaType.longArray
+      else if (asNode.type == JavaType.floatList || asNode.type == JavaType.floatSet) JavaType.floatArray
+      else if (asNode.type == JavaType.doubleList || asNode.type == JavaType.doubleSet) JavaType.doubleArray
+      else if (asNode.type == JavaType.charList || asNode.type == JavaType.characterSet) JavaType.charArray
+      else if (asNode.type.raw() == List::class.javaType || asNode.type.raw() == Set::class.javaType) JavaType.objectArray
+      else throw MarcelSemanticException(asNode.token, "Array cannot be converted into " + asNode.type)
+      expression.type = arrayType
+      // literal arrays can also be cast as collections (which will be handled in castIfNecessaryOrThrow
       if (expression.elements.isEmpty()) {
-        visit(EmptyArrayNode(asNode.token, asNode.type.asArrayType))
+        visit(EmptyArrayNode(asNode.token, arrayType))
       } else {
-        expression.type = asNode.type.asArrayType
         visit(expression)
       }
+      mv.castIfNecessaryOrThrow(asNode.scope, asNode, asNode.type, arrayType)
     } else if (asNode.type == JavaType.boolean || asNode.type == JavaType.Boolean) {
       visit(BooleanExpressionNode.of(asNode.token, asNode.expressionNode))
       if (asNode.type == JavaType.Boolean) {
@@ -655,14 +664,18 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     visit(constructorCall)
   }
 
-  override fun visit(variableAssignmentNode: VariableAssignmentNode) {
-    if (classNode.isScript && !variableAssignmentNode.scope.hasVariable(variableAssignmentNode.name)) {
+  override fun visit(assignmentNode: VariableAssignmentNode) {
+    if (classNode.isScript && !assignmentNode.scope.hasVariable(assignmentNode.name)) {
       // we define the field dynamically for scripts
-      typeResolver.defineField(classNode.type, BoundField(variableAssignmentNode.expression.getType(typeResolver),
-        variableAssignmentNode.name, classNode.type))
+      typeResolver.defineField(classNode.type, BoundField(assignmentNode.expression.getType(typeResolver),
+              assignmentNode.name, classNode.type))
     }
 
-    val variable = variableAssignmentNode.scope.findVariableOrThrow(variableAssignmentNode.name)
+    val variable = assignmentNode.scope.findVariableOrThrow(assignmentNode.name)
+    // needed to smart cast literal arrays into lists
+    val variableAssignmentNode = if (assignmentNode.expression is LiteralArrayNode) VariableAssignmentNode(assignmentNode.token, assignmentNode.scope, assignmentNode.name,
+            AsNode(assignmentNode.token, assignmentNode.scope, variable.type, assignmentNode.expression))
+    else assignmentNode
     if (variable is MarcelField && !variable.isStatic) {
       if (variable.owner.isAssignableFrom(variableAssignmentNode.scope.classType)) {
         pushArgument(ReferenceExpression.thisRef(variableAssignmentNode.scope))
@@ -698,11 +711,16 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     }
   }
 
-  override fun visit(fieldAssignmentNode: FieldAssignmentNode) {
+  override fun visit(assignmentNode: FieldAssignmentNode) {
     val fieldVariable = typeResolver.findFieldOrThrow(
-      fieldAssignmentNode.fieldNode.leftOperand.getType(typeResolver),
-      fieldAssignmentNode.fieldNode.rightOperand.name
+            assignmentNode.fieldNode.leftOperand.getType(typeResolver),
+            assignmentNode.fieldNode.rightOperand.name
     )
+    // needed to smart cast literal arrays into lists
+    val fieldAssignmentNode = if (assignmentNode.expression is LiteralArrayNode) FieldAssignmentNode(assignmentNode.token,
+            assignmentNode.scope, assignmentNode.fieldNode, AsNode(assignmentNode.token, assignmentNode.scope, fieldVariable.type, assignmentNode.expression))
+    else assignmentNode
+
     if (!fieldVariable.isStatic) {
       pushArgument(fieldAssignmentNode.fieldNode.leftOperand)
     }
