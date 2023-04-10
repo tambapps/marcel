@@ -91,12 +91,17 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
     return true
   }
 
-  override fun stopSession(shellSession: ShellSession): Boolean {
-    if (!shellSessions.remove(shellSession)) return false
+  override fun stopSession(position: Int) {
+    val shellSession = shellSessions.removeAt(position)
     shellSession.dispose()
     if (shellSessions.isEmpty()) {
       finish()
     }
+  }
+  override fun stopSession(shellSession: ShellSession): Boolean {
+    val i = shellSessions.indexOf(shellSession)
+    if (i < 0) return false
+    stopSession(i)
     return true
   }
 
