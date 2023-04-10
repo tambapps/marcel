@@ -536,18 +536,21 @@ SDF sdf = someSdf()
 </ol>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="functions-1"><a class="header" href="#functions-1">Functions</a></h1>
 <p>Use the <code>fun</code> keyword to define functions</p>
-<pre><code class="language-marcel">fun sum(int a, int b) int {
+<pre><code class="language-marcel">fun int sum(int a, int b) {
   return a + b
 }
-fun foo() {
+
+protected fun void foo() {
   // do nothing
 }
 </code></pre>
 <p>As shown in the above example, a function define has the following structures</p>
 <ol>
-<li>starts with the <a href="language-specification/source-file-structure/./visibility.html">visibility</a>  (you can also define static function with the <code>static</code> keyword)</li>
+<li>starts with the <a href="language-specification/source-file-structure/./visibility.html">visibility</a> which is optional and defaults to <code>public</code>.(you can also define static function with the <code>static</code> keyword)</li>
+<li>the <code>fun</code> keyword</li>
+<li>the return type</li>
+<li>the function's name</li>
 <li>the list of your function's parameters. The parameter's type first, and then the parameter's name.</li>
-<li>the return type. If you're defining a void function, you can omit the return type.</li>
 </ol>
 <h2 id="function-visibility"><a class="header" href="#function-visibility">Function Visibility</a></h2>
 <p>You can specify your function's <a href="language-specification/source-file-structure/./visibility.html">visibility</a> before the <code>fun</code> keyword</p>
@@ -598,7 +601,7 @@ int otherResult = sum(a: 2, 1) // ERROR, positional argument is not at the start
 <h2 id="parameter-default-value"><a class="header" href="#parameter-default-value">Parameter default value</a></h2>
 <p>Function parameters can have default values, which are used when you skip the corresponding argument. These can be useful especially
 with named parameters function calls. </p>
-<pre><code class="language-groovy">fun sum(int a = 0, int b = 8) int {
+<pre><code class="language-groovy">fun int sum(int a = 0, int b = 8) {
 return a + b
 }
 
@@ -760,7 +763,7 @@ based on your preferences.</p>
 <li>A <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html">Matcher</a> who's <code>find()</code> method would return false</li>
 </ul>
 <p>Any other value is truthy.</p>
-<p>You can also override the truth for your class if you define a function <code>fun isTruthy() bool</code></p>
+<p>You can also override the truth for your class if you define a function <code>fun bool isTruthy()</code></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="if-expression"><a class="header" href="#if-expression">If expression</a></h1>
 <p>If statements are similar as Java's, but you can provide any expression in them. If the provided expression is not a boolean,
 the <a href="language-specification/control-flows/marcel-truth.html">Marcel truth</a> will decide if your expression is <code>true</code> or not.</p>
