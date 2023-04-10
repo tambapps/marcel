@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.tambapps.marcel.android.marshell.ShellHandler
 import com.tambapps.marcel.android.marshell.databinding.FragmentEditorBinding
 import com.tambapps.marcel.android.marshell.repl.console.TextViewHighlighter
 import com.tambapps.marcel.android.marshell.util.showSoftBoard
@@ -23,6 +24,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class EditorFragment : Fragment() {
 
+  private val shellHandler get() = requireActivity() as ShellHandler
   private val viewModel: EditorViewModel by viewModels()
 
   private lateinit var editTextHighlighter: EditTextHighlighter
@@ -64,7 +66,12 @@ class EditorFragment : Fragment() {
     val highlighter = TextViewHighlighter(javaTypeResolver, replCompiler)
     editTextHighlighter = EditTextHighlighter(binding.editText, highlighter)
     binding.runButton.setOnClickListener {
-      Toast.makeText(requireContext(), "TODO, run in shell", Toast.LENGTH_SHORT).show()
+      val text = binding.editText.text
+      if (text.isBlank()) {
+        Toast.makeText(requireContext(), "Cannot run empty text", Toast.LENGTH_SHORT).show()
+        return@setOnClickListener
+      }
+      shellHandler.navigateToShell(text)
     }
   }
 

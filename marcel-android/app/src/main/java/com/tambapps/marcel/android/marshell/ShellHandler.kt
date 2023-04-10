@@ -14,4 +14,6 @@ interface ShellHandler {
   fun startNewSession(): Boolean // return true if actually started new session
   fun stopSession(shellSession: ShellSession): Boolean
   fun stopSession(position: Int)
+
+  fun navigateToShell(scriptText: CharSequence, position: Int? = null)
 }

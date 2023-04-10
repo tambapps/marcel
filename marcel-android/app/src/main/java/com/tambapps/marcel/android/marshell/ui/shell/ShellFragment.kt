@@ -20,6 +20,10 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, ListUpdateCallback {
 
+  companion object {
+    const val SCRIPT_TEXT_ARG = "scriptText"
+    const val SESSION_INDEX_ARG = "sessionIndex"
+  }
   private var _binding: FragmentShellBinding? = null
   private val binding get() = _binding!!
   @Inject
@@ -38,7 +42,11 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     shellHandler = requireActivity() as ShellHandler
-    val adapter = ShellWidowStateAdapter(this, shellHandler)
+    val scriptText = requireArguments().getCharSequence(SCRIPT_TEXT_ARG)
+    val sessionIndex = requireArguments().getInt(SESSION_INDEX_ARG, 0)
+    val scriptTextArg = if (scriptText != null) Pair(scriptText, sessionIndex) else null
+
+    val adapter = ShellWidowStateAdapter(this, shellHandler, scriptTextArg)
     binding.viewPager.adapter = adapter
     // setup tabLayout with viewPage
     TabLayoutMediator(binding.tabLayout, binding.viewPager, this).attach()
@@ -74,13 +82,20 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
     super.onStop()
   }
 
-  private class ShellWidowStateAdapter(fragment: Fragment, val shellHandler: ShellHandler): MyFragmentStateAdapter(fragment) {
+  private class ShellWidowStateAdapter(
+    fragment: Fragment,
+    val shellHandler: ShellHandler,
+    val scriptTextArg: Pair<CharSequence, Int>?
+    ): MyFragmentStateAdapter(fragment) {
     override fun getItemCount(): Int {
       return shellHandler.sessionsCount
     }
 
     override fun createFragment(position: Int): Fragment {
-      return ShellWindowFragment.newInstance(position)
+      val scriptText =
+        if (scriptTextArg != null && scriptTextArg.second == position) scriptTextArg.first
+        else null
+      return ShellWindowFragment.newInstance(position, scriptText)
     }
 
     override fun onBindFragment(fragment: Fragment, position: Int) {

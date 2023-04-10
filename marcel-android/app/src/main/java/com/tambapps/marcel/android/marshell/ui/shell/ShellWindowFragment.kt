@@ -1,7 +1,11 @@
 package com.tambapps.marcel.android.marshell.ui.shell
 
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,9 +31,12 @@ class ShellWindowFragment : Fragment() {
 
   companion object {
     const val POSITION_KEY = "p"
-    fun newInstance(position: Int) = ShellWindowFragment().apply {
+    fun newInstance(position: Int, scriptText: CharSequence?) = ShellWindowFragment().apply {
       arguments = Bundle().apply {
         putInt(POSITION_KEY, position)
+        if (scriptText != null) {
+          putCharSequence(ShellFragment.SCRIPT_TEXT_ARG, scriptText)
+        }
       }
     }
   }
@@ -70,6 +77,14 @@ class ShellWindowFragment : Fragment() {
         promptEditText.requestFocus()
       }
     }
+
+    val scriptText = requireArguments().getCharSequence(ShellFragment.SCRIPT_TEXT_ARG)
+    if (scriptText != null) {
+      val spanString = SpannableString("// imported script")
+      spanString.setSpan(ForegroundColorSpan(Color.LTGRAY), 0, spanString.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+      promptQueue.add(spanString)
+      promptQueue.add(scriptText)
+    }
   }
 
   override fun onStart() {
@@ -95,9 +110,11 @@ class ShellWindowFragment : Fragment() {
       binding.fakePromptText.text = prompt
     }
     val text = promptQueue.take()
-    withContext(Dispatchers.Main) {
-      printer.println(text)
-      binding.promptEditText.setText("")
+    if (text.none { it == '\n' }) { // in order not to display imported scripts which can be long
+      withContext(Dispatchers.Main) {
+        printer.println(text)
+        binding.promptEditText.setText("")
+      }
     }
     return text.toString()
   }

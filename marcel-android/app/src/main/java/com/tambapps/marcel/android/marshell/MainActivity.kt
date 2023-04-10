@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.ListUpdateCallback
 import com.google.android.material.navigation.NavigationView
 import com.tambapps.marcel.android.marshell.data.ShellSession
 import com.tambapps.marcel.android.marshell.databinding.ActivityMainBinding
+import com.tambapps.marcel.android.marshell.ui.shell.ShellFragment
 import com.tambapps.marcel.android.marshell.util.ListenableList
 import com.tambapps.marcel.android.marshell.util.hideSoftBoard
 import dagger.hilt.android.AndroidEntryPoint
@@ -105,6 +106,15 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
     return true
   }
 
+  override fun navigateToShell(scriptText: CharSequence, position: Int?) {
+    navController.navigate(R.id.nav_shell, Bundle().apply {
+      putString(ShellFragment.SCRIPT_TEXT_ARG, scriptText.toString())
+      if (position != null) {
+        putInt(ShellFragment.SESSION_INDEX_ARG, position)
+      }
+    })
+    binding.navView.setCheckedItem(R.id.nav_shell)
+  }
   override fun registerCallback(callback: ListUpdateCallback) = shellSessions.registerCallback(callback)
 
   override fun unregisterCallback(callback: ListUpdateCallback) = shellSessions.unregisterCallback(callback)

@@ -9,7 +9,16 @@
         android:id="@+id/nav_shell"
         android:name="com.tambapps.marcel.android.marshell.ui.shell.ShellFragment"
         android:label="@string/menu_shell"
-        tools:layout="@layout/fragment_shell" />
+        tools:layout="@layout/fragment_shell">
+        <argument
+            android:name="scriptText"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="sessionIndex"
+            app:argType="integer"
+            android:defaultValue="0" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_editor"
