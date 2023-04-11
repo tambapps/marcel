@@ -409,7 +409,7 @@ open class NotLoadedJavaType internal constructor(
   override val directlyImplementedInterfaces: Collection<JavaType>): AbstractJavaType() {
 
   override val arrayType: JavaArrayType
-    get() = TODO("Not yet implemented")
+    get() = this as NotLoadedJavaArrayType
 
   override val packageName: String?
     get() = if (className.contains('.')) className.substring(0, className.lastIndexOf(".")) else null
