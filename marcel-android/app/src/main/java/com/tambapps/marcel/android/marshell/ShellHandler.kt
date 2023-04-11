@@ -6,6 +6,7 @@ import com.tambapps.marcel.android.marshell.data.ShellSession
 interface ShellHandler {
 
   val sessionsCount: Int
+  val sessions: List<ShellSession>
   fun getSessionAt(i: Int): ShellSession
 
   fun registerCallback(callback: ListUpdateCallback)

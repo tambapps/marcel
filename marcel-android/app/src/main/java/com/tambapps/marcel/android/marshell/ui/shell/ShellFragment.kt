@@ -50,6 +50,9 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
     binding.viewPager.adapter = adapter
     // setup tabLayout with viewPage
     TabLayoutMediator(binding.tabLayout, binding.viewPager, this).attach()
+    if (sessionIndex != 0 && sessionIndex < shellHandler.sessionsCount) {
+      binding.tabLayout.selectTab(binding.tabLayout.getTabAt(sessionIndex))
+    }
 
     binding.plusButton.setOnClickListener {
       if (!shellHandler.startNewSession()) {

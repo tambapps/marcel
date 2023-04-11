@@ -1,10 +1,12 @@
 package com.tambapps.marcel.android.marshell.ui.editor
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.tambapps.marcel.android.marshell.ShellHandler
@@ -12,7 +14,6 @@ import com.tambapps.marcel.android.marshell.databinding.FragmentEditorBinding
 import com.tambapps.marcel.android.marshell.repl.console.TextViewHighlighter
 import com.tambapps.marcel.android.marshell.util.showSoftBoard
 import com.tambapps.marcel.compiler.CompilerConfiguration
-import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import dagger.hilt.android.AndroidEntryPoint
 import com.tambapps.marcel.android.marshell.view.EditTextHighlighter
@@ -71,8 +72,22 @@ class EditorFragment : Fragment() {
         Toast.makeText(requireContext(), "Cannot run empty text", Toast.LENGTH_SHORT).show()
         return@setOnClickListener
       }
-      shellHandler.navigateToShell(text)
+      if (shellHandler.sessionsCount <= 1) {
+        doNavigateToShell(text)
+      } else {
+        val sessions = shellHandler.sessions
+        AlertDialog.Builder(requireContext())
+          .setTitle("Run in shell")
+          .setItems(sessions.map { it.name }.toTypedArray()) { dialogInterface: DialogInterface, which: Int ->
+            doNavigateToShell(text, which)
+          }
+          .show()
+      }
     }
+  }
+
+  private fun doNavigateToShell(text: CharSequence, position: Int? = null) {
+    shellHandler.navigateToShell(text, position)
   }
 
   override fun onStart() {

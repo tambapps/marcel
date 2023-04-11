@@ -17,6 +17,7 @@ import com.tambapps.marcel.android.marshell.util.ListenableList
 import com.tambapps.marcel.android.marshell.util.hideSoftBoard
 import dagger.hilt.android.AndroidEntryPoint
 import marcel.lang.MarcelSystem
+import java.util.Collections
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
@@ -27,6 +28,8 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
 
   private lateinit var shellSessions: ListenableList<ShellSession>
   override val sessionsCount get() = shellSessions.size
+  override val sessions: List<ShellSession>
+    get() = Collections.unmodifiableList(shellSessions)
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -107,6 +110,7 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
   }
 
   override fun navigateToShell(scriptText: CharSequence, position: Int?) {
+    if (shellSessions.isEmpty()) startNewSession()
     navController.navigate(R.id.nav_shell, Bundle().apply {
       putString(ShellFragment.SCRIPT_TEXT_ARG, scriptText.toString())
       if (position != null) {
