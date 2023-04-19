@@ -9,8 +9,8 @@ import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.console.AbstractHighlighter
 
 // style is color
-class TextViewHighlighter(typeResolver: JavaTypeResolver,
-                          replCompiler: MarcelReplCompiler) :
+class SpannableHighlighter(typeResolver: JavaTypeResolver,
+                           replCompiler: MarcelReplCompiler) :
   AbstractHighlighter<Spannable, Int>(typeResolver, replCompiler) {
 
   override val keywordStyle = Color.RED

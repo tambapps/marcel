@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.tambapps.marcel.android.marshell.ShellHandler
 import com.tambapps.marcel.android.marshell.databinding.FragmentEditorBinding
-import com.tambapps.marcel.android.marshell.repl.console.TextViewHighlighter
+import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.util.showSoftBoard
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.MarcelReplCompiler
@@ -64,7 +64,7 @@ class EditorFragment : Fragment() {
       MarcelDexClassLoader()
     val javaTypeResolver = ReplJavaTypeResolver(marcelDexClassLoader, Binding())
     val replCompiler = MarcelReplCompiler(compilerConfiguration, marcelDexClassLoader, javaTypeResolver)
-    val highlighter = TextViewHighlighter(javaTypeResolver, replCompiler)
+    val highlighter = SpannableHighlighter(javaTypeResolver, replCompiler)
     editTextHighlighter = EditTextHighlighter(binding.editText, highlighter)
     binding.runButton.setOnClickListener {
       val text = binding.editText.text

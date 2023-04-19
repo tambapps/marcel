@@ -3,7 +3,7 @@ package com.tambapps.marcel.android.marshell.view
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
-import com.tambapps.marcel.android.marshell.repl.console.TextViewHighlighter
+import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -21,9 +21,9 @@ open class EditTextHighlighter(
          */
         target: EditText,
     /**
-         * The [TextViewHighlighter] to use
+         * The [SpannableHighlighter] to use
          */
-        private val highlighter: TextViewHighlighter,
+        private val highlighter: SpannableHighlighter,
     /**
          * Time in milliseconds to debounce user input
          */

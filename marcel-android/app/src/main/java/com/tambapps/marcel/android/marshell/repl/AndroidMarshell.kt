@@ -1,7 +1,7 @@
 package com.tambapps.marcel.android.marshell.repl
 
 import com.tambapps.marcel.android.marshell.data.Prompt
-import com.tambapps.marcel.android.marshell.repl.console.TextViewHighlighter
+import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.repl.jar.DexJarWriterFactory
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.MarcelShell
@@ -45,8 +45,8 @@ class AndroidMarshell constructor(
     // version is printed manually anyway so this method shouldn't be called
   }
 
-  fun newHighlighter(): TextViewHighlighter {
-    return TextViewHighlighter(typeResolver, replCompiler)
+  fun newHighlighter(): SpannableHighlighter {
+    return SpannableHighlighter(typeResolver, replCompiler)
   }
 
   override suspend fun printEval(eval: Any?) {
