@@ -72,9 +72,14 @@ class ShellWindowFragment : Fragment() {
           requireContext().showSoftBoard(v)
         }
       }
-      promptEditText.requestFocus()
+      if (promptEditText.requestFocus()) {
+        requireContext().showSoftBoard(promptEditText)
+      }
+
       historyText.setOnClickListener {
-        promptEditText.requestFocus()
+        if (promptEditText.requestFocus()) {
+          requireContext().showSoftBoard(promptEditText)
+        }
       }
     }
 
