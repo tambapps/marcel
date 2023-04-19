@@ -88,7 +88,10 @@ class ShellWindowFragment : Fragment() {
     val spanString = SpannableString("// imported script")
     spanString.setSpan(ForegroundColorSpan(Color.LTGRAY), 0, spanString.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
     promptQueue.add(spanString)
-    promptQueue.add(scriptText)
+    val highlightedText =
+      if (scriptText !is Spannable && marshellRunner != null) marshellRunner!!.shell.newHighlighter().highlight(scriptText)
+      else scriptText
+    promptQueue.add(highlightedText)
   }
 
   override fun onStart() {
@@ -102,11 +105,20 @@ class ShellWindowFragment : Fragment() {
     marshellRunner?.stop()
   }
 
+  override fun onResume() {
+    super.onResume()
+    editTextHighlighter?.start()
+  }
+
+  override fun onPause() {
+    super.onPause()
+    editTextHighlighter?.cancel()
+  }
+
   override fun onStop() {
     super.onStop()
     // TODO move this kind of thing in a MarcelEngine class
     MarcelSystem.setPrinter(null)
-    editTextHighlighter?.cancel()
   }
   private suspend fun readLine(prompt: String): String {
     withContext(Dispatchers.Main) {
