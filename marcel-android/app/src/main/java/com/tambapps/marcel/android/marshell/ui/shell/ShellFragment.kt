@@ -1,7 +1,5 @@
 package com.tambapps.marcel.android.marshell.ui.shell
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,7 +16,7 @@ import com.tambapps.marcel.android.marshell.ShellHandler
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellBinding
 import com.tambapps.marcel.android.marshell.repl.AndroidMarshellFactory
 import dagger.hilt.android.AndroidEntryPoint
-import java.io.File
+import marcel.lang.MarcelSystem
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -33,6 +31,7 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
   @Inject
   lateinit var factory: AndroidMarshellFactory
   lateinit var shellHandler: ShellHandler
+  private var adapter: ShellWidowStateAdapter? = null
 
 
   override fun onCreateView(
@@ -51,6 +50,7 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
     val scriptTextArg = if (scriptText != null) Pair(scriptText, sessionIndex) else null
 
     val adapter = ShellWidowStateAdapter(this, shellHandler, scriptTextArg)
+    this.adapter = adapter
     binding.viewPager.adapter = adapter
     // setup tabLayout with viewPage
     TabLayoutMediator(binding.tabLayout, binding.viewPager, this).attach()
@@ -98,10 +98,12 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
   override fun onStart() {
     super.onStart()
     shellHandler.registerCallback(this)
+    MarcelSystem.setPrinter(SuppliedShellPrinter(this::getCurrentPrinter))
   }
 
   override fun onStop() {
     shellHandler.unregisterCallback(this)
+    MarcelSystem.setPrinter(null)
     super.onStop()
   }
 
@@ -149,5 +151,10 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
     } else {
       binding.viewPager.adapter?.notifyItemRangeChanged(position, count)
     }
+  }
+
+  private fun getCurrentPrinter(): TextViewPrinter? {
+    val fragment = adapter?.getFragmentAt(binding.viewPager.currentItem) as? ShellWindowFragment
+    return fragment?.printer
   }
 }

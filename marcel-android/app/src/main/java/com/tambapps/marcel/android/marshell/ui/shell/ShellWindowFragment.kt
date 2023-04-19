@@ -47,7 +47,7 @@ class ShellWindowFragment : Fragment() {
 
   private var marshellRunner: AndroidMarshellRunner? = null
   private var editTextHighlighter: EditTextHighlighter? = null
-  private lateinit var printer: TextViewPrinter
+  lateinit var printer: TextViewPrinter
   private lateinit var promptQueue: LinkedBlockingQueue<CharSequence>
   private lateinit var shellHandler: ShellHandler
 
@@ -94,11 +94,6 @@ class ShellWindowFragment : Fragment() {
     promptQueue.add(highlightedText)
   }
 
-  override fun onStart() {
-    super.onStart()
-    // TODO put this in onShow because we can have different windows
-    MarcelSystem.setPrinter(printer)
-  }
   override fun onDestroyView() {
     super.onDestroyView()
     _binding = null
@@ -115,11 +110,6 @@ class ShellWindowFragment : Fragment() {
     editTextHighlighter?.cancel()
   }
 
-  override fun onStop() {
-    super.onStop()
-    // TODO move this kind of thing in a MarcelEngine class
-    MarcelSystem.setPrinter(null)
-  }
   private suspend fun readLine(prompt: String): String {
     withContext(Dispatchers.Main) {
       binding.historyText.append(prompt)
