@@ -9,17 +9,21 @@
 
 
     <ImageButton
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:scaleType="fitCenter"
+        style="@style/shellButton"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:padding="8dp"
         android:layout_margin="16dp"
         android:src="@drawable/plus"
-        android:background="@null"
         android:id="@+id/plusButton"
-        android:foreground="?actionBarItemBackground"
+        />
+
+    <ImageButton
+        style="@style/shellButton"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/plusButton"
+        android:layout_margin="16dp"
+        android:src="@drawable/run_file"
+        android:id="@+id/runFileButton"
         />
 
     <androidx.appcompat.widget.LinearLayoutCompat

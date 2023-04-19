@@ -1,11 +1,14 @@
 package com.tambapps.marcel.android.marshell.ui.shell
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.viewpager2.adapter.MyFragmentStateAdapter
@@ -15,6 +18,7 @@ import com.tambapps.marcel.android.marshell.ShellHandler
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellBinding
 import com.tambapps.marcel.android.marshell.repl.AndroidMarshellFactory
 import dagger.hilt.android.AndroidEntryPoint
+import java.io.File
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -58,6 +62,22 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
       if (!shellHandler.startNewSession()) {
         Toast.makeText(requireContext(), "Reach max sessions limit", Toast.LENGTH_SHORT).show()
       }
+    }
+    val pickScriptResultLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+      val inputStream = if (uri != null) requireContext().contentResolver.openInputStream(uri) else null
+      if (inputStream != null) {
+        val fileText = inputStream.use {
+          it.reader().readText()
+        }
+        val fragment = adapter.getFragmentAt(binding.viewPager.currentItem) as ShellWindowFragment
+        fragment.runScript(fileText)
+      } else {
+        Toast.makeText(requireContext(), "Couldn't get file content", Toast.LENGTH_SHORT).show()
+      }
+    }
+    binding.runFileButton.setOnClickListener {
+      // I want .mcl files
+      pickScriptResultLauncher.launch("*/*")
     }
     updateTabLayoutVisibility()
   }

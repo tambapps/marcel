@@ -80,11 +80,15 @@ class ShellWindowFragment : Fragment() {
 
     val scriptText = requireArguments().getCharSequence(ShellFragment.SCRIPT_TEXT_ARG)
     if (scriptText != null) {
-      val spanString = SpannableString("// imported script")
-      spanString.setSpan(ForegroundColorSpan(Color.LTGRAY), 0, spanString.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
-      promptQueue.add(spanString)
-      promptQueue.add(scriptText)
+      runScript(scriptText)
     }
+  }
+
+  fun runScript(scriptText: CharSequence) {
+    val spanString = SpannableString("// imported script")
+    spanString.setSpan(ForegroundColorSpan(Color.LTGRAY), 0, spanString.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+    promptQueue.add(spanString)
+    promptQueue.add(scriptText)
   }
 
   override fun onStart() {

@@ -11,19 +11,22 @@
         android:layout_width="match_parent"
         android:layout_height="64dp">
         <ImageButton
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:scaleType="fitCenter"
+            style="@style/shellButton"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:padding="8dp"
             android:layout_margin="16dp"
             android:src="@drawable/shell"
-            android:background="@null"
             android:id="@+id/runButton"
-            android:foreground="?actionBarItemBackground"
             />
 
+        <ImageButton
+            style="@style/shellButton"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/runButton"
+            android:layout_margin="16dp"
+            android:src="@drawable/file_write"
+            android:id="@+id/editFileButton"
+            />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ScrollView
