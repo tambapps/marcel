@@ -10,6 +10,8 @@
     <string name="menu_shell">Shell</string>
     <string name="menu_editor">Editor</string>
     <string name="menu_slideshow">Slideshow</string>
+    <string name="menu_settings">Settings</string>
     <!-- the last weird stuff is a space. Trailing whitespace are removed by default so we have to do this -->
     <string name="initial_prompt_text"><![CDATA[000>]]>&#160;</string>
+    <string name="files_permission_key">files_permission</string>
 </resources>

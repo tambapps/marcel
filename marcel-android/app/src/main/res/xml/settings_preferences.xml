@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="Android permissions"
+        >
+        <SwitchPreference
+            android:key="@string/files_permission_key"
+            app:title="Manage files"
+            android:summary="Allows to use File APIs and read/write files when requested"
+            app:persistent="false"
+            app:icon="@drawable/folder"
+            />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
