@@ -44,7 +44,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:gravity="end"
-            android:textSize="@dimen/shell_text_size"
+            style="@style/shellText"
+            android:paddingTop="8dp"
             />
         <View
             android:layout_width="1dp"
