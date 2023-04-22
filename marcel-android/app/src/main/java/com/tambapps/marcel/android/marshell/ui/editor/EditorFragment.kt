@@ -1,6 +1,7 @@
 package com.tambapps.marcel.android.marshell.ui.editor
 
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,9 +10,11 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.tambapps.marcel.android.marshell.FilePickerActivity
 import com.tambapps.marcel.android.marshell.ShellHandler
 import com.tambapps.marcel.android.marshell.databinding.FragmentEditorBinding
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
+import com.tambapps.marcel.android.marshell.ui.shell.ShellWindowFragment
 import com.tambapps.marcel.android.marshell.util.showSoftBoard
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.MarcelReplCompiler
@@ -20,8 +23,10 @@ import com.tambapps.marcel.android.marshell.view.EditTextHighlighter
 import com.tambapps.marcel.repl.ReplJavaTypeResolver
 import marcel.lang.Binding
 import marcel.lang.MarcelDexClassLoader
+import java.io.File
 import javax.inject.Inject
 
+// TODO add save button
 @AndroidEntryPoint
 class EditorFragment : Fragment() {
 
@@ -50,6 +55,13 @@ class EditorFragment : Fragment() {
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     lineCountWatcher = LineCountWatcher(viewModel.linesCount)
     binding.editText.addTextChangedListener(lineCountWatcher)
+    // not a bean because we want to keep them independent per fragment
+    val marcelDexClassLoader =
+      MarcelDexClassLoader()
+    val javaTypeResolver = ReplJavaTypeResolver(marcelDexClassLoader, Binding())
+    val replCompiler = MarcelReplCompiler(compilerConfiguration, marcelDexClassLoader, javaTypeResolver)
+    val highlighter = SpannableHighlighter(javaTypeResolver, replCompiler)
+    editTextHighlighter = EditTextHighlighter(binding.editText, highlighter)
 
     if (binding.editText.requestFocus()) {
       requireContext().showSoftBoard(binding.editText)
@@ -58,14 +70,16 @@ class EditorFragment : Fragment() {
     viewModel.linesCount.observe(viewLifecycleOwner) {
       lineText.text = (1..(it + 1)).joinToString(separator = "\n")
     }
+    viewModel.file.observe(viewLifecycleOwner) {
+      if (it != null) {
+        binding.fileNameText.text = it.name
+        binding.fileNameText.visibility = View.VISIBLE
+        binding.editText.setText(highlighter.highlight(it.readText()))
+      } else {
+        binding.fileNameText.visibility = View.GONE
+      }
+    }
 
-    // not a bean because we want to keep them independent per fragment
-    val marcelDexClassLoader =
-      MarcelDexClassLoader()
-    val javaTypeResolver = ReplJavaTypeResolver(marcelDexClassLoader, Binding())
-    val replCompiler = MarcelReplCompiler(compilerConfiguration, marcelDexClassLoader, javaTypeResolver)
-    val highlighter = SpannableHighlighter(javaTypeResolver, replCompiler)
-    editTextHighlighter = EditTextHighlighter(binding.editText, highlighter)
     binding.runButton.setOnClickListener {
       val text = binding.editText.text
       if (text.isBlank()) {
@@ -83,6 +97,20 @@ class EditorFragment : Fragment() {
           }
           .show()
       }
+    }
+
+    val pickFileLauncher = registerForActivityResult(FilePickerActivity.Contract()) { selectedFile: File? ->
+      if (selectedFile != null) {
+        viewModel.file.value = selectedFile
+      } else {
+        Toast.makeText(requireContext(), "Couldn't get file content", Toast.LENGTH_SHORT).show()
+      }
+    }
+    binding.editFileButton.setOnClickListener {
+      // I want .mcl files
+      pickFileLauncher.launch(Intent(requireContext(), FilePickerActivity::class.java).apply {
+        putExtra(FilePickerActivity.ALLOWED_FILE_EXTENSIONSKEY, FilePickerActivity.SCRIPT_FILE_EXTENSIONS)
+      })
     }
   }
 

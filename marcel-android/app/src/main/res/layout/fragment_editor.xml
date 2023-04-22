@@ -10,6 +10,21 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="64dp">
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:textSize="22sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="80dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/ubuntu_family"
+            android:visibility="gone"
+            android:id="@+id/fileNameText"
+            android:textColor="#fff"
+            />
+
         <ImageButton
             style="@style/shellButton"
             app:layout_constraintTop_toTopOf="parent"
