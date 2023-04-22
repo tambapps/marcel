@@ -14,4 +14,13 @@
     <!-- the last weird stuff is a space. Trailing whitespace are removed by default so we have to do this -->
     <string name="initial_prompt_text"><![CDATA[000>]]>&#160;</string>
     <string name="files_permission_key">files_permission</string>
+
+    <string name="pick_this_directory">Pick this directory</string>
+    <string name="pick_this_directory_q">Pick this directory?</string>
+    <string name="pick_this_file_q">Pick this file?</string>
+    <string name="internal_storage_root">Internal Storage Root</string>
+    <string name="do_you_want_to_pick_file">Do you want to pick %1$s?</string>
+    <string name="internal_storage">Internal Storage</string>
+    <string name="no_child_dirs">This directory has no child directories</string>
+    <string name="empty_dir">This directory has no scripts</string>
 </resources>

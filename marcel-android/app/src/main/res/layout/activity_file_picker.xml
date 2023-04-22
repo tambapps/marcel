@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".FilePickerActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="28sp"
+        android:layout_margin="16dp"
+        android:gravity="center"
+        android:id="@+id/directoryText"
+        style="@style/shellText"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:id="@+id/pathRecyclerView"
+        android:background="#5E000000"
+        />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:id="@+id/container"
+        />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:id="@+id/pickDirectoryButton"
+        android:gravity="center"
+        android:clickable="true"
+        android:textSize="24sp"
+        style="@style/shellText"
+        android:background="@color/colorPrimaryDark"
+        android:foreground="?attr/selectableItemBackground"
+        android:onClick="pickDirectory"
+        android:text="Pick this file"
+        />
+</LinearLayout>
