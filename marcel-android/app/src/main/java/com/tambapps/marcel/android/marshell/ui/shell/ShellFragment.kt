@@ -68,10 +68,8 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
         Toast.makeText(requireContext(), "Reach max sessions limit", Toast.LENGTH_SHORT).show()
       }
     }
-    val pickScriptResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-
-      if (it.resultCode == Activity.RESULT_OK && it.data != null) {
-        val selectedFile = it.data!!.getSerializableExtra(FilePickerActivity.PICKED_FILE_PATH_KEY) as File
+    val pickScriptResultLauncher = registerForActivityResult(FilePickerActivity.Contract()) { selectedFile: File? ->
+      if (selectedFile != null) {
         val fileText = selectedFile.readText()
         val fragment = adapter.getFragmentAt(binding.viewPager.currentItem) as ShellWindowFragment
         fragment.runScript(fileText)

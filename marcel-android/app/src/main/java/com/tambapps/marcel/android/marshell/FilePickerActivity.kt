@@ -1,6 +1,7 @@
 package com.tambapps.marcel.android.marshell
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -15,12 +16,16 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCaller
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tambapps.marcel.android.marshell.databinding.ActivityFilePickerBinding
 import com.tambapps.marcel.android.marshell.service.PermissionHandler
+import com.tambapps.marcel.android.marshell.ui.shell.ShellWindowFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import java.util.regex.Pattern
@@ -36,6 +41,13 @@ class FilePickerActivity : AppCompatActivity() {
     const val DIRECTORY_ONLY_KEY = "pick_directoryk"
   }
 
+  class Contract: ActivityResultContract<Intent, File?>() {
+    override fun createIntent(context: Context, input: Intent) = input
+
+    override fun parseResult(resultCode: Int, intent: Intent?)
+        = if (resultCode == Activity.RESULT_OK && intent != null) intent.getSerializableExtra(FilePickerActivity.PICKED_FILE_PATH_KEY) as File
+    else null
+  }
 
   @Inject
   lateinit var permissionHandler: PermissionHandler
@@ -233,6 +245,10 @@ class FilePickerFragment: Fragment() {
       return FilePickerFragment().apply {
         arguments = args
       }
+    }
+
+    fun newLauncher(caller: ActivityResultCaller) {
+
     }
   }
   private lateinit var recyclerView: RecyclerView
