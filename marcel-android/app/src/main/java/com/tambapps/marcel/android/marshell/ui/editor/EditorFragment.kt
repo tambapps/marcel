@@ -68,7 +68,7 @@ class EditorFragment : Fragment() {
     }
     val lineText = binding.lineText
     viewModel.linesCount.observe(viewLifecycleOwner) {
-      lineText.text = (1..(it + 1)).joinToString(separator = "\n")
+      lineText.setText((1..(it + 1)).joinToString(separator = "\n"))
     }
     viewModel.file.observe(viewLifecycleOwner) {
       if (it != null) {
