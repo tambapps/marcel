@@ -27,9 +27,9 @@
         tools:layout="@layout/fragment_editor" />
 
     <fragment
-        android:id="@+id/nav_slideshow"
+        android:id="@+id/nav_shell_works"
         android:name="com.tambapps.marcel.android.marshell.ui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
+        android:label="@string/menu_shell_works"
         tools:layout="@layout/fragment_slideshow" />
 
     <fragment

@@ -8,17 +8,40 @@
             android:id="@+id/nav_shell"
             android:icon="@drawable/terminal"
             android:title="@string/menu_shell" />
-        <item
-            android:id="@+id/nav_editor"
-            android:icon="@drawable/file_write"
-            android:title="@string/menu_editor" />
-        <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="@string/menu_slideshow" />
-        <item
-            android:id="@+id/nav_settings"
-            android:icon="@drawable/settings"
-            android:title="@string/menu_settings" />
+        <item android:title="Manage code">
+            <menu>
+                <group
+                    android:checkableBehavior="single">
+                    <item
+                        android:id="@+id/nav_editor"
+                        android:icon="@drawable/file_write"
+                        android:title="@string/menu_editor" />
+                    <item
+                        android:id="@+id/nav_environments"
+                        android:icon="@drawable/environment"
+                        android:title="Environments" />
+                    <item
+                        android:id="@+id/nav_shell_works"
+                        android:icon="@drawable/ic_menu_slideshow"
+                        android:title="@string/menu_shell_works" />
+                </group>
+            </menu>
+        </item>
+
+        <item android:title="Miscellaneous">
+            <menu>
+                <group
+                    android:checkableBehavior="single">
+                    <item
+                        android:id="@+id/nav_settings"
+                        android:icon="@drawable/settings"
+                        android:title="@string/menu_settings" />
+                    <item
+                        android:id="@+id/nav_documentation"
+                        android:icon="@drawable/book"
+                        android:title="@string/menu_documentation" />
+                </group>
+            </menu>
+        </item>
     </group>
 </menu>

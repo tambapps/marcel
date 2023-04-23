@@ -9,7 +9,7 @@
 
     <string name="menu_shell">Shell</string>
     <string name="menu_editor">Editor</string>
-    <string name="menu_slideshow">Slideshow</string>
+    <string name="menu_shell_works">Shell Works</string>
     <string name="menu_settings">Settings</string>
     <!-- the last weird stuff is a space. Trailing whitespace are removed by default so we have to do this -->
     <string name="initial_prompt_text"><![CDATA[000>]]>&#160;</string>
@@ -23,4 +23,5 @@
     <string name="internal_storage">Internal Storage</string>
     <string name="no_child_dirs">This directory has no child directories</string>
     <string name="empty_dir">This directory has no scripts</string>
+    <string name="menu_documentation">Documentation</string>
 </resources>
