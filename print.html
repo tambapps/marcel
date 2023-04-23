@@ -193,7 +193,7 @@ cd marcel
 <p>The script basically runs a lot of <code>mvn clean install</code> and then copy/create some files in <code>$HOME/.marcel/</code>.</p>
 <p>Lastly, you can add the following lines into your <code>$HOME/.bashrc</code> (or <code>$HOME/.zshrc</code> or whatever) to easily use marcel tools</p>
 <pre><code class="language-shell">MARCEL_HOME=&quot;$HOME/.marcel&quot;
-PATH=&quot;$PATH:/$MARCEL_HOME/bin&quot;
+PATH=&quot;$PATH:$MARCEL_HOME/bin&quot;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="hello-world"><a class="header" href="#hello-world">Hello World</a></h1>
 <p>Let's dive in some code now. Marcel can be used as a scripting language, so you don't need to declare a <code>main()</code> function
