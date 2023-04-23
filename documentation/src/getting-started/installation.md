@@ -34,5 +34,5 @@ Lastly, you can add the following lines into your `$HOME/.bashrc` (or `$HOME/.zs
 
 ```shell
 MARCEL_HOME="$HOME/.marcel"
-PATH="$PATH:/$MARCEL_HOME/bin"
+PATH="$PATH:$MARCEL_HOME/bin"
 ```
