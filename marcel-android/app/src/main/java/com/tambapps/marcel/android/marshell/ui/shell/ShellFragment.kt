@@ -74,7 +74,7 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
         val fragment = adapter.getFragmentAt(binding.viewPager.currentItem) as ShellWindowFragment
         fragment.runScript(fileText)
       } else {
-        Toast.makeText(requireContext(), "Couldn't get file content", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), "No file was selected", Toast.LENGTH_SHORT).show()
       }
     }
 

@@ -103,7 +103,7 @@ class EditorFragment : Fragment() {
       if (selectedFile != null) {
         viewModel.file.value = selectedFile
       } else {
-        Toast.makeText(requireContext(), "Couldn't get file content", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), "No file was selected", Toast.LENGTH_SHORT).show()
       }
     }
     binding.editFileButton.setOnClickListener {
