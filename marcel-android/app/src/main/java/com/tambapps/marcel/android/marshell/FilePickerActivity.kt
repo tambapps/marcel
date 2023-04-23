@@ -17,6 +17,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.appcompat.app.AlertDialog
@@ -88,6 +89,14 @@ class FilePickerActivity : AppCompatActivity() {
       Toast.makeText(applicationContext, "Please grant files permissions from settings screen", Toast.LENGTH_SHORT).show()
       finish()
       return
+    }
+
+    onBackPressedDispatcher.addCallback(this) {
+      if (currentDir.parentFile == null || currentDir == getDeviceRootDirectory()) {
+        finish()
+      } else {
+        fragment.onBackPressed()
+      }
     }
     if (savedInstanceState == null) {
       currentDir = File(sharedPreferences.getString(START_DIRECTORY_KEY, getDeviceRootDirectory().path)!!)
@@ -178,14 +187,6 @@ class FilePickerActivity : AppCompatActivity() {
 
   fun fileFilter(file: File): Boolean {
     return file.isDirectory || !dirOnly && fileNamePattern?.matcher(file.name)?.find() ?: true
-  }
-
-  override fun onBackPressed() {
-    if (currentDir.parentFile == null || currentDir == getDeviceRootDirectory()) {
-      super.onBackPressed()
-    } else {
-      fragment.onBackPressed()
-    }
   }
 
   class PathViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
