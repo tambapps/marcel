@@ -84,6 +84,11 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
         putExtra(FilePickerActivity.ALLOWED_FILE_EXTENSIONSKEY, FilePickerActivity.SCRIPT_FILE_EXTENSIONS)
       })
     }
+    binding.exportButton.setOnClickListener {
+      // TODO export current session as a file
+      Toast.makeText(requireContext(), "TODO", Toast.LENGTH_SHORT).show()
+    }
+
     updateTabLayoutVisibility()
   }
 
