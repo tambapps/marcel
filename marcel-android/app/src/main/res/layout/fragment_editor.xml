@@ -39,7 +39,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toStartOf="@id/runButton"
             android:layout_margin="16dp"
-            android:src="@drawable/file_write"
+            android:src="@drawable/folder"
             android:id="@+id/editFileButton"
             />
     </androidx.constraintlayout.widget.ConstraintLayout>

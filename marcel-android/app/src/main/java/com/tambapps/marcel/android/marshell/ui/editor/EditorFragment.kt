@@ -118,14 +118,17 @@ class EditorFragment : Fragment() {
     shellHandler.navigateToShell(text, position)
   }
 
-  override fun onStart() {
-    super.onStart()
+  override fun onResume() {
+    super.onResume()
     editTextHighlighter.start()
   }
 
+  override fun onPause() {
+    super.onPause()
+    editTextHighlighter.cancel()
+  }
   override fun onDestroyView() {
     binding.editText.removeTextChangedListener(lineCountWatcher)
-    editTextHighlighter.cancel()
     super.onDestroyView()
     _binding = null
   }

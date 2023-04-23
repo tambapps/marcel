@@ -10,7 +10,7 @@
             android:title="@string/menu_shell" />
         <item
             android:id="@+id/nav_editor"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@drawable/file_write"
             android:title="@string/menu_editor" />
         <item
             android:id="@+id/nav_slideshow"
