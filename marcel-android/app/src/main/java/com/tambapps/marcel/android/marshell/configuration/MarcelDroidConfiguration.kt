@@ -1,6 +1,8 @@
 package com.tambapps.marcel.android.marshell.configuration
 
 import android.content.Context
+import android.content.SharedPreferences
+import androidx.preference.PreferenceManager
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import dagger.Module
 import dagger.Provides
@@ -27,4 +29,8 @@ class MarcelDroidConfiguration {
     return CompilerConfiguration(dumbbellEnabled = true, classVersion = 52) // Java 8
   }
 
+  @Provides
+  fun sharedPreferences(@ApplicationContext context: Context): SharedPreferences {
+    return PreferenceManager.getDefaultSharedPreferences(context)
+  }
 }
