@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.marshell.ui.slideshow
+package com.tambapps.marcel.android.marshell.ui.shellwork
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

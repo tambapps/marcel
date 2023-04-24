@@ -28,9 +28,9 @@
 
     <fragment
         android:id="@+id/nav_shell_works"
-        android:name="com.tambapps.marcel.android.marshell.ui.slideshow.SlideshowFragment"
+        android:name="com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment"
         android:label="@string/menu_shell_works"
-        tools:layout="@layout/fragment_slideshow" />
+        tools:layout="@layout/fragment_shell_work" />
 
     <fragment
         android:id="@+id/nav_settings"
