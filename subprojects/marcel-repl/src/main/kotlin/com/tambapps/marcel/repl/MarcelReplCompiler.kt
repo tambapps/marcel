@@ -129,6 +129,7 @@ class MarcelReplCompiler constructor(
         method.scope.classType = scriptNode.type
         scriptNode.methods.add(method)
       }
+      typeResolver.registerClass(scriptNode)
     }
     val r = ParserResult(tokens, module.classes, module.imports, module.dumbbells, text.hashCode())
     if (!skipUpdate) {

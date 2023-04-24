@@ -179,7 +179,7 @@ abstract class AbstractConstructor(
 
 
   override fun toString(): String {
-    return "${ownerClass.className}(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType
+    return "${ownerClass.className}(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") "
   }
 }
 class ReflectJavaConstructor(constructor: Constructor<*>): AbstractConstructor(
