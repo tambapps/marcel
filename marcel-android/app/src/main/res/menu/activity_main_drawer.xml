@@ -17,9 +17,9 @@
                         android:icon="@drawable/file_write"
                         android:title="@string/menu_editor" />
                     <item
-                        android:id="@+id/nav_environments"
+                        android:id="@+id/nav_playgrounds"
                         android:icon="@drawable/environment"
-                        android:title="Environments" />
+                        android:title="Playgrounds" />
                     <item
                         android:id="@+id/nav_shell_works"
                         android:icon="@drawable/ic_menu_slideshow"
