@@ -2,6 +2,7 @@ package com.tambapps.marcel.android.marshell.ui.shellwork.form
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -13,6 +14,7 @@ import android.widget.TimePicker
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.tambapps.marcel.android.marshell.FilePickerActivity
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellWorkFormBinding
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
@@ -52,14 +54,13 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       period.observe(viewLifecycleOwner) {
         binding.periodicText.text = it?.toString()
       }
+      viewModel.scriptFile.observe(viewLifecycleOwner) {
+        binding.filePath.text = it?.name
+      }
     }
 
     binding.apply {
       title.text = "New Shell Work"
-
-      viewModel.scriptFile.observe(viewLifecycleOwner) { file: File ->
-        filePath.text = file.name
-      }
 
       workName.addTextChangedListener(object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
@@ -125,6 +126,19 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
 
       periodicUnitsSpinner.adapter = ArrayAdapter(root.context, R.layout.period_unit_layout, PeriodUnit.values())
 
+      val pickScriptFileLauncher = registerForActivityResult(FilePickerActivity.Contract()) { selectedFile: File? ->
+        if (selectedFile != null) {
+          viewModel.scriptFile.value = selectedFile
+        } else {
+          Toast.makeText(requireContext(), "No file was selected", Toast.LENGTH_SHORT).show()
+        }
+      }
+      pickScriptButton.setOnClickListener {
+        // I want .mcl files
+        pickScriptFileLauncher.launch(Intent(requireContext(), FilePickerActivity::class.java).apply {
+          putExtra(FilePickerActivity.ALLOWED_FILE_EXTENSIONSKEY, FilePickerActivity.SCRIPT_FILE_EXTENSIONS)
+        })
+      }
 
       periodicUnitsSpinner.setSelection(0)
     }
