@@ -40,7 +40,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     _binding = null
   }
 
-  override fun onFabClick(): Boolean {
+  override fun onFabClick() {
     val fragment = ShellWorkFormFragment.newInstance()
     parentFragmentManager.beginTransaction()
       .setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
@@ -48,7 +48,6 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       .show(fragment)
       .hide(this)
       .commitNow()
-    return true
   }
 
 }

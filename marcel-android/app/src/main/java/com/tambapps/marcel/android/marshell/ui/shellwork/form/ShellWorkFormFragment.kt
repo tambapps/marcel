@@ -159,35 +159,27 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     return root
   }
 
-  override fun onFabClick(): Boolean {
-    if (saveWork()) {
-      Toast.makeText(requireContext(), "TODO", Toast.LENGTH_SHORT).show()
-      return true
-    }
-    return false
-  }
-
-  private fun saveWork(): Boolean {
+  override fun onFabClick() {
     if (binding.workName.text.isNullOrEmpty()) {
       binding.workName.error = getString(R.string.name_is_required)
-      return false
+      return
     }
     binding.workName.error = null
 
     val scriptFile = viewModel.scriptFile.value
     if (scriptFile == null) {
       Toast.makeText(activity, R.string.must_select_script, Toast.LENGTH_SHORT).show()
-      return false
+      return
     }
     if (binding.scheduleCheckbox.isChecked && (
       viewModel.scheduleDate.value == null || viewModel.scheduleTime.value == null)) {
       Toast.makeText(activity, R.string.didnt_filled_scheduled_parameters, Toast.LENGTH_SHORT).show()
-      return false
+      return
     }
 
     if (binding.periodicCheckbox.isChecked && viewModel.period.value == null) {
       Toast.makeText(activity, "You must select a period", Toast.LENGTH_SHORT).show()
-      return false
+      return
     }
 
     // everything seems to be ok, now creating the Work
@@ -202,7 +194,7 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       scheduleDate = viewModel.scheduleDate.value,
       scheduleTime = viewModel.scheduleTime.value
       )
-    return true
+    Toast.makeText(requireContext(), "Successfully created work", Toast.LENGTH_SHORT).show()
   }
 
   private fun doSaveWork(periodAmount: Long?, periodUnit: PeriodUnit?, name: String, scriptFile: File,

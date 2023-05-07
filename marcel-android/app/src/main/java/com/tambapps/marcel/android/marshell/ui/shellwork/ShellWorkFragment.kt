@@ -14,7 +14,7 @@ class ShellWorkFragment : Fragment() {
 
   abstract class ShellWorkFragmentChild: Fragment(), FabClickListener {}
   interface FabClickListener {
-    fun onFabClick(): Boolean // returns true if transition initiated
+    fun onFabClick()
     fun nextFabResId(): Int = R.drawable.plus
   }
 
