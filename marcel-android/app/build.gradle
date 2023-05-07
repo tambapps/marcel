@@ -39,7 +39,8 @@ android {
 
 dependencies {
 
-    implementation "com.google.dagger:hilt-android:2.44"
+    implementation 'com.google.dagger:hilt-android:2.44'
+    implementation 'androidx.hilt:hilt-work:1.0.0'
     kapt "com.google.dagger:hilt-compiler:2.44"
 
     implementation 'com.tambapps.marcel:marcel-repl:0.1-SNAPSHOT'

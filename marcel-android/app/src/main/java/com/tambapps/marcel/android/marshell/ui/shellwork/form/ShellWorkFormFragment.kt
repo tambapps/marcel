@@ -12,16 +12,30 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TimePicker
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.work.Constraints
+import androidx.work.Data
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.PeriodicWorkRequest
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import com.tambapps.marcel.android.marshell.FilePickerActivity
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellWorkFormBinding
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
+import com.tambapps.marcel.android.marshell.work.MarcelShellWorker
+import com.tambapps.marcel.android.marshell.work.WorkTags
 import java.io.File
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.temporal.ChronoUnit
+import java.util.concurrent.TimeUnit
 
 class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
 
@@ -146,21 +160,22 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
   }
 
   override fun onFabClick(): Boolean {
-    if (createWork()) {
+    if (saveWork()) {
       Toast.makeText(requireContext(), "TODO", Toast.LENGTH_SHORT).show()
       return true
     }
     return false
   }
 
-  private fun createWork(): Boolean {
+  private fun saveWork(): Boolean {
     if (binding.workName.text.isNullOrEmpty()) {
       binding.workName.error = getString(R.string.name_is_required)
       return false
     }
     binding.workName.error = null
 
-    if (viewModel.scriptFile.value == null) {
+    val scriptFile = viewModel.scriptFile.value
+    if (scriptFile == null) {
       Toast.makeText(activity, R.string.must_select_script, Toast.LENGTH_SHORT).show()
       return false
     }
@@ -175,7 +190,61 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       return false
     }
 
+    // everything seems to be ok, now creating the Work
+    doSaveWork(
+      scriptFile = scriptFile,
+      name = binding.workName.text.toString(),
+      description = binding.workDescription.text?.toString(),
+      periodAmount = binding.periodEditText.text.toString().toLongOrNull(),
+      periodUnit = (binding.periodicUnitsSpinner.adapter as ArrayAdapter<PeriodUnit>).getItem(binding.periodicUnitsSpinner.selectedItemPosition),
+      networkRequired = binding.networkRequiredCheckBox.isChecked,
+      silent = binding.silentCheckBox.isChecked,
+      scheduleDate = viewModel.scheduleDate.value,
+      scheduleTime = viewModel.scheduleTime.value
+      )
     return true
+  }
+
+  private fun doSaveWork(periodAmount: Long?, periodUnit: PeriodUnit?, name: String, scriptFile: File,
+                         description: String?, networkRequired: Boolean, silent: Boolean,
+                         scheduleDate: LocalDate?, scheduleTime: LocalTime?) {
+    val workRequest: WorkRequest.Builder<*, *> =
+      if (periodAmount != null && periodUnit != null) PeriodicWorkRequestBuilder<MarcelShellWorker>(
+        periodUnit.toMinutes(periodAmount), TimeUnit.MINUTES)
+        .addTag(WorkTags.periodAmount(periodAmount))
+        .addTag(WorkTags.periodUnit(periodUnit))
+      else OneTimeWorkRequest.Builder(MarcelShellWorker::class.java)
+
+    if (scheduleDate != null && scheduleTime != null) {
+      val scheduleDateTime = LocalDateTime.of(scheduleDate, scheduleTime)
+      workRequest.setInitialDelay(Duration.ofMillis(
+        LocalDateTime.now().until(scheduleDateTime, ChronoUnit.MILLIS)))
+        .addTag(WorkTags.schedule(scheduleDateTime.toString()))
+    }
+    if (networkRequired) {
+      val constraints = Constraints.Builder()
+        .setRequiredNetworkType(NetworkType.CONNECTED)
+        .build()
+      workRequest.setConstraints(constraints)
+    }
+
+    workRequest.apply {
+      addTag(WorkTags.type(WorkTags.SHELL_WORK_TYPE))
+      addTag(WorkTags.name(name))
+      addTag(WorkTags.silent(silent))
+      addTag(WorkTags.networkRequired(networkRequired))
+      if (!description.isNullOrBlank()) {
+        addTag(WorkTags.description(description))
+      }
+      addTag(WorkTags.scriptPath(scriptFile.absolutePath))
+      setInputData(Data.Builder().build())
+    }
+
+    val workManager = WorkManager.getInstance(requireActivity())
+    val operation = if (workRequest is PeriodicWorkRequest.Builder) workManager.enqueueUniquePeriodicWork(name, ExistingPeriodicWorkPolicy.REPLACE, workRequest.build())
+    else workManager.enqueueUniqueWork(name, ExistingWorkPolicy.REPLACE, workRequest.build() as OneTimeWorkRequest)
+    // waiting for the work to be created
+    operation.result.get()
   }
 
   override fun onDestroyView() {
