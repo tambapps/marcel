@@ -11,6 +11,8 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         mavenLocal()
+        // for com.github.cachapa:ExpandableLayout:2.9.2
+        maven { url 'https://jitpack.io' }
     }
 }
 rootProject.name = "Marcel Droid"

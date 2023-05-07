@@ -82,18 +82,6 @@
             app:layout_constraintStart_toEndOf="@+id/pickScriptButton"
             app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
 
-
-        <CheckBox
-            android:id="@+id/networkRequiredCheckBox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="40dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/networkRequiredText"
-            app:layout_constraintBottom_toBottomOf="@id/networkRequiredText"
-            />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -103,8 +91,18 @@
             android:textColor="#fff"
             android:id="@+id/networkRequiredText"
             android:textSize="20sp"
-            app:layout_constraintStart_toEndOf="@+id/scheduleCheckbox"
-            app:layout_constraintTop_toBottomOf="@+id/pickScriptButton" />
+            app:layout_constraintStart_toEndOf="@id/networkRequiredCheckBox"
+            app:layout_constraintTop_toBottomOf="@id/pickScriptButton" />
+
+        <CheckBox
+            android:id="@+id/networkRequiredCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/networkRequiredText"
+            app:layout_constraintBottom_toBottomOf="@id/networkRequiredText"
+            />
 
         <net.cachapa.expandablelayout.ExpandableLayout
             android:id="@+id/networkRequiredLayout"
@@ -129,9 +127,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="40dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/networkRequiredLayout" />
+            app:layout_constraintTop_toTopOf="@+id/scheduleLaterText"
+            app:layout_constraintBottom_toBottomOf="@id/scheduleLaterText"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -172,7 +170,7 @@
                     android:layout_toEndOf="@id/pickDateButton"
                     android:layout_marginStart="16dp"
                     android:layout_alignBaseline="@id/pickDateButton"
-                    android:id="@+id/date"
+                    android:id="@+id/dateText"
                     android:textColor="#fff"
                     android:textSize="18sp"
                     />
@@ -193,7 +191,7 @@
                     android:layout_toEndOf="@id/pickDateButton"
                     android:layout_marginStart="16dp"
                     android:layout_alignBaseline="@id/pickTimeButton"
-                    android:id="@+id/time"
+                    android:id="@+id/timeText"
                     android:textColor="#fff"
                     android:textSize="18sp"
                     />
@@ -206,9 +204,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="40dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/scheduleLayout" />
+            app:layout_constraintTop_toTopOf="@id/periodicText"
+            app:layout_constraintBottom_toBottomOf="@id/periodicText" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -217,7 +215,7 @@
             android:layout_marginTop="40dp"
             android:text="@string/periodic"
             android:textColor="#fff"
-            android:id="@+id/periodCheckBox"
+            android:id="@+id/periodicText"
             android:textSize="20sp"
             app:layout_constraintStart_toEndOf="@+id/scheduleCheckbox"
             app:layout_constraintTop_toBottomOf="@+id/scheduleLayout" />
@@ -259,12 +257,10 @@
                     android:id="@+id/periodicUnitsSpinner"
                     />
             </LinearLayout>
-
         </net.cachapa.expandablelayout.ExpandableLayout>
 
-
         <TextView
-            android:id="@+id/silentCheckBoxText"
+            android:id="@+id/silentText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
@@ -280,9 +276,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="28dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/periodicLayout" />
+            app:layout_constraintTop_toTopOf="@id/silentText"
+            app:layout_constraintBottom_toBottomOf="@id/silentText" />
 
         <TextView
             android:layout_width="230dp"
@@ -299,7 +295,7 @@
             android:gravity="center"
             tools:layout_editor_absoluteX="122dp"
             tools:layout_editor_absoluteY="509dp"
-            app:layout_constraintStart_toEndOf="@id/silentCheckBoxText"
+            app:layout_constraintStart_toEndOf="@id/silentText"
             app:layout_constraintTop_toBottomOf="@+id/periodicLayout"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
