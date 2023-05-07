@@ -35,4 +35,7 @@
     <string name="no_child_dirs">This directory has no child directories</string>
     <string name="empty_dir">This directory has no scripts</string>
     <string name="menu_documentation">Documentation</string>
+    <string name="name_is_required">Name is required</string>
+    <string name="must_select_script">You must select a script</string>
+    <string name="didnt_filled_scheduled_parameters">You must pick provide all schedule parameters</string>
 </resources>

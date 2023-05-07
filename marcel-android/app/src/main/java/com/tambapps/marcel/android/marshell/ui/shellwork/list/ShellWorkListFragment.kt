@@ -5,9 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellWorkListBinding
+import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
+import com.tambapps.marcel.android.marshell.ui.shellwork.form.ShellWorkFormFragment
 
-class ShellWorkListFragment : Fragment() {
+class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
 
   companion object {
     fun newInstance() = ShellWorkListFragment()
@@ -36,4 +39,16 @@ class ShellWorkListFragment : Fragment() {
     super.onDestroyView()
     _binding = null
   }
+
+  override fun onFabClick(): Boolean {
+    val fragment = ShellWorkFormFragment.newInstance()
+    parentFragmentManager.beginTransaction()
+      .setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
+      .add(R.id.container, fragment, fragment.javaClass.name)
+      .show(fragment)
+      .hide(this)
+      .commitNow()
+    return true
+  }
+
 }

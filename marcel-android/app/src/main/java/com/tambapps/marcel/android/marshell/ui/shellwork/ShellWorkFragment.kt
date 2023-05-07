@@ -12,13 +12,19 @@ import com.tambapps.marcel.android.marshell.ui.shellwork.list.ShellWorkListFragm
 
 class ShellWorkFragment : Fragment() {
 
+  abstract class ShellWorkFragmentChild: Fragment(), FabClickListener {}
+  interface FabClickListener {
+    fun onFabClick(): Boolean // returns true if transition initiated
+    fun nextFabResId(): Int = R.drawable.plus
+  }
+
   private var _binding: FragmentShellWorkBinding? = null
 
   // This property is only valid between onCreateView and
   // onDestroyView.
   private val binding get() = _binding!!
 
-  private val currentFragment: Fragment get() = childFragmentManager.findFragmentById(R.id.container)!!
+  private val currentFragment: ShellWorkFragmentChild? get() = childFragmentManager.findFragmentById(R.id.container) as? ShellWorkFragmentChild
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -40,19 +46,9 @@ class ShellWorkFragment : Fragment() {
 
 
     binding.fab.setOnClickListener {
-      showNewShellWorkFragment()
+      currentFragment?.onFabClick()
     }
     return root
-  }
-
-  private fun showNewShellWorkFragment() {
-    val fragment = ShellWorkFormFragment.newInstance()
-    childFragmentManager.beginTransaction()
-      .setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
-      .add(R.id.container, fragment, fragment.javaClass.name)
-      .show(fragment)
-      .hide(currentFragment)
-      .commitNow()
   }
 
   override fun onDestroyView() {
