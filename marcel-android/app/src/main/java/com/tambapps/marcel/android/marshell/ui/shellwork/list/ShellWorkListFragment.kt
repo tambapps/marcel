@@ -134,18 +134,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
               .setMessage(R.string.delete_finished_works_explanation)
               .setNeutralButton(R.string.cancel, null)
               .setPositiveButton(R.string.delete) { _: DialogInterface, _: Int ->
-                /* TODO create cleaner work
-                val workManager = WorkManager.getInstance(context)
-                workManager.pruneWork().result.addListener({
-                  workManager.enqueue(
-                    OneTimeWorkRequestBuilder<CleanWorker>()
-                    .addTag(WorkTags.type(ShellWorksActivity.CLEAN_WORKER_TYPE))
-                    .addTag(WorkTags.period("One-time job"))
-                    .addTag(WorkTags.periodMinutes(-1))
-                    .build())
-                }) {it.run()}
-
-                 */
+                WorkManager.getInstance(context).pruneWork().result.get()
               }
               .create()
               .apply {
