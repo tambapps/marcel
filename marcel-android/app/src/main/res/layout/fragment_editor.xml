@@ -9,7 +9,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="64dp">
+        android:layout_height="@dimen/margin_top">
         <TextView
             android:layout_width="100dp"
             android:layout_height="wrap_content"

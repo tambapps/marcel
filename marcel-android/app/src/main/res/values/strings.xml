@@ -38,4 +38,21 @@
     <string name="name_is_required">Name is required</string>
     <string name="must_select_script">You must select a script</string>
     <string name="didnt_filled_scheduled_parameters">You must pick provide all schedule parameters</string>
+    <string name="scheduled_for">Scheduled for %1$s</string>
+    <string name="ran_from_to">ran fom %1$s\nto %2$s (took %3$s)</string>
+    <string name="ran_from_short">ran fom %1$s\nto %2$s</string>
+    <string name="last_ran_from_short">Last ran fom %1$s\nto %2$s</string>
+    <string name="work_output">%1$s output</string>
+    <string name="work_error">%1$s error</string>
+    <string name="started_at">Started at %1$s</string>
+    <string name="result_output">Result: %1$s</string>
+    <string name="result_error">Error: %1$s</string>
+    <string name="R.string.delete_finished_works_explanation">Be careful, this action will delete ALL finished (succeeded, failed or canceled) works. Other works won\'t be affected by this operation</string>
+    <string name="cancel_work_q">Cancel work %1$s?</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="delete_finished_works_q">Delete finished works?</string>
+    <string name="next_run_in">Next run in %1$s</string>
+    <string name="cant_modify_finished_work">Can\'t modify a finished work</string>
+    <string name="delete_finished_works_explanation">Be careful, this action will delete ALL finished (succeeded, failed or canceled) works. Other works won\'t be affected by this operation</string>
 </resources>

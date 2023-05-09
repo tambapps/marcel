@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TimePicker
 import android.widget.Toast
+import androidx.fragment.app.commitNow
 import androidx.fragment.app.viewModels
 import androidx.work.Constraints
 import androidx.work.Data
@@ -27,6 +28,7 @@ import com.tambapps.marcel.android.marshell.FilePickerActivity
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellWorkFormBinding
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
+import com.tambapps.marcel.android.marshell.ui.shellwork.list.ShellWorkListFragment
 import com.tambapps.marcel.android.marshell.work.MarcelShellWorker
 import com.tambapps.marcel.android.marshell.work.WorkTags
 import java.io.File
@@ -48,6 +50,7 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
   // onDestroyView.
   private val binding get() = _binding!!
   private val viewModel: ShellWorkFormViewModel by viewModels()
+  private var fabClickDisabled = false
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -55,6 +58,7 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     savedInstanceState: Bundle?
   ): View {
 
+    fabClickDisabled = false
     _binding = FragmentShellWorkFormBinding.inflate(inflater, container, false)
     val root: View = binding.root
 
@@ -160,6 +164,7 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
   }
 
   override fun onFabClick() {
+    if (fabClickDisabled) return
     if (binding.workName.text.isNullOrEmpty()) {
       binding.workName.error = getString(R.string.name_is_required)
       return
@@ -195,6 +200,18 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       scheduleTime = viewModel.scheduleTime.value
       )
     Toast.makeText(requireContext(), "Successfully created work", Toast.LENGTH_SHORT).show()
+
+    // now moving back to work list
+    val currentListFragment = parentFragmentManager.findFragmentByTag(ShellWorkListFragment::class.java.name)
+    val fragment = currentListFragment ?: ShellWorkListFragment.newInstance()
+
+    parentFragmentManager.commitNow {
+      setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+      if (currentListFragment == null) add(R.id.container, fragment, fragment.javaClass.name)
+      show(fragment)
+      remove(this@ShellWorkFormFragment)
+    }
+    fabClickDisabled = true
   }
 
   private fun doSaveWork(periodAmount: Long?, periodUnit: PeriodUnit?, name: String, scriptFile: File,
