@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
     if (shellSessions.size >= 8) {
       return false
     }
-    shellSessions.add(ShellSession(this))
+    shellSessions.add(ShellSession.newSession(this))
     return true
   }
 
