@@ -57,9 +57,6 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
         shellWorks.clear()
         works.forEach {
           shellWorks.add(MarcelShellWorkInfo.fromWorkInfo(it))
-          AlertDialog.Builder(requireContext())
-            .setMessage(it.outputData.toString())
-            .show()
         }
         binding.recyclerView.adapter?.notifyDataSetChanged()
       }
@@ -147,9 +144,9 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
         }
         startTime.text = when {
           work.startTime != null ->
-            if (work.isFinished) context.getString(R.string.ran_from_short, work.startTime, work.endTime)
-            else if (work.isPeriodic) context.getString(R.string.last_ran_from_short, work.startTime, work.endTime)
-            else context.getString(R.string.started_at, work.startTime)
+            if (work.isFinished) context.getString(R.string.ran_from_short, work.startTimeFormatted, work.endTimeFormatted)
+            else if (work.isPeriodic) context.getString(R.string.last_ran_from_short, work.startTimeFormatted, work.endTimeFormatted)
+            else context.getString(R.string.started_at, work.startTimeFormatted)
           work.scheduledAt != null -> context.getString(R.string.scheduled_for, work.scheduledAt)
           else -> ""
         }
