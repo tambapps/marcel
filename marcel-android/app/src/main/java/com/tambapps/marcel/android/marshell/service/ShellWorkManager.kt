@@ -12,10 +12,11 @@ import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
+import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDataDao
+import com.tambapps.marcel.android.marshell.room.entity.ShellWorkData
 import com.tambapps.marcel.android.marshell.ui.shellwork.form.PeriodUnit
-import com.tambapps.marcel.android.marshell.work.MarcelShellWorkInfo
 import com.tambapps.marcel.android.marshell.work.MarcelShellWorker
-import com.tambapps.marcel.android.marshell.work.WorkTags
+import com.tambapps.marcel.android.marshell.work.ShellWork
 import java.io.File
 import java.time.Duration
 import java.time.LocalDate
@@ -29,31 +30,42 @@ import javax.inject.Named
 
 class ShellWorkManager @Inject constructor(
   private val workManager: WorkManager,
+  private val shellWorkDataDao: ShellWorkDataDao,
   @Named("shellWorksDirectory")
   private val shellWorksDirectory: File
   ) {
 
-
-  fun listWorks(): LiveData<MarcelShellWorkInfo> {
-    TODO()
+  fun list(): LiveData<List<ShellWork>> {
+    return workManager.getWorkInfosByTagLiveData("type:" + ShellWork.SHELL_WORK_TYPE)
+      .map { workInfos ->
+        workInfos.mapNotNull {
+          val data = shellWorkDataDao.findById(it.id) ?: return@mapNotNull null
+          ShellWork.from(it, data)
+        }
+      }
   }
 
-  fun create(periodAmount: Long?, periodUnit: PeriodUnit?, name: String, scriptFile: File,
+  fun findById(id: UUID): ShellWork? {
+    val info = workManager.getWorkInfoById(id).get()
+    val data = shellWorkDataDao.findById(id) ?: return null
+    return ShellWork.from(info, data)
+  }
+
+  fun create(periodAmount: Int?, periodUnit: PeriodUnit?, name: String, scriptFile: File,
                          description: String?, networkRequired: Boolean, silent: Boolean,
                          scheduleDate: LocalDate?, scheduleTime: LocalTime?) {
     val workRequest: WorkRequest.Builder<*, *> =
       if (periodAmount != null && periodUnit != null) PeriodicWorkRequestBuilder<MarcelShellWorker>(
         periodUnit.toMinutes(periodAmount), TimeUnit.MINUTES)
-        .addTag(WorkTags.periodAmount(periodAmount))
-        .addTag(WorkTags.periodUnit(periodUnit))
       else OneTimeWorkRequest.Builder(MarcelShellWorker::class.java)
 
+    val scheduleDateTime =
+      if (scheduleDate != null && scheduleTime != null) LocalDateTime.of(scheduleDate, scheduleTime) else null
+
     if (scheduleDate != null && scheduleTime != null) {
-      val scheduleDateTime = LocalDateTime.of(scheduleDate, scheduleTime)
       workRequest.setInitialDelay(
         Duration.ofMillis(
         LocalDateTime.now().until(scheduleDateTime, ChronoUnit.MILLIS)))
-        .addTag(WorkTags.schedule(scheduleDateTime.toString()))
     }
     if (networkRequired) {
       val constraints = Constraints.Builder()
@@ -62,17 +74,7 @@ class ShellWorkManager @Inject constructor(
       workRequest.setConstraints(constraints)
     }
 
-    workRequest.apply {
-      addTag(WorkTags.type(WorkTags.SHELL_WORK_TYPE))
-      addTag(WorkTags.name(name))
-      addTag(WorkTags.silent(silent))
-      addTag(WorkTags.networkRequired(networkRequired))
-      if (!description.isNullOrBlank()) {
-        addTag(WorkTags.description(description))
-      }
-      addTag(WorkTags.scriptPath(scriptFile.absolutePath))
-      setInputData(Data.Builder().build())
-    }
+    workRequest.setInputData(Data.Builder().build())
     val id = UUID.randomUUID() // not optimal but this is how android work-api also creates it anyway
     workRequest.setId(id)
 
@@ -84,18 +86,40 @@ class ShellWorkManager @Inject constructor(
     // now create work directory
     val workDirectory = workDirectory(id)
     workDirectory.mkdir()
+    val workScriptFile = workInfoFile(id)
+    scriptFile.copyTo(workScriptFile, overwrite = true)
 
-    val workInfoFile = workInfoFile(id)
-    // TODO
-    TODO()
+    // now create shell_work_data
+    val data = ShellWorkData(
+      id = id,
+      name = name,
+      description = description,
+      periodAmount = periodAmount,
+      periodUnit = periodUnit,
+      scheduledAt = scheduleDateTime?.toString(),
+      silent = silent,
+      scriptFilePath = workScriptFile.absolutePath,
+      startTime = null, endTime = null,
+      output = null, result = null, failedReason = null
+    )
+    shellWorkDataDao.insert(data)
+  }
 
+  fun cancel(id: UUID) {
+    workManager.cancelWorkById(id).result.get()
+  }
+
+  fun delete(id: UUID): Boolean {
+    workManager.cancelWorkById(id).result.get()
+    val data = shellWorkDataDao.findById(id) ?: return false
+    shellWorkDataDao.delete(data)
+    return true
   }
 
 
   private fun workDirectory(id: UUID): File {
     return File(shellWorksDirectory, "work_$id")
   }
-
 
   private fun workInfoFile(id: UUID): File {
     return File(workDirectory(id), "info.parcelable")

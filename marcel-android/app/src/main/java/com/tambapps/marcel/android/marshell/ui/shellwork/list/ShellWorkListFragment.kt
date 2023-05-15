@@ -12,14 +12,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.work.WorkInfo.State
-import androidx.work.WorkManager
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellWorkListBinding
+import com.tambapps.marcel.android.marshell.service.ShellWorkManager
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
 import com.tambapps.marcel.android.marshell.ui.shellwork.form.ShellWorkFormFragment
 import com.tambapps.marcel.android.marshell.util.TimeUtils
-import com.tambapps.marcel.android.marshell.work.MarcelShellWorkInfo
-import com.tambapps.marcel.android.marshell.work.WorkTags
+import com.tambapps.marcel.android.marshell.work.ShellWork
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -34,9 +33,9 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
   // This property is only valid between onCreateView and
   // onDestroyView.
   private val binding get() = _binding!!
-  private val shellWorks = mutableListOf<MarcelShellWorkInfo>()
+  private val shellWorks = mutableListOf<ShellWork>()
   @Inject
-  lateinit var workManager: WorkManager
+  lateinit var shellWorkManager: ShellWorkManager
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -52,23 +51,36 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       recyclerView.apply {
         setHasFixedSize(true)
         layoutManager = LinearLayoutManager(activity)
-        adapter = MyAdapter(workManager, shellWorks, this@ShellWorkListFragment::onWorkClick)
+        adapter = MyAdapter(shellWorks,
+          this@ShellWorkListFragment::onWorkClick,
+          this@ShellWorkListFragment::onWorkCancel,
+          this@ShellWorkListFragment::onWorkDelete)
       }
     }
 
-    workManager.getWorkInfosByTagLiveData(WorkTags.type(WorkTags.SHELL_WORK_TYPE))
-      .observe(viewLifecycleOwner) { works ->
+    shellWorkManager.list().observe(viewLifecycleOwner) { works ->
         shellWorks.clear()
-        works.forEach {
-          shellWorks.add(MarcelShellWorkInfo.fromWorkInfo(it))
-        }
+        shellWorks.addAll(works)
         binding.recyclerView.adapter?.notifyDataSetChanged()
       }
     return root
   }
 
-  private fun onWorkClick(work: MarcelShellWorkInfo) {
+  private fun onWorkClick(work: ShellWork) {
     Toast.makeText(requireContext(), "TODO", Toast.LENGTH_SHORT).show()
+  }
+
+  private fun onWorkCancel(work: ShellWork) {
+    shellWorkManager.cancel(work.id)
+  }
+
+  private fun onWorkDelete(work: ShellWork) {
+    if (!shellWorkManager.delete(work.id)) return
+    Toast.makeText(requireContext(), "Successfully deleted work", Toast.LENGTH_SHORT).show()
+    val position = shellWorks.indexOf(work)
+    if (position < 0) return
+    shellWorks.removeAt(position)
+    binding.recyclerView.adapter?.notifyItemRemoved(position)
   }
 
   override fun onDestroyView() {
@@ -86,7 +98,10 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       .commitNow()
   }
 
-  class MyAdapter(private val workManager: WorkManager, private val works: List<MarcelShellWorkInfo>, private val onWorkClick: (MarcelShellWorkInfo) -> Unit) :
+  class MyAdapter(private val works: List<ShellWork>,
+                  private val onWorkClick: (ShellWork) -> Unit,
+                  private val onWorkCancel: (ShellWork) -> Unit,
+                  private val onWorkDelete: (ShellWork) -> Unit) :
     RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
 
     companion object {
@@ -123,7 +138,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
             AlertDialog.Builder(context).setTitle(context.getString(R.string.cancel_work_q, work.name))
               .setNeutralButton(android.R.string.no, null)
               .setPositiveButton("yes") { _: DialogInterface, _: Int ->
-                workManager.cancelWorkById(work.id)
+                onWorkCancel(work)
               }.create()
               .apply {
                 setOnShowListener {
@@ -131,11 +146,11 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
                 }
               }.show()
           } else {
-            AlertDialog.Builder(context).setTitle(context.getString(R.string.delete_finished_works_q))
-              .setMessage(R.string.delete_finished_works_explanation)
+            AlertDialog.Builder(context).setTitle(R.string.delete_shell_work)
+              .setMessage(R.string.delete_work_q)
               .setNeutralButton(R.string.cancel, null)
               .setPositiveButton(R.string.delete) { _: DialogInterface, _: Int ->
-                workManager.pruneWork().result.get()
+                onWorkDelete(work)
               }
               .create()
               .apply {
@@ -166,7 +181,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       }
     }
 
-    private fun stateColor(work: MarcelShellWorkInfo) = when {
+    private fun stateColor(work: ShellWork) = when {
       work.state == State.SUCCEEDED -> Color.GREEN
       work.state == State.CANCELLED -> ORANGE // orange
       work.state == State.FAILED -> Color.RED

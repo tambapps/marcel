@@ -3,7 +3,10 @@ package com.tambapps.marcel.android.marshell.configuration
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
+import androidx.room.Room
 import androidx.work.WorkManager
+import com.tambapps.marcel.android.marshell.room.AppDatabase
+import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDataDao
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import dagger.Module
 import dagger.Provides
@@ -43,6 +46,19 @@ class MarcelDroidConfiguration {
   @Provides
   fun compilerConfiguration(): CompilerConfiguration {
     return CompilerConfiguration(dumbbellEnabled = true, classVersion = 52) // Java 8
+  }
+
+  @Provides
+  fun appDatabase(@ApplicationContext context: Context): AppDatabase {
+    return Room.databaseBuilder(
+      context,
+      AppDatabase::class.java, "marshell_android"
+    ).build()
+  }
+
+  @Provides
+  fun shellWorkDataDao(appDatabase: AppDatabase): ShellWorkDataDao {
+    return appDatabase.shellWorkDataDao()
   }
 
   @Provides
