@@ -2,9 +2,7 @@ package com.tambapps.marcel.android.marshell.configuration
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.hilt.work.HiltWorkerFactory
 import androidx.preference.PreferenceManager
-import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import dagger.Module
@@ -34,6 +32,12 @@ class MarcelDroidConfiguration {
   @Provides
   fun shellSessionsDirectory(@ApplicationContext context: Context): File {
     return context.getDir("shell_sessions", Context.MODE_PRIVATE)
+  }
+
+  @Named("shellWorksDirectory")
+  @Provides
+  fun shellWorksDirectory(@ApplicationContext context: Context): File {
+    return context.getDir("shell_works", Context.MODE_PRIVATE)
   }
 
   @Provides
