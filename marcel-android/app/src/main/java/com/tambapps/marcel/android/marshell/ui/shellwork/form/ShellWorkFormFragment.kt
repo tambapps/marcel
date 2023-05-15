@@ -31,6 +31,7 @@ import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
 import com.tambapps.marcel.android.marshell.ui.shellwork.list.ShellWorkListFragment
 import com.tambapps.marcel.android.marshell.work.MarcelShellWorker
 import com.tambapps.marcel.android.marshell.work.WorkTags
+import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import java.time.Duration
 import java.time.LocalDate
@@ -38,12 +39,18 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
 
   companion object {
     fun newInstance() = ShellWorkFormFragment()
   }
+
+
+  @Inject
+  lateinit var workManager: WorkManager
   private var _binding: FragmentShellWorkFormBinding? = null
 
   // This property is only valid between onCreateView and
@@ -256,7 +263,6 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       setInputData(Data.Builder().build())
     }
 
-    val workManager = WorkManager.getInstance(requireActivity())
     val operation = if (workRequest is PeriodicWorkRequest.Builder) workManager.enqueueUniquePeriodicWork(name, ExistingPeriodicWorkPolicy.REPLACE, workRequest.build())
     else workManager.enqueueUniqueWork(name, ExistingWorkPolicy.REPLACE, workRequest.build() as OneTimeWorkRequest)
     // waiting for the work to be created

@@ -34,13 +34,12 @@ class MarcelShellWorker
   @AssistedInject constructor(@Assisted appContext: Context,
                               @Assisted workerParams: WorkerParameters,
                               // this is not a val because hilt doesn't allow final fields when injecting
-                              _compilerConfiguration: CompilerConfiguration,):
+                              private val compilerConfiguration: CompilerConfiguration,):
   Worker(appContext, workerParams) {
 
   companion object {
     const val NOTIFICATION_CHANNEL_ID = "MarcelShellWorker"
   }
-  private val compilerConfiguration = _compilerConfiguration
   private val notificationManager = applicationContext.getSystemService(NotificationManager::class.java)
   private val notificationTitle = WorkTags.getName(tags) + " Marshell Worker"
   private val isSilent = WorkTags.getSilent(tags)
@@ -148,7 +147,7 @@ class MarcelShellWorker
       // Add the intent, which inflates the back stack
       addNextIntentWithParentStack(resultIntent)
       // Get the PendingIntent containing the entire back stack
-      getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+      getPendingIntent(0, PendingIntent.FLAG_MUTABLE)
     }
 
   }

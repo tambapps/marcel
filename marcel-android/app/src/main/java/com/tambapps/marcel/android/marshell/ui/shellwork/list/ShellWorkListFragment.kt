@@ -20,7 +20,10 @@ import com.tambapps.marcel.android.marshell.ui.shellwork.form.ShellWorkFormFragm
 import com.tambapps.marcel.android.marshell.util.TimeUtils
 import com.tambapps.marcel.android.marshell.work.MarcelShellWorkInfo
 import com.tambapps.marcel.android.marshell.work.WorkTags
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
 
   companion object {
@@ -32,6 +35,8 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
   // onDestroyView.
   private val binding get() = _binding!!
   private val shellWorks = mutableListOf<MarcelShellWorkInfo>()
+  @Inject
+  lateinit var workManager: WorkManager
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -47,12 +52,11 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       recyclerView.apply {
         setHasFixedSize(true)
         layoutManager = LinearLayoutManager(activity)
-        adapter = MyAdapter(shellWorks, this@ShellWorkListFragment::onWorkClick)
+        adapter = MyAdapter(workManager, shellWorks, this@ShellWorkListFragment::onWorkClick)
       }
     }
 
-    WorkManager.getInstance(requireContext())
-      .getWorkInfosByTagLiveData(WorkTags.type(WorkTags.SHELL_WORK_TYPE))
+    workManager.getWorkInfosByTagLiveData(WorkTags.type(WorkTags.SHELL_WORK_TYPE))
       .observe(viewLifecycleOwner) { works ->
         shellWorks.clear()
         works.forEach {
@@ -82,7 +86,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       .commitNow()
   }
 
-  class MyAdapter(private val works: List<MarcelShellWorkInfo>, private val onWorkClick: (MarcelShellWorkInfo) -> Unit) :
+  class MyAdapter(private val workManager: WorkManager, private val works: List<MarcelShellWorkInfo>, private val onWorkClick: (MarcelShellWorkInfo) -> Unit) :
     RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
 
     companion object {
@@ -119,7 +123,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
             AlertDialog.Builder(context).setTitle(context.getString(R.string.cancel_work_q, work.name))
               .setNeutralButton(android.R.string.no, null)
               .setPositiveButton("yes") { _: DialogInterface, _: Int ->
-                WorkManager.getInstance(context).cancelWorkById(work.id)
+                workManager.cancelWorkById(work.id)
               }.create()
               .apply {
                 setOnShowListener {
@@ -131,7 +135,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
               .setMessage(R.string.delete_finished_works_explanation)
               .setNeutralButton(R.string.cancel, null)
               .setPositiveButton(R.string.delete) { _: DialogInterface, _: Int ->
-                WorkManager.getInstance(context).pruneWork().result.get()
+                workManager.pruneWork().result.get()
               }
               .create()
               .apply {

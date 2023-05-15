@@ -101,7 +101,12 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
       return false
     }
     val sessionDirectory = File(shellSessionsDirectory, "session_" + (sessionsIncrement++))
-    if (!sessionDirectory.mkdir()) {
+    // if directory already exists, we clean it
+    if (sessionDirectory.exists()) {
+      if (sessionDirectory.isFile) sessionDirectory.delete()
+      else sessionDirectory.listFiles()?.forEach { it.deleteRecursively() }
+    }
+    if (!sessionDirectory.isDirectory && !sessionDirectory.mkdir()) {
       Toast.makeText(this, "Error, Couldn't create directory", Toast.LENGTH_SHORT).show()
       sessionsIncrement--
       return false

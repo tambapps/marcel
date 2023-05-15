@@ -2,7 +2,10 @@ package com.tambapps.marcel.android.marshell.configuration
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.hilt.work.HiltWorkerFactory
 import androidx.preference.PreferenceManager
+import androidx.work.Configuration
+import androidx.work.WorkManager
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import dagger.Module
 import dagger.Provides
@@ -10,11 +13,14 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.components.FragmentComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import java.io.File
 import javax.inject.Named
 
 @Module
-@InstallIn(ActivityComponent::class, FragmentComponent::class)
+@InstallIn(ActivityComponent::class, FragmentComponent::class,
+  // for workers
+  SingletonComponent::class)
 class MarcelDroidConfiguration {
 
   @Named("initScriptFile")
@@ -38,5 +44,10 @@ class MarcelDroidConfiguration {
   @Provides
   fun sharedPreferences(@ApplicationContext context: Context): SharedPreferences {
     return PreferenceManager.getDefaultSharedPreferences(context)
+  }
+
+  @Provides
+  fun workManager(@ApplicationContext context: Context): WorkManager {
+    return WorkManager.getInstance(context)
   }
 }

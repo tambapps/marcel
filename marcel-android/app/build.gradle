@@ -1,8 +1,8 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'dagger.hilt.android.plugin'
     id 'kotlin-kapt'
-    id 'com.google.dagger.hilt.android'
 }
 
 android {
@@ -39,15 +39,17 @@ android {
 
 dependencies {
 
-    implementation 'com.google.dagger:hilt-android:2.44'
+    /* work + hilt/dagger */
     implementation 'androidx.hilt:hilt-work:1.0.0'
+    implementation 'com.google.dagger:hilt-android:2.44'
     kapt "com.google.dagger:hilt-compiler:2.44"
+    kapt 'androidx.hilt:hilt-compiler:1.0.0'
 
     implementation 'com.tambapps.marcel:marcel-repl:0.1-SNAPSHOT'
     implementation project(path: ':marcel-dalvik-compiler')
     implementation project(path: ':marcel-dalvik-stdlib')
 
-    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.core:core-ktx:1.10.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
