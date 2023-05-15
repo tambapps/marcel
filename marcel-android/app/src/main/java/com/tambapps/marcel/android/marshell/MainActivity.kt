@@ -3,6 +3,7 @@ package com.tambapps.marcel.android.marshell
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
@@ -17,16 +18,23 @@ import com.tambapps.marcel.android.marshell.util.ListenableList
 import com.tambapps.marcel.android.marshell.util.hideSoftBoard
 import dagger.hilt.android.AndroidEntryPoint
 import marcel.lang.MarcelSystem
+import java.io.File
 import java.util.Collections
+import javax.inject.Inject
+import javax.inject.Named
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
   NavigationView.OnNavigationItemSelectedListener, ShellHandler {
 
+  @Inject
+  @Named("shellSessionsDirectory")
+  lateinit var shellSessionsDirectory: File
   private lateinit var binding: ActivityMainBinding
   private lateinit var navController: NavController
 
   private lateinit var shellSessions: ListenableList<ShellSession>
+  private var sessionsIncrement = 0
   override val sessionsCount get() = shellSessions.size
   override val sessions: List<ShellSession>
     get() = Collections.unmodifiableList(shellSessions)
@@ -92,7 +100,14 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
     if (shellSessions.size >= 8) {
       return false
     }
-    shellSessions.add(ShellSession.newSession(this))
+    val sessionDirectory = File(shellSessionsDirectory, "session_" + (sessionsIncrement++))
+    if (!sessionDirectory.mkdir()) {
+      Toast.makeText(this, "Error, Couldn't create directory", Toast.LENGTH_SHORT).show()
+      sessionsIncrement--
+      return false
+    }
+    val name = if (sessionsIncrement == 1) "marshell" else "marshell ($sessionsIncrement)"
+    shellSessions.add(ShellSession.newSession(name, sessionDirectory))
     return true
   }
 

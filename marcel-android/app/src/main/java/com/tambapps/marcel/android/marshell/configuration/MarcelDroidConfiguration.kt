@@ -24,6 +24,12 @@ class MarcelDroidConfiguration {
     return File(dir, "init.mcl")
   }
 
+  @Named("shellSessionsDirectory")
+  @Provides
+  fun shellSessionsDirectory(@ApplicationContext context: Context): File {
+    return context.getDir("shell_sessions", Context.MODE_PRIVATE)
+  }
+
   @Provides
   fun compilerConfiguration(): CompilerConfiguration {
     return CompilerConfiguration(dumbbellEnabled = true, classVersion = 52) // Java 8
