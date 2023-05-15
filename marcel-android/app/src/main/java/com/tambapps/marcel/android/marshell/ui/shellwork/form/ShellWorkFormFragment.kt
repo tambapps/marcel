@@ -51,6 +51,7 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
   private val binding get() = _binding!!
   private val viewModel: ShellWorkFormViewModel by viewModels()
   private var fabClickDisabled = false
+  private val selectedPeriodUnit get() = (binding.periodicUnitsSpinner.adapter as ArrayAdapter<PeriodUnit>).getItem(binding.periodicUnitsSpinner.selectedItemPosition)
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -68,9 +69,6 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       }
       scheduleDate.observe(viewLifecycleOwner) {
         binding.dateText.text = it?.toString()
-      }
-      period.observe(viewLifecycleOwner) {
-        binding.periodicText.text = it?.toString()
       }
       viewModel.scriptFile.observe(viewLifecycleOwner) {
         binding.filePath.text = it?.name
@@ -118,6 +116,15 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       periodicText.setOnClickListener {
         periodicCheckbox.isChecked = !periodicCheckbox.isChecked
       }
+      periodEditText.addTextChangedListener(object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+        override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
+        override fun afterTextChanged(s: Editable) {
+          val periodInt = s.toString().toIntOrNull()
+          viewModel.period.value = periodInt
+        }
+      })
+
 
       silentCheckBox.setOnCheckedChangeListener { _, isChecked ->
         silentDescription.animate().alpha(if (isChecked) 1f else 0f).setDuration(500).start()
@@ -193,7 +200,7 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       name = binding.workName.text.toString(),
       description = binding.workDescription.text?.toString(),
       periodAmount = binding.periodEditText.text.toString().toLongOrNull(),
-      periodUnit = (binding.periodicUnitsSpinner.adapter as ArrayAdapter<PeriodUnit>).getItem(binding.periodicUnitsSpinner.selectedItemPosition),
+      periodUnit = selectedPeriodUnit,
       networkRequired = binding.networkRequiredCheckBox.isChecked,
       silent = binding.silentCheckBox.isChecked,
       scheduleDate = viewModel.scheduleDate.value,

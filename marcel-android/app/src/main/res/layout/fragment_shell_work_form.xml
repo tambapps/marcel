@@ -217,7 +217,7 @@
             android:textColor="#fff"
             android:id="@+id/periodicText"
             android:textSize="20sp"
-            app:layout_constraintStart_toEndOf="@+id/scheduleCheckbox"
+            app:layout_constraintStart_toEndOf="@+id/periodicCheckbox"
             app:layout_constraintTop_toBottomOf="@+id/scheduleLayout" />
 
         <net.cachapa.expandablelayout.ExpandableLayout
@@ -247,6 +247,7 @@
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
                     android:lines="1"
+                    android:maxLength="3"
                     android:textColor="#fff"
                     android:id="@+id/periodEditText"
                     android:inputType="number"

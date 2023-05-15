@@ -16,7 +16,8 @@ data class MarcelShellWorkInfo(
   val periodAmount: Long?, val periodUnit: PeriodUnit?, val isFinished: Boolean,
   val startTime: LocalDateTime?, val endTime: LocalDateTime?, val scheduledAt: LocalDateTime?,
   val output: String?,
-  val result: String?) {
+  val result: String?,
+  val failedReason: String?) {
   val isPeriodic get() = periodAmount != null && periodUnit != null
   val startTimeFormatted get() = startTime?.format(DATE_FORMATTER)
   val endTimeFormatted get() = endTime?.format(DATE_FORMATTER)
@@ -33,6 +34,7 @@ data class MarcelShellWorkInfo(
     internal const val END_TIME_KEY = "endTime"
     internal const val OUTPUT_KEY = "output"
     internal const val RESULT_KEY = "result"
+    internal const val FAILED_REASON_KEY = "failedReason"
 
     fun fromWorkInfo(workInfo: WorkInfo): MarcelShellWorkInfo {
       val tags = workInfo.tags
@@ -51,7 +53,8 @@ data class MarcelShellWorkInfo(
         endTime = if (endTimeMillis != -1L) LocalDateTime.ofInstant(Instant.ofEpochMilli(endTimeMillis), ZoneId.systemDefault()) else null,
         scheduledAt = WorkTags.getSchedule(tags),
         output = data.getString(OUTPUT_KEY),
-        result = data.getString(RESULT_KEY)
+        result = data.getString(RESULT_KEY),
+        failedReason = data.getString(FAILED_REASON_KEY)
       )
     }
   }
