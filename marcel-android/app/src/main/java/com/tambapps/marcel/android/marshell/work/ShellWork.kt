@@ -39,7 +39,6 @@ data class ShellWork(
   }
 
   companion object {
-    const val SHELL_WORK_TYPE = "shell_work"
     val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")
 
     fun from(info: WorkInfo, data: ShellWorkData): ShellWork {

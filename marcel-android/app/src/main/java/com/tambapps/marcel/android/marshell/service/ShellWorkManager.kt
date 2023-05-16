@@ -35,10 +35,14 @@ class ShellWorkManager @Inject constructor(
   private val shellWorksDirectory: File
   ) {
 
+  companion object {
+    const val SHELL_WORK_TAG = "type:shell_work"
+  }
+
   suspend fun list(): LiveData<List<ShellWork>> {
     val worksDataById = shellWorkDataDao.findAll()
       .associateBy { it.id }
-    return workManager.getWorkInfosByTagLiveData("type:" + ShellWork.SHELL_WORK_TYPE)
+    return workManager.getWorkInfosByTagLiveData(SHELL_WORK_TAG)
       .map { workInfos ->
         workInfos.mapNotNull {
           val data = worksDataById[it.id] ?: return@mapNotNull null
@@ -60,6 +64,7 @@ class ShellWorkManager @Inject constructor(
       if (periodAmount != null && periodUnit != null) PeriodicWorkRequestBuilder<MarcelShellWorker>(
         periodUnit.toMinutes(periodAmount), TimeUnit.MINUTES)
       else OneTimeWorkRequest.Builder(MarcelShellWorker::class.java)
+    workRequest.addTag(SHELL_WORK_TAG)
 
     val scheduleDateTime =
       if (scheduleDate != null && scheduleTime != null) LocalDateTime.of(scheduleDate, scheduleTime) else null
