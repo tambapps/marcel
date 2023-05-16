@@ -6,8 +6,8 @@
 
   <parent>
     <groupId>com.tambapps.marcel</groupId>
-    <artifactId>marcel</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <artifactId>subprojects</artifactId>
+    <version>${revision}</version>
   </parent>
 
   <artifactId>marshell</artifactId>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.tambapps.marcel</groupId>
+    <artifactId>marcel</artifactId>
+    <version>${revision}</version>
+  </parent>
+
+  <name>Marcel Subprojects</name>
+  <description>Subprojects enhancing your Marcel experience</description>
+  <artifactId>subprojects</artifactId>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>dumbbell</module>
+    <module>dumbbell-cl</module>
+    <module>marcel-libs</module>
+    <module>marcel-repl</module>
+    <module>marshell</module>
+  </modules>
+
+
+</project>

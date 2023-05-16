@@ -16,6 +16,7 @@
     <module>marcel-compiler</module>
     <module>marcl</module>
     <module>marcel-stdlib</module>
+    <module>subprojects</module>
   </modules>
 
   <dependencyManagement>
