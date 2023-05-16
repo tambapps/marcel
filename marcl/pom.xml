@@ -20,7 +20,7 @@
     </dependency>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
-      <artifactId>dumbbell</artifactId>
+      <artifactId>dumbbell-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

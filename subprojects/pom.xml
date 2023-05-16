@@ -16,12 +16,11 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>dumbbell-core</module>
     <module>dumbbell</module>
-    <module>dumbbell-cl</module>
     <module>marcel-libs</module>
     <module>marcel-repl</module>
     <module>marshell</module>
   </modules>
-
 
 </project>
