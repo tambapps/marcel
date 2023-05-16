@@ -44,7 +44,7 @@ class MarcelShellWorker
     const val NOTIFICATION_CHANNEL_ID = "MarcelShellWorker"
   }
   private val notificationManager = applicationContext.getSystemService(NotificationManager::class.java)
-  private var notificationTitle = "Marshell Worker"
+  private var notificationTitle = "Shell Work"
   private var isSilent = false
 
   override suspend fun doWork(): Result {
@@ -55,7 +55,7 @@ class MarcelShellWorker
       return Result.failure(endData(failedReason = "Work misconfigured"))
     }
     isSilent = work.silent
-    notificationTitle = work.name + " Marshell Worker"
+    notificationTitle = work.name + " " + notificationTitle
 
     /* initialization */
     createChannelIfNeeded()
