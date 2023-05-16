@@ -10,10 +10,10 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.hilt.work.HiltWorker
+import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.ForegroundInfo
 import androidx.work.WorkManager
-import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.tambapps.marcel.android.marshell.MainActivity
 import com.tambapps.marcel.android.marshell.R
@@ -39,7 +39,7 @@ class MarcelShellWorker
                               // this is not a val because hilt doesn't allow final fields when injecting
                               private val compilerConfiguration: CompilerConfiguration,
                               private val shellWorkDataDao: ShellWorkDataDao):
-  Worker(appContext, workerParams) {
+  CoroutineWorker(appContext, workerParams) {
 
   companion object {
     const val NOTIFICATION_CHANNEL_ID = "MarcelShellWorker"
@@ -48,7 +48,7 @@ class MarcelShellWorker
   private var notificationTitle = "Marshell Worker"
   private var isSilent = false
 
-  override fun doWork(): Result {
+  override suspend fun doWork(): Result {
     val work = shellWorkDataDao.findById(id)
     if (work == null) {
       Log.e("MarcelShellWorker", "Couldn't find work on database")
@@ -103,7 +103,7 @@ class MarcelShellWorker
     }
   }
 
-  private fun endData(failedReason: String? = null): Data {
+  private suspend fun endData(failedReason: String? = null): Data {
     shellWorkDataDao.updateEndTime(id, LocalDateTime.now())
     if (failedReason != null) {
       shellWorkDataDao.updateFailureReason(id, failedReason)

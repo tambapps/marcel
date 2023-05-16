@@ -20,6 +20,10 @@ import com.tambapps.marcel.android.marshell.ui.shellwork.form.ShellWorkFormFragm
 import com.tambapps.marcel.android.marshell.util.TimeUtils
 import com.tambapps.marcel.android.marshell.work.ShellWork
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -58,11 +62,16 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       }
     }
 
-    shellWorkManager.list().observe(viewLifecycleOwner) { works ->
-        shellWorks.clear()
-        shellWorks.addAll(works)
-        binding.recyclerView.adapter?.notifyDataSetChanged()
+    CoroutineScope(Dispatchers.IO).launch {
+      val worksLiveData = shellWorkManager.list()
+      withContext(Dispatchers.Main) {
+        worksLiveData.observe(viewLifecycleOwner) { works ->
+          shellWorks.clear()
+          shellWorks.addAll(works)
+          binding.recyclerView.adapter?.notifyDataSetChanged()
+        }
       }
+    }
     return root
   }
 
@@ -75,12 +84,17 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
   }
 
   private fun onWorkDelete(work: ShellWork) {
-    if (!shellWorkManager.delete(work.id)) return
-    Toast.makeText(requireContext(), "Successfully deleted work", Toast.LENGTH_SHORT).show()
-    val position = shellWorks.indexOf(work)
-    if (position < 0) return
-    shellWorks.removeAt(position)
-    binding.recyclerView.adapter?.notifyItemRemoved(position)
+    CoroutineScope(Dispatchers.IO).launch {
+      if (!shellWorkManager.delete(work.id)) return@launch
+
+      withContext(Dispatchers.Main) {
+        Toast.makeText(requireContext(), "Successfully deleted work", Toast.LENGTH_SHORT).show()
+        val position = shellWorks.indexOf(work)
+        if (position < 0) return@withContext
+        shellWorks.removeAt(position)
+        binding.recyclerView.adapter?.notifyItemRemoved(position)
+      }
+    }
   }
 
   override fun onDestroyView() {

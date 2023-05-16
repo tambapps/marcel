@@ -35,23 +35,25 @@ class ShellWorkManager @Inject constructor(
   private val shellWorksDirectory: File
   ) {
 
-  fun list(): LiveData<List<ShellWork>> {
+  suspend fun list(): LiveData<List<ShellWork>> {
+    val worksDataById = shellWorkDataDao.findAll()
+      .associateBy { it.id }
     return workManager.getWorkInfosByTagLiveData("type:" + ShellWork.SHELL_WORK_TYPE)
       .map { workInfos ->
         workInfos.mapNotNull {
-          val data = shellWorkDataDao.findById(it.id) ?: return@mapNotNull null
-          ShellWork.from(it, data)
+          val data = worksDataById[it.id] ?: return@mapNotNull null
+          return@mapNotNull ShellWork.from(it, data)
         }
       }
   }
 
-  fun findById(id: UUID): ShellWork? {
+  suspend fun findById(id: UUID): ShellWork? {
     val info = workManager.getWorkInfoById(id).get()
     val data = shellWorkDataDao.findById(id) ?: return null
     return ShellWork.from(info, data)
   }
 
-  fun create(periodAmount: Int?, periodUnit: PeriodUnit?, name: String, scriptFile: File,
+  suspend fun create(periodAmount: Int?, periodUnit: PeriodUnit?, name: String, scriptFile: File,
                          description: String?, networkRequired: Boolean, silent: Boolean,
                          scheduleDate: LocalDate?, scheduleTime: LocalTime?) {
     val workRequest: WorkRequest.Builder<*, *> =
@@ -109,13 +111,12 @@ class ShellWorkManager @Inject constructor(
     workManager.cancelWorkById(id).result.get()
   }
 
-  fun delete(id: UUID): Boolean {
+  suspend fun delete(id: UUID): Boolean {
     workManager.cancelWorkById(id).result.get()
     val data = shellWorkDataDao.findById(id) ?: return false
     shellWorkDataDao.delete(data)
     return true
   }
-
 
   private fun workDirectory(id: UUID): File {
     return File(shellWorksDirectory, "work_$id")

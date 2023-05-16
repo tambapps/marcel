@@ -21,6 +21,10 @@ import com.tambapps.marcel.android.marshell.service.ShellWorkManager
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
 import com.tambapps.marcel.android.marshell.ui.shellwork.list.ShellWorkListFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -188,30 +192,34 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     }
 
     // everything seems to be ok, now creating the Work
-    shellWorkManager.create(
-      scriptFile = scriptFile,
-      name = binding.workName.text.toString(),
-      description = binding.workDescription.text?.toString(),
-      periodAmount = binding.periodEditText.text.toString().toIntOrNull(),
-      periodUnit = selectedPeriodUnit,
-      networkRequired = binding.networkRequiredCheckBox.isChecked,
-      silent = binding.silentCheckBox.isChecked,
-      scheduleDate = viewModel.scheduleDate.value,
-      scheduleTime = viewModel.scheduleTime.value
+    CoroutineScope(Dispatchers.IO).launch {
+      shellWorkManager.create(
+        scriptFile = scriptFile,
+        name = binding.workName.text.toString(),
+        description = binding.workDescription.text?.toString(),
+        periodAmount = binding.periodEditText.text.toString().toIntOrNull(),
+        periodUnit = selectedPeriodUnit,
+        networkRequired = binding.networkRequiredCheckBox.isChecked,
+        silent = binding.silentCheckBox.isChecked,
+        scheduleDate = viewModel.scheduleDate.value,
+        scheduleTime = viewModel.scheduleTime.value
       )
-    Toast.makeText(requireContext(), "Successfully created work", Toast.LENGTH_SHORT).show()
+      withContext(Dispatchers.Main) {
+        Toast.makeText(requireContext(), "Successfully created work", Toast.LENGTH_SHORT).show()
 
-    // now moving back to work list
-    val currentListFragment = parentFragmentManager.findFragmentByTag(ShellWorkListFragment::class.java.name)
-    val fragment = currentListFragment ?: ShellWorkListFragment.newInstance()
+        // now moving back to work list
+        val currentListFragment = parentFragmentManager.findFragmentByTag(ShellWorkListFragment::class.java.name)
+        val fragment = currentListFragment ?: ShellWorkListFragment.newInstance()
 
-    parentFragmentManager.commitNow {
-      setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
-      if (currentListFragment == null) add(R.id.container, fragment, fragment.javaClass.name)
-      show(fragment)
-      remove(this@ShellWorkFormFragment)
+        parentFragmentManager.commitNow {
+          setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+          if (currentListFragment == null) add(R.id.container, fragment, fragment.javaClass.name)
+          show(fragment)
+          remove(this@ShellWorkFormFragment)
+        }
+        fabClickDisabled = true
+      }
     }
-    fabClickDisabled = true
   }
 
   override fun onDestroyView() {

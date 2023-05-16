@@ -14,34 +14,34 @@ import java.util.UUID
 interface ShellWorkDataDao {
 
   @Query("SELECT * FROM shell_work_data")
-  fun getAll(): List<ShellWorkData>
+  suspend fun findAll(): List<ShellWorkData>
 
   @Query("SELECT * FROM shell_work_data WHERE id = :id")
-  fun findById(id: UUID): ShellWorkData?
+  suspend fun findById(id: UUID): ShellWorkData?
 
   @Insert
-  fun insert(data: ShellWorkData)
+  suspend fun insert(data: ShellWorkData)
 
   @Delete
-  fun delete(data: ShellWorkData)
+  suspend fun delete(data: ShellWorkData)
 
   @Query("UPDATE shell_work_data SET failure_reason = :failureReason WHERE id =:id")
-  fun updateFailureReason(id: UUID, failureReason: String)
+  suspend fun updateFailureReason(id: UUID, failureReason: String)
 
-  fun updateStartTime(id: UUID, startTime: LocalDateTime) {
+  suspend fun updateStartTime(id: UUID, startTime: LocalDateTime) {
     return updateStartTime(id, startTime.toString())
   }
 
   @Query("UPDATE shell_work_data SET result = :result WHERE id =:id")
-  fun updateResult(id: UUID, result: String)
+  suspend fun updateResult(id: UUID, result: String)
 
   @Query("UPDATE shell_work_data SET start_time = :startTime WHERE id =:id")
-  fun updateStartTime(id: UUID, startTime: String)
+  suspend fun updateStartTime(id: UUID, startTime: String)
 
-  fun updateEndTime(id: UUID, endTime: LocalDateTime) {
+  suspend fun updateEndTime(id: UUID, endTime: LocalDateTime) {
     return updateEndTime(id, endTime.toString())
   }
 
   @Query("UPDATE shell_work_data SET end_time = :endTime WHERE id =:id")
-  fun updateEndTime(id: UUID, endTime: String)
+  suspend fun updateEndTime(id: UUID, endTime: String)
 }
