@@ -38,7 +38,6 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     fun newInstance() = ShellWorkFormFragment()
   }
 
-
   @Inject
   lateinit var shellWorkManager: ShellWorkManager
   private var _binding: FragmentShellWorkFormBinding? = null

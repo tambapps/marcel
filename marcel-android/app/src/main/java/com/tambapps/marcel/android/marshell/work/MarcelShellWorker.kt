@@ -28,7 +28,6 @@ import dagger.assisted.AssistedInject
 import marcel.lang.Binding
 import marcel.lang.MarcelDexClassLoader
 import java.io.File
-import java.io.IOException
 import java.lang.Exception
 import java.time.LocalDateTime
 
@@ -68,11 +67,11 @@ class MarcelShellWorker
     val directory = File(applicationContext.getDir("shell_works", Context.MODE_PRIVATE), "work $id")
     notification(content = "Initializing marshell work...")
 
-    val text = try {
-      File(work.scriptFilePath).readText()
-    } catch (e: IOException) {
-      notification(content = "Couldn't read script: ${e.message}", foregroundNotification = true)
-      return Result.failure(endData(failedReason = e.message))
+    val text = if (work.scriptText != null) {
+      work.scriptText
+    } else {
+      notification(content = "Couldn't read script", foregroundNotification = true)
+      return Result.failure(endData(failedReason = "Couldn't read script"))
     }
 
     if (!directory.mkdir()) {

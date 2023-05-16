@@ -85,12 +85,6 @@ class ShellWorkManager @Inject constructor(
     // waiting for the work to be created
     operation.result.get()
 
-    // now create work directory
-    val workDirectory = workDirectory(id)
-    workDirectory.mkdir()
-    val workScriptFile = workInfoFile(id)
-    scriptFile.copyTo(workScriptFile, overwrite = true)
-
     // now create shell_work_data
     val data = ShellWorkData(
       id = id,
@@ -100,7 +94,7 @@ class ShellWorkManager @Inject constructor(
       periodUnit = periodUnit,
       scheduledAt = scheduleDateTime?.toString(),
       silent = silent,
-      scriptFilePath = workScriptFile.absolutePath,
+      scriptText = scriptFile.readText(),
       startTime = null, endTime = null,
       output = null, result = null, failedReason = null
     )

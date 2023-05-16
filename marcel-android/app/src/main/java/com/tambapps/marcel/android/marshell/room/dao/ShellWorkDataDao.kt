@@ -8,14 +8,17 @@ import com.tambapps.marcel.android.marshell.room.entity.ShellWorkData
 import java.time.LocalDateTime
 import java.util.UUID
 
-// TODO make all these function suspend because
-//   Cannot access database on the main thread since it may potentially lock the UI for a long period of time.
 @Dao
 interface ShellWorkDataDao {
 
-  @Query("SELECT * FROM shell_work_data")
+  companion object {
+    const val MAIN_COLUMNS = "id, name, description, silent, period_amount, period_unit, " +
+        "start_time, end_time, scheduled_at, output, result, failure_reason"
+  }
+  @Query("SELECT $MAIN_COLUMNS FROM shell_work_data")
   suspend fun findAll(): List<ShellWorkData>
 
+  // fetched everything, including the script for the by id
   @Query("SELECT * FROM shell_work_data WHERE id = :id")
   suspend fun findById(id: UUID): ShellWorkData?
 
