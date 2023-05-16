@@ -6,7 +6,7 @@
 
   <groupId>com.tambapps.marcel</groupId>
   <artifactId>marcel</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>${revision}</version>
   <name>Marcel</name>
   <packaging>pom</packaging>
 
@@ -90,6 +90,7 @@
   </build>
 
   <properties>
+    <revision>0.1-SNAPSHOT</revision>
     <kotlin.version>1.8.10</kotlin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>1.8</java.version>
