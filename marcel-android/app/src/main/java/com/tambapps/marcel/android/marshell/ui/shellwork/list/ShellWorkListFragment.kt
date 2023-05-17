@@ -123,7 +123,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     }
     class MyViewHolder(val root: View) : RecyclerView.ViewHolder(root) {
       val title = root.findViewById<TextView>(R.id.title)
-      val description = root.findViewById<TextView>(R.id.description)
+      val result = root.findViewById<TextView>(R.id.result)
       val state = root.findViewById<TextView>(R.id.state)
       val startTime = root.findViewById<TextView>(R.id.startTime)
       val nextRun = root.findViewById<TextView>(R.id.nextRun)
@@ -140,7 +140,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       val context = holder.root.context
       holder.apply {
         title.text = work.name
-        description.text = work.description
+        result.text = if (work.result != null) "Result: ${work.result}" else null
         state.text = work.state.name
         state.setTextColor(stateColor(work))
         root.setOnClickListener {

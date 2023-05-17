@@ -5,10 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellWorkBinding
-import com.tambapps.marcel.android.marshell.ui.shellwork.form.ShellWorkFormFragment
 import com.tambapps.marcel.android.marshell.ui.shellwork.list.ShellWorkListFragment
 
 class ShellWorkFragment : Fragment() {

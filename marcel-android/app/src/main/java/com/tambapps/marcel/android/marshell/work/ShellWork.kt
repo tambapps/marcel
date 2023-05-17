@@ -55,7 +55,7 @@ data class ShellWork(
         endTime = data.endTime?.let(LocalDateTime::parse),
         scheduledAt = data.scheduledAt?.let(LocalDateTime::parse),
         output = data.output,
-        result = data.output,
+        result = data.result,
         failedReason = data.failedReason
       )
     }
