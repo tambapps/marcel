@@ -16,7 +16,6 @@
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
       <artifactId>dumbbell-core</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.github.ajalt</groupId>

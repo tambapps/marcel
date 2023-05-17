@@ -19,12 +19,10 @@
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
       <artifactId>marcel-lexer</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
       <artifactId>marcel-stdlib</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>

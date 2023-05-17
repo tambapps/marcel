@@ -3,6 +3,8 @@ target/
 
 volumes/
 
+.flattened-pom.xml
+
 ### STS ###
 .apt_generated
 .classpath

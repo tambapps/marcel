@@ -16,7 +16,6 @@
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
       <artifactId>marcel-compiler</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>

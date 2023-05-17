@@ -16,12 +16,10 @@
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
       <artifactId>marcel-compiler</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
       <artifactId>dumbbell-core</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>

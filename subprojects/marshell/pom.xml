@@ -16,7 +16,6 @@
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
       <artifactId>marcel-repl</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.jline</groupId>

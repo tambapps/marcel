@@ -15,22 +15,18 @@
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
       <artifactId>dumbbell-core</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
       <artifactId>marcel-lexer</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
       <artifactId>marcel-parser</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
       <artifactId>marcel-stdlib</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <!-- bytecode manipulation -->
     <dependency>
