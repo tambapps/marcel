@@ -61,10 +61,11 @@ class MarcelParserTest {
                 MethodParameterNode(JavaType.int, "a"),
                 MethodParameterNode(JavaType.String, "b")), JavaType.int, MethodScope(classScope, "foo",
                 listOf(MethodParameter(JavaType.int, "a"), MethodParameter(JavaType.int, "b")), JavaType.int)
-        , false)
+        , false, emptyList()
+        )
 
         val actual = parser.method(ClassNode(LexToken.dummy(), classScope, Opcodes.ACC_PUBLIC, type, JavaType.Object,
-            true, mutableListOf(), mutableListOf(), mutableListOf()))
+            true, mutableListOf(), mutableListOf(), mutableListOf(), emptyList()), emptyList())
         // verifying method signature
         assertEquals(expected.toString(), actual.toString())
 

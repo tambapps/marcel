@@ -93,6 +93,13 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
       classNode.superType.internalName,
       classNode.type.directlyImplementedInterfaces.map { it.internalName }.toTypedArray())
 
+    // writing annotations
+    for (annotation in classNode.annotations) {
+      val annotationVisitor = classWriter.visitAnnotation(annotation.javaType.descriptor, true)
+      // will write annotation args when I handle them
+      annotationVisitor.visitEnd()
+    }
+
     if (classNode.constructorsCount == 0) {
       // if no constructor is defined, we'll define one for you
       classNode.methods.add(ConstructorNode.emptyConstructor(classNode))
@@ -132,10 +139,17 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
   }
 
   private fun writeField(classWriter: ClassWriter, classNode: ClassNode, marcelField: FieldNode) {
-    classWriter.visitField(marcelField.access, marcelField.name, marcelField.type.descriptor,
+    val fieldVisitor = classWriter.visitField(marcelField.access, marcelField.name, marcelField.type.descriptor,
       if (marcelField.type.superType?.hasGenericTypes == true || marcelField.type.directlyImplementedInterfaces.any { it.hasGenericTypes }) marcelField.type.signature else null,
       null
       )
+
+    // writing annotations
+    for (annotation in marcelField.annotations) {
+      val annotationVisitor = fieldVisitor.visitAnnotation(annotation.javaType.descriptor, true)
+      // will write annotation args when I handle them
+      annotationVisitor.visitEnd()
+    }
 
     if (marcelField.initialValue == null || marcelField.initialValue == marcelField.type.defaultValueExpression) return
     if (!marcelField.isStatic) {
@@ -165,6 +179,14 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
   }
   private fun writeMethod(typeResolver: JavaTypeResolver, classWriter: ClassWriter, classNode: ClassNode, methodNode: MethodNode) {
     val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.descriptor, methodNode.signature, null)
+
+    // writing annotations
+    for (annotation in methodNode.annotations) {
+      val annotationVisitor = mv.visitAnnotation(annotation.javaType.descriptor, true)
+      // will write annotation args when I handle them
+      annotationVisitor.visitEnd()
+    }
+
     mv.visitCode()
     val methodStartLabel = Label()
     mv.visitLabel(methodStartLabel)

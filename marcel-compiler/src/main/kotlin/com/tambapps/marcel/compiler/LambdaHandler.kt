@@ -43,7 +43,7 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
         else listOf(lambdaInterfaceType))
     val methods = mutableListOf<MethodNode>()
     val lambdaClassNode = ClassNode(token, scope.copy(type), Opcodes.ACC_PRIVATE, type, type.superType!!,
-      false, methods, mutableListOf(), mutableListOf())
+      false, methods, mutableListOf(), mutableListOf(), emptyList())
 
     // getting all referenced variables so that the lambda can access them
     val referencedLocalVariables = LinkedHashSet<Variable>()
@@ -54,7 +54,7 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
       }
     }
     val fields = referencedLocalVariables.map {
-      FieldNode(token, it.type, it.name, type, Opcodes.ACC_PRIVATE or Opcodes.ACC_FINAL, null)
+      FieldNode(token, it.type, it.name, type, Opcodes.ACC_PRIVATE or Opcodes.ACC_FINAL, null, emptyList())
     }
     lambdaClassNode.fields.addAll(fields)
 
@@ -101,7 +101,8 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
         fblock,
         parameters.map { MethodParameterNode(it) }.toMutableList(),
         lambdaReturnType, lambdaMethodScope,
-        false)
+        false, emptyList()
+      )
     )
 
     // define the interface method if any
@@ -126,7 +127,8 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
           FunctionBlockNode(token, interfaceMethodScope, mutableListOf(ExpressionStatementNode(token, lambdaMethodCall))),
           parameters.map { MethodParameterNode(it) }.toMutableList(),
           interfaceMethod.returnType, interfaceMethodScope,
-          false)
+          false, emptyList()
+        )
       )
     }
     lambdaClassNode.methods.forEach { scope.typeResolver.defineMethod(type, it) }

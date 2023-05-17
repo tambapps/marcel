@@ -93,19 +93,24 @@ class MarcelParser constructor(
     }
 
     val moduleNode = ModuleNode(imports, dumbbells)
+
+    val classAnnotations = parseAnnotations(Scope(typeResolver, imports, JavaType.Object))
     while (current.type != TokenType.END_OF_FILE) {
       if (current.type == TokenType.CLASS
         || lookup(1)?.type == TokenType.CLASS
         || lookup(2)?.type == TokenType.CLASS) {
-        moduleNode.classes.add(parseClass(imports, packageName))
+        moduleNode.classes.add(parseClass(imports, packageName, classAnnotations))
       } else {
+        if (classAnnotations.isNotEmpty()) {
+          throw MarcelParserException(classAnnotations.first().token, "A script cannot have class annotations")
+        }
         moduleNode.classes.addAll(script(imports, packageName))
       }
     }
     return moduleNode
   }
 
-  private fun parseField(classNode: ClassNode): FieldNode {
+  private fun parseField(classNode: ClassNode, annotations: List<AnnotationNode>): FieldNode {
     val (access, isInline) = parseAccess()
     if (isInline) throw MarcelParserException(
       previous,
@@ -127,10 +132,20 @@ class MarcelParser constructor(
     else null
     acceptOptional(TokenType.SEMI_COLON)
 
-    return FieldNode(identifierToken, type, name, classNode.type, access, expression)
+    return FieldNode(identifierToken, type, name, classNode.type, access, expression, annotations)
   }
 
-  private fun parseClass(imports: MutableList<ImportNode>, packageName: String?, outerClassNode: ClassNode? = null): ClassNode {
+  private fun parseAnnotations(scope: Scope): List<AnnotationNode> {
+    val classAnnotations = mutableListOf<AnnotationNode>()
+    while (current.type == TokenType.AT) {
+      val token = next()
+      val type = parseType(scope)
+      classAnnotations.add(AnnotationNode(token, type))
+    }
+    return classAnnotations
+  }
+
+  private fun parseClass(imports: MutableList<ImportNode>, packageName: String?, classAnnotations: List<AnnotationNode>, outerClassNode: ClassNode? = null): ClassNode {
     val (access, isInline) = parseAccess()
     if (isInline) throw MarcelParserException(
       previous,
@@ -168,16 +183,17 @@ class MarcelParser constructor(
     val methods = mutableListOf<MethodNode>()
     val classFields = mutableListOf<FieldNode>()
     val innerClasses = mutableListOf<ClassNode>()
-    val classNode = ClassNode(classToken, classScope, access, classType, superType, false, methods, classFields, innerClasses)
+    val classNode = ClassNode(classToken, classScope, access, classType, superType, false, methods, classFields, innerClasses, classAnnotations)
     accept(TokenType.BRACKETS_OPEN)
 
     while (current.type != TokenType.BRACKETS_CLOSE) {
+      val annotations = parseAnnotations(Scope(typeResolver, imports, JavaType.Object))
       // can be a class, a field or a function
       when (getNextMemberToken()) {
-        TokenType.CLASS -> innerClasses.add(parseClass(imports, packageName, classNode))
-        TokenType.FUN, TokenType.CONSTRUCTOR -> methods.add(method(classNode, isExtensionClass))
+        TokenType.CLASS -> innerClasses.add(parseClass(imports, packageName, annotations, classNode))
+        TokenType.FUN, TokenType.CONSTRUCTOR -> methods.add(method(classNode, annotations, isExtensionClass))
         // must be a type token
-        else -> classFields.add(parseField(classNode))
+        else -> classFields.add(parseField(classNode, annotations))
       }
     }
     skip() // skipping brackets close
@@ -198,16 +214,19 @@ class MarcelParser constructor(
     val runBlock = FunctionBlockNode(LexToken.dummy(), runScope, statements)
     val runFunction = MethodNode(Opcodes.ACC_PUBLIC, classType,
       "run",
-      runBlock, mutableListOf(argsParameter), runScope.returnType, runScope, false)
+      runBlock, mutableListOf(argsParameter), runScope.returnType, runScope, false, emptyList()
+    )
 
     classMethods.add(runFunction)
     val innerClasses = mutableListOf<ClassNode>()
     val classNode = ClassNode(LexToken.dummy(), classScope,
       Opcodes.ACC_PUBLIC or Opcodes.ACC_SUPER, classType, JavaType.of(Script::class.java),
-      true, classMethods, classFields, innerClasses)
+      true, classMethods, classFields, innerClasses, emptyList()
+    )
     val classNodes = mutableListOf(classNode)
 
     while (current.type != TokenType.END_OF_FILE) {
+      val annotations = parseAnnotations(Scope(typeResolver, imports, JavaType.Object))
       when (current.type) {
         TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.FUN, TokenType.INLINE, TokenType.CLASS,
         TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE, TokenType.STATIC, -> {
@@ -215,13 +234,13 @@ class MarcelParser constructor(
           when (getNextMemberToken()) {
             TokenType.CLASS -> {
               if (configuration.independentScriptInnerClasses) {
-                classNodes.add(parseClass(imports, packageName, null))
+                classNodes.add(parseClass(imports, packageName, annotations, null))
               } else {
-                innerClasses.add(parseClass(imports, packageName, classNode))
+                innerClasses.add(parseClass(imports, packageName, annotations, classNode))
               }
             }
             TokenType.FUN -> {
-              val method = method(classNode)
+              val method = method(classNode, annotations)
               if (method.name == "main") {
                 throw MarcelSemanticException(classNode.token, "Cannot have a \"main\" function in a script")
               }
@@ -229,7 +248,7 @@ class MarcelParser constructor(
             }
             TokenType.CONSTRUCTOR -> throw MarcelParserException(current, "Scripts cannot have constructors")
             // must be a type token
-            else -> classFields.add(parseField(classNode))
+            else -> classFields.add(parseField(classNode, annotations))
           }
         }
         else -> statements.add(statement(runScope))
@@ -296,7 +315,7 @@ class MarcelParser constructor(
     return node
   }
 
-  internal fun method(classNode: ClassNode, forceStatic: Boolean = false): MethodNode {
+  internal fun method(classNode: ClassNode, annotations: List<AnnotationNode>, forceStatic: Boolean = false): MethodNode {
     val classScope = classNode.scope
     val (acc, isInline) = parseAccess()
     val access = if (forceStatic) acc or Opcodes.ACC_STATIC else acc
@@ -343,8 +362,8 @@ class MarcelParser constructor(
     val statements = mutableListOf<StatementNode>()
     val methodScope = MethodScope(classScope, methodName, parameters, returnType, false)
     val methodNode =
-      if (isConstructor) ConstructorNode(token, access, FunctionBlockNode(currentToken, methodScope, statements), parameters, methodScope)
-     else MethodNode(access, classNode.type, methodName, FunctionBlockNode(currentToken, methodScope, statements), parameters, returnType, methodScope, isInline)
+      if (isConstructor) ConstructorNode(token, access, FunctionBlockNode(currentToken, methodScope, statements), parameters, methodScope, annotations)
+     else MethodNode(access, classNode.type, methodName, FunctionBlockNode(currentToken, methodScope, statements), parameters, returnType, methodScope, isInline, annotations)
 
 
     if (isConstructor && current.type == TokenType.COLON) {

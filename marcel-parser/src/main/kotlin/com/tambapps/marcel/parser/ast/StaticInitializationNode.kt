@@ -14,7 +14,8 @@ class StaticInitializationNode private constructor(
 ) : MethodNode(token, Opcodes.ACC_PRIVATE or Opcodes.ACC_STATIC, classNode.type, JavaMethod.STATIC_INITIALIZATION_BLOCK,
   FunctionBlockNode(token, scope, mutableListOf())
   , mutableListOf(), JavaType.void,
-  scope, false, false) {
+  scope, false, false, emptyList()
+) {
 
   companion object {
 

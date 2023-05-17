@@ -2,7 +2,6 @@ package com.tambapps.marcel.parser.ast
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.asm.AsmUtils
-import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
 import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
@@ -12,12 +11,12 @@ import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.Binding
-import org.objectweb.asm.Opcodes
 
 class ClassNode constructor(override val token: LexToken,
                             val scope: Scope, val access: Int, val type: JavaType, val superType: JavaType,
                             val isScript: Boolean, val methods: MutableList<MethodNode>,
-                            val fields: MutableList<FieldNode>, val innerClasses: MutableList<ClassNode>): AstNode {
+                            val fields: MutableList<FieldNode>, val innerClasses: MutableList<ClassNode>,
+                            val annotations: List<AnnotationNode>): AstNode {
 
   var staticInitializationNode: StaticInitializationNode? = null
 

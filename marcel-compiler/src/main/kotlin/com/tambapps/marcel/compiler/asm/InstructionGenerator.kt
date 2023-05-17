@@ -228,7 +228,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
     val methodNode = MethodNode(Opcodes.ACC_PUBLIC, classNode.type,
       switchMethodName, FunctionBlockNode(switchNode.token, switchMethodScope, mutableListOf(rootIf)),
-      parameters.map { MethodParameterNode(it) }.toMutableList(), switchType, switchMethodScope, false
+      parameters.map { MethodParameterNode(it) }.toMutableList(), switchType, switchMethodScope, false, emptyList()
     )
     methodNode.block.setTreeScope(switchMethodScope)
 

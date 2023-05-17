@@ -16,9 +16,11 @@ class ConstructorNode constructor(
   access: Int,
   block: FunctionBlockNode,
   parameters: MutableList<MethodParameterNode>,
-  scope: MethodScope
+  scope: MethodScope,
+  annotations: List<AnnotationNode>
 ) : MethodNode(token, access, JavaType.void, JavaMethod.CONSTRUCTOR_NAME, block, parameters, JavaType.void,
-  scope, false, true) {
+  scope, false, true, annotations
+) {
 
   val startsWithSuperCall: Boolean get() {
     val s = block.statements.firstOrNull() ?: return false
@@ -33,7 +35,7 @@ class ConstructorNode constructor(
     fun of(classNode: ClassNode, scope: MethodScope, parameters: MutableList<MethodParameterNode>, statements: MutableList<StatementNode>): ConstructorNode {
       return ConstructorNode(classNode.token,
         Opcodes.ACC_PUBLIC, blockWithSuperCall(scope, FunctionBlockNode(LexToken.dummy(), scope, statements)),
-        parameters, scope
+        parameters, scope, emptyList()
       )
     }
 
@@ -41,7 +43,7 @@ class ConstructorNode constructor(
       val emptyConstructorScope = MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)
       return ConstructorNode(classNode.token,
         Opcodes.ACC_PUBLIC, blockWithSuperCall(emptyConstructorScope, FunctionBlockNode(classNode.token, emptyConstructorScope, mutableListOf())),
-        mutableListOf(), emptyConstructorScope
+        mutableListOf(), emptyConstructorScope, emptyList()
       )
     }
 
