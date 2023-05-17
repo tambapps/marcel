@@ -15,10 +15,16 @@ public class IoMarcelMethods {
     return new LineIterator(self);
   }
 
+  // use readText() instead
+  @Deprecated
   public static String getText(File self) throws IOException {
+    return readText(self);
+  }
+
+  public static String readText(File self) throws IOException {
     try (BufferedReader reader = new BufferedReader(new FileReader(self))) {
       return reader.lines()
-          .collect(Collectors.joining("\n"));
+              .collect(Collectors.joining("\n"));
     }
   }
 
