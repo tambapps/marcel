@@ -129,7 +129,11 @@ fun compile(file: File, keepClassFiles: Boolean, keepJarFile: Boolean, printStac
 
   if (!keepJarFile) return null
   // script can have a package. That's why we need to lookup className from compiled classes
-  val scriptClassName = classes.find { it.isScript }!!.className
+  val scriptClassName = classes.find { it.isScript }?.className
+  if (scriptClassName == null) {
+    println("No instruction to run was found")
+    return null
+  }
 
   val jarFile = File(file.parentFile, "$scriptClassName.jar")
   JarWriter(jarFile).use {
