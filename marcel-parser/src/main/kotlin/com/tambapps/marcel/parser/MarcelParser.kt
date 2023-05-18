@@ -97,7 +97,9 @@ class MarcelParser constructor(
     val classAnnotations = parseAnnotations(Scope(typeResolver, imports, JavaType.Object))
     while (current.type != TokenType.END_OF_FILE) {
       if (current.type == TokenType.CLASS
+        // visibility
         || lookup(1)?.type == TokenType.CLASS
+        // vuisibility|extension + abstract
         || lookup(2)?.type == TokenType.CLASS) {
         moduleNode.classes.add(parseClass(imports, packageName, classAnnotations))
       } else {
@@ -156,6 +158,16 @@ class MarcelParser constructor(
     val classSimpleName = accept(TokenType.IDENTIFIER).value
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
 
+
+    val parseTypeScope = outerClassNode?.scope
+    // will set the actual classType later, as we didn't parse the class type yet
+      ?: Scope(typeResolver, JavaType.Object, imports)
+
+    val extendingType = if (isExtensionClass) {
+      accept(TokenType.OF)
+      parseType(parseTypeScope)
+    } else null
+
     if (outerClassNode != null) {
       val conflictClass = outerClassNode.innerClasses.find { it.type.className == className }
       if (conflictClass != null) throw MarcelParserException(
@@ -164,9 +176,6 @@ class MarcelParser constructor(
       )
     }
 
-    val parseTypeScope = outerClassNode?.scope
-      // will set the actual classType later, as we didn't parse the class type yet
-      ?: Scope(typeResolver, JavaType.Object, imports)
     val superType =
       if (acceptOptional(TokenType.EXTENDS) != null) parseType(parseTypeScope)
       else JavaType.Object
@@ -183,7 +192,7 @@ class MarcelParser constructor(
     val methods = mutableListOf<MethodNode>()
     val classFields = mutableListOf<FieldNode>()
     val innerClasses = mutableListOf<ClassNode>()
-    val classNode = ClassNode(classToken, classScope, access, classType, superType, false, methods, classFields, innerClasses, classAnnotations)
+    val classNode = ClassNode(classToken, classScope, access, classType, superType, false, methods, classFields, innerClasses, classAnnotations, extendingType)
     accept(TokenType.BRACKETS_OPEN)
 
     while (current.type != TokenType.BRACKETS_CLOSE) {

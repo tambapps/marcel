@@ -12,11 +12,13 @@ import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.Binding
 
-class ClassNode constructor(override val token: LexToken,
-                            val scope: Scope, val access: Int, val type: JavaType, val superType: JavaType,
-                            val isScript: Boolean, val methods: MutableList<MethodNode>,
-                            val fields: MutableList<FieldNode>, val innerClasses: MutableList<ClassNode>,
-                            val annotations: List<AnnotationNode>): AstNode {
+open class ClassNode constructor(override val token: LexToken,
+                                 val scope: Scope, val access: Int, val type: JavaType, val superType: JavaType,
+                                 val isScript: Boolean, val methods: MutableList<MethodNode>,
+                                 val fields: MutableList<FieldNode>, val innerClasses: MutableList<ClassNode>,
+                                 val annotations: List<AnnotationNode>,
+                                 // TODO implement extensionClasses
+                                 val extendingType: JavaType? = null): AstNode {
 
   var staticInitializationNode: StaticInitializationNode? = null
 
