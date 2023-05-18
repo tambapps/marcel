@@ -1,29 +1,29 @@
 import static org.junit.jupiter.api.Assertions.assertTrue
 import static org.junit.jupiter.api.Assertions.assertFalse
 
-class MyDelegatedObject implements DelegatedObject<Character> {
-  Character c
+class MyDelegatedObject implements DelegatedObject<Integer> {
+  Integer i // TODO make that if variable name is delegate and class extends DelegatedObject<VariableType>,
+            //   the getter is automatically generated if not already present
 
   fun bool foo() {
-    return isUpperCase()
+    return intValue() == 0
   }
 
   fun bool bar(int dummy) {
-    return isUpperCase()
+    return intValue() == dummy
   }
 
-  fun Character getDelegate() {
-    return c
+  fun Integer getDelegate() {
+    return i
   }
 }
 
 
-MyDelegatedObject o = new MyDelegatedObject(c: `A`)
-MyDelegatedObject o2 = new MyDelegatedObject(c: `a`)
-
+MyDelegatedObject o = new MyDelegatedObject(i: 0)
+MyDelegatedObject o2 = new MyDelegatedObject(i: 1)
 
 assertTrue(o.foo())
 assertFalse(o2.foo())
 
-assertTrue(o.bar(dummy: 1))
-assertFalse(o2.bar(dummy: 2))
+assertTrue(o.bar(dummy: 0))
+assertFalse(o2.bar(dummy: 0))

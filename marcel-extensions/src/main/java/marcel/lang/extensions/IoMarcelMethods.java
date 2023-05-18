@@ -1,4 +1,4 @@
-package marcel.lang.methods;
+package marcel.lang.extensions;
 
 import marcel.lang.io.LineIterator;
 

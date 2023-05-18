@@ -94,10 +94,12 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
       }
 
       val classCompiler = ClassCompiler(compilerConfiguration, typeResolver)
+      ast.extensionTypes.forEach(typeResolver::loadExtension)
       ast.classes.forEach {
         val compiledClasses = classCompiler.compileClass(it)
         compiledClasses.forEach(classConsumer)
       }
+      ast.extensionTypes.forEach(typeResolver::unloadExtension)
     }
   }
 

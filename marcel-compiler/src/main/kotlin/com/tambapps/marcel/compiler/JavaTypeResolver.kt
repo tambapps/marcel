@@ -3,6 +3,7 @@ package com.tambapps.marcel.compiler
 import com.tambapps.marcel.compiler.util.getElementsType
 import com.tambapps.marcel.compiler.util.getKeysType
 import com.tambapps.marcel.compiler.util.getValuesType
+import com.tambapps.marcel.compiler.util.javaType
 import com.tambapps.marcel.parser.ast.MethodParameter
 import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.AstTypedObject
@@ -24,11 +25,7 @@ import com.tambapps.marcel.parser.type.NoArgJavaConstructor
 import com.tambapps.marcel.parser.type.ReflectJavaConstructor
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import marcel.lang.MarcelClassLoader
-import marcel.lang.methods.CharacterMarcelMethods
 import marcel.lang.methods.DefaultMarcelMethods
-import marcel.lang.methods.IoMarcelMethods
-import marcel.lang.methods.StringMarcelMethods
-import java.lang.reflect.Modifier
 
 open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNodeTypeResolver(classLoader) {
 
@@ -41,20 +38,41 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     loadDefaultExtensions()
   }
   private fun loadDefaultExtensions() {
-    loadExtensionMethods(
-      DefaultMarcelMethods::class.java, IoMarcelMethods::class.java, StringMarcelMethods::class.java,
-      CharacterMarcelMethods::class.java)
+    loadExtension(DefaultMarcelMethods::class.javaType)
+    loadExtensionsIfClassLoaded("IoMarcelMethods", "StringMarcelMethods", "CharacterMarcelMethods")
   }
 
-  fun loadExtensionMethods(vararg classes: Class<*>) {
-    classes.forEach { loadExtensionMethods(it) }
+  private fun loadExtensionsIfClassLoaded(vararg classNames: String) {
+    classNames.forEach { loadExtensionIfClassLoaded(it) }
   }
-  fun loadExtensionMethods(clazz: Class<*>) {
-    clazz.declaredMethods.asSequence()
-      .filter { (it.modifiers and Modifier.STATIC) != 0 && it.parameters.isNotEmpty() }
+  private fun loadExtensionIfClassLoaded(className: String) {
+    val type = try {
+      Class.forName("marcel.lang.extensions.$className").javaType
+    } catch (e: ClassNotFoundException) {
+      return
+    }
+    loadExtension(type)
+  }
+
+  fun loadExtension(vararg types: JavaType) {
+    types.forEach { loadExtension(it) }
+  }
+
+  fun loadExtension(type: JavaType) {
+    getDeclaredMethods(type).filter { it.isStatic && it.parameters.isNotEmpty() }
       .forEach {
-        val owner = JavaType.of(it.parameters.first().type)
+        val owner = it.parameters.first().type
         defineMethod(owner, ExtensionJavaMethod(it))
+      }
+  }
+
+  fun unloadExtension(type: JavaType) {
+    getDeclaredMethods(type).filter { it.isStatic && it.parameters.isNotEmpty() }
+      .forEach { extensionMethod ->
+        val owner = extensionMethod.parameters.first().type
+        val methods = getMarcelMethods(owner)
+        methods.removeIf { it.matches(this, extensionMethod.name, extensionMethod.parameters) }
+
       }
   }
 

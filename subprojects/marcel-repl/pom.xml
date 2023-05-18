@@ -17,6 +17,11 @@
       <groupId>com.tambapps.marcel</groupId>
       <artifactId>marcel-compiler</artifactId>
     </dependency>
+    <!-- Needed in order to load default extensions -->
+    <dependency>
+      <groupId>com.tambapps.marcel</groupId>
+      <artifactId>marcel-extensions</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>

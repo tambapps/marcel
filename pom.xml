@@ -11,11 +11,12 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>marcel-compiler</module>
+    <module>marcel-extensions</module>
     <module>marcel-lexer</module>
     <module>marcel-parser</module>
-    <module>marcel-compiler</module>
-    <module>marcl</module>
     <module>marcel-stdlib</module>
+    <module>marcl</module>
     <module>subprojects</module>
   </modules>
 
@@ -67,6 +68,11 @@
       </dependency>
 
       <!-- Marcel -->
+      <dependency>
+        <groupId>com.tambapps.marcel</groupId>
+        <artifactId>marcel-extensions</artifactId>
+        <version>${revision}</version>
+      </dependency>
       <dependency>
         <groupId>com.tambapps.marcel</groupId>
         <artifactId>marcel-lexer</artifactId>

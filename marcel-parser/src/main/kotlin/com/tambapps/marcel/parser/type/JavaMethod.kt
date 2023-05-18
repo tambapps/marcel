@@ -192,13 +192,13 @@ class ReflectJavaConstructor(constructor: Constructor<*>): AbstractConstructor(
   }
 }
 class ExtensionJavaMethod(
-    private val reflectMethod: Method,
-    override val ownerClass: JavaType,
-    override val name: String,
-    override val parameters: List<MethodParameter>,
-    override val returnType: JavaType,
-    override val actualReturnType: JavaType,
-    override val descriptor: String,
+  private val actualMethod: JavaMethod,
+  override val ownerClass: JavaType,
+  override val name: String,
+  override val parameters: List<MethodParameter>,
+  override val returnType: JavaType,
+  override val actualReturnType: JavaType,
+  override val descriptor: String,
 ) : AbstractMethod(Opcodes.ACC_PUBLIC) {
   override val isConstructor = false
   // the static is excluded here in purpose so that self is pushed to the stack
@@ -207,25 +207,19 @@ class ExtensionJavaMethod(
   override val isDefault = false
 
   // could probably do some optimization here (with uses of java reflect API)
-  constructor(method: Method): this(method,
-    JavaType.of(method.declaringClass), method.name,
-    method.parameters.takeLast(method.parameters.size - 1).map { ReflectJavaMethod.methodParameter(
-      JavaType.of(method.parameters.first().type),
-      it
-    ) },
-    JavaType.of(method.returnType),
-    ReflectJavaMethod.actualMethodReturnType(JavaType.of(method.parameters.first().type), method, true),
-    AsmUtils.getDescriptor(method))
+  constructor(javaMethod: JavaMethod): this(javaMethod,
+    javaMethod.ownerClass, javaMethod.name,
+    javaMethod.parameters.takeLast(javaMethod.parameters.size - 1),
+    javaMethod.returnType,
+    javaMethod.actualReturnType,
+    javaMethod.descriptor)
 
   override fun withGenericTypes(types: List<JavaType>): JavaMethod {
-    val actualOwnerClass = JavaType.of(reflectMethod.parameters.first().type).withGenericTypes(types)
-    return ExtensionJavaMethod(reflectMethod, ownerClass, name,
-      reflectMethod.parameters.takeLast(reflectMethod.parameters.size - 1).map { ReflectJavaMethod.methodParameter(
-        actualOwnerClass,
-        it
-      ) },
+    val actualOwnerClass = actualMethod.parameters.first().type.withGenericTypes(types)
+    return ExtensionJavaMethod(actualMethod, ownerClass, name,
+      actualMethod.parameters.takeLast(actualMethod.parameters.size - 1),
       returnType,
-      ReflectJavaMethod.actualMethodReturnType(actualOwnerClass, reflectMethod, true)
+      actualMethod.actualReturnType
       , descriptor)
   }
   override fun toString(): String {

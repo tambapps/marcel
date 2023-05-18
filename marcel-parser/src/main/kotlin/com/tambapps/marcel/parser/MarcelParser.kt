@@ -81,6 +81,7 @@ class MarcelParser constructor(
       if (current.type == TokenType.PACKAGE) parsePackage()
       else null
     val imports = mutableListOf<ImportNode>()
+    val extensionTypes = mutableListOf<JavaType>()
     imports.addAll(Scope.DEFAULT_IMPORTS)
 
     val dumbbells = mutableSetOf<String>()
@@ -89,10 +90,15 @@ class MarcelParser constructor(
     }
 
     while (current.type == TokenType.IMPORT) {
-      imports.add(import())
+      if (lookup(1)?.type == TokenType.EXTENSION) {
+        skip(2)
+        extensionTypes.add(parseType(Scope(typeResolver, JavaType.Object, true)))
+      } else {
+        imports.add(import())
+      }
     }
 
-    val moduleNode = ModuleNode(imports, dumbbells)
+    val moduleNode = ModuleNode(imports, extensionTypes, dumbbells)
 
     val classAnnotations = parseAnnotations(Scope(typeResolver, imports, JavaType.Object, true))
     while (current.type != TokenType.END_OF_FILE) {
