@@ -453,6 +453,16 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
   override val superType get() =  if (realClazz.superclass != null) JavaType.of(realClazz.superclass) else null
 
   override val isAnnotation = realClazz.isAnnotation
+  override val asPrimitiveType: JavaPrimitiveType
+    get() = when(realClazz) {
+      JavaType.Integer.realClazz -> JavaType.int
+      JavaType.Long.realClazz -> JavaType.long
+      JavaType.Character.realClazz -> JavaType.char
+      JavaType.Float.realClazz -> JavaType.float
+      JavaType.Double.realClazz -> JavaType.double
+      JavaType.Boolean.realClazz -> JavaType.boolean
+      else -> super.asPrimitiveType
+    }
 
   override val genericParameterNames: List<String>
     get() = realClazz.typeParameters.map { it.name }
