@@ -1,0 +1,15 @@
+package com.tambapps.marcel.maven.test
+
+import org.junit.jupiter.api.Test
+
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+public class SomeClassTest {
+
+    @Test
+    fun void testSomeMethod() {
+        SomeClass someClass = new SomeClass()
+        assertEquals("Hello, world.", someClass.someMethod())
+    }
+
+}

@@ -1,0 +1,10 @@
+package com.tambapps.marcel.maven.test
+
+class SomeClass {
+
+    fun String someMethod() {
+        OtherClass other = new OtherClass()
+        return other.otherMethod()
+    }
+
+}

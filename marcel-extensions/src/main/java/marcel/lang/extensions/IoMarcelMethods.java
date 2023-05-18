@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.stream.Collectors;
 
+// TODO convert these to Marcel source files
 public class IoMarcelMethods {
 
   public static LineIterator lineIterator(File self) throws IOException {

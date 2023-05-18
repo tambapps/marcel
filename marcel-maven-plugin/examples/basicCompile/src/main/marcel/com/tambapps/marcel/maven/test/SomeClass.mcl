@@ -1,0 +1,9 @@
+package com.tambapps.marcel.maven.test
+
+class SomeClass {
+
+    fun String someMethod() {
+        return "Hello, world."
+    }
+
+}

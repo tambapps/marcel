@@ -14,6 +14,7 @@
     <module>marcel-compiler</module>
     <module>marcel-extensions</module>
     <module>marcel-lexer</module>
+    <module>marcel-maven-plugin</module>
     <module>marcel-parser</module>
     <module>marcel-stdlib</module>
     <module>marcl</module>
@@ -129,6 +130,11 @@
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>com.tambapps.marcel.maven</groupId>
+          <artifactId>marcel-maven-plugin</artifactId>
+          <version>${revision}</version>
+        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
