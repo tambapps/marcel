@@ -324,10 +324,10 @@ class MarcelParser constructor(
     return node
   }
 
-  internal fun method(classNode: ClassNode, annotations: List<AnnotationNode>, forceStatic: Boolean = false): MethodNode {
+  internal fun method(classNode: ClassNode, annotations: List<AnnotationNode>, fromExtensionClass: Boolean = false): MethodNode {
     val classScope = classNode.scope
     val (acc, isInline) = parseAccess()
-    val access = if (forceStatic) acc or Opcodes.ACC_STATIC else acc
+    val access = if (fromExtensionClass) acc or Opcodes.ACC_STATIC else acc
     val token = accept(TokenType.FUN, TokenType.CONSTRUCTOR)
     val isConstructor = token.type == TokenType.CONSTRUCTOR
     // constructors return void
@@ -336,6 +336,9 @@ class MarcelParser constructor(
     val methodName = if (isConstructor) JavaMethod.CONSTRUCTOR_NAME else accept(TokenType.IDENTIFIER).value
     accept(TokenType.LPAR)
     val parameters = mutableListOf<MethodParameterNode>()
+    if (fromExtensionClass && !isConstructor) {
+      parameters.add(MethodParameterNode(classNode.token, classNode.extendingType!!, "self", null))
+    }
     // this parameters are parameters which are automatically assigned to the field
     val thisParameters = mutableListOf<String>()
     while (current.type != TokenType.RPAR) {

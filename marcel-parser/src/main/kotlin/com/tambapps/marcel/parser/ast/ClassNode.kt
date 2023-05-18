@@ -21,6 +21,7 @@ open class ClassNode constructor(override val token: LexToken,
                                  val extendingType: JavaType? = null): AstNode {
 
   var staticInitializationNode: StaticInitializationNode? = null
+  val isExtensionClass get() = extendingType != null
 
   init {
     if (isScript) {

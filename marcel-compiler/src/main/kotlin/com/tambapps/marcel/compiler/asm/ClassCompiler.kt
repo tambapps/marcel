@@ -139,6 +139,9 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
   }
 
   private fun writeField(classWriter: ClassWriter, classNode: ClassNode, marcelField: FieldNode) {
+    if (classNode.isExtensionClass) {
+      throw MarcelSemanticException(classNode.token, "Extension classes cannot have fields")
+    }
     val fieldVisitor = classWriter.visitField(marcelField.access, marcelField.name, marcelField.type.descriptor,
       if (marcelField.type.superType?.hasGenericTypes == true || marcelField.type.directlyImplementedInterfaces.any { it.hasGenericTypes }) marcelField.type.signature else null,
       null
