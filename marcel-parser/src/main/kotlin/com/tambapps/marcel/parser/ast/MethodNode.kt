@@ -25,11 +25,11 @@ open class MethodNode constructor(
 
   companion object {
     fun fromJavaMethod(classScope: Scope, javaMethod: JavaMethod): MethodNode {
-      return from(classScope, javaMethod.ownerClass, javaMethod.name, javaMethod.parameters, javaMethod.returnType, emptyList())
+      return from(classScope, javaMethod.ownerClass, javaMethod.name, javaMethod.parameters, javaMethod.returnType, emptyList(), javaMethod.isStatic)
     }
 
-    fun from(classScope: Scope, ownerClass: JavaType, name: String, parameters: List<MethodParameter>, returnType: JavaType, annotations: List<AnnotationNode>): MethodNode {
-      val methodScope = MethodScope(classScope,  name, parameters, returnType)
+    fun from(classScope: Scope, ownerClass: JavaType, name: String, parameters: List<MethodParameter>, returnType: JavaType, annotations: List<AnnotationNode>, staticContext: Boolean): MethodNode {
+      val methodScope = MethodScope(classScope,  name, parameters, returnType, staticContext)
       return MethodNode(Opcodes.ACC_PUBLIC, ownerClass,  name, FunctionBlockNode(
         LexToken.dummy(), methodScope, mutableListOf()
       ), methodScope.parameters.map { MethodParameterNode(it) }.toMutableList(),  returnType, methodScope, false, annotations)

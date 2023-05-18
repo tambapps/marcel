@@ -20,7 +20,7 @@ class StaticInitializationNode private constructor(
   companion object {
 
     fun newInstance(classNode: ClassNode): StaticInitializationNode {
-      val scope = MethodScope(classNode.scope, JavaMethod.STATIC_INITIALIZATION_BLOCK, emptyList(), JavaType.void)
+      val scope = MethodScope(classNode.scope, JavaMethod.STATIC_INITIALIZATION_BLOCK, emptyList(), JavaType.void, staticContext = false)
       return StaticInitializationNode(classNode.token, classNode, scope)
     }
   }

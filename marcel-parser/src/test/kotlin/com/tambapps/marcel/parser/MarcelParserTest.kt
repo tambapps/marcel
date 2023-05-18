@@ -19,7 +19,7 @@ class MarcelParserTest {
     private val lexer = MarcelLexer()
     private val typeResolver = AstNodeTypeResolver()
     private val type = typeResolver.defineClass("Test", JavaType.Object, false, emptyList())
-    private val scope = MethodScope(typeResolver, mutableListOf(), type, "test", emptyList(), JavaType.void)
+    private val scope = MethodScope(typeResolver, mutableListOf(), type, "test", emptyList(), JavaType.void, staticContext = false)
 
     @Test
     fun testExpression() {
@@ -29,7 +29,7 @@ class MarcelParserTest {
             lexToken(TokenType.INTEGER, "3"),
             lexToken(TokenType.END_OF_FILE, null)
         ))
-        val result = parser.expression(Scope(typeResolver, type))
+        val result = parser.expression(Scope(typeResolver, type, staticContext = false))
         assertEquals(MulOperator(LexToken.dummy(), IntConstantNode(LexToken.dummy(), 2), IntConstantNode(LexToken.dummy(), 3)), result)
     }
 
@@ -38,7 +38,7 @@ class MarcelParserTest {
         val parser = parser("int a = 22")
         assertEquals(
             VariableDeclarationNode(LexToken.dummy(), scope, JavaType.int, "a", false,IntConstantNode(LexToken.dummy(), 22)),
-            parser.statement(Scope(typeResolver, type)))
+            parser.statement(Scope(typeResolver, type, staticContext = false)))
     }
 
     @Test
@@ -46,21 +46,21 @@ class MarcelParserTest {
         val parser = parser("bool b = false")
         assertEquals(
             VariableDeclarationNode(LexToken.dummy(), scope, JavaType.boolean, "b", false, BooleanConstantNode(LexToken.dummy(), false)),
-            parser.statement(Scope(typeResolver, type)))
+            parser.statement(Scope(typeResolver, type, staticContext = false)))
     }
 
     @Test
     fun testFunction() {
         val parser = parser("fun int foo(int a, String b) { return 1 }")
         val imports = mutableListOf<ImportNode>(WildcardImportNode("java.lang"))
-        val classScope = Scope(typeResolver, imports, type)
+        val classScope = Scope(typeResolver, imports, type, staticContext = false)
         val expected = MethodNode(Opcodes.ACC_PUBLIC, JavaType.Object, "foo",
             FunctionBlockNode(LexToken.dummy(), scope, mutableListOf(
                 ReturnNode(LexToken.dummy(), scope, IntConstantNode(LexToken.dummy(), 1))
             )), mutableListOf(
                 MethodParameterNode(JavaType.int, "a"),
                 MethodParameterNode(JavaType.String, "b")), JavaType.int, MethodScope(classScope, "foo",
-                listOf(MethodParameter(JavaType.int, "a"), MethodParameter(JavaType.int, "b")), JavaType.int)
+                listOf(MethodParameter(JavaType.int, "a"), MethodParameter(JavaType.int, "b")), JavaType.int, staticContext = false)
         , false, emptyList()
         )
 
@@ -81,7 +81,7 @@ class MarcelParserTest {
                 JavaType.of(Class.forName("java.lang.Integer")),
                 JavaType.of(Class.forName("java.lang.Object"))
             )), "b", false, NullValueNode()),
-            parser.statement(Scope(typeResolver, type)))
+            parser.statement(Scope(typeResolver, type, staticContext = false)))
     }
 
     @AfterEach

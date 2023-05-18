@@ -30,7 +30,7 @@ class ConstructorNode constructor(
   companion object {
 
     fun of(classNode: ClassNode, parameters: MutableList<MethodParameterNode>, statements: MutableList<StatementNode>): ConstructorNode {
-      return of(classNode, MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, parameters, JavaType.void), parameters, statements)
+      return of(classNode, MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, parameters, JavaType.void, staticContext = false), parameters, statements)
     }
     fun of(classNode: ClassNode, scope: MethodScope, parameters: MutableList<MethodParameterNode>, statements: MutableList<StatementNode>): ConstructorNode {
       return ConstructorNode(classNode.token,
@@ -40,7 +40,7 @@ class ConstructorNode constructor(
     }
 
     fun emptyConstructor(classNode: ClassNode): ConstructorNode {
-      val emptyConstructorScope = MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void)
+      val emptyConstructorScope = MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), JavaType.void, staticContext = false)
       return ConstructorNode(classNode.token,
         Opcodes.ACC_PUBLIC, blockWithSuperCall(emptyConstructorScope, FunctionBlockNode(classNode.token, emptyConstructorScope, mutableListOf())),
         mutableListOf(), emptyConstructorScope, emptyList()

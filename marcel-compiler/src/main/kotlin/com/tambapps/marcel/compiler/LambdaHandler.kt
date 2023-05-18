@@ -62,7 +62,7 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
     val constructorParameters = fields.map { MethodParameterNode(it.type, it.name, true) }
 
     // adding default constructor
-    val constructorScope = MethodScope(lambdaClassNode.scope, JavaMethod.CONSTRUCTOR_NAME, constructorParameters, JavaType.void)
+    val constructorScope = MethodScope(lambdaClassNode.scope, JavaMethod.CONSTRUCTOR_NAME, constructorParameters, JavaType.void, false)
     val constructorBlock: MutableList<StatementNode> = fields.map {
       ExpressionStatementNode(token,
         FieldAssignmentNode(token, constructorScope, GetFieldAccessOperator(token, ReferenceExpression.thisRef(constructorScope),
@@ -93,7 +93,7 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
       }
     }
 
-    val lambdaMethodScope = MethodScope(lambdaClassNode.scope, lambdaMethod.name, parameters, lambdaReturnType)
+    val lambdaMethodScope = MethodScope(lambdaClassNode.scope, lambdaMethod.name, parameters, lambdaReturnType, false)
     val fblock = FunctionBlockNode(token, lambdaMethodScope, lambdaNode.blockNode.statements)
     fblock.setTreeScope(lambdaMethodScope)
     lambdaClassNode.addMethod(
@@ -114,7 +114,7 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
       }
 
       val interfaceMethod = declaredMethods.first()
-      val interfaceMethodScope = MethodScope(lambdaClassNode.scope, interfaceMethod.name, parameters, interfaceMethod.returnType)
+      val interfaceMethodScope = MethodScope(lambdaClassNode.scope, interfaceMethod.name, parameters, interfaceMethod.returnType, false)
 
 
       val lambdaMethodCall = SimpleFunctionCallNode(token, interfaceMethodScope, lambdaMethod.name,

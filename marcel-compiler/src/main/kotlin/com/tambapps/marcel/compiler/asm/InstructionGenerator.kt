@@ -203,7 +203,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
     val switchMethodName = "__when_" + ((switchNode.scope as? MethodScope)?.methodName ?: switchNode.scope.classType.simpleName) +
         classNode.methods.size
-    val switchMethodScope = MethodScope(classNode.scope, switchMethodName, parameters, switchType)
+    val switchMethodScope = MethodScope(classNode.scope, switchMethodName, parameters, switchType, staticContext = false)
 
     // set scope
     switchNode.branches.forEach { it.setTreeScope(switchMethodScope) }
@@ -1374,7 +1374,7 @@ private class PushingInstructionGenerator(
     }
     // new StringBuilder() can just provide an empty new scope as we'll just use it to extract the method from StringBuilder which already exists in the JDK
     val type = StringBuilder::class.javaType
-    visit(ConstructorCallNode(stringNode.token, Scope(typeResolver, type), type, mutableListOf()))
+    visit(ConstructorCallNode(stringNode.token, Scope(typeResolver, type, false), type, mutableListOf()))
     for (part in stringNode.parts) {
       // chained calls
       val argumentType = part.getType(typeResolver)

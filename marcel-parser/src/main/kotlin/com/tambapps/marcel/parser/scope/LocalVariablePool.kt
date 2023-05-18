@@ -2,9 +2,10 @@ package com.tambapps.marcel.parser.scope
 
 import com.tambapps.marcel.parser.type.JavaType
 
-class LocalVariablePool {
+class LocalVariablePool(staticContext: Boolean) {
   private val variablePool = mutableSetOf<LocalVariable>()
   private var maxSlot = 0
+  private val slotStart = if (staticContext) 0 else 1
 
   fun obtain(type: JavaType, name: String, isFinal: Boolean): LocalVariable {
     val nbSlots = nbSlots(type)
@@ -22,7 +23,7 @@ class LocalVariablePool {
 
   private fun newVariable(type: JavaType, name: String, isFinal: Boolean): LocalVariable {
     val nbSlots = nbSlots(type)
-    val index = 1 + maxSlot // "1 +" because the slot 0 is reserved for this
+    val index = slotStart + maxSlot // "1 +" because the slot 0 is reserved for this
     maxSlot+= nbSlots
     return LocalVariable(type, name, nbSlots, index, isFinal)
   }

@@ -318,7 +318,6 @@ LONELY_BACKTICK=`
 "extends"          { return token(EXTENDS); }
 "implements"          { return token(IMPLEMENTS); }
 "extension"          { return token(EXTENSION); }
-"of"          { return token(OF); }
 "fun"          { return token(FUN); }
 "return"          { return token(RETURN); }
 "import"          { return token(IMPORT); }

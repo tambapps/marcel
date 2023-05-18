@@ -94,7 +94,7 @@ class MarcelParser constructor(
 
     val moduleNode = ModuleNode(imports, dumbbells)
 
-    val classAnnotations = parseAnnotations(Scope(typeResolver, imports, JavaType.Object))
+    val classAnnotations = parseAnnotations(Scope(typeResolver, imports, JavaType.Object, true))
     while (current.type != TokenType.END_OF_FILE) {
       if (current.type == TokenType.CLASS
         // visibility
@@ -129,7 +129,7 @@ class MarcelParser constructor(
 
     val expression = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(
       // simulate a constructor scope as this would be executed in a constructor
-      MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), classNode.type, false)
+      MethodScope(classNode.scope, JavaMethod.CONSTRUCTOR_NAME, emptyList(), classNode.type, staticContext = false, false)
     )
     else null
     acceptOptional(TokenType.SEMI_COLON)
@@ -161,10 +161,10 @@ class MarcelParser constructor(
 
     val parseTypeScope = outerClassNode?.scope
     // will set the actual classType later, as we didn't parse the class type yet
-      ?: Scope(typeResolver, JavaType.Object, imports)
+      ?: Scope(typeResolver, JavaType.Object, imports, true)
 
     val extendingType = if (isExtensionClass) {
-      accept(TokenType.OF)
+      accept(TokenType.FOR)
       parseType(parseTypeScope)
     } else null
 
@@ -188,7 +188,7 @@ class MarcelParser constructor(
     }
     val classType = JavaType.newType(outerClassNode?.type, className, superType, false, interfaces)
     if (outerClassNode == null) parseTypeScope.classType = classType  // setting the classType here
-    val classScope = Scope(typeResolver, imports, classType)
+    val classScope = Scope(typeResolver, imports, classType, false)
     val methods = mutableListOf<MethodNode>()
     val classFields = mutableListOf<FieldNode>()
     val innerClasses = mutableListOf<ClassNode>()
@@ -196,7 +196,7 @@ class MarcelParser constructor(
     accept(TokenType.BRACKETS_OPEN)
 
     while (current.type != TokenType.BRACKETS_CLOSE) {
-      val annotations = parseAnnotations(Scope(typeResolver, imports, JavaType.Object))
+      val annotations = parseAnnotations(classScope)
       // can be a class, a field or a function
       when (getNextMemberToken()) {
         TokenType.CLASS -> innerClasses.add(parseClass(imports, packageName, annotations, classNode))
@@ -216,9 +216,9 @@ class MarcelParser constructor(
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
     val classType = JavaType.newType(null, className, superType, false,
       configuration.scriptInterfaces.map { JavaType.of(it) })
-    val classScope = Scope(typeResolver, imports, classType)
+    val classScope = Scope(typeResolver, imports, classType, false)
     val argsParameter = MethodParameterNode(JavaType.of(Array<String>::class.java), "args")
-    val runScope = MethodScope(classScope, "run", listOf(argsParameter), JavaType.Object, false)
+    val runScope = MethodScope(classScope, "run", listOf(argsParameter), JavaType.Object, staticContext = false, false)
     val statements = mutableListOf<StatementNode>()
     val runBlock = FunctionBlockNode(LexToken.dummy(), runScope, statements)
     val runFunction = MethodNode(Opcodes.ACC_PUBLIC, classType,
@@ -235,7 +235,7 @@ class MarcelParser constructor(
     val classNodes = mutableListOf(classNode)
 
     while (current.type != TokenType.END_OF_FILE) {
-      val annotations = parseAnnotations(Scope(typeResolver, imports, JavaType.Object))
+      val annotations = parseAnnotations(classScope)
       when (current.type) {
         TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.FUN, TokenType.INLINE, TokenType.CLASS,
         TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE, TokenType.STATIC, -> {
@@ -372,7 +372,7 @@ class MarcelParser constructor(
     skip() // skipping RPAR
     val currentToken = current
     val statements = mutableListOf<StatementNode>()
-    val methodScope = MethodScope(classScope, methodName, parameters, returnType, false)
+    val methodScope = MethodScope(classScope, methodName, parameters, returnType, staticContext = (access and Opcodes.ACC_STATIC) != 0, false)
     val methodNode =
       if (isConstructor) ConstructorNode(token, access, FunctionBlockNode(currentToken, methodScope, statements), parameters, methodScope, annotations)
      else MethodNode(access, classNode.type, methodName, FunctionBlockNode(currentToken, methodScope, statements), parameters, returnType, methodScope, isInline, annotations)
@@ -855,8 +855,8 @@ class MarcelParser constructor(
             "Cannot have both positional and named arguments for constructor calls"
           )
         }
-        if (namedArguments.isNotEmpty()) NamedParametersConstructorCallNode(token, Scope(typeResolver, type), type, namedArguments)
-        else ConstructorCallNode(token, Scope(typeResolver, type), type, arguments)
+        if (namedArguments.isNotEmpty()) NamedParametersConstructorCallNode(token, Scope(typeResolver, type, false), type, namedArguments)
+        else ConstructorCallNode(token, Scope(typeResolver, type, false), type, arguments)
       }
       TokenType.SWITCH -> {
         accept(TokenType.LPAR)
@@ -1051,7 +1051,7 @@ class MarcelParser constructor(
       }
     }
     // now parse function block
-    val block = block(MethodScope(scope, "invoke", parameters, JavaType.Object, false), false)
+    val block = block(MethodScope(scope, "invoke", parameters, JavaType.Object, staticContext = false, false), false)
     return LambdaNode(token, LambdaScope(scope), parameters, block, explicit0Parameters)
   }
 

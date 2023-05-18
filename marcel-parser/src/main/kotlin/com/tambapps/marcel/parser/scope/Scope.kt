@@ -13,11 +13,13 @@ import marcel.lang.methods.DefaultMarcelStaticMethods
 import org.objectweb.asm.Label
 import java.util.concurrent.ThreadLocalRandom
 
-open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports: MutableList<ImportNode>, open var classType: JavaType) {
-  constructor(typeResolver: AstNodeTypeResolver, javaType: JavaType): this(typeResolver, mutableListOf(), javaType) {
+open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports: MutableList<ImportNode>, open var classType: JavaType, val staticContext: Boolean,
+
+  val localVariablePool: LocalVariablePool = LocalVariablePool(staticContext)) {
+  constructor(typeResolver: AstNodeTypeResolver, javaType: JavaType, staticContext: Boolean): this(typeResolver, mutableListOf(), javaType, staticContext) {
     imports.addAll(DEFAULT_IMPORTS)
   }
-  constructor(typeResolver: AstNodeTypeResolver, javaType: JavaType, imports: List<ImportNode>): this(typeResolver, javaType) {
+  constructor(typeResolver: AstNodeTypeResolver, javaType: JavaType, imports: List<ImportNode>, staticContext: Boolean): this(typeResolver, javaType, staticContext) {
     this.imports.addAll(imports)
   }
 
@@ -33,7 +35,6 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
     )
   }
 
-  internal open val localVariablePool = LocalVariablePool()
   private val localVariables: MutableList<LocalVariable> = mutableListOf()
 
   open fun addLocalVariable(type: JavaType, isFinal: Boolean = false): LocalVariable {
@@ -101,7 +102,7 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
   fun copy(t: JavaType? = null): Scope {
     val classType = t ?: this.classType
 
-    return Scope(typeResolver, imports, classType)
+    return Scope(typeResolver, imports, classType, staticContext)
   }
 
   fun resolveType(classSimpleName: String, genericTypes: List<JavaType>): JavaType {
@@ -147,13 +148,14 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
 open class MethodScope constructor(typeResolver: AstNodeTypeResolver, imports: MutableList<ImportNode>, classType: JavaType, val methodName: String,
                                    val parameters: List<MethodParameter>, var returnType: JavaType,
                                    // because we don't want to define parameters in the Parsing phase, as we might need to resolve types for that
-                                   defineParametersAutomatically: Boolean = true)
-  : Scope(typeResolver, imports, classType) {
+                                   staticContext: Boolean,
+                                   defineParametersAutomatically: Boolean = true, localVariablePool: LocalVariablePool = LocalVariablePool(staticContext))
+  : Scope(typeResolver, imports, classType, staticContext, localVariablePool) {
 
     constructor(scope: Scope,
                 methodName: String,
-                parameters: List<MethodParameter>, returnType: JavaType, defineParametersAutomatically: Boolean = true):
-        this(scope.typeResolver, scope.imports, scope.classType, methodName, parameters, returnType, defineParametersAutomatically)
+                parameters: List<MethodParameter>, returnType: JavaType, staticContext: Boolean, defineParametersAutomatically: Boolean = true):
+        this(scope.typeResolver, scope.imports, scope.classType, methodName, parameters, returnType, staticContext, defineParametersAutomatically)
 
   private var methodParametersDefined = false
   init {
@@ -174,7 +176,7 @@ open class MethodScope constructor(typeResolver: AstNodeTypeResolver, imports: M
 }
 
 class LambdaScope constructor(val parentScope: Scope):
-    Scope(parentScope.typeResolver, parentScope.classType, parentScope.imports) {
+    Scope(parentScope.typeResolver, parentScope.classType, parentScope.imports, false) {
   override var classType: JavaType
     get() = parentScope.classType
     set(value) { parentScope.classType = value }
@@ -182,9 +184,9 @@ class LambdaScope constructor(val parentScope: Scope):
 }
 
 class InnerScope constructor(private val parentScope: MethodScope)
-  : MethodScope(parentScope.typeResolver, parentScope.imports, parentScope.classType, parentScope.methodName, parentScope.parameters, parentScope.returnType, false) {
+  : MethodScope(parentScope.typeResolver, parentScope.imports, parentScope.classType, parentScope.methodName, parentScope.parameters, parentScope.returnType, parentScope.staticContext, false,
+  parentScope.localVariablePool) {
 
-  override val localVariablePool = parentScope.localVariablePool
   override var classType: JavaType
     get() = parentScope.classType
     set(value) { parentScope.classType = value }
