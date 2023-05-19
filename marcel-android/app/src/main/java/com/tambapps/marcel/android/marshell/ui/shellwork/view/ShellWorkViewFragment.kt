@@ -5,7 +5,7 @@ import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
 class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild() {
 
 
-  override fun onFabClick() {
+  override fun onFabClick(): Boolean {
     TODO("Not yet implemented")
   }
 }

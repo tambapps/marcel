@@ -46,7 +46,6 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
   // onDestroyView.
   private val binding get() = _binding!!
   private val viewModel: ShellWorkFormViewModel by viewModels()
-  private var fabClickDisabled = false
   private val selectedPeriodUnit get() = (binding.periodicUnitsSpinner.adapter as ArrayAdapter<PeriodUnit>).getItem(binding.periodicUnitsSpinner.selectedItemPosition)
 
   override fun onCreateView(
@@ -54,8 +53,6 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-
-    fabClickDisabled = false
     _binding = FragmentShellWorkFormBinding.inflate(inflater, container, false)
     val root: View = binding.root
 
@@ -166,28 +163,27 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     return root
   }
 
-  override fun onFabClick() {
-    if (fabClickDisabled) return
+  override fun onFabClick(): Boolean {
     if (binding.workName.text.isNullOrEmpty()) {
       binding.workName.error = getString(R.string.name_is_required)
-      return
+      return false
     }
     binding.workName.error = null
 
     val scriptFile = viewModel.scriptFile.value
     if (scriptFile == null) {
       Toast.makeText(activity, R.string.must_select_script, Toast.LENGTH_SHORT).show()
-      return
+      return false
     }
     if (binding.scheduleCheckbox.isChecked && (
       viewModel.scheduleDate.value == null || viewModel.scheduleTime.value == null)) {
       Toast.makeText(activity, R.string.didnt_filled_scheduled_parameters, Toast.LENGTH_SHORT).show()
-      return
+      return false
     }
 
     if (binding.periodicCheckbox.isChecked && viewModel.period.value == null) {
       Toast.makeText(activity, "You must select a period", Toast.LENGTH_SHORT).show()
-      return
+      return false
     }
 
     // everything seems to be ok, now creating the Work
@@ -216,9 +212,9 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
           show(fragment)
           remove(this@ShellWorkFormFragment)
         }
-        fabClickDisabled = true
       }
     }
+    return true
   }
 
   override fun onDestroyView() {
