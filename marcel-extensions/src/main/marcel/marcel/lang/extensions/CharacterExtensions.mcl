@@ -1,0 +1,143 @@
+package marcel.lang.extensions
+
+
+extension class CharacterExtensions for Character {
+
+  fun String toString() {
+    return String.valueOf(this as char)
+  }
+
+  fun boolean isHighSurrogate() {
+    return Character.isHighSurrogate(this as char)
+  }
+
+  fun boolean isLowSurrogate() {
+    return Character.isLowSurrogate(this as char)
+  }
+
+  fun boolean isSurrogate() {
+    return Character.isSurrogate(this as char)
+  }
+
+  fun boolean isLowerCase() {
+    return Character.isLowerCase(this as char)
+  }
+
+  fun boolean isUpperCase() {
+    return Character.isUpperCase(this as char)
+  }
+
+  fun boolean isTitleCase() {
+    return Character.isTitleCase(this as char)
+  }
+
+  fun boolean isDigit() {
+    return Character.isDigit(this as char)
+  }
+
+  fun boolean isDefined() {
+    return Character.isDefined(this as char)
+  }
+
+  fun boolean isLetter() {
+    return Character.isLetter(this as char)
+  }
+
+  fun boolean isLetterOrDigit() {
+    return Character.isLetterOrDigit(this as char)
+  }
+
+  fun char toLowerCase() {
+    return Character.toLowerCase(this as char)
+  }
+
+  fun char toUpperCase() {
+    return Character.toUpperCase(this as char)
+  }
+
+  fun char toTitleCase() {
+    return Character.toUpperCase(this as char)
+  }
+
+  fun boolean isSpaceChar() {
+    return Character.isSpaceChar(this as char)
+  }
+
+  fun boolean isWhitespace() {
+    return Character.isWhitespace(this as char)
+  }
+
+  fun boolean isISOControl() {
+    return Character.isISOControl(this as char)
+  }
+}
+
+extension class CharExtensions for char {
+
+  fun String toString() {
+    return String.valueOf(this)
+  }
+
+  fun boolean isHighSurrogate() {
+    return Character.isHighSurrogate(this)
+  }
+
+  fun boolean isLowSurrogate() {
+    return Character.isLowSurrogate(this)
+  }
+
+  fun boolean isSurrogate() {
+    return Character.isSurrogate(this)
+  }
+
+  fun boolean isLowerCase() {
+    return Character.isLowerCase(this)
+  }
+  fun boolean isUpperCase() {
+    return Character.isUpperCase(this)
+  }
+
+  fun boolean isTitleCase() {
+    return Character.isTitleCase(this)
+  }
+
+  fun boolean isDigit() {
+    return Character.isDigit(this)
+  }
+
+  fun boolean isDefined() {
+    return Character.isDefined(this)
+  }
+
+  fun boolean isLetter() {
+    return Character.isLetter(this)
+  }
+
+  fun boolean isLetterOrDigit() {
+    return Character.isLetterOrDigit(this)
+  }
+
+  fun char toLowerCase() {
+    return Character.toLowerCase(this)
+  }
+
+  fun char toUpperCase() {
+    return Character.toUpperCase(this)
+  }
+
+  fun char toTitleCase() {
+    return Character.toUpperCase(this)
+  }
+
+  fun boolean isSpaceChar() {
+    return Character.isSpaceChar(this)
+  }
+
+  fun boolean isWhitespace() {
+    return Character.isWhitespace(this)
+  }
+
+  fun boolean isISOControl() {
+    return Character.isISOControl(this)
+  }
+}

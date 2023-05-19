@@ -39,7 +39,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   }
   private fun loadDefaultExtensions() {
     loadExtension(DefaultMarcelMethods::class.javaType)
-    loadExtensionsIfClassLoaded("IoMarcelMethods", "StringMarcelMethods", "CharacterMarcelMethods")
+    loadExtensionsIfClassLoaded("IoMarcelMethods", "StringMarcelMethods", "CharacterExtensions", "CharExtensions")
   }
 
   private fun loadExtensionsIfClassLoaded(vararg classNames: String) {

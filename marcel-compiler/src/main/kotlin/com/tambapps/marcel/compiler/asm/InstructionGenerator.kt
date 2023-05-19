@@ -1423,8 +1423,12 @@ private class PushingInstructionGenerator(
   }
 
   override fun visit(thisReference: ThisReference) {
-    if (methodNode.isStatic) throw MarcelSemanticException(thisReference.token, "Cannot reference 'this' in a static context")
-    mv.pushThis()
+    when {
+      !methodNode.isStatic -> mv.pushThis()
+      // for extension class
+      classNode.isExtensionClass && thisReference.scope.hasVariable("self") -> visit(ReferenceExpression(thisReference.token, thisReference.scope, "self"))
+      else -> throw MarcelSemanticException(thisReference.token, "Cannot reference 'this' in a static context")
+    }
   }
 
   override fun visit(patternValueNode: LiteralPatternNode) {

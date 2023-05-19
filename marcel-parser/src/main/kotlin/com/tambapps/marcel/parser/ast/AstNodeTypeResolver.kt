@@ -406,7 +406,10 @@ open class AstNodeTypeResolver constructor(
 
   override fun visit(shortConstantNode: ShortConstantNode) = JavaType.short
 
-  override fun visit(thisReference: ThisReference) = thisReference.scope.classType
+  override fun visit(thisReference: ThisReference) =
+    if (thisReference.scope.staticContext && thisReference.scope.hasVariable("self")) thisReference.scope
+      .findVariableOrThrow("self").type
+  else thisReference.scope.classType
   override fun visit(superReference: SuperReference) = superReference.scope.superClass
 
   override fun visit(patternValueNode: LiteralPatternNode) = JavaType.of(Pattern::class.java)
