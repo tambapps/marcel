@@ -162,7 +162,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
               }.show()
           } else {
             AlertDialog.Builder(context).setTitle(R.string.delete_shell_work)
-              .setMessage(R.string.delete_work_q)
+              .setMessage(context.getString(R.string.delete_work_q, work.name))
               .setNeutralButton(R.string.cancel, null)
               .setPositiveButton(R.string.delete) { _: DialogInterface, _: Int ->
                 onWorkDelete(work)
