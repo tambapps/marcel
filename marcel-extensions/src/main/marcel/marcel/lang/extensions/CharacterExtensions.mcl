@@ -7,43 +7,43 @@ extension class CharacterExtensions for Character {
     return String.valueOf(this as char)
   }
 
-  fun boolean isHighSurrogate() {
+  fun bool isHighSurrogate() {
     return Character.isHighSurrogate(this as char)
   }
 
-  fun boolean isLowSurrogate() {
+  fun bool isLowSurrogate() {
     return Character.isLowSurrogate(this as char)
   }
 
-  fun boolean isSurrogate() {
+  fun bool isSurrogate() {
     return Character.isSurrogate(this as char)
   }
 
-  fun boolean isLowerCase() {
+  fun bool isLowerCase() {
     return Character.isLowerCase(this as char)
   }
 
-  fun boolean isUpperCase() {
+  fun bool isUpperCase() {
     return Character.isUpperCase(this as char)
   }
 
-  fun boolean isTitleCase() {
+  fun bool isTitleCase() {
     return Character.isTitleCase(this as char)
   }
 
-  fun boolean isDigit() {
+  fun bool isDigit() {
     return Character.isDigit(this as char)
   }
 
-  fun boolean isDefined() {
+  fun bool isDefined() {
     return Character.isDefined(this as char)
   }
 
-  fun boolean isLetter() {
+  fun bool isLetter() {
     return Character.isLetter(this as char)
   }
 
-  fun boolean isLetterOrDigit() {
+  fun bool isLetterOrDigit() {
     return Character.isLetterOrDigit(this as char)
   }
 
@@ -59,15 +59,15 @@ extension class CharacterExtensions for Character {
     return Character.toUpperCase(this as char)
   }
 
-  fun boolean isSpaceChar() {
+  fun bool isSpaceChar() {
     return Character.isSpaceChar(this as char)
   }
 
-  fun boolean isWhitespace() {
+  fun bool isWhitespace() {
     return Character.isWhitespace(this as char)
   }
 
-  fun boolean isISOControl() {
+  fun bool isISOControl() {
     return Character.isISOControl(this as char)
   }
 }
@@ -78,42 +78,42 @@ extension class CharExtensions for char {
     return String.valueOf(this)
   }
 
-  fun boolean isHighSurrogate() {
+  fun bool isHighSurrogate() {
     return Character.isHighSurrogate(this)
   }
 
-  fun boolean isLowSurrogate() {
+  fun bool isLowSurrogate() {
     return Character.isLowSurrogate(this)
   }
 
-  fun boolean isSurrogate() {
+  fun bool isSurrogate() {
     return Character.isSurrogate(this)
   }
 
-  fun boolean isLowerCase() {
+  fun bool isLowerCase() {
     return Character.isLowerCase(this)
   }
-  fun boolean isUpperCase() {
+  fun bool isUpperCase() {
     return Character.isUpperCase(this)
   }
 
-  fun boolean isTitleCase() {
+  fun bool isTitleCase() {
     return Character.isTitleCase(this)
   }
 
-  fun boolean isDigit() {
+  fun bool isDigit() {
     return Character.isDigit(this)
   }
 
-  fun boolean isDefined() {
+  fun bool isDefined() {
     return Character.isDefined(this)
   }
 
-  fun boolean isLetter() {
+  fun bool isLetter() {
     return Character.isLetter(this)
   }
 
-  fun boolean isLetterOrDigit() {
+  fun bool isLetterOrDigit() {
     return Character.isLetterOrDigit(this)
   }
 
@@ -129,15 +129,15 @@ extension class CharExtensions for char {
     return Character.toUpperCase(this)
   }
 
-  fun boolean isSpaceChar() {
+  fun bool isSpaceChar() {
     return Character.isSpaceChar(this)
   }
 
-  fun boolean isWhitespace() {
+  fun bool isWhitespace() {
     return Character.isWhitespace(this)
   }
 
-  fun boolean isISOControl() {
+  fun bool isISOControl() {
     return Character.isISOControl(this)
   }
 }
