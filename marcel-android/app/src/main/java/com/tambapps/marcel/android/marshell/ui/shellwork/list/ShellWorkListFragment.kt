@@ -25,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Duration
+import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
@@ -64,17 +65,27 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       }
     }
 
+    fetchWorks()
+    return root
+  }
+
+  fun fetchWorks() {
     CoroutineScope(Dispatchers.IO).launch {
-      val worksLiveData = shellWorkManager.list()
-      withContext(Dispatchers.Main) {
-        worksLiveData.observe(viewLifecycleOwner) { works ->
-          shellWorks.clear()
-          shellWorks.addAll(works)
-          binding.recyclerView.adapter?.notifyDataSetChanged()
-        }
+      doFetchWorks()
+    }
+
+  }
+  private suspend fun doFetchWorks() {
+    val worksLiveData = shellWorkManager.list()
+    withContext(Dispatchers.Main) {
+      worksLiveData.observe(viewLifecycleOwner) { works ->
+        shellWorks.clear()
+        shellWorks.addAll(works)
+        println(works.map { it.isFinished })
+        shellWorks.sortWith(compareBy({ it.isFinished }, { it.startTime?.toEpochSecond(ZoneOffset.UTC)?.times(-1) ?: Long.MIN_VALUE }))
+        binding.recyclerView.adapter?.notifyDataSetChanged()
       }
     }
-    return root
   }
 
   private fun onWorkClick(work: ShellWork) {
@@ -83,6 +94,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
 
   private fun onWorkCancel(work: ShellWork) {
     shellWorkManager.cancel(work.id)
+    fetchWorks()
   }
 
   private fun onWorkDelete(work: ShellWork) {
@@ -190,7 +202,10 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
             }
             else context.getString(R.string.work_started, TimeUtils.smartToString(work.startTime))
           work.scheduledAt != null -> context.getString(R.string.scheduled_for, work.scheduledAt)
-          else -> context.getString(R.string.has_not_ran_yet)
+          else -> when {
+            work.state == State.FAILED  -> if (work.failedReason != null) work.failedReason else "An error occurred"
+            else -> context.getString(R.string.has_not_ran_yet)
+          }
         }
         nextRun.visibility = if (work.isPeriodic) View.VISIBLE else View.GONE
         if (work.isPeriodic && !work.state.isFinished) {
