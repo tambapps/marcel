@@ -24,6 +24,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.Duration
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -177,9 +178,14 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
         }
         startTime.text = when {
           work.startTime != null ->
-            if (work.isFinished) context.getString(R.string.ran_from_short, work.startTimeFormatted, work.endTimeFormatted)
-            else if (work.isPeriodic) context.getString(R.string.last_ran_from_short, work.startTimeFormatted, work.endTimeFormatted)
-            else context.getString(R.string.started_at, work.startTimeFormatted)
+            if (work.isFinished) context.getString(R.string.work_ran_lasted, TimeUtils.smartToString(work.startTime), TimeUtils.humanReadableFormat(
+              Duration.between(work.startTime, work.endTime)))
+            else if (work.isPeriodic) when (work.state) {
+              State.RUNNING -> context.getString(R.string.work_started, TimeUtils.smartToString(work.startTime))
+              else -> context.getString(R.string.work_last_ran_lasted, TimeUtils.smartToString(work.startTime), TimeUtils.humanReadableFormat(
+                Duration.between(work.startTime, work.endTime)))
+            }
+            else context.getString(R.string.work_started, TimeUtils.smartToString(work.startTime))
           work.scheduledAt != null -> context.getString(R.string.scheduled_for, work.scheduledAt)
           else -> ""
         }

@@ -39,8 +39,10 @@
     <string name="must_select_script">You must select a script</string>
     <string name="didnt_filled_scheduled_parameters">You must pick provide all schedule parameters</string>
     <string name="scheduled_for">Scheduled for %1$s</string>
+    <string name="work_started">started %1$s</string>
+    <string name="work_ran_lasted">ran %1$s for %2$s</string>
+    <string name="work_last_ran_lasted">last ran %1$s for %2$s</string>
     <string name="ran_from_to">ran fom %1$s\nto %2$s (took %3$s)</string>
-    <string name="ran_from_short">ran fom %1$s\nto %2$s</string>
     <string name="last_ran_from_short">Last ran fom %1$s\nto %2$s</string>
     <string name="work_output">%1$s output</string>
     <string name="work_error">%1$s error</string>
