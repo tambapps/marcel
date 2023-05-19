@@ -205,7 +205,7 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
         // now moving back to work list
         val currentListFragment = parentFragmentManager.findFragmentByTag(ShellWorkListFragment::class.java.name)
             as? ShellWorkListFragment?
-        currentListFragment?.fetchWorks() // to refresh data when going back to page
+        currentListFragment?.refreshWorks() // to refresh data when going back to page
         val fragment = currentListFragment ?: ShellWorkListFragment.newInstance()
 
         parentFragmentManager.commitNow {

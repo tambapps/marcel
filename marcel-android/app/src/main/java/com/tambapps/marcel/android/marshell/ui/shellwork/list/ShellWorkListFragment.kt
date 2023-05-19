@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.work.WorkInfo.State
@@ -35,6 +36,8 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
   companion object {
     fun newInstance() = ShellWorkListFragment()
   }
+
+  private var worksLiveData: LiveData<List<ShellWork>>? = null
   private var _binding: FragmentShellWorkListBinding? = null
 
   // This property is only valid between onCreateView and
@@ -65,36 +68,35 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       }
     }
 
-    fetchWorks()
+    CoroutineScope(Dispatchers.IO).launch {
+      val liveData = shellWorkManager.list()
+      withContext(Dispatchers.Main) {
+        worksLiveData = liveData
+        liveData.observe(viewLifecycleOwner, this@ShellWorkListFragment::refreshWorks)
+      }
+    }
     return root
   }
 
-  fun fetchWorks() {
-    CoroutineScope(Dispatchers.IO).launch {
-      doFetchWorks()
-    }
-
-  }
-  private suspend fun doFetchWorks() {
-    val worksLiveData = shellWorkManager.list()
-    withContext(Dispatchers.Main) {
-      worksLiveData.observe(viewLifecycleOwner) { works ->
-        shellWorks.clear()
-        shellWorks.addAll(works)
-        println(works.map { it.isFinished })
-        shellWorks.sortWith(compareBy({ it.isFinished }, { it.startTime?.toEpochSecond(ZoneOffset.UTC)?.times(-1) ?: Long.MIN_VALUE }))
-        binding.recyclerView.adapter?.notifyDataSetChanged()
-      }
+  fun refreshWorks() {
+    if (worksLiveData != null && worksLiveData!!.value != null) {
+      refreshWorks(worksLiveData!!.value!!)
     }
   }
-
+  private fun refreshWorks(works: List<ShellWork>) {
+    shellWorks.clear()
+    shellWorks.addAll(works)
+    println(works.map { it.isFinished })
+    shellWorks.sortWith(compareBy({ it.isFinished }, { it.startTime?.toEpochSecond(ZoneOffset.UTC)?.times(-1) ?: Long.MIN_VALUE }))
+    binding.recyclerView.adapter?.notifyDataSetChanged()
+  }
   private fun onWorkClick(work: ShellWork) {
     Toast.makeText(requireContext(), "TODO", Toast.LENGTH_SHORT).show()
   }
 
   private fun onWorkCancel(work: ShellWork) {
     shellWorkManager.cancel(work.id)
-    fetchWorks()
+    refreshWorks()
   }
 
   private fun onWorkDelete(work: ShellWork) {
@@ -111,6 +113,10 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     }
   }
 
+  override fun onResume() {
+    super.onResume()
+    refreshWorks()
+  }
   override fun onDestroyView() {
     super.onDestroyView()
     _binding = null
@@ -155,7 +161,10 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       val context = holder.root.context
       holder.apply {
         title.text = work.name
-        result.text = if (work.result != null) "Result: ${work.result}" else null
+        result.text = work.result?.let {
+        val prefix = if (work.isPeriodic) "Last result" else "Result"
+          prefix + ": ${work.result}"
+        }
         state.text = work.state.name
         state.setTextColor(stateColor(work))
         root.setOnClickListener {
