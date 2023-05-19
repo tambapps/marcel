@@ -50,9 +50,10 @@ class MarcelShellWorker
   override suspend fun doWork(): Result {
     val work = shellWorkDataDao.findById(id)
     if (work == null) {
-      Log.e("MarcelShellWorker", "Couldn't find work on database")
+      Log.e("MarcelShellWorker", "Couldn't find work_data on database for work $id")
       notificationTitle = "Marshell Worker"
-      return Result.failure(endData(failedReason = "Work misconfigured"))
+      notification(content = "An unexpected work configuration error occurred", force = true)
+      return Result.failure(endData(failedReason = "Unexpected work configuration error"))
     }
     isSilent = work.silent
     notificationTitle = work.name + " " + notificationTitle
@@ -70,13 +71,13 @@ class MarcelShellWorker
     val text = if (work.scriptText != null) {
       work.scriptText
     } else {
-      notification(content = "Couldn't read script", foregroundNotification = true)
+      notification(content = "Couldn't read script", foregroundNotification = true, force = true)
       return Result.failure(endData(failedReason = "Couldn't read script"))
     }
 
     if (!directory.mkdir()) {
       val failedReason = "Couldn't create worker directory"
-      notification(content = failedReason, foregroundNotification = true)
+      notification(content = failedReason, foregroundNotification = true, force = true)
       return Result.failure(endData(failedReason = failedReason))
     }
 
@@ -95,7 +96,7 @@ class MarcelShellWorker
       notification(content = contentBuilder.toString(), foregroundNotification = true)
       return Result.success(endData())
     } catch (e: Exception) {
-      notification(content = "Error while executing script: ${e.message}", foregroundNotification = true)
+      notification(content = "Error while executing script: ${e.message}", foregroundNotification = true, force = true)
       return Result.failure(endData(failedReason = e.message))
     } finally {
       directory.deleteRecursively()
@@ -110,10 +111,9 @@ class MarcelShellWorker
     return Data.Builder().build()
   }
 
-
   /* Notification stuff */
-  private fun notification(title: String = notificationTitle, content: String, foregroundNotification: Boolean = false) {
-    if (isSilent) return
+  private fun notification(title: String = notificationTitle, content: String, foregroundNotification: Boolean = false, force: Boolean = false) {
+    if (!force && isSilent) return
     val notifId = if (foregroundNotification) id.hashCode() + 1 else id.hashCode()
     val notificationBuilder = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL_ID)
       .setContentTitle(title)
