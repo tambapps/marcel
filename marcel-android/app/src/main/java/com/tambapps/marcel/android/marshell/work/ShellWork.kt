@@ -4,10 +4,8 @@ import androidx.work.WorkInfo
 import androidx.work.WorkInfo.State
 import com.tambapps.marcel.android.marshell.room.entity.ShellWorkData
 import com.tambapps.marcel.android.marshell.ui.shellwork.form.PeriodUnit
-import java.io.File
 import java.time.Duration
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.UUID
 
@@ -30,16 +28,14 @@ data class ShellWork(
 
   val isFinished get() = state.isFinished
   val isPeriodic get() = periodAmount != null && periodUnit != null
-  val startTimeFormatted get() = startTime?.format(DATE_FORMATTER)
-  val endTimeFormatted get() = endTime?.format(DATE_FORMATTER)
 
-  val durationBetweenNowAndNext: Duration
+  val durationBetweenNowAndNext: Duration?
     get() {
-    return Duration.between(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), endTime!!.plusMinutes(periodUnit!!.toMinutes(periodAmount!!)))
+      if (endTime == null || periodUnit == null || periodAmount == null) return null
+    return Duration.between(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), endTime.plusMinutes(periodUnit.toMinutes(periodAmount)))
   }
 
   companion object {
-    val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")
 
     fun from(info: WorkInfo, data: ShellWorkData): ShellWork {
       return ShellWork(

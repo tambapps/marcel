@@ -25,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Duration
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -177,6 +178,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
           }
           return@setOnLongClickListener true
         }
+        println(work.endTime)
         startTime.text = when {
           work.startTime != null ->
             if (work.isFinished) context.getString(R.string.work_ran_lasted, TimeUtils.smartToString(work.startTime), TimeUtils.humanReadableFormat(
@@ -188,15 +190,23 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
             }
             else context.getString(R.string.work_started, TimeUtils.smartToString(work.startTime))
           work.scheduledAt != null -> context.getString(R.string.scheduled_for, work.scheduledAt)
-          else -> ""
+          else -> context.getString(R.string.has_not_ran_yet)
         }
         nextRun.visibility = if (work.isPeriodic) View.VISIBLE else View.GONE
-        if (work.isPeriodic) {
-          state.text = (state.text.toString() + "\n" + context.getString(R.string.every) + " " + work.periodAmount + " " + work.periodUnit)
+        if (work.isPeriodic && !work.state.isFinished) {
+          state.text =
+            if (work.state == State.RUNNING) "RUNNING"
+            else if (work.periodAmount == 1) context.getString(R.string.periodic_work_state_one, work.periodUnit!!.toString().removeSuffix("s"))
+            else context.getString(R.string.periodic_work_state, work.periodAmount, work.periodUnit)
           val durationBetweenNowAndNext = work.durationBetweenNowAndNext
           if (durationBetweenNowAndNext != null) {
             nextRun.visibility = View.VISIBLE
-            nextRun.text = if (durationBetweenNowAndNext.isNegative) "Will run shortly" else context.getString(R.string.next_run_in, TimeUtils.humanReadableFormat(durationBetweenNowAndNext))
+            nextRun.text = when {
+              durationBetweenNowAndNext.isNegative -> context.getString(R.string.should_run_shortly)
+              work.isPeriodic -> context.getString(R.string.next_run_in, TimeUtils.humanReadableFormat(durationBetweenNowAndNext, ChronoUnit.SECONDS))
+              else -> context.getString(R.string.will_run_in, TimeUtils.humanReadableFormat(durationBetweenNowAndNext, ChronoUnit.SECONDS))
+
+            }
           }
         }
       }

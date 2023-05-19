@@ -52,8 +52,13 @@
     <string name="cancel_work_q">Cancel work %1$s?</string>
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
-    <string name="next_run_in">Next run in %1$s</string>
+    <string name="next_run_in">next run in %1$s</string>
+    <string name="will_run_in">will run in %1$s</string>
     <string name="cant_modify_finished_work">Can\'t modify a finished work</string>
     <string name="delete_work_q">Delete work %1$s?</string>
     <string name="delete_shell_work">Delete Shell Work</string>
+    <string name="has_not_ran_yet">has not ran yet</string>
+    <string name="should_run_shortly">should run shortly</string>
+    <string name="periodic_work_state">PERIODIC\n every (%1$d %2$s)</string>
+    <string name="periodic_work_state_one">PERIODIC\n(every %1$s)</string>
 </resources>

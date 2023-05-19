@@ -15,8 +15,8 @@ object TimeUtils {
   private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
   private val TIME_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
 
-  fun humanReadableFormat(duration: Duration): String {
-    return truncatedTo(duration, ChronoUnit.MILLIS).toString()
+  fun humanReadableFormat(duration: Duration, truncateUnit: ChronoUnit = ChronoUnit.MILLIS): String {
+    return truncatedTo(duration, truncateUnit).toString()
       .substring(2)
       .replace("(\\d[HMS])(?!$)".toRegex(), "$1")
       .lowercase(Locale.getDefault())
