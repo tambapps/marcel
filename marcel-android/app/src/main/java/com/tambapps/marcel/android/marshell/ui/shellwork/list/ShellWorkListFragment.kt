@@ -39,7 +39,6 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     fun newInstance() = ShellWorkListFragment()
   }
 
-  private var worksLiveData: LiveData<List<ShellWork>>? = null
   private var _binding: FragmentShellWorkListBinding? = null
 
   // This property is only valid between onCreateView and
@@ -73,7 +72,6 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     CoroutineScope(Dispatchers.IO).launch {
       val liveData = shellWorkManager.listLive()
       withContext(Dispatchers.Main) {
-        worksLiveData = liveData
         liveData.observe(viewLifecycleOwner, this@ShellWorkListFragment::refreshWorks)
       }
     }
@@ -81,14 +79,17 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
   }
 
   fun refreshWorks() {
-    if (worksLiveData != null && worksLiveData!!.value != null) {
-      refreshWorks(worksLiveData!!.value!!)
+    CoroutineScope(Dispatchers.IO).launch {
+      val works = shellWorkManager.list()
+      withContext(Dispatchers.Main) {
+        refreshWorks(works)
+      }
     }
   }
+
   private fun refreshWorks(works: List<ShellWork>) {
     shellWorks.clear()
     shellWorks.addAll(works)
-    println(works.map { it.isFinished })
     shellWorks.sortWith(compareBy({ it.isFinished }, { it.startTime?.toEpochSecond(ZoneOffset.UTC)?.times(-1) ?: Long.MIN_VALUE }))
     binding.recyclerView.adapter?.notifyDataSetChanged()
   }

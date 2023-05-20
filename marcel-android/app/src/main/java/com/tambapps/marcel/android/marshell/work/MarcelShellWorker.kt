@@ -51,7 +51,13 @@ class MarcelShellWorker
   private val isSilent get() = work?.silent ?: false
 
   override suspend fun doWork(): Result {
-    val work = shellWorkDataDao.findById(id)
+    var work = shellWorkDataDao.findById(id)
+    var tries = 1
+    while (work == null && tries++ < 4) {
+      // sometimes it looks like the worker is created before the work_data could save the work in database
+      Thread.sleep(1_000L)
+      work = shellWorkDataDao.findById(id)
+    }
     if (work == null) {
       Log.e("MarcelShellWorker", "Couldn't find work_data on database for work $id")
       notificationTitle = "Marshell Worker"
@@ -72,7 +78,7 @@ class MarcelShellWorker
     notification(content = "Initializing marshell work...")
 
     val text = if (work.scriptText != null) {
-      work.scriptText
+      work.scriptText!!
     } else {
       notification(content = "Couldn't read script", foregroundNotification = true, force = true)
       return Result.failure(endData(failedReason = "Couldn't read script"))

@@ -43,6 +43,11 @@ class ShellWorkManager @Inject constructor(
     const val SHELL_WORK_TAG = "type:shell_work"
   }
 
+  suspend fun list(): List<ShellWork> {
+    return shellWorkDataDao.findAll()
+      .map { ShellWork.from(it) }
+  }
+
   suspend fun listLive(): LiveData<List<ShellWork>> {
     val workDatas = shellWorkDataDao.findAll()
     return workManager.getWorkInfosByTagLiveData(SHELL_WORK_TAG)
