@@ -18,6 +18,7 @@ import com.tambapps.marcel.android.marshell.databinding.FragmentShellWorkListBin
 import com.tambapps.marcel.android.marshell.service.ShellWorkManager
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
 import com.tambapps.marcel.android.marshell.ui.shellwork.form.ShellWorkFormFragment
+import com.tambapps.marcel.android.marshell.ui.shellwork.view.ShellWorkViewFragment
 import com.tambapps.marcel.android.marshell.util.TimeUtils
 import com.tambapps.marcel.android.marshell.work.ShellWork
 import dagger.hilt.android.AndroidEntryPoint
@@ -91,7 +92,15 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     binding.recyclerView.adapter?.notifyDataSetChanged()
   }
   private fun onWorkClick(work: ShellWork) {
-    Toast.makeText(requireContext(), "TODO", Toast.LENGTH_SHORT).show()
+    val fragment = ShellWorkViewFragment.newInstance(work.id)
+    parentFragmentManager.beginTransaction()
+      .setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
+      .add(R.id.container, fragment, fragment.javaClass.name)
+      .show(fragment)
+      .hide(this)
+      .commitNow()
+
+    (parentFragment as? ShellWorkFragment)?.notifyNavigated()
   }
 
   private fun onWorkCancel(work: ShellWork) {
@@ -229,8 +238,9 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
               durationBetweenNowAndNext.isNegative -> context.getString(R.string.should_run_shortly)
               work.isPeriodic -> context.getString(R.string.next_run_in, TimeUtils.humanReadableFormat(durationBetweenNowAndNext, ChronoUnit.SECONDS))
               else -> context.getString(R.string.will_run_in, TimeUtils.humanReadableFormat(durationBetweenNowAndNext, ChronoUnit.SECONDS))
-
             }
+          } else {
+            nextRun.visibility = View.GONE
           }
         }
       }

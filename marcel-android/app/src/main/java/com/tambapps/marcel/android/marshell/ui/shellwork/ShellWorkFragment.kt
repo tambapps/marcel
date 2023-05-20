@@ -56,10 +56,14 @@ class ShellWorkFragment : Fragment() {
     binding.fab.setOnClickListener {
       if ((lastNavigated == null || Duration.between(lastNavigated, Instant.now()) > Duration.ofMillis(TRANSITION_DURATION_MILLIS))
         && currentFragment?.onFabClick() == true) {
-        lastNavigated = Instant.now()
+        notifyNavigated()
       }
     }
     return root
+  }
+
+  fun notifyNavigated() {
+    lastNavigated = Instant.now()
   }
 
   override fun onDestroyView() {
