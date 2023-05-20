@@ -59,6 +59,6 @@
     <string name="delete_shell_work">Delete Shell Work</string>
     <string name="has_not_ran_yet">has not ran yet</string>
     <string name="should_run_shortly">should run shortly</string>
-    <string name="periodic_work_state">PERIODIC\n every (%1$d %2$s)</string>
+    <string name="periodic_work_state">PERIODIC\n(every %1$d %2$s)</string>
     <string name="periodic_work_state_one">PERIODIC\n(every %1$s)</string>
 </resources>

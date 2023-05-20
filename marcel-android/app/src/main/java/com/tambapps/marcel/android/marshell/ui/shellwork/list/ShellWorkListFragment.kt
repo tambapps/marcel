@@ -71,7 +71,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     }
 
     CoroutineScope(Dispatchers.IO).launch {
-      val liveData = shellWorkManager.list()
+      val liveData = shellWorkManager.listLive()
       withContext(Dispatchers.Main) {
         worksLiveData = liveData
         liveData.observe(viewLifecycleOwner, this@ShellWorkListFragment::refreshWorks)

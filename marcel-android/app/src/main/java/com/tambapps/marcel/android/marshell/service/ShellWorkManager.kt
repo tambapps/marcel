@@ -12,7 +12,9 @@ import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import androidx.work.WorkQuery
 import androidx.work.WorkRequest
+import com.google.common.util.concurrent.ListenableFuture
 import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDataDao
 import com.tambapps.marcel.android.marshell.room.entity.ShellWorkData
 import com.tambapps.marcel.android.marshell.ui.shellwork.form.PeriodUnit
@@ -32,6 +34,7 @@ import javax.inject.Named
 class ShellWorkManager @Inject constructor(
   private val workManager: WorkManager,
   private val shellWorkDataDao: ShellWorkDataDao,
+  // TODO useless
   @Named("shellWorksDirectory")
   private val shellWorksDirectory: File
   ) {
@@ -40,7 +43,7 @@ class ShellWorkManager @Inject constructor(
     const val SHELL_WORK_TAG = "type:shell_work"
   }
 
-  suspend fun list(): LiveData<List<ShellWork>> {
+  suspend fun listLive(): LiveData<List<ShellWork>> {
     val workDatas = shellWorkDataDao.findAll()
     return workManager.getWorkInfosByTagLiveData(SHELL_WORK_TAG)
       .map { _ ->
@@ -54,14 +57,25 @@ class ShellWorkManager @Inject constructor(
     return ShellWork.from(data)
   }
 
+  private fun listWorkInfo(): ListenableFuture<MutableList<WorkInfo>> {
+    return workManager.getWorkInfos(WorkQuery.fromTags(SHELL_WORK_TAG))
+  }
+  fun existsByName(name: String): Boolean {
+    val works = listWorkInfo().get()
+    return works.any { it.tags.contains("name:$name") }
+  }
+
   suspend fun create(periodAmount: Int?, periodUnit: PeriodUnit?, name: String, scriptFile: File,
                          description: String?, networkRequired: Boolean, silent: Boolean,
                          scheduleDate: LocalDate?, scheduleTime: LocalTime?) {
     val workRequest: WorkRequest.Builder<*, *> =
       if (periodAmount != null && periodUnit != null) PeriodicWorkRequestBuilder<MarcelShellWorker>(
         periodUnit.toMinutes(periodAmount), TimeUnit.MINUTES)
+        .setInitialDelay(Duration.ZERO)
       else OneTimeWorkRequest.Builder(MarcelShellWorker::class.java)
     workRequest.addTag(SHELL_WORK_TAG)
+        // useful to check uniqueness without fetching shell_work_data
+      .addTag("name:$name")
 
     val scheduleDateTime =
       if (scheduleDate != null && scheduleTime != null) LocalDateTime.of(scheduleDate, scheduleTime) else null
@@ -79,17 +93,17 @@ class ShellWorkManager @Inject constructor(
     }
 
     workRequest.setInputData(Data.Builder().build())
-    val id = UUID.randomUUID() // not optimal but this is how android work-api also creates it anyway
-    workRequest.setId(id)
 
     val operation = if (workRequest is PeriodicWorkRequest.Builder) workManager.enqueueUniquePeriodicWork(name, ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE, workRequest.build())
     else workManager.enqueueUniqueWork(name, ExistingWorkPolicy.REPLACE, workRequest.build() as OneTimeWorkRequest)
     // waiting for the work to be created
     operation.result.get()
 
+    val workId = listWorkInfo().get().find { it.tags.contains("name:$name") }!!.id
+
     // now create shell_work_data
     val data = ShellWorkData(
-      id = id,
+      id = workId,
       name = name,
       description = description,
       periodAmount = periodAmount,
@@ -116,11 +130,4 @@ class ShellWorkManager @Inject constructor(
     return true
   }
 
-  private fun workDirectory(id: UUID): File {
-    return File(shellWorksDirectory, "work_$id")
-  }
-
-  private fun workInfoFile(id: UUID): File {
-    return File(workDirectory(id), "info.parcelable")
-  }
 }

@@ -186,11 +186,17 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       return false
     }
 
+    val name = binding.workName.text.toString()
+    if (shellWorkManager.existsByName(name)) {
+      Toast.makeText(activity, "Name should be unique among all active works", Toast.LENGTH_SHORT).show()
+      return false
+    }
+
     // everything seems to be ok, now creating the Work
     CoroutineScope(Dispatchers.IO).launch {
       shellWorkManager.create(
         scriptFile = scriptFile,
-        name = binding.workName.text.toString(),
+        name = name,
         description = binding.workDescription.text?.toString(),
         periodAmount = binding.periodEditText.text.toString().toIntOrNull(),
         periodUnit = selectedPeriodUnit,
