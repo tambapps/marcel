@@ -52,13 +52,16 @@ class ShellWorkFragment : Fragment() {
 
     binding.fab.setOnClickListener {
       currentFragment?.onFabClick()
+      notifyNavigated()
     }
     return root
   }
 
-  fun notifyNavigated() {
+  // TODO handle icon change on back press
+  fun notifyNavigated(resDrawable: Int = R.drawable.plus) {
     binding.fab.hide()
     Handler(Looper.getMainLooper()).postDelayed({
+      binding.fab.setImageResource(resDrawable)
       binding.fab.show()
     }, TRANSITION_DURATION_MILLIS)
   }

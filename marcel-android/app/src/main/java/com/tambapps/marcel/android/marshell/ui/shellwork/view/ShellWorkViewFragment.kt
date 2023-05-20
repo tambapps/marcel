@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellWorkViewBinding
 import com.tambapps.marcel.android.marshell.service.ShellWorkManager
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
@@ -53,6 +54,10 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWo
           displayWork(context = requireContext(), work = work,
             name = nameText, result = resultText,
             startTime = startTimeText, state = stateText, nextRun = nextRunText, singleLineStateText = true)
+          consultLogsButton.visibility = if (work.logs.isNullOrBlank()) View.GONE else View.VISIBLE
+          consultLogsButton.setOnClickListener {
+            Toast.makeText(requireContext(), "TODO", Toast.LENGTH_SHORT).show()
+          }
         }
       }
     }

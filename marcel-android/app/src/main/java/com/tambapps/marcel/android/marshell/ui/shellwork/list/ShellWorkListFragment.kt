@@ -10,10 +10,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.commit
-import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.work.WorkInfo.State
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellWorkListBinding
 import com.tambapps.marcel.android.marshell.service.ShellWorkManager
@@ -21,16 +19,13 @@ import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkTextDisplay
 import com.tambapps.marcel.android.marshell.ui.shellwork.form.ShellWorkFormFragment
 import com.tambapps.marcel.android.marshell.ui.shellwork.view.ShellWorkViewFragment
-import com.tambapps.marcel.android.marshell.util.TimeUtils
 import com.tambapps.marcel.android.marshell.work.ShellWork
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.Duration
 import java.time.ZoneOffset
-import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -112,7 +107,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellW
       show(fragment)
       hide(this@ShellWorkListFragment)
     }
-    (parentFragment as? ShellWorkFragment)?.notifyNavigated()
+    (parentFragment as? ShellWorkFragment)?.notifyNavigated(R.drawable.edit)
   }
 
   private fun onWorkCancel(work: ShellWork) {
