@@ -144,8 +144,15 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
 
   override fun unregisterCallback(callback: ListUpdateCallback) = shellSessions.unregisterCallback(callback)
 
+  override fun onBackPressed() {
+    super.onBackPressed()
+    binding.navView.setCheckedItem(navController.currentDestination!!.id)
+  }
+
   override fun onStop() {
     super.onStop()
+    // TODO set threadLocal printer and unregister the ones registered from the shell sessions.
+    //  this is useful because we might have some shell works running
     MarcelSystem.setPrinter(null)
   }
 
