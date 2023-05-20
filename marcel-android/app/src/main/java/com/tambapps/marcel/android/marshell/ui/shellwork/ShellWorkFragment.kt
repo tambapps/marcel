@@ -1,6 +1,8 @@
 package com.tambapps.marcel.android.marshell.ui.shellwork
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,8 +33,6 @@ class ShellWorkFragment : Fragment() {
   private val binding get() = _binding!!
 
   private val currentFragment: ShellWorkFragmentChild? get() = childFragmentManager.findFragmentById(R.id.container) as? ShellWorkFragmentChild
-  // used to avoid clicking twice on fab while navigating
-  private var lastNavigated: Instant? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -54,16 +54,16 @@ class ShellWorkFragment : Fragment() {
 
 
     binding.fab.setOnClickListener {
-      if ((lastNavigated == null || Duration.between(lastNavigated, Instant.now()) > Duration.ofMillis(TRANSITION_DURATION_MILLIS))
-        && currentFragment?.onFabClick() == true) {
-        notifyNavigated()
-      }
+      currentFragment?.onFabClick()
     }
     return root
   }
 
   fun notifyNavigated() {
-    lastNavigated = Instant.now()
+    binding.fab.hide()
+    Handler(Looper.getMainLooper()).postDelayed({
+      binding.fab.show()
+    }, TRANSITION_DURATION_MILLIS)
   }
 
   override fun onDestroyView() {

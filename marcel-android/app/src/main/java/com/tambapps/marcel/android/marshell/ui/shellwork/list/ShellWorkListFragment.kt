@@ -99,7 +99,6 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       .show(fragment)
       .hide(this)
       .commitNow()
-
     (parentFragment as? ShellWorkFragment)?.notifyNavigated()
   }
 

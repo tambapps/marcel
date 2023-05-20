@@ -216,6 +216,7 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
         }
       }
     }
+    (parentFragment as? ShellWorkFragment)?.notifyNavigated()
     return true
   }
 
