@@ -106,8 +106,12 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
   }
 
   private fun onWorkCancel(work: ShellWork) {
-    shellWorkManager.cancel(work.id)
-    refreshWorks()
+    CoroutineScope(Dispatchers.IO).launch {
+      shellWorkManager.cancel(work.id)
+      withContext(Dispatchers.Main) {
+        refreshWorks()
+      }
+    }
   }
 
   private fun onWorkDelete(work: ShellWork) {

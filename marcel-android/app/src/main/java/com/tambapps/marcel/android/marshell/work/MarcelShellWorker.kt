@@ -13,12 +13,14 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.ForegroundInfo
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.tambapps.marcel.android.marshell.MainActivity
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.repl.jar.DexJarWriterFactory
 import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDataDao
+import com.tambapps.marcel.android.marshell.room.entity.ShellWorkData
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.MarcelEvaluator
 import com.tambapps.marcel.repl.MarcelReplCompiler
@@ -45,7 +47,8 @@ class MarcelShellWorker
   }
   private val notificationManager = applicationContext.getSystemService(NotificationManager::class.java)
   private var notificationTitle = "Shell Work"
-  private var isSilent = false
+  private var work: ShellWorkData? = null
+  private val isSilent get() = work?.silent ?: false
 
   override suspend fun doWork(): Result {
     val work = shellWorkDataDao.findById(id)
@@ -55,7 +58,7 @@ class MarcelShellWorker
       notification(content = "An unexpected work configuration error occurred", force = true)
       return Result.failure(endData(failedReason = "Unexpected work configuration error"))
     }
-    isSilent = work.silent
+    this.work = work
     notificationTitle = work.name + " " + notificationTitle
 
     /* initialization */
@@ -107,6 +110,9 @@ class MarcelShellWorker
     shellWorkDataDao.updateEndTime(id, LocalDateTime.now())
     if (failedReason != null) {
       shellWorkDataDao.updateFailureReason(id, failedReason)
+      shellWorkDataDao.updateState(id, if (work?.isPeriodic == true) WorkInfo.State.ENQUEUED else WorkInfo.State.FAILED)
+    } else {
+      shellWorkDataDao.updateState(id, if (work?.isPeriodic == true) WorkInfo.State.ENQUEUED else WorkInfo.State.SUCCEEDED)
     }
     return Data.Builder().build()
   }

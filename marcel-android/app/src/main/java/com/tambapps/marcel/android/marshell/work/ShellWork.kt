@@ -21,7 +21,7 @@ data class ShellWork(
   val startTime: LocalDateTime?,
   val endTime: LocalDateTime?,
   val scheduledAt: LocalDateTime?,
-  val output: String?,
+  val logs: String?,
   val result: String?,
   val failedReason: String?
 ) {
@@ -37,10 +37,10 @@ data class ShellWork(
 
   companion object {
 
-    fun from(info: WorkInfo, data: ShellWorkData): ShellWork {
+    fun from(data: ShellWorkData): ShellWork {
       return ShellWork(
-        id = info.id,
-        state = info.state,
+        id = data.id,
+        state = data.state,
         name = data.name,
         scriptText = data.scriptText,
         silent = data.silent,
@@ -50,7 +50,7 @@ data class ShellWork(
         startTime = data.startTime?.let(LocalDateTime::parse),
         endTime = data.endTime?.let(LocalDateTime::parse),
         scheduledAt = data.scheduledAt?.let(LocalDateTime::parse),
-        output = data.output,
+        logs = data.logs,
         result = data.result,
         failedReason = data.failedReason
       )

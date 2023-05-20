@@ -10,6 +10,7 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDataDao
@@ -40,21 +41,17 @@ class ShellWorkManager @Inject constructor(
   }
 
   suspend fun list(): LiveData<List<ShellWork>> {
-    val worksDataById = shellWorkDataDao.findAll()
-      .associateBy { it.id }
+    val workDatas = shellWorkDataDao.findAll()
     return workManager.getWorkInfosByTagLiveData(SHELL_WORK_TAG)
-      .map { workInfos ->
-        workInfos.mapNotNull {
-          val data = worksDataById[it.id] ?: return@mapNotNull null
-          return@mapNotNull ShellWork.from(it, data)
-        }
+      .map { _ ->
+        // we just want to listen to changes but we actually just care of shellWorkDatas
+        workDatas.map { ShellWork.from(it) }
       }
   }
 
   suspend fun findById(id: UUID): ShellWork? {
-    val info = workManager.getWorkInfoById(id).get()
     val data = shellWorkDataDao.findById(id) ?: return null
-    return ShellWork.from(info, data)
+    return ShellWork.from(data)
   }
 
   suspend fun create(periodAmount: Int?, periodUnit: PeriodUnit?, name: String, scriptFile: File,
@@ -100,14 +97,16 @@ class ShellWorkManager @Inject constructor(
       scheduledAt = scheduleDateTime?.toString(),
       silent = silent,
       scriptText = scriptFile.readText(),
+      state = WorkInfo.State.ENQUEUED,
       startTime = null, endTime = null,
-      output = null, result = null, failedReason = null
+      logs = null, result = null, failedReason = null
     )
     shellWorkDataDao.insert(data)
   }
 
-  fun cancel(id: UUID) {
+  suspend fun cancel(id: UUID) {
     workManager.cancelWorkById(id).result.get()
+    shellWorkDataDao.updateState(id, WorkInfo.State.CANCELLED)
   }
 
   suspend fun delete(id: UUID): Boolean {
