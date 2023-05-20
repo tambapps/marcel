@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.commit
 import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -93,12 +94,14 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
   }
   private fun onWorkClick(work: ShellWork) {
     val fragment = ShellWorkViewFragment.newInstance(work.id)
-    parentFragmentManager.beginTransaction()
-      .setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
-      .add(R.id.container, fragment, fragment.javaClass.name)
-      .show(fragment)
-      .hide(this)
-      .commitNow()
+    parentFragmentManager.commit {
+      setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
+      // to handle back press
+      addToBackStack(null)
+      add(R.id.container, fragment, fragment.javaClass.name)
+      show(fragment)
+      hide(this@ShellWorkListFragment)
+    }
     (parentFragment as? ShellWorkFragment)?.notifyNavigated()
   }
 
@@ -132,12 +135,14 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
 
   override fun onFabClick(): Boolean {
     val fragment = ShellWorkFormFragment.newInstance()
-    parentFragmentManager.beginTransaction()
-      .setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
-      .add(R.id.container, fragment, fragment.javaClass.name)
-      .show(fragment)
-      .hide(this)
-      .commitNow()
+    parentFragmentManager.commit {
+      setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
+      // to handle back press
+      addToBackStack(null)
+      add(R.id.container, fragment, fragment.javaClass.name)
+      show(fragment)
+      hide(this@ShellWorkListFragment)
+    }
     return true
   }
 

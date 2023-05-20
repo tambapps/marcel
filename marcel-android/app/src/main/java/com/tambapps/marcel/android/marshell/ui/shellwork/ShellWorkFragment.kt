@@ -10,8 +10,6 @@ import androidx.fragment.app.Fragment
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellWorkBinding
 import com.tambapps.marcel.android.marshell.ui.shellwork.list.ShellWorkListFragment
-import java.time.Duration
-import java.time.Instant
 
 class ShellWorkFragment : Fragment() {
 
@@ -51,7 +49,6 @@ class ShellWorkFragment : Fragment() {
 
     _binding = FragmentShellWorkBinding.inflate(inflater, container, false)
     val root: View = binding.root
-
 
     binding.fab.setOnClickListener {
       currentFragment?.onFabClick()
