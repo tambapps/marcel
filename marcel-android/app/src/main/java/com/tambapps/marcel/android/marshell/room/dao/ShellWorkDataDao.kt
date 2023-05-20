@@ -33,10 +33,10 @@ interface ShellWorkDataDao {
   suspend fun delete(data: ShellWorkData)
 
   @Query("UPDATE shell_work_data SET failure_reason = :failureReason WHERE id =:id")
-  suspend fun updateFailureReason(id: UUID, failureReason: String)
+  suspend fun updateFailureReason(id: UUID, failureReason: String?)
 
   @Query("UPDATE shell_work_data SET result = :result WHERE id =:id")
-  suspend fun updateResult(id: UUID, result: String)
+  suspend fun updateResult(id: UUID, result: String?)
 
   @Query("UPDATE shell_work_data SET state = :state WHERE id =:id")
   suspend fun updateState(id: UUID, state: State)

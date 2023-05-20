@@ -114,9 +114,10 @@ class MarcelShellWorker
 
   private suspend fun endData(failedReason: String? = null): Data {
     shellWorkDataDao.updateEndTime(id, LocalDateTime.now())
+    shellWorkDataDao.updateFailureReason(id, failedReason)
     if (failedReason != null) {
-      shellWorkDataDao.updateFailureReason(id, failedReason)
       shellWorkDataDao.updateState(id, if (work?.isPeriodic == true) WorkInfo.State.ENQUEUED else WorkInfo.State.FAILED)
+      shellWorkDataDao.updateResult(id, null)
     } else {
       shellWorkDataDao.updateState(id, if (work?.isPeriodic == true) WorkInfo.State.ENQUEUED else WorkInfo.State.SUCCEEDED)
     }

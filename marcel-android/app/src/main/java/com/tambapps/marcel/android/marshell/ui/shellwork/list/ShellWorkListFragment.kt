@@ -18,6 +18,7 @@ import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellWorkListBinding
 import com.tambapps.marcel.android.marshell.service.ShellWorkManager
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
+import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkTextDisplay
 import com.tambapps.marcel.android.marshell.ui.shellwork.form.ShellWorkFormFragment
 import com.tambapps.marcel.android.marshell.ui.shellwork.view.ShellWorkViewFragment
 import com.tambapps.marcel.android.marshell.util.TimeUtils
@@ -33,7 +34,7 @@ import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
+class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellWorkTextDisplay {
 
   companion object {
     fun newInstance() = ShellWorkListFragment()
@@ -69,6 +70,13 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       }
     }
 
+    binding.swipeRefresh.apply {
+      isRefreshing = true
+      setOnRefreshListener {
+        refreshWorks()
+      }
+    }
+
     CoroutineScope(Dispatchers.IO).launch {
       val liveData = shellWorkManager.listLive()
       withContext(Dispatchers.Main) {
@@ -92,6 +100,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     shellWorks.addAll(works)
     shellWorks.sortWith(compareBy({ it.isFinished }, { it.startTime?.toEpochSecond(ZoneOffset.UTC)?.times(-1) ?: Long.MIN_VALUE }))
     binding.recyclerView.adapter?.notifyDataSetChanged()
+    binding.swipeRefresh.isRefreshing = false
   }
   private fun onWorkClick(work: ShellWork) {
     val fragment = ShellWorkViewFragment.newInstance(work.id)
@@ -151,16 +160,14 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     return true
   }
 
-  class MyAdapter(private val works: List<ShellWork>,
+  inner class MyAdapter(private val works: List<ShellWork>,
                   private val onWorkClick: (ShellWork) -> Unit,
                   private val onWorkCancel: (ShellWork) -> Unit,
                   private val onWorkDelete: (ShellWork) -> Unit) :
     RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
 
-    companion object {
-      val ORANGE = Color.parseColor("#FFA500")
-    }
-    class MyViewHolder(val root: View) : RecyclerView.ViewHolder(root) {
+
+    inner class MyViewHolder(val root: View) : RecyclerView.ViewHolder(root) {
       val title = root.findViewById<TextView>(R.id.title)
       val result = root.findViewById<TextView>(R.id.result)
       val state = root.findViewById<TextView>(R.id.state)
@@ -178,13 +185,6 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       val work = works[position]
       val context = holder.root.context
       holder.apply {
-        title.text = work.name
-        result.text = work.result?.let {
-        val prefix = if (work.isPeriodic) "Last result" else "Result"
-          prefix + ": ${work.result}"
-        }
-        state.text = work.state.name
-        state.setTextColor(stateColor(work))
         root.setOnClickListener {
           onWorkClick.invoke(work)
         }
@@ -198,7 +198,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
               }.create()
               .apply {
                 setOnShowListener {
-                  getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ORANGE)
+                  getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ShellWorkTextDisplay.ORANGE)
                 }
               }.show()
           } else {
@@ -217,51 +217,12 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild() {
           }
           return@setOnLongClickListener true
         }
-        println(work.endTime)
-        startTime.text = when {
-          work.startTime != null ->
-            if (work.isFinished) context.getString(R.string.work_ran_lasted, TimeUtils.smartToString(work.startTime), TimeUtils.humanReadableFormat(
-              Duration.between(work.startTime, work.endTime)))
-            else if (work.isPeriodic) when (work.state) {
-              State.RUNNING -> context.getString(R.string.work_started, TimeUtils.smartToString(work.startTime))
-              else -> context.getString(R.string.work_last_ran_lasted, TimeUtils.smartToString(work.startTime), TimeUtils.humanReadableFormat(
-                Duration.between(work.startTime, work.endTime)))
-            }
-            else context.getString(R.string.work_started, TimeUtils.smartToString(work.startTime))
-          work.scheduledAt != null -> context.getString(R.string.scheduled_for, work.scheduledAt)
-          else -> when {
-            work.state == State.FAILED  -> if (work.failedReason != null) work.failedReason else "An error occurred"
-            else -> context.getString(R.string.has_not_ran_yet)
-          }
-        }
-        nextRun.visibility = if (work.isPeriodic) View.VISIBLE else View.GONE
-        if (work.isPeriodic && !work.state.isFinished) {
-          state.text =
-            if (work.state == State.RUNNING) "RUNNING"
-            else if (work.periodAmount == 1) context.getString(R.string.periodic_work_state_one, work.periodUnit!!.toString().removeSuffix("s"))
-            else context.getString(R.string.periodic_work_state, work.periodAmount, work.periodUnit)
-          val durationBetweenNowAndNext = work.durationBetweenNowAndNext
-          if (durationBetweenNowAndNext != null) {
-            nextRun.visibility = View.VISIBLE
-            nextRun.text = when {
-              durationBetweenNowAndNext.isNegative -> context.getString(R.string.should_run_shortly)
-              work.isPeriodic -> context.getString(R.string.next_run_in, TimeUtils.humanReadableFormat(durationBetweenNowAndNext, ChronoUnit.SECONDS))
-              else -> context.getString(R.string.will_run_in, TimeUtils.humanReadableFormat(durationBetweenNowAndNext, ChronoUnit.SECONDS))
-            }
-          } else {
-            nextRun.visibility = View.GONE
-          }
-        }
+        displayWork(context = requireContext(),
+          name = title, result = result,
+          work = work, startTime = startTime, state = state, nextRun = nextRun)
       }
     }
 
-    private fun stateColor(work: ShellWork) = when {
-      work.state == State.SUCCEEDED -> Color.GREEN
-      work.state == State.CANCELLED -> ORANGE // orange
-      work.state == State.FAILED -> Color.RED
-      work.isPeriodic || work.state == State.RUNNING -> Color.parseColor("#87CEEB")
-      else -> Color.WHITE
-    }
     override fun getItemCount(): Int {
       return works.size
     }
