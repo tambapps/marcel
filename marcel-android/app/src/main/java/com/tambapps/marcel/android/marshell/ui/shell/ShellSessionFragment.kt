@@ -12,7 +12,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.tambapps.marcel.android.marshell.ShellHandler
 import com.tambapps.marcel.android.marshell.data.ShellSession
-import com.tambapps.marcel.android.marshell.databinding.FragmentShellWindowBinding
+import com.tambapps.marcel.android.marshell.databinding.FragmentShellSessionBinding
 import com.tambapps.marcel.android.marshell.repl.AndroidMarshell
 import com.tambapps.marcel.android.marshell.repl.AndroidMarshellFactory
 import com.tambapps.marcel.android.marshell.repl.AndroidMarshellRunner
@@ -26,13 +26,12 @@ import marcel.lang.util.MarcelVersion
 import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
 
-// TODO rename shellSessionFragment
 @AndroidEntryPoint
-class ShellWindowFragment : Fragment() {
+class ShellSessionFragment : Fragment() {
 
   companion object {
     private const val POSITION_KEY = "p"
-    fun newInstance(position: Int, scriptText: CharSequence?) = ShellWindowFragment().apply {
+    fun newInstance(position: Int, scriptText: CharSequence?) = ShellSessionFragment().apply {
       arguments = Bundle().apply {
         putInt(POSITION_KEY, position)
         if (scriptText != null) {
@@ -41,7 +40,8 @@ class ShellWindowFragment : Fragment() {
       }
     }
   }
-  private var _binding: FragmentShellWindowBinding? = null
+
+  private var _binding: FragmentShellSessionBinding? = null
   @Inject
   lateinit var factory: AndroidMarshellFactory
   private val binding get() = _binding!!
@@ -57,7 +57,7 @@ class ShellWindowFragment : Fragment() {
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-    _binding = FragmentShellWindowBinding.inflate(inflater, container, false)
+    _binding = FragmentShellSessionBinding.inflate(inflater, container, false)
     return binding.root
   }
 

@@ -1,6 +1,5 @@
 package com.tambapps.marcel.android.marshell.ui.shell
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -8,8 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.viewpager2.adapter.MyFragmentStateAdapter
@@ -71,7 +68,7 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
     val pickScriptResultLauncher = registerForActivityResult(FilePickerActivity.Contract()) { selectedFile: File? ->
       if (selectedFile != null) {
         val fileText = selectedFile.readText()
-        val fragment = adapter.getFragmentAt(binding.viewPager.currentItem) as ShellWindowFragment
+        val fragment = adapter.getFragmentAt(binding.viewPager.currentItem) as ShellSessionFragment
         fragment.runScript(fileText)
       } else {
         Toast.makeText(requireContext(), "No file was selected", Toast.LENGTH_SHORT).show()
@@ -130,11 +127,11 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
       val scriptText =
         if (scriptTextArg != null && scriptTextArg.second == position) scriptTextArg.first
         else null
-      return ShellWindowFragment.newInstance(position, scriptText)
+      return ShellSessionFragment.newInstance(position, scriptText)
     }
 
     override fun onBindFragment(fragment: Fragment, position: Int) {
-      (fragment as ShellWindowFragment).bindTo(shellHandler.getSessionAt(position))
+      (fragment as ShellSessionFragment).bindTo(shellHandler.getSessionAt(position))
     }
   }
 
@@ -164,7 +161,7 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
   }
 
   private fun getCurrentPrinter(): TextViewPrinter? {
-    val fragment = adapter?.getFragmentAt(binding.viewPager.currentItem) as? ShellWindowFragment
+    val fragment = adapter?.getFragmentAt(binding.viewPager.currentItem) as? ShellSessionFragment
     return fragment?.printer
   }
 }

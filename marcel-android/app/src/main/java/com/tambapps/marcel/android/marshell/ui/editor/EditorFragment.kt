@@ -14,7 +14,6 @@ import com.tambapps.marcel.android.marshell.FilePickerActivity
 import com.tambapps.marcel.android.marshell.ShellHandler
 import com.tambapps.marcel.android.marshell.databinding.FragmentEditorBinding
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
-import com.tambapps.marcel.android.marshell.ui.shell.ShellWindowFragment
 import com.tambapps.marcel.android.marshell.util.showSoftBoard
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.MarcelReplCompiler
