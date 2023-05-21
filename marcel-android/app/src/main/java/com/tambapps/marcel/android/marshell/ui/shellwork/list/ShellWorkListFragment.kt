@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.postDelayed
 import androidx.fragment.app.commit
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tambapps.marcel.android.marshell.R
@@ -29,6 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.internal.toImmutableList
 import java.time.ZoneOffset
 import javax.inject.Inject
 
@@ -85,11 +87,15 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellW
   }
 
   private fun refreshWorks(works: List<ShellWork>) {
+    val oldList = this.shellWorks.toImmutableList()
+    val newList = works.sortedWith(compareBy({ it.isFinished }, { it.startTime?.toEpochSecond(ZoneOffset.UTC)?.times(-1) ?: Long.MIN_VALUE }))
     shellWorks.clear()
-    shellWorks.addAll(works)
-    shellWorks.sortWith(compareBy({ it.isFinished }, { it.startTime?.toEpochSecond(ZoneOffset.UTC)?.times(-1) ?: Long.MIN_VALUE }))
-    // TODO perform proper list diff
-    binding.recyclerView.adapter?.notifyDataSetChanged()
+    shellWorks.addAll(newList)
+
+    val diffs = DiffUtil.calculateDiff(ShellWorkDiffCallback(oldList, newList))
+    binding.recyclerView.adapter?.let {
+      diffs.dispatchUpdatesTo(it)
+    }
   }
   private fun onWorkClick(work: ShellWork) {
     val fragment = ShellWorkViewFragment.newInstance(work.name)
@@ -212,6 +218,23 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellW
     override fun getItemCount(): Int {
       return works.size
     }
+  }
+
+  private class ShellWorkDiffCallback(private val oldList: List<ShellWork>,
+                                      private val newList: List<ShellWork>): DiffUtil.Callback() {
+
+    override fun getOldListSize() = oldList.size
+
+    override fun getNewListSize() = newList.size
+
+    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+      oldList.getOrNull(oldItemPosition) == newList.getOrNull(newItemPosition)
+
+    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+      // we want to update the duration between next run for periodic works, so they are considered never
+      // to be the same
+      newList.getOrNull(newItemPosition)?.isPeriodic != true
+          && areItemsTheSame(oldItemPosition, newItemPosition)
   }
 
 }
