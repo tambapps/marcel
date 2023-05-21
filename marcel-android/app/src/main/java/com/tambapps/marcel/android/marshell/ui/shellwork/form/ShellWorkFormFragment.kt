@@ -285,7 +285,7 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       true // default to enabled
     ) {
       override fun handleOnBackPressed() {
-        fab?.setImageResource(R.drawable.plus)
+        fab?.setImageResource(if (isCreateForm) R.drawable.plus else R.drawable.edit)
         parentFragmentManager.popBackStack()
       }
     }
