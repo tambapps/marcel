@@ -15,7 +15,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="16dp"
         android:gravity="center"
-        android:text="Shell works"
+        android:text="Shell Works"
         android:textSize="26sp" />
 
 

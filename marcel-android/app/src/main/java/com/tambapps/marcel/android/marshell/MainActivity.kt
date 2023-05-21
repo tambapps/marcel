@@ -1,10 +1,12 @@
 package com.tambapps.marcel.android.marshell
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -22,6 +24,7 @@ import java.io.File
 import java.util.Collections
 import javax.inject.Inject
 import javax.inject.Named
+
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
@@ -82,15 +85,17 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
   }
 
   override fun onNavigationItemSelected(menuItem: MenuItem): Boolean {
-    if (!NavigationUI.onNavDestinationSelected(menuItem, navController)) {
-      // note to self we're only going here if there is no entry for the nav_something in the mobile_navigation.xml
-      when (menuItem.itemId) {
-        // to do
+    binding.drawerLayout.closeDrawer(binding.navView)
+    if (NavigationUI.onNavDestinationSelected(menuItem, navController)) return true
+    when (menuItem.itemId) {
+      R.id.nav_playgrounds -> Toast.makeText(this, "Coming Soon", Toast.LENGTH_SHORT).show()
+      R.id.nav_documentation -> {
+        CustomTabsIntent.Builder()
+          .build()
+          .launchUrl(this@MainActivity, Uri.parse("https://tambapps.github.io/marcel"))
       }
     }
-
-    binding.drawerLayout.closeDrawer(binding.navView)
-    return true
+    return false
   }
 
   override fun getSessionAt(i: Int): ShellSession {
