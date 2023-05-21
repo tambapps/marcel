@@ -2,6 +2,7 @@ package com.tambapps.marcel.android.marshell.ui.shellwork.form
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -12,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TimePicker
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.commitNow
 import androidx.fragment.app.viewModels
 import com.tambapps.marcel.android.marshell.FilePickerActivity
@@ -222,7 +224,7 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
         }
       }
     }
-    (parentFragment as? ShellWorkFragment)?.notifyNavigated()
+    shellWorkFragment?.notifyNavigated()
     return true
   }
 
@@ -230,6 +232,23 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     super.onDestroyView()
     _binding = null
   }
+
+  override fun onAttach(context: Context) {
+    super.onAttach(context)
+    val callback = object : OnBackPressedCallback(
+      true // default to enabled
+    ) {
+      override fun handleOnBackPressed() {
+        fab?.setImageResource(R.drawable.plus)
+        parentFragmentManager.popBackStack()
+      }
+    }
+    requireActivity().onBackPressedDispatcher.addCallback(
+      this, // LifecycleOwner
+      callback
+    )
+  }
+
 }
 
 enum class PeriodUnit {

@@ -1,10 +1,13 @@
 package com.tambapps.marcel.android.marshell.ui.shellwork.view
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellWorkViewBinding
 import com.tambapps.marcel.android.marshell.service.ShellWorkManager
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
@@ -63,6 +66,21 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWo
     }
   }
 
+  override fun onAttach(context: Context) {
+    super.onAttach(context)
+    val callback = object : OnBackPressedCallback(
+      true // default to enabled
+    ) {
+      override fun handleOnBackPressed() {
+        fab?.setImageResource(R.drawable.plus)
+        parentFragmentManager.popBackStack()
+      }
+    }
+    requireActivity().onBackPressedDispatcher.addCallback(
+      this, // LifecycleOwner
+      callback
+    )
+  }
   override fun onFabClick(): Boolean {
     return false
   }

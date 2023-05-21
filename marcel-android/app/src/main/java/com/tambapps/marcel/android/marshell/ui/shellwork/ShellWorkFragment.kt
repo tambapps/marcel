@@ -16,7 +16,12 @@ class ShellWorkFragment : Fragment() {
   companion object {
     const val TRANSITION_DURATION_MILLIS = 500L
   }
-  abstract class ShellWorkFragmentChild: Fragment(), FabClickListener {}
+  abstract class ShellWorkFragmentChild: Fragment(), FabClickListener {
+
+    val shellWorkFragment get() = parentFragment as? ShellWorkFragment
+
+    val fab get() = shellWorkFragment?.fab
+  }
   interface FabClickListener {
 
     // return true if navigated
@@ -25,6 +30,7 @@ class ShellWorkFragment : Fragment() {
   }
 
   private var _binding: FragmentShellWorkBinding? = null
+  val fab get() = binding.fab
 
   // This property is only valid between onCreateView and
   // onDestroyView.
@@ -51,13 +57,13 @@ class ShellWorkFragment : Fragment() {
     val root: View = binding.root
 
     binding.fab.setOnClickListener {
-      currentFragment?.onFabClick()
-      notifyNavigated()
+      if (currentFragment?.onFabClick() == true) {
+        notifyNavigated()
+      }
     }
     return root
   }
 
-  // TODO handle icon change on back press
   fun notifyNavigated(resDrawable: Int = R.drawable.plus) {
     binding.fab.hide()
     Handler(Looper.getMainLooper()).postDelayed({

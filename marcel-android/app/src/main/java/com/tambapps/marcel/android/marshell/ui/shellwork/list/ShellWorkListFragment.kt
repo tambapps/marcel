@@ -107,7 +107,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellW
       show(fragment)
       hide(this@ShellWorkListFragment)
     }
-    (parentFragment as? ShellWorkFragment)?.notifyNavigated(R.drawable.edit)
+    shellWorkFragment?.notifyNavigated(R.drawable.edit)
   }
 
   private fun onWorkCancel(work: ShellWork) {
@@ -152,7 +152,8 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellW
       show(fragment)
       hide(this@ShellWorkListFragment)
     }
-    return true
+    shellWorkFragment?.notifyNavigated(R.drawable.save)
+    return false // returning false because we want to modify the fab's icon with notifyNavigated
   }
 
   inner class MyAdapter(private val works: List<ShellWork>,
