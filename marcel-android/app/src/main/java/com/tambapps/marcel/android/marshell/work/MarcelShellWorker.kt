@@ -71,16 +71,15 @@ class MarcelShellWorker
 
     /* initialization */
     createChannelIfNeeded()
-    shellWorkDao.updateStartTime(work.name, LocalDateTime.now())
-    val binding = Binding() // TODO set a variable 'out' to allow printing to a file without any conflicts
+    notification(content = "Initializing marshell work...")
+    val binding = Binding()
     val classLoader = MarcelDexClassLoader()
     val typeResolver = ReplJavaTypeResolver(classLoader, binding)
     val replCompiler = MarcelReplCompiler(compilerConfiguration, classLoader, typeResolver)
     val directory = File(applicationContext.getDir("shell_works", Context.MODE_PRIVATE), "work $id")
 
+    // TODO don't know why it doesn't work
     typeResolver.setScriptVariable("out", out, Printer::class.java)
-
-    notification(content = "Initializing marshell work...")
 
     val text = if (work.scriptText != null) {
       work.scriptText!!
@@ -98,6 +97,7 @@ class MarcelShellWorker
     /* running */
     val evaluator = MarcelEvaluator(Binding(), replCompiler, classLoader, DexJarWriterFactory(), directory)
     notification(content = "Executing Marshell work...")
+    shellWorkDao.updateStartTime(work.name, LocalDateTime.now())
     try {
       val result = evaluator.eval(text)
       /* handling result */
