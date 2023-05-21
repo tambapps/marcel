@@ -14,7 +14,6 @@ public class DexUtils {
         try (ZipInputStream zip = new ZipInputStream(Files.newInputStream(jarFile.toPath(), StandardOpenOption.READ))) {
             ZipEntry entry;
             while((entry = zip.getNextEntry()) != null) {
-                System.out.println(entry.getName());
                 if ("classes.dex".equals(entry.getName())) {
                     return true;
                 }
