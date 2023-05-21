@@ -156,9 +156,7 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
 
   override fun onStop() {
     super.onStop()
-    // TODO set threadLocal printer and unregister the ones registered from the shell sessions.
-    //  this is useful because we might have some shell works running
-    //    ORRRRR
+    // TODO remove printer. Just set an immutable variable out
     //  use a kind of extension to add function println, and don't load the DefaultStaticMethods.println
     MarcelSystem.setPrinter(null)
   }

@@ -21,6 +21,11 @@ class ReplJavaTypeResolver constructor(classLoader: MarcelClassLoader?, private 
         _libraryClasses.add(classNode)
     }
 
+    fun setScriptVariable(name: String, value: Any, type: Class<*>? = null) {
+        scriptVariables[name] = BoundField(JavaType.of(type ?: value.javaClass), name, Script::class.javaType)
+        binding.setVariable(name, value)
+    }
+
     override fun defineField(javaType: JavaType, field: MarcelField) {
         super.defineField(javaType, field)
         if (isScript(javaType) && field is BoundField) {

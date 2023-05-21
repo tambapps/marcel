@@ -42,6 +42,7 @@ class MarcelShellWorker
                               private val shellWorkDao: ShellWorkDao):
   CoroutineWorker(appContext, workerParams) {
 
+  // TODO set out variable using a printer
   companion object {
     const val NOTIFICATION_CHANNEL_ID = "MarcelShellWorker"
   }

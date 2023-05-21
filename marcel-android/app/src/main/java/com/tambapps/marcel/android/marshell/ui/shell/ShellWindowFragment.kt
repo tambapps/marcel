@@ -21,16 +21,17 @@ import dagger.hilt.android.AndroidEntryPoint
 import com.tambapps.marcel.android.marshell.view.EditTextHighlighter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import marcel.lang.MarcelSystem
+import marcel.lang.printer.Printer
 import marcel.lang.util.MarcelVersion
 import java.util.concurrent.LinkedBlockingQueue
 import javax.inject.Inject
 
+// TODO rename shellSessionFragment
 @AndroidEntryPoint
 class ShellWindowFragment : Fragment() {
 
   companion object {
-    const val POSITION_KEY = "p"
+    private const val POSITION_KEY = "p"
     fun newInstance(position: Int, scriptText: CharSequence?) = ShellWindowFragment().apply {
       arguments = Bundle().apply {
         putInt(POSITION_KEY, position)
@@ -131,10 +132,13 @@ class ShellWindowFragment : Fragment() {
   }
 
   fun bindTo(shellSession: ShellSession) {
+    // dispose things if any
     marshellRunner?.stop()
     marshellRunner = factory.newShellRunner(shellSession, printer, this::readLine) {
       shellHandler.stopSession(shellSession)
     }
+
+    // then start things
     marshellRunner?.start()
     val highlighter = marshellRunner!!.shell.newHighlighter()
     editTextHighlighter?.cancel()
@@ -154,6 +158,33 @@ class ShellWindowFragment : Fragment() {
         }
         historyTextView.append("${prompt.output}\n")
       }
+    }
+    shellSession.typeResolver.setScriptVariable("out", SessionPrinter(printer), Printer::class.java)
+  }
+
+  // this is because we don't want to pass a SuspendPrinter directly to the shell, which has other methods like suspendPrint
+  private class SessionPrinter(private val printer: Printer): Printer {
+    override fun print(p0: CharSequence?) {
+      printer.print(p0)
+    }
+
+    override fun print(o: Any?) {
+      printer.print(o)
+    }
+
+    override fun println(o: Any?) {
+      printer.println(o)
+    }
+    override fun println(p0: CharSequence?) {
+      printer.print(p0)
+    }
+
+    override fun println() {
+      printer.println()
+    }
+
+    override fun toString(): String {
+      return "Marshell Session Printer"
     }
   }
 }
