@@ -22,22 +22,32 @@ import com.tambapps.marcel.android.marshell.databinding.FragmentShellWorkFormBin
 import com.tambapps.marcel.android.marshell.service.ShellWorkManager
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
 import com.tambapps.marcel.android.marshell.ui.shellwork.list.ShellWorkListFragment
+import com.tambapps.marcel.android.marshell.work.ShellWork
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.IOException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.util.UUID
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
 
   companion object {
-    fun newInstance() = ShellWorkFormFragment()
+    fun newInstance(id: UUID? = null) = ShellWorkFormFragment().apply {
+      if (id != null) {
+        arguments = Bundle().apply {
+          putString("work_id", id.toString())
+        }
+      }
+    }
   }
 
   @Inject
@@ -49,6 +59,8 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
   private val binding get() = _binding!!
   private val viewModel: ShellWorkFormViewModel by viewModels()
   private val selectedPeriodUnit get() = (binding.periodicUnitsSpinner.adapter as ArrayAdapter<PeriodUnit>).getItem(binding.periodicUnitsSpinner.selectedItemPosition)
+  private var work: ShellWork? = null
+  private val isCreateForm get() = work == null
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -57,6 +69,16 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
   ): View {
     _binding = FragmentShellWorkFormBinding.inflate(inflater, container, false)
     val root: View = binding.root
+
+    val workId = requireArguments().getString("work_id")?.let(UUID::fromString)
+    if (workId != null) {
+      work = runBlocking { shellWorkManager.findById(workId) }
+      if (work == null) {
+        Toast.makeText(requireContext(), "Couldn't find work", Toast.LENGTH_SHORT).show()
+        parentFragmentManager.popBackStack()
+        return root
+      }
+    }
 
     viewModel.apply {
       scheduleTime.observe(viewLifecycleOwner) {
@@ -120,7 +142,6 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
         }
       })
 
-
       silentCheckBox.setOnCheckedChangeListener { _, isChecked ->
         silentDescription.animate().alpha(if (isChecked) 1f else 0f).setDuration(500).start()
       }
@@ -145,22 +166,37 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       }
 
       periodicUnitsSpinner.adapter = ArrayAdapter(root.context, R.layout.period_unit_layout, PeriodUnit.values())
-
-      val pickScriptFileLauncher = registerForActivityResult(FilePickerActivity.Contract()) { selectedFile: File? ->
-        if (selectedFile != null) {
-          viewModel.scriptFile.value = selectedFile
-        } else {
-          Toast.makeText(requireContext(), "No file was selected", Toast.LENGTH_SHORT).show()
-        }
-      }
-      pickScriptButton.setOnClickListener {
-        // I want .mcl files
-        pickScriptFileLauncher.launch(Intent(requireContext(), FilePickerActivity::class.java).apply {
-          putExtra(FilePickerActivity.ALLOWED_FILE_EXTENSIONSKEY, FilePickerActivity.SCRIPT_FILE_EXTENSIONS)
-        })
-      }
-
       periodicUnitsSpinner.setSelection(0)
+
+      if (work == null) {
+        workName.isEnabled = false // cannot edit name of work
+        val pickScriptFileLauncher = registerForActivityResult(FilePickerActivity.Contract()) { selectedFile: File? ->
+          if (selectedFile != null) {
+            viewModel.scriptFile.value = selectedFile
+          } else {
+            Toast.makeText(requireContext(), "No file was selected", Toast.LENGTH_SHORT).show()
+          }
+        }
+        pickScriptButton.text = requireContext().getString(R.string.pick_script)
+        pickScriptButton.setOnClickListener {
+          // I want .mcl files
+          pickScriptFileLauncher.launch(Intent(requireContext(), FilePickerActivity::class.java).apply {
+            putExtra(FilePickerActivity.ALLOWED_FILE_EXTENSIONSKEY, FilePickerActivity.SCRIPT_FILE_EXTENSIONS)
+          })
+        }
+      } else {
+        // if it is an update, initialize fields
+        pickScriptButton.text = requireContext().getString(R.string.edit_script)
+        pickScriptButton.setOnClickListener {
+          // TODO
+          Toast.makeText(requireContext(), "TODO", Toast.LENGTH_SHORT).show()
+        }
+        workName.setText(work!!.name)
+        workDescription.setText(work!!.description)
+        networkRequiredCheckBox.isChecked = work!!.isNetworkRequired
+        viewModel.scheduleDate.value = work!!.scheduledAt?.toLocalDate()
+        viewModel.scheduleTime.value = work!!.scheduledAt?.toLocalTime()
+      }
     }
     return root
   }
@@ -173,7 +209,7 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     binding.workName.error = null
 
     val scriptFile = viewModel.scriptFile.value
-    if (scriptFile == null) {
+    if (isCreateForm && scriptFile == null) {
       Toast.makeText(activity, R.string.must_select_script, Toast.LENGTH_SHORT).show()
       return false
     }
@@ -189,15 +225,22 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     }
 
     val name = binding.workName.text.toString()
-    if (shellWorkManager.existsByName(name)) {
+    if (isCreateForm && shellWorkManager.existsByName(name)) {
       Toast.makeText(activity, "Name should be unique among all active works", Toast.LENGTH_SHORT).show()
       return false
     }
 
+    val scriptText = if (isCreateForm) try {
+        scriptFile!!.readText()
+      } catch (e: IOException) {
+        Toast.makeText(requireContext(), "Couldn't read script", Toast.LENGTH_SHORT).show()
+        return false
+      } else work!!.scriptText
     // everything seems to be ok, now creating the Work
+    // TODO handle update call
     CoroutineScope(Dispatchers.IO).launch {
-      shellWorkManager.create(
-        scriptFile = scriptFile,
+      shellWorkManager.save(
+        scriptText = scriptText,
         name = name,
         description = binding.workDescription.text?.toString(),
         periodAmount = binding.periodEditText.text.toString().toIntOrNull(),
@@ -207,20 +250,25 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
         scheduleDate = viewModel.scheduleDate.value,
         scheduleTime = viewModel.scheduleTime.value
       )
+
       withContext(Dispatchers.Main) {
-        Toast.makeText(requireContext(), "Successfully created work", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), "Successfully saved work", Toast.LENGTH_SHORT).show()
 
-        // now moving back to work list
-        val currentListFragment = parentFragmentManager.findFragmentByTag(ShellWorkListFragment::class.java.name)
-            as? ShellWorkListFragment?
-        currentListFragment?.refreshWorks() // to refresh data when going back to page
-        val fragment = currentListFragment ?: ShellWorkListFragment.newInstance()
+        if (isCreateForm) {
+          // now moving back to work list
+          val currentListFragment = parentFragmentManager.findFragmentByTag(ShellWorkListFragment::class.java.name)
+              as? ShellWorkListFragment?
+          currentListFragment?.refreshWorks() // to refresh data when going back to page
+          val fragment = currentListFragment ?: ShellWorkListFragment.newInstance()
 
-        parentFragmentManager.commitNow {
-          setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
-          if (currentListFragment == null) add(R.id.container, fragment, fragment.javaClass.name)
-          show(fragment)
-          remove(this@ShellWorkFormFragment)
+          parentFragmentManager.commitNow {
+            setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+            if (currentListFragment == null) add(R.id.container, fragment, fragment.javaClass.name)
+            show(fragment)
+            remove(this@ShellWorkFormFragment)
+          }
+        } else {
+          parentFragmentManager.popBackStack()
         }
       }
     }

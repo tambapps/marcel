@@ -1,6 +1,5 @@
 package com.tambapps.marcel.android.marshell.work
 
-import androidx.work.WorkInfo
 import androidx.work.WorkInfo.State
 import com.tambapps.marcel.android.marshell.room.entity.ShellWorkData
 import com.tambapps.marcel.android.marshell.ui.shellwork.form.PeriodUnit
@@ -23,7 +22,9 @@ data class ShellWork(
   val scheduledAt: LocalDateTime?,
   val logs: String?,
   val result: String?,
-  val failedReason: String?
+  val failedReason: String?,
+  // TODO get it from data
+  val isNetworkRequired: Boolean = false
 ) {
 
   val isFinished get() = state.isFinished

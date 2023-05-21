@@ -20,7 +20,6 @@ import com.tambapps.marcel.android.marshell.room.entity.ShellWorkData
 import com.tambapps.marcel.android.marshell.ui.shellwork.form.PeriodUnit
 import com.tambapps.marcel.android.marshell.work.MarcelShellWorker
 import com.tambapps.marcel.android.marshell.work.ShellWork
-import java.io.File
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -29,7 +28,6 @@ import java.time.temporal.ChronoUnit
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import javax.inject.Named
 
 class ShellWorkManager @Inject constructor(
   private val workManager: WorkManager,
@@ -67,9 +65,9 @@ class ShellWorkManager @Inject constructor(
     return works.any { it.tags.contains("name:$name") }
   }
 
-  suspend fun create(periodAmount: Int?, periodUnit: PeriodUnit?, name: String, scriptFile: File,
-                         description: String?, networkRequired: Boolean, silent: Boolean,
-                         scheduleDate: LocalDate?, scheduleTime: LocalTime?) {
+  suspend fun save(periodAmount: Int?, periodUnit: PeriodUnit?, name: String, scriptText: String?,
+                   description: String?, networkRequired: Boolean, silent: Boolean,
+                   scheduleDate: LocalDate?, scheduleTime: LocalTime?) {
     val workRequest: WorkRequest.Builder<*, *> =
       if (periodAmount != null && periodUnit != null) PeriodicWorkRequestBuilder<MarcelShellWorker>(
         periodUnit.toMinutes(periodAmount), TimeUnit.MINUTES)
@@ -112,7 +110,7 @@ class ShellWorkManager @Inject constructor(
       periodUnit = periodUnit,
       scheduledAt = scheduleDateTime?.toString(),
       silent = silent,
-      scriptText = scriptFile.readText(),
+      scriptText = scriptText,
       state = WorkInfo.State.ENQUEUED,
       startTime = null, endTime = null,
       logs = null, result = null, failedReason = null

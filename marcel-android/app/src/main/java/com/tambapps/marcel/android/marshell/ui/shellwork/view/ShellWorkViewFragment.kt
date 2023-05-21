@@ -7,11 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.fragment.app.commit
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellWorkViewBinding
 import com.tambapps.marcel.android.marshell.service.ShellWorkManager
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkTextDisplay
+import com.tambapps.marcel.android.marshell.ui.shellwork.form.ShellWorkFormFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +36,7 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWo
   lateinit var shellWorkManager: ShellWorkManager
   private var _binding: FragmentShellWorkViewBinding? = null
   private val binding get() = _binding!!
+  val workId get() = requireArguments().getString("work_id")?.let(UUID::fromString)
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -46,7 +49,7 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWo
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    val workId = requireArguments().getString("work_id")?.let(UUID::fromString) ?: return
+    val workId = this.workId ?: return
     CoroutineScope(Dispatchers.IO).launch {
       val work = shellWorkManager.findById(workId) ?: return@launch
       withContext(Dispatchers.Main) {
@@ -82,7 +85,19 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWo
     )
   }
   override fun onFabClick(): Boolean {
-    return false
+    val workId = this.workId ?: return false
+
+    val fragment = ShellWorkFormFragment.newInstance(id = workId)
+    parentFragmentManager.commit {
+      setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
+      // to handle back press
+      addToBackStack(null)
+      add(R.id.container, fragment, fragment.javaClass.name)
+      show(fragment)
+      hide(this@ShellWorkViewFragment)
+    }
+    shellWorkFragment?.notifyNavigated(R.drawable.save)
+    return false // returning false because we want to modify the fab's icon with notifyNavigated
   }
 
   override fun onDestroyView() {
