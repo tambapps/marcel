@@ -26,7 +26,6 @@ interface ShellWorkTextDisplay {
 
   fun displayWork(context: Context, work: ShellWork, name: TextView, startTime: TextView,
                   result: TextView, state: TextView, nextRun: TextView, singleLineStateText: Boolean = false) {
-    // TODO set visibility of view based on whether text is displayed or not
     result.text = when {
       work.state != WorkInfo.State.FAILED && work.result != null -> {
         val prefix = if (work.isPeriodic) "Last result" else "Result"

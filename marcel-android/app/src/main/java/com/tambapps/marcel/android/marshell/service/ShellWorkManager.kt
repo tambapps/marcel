@@ -33,10 +33,7 @@ import javax.inject.Named
 
 class ShellWorkManager @Inject constructor(
   private val workManager: WorkManager,
-  private val shellWorkDataDao: ShellWorkDataDao,
-  // TODO useless
-  @Named("shellWorksDirectory")
-  private val shellWorksDirectory: File
+  private val shellWorkDataDao: ShellWorkDataDao
   ) {
 
   companion object {

@@ -37,12 +37,6 @@ class MarcelDroidConfiguration {
     return context.getDir("shell_sessions", Context.MODE_PRIVATE)
   }
 
-  @Named("shellWorksDirectory")
-  @Provides
-  fun shellWorksDirectory(@ApplicationContext context: Context): File {
-    return context.getDir("shell_works", Context.MODE_PRIVATE)
-  }
-
   @Provides
   fun compilerConfiguration(): CompilerConfiguration {
     return CompilerConfiguration(dumbbellEnabled = true, classVersion = 52) // Java 8

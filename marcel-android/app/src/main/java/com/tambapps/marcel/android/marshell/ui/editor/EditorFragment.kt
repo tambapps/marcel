@@ -26,7 +26,6 @@ import marcel.lang.MarcelDexClassLoader
 import java.io.File
 import javax.inject.Inject
 
-// TODO add save button
 @AndroidEntryPoint
 class EditorFragment : Fragment() {
 
