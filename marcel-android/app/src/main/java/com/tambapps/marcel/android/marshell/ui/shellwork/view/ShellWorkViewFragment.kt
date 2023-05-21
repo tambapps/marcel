@@ -10,6 +10,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.commit
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellWorkViewBinding
+import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import com.tambapps.marcel.android.marshell.service.ShellWorkManager
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkTextDisplay
@@ -49,22 +50,31 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWo
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    refresh()
+    registerPeriodicCallback(this::refresh)
+  }
+
+  private fun refresh() {
     val workName = this.workName ?: return
     CoroutineScope(Dispatchers.IO).launch {
       val work = shellWorkManager.findByName(workName) ?: return@launch
       withContext(Dispatchers.Main) {
-        binding.apply {
-          nameText.text = work.name
-          descriptionText.visibility = if (work.description.isNullOrBlank()) View.GONE else View.VISIBLE
-          descriptionText.text = work.description
-          displayWork(context = requireContext(), work = work,
-            name = nameText, result = resultText,
-            startTime = startTimeText, state = stateText, nextRun = nextRunText, singleLineStateText = true)
-          consultLogsButton.visibility = if (work.logs.isNullOrBlank()) View.GONE else View.VISIBLE
-          consultLogsButton.setOnClickListener {
-            Toast.makeText(requireContext(), "TODO", Toast.LENGTH_SHORT).show()
-          }
-        }
+        display(work)
+      }
+    }
+  }
+
+  private fun display(work: ShellWork) {
+    binding.apply {
+      nameText.text = work.name
+      descriptionText.visibility = if (work.description.isNullOrBlank()) View.GONE else View.VISIBLE
+      descriptionText.text = work.description
+      displayWork(context = requireContext(), work = work,
+        name = nameText, result = resultText,
+        startTime = startTimeText, state = stateText, nextRun = nextRunText, singleLineStateText = true)
+      consultLogsButton.visibility = if (work.logs.isNullOrBlank()) View.GONE else View.VISIBLE
+      consultLogsButton.setOnClickListener {
+        Toast.makeText(requireContext(), "TODO", Toast.LENGTH_SHORT).show()
       }
     }
   }
