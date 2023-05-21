@@ -22,7 +22,7 @@ import com.tambapps.marcel.android.marshell.databinding.FragmentShellWorkFormBin
 import com.tambapps.marcel.android.marshell.service.ShellWorkManager
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
 import com.tambapps.marcel.android.marshell.ui.shellwork.list.ShellWorkListFragment
-import com.tambapps.marcel.android.marshell.work.ShellWork
+import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,17 +34,17 @@ import java.io.IOException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.UUID
 import javax.inject.Inject
 
+// TODO need to display updates when returning to list or view cragment
 @AndroidEntryPoint
 class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
 
   companion object {
-    fun newInstance(id: UUID? = null) = ShellWorkFormFragment().apply {
-      if (id != null) {
+    fun newInstance(workName: String? = null) = ShellWorkFormFragment().apply {
+      if (workName != null) {
         arguments = Bundle().apply {
-          putString("work_id", id.toString())
+          putString("work_name", workName)
         }
       }
     }
@@ -70,9 +70,9 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     _binding = FragmentShellWorkFormBinding.inflate(inflater, container, false)
     val root: View = binding.root
 
-    val workId = requireArguments().getString("work_id")?.let(UUID::fromString)
-    if (workId != null) {
-      work = runBlocking { shellWorkManager.findById(workId) }
+    val workName = arguments?.getString("work_name")
+    if (workName != null) {
+      work = runBlocking { shellWorkManager.findByName(workName) }
       if (work == null) {
         Toast.makeText(requireContext(), "Couldn't find work", Toast.LENGTH_SHORT).show()
         parentFragmentManager.popBackStack()
@@ -95,7 +95,7 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     binding.apply {
       title.text = "New Shell Work"
 
-      workName.addTextChangedListener(object : TextWatcher {
+      binding.workName.addTextChangedListener(object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
         override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
         override fun afterTextChanged(s: Editable) {
@@ -168,8 +168,9 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       periodicUnitsSpinner.adapter = ArrayAdapter(root.context, R.layout.period_unit_layout, PeriodUnit.values())
       periodicUnitsSpinner.setSelection(0)
 
+      binding.workName.isEnabled = isCreateForm // cannot edit name of work
+
       if (work == null) {
-        workName.isEnabled = false // cannot edit name of work
         val pickScriptFileLauncher = registerForActivityResult(FilePickerActivity.Contract()) { selectedFile: File? ->
           if (selectedFile != null) {
             viewModel.scriptFile.value = selectedFile
@@ -191,7 +192,7 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
           // TODO
           Toast.makeText(requireContext(), "TODO", Toast.LENGTH_SHORT).show()
         }
-        workName.setText(work!!.name)
+        binding.workName.setText(work!!.name)
         workDescription.setText(work!!.description)
         networkRequiredCheckBox.isChecked = work!!.isNetworkRequired
         viewModel.scheduleDate.value = work!!.scheduledAt?.toLocalDate()
@@ -236,8 +237,7 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
         Toast.makeText(requireContext(), "Couldn't read script", Toast.LENGTH_SHORT).show()
         return false
       } else work!!.scriptText
-    // everything seems to be ok, now creating the Work
-    // TODO handle update call
+    // everything seems to be ok, now saving the Work
     CoroutineScope(Dispatchers.IO).launch {
       shellWorkManager.save(
         scriptText = scriptText,

@@ -19,8 +19,8 @@ import androidx.work.WorkerParameters
 import com.tambapps.marcel.android.marshell.MainActivity
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.repl.jar.DexJarWriterFactory
-import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDataDao
-import com.tambapps.marcel.android.marshell.room.entity.ShellWorkData
+import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDao
+import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.MarcelEvaluator
 import com.tambapps.marcel.repl.MarcelReplCompiler
@@ -39,7 +39,7 @@ class MarcelShellWorker
                               @Assisted workerParams: WorkerParameters,
                               // this is not a val because hilt doesn't allow final fields when injecting
                               private val compilerConfiguration: CompilerConfiguration,
-                              private val shellWorkDataDao: ShellWorkDataDao):
+                              private val shellWorkDao: ShellWorkDao):
   CoroutineWorker(appContext, workerParams) {
 
   companion object {
@@ -47,16 +47,16 @@ class MarcelShellWorker
   }
   private val notificationManager = applicationContext.getSystemService(NotificationManager::class.java)
   private var notificationTitle = "Shell Work"
-  private var work: ShellWorkData? = null
-  private val isSilent get() = work?.silent ?: false
+  private var work: ShellWork? = null
+  private val isSilent get() = work?.isSilent ?: false
 
   override suspend fun doWork(): Result {
-    var work = shellWorkDataDao.findById(id)
+    var work = shellWorkDao.findById(id)
     var tries = 1
     while (work == null && tries++ < 4) {
       // sometimes it looks like the worker is created before the work_data could save the work in database
       Thread.sleep(1_000L)
-      work = shellWorkDataDao.findById(id)
+      work = shellWorkDao.findById(id)
     }
     if (work == null) {
       Log.e("MarcelShellWorker", "Couldn't find work_data on database for work $id")
@@ -69,7 +69,7 @@ class MarcelShellWorker
 
     /* initialization */
     createChannelIfNeeded()
-    shellWorkDataDao.updateStartTime(id, LocalDateTime.now())
+    shellWorkDao.updateStartTime(work.name, LocalDateTime.now())
     val binding = Binding() // TODO set a variable 'out' to allow printing to a file without any conflicts
     val classLoader = MarcelDexClassLoader()
     val typeResolver = ReplJavaTypeResolver(classLoader, binding)
@@ -98,7 +98,7 @@ class MarcelShellWorker
       /* handling result */
       val contentBuilder = StringBuilder("Work finished successfully")
       if (result != null) {
-        shellWorkDataDao.updateResult(id, result.toString())
+        shellWorkDao.updateResult(work.name, result.toString())
         contentBuilder.append("\nResult: $result")
       }
 
@@ -113,13 +113,14 @@ class MarcelShellWorker
   }
 
   private suspend fun endData(failedReason: String? = null): Data {
-    shellWorkDataDao.updateEndTime(id, LocalDateTime.now())
-    shellWorkDataDao.updateFailureReason(id, failedReason)
+    val workName = work?.name ?: return Data.Builder().build()
+    shellWorkDao.updateEndTime(workName, LocalDateTime.now())
+    shellWorkDao.updateFailureReason(workName, failedReason)
     if (failedReason != null) {
-      shellWorkDataDao.updateState(id, if (work?.isPeriodic == true) WorkInfo.State.ENQUEUED else WorkInfo.State.FAILED)
-      shellWorkDataDao.updateResult(id, null)
+      shellWorkDao.updateState(workName, if (work?.isPeriodic == true) WorkInfo.State.ENQUEUED else WorkInfo.State.FAILED)
+      shellWorkDao.updateResult(workName, null)
     } else {
-      shellWorkDataDao.updateState(id, if (work?.isPeriodic == true) WorkInfo.State.ENQUEUED else WorkInfo.State.SUCCEEDED)
+      shellWorkDao.updateState(workName, if (work?.isPeriodic == true) WorkInfo.State.ENQUEUED else WorkInfo.State.SUCCEEDED)
     }
     return Data.Builder().build()
   }

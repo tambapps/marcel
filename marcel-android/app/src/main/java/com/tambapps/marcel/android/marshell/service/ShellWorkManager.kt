@@ -15,11 +15,10 @@ import androidx.work.WorkManager
 import androidx.work.WorkQuery
 import androidx.work.WorkRequest
 import com.google.common.util.concurrent.ListenableFuture
-import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDataDao
-import com.tambapps.marcel.android.marshell.room.entity.ShellWorkData
+import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDao
 import com.tambapps.marcel.android.marshell.ui.shellwork.form.PeriodUnit
 import com.tambapps.marcel.android.marshell.work.MarcelShellWorker
-import com.tambapps.marcel.android.marshell.work.ShellWork
+import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -31,7 +30,7 @@ import javax.inject.Inject
 
 class ShellWorkManager @Inject constructor(
   private val workManager: WorkManager,
-  private val shellWorkDataDao: ShellWorkDataDao
+  private val shellWorkDao: ShellWorkDao
   ) {
 
   companion object {
@@ -39,22 +38,21 @@ class ShellWorkManager @Inject constructor(
   }
 
   suspend fun list(): List<ShellWork> {
-    return shellWorkDataDao.findAll()
-      .map { ShellWork.from(it) }
+    return shellWorkDao.findAll()
   }
 
   suspend fun listLive(): LiveData<List<ShellWork>> {
-    val workDatas = shellWorkDataDao.findAll()
+    val workDatas = shellWorkDao.findAll()
     return workManager.getWorkInfosByTagLiveData(SHELL_WORK_TAG)
       .map { _ ->
         // we just want to listen to changes but we actually just care of shellWorkDatas
-        workDatas.map { ShellWork.from(it) }
+        // TODO need to update state in DB for changed works and then re-fetch them
+        workDatas
       }
   }
 
-  suspend fun findById(id: UUID): ShellWork? {
-    val data = shellWorkDataDao.findById(id) ?: return null
-    return ShellWork.from(data)
+  suspend fun findByName(name: String): ShellWork? {
+    return shellWorkDao.findByName(name)
   }
 
   private fun listWorkInfo(): ListenableFuture<MutableList<WorkInfo>> {
@@ -65,6 +63,7 @@ class ShellWorkManager @Inject constructor(
     return works.any { it.tags.contains("name:$name") }
   }
 
+  // create/update
   suspend fun save(periodAmount: Int?, periodUnit: PeriodUnit?, name: String, scriptText: String?,
                    description: String?, networkRequired: Boolean, silent: Boolean,
                    scheduleDate: LocalDate?, scheduleTime: LocalTime?) {
@@ -102,31 +101,32 @@ class ShellWorkManager @Inject constructor(
     val workId = listWorkInfo().get().find { it.tags.contains("name:$name") }!!.id
 
     // now create shell_work_data
-    val data = ShellWorkData(
-      id = workId,
+    val data = ShellWork(
+      workId = workId,
+      isNetworkRequired = networkRequired,
       name = name,
       description = description,
       periodAmount = periodAmount,
       periodUnit = periodUnit,
-      scheduledAt = scheduleDateTime?.toString(),
-      silent = silent,
+      scheduledAt = scheduleDateTime,
+      isSilent = silent,
       scriptText = scriptText,
       state = WorkInfo.State.ENQUEUED,
       startTime = null, endTime = null,
       logs = null, result = null, failedReason = null
     )
-    shellWorkDataDao.insert(data)
+    shellWorkDao.upsert(data)
   }
 
-  suspend fun cancel(id: UUID) {
-    workManager.cancelWorkById(id).result.get()
-    shellWorkDataDao.updateState(id, WorkInfo.State.CANCELLED)
+  suspend fun cancel(name: String) {
+    workManager.cancelUniqueWork(name).result.get()
+    shellWorkDao.updateState(name, WorkInfo.State.CANCELLED)
   }
 
-  suspend fun delete(id: UUID): Boolean {
-    workManager.cancelWorkById(id).result.get()
-    val data = shellWorkDataDao.findById(id) ?: return false
-    shellWorkDataDao.delete(data)
+  suspend fun delete(name: String): Boolean {
+    workManager.cancelUniqueWork(name).result.get()
+    val data = shellWorkDao.findByName(name) ?: return false
+    shellWorkDao.delete(data)
     return true
   }
 

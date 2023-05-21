@@ -7,7 +7,7 @@ import android.widget.TextView
 import androidx.work.WorkInfo
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.util.TimeUtils
-import com.tambapps.marcel.android.marshell.work.ShellWork
+import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 
@@ -26,6 +26,7 @@ interface ShellWorkTextDisplay {
 
   fun displayWork(context: Context, work: ShellWork, name: TextView, startTime: TextView,
                   result: TextView, state: TextView, nextRun: TextView, singleLineStateText: Boolean = false) {
+    println(work.result)
     result.text = when {
       work.state != WorkInfo.State.FAILED && work.result != null -> {
         val prefix = if (work.isPeriodic) "Last result" else "Result"
@@ -44,11 +45,12 @@ interface ShellWorkTextDisplay {
         if (work.isFinished) context.getString(
           R.string.work_ran_lasted, TimeUtils.smartToString(work.startTime), TimeUtils.humanReadableFormat(
           Duration.between(work.startTime, work.endTime)))
-        else if (work.isPeriodic) when (work.state) {
-          WorkInfo.State.RUNNING -> context.getString(R.string.work_started, TimeUtils.smartToString(work.startTime))
-          else -> context.getString(
+        else if (work.isPeriodic) when {
+          work.state == WorkInfo.State.RUNNING -> context.getString(R.string.work_started, TimeUtils.smartToString(work.startTime))
+          work.endTime != null -> context.getString(
             R.string.work_last_ran_lasted, TimeUtils.smartToString(work.startTime), TimeUtils.humanReadableFormat(
             Duration.between(work.startTime, work.endTime)))
+          else -> context.getString(R.string.has_not_ran_yet)
         }
         else context.getString(R.string.work_started, TimeUtils.smartToString(work.startTime))
       work.scheduledAt != null -> context.getString(R.string.scheduled_for, work.scheduledAt)

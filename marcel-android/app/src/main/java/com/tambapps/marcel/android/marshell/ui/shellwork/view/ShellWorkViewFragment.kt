@@ -25,9 +25,9 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWorkTextDisplay {
   companion object {
-    fun newInstance(id: UUID) = ShellWorkViewFragment().apply {
+    fun newInstance(workName: String) = ShellWorkViewFragment().apply {
       arguments = Bundle().apply {
-        putString("work_id", id.toString())
+        putString("work_name", workName)
       }
     }
   }
@@ -36,7 +36,7 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWo
   lateinit var shellWorkManager: ShellWorkManager
   private var _binding: FragmentShellWorkViewBinding? = null
   private val binding get() = _binding!!
-  val workId get() = requireArguments().getString("work_id")?.let(UUID::fromString)
+  val workName get() = requireArguments().getString("work_name")
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -49,9 +49,9 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWo
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    val workId = this.workId ?: return
+    val workName = this.workName ?: return
     CoroutineScope(Dispatchers.IO).launch {
-      val work = shellWorkManager.findById(workId) ?: return@launch
+      val work = shellWorkManager.findByName(workName) ?: return@launch
       withContext(Dispatchers.Main) {
         binding.apply {
           nameText.text = work.name
@@ -85,9 +85,9 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWo
     )
   }
   override fun onFabClick(): Boolean {
-    val workId = this.workId ?: return false
+    val workName = this.workName ?: return false
 
-    val fragment = ShellWorkFormFragment.newInstance(id = workId)
+    val fragment = ShellWorkFormFragment.newInstance(workName = workName)
     parentFragmentManager.commit {
       setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
       // to handle back press

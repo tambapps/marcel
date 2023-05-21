@@ -19,7 +19,7 @@ import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkTextDisplay
 import com.tambapps.marcel.android.marshell.ui.shellwork.form.ShellWorkFormFragment
 import com.tambapps.marcel.android.marshell.ui.shellwork.view.ShellWorkViewFragment
-import com.tambapps.marcel.android.marshell.work.ShellWork
+import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -98,7 +98,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellW
     binding.swipeRefresh.isRefreshing = false
   }
   private fun onWorkClick(work: ShellWork) {
-    val fragment = ShellWorkViewFragment.newInstance(work.id)
+    val fragment = ShellWorkViewFragment.newInstance(work.name)
     parentFragmentManager.commit {
       setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
       // to handle back press
@@ -112,7 +112,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellW
 
   private fun onWorkCancel(work: ShellWork) {
     CoroutineScope(Dispatchers.IO).launch {
-      shellWorkManager.cancel(work.id)
+      shellWorkManager.cancel(work.name)
       withContext(Dispatchers.Main) {
         refreshWorks()
       }
@@ -121,7 +121,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellW
 
   private fun onWorkDelete(work: ShellWork) {
     CoroutineScope(Dispatchers.IO).launch {
-      if (!shellWorkManager.delete(work.id)) return@launch
+      if (!shellWorkManager.delete(work.name)) return@launch
 
       withContext(Dispatchers.Main) {
         Toast.makeText(requireContext(), "Successfully deleted work", Toast.LENGTH_SHORT).show()
@@ -157,9 +157,9 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellW
   }
 
   inner class MyAdapter(private val works: List<ShellWork>,
-                  private val onWorkClick: (ShellWork) -> Unit,
-                  private val onWorkCancel: (ShellWork) -> Unit,
-                  private val onWorkDelete: (ShellWork) -> Unit) :
+                        private val onWorkClick: (ShellWork) -> Unit,
+                        private val onWorkCancel: (ShellWork) -> Unit,
+                        private val onWorkDelete: (ShellWork) -> Unit) :
     RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
 
 
