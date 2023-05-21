@@ -227,7 +227,7 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
 
     val name = binding.workName.text.toString()
     if (isCreateForm && shellWorkManager.existsByName(name)) {
-      Toast.makeText(activity, "Name should be unique among all active works", Toast.LENGTH_SHORT).show()
+      binding.workName.error = "Name should be unique among all active works"
       return false
     }
 
