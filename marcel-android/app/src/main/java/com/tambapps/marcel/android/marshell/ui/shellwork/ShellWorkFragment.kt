@@ -18,9 +18,43 @@ class ShellWorkFragment : Fragment() {
   }
   abstract class ShellWorkFragmentChild: Fragment(), FabClickListener {
 
+    private var handler: Handler? = null
+    private val registeredCallbacks = mutableListOf<Pair<Runnable, Long>>()
     val shellWorkFragment get() = parentFragment as? ShellWorkFragment
 
     val fab get() = shellWorkFragment?.fab
+
+    fun registerPeriodicCallback(callback: () -> Unit, delay: Long = 1_000L) {
+      if (handler == null) {
+        handler = Handler(Looper.getMainLooper())
+      }
+      val runnable = object: Runnable { //do something
+        override fun run() {
+          callback()
+          handler?.postDelayed(this, 1_000L)
+        }
+      }
+      handler!!.postDelayed(runnable, delay)
+      registeredCallbacks.add(Pair(runnable, delay))
+    }
+
+    override fun onResume() {
+      super.onResume()
+      if (handler != null) {
+        registeredCallbacks.forEach {
+          handler!!.postDelayed(it.first, it.second)
+        }
+      }
+    }
+
+    override fun onPause() {
+      super.onPause()
+      if (handler != null) {
+        registeredCallbacks.forEach {
+          handler!!.removeCallbacks(it.first)
+        }
+      }
+    }
   }
   interface FabClickListener {
 

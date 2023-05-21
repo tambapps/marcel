@@ -1,25 +1,29 @@
 package com.tambapps.marcel.android.marshell.ui.shellwork.list
 
+import android.R.attr.delay
 import android.content.DialogInterface
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.os.postDelayed
 import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellWorkListBinding
+import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import com.tambapps.marcel.android.marshell.service.ShellWorkManager
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkTextDisplay
 import com.tambapps.marcel.android.marshell.ui.shellwork.form.ShellWorkFormFragment
 import com.tambapps.marcel.android.marshell.ui.shellwork.view.ShellWorkViewFragment
-import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +31,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.ZoneOffset
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellWorkTextDisplay {
@@ -65,23 +70,12 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellW
       }
     }
 
-    binding.swipeRefresh.apply {
-      isRefreshing = true
-      setOnRefreshListener {
-        refreshWorks()
-      }
-    }
-
-    CoroutineScope(Dispatchers.IO).launch {
-      val liveData = shellWorkManager.listLive()
-      withContext(Dispatchers.Main) {
-        liveData.observe(viewLifecycleOwner, this@ShellWorkListFragment::refreshWorks)
-      }
-    }
+    refreshWorks()
+    registerPeriodicCallback(this::refreshWorks)
     return root
   }
 
-  fun refreshWorks() {
+  private fun refreshWorks() {
     CoroutineScope(Dispatchers.IO).launch {
       val works = shellWorkManager.list()
       withContext(Dispatchers.Main) {
@@ -94,8 +88,8 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellW
     shellWorks.clear()
     shellWorks.addAll(works)
     shellWorks.sortWith(compareBy({ it.isFinished }, { it.startTime?.toEpochSecond(ZoneOffset.UTC)?.times(-1) ?: Long.MIN_VALUE }))
+    // TODO perform proper list diff
     binding.recyclerView.adapter?.notifyDataSetChanged()
-    binding.swipeRefresh.isRefreshing = false
   }
   private fun onWorkClick(work: ShellWork) {
     val fragment = ShellWorkViewFragment.newInstance(work.name)
@@ -133,10 +127,6 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellW
     }
   }
 
-  override fun onResume() {
-    super.onResume()
-    refreshWorks()
-  }
   override fun onDestroyView() {
     super.onDestroyView()
     _binding = null

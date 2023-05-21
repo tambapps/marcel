@@ -41,16 +41,6 @@ class ShellWorkManager @Inject constructor(
     return shellWorkDao.findAll()
   }
 
-  suspend fun listLive(): LiveData<List<ShellWork>> {
-    val workDatas = shellWorkDao.findAll()
-    return workManager.getWorkInfosByTagLiveData(SHELL_WORK_TAG)
-      .map { _ ->
-        // we just want to listen to changes but we actually just care of shellWorkDatas
-        // TODO need to update state in DB for changed works and then re-fetch them
-        workDatas
-      }
-  }
-
   suspend fun findByName(name: String): ShellWork? {
     return shellWorkDao.findByName(name)
   }
