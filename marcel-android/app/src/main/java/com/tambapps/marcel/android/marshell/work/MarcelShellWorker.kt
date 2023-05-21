@@ -29,6 +29,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import marcel.lang.Binding
 import marcel.lang.MarcelDexClassLoader
+import marcel.lang.printer.Printer
 import java.io.File
 import java.lang.Exception
 import java.time.LocalDateTime
@@ -42,7 +43,6 @@ class MarcelShellWorker
                               private val shellWorkDao: ShellWorkDao):
   CoroutineWorker(appContext, workerParams) {
 
-  // TODO set out variable using a printer
   companion object {
     const val NOTIFICATION_CHANNEL_ID = "MarcelShellWorker"
   }
@@ -50,6 +50,7 @@ class MarcelShellWorker
   private var notificationTitle = "Shell Work"
   private var work: ShellWork? = null
   private val isSilent get() = work?.isSilent ?: false
+  private val out = ShellWorkerPrinter()
 
   override suspend fun doWork(): Result {
     var work = shellWorkDao.findById(id)
@@ -76,6 +77,9 @@ class MarcelShellWorker
     val typeResolver = ReplJavaTypeResolver(classLoader, binding)
     val replCompiler = MarcelReplCompiler(compilerConfiguration, classLoader, typeResolver)
     val directory = File(applicationContext.getDir("shell_works", Context.MODE_PRIVATE), "work $id")
+
+    typeResolver.setScriptVariable("out", out, Printer::class.java)
+
     notification(content = "Initializing marshell work...")
 
     val text = if (work.scriptText != null) {
@@ -113,6 +117,7 @@ class MarcelShellWorker
     }
   }
 
+  // this is basically just a callback to update data at the end of a shell work
   private suspend fun endData(failedReason: String? = null): Data {
     val workName = work?.name ?: return Data.Builder().build()
     shellWorkDao.updateEndTime(workName, LocalDateTime.now())
@@ -122,6 +127,10 @@ class MarcelShellWorker
       shellWorkDao.updateResult(workName, null)
     } else {
       shellWorkDao.updateState(workName, if (work?.isPeriodic == true) WorkInfo.State.ENQUEUED else WorkInfo.State.SUCCEEDED)
+    }
+    val logs = out.logs
+    if (logs.isNotEmpty()) {
+      shellWorkDao.updateLogs(workName, logs)
     }
     return Data.Builder().build()
   }
@@ -185,5 +194,28 @@ class MarcelShellWorker
   private fun channelExists(): Boolean {
     val channel = notificationManager.getNotificationChannel(javaClass.name)
     return channel != null && channel.importance != NotificationManager.IMPORTANCE_NONE
+  }
+
+  private class ShellWorkerPrinter: Printer {
+    // using StringBuffer because it is thread-safe (synchronized), as opposed to StringBuilder
+    val builder = StringBuffer()
+
+    val logs get() = builder.toString()
+    override fun print(p0: CharSequence?) {
+      builder.append(p0)
+    }
+
+    override fun println(p0: CharSequence?) {
+      builder.append(p0)
+        .append("\n")
+    }
+
+    override fun println() {
+      builder.append("\n")
+    }
+
+    override fun toString(): String {
+      return "Shell Work Printer"
+    }
   }
 }
