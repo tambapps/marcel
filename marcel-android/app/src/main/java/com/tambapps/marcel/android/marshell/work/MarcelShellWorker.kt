@@ -78,7 +78,6 @@ class MarcelShellWorker
     val replCompiler = MarcelReplCompiler(compilerConfiguration, classLoader, typeResolver)
     val directory = File(applicationContext.getDir("shell_works", Context.MODE_PRIVATE), "work $id")
 
-    // TODO don't know why it doesn't work
     typeResolver.setScriptVariable("out", out, Printer::class.java)
 
     val text = if (work.scriptText != null) {
@@ -95,7 +94,7 @@ class MarcelShellWorker
     }
 
     /* running */
-    val evaluator = MarcelEvaluator(Binding(), replCompiler, classLoader, DexJarWriterFactory(), directory)
+    val evaluator = MarcelEvaluator(binding, replCompiler, classLoader, DexJarWriterFactory(), directory)
     notification(content = "Executing Marshell work...")
     shellWorkDao.updateStartTime(work.name, LocalDateTime.now())
     try {
@@ -110,6 +109,7 @@ class MarcelShellWorker
       notification(content = contentBuilder.toString(), foregroundNotification = true)
       return Result.success(endData())
     } catch (e: Exception) {
+      Log.e("MarcelShellWorker", "An error occurred while executing script", e)
       notification(content = "Error while executing script: ${e.message}", foregroundNotification = true, force = true)
       return Result.failure(endData(failedReason = e.message))
     } finally {

@@ -26,7 +26,6 @@ interface ShellWorkTextDisplay {
 
   fun displayWork(context: Context, work: ShellWork, name: TextView, startTime: TextView,
                   result: TextView, state: TextView, nextRun: TextView, singleLineStateText: Boolean = false) {
-    println(work.result)
     result.text = when {
       work.state != WorkInfo.State.FAILED && work.result != null -> {
         val prefix = if (work.isPeriodic) "Last result" else "Result"
