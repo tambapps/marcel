@@ -22,7 +22,7 @@
                         android:title="Playgrounds" />
                     <item
                         android:id="@+id/nav_shell_works"
-                        android:icon="@drawable/ic_menu_slideshow"
+                        android:icon="@drawable/work"
                         android:title="@string/menu_shell_works" />
                 </group>
             </menu>
