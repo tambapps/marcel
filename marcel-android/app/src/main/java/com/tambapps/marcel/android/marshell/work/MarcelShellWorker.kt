@@ -128,7 +128,7 @@ class MarcelShellWorker
     } else {
       shellWorkDao.updateState(workName, if (work?.isPeriodic == true) WorkInfo.State.ENQUEUED else WorkInfo.State.SUCCEEDED)
     }
-    val logs = out.logs
+    val logs = out.logs.trim()
     if (logs.isNotEmpty()) {
       shellWorkDao.updateLogs(workName, logs)
     }

@@ -5,8 +5,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.commit
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellWorkViewBinding
@@ -74,7 +76,13 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWo
         startTime = startTimeText, state = stateText, nextRun = nextRunText, singleLineStateText = true)
       consultLogsButton.visibility = if (work.logs.isNullOrBlank()) View.GONE else View.VISIBLE
       consultLogsButton.setOnClickListener {
-        Toast.makeText(requireContext(), "TODO", Toast.LENGTH_SHORT).show()
+        val view = LayoutInflater.from(requireContext())
+          .inflate(R.layout.dialog_logs, null)
+        view.findViewById<TextView>(R.id.textView).text = work.logs
+        AlertDialog.Builder(requireContext())
+          .setView(view)
+          .setNeutralButton("ok", null)
+          .show()
       }
     }
   }
