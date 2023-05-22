@@ -87,6 +87,8 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellW
   }
 
   private fun refreshWorks(works: List<ShellWork>) {
+    // using _binding to avoid trying to modify views even though the fragment has been destroyed
+    if (_binding == null) return
     val oldList = this.shellWorks.toImmutableList()
     val newList = works.sortedWith(compareBy({ it.isFinished }, { it.startTime?.toEpochSecond(ZoneOffset.UTC)?.times(-1) ?: Long.MIN_VALUE }))
     shellWorks.clear()
@@ -97,6 +99,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellW
       diffs.dispatchUpdatesTo(it)
     }
   }
+
   private fun onWorkClick(work: ShellWork) {
     val fragment = ShellWorkViewFragment.newInstance(work.name)
     parentFragmentManager.commit {
@@ -190,7 +193,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellW
               }.create()
               .apply {
                 setOnShowListener {
-                  getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ShellWorkTextDisplay.ORANGE)
+                  getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(requireContext().getColor(R.color.orange))
                 }
               }.show()
           } else {

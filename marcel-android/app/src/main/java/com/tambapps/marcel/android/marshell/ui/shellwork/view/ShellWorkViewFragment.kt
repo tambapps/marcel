@@ -1,7 +1,12 @@
 package com.tambapps.marcel.android.marshell.ui.shellwork.view
 
 import android.content.Context
+import android.content.DialogInterface
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -67,7 +72,8 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWo
   }
 
   private fun display(work: ShellWork) {
-    binding.apply {
+    // using _binding to avoid trying to modify views even though the fragment has been destroyed
+    _binding?.apply {
       nameText.text = work.name
       descriptionText.visibility = if (work.description.isNullOrBlank()) View.GONE else View.VISIBLE
       descriptionText.text = work.description
@@ -83,6 +89,48 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWo
           .setView(view)
           .setNeutralButton("ok", null)
           .show()
+      }
+
+      fab2.backgroundTintList = ColorStateList.valueOf(if (work.isFinished) Color.RED else requireContext().getColor(R.color.orange))
+      fab2.setOnClickListener {
+        if (!work.isFinished) {
+          AlertDialog.Builder(requireContext()).setTitle(requireContext().getString(R.string.cancel_work_q, work.name))
+            .setNeutralButton(android.R.string.no, null)
+            .setPositiveButton("yes") { _: DialogInterface, _: Int ->
+              CoroutineScope(Dispatchers.IO).launch {
+                shellWorkManager.cancel(work.name)
+                withContext(Dispatchers.Main) {
+                  Toast.makeText(requireContext(), "Successfully canceled work", Toast.LENGTH_SHORT).show()
+                }
+              }
+            }.create()
+            .apply {
+              setOnShowListener {
+                getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(requireContext().getColor(R.color.orange))
+              }
+            }.show()
+        } else {
+          AlertDialog.Builder(requireContext()).setTitle(R.string.delete_shell_work)
+            .setMessage(requireContext().getString(R.string.delete_work_q, work.name))
+            .setNeutralButton(R.string.cancel, null)
+            .setPositiveButton(R.string.delete) { _: DialogInterface, _: Int ->
+              CoroutineScope(Dispatchers.IO).launch {
+                if (!shellWorkManager.delete(work.name)) return@launch
+
+                withContext(Dispatchers.Main) {
+                  Toast.makeText(requireContext(), "Successfully deleted work", Toast.LENGTH_SHORT).show()
+                  parentFragmentManager.popBackStack()
+                }
+              }
+
+            }
+            .create()
+            .apply {
+              setOnShowListener {
+                getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.RED)
+              }
+            }.show()
+        }
       }
     }
   }

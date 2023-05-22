@@ -12,13 +12,10 @@ import java.time.Duration
 import java.time.temporal.ChronoUnit
 
 interface ShellWorkTextDisplay {
-  companion object {
-    val ORANGE = Color.parseColor("#FFA500")
-  }
 
-  fun stateColor(work: ShellWork) = when {
+  fun stateColor(context: Context, work: ShellWork) = when {
     work.state == WorkInfo.State.SUCCEEDED -> Color.GREEN
-    work.state == WorkInfo.State.CANCELLED -> ShellWorkTextDisplay.ORANGE // orange
+    work.state == WorkInfo.State.CANCELLED -> context.getColor(R.color.orange)
     work.state == WorkInfo.State.FAILED -> Color.RED
     work.isPeriodic || work.state == WorkInfo.State.RUNNING -> Color.parseColor("#87CEEB")
     else -> Color.WHITE
@@ -37,7 +34,7 @@ interface ShellWorkTextDisplay {
 
     name.text = work.name
     state.text = work.state.name
-    state.setTextColor(stateColor(work))
+    state.setTextColor(stateColor(context, work))
 
     startTime.text = when {
       work.startTime != null ->
