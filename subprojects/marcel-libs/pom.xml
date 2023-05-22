@@ -10,7 +10,7 @@
     <version>${revision}</version>
   </parent>
 
-  <description>Project to have all marcel libraries in one jar</description>
+  <description>Project to have all marcel external dependencies in one jar</description>
   <artifactId>marcel-libs</artifactId>
 
   <dependencies>
