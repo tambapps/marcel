@@ -49,7 +49,7 @@ interface ShellWorkTextDisplay {
           else -> context.getString(R.string.has_not_ran_yet)
         }
         else context.getString(R.string.work_started, TimeUtils.smartToString(work.startTime))
-      work.scheduledAt != null -> context.getString(R.string.scheduled_for, work.scheduledAt)
+      work.scheduledAt != null -> context.getString(R.string.scheduled_for, TimeUtils.smartToString(work.scheduledAt))
       work.failedReason == null -> context.getString(R.string.has_not_ran_yet)
       else -> context.getString(R.string.has_not_ran_yet)
     }
