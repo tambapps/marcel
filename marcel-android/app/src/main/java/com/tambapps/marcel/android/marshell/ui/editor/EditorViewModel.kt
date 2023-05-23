@@ -9,7 +9,6 @@ import javax.inject.Inject
 @HiltViewModel
 class EditorViewModel @Inject constructor() : ViewModel() {
 
-  val linesCount = MutableLiveData(0)
   val file = MutableLiveData<File?>()
 
 }

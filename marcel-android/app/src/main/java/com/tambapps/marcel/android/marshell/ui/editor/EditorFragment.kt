@@ -6,10 +6,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.MutableLiveData
 import com.tambapps.marcel.android.marshell.FilePickerActivity
 import com.tambapps.marcel.android.marshell.ShellHandler
 import com.tambapps.marcel.android.marshell.databinding.FragmentEditorBinding
@@ -25,21 +28,67 @@ import marcel.lang.MarcelDexClassLoader
 import java.io.File
 import javax.inject.Inject
 
-@AndroidEntryPoint
-class EditorFragment : Fragment() {
-
-  private val shellHandler get() = requireActivity() as ShellHandler
-  private val viewModel: EditorViewModel by viewModels()
+abstract class AbstractEditorFragment : Fragment() {
 
   private lateinit var editTextHighlighter: EditTextHighlighter
 
   @Inject
   lateinit var compilerConfiguration: CompilerConfiguration
 
+  private lateinit var lineCountWatcher: LineCountWatcher
+  protected lateinit var highlighter: SpannableHighlighter
+  private val linesCount = MutableLiveData(0)
+  abstract val editText: EditText
+  abstract val lineText: TextView
+
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    lineCountWatcher = LineCountWatcher(linesCount)
+    editText.addTextChangedListener(lineCountWatcher)
+    // not a bean because we want to keep them independent per fragment
+    val marcelDexClassLoader =
+      MarcelDexClassLoader()
+    val javaTypeResolver = ReplJavaTypeResolver(marcelDexClassLoader, Binding())
+    val replCompiler = MarcelReplCompiler(compilerConfiguration, marcelDexClassLoader, javaTypeResolver)
+    highlighter = SpannableHighlighter(javaTypeResolver, replCompiler)
+    editTextHighlighter = EditTextHighlighter(editText, highlighter)
+
+    if (editText.requestFocus()) {
+      requireContext().showSoftBoard(editText)
+    }
+    linesCount.observe(viewLifecycleOwner) {
+      lineText.setText((1..(it + 1)).joinToString(separator = "\n"))
+    }
+  }
+
+
+  override fun onResume() {
+    super.onResume()
+    editTextHighlighter.start()
+  }
+
+  override fun onPause() {
+    super.onPause()
+    editTextHighlighter.cancel()
+  }
+  override fun onDestroyView() {
+    editText.removeTextChangedListener(lineCountWatcher)
+    super.onDestroyView()
+  }
+}
+
+@AndroidEntryPoint
+class EditorFragment : AbstractEditorFragment() {
+
+  private val shellHandler get() = requireActivity() as ShellHandler
+  private val viewModel: EditorViewModel by viewModels()
+
   private var _binding: FragmentEditorBinding? = null
   private val binding get() = _binding!!
-
-  private lateinit var lineCountWatcher: LineCountWatcher
+  override val editText: EditText
+    get() = binding.editText
+  override val lineText: TextView
+    get() = binding.lineText
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -51,23 +100,7 @@ class EditorFragment : Fragment() {
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    lineCountWatcher = LineCountWatcher(viewModel.linesCount)
-    binding.editText.addTextChangedListener(lineCountWatcher)
-    // not a bean because we want to keep them independent per fragment
-    val marcelDexClassLoader =
-      MarcelDexClassLoader()
-    val javaTypeResolver = ReplJavaTypeResolver(marcelDexClassLoader, Binding())
-    val replCompiler = MarcelReplCompiler(compilerConfiguration, marcelDexClassLoader, javaTypeResolver)
-    val highlighter = SpannableHighlighter(javaTypeResolver, replCompiler)
-    editTextHighlighter = EditTextHighlighter(binding.editText, highlighter)
-
-    if (binding.editText.requestFocus()) {
-      requireContext().showSoftBoard(binding.editText)
-    }
-    val lineText = binding.lineText
-    viewModel.linesCount.observe(viewLifecycleOwner) {
-      lineText.setText((1..(it + 1)).joinToString(separator = "\n"))
-    }
+    super.onViewCreated(view, savedInstanceState)
     viewModel.file.observe(viewLifecycleOwner) {
       if (it != null) {
         binding.fileNameText.text = it.name
@@ -116,17 +149,7 @@ class EditorFragment : Fragment() {
     shellHandler.navigateToShell(text, position)
   }
 
-  override fun onResume() {
-    super.onResume()
-    editTextHighlighter.start()
-  }
-
-  override fun onPause() {
-    super.onPause()
-    editTextHighlighter.cancel()
-  }
   override fun onDestroyView() {
-    binding.editText.removeTextChangedListener(lineCountWatcher)
     super.onDestroyView()
     _binding = null
   }
