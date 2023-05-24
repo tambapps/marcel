@@ -25,6 +25,7 @@ import marcel.lang.runtime.BytecodeHelper
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
+import org.objectweb.asm.Type
 import java.lang.reflect.Method
 
 class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolver: JavaTypeResolver) {
@@ -538,6 +539,10 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
   fun catchBlock(label: Label, exceptionVarIndex: Int) {
     mv.visitLabel(label)
     mv.visitVarInsn(Opcodes.ASTORE, exceptionVarIndex)
+  }
+
+  fun pushClass(clazz: JavaType) {
+    mv.visitLdcInsn(Type.getType(clazz.descriptor))
   }
 
 }

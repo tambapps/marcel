@@ -1,68 +1,6 @@
 package com.tambapps.marcel.parser.ast
 
-import com.tambapps.marcel.parser.ast.expression.AndOperator
-import com.tambapps.marcel.parser.ast.expression.AsNode
-import com.tambapps.marcel.parser.ast.expression.BinaryOperatorNode
-import com.tambapps.marcel.parser.ast.expression.BlockNode
-import com.tambapps.marcel.parser.ast.expression.BooleanConstantNode
-import com.tambapps.marcel.parser.ast.expression.BooleanExpressionNode
-import com.tambapps.marcel.parser.ast.expression.ByteConstantNode
-import com.tambapps.marcel.parser.ast.expression.CharConstantNode
-import com.tambapps.marcel.parser.ast.expression.ComparisonOperatorNode
-import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
-import com.tambapps.marcel.parser.ast.expression.DivOperator
-import com.tambapps.marcel.parser.ast.expression.DoubleConstantNode
-import com.tambapps.marcel.parser.ast.expression.ElvisOperator
-import com.tambapps.marcel.parser.ast.expression.ExpressionNode
-import com.tambapps.marcel.parser.ast.expression.FieldAssignmentNode
-import com.tambapps.marcel.parser.ast.expression.FindOperator
-import com.tambapps.marcel.parser.ast.expression.FloatConstantNode
-import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
-import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
-import com.tambapps.marcel.parser.ast.expression.GetFieldAccessOperator
-import com.tambapps.marcel.parser.ast.expression.IncrNode
-import com.tambapps.marcel.parser.ast.expression.IndexedReferenceExpression
-import com.tambapps.marcel.parser.ast.expression.IndexedVariableAssignmentNode
-import com.tambapps.marcel.parser.ast.expression.IntConstantNode
-import com.tambapps.marcel.parser.ast.expression.InvokeAccessOperator
-import com.tambapps.marcel.parser.ast.expression.IsNotOperator
-import com.tambapps.marcel.parser.ast.expression.IsOperator
-import com.tambapps.marcel.parser.ast.expression.LambdaNode
-import com.tambapps.marcel.parser.ast.expression.LeftShiftOperator
-import com.tambapps.marcel.parser.ast.expression.LiteralArrayNode
-import com.tambapps.marcel.parser.ast.expression.LiteralMapNode
-import com.tambapps.marcel.parser.ast.expression.LongConstantNode
-import com.tambapps.marcel.parser.ast.expression.MinusOperator
-import com.tambapps.marcel.parser.ast.expression.MulOperator
-import com.tambapps.marcel.parser.ast.expression.NotNode
-import com.tambapps.marcel.parser.ast.expression.NullValueNode
-import com.tambapps.marcel.parser.ast.expression.OrOperator
-import com.tambapps.marcel.parser.ast.expression.LiteralPatternNode
-import com.tambapps.marcel.parser.ast.expression.NamedParametersConstructorCallNode
-import com.tambapps.marcel.parser.ast.expression.PlusOperator
-import com.tambapps.marcel.parser.ast.expression.PowOperator
-import com.tambapps.marcel.parser.ast.expression.RangeNode
-import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
-import com.tambapps.marcel.parser.ast.expression.ReturnNode
-import com.tambapps.marcel.parser.ast.expression.RightShiftOperator
-import com.tambapps.marcel.parser.ast.expression.ShortConstantNode
-import com.tambapps.marcel.parser.ast.expression.StringConstantNode
-import com.tambapps.marcel.parser.ast.expression.StringNode
-import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
-import com.tambapps.marcel.parser.ast.expression.SuperReference
-import com.tambapps.marcel.parser.ast.expression.SwitchBranchNode
-import com.tambapps.marcel.parser.ast.expression.SwitchNode
-import com.tambapps.marcel.parser.ast.expression.TernaryNode
-import com.tambapps.marcel.parser.ast.expression.ThisReference
-import com.tambapps.marcel.parser.ast.expression.ToStringNode
-import com.tambapps.marcel.parser.ast.expression.TruthyVariableDeclarationNode
-import com.tambapps.marcel.parser.ast.expression.UnaryMinus
-import com.tambapps.marcel.parser.ast.expression.UnaryOperator
-import com.tambapps.marcel.parser.ast.expression.UnaryPlus
-import com.tambapps.marcel.parser.ast.expression.VariableAssignmentNode
-import com.tambapps.marcel.parser.ast.expression.VoidExpression
-import com.tambapps.marcel.parser.ast.expression.WhenBranchNode
-import com.tambapps.marcel.parser.ast.expression.WhenNode
+import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.BreakLoopNode
 import com.tambapps.marcel.parser.ast.statement.ContinueLoopNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
@@ -414,4 +352,6 @@ open class AstNodeTypeResolver constructor(
 
   override fun visit(patternValueNode: LiteralPatternNode) = JavaType.of(Pattern::class.java)
   override fun visit(findOperator: FindOperator) = JavaType.of(Matcher::class.java)
+
+  override fun visit(classExpressionNode: ClassExpressionNode) = JavaType.of(Class::class.java, listOf(classExpressionNode.clazz))
 }

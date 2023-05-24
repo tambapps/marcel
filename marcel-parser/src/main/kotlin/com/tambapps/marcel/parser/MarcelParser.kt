@@ -936,8 +936,7 @@ class MarcelParser constructor(
         } else  if (current.type == TokenType.DECR) {
           skip()
           IncrNode(token, ReferenceExpression(token, scope, token.value), -1, true)
-        }
-        else if (current.type == TokenType.LPAR) {
+        } else if (current.type == TokenType.LPAR) {
           skip()
           val (arguments, namedArguments) = parseFunctionArguments(scope)
           if (namedArguments.isEmpty()) SimpleFunctionCallNode(token, scope, token.value, arguments)
@@ -961,6 +960,9 @@ class MarcelParser constructor(
           }
           skip() // skip brackets close
           IndexedReferenceExpression(token, scope, token.value, indexArguments, isSafeIndex)
+        } else if (current.type == TokenType.DOT && lookup(1)?.type == TokenType.CLASS) {
+          skip(2) // skip dot and class
+          ClassExpressionNode(token, JavaType.lazy(scope, token.value, emptyList()))
         } else {
           ReferenceExpression(token, scope, token.value)
         }
