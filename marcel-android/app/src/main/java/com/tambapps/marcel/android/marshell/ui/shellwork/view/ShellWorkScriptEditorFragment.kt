@@ -2,6 +2,8 @@ package com.tambapps.marcel.android.marshell.ui.shellwork.view
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
+import com.google.android.material.snackbar.Snackbar
 import com.tambapps.marcel.android.marshell.ui.editor.AbstractEditorFragment
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
@@ -33,9 +35,12 @@ class ShellWorkScriptEditorFragment: AbstractEditorFragment() {
     }
   }
 
-  // TODO add a message to tell explicitely tha the file selected will not be modified, a copy of it will be made
-
   override fun onFilePicked(selectedFile: File) {
     binding.editText.setText(highlight(selectedFile.readText()))
+    Snackbar.make(binding.root, "The selected file will not be modified. A copy of it will be created", Snackbar.LENGTH_INDEFINITE)
+      .setAction("ok") {
+        // do nothing
+      }
+      .show()
   }
 }
