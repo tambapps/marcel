@@ -274,6 +274,14 @@ doOtherStuff()
 <li>it must start with a letter ('a' to 'z' , and 'A' to 'Z'), or an underscore</li>
 <li>the following characters can be a letter, an underscore or a number</li>
 </ul>
+<h2 id="class-identifiers"><a class="header" href="#class-identifiers">Class identifiers</a></h2>
+<p>To reference a class, you need tp add the <code>.class</code> suffix, like in Java.
+But note that you can only reference simple name of classes, this means that you need to import it first.</p>
+<pre><code class="language-groovy">import java.util.concurrent.Callable
+println(Callable.class)
+
+println(Object.class)
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="strings"><a class="header" href="#strings">Strings</a></h2>
 <p>There are different ways to create strings in Marcel</p>
 <h3 id="strings-1"><a class="header" href="#strings-1">Strings</a></h3>
