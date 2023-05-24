@@ -3,6 +3,7 @@ package com.tambapps.marcel.android.marshell.ui.editor
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.text.Spannable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,28 +37,55 @@ abstract class AbstractEditorFragment : Fragment() {
   lateinit var compilerConfiguration: CompilerConfiguration
 
   private lateinit var lineCountWatcher: LineCountWatcher
-  protected lateinit var highlighter: SpannableHighlighter
+  private lateinit var highlighter: SpannableHighlighter
   private val linesCount = MutableLiveData(0)
-  abstract val editText: EditText
-  abstract val lineText: TextView
+  private var _binding: FragmentEditorBinding? = null
+  protected val binding get() = _binding!!
 
+  protected abstract fun onFilePicked(selectedFile: File)
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
+  ): View {
+    _binding = FragmentEditorBinding.inflate(inflater, container, false)
+    return binding.root
+  }
+
+  protected fun highlight(text: CharSequence): Spannable {
+    return highlighter.highlight(text)
+  }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     lineCountWatcher = LineCountWatcher(linesCount)
-    editText.addTextChangedListener(lineCountWatcher)
+    binding.editText.addTextChangedListener(lineCountWatcher)
     // not a bean because we want to keep them independent per fragment
     val marcelDexClassLoader =
       MarcelDexClassLoader()
     val javaTypeResolver = ReplJavaTypeResolver(marcelDexClassLoader, Binding())
     val replCompiler = MarcelReplCompiler(compilerConfiguration, marcelDexClassLoader, javaTypeResolver)
     highlighter = SpannableHighlighter(javaTypeResolver, replCompiler)
-    editTextHighlighter = EditTextHighlighter(editText, highlighter)
+    editTextHighlighter = EditTextHighlighter(binding.editText, highlighter)
 
-    if (editText.requestFocus()) {
-      requireContext().showSoftBoard(editText)
+    if (binding.editText.requestFocus()) {
+      requireContext().showSoftBoard(binding.editText)
     }
     linesCount.observe(viewLifecycleOwner) {
-      lineText.setText((1..(it + 1)).joinToString(separator = "\n"))
+      binding.lineText.setText((1..(it + 1)).joinToString(separator = "\n"))
+    }
+
+    val pickFileLauncher = registerForActivityResult(FilePickerActivity.Contract()) { selectedFile: File? ->
+      if (selectedFile != null) {
+        onFilePicked(selectedFile)
+      } else {
+        Toast.makeText(requireContext(), "No file was selected", Toast.LENGTH_SHORT).show()
+      }
+    }
+    binding.editFileButton.setOnClickListener {
+      // I want .mcl files
+      pickFileLauncher.launch(Intent(requireContext(), FilePickerActivity::class.java).apply {
+        putExtra(FilePickerActivity.ALLOWED_FILE_EXTENSIONSKEY, FilePickerActivity.SCRIPT_FILE_EXTENSIONS)
+      })
     }
   }
 
@@ -72,8 +100,9 @@ abstract class AbstractEditorFragment : Fragment() {
     editTextHighlighter.cancel()
   }
   override fun onDestroyView() {
-    editText.removeTextChangedListener(lineCountWatcher)
+    binding.editText.removeTextChangedListener(lineCountWatcher)
     super.onDestroyView()
+    _binding = null
   }
 }
 
@@ -83,29 +112,13 @@ class EditorFragment : AbstractEditorFragment() {
   private val shellHandler get() = requireActivity() as ShellHandler
   private val viewModel: EditorViewModel by viewModels()
 
-  private var _binding: FragmentEditorBinding? = null
-  private val binding get() = _binding!!
-  override val editText: EditText
-    get() = binding.editText
-  override val lineText: TextView
-    get() = binding.lineText
-
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View {
-    _binding = FragmentEditorBinding.inflate(inflater, container, false)
-    return binding.root
-  }
-
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     viewModel.file.observe(viewLifecycleOwner) {
       if (it != null) {
         binding.fileNameText.text = it.name
         binding.fileNameText.visibility = View.VISIBLE
-        binding.editText.setText(highlighter.highlight(it.readText()))
+        binding.editText.setText(highlight(it.readText()))
       } else {
         binding.fileNameText.visibility = View.GONE
       }
@@ -129,28 +142,13 @@ class EditorFragment : AbstractEditorFragment() {
           .show()
       }
     }
-
-    val pickFileLauncher = registerForActivityResult(FilePickerActivity.Contract()) { selectedFile: File? ->
-      if (selectedFile != null) {
-        viewModel.file.value = selectedFile
-      } else {
-        Toast.makeText(requireContext(), "No file was selected", Toast.LENGTH_SHORT).show()
-      }
-    }
-    binding.editFileButton.setOnClickListener {
-      // I want .mcl files
-      pickFileLauncher.launch(Intent(requireContext(), FilePickerActivity::class.java).apply {
-        putExtra(FilePickerActivity.ALLOWED_FILE_EXTENSIONSKEY, FilePickerActivity.SCRIPT_FILE_EXTENSIONS)
-      })
-    }
   }
 
+  override fun onFilePicked(selectedFile: File) {
+    viewModel.file.value = selectedFile
+  }
   private fun doNavigateToShell(text: CharSequence, position: Int? = null) {
     shellHandler.navigateToShell(text, position)
   }
 
-  override fun onDestroyView() {
-    super.onDestroyView()
-    _binding = null
-  }
 }

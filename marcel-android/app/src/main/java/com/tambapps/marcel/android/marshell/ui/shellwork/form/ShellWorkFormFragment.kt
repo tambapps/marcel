@@ -16,6 +16,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.commitNow
 import androidx.fragment.app.viewModels
+import com.tambapps.marcel.android.marshell.EditorActivity
 import com.tambapps.marcel.android.marshell.FilePickerActivity
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellWorkFormBinding
@@ -23,6 +24,7 @@ import com.tambapps.marcel.android.marshell.service.ShellWorkManager
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
 import com.tambapps.marcel.android.marshell.ui.shellwork.list.ShellWorkListFragment
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
+import com.tambapps.marcel.android.marshell.ui.shellwork.view.ShellWorkScriptEditorFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -87,8 +89,9 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       scheduleDate.observe(viewLifecycleOwner) {
         binding.dateText.text = it?.toString()
       }
-      viewModel.scriptFile.observe(viewLifecycleOwner) {
-        binding.filePath.text = it?.name
+      viewModel.scriptText.observe(viewLifecycleOwner) {
+        // TODO may need to remove useless filepéth
+        //binding.filePath.text = it?.name
       }
     }
 
@@ -170,33 +173,33 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
 
       binding.workName.isEnabled = isCreateForm // cannot edit name of work
 
-      if (work == null) {
-        val pickScriptFileLauncher = registerForActivityResult(FilePickerActivity.Contract()) { selectedFile: File? ->
-          if (selectedFile != null) {
-            viewModel.scriptFile.value = selectedFile
-          } else {
-            Toast.makeText(requireContext(), "No file was selected", Toast.LENGTH_SHORT).show()
+      val pickScriptFileLauncher = registerForActivityResult(EditorActivity.Contract()) { scriptText: String? ->
+        if (scriptText != null) {
+          viewModel.scriptText.value = scriptText
+        } else {
+          Toast.makeText(requireContext(), "No file was selected", Toast.LENGTH_SHORT).show()
+        }
+      }
+      pickScriptButton.setOnClickListener {
+        // I want .mcl files
+        pickScriptFileLauncher.launch(Intent(requireContext(), EditorActivity::class.java).apply {
+          if (viewModel.scriptText.value != null) {
+            putExtra(ShellWorkScriptEditorFragment.INITIAL_TEXT_KEY, viewModel.scriptText.value)
           }
-        }
-        pickScriptButton.text = requireContext().getString(R.string.pick_script)
-        pickScriptButton.setOnClickListener {
-          // I want .mcl files
-          pickScriptFileLauncher.launch(Intent(requireContext(), FilePickerActivity::class.java).apply {
-            putExtra(FilePickerActivity.ALLOWED_FILE_EXTENSIONSKEY, FilePickerActivity.SCRIPT_FILE_EXTENSIONS)
-          })
-        }
+        })
+      }
+
+      if (work == null) {
+        pickScriptButton.text = requireContext().getString(if (viewModel.scriptText.value != null) R.string.edit_script else R.string.work_script)
       } else {
         // if it is an update, initialize fields
         pickScriptButton.text = requireContext().getString(R.string.edit_script)
-        pickScriptButton.setOnClickListener {
-          // TODO
-          Toast.makeText(requireContext(), "TODO", Toast.LENGTH_SHORT).show()
-        }
         binding.workName.setText(work!!.name)
         workDescription.setText(work!!.description)
         networkRequiredCheckBox.isChecked = work!!.isNetworkRequired
         viewModel.scheduleDate.value = work!!.scheduledAt?.toLocalDate()
         viewModel.scheduleTime.value = work!!.scheduledAt?.toLocalTime()
+        viewModel.scriptText.value = work!!.scriptText
       }
     }
     return root
@@ -209,8 +212,7 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     }
     binding.workName.error = null
 
-    val scriptFile = viewModel.scriptFile.value
-    if (isCreateForm && scriptFile == null) {
+    if (isCreateForm && viewModel.scriptText.value == null) {
       Toast.makeText(activity, R.string.must_select_script, Toast.LENGTH_SHORT).show()
       return false
     }
@@ -232,7 +234,7 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     }
 
     val scriptText = if (isCreateForm) try {
-        scriptFile!!.readText()
+      viewModel.scriptText.value!!
       } catch (e: IOException) {
         Toast.makeText(requireContext(), "Couldn't read script", Toast.LENGTH_SHORT).show()
         return false

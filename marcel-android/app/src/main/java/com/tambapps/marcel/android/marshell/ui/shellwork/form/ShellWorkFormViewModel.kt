@@ -11,7 +11,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ShellWorkFormViewModel @Inject constructor() : ViewModel() {
 
-  val scriptFile = MutableLiveData<File?>(null)
+  val scriptText = MutableLiveData<String?>(null)
   val scheduleDate = MutableLiveData<LocalDate?>(null)
   val scheduleTime = MutableLiveData<LocalTime?>(null)
   val period = MutableLiveData<Int?>(null)

@@ -18,7 +18,7 @@
     <string name="shell_works">Shell Works</string>
     <string name="name_should_be_unique">Name (should be unique)</string>
     <string name="description">Description</string>
-    <string name="pick_script">Pick Script</string>
+    <string name="work_script">Create Script</string>
     <string name="schedule_later">Schedule later</string>
     <string name="pick_date">Pick date</string>
     <string name="pick_time">Pick time</string>

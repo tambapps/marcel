@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/margin_top">
         <TextView
-            android:layout_width="100dp"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:textSize="22sp"
             app:layout_constraintStart_toStartOf="parent"
@@ -25,23 +25,24 @@
             android:textColor="#fff"
             />
 
+
+        <ImageButton
+            style="@style/shellButton"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/editFileButton"
+            android:layout_margin="16dp"
+            android:src="@drawable/shell"
+            android:id="@+id/runButton"
+            />
         <ImageButton
             style="@style/shellButton"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_margin="16dp"
-            android:src="@drawable/shell"
-            android:id="@+id/runButton"
-            />
-
-        <ImageButton
-            style="@style/shellButton"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/runButton"
-            android:layout_margin="16dp"
             android:src="@drawable/folder"
             android:id="@+id/editFileButton"
             />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ScrollView
