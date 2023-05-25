@@ -111,6 +111,10 @@ interface JavaType: AstTypedObject {
     return withGenericTypes(emptyList())
   }
 
+  fun addImplementedInterface(javaType: JavaType) {
+    throw MarcelSemanticException("Compiler error: Cannot add interface to type")
+  }
+
   fun isAssignableFrom(other: JavaType): Boolean {
     if (this == other || this == Object && !other.primitive
       // to handle null values that can be cast to anything
@@ -157,7 +161,7 @@ interface JavaType: AstTypedObject {
 
     fun newType(outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): JavaType {
       val className = if (outerClassType != null) "${outerClassType.className}\$$cName" else cName
-      return NotLoadedJavaType(className, emptyList(), emptyList(),  superClass, isInterface, interfaces)
+      return NotLoadedJavaType(className, emptyList(), emptyList(),  superClass, isInterface, interfaces.toMutableList())
     }
 
     fun commonType(list: List<AstTypedObject>): JavaType {
@@ -406,7 +410,7 @@ open class NotLoadedJavaType internal constructor(
   override val genericParameterNames: List<String>,
   override val superType: JavaType?,
   override val isInterface: Boolean,
-  override val directlyImplementedInterfaces: Collection<JavaType>): AbstractJavaType() {
+  override val directlyImplementedInterfaces: MutableCollection<JavaType>): AbstractJavaType() {
 
   override val arrayType: JavaArrayType
     get() = this as NotLoadedJavaArrayType
@@ -440,6 +444,10 @@ open class NotLoadedJavaType internal constructor(
 
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
     throw UnsupportedOperationException("Doesn't support generics for marcel classes (for now)")
+  }
+
+  override fun addImplementedInterface(javaType: JavaType) {
+    directlyImplementedInterfaces.add(javaType)
   }
 }
 
@@ -582,7 +590,7 @@ interface JavaArrayType: JavaType {
 
 class NotLoadedJavaArrayType internal  constructor(
   override val elementsType: JavaType
-): NotLoadedJavaType("[L${elementsType.className};", emptyList(), emptyList(), JavaType.Object, false, emptyList()), JavaArrayType {
+): NotLoadedJavaType("[L${elementsType.className};", emptyList(), emptyList(), JavaType.Object, false, mutableSetOf()), JavaArrayType {
   override val arrayStoreCode: Int = Opcodes.AASTORE
   override val arrayLoadCode: Int = Opcodes.AALOAD
   override val typeCode: Int = 0

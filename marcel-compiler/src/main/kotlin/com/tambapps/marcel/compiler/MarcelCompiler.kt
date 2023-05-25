@@ -1,5 +1,6 @@
 package com.tambapps.marcel.compiler
 
+import com.tambapps.marcel.compiler.annotation.DelegateAnnotationProcessor
 import com.tambapps.marcel.compiler.asm.ClassCompiler
 import com.tambapps.marcel.compiler.exception.MarcelCompilerException
 import com.tambapps.marcel.dumbbell.Dumbbell
@@ -16,6 +17,10 @@ import java.util.function.Consumer
 
 class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
 
+  // TODO add it to repl compiler too
+  private val moduleNodeVisitors: List<ModuleNodeVisitor> = listOf(
+    DelegateAnnotationProcessor()
+  )
   constructor(): this(CompilerConfiguration())
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class, MarcelCompilerException::class)
@@ -71,6 +76,18 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
   }
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class, MarcelCompilerException::class)
+  fun compileToJar(scriptLoader: MarcelClassLoader? = null, files: Collection<SourceFile>, outputJar: File) {
+    val classes = mutableListOf<CompiledClass>()
+    compileSourceFiles(scriptLoader, files, classes::add)
+
+    JarWriter(outputJar).use {
+      classes.forEach { compiledClass ->
+        it.writeClass(compiledClass)
+      }
+    }
+  }
+
+  @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class, MarcelCompilerException::class)
   fun compileSourceFiles(scriptLoader: MarcelClassLoader? = null, sourceFiles: Collection<SourceFile>, classConsumer: Consumer<CompiledClass>) {
     val typeResolver = JavaTypeResolver(scriptLoader)
 
@@ -78,6 +95,7 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
       val tokens = MarcelLexer().lex(sourceFile.text)
       val parser = MarcelParser(typeResolver, sourceFile.className, tokens) //if (className != null) MarcelParser(typeResolver, className, tokens) else MarcelParser(typeResolver, tokens)
       val ast = parser.parse()
+      moduleNodeVisitors.forEach { it.visit(ast) }
 
       if (ast.dumbbells.isNotEmpty() && !compilerConfiguration.dumbbellEnabled) {
         throw MarcelCompilerException("Cannot use dumbbells because dumbbell is not enabled")
@@ -103,15 +121,4 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
     }
   }
 
-  @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class, MarcelCompilerException::class)
-  fun compileToJar(scriptLoader: MarcelClassLoader? = null, files: Collection<SourceFile>, outputJar: File) {
-    val classes = mutableListOf<CompiledClass>()
-    compileSourceFiles(scriptLoader, files, classes::add)
-
-    JarWriter(outputJar).use {
-      classes.forEach { compiledClass ->
-        it.writeClass(compiledClass)
-      }
-    }
-  }
 }

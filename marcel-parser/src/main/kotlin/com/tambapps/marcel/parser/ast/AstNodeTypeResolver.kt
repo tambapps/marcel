@@ -51,7 +51,7 @@ open class AstNodeTypeResolver constructor(
       // ignore
     }
     if (_definedTypes.containsKey(className)) throw MarcelSemanticException("Class $className is already defined")
-    val type = NotLoadedJavaType(className, emptyList(), emptyList(),  superClass, isInterface, interfaces)
+    val type = NotLoadedJavaType(className, emptyList(), emptyList(),  superClass, isInterface, interfaces.toMutableSet())
     _definedTypes[className] = type
     return type
   }

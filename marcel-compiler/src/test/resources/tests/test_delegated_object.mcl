@@ -1,9 +1,8 @@
 import static org.junit.jupiter.api.Assertions.assertTrue
 import static org.junit.jupiter.api.Assertions.assertFalse
 
-class MyDelegatedObject implements DelegatedObject<Integer> {
-  // TODO add delegate annotation to avoid having to write 'implements DelegatedObject'
-  // delegate getter is automatically generated
+class MyDelegatedObject {
+  @Delegate
   Integer delegate
 
   fun bool foo() {

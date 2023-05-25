@@ -1,0 +1,7 @@
+
+extension class FileExtensions for File {
+
+  fun String readText() {
+
+  }
+}

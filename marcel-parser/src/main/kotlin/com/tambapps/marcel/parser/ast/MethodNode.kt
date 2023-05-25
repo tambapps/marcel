@@ -15,8 +15,8 @@ open class MethodNode constructor(
   final override val parameters: MutableList<MethodParameterNode>, final override val returnType: JavaType, val scope: MethodScope,
   override val isInline: Boolean,
   final override val isConstructor: Boolean,
-  val annotations: List<AnnotationNode>
-): AstNode, AbstractMethod(access) {
+  override val annotations: List<AnnotationNode>
+): AstNode, AbstractMethod(access), Annotable {
 
   override val actualReturnType = returnType
   constructor(access: Int, ownerClass: JavaType, name: String, block: FunctionBlockNode,

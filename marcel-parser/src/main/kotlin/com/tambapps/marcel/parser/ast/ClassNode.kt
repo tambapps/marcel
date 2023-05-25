@@ -16,9 +16,9 @@ open class ClassNode constructor(override val token: LexToken,
                                  val scope: Scope, val access: Int, val type: JavaType, val superType: JavaType,
                                  val isScript: Boolean, val methods: MutableList<MethodNode>,
                                  val fields: MutableList<FieldNode>, val innerClasses: MutableList<ClassNode>,
-                                 val annotations: List<AnnotationNode>,
+                                 override val annotations: List<AnnotationNode>,
                                  // TODO implement extensionClasses
-                                 val extendingType: JavaType? = null): AstNode {
+                                 val extendingType: JavaType? = null): AstNode, Annotable {
 
   var staticInitializationNode: StaticInitializationNode? = null
   val isExtensionClass get() = extendingType != null
