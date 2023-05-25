@@ -2,7 +2,6 @@ package com.tambapps.marcel.repl
 
 import com.tambapps.marcel.compiler.CompiledClass
 import com.tambapps.marcel.compiler.CompilerConfiguration
-import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.compiler.asm.ClassCompiler
 import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.lexer.MarcelLexer
@@ -13,7 +12,6 @@ import com.tambapps.marcel.parser.ParserConfiguration
 import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
-import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.DelegatedObject
 import marcel.lang.MarcelClassLoader
 import kotlin.jvm.Throws
@@ -26,8 +24,6 @@ class MarcelReplCompiler constructor(
 
   val imports = LinkedHashSet<ImportNode>()
   private val lexer = MarcelLexer(false)
-  // TODO save this in ReplJavaTypeResolver. This is for android marshell, to be able to save them outside the shell which
-  //  needs a reference to an Android context because of the lineReader which reads from a EditText. With this, we would be able
   private val _definedFunctions = mutableSetOf<MethodNode>()
   val definedFunctions: Set<MethodNode> get() = _definedFunctions
   private val classCompiler = ClassCompiler(compilerConfiguration, typeResolver)
@@ -129,6 +125,7 @@ class MarcelReplCompiler constructor(
         }
         method.ownerClass = scriptNode.type
         method.scope.classType = scriptNode.type
+        method.scope.resetLocalVariables()
         scriptNode.methods.add(method)
       }
       typeResolver.registerClass(scriptNode)

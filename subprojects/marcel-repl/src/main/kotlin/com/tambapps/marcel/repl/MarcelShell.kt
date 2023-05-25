@@ -58,7 +58,6 @@ abstract class MarcelShell constructor(
           println("Error from init script: ${e.message}")
           onInitScriptFail(e)
         } catch (e: MarcelSemanticException) {
-          e.printStackTrace()
           println("Error from init script: ${e.message}")
           onInitScriptFail(e)
         } catch (e: MarcelParserException) {

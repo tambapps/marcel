@@ -35,7 +35,7 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
     )
   }
 
-  private val localVariables: MutableList<LocalVariable> = mutableListOf()
+  protected val localVariables = mutableListOf<LocalVariable>()
 
   open fun addLocalVariable(type: JavaType, isFinal: Boolean = false): LocalVariable {
     val name = generateLocalVarName()
@@ -172,6 +172,14 @@ open class MethodScope constructor(typeResolver: AstNodeTypeResolver, imports: M
       addLocalVariable(param.type, param.name, param.isFinal)
     }
     methodParametersDefined = true
+  }
+
+  // useful for ReplCompiler
+  fun resetLocalVariables() {
+    // normally I would have used localVariables.removeIf(...) but it throws NPE don't really understand why
+    val toRemoves = localVariables.filter { v -> !parameters.any { it.name == v.name } }
+    toRemoves.forEach { freeVariable(it.name) }
+    localVariables.removeAll(toRemoves)
   }
 }
 
