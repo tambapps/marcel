@@ -17,7 +17,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.commitNow
 import androidx.fragment.app.viewModels
 import com.tambapps.marcel.android.marshell.EditorActivity
-import com.tambapps.marcel.android.marshell.FilePickerActivity
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.databinding.FragmentShellWorkFormBinding
 import com.tambapps.marcel.android.marshell.service.ShellWorkManager
@@ -31,7 +30,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import java.io.File
 import java.io.IOException
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -90,8 +88,7 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
         binding.dateText.text = it?.toString()
       }
       viewModel.scriptText.observe(viewLifecycleOwner) {
-        // TODO may need to remove useless filepéth
-        //binding.filePath.text = it?.name
+        binding.pickScriptButton.text = requireContext().getString(if (it != null) R.string.edit_script else R.string.work_script)
       }
     }
 
@@ -184,7 +181,7 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
         // I want .mcl files
         pickScriptFileLauncher.launch(Intent(requireContext(), EditorActivity::class.java).apply {
           if (viewModel.scriptText.value != null) {
-            putExtra(ShellWorkScriptEditorFragment.INITIAL_TEXT_KEY, viewModel.scriptText.value)
+            putExtra(ShellWorkScriptEditorFragment.TEXT_KEY, viewModel.scriptText.value)
           }
         })
       }
@@ -212,8 +209,9 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     }
     binding.workName.error = null
 
-    if (isCreateForm && viewModel.scriptText.value == null) {
-      Toast.makeText(activity, R.string.must_select_script, Toast.LENGTH_SHORT).show()
+    val scriptText = viewModel.scriptText.value
+    if (scriptText == null) {
+      Toast.makeText(activity, R.string.empty_script, Toast.LENGTH_SHORT).show()
       return false
     }
     if (binding.scheduleCheckbox.isChecked && (
@@ -233,12 +231,6 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       return false
     }
 
-    val scriptText = if (isCreateForm) try {
-      viewModel.scriptText.value!!
-      } catch (e: IOException) {
-        Toast.makeText(requireContext(), "Couldn't read script", Toast.LENGTH_SHORT).show()
-        return false
-      } else work!!.scriptText
     // everything seems to be ok, now saving the Work
     CoroutineScope(Dispatchers.IO).launch {
       shellWorkManager.save(

@@ -43,6 +43,8 @@ abstract class AbstractEditorFragment : Fragment() {
   protected val binding get() = _binding!!
 
   protected abstract fun onFilePicked(selectedFile: File)
+  protected abstract fun onFabClick()
+
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
@@ -87,6 +89,9 @@ abstract class AbstractEditorFragment : Fragment() {
         putExtra(FilePickerActivity.ALLOWED_FILE_EXTENSIONSKEY, FilePickerActivity.SCRIPT_FILE_EXTENSIONS)
       })
     }
+    binding.fab.setOnClickListener {
+      onFabClick()
+    }
   }
 
 
@@ -123,30 +128,31 @@ class EditorFragment : AbstractEditorFragment() {
         binding.fileNameText.visibility = View.GONE
       }
     }
-
-    binding.runButton.setOnClickListener {
-      val text = binding.editText.text
-      if (text.isBlank()) {
-        Toast.makeText(requireContext(), "Cannot run empty text", Toast.LENGTH_SHORT).show()
-        return@setOnClickListener
-      }
-      if (shellHandler.sessionsCount <= 1) {
-        doNavigateToShell(text)
-      } else {
-        val sessions = shellHandler.sessions
-        AlertDialog.Builder(requireContext())
-          .setTitle("Run in shell")
-          .setItems(sessions.map { it.name }.toTypedArray()) { dialogInterface: DialogInterface, which: Int ->
-            doNavigateToShell(text, which)
-          }
-          .show()
-      }
-    }
   }
 
   override fun onFilePicked(selectedFile: File) {
     viewModel.file.value = selectedFile
   }
+
+  override fun onFabClick() {
+    val text = binding.editText.text
+    if (text.isBlank()) {
+      Toast.makeText(requireContext(), "Cannot run empty text", Toast.LENGTH_SHORT).show()
+      return
+    }
+    if (shellHandler.sessionsCount <= 1) {
+      doNavigateToShell(text)
+    } else {
+      val sessions = shellHandler.sessions
+      AlertDialog.Builder(requireContext())
+        .setTitle("Run in shell")
+        .setItems(sessions.map { it.name }.toTypedArray()) { dialogInterface: DialogInterface, which: Int ->
+          doNavigateToShell(text, which)
+        }
+        .show()
+    }
+  }
+
   private fun doNavigateToShell(text: CharSequence, position: Int? = null) {
     shellHandler.navigateToShell(text, position)
   }
