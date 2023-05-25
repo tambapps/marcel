@@ -105,12 +105,10 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
   override fun onStart() {
     super.onStart()
     shellHandler.registerCallback(this)
-    MarcelSystem.setPrinter(SuppliedShellPrinter(this::getCurrentPrinter))
   }
 
   override fun onStop() {
     shellHandler.unregisterCallback(this)
-    MarcelSystem.setPrinter(null)
     super.onStop()
   }
 

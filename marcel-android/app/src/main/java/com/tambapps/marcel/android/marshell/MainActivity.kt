@@ -154,13 +154,6 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
     binding.navView.setCheckedItem(navController.currentDestination!!.id)
   }
 
-  override fun onStop() {
-    super.onStop()
-    // TODO remove printer. Just set an immutable variable out
-    //  use a kind of extension to add function println, and don't load the DefaultStaticMethods.println
-    MarcelSystem.setPrinter(null)
-  }
-
   override fun onDestroy() {
     super.onDestroy()
     shellSessions.forEach { it.dispose() }
