@@ -19,7 +19,7 @@
                     <item
                         android:id="@+id/nav_playgrounds"
                         android:icon="@drawable/environment"
-                        android:title="Playgrounds" />
+                        android:title="@string/menu_playgrounds" />
                     <item
                         android:id="@+id/nav_shell_works"
                         android:icon="@drawable/work"

@@ -36,7 +36,6 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import javax.inject.Inject
 
-// TODO need to display updates when returning to list or view cragment
 @AndroidEntryPoint
 class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
 

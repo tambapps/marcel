@@ -64,11 +64,11 @@ class ShellWorkFragment : Fragment() {
   }
 
   private var _binding: FragmentShellWorkBinding? = null
-  val fab get() = binding.fab
 
   // This property is only valid between onCreateView and
   // onDestroyView.
   private val binding get() = _binding!!
+  val fab get() = binding.fab
 
   private val currentFragment: ShellWorkFragmentChild? get() = childFragmentManager.findFragmentById(R.id.container) as? ShellWorkFragmentChild
 
