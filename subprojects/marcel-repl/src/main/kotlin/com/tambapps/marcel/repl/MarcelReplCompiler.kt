@@ -54,6 +54,14 @@ class MarcelReplCompiler constructor(
       }
     }
     var compiledScriptClass = emptyList<CompiledClass>()
+    // compiling other classes first so that the script can find them
+    val otherClasses = result.classes
+      .filter { !it.isScript }
+      .flatMap {
+        typeResolver.registerLibraryClass(it)
+        classCompiler.compileDefinedClass(it)
+      }
+
     val scriptNode = result.scriptNode
     if (scriptNode != null) {
       scriptNode.scope.imports.addAll(imports)
@@ -67,12 +75,6 @@ class MarcelReplCompiler constructor(
               }
       )
     }
-    val otherClasses = result.classes
-            .filter { !it.isScript }
-            .flatMap {
-              typeResolver.registerLibraryClass(it)
-              classCompiler.compileDefinedClass(it)
-            }
 
     return ReplCompilerResult(result, compiledScriptClass, otherClasses)
   }
