@@ -40,7 +40,7 @@
         android:clickable="true"
         android:textSize="24sp"
         style="@style/shellText"
-        android:background="@color/colorPrimaryDark"
+        android:background="@color/colorPrimaryVariant"
         android:foreground="?attr/selectableItemBackground"
         android:onClick="pickDirectory"
         android:text="Pick this file"
