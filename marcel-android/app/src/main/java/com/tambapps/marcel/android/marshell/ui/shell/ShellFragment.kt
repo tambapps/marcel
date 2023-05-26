@@ -86,6 +86,18 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
       Toast.makeText(requireContext(), "TODO", Toast.LENGTH_SHORT).show()
     }
 
+    binding.exportButton.setOnLongClickListener {
+      Toast.makeText(requireContext(), "Export session to a file", Toast.LENGTH_SHORT).show()
+      return@setOnLongClickListener true
+    }
+    binding.runFileButton.setOnLongClickListener {
+      Toast.makeText(requireContext(), "Run script", Toast.LENGTH_SHORT).show()
+      return@setOnLongClickListener true
+    }
+    binding.plusButton.setOnLongClickListener {
+      Toast.makeText(requireContext(), "Start a new shell", Toast.LENGTH_SHORT).show()
+      return@setOnLongClickListener true
+    }
     updateTabLayoutVisibility()
   }
 

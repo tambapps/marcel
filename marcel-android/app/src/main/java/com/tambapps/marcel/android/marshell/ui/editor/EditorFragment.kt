@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import com.tambapps.marcel.android.marshell.FilePickerActivity
+import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.ShellHandler
 import com.tambapps.marcel.android.marshell.databinding.FragmentEditorBinding
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
@@ -91,6 +92,10 @@ abstract class AbstractEditorFragment : Fragment() {
     }
     binding.fab.setOnClickListener {
       onFabClick()
+    }
+    binding.editFileButton.setOnLongClickListener {
+      Toast.makeText(requireContext(), getString(R.string.open_file), Toast.LENGTH_SHORT).show()
+      return@setOnLongClickListener true
     }
   }
 
