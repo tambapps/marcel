@@ -109,7 +109,10 @@ class FilePickerActivity : AppCompatActivity() {
     }
     pathAdapter = PathRecyclerViewAdapter(currentDir)
     pathRecyclerView.apply {
-      layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+      layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false).also {
+        // to allow automatically scrolling to the end when moving to child
+        it.stackFromEnd = true
+      }
       adapter = pathAdapter
     }
   }
