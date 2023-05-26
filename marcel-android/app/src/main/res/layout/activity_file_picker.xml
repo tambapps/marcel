@@ -7,15 +7,34 @@
     android:orientation="vertical"
     tools:context=".FilePickerActivity">
 
-    <TextView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="28sp"
-        android:layout_margin="16dp"
-        android:gravity="center"
-        android:id="@+id/directoryText"
-        style="@style/shellText"
-        />
+        android:layout_height="wrap_content">
+        <ImageButton
+            style="@style/shellButton"
+            android:id="@+id/backButton"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:scaleX="1.5"
+            android:scaleY="1.5"
+            android:src="@drawable/arrow"
+            />
+        <TextView
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="28sp"
+            android:layout_margin="16dp"
+            android:gravity="center"
+            android:id="@+id/directoryText"
+            style="@style/shellText"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"

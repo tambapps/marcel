@@ -91,11 +91,11 @@ class FilePickerActivity : AppCompatActivity() {
       return
     }
 
-    onBackPressedDispatcher.addCallback(this) {
+    binding.backButton.setOnClickListener {
       if (currentDir.parentFile == null || currentDir == getDeviceRootDirectory()) {
         finish()
       } else {
-        fragment.onBackPressed()
+        fragment.goBack()
       }
     }
     if (savedInstanceState == null) {
@@ -311,7 +311,7 @@ class FilePickerFragment: Fragment() {
   }
 
   // return true if event was consumed
-  fun onBackPressed() {
+  fun goBack() {
     val parentFile = adapter?.directory?.parentFile ?: return
     activity.replaceFragment(parentFile)
   }
