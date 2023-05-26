@@ -47,7 +47,7 @@ class FilePickerActivity : AppCompatActivity() {
     override fun createIntent(context: Context, input: Intent) = input
 
     override fun parseResult(resultCode: Int, intent: Intent?)
-        = if (resultCode == Activity.RESULT_OK && intent != null) intent.getSerializableExtra(FilePickerActivity.PICKED_FILE_PATH_KEY) as File
+        = if (resultCode == Activity.RESULT_OK && intent != null) File(intent.getStringExtra(PICKED_FILE_PATH_KEY)!!)
     else null
   }
 
@@ -143,7 +143,7 @@ class FilePickerActivity : AppCompatActivity() {
         .setNeutralButton(android.R.string.no, null)
         .setPositiveButton("yes") { dialog, which ->
           setResult(Activity.RESULT_OK, Intent(intent).apply {
-            putExtra(PICKED_FILE_PATH_KEY, file)
+            putExtra(PICKED_FILE_PATH_KEY, file.absolutePath)
           })
           if (file.parentFile != null) {
             sharedPreferences.edit(true) {
