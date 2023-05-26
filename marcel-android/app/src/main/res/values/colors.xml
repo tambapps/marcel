@@ -10,6 +10,6 @@
     <color name="orange">#FFA500</color>
     <color name="colorPrimary">#FFE500</color>
     <color name="colorPrimaryVariant">#BDAA00</color>
-    <color name="colorSecondary">@color/colorPrimaryVariant</color>
-    <color name="colorSecondaryVariant">@color/colorSecondary</color>
+    <color name="colorSecondary">@color/colorPrimary</color>
+    <color name="colorSecondaryVariant">#BDAA00</color>
 </resources>
