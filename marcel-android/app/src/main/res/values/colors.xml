@@ -9,7 +9,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="orange">#FFA500</color>
     <color name="colorPrimary">#FFE500</color>
-    <color name="colorPrimaryVariant">#FF9800</color>
-    <color name="colorSecondary">#B5A200</color>
+    <color name="colorPrimaryVariant">#BDAA00</color>
+    <color name="colorSecondary">@color/colorPrimaryVariant</color>
     <color name="colorSecondaryVariant">@color/colorSecondary</color>
 </resources>

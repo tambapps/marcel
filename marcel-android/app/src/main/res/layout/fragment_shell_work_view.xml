@@ -94,11 +94,8 @@
     </ScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        style="@style/fab"
         android:id="@+id/fab2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/fab_margin"
-        app:borderWidth="0dp"
         app:srcCompat="@drawable/plus"
         android:rotation="45"
         app:layout_constraintBottom_toBottomOf="parent"
