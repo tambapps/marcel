@@ -5,8 +5,6 @@ import android.content.DialogInterface
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,15 +25,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.UUID
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWorkTextDisplay {
   companion object {
+    const val SHELL_WORK_NAME_KEY = "work_name"
     fun newInstance(workName: String) = ShellWorkViewFragment().apply {
       arguments = Bundle().apply {
-        putString("work_name", workName)
+        putString(SHELL_WORK_NAME_KEY, workName)
       }
     }
   }
@@ -44,7 +42,7 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWo
   lateinit var shellWorkManager: ShellWorkManager
   private var _binding: FragmentShellWorkViewBinding? = null
   private val binding get() = _binding!!
-  val workName get() = requireArguments().getString("work_name")
+  val workName get() = requireArguments().getString(SHELL_WORK_NAME_KEY)
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -59,6 +57,9 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWo
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     refresh()
     registerPeriodicCallback(this::refresh)
+    if (parentFragment == null) {
+      binding.fab2.visibility = View.GONE
+    }
   }
 
   private fun refresh() {
@@ -93,6 +94,7 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWo
 
       fab2.backgroundTintList = ColorStateList.valueOf(if (work.isFinished) Color.RED else requireContext().getColor(R.color.orange))
       fab2.setOnClickListener {
+        if (parentFragment == null) return@setOnClickListener
         if (!work.isFinished) {
           AlertDialog.Builder(requireContext()).setTitle(requireContext().getString(R.string.cancel_work_q, work.name))
             .setNeutralButton(android.R.string.no, null)
@@ -137,18 +139,20 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWo
 
   override fun onAttach(context: Context) {
     super.onAttach(context)
-    val callback = object : OnBackPressedCallback(
-      true // default to enabled
-    ) {
-      override fun handleOnBackPressed() {
-        fab?.setImageResource(R.drawable.plus)
-        parentFragmentManager.popBackStack()
+    if (parentFragment != null) {
+      val callback = object : OnBackPressedCallback(
+        true // default to enabled
+      ) {
+        override fun handleOnBackPressed() {
+          fab?.setImageResource(R.drawable.plus)
+          parentFragmentManager.popBackStack()
+        }
       }
+      requireActivity().onBackPressedDispatcher.addCallback(
+        this, // LifecycleOwner
+        callback
+      )
     }
-    requireActivity().onBackPressedDispatcher.addCallback(
-      this, // LifecycleOwner
-      callback
-    )
   }
   override fun onFabClick(): Boolean {
     val workName = this.workName ?: return false

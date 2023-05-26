@@ -16,11 +16,12 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.tambapps.marcel.android.marshell.MainActivity
 import com.tambapps.marcel.android.marshell.R
+import com.tambapps.marcel.android.marshell.ShellWorkViewActivity
 import com.tambapps.marcel.android.marshell.repl.jar.DexJarWriterFactory
 import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDao
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
+import com.tambapps.marcel.android.marshell.ui.shellwork.view.ShellWorkViewFragment
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.MarcelEvaluator
 import com.tambapps.marcel.repl.MarcelReplCompiler
@@ -154,9 +155,8 @@ class MarcelShellWorker
       notificationBuilder.addAction(android.R.drawable.ic_delete, "cancel",
         WorkManager.getInstance(applicationContext)
           .createCancelPendingIntent(id))
-    } else {
-      notificationBuilder.addAction(android.R.drawable.btn_plus, "consult", getConsultIntent(notifId, "TODO"))
     }
+    work?.name?.let { workName -> notificationBuilder.setContentIntent(getConsultIntent(notifId, workName)) }
 
     val notification = notificationBuilder.build()
 
@@ -168,12 +168,11 @@ class MarcelShellWorker
   }
 
   private fun getConsultIntent(notifId: Int, workName: String): PendingIntent? {
-    val resultIntent = Intent(applicationContext, MainActivity::class.java)
-    /* TODO put args to redirect to shell work page
-    resultIntent.putExtra(WorkFragment.WORK_NAME_KEY, workName)
-    resultIntent.putExtra(NOTIFICATION_ID_KEY, notifId)
+    val resultIntent = Intent(applicationContext, ShellWorkViewActivity::class.java)
+    resultIntent.putExtra(ShellWorkViewFragment.SHELL_WORK_NAME_KEY, workName)
+    resultIntent.putExtra(ShellWorkViewActivity.NOTIFICATION_ID_KEY, notifId)
+    println("cacacacac ${resultIntent?.extras}")
 
-     */
     return TaskStackBuilder.create(applicationContext).run {
       // Add the intent, which inflates the back stack
       addNextIntentWithParentStack(resultIntent)

@@ -30,6 +30,9 @@
             android:name=".EditorActivity"
             android:exported="false" />
         <activity
+            android:name=".ShellWorkViewActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
