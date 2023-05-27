@@ -42,7 +42,7 @@ abstract class ResourceParentFragment: Fragment() {
       }
     }
 
-    fun navigateTo(fragment: ChildFragment, fabResoourceId: Int) {
+    fun navigateTo(fragment: Fragment, fabResoourceId: Int) {
       parentFragmentManager.commit {
         setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
         // to handle back press
@@ -69,9 +69,10 @@ abstract class ResourceParentFragment: Fragment() {
   // onDestroyView.
   private val binding get() = _binding!!
 
-  private val currentFragment: ChildFragment? get() = childFragmentManager.findFragmentById(R.id.container) as? ChildFragment
 
-  abstract fun initialFragment(): ChildFragment
+  private val currentFabClickListener get() = childFragmentManager.findFragmentById(R.id.container) as? FabClickListener
+
+  abstract fun initialFragment(): Fragment
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -94,7 +95,7 @@ abstract class ResourceParentFragment: Fragment() {
     val root: View = binding.root
 
     binding.fab.setOnClickListener {
-      currentFragment?.onFabClick()
+      currentFabClickListener?.onFabClick()
     }
     return root
   }

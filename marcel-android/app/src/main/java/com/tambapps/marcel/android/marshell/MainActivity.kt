@@ -19,7 +19,6 @@ import com.tambapps.marcel.android.marshell.ui.shell.ShellFragment
 import com.tambapps.marcel.android.marshell.util.ListenableList
 import com.tambapps.marcel.android.marshell.util.hideSoftBoard
 import dagger.hilt.android.AndroidEntryPoint
-import marcel.lang.MarcelSystem
 import java.io.File
 import java.util.Collections
 import javax.inject.Inject
@@ -88,7 +87,7 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
     binding.drawerLayout.closeDrawer(binding.navView)
     if (NavigationUI.onNavDestinationSelected(menuItem, navController)) return true
     when (menuItem.itemId) {
-      R.id.nav_playgrounds -> Toast.makeText(this, "Coming Soon", Toast.LENGTH_SHORT).show()
+      R.id.nav_script_collection -> Toast.makeText(this, "Coming Soon", Toast.LENGTH_SHORT).show()
       R.id.nav_documentation -> {
         CustomTabsIntent.Builder()
           .build()

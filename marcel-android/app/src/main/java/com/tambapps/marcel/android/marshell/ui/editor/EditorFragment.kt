@@ -14,6 +14,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
+import com.google.android.material.snackbar.Snackbar
 import com.tambapps.marcel.android.marshell.FilePickerActivity
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.ShellHandler
@@ -43,7 +44,14 @@ abstract class AbstractEditorFragment : Fragment() {
   private var _binding: FragmentEditorBinding? = null
   protected val binding get() = _binding!!
 
-  protected abstract fun onFilePicked(selectedFile: File)
+  protected open fun onFilePicked(selectedFile: File) {
+    binding.editText.setText(highlight(selectedFile.readText()))
+    Snackbar.make(binding.root, "The selected file won't be modified. A copy of it has been made", Snackbar.LENGTH_INDEFINITE)
+      .setAction("ok") {
+        // do nothing
+      }
+      .show()
+  }
   protected abstract fun onFabClick()
 
   override fun onCreateView(

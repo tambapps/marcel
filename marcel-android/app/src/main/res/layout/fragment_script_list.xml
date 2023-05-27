@@ -15,7 +15,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="16dp"
         android:gravity="center"
-        android:text="Playgrounds"
+        android:text="@string/menu_script_collection"
         android:textSize="26sp" />
 
 

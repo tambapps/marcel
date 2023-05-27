@@ -45,12 +45,4 @@ class ShellWorkScriptEditorFragment: AbstractEditorFragment() {
     requireActivity().finish()
   }
 
-  override fun onFilePicked(selectedFile: File) {
-    binding.editText.setText(highlight(selectedFile.readText()))
-    Snackbar.make(binding.root, "The selected file will not be modified. A copy of it will be created", Snackbar.LENGTH_INDEFINITE)
-      .setAction("ok") {
-        // do nothing
-      }
-      .show()
-  }
 }

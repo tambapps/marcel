@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.util.DisplayMetrics
+import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 
@@ -21,4 +23,12 @@ fun Context.copyToClipboard(label: String?, text: String?) {
   val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
   val clip = ClipData.newPlainText(label, text)
   clipboard.setPrimaryClip(clip)
+}
+
+fun Int.toSp(context: Context): Int {
+  return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), context.resources.displayMetrics).toInt()
+}
+
+fun Int.toDp(context: Context): Int {
+  return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, this.toFloat(), context.resources.displayMetrics).toInt()
 }

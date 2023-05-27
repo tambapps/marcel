@@ -27,10 +27,10 @@
         tools:layout="@layout/fragment_editor" />
 
     <fragment
-        android:id="@+id/nav_playgrounds"
-        android:name="com.tambapps.marcel.android.marshell.ui.playground.PlaygroundFragment"
-        android:label="@string/menu_playgrounds"
-        tools:layout="@layout/fragment_playground" />
+        android:id="@+id/nav_script_collection"
+        android:name="com.tambapps.marcel.android.marshell.ui.fav_scripts.ScriptCollectionFragment"
+        android:label="@string/menu_script_collection"
+        tools:layout="@layout/fragment_resource_parent" />
     <fragment
         android:id="@+id/nav_shell_works"
         android:name="com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment"
