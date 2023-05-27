@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.tambapps.marcel.android.marshell.R
-import com.tambapps.marcel.android.marshell.databinding.FragmentShellWorkBinding
+import com.tambapps.marcel.android.marshell.databinding.FragmentResourceParentBinding
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
 
 abstract class ResourceParentFragment: Fragment() {
@@ -27,8 +27,7 @@ abstract class ResourceParentFragment: Fragment() {
   }
 
   val fab get() = binding.fab
-  // TODO rename layout
-  private var _binding: FragmentShellWorkBinding? = null
+  private var _binding: FragmentResourceParentBinding? = null
 
   // This property is only valid between onCreateView and
   // onDestroyView.
@@ -55,7 +54,7 @@ abstract class ResourceParentFragment: Fragment() {
     savedInstanceState: Bundle?
   ): View {
 
-    _binding = FragmentShellWorkBinding.inflate(inflater, container, false)
+    _binding = FragmentResourceParentBinding.inflate(inflater, container, false)
     val root: View = binding.root
 
     binding.fab.setOnClickListener {
