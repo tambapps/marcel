@@ -28,7 +28,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWorkTextDisplay {
+class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(R.drawable.plus), ShellWorkTextDisplay {
   companion object {
     const val SHELL_WORK_NAME_KEY = "work_name"
     fun newInstance(workName: String) = ShellWorkViewFragment().apply {
@@ -137,23 +137,6 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWo
     }
   }
 
-  override fun onAttach(context: Context) {
-    super.onAttach(context)
-    if (parentFragment != null) {
-      val callback = object : OnBackPressedCallback(
-        true // default to enabled
-      ) {
-        override fun handleOnBackPressed() {
-          parentFab?.setImageResource(R.drawable.plus)
-          parentFragmentManager.popBackStack()
-        }
-      }
-      requireActivity().onBackPressedDispatcher.addCallback(
-        this, // LifecycleOwner
-        callback
-      )
-    }
-  }
   override fun onFabClick(): Boolean {
     val workName = this.workName ?: return false
 

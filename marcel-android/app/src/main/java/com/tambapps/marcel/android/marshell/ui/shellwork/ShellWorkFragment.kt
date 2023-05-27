@@ -10,7 +10,8 @@ class ShellWorkFragment : ResourceParentFragment() {
   companion object {
     const val TRANSITION_DURATION_MILLIS = 500L
   }
-  abstract class ShellWorkFragmentChild: ChildFragment() {
+  abstract class ShellWorkFragmentChild(previousFragmentFabDrawable: Int?): ChildFragment(previousFragmentFabDrawable) {
+    constructor(): this(null)
 
     private var handler: Handler? = null
     private val registeredCallbacks = mutableListOf<Pair<Runnable, Long>>()
