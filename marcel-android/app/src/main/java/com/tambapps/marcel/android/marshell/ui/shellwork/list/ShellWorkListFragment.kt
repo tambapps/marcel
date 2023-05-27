@@ -97,16 +97,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellW
   }
 
   private fun onWorkClick(work: ShellWork) {
-    val fragment = ShellWorkViewFragment.newInstance(work.name)
-    parentFragmentManager.commit {
-      setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
-      // to handle back press
-      addToBackStack(null)
-      add(R.id.container, fragment, fragment.javaClass.name)
-      show(fragment)
-      hide(this@ShellWorkListFragment)
-    }
-    resourceParentFragment?.notifyNavigated(R.drawable.edit)
+    navigateTo(ShellWorkViewFragment.newInstance(work.name), R.drawable.edit)
   }
 
   private fun onWorkCancel(work: ShellWork) {
@@ -139,16 +130,8 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellW
 
   override fun onFabClick(): Boolean {
     val fragment = ShellWorkFormFragment.newInstance()
-    parentFragmentManager.commit {
-      setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
-      // to handle back press
-      addToBackStack(null)
-      add(R.id.container, fragment, fragment.javaClass.name)
-      show(fragment)
-      hide(this@ShellWorkListFragment)
-    }
-    resourceParentFragment?.notifyNavigated(R.drawable.save)
-    return false // returning false because we want to modify the fab's icon with notifyNavigated
+    navigateTo(ShellWorkFormFragment.newInstance(), R.drawable.plus)
+    return false // returning false because we want to modify the fab's icon with notifyNavigated TODO rethink design
   }
 
   inner class MyAdapter(private val works: List<ShellWork>,

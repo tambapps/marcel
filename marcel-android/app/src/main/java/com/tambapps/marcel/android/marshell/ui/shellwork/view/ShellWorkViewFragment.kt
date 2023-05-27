@@ -139,17 +139,7 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(R.drawable
 
   override fun onFabClick(): Boolean {
     val workName = this.workName ?: return false
-
-    val fragment = ShellWorkFormFragment.newInstance(workName = workName)
-    parentFragmentManager.commit {
-      setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
-      // to handle back press
-      addToBackStack(null)
-      add(R.id.container, fragment, fragment.javaClass.name)
-      show(fragment)
-      hide(this@ShellWorkViewFragment)
-    }
-    resourceParentFragment?.notifyNavigated(R.drawable.save)
+    navigateTo(ShellWorkFormFragment.newInstance(workName = workName), R.drawable.save)
     return false // returning false because we want to modify the fab's icon with notifyNavigated
   }
 

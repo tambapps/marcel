@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.databinding.FragmentResourceParentBinding
 import com.tambapps.marcel.android.marshell.ui.shellwork.ShellWorkFragment
@@ -41,6 +42,17 @@ abstract class ResourceParentFragment: Fragment() {
       }
     }
 
+    fun navigateTo(fragment: ChildFragment, fabResoourceId: Int) {
+      parentFragmentManager.commit {
+        setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
+        // to handle back press
+        addToBackStack(null)
+        add(R.id.container, fragment, fragment.javaClass.name)
+        show(fragment)
+        hide(this@ChildFragment)
+      }
+      resourceParentFragment?.notifyNavigated(fabResoourceId)
+    }
   }
 
   interface FabClickListener {
