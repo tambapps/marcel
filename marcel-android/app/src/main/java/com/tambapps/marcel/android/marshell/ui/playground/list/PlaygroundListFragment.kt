@@ -8,7 +8,7 @@ class PlaygroundListFragment: ResourceParentFragment.ChildFragment() {
     fun newInstance() = PlaygroundListFragment()
   }
 
-  override fun onFabClick(): Boolean {
+  override fun onFabClick() {
     TODO("Not yet implemented")
   }
 }

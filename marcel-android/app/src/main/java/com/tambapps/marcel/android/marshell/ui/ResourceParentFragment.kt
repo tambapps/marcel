@@ -58,7 +58,7 @@ abstract class ResourceParentFragment: Fragment() {
   interface FabClickListener {
 
     // return true if navigated
-    fun onFabClick(): Boolean
+    fun onFabClick()
     fun nextFabResId(): Int = R.drawable.plus
   }
 
@@ -94,9 +94,7 @@ abstract class ResourceParentFragment: Fragment() {
     val root: View = binding.root
 
     binding.fab.setOnClickListener {
-      if (currentFragment?.onFabClick() == true) {
-        notifyNavigated()
-      }
+      currentFragment?.onFabClick()
     }
     return root
   }

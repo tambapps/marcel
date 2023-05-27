@@ -128,10 +128,8 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellW
     _binding = null
   }
 
-  override fun onFabClick(): Boolean {
-    val fragment = ShellWorkFormFragment.newInstance()
+  override fun onFabClick() {
     navigateTo(ShellWorkFormFragment.newInstance(), R.drawable.plus)
-    return false // returning false because we want to modify the fab's icon with notifyNavigated TODO rethink design
   }
 
   inner class MyAdapter(private val works: List<ShellWork>,

@@ -200,33 +200,33 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
     return root
   }
 
-  override fun onFabClick(): Boolean {
+  override fun onFabClick() {
     if (binding.workName.text.isNullOrEmpty()) {
       binding.workName.error = getString(R.string.name_is_required)
-      return false
+      return
     }
     binding.workName.error = null
 
     val scriptText = viewModel.scriptText.value
     if (scriptText == null) {
       Toast.makeText(activity, R.string.empty_script, Toast.LENGTH_SHORT).show()
-      return false
+      return
     }
     if (binding.scheduleCheckbox.isChecked && (
       viewModel.scheduleDate.value == null || viewModel.scheduleTime.value == null)) {
       Toast.makeText(activity, R.string.didnt_filled_scheduled_parameters, Toast.LENGTH_SHORT).show()
-      return false
+      return
     }
 
     if (binding.periodicCheckbox.isChecked && viewModel.period.value == null) {
       Toast.makeText(activity, "You must select a period", Toast.LENGTH_SHORT).show()
-      return false
+      return
     }
 
     val name = binding.workName.text.toString()
     if (isCreateForm && shellWorkManager.existsByName(name)) {
       binding.workName.error = "Name should be unique among all active works"
-      return false
+      return
     }
 
     // everything seems to be ok, now saving the Work
@@ -263,7 +263,6 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       }
     }
     resourceParentFragment?.notifyNavigated()
-    return true
   }
 
   override fun onDestroyView() {

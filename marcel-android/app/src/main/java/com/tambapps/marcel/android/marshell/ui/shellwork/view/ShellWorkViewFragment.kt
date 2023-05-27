@@ -137,10 +137,9 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(R.drawable
     }
   }
 
-  override fun onFabClick(): Boolean {
-    val workName = this.workName ?: return false
+  override fun onFabClick() {
+    val workName = this.workName ?: return
     navigateTo(ShellWorkFormFragment.newInstance(workName = workName), R.drawable.save)
-    return false // returning false because we want to modify the fab's icon with notifyNavigated
   }
 
   override fun onDestroyView() {
