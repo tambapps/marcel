@@ -1,26 +1,10 @@
 package com.tambapps.marcel.android.marshell.ui.playground
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import com.tambapps.marcel.android.marshell.databinding.FragmentPlaygroundBinding
+import com.tambapps.marcel.android.marshell.ui.ResourceParentFragment
+import com.tambapps.marcel.android.marshell.ui.playground.list.PlaygroundListFragment
 
-class PlaygroundFragment: Fragment() {
+class PlaygroundFragment: ResourceParentFragment() {
 
-  private var _binding: FragmentPlaygroundBinding? = null
+  override fun initialFragment() = PlaygroundListFragment.newInstance()
 
-  // This property is only valid between onCreateView and
-  // onDestroyView.
-  private val binding get() = _binding!!
-
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View? {
-    _binding = FragmentPlaygroundBinding.inflate(inflater, container, false)
-    return binding.root
-  }
 }

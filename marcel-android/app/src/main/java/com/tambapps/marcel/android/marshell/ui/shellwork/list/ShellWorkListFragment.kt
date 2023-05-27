@@ -1,18 +1,14 @@
 package com.tambapps.marcel.android.marshell.ui.shellwork.list
 
-import android.R.attr.delay
 import android.content.DialogInterface
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.os.postDelayed
 import androidx.fragment.app.commit
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -110,7 +106,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellW
       show(fragment)
       hide(this@ShellWorkListFragment)
     }
-    shellWorkFragment?.notifyNavigated(R.drawable.edit)
+    resourceParentFragment?.notifyNavigated(R.drawable.edit)
   }
 
   private fun onWorkCancel(work: ShellWork) {
@@ -151,7 +147,7 @@ class ShellWorkListFragment : ShellWorkFragment.ShellWorkFragmentChild(), ShellW
       show(fragment)
       hide(this@ShellWorkListFragment)
     }
-    shellWorkFragment?.notifyNavigated(R.drawable.save)
+    resourceParentFragment?.notifyNavigated(R.drawable.save)
     return false // returning false because we want to modify the fab's icon with notifyNavigated
   }
 

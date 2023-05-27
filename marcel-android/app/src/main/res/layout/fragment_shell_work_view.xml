@@ -95,7 +95,7 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         style="@style/fab"
-        android:id="@+id/fab2"
+        android:id="@+id/fab"
         app:srcCompat="@drawable/plus"
         android:rotation="45"
         app:layout_constraintBottom_toBottomOf="parent"

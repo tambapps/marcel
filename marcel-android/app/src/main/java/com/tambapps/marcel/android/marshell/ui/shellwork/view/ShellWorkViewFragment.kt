@@ -58,7 +58,7 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWo
     refresh()
     registerPeriodicCallback(this::refresh)
     if (parentFragment == null) {
-      binding.fab2.visibility = View.GONE
+      binding.fab.visibility = View.GONE
     }
   }
 
@@ -92,8 +92,8 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWo
           .show()
       }
 
-      fab2.backgroundTintList = ColorStateList.valueOf(if (work.isFinished) Color.RED else requireContext().getColor(R.color.orange))
-      fab2.setOnClickListener {
+      fab.backgroundTintList = ColorStateList.valueOf(if (work.isFinished) Color.RED else requireContext().getColor(R.color.orange))
+      fab.setOnClickListener {
         if (parentFragment == null) return@setOnClickListener
         if (!work.isFinished) {
           AlertDialog.Builder(requireContext()).setTitle(requireContext().getString(R.string.cancel_work_q, work.name))
@@ -144,7 +144,7 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWo
         true // default to enabled
       ) {
         override fun handleOnBackPressed() {
-          fab?.setImageResource(R.drawable.plus)
+          parentFab?.setImageResource(R.drawable.plus)
           parentFragmentManager.popBackStack()
         }
       }
@@ -166,7 +166,7 @@ class ShellWorkViewFragment: ShellWorkFragment.ShellWorkFragmentChild(), ShellWo
       show(fragment)
       hide(this@ShellWorkViewFragment)
     }
-    shellWorkFragment?.notifyNavigated(R.drawable.save)
+    resourceParentFragment?.notifyNavigated(R.drawable.save)
     return false // returning false because we want to modify the fab's icon with notifyNavigated
   }
 

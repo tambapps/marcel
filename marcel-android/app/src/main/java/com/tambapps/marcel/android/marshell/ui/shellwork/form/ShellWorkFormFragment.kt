@@ -30,7 +30,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import java.io.IOException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -263,7 +262,7 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
         }
       }
     }
-    shellWorkFragment?.notifyNavigated()
+    resourceParentFragment?.notifyNavigated()
     return true
   }
 
@@ -278,7 +277,7 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       true // default to enabled
     ) {
       override fun handleOnBackPressed() {
-        fab?.setImageResource(if (isCreateForm) R.drawable.plus else R.drawable.edit)
+        parentFab?.setImageResource(if (isCreateForm) R.drawable.plus else R.drawable.edit)
         parentFragmentManager.popBackStack()
       }
     }
