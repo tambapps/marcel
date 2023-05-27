@@ -48,15 +48,11 @@ object TimeUtils {
       LocalDate.now() -> "today"
       LocalDate.now().minusDays(1) -> "yesterday"
       LocalDate.now().plusDays(1) -> "tomorrow"
-      else -> DATE_FORMATTER.format(date)
+      else -> "the " + DATE_FORMATTER.format(date)
     }
 
     val timeString = TIME_FORMATTER.format(localDateTime.toLocalTime())
 
-    return dateString + " at " + timeString
-  }
-
-  private fun timeString() {
-
+    return "$dateString at $timeString"
   }
 }
