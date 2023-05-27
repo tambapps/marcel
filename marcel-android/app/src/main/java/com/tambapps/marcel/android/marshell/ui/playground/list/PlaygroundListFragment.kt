@@ -1,6 +1,8 @@
 package com.tambapps.marcel.android.marshell.ui.playground.list
 
+import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.ui.ResourceParentFragment
+import com.tambapps.marcel.android.marshell.ui.playground.PlaygroundFormFragment
 
 class PlaygroundListFragment: ResourceParentFragment.ChildFragment() {
 
@@ -9,6 +11,6 @@ class PlaygroundListFragment: ResourceParentFragment.ChildFragment() {
   }
 
   override fun onFabClick() {
-    TODO("Not yet implemented")
+    navigateTo(PlaygroundFormFragment.newInstance(), R.drawable.plus)
   }
 }
