@@ -1,13 +1,24 @@
 package com.tambapps.marcel.android.marshell.ui.fav_scripts.form
 
+import android.app.ProgressDialog
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import com.tambapps.marcel.android.marshell.R
+import com.tambapps.marcel.android.marshell.service.CacheableScriptService
 import com.tambapps.marcel.android.marshell.ui.ResourceParentFragment
 import com.tambapps.marcel.android.marshell.ui.editor.AbstractEditorFragment
 import com.tambapps.marcel.android.marshell.view.EditTextDialogBuilder
+import com.tambapps.marcel.lexer.MarcelLexerException
+import com.tambapps.marcel.parser.exception.MarcelParserException
+import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class ScriptFormFragment: AbstractEditorFragment(), ResourceParentFragment.FabClickListener {
@@ -16,6 +27,9 @@ class ScriptFormFragment: AbstractEditorFragment(), ResourceParentFragment.FabCl
     val INVALID_CHARACTERS_REGEX = Regex("[*&%/\\\\@\"']")
     fun newInstance() = ScriptFormFragment()
   }
+
+  @Inject
+  lateinit var scriptService: CacheableScriptService
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
@@ -33,19 +47,63 @@ class ScriptFormFragment: AbstractEditorFragment(), ResourceParentFragment.FabCl
       .setSingleLine()
       .setMaxLength(30)
       .setPositiveButton("save") { _, _, editText ->
-        val text = editText.text.toString()
-        if (text.isBlank()) {
+        val name = editText.text.toString()
+        if (name.isBlank()) {
           editText.error = "Name must not be blank"
           return@setPositiveButton false
         }
-        if (text.contains(INVALID_CHARACTERS_REGEX)) {
+        if (name.contains(INVALID_CHARACTERS_REGEX)) {
           editText.error = "Name must not contain special characters"
           return@setPositiveButton false
         }
         editText.error = null
-        // TODO create script
+        checkAndSave(name)
         return@setPositiveButton true
       }
+      .show()
+  }
+
+  private fun checkAndSave(name: String) {
+    val dialog = ProgressDialog(requireContext()).apply {
+      setTitle("Compiling and saving...")
+      setCancelable(false)
+      show()
+    }
+    CoroutineScope(Dispatchers.IO).launch {
+      if (scriptService.existsByName(name)) {
+        Toast.makeText(requireContext(), "A script with name $name already exists", Toast.LENGTH_SHORT).show()
+        return@launch
+      }
+
+      val scriptText = binding.editText.text.toString()
+      val compilerResult = try {
+        replCompiler.compile(scriptText)
+      } catch (e: MarcelLexerException) {
+        showScriptError(e.line, e.column, e.message, dialog)
+        return@launch
+      } catch (e: MarcelParserException) {
+        showScriptError(e.line, e.column, e.message, dialog)
+        return@launch
+      } catch (e: MarcelSemanticException) {
+        showScriptError(e.line, e.column, e.message, dialog)
+        return@launch
+      }
+      scriptService.create(name, scriptText, compilerResult)
+
+      withContext(Dispatchers.Main) {
+        dialog.dismiss()
+        parentFragmentManager.popBackStack()
+        (parentFragment as? ResourceParentFragment)?.notifyNavigated(R.drawable.plus)
+        Toast.makeText(requireContext(), "Script successfully created", Toast.LENGTH_SHORT).show()
+      }
+    }
+  }
+
+  private fun showScriptError(line: Int, column: Int, message: String?, dialog: ProgressDialog) {
+    dialog.dismiss()
+    AlertDialog.Builder(requireContext())
+      .setTitle("Compiler error")
+      .setMessage(message)
       .show()
   }
 }

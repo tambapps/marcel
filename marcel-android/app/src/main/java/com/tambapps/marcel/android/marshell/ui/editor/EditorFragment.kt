@@ -7,8 +7,6 @@ import android.text.Spannable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -38,6 +36,7 @@ abstract class AbstractEditorFragment : Fragment() {
   @Inject
   lateinit var compilerConfiguration: CompilerConfiguration
 
+  protected lateinit var replCompiler: MarcelReplCompiler
   private lateinit var lineCountWatcher: LineCountWatcher
   private lateinit var highlighter: SpannableHighlighter
   private val linesCount = MutableLiveData(0)
@@ -71,10 +70,9 @@ abstract class AbstractEditorFragment : Fragment() {
     lineCountWatcher = LineCountWatcher(linesCount)
     binding.editText.addTextChangedListener(lineCountWatcher)
     // not a bean because we want to keep them independent per fragment
-    val marcelDexClassLoader =
-      MarcelDexClassLoader()
+    val marcelDexClassLoader = MarcelDexClassLoader()
     val javaTypeResolver = ReplJavaTypeResolver(marcelDexClassLoader, Binding())
-    val replCompiler = MarcelReplCompiler(compilerConfiguration, marcelDexClassLoader, javaTypeResolver)
+    replCompiler = MarcelReplCompiler(compilerConfiguration, marcelDexClassLoader, javaTypeResolver)
     highlighter = SpannableHighlighter(javaTypeResolver, replCompiler)
     editTextHighlighter = EditTextHighlighter(binding.editText, highlighter)
 

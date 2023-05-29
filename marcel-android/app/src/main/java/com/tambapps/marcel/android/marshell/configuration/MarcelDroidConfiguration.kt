@@ -6,6 +6,7 @@ import androidx.preference.PreferenceManager
 import androidx.room.Room
 import androidx.work.WorkManager
 import com.tambapps.marcel.android.marshell.room.AppDatabase
+import com.tambapps.marcel.android.marshell.room.dao.CacheableScriptDao
 import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDao
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import dagger.Module
@@ -53,6 +54,11 @@ class MarcelDroidConfiguration {
   @Provides
   fun shellWorkDataDao(appDatabase: AppDatabase): ShellWorkDao {
     return appDatabase.shellWorkDataDao()
+  }
+
+  @Provides
+  fun cacheableScriptDao(appDatabase: AppDatabase): CacheableScriptDao {
+    return appDatabase.cacheableScriptDao()
   }
 
   @Provides
