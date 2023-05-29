@@ -20,9 +20,8 @@ class AndroidMarshellRunner(
     }
   }
 
-  // TODO doesn't work because shell can't find class script
   suspend fun evalCachedScript(script: CacheableScript) {
-    val jarFile = File(session.directory, "${script.name}.jar")
+    val jarFile = File(session.directory, "${script.name}.dex")
     jarFile.writeBytes(script.cachedJar!!)
     shell.evalJarFile(jarFile, script.scriptClassName)
   }

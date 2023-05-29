@@ -3,6 +3,7 @@ package com.tambapps.marcel.android.marshell.service
 import com.tambapps.marcel.android.marshell.room.dao.CacheableScriptDao
 import com.tambapps.marcel.android.marshell.room.entity.CacheableScript
 import com.tambapps.marcel.compiler.JarWriter
+import com.tambapps.marcel.dalvik.compiler.DexJarWriter
 import com.tambapps.marcel.repl.ReplCompilerResult
 import java.io.ByteArrayOutputStream
 import java.security.MessageDigest
@@ -26,7 +27,7 @@ class CacheableScriptService @Inject constructor(
     val scriptCompiledClass = compilerResult.compiledScript.find { it.isScript }
     val bos = ByteArrayOutputStream()
 
-    JarWriter(bos).use {
+    DexJarWriter(bos).use {
       it.writeClasses(compilerResult.allCompiledClasses)
     }
 
