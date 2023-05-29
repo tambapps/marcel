@@ -13,6 +13,10 @@ class CacheableScriptService @Inject constructor(
   private val dao: CacheableScriptDao
 ) {
 
+  suspend fun list(): List<CacheableScript> {
+    return dao.findAll()
+  }
+
   suspend fun existsByName(name: String) = dao.existsByName(name)
 
   suspend fun create(name: String, scriptText: String, compilerResult: ReplCompilerResult) {

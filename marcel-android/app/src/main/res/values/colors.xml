@@ -11,5 +11,7 @@
     <color name="colorPrimary">#FFE500</color>
     <color name="colorPrimaryVariant">#BDAA00</color>
     <color name="colorSecondary">@color/colorPrimary</color>
-    <color name="colorSecondaryVariant">#BDAA00</color>
+    <color name="colorSecondaryVariant">@color/colorPrimaryVariant</color>
+    <!-- TODO need to have white for non dark theme -->
+    <color name="oppositeTextColor">@color/black</color>
 </resources>
