@@ -13,6 +13,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tambapps.marcel.android.marshell.R
+import com.tambapps.marcel.android.marshell.ShellHandler
 import com.tambapps.marcel.android.marshell.databinding.FragmentScriptListBinding
 import com.tambapps.marcel.android.marshell.room.entity.CacheableScript
 import com.tambapps.marcel.android.marshell.service.CacheableScriptService
@@ -32,6 +33,7 @@ class ScriptListFragment: ResourceParentFragment.ChildFragment() {
     fun newInstance() = ScriptListFragment()
   }
 
+  private val shellHandler get() = requireActivity() as ShellHandler
   @Inject
   lateinit var scriptService: CacheableScriptService
   private var _binding: FragmentScriptListBinding? = null
@@ -61,7 +63,7 @@ class ScriptListFragment: ResourceParentFragment.ChildFragment() {
   }
 
   private fun onScriptClick(script: CacheableScript) {
-    // TODO run in shell
+    // TODO need new method to load the jar of the script shellHandler.navigateToShell(sc)
   }
 
   private fun onScriptLongClick(script: CacheableScript) {
