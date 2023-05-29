@@ -246,19 +246,8 @@ class ShellWorkFormFragment : ShellWorkFragment.ShellWorkFragmentChild() {
       withContext(Dispatchers.Main) {
         Toast.makeText(requireContext(), "Successfully saved work", Toast.LENGTH_SHORT).show()
 
-        if (isCreateForm) {
-          // now moving back to work list
-          val currentListFragment = parentFragmentManager.findFragmentByTag(ShellWorkListFragment::class.java.name)
-          val fragment = currentListFragment ?: ShellWorkListFragment.newInstance()
-
-          parentFragmentManager.commitNow {
-            setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
-            if (currentListFragment == null) add(R.id.container, fragment, fragment.javaClass.name)
-            show(fragment)
-            remove(this@ShellWorkFormFragment)
-          }
-        } else {
-          parentFragmentManager.popBackStack()
+        if (!parentFragmentManager.popBackStackImmediate()) {
+          requireActivity().onBackPressedDispatcher.onBackPressed()
         }
       }
     }

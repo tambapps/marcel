@@ -5,10 +5,12 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.commitNow
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.service.CacheableScriptService
 import com.tambapps.marcel.android.marshell.ui.ResourceParentFragment
 import com.tambapps.marcel.android.marshell.ui.editor.AbstractEditorFragment
+import com.tambapps.marcel.android.marshell.ui.fav_scripts.list.ScriptListFragment
 import com.tambapps.marcel.android.marshell.view.EditTextDialogBuilder
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.exception.MarcelParserException
@@ -92,18 +94,24 @@ class ScriptFormFragment: AbstractEditorFragment(), ResourceParentFragment.FabCl
 
       withContext(Dispatchers.Main) {
         dialog.dismiss()
-        parentFragmentManager.popBackStack()
+        parentFragmentManager.commitNow {
+          setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+          // always supplying a new fragment so that it loads the created script
+          replace(R.id.container, ScriptListFragment.newInstance(), ScriptListFragment::class.java.name)
+        }
         (parentFragment as? ResourceParentFragment)?.notifyNavigated(R.drawable.plus)
         Toast.makeText(requireContext(), "Script successfully created", Toast.LENGTH_SHORT).show()
       }
     }
   }
 
-  private fun showScriptError(line: Int, column: Int, message: String?, dialog: ProgressDialog) {
+  private suspend fun showScriptError(line: Int, column: Int, message: String?, dialog: ProgressDialog)
+  = withContext(Dispatchers.Main) {
     dialog.dismiss()
     AlertDialog.Builder(requireContext())
-      .setTitle("Compiler error")
+      .setTitle("Compilation error")
       .setMessage(message)
+      .setPositiveButton("ok", null)
       .show()
   }
 }
