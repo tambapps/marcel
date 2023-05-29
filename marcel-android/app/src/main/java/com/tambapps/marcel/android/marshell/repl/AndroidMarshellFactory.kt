@@ -24,6 +24,7 @@ class AndroidMarshellFactory @Inject constructor(
   fun newShellRunner(session: ShellSession, printer: SuspendPrinter, lineReader: suspend (String) -> String,
   exitFunc: () -> Unit): AndroidMarshellRunner {
     return AndroidMarshellRunner(
+      session,
       AndroidMarshell(compilerConfiguration, session.directory, initScriptFile, printer, exitFunc, session.classLoader,
         session.binding, session.typeResolver, lineReader, session.history)
     )

@@ -76,6 +76,14 @@ abstract class MarcelShell constructor(
     onFinish()
   }
 
+  suspend fun evalJarFile(jarFile: File, className: String?) {
+    try {
+      val eval = evaluator.evalJarFile(jarFile, className)
+      printEval(eval)
+    } catch (ex: Exception) {
+      printer.suspendPrintln("${ex.javaClass.name}: ${ex.message}")
+    }
+  }
 
   open suspend fun doRun() {
     val prompt = String.format(promptTemplate, buffer.size)
@@ -113,7 +121,7 @@ abstract class MarcelShell constructor(
           buffer.clear()
         }
       } catch (ex: Exception) {
-        ex.printStackTrace()
+        printer.suspendPrintln("${ex.javaClass.name}: ${ex.message}")
         buffer.clear()
       }
     }

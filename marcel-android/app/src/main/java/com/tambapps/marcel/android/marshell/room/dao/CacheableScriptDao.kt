@@ -25,6 +25,8 @@ interface CacheableScriptDao {
   // we don't fetch cachedJar
   @Query("SELECT name, text, hash, script_class_name FROM cacheable_scripts WHERE name = :name")
   suspend fun findByName(name: String): CacheableScript?
+  @Query("SELECT * FROM cacheable_scripts WHERE name = :name")
+  suspend fun findByNameWithJar(name: String): CacheableScript?
 
   @Query("SELECT EXISTS (SELECT * FROM cacheable_scripts WHERE name = :name)")
   suspend fun existsByName(name: String): Boolean

@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.ListUpdateCallback
 import com.google.android.material.navigation.NavigationView
 import com.tambapps.marcel.android.marshell.data.ShellSession
 import com.tambapps.marcel.android.marshell.databinding.ActivityMainBinding
+import com.tambapps.marcel.android.marshell.room.entity.CacheableScript
 import com.tambapps.marcel.android.marshell.ui.shell.ShellFragment
 import com.tambapps.marcel.android.marshell.util.ListenableList
 import com.tambapps.marcel.android.marshell.util.hideSoftBoard
@@ -144,6 +145,18 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
     })
     binding.navView.setCheckedItem(R.id.nav_shell)
   }
+
+  override fun navigateToShell(script: CacheableScript, position: Int?) {
+    if (shellSessions.isEmpty()) startNewSession()
+    navController.navigate(R.id.nav_shell, Bundle().apply {
+      putString(ShellFragment.CACHED_SCRIPT_NAME_ARG, script.name)
+      if (position != null) {
+        putInt(ShellFragment.SESSION_INDEX_ARG, position)
+      }
+    })
+    binding.navView.setCheckedItem(R.id.nav_shell)
+  }
+
   override fun registerCallback(callback: ListUpdateCallback) = shellSessions.registerCallback(callback)
 
   override fun unregisterCallback(callback: ListUpdateCallback) = shellSessions.unregisterCallback(callback)

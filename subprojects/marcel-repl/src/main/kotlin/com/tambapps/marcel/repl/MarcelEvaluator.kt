@@ -34,16 +34,27 @@ class MarcelEvaluator constructor(
     }
 
     if (scriptNode == null) return null
+
+    if (scriptNode.fields.isNotEmpty()) {
+      throw MarcelSemanticException("Cannot define field variables in Marshell. Use global or local variables only")
+    }
+
     val className = scriptNode.type.simpleName
     val jarFile = File(tempDir.parentFile, "$className.jar")
 
     jarWriterFactory.newJarWriter(jarFile).use {
       it.writeClasses(result.compiledScript)
     }
-    if (scriptNode.fields.isNotEmpty()) {
-      throw MarcelSemanticException("Cannot define field variables in Marshell. Use global or local variables only")
-    }
     return scriptLoader.loadScript(className, jarFile, binding).run()
+  }
+
+  fun evalJarFile(jarFile: File, className: String?): Any? {
+    if (className == null) {
+      scriptLoader.addLibraryJar(jarFile)
+      return null
+    } else {
+      return scriptLoader.loadScript(className, jarFile, binding).run()
+    }
   }
 
   private fun addLibraryJar(prefix: String?,

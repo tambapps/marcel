@@ -9,6 +9,7 @@ import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.tambapps.marcel.android.marshell.ShellHandler
 import com.tambapps.marcel.android.marshell.data.ShellSession
@@ -16,10 +17,13 @@ import com.tambapps.marcel.android.marshell.databinding.FragmentShellSessionBind
 import com.tambapps.marcel.android.marshell.repl.AndroidMarshell
 import com.tambapps.marcel.android.marshell.repl.AndroidMarshellFactory
 import com.tambapps.marcel.android.marshell.repl.AndroidMarshellRunner
+import com.tambapps.marcel.android.marshell.service.CacheableScriptService
 import com.tambapps.marcel.android.marshell.util.showSoftBoard
 import dagger.hilt.android.AndroidEntryPoint
 import com.tambapps.marcel.android.marshell.view.EditTextHighlighter
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import marcel.lang.printer.Printer
 import marcel.lang.util.MarcelVersion
@@ -31,11 +35,14 @@ class ShellSessionFragment : Fragment() {
 
   companion object {
     private const val POSITION_KEY = "p"
-    fun newInstance(position: Int, scriptText: CharSequence?) = ShellSessionFragment().apply {
+    fun newInstance(position: Int, scriptText: CharSequence?, cachedScriptName: String?) = ShellSessionFragment().apply {
       arguments = Bundle().apply {
         putInt(POSITION_KEY, position)
         if (scriptText != null) {
           putCharSequence(ShellFragment.SCRIPT_TEXT_ARG, scriptText)
+        }
+        if (cachedScriptName != null) {
+          putCharSequence(ShellFragment.CACHED_SCRIPT_NAME_ARG, cachedScriptName)
         }
       }
     }
@@ -44,6 +51,8 @@ class ShellSessionFragment : Fragment() {
   private var _binding: FragmentShellSessionBinding? = null
   @Inject
   lateinit var factory: AndroidMarshellFactory
+  @Inject
+  lateinit var scriptService: CacheableScriptService
   private val binding get() = _binding!!
 
   private var marshellRunner: AndroidMarshellRunner? = null
@@ -87,6 +96,32 @@ class ShellSessionFragment : Fragment() {
     val scriptText = requireArguments().getCharSequence(ShellFragment.SCRIPT_TEXT_ARG)
     if (scriptText != null) {
       runScript(scriptText)
+    }
+    println("cacacacacaaca " + requireArguments().getString(ShellFragment.CACHED_SCRIPT_NAME_ARG))
+    val cachedScriptName = requireArguments().getString(ShellFragment.CACHED_SCRIPT_NAME_ARG)
+    if (cachedScriptName != null) {
+      runCachedScript(cachedScriptName)
+    }
+  }
+
+  fun runCachedScript(cachedScriptName: String) {
+    CoroutineScope(Dispatchers.IO).launch {
+      val cacheableScript = scriptService.findByNameWithJar(cachedScriptName)
+      withContext(Dispatchers.Main) {
+        if (cacheableScript == null) {
+          Toast.makeText(requireContext(), "Script couldn't be found", Toast.LENGTH_SHORT).show()
+          return@withContext
+        }
+        if (marshellRunner == null) {
+          Toast.makeText(
+            requireContext(),
+            "Shell isn't running, couldn't run the script",
+            Toast.LENGTH_SHORT
+          ).show()
+        } else {
+          marshellRunner!!.evalCachedScript(cacheableScript)
+        }
+      }
     }
   }
 

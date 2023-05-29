@@ -25,6 +25,7 @@ import javax.inject.Inject
 class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, ListUpdateCallback {
 
   companion object {
+    const val CACHED_SCRIPT_NAME_ARG = "cachedScriptName"
     const val SCRIPT_TEXT_ARG = "scriptText"
     const val SESSION_INDEX_ARG = "sessionIndex"
   }
@@ -47,11 +48,12 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     shellHandler = requireActivity() as ShellHandler
-    val scriptText = requireArguments().getCharSequence(SCRIPT_TEXT_ARG)
-    val sessionIndex = requireArguments().getInt(SESSION_INDEX_ARG, 0)
-    val scriptTextArg = if (scriptText != null) Pair(scriptText, sessionIndex) else null
+    val scriptText = arguments?.getCharSequence(SCRIPT_TEXT_ARG)
+    val sessionIndex = arguments?.getInt(SESSION_INDEX_ARG, 0) ?: 0
+    val cachedScriptName = arguments?.getString(CACHED_SCRIPT_NAME_ARG)
+    val args = if (scriptText != null || cachedScriptName != null) ShellFragmentArguments(cachedScriptName, scriptText, sessionIndex) else null
 
-    val adapter = ShellWidowStateAdapter(this, shellHandler, scriptTextArg)
+    val adapter = ShellWidowStateAdapter(this, shellHandler, args)
     this.adapter = adapter
     binding.viewPager.adapter = adapter
     // setup tabLayout with viewPage
@@ -127,17 +129,15 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
   private class ShellWidowStateAdapter(
     fragment: Fragment,
     val shellHandler: ShellHandler,
-    val scriptTextArg: Pair<CharSequence, Int>?
+    val arguments: ShellFragmentArguments?
     ): MyFragmentStateAdapter(fragment) {
     override fun getItemCount(): Int {
       return shellHandler.sessionsCount
     }
 
     override fun createFragment(position: Int): Fragment {
-      val scriptText =
-        if (scriptTextArg != null && scriptTextArg.second == position) scriptTextArg.first
-        else null
-      return ShellSessionFragment.newInstance(position, scriptText)
+      return ShellSessionFragment.newInstance(position= position, scriptText = arguments?.scriptText,
+        cachedScriptName= arguments?.cachedScriptName)
     }
 
     override fun onBindFragment(fragment: Fragment, position: Int) {
@@ -174,4 +174,11 @@ class ShellFragment : Fragment(), TabLayoutMediator.TabConfigurationStrategy, Li
     val fragment = adapter?.getFragmentAt(binding.viewPager.currentItem) as? ShellSessionFragment
     return fragment?.printer
   }
+}
+
+data class ShellFragmentArguments(
+  val cachedScriptName: String?,
+  val scriptText: CharSequence?,
+  val sessionIndex: Int
+) {
 }

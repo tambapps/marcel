@@ -20,6 +20,7 @@ class CacheableScriptService @Inject constructor(
   suspend fun existsByName(name: String) = dao.existsByName(name)
 
   suspend fun findByName(name: String) = dao.findByName(name)
+  suspend fun findByNameWithJar(name: String) = dao.findByNameWithJar(name)
 
   suspend fun save(name: String, scriptText: String, compilerResult: ReplCompilerResult) {
     val scriptCompiledClass = compilerResult.compiledScript.find { it.isScript }

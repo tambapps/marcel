@@ -11,6 +11,10 @@
         android:label="@string/menu_shell"
         tools:layout="@layout/fragment_shell">
         <argument
+            android:name="cachedScriptName"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
             android:name="scriptText"
             app:argType="string"
             app:nullable="true" />

@@ -2,6 +2,7 @@ package com.tambapps.marcel.android.marshell
 
 import androidx.recyclerview.widget.ListUpdateCallback
 import com.tambapps.marcel.android.marshell.data.ShellSession
+import com.tambapps.marcel.android.marshell.room.entity.CacheableScript
 
 interface ShellHandler {
 
@@ -17,4 +18,5 @@ interface ShellHandler {
   fun stopSession(position: Int)
 
   fun navigateToShell(scriptText: CharSequence, position: Int? = null)
+  fun navigateToShell(script: CacheableScript, position: Int? = null)
 }

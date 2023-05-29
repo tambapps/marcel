@@ -63,7 +63,17 @@ class ScriptListFragment: ResourceParentFragment.ChildFragment() {
   }
 
   private fun onScriptClick(script: CacheableScript) {
-    // TODO need new method to load the jar of the script shellHandler.navigateToShell(sc)
+    if (shellHandler.sessionsCount <= 1) {
+      shellHandler.navigateToShell(script)
+    } else {
+      val sessions = shellHandler.sessions
+      AlertDialog.Builder(requireContext())
+        .setTitle("Run in shell")
+        .setItems(sessions.map { it.name }.toTypedArray()) { dialogInterface: DialogInterface, which: Int ->
+          shellHandler.navigateToShell(script, which)
+        }
+        .show()
+    }
   }
 
   private fun onScriptLongClick(script: CacheableScript) {
