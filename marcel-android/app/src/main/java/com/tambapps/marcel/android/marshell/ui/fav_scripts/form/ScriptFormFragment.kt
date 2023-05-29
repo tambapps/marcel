@@ -28,12 +28,20 @@ class ScriptFormFragment: AbstractEditorFragment(), ResourceParentFragment.FabCl
 
   companion object {
     val INVALID_CHARACTERS_REGEX = Regex("[*&%/\\\\@\"']")
-    fun newInstance() = ScriptFormFragment()
+    private const val NAME_KEY = "nk"
+    fun newInstance(scriptName: String? = null) = ScriptFormFragment().apply {
+      if (scriptName != null) {
+        arguments = Bundle().apply {
+          putString(NAME_KEY, scriptName)
+        }
+      }
+    }
   }
 
   @Inject
   lateinit var scriptService: CacheableScriptService
   private val viewModel: ScriptFormViewModel by viewModels()
+  private val isCreateForm get() = arguments?.getString(NAME_KEY) == null
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState) // this line is important. keep it.
@@ -47,7 +55,28 @@ class ScriptFormFragment: AbstractEditorFragment(), ResourceParentFragment.FabCl
         binding.fileNameText.text = null
       }
     }
-    pickNameDialog()
+
+    val scriptName = arguments?.getString(NAME_KEY)
+    if (scriptName != null) {
+      CoroutineScope(Dispatchers.IO).launch {
+        val script = scriptService.findByName(scriptName)
+        withContext(Dispatchers.Main) {
+          if (script == null) {
+            Toast.makeText(requireContext(), "Couldn't find script", Toast.LENGTH_SHORT).show()
+            backPress()
+          } else {
+            viewModel.name.value = script.name
+            binding.editText.setText(highlight(script.text ?: ""))
+          }
+        }
+      }
+    } else {
+      pickNameDialog()
+    }
+  }
+
+  private fun backPress() {
+    if (!parentFragmentManager.popBackStackImmediate()) requireActivity().onBackPressedDispatcher.onBackPressed()
   }
 
   private fun pickNameDialog(saveAfter: Boolean = false) {
@@ -57,7 +86,7 @@ class ScriptFormFragment: AbstractEditorFragment(), ResourceParentFragment.FabCl
       .setNeutralButton("cancel")
       .setSingleLine()
       .setMaxLength(30)
-      .setPositiveButton("save") { _, _, editText ->
+      .setPositiveButton("done") { _, _, editText ->
         val name = editText.text.toString()
         if (name.isBlank()) {
           editText.error = "Name must not be blank"
@@ -97,8 +126,11 @@ class ScriptFormFragment: AbstractEditorFragment(), ResourceParentFragment.FabCl
       show()
     }
     CoroutineScope(Dispatchers.IO).launch {
-      if (scriptService.existsByName(name)) {
-        Toast.makeText(requireContext(), "A script with name $name already exists", Toast.LENGTH_SHORT).show()
+      if (isCreateForm && scriptService.existsByName(name)) {
+        withContext(Dispatchers.Main) {
+          Toast.makeText(requireContext(), "A script with name $name already exists", Toast.LENGTH_SHORT).show()
+          dialog.dismiss()
+        }
         return@launch
       }
 
@@ -115,7 +147,7 @@ class ScriptFormFragment: AbstractEditorFragment(), ResourceParentFragment.FabCl
         showScriptError(e.line, e.column, e.message, dialog)
         return@launch
       }
-      scriptService.create(name, scriptText, compilerResult)
+      scriptService.save(name, scriptText, compilerResult)
 
       withContext(Dispatchers.Main) {
         dialog.dismiss()

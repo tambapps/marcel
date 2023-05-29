@@ -19,7 +19,9 @@ class CacheableScriptService @Inject constructor(
 
   suspend fun existsByName(name: String) = dao.existsByName(name)
 
-  suspend fun create(name: String, scriptText: String, compilerResult: ReplCompilerResult) {
+  suspend fun findByName(name: String) = dao.findByName(name)
+
+  suspend fun save(name: String, scriptText: String, compilerResult: ReplCompilerResult) {
     val scriptCompiledClass = compilerResult.compiledScript.find { it.isScript }
     val bos = ByteArrayOutputStream()
 
@@ -28,7 +30,7 @@ class CacheableScriptService @Inject constructor(
     }
 
     val script = CacheableScript(name, scriptText, hash(scriptText), scriptCompiledClass?.className, bos.toByteArray())
-    dao.insert(script)
+    dao.upsert(script)
   }
 
   private fun hash(text: String): String {

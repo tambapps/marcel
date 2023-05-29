@@ -1,11 +1,15 @@
 package com.tambapps.marcel.android.marshell.ui.fav_scripts.list
 
+import android.content.DialogInterface
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tambapps.marcel.android.marshell.R
@@ -56,8 +60,30 @@ class ScriptListFragment: ResourceParentFragment.ChildFragment() {
     }
   }
 
-  private fun onScriptClick(script: CacheableScript) {}
-  private fun onScriptLongClick(script: CacheableScript) {}
+  private fun onScriptClick(script: CacheableScript) {
+    // TODO run in shell
+  }
+
+  private fun onScriptLongClick(script: CacheableScript) {
+    AlertDialog.Builder(requireContext())
+      .setTitle("Handle script ${script.name}")
+      .setNeutralButton("cancel", null)
+      .setPositiveButton("modify") { dialogInterface: DialogInterface, i: Int ->
+        navigateTo(ScriptFormFragment.newInstance(scriptName = script.name), R.drawable.save)
+      }
+      .setNegativeButton("delete") { dialogInterface: DialogInterface, i: Int ->
+        // TODO. also check that it isn't used by any shell work
+        Toast.makeText(requireContext(), "TODO", Toast.LENGTH_SHORT).show()
+      }
+      .create()
+      .apply {
+        setOnShowListener {
+          getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.RED)
+        }
+      }
+      .show()
+
+  }
   override fun onFabClick() {
     navigateTo(ScriptFormFragment.newInstance(), R.drawable.save)
   }
