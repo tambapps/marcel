@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.commitNow
+import androidx.fragment.app.viewModels
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.service.CacheableScriptService
 import com.tambapps.marcel.android.marshell.ui.ResourceParentFragment
@@ -32,19 +33,27 @@ class ScriptFormFragment: AbstractEditorFragment(), ResourceParentFragment.FabCl
 
   @Inject
   lateinit var scriptService: CacheableScriptService
+  private val viewModel: ScriptFormViewModel by viewModels()
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
+    super.onViewCreated(view, savedInstanceState) // this line is important. keep it.
     binding.fab.visibility = View.GONE // we're using the fab of the parent fragment
-  }
-  override fun onFabClick() {
-    if (binding.editText.text.isNullOrBlank()) {
-      Toast.makeText(requireContext(), getString(R.string.script_must_not_be_empty), Toast.LENGTH_SHORT).show()
-      return
+    viewModel.name.observe(viewLifecycleOwner) {
+      if (it != null) {
+        binding.fileNameText.visibility = View.VISIBLE
+        binding.fileNameText.text = "$it.mcl"
+      } else {
+        binding.fileNameText.visibility = View.GONE
+        binding.fileNameText.text = null
+      }
     }
+    pickNameDialog()
+  }
+
+  private fun pickNameDialog(saveAfter: Boolean = false) {
     EditTextDialogBuilder(requireContext())
       .setTitle("Choose script name")
-      .setHint("Script name")
+      .setHint("Script name (without file extension)")
       .setNeutralButton("cancel")
       .setSingleLine()
       .setMaxLength(30)
@@ -58,14 +67,30 @@ class ScriptFormFragment: AbstractEditorFragment(), ResourceParentFragment.FabCl
           editText.error = "Name must not contain special characters"
           return@setPositiveButton false
         }
-        editText.error = null
-        checkAndSave(name)
+        viewModel.name.value = name
+        if (saveAfter) {
+          checkAndSave()
+        }
         return@setPositiveButton true
       }
+      .setCancelable(false)
       .show()
   }
 
-  private fun checkAndSave(name: String) {
+  override fun onFabClick() {
+    if (binding.editText.text.isNullOrBlank()) {
+      Toast.makeText(requireContext(), getString(R.string.script_must_not_be_empty), Toast.LENGTH_SHORT).show()
+      return
+    }
+    checkAndSave()
+  }
+
+  private fun checkAndSave() {
+    val name = viewModel.name.value
+    if (name == null) {
+      pickNameDialog(saveAfter = true)
+      return
+    }
     val dialog = ProgressDialog(requireContext()).apply {
       setTitle("Compiling and saving...")
       setCancelable(false)
