@@ -6,4 +6,6 @@ data class ReplCompilerResult(
   val parserResult: ParserResult,
   val compiledScript: List<CompiledClass>,
   val otherClasses: List<CompiledClass>
-)
+) {
+  val allCompiledClasses get() = compiledScript + otherClasses
+}

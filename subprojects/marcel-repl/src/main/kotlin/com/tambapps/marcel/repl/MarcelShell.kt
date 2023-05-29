@@ -106,7 +106,7 @@ abstract class MarcelShell constructor(
         printer.suspendPrintln(e.message)
         buffer.clear()
       } catch (e: MarcelParserException) {
-        if (e.eof) {
+        if (e.isEof) {
           buffer.add(line)
         } else {
           printer.suspendPrintln(e.message)
