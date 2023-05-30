@@ -1,5 +1,6 @@
 package com.tambapps.marcel.android.marshell.ui.editor
 
+import android.app.ProgressDialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -23,9 +24,18 @@ import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import dagger.hilt.android.AndroidEntryPoint
 import com.tambapps.marcel.android.marshell.view.EditTextHighlighter
+import com.tambapps.marcel.lexer.MarcelLexerException
+import com.tambapps.marcel.parser.exception.MarcelParserException
+import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.repl.ReplCompilerResult
 import com.tambapps.marcel.repl.ReplJavaTypeResolver
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import marcel.lang.Binding
 import marcel.lang.MarcelDexClassLoader
+import marcel.lang.printer.Printer
 import java.io.File
 import javax.inject.Inject
 
@@ -71,7 +81,9 @@ abstract class AbstractEditorFragment : Fragment() {
     binding.editText.addTextChangedListener(lineCountWatcher)
     // not a bean because we want to keep them independent per fragment
     val marcelDexClassLoader = MarcelDexClassLoader()
-    val javaTypeResolver = ReplJavaTypeResolver(marcelDexClassLoader, Binding())
+    val shellBinding = Binding()
+    shellBinding.setVariable("out", NoOpPrinter())
+    val javaTypeResolver = ReplJavaTypeResolver(marcelDexClassLoader, shellBinding)
     replCompiler = MarcelReplCompiler(compilerConfiguration, marcelDexClassLoader, javaTypeResolver)
     highlighter = SpannableHighlighter(javaTypeResolver, replCompiler)
     editTextHighlighter = EditTextHighlighter(binding.editText, highlighter)
@@ -105,6 +117,45 @@ abstract class AbstractEditorFragment : Fragment() {
     }
   }
 
+  protected fun checkCompile(onSuccess: () -> Unit) {
+    val dialog = ProgressDialog(requireContext()).apply {
+      setTitle("Checking errors...")
+    }
+    dialog.show()
+    CoroutineScope(Dispatchers.IO).launch {
+      val result = checkCompile(dialog= dialog)
+      withContext(Dispatchers.Main) {
+        dialog.dismiss()
+        if (result != null) { // compilation succeeded
+          onSuccess.invoke()
+        }
+      }
+    }
+  }
+  protected suspend fun checkCompile(scriptText: String = binding.editText.text.toString(), dialog: ProgressDialog): ReplCompilerResult? {
+    return try {
+      replCompiler.compile(scriptText)
+    } catch (e: MarcelLexerException) {
+      showScriptError(e.line, e.column, e.message, dialog)
+      return null
+    } catch (e: MarcelParserException) {
+      showScriptError(e.line, e.column, e.message, dialog)
+      return null
+    } catch (e: MarcelSemanticException) {
+      showScriptError(e.line, e.column, e.message, dialog)
+      return null
+    }
+  }
+
+  private suspend fun showScriptError(line: Int, column: Int, message: String?, dialog: ProgressDialog)
+      = withContext(Dispatchers.Main) {
+    dialog.dismiss()
+    AlertDialog.Builder(requireContext())
+      .setTitle("Compilation error")
+      .setMessage(message)
+      .setPositiveButton("ok", null)
+      .show()
+  }
 
   override fun onResume() {
     super.onResume()
@@ -120,6 +171,16 @@ abstract class AbstractEditorFragment : Fragment() {
     super.onDestroyView()
     _binding = null
   }
+
+  private class NoOpPrinter: Printer {
+    override fun print(p0: CharSequence?) {}
+
+    override fun println(p0: CharSequence?) {}
+
+    override fun println() {}
+
+  }
+
 }
 
 @AndroidEntryPoint
@@ -151,16 +212,18 @@ class EditorFragment : AbstractEditorFragment() {
       Toast.makeText(requireContext(), "Cannot run empty text", Toast.LENGTH_SHORT).show()
       return
     }
-    if (shellHandler.sessionsCount <= 1) {
-      shellHandler.navigateToShell(text)
-    } else {
-      val sessions = shellHandler.sessions
-      AlertDialog.Builder(requireContext())
-        .setTitle("Run in shell")
-        .setItems(sessions.map { it.name }.toTypedArray()) { dialogInterface: DialogInterface, which: Int ->
-          shellHandler.navigateToShell(text, which)
-        }
-        .show()
+    checkCompile {
+      if (shellHandler.sessionsCount <= 1) {
+        shellHandler.navigateToShell(text)
+      } else {
+        val sessions = shellHandler.sessions
+        AlertDialog.Builder(requireContext())
+          .setTitle("Run in shell")
+          .setItems(sessions.map { it.name }.toTypedArray()) { dialogInterface: DialogInterface, which: Int ->
+            shellHandler.navigateToShell(text, which)
+          }
+          .show()
+      }
     }
   }
 

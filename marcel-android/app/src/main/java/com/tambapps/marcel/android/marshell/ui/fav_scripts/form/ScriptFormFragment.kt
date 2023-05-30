@@ -135,18 +135,7 @@ class ScriptFormFragment: AbstractEditorFragment(), ResourceParentFragment.FabCl
       }
 
       val scriptText = binding.editText.text.toString()
-      val compilerResult = try {
-        replCompiler.compile(scriptText)
-      } catch (e: MarcelLexerException) {
-        showScriptError(e.line, e.column, e.message, dialog)
-        return@launch
-      } catch (e: MarcelParserException) {
-        showScriptError(e.line, e.column, e.message, dialog)
-        return@launch
-      } catch (e: MarcelSemanticException) {
-        showScriptError(e.line, e.column, e.message, dialog)
-        return@launch
-      }
+      val compilerResult = checkCompile(dialog = dialog) ?: return@launch
       scriptService.save(name, scriptText, compilerResult)
 
       withContext(Dispatchers.Main) {
@@ -160,15 +149,5 @@ class ScriptFormFragment: AbstractEditorFragment(), ResourceParentFragment.FabCl
         Toast.makeText(requireContext(), "Script successfully created", Toast.LENGTH_SHORT).show()
       }
     }
-  }
-
-  private suspend fun showScriptError(line: Int, column: Int, message: String?, dialog: ProgressDialog)
-  = withContext(Dispatchers.Main) {
-    dialog.dismiss()
-    AlertDialog.Builder(requireContext())
-      .setTitle("Compilation error")
-      .setMessage(message)
-      .setPositiveButton("ok", null)
-      .show()
   }
 }

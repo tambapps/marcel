@@ -38,11 +38,13 @@ class ShellWorkScriptEditorFragment: AbstractEditorFragment() {
   }
 
   override fun onFabClick() {
-    val intent = Intent()
-    // we want a string, not a serializable
-    intent.putExtra(TEXT_KEY, binding.editText.text.toString())
-    requireActivity().setResult(Activity.RESULT_OK, intent)
-    requireActivity().finish()
+    checkCompile {
+      val intent = Intent()
+      // we want a string, not a serializable
+      intent.putExtra(TEXT_KEY, binding.editText.text.toString())
+      requireActivity().setResult(Activity.RESULT_OK, intent)
+      requireActivity().finish()
+    }
   }
 
 }
