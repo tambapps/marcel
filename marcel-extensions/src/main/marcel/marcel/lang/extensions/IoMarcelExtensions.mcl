@@ -1,0 +1,25 @@
+import java.io.*
+import java.nio.charset.*
+import java.nio.file.Files
+
+// TODO tell in readme that we must explicitly reference this if we want to use a lass field/method
+extension class FileExtensions for File {
+
+  fun String readText() {
+    return new String(Files.readAllBytes(this.toPath()))
+  }
+
+  fun String readText(Charset charset) {
+    return new String(Files.readAllBytes(this.toPath()), charset)
+  }
+
+  fun List<String> readLines() {
+    return Files.readAllLines(this.toPath())
+  }
+
+  fun List<String> readLines(Charset charset) {
+    return Files.readAllLines(this.toPath(), charset)
+  }
+
+
+}
