@@ -1,6 +1,5 @@
 package com.tambapps.marcel.android.marshell.ui.editor
 
-import android.app.ProgressDialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -12,7 +11,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.MutableLiveData
 import com.google.android.material.snackbar.Snackbar
 import com.tambapps.marcel.android.marshell.FilePickerActivity
 import com.tambapps.marcel.android.marshell.R
@@ -49,7 +47,12 @@ abstract class AbstractEditorFragment : Fragment() {
   protected lateinit var replCompiler: MarcelReplCompiler
   private lateinit var lineCountWatcher: LineCountWatcher
   private lateinit var highlighter: SpannableHighlighter
-  private val linesCount = MutableLiveData(0)
+  private val viewModel: EditorViewModel by viewModels()
+  var isLoading get() = viewModel.loading.value ?: false
+    set(value) {
+      viewModel.loading.value = value
+    }
+
   private var _binding: FragmentEditorBinding? = null
   protected val binding get() = _binding!!
 
@@ -77,7 +80,7 @@ abstract class AbstractEditorFragment : Fragment() {
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    lineCountWatcher = LineCountWatcher(linesCount)
+    lineCountWatcher = LineCountWatcher(viewModel.linesCount)
     binding.editText.addTextChangedListener(lineCountWatcher)
     // not a bean because we want to keep them independent per fragment
     val marcelDexClassLoader = MarcelDexClassLoader()
@@ -91,8 +94,17 @@ abstract class AbstractEditorFragment : Fragment() {
     if (binding.editText.requestFocus()) {
       requireContext().showSoftBoard(binding.editText)
     }
-    linesCount.observe(viewLifecycleOwner) {
+    viewModel.linesCount.observe(viewLifecycleOwner) {
       binding.lineText.setText((1..(it + 1)).joinToString(separator = "\n"))
+    }
+    viewModel.loading.observe(viewLifecycleOwner) {
+      if (it) {
+        binding.progressBar.visibility = View.VISIBLE
+        binding.editText.isEnabled = false
+      } else {
+        binding.progressBar.visibility = View.GONE
+        binding.editText.isEnabled = true
+      }
     }
 
     val pickFileLauncher = registerForActivityResult(FilePickerActivity.Contract()) { selectedFile: File? ->
@@ -103,53 +115,52 @@ abstract class AbstractEditorFragment : Fragment() {
       }
     }
     binding.editFileButton.setOnClickListener {
+      if (isLoading) return@setOnClickListener
       // I want .mcl files
       pickFileLauncher.launch(Intent(requireContext(), FilePickerActivity::class.java).apply {
         putExtra(FilePickerActivity.ALLOWED_FILE_EXTENSIONSKEY, FilePickerActivity.SCRIPT_FILE_EXTENSIONS)
       })
     }
     binding.fab.setOnClickListener {
+      if (isLoading) return@setOnClickListener
       onFabClick()
     }
     binding.editFileButton.setOnLongClickListener {
+      if (isLoading) return@setOnLongClickListener false
       Toast.makeText(requireContext(), getString(R.string.open_file), Toast.LENGTH_SHORT).show()
       return@setOnLongClickListener true
     }
   }
 
   protected fun checkCompile(onSuccess: () -> Unit) {
-    val dialog = ProgressDialog(requireContext()).apply {
-      setTitle("Checking errors...")
-    }
-    dialog.show()
+    viewModel.loading.value = true
     CoroutineScope(Dispatchers.IO).launch {
-      val result = checkCompile(dialog= dialog)
+      val result = compile()
       withContext(Dispatchers.Main) {
-        dialog.dismiss()
+        viewModel.loading.value = false
         if (result != null) { // compilation succeeded
           onSuccess.invoke()
         }
       }
     }
   }
-  protected suspend fun checkCompile(scriptText: String = binding.editText.text.toString(), dialog: ProgressDialog): ReplCompilerResult? {
+  protected suspend fun compile(scriptText: String = binding.editText.text.toString()): ReplCompilerResult? {
     return try {
       replCompiler.compile(scriptText)
     } catch (e: MarcelLexerException) {
-      showScriptError(e.line, e.column, e.message, dialog)
+      showScriptError(e.line, e.column, e.message)
       return null
     } catch (e: MarcelParserException) {
-      showScriptError(e.line, e.column, e.message, dialog)
+      showScriptError(e.line, e.column, e.message)
       return null
     } catch (e: MarcelSemanticException) {
-      showScriptError(e.line, e.column, e.message, dialog)
+      showScriptError(e.line, e.column, e.message)
       return null
     }
   }
 
-  private suspend fun showScriptError(line: Int, column: Int, message: String?, dialog: ProgressDialog)
+  private suspend fun showScriptError(line: Int, column: Int, message: String?)
       = withContext(Dispatchers.Main) {
-    dialog.dismiss()
     AlertDialog.Builder(requireContext())
       .setTitle("Compilation error")
       .setMessage(message)
@@ -187,7 +198,7 @@ abstract class AbstractEditorFragment : Fragment() {
 class EditorFragment : AbstractEditorFragment() {
 
   private val shellHandler get() = requireActivity() as ShellHandler
-  private val viewModel: EditorViewModel by viewModels()
+  private val viewModel: FileEditorViewModel by viewModels()
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)

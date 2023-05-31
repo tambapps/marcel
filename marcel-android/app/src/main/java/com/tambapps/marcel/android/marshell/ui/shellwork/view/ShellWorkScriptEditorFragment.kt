@@ -38,6 +38,7 @@ class ShellWorkScriptEditorFragment: AbstractEditorFragment() {
   }
 
   override fun onFabClick() {
+    if (isLoading) return
     checkCompile {
       val intent = Intent()
       // we want a string, not a serializable

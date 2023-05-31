@@ -1,10 +1,8 @@
 package com.tambapps.marcel.android.marshell.ui.fav_scripts.form
 
-import android.app.ProgressDialog
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.commitNow
 import androidx.fragment.app.viewModels
 import com.tambapps.marcel.android.marshell.R
@@ -13,9 +11,6 @@ import com.tambapps.marcel.android.marshell.ui.ResourceParentFragment
 import com.tambapps.marcel.android.marshell.ui.editor.AbstractEditorFragment
 import com.tambapps.marcel.android.marshell.ui.fav_scripts.list.ScriptListFragment
 import com.tambapps.marcel.android.marshell.view.EditTextDialogBuilder
-import com.tambapps.marcel.lexer.MarcelLexerException
-import com.tambapps.marcel.parser.exception.MarcelParserException
-import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -107,6 +102,7 @@ class ScriptFormFragment: AbstractEditorFragment(), ResourceParentFragment.FabCl
   }
 
   override fun onFabClick() {
+    if (isLoading) return
     if (binding.editText.text.isNullOrBlank()) {
       Toast.makeText(requireContext(), getString(R.string.script_must_not_be_empty), Toast.LENGTH_SHORT).show()
       return
@@ -120,26 +116,26 @@ class ScriptFormFragment: AbstractEditorFragment(), ResourceParentFragment.FabCl
       pickNameDialog(saveAfter = true)
       return
     }
-    val dialog = ProgressDialog(requireContext()).apply {
-      setTitle("Compiling and saving...")
-      setCancelable(false)
-      show()
-    }
+    isLoading = true
     CoroutineScope(Dispatchers.IO).launch {
       if (isCreateForm && scriptService.existsByName(name)) {
         withContext(Dispatchers.Main) {
           Toast.makeText(requireContext(), "A script with name $name already exists", Toast.LENGTH_SHORT).show()
-          dialog.dismiss()
+          isLoading = false
         }
         return@launch
       }
 
       val scriptText = binding.editText.text.toString()
-      val compilerResult = checkCompile(dialog = dialog) ?: return@launch
+      val compilerResult = compile()
+      if (compilerResult == null) {
+        withContext(Dispatchers.Main) { isLoading = false }
+        return@launch
+      }
       scriptService.save(name, scriptText, compilerResult)
 
       withContext(Dispatchers.Main) {
-        dialog.dismiss()
+        isLoading = false
         parentFragmentManager.commitNow {
           setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
           // always supplying a new fragment so that it loads the created script
