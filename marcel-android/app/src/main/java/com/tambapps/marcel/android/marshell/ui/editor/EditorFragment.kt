@@ -22,6 +22,8 @@ import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import dagger.hilt.android.AndroidEntryPoint
 import com.tambapps.marcel.android.marshell.view.EditTextHighlighter
+import com.tambapps.marcel.dalvik.compiler.DexException
+import com.tambapps.marcel.dumbbell.DumbbellException
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.exception.MarcelParserException
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
@@ -85,8 +87,8 @@ abstract class AbstractEditorFragment : Fragment() {
     // not a bean because we want to keep them independent per fragment
     val marcelDexClassLoader = MarcelDexClassLoader()
     val shellBinding = Binding()
-    shellBinding.setVariable("out", NoOpPrinter())
     val javaTypeResolver = ReplJavaTypeResolver(marcelDexClassLoader, shellBinding)
+    javaTypeResolver.setScriptVariable("out", NoOpPrinter(), Printer::class.java)
     replCompiler = MarcelReplCompiler(compilerConfiguration, marcelDexClassLoader, javaTypeResolver)
     highlighter = SpannableHighlighter(javaTypeResolver, replCompiler)
     editTextHighlighter = EditTextHighlighter(binding.editText, highlighter)
@@ -148,21 +150,29 @@ abstract class AbstractEditorFragment : Fragment() {
     return try {
       replCompiler.compile(scriptText)
     } catch (e: MarcelLexerException) {
-      showScriptError(e.line, e.column, e.message)
+      showScriptError(line = e.line, column = e.column, message = e.message)
       return null
     } catch (e: MarcelParserException) {
-      showScriptError(e.line, e.column, e.message)
+      showScriptError(line = e.line, column = e.column, message = e.message)
       return null
     } catch (e: MarcelSemanticException) {
-      showScriptError(e.line, e.column, e.message)
+      showScriptError(line = e.line, column = e.column, message = e.message)
+      return null
+    } catch (e: DumbbellException) {
+      showScriptError(title = "Dumbbell error", message = e.message)
+      return null
+    } catch (e: DexException) {
+      showScriptError(title = "Dumbbell error", message = "A fetched dumbbell jar isn't compatible with Android")
       return null
     }
   }
 
-  private suspend fun showScriptError(line: Int, column: Int, message: String?)
+  private suspend fun showScriptError(line: Int? = null, column: Int? = null,
+                                      title: String = "Compilation error",
+                                      message: String? = null)
       = withContext(Dispatchers.Main) {
     AlertDialog.Builder(requireContext())
-      .setTitle("Compilation error")
+      .setTitle(title)
       .setMessage(message)
       .setPositiveButton("ok", null)
       .show()

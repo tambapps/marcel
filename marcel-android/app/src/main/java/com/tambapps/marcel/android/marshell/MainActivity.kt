@@ -19,12 +19,14 @@ import com.tambapps.marcel.android.marshell.room.entity.CacheableScript
 import com.tambapps.marcel.android.marshell.ui.shell.ShellFragment
 import com.tambapps.marcel.android.marshell.util.ListenableList
 import com.tambapps.marcel.android.marshell.util.hideSoftBoard
+import com.tambapps.marcel.dumbbell.Dumbbell
+import com.tambapps.marcel.dumbbell.DumbbellEngine
+import com.tambapps.maven.dependency.resolver.repository.RemoteSavingMavenRepository
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import java.util.Collections
 import javax.inject.Inject
 import javax.inject.Named
-
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
@@ -33,6 +35,8 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
   @Inject
   @Named("shellSessionsDirectory")
   lateinit var shellSessionsDirectory: File
+  @Inject
+  lateinit var dumbbellMavenRepository: RemoteSavingMavenRepository
   private lateinit var binding: ActivityMainBinding
   private lateinit var navController: NavController
 
@@ -166,6 +170,11 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
     binding.navView.setCheckedItem(navController.currentDestination!!.id)
   }
 
+  override fun onResume() {
+    super.onResume()
+    // to ensure we use the right maven repository
+    Dumbbell.setEngineUsingRepository(dumbbellMavenRepository)
+  }
   override fun onDestroy() {
     super.onDestroy()
     shellSessions.forEach { it.dispose() }

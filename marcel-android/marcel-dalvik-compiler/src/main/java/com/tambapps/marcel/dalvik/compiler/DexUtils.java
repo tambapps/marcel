@@ -2,6 +2,7 @@ package com.tambapps.marcel.dalvik.compiler;
 
 import com.android.dx.command.dexer.DxContext;
 import com.android.dx.command.dexer.Main;
+import com.tambapps.marcel.dumbbell.DumbbellException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -14,8 +15,6 @@ import java.util.zip.ZipInputStream;
 
 import marcel.lang.android.BuildConfig;
 
-
-// used by reflection in DumbbellMavenRepository
 public class DexUtils {
 
     public static boolean isDexJar(File jarFile) {
@@ -32,12 +31,6 @@ public class DexUtils {
         }
     }
 
-
-    // used by reflection in DumbbellMavenRepository
-    public static void convertJarToDexFile(File jarFile) throws IOException {
-        // TODO don't know if it really works, when the input file is the output file
-        convertJarToDexFile(jarFile, jarFile);
-    }
     public static void convertJarToDexFile(File jarFile, File dexOutputFile) throws IOException {
         // class that converts jar to dex
 
@@ -61,12 +54,10 @@ public class DexUtils {
             jarFile.getAbsolutePath()).split("\\s"));
         int result = Main.run(arguments);
         if (result != 0) {
-            String message = errStream.toString();
-            if (message.isEmpty()) {
-                message = "Is the provided file a valid (and non dex) jar?";
-            }
-            throw new IOException(String.format("Didn't succeeded to convert jar to dex (error code %d)." +
-                message, result));
+            String message = errStream.size() > 0 ? errStream.toString()
+                // the no message case can happen when there is a jar with classes in format Java 9+. (e.g. META-INF/versions/9/module-info.class
+                : "The provided jar isn't compatible with Android";
+            throw new DexException(message);
         }
     }
 }

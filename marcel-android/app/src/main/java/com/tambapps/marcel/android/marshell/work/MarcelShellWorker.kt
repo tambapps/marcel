@@ -23,9 +23,12 @@ import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDao
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import com.tambapps.marcel.android.marshell.ui.shellwork.view.ShellWorkViewFragment
 import com.tambapps.marcel.compiler.CompilerConfiguration
+import com.tambapps.marcel.dumbbell.Dumbbell
+import com.tambapps.marcel.dumbbell.DumbbellEngine
 import com.tambapps.marcel.repl.MarcelEvaluator
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.ReplJavaTypeResolver
+import com.tambapps.maven.dependency.resolver.repository.RemoteSavingMavenRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import marcel.lang.Binding
@@ -41,6 +44,7 @@ class MarcelShellWorker
                               @Assisted workerParams: WorkerParameters,
                               // this is not a val because hilt doesn't allow final fields when injecting
                               private val compilerConfiguration: CompilerConfiguration,
+                              private val dumbbellMavenRepository: RemoteSavingMavenRepository,
                               private val shellWorkDao: ShellWorkDao):
   CoroutineWorker(appContext, workerParams) {
 
@@ -54,13 +58,7 @@ class MarcelShellWorker
   private val out = ShellWorkerPrinter()
 
   override suspend fun doWork(): Result {
-    var work = shellWorkDao.findById(id)
-    var tries = 1
-    while (work == null && tries++ < 4) {
-      // sometimes it looks like the worker is created before the work_data could save the work in database
-      Thread.sleep(1_000L)
-      work = shellWorkDao.findById(id)
-    }
+    val work = findWork()
     if (work == null) {
       Log.e("MarcelShellWorker", "Couldn't find work_data on database for work $id")
       notificationTitle = "Marshell Worker"
@@ -73,6 +71,8 @@ class MarcelShellWorker
     /* initialization */
     createChannelIfNeeded()
     notification(content = "Initializing marshell work...")
+    // to ensure we use the right maven repository
+    Dumbbell.setEngineUsingRepository(dumbbellMavenRepository)
     val binding = Binding()
     val classLoader = MarcelDexClassLoader()
     val typeResolver = ReplJavaTypeResolver(classLoader, binding)
@@ -82,7 +82,7 @@ class MarcelShellWorker
     typeResolver.setScriptVariable("out", out, Printer::class.java)
 
     val text = if (work.scriptText != null) {
-      work.scriptText!!
+      work.scriptText
     } else {
       notification(content = "Couldn't read script", foregroundNotification = true, force = true)
       return Result.failure(endData(failedReason = "Couldn't read script"))
@@ -116,6 +116,17 @@ class MarcelShellWorker
     } finally {
       directory.deleteRecursively()
     }
+  }
+
+  private suspend fun findWork(): ShellWork? {
+    var work = shellWorkDao.findById(id)
+    var tries = 1
+    while (work == null && tries++ < 4) {
+      // sometimes it looks like the worker is created before the work_data could save the work in database
+      Thread.sleep(1_000L)
+      work = shellWorkDao.findById(id)
+    }
+    return work
   }
 
   // this is basically just a callback to update data at the end of a shell work

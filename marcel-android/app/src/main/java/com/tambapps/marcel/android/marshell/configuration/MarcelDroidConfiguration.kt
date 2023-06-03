@@ -5,10 +5,12 @@ import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import androidx.room.Room
 import androidx.work.WorkManager
+import com.tambapps.marcel.android.marshell.maven.DexRemoteSavingRepository
 import com.tambapps.marcel.android.marshell.room.AppDatabase
 import com.tambapps.marcel.android.marshell.room.dao.CacheableScriptDao
 import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDao
 import com.tambapps.marcel.compiler.CompilerConfiguration
+import com.tambapps.maven.dependency.resolver.repository.RemoteSavingMavenRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -36,6 +38,18 @@ class MarcelDroidConfiguration {
   @Provides
   fun shellSessionsDirectory(@ApplicationContext context: Context): File {
     return context.getDir("shell_sessions", Context.MODE_PRIVATE)
+  }
+
+  @Named("dumbbellRootFile")
+  @Provides
+  fun dumbbellRootFile(@ApplicationContext context: Context): File {
+    return context.getDir("dumbbell", Context.MODE_PRIVATE)
+  }
+
+  @Provides
+  fun dumbbellMavenRepository(@Named("dumbbellRootFile") dumbbellRootFile: File): RemoteSavingMavenRepository {
+    dumbbellRootFile.deleteRecursively()
+    return DexRemoteSavingRepository(dumbbellRootFile)
   }
 
   @Provides

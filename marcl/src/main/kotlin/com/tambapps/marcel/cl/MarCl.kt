@@ -10,6 +10,7 @@ import com.github.ajalt.clikt.parameters.types.file
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.JarWriter
 import com.tambapps.marcel.compiler.MarcelCompiler
+import com.tambapps.marcel.dumbbell.DumbbellException
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.exception.MarcelParserException
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
@@ -113,6 +114,10 @@ fun compile(file: File, keepClassFiles: Boolean, keepJarFile: Boolean, printStac
     return null
   } catch (e: MarcelSemanticException) {
     println("Semantic error: ${e.message}")
+    if (printStackTrace) e.printStackTrace()
+    return null
+  } catch (e: DumbbellException) {
+    println("Error while pulling dumbbell: ${e.message}")
     if (printStackTrace) e.printStackTrace()
     return null
   } catch (e: Exception) {

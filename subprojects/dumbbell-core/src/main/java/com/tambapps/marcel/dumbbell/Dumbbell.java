@@ -27,23 +27,23 @@ public class Dumbbell {
     return engine;
   }
 
-  public static List<PulledArtifact> pull(String endorsedModule) {
+  public static List<PulledArtifact> pull(String endorsedModule) throws DumbbellException {
     return getEngine().pull(endorsedModule);
   }
 
-  public static List<PulledArtifact> pull(Artifact artifact) {
+  public static List<PulledArtifact> pull(Artifact artifact) throws DumbbellException {
     return getEngine().pull(artifact);
   }
 
-  public static List<PulledArtifact> pull(String groupId, String artifactId, String version) {
+  public static List<PulledArtifact> pull(String groupId, String artifactId, String version) throws DumbbellException {
     return getEngine().pull(groupId, artifactId, version);
   }
 
-  public static Map<String, Map<String, List<String>>> enumerateDumbbells() {
+  public static Map<String, Map<String, List<String>>> enumerateDumbbells() throws DumbbellException {
     return getEngine().enumerateDumbbells();
   }
 
-  public static List<Artifact> getAllFetchedArtifacts() {
+  public static List<Artifact> getAllFetchedArtifacts() throws DumbbellException {
     return getEngine().getAllFetchedArtifacts();
   }
 }

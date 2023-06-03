@@ -1,6 +1,7 @@
 package com.tambapps.marcel.repl
 
 import com.tambapps.marcel.compiler.CompilerConfiguration
+import com.tambapps.marcel.dumbbell.DumbbellException
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.exception.MarcelParserException
 import com.tambapps.marcel.parser.ast.ClassNode
@@ -112,6 +113,9 @@ abstract class MarcelShell constructor(
         buffer.clear()
       } catch (e: MarcelSemanticException) {
         printer.suspendPrintln(e.message)
+        buffer.clear()
+      } catch (e: DumbbellException) {
+        printer.suspendPrintln("Error while pulling a dumbbell: ${e.message}")
         buffer.clear()
       } catch (e: MarcelParserException) {
         if (e.isEof) {
