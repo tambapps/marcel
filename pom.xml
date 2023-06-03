@@ -26,7 +26,8 @@
       <dependency>
         <groupId>com.tambapps.maven</groupId>
         <artifactId>maven-dependency-resolver</artifactId>
-        <version>2.0</version>
+        <!-- TODO release it -->
+        <version>2.1-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.jline</groupId>

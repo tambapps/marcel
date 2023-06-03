@@ -16,4 +16,9 @@ public class PulledArtifact extends Artifact {
     super(artifact.getGroupId(), artifact.getArtifactId(), artifact.getVersion());
     this.jarFile = jarFile;
   }
+
+  @Override
+  public String toString() {
+    return "PulledArtifact(artifact=" + toArtifactString() + ", jarFile=" + jarFile + ")";
+  }
 }

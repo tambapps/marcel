@@ -1,6 +1,7 @@
 package com.tambapps.marcel.dumbbell;
 
 import com.tambapps.maven.dependency.resolver.data.Artifact;
+import com.tambapps.maven.dependency.resolver.repository.RemoteSavingMavenRepository;
 
 import java.io.File;
 import java.util.List;
@@ -12,6 +13,10 @@ public class Dumbbell {
 
   public static void setEngine(DumbbellEngine engine) {
     Dumbbell.engine = engine;
+  }
+
+  public static void setEngineUsingRepository(RemoteSavingMavenRepository repository) {
+    Dumbbell.engine = new DumbbellEngine(repository);
   }
 
   public static DumbbellEngine getEngine() {

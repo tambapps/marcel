@@ -4,6 +4,7 @@ import com.tambapps.maven.dependency.resolver.DependencyResolver;
 import com.tambapps.maven.dependency.resolver.data.Artifact;
 import com.tambapps.maven.dependency.resolver.repository.RemoteSavingMavenRepository;
 import com.tambapps.maven.dependency.resolver.version.FirstVersionFoundConflictResolver;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@AllArgsConstructor
 public class DumbbellEngine {
 
   @Getter
@@ -22,7 +24,7 @@ public class DumbbellEngine {
 
   public DumbbellEngine(File dumbbellRoot) {
     // the LocalMavenRepository will take care of creating a subdirectory "repository"
-    this.repository = new RemoteSavingMavenRepository(dumbbellRoot);
+    this(new RemoteSavingMavenRepository(dumbbellRoot));
   }
 
   public List<PulledArtifact> pull(String endorsedModule) {
@@ -42,9 +44,6 @@ public class DumbbellEngine {
   public List<PulledArtifact> pull(String groupId, String artifactId, String version) {
     DependencyResolver resolver = new DependencyResolver(repository);
     resolver.setExcludedArtifacts(new HashSet<>(Arrays.asList(
-        new Artifact("com.squareup.okhttp3", "okhttp", "*"),
-        new Artifact("com.squareup.okio", "okio", "*"),
-        new Artifact("org.jsoup", "jsoup", "*"),
         new Artifact("org.jetbrains.kotlin", "kotlin-stdlib", "*"),
         new Artifact("org.jetbrains.kotlin", "kotlin-stdlib-common", "*")
     )));
