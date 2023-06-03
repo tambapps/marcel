@@ -20,7 +20,7 @@ class MarcelEvalTest {
       .getDir("classes", Context.MODE_PRIVATE)
   private val classLoader =
     MarcelDexClassLoader()
-  private val compiler = AndroidMarcelCompiler(classLoader)
+  private val compiler = DexMarcelCompiler(classLoader)
 
 
   @Test

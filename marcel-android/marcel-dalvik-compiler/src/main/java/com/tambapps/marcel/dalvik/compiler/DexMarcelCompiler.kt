@@ -7,7 +7,7 @@ import com.tambapps.marcel.compiler.SourceFile
 import marcel.lang.MarcelDexClassLoader
 import java.io.File
 
-class AndroidMarcelCompiler(
+class DexMarcelCompiler(
   compilerConfiguration: CompilerConfiguration,
   private val classLoader: MarcelDexClassLoader
 ) {
