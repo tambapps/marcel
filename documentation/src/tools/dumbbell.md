@@ -13,7 +13,7 @@ It was inspired strongly from [Groovy's grapes](https://groovy-lang.org/grape.ht
 To import a dependency, use the `dumbbell` keyword.
 
 ```groovy
-dumbbell 'com.google.code.gson:gson:2.10.1'
+dumbbell 'com.google.code.gson:gson:2.8.6'
 import com.google.gson.Gson
 
 Gson gson = new Gson()
