@@ -56,16 +56,16 @@ abstract class MarcelShell constructor(
         try {
           evaluator.eval(text)
         } catch (e: MarcelLexerException) {
-          println("Error from init script: ${e.message}")
+          printer.suspendPrintln("Error from init script: ${e.message}")
           onInitScriptFail(e)
         } catch (e: MarcelSemanticException) {
-          println("Error from init script: ${e.message}")
+          printer.suspendPrintln("Error from init script: ${e.message}")
           onInitScriptFail(e)
         } catch (e: MarcelParserException) {
-          println("Error from init script: ${e.message}")
+          printer.suspendPrintln("Error from init script: ${e.message}")
           onInitScriptFail(e)
         } catch (ex: Exception) {
-          println("Error from init script: ${ex.message}")
+          printer.suspendPrintln("Error from init script: ${ex.message}")
           onInitScriptFail(ex)
         }
       }

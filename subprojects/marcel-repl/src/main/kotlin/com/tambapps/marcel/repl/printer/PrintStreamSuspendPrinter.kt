@@ -5,14 +5,14 @@ import java.io.PrintStream
 class PrintStreamSuspendPrinter(private val printStream: PrintStream): SuspendPrinter {
 
   override suspend fun suspendPrint(s: CharSequence?) {
-    kotlin.io.print(s)
+    printStream.print(s)
   }
 
   override suspend fun suspendPrintln(s: CharSequence?) {
-    kotlin.io.println(s)
+    printStream.println(s)
   }
 
   override suspend fun suspendPrintln() {
-    kotlin.io.println()
+    printStream.println()
   }
 }

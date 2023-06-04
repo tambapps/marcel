@@ -43,7 +43,6 @@ class MarcelReplCompiler constructor(
 
     for (artifactString in result.dumbbells) {
       val pulledArtifacts = Dumbbell.pull(artifactString)
-      println("artifactString: ${pulledArtifacts}")
       pulledArtifacts.forEach {
         if (it.jarFile != null) {
           marcelClassLoader.addLibraryJar(it.jarFile)
