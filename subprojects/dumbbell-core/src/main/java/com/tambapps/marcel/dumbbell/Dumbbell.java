@@ -46,4 +46,8 @@ public class Dumbbell {
   public static List<Artifact> getAllFetchedArtifacts() throws DumbbellException {
     return getEngine().getAllFetchedArtifacts();
   }
+
+  public static void deleteAll() {
+    getEngine().deleteAll();
+  }
 }

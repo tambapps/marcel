@@ -48,7 +48,6 @@ class MarcelDroidConfiguration {
 
   @Provides
   fun dumbbellMavenRepository(@Named("dumbbellRootFile") dumbbellRootFile: File): RemoteSavingMavenRepository {
-    dumbbellRootFile.deleteRecursively()
     return DexRemoteSavingRepository(dumbbellRootFile)
   }
 

@@ -14,4 +14,16 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:title="Dumbbell"
+        >
+        <Preference
+            android:key="@string/clear_dumbbells_preference_key"
+            app:title="Remove all dumbbells"
+            android:summary="Remove all fetched dumbbells"
+            app:persistent="false"
+            />
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

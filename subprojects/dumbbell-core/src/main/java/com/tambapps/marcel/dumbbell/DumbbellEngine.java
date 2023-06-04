@@ -72,4 +72,8 @@ public class DumbbellEngine {
       throw new DumbbellException(e);
     }
   }
+
+  public void deleteAll() {
+    repository.deleteAllArtifacts();
+  }
 }
