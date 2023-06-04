@@ -10,5 +10,11 @@ class LocalDateTimeConverter {
   fun localDateTimeFromString(s: String?) = s?.let(LocalDateTime::parse)
 
   @TypeConverter
-  fun stringToLocalDateTime(localDateTime: LocalDateTime?) = localDateTime?.toString()
+  fun localDateTimeToString(localDateTime: LocalDateTime?) = localDateTime?.toString()
+
+  @TypeConverter
+  fun stringListFromString(s: String?) = s?.split(",")
+
+  @TypeConverter
+  fun stringListToString(list: List<String>?) = list?.joinToString(",")
 }

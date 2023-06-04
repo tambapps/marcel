@@ -18,12 +18,12 @@ interface CacheableScriptDao {
   }
 
   @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
-  // we don't fetch scriptText and cachedJar for list endpoint
+  // we don't fetch scriptText, cachedJar and dumbbells for list endpoint
   @Query("SELECT name, hash, script_class_name FROM cacheable_scripts")
   suspend fun findAll(): List<CacheableScript>
 
   // we don't fetch cachedJar
-  @Query("SELECT name, text, hash, script_class_name FROM cacheable_scripts WHERE name = :name")
+  @Query("SELECT name, text, hash, script_class_name, dumbbells FROM cacheable_scripts WHERE name = :name")
   suspend fun findByName(name: String): CacheableScript?
   @Query("SELECT * FROM cacheable_scripts WHERE name = :name")
   suspend fun findByNameWithJar(name: String): CacheableScript?

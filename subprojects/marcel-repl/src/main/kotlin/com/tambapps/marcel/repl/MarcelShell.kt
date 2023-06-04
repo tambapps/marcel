@@ -1,6 +1,7 @@
 package com.tambapps.marcel.repl
 
 import com.tambapps.marcel.compiler.CompilerConfiguration
+import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.dumbbell.DumbbellException
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.exception.MarcelParserException
@@ -77,12 +78,26 @@ abstract class MarcelShell constructor(
     onFinish()
   }
 
-  suspend fun evalJarFile(jarFile: File, className: String?) {
+  // used by android marshell
+  suspend fun evalJarFile(jarFile: File, className: String?, dumbbells: List<String>) {
     try {
+      // import dumbbells
+      for (artifactString in dumbbells) {
+        val pulledArtifacts = Dumbbell.pull(artifactString)
+        pulledArtifacts.forEach {
+          if (it.jarFile != null) {
+            marcelClassLoader.addLibraryJar(it.jarFile)
+          }
+        }
+      }
+
+      // then run script
       val eval = evaluator.evalJarFile(jarFile, className)
       printEval(eval)
-    } catch (ex: Exception) {
-      printer.suspendPrintln("${ex.javaClass.name}: ${ex.message}")
+    } catch (e: Exception) {
+      printer.suspendPrintln("${e.javaClass.name}: ${e.message}")
+    } catch (e: DumbbellException) {
+      printer.suspendPrintln("Error while pulling a dumbbell: ${e.message}")
     }
   }
 

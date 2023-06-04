@@ -10,6 +10,7 @@ data class CacheableScript(
   @ColumnInfo val text: String?,
   @ColumnInfo val hash: String,
   @ColumnInfo("script_class_name") val scriptClassName: String?,
+  @ColumnInfo val dumbbells: List<String>?,
   @ColumnInfo(name = "cached_jar", typeAffinity = ColumnInfo.BLOB) val cachedJar: ByteArray?
 ) {
   override fun equals(other: Any?): Boolean {

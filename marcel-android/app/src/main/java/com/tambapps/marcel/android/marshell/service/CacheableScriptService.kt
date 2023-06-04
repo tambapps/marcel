@@ -31,7 +31,9 @@ class CacheableScriptService @Inject constructor(
       it.writeClasses(compilerResult.allCompiledClasses)
     }
 
-    val script = CacheableScript(name, scriptText, hash(scriptText), scriptCompiledClass?.className, bos.toByteArray())
+    val script = CacheableScript(name, scriptText, hash(scriptText), scriptCompiledClass?.className,
+      compilerResult.parserResult.dumbbells.toList(),
+      bos.toByteArray())
     dao.upsert(script)
   }
 
