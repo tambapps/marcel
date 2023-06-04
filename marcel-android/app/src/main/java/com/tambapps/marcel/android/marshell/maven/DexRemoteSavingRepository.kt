@@ -7,12 +7,8 @@ import java.io.InputStream
 
 class DexRemoteSavingRepository(root: File) : RemoteSavingMavenRepository(root) {
 
-  override fun doSaveArtifactJar(groupId: String, artifactId: String, version: String,
-                                 file: File, inputStream: InputStream) {
-    val tempJar = File(repoRoot, getKey(groupId, artifactId, version) + "-temp.jar")
-    super.doSaveArtifactJar(groupId, artifactId, version, tempJar, inputStream)
-    DexUtils.convertJarToDexFile(tempJar, file)
-    tempJar.delete()
+  override fun doSaveArtifactJar(file: File, inputStream: InputStream) {
+    DexUtils.convertJarStreamToDexFile(inputStream, file)
   }
 
 }

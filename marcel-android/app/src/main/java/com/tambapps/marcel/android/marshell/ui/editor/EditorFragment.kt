@@ -4,6 +4,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.text.Spannable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -159,9 +160,11 @@ abstract class AbstractEditorFragment : Fragment() {
       showScriptError(line = e.line, column = e.column, message = e.message)
       return null
     } catch (e: DumbbellException) {
+      Log.e("EditorFragment", "Dumbbell error", e)
       showScriptError(title = "Dumbbell error", message = e.message)
       return null
     } catch (e: DexException) {
+      Log.e("EditorFragment", "Dex error", e)
       showScriptError(title = "Dumbbell error", message = "A fetched dumbbell jar isn't compatible with Android")
       return null
     }

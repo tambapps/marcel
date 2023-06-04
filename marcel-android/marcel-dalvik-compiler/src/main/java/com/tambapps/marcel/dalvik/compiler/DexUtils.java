@@ -6,10 +6,16 @@ import com.tambapps.marcel.dumbbell.DumbbellException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.Locale;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
+import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -29,6 +35,14 @@ public class DexUtils {
         } catch (IOException e) {
             return false;
         }
+    }
+
+    public static void convertJarStreamToDexFile(InputStream jarStream, File dexOutputFile) throws IOException {
+        // Dexter converter needs a file as input, so we need to copy the stream into a file
+        File tempFile = Files.createTempFile(dexOutputFile.getParentFile().toPath(), null, "_dex_temp_source.jar").toFile();
+        Files.copy(jarStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        convertJarToDexFile(tempFile, dexOutputFile);
+        tempFile.delete();
     }
 
     public static void convertJarToDexFile(File jarFile, File dexOutputFile) throws IOException {
@@ -54,6 +68,7 @@ public class DexUtils {
             jarFile.getAbsolutePath()).split("\\s"));
         int result = Main.run(arguments);
         if (result != 0) {
+            dexOutputFile.delete();
             String message = errStream.size() > 0 ? errStream.toString()
                 // the no message case can happen when there is a jar with classes in format Java 9+. (e.g. META-INF/versions/9/module-info.class
                 : "The provided jar isn't compatible with Android";
