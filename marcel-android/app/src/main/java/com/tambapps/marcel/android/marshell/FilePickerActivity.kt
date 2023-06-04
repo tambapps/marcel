@@ -19,7 +19,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.activity.result.ActivityResultCaller
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
@@ -86,11 +88,30 @@ class FilePickerActivity : AppCompatActivity() {
     }
 
     if (!permissionHandler.hasFilesPermission(this)) {
-      Toast.makeText(applicationContext, "Please grant files permissions from settings screen", Toast.LENGTH_SHORT).show()
-      finish()
-      return
+      Toast.makeText(applicationContext, "Need file permission to pick file", Toast.LENGTH_SHORT).show()
+      val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        if (it.values.all { it }) {
+          Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show()
+          init()
+        } else {
+          Toast.makeText(this, "Some permission weren't granted", Toast.LENGTH_SHORT).show()
+          finish()
+        }
+      }
+      permissionHandler.requestFilesPermission(this, requestPermissionLauncher)
+    } else {
+      init()
     }
+  }
 
+  override fun onResume() {
+    super.onResume()
+    if (permissionHandler.hasFilesPermission(this)) {
+      init()
+    }
+  }
+
+  private fun init() {
     binding.backButton.setOnClickListener {
       if (currentDir.parentFile == null || currentDir == getDeviceRootDirectory()) {
         finish()
@@ -98,36 +119,19 @@ class FilePickerActivity : AppCompatActivity() {
         fragment.goBack()
       }
     }
-    if (savedInstanceState == null) {
-      currentDir = File(sharedPreferences.getString(START_DIRECTORY_KEY, getDeviceRootDirectory().path)!!)
-      directoryText.text = getDirectoryName(currentDir)
-      val rootPath = currentDir.absolutePath
-      fragment = FilePickerFragment.newInstance(rootPath)
-      supportFragmentManager.beginTransaction()
-          .replace(R.id.container, fragment, rootPath)
-          .commitNow()
-    }
+    currentDir = File(sharedPreferences.getString(START_DIRECTORY_KEY, getDeviceRootDirectory().path)!!)
+    directoryText.text = getDirectoryName(currentDir)
+    val rootPath = currentDir.absolutePath
+    fragment = FilePickerFragment.newInstance(rootPath)
+    supportFragmentManager.beginTransaction()
+      .replace(R.id.container, fragment, rootPath)
+      .commitNow()
     pathAdapter = PathRecyclerViewAdapter(currentDir)
     pathRecyclerView.apply {
       layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false).also {
         // to allow automatically scrolling to the end when moving to child
         it.stackFromEnd = true
       }
-      adapter = pathAdapter
-    }
-  }
-
-  private fun initFragment() {
-    currentDir = internalStorageRoot
-    directoryText.text = getString(R.string.internal_storage)
-    val rootPath = currentDir.absolutePath
-    fragment = FilePickerFragment.newInstance(rootPath)
-    supportFragmentManager.beginTransaction()
-        .replace(R.id.container, fragment, rootPath)
-        .commitNow()
-    pathAdapter = PathRecyclerViewAdapter(currentDir)
-    pathRecyclerView.apply {
-      layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, true)
       adapter = pathAdapter
     }
   }

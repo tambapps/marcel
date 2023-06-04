@@ -1,9 +1,15 @@
 package com.tambapps.marcel.android.marshell.ui.settings
 
+import android.content.DialogInterface
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
@@ -42,7 +48,17 @@ class SettingsFragment: PreferenceFragmentCompat() {
     filesPermissionPreference = findPreference(getString(R.string.files_permission_key))!!
     filesPermissionPreference.setOnPreferenceClickListener {
       if (permissionHandler.hasFilesPermission(requireContext())) {
-        Toast.makeText(requireContext(), "Please go to app settings to disable permission", Toast.LENGTH_SHORT).show()
+        filesPermissionPreference.isChecked = true
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+          val uri = Uri.fromParts("package", requireContext().packageName, null)
+          requireContext().startActivity(
+            Intent(
+              Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+              uri
+            ))
+        } else {
+          Toast.makeText(requireContext(), "Please go to app settings to disable permission", Toast.LENGTH_SHORT).show()
+        }
       } else {
         permissionHandler.requestFilesPermission(requireActivity(), requestPermissionLauncher)
       }
