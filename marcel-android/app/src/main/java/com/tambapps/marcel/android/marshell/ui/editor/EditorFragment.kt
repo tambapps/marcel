@@ -178,10 +178,12 @@ abstract class AbstractEditorFragment : Fragment() {
       = withContext(Dispatchers.Main) {
     AlertDialog.Builder(requireContext())
       .setTitle(title)
-      .setMessage(message)
+      .setMessage(scriptErrorMessage(message))
       .setPositiveButton("ok", null)
       .show()
   }
+
+  protected open fun scriptErrorMessage(baseMessage: String?) = baseMessage
 
   override fun onResume() {
     super.onResume()
@@ -267,7 +269,7 @@ class EditorFragment : AbstractEditorFragment() {
     checkCompile {
       if (file != null) {
         AlertDialog.Builder(requireContext())
-          .setTitle("${file.name} successfully saved")
+          .setTitle("${file.name} was successfully saved")
           .setMessage("No compile error were found")
           .setPositiveButton("Run in shell") { dialogInterface: DialogInterface, i: Int ->
             runInShell(text)
@@ -292,5 +294,11 @@ class EditorFragment : AbstractEditorFragment() {
         }
         .show()
     }
+  }
+
+
+  override fun scriptErrorMessage(baseMessage: String?): String? {
+    val file = viewModel.file.value
+    return if (file != null) "${file.name} was successfully saved but the script has the following error\n\n$baseMessage" else baseMessage
   }
 }
