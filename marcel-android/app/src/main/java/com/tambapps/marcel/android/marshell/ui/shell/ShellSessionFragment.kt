@@ -97,7 +97,6 @@ class ShellSessionFragment : Fragment() {
     if (scriptText != null) {
       runScript(scriptText)
     }
-    println("cacacacacaaca " + requireArguments().getString(ShellFragment.CACHED_SCRIPT_NAME_ARG))
     val cachedScriptName = requireArguments().getString(ShellFragment.CACHED_SCRIPT_NAME_ARG)
     if (cachedScriptName != null) {
       runCachedScript(cachedScriptName)
@@ -119,6 +118,10 @@ class ShellSessionFragment : Fragment() {
             Toast.LENGTH_SHORT
           ).show()
         } else {
+          val spanString = SpannableString("// ran script $cachedScriptName")
+          spanString.setSpan(ForegroundColorSpan(Color.LTGRAY), 0, spanString.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+          promptQueue.add(spanString)
+          // TODO need a way to block prompt until the script is executed
           marshellRunner!!.evalCachedScript(cacheableScript)
         }
       }
