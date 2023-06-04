@@ -3,6 +3,7 @@ package com.tambapps.marcel.android.marshell.ui.editor
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
 import android.text.Spannable
 import android.util.Log
 import android.view.LayoutInflater
@@ -38,6 +39,7 @@ import marcel.lang.Binding
 import marcel.lang.MarcelDexClassLoader
 import marcel.lang.printer.Printer
 import java.io.File
+import java.io.IOException
 import javax.inject.Inject
 
 abstract class AbstractEditorFragment : Fragment() {
@@ -220,8 +222,10 @@ class EditorFragment : AbstractEditorFragment() {
         binding.fileNameText.text = it.name
         binding.fileNameText.visibility = View.VISIBLE
         binding.editText.setText(highlight(it.readText()))
+        binding.fab.setImageResource(R.drawable.save)
       } else {
         binding.fileNameText.visibility = View.GONE
+        binding.fab.setImageResource(R.drawable.shell)
       }
     }
   }
@@ -236,19 +240,57 @@ class EditorFragment : AbstractEditorFragment() {
       Toast.makeText(requireContext(), "Cannot run empty text", Toast.LENGTH_SHORT).show()
       return
     }
-    checkCompile {
-      if (shellHandler.sessionsCount <= 1) {
-        shellHandler.navigateToShell(text)
-      } else {
-        val sessions = shellHandler.sessions
-        AlertDialog.Builder(requireContext())
-          .setTitle("Run in shell")
-          .setItems(sessions.map { it.name }.toTypedArray()) { dialogInterface: DialogInterface, which: Int ->
-            shellHandler.navigateToShell(text, which)
+    val file = viewModel.file.value
+    if (file != null) {
+      isLoading = true
+      CoroutineScope(Dispatchers.IO).launch {
+        try {
+          file.writeText(text.toString())
+          withContext(Dispatchers.Main) {
+            checkCompileAndRun(text, file)
           }
+        } catch (e: IOException) {
+          withContext(Dispatchers.Main) {
+            AlertDialog.Builder(requireContext())
+              .setTitle("Error while saving file")
+              .setMessage(e.message)
+              .show()
+          }
+        }
+      }
+    } else {
+      checkCompileAndRun(text)
+    }
+  }
+
+  private fun checkCompileAndRun(text: Editable, file: File? = null) {
+    checkCompile {
+      if (file != null) {
+        AlertDialog.Builder(requireContext())
+          .setTitle("${file.name} successfully saved")
+          .setMessage("No compile error were found")
+          .setPositiveButton("Run in shell") { dialogInterface: DialogInterface, i: Int ->
+            runInShell(text)
+          }
+          .setNeutralButton("ok", null)
           .show()
+      } else {
+        runInShell(text)
       }
     }
   }
 
+  private fun runInShell(text: Editable) {
+    if (shellHandler.sessionsCount <= 1) {
+      shellHandler.navigateToShell(text)
+    } else {
+      val sessions = shellHandler.sessions
+      AlertDialog.Builder(requireContext())
+        .setTitle("Run in shell")
+        .setItems(sessions.map { it.name }.toTypedArray()) { dialogInterface: DialogInterface, which: Int ->
+          shellHandler.navigateToShell(text, which)
+        }
+        .show()
+    }
+  }
 }
