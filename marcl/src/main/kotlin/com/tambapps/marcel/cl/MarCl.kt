@@ -59,7 +59,8 @@ class ExecuteCommand(private val scriptArguments: Array<String>) : CliktCommand(
 
     try {
       // and then run it with the new classLoader
-      scriptLoader.loadScript(className, jarFile).run(scriptArguments)
+      scriptLoader.loadScript(className, jarFile)
+        .run(scriptArguments)
     } finally {
       if (!keepJarFile) {
         jarFile.delete()

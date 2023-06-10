@@ -37,6 +37,7 @@ import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
+import marcel.lang.DynamicObject
 import marcel.lang.IntRanges
 import marcel.lang.LongRanges
 import marcel.lang.methods.MarcelTruth
@@ -567,7 +568,16 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   override fun visit(fCall: FunctionCallNode) {
     val method = fCall.getMethod(typeResolver)
     val methodOwner = fCall.methodOwnerType
-    if (method.isInline) {
+    if (!method.isInline) {
+      if (!method.isStatic) {
+        if (methodOwner is ExpressionNode) {
+          pushArgument(methodOwner) // for instance method, we need to push owner
+        } else {
+          pushArgument(ReferenceExpression.thisRef(fCall.scope))
+        }
+      }
+      mv.invokeMethodWithArguments(fCall, classNode.scope, method, fCall.getArguments(typeResolver))
+    } else {
       // this probably doesn't work anymore, but hey, let's keep it for when I'll decide whether to implement this feature or not
       val inlineMethod = method as MethodNode
       val innerScope = InnerScope(
@@ -583,15 +593,6 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
         visit(VariableAssignmentNode(fCall.token, innerScope, variables[i].name, fCall.getArguments(typeResolver)[i]))
       }
       visit(inlineBlock)
-    } else {
-      if (!method.isStatic) {
-        if (methodOwner is ExpressionNode) {
-          pushArgument(methodOwner) // for instance method, we need to push owner
-        } else {
-          pushArgument(ReferenceExpression.thisRef(fCall.scope))
-        }
-      }
-      mv.invokeMethodWithArguments(fCall, classNode.scope, method, fCall.getArguments(typeResolver))
     }
   }
 

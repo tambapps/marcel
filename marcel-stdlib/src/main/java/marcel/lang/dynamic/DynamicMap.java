@@ -12,7 +12,6 @@ public class DynamicMap implements DynamicObject {
   @Getter
   private final Map value;
 
-
   @Override
   public DynamicObject getAt(Object key) {
     return DynamicObject.of(value.get(key));

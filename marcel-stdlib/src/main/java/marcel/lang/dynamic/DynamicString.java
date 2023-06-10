@@ -5,14 +5,15 @@ import lombok.Getter;
 import marcel.lang.DynamicObject;
 
 @AllArgsConstructor
-public class DynamicString implements DynamicObject {
+public class DynamicString extends AbstractDynamicObject {
 
   @Getter
   private final String value;
 
   @Override
-  public DynamicObject plus(DynamicObject object) {
-    if (object.getValue() instanceof String) return DynamicObject.of(value + object.getValue().toString());
-    throw new IllegalArgumentException("Cannot add a String with " + object.getValue().getClass().getSimpleName());
+  public DynamicObject plus(Object object) {
+    Object o = getRealValue(object);
+    if (o instanceof CharSequence) return DynamicObject.of(value + o);
+    throw new MissingMethodException(getValue().getClass(), "plus", new Object[]{object});
   }
 }

@@ -1,0 +1,27 @@
+package marcel.lang.tests
+
+import org.junit.jupiter.api.Test
+
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+class DynamicTest {
+
+  @Test
+  fun void testDynamicInteger() {
+    DynamicObject o = 1
+    assertEquals(4, (o + 3).value)
+  }
+
+  @Test
+  fun void testDynamicMap() {
+    DynamicObject o = ['foo': 1]
+    o['bar'] = 2
+    assertEquals(['foo': 1, 'bar': 2], o.value)
+  }
+
+  @Test
+  fun void testInvokeMethod() {
+    DynamicObject o = Optional.of(5)
+    assertEquals(false, o.isEmpty())
+  }
+}

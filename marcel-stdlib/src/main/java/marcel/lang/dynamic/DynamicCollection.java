@@ -7,16 +7,16 @@ import marcel.lang.DynamicObject;
 import java.util.Collection;
 
 @AllArgsConstructor
-abstract class DynamicCollection  implements DynamicObject {
+abstract class DynamicCollection extends AbstractDynamicObject {
   @Getter
   Collection value;
 
 
   @Override
-  public DynamicObject plus(DynamicObject object) {
-    Object o = object.getValue();
+  public DynamicObject plus(Object object) {
+    Object o = getRealValue(object);
     if (!(o instanceof Collection)) {
-      throw new IllegalArgumentException("Cannot add to a collection a value of type " + o.getClass().getSimpleName());
+      throw new MissingMethodException(getValue().getClass(), "plus", new Object[]{object});
     }
     Collection c = copy();
     c.addAll((Collection) o);

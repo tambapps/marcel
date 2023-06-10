@@ -21,6 +21,7 @@ import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
+import marcel.lang.DynamicObject
 import marcel.lang.runtime.BytecodeHelper
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
@@ -100,14 +101,14 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
     if (method.isConstructor) {
       throw RuntimeException("Compiler error. Shouldn't invoke constructor this way")
     }
-    mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, method.name, method.descriptor, !method.isStatic && method.ownerClass.isInterface)
+    mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, method.name, method.descriptor, method.ownerClass.isInterface)
     if (method.actualReturnType != method.returnType) {
       castIfNecessaryOrThrow(scope, from, method.actualReturnType, method.returnType)
     }
   }
   private fun pushFunctionCallArguments(from: AstNode, scope: Scope, method: JavaMethod, arguments: List<ExpressionNode>) {
     if (method.parameters.size != arguments.size) {
-      throw MarcelSemanticException(from.token, "Tried to call function $method with ${arguments.size} instead of ${method.parameters.size}")
+      throw MarcelSemanticException(from.token, "Tried to call function $method with ${arguments.size} arguments instead of ${method.parameters.size}")
     }
     for (i in method.parameters.indices) {
       val expectedType = method.parameters[i].type
@@ -270,6 +271,11 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
   // must push expression before calling this method
   fun castIfNecessaryOrThrow(scope: Scope, from: AstNode, expectedType: JavaType, actualType: JavaType) {
     if (expectedType != actualType) {
+      if (expectedType == JavaType.DynamicObject) {
+        castIfNecessaryOrThrow(scope, from, JavaType.Object, actualType) // to handle primitives
+        invokeMethod(from, scope, DynamicObject::class.java.getMethod("of", JavaType.Object.realClazz))
+        return
+      }
       if (expectedType.primitive && actualType.primitive) {
         val castInstruction = JavaType.PRIMITIVE_CAST_INSTRUCTION_MAP[Pair(actualType, expectedType)]
         if (castInstruction != null) {

@@ -9,7 +9,9 @@ import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
+import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import marcel.lang.DelegatedObject
+import marcel.lang.DynamicObject
 
 interface FunctionCallNode: ExpressionNode, ScopedNode<Scope> {
 
@@ -74,13 +76,16 @@ open class SimpleFunctionCallNode constructor(
         }
       }
     }
-   return if (methodOwnerType != null) typeResolver.findMethodOrThrow(typeResolver.resolve(methodOwnerType!!), name,
-      arguments.map { it.accept(typeResolver) })
+   return if (methodOwnerType?.accept(typeResolver) == JavaType.DynamicObject) ReflectJavaMethod(DynamicObject::class.java.getMethod("invokeMethod", String::class.java, JavaType.objectArray.realClazz))
+    else if (methodOwnerType != null) typeResolver.findMethodOrThrow(typeResolver.resolve(methodOwnerType!!), name, arguments.map { it.accept(typeResolver) })
     else scope.findMethodOrThrow(name, arguments.map { it.accept(typeResolver) })
   }
 
   override fun getArguments(typeResolver: AstNodeTypeResolver): List<ExpressionNode> {
     val method = getMethod(typeResolver)
+    if (methodOwnerType?.accept(typeResolver) == JavaType.DynamicObject) {
+      return listOf(StringConstantNode(token, name), LiteralArrayNode(token, JavaType.objectArray, arguments))
+    }
     val parametersSublist = method.parameters.subList(arguments.size, method.parameters.size)
     if (parametersSublist.all { it.hasDefaultValue }) {
       // we may want to call a function with positional arguments and with all following arguments having a default value

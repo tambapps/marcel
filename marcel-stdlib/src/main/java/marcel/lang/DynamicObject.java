@@ -8,6 +8,8 @@ import marcel.lang.dynamic.DynamicNumber;
 import marcel.lang.dynamic.DynamicQueue;
 import marcel.lang.dynamic.DynamicSet;
 import marcel.lang.dynamic.DynamicString;
+import marcel.lang.dynamic.MissingMethodException;
+import marcel.lang.dynamic.MissingPropertyException;
 
 import java.util.List;
 import java.util.Map;
@@ -17,36 +19,40 @@ import java.util.Set;
 public interface DynamicObject {
 
   default DynamicObject getAt(Object key) {
-    throw new UnsupportedOperationException();
+    throw new MissingMethodException(getValue().getClass(), "getAt", new Object[]{key});
   }
 
   default DynamicObject putAt(Object key, Object value) {
-    throw new UnsupportedOperationException();
+    throw new MissingMethodException(getValue().getClass(), "putAt", new Object[]{key, value});
   }
 
   default DynamicObject getProperty(String name) {
-    throw new UnsupportedOperationException();
+    throw new MissingPropertyException(getValue().getClass(), name);
   }
 
-  default void setProperty(String name, Object value) {
-    throw new UnsupportedOperationException();
+  default DynamicObject setProperty(String name, Object value) {
+    throw new MissingPropertyException(getValue().getClass(), name);
+  }
+
+  default DynamicObject invokeMethod(String name, Object... args) {
+    throw new MissingMethodException(getValue().getClass(), name, args);
   }
 
   // TODO do these operators for all classes
-  default DynamicObject plus(DynamicObject object) {
-    throw new UnsupportedOperationException();
+  default DynamicObject plus(Object object) {
+    throw new MissingMethodException(getValue().getClass(), "plus", new Object[]{object});
   }
 
-  default DynamicObject minus(DynamicObject object) {
-    throw new UnsupportedOperationException();
+  default DynamicObject minus(Object object) {
+    throw new MissingMethodException(getValue().getClass(), "minus", new Object[]{object});
   }
 
-  default DynamicObject multiply(DynamicObject object) {
-    throw new UnsupportedOperationException();
+  default DynamicObject multiply(Object object) {
+    throw new MissingMethodException(getValue().getClass(), "multiply", new Object[]{object});
   }
 
-  default DynamicObject div(DynamicObject object) {
-    throw new UnsupportedOperationException();
+  default DynamicObject div(Object object) {
+    throw new MissingMethodException(getValue().getClass(), "div", new Object[]{object});
   }
 
   Object getValue();
@@ -64,5 +70,4 @@ public interface DynamicObject {
     else if (o instanceof Map) return new DynamicMap((Map) o);
     else return new DefaultDynamicObject(o);
   }
-
 }

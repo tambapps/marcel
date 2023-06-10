@@ -16,6 +16,7 @@ import com.tambapps.marcel.parser.ast.expression.ShortConstantNode
 import com.tambapps.marcel.parser.ast.expression.VoidExpression
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.Scope
+import marcel.lang.DynamicObject
 import marcel.lang.MarcelClassLoader
 import marcel.lang.Script
 import marcel.lang.lambda.Lambda
@@ -235,7 +236,9 @@ interface JavaType: AstTypedObject {
           else -> throw MarcelSemanticException("Doesn't handle primitive $elementsType arrays")
         }
       }
-      return if (elementsType.isLoaded) LoadedJavaArrayType(elementsType.realClazz.arrayType())
+
+      // this is the only way to get the array class of a class, pre java 12
+      return if (elementsType.isLoaded) LoadedJavaArrayType(java.lang.reflect.Array.newInstance(elementsType.realClazz, 0).javaClass)
       else NotLoadedJavaArrayType(elementsType)
     }
     fun of(className: String, genericTypes: List<JavaType>): JavaType {
@@ -266,6 +269,7 @@ interface JavaType: AstTypedObject {
 
     val Object = LoadedObjectType(Object::class.java)
     val String = LoadedObjectType(String::class.java)
+    val DynamicObject = LoadedObjectType(DynamicObject::class.java)
     val Boolean = LoadedObjectType(Class.forName("java.lang.Boolean"))
     val Integer = LoadedObjectType(Class.forName("java.lang.Integer"))
     val Long = LoadedObjectType(Class.forName("java.lang.Long"))
