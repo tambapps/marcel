@@ -1,6 +1,5 @@
 package marcel.lang.extensions
 
-
 extension class CharacterExtensions for Character {
 
   fun String toString() {

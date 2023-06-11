@@ -1,4 +1,4 @@
-package com.tambapps.marcel.compiler
+package com.tambapps.marcel.cl
 
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Disabled
