@@ -75,7 +75,7 @@ public abstract class AbstractFloatList extends AbstractFloatCollection implemen
 	 * @implSpec This implementation always throws an {@link UnsupportedOperationException}.
 	 */
 	@Override
-	public float set(final int index, final float k) {
+	public float putAt(final int index, final float k) {
 	 throw new UnsupportedOperationException();
 	}
 	/** Adds all of the elements in the specified collection to this list (optional operation). */
@@ -250,7 +250,7 @@ public abstract class AbstractFloatList extends AbstractFloatCollection implemen
 	 if (this instanceof java.util.RandomAccess) {
 	  int current = from;
      while (length-- != 0) {
-       a[offset++] = getFloat(current++);
+       a[offset++] = getAt(current++);
      }
 	 } else {
 	  FloatListIterator i = listIterator(from);
@@ -269,7 +269,7 @@ public abstract class AbstractFloatList extends AbstractFloatCollection implemen
     }
 	 if (this instanceof java.util.RandomAccess) {
 	  for (int i = 0; i < length; ++i) {
-	   set(i + index, a[i + offset]);
+	   putAt(i + index, a[i + offset]);
 	  }
 	 } else {
 	  FloatListIterator iter = listIterator(index);
@@ -486,9 +486,9 @@ public abstract class AbstractFloatList extends AbstractFloatCollection implemen
 	  return l.addAll(from + index, c);
 	 }
 	 @Override
-	 public float getFloat(final int index) {
+	 public float getAt(final int index) {
 	  ensureRestrictedIndex(index);
-	  return l.getFloat(from + index);
+	  return l.getAt(from + index);
 	 }
 	 @Override
 	 public float removeAt(final int index) {
@@ -497,9 +497,9 @@ public abstract class AbstractFloatList extends AbstractFloatCollection implemen
 	  return l.removeAt(from + index);
 	 }
 	 @Override
-	 public float set(final int index, final float k) {
+	 public float putAt(final int index, final float k) {
 	  ensureRestrictedIndex(index);
-	  return l.set(from + index, k);
+	  return l.putAt(from + index, k);
 	 }
 	 @Override
 	 public int size() {

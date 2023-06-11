@@ -206,4 +206,14 @@ public interface IntCollection extends Collection<Integer>, IntIterable {
     return max;
   }
 
+
+  /**
+   * Add an element to the list
+   *
+   * @param value the value to add
+   * @return whether the value was added or not
+   */
+  default boolean leftShift(int value) {
+    return add(value);
+  }
 }

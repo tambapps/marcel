@@ -3,7 +3,6 @@ package marcel.lang.primitives.collections.maps;
 import marcel.lang.primitives.Hash;
 import marcel.lang.primitives.collections.lists.LongArrayList;
 import marcel.lang.primitives.collections.sets.AbstractLongSet;
-import marcel.lang.primitives.collections.sets.LongOpenHashSet;
 import marcel.lang.primitives.collections.sets.LongSet;
 import marcel.lang.primitives.iterators.LongIterator;
 import marcel.lang.primitives.spliterators.LongSpliterator;
@@ -536,7 +535,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 				if (--pos < 0) {
 					// We are just enumerating elements from the wrapped list.
 					last = Integer.MIN_VALUE;
-					final long k = wrapped.getLong(- pos - 1);
+					final long k = wrapped.getAt(- pos - 1);
 					int p = (int)Hash.mix( (k) ) & mask;
 					while (! ( (k) == (key[p]) )) p = (p + 1) & mask;
 					return p;
@@ -555,7 +554,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 				if (--pos < 0) {
 					// We are just enumerating elements from the wrapped list.
 					last = Integer.MIN_VALUE;
-					final long k = wrapped.getLong(- pos - 1);
+					final long k = wrapped.getAt(- pos - 1);
 					int p = (int)Hash.mix( (k) ) & mask;
 					while (! ( (k) == (key[p]) )) p = (p + 1) & mask;
 					acceptOnIndex(action, p);
@@ -605,7 +604,7 @@ public class Long2ObjectOpenHashMap <V> extends AbstractLong2ObjectMap<V> implem
 			else if (pos >= 0) shiftKeys(last);
 			else {
 				// We're removing wrapped entries.
-				Long2ObjectOpenHashMap.this.remove(wrapped.getLong(- pos - 1));
+				Long2ObjectOpenHashMap.this.remove(wrapped.getAt(- pos - 1));
 				last = -1; // Note that we must not decrement size
 				return;
 			}

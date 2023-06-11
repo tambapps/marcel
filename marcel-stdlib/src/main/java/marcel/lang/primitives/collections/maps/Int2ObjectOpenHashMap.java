@@ -534,7 +534,7 @@ public class Int2ObjectOpenHashMap <V> extends AbstractInt2ObjectMap <V> impleme
 	   if (--pos < 0) {
 	    // We are just enumerating elements from the wrapped list.
 	    last = Integer.MIN_VALUE;
-	    final int k = wrapped.getInt(- pos - 1);
+	    final int k = wrapped.getAt(- pos - 1);
 	    int p = ( Hash.mix( (k) ) ) & mask;
 	    while (! ( (k) == (key[p]) )) p = (p + 1) & mask;
 	    return p;
@@ -553,7 +553,7 @@ public class Int2ObjectOpenHashMap <V> extends AbstractInt2ObjectMap <V> impleme
 	   if (--pos < 0) {
 	    // We are just enumerating elements from the wrapped list.
 	    last = Integer.MIN_VALUE;
-	    final int k = wrapped.getInt(- pos - 1);
+	    final int k = wrapped.getAt(- pos - 1);
 	    int p = ( Hash.mix( (k) ) ) & mask;
 	    while (! ( (k) == (key[p]) )) p = (p + 1) & mask;
 	    acceptOnIndex(action, p);
@@ -603,7 +603,7 @@ public class Int2ObjectOpenHashMap <V> extends AbstractInt2ObjectMap <V> impleme
 	  else if (pos >= 0) shiftKeys(last);
 	  else {
 	   // We're removing wrapped entries.
-	   Int2ObjectOpenHashMap.this.remove(wrapped.getInt(- pos - 1));
+	   Int2ObjectOpenHashMap.this.remove(wrapped.getAt(- pos - 1));
 	   last = -1; // Note that we must not decrement size
 	   return;
 	  }

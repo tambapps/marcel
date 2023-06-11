@@ -183,4 +183,14 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
     }
     throw new NoSuchElementException();
   }
+
+  /**
+   * Add an element to the list
+   *
+   * @param value the value to add
+   * @return whether the value was added or not
+   */
+  default boolean leftShift(char value) {
+    return add(value);
+  }
 }

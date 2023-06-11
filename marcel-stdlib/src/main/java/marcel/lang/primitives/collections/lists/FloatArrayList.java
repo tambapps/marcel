@@ -279,7 +279,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 return true;
 	}
 	@Override
-	public float getFloat(final int index) {
+	public float getAt(final int index) {
     if (index >= size) {
       throw new IndexOutOfBoundsException(
           "Index (" + index + ") is greater than or equal to list size (" + size + ")");
@@ -325,7 +325,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 return true;
 	}
 	@Override
-	public float set(final int index, final float k) {
+	public float putAt(final int index, final float k) {
     if (index >= size) {
       throw new IndexOutOfBoundsException(
           "Index (" + index + ") is greater than or equal to list size (" + size + ")");
@@ -397,7 +397,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	  return a;
 	 }
 	 @Override
-	 public float getFloat(int i) {
+	 public float getAt(int i) {
 	  ensureRestrictedIndex(i);
 	  return a[i + from];
 	 }
@@ -692,7 +692,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
        if (last == -1) {
          throw new IllegalStateException();
        }
-	    FloatArrayList.this.set(last, k);
+	    FloatArrayList.this.putAt(last, k);
 	   }
 	   @Override
 	   public void remove() {

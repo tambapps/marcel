@@ -75,7 +75,7 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
 	 * @implSpec This implementation always throws an {@link UnsupportedOperationException}.
 	 */
 	@Override
-	public char set(final int index, final char k) {
+	public char putAt(final int index, final char k) {
 	 throw new UnsupportedOperationException();
 	}
 	/** Adds all of the elements in the specified collection to this list (optional operation). */
@@ -250,7 +250,7 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
 	 if (this instanceof java.util.RandomAccess) {
 	  int current = from;
      while (length-- != 0) {
-       a[offset++] = getCharacter(current++);
+       a[offset++] = getAt(current++);
      }
 	 } else {
 	  CharacterListIterator i = listIterator(from);
@@ -269,7 +269,7 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
     }
 	 if (this instanceof java.util.RandomAccess) {
 	  for (int i = 0; i < length; ++i) {
-	   set(i + index, a[i + offset]);
+	   putAt(i + index, a[i + offset]);
 	  }
 	 } else {
 	  CharacterListIterator iter = listIterator(index);
@@ -476,9 +476,9 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
 	  return l.addAll(from + index, c);
 	 }
 	 @Override
-	 public char getCharacter(final int index) {
+	 public char getAt(final int index) {
 	  ensureRestrictedIndex(index);
-	  return l.getCharacter(from + index);
+	  return l.getAt(from + index);
 	 }
 	 @Override
 	 public char removeAt(final int index) {
@@ -487,9 +487,9 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
 	  return l.removeAt(from + index);
 	 }
 	 @Override
-	 public char set(final int index, final char k) {
+	 public char putAt(final int index, final char k) {
 	  ensureRestrictedIndex(index);
-	  return l.set(from + index, k);
+	  return l.putAt(from + index, k);
 	 }
 	 @Override
 	 public int size() {

@@ -406,7 +406,7 @@ public class FloatOpenHashSet extends AbstractFloatSet implements java.io.Serial
 	   if (--pos < 0) {
 	    // We are just enumerating elements from the wrapped list.
 	    last = Integer.MIN_VALUE;
-	    return wrapped.getFloat(- pos - 1);
+	    return wrapped.getAt(- pos - 1);
 	   }
 	   if (! ( Float.floatToIntBits(key[pos]) == 0 )) return key[last = pos];
 	  }
@@ -449,7 +449,7 @@ public class FloatOpenHashSet extends AbstractFloatSet implements java.io.Serial
 	  else if (pos >= 0) shiftKeys(last);
 	  else {
 	   // We're removing wrapped entries.
-	   FloatOpenHashSet.this.remove(wrapped.getFloat(- pos - 1));
+	   FloatOpenHashSet.this.remove(wrapped.getAt(- pos - 1));
 	   last = -1; // Note that we must not decrement size
 	   return;
 	  }
@@ -469,7 +469,7 @@ public class FloatOpenHashSet extends AbstractFloatSet implements java.io.Serial
 	   if (--pos < 0) {
 	    // We are just enumerating elements from the wrapped list.
 	    last = Integer.MIN_VALUE;
-	    action.accept(wrapped.getFloat(- pos - 1));
+	    action.accept(wrapped.getAt(- pos - 1));
 	    c--;
 	   } else if (! ( Float.floatToIntBits(key[pos]) == 0 )) {
 	    action.accept(key[last = pos]);

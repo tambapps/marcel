@@ -421,7 +421,7 @@ public class IntOpenHashSet extends AbstractIntSet implements java.io.Serializab
 	   if (--pos < 0) {
 	    // We are just enumerating elements from the wrapped list.
 	    last = Integer.MIN_VALUE;
-	    return wrapped.getInt(- pos - 1);
+	    return wrapped.getAt(- pos - 1);
 	   }
 	   if (! ( (key[pos]) == (0) )) return key[last = pos];
 	  }
@@ -464,7 +464,7 @@ public class IntOpenHashSet extends AbstractIntSet implements java.io.Serializab
 	  else if (pos >= 0) shiftKeys(last);
 	  else {
 	   // We're removing wrapped entries.
-	   IntOpenHashSet.this.remove(wrapped.getInt(- pos - 1));
+	   IntOpenHashSet.this.remove(wrapped.getAt(- pos - 1));
 	   last = -1; // Note that we must not decrement size
 	   return;
 	  }
@@ -485,7 +485,7 @@ public class IntOpenHashSet extends AbstractIntSet implements java.io.Serializab
 	   if (--pos < 0) {
 	    // We are just enumerating elements from the wrapped list.
 	    last = Integer.MIN_VALUE;
-	    action.accept(wrapped.getInt(- pos - 1));
+	    action.accept(wrapped.getAt(- pos - 1));
 	    c--;
 	   } else if (! ( (key[pos]) == (0) )) {
 	    action.accept(key[last = pos]);

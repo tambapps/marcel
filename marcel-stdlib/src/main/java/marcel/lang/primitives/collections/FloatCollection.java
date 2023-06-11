@@ -206,4 +206,15 @@ public interface FloatCollection extends Collection<Float>, FloatIterable {
     }
     return max;
   }
+
+
+  /**
+   * Add an element to the list
+   *
+   * @param value the value to add
+   * @return whether the value was added or not
+   */
+  default boolean leftShift(float value) {
+    return add(value);
+  }
 }

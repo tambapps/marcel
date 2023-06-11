@@ -54,7 +54,7 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 
 	@Override
 	default char charAt(int index) {
-		return getCharacter(index);
+		return getAt(index);
 	}
 
 
@@ -242,7 +242,7 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	/** Replaces the element at the specified position in this list with the specified element (optional operation).
 	 * @see List#set(int,Object)
 	 */
-	char set(int index, char k);
+	char putAt(int index, char k);
 	/**
 	 * Replaces each element of this list with the result of applying the
 	 * operator to that element. 
@@ -271,7 +271,7 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	/** Returns the element at the specified position in this list.
 	 * @see List#get(int)
 	 */
-	char getCharacter(int index);
+	char getAt(int index);
 	/** Returns the index of the first occurrence of the specified element in this list, or -1 if this list does not contain the element.
 	 * @see List#indexOf(Object)
 	 */
@@ -293,7 +293,7 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	@Deprecated
 	@Override
 	default Character get(int index) {
-	 return Character.valueOf(getCharacter(index));
+	 return Character.valueOf(getAt(index));
 	}
 	/** {@inheritDoc}
 	 * @deprecated Please use the corresponding type-specific method instead. */
@@ -342,7 +342,7 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	@Deprecated
 	@Override
 	default Character set(int index, Character k) {
-	 return Character.valueOf(set(index, (k).charValue()));
+	 return Character.valueOf(putAt(index, (k).charValue()));
 	}
 	/** Inserts all of the elements in the specified type-specific list into this type-specific list at the specified position (optional operation).
 	 * @apiNote This method exists only for the sake of efficiency: override are expected to use {@link #getElements}/{@link #addElements}.
@@ -390,9 +390,9 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	default void shuffle(final Random random) {
 		for(int i = size(); i-- != 0;) {
 			final int p = random.nextInt(i + 1);
-			final char t = getCharacter(i);
-			set(i, getCharacter(p));
-			set(p, t);
+			final char t = getAt(i);
+			putAt(i, getAt(p));
+			putAt(p, t);
 		}
 	}
 

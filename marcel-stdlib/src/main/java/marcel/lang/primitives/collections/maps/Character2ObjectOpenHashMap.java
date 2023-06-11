@@ -536,7 +536,7 @@ public class Character2ObjectOpenHashMap<V> extends AbstractCharacter2ObjectMap<
 				if (--pos < 0) {
 					// We are just enumerating elements from the wrapped list.
 					last = Integer.MIN_VALUE;
-					final char k = wrapped.getCharacter(- pos - 1);
+					final char k = wrapped.getAt(- pos - 1);
 					int p = (int)Hash.mix( (k) ) & mask;
 					while (! ( (k) == (key[p]) )) p = (p + 1) & mask;
 					return p;
@@ -555,7 +555,7 @@ public class Character2ObjectOpenHashMap<V> extends AbstractCharacter2ObjectMap<
 				if (--pos < 0) {
 					// We are just enumerating elements from the wrapped list.
 					last = Integer.MIN_VALUE;
-					final char k = wrapped.getCharacter(- pos - 1);
+					final char k = wrapped.getAt(- pos - 1);
 					int p = (int)Hash.mix( (k) ) & mask;
 					while (! ( (k) == (key[p]) )) p = (p + 1) & mask;
 					acceptOnIndex(action, p);
@@ -605,7 +605,7 @@ public class Character2ObjectOpenHashMap<V> extends AbstractCharacter2ObjectMap<
 			else if (pos >= 0) shiftKeys(last);
 			else {
 				// We're removing wrapped entries.
-				Character2ObjectOpenHashMap.this.remove(wrapped.getCharacter(- pos - 1));
+				Character2ObjectOpenHashMap.this.remove(wrapped.getAt(- pos - 1));
 				last = -1; // Note that we must not decrement size
 				return;
 			}

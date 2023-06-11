@@ -223,7 +223,7 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 	/** Replaces the element at the specified position in this list with the specified element (optional operation).
 	 * @see List#set(int,Object)
 	 */
-	double set(int index, double k);
+	double putAt(int index, double k);
 	/**
 	 * Replaces each element of this list with the result of applying the
 	 * operator to that element. 
@@ -252,7 +252,7 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 	/** Returns the element at the specified position in this list.
 	 * @see List#get(int)
 	 */
-	double getDouble(int index);
+	double getAt(int index);
 	/** Returns the index of the first occurrence of the specified element in this list, or -1 if this list does not contain the element.
 	 * @see List#indexOf(Object)
 	 */
@@ -274,7 +274,7 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 	@Deprecated
 	@Override
 	default Double get(int index) {
-	 return Double.valueOf(getDouble(index));
+	 return Double.valueOf(getAt(index));
 	}
 	/** {@inheritDoc}
 	 * @deprecated Please use the corresponding type-specific method instead. */
@@ -323,7 +323,7 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 	@Deprecated
 	@Override
 	default Double set(int index, Double k) {
-	 return Double.valueOf(set(index, (k).doubleValue()));
+	 return Double.valueOf(putAt(index, (k).doubleValue()));
 	}
 	/** Inserts all of the elements in the specified type-specific list into this type-specific list at the specified position (optional operation).
 	 * @apiNote This method exists only for the sake of efficiency: override are expected to use {@link #getElements}/{@link #addElements}.
@@ -371,25 +371,25 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 	default void shuffle(final Random random) {
 		for(int i = size(); i-- != 0;) {
 			final int p = random.nextInt(i + 1);
-			final double t = getDouble(i);
-			set(i, getDouble(p));
-			set(p, t);
+			final double t = getAt(i);
+			putAt(i, getAt(p));
+			putAt(p, t);
 		}
 	}
 
 	default double sum() {
 		double sum = 0;
 		for (int i = 0; i < size(); i++) {
-			sum += getDouble(i);
+			sum += getAt(i);
 		}
 		return sum;
 	}
 
 	default double min() {
 		if (isEmpty()) throw new NoSuchElementException();
-		double min = getDouble(0);
+		double min = getAt(0);
 		for (int i = 1; i < size(); i++) {
-			double e = getDouble(i);
+			double e = getAt(i);
 			if (e < min) min = e;
 		}
 		return min;
@@ -397,9 +397,9 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 
 	default double max() {
 		if (isEmpty()) throw new NoSuchElementException();
-		double max = getDouble(0);
+		double max = getAt(0);
 		for (int i = 1; i < size(); i++) {
-			double e = getDouble(i);
+			double e = getAt(i);
 			if (e > max) max = e;
 		}
 		return max;
@@ -417,9 +417,10 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 	default DoubleList filter(DoublePredicate predicate) {
 		DoubleList list = new DoubleArrayList(size());
 		for (int i = 0; i < size(); i++) {
-			double e = getDouble(i);
+			double e = getAt(i);
 			if (predicate.test(e)) list.add(e);
 		}
 		return list;
 	}
+
 }

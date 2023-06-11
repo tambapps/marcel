@@ -292,7 +292,7 @@ public class LongArrayList extends AbstractLongList implements RandomAccess, Clo
 	 return true;
 	}
 	@Override
-	public long getLong(final int index) {
+	public long getAt(final int index) {
     if (index >= size) {
       throw new IndexOutOfBoundsException(
           "Index (" + index + ") is greater than or equal to list size (" + size + ")");
@@ -338,7 +338,7 @@ public class LongArrayList extends AbstractLongList implements RandomAccess, Clo
 	 return true;
 	}
 	@Override
-	public long set(final int index, final long k) {
+	public long putAt(final int index, final long k) {
     if (index >= size) {
       throw new IndexOutOfBoundsException(
           "Index (" + index + ") is greater than or equal to list size (" + size + ")");
@@ -410,7 +410,7 @@ public class LongArrayList extends AbstractLongList implements RandomAccess, Clo
 	  return a;
 	 }
 	 @Override
-	 public long getLong(int i) {
+	 public long getAt(int i) {
 	  ensureRestrictedIndex(i);
 	  return a[i + from];
 	 }
@@ -705,7 +705,7 @@ public class LongArrayList extends AbstractLongList implements RandomAccess, Clo
        if (last == -1) {
          throw new IllegalStateException();
        }
-	    LongArrayList.this.set(last, k);
+	    LongArrayList.this.putAt(last, k);
 	   }
 	   @Override
 	   public void remove() {

@@ -292,7 +292,7 @@ public class DoubleArrayList extends AbstractDoubleList implements RandomAccess,
 	 return true;
 	}
 	@Override
-	public double getDouble(final int index) {
+	public double getAt(final int index) {
     if (index >= size) {
       throw new IndexOutOfBoundsException(
           "Index (" + index + ") is greater than or equal to list size (" + size + ")");
@@ -338,7 +338,7 @@ public class DoubleArrayList extends AbstractDoubleList implements RandomAccess,
 	 return true;
 	}
 	@Override
-	public double set(final int index, final double k) {
+	public double putAt(final int index, final double k) {
     if (index >= size) {
       throw new IndexOutOfBoundsException(
           "Index (" + index + ") is greater than or equal to list size (" + size + ")");
@@ -410,7 +410,7 @@ public class DoubleArrayList extends AbstractDoubleList implements RandomAccess,
 	  return a;
 	 }
 	 @Override
-	 public double getDouble(int i) {
+	 public double getAt(int i) {
 	  ensureRestrictedIndex(i);
 	  return a[i + from];
 	 }
@@ -705,7 +705,7 @@ public class DoubleArrayList extends AbstractDoubleList implements RandomAccess,
        if (last == -1) {
          throw new IllegalStateException();
        }
-	    DoubleArrayList.this.set(last, k);
+	    DoubleArrayList.this.putAt(last, k);
 	   }
 	   @Override
 	   public void remove() {

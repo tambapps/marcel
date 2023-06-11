@@ -205,4 +205,15 @@ public interface LongCollection extends Collection<Long>, LongIterable {
     }
     return max;
   }
+
+
+  /**
+   * Add an element to the list
+   *
+   * @param value the value to add
+   * @return whether the value was added or not
+   */
+  default boolean leftShift(long value) {
+    return add(value);
+  }
 }

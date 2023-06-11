@@ -223,7 +223,7 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 	/** Replaces the element at the specified position in this list with the specified element (optional operation).
 	 * @see List#set(int,Object)
 	 */
-	long set(int index, long k);
+	long putAt(int index, long k);
 	/**
 	 * Replaces each element of this list with the result of applying the
 	 * operator to that element. 
@@ -252,7 +252,7 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 	/** Returns the element at the specified position in this list.
 	 * @see List#get(int)
 	 */
-	long getLong(int index);
+	long getAt(int index);
 	/** Returns the index of the first occurrence of the specified element in this list, or -1 if this list does not contain the element.
 	 * @see List#indexOf(Object)
 	 */
@@ -274,7 +274,7 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 	@Deprecated
 	@Override
 	default Long get(int index) {
-	 return Long.valueOf(getLong(index));
+	 return Long.valueOf(getAt(index));
 	}
 	/** {@inheritDoc}
 	 * @deprecated Please use the corresponding type-specific method instead. */
@@ -323,7 +323,7 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 	@Deprecated
 	@Override
 	default Long set(int index, Long k) {
-	 return Long.valueOf(set(index, (k).longValue()));
+	 return Long.valueOf(putAt(index, (k).longValue()));
 	}
 	/** Inserts all of the elements in the specified type-specific list into this type-specific list at the specified position (optional operation).
 	 * @apiNote This method exists only for the sake of efficiency: override are expected to use {@link #getElements}/{@link #addElements}.
@@ -371,17 +371,17 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 	default void shuffle(final Random random) {
 		for(int i = size(); i-- != 0;) {
 			final int p = random.nextInt(i + 1);
-			final long t = getLong(i);
-			set(i, getLong(p));
-			set(p, t);
+			final long t = getAt(i);
+			putAt(i, getAt(p));
+			putAt(p, t);
 		}
 	}
 
 	default long min() {
 		if (isEmpty()) throw new NoSuchElementException();
-		long min = getLong(0);
+		long min = getAt(0);
 		for (int i = 1; i < size(); i++) {
-			long e = getLong(i);
+			long e = getAt(i);
 			if (e < min) min = e;
 		}
 		return min;
@@ -389,9 +389,9 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 
 	default long max() {
 		if (isEmpty()) throw new NoSuchElementException();
-		long max = getLong(0);
+		long max = getAt(0);
 		for (int i = 1; i < size(); i++) {
-			long e = getLong(i);
+			long e = getAt(i);
 			if (e > max) max = e;
 		}
 		return max;
@@ -400,7 +400,7 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 	default long sum() {
 		long sum = 0;
 		for (int i = 0; i < size(); i++) {
-			sum += getLong(i);
+			sum += getAt(i);
 		}
 		return sum;
 	}
@@ -417,10 +417,11 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 	default LongList filter(LongPredicate predicate) {
 		LongList list = new LongArrayList(size());
 		for (int i = 0; i < size(); i++) {
-			long e = getLong(i);
+			long e = getAt(i);
 			if (predicate.test(e)) list.add(e);
 		}
 		return list;
 	}
+
 
 }

@@ -280,7 +280,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 return true;
 	}
 	@Override
-	public char getCharacter(final int index) {
+	public char getAt(final int index) {
     if (index >= size) {
       throw new IndexOutOfBoundsException(
           "Index (" + index + ") is greater than or equal to list size (" + size + ")");
@@ -326,7 +326,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 return true;
 	}
 	@Override
-	public char set(final int index, final char k) {
+	public char putAt(final int index, final char k) {
     if (index >= size) {
       throw new IndexOutOfBoundsException(
           "Index (" + index + ") is greater than or equal to list size (" + size + ")");
@@ -398,7 +398,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	  return a;
 	 }
 	 @Override
-	 public char getCharacter(int i) {
+	 public char getAt(int i) {
 	  ensureRestrictedIndex(i);
 	  return a[i + from];
 	 }
@@ -693,7 +693,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
        if (last == -1) {
          throw new IllegalStateException();
        }
-	    CharacterArrayList.this.set(last, k);
+	    CharacterArrayList.this.putAt(last, k);
 	   }
 	   @Override
 	   public void remove() {

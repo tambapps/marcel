@@ -421,7 +421,7 @@ public class LongOpenHashSet extends AbstractLongSet implements java.io.Serializ
 				if (--pos < 0) {
 					// We are just enumerating elements from the wrapped list.
 					last = Integer.MIN_VALUE;
-					return wrapped.getLong(- pos - 1);
+					return wrapped.getAt(- pos - 1);
 				}
 				if (! ( (key[pos]) == (0) )) return key[last = pos];
 			}
@@ -464,7 +464,7 @@ public class LongOpenHashSet extends AbstractLongSet implements java.io.Serializ
 			else if (pos >= 0) shiftKeys(last);
 			else {
 				// We're removing wrapped entries.
-				LongOpenHashSet.this.remove(wrapped.getLong(- pos - 1));
+				LongOpenHashSet.this.remove(wrapped.getAt(- pos - 1));
 				last = -1; // Note that we must not decrement size
 				return;
 			}
@@ -485,7 +485,7 @@ public class LongOpenHashSet extends AbstractLongSet implements java.io.Serializ
 				if (--pos < 0) {
 					// We are just enumerating elements from the wrapped list.
 					last = Integer.MIN_VALUE;
-					action.accept(wrapped.getLong(- pos - 1));
+					action.accept(wrapped.getAt(- pos - 1));
 					c--;
 				} else if (! ( (key[pos]) == (0) )) {
 					action.accept(key[last = pos]);

@@ -421,7 +421,7 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 				if (--pos < 0) {
 					// We are just enumerating elements from the wrapped list.
 					last = Integer.MIN_VALUE;
-					return wrapped.getCharacter(- pos - 1);
+					return wrapped.getAt(- pos - 1);
 				}
 				if (! ( (key[pos]) == (0) )) return key[last = pos];
 			}
@@ -464,7 +464,7 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 			else if (pos >= 0) shiftKeys(last);
 			else {
 				// We're removing wrapped entries.
-				CharacterOpenHashSet.this.remove(wrapped.getCharacter(- pos - 1));
+				CharacterOpenHashSet.this.remove(wrapped.getAt(- pos - 1));
 				last = -1; // Note that we must not decrement size
 				return;
 			}
@@ -484,7 +484,7 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 				if (--pos < 0) {
 					// We are just enumerating elements from the wrapped list.
 					last = Integer.MIN_VALUE;
-					action.accept(wrapped.getCharacter(- pos - 1));
+					action.accept(wrapped.getAt(- pos - 1));
 					c--;
 				} else if (! ( (key[pos]) == (0) )) {
 					action.accept(key[last = pos]);

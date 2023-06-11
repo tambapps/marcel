@@ -25,7 +25,6 @@ import marcel.lang.primitives.spliterators.IntSpliterator;
 import marcel.lang.util.Arrays;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Spliterator;
 import java.util.function.IntPredicate;
@@ -222,7 +221,7 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	/** Replaces the element at the specified position in this list with the specified element (optional operation).
 	 * @see List#set(int,Object)
 	 */
-	int set(int index, int k);
+	int putAt(int index, int k);
 	/**
 	 * Replaces each element of this list with the result of applying the
 	 * operator to that element. 
@@ -251,7 +250,7 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	/** Returns the element at the specified position in this list.
 	 * @see List#get(int)
 	 */
-	int getInt(int index);
+	int getAt(int index);
 	/** Returns the index of the first occurrence of the specified element in this list, or -1 if this list does not contain the element.
 	 * @see List#indexOf(Object)
 	 */
@@ -273,7 +272,7 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	@Deprecated
 	@Override
 	default Integer get(int index) {
-	 return Integer.valueOf(getInt(index));
+	 return Integer.valueOf(getAt(index));
 	}
 	/** {@inheritDoc}
 	 * @deprecated Please use the corresponding type-specific method instead. */
@@ -322,7 +321,7 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	@Deprecated
 	@Override
 	default Integer set(int index, Integer k) {
-	 return Integer.valueOf(set(index, (k).intValue()));
+	 return Integer.valueOf(putAt(index, (k).intValue()));
 	}
 	/** Inserts all of the elements in the specified type-specific list into this type-specific list at the specified position (optional operation).
 	 * @apiNote This method exists only for the sake of efficiency: override are expected to use {@link #getElements}/{@link #addElements}.
@@ -370,16 +369,16 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	default void shuffle(final Random random) {
 		for(int i = size(); i-- != 0;) {
 			final int p = random.nextInt(i + 1);
-			final int t = getInt(i);
-			set(i, getInt(p));
-			set(p, t);
+			final int t = getAt(i);
+			putAt(i, getAt(p));
+			putAt(p, t);
 		}
 	}
 
 	default int sum() {
 		int sum = 0;
 		for (int i = 0; i < size(); i++) {
-			sum += getInt(i);
+			sum += getAt(i);
 		}
 		return sum;
 	}
@@ -396,9 +395,10 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	default IntList filter(IntPredicate predicate) {
 		IntList list = new IntArrayList(size());
 		for (int i = 0; i < size(); i++) {
-			int e = getInt(i);
+			int e = getAt(i);
 			if (predicate.test(e)) list.add(e);
 		}
 		return list;
 	}
+
 }

@@ -223,7 +223,7 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 	/** Replaces the element at the specified position in this list with the specified element (optional operation).
 	 * @see List#set(int,Object)
 	 */
-	float set(int index, float k);
+	float putAt(int index, float k);
 	/**
 	 * Replaces each element of this list with the result of applying the
 	 * operator to that element. 
@@ -252,7 +252,7 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 	/** Returns the element at the specified position in this list.
 	 * @see List#get(int)
 	 */
-	float getFloat(int index);
+	float getAt(int index);
 	/** Returns the index of the first occurrence of the specified element in this list, or -1 if this list does not contain the element.
 	 * @see List#indexOf(Object)
 	 */
@@ -274,7 +274,7 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 	@Deprecated
 	@Override
 	default Float get(int index) {
-	 return Float.valueOf(getFloat(index));
+	 return Float.valueOf(getAt(index));
 	}
 	/** {@inheritDoc}
 	 * @deprecated Please use the corresponding type-specific method instead. */
@@ -323,7 +323,7 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 	@Deprecated
 	@Override
 	default Float set(int index, Float k) {
-	 return Float.valueOf(set(index, (k).floatValue()));
+	 return Float.valueOf(putAt(index, (k).floatValue()));
 	}
 	/** Inserts all of the elements in the specified type-specific list into this type-specific list at the specified position (optional operation).
 	 * @apiNote This method exists only for the sake of efficiency: override are expected to use {@link #getElements}/{@link #addElements}.
@@ -371,17 +371,17 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 	default void shuffle(final Random random) {
 		for(int i = size(); i-- != 0;) {
 			final int p = random.nextInt(i + 1);
-			final float t = getFloat(i);
-			set(i, getFloat(p));
-			set(p, t);
+			final float t = getAt(i);
+			putAt(i, getAt(p));
+			putAt(p, t);
 		}
 	}
 
 	default float min() {
 		if (isEmpty()) throw new NoSuchElementException();
-		float min = getFloat(0);
+		float min = getAt(0);
 		for (int i = 1; i < size(); i++) {
-			float e = getFloat(i);
+			float e = getAt(i);
 			if (e < min) min = e;
 		}
 		return min;
@@ -389,9 +389,9 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 
 	default float max() {
 		if (isEmpty()) throw new NoSuchElementException();
-		float max = getFloat(0);
+		float max = getAt(0);
 		for (int i = 1; i < size(); i++) {
-			float e = getFloat(i);
+			float e = getAt(i);
 			if (e > max) max = e;
 		}
 		return max;
@@ -400,7 +400,7 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 	default float sum() {
 		float sum = 0;
 		for (int i = 0; i < size(); i++) {
-			sum += getFloat(i);
+			sum += getAt(i);
 		}
 		return sum;
 	}
@@ -408,7 +408,7 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 	default FloatList filter(FloatPredicate predicate) {
 		FloatList list = new FloatArrayList(size());
 		for (int i = 0; i < size(); i++) {
-			float e = getFloat(i);
+			float e = getAt(i);
 			if (predicate.test(e)) list.add(e);
 		}
 		return list;
@@ -422,4 +422,6 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 		}
 		return set;
 	}
+
+
 }

@@ -75,7 +75,7 @@ public abstract class AbstractDoubleList extends AbstractDoubleCollection implem
 	 * @implSpec This implementation always throws an {@link UnsupportedOperationException}.
 	 */
 	@Override
-	public double set(final int index, final double k) {
+	public double putAt(final int index, final double k) {
 	 throw new UnsupportedOperationException();
 	}
 	/** Adds all of the elements in the specified collection to this list (optional operation). */
@@ -250,7 +250,7 @@ public abstract class AbstractDoubleList extends AbstractDoubleCollection implem
 	 if (this instanceof java.util.RandomAccess) {
 	  int current = from;
      while (length-- != 0) {
-       a[offset++] = getDouble(current++);
+       a[offset++] = getAt(current++);
      }
 	 } else {
 	  DoubleListIterator i = listIterator(from);
@@ -269,7 +269,7 @@ public abstract class AbstractDoubleList extends AbstractDoubleCollection implem
     }
 	 if (this instanceof java.util.RandomAccess) {
 	  for (int i = 0; i < length; ++i) {
-	   set(i + index, a[i + offset]);
+	   putAt(i + index, a[i + offset]);
 	  }
 	 } else {
 	  DoubleListIterator iter = listIterator(index);
@@ -487,9 +487,9 @@ public abstract class AbstractDoubleList extends AbstractDoubleCollection implem
 	  return l.addAll(from + index, c);
 	 }
 	 @Override
-	 public double getDouble(final int index) {
+	 public double getAt(final int index) {
 	  ensureRestrictedIndex(index);
-	  return l.getDouble(from + index);
+	  return l.getAt(from + index);
 	 }
 	 @Override
 	 public double removeAt(final int index) {
@@ -498,9 +498,9 @@ public abstract class AbstractDoubleList extends AbstractDoubleCollection implem
 	  return l.removeAt(from + index);
 	 }
 	 @Override
-	 public double set(final int index, final double k) {
+	 public double putAt(final int index, final double k) {
 	  ensureRestrictedIndex(index);
-	  return l.set(from + index, k);
+	  return l.putAt(from + index, k);
 	 }
 	 @Override
 	 public int size() {

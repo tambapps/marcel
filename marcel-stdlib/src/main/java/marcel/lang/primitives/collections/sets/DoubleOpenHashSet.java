@@ -421,7 +421,7 @@ public class DoubleOpenHashSet extends AbstractDoubleSet implements java.io.Seri
 	   if (--pos < 0) {
 	    // We are just enumerating elements from the wrapped list.
 	    last = Integer.MIN_VALUE;
-	    return wrapped.getDouble(- pos - 1);
+	    return wrapped.getAt(- pos - 1);
 	   }
 	   if (! ( Double.doubleToLongBits(key[pos]) == 0 )) return key[last = pos];
 	  }
@@ -464,7 +464,7 @@ public class DoubleOpenHashSet extends AbstractDoubleSet implements java.io.Seri
 	  else if (pos >= 0) shiftKeys(last);
 	  else {
 	   // We're removing wrapped entries.
-	   DoubleOpenHashSet.this.remove(wrapped.getDouble(- pos - 1));
+	   DoubleOpenHashSet.this.remove(wrapped.getAt(- pos - 1));
 	   last = -1; // Note that we must not decrement size
 	   return;
 	  }
@@ -485,7 +485,7 @@ public class DoubleOpenHashSet extends AbstractDoubleSet implements java.io.Seri
 	   if (--pos < 0) {
 	    // We are just enumerating elements from the wrapped list.
 	    last = Integer.MIN_VALUE;
-	    action.accept(wrapped.getDouble(- pos - 1));
+	    action.accept(wrapped.getAt(- pos - 1));
 	    c--;
 	   } else if (! ( Double.doubleToLongBits(key[pos]) == 0 )) {
 	    action.accept(key[last = pos]);

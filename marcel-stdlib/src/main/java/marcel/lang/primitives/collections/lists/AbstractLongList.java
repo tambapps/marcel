@@ -75,7 +75,7 @@ public abstract class AbstractLongList extends AbstractLongCollection implements
 	 * @implSpec This implementation always throws an {@link UnsupportedOperationException}.
 	 */
 	@Override
-	public long set(final int index, final long k) {
+	public long putAt(final int index, final long k) {
 	 throw new UnsupportedOperationException();
 	}
 	/** Adds all of the elements in the specified collection to this list (optional operation). */
@@ -250,7 +250,7 @@ public abstract class AbstractLongList extends AbstractLongCollection implements
 	 if (this instanceof java.util.RandomAccess) {
 	  int current = from;
      while (length-- != 0) {
-       a[offset++] = getLong(current++);
+       a[offset++] = getAt(current++);
      }
 	 } else {
 	  LongListIterator i = listIterator(from);
@@ -269,7 +269,7 @@ public abstract class AbstractLongList extends AbstractLongCollection implements
     }
 	 if (this instanceof java.util.RandomAccess) {
 	  for (int i = 0; i < length; ++i) {
-	   set(i + index, a[i + offset]);
+	   putAt(i + index, a[i + offset]);
 	  }
 	 } else {
 	  LongListIterator iter = listIterator(index);
@@ -487,9 +487,9 @@ public abstract class AbstractLongList extends AbstractLongCollection implements
 	  return l.addAll(from + index, c);
 	 }
 	 @Override
-	 public long getLong(final int index) {
+	 public long getAt(final int index) {
 	  ensureRestrictedIndex(index);
-	  return l.getLong(from + index);
+	  return l.getAt(from + index);
 	 }
 	 @Override
 	 public long removeAt(final int index) {
@@ -498,9 +498,9 @@ public abstract class AbstractLongList extends AbstractLongCollection implements
 	  return l.removeAt(from + index);
 	 }
 	 @Override
-	 public long set(final int index, final long k) {
+	 public long putAt(final int index, final long k) {
 	  ensureRestrictedIndex(index);
-	  return l.set(from + index, k);
+	  return l.putAt(from + index, k);
 	 }
 	 @Override
 	 public int size() {

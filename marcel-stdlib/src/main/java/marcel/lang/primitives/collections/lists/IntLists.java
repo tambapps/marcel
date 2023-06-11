@@ -30,13 +30,13 @@ public final class IntLists {
 	 private static final long serialVersionUID = -7046029254386353129L;
 	 protected EmptyList() {}
 	 @Override
-	 public int getInt(int i) { throw new IndexOutOfBoundsException(); }
+	 public int getAt(int i) { throw new IndexOutOfBoundsException(); }
 	 @Override
 	 public boolean removeInt(int i) { throw new UnsupportedOperationException(); }
 	 @Override
 	 public void add(final int index, final int k) { throw new UnsupportedOperationException(); }
 	 @Override
-	 public int set(final int index, final int k) { throw new UnsupportedOperationException(); }
+	 public int putAt(final int index, final int k) { throw new UnsupportedOperationException(); }
 	 @Override
 	 public int indexOf(int k) { return -1; }
 	 @Override

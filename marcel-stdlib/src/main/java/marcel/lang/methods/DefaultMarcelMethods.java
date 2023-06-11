@@ -34,6 +34,10 @@ import java.util.function.ToLongFunction;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
+// TODO put ALL primitive list methods into the interface, don't need an extensino for them
+
+// TODO when using leftShift on a primitive collection, it uses the List<T> extension instead of the XXXCollection default method.
+//    extensions methods should always be looked up LAST so that this doesn't happens
 @SuppressWarnings({"unused", "deprecation"})
 public final class DefaultMarcelMethods {
 
@@ -222,93 +226,6 @@ public final class DefaultMarcelMethods {
     return self.add(value);
   }
 
-  /**
-   * Add an element to the list
-   *
-   * @param self  the list
-   * @param value the value to add
-   * @return whether the value was added or not
-   */
-  public static boolean leftShift(IntList self, int value) {
-    return self.add(value);
-  }
-
-  /**
-   * Add an element to the list
-   *
-   * @param self  the list
-   * @param value the value to add
-   * @return whether the value was added or not
-   */
-  public static boolean leftShift(LongList self, long value) {
-    return self.add(value);
-  }
-
-  /**
-   * Add an element to the list
-   *
-   * @param self  the list
-   * @param value the value to add
-   * @return whether the value was added or not
-   */
-  public static boolean leftShift(FloatList self, float value) {
-    return self.add(value);
-  }
-
-  /**
-   * Add an element to the list
-   *
-   * @param self  the list
-   * @param value the value to add
-   * @return whether the value was added or not
-   */
-  public static boolean leftShift(DoubleList self, double value) {
-    return self.add(value);
-  }
-
-  /**
-   * Add an element to the set
-   *
-   * @param self  the set
-   * @param value the value to add
-   * @return whether the value was added or not
-   */
-  public static boolean leftShift(IntSet self, int value) {
-    return self.add(value);
-  }
-
-  /**
-   * Add an element to the set
-   *
-   * @param self  the set
-   * @param value the value to add
-   * @return whether the value was added or not
-   */
-  public static boolean leftShift(LongSet self, long value) {
-    return self.add(value);
-  }
-
-  /**
-   * Add an element to the list
-   *
-   * @param self  the list
-   * @param value the value to add
-   * @return whether the value was added or not
-   */
-  public static boolean leftShift(FloatSet self, float value) {
-    return self.add(value);
-  }
-
-  /**
-   * Add an element to the list
-   *
-   * @param self  the list
-   * @param value the value to add
-   * @return whether the value was added or not
-   */
-  public static boolean leftShift(DoubleSet self, double value) {
-    return self.add(value);
-  }
 
   // last
 
@@ -330,7 +247,7 @@ public final class DefaultMarcelMethods {
    * @return the last element of the list
    */
   public static int getLast(IntList self) {
-    return self.getInt(self.size() - 1);
+    return self.getAt(self.size() - 1);
   }
 
   /**
@@ -340,7 +257,7 @@ public final class DefaultMarcelMethods {
    * @return the last element of the list
    */
   public static long getLast(LongList self) {
-    return self.getLong(self.size() - 1);
+    return self.getAt(self.size() - 1);
   }
 
   /**
@@ -350,7 +267,7 @@ public final class DefaultMarcelMethods {
    * @return the last element of the list
    */
   public static float getLast(FloatList self) {
-    return self.getFloat(self.size() - 1);
+    return self.getAt(self.size() - 1);
   }
 
   /**
@@ -360,7 +277,7 @@ public final class DefaultMarcelMethods {
    * @return the last element of the list
    */
   public static double getLast(DoubleList self) {
-    return self.getDouble(self.size() - 1);
+    return self.getAt(self.size() - 1);
   }
 
   // lastOrNull
@@ -398,7 +315,7 @@ public final class DefaultMarcelMethods {
    * @return the first element of the list
    */
   public static int getFirst(IntList self) {
-    return self.getInt(self.size() - 1);
+    return self.getAt(self.size() - 1);
   }
 
   /**
@@ -408,7 +325,7 @@ public final class DefaultMarcelMethods {
    * @return the first element of the list
    */
   public static long getFirst(LongList self) {
-    return self.getLong(self.size() - 1);
+    return self.getAt(self.size() - 1);
   }
 
   /**
@@ -418,7 +335,7 @@ public final class DefaultMarcelMethods {
    * @return the first element of the list
    */
   public static float getFirst(FloatList self) {
-    return self.getFloat(self.size() - 1);
+    return self.getAt(self.size() - 1);
   }
 
   /**
@@ -428,7 +345,7 @@ public final class DefaultMarcelMethods {
    * @return the first element of the list
    */
   public static double getFirst(DoubleList self) {
-    return self.getDouble(self.size() - 1);
+    return self.getAt(self.size() - 1);
   }
 
   // setLast
@@ -440,7 +357,7 @@ public final class DefaultMarcelMethods {
    * @param value the value to set
    */
   public static void setLast(IntList self, int value) {
-    self.set(self.size() - 1, value);
+    self.putAt(self.size() - 1, value);
   }
 
 
@@ -451,7 +368,7 @@ public final class DefaultMarcelMethods {
    * @param value the value to set
    */
   public static void setLast(LongList self, long value) {
-    self.set(self.size() - 1, value);
+    self.putAt(self.size() - 1, value);
   }
 
 
@@ -462,7 +379,7 @@ public final class DefaultMarcelMethods {
    * @param value the value to set
    */
   public static void setLast(FloatList self, float value) {
-    self.set(self.size() - 1, value);
+    self.putAt(self.size() - 1, value);
   }
 
 
@@ -473,7 +390,7 @@ public final class DefaultMarcelMethods {
    * @param value the value to set
    */
   public static void setLast(DoubleList self, double value) {
-    self.set(self.size() - 1, value);
+    self.putAt(self.size() - 1, value);
   }
 
 
@@ -488,8 +405,6 @@ public final class DefaultMarcelMethods {
     self.set(self.size() - 1, value);
   }
 
-  // getAt
-
   /**
    * Get the element at the specified index
    *
@@ -501,52 +416,6 @@ public final class DefaultMarcelMethods {
   public static <T> T getAt(List<T> self, int index) {
     return self.get(index);
   }
-
-  /**
-   * Get the element at the specified index
-   *
-   * @param self  the list
-   * @param index the index
-   * @return the element at the specified index
-   */
-  // TODO just put these method on the IntList interface, same for other primitives
-  public static int getAt(IntList self, int index) {
-    return self.getInt(index);
-  }
-
-  /**
-   * Get the element at the specified index
-   *
-   * @param self  the list
-   * @param index the index
-   * @return the element at the specified index
-   */
-  public static long getAt(LongList self, int index) {
-    return self.getLong(index);
-  }
-
-  /**
-   * Get the element at the specified index
-   *
-   * @param self  the list
-   * @param index the index
-   * @return the element at the specified index
-   */
-  public static float getAt(FloatList self, int index) {
-    return self.getFloat(index);
-  }
-
-  /**
-   * Get the element at the specified index
-   *
-   * @param self  the list
-   * @param index the index
-   * @return the element at the specified index
-   */
-  public static double getAt(DoubleList self, int index) {
-    return self.getDouble(index);
-  }
-
 
   // getAt range
 
@@ -779,19 +648,8 @@ public final class DefaultMarcelMethods {
    * @param index the index
    * @param value the value to set
    */
-  public static void putAt(IntList self, int index, int value) {
-    self.set(index, value);
-  }
-
-  /**
-   * Set the element at the specified index
-   *
-   * @param self  the list
-   * @param index the index
-   * @param value the value to set
-   */
   public static void putAt(LongList self, int index, long value) {
-    self.set(index, value);
+    self.putAt(index, value);
   }
 
   /**
@@ -802,7 +660,7 @@ public final class DefaultMarcelMethods {
    * @param value the value to set
    */
   public static void putAt(FloatList self, int index, float value) {
-    self.set(index, value);
+    self.putAt(index, value);
   }
 
   /**
@@ -813,7 +671,7 @@ public final class DefaultMarcelMethods {
    * @param value the value to set
    */
   public static void putAt(DoubleList self, int index, double value) {
-    self.set(index, value);
+    self.putAt(index, value);
   }
 
 }

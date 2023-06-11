@@ -291,7 +291,7 @@ public class IntArrayList extends AbstractIntList implements RandomAccess, Clone
 	 return true;
 	}
 	@Override
-	public int getInt(final int index) {
+	public int getAt(final int index) {
     if (index >= size) {
       throw new IndexOutOfBoundsException(
           "Index (" + index + ") is greater than or equal to list size (" + size + ")");
@@ -337,7 +337,7 @@ public class IntArrayList extends AbstractIntList implements RandomAccess, Clone
 	 return true;
 	}
 	@Override
-	public int set(final int index, final int k) {
+	public int putAt(final int index, final int k) {
     if (index >= size) {
       throw new IndexOutOfBoundsException(
           "Index (" + index + ") is greater than or equal to list size (" + size + ")");
@@ -409,7 +409,7 @@ public class IntArrayList extends AbstractIntList implements RandomAccess, Clone
 	  return a;
 	 }
 	 @Override
-	 public int getInt(int i) {
+	 public int getAt(int i) {
 	  ensureRestrictedIndex(i);
 	  return a[i + from];
 	 }
@@ -704,7 +704,7 @@ public class IntArrayList extends AbstractIntList implements RandomAccess, Clone
        if (last == -1) {
          throw new IllegalStateException();
        }
-	    IntArrayList.this.set(last, k);
+	    IntArrayList.this.putAt(last, k);
 	   }
 	   @Override
 	   public void remove() {
