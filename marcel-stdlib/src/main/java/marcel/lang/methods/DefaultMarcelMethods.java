@@ -509,6 +509,7 @@ public final class DefaultMarcelMethods {
    * @param index the index
    * @return the element at the specified index
    */
+  // TODO just put these method on the IntList interface, same for other primitives
   public static int getAt(IntList self, int index) {
     return self.getInt(index);
   }

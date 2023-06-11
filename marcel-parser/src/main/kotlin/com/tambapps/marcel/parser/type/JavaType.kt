@@ -161,11 +161,6 @@ interface JavaType: AstTypedObject {
     }
   }
 
-  fun getInterfaceGenericTypes(javaType: JavaType): List<JavaType> {
-    return if (javaType.className == this.className) genericTypes
-    else allImplementedInterfaces.find { it.className == javaType.className }!!.genericTypes
-  }
-
   companion object {
 
     fun newType(outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): JavaType {
@@ -726,6 +721,6 @@ class LazyJavaType internal constructor(private val scope: Scope,
   }
 
   override fun toString(): String {
-    return actualType.className
+    return if (_actualType == null) className else actualType.toString()
   }
 }

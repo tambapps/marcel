@@ -126,6 +126,7 @@ open class AstNodeTypeResolver constructor(
   }
 
   fun findMethodOrThrow(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>): JavaMethod {
+    // TODO pass token as argument to be able to have line and column on exception
     return findMethod(javaType, name, argumentTypes) ?: throw MarcelSemanticException("Method $javaType.$name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
 
@@ -221,7 +222,6 @@ open class AstNodeTypeResolver constructor(
 
   override fun visit(indexedReferenceExpression: IndexedReferenceExpression): JavaType {
     val elementType = if (indexedReferenceExpression.variable.type.isArray) (indexedReferenceExpression.variable.type.asArrayType).elementsType
-    else if (indexedReferenceExpression.variable.type.implements(JavaType.of(List::class.java))) indexedReferenceExpression.variable.type.getInterfaceGenericTypes(JavaType.of(List::class.java)).getOrElse(0) { JavaType.Object }
     else findMethodOrThrow(indexedReferenceExpression.variable.type, "getAt", indexedReferenceExpression.indexArguments.map { it.accept(this) }).actualReturnType
     // need object class for safe index because returned elements are nullable
     return if (indexedReferenceExpression.isSafeIndex) elementType.objectType else elementType
