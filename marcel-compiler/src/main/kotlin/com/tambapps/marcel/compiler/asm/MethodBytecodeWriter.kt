@@ -271,7 +271,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
   // must push expression before calling this method
   fun castIfNecessaryOrThrow(scope: Scope, from: AstNode, expectedType: JavaType, actualType: JavaType) {
     if (expectedType != actualType) {
-      if (expectedType == JavaType.DynamicObject) {
+      if (expectedType.implements(JavaType.DynamicObject)) {
         castIfNecessaryOrThrow(scope, from, JavaType.Object, actualType) // to handle primitives
         invokeMethod(from, scope, DynamicObject::class.java.getMethod("of", JavaType.Object.realClazz))
         return
@@ -414,6 +414,13 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
   fun storeInVariable(node: AstNode, scope: Scope, variable: Variable) {
     if (variable.isFinal && variable.alreadySet) throw MarcelSemanticException(node.token, "Cannot reset a value for final variable ${variable.name}")
     if (!variable.isAccessibleFrom(scope)) throw VariableNotAccessibleException(node.token, variable, scope.classType)
+
+    if (variable is DynamicMethodField && variable.owner.implements(JavaType.DynamicObject)) {
+      // need to push name
+      pushConstant(variable.name)
+      // then need to swap, because the name is the first argument, then value. (for method DynamicObject.setProperty(..)
+      mv.visitInsn(Opcodes.SWAP)
+    }
     when (variable) {
       is LocalVariable -> mv.visitVarInsn(variable.type.storeCode, variable.index)
 
@@ -441,6 +448,10 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
 
   fun getField(from: AstNode, scope: Scope, field: MarcelField) {
     if (!field.isAccessibleFrom(scope)) throw VariableNotAccessibleException(from.token, field, scope.classType)
+    if (field.owner.implements(JavaType.DynamicObject) && field is DynamicMethodField) {
+      // need to push name
+      pushConstant(field.name)
+    }
     when (field) {
       is ClassField -> {
         mv.visitFieldInsn(field.getCode, field.owner.internalName, field.name, field.type.descriptor)

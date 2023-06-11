@@ -19,6 +19,8 @@ class ReferenceExpression constructor(token: LexToken, override var scope: Scope
   }
   val variable: Variable
     get() = scope.findVariableOrThrow(name)
+  val variableExists: Boolean
+    get() = scope.findVariable(name) != null
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 

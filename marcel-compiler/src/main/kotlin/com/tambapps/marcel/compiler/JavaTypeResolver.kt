@@ -14,6 +14,7 @@ import com.tambapps.marcel.parser.ast.expression.LiteralArrayNode
 import com.tambapps.marcel.parser.ast.expression.LiteralMapNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.ClassField
+import com.tambapps.marcel.parser.scope.DynamicMethodField
 import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.scope.MethodField
 import com.tambapps.marcel.parser.scope.ReflectMarcelField
@@ -24,8 +25,10 @@ import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.NoArgJavaConstructor
 import com.tambapps.marcel.parser.type.ReflectJavaConstructor
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
+import marcel.lang.DynamicObject
 import marcel.lang.MarcelClassLoader
 import marcel.lang.methods.DefaultMarcelMethods
+import org.objectweb.asm.Opcodes
 
 open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNodeTypeResolver(classLoader) {
 
@@ -258,6 +261,13 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
       else getMoreSpecificMethod(setterCandidates)
     if (getterMethod != null || setterMethod != null) {
       return MethodField.from(javaType, name, getterMethod, setterMethod)
+    }
+
+    if (javaType.implements(JavaType.DynamicObject)) {
+      return DynamicMethodField(javaType, name, JavaType.DynamicObject,
+        ReflectJavaMethod(DynamicObject::class.java.getDeclaredMethod("getProperty", String::class.java)),
+        ReflectJavaMethod(DynamicObject::class.java.getDeclaredMethod("setProperty", String::class.java, JavaType.Object.realClazz)),
+        Opcodes.ACC_PUBLIC)
     }
     return null
   }

@@ -7,7 +7,7 @@ import marcel.lang.DynamicObject;
 import java.util.Map;
 
 @AllArgsConstructor
-public class DynamicMap implements DynamicObject {
+public class DynamicMap extends AbstractDynamicObject {
 
   @Getter
   private final Map value;
@@ -25,5 +25,10 @@ public class DynamicMap implements DynamicObject {
   @Override
   public DynamicObject getProperty(String name) {
     return getAt(name);
+  }
+
+  @Override
+  public DynamicObject setProperty(String name, Object value) {
+    return putAt(name, value);
   }
 }

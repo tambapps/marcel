@@ -2,15 +2,19 @@ package marcel.lang.dynamic;
 
 import lombok.SneakyThrows;
 import marcel.lang.DynamicObject;
+import marcel.lang.NoSuchPropertyException;
 
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+// TODO document that extensions are not handled by dynamic objects
 public abstract class AbstractDynamicObject implements DynamicObject {
 
   @Override
@@ -35,7 +39,51 @@ public abstract class AbstractDynamicObject implements DynamicObject {
     return o instanceof DynamicObject ? ((DynamicObject) o).getValue() : o;
   }
 
-  // TODO do get/set property and document that extensions are not handled by dynamic objects
+  @SneakyThrows
+  @Override
+  public DynamicObject getProperty(String name) {
+    String getterName = "get" +
+        Character.toUpperCase(name.charAt(0)) +
+        name.substring(1);
+    try {
+      Method method = findMethod(getValue().getClass(), getterName, new Object[0]);
+      return DynamicObject.of(method.invoke(getValue()));
+    } catch (MissingMethodException e) {
+      // try searching in fields
+      try {
+        Field field = getValue().getClass().getDeclaredField(name);
+        return DynamicObject.of(field.get(getValue()));
+      } catch (NoSuchFieldException e2) {
+        throw new NoSuchPropertyException(getValue().getClass(), name);
+      }
+    } catch (InvocationTargetException e) {
+      throw e.getCause();
+    }
+  }
+
+  @SneakyThrows
+  @Override
+  public DynamicObject setProperty(String name, Object value) {
+    String setterName = "set" +
+        Character.toUpperCase(name.charAt(0)) +
+        name.substring(1);
+    try {
+      Method method = findMethod(getValue().getClass(), setterName, new Object[] {value});
+      return DynamicObject.of(method.invoke(getValue(), value));
+    } catch (MissingMethodException e) {
+      // try searching in fields
+      try {
+        Field field = getValue().getClass().getDeclaredField(name);
+        field.set(getValue(), value);
+        return null;
+      } catch (NoSuchFieldException e2) {
+        throw new NoSuchPropertyException(getValue().getClass(), name);
+      }
+    } catch (InvocationTargetException e) {
+      throw e.getCause();
+    }
+  }
+
   @SneakyThrows
   @Override
   public DynamicObject invokeMethod(String name, Object... args) {
@@ -49,9 +97,10 @@ public abstract class AbstractDynamicObject implements DynamicObject {
   }
 
   private Method findMethod(Class<?> type, String name, Object[] args) {
+    Method foundMethod;
     if (Arrays.stream(args).allMatch(Objects::nonNull)) {
       try {
-        return type.getMethod(name, argsTypes(args));
+        foundMethod = type.getMethod(name, argsTypes(args));
       } catch (NoSuchMethodException e) {
         throw new MissingMethodException(type, name, args);
       }
@@ -62,14 +111,16 @@ public abstract class AbstractDynamicObject implements DynamicObject {
       if (methods.isEmpty()) {
         throw new MissingMethodException(type, name, args);
       } else if (methods.size() == 1) {
-        return methods.get(0);
+        foundMethod = methods.get(0);
       } else {
-        return methods.stream()
+        foundMethod = methods.stream()
             .filter(m -> parametersMatch(m, args))
             .findFirst()
             .orElseThrow(() -> new MissingMethodException(type, name, args));
       }
     }
+    if (!foundMethod.isAccessible()) foundMethod.setAccessible(true);
+    return foundMethod;
   }
 
   private static Class<?>[] argsTypes(Object[] args) {
@@ -79,6 +130,7 @@ public abstract class AbstractDynamicObject implements DynamicObject {
     }
     return classes;
   }
+
   private static boolean parametersMatch(Method method, Object[] args) {
     // assuming we've already checked method parameter size with args size
     Class<?>[] parameterTypes = method.getParameterTypes();

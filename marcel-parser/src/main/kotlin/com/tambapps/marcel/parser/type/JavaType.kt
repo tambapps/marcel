@@ -152,7 +152,7 @@ interface JavaType: AstTypedObject {
   }
 
   fun implements(javaType: JavaType, compareGenerics: Boolean = false): Boolean {
-    return allImplementedInterfaces.any {
+    return this == javaType || allImplementedInterfaces.any {
       if (compareGenerics) javaType == it
       else javaType.raw() == it.raw()
     }

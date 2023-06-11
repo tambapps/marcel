@@ -75,7 +75,7 @@ open class ClassField constructor(override val type: JavaType, override val name
 }
 
 // for getter/setters
-class MethodField constructor(override val type: JavaType, override val name: String, override val owner: JavaType,
+open class MethodField constructor(override val type: JavaType, override val name: String, override val owner: JavaType,
                   private val _getterMethod: JavaMethod?,
                   private val _setterMethod: JavaMethod?,
                               access: Int): AbstractField(access) {
@@ -85,9 +85,6 @@ class MethodField constructor(override val type: JavaType, override val name: St
 
   val getterMethod get() = _getterMethod!!
   val setterMethod get() = _setterMethod!!
-  val invokeCode =  if (isStatic) Opcodes.INVOKESTATIC
-  else if (owner.isInterface) Opcodes.INVOKEINTERFACE
-  else Opcodes.INVOKEVIRTUAL
 
   companion object {
     fun from(owner: JavaType, name: String, getterMethod: JavaMethod?, setterMethod: JavaMethod?): MethodField {
@@ -96,8 +93,16 @@ class MethodField constructor(override val type: JavaType, override val name: St
       return MethodField(type, name, owner, getterMethod, setterMethod, access)
     }
   }
-
 }
+
+class DynamicMethodField(
+  type: JavaType,
+  name: String,
+  owner: JavaType,
+  _getterMethod: JavaMethod?,
+  _setterMethod: JavaMethod?,
+  access: Int
+) : MethodField(type, name, owner, _getterMethod, _setterMethod, access)
 
 class ReflectMarcelField private constructor(
   override val type: JavaType,
