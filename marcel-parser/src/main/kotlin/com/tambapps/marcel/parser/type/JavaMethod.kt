@@ -63,6 +63,12 @@ interface JavaMethod {
     return visibility.canAccess(scope.classType, ownerClass)
   }
 
+  fun parametersAssignableTo(other: JavaMethod): Boolean {
+    if (parameters.size != other.parameters.size) return false
+    for (i in parameters.indices) if (!other.parameters[i].type.isAssignableFrom(parameters[i].type)) return false
+    return true
+  }
+
   fun parameterMatches(other: JavaMethod): Boolean {
     if (parameters.size != other.parameters.size) return false
     for (i in parameters.indices) if (parameters[i].type != other.parameters[i].type) return false

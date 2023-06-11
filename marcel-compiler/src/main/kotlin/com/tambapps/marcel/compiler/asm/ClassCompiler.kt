@@ -41,7 +41,11 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     // check that all implemented interfaces methods are defined.
     for (interfaze in classNode.type.directlyImplementedInterfaces) {
       for (interfaceMethod in typeResolver.getDeclaredMethods(interfaze).filter { it.isAbstract }) {
-        val implementationMethod = typeResolver.findMethod(classNode.type, interfaceMethod.name, interfaceMethod.parameters, true)
+        val implementationMethod = classNode.methods.find { it.name == interfaceMethod.name
+            && it.parameters.size == interfaceMethod.parameters.size
+            && it.parametersAssignableTo(interfaceMethod)
+        }
+
         if (implementationMethod == null || implementationMethod.isAbstract) {
           // maybe there is a generic implementation, in which case we have to generate the method with raw types
           throw MarcelSemanticException(classNode.token, "Class ${classNode.type} doesn't define method $interfaceMethod of interface $interfaze")
@@ -55,7 +59,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
           for (i in rawMethodNode.parameters.indices) {
             rawParameterExpressions.add(AsNode(LexToken.dummy(),
                     rawMethodNode.scope,
-                interfaceMethod.parameters[i].type,
+                implementationMethod.parameters[i].type,
                 ReferenceExpression(LexToken.dummy(), rawMethodNode.scope, rawMethodNode.parameters[i].name)
             ))
           }

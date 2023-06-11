@@ -370,8 +370,6 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       if (asNode.type == JavaType.Boolean) {
         mv.castIfNecessaryOrThrow(classNode.scope, asNode, JavaType.Boolean, JavaType.boolean)
       }
-    } else if (asNode.type == JavaType.String) {
-      visit(ToStringNode.of(asNode.token, asNode.expressionNode))
     } else {
       asNode.expressionNode.accept(this)
       mv.castIfNecessaryOrThrow(classNode.scope, asNode, asNode.type, asNode.expressionNode.getType(typeResolver))

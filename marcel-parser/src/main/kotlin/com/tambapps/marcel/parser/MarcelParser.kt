@@ -1045,6 +1045,7 @@ class MarcelParser constructor(
   private fun parseLambda(token: LexToken, scope: Scope): LambdaNode {
     val parameters = mutableListOf<MethodParameter>()
     var explicit0Parameters = false
+    // TODO doesn't work for lambdas with more than 1 parameter
     if (lookup(2)?.type == TokenType.ARROW || lookup(3)?.type == TokenType.ARROW
         || lookup(2)?.type == TokenType.COMMA || lookup(3)?.type == TokenType.COMMA) {
       explicit0Parameters = true
@@ -1057,6 +1058,7 @@ class MarcelParser constructor(
         parameters.add(parameter)
         if (current.type == TokenType.COMMA) skip()
       }
+      skip() // skip arrow
     }
     // now parse function block
     val block = block(MethodScope(scope, "invoke", parameters, JavaType.Object, staticContext = false, false), false)
