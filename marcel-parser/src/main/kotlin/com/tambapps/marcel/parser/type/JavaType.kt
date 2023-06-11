@@ -152,10 +152,18 @@ interface JavaType: AstTypedObject {
   }
 
   fun implements(javaType: JavaType, compareGenerics: Boolean = false): Boolean {
-    return this == javaType || allImplementedInterfaces.any {
+    return (
+        if (compareGenerics) this == javaType
+        else this.className == javaType.className
+        ) || allImplementedInterfaces.any {
       if (compareGenerics) javaType == it
-      else javaType.raw() == it.raw()
+      else javaType.className == it.className
     }
+  }
+
+  fun getInterfaceGenericTypes(javaType: JavaType): List<JavaType> {
+    return if (javaType.className == this.className) genericTypes
+    else allImplementedInterfaces.find { it.className == javaType.className }!!.genericTypes
   }
 
   companion object {

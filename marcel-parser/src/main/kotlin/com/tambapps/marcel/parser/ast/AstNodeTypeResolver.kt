@@ -221,6 +221,7 @@ open class AstNodeTypeResolver constructor(
 
   override fun visit(indexedReferenceExpression: IndexedReferenceExpression): JavaType {
     val elementType = if (indexedReferenceExpression.variable.type.isArray) (indexedReferenceExpression.variable.type.asArrayType).elementsType
+    else if (indexedReferenceExpression.variable.type.implements(JavaType.of(List::class.java))) indexedReferenceExpression.variable.type.getInterfaceGenericTypes(JavaType.of(List::class.java)).getOrElse(0) { JavaType.Object }
     else findMethodOrThrow(indexedReferenceExpression.variable.type, "getAt", indexedReferenceExpression.indexArguments.map { it.accept(this) }).actualReturnType
     // need object class for safe index because returned elements are nullable
     return if (indexedReferenceExpression.isSafeIndex) elementType.objectType else elementType
