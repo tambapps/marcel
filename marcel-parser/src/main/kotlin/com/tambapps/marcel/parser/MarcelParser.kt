@@ -1045,9 +1045,10 @@ class MarcelParser constructor(
   private fun parseLambda(token: LexToken, scope: Scope): LambdaNode {
     val parameters = mutableListOf<MethodParameter>()
     var explicit0Parameters = false
-    // TODO doesn't work for lambdas with more than 1 parameter
-    if (lookup(2)?.type == TokenType.ARROW || lookup(3)?.type == TokenType.ARROW
-        || lookup(2)?.type == TokenType.COMMA || lookup(3)?.type == TokenType.COMMA) {
+    // first parameter with no type specified
+    if (current.type == TokenType.IDENTIFIER && lookup(1)?.type in listOf(TokenType.COMMA, TokenType.ARROW)
+      // first parameter with type specified
+      || current.type == TokenType.IDENTIFIER && lookup(1)?.type == TokenType.IDENTIFIER && lookup(2)?.type in listOf(TokenType.COMMA, TokenType.ARROW)) {
       explicit0Parameters = true
       while (current.type != TokenType.ARROW) {
         val firstToken = accept(TokenType.IDENTIFIER)

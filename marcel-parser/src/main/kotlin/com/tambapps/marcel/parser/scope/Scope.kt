@@ -47,7 +47,7 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
   }
 
   open fun addLocalVariable(type: JavaType, name: String, isFinal: Boolean = false): LocalVariable {
-    if (localVariables.any { it.name == name }) {
+    if (findLocalVariable(name) != null) {
       throw MarcelSemanticException("A variable with name $name is already defined")
     }
     val v = localVariablePool.obtain(type, name, isFinal)
