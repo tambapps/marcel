@@ -15,10 +15,12 @@
 	*/
 package marcel.lang.primitives.collections.lists;
 
+import marcel.lang.IntRange;
 import marcel.lang.primitives.collections.DoubleCollection;
 import marcel.lang.primitives.collections.sets.DoubleOpenHashSet;
 import marcel.lang.primitives.collections.sets.DoubleSet;
 import marcel.lang.primitives.iterators.DoubleIterator;
+import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.iterators.list.DoubleListIterator;
 import marcel.lang.primitives.spliterators.DoubleSpliterator;
 import marcel.lang.util.Arrays;
@@ -442,4 +444,26 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 		return getAt(0);
 	}
 
+	/**
+	 * Sets the last element of the list. This method wil throw an exception if the list is empty
+	 *
+	 * @param value the value to set
+	 */
+	default void setLast(double value) {
+		putAt(size() - 1, value);
+	}
+
+
+	/**
+	 * Get the elements at the specified indexes from the range. The order of elements returned respects the order of the range
+	 *
+	 * @param range the range
+	 * @return the elements at the specified indexes from the ranges
+	 */
+	default DoubleList getAt(IntRange range) {
+		DoubleList subList = new DoubleArrayList();
+		IntIterator iterator = range.iterator();
+		while (iterator.hasNext()) subList.add(get(iterator.nextInt()));
+		return subList;
+	}
 }

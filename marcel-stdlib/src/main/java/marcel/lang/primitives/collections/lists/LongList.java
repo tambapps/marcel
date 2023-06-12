@@ -15,9 +15,11 @@
 	*/
 package marcel.lang.primitives.collections.lists;
 
+import marcel.lang.IntRange;
 import marcel.lang.primitives.collections.LongCollection;
 import marcel.lang.primitives.collections.sets.LongOpenHashSet;
 import marcel.lang.primitives.collections.sets.LongSet;
+import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.iterators.LongIterator;
 import marcel.lang.primitives.iterators.list.LongListIterator;
 import marcel.lang.primitives.spliterators.LongSpliterator;
@@ -442,4 +444,26 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 		return getAt(0);
 	}
 
+	/**
+	 * Sets the last element of the list. This method wil throw an exception if the list is empty
+	 *
+	 * @param value the value to set
+	 */
+	default void setLast(long value) {
+		putAt(size() - 1, value);
+	}
+
+
+	/**
+	 * Get the elements at the specified indexes from the range. The order of elements returned respects the order of the range
+	 *
+	 * @param range the range
+	 * @return the elements at the specified indexes from the ranges
+	 */
+	default LongList getAt(IntRange range) {
+		LongList subList = new LongArrayList();
+		IntIterator iterator = range.iterator();
+		while (iterator.hasNext()) subList.add(get(iterator.nextInt()));
+		return subList;
+	}
 }

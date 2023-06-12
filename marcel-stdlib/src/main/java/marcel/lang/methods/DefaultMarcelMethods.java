@@ -1,8 +1,6 @@
 package marcel.lang.methods;
 
 import marcel.lang.IntRange;
-import marcel.lang.primitives.collections.lists.CharacterArrayList;
-import marcel.lang.primitives.collections.lists.CharacterList;
 import marcel.lang.primitives.collections.lists.DoubleArrayList;
 import marcel.lang.primitives.collections.lists.DoubleList;
 import marcel.lang.primitives.collections.lists.FloatArrayList;
@@ -11,10 +9,6 @@ import marcel.lang.primitives.collections.lists.IntArrayList;
 import marcel.lang.primitives.collections.lists.IntList;
 import marcel.lang.primitives.collections.lists.LongArrayList;
 import marcel.lang.primitives.collections.lists.LongList;
-import marcel.lang.primitives.collections.sets.DoubleSet;
-import marcel.lang.primitives.collections.sets.FloatSet;
-import marcel.lang.primitives.collections.sets.IntSet;
-import marcel.lang.primitives.collections.sets.LongSet;
 import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.util.function.ToFloatFunction;
 
@@ -34,11 +28,7 @@ import java.util.function.ToLongFunction;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
-// TODO put ALL primitive list methods into the interface, don't need an extensino for them
-
-// TODO when using leftShift on a primitive collection, it uses the List<T> extension instead of the XXXCollection default method.
-//    extensions methods should always be looked up LAST so that this doesn't happens
-@SuppressWarnings({"unused", "deprecation"})
+@SuppressWarnings({"unused"})
 public final class DefaultMarcelMethods {
 
   /**
@@ -260,52 +250,6 @@ public final class DefaultMarcelMethods {
     return self.get(0);
   }
 
-  // setLast
-
-  /**
-   * Sets the last element of the list. This method wil throw an exception if the list is empty
-   *
-   * @param self  the list
-   * @param value the value to set
-   */
-  public static void setLast(IntList self, int value) {
-    self.putAt(self.size() - 1, value);
-  }
-
-
-  /**
-   * Sets the last element of the list. This method wil throw an exception if the list is empty
-   *
-   * @param self  the list
-   * @param value the value to set
-   */
-  public static void setLast(LongList self, long value) {
-    self.putAt(self.size() - 1, value);
-  }
-
-
-  /**
-   * Sets the last element of the list. This method wil throw an exception if the list is empty
-   *
-   * @param self  the list
-   * @param value the value to set
-   */
-  public static void setLast(FloatList self, float value) {
-    self.putAt(self.size() - 1, value);
-  }
-
-
-  /**
-   * Sets the last element of the list. This method wil throw an exception if the list is empty
-   *
-   * @param self  the list
-   * @param value the value to set
-   */
-  public static void setLast(DoubleList self, double value) {
-    self.putAt(self.size() - 1, value);
-  }
-
-
   /**
    * Sets the last element of the list. This method wil throw an exception if the list is empty
    *
@@ -346,88 +290,6 @@ public final class DefaultMarcelMethods {
     return subList;
   }
 
-  /**
-   * Get the elements at the specified indexes from the range. The order of elements returned respects the order of the range
-   *
-   * @param self  the list
-   * @param range the range
-   * @return the elements at the specified indexes from the ranges
-   */
-  public static IntList getAt(IntList self, IntRange range) {
-    IntList subList = new IntArrayList();
-    IntIterator iterator = range.iterator();
-    while (iterator.hasNext()) subList.add(self.get(iterator.nextInt()));
-    return subList;
-  }
-
-  /**
-   * Get the elements at the specified indexes from the range. The order of elements returned respects the order of the range
-   *
-   * @param self  the list
-   * @param range the range
-   * @return the elements at the specified indexes from the ranges
-   */
-  public static LongList getAt(LongList self, IntRange range) {
-    LongList subList = new LongArrayList();
-    IntIterator iterator = range.iterator();
-    while (iterator.hasNext()) subList.add(self.get(iterator.nextInt()));
-    return subList;
-  }
-
-  /**
-   * Get the elements at the specified indexes from the range. The order of elements returned respects the order of the range
-   *
-   * @param self  the list
-   * @param range the range
-   * @return the elements at the specified indexes from the ranges
-   */
-  public static FloatList getAt(FloatList self, IntRange range) {
-    FloatList subList = new FloatArrayList();
-    IntIterator iterator = range.iterator();
-    while (iterator.hasNext()) subList.add(self.get(iterator.nextInt()));
-    return subList;
-  }
-
-  /**
-   * Get the elements at the specified indexes from the range. The order of elements returned respects the order of the range
-   *
-   * @param self  the list
-   * @param range the range
-   * @return the elements at the specified indexes from the ranges
-   */
-  public static DoubleList getAt(DoubleList self, IntRange range) {
-    DoubleList subList = new DoubleArrayList();
-    IntIterator iterator = range.iterator();
-    while (iterator.hasNext()) subList.add(self.get(iterator.nextInt()));
-    return subList;
-  }
-
-  /**
-   * Get the elements at the specified indexes from the range. The order of elements returned respects the order of the range
-   *
-   * @param self  the list
-   * @param range the range
-   * @return the elements at the specified indexes from the ranges
-   */
-  public static CharacterList getAt(CharacterList self, IntRange range) {
-    CharacterList subList = new CharacterArrayList();
-    IntIterator iterator = range.iterator();
-    while (iterator.hasNext()) subList.add(self.get(iterator.nextInt()));
-    return subList;
-  }
-
-  // getAtSafe
-
-  /**
-   * Get the element at the specified index or null, if the index is out of bounds
-   *
-   * @param self  the list
-   * @param index the index
-   * @return the element at the specified index
-   */
-  public static Character getAtSafe(String self, int index) {
-    return index >= 0 && index < self.length() ? self.charAt(index) : null;
-  }
 
   /**
    * Get the element at the specified index or null, if the index is out of bounds
@@ -437,50 +299,6 @@ public final class DefaultMarcelMethods {
    * @return the element at the specified index
    */
   public static <T> T getAtSafe(List<T> self, int index) {
-    return index >= 0 && index < self.size() ? self.get(index) : null;
-  }
-
-  /**
-   * Get the element at the specified index or null, if the index is out of bounds
-   *
-   * @param self  the list
-   * @param index the index
-   * @return the element at the specified index
-   */
-  public static Integer getAtSafe(IntList self, int index) {
-    return index >= 0 && index < self.size() ? self.get(index) : null;
-  }
-
-  /**
-   * Get the element at the specified index or null, if the index is out of bounds
-   *
-   * @param self  the list
-   * @param index the index
-   * @return the element at the specified index
-   */
-  public static Long getAtSafe(LongList self, int index) {
-    return index >= 0 && index < self.size() ? self.get(index) : null;
-  }
-
-  /**
-   * Get the element at the specified index or null, if the index is out of bounds
-   *
-   * @param self  the list
-   * @param index the index
-   * @return the element at the specified index
-   */
-  public static Float getAtSafe(FloatList self, int index) {
-    return index >= 0 && index < self.size() ? self.get(index) : null;
-  }
-
-  /**
-   * Get the element at the specified index or null, if the index is out of bounds
-   *
-   * @param self  the list
-   * @param index the index
-   * @return the element at the specified index
-   */
-  public static Double getAtSafe(DoubleList self, int index) {
     return index >= 0 && index < self.size() ? self.get(index) : null;
   }
 
@@ -539,6 +357,17 @@ public final class DefaultMarcelMethods {
     return index >= 0 && index < self.length ? self[index] : null;
   }
 
+  /**
+   * Get the element at the specified index or null, if the index is out of bounds
+   *
+   * @param self  the array
+   * @param index the index
+   * @return the element at the specified index
+   */
+  public static Character getAtSafe(char[] self, int index) {
+    return index >= 0 && index < self.length ? self[index] : null;
+  }
+
   // putAt
 
   /**
@@ -551,39 +380,6 @@ public final class DefaultMarcelMethods {
    */
   public static <T> void putAt(List<T> self, int index, T value) {
     self.set(index, value);
-  }
-
-  /**
-   * Set the element at the specified index
-   *
-   * @param self  the list
-   * @param index the index
-   * @param value the value to set
-   */
-  public static void putAt(LongList self, int index, long value) {
-    self.putAt(index, value);
-  }
-
-  /**
-   * Set the element at the specified index
-   *
-   * @param self  the list
-   * @param index the index
-   * @param value the value to set
-   */
-  public static void putAt(FloatList self, int index, float value) {
-    self.putAt(index, value);
-  }
-
-  /**
-   * Set the element at the specified index
-   *
-   * @param self  the list
-   * @param index the index
-   * @param value the value to set
-   */
-  public static void putAt(DoubleList self, int index, double value) {
-    self.putAt(index, value);
   }
 
 }

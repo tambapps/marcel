@@ -136,7 +136,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     return findMethod(javaType, name, { it.matchesUnorderedParameters(this, name, positionalArgumentTypes, namedParameters) },
       {candidates ->
         val exactCandidates = candidates.filter { it.parameters.size == namedParameters.size }
-        if (exactCandidates.size == 1) exactCandidates.first() else null// returning null because we wan't to get more specific method
+        if (exactCandidates.size == 1) exactCandidates.first() else getMoreSpecificMethod(candidates)
       }, excludeInterfaces)
   }
 
@@ -144,8 +144,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     var m = findMethod(javaType, name, { it.matches(this, name, argumentTypes) },
       {candidates ->
         val exactCandidates = candidates.filter { it.exactMatch(name, argumentTypes) }
-        if (exactCandidates.size == 1) exactCandidates.first() else null// returning null because we wan't to get more specific method
-
+        if (exactCandidates.size == 1) exactCandidates.first() else getMoreSpecificMethod(candidates)
       }, excludeInterfaces)
     if (m == null && argumentTypes.isEmpty()) {
       m = findMethodByParameters(javaType, name, argumentTypes, emptyList())
@@ -173,7 +172,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
           .map { ReflectJavaMethod(it, javaType) }
           .filter(matcherPredicate)
       }
-      m = candidatesPicker.invoke(candidates)  ?: getMoreSpecificMethod(candidates)
+      m = candidatesPicker.invoke(candidates)
       if (m != null) return m
     }
 
@@ -198,11 +197,13 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
 
     if (excludeInterfaces) return null
     // now search on all implemented interfaces
-    for (interfaze in javaType.allImplementedInterfaces) {
-      m = findMethod(interfaze, name, matcherPredicate, candidatesPicker, false)
-      if (m != null) return m
-    }
-    return null
+
+    m = candidatesPicker.invoke(
+      javaType.allImplementedInterfaces.mapNotNull {
+        findMethod(it, name, matcherPredicate, candidatesPicker, false)
+      }
+    )
+    return m
   }
 
   private fun getMoreSpecificMethod(candidates: List<JavaMethod>): JavaMethod? {

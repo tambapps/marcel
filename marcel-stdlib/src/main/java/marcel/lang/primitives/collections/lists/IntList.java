@@ -16,6 +16,7 @@
 package marcel.lang.primitives.collections.lists;
 
 
+import marcel.lang.IntRange;
 import marcel.lang.primitives.collections.IntCollection;
 import marcel.lang.primitives.collections.sets.IntOpenHashSet;
 import marcel.lang.primitives.collections.sets.IntSet;
@@ -417,5 +418,29 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	 */
 	default int getFirst() {
 		return getAt(0);
+	}
+
+
+	/**
+	 * Sets the last element of the list. This method wil throw an exception if the list is empty
+	 *
+	 * @param value the value to set
+	 */
+	default void setLast(int value) {
+		putAt(size() - 1, value);
+	}
+
+
+	/**
+	 * Get the elements at the specified indexes from the range. The order of elements returned respects the order of the range
+	 *
+	 * @param range the range
+	 * @return the elements at the specified indexes from the ranges
+	 */
+	default IntList getAt(IntRange range) {
+		IntList subList = new IntArrayList(range.size());
+		IntIterator iterator = range.iterator();
+		while (iterator.hasNext()) subList.add(get(iterator.nextInt()));
+		return subList;
 	}
 }

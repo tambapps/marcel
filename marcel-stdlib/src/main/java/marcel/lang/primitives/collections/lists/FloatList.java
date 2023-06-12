@@ -15,10 +15,12 @@
 	*/
 package marcel.lang.primitives.collections.lists;
 
+import marcel.lang.IntRange;
 import marcel.lang.primitives.collections.FloatCollection;
 import marcel.lang.primitives.collections.sets.FloatOpenHashSet;
 import marcel.lang.primitives.collections.sets.FloatSet;
 import marcel.lang.primitives.iterators.FloatIterator;
+import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.iterators.list.FloatListIterator;
 import marcel.lang.primitives.spliterators.FloatSpliterator;
 import marcel.lang.util.Arrays;
@@ -443,4 +445,26 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 		return getAt(0);
 	}
 
+	/**
+	 * Sets the last element of the list. This method wil throw an exception if the list is empty
+	 *
+	 * @param value the value to set
+	 */
+	default void setLast(float value) {
+		putAt(size() - 1, value);
+	}
+
+
+	/**
+	 * Get the elements at the specified indexes from the range. The order of elements returned respects the order of the range
+	 *
+	 * @param range the range
+	 * @return the elements at the specified indexes from the ranges
+	 */
+	default FloatList getAt(IntRange range) {
+		FloatList subList = new FloatArrayList();
+		IntIterator iterator = range.iterator();
+		while (iterator.hasNext()) subList.add(get(iterator.nextInt()));
+		return subList;
+	}
 }
