@@ -17,7 +17,6 @@ open class ClassNode constructor(override val token: LexToken,
                                  val isScript: Boolean, val methods: MutableList<MethodNode>,
                                  val fields: MutableList<FieldNode>, val innerClasses: MutableList<ClassNode>,
                                  override val annotations: List<AnnotationNode>,
-                                 // TODO implement extensionClasses
                                  val extendingType: JavaType? = null): AstNode, Annotable {
 
   var staticInitializationNode: StaticInitializationNode? = null

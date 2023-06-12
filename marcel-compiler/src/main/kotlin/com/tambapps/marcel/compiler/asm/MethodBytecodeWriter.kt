@@ -510,7 +510,6 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
     } else {
       // must call getAt
       invokeMethodWithArguments(from, scope, typeResolver.findMethodOrThrow(type, "getAt", indexArguments.map { it.getType(typeResolver) }), indexArguments)
-      // TODO need to cast if generic return type. could do that by storying a field isReturnTypeGeneric, and passing an argument expected return type to all the invokeMethod (and this one) function
     }
   }
 
