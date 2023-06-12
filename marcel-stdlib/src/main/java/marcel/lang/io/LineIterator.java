@@ -10,8 +10,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Iterator;
 
-// TODO delete me. An iterator shouldn't closeable
-@Deprecated
 public class LineIterator implements Iterator<String>, Closeable {
 
   private final BufferedReader reader;

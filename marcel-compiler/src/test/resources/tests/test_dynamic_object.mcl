@@ -1,0 +1,40 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertNull
+
+DynamicObject o = 1
+assertEquals(4, (o + 3).value)
+
+o = ['foo': 1]
+o['bar'] = 2
+assertEquals(2, o.getAt('bar').value)
+assertEquals(2, o['bar'].value)
+assertEquals(['foo': 1, 'bar': 2], o.value)
+
+o = new DynImpl()
+assertNull(o.value)
+o.name = "test"
+assertEquals("test", o.getValue())
+assertEquals("test", o.value)
+assertEquals("test", o.name.value)
+
+class DynImpl implements DynamicObject {
+
+  String name
+
+  fun DynamicObject setProperty(String name, DynamicObject o) {
+    if (name == "name") this.name = o?.value?.toString()
+    return null
+  }
+
+  fun DynamicObject getProperty(String name) {
+    return name == "name" ? DynamicObject.of(this.name) : null
+  }
+
+  fun DynamicObject invokeMethod(String name, Object[] args) {
+      return DynamicObject.of(name)
+  }
+
+  fun Object getValue() {
+    return name
+  }
+}

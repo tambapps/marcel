@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import marcel.lang.DynamicObject;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @AllArgsConstructor
@@ -28,7 +29,18 @@ public class DynamicMap extends AbstractDynamicObject {
   }
 
   @Override
-  public DynamicObject setProperty(String name, Object value) {
-    return putAt(name, value);
+  public DynamicObject setProperty(String name, DynamicObject object) {
+    return putAt(name, object != null ? object.getValue() : null);
+  }
+
+  @Override
+  public DynamicObject plus(Object object) {
+    Object o = getRealValue(object);
+    if (o instanceof Map) {
+      Map m = new HashMap(value);
+      m.putAll((Map) o);
+      return DynamicObject.of(m);
+    }
+    return super.plus(object);
   }
 }

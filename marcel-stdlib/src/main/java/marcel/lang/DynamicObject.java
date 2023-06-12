@@ -16,6 +16,9 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+/**
+ * Interface providing dynamic features to an object
+ */
 public interface DynamicObject {
 
   default DynamicObject getAt(Object key) {
@@ -30,7 +33,7 @@ public interface DynamicObject {
     throw new MissingPropertyException(getValue().getClass(), name);
   }
 
-  default DynamicObject setProperty(String name, Object value) {
+  default DynamicObject setProperty(String name, DynamicObject value) {
     throw new MissingPropertyException(getValue().getClass(), name);
   }
 
@@ -38,7 +41,6 @@ public interface DynamicObject {
     throw new MissingMethodException(getValue().getClass(), name, args);
   }
 
-  // TODO do these operators for all classes
   default DynamicObject plus(Object object) {
     throw new MissingMethodException(getValue().getClass(), "plus", new Object[]{object});
   }
@@ -58,7 +60,6 @@ public interface DynamicObject {
   Object getValue();
 
   static DynamicObject of(Object o) {
-    // TODO handle dynamic object getProperty in access nodes
     if (o == null) return null;
     else if (o instanceof DynamicObject) return (DynamicObject) o;
     else if (o instanceof Number) return new DynamicNumber((Number) o);

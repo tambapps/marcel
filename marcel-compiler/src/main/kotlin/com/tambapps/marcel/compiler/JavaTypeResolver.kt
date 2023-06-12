@@ -267,7 +267,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     if (javaType.implements(JavaType.DynamicObject)) {
       return DynamicMethodField(javaType, name, JavaType.DynamicObject,
         ReflectJavaMethod(DynamicObject::class.java.getDeclaredMethod("getProperty", String::class.java)),
-        ReflectJavaMethod(DynamicObject::class.java.getDeclaredMethod("setProperty", String::class.java, JavaType.Object.realClazz)),
+        ReflectJavaMethod(DynamicObject::class.java.getDeclaredMethod("setProperty", String::class.java, JavaType.DynamicObject.realClazz)),
         Opcodes.ACC_PUBLIC)
     }
     return null

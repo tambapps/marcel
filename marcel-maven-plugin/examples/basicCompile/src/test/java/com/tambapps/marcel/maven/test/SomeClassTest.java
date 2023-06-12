@@ -20,8 +20,6 @@ package com.tambapps.marcel.maven.test;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-// TODO change this in Marcel source once I handle annotations
 public class SomeClassTest {
 
     @Test

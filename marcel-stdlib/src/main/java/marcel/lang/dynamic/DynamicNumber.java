@@ -78,5 +78,4 @@ public class DynamicNumber extends AbstractDynamicObject {
     }
   }
 
-  // TODO some other operators are missing
 }

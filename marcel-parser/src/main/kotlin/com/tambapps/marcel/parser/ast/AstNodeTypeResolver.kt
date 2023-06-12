@@ -13,6 +13,7 @@ import com.tambapps.marcel.parser.ast.statement.TryCatchNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.scope.DynamicMethodField
 import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaMethod
@@ -214,7 +215,10 @@ open class AstNodeTypeResolver constructor(
 
   override fun visit(referenceExpression: ReferenceExpression) =
     try {
-      referenceExpression.scope.findVariableOrThrow(referenceExpression.name).type
+      val v = referenceExpression.scope.findVariableOrThrow(referenceExpression.name)
+      if (v is DynamicMethodField && referenceExpression.scope.classType.implements(JavaType.DynamicObject))
+        referenceExpression.scope.getTypeOrNull(referenceExpression.name) ?: throw MarcelSemanticException("No variable or class named ${referenceExpression.name} was found")
+      else referenceExpression.scope.findVariableOrThrow(referenceExpression.name).type
     } catch (e: MarcelSemanticException) {
       // for static function calls
       referenceExpression.scope.getTypeOrNull(referenceExpression.name) ?: throw MarcelSemanticException("No variable or class named ${referenceExpression.name} was found")
