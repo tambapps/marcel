@@ -401,4 +401,21 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 		return list;
 	}
 
+	/**
+	 * Get the last element of the list. This method will throw an exception if the list is empty
+	 *
+	 * @return the last element of the list
+	 */
+	default int getLast() {
+		return getAt(size() - 1);
+	}
+
+	/**
+	 * Get the first element of the list. This method will throw an exception if the list is empty
+	 *
+	 * @return the first element of the list
+	 */
+	default int getFirst() {
+		return getAt(0);
+	}
 }

@@ -226,9 +226,6 @@ public final class DefaultMarcelMethods {
     return self.add(value);
   }
 
-
-  // last
-
   /**
    * Get the last element of the list. This method will throw an exception if the list is empty
    *
@@ -239,48 +236,6 @@ public final class DefaultMarcelMethods {
   public static <T> T getLast(List<T> self) {
     return self.get(self.size() - 1);
   }
-
-  /**
-   * Get the last element of the list. This method will throw an exception if the list is empty
-   *
-   * @param self the list
-   * @return the last element of the list
-   */
-  public static int getLast(IntList self) {
-    return self.getAt(self.size() - 1);
-  }
-
-  /**
-   * Get the last element of the list. This method will throw an exception if the list is empty
-   *
-   * @param self the list
-   * @return the last element of the list
-   */
-  public static long getLast(LongList self) {
-    return self.getAt(self.size() - 1);
-  }
-
-  /**
-   * Get the last element of the list. This method will throw an exception if the list is empty
-   *
-   * @param self the list
-   * @return the last element of the list
-   */
-  public static float getLast(FloatList self) {
-    return self.getAt(self.size() - 1);
-  }
-
-  /**
-   * Get the last element of the list. This method will throw an exception if the list is empty
-   *
-   * @param self the list
-   * @return the last element of the list
-   */
-  public static double getLast(DoubleList self) {
-    return self.getAt(self.size() - 1);
-  }
-
-  // lastOrNull
 
   /**
    * Get the last element of the list or null if the list is empty
@@ -294,9 +249,6 @@ public final class DefaultMarcelMethods {
     return self.get(self.size() - 1);
   }
 
-
-  // first
-
   /**
    * Get the first element of the list. This method will throw an exception if the list is empty
    *
@@ -305,47 +257,7 @@ public final class DefaultMarcelMethods {
    * @return the first element of the list
    */
   public static <T> T getFirst(List<T> self) {
-    return self.get(self.size() - 1);
-  }
-
-  /**
-   * Get the first element of the list. This method will throw an exception if the list is empty
-   *
-   * @param self the list
-   * @return the first element of the list
-   */
-  public static int getFirst(IntList self) {
-    return self.getAt(self.size() - 1);
-  }
-
-  /**
-   * Get the first element of the list. This method will throw an exception if the list is empty
-   *
-   * @param self the list
-   * @return the first element of the list
-   */
-  public static long getFirst(LongList self) {
-    return self.getAt(self.size() - 1);
-  }
-
-  /**
-   * Get the first element of the list. This method will throw an exception if the list is empty
-   *
-   * @param self the list
-   * @return the first element of the list
-   */
-  public static float getFirst(FloatList self) {
-    return self.getAt(self.size() - 1);
-  }
-
-  /**
-   * Get the first element of the list. This method will throw an exception if the list is empty
-   *
-   * @param self the list
-   * @return the first element of the list
-   */
-  public static double getFirst(DoubleList self) {
-    return self.getAt(self.size() - 1);
+    return self.get(0);
   }
 
   // setLast

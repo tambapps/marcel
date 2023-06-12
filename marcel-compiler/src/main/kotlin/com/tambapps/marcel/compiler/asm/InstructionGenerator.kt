@@ -672,6 +672,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
   override fun visit(indexedReferenceExpression: IndexedReferenceExpression) {
     if (indexedReferenceExpression.isSafeIndex) {
+      // TODO document that if not already done
       val funcCall = SimpleFunctionCallNode(indexedReferenceExpression.token, indexedReferenceExpression.scope, "getAtSafe",
         indexedReferenceExpression.indexArguments.toMutableList(),
         ReferenceExpression(indexedReferenceExpression.token, indexedReferenceExpression.scope, indexedReferenceExpression.name)

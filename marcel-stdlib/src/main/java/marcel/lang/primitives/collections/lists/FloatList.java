@@ -424,4 +424,23 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 	}
 
 
+	/**
+	 * Get the last element of the list. This method will throw an exception if the list is empty
+	 *
+	 * @return the last element of the list
+	 */
+	default float getLast() {
+		return getAt(size() - 1);
+	}
+
+
+	/**
+	 * Get the first element of the list. This method will throw an exception if the list is empty
+	 *
+	 * @return the first element of the list
+	 */
+	default float getFirst() {
+		return getAt(0);
+	}
+
 }

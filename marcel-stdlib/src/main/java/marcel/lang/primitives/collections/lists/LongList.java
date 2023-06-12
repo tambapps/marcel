@@ -424,4 +424,22 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 	}
 
 
+	/**
+	 * Get the last element of the list. This method will throw an exception if the list is empty
+	 *
+	 * @return the last element of the list
+	 */
+	default long getLast() {
+		return getAt(size() - 1);
+	}
+
+	/**
+	 * Get the first element of the list. This method will throw an exception if the list is empty
+	 *
+	 * @return the first element of the list
+	 */
+	default long getFirst() {
+		return getAt(0);
+	}
+
 }
