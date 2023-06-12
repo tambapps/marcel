@@ -12,6 +12,12 @@ Add the plugin in your pom.
       <plugin>
         <groupId>com.tambapps.marcel.maven</groupId>
         <artifactId>marcel-maven-plugin</artifactId>
+        <!-- Needed in order to use marcel extensions, the MDK -->
+        <dependency>
+          <groupId>com.tambapps.marcel</groupId>
+          <artifactId>marcel-extensions</artifactId>
+          <version>${marcel.version}</version>
+        </dependency>
         <executions>
           <execution>
             <goals>

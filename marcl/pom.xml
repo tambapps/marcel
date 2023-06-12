@@ -86,6 +86,25 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>com.tambapps.marcel.maven</groupId>
+        <artifactId>marcel-maven-plugin</artifactId>
+        <dependencies>
+          <dependency>
+            <groupId>com.tambapps.marcel</groupId>
+            <artifactId>marcel-extensions</artifactId>
+            <version>${revision}</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile</goal>
+              <goal>compileTests</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 </project>
