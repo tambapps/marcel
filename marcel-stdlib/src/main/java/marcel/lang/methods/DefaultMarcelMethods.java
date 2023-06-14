@@ -12,14 +12,7 @@ import marcel.lang.primitives.collections.lists.LongList;
 import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.util.function.ToFloatFunction;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
@@ -380,6 +373,32 @@ public final class DefaultMarcelMethods {
    */
   public static <T> void putAt(List<T> self, int index, T value) {
     self.set(index, value);
+  }
+
+  /**
+   * Get the element at the specified key
+   *
+   * @param self  the map
+   * @param key the key
+   * @param <T>   the type of the map values
+   * @return the element at the specified key
+   */
+  public static <T> T getAt(Map<?, T> self, Object key) {
+    return self.get(key);
+  }
+
+  /**
+   * Set the element at the specified key
+   *
+   * @param self  the map
+   * @param key the key
+   * @param value the value
+   * @param <T>   the type of the map keys
+   * @param <U>   the type of the map values
+   * @return the element at the specified index
+   */
+  public static <T, U> U putAt(Map<T, U> self, T key, U value) {
+    return self.put(key, value);
   }
 
 }
