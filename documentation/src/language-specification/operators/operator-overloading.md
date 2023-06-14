@@ -6,7 +6,19 @@ Each operator is associated to a function. To define an operator for a given typ
 Here is the table of functions to define for each operator
 
 
+## Define operators from extensions
 
-## Define operators from extensions (Not Implemented Yet)
 
-TODO
+| Operator   | Method           |
+|------------|------------------|
+| a + b      | a.plus(b)        |
+| a - b      | a.minus(b)       |
+| a * b      | a.multiply(b)    |
+| a / b      | a.div(b)         |
+| a << b     | a.leftShift(b)   |
+| a \>> b    | a.rightShift(b)  |
+| a[b]       | a.getAt(b)       |
+| a[b, c, d] | a.getAt(b, c, d) |
+| a?[b]      | a.getAt(b)       |
+| a?[b]      | a.getAt(b)       |
+

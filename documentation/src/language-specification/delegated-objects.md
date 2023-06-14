@@ -1,3 +1,0 @@
-# Delegated Objects
-
-TODO
