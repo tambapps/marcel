@@ -1,0 +1,9 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+Map m = ['some': 'thing']
+
+assertEquals('thing', m['some'])
+
+m['thing'] = 'some'
+assertEquals('some', m['thing'])
+assertEquals(2, m.size())
