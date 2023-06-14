@@ -1,6 +1,8 @@
 package marcel.lang.methods;
 
 import marcel.lang.IntRange;
+import marcel.lang.primitives.collections.lists.CharacterArrayList;
+import marcel.lang.primitives.collections.lists.CharacterList;
 import marcel.lang.primitives.collections.lists.DoubleArrayList;
 import marcel.lang.primitives.collections.lists.DoubleList;
 import marcel.lang.primitives.collections.lists.FloatArrayList;
@@ -400,5 +402,183 @@ public final class DefaultMarcelMethods {
   public static <T, U> U putAt(Map<T, U> self, T key, U value) {
     return self.put(key, value);
   }
+
+  /**
+   * Returns a new array containing the content of the first one then the content of the second
+   *
+   * @param a the first array
+   * @param b the second array
+   * @return a new array containing the content of the first one then the content of the second
+   */
+  public static int[] plus(int[] a, int[] b) {
+    int[] sum = new int[a.length + b.length];
+    System.arraycopy(a, 0, sum, 0, a.length);
+    System.arraycopy(b, 0, sum, a.length, b.length);
+    return sum;
+  }
+
+  /**
+   * Returns a new array containing the content of the first one then the content of the second
+   *
+   * @param a the first array
+   * @param b the second array
+   * @return a new array containing the content of the first one then the content of the second
+   */
+  public static long[] plus(long[] a, long[] b) {
+    long[] sum = new long[a.length + b.length];
+    System.arraycopy(a, 0, sum, 0, a.length);
+    System.arraycopy(b, 0, sum, a.length, b.length);
+    return sum;
+  }
+
+  /**
+   * Returns a new array containing the content of the first one then the content of the second
+   *
+   * @param a the first array
+   * @param b the second array
+   * @return a new array containing the content of the first one then the content of the second
+   */
+  public static float[] plus(float[] a, float[] b) {
+    float[] sum = new float[a.length + b.length];
+    System.arraycopy(a, 0, sum, 0, a.length);
+    System.arraycopy(b, 0, sum, a.length, b.length);
+    return sum;
+  }
+
+  /**
+   * Returns a new array containing the content of the first one then the content of the second
+   *
+   * @param a the first array
+   * @param b the second array
+   * @return a new array containing the content of the first one then the content of the second
+   */
+  public static double[] plus(double[] a, double[] b) {
+    double[] sum = new double[a.length + b.length];
+    System.arraycopy(a, 0, sum, 0, a.length);
+    System.arraycopy(b, 0, sum, a.length, b.length);
+    return sum;
+  }
+
+  /**
+   * Returns a new array containing the content of the first one then the content of the second
+   *
+   * @param a the first array
+   * @param b the second array
+   * @return a new array containing the content of the first one then the content of the second
+   */
+  public static boolean[] plus(boolean[] a, boolean[] b) {
+    boolean[] sum = new boolean[a.length + b.length];
+    System.arraycopy(a, 0, sum, 0, a.length);
+    System.arraycopy(b, 0, sum, a.length, b.length);
+    return sum;
+  }
+
+  /**
+   * Returns a new array containing the content of the first one then the content of the second
+   *
+   * @param a the first array
+   * @param b the second array
+   * @return a new array containing the content of the first one then the content of the second
+   */
+  public static char[] plus(char[] a, char[] b) {
+    char[] sum = new char[a.length + b.length];
+    System.arraycopy(a, 0, sum, 0, a.length);
+    System.arraycopy(b, 0, sum, a.length, b.length);
+    return sum;
+  }
+
+  /**
+   * Returns a new collection containing the content of the first one then the content of the second
+   *
+   * @param a the first collection
+   * @param b the second collection
+   * @return a new array containing the content of the first one then the content of the second
+   */
+  public static <T> List<T> plus(List<T> a, Collection<T> b) {
+    List<T> sum = new ArrayList<>(a.size() + b.size());
+    sum.addAll(a);
+    sum.addAll(b);
+    return sum;
+  }
+
+  /**
+   * Returns a new collection containing the content of the first one then the content of the second
+   *
+   * @param a the first collection
+   * @param b the second collection
+   * @return a new array containing the content of the first one then the content of the second
+   */
+  public static <T> Set<T> plus(Set<T> a, Collection<T> b) {
+    Set<T> sum = new HashSet<>(a.size() + b.size());
+    sum.addAll(a);
+    sum.addAll(b);
+    return sum;
+  }
+
+  /**
+   * Returns a new collection containing the content of the first one then the content of the second
+   *
+   * @param a the first collection
+   * @param b the second collection
+   * @return a new array containing the content of the first one then the content of the second
+   */
+  public static <T> Queue<T> plus(Queue<T> a, Collection<T> b) {
+    Queue<T> sum = new LinkedList<>();
+    sum.addAll(a);
+    sum.addAll(b);
+    return sum;
+  }
+
+  /**
+   * Returns a new collection containing the content of the first without the content of the second
+   *
+   * @param a the first collection
+   * @param b the second collection
+   * @return a new collection containing the content of the first without the content of the second
+   */
+  public static <T> List<T> minus(List<T> a, Collection<T> b) {
+    List<T> sum = new ArrayList<>(a);
+    sum.removeAll(b);
+    return sum;
+  }
+
+  /**
+   * Returns a new collection containing the content of the first without the content of the second
+   *
+   * @param a the first collection
+   * @param b the second collection
+   * @return a new collection containing the content of the first without the content of the second
+   */
+  public static <T> Set<T> minus(Set<T> a, Collection<T> b) {
+    Set<T> sum = new HashSet<>(a);
+    sum.removeAll(b);
+    return sum;
+  }
+
+  /**
+   * Returns a new collection containing the content of the first without the content of the second
+   *
+   * @param a the first collection
+   * @param b the second collection
+   * @return a new collection containing the content of the first without the content of the second
+   */
+  public static <T> Queue<T> minus(Queue<T> a, Collection<T> b) {
+    Queue<T> sum = new LinkedList<>(a);
+    sum.removeAll(b);
+    return sum;
+  }
+
+  public static <T, U> Map<T, U> plus(Map<T, U> a, Map<T, U> b) {
+    Map<T, U> map = new HashMap<>(a);
+    map.putAll(b);
+    return map;
+  }
+
+  public static <T, U> Map<T, U> minus(Map<T, U> a, Map<T, U> b) {
+    Map<T, U> map = new HashMap<>(a);
+    b.forEach(map::remove);
+    return map;
+  }
+
 
 }

@@ -466,4 +466,18 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 		while (iterator.hasNext()) subList.add(get(iterator.nextInt()));
 		return subList;
 	}
+
+
+	/**
+	 * Returns a new collection containing the content of the first one then the content of the second
+	 *
+	 * @param b the second collection
+	 * @return a new array containing the content of the first one then the content of the second
+	 */
+	default DoubleList plus(double[] b) {
+		DoubleList sum = new DoubleArrayList(size() + b.length);
+		sum.addAll(this);
+		for (double l : b) sum.add(l);
+		return sum;
+	}
 }

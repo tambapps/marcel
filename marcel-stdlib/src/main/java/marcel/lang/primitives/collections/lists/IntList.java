@@ -443,4 +443,17 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 		while (iterator.hasNext()) subList.add(get(iterator.nextInt()));
 		return subList;
 	}
+
+	/**
+	 * Returns a new collection containing the content of the first one then the content of the second
+	 *
+	 * @param b the second collection
+	 * @return a new array containing the content of the first one then the content of the second
+	 */
+	default IntList plus(int[] b) {
+		IntList sum = new IntArrayList(size() + b.length);
+		sum.addAll(this);
+		for (int l : b) sum.add(l);
+		return sum;
+	}
 }

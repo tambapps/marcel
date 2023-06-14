@@ -466,4 +466,18 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 		while (iterator.hasNext()) subList.add(get(iterator.nextInt()));
 		return subList;
 	}
+
+
+	/**
+	 * Returns a new collection containing the content of the first one then the content of the second
+	 *
+	 * @param b the second collection
+	 * @return a new array containing the content of the first one then the content of the second
+	 */
+	default LongList plus(long[] b) {
+		LongList sum = new LongArrayList(size() + b.length);
+		sum.addAll(this);
+		for (long l : b) sum.add(l);
+		return sum;
+	}
 }

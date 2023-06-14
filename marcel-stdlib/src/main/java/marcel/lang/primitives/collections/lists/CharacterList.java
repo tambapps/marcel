@@ -447,4 +447,18 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 		while (iterator.hasNext()) subList.add(get(iterator.nextInt()));
 		return subList;
 	}
+
+
+	/**
+	 * Returns a new collection containing the content of the first one then the content of the second
+	 *
+	 * @param b the second collection
+	 * @return a new array containing the content of the first one then the content of the second
+	 */
+	default CharacterList plus(char[] b) {
+		CharacterList sum = new CharacterArrayList(size() + b.length);
+		sum.addAll(this);
+		for (char l : b) sum.add(l);
+		return sum;
+	}
 }
