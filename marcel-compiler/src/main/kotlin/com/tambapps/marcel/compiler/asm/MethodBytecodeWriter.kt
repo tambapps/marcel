@@ -101,6 +101,9 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
     if (method.isConstructor) {
       throw RuntimeException("Compiler error. Shouldn't invoke constructor this way")
     }
+    if (method.name == "orElse") {
+      println()
+    }
     mv.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, method.name, method.descriptor, method.ownerClass.isInterface)
     if (method.actualReturnType != method.returnType) {
       castIfNecessaryOrThrow(scope, from, method.actualReturnType, method.returnType)

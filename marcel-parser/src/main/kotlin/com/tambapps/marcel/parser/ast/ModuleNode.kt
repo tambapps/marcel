@@ -6,7 +6,6 @@ import com.tambapps.marcel.parser.type.JavaType
 class ModuleNode constructor(
   val classes: MutableList<ClassNode>,
   val imports: List<ImportNode>,
-  // TODO document import extension ExtensionClass AND document extension classes
   val extensionTypes: List<JavaType>,
   val dumbbells: Set<String>
   ) : AstNode {

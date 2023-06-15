@@ -11,3 +11,31 @@ if (Matcher m = "Helo me" =~ pattern) {
 }
 
 assertEquals(3, a)
+
+if (Integer i = getNullableInteger(null as Integer)) {
+  a = 2
+}
+assertEquals(3, a)
+
+if (Integer i = getNullableInteger(1)) {
+  a = 2
+}
+assertEquals(2, a)
+
+if (Integer i = getOptionalInteger(null as Integer)) {
+  a = 1
+}
+assertEquals(2, a)
+
+if (Integer i = getOptionalInteger(1)) {
+  a = 1
+}
+assertEquals(1, a)
+
+fun Integer getNullableInteger(Integer n) {
+  return n
+}
+
+fun Optional<Integer> getOptionalInteger(Integer n) {
+  return Optional.ofNullable(n)
+}

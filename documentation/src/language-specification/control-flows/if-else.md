@@ -20,7 +20,7 @@ if (Something result = fetchSomething()) {
 }
 ```
 
-You can also unbox Optional values such as in the below example (NYI)
+You can also unbox Optional values such as in the below example
 
 ```kotlin
 // assuming getOptionalInteger() returns an Optional<Integer>

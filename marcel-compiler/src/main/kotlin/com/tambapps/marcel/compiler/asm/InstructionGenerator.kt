@@ -214,11 +214,6 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   override fun visit(ifStatementNode: IfStatementNode) {
     val optTruthyDeclarationNode = ifStatementNode.condition.innerExpression as? TruthyVariableDeclarationNode
-    if (optTruthyDeclarationNode != null) {
-      // declaring truthy variable (will and should only be used in trueStatement)
-      visit(VariableDeclarationNode(ifStatementNode.token, optTruthyDeclarationNode.scope, optTruthyDeclarationNode.variableType, optTruthyDeclarationNode.name,
-        optTruthyDeclarationNode.isFinal, optTruthyDeclarationNode.expression))
-    }
     pushArgument(ifStatementNode.condition)
     val endLabel = Label()
     if (ifStatementNode.falseStatementNode == null) {
@@ -1135,10 +1130,8 @@ class InstructionGenerator(
   }
 
   override fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode) {
-    // variable should have been declared in the visit(ifStatementNode)
-    visit(
-      VariableAssignmentNode(truthyVariableDeclarationNode.token, truthyVariableDeclarationNode.scope, truthyVariableDeclarationNode.name, truthyVariableDeclarationNode.expression)
-    )
+    pushArgument(truthyVariableDeclarationNode)
+    mv.popStack()
   }
 
   override fun visit(blockNode: BlockNode) {
@@ -1448,7 +1441,10 @@ private class PushingInstructionGenerator(
         , false)
       )
     }
-    instructionGenerator.visit(actualTruthyVariableDeclarationNode)
+    // declaring truthy variable (will and should only be used in trueStatement)
+    visit(VariableDeclarationNode(actualTruthyVariableDeclarationNode.token, actualTruthyVariableDeclarationNode.scope, variableType, actualTruthyVariableDeclarationNode.name,
+      actualTruthyVariableDeclarationNode.isFinal, actualTruthyVariableDeclarationNode.expression))
+
     if (actualTruthyVariableDeclarationNode.variableType.primitive) {
       visit(BooleanConstantNode(truthyVariableDeclarationNode.token, true))
     } else {

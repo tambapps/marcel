@@ -43,7 +43,7 @@ interface JavaMethod {
     get() {
       val builder = StringBuilder()
       // using rawType because these are the one used in compiled classes
-      parameters.joinTo(buffer = builder, separator = "", transform = { it.type.descriptor }, prefix = "(", postfix = ")")
+      parameters.joinTo(buffer = builder, separator = "", transform = { it.rawType.descriptor }, prefix = "(", postfix = ")")
       builder.append(returnType.descriptor)
       return builder.toString()
     }
