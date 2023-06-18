@@ -1,9 +1,15 @@
 import static org.junit.jupiter.api.Assertions.assertEquals
 
-Map m = ['some': 'thing']
+assertEquals(0, [:].size())
+
+Map m = [some: 'thing']
 
 assertEquals('thing', m['some'])
 
 m['thing'] = 'some'
 assertEquals('some', m['thing'])
 assertEquals(2, m.size())
+
+map<int, Integer> myMap = [1: 1, 2: 2, 3: 3]
+
+assertEquals(myMap.keySet(), [1, 2, 3] as set<int>)

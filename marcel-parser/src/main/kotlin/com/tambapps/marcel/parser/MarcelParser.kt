@@ -993,8 +993,13 @@ class MarcelParser constructor(
         val elements = mutableListOf<ExpressionNode>()
         var isMap = false
         while (current.type != TokenType.SQUARE_BRACKETS_CLOSE) {
+          val isParenthesisBlock = current.type == TokenType.LPAR
           elements.add(expression(scope))
           if (current.type == TokenType.COLON) {
+            val key = elements.last()
+            if (!isParenthesisBlock && key is ReferenceExpression) {
+              elements.set(elements.lastIndex, StringConstantNode(key.token, key.name))
+            }
             isMap = true
             skip()
             elements.add(expression(scope))

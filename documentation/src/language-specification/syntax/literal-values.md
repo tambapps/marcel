@@ -161,8 +161,11 @@ Note that you can also use this syntax to [create collections](../types.md#colle
 Square brackets can also be used to define maps
 
 ````groovy
-Map map = [1.3: "1", 1.4: "2", "myStringKey": "myStringValue", myRefKey: myRefValue]
+Map map = [1.3: "1", 1.4: "2", "myStringKey": "myStringValue", myLitteralKey: myRefValue, (myRefKey): myRefValue]
 ````
+
+Note that `myLitteralKey` is actually a String key, it doesn't refers to a variable (like in Groovy). If you want to reference
+a variable as a key, put it between parenthesis, like it is done for `(myRefKey)`.
 
 ## Ranges
 
