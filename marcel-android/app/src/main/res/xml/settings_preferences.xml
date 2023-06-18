@@ -16,6 +16,7 @@
 
     <PreferenceCategory
         android:title="Dumbbell"
+        android:icon="@drawable/dumbbell"
         >
         <Preference
             android:key="@string/clear_dumbbells_preference_key"

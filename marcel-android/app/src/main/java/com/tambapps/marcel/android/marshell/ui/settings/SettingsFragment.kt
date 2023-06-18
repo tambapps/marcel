@@ -66,13 +66,19 @@ class SettingsFragment: PreferenceFragmentCompat() {
     }
     val clearDumbbellsPreference = findPreference<Preference>(getString(R.string.clear_dumbbells_preference_key))!!
     clearDumbbellsPreference.setOnPreferenceClickListener {
-      Dumbbell.deleteAll()
-      Toast.makeText(
-        requireContext(),
-        "All fetched dumbbells was successfully deleted",
-        Toast.LENGTH_SHORT
-      ).show()
-      refreshDumbbellsCount(clearDumbbellsPreference)
+      AlertDialog.Builder(requireContext())
+        .setTitle("Remove all dumbbells?")
+        .setMessage("Maven dependencies into your local repository will be deleted. You will still be able to fetched them again if needed")
+        .setNeutralButton("cancel", null)
+        .setPositiveButton("yes") { dialogInterface: DialogInterface, i: Int ->
+          Dumbbell.deleteAll()
+          Toast.makeText(
+            requireContext(),
+            "All fetched dumbbells was successfully deleted",
+            Toast.LENGTH_SHORT
+          ).show()
+          refreshDumbbellsCount(clearDumbbellsPreference)
+        }
       true
     }
 
