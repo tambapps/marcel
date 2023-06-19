@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-// TODO document that
 /**
  * Interface providing dynamic features to an object
  */
