@@ -1,5 +1,7 @@
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertNull
+import static org.junit.jupiter.api.Assertions.assertTrue
+import static org.junit.jupiter.api.Assertions.assertFalse
 
 DynamicObject o = 1
 assertEquals(4, (o + 3).value)
@@ -9,6 +11,7 @@ o['bar'] = 2
 assertEquals(2, o.getAt('bar').value)
 assertEquals(2, o['bar'].value)
 assertEquals(['foo': 1, 'bar': 2], o.value)
+assertTrue(o as bool)
 
 o = new DynImpl()
 assertNull(o.value)
@@ -16,12 +19,16 @@ o.name = "test"
 assertEquals("test", o.getValue())
 assertEquals("test", o.value)
 assertEquals("test", o.name.value)
+assertFalse(o as bool)
 
 o = DynamicObject.of([1, 2 , 3] as list<int>)
 
 assertEquals(2, o[1].value)
 o[0] = 2
 assertEquals(2, o[0].value)
+assertTrue(o as bool)
+
+assertFalse(DynamicObject.of([] as list<int>) as bool)
 
 class DynImpl implements DynamicObject {
 
@@ -42,5 +49,9 @@ class DynImpl implements DynamicObject {
 
   fun Object getValue() {
     return name
+  }
+
+  fun bool isTruthy() {
+    return false
   }
 }

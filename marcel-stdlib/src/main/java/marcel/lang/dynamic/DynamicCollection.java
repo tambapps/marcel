@@ -22,6 +22,11 @@ abstract class DynamicCollection<T extends Collection> extends AbstractDynamicOb
     return DynamicObject.of(c);
   }
 
+  @Override
+  public DynamicObject leftShift(Object object) {
+    return DynamicObject.of(value.add(object));
+  }
+
   abstract T copy();
 
 }

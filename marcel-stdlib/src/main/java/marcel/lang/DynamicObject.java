@@ -1,6 +1,7 @@
 package marcel.lang;
 
 import marcel.lang.dynamic.DefaultDynamicObject;
+import marcel.lang.dynamic.DynamicArray;
 import marcel.lang.dynamic.DynamicCharacter;
 import marcel.lang.dynamic.DynamicList;
 import marcel.lang.dynamic.DynamicMap;
@@ -10,6 +11,7 @@ import marcel.lang.dynamic.DynamicSet;
 import marcel.lang.dynamic.DynamicString;
 import marcel.lang.dynamic.MissingMethodException;
 import marcel.lang.dynamic.MissingPropertyException;
+import marcel.lang.methods.MarcelTruth;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +19,6 @@ import java.util.Queue;
 import java.util.Set;
 
 // TODO document that
-// TODO add DynamicArray and test arrays
 /**
  * Interface providing dynamic features to an object
  */
@@ -59,6 +60,18 @@ public interface DynamicObject {
     throw new MissingMethodException(getValue().getClass(), "div", new Object[]{object});
   }
 
+  default DynamicObject leftShift(Object object) {
+    throw new MissingMethodException(getValue().getClass(), "leftShift", new Object[]{object});
+  }
+
+  default DynamicObject rightShift(Object object) {
+    throw new MissingMethodException(getValue().getClass(), "rightShift", new Object[]{object});
+  }
+
+  default boolean isTruthy() {
+    return MarcelTruth.truthy(getValue());
+  }
+
   Object getValue();
 
   static DynamicObject of(Object o) {
@@ -71,6 +84,7 @@ public interface DynamicObject {
     else if (o instanceof Set) return new DynamicSet((Set) o);
     else if (o instanceof Queue) return new DynamicQueue((Queue) o);
     else if (o instanceof Map) return new DynamicMap((Map) o);
+    else if (o.getClass().isArray()) return new DynamicArray(o);
     else return new DefaultDynamicObject(o);
   }
 }
