@@ -17,6 +17,7 @@ import java.util.Queue;
 import java.util.Set;
 
 // TODO document that
+// TODO add DynamicArray and test arrays
 /**
  * Interface providing dynamic features to an object
  */

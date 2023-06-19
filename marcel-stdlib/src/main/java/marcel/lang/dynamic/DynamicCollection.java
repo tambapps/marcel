@@ -7,10 +7,9 @@ import marcel.lang.DynamicObject;
 import java.util.Collection;
 
 @AllArgsConstructor
-abstract class DynamicCollection extends AbstractDynamicObject {
+abstract class DynamicCollection<T extends Collection> extends AbstractDynamicObject {
   @Getter
-  Collection value;
-
+  T value;
 
   @Override
   public DynamicObject plus(Object object) {
@@ -18,11 +17,11 @@ abstract class DynamicCollection extends AbstractDynamicObject {
     if (!(o instanceof Collection)) {
       throw new MissingMethodException(getValue().getClass(), "plus", new Object[]{object});
     }
-    Collection c = copy();
+    T c = copy();
     c.addAll((Collection) o);
     return DynamicObject.of(c);
   }
 
-  abstract Collection copy();
+  abstract T copy();
 
 }

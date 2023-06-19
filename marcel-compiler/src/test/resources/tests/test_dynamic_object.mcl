@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertNull
 DynamicObject o = 1
 assertEquals(4, (o + 3).value)
 
-o = ['foo': 1]
+o = DynamicObject.of(['foo': 1])
 o['bar'] = 2
 assertEquals(2, o.getAt('bar').value)
 assertEquals(2, o['bar'].value)
@@ -16,6 +16,12 @@ o.name = "test"
 assertEquals("test", o.getValue())
 assertEquals("test", o.value)
 assertEquals("test", o.name.value)
+
+o = DynamicObject.of([1, 2 , 3] as list<int>)
+
+assertEquals(2, o[1].value)
+o[0] = 2
+assertEquals(2, o[0].value)
 
 class DynImpl implements DynamicObject {
 
