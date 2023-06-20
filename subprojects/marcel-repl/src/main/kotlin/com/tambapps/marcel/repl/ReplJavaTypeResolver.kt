@@ -43,5 +43,13 @@ class ReplJavaTypeResolver constructor(classLoader: MarcelClassLoader?, private 
         return f
     }
 
+    override fun getDeclaredFields(javaType: JavaType): List<MarcelField> {
+        val fields = super.getDeclaredFields(javaType).toMutableList()
+        if (isScript(javaType)) {
+            fields.addAll(scriptVariables.values)
+        }
+        return fields
+    }
+
     private fun isScript(javaType: JavaType) = Script::class.javaType.isAssignableFrom(javaType) && javaType.isTopLevel
 }
