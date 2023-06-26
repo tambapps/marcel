@@ -82,6 +82,10 @@ class SettingsFragment: PreferenceFragmentCompat() {
       true
     }
 
+    findPreference<Preference>(getString(R.string.init_script_key))?.setOnPreferenceClickListener {
+      Toast.makeText(requireContext(), "TODO", Toast.LENGTH_SHORT).show()
+      true
+    }
     refreshDumbbellsCount(clearDumbbellsPreference)
   }
 

@@ -8,7 +8,7 @@ public abstract class AbstractDynamicObject implements DynamicObject {
 
   @Override
   public String toString() {
-    return "dynamic " + getValue();
+    return getValue().toString();
   }
 
   @Override

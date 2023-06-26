@@ -11,6 +11,7 @@ import marcel.lang.dynamic.DynamicSet;
 import marcel.lang.dynamic.DynamicString;
 import marcel.lang.dynamic.MissingMethodException;
 import marcel.lang.dynamic.MissingPropertyException;
+import marcel.lang.lambda.DynamicObjectLambda1;
 import marcel.lang.methods.MarcelTruth;
 
 import java.util.List;
@@ -25,6 +26,19 @@ public interface DynamicObject {
 
   default DynamicObject getAt(Object key) {
     throw new MissingMethodException(getValue().getClass(), "getAt", new Object[]{key});
+  }
+
+  default DynamicObject getAtSafe(Object object) {
+    throw new MissingMethodException(getValue().getClass(), "getAtSafe", new Object[]{object});
+  }
+
+  default int size() {
+    throw new MissingMethodException(getValue().getClass(), "size", new Object[]{});
+  }
+
+  // TODO transform to getSize(). Its shorter then length
+  default int getLength() {
+    return size();
   }
 
   default DynamicObject putAt(Object key, Object value) {
@@ -65,6 +79,14 @@ public interface DynamicObject {
 
   default DynamicObject rightShift(Object object) {
     throw new MissingMethodException(getValue().getClass(), "rightShift", new Object[]{object});
+  }
+
+  default DynamicObject find(DynamicObjectLambda1 lambda1) {
+    return MarcelTruth.truthy(lambda1.apply(this)) ? this : null;
+  }
+
+  default DynamicObject map(DynamicObjectLambda1 lambda1) {
+    return lambda1.apply(this);
   }
 
   default boolean isTruthy() {

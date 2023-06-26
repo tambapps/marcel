@@ -1,8 +1,8 @@
 package marcel.lang.methods;
 
+import marcel.lang.DynamicObject;
+
 import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -18,7 +18,9 @@ public class MarcelTruth {
       return false;
     }
     Class<?> clazz = o.getClass();
-    if (clazz == Optional.class) {
+    if (clazz == Boolean.class) {
+      return (Boolean) o;
+    } else if (clazz == Optional.class) {
       return truthy((Optional<?>) o);
     } else if (clazz == OptionalInt.class) {
       return truthy((OptionalInt) o);
@@ -32,6 +34,8 @@ public class MarcelTruth {
       return Array.getLength(o) > 0;
     } else if (clazz == Matcher.class) {
       return truthy((Matcher) o);
+    } else if (o instanceof DynamicObject) {
+      return ((DynamicObject) o).isTruthy();
     } else {
       return true;
     }
@@ -83,6 +87,6 @@ public class MarcelTruth {
     return true;
   }
   public static boolean truthy(boolean value) {
-    return true;
+    return value;
   }
 }

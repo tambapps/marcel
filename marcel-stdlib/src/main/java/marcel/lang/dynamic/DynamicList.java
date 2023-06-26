@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class DynamicList extends DynamicCollection<List> {
+public class DynamicList extends DynamicCollection<List> implements DynamicIndexable {
   public DynamicList(List value) {
     super(value);
   }
