@@ -6,10 +6,34 @@ import marcel.lang.DynamicObject;
 import marcel.lang.lambda.DynamicObjectLambda1;
 import marcel.lang.methods.DefaultMarcelMethods;
 import marcel.lang.methods.MarcelTruth;
+import marcel.lang.primitives.collections.lists.CharacterArrayList;
+import marcel.lang.primitives.collections.lists.CharacterList;
+import marcel.lang.primitives.collections.lists.DoubleArrayList;
+import marcel.lang.primitives.collections.lists.DoubleList;
+import marcel.lang.primitives.collections.lists.FloatArrayList;
+import marcel.lang.primitives.collections.lists.FloatList;
+import marcel.lang.primitives.collections.lists.IntArrayList;
+import marcel.lang.primitives.collections.lists.IntList;
+import marcel.lang.primitives.collections.lists.LongArrayList;
+import marcel.lang.primitives.collections.lists.LongList;
+import marcel.lang.primitives.collections.sets.CharacterOpenHashSet;
+import marcel.lang.primitives.collections.sets.CharacterSet;
+import marcel.lang.primitives.collections.sets.DoubleOpenHashSet;
+import marcel.lang.primitives.collections.sets.DoubleSet;
+import marcel.lang.primitives.collections.sets.FloatOpenHashSet;
+import marcel.lang.primitives.collections.sets.FloatSet;
+import marcel.lang.primitives.collections.sets.IntOpenHashSet;
+import marcel.lang.primitives.collections.sets.IntSet;
+import marcel.lang.primitives.collections.sets.LongOpenHashSet;
+import marcel.lang.primitives.collections.sets.LongSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 
 @AllArgsConstructor
 abstract class DynamicCollection<T extends Collection> extends AbstractDynamicObject {
@@ -51,7 +75,93 @@ abstract class DynamicCollection<T extends Collection> extends AbstractDynamicOb
   }
 
   @Override
-  public int size() {
-    return value.size();
+  public List toList() {
+    return new ArrayList(value);
+  }
+
+  // TODO do other primitive collections
+  @Override
+  public IntList toIntList() {
+    IntList list = new IntArrayList();
+    value.forEach(e -> list.add((Integer) e));
+    return list;
+  }
+
+  @Override
+  public LongList toLongList() {
+    LongList list = new LongArrayList();
+    value.forEach(e -> list.add((Long) e));
+    return list;
+  }
+
+  @Override
+  public FloatList toFloatList() {
+    FloatList list = new FloatArrayList();
+    value.forEach(e -> list.add((Float) e));
+    return list;
+  }
+
+  @Override
+  public DoubleList toDoubleList() {
+    DoubleList list = new DoubleArrayList();
+    value.forEach(e -> list.add((Float) e));
+    return list;
+  }
+
+  @Override
+  public CharacterList toCharacterList() {
+    CharacterList list = new CharacterArrayList();
+    value.forEach(e -> list.add((Character) e));
+    return list;
+  }
+
+  @Override
+  public Set toSet() {
+    return new HashSet(value);
+  }
+
+  @Override
+  public IntSet toIntSet() {
+    IntSet set = new IntOpenHashSet();
+    value.forEach(e -> set.add((Integer) e));
+    return set;
+  }
+
+  @Override
+  public LongSet toLongSet() {
+    LongSet set = new LongOpenHashSet();
+    value.forEach(e -> set.add((Long) e));
+    return set;
+  }
+
+  @Override
+  public FloatSet toFloatSet() {
+    FloatSet set = new FloatOpenHashSet();
+    value.forEach(e -> set.add((Float) e));
+    return set;
+  }
+
+  @Override
+  public DoubleSet toDoubleSet() {
+    DoubleSet set = new DoubleOpenHashSet();
+    value.forEach(e -> set.add((Double) e));
+    return set;
+  }
+
+  @Override
+  public CharacterSet toCharacterSet() {
+    CharacterSet set = new CharacterOpenHashSet();
+    value.forEach(e -> set.add((Character) e));
+    return set;
+  }
+
+  @Override
+  public Queue toQueue() {
+    return new LinkedList(value);
+  }
+
+  @Override
+  public Collection toCollection() {
+    return value;
   }
 }

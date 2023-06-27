@@ -8,10 +8,29 @@ public class DynamicNumber extends AbstractDynamicObject {
 
   private final Number value;
 
-
   @Override
   public Number getValue() {
     return value;
+  }
+
+  @Override
+  public int toInt() {
+    return value.intValue();
+  }
+
+  @Override
+  public long toLong() {
+    return value.longValue();
+  }
+
+  @Override
+  public float toFloat() {
+    return value.floatValue();
+  }
+
+  @Override
+  public double toDouble() {
+    return value.doubleValue();
   }
 
   @Override
@@ -23,6 +42,8 @@ public class DynamicNumber extends AbstractDynamicObject {
     Number n = (Number) o;
     if (value instanceof Double || n instanceof Double) {
       return DynamicObject.of(value.doubleValue() + n.doubleValue());
+    } else if (value instanceof Float || n instanceof Float) {
+      return DynamicObject.of(value.floatValue() + n.floatValue());
     } else if (value instanceof Long || n instanceof Long) {
       return DynamicObject.of(value.longValue() + n.longValue());
     } else {
@@ -39,6 +60,8 @@ public class DynamicNumber extends AbstractDynamicObject {
     Number n = (Number) o;
     if (value instanceof Double || n instanceof Double) {
       return DynamicObject.of(value.doubleValue() - n.doubleValue());
+    } else if (value instanceof Float || n instanceof Float) {
+      return DynamicObject.of(value.floatValue() - n.floatValue());
     } else if (value instanceof Long || n instanceof Long) {
       return DynamicObject.of(value.longValue() - n.longValue());
     } else {
@@ -55,6 +78,8 @@ public class DynamicNumber extends AbstractDynamicObject {
     Number n = (Number) o;
     if (value instanceof Double || n instanceof Double) {
       return DynamicObject.of(value.doubleValue() * n.doubleValue());
+    } else if (value instanceof Float || n instanceof Float) {
+      return DynamicObject.of(value.floatValue() * n.floatValue());
     } else if (value instanceof Long || n instanceof Long) {
       return DynamicObject.of(value.longValue() * n.longValue());
     } else {
@@ -71,6 +96,8 @@ public class DynamicNumber extends AbstractDynamicObject {
     Number n = (Number) o;
     if (value instanceof Double || n instanceof Double) {
       return DynamicObject.of(value.doubleValue() / n.doubleValue());
+    } else if (value instanceof Float || n instanceof Float) {
+      return DynamicObject.of(value.floatValue() / n.floatValue());
     } else if (value instanceof Long || n instanceof Long) {
       return DynamicObject.of(value.longValue() / n.longValue());
     } else {

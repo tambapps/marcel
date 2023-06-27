@@ -58,6 +58,7 @@ public final class DefaultMarcelMethods {
     return groups;
   }
 
+  // TODO add all and any
   /**
    * Find the first element matching the given predicate
    *

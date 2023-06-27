@@ -15,13 +15,13 @@ public class DynamicArray extends AbstractDynamicObject implements DynamicIndexa
   final Object value;
 
   @Override
-  public DynamicObject getAt(Object key) {
-    return key instanceof Integer ? DynamicObject.of(Array.get(value, (Integer) key)) : super.getAt(key);
+  public int size() {
+    return Array.getLength(value);
   }
 
   @Override
-  public int size() {
-    return Array.getLength(value);
+  public DynamicObject getAt(Object key) {
+    return key instanceof Integer ? DynamicObject.of(Array.get(value, (Integer) key)) : super.getAt(key);
   }
 
   @Override

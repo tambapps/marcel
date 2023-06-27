@@ -25,4 +25,9 @@ public class DynamicList extends DynamicCollection<List> implements DynamicIndex
   List copy() {
     return new ArrayList(value);
   }
+
+  @Override
+  public int size() {
+    return value.size();
+  }
 }
