@@ -146,11 +146,27 @@ class MarcelParser constructor(
   private fun parseAnnotations(scope: Scope): List<AnnotationNode> {
     val classAnnotations = mutableListOf<AnnotationNode>()
     while (current.type == TokenType.AT) {
-      val token = next()
-      val type = parseType(scope)
-      classAnnotations.add(AnnotationNode(token, type))
+      classAnnotations.add(parseAnnotation(scope))
     }
     return classAnnotations
+  }
+
+private fun parseAnnotation(scope: Scope): AnnotationNode {
+    val token = next()
+    val type = parseType(scope)
+    val attributes = mutableListOf<Pair<String, JavaConstantExpression>>()
+    if (current.type == TokenType.LPAR) {
+      skip()
+      while (current.type != TokenType.RPAR) {
+        val attributeName = accept(TokenType.IDENTIFIER).value
+        accept(TokenType.ASSIGNMENT)
+        val e = expression(scope)
+        val expression = e as? JavaConstantExpression
+        ?: throw MarcelParserException(e.token, "Annotations attributes can only have constant value ")
+        attributes.add(Pair(attributeName, expression))
+      }
+    }
+    return AnnotationNode(token, type, attributes)
   }
 
   private fun parseClass(imports: MutableList<ImportNode>, packageName: String?, classAnnotations: List<AnnotationNode>, outerClassNode: ClassNode? = null): ClassNode {

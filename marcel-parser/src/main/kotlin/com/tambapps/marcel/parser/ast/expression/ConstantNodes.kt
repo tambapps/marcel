@@ -5,7 +5,14 @@ import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.type.JavaType
 import java.util.regex.Pattern
 
-class IntConstantNode(token: LexToken = LexToken.dummy(), val value: Int): AbstractExpressionNode(token) {
+
+interface JavaConstantExpression {
+
+  val value: Any
+
+}
+
+class IntConstantNode(token: LexToken = LexToken.dummy(), override val value: Int): AbstractExpressionNode(token), JavaConstantExpression {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
@@ -29,7 +36,7 @@ class IntConstantNode(token: LexToken = LexToken.dummy(), val value: Int): Abstr
   }
 }
 
-class ByteConstantNode(token: LexToken = LexToken.dummy(), val value: Byte): AbstractExpressionNode(token) {
+class ByteConstantNode(token: LexToken = LexToken.dummy(), override val value: Byte): AbstractExpressionNode(token), JavaConstantExpression {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
@@ -53,7 +60,7 @@ class ByteConstantNode(token: LexToken = LexToken.dummy(), val value: Byte): Abs
   }
 }
 
-class ShortConstantNode(token: LexToken = LexToken.dummy(), val value: Short): AbstractExpressionNode(token) {
+class ShortConstantNode(token: LexToken = LexToken.dummy(), override val value: Short): AbstractExpressionNode(token), JavaConstantExpression {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
@@ -77,7 +84,7 @@ class ShortConstantNode(token: LexToken = LexToken.dummy(), val value: Short): A
   }
 }
 
-class LongConstantNode(token: LexToken = LexToken.dummy(), val value: Long): AbstractExpressionNode(token) {
+class LongConstantNode(token: LexToken = LexToken.dummy(),override val value: Long): AbstractExpressionNode(token), JavaConstantExpression {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
@@ -101,7 +108,7 @@ class LongConstantNode(token: LexToken = LexToken.dummy(), val value: Long): Abs
   }
 }
 
-class FloatConstantNode(token: LexToken = LexToken.dummy(), val value: Float): AbstractExpressionNode(token) {
+class FloatConstantNode(token: LexToken = LexToken.dummy(), override val value: Float): AbstractExpressionNode(token), JavaConstantExpression {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
@@ -126,7 +133,7 @@ class FloatConstantNode(token: LexToken = LexToken.dummy(), val value: Float): A
   }
 }
 
-class DoubleConstantNode(token: LexToken = LexToken.dummy(), val value: Double): AbstractExpressionNode(token) {
+class DoubleConstantNode(token: LexToken = LexToken.dummy(), override val value: Double): AbstractExpressionNode(token), JavaConstantExpression {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
@@ -151,7 +158,7 @@ class DoubleConstantNode(token: LexToken = LexToken.dummy(), val value: Double):
   }
 }
 
-class StringConstantNode(token: LexToken = LexToken.dummy(), val value: String): AbstractExpressionNode(token) {
+class StringConstantNode(token: LexToken = LexToken.dummy(), override val value: String): AbstractExpressionNode(token), JavaConstantExpression {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
 
@@ -218,7 +225,7 @@ class LiteralPatternNode(token: LexToken = LexToken.dummy(), val value: String, 
 }
 
 
-class BooleanConstantNode(token: LexToken = LexToken.dummy(), val value: Boolean): AbstractExpressionNode(token) {
+class BooleanConstantNode(token: LexToken = LexToken.dummy(), override val value: Boolean): AbstractExpressionNode(token), JavaConstantExpression {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
@@ -258,7 +265,7 @@ class NullValueNode(token: LexToken = LexToken.dummy(), var type: JavaType?): Ab
   }
 }
 
-class CharConstantNode(token: LexToken = LexToken.dummy(), val value: String): AbstractExpressionNode(token) {
+class CharConstantNode(token: LexToken = LexToken.dummy(), override val value: String): AbstractExpressionNode(token), JavaConstantExpression {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
