@@ -34,6 +34,11 @@ public class DynamicMap extends AbstractDynamicObject {
   }
 
   @Override
+  public Map toMap() {
+    return new HashMap(value);
+  }
+
+  @Override
   public DynamicObject plus(Object object) {
     Object o = getRealValue(object);
     if (o instanceof Map) {

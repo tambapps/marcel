@@ -9,7 +9,8 @@ public class DynamicSet extends DynamicCollection<Set> {
   }
 
   @Override
-  Set copy() {
-    return new HashSet(value);
+  Set newEmptyInstance() {
+    return new HashSet();
   }
+
 }

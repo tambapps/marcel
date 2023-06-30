@@ -27,13 +27,7 @@ import marcel.lang.primitives.collections.sets.IntSet;
 import marcel.lang.primitives.collections.sets.LongOpenHashSet;
 import marcel.lang.primitives.collections.sets.LongSet;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 
 @AllArgsConstructor
 abstract class DynamicCollection<T extends Collection> extends AbstractDynamicObject {
@@ -56,7 +50,13 @@ abstract class DynamicCollection<T extends Collection> extends AbstractDynamicOb
     return DynamicObject.of(value.add(object));
   }
 
-  abstract T copy();
+  abstract T newEmptyInstance();
+
+  private T copy() {
+    T collection = newEmptyInstance();
+    collection.addAll(value);
+    return collection;
+  }
 
   @Override
   public DynamicObject find(DynamicObjectLambda1 lambda1) {
@@ -153,6 +153,15 @@ abstract class DynamicCollection<T extends Collection> extends AbstractDynamicOb
     CharacterSet set = new CharacterOpenHashSet();
     value.forEach(e -> set.add((Character) e));
     return set;
+  }
+
+  @Override
+  public DynamicObject getProperty(String name) {
+    T c = newEmptyInstance();
+    for (DynamicObject o : this) {
+      c.add(o.getProperty(name));
+    }
+    return DynamicObject.of(c);
   }
 
   @Override

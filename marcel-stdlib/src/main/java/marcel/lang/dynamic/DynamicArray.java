@@ -42,6 +42,15 @@ public class DynamicArray extends AbstractDynamicObject implements DynamicIndexa
   }
 
   @Override
+  public DynamicObject getProperty(String name) {
+    Object[] array = new Object[size()];
+    for (int i = 0; i < size(); i++) {
+      array[i] = getAt(i);
+    }
+    return DynamicObject.of(array);
+  }
+
+  @Override
   public DynamicObject find(DynamicObjectLambda1 lambda1) {
     for (int i = 0; i < size(); i++) {
       DynamicObject e = DynamicObject.of(Array.get(value, i));
@@ -51,4 +60,6 @@ public class DynamicArray extends AbstractDynamicObject implements DynamicIndexa
     }
     return null;
   }
+
+
 }

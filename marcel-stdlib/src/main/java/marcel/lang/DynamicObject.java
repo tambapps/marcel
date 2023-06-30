@@ -24,16 +24,12 @@ import marcel.lang.primitives.collections.sets.FloatSet;
 import marcel.lang.primitives.collections.sets.IntSet;
 import marcel.lang.primitives.collections.sets.LongSet;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Interface providing dynamic features to an object
  */
-public interface DynamicObject {
+public interface DynamicObject extends Iterable<DynamicObject> {
 
   default DynamicObject getAt(Object key) {
     throw new MissingMethodException(getValue().getClass(), "getAt", new Object[]{key});
@@ -81,6 +77,10 @@ public interface DynamicObject {
 
   default DynamicObject rightShift(Object object) {
     throw new MissingMethodException(getValue().getClass(), "rightShift", new Object[]{object});
+  }
+
+  default Iterator<DynamicObject> iterator() {
+    throw new MissingMethodException(getValue().getClass(), "iterator", new Object[]{});
   }
 
   default DynamicObject find(DynamicObjectLambda1 lambda1) {
@@ -155,6 +155,11 @@ public interface DynamicObject {
   default CharacterSet toCharacterSet() {
     if (getValue() instanceof CharacterSet) return (CharacterSet) getValue();
     throw new ClassCastException("Value isn't instance of CharacterSet");
+  }
+
+  default Map toMap() {
+    if (getValue() instanceof Map) return (Map) getValue();
+    throw new ClassCastException("Value isn't instance of Map");
   }
 
   default Queue toQueue() {

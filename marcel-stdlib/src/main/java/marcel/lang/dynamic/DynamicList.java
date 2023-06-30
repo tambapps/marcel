@@ -22,8 +22,8 @@ public class DynamicList extends DynamicCollection<List> implements DynamicIndex
   }
 
   @Override
-  List copy() {
-    return new ArrayList(value);
+  List newEmptyInstance() {
+    return new ArrayList();
   }
 
   @Override

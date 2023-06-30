@@ -1,6 +1,5 @@
 package marcel.lang.dynamic;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -10,7 +9,7 @@ public class DynamicQueue extends DynamicCollection<Queue> {
   }
 
   @Override
-  Queue copy() {
-    return new LinkedList(value);
+  Queue newEmptyInstance() {
+    return new LinkedList();
   }
 }
