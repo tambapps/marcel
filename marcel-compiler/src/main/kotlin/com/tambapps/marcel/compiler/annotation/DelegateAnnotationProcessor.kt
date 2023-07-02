@@ -1,5 +1,6 @@
 package com.tambapps.marcel.compiler.annotation
 
+import com.tambapps.marcel.compiler.util.javaAnnotation
 import com.tambapps.marcel.compiler.util.javaType
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.ast.*
@@ -21,7 +22,7 @@ class DelegateAnnotationProcessor: FieldAnnotationProcessor {
             val delegateField = classNode.fields.find { it.name == "delegate" }!!
             if (classNode.type.allImplementedInterfaces.find { it.raw() == DelegatedObject::class.javaType }!!.genericTypes.firstOrNull()?.let { it.isAssignableFrom(delegateField.type) } != false) {
                 val getDelegateMethod = MethodNode.from(classScope = classNode.scope, ownerClass = classNode.type, name = "getDelegate", parameters = emptyList(),
-                    returnType = delegateField.type.objectType, annotations = listOf(AnnotationNode(LexToken.dummy(), Override::class.javaType)), staticContext = false
+                    returnType = delegateField.type.objectType, annotations = listOf(AnnotationNode(LexToken.dummy(), Override::class.javaAnnotation, emptyList())), staticContext = false
                 )
                 getDelegateMethod.block.addStatement(
                     ReturnNode(

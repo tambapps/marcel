@@ -23,6 +23,7 @@ import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.scope.LambdaScope
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
+import com.tambapps.marcel.parser.type.JavaAnnotation
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.Script
@@ -157,16 +158,28 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
     val attributes = mutableListOf<Pair<String, JavaConstantExpression>>()
     if (current.type == TokenType.LPAR) {
       skip()
-      while (current.type != TokenType.RPAR) {
-        val attributeName = accept(TokenType.IDENTIFIER).value
-        accept(TokenType.ASSIGNMENT)
+      if (current.type == TokenType.IDENTIFIER) {
+        while (current.type != TokenType.RPAR) {
+          val attributeName = accept(TokenType.IDENTIFIER).value
+          accept(TokenType.ASSIGNMENT)
+          val e = expression(scope)
+          val expression = e as? JavaConstantExpression
+            ?: throw MarcelParserException(e.token, "Annotations attributes can only have constant value ")
+          attributes.add(Pair(attributeName, expression))
+        }
+      } else {
         val e = expression(scope)
         val expression = e as? JavaConstantExpression
-        ?: throw MarcelParserException(e.token, "Annotations attributes can only have constant value ")
-        attributes.add(Pair(attributeName, expression))
+          ?: throw MarcelParserException(e.token, "Annotations attributes can only have constant value ")
+        attributes.add(Pair("value", expression))
       }
+      accept(TokenType.RPAR)
     }
-    return AnnotationNode(token, type, attributes)
+  // only handle java annotations
+  if (!type.isLoaded) {
+    throw MarcelParserException(token, "Marcel only support java annotations already loaded in classpath")
+  }
+  return AnnotationNode(token, JavaAnnotation.of(type.realClazz), attributes)
   }
 
   private fun parseClass(imports: MutableList<ImportNode>, packageName: String?, classAnnotations: List<AnnotationNode>, outerClassNode: ClassNode? = null): ClassNode {

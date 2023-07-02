@@ -10,8 +10,10 @@ import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.type.JavaAnnotation
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.DefaultValue
+import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
@@ -96,9 +98,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
 
     // writing annotations
     for (annotation in classNode.annotations) {
-      val annotationVisitor = classWriter.visitAnnotation(annotation.javaType.descriptor, true)
-      // will write annotation args when I handle them
-      annotationVisitor.visitEnd()
+      writeAnnotation(classWriter.visitAnnotation(annotation.javaAnnotation.descriptor, true), annotation)
     }
 
     if (classNode.constructorsCount == 0) {
@@ -139,6 +139,34 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     classes.add(CompiledClass(classNode.type.className, classNode.isScript, classWriter.toByteArray()))
   }
 
+  // TODO check target while writing annotations
+  private fun writeAnnotation(annotationVisitor: AnnotationVisitor, annotationNode: AnnotationNode) {
+    for (attr in annotationNode.attributes) {
+      val attribute = annotationNode.javaAnnotation.attributes.find { it.name == attr.first }
+        ?: throw MarcelSemanticException(annotationNode.token, "Unknown member ${attr.first} for annotation ${annotationNode.javaAnnotation.type}")
+      val attrValue = attr.second.value
+      when(attribute.type) {
+        JavaType.String -> if (attrValue !is String) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
+        JavaType.int -> if (attrValue !is Int) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
+        JavaType.long -> if (attrValue !is Long) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
+        JavaType.float -> if (attrValue !is Float) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
+        JavaType.double -> if (attrValue !is Double) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
+        JavaType.char -> if (attrValue !is Char) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
+        else -> throw MarcelSemanticException(annotationNode.token, "Type not handled for an annotation member")
+      }
+      annotationVisitor.visit(attr.first, attrValue)
+    }
+
+    for (attr in annotationNode.javaAnnotation.attributes) {
+      if (attr.defaultValue == null && annotationNode.attributes.none { it.first == attr.name }) {
+        throw MarcelSemanticException(annotationNode.token, "Required member $attr was not provided for annotation ${annotationNode.javaAnnotation}")
+      }
+    }
+    annotationVisitor.visitEnd()
+  }
+
+  private fun annotationErrorAttributeTypeError(annotationNode: AnnotationNode, attribute: JavaAnnotation.Attribute, attrValue: Any): Nothing
+  = throw MarcelSemanticException(annotationNode.token, "Incompatible type for annotation member ${attribute.name} of annotation ${annotationNode.javaAnnotation.type}. Wanted ${attribute.type} but got ${attrValue.javaClass}")
   private fun writeField(classWriter: ClassWriter, classNode: ClassNode, marcelField: FieldNode) {
     if (classNode.isExtensionClass) {
       throw MarcelSemanticException(classNode.token, "Extension classes cannot have fields")
@@ -150,9 +178,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
 
     // writing annotations
     for (annotation in marcelField.annotations) {
-      val annotationVisitor = fieldVisitor.visitAnnotation(annotation.javaType.descriptor, true)
-      // will write annotation args when I handle them
-      annotationVisitor.visitEnd()
+      writeAnnotation(classWriter.visitAnnotation(annotation.javaAnnotation.descriptor, true), annotation)
     }
 
     if (marcelField.initialValue == null || marcelField.initialValue == marcelField.type.defaultValueExpression) return
@@ -186,9 +212,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
 
     // writing annotations
     for (annotation in methodNode.annotations) {
-      val annotationVisitor = mv.visitAnnotation(annotation.javaType.descriptor, true)
-      // will write annotation args when I handle them
-      annotationVisitor.visitEnd()
+      writeAnnotation(classWriter.visitAnnotation(annotation.javaAnnotation.descriptor, true), annotation)
     }
 
     mv.visitCode()
