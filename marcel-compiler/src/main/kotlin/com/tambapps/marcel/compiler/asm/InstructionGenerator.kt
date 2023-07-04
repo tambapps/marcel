@@ -27,6 +27,7 @@ import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.BoundField
+import com.tambapps.marcel.parser.scope.ClassField
 import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.scope.LocalVariable
 import com.tambapps.marcel.parser.scope.MarcelField
@@ -531,6 +532,9 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       mv.getField(getFieldAccessOperator, getFieldAccessOperator.scope, field)
       return
     }
+    if (getFieldAccessOperator.classField && field !is ClassField) {
+      throw MarcelSemanticException("Class field ${getFieldAccessOperator.scope.classType}.${getFieldAccessOperator.rightOperand.name} is not defined")
+    }
     if (getFieldAccessOperator.nullSafe) {
       val scope = getFieldAccessOperator.scope
 
@@ -543,7 +547,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
         BooleanExpressionNode.of(getFieldAccessOperator.token, ComparisonOperatorNode(getFieldAccessOperator.token, ComparisonOperator.NOT_EQUAL, tempRef,
           NullValueNode(getFieldAccessOperator.token))),
         // using a new GetFieldAccessOperator because we need to use the tempRef instead of the actual leftOperand
-        GetFieldAccessOperator(getFieldAccessOperator.token, tempRef, getFieldAccessOperator.rightOperand, false)
+        GetFieldAccessOperator(getFieldAccessOperator.token, tempRef, getFieldAccessOperator.rightOperand, false, getFieldAccessOperator.classField)
         , NullValueNode(getFieldAccessOperator.token)
       ))
       scope.freeVariable(tempVar.name)
@@ -551,6 +555,12 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       pushArgument(getFieldAccessOperator.leftOperand)
       mv.getField(getFieldAccessOperator, getFieldAccessOperator.scope, field)
     }
+  }
+
+  override fun visit(directFieldAccessNode: DirectFieldAccessNode) {
+    val field = typeResolver.getClassField(directFieldAccessNode.scope.classType, directFieldAccessNode.name)
+    pushArgument(ThisReference(directFieldAccessNode.token, directFieldAccessNode.scope))
+    mv.getField(directFieldAccessNode, directFieldAccessNode.scope, field)
   }
 
   private fun pushBinaryOperatorOperands(binaryOperatorNode: BinaryOperatorNode) {
@@ -878,6 +888,11 @@ class InstructionGenerator(
   }
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator) {
     super.visit(getFieldAccessOperator)
+    mv.popStack()
+  }
+
+  override fun visit(directFieldAccessNode: DirectFieldAccessNode) {
+    super.visit(directFieldAccessNode)
     mv.popStack()
   }
 

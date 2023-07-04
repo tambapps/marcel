@@ -96,5 +96,6 @@ interface AstNodeVisitor<T> {
   fun visit(patternValueNode: LiteralPatternNode): T
   fun visit(findOperator: FindOperator): T
   fun visit(classExpressionNode: ClassExpressionNode): T
+  fun visit(directFieldAccessNode: DirectFieldAccessNode): T
 
 }

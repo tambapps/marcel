@@ -428,7 +428,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         statements.add(
           ExpressionStatementNode(token,
             FieldAssignmentNode(token, methodScope, GetFieldAccessOperator(token, ReferenceExpression.thisRef(methodScope),
-              ReferenceExpression(token, methodScope, thisParameter), false),
+              ReferenceExpression(token, methodScope, thisParameter), false, true),
               ReferenceExpression(token, methodScope, thisParameter)))
         )
       }
@@ -880,6 +880,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       TokenType.ESCAPE_SEQUENCE -> StringConstantNode(token, escapedSequenceValue(token.value))
       TokenType.NULL -> NullValueNode()
       TokenType.NOT -> NotNode(token, expression(scope))
+      TokenType.AT -> DirectFieldAccessNode(token, scope, accept(TokenType.IDENTIFIER).value)
       TokenType.NEW -> {
         val type = parseType(scope)
         accept(TokenType.LPAR)
@@ -1278,7 +1279,8 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       TokenType.EQUAL, TokenType.NOT_EQUAL, TokenType.LT, TokenType.GT, TokenType.LOE, TokenType.GOE -> ComparisonOperatorNode(token, ComparisonOperator.fromTokenType(token), leftOperand, rightOperand)
       TokenType.DOT -> when (rightOperand) {
         is FunctionCallNode -> InvokeAccessOperator(token, leftOperand, rightOperand, false)
-        is ReferenceExpression -> GetFieldAccessOperator(token, leftOperand, rightOperand, false)
+        is ReferenceExpression -> GetFieldAccessOperator(token, leftOperand, rightOperand, false, false)
+        is DirectFieldAccessNode -> GetFieldAccessOperator(token, leftOperand, ReferenceExpression(rightOperand.token, rightOperand.scope, rightOperand.name), false, true)
         else -> throw MarcelParserException(
           token,
           "Can only handle function calls and fields with dot operators"
@@ -1286,7 +1288,8 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       }
       TokenType.QUESTION_DOT -> when (rightOperand) {
         is FunctionCallNode -> InvokeAccessOperator(token, leftOperand, rightOperand, true)
-        is ReferenceExpression -> GetFieldAccessOperator(token, leftOperand, rightOperand, true)
+        is ReferenceExpression -> GetFieldAccessOperator(token, leftOperand, rightOperand, true, false)
+        is DirectFieldAccessNode -> GetFieldAccessOperator(token, leftOperand, ReferenceExpression(rightOperand.token, rightOperand.scope, rightOperand.name), true, true)
         else -> throw MarcelParserException(
           token,
           "Can only handle function calls and fields with dot operators"

@@ -13,6 +13,7 @@ import com.tambapps.marcel.parser.ast.statement.TryCatchNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.scope.ClassField
 import com.tambapps.marcel.parser.scope.DynamicMethodField
 import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.type.JavaArrayType
@@ -93,6 +94,10 @@ open class AstNodeTypeResolver constructor(
 
   open fun getDeclaredFields(javaType: JavaType): List<MarcelField> {
     return emptyList()
+  }
+
+  open fun getClassField(javaType: JavaType, fieldName: String): ClassField {
+    throw MarcelSemanticException("Class field $javaType.$fieldName is not defined")
   }
 
   open fun getMethods(javaType: JavaType): List<JavaMethod> {
@@ -359,4 +364,6 @@ open class AstNodeTypeResolver constructor(
   override fun visit(findOperator: FindOperator) = JavaType.of(Matcher::class.java)
 
   override fun visit(classExpressionNode: ClassExpressionNode) = JavaType.of(Class::class.java, listOf(classExpressionNode.clazz))
+
+  override fun visit(directFieldAccessNode: DirectFieldAccessNode) = getClassField(directFieldAccessNode.scope.classType, directFieldAccessNode.name).type
 }

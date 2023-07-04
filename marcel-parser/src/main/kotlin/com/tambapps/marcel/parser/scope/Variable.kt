@@ -109,7 +109,7 @@ class ReflectMarcelField private constructor(
   override val name: String,
   override val owner: JavaType,
   access: Int
-) : AbstractField(access) {
+) : ClassField(type, name, owner, access) {
   constructor(field: Field): this(JavaType.of(field.type), field.name, JavaType.of(field.declaringClass), field.modifiers)
 }
 

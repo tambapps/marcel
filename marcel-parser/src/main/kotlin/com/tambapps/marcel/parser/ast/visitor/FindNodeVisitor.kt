@@ -180,6 +180,7 @@ class FindNodeVisitor(private val predicate: (AstNode) -> Boolean): AstNodeVisit
   override fun visit(superReference: SuperReference) = node(superReference)
 
   override fun visit(patternValueNode: LiteralPatternNode) = node(patternValueNode)
+  override fun visit(directFieldAccessNode: DirectFieldAccessNode) = node(directFieldAccessNode)
 
   override fun visit(classExpressionNode: ClassExpressionNode) = node(classExpressionNode)
 

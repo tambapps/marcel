@@ -176,5 +176,6 @@ class CheckAllPathsReturnVisitor: AstNodeVisitor<Boolean> {
   override fun visit(findOperator: FindOperator) = false
 
   override fun visit(classExpressionNode: ClassExpressionNode) = false
+  override fun visit(directFieldAccessNode: DirectFieldAccessNode) = false
 
 }

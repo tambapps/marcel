@@ -194,7 +194,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
         constructor.block.addStatement(
           FieldAssignmentNode(LexToken.dummy(),
             constructor.scope, GetFieldAccessOperator(LexToken.dummy(), ReferenceExpression.thisRef(constructor.scope),
-              ReferenceExpression(LexToken.dummy(), constructor.scope, marcelField.name), false), initialValue
+              ReferenceExpression(LexToken.dummy(), constructor.scope, marcelField.name), false, true), initialValue
           )
         )
       }

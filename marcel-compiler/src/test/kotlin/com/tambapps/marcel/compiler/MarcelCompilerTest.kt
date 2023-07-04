@@ -95,7 +95,7 @@ class MarcelCompilerTest: AbstractCompilerTest() {
   @Disabled
   @Test
   fun manualTest() {
-    val eval = eval("/tests/test_dynamic_object.mcl")
+    val eval = eval("/tests/test_direct_field_access.mcl")
     println(eval)
   }
 }

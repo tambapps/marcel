@@ -1,0 +1,19 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+
+class A {
+
+  int b = 1
+
+  fun int getBb() {
+   return @b
+  }
+}
+
+A a = new A()
+assertEquals(1, a.@b)
+assertEquals(1, a.bb)
+
+a.@b = 5
+assertEquals(5, a.@b)
+assertEquals(5, a.bb)

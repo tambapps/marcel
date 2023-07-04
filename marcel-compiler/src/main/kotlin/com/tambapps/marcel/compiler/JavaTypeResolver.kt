@@ -98,6 +98,21 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     else classMethods[javaType.className] ?: emptyList()
   }
 
+  override fun getClassField(javaType: JavaType, fieldName: String): ClassField {
+    if (javaType.isLoaded) {
+      return try {
+        ReflectMarcelField(javaType.realClazz.getDeclaredField(fieldName))
+      } catch (e: NoSuchFieldException) {
+        ReflectMarcelField(javaType.realClazz.getField(fieldName))
+      } catch (e1: NoSuchFieldException) {
+        super.getClassField(javaType, fieldName)
+      }
+    } else {
+      val field = classFields[javaType.className]?.find { it.name == fieldName }
+      return if (field is ClassField) field else super.getClassField(javaType, fieldName)
+    }
+  }
+
   override fun getDeclaredFields(javaType: JavaType): List<MarcelField> {
     return if (javaType.isLoaded) javaType.realClazz.declaredFields.map { ReflectMarcelField(it) }
     else classFields[javaType.className] ?: emptyList()
@@ -274,9 +289,14 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   }
 
   // ast node type resolver methods
-  override fun visit(getFieldAccessOperator: GetFieldAccessOperator) =
-    if (getFieldAccessOperator.nullSafe) findFieldOrThrow(getFieldAccessOperator.leftOperand.accept(this), getFieldAccessOperator.rightOperand.name).type.objectType
-    else findFieldOrThrow(getFieldAccessOperator.leftOperand.accept(this), getFieldAccessOperator.rightOperand.name).type
+  override fun visit(getFieldAccessOperator: GetFieldAccessOperator): JavaType {
+    val field = findFieldOrThrow(getFieldAccessOperator.leftOperand.accept(this), getFieldAccessOperator.rightOperand.name)
+    if (getFieldAccessOperator.classField && field !is ClassField) {
+      throw MarcelSemanticException("Class field ${getFieldAccessOperator.scope.classType}.${getFieldAccessOperator.rightOperand.name} is not defined")
+    }
+    return if (getFieldAccessOperator.nullSafe) field.type.objectType
+    else field.type
+  }
 
   override fun visit(literalListNode: LiteralArrayNode): JavaArrayType {
     if (literalListNode.type != null) return literalListNode.type!!

@@ -101,7 +101,7 @@ open class InvokeAccessOperator constructor(token: LexToken, leftOperand: Expres
 
 
 open class GetFieldAccessOperator constructor(token: LexToken, leftOperand: ExpressionNode, override val rightOperand: ReferenceExpression,
-                                  val nullSafe: Boolean) :
+                                  val nullSafe: Boolean, val classField: Boolean) :
     BinaryOperatorNode(token, leftOperand, rightOperand) {
   val scope: Scope get() = rightOperand.scope
 

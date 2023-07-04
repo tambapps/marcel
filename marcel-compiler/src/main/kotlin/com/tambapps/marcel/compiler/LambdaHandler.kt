@@ -66,7 +66,7 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
     val constructorBlock: MutableList<StatementNode> = fields.map {
       ExpressionStatementNode(token,
         FieldAssignmentNode(token, constructorScope, GetFieldAccessOperator(token, ReferenceExpression.thisRef(constructorScope),
-          ReferenceExpression(token, constructorScope, it.name), false), ReferenceExpression(token, constructorScope, it.name))
+          ReferenceExpression(token, constructorScope, it.name), false, false), ReferenceExpression(token, constructorScope, it.name))
       )
     }.toMutableList()
     constructorBlock.add(0, ExpressionStatementNode(token, SuperConstructorCallNode(token, constructorScope, mutableListOf())))
