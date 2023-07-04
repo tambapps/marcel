@@ -34,7 +34,7 @@ abstract class AbstractShellCompleter<T>(
       .lastOrNull() ?: return
     if (lastNode is ExpressionStatementNode) lastNode = lastNode.expression
     if (endsWithDot && lastNode is ReferenceExpression) {
-      lastNode = GetFieldAccessOperator(lastNode.token, lastNode, ReferenceExpression(lastNode.token, lastNode.scope, ""), false)
+      lastNode = GetFieldAccessOperator(lastNode.token, lastNode, ReferenceExpression(lastNode.token, lastNode.scope, ""), false, false)
     }
     if (lastNode is GetFieldAccessOperator) {
       completeClassMember(lastNode, endsWithDot, candidates)
