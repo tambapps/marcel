@@ -91,7 +91,8 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
   fun compileSourceFiles(scriptLoader: MarcelClassLoader? = null, sourceFiles: Collection<SourceFile>, classConsumer: Consumer<CompiledClass>) {
     val typeResolver = JavaTypeResolver(scriptLoader)
 
-    for (sourceFile in sourceFiles) {
+    // first load all classes in typeresolver
+    val asts = sourceFiles.map { sourceFile ->
       val tokens = MarcelLexer().lex(sourceFile.text)
       val parser = MarcelParser(typeResolver, sourceFile.className, tokens) //if (className != null) MarcelParser(typeResolver, className, tokens) else MarcelParser(typeResolver, tokens)
       val ast = parser.parse()
@@ -110,14 +111,19 @@ class MarcelCompiler(private val compilerConfiguration: CompilerConfiguration) {
           }
         }
       }
-
-      val classCompiler = ClassCompiler(compilerConfiguration, typeResolver)
       ast.extensionTypes.forEach(typeResolver::loadExtension)
-      ast.classes.forEach {
-        val compiledClasses = classCompiler.compileClass(it)
-        compiledClasses.forEach(classConsumer)
-      }
+      ast.classes.forEach { typeResolver.registerClass(it) }
+      ast
+    }
+
+    val classCompiler = ClassCompiler(compilerConfiguration, typeResolver)
+
+    // then compile them
+    asts.forEach { ast ->
+      ast.extensionTypes.forEach(typeResolver::loadExtension)
+      val compiledClasses = classCompiler.compileDefinedClasses(ast.classes)
       ast.extensionTypes.forEach(typeResolver::unloadExtension)
+      compiledClasses.forEach(classConsumer)
     }
   }
 
