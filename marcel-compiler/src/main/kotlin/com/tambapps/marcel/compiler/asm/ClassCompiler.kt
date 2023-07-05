@@ -178,7 +178,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
 
     // writing annotations
     for (annotation in marcelField.annotations) {
-      writeAnnotation(classWriter.visitAnnotation(annotation.javaAnnotation.descriptor, true), annotation)
+      writeAnnotation(fieldVisitor.visitAnnotation(annotation.javaAnnotation.descriptor, true), annotation)
     }
 
     if (marcelField.initialValue == null || marcelField.initialValue == marcelField.type.defaultValueExpression) return
@@ -212,7 +212,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
 
     // writing annotations
     for (annotation in methodNode.annotations) {
-      writeAnnotation(classWriter.visitAnnotation(annotation.javaAnnotation.descriptor, true), annotation)
+      writeAnnotation(mv.visitAnnotation(annotation.javaAnnotation.descriptor, true), annotation)
     }
 
     mv.visitCode()

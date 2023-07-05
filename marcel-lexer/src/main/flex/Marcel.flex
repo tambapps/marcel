@@ -344,7 +344,6 @@ LONELY_BACKTICK=`
 "throw"          { return token(THROW); }
 "throws"          { return token(THROWS); }
 "constructor"          { return token(CONSTRUCTOR); }
-"annotation"          { return token(ANNOTATION); }
 
 {IDENTIFIER} {  return valueToken(IDENTIFIER); }
 

@@ -101,19 +101,16 @@ class MarcelParser constructor(
 
     val moduleNode = ModuleNode(imports, extensionTypes, dumbbells)
 
-    val classAnnotations = parseAnnotations(Scope(typeResolver, imports, JavaType.Object, true))
+    val annotations = parseAnnotations(Scope(typeResolver, imports, JavaType.Object, true))
     while (current.type != TokenType.END_OF_FILE) {
       if (current.type == TokenType.CLASS
         // visibility
         || lookup(1)?.type == TokenType.CLASS
-        // vuisibility|extension + abstract
+        // visibility|extension + abstract
         || lookup(2)?.type == TokenType.CLASS) {
-        moduleNode.classes.add(parseClass(imports, packageName, classAnnotations))
+        moduleNode.classes.add(parseClass(imports, packageName, annotations))
       } else {
-        if (classAnnotations.isNotEmpty()) {
-          throw MarcelParserException(classAnnotations.first().token, "A script cannot have class annotations")
-        }
-        moduleNode.classes.addAll(script(imports, packageName))
+        moduleNode.classes.addAll(script(imports, packageName, annotations))
       }
     }
     return moduleNode
@@ -244,7 +241,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
     return classNode
   }
 
-  fun script(imports: MutableList<ImportNode>, packageName: String?): List<ClassNode> {
+  fun script(imports: MutableList<ImportNode>, packageName: String?, initialAnnotations: List<AnnotationNode> = emptyList()): List<ClassNode> {
     val classMethods = mutableListOf<MethodNode>()
     val classFields = mutableListOf<FieldNode>()
     val superType = JavaType.of(Script::class.java)
@@ -269,8 +266,8 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
     )
     val classNodes = mutableListOf(classNode)
 
+    var annotations = initialAnnotations
     while (current.type != TokenType.END_OF_FILE) {
-      val annotations = parseAnnotations(classScope)
       when (current.type) {
         TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.FUN, TokenType.INLINE, TokenType.CLASS,
         TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE, TokenType.STATIC, -> {
@@ -297,7 +294,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         }
         else -> statements.add(statement(runScope))
       }
-
+      if (current.type != TokenType.END_OF_FILE) annotations = parseAnnotations(classScope)
     }
     return classNodes
   }
