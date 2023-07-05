@@ -172,11 +172,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       }
       accept(TokenType.RPAR)
     }
-  // only handle java annotations
-  if (!type.isLoaded) {
-    throw MarcelParserException(token, "Marcel only support java annotations already loaded in classpath")
-  }
-  return AnnotationNode(token, JavaAnnotation.of(type.realClazz), attributes)
+  return AnnotationNode(token, JavaAnnotation.of(type), attributes)
   }
 
   private fun parseClass(imports: MutableList<ImportNode>, packageName: String?, classAnnotations: List<AnnotationNode>, outerClassNode: ClassNode? = null): ClassNode {
