@@ -250,6 +250,11 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
       val parameter = methodNode.parameters[i]
       // this is important, to be able to resolve marcel method parameter names
       mv.visitParameter(parameter.name, if (parameter.isFinal) Opcodes.ACC_FINAL else 0)
+      if (parameter.annotations.isNotEmpty()) {
+        parameter.annotations.forEach {
+          writeAnnotation(mv.visitParameterAnnotation(i, it.javaAnnotation.descriptor, true), it)
+        }
+      }
 
       if (parameter.defaultValue != null) {
         val annotationVisitor = mv.visitParameterAnnotation(i, DefaultValue::class.javaType.descriptor, true)

@@ -163,6 +163,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
           val expression = e as? JavaConstantExpression
             ?: throw MarcelParserException(e.token, "Annotations attributes can only have constant value ")
           attributes.add(Pair(attributeName, expression))
+          if (current.type != TokenType.RPAR) accept(TokenType.COMMA)
         }
       } else {
         val e = expression(scope)
@@ -370,6 +371,8 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
     // this parameters are parameters which are automatically assigned to the field
     val thisParameters = mutableListOf<String>()
     while (current.type != TokenType.RPAR) {
+      val parameterAnnotations = parseAnnotations(classScope)
+
       val isThisParameter = acceptOptional(TokenType.THIS) != null && acceptOptional(TokenType.DOT) != null
       val type: JavaType
       val identifierToken: LexToken
@@ -390,7 +393,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         thisParameters.add(argName)
       }
       val defaultValue = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(classScope) else null
-      parameters.add(MethodParameterNode(identifierToken, type, argName, defaultValue))
+      parameters.add(MethodParameterNode(identifierToken, type, argName, defaultValue, parameterAnnotations))
       if (current.type == TokenType.RPAR) {
         break
       } else {
