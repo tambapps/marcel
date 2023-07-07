@@ -47,7 +47,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       for (namedParameter in fCall.constructorNamedArguments) {
         dup()
         argumentPusher.pushArgument(namedParameter.valueExpression)
-        val field = typeResolver.findFieldOrThrow(type, namedParameter.name, true, fCall)
+        val field = typeResolver.findFieldOrThrow(type, namedParameter.name, fCall)
         if (field.isFinal) throw MarcelSemanticException(fCall.token, "Cannot use named parameters constructor on a final field")
         castIfNecessaryOrThrow(fCall.scope, namedParameter.valueExpression, field.type, namedParameter.valueExpression.getType(typeResolver))
         storeInVariable(fCall, fCall.scope, field)

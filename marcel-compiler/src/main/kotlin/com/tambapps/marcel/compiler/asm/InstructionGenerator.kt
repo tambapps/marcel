@@ -526,7 +526,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(node: GetFieldAccessOperator) {
-    val field = typeResolver.findFieldOrThrow(node.leftOperand.getType(typeResolver), node.rightOperand.name, true, node)
+    val field = typeResolver.findFieldOrThrow(node.leftOperand.getType(typeResolver), node.rightOperand.name, node)
     if (field.isStatic) {
       mv.getField(node, node.scope, field)
       return
@@ -557,7 +557,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(node: GetIndexFieldAccessOperator) {
-    val field = typeResolver.findFieldOrThrow(node.leftOperand.getType(typeResolver), node.rightOperand.name, true, node)
+    val field = typeResolver.findFieldOrThrow(node.leftOperand.getType(typeResolver), node.rightOperand.name, node)
     if (field.isStatic) {
       mv.getField(node, node.scope, field)
       mv.getAt(node, node.scope, node.rightOperand.variable.type, node.rightOperand.indexArguments)
@@ -686,7 +686,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   override fun visit(assignmentNode: FieldAssignmentNode) {
     val fieldVariable = typeResolver.findFieldOrThrow(
             assignmentNode.fieldNode.leftOperand.getType(typeResolver),
-            assignmentNode.fieldNode.rightOperand.name, true, assignmentNode
+            assignmentNode.fieldNode.rightOperand.name, assignmentNode
     )
     // needed to smart cast literal arrays into lists
     val fieldAssignmentNode = if (assignmentNode.expression is LiteralArrayNode) FieldAssignmentNode(assignmentNode.token,
@@ -1448,7 +1448,7 @@ private class PushingInstructionGenerator(
 
   override fun visit(node: FieldAssignmentNode) {
     super.visit(node)
-    val field = typeResolver.findFieldOrThrow(node.fieldNode.leftOperand.getType(typeResolver), node.fieldNode.rightOperand.name, true, node)
+    val field = typeResolver.findFieldOrThrow(node.fieldNode.leftOperand.getType(typeResolver), node.fieldNode.rightOperand.name, node)
     if (!field.isStatic) {
       pushArgument(node.fieldNode.leftOperand)
     }

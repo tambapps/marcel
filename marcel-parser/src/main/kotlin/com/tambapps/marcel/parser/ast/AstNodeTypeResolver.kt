@@ -147,11 +147,11 @@ open class AstNodeTypeResolver constructor(
     return null
   }
 
-  fun findFieldOrThrow(javaType: JavaType, name: String, declared: Boolean = true, node: AstNode? = null): JavaField {
-    return findField(javaType, name, declared) ?: throw MarcelSemanticException(node?.token, "Field $name was not found")
+  fun findFieldOrThrow(javaType: JavaType, name: String, node: AstNode? = null): JavaField {
+    return findField(javaType, name) ?: throw MarcelSemanticException(node?.token, "Field $name was not found")
   }
 
-  open fun findField(javaType: JavaType, name: String, declared: Boolean, node: AstNode? = null): JavaField? {
+  open fun findField(javaType: JavaType, name: String, node: AstNode? = null): JavaField? {
     return null
   }
 

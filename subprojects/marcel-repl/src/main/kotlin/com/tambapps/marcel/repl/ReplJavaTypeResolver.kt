@@ -35,8 +35,8 @@ class ReplJavaTypeResolver constructor(classLoader: MarcelClassLoader?, private 
         }
     }
 
-    override fun findField(javaType: JavaType, name: String, declared: Boolean, node: AstNode?): JavaField? {
-        val f = super.findField(javaType, name, declared, node)
+    override fun findField(javaType: JavaType, name: String, node: AstNode?): JavaField? {
+        val f = super.findField(javaType, name, node)
         if (f == null && isScript(javaType) && binding.hasVariable(name)) {
             // if we're looking for a variable of a script, it may be a BoundField
             return scriptVariables[name]?.withOwner(javaType)

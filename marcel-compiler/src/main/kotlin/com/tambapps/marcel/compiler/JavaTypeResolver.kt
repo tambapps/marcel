@@ -231,7 +231,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     return classMethods.computeIfAbsent(javaType.className) { mutableListOf() }
   }
 
-  override fun findField(javaType: JavaType, name: String, declared: Boolean, node: AstNode?): JavaField? {
+  override fun findField(javaType: JavaType, name: String, node: AstNode?): JavaField? {
     if (javaType.isLoaded) {
       val clazz = javaType.realClazz
       val field = try {
@@ -250,7 +250,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
       // searching on super types
       var type: JavaType? = javaType.superType!!
       while (type != null) {
-        val f = findField(type, name, declared, node)
+        val f = findField(type, name, node)
         if (f != null) return f
         if (type.isLoaded) break // in loaded classes, we already handle super types so no need to go further
         type = type.superType
@@ -280,7 +280,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
 
   // ast node type resolver methods
   override fun visit(node: GetFieldAccessOperator): JavaType {
-    val field = findFieldOrThrow(node.leftOperand.accept(this), node.rightOperand.name, true, node)
+    val field = findFieldOrThrow(node.leftOperand.accept(this), node.rightOperand.name, node)
     if (node.directFieldAccess && field !is ClassField) {
       throw MarcelSemanticException(node.token, "Class field ${node.scope.classType}.${node.rightOperand.name} is not defined")
     }
@@ -289,7 +289,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   }
 
   override fun visit(node: GetIndexFieldAccessOperator): JavaType {
-    val field = findFieldOrThrow(node.leftOperand.accept(this), node.rightOperand.name, true, node)
+    val field = findFieldOrThrow(node.leftOperand.accept(this), node.rightOperand.name, node)
     if (node.directFieldAccess && field !is ClassField) {
       throw MarcelSemanticException(node.token, "Class field ${node.scope.classType}.${node.rightOperand.name} is not defined")
     }

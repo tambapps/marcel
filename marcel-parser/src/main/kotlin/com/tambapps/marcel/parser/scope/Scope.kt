@@ -91,7 +91,7 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
     val localVariable = findLocalVariable(name)
     if (localVariable != null) return localVariable
     // now searching on fields
-    return typeResolver.findField(classType, name, true)
+    return typeResolver.findField(classType, name)
   }
 
   fun copy(t: JavaType? = null): Scope {
