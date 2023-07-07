@@ -4,10 +4,7 @@ import com.tambapps.marcel.compiler.util.getElementsType
 import com.tambapps.marcel.compiler.util.getKeysType
 import com.tambapps.marcel.compiler.util.getValuesType
 import com.tambapps.marcel.compiler.util.javaType
-import com.tambapps.marcel.parser.ast.MethodParameter
-import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
-import com.tambapps.marcel.parser.ast.AstTypedObject
-import com.tambapps.marcel.parser.ast.ClassNode
+import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.ClassField
@@ -73,13 +70,15 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   override fun defineMethod(javaType: JavaType, method: JavaMethod) {
     val methods = getMarcelMethods(javaType)
     if (methods.any { it.matches(this, method.name, method.parameters) }) {
-      throw MarcelSemanticException("Method with $method is already defined")
+      throw MarcelSemanticException((method as? MethodNode)?.token, "Method with $method is already defined")
     }
     methods.add(method)
   }
 
   override fun defineField(javaType: JavaType, field: MarcelField) {
-    if (javaType.isLoaded) throw MarcelSemanticException("Cannot define field on loaded class")
+    if (javaType.isLoaded) {
+      throw MarcelSemanticException((field as? FieldNode)?.token, "Cannot define field on loaded class")
+    }
     val fields = getMarcelFields(javaType)
     fields.add(field)
   }
@@ -89,18 +88,18 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     else classMethods[javaType.className] ?: emptyList()
   }
 
-  override fun getClassField(javaType: JavaType, fieldName: String): ClassField {
+  override fun getClassField(javaType: JavaType, fieldName: String, node: AstNode?): ClassField {
     if (javaType.isLoaded) {
       return try {
         ReflectMarcelField(javaType.realClazz.getDeclaredField(fieldName))
       } catch (e: NoSuchFieldException) {
         ReflectMarcelField(javaType.realClazz.getField(fieldName))
       } catch (e1: NoSuchFieldException) {
-        super.getClassField(javaType, fieldName)
+        super.getClassField(javaType, fieldName, node)
       }
     } else {
       val field = classFields[javaType.className]?.find { it.name == fieldName }
-      return if (field is ClassField) field else super.getClassField(javaType, fieldName)
+      return if (field is ClassField) field else super.getClassField(javaType, fieldName, node)
     }
   }
 
@@ -138,22 +137,22 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   override fun doFindMethodByParameters(javaType: JavaType, name: String,
                                         positionalArgumentTypes: List<AstTypedObject>,
                                         namedParameters: Collection<MethodParameter>,
-                                        excludeInterfaces: Boolean): JavaMethod? {
+                                        excludeInterfaces: Boolean, node: AstNode?): JavaMethod? {
     return findMethod(javaType, name, { it.matchesUnorderedParameters(this, name, positionalArgumentTypes, namedParameters) },
       {candidates ->
         val exactCandidates = candidates.filter { it.parameters.size == namedParameters.size }
         if (exactCandidates.size == 1) exactCandidates.first() else getMoreSpecificMethod(candidates)
-      }, excludeInterfaces)
+      }, excludeInterfaces, node)
   }
 
-  override fun doFindMethod(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>, excludeInterfaces: Boolean): JavaMethod? {
+  override fun doFindMethod(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>, excludeInterfaces: Boolean, node: AstNode?): JavaMethod? {
     var m = findMethod(javaType, name, { it.matches(this, name, argumentTypes) },
       {candidates ->
         val exactCandidates = candidates.filter { it.exactMatch(name, argumentTypes) }
         if (exactCandidates.size == 1) exactCandidates.first() else getMoreSpecificMethod(candidates)
-      }, excludeInterfaces)
+      }, excludeInterfaces, node)
     if (m == null && argumentTypes.isEmpty()) {
-      m = findMethodByParameters(javaType, name, argumentTypes, emptyList())
+      m = findMethodByParameters(javaType, name, argumentTypes, emptyList(), false, node)
     }
     return m
   }
@@ -161,7 +160,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   private fun findMethod(javaType: JavaType, name: String,
                          matcherPredicate: (JavaMethod) -> Boolean,
                          candidatesPicker: (List<JavaMethod>) -> JavaMethod?,
-                         excludeInterfaces: Boolean): JavaMethod? {
+                         excludeInterfaces: Boolean, node: AstNode?): JavaMethod? {
     val methods = getMarcelMethods(javaType)
     var m = methods.find(matcherPredicate)
     if (m != null) return m
@@ -196,7 +195,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     // search in super types, but not for constructors
     var type = javaType.superType
     while (type != null) {
-      m = findMethod(type, name, matcherPredicate, candidatesPicker, true)
+      m = findMethod(type, name, matcherPredicate, candidatesPicker, true, node)
       if (m != null) return m
       type = type.superType
     }
@@ -206,7 +205,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
 
     m = candidatesPicker.invoke(
       javaType.allImplementedInterfaces.mapNotNull {
-        findMethod(it, name, matcherPredicate, candidatesPicker, false)
+        findMethod(it, name, matcherPredicate, candidatesPicker, false, node)
       }
     )
     return m
@@ -232,7 +231,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     return classMethods.computeIfAbsent(javaType.className) { mutableListOf() }
   }
 
-  override fun findField(javaType: JavaType, name: String, declared: Boolean): MarcelField? {
+  override fun findField(javaType: JavaType, name: String, declared: Boolean, node: AstNode?): MarcelField? {
     if (javaType.isLoaded) {
       val clazz = javaType.realClazz
       val field = try {
@@ -251,7 +250,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
       // searching on super types
       var type: JavaType? = javaType.superType!!
       while (type != null) {
-        val f = findField(type, name, declared)
+        val f = findField(type, name, declared, node)
         if (f != null) return f
         if (type.isLoaded) break // in loaded classes, we already handle super types so no need to go further
         type = type.superType
@@ -260,10 +259,10 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
 
     // try to find a method field
     val methodFieldName = name.replaceFirstChar { it.uppercase() }
-    val getterMethod  = findMethod(javaType, "get$methodFieldName", emptyList())
+    val getterMethod  = findMethod(javaType, "get$methodFieldName", emptyList(), false, node)
     val setterCandidates = getMarcelMethods(javaType).filter { it.name == "set$methodFieldName" && it.parameters.size  == 1}
     val setterMethod =
-      if (setterCandidates.isEmpty()) findMethod(javaType, "set$methodFieldName", listOf(getterMethod?.returnType ?: JavaType.Object))
+      if (setterCandidates.isEmpty()) findMethod(javaType, "set$methodFieldName", listOf(getterMethod?.returnType ?: JavaType.Object), false, node)
       else if (setterCandidates.size == 1) setterCandidates.first()
       else getMoreSpecificMethod(setterCandidates)
     if (getterMethod != null || setterMethod != null) {
@@ -281,22 +280,22 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
 
   // ast node type resolver methods
   override fun visit(node: GetFieldAccessOperator): JavaType {
-    val field = findFieldOrThrow(node.leftOperand.accept(this), node.rightOperand.name)
+    val field = findFieldOrThrow(node.leftOperand.accept(this), node.rightOperand.name, true, node)
     if (node.directFieldAccess && field !is ClassField) {
-      throw MarcelSemanticException("Class field ${node.scope.classType}.${node.rightOperand.name} is not defined")
+      throw MarcelSemanticException(node.token, "Class field ${node.scope.classType}.${node.rightOperand.name} is not defined")
     }
     return if (node.nullSafe) field.type.objectType
     else field.type
   }
 
   override fun visit(node: GetIndexFieldAccessOperator): JavaType {
-    val field = findFieldOrThrow(node.leftOperand.accept(this), node.rightOperand.name)
+    val field = findFieldOrThrow(node.leftOperand.accept(this), node.rightOperand.name, true, node)
     if (node.directFieldAccess && field !is ClassField) {
-      throw MarcelSemanticException("Class field ${node.scope.classType}.${node.rightOperand.name} is not defined")
+      throw MarcelSemanticException(node.token, "Class field ${node.scope.classType}.${node.rightOperand.name} is not defined")
     }
 
     return if (field.type.isArray) field.type.asArrayType.elementsType
-    else findMethodOrThrow(field.type, "getAt", node.rightOperand.indexArguments.map { it.accept(this) }).actualReturnType
+    else findMethodOrThrow(field.type, "getAt", node.rightOperand.indexArguments.map { it.accept(this) }, node).actualReturnType
   }
 
   override fun visit(node: LiteralArrayNode): JavaArrayType {

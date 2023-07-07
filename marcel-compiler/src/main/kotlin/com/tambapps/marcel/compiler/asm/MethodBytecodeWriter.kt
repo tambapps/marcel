@@ -42,12 +42,12 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       visitConstructorCall(fCall, type, constructorMethod, fCall.scope, arguments)
     } catch (e: MarcelSemanticException) {
       // finding an empty constructor to then set the fields manually
-      typeResolver.findMethod(type, JavaMethod.CONSTRUCTOR_NAME, emptyList(), true) ?: throw e
+      typeResolver.findMethod(type, JavaMethod.CONSTRUCTOR_NAME, emptyList(), true, fCall) ?: throw e
       visitConstructorCall(ConstructorCallNode(fCall.token, fCall.scope, type, mutableListOf()))
       for (namedParameter in fCall.constructorNamedArguments) {
         dup()
         argumentPusher.pushArgument(namedParameter.valueExpression)
-        val field = typeResolver.findFieldOrThrow(type, namedParameter.name)
+        val field = typeResolver.findFieldOrThrow(type, namedParameter.name, true, fCall)
         if (field.isFinal) throw MarcelSemanticException(fCall.token, "Cannot use named parameters constructor on a final field")
         castIfNecessaryOrThrow(fCall.scope, namedParameter.valueExpression, field.type, namedParameter.valueExpression.getType(typeResolver))
         storeInVariable(fCall, fCall.scope, field)
@@ -262,7 +262,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       is BoundField -> {
         pushThis()
         invokeMethodWithArguments(from, scope,
-          typeResolver.findMethodOrThrow(variable.owner, "getVariable", listOf(String::class.javaType)),
+          typeResolver.findMethodOrThrow(variable.owner, "getVariable", listOf(String::class.javaType), from),
           StringConstantNode(from.token, variable.name))
         // need to cast because we store the value as an object
         castIfNecessaryOrThrow(scope, from, variable.type, JavaType.Object)
@@ -289,15 +289,15 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       } else if (expectedType != JavaType.Object && actualType.isArray) {
         // lists
         if (JavaType.intList.isAssignableFrom(expectedType) && actualType == JavaType.intArray) {
-          invokeMethod(from, scope, typeResolver.findMethodOrThrow(JavaType.intListImpl, "wrap", listOf(JavaType.intArray)))
+          invokeMethod(from, scope, typeResolver.findMethodOrThrow(JavaType.intListImpl, "wrap", listOf(JavaType.intArray), from))
         } else if (JavaType.longList.isAssignableFrom(expectedType) && actualType == JavaType.longArray) {
-          invokeMethod(from, scope, typeResolver.findMethodOrThrow(JavaType.longListImpl, "wrap", listOf(JavaType.longArray)))
+          invokeMethod(from, scope, typeResolver.findMethodOrThrow(JavaType.longListImpl, "wrap", listOf(JavaType.longArray), from))
         } else if (JavaType.floatList.isAssignableFrom(expectedType) && actualType == JavaType.floatArray) {
-          invokeMethod(from, scope, typeResolver.findMethodOrThrow(JavaType.floatListImpl, "wrap", listOf(JavaType.floatArray)))
+          invokeMethod(from, scope, typeResolver.findMethodOrThrow(JavaType.floatListImpl, "wrap", listOf(JavaType.floatArray), from))
         } else if (JavaType.doubleList.isAssignableFrom(expectedType) && actualType == JavaType.doubleArray) {
-          invokeMethod(from, scope, typeResolver.findMethodOrThrow(JavaType.doubleListImpl, "wrap", listOf(JavaType.doubleArray)))
+          invokeMethod(from, scope, typeResolver.findMethodOrThrow(JavaType.doubleListImpl, "wrap", listOf(JavaType.doubleArray), from))
         } else if (JavaType.charList.isAssignableFrom(expectedType) && actualType == JavaType.charArray) {
-          invokeMethod(from, scope, typeResolver.findMethodOrThrow(JavaType.charListImpl, "wrap", listOf(JavaType.charArray)))
+          invokeMethod(from, scope, typeResolver.findMethodOrThrow(JavaType.charListImpl, "wrap", listOf(JavaType.charArray), from))
         } else if (List::class.javaType.isAssignableFrom(expectedType) && actualType.isArray) {
           invokeMethod(from, scope, BytecodeHelper::class.java.getDeclaredMethod("createList", JavaType.Object.realClazz))
         }
@@ -440,7 +440,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
           storeInVariable(node, scope, it)
           pushThis()
           invokeMethodWithArguments(node, scope,
-            typeResolver.findMethodOrThrow(variable.owner, "setVariable", listOf(String::class.javaType, Any::class.javaType)),
+            typeResolver.findMethodOrThrow(variable.owner, "setVariable", listOf(String::class.javaType, Any::class.javaType), node),
             StringConstantNode(node.token, variable.name), ReferenceExpression(node.token, scope, it.name))
         }
       }
@@ -512,7 +512,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       mv.visitInsn(type.asArrayType.arrayLoadCode)
     } else {
       // must call getAt
-      invokeMethodWithArguments(from, scope, typeResolver.findMethodOrThrow(type, "getAt", indexArguments.map { it.getType(typeResolver) }), indexArguments)
+      invokeMethodWithArguments(from, scope, typeResolver.findMethodOrThrow(type, "getAt", indexArguments.map { it.getType(typeResolver) }, from), indexArguments)
     }
   }
 
@@ -545,7 +545,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       // must call putAt
       pushVariable(from, scope, variable)
       val putAtArguments = indexArguments + expression
-      invokeMethodWithArguments(from, scope, typeResolver.findMethodOrThrow(variable.type, "putAt", putAtArguments.map { it.getType(typeResolver) }), putAtArguments)
+      invokeMethodWithArguments(from, scope, typeResolver.findMethodOrThrow(variable.type, "putAt", putAtArguments.map { it.getType(typeResolver) }, from), putAtArguments)
     }
   }
 

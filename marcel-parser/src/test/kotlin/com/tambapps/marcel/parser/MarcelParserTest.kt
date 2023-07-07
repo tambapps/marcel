@@ -18,7 +18,7 @@ class MarcelParserTest {
 
     private val lexer = MarcelLexer()
     private val typeResolver = AstNodeTypeResolver()
-    private val type = typeResolver.defineClass("Test", JavaType.Object, false, emptyList())
+    private val type = typeResolver.defineClass(null, "Test", JavaType.Object, false, emptyList())
     private val scope = MethodScope(typeResolver, mutableListOf(), type, "test", emptyList(), JavaType.void, staticContext = false)
 
     @Test

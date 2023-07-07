@@ -38,7 +38,7 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
     val interfaceType = if (lambdaNode.interfaceType != null && !Lambda::class.javaType.isAssignableFrom(lambdaNode.interfaceType!!)) lambdaNode.interfaceType else null
     tryMatchParametersWithLambda(lambdaNode)
     val lambdaInterfaceType = AstNodeTypeResolver.getLambdaType(typeResolver, lambdaNode)
-    val type = scope.typeResolver.defineClass(className, JavaType.Object, false,
+    val type = scope.typeResolver.defineClass(lambdaNode, className, JavaType.Object, false,
         if (interfaceType != null) listOf(interfaceType, lambdaInterfaceType)
         else listOf(lambdaInterfaceType))
     val methods = mutableListOf<MethodNode>()

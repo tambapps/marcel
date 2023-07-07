@@ -18,7 +18,7 @@ class ReferenceExpression constructor(token: LexToken, override var scope: Scope
     }
   }
   val variable: Variable
-    get() = scope.findVariableOrThrow(name)
+    get() = scope.findVariableOrThrow(name, this)
   val variableExists: Boolean
     get() = scope.findVariable(name) != null
 

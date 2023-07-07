@@ -10,7 +10,7 @@ class IndexedReferenceExpression(token: LexToken, override var scope: Scope, val
   val indexArguments: List<ExpressionNode>, val isSafeIndex: Boolean): AbstractExpressionNode(token), ScopedNode<Scope> {
 
   val variable: Variable
-    get() = scope.findVariableOrThrow(name)
+    get() = scope.findVariableOrThrow(name, this)
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 

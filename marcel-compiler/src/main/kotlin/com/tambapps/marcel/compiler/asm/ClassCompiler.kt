@@ -52,7 +52,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
           // maybe there is a generic implementation, in which case we have to generate the method with raw types
           throw MarcelSemanticException(classNode.token, "Class ${classNode.type} doesn't define method $interfaceMethod of interface $interfaze")
         }
-        val rawInterfaceMethod = typeResolver.findMethod(interfaze.raw(), interfaceMethod.name, interfaceMethod.parameters, true)!!
+        val rawInterfaceMethod = typeResolver.findMethod(interfaze.raw(), interfaceMethod.name, interfaceMethod.parameters, true, classNode)!!
         // we only need the match on parameters (== ignoring return type) because returning a more specific type is still a valid definition that doesn't need another implementation
         if (!rawInterfaceMethod.parameterMatches(implementationMethod)) {
           // need to write implementation method with raw type

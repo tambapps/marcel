@@ -68,9 +68,9 @@ open class SimpleFunctionCallNode constructor(
     // if there is no owner and the class implements DelegatedObject, the delegate is prioritised before this
     if (javaClass == SimpleFunctionCallNode::class.java // checking type because we don't want this for constructor calls
       && methodOwnerType == null && scope.classType.implements(JavaType.of(DelegatedObject::class.java))) {
-      val delegateGetter = typeResolver.findMethod(scope.classType, "getDelegate", emptyList())
+      val delegateGetter = typeResolver.findMethod(scope.classType, "getDelegate", emptyList(), false, this)
       if (delegateGetter != null) {
-        val methodOfDelegate = typeResolver.findMethod(delegateGetter.returnType, name, emptyList())
+        val methodOfDelegate = typeResolver.findMethod(delegateGetter.returnType, name, emptyList(), false, this)
         if (methodOfDelegate != null) {
           methodOwnerType = SimpleFunctionCallNode(token, scope,
             "getDelegate", mutableListOf(), ReferenceExpression.thisRef(scope), delegateGetter)
@@ -79,8 +79,8 @@ open class SimpleFunctionCallNode constructor(
     }
 
     return try {
-      if (methodOwnerType != null) typeResolver.findMethodOrThrow(typeResolver.resolve(methodOwnerType!!), name, arguments.map { it.accept(typeResolver) })
-      else scope.findMethodOrThrow(name, arguments.map { it.accept(typeResolver) })
+      if (methodOwnerType != null) typeResolver.findMethodOrThrow(typeResolver.resolve(methodOwnerType!!), name, arguments.map { it.accept(typeResolver) }, this)
+      else scope.findMethodOrThrow(name, arguments.map { it.accept(typeResolver) }, this)
     } catch (e: MarcelSemanticException) {
       if (isDynamicObjectDynamicCall(typeResolver)) ReflectJavaMethod(DynamicObject::class.java.getMethod("invokeMethod", String::class.java, JavaType.objectArray.realClazz))
       else throw e
@@ -156,7 +156,7 @@ open class NamedParametersFunctionCall constructor(token: LexToken, override var
     // if there is no owner and the class implements DelegatedObject, the delegate is prioritised before this
     if (javaClass == NamedParametersFunctionCall::class.java // checking type because we don't want this for constructor calls
       && methodOwnerType == null && scope.classType.implements(JavaType.of(DelegatedObject::class.java))) {
-      val delegateGetter = typeResolver.findMethod(scope.classType, "getDelegate", emptyList())
+      val delegateGetter = typeResolver.findMethod(scope.classType, "getDelegate", emptyList(), false, this)
       if (delegateGetter != null) {
         val methodOfDelegate = typeResolver.findMethodByParameters(
           delegateGetter.returnType, name, positionalArguments.map { typeResolver.resolve(it) }, methodParameters)
@@ -169,7 +169,7 @@ open class NamedParametersFunctionCall constructor(token: LexToken, override var
     }
 
     val m =  if (methodOwnerType != null) typeResolver.findMethodByParametersOrThrow(
-      typeResolver.resolve(methodOwnerType!!), name, positionalArguments.map { typeResolver.resolve(it) }, methodParameters)
+      typeResolver.resolve(methodOwnerType!!), name, positionalArguments.map { typeResolver.resolve(it) }, methodParameters, this)
     else scope.getMethodWithParameters(name, positionalArguments.map { typeResolver.resolve(it) }, methodParameters)
     return m
   }

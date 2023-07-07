@@ -334,7 +334,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       val type2 = binaryOperatorNode.leftOperand.getType(typeResolver)
       throw MarcelSemanticException(binaryOperatorNode.token, "Doesn't handle this operator with types $type1 $type2")
     }
-    val leftShiftMethod = typeResolver.findMethodOrThrow(type1, binaryOperatorNode.operatorMethodName!!, listOf(binaryOperatorNode.rightOperand.getType(typeResolver)))
+    val leftShiftMethod = typeResolver.findMethodOrThrow(type1, binaryOperatorNode.operatorMethodName!!, listOf(binaryOperatorNode.rightOperand.getType(typeResolver)), binaryOperatorNode)
     pushArgument(binaryOperatorNode.leftOperand)
     mv.invokeMethodWithArguments(binaryOperatorNode, methodNode.scope, leftShiftMethod, binaryOperatorNode.rightOperand)
     return leftShiftMethod.returnType
@@ -427,7 +427,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
             return // the above method returns a boolean
           }
           else -> {
-            val method = typeResolver.findMethodOrThrow(leftOperand.getType(typeResolver), "compareTo", listOf(rightOperand.getType(typeResolver)))
+            val method = typeResolver.findMethodOrThrow(leftOperand.getType(typeResolver), "compareTo", listOf(rightOperand.getType(typeResolver)), node)
             if (method.returnType != JavaType.int) throw MarcelSemanticException(node.token, "compareTo method should return an int in order to be used in comparator")
             mv.invokeMethod(node, classNode.scope, method)
             mv.pushConstant(0) // pushing 0 because we're comparing two numbers below
@@ -526,7 +526,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(node: GetFieldAccessOperator) {
-    val field = typeResolver.findFieldOrThrow(node.leftOperand.getType(typeResolver), node.rightOperand.name)
+    val field = typeResolver.findFieldOrThrow(node.leftOperand.getType(typeResolver), node.rightOperand.name, true, node)
     if (field.isStatic) {
       mv.getField(node, node.scope, field)
       return
@@ -557,7 +557,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(node: GetIndexFieldAccessOperator) {
-    val field = typeResolver.findFieldOrThrow(node.leftOperand.getType(typeResolver), node.rightOperand.name)
+    val field = typeResolver.findFieldOrThrow(node.leftOperand.getType(typeResolver), node.rightOperand.name, true, node)
     if (field.isStatic) {
       mv.getField(node, node.scope, field)
       mv.getAt(node, node.scope, node.rightOperand.variable.type, node.rightOperand.indexArguments)
@@ -590,7 +590,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(node: DirectFieldAccessNode) {
-    val field = typeResolver.getClassField(node.scope.classType, node.name)
+    val field = typeResolver.getClassField(node.scope.classType, node.name, node)
     pushArgument(ThisReference(node.token, node.scope))
     mv.getField(node, node.scope, field)
   }
@@ -643,7 +643,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
               assignmentNode.name, classNode.type))
     }
 
-    val variable = assignmentNode.scope.findVariableOrThrow(assignmentNode.name)
+    val variable = assignmentNode.scope.findVariableOrThrow(assignmentNode.name, assignmentNode)
     // needed to smart cast literal arrays into lists
     val variableAssignmentNode = if (assignmentNode.expression is LiteralArrayNode) VariableAssignmentNode(assignmentNode.token, assignmentNode.scope, assignmentNode.name,
             AsNode(assignmentNode.token, assignmentNode.scope, variable.type, assignmentNode.expression))
@@ -686,7 +686,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   override fun visit(assignmentNode: FieldAssignmentNode) {
     val fieldVariable = typeResolver.findFieldOrThrow(
             assignmentNode.fieldNode.leftOperand.getType(typeResolver),
-            assignmentNode.fieldNode.rightOperand.name
+            assignmentNode.fieldNode.rightOperand.name, true, assignmentNode
     )
     // needed to smart cast literal arrays into lists
     val fieldAssignmentNode = if (assignmentNode.expression is LiteralArrayNode) FieldAssignmentNode(assignmentNode.token,
@@ -1264,7 +1264,7 @@ private class PushingInstructionGenerator(
       mv.castIfNecessaryOrThrow(classNode.scope, node, JavaType.Object, entry.second.getType(typeResolver))
       mv.invokeMethod(node, classNode.scope, typeResolver.findMethodOrThrow(rawMapType,
         "put",
-        listOf(putMethodKeysType, JavaType.Object)
+        listOf(putMethodKeysType, JavaType.Object), node
       ))
       mv.popStack()
     }
@@ -1286,7 +1286,7 @@ private class PushingInstructionGenerator(
 
   override fun visit(node: NotNode) {
     when (node.operand.getType(typeResolver)) {
-      JavaType.Boolean -> mv.invokeMethodWithArguments(node, classNode.scope, typeResolver.findMethodOrThrow(JavaType.Boolean, "booleanValue", emptyList()), node.operand)
+      JavaType.Boolean -> mv.invokeMethodWithArguments(node, classNode.scope, typeResolver.findMethodOrThrow(JavaType.Boolean, "booleanValue", emptyList()), node.operand, node)
       JavaType.boolean -> node.operand.accept(this)
       else -> visit(BooleanExpressionNode.of(node.token, node.operand))
     }
@@ -1322,13 +1322,13 @@ private class PushingInstructionGenerator(
       pushArgument(node.innerExpression)
       mv.invokeMethod(node, classNode.scope, Matcher::class.java.getMethod("find"))
     } else {
-      val classTruthyMethod = typeResolver.findMethod(innerType, "isTruthy", emptyList())
+      val classTruthyMethod = typeResolver.findMethod(innerType, "isTruthy", emptyList(), false, node)
       if (classTruthyMethod != null) {
         pushArgument(node.innerExpression)
         mv.invokeMethod(node.innerExpression, classNode.scope, classTruthyMethod)
       } else {
         // this is a static method. No need to push owner
-        val marcelTruthyMethod = typeResolver.findMethodOrThrow(MarcelTruth::class.javaType, "truthy", listOf(innerType))
+        val marcelTruthyMethod = typeResolver.findMethodOrThrow(MarcelTruth::class.javaType, "truthy", listOf(innerType), node)
         mv.invokeMethodWithArguments(node, classNode.scope, marcelTruthyMethod, node.innerExpression)
       }
     }
@@ -1443,12 +1443,12 @@ private class PushingInstructionGenerator(
 
   override fun visit(node: VariableAssignmentNode) {
     super.visit(node)
-    mv.pushVariable(node, node.scope, node.scope.findVariableOrThrow(node.name))
+    mv.pushVariable(node, node.scope, node.scope.findVariableOrThrow(node.name, node))
   }
 
   override fun visit(node: FieldAssignmentNode) {
     super.visit(node)
-    val field = typeResolver.findFieldOrThrow(node.fieldNode.leftOperand.getType(typeResolver), node.fieldNode.rightOperand.name)
+    val field = typeResolver.findFieldOrThrow(node.fieldNode.leftOperand.getType(typeResolver), node.fieldNode.rightOperand.name, true, node)
     if (!field.isStatic) {
       pushArgument(node.fieldNode.leftOperand)
     }

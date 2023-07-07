@@ -1,11 +1,6 @@
 package com.tambapps.marcel.parser.scope
 
-import com.tambapps.marcel.parser.ast.MethodParameter
-import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
-import com.tambapps.marcel.parser.ast.ImportNode
-import com.tambapps.marcel.parser.ast.AstTypedObject
-import com.tambapps.marcel.parser.ast.StaticImportNode
-import com.tambapps.marcel.parser.ast.WildcardImportNode
+import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
@@ -68,9 +63,9 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
       ?: throw MarcelSemanticException("Method $name with parameters $namedParameters is not defined")
   }
 
-  fun findMethodOrThrow(name: String, argumentTypes: List<AstTypedObject>): JavaMethod {
+  fun findMethodOrThrow(name: String, argumentTypes: List<AstTypedObject>, node: AstNode): JavaMethod {
     // find first on class, then on imports, then on extensions
-    return findMethod(name, argumentTypes) ?: throw MarcelSemanticException("Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
+    return findMethod(name, argumentTypes) ?: throw MarcelSemanticException(node.token, "Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
 
   fun findMethod(name: String, argumentTypes: List<AstTypedObject>): JavaMethod? {
@@ -84,8 +79,8 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
     return localVariables.find { it.name == name }
   }
 
-  open fun findVariableOrThrow(name: String): Variable {
-    return findVariable(name) ?: throw MarcelSemanticException("Variable $name is not defined")
+  open fun findVariableOrThrow(name: String, node: AstNode): Variable {
+    return findVariable(name) ?: throw MarcelSemanticException(node.token, "Variable $name is not defined")
   }
 
   fun hasVariable(name: String): Boolean {

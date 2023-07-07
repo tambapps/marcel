@@ -16,6 +16,6 @@ class SuperConstructorCallNode constructor(token: LexToken, scope: Scope, argume
 
   override fun doGetMethod(typeResolver: AstNodeTypeResolver): JavaMethod {
     val type = scope.classType.superType ?: throw MarcelSemanticException("Cannot call super constructor from a type with no parent")
-    return typeResolver.findMethodOrThrow(type, name, arguments.map { it.accept(typeResolver) })
+    return typeResolver.findMethodOrThrow(type, name, arguments.map { it.accept(typeResolver) }, this)
   }
 }

@@ -41,18 +41,19 @@ open class AstNodeTypeResolver constructor(
     return getDeclaredMethods(type).first { it.isAbstract }
   }
 
-  fun defineClass(className: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): JavaType {
-    return defineClass(null, className, superClass, isInterface, interfaces)
+  // TODO add node to get token when throwing exceptions
+  fun defineClass(node: AstNode? = null, className: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): JavaType {
+    return defineClass(node, null, className, superClass, isInterface, interfaces)
   }
-  fun defineClass(outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): JavaType {
+  fun defineClass(node: AstNode? = null, outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): JavaType {
     val className = if (outerClassType != null) "${outerClassType.className}\$$cName" else cName
     try {
       Class.forName(className)
-      throw MarcelSemanticException("Class $className is already defined")
+      throw MarcelSemanticException(node?.token, "Class $className is already defined")
     } catch (e: ClassNotFoundException) {
       // ignore
     }
-    if (_definedTypes.containsKey(className)) throw MarcelSemanticException("Class $className is already defined")
+    if (_definedTypes.containsKey(className)) throw MarcelSemanticException(node?.token, "Class $className is already defined")
     val type = NotLoadedJavaType(className, emptyList(), emptyList(),  superClass, isInterface, interfaces.toMutableSet())
     _definedTypes[className] = type
     return type
@@ -96,8 +97,8 @@ open class AstNodeTypeResolver constructor(
     return emptyList()
   }
 
-  open fun getClassField(javaType: JavaType, fieldName: String): ClassField {
-    throw MarcelSemanticException("Class field $javaType.$fieldName is not defined")
+  open fun getClassField(javaType: JavaType, fieldName: String, node: AstNode? = null): ClassField {
+    throw MarcelSemanticException(node?.token, "Class field $javaType.$fieldName is not defined")
   }
 
   open fun getMethods(javaType: JavaType): List<JavaMethod> {
@@ -113,44 +114,44 @@ open class AstNodeTypeResolver constructor(
 
   fun findMethodByParametersOrThrow(javaType: JavaType, name: String,
                                     positionalArgumentTypes: List<AstTypedObject>,
-                                    namedParameters: Collection<MethodParameter>): JavaMethod {
-    return findMethodByParameters(javaType, name, positionalArgumentTypes, namedParameters)
-      ?: throw MarcelSemanticException("Method $javaType.$name with parameters $namedParameters is not defined")
+                                    namedParameters: Collection<MethodParameter>, node: AstNode? = null): JavaMethod {
+    return findMethodByParameters(javaType, name, positionalArgumentTypes, namedParameters, false, node)
+      ?: throw MarcelSemanticException(node?.token, "Method $javaType.$name with parameters $namedParameters is not defined")
   }
   fun findMethodByParameters(javaType: JavaType, name: String,
                              positionalArgumentTypes: List<AstTypedObject>,
-                             namedParameters: Collection<MethodParameter>, excludeInterfaces: Boolean = false): JavaMethod? {
-    val m = doFindMethodByParameters(javaType, name, positionalArgumentTypes, namedParameters, excludeInterfaces) ?: return null
+                             namedParameters: Collection<MethodParameter>, excludeInterfaces: Boolean = false, node: AstNode? = null): JavaMethod? {
+    val m = doFindMethodByParameters(javaType, name, positionalArgumentTypes, namedParameters, excludeInterfaces, node) ?: return null
     return if (javaType.genericTypes.isNotEmpty()) m.withGenericTypes(javaType.genericTypes)
     else m
   }
 
   protected open fun doFindMethodByParameters(javaType: JavaType, name: String,
                                               positionalArgumentTypes: List<AstTypedObject>,
-                                              namedParameters: Collection<MethodParameter>, excludeInterfaces: Boolean = false): JavaMethod? {
+                                              namedParameters: Collection<MethodParameter>, excludeInterfaces: Boolean = false, node: AstNode? = null): JavaMethod? {
     return null
   }
 
-  fun findMethodOrThrow(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>): JavaMethod {
+  fun findMethodOrThrow(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>, node: AstNode? = null): JavaMethod {
     // TODO pass token as argument to be able to have line and column on exception
-    return findMethod(javaType, name, argumentTypes) ?: throw MarcelSemanticException("Method $javaType.$name with parameters ${argumentTypes.map { it.type }} is not defined")
+    return findMethod(javaType, name, argumentTypes, false, node) ?: throw MarcelSemanticException(node?.token, "Method $javaType.$name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
 
-  fun findMethod(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>, excludeInterfaces: Boolean = false): JavaMethod? {
-    val m = doFindMethod(javaType, name, argumentTypes, excludeInterfaces) ?: return null
+  fun findMethod(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>, excludeInterfaces: Boolean = false, node: AstNode? = null): JavaMethod? {
+    val m = doFindMethod(javaType, name, argumentTypes, excludeInterfaces, node) ?: return null
     return if (javaType.genericTypes.isNotEmpty()) m.withGenericTypes(javaType.genericTypes)
     else m
   }
 
-  protected open fun doFindMethod(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>, excludeInterfaces: Boolean = false): JavaMethod? {
+  protected open fun doFindMethod(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>, excludeInterfaces: Boolean = false, node: AstNode? = null): JavaMethod? {
     return null
   }
 
-  fun findFieldOrThrow(javaType: JavaType, name: String, declared: Boolean = true): MarcelField {
-    return findField(javaType, name, declared) ?: throw MarcelSemanticException("Field $name was not found")
+  fun findFieldOrThrow(javaType: JavaType, name: String, declared: Boolean = true, node: AstNode? = null): MarcelField {
+    return findField(javaType, name, declared) ?: throw MarcelSemanticException(node?.token, "Field $name was not found")
   }
 
-  open fun findField(javaType: JavaType, name: String, declared: Boolean): MarcelField? {
+  open fun findField(javaType: JavaType, name: String, declared: Boolean, node: AstNode? = null): MarcelField? {
     return null
   }
 
@@ -180,7 +181,7 @@ open class AstNodeTypeResolver constructor(
     val commonType = JavaType.commonType(binaryOperatorNode.leftOperand.accept(this), binaryOperatorNode.rightOperand.accept(this))
     if (commonType.primitive || commonType.isPrimitiveObjectType) return commonType
     if (binaryOperatorNode.operatorMethodName == null) return commonType
-    return findMethodOrThrow(binaryOperatorNode.leftOperand.accept(this), binaryOperatorNode.operatorMethodName, listOf(binaryOperatorNode.rightOperand.accept(this))).returnType
+    return findMethodOrThrow(binaryOperatorNode.leftOperand.accept(this), binaryOperatorNode.operatorMethodName, listOf(binaryOperatorNode.rightOperand.accept(this)), binaryOperatorNode).returnType
   }
 
   override fun visit(node: TernaryNode): JavaType {
@@ -208,10 +209,10 @@ open class AstNodeTypeResolver constructor(
   override fun visit(node: PowOperator) = visitBinaryOperator(node)
 
   override fun visit(node: RightShiftOperator) =
-    findMethodOrThrow(node.leftOperand.accept(this), node.operatorMethodName!!, listOf(node.rightOperand.accept(this))).returnType
+    findMethodOrThrow(node.leftOperand.accept(this), node.operatorMethodName!!, listOf(node.rightOperand.accept(this)), node).returnType
 
   override fun visit(node: LeftShiftOperator) =
-    findMethodOrThrow(node.leftOperand.accept(this), node.operatorMethodName!!, listOf(node.rightOperand.accept(this))).returnType
+    findMethodOrThrow(node.leftOperand.accept(this), node.operatorMethodName!!, listOf(node.rightOperand.accept(this)), node).returnType
 
   override fun visit(node: VariableAssignmentNode) = node.expression.accept(this)
 
@@ -220,18 +221,18 @@ open class AstNodeTypeResolver constructor(
 
   override fun visit(node: ReferenceExpression) =
     try {
-      val v = node.scope.findVariableOrThrow(node.name)
+      val v = node.scope.findVariableOrThrow(node.name, node)
       if (v is DynamicMethodField && node.scope.classType.implements(JavaType.DynamicObject))
-        node.scope.getTypeOrNull(node.name) ?: throw MarcelSemanticException("No variable or class named ${node.name} was found")
-      else node.scope.findVariableOrThrow(node.name).type
+        node.scope.getTypeOrNull(node.name) ?: throw MarcelSemanticException(node.token, "No variable or class named ${node.name} was found")
+      else node.scope.findVariableOrThrow(node.name, node).type
     } catch (e: MarcelSemanticException) {
       // for static function calls
-      node.scope.getTypeOrNull(node.name) ?: throw MarcelSemanticException("No variable or class named ${node.name} was found")
+      node.scope.getTypeOrNull(node.name) ?: throw MarcelSemanticException(node.token, "No variable or class named ${node.name} was found")
     }
 
   override fun visit(node: IndexedReferenceExpression): JavaType {
     val elementType = if (node.variable.type.isArray) (node.variable.type.asArrayType).elementsType
-    else findMethodOrThrow(node.variable.type, "getAt", node.indexArguments.map { it.accept(this) }).actualReturnType
+    else findMethodOrThrow(node.variable.type, "getAt", node.indexArguments.map { it.accept(this) }, node).actualReturnType
     // need object class for safe index because returned elements are nullable
     return if (node.isSafeIndex) elementType.objectType else elementType
   }
@@ -271,7 +272,7 @@ open class AstNodeTypeResolver constructor(
         8 -> JavaType.of(Lambda8::class.java).withGenericTypes(lambdaNode.parameters.map { it.type } + returnType)
         9 -> JavaType.of(Lambda9::class.java).withGenericTypes(lambdaNode.parameters.map { it.type } + returnType)
         10 -> JavaType.of(Lambda10::class.java).withGenericTypes(lambdaNode.parameters.map { it.type } + returnType)
-        else -> throw MarcelSemanticException("Doesn't handle lambdas with more than 10 parameters")
+        else -> throw MarcelSemanticException(lambdaNode.token, "Doesn't handle lambdas with more than 10 parameters")
       }
     }
   }
@@ -328,7 +329,7 @@ open class AstNodeTypeResolver constructor(
   override fun visit(node: LiteralMapNode): JavaType = JavaType.of(Map::class.java)
 
   override fun visit(node: FunctionCallNode): JavaType = findMethodOrThrow(node.methodOwnerType?.accept(this) ?: node.scope.classType,
-    node.name, node.getArguments(this).map { it.accept(this) }).actualReturnType
+    node.name, node.getArguments(this).map { it.accept(this) }, node).actualReturnType
 
   // it is object because we need type resolver in order to be able to get the real type. that's why it is overridden in JavaTypeResolver
   override fun visit(node: GetFieldAccessOperator): JavaType = JavaType.Object
@@ -357,7 +358,7 @@ open class AstNodeTypeResolver constructor(
 
   override fun visit(node: ThisReference) =
     if (node.scope.staticContext && node.scope.hasVariable("self")) node.scope
-      .findVariableOrThrow("self").type
+      .findVariableOrThrow("self", node).type
   else node.scope.classType
   override fun visit(node: SuperReference) = node.scope.superClass
 
@@ -366,5 +367,5 @@ open class AstNodeTypeResolver constructor(
 
   override fun visit(node: ClassExpressionNode) = JavaType.of(Class::class.java, listOf(node.clazz))
 
-  override fun visit(node: DirectFieldAccessNode) = getClassField(node.scope.classType, node.name).type
+  override fun visit(node: DirectFieldAccessNode) = getClassField(node.scope.classType, node.name, node).type
 }
