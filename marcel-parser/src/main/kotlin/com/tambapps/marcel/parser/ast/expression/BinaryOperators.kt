@@ -109,6 +109,19 @@ class GetFieldAccessOperator constructor(token: LexToken, leftOperand: Expressio
   }
 }
 
+
+class GetIndexFieldAccessOperator constructor(token: LexToken, leftOperand: ExpressionNode, override val rightOperand: IndexedReferenceExpression,
+                                  val nullSafe: Boolean, val directFieldAccess: Boolean) :
+    BinaryOperatorNode(token, leftOperand, rightOperand) {
+  val scope: Scope get() = rightOperand.scope
+
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
+  override fun toString(): String {
+    return "$leftOperand.$rightOperand"
+  }
+}
+
 class ComparisonOperatorNode(token: LexToken, val operator: ComparisonOperator, leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   BinaryOperatorNode(token, leftOperand, rightOperand) {
 

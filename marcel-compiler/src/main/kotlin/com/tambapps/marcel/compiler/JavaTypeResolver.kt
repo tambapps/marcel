@@ -8,23 +8,14 @@ import com.tambapps.marcel.parser.ast.MethodParameter
 import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.ast.ClassNode
-import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
-import com.tambapps.marcel.parser.ast.expression.GetFieldAccessOperator
-import com.tambapps.marcel.parser.ast.expression.LiteralArrayNode
-import com.tambapps.marcel.parser.ast.expression.LiteralMapNode
+import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.ClassField
 import com.tambapps.marcel.parser.scope.DynamicMethodField
 import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.scope.MethodField
 import com.tambapps.marcel.parser.scope.ReflectMarcelField
-import com.tambapps.marcel.parser.type.ExtensionJavaMethod
-import com.tambapps.marcel.parser.type.JavaArrayType
-import com.tambapps.marcel.parser.type.JavaMethod
-import com.tambapps.marcel.parser.type.JavaType
-import com.tambapps.marcel.parser.type.NoArgJavaConstructor
-import com.tambapps.marcel.parser.type.ReflectJavaConstructor
-import com.tambapps.marcel.parser.type.ReflectJavaMethod
+import com.tambapps.marcel.parser.type.*
 import marcel.lang.DynamicObject
 import marcel.lang.MarcelClassLoader
 import marcel.lang.methods.DefaultMarcelMethods
@@ -296,6 +287,16 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     }
     return if (getFieldAccessOperator.nullSafe) field.type.objectType
     else field.type
+  }
+
+  override fun visit(getIndexFieldAccessOperator: GetIndexFieldAccessOperator): JavaType {
+    val field = findFieldOrThrow(getIndexFieldAccessOperator.leftOperand.accept(this), getIndexFieldAccessOperator.rightOperand.name)
+    if (getIndexFieldAccessOperator.directFieldAccess && field !is ClassField) {
+      throw MarcelSemanticException("Class field ${getIndexFieldAccessOperator.scope.classType}.${getIndexFieldAccessOperator.rightOperand.name} is not defined")
+    }
+
+    return if (field.type.isArray) field.type.asArrayType.elementsType
+    else findMethodOrThrow(field.type, "getAt", getIndexFieldAccessOperator.rightOperand.indexArguments.map { it.accept(this) }).actualReturnType
   }
 
   override fun visit(literalListNode: LiteralArrayNode): JavaArrayType {

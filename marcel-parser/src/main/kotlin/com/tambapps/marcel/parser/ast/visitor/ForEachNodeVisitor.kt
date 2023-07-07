@@ -178,6 +178,8 @@ class ForEachNodeVisitor(private val consumer: (AstNode) -> Unit): AstNodeVisito
 
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator) = visitBinaryOperator(getFieldAccessOperator)
 
+  override fun visit(getIndexFieldAccessOperator: GetIndexFieldAccessOperator) = visitBinaryOperator(getIndexFieldAccessOperator)
+
   override fun visit(booleanConstantNode: BooleanConstantNode) = consumer.invoke(booleanConstantNode)
 
   override fun visit(comparisonOperatorNode: ComparisonOperatorNode) = visitBinaryOperator(comparisonOperatorNode)

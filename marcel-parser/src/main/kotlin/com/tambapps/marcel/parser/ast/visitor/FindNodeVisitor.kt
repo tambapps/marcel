@@ -112,6 +112,8 @@ class FindNodeVisitor(private val predicate: (AstNode) -> Boolean): AstNodeVisit
 
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator) = binaryNode(getFieldAccessOperator)
 
+  override fun visit(getIndexFieldAccessOperator: GetIndexFieldAccessOperator) = binaryNode(getIndexFieldAccessOperator)
+
   override fun visit(booleanConstantNode: BooleanConstantNode) = node(booleanConstantNode)
 
   override fun visit(comparisonOperatorNode: ComparisonOperatorNode) = binaryNode(comparisonOperatorNode)

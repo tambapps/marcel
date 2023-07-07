@@ -1265,7 +1265,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       TokenType.DOT -> when (rightOperand) {
         is FunctionCallNode -> InvokeAccessOperator(token, leftOperand, rightOperand, false)
         is ReferenceExpression -> GetFieldAccessOperator(token, leftOperand, rightOperand, false, false)
+        // TODO do IndexedDirectFieldAccessNode
         is DirectFieldAccessNode -> GetFieldAccessOperator(token, leftOperand, ReferenceExpression(rightOperand.token, rightOperand.scope, rightOperand.name), false, true)
+        is IndexedReferenceExpression -> GetIndexFieldAccessOperator(token, leftOperand, rightOperand, false, false)
         else -> throw MarcelParserException(
           token,
           "Can only handle function calls and fields with dot operators"
@@ -1275,6 +1277,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         is FunctionCallNode -> InvokeAccessOperator(token, leftOperand, rightOperand, true)
         is ReferenceExpression -> GetFieldAccessOperator(token, leftOperand, rightOperand, true, false)
         is DirectFieldAccessNode -> GetFieldAccessOperator(token, leftOperand, ReferenceExpression(rightOperand.token, rightOperand.scope, rightOperand.name), true, true)
+        is IndexedReferenceExpression -> GetIndexFieldAccessOperator(token, leftOperand, rightOperand, true, false)
         else -> throw MarcelParserException(
           token,
           "Can only handle function calls and fields with dot operators"

@@ -556,6 +556,39 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     }
   }
 
+  override fun visit(getIndexFieldAccessOperator: GetIndexFieldAccessOperator) {
+    val field = typeResolver.findFieldOrThrow(getIndexFieldAccessOperator.leftOperand.getType(typeResolver), getIndexFieldAccessOperator.rightOperand.name)
+    if (field.isStatic) {
+      mv.getField(getIndexFieldAccessOperator, getIndexFieldAccessOperator.scope, field)
+      mv.getAt(getIndexFieldAccessOperator, getIndexFieldAccessOperator.scope, getIndexFieldAccessOperator.rightOperand.variable.type, getIndexFieldAccessOperator.rightOperand.indexArguments)
+      return
+    }
+    if (getIndexFieldAccessOperator.directFieldAccess && field !is ClassField) {
+      throw MarcelSemanticException("Class field ${getIndexFieldAccessOperator.scope.classType}.${getIndexFieldAccessOperator.rightOperand.name} is not defined")
+    }
+    if (getIndexFieldAccessOperator.nullSafe) {
+      val scope = getIndexFieldAccessOperator.scope
+
+      // need a local variable to avoid evaluating twice
+      val tempVar = scope.addLocalVariable(getIndexFieldAccessOperator.leftOperand.getType(typeResolver))
+      visitWithoutPushing(VariableAssignmentNode(getIndexFieldAccessOperator.token, scope, tempVar.name, getIndexFieldAccessOperator.leftOperand))
+      val tempRef = ReferenceExpression(getIndexFieldAccessOperator.token, scope, tempVar.name)
+
+      visit(TernaryNode(getIndexFieldAccessOperator.token,
+        BooleanExpressionNode.of(getIndexFieldAccessOperator.token, ComparisonOperatorNode(getIndexFieldAccessOperator.token, ComparisonOperator.NOT_EQUAL, tempRef,
+          NullValueNode(getIndexFieldAccessOperator.token))),
+        // using a new GetFieldAccessOperator because we need to use the tempRef instead of the actual leftOperand
+        GetIndexFieldAccessOperator(getIndexFieldAccessOperator.token, tempRef, getIndexFieldAccessOperator.rightOperand, false, getIndexFieldAccessOperator.directFieldAccess)
+        , NullValueNode(getIndexFieldAccessOperator.token)
+      ))
+      scope.freeVariable(tempVar.name)
+    } else {
+      pushArgument(getIndexFieldAccessOperator.leftOperand)
+      mv.getField(getIndexFieldAccessOperator, getIndexFieldAccessOperator.scope, field)
+      mv.getAt(getIndexFieldAccessOperator, getIndexFieldAccessOperator.scope, field.type, getIndexFieldAccessOperator.rightOperand.indexArguments)
+    }
+  }
+
   override fun visit(directFieldAccessNode: DirectFieldAccessNode) {
     val field = typeResolver.getClassField(directFieldAccessNode.scope.classType, directFieldAccessNode.name)
     pushArgument(ThisReference(directFieldAccessNode.token, directFieldAccessNode.scope))
@@ -887,6 +920,11 @@ class InstructionGenerator(
   }
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator) {
     super.visit(getFieldAccessOperator)
+    mv.popStack()
+  }
+
+  override fun visit(getIndexFieldAccessOperator: GetIndexFieldAccessOperator) {
+    super.visit(getIndexFieldAccessOperator)
     mv.popStack()
   }
 

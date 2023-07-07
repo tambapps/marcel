@@ -102,6 +102,7 @@ class CheckAllPathsReturnVisitor: AstNodeVisitor<Boolean> {
   override fun visit(accessOperator: InvokeAccessOperator) = false
 
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator) = false
+  override fun visit(getIndexFieldAccessOperator: GetIndexFieldAccessOperator) = false
 
   override fun visit(booleanConstantNode: BooleanConstantNode) = false
 

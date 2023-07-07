@@ -332,6 +332,7 @@ open class AstNodeTypeResolver constructor(
 
   // it is object because we need type resolver in order to be able to get the real type. that's why it is overridden in JavaTypeResolver
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator): JavaType = JavaType.Object
+  override fun visit(getIndexFieldAccessOperator: GetIndexFieldAccessOperator): JavaType = JavaType.Object
 
   override fun visit(accessOperator: InvokeAccessOperator) =
     if (accessOperator.nullSafe) accessOperator.rightOperand.accept(this).objectType
