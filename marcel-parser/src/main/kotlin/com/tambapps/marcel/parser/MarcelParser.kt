@@ -1232,33 +1232,22 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
     val t = token.type
     return when(t) {
       TokenType.ASSIGNMENT, TokenType.PLUS_ASSIGNMENT, TokenType.MINUS_ASSIGNMENT, TokenType.MUL_ASSIGNMENT, TokenType.DIV_ASSIGNMENT -> {
-        if (t == TokenType.ASSIGNMENT) {
-          when (leftOperand) {
-            is ReferenceExpression -> VariableAssignmentNode(token, scope, leftOperand.name, rightOperand)
-            is IndexedReferenceExpression -> IndexedVariableAssignmentNode(token, scope, leftOperand, rightOperand)
-            is GetFieldAccessOperator -> FieldAssignmentNode(token, scope, leftOperand, rightOperand)
-            else -> throw MarcelParserException(
-              token,
-              "Cannot assign to $leftOperand"
-            )
-          }
-        } else {
-          val actualRightOperand = when(t) {
-            TokenType.PLUS_ASSIGNMENT -> PlusOperator(token, leftOperand, rightOperand)
-            TokenType.MINUS_ASSIGNMENT -> MinusOperator(token, leftOperand, rightOperand)
-            TokenType.DIV_ASSIGNMENT -> DivOperator(token, leftOperand, rightOperand)
-            TokenType.MUL_ASSIGNMENT -> MulOperator(token, leftOperand, rightOperand)
-            else -> throw RuntimeException("Compiler error")
-          }
-          when (leftOperand) {
-            is ReferenceExpression -> VariableAssignmentNode(token, scope, leftOperand.name, actualRightOperand)
-            is IndexedReferenceExpression -> IndexedVariableAssignmentNode(token, scope, leftOperand, actualRightOperand)
-            is GetFieldAccessOperator -> FieldAssignmentNode(token, scope, leftOperand, actualRightOperand)
-            else -> throw MarcelParserException(
-              token,
-              "Cannot assign to $leftOperand"
-            )
-          }
+        val actualRightOperand = when(t) {
+          TokenType.ASSIGNMENT -> rightOperand
+          TokenType.PLUS_ASSIGNMENT -> PlusOperator(token, leftOperand, rightOperand)
+          TokenType.MINUS_ASSIGNMENT -> MinusOperator(token, leftOperand, rightOperand)
+          TokenType.DIV_ASSIGNMENT -> DivOperator(token, leftOperand, rightOperand)
+          TokenType.MUL_ASSIGNMENT -> MulOperator(token, leftOperand, rightOperand)
+          else -> throw RuntimeException("Compiler error")
+        }
+        when (leftOperand) {
+          is ReferenceExpression -> VariableAssignmentNode(token, scope, leftOperand.name, actualRightOperand)
+          is IndexedReferenceExpression -> IndexedVariableAssignmentNode(token, scope, leftOperand, actualRightOperand)
+          is GetFieldAccessOperator -> FieldAssignmentNode(token, scope, leftOperand, actualRightOperand)
+          else -> throw MarcelParserException(
+                  token,
+                  "Cannot assign to $leftOperand"
+          )
         }
       }
       TokenType.FIND -> FindOperator(token, leftOperand, rightOperand)
