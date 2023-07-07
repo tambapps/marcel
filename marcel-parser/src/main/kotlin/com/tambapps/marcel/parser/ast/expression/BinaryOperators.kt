@@ -1,13 +1,10 @@
 package com.tambapps.marcel.parser.ast.expression
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.parser.ast.AbstractAstNode
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
-import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.ast.ComparisonOperator
 import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.scope.Scope
-import com.tambapps.marcel.parser.type.JavaType
 
 abstract class BinaryOperatorNode(
   token: LexToken,
@@ -84,7 +81,7 @@ class PowOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: Ex
   }
 }
 
-open class InvokeAccessOperator constructor(token: LexToken, leftOperand: ExpressionNode, final override val rightOperand: FunctionCallNode,
+class InvokeAccessOperator constructor(token: LexToken, leftOperand: ExpressionNode, final override val rightOperand: FunctionCallNode,
   val nullSafe: Boolean) :
     BinaryOperatorNode(token, leftOperand, rightOperand) {
 
@@ -100,8 +97,8 @@ open class InvokeAccessOperator constructor(token: LexToken, leftOperand: Expres
 }
 
 
-open class GetFieldAccessOperator constructor(token: LexToken, leftOperand: ExpressionNode, override val rightOperand: ReferenceExpression,
-                                  val nullSafe: Boolean, val classField: Boolean) :
+class GetFieldAccessOperator constructor(token: LexToken, leftOperand: ExpressionNode, override val rightOperand: ReferenceExpression,
+                                  val nullSafe: Boolean, val directFieldAccess: Boolean) :
     BinaryOperatorNode(token, leftOperand, rightOperand) {
   val scope: Scope get() = rightOperand.scope
 

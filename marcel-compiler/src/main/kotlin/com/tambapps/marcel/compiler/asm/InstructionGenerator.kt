@@ -38,7 +38,6 @@ import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
-import marcel.lang.DynamicObject
 import marcel.lang.IntRanges
 import marcel.lang.LongRanges
 import marcel.lang.methods.MarcelTruth
@@ -532,7 +531,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       mv.getField(getFieldAccessOperator, getFieldAccessOperator.scope, field)
       return
     }
-    if (getFieldAccessOperator.classField && field !is ClassField) {
+    if (getFieldAccessOperator.directFieldAccess && field !is ClassField) {
       throw MarcelSemanticException("Class field ${getFieldAccessOperator.scope.classType}.${getFieldAccessOperator.rightOperand.name} is not defined")
     }
     if (getFieldAccessOperator.nullSafe) {
@@ -547,7 +546,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
         BooleanExpressionNode.of(getFieldAccessOperator.token, ComparisonOperatorNode(getFieldAccessOperator.token, ComparisonOperator.NOT_EQUAL, tempRef,
           NullValueNode(getFieldAccessOperator.token))),
         // using a new GetFieldAccessOperator because we need to use the tempRef instead of the actual leftOperand
-        GetFieldAccessOperator(getFieldAccessOperator.token, tempRef, getFieldAccessOperator.rightOperand, false, getFieldAccessOperator.classField)
+        GetFieldAccessOperator(getFieldAccessOperator.token, tempRef, getFieldAccessOperator.rightOperand, false, getFieldAccessOperator.directFieldAccess)
         , NullValueNode(getFieldAccessOperator.token)
       ))
       scope.freeVariable(tempVar.name)

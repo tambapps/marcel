@@ -291,7 +291,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   // ast node type resolver methods
   override fun visit(getFieldAccessOperator: GetFieldAccessOperator): JavaType {
     val field = findFieldOrThrow(getFieldAccessOperator.leftOperand.accept(this), getFieldAccessOperator.rightOperand.name)
-    if (getFieldAccessOperator.classField && field !is ClassField) {
+    if (getFieldAccessOperator.directFieldAccess && field !is ClassField) {
       throw MarcelSemanticException("Class field ${getFieldAccessOperator.scope.classType}.${getFieldAccessOperator.rightOperand.name} is not defined")
     }
     return if (getFieldAccessOperator.nullSafe) field.type.objectType
