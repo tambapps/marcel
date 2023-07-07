@@ -152,7 +152,8 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
         JavaType.float -> if (attrValue !is Float) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
         JavaType.double -> if (attrValue !is Double) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
         JavaType.char -> if (attrValue !is Char) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
-        else -> throw MarcelSemanticException(annotationNode.token, "Type not handled for an annotation member")
+        JavaType.boolean -> if (attrValue !is Boolean) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
+        else -> throw MarcelSemanticException(annotationNode.token, "Type ${attribute.type} not handled for an annotation member")
       }
       annotationVisitor.visit(attr.first, attrValue)
     }
