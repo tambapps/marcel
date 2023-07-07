@@ -9,9 +9,9 @@ import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.ClassField
 import com.tambapps.marcel.parser.scope.DynamicMethodField
-import com.tambapps.marcel.parser.scope.MarcelField
+import com.tambapps.marcel.parser.scope.JavaField
 import com.tambapps.marcel.parser.scope.MethodField
-import com.tambapps.marcel.parser.scope.ReflectMarcelField
+import com.tambapps.marcel.parser.scope.ReflectJavaField
 import com.tambapps.marcel.parser.type.*
 import marcel.lang.DynamicObject
 import marcel.lang.MarcelClassLoader
@@ -23,7 +23,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   constructor(): this(null)
 
   private val classMethods = mutableMapOf<String, MutableList<JavaMethod>>()
-  private val classFields = mutableMapOf<String, MutableList<MarcelField>>()
+  private val classFields = mutableMapOf<String, MutableList<JavaField>>()
 
   init {
     loadDefaultExtensions()
@@ -75,7 +75,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     methods.add(method)
   }
 
-  override fun defineField(javaType: JavaType, field: MarcelField) {
+  override fun defineField(javaType: JavaType, field: JavaField) {
     if (javaType.isLoaded) {
       throw MarcelSemanticException((field as? FieldNode)?.token, "Cannot define field on loaded class")
     }
@@ -91,9 +91,9 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   override fun getClassField(javaType: JavaType, fieldName: String, node: AstNode?): ClassField {
     if (javaType.isLoaded) {
       return try {
-        ReflectMarcelField(javaType.realClazz.getDeclaredField(fieldName))
+        ReflectJavaField(javaType.realClazz.getDeclaredField(fieldName))
       } catch (e: NoSuchFieldException) {
-        ReflectMarcelField(javaType.realClazz.getField(fieldName))
+        ReflectJavaField(javaType.realClazz.getField(fieldName))
       } catch (e1: NoSuchFieldException) {
         super.getClassField(javaType, fieldName, node)
       }
@@ -103,8 +103,8 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     }
   }
 
-  override fun getDeclaredFields(javaType: JavaType): List<MarcelField> {
-    return if (javaType.isLoaded) javaType.realClazz.declaredFields.map { ReflectMarcelField(it) }
+  override fun getDeclaredFields(javaType: JavaType): List<JavaField> {
+    return if (javaType.isLoaded) javaType.realClazz.declaredFields.map { ReflectJavaField(it) }
     else classFields[javaType.className] ?: emptyList()
   }
 
@@ -121,9 +121,9 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     return methods
   }
 
-  override fun getFields(javaType: JavaType): List<MarcelField> {
-    if (javaType.isLoaded) return javaType.realClazz.fields.map { ReflectMarcelField(it) }
-    val fields = mutableListOf<MarcelField>()
+  override fun getFields(javaType: JavaType): List<JavaField> {
+    if (javaType.isLoaded) return javaType.realClazz.fields.map { ReflectJavaField(it) }
+    val fields = mutableListOf<JavaField>()
     var t: JavaType? = javaType
     while (t != null && !t.isLoaded) {
       fields.addAll(getDeclaredFields(t))
@@ -222,7 +222,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     return m
   }
 
-  private fun getMarcelFields(javaType: JavaType): MutableList<MarcelField> {
+  private fun getMarcelFields(javaType: JavaType): MutableList<JavaField> {
     return classFields.computeIfAbsent(javaType.className) { mutableListOf() }
   }
 
@@ -231,7 +231,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     return classMethods.computeIfAbsent(javaType.className) { mutableListOf() }
   }
 
-  override fun findField(javaType: JavaType, name: String, declared: Boolean, node: AstNode?): MarcelField? {
+  override fun findField(javaType: JavaType, name: String, declared: Boolean, node: AstNode?): JavaField? {
     if (javaType.isLoaded) {
       val clazz = javaType.realClazz
       val field = try {

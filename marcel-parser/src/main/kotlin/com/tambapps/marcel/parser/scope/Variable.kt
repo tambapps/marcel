@@ -4,7 +4,6 @@ import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.Visibility
-import marcel.lang.Binding
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.Field
 
@@ -43,7 +42,7 @@ class LocalVariable constructor(override var type: JavaType, override var name: 
 }
 
 // can be a java field or a java getter/setter
-sealed interface MarcelField: Variable {
+sealed interface JavaField: Variable {
   val owner: JavaType
   val access: Int
   val visibility: Visibility
@@ -55,7 +54,7 @@ sealed interface MarcelField: Variable {
 
 }
 
-sealed class AbstractField(final override val access: Int): AbstractVariable(), MarcelField {
+sealed class AbstractField(final override val access: Int): AbstractVariable(), JavaField {
   override var alreadySet = false
 
   override val visibility = Visibility.fromAccess(access)
@@ -104,7 +103,7 @@ class DynamicMethodField(
   access: Int
 ) : MethodField(type, name, owner, _getterMethod, _setterMethod, access)
 
-class ReflectMarcelField private constructor(
+class ReflectJavaField private constructor(
   override val type: JavaType,
   override val name: String,
   override val owner: JavaType,

@@ -15,7 +15,7 @@ import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.ClassField
 import com.tambapps.marcel.parser.scope.DynamicMethodField
-import com.tambapps.marcel.parser.scope.MarcelField
+import com.tambapps.marcel.parser.scope.JavaField
 import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
@@ -82,7 +82,7 @@ open class AstNodeTypeResolver constructor(
   open fun defineMethod(javaType: JavaType, method: JavaMethod) {
   }
 
-  open fun defineField(javaType: JavaType, field: MarcelField) {
+  open fun defineField(javaType: JavaType, field: JavaField) {
   }
 
   open fun disposeClass(scriptNode: ClassNode) {
@@ -93,7 +93,7 @@ open class AstNodeTypeResolver constructor(
     return emptyList()
   }
 
-  open fun getDeclaredFields(javaType: JavaType): List<MarcelField> {
+  open fun getDeclaredFields(javaType: JavaType): List<JavaField> {
     return emptyList()
   }
 
@@ -105,7 +105,7 @@ open class AstNodeTypeResolver constructor(
     return emptyList()
   }
 
-  open fun getFields(javaType: JavaType): List<MarcelField> {
+  open fun getFields(javaType: JavaType): List<JavaField> {
     return emptyList()
   }
   open fun of(className: String, genericTypes: List<JavaType>): JavaType {
@@ -147,11 +147,11 @@ open class AstNodeTypeResolver constructor(
     return null
   }
 
-  fun findFieldOrThrow(javaType: JavaType, name: String, declared: Boolean = true, node: AstNode? = null): MarcelField {
+  fun findFieldOrThrow(javaType: JavaType, name: String, declared: Boolean = true, node: AstNode? = null): JavaField {
     return findField(javaType, name, declared) ?: throw MarcelSemanticException(node?.token, "Field $name was not found")
   }
 
-  open fun findField(javaType: JavaType, name: String, declared: Boolean, node: AstNode? = null): MarcelField? {
+  open fun findField(javaType: JavaType, name: String, declared: Boolean, node: AstNode? = null): JavaField? {
     return null
   }
 

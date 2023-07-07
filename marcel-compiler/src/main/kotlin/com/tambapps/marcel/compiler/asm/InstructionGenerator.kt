@@ -30,7 +30,7 @@ import com.tambapps.marcel.parser.scope.BoundField
 import com.tambapps.marcel.parser.scope.ClassField
 import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.scope.LocalVariable
-import com.tambapps.marcel.parser.scope.MarcelField
+import com.tambapps.marcel.parser.scope.JavaField
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.scope.Variable
@@ -648,7 +648,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     val variableAssignmentNode = if (assignmentNode.expression is LiteralArrayNode) VariableAssignmentNode(assignmentNode.token, assignmentNode.scope, assignmentNode.name,
             AsNode(assignmentNode.token, assignmentNode.scope, variable.type, assignmentNode.expression))
     else assignmentNode
-    if (variable is MarcelField && !variable.isStatic) {
+    if (variable is JavaField && !variable.isStatic) {
       if (variable.owner.isAssignableFrom(variableAssignmentNode.scope.classType)) {
         pushArgument(ReferenceExpression.thisRef(variableAssignmentNode.scope))
       } else {

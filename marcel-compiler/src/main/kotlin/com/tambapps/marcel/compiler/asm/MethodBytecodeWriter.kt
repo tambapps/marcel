@@ -449,7 +449,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
     variable.alreadySet = true
   }
 
-  fun getField(from: AstNode, scope: Scope, field: MarcelField) {
+  fun getField(from: AstNode, scope: Scope, field: JavaField) {
     if (!field.isAccessibleFrom(scope)) throw VariableNotAccessibleException(from.token, field, scope.classType)
     if (field.owner.implements(JavaType.DynamicObject) && field is DynamicMethodField) {
       // need to push name
