@@ -73,37 +73,37 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   val lambdaHandler: LambdaHandler
 
 
-  override fun visit(unaryMinus: UnaryMinus) {
-   visit(MinusOperator(unaryMinus.token, IntConstantNode(unaryMinus.token, 0), unaryMinus.operand))
+  override fun visit(node: UnaryMinus) {
+   visit(MinusOperator(node.token, IntConstantNode(node.token, 0), node.operand))
   }
 
-  override fun visit(unaryPlus: UnaryPlus) {
-    unaryPlus.operand.accept(this)
+  override fun visit(node: UnaryPlus) {
+    node.operand.accept(this)
   }
 
-  override fun visit(operator: TernaryNode) {
-    pushArgument(operator.boolExpression)
+  override fun visit(node: TernaryNode) {
+    pushArgument(node.boolExpression)
     val endLabel = Label()
     val falseLabel = Label()
     mv.jumpIfEq(falseLabel)
-    operator.trueExpression.accept(this)
-    mv.castIfNecessaryOrThrow(classNode.scope, operator, operator.getType(typeResolver), operator.trueExpression.getType(typeResolver))
+    node.trueExpression.accept(this)
+    mv.castIfNecessaryOrThrow(classNode.scope, node, node.getType(typeResolver), node.trueExpression.getType(typeResolver))
     mv.jumpTo(endLabel)
     mv.visitLabel(falseLabel)
-    operator.falseExpression.accept(this)
-    mv.castIfNecessaryOrThrow(classNode.scope, operator, operator.getType(typeResolver), operator.falseExpression.getType(typeResolver))
+    node.falseExpression.accept(this)
+    mv.castIfNecessaryOrThrow(classNode.scope, node, node.getType(typeResolver), node.falseExpression.getType(typeResolver))
     mv.visitLabel(endLabel)
   }
 
 
-  override fun visit(switchNode: SwitchNode) {
-    val switchExpressionType = switchNode.expressionNode.getType(typeResolver)
-    visitConditionalBranchFlow(switchNode, MethodParameter(switchExpressionType, "it"), switchNode.expressionNode)
+  override fun visit(node: SwitchNode) {
+    val switchExpressionType = node.expressionNode.getType(typeResolver)
+    visitConditionalBranchFlow(node, MethodParameter(switchExpressionType, "it"), node.expressionNode)
   }
 
 
-  override fun visit(whenNode: WhenNode) {
-    visitConditionalBranchFlow(whenNode)
+  override fun visit(node: WhenNode) {
+    visitConditionalBranchFlow(node)
   }
 
   private fun visitConditionalBranchFlow(switchNode: ConditionalBranchFlowNode<*>, itParameter: MethodParameter? = null, itArgument: ExpressionNode? = null) {
@@ -204,28 +204,28 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     }
   }
 
-  override fun visit(switchBranch: SwitchBranchNode) {
+  override fun visit(node: SwitchBranchNode) {
     throw RuntimeException("Compiler error. Shouldn't happen")
   }
 
-  override fun visit(whenBranchNode: WhenBranchNode) {
+  override fun visit(node: WhenBranchNode) {
     throw RuntimeException("Compiler error. Shouldn't happen")
   }
 
-  override fun visit(ifStatementNode: IfStatementNode) {
-    val optTruthyDeclarationNode = ifStatementNode.condition.innerExpression as? TruthyVariableDeclarationNode
-    pushArgument(ifStatementNode.condition)
+  override fun visit(node: IfStatementNode) {
+    val optTruthyDeclarationNode = node.condition.innerExpression as? TruthyVariableDeclarationNode
+    pushArgument(node.condition)
     val endLabel = Label()
-    if (ifStatementNode.falseStatementNode == null) {
+    if (node.falseStatementNode == null) {
       mv.jumpIfEq(endLabel)
-      ifStatementNode.trueStatementNode.accept(this)
+      node.trueStatementNode.accept(this)
       mv.visitLabel(endLabel)
       optTruthyDeclarationNode?.scope?.freeVariable(optTruthyDeclarationNode.name)
     } else {
-      val falseStatementNode = ifStatementNode.falseStatementNode!!
+      val falseStatementNode = node.falseStatementNode!!
       val falseLabel = Label()
       mv.jumpIfEq(falseLabel)
-      ifStatementNode.trueStatementNode.accept(this)
+      node.trueStatementNode.accept(this)
       // this variable is only accessible in true statement, we don't need it after (especially for the else statement. it should
       //  be disposed before accepting it)
       optTruthyDeclarationNode?.scope?.freeVariable(optTruthyDeclarationNode.name)
@@ -236,74 +236,74 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     }
   }
 
-  override fun visit(elvisOperator: ElvisOperator) {
-    val scope = elvisOperator.scope
-    val type = elvisOperator.getType(typeResolver)
+  override fun visit(node: ElvisOperator) {
+    val scope = node.scope
+    val type = node.getType(typeResolver)
 
     val tempVar = scope.addLocalVariable(type)
 
-    visitWithoutPushing(VariableAssignmentNode(elvisOperator.token, scope, tempVar.name, elvisOperator.leftOperand))
-    val leftOperandRef = ReferenceExpression(elvisOperator.token, scope, tempVar.name)
-    visit(TernaryNode(elvisOperator.token,
-      BooleanExpressionNode.of(elvisOperator.token, leftOperandRef),
-      leftOperandRef, elvisOperator.rightOperand
+    visitWithoutPushing(VariableAssignmentNode(node.token, scope, tempVar.name, node.leftOperand))
+    val leftOperandRef = ReferenceExpression(node.token, scope, tempVar.name)
+    visit(TernaryNode(node.token,
+      BooleanExpressionNode.of(node.token, leftOperandRef),
+      leftOperandRef, node.rightOperand
     ))
     scope.freeVariable(tempVar.name)
   }
 
-  override fun visit(fCall: ConstructorCallNode) {
-    if (fCall.type.primitive) {
-      throw MarcelSemanticException(fCall.token, "Cannot instantiate a primitive type")
+  override fun visit(node: ConstructorCallNode) {
+    if (node.type.primitive) {
+      throw MarcelSemanticException(node.token, "Cannot instantiate a primitive type")
     }
-    mv.visitConstructorCall(fCall)
+    mv.visitConstructorCall(node)
   }
 
-  override fun visit(fCall: NamedParametersConstructorCallNode) {
-    mv.visitNamedConstructorCall(fCall)
+  override fun visit(node: NamedParametersConstructorCallNode) {
+    mv.visitNamedConstructorCall(node)
   }
 
-  override fun visit(fCall: SuperConstructorCallNode) {
+  override fun visit(node: SuperConstructorCallNode) {
     if (!methodNode.isConstructor) {
-      throw MarcelSemanticException(fCall.token, "Cannot call super constructor in a non constructor method")
+      throw MarcelSemanticException(node.token, "Cannot call super constructor in a non constructor method")
     }
-    if ((methodNode.block.statements.firstOrNull() as? ExpressionStatementNode)?.expression !== fCall) {
-      throw MarcelSemanticException(fCall.token, "Super constructor call should be the first statement of a constructor")
+    if ((methodNode.block.statements.firstOrNull() as? ExpressionStatementNode)?.expression !== node) {
+      throw MarcelSemanticException(node.token, "Super constructor call should be the first statement of a constructor")
     }
-    mv.visitSuperConstructorCall(fCall)
+    mv.visitSuperConstructorCall(node)
   }
 
-  override fun visit(operator: MulOperator) {
-    arithmeticMarcelOperator(operator, JavaPrimitiveType::mulCode)
+  override fun visit(node: MulOperator) {
+    arithmeticMarcelOperator(node, JavaPrimitiveType::mulCode)
   }
 
-  override fun visit(operator: DivOperator) {
-    arithmeticMarcelOperator(operator, JavaPrimitiveType::divCode)
+  override fun visit(node: DivOperator) {
+    arithmeticMarcelOperator(node, JavaPrimitiveType::divCode)
   }
 
-  override fun visit(operator: MinusOperator) {
-    arithmeticMarcelOperator(operator, JavaPrimitiveType::subCode)
+  override fun visit(node: MinusOperator) {
+    arithmeticMarcelOperator(node, JavaPrimitiveType::subCode)
   }
 
-  override fun visit(operator: PlusOperator) {
-    if (operator.leftOperand.getType(typeResolver) == JavaType.String || operator.rightOperand.getType(typeResolver) == JavaType.String) {
-      StringNode.of(operator.token, listOf(operator.leftOperand, operator.rightOperand)).accept(this)
+  override fun visit(node: PlusOperator) {
+    if (node.leftOperand.getType(typeResolver) == JavaType.String || node.rightOperand.getType(typeResolver) == JavaType.String) {
+      StringNode.of(node.token, listOf(node.leftOperand, node.rightOperand)).accept(this)
     } else {
-      arithmeticMarcelOperator(operator, JavaPrimitiveType::addCode)
+      arithmeticMarcelOperator(node, JavaPrimitiveType::addCode)
     }
   }
 
-  override fun visit(operator: PowOperator) {
-    arithmeticMarcelOperator(operator) {
+  override fun visit(node: PowOperator) {
+    arithmeticMarcelOperator(node) {
       throw MarcelSemanticException("Operator pow is not handled yet")
     }
   }
 
-  override fun visit(leftShiftOperator: LeftShiftOperator) {
-    marcelOperator(leftShiftOperator)
+  override fun visit(node: LeftShiftOperator) {
+    marcelOperator(node)
   }
 
-  override fun visit(rightShiftOperator: RightShiftOperator) {
-    marcelOperator(rightShiftOperator)
+  override fun visit(node: RightShiftOperator) {
+    marcelOperator(node)
   }
 
   fun arithmeticMarcelOperator(operator: BinaryOperatorNode, insCodeExtractor: (JavaPrimitiveType) -> Int): JavaType {
@@ -341,41 +341,41 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
 
-  override fun visit(asNode: AsNode) {
-    val expression = asNode.expressionNode
+  override fun visit(node: AsNode) {
+    val expression = node.expressionNode
     if (expression is LiteralArrayNode) {
-      val arrayType = if (asNode.type.isArray) asNode.type.asArrayType
-      else if (asNode.type == JavaType.intList || asNode.type == JavaType.intSet) JavaType.intArray
-      else if (asNode.type == JavaType.longList || asNode.type == JavaType.longSet) JavaType.longArray
-      else if (asNode.type == JavaType.floatList || asNode.type == JavaType.floatSet) JavaType.floatArray
-      else if (asNode.type == JavaType.doubleList || asNode.type == JavaType.doubleSet) JavaType.doubleArray
-      else if (asNode.type == JavaType.charList || asNode.type == JavaType.characterSet) JavaType.charArray
-      else if (asNode.type.raw() == List::class.javaType || asNode.type.raw() == Set::class.javaType) JavaType.objectArray
-      else throw MarcelSemanticException(asNode.token, "Array cannot be converted into " + asNode.type)
+      val arrayType = if (node.type.isArray) node.type.asArrayType
+      else if (node.type == JavaType.intList || node.type == JavaType.intSet) JavaType.intArray
+      else if (node.type == JavaType.longList || node.type == JavaType.longSet) JavaType.longArray
+      else if (node.type == JavaType.floatList || node.type == JavaType.floatSet) JavaType.floatArray
+      else if (node.type == JavaType.doubleList || node.type == JavaType.doubleSet) JavaType.doubleArray
+      else if (node.type == JavaType.charList || node.type == JavaType.characterSet) JavaType.charArray
+      else if (node.type.raw() == List::class.javaType || node.type.raw() == Set::class.javaType) JavaType.objectArray
+      else throw MarcelSemanticException(node.token, "Array cannot be converted into " + node.type)
       expression.type = arrayType
       // literal arrays can also be cast as collections (which will be handled in castIfNecessaryOrThrow
       if (expression.elements.isEmpty()) {
-        visit(EmptyArrayNode(asNode.token, arrayType))
+        visit(EmptyArrayNode(node.token, arrayType))
       } else {
         visit(expression)
       }
-      mv.castIfNecessaryOrThrow(asNode.scope, asNode, asNode.type, arrayType)
-    } else if (asNode.type == JavaType.boolean || asNode.type == JavaType.Boolean) {
-      visit(BooleanExpressionNode.of(asNode.token, asNode.expressionNode))
-      if (asNode.type == JavaType.Boolean) {
-        mv.castIfNecessaryOrThrow(classNode.scope, asNode, JavaType.Boolean, JavaType.boolean)
+      mv.castIfNecessaryOrThrow(node.scope, node, node.type, arrayType)
+    } else if (node.type == JavaType.boolean || node.type == JavaType.Boolean) {
+      visit(BooleanExpressionNode.of(node.token, node.expressionNode))
+      if (node.type == JavaType.Boolean) {
+        mv.castIfNecessaryOrThrow(classNode.scope, node, JavaType.Boolean, JavaType.boolean)
       }
     } else {
-      asNode.expressionNode.accept(this)
-      mv.castIfNecessaryOrThrow(classNode.scope, asNode, asNode.type, asNode.expressionNode.getType(typeResolver))
+      node.expressionNode.accept(this)
+      mv.castIfNecessaryOrThrow(classNode.scope, node, node.type, node.expressionNode.getType(typeResolver))
     }
   }
 
-  override fun visit(isOperator: IsOperator) {
-    if (isOperator.leftOperand.getType(typeResolver).primitive || isOperator.rightOperand.getType(typeResolver).primitive) {
-      throw MarcelSemanticException(isOperator.token, "Cannot apply '===' operator on primitive types")
+  override fun visit(node: IsOperator) {
+    if (node.leftOperand.getType(typeResolver).primitive || node.rightOperand.getType(typeResolver).primitive) {
+      throw MarcelSemanticException(node.token, "Cannot apply '===' operator on primitive types")
     }
-    pushBinaryOperatorOperands(isOperator)
+    pushBinaryOperatorOperands(node)
     val l1 = Label()
     mv.jump(Opcodes.IF_ACMPEQ, l1) // Jump if the two object references are equal
 
@@ -386,12 +386,12 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     mv.visitInsn(Opcodes.ICONST_1) // Load true on the stack
     mv.visitLabel(l2)
   }
-  override fun visit(isNotOperator: IsNotOperator) {
-    if (isNotOperator.leftOperand.getType(typeResolver).primitive || isNotOperator.rightOperand.getType(typeResolver).primitive) {
-      throw MarcelSemanticException(isNotOperator.token, "Cannot apply '!==' operator on primitive types")
+  override fun visit(node: IsNotOperator) {
+    if (node.leftOperand.getType(typeResolver).primitive || node.rightOperand.getType(typeResolver).primitive) {
+      throw MarcelSemanticException(node.token, "Cannot apply '!==' operator on primitive types")
     }
 
-    pushBinaryOperatorOperands(isNotOperator)
+    pushBinaryOperatorOperands(node)
     val l1 = Label()
     mv.jump(Opcodes.IF_ACMPNE, l1) // Jump if the two object references are equal
 
@@ -402,34 +402,34 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     mv.visitInsn(Opcodes.ICONST_1) // Load true on the stack
     mv.visitLabel(l2)
   }
-  override fun visit(comparisonOperatorNode: ComparisonOperatorNode) {
-    val leftOperand = comparisonOperatorNode.leftOperand
-    val rightOperand = comparisonOperatorNode.rightOperand
+  override fun visit(node: ComparisonOperatorNode) {
+    val leftOperand = node.leftOperand
+    val rightOperand = node.rightOperand
     val endLabel = Label()
     val trueLabel = Label()
-    val operator = comparisonOperatorNode.operator
+    val operator = node.operator
     var objectcomparison = false
     if (!leftOperand.getType(typeResolver).primitive || !rightOperand.getType(typeResolver).primitive) {
       pushArgument(leftOperand)
-      mv.castIfNecessaryOrThrow(classNode.scope, comparisonOperatorNode, JavaType.Object, leftOperand.getType(typeResolver))
+      mv.castIfNecessaryOrThrow(classNode.scope, node, JavaType.Object, leftOperand.getType(typeResolver))
       pushArgument(rightOperand)
-      mv.castIfNecessaryOrThrow(classNode.scope, comparisonOperatorNode, JavaType.Object, rightOperand.getType(typeResolver))
+      mv.castIfNecessaryOrThrow(classNode.scope, node, JavaType.Object, rightOperand.getType(typeResolver))
       if ((leftOperand is NullValueNode || rightOperand is NullValueNode)) {
         objectcomparison = true
         if (operator != ComparisonOperator.EQUAL && operator != ComparisonOperator.NOT_EQUAL) {
-          throw MarcelSemanticException(comparisonOperatorNode.token, "Cannot compare null value with ${operator.symbolString} operator")
+          throw MarcelSemanticException(node.token, "Cannot compare null value with ${operator.symbolString} operator")
         }
       } else {
         when (operator) {
           ComparisonOperator.EQUAL, ComparisonOperator.NOT_EQUAL -> {
-            mv.invokeMethod(comparisonOperatorNode, classNode.scope, BytecodeHelper::class.java.getDeclaredMethod("objectsEqual", JavaType.Object.realClazz, JavaType.Object.realClazz))
+            mv.invokeMethod(node, classNode.scope, BytecodeHelper::class.java.getDeclaredMethod("objectsEqual", JavaType.Object.realClazz, JavaType.Object.realClazz))
             if (operator == ComparisonOperator.NOT_EQUAL) mv.not()
             return // the above method returns a boolean
           }
           else -> {
             val method = typeResolver.findMethodOrThrow(leftOperand.getType(typeResolver), "compareTo", listOf(rightOperand.getType(typeResolver)))
-            if (method.returnType != JavaType.int) throw MarcelSemanticException(comparisonOperatorNode.token, "compareTo method should return an int in order to be used in comparator")
-            mv.invokeMethod(comparisonOperatorNode, classNode.scope, method)
+            if (method.returnType != JavaType.int) throw MarcelSemanticException(node.token, "compareTo method should return an int in order to be used in comparator")
+            mv.invokeMethod(node, classNode.scope, method)
             mv.pushConstant(0) // pushing 0 because we're comparing two numbers below
           }
         }
@@ -437,9 +437,9 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     } else if (leftOperand.getType(typeResolver) !in ComparisonOperator.INT_LIKE_COMPARABLE_TYPES || rightOperand.getType(typeResolver) !in ComparisonOperator.INT_LIKE_COMPARABLE_TYPES) {
       val otherType = if (leftOperand.getType(typeResolver) != JavaType.int) leftOperand.getType(typeResolver) else rightOperand.getType(typeResolver)
       pushArgument(leftOperand)
-      mv.castIfNecessaryOrThrow(classNode.scope, comparisonOperatorNode, otherType, leftOperand.getType(typeResolver))
+      mv.castIfNecessaryOrThrow(classNode.scope, node, otherType, leftOperand.getType(typeResolver))
       pushArgument(rightOperand)
-      mv.castIfNecessaryOrThrow(classNode.scope, comparisonOperatorNode, otherType, rightOperand.getType(typeResolver))
+      mv.castIfNecessaryOrThrow(classNode.scope, node, otherType, rightOperand.getType(typeResolver))
       when (otherType) {
         JavaType.double -> mv.visitInsn(Opcodes.DCMPL)
         JavaType.float -> mv.visitInsn(Opcodes.FCMPL)
@@ -448,9 +448,9 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       }
       mv.pushConstant(0) // pushing 0 because we're comparing two numbers below
     } else {
-      pushBinaryOperatorOperands(comparisonOperatorNode)
+      pushBinaryOperatorOperands(node)
     }
-    mv.jump(if (objectcomparison) comparisonOperatorNode.operator.objectOpCode else comparisonOperatorNode.operator.iOpCode, trueLabel)
+    mv.jump(if (objectcomparison) node.operator.objectOpCode else node.operator.iOpCode, trueLabel)
     mv.visitInsn(Opcodes.ICONST_0)
     mv.jumpTo(endLabel)
     mv.visitLabel(trueLabel)
@@ -458,12 +458,12 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     mv.visitLabel(endLabel)
   }
 
-  override fun visit(andOperator: AndOperator) {
+  override fun visit(node: AndOperator) {
     val labelFalse = Label()
     val labelEnd = Label()
-    pushArgument(andOperator.leftOperand)
+    pushArgument(node.leftOperand)
     mv.jumpIfEq(labelFalse)
-    pushArgument(andOperator.rightOperand)
+    pushArgument(node.rightOperand)
     mv.jumpIfEq(labelFalse)
     mv.visitInsn(Opcodes.ICONST_1)
     mv.jumpTo(labelEnd)
@@ -472,13 +472,13 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     mv.visitLabel(labelEnd)
   }
 
-  override fun visit(orOperator: OrOperator) {
+  override fun visit(node: OrOperator) {
     val labelTrue = Label()
     val labelFalse = Label()
     val labelEnd = Label()
-    pushArgument(orOperator.leftOperand)
+    pushArgument(node.leftOperand)
     mv.jumpIfNe(labelTrue)
-    pushArgument(orOperator.rightOperand)
+    pushArgument(node.rightOperand)
     mv.jumpIfEq(labelFalse)
     mv.visitLabel(labelTrue)
     mv.visitInsn(Opcodes.ICONST_1)
@@ -488,111 +488,111 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     mv.visitLabel(labelEnd)
   }
 
-  override fun visit(findOperator: FindOperator) {
-    if (!CharSequence::class.java.javaType.isAssignableFrom(findOperator.leftOperand.getType(typeResolver))) {
-      throw MarcelSemanticException(findOperator.token, "Left operand of find operator should be a string")
+  override fun visit(node: FindOperator) {
+    if (!CharSequence::class.java.javaType.isAssignableFrom(node.leftOperand.getType(typeResolver))) {
+      throw MarcelSemanticException(node.token, "Left operand of find operator should be a string")
     }
-    if (!Pattern::class.java.javaType.isAssignableFrom(findOperator.rightOperand.getType(typeResolver))) {
-      throw MarcelSemanticException(findOperator.token, "Right operand of find operator should be a Pattern")
+    if (!Pattern::class.java.javaType.isAssignableFrom(node.rightOperand.getType(typeResolver))) {
+      throw MarcelSemanticException(node.token, "Right operand of find operator should be a Pattern")
     }
-    pushArgument(findOperator.rightOperand)
-    mv.invokeMethodWithArguments(findOperator, classNode.scope, Pattern::class.java.getMethod("matcher", CharSequence::class.java), findOperator.leftOperand)
+    pushArgument(node.rightOperand)
+    mv.invokeMethodWithArguments(node, classNode.scope, Pattern::class.java.getMethod("matcher", CharSequence::class.java), node.leftOperand)
   }
 
-  override fun visit(accessOperator: InvokeAccessOperator) {
-    val access = accessOperator.rightOperand
+  override fun visit(node: InvokeAccessOperator) {
+    val access = node.rightOperand
 
-    if (accessOperator.nullSafe) {
+    if (node.nullSafe) {
       val scope = access.scope
 
       // need a local variable to avoid evaluating twice
-      val tempVar = scope.addLocalVariable(accessOperator.leftOperand.getType(typeResolver))
-      visitWithoutPushing(VariableAssignmentNode(accessOperator.token, scope, tempVar.name, accessOperator.leftOperand))
-      val tempRef = ReferenceExpression(accessOperator.token, scope, tempVar.name)
+      val tempVar = scope.addLocalVariable(node.leftOperand.getType(typeResolver))
+      visitWithoutPushing(VariableAssignmentNode(node.token, scope, tempVar.name, node.leftOperand))
+      val tempRef = ReferenceExpression(node.token, scope, tempVar.name)
 
-      visit(TernaryNode(accessOperator.token,
-        BooleanExpressionNode.of(accessOperator.token, ComparisonOperatorNode(accessOperator.token, ComparisonOperator.NOT_EQUAL, tempRef, NullValueNode(accessOperator.token))),
+      visit(TernaryNode(node.token,
+        BooleanExpressionNode.of(node.token, ComparisonOperatorNode(node.token, ComparisonOperator.NOT_EQUAL, tempRef, NullValueNode(node.token))),
         // using a new function call because we need to use the tempRef instead of the actual leftOperand
-        SimpleFunctionCallNode(accessOperator.token, access.scope, access.name, access.getArguments(typeResolver), access.getMethod(typeResolver)).apply {
+        SimpleFunctionCallNode(node.token, access.scope, access.name, access.getArguments(typeResolver), access.getMethod(typeResolver)).apply {
           methodOwnerType = tempRef
         }
-        , NullValueNode(accessOperator.token)
+        , NullValueNode(node.token)
       ))
       scope.freeVariable(tempVar.name)
     } else {
-      access.methodOwnerType = accessOperator.leftOperand
+      access.methodOwnerType = node.leftOperand
       access.accept(this)
     }
   }
 
-  override fun visit(getFieldAccessOperator: GetFieldAccessOperator) {
-    val field = typeResolver.findFieldOrThrow(getFieldAccessOperator.leftOperand.getType(typeResolver), getFieldAccessOperator.rightOperand.name)
+  override fun visit(node: GetFieldAccessOperator) {
+    val field = typeResolver.findFieldOrThrow(node.leftOperand.getType(typeResolver), node.rightOperand.name)
     if (field.isStatic) {
-      mv.getField(getFieldAccessOperator, getFieldAccessOperator.scope, field)
+      mv.getField(node, node.scope, field)
       return
     }
-    if (getFieldAccessOperator.directFieldAccess && field !is ClassField) {
-      throw MarcelSemanticException("Class field ${getFieldAccessOperator.scope.classType}.${getFieldAccessOperator.rightOperand.name} is not defined")
+    if (node.directFieldAccess && field !is ClassField) {
+      throw MarcelSemanticException("Class field ${node.scope.classType}.${node.rightOperand.name} is not defined")
     }
-    if (getFieldAccessOperator.nullSafe) {
-      val scope = getFieldAccessOperator.scope
+    if (node.nullSafe) {
+      val scope = node.scope
 
       // need a local variable to avoid evaluating twice
-      val tempVar = scope.addLocalVariable(getFieldAccessOperator.leftOperand.getType(typeResolver))
-      visitWithoutPushing(VariableAssignmentNode(getFieldAccessOperator.token, scope, tempVar.name, getFieldAccessOperator.leftOperand))
-      val tempRef = ReferenceExpression(getFieldAccessOperator.token, scope, tempVar.name)
+      val tempVar = scope.addLocalVariable(node.leftOperand.getType(typeResolver))
+      visitWithoutPushing(VariableAssignmentNode(node.token, scope, tempVar.name, node.leftOperand))
+      val tempRef = ReferenceExpression(node.token, scope, tempVar.name)
 
-      visit(TernaryNode(getFieldAccessOperator.token,
-        BooleanExpressionNode.of(getFieldAccessOperator.token, ComparisonOperatorNode(getFieldAccessOperator.token, ComparisonOperator.NOT_EQUAL, tempRef,
-          NullValueNode(getFieldAccessOperator.token))),
+      visit(TernaryNode(node.token,
+        BooleanExpressionNode.of(node.token, ComparisonOperatorNode(node.token, ComparisonOperator.NOT_EQUAL, tempRef,
+          NullValueNode(node.token))),
         // using a new GetFieldAccessOperator because we need to use the tempRef instead of the actual leftOperand
-        GetFieldAccessOperator(getFieldAccessOperator.token, tempRef, getFieldAccessOperator.rightOperand, false, getFieldAccessOperator.directFieldAccess)
-        , NullValueNode(getFieldAccessOperator.token)
+        GetFieldAccessOperator(node.token, tempRef, node.rightOperand, false, node.directFieldAccess)
+        , NullValueNode(node.token)
       ))
       scope.freeVariable(tempVar.name)
     } else {
-      pushArgument(getFieldAccessOperator.leftOperand)
-      mv.getField(getFieldAccessOperator, getFieldAccessOperator.scope, field)
+      pushArgument(node.leftOperand)
+      mv.getField(node, node.scope, field)
     }
   }
 
-  override fun visit(getIndexFieldAccessOperator: GetIndexFieldAccessOperator) {
-    val field = typeResolver.findFieldOrThrow(getIndexFieldAccessOperator.leftOperand.getType(typeResolver), getIndexFieldAccessOperator.rightOperand.name)
+  override fun visit(node: GetIndexFieldAccessOperator) {
+    val field = typeResolver.findFieldOrThrow(node.leftOperand.getType(typeResolver), node.rightOperand.name)
     if (field.isStatic) {
-      mv.getField(getIndexFieldAccessOperator, getIndexFieldAccessOperator.scope, field)
-      mv.getAt(getIndexFieldAccessOperator, getIndexFieldAccessOperator.scope, getIndexFieldAccessOperator.rightOperand.variable.type, getIndexFieldAccessOperator.rightOperand.indexArguments)
+      mv.getField(node, node.scope, field)
+      mv.getAt(node, node.scope, node.rightOperand.variable.type, node.rightOperand.indexArguments)
       return
     }
-    if (getIndexFieldAccessOperator.directFieldAccess && field !is ClassField) {
-      throw MarcelSemanticException("Class field ${getIndexFieldAccessOperator.scope.classType}.${getIndexFieldAccessOperator.rightOperand.name} is not defined")
+    if (node.directFieldAccess && field !is ClassField) {
+      throw MarcelSemanticException("Class field ${node.scope.classType}.${node.rightOperand.name} is not defined")
     }
-    if (getIndexFieldAccessOperator.nullSafe) {
-      val scope = getIndexFieldAccessOperator.scope
+    if (node.nullSafe) {
+      val scope = node.scope
 
       // need a local variable to avoid evaluating twice
-      val tempVar = scope.addLocalVariable(getIndexFieldAccessOperator.leftOperand.getType(typeResolver))
-      visitWithoutPushing(VariableAssignmentNode(getIndexFieldAccessOperator.token, scope, tempVar.name, getIndexFieldAccessOperator.leftOperand))
-      val tempRef = ReferenceExpression(getIndexFieldAccessOperator.token, scope, tempVar.name)
+      val tempVar = scope.addLocalVariable(node.leftOperand.getType(typeResolver))
+      visitWithoutPushing(VariableAssignmentNode(node.token, scope, tempVar.name, node.leftOperand))
+      val tempRef = ReferenceExpression(node.token, scope, tempVar.name)
 
-      visit(TernaryNode(getIndexFieldAccessOperator.token,
-        BooleanExpressionNode.of(getIndexFieldAccessOperator.token, ComparisonOperatorNode(getIndexFieldAccessOperator.token, ComparisonOperator.NOT_EQUAL, tempRef,
-          NullValueNode(getIndexFieldAccessOperator.token))),
+      visit(TernaryNode(node.token,
+        BooleanExpressionNode.of(node.token, ComparisonOperatorNode(node.token, ComparisonOperator.NOT_EQUAL, tempRef,
+          NullValueNode(node.token))),
         // using a new GetFieldAccessOperator because we need to use the tempRef instead of the actual leftOperand
-        GetIndexFieldAccessOperator(getIndexFieldAccessOperator.token, tempRef, getIndexFieldAccessOperator.rightOperand, false, getIndexFieldAccessOperator.directFieldAccess)
-        , NullValueNode(getIndexFieldAccessOperator.token)
+        GetIndexFieldAccessOperator(node.token, tempRef, node.rightOperand, false, node.directFieldAccess)
+        , NullValueNode(node.token)
       ))
       scope.freeVariable(tempVar.name)
     } else {
-      pushArgument(getIndexFieldAccessOperator.leftOperand)
-      mv.getField(getIndexFieldAccessOperator, getIndexFieldAccessOperator.scope, field)
-      mv.getAt(getIndexFieldAccessOperator, getIndexFieldAccessOperator.scope, field.type, getIndexFieldAccessOperator.rightOperand.indexArguments)
+      pushArgument(node.leftOperand)
+      mv.getField(node, node.scope, field)
+      mv.getAt(node, node.scope, field.type, node.rightOperand.indexArguments)
     }
   }
 
-  override fun visit(directFieldAccessNode: DirectFieldAccessNode) {
-    val field = typeResolver.getClassField(directFieldAccessNode.scope.classType, directFieldAccessNode.name)
-    pushArgument(ThisReference(directFieldAccessNode.token, directFieldAccessNode.scope))
-    mv.getField(directFieldAccessNode, directFieldAccessNode.scope, field)
+  override fun visit(node: DirectFieldAccessNode) {
+    val field = typeResolver.getClassField(node.scope.classType, node.name)
+    pushArgument(ThisReference(node.token, node.scope))
+    mv.getField(node, node.scope, field)
   }
 
   private fun pushBinaryOperatorOperands(binaryOperatorNode: BinaryOperatorNode) {
@@ -600,39 +600,39 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     pushArgument(binaryOperatorNode.rightOperand)
   }
 
-  override fun visit(fCall: FunctionCallNode) {
-    val method = fCall.getMethod(typeResolver)
-    val methodOwner = fCall.methodOwnerType
+  override fun visit(node: FunctionCallNode) {
+    val method = node.getMethod(typeResolver)
+    val methodOwner = node.methodOwnerType
     if (!method.isInline) {
       if (!method.isStatic) {
         if (methodOwner is ExpressionNode) {
           pushArgument(methodOwner) // for instance method, we need to push owner
         } else {
-          pushArgument(ReferenceExpression.thisRef(fCall.scope))
+          pushArgument(ReferenceExpression.thisRef(node.scope))
         }
       }
-      mv.invokeMethodWithArguments(fCall, classNode.scope, method, fCall.getArguments(typeResolver))
+      mv.invokeMethodWithArguments(node, classNode.scope, method, node.getArguments(typeResolver))
     } else {
       // this probably doesn't work anymore, but hey, let's keep it for when I'll decide whether to implement this feature or not
       val inlineMethod = method as MethodNode
       val innerScope = InnerScope(
-        fCall.scope as? MethodScope ?: throw MarcelSemanticException(fCall.token, "Can only call inline functions in a method"))
+        node.scope as? MethodScope ?: throw MarcelSemanticException(node.token, "Can only call inline functions in a method"))
       val inlineBlock = inlineMethod.block.asSimpleBlock(inlineMethod.block.token, innerScope)
       inlineBlock.setTreeScope(innerScope)
       // initializing arguments
-      if (fCall.getArguments(typeResolver).size != inlineMethod.parameters.size) {
-        throw MarcelSemanticException(fCall.token, "Invalid number of arguments for method ${method.name}")
+      if (node.getArguments(typeResolver).size != inlineMethod.parameters.size) {
+        throw MarcelSemanticException(node.token, "Invalid number of arguments for method ${method.name}")
       }
       val variables = method.parameters.map { innerScope.addLocalVariable(it.type, it.name) }
       for (i in variables.indices) {
-        visit(VariableAssignmentNode(fCall.token, innerScope, variables[i].name, fCall.getArguments(typeResolver)[i]))
+        visit(VariableAssignmentNode(node.token, innerScope, variables[i].name, node.getArguments(typeResolver)[i]))
       }
       visit(inlineBlock)
     }
   }
 
-  override fun visit(lambdaNode: LambdaNode) {
-    val constructorCall = lambdaHandler.defineLambda(lambdaNode)
+  override fun visit(node: LambdaNode) {
+    val constructorCall = lambdaHandler.defineLambda(node)
     visit(constructorCall)
   }
 
@@ -700,28 +700,28 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     mv.storeInVariable(fieldAssignmentNode, fieldAssignmentNode.scope, fieldVariable)
   }
 
-  override fun visit(indexedVariableAssignmentNode: IndexedVariableAssignmentNode) {
-    val indexedReference = indexedVariableAssignmentNode.indexedReference
-    mv.storeInVariablePutAt(indexedVariableAssignmentNode,
+  override fun visit(node: IndexedVariableAssignmentNode) {
+    val indexedReference = node.indexedReference
+    mv.storeInVariablePutAt(node,
       indexedReference.scope, indexedReference.variable,
-      indexedReference.indexArguments, indexedVariableAssignmentNode.expression
+      indexedReference.indexArguments, node.expression
     )
   }
-  override fun visit(indexedReferenceExpression: IndexedReferenceExpression) {
-    if (indexedReferenceExpression.isSafeIndex) {
-      val funcCall = SimpleFunctionCallNode(indexedReferenceExpression.token, indexedReferenceExpression.scope, "getAtSafe",
-        indexedReferenceExpression.indexArguments.toMutableList(),
-        ReferenceExpression(indexedReferenceExpression.token, indexedReferenceExpression.scope, indexedReferenceExpression.name)
+  override fun visit(node: IndexedReferenceExpression) {
+    if (node.isSafeIndex) {
+      val funcCall = SimpleFunctionCallNode(node.token, node.scope, "getAtSafe",
+        node.indexArguments.toMutableList(),
+        ReferenceExpression(node.token, node.scope, node.name)
         )
        visit(funcCall)
-      mv.castIfNecessaryOrThrow(classNode.scope, indexedReferenceExpression, indexedReferenceExpression.getType(typeResolver), funcCall.getType(typeResolver))
+      mv.castIfNecessaryOrThrow(classNode.scope, node, node.getType(typeResolver), funcCall.getType(typeResolver))
     } else {
-      mv.pushVariableGetAt(indexedReferenceExpression, indexedReferenceExpression.scope, indexedReferenceExpression.variable,
-        indexedReferenceExpression.indexArguments)
+      mv.pushVariableGetAt(node, node.scope, node.variable,
+        node.indexArguments)
     }
   }
 
-  override fun visit(voidExpression: VoidExpression) {
+  override fun visit(node: VoidExpression) {
     // do nothing, it's void
   }
 }
@@ -749,18 +749,18 @@ class InstructionGenerator(
     pushingInstructionGenerator.instructionGenerator = this
   }
 
-  override fun visit(whileStatement: WhileStatement) {
+  override fun visit(node: WhileStatement) {
     // loop start
     val loopStart = Label()
     mv.visitLabel(loopStart)
 
     // Verifying condition
-    whileStatement.condition.accept(pushingInstructionGenerator)
+    node.condition.accept(pushingInstructionGenerator)
     val loopEnd = Label()
     mv.jumpIfEq(loopEnd)
 
     // loop body
-    loopBody(whileStatement.body, loopStart, loopEnd)
+    loopBody(node.body, loopStart, loopEnd)
 
     // Return to the beginning of the loop
     mv.jumpTo(loopStart)
@@ -769,42 +769,42 @@ class InstructionGenerator(
     mv.visitLabel(loopEnd)
   }
 
-  override fun visit(forStatement: ForStatement) {
+  override fun visit(node: ForStatement) {
     // initialization
-    forStatement.initStatement.accept(this)
+    node.initStatement.accept(this)
 
    // loop start
     val loopStart = Label()
     mv.visitLabel(loopStart)
 
     // Verifying condition
-    forStatement.endCondition.accept(pushingInstructionGenerator)
+    node.endCondition.accept(pushingInstructionGenerator)
     val loopEnd = Label()
     mv.jumpIfEq(loopEnd)
 
     // loop body
     val incrementLabel = Label()
-    loopBody(forStatement.body, incrementLabel, loopEnd)
+    loopBody(node.body, incrementLabel, loopEnd)
 
     // iteration
     mv.visitLabel(incrementLabel)
-    forStatement.iteratorStatement.accept(this)
+    node.iteratorStatement.accept(this)
     mv.jumpTo(loopStart)
 
     // loop end
     mv.visitLabel(loopEnd)
   }
 
-  override fun visit(tryCatchNode: TryCatchNode) {
+  override fun visit(node: TryCatchNode) {
     // TODO seems to work but compiled bytecode looks weird
     val tryStart = Label()
     val tryEnd = Label()
     val endLabel = Label()
-    val catchesWithLabel = tryCatchNode.catchNodes.map {
+    val catchesWithLabel = node.catchNodes.map {
       // need one label for each catch block
       it to Label()
     }
-    val finallyWithLabel = if (tryCatchNode.finallyBlock != null) tryCatchNode.finallyBlock!! to Label() else null
+    val finallyWithLabel = if (node.finallyBlock != null) node.finallyBlock!! to Label() else null
     catchesWithLabel.forEach { c ->
       c.first.exceptionTypes.forEach { exceptionType ->
         if (!Throwable::class.javaType.isAssignableFrom(exceptionType)) {
@@ -818,7 +818,7 @@ class InstructionGenerator(
     }
 
     mv.visitLabel(tryStart)
-    tryCatchNode.tryStatementNode.accept(this)
+    node.tryStatementNode.accept(this)
     mv.visitLabel(tryEnd)
     finallyWithLabel?.first?.statementNode?.accept(this)
 
@@ -835,27 +835,27 @@ class InstructionGenerator(
       val excVar = finallyWithLabel.first.scope.addLocalVariable(Throwable::class.javaType)
       mv.catchBlock(finallyWithLabel.second, excVar.index)
       finallyWithLabel.first.statementNode.accept(this)
-      mv.pushVariable(tryCatchNode, finallyWithLabel.first.scope, excVar)
+      mv.pushVariable(node, finallyWithLabel.first.scope, excVar)
       mv.visitInsn(Opcodes.ATHROW)
       mv.jumpTo(endLabel)
     }
 
     mv.visitLabel(endLabel)
   }
-  override fun visit(forInStatement: ForInStatement) {
-    val expression = forInStatement.inExpression
+  override fun visit(node: ForInStatement) {
+    val expression = node.inExpression
     val expressionType = expression.getType(typeResolver)
 
     // initialization
-    val scope = forInStatement.scope
-    scope.addLocalVariable(forInStatement.variableType, forInStatement.variableName)
+    val scope = node.scope
+    scope.addLocalVariable(node.variableType, node.variableName)
 
     // creating iterator
-    val iteratorExpression = if (Iterable::class.javaType.isAssignableFrom(expressionType)) SimpleFunctionCallNode(forInStatement.token, scope, "iterator", mutableListOf(), expression)
+    val iteratorExpression = if (Iterable::class.javaType.isAssignableFrom(expressionType)) SimpleFunctionCallNode(node.token, scope, "iterator", mutableListOf(), expression)
     else if (Iterator::class.javaType.isAssignableFrom(expressionType)) expression
-    else if (CharSequence::class.javaType.isAssignableFrom(expressionType)) ConstructorCallNode(forInStatement.token, scope, CharSequenceIterator::class.java.javaType,
+    else if (CharSequence::class.javaType.isAssignableFrom(expressionType)) ConstructorCallNode(node.token, scope, CharSequenceIterator::class.java.javaType,
       mutableListOf(expression))
-    else throw MarcelSemanticException(forInStatement.token, "Doesn't handle iterating on $expressionType")
+    else throw MarcelSemanticException(node.token, "Doesn't handle iterating on $expressionType")
     val iteratorExpressionType = iteratorExpression.getType(typeResolver)
 
     val iteratorVariable = scope.addLocalVariable(iteratorExpressionType)
@@ -868,23 +868,23 @@ class InstructionGenerator(
     else if (CharacterIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) "nextCharacter"
     else if (Iterator::class.javaType.isAssignableFrom(iteratorExpressionType)) "next"
     else throw UnsupportedOperationException("wtf")
-    visit(VariableAssignmentNode(forInStatement.token, scope, iteratorVariable.name, iteratorExpression))
+    visit(VariableAssignmentNode(node.token, scope, iteratorVariable.name, iteratorExpression))
 
     // loop start
     val loopStart = Label()
     mv.visitLabel(loopStart)
 
     // Verifying condition
-    val iteratorVarReference = ReferenceExpression(forInStatement.token, scope, iteratorVariable.name)
+    val iteratorVarReference = ReferenceExpression(node.token, scope, iteratorVariable.name)
     pushArgument(iteratorVarReference)
-    mv.invokeMethod(forInStatement, classNode.scope, IntIterator::class.java.getMethod("hasNext"))
+    mv.invokeMethod(node, classNode.scope, IntIterator::class.java.getMethod("hasNext"))
 
     val loopEnd = Label()
     mv.jumpIfEq(loopEnd)
 
     // loop body
-    visit(VariableAssignmentNode(forInStatement.token, scope, forInStatement.variableName, SimpleFunctionCallNode(forInStatement.token, scope, methodName, mutableListOf(), iteratorVarReference)))
-    loopBody(forInStatement.body, loopStart, loopEnd)
+    visit(VariableAssignmentNode(node.token, scope, node.variableName, SimpleFunctionCallNode(node.token, scope, methodName, mutableListOf(), iteratorVarReference)))
+    loopBody(node.body, loopStart, loopEnd)
     mv.jumpTo(loopStart)
 
     // loop end
@@ -893,7 +893,7 @@ class InstructionGenerator(
     if (Closeable::class.javaType.isAssignableFrom(iteratorExpressionType)) {
       // TODO would need to be in a finally block (which means the loop should be in a try block)
       pushArgument(iteratorVarReference)
-      mv.invokeMethod(forInStatement, classNode.scope, Closeable::class.java.getMethod("close"))
+      mv.invokeMethod(node, classNode.scope, Closeable::class.java.getMethod("close"))
     }
     scope.freeVariable(iteratorVariable.name)
   }
@@ -904,148 +904,148 @@ class InstructionGenerator(
     body.accept(this)
   }
 
-  override fun visit(breakLoopNode: BreakLoopNode) {
-    val label = breakLoopNode.scope.breakLabel ?: throw MarcelSemanticException(breakLoopNode.token, "Cannot use break statement outside of a loop")
+  override fun visit(node: BreakLoopNode) {
+    val label = node.scope.breakLabel ?: throw MarcelSemanticException(node.token, "Cannot use break statement outside of a loop")
     mv.jumpTo(label)
   }
 
-  override fun visit(continueLoopNode: ContinueLoopNode) {
-    val label = continueLoopNode.scope.continueLabel ?: throw MarcelSemanticException(continueLoopNode.token, "Cannot use continue statement outside of a loop")
+  override fun visit(node: ContinueLoopNode) {
+    val label = node.scope.continueLabel ?: throw MarcelSemanticException(node.token, "Cannot use continue statement outside of a loop")
     mv.jumpTo(label)
   }
 
-  override fun visit(lambdaNode: LambdaNode) {
-    super.visit(lambdaNode)
+  override fun visit(node: LambdaNode) {
+    super.visit(node)
     mv.popStack()
   }
-  override fun visit(getFieldAccessOperator: GetFieldAccessOperator) {
-    super.visit(getFieldAccessOperator)
-    mv.popStack()
-  }
-
-  override fun visit(getIndexFieldAccessOperator: GetIndexFieldAccessOperator) {
-    super.visit(getIndexFieldAccessOperator)
+  override fun visit(node: GetFieldAccessOperator) {
+    super.visit(node)
     mv.popStack()
   }
 
-  override fun visit(directFieldAccessNode: DirectFieldAccessNode) {
-    super.visit(directFieldAccessNode)
+  override fun visit(node: GetIndexFieldAccessOperator) {
+    super.visit(node)
     mv.popStack()
   }
 
-  override fun visit(integer: IntConstantNode) {
+  override fun visit(node: DirectFieldAccessNode) {
+    super.visit(node)
+    mv.popStack()
+  }
+
+  override fun visit(node: IntConstantNode) {
     // don't need to write constants
   }
 
-  override fun visit(shortConstantNode: ShortConstantNode) {
+  override fun visit(node: ShortConstantNode) {
     // don't need to write constants
   }
 
-  override fun visit(byteConstantNode: ByteConstantNode) {
+  override fun visit(node: ByteConstantNode) {
     // don't need to write constants
   }
-  override fun visit(longConstantNode: LongConstantNode) {
-    // don't need to write constants
-  }
-
-  override fun visit(floatConstantNode: FloatConstantNode) {
+  override fun visit(node: LongConstantNode) {
     // don't need to write constants
   }
 
-  override fun visit(doubleConstantNode: DoubleConstantNode) {
+  override fun visit(node: FloatConstantNode) {
     // don't need to write constants
   }
 
-  override fun visit(charNode: CharConstantNode) {
-    // don't need to write constants
-  }
-  override fun visit(booleanConstantNode: BooleanConstantNode) {
-    // don't need to write constants
-  }
-  override fun visit(stringConstantNode: StringConstantNode) {
+  override fun visit(node: DoubleConstantNode) {
     // don't need to write constants
   }
 
-  override fun visit(thisReference: ThisReference) {
+  override fun visit(node: CharConstantNode) {
+    // don't need to write constants
+  }
+  override fun visit(node: BooleanConstantNode) {
+    // don't need to write constants
+  }
+  override fun visit(node: StringConstantNode) {
+    // don't need to write constants
+  }
+
+  override fun visit(node: ThisReference) {
     // don't need to write this if it isn't used
   }
 
 
-  override fun visit(patternValueNode: LiteralPatternNode) {
+  override fun visit(node: LiteralPatternNode) {
     // don't need to write this if it isn't used
   }
 
-  override fun visit(superReference: SuperReference) {
+  override fun visit(node: SuperReference) {
     // don't need to write super if it isn't used
   }
-  override fun visit(fCall: ConstructorCallNode) {
-    super.visit(fCall)
+  override fun visit(node: ConstructorCallNode) {
+    super.visit(node)
     mv.popStack() // don't really know if it's necessary
   }
 
-  override fun visit(fCall: NamedParametersConstructorCallNode) {
-    super.visit(fCall)
+  override fun visit(node: NamedParametersConstructorCallNode) {
+    super.visit(node)
     mv.popStack() // don't really know if it's necessary
   }
 
-  override fun visit(fCall: FunctionCallNode) {
-    super.visit(fCall)
-    if (fCall.getType(typeResolver) != JavaType.void) {
+  override fun visit(node: FunctionCallNode) {
+    super.visit(node)
+    if (node.getType(typeResolver) != JavaType.void) {
       mv.popStack() // don't really know if it's necessary
     }
   }
-  override fun visit(toStringNode: ToStringNode) {
-    toStringNode.expressionNode.accept(this)
+  override fun visit(node: ToStringNode) {
+    node.expressionNode.accept(this)
   }
 
-  override fun visit(stringNode: StringNode) {
-    for (part in stringNode.parts) {
+  override fun visit(node: StringNode) {
+    for (part in node.parts) {
       part.accept(this)
     }
   }
 
-  override fun visit(rangeNode: RangeNode) {
-    pushingInstructionGenerator.visit(rangeNode)
+  override fun visit(node: RangeNode) {
+    pushingInstructionGenerator.visit(node)
     mv.popStack()
   }
 
-  override fun visit(literalListNode: LiteralArrayNode) {
-    literalListNode.elements.forEach { it.accept(this) }
+  override fun visit(node: LiteralArrayNode) {
+    node.elements.forEach { it.accept(this) }
   }
 
-  override fun visit(literalMapNode: LiteralMapNode) {
-    literalMapNode.entries.forEach {
+  override fun visit(node: LiteralMapNode) {
+    node.entries.forEach {
       it.first.accept(this)
       it.second.accept(this)
     }
   }
-  override fun visit(booleanExpression: BooleanExpressionNode) {
-    booleanExpression.innerExpression.accept(this)
+  override fun visit(node: BooleanExpressionNode) {
+    node.innerExpression.accept(this)
   }
 
-  override fun visit(incrNode: IncrNode) {
-    if (incrNode.variableReference.getType(typeResolver) == JavaType.int && incrNode.variableReference.variable is LocalVariable) {
-      mv.incrLocalVariable(incrNode.variableReference.variable as LocalVariable, incrNode.amount)
+  override fun visit(node: IncrNode) {
+    if (node.variableReference.getType(typeResolver) == JavaType.int && node.variableReference.variable is LocalVariable) {
+      mv.incrLocalVariable(node.variableReference.variable as LocalVariable, node.amount)
     } else {
-      val ref = incrNode.variableReference
-      visit(VariableAssignmentNode(incrNode.token, ref.scope, ref.name, PlusOperator(incrNode.token, ref, IntConstantNode(incrNode.token, incrNode.amount))))
+      val ref = node.variableReference
+      visit(VariableAssignmentNode(node.token, ref.scope, ref.name, PlusOperator(node.token, ref, IntConstantNode(node.token, node.amount))))
     }
   }
 
-  override fun visit(nullValueNode: NullValueNode) {
+  override fun visit(node: NullValueNode) {
     // no need to push anything
   }
 
-  override fun visit(classExpressionNode: ClassExpressionNode) {
+  override fun visit(node: ClassExpressionNode) {
     // no need to push anything
   }
 
-  override fun visit(referenceExpression: ReferenceExpression) {
+  override fun visit(node: ReferenceExpression) {
     // don't need to push value to the stack by default
   }
 
-  override fun visit(indexedReferenceExpression: IndexedReferenceExpression) {
-    super.visit(indexedReferenceExpression)
+  override fun visit(node: IndexedReferenceExpression) {
+    super.visit(node)
     mv.popStack()
   }
 
@@ -1054,151 +1054,151 @@ class InstructionGenerator(
   }
 
 
-  override fun visit(blockNode: FunctionBlockNode) {
-    for (i in 0..(blockNode.statements.size - 2)) {
-      blockNode.statements[i].accept(this)
+  override fun visit(node: FunctionBlockNode) {
+    for (i in 0..(node.statements.size - 2)) {
+      node.statements[i].accept(this)
     }
-    val lastStatement = blockNode.statements.lastOrNull()
+    val lastStatement = node.statements.lastOrNull()
     if (lastStatement is ReturnNode) {
       // if this is return node, there is no ambiguity here. Just process it
       lastStatement.accept(this)
       return
     }
-    if (blockNode.scope.returnType == JavaType.void) {
+    if (node.scope.returnType == JavaType.void) {
       lastStatement?.accept(this)
       mv.returnVoid()
     } else {
       if (lastStatement is ExpressionStatementNode && lastStatement.expression.getType(typeResolver) != JavaType.void) {
-        visit(ReturnNode(blockNode.token, blockNode.scope, lastStatement.expression))
-      } else if (!blockNode.scope.returnType.primitive) {
+        visit(ReturnNode(node.token, node.scope, lastStatement.expression))
+      } else if (!node.scope.returnType.primitive) {
         lastStatement?.accept(this)
         // just return null
         mv.pushNull()
-        mv.returnCode(blockNode.scope.returnType.returnCode)
+        mv.returnCode(node.scope.returnType.returnCode)
       } else if (lastStatement == null || !lastStatement.allBranchesReturn()) {
-        throw MarcelSemanticException(blockNode.token, "Function returning primitive types must explicitly return an expression as the last statement." +
+        throw MarcelSemanticException(node.token, "Function returning primitive types must explicitly return an expression as the last statement." +
             "You must explicitly return an expression, a switch or a when.")
       } else {
         lastStatement.accept(this)
-        mv.castIfNecessaryOrThrow(classNode.scope, blockNode, blockNode.scope.returnType, lastStatement.getType(typeResolver))
-        mv.returnCode(blockNode.scope.returnType.returnCode)
+        mv.castIfNecessaryOrThrow(classNode.scope, node, node.scope.returnType, lastStatement.getType(typeResolver))
+        mv.returnCode(node.scope.returnType.returnCode)
       }
     }
   }
 
-  override fun visit(operator: MulOperator) {
-    super.visit(operator)
+  override fun visit(node: MulOperator) {
+    super.visit(node)
     mv.popStack()
   }
-  override fun visit(operator: DivOperator) {
-    super.visit(operator)
-    mv.popStack()
-  }
-
-  override fun visit(operator: MinusOperator) {
-    super.visit(operator)
+  override fun visit(node: DivOperator) {
+    super.visit(node)
     mv.popStack()
   }
 
-  override fun visit(operator: PlusOperator) {
-    super.visit(operator)
+  override fun visit(node: MinusOperator) {
+    super.visit(node)
     mv.popStack()
   }
 
-  override fun visit(rightShiftOperator: RightShiftOperator) {
-    super.visit(rightShiftOperator)
+  override fun visit(node: PlusOperator) {
+    super.visit(node)
     mv.popStack()
   }
 
-  override fun visit(leftShiftOperator: LeftShiftOperator) {
-    super.visit(leftShiftOperator)
+  override fun visit(node: RightShiftOperator) {
+    super.visit(node)
     mv.popStack()
   }
 
-  override fun visit(operator: PowOperator) {
-    super.visit(operator)
+  override fun visit(node: LeftShiftOperator) {
+    super.visit(node)
     mv.popStack()
   }
 
-  override fun visit(comparisonOperatorNode: ComparisonOperatorNode) {
-    super.visit(comparisonOperatorNode)
+  override fun visit(node: PowOperator) {
+    super.visit(node)
     mv.popStack()
   }
 
-  override fun visit(isOperator: IsOperator) {
-    super.visit(isOperator)
-    mv.popStack()
-  }
-  override fun visit(isNotOperator: IsNotOperator) {
-    super.visit(isNotOperator)
+  override fun visit(node: ComparisonOperatorNode) {
+    super.visit(node)
     mv.popStack()
   }
 
-  override fun visit(andOperator: AndOperator) {
-    super.visit(andOperator)
+  override fun visit(node: IsOperator) {
+    super.visit(node)
+    mv.popStack()
+  }
+  override fun visit(node: IsNotOperator) {
+    super.visit(node)
     mv.popStack()
   }
 
-  override fun visit(findOperator: FindOperator) {
-    super.visit(findOperator)
+  override fun visit(node: AndOperator) {
+    super.visit(node)
     mv.popStack()
   }
 
-  override fun visit(orOperator: OrOperator) {
-    super.visit(orOperator)
+  override fun visit(node: FindOperator) {
+    super.visit(node)
     mv.popStack()
   }
 
-  override fun visit(notNode: NotNode) {
-    notNode.operand.accept(this)
+  override fun visit(node: OrOperator) {
+    super.visit(node)
+    mv.popStack()
   }
 
-  override fun visit(expressionStatementNode: ExpressionStatementNode) {
-    expressionStatementNode.expression.accept(this)
+  override fun visit(node: NotNode) {
+    node.operand.accept(this)
   }
 
-  override fun visit(variableDeclarationNode: VariableDeclarationNode) {
-    variableDeclarationNode.scope.addLocalVariable(variableDeclarationNode.type, variableDeclarationNode.name,
-      variableDeclarationNode.isFinal)
-    visit(variableDeclarationNode as VariableAssignmentNode)
+  override fun visit(node: ExpressionStatementNode) {
+    node.expression.accept(this)
   }
 
-  override fun visit(multiVariableDeclarationNode: MultiVariableDeclarationNode) {
-    val scope = multiVariableDeclarationNode.scope
-    val expressionType = multiVariableDeclarationNode.expression.getType(typeResolver)
+  override fun visit(node: VariableDeclarationNode) {
+    node.scope.addLocalVariable(node.type, node.name,
+      node.isFinal)
+    visit(node as VariableAssignmentNode)
+  }
+
+  override fun visit(node: MultiVariableDeclarationNode) {
+    val scope = node.scope
+    val expressionType = node.expression.getType(typeResolver)
     if (!List::class.javaType.isAssignableFrom(expressionType) && !expressionType.isArray) {
-      throw MarcelSemanticException(multiVariableDeclarationNode.token, "Multi variable declarations must use an array or a list as the expression")
+      throw MarcelSemanticException(node.token, "Multi variable declarations must use an array or a list as the expression")
     }
     val tempVar = scope.addLocalVariable(expressionType)
     // assign expression to variable
-    visit(VariableAssignmentNode(multiVariableDeclarationNode.token, scope, tempVar.name, multiVariableDeclarationNode.expression))
+    visit(VariableAssignmentNode(node.token, scope, tempVar.name, node.expression))
     // then process each variable declarations
-    for (i in multiVariableDeclarationNode.declarations.indices) {
-      val declaration = multiVariableDeclarationNode.declarations[i] ?: continue
-      visit(VariableDeclarationNode(multiVariableDeclarationNode.token, scope, declaration.first, declaration.second, false,
-        IndexedReferenceExpression(multiVariableDeclarationNode.token, scope, tempVar.name, listOf(IntConstantNode(multiVariableDeclarationNode.token, i)), false)))
+    for (i in node.declarations.indices) {
+      val declaration = node.declarations[i] ?: continue
+      visit(VariableDeclarationNode(node.token, scope, declaration.first, declaration.second, false,
+        IndexedReferenceExpression(node.token, scope, tempVar.name, listOf(IntConstantNode(node.token, i)), false)))
     }
     scope.freeVariable(tempVar.name)
   }
 
-  override fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode) {
-    pushArgument(truthyVariableDeclarationNode)
+  override fun visit(node: TruthyVariableDeclarationNode) {
+    pushArgument(node)
     mv.popStack()
   }
 
-  override fun visit(blockNode: BlockNode) {
-    for (statement in blockNode.statements) {
+  override fun visit(node: BlockNode) {
+    for (statement in node.statements) {
       statement.accept(this)
     }
   }
 
-  override fun visit(returnNode: ReturnNode) {
-    if (returnNode.scope.returnType == JavaType.void && returnNode.expression !is VoidExpression) {
-      throw MarcelSemanticException(returnNode.token, "Cannot return an expression in a void function")
+  override fun visit(node: ReturnNode) {
+    if (node.scope.returnType == JavaType.void && node.expression !is VoidExpression) {
+      throw MarcelSemanticException(node.token, "Cannot return an expression in a void function")
     }
-    pushArgument(returnNode.expression)
-    mv.castIfNecessaryOrThrow(classNode.scope, returnNode, returnNode.scope.returnType, returnNode.expression.getType(typeResolver))
-    mv.returnCode(returnNode.scope.returnType.returnCode)
+    pushArgument(node.expression)
+    mv.castIfNecessaryOrThrow(classNode.scope, node, node.scope.returnType, node.expression.getType(typeResolver))
+    mv.returnCode(node.scope.returnType.returnCode)
   }
 
   override fun visitWithoutPushing(astNode: AstInstructionNode) {
@@ -1216,53 +1216,53 @@ private class PushingInstructionGenerator(
   lateinit var instructionGenerator: InstructionGenerator
 
 
-  override fun visit(forStatement: ForStatement) {
-    instructionGenerator.visit(forStatement)
+  override fun visit(node: ForStatement) {
+    instructionGenerator.visit(node)
   }
 
-  override fun visit(tryCatchNode: TryCatchNode) {
-    instructionGenerator.visit(tryCatchNode)
+  override fun visit(node: TryCatchNode) {
+    instructionGenerator.visit(node)
   }
 
-  override fun visit(forInStatement: ForInStatement) {
-    instructionGenerator.visit(forInStatement)
+  override fun visit(node: ForInStatement) {
+    instructionGenerator.visit(node)
   }
 
-  override fun visit(literalListNode: LiteralArrayNode) {
-    mv.newArray(classNode.scope, literalListNode, literalListNode.getType(typeResolver).asArrayType, literalListNode.elements)
+  override fun visit(node: LiteralArrayNode) {
+    mv.newArray(classNode.scope, node, node.getType(typeResolver).asArrayType, node.elements)
   }
 
-  override fun visit(literalMapNode: LiteralMapNode) {
+  override fun visit(node: LiteralMapNode) {
     var objectKeys = false
-    val methodName = when (literalMapNode.getType(typeResolver).raw()) {
+    val methodName = when (node.getType(typeResolver).raw()) {
       JavaType.int2ObjectMap -> "newInt2ObjectMap"
       JavaType.long2ObjectMap -> "newLong2ObjectMap"
       JavaType.char2ObjectMap -> "newChar2ObjectMap"
       else -> {
-        if (Map::class.javaType.isAssignableFrom(literalMapNode.getType(typeResolver).raw())) {
+        if (Map::class.javaType.isAssignableFrom(node.getType(typeResolver).raw())) {
           objectKeys = true
           "newObject2ObjectMap"
         } else {
-          throw MarcelSemanticException(literalMapNode.token, "Doesn't handle maps of type ${literalMapNode.getType(typeResolver)}")
+          throw MarcelSemanticException(node.token, "Doesn't handle maps of type ${node.getType(typeResolver)}")
         }
       }
     }
-    mv.invokeMethod(literalMapNode, classNode.scope, BytecodeHelper::class.java.getDeclaredMethod(methodName))
-    val keysType = literalMapNode.getKeysType(typeResolver)
+    mv.invokeMethod(node, classNode.scope, BytecodeHelper::class.java.getDeclaredMethod(methodName))
+    val keysType = node.getKeysType(typeResolver)
     val putMethodKeysType = if (keysType.primitive) keysType else JavaType.Object
-    val rawMapType = literalMapNode.getType(typeResolver).raw()
+    val rawMapType = node.getType(typeResolver).raw()
 
-    for (entry in literalMapNode.entries) {
+    for (entry in node.entries) {
       mv.dup()
       pushArgument(entry.first)
       if (objectKeys) {
-        mv.castIfNecessaryOrThrow(classNode.scope, literalMapNode, JavaType.Object, entry.first.getType(typeResolver))
+        mv.castIfNecessaryOrThrow(classNode.scope, node, JavaType.Object, entry.first.getType(typeResolver))
       } else {
-        mv.castIfNecessaryOrThrow(classNode.scope, literalMapNode, putMethodKeysType, entry.first.getType(typeResolver))
+        mv.castIfNecessaryOrThrow(classNode.scope, node, putMethodKeysType, entry.first.getType(typeResolver))
       }
       pushArgument(entry.second)
-      mv.castIfNecessaryOrThrow(classNode.scope, literalMapNode, JavaType.Object, entry.second.getType(typeResolver))
-      mv.invokeMethod(literalMapNode, classNode.scope, typeResolver.findMethodOrThrow(rawMapType,
+      mv.castIfNecessaryOrThrow(classNode.scope, node, JavaType.Object, entry.second.getType(typeResolver))
+      mv.invokeMethod(node, classNode.scope, typeResolver.findMethodOrThrow(rawMapType,
         "put",
         listOf(putMethodKeysType, JavaType.Object)
       ))
@@ -1270,226 +1270,226 @@ private class PushingInstructionGenerator(
     }
   }
 
-  override fun visit(rangeNode: RangeNode) {
-    val methodName = if (rangeNode.fromExclusive && rangeNode.toExclusive) "ofExclusive"
-    else if (rangeNode.fromExclusive) "ofFromExclusive"
-    else if (rangeNode.toExclusive) "ofToExclusive"
+  override fun visit(node: RangeNode) {
+    val methodName = if (node.fromExclusive && node.toExclusive) "ofExclusive"
+    else if (node.fromExclusive) "ofFromExclusive"
+    else if (node.toExclusive) "ofToExclusive"
     else "of"
-    val fromType = rangeNode.from.getType(typeResolver)
-    val toType = rangeNode.to.getType(typeResolver)
+    val fromType = node.from.getType(typeResolver)
+    val toType = node.to.getType(typeResolver)
     val method =
       if (fromType == JavaType.long || fromType == JavaType.Long
         || toType == JavaType.long || toType == JavaType.Long) ReflectJavaMethod(LongRanges::class.java.getMethod(methodName, Long::class.java, Long::class.java))
       else ReflectJavaMethod(IntRanges::class.java.getMethod(methodName, Int::class.java, Int::class.java))
-    mv.invokeMethodWithArguments(rangeNode, classNode.scope, method, rangeNode.from, rangeNode.to)
+    mv.invokeMethodWithArguments(node, classNode.scope, method, node.from, node.to)
   }
 
-  override fun visit(notNode: NotNode) {
-    when (notNode.operand.getType(typeResolver)) {
-      JavaType.Boolean -> mv.invokeMethodWithArguments(notNode, classNode.scope, typeResolver.findMethodOrThrow(JavaType.Boolean, "booleanValue", emptyList()), notNode.operand)
-      JavaType.boolean -> notNode.operand.accept(this)
-      else -> visit(BooleanExpressionNode.of(notNode.token, notNode.operand))
+  override fun visit(node: NotNode) {
+    when (node.operand.getType(typeResolver)) {
+      JavaType.Boolean -> mv.invokeMethodWithArguments(node, classNode.scope, typeResolver.findMethodOrThrow(JavaType.Boolean, "booleanValue", emptyList()), node.operand)
+      JavaType.boolean -> node.operand.accept(this)
+      else -> visit(BooleanExpressionNode.of(node.token, node.operand))
     }
     mv.not()
   }
-  override fun visit(whileStatement: WhileStatement) {
-    instructionGenerator.visit(whileStatement)
+  override fun visit(node: WhileStatement) {
+    instructionGenerator.visit(node)
   }
-  override fun visit(stringConstantNode: StringConstantNode) {
-    mv.pushConstant(stringConstantNode.value)
-  }
-
-  override fun visit(breakLoopNode: BreakLoopNode) {
-    instructionGenerator.visit(breakLoopNode)
+  override fun visit(node: StringConstantNode) {
+    mv.pushConstant(node.value)
   }
 
-  override fun visit(continueLoopNode: ContinueLoopNode) {
-    instructionGenerator.visit(continueLoopNode)
+  override fun visit(node: BreakLoopNode) {
+    instructionGenerator.visit(node)
   }
-  override fun visit(booleanExpression: BooleanExpressionNode) {
-    val innerType = booleanExpression.innerExpression.getType(typeResolver)
-    if (booleanExpression.innerExpression is NullValueNode) {
-      visit(BooleanConstantNode(booleanExpression.token, false))
+
+  override fun visit(node: ContinueLoopNode) {
+    instructionGenerator.visit(node)
+  }
+  override fun visit(node: BooleanExpressionNode) {
+    val innerType = node.innerExpression.getType(typeResolver)
+    if (node.innerExpression is NullValueNode) {
+      visit(BooleanConstantNode(node.token, false))
     } else if (innerType == JavaType.boolean
       || innerType == JavaType.Boolean) {
-      booleanExpression.innerExpression.accept(this)
-      mv.castIfNecessaryOrThrow(classNode.scope, booleanExpression, JavaType.boolean, innerType)
+      node.innerExpression.accept(this)
+      mv.castIfNecessaryOrThrow(classNode.scope, node, JavaType.boolean, innerType)
     } else if (innerType.primitive) {
       // according to marcel truth, all primitive are truthy
-      booleanExpression.innerExpression.accept(instructionGenerator)
-      visit(BooleanConstantNode(booleanExpression.token, true))
+      node.innerExpression.accept(instructionGenerator)
+      visit(BooleanConstantNode(node.token, true))
     } else if (Matcher::class.javaType.isAssignableFrom(innerType)) {
-      pushArgument(booleanExpression.innerExpression)
-      mv.invokeMethod(booleanExpression, classNode.scope, Matcher::class.java.getMethod("find"))
+      pushArgument(node.innerExpression)
+      mv.invokeMethod(node, classNode.scope, Matcher::class.java.getMethod("find"))
     } else {
       val classTruthyMethod = typeResolver.findMethod(innerType, "isTruthy", emptyList())
       if (classTruthyMethod != null) {
-        pushArgument(booleanExpression.innerExpression)
-        mv.invokeMethod(booleanExpression.innerExpression, classNode.scope, classTruthyMethod)
+        pushArgument(node.innerExpression)
+        mv.invokeMethod(node.innerExpression, classNode.scope, classTruthyMethod)
       } else {
         // this is a static method. No need to push owner
         val marcelTruthyMethod = typeResolver.findMethodOrThrow(MarcelTruth::class.javaType, "truthy", listOf(innerType))
-        mv.invokeMethodWithArguments(booleanExpression, classNode.scope, marcelTruthyMethod, booleanExpression.innerExpression)
+        mv.invokeMethodWithArguments(node, classNode.scope, marcelTruthyMethod, node.innerExpression)
       }
     }
   }
 
-  override fun visit(toStringNode: ToStringNode) {
-    val expr = toStringNode.expressionNode
+  override fun visit(node: ToStringNode) {
+    val expr = node.expressionNode
     if (expr.getType(typeResolver) == JavaType.String) {
       expr.accept(this)
     } else {
       val argumentType = expr.getType(typeResolver)
       if (argumentType.primitive) {
-        mv.invokeMethodWithArguments(toStringNode, classNode.scope, String::class.java.getDeclaredMethod("valueOf", argumentType.realClazz), expr)
+        mv.invokeMethodWithArguments(node, classNode.scope, String::class.java.getDeclaredMethod("valueOf", argumentType.realClazz), expr)
       } else {
-        mv.invokeMethodWithArguments(toStringNode, classNode.scope, String::class.java.getDeclaredMethod("valueOf", JavaType.Object.realClazz), expr)
+        mv.invokeMethodWithArguments(node, classNode.scope, String::class.java.getDeclaredMethod("valueOf", JavaType.Object.realClazz), expr)
       }
     }
   }
-  override fun visit(stringNode: StringNode) {
-    if (stringNode.parts.isEmpty()) {
+  override fun visit(node: StringNode) {
+    if (node.parts.isEmpty()) {
       // empty string
-      StringConstantNode(stringNode.token, "").accept(this)
+      StringConstantNode(node.token, "").accept(this)
       return
-    } else if (stringNode.parts.size == 1) {
-      ToStringNode.of(stringNode.token, stringNode.parts.first()).accept(this)
+    } else if (node.parts.size == 1) {
+      ToStringNode.of(node.token, node.parts.first()).accept(this)
       return
     }
     // new StringBuilder() can just provide an empty new scope as we'll just use it to extract the method from StringBuilder which already exists in the JDK
     val type = StringBuilder::class.javaType
-    visit(ConstructorCallNode(stringNode.token, Scope(typeResolver, type, false), type, mutableListOf()))
-    for (part in stringNode.parts) {
+    visit(ConstructorCallNode(node.token, Scope(typeResolver, type, false), type, mutableListOf()))
+    for (part in node.parts) {
       // chained calls
       val argumentType = part.getType(typeResolver)
       val method = ReflectJavaMethod(StringBuilder::class.java.getDeclaredMethod("append",
         if (argumentType.primitive) argumentType.realClazz else JavaType.Object.realClazz))
-      mv.invokeMethodWithArguments(stringNode, classNode.scope, method, part)
+      mv.invokeMethodWithArguments(node, classNode.scope, method, part)
     }
-    mv.invokeMethod(stringNode, classNode.scope, StringBuilder::class.java.getDeclaredMethod("toString"))
+    mv.invokeMethod(node, classNode.scope, StringBuilder::class.java.getDeclaredMethod("toString"))
   }
 
-  override fun visit(integer: IntConstantNode) {
-    mv.pushConstant(integer.value)
+  override fun visit(node: IntConstantNode) {
+    mv.pushConstant(node.value)
   }
 
-  override fun visit(longConstantNode: LongConstantNode) {
-    mv.pushConstant(longConstantNode.value)
+  override fun visit(node: LongConstantNode) {
+    mv.pushConstant(node.value)
   }
 
-  override fun visit(shortConstantNode: ShortConstantNode) {
-    mv.pushConstant(shortConstantNode.value)
+  override fun visit(node: ShortConstantNode) {
+    mv.pushConstant(node.value)
   }
 
-  override fun visit(byteConstantNode: ByteConstantNode) {
-    mv.pushConstant(byteConstantNode.value)
+  override fun visit(node: ByteConstantNode) {
+    mv.pushConstant(node.value)
   }
-  override fun visit(floatConstantNode: FloatConstantNode) {
-    mv.pushConstant(floatConstantNode.value)
-  }
-
-  override fun visit(doubleConstantNode: DoubleConstantNode) {
-    mv.pushConstant(doubleConstantNode.value)
+  override fun visit(node: FloatConstantNode) {
+    mv.pushConstant(node.value)
   }
 
-  override fun visit(charNode: CharConstantNode) {
-    val value = charNode.value
-    if (value.length != 1) throw MarcelSemanticException(charNode.token, "Characters should be strings of exactly one char")
+  override fun visit(node: DoubleConstantNode) {
+    mv.pushConstant(node.value)
+  }
+
+  override fun visit(node: CharConstantNode) {
+    val value = node.value
+    if (value.length != 1) throw MarcelSemanticException(node.token, "Characters should be strings of exactly one char")
     mv.pushConstant(value[0])
   }
-  override fun visit(nullValueNode: NullValueNode) {
+  override fun visit(node: NullValueNode) {
     mv.pushNull()
   }
 
-  override fun visit(superReference: SuperReference) {
-    if (methodNode.isStatic) throw MarcelSemanticException(superReference.token, "Cannot reference 'super' in a static context")
+  override fun visit(node: SuperReference) {
+    if (methodNode.isStatic) throw MarcelSemanticException(node.token, "Cannot reference 'super' in a static context")
     mv.pushThis() // super is actually this. The difference is in the class internalName supplied when performing ASM instructions
   }
 
-  override fun visit(thisReference: ThisReference) {
+  override fun visit(node: ThisReference) {
     when {
       !methodNode.isStatic -> mv.pushThis()
       // for extension class
-      classNode.isExtensionClass && thisReference.scope.hasVariable("self") -> visit(ReferenceExpression(thisReference.token, thisReference.scope, "self"))
-      else -> throw MarcelSemanticException(thisReference.token, "Cannot reference 'this' in a static context")
+      classNode.isExtensionClass && node.scope.hasVariable("self") -> visit(ReferenceExpression(node.token, node.scope, "self"))
+      else -> throw MarcelSemanticException(node.token, "Cannot reference 'this' in a static context")
     }
   }
 
-  override fun visit(patternValueNode: LiteralPatternNode) {
-    mv.pushConstant(patternValueNode.value)
-    if (patternValueNode.flags.isNotEmpty()) {
-      val flag = patternValueNode.flags.reduce { acc, i -> acc or i }
+  override fun visit(node: LiteralPatternNode) {
+    mv.pushConstant(node.value)
+    if (node.flags.isNotEmpty()) {
+      val flag = node.flags.reduce { acc, i -> acc or i }
       mv.pushConstant(flag)
-      mv.invokeMethod(patternValueNode, classNode.scope, Pattern::class.java.getMethod("compile", String::class.java, Int::class.java))
+      mv.invokeMethod(node, classNode.scope, Pattern::class.java.getMethod("compile", String::class.java, Int::class.java))
     } else {
-      mv.invokeMethod(patternValueNode, classNode.scope, Pattern::class.java.getMethod("compile", String::class.java))
+      mv.invokeMethod(node, classNode.scope, Pattern::class.java.getMethod("compile", String::class.java))
     }
   }
-  override fun visit(incrNode: IncrNode) {
-    if (incrNode.returnValueBefore) {
-      mv.pushVariable(incrNode, incrNode.variableReference.scope, incrNode.variableReference.variable)
-      instructionGenerator.visit(incrNode)
+  override fun visit(node: IncrNode) {
+    if (node.returnValueBefore) {
+      mv.pushVariable(node, node.variableReference.scope, node.variableReference.variable)
+      instructionGenerator.visit(node)
     } else {
-      instructionGenerator.visit(incrNode)
-      mv.pushVariable(incrNode, incrNode.variableReference.scope, incrNode.variableReference.variable)
+      instructionGenerator.visit(node)
+      mv.pushVariable(node, node.variableReference.scope, node.variableReference.variable)
     }
   }
-  override fun visit(booleanConstantNode: BooleanConstantNode) {
-    mv.pushConstant(booleanConstantNode.value)
+  override fun visit(node: BooleanConstantNode) {
+    mv.pushConstant(node.value)
   }
-  override fun visit(referenceExpression: ReferenceExpression) {
-    mv.pushVariable(referenceExpression, referenceExpression.scope, referenceExpression.variable)
-  }
-
-  override fun visit(variableAssignmentNode: VariableAssignmentNode) {
-    super.visit(variableAssignmentNode)
-    mv.pushVariable(variableAssignmentNode, variableAssignmentNode.scope, variableAssignmentNode.scope.findVariableOrThrow(variableAssignmentNode.name))
+  override fun visit(node: ReferenceExpression) {
+    mv.pushVariable(node, node.scope, node.variable)
   }
 
-  override fun visit(fieldAssignmentNode: FieldAssignmentNode) {
-    super.visit(fieldAssignmentNode)
-    val field = typeResolver.findFieldOrThrow(fieldAssignmentNode.fieldNode.leftOperand.getType(typeResolver), fieldAssignmentNode.fieldNode.rightOperand.name)
+  override fun visit(node: VariableAssignmentNode) {
+    super.visit(node)
+    mv.pushVariable(node, node.scope, node.scope.findVariableOrThrow(node.name))
+  }
+
+  override fun visit(node: FieldAssignmentNode) {
+    super.visit(node)
+    val field = typeResolver.findFieldOrThrow(node.fieldNode.leftOperand.getType(typeResolver), node.fieldNode.rightOperand.name)
     if (!field.isStatic) {
-      pushArgument(fieldAssignmentNode.fieldNode.leftOperand)
+      pushArgument(node.fieldNode.leftOperand)
     }
-    mv.pushVariable(fieldAssignmentNode, fieldAssignmentNode.scope, field)
+    mv.pushVariable(node, node.scope, field)
   }
 
-  override fun visit(indexedVariableAssignmentNode: IndexedVariableAssignmentNode) {
-    super.visit(indexedVariableAssignmentNode)
-    pushArgument(indexedVariableAssignmentNode.indexedReference)
+  override fun visit(node: IndexedVariableAssignmentNode) {
+    super.visit(node)
+    pushArgument(node.indexedReference)
   }
   override fun pushArgument(expr: ExpressionNode) {
     expr.accept(this)
   }
 
-  override fun visit(returnNode: ReturnNode) {
-    instructionGenerator.visit(returnNode)
+  override fun visit(node: ReturnNode) {
+    instructionGenerator.visit(node)
   }
 
-  override fun visit(expressionStatementNode: ExpressionStatementNode) {
-    expressionStatementNode.expression.accept(this)
+  override fun visit(node: ExpressionStatementNode) {
+    node.expression.accept(this)
   }
 
-  override fun visit(variableDeclarationNode: VariableDeclarationNode) {
-    instructionGenerator.visit(variableDeclarationNode)
+  override fun visit(node: VariableDeclarationNode) {
+    instructionGenerator.visit(node)
   }
 
-  override fun visit(multiVariableDeclarationNode: MultiVariableDeclarationNode) {
-    instructionGenerator.visit(multiVariableDeclarationNode)
+  override fun visit(node: MultiVariableDeclarationNode) {
+    instructionGenerator.visit(node)
   }
-  override fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode) {
-    var actualTruthyVariableDeclarationNode = truthyVariableDeclarationNode
+  override fun visit(node: TruthyVariableDeclarationNode) {
+    var actualTruthyVariableDeclarationNode = node
     val variableType = actualTruthyVariableDeclarationNode.variableType
     val expressionType = actualTruthyVariableDeclarationNode.expression.getType(typeResolver)
     if (variableType.raw() != Optional::class.javaType && (
           listOf(Optional::class.javaType, OptionalInt::class.javaType, OptionalLong::class.javaType, OptionalDouble::class.javaType)
             .any {expressionType.raw().isAssignableFrom(it) }
           )) {
-      actualTruthyVariableDeclarationNode = TruthyVariableDeclarationNode(truthyVariableDeclarationNode.token,
+      actualTruthyVariableDeclarationNode = TruthyVariableDeclarationNode(node.token,
         actualTruthyVariableDeclarationNode.scope, actualTruthyVariableDeclarationNode.variableType, actualTruthyVariableDeclarationNode.name,
-        InvokeAccessOperator(truthyVariableDeclarationNode.token, actualTruthyVariableDeclarationNode.expression,
-          SimpleFunctionCallNode(truthyVariableDeclarationNode.token, actualTruthyVariableDeclarationNode.scope, "orElse", mutableListOf(NullValueNode(truthyVariableDeclarationNode.token, actualTruthyVariableDeclarationNode.variableType)))
+        InvokeAccessOperator(node.token, actualTruthyVariableDeclarationNode.expression,
+          SimpleFunctionCallNode(node.token, actualTruthyVariableDeclarationNode.scope, "orElse", mutableListOf(NullValueNode(node.token, actualTruthyVariableDeclarationNode.variableType)))
         , false)
       )
     }
@@ -1498,23 +1498,23 @@ private class PushingInstructionGenerator(
       actualTruthyVariableDeclarationNode.isFinal, actualTruthyVariableDeclarationNode.expression))
 
     if (actualTruthyVariableDeclarationNode.variableType.primitive) {
-      visit(BooleanConstantNode(truthyVariableDeclarationNode.token, true))
+      visit(BooleanConstantNode(node.token, true))
     } else {
-      pushArgument(BooleanExpressionNode.of(truthyVariableDeclarationNode.token,
-        ReferenceExpression(truthyVariableDeclarationNode.token, actualTruthyVariableDeclarationNode.scope, actualTruthyVariableDeclarationNode.name)
+      pushArgument(BooleanExpressionNode.of(node.token,
+        ReferenceExpression(node.token, actualTruthyVariableDeclarationNode.scope, actualTruthyVariableDeclarationNode.name)
       ))
     }
   }
-  override fun visit(blockNode: BlockNode) {
-    instructionGenerator.visit(blockNode)
+  override fun visit(node: BlockNode) {
+    instructionGenerator.visit(node)
   }
 
-  override fun visit(blockNode: FunctionBlockNode) {
-    instructionGenerator.visit(blockNode)
+  override fun visit(node: FunctionBlockNode) {
+    instructionGenerator.visit(node)
   }
 
-  override fun visit(classExpressionNode: ClassExpressionNode) {
-    mv.pushClass(classExpressionNode.clazz)
+  override fun visit(node: ClassExpressionNode) {
+    mv.pushClass(node.clazz)
   }
 
   override fun visitWithoutPushing(astNode: AstInstructionNode) {

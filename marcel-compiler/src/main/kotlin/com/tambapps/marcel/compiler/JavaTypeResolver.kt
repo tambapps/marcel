@@ -280,36 +280,36 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   }
 
   // ast node type resolver methods
-  override fun visit(getFieldAccessOperator: GetFieldAccessOperator): JavaType {
-    val field = findFieldOrThrow(getFieldAccessOperator.leftOperand.accept(this), getFieldAccessOperator.rightOperand.name)
-    if (getFieldAccessOperator.directFieldAccess && field !is ClassField) {
-      throw MarcelSemanticException("Class field ${getFieldAccessOperator.scope.classType}.${getFieldAccessOperator.rightOperand.name} is not defined")
+  override fun visit(node: GetFieldAccessOperator): JavaType {
+    val field = findFieldOrThrow(node.leftOperand.accept(this), node.rightOperand.name)
+    if (node.directFieldAccess && field !is ClassField) {
+      throw MarcelSemanticException("Class field ${node.scope.classType}.${node.rightOperand.name} is not defined")
     }
-    return if (getFieldAccessOperator.nullSafe) field.type.objectType
+    return if (node.nullSafe) field.type.objectType
     else field.type
   }
 
-  override fun visit(getIndexFieldAccessOperator: GetIndexFieldAccessOperator): JavaType {
-    val field = findFieldOrThrow(getIndexFieldAccessOperator.leftOperand.accept(this), getIndexFieldAccessOperator.rightOperand.name)
-    if (getIndexFieldAccessOperator.directFieldAccess && field !is ClassField) {
-      throw MarcelSemanticException("Class field ${getIndexFieldAccessOperator.scope.classType}.${getIndexFieldAccessOperator.rightOperand.name} is not defined")
+  override fun visit(node: GetIndexFieldAccessOperator): JavaType {
+    val field = findFieldOrThrow(node.leftOperand.accept(this), node.rightOperand.name)
+    if (node.directFieldAccess && field !is ClassField) {
+      throw MarcelSemanticException("Class field ${node.scope.classType}.${node.rightOperand.name} is not defined")
     }
 
     return if (field.type.isArray) field.type.asArrayType.elementsType
-    else findMethodOrThrow(field.type, "getAt", getIndexFieldAccessOperator.rightOperand.indexArguments.map { it.accept(this) }).actualReturnType
+    else findMethodOrThrow(field.type, "getAt", node.rightOperand.indexArguments.map { it.accept(this) }).actualReturnType
   }
 
-  override fun visit(literalListNode: LiteralArrayNode): JavaArrayType {
-    if (literalListNode.type != null) return literalListNode.type!!
-    val elementsType = literalListNode.getElementsType(this)
-      ?: throw MarcelSemanticException(literalListNode.token, "Couldn't guess type of array. Use the 'as' keyword to explicitly specify the type")
+  override fun visit(node: LiteralArrayNode): JavaArrayType {
+    if (node.type != null) return node.type!!
+    val elementsType = node.getElementsType(this)
+      ?: throw MarcelSemanticException(node.token, "Couldn't guess type of array. Use the 'as' keyword to explicitly specify the type")
     return JavaType.arrayType(elementsType)
   }
 
-  override fun visit(literalMapNode: LiteralMapNode) =
-    JavaType.mapType(literalMapNode.getKeysType(this), literalMapNode.getValuesType(this))
+  override fun visit(node: LiteralMapNode) =
+    JavaType.mapType(node.getKeysType(this), node.getValuesType(this))
 
-  override fun visit(fCall: FunctionCallNode) = fCall.getMethod(this).actualReturnType
+  override fun visit(node: FunctionCallNode) = node.getMethod(this).actualReturnType
   override fun disposeClass(scriptNode: ClassNode) {
     super.disposeClass(scriptNode)
     classMethods.remove(scriptNode.type.className)

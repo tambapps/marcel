@@ -24,167 +24,167 @@ class FindNodeVisitor(private val predicate: (AstNode) -> Boolean): AstNodeVisit
     return node(operator) ?: operator.leftOperand.accept(this) ?: operator.rightOperand.accept(this)
   }
 
-  override fun visit(integer: IntConstantNode) = node(integer)
+  override fun visit(node: IntConstantNode) = node(node)
 
-  override fun visit(longConstantNode: LongConstantNode) = node(longConstantNode)
+  override fun visit(node: LongConstantNode) = node(node)
 
-  override fun visit(floatConstantNode: FloatConstantNode) = node(floatConstantNode)
+  override fun visit(node: FloatConstantNode) = node(node)
 
-  override fun visit(doubleConstantNode: DoubleConstantNode) = node(doubleConstantNode)
+  override fun visit(node: DoubleConstantNode) = node(node)
 
-  override fun visit(charNode: CharConstantNode) = node(charNode)
+  override fun visit(node: CharConstantNode) = node(node)
 
-  override fun visit(operator: MulOperator) = binaryNode(operator)
+  override fun visit(node: MulOperator) = binaryNode(node)
 
-  override fun visit(operator: TernaryNode): AstNode? {
-    return node(operator) ?: operator.boolExpression.accept(this)
-    ?: operator.trueExpression.accept(this) ?: operator.falseExpression.accept(this)
+  override fun visit(node: TernaryNode): AstNode? {
+    return node(node) ?: node.boolExpression.accept(this)
+    ?: node.trueExpression.accept(this) ?: node.falseExpression.accept(this)
   }
 
-  override fun visit(elvisOperator: ElvisOperator) = binaryNode(elvisOperator)
+  override fun visit(node: ElvisOperator) = binaryNode(node)
 
-  override fun visit(fCall: FunctionCallNode) = node(fCall) ?: fCall.argumentNodes.firstNotNullOfOrNull { it.accept(this) }
+  override fun visit(node: FunctionCallNode) = node(node) ?: node.argumentNodes.firstNotNullOfOrNull { it.accept(this) }
 
-  override fun visit(fCall: ConstructorCallNode) = node(fCall) ?: fCall.arguments.firstNotNullOfOrNull { it.accept(this) }
+  override fun visit(node: ConstructorCallNode) = node(node) ?: node.arguments.firstNotNullOfOrNull { it.accept(this) }
 
-  override fun visit(fCall: NamedParametersConstructorCallNode) = node(fCall) ?: fCall.argumentNodes.firstNotNullOfOrNull { it.accept(this) }
+  override fun visit(node: NamedParametersConstructorCallNode) = node(node) ?: node.argumentNodes.firstNotNullOfOrNull { it.accept(this) }
 
-  override fun visit(fCall: SuperConstructorCallNode) = node(fCall) ?: fCall.arguments.firstNotNullOfOrNull { it.accept(this) }
+  override fun visit(node: SuperConstructorCallNode) = node(node) ?: node.arguments.firstNotNullOfOrNull { it.accept(this) }
 
-  override fun visit(operator: DivOperator) = binaryNode(operator)
+  override fun visit(node: DivOperator) = binaryNode(node)
 
-  override fun visit(operator: PlusOperator) = binaryNode(operator)
+  override fun visit(node: PlusOperator) = binaryNode(node)
 
-  override fun visit(operator: MinusOperator) = binaryNode(operator)
+  override fun visit(node: MinusOperator) = binaryNode(node)
 
-  override fun visit(operator: PowOperator) = binaryNode(operator)
+  override fun visit(node: PowOperator) = binaryNode(node)
 
-  override fun visit(rightShiftOperator: RightShiftOperator) = binaryNode(rightShiftOperator)
+  override fun visit(node: RightShiftOperator) = binaryNode(node)
 
-  override fun visit(leftShiftOperator: LeftShiftOperator) = binaryNode(leftShiftOperator)
+  override fun visit(node: LeftShiftOperator) = binaryNode(node)
 
-  override fun visit(variableAssignmentNode: VariableAssignmentNode) = node(variableAssignmentNode) ?: variableAssignmentNode.expression.accept(this)
+  override fun visit(node: VariableAssignmentNode) = node(node) ?: node.expression.accept(this)
 
-  override fun visit(fieldAssignmentNode: FieldAssignmentNode) = node(fieldAssignmentNode) ?: fieldAssignmentNode.fieldNode.accept(this)
-  ?: fieldAssignmentNode.expression.accept(this)
+  override fun visit(node: FieldAssignmentNode) = node(node) ?: node.fieldNode.accept(this)
+  ?: node.expression.accept(this)
 
-  override fun visit(indexedVariableAssignmentNode: IndexedVariableAssignmentNode) = node(indexedVariableAssignmentNode)
-    ?: indexedVariableAssignmentNode.indexedReference.accept(this) ?: indexedVariableAssignmentNode.expression.accept(this)
+  override fun visit(node: IndexedVariableAssignmentNode) = node(node)
+    ?: node.indexedReference.accept(this) ?: node.expression.accept(this)
 
-  override fun visit(referenceExpression: ReferenceExpression) = node(referenceExpression)
+  override fun visit(node: ReferenceExpression) = node(node)
 
-  override fun visit(indexedReferenceExpression: IndexedReferenceExpression) = node(indexedReferenceExpression)
-    ?: indexedReferenceExpression.indexArguments.firstNotNullOfOrNull { it.accept(this) }
+  override fun visit(node: IndexedReferenceExpression) = node(node)
+    ?: node.indexArguments.firstNotNullOfOrNull { it.accept(this) }
 
-  override fun visit(unaryMinus: UnaryMinus) = node(unaryMinus) ?: unaryMinus.operand.accept(this)
+  override fun visit(node: UnaryMinus) = node(node) ?: node.operand.accept(this)
 
-  override fun visit(unaryPlus: UnaryPlus) = node(unaryPlus) ?: unaryPlus.operand.accept(this)
+  override fun visit(node: UnaryPlus) = node(node) ?: node.operand.accept(this)
 
-  override fun visit(blockNode: BlockNode) = node(blockNode) ?: blockNode.statements.firstNotNullOfOrNull { it.accept(this) }
+  override fun visit(node: BlockNode) = node(node) ?: node.statements.firstNotNullOfOrNull { it.accept(this) }
 
-  override fun visit(blockNode: FunctionBlockNode) = node(blockNode) ?: blockNode.statements.firstNotNullOfOrNull { it.accept(this) }
+  override fun visit(node: FunctionBlockNode) = node(node) ?: node.statements.firstNotNullOfOrNull { it.accept(this) }
 
-  override fun visit(lambdaNode: LambdaNode) = node(lambdaNode) ?: lambdaNode.blockNode.accept(this)
+  override fun visit(node: LambdaNode) = node(node) ?: node.blockNode.accept(this)
 
-  override fun visit(expressionStatementNode: ExpressionStatementNode) = node(expressionStatementNode) ?: expressionStatementNode.expression.accept(this)
+  override fun visit(node: ExpressionStatementNode) = node(node) ?: node.expression.accept(this)
 
-  override fun visit(variableDeclarationNode: VariableDeclarationNode) = node(variableDeclarationNode) ?: variableDeclarationNode.expression.accept(this)
+  override fun visit(node: VariableDeclarationNode) = node(node) ?: node.expression.accept(this)
 
-  override fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode) = node(truthyVariableDeclarationNode)
-    ?: truthyVariableDeclarationNode.expression.accept(this)
+  override fun visit(node: TruthyVariableDeclarationNode) = node(node)
+    ?: node.expression.accept(this)
 
-  override fun visit(multiVariableDeclarationNode: MultiVariableDeclarationNode) = node(multiVariableDeclarationNode)
-    ?: multiVariableDeclarationNode.expression.accept(this)
+  override fun visit(node: MultiVariableDeclarationNode) = node(node)
+    ?: node.expression.accept(this)
 
-  override fun visit(returnNode: ReturnNode) = node(returnNode) ?: returnNode.expression.accept(this)
+  override fun visit(node: ReturnNode) = node(node) ?: node.expression.accept(this)
 
-  override fun visit(voidExpression: VoidExpression) = node(voidExpression)
+  override fun visit(node: VoidExpression) = node(node)
 
-  override fun visit(stringNode: StringNode) = node(stringNode) ?: stringNode.parts.firstNotNullOfOrNull { it.accept(this) }
+  override fun visit(node: StringNode) = node(node) ?: node.parts.firstNotNullOfOrNull { it.accept(this) }
 
-  override fun visit(stringConstantNode: StringConstantNode) = node(stringConstantNode)
+  override fun visit(node: StringConstantNode) = node(node)
 
-  override fun visit(asNode: AsNode) = node(asNode) ?: asNode.expressionNode.accept(this)
+  override fun visit(node: AsNode) = node(node) ?: node.expressionNode.accept(this)
 
-  override fun visit(toStringNode: ToStringNode) = node(toStringNode) ?: toStringNode.expressionNode.accept(this)
+  override fun visit(node: ToStringNode) = node(node) ?: node.expressionNode.accept(this)
 
-  override fun visit(accessOperator: InvokeAccessOperator) = binaryNode(accessOperator)
+  override fun visit(node: InvokeAccessOperator) = binaryNode(node)
 
-  override fun visit(getFieldAccessOperator: GetFieldAccessOperator) = binaryNode(getFieldAccessOperator)
+  override fun visit(node: GetFieldAccessOperator) = binaryNode(node)
 
-  override fun visit(getIndexFieldAccessOperator: GetIndexFieldAccessOperator) = binaryNode(getIndexFieldAccessOperator)
+  override fun visit(node: GetIndexFieldAccessOperator) = binaryNode(node)
 
-  override fun visit(booleanConstantNode: BooleanConstantNode) = node(booleanConstantNode)
+  override fun visit(node: BooleanConstantNode) = node(node)
 
-  override fun visit(comparisonOperatorNode: ComparisonOperatorNode) = binaryNode(comparisonOperatorNode)
+  override fun visit(node: ComparisonOperatorNode) = binaryNode(node)
 
-  override fun visit(andOperator: AndOperator) = binaryNode(andOperator)
+  override fun visit(node: AndOperator) = binaryNode(node)
 
-  override fun visit(orOperator: OrOperator) = binaryNode(orOperator)
+  override fun visit(node: OrOperator) = binaryNode(node)
 
-  override fun visit(notNode: NotNode) = node(notNode) ?: notNode.operand.accept(this)
+  override fun visit(node: NotNode) = node(node) ?: node.operand.accept(this)
 
-  override fun visit(ifStatementNode: IfStatementNode) = node(ifStatementNode) ?: ifStatementNode.condition.accept(this)
-  ?: ifStatementNode.trueStatementNode.accept(this) ?: ifStatementNode.falseStatementNode?.accept(this)
+  override fun visit(node: IfStatementNode) = node(node) ?: node.condition.accept(this)
+  ?: node.trueStatementNode.accept(this) ?: node.falseStatementNode?.accept(this)
 
-  override fun visit(forStatement: ForStatement) = node(forStatement) ?: forStatement.initStatement.accept(this)
-  ?: forStatement.iteratorStatement.accept(this) ?: forStatement.endCondition.accept(this)
+  override fun visit(node: ForStatement) = node(node) ?: node.initStatement.accept(this)
+  ?: node.iteratorStatement.accept(this) ?: node.endCondition.accept(this)
 
-  override fun visit(tryCatchNode: TryCatchNode) = tryCatchNode.tryStatementNode.accept(this)
-    ?: tryCatchNode.catchNodes.firstNotNullOfOrNull { it.statementNode.accept(this) }
-    ?: tryCatchNode.finallyBlock?.statementNode?.accept(this)
+  override fun visit(node: TryCatchNode) = node.tryStatementNode.accept(this)
+    ?: node.catchNodes.firstNotNullOfOrNull { it.statementNode.accept(this) }
+    ?: node.finallyBlock?.statementNode?.accept(this)
 
-  override fun visit(forInStatement: ForInStatement) = node(forInStatement) ?: forInStatement.inExpression.accept(this)
+  override fun visit(node: ForInStatement) = node(node) ?: node.inExpression.accept(this)
 
-  override fun visit(whileStatement: WhileStatement) = node(whileStatement) ?: whileStatement.condition.accept(this)
-  ?: whileStatement.body.accept(this)
+  override fun visit(node: WhileStatement) = node(node) ?: node.condition.accept(this)
+  ?: node.body.accept(this)
 
-  override fun visit(booleanExpression: BooleanExpressionNode) = node(booleanExpression) ?: booleanExpression.innerExpression.accept(this)
+  override fun visit(node: BooleanExpressionNode) = node(node) ?: node.innerExpression.accept(this)
 
-  override fun visit(nullValueNode: NullValueNode) = node(nullValueNode)
+  override fun visit(node: NullValueNode) = node(node)
 
-  override fun visit(incrNode: IncrNode) = node(incrNode) ?: incrNode.variableReference.accept(this)
+  override fun visit(node: IncrNode) = node(node) ?: node.variableReference.accept(this)
 
-  override fun visit(breakLoopNode: BreakLoopNode) = node(breakLoopNode)
+  override fun visit(node: BreakLoopNode) = node(node)
 
-  override fun visit(continueLoopNode: ContinueLoopNode) = node(continueLoopNode)
+  override fun visit(node: ContinueLoopNode) = node(node)
 
-  override fun visit(rangeNode: RangeNode) = node(rangeNode) ?: rangeNode.from.accept(this) ?: rangeNode.to.accept(this)
+  override fun visit(node: RangeNode) = node(node) ?: node.from.accept(this) ?: node.to.accept(this)
 
-  override fun visit(literalListNode: LiteralArrayNode) = node(literalListNode) ?: literalListNode.elements.firstNotNullOfOrNull { it.accept(this) }
+  override fun visit(node: LiteralArrayNode) = node(node) ?: node.elements.firstNotNullOfOrNull { it.accept(this) }
 
-  override fun visit(literalMapNode: LiteralMapNode) = node(literalMapNode) ?:
-  literalMapNode.entries.firstNotNullOfOrNull { it.first.accept(this) ?: it.second.accept(this) }
+  override fun visit(node: LiteralMapNode) = node(node) ?:
+  node.entries.firstNotNullOfOrNull { it.first.accept(this) ?: it.second.accept(this) }
 
-  override fun visit(switchBranch: SwitchBranchNode) = node(switchBranch) ?: switchBranch.conditionExpressionNode.accept(this)
-  ?: switchBranch.statementNode.accept(this)
+  override fun visit(node: SwitchBranchNode) = node(node) ?: node.conditionExpressionNode.accept(this)
+  ?: node.statementNode.accept(this)
 
-  override fun visit(switchNode: SwitchNode) = node(switchNode) ?: switchNode.expressionNode.accept(this)
-  ?: switchNode.elseStatement?.accept(this)
-  ?: switchNode.branches.firstNotNullOfOrNull { it.accept(this) }
+  override fun visit(node: SwitchNode) = node(node) ?: node.expressionNode.accept(this)
+  ?: node.elseStatement?.accept(this)
+  ?: node.branches.firstNotNullOfOrNull { it.accept(this) }
 
-  override fun visit(whenBranchNode: WhenBranchNode)= node(whenBranchNode) ?: whenBranchNode.conditionExpressionNode.accept(this)
-  ?: whenBranchNode.statementNode.accept(this)
+  override fun visit(node: WhenBranchNode)= node(node) ?: node.conditionExpressionNode.accept(this)
+  ?: node.statementNode.accept(this)
 
-  override fun visit(whenNode: WhenNode) = node(whenNode)
-    ?: whenNode.elseStatement?.accept(this)
-    ?: whenNode.branches.firstNotNullOfOrNull { it.accept(this) }
+  override fun visit(node: WhenNode) = node(node)
+    ?: node.elseStatement?.accept(this)
+    ?: node.branches.firstNotNullOfOrNull { it.accept(this) }
 
-  override fun visit(isOperator: IsOperator) = binaryNode(isOperator)
-  override fun visit(isNotOperator: IsNotOperator) = binaryNode(isNotOperator)
+  override fun visit(node: IsOperator) = binaryNode(node)
+  override fun visit(node: IsNotOperator) = binaryNode(node)
 
-  override fun visit(byteConstantNode: ByteConstantNode) = node(byteConstantNode)
+  override fun visit(node: ByteConstantNode) = node(node)
 
-  override fun visit(shortConstantNode: ShortConstantNode) = node(shortConstantNode)
+  override fun visit(node: ShortConstantNode) = node(node)
 
-  override fun visit(thisReference: ThisReference) = node(thisReference)
+  override fun visit(node: ThisReference) = node(node)
 
-  override fun visit(superReference: SuperReference) = node(superReference)
+  override fun visit(node: SuperReference) = node(node)
 
-  override fun visit(patternValueNode: LiteralPatternNode) = node(patternValueNode)
-  override fun visit(directFieldAccessNode: DirectFieldAccessNode) = node(directFieldAccessNode)
+  override fun visit(node: LiteralPatternNode) = node(node)
+  override fun visit(node: DirectFieldAccessNode) = node(node)
 
-  override fun visit(classExpressionNode: ClassExpressionNode) = node(classExpressionNode)
+  override fun visit(node: ClassExpressionNode) = node(node)
 
-  override fun visit(findOperator: FindOperator) = binaryNode(findOperator)
+  override fun visit(node: FindOperator) = binaryNode(node)
 }

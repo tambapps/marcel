@@ -14,89 +14,89 @@ import com.tambapps.marcel.parser.ast.statement.WhileStatement
 
 interface AstNodeVisitor<T> {
 
-  fun visit(integer: IntConstantNode): T
-  fun visit(longConstantNode: LongConstantNode): T
-  fun visit(floatConstantNode: FloatConstantNode): T
-  fun visit(doubleConstantNode: DoubleConstantNode): T
-  fun visit(charNode: CharConstantNode): T
+  fun visit(node: IntConstantNode): T
+  fun visit(node: LongConstantNode): T
+  fun visit(node: FloatConstantNode): T
+  fun visit(node: DoubleConstantNode): T
+  fun visit(node: CharConstantNode): T
 
-  fun visit(operator: MulOperator): T
-  fun visit(operator: TernaryNode): T
-  fun visit(elvisOperator: ElvisOperator): T
+  fun visit(node: MulOperator): T
+  fun visit(node: TernaryNode): T
+  fun visit(node: ElvisOperator): T
 
-  fun visit(fCall: FunctionCallNode): T
-  fun visit(fCall: ConstructorCallNode): T
-  fun visit(fCall: NamedParametersConstructorCallNode): T
-  fun visit(fCall: SuperConstructorCallNode): T
-  fun visit(operator: DivOperator): T
-  fun visit(operator: PlusOperator): T
-  fun visit(operator: MinusOperator): T
-  fun visit(operator: PowOperator): T
-  fun visit(rightShiftOperator: RightShiftOperator): T
-  fun visit(leftShiftOperator: LeftShiftOperator): T
-  fun visit(variableAssignmentNode: VariableAssignmentNode): T
-  fun visit(fieldAssignmentNode: FieldAssignmentNode): T
+  fun visit(node: FunctionCallNode): T
+  fun visit(node: ConstructorCallNode): T
+  fun visit(node: NamedParametersConstructorCallNode): T
+  fun visit(node: SuperConstructorCallNode): T
+  fun visit(node: DivOperator): T
+  fun visit(node: PlusOperator): T
+  fun visit(node: MinusOperator): T
+  fun visit(node: PowOperator): T
+  fun visit(node: RightShiftOperator): T
+  fun visit(node: LeftShiftOperator): T
+  fun visit(node: VariableAssignmentNode): T
+  fun visit(node: FieldAssignmentNode): T
 
-  fun visit(indexedVariableAssignmentNode: IndexedVariableAssignmentNode): T
+  fun visit(node: IndexedVariableAssignmentNode): T
 
-  fun visit(referenceExpression: ReferenceExpression): T
-  fun visit(indexedReferenceExpression: IndexedReferenceExpression): T
+  fun visit(node: ReferenceExpression): T
+  fun visit(node: IndexedReferenceExpression): T
 
-  fun visit(unaryMinus: UnaryMinus): T
-  fun visit(unaryPlus: UnaryPlus): T
-  fun visit(blockNode: BlockNode): T
-  fun visit(blockNode: FunctionBlockNode): T
-  fun visit(lambdaNode: LambdaNode): T
+  fun visit(node: UnaryMinus): T
+  fun visit(node: UnaryPlus): T
+  fun visit(node: BlockNode): T
+  fun visit(node: FunctionBlockNode): T
+  fun visit(node: LambdaNode): T
 
-  fun visit(expressionStatementNode: ExpressionStatementNode): T
-  fun visit(variableDeclarationNode: VariableDeclarationNode): T
-  fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode): T
-  fun visit(multiVariableDeclarationNode: MultiVariableDeclarationNode): T
+  fun visit(node: ExpressionStatementNode): T
+  fun visit(node: VariableDeclarationNode): T
+  fun visit(node: TruthyVariableDeclarationNode): T
+  fun visit(node: MultiVariableDeclarationNode): T
 
-  fun visit(returnNode: ReturnNode): T
-  fun visit(voidExpression: VoidExpression): T
-  fun visit(stringNode: StringNode): T
-  fun visit(stringConstantNode: StringConstantNode): T
-  fun visit(asNode: AsNode): T
+  fun visit(node: ReturnNode): T
+  fun visit(node: VoidExpression): T
+  fun visit(node: StringNode): T
+  fun visit(node: StringConstantNode): T
+  fun visit(node: AsNode): T
 
-  fun visit(toStringNode: ToStringNode): T
-  fun visit(accessOperator: InvokeAccessOperator): T
-  fun visit(getFieldAccessOperator: GetFieldAccessOperator): T
-  fun visit(getIndexFieldAccessOperator: GetIndexFieldAccessOperator): T
+  fun visit(node: ToStringNode): T
+  fun visit(node: InvokeAccessOperator): T
+  fun visit(node: GetFieldAccessOperator): T
+  fun visit(node: GetIndexFieldAccessOperator): T
 
-  fun visit(booleanConstantNode: BooleanConstantNode): T
-  fun visit(comparisonOperatorNode: ComparisonOperatorNode): T
-  fun visit(andOperator: AndOperator): T
-  fun visit(orOperator: OrOperator): T
+  fun visit(node: BooleanConstantNode): T
+  fun visit(node: ComparisonOperatorNode): T
+  fun visit(node: AndOperator): T
+  fun visit(node: OrOperator): T
 
-  fun visit(notNode: NotNode): T
-  fun visit(ifStatementNode: IfStatementNode): T
-  fun visit(forStatement: ForStatement): T
-  fun visit(tryCatchNode: TryCatchNode): T
-  fun visit(forInStatement: ForInStatement): T
+  fun visit(node: NotNode): T
+  fun visit(node: IfStatementNode): T
+  fun visit(node: ForStatement): T
+  fun visit(node: TryCatchNode): T
+  fun visit(node: ForInStatement): T
 
-  fun visit(whileStatement: WhileStatement): T
-  fun visit(booleanExpression: BooleanExpressionNode): T
-  fun visit(nullValueNode: NullValueNode): T
-  fun visit(incrNode: IncrNode): T
-  fun visit(breakLoopNode: BreakLoopNode): T
-  fun visit(continueLoopNode: ContinueLoopNode): T
-  fun visit(rangeNode: RangeNode): T
-  fun visit(literalListNode: LiteralArrayNode): T
-  fun visit(literalMapNode: LiteralMapNode): T
-  fun visit(switchBranch: SwitchBranchNode): T
-  fun visit(switchNode: SwitchNode): T
-  fun visit(whenBranchNode: WhenBranchNode): T
-  fun visit(whenNode: WhenNode): T
-  fun visit(isOperator: IsOperator): T
-  fun visit(isNotOperator: IsNotOperator): T
-  fun visit(byteConstantNode: ByteConstantNode): T
-  fun visit(shortConstantNode: ShortConstantNode): T
-  fun visit(thisReference: ThisReference): T
-  fun visit(superReference: SuperReference): T
-  fun visit(patternValueNode: LiteralPatternNode): T
-  fun visit(findOperator: FindOperator): T
-  fun visit(classExpressionNode: ClassExpressionNode): T
-  fun visit(directFieldAccessNode: DirectFieldAccessNode): T
+  fun visit(node: WhileStatement): T
+  fun visit(node: BooleanExpressionNode): T
+  fun visit(node: NullValueNode): T
+  fun visit(node: IncrNode): T
+  fun visit(node: BreakLoopNode): T
+  fun visit(node: ContinueLoopNode): T
+  fun visit(node: RangeNode): T
+  fun visit(node: LiteralArrayNode): T
+  fun visit(node: LiteralMapNode): T
+  fun visit(node: SwitchBranchNode): T
+  fun visit(node: SwitchNode): T
+  fun visit(node: WhenBranchNode): T
+  fun visit(node: WhenNode): T
+  fun visit(node: IsOperator): T
+  fun visit(node: IsNotOperator): T
+  fun visit(node: ByteConstantNode): T
+  fun visit(node: ShortConstantNode): T
+  fun visit(node: ThisReference): T
+  fun visit(node: SuperReference): T
+  fun visit(node: LiteralPatternNode): T
+  fun visit(node: FindOperator): T
+  fun visit(node: ClassExpressionNode): T
+  fun visit(node: DirectFieldAccessNode): T
 
 }

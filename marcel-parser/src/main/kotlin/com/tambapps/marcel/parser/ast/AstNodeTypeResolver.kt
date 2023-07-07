@@ -158,23 +158,23 @@ open class AstNodeTypeResolver constructor(
   fun resolve(node: StatementNode) = node.accept(this)
 
 
-  override fun visit(integer: IntConstantNode) = JavaType.int
+  override fun visit(node: IntConstantNode) = JavaType.int
 
-  override fun visit(longConstantNode: LongConstantNode) = JavaType.long
+  override fun visit(node: LongConstantNode) = JavaType.long
 
-  override fun visit(floatConstantNode: FloatConstantNode) = JavaType.float
-  override fun visit(doubleConstantNode: DoubleConstantNode) = JavaType.double
-  override fun visit(charNode: CharConstantNode) = JavaType.char
+  override fun visit(node: FloatConstantNode) = JavaType.float
+  override fun visit(node: DoubleConstantNode) = JavaType.double
+  override fun visit(node: CharConstantNode) = JavaType.char
 
-  override fun visit(booleanConstantNode: BooleanConstantNode) = JavaType.boolean
+  override fun visit(node: BooleanConstantNode) = JavaType.boolean
 
-  override fun visit(stringNode: StringNode) = JavaType.String
+  override fun visit(node: StringNode) = JavaType.String
 
-  override fun visit(stringConstantNode: StringConstantNode) = JavaType.String
+  override fun visit(node: StringConstantNode) = JavaType.String
 
-  override fun visit(toStringNode: ToStringNode) = JavaType.String
+  override fun visit(node: ToStringNode) = JavaType.String
 
-  override fun visit(operator: MulOperator) = visitBinaryOperator(operator)
+  override fun visit(node: MulOperator) = visitBinaryOperator(node)
 
   private fun visitBinaryOperator(binaryOperatorNode: BinaryOperatorNode): JavaType {
     val commonType = JavaType.commonType(binaryOperatorNode.leftOperand.accept(this), binaryOperatorNode.rightOperand.accept(this))
@@ -183,68 +183,68 @@ open class AstNodeTypeResolver constructor(
     return findMethodOrThrow(binaryOperatorNode.leftOperand.accept(this), binaryOperatorNode.operatorMethodName, listOf(binaryOperatorNode.rightOperand.accept(this))).returnType
   }
 
-  override fun visit(operator: TernaryNode): JavaType {
-    return JavaType.commonType(operator.trueExpression.accept(this), operator.falseExpression.accept(this))
+  override fun visit(node: TernaryNode): JavaType {
+    return JavaType.commonType(node.trueExpression.accept(this), node.falseExpression.accept(this))
   }
 
-  override fun visit(elvisOperator: ElvisOperator) = visitBinaryOperator(elvisOperator)
+  override fun visit(node: ElvisOperator) = visitBinaryOperator(node)
 
 
-  override fun visit(fCall: ConstructorCallNode) = fCall.type
+  override fun visit(node: ConstructorCallNode) = node.type
 
-  override fun visit(fCall: NamedParametersConstructorCallNode) = fCall.type
+  override fun visit(node: NamedParametersConstructorCallNode) = node.type
 
-  override fun visit(fCall: SuperConstructorCallNode) = JavaType.void
+  override fun visit(node: SuperConstructorCallNode) = JavaType.void
 
-  override fun visit(operator: DivOperator) = visitBinaryOperator(operator)
+  override fun visit(node: DivOperator) = visitBinaryOperator(node)
 
-  override fun visit(operator: PlusOperator) =
-    if (operator.leftOperand.accept(this) == JavaType.String
-      || operator.rightOperand.accept(this) == JavaType.String) JavaType.String
-    else visitBinaryOperator(operator)
+  override fun visit(node: PlusOperator) =
+    if (node.leftOperand.accept(this) == JavaType.String
+      || node.rightOperand.accept(this) == JavaType.String) JavaType.String
+    else visitBinaryOperator(node)
 
-  override fun visit(operator: MinusOperator) = visitBinaryOperator(operator)
+  override fun visit(node: MinusOperator) = visitBinaryOperator(node)
 
-  override fun visit(operator: PowOperator) = visitBinaryOperator(operator)
+  override fun visit(node: PowOperator) = visitBinaryOperator(node)
 
-  override fun visit(rightShiftOperator: RightShiftOperator) =
-    findMethodOrThrow(rightShiftOperator.leftOperand.accept(this), rightShiftOperator.operatorMethodName!!, listOf(rightShiftOperator.rightOperand.accept(this))).returnType
+  override fun visit(node: RightShiftOperator) =
+    findMethodOrThrow(node.leftOperand.accept(this), node.operatorMethodName!!, listOf(node.rightOperand.accept(this))).returnType
 
-  override fun visit(leftShiftOperator: LeftShiftOperator) =
-    findMethodOrThrow(leftShiftOperator.leftOperand.accept(this), leftShiftOperator.operatorMethodName!!, listOf(leftShiftOperator.rightOperand.accept(this))).returnType
+  override fun visit(node: LeftShiftOperator) =
+    findMethodOrThrow(node.leftOperand.accept(this), node.operatorMethodName!!, listOf(node.rightOperand.accept(this))).returnType
 
-  override fun visit(variableAssignmentNode: VariableAssignmentNode) = variableAssignmentNode.expression.accept(this)
+  override fun visit(node: VariableAssignmentNode) = node.expression.accept(this)
 
-  override fun visit(fieldAssignmentNode: FieldAssignmentNode) = fieldAssignmentNode.expression.accept(this)
-  override fun visit(indexedVariableAssignmentNode: IndexedVariableAssignmentNode) = indexedVariableAssignmentNode.expression.accept(this)
+  override fun visit(node: FieldAssignmentNode) = node.expression.accept(this)
+  override fun visit(node: IndexedVariableAssignmentNode) = node.expression.accept(this)
 
-  override fun visit(referenceExpression: ReferenceExpression) =
+  override fun visit(node: ReferenceExpression) =
     try {
-      val v = referenceExpression.scope.findVariableOrThrow(referenceExpression.name)
-      if (v is DynamicMethodField && referenceExpression.scope.classType.implements(JavaType.DynamicObject))
-        referenceExpression.scope.getTypeOrNull(referenceExpression.name) ?: throw MarcelSemanticException("No variable or class named ${referenceExpression.name} was found")
-      else referenceExpression.scope.findVariableOrThrow(referenceExpression.name).type
+      val v = node.scope.findVariableOrThrow(node.name)
+      if (v is DynamicMethodField && node.scope.classType.implements(JavaType.DynamicObject))
+        node.scope.getTypeOrNull(node.name) ?: throw MarcelSemanticException("No variable or class named ${node.name} was found")
+      else node.scope.findVariableOrThrow(node.name).type
     } catch (e: MarcelSemanticException) {
       // for static function calls
-      referenceExpression.scope.getTypeOrNull(referenceExpression.name) ?: throw MarcelSemanticException("No variable or class named ${referenceExpression.name} was found")
+      node.scope.getTypeOrNull(node.name) ?: throw MarcelSemanticException("No variable or class named ${node.name} was found")
     }
 
-  override fun visit(indexedReferenceExpression: IndexedReferenceExpression): JavaType {
-    val elementType = if (indexedReferenceExpression.variable.type.isArray) (indexedReferenceExpression.variable.type.asArrayType).elementsType
-    else findMethodOrThrow(indexedReferenceExpression.variable.type, "getAt", indexedReferenceExpression.indexArguments.map { it.accept(this) }).actualReturnType
+  override fun visit(node: IndexedReferenceExpression): JavaType {
+    val elementType = if (node.variable.type.isArray) (node.variable.type.asArrayType).elementsType
+    else findMethodOrThrow(node.variable.type, "getAt", node.indexArguments.map { it.accept(this) }).actualReturnType
     // need object class for safe index because returned elements are nullable
-    return if (indexedReferenceExpression.isSafeIndex) elementType.objectType else elementType
+    return if (node.isSafeIndex) elementType.objectType else elementType
   }
 
   private fun visitUnaryOperator(unaryOperator: UnaryOperator) = unaryOperator.operand.accept(this)
 
-  override fun visit(unaryMinus: UnaryMinus) = visitUnaryOperator(unaryMinus)
+  override fun visit(node: UnaryMinus) = visitUnaryOperator(node)
 
-  override fun visit(unaryPlus: UnaryPlus) = visitUnaryOperator(unaryPlus)
+  override fun visit(node: UnaryPlus) = visitUnaryOperator(node)
 
-  override fun visit(blockNode: BlockNode) = blockNode.statements.lastOrNull()?.accept(this) ?: JavaType.void
+  override fun visit(node: BlockNode) = node.statements.lastOrNull()?.accept(this) ?: JavaType.void
 
-  override fun visit(blockNode: FunctionBlockNode) = visit(blockNode as BlockNode)
+  override fun visit(node: FunctionBlockNode) = visit(node as BlockNode)
 
   companion object {
     fun getLambdaType(typeResolver: AstNodeTypeResolver, lambdaNode: LambdaNode): JavaType {
@@ -275,49 +275,49 @@ open class AstNodeTypeResolver constructor(
       }
     }
   }
-  override fun visit(lambdaNode: LambdaNode) = lambdaNode.interfaceType ?: getLambdaType(this, lambdaNode)
+  override fun visit(node: LambdaNode) = node.interfaceType ?: getLambdaType(this, node)
 
-  override fun visit(expressionStatementNode: ExpressionStatementNode) = expressionStatementNode.expression.accept(this)
+  override fun visit(node: ExpressionStatementNode) = node.expression.accept(this)
 
-  override fun visit(variableDeclarationNode: VariableDeclarationNode) = variableDeclarationNode.type
+  override fun visit(node: VariableDeclarationNode) = node.type
 
-  override fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode) = JavaType.boolean
-  override fun visit(multiVariableDeclarationNode: MultiVariableDeclarationNode) = JavaType.void
+  override fun visit(node: TruthyVariableDeclarationNode) = JavaType.boolean
+  override fun visit(node: MultiVariableDeclarationNode) = JavaType.void
 
-  override fun visit(returnNode: ReturnNode) = returnNode.expression.accept(this)
+  override fun visit(node: ReturnNode) = node.expression.accept(this)
 
-  override fun visit(voidExpression: VoidExpression) = JavaType.void
+  override fun visit(node: VoidExpression) = JavaType.void
 
-  override fun visit(asNode: AsNode) = asNode.type
+  override fun visit(node: AsNode) = node.type
 
-  override fun visit(comparisonOperatorNode: ComparisonOperatorNode) = JavaType.boolean
+  override fun visit(node: ComparisonOperatorNode) = JavaType.boolean
 
-  override fun visit(andOperator: AndOperator) = JavaType.boolean
+  override fun visit(node: AndOperator) = JavaType.boolean
 
-  override fun visit(orOperator: OrOperator) = JavaType.boolean
+  override fun visit(node: OrOperator) = JavaType.boolean
 
-  override fun visit(notNode: NotNode) = JavaType.boolean
+  override fun visit(node: NotNode) = JavaType.boolean
 
-  override fun visit(ifStatementNode: IfStatementNode) = JavaType.void
+  override fun visit(node: IfStatementNode) = JavaType.void
 
-  override fun visit(forStatement: ForStatement) = JavaType.void
-  override fun visit(tryCatchNode: TryCatchNode) = JavaType.void
+  override fun visit(node: ForStatement) = JavaType.void
+  override fun visit(node: TryCatchNode) = JavaType.void
 
-  override fun visit(forInStatement: ForInStatement) = JavaType.void
-  override fun visit(whileStatement: WhileStatement) = JavaType.void
+  override fun visit(node: ForInStatement) = JavaType.void
+  override fun visit(node: WhileStatement) = JavaType.void
 
-  override fun visit(booleanExpression: BooleanExpressionNode) = JavaType.boolean
+  override fun visit(node: BooleanExpressionNode) = JavaType.boolean
 
-  override fun visit(nullValueNode: NullValueNode) = nullValueNode.type ?: JavaType.Object
+  override fun visit(node: NullValueNode) = node.type ?: JavaType.Object
 
-  override fun visit(incrNode: IncrNode) = visitUnaryOperator(incrNode)
+  override fun visit(node: IncrNode) = visitUnaryOperator(node)
 
-  override fun visit(breakLoopNode: BreakLoopNode) = JavaType.void
-  override fun visit(continueLoopNode: ContinueLoopNode) = JavaType.void
+  override fun visit(node: BreakLoopNode) = JavaType.void
+  override fun visit(node: ContinueLoopNode) = JavaType.void
 
-  override fun visit(rangeNode: RangeNode): JavaType {
-    val fromType = rangeNode.from.accept(this)
-    val toType = rangeNode.to.accept(this)
+  override fun visit(node: RangeNode): JavaType {
+    val fromType = node.from.accept(this)
+    val toType = node.to.accept(this)
 
     return if (fromType == JavaType.long || fromType == JavaType.Long
       || toType == JavaType.long || toType == JavaType.Long) JavaType.of(LongRange::class.java)
@@ -325,46 +325,46 @@ open class AstNodeTypeResolver constructor(
   }
 
   // the below methods can't guess type without class info, so they just return objects
-  override fun visit(literalMapNode: LiteralMapNode): JavaType = JavaType.of(Map::class.java)
+  override fun visit(node: LiteralMapNode): JavaType = JavaType.of(Map::class.java)
 
-  override fun visit(fCall: FunctionCallNode): JavaType = findMethodOrThrow(fCall.methodOwnerType?.accept(this) ?: fCall.scope.classType,
-    fCall.name, fCall.getArguments(this).map { it.accept(this) }).actualReturnType
+  override fun visit(node: FunctionCallNode): JavaType = findMethodOrThrow(node.methodOwnerType?.accept(this) ?: node.scope.classType,
+    node.name, node.getArguments(this).map { it.accept(this) }).actualReturnType
 
   // it is object because we need type resolver in order to be able to get the real type. that's why it is overridden in JavaTypeResolver
-  override fun visit(getFieldAccessOperator: GetFieldAccessOperator): JavaType = JavaType.Object
-  override fun visit(getIndexFieldAccessOperator: GetIndexFieldAccessOperator): JavaType = JavaType.Object
+  override fun visit(node: GetFieldAccessOperator): JavaType = JavaType.Object
+  override fun visit(node: GetIndexFieldAccessOperator): JavaType = JavaType.Object
 
-  override fun visit(accessOperator: InvokeAccessOperator) =
-    if (accessOperator.nullSafe) accessOperator.rightOperand.accept(this).objectType
-    else accessOperator.rightOperand.accept(this)
+  override fun visit(node: InvokeAccessOperator) =
+    if (node.nullSafe) node.rightOperand.accept(this).objectType
+    else node.rightOperand.accept(this)
 
-  override fun visit(literalListNode: LiteralArrayNode): JavaArrayType = JavaType.objectArray
+  override fun visit(node: LiteralArrayNode): JavaArrayType = JavaType.objectArray
 
-  override fun visit(switchNode: SwitchNode) = JavaType.commonType(switchNode.branches.map { it.accept(this) })
+  override fun visit(node: SwitchNode) = JavaType.commonType(node.branches.map { it.accept(this) })
 
-  override fun visit(switchBranch: SwitchBranchNode): JavaType = switchBranch.statementNode.accept(this)
+  override fun visit(node: SwitchBranchNode): JavaType = node.statementNode.accept(this)
 
-  override fun visit(whenNode: WhenNode) = JavaType.commonType(whenNode.branches.map { it.accept(this) })
+  override fun visit(node: WhenNode) = JavaType.commonType(node.branches.map { it.accept(this) })
 
-  override fun visit(whenBranchNode: WhenBranchNode) = whenBranchNode.statementNode.accept(this)
+  override fun visit(node: WhenBranchNode) = node.statementNode.accept(this)
 
-  override fun visit(isOperator: IsOperator) = JavaType.boolean
-  override fun visit(isNotOperator: IsNotOperator) = JavaType.boolean
+  override fun visit(node: IsOperator) = JavaType.boolean
+  override fun visit(node: IsNotOperator) = JavaType.boolean
 
-  override fun visit(byteConstantNode: ByteConstantNode) = JavaType.byte
+  override fun visit(node: ByteConstantNode) = JavaType.byte
 
-  override fun visit(shortConstantNode: ShortConstantNode) = JavaType.short
+  override fun visit(node: ShortConstantNode) = JavaType.short
 
-  override fun visit(thisReference: ThisReference) =
-    if (thisReference.scope.staticContext && thisReference.scope.hasVariable("self")) thisReference.scope
+  override fun visit(node: ThisReference) =
+    if (node.scope.staticContext && node.scope.hasVariable("self")) node.scope
       .findVariableOrThrow("self").type
-  else thisReference.scope.classType
-  override fun visit(superReference: SuperReference) = superReference.scope.superClass
+  else node.scope.classType
+  override fun visit(node: SuperReference) = node.scope.superClass
 
-  override fun visit(patternValueNode: LiteralPatternNode) = JavaType.of(Pattern::class.java)
-  override fun visit(findOperator: FindOperator) = JavaType.of(Matcher::class.java)
+  override fun visit(node: LiteralPatternNode) = JavaType.of(Pattern::class.java)
+  override fun visit(node: FindOperator) = JavaType.of(Matcher::class.java)
 
-  override fun visit(classExpressionNode: ClassExpressionNode) = JavaType.of(Class::class.java, listOf(classExpressionNode.clazz))
+  override fun visit(node: ClassExpressionNode) = JavaType.of(Class::class.java, listOf(node.clazz))
 
-  override fun visit(directFieldAccessNode: DirectFieldAccessNode) = getClassField(directFieldAccessNode.scope.classType, directFieldAccessNode.name).type
+  override fun visit(node: DirectFieldAccessNode) = getClassField(node.scope.classType, node.name).type
 }

@@ -17,20 +17,20 @@ import com.tambapps.marcel.parser.ast.statement.WhileStatement
 class ForEachNodeVisitor(private val consumer: (AstNode) -> Unit): AstNodeVisitor<Unit> {
 
 
-  override fun visit(integer: IntConstantNode) = consumer.invoke(integer)
+  override fun visit(node: IntConstantNode) = consumer.invoke(node)
 
-  override fun visit(longConstantNode: LongConstantNode) = consumer.invoke(longConstantNode)
+  override fun visit(node: LongConstantNode) = consumer.invoke(node)
 
-  override fun visit(floatConstantNode: FloatConstantNode) = consumer.invoke(floatConstantNode)
+  override fun visit(node: FloatConstantNode) = consumer.invoke(node)
 
-  override fun visit(doubleConstantNode: DoubleConstantNode) = consumer.invoke(doubleConstantNode)
+  override fun visit(node: DoubleConstantNode) = consumer.invoke(node)
 
-  override fun visit(charNode: CharConstantNode) = consumer.invoke(charNode)
-  override fun visit(classExpressionNode: ClassExpressionNode) = consumer.invoke(classExpressionNode)
-  override fun visit(directFieldAccessNode: DirectFieldAccessNode) = consumer.invoke(directFieldAccessNode)
+  override fun visit(node: CharConstantNode) = consumer.invoke(node)
+  override fun visit(node: ClassExpressionNode) = consumer.invoke(node)
+  override fun visit(node: DirectFieldAccessNode) = consumer.invoke(node)
 
-  override fun visit(operator: MulOperator) = visitBinaryOperator(operator)
-  override fun visit(findOperator: FindOperator) = visitBinaryOperator(findOperator)
+  override fun visit(node: MulOperator) = visitBinaryOperator(node)
+  override fun visit(node: FindOperator) = visitBinaryOperator(node)
 
   private fun visitBinaryOperator(operator: BinaryOperatorNode) {
     consumer.invoke(operator)
@@ -38,259 +38,259 @@ class ForEachNodeVisitor(private val consumer: (AstNode) -> Unit): AstNodeVisito
     operator.rightOperand.accept(this)
   }
 
-  override fun visit(operator: TernaryNode) {
-    consumer.invoke(operator)
-    operator.boolExpression.accept(this)
-    operator.trueExpression.accept(this)
-    operator.falseExpression.accept(this)
+  override fun visit(node: TernaryNode) {
+    consumer.invoke(node)
+    node.boolExpression.accept(this)
+    node.trueExpression.accept(this)
+    node.falseExpression.accept(this)
   }
 
-  override fun visit(elvisOperator: ElvisOperator) = visitBinaryOperator(elvisOperator)
+  override fun visit(node: ElvisOperator) = visitBinaryOperator(node)
 
-  override fun visit(fCall: FunctionCallNode) {
-    consumer.invoke(fCall)
-    if (fCall is NamedParametersFunctionCall) fCall.argumentNodes.forEach { it.accept(this) }
-    else fCall.argumentNodes.forEach { it.accept(this) }
+  override fun visit(node: FunctionCallNode) {
+    consumer.invoke(node)
+    if (node is NamedParametersFunctionCall) node.argumentNodes.forEach { it.accept(this) }
+    else node.argumentNodes.forEach { it.accept(this) }
   }
 
-  override fun visit(fCall: ConstructorCallNode) {
-    consumer.invoke(fCall)
-    fCall.arguments.forEach { it.accept(this) }
+  override fun visit(node: ConstructorCallNode) {
+    consumer.invoke(node)
+    node.arguments.forEach { it.accept(this) }
   }
 
-  override fun visit(fCall: SuperConstructorCallNode) {
-    consumer.invoke(fCall)
-    fCall.arguments.forEach { it.accept(this) }
+  override fun visit(node: SuperConstructorCallNode) {
+    consumer.invoke(node)
+    node.arguments.forEach { it.accept(this) }
   }
 
-  override fun visit(fCall: NamedParametersConstructorCallNode) {
-    consumer.invoke(fCall)
-    fCall.argumentNodes.forEach { it.accept(this) }
+  override fun visit(node: NamedParametersConstructorCallNode) {
+    consumer.invoke(node)
+    node.argumentNodes.forEach { it.accept(this) }
   }
 
-  override fun visit(operator: DivOperator) = visitBinaryOperator(operator)
+  override fun visit(node: DivOperator) = visitBinaryOperator(node)
 
-  override fun visit(operator: PlusOperator) = visitBinaryOperator(operator)
+  override fun visit(node: PlusOperator) = visitBinaryOperator(node)
 
-  override fun visit(operator: MinusOperator) = visitBinaryOperator(operator)
+  override fun visit(node: MinusOperator) = visitBinaryOperator(node)
 
-  override fun visit(operator: PowOperator) = visitBinaryOperator(operator)
+  override fun visit(node: PowOperator) = visitBinaryOperator(node)
 
-  override fun visit(rightShiftOperator: RightShiftOperator) = visitBinaryOperator(rightShiftOperator)
+  override fun visit(node: RightShiftOperator) = visitBinaryOperator(node)
 
-  override fun visit(leftShiftOperator: LeftShiftOperator) = visitBinaryOperator(leftShiftOperator)
+  override fun visit(node: LeftShiftOperator) = visitBinaryOperator(node)
 
-  override fun visit(variableAssignmentNode: VariableAssignmentNode) {
-    consumer.invoke(variableAssignmentNode)
-    variableAssignmentNode.expression.accept(this)
+  override fun visit(node: VariableAssignmentNode) {
+    consumer.invoke(node)
+    node.expression.accept(this)
   }
 
-  override fun visit(fieldAssignmentNode: FieldAssignmentNode) {
-    consumer.invoke(fieldAssignmentNode)
-    fieldAssignmentNode.fieldNode.accept(this)
-    fieldAssignmentNode.expression.accept(this)
+  override fun visit(node: FieldAssignmentNode) {
+    consumer.invoke(node)
+    node.fieldNode.accept(this)
+    node.expression.accept(this)
   }
 
-  override fun visit(indexedVariableAssignmentNode: IndexedVariableAssignmentNode) {
-    consumer.invoke(indexedVariableAssignmentNode)
-    indexedVariableAssignmentNode.indexedReference.accept(this)
-    indexedVariableAssignmentNode.expression.accept(this)
+  override fun visit(node: IndexedVariableAssignmentNode) {
+    consumer.invoke(node)
+    node.indexedReference.accept(this)
+    node.expression.accept(this)
   }
 
-  override fun visit(referenceExpression: ReferenceExpression) = consumer.invoke(referenceExpression)
+  override fun visit(node: ReferenceExpression) = consumer.invoke(node)
 
-  override fun visit(indexedReferenceExpression: IndexedReferenceExpression) {
-    consumer.invoke(indexedReferenceExpression)
-    indexedReferenceExpression.indexArguments.forEach { it.accept(this) }
+  override fun visit(node: IndexedReferenceExpression) {
+    consumer.invoke(node)
+    node.indexArguments.forEach { it.accept(this) }
   }
 
-  override fun visit(unaryMinus: UnaryMinus) = visitUnaryOperator(unaryMinus)
+  override fun visit(node: UnaryMinus) = visitUnaryOperator(node)
 
   private fun visitUnaryOperator(unaryOperator: UnaryOperator) {
     consumer.invoke(unaryOperator)
     unaryOperator.operand.accept(this)
   }
 
-  override fun visit(unaryPlus: UnaryPlus) = visitUnaryOperator(unaryPlus)
+  override fun visit(node: UnaryPlus) = visitUnaryOperator(node)
 
-  override fun visit(blockNode: BlockNode) {
-    consumer.invoke(blockNode)
-    blockNode.statements.forEach { it.accept(this) }
+  override fun visit(node: BlockNode) {
+    consumer.invoke(node)
+    node.statements.forEach { it.accept(this) }
   }
 
-  override fun visit(blockNode: FunctionBlockNode) {
-    consumer.invoke(blockNode)
-    blockNode.statements.forEach { it.accept(this) }
+  override fun visit(node: FunctionBlockNode) {
+    consumer.invoke(node)
+    node.statements.forEach { it.accept(this) }
   }
 
-  override fun visit(lambdaNode: LambdaNode) {
-    consumer.invoke(lambdaNode)
-    lambdaNode.blockNode.accept(this)
+  override fun visit(node: LambdaNode) {
+    consumer.invoke(node)
+    node.blockNode.accept(this)
   }
 
-  override fun visit(expressionStatementNode: ExpressionStatementNode) {
-    consumer.invoke(expressionStatementNode)
-    expressionStatementNode.expression.accept(this)
+  override fun visit(node: ExpressionStatementNode) {
+    consumer.invoke(node)
+    node.expression.accept(this)
   }
 
-  override fun visit(variableDeclarationNode: VariableDeclarationNode) {
-    consumer.invoke(variableDeclarationNode)
-    variableDeclarationNode.expression.accept(this)
+  override fun visit(node: VariableDeclarationNode) {
+    consumer.invoke(node)
+    node.expression.accept(this)
   }
 
-  override fun visit(truthyVariableDeclarationNode: TruthyVariableDeclarationNode) {
-    consumer.invoke(truthyVariableDeclarationNode)
-    truthyVariableDeclarationNode.expression.accept(this)
+  override fun visit(node: TruthyVariableDeclarationNode) {
+    consumer.invoke(node)
+    node.expression.accept(this)
   }
 
-  override fun visit(multiVariableDeclarationNode: MultiVariableDeclarationNode) {
-    consumer.invoke(multiVariableDeclarationNode)
-    multiVariableDeclarationNode.expression.accept(this)
+  override fun visit(node: MultiVariableDeclarationNode) {
+    consumer.invoke(node)
+    node.expression.accept(this)
   }
 
-  override fun visit(returnNode: ReturnNode) {
-    consumer.invoke(returnNode)
-    returnNode.expression.accept(this)
+  override fun visit(node: ReturnNode) {
+    consumer.invoke(node)
+    node.expression.accept(this)
   }
 
-  override fun visit(voidExpression: VoidExpression) {
-    consumer.invoke(voidExpression)
+  override fun visit(node: VoidExpression) {
+    consumer.invoke(node)
   }
 
-  override fun visit(stringNode: StringNode) {
-    consumer.invoke(stringNode)
-    stringNode.parts.forEach { it.accept(this) }
+  override fun visit(node: StringNode) {
+    consumer.invoke(node)
+    node.parts.forEach { it.accept(this) }
   }
 
-  override fun visit(stringConstantNode: StringConstantNode) = consumer.invoke(stringConstantNode)
+  override fun visit(node: StringConstantNode) = consumer.invoke(node)
 
-  override fun visit(asNode: AsNode) {
-    consumer.invoke(asNode)
-    asNode.expressionNode.accept(this)
+  override fun visit(node: AsNode) {
+    consumer.invoke(node)
+    node.expressionNode.accept(this)
   }
 
-  override fun visit(toStringNode: ToStringNode) {
-    consumer.invoke(toStringNode)
-    toStringNode.expressionNode.accept(this)
+  override fun visit(node: ToStringNode) {
+    consumer.invoke(node)
+    node.expressionNode.accept(this)
   }
 
-  override fun visit(accessOperator: InvokeAccessOperator) = visitBinaryOperator(accessOperator)
+  override fun visit(node: InvokeAccessOperator) = visitBinaryOperator(node)
 
-  override fun visit(getFieldAccessOperator: GetFieldAccessOperator) = visitBinaryOperator(getFieldAccessOperator)
+  override fun visit(node: GetFieldAccessOperator) = visitBinaryOperator(node)
 
-  override fun visit(getIndexFieldAccessOperator: GetIndexFieldAccessOperator) = visitBinaryOperator(getIndexFieldAccessOperator)
+  override fun visit(node: GetIndexFieldAccessOperator) = visitBinaryOperator(node)
 
-  override fun visit(booleanConstantNode: BooleanConstantNode) = consumer.invoke(booleanConstantNode)
+  override fun visit(node: BooleanConstantNode) = consumer.invoke(node)
 
-  override fun visit(comparisonOperatorNode: ComparisonOperatorNode) = visitBinaryOperator(comparisonOperatorNode)
+  override fun visit(node: ComparisonOperatorNode) = visitBinaryOperator(node)
 
-  override fun visit(andOperator: AndOperator) = visitBinaryOperator(andOperator)
+  override fun visit(node: AndOperator) = visitBinaryOperator(node)
 
-  override fun visit(orOperator: OrOperator) = visitBinaryOperator(orOperator)
+  override fun visit(node: OrOperator) = visitBinaryOperator(node)
 
-  override fun visit(notNode: NotNode) = visitUnaryOperator(notNode)
+  override fun visit(node: NotNode) = visitUnaryOperator(node)
 
-  override fun visit(ifStatementNode: IfStatementNode) {
-    consumer.invoke(ifStatementNode)
-    ifStatementNode.trueStatementNode.accept(this)
-    ifStatementNode.falseStatementNode?.accept(this)
+  override fun visit(node: IfStatementNode) {
+    consumer.invoke(node)
+    node.trueStatementNode.accept(this)
+    node.falseStatementNode?.accept(this)
   }
 
-  override fun visit(forStatement: ForStatement) {
-    consumer.invoke(forStatement)
-    forStatement.initStatement.accept(this)
-    forStatement.iteratorStatement.accept(this)
-    forStatement.endCondition.accept(this)
-    forStatement.body.accept(this)
+  override fun visit(node: ForStatement) {
+    consumer.invoke(node)
+    node.initStatement.accept(this)
+    node.iteratorStatement.accept(this)
+    node.endCondition.accept(this)
+    node.body.accept(this)
   }
 
-  override fun visit(tryCatchNode: TryCatchNode) {
-    consumer.invoke(tryCatchNode)
-    tryCatchNode.tryStatementNode.accept(this)
-    tryCatchNode.catchNodes.forEach { it.statementNode.accept(this) }
-    tryCatchNode.finallyBlock?.statementNode?.accept(this)
+  override fun visit(node: TryCatchNode) {
+    consumer.invoke(node)
+    node.tryStatementNode.accept(this)
+    node.catchNodes.forEach { it.statementNode.accept(this) }
+    node.finallyBlock?.statementNode?.accept(this)
   }
 
-  override fun visit(forInStatement: ForInStatement) {
-    consumer.invoke(forInStatement)
-    forInStatement.inExpression.accept(this)
-    forInStatement.body.accept(this)
+  override fun visit(node: ForInStatement) {
+    consumer.invoke(node)
+    node.inExpression.accept(this)
+    node.body.accept(this)
   }
 
-  override fun visit(whileStatement: WhileStatement) {
-    consumer.invoke(whileStatement)
-    whileStatement.condition.accept(this)
-    whileStatement.body.accept(this)
+  override fun visit(node: WhileStatement) {
+    consumer.invoke(node)
+    node.condition.accept(this)
+    node.body.accept(this)
   }
 
-  override fun visit(booleanExpression: BooleanExpressionNode) {
-    consumer.invoke(booleanExpression)
-    booleanExpression.innerExpression.accept(this)
+  override fun visit(node: BooleanExpressionNode) {
+    consumer.invoke(node)
+    node.innerExpression.accept(this)
   }
 
-  override fun visit(nullValueNode: NullValueNode) = consumer.invoke(nullValueNode)
+  override fun visit(node: NullValueNode) = consumer.invoke(node)
 
-  override fun visit(incrNode: IncrNode) {
-    consumer.invoke(incrNode)
-    incrNode.variableReference.accept(this)
+  override fun visit(node: IncrNode) {
+    consumer.invoke(node)
+    node.variableReference.accept(this)
   }
 
-  override fun visit(breakLoopNode: BreakLoopNode) = consumer.invoke(breakLoopNode)
+  override fun visit(node: BreakLoopNode) = consumer.invoke(node)
 
-  override fun visit(continueLoopNode: ContinueLoopNode) = consumer.invoke(continueLoopNode)
+  override fun visit(node: ContinueLoopNode) = consumer.invoke(node)
 
-  override fun visit(rangeNode: RangeNode) {
-    consumer.invoke(rangeNode)
-    rangeNode.from.accept(this)
-    rangeNode.to.accept(this)
+  override fun visit(node: RangeNode) {
+    consumer.invoke(node)
+    node.from.accept(this)
+    node.to.accept(this)
   }
 
-  override fun visit(literalListNode: LiteralArrayNode) {
-    consumer.invoke(literalListNode)
-    literalListNode.elements.forEach { it.accept(this) }
+  override fun visit(node: LiteralArrayNode) {
+    consumer.invoke(node)
+    node.elements.forEach { it.accept(this) }
   }
 
-  override fun visit(literalMapNode: LiteralMapNode) {
-    consumer.invoke(literalMapNode)
-    literalMapNode.entries.forEach {
+  override fun visit(node: LiteralMapNode) {
+    consumer.invoke(node)
+    node.entries.forEach {
       it.first.accept(this)
       it.second.accept(this)
     }
   }
 
-  override fun visit(switchBranch: SwitchBranchNode) {
-    consumer.invoke(switchBranch)
-    switchBranch.conditionExpressionNode.accept(this)
-    switchBranch.statementNode.accept(this)
+  override fun visit(node: SwitchBranchNode) {
+    consumer.invoke(node)
+    node.conditionExpressionNode.accept(this)
+    node.statementNode.accept(this)
   }
 
-  override fun visit(switchNode: SwitchNode) {
-    consumer.invoke(switchNode)
-    switchNode.expressionNode.accept(this)
-    switchNode.branches.forEach { it.accept(this) }
+  override fun visit(node: SwitchNode) {
+    consumer.invoke(node)
+    node.expressionNode.accept(this)
+    node.branches.forEach { it.accept(this) }
   }
 
-  override fun visit(whenNode: WhenNode) {
-    consumer.invoke(whenNode)
-    whenNode.branches.forEach { it.accept(this) }
+  override fun visit(node: WhenNode) {
+    consumer.invoke(node)
+    node.branches.forEach { it.accept(this) }
   }
 
-  override fun visit(whenBranchNode: WhenBranchNode) {
-    consumer.invoke(whenBranchNode)
-    whenBranchNode.conditionExpressionNode.accept(this)
-    whenBranchNode.statementNode.accept(this)
+  override fun visit(node: WhenBranchNode) {
+    consumer.invoke(node)
+    node.conditionExpressionNode.accept(this)
+    node.statementNode.accept(this)
   }
 
-  override fun visit(isOperator: IsOperator) = visitBinaryOperator(isOperator)
-  override fun visit(isNotOperator: IsNotOperator) = visitBinaryOperator(isNotOperator)
+  override fun visit(node: IsOperator) = visitBinaryOperator(node)
+  override fun visit(node: IsNotOperator) = visitBinaryOperator(node)
 
-  override fun visit(shortConstantNode: ShortConstantNode) = consumer.invoke(shortConstantNode)
+  override fun visit(node: ShortConstantNode) = consumer.invoke(node)
 
-  override fun visit(byteConstantNode: ByteConstantNode) = consumer.invoke(byteConstantNode)
+  override fun visit(node: ByteConstantNode) = consumer.invoke(node)
 
-  override fun visit(thisReference: ThisReference) = consumer.invoke(thisReference)
+  override fun visit(node: ThisReference) = consumer.invoke(node)
 
-  override fun visit(superReference: SuperReference) = consumer.invoke(superReference)
+  override fun visit(node: SuperReference) = consumer.invoke(node)
 
-  override fun visit(patternValueNode: LiteralPatternNode) = consumer.invoke(patternValueNode)
+  override fun visit(node: LiteralPatternNode) = consumer.invoke(node)
 }
