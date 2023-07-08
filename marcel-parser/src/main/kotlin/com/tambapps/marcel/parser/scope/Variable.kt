@@ -41,6 +41,9 @@ class LocalVariable constructor(override var type: JavaType, override var name: 
   }
 }
 
+/**
+ * A Marcel Field is the accumulation of all kind of JavaField for a same field name
+ */
 class MarcelField(override val name: String): Variable {
   val classField: ClassField? get() = getters.firstNotNullOfOrNull { it as? ClassField  }
   private val _getters = mutableSetOf<JavaField>()

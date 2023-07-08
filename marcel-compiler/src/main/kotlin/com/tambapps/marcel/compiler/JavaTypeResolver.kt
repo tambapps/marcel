@@ -19,7 +19,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   constructor(): this(null)
 
   private val classMethods = mutableMapOf<String, MutableList<JavaMethod>>()
-  private val classFields = mutableMapOf<String, MutableMap<String, MarcelField>>()
+  private val fieldResolver = FieldResolver()
 
   init {
     loadDefaultExtensions()
@@ -75,7 +75,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     if (javaType.isLoaded) {
       throw MarcelSemanticException((field as? FieldNode)?.token, "Cannot define field on loaded class")
     }
-    val marcelField = computeField(javaType, field.name)
+    val marcelField = fieldResolver.computeFieldIfAbsent(javaType, field.name)
     marcelField.mergeWith(field)
   }
 
@@ -85,52 +85,13 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   }
 
   override fun getClassField(javaType: JavaType, fieldName: String, node: AstNode?): ClassField {
-    return getAllFields(javaType)[fieldName]?.classField ?: throw MarcelSemanticException(node?.token, "Class field $javaType.$fieldName is not defined")
+    return fieldResolver.getField(javaType, fieldName)?.classField ?: throw MarcelSemanticException(node?.token, "Class field $javaType.$fieldName is not defined")
   }
 
   override fun getDeclaredFields(javaType: JavaType): Collection<MarcelField> {
-    return getAllFields(javaType).values
+    return fieldResolver.getAllFields(javaType).values
   }
 
-  private fun computeField(javaType: JavaType, name: String) = getAllFields(javaType).computeIfAbsent(name) { MarcelField(name) }
-  private fun getAllFields(javaType: JavaType): MutableMap<String, MarcelField> {
-    return classFields.computeIfAbsent(javaType.className) {
-      val directFields = fetchAllFields(javaType)
-
-      val fieldsMap = directFields.associateBy { it.name }.toMutableMap()
-
-      val methods = fetchAllMethods(javaType)
-      for (method in methods) {
-        if (method.isGetter) {
-          val field = fieldsMap.computeIfAbsent(method.propertyName) { MarcelField(method.propertyName) }
-          field.addGetter(MethodField(method.returnType, method.propertyName, method.ownerClass, method, null, method is ExtensionJavaMethod, method.access))
-        } else if (method.isSetter) {
-          val field = fieldsMap.computeIfAbsent(method.propertyName) { MarcelField(method.propertyName) }
-          field.addSetter(MethodField(method.parameters.first().type, method.propertyName, method.ownerClass, null, method, method is ExtensionJavaMethod, method.access))
-        }
-      }
-      return@computeIfAbsent fieldsMap
-    }
-  }
-
-  private fun fetchAllFields(javaType: JavaType): Set<MarcelField> {
-    return if (javaType.isLoaded) (javaType.realClazz.fields + javaType.realClazz.declaredFields).map { MarcelField(ReflectJavaField(it)) }.toSet()
-    else {
-      val fieldsMap = classFields[javaType.className]?.values?.associateBy { it.name }?.toMutableMap() ?: mutableMapOf()
-      var type = javaType.superType
-      while (type != null) {
-        val fields = fetchAllFields(type)
-        fields.forEach {
-          if (fieldsMap.containsKey(it.name)) {
-            fieldsMap.getValue(it.name).mergeWith(it)
-          } else fieldsMap[it.name] = it
-        }
-        if (type.isLoaded) break
-        type = type.superType
-      }
-      return fieldsMap.values.toSet()
-    }
-  }
   private fun fetchAllMethods(javaType: JavaType, excludeInterfaces: Boolean = false): Set<JavaMethod> {
     val methods = mutableSetOf<JavaMethod>()
     if (javaType.isLoaded) {
@@ -263,7 +224,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   }
 
   override fun findField(javaType: JavaType, name: String, node: AstNode?): MarcelField? {
-    val field = getAllFields(javaType)[name]
+    val field = fieldResolver.getField(javaType, name)
     if (field == null && javaType.implements(JavaType.DynamicObject)) {
       return MarcelField(DynamicMethodField(javaType, name, JavaType.DynamicObject,
               ReflectJavaMethod(DynamicObject::class.java.getDeclaredMethod("getProperty", String::class.java)),
@@ -310,8 +271,63 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   override fun disposeClass(scriptNode: ClassNode) {
     super.disposeClass(scriptNode)
     classMethods.remove(scriptNode.type.className)
-    classFields.remove(scriptNode.type.className)
+    fieldResolver.dispose(scriptNode.type.className)
     scriptNode.innerClasses.forEach { disposeClass(it) }
   }
 
+  private inner class FieldResolver {
+    private val classFields = mutableMapOf<String, MutableMap<String, MarcelField>>()
+
+    // map fieldName -> MarcelField
+    fun getField(javaType: JavaType, fieldName: String): MarcelField? {
+      return getAllFields(javaType)[fieldName]
+    }
+
+    fun computeFieldIfAbsent(javaType: JavaType, fieldName: String): MarcelField {
+      return getAllFields(javaType).computeIfAbsent(fieldName) { MarcelField(fieldName) }
+    }
+
+    fun getAllFields(javaType: JavaType): MutableMap<String, MarcelField> {
+      return classFields.computeIfAbsent(javaType.className) {
+        val directFields = fetchAllFields(javaType)
+
+        val fieldsMap = directFields.associateBy { it.name }.toMutableMap()
+
+        val methods = fetchAllMethods(javaType)
+        for (method in methods) {
+          if (method.isGetter) {
+            val field = fieldsMap.computeIfAbsent(method.propertyName) { MarcelField(method.propertyName) }
+            field.addGetter(MethodField(method.returnType, method.propertyName, method.ownerClass, method, null, method is ExtensionJavaMethod, method.access))
+          } else if (method.isSetter) {
+            val field = fieldsMap.computeIfAbsent(method.propertyName) { MarcelField(method.propertyName) }
+            field.addSetter(MethodField(method.parameters.first().type, method.propertyName, method.ownerClass, null, method, method is ExtensionJavaMethod, method.access))
+          }
+        }
+        return@computeIfAbsent fieldsMap
+      }
+    }
+
+    private fun fetchAllFields(javaType: JavaType): Set<MarcelField> {
+      return if (javaType.isLoaded) (javaType.realClazz.fields + javaType.realClazz.declaredFields).map { MarcelField(ReflectJavaField(it)) }.toSet()
+      else {
+        val fieldsMap = classFields[javaType.className]?.values?.associateBy { it.name }?.toMutableMap() ?: mutableMapOf()
+        var type = javaType.superType
+        while (type != null) {
+          val fields = fetchAllFields(type)
+          fields.forEach {
+            if (fieldsMap.containsKey(it.name)) {
+              fieldsMap.getValue(it.name).mergeWith(it)
+            } else fieldsMap[it.name] = it
+          }
+          if (type.isLoaded) break
+          type = type.superType
+        }
+        return fieldsMap.values.toSet()
+      }
+    }
+
+    fun dispose(className: String) {
+      classFields.remove(className)
+    }
+  }
 }
