@@ -59,9 +59,13 @@ class MarcelField(override val name: String): Variable {
     mergeWith(field)
   }
   fun addGetter(javaField: JavaField) {
+    // if we try to add an extension method for a class but the method was already defined for this class (e.g. IntList.last vs List.last), we ignore the extension
+    if (javaField is MethodField && javaField.isExtension && _getters.isNotEmpty()) return
     _getters.add(javaField)
   }
   fun addSetter(javaField: JavaField) {
+    // if we try to add an extension method for a class but the method was already defined for this class (e.g. IntList.last vs List.last), we ignore the extension
+    if (javaField is MethodField && javaField.isExtension && _setters.isNotEmpty()) return
     _setters.add(javaField)
   }
 
@@ -120,6 +124,7 @@ open class ClassField constructor(override val type: JavaType, override val name
 open class MethodField constructor(override val type: JavaType, override val name: String, override val owner: JavaType,
                   private val _getterMethod: JavaMethod?,
                   private val _setterMethod: JavaMethod?,
+                                   val isExtension: Boolean,
                               access: Int): AbstractField(access) {
 
   override val isFinal = false
@@ -129,13 +134,6 @@ open class MethodField constructor(override val type: JavaType, override val nam
   val getterMethod get() = _getterMethod!!
   val setterMethod get() = _setterMethod!!
 
-  companion object {
-    fun from(owner: JavaType, name: String, getterMethod: JavaMethod?, setterMethod: JavaMethod?): MethodField {
-      val type = getterMethod?.returnType ?: setterMethod?.parameters?.first()?.type!!
-      val access = getterMethod?.access ?: setterMethod?.access!!
-      return MethodField(type, name, owner, getterMethod, setterMethod, access)
-    }
-  }
 }
 
 class DynamicMethodField(
@@ -145,7 +143,7 @@ class DynamicMethodField(
   _getterMethod: JavaMethod?,
   _setterMethod: JavaMethod?,
   access: Int
-) : MethodField(type, name, owner, _getterMethod, _setterMethod, access)
+) : MethodField(type, name, owner, _getterMethod, _setterMethod, false, access)
 
 class ReflectJavaField private constructor(
   override val type: JavaType,

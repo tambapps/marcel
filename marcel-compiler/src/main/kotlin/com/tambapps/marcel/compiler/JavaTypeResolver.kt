@@ -103,10 +103,10 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
       for (method in methods) {
         if (method.isGetter) {
           val field = fieldsMap.computeIfAbsent(method.propertyName) { MarcelField(method.propertyName) }
-          field.addGetter(MethodField(method.returnType, method.propertyName, method.ownerClass, method, null, method.access))
+          field.addGetter(MethodField(method.returnType, method.propertyName, method.ownerClass, method, null, method is ExtensionJavaMethod, method.access))
         } else if (method.isSetter) {
           val field = fieldsMap.computeIfAbsent(method.propertyName) { MarcelField(method.propertyName) }
-          field.addGetter(MethodField(method.parameters.first().type, method.propertyName, method.ownerClass, null, method, method.access))
+          field.addSetter(MethodField(method.parameters.first().type, method.propertyName, method.ownerClass, null, method, method is ExtensionJavaMethod, method.access))
         }
       }
       return@computeIfAbsent fieldsMap
@@ -131,18 +131,22 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
       return fieldsMap.values.toSet()
     }
   }
-  private fun fetchAllMethods(javaType: JavaType): Set<JavaMethod> {
-    return if (javaType.isLoaded) (javaType.realClazz.methods + javaType.realClazz.declaredMethods).map { ReflectJavaMethod(it) }.toSet()
-    else {
-      val methods = classMethods[javaType.className]?.toMutableSet() ?: mutableSetOf()
-      var type = javaType.superType
-      while (type != null) {
-        methods.addAll(fetchAllMethods(type))
-        if (type.isLoaded) break
-        type = type.superType
-      }
-      return methods
+  private fun fetchAllMethods(javaType: JavaType, excludeInterfaces: Boolean = false): Set<JavaMethod> {
+    val methods = mutableSetOf<JavaMethod>()
+    if (javaType.isLoaded) {
+      javaType.realClazz.declaredMethods.forEach { methods.add(ReflectJavaMethod(it)) }
     }
+    classMethods[javaType.className]?.let { methods.addAll(it) }
+
+    var type = javaType.superType
+    while (type != null) {
+      methods.addAll(fetchAllMethods(type, true))
+      type = type.superType
+    }
+    if (!excludeInterfaces) {
+      methods.addAll(javaType.allImplementedInterfaces.flatMap { fetchAllMethods(it, true) })
+    }
+    return methods
   }
 
   override fun getMethods(javaType: JavaType): List<JavaMethod> {
