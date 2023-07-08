@@ -18,7 +18,8 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
 
   constructor(): this(null)
 
-  private val classMethods = mutableMapOf<String, MutableList<JavaMethod>>()
+  // extension methods or methods of marcel source code we're compiling
+  private val marcelMethods = mutableMapOf<String, MutableList<JavaMethod>>()
   private val fieldResolver = FieldResolver()
 
   init {
@@ -81,7 +82,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
 
   override fun getDeclaredMethods(javaType: JavaType): List<JavaMethod> {
     return if (javaType.isLoaded) javaType.realClazz.declaredMethods.map { ReflectJavaMethod(it, javaType) }
-    else classMethods[javaType.className] ?: emptyList()
+    else marcelMethods[javaType.className] ?: emptyList()
   }
 
   override fun getClassField(javaType: JavaType, fieldName: String, node: AstNode?): ClassField {
@@ -97,7 +98,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     if (javaType.isLoaded) {
       javaType.realClazz.declaredMethods.forEach { methods.add(ReflectJavaMethod(it)) }
     }
-    classMethods[javaType.className]?.let { methods.addAll(it) }
+    marcelMethods[javaType.className]?.let { methods.addAll(it) }
 
     var type = javaType.superType
     while (type != null) {
@@ -220,7 +221,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
 
   private fun getMarcelMethods(javaType: JavaType): MutableList<JavaMethod> {
     // return methods defined from MDK or from marcel source we're currently compiling
-    return classMethods.computeIfAbsent(javaType.className) { mutableListOf() }
+    return marcelMethods.computeIfAbsent(javaType.className) { mutableListOf() }
   }
 
   override fun findField(javaType: JavaType, name: String, node: AstNode?): MarcelField? {
@@ -270,7 +271,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   override fun visit(node: FunctionCallNode) = node.getMethod(this).actualReturnType
   override fun disposeClass(scriptNode: ClassNode) {
     super.disposeClass(scriptNode)
-    classMethods.remove(scriptNode.type.className)
+    marcelMethods.remove(scriptNode.type.className)
     fieldResolver.dispose(scriptNode.type.className)
     scriptNode.innerClasses.forEach { disposeClass(it) }
   }
