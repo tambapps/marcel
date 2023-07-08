@@ -92,7 +92,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     return fieldResolver.getAllFields(javaType).values
   }
 
-  private fun fetchAllMethods(javaType: JavaType, excludeInterfaces: Boolean = false): Set<JavaMethod> {
+  private fun loadAllMethods(javaType: JavaType, excludeInterfaces: Boolean = false): Set<JavaMethod> {
     val methods = mutableSetOf<JavaMethod>()
     if (javaType.isLoaded) {
       javaType.realClazz.declaredMethods.forEach { methods.add(ReflectJavaMethod(it)) }
@@ -101,11 +101,11 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
 
     var type = javaType.superType
     while (type != null) {
-      methods.addAll(fetchAllMethods(type, true))
+      methods.addAll(loadAllMethods(type, true))
       type = type.superType
     }
     if (!excludeInterfaces) {
-      methods.addAll(javaType.allImplementedInterfaces.flatMap { fetchAllMethods(it, true) })
+      methods.addAll(javaType.allImplementedInterfaces.flatMap { loadAllMethods(it, true) })
     }
     return methods
   }
@@ -289,11 +289,11 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
 
     fun getAllFields(javaType: JavaType): MutableMap<String, MarcelField> {
       return classFields.computeIfAbsent(javaType.className) {
-        val directFields = fetchAllFields(javaType)
+        val directFields = loadAllFields(javaType)
 
         val fieldsMap = directFields.associateBy { it.name }.toMutableMap()
 
-        val methods = fetchAllMethods(javaType)
+        val methods = loadAllMethods(javaType)
         for (method in methods) {
           if (method.isGetter) {
             val field = fieldsMap.computeIfAbsent(method.propertyName) { MarcelField(method.propertyName) }
@@ -307,13 +307,13 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
       }
     }
 
-    private fun fetchAllFields(javaType: JavaType): Set<MarcelField> {
+    private fun loadAllFields(javaType: JavaType): Set<MarcelField> {
       return if (javaType.isLoaded) (javaType.realClazz.fields + javaType.realClazz.declaredFields).map { MarcelField(ReflectJavaField(it)) }.toSet()
       else {
         val fieldsMap = classFields[javaType.className]?.values?.associateBy { it.name }?.toMutableMap() ?: mutableMapOf()
         var type = javaType.superType
         while (type != null) {
-          val fields = fetchAllFields(type)
+          val fields = loadAllFields(type)
           fields.forEach {
             if (fieldsMap.containsKey(it.name)) {
               fieldsMap.getValue(it.name).mergeWith(it)
