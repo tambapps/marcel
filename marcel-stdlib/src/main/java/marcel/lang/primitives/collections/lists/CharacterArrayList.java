@@ -124,6 +124,10 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	  l.getElements(0, a, 0, size = l.size());
 	 }
 	}
+
+	public CharacterArrayList(String s) {
+		this(s.toCharArray());
+	}
 	/** Creates a new array list and fills it with the elements of a given array.
 	 *
 	 * @param a an array whose elements will be used to fill the array list.

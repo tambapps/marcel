@@ -156,6 +156,11 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 	public CharacterOpenHashSet(final char[] a, final float f) {
 		this(a, 0, a.length, f);
 	}
+
+	public CharacterOpenHashSet(String s) {
+		this(s.toCharArray());
+	}
+
 	/** Creates a new hash set with {@link Hash#DEFAULT_LOAD_FACTOR} as load factor
 	 * copying the elements of an array.
 	 *
