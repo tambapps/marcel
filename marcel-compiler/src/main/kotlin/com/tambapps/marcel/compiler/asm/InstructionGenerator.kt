@@ -27,7 +27,6 @@ import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.BoundField
-import com.tambapps.marcel.parser.scope.ClassField
 import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.scope.LocalVariable
 import com.tambapps.marcel.parser.scope.JavaField
@@ -528,11 +527,8 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   override fun visit(node: GetFieldAccessOperator) {
     val field = typeResolver.findFieldOrThrow(node.leftOperand.getType(typeResolver), node.rightOperand.name, node)
     if (field.isStatic) {
-      mv.getField(node, node.scope, field)
+      mv.getField(node, node.scope, field, node.directFieldAccess)
       return
-    }
-    if (node.directFieldAccess && field !is ClassField) {
-      throw MarcelSemanticException("Class field ${node.scope.classType}.${node.rightOperand.name} is not defined")
     }
     if (node.nullSafe) {
       val scope = node.scope
@@ -552,19 +548,16 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       scope.freeVariable(tempVar.name)
     } else {
       pushArgument(node.leftOperand)
-      mv.getField(node, node.scope, field)
+      mv.getField(node, node.scope, field, node.directFieldAccess)
     }
   }
 
   override fun visit(node: GetIndexFieldAccessOperator) {
     val field = typeResolver.findFieldOrThrow(node.leftOperand.getType(typeResolver), node.rightOperand.name, node)
     if (field.isStatic) {
-      mv.getField(node, node.scope, field)
+      mv.getField(node, node.scope, field, node.directFieldAccess)
       mv.getAt(node, node.scope, node.rightOperand.variable.type, node.rightOperand.indexArguments)
       return
-    }
-    if (node.directFieldAccess && field !is ClassField) {
-      throw MarcelSemanticException("Class field ${node.scope.classType}.${node.rightOperand.name} is not defined")
     }
     if (node.nullSafe) {
       val scope = node.scope
@@ -584,7 +577,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       scope.freeVariable(tempVar.name)
     } else {
       pushArgument(node.leftOperand)
-      mv.getField(node, node.scope, field)
+      mv.getField(node, node.scope, field, node.directFieldAccess)
       mv.getAt(node, node.scope, field.type, node.rightOperand.indexArguments)
     }
   }
@@ -592,7 +585,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   override fun visit(node: DirectFieldAccessNode) {
     val field = typeResolver.getClassField(node.scope.classType, node.name, node)
     pushArgument(ThisReference(node.token, node.scope))
-    mv.getField(node, node.scope, field)
+    mv.getField(node, node.scope, field, true)
   }
 
   private fun pushBinaryOperatorOperands(binaryOperatorNode: BinaryOperatorNode) {

@@ -16,6 +16,7 @@ import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.ClassField
 import com.tambapps.marcel.parser.scope.DynamicMethodField
 import com.tambapps.marcel.parser.scope.JavaField
+import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
@@ -93,7 +94,7 @@ open class AstNodeTypeResolver constructor(
     return emptyList()
   }
 
-  open fun getDeclaredFields(javaType: JavaType): List<JavaField> {
+  open fun getDeclaredFields(javaType: JavaType): Collection<MarcelField> {
     return emptyList()
   }
 
@@ -105,9 +106,6 @@ open class AstNodeTypeResolver constructor(
     return emptyList()
   }
 
-  open fun getFields(javaType: JavaType): List<JavaField> {
-    return emptyList()
-  }
   open fun of(className: String, genericTypes: List<JavaType>): JavaType {
     return _definedTypes[className] ?: JavaType.of(classLoader, className, genericTypes)
   }
@@ -147,11 +145,14 @@ open class AstNodeTypeResolver constructor(
     return null
   }
 
-  fun findFieldOrThrow(javaType: JavaType, name: String, node: AstNode? = null): JavaField {
+  open fun findMatchingMethod(methods: List<JavaMethod>, name: String, argumentTypes: List<AstTypedObject>): JavaMethod? {
+    return null
+  }
+  fun findFieldOrThrow(javaType: JavaType, name: String, node: AstNode? = null): MarcelField {
     return findField(javaType, name) ?: throw MarcelSemanticException(node?.token, "Field $name was not found")
   }
 
-  open fun findField(javaType: JavaType, name: String, node: AstNode? = null): JavaField? {
+  open fun findField(javaType: JavaType, name: String, node: AstNode? = null): MarcelField? {
     return null
   }
 

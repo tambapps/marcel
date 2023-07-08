@@ -6,6 +6,7 @@ import com.tambapps.marcel.parser.ast.AstNode
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.scope.BoundField
 import com.tambapps.marcel.parser.scope.JavaField
+import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
@@ -35,19 +36,19 @@ class ReplJavaTypeResolver constructor(classLoader: MarcelClassLoader?, private 
         }
     }
 
-    override fun findField(javaType: JavaType, name: String, node: AstNode?): JavaField? {
+    override fun findField(javaType: JavaType, name: String, node: AstNode?): MarcelField? {
         val f = super.findField(javaType, name, node)
         if (f == null && isScript(javaType) && binding.hasVariable(name)) {
             // if we're looking for a variable of a script, it may be a BoundField
-            return scriptVariables[name]?.withOwner(javaType)
+            return scriptVariables[name]?.withOwner(javaType)?.let { MarcelField(it) }
         }
         return f
     }
 
-    override fun getDeclaredFields(javaType: JavaType): List<JavaField> {
+    override fun getDeclaredFields(javaType: JavaType): List<MarcelField> {
         val fields = super.getDeclaredFields(javaType).toMutableList()
         if (isScript(javaType)) {
-            fields.addAll(scriptVariables.values)
+            fields.addAll(scriptVariables.values.map { MarcelField(it) })
         }
         return fields
     }

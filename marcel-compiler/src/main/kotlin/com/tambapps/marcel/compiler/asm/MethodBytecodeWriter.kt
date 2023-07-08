@@ -253,7 +253,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
           } else {
             throw RuntimeException("Compiler error. Shouldn't push class field of not current class with this method")
           }
-          if (!variable.canGet) {
+          if (!variable.isGettable) {
             throw MarcelSemanticException(from.token, "Variable ${variable.name} has no getter")
           }
           invokeMethod(from, scope, variable.getterMethod)
@@ -266,6 +266,10 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
           StringConstantNode(from.token, variable.name))
         // need to cast because we store the value as an object
         castIfNecessaryOrThrow(scope, from, variable.type, JavaType.Object)
+      }
+      is MarcelField -> {
+        val field = variable.gettableFieldFrom(scope) ?: throw VariableNotAccessibleException(from.token, variable, scope.classType)
+        pushVariable(from, scope, field)
       }
       else -> throw MarcelSemanticException(from.token, "Variable type ${variable.javaClass} is not handled")
     }
@@ -430,7 +434,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       // for fields, the caller should push the field's owner
       is ClassField -> mv.visitFieldInsn(variable.putCode, variable.owner.internalName, variable.name, variable.type.descriptor)
       is MethodField -> {
-        if (!variable.canSet) {
+        if (!variable.isSettable) {
           throw MarcelSemanticException(node.token, "Field ${variable.name} of class ${variable.owner} is not settable")
         }
         invokeMethod(node, scope, variable.setterMethod)
@@ -444,12 +448,24 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
             StringConstantNode(node.token, variable.name), ReferenceExpression(node.token, scope, it.name))
         }
       }
+      is MarcelField -> {
+        val field = variable.settableFieldFrom(scope) ?: throw VariableNotAccessibleException(node.token, variable, scope.classType)
+        storeInVariable(node, scope, field)
+      }
       else -> throw RuntimeException("Compiler bug. Not handled variable subclass ${variable.javaClass}")
     }
     variable.alreadySet = true
   }
 
-  fun getField(from: AstNode, scope: Scope, field: JavaField) {
+  fun getField(from: AstNode, scope: Scope, marcelField: MarcelField, directFieldAccess: Boolean) {
+    val field = (if (directFieldAccess) marcelField.classField else marcelField.gettableFieldFrom(scope)) ?: throw VariableNotAccessibleException(from.token, marcelField, scope.classType)
+    getField(from, scope, field, directFieldAccess)
+  }
+
+  fun getField(from: AstNode, scope: Scope, field: JavaField, directFieldAccess: Boolean) {
+    if (directFieldAccess && field !is ClassField) {
+      throw MarcelSemanticException("Class field ${scope.classType}.${field.name} is not defined")
+    }
     if (!field.isAccessibleFrom(scope)) throw VariableNotAccessibleException(from.token, field, scope.classType)
     if (field.owner.implements(JavaType.DynamicObject) && field is DynamicMethodField) {
       // need to push name
@@ -460,7 +476,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
         mv.visitFieldInsn(field.getCode, field.owner.internalName, field.name, field.type.descriptor)
       }
       is MethodField -> {
-        if (!field.canGet) {
+        if (!field.isGettable) {
           throw MarcelSemanticException(from.token, "Field ${field.name} of class ${field.owner} is not gettable")
         }
         invokeMethod(from, scope, field.getterMethod)

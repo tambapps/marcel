@@ -4,6 +4,7 @@ import com.tambapps.marcel.compiler.util.javaAnnotation
 import com.tambapps.marcel.compiler.util.javaType
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.ast.*
+import com.tambapps.marcel.parser.ast.expression.GetFieldAccessOperator
 import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
 import com.tambapps.marcel.parser.ast.expression.ReturnNode
 import marcel.lang.Delegate
@@ -19,15 +20,17 @@ class DelegateAnnotationProcessor: FieldAnnotationProcessor {
         if (classNode.type.implements(DelegatedObject::class.java.javaType)
             && !classNode.methods.any { it.name == "getDelegate" && it.parameters.isEmpty() }
             && classNode.fields.any { it.name == "delegate" }) {
+            val token = classNode.fields.find { it.name == "delegate" }!!.token
             val delegateField = classNode.fields.find { it.name == "delegate" }!!
             if (classNode.type.allImplementedInterfaces.find { it.raw() == DelegatedObject::class.javaType }!!.genericTypes.firstOrNull()?.let { it.isAssignableFrom(delegateField.type) } != false) {
                 val getDelegateMethod = MethodNode.from(classScope = classNode.scope, ownerClass = classNode.type, name = "getDelegate", parameters = emptyList(),
-                    returnType = delegateField.type.objectType, annotations = listOf(AnnotationNode(LexToken.dummy(), Override::class.javaAnnotation, emptyList())), staticContext = false
+                    returnType = delegateField.type.objectType, annotations = listOf(AnnotationNode(token, Override::class.javaAnnotation, emptyList())), staticContext = false
                 )
+                val scope = getDelegateMethod.scope
                 getDelegateMethod.block.addStatement(
                     ReturnNode(
-                        LexToken.dummy(), getDelegateMethod.scope, ReferenceExpression(
-                            LexToken.dummy(), getDelegateMethod.scope, delegateField.name)))
+                            token, scope, GetFieldAccessOperator(
+                            token, ReferenceExpression.thisRef(scope), ReferenceExpression(token, scope, "delegate"), nullSafe = false, directFieldAccess = true)))
                 classNode.addMethod(getDelegateMethod)
             }
         }

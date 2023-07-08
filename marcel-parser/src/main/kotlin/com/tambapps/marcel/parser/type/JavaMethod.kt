@@ -146,6 +146,10 @@ interface JavaMethod {
     // from the first method's parameter
     return this
   }
+
+  val isGetter get() = name.startsWith("get") && name.getOrNull(3)?.isUpperCase() == true && parameters.isEmpty()
+  val isSetter get() = name.startsWith("set") && name.getOrNull(3)?.isUpperCase() == true && parameters.size == 1
+  val propertyName: String get() = name[3].lowercase() + name.substring(4)
 }
 // see norm of modifiers flag in Modifier class. Seems to have the same norm as OpCodes.ACC_ modifiers
 abstract class AbstractMethod constructor(final override val access: Int): JavaMethod {
@@ -160,9 +164,6 @@ abstract class AbstractMethod constructor(final override val access: Int): JavaM
     if (returnType != other.returnType) return false
     return true
   }
-
-  val isGetter get() = name.length > 3 && name.startsWith("get") && name[3].isUpperCase()
-  val isSetter get() = name.length > 3 && name.startsWith("set") && name[3].isUpperCase()
 
   override fun hashCode(): Int {
     return Objects.hash(name, parameters, returnType)

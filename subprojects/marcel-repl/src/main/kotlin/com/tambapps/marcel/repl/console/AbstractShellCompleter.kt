@@ -10,6 +10,7 @@ import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.JavaField
+import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.type.JavaMethod
 
 abstract class AbstractShellCompleter<T>(
@@ -62,7 +63,7 @@ abstract class AbstractShellCompleter<T>(
     val type = try { lastNode.leftOperand.getType(typeResolver) } catch (e: MarcelSemanticException) { null } ?: return
 
     val methodFilter: (JavaMethod) -> Boolean
-    val fieldFilter: (JavaField) -> Boolean
+    val fieldFilter: (MarcelField) -> Boolean
     if (endsWithDot) {
       methodFilter = { true }
       fieldFilter = { true }
@@ -77,7 +78,7 @@ abstract class AbstractShellCompleter<T>(
         candidates.add(newCandidate(it.name + suffix))
       }
     }
-    typeResolver.getFields(type).forEach {
+    typeResolver.getDeclaredFields(type).forEach {
       if (fieldFilter.invoke(it)) {
         candidates.add(newCandidate(it.name))
       }

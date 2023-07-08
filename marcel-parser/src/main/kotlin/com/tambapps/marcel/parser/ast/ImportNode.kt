@@ -58,7 +58,7 @@ class StaticImportNode(override val token: LexToken, private val className: Stri
     val type = typeResolver.of(className, emptyList())
     typeResolver.getDeclaredMethods(type)
     val candidates = typeResolver.getDeclaredMethods(type).filter { it.name == methodName }
-    return candidates.find { it.matches(typeResolver, methodName, argumentTypes) }
+    return typeResolver.findMatchingMethod(candidates, methodName, argumentTypes)
   }
 
   override fun toString(): String {

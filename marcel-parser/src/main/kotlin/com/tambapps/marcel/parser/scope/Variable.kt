@@ -41,6 +41,45 @@ class LocalVariable constructor(override var type: JavaType, override var name: 
   }
 }
 
+class MarcelField(override val name: String): Variable {
+  val classField: ClassField? get() = getters.firstNotNullOfOrNull { it as? ClassField  }
+  private val _getters = mutableSetOf<JavaField>()
+  private val _setters = mutableSetOf<JavaField>()
+  val getters: Set<JavaField> = _getters
+  val setters: Set<JavaField> = _setters
+
+  override val isFinal get() = (getters + setters).all { it.isFinal }
+  val isStatic get() = (getters + setters).all { it.isStatic }
+  override var alreadySet = false
+  override fun isAccessibleFrom(scope: Scope) = (getters + setters).any { it.isAccessibleFrom(scope) }
+
+  override val type get() =  JavaType.commonType((getters + setters).map { it.type })
+
+  constructor(field: JavaField): this(field.name) {
+    mergeWith(field)
+  }
+  fun addGetter(javaField: JavaField) {
+    _getters.add(javaField)
+  }
+  fun addSetter(javaField: JavaField) {
+    _setters.add(javaField)
+  }
+
+  fun mergeWith(field: JavaField) {
+    if (field.isGettable) addGetter(field)
+    if (field.isSettable) addSetter(field)
+  }
+
+  fun mergeWith(other: MarcelField) {
+    _getters.addAll(other._getters)
+    _setters.addAll(other._setters)
+  }
+
+  fun settableFieldFrom(scope: Scope) = setters.find { it.isAccessibleFrom(scope) }
+  fun gettableFieldFrom(scope: Scope) = getters.find { it.isAccessibleFrom(scope) }
+}
+
+
 // can be a java field or a java getter/setter
 sealed interface JavaField: Variable {
   val owner: JavaType
@@ -52,6 +91,8 @@ sealed interface JavaField: Variable {
     get() = (access and Opcodes.ACC_FINAL) != 0
 
 
+  val isGettable: Boolean
+  val isSettable: Boolean
 }
 
 sealed class AbstractField(final override val access: Int): AbstractVariable(), JavaField {
@@ -71,6 +112,8 @@ sealed class AbstractField(final override val access: Int): AbstractVariable(), 
 open class ClassField constructor(override val type: JavaType, override val name: String, override val owner: JavaType, access: Int): AbstractField(access) {
   val getCode = if (isStatic) Opcodes.GETSTATIC else Opcodes.GETFIELD
   val putCode = if (isStatic) Opcodes.PUTSTATIC else Opcodes.PUTFIELD
+  override val isSettable = true
+  override val isGettable = true
 }
 
 // for getter/setters
@@ -78,10 +121,11 @@ open class MethodField constructor(override val type: JavaType, override val nam
                   private val _getterMethod: JavaMethod?,
                   private val _setterMethod: JavaMethod?,
                               access: Int): AbstractField(access) {
-  val canGet = _getterMethod != null
-  val canSet = _setterMethod != null
+
   override val isFinal = false
 
+  override val isGettable = _getterMethod != null
+  override val isSettable = _setterMethod != null
   val getterMethod get() = _getterMethod!!
   val setterMethod get() = _setterMethod!!
 
@@ -118,6 +162,8 @@ class BoundField constructor(
   override val name: String,
   override val owner: JavaType) : AbstractField(Opcodes.ACC_PUBLIC) {
 
+  override val isGettable = true
+  override val isSettable = true
     fun withOwner(owner: JavaType) = BoundField(type, name, owner)
 
 }

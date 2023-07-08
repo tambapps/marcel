@@ -7,11 +7,7 @@ import com.tambapps.marcel.compiler.util.javaType
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
-import com.tambapps.marcel.parser.scope.ClassField
-import com.tambapps.marcel.parser.scope.DynamicMethodField
-import com.tambapps.marcel.parser.scope.JavaField
-import com.tambapps.marcel.parser.scope.MethodField
-import com.tambapps.marcel.parser.scope.ReflectJavaField
+import com.tambapps.marcel.parser.scope.*
 import com.tambapps.marcel.parser.type.*
 import marcel.lang.DynamicObject
 import marcel.lang.MarcelClassLoader
@@ -23,7 +19,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   constructor(): this(null)
 
   private val classMethods = mutableMapOf<String, MutableList<JavaMethod>>()
-  private val classFields = mutableMapOf<String, MutableList<JavaField>>()
+  private val classFields = mutableMapOf<String, MutableMap<String, MarcelField>>()
 
   init {
     loadDefaultExtensions()
@@ -79,8 +75,8 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     if (javaType.isLoaded) {
       throw MarcelSemanticException((field as? FieldNode)?.token, "Cannot define field on loaded class")
     }
-    val fields = getMarcelFields(javaType)
-    fields.add(field)
+    val marcelField = computeField(javaType, field.name)
+    marcelField.mergeWith(field)
   }
 
   override fun getDeclaredMethods(javaType: JavaType): List<JavaMethod> {
@@ -89,23 +85,64 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   }
 
   override fun getClassField(javaType: JavaType, fieldName: String, node: AstNode?): ClassField {
-    if (javaType.isLoaded) {
-      return try {
-        ReflectJavaField(javaType.realClazz.getDeclaredField(fieldName))
-      } catch (e: NoSuchFieldException) {
-        ReflectJavaField(javaType.realClazz.getField(fieldName))
-      } catch (e1: NoSuchFieldException) {
-        super.getClassField(javaType, fieldName, node)
+    return getAllFields(javaType)[fieldName]?.classField ?: throw MarcelSemanticException(node?.token, "Class field $javaType.$fieldName is not defined")
+  }
+
+  override fun getDeclaredFields(javaType: JavaType): Collection<MarcelField> {
+    return getAllFields(javaType).values
+  }
+
+  private fun computeField(javaType: JavaType, name: String) = getAllFields(javaType).computeIfAbsent(name) { MarcelField(name) }
+  private fun getAllFields(javaType: JavaType): MutableMap<String, MarcelField> {
+    return classFields.computeIfAbsent(javaType.className) {
+      val directFields = fetchAllFields(javaType)
+
+      val fieldsMap = directFields.associateBy { it.name }.toMutableMap()
+
+      val methods = fetchAllMethods(javaType)
+      for (method in methods) {
+        if (method.isGetter) {
+          val field = fieldsMap.computeIfAbsent(method.propertyName) { MarcelField(method.propertyName) }
+          field.addGetter(MethodField(method.returnType, method.propertyName, method.ownerClass, method, null, method.access))
+        } else if (method.isSetter) {
+          val field = fieldsMap.computeIfAbsent(method.propertyName) { MarcelField(method.propertyName) }
+          field.addGetter(MethodField(method.parameters.first().type, method.propertyName, method.ownerClass, null, method, method.access))
+        }
       }
-    } else {
-      val field = classFields[javaType.className]?.find { it.name == fieldName }
-      return if (field is ClassField) field else super.getClassField(javaType, fieldName, node)
+      return@computeIfAbsent fieldsMap
     }
   }
 
-  override fun getDeclaredFields(javaType: JavaType): List<JavaField> {
-    return if (javaType.isLoaded) javaType.realClazz.declaredFields.map { ReflectJavaField(it) }
-    else classFields[javaType.className] ?: emptyList()
+  private fun fetchAllFields(javaType: JavaType): Set<MarcelField> {
+    return if (javaType.isLoaded) (javaType.realClazz.fields + javaType.realClazz.declaredFields).map { MarcelField(ReflectJavaField(it)) }.toSet()
+    else {
+      val fieldsMap = classFields[javaType.className]?.values?.associateBy { it.name }?.toMutableMap() ?: mutableMapOf()
+      var type = javaType.superType
+      while (type != null) {
+        val fields = fetchAllFields(type)
+        fields.forEach {
+          if (fieldsMap.containsKey(it.name)) {
+            fieldsMap.getValue(it.name).mergeWith(it)
+          } else fieldsMap[it.name] = it
+        }
+        if (type.isLoaded) break
+        type = type.superType
+      }
+      return fieldsMap.values.toSet()
+    }
+  }
+  private fun fetchAllMethods(javaType: JavaType): Set<JavaMethod> {
+    return if (javaType.isLoaded) (javaType.realClazz.methods + javaType.realClazz.declaredMethods).map { ReflectJavaMethod(it) }.toSet()
+    else {
+      val methods = classMethods[javaType.className]?.toMutableSet() ?: mutableSetOf()
+      var type = javaType.superType
+      while (type != null) {
+        methods.addAll(fetchAllMethods(type))
+        if (type.isLoaded) break
+        type = type.superType
+      }
+      return methods
+    }
   }
 
   override fun getMethods(javaType: JavaType): List<JavaMethod> {
@@ -121,19 +158,6 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     return methods
   }
 
-  override fun getFields(javaType: JavaType): List<JavaField> {
-    if (javaType.isLoaded) return javaType.realClazz.fields.map { ReflectJavaField(it) }
-    val fields = mutableListOf<JavaField>()
-    var t: JavaType? = javaType
-    while (t != null && !t.isLoaded) {
-      fields.addAll(getDeclaredFields(t))
-      t = t.superType
-    }
-    // if it is not null at this point, then it must be a loaded type
-    if (t != null) fields.addAll(getFields(t))
-    return fields
-  }
-
   override fun doFindMethodByParameters(javaType: JavaType, name: String,
                                         positionalArgumentTypes: List<AstTypedObject>,
                                         namedParameters: Collection<MethodParameter>,
@@ -147,14 +171,21 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
 
   override fun doFindMethod(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>, excludeInterfaces: Boolean, node: AstNode?): JavaMethod? {
     var m = findMethod(javaType, name, { it.matches(this, name, argumentTypes) },
-      {candidates ->
-        val exactCandidates = candidates.filter { it.exactMatch(name, argumentTypes) }
-        if (exactCandidates.size == 1) exactCandidates.first() else getMoreSpecificMethod(candidates)
-      }, excludeInterfaces, node)
+      {candidates ->  pickMethodCandidate(candidates, name, argumentTypes) }, excludeInterfaces, node)
     if (m == null && argumentTypes.isEmpty()) {
       m = findMethodByParameters(javaType, name, argumentTypes, emptyList(), false, node)
     }
     return m
+  }
+
+  private fun pickMethodCandidate(candidates: List<JavaMethod>, name: String, argumentTypes: List<AstTypedObject>): JavaMethod? {
+    val exactCandidates = candidates.filter { it.exactMatch(name, argumentTypes) }
+    return if (exactCandidates.size == 1) exactCandidates.first() else getMoreSpecificMethod(candidates)
+  }
+
+  override fun findMatchingMethod(methods: List<JavaMethod>, name: String, argumentTypes: List<AstTypedObject>): JavaMethod? {
+    val candidates = methods.filter { it.matches(this, argumentTypes) }
+    return pickMethodCandidate(candidates, name, argumentTypes)
   }
 
   private fun findMethod(javaType: JavaType, name: String,
@@ -222,80 +253,43 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     return m
   }
 
-  private fun getMarcelFields(javaType: JavaType): MutableList<JavaField> {
-    return classFields.computeIfAbsent(javaType.className) { mutableListOf() }
-  }
-
   private fun getMarcelMethods(javaType: JavaType): MutableList<JavaMethod> {
     // return methods defined from MDK or from marcel source we're currently compiling
     return classMethods.computeIfAbsent(javaType.className) { mutableListOf() }
   }
 
-  override fun findField(javaType: JavaType, name: String, node: AstNode?): JavaField? {
-    if (javaType.isLoaded) {
-      val clazz = javaType.realClazz
-      val field = try {
-        clazz.getDeclaredField(name)
-      } catch (e: NoSuchFieldException) {
-        null
-      }
-      if (field != null) {
-        return ClassField(JavaType.of(field.type), field.name, javaType, field.modifiers)
-      }
-    } else {
-      val fields = getMarcelFields(javaType)
-      val field = fields.find { it.name == name }
-      if (field != null) return field
-
-      // searching on super types
-      var type: JavaType? = javaType.superType!!
-      while (type != null) {
-        val f = findField(type, name, node)
-        if (f != null) return f
-        if (type.isLoaded) break // in loaded classes, we already handle super types so no need to go further
-        type = type.superType
-      }
+  override fun findField(javaType: JavaType, name: String, node: AstNode?): MarcelField? {
+    val field = getAllFields(javaType)[name]
+    if (field == null && javaType.implements(JavaType.DynamicObject)) {
+      return MarcelField(DynamicMethodField(javaType, name, JavaType.DynamicObject,
+              ReflectJavaMethod(DynamicObject::class.java.getDeclaredMethod("getProperty", String::class.java)),
+              ReflectJavaMethod(DynamicObject::class.java.getDeclaredMethod("setProperty", String::class.java, JavaType.DynamicObject.realClazz)),
+              Opcodes.ACC_PUBLIC)
+      )
     }
-
-    // try to find a method field
-    val methodFieldName = name.replaceFirstChar { it.uppercase() }
-    val getterMethod  = findMethod(javaType, "get$methodFieldName", emptyList(), false, node)
-    val setterCandidates = getMarcelMethods(javaType).filter { it.name == "set$methodFieldName" && it.parameters.size  == 1}
-    val setterMethod =
-      if (setterCandidates.isEmpty()) findMethod(javaType, "set$methodFieldName", listOf(getterMethod?.returnType ?: JavaType.Object), false, node)
-      else if (setterCandidates.size == 1) setterCandidates.first()
-      else getMoreSpecificMethod(setterCandidates)
-    if (getterMethod != null || setterMethod != null) {
-      return MethodField.from(javaType, name, getterMethod, setterMethod)
-    }
-
-    if (javaType.implements(JavaType.DynamicObject)) {
-      return DynamicMethodField(javaType, name, JavaType.DynamicObject,
-        ReflectJavaMethod(DynamicObject::class.java.getDeclaredMethod("getProperty", String::class.java)),
-        ReflectJavaMethod(DynamicObject::class.java.getDeclaredMethod("setProperty", String::class.java, JavaType.DynamicObject.realClazz)),
-        Opcodes.ACC_PUBLIC)
-    }
-    return null
+    return field
   }
 
   // ast node type resolver methods
   override fun visit(node: GetFieldAccessOperator): JavaType {
     val field = findFieldOrThrow(node.leftOperand.accept(this), node.rightOperand.name, node)
-    if (node.directFieldAccess && field !is ClassField) {
+    if (node.directFieldAccess && field.classField == null) {
       throw MarcelSemanticException(node.token, "Class field ${node.scope.classType}.${node.rightOperand.name} is not defined")
     }
-    return if (node.nullSafe) field.type.objectType
-    else field.type
+    val type = if (node.directFieldAccess) field.classField!!.type else field.type
+    return if (node.nullSafe) type.objectType
+    else type
   }
 
   override fun visit(node: GetIndexFieldAccessOperator): JavaType {
     val field = findFieldOrThrow(node.leftOperand.accept(this), node.rightOperand.name, node)
-    if (node.directFieldAccess && field !is ClassField) {
+    if (node.directFieldAccess && field.classField == null) {
       throw MarcelSemanticException(node.token, "Class field ${node.scope.classType}.${node.rightOperand.name} is not defined")
     }
 
-    return if (field.type.isArray) field.type.asArrayType.elementsType
-    else findMethodOrThrow(field.type, "getAt", node.rightOperand.indexArguments.map { it.accept(this) }, node).actualReturnType
+    val type = if (node.directFieldAccess) field.classField!!.type else field.type
+    return if (type.isArray) type.asArrayType.elementsType
+    else findMethodOrThrow(type, "getAt", node.rightOperand.indexArguments.map { it.accept(this) }, node).actualReturnType
   }
 
   override fun visit(node: LiteralArrayNode): JavaArrayType {
