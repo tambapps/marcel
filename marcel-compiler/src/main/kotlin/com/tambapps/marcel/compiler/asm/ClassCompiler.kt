@@ -59,14 +59,14 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
           val rawMethodNode = MethodNode.fromJavaMethod(classNode.scope, rawInterfaceMethod)
           val rawParameterExpressions = mutableListOf<ExpressionNode>()
           for (i in rawMethodNode.parameters.indices) {
-            rawParameterExpressions.add(AsNode(LexToken.dummy(),
+            rawParameterExpressions.add(AsNode(classNode.token,
                     rawMethodNode.scope,
                 implementationMethod.parameters[i].type,
-                ReferenceExpression(LexToken.dummy(), rawMethodNode.scope, rawMethodNode.parameters[i].name)
+                ReferenceExpression(classNode.token, rawMethodNode.scope, rawMethodNode.parameters[i].name)
             ))
           }
           rawMethodNode.block.addStatement(
-            SimpleFunctionCallNode(LexToken.dummy(), rawMethodNode.scope, implementationMethod.name, rawParameterExpressions,
+            SimpleFunctionCallNode(classNode.token, rawMethodNode.scope, implementationMethod.name, rawParameterExpressions,
                   ReferenceExpression.thisRef(rawMethodNode.scope)))
           classNode.methods.add(rawMethodNode)
         }
@@ -107,8 +107,8 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     } else {
       for (constructor in classNode.constructors) {
         if (!constructor.startsWithSuperCall) {
-          constructor.block.statements.add(0, ExpressionStatementNode(LexToken.dummy(), SuperConstructorCallNode(
-            LexToken.dummy(), constructor.scope, mutableListOf()
+          constructor.block.statements.add(0, ExpressionStatementNode(classNode.token, SuperConstructorCallNode(
+                  classNode.token, constructor.scope, mutableListOf()
           )))
         }
       }
@@ -193,9 +193,9 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
           initialValue.type = JavaType.arrayTypeFrom(marcelField.type)
         }
         constructor.block.addStatement(
-          FieldAssignmentNode(LexToken.dummy(),
-            constructor.scope, GetFieldAccessOperator(LexToken.dummy(), ReferenceExpression.thisRef(constructor.scope),
-              ReferenceExpression(LexToken.dummy(), constructor.scope, marcelField.name), false, true), initialValue
+          FieldAssignmentNode(marcelField.token,
+            constructor.scope, GetFieldAccessOperator(marcelField.token, ReferenceExpression.thisRef(constructor.scope),
+              ReferenceExpression(marcelField.token, constructor.scope, marcelField.name), false, true), initialValue
           )
         )
       }
@@ -203,7 +203,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
       // static fields should be initialized in static initialization block
       val staticInitializationNode = classNode.getOrInitStaticInitializationNode()
       staticInitializationNode.block.addStatement(
-        VariableAssignmentNode(LexToken.dummy(),
+        VariableAssignmentNode(marcelField.token,
           staticInitializationNode.scope,
           marcelField.name, marcelField.initialValue!!))
     }
