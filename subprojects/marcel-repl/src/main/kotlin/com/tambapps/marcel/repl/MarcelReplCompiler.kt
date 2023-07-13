@@ -1,5 +1,6 @@
 package com.tambapps.marcel.repl
 
+import com.tambapps.marcel.compiler.AbstractMarcelCompiler
 import com.tambapps.marcel.compiler.CompiledClass
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.asm.ClassCompiler
@@ -20,7 +21,7 @@ class MarcelReplCompiler constructor(
   compilerConfiguration: CompilerConfiguration,
   private val marcelClassLoader: MarcelClassLoader,
   private val typeResolver: ReplJavaTypeResolver,
-) {
+): AbstractMarcelCompiler(compilerConfiguration) {
 
   val imports = LinkedHashSet<ImportNode>()
   private val lexer = MarcelLexer(false)
@@ -116,6 +117,7 @@ class MarcelReplCompiler constructor(
     ))
 
     val module = parser.parse()
+    visitAst(module)
 
     val scriptNode = module.classes.find { it.isScript }
     if (scriptNode != null) {
