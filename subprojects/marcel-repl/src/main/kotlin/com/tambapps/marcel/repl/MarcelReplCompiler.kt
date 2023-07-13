@@ -117,7 +117,7 @@ class MarcelReplCompiler constructor(
     ))
 
     val module = parser.parse()
-    visitAst(module)
+    visitAst(module, typeResolver)
 
     val scriptNode = module.classes.find { it.isScript }
     if (scriptNode != null) {

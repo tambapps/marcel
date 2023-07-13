@@ -3,6 +3,7 @@ package com.tambapps.marcel.compiler.asm
 import com.tambapps.marcel.compiler.CompiledClass
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.JavaTypeResolver
+import com.tambapps.marcel.compiler.check.MarcelCompilerChecks
 import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.compiler.util.javaType
 import com.tambapps.marcel.lexer.LexToken
@@ -22,6 +23,9 @@ import org.objectweb.asm.Opcodes
 class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
                     private val typeResolver: JavaTypeResolver) {
 
+  // TODO check for final fields not initialized
+  private val checks = MarcelCompilerChecks.ALL
+
   fun compileClass(classNode: ClassNode): List<CompiledClass> {
     typeResolver.registerClass(classNode)
    return compileDefinedClass(classNode)
@@ -39,51 +43,9 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
   }
 
   private fun compileRec(classes: MutableList<CompiledClass>, classNode: ClassNode) {
-    // TODO check for final fields not initialized
-    // check that all implemented interfaces methods are defined.
-    for (interfaze in classNode.type.directlyImplementedInterfaces) {
-      for (interfaceMethod in typeResolver.getDeclaredMethods(interfaze).filter { it.isAbstract }) {
-        val implementationMethod = classNode.methods.find { it.name == interfaceMethod.name
-            && it.parameters.size == interfaceMethod.parameters.size
-            && it.parametersAssignableTo(interfaceMethod)
-        }
+    checks.forEach { it.visit(classNode, typeResolver) }
 
-        if (implementationMethod == null || implementationMethod.isAbstract) {
-          // maybe there is a generic implementation, in which case we have to generate the method with raw types
-          throw MarcelSemanticException(classNode.token, "Class ${classNode.type} doesn't define method $interfaceMethod of interface $interfaze")
-        }
-        val rawInterfaceMethod = typeResolver.findMethod(interfaze.raw(), interfaceMethod.name, interfaceMethod.parameters, true, classNode)!!
-        // we only need the match on parameters (== ignoring return type) because returning a more specific type is still a valid definition that doesn't need another implementation
-        if (!rawInterfaceMethod.parameterMatches(implementationMethod)) {
-          // need to write implementation method with raw type
-          val rawMethodNode = MethodNode.fromJavaMethod(classNode.scope, rawInterfaceMethod)
-          val rawParameterExpressions = mutableListOf<ExpressionNode>()
-          for (i in rawMethodNode.parameters.indices) {
-            rawParameterExpressions.add(AsNode(classNode.token,
-                    rawMethodNode.scope,
-                implementationMethod.parameters[i].type,
-                ReferenceExpression(classNode.token, rawMethodNode.scope, rawMethodNode.parameters[i].name)
-            ))
-          }
-          rawMethodNode.block.addStatement(
-            SimpleFunctionCallNode(classNode.token, rawMethodNode.scope, implementationMethod.name, rawParameterExpressions,
-                  ReferenceExpression.thisRef(rawMethodNode.scope)))
-          classNode.methods.add(rawMethodNode)
-        }
-      }
-    }
-
-    // now check for conflicting methods
-    for (methodNode in classNode.methods) {
-      // also define method parameters. Couldn't do it in parser because it would mean parse the type
-      methodNode.scope.defineParametersInScope()
-      val conflictMethod = classNode.methods.find { methodNode !== it && it.matches(methodNode) }
-      if (conflictMethod != null) throw MarcelSemanticException(
-        conflictMethod.token,
-        "Method $methodNode conflicts with $conflictMethod"
-      )
-    }
-
+    // TODO put this in a check
     if (classNode.type.superType != null && classNode.type.superType!!.isInterface) {
       // TODO need deeper checks e.g. class is not a final, and is accessible from this package
       throw MarcelSemanticException(classNode.token, "Cannot extend an interface")

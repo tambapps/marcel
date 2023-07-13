@@ -1,5 +1,6 @@
 package com.tambapps.marcel.compiler.annotation
 
+import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.compiler.ModuleNodeVisitor
 import com.tambapps.marcel.compiler.util.javaType
 import com.tambapps.marcel.parser.ast.ClassNode
@@ -11,7 +12,7 @@ import marcel.lang.Delegate
 interface FieldAnnotationProcessor: ModuleNodeVisitor {
     val annotationType: JavaType
 
-    override fun visit(moduleNode: ModuleNode) {
+    override fun visit(moduleNode: ModuleNode, typeResolver: JavaTypeResolver) {
         val map = moduleNode.classes.associateWith { classNode ->
             classNode.fields.filter { it.getAnnotation(Delegate::class.javaType) != null }
         }

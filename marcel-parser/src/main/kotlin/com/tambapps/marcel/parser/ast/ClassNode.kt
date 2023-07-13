@@ -41,9 +41,6 @@ open class ClassNode constructor(override val token: LexToken,
 
   val internalName = AsmUtils.getInternalName(type)
   fun addMethod(method: MethodNode) {
-    if (methods.any { it.matches(scope.typeResolver, method.name, method.parameters) }) {
-      throw MarcelSemanticException(token, "Cannot have two methods with the same name")
-    }
     methods.add(method)
   }
 

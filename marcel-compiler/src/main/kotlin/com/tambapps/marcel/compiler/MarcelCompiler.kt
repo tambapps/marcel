@@ -91,7 +91,7 @@ class MarcelCompiler(compilerConfiguration: CompilerConfiguration): AbstractMarc
       val tokens = MarcelLexer().lex(sourceFile.text)
       val parser = MarcelParser(typeResolver, sourceFile.className, tokens) //if (className != null) MarcelParser(typeResolver, className, tokens) else MarcelParser(typeResolver, tokens)
       val ast = parser.parse()
-      visitAst(ast)
+      visitAst(ast, typeResolver)
 
       if (ast.dumbbells.isNotEmpty() && !compilerConfiguration.dumbbellEnabled) {
         throw MarcelCompilerException("Cannot use dumbbells because dumbbell is not enabled")

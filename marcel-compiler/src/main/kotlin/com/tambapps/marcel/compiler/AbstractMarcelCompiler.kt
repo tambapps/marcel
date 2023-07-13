@@ -11,7 +11,7 @@ abstract class AbstractMarcelCompiler(protected val compilerConfiguration: Compi
     DelegateAnnotationProcessor()
   )
 
-  protected fun visitAst(ast: ModuleNode) {
-    moduleNodeVisitors.forEach { it.visit(ast) }
+  protected fun visitAst(ast: ModuleNode, typeResolver: JavaTypeResolver) {
+    moduleNodeVisitors.forEach { it.visit(ast, typeResolver) }
   }
 }
