@@ -99,7 +99,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
   fun invokeMethod(from: AstNode, scope: Scope, method: JavaMethod) {
     if (!method.isAccessibleFrom(scope)) throw MethodNotAccessibleException(from.token, method, scope.classType)
     if (method.isConstructor) {
-      throw RuntimeException("Compiler error. Shouldn't invoke constructor this way")
+      throw RuntimeException("Compiler error. Shouldn't invoke constructor this way (should use visitConstructorCall)")
     }
     if (method.name == "orElse") {
       println()

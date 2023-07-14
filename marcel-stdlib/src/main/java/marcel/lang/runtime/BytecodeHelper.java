@@ -1,11 +1,5 @@
 package marcel.lang.runtime;
 
-import marcel.lang.primitives.collections.maps.Character2ObjectMap;
-import marcel.lang.primitives.collections.maps.Character2ObjectOpenHashMap;
-import marcel.lang.primitives.collections.maps.Int2ObjectMap;
-import marcel.lang.primitives.collections.maps.Int2ObjectOpenHashMap;
-import marcel.lang.primitives.collections.maps.Long2ObjectMap;
-import marcel.lang.primitives.collections.maps.Long2ObjectOpenHashMap;
 import marcel.lang.primitives.collections.sets.CharacterOpenHashSet;
 import marcel.lang.primitives.collections.sets.CharacterSet;
 import marcel.lang.primitives.collections.sets.DoubleOpenHashSet;
@@ -19,13 +13,8 @@ import marcel.lang.primitives.collections.sets.LongSet;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 // methods are used by the compiler
@@ -65,20 +54,6 @@ public final class BytecodeHelper {
       set.add(Array.get(array, i));
     }
     return set;
-  }
-
-  // maps
-  public static Int2ObjectMap<?> newInt2ObjectMap() {
-    return new Int2ObjectOpenHashMap<>();
-  }
-  public static Long2ObjectMap<?> newLong2ObjectMap() {
-    return new Long2ObjectOpenHashMap<>();
-  }
-  public static Character2ObjectMap<?> newChar2ObjectMap() {
-    return new Character2ObjectOpenHashMap<>();
-  }
-  public static Map<?, ?> newObject2ObjectMap() {
-    return new HashMap<>();
   }
 
   public static boolean objectsEqual(Object left, Object right) {

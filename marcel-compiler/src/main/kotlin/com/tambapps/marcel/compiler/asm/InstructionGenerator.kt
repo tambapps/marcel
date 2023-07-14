@@ -2,7 +2,6 @@ package com.tambapps.marcel.compiler.asm
 
 import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.compiler.LambdaHandler
-import com.tambapps.marcel.compiler.util.getKeysType
 import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.compiler.util.javaType
 import com.tambapps.marcel.parser.ast.MethodParameter
@@ -34,6 +33,7 @@ import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.scope.Variable
 import com.tambapps.marcel.parser.type.JavaArrayType
+import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaPrimitiveType
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
@@ -54,6 +54,7 @@ import java.io.Closeable
 import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import kotlin.collections.HashMap
 
 // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-6.html#jvms-6.5.if_icmp_cond
 // https://asm.ow2.io/asm4-guide.pdf
@@ -1226,38 +1227,19 @@ private class PushingInstructionGenerator(
   }
 
   override fun visit(node: LiteralMapNode) {
-    var objectKeys = false
-    val methodName = when (node.getType(typeResolver).raw()) {
-      JavaType.int2ObjectMap -> "newInt2ObjectMap"
-      JavaType.long2ObjectMap -> "newLong2ObjectMap"
-      JavaType.char2ObjectMap -> "newChar2ObjectMap"
-      else -> {
-        if (Map::class.javaType.isAssignableFrom(node.getType(typeResolver).raw())) {
-          objectKeys = true
-          "newObject2ObjectMap"
-        } else {
-          throw MarcelSemanticException(node.token, "Doesn't handle maps of type ${node.getType(typeResolver)}")
-        }
-      }
-    }
-    mv.invokeMethod(node, classNode.scope, BytecodeHelper::class.java.getDeclaredMethod(methodName))
-    val keysType = node.getKeysType(typeResolver)
-    val putMethodKeysType = if (keysType.primitive) keysType else JavaType.Object
-    val rawMapType = node.getType(typeResolver).raw()
+    val mapType = HashMap::class.javaType
+    val method = typeResolver.findMethodOrThrow(mapType, JavaMethod.CONSTRUCTOR_NAME, emptyList(), node)
+    mv.visitConstructorCall(node, mapType, method, classNode.scope, emptyList())
 
     for (entry in node.entries) {
       mv.dup()
       pushArgument(entry.first)
-      if (objectKeys) {
-        mv.castIfNecessaryOrThrow(classNode.scope, node, JavaType.Object, entry.first.getType(typeResolver))
-      } else {
-        mv.castIfNecessaryOrThrow(classNode.scope, node, putMethodKeysType, entry.first.getType(typeResolver))
-      }
+      mv.castIfNecessaryOrThrow(classNode.scope, node, JavaType.Object, entry.first.getType(typeResolver))
       pushArgument(entry.second)
       mv.castIfNecessaryOrThrow(classNode.scope, node, JavaType.Object, entry.second.getType(typeResolver))
-      mv.invokeMethod(node, classNode.scope, typeResolver.findMethodOrThrow(rawMapType,
+      mv.invokeMethod(node, classNode.scope, typeResolver.findMethodOrThrow(mapType,
         "put",
-        listOf(putMethodKeysType, JavaType.Object), node
+        listOf(JavaType.Object, JavaType.Object), node
       ))
       mv.popStack()
     }

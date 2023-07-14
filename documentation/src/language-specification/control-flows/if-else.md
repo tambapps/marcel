@@ -23,8 +23,8 @@ if (Something result = fetchSomething()) {
 You can also unbox Optional values such as in the below example
 
 ```kotlin
-// assuming getOptionalInteger() returns an Optional<Integer>
-if (Integer result = getOptionalInteger()) {
+// assuming getOptionalInteger() returns an Optional
+if (Integer result = getOptional()) {
   println(result)
 }
 ```

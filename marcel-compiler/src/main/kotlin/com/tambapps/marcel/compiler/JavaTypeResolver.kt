@@ -1,8 +1,6 @@
 package com.tambapps.marcel.compiler
 
 import com.tambapps.marcel.compiler.util.getElementsType
-import com.tambapps.marcel.compiler.util.getKeysType
-import com.tambapps.marcel.compiler.util.getValuesType
 import com.tambapps.marcel.compiler.util.javaType
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
@@ -264,9 +262,6 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
       ?: throw MarcelSemanticException(node.token, "Couldn't guess type of array. Use the 'as' keyword to explicitly specify the type")
     return JavaType.arrayType(elementsType)
   }
-
-  override fun visit(node: LiteralMapNode) =
-    JavaType.mapType(node.getKeysType(this), node.getValuesType(this))
 
   override fun visit(node: FunctionCallNode) = node.getMethod(this).actualReturnType
   override fun disposeClass(scriptNode: ClassNode) {

@@ -30,9 +30,6 @@ import marcel.lang.primitives.collections.lists.IntArrayList
 import marcel.lang.primitives.collections.lists.IntList
 import marcel.lang.primitives.collections.lists.LongArrayList
 import marcel.lang.primitives.collections.lists.LongList
-import marcel.lang.primitives.collections.maps.Character2ObjectMap
-import marcel.lang.primitives.collections.maps.Int2ObjectMap
-import marcel.lang.primitives.collections.maps.Long2ObjectMap
 import marcel.lang.primitives.collections.sets.CharacterSet
 import marcel.lang.primitives.collections.sets.DoubleSet
 import marcel.lang.primitives.collections.sets.FloatSet
@@ -109,7 +106,7 @@ interface JavaType: AstTypedObject {
   fun withGenericTypes(genericTypes: List<JavaType>): JavaType
   // return this type without generic types
   fun raw(): JavaType {
-    return withGenericTypes(emptyList())
+    return if (genericTypes.isEmpty()) this else withGenericTypes(emptyList())
   }
 
   fun addImplementedInterface(javaType: JavaType) {
@@ -354,11 +351,6 @@ interface JavaType: AstTypedObject {
     val doubleSet = of(DoubleSet::class.java)
     val characterSet = of(CharacterSet::class.java)
 
-    // maps with primitive key
-    val int2ObjectMap = of(Int2ObjectMap::class.java)
-    val long2ObjectMap = of(Long2ObjectMap::class.java)
-    val char2ObjectMap = of(Character2ObjectMap::class.java)
-
     internal val PRIMITIVE_COLLECTION_TYPE_MAP = mapOf(
       Pair("list", mapOf(
         Pair(int, intList),
@@ -374,11 +366,6 @@ interface JavaType: AstTypedObject {
         Pair(double, doubleSet),
         Pair(char, characterSet),
       )),
-      Pair("map", mapOf(
-        Pair(int, int2ObjectMap),
-        Pair(long, long2ObjectMap),
-        Pair(char, char2ObjectMap),
-        )),
     )
   }
 

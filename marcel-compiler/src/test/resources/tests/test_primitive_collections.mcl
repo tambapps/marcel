@@ -36,19 +36,3 @@ assertEquals(3, doubleSet.size())
 
 set<char> charSet = [`a`, `b`, `c`, `c`]
 assertEquals(3, doubleSet.size())
-
-// maps
-map<int, Object> intMap = [1: 2, 3: 4]
-assertEquals(2, intMap.get(1))
-assertEquals(4, intMap.get(3))
-assertNull(intMap.get(88))
-
-map<long, Object> longMap = [1l: 2, 3: 4]
-assertEquals(2, longMap.get(1l))
-assertEquals(4, longMap.get(3l))
-assertNull(longMap.get(88l))
-
-map<char, Object> charMap = [`c`: 2, `d`: 4]
-assertEquals(2, charMap.get(`c`))
-assertEquals(4, charMap.get(`d`))
-assertNull(charMap.get(`e`))

@@ -59,14 +59,9 @@ Here is the list of all set of primitives supported
 - set\<long> -> LongSet
 - set\<char> -> CharacterSet
 
-## Maps of Primitive keys
-You can also use maps using primitive keys (but all values will be Objects, meaning that your ints will be boxed into Integers)
 
-````groovy
-map<int, Integer> myMap = [1: 1, 2: 2, 3: 3] // will actually contain just 1, 2 and 3
-````
+## Generic types
 
-Here is the list of all map of primitive keys supported
-- map\<int, ?> -> Int2ObjectMap
-- map\<long, ?> -> Long2ObjectMap
-- map\<char, ?> -> Character2ObjectMap
+Marcel **doesn't** support generic types. You can use generic classes but cannot specify generic types when using them.
+it's a conscious choice made to get rid of some complexity while developing the compiler and also because Java always casts at runtime anyway.
+
