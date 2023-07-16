@@ -169,6 +169,17 @@ protected fun void foo() {
 <p>Function calls are no different than  in any other language</p>
 <pre><code class="language-groovy">int result = sum(1, 2)
 </code></pre>
+<h2 id="cast-results"><a class="header" href="#cast-results">Cast Results</a></h2>
+<p>Marcel has a diamond operator for function calls which is different from Java's. It casts the 
+result of the function to the specified type.</p>
+<pre><code class="language-groovy">Foo otherResult = compute&lt;Foo&gt;()
+</code></pre>
+<p>This above example isn't really useful as Marcel <a href="../variables.html#automatic-casting">automatically cast variable assignments when needed</a> but this feature can be useful when chaining function calls</p>
+<pre><code class="language-groovy">Optional opt = Optional.of(new Foo())
+// assuming computeObject() and result return Object in their declaration
+Bar result = opt.get&lt;Foo&gt;().computeObject&lt;Bar&gt;()
+</code></pre>
+<p>But note that this is useless if the function/property already returns the specified type in their declaration.</p>
 <h3 id="named-parameters-call"><a class="header" href="#named-parameters-call">Named Parameters Call</a></h3>
 <p>You can also specify the name of your parameters. When doing so, the order in which
 you specify them doesn't matter.</p>

@@ -169,6 +169,13 @@ You can use the `_` identifier to let the compiler know that.
 
 a = 3
 </code></pre>
+<h3 id="automatic-casting"><a class="header" href="#automatic-casting">Automatic casting</a></h3>
+<p>Variable assignments are automatically casted when needed.</p>
+<pre><code class="language-groovy">Optional o = Optional.of(123)
+Integer myInteger = o.get() // returns Object cast into an Integer 
+int myInt = o.get() // returns Object cast into an Integer then into an int
+</code></pre>
+<p>This can be useful as Marcel <a href="./types.html#generic-types">doesn't support generic types</a>.</p>
 
                     </main>
 
