@@ -159,7 +159,7 @@ abstract class AbstractEditorFragment : Fragment() {
       showScriptError(line = e.line, column = e.column, message = e.message)
       return null
     } catch (e: MarcelSemanticException) {
-      showScriptError(line = e.line, column = e.column, message = e.message)
+      showScriptError(line = e.line ?: 0, column = e.column ?: 0, message = e.message)
       return null
     } catch (e: DumbbellException) {
       Log.e("EditorFragment", "Dumbbell error", e)

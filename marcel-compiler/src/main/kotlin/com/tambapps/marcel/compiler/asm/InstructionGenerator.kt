@@ -294,7 +294,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   override fun visit(node: PowOperator) {
     arithmeticMarcelOperator(node) {
-      throw MarcelSemanticException("Operator pow is not handled yet")
+      throw MarcelSemanticException(node.token, "Operator pow is not handled yet")
     }
   }
 
@@ -805,7 +805,7 @@ class InstructionGenerator(
     catchesWithLabel.forEach { c ->
       c.first.exceptionTypes.forEach { exceptionType ->
         if (!Throwable::class.javaType.isAssignableFrom(exceptionType)) {
-          throw MarcelSemanticException("Can only catch throwable")
+          throw MarcelSemanticException(node.token, "Can only catch throwable")
         }
         mv.tryCatchBlock(tryStart, tryEnd, c.second, exceptionType)
       }

@@ -223,17 +223,17 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
         val annotationVisitor = mv.visitParameterAnnotation(i, DefaultValue::class.javaType.descriptor, true)
         when (parameter.type) {
           JavaType.int, JavaType.Integer -> annotationVisitor.visit("defaultIntValue",
-            (parameter.defaultValue as? IntConstantNode)?.value ?: throw MarcelSemanticException("Must specify int constant for an int method default parameter"))
+            (parameter.defaultValue as? IntConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify int constant for an int method default parameter"))
           JavaType.long, JavaType.Long -> annotationVisitor.visit("defaultLongValue",
-            (parameter.defaultValue as? LongConstantNode)?.value ?: throw MarcelSemanticException("Must specify long constant for an int method default parameter"))
+            (parameter.defaultValue as? LongConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify long constant for an int method default parameter"))
           JavaType.float, JavaType.Float -> annotationVisitor.visit("defaultFloatValue",
-            (parameter.defaultValue as? FloatConstantNode)?.value ?: throw MarcelSemanticException("Must specify float constant for an int method default parameter"))
+            (parameter.defaultValue as? FloatConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify float constant for an int method default parameter"))
           JavaType.double, JavaType.Double -> annotationVisitor.visit("defaultDoubleValue",
-            (parameter.defaultValue as? DoubleConstantNode)?.value ?: throw MarcelSemanticException("Must specify double constant for an int method default parameter"))
+            (parameter.defaultValue as? DoubleConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify double constant for an int method default parameter"))
           JavaType.char, JavaType.Character -> annotationVisitor.visit("defaultCharValue",
-            (parameter.defaultValue as? CharConstantNode)?.value?.get(0) ?: throw MarcelSemanticException("Must specify char constant for an int method default parameter"))
+            (parameter.defaultValue as? CharConstantNode)?.value?.get(0) ?: throw MarcelSemanticException(methodNode.token, "Must specify char constant for an int method default parameter"))
           JavaType.String -> annotationVisitor.visit("defaultStringValue",
-            (parameter.defaultValue as? StringConstantNode)?.value ?: throw MarcelSemanticException("Must specify string constant for an int method default parameter"))
+            (parameter.defaultValue as? StringConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify string constant for an int method default parameter"))
           else -> if (parameter.defaultValue !is NullValueNode) throw MarcelSemanticException(parameter.token, "Object parameters can only have null as default value")
         }
       }

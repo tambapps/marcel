@@ -20,7 +20,7 @@ class LambdaNode constructor(token: LexToken, override var scope: LambdaScope, v
     set(value) {
       if (value != null && !value.isInterface) throw RuntimeException("Compiler error. This type should always be an interface")
       if (field != null && value != null && !field!!.isAssignableFrom(value)) {
-        throw MarcelSemanticException("Lambda is expected to bo of type ${field?.simpleName} and ${value.simpleName} which are not compatible types")
+        throw MarcelSemanticException(token, "Lambda is expected to bo of type ${field?.simpleName} and ${value.simpleName} which are not compatible types")
       }
       field = value
     }

@@ -465,7 +465,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
 
   fun getField(from: AstNode, scope: Scope, field: JavaField, directFieldAccess: Boolean) {
     if (directFieldAccess && field !is ClassField) {
-      throw MarcelSemanticException("Class field ${scope.classType}.${field.name} is not defined")
+      throw MarcelSemanticException(from.token, "Class field ${scope.classType}.${field.name} is not defined")
     }
     if (!field.isAccessibleFrom(scope)) throw VariableNotAccessibleException(from.token, field, scope.classType)
     if (field.owner.implements(JavaType.DynamicObject) && field is DynamicMethodField) {
