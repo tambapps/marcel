@@ -37,6 +37,23 @@ Function calls are no different than  in any other language
 int result = sum(1, 2)
 ```
 
+## Cast Results
+Marcel has a diamond operator for function calls which is different from Java's. It casts the 
+result of the function to the specified type.
+
+```groovy
+Foo otherResult = compute<Foo>()
+```
+This above example isn't really useful as Marcel [automatically cast variable assignments when needed](../variables.md#automatic-casting) but this feature can be useful when chaining function calls
+
+```groovy
+Optional opt = Optional.of(new Foo())
+// assuming computeObject() and result return Object in their declaration
+Bar result = opt.get<Foo>().computeObject<Bar>()
+```
+ 
+But note that this is useless if the function/property already returns the specified type in their declaration.
+
 ### Named Parameters Call
 You can also specify the name of your parameters. When doing so, the order in which
 you specify them doesn't matter.

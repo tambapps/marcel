@@ -60,8 +60,8 @@ Here is the list of all set of primitives supported
 - set\<char> -> CharacterSet
 
 
-## Generic types
+## Generic Types
 
-Marcel **doesn't** support generic types. You can use generic classes but cannot specify generic types when using them.
+Marcel **doesn't** support generic types except for primitive collections (which technically aren't really generic). You can use generic classes but cannot specify generic types when using them.
 it's a conscious choice made to get rid of some complexity while developing the compiler and also because Java always casts at runtime anyway.
 

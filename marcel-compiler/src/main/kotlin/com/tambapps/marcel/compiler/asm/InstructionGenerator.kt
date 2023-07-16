@@ -623,6 +623,9 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       }
       visit(inlineBlock)
     }
+    if (node.castType != null) {
+      mv.castIfNecessaryOrThrow(node.scope, node, node.castType!!, method.actualReturnType)
+    }
   }
 
   override fun visit(node: LambdaNode) {

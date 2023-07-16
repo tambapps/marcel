@@ -263,7 +263,6 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     return JavaType.arrayType(elementsType)
   }
 
-  override fun visit(node: FunctionCallNode) = node.getMethod(this).actualReturnType
   override fun disposeClass(scriptNode: ClassNode) {
     super.disposeClass(scriptNode)
     marcelMethods.remove(scriptNode.type.className)

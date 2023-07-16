@@ -962,11 +962,19 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         } else  if (current.type == TokenType.DECR) {
           skip()
           IncrNode(token, ReferenceExpression(token, scope, token.value), -1, true)
-        } else if (current.type == TokenType.LPAR) {
+        } else if (current.type == TokenType.LPAR
+          // for funcCall<CastType>()
+          || current.type == TokenType.LT && lookup(2)?.type == TokenType.GT && lookup(3)?.type == TokenType.LPAR) {
+          var type: JavaType? = null
+          if (current.type == TokenType.LT) {
+            skip()
+            type = parseType(scope)
+            accept(TokenType.GT)
+          }
           skip()
           val (arguments, namedArguments) = parseFunctionArguments(scope)
-          if (namedArguments.isEmpty()) SimpleFunctionCallNode(token, scope, token.value, arguments)
-          else NamedParametersFunctionCall(token, scope, token.value, arguments, namedArguments)
+          if (namedArguments.isEmpty()) SimpleFunctionCallNode(token, scope, token.value, arguments, castType = type)
+          else NamedParametersFunctionCall(token, scope, token.value, arguments, namedArguments, castType = type)
         } else if (current.type == TokenType.BRACKETS_OPEN) { // function call with a lambda
           skip()
           SimpleFunctionCallNode(token, scope, token.value, mutableListOf(parseLambda(previous, scope)))

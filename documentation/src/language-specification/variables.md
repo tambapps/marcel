@@ -41,3 +41,15 @@ int a = 2
 
 a = 3
 ```
+
+
+### Automatic casting
+Variable assignments are automatically casted when needed.
+
+```groovy
+Optional o = Optional.of(123)
+Integer myInteger = o.get() // returns Object cast into an Integer 
+int myInt = o.get() // returns Object cast into an Integer then into an int
+```
+
+This can be useful as Marcel [doesn't support generic types](./types.md#generic-types).
