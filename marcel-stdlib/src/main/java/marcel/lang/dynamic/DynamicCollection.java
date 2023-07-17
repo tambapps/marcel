@@ -79,7 +79,6 @@ abstract class DynamicCollection<T extends Collection> extends AbstractDynamicOb
     return new ArrayList(value);
   }
 
-  // TODO do other primitive collections
   @Override
   public IntList toIntList() {
     IntList list = new IntArrayList();

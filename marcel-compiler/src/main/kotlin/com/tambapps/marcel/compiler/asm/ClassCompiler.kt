@@ -179,9 +179,6 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
 
     val instructionGenerator = InstructionGenerator(classNode, methodNode, typeResolver, mv)
 
-    if (methodNode.isConstructor) {
-      classNode.fields.forEach { it.alreadySet = false }
-    }
     // writing method
     instructionGenerator.visit(methodNode.block)
 

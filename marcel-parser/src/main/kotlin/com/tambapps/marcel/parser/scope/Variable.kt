@@ -33,7 +33,6 @@ class LocalVariable constructor(override var type: JavaType, override var name: 
     this.type = type
     this.name = name
     this.isFinal = isSettable
-    alreadySet = false
   }
 
   override fun isAccessibleFrom(scope: Scope): Boolean {

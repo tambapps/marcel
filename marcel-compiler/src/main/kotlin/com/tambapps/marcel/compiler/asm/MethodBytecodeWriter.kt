@@ -419,9 +419,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
   }
 
   fun storeInVariable(node: AstNode, scope: Scope, variable: Variable) {
-    // TODO  field alreadySet is inappropriate because some variables may be assigned multiples times, but once for each path (e.g. in each constructors)
-    //  if (variable.isFinal && variable.alreadySet) throw MarcelSemanticException(node.token, "Cannot reset a value for final variable ${variable.name}")
-    if (!variable.isAccessibleFrom(scope)) throw VariableNotAccessibleException(node.token, variable, scope.classType)
+   if (!variable.isAccessibleFrom(scope)) throw VariableNotAccessibleException(node.token, variable, scope.classType)
 
     if (variable is DynamicMethodField && variable.owner.implements(JavaType.DynamicObject)) {
       // need to push name
@@ -455,7 +453,6 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       }
       else -> throw RuntimeException("Compiler bug. Not handled variable subclass ${variable.javaClass}")
     }
-    variable.alreadySet = true
   }
 
   fun getField(from: AstNode, scope: Scope, marcelField: MarcelField, directFieldAccess: Boolean) {
