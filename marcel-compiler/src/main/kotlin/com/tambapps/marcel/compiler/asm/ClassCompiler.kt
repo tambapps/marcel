@@ -45,11 +45,6 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
   private fun compileRec(classes: MutableList<CompiledClass>, classNode: ClassNode) {
     checks.forEach { it.visit(classNode, typeResolver) }
 
-    // TODO put this in a check
-    if (classNode.type.superType != null && classNode.type.superType!!.isInterface) {
-      // TODO need deeper checks e.g. class is not a final, and is accessible from this package
-      throw MarcelSemanticException(classNode.token, "Cannot extend an interface")
-    }
     val classWriter = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
     // creating class
     classWriter.visit(compilerConfiguration.classVersion,  classNode.access, classNode.internalName,

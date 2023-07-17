@@ -4,6 +4,6 @@ import com.tambapps.marcel.compiler.ClassNodeVisitor
 
 object MarcelCompilerChecks {
 
-  val ALL = listOf<ClassNodeVisitor>(ImplementedInterfaceCheck(), ConflictingMethodCheck())
+  val ALL = listOf<ClassNodeVisitor>(ImplementedInterfaceCheck(), ConflictingMethodCheck(), ExtendingClassCheck())
 
 }

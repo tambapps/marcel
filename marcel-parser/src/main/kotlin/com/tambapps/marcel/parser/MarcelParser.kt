@@ -26,6 +26,7 @@ import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaAnnotation
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
+import com.tambapps.marcel.parser.type.Visibility
 import marcel.lang.Script
 
 import org.objectweb.asm.Opcodes
@@ -215,7 +216,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         acceptOptional(TokenType.COMMA)
       }
     }
-    val classType = JavaType.newType(outerClassNode?.type, className, superType, false, interfaces)
+    val classType = JavaType.newType(Visibility.fromAccess(access), outerClassNode?.type, className, superType, false, interfaces)
     if (outerClassNode == null) parseTypeScope.classType = classType  // setting the classType here
     val classScope = Scope(typeResolver, imports, classType, false)
     val methods = mutableListOf<MethodNode>()
@@ -243,7 +244,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
     val classFields = mutableListOf<FieldNode>()
     val superType = JavaType.of(Script::class.java)
     val className = if (packageName != null) "$packageName.$classSimpleName" else classSimpleName
-    val classType = JavaType.newType(null, className, superType, false,
+    val classType = JavaType.newType(Visibility.PUBLIC, null, className, superType, false,
       configuration.scriptInterfaces.map { JavaType.of(it) })
     val classScope = Scope(typeResolver, imports, classType, false)
     val argsParameter = MethodParameterNode(JavaType.of(Array<String>::class.java), "args")

@@ -24,6 +24,7 @@ import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Variable
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
+import com.tambapps.marcel.parser.type.Visibility
 import marcel.lang.lambda.Lambda
 import org.objectweb.asm.Opcodes
 import java.util.LinkedHashSet
@@ -38,7 +39,7 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
     val interfaceType = if (lambdaNode.interfaceType != null && !Lambda::class.javaType.isAssignableFrom(lambdaNode.interfaceType!!)) lambdaNode.interfaceType else null
     tryMatchParametersWithLambda(lambdaNode)
     val lambdaInterfaceType = AstNodeTypeResolver.getLambdaType(typeResolver, lambdaNode)
-    val type = scope.typeResolver.defineClass(lambdaNode, className, JavaType.Object, false,
+    val type = scope.typeResolver.defineClass(lambdaNode, Visibility.INTERNAL, className, JavaType.Object, false,
         if (interfaceType != null) listOf(interfaceType, lambdaInterfaceType)
         else listOf(lambdaInterfaceType))
     val methods = mutableListOf<MethodNode>()

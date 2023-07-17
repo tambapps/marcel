@@ -36,6 +36,7 @@ import marcel.lang.primitives.collections.sets.FloatSet
 import marcel.lang.primitives.collections.sets.IntSet
 import marcel.lang.primitives.collections.sets.LongSet
 import org.objectweb.asm.Opcodes
+import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 import kotlin.reflect.KClass
 
@@ -49,6 +50,8 @@ interface JavaType: AstTypedObject {
   val packageName: String?
   val superType: JavaType?
   val isAnnotation: Boolean
+  val isFinal: Boolean
+  val visibility: Visibility
   val internalName
     get() = AsmUtils.getInternalName(className)
   val descriptor: String
@@ -87,6 +90,8 @@ interface JavaType: AstTypedObject {
   val isPrimitiveOrObjectPrimitive get() = primitive || isPrimitiveObjectType
 
   val arrayType: JavaArrayType get() = JavaType.arrayType(this)
+
+  fun isAccessibleFrom(javaType: JavaType) = visibility.canAccess(javaType, this)
 
   open val isArray get() = isLoaded && realClazz.isArray
   override val type: JavaType get() = this
@@ -160,9 +165,9 @@ interface JavaType: AstTypedObject {
 
   companion object {
 
-    fun newType(outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): JavaType {
+    fun newType(visibility: Visibility, outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): JavaType {
       val className = if (outerClassType != null) "${outerClassType.className}\$$cName" else cName
-      return NotLoadedJavaType(className, emptyList(), emptyList(),  superClass, isInterface, interfaces.toMutableList())
+      return NotLoadedJavaType(visibility, className, emptyList(), emptyList(),  superClass, isInterface, interfaces.toMutableList())
     }
 
     fun commonType(list: List<AstTypedObject>): JavaType {
@@ -399,6 +404,7 @@ abstract class AbstractJavaType: JavaType {
 }
 
 open class NotLoadedJavaType internal constructor(
+  override val visibility: Visibility,
   override val className: String,
   override val genericTypes: List<JavaType>,
   override val genericParameterNames: List<String>,
@@ -408,6 +414,8 @@ open class NotLoadedJavaType internal constructor(
 
   override val arrayType: JavaArrayType
     get() = this as NotLoadedJavaArrayType
+
+  override val isFinal = false
 
   override val packageName: String?
     get() = if (className.contains('.')) className.substring(0, className.lastIndexOf(".")) else null
@@ -452,6 +460,7 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
     get() = AsmUtils.getClassDescriptor(realClazz)
 
   override val className: String = realClazz.name
+  override val isFinal = (realClazz.modifiers and Modifier.FINAL) != 0
   override val superType get() =  if (realClazz.superclass != null) JavaType.of(realClazz.superclass) else null
 
   override val isAnnotation = realClazz.isAnnotation
@@ -555,6 +564,7 @@ class LoadedObjectType(
 ): LoadedJavaType(realClazz, genericTypes, Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN) {
 
   override val packageName: String? = realClazz.`package`?.name
+  override val visibility = Visibility.fromAccess(realClazz.modifiers)
   constructor(realClazz: Class<*>): this(realClazz, emptyList())
 
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
@@ -584,11 +594,12 @@ interface JavaArrayType: JavaType {
 
 class NotLoadedJavaArrayType internal  constructor(
   override val elementsType: JavaType
-): NotLoadedJavaType("[L${elementsType.className};", emptyList(), emptyList(), JavaType.Object, false, mutableSetOf()), JavaArrayType {
+): NotLoadedJavaType(Visibility.PUBLIC, "[L${elementsType.className};", emptyList(), emptyList(), JavaType.Object, false, mutableSetOf()), JavaArrayType {
   override val arrayStoreCode: Int = Opcodes.AASTORE
   override val arrayLoadCode: Int = Opcodes.AALOAD
   override val typeCode: Int = 0
 
+  override val isFinal = true
   override val asArrayType: JavaArrayType
     get() = this
 
@@ -609,7 +620,9 @@ class LoadedJavaArrayType internal constructor(
 
   // constructor for non-primitive arrays
   constructor(realClazz: Class<*>): this(realClazz, JavaType.of(realClazz.componentType), Opcodes.AASTORE, Opcodes.AALOAD, 0)
-  override val isArray get() = true
+
+  override val visibility = Visibility.PUBLIC
+  override val isArray = true
   override val packageName = null
   override val asArrayType: JavaArrayType
     get() = this
@@ -630,7 +643,9 @@ class JavaPrimitiveType internal constructor(
   val divCode: Int,
   override val defaultValueExpression: ExpressionNode): LoadedJavaType(objectKlazz.javaPrimitiveType!!, emptyList(), storeCode, loadCode, returnCode) {
 
-    override val packageName = null
+
+  override val visibility = Visibility.PUBLIC
+  override val packageName = null
   val objectClass = objectKlazz.java
   override val objectType: JavaType
     get() = JavaType.of(objectClass)
@@ -661,6 +676,11 @@ class LazyJavaType internal constructor(private val scope: Scope,
   override val arrayType: JavaArrayType
     get() = actualType.arrayType
 
+  override val isFinal: Boolean
+    get() = actualType.isFinal
+
+  override val visibility: Visibility
+    get() = actualType.visibility
   override val isAnnotation: Boolean
     get() = actualType.isAnnotation
   override val packageName: String?

@@ -21,6 +21,7 @@ import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.NotLoadedJavaType
+import com.tambapps.marcel.parser.type.Visibility
 import marcel.lang.IntRange
 import marcel.lang.LongRange
 import marcel.lang.MarcelClassLoader
@@ -43,10 +44,10 @@ open class AstNodeTypeResolver constructor(
   }
 
   // TODO add node to get token when throwing exceptions
-  fun defineClass(node: AstNode? = null, className: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): JavaType {
-    return defineClass(node, null, className, superClass, isInterface, interfaces)
+  fun defineClass(node: AstNode? = null, visibility: Visibility, className: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): JavaType {
+    return defineClass(node, visibility, null, className, superClass, isInterface, interfaces)
   }
-  fun defineClass(node: AstNode? = null, outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): JavaType {
+  fun defineClass(node: AstNode? = null, visibility: Visibility, outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): JavaType {
     val className = if (outerClassType != null) "${outerClassType.className}\$$cName" else cName
     try {
       Class.forName(className)
@@ -55,7 +56,7 @@ open class AstNodeTypeResolver constructor(
       // ignore
     }
     if (_definedTypes.containsKey(className)) throw MarcelSemanticException(node?.token, "Class $className is already defined")
-    val type = NotLoadedJavaType(className, emptyList(), emptyList(),  superClass, isInterface, interfaces.toMutableSet())
+    val type = NotLoadedJavaType(visibility, className, emptyList(), emptyList(),  superClass, isInterface, interfaces.toMutableSet())
     _definedTypes[className] = type
     return type
   }

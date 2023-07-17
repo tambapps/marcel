@@ -9,6 +9,7 @@ import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaType
+import com.tambapps.marcel.parser.type.Visibility
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -18,7 +19,7 @@ class MarcelParserTest {
 
     private val lexer = MarcelLexer()
     private val typeResolver = AstNodeTypeResolver()
-    private val type = typeResolver.defineClass(null, "Test", JavaType.Object, false, emptyList())
+    private val type = typeResolver.defineClass(null, Visibility.PUBLIC, "Test", JavaType.Object, false, emptyList())
     private val scope = MethodScope(typeResolver, mutableListOf(), type, "test", emptyList(), JavaType.void, staticContext = false)
 
     @Test
