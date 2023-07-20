@@ -75,15 +75,31 @@ public final class DefaultMarcelMethods {
   }
 
   /**
-   * Converts a list into a set
+   * Converts a collection into a set
    *
-   * @param self the list
-   * @param <T>  the type of the list
+   * @param self the collection
+   * @param <T>  the type of the collection
    * @return a set
    */
-  public static <T> Set<T> toSet(List<T> self) {
+  public static <T> Set<T> toSet(Collection<T> self) {
     Iterator<T> iterator = self.iterator();
     Set<T> set = new HashSet<>();
+    while (iterator.hasNext()) {
+      set.add(iterator.next());
+    }
+    return set;
+  }
+
+  /**
+   * Converts a collection into a set
+   *
+   * @param self the collection
+   * @param <T>  the type of the collection
+   * @return a set
+   */
+  public static <T> List<T> toList(Collection<T> self) {
+    Iterator<T> iterator = self.iterator();
+    List<T> set = new ArrayList<>(self.size());
     while (iterator.hasNext()) {
       set.add(iterator.next());
     }
