@@ -6,7 +6,7 @@ import com.tambapps.marcel.parser.ast.AstVisitor
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.IntRange
 
-class RangeNode(token: LexToken, val from: ExpressionNode, val to: ExpressionNode,
+class RangeNode constructor(token: LexToken, val from: ExpressionNode, val to: ExpressionNode,
   val fromExclusive: Boolean, val toExclusive: Boolean): AbstractExpressionNode(token) {
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)

@@ -310,6 +310,9 @@ interface JavaType: AstTypedObject {
 
     val lambda = of(Lambda::class.java)
 
+    val IntRange = LoadedObjectType(marcel.lang.IntRange::class.java)
+    val LongRange = LoadedObjectType(marcel.lang.LongRange::class.java)
+
     val PRIMITIVE_CAST_INSTRUCTION_MAP = mapOf(
       Pair(Pair(int, long), Opcodes.I2L),
       Pair(Pair(int, float), Opcodes.I2F),

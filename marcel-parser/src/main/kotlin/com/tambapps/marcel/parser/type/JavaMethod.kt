@@ -1,18 +1,29 @@
 package com.tambapps.marcel.parser.type
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.ast.MethodParameter
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.AstTypedObject
 import com.tambapps.marcel.parser.ast.expression.CharConstantNode
 import com.tambapps.marcel.parser.ast.expression.DoubleConstantNode
+import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.ast.expression.FloatConstantNode
 import com.tambapps.marcel.parser.ast.expression.IntConstantNode
 import com.tambapps.marcel.parser.ast.expression.LongConstantNode
 import com.tambapps.marcel.parser.ast.expression.NullValueNode
+import com.tambapps.marcel.parser.ast.expression.RangeNode
 import com.tambapps.marcel.parser.ast.expression.StringConstantNode
 import com.tambapps.marcel.parser.scope.Scope
-import marcel.lang.DefaultValue
+import marcel.lang.compile.CharacterDefaultValue
+import marcel.lang.compile.DoubleDefaultValue
+import marcel.lang.compile.FloatDefaultValue
+import marcel.lang.compile.IntDefaultValue
+import marcel.lang.compile.IntRangeDefaultValue
+import marcel.lang.compile.LongDefaultValue
+import marcel.lang.compile.LongRangeDefaultValue
+import marcel.lang.compile.ObjectDefaultValue
+import marcel.lang.compile.StringDefaultValue
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
@@ -258,18 +269,19 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
       val type = methodParameterType(fromType, parameter)
       val rawType = JavaType.of(parameter.type)
       val annotations = parameter.annotations
-      val defaultValueAnnotation = annotations.firstNotNullOfOrNull { it as? DefaultValue }
-      val defaultValue = if (defaultValueAnnotation != null) {
-        when (rawType) {
-          JavaType.int, JavaType.Integer -> IntConstantNode(value = defaultValueAnnotation.defaultIntValue)
-          JavaType.long, JavaType.Long -> LongConstantNode(value = defaultValueAnnotation.defaultLongValue)
-          JavaType.float, JavaType.Float -> FloatConstantNode(value = defaultValueAnnotation.defaultFloatValue)
-          JavaType.double, JavaType.Double -> DoubleConstantNode(value = defaultValueAnnotation.defaultDoubleValue)
-          JavaType.char, JavaType.Character -> CharConstantNode(value = defaultValueAnnotation.defaultCharValue + "")
-          JavaType.String -> StringConstantNode(value = defaultValueAnnotation.defaultStringValue)
-          else -> NullValueNode()
-        }
-      } else null
+      val defaultValue: ExpressionNode? = when (type) {
+        JavaType.Integer, JavaType.int -> annotations.firstNotNullOfOrNull { it as? IntDefaultValue }?.value?.let { IntConstantNode(value = it) }
+        JavaType.Long, JavaType.long -> annotations.firstNotNullOfOrNull { it as? LongDefaultValue }?.value?.let { LongConstantNode(value = it) }
+        JavaType.Float, JavaType.float -> annotations.firstNotNullOfOrNull { it as? FloatDefaultValue }?.value?.let { FloatConstantNode(value = it) }
+        JavaType.Double, JavaType.double -> annotations.firstNotNullOfOrNull { it as? DoubleDefaultValue }?.value?.let { DoubleConstantNode(value = it) }
+        JavaType.Character, JavaType.char -> annotations.firstNotNullOfOrNull { it as? CharacterDefaultValue }?.value?.let { CharConstantNode(value = it.toString()) }
+        JavaType.IntRange -> annotations.firstNotNullOfOrNull { it as? IntRangeDefaultValue }?.let { RangeNode(
+          LexToken.dummy(), IntConstantNode(value = it.from), IntConstantNode(value = it.to), it.fromExclusive, it.toExclusive) }
+        JavaType.LongRange -> annotations.firstNotNullOfOrNull { it as? LongRangeDefaultValue }?.let { RangeNode(
+          LexToken.dummy(), LongConstantNode(value = it.from), LongConstantNode(value = it.to), it.fromExclusive, it.toExclusive) }
+        JavaType.String -> annotations.firstNotNullOfOrNull { it as? StringDefaultValue }?.value?.let { StringConstantNode(value = it) }
+        else -> if (annotations.any { it is ObjectDefaultValue }) NullValueNode() else null
+      }
       return MethodParameter(type, rawType, parameter.name, (parameter.modifiers and Modifier.FINAL) != 0, defaultValue)
     }
 

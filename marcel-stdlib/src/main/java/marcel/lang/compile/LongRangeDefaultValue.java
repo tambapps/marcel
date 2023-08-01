@@ -9,9 +9,9 @@ import static java.lang.annotation.ElementType.PARAMETER;
 // TODO handle me
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value={PARAMETER})
-public @interface IntRangeDefaultValue {
-    int from();
-    int to();
+public @interface LongRangeDefaultValue {
+    long from();
+    long to();
 
     boolean fromExclusive();
     boolean toExclusive();

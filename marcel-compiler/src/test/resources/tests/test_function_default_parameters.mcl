@@ -9,3 +9,41 @@ assertEquals(2, sum(1))
 fun int sum(int a = 0, int b = 1) {
   return a + b
 }
+
+
+assertEquals(4l, foo(1l))
+assertEquals(12l, foo(b: 4l..8l))
+assertEquals(13l, foo(b: 4l<..8l))
+assertEquals(11l, foo(b: 4l..<8l))
+assertEquals(9l, foo(3l, 3l..3l))
+assertEquals(9l, foo(a: 3l, b: 3l..3l))
+fun long foo(long a = 0l, LongRange b = 1l..2l) {
+  return a + b.from + b.to
+}
+
+
+assertEquals(6, foo2(1))
+assertEquals(20, foo2(b: 5..15))
+assertEquals(21, foo2(b: 5<..15))
+assertEquals(19, foo2(b: 5..<15))
+assertEquals(9, foo2(3, 3..3))
+assertEquals(9, foo2(a: 3, b: 3..3))
+fun int foo2(int a = 0, IntRange b = 2..3) {
+  return a + b.from + b.to
+}
+
+
+assertEquals("GET bar?foo=5", get("bar", foo: 5))
+
+fun String get(String path, int foo = 2) {
+  return "GET $path?foo=$foo"
+}
+
+
+assertEquals("null", bar())
+assertEquals("null", bar(o: null))
+assertEquals("1", bar(o: 1))
+
+fun String bar(Object o = null) {
+  return String.valueOf(o)
+}
