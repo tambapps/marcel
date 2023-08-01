@@ -6,14 +6,19 @@ import com.tambapps.marcel.compiler.JavaTypeResolver
 import com.tambapps.marcel.compiler.check.MarcelCompilerChecks
 import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.compiler.util.javaType
-import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.type.JavaAnnotation
 import com.tambapps.marcel.parser.type.JavaType
-import marcel.lang.DefaultValue
+import marcel.lang.compile.CharacterDefaultValue
+import marcel.lang.compile.DoubleDefaultValue
+import marcel.lang.compile.FloatDefaultValue
+import marcel.lang.compile.IntDefaultValue
+import marcel.lang.compile.LongDefaultValue
+import marcel.lang.compile.ObjectDefaultValue
+import marcel.lang.compile.StringDefaultValue
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Label
@@ -212,21 +217,23 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
       }
 
       if (parameter.defaultValue != null) {
-        val annotationVisitor = mv.visitParameterAnnotation(i, DefaultValue::class.javaType.descriptor, true)
         when (parameter.type) {
-          JavaType.int, JavaType.Integer -> annotationVisitor.visit("defaultIntValue",
-            (parameter.defaultValue as? IntConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify int constant for an int method default parameter"))
-          JavaType.long, JavaType.Long -> annotationVisitor.visit("defaultLongValue",
-            (parameter.defaultValue as? LongConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify long constant for an int method default parameter"))
-          JavaType.float, JavaType.Float -> annotationVisitor.visit("defaultFloatValue",
-            (parameter.defaultValue as? FloatConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify float constant for an int method default parameter"))
-          JavaType.double, JavaType.Double -> annotationVisitor.visit("defaultDoubleValue",
-            (parameter.defaultValue as? DoubleConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify double constant for an int method default parameter"))
-          JavaType.char, JavaType.Character -> annotationVisitor.visit("defaultCharValue",
-            (parameter.defaultValue as? CharConstantNode)?.value?.get(0) ?: throw MarcelSemanticException(methodNode.token, "Must specify char constant for an int method default parameter"))
-          JavaType.String -> annotationVisitor.visit("defaultStringValue",
-            (parameter.defaultValue as? StringConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify string constant for an int method default parameter"))
-          else -> if (parameter.defaultValue !is NullValueNode) throw MarcelSemanticException(parameter.token, "Object parameters can only have null as default value")
+          JavaType.int, JavaType.Integer -> mv.visitParameterAnnotation(i, IntDefaultValue::class.javaType.descriptor, true)
+            .visit("value", (parameter.defaultValue as? IntConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify int constant for an int method default parameter"))
+          JavaType.long, JavaType.Long -> mv.visitParameterAnnotation(i, LongDefaultValue::class.javaType.descriptor, true)
+            .visit("value", (parameter.defaultValue as? LongConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify long constant for an int method default parameter"))
+          JavaType.float, JavaType.Float -> mv.visitParameterAnnotation(i, FloatDefaultValue::class.javaType.descriptor, true)
+            .visit("value", (parameter.defaultValue as? FloatConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify float constant for an int method default parameter"))
+          JavaType.double, JavaType.Double -> mv.visitParameterAnnotation(i, DoubleDefaultValue::class.javaType.descriptor, true)
+            .visit("value", (parameter.defaultValue as? DoubleConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify double constant for an int method default parameter"))
+          JavaType.char, JavaType.Character -> mv.visitParameterAnnotation(i, CharacterDefaultValue::class.javaType.descriptor, true)
+            .visit("value", (parameter.defaultValue as? CharConstantNode)?.value?.get(0) ?: throw MarcelSemanticException(methodNode.token, "Must specify char constant for an int method default parameter"))
+          JavaType.String -> mv.visitParameterAnnotation(i, StringDefaultValue::class.javaType.descriptor, true)
+            .visit("value", (parameter.defaultValue as? StringConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify string constant for an int method default parameter"))
+          else -> {
+            if (parameter.defaultValue !is NullValueNode) throw MarcelSemanticException(parameter.token, "Object parameters can only have null as default value")
+            mv.visitParameterAnnotation(i, ObjectDefaultValue::class.javaType.descriptor, true)
+          }
         }
       }
       mv.visitLocalVariable(parameter.name,  parameter.type.descriptor, parameter.type.signature,
