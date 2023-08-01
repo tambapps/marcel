@@ -17,6 +17,7 @@ assertEquals(13l, foo(b: 4l<..8l))
 assertEquals(11l, foo(b: 4l..<8l))
 assertEquals(9l, foo(3l, 3l..3l))
 assertEquals(9l, foo(a: 3l, b: 3l..3l))
+
 fun long foo(long a = 0l, LongRange b = 1l..2l) {
   return a + b.from + b.to
 }
@@ -28,6 +29,7 @@ assertEquals(21, foo2(b: 5<..15))
 assertEquals(19, foo2(b: 5..<15))
 assertEquals(9, foo2(3, 3..3))
 assertEquals(9, foo2(a: 3, b: 3..3))
+
 fun int foo2(int a = 0, IntRange b = 2..3) {
   return a + b.from + b.to
 }
@@ -46,4 +48,11 @@ assertEquals("1", bar(o: 1))
 
 fun String bar(Object o = null) {
   return String.valueOf(o)
+}
+
+
+assertEquals("nullnull", zoo())
+
+fun String zoo(Integer a = null, IntRange b = null) {
+  return String.valueOf(a) + String.valueOf(b)
 }

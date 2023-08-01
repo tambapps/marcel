@@ -220,28 +220,42 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
 
       if (parameter.defaultValue != null) {
         when (parameter.type) {
-          JavaType.int, JavaType.Integer -> mv.visitParameterAnnotation(i, IntDefaultValue::class.javaType.descriptor, true)
-            .visit("value", (parameter.defaultValue as? IntConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify int constant for an int method default parameter"))
-          JavaType.long, JavaType.Long -> mv.visitParameterAnnotation(i, LongDefaultValue::class.javaType.descriptor, true)
-            .visit("value", (parameter.defaultValue as? LongConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify long constant for an int method default parameter"))
-          JavaType.float, JavaType.Float -> mv.visitParameterAnnotation(i, FloatDefaultValue::class.javaType.descriptor, true)
-            .visit("value", (parameter.defaultValue as? FloatConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify float constant for an int method default parameter"))
-          JavaType.double, JavaType.Double -> mv.visitParameterAnnotation(i, DoubleDefaultValue::class.javaType.descriptor, true)
-            .visit("value", (parameter.defaultValue as? DoubleConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify double constant for an int method default parameter"))
-          JavaType.char, JavaType.Character -> mv.visitParameterAnnotation(i, CharacterDefaultValue::class.javaType.descriptor, true)
-            .visit("value", (parameter.defaultValue as? CharConstantNode)?.value?.get(0) ?: throw MarcelSemanticException(methodNode.token, "Must specify char constant for an int method default parameter"))
-          JavaType.String -> mv.visitParameterAnnotation(i, StringDefaultValue::class.javaType.descriptor, true)
-            .visit("value", (parameter.defaultValue as? StringConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify string constant for an int method default parameter"))
+          JavaType.int, JavaType.Integer -> mv.visitParameterAnnotation(i, IntDefaultValue::class.javaType.descriptor, true).apply {
+            if (parameter.type == JavaType.Integer && parameter.defaultValue is NullValueNode) visit("isNull", true)
+            else visit("value", (parameter.defaultValue as? IntConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify int constant for an int method default parameter"))
+          }
+          JavaType.long, JavaType.Long -> mv.visitParameterAnnotation(i, LongDefaultValue::class.javaType.descriptor, true).apply {
+            if (parameter.type == JavaType.Long && parameter.defaultValue is NullValueNode) visit("isNull", true)
+            else visit("value", (parameter.defaultValue as? LongConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify long constant for an int method default parameter"))
+          }
+          JavaType.float, JavaType.Float -> mv.visitParameterAnnotation(i, FloatDefaultValue::class.javaType.descriptor, true).apply {
+            if (parameter.type == JavaType.Float && parameter.defaultValue is NullValueNode) visit("isNull", true)
+            else visit("value", (parameter.defaultValue as? FloatConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify float constant for an int method default parameter"))
+          }
+          JavaType.double, JavaType.Double -> mv.visitParameterAnnotation(i, DoubleDefaultValue::class.javaType.descriptor, true).apply {
+            if (parameter.type == JavaType.Double && parameter.defaultValue is NullValueNode) visit("isNull", true)
+            else visit("value", (parameter.defaultValue as? DoubleConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify double constant for an int method default parameter"))
+          }
+          JavaType.char, JavaType.Character -> mv.visitParameterAnnotation(i, CharacterDefaultValue::class.javaType.descriptor, true).apply {
+            if (parameter.type == JavaType.Character && parameter.defaultValue is NullValueNode) visit("isNull", true)
+            else visit("value", (parameter.defaultValue as? CharConstantNode)?.value?.get(0) ?: throw MarcelSemanticException(methodNode.token, "Must specify char constant for an int method default parameter"))
+          }
+          JavaType.String -> mv.visitParameterAnnotation(i, StringDefaultValue::class.javaType.descriptor, true).apply {
+            if (parameter.defaultValue is NullValueNode) visit("isNull", true)
+            else visit("value", (parameter.defaultValue as? StringConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify string constant for an int method default parameter"))
+          }
           JavaType.IntRange, JavaType.LongRange -> {
-            val rangeNode = parameter.defaultValue as? RangeNode ?: throw MarcelSemanticException(methodNode.token, "Must specify a range for a range method default parameter")
             val isIntRange = parameter.defaultValue!!.getType(typeResolver) == JavaType.IntRange
-            mv.visitParameterAnnotation(i,
+            val annotationVisitor = mv.visitParameterAnnotation(i,
               if (isIntRange) IntRangeDefaultValue::class.javaType.descriptor else LongRangeDefaultValue::class.javaType.descriptor,
-              true).apply {
-                val from = (rangeNode.from as? JavaConstantExpression)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify constants for a method range default parameter")
-                val to = (rangeNode.to as? JavaConstantExpression)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify constants for a method range default parameter")
-                visit("from", if (isIntRange) from as Int else from as Long)
-                visit("to", (if (isIntRange) to as? Int else to as? Long) ?: throw MarcelSemanticException(methodNode.token, "Must specify an int or long constant for a method range default parameter"))
+              true)
+            if (parameter.defaultValue is NullValueNode) annotationVisitor.visit("isNull", true)
+            else annotationVisitor.apply {
+              val rangeNode = parameter.defaultValue as? RangeNode ?: throw MarcelSemanticException(methodNode.token, "Must specify a range for a range method default parameter")
+              val from = (rangeNode.from as? JavaConstantExpression)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify constants for a method range default parameter")
+              val to = (rangeNode.to as? JavaConstantExpression)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify constants for a method range default parameter")
+              visit("from", if (isIntRange) from as Int else from as Long)
+              visit("to", (if (isIntRange) to as? Int else to as? Long) ?: throw MarcelSemanticException(methodNode.token, "Must specify an int or long constant for a method range default parameter"))
               visit("fromExclusive", rangeNode.fromExclusive)
               visit("toExclusive", rangeNode.toExclusive)
             }

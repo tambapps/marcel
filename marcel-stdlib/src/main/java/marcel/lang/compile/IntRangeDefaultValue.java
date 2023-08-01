@@ -10,9 +10,10 @@ import static java.lang.annotation.ElementType.PARAMETER;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value={PARAMETER})
 public @interface IntRangeDefaultValue {
-    int from();
-    int to();
+    int from() default 0;
+    int to() default 0;
 
-    boolean fromExclusive();
-    boolean toExclusive();
+    boolean fromExclusive() default false;
+    boolean toExclusive() default false;
+    boolean isNull() default false;
 }

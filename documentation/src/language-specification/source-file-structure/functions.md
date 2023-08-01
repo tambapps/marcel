@@ -118,8 +118,7 @@ sum(b: 5) // 0 + 8
 sum(a: 2, b: 5) // 2 + 5
 ```
 
-You can specify numbers, characters Strings, or `null`, meaning that Object types can only have `null` as default values
-(except String for which you can supply a literal string)
+You can specify numbers, characters Strings, Int or Long Ranges, or `null` for other Object types.
 
 ### Fields Constructor Call
 

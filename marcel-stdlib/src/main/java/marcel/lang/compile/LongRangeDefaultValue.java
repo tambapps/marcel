@@ -10,9 +10,11 @@ import static java.lang.annotation.ElementType.PARAMETER;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value={PARAMETER})
 public @interface LongRangeDefaultValue {
-    long from();
-    long to();
+    long from() default 0L;
+    long to() default 0L;
 
-    boolean fromExclusive();
-    boolean toExclusive();
+    boolean fromExclusive() default false;
+    boolean toExclusive() default false;
+    boolean isNull() default false;
+
 }

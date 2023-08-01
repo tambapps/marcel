@@ -9,5 +9,6 @@ import static java.lang.annotation.ElementType.PARAMETER;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value={PARAMETER})
 public @interface DoubleDefaultValue {
-    double value();
+    double value() default 0d;
+    boolean isNull() default false;
 }

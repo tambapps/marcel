@@ -270,16 +270,39 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
       val rawType = JavaType.of(parameter.type)
       val annotations = parameter.annotations
       val defaultValue: ExpressionNode? = when (type) {
-        JavaType.Integer, JavaType.int -> annotations.firstNotNullOfOrNull { it as? IntDefaultValue }?.value?.let { IntConstantNode(value = it) }
-        JavaType.Long, JavaType.long -> annotations.firstNotNullOfOrNull { it as? LongDefaultValue }?.value?.let { LongConstantNode(value = it) }
-        JavaType.Float, JavaType.float -> annotations.firstNotNullOfOrNull { it as? FloatDefaultValue }?.value?.let { FloatConstantNode(value = it) }
-        JavaType.Double, JavaType.double -> annotations.firstNotNullOfOrNull { it as? DoubleDefaultValue }?.value?.let { DoubleConstantNode(value = it) }
-        JavaType.Character, JavaType.char -> annotations.firstNotNullOfOrNull { it as? CharacterDefaultValue }?.value?.let { CharConstantNode(value = it.toString()) }
-        JavaType.IntRange -> annotations.firstNotNullOfOrNull { it as? IntRangeDefaultValue }?.let { RangeNode(
-          LexToken.dummy(), IntConstantNode(value = it.from), IntConstantNode(value = it.to), it.fromExclusive, it.toExclusive) }
-        JavaType.LongRange -> annotations.firstNotNullOfOrNull { it as? LongRangeDefaultValue }?.let { RangeNode(
-          LexToken.dummy(), LongConstantNode(value = it.from), LongConstantNode(value = it.to), it.fromExclusive, it.toExclusive) }
-        JavaType.String -> annotations.firstNotNullOfOrNull { it as? StringDefaultValue }?.value?.let { StringConstantNode(value = it) }
+        JavaType.Integer, JavaType.int -> annotations.firstNotNullOfOrNull { it as? IntDefaultValue }?.let {
+          if (it.isNull && type == JavaType.Integer) NullValueNode()
+          else IntConstantNode(value = it.value)
+        }
+        JavaType.Long, JavaType.long -> annotations.firstNotNullOfOrNull { it as? LongDefaultValue }?.let {
+          if (it.isNull && type == JavaType.Long) NullValueNode()
+          else LongConstantNode(value = it.value)
+        }
+        JavaType.Float, JavaType.float -> annotations.firstNotNullOfOrNull { it as? FloatDefaultValue }?.let {
+          if (it.isNull && type == JavaType.Float) NullValueNode()
+          else FloatConstantNode(value = it.value)
+        }
+        JavaType.Double, JavaType.double -> annotations.firstNotNullOfOrNull { it as? DoubleDefaultValue }?.let {
+          if (it.isNull && type == JavaType.Double) NullValueNode()
+          else DoubleConstantNode(value = it.value)
+        }
+        JavaType.Character, JavaType.char -> annotations.firstNotNullOfOrNull { it as? CharacterDefaultValue }?.let {
+          if (it.isNull && type == JavaType.Character) NullValueNode()
+          else CharConstantNode(value = it.value.toString())
+        }
+        JavaType.IntRange -> annotations.firstNotNullOfOrNull { it as? IntRangeDefaultValue }?.let {
+          if (it.isNull) NullValueNode()
+          else RangeNode(LexToken.dummy(), IntConstantNode(value = it.from), IntConstantNode(value = it.to), it.fromExclusive, it.toExclusive)
+        }
+        JavaType.LongRange -> annotations.firstNotNullOfOrNull { it as? LongRangeDefaultValue }?.let {
+          if (it.isNull) NullValueNode()
+          else RangeNode(
+            LexToken.dummy(), LongConstantNode(value = it.from), LongConstantNode(value = it.to), it.fromExclusive, it.toExclusive)
+        }
+        JavaType.String -> annotations.firstNotNullOfOrNull { it as? StringDefaultValue }?.let {
+          if (it.isNull) NullValueNode()
+          else StringConstantNode(value = it.value)
+        }
         else -> if (annotations.any { it is ObjectDefaultValue }) NullValueNode() else null
       }
       return MethodParameter(type, rawType, parameter.name, (parameter.modifiers and Modifier.FINAL) != 0, defaultValue)

@@ -9,5 +9,6 @@ import static java.lang.annotation.ElementType.PARAMETER;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value={PARAMETER})
 public @interface CharacterDefaultValue {
-    char value();
+    char value() default '\0';
+    boolean isNull() default false;
 }
