@@ -228,8 +228,7 @@ sum(a: 2) // 2 + 8
 sum(b: 5) // 0 + 8
 sum(a: 2, b: 5) // 2 + 5
 </code></pre>
-<p>You can specify numbers, characters Strings, or <code>null</code>, meaning that Object types can only have <code>null</code> as default values
-(except String for which you can supply a literal string)</p>
+<p>You can specify numbers, characters Strings, Int or Long Ranges, or <code>null</code> for other Object types.</p>
 <h3 id="fields-constructor-call"><a class="header" href="#fields-constructor-call">Fields Constructor Call</a></h3>
 <p>Similar calls also work with constructors. You can specify class's field names with their values to set.
 Note that it will only work if your class has a no-arg constructor and that the fields referenced are <code>public</code> and <strong>not</strong> <code>final</code>.</p>
