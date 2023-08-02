@@ -5,6 +5,7 @@ import com.tambapps.marcel.parser.ast.MethodParameter
 import com.tambapps.marcel.parser.asm.AsmUtils
 import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.AstTypedObject
+import com.tambapps.marcel.parser.ast.expression.BooleanConstantNode
 import com.tambapps.marcel.parser.ast.expression.CharConstantNode
 import com.tambapps.marcel.parser.ast.expression.DoubleConstantNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
@@ -15,6 +16,7 @@ import com.tambapps.marcel.parser.ast.expression.NullValueNode
 import com.tambapps.marcel.parser.ast.expression.RangeNode
 import com.tambapps.marcel.parser.ast.expression.StringConstantNode
 import com.tambapps.marcel.parser.scope.Scope
+import marcel.lang.compile.BooleanDefaultValue
 import marcel.lang.compile.CharacterDefaultValue
 import marcel.lang.compile.DoubleDefaultValue
 import marcel.lang.compile.FloatDefaultValue
@@ -289,6 +291,10 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
         JavaType.Character, JavaType.char -> annotations.firstNotNullOfOrNull { it as? CharacterDefaultValue }?.let {
           if (it.isNull && type == JavaType.Character) NullValueNode()
           else CharConstantNode(value = it.value.toString())
+        }
+        JavaType.Boolean, JavaType.boolean -> annotations.firstNotNullOfOrNull { it as? BooleanDefaultValue }?.let {
+          if (it.isNull && type == JavaType.Boolean) NullValueNode()
+          else BooleanConstantNode(value = it.value)
         }
         JavaType.IntRange -> annotations.firstNotNullOfOrNull { it as? IntRangeDefaultValue }?.let {
           if (it.isNull) NullValueNode()

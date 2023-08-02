@@ -12,6 +12,7 @@ import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.type.JavaAnnotation
 import com.tambapps.marcel.parser.type.JavaType
+import marcel.lang.compile.BooleanDefaultValue
 import marcel.lang.compile.CharacterDefaultValue
 import marcel.lang.compile.DoubleDefaultValue
 import marcel.lang.compile.FloatDefaultValue
@@ -230,15 +231,19 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
           }
           JavaType.float, JavaType.Float -> mv.visitParameterAnnotation(i, FloatDefaultValue::class.javaType.descriptor, true).apply {
             if (parameter.type == JavaType.Float && parameter.defaultValue is NullValueNode) visit("isNull", true)
-            else visit("value", (parameter.defaultValue as? FloatConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify float constant for an int method default parameter"))
+            else visit("value", (parameter.defaultValue as? FloatConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify float constant for a float method default parameter"))
           }
           JavaType.double, JavaType.Double -> mv.visitParameterAnnotation(i, DoubleDefaultValue::class.javaType.descriptor, true).apply {
             if (parameter.type == JavaType.Double && parameter.defaultValue is NullValueNode) visit("isNull", true)
-            else visit("value", (parameter.defaultValue as? DoubleConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify double constant for an int method default parameter"))
+            else visit("value", (parameter.defaultValue as? DoubleConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify double constant for a double method default parameter"))
           }
           JavaType.char, JavaType.Character -> mv.visitParameterAnnotation(i, CharacterDefaultValue::class.javaType.descriptor, true).apply {
             if (parameter.type == JavaType.Character && parameter.defaultValue is NullValueNode) visit("isNull", true)
-            else visit("value", (parameter.defaultValue as? CharConstantNode)?.value?.get(0) ?: throw MarcelSemanticException(methodNode.token, "Must specify char constant for an int method default parameter"))
+            else visit("value", (parameter.defaultValue as? CharConstantNode)?.value?.get(0) ?: throw MarcelSemanticException(methodNode.token, "Must specify char constant for a char method default parameter"))
+          }
+          JavaType.boolean, JavaType.Boolean -> mv.visitParameterAnnotation(i, BooleanDefaultValue::class.javaType.descriptor, true).apply {
+            if (parameter.type == JavaType.Character && parameter.defaultValue is NullValueNode) visit("isNull", true)
+            else visit("value", (parameter.defaultValue as? BooleanConstantNode)?.value ?: throw MarcelSemanticException(methodNode.token, "Must specify boolean constant for an boolean method default parameter"))
           }
           JavaType.String -> mv.visitParameterAnnotation(i, StringDefaultValue::class.javaType.descriptor, true).apply {
             if (parameter.defaultValue is NullValueNode) visit("isNull", true)
