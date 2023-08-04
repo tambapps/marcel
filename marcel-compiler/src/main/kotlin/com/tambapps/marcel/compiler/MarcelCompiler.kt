@@ -83,10 +83,10 @@ class MarcelCompiler(compilerConfiguration: CompilerConfiguration): AbstractMarc
   }
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class, MarcelCompilerException::class)
-  fun compileSourceFiles(scriptLoader: MarcelClassLoader? = null, sourceFiles: Collection<SourceFile>, classConsumer: Consumer<CompiledClass>) {
-    val typeResolver = JavaTypeResolver(scriptLoader)
+  fun compileSourceFiles(marcelClassLoader: MarcelClassLoader? = null, sourceFiles: Collection<SourceFile>, classConsumer: Consumer<CompiledClass>) {
+    val typeResolver = JavaTypeResolver(marcelClassLoader)
 
-    // first load all classes in typeresolver
+    // first load all classes in typeResolver
     val asts = sourceFiles.map { sourceFile ->
       val tokens = MarcelLexer().lex(sourceFile.text)
       val parser = MarcelParser(typeResolver, sourceFile.className, tokens) //if (className != null) MarcelParser(typeResolver, className, tokens) else MarcelParser(typeResolver, tokens)
@@ -94,14 +94,14 @@ class MarcelCompiler(compilerConfiguration: CompilerConfiguration): AbstractMarc
       visitAst(ast, typeResolver)
 
       if (ast.dumbbells.isNotEmpty() && !compilerConfiguration.dumbbellEnabled) {
-        throw MarcelCompilerException("Cannot use dumbbells because dumbbell is not enabled")
+        throw MarcelCompilerException("Cannot use dumbbells because dumbbell feature is not enabled")
       }
-      if (ast.dumbbells.isNotEmpty() && scriptLoader != null) {
+      if (ast.dumbbells.isNotEmpty() && marcelClassLoader != null) {
         for (dumbbell in ast.dumbbells) {
           val artifacts = Dumbbell.pull(dumbbell)
           artifacts.forEach {
             if (it.jarFile != null) {
-              scriptLoader.addLibraryJar(it.jarFile)
+              marcelClassLoader.addLibraryJar(it.jarFile)
             }
           }
         }
