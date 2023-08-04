@@ -3,13 +3,14 @@ package com.tambapps.marcel.parser.ast.expression
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.ast.MethodParameter
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
+import com.tambapps.marcel.parser.ast.MethodParameterNode
 import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.LambdaScope
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaType
 
-class LambdaNode constructor(token: LexToken, override var scope: LambdaScope, val parameters: MutableList<MethodParameter>, val blockNode: BlockNode,
+class LambdaNode constructor(token: LexToken, override var scope: LambdaScope, val parameters: MutableList<MethodParameterNode>, val blockNode: BlockNode,
                              val explicit0Parameters: Boolean): AbstractExpressionNode(token), ScopedNode<LambdaScope> {
 
   override fun trySetScope(scope: Scope) {

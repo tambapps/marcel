@@ -31,7 +31,7 @@ internal class ImplementedInterfaceCheck: ClassNodeVisitor {
         // we only need the match on parameters (== ignoring return type) because returning a more specific type is still a valid definition that doesn't need another implementation
         if (!rawInterfaceMethod.parameterMatches(implementationMethod)) {
           // need to write implementation method with raw type
-          val rawMethodNode = MethodNode.fromJavaMethod(classNode.scope, rawInterfaceMethod)
+          val rawMethodNode = MethodNode.fromJavaMethod(classNode.token, classNode.scope, rawInterfaceMethod)
           val rawParameterExpressions = mutableListOf<ExpressionNode>()
           for (i in rawMethodNode.parameters.indices) {
             rawParameterExpressions.add(

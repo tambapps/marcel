@@ -19,20 +19,20 @@ open class MethodNode constructor(
 ): AstNode, AbstractMethod(access), Annotable {
 
   override val actualReturnType = returnType
-  constructor(access: Int, ownerClass: JavaType, name: String, block: FunctionBlockNode,
+  constructor(token: LexToken, access: Int, ownerClass: JavaType, name: String, block: FunctionBlockNode,
               parameters: MutableList<MethodParameterNode>, returnType: JavaType, scope: MethodScope,
-              isInline: Boolean, annotations: List<AnnotationNode>): this(LexToken.dummy(), access, ownerClass, name, block, parameters, returnType, scope, isInline, false, annotations)
+              isInline: Boolean, annotations: List<AnnotationNode>): this(token, access, ownerClass, name, block, parameters, returnType, scope, isInline, false, annotations)
 
   companion object {
-    fun fromJavaMethod(classScope: Scope, javaMethod: JavaMethod): MethodNode {
-      return from(classScope, javaMethod.ownerClass, javaMethod.name, javaMethod.parameters, javaMethod.returnType, emptyList(), javaMethod.isStatic)
+    fun fromJavaMethod(token: LexToken, classScope: Scope, javaMethod: JavaMethod): MethodNode {
+      return from(token, classScope, javaMethod.ownerClass, javaMethod.name, javaMethod.parameters, javaMethod.returnType, emptyList(), javaMethod.isStatic)
     }
 
-    fun from(classScope: Scope, ownerClass: JavaType, name: String, parameters: List<MethodParameter>, returnType: JavaType, annotations: List<AnnotationNode>, staticContext: Boolean): MethodNode {
+    fun from(token: LexToken, classScope: Scope, ownerClass: JavaType, name: String, parameters: List<MethodParameter>, returnType: JavaType, annotations: List<AnnotationNode>, staticContext: Boolean): MethodNode {
       val methodScope = MethodScope(classScope,  name, parameters, returnType, staticContext)
-      return MethodNode(Opcodes.ACC_PUBLIC, ownerClass,  name, FunctionBlockNode(
-        LexToken.dummy(), methodScope, mutableListOf()
-      ), methodScope.parameters.map { MethodParameterNode(it) }.toMutableList(),  returnType, methodScope, false, annotations)
+      return MethodNode(token, Opcodes.ACC_PUBLIC, ownerClass,  name, FunctionBlockNode(
+        token, methodScope, mutableListOf()
+      ), methodScope.parameters.map { MethodParameterNode(token, it) }.toMutableList(),  returnType, methodScope, false, annotations)
     }
   }
 

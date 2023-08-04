@@ -98,9 +98,9 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
     val fblock = FunctionBlockNode(token, lambdaMethodScope, lambdaNode.blockNode.statements)
     fblock.setTreeScope(lambdaMethodScope)
     lambdaClassNode.addMethod(
-      MethodNode(Opcodes.ACC_PUBLIC, type, lambdaMethod.name,
+      MethodNode(token, Opcodes.ACC_PUBLIC, type, lambdaMethod.name,
         fblock,
-        parameters.map { MethodParameterNode(it) }.toMutableList(),
+        parameters.mapIndexed { index, methodParameter ->  MethodParameterNode(lambdaNode.parameters[index].token, methodParameter) }.toMutableList(),
         lambdaReturnType, lambdaMethodScope,
         false, emptyList()
       )
@@ -124,9 +124,9 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
         }.toMutableList(), ReferenceExpression.thisRef(interfaceMethodScope))
 
       lambdaClassNode.addMethod(
-        MethodNode(Opcodes.ACC_PUBLIC, type, interfaceMethod.name,
+        MethodNode(token, Opcodes.ACC_PUBLIC, type, interfaceMethod.name,
           FunctionBlockNode(token, interfaceMethodScope, mutableListOf(ExpressionStatementNode(token, lambdaMethodCall))),
-          parameters.map { MethodParameterNode(it) }.toMutableList(),
+          parameters.mapIndexed { index, methodParameter ->  MethodParameterNode(lambdaNode.parameters[index].token, methodParameter) }.toMutableList(),
           interfaceMethod.returnType, interfaceMethodScope,
           false, emptyList()
         )
@@ -146,10 +146,10 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
     val interfaceType = lambdaNode.interfaceType ?: return
     val method = typeResolver.getInterfaceLambdaMethod(interfaceType)
     lambdaNode.parameters.clear()
-    lambdaNode.parameters.addAll(method.parameters)
+    lambdaNode.parameters.addAll(method.parameters.map { MethodParameterNode(lambdaNode.token, it.type, it.name, it.isFinal, it.defaultValue) })
     if (lambdaNode.parameters.size == 1) {
       val p = lambdaNode.parameters[0]
-      lambdaNode.parameters[0] = MethodParameter(p.type, p.rawType, "it", p.isFinal)
+      lambdaNode.parameters[0] = MethodParameterNode(p.token, p.type, "it", p.isFinal)
     }
   }
 

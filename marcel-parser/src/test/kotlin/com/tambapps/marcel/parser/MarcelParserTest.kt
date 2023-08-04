@@ -55,7 +55,8 @@ class MarcelParserTest {
         val parser = parser("fun int foo(int a, String b) { return 1 }")
         val imports = mutableListOf<ImportNode>(WildcardImportNode("java.lang"))
         val classScope = Scope(typeResolver, imports, type, staticContext = false)
-        val expected = MethodNode(Opcodes.ACC_PUBLIC, JavaType.Object, "foo",
+        val expected = MethodNode(
+            LexToken.dummy(), Opcodes.ACC_PUBLIC, JavaType.Object, "foo",
             FunctionBlockNode(LexToken.dummy(), scope, mutableListOf(
                 ReturnNode(LexToken.dummy(), scope, IntConstantNode(LexToken.dummy(), 1))
             )), mutableListOf(

@@ -251,7 +251,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
     val runScope = MethodScope(classScope, "run", listOf(argsParameter), JavaType.Object, staticContext = false, false)
     val statements = mutableListOf<StatementNode>()
     val runBlock = FunctionBlockNode(LexToken.dummy(), runScope, statements)
-    val runFunction = MethodNode(Opcodes.ACC_PUBLIC, classType,
+    val runFunction = MethodNode(tokens.firstOrNull() ?: LexToken.dummy(),  Opcodes.ACC_PUBLIC, classType,
       "run",
       runBlock, mutableListOf(argsParameter), runScope.returnType, runScope, false, emptyList()
     )
@@ -407,7 +407,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
     val methodScope = MethodScope(classScope, methodName, parameters, returnType, staticContext = (access and Opcodes.ACC_STATIC) != 0, false)
     val methodNode =
       if (isConstructor) ConstructorNode(token, access, FunctionBlockNode(currentToken, methodScope, statements), parameters, methodScope, annotations)
-     else MethodNode(access, classNode.type, methodName, FunctionBlockNode(currentToken, methodScope, statements), parameters, returnType, methodScope, isInline, annotations)
+     else MethodNode(token, access, classNode.type, methodName, FunctionBlockNode(currentToken, methodScope, statements), parameters, returnType, methodScope, isInline, annotations)
 
 
     if (isConstructor && current.type == TokenType.COLON) {
@@ -1083,7 +1083,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
     }
   }
   private fun parseLambda(token: LexToken, scope: Scope): LambdaNode {
-    val parameters = mutableListOf<MethodParameter>()
+    val parameters = mutableListOf<MethodParameterNode>()
     var explicit0Parameters = false
     // first parameter with no type specified
     if (current.type == TokenType.IDENTIFIER && lookup(1)?.type in listOf(TokenType.COMMA, TokenType.ARROW)
@@ -1094,8 +1094,8 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         val firstToken = accept(TokenType.IDENTIFIER)
         val parameter = if (current.type == TokenType.IDENTIFIER) {
           rollback()
-          MethodParameter(parseType(scope), accept(TokenType.IDENTIFIER).value)
-        } else MethodParameter(JavaType.Object, firstToken.value)
+          MethodParameterNode(firstToken, parseType(scope), accept(TokenType.IDENTIFIER).value)
+        } else MethodParameterNode(firstToken, JavaType.Object, firstToken.value)
         parameters.add(parameter)
         if (current.type == TokenType.COMMA) skip()
       }

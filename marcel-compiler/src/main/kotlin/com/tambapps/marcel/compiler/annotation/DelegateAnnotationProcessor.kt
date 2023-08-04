@@ -23,7 +23,7 @@ class DelegateAnnotationProcessor: FieldAnnotationProcessor {
             val token = classNode.fields.find { it.name == "delegate" }!!.token
             val delegateField = classNode.fields.find { it.name == "delegate" }!!
             if (classNode.type.allImplementedInterfaces.find { it.raw() == DelegatedObject::class.javaType }!!.genericTypes.firstOrNull()?.let { it.isAssignableFrom(delegateField.type) } != false) {
-                val getDelegateMethod = MethodNode.from(classScope = classNode.scope, ownerClass = classNode.type, name = "getDelegate", parameters = emptyList(),
+                val getDelegateMethod = MethodNode.from(classNode.token, classScope = classNode.scope, ownerClass = classNode.type, name = "getDelegate", parameters = emptyList(),
                     returnType = delegateField.type.objectType, annotations = listOf(AnnotationNode(token, Override::class.javaAnnotation, emptyList())), staticContext = false
                 )
                 val scope = getDelegateMethod.scope
