@@ -272,7 +272,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
             }
             // always static because it can be called from outside this class
             val defaultParameterMethodNode = if (defaultValue is FunctionCallNode
-              && defaultValue.getMethod(typeResolver).let { it.isStatic && it.parameters.isEmpty() && it.ownerClass == methodNode.ownerClass }
+              && defaultValue.getMethod(typeResolver).let { it.isStatic && it.parameters.isEmpty() && it.ownerClass == methodNode.ownerClass && it.isStatic }
               && classNode.methods.find { it.parameters.isEmpty() && it.isStatic && it.name == defaultValue.name } != null)
               classNode.methods.find { it.parameters.isEmpty() && it.isStatic && it.name == defaultValue.name }!!
             else MethodNode.from(parameter.token, classNode.scope, classNode.type, JavaMethod.defaultParameterMethodName(methodNode, parameter), emptyList(), parameter.type, emptyList(), true).apply {
