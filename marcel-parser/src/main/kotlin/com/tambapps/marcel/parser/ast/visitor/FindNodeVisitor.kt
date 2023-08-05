@@ -45,6 +45,7 @@ class FindNodeVisitor(private val predicate: (AstNode) -> Boolean): AstNodeVisit
 
   override fun visit(node: FunctionCallNode) = node(node) ?: node.argumentNodes.firstNotNullOfOrNull { it.accept(this) }
 
+  override fun visit(node: MethodDefaultParameterMethodCall) = node(node)
   override fun visit(node: ConstructorCallNode) = node(node) ?: node.arguments.firstNotNullOfOrNull { it.accept(this) }
 
   override fun visit(node: NamedParametersConstructorCallNode) = node(node) ?: node.argumentNodes.firstNotNullOfOrNull { it.accept(this) }

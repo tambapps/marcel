@@ -594,6 +594,10 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     pushArgument(binaryOperatorNode.rightOperand)
   }
 
+  override fun visit(node: MethodDefaultParameterMethodCall) {
+    throw RuntimeException("Compiler error, such node shouldn't be handled here")
+  }
+
   override fun visit(node: FunctionCallNode) {
     val method = node.getMethod(typeResolver)
     val methodOwner = node.methodOwnerType

@@ -12,6 +12,7 @@ import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.ast.expression.FloatConstantNode
 import com.tambapps.marcel.parser.ast.expression.IntConstantNode
 import com.tambapps.marcel.parser.ast.expression.LongConstantNode
+import com.tambapps.marcel.parser.ast.expression.MethodDefaultParameterMethodCall
 import com.tambapps.marcel.parser.ast.expression.NullValueNode
 import com.tambapps.marcel.parser.ast.expression.RangeNode
 import com.tambapps.marcel.parser.ast.expression.StringConstantNode
@@ -24,6 +25,7 @@ import marcel.lang.compile.IntDefaultValue
 import marcel.lang.compile.IntRangeDefaultValue
 import marcel.lang.compile.LongDefaultValue
 import marcel.lang.compile.LongRangeDefaultValue
+import marcel.lang.compile.MethodCallDefaultValue
 import marcel.lang.compile.ObjectDefaultValue
 import marcel.lang.compile.StringDefaultValue
 import org.objectweb.asm.Opcodes
@@ -41,6 +43,13 @@ interface JavaMethod {
   companion object {
     const val CONSTRUCTOR_NAME = "<init>"
     const val STATIC_INITIALIZATION_BLOCK = "<clinit>"
+
+    fun defaultParameterMethodName(method: JavaMethod, parameter: MethodParameter): String {
+      return defaultParameterMethodName(method.name, parameter.name)
+    }
+    fun defaultParameterMethodName(methodName: String, parameterName: String): String {
+      return "_" + methodName + "_" + parameterName + "_defaultValue"
+    }
   }
 
   val ownerClass: JavaType
@@ -253,7 +262,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
   override val ownerClass = JavaType.of(method.declaringClass)
 
   override val name: String = method.name
-  override val parameters = method.parameters.map { methodParameter(fromType, it) }
+  override val parameters = method.parameters.map { methodParameter(ownerClass, name, fromType, it) }
   override val returnType = JavaType.of(method.returnType)
   override val actualReturnType = actualMethodReturnType(fromType, method)
   override val descriptor = AsmUtils.getMethodDescriptor(parameters, returnType)
@@ -267,7 +276,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
 
   companion object {
 
-    internal fun methodParameter(fromType: JavaType?, parameter: Parameter): MethodParameter {
+    internal fun methodParameter(ownerType: JavaType, methodName: String, fromType: JavaType?, parameter: Parameter): MethodParameter {
       val type = methodParameterType(fromType, parameter)
       val rawType = JavaType.of(parameter.type)
       val annotations = parameter.annotations
@@ -309,7 +318,13 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
           if (it.isNull) NullValueNode()
           else StringConstantNode(value = it.value)
         }
-        else -> if (annotations.any { it is ObjectDefaultValue }) NullValueNode() else null
+        else -> {
+          val methodDefaultValueAnnotation = annotations.firstNotNullOfOrNull { it as? MethodCallDefaultValue }
+          val nullDefaultValueAnnotation = annotations.firstNotNullOfOrNull { it as? ObjectDefaultValue }
+          if (methodDefaultValueAnnotation != null) MethodDefaultParameterMethodCall(ownerType, methodDefaultValueAnnotation.methodName, JavaType.of(parameter.type))
+          else if (nullDefaultValueAnnotation != null) NullValueNode()
+          else null
+        }
       }
       return MethodParameter(type, rawType, parameter.name, (parameter.modifiers and Modifier.FINAL) != 0, defaultValue)
     }

@@ -45,7 +45,20 @@ sealed class AbstractFunctionCallNode(token: LexToken, override val castType: Ja
     return method!!
   }
 
+  override fun getArguments(typeResolver: AstNodeTypeResolver): List<ExpressionNode> {
+    val arguments = doGetArguments(typeResolver)
+    arguments.mapIndexed { index, it ->
+      if (it is MethodDefaultParameterMethodCall) {
+        val method = typeResolver.findMethod(it.ownerType, it.methodName, emptyList()) ?: throw MarcelSemanticException(token,
+          "Default value of parameter $index could not be found and no explicit value was provided")
+        SimpleFunctionCallNode(it.token, scope, it.methodName, emptyList(), method)
+      } else it
+    }
+    return doGetArguments(typeResolver)
+  }
+
   abstract fun doGetMethod(typeResolver: AstNodeTypeResolver): JavaMethod
+  abstract fun doGetArguments(typeResolver: AstNodeTypeResolver): List<ExpressionNode>
 }
 open class SimpleFunctionCallNode constructor(
   token: LexToken, override var scope: Scope,
@@ -94,7 +107,7 @@ open class SimpleFunctionCallNode constructor(
         && (methodOwnerType !is ReferenceExpression || (methodOwnerType as ReferenceExpression).variableExists)
   }
 
-  override fun getArguments(typeResolver: AstNodeTypeResolver): List<ExpressionNode> {
+  override fun doGetArguments(typeResolver: AstNodeTypeResolver): List<ExpressionNode> {
     val method = getMethod(typeResolver)
     if (method.ownerClass == JavaType.DynamicObject && method.name == "invokeMethod") {
       return listOf(StringConstantNode(token, name), LiteralArrayNode(token, JavaType.objectArray, arguments))
@@ -139,7 +152,7 @@ open class NamedParametersFunctionCall constructor(token: LexToken, override var
 ): AbstractFunctionCallNode(token, castType) {
   override val argumentNodes = positionalArguments + namedArguments.map { it.valueExpression }
 
-  override fun getArguments(typeResolver: AstNodeTypeResolver): List<ExpressionNode> {
+  override fun doGetArguments(typeResolver: AstNodeTypeResolver): List<ExpressionNode> {
     val method = getMethod(typeResolver)
     return positionalArguments + method.parameters.subList(positionalArguments.size, method.parameters.size).map { parameter: MethodParameter ->
       namedArguments.find { it.name  == parameter.name }?.valueExpression

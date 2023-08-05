@@ -26,6 +26,7 @@ interface AstNodeVisitor<T> {
 
   fun visit(node: FunctionCallNode): T
   fun visit(node: ConstructorCallNode): T
+  fun visit(node: MethodDefaultParameterMethodCall): T
   fun visit(node: NamedParametersConstructorCallNode): T
   fun visit(node: SuperConstructorCallNode): T
   fun visit(node: DivOperator): T

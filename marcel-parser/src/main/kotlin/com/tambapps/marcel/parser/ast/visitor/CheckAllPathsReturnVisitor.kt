@@ -31,6 +31,7 @@ class CheckAllPathsReturnVisitor: AstNodeVisitor<Boolean> {
   override fun visit(node: ElvisOperator) = false
 
   override fun visit(node: FunctionCallNode) = false
+  override fun visit(node: MethodDefaultParameterMethodCall) = false
 
   override fun visit(node: ConstructorCallNode) = false
 

@@ -6,9 +6,11 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.PARAMETER;
 
-// TODO rename it into null default value
+// TODO create new NoArgsFunctionCallNode which doesn't require a scope and will always find the method from the class
+// only works for method with no parameters
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value={PARAMETER})
-public @interface ObjectDefaultValue {
-    // only handle null for now
+public @interface MethodCallDefaultValue {
+
+  String methodName();
 }
