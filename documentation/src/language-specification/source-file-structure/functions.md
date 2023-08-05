@@ -118,7 +118,10 @@ sum(b: 5) // 0 + 8
 sum(a: 2, b: 5) // 2 + 5
 ```
 
-You can specify numbers, characters Strings, Int or Long Ranges, or `null` for other Object types.
+You can specify any expression from a static context (this means you can't call/use non static functions/fields from the class your method is defined).
+
+These default parameter values are kept after compilation so you can also benefit them from other Marcel libraries.
+
 
 ### Fields Constructor Call
 
