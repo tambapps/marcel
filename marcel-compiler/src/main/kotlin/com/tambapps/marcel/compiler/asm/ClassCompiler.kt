@@ -270,12 +270,12 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
             if (!parameter.type.isAssignableFrom(defaultValueType)) {
               throw MarcelSemanticException(parameter.token, "The default value of parameter ${parameter.name} is not assignable to the parameter. Expected value of type ${parameter.type} but gave $defaultValueType")
             }
-            // always static
+            // always static because it can be called from outside this class
             val defaultParameterMethodNode = if (defaultValue is FunctionCallNode
-              && defaultValue.getMethod(typeResolver).let { it.isStatic && it.parameters.isNotEmpty() && it.ownerClass == methodNode.ownerClass }
-              && classNode.methods.find { it.parameters.isEmpty() && it.isStatic && it.name == defaultValue.name } != null) {
+              && defaultValue.getMethod(typeResolver).let { it.isStatic && it.parameters.isEmpty() && it.ownerClass == methodNode.ownerClass }
+              && classNode.methods.find { it.parameters.isEmpty() && it.isStatic && it.name == defaultValue.name } != null)
               classNode.methods.find { it.parameters.isEmpty() && it.isStatic && it.name == defaultValue.name }!!
-            } else MethodNode.from(parameter.token, classNode.scope, classNode.type, JavaMethod.defaultParameterMethodName(methodNode, parameter), emptyList(), parameter.type, emptyList(), true).apply {
+            else MethodNode.from(parameter.token, classNode.scope, classNode.type, JavaMethod.defaultParameterMethodName(methodNode, parameter), emptyList(), parameter.type, emptyList(), true).apply {
               block.statements.add(
                 ReturnNode(parameter.token, scope, defaultValue)
               )

@@ -42,7 +42,7 @@ open class MethodNode constructor(
   override val descriptor get() = AsmUtils.getMethodDescriptor(parameters, returnType)
 
   override fun toString(): String {
-    return "fun $returnType $name(" + parameters.joinToString(separator = ", ", postfix = ") ")
+    return "${if (isStatic) "static " else ""}fun $returnType $name(" + parameters.joinToString(separator = ", ", postfix = ") ")
   }
 
 }
