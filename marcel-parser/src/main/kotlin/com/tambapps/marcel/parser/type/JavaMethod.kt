@@ -26,7 +26,7 @@ import marcel.lang.compile.IntRangeDefaultValue
 import marcel.lang.compile.LongDefaultValue
 import marcel.lang.compile.LongRangeDefaultValue
 import marcel.lang.compile.MethodCallDefaultValue
-import marcel.lang.compile.ObjectDefaultValue
+import marcel.lang.compile.NullDefaultValue
 import marcel.lang.compile.StringDefaultValue
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.Constructor
@@ -320,7 +320,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
         }
         else -> {
           val methodDefaultValueAnnotation = annotations.firstNotNullOfOrNull { it as? MethodCallDefaultValue }
-          val nullDefaultValueAnnotation = annotations.firstNotNullOfOrNull { it as? ObjectDefaultValue }
+          val nullDefaultValueAnnotation = annotations.firstNotNullOfOrNull { it as? NullDefaultValue }
           if (methodDefaultValueAnnotation != null) MethodDefaultParameterMethodCall(ownerType, methodDefaultValueAnnotation.methodName, JavaType.of(parameter.type))
           else if (nullDefaultValueAnnotation != null) NullValueNode()
           else null

@@ -22,7 +22,7 @@ import marcel.lang.compile.IntRangeDefaultValue
 import marcel.lang.compile.LongDefaultValue
 import marcel.lang.compile.LongRangeDefaultValue
 import marcel.lang.compile.MethodCallDefaultValue
-import marcel.lang.compile.ObjectDefaultValue
+import marcel.lang.compile.NullDefaultValue
 import marcel.lang.compile.StringDefaultValue
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.ClassWriter
@@ -277,7 +277,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
           }
           else -> {
             if (defaultValue is NullValueNode) {
-              mv.visitParameterAnnotation(i, ObjectDefaultValue::class.javaType.descriptor, true)
+              mv.visitParameterAnnotation(i, NullDefaultValue::class.javaType.descriptor, true)
             } else {
               val defaultValueType = defaultValue!!.getType(typeResolver)
               if (!parameter.type.isAssignableFrom(defaultValueType)) {
