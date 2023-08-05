@@ -28,9 +28,11 @@ open class MethodNode constructor(
       return from(token, classScope, javaMethod.ownerClass, javaMethod.name, javaMethod.parameters, javaMethod.returnType, emptyList(), javaMethod.isStatic)
     }
 
-    fun from(token: LexToken, classScope: Scope, ownerClass: JavaType, name: String, parameters: List<MethodParameter>, returnType: JavaType, annotations: List<AnnotationNode>, staticContext: Boolean): MethodNode {
-      val methodScope = MethodScope(classScope,  name, parameters, returnType, staticContext)
-      return MethodNode(token, Opcodes.ACC_PUBLIC, ownerClass,  name, FunctionBlockNode(
+    fun from(token: LexToken, classScope: Scope, ownerClass: JavaType, name: String, parameters: List<MethodParameter>, returnType: JavaType, annotations: List<AnnotationNode>, isStatic: Boolean): MethodNode {
+      val methodScope = MethodScope(classScope,  name, parameters, returnType, isStatic)
+      var access = Opcodes.ACC_PUBLIC
+      if (isStatic) access = access or Opcodes.ACC_STATIC
+      return MethodNode(token, access, ownerClass,  name, FunctionBlockNode(
         token, methodScope, mutableListOf()
       ), methodScope.parameters.map { MethodParameterNode(token, it) }.toMutableList(),  returnType, methodScope, false, annotations)
     }

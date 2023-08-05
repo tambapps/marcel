@@ -23,5 +23,8 @@ class DefaultMethodParamsClass {
       return String.valueOf(o)
     }
 
+   fun int bar3(list<int> a = [1, 2, 3] as list<int>) {
+     return a.size()
+   }
 }
 

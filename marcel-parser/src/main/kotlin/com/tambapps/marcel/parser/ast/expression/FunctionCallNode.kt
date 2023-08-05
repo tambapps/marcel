@@ -46,14 +46,6 @@ sealed class AbstractFunctionCallNode(token: LexToken, override val castType: Ja
   }
 
   override fun getArguments(typeResolver: AstNodeTypeResolver): List<ExpressionNode> {
-    val arguments = doGetArguments(typeResolver)
-    arguments.mapIndexed { index, it ->
-      if (it is MethodDefaultParameterMethodCall) {
-        val method = typeResolver.findMethod(it.ownerType, it.methodName, emptyList()) ?: throw MarcelSemanticException(token,
-          "Default value of parameter $index could not be found and no explicit value was provided")
-        SimpleFunctionCallNode(it.token, scope, it.methodName, emptyList(), method)
-      } else it
-    }
     return doGetArguments(typeResolver)
   }
 

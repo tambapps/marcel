@@ -595,7 +595,10 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(node: MethodDefaultParameterMethodCall) {
-    throw RuntimeException("Compiler error, such node shouldn't be handled here")
+    val method = typeResolver.findMethod(node.ownerType, node.methodName, emptyList(), excludeInterfaces= true, node= node)
+      ?: throw MarcelSemanticException(node.token, "Couldn't find default parameter value for method ${node.methodName} from classs ${node.ownerType}")
+
+    visit(SimpleFunctionCallNode(node.token, classNode.scope, node.methodName, emptyList(), method))
   }
 
   override fun visit(node: FunctionCallNode) {

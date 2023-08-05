@@ -33,3 +33,7 @@ assertEquals("1", bar(o: 1))
 
 
 assertEquals("nullnull", zoo())
+
+
+assertEquals(3, bar3())
+assertEquals(0, bar3([] as list<int>))
