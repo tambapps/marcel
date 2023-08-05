@@ -10,6 +10,4 @@ import static java.lang.annotation.ElementType.PARAMETER;
 @Target(value={PARAMETER})
 public @interface IntDefaultValue {
     int value() default 1;
-    boolean isNull() default false;
-
 }

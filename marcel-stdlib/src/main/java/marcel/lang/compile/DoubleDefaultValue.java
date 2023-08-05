@@ -10,5 +10,4 @@ import static java.lang.annotation.ElementType.PARAMETER;
 @Target(value={PARAMETER})
 public @interface DoubleDefaultValue {
     double value() default 0d;
-    boolean isNull() default false;
 }

@@ -10,6 +10,5 @@ import static java.lang.annotation.ElementType.PARAMETER;
 @Target(value={PARAMETER})
 public @interface StringDefaultValue {
     String value() default "";
-    boolean isNull() default false;
 
 }

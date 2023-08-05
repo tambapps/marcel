@@ -10,5 +10,4 @@ import static java.lang.annotation.ElementType.PARAMETER;
 @Target(value={PARAMETER})
 public @interface BooleanDefaultValue {
     boolean value() default false;
-    boolean isNull() default false;
 }

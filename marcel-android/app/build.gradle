@@ -75,6 +75,10 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
+    // TODO remove these when releasing
+    implementation 'com.tambapps.http:hyperpoet-marcel:1.4.0-SNAPSHOT'
+    implementation 'com.tambapps.http:garcon-marcel:2.0-SNAPSHOT'
 }
 
 // Allow references to generated code for hilt

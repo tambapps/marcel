@@ -262,7 +262,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
   override val ownerClass = JavaType.of(method.declaringClass)
 
   override val name: String = method.name
-  override val parameters = method.parameters.map { methodParameter(ownerClass, name, fromType, it) }
+  override val parameters = method.parameters.map { methodParameter(ownerClass, fromType, it) }
   override val returnType = JavaType.of(method.returnType)
   override val actualReturnType = actualMethodReturnType(fromType, method)
   override val descriptor = AsmUtils.getMethodDescriptor(parameters, returnType)
@@ -276,55 +276,42 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
 
   companion object {
 
-    internal fun methodParameter(ownerType: JavaType, methodName: String, fromType: JavaType?, parameter: Parameter): MethodParameter {
+    internal fun methodParameter(ownerType: JavaType, fromType: JavaType?, parameter: Parameter): MethodParameter {
       val type = methodParameterType(fromType, parameter)
       val rawType = JavaType.of(parameter.type)
       val annotations = parameter.annotations
-      val defaultValue: ExpressionNode? = when (type) {
-        JavaType.Integer, JavaType.int -> annotations.firstNotNullOfOrNull { it as? IntDefaultValue }?.let {
-          if (it.isNull && type == JavaType.Integer) NullValueNode()
-          else IntConstantNode(value = it.value)
+      val defaultValue: ExpressionNode? = when {
+        annotations.any { it is NullDefaultValue } -> NullValueNode()
+        annotations.any { it is MethodCallDefaultValue } -> MethodDefaultParameterMethodCall(ownerType, annotations.firstNotNullOfOrNull { it as? MethodCallDefaultValue }!!.methodName, JavaType.of(parameter.type))
+        type == JavaType.int || type == JavaType.Integer -> annotations.firstNotNullOfOrNull { it as? IntDefaultValue }?.let {
+          IntConstantNode(value = it.value)
         }
-        JavaType.Long, JavaType.long -> annotations.firstNotNullOfOrNull { it as? LongDefaultValue }?.let {
-          if (it.isNull && type == JavaType.Long) NullValueNode()
-          else LongConstantNode(value = it.value)
+        type == JavaType.long || type == JavaType.Long -> annotations.firstNotNullOfOrNull { it as? LongDefaultValue }?.let {
+          LongConstantNode(value = it.value)
         }
-        JavaType.Float, JavaType.float -> annotations.firstNotNullOfOrNull { it as? FloatDefaultValue }?.let {
-          if (it.isNull && type == JavaType.Float) NullValueNode()
-          else FloatConstantNode(value = it.value)
+        type == JavaType.float || type == JavaType.Float -> annotations.firstNotNullOfOrNull { it as? FloatDefaultValue }?.let {
+          FloatConstantNode(value = it.value)
         }
-        JavaType.Double, JavaType.double -> annotations.firstNotNullOfOrNull { it as? DoubleDefaultValue }?.let {
-          if (it.isNull && type == JavaType.Double) NullValueNode()
-          else DoubleConstantNode(value = it.value)
+        type == JavaType.double || type == JavaType.Double -> annotations.firstNotNullOfOrNull { it as? DoubleDefaultValue }?.let {
+          DoubleConstantNode(value = it.value)
         }
-        JavaType.Character, JavaType.char -> annotations.firstNotNullOfOrNull { it as? CharacterDefaultValue }?.let {
-          if (it.isNull && type == JavaType.Character) NullValueNode()
-          else CharConstantNode(value = it.value.toString())
+        type == JavaType.char || type == JavaType.Character -> annotations.firstNotNullOfOrNull { it as? CharacterDefaultValue }?.let {
+          CharConstantNode(value = it.value.toString())
         }
-        JavaType.Boolean, JavaType.boolean -> annotations.firstNotNullOfOrNull { it as? BooleanDefaultValue }?.let {
-          if (it.isNull && type == JavaType.Boolean) NullValueNode()
-          else BooleanConstantNode(value = it.value)
+        type == JavaType.boolean || type == JavaType.Boolean -> annotations.firstNotNullOfOrNull { it as? BooleanDefaultValue }?.let {
+          BooleanConstantNode(value = it.value)
         }
-        JavaType.IntRange -> annotations.firstNotNullOfOrNull { it as? IntRangeDefaultValue }?.let {
-          if (it.isNull) NullValueNode()
-          else RangeNode(LexToken.dummy(), IntConstantNode(value = it.from), IntConstantNode(value = it.to), it.fromExclusive, it.toExclusive)
+        type == JavaType.IntRange -> annotations.firstNotNullOfOrNull { it as? IntRangeDefaultValue }?.let {
+          RangeNode(LexToken.dummy(), IntConstantNode(value = it.from), IntConstantNode(value = it.to), it.fromExclusive, it.toExclusive)
         }
-        JavaType.LongRange -> annotations.firstNotNullOfOrNull { it as? LongRangeDefaultValue }?.let {
-          if (it.isNull) NullValueNode()
-          else RangeNode(
+        type == JavaType.LongRange -> annotations.firstNotNullOfOrNull { it as? LongRangeDefaultValue }?.let {
+          RangeNode(
             LexToken.dummy(), LongConstantNode(value = it.from), LongConstantNode(value = it.to), it.fromExclusive, it.toExclusive)
         }
-        JavaType.String -> annotations.firstNotNullOfOrNull { it as? StringDefaultValue }?.let {
-          if (it.isNull) NullValueNode()
-          else StringConstantNode(value = it.value)
+        type == JavaType.String -> annotations.firstNotNullOfOrNull { it as? StringDefaultValue }?.let {
+          StringConstantNode(value = it.value)
         }
-        else -> {
-          val methodDefaultValueAnnotation = annotations.firstNotNullOfOrNull { it as? MethodCallDefaultValue }
-          val nullDefaultValueAnnotation = annotations.firstNotNullOfOrNull { it as? NullDefaultValue }
-          if (methodDefaultValueAnnotation != null) MethodDefaultParameterMethodCall(ownerType, methodDefaultValueAnnotation.methodName, JavaType.of(parameter.type))
-          else if (nullDefaultValueAnnotation != null) NullValueNode()
-          else null
-        }
+        else -> null
       }
       return MethodParameter(type, rawType, parameter.name, (parameter.modifiers and Modifier.FINAL) != 0, defaultValue)
     }

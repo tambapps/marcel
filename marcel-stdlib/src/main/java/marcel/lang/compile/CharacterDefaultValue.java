@@ -10,5 +10,4 @@ import static java.lang.annotation.ElementType.PARAMETER;
 @Target(value={PARAMETER})
 public @interface CharacterDefaultValue {
     char value() default '\0';
-    boolean isNull() default false;
 }

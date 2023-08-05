@@ -10,5 +10,4 @@ import static java.lang.annotation.ElementType.PARAMETER;
 @Target(value={PARAMETER})
 public @interface FloatDefaultValue {
     float value() default 0f;
-    boolean isNull() default false;
 }

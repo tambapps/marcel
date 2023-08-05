@@ -15,6 +15,4 @@ public @interface LongRangeDefaultValue {
 
     boolean fromExclusive() default false;
     boolean toExclusive() default false;
-    boolean isNull() default false;
-
 }

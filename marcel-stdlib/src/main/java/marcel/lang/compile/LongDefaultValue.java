@@ -10,5 +10,4 @@ import static java.lang.annotation.ElementType.PARAMETER;
 @Target(value={PARAMETER})
 public @interface LongDefaultValue {
     long value() default 0L;
-    boolean isNull() default false;
 }

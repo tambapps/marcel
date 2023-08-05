@@ -229,43 +229,33 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
 
       val defaultValue = parameter.defaultValue
       if (defaultValue != null) {
-        when (parameter.type) {
-          // TODO can now specify non constant values. need to remove explicit throw when value is not constant
-          JavaType.int, JavaType.Integer -> mv.visitParameterAnnotation(i, IntDefaultValue::class.javaType.descriptor, true).apply {
-            if (parameter.type == JavaType.Integer && defaultValue is NullValueNode) visit("isNull", true)
-            else visit("value", (defaultValue as? IntConstantNode)?.value ?: throw MarcelSemanticException(parameter.token, "Must specify int constant for an int method default parameter"))
+        when {
+          defaultValue is NullValueNode -> {
+            if (parameter.type.primitive) {
+              throw MarcelSemanticException(parameter.token, "Primitive types cannot have null default value")
+            }
+            mv.visitParameterAnnotation(i, NullDefaultValue::class.javaType.descriptor, true)
           }
-          JavaType.long, JavaType.Long -> mv.visitParameterAnnotation(i, LongDefaultValue::class.javaType.descriptor, true).apply {
-            if (parameter.type == JavaType.Long && defaultValue is NullValueNode) visit("isNull", true)
-            else visit("value", (defaultValue as? LongConstantNode)?.value ?: throw MarcelSemanticException(parameter.token, "Must specify long constant for an int method default parameter"))
-          }
-          JavaType.float, JavaType.Float -> mv.visitParameterAnnotation(i, FloatDefaultValue::class.javaType.descriptor, true).apply {
-            if (parameter.type == JavaType.Float && defaultValue is NullValueNode) visit("isNull", true)
-            else visit("value", (defaultValue as? FloatConstantNode)?.value ?: throw MarcelSemanticException(parameter.token, "Must specify float constant for a float method default parameter"))
-          }
-          JavaType.double, JavaType.Double -> mv.visitParameterAnnotation(i, DoubleDefaultValue::class.javaType.descriptor, true).apply {
-            if (parameter.type == JavaType.Double && defaultValue is NullValueNode) visit("isNull", true)
-            else visit("value", (defaultValue as? DoubleConstantNode)?.value ?: throw MarcelSemanticException(parameter.token, "Must specify double constant for a double method default parameter"))
-          }
-          JavaType.char, JavaType.Character -> mv.visitParameterAnnotation(i, CharacterDefaultValue::class.javaType.descriptor, true).apply {
-            if (parameter.type == JavaType.Character && defaultValue is NullValueNode) visit("isNull", true)
-            else visit("value", (defaultValue as? CharConstantNode)?.value?.get(0) ?: throw MarcelSemanticException(parameter.token, "Must specify char constant for a char method default parameter"))
-          }
-          JavaType.boolean, JavaType.Boolean -> mv.visitParameterAnnotation(i, BooleanDefaultValue::class.javaType.descriptor, true).apply {
-            if (parameter.type == JavaType.Character && defaultValue is NullValueNode) visit("isNull", true)
-            else visit("value", (defaultValue as? BooleanConstantNode)?.value ?: throw MarcelSemanticException(parameter.token, "Must specify boolean constant for an boolean method default parameter"))
-          }
-          JavaType.String -> mv.visitParameterAnnotation(i, StringDefaultValue::class.javaType.descriptor, true).apply {
-            if (defaultValue is NullValueNode) visit("isNull", true)
-            else visit("value", (defaultValue as? StringConstantNode)?.value ?: throw MarcelSemanticException(parameter.token, "Must specify string constant for an int method default parameter"))
-          }
-          JavaType.IntRange, JavaType.LongRange -> {
+          (parameter.type == JavaType.int || parameter.type == JavaType.Integer) && defaultValue is IntConstantNode -> mv.visitParameterAnnotation(i, IntDefaultValue::class.javaType.descriptor, true)
+            .visit("value", defaultValue.value)
+          (parameter.type == JavaType.long || parameter.type == JavaType.Long) && defaultValue is LongConstantNode -> mv.visitParameterAnnotation(i, LongDefaultValue::class.javaType.descriptor, true)
+            .visit("value", defaultValue.value)
+          (parameter.type == JavaType.float || parameter.type == JavaType.Float) && defaultValue is FloatConstantNode -> mv.visitParameterAnnotation(i, FloatDefaultValue::class.javaType.descriptor, true)
+            .visit("value", defaultValue.value)
+          (parameter.type == JavaType.double || parameter.type == JavaType.Double) && defaultValue is DoubleConstantNode -> mv.visitParameterAnnotation(i, DoubleDefaultValue::class.javaType.descriptor, true)
+            .visit("value", defaultValue.value)
+          (parameter.type == JavaType.char || parameter.type == JavaType.Character) && defaultValue is CharConstantNode -> mv.visitParameterAnnotation(i, CharacterDefaultValue::class.javaType.descriptor, true)
+            .visit("value", defaultValue.value[0])
+          (parameter.type == JavaType.boolean || parameter.type == JavaType.Boolean) && defaultValue is BooleanConstantNode -> mv.visitParameterAnnotation(i, BooleanDefaultValue::class.javaType.descriptor, true)
+            .visit("value", defaultValue.value)
+          parameter.type == JavaType.String && defaultValue is StringConstantNode -> mv.visitParameterAnnotation(i, StringDefaultValue::class.javaType.descriptor, true)
+            .visit("value", defaultValue.value)
+          parameter.type == JavaType.IntRange || parameter.type == JavaType.LongRange -> {
             val isIntRange = defaultValue.getType(typeResolver) == JavaType.IntRange
             val annotationVisitor = mv.visitParameterAnnotation(i,
               if (isIntRange) IntRangeDefaultValue::class.javaType.descriptor else LongRangeDefaultValue::class.javaType.descriptor,
               true)
-            if (defaultValue is NullValueNode) annotationVisitor.visit("isNull", true)
-            else annotationVisitor.apply {
+            annotationVisitor.apply {
               val rangeNode = defaultValue as? RangeNode ?: throw MarcelSemanticException(parameter.token, "Must specify a range for a range method default parameter")
               val from = (rangeNode.from as? JavaConstantExpression)?.value ?: throw MarcelSemanticException(parameter.token, "Must specify constants for a method range default parameter")
               val to = (rangeNode.to as? JavaConstantExpression)?.value ?: throw MarcelSemanticException(parameter.token, "Must specify constants for a method range default parameter")
@@ -276,32 +266,27 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
             }
           }
           else -> {
-            if (defaultValue is NullValueNode) {
-              mv.visitParameterAnnotation(i, NullDefaultValue::class.javaType.descriptor, true)
-            } else {
-              val defaultValueType = defaultValue!!.getType(typeResolver)
-              if (!parameter.type.isAssignableFrom(defaultValueType)) {
-                throw MarcelSemanticException(parameter.token, "The default value of parameter ${parameter.name} is not assignable to the parameter. Expected value of type ${parameter.type} but gave $defaultValueType")
-              }
-              // always static
-              val defaultParameterMethodNode = if (defaultValue is FunctionCallNode
-                && defaultValue.getMethod(typeResolver).let { it.isStatic && it.parameters.isNotEmpty() && it.ownerClass == methodNode.ownerClass }
-                && classNode.methods.find { it.parameters.isEmpty() && it.isStatic && it.name == defaultValue.name } != null) {
-                classNode.methods.find { it.parameters.isEmpty() && it.isStatic && it.name == defaultValue.name }!!
-              } else MethodNode.from(parameter.token, classNode.scope, classNode.type, JavaMethod.defaultParameterMethodName(methodNode, parameter), emptyList(), parameter.type, emptyList(), true).apply {
-                block.statements.add(
-                  ReturnNode(parameter.token, scope, defaultValue)
-                )
-                classNode.addMethod(this)
-                // important so that the method can be found by type resolver
-                typeResolver.defineMethod(classNode.type, this)
-              }
-
-              // now writing annotation
-              mv.visitParameterAnnotation(i, MethodCallDefaultValue::class.javaType.descriptor, true)
-                .visit("methodName", defaultParameterMethodNode.name)
-
+            val defaultValueType = defaultValue.getType(typeResolver)
+            if (!parameter.type.isAssignableFrom(defaultValueType)) {
+              throw MarcelSemanticException(parameter.token, "The default value of parameter ${parameter.name} is not assignable to the parameter. Expected value of type ${parameter.type} but gave $defaultValueType")
             }
+            // always static
+            val defaultParameterMethodNode = if (defaultValue is FunctionCallNode
+              && defaultValue.getMethod(typeResolver).let { it.isStatic && it.parameters.isNotEmpty() && it.ownerClass == methodNode.ownerClass }
+              && classNode.methods.find { it.parameters.isEmpty() && it.isStatic && it.name == defaultValue.name } != null) {
+              classNode.methods.find { it.parameters.isEmpty() && it.isStatic && it.name == defaultValue.name }!!
+            } else MethodNode.from(parameter.token, classNode.scope, classNode.type, JavaMethod.defaultParameterMethodName(methodNode, parameter), emptyList(), parameter.type, emptyList(), true).apply {
+              block.statements.add(
+                ReturnNode(parameter.token, scope, defaultValue)
+              )
+              classNode.addMethod(this)
+              // important so that the method can be found by type resolver
+              typeResolver.defineMethod(classNode.type, this)
+            }
+
+            // now writing annotation
+            mv.visitParameterAnnotation(i, MethodCallDefaultValue::class.javaType.descriptor, true)
+              .visit("methodName", defaultParameterMethodNode.name)
           }
         }
       }
