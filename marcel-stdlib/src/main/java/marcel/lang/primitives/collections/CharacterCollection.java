@@ -16,6 +16,8 @@
 package marcel.lang.primitives.collections;
 
 
+import marcel.lang.primitives.collections.lists.CharacterArrayList;
+import marcel.lang.primitives.collections.lists.CharacterList;
 import marcel.lang.primitives.iterable.CharacterIterable;
 import marcel.lang.primitives.iterators.CharacterIterator;
 import marcel.lang.primitives.spliterators.CharacterSpliterator;
@@ -182,6 +184,17 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
       if (predicate.test(c)) return c;
     }
     throw new NoSuchElementException();
+  }
+
+  default CharacterList findAll(CharacterPredicate predicate)  {
+    CharacterIterator iterator = iterator();
+    char e;
+    CharacterList l = new CharacterArrayList(size());
+    while (iterator.hasNext()) {
+      e = iterator.nextCharacter();
+      if (predicate.test(e)) l.add(e);
+    }
+    return l;
   }
 
   /**

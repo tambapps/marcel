@@ -16,6 +16,8 @@
 package marcel.lang.primitives.collections;
 
 
+import marcel.lang.primitives.collections.lists.LongArrayList;
+import marcel.lang.primitives.collections.lists.LongList;
 import marcel.lang.primitives.iterable.LongIterable;
 import marcel.lang.primitives.iterators.LongIterator;
 import marcel.lang.primitives.spliterators.LongSpliterator;
@@ -182,6 +184,17 @@ public interface LongCollection extends Collection<Long>, LongIterable {
       if (predicate.test(e)) return e;
     }
     throw new NoSuchElementException();
+  }
+
+  default LongList findAll(LongPredicate predicate)  {
+    LongIterator iterator = iterator();
+    long e;
+    LongList l = new LongArrayList(size());
+    while (iterator.hasNext()) {
+      e = iterator.nextLong();
+      if (predicate.test(e)) l.add(e);
+    }
+    return l;
   }
 
   default long min() {

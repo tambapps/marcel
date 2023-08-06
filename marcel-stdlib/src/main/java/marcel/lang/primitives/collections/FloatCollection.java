@@ -15,6 +15,8 @@
  */
 package marcel.lang.primitives.collections;
 
+import marcel.lang.primitives.collections.lists.FloatArrayList;
+import marcel.lang.primitives.collections.lists.FloatList;
 import marcel.lang.primitives.iterable.FloatIterable;
 import marcel.lang.primitives.iterators.FloatIterator;
 import marcel.lang.primitives.spliterators.FloatSpliterator;
@@ -184,6 +186,16 @@ public interface FloatCollection extends Collection<Float>, FloatIterable {
     throw new NoSuchElementException();
   }
 
+  default FloatList findAll(FloatPredicate predicate)  {
+    FloatIterator iterator = iterator();
+    float e;
+    FloatList l = new FloatArrayList(size());
+    while (iterator.hasNext()) {
+      e = iterator.nextFloat();
+      if (predicate.test(e)) l.add(e);
+    }
+    return l;
+  }
 
   default float min() {
     if (isEmpty()) throw new NoSuchElementException();

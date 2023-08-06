@@ -1,8 +1,6 @@
 package marcel.lang.methods;
 
 import marcel.lang.IntRange;
-import marcel.lang.primitives.collections.lists.CharacterArrayList;
-import marcel.lang.primitives.collections.lists.CharacterList;
 import marcel.lang.primitives.collections.lists.DoubleArrayList;
 import marcel.lang.primitives.collections.lists.DoubleList;
 import marcel.lang.primitives.collections.lists.FloatArrayList;
@@ -58,7 +56,7 @@ public final class DefaultMarcelMethods {
     return groups;
   }
 
-  // TODO add all and any
+  // TODO add all, any, none
   /**
    * Find the first element matching the given predicate
    *
@@ -72,6 +70,22 @@ public final class DefaultMarcelMethods {
       if (predicate.test(e)) return e;
     }
     return null;
+  }
+
+  /**
+   * Find all elements matching the given predicate
+   *
+   * @param self      the collection
+   * @param predicate the predicate
+   * @param <T>       the Collection elements type
+   * @return all elements matching the given predicate
+   */
+  public static <T> List<T> findAll(Collection<T> self, Predicate<T> predicate) {
+    List<T> list = new ArrayList<>(self.size());
+    for (T e : self) {
+      if (predicate.test(e)) list.add(e);
+    }
+    return list;
   }
 
   /**

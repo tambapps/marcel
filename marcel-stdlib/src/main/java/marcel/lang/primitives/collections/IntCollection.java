@@ -16,6 +16,8 @@
 package marcel.lang.primitives.collections;
 
 
+import marcel.lang.primitives.collections.lists.IntArrayList;
+import marcel.lang.primitives.collections.lists.IntList;
 import marcel.lang.primitives.iterable.IntIterable;
 import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.spliterators.IntSpliterator;
@@ -182,6 +184,17 @@ public interface IntCollection extends Collection<Integer>, IntIterable {
       if (predicate.test(e)) return e;
     }
     throw new NoSuchElementException();
+  }
+
+  default IntList findAll(IntPredicate predicate)  {
+    IntIterator iterator = iterator();
+    int e;
+    IntList intList = new IntArrayList(size());
+    while (iterator.hasNext()) {
+      e = iterator.nextInt();
+      if (predicate.test(e)) intList.add(e);
+    }
+    return intList;
   }
 
   default int min() {

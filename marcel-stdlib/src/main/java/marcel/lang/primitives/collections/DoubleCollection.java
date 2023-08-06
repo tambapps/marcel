@@ -16,11 +16,14 @@
 package marcel.lang.primitives.collections;
 
 
+import marcel.lang.primitives.collections.lists.DoubleArrayList;
+import marcel.lang.primitives.collections.lists.DoubleList;
 import marcel.lang.primitives.iterable.DoubleIterable;
 import marcel.lang.primitives.iterators.DoubleIterator;
 import marcel.lang.primitives.spliterators.DoubleSpliterator;
 
 import java.util.Collection;
+import java.util.NoSuchElementException;
 import java.util.function.DoublePredicate;
 
 /** A type-specific {@link Collection}; provides some additional methods
@@ -163,6 +166,37 @@ public interface DoubleCollection extends Collection<Double>, DoubleIterable {
 
   default java.util.stream.DoubleStream doubleStream() {
     return java.util.stream.StreamSupport.doubleStream(spliterator(), false);
+  }
+
+  default Double find(DoublePredicate predicate)  {
+    DoubleIterator iterator = iterator();
+    double e;
+    while (iterator.hasNext()) {
+      e = iterator.nextDouble();
+      if (predicate.test(e)) return e;
+    }
+    return null;
+  }
+
+  default double findDouble(DoublePredicate predicate)  {
+    DoubleIterator iterator = iterator();
+    double e;
+    while (iterator.hasNext()) {
+      e = iterator.nextDouble();
+      if (predicate.test(e)) return e;
+    }
+    throw new NoSuchElementException();
+  }
+
+  default DoubleList findAll(DoublePredicate predicate)  {
+    DoubleIterator iterator = iterator();
+    double e;
+    DoubleList l = new DoubleArrayList(size());
+    while (iterator.hasNext()) {
+      e = iterator.nextDouble();
+      if (predicate.test(e)) l.add(e);
+    }
+    return l;
   }
 
   /**
