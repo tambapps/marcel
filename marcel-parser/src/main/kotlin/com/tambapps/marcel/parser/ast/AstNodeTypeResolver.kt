@@ -43,7 +43,6 @@ open class AstNodeTypeResolver constructor(
     return getDeclaredMethods(type).first { it.isAbstract }
   }
 
-  // TODO add node to get token when throwing exceptions
   fun defineClass(node: AstNode? = null, visibility: Visibility, className: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): JavaType {
     return defineClass(node, visibility, null, className, superClass, isInterface, interfaces)
   }
@@ -132,7 +131,6 @@ open class AstNodeTypeResolver constructor(
   }
 
   fun findMethodOrThrow(javaType: JavaType, name: String, argumentTypes: List<AstTypedObject>, node: AstNode? = null): JavaMethod {
-    // TODO pass token as argument to be able to have line and column on exception
     return findMethod(javaType, name, argumentTypes, false, node) ?: throw MarcelSemanticException(node?.token, "Method $javaType.$name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
 

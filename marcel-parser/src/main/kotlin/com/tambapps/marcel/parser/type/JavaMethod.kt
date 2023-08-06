@@ -358,7 +358,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
                 return@map javaType.genericTypes.getOrNull(index) ?: JavaType.Object
               }
 
-              else -> TODO("Sounds difficult to implement")
+              else -> rawType // sounds difficult to implement. Marcel isn't supposed to handle generic types anyway
             }
           }
           return rawType.withGenericTypes(genericTypes)

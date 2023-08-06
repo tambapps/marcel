@@ -894,11 +894,6 @@ class InstructionGenerator(
     // loop end
     mv.visitLabel(loopEnd)
 
-    if (Closeable::class.javaType.isAssignableFrom(iteratorExpressionType)) {
-      // TODO would need to be in a finally block (which means the loop should be in a try block)
-      pushArgument(iteratorVarReference)
-      mv.invokeMethod(node, classNode.scope, Closeable::class.java.getMethod("close"))
-    }
     scope.freeVariable(iteratorVariable.name)
   }
   private fun loopBody(body: BlockNode, continueLabel: Label, breakLabel: Label) {
