@@ -30,8 +30,25 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class AbstractCompileMojo extends AbstractMarcelSourcesMojo {
 
+    private static final Map<String, Integer> VERSION_MAP = new HashMap<>();
 
-    // TODO handle this argument
+    static {
+        VERSION_MAP.put("1.8", 52);
+        VERSION_MAP.put("8", 52);
+        VERSION_MAP.put("9", 53);
+        VERSION_MAP.put("10", 54);
+        VERSION_MAP.put("11", 55);
+        VERSION_MAP.put("12", 56);
+        VERSION_MAP.put("13", 57);
+        VERSION_MAP.put("14", 58);
+        VERSION_MAP.put("15", 59);
+        VERSION_MAP.put("16", 60);
+        VERSION_MAP.put("17", 61);
+        VERSION_MAP.put("18", 62);
+        VERSION_MAP.put("19", 63);
+        VERSION_MAP.put("20", 64);
+    }
+
     @Parameter(property = "maven.compiler.target", defaultValue = "1.8")
     protected String targetBytecode;
 
@@ -61,8 +78,15 @@ public abstract class AbstractCompileMojo extends AbstractMarcelSourcesMojo {
             marcelClassLoader.addLibraryJar(new File(path));
         }
 
-
-        CompilerConfiguration configuration = new CompilerConfiguration();
+        int classVersion = 52;
+        if (targetBytecode != null) {
+            Integer version = VERSION_MAP.get(targetBytecode);
+            if (version == null) {
+                throw new MarcelCompilerException(String.format("Version %d is not handled", targetBytecode));
+            }
+            classVersion = version;
+        }
+        CompilerConfiguration configuration = new CompilerConfiguration(classVersion, false);
         MarcelCompiler compiler = new MarcelCompiler(configuration);
 
         AtomicInteger classesCount = new AtomicInteger();
