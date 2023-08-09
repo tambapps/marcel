@@ -229,4 +229,31 @@ public interface LongCollection extends Collection<Long>, LongIterable {
   default boolean leftShift(long value) {
     return add(value);
   }
+
+  default boolean all(LongPredicate predicate) {
+    LongIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      long e = iterator.nextLong();
+      if (!predicate.test(e)) return false;
+    }
+    return true;
+  }
+
+  default boolean any(LongPredicate predicate) {
+    LongIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      long e = iterator.nextLong();
+      if (predicate.test(e)) return true;
+    }
+    return false;
+  }
+
+  default boolean none(LongPredicate predicate) {
+    LongIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      long e = iterator.nextLong();
+      if (predicate.test(e)) return false;
+    }
+    return true;
+  }
 }

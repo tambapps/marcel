@@ -209,4 +209,30 @@ public interface DoubleCollection extends Collection<Double>, DoubleIterable {
     return add(value);
   }
 
+  default boolean all(DoublePredicate predicate) {
+    DoubleIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      double e = iterator.nextDouble();
+      if (!predicate.test(e)) return false;
+    }
+    return true;
+  }
+
+  default boolean any(DoublePredicate predicate) {
+    DoubleIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      double e = iterator.nextDouble();
+      if (predicate.test(e)) return true;
+    }
+    return false;
+  }
+
+  default boolean none(DoublePredicate predicate) {
+    DoubleIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      double e = iterator.nextDouble();
+      if (predicate.test(e)) return false;
+    }
+    return true;
+  }
 }

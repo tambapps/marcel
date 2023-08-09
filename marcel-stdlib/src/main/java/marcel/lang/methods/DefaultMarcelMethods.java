@@ -56,7 +56,51 @@ public final class DefaultMarcelMethods {
     return groups;
   }
 
-  // TODO add all, any, none
+  /**
+   * Returns true if all the elements match the given predicate
+   *
+   * @param self      the collection
+   * @param predicate the predicate
+   * @param <T>       the Collection elements type
+   * @return true if all the elements match the given predicate
+   */
+  public static <T> boolean all(Collection<T> self, Predicate<T> predicate) {
+    for (T e : self) {
+      if (!predicate.test(e)) return false;
+    }
+    return true;
+  }
+
+  /**
+   * Returns true if at least one element matches the given predicate
+   *
+   * @param self      the collection
+   * @param predicate the predicate
+   * @param <T>       the Collection elements type
+   * @return true if all the elements match the given predicate
+   */
+  public static <T> boolean any(Collection<T> self, Predicate<T> predicate) {
+    for (T e : self) {
+      if (predicate.test(e)) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Returns true if none of the elements match the given predicate
+   *
+   * @param self      the collection
+   * @param predicate the predicate
+   * @param <T>       the Collection elements type
+   * @return true if none of the elements match the given predicate
+   */
+  public static <T> boolean none(Collection<T> self, Predicate<T> predicate) {
+    for (T e : self) {
+      if (predicate.test(e)) return false;
+    }
+    return true;
+  }
+
   /**
    * Find the first element matching the given predicate
    *

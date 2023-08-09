@@ -229,4 +229,31 @@ public interface IntCollection extends Collection<Integer>, IntIterable {
   default boolean leftShift(int value) {
     return add(value);
   }
+
+  default boolean all(IntPredicate predicate) {
+    IntIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      int e = iterator.nextInt();
+      if (!predicate.test(e)) return false;
+    }
+    return true;
+  }
+
+  default boolean any(IntPredicate predicate) {
+    IntIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      int e = iterator.nextInt();
+      if (predicate.test(e)) return true;
+    }
+    return false;
+  }
+
+  default boolean none(IntPredicate predicate) {
+    IntIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      int e = iterator.nextInt();
+      if (predicate.test(e)) return false;
+    }
+    return true;
+  }
 }

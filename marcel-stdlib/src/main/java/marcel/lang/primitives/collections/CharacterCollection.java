@@ -20,11 +20,13 @@ import marcel.lang.primitives.collections.lists.CharacterArrayList;
 import marcel.lang.primitives.collections.lists.CharacterList;
 import marcel.lang.primitives.iterable.CharacterIterable;
 import marcel.lang.primitives.iterators.CharacterIterator;
+import marcel.lang.primitives.iterators.LongIterator;
 import marcel.lang.primitives.spliterators.CharacterSpliterator;
 import marcel.lang.util.function.CharacterPredicate;
 
 import java.util.Collection;
 import java.util.NoSuchElementException;
+import java.util.function.LongPredicate;
 
 /** A type-specific {@link Collection}; provides some additional methods
  * that use polymorphism to avoid (un)boxing.
@@ -205,5 +207,32 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
    */
   default boolean leftShift(char value) {
     return add(value);
+  }
+
+  default boolean all(CharacterPredicate predicate) {
+    CharacterIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      char e = iterator.nextCharacter();
+      if (!predicate.test(e)) return false;
+    }
+    return true;
+  }
+
+  default boolean any(CharacterPredicate predicate) {
+    CharacterIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      char e = iterator.nextCharacter();
+      if (predicate.test(e)) return true;
+    }
+    return false;
+  }
+
+  default boolean none(CharacterPredicate predicate) {
+    CharacterIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      char e = iterator.nextCharacter();
+      if (predicate.test(e)) return false;
+    }
+    return true;
   }
 }

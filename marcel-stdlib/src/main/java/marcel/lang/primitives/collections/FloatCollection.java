@@ -229,4 +229,31 @@ public interface FloatCollection extends Collection<Float>, FloatIterable {
   default boolean leftShift(float value) {
     return add(value);
   }
+
+  default boolean all(FloatPredicate predicate) {
+    FloatIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      float e = iterator.nextFloat();
+      if (!predicate.test(e)) return false;
+    }
+    return true;
+  }
+
+  default boolean any(FloatPredicate predicate) {
+    FloatIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      float e = iterator.nextFloat();
+      if (predicate.test(e)) return true;
+    }
+    return false;
+  }
+
+  default boolean none(FloatPredicate predicate) {
+    FloatIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      float e = iterator.nextFloat();
+      if (predicate.test(e)) return false;
+    }
+    return true;
+  }
 }
