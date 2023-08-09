@@ -1,5 +1,6 @@
 package com.tambapps.marcel.parser.scope
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.type.JavaMethod
@@ -32,19 +33,18 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
 
   protected val localVariables = mutableListOf<LocalVariable>()
 
-  open fun addLocalVariable(type: JavaType, isFinal: Boolean = false): LocalVariable {
+  open fun addLocalVariable(type: JavaType, isFinal: Boolean = false, token: LexToken = LexToken.dummy()): LocalVariable {
     val name = generateLocalVarName()
-    return addLocalVariable(type, name, isFinal)
+    return addLocalVariable(type, name, isFinal, token)
   }
   private fun generateLocalVarName(): String {
     return  "__marcel_unnamed_" + this.hashCode().toString().replace('-', '_') + '_' +
         ThreadLocalRandom.current().nextInt().toString().replace('-', '_')
   }
 
-  open fun addLocalVariable(type: JavaType, name: String, isFinal: Boolean = false): LocalVariable {
+  open fun addLocalVariable(type: JavaType, name: String, isFinal: Boolean = false, token: LexToken = LexToken.dummy()): LocalVariable {
     if (findLocalVariable(name) != null) {
-      // TODO add token to method for exception
-      throw MarcelSemanticException("A variable with name $name is already defined")
+      throw MarcelSemanticException(token, "A variable with name $name is already defined")
     }
     val v = localVariablePool.obtain(type, name, isFinal)
     localVariables.add(v)
@@ -126,11 +126,11 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
     }
   }
 
-  fun <T> useTempVariable(type: JavaType, function: (LocalVariable) -> T): T {
-    return useTempVariable(type, generateLocalVarName(), function)
+  fun <T> useTempVariable(type: JavaType, token: LexToken, function: (LocalVariable) -> T): T {
+    return useTempVariable(type, generateLocalVarName(), token, function)
   }
-  fun <T> useTempVariable(type: JavaType, name: String, function: (LocalVariable) -> T): T {
-    val fakeVariable = addLocalVariable(type, name)
+  fun <T> useTempVariable(type: JavaType, name: String, token: LexToken, function: (LocalVariable) -> T): T {
+    val fakeVariable = addLocalVariable(type, name, token = token)
     val optVar = localVariables.find { it.name == name }
     if (optVar != null) localVariables[localVariables.indexOf(optVar)] = fakeVariable
     else localVariables.add(fakeVariable)

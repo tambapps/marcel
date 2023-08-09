@@ -240,7 +240,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     val scope = node.scope
     val type = node.getType(typeResolver)
 
-    val tempVar = scope.addLocalVariable(type)
+    val tempVar = scope.addLocalVariable(type, token = node.token)
 
     visitWithoutPushing(VariableAssignmentNode(node.token, scope, tempVar.name, node.leftOperand))
     val leftOperandRef = ReferenceExpression(node.token, scope, tempVar.name)
@@ -506,7 +506,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       val scope = access.scope
 
       // need a local variable to avoid evaluating twice
-      val tempVar = scope.addLocalVariable(node.leftOperand.getType(typeResolver))
+      val tempVar = scope.addLocalVariable(node.leftOperand.getType(typeResolver), token = node.token)
       visitWithoutPushing(VariableAssignmentNode(node.token, scope, tempVar.name, node.leftOperand))
       val tempRef = ReferenceExpression(node.token, scope, tempVar.name)
 
@@ -535,7 +535,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       val scope = node.scope
 
       // need a local variable to avoid evaluating twice
-      val tempVar = scope.addLocalVariable(node.leftOperand.getType(typeResolver))
+      val tempVar = scope.addLocalVariable(node.leftOperand.getType(typeResolver), token = node.token)
       visitWithoutPushing(VariableAssignmentNode(node.token, scope, tempVar.name, node.leftOperand))
       val tempRef = ReferenceExpression(node.token, scope, tempVar.name)
 
@@ -564,7 +564,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       val scope = node.scope
 
       // need a local variable to avoid evaluating twice
-      val tempVar = scope.addLocalVariable(node.leftOperand.getType(typeResolver))
+      val tempVar = scope.addLocalVariable(node.leftOperand.getType(typeResolver), token = node.token)
       visitWithoutPushing(VariableAssignmentNode(node.token, scope, tempVar.name, node.leftOperand))
       val tempRef = ReferenceExpression(node.token, scope, tempVar.name)
 
@@ -624,7 +624,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       if (node.getArguments(typeResolver).size != inlineMethod.parameters.size) {
         throw MarcelSemanticException(node.token, "Invalid number of arguments for method ${method.name}")
       }
-      val variables = method.parameters.map { innerScope.addLocalVariable(it.type, it.name) }
+      val variables = method.parameters.map { innerScope.addLocalVariable(it.type, it.name, token = node.token) }
       for (i in variables.indices) {
         visit(VariableAssignmentNode(node.token, innerScope, variables[i].name, node.getArguments(typeResolver)[i]))
       }
@@ -829,14 +829,14 @@ class InstructionGenerator(
     mv.jumpTo(endLabel)
 
     catchesWithLabel.forEach { c ->
-      val excVar = c.first.scope.addLocalVariable(JavaType.commonType(c.first.exceptionTypes), c.first.exceptionVarName)
+      val excVar = c.first.scope.addLocalVariable(JavaType.commonType(c.first.exceptionTypes), c.first.exceptionVarName, token = node.token)
       mv.catchBlock(c.second, excVar.index)
       c.first.statementNode.accept(this)
       finallyWithLabel?.first?.statementNode?.accept(this)
       mv.jumpTo(endLabel)
     }
     if (finallyWithLabel != null) {
-      val excVar = finallyWithLabel.first.scope.addLocalVariable(Throwable::class.javaType)
+      val excVar = finallyWithLabel.first.scope.addLocalVariable(Throwable::class.javaType, token = node.token)
       mv.catchBlock(finallyWithLabel.second, excVar.index)
       finallyWithLabel.first.statementNode.accept(this)
       mv.pushVariable(node, finallyWithLabel.first.scope, excVar)
@@ -852,7 +852,7 @@ class InstructionGenerator(
 
     // initialization
     val scope = node.scope
-    scope.addLocalVariable(node.variableType, node.variableName)
+    scope.addLocalVariable(node.variableType, node.variableName, token = node.token)
 
     // creating iterator
     val iteratorExpression = if (Iterable::class.javaType.isAssignableFrom(expressionType)) SimpleFunctionCallNode(node.token, scope, "iterator", mutableListOf(), expression)
@@ -862,7 +862,7 @@ class InstructionGenerator(
     else throw MarcelSemanticException(node.token, "Doesn't handle iterating on $expressionType")
     val iteratorExpressionType = iteratorExpression.getType(typeResolver)
 
-    val iteratorVariable = scope.addLocalVariable(iteratorExpressionType)
+    val iteratorVariable = scope.addLocalVariable(iteratorExpressionType, token = node.token)
 
     // get right method in function of types, to avoid auto-(un/debo)xing
     val methodName = if (IntIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) "nextInt"
@@ -1158,7 +1158,7 @@ class InstructionGenerator(
 
   override fun visit(node: VariableDeclarationNode) {
     node.scope.addLocalVariable(node.type, node.name,
-      node.isFinal)
+      node.isFinal, node.token)
     visit(node as VariableAssignmentNode)
   }
 
@@ -1168,7 +1168,7 @@ class InstructionGenerator(
     if (!List::class.javaType.isAssignableFrom(expressionType) && !expressionType.isArray) {
       throw MarcelSemanticException(node.token, "Multi variable declarations must use an array or a list as the expression")
     }
-    val tempVar = scope.addLocalVariable(expressionType)
+    val tempVar = scope.addLocalVariable(expressionType, token = node.token)
     // assign expression to variable
     visit(VariableAssignmentNode(node.token, scope, tempVar.name, node.expression))
     // then process each variable declarations

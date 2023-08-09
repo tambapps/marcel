@@ -439,7 +439,7 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
         invokeMethod(node, scope, variable.setterMethod)
       }
       is BoundField -> {
-        scope.useTempVariable(variable.type) {
+        scope.useTempVariable(variable.type, node.token) {
           storeInVariable(node, scope, it)
           pushThis()
           invokeMethodWithArguments(node, scope,
