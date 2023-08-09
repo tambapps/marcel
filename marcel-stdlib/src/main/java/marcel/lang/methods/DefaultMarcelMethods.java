@@ -56,6 +56,8 @@ public final class DefaultMarcelMethods {
     return groups;
   }
 
+  // TODO add unique() unique(Lambda), split, join(), intersection(Collection), toImmutable, asUnmodifiable (a view), collate(int)
+  //   add for list only reverse, shuffle, shuffled, swap,
   /**
    * Returns true if all the elements match the given predicate
    *
