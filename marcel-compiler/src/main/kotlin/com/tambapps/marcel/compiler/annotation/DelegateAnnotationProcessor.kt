@@ -21,7 +21,7 @@ class DelegateAnnotationProcessor: FieldAnnotationProcessor {
             val token = fieldNode.token
             if (classNode.type.allImplementedInterfaces.find { it.raw() == DelegatedObject::class.javaType }!!.genericTypes.firstOrNull()?.let { it.isAssignableFrom(fieldNode.type) } != false) {
                 val getDelegateMethod = MethodNode.from(classNode.token, classScope = classNode.scope, ownerClass = classNode.type, name = "getDelegate", parameters = emptyList(),
-                    returnType = fieldNode.type.objectType, annotations = listOf(AnnotationNode(token, Override::class.javaAnnotation, emptyList())), isStatic = false
+                    returnType = fieldNode.type.objectType, annotations = listOf(AnnotationNode(token, Override::class.javaType, emptyList())), isStatic = false
                 )
                 val scope = getDelegateMethod.scope
                 getDelegateMethod.block.addStatement(

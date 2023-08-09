@@ -174,7 +174,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       }
       accept(TokenType.RPAR)
     }
-  return AnnotationNode(token, JavaAnnotation.of(type), attributes)
+  return AnnotationNode(token, type, attributes)
   }
 
   private fun parseClass(imports: MutableList<ImportNode>, packageName: String?, classAnnotations: List<AnnotationNode>, outerClassNode: ClassNode? = null): ClassNode {
