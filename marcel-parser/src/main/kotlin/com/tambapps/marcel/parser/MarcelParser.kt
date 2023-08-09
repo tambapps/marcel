@@ -414,7 +414,6 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       skip()
       when (val atom = atom(methodScope)) {
         is SuperConstructorCallNode -> statements.add(ExpressionStatementNode(atom.token, atom))
-        // TODO handle this constructor calls when it exists
         else -> throw MarcelParserException(atom.token, "Expected this or super constructor call")
       }
     }
