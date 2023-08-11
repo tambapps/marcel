@@ -56,8 +56,23 @@ public final class DefaultMarcelMethods {
     return groups;
   }
 
-  // TODO add unique() unique(Lambda), split, join(), intersection(Collection), toImmutable, asUnmodifiable (a view), collate(int)
-  //   add for list only reversed, shuffled, swap,
+  // TODO add intersection(Collection), toImmutable, asUnmodifiable (a view), collate(int)
+  //   add for list only reversed, shuffled,
+
+  public static <T> void swap(List<T> list, int i1, int i2) {
+    Collections.swap(list, i1, i2);
+  }
+
+  public static <T> Collection<T> unique(Collection<T> self, Function<T, ?> keyExtractor) {
+    Set<Object> set = new HashSet<>();
+    List<T> list = new ArrayList<>();
+    for (T o : self) {
+      if (set.add(keyExtractor.apply(o))) {
+        list.add(o);
+      }
+    }
+    return list;
+  }
 
   public static void shuffle(List<?> self) {
     Collections.shuffle(self);
@@ -249,6 +264,10 @@ public final class DefaultMarcelMethods {
    */
   public static int getLength(Collection<?> self) {
     return self.size();
+  }
+
+  public static String join(Collection<?> self) {
+    return join(self, "");
   }
 
   /**

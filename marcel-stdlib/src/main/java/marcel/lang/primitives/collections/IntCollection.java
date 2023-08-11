@@ -23,7 +23,10 @@ import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.spliterators.IntSpliterator;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
 
 /** A type-specific {@link Collection}; provides some additional methods
@@ -228,6 +231,19 @@ public interface IntCollection extends Collection<Integer>, IntIterable {
    */
   default boolean leftShift(int value) {
     return add(value);
+  }
+
+  default <T> IntCollection unique(IntFunction<T> keyExtractor) {
+    Set<Object> set = new HashSet<>();
+    IntList list = new IntArrayList();
+    IntIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      int o = iterator.nextInt();
+      if (set.add(keyExtractor.apply(o))) {
+        list.add(o);
+      }
+    }
+    return list;
   }
 
   default boolean all(IntPredicate predicate) {

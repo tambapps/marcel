@@ -17,13 +17,20 @@ package marcel.lang.primitives.collections;
 
 import marcel.lang.primitives.collections.lists.FloatArrayList;
 import marcel.lang.primitives.collections.lists.FloatList;
+import marcel.lang.primitives.collections.lists.IntArrayList;
+import marcel.lang.primitives.collections.lists.IntList;
 import marcel.lang.primitives.iterable.FloatIterable;
 import marcel.lang.primitives.iterators.FloatIterator;
+import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.spliterators.FloatSpliterator;
+import marcel.lang.util.function.FloatFunction;
 import marcel.lang.util.function.FloatPredicate;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.function.IntFunction;
 
 /** A type-specific {@link Collection}; provides some additional methods
  * that use polymorphism to avoid (un)boxing.
@@ -217,6 +224,19 @@ public interface FloatCollection extends Collection<Float>, FloatIterable {
       if (e > max) max = e;
     }
     return max;
+  }
+
+  default <T> FloatCollection unique(FloatFunction<T> keyExtractor) {
+    Set<Object> set = new HashSet<>();
+    FloatList list = new FloatArrayList();
+    FloatIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      float o = iterator.nextFloat();
+      if (set.add(keyExtractor.apply(o))) {
+        list.add(o);
+      }
+    }
+    return list;
   }
 
 

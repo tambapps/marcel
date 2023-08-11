@@ -18,13 +18,20 @@ package marcel.lang.primitives.collections;
 
 import marcel.lang.primitives.collections.lists.DoubleArrayList;
 import marcel.lang.primitives.collections.lists.DoubleList;
+import marcel.lang.primitives.collections.lists.IntArrayList;
+import marcel.lang.primitives.collections.lists.IntList;
 import marcel.lang.primitives.iterable.DoubleIterable;
 import marcel.lang.primitives.iterators.DoubleIterator;
+import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.spliterators.DoubleSpliterator;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.function.DoubleFunction;
 import java.util.function.DoublePredicate;
+import java.util.function.IntFunction;
 
 /** A type-specific {@link Collection}; provides some additional methods
  * that use polymorphism to avoid (un)boxing.
@@ -207,6 +214,19 @@ public interface DoubleCollection extends Collection<Double>, DoubleIterable {
    */
   default boolean leftShift(double value) {
     return add(value);
+  }
+
+  default <T> DoubleCollection unique(DoubleFunction<T> keyExtractor) {
+    Set<Object> set = new HashSet<>();
+    DoubleList list = new DoubleArrayList();
+    DoubleIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      double o = iterator.nextDouble();
+      if (set.add(keyExtractor.apply(o))) {
+        list.add(o);
+      }
+    }
+    return list;
   }
 
   default boolean all(DoublePredicate predicate) {

@@ -18,14 +18,21 @@ package marcel.lang.primitives.collections;
 
 import marcel.lang.primitives.collections.lists.CharacterArrayList;
 import marcel.lang.primitives.collections.lists.CharacterList;
+import marcel.lang.primitives.collections.lists.IntArrayList;
+import marcel.lang.primitives.collections.lists.IntList;
 import marcel.lang.primitives.iterable.CharacterIterable;
 import marcel.lang.primitives.iterators.CharacterIterator;
+import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.iterators.LongIterator;
 import marcel.lang.primitives.spliterators.CharacterSpliterator;
+import marcel.lang.util.function.CharacterFunction;
 import marcel.lang.util.function.CharacterPredicate;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.function.IntFunction;
 import java.util.function.LongPredicate;
 
 /** A type-specific {@link Collection}; provides some additional methods
@@ -197,6 +204,19 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
       if (predicate.test(e)) l.add(e);
     }
     return l;
+  }
+
+  default <T> CharacterCollection unique(CharacterFunction<T> keyExtractor) {
+    Set<Object> set = new HashSet<>();
+    CharacterList list = new CharacterArrayList();
+    CharacterIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      char o = iterator.nextCharacter();
+      if (set.add(keyExtractor.apply(o))) {
+        list.add(o);
+      }
+    }
+    return list;
   }
 
   /**
