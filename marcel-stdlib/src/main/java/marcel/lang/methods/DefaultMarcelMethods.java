@@ -57,7 +57,16 @@ public final class DefaultMarcelMethods {
   }
 
   // TODO add unique() unique(Lambda), split, join(), intersection(Collection), toImmutable, asUnmodifiable (a view), collate(int)
-  //   add for list only reverse, shuffle, shuffled, swap,
+  //   add for list only reversed, shuffled, swap,
+
+  public static void shuffle(List<?> self) {
+    Collections.shuffle(self);
+  }
+
+  public static void shuffle(List<?> self, Random rnd) {
+    Collections.shuffle(self, rnd);
+  }
+
   /**
    * Returns true if all the elements match the given predicate
    *
