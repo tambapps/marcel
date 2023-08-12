@@ -59,8 +59,8 @@ public final class DefaultMarcelMethods {
   // TODO add intersection(Collection), toImmutable, asUnmodifiable (a view), collate(int)
   //   add for list only reversed, shuffled,
 
-  public static <T> void swap(List<T> list, int i1, int i2) {
-    Collections.swap(list, i1, i2);
+  public static <T> void swap(List l, int i, int j) {
+    l.set(i, l.set(j, l.get(i)));
   }
 
   public static <T> Collection<T> unique(Collection<T> self, Function<T, ?> keyExtractor) {
