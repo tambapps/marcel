@@ -4,7 +4,6 @@ import java.io.*
 import java.nio.charset.*
 import java.nio.file.Files
 
-// TODO tell in readme that we must explicitly reference this if we want to use a lass field/method OR allow not having to reference this
 extension class FileExtensions for File {
 
   fun String readText() {
@@ -22,6 +21,5 @@ extension class FileExtensions for File {
   fun List<String> readLines(Charset charset) {
     return Files.readAllLines(this.toPath(), charset)
   }
-
 
 }
