@@ -608,7 +608,6 @@ class NotLoadedJavaArrayType internal  constructor(
   override val asArrayType: JavaArrayType
     get() = this
 
-  // TODO test this, it might only work for 1D arrays
   override val internalName: String
     get() = "[L" + AsmUtils.getInternalName(elementsType) + ";"
 }
