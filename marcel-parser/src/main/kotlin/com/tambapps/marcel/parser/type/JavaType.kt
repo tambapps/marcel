@@ -338,6 +338,8 @@ interface JavaType: AstTypedObject {
       Pair(TokenType.TYPE_DOUBLE, double),
       Pair(TokenType.TYPE_BOOL, boolean),
       Pair(TokenType.TYPE_CHAR, char),
+      Pair(TokenType.TYPE_BYTE, byte),
+      Pair(TokenType.TYPE_SHORT, short),
     )
 
     // lists

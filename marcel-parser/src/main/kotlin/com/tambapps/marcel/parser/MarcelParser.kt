@@ -465,7 +465,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
     val token = next()
     var type = when (token.type) {
       TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_VOID, TokenType.TYPE_CHAR,
-      TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL -> {
+      TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL, TokenType.TYPE_BYTE, TokenType.TYPE_SHORT -> {
         val type = JavaType.TOKEN_TYPE_MAP.getValue(token.type)
         if (acceptOptional(TokenType.SQUARE_BRACKETS_OPEN) != null) {
           accept(TokenType.SQUARE_BRACKETS_CLOSE)
@@ -1056,6 +1056,15 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         "Unexpected end of file",
         true
       )
+      TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_SHORT, TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE,
+      TokenType.TYPE_BOOL, TokenType.TYPE_BYTE, TokenType.TYPE_VOID, TokenType.TYPE_CHAR
+      ->  {
+        rollback()
+        val type = parseType(scope)
+        accept(TokenType.DOT)
+        accept(TokenType.CLASS)
+        ClassExpressionNode(token, type)
+      }
       else -> throw MarcelParserException(
         token,
         "Not supported $token"

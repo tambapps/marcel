@@ -572,8 +572,12 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
     mv.visitVarInsn(Opcodes.ASTORE, exceptionVarIndex)
   }
 
-  fun pushClass(clazz: JavaType) {
-    mv.visitLdcInsn(Type.getType(clazz.descriptor))
+  fun pushClass(node: AstNode, scope: Scope, clazz: JavaType) {
+    if (clazz.primitive) {
+      getField(node, scope, typeResolver.getClassField(clazz.objectType, "TYPE", node), true)
+    } else {
+      mv.visitLdcInsn(Type.getType(clazz.descriptor))
+    }
   }
 
 }

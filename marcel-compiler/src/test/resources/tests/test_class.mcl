@@ -1,0 +1,11 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+
+assertEquals(int.class, Integer.TYPE)
+assertEquals(long.class, Long.TYPE)
+assertEquals(float.class, Float.TYPE)
+assertEquals(double.class, Double.TYPE)
+assertEquals(char.class, Character.TYPE)
+assertEquals(void.class, Void.TYPE)
+assertEquals(byte.class, Byte.TYPE)
+assertEquals(short.class, Short.TYPE)

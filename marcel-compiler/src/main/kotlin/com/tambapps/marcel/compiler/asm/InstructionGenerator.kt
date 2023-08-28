@@ -1494,7 +1494,7 @@ private class PushingInstructionGenerator(
   }
 
   override fun visit(node: ClassExpressionNode) {
-    mv.pushClass(node.clazz)
+    mv.pushClass(node, methodNode.scope, node.clazz)
   }
 
   override fun visitWithoutPushing(astNode: AstInstructionNode) {
