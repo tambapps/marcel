@@ -6,6 +6,7 @@ import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.Visibility
 import org.objectweb.asm.Opcodes
 import java.lang.reflect.Field
+import java.lang.reflect.Modifier
 
 sealed interface Variable : AstTypedObject{
   fun isAccessibleFrom(scope: Scope): Boolean
@@ -43,7 +44,7 @@ class LocalVariable constructor(override var type: JavaType, override var name: 
 /**
  * A Marcel Field is the accumulation of all kind of JavaField for a same field name
  */
-class MarcelField(override val name: String): Variable {
+open class MarcelField(override val name: String): Variable {
   val classField: ClassField? get() = getters.firstNotNullOfOrNull { it as? ClassField  }
   private val _getters = mutableSetOf<JavaField>()
   private val _setters = mutableSetOf<JavaField>()
@@ -85,6 +86,21 @@ class MarcelField(override val name: String): Variable {
   fun gettableFieldFrom(scope: Scope) = getters.find { it.isAccessibleFrom(scope) }
 }
 
+class MarcelArrayLengthField(javaType: JavaType, name: String) : MarcelField(name) {
+  init {
+    addGetter(JavaArrayLengthField(javaType, name))
+  }
+
+  private class JavaArrayLengthField(override val owner: JavaType, override val name: String): JavaField {
+    override val type = JavaType.int
+    override val visibility = Visibility.PUBLIC
+    override val access = Modifier.PUBLIC
+    override val isGettable = true
+    override val isSettable = false
+    override var alreadySet = true
+    override fun isAccessibleFrom(scope: Scope) = true
+  }
+}
 
 // can be a java field or a java getter/setter
 sealed interface JavaField: Variable {

@@ -223,6 +223,9 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   }
 
   override fun findField(javaType: JavaType, name: String, node: AstNode?): MarcelField? {
+    if (javaType.isArray && (name == "size" || name == "length")) {
+      return MarcelArrayLengthField(javaType, name)
+    }
     val field = fieldResolver.getField(javaType, name)
     if (field == null && javaType.implements(JavaType.DynamicObject)) {
       return MarcelField(DynamicMethodField(javaType, name, JavaType.DynamicObject,

@@ -526,7 +526,8 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(node: GetFieldAccessOperator) {
-    val field = typeResolver.findFieldOrThrow(node.leftOperand.getType(typeResolver), node.rightOperand.name, node)
+    val ownerType = node.leftOperand.getType(typeResolver)
+    val field = typeResolver.findFieldOrThrow(ownerType, node.rightOperand.name, node)
     if (field.isStatic) {
       mv.getField(node, node.scope, field, node.directFieldAccess)
       return
@@ -535,7 +536,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       val scope = node.scope
 
       // need a local variable to avoid evaluating twice
-      val tempVar = scope.addLocalVariable(node.leftOperand.getType(typeResolver), token = node.token)
+      val tempVar = scope.addLocalVariable(ownerType, token = node.token)
       visitWithoutPushing(VariableAssignmentNode(node.token, scope, tempVar.name, node.leftOperand))
       val tempRef = ReferenceExpression(node.token, scope, tempVar.name)
 
@@ -846,9 +847,14 @@ class InstructionGenerator(
 
     mv.visitLabel(endLabel)
   }
+
   override fun visit(node: ForInStatement) {
     val expression = node.inExpression
     val expressionType = expression.getType(typeResolver)
+    if (expressionType.isArray) {
+      arrayForEach(node, expressionType)
+      return
+    }
 
     // initialization
     val scope = node.scope
@@ -901,6 +907,23 @@ class InstructionGenerator(
     scope.continueLabel = continueLabel
     scope.breakLabel = breakLabel
     body.accept(this)
+  }
+
+  private fun arrayForEach(node: ForInStatement, expressionType: JavaType) {
+    TODO("Doesn't heandle yet iterating over array")
+    // initialization
+    val scope = node.scope
+    scope.addLocalVariable(node.variableType, node.variableName, token = node.token)
+    val indexVariable = scope.addLocalVariable(type = JavaType.int, token = node.token)
+
+    // loop start
+    val loopStart = Label()
+    mv.visitLabel(loopStart)
+
+    // Verifying condition
+
+    // dispose
+    scope.freeVariable(indexVariable.name)
   }
 
   override fun visit(node: BreakLoopNode) {

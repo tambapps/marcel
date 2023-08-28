@@ -453,6 +453,10 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
   }
 
   fun getField(from: AstNode, scope: Scope, marcelField: MarcelField, directFieldAccess: Boolean) {
+    if (marcelField is MarcelArrayLengthField) {
+      mv.visitInsn(Opcodes.ARRAYLENGTH)
+      return
+    }
     val field = (if (directFieldAccess) marcelField.classField else marcelField.gettableFieldFrom(scope)) ?: throw VariableNotAccessibleException(from.token, marcelField, scope.classType)
     getField(from, scope, field, directFieldAccess)
   }
