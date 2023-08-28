@@ -16,10 +16,12 @@
 
 package com.tambapps.marcel.maven.plugin;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.shared.model.fileset.FileSet;
+import org.slf4j.Logger;
 
 
 /**
@@ -28,6 +30,7 @@ import org.apache.maven.shared.model.fileset.FileSet;
  * @author Keegan Witt
  * @since 1.0-beta-3
  */
+@Slf4j
 @Mojo(name = "addTestSources", defaultPhase = LifecyclePhase.INITIALIZE, threadSafe = true)
 public class AddTestSourcesMojo extends AbstractMarcelSourcesMojo {
 
@@ -60,4 +63,8 @@ public class AddTestSourcesMojo extends AbstractMarcelSourcesMojo {
         }
     }
 
+    @Override
+    Logger getLogger() {
+        return log;
+    }
 }

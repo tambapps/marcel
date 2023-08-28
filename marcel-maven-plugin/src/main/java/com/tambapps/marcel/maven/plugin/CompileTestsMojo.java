@@ -20,6 +20,7 @@ import com.tambapps.marcel.compiler.exception.MarcelCompilerException;
 import com.tambapps.marcel.lexer.MarcelLexerException;
 import com.tambapps.marcel.parser.exception.MarcelParserException;
 import com.tambapps.marcel.parser.exception.MarcelSemanticException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -27,6 +28,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.shared.model.fileset.FileSet;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +43,7 @@ import java.net.MalformedURLException;
  * @author Keegan Witt
  * @since 1.0-beta-1
  */
+@Slf4j
 @Mojo(name = "compileTests", defaultPhase = LifecyclePhase.TEST_COMPILE, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = true)
 public class CompileTestsMojo extends AbstractCompileMojo {
 
@@ -90,4 +93,8 @@ public class CompileTestsMojo extends AbstractCompileMojo {
         }
     }
 
+    @Override
+    Logger getLogger() {
+        return log;
+    }
 }

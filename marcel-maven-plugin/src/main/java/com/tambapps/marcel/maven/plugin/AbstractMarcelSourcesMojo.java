@@ -18,6 +18,7 @@ package com.tambapps.marcel.maven.plugin;
 
 import org.apache.maven.shared.model.fileset.FileSet;
 import org.apache.maven.shared.model.fileset.util.FileSetManager;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -47,6 +48,8 @@ public abstract class AbstractMarcelSourcesMojo extends AbstractMarcelMojo {
      */
     protected static final String TEST = "test";
 
+    abstract Logger getLogger();
+
     /**
      * Gets the set of included files from the specified source files or source directory (if sources are null).
      *
@@ -54,9 +57,10 @@ public abstract class AbstractMarcelSourcesMojo extends AbstractMarcelMojo {
      * @param includeJavaSources Whether to include Java sources
      * @return The included files from the specified sources
      */
+
     protected SortedSet<File> getFiles(final FileSet[] fromSources, final boolean includeJavaSources) {
         SortedSet<File> files = new TreeSet<>();
-        FileSetManager fileSetManager = new FileSetManager(getLog());
+        FileSetManager fileSetManager = new FileSetManager(getLogger());
 
         for (FileSet fileSet : getFilesets(fromSources, includeJavaSources)) {
             for (String include : fileSetManager.getIncludedFiles(fileSet)) {
@@ -76,7 +80,7 @@ public abstract class AbstractMarcelSourcesMojo extends AbstractMarcelMojo {
      */
     protected SortedSet<File> getTestFiles(final FileSet[] fromSources, final boolean includeJavaSources) {
         SortedSet<File> files = new TreeSet<>();
-        FileSetManager fileSetManager = new FileSetManager(getLog());
+        FileSetManager fileSetManager = new FileSetManager(getLogger());
 
         for (FileSet fileSet : getTestFilesets(fromSources, includeJavaSources)) {
             for (String include : fileSetManager.getIncludedFiles(fileSet)) {
