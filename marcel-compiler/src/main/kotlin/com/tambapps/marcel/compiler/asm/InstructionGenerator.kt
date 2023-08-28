@@ -900,6 +900,7 @@ class InstructionGenerator(
     // loop end
     mv.visitLabel(loopEnd)
 
+    // dispose
     scope.freeVariable(iteratorVariable.name)
   }
   private fun loopBody(body: BlockNode, continueLabel: Label, breakLabel: Label) {
@@ -910,20 +911,44 @@ class InstructionGenerator(
   }
 
   private fun arrayForEach(node: ForInStatement, expressionType: JavaType) {
-    TODO("Doesn't heandle yet iterating over array")
     // initialization
     val scope = node.scope
-    scope.addLocalVariable(node.variableType, node.variableName, token = node.token)
+    // array expression
+    val arrayVariable = scope.addLocalVariable(type = expressionType, token = node.token)
+    visit(VariableAssignmentNode(node.token, scope, arrayVariable.name, node.inExpression))
+    val arrayReference = ReferenceExpression(node.token, scope, arrayVariable.name)
+    // index expression
     val indexVariable = scope.addLocalVariable(type = JavaType.int, token = node.token)
+    val indexReference = ReferenceExpression(node.token, scope, indexVariable.name)
+    visit(VariableAssignmentNode(node.token, scope, indexVariable.name, IntConstantNode(node.token, 0)))
+    // variable expression
+    scope.addLocalVariable(node.variableType, node.variableName, token = node.token)
 
     // loop start
     val loopStart = Label()
     mv.visitLabel(loopStart)
 
-    // Verifying condition
+    // Verifying condition i < array.length
+    pushArgument(ComparisonOperatorNode(node.token,
+      ComparisonOperator.LT, indexReference,
+      GetFieldAccessOperator(node.token, arrayReference,
+        ReferenceExpression(node.token, scope, "length"), nullSafe = false, directFieldAccess = false)))
+
+    val loopEnd = Label()
+    mv.jumpIfEq(loopEnd)
+
+    // loop body
+    visit(VariableAssignmentNode(node.token, scope, node.variableName, IndexedReferenceExpression(node.token, scope, arrayVariable.name, listOf(indexReference), false)))
+    loopBody(node.body, loopStart, loopEnd)
+    visit(IncrNode(node.token, indexReference, 1, false))
+    mv.jumpTo(loopStart)
+
+    // loop end
+    mv.visitLabel(loopEnd)
 
     // dispose
     scope.freeVariable(indexVariable.name)
+    scope.freeVariable(arrayVariable.name)
   }
 
   override fun visit(node: BreakLoopNode) {
