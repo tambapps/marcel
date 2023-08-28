@@ -10,6 +10,7 @@ import com.tambapps.marcel.repl.printer.PrintStreamSuspendPrinter
 import marcel.lang.Binding
 import marcel.lang.URLMarcelClassLoader
 import org.jline.reader.EndOfFileException
+import org.jline.reader.LineReader
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.UserInterruptException
 import java.io.File
@@ -30,18 +31,15 @@ class Marshell: MarcelShell(
         binding = Binding(),
         promptTemplate = "marshell:%03d> ") {
 
-  override val initScriptFile: File
-    get() {
-      val marcelHome = File(
-        System.getenv("MARCEL_HOME")
-          ?: (System.getenv("HOME") + "/.marcel/")
-      )
-      return File(marcelHome, "marshell/init.mcl")
-    }
+  private val marcelHome get() = File(System.getenv("MARCEL_HOME") ?: (System.getenv("HOME") + "/.marcel/"))
+
+  override val initScriptFile: File get() = File(marcelHome, "marshell/init.mcl")
 
   private val highlighter = ReaderHighlighter(typeResolver, replCompiler)
   private val reader = LineReaderBuilder.builder()
     .highlighter(highlighter)
+    // to store history into a file
+    .variable(LineReader.HISTORY_FILE, File(marcelHome, "marshell/marshell.history"))
     .parser(MarshellSnippetParser()) // useful for completer. To know from where start completion
     .completer(MarshellCompleter(replCompiler, typeResolver))
     .build()
