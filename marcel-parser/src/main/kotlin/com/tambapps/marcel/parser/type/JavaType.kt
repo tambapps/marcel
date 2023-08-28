@@ -306,7 +306,7 @@ interface JavaType: AstTypedObject {
     val byteArray = LoadedJavaArrayType(ByteArray::class.java, byte, Opcodes.BASTORE, Opcodes.BALOAD, Opcodes.T_BYTE)
     val charArray = LoadedJavaArrayType(CharArray::class.java, char, Opcodes.CASTORE, Opcodes.CALOAD, Opcodes.T_CHAR)
     val objectArray = LoadedJavaArrayType(Array<Any>::class.java, Object, Opcodes.AASTORE, Opcodes.AALOAD, 0)
-    val ARRAYS = listOf(intArray, longArray, floatArray, doubleArray, booleanArray, shortArray, byteArray, objectArray)
+    val ARRAYS = listOf(intArray, longArray, floatArray, doubleArray, booleanArray, shortArray, byteArray, charArray, objectArray)
 
     val lambda = of(Lambda::class.java)
 
