@@ -35,6 +35,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
                     private val typeResolver: JavaTypeResolver) {
 
   // TODO check for final fields not initialized
+  //   be careful of constructors calling other constructors as we might assign values twice, if a constructor calls another constructor
   private val checks = MarcelCompilerChecks.ALL
 
   fun compileClass(classNode: ClassNode): List<CompiledClass> {
@@ -156,7 +157,6 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     if (!marcelField.isStatic) {
       // non-static fields should be initialized in constructors
       for (constructor in classNode.constructors) {
-        // FIXME we might assign values twice, if a constructor calls another constructor
         val initialValue = marcelField.initialValue!!
         if (initialValue is LiteralArrayNode && initialValue.elements.isEmpty() &&
           (marcelField.type.isArray || Collection::class.javaType.isAssignableFrom(marcelField.type))) {

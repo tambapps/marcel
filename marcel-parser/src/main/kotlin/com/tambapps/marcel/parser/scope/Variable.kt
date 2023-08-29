@@ -14,11 +14,9 @@ sealed interface Variable : AstTypedObject{
     override val type: JavaType
   val name: String
   val isFinal: Boolean
-  var alreadySet: Boolean
 }
 
 sealed class AbstractVariable: Variable {
-  override var alreadySet = false
 
 }
 
@@ -53,7 +51,6 @@ open class MarcelField(override val name: String): Variable {
 
   override val isFinal get() = (getters + setters).all { it.isFinal }
   val isStatic get() = (getters + setters).all { it.isStatic }
-  override var alreadySet = false
   override fun isAccessibleFrom(scope: Scope) = (getters + setters).any { it.isAccessibleFrom(scope) }
 
   override val type get() =  JavaType.commonType((getters + setters).map { it.type })
@@ -97,7 +94,6 @@ class MarcelArrayLengthField(javaType: JavaType, name: String) : MarcelField(nam
     override val access = Modifier.PUBLIC
     override val isGettable = true
     override val isSettable = false
-    override var alreadySet = true
     override fun isAccessibleFrom(scope: Scope) = true
   }
 }
@@ -118,7 +114,6 @@ sealed interface JavaField: Variable {
 }
 
 sealed class AbstractField(final override val access: Int): AbstractVariable(), JavaField {
-  override var alreadySet = false
 
   override val visibility = Visibility.fromAccess(access)
 
