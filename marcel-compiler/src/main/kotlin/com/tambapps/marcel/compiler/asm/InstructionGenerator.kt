@@ -6,6 +6,7 @@ import com.tambapps.marcel.compiler.util.getType
 import com.tambapps.marcel.compiler.util.javaType
 import com.tambapps.marcel.parser.ast.MethodParameter
 import com.tambapps.marcel.parser.ast.AstInstructionNode
+import com.tambapps.marcel.parser.ast.AstNode
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ComparisonOperator
@@ -263,13 +264,22 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
   override fun visit(node: SuperConstructorCallNode) {
+    ownConstructorCallCheck(node)
+    mv.visitSuperConstructorCall(node)
+  }
+
+  override fun visit(node: ThisConstructorCallNode) {
+    ownConstructorCallCheck(node)
+    mv.visitThisConstructorCall(node)
+  }
+
+  private fun ownConstructorCallCheck(node: AstNode) {
     if (!methodNode.isConstructor) {
-      throw MarcelSemanticException(node.token, "Cannot call super constructor in a non constructor method")
+      throw MarcelSemanticException(node.token, "Cannot call constructor in a non constructor method")
     }
     if ((methodNode.block.statements.firstOrNull() as? ExpressionStatementNode)?.expression !== node) {
-      throw MarcelSemanticException(node.token, "Super constructor call should be the first statement of a constructor")
+      throw MarcelSemanticException(node.token, "Constructor call should be the first statement of a constructor")
     }
-    mv.visitSuperConstructorCall(node)
   }
 
   override fun visit(node: MulOperator) {

@@ -75,7 +75,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
       classNode.methods.add(ConstructorNode.emptyConstructor(classNode))
     } else {
       for (constructor in classNode.constructors) {
-        if (!constructor.startsWithSuperCall) {
+        if (!constructor.startsWithConstructorCall) {
           constructor.block.statements.add(0, ExpressionStatementNode(classNode.token, SuperConstructorCallNode(
                   classNode.token, constructor.scope, mutableListOf()
           )))

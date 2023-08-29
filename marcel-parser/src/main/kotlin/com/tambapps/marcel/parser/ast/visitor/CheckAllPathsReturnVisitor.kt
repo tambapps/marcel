@@ -37,6 +37,7 @@ class CheckAllPathsReturnVisitor: AstNodeVisitor<Boolean> {
 
   override fun visit(node: NamedParametersConstructorCallNode) = false
   override fun visit(node: SuperConstructorCallNode) = false
+  override fun visit(node: ThisConstructorCallNode) = false
 
   override fun visit(node: DivOperator) = false
 

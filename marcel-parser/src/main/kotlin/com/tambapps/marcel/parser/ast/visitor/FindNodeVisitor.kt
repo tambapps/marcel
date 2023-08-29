@@ -51,6 +51,7 @@ class FindNodeVisitor(private val predicate: (AstNode) -> Boolean): AstNodeVisit
   override fun visit(node: NamedParametersConstructorCallNode) = node(node) ?: node.argumentNodes.firstNotNullOfOrNull { it.accept(this) }
 
   override fun visit(node: SuperConstructorCallNode) = node(node) ?: node.arguments.firstNotNullOfOrNull { it.accept(this) }
+  override fun visit(node: ThisConstructorCallNode) = node(node) ?: node.arguments.firstNotNullOfOrNull { it.accept(this) }
 
   override fun visit(node: DivOperator) = binaryNode(node)
 

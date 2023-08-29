@@ -413,7 +413,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
     if (isConstructor && current.type == TokenType.COLON) {
       skip()
       when (val atom = atom(methodScope)) {
-        is SuperConstructorCallNode -> statements.add(ExpressionStatementNode(atom.token, atom))
+        is SuperConstructorCallNode, is ThisConstructorCallNode -> statements.add(ExpressionStatementNode(atom.token, atom))
         else -> throw MarcelParserException(atom.token, "Expected this or super constructor call")
       }
     }
@@ -803,7 +803,16 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
          parseNumberConstant(token)
         }
       }
-      TokenType.THIS -> ThisReference(token, scope) // TODO parse thisConstructorCall
+      TokenType.THIS -> {
+        if (current.type == TokenType.LPAR) {
+          skip()
+          val (arguments, namedArguments) = parseFunctionArguments(scope)
+          if (namedArguments.isNotEmpty()) {
+            throw MarcelParserException(token, "Cannot have named arguments on constructor call")
+          }
+          ThisConstructorCallNode(token, scope, arguments)
+        } else ThisReference(token, scope)
+      }
       TokenType.SUPER -> {
         if (current.type == TokenType.LPAR) {
           skip()

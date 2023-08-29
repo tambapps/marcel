@@ -196,6 +196,7 @@ open class AstNodeTypeResolver constructor(
   override fun visit(node: NamedParametersConstructorCallNode) = node.type
 
   override fun visit(node: SuperConstructorCallNode) = JavaType.void
+  override fun visit(node: ThisConstructorCallNode) = JavaType.void
 
   override fun visit(node: DivOperator) = visitBinaryOperator(node)
 

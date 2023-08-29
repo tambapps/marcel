@@ -10,11 +10,14 @@ import com.tambapps.marcel.parser.ast.AstNode
 import com.tambapps.marcel.parser.ast.ComparisonOperator
 import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
+import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.LambdaNode
 import com.tambapps.marcel.parser.ast.expression.NamedParametersConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
+import com.tambapps.marcel.parser.ast.expression.SimpleFunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.StringConstantNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
+import com.tambapps.marcel.parser.ast.expression.ThisConstructorCallNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.*
 import com.tambapps.marcel.parser.type.JavaArrayType
@@ -69,10 +72,17 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
       Opcodes.INVOKESPECIAL, classInternalName, JavaMethod.CONSTRUCTOR_NAME, constructorMethod.descriptor, false)
   }
 
+  fun visitThisConstructorCall(fCall: ThisConstructorCallNode) {
+    visitOwnConstructorCall(fCall, fCall.scope.classType)
+  }
   fun visitSuperConstructorCall(fCall: SuperConstructorCallNode) {
+    visitOwnConstructorCall(fCall, fCall.scope.superClass)
+  }
+
+  private fun visitOwnConstructorCall(fCall: SimpleFunctionCallNode, type: JavaType) {
     mv.visitVarInsn(Opcodes.ALOAD, 0)
     pushFunctionCallArguments(fCall, fCall.scope, fCall.getMethod(typeResolver), fCall.arguments)
-    mv.visitMethodInsn(Opcodes.INVOKESPECIAL, fCall.scope.superClass.internalName, fCall.name,
+    mv.visitMethodInsn(Opcodes.INVOKESPECIAL, type.internalName, fCall.name,
       // void return type for constructors
       AsmUtils.getDescriptor(fCall.arguments.map { it.getType(typeResolver) }, JavaType.void), false)
   }
