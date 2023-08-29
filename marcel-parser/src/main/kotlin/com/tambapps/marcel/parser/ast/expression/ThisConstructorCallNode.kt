@@ -15,7 +15,6 @@ class ThisConstructorCallNode constructor(token: LexToken, scope: Scope, argumen
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
   override fun doGetMethod(typeResolver: AstNodeTypeResolver): JavaMethod {
-    val type = scope.classType.superType ?: throw MarcelSemanticException(token, "Cannot call super constructor from a type with no parent")
-    return typeResolver.findMethodOrThrow(type, name, arguments.map { it.accept(typeResolver) }, this)
+    return typeResolver.findMethodOrThrow(scope.classType, name, arguments.map { it.accept(typeResolver) }, this)
   }
 }

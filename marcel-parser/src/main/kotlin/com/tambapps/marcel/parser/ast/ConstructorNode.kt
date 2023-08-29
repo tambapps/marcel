@@ -2,6 +2,7 @@ package com.tambapps.marcel.parser.ast
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.ast.expression.FunctionBlockNode
+import com.tambapps.marcel.parser.ast.expression.SimpleFunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.ThisConstructorCallNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
@@ -23,10 +24,13 @@ class ConstructorNode constructor(
   scope, false, true, annotations
 ) {
 
-  val startsWithConstructorCall: Boolean get() {
-    val s = block.statements.firstOrNull() ?: return false
-    return s is ExpressionStatementNode && (s.expression is SuperConstructorCallNode || s.expression is ThisConstructorCallNode)
-  }
+  val startsWithOwnConstructorCall: Boolean get() = ownConstructorCall != null
+  val ownConstructorCall: SimpleFunctionCallNode?
+    get() {
+      val s = block.statements.firstOrNull() as? ExpressionStatementNode ?: return null
+      return if (s.expression is SuperConstructorCallNode || s.expression is ThisConstructorCallNode) s.expression as SimpleFunctionCallNode else null
+
+    }
 
   companion object {
 
