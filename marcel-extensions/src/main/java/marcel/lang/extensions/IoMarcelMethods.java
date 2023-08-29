@@ -6,20 +6,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.stream.Collectors;
 
-// TODO convert these to Marcel source files
 public class IoMarcelMethods {
 
   public static LineIterator lineIterator(File self) throws IOException {
     return new LineIterator(self);
-  }
-
-  // use readText() instead
-  @Deprecated
-  public static String getText(File self) throws IOException {
-    return readText(self);
   }
 
   public static String readText(File self) throws IOException {
