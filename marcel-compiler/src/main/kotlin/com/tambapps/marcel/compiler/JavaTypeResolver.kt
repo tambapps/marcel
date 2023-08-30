@@ -175,6 +175,15 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
       m = candidatesPicker.invoke(candidates)
       if (m != null) return m
     }
+    if (javaType.isArray) {
+      // apparently Integer[] extends Number[] extends Object[] in some way (at least these are castable)
+      val elementsType = javaType.asArrayType.elementsType.superType
+      if (elementsType != null) {
+        // recursive
+        val candidate = findMethod(elementsType.arrayType, name, matcherPredicate, candidatesPicker, true, node)
+        if (candidate != null) return candidate
+      }
+    }
 
     if (name == JavaMethod.CONSTRUCTOR_NAME) {
       if (!javaType.isLoaded) {
