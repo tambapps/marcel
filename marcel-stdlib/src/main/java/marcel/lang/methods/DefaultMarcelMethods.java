@@ -1,6 +1,8 @@
 package marcel.lang.methods;
 
 import marcel.lang.IntRange;
+import marcel.lang.primitives.collections.lists.CharacterArrayList;
+import marcel.lang.primitives.collections.lists.CharacterList;
 import marcel.lang.primitives.collections.lists.DoubleArrayList;
 import marcel.lang.primitives.collections.lists.DoubleList;
 import marcel.lang.primitives.collections.lists.FloatArrayList;
@@ -9,11 +11,26 @@ import marcel.lang.primitives.collections.lists.IntArrayList;
 import marcel.lang.primitives.collections.lists.IntList;
 import marcel.lang.primitives.collections.lists.LongArrayList;
 import marcel.lang.primitives.collections.lists.LongList;
+import marcel.lang.primitives.collections.sets.CharacterOpenHashSet;
+import marcel.lang.primitives.collections.sets.CharacterSet;
+import marcel.lang.primitives.collections.sets.DoubleOpenHashSet;
+import marcel.lang.primitives.collections.sets.DoubleSet;
+import marcel.lang.primitives.collections.sets.FloatOpenHashSet;
+import marcel.lang.primitives.collections.sets.FloatSet;
+import marcel.lang.primitives.collections.sets.IntOpenHashSet;
+import marcel.lang.primitives.collections.sets.IntSet;
+import marcel.lang.primitives.collections.sets.LongOpenHashSet;
+import marcel.lang.primitives.collections.sets.LongSet;
 import marcel.lang.primitives.iterators.IntIterator;
+import marcel.lang.util.function.CharacterPredicate;
+import marcel.lang.util.function.FloatPredicate;
 import marcel.lang.util.function.ToFloatFunction;
 
 import java.util.*;
+import java.util.function.DoublePredicate;
 import java.util.function.Function;
+import java.util.function.IntPredicate;
+import java.util.function.LongPredicate;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
@@ -63,7 +80,13 @@ public final class DefaultMarcelMethods {
     l.set(i, l.set(j, l.get(i)));
   }
 
-  public static <T> Collection<T> unique(Collection<T> self, Function<T, ?> keyExtractor) {
+  public static <T> void swap(T[] l, int i, int j) {
+    T temp = l[i];
+    l[i] = l[j];
+    l[j] = temp;
+  }
+
+  public static <T> List<T> unique(Collection<T> self, Function<T, ?> keyExtractor) {
     Set<Object> set = new HashSet<>();
     List<T> list = new ArrayList<>();
     for (T o : self) {
@@ -74,6 +97,18 @@ public final class DefaultMarcelMethods {
     return list;
   }
 
+  public static <T> Collection<T> unique(T[] self, Function<T, ?> keyExtractor) {
+    Set<Object> set = new HashSet<>();
+    List<T> list = new ArrayList<>();
+    for (T o : self) {
+      if (set.add(keyExtractor.apply(o))) {
+        list.add(o);
+      }
+    }
+    return list;
+  }
+
+  // TODO do arrays
   public static void shuffle(List<?> self) {
     Collections.shuffle(self);
   }
@@ -97,6 +132,49 @@ public final class DefaultMarcelMethods {
     return true;
   }
 
+  public static <T> boolean all(T[] self, Predicate<T> predicate) {
+    for (T e : self) {
+      if (!predicate.test(e)) return false;
+    }
+    return true;
+  }
+
+  public static boolean all(int[] self, IntPredicate predicate) {
+    for (int e : self) {
+      if (!predicate.test(e)) return false;
+    }
+    return true;
+  }
+
+  public static boolean all(long[] self, LongPredicate predicate) {
+    for (long e : self) {
+      if (!predicate.test(e)) return false;
+    }
+    return true;
+  }
+
+  public static boolean all(float[] self, FloatPredicate predicate) {
+    for (float e : self) {
+      if (!predicate.test(e)) return false;
+    }
+    return true;
+  }
+
+  public static boolean all(double[] self, DoublePredicate predicate) {
+    for (double e : self) {
+      if (!predicate.test(e)) return false;
+    }
+    return true;
+  }
+
+  public static boolean all(char[] self, CharacterPredicate predicate) {
+    for (char e : self) {
+      if (!predicate.test(e)) return false;
+    }
+    return true;
+  }
+
+
   /**
    * Returns true if at least one element matches the given predicate
    *
@@ -107,6 +185,48 @@ public final class DefaultMarcelMethods {
    */
   public static <T> boolean any(Collection<T> self, Predicate<T> predicate) {
     for (T e : self) {
+      if (predicate.test(e)) return true;
+    }
+    return false;
+  }
+
+  public static <T> boolean any(T[] self, Predicate<T> predicate) {
+    for (T e : self) {
+      if (predicate.test(e)) return true;
+    }
+    return false;
+  }
+
+  public static boolean any(int[] self, IntPredicate predicate) {
+    for (int e : self) {
+      if (predicate.test(e)) return true;
+    }
+    return false;
+  }
+
+  public static boolean any(long[] self, LongPredicate predicate) {
+    for (long e : self) {
+      if (predicate.test(e)) return true;
+    }
+    return false;
+  }
+
+  public static boolean any(float[] self, FloatPredicate predicate) {
+    for (float e : self) {
+      if (predicate.test(e)) return true;
+    }
+    return false;
+  }
+
+  public static boolean any(double[] self, DoublePredicate predicate) {
+    for (double e : self) {
+      if (predicate.test(e)) return true;
+    }
+    return false;
+  }
+
+  public static boolean any(char[] self, CharacterPredicate predicate) {
+    for (char e : self) {
       if (predicate.test(e)) return true;
     }
     return false;
@@ -127,6 +247,48 @@ public final class DefaultMarcelMethods {
     return true;
   }
 
+  public static <T> boolean none(T[] self, Predicate<T> predicate) {
+    for (T e : self) {
+      if (predicate.test(e)) return false;
+    }
+    return true;
+  }
+
+  public static boolean none(int[] self, IntPredicate predicate) {
+    for (int e : self) {
+      if (predicate.test(e)) return false;
+    }
+    return true;
+  }
+
+  public static boolean none(long[] self, LongPredicate predicate) {
+    for (long e : self) {
+      if (predicate.test(e)) return false;
+    }
+    return true;
+  }
+
+  public static boolean none(float[] self, FloatPredicate predicate) {
+    for (float e : self) {
+      if (predicate.test(e)) return false;
+    }
+    return true;
+  }
+
+  public static boolean none(double[] self, DoublePredicate predicate) {
+    for (double e : self) {
+      if (predicate.test(e)) return false;
+    }
+    return true;
+  }
+
+  public static boolean none(char[] self, CharacterPredicate predicate) {
+    for (char e : self) {
+      if (predicate.test(e)) return false;
+    }
+    return true;
+  }
+
   /**
    * Find the first element matching the given predicate
    *
@@ -137,6 +299,48 @@ public final class DefaultMarcelMethods {
    */
   public static <T> T find(Collection<T> self, Predicate<T> predicate) {
     for (T e : self) {
+      if (predicate.test(e)) return e;
+    }
+    return null;
+  }
+
+  public static <T> T find(T[] self, Predicate<T> predicate) {
+    for (T e : self) {
+      if (predicate.test(e)) return e;
+    }
+    return null;
+  }
+
+  public static Integer find(int[] self, IntPredicate predicate) {
+    for (int e : self) {
+      if (predicate.test(e)) return e;
+    }
+    return null;
+  }
+
+  public static Long find(long[] self, LongPredicate predicate) {
+    for (long e : self) {
+      if (predicate.test(e)) return e;
+    }
+    return null;
+  }
+
+  public static Float find(float[] self, FloatPredicate predicate) {
+    for (float e : self) {
+      if (predicate.test(e)) return e;
+    }
+    return null;
+  }
+
+  public static Double find(double[] self, DoublePredicate predicate) {
+    for (double e : self) {
+      if (predicate.test(e)) return e;
+    }
+    return null;
+  }
+
+  public static Character find(char[] self, CharacterPredicate predicate) {
+    for (char e : self) {
       if (predicate.test(e)) return e;
     }
     return null;
@@ -158,6 +362,54 @@ public final class DefaultMarcelMethods {
     return list;
   }
 
+  public static <T> List<T> findAll(T[] self, Predicate<T> predicate) {
+    List<T> list = new ArrayList<>(self.length);
+    for (T e : self) {
+      if (predicate.test(e)) list.add(e);
+    }
+    return list;
+  }
+
+  public static IntList findAll(int[] self, IntPredicate predicate) {
+    IntList list = new IntArrayList(self.length);
+    for (int e : self) {
+      if (predicate.test(e)) list.add(e);
+    }
+    return list;
+  }
+
+  public static LongList findAll(long[] self, LongPredicate predicate) {
+    LongList list = new LongArrayList(self.length);
+    for (long e : self) {
+      if (predicate.test(e)) list.add(e);
+    }
+    return list;
+  }
+
+  public static FloatList findAll(float[] self, FloatPredicate predicate) {
+    FloatList list = new FloatArrayList(self.length);
+    for (float e : self) {
+      if (predicate.test(e)) list.add(e);
+    }
+    return list;
+  }
+
+  public static DoubleList findAll(double[] self, DoublePredicate predicate) {
+    DoubleList list = new DoubleArrayList(self.length);
+    for (double e : self) {
+      if (predicate.test(e)) list.add(e);
+    }
+    return list;
+  }
+
+  public static CharacterList findAll(char[] self, CharacterPredicate predicate) {
+    CharacterList list = new CharacterArrayList(self.length);
+    for (char e : self) {
+      if (predicate.test(e)) list.add(e);
+    }
+    return list;
+  }
+
   /**
    * Converts a collection into a set
    *
@@ -170,6 +422,54 @@ public final class DefaultMarcelMethods {
     Set<T> set = new HashSet<>();
     while (iterator.hasNext()) {
       set.add(iterator.next());
+    }
+    return set;
+  }
+
+  public static <T> Set<T> toSet(T[] self) {
+    Set<T> set = new HashSet<>();
+    for (T e : self) {
+      set.add(e);
+    }
+    return set;
+  }
+
+  public static <T> IntSet toSet(int[] self) {
+    IntSet set = new IntOpenHashSet();
+    for (int e : self) {
+      set.add(e);
+    }
+    return set;
+  }
+
+  public static <T> LongSet toSet(long[] self) {
+    LongSet set = new LongOpenHashSet();
+    for (long e : self) {
+      set.add(e);
+    }
+    return set;
+  }
+
+  public static <T> FloatSet toSet(float[] self) {
+    FloatSet set = new FloatOpenHashSet();
+    for (float e : self) {
+      set.add(e);
+    }
+    return set;
+  }
+
+  public static <T> DoubleSet toSet(double[] self) {
+    DoubleSet set = new DoubleOpenHashSet();
+    for (double e : self) {
+      set.add(e);
+    }
+    return set;
+  }
+
+  public static <T> CharacterSet toSet(char[] self) {
+    CharacterSet set = new CharacterOpenHashSet();
+    for (char e : self) {
+      set.add(e);
     }
     return set;
   }
@@ -190,6 +490,56 @@ public final class DefaultMarcelMethods {
     return set;
   }
 
+  public static <T> List<T> toList(T[] self) {
+    List<T> set = new ArrayList<>(self.length);
+    for (T e : self) {
+      set.add(e);
+    }
+    return set;
+  }
+
+
+
+  public static <T> IntList toList(int[] self) {
+    IntList set = new IntArrayList();
+    for (int e : self) {
+      set.add(e);
+    }
+    return set;
+  }
+
+  public static <T> LongList toList(long[] self) {
+    LongList set = new LongArrayList();
+    for (long e : self) {
+      set.add(e);
+    }
+    return set;
+  }
+
+  public static <T> FloatList toList(float[] self) {
+    FloatList set = new FloatArrayList();
+    for (float e : self) {
+      set.add(e);
+    }
+    return set;
+  }
+
+  public static <T> DoubleList toList(double[] self) {
+    DoubleList set = new DoubleArrayList();
+    for (double e : self) {
+      set.add(e);
+    }
+    return set;
+  }
+
+  public static <T> CharacterList toList(char[] self) {
+    CharacterList set = new CharacterArrayList();
+    for (char e : self) {
+      set.add(e);
+    }
+    return set;
+  }
+
   /**
    * Map the list into an IntList
    *
@@ -202,6 +552,46 @@ public final class DefaultMarcelMethods {
     IntList intList = new IntArrayList(list.size());
     for (int i = 0; i < list.size(); i++) {
       intList.add(lambda1.applyAsInt(list.get(i)));
+    }
+    return intList;
+  }
+
+  public static <T> IntList mapToInt(T[] list, ToIntFunction<T> lambda1) {
+    IntList intList = new IntArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      intList.add(lambda1.applyAsInt(list[i]));
+    }
+    return intList;
+  }
+
+  public static IntList mapToInt(long[] list, ToIntFunction<Long> lambda1) {
+    IntList intList = new IntArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      intList.add(lambda1.applyAsInt(list[i]));
+    }
+    return intList;
+  }
+
+  public static IntList mapToInt(float[] list, ToIntFunction<Float> lambda1) {
+    IntList intList = new IntArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      intList.add(lambda1.applyAsInt(list[i]));
+    }
+    return intList;
+  }
+
+  public static IntList mapToInt(double[] list, ToIntFunction<Double> lambda1) {
+    IntList intList = new IntArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      intList.add(lambda1.applyAsInt(list[i]));
+    }
+    return intList;
+  }
+
+  public static IntList mapToInt(char[] list, ToIntFunction<Character> lambda1) {
+    IntList intList = new IntArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      intList.add(lambda1.applyAsInt(list[i]));
     }
     return intList;
   }
@@ -222,6 +612,46 @@ public final class DefaultMarcelMethods {
     return longList;
   }
 
+  public static <T> LongList mapToLong(T[] list, ToLongFunction<T> lambda1) {
+    LongList longList = new LongArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      longList.add(lambda1.applyAsLong(list[i]));
+    }
+    return longList;
+  }
+
+  public static LongList mapToLong(int[] list, ToLongFunction<Integer> lambda1) {
+    LongList longList = new LongArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      longList.add(lambda1.applyAsLong(list[i]));
+    }
+    return longList;
+  }
+
+  public static LongList mapToLong(float[] list, ToLongFunction<Float> lambda1) {
+    LongList longList = new LongArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      longList.add(lambda1.applyAsLong(list[i]));
+    }
+    return longList;
+  }
+
+  public static LongList mapToLong(double[] list, ToLongFunction<Double> lambda1) {
+    LongList longList = new LongArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      longList.add(lambda1.applyAsLong(list[i]));
+    }
+    return longList;
+  }
+
+  public static LongList mapToLong(char[] list, ToLongFunction<Character> lambda1) {
+    LongList longList = new LongArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      longList.add(lambda1.applyAsLong(list[i]));
+    }
+    return longList;
+  }
+
   /**
    * Map the list into a FloatList
    *
@@ -234,6 +664,46 @@ public final class DefaultMarcelMethods {
     FloatList floatList = new FloatArrayList(list.size());
     for (int i = 0; i < list.size(); i++) {
       floatList.add(lambda1.applyAsFloat(list.get(i)));
+    }
+    return floatList;
+  }
+
+  public static <T> FloatList mapToFloat(T[] list, ToFloatFunction<T> lambda1) {
+    FloatList floatList = new FloatArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      floatList.add(lambda1.applyAsFloat(list[i]));
+    }
+    return floatList;
+  }
+
+  public static FloatList mapToFloat(int[] list, ToFloatFunction<Integer> lambda1) {
+    FloatList floatList = new FloatArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      floatList.add(lambda1.applyAsFloat(list[i]));
+    }
+    return floatList;
+  }
+
+  public static FloatList mapToFloat(long[] list, ToFloatFunction<Long> lambda1) {
+    FloatList floatList = new FloatArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      floatList.add(lambda1.applyAsFloat(list[i]));
+    }
+    return floatList;
+  }
+
+  public static FloatList mapToFloat(double[] list, ToFloatFunction<Double> lambda1) {
+    FloatList floatList = new FloatArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      floatList.add(lambda1.applyAsFloat(list[i]));
+    }
+    return floatList;
+  }
+
+  public static FloatList mapToFloat(char[] list, ToFloatFunction<Character> lambda1) {
+    FloatList floatList = new FloatArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      floatList.add(lambda1.applyAsFloat(list[i]));
     }
     return floatList;
   }
@@ -254,6 +724,46 @@ public final class DefaultMarcelMethods {
     return floatList;
   }
 
+  public static <T> DoubleList mapToDouble(T[] list, ToDoubleFunction<T> lambda1) {
+    DoubleList floatList = new DoubleArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      floatList.add(lambda1.applyAsDouble(list[i]));
+    }
+    return floatList;
+  }
+
+  public static <T> DoubleList mapToDouble(int[] list, ToDoubleFunction<Integer> lambda1) {
+    DoubleList floatList = new DoubleArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      floatList.add(lambda1.applyAsDouble(list[i]));
+    }
+    return floatList;
+  }
+
+  public static <T> DoubleList mapToDouble(long[] list, ToDoubleFunction<Long> lambda1) {
+    DoubleList floatList = new DoubleArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      floatList.add(lambda1.applyAsDouble(list[i]));
+    }
+    return floatList;
+  }
+
+  public static <T> DoubleList mapToDouble(float[] list, ToDoubleFunction<Float> lambda1) {
+    DoubleList floatList = new DoubleArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      floatList.add(lambda1.applyAsDouble(list[i]));
+    }
+    return floatList;
+  }
+
+  public static <T> DoubleList mapToDouble(char[] list, ToDoubleFunction<Character> lambda1) {
+    DoubleList floatList = new DoubleArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      floatList.add(lambda1.applyAsDouble(list[i]));
+    }
+    return floatList;
+  }
+
   // getLength
 
   /**
@@ -268,6 +778,66 @@ public final class DefaultMarcelMethods {
 
   public static String join(Collection<?> self) {
     return join(self, "");
+  }
+
+  public static <T> String join(T[] self) {
+    return join(self, "");
+  }
+
+  public static <T> String join(T[] self, String separator) {
+    return Arrays.stream(self)
+        .map(String::valueOf)
+        .collect(Collectors.joining(separator));
+  }
+
+  public static <T> String join(int[] self) {
+    return join(self, "");
+  }
+
+  public static <T> String join(int[] self, String separator) {
+    return Arrays.stream(self)
+        .mapToObj(String::valueOf)
+        .collect(Collectors.joining(separator));
+  }
+
+  public static <T> String join(long[] self) {
+    return join(self, "");
+  }
+
+  public static <T> String join(long[] self, String separator) {
+    return Arrays.stream(self)
+        .mapToObj(String::valueOf)
+        .collect(Collectors.joining(separator));
+  }
+
+  public static <T> String join(float[] self) {
+    return join(self, "");
+  }
+
+  public static <T> String join(float[] self, String separator) {
+    return toList(self).stream()
+        .map(String::valueOf)
+        .collect(Collectors.joining(separator));
+  }
+
+  public static <T> String join(double[] self) {
+    return join(self, "");
+  }
+
+  public static <T> String join(double[] self, String separator) {
+    return Arrays.stream(self)
+        .mapToObj(String::valueOf)
+        .collect(Collectors.joining(separator));
+  }
+
+  public static <T> String join(char[] self) {
+    return join(self, "");
+  }
+
+  public static <T> String join(char[] self, String separator) {
+    return toList(self).stream()
+        .map(String::valueOf)
+        .collect(Collectors.joining(separator));
   }
 
   /**
@@ -294,6 +864,33 @@ public final class DefaultMarcelMethods {
   public static <T, U extends Comparable<U>> void sort(List<T> self, Function<T, U> keyExtractor) {
     self.sort(Comparator.comparing(keyExtractor));
   }
+
+  public static <T, U extends Comparable<U>> void sort(T[] self, Function<T, U> keyExtractor) {
+    Arrays.sort(self, Comparator.comparing(keyExtractor));
+  }
+
+  public static void sort(int[] self) {
+    Arrays.sort(self);
+  }
+
+  public static void sort(long[] self) {
+    Arrays.sort(self);
+  }
+
+  public static void sort(float[] self) {
+    Arrays.sort(self);
+  }
+
+  public static void sort(double[] self) {
+    Arrays.sort(self);
+  }
+
+  public static void sort(char[] self) {
+    Arrays.sort(self);
+  }
+
+
+  // TODO below functions need their array equivalent
 
   /**
    * Reverse a list
