@@ -1061,8 +1061,6 @@ public final class DefaultMarcelMethods {
   }
 
 
-  // TODO reverse functions need their array equivalent
-
   /**
    * Reverse a list
    *
@@ -1070,6 +1068,42 @@ public final class DefaultMarcelMethods {
    */
   public static void reverse(List<?> list) {
     Collections.reverse(list);
+  }
+
+  public static <T> void reverse(T[] self) {
+    for (int i = 0; i < self.length / 2; i++) {
+      swap(self, i, self.length - 1 - i);
+    }
+  }
+
+  public static <T> void reverse(int[] self) {
+    for (int i = 0; i < self.length / 2; i++) {
+      swap(self, i, self.length - 1 - i);
+    }
+  }
+
+  public static <T> void reverse(long[] self) {
+    for (int i = 0; i < self.length / 2; i++) {
+      swap(self, i, self.length - 1 - i);
+    }
+  }
+
+  public static <T> void reverse(float[] self) {
+    for (int i = 0; i < self.length / 2; i++) {
+      swap(self, i, self.length - 1 - i);
+    }
+  }
+
+  public static <T> void reverse(double[] self) {
+    for (int i = 0; i < self.length / 2; i++) {
+      swap(self, i, self.length - 1 - i);
+    }
+  }
+
+  public static <T> void reverse(char[] self) {
+    for (int i = 0; i < self.length / 2; i++) {
+      swap(self, i, self.length - 1 - i);
+    }
   }
 
   /**
