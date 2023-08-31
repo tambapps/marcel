@@ -480,4 +480,12 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 		for (double l : b) sum.add(l);
 		return sum;
 	}
+
+	default DoubleList asUnmodifiable() {
+		return new UnmodifiableDoubleList(this);
+	}
+
+	default DoubleList toImmutable() {
+		return new UnmodifiableDoubleList(new DoubleArrayList(this));
+	}
 }

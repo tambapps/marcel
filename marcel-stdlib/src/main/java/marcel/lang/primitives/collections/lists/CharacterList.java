@@ -461,4 +461,12 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 		for (char l : b) sum.add(l);
 		return sum;
 	}
+
+	default CharacterList asUnmodifiable() {
+		return new UnmodifiableCharacterList(this);
+	}
+
+	default CharacterList toImmutable() {
+		return new UnmodifiableCharacterList(new CharacterArrayList(this));
+	}
 }

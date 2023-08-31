@@ -480,4 +480,12 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 		for (long l : b) sum.add(l);
 		return sum;
 	}
+
+	default LongList asUnmodifiable() {
+		return new UnmodifiableLongList(this);
+	}
+
+	default LongList toImmutable() {
+		return new UnmodifiableLongList(new LongArrayList(this));
+	}
 }

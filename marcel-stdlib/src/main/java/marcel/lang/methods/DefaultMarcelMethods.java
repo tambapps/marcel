@@ -1598,6 +1598,7 @@ public final class DefaultMarcelMethods {
    * @return an unmodifiable view of the given collection
    * @param <T> the generic type
    */
+  // TODO do sets (like it was done for lists)
   public static <T> List<T> asUnmodifiable(List<T> self) {
     return Collections.unmodifiableList(self);
   }

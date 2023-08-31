@@ -456,4 +456,12 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 		for (int l : b) sum.add(l);
 		return sum;
 	}
+
+	default IntList asUnmodifiable() {
+		return new UnmodifiableIntList(this);
+	}
+
+	default IntList toImmutable() {
+		return new UnmodifiableIntList(new IntArrayList(this));
+	}
 }

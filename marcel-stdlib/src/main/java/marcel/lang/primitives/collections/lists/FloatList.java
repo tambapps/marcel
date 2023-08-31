@@ -481,4 +481,12 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 		for (float l : b) sum.add(l);
 		return sum;
 	}
+
+	default FloatList asUnmodifiable() {
+		return new UnmodifiableFloatList(this);
+	}
+
+	default FloatList toImmutable() {
+		return new UnmodifiableFloatList(new FloatArrayList(this));
+	}
 }
