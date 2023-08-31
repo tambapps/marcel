@@ -1,6 +1,7 @@
 package marcel.lang.methods;
 
 import marcel.lang.IntRange;
+import marcel.lang.primitives.collections.*;
 import marcel.lang.primitives.collections.lists.CharacterArrayList;
 import marcel.lang.primitives.collections.lists.CharacterList;
 import marcel.lang.primitives.collections.lists.DoubleArrayList;
@@ -22,19 +23,10 @@ import marcel.lang.primitives.collections.sets.IntSet;
 import marcel.lang.primitives.collections.sets.LongOpenHashSet;
 import marcel.lang.primitives.collections.sets.LongSet;
 import marcel.lang.primitives.iterators.IntIterator;
-import marcel.lang.util.function.CharacterPredicate;
-import marcel.lang.util.function.FloatPredicate;
-import marcel.lang.util.function.ToFloatFunction;
+import marcel.lang.util.function.*;
 
 import java.util.*;
-import java.util.function.DoublePredicate;
-import java.util.function.Function;
-import java.util.function.IntPredicate;
-import java.util.function.LongPredicate;
-import java.util.function.Predicate;
-import java.util.function.ToDoubleFunction;
-import java.util.function.ToIntFunction;
-import java.util.function.ToLongFunction;
+import java.util.function.*;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
@@ -86,6 +78,36 @@ public final class DefaultMarcelMethods {
     l[j] = temp;
   }
 
+  public static void swap(int[] l, int i, int j) {
+    int temp = l[i];
+    l[i] = l[j];
+    l[j] = temp;
+  }
+
+  public static void swap(long[] l, int i, int j) {
+    long temp = l[i];
+    l[i] = l[j];
+    l[j] = temp;
+  }
+
+  public static void swap(float[] l, int i, int j) {
+    float temp = l[i];
+    l[i] = l[j];
+    l[j] = temp;
+  }
+
+  public static void swap(double[] l, int i, int j) {
+    double temp = l[i];
+    l[i] = l[j];
+    l[j] = temp;
+  }
+
+  public static void swap(char[] l, int i, int j) {
+    char temp = l[i];
+    l[i] = l[j];
+    l[j] = temp;
+  }
+
   public static <T> List<T> unique(Collection<T> self, Function<T, ?> keyExtractor) {
     Set<Object> set = new HashSet<>();
     List<T> list = new ArrayList<>();
@@ -95,6 +117,10 @@ public final class DefaultMarcelMethods {
       }
     }
     return list;
+  }
+
+  public static <T> Set<T> unique(Collection<T> self) {
+    return new HashSet<>(self);
   }
 
   public static <T> Collection<T> unique(T[] self, Function<T, ?> keyExtractor) {
@@ -108,13 +134,144 @@ public final class DefaultMarcelMethods {
     return list;
   }
 
-  // TODO do arrays
+  public static <T> Set<T> unique(T[] self) {
+    return new HashSet<>(Arrays.asList(self));
+  }
+
+  public static IntCollection unique(int[] self, IntFunction<?> keyExtractor) {
+    Set<Object> set = new HashSet<>();
+    IntList list = new IntArrayList();
+    for (int o : self) {
+      if (set.add(keyExtractor.apply(o))) {
+        list.add(o);
+      }
+    }
+    return list;
+  }
+
+  public static IntSet unique(int[] self) {
+    return new IntOpenHashSet(IntArrayList.wrap(self));
+  }
+
+  public static LongCollection unique(long[] self, LongFunction<?> keyExtractor) {
+    Set<Object> set = new HashSet<>();
+    LongList list = new LongArrayList();
+    for (long o : self) {
+      if (set.add(keyExtractor.apply(o))) {
+        list.add(o);
+      }
+    }
+    return list;
+  }
+
+  public static LongSet unique(long[] self) {
+    return new LongOpenHashSet(LongArrayList.wrap(self));
+  }
+
+  public static FloatCollection unique(float[] self, FloatFunction<?> keyExtractor) {
+    Set<Object> set = new HashSet<>();
+    FloatList list = new FloatArrayList();
+    for (float o : self) {
+      if (set.add(keyExtractor.apply(o))) {
+        list.add(o);
+      }
+    }
+    return list;
+  }
+
+  public static FloatSet unique(float[] self) {
+    return new FloatOpenHashSet(FloatArrayList.wrap(self));
+  }
+
+  public static DoubleCollection unique(double[] self, DoubleFunction<?> keyExtractor) {
+    Set<Object> set = new HashSet<>();
+    DoubleList list = new DoubleArrayList();
+    for (double o : self) {
+      if (set.add(keyExtractor.apply(o))) {
+        list.add(o);
+      }
+    }
+    return list;
+  }
+
+  public static DoubleSet unique(double[] self) {
+    return new DoubleOpenHashSet(DoubleArrayList.wrap(self));
+  }
+
+  public static CharacterCollection unique(char[] self, CharacterFunction<?> keyExtractor) {
+    Set<Object> set = new HashSet<>();
+    CharacterList list = new CharacterArrayList();
+    for (char o : self) {
+      if (set.add(keyExtractor.apply(o))) {
+        list.add(o);
+      }
+    }
+    return list;
+  }
+
+  public static CharacterSet unique(char[] self) {
+    return new CharacterOpenHashSet(CharacterArrayList.wrap(self));
+  }
+
   public static void shuffle(List<?> self) {
     Collections.shuffle(self);
   }
 
   public static void shuffle(List<?> self, Random rnd) {
     Collections.shuffle(self, rnd);
+  }
+
+  public static <T> void shuffle(T[] arr) {
+    shuffle(arr, new Random());
+  }
+  public static <T> void shuffle(T[] arr, Random rnd) {
+    for (int i=arr.length; i>1; i--)
+      swap(arr, i-1, rnd.nextInt(i));
+  }
+
+  public static <T> void shuffle(int[] arr) {
+    shuffle(arr, new Random());
+  }
+
+  public static <T> void shuffle(int[] arr, Random rnd) {
+    for (int i=arr.length; i>1; i--)
+      swap(arr, i-1, rnd.nextInt(i));
+  }
+
+  public static <T> void shuffle(long[] arr) {
+    shuffle(arr, new Random());
+  }
+
+  public static <T> void shuffle(long[] arr, Random rnd) {
+    for (int i=arr.length; i>1; i--)
+      swap(arr, i-1, rnd.nextInt(i));
+  }
+
+  public static <T> void shuffle(float[] arr) {
+    shuffle(arr, new Random());
+  }
+
+  public static <T> void shuffle(float[] arr, Random rnd) {
+    for (int i=arr.length; i>1; i--)
+      swap(arr, i-1, rnd.nextInt(i));
+  }
+
+  public static <T> void shuffle(double[] arr) {
+    shuffle(arr, new Random());
+  }
+
+  public static <T> void shuffle(double[] arr, Random rnd) {
+    for (int i=arr.length; i>1; i--)
+      swap(arr, i-1, rnd.nextInt(i));
+  }
+
+  public static <T> void shuffle(char[] arr) {
+    shuffle(arr, new Random());
+  }
+
+  public static <T> void shuffle(char[] arr, Random rnd) {
+    for (int i=arr.length; i>1; i--)
+      swap(arr, i-1, rnd.nextInt(i));
   }
 
   /**
@@ -865,8 +1022,22 @@ public final class DefaultMarcelMethods {
     self.sort(Comparator.comparing(keyExtractor));
   }
 
+  public static <T, U extends Comparable<U>> void sort(List<T> self) {
+    Object[] a = self.toArray();
+    Arrays.sort(a);
+    ListIterator<T> i = self.listIterator();
+    for (Object e : a) {
+      i.next();
+      i.set((T) e);
+    }
+  }
+
   public static <T, U extends Comparable<U>> void sort(T[] self, Function<T, U> keyExtractor) {
     Arrays.sort(self, Comparator.comparing(keyExtractor));
+  }
+
+  public static <T, U extends Comparable<U>> void sort(T[] self) {
+    Arrays.sort(self);
   }
 
   public static void sort(int[] self) {
@@ -890,7 +1061,7 @@ public final class DefaultMarcelMethods {
   }
 
 
-  // TODO below functions need their array equivalent
+  // TODO reverse functions need their array equivalent
 
   /**
    * Reverse a list
@@ -924,6 +1095,30 @@ public final class DefaultMarcelMethods {
     return self.get(self.size() - 1);
   }
 
+  public static <T> T getLast(T[] self) {
+    return self[self.length - 1];
+  }
+
+  public static int getLast(int[] self) {
+    return self[self.length - 1];
+  }
+
+  public static long getLast(long[] self) {
+    return self[self.length - 1];
+  }
+
+  public static float getLast(float[] self) {
+    return self[self.length - 1];
+  }
+
+  public static double getLast(double[] self) {
+    return self[self.length - 1];
+  }
+
+  public static char getLast(char[] self) {
+    return self[self.length - 1];
+  }
+
   /**
    * Get the last element of the list or null if the list is empty
    *
@@ -934,6 +1129,30 @@ public final class DefaultMarcelMethods {
   public static <T> T getLastOrNull(List<T> self) {
     if (self.isEmpty()) return null;
     return self.get(self.size() - 1);
+  }
+
+  public static <T> T getLastOrNull(T[] self) {
+    return self.length > 0 ? self[self.length - 1]: null;
+  }
+
+  public static Integer getLastOrNull(int[] self) {
+    return self.length > 0 ? self[self.length - 1]: null;
+  }
+
+  public static Long getLastOrNull(long[] self) {
+    return self.length > 0 ? self[self.length - 1]: null;
+  }
+
+  public static Float getLastOrNull(float[] self) {
+    return self.length > 0 ? self[self.length - 1]: null;
+  }
+
+  public static Double getLastOrNull(double[] self) {
+    return self.length > 0 ? self[self.length - 1]: null;
+  }
+
+  public static Character getLastOrNull(char[] self) {
+    return self.length > 0 ? self[self.length - 1]: null;
   }
 
   /**
@@ -947,6 +1166,30 @@ public final class DefaultMarcelMethods {
     return self.get(0);
   }
 
+  public static <T> T getFirst(T[] self) {
+    return self[0];
+  }
+
+  public static int getFirst(int[] self) {
+    return self[0];
+  }
+
+  public static long getFirst(long[] self) {
+    return self[0];
+  }
+
+  public static float getFirst(float[] self) {
+    return self[0];
+  }
+
+  public static double getFirst(double[] self) {
+    return self[0];
+  }
+
+  public static char getFirst(char[] self) {
+    return self[0];
+  }
+
   /**
    * Sets the last element of the list. This method wil throw an exception if the list is empty
    *
@@ -956,6 +1199,30 @@ public final class DefaultMarcelMethods {
    */
   public static <T> void setLast(List<T> self, T value) {
     self.set(self.size() - 1, value);
+  }
+
+  public static <T> void setLast(T[] self, T value) {
+    self[self.length - 1] = value;
+  }
+
+  public static void setLast(int[] self, int value) {
+    self[self.length - 1] = value;
+  }
+
+  public static void setLast(long[] self, long value) {
+    self[self.length - 1] = value;
+  }
+
+  public static void setLast(float[] self, float value) {
+    self[self.length - 1] = value;
+  }
+
+  public static void setLast(double[] self, double value) {
+    self[self.length - 1] = value;
+  }
+
+  public static void setLast(char[] self, char value) {
+    self[self.length - 1] = value;
   }
 
   /**
@@ -1112,6 +1379,13 @@ public final class DefaultMarcelMethods {
    * @param b the second array
    * @return a new array containing the content of the first one then the content of the second
    */
+  public static <T> Object[] plus(T[] a, T[] b) {
+    Object[] sum = new Object[a.length + b.length];
+    System.arraycopy(a, 0, sum, 0, a.length);
+    System.arraycopy(b, 0, sum, a.length, b.length);
+    return sum;
+  }
+
   public static int[] plus(int[] a, int[] b) {
     int[] sum = new int[a.length + b.length];
     System.arraycopy(a, 0, sum, 0, a.length);
@@ -1282,5 +1556,28 @@ public final class DefaultMarcelMethods {
     return map;
   }
 
+  // TODO do implementations in IntCollection, IntSet, IntList, and other primitives
+  //    create PrimitiveImutableList/Set and then create array methods
+  /**
+   * Returns an unmodifiable view of the given collection
+   * @param self the collection
+   * @return an unmodifiable view of the given collection
+   * @param <T> the generic type
+   */
+  public static <T> List<T> asUnmodifiable(List<T> self) {
+    return Collections.unmodifiableList(self);
+  }
+
+  public static <T> Set<T> asUnmodifiable(Set<T> self) {
+    return Collections.unmodifiableSet(self);
+  }
+
+  public static <K,V> Map<K,V> asUnmodifiable(Map<K,V> self) {
+    return Collections.unmodifiableMap(self);
+  }
+
+  public static <T> List<T> asUnmodifiable(T[] self) {
+    return Collections.unmodifiableList(Arrays.asList(self));
+  }
 
 }
