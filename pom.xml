@@ -7,8 +7,21 @@
   <groupId>com.tambapps.marcel</groupId>
   <artifactId>marcel</artifactId>
   <version>${revision}</version>
-  <name>Marcel</name>
+  <name>Marcel Lang</name>
   <packaging>pom</packaging>
+
+  <description>Programming Language Project</description>
+  <url>https://github.com/tambapps/marcel</url>
+  <inceptionYear>2023</inceptionYear>
+
+  <properties>
+    <revision>0.0.1-SNAPSHOT</revision>
+    <kotlin.version>1.8.10</kotlin.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <java.version>1.8</java.version>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+  </properties>
 
   <modules>
     <module>marcel-compiler</module>
@@ -182,12 +195,76 @@
     </plugins>
   </build>
 
-  <properties>
-    <revision>0.1-SNAPSHOT</revision>
-    <kotlin.version>1.8.10</kotlin.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <java.version>1.8</java.version>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-  </properties>
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/tambapps/marcel/issues</url>
+  </issueManagement>
+  <scm>
+    <url>https://github.com/tambapps/marcel</url>
+    <connection>scm:git:https://github.com/tambapps/marcel.git</connection>
+  </scm>
+  <organization>
+    <name>Tambapps</name>
+    <url>https://github.com/tambapps/</url>
+  </organization>
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
+
+  <developers>
+    <developer>
+      <id>nfonkoua</id>
+      <name>Nelson Fonkoua</name>
+      <email>tambapps@gmail.com</email>
+      <roles>
+        <role>Lead Developer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+  </developers>
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://raw.githubusercontent.com/tambapps/marcel/main/LICENSE</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <profiles>
+    <profile>
+      <id>release-sign-artifacts</id>
+      <activation>
+        <property>
+          <name>performRelease</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
 </project>
