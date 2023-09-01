@@ -94,4 +94,11 @@ public interface CharacterSet extends CharacterCollection, Set<Character> {
 	 return CharacterCollection.super.contains(o);
 	}
 
+	default CharacterSet asUnmodifiable() {
+		return new UnmodifiableCharacterSet(this);
+	}
+
+	default CharacterSet toImmutable() {
+		return new UnmodifiableCharacterSet(new CharacterOpenHashSet(this));
+	}
 }

@@ -94,4 +94,11 @@ public interface FloatSet extends FloatCollection, Set<Float> {
 	 return FloatCollection.super.contains(o);
 	}
 
+	default FloatSet asUnmodifiable() {
+		return new UnmodifiableFloatSet(this);
+	}
+
+	default FloatSet toUnmodifiable() {
+		return new UnmodifiableFloatSet(new FloatOpenHashSet(this));
+	}
 }

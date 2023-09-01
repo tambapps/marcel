@@ -19,6 +19,8 @@ import marcel.lang.primitives.collections.lists.FloatArrayList;
 import marcel.lang.primitives.collections.lists.FloatList;
 import marcel.lang.primitives.collections.lists.IntArrayList;
 import marcel.lang.primitives.collections.lists.IntList;
+import marcel.lang.primitives.collections.sets.FloatOpenHashSet;
+import marcel.lang.primitives.collections.sets.FloatSet;
 import marcel.lang.primitives.iterable.FloatIterable;
 import marcel.lang.primitives.iterators.FloatIterator;
 import marcel.lang.primitives.iterators.IntIterator;
@@ -276,4 +278,13 @@ public interface FloatCollection extends Collection<Float>, FloatIterable {
     }
     return true;
   }
+
+  default FloatList toList() {
+    return new FloatArrayList(this);
+  }
+
+  default FloatSet toSet() {
+    return new FloatOpenHashSet(this);
+  }
+
 }

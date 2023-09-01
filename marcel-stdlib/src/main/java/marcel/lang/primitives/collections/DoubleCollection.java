@@ -20,6 +20,8 @@ import marcel.lang.primitives.collections.lists.DoubleArrayList;
 import marcel.lang.primitives.collections.lists.DoubleList;
 import marcel.lang.primitives.collections.lists.IntArrayList;
 import marcel.lang.primitives.collections.lists.IntList;
+import marcel.lang.primitives.collections.sets.DoubleOpenHashSet;
+import marcel.lang.primitives.collections.sets.DoubleSet;
 import marcel.lang.primitives.iterable.DoubleIterable;
 import marcel.lang.primitives.iterators.DoubleIterator;
 import marcel.lang.primitives.iterators.IntIterator;
@@ -255,4 +257,13 @@ public interface DoubleCollection extends Collection<Double>, DoubleIterable {
     }
     return true;
   }
+
+  default DoubleList toList() {
+    return new DoubleArrayList(this);
+  }
+
+  default DoubleSet toSet() {
+    return new DoubleOpenHashSet(this);
+  }
+
 }

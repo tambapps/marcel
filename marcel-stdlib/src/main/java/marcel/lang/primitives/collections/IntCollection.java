@@ -18,6 +18,8 @@ package marcel.lang.primitives.collections;
 
 import marcel.lang.primitives.collections.lists.IntArrayList;
 import marcel.lang.primitives.collections.lists.IntList;
+import marcel.lang.primitives.collections.sets.IntOpenHashSet;
+import marcel.lang.primitives.collections.sets.IntSet;
 import marcel.lang.primitives.iterable.IntIterable;
 import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.spliterators.IntSpliterator;
@@ -272,4 +274,13 @@ public interface IntCollection extends Collection<Integer>, IntIterable {
     }
     return true;
   }
+
+  default IntList toList() {
+    return new IntArrayList(this);
+  }
+
+  default IntSet toSet() {
+    return new IntOpenHashSet(this);
+  }
+
 }

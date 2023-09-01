@@ -98,22 +98,12 @@ public interface IntSet extends IntCollection, Set<Integer> {
 	 return IntCollection.super.contains(o);
 	}
 
-	default IntList toList() {
-		IntList list = new IntArrayList(size());
-		IntIterator iterator = iterator();
-		while (iterator.hasNext()) {
-			list.add(iterator.nextInt());
-		}
-		return list;
+
+	default IntSet asUnmodifiable() {
+		return new UnmodifiableIntSet(this);
 	}
 
-	default IntSet filter(IntPredicate predicate) {
-		IntSet list = new IntOpenHashSet(size());
-		IntIterator iterator = iterator();
-		while (iterator.hasNext()) {
-			int e = iterator.nextInt();
-			if (predicate.test(e)) list.add(e);
-		}
-		return list;
+	default IntSet toImmutable() {
+		return new UnmodifiableIntSet(new IntOpenHashSet(this));
 	}
 }

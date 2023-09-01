@@ -20,6 +20,8 @@ import marcel.lang.primitives.collections.lists.CharacterArrayList;
 import marcel.lang.primitives.collections.lists.CharacterList;
 import marcel.lang.primitives.collections.lists.IntArrayList;
 import marcel.lang.primitives.collections.lists.IntList;
+import marcel.lang.primitives.collections.sets.CharacterOpenHashSet;
+import marcel.lang.primitives.collections.sets.CharacterSet;
 import marcel.lang.primitives.iterable.CharacterIterable;
 import marcel.lang.primitives.iterators.CharacterIterator;
 import marcel.lang.primitives.iterators.IntIterator;
@@ -254,5 +256,13 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
       if (predicate.test(e)) return false;
     }
     return true;
+  }
+
+  default CharacterList toList() {
+    return new CharacterArrayList(this);
+  }
+
+  default CharacterSet toSet() {
+    return new CharacterOpenHashSet(this);
   }
 }

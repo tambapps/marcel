@@ -20,6 +20,8 @@ import marcel.lang.primitives.collections.lists.IntArrayList;
 import marcel.lang.primitives.collections.lists.IntList;
 import marcel.lang.primitives.collections.lists.LongArrayList;
 import marcel.lang.primitives.collections.lists.LongList;
+import marcel.lang.primitives.collections.sets.LongOpenHashSet;
+import marcel.lang.primitives.collections.sets.LongSet;
 import marcel.lang.primitives.iterable.LongIterable;
 import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.iterators.LongIterator;
@@ -275,5 +277,13 @@ public interface LongCollection extends Collection<Long>, LongIterable {
       if (predicate.test(e)) return false;
     }
     return true;
+  }
+
+  default LongList toList() {
+    return new LongArrayList(this);
+  }
+
+  default LongSet toSet() {
+    return new LongOpenHashSet(this);
   }
 }

@@ -97,22 +97,11 @@ public interface LongSet extends LongCollection, Set<Long> {
 	 return LongCollection.super.contains(o);
 	}
 
-	default LongList toList() {
-		LongList list = new LongArrayList(size());
-		LongIterator iterator = iterator();
-		while (iterator.hasNext()) {
-			list.add(iterator.nextLong());
-		}
-		return list;
+	default LongSet asUnmodifiable() {
+		return new UnmodifiableLongSet(this);
 	}
 
-	default LongSet filter(LongPredicate predicate) {
-		LongSet list = new LongOpenHashSet(size());
-		LongIterator iterator = iterator();
-		while (iterator.hasNext()) {
-			long e = iterator.nextLong();
-			if (predicate.test(e)) list.add(e);
-		}
-		return list;
+	default LongSet toImmutable() {
+		return new UnmodifiableLongSet(new LongOpenHashSet(this));
 	}
 }

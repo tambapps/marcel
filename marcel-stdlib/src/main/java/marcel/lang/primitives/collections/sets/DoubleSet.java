@@ -94,4 +94,11 @@ public interface DoubleSet extends DoubleCollection, Set<Double> {
 	 return DoubleCollection.super.contains(o);
 	}
 
+	default DoubleSet asUnmodifiable() {
+		return new UnmodifiableDoubleSet(this);
+	}
+
+	default DoubleSet toImmutable() {
+		return new UnmodifiableDoubleSet(new DoubleOpenHashSet(this));
+	}
 }

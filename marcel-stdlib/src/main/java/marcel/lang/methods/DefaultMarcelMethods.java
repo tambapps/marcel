@@ -65,9 +65,6 @@ public final class DefaultMarcelMethods {
     return groups;
   }
 
-  // TODO add intersection(Collection), toImmutable, asUnmodifiable (a view), collate(int)
-  //   add for list only reversed, shuffled,
-
   public static <T> void swap(List l, int i, int j) {
     l.set(i, l.set(j, l.get(i)));
   }
@@ -1590,15 +1587,12 @@ public final class DefaultMarcelMethods {
     return map;
   }
 
-  // TODO do implementations in IntCollection, IntSet, IntList, and other primitives
-  //    create PrimitiveImutableList/Set and then create array methods
   /**
    * Returns an unmodifiable view of the given collection
    * @param self the collection
    * @return an unmodifiable view of the given collection
    * @param <T> the generic type
    */
-  // TODO do sets (like it was done for lists)
   public static <T> List<T> asUnmodifiable(List<T> self) {
     return Collections.unmodifiableList(self);
   }
@@ -1615,4 +1609,115 @@ public final class DefaultMarcelMethods {
     return Collections.unmodifiableList(Arrays.asList(self));
   }
 
+  /**
+   * Collates this iterable into sub-lists of length <code>size</code>.
+   * Example:
+   * <pre class="groovyTestCase">def list = [ 1, 2, 3, 4, 5, 6, 7 ]
+   * def coll = list.collate( 3 )
+   * assert coll == [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7 ] ]</pre>
+   *
+   * @param self          an Iterable
+   * @param size          the length of each sub-list in the returned list
+   * @return a List containing the data collated into sub-lists
+   * @since 2.4.0
+   */
+  public static <T> List<List<T>> collate(Iterable<T> self, int size) {
+    return collate(self, size, true);
+  }
+
+  /**
+   * @deprecated use the Iterable variant instead
+   * @see #collate(Iterable, int)
+   * @since 1.8.6
+   */
+  @Deprecated
+  public static <T> List<List<T>> collate( List<T> self, int size ) {
+    return collate((Iterable<T>) self, size) ;
+  }
+
+  /**
+   * Collates this iterable into sub-lists of length <code>size</code> stepping through the code <code>step</code>
+   * elements for each subList.
+   * Example:
+   * <pre class="groovyTestCase">def list = [ 1, 2, 3, 4 ]
+   * def coll = list.collate( 3, 1 )
+   * assert coll == [ [ 1, 2, 3 ], [ 2, 3, 4 ], [ 3, 4 ], [ 4 ] ]</pre>
+   *
+   * @param self          an Iterable
+   * @param size          the length of each sub-list in the returned list
+   * @param step          the number of elements to step through for each sub-list
+   * @return a List containing the data collated into sub-lists
+   * @since 2.4.0
+   */
+  public static <T> List<List<T>> collate(Iterable<T> self, int size, int step) {
+    return collate(self, size, step, true);
+  }
+
+  /**
+   * @deprecated use the Iterable variant instead
+   * @see #collate(Iterable, int, int)
+   * @since 1.8.6
+   */
+  @Deprecated
+  public static <T> List<List<T>> collate( List<T> self, int size, int step ) {
+    return collate((Iterable<T>) self, size, step) ;
+  }
+
+  /**
+   * Collates this iterable into sub-lists of length <code>size</code>. Any remaining elements in
+   * the iterable after the subdivision will be dropped if <code>keepRemainder</code> is false.
+   * Example:
+   * <pre class="groovyTestCase">def list = [ 1, 2, 3, 4, 5, 6, 7 ]
+   * def coll = list.collate( 3, false )
+   * assert coll == [ [ 1, 2, 3 ], [ 4, 5, 6 ] ]</pre>
+   *
+   * @param self          an Iterable
+   * @param size          the length of each sub-list in the returned list
+   * @param keepRemainder if true, any remaining elements are returned as sub-lists.  Otherwise they are discarded
+   * @return a List containing the data collated into sub-lists
+   * @since 2.4.0
+   */
+  public static <T> List<List<T>> collate(Iterable<T> self, int size, boolean keepRemainder) {
+    return collate(self, size, size, keepRemainder);
+  }
+
+
+  /**
+   * Collates this iterable into sub-lists of length <code>size</code> stepping through the code <code>step</code>
+   * elements for each sub-list.  Any remaining elements in the iterable after the subdivision will be dropped if
+   * <code>keepRemainder</code> is false.
+   * Example:
+   * <pre class="groovyTestCase">
+   * def list = [ 1, 2, 3, 4 ]
+   * assert list.collate( 2, 2, true  ) == [ [ 1, 2 ], [ 3, 4 ] ]
+   * assert list.collate( 3, 1, true  ) == [ [ 1, 2, 3 ], [ 2, 3, 4 ], [ 3, 4 ], [ 4 ] ]
+   * assert list.collate( 3, 1, false ) == [ [ 1, 2, 3 ], [ 2, 3, 4 ] ]
+   * </pre>
+   *
+   * @param self          an Iterable
+   * @param size          the length of each sub-list in the returned list
+   * @param step          the number of elements to step through for each sub-list
+   * @param keepRemainder if true, any remaining elements are returned as sub-lists.  Otherwise they are discarded
+   * @return a List containing the data collated into sub-lists
+   */
+  public static <T> List<List<T>> collate(Iterable<T> self, int size, int step, boolean keepRemainder) {
+    List<T> selfList = new ArrayList<>();
+    self.forEach(selfList::add);
+    List<List<T>> answer = new ArrayList<List<T>>();
+    if (size <= 0 || selfList.isEmpty()) {
+      answer.add(selfList);
+    } else {
+      for (int pos = 0; pos < selfList.size() && pos > -1; pos += step) {
+        if (!keepRemainder && pos > selfList.size() - size) {
+          break ;
+        }
+        List<T> element = new ArrayList<T>() ;
+        for (int offs = pos; offs < pos + size && offs < selfList.size(); offs++) {
+          element.add(selfList.get(offs));
+        }
+        answer.add( element ) ;
+      }
+    }
+    return answer ;
+  }
 }
