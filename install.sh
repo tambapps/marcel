@@ -30,7 +30,7 @@ mkdir -p $marcelDir/bin
 version=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout)
 
 echo "Installing marcel..."
-mvn clean install
+mvn clean package
 cp marcel-lexer/target/marcel-lexer-$version.jar $marcelDir/lib/marcel-lexer.jar
 cp marcel-stdlib/target/marcel-stdlib-$version.jar $marcelDir/lib/marcel-stdlib.jar
 cp marcel-parser/target/marcel-parser-$version.jar $marcelDir/lib/marcel-parser.jar
