@@ -15,6 +15,7 @@
         android:layout_margin="16dp"
         android:src="@drawable/plus"
         android:id="@+id/plusButton"
+        android:visibility="gone"
         />
 
     <ImageButton
