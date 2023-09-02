@@ -92,6 +92,7 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener,
     binding.drawerLayout.closeDrawer(binding.navView)
     if (NavigationUI.onNavDestinationSelected(menuItem, navController)) return true
     when (menuItem.itemId) {
+      R.id.nav_quit -> finish()
       R.id.nav_script_collection -> Toast.makeText(this, "Coming Soon", Toast.LENGTH_SHORT).show()
       R.id.nav_documentation -> {
         CustomTabsIntent.Builder()

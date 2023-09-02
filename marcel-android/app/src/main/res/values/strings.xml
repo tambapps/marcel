@@ -66,4 +66,5 @@
     <string name="clear_dumbbells_preference_key">clear_dumbbells</string>
     <string name="remove_all_fetched_dumbbells_n">Remove all fetched dumbbells (%1$d dumbbell))</string>
     <string name="init_script_key">init_script_key</string>
+    <string name="menu_quit">Exit</string>
 </resources>

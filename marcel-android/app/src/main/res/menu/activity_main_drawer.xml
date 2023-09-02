@@ -40,6 +40,10 @@
                         android:id="@+id/nav_documentation"
                         android:icon="@drawable/book"
                         android:title="@string/menu_documentation" />
+                    <item
+                        android:id="@+id/nav_quit"
+                        android:icon="@drawable/logout"
+                        android:title="@string/menu_quit" />
                 </group>
             </menu>
         </item>

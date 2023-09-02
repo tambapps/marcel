@@ -14,7 +14,7 @@ android {
         minSdk 26
         targetSdk 33
         versionCode 1
-        versionName "0.1-SNAPSHOT"
+        versionName "0.0.1-SNAPSHOT"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -52,7 +52,7 @@ dependencies {
     kapt "com.google.dagger:hilt-compiler:2.44"
     kapt 'androidx.hilt:hilt-compiler:1.0.0'
 
-    implementation 'com.tambapps.marcel:marcel-repl:0.1-SNAPSHOT'
+    implementation 'com.tambapps.marcel:marcel-repl:0.0.1-SNAPSHOT'
     implementation project(path: ':marcel-dalvik-compiler')
     implementation project(path: ':marcel-dalvik-stdlib')
 
