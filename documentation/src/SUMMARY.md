@@ -41,5 +41,7 @@
   - [IntelIJ Plugin for Marcel](./tools/intelij-plugin.md)
 - [Tutorials](./tutorials/index.md)
   - [Pattern Matching](./tutorials/pattern-matching.md)
-- [Marcel In Action](./marcel-in-action.md)
+- [Marcel In Action](marcel-in-action/index.md)
+  - [Pattern Matching](marcel-in-action/fibonacci.md)
+  - [Pattern Matching](marcel-in-action/advent-of-code.md)
 
