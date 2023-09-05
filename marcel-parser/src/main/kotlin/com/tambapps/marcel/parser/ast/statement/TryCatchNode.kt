@@ -7,6 +7,8 @@ import com.tambapps.marcel.parser.type.JavaType
 
 class TryCatchNode constructor(
   token: LexToken,
+  // TODO handle me
+  val resources: List<VariableDeclarationNode>,
   val tryStatementNode: StatementNode,
   val catchNodes: List<CatchBlock>,
   val finallyBlock: FinallyBlock?

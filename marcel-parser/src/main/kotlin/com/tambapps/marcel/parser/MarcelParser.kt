@@ -643,6 +643,10 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         }
       }
       TokenType.TRY -> {
+        val resources = mutableListOf<VariableDeclarationNode>()
+        if (current.type == TokenType.LPAR) {
+          TODO("Handle try with resources")
+        }
         val tryNode = statement(scope)
         val catchNodes = mutableListOf<TryCatchNode.CatchBlock>()
         while (current.type == TokenType.CATCH) {
@@ -674,7 +678,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
 
         val finallyBlock = if (acceptOptional(TokenType.FINALLY) != null) TryCatchNode.FinallyBlock(finallyScope,
           statement(finallyScope)) else null
-        TryCatchNode(token, tryNode, catchNodes, finallyBlock)
+        TryCatchNode(token, resources, tryNode, catchNodes, finallyBlock)
       }
       TokenType.CONTINUE -> {
         if (scope !is InnerScope) {
