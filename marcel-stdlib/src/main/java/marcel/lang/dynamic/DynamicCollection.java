@@ -27,6 +27,7 @@ import marcel.lang.primitives.collections.sets.IntSet;
 import marcel.lang.primitives.collections.sets.LongOpenHashSet;
 import marcel.lang.primitives.collections.sets.LongSet;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
 @AllArgsConstructor
@@ -155,7 +156,15 @@ abstract class DynamicCollection<T extends Collection> extends AbstractDynamicOb
   }
 
   @Override
+  public DynamicObject invokeMethod(String name, Object... args) {
+    return invokeMethod(Collection.class, name, args);
+  }
+
+  @Override
   public DynamicObject getProperty(String name) {
+    if ("size".equals(name) || "length".equals(name)) {
+      return DynamicObject.of(value.size());
+    }
     T c = newEmptyInstance();
     for (DynamicObject o : this) {
       c.add(o.getProperty(name));

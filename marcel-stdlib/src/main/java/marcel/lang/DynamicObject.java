@@ -8,7 +8,7 @@ import marcel.lang.dynamic.DynamicMap;
 import marcel.lang.dynamic.DynamicNumber;
 import marcel.lang.dynamic.DynamicQueue;
 import marcel.lang.dynamic.DynamicSet;
-import marcel.lang.dynamic.DynamicString;
+import marcel.lang.dynamic.DynamicCharSequence;
 import marcel.lang.dynamic.MissingMethodException;
 import marcel.lang.dynamic.MissingPropertyException;
 import marcel.lang.lambda.DynamicObjectLambda1;
@@ -206,7 +206,7 @@ public interface DynamicObject extends Iterable<DynamicObject> {
     if (o == null) return null;
     else if (o instanceof DynamicObject) return (DynamicObject) o;
     else if (o instanceof Number) return new DynamicNumber((Number) o);
-    else if (o instanceof String) return new DynamicString((String) o);
+    else if (o instanceof String) return new DynamicCharSequence((String) o);
     else if (o instanceof Character) return new DynamicCharacter((Character) o);
     else if (o instanceof List) return new DynamicList((List) o);
     else if (o instanceof Set) return new DynamicSet((Set) o);

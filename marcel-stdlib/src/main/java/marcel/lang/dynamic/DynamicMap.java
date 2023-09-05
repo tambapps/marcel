@@ -39,6 +39,11 @@ public class DynamicMap extends AbstractDynamicObject {
   }
 
   @Override
+  public DynamicObject invokeMethod(String name, Object... args) {
+    return invokeMethod(Map.class, name, args);
+  }
+
+  @Override
   public DynamicObject plus(Object object) {
     Object o = getRealValue(object);
     if (o instanceof Map) {

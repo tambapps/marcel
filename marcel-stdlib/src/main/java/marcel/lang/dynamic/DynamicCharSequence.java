@@ -9,15 +9,15 @@ import marcel.lang.primitives.collections.sets.CharacterOpenHashSet;
 import marcel.lang.primitives.collections.sets.CharacterSet;
 
 @AllArgsConstructor
-public class DynamicString extends AbstractDynamicObject implements DynamicIndexable {
+public class DynamicCharSequence extends AbstractDynamicObject implements DynamicIndexable {
 
   @Getter
-  private final String value;
+  private final CharSequence value;
 
   @Override
   public DynamicObject plus(Object object) {
     Object o = getRealValue(object);
-    if (o instanceof CharSequence) return DynamicObject.of(value + o);
+    if (o instanceof CharSequence) return DynamicObject.of(value.toString() + o);
     throw new MissingMethodException(getValue().getClass(), "plus", new Object[]{object});
   }
 
@@ -33,7 +33,7 @@ public class DynamicString extends AbstractDynamicObject implements DynamicIndex
 
   @Override
   public int toInt() {
-    return Integer.parseInt(value);
+    return Integer.parseInt(value.toString());
   }
 
   @Override
@@ -43,26 +43,31 @@ public class DynamicString extends AbstractDynamicObject implements DynamicIndex
 
   @Override
   public float toFloat() {
-    return Float.parseFloat(value);
+    return Float.parseFloat(value.toString());
   }
 
   @Override
   public double toDouble() {
-    return Double.parseDouble(value);
+    return Double.parseDouble(value.toString());
   }
 
   @Override
   public long toLong() {
-    return Long.parseLong(value);
+    return Long.parseLong(value.toString());
   }
 
   @Override
   public CharacterList toCharacterList() {
-    return new CharacterArrayList(value);
+    return new CharacterArrayList(value.toString());
   }
 
   @Override
   public CharacterSet toCharacterSet() {
-    return new CharacterOpenHashSet(value);
+    return new CharacterOpenHashSet(value.toString());
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    return super.equals(o);
   }
 }
