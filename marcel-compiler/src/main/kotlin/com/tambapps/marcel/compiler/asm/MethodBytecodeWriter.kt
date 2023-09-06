@@ -271,8 +271,10 @@ class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolv
         invokeMethodWithArguments(from, scope,
           typeResolver.findMethodOrThrow(variable.owner, "getVariable", listOf(String::class.javaType), from),
           StringConstantNode(from.token, variable.name))
-        // need to cast because we store the value as an object
-        castIfNecessaryOrThrow(scope, from, variable.type, JavaType.Object)
+        if (variable.type.primitive) {
+          // need to cast because we store the value as an object
+          castIfNecessaryOrThrow(scope, from, variable.type, JavaType.Object)
+        }
       }
       is MarcelField -> {
         val field = variable.gettableFieldFrom(scope) ?: throw VariableNotAccessibleException(from.token, variable, scope.classType)
