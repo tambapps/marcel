@@ -924,8 +924,11 @@ class InstructionGenerator(
     // initialization
     val scope = node.scope
     // array expression
-    val arrayVariable = scope.addLocalVariable(type = expressionType, token = node.token)
-    visit(VariableAssignmentNode(node.token, scope, arrayVariable.name, node.inExpression))
+    val needsNewReference = node.inExpression !is ReferenceExpression
+    val arrayVariable =
+      if (needsNewReference) scope.addLocalVariable(type = expressionType, token = node.token)
+      else (node.inExpression as ReferenceExpression).variable
+    if (needsNewReference) visit(VariableAssignmentNode(node.token, scope, arrayVariable.name, node.inExpression))
     val arrayReference = ReferenceExpression(node.token, scope, arrayVariable.name)
     // index expression
     val indexVariable = scope.addLocalVariable(type = JavaType.int, token = node.token)
@@ -958,7 +961,7 @@ class InstructionGenerator(
 
     // dispose
     scope.freeVariable(indexVariable.name)
-    scope.freeVariable(arrayVariable.name)
+    if (needsNewReference) scope.freeVariable(arrayVariable.name)
   }
 
   override fun visit(node: BreakLoopNode) {
