@@ -36,7 +36,7 @@ class MarcelCompiler(compilerConfiguration: CompilerConfiguration): AbstractMarc
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class, MarcelCompilerException::class)
   fun compile(scriptLoader: MarcelClassLoader? = null, text: String, className: String? = null, classConsumer: Consumer<CompiledClass>) {
-    return compileSourceFiles(scriptLoader, listOf(SourceFile("$className.mcl") { text }), classConsumer)
+    return compileSourceFiles(scriptLoader, listOf(SourceFile.from(fileName = "$className.mcl", text = text)), classConsumer)
   }
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class, MarcelCompilerException::class)
@@ -49,7 +49,7 @@ class MarcelCompiler(compilerConfiguration: CompilerConfiguration): AbstractMarc
   @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class, MarcelCompilerException::class)
   fun compile(scriptLoader: MarcelClassLoader? = null, text: String, className: String? = null): List<CompiledClass> {
     val classes = mutableListOf<CompiledClass>()
-    compileSourceFiles(scriptLoader, listOf(SourceFile("$className.mcl") { text }), classes::add)
+    compileSourceFiles(scriptLoader, listOf(SourceFile.from(fileName = "$className.mcl", text = text)), classes::add)
     return classes
   }
 
