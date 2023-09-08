@@ -645,7 +645,14 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       TokenType.TRY -> {
         val resources = mutableListOf<VariableDeclarationNode>()
         if (current.type == TokenType.LPAR) {
-          TODO("Handle try with resources")
+          skip()
+          while (current.type != TokenType.RPAR) {
+            val e = statement(scope)
+            if (e !is VariableDeclarationNode) throw MarcelParserException(e.token, "Can only declare variables in try with resources")
+            resources.add(e)
+            if (current.type == TokenType.COMMA) skip()
+          }
+          skip() // skip RPAR
         }
         val tryNode = statement(scope)
         val catchNodes = mutableListOf<TryCatchNode.CatchBlock>()
