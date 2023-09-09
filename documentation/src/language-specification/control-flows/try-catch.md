@@ -1,4 +1,4 @@
-# Try/Catch/Finally (Not Yet Implemented)
+# Try/Catch/Finally
 
 Exception handling is very similar as Java's.
 
@@ -21,6 +21,14 @@ Caught exception
 Finally
 `````
 
-## Try with resources (Not Yet Implemented)
+## Try with resources
 
-TODO
+Try with resources is like in Java. You can declare Variables as resources and they will be properly closed automatically by the compiler.
+
+````groovy
+try (BufferedReader reader = new BufferedReader(new FileReader("/Users/nfonkoua/workspace/marcel/Test.marcel"))) {
+  println(reader.readLine())
+} catch (IOException e) {
+  e.printStackTrace()
+}
+````

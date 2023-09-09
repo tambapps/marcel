@@ -73,7 +73,7 @@ class Foo {
 We didn't even specify a function block, but you can specify one if you want. The first statements
 of your class will be the field assignments (after the super() call of course).
 
-### Calling constructors (Not Yet Implemented for `this`)
+### Calling constructors
 You can call specific `super` and `this` constructors.
 
 ```groovy
