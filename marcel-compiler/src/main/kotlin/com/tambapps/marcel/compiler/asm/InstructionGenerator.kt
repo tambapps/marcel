@@ -823,6 +823,8 @@ class InstructionGenerator(
       if (!it.type.implements(Closeable::class.javaType)) {
         throw MarcelSemanticException(node, "Try resources need to implement Closeable")
       }
+      // TODO  do resources
+      // TODO if not null
       ExpressionStatementNode(node.token, SimpleFunctionCallNode(node.token, scope, "close", mutableListOf(),
         ReferenceExpression(node.token, scope, it.name),
         null,
@@ -844,18 +846,7 @@ class InstructionGenerator(
     val tryStart = Label()
     val tryEnd = Label()
     val endLabel = Label()
-    val catchesWithLabel = node.catchNodes.map {
-      // need one label for each catch block
-      it to Label()
-    }
-    catchesWithLabel.forEach { c ->
-      c.first.exceptionTypes.forEach { exceptionType ->
-        if (!Throwable::class.javaType.isAssignableFrom(exceptionType)) {
-          throw MarcelSemanticException(node.token, "Can only catch throwable")
-        }
-        mv.tryCatchBlock(tryStart, tryEnd, c.second, exceptionType)
-      }
-    }
+    val catchesWithLabel = catchesWithLabel(node, tryStart, tryEnd)
 
     mv.visitLabel(tryStart)
     node.tryBlock.statementNode.accept(this)
@@ -885,15 +876,7 @@ class InstructionGenerator(
     mv.visitLabel(tryEnd)
     mv.jumpTo(endLabel)
 
-    val finallyScope = node.finallyBlock?.scope ?: InnerScope(node.scope)
-    val excVar = finallyScope.addLocalVariable(Throwable::class.javaType, token = node.token)
-    mv.catchBlock(finallyLabel, excVar.index)
-    finallyStatements.forEach { it.accept(this) }
-    mv.pushVariable(node, finallyScope, excVar)
-    mv.visitInsn(Opcodes.ATHROW)
-    mv.jumpTo(endLabel)
-
-    mv.visitLabel(endLabel)
+    handleFinally(node, finallyLabel, endLabel, finallyStatements)
   }
 
   private fun tryCatchFinally(node: TryCatchNode, finallyStatements: MutableList<StatementNode>) {
@@ -903,18 +886,7 @@ class InstructionGenerator(
     val finallyLabel = Label()
     val endLabel = Label()
 
-    val catchesWithLabel = node.catchNodes.map {
-      // need one label for each catch block
-      it to Label()
-    }
-    catchesWithLabel.forEach { c ->
-      c.first.exceptionTypes.forEach { exceptionType ->
-        if (!Throwable::class.javaType.isAssignableFrom(exceptionType)) {
-          throw MarcelSemanticException(node.token, "Can only catch throwable")
-        }
-        mv.tryCatchBlock(tryStart, tryEnd, c.second, exceptionType)
-      }
-    }
+    val catchesWithLabel = catchesWithLabel(node, tryStart, tryEnd)
     mv.tryFinallyBlock(tryStart, tryEnd, finallyLabel)
 
     mv.visitLabel(tryStart)
@@ -933,6 +905,26 @@ class InstructionGenerator(
       mv.jumpTo(endLabel)
     }
 
+    handleFinally(node, finallyLabel, endLabel, finallyStatements)
+  }
+
+  private fun catchesWithLabel(node: TryCatchNode, tryStart: Label, tryEnd: Label): List<Pair<TryCatchNode.CatchBlock, Label>> {
+    val catchesWithLabel = node.catchNodes.map {
+      // need one label for each catch block
+      it to Label()
+    }
+    catchesWithLabel.forEach { c ->
+      c.first.exceptionTypes.forEach { exceptionType ->
+        if (!Throwable::class.javaType.isAssignableFrom(exceptionType)) {
+          throw MarcelSemanticException(node.token, "Can only catch throwable")
+        }
+        mv.tryCatchBlock(tryStart, tryEnd, c.second, exceptionType)
+      }
+    }
+    return catchesWithLabel
+  }
+
+  private fun handleFinally(node: TryCatchNode, finallyLabel: Label, endLabel: Label, finallyStatements: List<StatementNode>) {
     val finallyScope = node.finallyBlock?.scope ?: InnerScope(node.scope)
     val excVar = finallyScope.addLocalVariable(Throwable::class.javaType, token = node.token)
     mv.catchBlock(finallyLabel, excVar.index)
@@ -944,7 +936,7 @@ class InstructionGenerator(
     mv.visitLabel(endLabel)
   }
 
-    override fun visit(node: ForInStatement) {
+  override fun visit(node: ForInStatement) {
     val expression = node.inExpression
     val expressionType = expression.getType(typeResolver)
     if (expressionType.isArray) {

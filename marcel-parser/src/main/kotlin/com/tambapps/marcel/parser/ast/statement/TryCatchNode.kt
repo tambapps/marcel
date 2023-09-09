@@ -11,7 +11,6 @@ import com.tambapps.marcel.parser.type.JavaType
 class TryCatchNode constructor(
   token: LexToken,
   override var scope: MethodScope,
-  // TODO handle me
   val resources: List<VariableDeclarationNode>,
   val tryBlock: TryBlock,
   val catchNodes: List<CatchBlock>,
