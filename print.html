@@ -636,7 +636,7 @@ the corresponding statement will be executed.</p>
   else -&gt;  it + 4
 }
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="trycatchfinally-not-yet-implemented"><a class="header" href="#trycatchfinally-not-yet-implemented">Try/Catch/Finally (Not Yet Implemented)</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="trycatchfinally"><a class="header" href="#trycatchfinally">Try/Catch/Finally</a></h1>
 <p>Exception handling is very similar as Java's.</p>
 <pre><code class="language-groovy">try {
   Object a = null
@@ -652,8 +652,14 @@ the corresponding statement will be executed.</p>
 <pre><code class="language-text">Caught exception
 Finally
 </code></pre>
-<h2 id="try-with-resources-not-yet-implemented"><a class="header" href="#try-with-resources-not-yet-implemented">Try with resources (Not Yet Implemented)</a></h2>
-<p>TODO</p>
+<h2 id="try-with-resources"><a class="header" href="#try-with-resources">Try with resources</a></h2>
+<p>Try with resources is like in Java. You can declare Variables as resources and they will be properly closed automatically by the compiler.</p>
+<pre><code class="language-groovy">try (BufferedReader reader = new BufferedReader(new FileReader(&quot;/Users/nfonkoua/workspace/marcel/Test.marcel&quot;))) {
+  println(reader.readLine())
+} catch (IOException e) {
+  e.printStackTrace()
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="program-structure"><a class="header" href="#program-structure">Program structure</a></h1>
 <h2 id="package"><a class="header" href="#package">Package</a></h2>
 <p>A Marcel source file can have a package. It is optional but if it is specified, it must be the first instruction in the file
@@ -862,7 +868,7 @@ allowing you to write such constructors with a less verbose code.</p>
 </code></pre>
 <p>We didn't even specify a function block, but you can specify one if you want. The first statements
 of your class will be the field assignments (after the super() call of course).</p>
-<h3 id="calling-constructors-not-yet-implemented-for-this"><a class="header" href="#calling-constructors-not-yet-implemented-for-this">Calling constructors (Not Yet Implemented for <code>this</code>)</a></h3>
+<h3 id="calling-constructors"><a class="header" href="#calling-constructors">Calling constructors</a></h3>
 <p>You can call specific <code>super</code> and <code>this</code> constructors.</p>
 <pre><code class="language-groovy">class A {
   int foo
