@@ -811,9 +811,12 @@ class InstructionGenerator(
   }
 
   override fun visit(node: TryCatchNode) {
-    // TODO check
-    //  - try block has at least one statement (if block)
-    //  - at least catch or finally is here
+    if (node.tryBlock.statementNode.statesNothing()) {
+      throw MarcelSemanticException(node, "Try block mustn't be empty")
+    }
+    if (node.catchNodes.isEmpty() && node.finallyBlock == null) {
+      throw MarcelSemanticException(node, "Try block must have catch clause(s) and/or a finally clause")
+    }
     // TODO seems to work but compiled bytecode looks weird
     val finallyStatements = mutableListOf<StatementNode>()
     finallyStatements.addAll(node.resources.map {
@@ -826,14 +829,17 @@ class InstructionGenerator(
         null,
         ))
     })
+    node.finallyBlock?.let { finallyStatements.add(it.statementNode) }
+
     if (finallyStatements.isEmpty()) {
       tryCatch(node)
     } else if (node.catchNodes.isEmpty()) {
-      TODO("Try/Finally")
+      tryFinally(node, finallyStatements)
     } else {
       TODO("Try/Catch/Finally")
     }
   }
+
 
   private fun tryCatch(node: TryCatchNode) {
     val tryStart = Label()
@@ -867,7 +873,31 @@ class InstructionGenerator(
     mv.visitLabel(endLabel)
   }
 
-  override fun visit(node: ForInStatement) {
+  private fun tryFinally(node: TryCatchNode, finallyStatements: MutableList<StatementNode>) {
+    val tryStart = Label()
+    val tryEnd = Label()
+    val finallyLabel = Label()
+    val endLabel = Label()
+
+    mv.tryFinallyBlock(tryStart, tryEnd, finallyLabel)
+
+    mv.visitLabel(tryStart)
+    node.tryBlock.statementNode.accept(this)
+    mv.visitLabel(tryEnd)
+    mv.jumpTo(endLabel)
+
+    val finallyScope = node.finallyBlock?.scope ?: InnerScope(node.scope)
+    val excVar = finallyScope.addLocalVariable(Throwable::class.javaType, token = node.token)
+    mv.catchBlock(finallyLabel, excVar.index)
+    finallyStatements.forEach { it.accept(this) }
+    mv.pushVariable(node, finallyScope, excVar)
+    mv.visitInsn(Opcodes.ATHROW)
+    mv.jumpTo(endLabel)
+
+    mv.visitLabel(endLabel)
+  }
+
+    override fun visit(node: ForInStatement) {
     val expression = node.inExpression
     val expressionType = expression.getType(typeResolver)
     if (expressionType.isArray) {

@@ -17,4 +17,5 @@ open class ExpressionStatementNode constructor(token: LexToken, val expression: 
 
 class BlockStatement(val block: BlockNode): ExpressionStatementNode(block.token, block) {
 
+  override fun statesNothing() = block.statements.isEmpty()
 }
