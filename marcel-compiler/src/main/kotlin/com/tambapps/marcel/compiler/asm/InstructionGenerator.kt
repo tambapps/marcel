@@ -811,7 +811,31 @@ class InstructionGenerator(
   }
 
   override fun visit(node: TryCatchNode) {
+    // TODO check
+    //  - try block has at least one statement (if block)
+    //  - at least catch or finally is here
     // TODO seems to work but compiled bytecode looks weird
+    val finallyStatements = mutableListOf<StatementNode>()
+    finallyStatements.addAll(node.resources.map {
+      val scope = node.finallyBlock?.scope ?: InnerScope(node.scope)
+      if (!it.type.implements(Closeable::class.javaType)) {
+        throw MarcelSemanticException(node, "Try resources need to implement Closeable")
+      }
+      ExpressionStatementNode(node.token, SimpleFunctionCallNode(node.token, scope, "close", mutableListOf(),
+        ReferenceExpression(node.token, scope, it.name),
+        null,
+        ))
+    })
+    if (finallyStatements.isEmpty()) {
+      tryCatch(node)
+    } else if (node.catchNodes.isEmpty()) {
+      TODO("Try/Finally")
+    } else {
+      TODO("Try/Catch/Finally")
+    }
+  }
+
+  private fun tryCatch(node: TryCatchNode) {
     val tryStart = Label()
     val tryEnd = Label()
     val endLabel = Label()
@@ -819,7 +843,6 @@ class InstructionGenerator(
       // need one label for each catch block
       it to Label()
     }
-    val finallyWithLabel = if (node.finallyBlock != null) node.finallyBlock!! to Label() else null
     catchesWithLabel.forEach { c ->
       c.first.exceptionTypes.forEach { exceptionType ->
         if (!Throwable::class.javaType.isAssignableFrom(exceptionType)) {
@@ -828,30 +851,16 @@ class InstructionGenerator(
         mv.tryCatchBlock(tryStart, tryEnd, c.second, exceptionType)
       }
     }
-    if (finallyWithLabel != null) {
-      mv.tryFinallyBlock(tryStart, tryEnd, finallyWithLabel.second)
-    }
 
     mv.visitLabel(tryStart)
-    node.tryStatementNode.accept(this)
+    node.tryBlock.statementNode.accept(this)
     mv.visitLabel(tryEnd)
-    finallyWithLabel?.first?.statementNode?.accept(this)
-
     mv.jumpTo(endLabel)
 
     catchesWithLabel.forEach { c ->
       val excVar = c.first.scope.addLocalVariable(JavaType.commonType(c.first.exceptionTypes), c.first.exceptionVarName, token = node.token)
       mv.catchBlock(c.second, excVar.index)
       c.first.statementNode.accept(this)
-      finallyWithLabel?.first?.statementNode?.accept(this)
-      mv.jumpTo(endLabel)
-    }
-    if (finallyWithLabel != null) {
-      val excVar = finallyWithLabel.first.scope.addLocalVariable(Throwable::class.javaType, token = node.token)
-      mv.catchBlock(finallyWithLabel.second, excVar.index)
-      finallyWithLabel.first.statementNode.accept(this)
-      mv.pushVariable(node, finallyWithLabel.first.scope, excVar)
-      mv.visitInsn(Opcodes.ATHROW)
       mv.jumpTo(endLabel)
     }
 

@@ -644,48 +644,45 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       }
       TokenType.TRY -> {
         val resources = mutableListOf<VariableDeclarationNode>()
+        val nodeScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(
+          previous,
+          "Cannot have try outside of a method"
+        ))
         if (current.type == TokenType.LPAR) {
           skip()
           while (current.type != TokenType.RPAR) {
-            val e = statement(scope)
+            val e = statement(nodeScope)
             if (e !is VariableDeclarationNode) throw MarcelParserException(e.token, "Can only declare variables in try with resources")
             resources.add(e)
             if (current.type == TokenType.COMMA) skip()
           }
           skip() // skip RPAR
         }
-        val tryNode = statement(scope)
+        val tryScope = InnerScope(nodeScope)
+        val tryNode = TryCatchNode.TryBlock(tryScope, statement(InnerScope(nodeScope)))
         val catchNodes = mutableListOf<TryCatchNode.CatchBlock>()
         while (current.type == TokenType.CATCH) {
           skip()
           accept(TokenType.LPAR)
           val exceptions = mutableListOf(
-            parseType(scope)
+            parseType(nodeScope)
           )
           while (current.type == TokenType.PIPE) {
             skip()
-            exceptions.add(parseType(scope))
+            exceptions.add(parseType(nodeScope))
           }
           val exceptionVarName = accept(TokenType.IDENTIFIER).value
           accept(TokenType.RPAR)
-          val catchScope = InnerScope(
-            scope as? MethodScope ?: throw MarcelParserException(
-              previous,
-              "Cannot have for outside of a method"
-            )
-          )
+          val catchScope = InnerScope(nodeScope)
           catchNodes.add(TryCatchNode.CatchBlock(exceptions, exceptionVarName, catchScope, statement(catchScope)))
         }
-        val finallyScope = InnerScope(
-          scope as? MethodScope ?: throw MarcelParserException(
-            previous,
-            "Cannot have for outside of a method"
-          )
-        )
+
+        val finallyScope = InnerScope(nodeScope)
+
 
         val finallyBlock = if (acceptOptional(TokenType.FINALLY) != null) TryCatchNode.FinallyBlock(finallyScope,
           statement(finallyScope)) else null
-        TryCatchNode(token, resources, tryNode, catchNodes, finallyBlock)
+        TryCatchNode(token, nodeScope, resources, tryNode, catchNodes, finallyBlock)
       }
       TokenType.CONTINUE -> {
         if (scope !is InnerScope) {

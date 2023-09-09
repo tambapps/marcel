@@ -132,7 +132,7 @@ class FindNodeVisitor(private val predicate: (AstNode) -> Boolean): AstNodeVisit
   override fun visit(node: ForStatement) = node(node) ?: node.initStatement.accept(this)
   ?: node.iteratorStatement.accept(this) ?: node.endCondition.accept(this)
 
-  override fun visit(node: TryCatchNode) = node.tryStatementNode.accept(this)
+  override fun visit(node: TryCatchNode) = node.tryBlock.statementNode.accept(this)
     ?: node.catchNodes.firstNotNullOfOrNull { it.statementNode.accept(this) }
     ?: node.finallyBlock?.statementNode?.accept(this)
 

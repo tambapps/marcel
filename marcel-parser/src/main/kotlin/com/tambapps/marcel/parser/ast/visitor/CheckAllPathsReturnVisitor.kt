@@ -124,7 +124,7 @@ class CheckAllPathsReturnVisitor: AstNodeVisitor<Boolean> {
   override fun visit(node: ForStatement) = false
 
   override fun visit(node: TryCatchNode): Boolean {
-    return node.tryStatementNode.accept(this) && (
+    return node.tryBlock.statementNode.accept(this) && (
         node.catchNodes.isEmpty() || node.catchNodes.all { it.statementNode.accept(this) }
         )
   }

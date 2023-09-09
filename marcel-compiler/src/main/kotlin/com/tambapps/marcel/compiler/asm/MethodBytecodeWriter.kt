@@ -32,7 +32,7 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import java.lang.reflect.Method
 
-class MethodBytecodeWriter(private val mv: MethodVisitor, private val typeResolver: JavaTypeResolver) {
+class MethodBytecodeWriter( val mv: MethodVisitor, private val typeResolver: JavaTypeResolver) {
 
   lateinit var argumentPusher: ArgumentPusher
 
