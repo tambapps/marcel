@@ -4,7 +4,7 @@ plugins {
     id 'dagger.hilt.android.plugin'
     id 'kotlin-kapt'
 }
-
+String marcelVersion = "0.0.1"
 android {
     namespace 'com.tambapps.marcel.android.marshell'
     compileSdk 33
@@ -13,8 +13,8 @@ android {
         applicationId "com.tambapps.marcel.android.marshell"
         minSdk 26
         targetSdk 33
-        versionCode 1
-        versionName "0.0.1-SNAPSHOT"
+        versionCode 3
+        versionName marcelVersion
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -52,7 +52,7 @@ dependencies {
     kapt "com.google.dagger:hilt-compiler:2.44"
     kapt 'androidx.hilt:hilt-compiler:1.0.0'
 
-    implementation 'com.tambapps.marcel:marcel-repl:0.0.1-SNAPSHOT'
+    implementation "com.tambapps.marcel:marcel-repl:$marcelVersion"
     implementation project(path: ':marcel-dalvik-compiler')
     implementation project(path: ':marcel-dalvik-stdlib')
 
