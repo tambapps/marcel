@@ -823,12 +823,15 @@ class InstructionGenerator(
       if (!it.type.implements(Closeable::class.javaType)) {
         throw MarcelSemanticException(node, "Try resources need to implement Closeable")
       }
-      // TODO  do resources
-      // TODO if not null
-      ExpressionStatementNode(node.token, SimpleFunctionCallNode(node.token, scope, "close", mutableListOf(),
-        ReferenceExpression(node.token, scope, it.name),
-        null,
-        ))
+      val ref = ReferenceExpression(node.token, scope, it.name)
+      IfStatementNode(node.token,
+        BooleanExpressionNode.of(ComparisonOperatorNode(node.token, ComparisonOperator.NOT_EQUAL, ref, NullValueNode())),
+        ExpressionStatementNode(node.token, SimpleFunctionCallNode(node.token, scope, "close", mutableListOf(),
+          ReferenceExpression(node.token, scope, it.name),
+          null,
+        )),
+        null
+      )
     })
     node.finallyBlock?.let { finallyStatements.add(it.statementNode) }
 
@@ -848,10 +851,7 @@ class InstructionGenerator(
     val endLabel = Label()
     val catchesWithLabel = catchesWithLabel(node, tryStart, tryEnd)
 
-    mv.visitLabel(tryStart)
-    node.tryBlock.statementNode.accept(this)
-    mv.visitLabel(tryEnd)
-    mv.jumpTo(endLabel)
+    tryBranch(node, tryStart, tryEnd, endLabel)
 
     catchesWithLabel.forEach { c ->
       val excVar = c.first.scope.addLocalVariable(JavaType.commonType(c.first.exceptionTypes), c.first.exceptionVarName, token = node.token)
@@ -871,10 +871,7 @@ class InstructionGenerator(
 
     mv.tryFinallyBlock(tryStart, tryEnd, finallyLabel)
 
-    mv.visitLabel(tryStart)
-    node.tryBlock.statementNode.accept(this)
-    mv.visitLabel(tryEnd)
-    mv.jumpTo(endLabel)
+    tryBranch(node, tryStart, tryEnd, endLabel)
 
     handleFinally(node, finallyLabel, endLabel, finallyStatements)
   }
@@ -887,13 +884,9 @@ class InstructionGenerator(
     val endLabel = Label()
 
     val catchesWithLabel = catchesWithLabel(node, tryStart, tryEnd)
+
     mv.tryFinallyBlock(tryStart, tryEnd, finallyLabel)
-
-    mv.visitLabel(tryStart)
-    node.tryBlock.statementNode.accept(this)
-    mv.visitLabel(tryEnd)
-    mv.jumpTo(endLabel)
-
+    tryBranch(node, tryStart, tryEnd, endLabel)
 
     catchesWithLabel.forEach { c ->
       val excVar = c.first.scope.addLocalVariable(JavaType.commonType(c.first.exceptionTypes), c.first.exceptionVarName, token = node.token)
@@ -906,6 +899,20 @@ class InstructionGenerator(
     }
 
     handleFinally(node, finallyLabel, endLabel, finallyStatements)
+  }
+
+  private fun tryBranch(node: TryCatchNode, tryStart: Label, tryEnd: Label, endLabel: Label) {
+    // declare the resources before the try block, because they need to be accessible in the finally
+    node.resources.forEach {
+      visit(it.withExpression(NullValueNode()))
+    }
+    mv.visitLabel(tryStart)
+    node.resources.forEach {
+      visit(it as VariableAssignmentNode)
+    }
+    node.tryBlock.statementNode.accept(this)
+    mv.visitLabel(tryEnd)
+    mv.jumpTo(endLabel)
   }
 
   private fun catchesWithLabel(node: TryCatchNode, tryStart: Label, tryEnd: Label): List<Pair<TryCatchNode.CatchBlock, Label>> {

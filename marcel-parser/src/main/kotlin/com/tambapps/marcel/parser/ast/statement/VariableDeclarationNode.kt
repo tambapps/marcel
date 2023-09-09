@@ -10,6 +10,9 @@ import com.tambapps.marcel.parser.scope.Scope
 open class VariableDeclarationNode constructor(token: LexToken, scope: Scope, val type: JavaType, name: String, val isFinal: Boolean, expression: ExpressionNode?)
   : VariableAssignmentNode(token, scope, name, expression ?: type.defaultValueExpression), StatementNode {
 
+    fun withExpression(expression: ExpressionNode) =
+      VariableDeclarationNode(token, scope, type, name, isFinal, expression)
+
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
 
 
