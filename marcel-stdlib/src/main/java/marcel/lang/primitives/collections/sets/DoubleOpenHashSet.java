@@ -63,7 +63,7 @@ public class DoubleOpenHashSet extends AbstractDoubleSet implements java.io.Seri
 	}
 	/** Creates a new hash set copying a given collection.
 	 *
-	 * @param c a {@link Collection} to be copied into the new hash set.
+	 * @param c a Collection to be copied into the new hash set.
 	 * @param f the load factor.
 	 */
 	public DoubleOpenHashSet(final Collection<? extends Double> c, final float f) {
@@ -73,7 +73,7 @@ public class DoubleOpenHashSet extends AbstractDoubleSet implements java.io.Seri
 	/** Creates a new hash set  with {@link Hash#DEFAULT_LOAD_FACTOR} as load factor
 	 * copying a given collection.
 	 *
-	 * @param c a {@link Collection} to be copied into the new hash set.
+	 * @param c a Collection to be copied into the new hash set.
 	 */
 	public DoubleOpenHashSet(final Collection<? extends Double> c) {
 	 this(c, DEFAULT_LOAD_FACTOR);
@@ -237,7 +237,7 @@ public class DoubleOpenHashSet extends AbstractDoubleSet implements java.io.Seri
 	 *
 	 * <p>This method performs a terminal operation on the given {@code Stream}
 	 *
-	 * @apiNote Taking a primitive stream instead of returning something like a
+	 * Taking a primitive stream instead of returning something like a
 	 * {@link java.util.stream.Collector Collector} is necessary because there is no
 	 * primitive {@code Collector} equivalent in the Java API.
 	 */

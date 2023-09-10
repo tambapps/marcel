@@ -10,7 +10,7 @@ import java.util.Set;
 public interface FloatSet extends FloatCollection, Set<Float> {
 	/** Returns a type-specific iterator on the elements of this set.
 	 *
-	 * @apiNote This specification strengthens the one given in {@link Iterable#iterator()},
+	 * This specification strengthens the one given in {@link Iterable#iterator()},
 	 * which was already strengthened in the corresponding type-specific class,
 	 * but was weakened by the fact that this interface extends {@link Set}.
 	 * <p>Also, this is generally the only {@code iterator} method subclasses should override.
@@ -22,26 +22,26 @@ public interface FloatSet extends FloatCollection, Set<Float> {
 	/**
 	 * Returns a type-specific spliterator on the elements of this set.
 	 *
-	 * <p>Set spliterators must report at least {@link Spliterator#DISTINCT}.
+	 * <p>Set spliterators must report at least Spliterator#DISTINCT.
 	 *
 	 * <p>See {@link Set#spliterator()} for more documentation on the requirements
 	 * of the returned spliterator.
 	 *
-	 * @apiNote This specification strengthens the one given in
+	 * This specification strengthens the one given in
 	 * {@link java.util.Collection#spliterator()}, which was already
 	 * strengthened in the corresponding type-specific class,
 	 * but was weakened by the fact that this interface extends {@link Set}.
 	 * <p>Also, this is generally the only {@code spliterator} method subclasses should override.
 	 *
-	 * @implSpec The default implementation returns a late-binding spliterator (see
-	 * {@link Spliterator} for documentation on what binding policies mean)
+	 * The default implementation returns a late-binding spliterator (see
+	 * Spliterator for documentation on what binding policies mean)
 	 * that wraps this instance's type specific {@link #iterator}.
-	 * <p>Additionally, it reports {@link Spliterator#SIZED} and {@link Spliterator#DISTINCT}.
+	 * <p>Additionally, it reports Spliterator#SIZED and Spliterator#DISTINCT.
 	 *
-	 * @implNote As this default implementation wraps the iterator, and {@link java.util.Iterator}
+	 * As this default implementation wraps the iterator, and {@link java.util.Iterator}
 	 * is an inherently linear API, the returned spliterator will yield limited performance gains
 	 * when run in parallel contexts, as the returned spliterator's
-	 * {@link Spliterator#trySplit() trySplit()} will have linear runtime.
+	 * Spliterator#trySplit() will have linear runtime.
 	 *
 	 * @return {@inheritDoc}
 	 * @since 8.5.0
@@ -53,7 +53,7 @@ public interface FloatSet extends FloatCollection, Set<Float> {
 	}
 	/** Removes an element from this set.
 	 *
-	 * @apiNote Note that the corresponding method of a type-specific collection is {@code rem()}.
+	 * Note that the corresponding method of a type-specific collection is {@code rem()}.
 	 * This unfortunate situation is caused by the clash
 	 * with the similarly named index-based method in the {@link java.util.List} interface.
 	 *

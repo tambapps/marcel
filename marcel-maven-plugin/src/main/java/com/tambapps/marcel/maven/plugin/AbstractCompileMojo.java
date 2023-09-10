@@ -60,10 +60,6 @@ public abstract class AbstractCompileMojo extends AbstractMarcelSourcesMojo {
      * @param sources                the sources to compile
      * @param classpath              the classpath to use for compilation
      * @param compileOutputDirectory the directory to write the compiled class files to
-     * @throws ClassNotFoundException    when a class needed for compilation cannot be found
-     * @throws InstantiationException    when a class needed for compilation cannot be instantiated
-     * @throws IllegalAccessException    when a method needed for compilation cannot be accessed
-     * @throws InvocationTargetException when a reflection invocation needed for compilation cannot be completed
      * @throws MalformedURLException     when a classpath element provides a malformed URL
      */
     @SuppressWarnings({"rawtypes"})

@@ -25,7 +25,7 @@ public interface CharacterConsumer extends Consumer<Character> {
 	 * @return a composed {@code Consumer} that performs in sequence this
 	 * operation followed by the {@code after} operation.
 	 * @see Consumer#andThen
-	 * @apiNote Implementing classes should generally override this method and 
+	 * Implementing classes should generally override this method and 
 	 * keep the default implementation of the other overloads, which will 
 	 * delegate to this method (after proper conversions).
 	 */

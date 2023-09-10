@@ -13,16 +13,6 @@ public interface Hash {
 
 	/** A generic hash strategy.
 	 *
-	 * <p>Custom hash structures (e.g., {@link
-	 * it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet}) allow to hash objects
-	 * using arbitrary functions, a typical example being that of {@linkplain
-	 * it.unimi.dsi.fastutil.ints.IntArrays#HASH_STRATEGY arrays}. Of course,
-	 * one has to compare objects for equality consistently with the chosen
-	 * function. A <em>hash strategy</em>, thus, specifies an {@linkplain
-	 * #equals(Object,Object) equality method} and a {@linkplain
-	 * #hashCode(Object) hash function}, with the obvious property that
-	 * equal objects must have the same hash code.
-	 *
 	 * <p>Note that the {@link #equals(Object,Object) equals()} method of a strategy must
 	 * be able to handle {@code null}, too.
 	 */

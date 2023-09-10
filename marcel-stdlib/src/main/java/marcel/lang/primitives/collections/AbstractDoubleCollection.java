@@ -14,7 +14,7 @@ public abstract class AbstractDoubleCollection extends AbstractCollection<Double
 	public abstract DoubleIterator iterator();
 	/** {@inheritDoc}
 	 *
-	 * @implSpec This implementation always throws an {@link UnsupportedOperationException}.
+	 * This implementation always throws an {@link UnsupportedOperationException}.
 	 */
 	@Override
 	public boolean add(final double k) {
@@ -22,7 +22,7 @@ public abstract class AbstractDoubleCollection extends AbstractCollection<Double
 	}
 	/** {@inheritDoc}
 	 *
-	 * @implSpec This implementation iterates over the elements in the collection,
+	 * This implementation iterates over the elements in the collection,
 	 * looking for the specified element.
 	 */
 	@Override
@@ -83,7 +83,7 @@ public abstract class AbstractDoubleCollection extends AbstractCollection<Double
 	}
 	/** {@inheritDoc}
 	 *
-	 * @apiNote This method exists to make final what should have been final in the interface.
+	 * This method exists to make final what should have been final in the interface.
 	 */
 	@Override
 	public void forEach(final DoubleConsumer action) {
@@ -91,7 +91,7 @@ public abstract class AbstractDoubleCollection extends AbstractCollection<Double
 	}
 	/** {@inheritDoc}
 	 *
-	 * @apiNote This method exists to make final what should have been final in the interface.
+	 * This method exists to make final what should have been final in the interface.
 	 */
 	@Override
 	public boolean removeIf(final DoublePredicate filter) {
@@ -108,7 +108,7 @@ public abstract class AbstractDoubleCollection extends AbstractCollection<Double
 	}
 	/** {@inheritDoc}
 	 *
-	 * @implSpec This implementation delegates to the type-specific version if given a type-specific
+	 * This implementation delegates to the type-specific version if given a type-specific
 	 * collection, otherwise is uses the implementation from {@link AbstractCollection}.
 	 */
 	@Override
@@ -128,7 +128,7 @@ public abstract class AbstractDoubleCollection extends AbstractCollection<Double
 	}
 	/** {@inheritDoc}
 	 *
-	 * @implSpec This implementation delegates to the type-specific version if given a type-specific
+	 * This implementation delegates to the type-specific version if given a type-specific
 	 * collection, otherwise is uses the implementation from {@link AbstractCollection}.
 	 */
 	@Override
@@ -149,7 +149,7 @@ public abstract class AbstractDoubleCollection extends AbstractCollection<Double
 	}
 	/** {@inheritDoc}
 	 *
-	 * @implSpec This implementation delegates to the type-specific version if given a type-specific
+	 * This implementation delegates to the type-specific version if given a type-specific
 	 * collection, otherwise is uses the implementation from {@link AbstractCollection}.
 	 */
 	@Override
@@ -171,7 +171,7 @@ public abstract class AbstractDoubleCollection extends AbstractCollection<Double
 	}
 	/** {@inheritDoc}
 	 *
-	 * @implSpec This implementation delegates to the type-specific version if given a type-specific
+	 * This implementation delegates to the type-specific version if given a type-specific
 	 * collection, otherwise is uses the implementation from {@link AbstractCollection}.
 	 */
 	@Override

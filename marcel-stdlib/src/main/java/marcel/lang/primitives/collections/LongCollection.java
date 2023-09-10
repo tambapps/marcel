@@ -35,14 +35,14 @@ import java.util.function.IntFunction;
 import java.util.function.LongFunction;
 import java.util.function.LongPredicate;
 
-/** A type-specific {@link Collection}; provides some additional methods
+/** A type-specific Collection; provides some additional methods
  * that use polymorphism to avoid (un)boxing.
  *
  * <p>Additionally, this class defines strengthens (again) {@link #iterator()}.
  *
  * <p>This interface specifies reference equality semantics (members will be compared equal with
  * {@code ==} instead of {@link Object#equals(Object) equals}), which may result in breaks in contract
- * if attempted to be used with non reference-equality semantics based {@link Collection}s. For example, a
+ * if attempted to be used with non reference-equality semantics based Collections. For example, a
  * {@code aReferenceCollection.equals(aObjectCollection)} may return different a different result then
  * {@code aObjectCollection.equals(aReferenceCollection)}, in violation of {@link Object#equals equals}'s
  * contract requiring it being symmetric.
@@ -145,7 +145,7 @@ public interface LongCollection extends Collection<Long>, LongIterable {
    *        removed.
    * @see Collection#removeIf(java.util.function.Predicate)
    * @return {@code true} if any elements were removed.
-   * @apiNote Implementing classes should generally override this method, and take the default
+   * Implementing classes should generally override this method, and take the default
    *   implementation of the other overloads which will delegate to this method (after proper
    *   conversions).
    */

@@ -63,7 +63,7 @@ public class IntOpenHashSet extends AbstractIntSet implements java.io.Serializab
 	}
 	/** Creates a new hash set copying a given collection.
 	 *
-	 * @param c a {@link Collection} to be copied into the new hash set.
+	 * @param c a Collection to be copied into the new hash set.
 	 * @param f the load factor.
 	 */
 	public IntOpenHashSet(final Collection<? extends Integer> c, final float f) {
@@ -73,7 +73,7 @@ public class IntOpenHashSet extends AbstractIntSet implements java.io.Serializab
 	/** Creates a new hash set  with {@link Hash#DEFAULT_LOAD_FACTOR} as load factor
 	 * copying a given collection.
 	 *
-	 * @param c a {@link Collection} to be copied into the new hash set.
+	 * @param c a Collection to be copied into the new hash set.
 	 */
 	public IntOpenHashSet(final Collection<? extends Integer> c) {
 	 this(c, DEFAULT_LOAD_FACTOR);
@@ -237,7 +237,7 @@ public class IntOpenHashSet extends AbstractIntSet implements java.io.Serializab
 	 *
 	 * <p>This method performs a terminal operation on the given {@code Stream}
 	 *
-	 * @apiNote Taking a primitive stream instead of returning something like a
+	 * Taking a primitive stream instead of returning something like a
 	 * {@link java.util.stream.Collector Collector} is necessary because there is no
 	 * primitive {@code Collector} equivalent in the Java API.
 	 */

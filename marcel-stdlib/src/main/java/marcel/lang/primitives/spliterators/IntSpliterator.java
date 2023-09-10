@@ -19,7 +19,7 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
-/** A type-specific {@link Spliterator}; provides an additional methods to avoid (un)boxing, and
+/** A type-specific Spliterator; provides an additional methods to avoid (un)boxing, and
 	* the possibility to skip elements.
 	*
 	* @author C. Sean Young &lt;csyoung@google.com&gt;
@@ -34,7 +34,7 @@ public interface IntSpliterator extends Spliterator.OfInt {
 	 * {@code n} times (possibly stopping if {@link #tryAdvance} returns false).
 	 * The action called will do nothing; elements will be discarded.
 	 *
-	 * @implSpec This default implementation is linear in n. It is expected concrete implementations
+	 * This default implementation is linear in n. It is expected concrete implementations
 	 * that are capable of it will override it to run lower time, but be prepared for linear time.
 	 *
 	 * @param n the number of elements to skip.
@@ -50,7 +50,7 @@ public interface IntSpliterator extends Spliterator.OfInt {
 	/**
 	  * {@inheritDoc}
 	  *
-	  * @apiNote Note that this specification strengthens the one given in {@link Spliterator#trySplit()}.
+	  * Note that this specification strengthens the one given in {@link Spliterator#trySplit()}.
 	  */
 	@Override
 	IntSpliterator trySplit();

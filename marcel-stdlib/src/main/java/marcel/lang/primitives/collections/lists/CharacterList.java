@@ -71,7 +71,7 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 
 	/** Returns a type-specific iterator on the elements of this list.
 	 *
-	 * @apiNote This specification strengthens the one given in {@link List#iterator()}.
+	 * This specification strengthens the one given in {@link List#iterator()}.
 	 * It would not be normally necessary, but {@link Iterable#iterator()} is bizarrily re-specified
 	 * in {@link List}.
 	 * <p>Also, this is generally the only {@code iterator} method subclasses should override.
@@ -82,31 +82,31 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
   CharacterListIterator iterator();
 	/** Returns a type-specific spliterator on the elements of this list.
 	 *
-	 * <p>List spliterators must report at least {@link Spliterator#SIZED} and {@link Spliterator#ORDERED}.
+	 * <p>List spliterators must report at least Spliterator#SIZED and {@link Spliterator#ORDERED}.
 	 *
 	 * <p>See {@link List#spliterator()} for more documentation on the requirements
 	 * of the returned spliterator.
 	 *
-	 * @apiNote This specification strengthens the one given in
+	 * This specification strengthens the one given in
 	 * {@link java.util.Collection#spliterator()}, which was already
 	 * strengthened in the corresponding type-specific class,
 	 * but was weakened by the fact that this interface extends {@link List}.
 	 * <p>Also, this is generally the only {@code spliterator} method subclasses should override.
 	 *
-	 * @implSpec The default implementation returns a late-binding spliterator (see
-	 * {@link Spliterator} for documentation on what binding policies mean).
+	 * The default implementation returns a late-binding spliterator (see
+	 * Spliterator for documentation on what binding policies mean).
 	 * <ul>
 	 * <li>For {@link java.util.RandomAccess RandomAccess} lists, this will return a spliterator
 	 * that calls the type-specific {@link #get(int)} method on the appropriate indexes.</li>
 	 * <li>Otherwise, the spliterator returned will wrap this instance's type specific {@link #iterator}.</li>
 	 * </ul>
-	 * <p>In either case, the spliterator reports {@link Spliterator#SIZED},
+	 * <p>In either case, the spliterator reports Spliterator#SIZED,
 	 * {@link Spliterator#SUBSIZED}, and {@link Spliterator#ORDERED}.
 	 *
-	 * @implNote As the non-{@linkplain java.util.RandomAccess RandomAccess} case is based on the
+	 * As the non-{@linkplain java.util.RandomAccess RandomAccess} case is based on the
 	 * iterator, and {@link java.util.Iterator} is an inherently linear API, the returned
 	 * spliterator will yield limited performance gains when run in parallel contexts, as the
-	 * returned spliterator's {@link Spliterator#trySplit() trySplit()} will have linear runtime.
+	 * returned spliterator's Spliterator#trySplit() will have linear runtime.
 	 * <p>For {@link java.util.RandomAccess RandomAccess} lists, the parallel performance should
 	 * be reasonable assuming {@link #get(int)} is truly constant time like {@link java.util.RandomAccess
 	 * RandomAccess} suggests. 
@@ -130,7 +130,7 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	CharacterListIterator listIterator(int index);
 	/** Returns a type-specific view of the portion of this list from the index {@code from}, inclusive, to the index {@code to}, exclusive.
 	 *
-	 * @apiNote This specification strengthens the one given in {@link List#subList(int,int)}.
+	 * This specification strengthens the one given in {@link List#subList(int,int)}.
 	 *
 	 * @see List#subList(int,int)
 	 */
@@ -347,16 +347,15 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	 return Character.valueOf(putAt(index, (k).charValue()));
 	}
 	/** Inserts all of the elements in the specified type-specific list into this type-specific list at the specified position (optional operation).
-	 * @apiNote This method exists only for the sake of efficiency: override are expected to use {@link #getElements}/{@link #addElements}.
-	 * @implSpec This method delegates to the one accepting a collection, but it might be implemented more efficiently.
+	 * This method exists only for the sake of efficiency: override are expected to use {@link #getElements}/{@link #addElements}.
+	 * This method delegates to the one accepting a collection, but it might be implemented more efficiently.
 	 * @see List#addAll(int,Collection)
 	 */
 	default boolean addAll(int index, CharacterList l) {
 	 return addAll(index, (CharacterCollection ) l);
 	}
 	/** Appends all of the elements in the specified type-specific list to the end of this type-specific list (optional operation).
-	 * @implSpec This method delegates to the index-based version, passing {@link #size()} as first argument.
-	 * @see List#addAll(Collection)
+	 * This method delegates to the index-based version, passing {@link #size()} as first argument.
 	 */
 	default boolean addAll(CharacterList l) {
 	 return addAll(size(), l);
@@ -375,7 +374,7 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	 * <p>Pass {@code null} to sort using natural ordering.
 	 * @see List#sort(Comparator)
 	 *
-	 * @implSpec The default implementation dumps the elements into an array using
+	 * The default implementation dumps the elements into an array using
 	 * {@link #toArray()}, sorts the array, then replaces all elements using the
 	 * {@link #setElements} function.
 	 *

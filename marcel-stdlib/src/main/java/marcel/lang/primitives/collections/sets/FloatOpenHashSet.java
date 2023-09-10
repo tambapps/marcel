@@ -64,7 +64,7 @@ public class FloatOpenHashSet extends AbstractFloatSet implements java.io.Serial
 	}
 	/** Creates a new hash set copying a given collection.
 	 *
-	 * @param c a {@link Collection} to be copied into the new hash set.
+	 * @param c a Collection to be copied into the new hash set.
 	 * @param f the load factor.
 	 */
 	public FloatOpenHashSet(final Collection<? extends Float> c, final float f) {
@@ -74,7 +74,7 @@ public class FloatOpenHashSet extends AbstractFloatSet implements java.io.Serial
 	/** Creates a new hash set  with {@link Hash#DEFAULT_LOAD_FACTOR} as load factor
 	 * copying a given collection.
 	 *
-	 * @param c a {@link Collection} to be copied into the new hash set.
+	 * @param c a Collection to be copied into the new hash set.
 	 */
 	public FloatOpenHashSet(final Collection<? extends Float> c) {
 	 this(c, DEFAULT_LOAD_FACTOR);

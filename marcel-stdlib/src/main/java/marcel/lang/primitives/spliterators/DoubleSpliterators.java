@@ -231,7 +231,7 @@ public final class DoubleSpliterators {
 	 * array starting from the one with index {@code offset}.
 	 *
 	 * <p>The returned spliterator will report {@linkplain Spliterator#characteristics() characteristics}
-	 * {@link Spliterator#SIZED}, {@link Spliterator#SUBSIZED},
+	 * Spliterator#SIZED, {@link Spliterator#SUBSIZED},
 	 * {@link Spliterator#ORDERED}, and for primitive arrays, {@link Spliterator#NONNULL}.
 	 *
 	 * @param array an array to wrap into a type-specific spliterator.
@@ -249,7 +249,7 @@ public final class DoubleSpliterators {
 	 * all elements of the given array.
 	 *
 	 * <p>The returned spliterator will report {@linkplain Spliterator#characteristics() characteristics}
-	 * {@link Spliterator#SIZED}, {@link Spliterator#SUBSIZED},
+	 * Spliterator#SIZED, {@link Spliterator#SUBSIZED},
 	 * {@link Spliterator#ORDERED}, and for primitive arrays, {@link Spliterator#NONNULL}.
 	 *
 	 * @param array an array to wrap into a type-specific spliterator.
@@ -265,10 +265,10 @@ public final class DoubleSpliterators {
 	 * array starting from the one with index {@code offset}.
 	 *
 	 * <p>The returned spliterator will report {@linkplain Spliterator#characteristics() characteristics}
-	 * {@link Spliterator#SIZED}, {@link Spliterator#SUBSIZED},
+	 * Spliterator#SIZED, {@link Spliterator#SUBSIZED},
 	 * {@link Spliterator#ORDERED}, and for primitive arrays, {@link Spliterator#NONNULL},
 	 * on top of any additional characteristics given in {@code additionalCharacteristics} (for example, if
-	 * the caller knows the backing array has distinct elements, they can pass {@link Spliterator#DISTINCT}).
+	 * the caller knows the backing array has distinct elements, they can pass Spliterator#DISTINCT).
 	 *
 	 * @param array an array to wrap into a type-specific spliterator.
 	 * @param offset the first element of the array to be returned.
@@ -290,11 +290,11 @@ public final class DoubleSpliterators {
 	 * array starting from the one with index {@code offset}.
 	 *
 	 * <p>The returned spliterator will report {@linkplain Spliterator#characteristics() characteristics}
-	 * {@link Spliterator#SIZED}, {@link Spliterator#SUBSIZED},
+	 * Spliterator#SIZED, {@link Spliterator#SUBSIZED},
 	 * {@link Spliterator#ORDERED}, {@link Spliterator#SORTED}, and for primitive arrays,
 	 * {@link Spliterator#NONNULL},
 	 * on top of any additional characteristics given in {@code additionalCharacteristics} (for example, if
-	 * the caller knows the backing array has distinct elements, they can pass {@link Spliterator#DISTINCT}).
+	 * the caller knows the backing array has distinct elements, they can pass Spliterator#DISTINCT).
 	 *
 	 * @param array an array to wrap into a type-specific spliterator.
 	 * @param offset the first element of the array to be returned.
@@ -318,7 +318,7 @@ public final class DoubleSpliterators {
 	 * array starting from the one with index {@code offset}.
 	 *
 	 * <p>The returned spliterator will report {@linkplain Spliterator#characteristics() characteristics}
-	 * {@link Spliterator#SIZED}, {@link Spliterator#SUBSIZED},
+	 * Spliterator#SIZED, {@link Spliterator#SUBSIZED},
 	 * {@link Spliterator#ORDERED}, {@link Spliterator#SORTED}, and for primitive arrays,
 	 * {@link Spliterator#NONNULL}.
 	 *
@@ -341,7 +341,7 @@ public final class DoubleSpliterators {
 	 * all elements of the given array.
 	 *
 	 * <p>The returned spliterator will report {@linkplain Spliterator#characteristics() characteristics}
-	 * {@link Spliterator#SIZED}, {@link Spliterator#SUBSIZED},
+	 * Spliterator#SIZED, {@link Spliterator#SUBSIZED},
 	 * {@link Spliterator#ORDERED}, {@link Spliterator#SORTED}, and for primitive arrays,
 	 * {@link Spliterator#NONNULL}.
 	 *
@@ -559,7 +559,7 @@ public final class DoubleSpliterators {
 		 *
 		 * <p>The {@code location} given will be between {@code minPos} and {@link #getMaxPos()} (exclusive).
 		 * Thus, a {@code location} of {@code minPos + 2} would mean {@link #tryAdvance} was called twice
-		 * and this method should return what the next call to {@link #tryAdvance()} should give.
+		 * and this method should return what the next call to tryAdvance() should give.
 		 */
 		protected abstract double get(int location);
 		/** The maximum pos can be, and is the logical end (exclusive) of the "range".
@@ -601,7 +601,7 @@ public final class DoubleSpliterators {
 		 * In particular, this means that no handling of overflow or underflow
 		 * is performed.
 		 *
-		 * @apiNote The reasoning behind the throwing if out of range behavior is that, even
+		 * The reasoning behind the throwing if out of range behavior is that, even
 		 * though it can significantly slow the process of splitting, it is much better then
 		 * risking a buggy implementation causing splits to stop happening much earlier then
 		 * intended. Also, splitting is not usually in the "inner loop" of stream operations,
@@ -609,7 +609,7 @@ public final class DoubleSpliterators {
 		 * high performance spliterators should prefer implementing all the methods themselves
 		 * instead of through this interface.
 		 *
-		 * @implSpec This default implementation is a simple split-by-2 strategy, dividing
+		 * This default implementation is a simple split-by-2 strategy, dividing
 		 * in the middle of pos and {@link #getMaxPos()}. It is unspecified whether
 		 * the first range or the second range will be larger in the case of an odd length range.
 		 */
@@ -655,7 +655,7 @@ public final class DoubleSpliterators {
 		}
 		/** {@inheritDoc}
 		 *
-		 * @implSpec This implementation always returns a prefix of the elements, in order to comply with
+		 * This implementation always returns a prefix of the elements, in order to comply with
 		 * the {@link Spliterator#ORDERED} property. This means this current iterator does not need to
 		 * to update what {@link #getMaxPos()} returns in response to this method (but it may do
 		 * "book-keeping" on it based on binding strategy).
@@ -924,7 +924,7 @@ public final class DoubleSpliterators {
 	 * <p>This method returns a spliterator that will enumerate in order the elements returned
 	 * by all spliterators contained in the given array.
 	 *
-	 * <p> Note: Due to there being no way to ensure the {@link Comparator} is consistent
+	 * <p> Note: Due to there being no way to ensure the Comparator is consistent
 	 * between each inner spliterator, the returned spliterator's {@link Spliterator#getComparator()}
 	 * will always throw {@link IllegalStateException}, even when if the current or even all
 	 * the inner spliterators are {@linkplain Spliterator#SORTED sorted}.
@@ -942,7 +942,7 @@ public final class DoubleSpliterators {
 	 * by {@code a[offset + 1]}, and so on up to
 	 * {@code a[offset + length - 1]}.
 	 *
-	 * <p> Note: Due to there being no way to ensure the {@link Comparator} is consistent
+	 * <p> Note: Due to there being no way to ensure the Comparator is consistent
 	 * between each inner spliterator, the returned spliterator's {@link Spliterator#getComparator()}
 	 * will always throw {@link IllegalStateException}, even when if the current or even all
 	 * the inner spliterators are {@linkplain Spliterator#SORTED sorted}.
@@ -1083,7 +1083,7 @@ public final class DoubleSpliterators {
 	 * <p>The returned spliterator will report
 	 * {@link Spliterator#characteristics() characteristics} {@code additionalCharacterisitcs},
 	 * and for primitive types, {@link Spliterator#NONNULL}.
-	 * It will also report {@link Spliterator#SIZED}, {@link Spliterator#SUBSIZED},
+	 * It will also report Spliterator#SIZED, {@link Spliterator#SUBSIZED},
 	 * unless {@link Spliterator#CONCURRENT} is to be reported, in which case these two
 	 * are not implicitly reported.
 	 *
@@ -1109,7 +1109,7 @@ public final class DoubleSpliterators {
 	 * {@link Spliterator#characteristics() characteristics} {@code additionalCharacterisitcs},
 	 * {@link Spliterator#ORDERED}, {@link Spliterator#SORTED}, and for primitive types,
 	 * {@link Spliterator#NONNULL}.
-	 * It will also report {@link Spliterator#SIZED}, {@link Spliterator#SUBSIZED},
+	 * It will also report Spliterator#SIZED, {@link Spliterator#SUBSIZED},
 	 * unless {@link Spliterator#CONCURRENT} is to be reported, in which case these two
 	 * are not implicitly reported.
 	 *

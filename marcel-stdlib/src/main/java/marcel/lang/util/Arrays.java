@@ -103,7 +103,7 @@ public class Arrays {
    * @throws ArrayIndexOutOfBoundsException if {@code from} or {@code to} are greater than
    *             {@code arrayLength} or negative.
    *
-   * @implNote An {@code assert} checks whether {@code arrayLength} is nonnegative.
+   * An {@code assert} checks whether {@code arrayLength} is nonnegative.
    */
   public static void ensureFromTo(final int arrayLength, final int from, final int to) {
     assert arrayLength >= 0;

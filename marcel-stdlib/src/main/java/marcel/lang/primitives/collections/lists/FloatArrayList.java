@@ -222,7 +222,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	 *
 	 * <p>This method performs a terminal operation on the given {@code Stream}
 	 *
-	 * @apiNote Taking a primitive stream instead of returning something like a
+	 * Taking a primitive stream instead of returning something like a
 	 * {@link java.util.stream.Collector Collector} is necessary because there is no
 	 * primitive {@code Collector} equivalent in the Java API.
 	 */
@@ -833,7 +833,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 
 	/** Compares this type-specific array list to another one.
 	 *
-	 * @apiNote This method exists only for sake of efficiency. The implementation
+	 * This method exists only for sake of efficiency. The implementation
 	 * inherited from the abstract implementation would already work.
 	 *
 	 * @param l a type-specific array list.
@@ -884,7 +884,7 @@ public class FloatArrayList extends AbstractFloatList implements RandomAccess, C
 	}
 	/** Compares this array list to another array list.
 	 *
-	 * @apiNote This method exists only for sake of efficiency. The implementation
+	 * This method exists only for sake of efficiency. The implementation
 	 * inherited from the abstract implementation would already work.
 	 *
 	 * @param l an array list.

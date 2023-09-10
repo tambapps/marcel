@@ -48,7 +48,7 @@ public abstract class AbstractDoubleList extends AbstractDoubleCollection implem
 	}
 	/** {@inheritDoc}
 	 *
-	 * @implSpec This implementation always throws an {@link UnsupportedOperationException}.
+	 * This implementation always throws an {@link UnsupportedOperationException}.
 	 */
 	@Override
 	public void add(final int index, final double k) {
@@ -56,7 +56,7 @@ public abstract class AbstractDoubleList extends AbstractDoubleCollection implem
 	}
 	/** {@inheritDoc}
 	 *
-	 * @implSpec This implementation delegates to the type-specific version of {@link List#add(int, Object)}.
+	 * This implementation delegates to the type-specific version of {@link List#add(int, Object)}.
 	 */
 	@Override
 	public boolean add(final double k) {
@@ -72,7 +72,7 @@ public abstract class AbstractDoubleList extends AbstractDoubleCollection implem
 	}
 	/** {@inheritDoc}
 	 *
-	 * @implSpec This implementation always throws an {@link UnsupportedOperationException}.
+	 * This implementation always throws an {@link UnsupportedOperationException}.
 	 */
 	@Override
 	public double putAt(final int index, final double k) {
@@ -94,7 +94,7 @@ public abstract class AbstractDoubleList extends AbstractDoubleCollection implem
 	}
 	/** {@inheritDoc}
 	 *
-	 * @implSpec This implementation delegates to the type-specific version of {@link List#addAll(int, Collection)}.
+	 * This implementation delegates to the type-specific version of {@link List#addAll(int, Collection)}.
 	 */
 	@Override
 	public boolean addAll(final Collection<? extends Double> c) {
@@ -102,7 +102,7 @@ public abstract class AbstractDoubleList extends AbstractDoubleCollection implem
 	}
 	/** {@inheritDoc}
 	 *
-	 * @implSpec This implementation delegates to {@link #listIterator()}.
+	 * This implementation delegates to {@link #listIterator()}.
 	 */
 	@Override
 	public DoubleListIterator iterator() {
@@ -117,21 +117,21 @@ public abstract class AbstractDoubleList extends AbstractDoubleCollection implem
 	
 	/** {@inheritDoc}
 	 *
-	 * @implSpec This implementation delegates to {@link #listIterator(int) listIterator(0)}.
+	 * This implementation delegates to {@link #listIterator(int) listIterator(0)}.
 	 */
 	@Override
 	public DoubleListIterator listIterator() {
 	 return listIterator(0);
 	}
 	/** {@inheritDoc}
-	 * @implSpec This implementation is based on the random-access methods. */
+	 * This implementation is based on the random-access methods. */
 	@Override
 	public DoubleListIterator listIterator(final int index) {
 		throw new UnsupportedOperationException("Not supported yet");
 	}
 
 	/** Returns true if this list contains the specified element.
-	 * @implSpec This implementation delegates to {@code indexOf()}.
+	 * This implementation delegates to {@code indexOf()}.
 	 * @see List#contains(Object)
 	 */
 	@Override
@@ -228,7 +228,7 @@ public abstract class AbstractDoubleList extends AbstractDoubleCollection implem
 	}
 	/** {@inheritDoc}
 	 *
-	 * @implSpec This implementation delegates to the analogous method for array fragments.
+	 * This implementation delegates to the analogous method for array fragments.
 	 */
 	@Override
 	public void addElements(final int index, final double a[]) {
@@ -281,7 +281,7 @@ public abstract class AbstractDoubleList extends AbstractDoubleCollection implem
 	 }
 	}
 	/** {@inheritDoc}
-	 * @implSpec This implementation delegates to {@link #removeElements(int, int)}.*/
+	 * This implementation delegates to {@link #removeElements(int, int)}.*/
 	@Override
 	public void clear() {
 	 removeElements(0, size());
@@ -371,7 +371,7 @@ public abstract class AbstractDoubleList extends AbstractDoubleCollection implem
 	}
 
 	/** Removes a single instance of the specified element from this collection, if it is present (optional operation).
-	 * @implSpec This implementation delegates to {@code indexOf()}.
+	 * This implementation delegates to {@code indexOf()}.
 	 * @see List#remove(Object)
 	 */
 	@Override
@@ -413,14 +413,14 @@ public abstract class AbstractDoubleList extends AbstractDoubleCollection implem
 	}
 	/** {@inheritDoc}
 	 *
-	 * @implSpec This implementation delegates to the type-specific version of {@link List#addAll(int, Collection)}.
+	 * This implementation delegates to the type-specific version of {@link List#addAll(int, Collection)}.
 	 */
 	@Override
 	public boolean addAll(final DoubleCollection c) {
 	 return addAll(size(), c);
 	}
 	/** {@inheritDoc} 
-	 * @implSpec This method just delegates to the interface default method,
+	 * This method just delegates to the interface default method,
 	 * as the default method, but it is final, so it cannot be overridden.
 	 */
 	@Override

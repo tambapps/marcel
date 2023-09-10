@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 public interface FloatIterable extends Iterable<Float> {
 	/** Returns a type-specific iterator.
 	 *
-	 * @apiNote Note that this specification strengthens the one given in {@link Iterable#iterator()}.
+	 * Note that this specification strengthens the one given in {@link Iterable#iterator()}.
 	 *
 	 * @return a type-specific iterator.
 	 * @see Iterable#iterator()
@@ -43,7 +43,7 @@ public interface FloatIterable extends Iterable<Float> {
 	 * @param action the action to be performed for each element.
 	 * @see java.lang.Iterable#forEach(java.util.function.Consumer)
 	 * @since 8.0.0
-	 * @apiNote Implementing classes should generally override this method, and take the default
+	 * Implementing classes should generally override this method, and take the default
 	 *   implementation of the other overloads which will delegate to this method (after proper
 	 *   conversions).
 	 */

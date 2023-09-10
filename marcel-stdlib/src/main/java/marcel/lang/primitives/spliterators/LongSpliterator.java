@@ -17,7 +17,7 @@ package marcel.lang.primitives.spliterators;
 
 import java.util.Spliterator;
 
-/** A type-specific {@link Spliterator}; provides an additional methods to avoid (un)boxing, and
+/** A type-specific Spliterator; provides an additional methods to avoid (un)boxing, and
 	* the possibility to skip elements.
 	*
 	* @author C. Sean Young &lt;csyoung@google.com&gt;
@@ -32,7 +32,7 @@ public interface LongSpliterator extends Spliterator.OfLong {
 	 * {@code n} times (possibly stopping if {@link #tryAdvance} returns false).
 	 * The action called will do nothing; elements will be discarded.
 	 *
-	 * @implSpec This default implementation is linear in n. It is expected concrete implementations
+	 * This default implementation is linear in n. It is expected concrete implementations
 	 * that are capable of it will override it to run lower time, but be prepared for linear time.
 	 *
 	 * @param n the number of elements to skip.
@@ -48,7 +48,7 @@ public interface LongSpliterator extends Spliterator.OfLong {
 	/**
 	  * {@inheritDoc}
 	  *
-	  * @apiNote Note that this specification strengthens the one given in {@link Spliterator#trySplit()}.
+	  * Note that this specification strengthens the one given in {@link Spliterator#trySplit()}.
 	  */
 	@Override
   LongSpliterator trySplit();

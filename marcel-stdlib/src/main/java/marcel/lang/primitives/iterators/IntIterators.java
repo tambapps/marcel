@@ -270,7 +270,7 @@ public final class IntIterators {
 	 * returned iterator is backed by {@code i}: changes to one of the iterators
 	 * will affect the other, too.
 	 *
-	 * @implNote If {@code i} is already type-specific, it will returned and no new object
+	 * If {@code i} is already type-specific, it will returned and no new object
 	 * will be generated.
 	 *
 	 * @param i an iterator.
@@ -403,7 +403,7 @@ public final class IntIterators {
 		 * was called twice and the next call will return the third element of this iterator.
 		 */
 	 protected int pos;
-	 /** The last returned index by a call to {@link #next} or, if a list-iterator, {@link java.util.ListIterator#previous().
+	 /** The last returned index by a call to {@link #next} or, if a list-iterator, {@link java.util.ListIterator#previous()}.
 		 *
 		 * It is &minus;1 if no such call has occurred or a mutation has occurred through this iterator and no
 		 * advancement has been done.
@@ -428,15 +428,15 @@ public final class IntIterators {
 		 * <p>Do <em>not</em> modify {@link #pos} in this method; the default {@code #remove()} method takes care of this.
 		 *
 		 * <p>This method should also do what is needed to track the change to the {@link #getMaxPos}.
-		 * Usually this is accomplished by having this method call the parent {@link Collection}'s appropriate remove
-		 * method, and having {@link #getMaxPos} track the parent {@linkplain Collection#size() collection's size}.
+		 * Usually this is accomplished by having this method call the parent Collection's appropriate remove
+		 * method, and having {@link #getMaxPos} track the parent Collection#size().
 		 */
 	 protected abstract void remove(int location);
 	 /** The maximum pos can be, and is the logical end (exclusive) of the "range".
 		 *
 		 * <p>If pos is equal to the return of this method, this means the last element has been returned and the next call to {@link #next()} will throw.
 		 *
-		 * <p>Usually set return the parent {@linkplain Collection#size() collection's size}, but does not have to be
+		 * <p>Usually set return the parent Collection#size(), but does not have to be
 		 * (for example, sublists and subranges).
 		 */
 	 protected abstract int getMaxPos();
@@ -495,8 +495,8 @@ public final class IntIterators {
 	 /** Add the given item at the given index.
 		 *
 		 * <p>This method should also do what is needed to track the change to the {@link #getMaxPos}.
-		 * Usually this is accomplished by having this method call the parent {@link Collection}'s appropriate add
-		 * method, and having {@link #getMaxPos} track the parent {@linkplain Collection#size() collection's size}.
+		 * Usually this is accomplished by having this method call the parent Collection's appropriate add
+		 * method, and having {@link #getMaxPos} track the parent Collection#size().
 		 *
 		 * <p>Do <em>not</em> modify {@link #pos} in this method; the default {@code #add()} method takes care of this.
 		 *
