@@ -144,6 +144,12 @@
     <pluginManagement>
       <plugins>
         <plugin>
+          <!-- Kotlin javadoc -->
+          <groupId>org.jetbrains.dokka</groupId>
+          <artifactId>dokka-maven-plugin</artifactId>
+          <version>1.9.0</version>
+        </plugin>
+        <plugin>
           <groupId>com.tambapps.marcel.maven</groupId>
           <artifactId>marcel-maven-plugin</artifactId>
           <version>${revision}</version>
