@@ -18,6 +18,9 @@ fun int fibonacci(int n) {
 }
 ```
 
+## Install it
+You can run the `install.sh` to install Marcel on your computer. It will build the jars using maven and then put them in a directory.
+
 ## Maven Plugin
 
 You can find in this repository the official Maven Plugin to compile Maven projects with
