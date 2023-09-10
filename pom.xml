@@ -15,7 +15,7 @@
   <inceptionYear>2023</inceptionYear>
 
   <properties>
-    <revision>0.0.1</revision>
+    <revision>0.0.2-SNAPSHOT</revision>
     <kotlin.version>1.8.10</kotlin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>1.8</java.version>

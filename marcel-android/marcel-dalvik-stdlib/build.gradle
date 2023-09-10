@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.library'
 }
-
+String marcelVersion = "0.0.2-SNAPSHOT"
 android {
     namespace 'marcel.lang'
     compileSdk 33
@@ -28,7 +28,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: new File(rootDir, 'app/libs'), include: ['*.jar'])
-    implementation "com.tambapps.marcel:marcel-stdlib:0.0.1-SNAPSHOT"
+    implementation "com.tambapps.marcel:marcel-stdlib:$marcelVersion"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
