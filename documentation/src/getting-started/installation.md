@@ -25,7 +25,7 @@ cd marcel
 
 And then run the script
 ```shell
-./install.sh
+./install-from-source.sh
 ```
 
 The script basically runs a lot of `mvn clean install` and then copy/create some files in `$HOME/.marcel/`.
