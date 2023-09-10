@@ -36,7 +36,7 @@
 - [Tools](./tools/index.md)
   - [MarCL - Marcel's Command Line tool](./tools/marcl.md)
   - [Marshell - Marcel Shell](./tools/marshell.md)
-  - [Marshell for Android](./tools/marshell-for-android.md)
+  - [Marcel for Android](./tools/marcel-for-android.md)
   - [Dumbbell - Marcel's Dependency Manager](./tools/dumbbell.md)
   - [IntelIJ Plugin for Marcel](./tools/intelij-plugin.md)
 - [Tutorials](./tutorials/index.md)
