@@ -146,7 +146,7 @@
 <p>This operator is usually (or at least in Java) reserved for arrays, 
 but in Marcel you can also use it to access lists. You can get/set 
 items of your list using the same syntax as for an array</p>
-<pre><code class="language-groovy">
+<pre><code class="language-java">
 list&lt;int&gt; list = [1, 2, 3]
 
 println(list[0])
@@ -157,7 +157,7 @@ list[1] = 4
 <p>You can also <a href="./operator-overloading.html">define your own accesses for custom types</a></p>
 <h2 id="safe-indexed-access"><a class="header" href="#safe-indexed-access">Safe indexed access</a></h2>
 <p>Similarly to <a href="./safe-navigation.html">safe navigation</a>, you can access elements of list/arrays</p>
-<pre><code class="language-groovy">println(list?[5]) // will print null
+<pre><code class="language-javascript">println(list?[5]) // will print null
 </code></pre>
 <p>This operator checks that the index provided is within range (<code>0 &lt;= index &lt; length</code>)</p>
 

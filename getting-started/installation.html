@@ -150,6 +150,11 @@
 <li><a href="../tools/dumbbell.html">dumbbell</a></li>
 </ul>
 <p>For now, the only way to install Marcel is compiling it from its source code.</p>
+<h2 id="install-from-release"><a class="header" href="#install-from-release">Install from release</a></h2>
+<p>You can download the <code>release.zip</code> of a <a href="https://github.com/tambapps/marcel/releases">Marcel Release</a>. Unzip it where you want.</p>
+<p>Then set the <code>MARCEL_HOME</code> environment to the path of the release you just unzipped. You can set it in your <code>.bashrc</code> or <code>.zshrc</code> so that
+this variable is set in all your sessions.
+You can also add <code>$MARCEL_HOME/bin</code> to your <code>PATH</code> so your shell recognize marcel commands.</p>
 <h2 id="install-from-source-code"><a class="header" href="#install-from-source-code">Install from source code</a></h2>
 <p>There is a <a href="https://github.com/tambapps/marcel/blob/main/install.sh">script in marcel repository</a> for that.</p>
 <p>Note that this script <strong>only works on Linux and Mac</strong>.</p>
@@ -161,7 +166,7 @@
 cd marcel
 </code></pre>
 <p>And then run the script</p>
-<pre><code class="language-shell">./install.sh
+<pre><code class="language-shell">./install-from-source.sh
 </code></pre>
 <p>The script basically runs a lot of <code>mvn clean install</code> and then copy/create some files in <code>$HOME/.marcel/</code>.</p>
 <p>Lastly, you can add the following lines into your <code>$HOME/.bashrc</code> (or <code>$HOME/.zshrc</code> or whatever) to easily use marcel tools</p>

@@ -148,24 +148,24 @@
 You can also define functions in your scripts.
 <h2 id="local-variables"><a class="header" href="#local-variables">Local Variables</a></h2>
 <p>To declare a local variable in a script, simply declare it as you would in a function's body.</p>
-<pre><code class="language-groovy">int a = 2
+<pre><code class="language-java">int a = 2
 int b
 </code></pre>
 <h2 id="dynamic-variables"><a class="header" href="#dynamic-variables">Dynamic variables</a></h2>
 <p>In scripts, you can use variables that are declared automatically if they don't
 exist yet.</p>
-<pre><code class="language-groovy">a = 2
+<pre><code class="language-java">a = 2
 println(a)
 </code></pre>
 <p>In the above script, we didn't declare the variable <code>a</code>. If we were in a regular class this wouldn't compile, but in scripts
 it would declare the variable.</p>
 <p>Such variables are declared automatically when they are first assigned. This is why the below script wouldn't compile</p>
-<pre><code class="language-groovy">println(a) // referencing a variable a, but we didn't assign it before =&gt; semantic error
+<pre><code class="language-java">println(a) // referencing a variable a, but we didn't assign it before =&gt; semantic error
 a = 2
 </code></pre>
 <p>The type of the variable is determined by the value provided
 to assign it. To explicitly specify its type, you can use the <code>as</code> keyword like in the below example</p>
-<pre><code class="language-groovy">a = 2 as Integer // declaring a global variable Integer a
+<pre><code class="language-kotlin">a = 2 as Integer // declaring a global variable Integer a
 println(a)
 </code></pre>
 <p>Global variables are accessible from anywhere in the script context, as long as it is not static.</p>
@@ -176,7 +176,7 @@ in the first assignment.</p>
 <h3 id="how-global-variables-works"><a class="header" href="#how-global-variables-works">How global variables works</a></h3>
 <p>Global variables are variables that are stored in the script's <code>Binding</code>. The means you could also
 retrieve them/set them using methods like <code>Script.getVariable(name)</code>/<code>Script.setVariable(name, value)</code></p>
-<pre><code class="language-groovy">a = 1
+<pre><code class="language-java">a = 1
 
 doSomething(a)
 
@@ -186,7 +186,7 @@ a = &quot;2&quot; // Semantic Error: Expected expression of type int but gave St
 <p>To declare a class field for your script, you must explicitly provide its visibility, otherwise it will be 
 considered as a local variable.</p>
 <p>E.g.</p>
-<pre><code class="language-groovy">internal int myField1 = 2
+<pre><code class="language-kotlin">internal int myField1 = 2
 protected myfield2
 </code></pre>
 <p>Note that global variables are a lot like field variables so you don't need to use both. Just use global variables or field variables

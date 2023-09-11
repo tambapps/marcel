@@ -145,7 +145,7 @@
                         <h1 id="extension-classes"><a class="header" href="#extension-classes">Extension classes</a></h1>
 <p>Extension classes allows you to add methods to an existing class.</p>
 <h2 id="how-to-declare"><a class="header" href="#how-to-declare">How to declare</a></h2>
-<pre><code class="language-groovy">// MyExtension.mcl
+<pre><code class="language-kotlin">// MyExtension.mcl
 extension class MyExtension for Integer {
   fun Integer next() {
     return this + 1
@@ -156,7 +156,7 @@ extension class MyExtension for Integer {
 <p>In such classes you can reference, you can only reference public properties/methods of the class you're extending, and you have
 to explicitly specify <code>this</code> when you do so.
 E.g.</p>
-<pre><code class="language-groovy">// MyExtension.mcl
+<pre><code class="language-kotlin">// MyExtension.mcl
 extension class MyExtension for Integer {
   fun float nextToFloat() {
     return this.floatValue() + 1f
@@ -165,7 +165,7 @@ extension class MyExtension for Integer {
 </code></pre>
 <h2 id="how-to-use"><a class="header" href="#how-to-use">How to use</a></h2>
 <p>Import your extension class with the <code>extension</code> keyword.</p>
-<pre><code class="language-groovy">// another file
+<pre><code class="language-java">// another file
 import extension MyExtension
 
 Integer a = 1

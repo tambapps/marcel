@@ -146,21 +146,21 @@
 <p>Marcel's imports are very similar to Java's.</p>
 <h3 id="class-import"><a class="header" href="#class-import">Class import</a></h3>
 <p>Such imports are like Java's</p>
-<pre><code class="language-groovy">import java.text.SimpleDateFormat
+<pre><code class="language-java">import java.text.SimpleDateFormat
 </code></pre>
 <p>But Marcel adds the capability to import a class <code>as</code> a given name. All references to the given name will be replaced by the
 actual class imported when compiling</p>
-<pre><code class="language-groovy">import java.text.SimpleDateFormat as SDF
+<pre><code class="language-java">import java.text.SimpleDateFormat as SDF
 
 SDF sdf = someSdf()
 </code></pre>
 <h3 id="wildcard-imports"><a class="header" href="#wildcard-imports">Wildcard imports</a></h3>
 <p>Again, just like Java</p>
-<pre><code class="language-groovy">import java.text.*
+<pre><code class="language-java">import java.text.*
 </code></pre>
 <h3 id="static-imports"><a class="header" href="#static-imports">Static imports</a></h3>
 <p>Yup, like in Java</p>
-<pre><code class="language-groovy">import static org.junit.jupiter.api.Assertions.assertEquals
+<pre><code class="language-java">import static org.junit.jupiter.api.Assertions.assertEquals
 </code></pre>
 <h3 id="default-imports"><a class="header" href="#default-imports">Default imports</a></h3>
 <p>Marcel import by default all the following packages</p>

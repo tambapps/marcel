@@ -150,12 +150,12 @@ a Read Eval Print Loop tool.</p>
 <h2 id="define-variables"><a class="header" href="#define-variables">Define variables</a></h2>
 <p>In marshell, you can't have <a href="../language-specification/source-file-structure/script.html#fields">class fields</a>, <strong>but</strong> you can use global variables.
 To de clare a global variable, just assign to a variable a value, without specifying its type</p>
-<pre><code class="language-groovy">a = 1 // this will create a global variable a
+<pre><code class="language-kotlin">a = 1 // this will create a global variable a
 </code></pre>
 <p>Global variables can't change type. Meaning that after having defining one, you can't assign to it
 a value that is of an incompatible type of the one you used when you first assigned it a value.</p>
 <p>To specify explicitly the type of the global variable, use the <code>as</code> keyword.</p>
-<pre><code class="language-groovy">a = [1, 2] as set&lt;int&gt;
+<pre><code class="language-kotlin">a = [1, 2] as set&lt;int&gt;
 </code></pre>
 <h2 id="define-functions"><a class="header" href="#define-functions">Define functions</a></h2>
 <p>Define functions as you would in a Marcel script</p>

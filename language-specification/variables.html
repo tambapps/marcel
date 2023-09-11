@@ -145,14 +145,14 @@
                         <h1 id="variables"><a class="header" href="#variables">Variables</a></h1>
 <h2 id="declare-variables"><a class="header" href="#declare-variables">Declare variables</a></h2>
 <p>Marcel variable declarations are the same as Java's</p>
-<pre><code class="language-groovy">int a = 2
+<pre><code class="language-java">int a = 2
 Object o = new Object()
 
 list&lt;int&gt; l = [1, 2] // collection of primivites
 </code></pre>
 <h3 id="multiple-declarations"><a class="header" href="#multiple-declarations">Multiple declarations</a></h3>
 <p>Marcel supports multiple assignments in one statement</p>
-<pre><code class="language-groovy">def (int a, String b, Object c) = [1, &quot;2&quot;, new Object()]
+<pre><code class="language-java">def (int a, String b, Object c) = [1, &quot;2&quot;, new Object()]
 
 def (int d, String e, Object f) = functionReturningAnArrayOrList()
 </code></pre>
@@ -161,7 +161,7 @@ def (int d, String e, Object f) = functionReturningAnArrayOrList()
 Sometimes you might want to ignore a specific item of a list,
 You can use the `_` identifier to let the compiler know that.
 <p>E.g.</p>
-<pre><code class="language-groovy">def (_, String world) = (&quot;hello world&quot; =~ /hello (world)/).groups()
+<pre><code class="language-java">def (_, String world) = (&quot;hello world&quot; =~ /hello (world)/).groups()
 </code></pre>
 <h2 id="variable-assignments"><a class="header" href="#variable-assignments">Variable assignments</a></h2>
 <p>Just use <code>=</code> to assign values to defined variables</p>
@@ -171,7 +171,7 @@ a = 3
 </code></pre>
 <h3 id="automatic-casting"><a class="header" href="#automatic-casting">Automatic casting</a></h3>
 <p>Variable assignments are automatically casted when needed.</p>
-<pre><code class="language-groovy">Optional o = Optional.of(123)
+<pre><code class="language-java">Optional o = Optional.of(123)
 Integer myInteger = o.get() // returns Object cast into an Integer 
 int myInt = o.get() // returns Object cast into an Integer then into an int
 </code></pre>

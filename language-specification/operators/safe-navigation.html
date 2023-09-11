@@ -145,11 +145,11 @@
                         <h1 id="safe-navigation-operator-"><a class="header" href="#safe-navigation-operator-">Safe Navigation Operator (?.)</a></h1>
 <p>The safe navigation operator is used to access a property of an object that might be null, without getting a <code>NullPointerException</code>.</p>
 <p>It is a simple syntax allowing you to simple code. In Java, you could code</p>
-<pre><code class="language-groovy">Foo foo = getFoo()
+<pre><code class="language-java">Foo foo = getFoo()
 Bar bar = foo != null ? foo.getBar() : null
 </code></pre>
 <p>In Marcel, you would code</p>
-<pre><code class="language-groovy">Foo foo = getFoo()
+<pre><code class="language-java">Foo foo = getFoo()
 Bar bar = foo?.bar // Marcel recognize getters and translet '.bar' into '.getBar()' at compilation
 </code></pre>
 
