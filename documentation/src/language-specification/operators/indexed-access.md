@@ -4,7 +4,7 @@ This operator is usually (or at least in Java) reserved for arrays,
 but in Marcel you can also use it to access lists. You can get/set 
 items of your list using the same syntax as for an array
 
-```groovy
+```java
 
 list<int> list = [1, 2, 3]
 
@@ -21,7 +21,7 @@ You can also [define your own accesses for custom types](./operator-overloading.
 
 Similarly to [safe navigation](./safe-navigation.md), you can access elements of list/arrays
 
-```groovy
+```javascript
 println(list?[5]) // will print null
 ```
 

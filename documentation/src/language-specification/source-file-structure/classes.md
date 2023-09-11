@@ -76,13 +76,13 @@ of your class will be the field assignments (after the super() call of course).
 ### Calling constructors
 You can call specific `super` and `this` constructors.
 
-```groovy
+```java
 class A {
   int foo
   constructor(this.foo)
 }
 
-class B {
+class B extends A {
   int bar
   constructor(int foo, this.bar): super(foo) {
     println("Yahoo")  

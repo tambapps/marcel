@@ -150,7 +150,7 @@ bool b = true
 
 Create arrays with the square brackets
 
-```groovy
+```java
 int[] ints = [1, 2, 3, 4]
 ```
 
@@ -160,7 +160,7 @@ Note that you can also use this syntax to [create collections](../types.md#colle
 
 Square brackets can also be used to define maps
 
-````groovy
+````python
 Map map = [1.3: "1", 1.4: "2", "myStringKey": "myStringValue", myLitteralKey: myRefValue, (myRefKey): myRefValue]
 ````
 
@@ -180,7 +180,7 @@ You can create int (and soon long) ranges
 
 Ranges also work in reverse order
 
-```groovy
+```kotlin
 10..0 // 10 (inclusive) to 0 (inclusive)
 10>..0 // 10 (exclusive) to 0 (inclusive)
 10..>0 // 10 (inclusive) to 0 (exclusive)
@@ -189,7 +189,7 @@ Ranges also work in reverse order
 
 Ranges work with all kinds of int/long expressions
 
-```groovy
+```java
 int start = computeStart()
 int end = computeEnd()
 

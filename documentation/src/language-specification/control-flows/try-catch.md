@@ -3,7 +3,7 @@
 Exception handling is very similar as Java's.
 
 
-````groovy
+````java
 try {
   Object a = null
   println(a.hashCode())
@@ -25,7 +25,7 @@ Finally
 
 Try with resources is like in Java. You can declare Variables as resources and they will be properly closed automatically by the compiler.
 
-````groovy
+````java
 try (BufferedReader reader = new BufferedReader(new FileReader("/Users/nfonkoua/workspace/marcel/Test.marcel"))) {
   println(reader.readLine())
 } catch (IOException e) {

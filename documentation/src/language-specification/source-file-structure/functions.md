@@ -33,7 +33,7 @@ private fun foo() {
 ## Function Calls
 Function calls are no different than  in any other language
 
-```groovy
+```java
 int result = sum(1, 2)
 ```
 
@@ -41,12 +41,12 @@ int result = sum(1, 2)
 Marcel has a diamond operator for function calls which is different from Java's. It casts the 
 result of the function to the specified type.
 
-```groovy
+```java
 Foo otherResult = compute<Foo>()
 ```
 This above example isn't really useful as Marcel [automatically cast variable assignments when needed](../variables.md#automatic-casting) but this feature can be useful when chaining function calls
 
-```groovy
+```java
 Optional opt = Optional.of(new Foo())
 // assuming computeObject() and result return Object in their declaration
 Bar result = opt.get<Foo>().computeObject<Bar>()
@@ -62,7 +62,7 @@ When you don't specify a parameter, it will default to the type's default value
 (0 for primitive types and `null` for Objects).
 
 Following on our `sum()` example:
-```groovy
+```java
 int result = sum(b: 2, a: 1) // equivalent to sum(1, 2)
 int otherResult = sum(a: 1) // equivalent to sum(1, 0)
 ```
@@ -76,7 +76,7 @@ and then initialize the fields having the provided names with their associated a
 
 Here are some examples below.
 
-```groovy
+```java
 class B {
   int i
   int j
@@ -94,7 +94,7 @@ C c = new C(a: 1, b: 2) // will call new C() and then the fields will be initial
 
 ```
 
-```groovy
+```java
 int result = sum(2, b: 1) // equivalent to sum(2, 1)
 
 
@@ -108,7 +108,7 @@ Note that you can only used named parameters call for functions of Marcel-compil
 Function parameters can have default values, which are used when you skip the corresponding argument. These can be useful especially
 with named parameters function calls. 
 
-```groovy
+```kotlin
 fun int sum(int a = 0, int b = 8) {
 return a + b
 }
@@ -129,7 +129,7 @@ Similar calls also work with constructors. You can specify class's field names w
 Note that it will only work if your class has a no-arg constructor and that the fields referenced are `public` and **not** `final`.
 
 
-```groovy
+```java
 
 Foo foo = new Foo(bar: 1, baz: "baz")
 

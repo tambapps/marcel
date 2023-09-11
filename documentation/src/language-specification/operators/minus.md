@@ -9,7 +9,7 @@ of the first operand having removed all elements from the second operand if any.
 
 It works well with lists
 
-```groovy
+```java
 
 list<int> myList1 = [1, 2, 3]
 list<int> myList2 = [3, 4, 5]
@@ -20,7 +20,7 @@ println(myList3) // [1, 2]
 
 and sets
 
-```groovy
+```java
 
 set<int> mySet1 = [1, 2, 3]
 set<int> mySet2 = [3, 4, 5]
@@ -33,7 +33,7 @@ println(mySetUnion) // [1, 2]
 
 You can also add different kind of collections. The type of the returned collection will be the same as the first operand
 
-```groovy
+```java
 set<int> newSet = mySet1 - myList1
 list<int> newList = myList1 - mySet1
 ```
