@@ -26,6 +26,7 @@
   - [Operators](language-specification/operators/index.md)
     - [Plus (+)](language-specification/operators/plus.md)
     - [Minus (-)](language-specification/operators/minus.md)
+    - [Left Shift (<<)](language-specification/operators/left-shift.md)
     - [Comparison Operators](language-specification/operators/comparison.md)
     - [Indexed Access (expr[index])](language-specification/operators/indexed-access.md)
     - [Safe Navigation (?.)](language-specification/operators/safe-navigation.md)

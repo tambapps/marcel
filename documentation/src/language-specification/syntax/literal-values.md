@@ -171,7 +171,7 @@ a variable as a key, put it between parenthesis, like it is done for `(myRefKey)
 
 You can create int (and soon long) ranges
 
-```groovy
+```java
 0..10 // 0 (inclusive) to 10 (inclusive)
 0<..10 // 0 (exclusive) to 10 (inclusive)
 0..<10 // 0 (inclusive) to 10 (exclusive)
