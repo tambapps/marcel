@@ -60,4 +60,5 @@ create_executable marshell 'com.tambapps.marcel.marshell.MarshellKt'
 create_executable dumbbell 'com.tambapps.marcel.dumbbell.cl.DumbbellKt'
 
 echo "Marcel has been successfully installed in $marcelDir."
+echo "Set the MARCEL_HOME environment variable to $marcelDir so that Marcel tools are aware of where the home is"
 echo "Add $marcelDir/bin in your PATH for your shell to recognize Marcel commands"

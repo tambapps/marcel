@@ -7,6 +7,13 @@ Marcel comes with
 
 For now, the only way to install Marcel is compiling it from its source code.
 
+## Install from release
+You can download the `release.zip` of a [Marcel Release](https://github.com/tambapps/marcel/releases). Unzip it where you want.
+
+Then set the `MARCEL_HOME` environment to the path of the release you just unzipped. You can set it in your `.bashrc` or `.zshrc` so that
+this variable is set in all your sessions.
+You can also add `$MARCEL_HOME/bin` to your `PATH` so your shell recognize marcel commands.
+
 ## Install from source code
 There is a [script in marcel repository](https://github.com/tambapps/marcel/blob/main/install.sh) for that.
 
