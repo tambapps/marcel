@@ -29,7 +29,7 @@
             android:layout_margin="22dp"
             android:layout_marginTop="44dp"
             android:hint="@string/name_should_be_unique"
-            android:textColorHint="#fff"
+            android:textColorHint="@color/textColor"
             app:layout_constraintTop_toBottomOf="@+id/title"
             tools:layout_editor_absoluteX="16dp">
 
@@ -38,8 +38,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:lines="1"
-                android:textColor="#fff"
-                android:textColorHint="#fff" />
+                android:textColor="@color/textColor"
+                android:textColorHint="@color/textColor" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -49,7 +49,7 @@
             android:layout_margin="22dp"
             android:layout_marginTop="28dp"
             android:hint="@string/description"
-            android:textColorHint="#fff"
+            android:textColorHint="@color/textColor"
             app:layout_constraintTop_toBottomOf="@+id/workNameLayout"
             tools:layout_editor_absoluteX="16dp">
 
@@ -57,8 +57,8 @@
                 android:id="@+id/workDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="#fff"
-                android:textColorHint="#fff" />
+                android:textColor="@color/textColor"
+                android:textColorHint="@color/textColor" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
@@ -77,7 +77,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="45dp"
-            android:textColor="#fff"
+            android:textColor="@color/textColor"
             android:textSize="18sp"
             app:layout_constraintStart_toEndOf="@+id/pickScriptButton"
             app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
@@ -88,7 +88,7 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="40dp"
             android:text="Network required"
-            android:textColor="#fff"
+            android:textColor="@color/textColor"
             android:id="@+id/networkRequiredText"
             android:textSize="20sp"
             app:layout_constraintStart_toEndOf="@id/networkRequiredCheckBox"
@@ -118,7 +118,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="This work will run only when a stable network connection is available"
-                android:textColor="#fff"
+                android:textColor="@color/textColor"
                 android:textSize="14sp" />
         </net.cachapa.expandablelayout.ExpandableLayout>
 
@@ -137,7 +137,7 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="40dp"
             android:text="@string/schedule_later"
-            android:textColor="#fff"
+            android:textColor="@color/textColor"
             android:id="@+id/scheduleLaterText"
             android:textSize="20sp"
             app:layout_constraintStart_toEndOf="@+id/scheduleCheckbox"
@@ -171,7 +171,7 @@
                     android:layout_marginStart="16dp"
                     android:layout_alignBaseline="@id/pickDateButton"
                     android:id="@+id/dateText"
-                    android:textColor="#fff"
+                    android:textColor="@color/textColor"
                     android:textSize="18sp"
                     />
 
@@ -192,7 +192,7 @@
                     android:layout_marginStart="16dp"
                     android:layout_alignBaseline="@id/pickTimeButton"
                     android:id="@+id/timeText"
-                    android:textColor="#fff"
+                    android:textColor="@color/textColor"
                     android:textSize="18sp"
                     />
             </RelativeLayout>
@@ -214,7 +214,7 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="40dp"
             android:text="@string/periodic"
-            android:textColor="#fff"
+            android:textColor="@color/textColor"
             android:id="@+id/periodicText"
             android:textSize="20sp"
             app:layout_constraintStart_toEndOf="@+id/periodicCheckbox"
@@ -238,7 +238,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="#fff"
+                    android:textColor="@color/textColor"
                     android:text="@string/every"
                     android:textSize="16sp"
                     />
@@ -248,7 +248,7 @@
                     android:layout_height="wrap_content"
                     android:lines="1"
                     android:maxLength="3"
-                    android:textColor="#fff"
+                    android:textColor="@color/textColor"
                     android:id="@+id/periodEditText"
                     android:inputType="number"
                     />
@@ -267,7 +267,7 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="28dp"
             android:text="@string/silent"
-            android:textColor="#fff"
+            android:textColor="@color/textColor"
             android:textSize="20sp"
             app:layout_constraintStart_toEndOf="@+id/silentCheckBox"
             app:layout_constraintTop_toBottomOf="@+id/periodicLayout" />
@@ -290,7 +290,7 @@
             android:layout_marginTop="26dp"
             android:id="@+id/silentDescription"
             android:text="@string/you_will_still_be_notified_when_a_shell_worker_ends_up_with_an_error"
-            android:textColor="#fff"
+            android:textColor="@color/textColor"
             android:textSize="14sp"
             android:layout_gravity="center"
             android:gravity="center"

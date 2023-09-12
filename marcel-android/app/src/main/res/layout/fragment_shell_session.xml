@@ -34,7 +34,6 @@
                 android:layout_height="wrap_content"
                 style="@style/shellText"
                 android:text="@string/initial_prompt_text"
-                android:visibility="invisible"
                 android:id="@+id/fakePromptText"
                 />
 

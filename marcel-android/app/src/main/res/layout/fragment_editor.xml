@@ -19,7 +19,7 @@
         android:fontFamily="@font/ubuntu_family"
         android:visibility="gone"
         android:id="@+id/fileNameText"
-        android:textColor="#fff"
+        android:textColor="@color/textColor"
         />
 
     <ImageButton
