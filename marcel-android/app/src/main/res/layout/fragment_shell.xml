@@ -33,8 +33,7 @@
         app:layout_constraintEnd_toStartOf="@id/runFileButton"
         android:layout_margin="16dp"
         android:src="@drawable/export"
-        android:id="@+id/exportButton"
-        app:tint="@color/white" />
+        android:id="@+id/exportButton" />
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"

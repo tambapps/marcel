@@ -12,10 +12,11 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+       <!-- <item name="android:background">#D1D1D1</item> -->
     </style>
 
     <style name="shellText">
-        <item name="android:textColor">#fff</item>
+        <item name="android:textColor">@color/textColor</item>
         <item name="android:textSize">@dimen/shell_text_size</item>
         <item name="android:fontFamily">@font/ubuntu_family</item>
     </style>
@@ -33,6 +34,7 @@
         <item name="android:padding">8dp</item>
         <item name="android:background">@null</item>
         <item name="android:foreground">?actionBarItemBackground</item>
+        <item name="tint">@color/buttonColor</item>
     </style>
 
     <style name="Theme.MarcelDroid.NoActionBar">

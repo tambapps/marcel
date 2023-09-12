@@ -9,15 +9,11 @@
     <include layout="@layout/content_main" />
 
     <ImageButton
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:scaleType="fitCenter"
+        style="@style/shellButton"
         android:layout_gravity="top|start"
         android:layout_margin="8dp"
+        android:padding="0dp"
         android:src="@drawable/drawer"
-        android:background="@null"
-        android:id="@+id/drawerButton"
-        android:foreground="?actionBarItemBackground"
-        />
+        android:id="@+id/drawerButton" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

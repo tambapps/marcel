@@ -12,8 +12,7 @@
     <color name="colorPrimaryVariant">#BDAA00</color>
     <color name="colorSecondary">@color/colorPrimary</color>
     <color name="colorSecondaryVariant">@color/colorPrimaryVariant</color>
-    <!-- TODO need to have white for non dark theme -->
-    <color name="oppositeTextColor">@color/white</color>
-    <color name="textColor">@color/black</color>
-    <color name="buttonColor">@color/black</color>
+    <color name="oppositeTextColor">@color/black</color>
+    <color name="textColor">@color/white</color>
+    <color name="buttonColor">@color/white</color>
 </resources>
