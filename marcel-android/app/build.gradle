@@ -4,7 +4,14 @@ plugins {
     id 'dagger.hilt.android.plugin'
     id 'kotlin-kapt'
 }
-String marcelVersion = "0.0.2-SNAPSHOT"
+def marcelProperties = new Properties().tap { props ->
+    new File(getRootDir(), "marcel.properties").withInputStream {
+        props.load(it)
+    }
+    props
+}
+String marcelVersion = marcelProperties.getProperty("marcel.version")
+
 android {
     namespace 'com.tambapps.marcel.android.marshell'
     compileSdk 34
@@ -13,7 +20,7 @@ android {
         applicationId "com.tambapps.marcel.android.marshell"
         minSdk 26
         targetSdk 34
-        versionCode 3
+        versionCode 4
         versionName marcelVersion
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

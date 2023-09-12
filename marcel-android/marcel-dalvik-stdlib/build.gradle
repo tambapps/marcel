@@ -1,7 +1,14 @@
 plugins {
     id 'com.android.library'
 }
-String marcelVersion = "0.0.2-SNAPSHOT"
+def marcelProperties = new Properties().tap { props ->
+    new File(getRootDir(), "marcel.properties").withInputStream {
+        props.load(it)
+    }
+    props
+}
+String marcelVersion = marcelProperties.getProperty("marcel.version")
+
 android {
     namespace 'marcel.lang'
     compileSdk 33
