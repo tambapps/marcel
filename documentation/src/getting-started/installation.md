@@ -35,7 +35,7 @@ And then run the script
 ./install-from-source.sh
 ```
 
-The script basically runs a lot of `mvn clean install` and then copy/create some files in `$HOME/.marcel/`.
+The script basically runs a lot of `mvn clean package` and then copy/create some files in `$HOME/.marcel/`.
 
 Lastly, you can add the following lines into your `$HOME/.bashrc` (or `$HOME/.zshrc` or whatever) to easily use marcel tools
 

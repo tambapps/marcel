@@ -21,6 +21,7 @@
     <java.version>1.8</java.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <javadoc.skip>false</javadoc.skip>
   </properties>
 
   <modules>
@@ -148,6 +149,19 @@
           <groupId>org.jetbrains.dokka</groupId>
           <artifactId>dokka-maven-plugin</artifactId>
           <version>1.9.0</version>
+          <executions>
+            <execution>
+              <phase>prepare-package</phase>
+              <goals>
+                <goal>dokka</goal>
+                <goal>javadoc</goal>
+                <goal>javadocJar</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <skip>${javadoc.skip}</skip>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>com.tambapps.marcel.maven</groupId>
