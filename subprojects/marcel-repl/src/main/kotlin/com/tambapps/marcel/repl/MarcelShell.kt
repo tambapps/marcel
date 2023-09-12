@@ -17,7 +17,6 @@ import marcel.lang.util.MarcelVersion
 import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 
-// TODO add test for this, especially for primitive BoundField and Object BoundField
 abstract class MarcelShell constructor(
   compilerConfiguration: CompilerConfiguration,
   protected val printer: SuspendPrinter,
