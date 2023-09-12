@@ -12,7 +12,9 @@ import com.tambapps.marcel.parser.exception.MarcelParserException
 import com.tambapps.marcel.parser.ParserConfiguration
 import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.ast.MethodNode
+import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.scope.MethodScope
 import marcel.lang.DelegatedObject
 import marcel.lang.MarcelClassLoader
 import kotlin.jvm.Throws
@@ -127,7 +129,8 @@ class MarcelReplCompiler constructor(
         }
         method.ownerClass = scriptNode.type
         method.scope.classType = scriptNode.type
-        method.scope.resetLocalVariables()
+        // this is important as methods will be semantically checked again
+        method.block.forEachNode { if (it is ScopedNode<*>) (it.scope as? MethodScope)?.resetLocalVariables() }
         scriptNode.methods.add(method)
       }
       typeResolver.registerClass(scriptNode)
