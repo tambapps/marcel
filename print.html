@@ -1051,7 +1051,7 @@ Bar bar = foo != null ? foo.getBar() : null
 </code></pre>
 <p>In Marcel, you would code</p>
 <pre><code class="language-java">Foo foo = getFoo()
-Bar bar = foo?.bar // Marcel recognize getters and translet '.bar' into '.getBar()' at compilation
+Bar bar = foo?.bar // Marcel recognizes getters and translates '.bar' into '.getBar()' at compilation
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="define-custom-operators"><a class="header" href="#define-custom-operators">Define custom operators</a></h1>
 <p>You can define operators in a very similar way as <a href="https://groovy-lang.org/operators.html#Operator-Overloading">groovy's</a>.</p>
@@ -1062,6 +1062,7 @@ Bar bar = foo?.bar // Marcel recognize getters and translet '.bar' into '.getBar
 <tr><td>a + b</td><td>a.plus(b)</td></tr>
 <tr><td>a - b</td><td>a.minus(b)</td></tr>
 <tr><td>a * b</td><td>a.multiply(b)</td></tr>
+<tr><td>a % b</td><td>a.mod(b)</td></tr>
 <tr><td>a / b</td><td>a.div(b)</td></tr>
 <tr><td>a &lt;&lt; b</td><td>a.leftShift(b)</td></tr>
 <tr><td>a &gt;&gt; b</td><td>a.rightShift(b)</td></tr>
