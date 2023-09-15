@@ -13,5 +13,5 @@ In Marcel, you would code
 
 ```java
 Foo foo = getFoo()
-Bar bar = foo?.bar // Marcel recognize getters and translet '.bar' into '.getBar()' at compilation
+Bar bar = foo?.bar // Marcel recognizes getters and translates '.bar' into '.getBar()' at compilation
 ```

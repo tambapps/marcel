@@ -1288,6 +1288,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       TokenType.IS -> IsOperator(token, leftOperand, rightOperand)
       TokenType.IS_NOT -> IsNotOperator(token, leftOperand, rightOperand)
       TokenType.MUL -> MulOperator(token, leftOperand, rightOperand)
+      TokenType.MODULO -> ModOperator(token, leftOperand, rightOperand)
       TokenType.DIV -> DivOperator(token, leftOperand, rightOperand)
       TokenType.PLUS -> PlusOperator(token, leftOperand, rightOperand)
       TokenType.MINUS -> MinusOperator(token, leftOperand, rightOperand)

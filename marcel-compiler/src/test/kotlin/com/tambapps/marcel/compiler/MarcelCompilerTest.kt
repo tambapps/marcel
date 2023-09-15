@@ -95,7 +95,7 @@ class MarcelCompilerTest: AbstractCompilerTest() {
   @Disabled
   @Test
   fun manualTest() {
-    val eval = eval("/tests/test_class.mcl")
+    val eval = eval("/tests/test_arithmetic.mcl")
     println(eval)
   }
 }

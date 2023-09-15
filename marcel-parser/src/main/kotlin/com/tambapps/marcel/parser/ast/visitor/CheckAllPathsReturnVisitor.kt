@@ -25,6 +25,7 @@ class CheckAllPathsReturnVisitor: AstNodeVisitor<Boolean> {
   override fun visit(node: CharConstantNode) = false
 
   override fun visit(node: MulOperator) = false
+  override fun visit(node: ModOperator) = false
 
   override fun visit(node: TernaryNode) = false
 

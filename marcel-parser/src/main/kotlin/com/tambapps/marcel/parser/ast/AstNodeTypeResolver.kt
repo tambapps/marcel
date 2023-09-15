@@ -176,6 +176,7 @@ open class AstNodeTypeResolver constructor(
   override fun visit(node: ToStringNode) = JavaType.String
 
   override fun visit(node: MulOperator) = visitBinaryOperator(node)
+  override fun visit(node: ModOperator) = visitBinaryOperator(node)
 
   private fun visitBinaryOperator(binaryOperatorNode: BinaryOperatorNode): JavaType {
     val commonType = JavaType.commonType(binaryOperatorNode.leftOperand.accept(this), binaryOperatorNode.rightOperand.accept(this))

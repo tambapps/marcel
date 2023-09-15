@@ -286,6 +286,10 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     arithmeticMarcelOperator(node, JavaPrimitiveType::mulCode)
   }
 
+  override fun visit(node: ModOperator) {
+    arithmeticMarcelOperator(node, JavaPrimitiveType::modCode)
+  }
+
   override fun visit(node: DivOperator) {
     arithmeticMarcelOperator(node, JavaPrimitiveType::divCode)
   }
@@ -322,7 +326,6 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     if (leftType.isPrimitiveOrObjectPrimitive && rightType.isPrimitiveOrObjectPrimitive) {
       val type = operator.getType(typeResolver)
       pushArithmeticBinaryOperatorOperands(operator)
-      insCodeExtractor.invoke(type.asPrimitiveType)
       mv.visitInsn(insCodeExtractor.invoke(type.asPrimitiveType))
       return type
     } else {
@@ -1232,6 +1235,11 @@ class InstructionGenerator(
   }
 
   override fun visit(node: MulOperator) {
+    super.visit(node)
+    mv.popStack()
+  }
+
+  override fun visit(node: ModOperator) {
     super.visit(node)
     mv.popStack()
   }

@@ -35,6 +35,7 @@ class FindNodeVisitor(private val predicate: (AstNode) -> Boolean): AstNodeVisit
   override fun visit(node: CharConstantNode) = node(node)
 
   override fun visit(node: MulOperator) = binaryNode(node)
+  override fun visit(node: ModOperator) = binaryNode(node)
 
   override fun visit(node: TernaryNode): AstNode? {
     return node(node) ?: node.boolExpression.accept(this)

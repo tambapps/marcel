@@ -44,6 +44,16 @@ class MulOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: Ex
   }
 }
 
+class ModOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
+  BinaryOperatorNode(token, leftOperand, rightOperand, "mod") {
+  override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
+
+
+  override fun toString(): String {
+    return "$leftOperand % $rightOperand"
+  }
+}
+
 class DivOperator(token: LexToken, leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   BinaryOperatorNode(token, leftOperand, rightOperand, "div") {
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)

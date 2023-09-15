@@ -30,6 +30,7 @@ class ForEachNodeVisitor(private val consumer: (AstNode) -> Unit): AstNodeVisito
   override fun visit(node: DirectFieldAccessNode) = consumer.invoke(node)
 
   override fun visit(node: MulOperator) = visitBinaryOperator(node)
+  override fun visit(node: ModOperator) = visitBinaryOperator(node)
   override fun visit(node: FindOperator) = visitBinaryOperator(node)
 
   private fun visitBinaryOperator(operator: BinaryOperatorNode) {

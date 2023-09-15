@@ -21,6 +21,7 @@ interface AstNodeVisitor<T> {
   fun visit(node: CharConstantNode): T
 
   fun visit(node: MulOperator): T
+  fun visit(node: ModOperator): T
   fun visit(node: TernaryNode): T
   fun visit(node: ElvisOperator): T
 
