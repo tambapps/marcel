@@ -24,7 +24,7 @@ Lambda0 l1 = {
 }
 ```
 
-Or you can explicitely declare it yourself, specifying the type
+Or you can explicitly declare it yourself, specifying the type
 ```kotlin
 Lambda1 l1 = { Integer p0 ->
   println(p0)

@@ -1,4 +1,4 @@
-# Pattern Matching
+# Regular Expressions (Pattern Matching)
 
 Marcel's [Pattern strings](../language-specification/syntax/literal-values.md#pattern-strings)
 allows you to create pattern in a simple manner. When you add that with the [find operator](../language-specification/operators/find.md),
