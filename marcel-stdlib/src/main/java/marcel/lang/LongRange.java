@@ -26,6 +26,12 @@ public interface LongRange extends LongIterable {
     return list;
   }
 
+
+
+  default boolean contains(long i) {
+    return isReverse() ? getTo() >= i && getFrom() <= i : getFrom() >= i && getTo() <= i;
+  }
+
   /**
    * Returns true if all elements in the other ranges also belong to this range
    *
