@@ -2,7 +2,6 @@
 
 Marcel has the following keywords, which you cannot use as variable/function names
 
-
 - int
 - long
 - short
@@ -27,6 +26,7 @@ Marcel has the following keywords, which you cannot use as variable/function nam
 - else
 - null
 - break
+- continue
 - def
 - class
 - extension
@@ -45,3 +45,8 @@ Marcel has the following keywords, which you cannot use as variable/function nam
 - instanceof
 - throw
 - throws
+- constructor
+- public
+- protected
+- internal
+- private
