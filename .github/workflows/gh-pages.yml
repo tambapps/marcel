@@ -21,6 +21,9 @@ jobs:
 
       - run: mdbook build ./documentation/
 
+      # append code to register the marcel code highlighter
+      - run: cat ./documentation/highlight-marcel.js >> ./documentation/book/highlight.js
+
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.ref == 'refs/heads/main' }}

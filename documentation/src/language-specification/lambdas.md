@@ -10,7 +10,7 @@ Lambda are declared like Kotlin's, and Groovy closures. They can be used for any
 ## Lambdas with no parameters
 
 
-```kotlin
+```marcel
 Lambda0 l0 = {
   
 }
@@ -18,14 +18,14 @@ Lambda0 l0 = {
 ## Lambdas with 1 parameter
 
 If you don't specify any parameter, an implicit `Object it` parameter will be declared.
-```kotlin
+```marcel
 Lambda0 l1 = {
   println(it)
 }
 ```
 
 Or you can explicitly declare it yourself, specifying the type
-```kotlin
+```marcel
 Lambda1 l1 = { Integer p0 ->
   println(p0)
 }
@@ -33,7 +33,7 @@ Lambda1 l1 = { Integer p0 ->
 ## Lambdas with 2+ parameter
 You have to declare explicitly all parameters, separated by a comma
 
-```kotlin
+```marcel
 Lambda3 l3 = { Integer foo, Long bar, String zoo ->
   // do something
 }

@@ -27,7 +27,7 @@ Iterating over such collections will only use primitives, no (un)boxing will be 
 Let's learn by example
 
 ## Lists
-````java
+````marcel
 list<int> list = [1, 2, 3, 4]
 
 println(list[1])
@@ -50,7 +50,7 @@ Here is the list of all list of primitives supported
 ## Sets
 You can do the same with sets
 
-````java
+````marcel
 set<int> mySet = [1, 2, 3, 3] // will actually contain just 1, 2 and 3
 ````
 

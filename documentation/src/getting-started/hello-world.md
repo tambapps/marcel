@@ -4,7 +4,7 @@ Let's dive in some code now. Marcel can be used as a scripting language, so you 
 if you just want to run some code.
 
 
-```kotlin
+```marcel
 // HelloWorld.mcl
 println("Hello World!")
 ```

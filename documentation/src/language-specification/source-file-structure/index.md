@@ -4,7 +4,7 @@
 A Marcel source file can have a package. It is optional but if it is specified, it must be the first instruction in the file
 (excluding comments)
 
-```java
+```marcel
 package my.package
 ```
 

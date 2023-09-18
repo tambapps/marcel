@@ -2,7 +2,7 @@
 
 Here is an implementation of the Fibonacci suite in Marcel.
 
-```kotlin
+```marcel
 println(fibonacci(10))
 
 fun int fibonacci(int n) {
@@ -16,7 +16,7 @@ fun int fibonacci(int n) {
 But this implementation takes a lot of time when using large `n` values. A way to solve this problem would be to cache
 fibonnaci's results, which can be done using the `@Cached` annotation (Not Yet Implemented)
 
-```kotlin
+```marcel
 println(fibonacci(10))
 
 @Cached

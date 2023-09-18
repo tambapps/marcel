@@ -4,7 +4,7 @@
 
 Marcel variable declarations are the same as Java's
 
-````java
+````marcel
 int a = 2
 Object o = new Object()
 
@@ -14,7 +14,7 @@ list<int> l = [1, 2] // collection of primivites
 ### Multiple declarations
 Marcel supports multiple assignments in one statement
 
-```java
+```marcel
 def (int a, String b, Object c) = [1, "2", new Object()]
 
 def (int d, String e, Object f) = functionReturningAnArrayOrList()
@@ -28,7 +28,7 @@ You can use the `_` identifier to let the compiler know that.
 
 E.g.
 
-```java
+```marcel
 def (_, String world) = ("hello world" =~ /hello (world)/).groups()
 ```
 
@@ -36,7 +36,7 @@ def (_, String world) = ("hello world" =~ /hello (world)/).groups()
 
 Just use `=` to assign values to defined variables
 
-```java
+```marcel
 int a = 2
 
 a = 3
@@ -46,7 +46,7 @@ a = 3
 ### Automatic casting
 Variable assignments are automatically casted when needed.
 
-```java
+```marcel
 Optional o = Optional.of(123)
 Integer myInteger = o.get() // returns Object cast into an Integer 
 int myInt = o.get() // returns Object cast into an Integer then into an int

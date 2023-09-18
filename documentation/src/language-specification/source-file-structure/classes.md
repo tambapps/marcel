@@ -2,7 +2,7 @@
 
 You can define classes using the `class` keyword
 
-```kotlin
+```marcel
 class Foo {
 
 }
@@ -12,7 +12,7 @@ class Foo {
 
 The syntax is like Java's
 
-```java
+```marcel
 class Foo extends Object implements List<Integer> {
 
 }
@@ -22,7 +22,7 @@ class Foo extends Object implements List<Integer> {
 
 You can specify your class's [visibility](./visibility.md) before the `class` keyword
 
-```kotlin
+```marcel
 public class Foo {
 
 }
@@ -36,7 +36,7 @@ See the [functions section](./functions.md) to see how to define functions
 
 You can define class fields like you would in Java
 
-```java
+```marcel
 class Foo {
   private int a;
   double b = 3
@@ -47,7 +47,7 @@ class Foo {
 ## Constructors
 You can use the keyword `constructor` to define constructors. The definition is similar to a function
 
-```kotlin
+```marcel
 class Foo {
   int bar
   String zoo
@@ -61,7 +61,7 @@ class Foo {
 
 Constructors where you just want to assign values to your fields are common use-cases. Marcel has a syntax
 allowing you to write such constructors with a less verbose code.
-```kotlin
+```marcel
 class Foo {
   int bar
   String zoo
@@ -76,7 +76,7 @@ of your class will be the field assignments (after the super() call of course).
 ### Calling constructors
 You can call specific `super` and `this` constructors.
 
-```java
+```marcel
 class A {
   int foo
   constructor(this.foo)

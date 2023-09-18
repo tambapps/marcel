@@ -14,7 +14,7 @@ This shell supports syntax highlighting and also highlights defined functions/va
 In marshell, you can't have [class fields](../language-specification/source-file-structure/script.md#fields), **but** you can use global variables.
 To de clare a global variable, just assign to a variable a value, without specifying its type
 
-```kotlin
+```marcel
 a = 1 // this will create a global variable a
 ```
 
@@ -23,7 +23,7 @@ a value that is of an incompatible type of the one you used when you first assig
 
 To specify explicitly the type of the global variable, use the `as` keyword.
 
-```kotlin
+```marcel
 a = [1, 2] as set<int>
 ```
 

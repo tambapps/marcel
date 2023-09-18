@@ -4,7 +4,7 @@ There are different ways to create strings in Marcel
 
 ### Strings
 You can use the single quote character (`'`) to create strings
-```kotlin
+```marcel
 'Hello world!'
 ```
 
@@ -13,14 +13,14 @@ You can use the single quote character (`'`) to create strings
 
 You can use the double quote character (`"`) to create strings resolving variables
 
-```kotlin
+```marcel
 "$firstName $lastName is $age years old"
 ```
 
 If you need to access a property, use the brackets
 
 
-```kotlin
+```marcel
 "${person.firstName} ${person.lastName} is ${person.age} years old"
 ```
 
@@ -34,7 +34,7 @@ These strings are reserved for pattern only.
 The backslash is **not** considered as an escape, except for the backlash character
 (which would be escaped as `\/`).
 
-```javascript
+```marcel
 /some \w+/
 ```
 
@@ -47,7 +47,7 @@ is not a regex flag (we'll talk about that just after) but a 'real' identifier.
 
 E.g.
 
-```javascript
+```marcel
 Pattern pattern = /myPattern/; // without the semi-colon, Marcel would think that 'println' characters are regex flags
 println(pattern)
 ```
@@ -58,7 +58,7 @@ println(pattern)
 You can also specify flags by adding a suffix at the end of your regex String.
 
 
-```javascript
+```marcel
 Pattern pattern = /myPattern/iu; // you can specify many flags at once
 println(pattern)
 ```
@@ -84,7 +84,7 @@ Use the backtick (<code>`</code>) to create primitive characters.
 Only one character must be specified between the two backticks
 
 
-```java
+```marcel
 char c = `A`
 ```
 
@@ -108,7 +108,7 @@ Use backslash to escape 'special' characters within strings/characters. Here is 
 
 Marcel supports almost all Java primitives. The number primitive literals are the same as in Java
 
-```java
+```marcel
 // primitive types
 byte  b = 1
 short s = 2
@@ -122,7 +122,7 @@ double d = 6d
 
 You can also create numbers using their binary representation with the `0b` prefix
 
-```java
+```marcel
 int i = 0b10
 long l = 0b11l
 ```
@@ -132,7 +132,7 @@ long l = 0b11l
 
 You can also create numbers using their hexadecimal representation with the `0x` prefix
 
-```java
+```marcel
 int i = 0x5
 long l = 0x5l
 ```
@@ -141,7 +141,7 @@ long l = 0x5l
 
 You can create booleans using the `true` or `false` keyword.
 
-```java
+```marcel
 bool b = true
 ```
 
@@ -150,7 +150,7 @@ bool b = true
 
 Create arrays with the square brackets
 
-```java
+```marcel
 int[] ints = [1, 2, 3, 4]
 ```
 
@@ -160,7 +160,7 @@ Note that you can also use this syntax to [create collections](../types.md#colle
 
 Square brackets can also be used to define maps
 
-````python
+````marcel
 Map map = [1.3: "1", 1.4: "2", "myStringKey": "myStringValue", myLitteralKey: myRefValue, (myRefKey): myRefValue]
 ````
 
@@ -171,7 +171,7 @@ a variable as a key, put it between parenthesis, like it is done for `(myRefKey)
 
 You can create int (and soon long) ranges
 
-```java
+```marcel
 0..10 // 0 (inclusive) to 10 (inclusive)
 0<..10 // 0 (exclusive) to 10 (inclusive)
 0..<10 // 0 (inclusive) to 10 (exclusive)
@@ -180,7 +180,7 @@ You can create int (and soon long) ranges
 
 Ranges also work in reverse order
 
-```kotlin
+```marcel
 10..0 // 10 (inclusive) to 0 (inclusive)
 10>..0 // 10 (exclusive) to 0 (inclusive)
 10..>0 // 10 (inclusive) to 0 (exclusive)
@@ -189,7 +189,7 @@ Ranges also work in reverse order
 
 Ranges work with all kinds of int/long expressions
 
-```java
+```marcel
 int start = computeStart()
 int end = computeEnd()
 

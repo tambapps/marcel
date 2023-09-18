@@ -5,7 +5,7 @@ Marcel's imports are very similar to Java's.
 ### Class import
 Such imports are like Java's
 
-```java
+```marcel
 import java.text.SimpleDateFormat
 ```
 
@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat
 But Marcel adds the capability to import a class `as` a given name. All references to the given name will be replaced by the
 actual class imported when compiling
 
-```java
+```marcel
 import java.text.SimpleDateFormat as SDF
 
 SDF sdf = someSdf()
@@ -21,13 +21,13 @@ SDF sdf = someSdf()
 
 ### Wildcard imports
 Again, just like Java
-```java
+```marcel
 import java.text.*
 ```
 
 ### Static imports
 Yup, like in Java
-```java
+```marcel
 import static org.junit.jupiter.api.Assertions.assertEquals
 ```
 

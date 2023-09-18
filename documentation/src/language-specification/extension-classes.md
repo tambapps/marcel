@@ -3,7 +3,7 @@
 Extension classes allows you to add methods to an existing class.
 
 ## How to declare
-```kotlin
+```marcel
 // MyExtension.mcl
 extension class MyExtension for Integer {
   fun Integer next() {
@@ -18,7 +18,7 @@ In such classes you can reference, you can only reference public properties/meth
 to explicitly specify `this` when you do so.
 E.g.
 
-```kotlin
+```marcel
 // MyExtension.mcl
 extension class MyExtension for Integer {
   fun float nextToFloat() {
@@ -31,7 +31,7 @@ extension class MyExtension for Integer {
 Import your extension class with the `extension` keyword.
 
 
-```java
+```marcel
 // another file
 import extension MyExtension
 

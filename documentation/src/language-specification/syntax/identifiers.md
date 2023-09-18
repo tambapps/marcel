@@ -12,7 +12,7 @@ An identifier must follows all the below rules
 To reference a class, you need tp add the `.class` suffix, like in Java.
 But note that you can only reference simple name of classes, this means that you need to import it first.
 
-```java
+```marcel
 import java.util.concurrent.Callable
 println(Callable.class)
 

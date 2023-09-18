@@ -2,7 +2,7 @@
 
 Left shift operator allows to add elements to collections
 
-```kotlin
+```marcel
 list<int> a = [1, 2, 3]
 
 a << 2

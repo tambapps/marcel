@@ -9,7 +9,7 @@ You can also define functions in your scripts.
 
 To declare a local variable in a script, simply declare it as you would in a function's body.
 
-```java
+```marcel
 int a = 2
 int b
 ```
@@ -18,7 +18,7 @@ int b
 In scripts, you can use variables that are declared automatically if they don't
 exist yet.
 
-```java
+```marcel
 a = 2
 println(a)
 ```
@@ -26,7 +26,7 @@ In the above script, we didn't declare the variable `a`. If we were in a regular
 it would declare the variable.
 
 Such variables are declared automatically when they are first assigned. This is why the below script wouldn't compile
-```java
+```marcel
 println(a) // referencing a variable a, but we didn't assign it before => semantic error
 a = 2
 ```
@@ -34,7 +34,7 @@ a = 2
 The type of the variable is determined by the value provided
 to assign it. To explicitly specify its type, you can use the `as` keyword like in the below example
 
-```kotlin
+```marcel
 a = 2 as Integer // declaring a global variable Integer a
 println(a)
 ```
@@ -50,7 +50,7 @@ in the first assignment.
 Global variables are variables that are stored in the script's `Binding`. The means you could also
 retrieve them/set them using methods like `Script.getVariable(name)`/`Script.setVariable(name, value)`
 
-```java
+```marcel
 a = 1
 
 doSomething(a)
@@ -66,7 +66,7 @@ considered as a local variable.
 
 E.g.
 
-```kotlin
+```marcel
 internal int myField1 = 2
 protected myfield2
 ```
