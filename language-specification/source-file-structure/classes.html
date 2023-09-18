@@ -144,19 +144,19 @@
                     <main>
                         <h1 id="classes"><a class="header" href="#classes">Classes</a></h1>
 <p>You can define classes using the <code>class</code> keyword</p>
-<pre><code class="language-kotlin">class Foo {
+<pre><code class="language-marcel">class Foo {
 
 }
 </code></pre>
 <h2 id="extendingimplementing-classesinterfaces"><a class="header" href="#extendingimplementing-classesinterfaces">Extending/Implementing classes/interfaces</a></h2>
 <p>The syntax is like Java's</p>
-<pre><code class="language-java">class Foo extends Object implements List&lt;Integer&gt; {
+<pre><code class="language-marcel">class Foo extends Object implements List&lt;Integer&gt; {
 
 }
 </code></pre>
 <h2 id="class-visibility"><a class="header" href="#class-visibility">Class visibility</a></h2>
 <p>You can specify your class's <a href="./visibility.html">visibility</a> before the <code>class</code> keyword</p>
-<pre><code class="language-kotlin">public class Foo {
+<pre><code class="language-marcel">public class Foo {
 
 }
 </code></pre>
@@ -164,7 +164,7 @@
 <p>See the <a href="./functions.html">functions section</a> to see how to define functions</p>
 <h2 id="class-fields"><a class="header" href="#class-fields">Class fields</a></h2>
 <p>You can define class fields like you would in Java</p>
-<pre><code class="language-java">class Foo {
+<pre><code class="language-marcel">class Foo {
   private int a;
   double b = 3
   Object c;
@@ -172,7 +172,7 @@
 </code></pre>
 <h2 id="constructors"><a class="header" href="#constructors">Constructors</a></h2>
 <p>You can use the keyword <code>constructor</code> to define constructors. The definition is similar to a function</p>
-<pre><code class="language-kotlin">class Foo {
+<pre><code class="language-marcel">class Foo {
   int bar
   String zoo
   
@@ -184,7 +184,7 @@
 </code></pre>
 <p>Constructors where you just want to assign values to your fields are common use-cases. Marcel has a syntax
 allowing you to write such constructors with a less verbose code.</p>
-<pre><code class="language-kotlin">class Foo {
+<pre><code class="language-marcel">class Foo {
   int bar
   String zoo
   
@@ -195,7 +195,7 @@ allowing you to write such constructors with a less verbose code.</p>
 of your class will be the field assignments (after the super() call of course).</p>
 <h3 id="calling-constructors"><a class="header" href="#calling-constructors">Calling constructors</a></h3>
 <p>You can call specific <code>super</code> and <code>this</code> constructors.</p>
-<pre><code class="language-java">class A {
+<pre><code class="language-marcel">class A {
   int foo
   constructor(this.foo)
 }

@@ -145,7 +145,7 @@
                         <h1 id="if-expression"><a class="header" href="#if-expression">If expression</a></h1>
 <p>If statements are similar as Java's, but you can provide any expression in them. If the provided expression is not a boolean,
 the <a href="marcel-truth.html">Marcel truth</a> will decide if your expression is <code>true</code> or not.</p>
-<pre><code class="language-kotlin">if (a == 1) {
+<pre><code class="language-marcel">if (a == 1) {
   println(&quot;a is 1&quot;)
 } else if (a == 2) {
   println(&quot;a is 2&quot;)
@@ -155,12 +155,12 @@ the <a href="marcel-truth.html">Marcel truth</a> will decide if your expression 
 </code></pre>
 <h2 id="if-variable-declaration"><a class="header" href="#if-variable-declaration">if variable declaration</a></h2>
 <p>The <a href="marcel-truth.html">marcel truth</a> allows you to declare variable in an <code>if</code> condition, and execute the code block if the variable is truthy</p>
-<pre><code class="language-kotlin">if (Something result = fetchSomething()) {
+<pre><code class="language-marcel">if (Something result = fetchSomething()) {
   println(&quot;Fetched $result&quot;)
 }
 </code></pre>
 <p>You can also unbox Optional values such as in the below example</p>
-<pre><code class="language-kotlin">// assuming getOptionalInteger() returns an Optional
+<pre><code class="language-marcel">// assuming getOptionalInteger() returns an Optional
 if (Integer result = getOptional()) {
   println(result)
 }

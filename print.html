@@ -199,7 +199,7 @@ PATH=&quot;$PATH:$MARCEL_HOME/bin&quot;
 <div style="break-before: page; page-break-before: always;"></div><h1 id="hello-world"><a class="header" href="#hello-world">Hello World</a></h1>
 <p>Let's dive in some code now. Marcel can be used as a scripting language, so you don't need to declare a <code>main()</code> function
 if you just want to run some code.</p>
-<pre><code class="language-kotlin">// HelloWorld.mcl
+<pre><code class="language-marcel">// HelloWorld.mcl
 println(&quot;Hello World!&quot;)
 </code></pre>
 <p>That's it! One line is all it takes to write the famous Hello World program.</p>
@@ -213,7 +213,7 @@ println(&quot;Hello World!&quot;)
 <div style="break-before: page; page-break-before: always;"></div><h1 id="comments"><a class="header" href="#comments">Comments</a></h1>
 <p>You can comment your code in Marcel the same way you would in Java.</p>
 <p>Define comments like you would in Java. <code>// ...</code> for a single line comment, and <code>/* ... */</code> for a multi-line comment</p>
-<pre><code class="language-kotlin">// this function does stuff
+<pre><code class="language-marcel">// this function does stuff
 doStuff()
 
 /* this function
@@ -249,6 +249,7 @@ doOtherStuff()
 <li>else</li>
 <li>null</li>
 <li>break</li>
+<li>continue</li>
 <li>def</li>
 <li>class</li>
 <li>extension</li>
@@ -267,6 +268,11 @@ doOtherStuff()
 <li>instanceof</li>
 <li>throw</li>
 <li>throws</li>
+<li>constructor</li>
+<li>public</li>
+<li>protected</li>
+<li>internal</li>
+<li>private</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="identifiers"><a class="header" href="#identifiers">Identifiers</a></h1>
 <p>An identifier is a name that you can use to define a class, field, a function or variable.</p>
@@ -278,7 +284,7 @@ doOtherStuff()
 <h2 id="class-identifiers"><a class="header" href="#class-identifiers">Class identifiers</a></h2>
 <p>To reference a class, you need tp add the <code>.class</code> suffix, like in Java.
 But note that you can only reference simple name of classes, this means that you need to import it first.</p>
-<pre><code class="language-java">import java.util.concurrent.Callable
+<pre><code class="language-marcel">import java.util.concurrent.Callable
 println(Callable.class)
 
 println(Object.class)
@@ -287,21 +293,21 @@ println(Object.class)
 <p>There are different ways to create strings in Marcel</p>
 <h3 id="strings-1"><a class="header" href="#strings-1">Strings</a></h3>
 <p>You can use the single quote character (<code>'</code>) to create strings</p>
-<pre><code class="language-kotlin">'Hello world!'
+<pre><code class="language-marcel">'Hello world!'
 </code></pre>
 <h3 id="interpolated-strings"><a class="header" href="#interpolated-strings">Interpolated strings</a></h3>
 <p>You can use the double quote character (<code>&quot;</code>) to create strings resolving variables</p>
-<pre><code class="language-kotlin">&quot;$firstName $lastName is $age years old&quot;
+<pre><code class="language-marcel">&quot;$firstName $lastName is $age years old&quot;
 </code></pre>
 <p>If you need to access a property, use the brackets</p>
-<pre><code class="language-kotlin">&quot;${person.firstName} ${person.lastName} is ${person.age} years old&quot;
+<pre><code class="language-marcel">&quot;${person.firstName} ${person.lastName} is ${person.age} years old&quot;
 </code></pre>
 <h3 id="pattern-strings"><a class="header" href="#pattern-strings">Pattern strings</a></h3>
 <p>You can instantiate <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Patterns</a> using backslash strings. 
 These strings are reserved for pattern only.</p>
 <p>The backslash is <strong>not</strong> considered as an escape, except for the backlash character
 (which would be escaped as <code>\/</code>).</p>
-<pre><code class="language-javascript">/some \w+/
+<pre><code class="language-marcel">/some \w+/
 </code></pre>
 <p>Note that such strings <strong>doesn't</strong> resolve variables. If you want to construct a Pattern while resolving Strings, you could
 just call the <code>Pattern.compile(String)</code> method with an interpolated string.</p>
@@ -309,12 +315,12 @@ just call the <code>Pattern.compile(String)</code> method with an interpolated s
 It is good practise to end such regexes with a semi-colon (`;`) character, to make it clear to the compiler that what follows
 is not a regex flag (we'll talk about that just after) but a 'real' identifier.
 <p>E.g.</p>
-<pre><code class="language-javascript">Pattern pattern = /myPattern/; // without the semi-colon, Marcel would think that 'println' characters are regex flags
+<pre><code class="language-marcel">Pattern pattern = /myPattern/; // without the semi-colon, Marcel would think that 'println' characters are regex flags
 println(pattern)
 </code></pre>
 <h4 id="pattern-flags"><a class="header" href="#pattern-flags">Pattern flags</a></h4>
 <p>You can also specify flags by adding a suffix at the end of your regex String.</p>
-<pre><code class="language-javascript">Pattern pattern = /myPattern/iu; // you can specify many flags at once
+<pre><code class="language-marcel">Pattern pattern = /myPattern/iu; // you can specify many flags at once
 println(pattern)
 </code></pre>
 <p>Here is the list of flags (you can see the doc of each flag in the <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#UNIX_LINES">Javadoc of the Pattern's class</a>).</p>
@@ -333,7 +339,7 @@ println(pattern)
 <h3 id="character"><a class="header" href="#character">Character</a></h3>
 <p>Use the backtick (<code>`</code>) to create primitive characters.
 Only one character must be specified between the two backticks</p>
-<pre><code class="language-java">char c = `A`
+<pre><code class="language-marcel">char c = `A`
 </code></pre>
 <h3 id="escaped-characters"><a class="header" href="#escaped-characters">Escaped characters</a></h3>
 <p>Use backslash to escape 'special' characters within strings/characters. Here is the list of escaped characters</p>
@@ -350,7 +356,7 @@ Only one character must be specified between the two backticks</p>
 </div>
 <h2 id="literal-numbers"><a class="header" href="#literal-numbers">Literal Numbers</a></h2>
 <p>Marcel supports almost all Java primitives. The number primitive literals are the same as in Java</p>
-<pre><code class="language-java">// primitive types
+<pre><code class="language-marcel">// primitive types
 byte  b = 1
 short s = 2
 int   i = 3
@@ -360,44 +366,44 @@ double d = 6d
 </code></pre>
 <h3 id="binary-representation"><a class="header" href="#binary-representation">Binary representation</a></h3>
 <p>You can also create numbers using their binary representation with the <code>0b</code> prefix</p>
-<pre><code class="language-java">int i = 0b10
+<pre><code class="language-marcel">int i = 0b10
 long l = 0b11l
 </code></pre>
 <h3 id="hexadecimal-representation"><a class="header" href="#hexadecimal-representation">Hexadecimal representation</a></h3>
 <p>You can also create numbers using their hexadecimal representation with the <code>0x</code> prefix</p>
-<pre><code class="language-java">int i = 0x5
+<pre><code class="language-marcel">int i = 0x5
 long l = 0x5l
 </code></pre>
 <h2 id="literal-booleans"><a class="header" href="#literal-booleans">Literal Booleans</a></h2>
 <p>You can create booleans using the <code>true</code> or <code>false</code> keyword.</p>
-<pre><code class="language-java">bool b = true
+<pre><code class="language-marcel">bool b = true
 </code></pre>
 <h2 id="arrays"><a class="header" href="#arrays">Arrays</a></h2>
 <p>Create arrays with the square brackets</p>
-<pre><code class="language-java">int[] ints = [1, 2, 3, 4]
+<pre><code class="language-marcel">int[] ints = [1, 2, 3, 4]
 </code></pre>
 <p>Note that you can also use this syntax to <a href="language-specification/syntax/../types.html#collections-of-primitives">create collections</a>.</p>
 <h2 id="maps"><a class="header" href="#maps">Maps</a></h2>
 <p>Square brackets can also be used to define maps</p>
-<pre><code class="language-python">Map map = [1.3: &quot;1&quot;, 1.4: &quot;2&quot;, &quot;myStringKey&quot;: &quot;myStringValue&quot;, myLitteralKey: myRefValue, (myRefKey): myRefValue]
+<pre><code class="language-marcel">Map map = [1.3: &quot;1&quot;, 1.4: &quot;2&quot;, &quot;myStringKey&quot;: &quot;myStringValue&quot;, myLitteralKey: myRefValue, (myRefKey): myRefValue]
 </code></pre>
 <p>Note that <code>myLitteralKey</code> is actually a String key, it doesn't refers to a variable (like in Groovy). If you want to reference
 a variable as a key, put it between parenthesis, like it is done for <code>(myRefKey)</code>.</p>
 <h2 id="ranges"><a class="header" href="#ranges">Ranges</a></h2>
 <p>You can create int (and soon long) ranges</p>
-<pre><code class="language-java">0..10 // 0 (inclusive) to 10 (inclusive)
+<pre><code class="language-marcel">0..10 // 0 (inclusive) to 10 (inclusive)
 0&lt;..10 // 0 (exclusive) to 10 (inclusive)
 0..&lt;10 // 0 (inclusive) to 10 (exclusive)
 0&lt;..&lt;10 // 0 (exclusive) to 10 (exclusive)
 </code></pre>
 <p>Ranges also work in reverse order</p>
-<pre><code class="language-kotlin">10..0 // 10 (inclusive) to 0 (inclusive)
+<pre><code class="language-marcel">10..0 // 10 (inclusive) to 0 (inclusive)
 10&gt;..0 // 10 (exclusive) to 0 (inclusive)
 10..&gt;0 // 10 (inclusive) to 0 (exclusive)
 10&gt;..&gt;0 // 10 (exclusive) to 0 (exclusive)
 </code></pre>
 <p>Ranges work with all kinds of int/long expressions</p>
-<pre><code class="language-java">int start = computeStart()
+<pre><code class="language-marcel">int start = computeStart()
 int end = computeEnd()
 
 for (i in start..end) println(i)
@@ -405,14 +411,14 @@ for (i in start..end) println(i)
 <div style="break-before: page; page-break-before: always;"></div><h1 id="variables"><a class="header" href="#variables">Variables</a></h1>
 <h2 id="declare-variables"><a class="header" href="#declare-variables">Declare variables</a></h2>
 <p>Marcel variable declarations are the same as Java's</p>
-<pre><code class="language-java">int a = 2
+<pre><code class="language-marcel">int a = 2
 Object o = new Object()
 
 list&lt;int&gt; l = [1, 2] // collection of primivites
 </code></pre>
 <h3 id="multiple-declarations"><a class="header" href="#multiple-declarations">Multiple declarations</a></h3>
 <p>Marcel supports multiple assignments in one statement</p>
-<pre><code class="language-java">def (int a, String b, Object c) = [1, &quot;2&quot;, new Object()]
+<pre><code class="language-marcel">def (int a, String b, Object c) = [1, &quot;2&quot;, new Object()]
 
 def (int d, String e, Object f) = functionReturningAnArrayOrList()
 </code></pre>
@@ -421,17 +427,17 @@ def (int d, String e, Object f) = functionReturningAnArrayOrList()
 Sometimes you might want to ignore a specific item of a list,
 You can use the `_` identifier to let the compiler know that.
 <p>E.g.</p>
-<pre><code class="language-java">def (_, String world) = (&quot;hello world&quot; =~ /hello (world)/).groups()
+<pre><code class="language-marcel">def (_, String world) = (&quot;hello world&quot; =~ /hello (world)/).groups()
 </code></pre>
 <h2 id="variable-assignments"><a class="header" href="#variable-assignments">Variable assignments</a></h2>
 <p>Just use <code>=</code> to assign values to defined variables</p>
-<pre><code class="language-java">int a = 2
+<pre><code class="language-marcel">int a = 2
 
 a = 3
 </code></pre>
 <h3 id="automatic-casting"><a class="header" href="#automatic-casting">Automatic casting</a></h3>
 <p>Variable assignments are automatically casted when needed.</p>
-<pre><code class="language-java">Optional o = Optional.of(123)
+<pre><code class="language-marcel">Optional o = Optional.of(123)
 Integer myInteger = o.get() // returns Object cast into an Integer 
 int myInt = o.get() // returns Object cast into an Integer then into an int
 </code></pre>
@@ -457,7 +463,7 @@ related Object class (e.g. store an int into an Integer). The elements will be s
 <p>Iterating over such collections will only use primitives, no (un)boxing will be done.</p>
 <p>Let's learn by example</p>
 <h2 id="lists"><a class="header" href="#lists">Lists</a></h2>
-<pre><code class="language-java">list&lt;int&gt; list = [1, 2, 3, 4]
+<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
 
 println(list[1])
 
@@ -476,7 +482,7 @@ literal array will be converted into a IntArrayList (a int list that store eleme
 </ul>
 <h2 id="sets"><a class="header" href="#sets">Sets</a></h2>
 <p>You can do the same with sets</p>
-<pre><code class="language-java">set&lt;int&gt; mySet = [1, 2, 3, 3] // will actually contain just 1, 2 and 3
+<pre><code class="language-marcel">set&lt;int&gt; mySet = [1, 2, 3, 3] // will actually contain just 1, 2 and 3
 </code></pre>
 <p>Here is the list of all set of primitives supported</p>
 <ul>
@@ -514,7 +520,7 @@ it's a conscious choice made to get rid of some complexity while developing the 
 <div style="break-before: page; page-break-before: always;"></div><h1 id="if-expression"><a class="header" href="#if-expression">If expression</a></h1>
 <p>If statements are similar as Java's, but you can provide any expression in them. If the provided expression is not a boolean,
 the <a href="language-specification/control-flows/marcel-truth.html">Marcel truth</a> will decide if your expression is <code>true</code> or not.</p>
-<pre><code class="language-kotlin">if (a == 1) {
+<pre><code class="language-marcel">if (a == 1) {
   println(&quot;a is 1&quot;)
 } else if (a == 2) {
   println(&quot;a is 2&quot;)
@@ -524,12 +530,12 @@ the <a href="language-specification/control-flows/marcel-truth.html">Marcel trut
 </code></pre>
 <h2 id="if-variable-declaration"><a class="header" href="#if-variable-declaration">if variable declaration</a></h2>
 <p>The <a href="language-specification/control-flows/marcel-truth.html">marcel truth</a> allows you to declare variable in an <code>if</code> condition, and execute the code block if the variable is truthy</p>
-<pre><code class="language-kotlin">if (Something result = fetchSomething()) {
+<pre><code class="language-marcel">if (Something result = fetchSomething()) {
   println(&quot;Fetched $result&quot;)
 }
 </code></pre>
 <p>You can also unbox Optional values such as in the below example</p>
-<pre><code class="language-kotlin">// assuming getOptionalInteger() returns an Optional
+<pre><code class="language-marcel">// assuming getOptionalInteger() returns an Optional
 if (Integer result = getOptional()) {
   println(result)
 }
@@ -538,19 +544,19 @@ if (Integer result = getOptional()) {
 <p>There are different ways to iterate over elements</p>
 <h4 id="for-i"><a class="header" href="#for-i">For i</a></h4>
 <p>The Java for i is compatible with Marcel</p>
-<pre><code class="language-java">for (int i = 0; i &lt; 10; i++) {
+<pre><code class="language-marcel">for (int i = 0; i &lt; 10; i++) {
   println(i)
 }
 </code></pre>
 <h4 id="for-in"><a class="header" href="#for-in">For in</a></h4>
 <p>The <code>in</code> keyword allows to iterate over values in an array, any objects implementing Iterable (including all Collections) or Iterator.</p>
-<pre><code class="language-java">int[] ints = getInts()
+<pre><code class="language-marcel">int[] ints = getInts()
 for (int i in ints) {
   println(i)
 }
 </code></pre>
 <p>Marcel also have a Ranges, allowing you to iterate with the below syntax</p>
-<pre><code class="language-kotlin">// inclusive range
+<pre><code class="language-marcel">// inclusive range
 for (int i in 0..9) {
   println(i)
 }
@@ -639,7 +645,7 @@ the corresponding statement will be executed.</p>
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="trycatchfinally"><a class="header" href="#trycatchfinally">Try/Catch/Finally</a></h1>
 <p>Exception handling is very similar as Java's.</p>
-<pre><code class="language-java">try {
+<pre><code class="language-marcel">try {
   Object a = null
   println(a.hashCode())
   println(&quot;Successfully tried&quot;)
@@ -655,7 +661,7 @@ Finally
 </code></pre>
 <h2 id="try-with-resources"><a class="header" href="#try-with-resources">Try with resources</a></h2>
 <p>Try with resources is like in Java. You can declare Variables as resources and they will be properly closed automatically by the compiler.</p>
-<pre><code class="language-java">try (BufferedReader reader = new BufferedReader(new FileReader(&quot;/Users/nfonkoua/workspace/marcel/Test.marcel&quot;))) {
+<pre><code class="language-marcel">try (BufferedReader reader = new BufferedReader(new FileReader(&quot;/Users/nfonkoua/workspace/marcel/Test.marcel&quot;))) {
   println(reader.readLine())
 } catch (IOException e) {
   e.printStackTrace()
@@ -665,7 +671,7 @@ Finally
 <h2 id="package"><a class="header" href="#package">Package</a></h2>
 <p>A Marcel source file can have a package. It is optional but if it is specified, it must be the first instruction in the file
 (excluding comments)</p>
-<pre><code class="language-java">package my.package
+<pre><code class="language-marcel">package my.package
 </code></pre>
 <h2 id="imports"><a class="header" href="#imports">Imports</a></h2>
 <p>Then, some <a href="language-specification/source-file-structure/./imports.html">imports</a> can follow. You can consult the default imported class/package <a href="language-specification/source-file-structure/./imports.html#default-imports">here</a></p>
@@ -679,21 +685,21 @@ Finally
 <p>Marcel's imports are very similar to Java's.</p>
 <h3 id="class-import"><a class="header" href="#class-import">Class import</a></h3>
 <p>Such imports are like Java's</p>
-<pre><code class="language-java">import java.text.SimpleDateFormat
+<pre><code class="language-marcel">import java.text.SimpleDateFormat
 </code></pre>
 <p>But Marcel adds the capability to import a class <code>as</code> a given name. All references to the given name will be replaced by the
 actual class imported when compiling</p>
-<pre><code class="language-java">import java.text.SimpleDateFormat as SDF
+<pre><code class="language-marcel">import java.text.SimpleDateFormat as SDF
 
 SDF sdf = someSdf()
 </code></pre>
 <h3 id="wildcard-imports"><a class="header" href="#wildcard-imports">Wildcard imports</a></h3>
 <p>Again, just like Java</p>
-<pre><code class="language-java">import java.text.*
+<pre><code class="language-marcel">import java.text.*
 </code></pre>
 <h3 id="static-imports"><a class="header" href="#static-imports">Static imports</a></h3>
 <p>Yup, like in Java</p>
-<pre><code class="language-java">import static org.junit.jupiter.api.Assertions.assertEquals
+<pre><code class="language-marcel">import static org.junit.jupiter.api.Assertions.assertEquals
 </code></pre>
 <h3 id="default-imports"><a class="header" href="#default-imports">Default imports</a></h3>
 <p>Marcel import by default all the following packages</p>
@@ -739,20 +745,20 @@ protected fun void foo() {
 </ol>
 <h2 id="function-visibility"><a class="header" href="#function-visibility">Function Visibility</a></h2>
 <p>You can specify your function's <a href="language-specification/source-file-structure/./visibility.html">visibility</a> before the <code>fun</code> keyword</p>
-<pre><code class="language-kotlin">private fun foo() {
+<pre><code class="language-marcel">private fun foo() {
 }
 </code></pre>
 <h2 id="function-calls"><a class="header" href="#function-calls">Function Calls</a></h2>
 <p>Function calls are no different than  in any other language</p>
-<pre><code class="language-java">int result = sum(1, 2)
+<pre><code class="language-marcel">int result = sum(1, 2)
 </code></pre>
 <h2 id="cast-results"><a class="header" href="#cast-results">Cast Results</a></h2>
 <p>Marcel has a diamond operator for function calls which is different from Java's. It casts the 
 result of the function to the specified type.</p>
-<pre><code class="language-java">Foo otherResult = compute&lt;Foo&gt;()
+<pre><code class="language-marcel">Foo otherResult = compute&lt;Foo&gt;()
 </code></pre>
 <p>This above example isn't really useful as Marcel <a href="language-specification/source-file-structure/../variables.html#automatic-casting">automatically cast variable assignments when needed</a> but this feature can be useful when chaining function calls</p>
-<pre><code class="language-java">Optional opt = Optional.of(new Foo())
+<pre><code class="language-marcel">Optional opt = Optional.of(new Foo())
 // assuming computeObject() and result return Object in their declaration
 Bar result = opt.get&lt;Foo&gt;().computeObject&lt;Bar&gt;()
 </code></pre>
@@ -763,7 +769,7 @@ you specify them doesn't matter.</p>
 <p>When you don't specify a parameter, it will default to the type's default value
 (0 for primitive types and <code>null</code> for Objects).</p>
 <p>Following on our <code>sum()</code> example:</p>
-<pre><code class="language-java">int result = sum(b: 2, a: 1) // equivalent to sum(1, 2)
+<pre><code class="language-marcel">int result = sum(b: 2, a: 1) // equivalent to sum(1, 2)
 int otherResult = sum(a: 1) // equivalent to sum(1, 0)
 </code></pre>
 <p>named parameters calls can also start (and only start) with positional arguments.</p>
@@ -772,7 +778,7 @@ int otherResult = sum(a: 1) // equivalent to sum(1, 0)
 and your class has a no args constructor (note that there's always one by default if you don't explicitly define one), it will use it
 and then initialize the fields having the provided names with their associated argument value.</p>
 <p>Here are some examples below.</p>
-<pre><code class="language-java">class B {
+<pre><code class="language-marcel">class B {
   int i
   int j
   
@@ -788,7 +794,7 @@ B b = new B(i: 1, j: 2) // will call new B(i, j) and the fields will be initiali
 C c = new C(a: 1, b: 2) // will call new C() and then the fields will be initialized outside the constructor
 
 </code></pre>
-<pre><code class="language-java">int result = sum(2, b: 1) // equivalent to sum(2, 1)
+<pre><code class="language-marcel">int result = sum(2, b: 1) // equivalent to sum(2, 1)
 
 
 int otherResult = sum(a: 2, 1) // ERROR, positional argument is not at the start 
@@ -797,7 +803,7 @@ int otherResult = sum(a: 2, 1) // ERROR, positional argument is not at the start
 <h2 id="parameter-default-value"><a class="header" href="#parameter-default-value">Parameter default value</a></h2>
 <p>Function parameters can have default values, which are used when you skip the corresponding argument. These can be useful especially
 with named parameters function calls. </p>
-<pre><code class="language-kotlin">fun int sum(int a = 0, int b = 8) {
+<pre><code class="language-marcel">fun int sum(int a = 0, int b = 8) {
 return a + b
 }
 
@@ -810,7 +816,7 @@ sum(a: 2, b: 5) // 2 + 5
 <h3 id="fields-constructor-call"><a class="header" href="#fields-constructor-call">Fields Constructor Call</a></h3>
 <p>Similar calls also work with constructors. You can specify class's field names with their values to set.
 Note that it will only work if your class has a no-arg constructor and that the fields referenced are <code>public</code> and <strong>not</strong> <code>final</code>.</p>
-<pre><code class="language-java">
+<pre><code class="language-marcel">
 Foo foo = new Foo(bar: 1, baz: &quot;baz&quot;)
 
 class Foo {
@@ -820,19 +826,19 @@ class Foo {
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="classes-1"><a class="header" href="#classes-1">Classes</a></h1>
 <p>You can define classes using the <code>class</code> keyword</p>
-<pre><code class="language-kotlin">class Foo {
+<pre><code class="language-marcel">class Foo {
 
 }
 </code></pre>
 <h2 id="extendingimplementing-classesinterfaces"><a class="header" href="#extendingimplementing-classesinterfaces">Extending/Implementing classes/interfaces</a></h2>
 <p>The syntax is like Java's</p>
-<pre><code class="language-java">class Foo extends Object implements List&lt;Integer&gt; {
+<pre><code class="language-marcel">class Foo extends Object implements List&lt;Integer&gt; {
 
 }
 </code></pre>
 <h2 id="class-visibility"><a class="header" href="#class-visibility">Class visibility</a></h2>
 <p>You can specify your class's <a href="language-specification/source-file-structure/./visibility.html">visibility</a> before the <code>class</code> keyword</p>
-<pre><code class="language-kotlin">public class Foo {
+<pre><code class="language-marcel">public class Foo {
 
 }
 </code></pre>
@@ -840,7 +846,7 @@ class Foo {
 <p>See the <a href="language-specification/source-file-structure/./functions.html">functions section</a> to see how to define functions</p>
 <h2 id="class-fields"><a class="header" href="#class-fields">Class fields</a></h2>
 <p>You can define class fields like you would in Java</p>
-<pre><code class="language-java">class Foo {
+<pre><code class="language-marcel">class Foo {
   private int a;
   double b = 3
   Object c;
@@ -848,7 +854,7 @@ class Foo {
 </code></pre>
 <h2 id="constructors"><a class="header" href="#constructors">Constructors</a></h2>
 <p>You can use the keyword <code>constructor</code> to define constructors. The definition is similar to a function</p>
-<pre><code class="language-kotlin">class Foo {
+<pre><code class="language-marcel">class Foo {
   int bar
   String zoo
   
@@ -860,7 +866,7 @@ class Foo {
 </code></pre>
 <p>Constructors where you just want to assign values to your fields are common use-cases. Marcel has a syntax
 allowing you to write such constructors with a less verbose code.</p>
-<pre><code class="language-kotlin">class Foo {
+<pre><code class="language-marcel">class Foo {
   int bar
   String zoo
   
@@ -871,7 +877,7 @@ allowing you to write such constructors with a less verbose code.</p>
 of your class will be the field assignments (after the super() call of course).</p>
 <h3 id="calling-constructors"><a class="header" href="#calling-constructors">Calling constructors</a></h3>
 <p>You can call specific <code>super</code> and <code>this</code> constructors.</p>
-<pre><code class="language-java">class A {
+<pre><code class="language-marcel">class A {
   int foo
   constructor(this.foo)
 }
@@ -892,24 +898,24 @@ class B extends A {
 You can also define functions in your scripts.
 <h2 id="local-variables"><a class="header" href="#local-variables">Local Variables</a></h2>
 <p>To declare a local variable in a script, simply declare it as you would in a function's body.</p>
-<pre><code class="language-java">int a = 2
+<pre><code class="language-marcel">int a = 2
 int b
 </code></pre>
 <h2 id="dynamic-variables"><a class="header" href="#dynamic-variables">Dynamic variables</a></h2>
 <p>In scripts, you can use variables that are declared automatically if they don't
 exist yet.</p>
-<pre><code class="language-java">a = 2
+<pre><code class="language-marcel">a = 2
 println(a)
 </code></pre>
 <p>In the above script, we didn't declare the variable <code>a</code>. If we were in a regular class this wouldn't compile, but in scripts
 it would declare the variable.</p>
 <p>Such variables are declared automatically when they are first assigned. This is why the below script wouldn't compile</p>
-<pre><code class="language-java">println(a) // referencing a variable a, but we didn't assign it before =&gt; semantic error
+<pre><code class="language-marcel">println(a) // referencing a variable a, but we didn't assign it before =&gt; semantic error
 a = 2
 </code></pre>
 <p>The type of the variable is determined by the value provided
 to assign it. To explicitly specify its type, you can use the <code>as</code> keyword like in the below example</p>
-<pre><code class="language-kotlin">a = 2 as Integer // declaring a global variable Integer a
+<pre><code class="language-marcel">a = 2 as Integer // declaring a global variable Integer a
 println(a)
 </code></pre>
 <p>Global variables are accessible from anywhere in the script context, as long as it is not static.</p>
@@ -920,7 +926,7 @@ in the first assignment.</p>
 <h3 id="how-global-variables-works"><a class="header" href="#how-global-variables-works">How global variables works</a></h3>
 <p>Global variables are variables that are stored in the script's <code>Binding</code>. The means you could also
 retrieve them/set them using methods like <code>Script.getVariable(name)</code>/<code>Script.setVariable(name, value)</code></p>
-<pre><code class="language-java">a = 1
+<pre><code class="language-marcel">a = 1
 
 doSomething(a)
 
@@ -930,7 +936,7 @@ a = &quot;2&quot; // Semantic Error: Expected expression of type int but gave St
 <p>To declare a class field for your script, you must explicitly provide its visibility, otherwise it will be 
 considered as a local variable.</p>
 <p>E.g.</p>
-<pre><code class="language-kotlin">internal int myField1 = 2
+<pre><code class="language-marcel">internal int myField1 = 2
 protected myfield2
 </code></pre>
 <p>Note that global variables are a lot like field variables so you don't need to use both. Just use global variables or field variables
@@ -947,7 +953,7 @@ but there are also operators that can be used on specific types.</p>
 <p>You can use <code>+</code> to add Collections. The two operand will not be modified. A new collection will be created with both operand
 added to it.</p>
 <p>It works well with lists</p>
-<pre><code class="language-java">
+<pre><code class="language-marcel">
 list&lt;int&gt; myList1 = [1, 2, 3]
 list&lt;int&gt; myList2 = [4, 5, 6]
 
@@ -955,7 +961,7 @@ list&lt;int&gt; myList3 = mySet1 + mySet2
 println(myList3) // [1, 2, 3, 4, 5, 6]
 </code></pre>
 <p>and sets</p>
-<pre><code class="language-java">
+<pre><code class="language-marcel">
 set&lt;int&gt; mySet1 = [1, 2, 3]
 set&lt;int&gt; mySet2 = [3, 4, 5]
 
@@ -964,7 +970,7 @@ mySetUnion(myList3) // [1, 2, 3, 4, 5]
 </code></pre>
 <br/>
 <p>You can also add different kind of collections. The type of the returned collection will be the same as the first operand</p>
-<pre><code class="language-java">set&lt;int&gt; newSet = mySet1 + myList1
+<pre><code class="language-marcel">set&lt;int&gt; newSet = mySet1 + myList1
 list&lt;int&gt; newList = myList1 + mySet1
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="minus-operator--"><a class="header" href="#minus-operator--">Minus operator (-)</a></h1>
@@ -973,7 +979,7 @@ list&lt;int&gt; newList = myList1 + mySet1
 <p>You can use <code>-</code> to add Collections. The two operand will not be modified. A new collection will be created with the elements 
 of the first operand having removed all elements from the second operand if any.</p>
 <p>It works well with lists</p>
-<pre><code class="language-java">
+<pre><code class="language-marcel">
 list&lt;int&gt; myList1 = [1, 2, 3]
 list&lt;int&gt; myList2 = [3, 4, 5]
 
@@ -981,7 +987,7 @@ list&lt;int&gt; myList3 = mySet1 - mySet2
 println(myList3) // [1, 2]
 </code></pre>
 <p>and sets</p>
-<pre><code class="language-java">
+<pre><code class="language-marcel">
 set&lt;int&gt; mySet1 = [1, 2, 3]
 set&lt;int&gt; mySet2 = [3, 4, 5]
 
@@ -990,12 +996,12 @@ println(mySetUnion) // [1, 2]
 </code></pre>
 <br/>
 <p>You can also add different kind of collections. The type of the returned collection will be the same as the first operand</p>
-<pre><code class="language-java">set&lt;int&gt; newSet = mySet1 - myList1
+<pre><code class="language-marcel">set&lt;int&gt; newSet = mySet1 - myList1
 list&lt;int&gt; newList = myList1 - mySet1
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="left-shift-operator-"><a class="header" href="#left-shift-operator-">Left Shift operator (&lt;&lt;)</a></h1>
 <p>Left shift operator allows to add elements to collections</p>
-<pre><code class="language-kotlin">list&lt;int&gt; a = [1, 2, 3]
+<pre><code class="language-marcel">list&lt;int&gt; a = [1, 2, 3]
 
 a &lt;&lt; 2
 </code></pre>
@@ -1029,7 +1035,7 @@ has a <code>compareTo()</code> method and apply it on the second operand. The re
 <p>This operator is usually (or at least in Java) reserved for arrays, 
 but in Marcel you can also use it to access lists. You can get/set 
 items of your list using the same syntax as for an array</p>
-<pre><code class="language-java">
+<pre><code class="language-marcel">
 list&lt;int&gt; list = [1, 2, 3]
 
 println(list[0])
@@ -1040,17 +1046,17 @@ list[1] = 4
 <p>You can also <a href="language-specification/operators/./operator-overloading.html">define your own accesses for custom types</a></p>
 <h2 id="safe-indexed-access"><a class="header" href="#safe-indexed-access">Safe indexed access</a></h2>
 <p>Similarly to <a href="language-specification/operators/./safe-navigation.html">safe navigation</a>, you can access elements of list/arrays</p>
-<pre><code class="language-javascript">println(list?[5]) // will print null
+<pre><code class="language-marcel">println(list?[5]) // will print null
 </code></pre>
 <p>This operator checks that the index provided is within range (<code>0 &lt;= index &lt; length</code>)</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="safe-navigation-operator-"><a class="header" href="#safe-navigation-operator-">Safe Navigation Operator (?.)</a></h1>
 <p>The safe navigation operator is used to access a property of an object that might be null, without getting a <code>NullPointerException</code>.</p>
 <p>It is a simple syntax allowing you to simple code. In Java, you could code</p>
-<pre><code class="language-java">Foo foo = getFoo()
+<pre><code class="language-marcel">Foo foo = getFoo()
 Bar bar = foo != null ? foo.getBar() : null
 </code></pre>
 <p>In Marcel, you would code</p>
-<pre><code class="language-java">Foo foo = getFoo()
+<pre><code class="language-marcel">Foo foo = getFoo()
 Bar bar = foo?.bar // Marcel recognizes getters and translates '.bar' into '.getBar()' at compilation
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="define-custom-operators"><a class="header" href="#define-custom-operators">Define custom operators</a></h1>
@@ -1077,31 +1083,31 @@ to Java 8 lambdas, they are compiled to anonymous classes instead. This is to gu
 Android supports, as some Android device doesn't support full Java 8+ features.</p>
 <p>Lambda are declared like Kotlin's, and Groovy closures. They can be used for any functional interfaces, such as Runnable, Supplier...</p>
 <h2 id="lambdas-with-no-parameters"><a class="header" href="#lambdas-with-no-parameters">Lambdas with no parameters</a></h2>
-<pre><code class="language-kotlin">Lambda0 l0 = {
+<pre><code class="language-marcel">Lambda0 l0 = {
   
 }
 </code></pre>
 <h2 id="lambdas-with-1-parameter"><a class="header" href="#lambdas-with-1-parameter">Lambdas with 1 parameter</a></h2>
 <p>If you don't specify any parameter, an implicit <code>Object it</code> parameter will be declared.</p>
-<pre><code class="language-kotlin">Lambda0 l1 = {
+<pre><code class="language-marcel">Lambda0 l1 = {
   println(it)
 }
 </code></pre>
 <p>Or you can explicitly declare it yourself, specifying the type</p>
-<pre><code class="language-kotlin">Lambda1 l1 = { Integer p0 -&gt;
+<pre><code class="language-marcel">Lambda1 l1 = { Integer p0 -&gt;
   println(p0)
 }
 </code></pre>
 <h2 id="lambdas-with-2-parameter"><a class="header" href="#lambdas-with-2-parameter">Lambdas with 2+ parameter</a></h2>
 <p>You have to declare explicitly all parameters, separated by a comma</p>
-<pre><code class="language-kotlin">Lambda3 l3 = { Integer foo, Long bar, String zoo -&gt;
+<pre><code class="language-marcel">Lambda3 l3 = { Integer foo, Long bar, String zoo -&gt;
   // do something
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="extension-classes"><a class="header" href="#extension-classes">Extension classes</a></h1>
 <p>Extension classes allows you to add methods to an existing class.</p>
 <h2 id="how-to-declare"><a class="header" href="#how-to-declare">How to declare</a></h2>
-<pre><code class="language-kotlin">// MyExtension.mcl
+<pre><code class="language-marcel">// MyExtension.mcl
 extension class MyExtension for Integer {
   fun Integer next() {
     return this + 1
@@ -1112,7 +1118,7 @@ extension class MyExtension for Integer {
 <p>In such classes you can reference, you can only reference public properties/methods of the class you're extending, and you have
 to explicitly specify <code>this</code> when you do so.
 E.g.</p>
-<pre><code class="language-kotlin">// MyExtension.mcl
+<pre><code class="language-marcel">// MyExtension.mcl
 extension class MyExtension for Integer {
   fun float nextToFloat() {
     return this.floatValue() + 1f
@@ -1121,7 +1127,7 @@ extension class MyExtension for Integer {
 </code></pre>
 <h2 id="how-to-use"><a class="header" href="#how-to-use">How to use</a></h2>
 <p>Import your extension class with the <code>extension</code> keyword.</p>
-<pre><code class="language-java">// another file
+<pre><code class="language-marcel">// another file
 import extension MyExtension
 
 Integer a = 1
@@ -1131,11 +1137,11 @@ println(a.next())
 <p>Dynamic objects a little dynamic feature in Marcel. They allow you to evaluate dynamically property/operator calls instead of
 at compile time.</p>
 <p>E.g.</p>
-<pre><code class="language-java">DynamicObject o = DynamicObject.of(1)
+<pre><code class="language-marcel">DynamicObject o = DynamicObject.of(1)
 println(o[1]) // will throw MissingMethodException at runtime, instead of a semantic error at compile time
 </code></pre>
 <p>But the following code will run without throwing any exception</p>
-<pre><code class="language-java">DynamicObject o = DynamicObject.of([1, 2, 3] as list&lt;int&gt;)
+<pre><code class="language-marcel">DynamicObject o = DynamicObject.of([1, 2, 3] as list&lt;int&gt;)
 println(o[1]) // will print 2
 </code></pre>
 <p>DynamicObject could potentially handle dynamic method calls and handle properties, but this is <strong>not</strong> done as Marcel
@@ -1147,7 +1153,7 @@ how to implement a given pattern (or play with a given feature) in Marcel.</p>
 <p>In this section we'll explore ways to use Marcel Collections APIs enhancements</p>
 <h2 id="literals"><a class="header" href="#literals">Literals</a></h2>
 <p>You can declare collections using the literal array syntax as shown below </p>
-<pre><code class="language-javascript">list&lt;int&gt; ints = [1, 2, 3, 4]
+<pre><code class="language-marcel">list&lt;int&gt; ints = [1, 2, 3, 4]
 List list = [1 new Object(), 1..2]
 
 
@@ -1157,7 +1163,7 @@ set&lt;char&gt; chars = [`A`, `C`, `B`, `D`]
 <p>Collections and Arrays have useful functions allowing you to operate on them</p>
 <h3 id="map"><a class="header" href="#map">map</a></h3>
 <p>This operator allows you to map each element of the collection to another.</p>
-<pre><code class="language-javascript">list&lt;int&gt; ints = [1, 2, 3]
+<pre><code class="language-marcel">list&lt;int&gt; ints = [1, 2, 3]
 list&lt;float&gt; floats = ints.mapToFloat { it + 1f } // mapping to another primitive collection
 int[] intArray = [3, 4, 5, 6]
 list&lt;int&gt; otherInts = intArray.mapToInt { it - 1 }
@@ -1172,7 +1178,7 @@ But for non-primitive lists, as Marcel <a href="guides/../language-specification
 <h3 id="find-findall"><a class="header" href="#find-findall">find, findAll</a></h3>
 <p>The <code>find</code> operator finds and return the first element of the collection/array matching the provided predicate (or null if no element matched).</p>
 <p><code>findAll</code> returns a list of all elements matching the given predicate</p>
-<pre><code class="language-kotlin">set&lt;int&gt; ints = [1, 2, 3]
+<pre><code class="language-marcel">set&lt;int&gt; ints = [1, 2, 3]
 int myInt = ints.find { it == 2 }
 int[] intArray = [3, 4, 5, 6]
 int myInt2 = intArray.find { it == 5 }
@@ -1196,7 +1202,7 @@ List myRanges = list.findAll { IntRange range -&gt; range.contains(2) }
 <p>Marcel's <a href="guides/../language-specification/syntax/literal-values.html#pattern-strings">Pattern strings</a>
 allows you to create pattern in a simple manner. When you add that with the <a href="guides/../language-specification/operators/find.html">find operator</a>,
 matching with regular expression has never been this easy.</p>
-<pre><code class="language-java">Pattern pattern = /Hello (\w+)/; // semi-colon required because of pattern flags
+<pre><code class="language-marcel">Pattern pattern = /Hello (\w+)/; // semi-colon required because of pattern flags
 Matcher matcher = &quot;Hello you&quot; =~ pattern
 println(matcher.matches())
 </code></pre>
@@ -1204,18 +1210,18 @@ println(matcher.matches())
 <h2 id="extract-groups-from-a-pattern"><a class="header" href="#extract-groups-from-a-pattern">Extract groups from a pattern</a></h2>
 <p>With Marcel's <a href="guides/../language-specification/variables.html#multiple-declarations">multiple variable declaration</a>, you can extract
 matched groups in the following way</p>
-<pre><code class="language-java">def (String wholeMatch, String groupMatch) = (&quot;Hello you&quot; =~ /Hello (\w+)/).groups() // method from the Marcel Development Kit
+<pre><code class="language-marcel">def (String wholeMatch, String groupMatch) = (&quot;Hello you&quot; =~ /Hello (\w+)/).groups() // method from the Marcel Development Kit
 </code></pre>
 <p>In some case, you might not care about the whole match (you just want the groups you declared in your regex).
 If that's so you can ignore it like this</p>
-<pre><code class="language-java">def (_, String groupMatch) = (&quot;Hello you&quot; =~ /Hello (\w+)/).groups()
+<pre><code class="language-marcel">def (_, String groupMatch) = (&quot;Hello you&quot; =~ /Hello (\w+)/).groups()
 </code></pre>
 <p>Wait for it, there's an even better way to do that</p>
-<pre><code class="language-java">def (String groupMatch) = (&quot;Hello you&quot; =~ /Hello (\w+)/).definedGroups()
+<pre><code class="language-marcel">def (String groupMatch) = (&quot;Hello you&quot; =~ /Hello (\w+)/).definedGroups()
 </code></pre>
 <p>The defined groups only return the groups you defined in the regex, and therefore skip the group corresponding to the whole match.</p>
 <h2 id="truthy-pattern-declaration"><a class="header" href="#truthy-pattern-declaration">Truthy pattern declaration</a></h2>
-<pre><code class="language-java">Pattern pattern = /Hello (\w+)/;
+<pre><code class="language-marcel">Pattern pattern = /Hello (\w+)/;
 
 if (&quot;yellow me&quot; =~ pattern) {
   println(&quot;It matched????&quot;)
@@ -1275,12 +1281,12 @@ a Read Eval Print Loop tool.</p>
 <h2 id="define-variables"><a class="header" href="#define-variables">Define variables</a></h2>
 <p>In marshell, you can't have <a href="tools/../language-specification/source-file-structure/script.html#fields">class fields</a>, <strong>but</strong> you can use global variables.
 To de clare a global variable, just assign to a variable a value, without specifying its type</p>
-<pre><code class="language-kotlin">a = 1 // this will create a global variable a
+<pre><code class="language-marcel">a = 1 // this will create a global variable a
 </code></pre>
 <p>Global variables can't change type. Meaning that after having defining one, you can't assign to it
 a value that is of an incompatible type of the one you used when you first assigned it a value.</p>
 <p>To specify explicitly the type of the global variable, use the <code>as</code> keyword.</p>
-<pre><code class="language-kotlin">a = [1, 2] as set&lt;int&gt;
+<pre><code class="language-marcel">a = [1, 2] as set&lt;int&gt;
 </code></pre>
 <h2 id="define-functions"><a class="header" href="#define-functions">Define functions</a></h2>
 <p>Define functions as you would in a Marcel script</p>
@@ -1318,7 +1324,7 @@ without having to create a Maven/Gradle project.</p>
 <br/>
 <h2 id="import-dependencies-in-a-script"><a class="header" href="#import-dependencies-in-a-script">Import dependencies in a script</a></h2>
 <p>To import a dependency, use the <code>dumbbell</code> keyword.</p>
-<pre><code class="language-java">dumbbell 'com.google.code.gson:gson:2.8.6'
+<pre><code class="language-marcel">dumbbell 'com.google.code.gson:gson:2.8.6'
 import com.google.gson.Gson
 
 Gson gson = new Gson()
@@ -1340,7 +1346,7 @@ dependencies dynamically.</p>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="fibonacci-suite"><a class="header" href="#fibonacci-suite">Fibonacci suite</a></h1>
 <p>Here is an implementation of the Fibonacci suite in Marcel.</p>
-<pre><code class="language-kotlin">println(fibonacci(10))
+<pre><code class="language-marcel">println(fibonacci(10))
 
 fun int fibonacci(int n) {
   return switch (n) {
@@ -1351,7 +1357,7 @@ fun int fibonacci(int n) {
 </code></pre>
 <p>But this implementation takes a lot of time when using large <code>n</code> values. A way to solve this problem would be to cache
 fibonnaci's results, which can be done using the <code>@Cached</code> annotation (Not Yet Implemented)</p>
-<pre><code class="language-kotlin">println(fibonacci(10))
+<pre><code class="language-marcel">println(fibonacci(10))
 
 @Cached
 fun int fibonacci(int n) {

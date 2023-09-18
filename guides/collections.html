@@ -146,7 +146,7 @@
 <p>In this section we'll explore ways to use Marcel Collections APIs enhancements</p>
 <h2 id="literals"><a class="header" href="#literals">Literals</a></h2>
 <p>You can declare collections using the literal array syntax as shown below </p>
-<pre><code class="language-javascript">list&lt;int&gt; ints = [1, 2, 3, 4]
+<pre><code class="language-marcel">list&lt;int&gt; ints = [1, 2, 3, 4]
 List list = [1 new Object(), 1..2]
 
 
@@ -156,7 +156,7 @@ set&lt;char&gt; chars = [`A`, `C`, `B`, `D`]
 <p>Collections and Arrays have useful functions allowing you to operate on them</p>
 <h3 id="map"><a class="header" href="#map">map</a></h3>
 <p>This operator allows you to map each element of the collection to another.</p>
-<pre><code class="language-javascript">list&lt;int&gt; ints = [1, 2, 3]
+<pre><code class="language-marcel">list&lt;int&gt; ints = [1, 2, 3]
 list&lt;float&gt; floats = ints.mapToFloat { it + 1f } // mapping to another primitive collection
 int[] intArray = [3, 4, 5, 6]
 list&lt;int&gt; otherInts = intArray.mapToInt { it - 1 }
@@ -171,7 +171,7 @@ But for non-primitive lists, as Marcel <a href="../language-specification/types.
 <h3 id="find-findall"><a class="header" href="#find-findall">find, findAll</a></h3>
 <p>The <code>find</code> operator finds and return the first element of the collection/array matching the provided predicate (or null if no element matched).</p>
 <p><code>findAll</code> returns a list of all elements matching the given predicate</p>
-<pre><code class="language-kotlin">set&lt;int&gt; ints = [1, 2, 3]
+<pre><code class="language-marcel">set&lt;int&gt; ints = [1, 2, 3]
 int myInt = ints.find { it == 2 }
 int[] intArray = [3, 4, 5, 6]
 int myInt2 = intArray.find { it == 5 }

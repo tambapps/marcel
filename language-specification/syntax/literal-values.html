@@ -146,21 +146,21 @@
 <p>There are different ways to create strings in Marcel</p>
 <h3 id="strings-1"><a class="header" href="#strings-1">Strings</a></h3>
 <p>You can use the single quote character (<code>'</code>) to create strings</p>
-<pre><code class="language-kotlin">'Hello world!'
+<pre><code class="language-marcel">'Hello world!'
 </code></pre>
 <h3 id="interpolated-strings"><a class="header" href="#interpolated-strings">Interpolated strings</a></h3>
 <p>You can use the double quote character (<code>&quot;</code>) to create strings resolving variables</p>
-<pre><code class="language-kotlin">&quot;$firstName $lastName is $age years old&quot;
+<pre><code class="language-marcel">&quot;$firstName $lastName is $age years old&quot;
 </code></pre>
 <p>If you need to access a property, use the brackets</p>
-<pre><code class="language-kotlin">&quot;${person.firstName} ${person.lastName} is ${person.age} years old&quot;
+<pre><code class="language-marcel">&quot;${person.firstName} ${person.lastName} is ${person.age} years old&quot;
 </code></pre>
 <h3 id="pattern-strings"><a class="header" href="#pattern-strings">Pattern strings</a></h3>
 <p>You can instantiate <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html">Patterns</a> using backslash strings. 
 These strings are reserved for pattern only.</p>
 <p>The backslash is <strong>not</strong> considered as an escape, except for the backlash character
 (which would be escaped as <code>\/</code>).</p>
-<pre><code class="language-javascript">/some \w+/
+<pre><code class="language-marcel">/some \w+/
 </code></pre>
 <p>Note that such strings <strong>doesn't</strong> resolve variables. If you want to construct a Pattern while resolving Strings, you could
 just call the <code>Pattern.compile(String)</code> method with an interpolated string.</p>
@@ -168,12 +168,12 @@ just call the <code>Pattern.compile(String)</code> method with an interpolated s
 It is good practise to end such regexes with a semi-colon (`;`) character, to make it clear to the compiler that what follows
 is not a regex flag (we'll talk about that just after) but a 'real' identifier.
 <p>E.g.</p>
-<pre><code class="language-javascript">Pattern pattern = /myPattern/; // without the semi-colon, Marcel would think that 'println' characters are regex flags
+<pre><code class="language-marcel">Pattern pattern = /myPattern/; // without the semi-colon, Marcel would think that 'println' characters are regex flags
 println(pattern)
 </code></pre>
 <h4 id="pattern-flags"><a class="header" href="#pattern-flags">Pattern flags</a></h4>
 <p>You can also specify flags by adding a suffix at the end of your regex String.</p>
-<pre><code class="language-javascript">Pattern pattern = /myPattern/iu; // you can specify many flags at once
+<pre><code class="language-marcel">Pattern pattern = /myPattern/iu; // you can specify many flags at once
 println(pattern)
 </code></pre>
 <p>Here is the list of flags (you can see the doc of each flag in the <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html#UNIX_LINES">Javadoc of the Pattern's class</a>).</p>
@@ -192,7 +192,7 @@ println(pattern)
 <h3 id="character"><a class="header" href="#character">Character</a></h3>
 <p>Use the backtick (<code>`</code>) to create primitive characters.
 Only one character must be specified between the two backticks</p>
-<pre><code class="language-java">char c = `A`
+<pre><code class="language-marcel">char c = `A`
 </code></pre>
 <h3 id="escaped-characters"><a class="header" href="#escaped-characters">Escaped characters</a></h3>
 <p>Use backslash to escape 'special' characters within strings/characters. Here is the list of escaped characters</p>
@@ -209,7 +209,7 @@ Only one character must be specified between the two backticks</p>
 </div>
 <h2 id="literal-numbers"><a class="header" href="#literal-numbers">Literal Numbers</a></h2>
 <p>Marcel supports almost all Java primitives. The number primitive literals are the same as in Java</p>
-<pre><code class="language-java">// primitive types
+<pre><code class="language-marcel">// primitive types
 byte  b = 1
 short s = 2
 int   i = 3
@@ -219,44 +219,44 @@ double d = 6d
 </code></pre>
 <h3 id="binary-representation"><a class="header" href="#binary-representation">Binary representation</a></h3>
 <p>You can also create numbers using their binary representation with the <code>0b</code> prefix</p>
-<pre><code class="language-java">int i = 0b10
+<pre><code class="language-marcel">int i = 0b10
 long l = 0b11l
 </code></pre>
 <h3 id="hexadecimal-representation"><a class="header" href="#hexadecimal-representation">Hexadecimal representation</a></h3>
 <p>You can also create numbers using their hexadecimal representation with the <code>0x</code> prefix</p>
-<pre><code class="language-java">int i = 0x5
+<pre><code class="language-marcel">int i = 0x5
 long l = 0x5l
 </code></pre>
 <h2 id="literal-booleans"><a class="header" href="#literal-booleans">Literal Booleans</a></h2>
 <p>You can create booleans using the <code>true</code> or <code>false</code> keyword.</p>
-<pre><code class="language-java">bool b = true
+<pre><code class="language-marcel">bool b = true
 </code></pre>
 <h2 id="arrays"><a class="header" href="#arrays">Arrays</a></h2>
 <p>Create arrays with the square brackets</p>
-<pre><code class="language-java">int[] ints = [1, 2, 3, 4]
+<pre><code class="language-marcel">int[] ints = [1, 2, 3, 4]
 </code></pre>
 <p>Note that you can also use this syntax to <a href="../types.html#collections-of-primitives">create collections</a>.</p>
 <h2 id="maps"><a class="header" href="#maps">Maps</a></h2>
 <p>Square brackets can also be used to define maps</p>
-<pre><code class="language-python">Map map = [1.3: &quot;1&quot;, 1.4: &quot;2&quot;, &quot;myStringKey&quot;: &quot;myStringValue&quot;, myLitteralKey: myRefValue, (myRefKey): myRefValue]
+<pre><code class="language-marcel">Map map = [1.3: &quot;1&quot;, 1.4: &quot;2&quot;, &quot;myStringKey&quot;: &quot;myStringValue&quot;, myLitteralKey: myRefValue, (myRefKey): myRefValue]
 </code></pre>
 <p>Note that <code>myLitteralKey</code> is actually a String key, it doesn't refers to a variable (like in Groovy). If you want to reference
 a variable as a key, put it between parenthesis, like it is done for <code>(myRefKey)</code>.</p>
 <h2 id="ranges"><a class="header" href="#ranges">Ranges</a></h2>
 <p>You can create int (and soon long) ranges</p>
-<pre><code class="language-java">0..10 // 0 (inclusive) to 10 (inclusive)
+<pre><code class="language-marcel">0..10 // 0 (inclusive) to 10 (inclusive)
 0&lt;..10 // 0 (exclusive) to 10 (inclusive)
 0..&lt;10 // 0 (inclusive) to 10 (exclusive)
 0&lt;..&lt;10 // 0 (exclusive) to 10 (exclusive)
 </code></pre>
 <p>Ranges also work in reverse order</p>
-<pre><code class="language-kotlin">10..0 // 10 (inclusive) to 0 (inclusive)
+<pre><code class="language-marcel">10..0 // 10 (inclusive) to 0 (inclusive)
 10&gt;..0 // 10 (exclusive) to 0 (inclusive)
 10..&gt;0 // 10 (inclusive) to 0 (exclusive)
 10&gt;..&gt;0 // 10 (exclusive) to 0 (exclusive)
 </code></pre>
 <p>Ranges work with all kinds of int/long expressions</p>
-<pre><code class="language-java">int start = computeStart()
+<pre><code class="language-marcel">int start = computeStart()
 int end = computeEnd()
 
 for (i in start..end) println(i)

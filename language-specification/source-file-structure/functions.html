@@ -162,20 +162,20 @@ protected fun void foo() {
 </ol>
 <h2 id="function-visibility"><a class="header" href="#function-visibility">Function Visibility</a></h2>
 <p>You can specify your function's <a href="./visibility.html">visibility</a> before the <code>fun</code> keyword</p>
-<pre><code class="language-kotlin">private fun foo() {
+<pre><code class="language-marcel">private fun foo() {
 }
 </code></pre>
 <h2 id="function-calls"><a class="header" href="#function-calls">Function Calls</a></h2>
 <p>Function calls are no different than  in any other language</p>
-<pre><code class="language-java">int result = sum(1, 2)
+<pre><code class="language-marcel">int result = sum(1, 2)
 </code></pre>
 <h2 id="cast-results"><a class="header" href="#cast-results">Cast Results</a></h2>
 <p>Marcel has a diamond operator for function calls which is different from Java's. It casts the 
 result of the function to the specified type.</p>
-<pre><code class="language-java">Foo otherResult = compute&lt;Foo&gt;()
+<pre><code class="language-marcel">Foo otherResult = compute&lt;Foo&gt;()
 </code></pre>
 <p>This above example isn't really useful as Marcel <a href="../variables.html#automatic-casting">automatically cast variable assignments when needed</a> but this feature can be useful when chaining function calls</p>
-<pre><code class="language-java">Optional opt = Optional.of(new Foo())
+<pre><code class="language-marcel">Optional opt = Optional.of(new Foo())
 // assuming computeObject() and result return Object in their declaration
 Bar result = opt.get&lt;Foo&gt;().computeObject&lt;Bar&gt;()
 </code></pre>
@@ -186,7 +186,7 @@ you specify them doesn't matter.</p>
 <p>When you don't specify a parameter, it will default to the type's default value
 (0 for primitive types and <code>null</code> for Objects).</p>
 <p>Following on our <code>sum()</code> example:</p>
-<pre><code class="language-java">int result = sum(b: 2, a: 1) // equivalent to sum(1, 2)
+<pre><code class="language-marcel">int result = sum(b: 2, a: 1) // equivalent to sum(1, 2)
 int otherResult = sum(a: 1) // equivalent to sum(1, 0)
 </code></pre>
 <p>named parameters calls can also start (and only start) with positional arguments.</p>
@@ -195,7 +195,7 @@ int otherResult = sum(a: 1) // equivalent to sum(1, 0)
 and your class has a no args constructor (note that there's always one by default if you don't explicitly define one), it will use it
 and then initialize the fields having the provided names with their associated argument value.</p>
 <p>Here are some examples below.</p>
-<pre><code class="language-java">class B {
+<pre><code class="language-marcel">class B {
   int i
   int j
   
@@ -211,7 +211,7 @@ B b = new B(i: 1, j: 2) // will call new B(i, j) and the fields will be initiali
 C c = new C(a: 1, b: 2) // will call new C() and then the fields will be initialized outside the constructor
 
 </code></pre>
-<pre><code class="language-java">int result = sum(2, b: 1) // equivalent to sum(2, 1)
+<pre><code class="language-marcel">int result = sum(2, b: 1) // equivalent to sum(2, 1)
 
 
 int otherResult = sum(a: 2, 1) // ERROR, positional argument is not at the start 
@@ -220,7 +220,7 @@ int otherResult = sum(a: 2, 1) // ERROR, positional argument is not at the start
 <h2 id="parameter-default-value"><a class="header" href="#parameter-default-value">Parameter default value</a></h2>
 <p>Function parameters can have default values, which are used when you skip the corresponding argument. These can be useful especially
 with named parameters function calls. </p>
-<pre><code class="language-kotlin">fun int sum(int a = 0, int b = 8) {
+<pre><code class="language-marcel">fun int sum(int a = 0, int b = 8) {
 return a + b
 }
 
@@ -233,7 +233,7 @@ sum(a: 2, b: 5) // 2 + 5
 <h3 id="fields-constructor-call"><a class="header" href="#fields-constructor-call">Fields Constructor Call</a></h3>
 <p>Similar calls also work with constructors. You can specify class's field names with their values to set.
 Note that it will only work if your class has a no-arg constructor and that the fields referenced are <code>public</code> and <strong>not</strong> <code>final</code>.</p>
-<pre><code class="language-java">
+<pre><code class="language-marcel">
 Foo foo = new Foo(bar: 1, baz: &quot;baz&quot;)
 
 class Foo {

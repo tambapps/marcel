@@ -146,11 +146,11 @@
 <p>Dynamic objects a little dynamic feature in Marcel. They allow you to evaluate dynamically property/operator calls instead of
 at compile time.</p>
 <p>E.g.</p>
-<pre><code class="language-java">DynamicObject o = DynamicObject.of(1)
+<pre><code class="language-marcel">DynamicObject o = DynamicObject.of(1)
 println(o[1]) // will throw MissingMethodException at runtime, instead of a semantic error at compile time
 </code></pre>
 <p>But the following code will run without throwing any exception</p>
-<pre><code class="language-java">DynamicObject o = DynamicObject.of([1, 2, 3] as list&lt;int&gt;)
+<pre><code class="language-marcel">DynamicObject o = DynamicObject.of([1, 2, 3] as list&lt;int&gt;)
 println(o[1]) // will print 2
 </code></pre>
 <p>DynamicObject could potentially handle dynamic method calls and handle properties, but this is <strong>not</strong> done as Marcel

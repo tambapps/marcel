@@ -148,24 +148,24 @@ to Java 8 lambdas, they are compiled to anonymous classes instead. This is to gu
 Android supports, as some Android device doesn't support full Java 8+ features.</p>
 <p>Lambda are declared like Kotlin's, and Groovy closures. They can be used for any functional interfaces, such as Runnable, Supplier...</p>
 <h2 id="lambdas-with-no-parameters"><a class="header" href="#lambdas-with-no-parameters">Lambdas with no parameters</a></h2>
-<pre><code class="language-kotlin">Lambda0 l0 = {
+<pre><code class="language-marcel">Lambda0 l0 = {
   
 }
 </code></pre>
 <h2 id="lambdas-with-1-parameter"><a class="header" href="#lambdas-with-1-parameter">Lambdas with 1 parameter</a></h2>
 <p>If you don't specify any parameter, an implicit <code>Object it</code> parameter will be declared.</p>
-<pre><code class="language-kotlin">Lambda0 l1 = {
+<pre><code class="language-marcel">Lambda0 l1 = {
   println(it)
 }
 </code></pre>
 <p>Or you can explicitly declare it yourself, specifying the type</p>
-<pre><code class="language-kotlin">Lambda1 l1 = { Integer p0 -&gt;
+<pre><code class="language-marcel">Lambda1 l1 = { Integer p0 -&gt;
   println(p0)
 }
 </code></pre>
 <h2 id="lambdas-with-2-parameter"><a class="header" href="#lambdas-with-2-parameter">Lambdas with 2+ parameter</a></h2>
 <p>You have to declare explicitly all parameters, separated by a comma</p>
-<pre><code class="language-kotlin">Lambda3 l3 = { Integer foo, Long bar, String zoo -&gt;
+<pre><code class="language-marcel">Lambda3 l3 = { Integer foo, Long bar, String zoo -&gt;
   // do something
 }
 </code></pre>

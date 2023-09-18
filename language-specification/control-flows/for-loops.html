@@ -146,19 +146,19 @@
 <p>There are different ways to iterate over elements</p>
 <h4 id="for-i"><a class="header" href="#for-i">For i</a></h4>
 <p>The Java for i is compatible with Marcel</p>
-<pre><code class="language-java">for (int i = 0; i &lt; 10; i++) {
+<pre><code class="language-marcel">for (int i = 0; i &lt; 10; i++) {
   println(i)
 }
 </code></pre>
 <h4 id="for-in"><a class="header" href="#for-in">For in</a></h4>
 <p>The <code>in</code> keyword allows to iterate over values in an array, any objects implementing Iterable (including all Collections) or Iterator.</p>
-<pre><code class="language-java">int[] ints = getInts()
+<pre><code class="language-marcel">int[] ints = getInts()
 for (int i in ints) {
   println(i)
 }
 </code></pre>
 <p>Marcel also have a Ranges, allowing you to iterate with the below syntax</p>
-<pre><code class="language-kotlin">// inclusive range
+<pre><code class="language-marcel">// inclusive range
 for (int i in 0..9) {
   println(i)
 }

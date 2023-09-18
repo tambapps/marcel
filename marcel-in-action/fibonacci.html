@@ -144,7 +144,7 @@
                     <main>
                         <h1 id="fibonacci-suite"><a class="header" href="#fibonacci-suite">Fibonacci suite</a></h1>
 <p>Here is an implementation of the Fibonacci suite in Marcel.</p>
-<pre><code class="language-kotlin">println(fibonacci(10))
+<pre><code class="language-marcel">println(fibonacci(10))
 
 fun int fibonacci(int n) {
   return switch (n) {
@@ -155,7 +155,7 @@ fun int fibonacci(int n) {
 </code></pre>
 <p>But this implementation takes a lot of time when using large <code>n</code> values. A way to solve this problem would be to cache
 fibonnaci's results, which can be done using the <code>@Cached</code> annotation (Not Yet Implemented)</p>
-<pre><code class="language-kotlin">println(fibonacci(10))
+<pre><code class="language-marcel">println(fibonacci(10))
 
 @Cached
 fun int fibonacci(int n) {
