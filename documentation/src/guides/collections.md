@@ -59,8 +59,5 @@ List myRanges = list.findAll { IntRange range -> range.contains(2) }
 Those operations return booleans.
 - any returns true if at least one element of the collection/array matches the given predicate
 - all returns true if all elements of the collection/array matche the given predicate
-- all returns true if all elements of the collection/array does **not** match the given predicate
+- none returns true if all elements of the collection/array does **not** match the given predicate
 
-## Lists
-
-TODO
