@@ -79,7 +79,9 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
     val lambdaReturnType = lambdaInterfaceType.genericTypes.lastOrNull() ?: JavaType.Object
     var parameters = lambdaMethod.parameters.toMutableList()
     if (parameters.size == 1 && lambdaNode.parameters.isEmpty()) {
-      parameters = mutableListOf(MethodParameter(lambdaMethod.parameters.first().type, lambdaMethod.parameters.first().type, "it"))
+      val itParameter = MethodParameter(lambdaMethod.parameters.first().type, lambdaMethod.parameters.first().type, "it")
+      parameters = mutableListOf(itParameter)
+      lambdaNode.parameters.add(MethodParameterNode(lambdaNode.token, itParameter))
     } else if (lambdaNode.parameters.isNotEmpty()) {
       if (lambdaMethod.parameters.size != lambdaNode.parameters.size) {
         throw MarcelSemanticException(token, "Lambda method parameters count is not consistent")
