@@ -24,7 +24,7 @@ You can also unbox Optional values such as in the below example
 
 ```marcel
 // assuming getOptionalInteger() returns an Optional
-if (Integer result = getOptional()) {
+if (Integer result = getOptionalInteger()) {
   println(result)
 }
 ```

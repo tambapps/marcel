@@ -86,7 +86,7 @@ int myInt = switch (string) {
 The provided expression can be accessed in the switch branches using the implicit variable `it`.
 
 ```marcel
-int myInt = switch (operator) {
+int myInt = switch (computeSomeInt()) {
   1 -> it + 1
   else ->  it + 4
 }

@@ -58,21 +58,16 @@ But note that this is useless if the function/property already returns the speci
 You can also specify the name of your parameters. When doing so, the order in which
 you specify them doesn't matter.
 
-When you don't specify a parameter, it will default to the type's default value
-(0 for primitive types and `null` for Objects).
+Such calls can also start with positional arguments.
 
 Following on our `sum()` example:
 ```marcel
 int result = sum(b: 2, a: 1) // equivalent to sum(1, 2)
-int otherResult = sum(a: 1) // equivalent to sum(1, 0)
+int otherResult = sum(1, b: 0) // equivalent to sum(1, 0)
 ```
 
-named parameters calls can also start (and only start) with positional arguments.
-
 #### Named parameters constructor calls
-Such calls also works with constructors. It will find a constructor having the given parameters, but if it can't find it
-and your class has a no args constructor (note that there's always one by default if you don't explicitly define one), it will use it
-and then initialize the fields having the provided names with their associated argument value.
+Named parameters also works with constructors. It will find a constructor having the given parameters.
 
 Here are some examples below.
 
@@ -103,6 +98,20 @@ int otherResult = sum(a: 2, 1) // ERROR, positional argument is not at the start
 
 Note that you can only used named parameters call for functions of Marcel-compiled classes, because Java doesn't keep method parameter names available at runtime by default.
 
+### Fields Constructor Call
+
+Similar calls also work with constructors. You can specify class's field names with their values to set.
+Note that it will only work if your class has a no-arg constructor and that the fields referenced are `public` and **not** `final`.
+
+```marcel
+
+Foo foo = new Foo(bar: 1, baz: "baz")
+
+class Foo {
+  int bar
+  String baz
+}
+```
 
 ## Parameter default value
 Function parameters can have default values, which are used when you skip the corresponding argument. These can be useful especially
@@ -122,19 +131,3 @@ You can specify any expression from a static context (this means you can't call/
 
 These default parameter values are kept after compilation so you can also benefit them from other Marcel libraries.
 
-
-### Fields Constructor Call
-
-Similar calls also work with constructors. You can specify class's field names with their values to set.
-Note that it will only work if your class has a no-arg constructor and that the fields referenced are `public` and **not** `final`.
-
-
-```marcel
-
-Foo foo = new Foo(bar: 1, baz: "baz")
-
-class Foo {
-  int bar
-  String baz
-}
-```

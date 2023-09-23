@@ -3,6 +3,7 @@
 Marcel has the following keywords, which you cannot use as variable/function names
 
 - int
+- dynobj
 - long
 - short
 - float
