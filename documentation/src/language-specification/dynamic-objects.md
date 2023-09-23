@@ -6,13 +6,13 @@ at compile time.
 E.g.
 
 ```marcel
-DynamicObject o = DynamicObject.of(1)
+dynobj o = 1
 println(o[1]) // will throw MissingMethodException at runtime, instead of a semantic error at compile time
 ```
 
 But the following code will run without throwing any exception
 ```marcel
-DynamicObject o = DynamicObject.of([1, 2, 3] as list<int>)
+dynobj o = DynamicObject.of([1, 2, 3] as list<int>)
 println(o[1]) // will print 2
 ```
 

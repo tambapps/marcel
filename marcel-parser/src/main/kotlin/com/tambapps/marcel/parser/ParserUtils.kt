@@ -68,6 +68,6 @@ object ParserUtils {
 
   fun isTypeToken(tokenType: TokenType): Boolean {
     return tokenType in listOf(TYPE_BOOL, TYPE_FLOAT, TYPE_DOUBLE, TYPE_BYTE, TYPE_CHAR,
-      TYPE_LONG, TYPE_INT, TYPE_SHORT, TYPE_VOID, IDENTIFIER)
+      TYPE_LONG, TYPE_INT, TYPE_SHORT, TYPE_VOID, IDENTIFIER, DYNOBJ)
   }
 }

@@ -475,6 +475,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
           )
         } else type
       }
+      TokenType.DYNOBJ -> JavaType.DynamicObject
       TokenType.IDENTIFIER -> {
         val className = token.value
         if (className == JavaType.Object.className && acceptOptional(TokenType.SQUARE_BRACKETS_OPEN) != null) {
