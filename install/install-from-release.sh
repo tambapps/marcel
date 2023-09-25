@@ -22,7 +22,7 @@ mkdir -p $MARCEL_LIB_FOLDER
 mkdir -p $MARCEL_BIN_FOLDER
 
 wget -q https://github.com/tambapps/marcel/releases/download/v${MARCEL_RELEASE}/release.zip -O release.zip
-unzip -qq -j release.zip -d $MARCEL_LIB_FOLDER
+unzip -qq -j -o release.zip -d $MARCEL_LIB_FOLDER
 rm release.zip
 
 ########################

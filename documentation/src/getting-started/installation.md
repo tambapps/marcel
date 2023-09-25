@@ -11,7 +11,7 @@ For now, the only way to install Marcel is compiling it from its source code.
 You can run the below command in order to install a Marcel release in a specific directory.
 
 ```shell
-curl -s https://raw.githubusercontent.com/tambapps/marcel/main/install/install-from-release.sh | bash -s /path/to/march/directory/install
+curl -s https://raw.githubusercontent.com/tambapps/marcel/main/install/install-from-release.sh | bash -s
 ```
 
 You can download the `release.zip` of a [Marcel Release](https://github.com/tambapps/marcel/releases). Unzip it where you want.
