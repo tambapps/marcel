@@ -483,9 +483,10 @@ literal array will be converted into a IntArrayList (a int list that store eleme
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="maps"><a class="header" href="#maps">Maps</a></h1>
 <p>Square brackets can also be used to define maps</p>
-<pre><code class="language-marcel">Map map = [1.3: &quot;1&quot;, 1.4: &quot;2&quot;, &quot;myStringKey&quot;: &quot;myStringValue&quot;, myLitteralKey: myRefValue, (myRefKey): myRefValue]
+<pre><code class="language-marcel">Map map = [1.3: &quot;1&quot;, 1.4: &quot;2&quot;, &quot;myStringKey&quot;: &quot;myStringValue&quot;, 
+           myLiteralKey: myRefValue, (myRefKey): myRefValue]
 </code></pre>
-<p>Note that <code>myLitteralKey</code> is actually a String key, it doesn't refers to a variable (like in Groovy). If you want to reference
+<p>Note that <code>myLiteralKey</code> is actually a String key, it doesn't refers to a variable (like in Groovy). If you want to reference
 a variable as a key, put it between parenthesis, like it is done for <code>(myRefKey)</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="ranges"><a class="header" href="#ranges">Ranges</a></h1>
 <p>A Range represents the list of discrete items between some starting (or from) value and working towards some ending (or to) value.
