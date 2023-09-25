@@ -8,6 +8,12 @@ Marcel comes with
 For now, the only way to install Marcel is compiling it from its source code.
 
 ## Install from release
+You can run the below command in order to install a Marcel release in a specific directory.
+
+```shell
+curl -s https://raw.githubusercontent.com/tambapps/marcel/main/install/install-from-release.sh | bash -s /path/to/march/directory/install
+```
+
 You can download the `release.zip` of a [Marcel Release](https://github.com/tambapps/marcel/releases). Unzip it where you want.
 
 Then set the `MARCEL_HOME` environment to the path of the release you just unzipped. You can set it in your `.bashrc` or `.zshrc` so that
@@ -17,7 +23,13 @@ You can also add `$MARCEL_HOME/bin` to your `PATH` so your shell recognize marce
 ## Install from source code
 There is a [script in marcel repository](https://github.com/tambapps/marcel/blob/main/install.sh) for that.
 
-Note that this script **only works on Linux and Mac**.
+Note that this script **only works on Linux and Mac** and requires [Maven](https://maven.apache.org/) being installed.
+```shell
+git clone https://github.com/tambapps/marcel.git
+cd marcel
+./install/install-from-source.sh
+```
+
 ### Prerequisites
 
 You'll need Maven for the installation.
