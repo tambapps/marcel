@@ -764,6 +764,10 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       skip()
       val type = parseType(scope)
       return AsNode(expr.token, scope, type, expr)
+    } else if (current.type == TokenType.INSTANCEOF) {
+      skip()
+      val type = parseType(scope)
+      return InstanceofNode(expr.token, expr, type)
     }
     return expr
   }

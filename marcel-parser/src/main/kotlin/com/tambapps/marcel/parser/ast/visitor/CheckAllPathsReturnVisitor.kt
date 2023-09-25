@@ -99,6 +99,7 @@ class CheckAllPathsReturnVisitor: AstNodeVisitor<Boolean> {
   override fun visit(node: StringConstantNode) = false
 
   override fun visit(node: AsNode) = false
+  override fun visit(node: InstanceofNode) = false
 
   override fun visit(node: ToStringNode) = false
 

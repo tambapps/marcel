@@ -52,4 +52,4 @@ Integer myInteger = o.get() // returns Object cast into an Integer
 int myInt = o.get() // returns Object cast into an Integer then into an int
 ```
 
-This can be useful as Marcel [doesn't support generic types](./types.md#generic-types).
+This can be useful as Marcel [doesn't support generic types](./types/index.md#generic-types).

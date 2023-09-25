@@ -176,6 +176,11 @@ class ForEachNodeVisitor(private val consumer: (AstNode) -> Unit): AstNodeVisito
     node.expressionNode.accept(this)
   }
 
+  override fun visit(node: InstanceofNode) {
+    consumer.invoke(node)
+    node.expressionNode.accept(this)
+  }
+
   override fun visit(node: ToStringNode) {
     consumer.invoke(node)
     node.expressionNode.accept(this)

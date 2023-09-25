@@ -108,6 +108,7 @@ class FindNodeVisitor(private val predicate: (AstNode) -> Boolean): AstNodeVisit
   override fun visit(node: StringConstantNode) = node(node)
 
   override fun visit(node: AsNode) = node(node) ?: node.expressionNode.accept(this)
+  override fun visit(node: InstanceofNode) = node(node) ?: node.expressionNode.accept(this)
 
   override fun visit(node: ToStringNode) = node(node) ?: node.expressionNode.accept(this)
 

@@ -292,6 +292,7 @@ open class AstNodeTypeResolver constructor(
   override fun visit(node: VoidExpression) = JavaType.void
 
   override fun visit(node: AsNode) = node.type
+  override fun visit(node: InstanceofNode) = JavaType.boolean
 
   override fun visit(node: ComparisonOperatorNode) = JavaType.boolean
 

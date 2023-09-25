@@ -354,6 +354,17 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
 
 
+  override fun visit(node: InstanceofNode) {
+    if (node.expressionNode.getType(typeResolver).primitive) {
+      throw MarcelSemanticException(node, "primitives can not be instance of anything")
+    }
+    if (node.type.primitive) {
+      throw MarcelSemanticException(node, "primitives can not be instance of anything")
+    }
+    pushArgument(node.expressionNode)
+    mv.instanceOfInsn(node.type)
+  }
+
   override fun visit(node: AsNode) {
     val expression = node.expressionNode
     if (expression is LiteralArrayNode) {
@@ -1282,6 +1293,17 @@ class InstructionGenerator(
     super.visit(node)
     mv.popStack()
   }
+
+  override fun visit(node: AsNode) {
+    super.visit(node)
+    mv.popStack()
+  }
+
+  override fun visit(node: InstanceofNode) {
+    super.visit(node)
+    mv.popStack()
+  }
+
   override fun visit(node: IsNotOperator) {
     super.visit(node)
     mv.popStack()

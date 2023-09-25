@@ -33,7 +33,7 @@ List list2 = list.map { Foo foo -> foo.bar }
 ```
 
 Note that for primitive collections you don't have to specify explicitly your parameter's type. 
-But for non-primitive lists, as Marcel [doesn't support generic types](../language-specification/types.md#generic-types), you'll have to explicitly 
+But for non-primitive lists, as Marcel [doesn't support generic types](../language-specification/types/index.md#generic-types), you'll have to explicitly 
 [declare your lambda's arguments](../language-specification/lambdas.md).
 
 ### find, findAll

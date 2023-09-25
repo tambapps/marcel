@@ -230,6 +230,10 @@ class MethodBytecodeWriter( val mv: MethodVisitor, private val typeResolver: Jav
     mv.visitJumpInsn(opCode, label)
   }
 
+  fun instanceOfInsn(javaType: JavaType) {
+    mv.visitTypeInsn(Opcodes.INSTANCEOF, javaType.internalName)
+  }
+
   fun visitInsn(opCode: Int) {
     mv.visitInsn(opCode)
   }
