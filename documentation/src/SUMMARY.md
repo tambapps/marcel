@@ -16,6 +16,7 @@
     - [Arrays](language-specification/types/arrays.md)
     - [Collections](language-specification/types/collections.md)
     - [Collection of Primitives](language-specification/types/collections-of-primitives.md)
+    - [Maps](language-specification/types/maps.md)
     - [Ranges](language-specification/types/ranges.md)
     - [Dynamic Objects](language-specification/types/dynamic-objects.md)
   - [Control Flows](./language-specification/control-flows/index.md)
