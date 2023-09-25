@@ -11,6 +11,10 @@
   </parent>
   <artifactId>marcel-stdlib</artifactId>
 
+
+  <name>Marcel Stdlib</name>
+  <description>Standard library of Marcel Lang</description>
+
   <dependencies>
     <dependency>
       <groupId>org.projectlombok</groupId>

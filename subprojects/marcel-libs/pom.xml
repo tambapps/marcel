@@ -9,9 +9,10 @@
     <artifactId>subprojects</artifactId>
     <version>${revision}</version>
   </parent>
-
-  <description>Project to have all marcel external dependencies in one jar</description>
   <artifactId>marcel-libs</artifactId>
+
+  <name>Marcel libs</name>
+  <description>Project to have all marcel external dependencies in one jar</description>
 
   <dependencies>
     <dependency>

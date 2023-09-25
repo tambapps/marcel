@@ -11,6 +11,9 @@
   </parent>
   <artifactId>marcel-extensions</artifactId>
 
+  <name>Marcel Extensions</name>
+  <description>Marcel Extensions on Java types</description>
+
   <dependencies>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>

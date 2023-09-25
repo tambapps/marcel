@@ -11,6 +11,9 @@
   </parent>
   <artifactId>marcel-compiler</artifactId>
 
+  <name>Marcel Compiler</name>
+  <description>The Compiler of Marcel Lang</description>
+
   <dependencies>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>

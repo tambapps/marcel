@@ -12,6 +12,9 @@
 
   <artifactId>dumbbell</artifactId>
 
+  <name>Dumbbell</name>
+  <description>Dumbbell - Marcel's dependency manager</description>
+
   <dependencies>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>

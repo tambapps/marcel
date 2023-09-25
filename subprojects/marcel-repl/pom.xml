@@ -12,6 +12,9 @@
 
   <artifactId>marcel-repl</artifactId>
 
+  <name>Marcel REPL</name>
+  <description>Marcel REPL library</description>
+
   <dependencies>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>

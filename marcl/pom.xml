@@ -11,7 +11,9 @@
   </parent>
   <artifactId>marcl</artifactId>
 
+  <name>MarCL</name>
   <description>MARcel Command Line tool</description>
+
   <dependencies>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>

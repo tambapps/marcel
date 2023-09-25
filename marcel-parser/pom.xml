@@ -11,6 +11,10 @@
   </parent>
   <artifactId>marcel-parser</artifactId>
 
+
+  <name>Marcel Parser</name>
+  <description>Marcel Lang's Parser</description>
+
   <dependencies>
     <dependency>
       <groupId>org.ow2.asm</groupId>

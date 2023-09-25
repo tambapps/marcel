@@ -12,6 +12,9 @@
 
   <artifactId>dumbbell-core</artifactId>
 
+  <name>Dumbbell Core</name>
+  <description>Dumbbell's core library</description>
+
   <dependencies>
     <dependency>
       <groupId>com.tambapps.maven</groupId>

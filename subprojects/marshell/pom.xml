@@ -12,6 +12,9 @@
 
   <artifactId>marshell</artifactId>
 
+  <name>Marshell</name>
+  <description>Marshell for desktop terminals</description>
+
   <dependencies>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>

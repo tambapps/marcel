@@ -11,6 +11,9 @@
   </parent>
   <artifactId>marcel-lexer</artifactId>
 
+  <name>Marcel Lexer</name>
+  <description>Marcel Lang's Lexer</description>
+
   <dependencies>
     <dependency>
       <groupId>org.projectlombok</groupId>
