@@ -97,6 +97,7 @@ public interface DynamicObject extends Iterable<DynamicObject> {
 
   Object getValue();
 
+  // TODO rename these below methods asXXX because of incoherence with toString()
   default List toList() {
     if (getValue() instanceof List) return (List) getValue();
     throw new ClassCastException("Value isn't instance of List");
@@ -215,4 +216,7 @@ public interface DynamicObject extends Iterable<DynamicObject> {
     else if (o.getClass().isArray()) return new DynamicArray(o);
     else return new DefaultDynamicObject(o);
   }
+
+  // important, don't remove it
+  String toString();
 }
