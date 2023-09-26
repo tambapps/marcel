@@ -23,11 +23,17 @@ interface JavaAnnotation {
 
 open class LoadedJavaAnnotation(final override val type: JavaType): JavaAnnotation {
 
+  private var _targets: List<ElementType>? = null
+  // lazy because we don't want it to be resolved at parsing
   final override val targets: List<ElementType>
-  init {
-    val targetAnnotation = type.realClazz.getAnnotation(java.lang.annotation.Target::class.java)
-    targets = targetAnnotation?.value?.toList() ?: ElementType.values().toList()
-  }
+    get() {
+      if (_targets == null) {
+        val targetAnnotation = type.realClazz.getAnnotation(java.lang.annotation.Target::class.java)
+        _targets = targetAnnotation?.value?.toList() ?: ElementType.values().toList()
+      }
+      return _targets!!
+    }
+
   // lazy because we don't want to load it while compiling
   private var _attributes: List<JavaAnnotation.Attribute>? = null
   override val attributes: List<JavaAnnotation.Attribute> get() {
