@@ -1,5 +1,6 @@
 package marcel.lang.methods;
 
+import lombok.SneakyThrows;
 import marcel.lang.MarcelSystem;
 
 public class DefaultMarcelStaticMethods {
@@ -14,5 +15,11 @@ public class DefaultMarcelStaticMethods {
 
   public static void print(Object o) {
     MarcelSystem.getPrinter().print(o);
+  }
+
+  // TODO delete me once handled throw instruction
+  @SneakyThrows
+  public static void throwThrowable(Throwable throwable) {
+    throw throwable;
   }
 }
