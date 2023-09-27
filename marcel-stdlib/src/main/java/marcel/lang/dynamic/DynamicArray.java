@@ -54,7 +54,7 @@ public class DynamicArray extends AbstractDynamicObject implements DynamicIndexa
   public DynamicObject find(DynamicObjectLambda1 lambda1) {
     for (int i = 0; i < size(); i++) {
       DynamicObject e = DynamicObject.of(Array.get(value, i));
-      if (MarcelTruth.truthy(lambda1.apply(e))) {
+      if (MarcelTruth.isTruthy(lambda1.apply(e))) {
         return DynamicObject.of(e);
       }
     }

@@ -32,37 +32,37 @@ public class DynamicCharSequence extends AbstractDynamicObject implements Dynami
   }
 
   @Override
-  public int toInt() {
+  public int asInt() {
     return Integer.parseInt(value.toString());
   }
 
   @Override
-  public char toChar() {
+  public char asChar() {
     return value.charAt(0);
   }
 
   @Override
-  public float toFloat() {
+  public float asFloat() {
     return Float.parseFloat(value.toString());
   }
 
   @Override
-  public double toDouble() {
+  public double asDouble() {
     return Double.parseDouble(value.toString());
   }
 
   @Override
-  public long toLong() {
+  public long asLong() {
     return Long.parseLong(value.toString());
   }
 
   @Override
-  public CharacterList toCharacterList() {
+  public CharacterList asCharacterList() {
     return new CharacterArrayList(value.toString());
   }
 
   @Override
-  public CharacterSet toCharacterSet() {
+  public CharacterSet asCharacterSet() {
     return new CharacterOpenHashSet(value.toString());
   }
 

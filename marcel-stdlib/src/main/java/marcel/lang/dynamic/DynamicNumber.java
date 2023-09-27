@@ -14,22 +14,22 @@ public class DynamicNumber extends AbstractDynamicObject {
   }
 
   @Override
-  public int toInt() {
+  public int asInt() {
     return value.intValue();
   }
 
   @Override
-  public long toLong() {
+  public long asLong() {
     return value.longValue();
   }
 
   @Override
-  public float toFloat() {
+  public float asFloat() {
     return value.floatValue();
   }
 
   @Override
-  public double toDouble() {
+  public double asDouble() {
     return value.doubleValue();
   }
 

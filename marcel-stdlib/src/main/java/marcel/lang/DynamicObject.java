@@ -29,7 +29,7 @@ import java.util.*;
 /**
  * Interface providing dynamic features to an object
  */
-public interface DynamicObject extends Iterable<DynamicObject> {
+public interface DynamicObject extends Iterable<DynamicObject>, TruthableObject {
 
   default DynamicObject getAt(Object key) {
     throw new MissingMethodException(getValue().getClass(), "getAt", new Object[]{key});
@@ -84,121 +84,122 @@ public interface DynamicObject extends Iterable<DynamicObject> {
   }
 
   default DynamicObject find(DynamicObjectLambda1 lambda1) {
-    return MarcelTruth.truthy(lambda1.apply(this)) ? this : null;
+    return MarcelTruth.isTruthy(lambda1.apply(this)) ? this : null;
   }
 
   default DynamicObject map(DynamicObjectLambda1 lambda1) {
     return lambda1.apply(this);
   }
 
+  @Override
   default boolean isTruthy() {
-    return MarcelTruth.truthy(getValue());
+    return MarcelTruth.isTruthy(getValue());
   }
 
   Object getValue();
 
   // TODO rename these below methods asXXX because of incoherence with toString()
-  default List toList() {
+  default List asList() {
     if (getValue() instanceof List) return (List) getValue();
     throw new ClassCastException("Value isn't instance of List");
   }
 
-  default IntList toIntList() {
+  default IntList asIntList() {
     if (getValue() instanceof IntList) return (IntList) getValue();
     throw new ClassCastException("Value isn't instance of IntList");
   }
 
-  default LongList toLongList() {
+  default LongList asLongList() {
     if (getValue() instanceof LongList) return (LongList) getValue();
     throw new ClassCastException("Value isn't instance of LongList");
   }
 
-  default FloatList toFloatList() {
+  default FloatList asFloatList() {
     if (getValue() instanceof FloatList) return (FloatList) getValue();
     throw new ClassCastException("Value isn't instance of List");
   }
 
-  default DoubleList toDoubleList() {
+  default DoubleList asDoubleList() {
     if (getValue() instanceof DoubleList) return (DoubleList) getValue();
     throw new ClassCastException("Value isn't instance of DoubleList");
   }
 
-  default CharacterList toCharacterList() {
+  default CharacterList asCharacterList() {
     if (getValue() instanceof CharacterList) return (CharacterList) getValue();
     throw new ClassCastException("Value isn't instance of CharacterList");
   }
 
-  default Set toSet() {
+  default Set asSet() {
     if (getValue() instanceof Set) return (Set) getValue();
     throw new ClassCastException("Value isn't instance of List");
   }
 
-  default IntSet toIntSet() {
+  default IntSet asIntSet() {
     if (getValue() instanceof IntSet) return (IntSet) getValue();
     throw new ClassCastException("Value isn't instance of IntSet");
   }
 
-  default LongSet toLongSet() {
+  default LongSet asLongSet() {
     if (getValue() instanceof LongSet) return (LongSet) getValue();
     throw new ClassCastException("Value isn't instance of LongSet");
   }
 
-  default FloatSet toFloatSet() {
+  default FloatSet asFloatSet() {
     if (getValue() instanceof FloatSet) return (FloatSet) getValue();
     throw new ClassCastException("Value isn't instance of Set");
   }
 
-  default DoubleSet toDoubleSet() {
+  default DoubleSet asDoubleSet() {
     if (getValue() instanceof DoubleSet) return (DoubleSet) getValue();
     throw new ClassCastException("Value isn't instance of DoubleSet");
   }
 
-  default CharacterSet toCharacterSet() {
+  default CharacterSet asCharacterSet() {
     if (getValue() instanceof CharacterSet) return (CharacterSet) getValue();
     throw new ClassCastException("Value isn't instance of CharacterSet");
   }
 
-  default Map toMap() {
+  default Map asMap() {
     if (getValue() instanceof Map) return (Map) getValue();
     throw new ClassCastException("Value isn't instance of Map");
   }
 
-  default Queue toQueue() {
+  default Queue asQueue() {
     if (getValue() instanceof Queue) return (Queue) getValue();
     throw new ClassCastException("Value isn't instance of Queue");
   }
 
-  default Collection toCollection() {
+  default Collection asCollection() {
     if (getValue() instanceof Collection) return (Collection) getValue();
     throw new ClassCastException("Value isn't instance of Queue");
   }
 
-  default int toInt() {
+  default int asInt() {
     if (getValue() instanceof Integer) return (Integer) getValue();
     throw new ClassCastException("Value isn't instance of Integer");
   }
 
-  default long toLong() {
+  default long asLong() {
     if (getValue() instanceof Long) return (Long) getValue();
     throw new ClassCastException("Value isn't instance of Long");
   }
 
-  default float toFloat() {
+  default float asFloat() {
     if (getValue() instanceof Float) return (Float) getValue();
     throw new ClassCastException("Value isn't instance of Float");
   }
 
-  default double toDouble() {
+  default double asDouble() {
     if (getValue() instanceof Double) return (Double) getValue();
     throw new ClassCastException("Value isn't instance of Double");
   }
 
-  default char toChar() {
+  default char asChar() {
     if (getValue() instanceof Character) return (Character) getValue();
     throw new ClassCastException("Value isn't instance of Character");
   }
 
-  default boolean toBool() {
+  default boolean asBool() {
     if (getValue() instanceof Boolean) return (Boolean) getValue();
     throw new ClassCastException("Value isn't instance of Boolean");
   }
@@ -217,6 +218,4 @@ public interface DynamicObject extends Iterable<DynamicObject> {
     else return new DefaultDynamicObject(o);
   }
 
-  // important, don't remove it
-  String toString();
 }

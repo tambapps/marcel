@@ -34,7 +34,7 @@ public class DynamicMap extends AbstractDynamicObject {
   }
 
   @Override
-  public Map toMap() {
+  public Map asMap() {
     return new HashMap(value);
   }
 

@@ -27,7 +27,6 @@ import marcel.lang.primitives.collections.sets.IntSet;
 import marcel.lang.primitives.collections.sets.LongOpenHashSet;
 import marcel.lang.primitives.collections.sets.LongSet;
 
-import java.lang.reflect.Method;
 import java.util.*;
 
 @AllArgsConstructor
@@ -62,7 +61,7 @@ abstract class DynamicCollection<T extends Collection> extends AbstractDynamicOb
   @Override
   public DynamicObject find(DynamicObjectLambda1 lambda1) {
     return DynamicObject.of(
-        DefaultMarcelMethods.find(value, (e) -> MarcelTruth.truthy(lambda1.apply(DynamicObject.of(e))))
+        DefaultMarcelMethods.find(value, (e) -> MarcelTruth.isTruthy(lambda1.apply(DynamicObject.of(e))))
     );
   }
 
@@ -76,80 +75,80 @@ abstract class DynamicCollection<T extends Collection> extends AbstractDynamicOb
   }
 
   @Override
-  public List toList() {
+  public List asList() {
     return new ArrayList(value);
   }
 
   @Override
-  public IntList toIntList() {
+  public IntList asIntList() {
     IntList list = new IntArrayList();
     value.forEach(e -> list.add((Integer) e));
     return list;
   }
 
   @Override
-  public LongList toLongList() {
+  public LongList asLongList() {
     LongList list = new LongArrayList();
     value.forEach(e -> list.add((Long) e));
     return list;
   }
 
   @Override
-  public FloatList toFloatList() {
+  public FloatList asFloatList() {
     FloatList list = new FloatArrayList();
     value.forEach(e -> list.add((Float) e));
     return list;
   }
 
   @Override
-  public DoubleList toDoubleList() {
+  public DoubleList asDoubleList() {
     DoubleList list = new DoubleArrayList();
     value.forEach(e -> list.add((Float) e));
     return list;
   }
 
   @Override
-  public CharacterList toCharacterList() {
+  public CharacterList asCharacterList() {
     CharacterList list = new CharacterArrayList();
     value.forEach(e -> list.add((Character) e));
     return list;
   }
 
   @Override
-  public Set toSet() {
+  public Set asSet() {
     return new HashSet(value);
   }
 
   @Override
-  public IntSet toIntSet() {
+  public IntSet asIntSet() {
     IntSet set = new IntOpenHashSet();
     value.forEach(e -> set.add((Integer) e));
     return set;
   }
 
   @Override
-  public LongSet toLongSet() {
+  public LongSet asLongSet() {
     LongSet set = new LongOpenHashSet();
     value.forEach(e -> set.add((Long) e));
     return set;
   }
 
   @Override
-  public FloatSet toFloatSet() {
+  public FloatSet asFloatSet() {
     FloatSet set = new FloatOpenHashSet();
     value.forEach(e -> set.add((Float) e));
     return set;
   }
 
   @Override
-  public DoubleSet toDoubleSet() {
+  public DoubleSet asDoubleSet() {
     DoubleSet set = new DoubleOpenHashSet();
     value.forEach(e -> set.add((Double) e));
     return set;
   }
 
   @Override
-  public CharacterSet toCharacterSet() {
+  public CharacterSet asCharacterSet() {
     CharacterSet set = new CharacterOpenHashSet();
     value.forEach(e -> set.add((Character) e));
     return set;
@@ -173,12 +172,12 @@ abstract class DynamicCollection<T extends Collection> extends AbstractDynamicOb
   }
 
   @Override
-  public Queue toQueue() {
+  public Queue asQueue() {
     return new LinkedList(value);
   }
 
   @Override
-  public Collection toCollection() {
+  public Collection asCollection() {
     return value;
   }
 }
