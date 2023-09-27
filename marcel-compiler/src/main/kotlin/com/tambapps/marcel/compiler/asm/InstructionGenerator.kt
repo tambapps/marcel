@@ -1474,19 +1474,10 @@ private class PushingInstructionGenerator(
       // according to marcel truth, all primitive are truthy
       node.innerExpression.accept(instructionGenerator)
       visit(BooleanConstantNode(node.token, true))
-    } else if (Matcher::class.javaType.isAssignableFrom(innerType)) {
-      pushArgument(node.innerExpression)
-      mv.invokeMethod(node, classNode.scope, Matcher::class.java.getMethod("find"))
     } else {
-      val classTruthyMethod = typeResolver.findMethod(innerType, "isTruthy", emptyList(), false, node)
-      if (classTruthyMethod != null) {
-        pushArgument(node.innerExpression)
-        mv.invokeMethod(node.innerExpression, classNode.scope, classTruthyMethod)
-      } else {
-        // this is a static method. No need to push owner
-        val marcelTruthyMethod = typeResolver.findMethodOrThrow(MarcelTruth::class.javaType, "truthy", listOf(innerType), node)
-        mv.invokeMethodWithArguments(node, classNode.scope, marcelTruthyMethod, node.innerExpression)
-      }
+      // this is a static method. No need to push owner
+      val marcelTruthyMethod = typeResolver.findMethodOrThrow(MarcelTruth::class.javaType, "isTruthy", listOf(innerType), node)
+      mv.invokeMethodWithArguments(node, classNode.scope, marcelTruthyMethod, node.innerExpression)
     }
   }
 

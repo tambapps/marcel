@@ -1,6 +1,6 @@
 package marcel.lang.methods;
 
-import marcel.lang.DynamicObject;
+import marcel.lang.TruthableObject;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
@@ -13,80 +13,88 @@ import java.util.regex.Matcher;
 
 public class MarcelTruth {
 
-  public static boolean truthy(Object o) {
+  public static boolean isTruthy(Object o) {
     if (o == null) {
       return false;
     }
     Class<?> clazz = o.getClass();
     if (clazz == Boolean.class) {
-      return (Boolean) o;
+      return isTruthy((Boolean) o);
     } else if (clazz == Optional.class) {
-      return truthy((Optional<?>) o);
+      return isTruthy((Optional<?>) o);
     } else if (clazz == OptionalInt.class) {
-      return truthy((OptionalInt) o);
+      return isTruthy((OptionalInt) o);
     } else if (clazz == OptionalLong.class) {
-      return truthy((OptionalLong) o);
+      return isTruthy((OptionalLong) o);
     } else if (clazz == OptionalDouble.class) {
-      return truthy((OptionalDouble) o);
+      return isTruthy((OptionalDouble) o);
     } else if (o instanceof Collection) {
-      return truthy((Collection<?>) o);
+      return isTruthy((Collection<?>) o);
     } else if (clazz.isArray()) {
       return Array.getLength(o) > 0;
     } else if (clazz == Matcher.class) {
-      return truthy((Matcher) o);
-    } else if (o instanceof DynamicObject) {
-      return ((DynamicObject) o).isTruthy();
+      return isTruthy((Matcher) o);
+    } else if (o instanceof TruthableObject) {
+      return isTruthy((TruthableObject) o);
     } else {
       return true;
     }
   }
 
-  public static boolean truthy(Matcher matcher) {
-    return matcher.find();
+  public static boolean isTruthy(Boolean b) {
+    return b != null && b;
   }
 
-  public static boolean truthy(Collection<?> collection) {
-    return !collection.isEmpty();
+  public static boolean isTruthy(TruthableObject object) {
+    return object != null && object.isTruthy();
   }
 
-  public static boolean truthy(Map<?, ?> map) {
-    return !map.isEmpty();
+  public static boolean isTruthy(Matcher matcher) {
+    return matcher != null && matcher.find();
   }
 
-  public static boolean truthy(Optional<?> optional) {
-    return optional.isPresent();
+  public static boolean isTruthy(Collection<?> collection) {
+    return collection != null && !collection.isEmpty();
   }
-  public static boolean truthy(OptionalInt optional) {
-    return optional.isPresent();
+
+  public static boolean isTruthy(Map<?, ?> map) {
+    return map != null && !map.isEmpty();
   }
-  public static boolean truthy(OptionalDouble optional) {
-    return optional.isPresent();
+
+  public static boolean isTruthy(Optional<?> optional) {
+    return optional != null && optional.isPresent();
   }
-  public static boolean truthy(OptionalLong optional) {
-    return optional.isPresent();
+  public static boolean isTruthy(OptionalInt optional) {
+    return optional != null && optional.isPresent();
   }
-  public static boolean truthy(int value) {
+  public static boolean isTruthy(OptionalDouble optional) {
+    return optional != null && optional.isPresent();
+  }
+  public static boolean isTruthy(OptionalLong optional) {
+    return optional != null && optional.isPresent();
+  }
+  public static boolean isTruthy(int value) {
     return true;
   }
-  public static boolean truthy(long value) {
+  public static boolean isTruthy(long value) {
     return true;
   }
-  public static boolean truthy(float value) {
+  public static boolean isTruthy(float value) {
     return true;
   }
-  public static boolean truthy(double value) {
+  public static boolean isTruthy(double value) {
     return true;
   }
-  public static boolean truthy(char value) {
+  public static boolean isTruthy(char value) {
     return true;
   }
-  public static boolean truthy(short value) {
+  public static boolean isTruthy(short value) {
     return true;
   }
-  public static boolean truthy(byte value) {
+  public static boolean isTruthy(byte value) {
     return true;
   }
-  public static boolean truthy(boolean value) {
+  public static boolean isTruthy(boolean value) {
     return value;
   }
 }
