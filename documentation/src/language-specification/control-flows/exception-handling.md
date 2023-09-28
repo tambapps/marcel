@@ -1,5 +1,16 @@
-# Try/Catch/Finally
+# Exception Handling
 
+## Throw Exception
+
+In Marcel you can throw Exceptions (or any Throwable) like in Java
+
+```marcel
+throw new RuntimeException("Error Message")
+```
+
+You are not forced to catch checked Exceptions in Marcel.
+
+## Try/Catch/Finally
 Exception handling is very similar as Java's.
 
 

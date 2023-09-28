@@ -24,7 +24,7 @@
     - [If/Else Statements](./language-specification/control-flows/if-else.md)
     - [For loops](./language-specification/control-flows/for-loops.md)
     - [Switch and When](./language-specification/control-flows/switch-when.md)
-    - [Try/Catch/Finally](./language-specification/control-flows/try-catch.md)
+    - [Exception Handling](./language-specification/control-flows/exception-handling.md)
   - [Source File Structure](language-specification/source-file-structure/index.md)
     - [Imports](language-specification/source-file-structure/imports.md)
     - [Visibility and Access](language-specification/source-file-structure/visibility.md)
