@@ -14,6 +14,7 @@ import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.MultiVariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
+import com.tambapps.marcel.parser.ast.statement.ThrowStatementNode
 import com.tambapps.marcel.parser.ast.statement.TryCatchNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
@@ -553,6 +554,11 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         }
         acceptOptional(TokenType.SEMI_COLON)
         ReturnNode(token, scope, expression)
+      }
+      TokenType.THROW -> {
+        val throwable = expression(scope)
+        acceptOptional(TokenType.SEMI_COLON)
+        ThrowStatementNode(token, throwable)
       }
       TokenType.BRACKETS_OPEN -> {
         rollback()

@@ -179,8 +179,9 @@ interface JavaType: AstTypedObject {
       val a = aa.type
       val b = bb.type
 
-
-      if (a == b) return a
+      if (a == b) return if (a === Anything) Object else a
+      if (a === Anything) return b
+      if (b === Anything) return a
       if (a.isAssignableFrom(b)) return a
       if (b.isAssignableFrom(a)) return b
 
@@ -272,6 +273,7 @@ interface JavaType: AstTypedObject {
       return LazyJavaType(scope, className, genericTypes)
     }
 
+    val Anything: JavaType = AnythingJavaType()
     val Object = LoadedObjectType(Object::class.java)
     val String = LoadedObjectType(String::class.java)
     val DynamicObject = LoadedObjectType(DynamicObject::class.java)
@@ -563,7 +565,7 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
 
 }
 
-class LoadedObjectType(
+open class LoadedObjectType(
   realClazz: Class<*>,
   genericTypes: List<JavaType>,
 ): LoadedJavaType(realClazz, genericTypes, Opcodes.ASTORE, Opcodes.ALOAD, Opcodes.ARETURN) {
@@ -734,5 +736,20 @@ class LazyJavaType internal constructor(private val scope: Scope,
 
   override fun toString(): String {
     return if (_actualType == null) className else actualType.toString()
+  }
+}
+
+private class AnythingJavaType: LoadedObjectType(Object::class.java) {
+
+  override val loadCode: Int
+    get() = throwException()
+  override val storeCode: Int
+    get() = throwException()
+  override val returnCode: Int
+    get() = throwException()
+
+
+  private fun <T> throwException(): T {
+    throw MarcelSemanticException("Compiler error. Shouldn't be called")
   }
 }

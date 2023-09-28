@@ -22,6 +22,7 @@ import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.MultiVariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
+import com.tambapps.marcel.parser.ast.statement.ThrowStatementNode
 import com.tambapps.marcel.parser.ast.statement.TryCatchNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
@@ -211,6 +212,15 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   override fun visit(node: WhenBranchNode) {
     throw RuntimeException("Compiler error. Shouldn't happen")
+  }
+
+  override fun visit(node: ThrowStatementNode) {
+    val throwableExpression = node.throwableExpression
+    if (!Throwable::class.javaType.isAssignableFrom(throwableExpression.getType(typeResolver))) {
+      throw MarcelSemanticException(node, "Can only throw Throwable")
+    }
+    pushArgument(throwableExpression)
+    mv.visitInsn(Opcodes.ATHROW)
   }
 
   override fun visit(node: IfStatementNode) {

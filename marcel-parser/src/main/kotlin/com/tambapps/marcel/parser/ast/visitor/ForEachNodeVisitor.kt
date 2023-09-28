@@ -10,6 +10,7 @@ import com.tambapps.marcel.parser.ast.statement.ForInStatement
 import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.MultiVariableDeclarationNode
+import com.tambapps.marcel.parser.ast.statement.ThrowStatementNode
 import com.tambapps.marcel.parser.ast.statement.TryCatchNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
@@ -201,6 +202,11 @@ class ForEachNodeVisitor(private val consumer: (AstNode) -> Unit): AstNodeVisito
   override fun visit(node: OrOperator) = visitBinaryOperator(node)
 
   override fun visit(node: NotNode) = visitUnaryOperator(node)
+
+  override fun visit(node: ThrowStatementNode) {
+    consumer.invoke(node)
+    consumer.invoke(node.throwableExpression)
+  }
 
   override fun visit(node: IfStatementNode) {
     consumer.invoke(node)

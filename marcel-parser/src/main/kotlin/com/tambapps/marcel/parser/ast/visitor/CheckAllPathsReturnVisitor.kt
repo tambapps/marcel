@@ -9,6 +9,7 @@ import com.tambapps.marcel.parser.ast.statement.ForInStatement
 import com.tambapps.marcel.parser.ast.statement.ForStatement
 import com.tambapps.marcel.parser.ast.statement.IfStatementNode
 import com.tambapps.marcel.parser.ast.statement.MultiVariableDeclarationNode
+import com.tambapps.marcel.parser.ast.statement.ThrowStatementNode
 import com.tambapps.marcel.parser.ast.statement.TryCatchNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
@@ -78,9 +79,7 @@ class CheckAllPathsReturnVisitor: AstNodeVisitor<Boolean> {
 
   override fun visit(node: LambdaNode) = false
 
-  override fun visit(node: ExpressionStatementNode): Boolean {
-    return node is ReturnNode
-  }
+  override fun visit(node: ExpressionStatementNode) = node is ReturnNode
 
   override fun visit(node: VariableDeclarationNode) = false
 
@@ -88,9 +87,8 @@ class CheckAllPathsReturnVisitor: AstNodeVisitor<Boolean> {
 
   override fun visit(node: MultiVariableDeclarationNode) = false
 
-  override fun visit(node: ReturnNode): Boolean {
-    return true
-  }
+  override fun visit(node: ReturnNode) = true
+  override fun visit(node: ThrowStatementNode) = true
 
   override fun visit(node: VoidExpression) = false
 
