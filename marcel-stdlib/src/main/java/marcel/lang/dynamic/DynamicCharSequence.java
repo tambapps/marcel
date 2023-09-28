@@ -70,4 +70,14 @@ public class DynamicCharSequence extends AbstractDynamicObject implements Dynami
   public boolean equals(Object o) {
     return super.equals(o);
   }
+
+  @Override
+  public CharSequence asCharsequence() {
+    return value;
+  }
+
+  @Override
+  public String asString() {
+    return value.toString();
+  }
 }

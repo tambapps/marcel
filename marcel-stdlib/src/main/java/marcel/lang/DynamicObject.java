@@ -97,7 +97,6 @@ public interface DynamicObject extends Iterable<DynamicObject>, MarcelTruth {
 
   Object getValue();
 
-  // TODO rename these below methods asXXX because of incoherence with toString()
   default List asList() {
     if (getValue() instanceof List) return (List) getValue();
     throw new ClassCastException("Value isn't instance of List");
@@ -196,6 +195,15 @@ public interface DynamicObject extends Iterable<DynamicObject>, MarcelTruth {
   default char asChar() {
     if (getValue() instanceof Character) return (Character) getValue();
     throw new ClassCastException("Value isn't instance of Character");
+  }
+
+  default CharSequence asCharsequence() {
+    if (getValue() instanceof CharSequence) return (CharSequence) getValue();
+    throw new ClassCastException("Value isn't instance of Character");
+  }
+
+  default String asString() {
+    return asCharsequence().toString();
   }
 
   default boolean asBool() {

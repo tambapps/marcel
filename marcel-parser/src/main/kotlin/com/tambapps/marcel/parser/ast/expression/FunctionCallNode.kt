@@ -178,7 +178,7 @@ open class NamedParametersFunctionCall constructor(token: LexToken, override var
 
     val m =  if (methodOwnerType != null) typeResolver.findMethodByParametersOrThrow(
       typeResolver.resolve(methodOwnerType!!), name, positionalArguments.map { typeResolver.resolve(it) }, methodParameters, this)
-    else scope.getMethodWithParameters(name, positionalArguments.map { typeResolver.resolve(it) }, methodParameters)
+    else scope.getMethodWithParameters(token, name, positionalArguments.map { typeResolver.resolve(it) }, methodParameters)
     return m
   }
 

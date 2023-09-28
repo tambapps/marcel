@@ -157,7 +157,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
     val attributes = mutableListOf<Pair<String, JavaConstantExpression>>()
     if (current.type == TokenType.LPAR) {
       skip()
-      if (current.type == TokenType.IDENTIFIER) {
+      if (current.type == TokenType.IDENTIFIER && lookup(1)?.type == TokenType.ASSIGNMENT) {
         while (current.type != TokenType.RPAR) {
           val attributeName = accept(TokenType.IDENTIFIER).value
           accept(TokenType.ASSIGNMENT)

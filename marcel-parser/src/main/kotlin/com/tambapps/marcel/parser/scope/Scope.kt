@@ -59,9 +59,9 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
     }
   }
 
-  fun getMethodWithParameters(name: String, positionalArgumentTypes: List<AstTypedObject>, namedParameters: List<MethodParameter>): JavaMethod {
+  fun getMethodWithParameters(lexToken: LexToken, name: String, positionalArgumentTypes: List<AstTypedObject>, namedParameters: List<MethodParameter>): JavaMethod {
     return typeResolver.findMethodByParameters(classType, name, positionalArgumentTypes, namedParameters)
-      ?: throw MarcelSemanticException("Method $name with parameters $namedParameters is not defined")
+      ?: throw MarcelSemanticException(lexToken, "Method $name with parameters $namedParameters is not defined")
   }
 
   fun findMethodOrThrow(name: String, argumentTypes: List<AstTypedObject>, node: AstNode): JavaMethod {
