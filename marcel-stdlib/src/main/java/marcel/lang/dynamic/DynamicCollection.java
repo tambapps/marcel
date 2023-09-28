@@ -5,7 +5,7 @@ import lombok.Getter;
 import marcel.lang.DynamicObject;
 import marcel.lang.lambda.DynamicObjectLambda1;
 import marcel.lang.methods.DefaultMarcelMethods;
-import marcel.lang.methods.MarcelTruth;
+import marcel.lang.MarcelTruth;
 import marcel.lang.primitives.collections.lists.CharacterArrayList;
 import marcel.lang.primitives.collections.lists.CharacterList;
 import marcel.lang.primitives.collections.lists.DoubleArrayList;

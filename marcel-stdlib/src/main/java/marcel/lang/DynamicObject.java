@@ -12,7 +12,6 @@ import marcel.lang.dynamic.DynamicCharSequence;
 import marcel.lang.dynamic.MissingMethodException;
 import marcel.lang.dynamic.MissingPropertyException;
 import marcel.lang.lambda.DynamicObjectLambda1;
-import marcel.lang.methods.MarcelTruth;
 import marcel.lang.primitives.collections.lists.CharacterList;
 import marcel.lang.primitives.collections.lists.DoubleList;
 import marcel.lang.primitives.collections.lists.FloatList;
@@ -29,7 +28,7 @@ import java.util.*;
 /**
  * Interface providing dynamic features to an object
  */
-public interface DynamicObject extends Iterable<DynamicObject>, TruthableObject {
+public interface DynamicObject extends Iterable<DynamicObject>, MarcelTruth {
 
   default DynamicObject getAt(Object key) {
     throw new MissingMethodException(getValue().getClass(), "getAt", new Object[]{key});

@@ -41,7 +41,7 @@ import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import marcel.lang.IntRanges
 import marcel.lang.LongRanges
-import marcel.lang.methods.MarcelTruth
+import marcel.lang.MarcelTruth
 import marcel.lang.primitives.iterators.CharacterIterator
 import marcel.lang.primitives.iterators.DoubleIterator
 import marcel.lang.primitives.iterators.FloatIterator
@@ -54,7 +54,6 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import java.io.Closeable
 import java.util.*
-import java.util.regex.Matcher
 import java.util.regex.Pattern
 import kotlin.collections.HashMap
 

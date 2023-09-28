@@ -1,6 +1,4 @@
-package marcel.lang.methods;
-
-import marcel.lang.TruthableObject;
+package marcel.lang;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
@@ -11,7 +9,17 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.regex.Matcher;
 
-public class MarcelTruth {
+/**
+ * The truth specifying if a value is considered to be true or not by Marcel Lang
+ */
+public interface MarcelTruth {
+
+  /**
+   * Returns whether the object should be considered truthy or not
+   *
+   * @return whether the object should be considered truthy or not
+   */
+  boolean isTruthy();
 
   public static boolean isTruthy(Object o) {
     if (o == null) {
@@ -34,8 +42,8 @@ public class MarcelTruth {
       return Array.getLength(o) > 0;
     } else if (clazz == Matcher.class) {
       return isTruthy((Matcher) o);
-    } else if (o instanceof TruthableObject) {
-      return isTruthy((TruthableObject) o);
+    } else if (o instanceof MarcelTruth) {
+      return isTruthy((MarcelTruth) o);
     } else {
       return true;
     }
@@ -45,7 +53,7 @@ public class MarcelTruth {
     return b != null && b;
   }
 
-  public static boolean isTruthy(TruthableObject object) {
+  public static boolean isTruthy(MarcelTruth object) {
     return object != null && object.isTruthy();
   }
 

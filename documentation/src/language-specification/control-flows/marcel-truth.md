@@ -12,8 +12,6 @@ The only falsey values are the following:
 - An empty array
 - An empty Map
 - A [Matcher](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html) who's `find()` method would return false
-- A TruthableObject who's `isTruthy()` method would return false
+- An object extending MarcelTruth who's `isTruthy()` method would return false
 
 Any other value is truthy.
-
-You can override the truth for your class if you make it extend `TruthableObject`
