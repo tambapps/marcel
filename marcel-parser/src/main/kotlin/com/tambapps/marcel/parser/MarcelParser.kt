@@ -430,8 +430,18 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         )
       }
     }
-    if (!isConstructor || current.type == TokenType.BRACKETS_OPEN) {
-      statements.addAll(block(methodScope).statements)
+    if (!isConstructor) {
+      if (current.type == TokenType.ARROW) {
+        // fun foo() -> expression()
+        skip()
+        if (returnType.className == "void") {
+          statements.add(statement(methodScope))
+        } else {
+          statements.add(ReturnNode(token, methodScope, expression(methodScope)))
+        }
+      } else {
+        statements.addAll(block(methodScope).statements)
+      }
     }
     return methodNode
   }

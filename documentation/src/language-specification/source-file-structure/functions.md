@@ -20,6 +20,13 @@ As shown in the above example, a function define has the following structures
 5. the list of your function's parameters. The parameter's type first, and then the parameter's name.
 
 
+If your function only contains one statement/expression, you can specify it with the below syntax
+
+```marcel
+fun int sum(int a, int b) -> a + b
+
+protected fun void foo() -> println("Did nothing")
+```
 
 ## Function Visibility
 
