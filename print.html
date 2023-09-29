@@ -784,6 +784,11 @@ protected fun void foo() {
 <li>the function's name</li>
 <li>the list of your function's parameters. The parameter's type first, and then the parameter's name.</li>
 </ol>
+<p>If your function only contains one statement/expression, you can specify it with the below syntax</p>
+<pre><code class="language-marcel">fun int sum(int a, int b) -&gt; a + b
+
+protected fun void foo() -&gt; println(&quot;Did nothing&quot;)
+</code></pre>
 <h2 id="function-visibility"><a class="header" href="#function-visibility">Function Visibility</a></h2>
 <p>You can specify your function's <a href="language-specification/source-file-structure/./visibility.html">visibility</a> before the <code>fun</code> keyword</p>
 <pre><code class="language-marcel">private fun foo() {
