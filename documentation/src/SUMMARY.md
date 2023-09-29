@@ -31,6 +31,7 @@
     - [Functions](language-specification/source-file-structure/functions.md)
     - [Classes](language-specification/source-file-structure/classes.md)
     - [Script](language-specification/source-file-structure/script.md)
+    - [Annotations](language-specification/source-file-structure/annotations.md)
   - [Operators](language-specification/operators/index.md)
     - [Plus (+)](language-specification/operators/plus.md)
     - [Minus (-)](language-specification/operators/minus.md)
