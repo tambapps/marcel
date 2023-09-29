@@ -4,7 +4,6 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.ComparisonOperator
 import com.tambapps.marcel.parser.ast.ScopedNode
-import com.tambapps.marcel.parser.exception.MarcelSemanticException
 import com.tambapps.marcel.parser.scope.Scope
 
 abstract class BinaryOperatorNode(
@@ -110,7 +109,7 @@ class InvokeAccessOperator constructor(token: LexToken, leftOperand: ExpressionN
 
 class GetFieldAccessOperator constructor(token: LexToken, leftOperand: ExpressionNode, override val rightOperand: ReferenceExpression,
                                   val nullSafe: Boolean, val directFieldAccess: Boolean) :
-    BinaryOperatorNode(token, leftOperand, rightOperand), JavaConstantExpression {
+    BinaryOperatorNode(token, leftOperand, rightOperand) {
   val scope: Scope get() = rightOperand.scope
 
   override fun <T> accept(astNodeVisitor: AstNodeVisitor<T>) = astNodeVisitor.visit(this)
@@ -119,18 +118,6 @@ class GetFieldAccessOperator constructor(token: LexToken, leftOperand: Expressio
     return "$leftOperand.$rightOperand"
   }
 
-  override val value: Any
-    get() = try {
-      val owner = leftOperand as? ReferenceExpression ?: throw constantValueNotFound()
-
-      val type = scope.resolveType(owner.name, emptyList())
-      if (!type.isLoaded) throw constantValueNotFound()
-      type.realClazz.getField(rightOperand.name).get(null)
-    } catch (e: ReflectiveOperationException) {
-      throw constantValueNotFound()
-    }
-
-  private fun constantValueNotFound() = MarcelSemanticException(this, "Constant value could not be found from $this")
 }
 
 

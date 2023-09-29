@@ -116,19 +116,22 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
       val attribute = annotationNode.attributes.find { it.name == attr.first }
         ?: throw MarcelSemanticException(annotationNode.token, "Unknown member ${attr.first} for annotation ${annotationNode.type}")
       val attrValue = attr.second.value
-      val isEnum = attrValue.javaClass.isEnum
-      when(attribute.type) {
-        JavaType.String -> if (attrValue !is String) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
-        JavaType.int -> if (attrValue !is Int) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
-        JavaType.long -> if (attrValue !is Long) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
-        JavaType.float -> if (attrValue !is Float) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
-        JavaType.double -> if (attrValue !is Double) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
-        JavaType.char -> if (attrValue !is Char) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
-        JavaType.boolean -> if (attrValue !is Boolean) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
-        else -> if (!isEnum) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
+      val isEnum = attribute.type.isEnum
+      if (!isEnum) {
+        when(attribute.type) {
+          JavaType.String -> if (attrValue !is String) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
+          JavaType.int -> if (attrValue !is Int) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
+          JavaType.long -> if (attrValue !is Long) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
+          JavaType.float -> if (attrValue !is Float) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
+          JavaType.double -> if (attrValue !is Double) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
+          JavaType.char -> if (attrValue !is Char) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
+          JavaType.boolean -> if (attrValue !is Boolean) annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
+          else -> annotationErrorAttributeTypeError(annotationNode, attribute, attrValue)
+        }
+        annotationVisitor.visit(attr.first, attrValue)
+      } else {
+        annotationVisitor.visitEnum(attr.first, attribute.type.descriptor, attrValue.toString())
       }
-      if (isEnum) annotationVisitor.visitEnum(attr.first, attrValue.javaClass.javaType.descriptor, (attrValue as Enum<*>).name)
-      else annotationVisitor.visit(attr.first, attrValue)
     }
 
     for (attr in annotationNode.attributes) {

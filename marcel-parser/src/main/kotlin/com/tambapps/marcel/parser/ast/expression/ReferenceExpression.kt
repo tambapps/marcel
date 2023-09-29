@@ -7,7 +7,10 @@ import com.tambapps.marcel.parser.ast.ScopedNode
 import com.tambapps.marcel.parser.scope.Variable
 
 // can be a class or variable reference
-class ReferenceExpression constructor(token: LexToken, override var scope: Scope, val name: String): AbstractExpressionNode(token), ScopedNode<Scope> {
+class ReferenceExpression constructor(token: LexToken, override var scope: Scope, val name: String): AbstractExpressionNode(token), ScopedNode<Scope>
+  // constant for enums
+  , JavaConstantExpression {
+  override val value = name
 
   companion object {
     fun thisRef(scope: Scope): ThisReference {

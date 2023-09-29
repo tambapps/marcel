@@ -46,6 +46,7 @@ interface JavaType: AstTypedObject {
   val isLoaded: Boolean
   val isScript get() = JavaType.of(Script::class.java).isAssignableFrom(this)
   val realClazz: Class<*>
+  val isEnum: Boolean
   val className: String
   val packageName: String?
   val superType: JavaType?
@@ -419,6 +420,9 @@ open class NotLoadedJavaType internal constructor(
   override val isInterface: Boolean,
   override val directlyImplementedInterfaces: MutableCollection<JavaType>): AbstractJavaType() {
 
+
+  // doesn't support enum for now
+  override val isEnum = false
   override val arrayType: JavaArrayType
     get() = this as NotLoadedJavaArrayType
 
@@ -463,6 +467,7 @@ open class NotLoadedJavaType internal constructor(
 abstract class LoadedJavaType internal constructor(final override val realClazz: Class<*>, final override val genericTypes: List<JavaType>,
                               override val storeCode: Int, override val loadCode: Int, override val returnCode: Int): AbstractJavaType() {
   override val isLoaded = true
+  override val isEnum = realClazz.isEnum
   override val descriptor: String
     get() = AsmUtils.getClassDescriptor(realClazz)
 
@@ -680,6 +685,8 @@ class LazyJavaType internal constructor(private val scope: Scope,
       return _actualType!!
     }
 
+  override val isEnum: Boolean
+    get() = actualType.isEnum
   override val arrayType: JavaArrayType
     get() = actualType.arrayType
 
