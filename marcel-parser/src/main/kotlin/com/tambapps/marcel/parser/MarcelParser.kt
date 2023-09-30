@@ -430,7 +430,12 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         )
       }
     }
-    if (!isConstructor) {
+    if (isConstructor) {
+      // the constructor's block body is optional
+      if (current.type == TokenType.BRACKETS_OPEN) {
+        statements.addAll(block(methodScope).statements)
+      }
+    } else {
       if (current.type == TokenType.ARROW) {
         // fun foo() -> expression()
         skip()
@@ -440,6 +445,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
           statements.add(ReturnNode(token, methodScope, expression(methodScope)))
         }
       } else {
+        // must be a block
         statements.addAll(block(methodScope).statements)
       }
     }
