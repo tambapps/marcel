@@ -30,6 +30,7 @@
     <module>marcel-lexer</module>
     <module>marcel-maven-plugin</module>
     <module>marcel-parser</module>
+    <module>marcel-parser2</module>
     <module>marcel-stdlib</module>
     <module>marcl</module>
     <module>subprojects</module>
