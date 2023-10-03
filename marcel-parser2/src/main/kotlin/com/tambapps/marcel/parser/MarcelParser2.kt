@@ -3,6 +3,7 @@ package com.tambapps.marcel.parser
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.literral.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literral.FloatCstNode
@@ -32,7 +33,20 @@ class MarcelParser2 constructor(tokens: List<LexToken>) {
 
   private val errors = mutableListOf<MarcelParser2Exception.Error>()
 
-  internal fun parseType(parentNode: CstNode?): TypeCstNode {
+  fun parse(): SourceFileCstNode {
+    if (tokens.isEmpty()) {
+      throw MarcelParser2Exception(LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, null), "Unexpected end of file")
+    }
+    val sourceFile = SourceFileCstNode(tokenStart = tokens.first(), tokenEnd = tokens.last())
+    sourceFile.instructions.add(statement(sourceFile))
+
+    if (errors.isNotEmpty()) {
+      throw MarcelParser2Exception(errors)
+    }
+    return sourceFile
+  }
+
+  internal fun parseType(parentNode: CstNode? = null): TypeCstNode {
     val tokenStart = next()
     val typeFragments = mutableListOf<String>(
       parseTypeFragment(tokenStart)
@@ -66,14 +80,21 @@ class MarcelParser2 constructor(tokens: List<LexToken>) {
     TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_VOID, TokenType.TYPE_CHAR,
     TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL, TokenType.TYPE_BYTE, TokenType.TYPE_SHORT, TokenType.IDENTIFIER -> token.value
     TokenType.DYNOBJ -> "DynamicObject"
-    else -> throw MarcelParser2Exception(token, "Doesn't handle type ${token.type}")
+    else -> throw MarcelParser2Exception(token, "Doesn't handle type ${token.type}") // TODO this error can be a non fatal one
+  }
+
+  fun statement(parentNode: CstNode? = null): CstNode {
+    // TODO
+    val expr = expression(parentNode)
+    acceptOptional(TokenType.SEMI_COLON)
+    return expr
   }
 
   fun expression(parentNode: CstNode? = null): CstNode {
-    TODO()
+    // TODO
+    return atom(parentNode)
   }
 
-  // TODO parse direct field access here @something
   fun atom(parentNode: CstNode? = null): CstNode {
     val token = next()
     return when (token.type) {
@@ -136,6 +157,7 @@ class MarcelParser2 constructor(tokens: List<LexToken>) {
     }
     return null
   }
+
   private fun parseNumberConstant(parentNode: CstNode? = null, token: LexToken): CstNode {
     if (token.type == TokenType.INTEGER) {
       var valueString = token.value.lowercase(Locale.ENGLISH)

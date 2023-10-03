@@ -3,6 +3,8 @@ package com.tambapps.marcel.parser
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.lexer.TokenType.*
 
+// TODO .. (for range is an operator) (?), and/or make '<..', '..<', '>..' and '..>' tokens
+//  operator with priority 1
 object ParserUtils {
 
   const val LEFT = 0

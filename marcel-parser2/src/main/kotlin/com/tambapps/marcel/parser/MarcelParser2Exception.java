@@ -32,7 +32,7 @@ public class MarcelParser2Exception extends RuntimeException {
     this(Collections.singletonList(error));
   }
 
-  private MarcelParser2Exception(List<Error> errors) {
+  public MarcelParser2Exception(List<Error> errors) {
     super(generateErrorMessage(errors));
     this.errors = errors;
   }

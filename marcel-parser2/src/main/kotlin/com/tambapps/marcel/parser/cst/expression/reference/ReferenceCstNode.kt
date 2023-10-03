@@ -9,5 +9,6 @@ class ReferenceCstNode(
     token: LexToken
 ) : CstNode(parent, token) {
 
+    override fun toString() = value
 
 }

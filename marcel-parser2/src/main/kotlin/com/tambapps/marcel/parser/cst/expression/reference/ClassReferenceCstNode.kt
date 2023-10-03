@@ -10,5 +10,6 @@ class ClassReferenceCstNode(
     tokenEnd: LexToken
 ) : CstNode(parent, tokenStart, tokenEnd) {
 
+    override fun toString() = "$value.class"
 
 }
