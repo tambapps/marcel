@@ -32,6 +32,7 @@
     <module>marcel-parser</module>
     <module>marcel-parser2</module>
     <module>marcel-stdlib</module>
+    <module>marcel-semantic</module>
     <module>marcl</module>
     <module>subprojects</module>
   </modules>
