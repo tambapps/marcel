@@ -3,13 +3,13 @@ package com.tambapps.marcel.parser.cst
 import com.tambapps.marcel.lexer.LexToken
 
 class TypeCstNode(
-    parent: CstNode?,
-    override val value: String, // the type
-    val genericTypes: List<String>,
-    val arrayDimensions: Int,
-    tokenStart: LexToken,
-    tokenEnd: LexToken
-) : CstNode(parent, tokenStart, tokenEnd) {
+  parent: CstNode?,
+  override val value: String, // the type
+  val genericTypes: List<String>,
+  val arrayDimensions: Int,
+  tokenStart: LexToken,
+  tokenEnd: LexToken
+) : AbstractCstNode(parent, tokenStart, tokenEnd) {
 
     override fun toString(): String {
         val builder = StringBuilder()
