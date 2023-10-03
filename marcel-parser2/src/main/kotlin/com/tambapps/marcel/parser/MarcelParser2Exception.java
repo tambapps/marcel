@@ -10,6 +10,10 @@ import java.util.stream.Collectors;
 
 public class MarcelParser2Exception extends RuntimeException {
 
+  public static MarcelParser2Exception.Error error(String message, boolean eof, LexToken token) {
+    return new Error(message, eof, token);
+  }
+
   @Value
   public static class Error {
     String message;

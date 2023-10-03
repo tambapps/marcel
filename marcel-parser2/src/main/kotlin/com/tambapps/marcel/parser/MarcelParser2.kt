@@ -6,6 +6,7 @@ import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
+import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
 import com.tambapps.marcel.parser.cst.expression.literral.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literral.FloatCstNode
 import com.tambapps.marcel.parser.cst.expression.literral.IntCstNode
@@ -91,12 +92,12 @@ class MarcelParser2 constructor(tokens: List<LexToken>) {
     return expr
   }
 
-  fun expression(parentNode: CstNode? = null): CstNode {
+  fun expression(parentNode: CstNode? = null): CstExpressionNode {
     // TODO
     return atom(parentNode)
   }
 
-  fun atom(parentNode: CstNode? = null): CstNode {
+  fun atom(parentNode: CstNode? = null): CstExpressionNode {
     val token = next()
     return when (token.type) {
       TokenType.INTEGER, TokenType.FLOAT -> {
@@ -117,13 +118,21 @@ class MarcelParser2 constructor(tokens: List<LexToken>) {
         else if (current.type == TokenType.LPAR
           // for funcCall<CastType>()
           || current.type == TokenType.LT && lookup(2)?.type == TokenType.GT && lookup(3)?.type == TokenType.LPAR) {
-          TODO()
+          var castType: TypeCstNode? = null
+          if (current.type == TokenType.LT) {
+            skip()
+            castType = parseType(parentNode)
+            accept(TokenType.GT)
+          }
+          skip()
+          val (arguments, namedArguments) = parseFunctionArguments(parentNode)
+          FunctionCallCstNode(parentNode, token.value, castType, arguments, namedArguments, token, previous)
         } else if (current.type == TokenType.BRACKETS_OPEN) { // function call with a lambda
           skip()
-          TODO()
+          FunctionCallCstNode(parentNode, token.value, null, listOf(TODO("parse lambda")), emptyList(), token, previous)
         } else if (current.type == TokenType.LT  && lookup(1)?.type == TokenType.TWO_DOTS
           || current.type == TokenType.GT && lookup(1)?.type == TokenType.TWO_DOTS || current.type == TokenType.TWO_DOTS) {
-          TODO()
+          TODO("Range node. Might convert it into an operator though")
         } else if (current.type == TokenType.SQUARE_BRACKETS_OPEN
           || (current.type == TokenType.QUESTION_MARK && lookup(1)?.type == TokenType.SQUARE_BRACKETS_OPEN)) {
           indexAccessCstNode(parentNode, ReferenceCstNode(parentNode, token.value, token))
@@ -138,6 +147,32 @@ class MarcelParser2 constructor(tokens: List<LexToken>) {
     }
   }
 
+  private fun parseFunctionArguments(parentNode: CstNode? = null): Pair<MutableList<CstExpressionNode>, MutableList<Pair<String, CstExpressionNode>>> {
+    val arguments = mutableListOf<CstExpressionNode>()
+    val namedArguments = mutableListOf<Pair<String, CstExpressionNode>>()
+    while (current.type != TokenType.RPAR) {
+      if (current.type == TokenType.IDENTIFIER && lookup(1)?.type == TokenType.COLON) {
+        val identifierToken = accept(TokenType.IDENTIFIER)
+        val name = identifierToken.value
+        if (namedArguments.any { it.first == name }) {
+          recordError("Method parameter $name was specified more than one", identifierToken)
+        }
+        accept(TokenType.COLON)
+        namedArguments.add(Pair(name, expression(parentNode)))
+      } else {
+        if (namedArguments.isNotEmpty()) {
+          recordError("Cannot have a positional function argument after a named one")
+        }
+        arguments.add(expression(parentNode))
+      }
+
+      if (current.type == TokenType.COMMA) {
+        accept(TokenType.COMMA)
+      }
+    }
+    skip() // skipping RPAR
+    return Pair(arguments, namedArguments)
+  }
 
 
   private fun indexAccessCstNode(parentNode: CstNode?, ownerNode: CstNode): IndexAccessCstNode {
@@ -161,7 +196,7 @@ class MarcelParser2 constructor(tokens: List<LexToken>) {
     return null
   }
 
-  private fun parseNumberConstant(parentNode: CstNode? = null, token: LexToken): CstNode {
+  private fun parseNumberConstant(parentNode: CstNode? = null, token: LexToken): CstExpressionNode {
     if (token.type == TokenType.INTEGER) {
       var valueString = token.value.lowercase(Locale.ENGLISH)
       val isLong = valueString.endsWith("l")
@@ -250,6 +285,9 @@ class MarcelParser2 constructor(tokens: List<LexToken>) {
     }
   }
 
+  private fun recordError(message: String, token: LexToken = current) {
+    recordError(MarcelParser2Exception.error(message, eof, token))
+  }
   private fun recordError(error: MarcelParser2Exception.Error) {
     errors.add(error)
   }

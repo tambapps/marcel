@@ -4,6 +4,8 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.cst.TypeCstNode
+import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
+import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
 import com.tambapps.marcel.parser.cst.expression.literral.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literral.FloatCstNode
 import com.tambapps.marcel.parser.cst.expression.literral.IntCstNode
@@ -15,6 +17,19 @@ import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 
 class MarcelParser2Test {
+
+    @Test
+    fun testFunctionCall() {
+        assertEquals(
+            fCall(value = "a", positionalArgumentNodes = listOf(int(1), float(2f), ref("b")),)
+            , parser("a(1, 2f, b)").atom())
+        assertEquals(
+            fCall(value = "zoo", castType = type("float"),
+                namedArgumentNodes = listOf(Pair("foo", int(123)), Pair("bar", double(23.0))),)
+            , parser("zoo<float>(foo: 123, bar: 23d)").atom())
+
+        assertNotEquals(fCall(value = "a"), parser("a(1, 2f, b)").atom())
+    }
 
     @Test
     fun testIndexAccess() {
@@ -33,43 +48,54 @@ class MarcelParser2Test {
 
     @Test
     fun testTypes() {
-        assertEquals(TypeCstNode(null, "int", emptyList(), 0, token(), token()),
+        assertEquals(type(value = "int"),
             parser("int").parseType())
-        assertEquals(TypeCstNode(null, "DynamicObject", emptyList(), 0, token(), token()),
+        assertEquals(type(value = "DynamicObject"),
             parser("dynobj").parseType())
-        assertEquals(TypeCstNode(null, "list", listOf("int"), 0, token(), token()),
+        assertEquals(type(value = "list", genericTypes = listOf("int")),
             parser("list<int>").parseType())
-        assertEquals(TypeCstNode(null, "list", listOf("int"), 2, token(), token()),
+        assertEquals(type(value = "list", genericTypes = listOf("int"), arrayDimensions = 2),
             parser("list<int>[][]").parseType())
-        assertEquals(TypeCstNode(null, "DynamicObject", emptyList(), 1, token(), token()),
+        assertEquals(type(value = "DynamicObject", arrayDimensions = 1),
             parser("dynobj[]").parseType())
-        assertEquals(TypeCstNode(null, "Optional", emptyList(), 1, token(), token()),
+        assertEquals(type(value = "Optional", arrayDimensions = 1),
             parser("Optional[]").parseType())
 
-        assertNotEquals(TypeCstNode(null, "Optional", emptyList(), 2, token(), token()),
+        assertNotEquals(type(value = "Optional", arrayDimensions = 2),
             parser("Optional[]").parseType())
     }
 
     @Test
     fun testLiteralNumbers() {
-        assertEquals(IntCstNode(value = 1234, token = token()), parser("1234").atom())
-        assertEquals(LongCstNode(value = 1234L, token = token()), parser("1234l").atom())
-        assertEquals(FloatCstNode(value = 1234f, token = token()), parser("1234f").atom())
-        assertEquals(FloatCstNode(value = 1234.45f, token = token()), parser("1234.45f").atom())
-        assertEquals(DoubleCstNode(value = 1234.0, token = token()), parser("1234d").atom())
-        assertEquals(DoubleCstNode(value = 1234.45, token = token()), parser("1234.45d").atom())
+        assertEquals(int(value = 1234), parser("1234").atom())
+        assertEquals(long(value = 1234L), parser("1234l").atom())
+        assertEquals(float(value = 1234f), parser("1234f").atom())
+        assertEquals(float(value = 1234.45f), parser("1234.45f").atom())
+        assertEquals(double(value = 1234.0), parser("1234d").atom())
+        assertEquals(double(value = 1234.45), parser("1234.45d").atom())
 
-        assertEquals(IntCstNode(value = 10 * 16 + 6, token = token()), parser("0xA6").atom())
-        assertEquals(LongCstNode(value = 0b0101L, token = token()), parser("0b0101L").atom())
+        assertEquals(int(value = 10 * 16 + 6), parser("0xA6").atom())
+        assertEquals(long(value = 0b0101L), parser("0b0101L").atom())
 
-        assertNotEquals(IntCstNode(value = 123, token = token()), parser("1234").atom())
-        assertNotEquals(LongCstNode(value = 123L, token = token()), parser("1234l").atom())
-        assertNotEquals(FloatCstNode(value = 134f, token = token()), parser("1234f").atom())
-        assertNotEquals(FloatCstNode(value = 134.45f, token = token()), parser("1234.45f").atom())
-        assertNotEquals(DoubleCstNode(value = 234.0, token = token()), parser("1234d").atom())
-        assertNotEquals(DoubleCstNode(value = 1234.4, token = token()), parser("1234.45d").atom())
+        assertNotEquals(int(value = 123), parser("1234").atom())
+        assertNotEquals(long(value = 123L), parser("1234l").atom())
+        assertNotEquals(float(value = 134f), parser("1234f").atom())
+        assertNotEquals(float(value = 134.45f), parser("1234.45f").atom())
+        assertNotEquals(double(value = 234.0), parser("1234d").atom())
+        assertNotEquals(double(value = 1234.4), parser("1234.45d").atom())
     }
 
+    private fun fCall(value: String, castType: TypeCstNode? = null, positionalArgumentNodes: List<CstExpressionNode> = emptyList(),
+                      namedArgumentNodes: List<Pair<String, CstExpressionNode>> = emptyList()
+    ) = FunctionCallCstNode(parent = null, value = value, castType = castType,
+        positionalArgumentNodes = positionalArgumentNodes, namedArgumentNodes = namedArgumentNodes,
+        tokenStart = token(), tokenEnd = token()
+    )
+    private fun type(value: String, genericTypes: List<String> = emptyList(), arrayDimensions: Int = 0) = TypeCstNode(null, value, genericTypes, arrayDimensions, token(), token())
+    private fun int(value: Int) = IntCstNode(value = value, token = token())
+    private fun float(value: Float) = FloatCstNode(value = value, token = token())
+    private fun long(value: Long) = LongCstNode(value = value, token = token())
+    private fun double(value: Double) = DoubleCstNode(value = value, token = token())
     private fun ref(name: String) = ReferenceCstNode(value = name, token = token(), parent = null)
     private fun parser(text: String) = MarcelParser2(MarcelLexer().lex(text))
     private fun token() = LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, "")
