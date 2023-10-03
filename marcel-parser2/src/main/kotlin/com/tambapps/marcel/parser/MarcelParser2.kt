@@ -5,6 +5,7 @@ import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
+import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
 import com.tambapps.marcel.parser.cst.expression.literral.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literral.FloatCstNode
 import com.tambapps.marcel.parser.cst.expression.literral.IntCstNode
@@ -136,6 +137,8 @@ class MarcelParser2 constructor(tokens: List<LexToken>) {
       else -> TODO()
     }
   }
+
+
 
   private fun indexAccessCstNode(parentNode: CstNode?, ownerNode: CstNode): IndexAccessCstNode {
     val isSafeIndex = acceptOptional(TokenType.QUESTION_MARK) != null
