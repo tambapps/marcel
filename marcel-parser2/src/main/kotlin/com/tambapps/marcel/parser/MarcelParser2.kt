@@ -12,6 +12,8 @@ import com.tambapps.marcel.parser.cst.expression.literral.FloatCstNode
 import com.tambapps.marcel.parser.cst.expression.literral.IntCstNode
 import com.tambapps.marcel.parser.cst.expression.literral.LongCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.*
+import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
+import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import java.lang.NumberFormatException
 import java.util.*
 
@@ -85,11 +87,9 @@ class MarcelParser2 constructor(tokens: List<LexToken>) {
     else -> throw MarcelParser2Exception(token, "Doesn't handle type ${token.type}") // TODO this error can be a non fatal one
   }
 
-  fun statement(parentNode: CstNode? = null): CstNode {
-    // TODO
+  fun statement(parentNode: CstNode? = null): StatementCstNode {
     val expr = expression(parentNode)
-    acceptOptional(TokenType.SEMI_COLON)
-    return expr
+    return ExpressionStatementCstNode(parentNode, expr, expr.tokenStart, acceptOptional(TokenType.SEMI_COLON) ?: expr.tokenEnd)
   }
 
   fun expression(parentNode: CstNode? = null): CstExpressionNode {

@@ -12,12 +12,29 @@ import com.tambapps.marcel.parser.cst.expression.literral.IntCstNode
 import com.tambapps.marcel.parser.cst.expression.literral.LongCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.IndexAccessCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ReferenceCstNode
+import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 
 class MarcelParser2Test {
 
+    @Test
+    fun testStatement() {
+        assertEquals(
+            ExpressionStatementCstNode(null,
+                fCall(value = "a", positionalArgumentNodes = listOf(int(1), float(2f), ref("b")),),
+                token(), token()
+                )
+            , parser("a(1, 2f, b)").statement())
+        assertNotEquals(
+            ExpressionStatementCstNode(null,
+                int(1),
+                token(), token()
+                )
+            , parser("a(1, 2f, b)").statement())
+
+    }
     @Test
     fun testFunctionCall() {
         assertEquals(
