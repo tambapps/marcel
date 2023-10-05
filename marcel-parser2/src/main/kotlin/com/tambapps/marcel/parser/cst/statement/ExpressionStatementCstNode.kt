@@ -1,14 +1,16 @@
 package com.tambapps.marcel.parser.cst.statement
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.parser.cst.AbstractCstNode
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
 
 class ExpressionStatementCstNode(parent: CstNode?,
                                  val expressionNode: CstExpressionNode,
                        tokenStart: LexToken, tokenEnd: LexToken) :
-  AbstractCstNode(parent, tokenStart, tokenEnd), StatementCstNode {
+  AbstractStatementCstNode(parent, tokenStart, tokenEnd) {
+
+  override fun <T> accept(visitor: StatementCstNodeVisitor<T>) = visitor.visit(this)
+
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is ExpressionStatementCstNode) return false
