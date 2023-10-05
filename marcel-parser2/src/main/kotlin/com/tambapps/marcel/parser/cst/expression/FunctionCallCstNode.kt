@@ -13,8 +13,9 @@ class FunctionCallCstNode(
   val namedArgumentNodes: List<Pair<String, CstExpressionNode>>,
   tokenStart: LexToken,
   tokenEnd: LexToken
-) :
-  AbstractCstNode(parent, tokenStart, tokenEnd), CstExpressionNode {
+) : AbstractExpressionCstNode(parent, tokenStart, tokenEnd) {
+
+  override fun <T> accept(visitor: ExpressionCstNodeVisitor<T>) = visitor.visit(this)
 
   override fun toString() = StringBuilder().apply {
     append(value)
