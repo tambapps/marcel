@@ -32,7 +32,7 @@ import marcel.lang.primitives.collections.sets.FloatSet
 import marcel.lang.primitives.collections.sets.IntSet
 import marcel.lang.primitives.collections.sets.LongSet
 
-interface JavaType {
+interface JavaType: JavaTyped {
 
   // whether the class is in the classpath and therefore can be accessed with Class.forName(className)
   val isLoaded: Boolean
@@ -57,6 +57,7 @@ interface JavaType {
     return if (i < 0) className else className.substring(i + 1)
   }
 
+  override val type get() = this
   val genericTypes: List<JavaType>
   val isInterface: Boolean
   val isLambda get() = JavaType.lambda.isAssignableFrom(this)
@@ -141,10 +142,13 @@ interface JavaType {
       return NotLoadedJavaType(visibility, className, emptyList(), superClass, isInterface, interfaces.toMutableList())
     }
 
+    fun commonType(list: List<JavaTyped>) = commonType(list.map { it.type })
     fun commonType(list: List<JavaType>): JavaType {
       if (list.isEmpty()) return void
       return list.reduce { acc, javaType -> commonType(acc, javaType) }
     }
+
+    fun commonType(a: JavaTyped, b: JavaTyped) = commonType(a.type, b.type)
 
     fun commonType(a: JavaType, b: JavaType): JavaType {
       if (a == b) return if (a === Anything) Object else a

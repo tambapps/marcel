@@ -3,13 +3,13 @@ package com.tambapps.marcel.compiler
 import com.tambapps.marcel.compiler.asm.ClassCompiler
 import com.tambapps.marcel.compiler.exception.MarcelCompilerException
 import com.tambapps.marcel.compiler.file.SourceFile
-import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser2
 import com.tambapps.marcel.parser.MarcelParser2Exception
 import com.tambapps.marcel.semantic.MarcelSemantic
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import marcel.lang.MarcelClassLoader
 import java.io.File
 import java.io.IOException
