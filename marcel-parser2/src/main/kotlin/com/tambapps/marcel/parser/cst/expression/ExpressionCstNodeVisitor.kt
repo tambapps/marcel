@@ -1,9 +1,9 @@
 package com.tambapps.marcel.parser.cst.expression
 
-import com.tambapps.marcel.parser.cst.expression.literral.DoubleCstNode
-import com.tambapps.marcel.parser.cst.expression.literral.FloatCstNode
-import com.tambapps.marcel.parser.cst.expression.literral.IntCstNode
-import com.tambapps.marcel.parser.cst.expression.literral.LongCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.LongCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ClassReferenceCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.DirectFieldReferenceCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.IncrCstNode

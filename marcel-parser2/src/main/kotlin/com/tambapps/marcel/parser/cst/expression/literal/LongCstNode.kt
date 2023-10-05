@@ -1,4 +1,4 @@
-package com.tambapps.marcel.parser.cst.expression.literral
+package com.tambapps.marcel.parser.cst.expression.literal
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode

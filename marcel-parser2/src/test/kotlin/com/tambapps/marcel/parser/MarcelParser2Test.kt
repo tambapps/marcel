@@ -6,10 +6,10 @@ import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
 import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
-import com.tambapps.marcel.parser.cst.expression.literral.DoubleCstNode
-import com.tambapps.marcel.parser.cst.expression.literral.FloatCstNode
-import com.tambapps.marcel.parser.cst.expression.literral.IntCstNode
-import com.tambapps.marcel.parser.cst.expression.literral.LongCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.LongCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.IndexAccessCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ReferenceCstNode
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode

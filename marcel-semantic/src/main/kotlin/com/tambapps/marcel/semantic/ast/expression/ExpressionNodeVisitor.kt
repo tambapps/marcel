@@ -1,5 +1,16 @@
 package com.tambapps.marcel.semantic.ast.expression
 
+import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.ByteConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.CharConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
+import com.tambapps.marcel.semantic.ast.expression.literal.ShortConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
+
 interface ExpressionNodeVisitor<T> {
 
   fun visit(node: BoolConstantNode): T

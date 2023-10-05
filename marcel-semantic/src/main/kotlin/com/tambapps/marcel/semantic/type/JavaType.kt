@@ -2,16 +2,17 @@ package com.tambapps.marcel.semantic.type
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.Visibility
-import com.tambapps.marcel.semantic.ast.expression.BoolConstantNode
-import com.tambapps.marcel.semantic.ast.expression.ByteConstantNode
-import com.tambapps.marcel.semantic.ast.expression.CharConstantNode
-import com.tambapps.marcel.semantic.ast.expression.DoubleConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.ByteConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.CharConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
-import com.tambapps.marcel.semantic.ast.expression.FloatConstantNode
-import com.tambapps.marcel.semantic.ast.expression.IntConstantNode
-import com.tambapps.marcel.semantic.ast.expression.LongConstantNode
-import com.tambapps.marcel.semantic.ast.expression.ShortConstantNode
-import com.tambapps.marcel.semantic.ast.expression.VoidExpressionNode
+import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
+import com.tambapps.marcel.semantic.ast.expression.literal.ShortConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import marcel.lang.MarcelClassLoader
 import marcel.lang.lambda.Lambda
@@ -247,7 +248,7 @@ interface JavaType {
     val Double = LoadedObjectType(Class.forName("java.lang.Double"))
     val Character = LoadedObjectType(Class.forName("java.lang.Character"))
 
-    val void = JavaPrimitiveType(java.lang.Void::class) { VoidExpressionNode(it) }
+    val void = JavaPrimitiveType(java.lang.Void::class) { NullValueNode(it) }
     val int = JavaPrimitiveType(java.lang.Integer::class) { IntConstantNode(it, value = 0) }
     val long = JavaPrimitiveType(java.lang.Long::class) { LongConstantNode(it, value = 0L) }
     val float = JavaPrimitiveType(java.lang.Float::class) { FloatConstantNode(it, value = 0f) }

@@ -1,9 +1,10 @@
-package com.tambapps.marcel.semantic.ast.expression
+package com.tambapps.marcel.semantic.ast.expression.literal
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.ast.AstNodeVisitor
+import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 
-class IntConstantNode(token: LexToken, val value: Int): AbstractExpressionNode(token) {
+class LongConstantNode(token: LexToken, val value: Long): AbstractExpressionNode(token) {
 
   override fun <T> accept(visitor: AstNodeVisitor<T>) = visitor.visit(this)
 
@@ -15,7 +16,7 @@ class IntConstantNode(token: LexToken, val value: Int): AbstractExpressionNode(t
     if (this === other) return true
     if (javaClass != other?.javaClass) return false
 
-    other as IntConstantNode
+    other as LongConstantNode
 
     if (value != other.value) return false
 
@@ -23,6 +24,6 @@ class IntConstantNode(token: LexToken, val value: Int): AbstractExpressionNode(t
   }
 
   override fun hashCode(): Int {
-    return value
+    return value.hashCode()
   }
 }

@@ -2,7 +2,7 @@ package com.tambapps.marcel.semantic.type
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
-import com.tambapps.marcel.semantic.ast.expression.NullValueNode
+import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 
 abstract class AbstractJavaType: JavaType {
 

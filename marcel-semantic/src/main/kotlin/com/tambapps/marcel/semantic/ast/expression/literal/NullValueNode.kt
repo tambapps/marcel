@@ -1,7 +1,8 @@
-package com.tambapps.marcel.semantic.ast.expression
+package com.tambapps.marcel.semantic.ast.expression.literal
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.ast.AstNodeVisitor
+import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 import com.tambapps.marcel.semantic.type.JavaType
 
 class NullValueNode(token: LexToken, var type: JavaType?): AbstractExpressionNode(token) {

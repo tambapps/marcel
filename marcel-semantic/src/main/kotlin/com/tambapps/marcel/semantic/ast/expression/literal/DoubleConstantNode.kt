@@ -1,9 +1,10 @@
-package com.tambapps.marcel.semantic.ast.expression
+package com.tambapps.marcel.semantic.ast.expression.literal
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.ast.AstNodeVisitor
+import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 
-class CharConstantNode(token: LexToken, val value: Char): AbstractExpressionNode(token) {
+class DoubleConstantNode(token: LexToken, val value: Double): AbstractExpressionNode(token) {
 
   override fun <T> accept(visitor: AstNodeVisitor<T>) = visitor.visit(this)
 
@@ -15,7 +16,7 @@ class CharConstantNode(token: LexToken, val value: Char): AbstractExpressionNode
     if (this === other) return true
     if (javaClass != other?.javaClass) return false
 
-    other as CharConstantNode
+    other as DoubleConstantNode
 
     if (value != other.value) return false
 
