@@ -16,6 +16,7 @@ import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNodeVisitor
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodeNode
+import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
@@ -25,12 +26,12 @@ import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.type.JavaType
 
-class MarcelSemantic: ExpressionCstNodeVisitor<ExpressionNode>, StatementCstNodeVisitor<StatementNode> {
+class MarcelSemantic(private val cst: SourceFileCstNode): ExpressionCstNodeVisitor<ExpressionNode>, StatementCstNodeVisitor<StatementNode> {
 
   private val exprVisitor = this as ExpressionCstNodeVisitor<ExpressionNode>
   private val stmtVisitor = this as StatementCstNodeVisitor<StatementNode>
 
-  fun apply(cst: SourceFileCstNode): ClassNode {
+  fun apply(): ModuleNode {
     // TODO parse package if any
     val className = cst.fileName
     if (cst.instructions.isNotEmpty()) {
@@ -39,7 +40,9 @@ class MarcelSemantic: ExpressionCstNodeVisitor<ExpressionNode>, StatementCstNode
         tokenStart = cst.instructions.first().tokenStart, tokenEnd = cst.instructions.last().tokenEnd)
       classNode.addMethod(runMethod)
       cst.instructions.forEach { cstStmt -> runMethod.instructions.add(cstStmt.accept(stmtVisitor)) }
-      return classNode
+      return ModuleNode(cst.tokenStart, cst.tokenEnd).apply {
+        classes.add(classNode)
+      }
     } else {
       TODO()
     }

@@ -26,6 +26,7 @@
 
   <modules>
     <module>marcel-compiler</module>
+    <module>marcel-compiler2</module>
     <module>marcel-extensions</module>
     <module>marcel-lexer</module>
     <module>marcel-maven-plugin</module>
