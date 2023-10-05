@@ -17,10 +17,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.ow2.asm</groupId>
-      <artifactId>asm</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.tambapps.marcel</groupId>
       <artifactId>marcel-lexer</artifactId>
     </dependency>

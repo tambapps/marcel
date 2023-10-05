@@ -17,7 +17,7 @@ import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import java.lang.NumberFormatException
 import java.util.*
 
-class MarcelParser2 constructor(tokens: List<LexToken>) {
+class MarcelParser2 constructor(private val classSimpleName: String, tokens: List<LexToken>) {
 
   private val tokens = tokens.filter { it.type != TokenType.WHITE_SPACE }
 
@@ -41,7 +41,7 @@ class MarcelParser2 constructor(tokens: List<LexToken>) {
     if (tokens.isEmpty()) {
       throw MarcelParser2Exception(LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, null), "Unexpected end of file")
     }
-    val sourceFile = SourceFileCstNode(tokenStart = tokens.first(), tokenEnd = tokens.last())
+    val sourceFile = SourceFileCstNode(fileName = classSimpleName, tokenStart = tokens.first(), tokenEnd = tokens.last())
     sourceFile.instructions.add(statement(sourceFile))
 
     if (errors.isNotEmpty()) {

@@ -114,6 +114,6 @@ class MarcelParser2Test {
     private fun long(value: Long) = LongCstNode(value = value, token = token())
     private fun double(value: Double) = DoubleCstNode(value = value, token = token())
     private fun ref(name: String) = ReferenceCstNode(value = name, token = token(), parent = null)
-    private fun parser(text: String) = MarcelParser2(MarcelLexer().lex(text))
+    private fun parser(text: String) = MarcelParser2("Test", MarcelLexer().lex(text))
     private fun token() = LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, "")
 }

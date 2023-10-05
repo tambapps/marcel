@@ -102,6 +102,16 @@
       </dependency>
       <dependency>
         <groupId>com.tambapps.marcel</groupId>
+        <artifactId>marcel-parser2</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tambapps.marcel</groupId>
+        <artifactId>marcel-semantic</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tambapps.marcel</groupId>
         <artifactId>marcel-compiler</artifactId>
         <version>${revision}</version>
       </dependency>
