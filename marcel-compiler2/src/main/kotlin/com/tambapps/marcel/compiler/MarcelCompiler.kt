@@ -37,7 +37,7 @@ class MarcelCompiler(private val configuration: CompilerConfiguration) {
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParser2Exception::class, MarcelSemanticException::class, MarcelCompilerException::class)
   fun compileSourceFiles(marcelClassLoader: MarcelClassLoader? = null, sourceFiles: Collection<SourceFile>, classConsumer: Consumer<CompiledClass>) {
-   // val typeResolver = JavaTypeResolver(marcelClassLoader)
+    val typeResolver = JavaTypeResolver(marcelClassLoader)
 
     // first load all classes in typeResolver
     val asts = sourceFiles.map { sourceFile ->
@@ -67,7 +67,7 @@ class MarcelCompiler(private val configuration: CompilerConfiguration) {
       ast
     }
 
-    val classCompiler = ClassCompiler(configuration)
+    val classCompiler = ClassCompiler(configuration, typeResolver)
 
     // then compile them
     asts.forEach { ast ->
