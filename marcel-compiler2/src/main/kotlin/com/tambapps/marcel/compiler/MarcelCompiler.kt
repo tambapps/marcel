@@ -27,12 +27,6 @@ class MarcelCompiler(private val configuration: CompilerConfiguration) {
         it.writeClass(compiledClass)
       }
     }
-    for (file in files) {
-      val tokens = MarcelLexer().lex(file.text)
-      val cst = MarcelParser2(classSimpleName = file.className, tokens = tokens).parse()
-      val rootClassNode = MarcelSemantic(cst).apply()
-      rootClassNode
-    }
   }
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParser2Exception::class, MarcelSemanticException::class, MarcelCompilerException::class)
@@ -43,7 +37,7 @@ class MarcelCompiler(private val configuration: CompilerConfiguration) {
     val asts = sourceFiles.map { sourceFile ->
       val tokens = MarcelLexer().lex(sourceFile.text)
       val cst = MarcelParser2(classSimpleName = sourceFile.className, tokens = tokens).parse()
-      val ast = MarcelSemantic(cst).apply()
+      val ast = MarcelSemantic(typeResolver, cst).apply()
       //visitAst(ast, typeResolver)
 
       /*
