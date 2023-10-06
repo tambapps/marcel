@@ -6,6 +6,7 @@ import com.tambapps.marcel.semantic.variable.LocalVariable
 class LocalVariablePool(staticContext: Boolean) {
   private val variablePool = mutableSetOf<LocalVariable>()
   private var maxSlot = 0
+  // yep for non-static slot starts at 1 because 0 is this
   private val slotStart = if (staticContext) 0 else 1
 
   fun obtain(type: JavaType, name: String, isFinal: Boolean): LocalVariable {

@@ -5,6 +5,7 @@ import com.tambapps.marcel.semantic.type.JavaType
 
 class ClassNode(val type: JavaType, tokenStart: LexToken, tokenEnd: LexToken) : AbstractAst2Node(tokenStart, tokenEnd) {
 
+  val imports = mutableListOf<ImportNode>()
   val methods = mutableListOf<MethodNode>()
 
   fun addMethod(method: MethodNode) {

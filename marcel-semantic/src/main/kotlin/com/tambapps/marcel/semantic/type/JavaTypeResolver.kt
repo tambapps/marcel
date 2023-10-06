@@ -322,7 +322,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     return marcelMethods.computeIfAbsent(javaType.className) { mutableListOf() }
   }
 
-  fun findField(javaType: JavaType, name: String, node: Ast2Node?): MarcelField? {
+  fun findField(javaType: JavaType, name: String): MarcelField? {
     if (javaType.isArray && (name == "size" || name == "length")) {
       return MarcelArrayLengthField(javaType, name)
     }
