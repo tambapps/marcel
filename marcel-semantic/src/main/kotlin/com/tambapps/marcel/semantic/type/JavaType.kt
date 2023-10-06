@@ -142,10 +142,9 @@ interface JavaType: JavaTyped {
       return NotLoadedJavaType(visibility, className, emptyList(), superClass, isInterface, interfaces.toMutableList())
     }
 
-    fun commonType(list: List<JavaTyped>) = commonType(list.map { it.type })
-    fun commonType(list: List<JavaType>): JavaType {
+    fun commonType(list: List<JavaTyped>): JavaType {
       if (list.isEmpty()) return void
-      return list.reduce { acc, javaType -> commonType(acc, javaType) }
+      return list.reduce { acc, javaType -> commonType(acc, javaType) }.type
     }
 
     fun commonType(a: JavaTyped, b: JavaTyped) = commonType(a.type, b.type)
