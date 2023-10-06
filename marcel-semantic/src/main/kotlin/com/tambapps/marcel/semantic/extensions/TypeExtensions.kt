@@ -1,4 +1,4 @@
-package com.tambapps.marcel.compiler.extensions
+package com.tambapps.marcel.semantic.extensions
 
 import com.tambapps.marcel.semantic.type.JavaType
 import kotlin.reflect.KClass

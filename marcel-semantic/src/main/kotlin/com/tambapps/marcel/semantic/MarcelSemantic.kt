@@ -15,7 +15,7 @@ import com.tambapps.marcel.parser.cst.expression.reference.ReferenceCstNode
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNodeVisitor
 import com.tambapps.marcel.semantic.ast.ClassNode
-import com.tambapps.marcel.semantic.ast.MethodeNode
+import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
@@ -24,9 +24,15 @@ import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
+import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import marcel.lang.Script
 
-class MarcelSemantic(private val cst: SourceFileCstNode): ExpressionCstNodeVisitor<ExpressionNode>, StatementCstNodeVisitor<StatementNode> {
+class MarcelSemantic(
+  private val typeResolver: JavaTypeResolver,
+  private val cst: SourceFileCstNode
+): ExpressionCstNodeVisitor<ExpressionNode>, StatementCstNodeVisitor<StatementNode> {
 
   private val exprVisitor = this as ExpressionCstNodeVisitor<ExpressionNode>
   private val stmtVisitor = this as StatementCstNodeVisitor<StatementNode>
@@ -35,9 +41,16 @@ class MarcelSemantic(private val cst: SourceFileCstNode): ExpressionCstNodeVisit
     // TODO parse package if any
     val className = cst.fileName
     if (cst.instructions.isNotEmpty()) {
-      val classNode = ClassNode(className, cst.tokenStart, cst.tokenEnd)
-      val runMethod = MethodeNode("run", Visibility.PUBLIC, JavaType.Object, isStatic = false, isConstructor = false,
-        tokenStart = cst.instructions.first().tokenStart, tokenEnd = cst.instructions.last().tokenEnd)
+      val classType = typeResolver.defineClass(cst.instructions.first().tokenStart, Visibility.PUBLIC, className, Script::class.javaType, false, emptyList())
+      val classNode = ClassNode(classType, cst.tokenStart, cst.tokenEnd)
+      val runMethod =
+        MethodNode(name = "run",
+          visibility = Visibility.PUBLIC, returnType = JavaType.Object,
+          isStatic = false, isConstructor = false,
+          ownerClass = classType,
+          annotations = emptyList(),
+          parameters = emptyList(),
+          tokenStart = cst.instructions.first().tokenStart, tokenEnd = cst.instructions.last().tokenEnd)
       classNode.addMethod(runMethod)
       cst.instructions.forEach { cstStmt -> runMethod.instructions.add(cstStmt.accept(stmtVisitor)) }
       return ModuleNode(cst.tokenStart, cst.tokenEnd).apply {
