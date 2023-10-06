@@ -2,6 +2,9 @@ package com.tambapps.marcel.semantic.variable
 
 import com.tambapps.marcel.semantic.type.JavaType
 
+/**
+ * A local variable in a method
+ */
 class LocalVariable constructor(override var type: JavaType, override var name: String,
                                 internal val nbSlots: Int,
                                 val index: Int = 0,

@@ -8,6 +8,9 @@ import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import java.util.concurrent.ThreadLocalRandom
 
+/**
+ * The scope inside a method
+ */
 open class MethodScope internal constructor(
   private val parentScope: Scope?,
   typeResolver: JavaTypeResolver,

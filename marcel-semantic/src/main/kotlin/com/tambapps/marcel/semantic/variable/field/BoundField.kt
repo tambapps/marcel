@@ -3,7 +3,9 @@ package com.tambapps.marcel.semantic.variable.field
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.type.JavaType
 
-// field from binding, for scripts
+/**
+ * Field from a Script's Binding
+ */
 class BoundField constructor(
   override val type: JavaType,
   override val name: String,

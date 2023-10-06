@@ -2,6 +2,9 @@ package com.tambapps.marcel.semantic.ast
 
 import com.tambapps.marcel.semantic.type.JavaType
 
+/**
+ * An object that can be annotated
+ */
 interface Annotable {
 
     val annotations: List<AnnotationNode>

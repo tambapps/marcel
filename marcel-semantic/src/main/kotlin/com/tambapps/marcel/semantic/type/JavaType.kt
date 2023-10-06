@@ -32,6 +32,9 @@ import marcel.lang.primitives.collections.sets.FloatSet
 import marcel.lang.primitives.collections.sets.IntSet
 import marcel.lang.primitives.collections.sets.LongSet
 
+/**
+ * Represents a Java class
+ */
 interface JavaType: JavaTyped {
 
   // whether the class is in the classpath and therefore can be accessed with Class.forName(className)

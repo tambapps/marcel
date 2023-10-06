@@ -3,6 +3,9 @@ package com.tambapps.marcel.semantic.scope
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.LocalVariable
 
+/**
+ * A pool allowing to keep record of local variable slots
+ */
 class LocalVariablePool(staticContext: Boolean) {
   private val variablePool = mutableSetOf<LocalVariable>()
   private var maxSlot = 0

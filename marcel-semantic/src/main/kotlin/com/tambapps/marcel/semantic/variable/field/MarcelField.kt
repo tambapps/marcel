@@ -3,6 +3,9 @@ package com.tambapps.marcel.semantic.variable.field
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.Variable
 
+/**
+ * A field regrouping different kinds of Variable for a same name
+ */
 open class MarcelField(override val name: String): Variable {
   val classField: ClassField? get() = getters.firstNotNullOfOrNull { it as? ClassField }
   private val _getters = mutableSetOf<JavaField>()

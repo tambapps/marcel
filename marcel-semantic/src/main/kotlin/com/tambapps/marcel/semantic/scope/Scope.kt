@@ -7,6 +7,9 @@ import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTyped
 import com.tambapps.marcel.semantic.variable.Variable
 
+/**
+ * The scope of a given node, holding data about variables and methods it can access
+ */
 interface Scope {
 
   val classType: JavaType

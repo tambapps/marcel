@@ -4,6 +4,9 @@ import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 
+/**
+ * A Field using a getter and/or a setter
+ */
 open class MethodField constructor(override val type: JavaType, override val name: String, override val owner: JavaType,
                                    private val _getterMethod: JavaMethod?,
                                    private val _setterMethod: JavaMethod?,

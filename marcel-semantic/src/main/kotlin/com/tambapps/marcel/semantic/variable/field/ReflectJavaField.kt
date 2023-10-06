@@ -5,6 +5,9 @@ import com.tambapps.marcel.semantic.type.JavaType
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 
+/**
+ * A Field loaded from Java reflection API
+ */
 class ReflectJavaField private constructor(
   override val type: JavaType,
   override val name: String,
