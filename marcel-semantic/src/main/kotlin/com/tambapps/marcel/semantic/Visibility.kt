@@ -16,7 +16,7 @@ enum class Visibility {
      */
     PROTECTED {
         override fun canAccess(from: JavaType, memberOwner: JavaType) =
-            memberOwner.packageName == memberOwner.packageName || memberOwner.isAssignableFrom(from)
+            from.packageName == memberOwner.packageName || memberOwner.isAssignableFrom(from)
     },
 
     /**
@@ -24,7 +24,7 @@ enum class Visibility {
      */
     INTERNAL {
         override fun canAccess(from: JavaType, memberOwner: JavaType) =
-            memberOwner.packageName == from.packageName
+            from.packageName == memberOwner.packageName
     },
 
     /**
