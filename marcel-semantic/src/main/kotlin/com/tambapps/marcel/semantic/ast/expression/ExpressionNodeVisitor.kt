@@ -13,6 +13,10 @@ import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 
 interface ExpressionNodeVisitor<T> {
 
+  fun visit(node: FunctionCallNode): T
+  fun visit(node: ReferenceNode): T
+  fun visit(node: ClassReferenceNode): T
+
   fun visit(node: BoolConstantNode): T
   fun visit(node: ByteConstantNode): T
   fun visit(node: CharConstantNode): T
