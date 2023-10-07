@@ -26,6 +26,7 @@ import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
+import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
@@ -67,10 +68,12 @@ class MarcelSemantic(
           annotations = emptyList(),
           parameters = emptyList(),
           tokenStart = cst.instructions.first().tokenStart, tokenEnd = cst.instructions.last().tokenEnd)
-      classNode.addMethod(runMethod)
       useScope(MethodScope(classScope, runMethod.isStatic)) {
-        cst.instructions.forEach { cstStmt -> runMethod.instructions.add(cstStmt.accept(stmtVisitor)) }
+        runMethod.blockStatement = BlockStatementNode(
+          cst.instructions.map { cstStmt -> cstStmt.accept(stmtVisitor) },
+          runMethod.tokenStart, runMethod.tokenEnd)
       }
+      classNode.addMethod(runMethod)
       return ModuleNode(cst.tokenStart, cst.tokenEnd).apply {
         classes.add(classNode)
       }

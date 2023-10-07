@@ -2,6 +2,7 @@ package com.tambapps.marcel.semantic.ast
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.method.AbstractMethod
 import com.tambapps.marcel.semantic.type.JavaType
@@ -16,7 +17,8 @@ class MethodNode(override val name: String,
                  override val ownerClass: JavaType,
                  override val parameters: List<MethodParameterNode>
 ) : Ast2Node, AbstractMethod(), Annotable {
-                    val instructions = mutableListOf<StatementNode>()
+
+  lateinit var blockStatement: BlockStatementNode
 
   override val isAbstract = false
   override val isDefault = false
