@@ -3,7 +3,7 @@ package com.tambapps.marcel.semantic.type
 import java.lang.annotation.ElementType
 import kotlin.reflect.KClass
 
-interface JavaAnnotation {
+interface JavaAnnotation: JavaTyped {
 
   companion object {
     fun of (klass: KClass<*>) = of(klass.java)
@@ -15,7 +15,7 @@ interface JavaAnnotation {
   data class Attribute(val name: String, val type: JavaType, val defaultValue: Any?)
 
   val attributes: List<Attribute>
-  val type: JavaType
+  override val type: JavaType
 
   val targets: List<ElementType>
 }

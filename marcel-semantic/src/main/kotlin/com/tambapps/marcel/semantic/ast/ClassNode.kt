@@ -13,6 +13,7 @@ class ClassNode(
 
   val imports = mutableListOf<ImportNode>()
   val methods = mutableListOf<MethodNode>()
+  val annotations = mutableListOf<AnnotationNode>()
 
   fun addMethod(method: MethodNode) {
     // TODO check for methods with same signature and throw exception if already has one

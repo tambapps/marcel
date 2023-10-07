@@ -54,6 +54,8 @@ class MarcelSemantic(
   fun apply(): ModuleNode {
     // TODO parse package if any
 
+    // TODO check return type of all functions, as the compiler should not check anything
+
     val className = cst.fileName
     if (cst.instructions.isNotEmpty()) {
       val classType = typeResolver.defineClass(cst.instructions.first().tokenStart, Visibility.PUBLIC, className, Script::class.javaType, false, emptyList())
