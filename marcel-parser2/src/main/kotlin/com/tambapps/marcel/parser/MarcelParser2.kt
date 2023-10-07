@@ -43,7 +43,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       throw MarcelParser2Exception(LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, null), "Unexpected end of file")
     }
     val sourceFile = SourceFileCstNode(fileName = classSimpleName, tokenStart = tokens.first(), tokenEnd = tokens.last())
-    sourceFile.instructions.add(statement(sourceFile))
+    sourceFile.statements.add(statement(sourceFile))
 
     if (errors.isNotEmpty()) {
       throw MarcelParser2Exception(errors)

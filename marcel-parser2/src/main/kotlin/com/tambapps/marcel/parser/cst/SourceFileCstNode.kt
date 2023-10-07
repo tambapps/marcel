@@ -8,5 +8,5 @@ class SourceFileCstNode(tokenStart: LexToken, tokenEnd: LexToken,
                         val fileName: String, // without extension
     ):
     AbstractCstNode(null, tokenStart, tokenEnd) {
-    val instructions: MutableList<StatementCstNode> = mutableListOf()
+    val statements: MutableList<StatementCstNode> = mutableListOf()
 }

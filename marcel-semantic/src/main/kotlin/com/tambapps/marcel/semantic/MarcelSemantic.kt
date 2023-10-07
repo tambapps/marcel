@@ -57,8 +57,8 @@ class MarcelSemantic(
     // TODO check return type of all functions, as the compiler should not check anything
 
     val className = cst.fileName
-    if (cst.instructions.isNotEmpty()) {
-      val classType = typeResolver.defineClass(cst.instructions.first().tokenStart, Visibility.PUBLIC, className, Script::class.javaType, false, emptyList())
+    if (cst.statements.isNotEmpty()) {
+      val classType = typeResolver.defineClass(cst.statements.first().tokenStart, Visibility.PUBLIC, className, Script::class.javaType, false, emptyList())
       val classScope = ClassScope(classType, typeResolver, emptyList())
       scopeQueue.push(classScope)
       val classNode = ClassNode(classType, Visibility.PUBLIC, cst.tokenStart, cst.tokenEnd)
@@ -69,10 +69,10 @@ class MarcelSemantic(
           ownerClass = classType,
           annotations = emptyList(),
           parameters = emptyList(),
-          tokenStart = cst.instructions.first().tokenStart, tokenEnd = cst.instructions.last().tokenEnd)
+          tokenStart = cst.statements.first().tokenStart, tokenEnd = cst.statements.last().tokenEnd)
       useScope(MethodScope(classScope, runMethod.isStatic)) {
         runMethod.blockStatement = BlockStatementNode(
-          cst.instructions.map { cstStmt -> cstStmt.accept(stmtVisitor) },
+          cst.statements.map { cstStmt -> cstStmt.accept(stmtVisitor) },
           runMethod.tokenStart, runMethod.tokenEnd)
       }
       classNode.addMethod(runMethod)
