@@ -5,7 +5,9 @@ import com.tambapps.marcel.semantic.ast.AstNodeVisitor
 import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 import com.tambapps.marcel.semantic.type.JavaType
 
-class NullValueNode(token: LexToken, var type: JavaType?): AbstractExpressionNode(token) {
+class NullValueNode(token: LexToken, type: JavaType?): AbstractExpressionNode(type ?: JavaType.Anything, token) {
+
+  override var type = super.type
 
   override fun <T> accept(visitor: AstNodeVisitor<T>) = visitor.visit(this)
 

@@ -1,6 +1,7 @@
 package com.tambapps.marcel.semantic
 
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
+import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNodeVisitor
 import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
@@ -20,6 +21,8 @@ import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
+import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
+import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
@@ -27,10 +30,15 @@ import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.extensions.javaType
+import com.tambapps.marcel.semantic.scope.ClassScope
+import com.tambapps.marcel.semantic.scope.MethodScope
+import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import marcel.lang.Script
+import java.util.LinkedList
 
+// TODO implement multiple errors like in parser2
 class MarcelSemantic(
   private val typeResolver: JavaTypeResolver,
   private val cst: SourceFileCstNode
@@ -39,11 +47,17 @@ class MarcelSemantic(
   val exprVisitor = this as ExpressionCstNodeVisitor<ExpressionNode>
   val stmtVisitor = this as StatementCstNodeVisitor<StatementNode>
 
+  private val scopeQueue = LinkedList<Scope>()
+  // FIFO
+  private val currentScope get() = scopeQueue.peek()
   fun apply(): ModuleNode {
     // TODO parse package if any
+
     val className = cst.fileName
     if (cst.instructions.isNotEmpty()) {
       val classType = typeResolver.defineClass(cst.instructions.first().tokenStart, Visibility.PUBLIC, className, Script::class.javaType, false, emptyList())
+      val classScope = ClassScope(classType, typeResolver, emptyList())
+      scopeQueue.push(classScope)
       val classNode = ClassNode(classType, Visibility.PUBLIC, cst.tokenStart, cst.tokenEnd)
       val runMethod =
         MethodNode(name = "run",
@@ -54,13 +68,21 @@ class MarcelSemantic(
           parameters = emptyList(),
           tokenStart = cst.instructions.first().tokenStart, tokenEnd = cst.instructions.last().tokenEnd)
       classNode.addMethod(runMethod)
-      cst.instructions.forEach { cstStmt -> runMethod.instructions.add(cstStmt.accept(stmtVisitor)) }
+      useScope(MethodScope(classScope, runMethod.isStatic)) {
+        cst.instructions.forEach { cstStmt -> runMethod.instructions.add(cstStmt.accept(stmtVisitor)) }
+      }
       return ModuleNode(cst.tokenStart, cst.tokenEnd).apply {
         classes.add(classNode)
       }
     } else {
       TODO()
     }
+  }
+
+  private inline fun useScope(scope: Scope, consumer: () -> Unit) {
+    scopeQueue.push(scope)
+    consumer.invoke()
+    scopeQueue.pop()
   }
 
   override fun visit(node: DoubleCstNode) = DoubleConstantNode(node.token, node.value)
@@ -87,13 +109,17 @@ class MarcelSemantic(
     TODO("Not yet implemented")
   }
 
-  override fun visit(node: ReferenceCstNode): ExpressionNode {
-    TODO("Not yet implemented")
-  }
+  override fun visit(node: ReferenceCstNode) = ReferenceNode(currentScope.findVariableOrThrow(node.value, node.token), node.token)
 
   override fun visit(node: FunctionCallCstNode): ExpressionNode {
-    TODO("Not yet implemented")
+    if (node.namedArgumentNodes.isNotEmpty()) TODO("Doesn't handle named arguments yet")
+    val arguments = node.positionalArgumentNodes.map { it.accept(exprVisitor) }
+    val method = currentScope.findMethodOrThrow(node.value, arguments, node)
+    val castType = if (node.castType != null) type(node.castType!!) else null
+    return FunctionCallNode(method, castType, arguments, node.token)
   }
+
+  private fun type(node: TypeCstNode): JavaType = typeResolver.of(node.value, emptyList())
 
   override fun visit(node: ExpressionStatementCstNode) = ExpressionStatementNode(node.expressionNode.accept(exprVisitor), node.tokenStart, node.tokenEnd)
   override fun visit(node: ReturnCstNode) = ReturnStatementNode(node.expressionNode.accept(exprVisitor), node.tokenStart, node.tokenEnd)

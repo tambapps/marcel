@@ -10,7 +10,7 @@ class FunctionCallNode(
   val castType: JavaType?,
   val arguments: List<ExpressionNode>,
   token: LexToken
-) : AbstractExpressionNode(token) {
+) : AbstractExpressionNode(javaMethod.returnType, token) {
   override fun <T> accept(visitor: AstNodeVisitor<T>) = visitor.visit(this)
 
 
