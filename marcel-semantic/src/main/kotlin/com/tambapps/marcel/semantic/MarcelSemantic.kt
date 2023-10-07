@@ -36,8 +36,8 @@ class MarcelSemantic(
   private val cst: SourceFileCstNode
 ): ExpressionCstNodeVisitor<ExpressionNode>, StatementCstNodeVisitor<StatementNode> {
 
-  private val exprVisitor = this as ExpressionCstNodeVisitor<ExpressionNode>
-  private val stmtVisitor = this as StatementCstNodeVisitor<StatementNode>
+  val exprVisitor = this as ExpressionCstNodeVisitor<ExpressionNode>
+  val stmtVisitor = this as StatementCstNodeVisitor<StatementNode>
 
   fun apply(): ModuleNode {
     // TODO parse package if any
