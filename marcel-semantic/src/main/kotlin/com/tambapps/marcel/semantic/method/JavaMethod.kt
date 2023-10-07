@@ -5,7 +5,7 @@ import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.type.JavaTyped
 
-interface JavaMethod {
+interface JavaMethod: JavaTyped {
 
   companion object {
     const val CONSTRUCTOR_NAME = "<init>"
@@ -19,6 +19,8 @@ interface JavaMethod {
     }
   }
 
+  override val type: JavaType
+    get() = actualReturnType
   val ownerClass: JavaType
   val visibility: Visibility
   val name: String

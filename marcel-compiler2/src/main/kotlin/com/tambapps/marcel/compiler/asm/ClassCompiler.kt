@@ -14,6 +14,7 @@ import com.tambapps.marcel.semantic.extensions.javaType
 import marcel.lang.Script
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.ClassWriter
+import org.objectweb.asm.Label
 import java.lang.annotation.ElementType
 
 class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
@@ -96,6 +97,18 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
 
   private fun writeMethod(typeResolver: JavaTypeResolver, classWriter: ClassWriter,
     classNode: ClassNode, methodNode: MethodNode) {
+    val mv = classWriter.visitMethod(ReflectUtils.computeAccess(
+      classNode.visibility, isStatic = methodNode.isStatic
+    ), methodNode.name, methodNode.descriptor, methodNode.signature, null)
+
+    // writing annotations
+    for (annotation in methodNode.annotations) {
+      writeAnnotation(mv.visitAnnotation(annotation.descriptor, true), annotation, ElementType.METHOD)
+    }
+
+    mv.visitCode()
+    val methodStartLabel = Label()
+    mv.visitLabel(methodStartLabel)
     TODO("Not yet implemented")
   }
 

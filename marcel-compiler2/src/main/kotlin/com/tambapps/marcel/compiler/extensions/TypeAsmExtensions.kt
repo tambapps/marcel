@@ -5,6 +5,17 @@ import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTyped
 
 val JavaTyped.internalName: String get() = AsmUtils.getInternalName(type)
+val JavaTyped.signature: String get() {
+  if (type.primitive) return descriptor
+  val builder = StringBuilder("L$internalName")
+  if (type.genericTypes.isNotEmpty()) {
+    type.genericTypes.joinTo(buffer = builder, separator = "", prefix = "<", postfix = ">", transform = { it.descriptor })
+  }
+  builder.append(";")
+  type.directlyImplementedInterfaces.joinTo(buffer = builder, separator = "", transform = { it.signature })
+  return builder.toString()
+}
+
 val JavaTyped.descriptor: String get() {
   val type = this.type
   return if (type.isLoaded) AsmUtils.getClassDescriptor(type.realClazz)
