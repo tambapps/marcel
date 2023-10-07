@@ -14,7 +14,6 @@ abstract class AbstractCstNode(
   open val value: Any? = null
   constructor(parent: CstNode?, token: LexToken): this(parent, token, token)
 
-  val token get() = tokenStart
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (javaClass != other?.javaClass) return false
