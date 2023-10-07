@@ -42,7 +42,7 @@ class MarcelSemantic(
     val className = cst.fileName
     if (cst.instructions.isNotEmpty()) {
       val classType = typeResolver.defineClass(cst.instructions.first().tokenStart, Visibility.PUBLIC, className, Script::class.javaType, false, emptyList())
-      val classNode = ClassNode(classType, cst.tokenStart, cst.tokenEnd)
+      val classNode = ClassNode(classType, Visibility.PUBLIC, cst.tokenStart, cst.tokenEnd)
       val runMethod =
         MethodNode(name = "run",
           visibility = Visibility.PUBLIC, returnType = JavaType.Object,

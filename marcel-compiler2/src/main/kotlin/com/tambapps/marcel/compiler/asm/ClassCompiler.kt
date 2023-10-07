@@ -2,8 +2,14 @@ package com.tambapps.marcel.compiler.asm
 
 import com.tambapps.marcel.compiler.CompiledClass
 import com.tambapps.marcel.compiler.CompilerConfiguration
+import com.tambapps.marcel.compiler.extensions.internalName
+import com.tambapps.marcel.compiler.extensions.signature
+import com.tambapps.marcel.compiler.util.ReflectUtils
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.ast.ClassNode
+import com.tambapps.marcel.semantic.ast.MethodNode
+import com.tambapps.marcel.semantic.extensions.javaType
+import marcel.lang.Script
 import org.objectweb.asm.ClassWriter
 import java.lang.annotation.ElementType
 
@@ -27,15 +33,17 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
   private fun compileRec(classes: MutableList<CompiledClass>, classNode: ClassNode) {
    // TODO checks.forEach { it.visit(classNode, typeResolver) }
 
-    /*
     val classWriter = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
     // creating class
-    classWriter.visit(compilerConfiguration.classVersion,  classNode.access, classNode.internalName,
+    classWriter.visit(compilerConfiguration.classVersion,  ReflectUtils.computeAccess(
+      classNode.visibility, isStatic = false
+    ), classNode.internalName,
 
       if (classNode.type.superType?.hasGenericTypes == true || classNode.type.directlyImplementedInterfaces.any { it.hasGenericTypes }) classNode.type.signature else null,
-      classNode.superType.internalName,
+      classNode.type.superType!!.internalName, // we know it has a super type as it is not the Object class
       classNode.type.directlyImplementedInterfaces.map { it.internalName }.toTypedArray())
 
+    /*
     // writing annotations
     for (annotation in classNode.annotations) {
       writeAnnotation(classWriter.visitAnnotation(annotation.descriptor, true), annotation, ElementType.TYPE)
@@ -60,6 +68,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     if (classNode.staticInitializationNode != null) {
       writeMethod(typeResolver, classWriter, classNode, classNode.staticInitializationNode!!)
     }
+    */
 
     var i = 0 // using plain old for i loop because while writing method we might add some other to write (e.g. for switch)
     while (i < classNode.methods.size) {
@@ -68,17 +77,23 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
       writeMethod(typeResolver, classWriter, classNode, methodNode)
     }
 
+    /*
     for (innerClass in classNode.innerClasses) {
       // define inner class
       compileRec(classes, innerClass)
       // Add the inner class to the outer class
       classWriter.visitInnerClass(innerClass.type.internalName, classNode.type.internalName, innerClass.type.innerName, innerClass.access)
     }
+     */
 
     classWriter.visitEnd()
-    classes.add(CompiledClass(classNode.type.className, classNode.isScript, classWriter.toByteArray()))
+    classes.add(CompiledClass(classNode.type.className, Script::class.javaType.isAssignableFrom(classNode.type), classWriter.toByteArray()))
 
-     */
+  }
+
+  private fun writeMethod(typeResolver: JavaTypeResolver, classWriter: ClassWriter,
+    classNode: ClassNode, methodNode: MethodNode) {
+    TODO("Not yet implemented")
   }
 
 }
