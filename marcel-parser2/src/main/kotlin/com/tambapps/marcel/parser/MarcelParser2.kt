@@ -13,6 +13,7 @@ import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.LongCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.*
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
+import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import java.lang.NumberFormatException
 import java.util.*
@@ -88,9 +89,19 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
   }
 
   fun statement(parentNode: CstNode? = null): StatementCstNode {
-    val expr = expression(parentNode)
-    return ExpressionStatementCstNode(parentNode, expr, expr.tokenStart, acceptOptional(TokenType.SEMI_COLON) ?: expr.tokenEnd)
-  }
+    val token = next()
+    return when (token.type) {
+      TokenType.RETURN -> {
+        val expr = expression(parentNode)
+        return ReturnCstNode(parentNode, expr, expr.tokenStart, acceptOptional(TokenType.SEMI_COLON) ?: expr.tokenEnd)
+      }
+      else -> {
+        rollback()
+        val expr = expression(parentNode)
+        return ExpressionStatementCstNode(parentNode, expr, expr.tokenStart, acceptOptional(TokenType.SEMI_COLON) ?: expr.tokenEnd)
+      }
+    }
+ }
 
   fun expression(parentNode: CstNode? = null): CstExpressionNode {
     // TODO

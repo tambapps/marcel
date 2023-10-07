@@ -4,9 +4,9 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.ast.AstNodeVisitor
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 
-open class ExpressionStatementNode(
-  val expressionNode: ExpressionNode,
-  tokenStart: LexToken, tokenEnd: LexToken) : AbstractStatementNode(tokenStart, tokenEnd) {
+class ReturnStatementNode(
+  expressionNode: ExpressionNode,
+  tokenStart: LexToken, tokenEnd: LexToken) : ExpressionStatementNode(expressionNode, tokenStart, tokenEnd) {
 
   override fun <T> accept(visitor: AstNodeVisitor<T>) = visitor.visit(this)
 }
