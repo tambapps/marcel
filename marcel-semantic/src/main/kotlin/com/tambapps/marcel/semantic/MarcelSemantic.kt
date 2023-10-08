@@ -145,7 +145,7 @@ class MarcelSemantic(
   private fun typeVerified(expectedType: JavaType, node: ExpressionNode): ExpressionNode {
     // TODO rename this method to isAssignableFrom
     //  and rename isAssignableFrom isCompatible/convertibleFrom
-    if (expectedType.extendsOrImplement(node.type)) return node
+    if (expectedType.isExtendedOrImplementedBy(node.type)) return node
     else TODO("Check if cast is feasible. If so, return CastNode(node, type=expectedType). Else throw Marcel exception")
   }
 }

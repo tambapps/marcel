@@ -12,7 +12,6 @@ import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ShortConstantNode
-import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import marcel.lang.MarcelClassLoader
 import marcel.lang.lambda.Lambda
@@ -93,7 +92,7 @@ interface JavaType: JavaTyped {
     return if (genericTypes.isEmpty()) this else withGenericTypes(emptyList())
   }
 
-  fun extendsOrImplement(other: JavaType): Boolean {
+  fun isExtendedOrImplementedBy(other: JavaType): Boolean {
     if (isLoaded && other.isLoaded) {
       return realClazz.isAssignableFrom(other.realClazz)
     } else if (this.isInterface) {
@@ -128,7 +127,7 @@ interface JavaType: JavaTyped {
 
     // We don't smartly cast primitive types here because it would induce the compiler in error when checking types, especially when casting
 
-    return extendsOrImplement(other)
+    return isExtendedOrImplementedBy(other)
   }
 
   fun implements(javaType: JavaType, compareGenerics: Boolean = false): Boolean {
