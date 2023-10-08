@@ -34,6 +34,7 @@ import com.tambapps.marcel.semantic.variable.field.CompositeField
 import com.tambapps.marcel.semantic.variable.field.MethodField
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
+import org.objectweb.asm.Type
 
 class MethodInstructionWriter(
   private val classNode: ClassNode,
@@ -54,7 +55,9 @@ class MethodInstructionWriter(
   }
 
   override fun visit(node: BlockStatementNode) {
-    TODO("Not yet implemented")
+    node.statements.forEach {
+      it.accept(this)
+    }
   }
 
   override fun visit(node: FunctionCallNode) {
@@ -70,12 +73,14 @@ class MethodInstructionWriter(
   }
 
   override fun visit(node: ClassReferenceNode) {
-    TODO("Not yet implemented")
+    if (node.type.primitive) {
+      TODO("getField(node, scope, typeResolver.getClassField(clazz.objectType, \"TYPE\", node), true)")
+    } else {
+      mv.visitLdcInsn(Type.getType(node.type.descriptor))
+    }
   }
 
-  override fun visit(node: BoolConstantNode) {
-    TODO("Not yet implemented")
-  }
+  override fun visit(node: BoolConstantNode) = mv.visitInsn(if (node.value) Opcodes.ICONST_1 else Opcodes.ICONST_0)
 
   override fun visit(node: ByteConstantNode) = mv.visitIntInsn(Opcodes.BIPUSH, node.value.toInt())
 
