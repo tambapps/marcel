@@ -25,7 +25,7 @@ import com.tambapps.marcel.semantic.variable.field.BoundField
 import com.tambapps.marcel.semantic.variable.field.DynamicMethodField
 import com.tambapps.marcel.semantic.variable.field.JavaClassField
 import com.tambapps.marcel.semantic.variable.field.MarcelArrayLengthField
-import com.tambapps.marcel.semantic.variable.field.MarcelField
+import com.tambapps.marcel.semantic.variable.field.CompositeField
 import com.tambapps.marcel.semantic.variable.field.MethodField
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
@@ -127,7 +127,7 @@ class MethodWriter(
     TODO("Not yet implemented")
   }
 
-  override fun visit(variable: MarcelField) {
+  override fun visit(variable: CompositeField) {
     TODO("Not yet implemented")
   }
 

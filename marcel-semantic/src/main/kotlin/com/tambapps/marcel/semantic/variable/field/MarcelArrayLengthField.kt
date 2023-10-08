@@ -4,7 +4,7 @@ import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.VariableVisitor
 
-class MarcelArrayLengthField(override val owner: JavaType, override val name: String): JavaField  {
+class MarcelArrayLengthField(override val owner: JavaType, override val name: String): MarcelField  {
 
   override val type = JavaType.int
   override val isFinal = false

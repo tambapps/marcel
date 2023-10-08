@@ -3,7 +3,7 @@ package com.tambapps.marcel.semantic.variable.field
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.AbstractVariable
 
-sealed class AbstractField: AbstractVariable(), JavaField {
+sealed class AbstractField: AbstractVariable(), MarcelField {
 
   override fun toString(): String {
     return "$type $name"

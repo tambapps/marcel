@@ -15,9 +15,9 @@ import com.tambapps.marcel.semantic.method.NoArgJavaConstructor
 import com.tambapps.marcel.semantic.method.ReflectJavaMethod
 import com.tambapps.marcel.semantic.variable.field.JavaClassField
 import com.tambapps.marcel.semantic.variable.field.DynamicMethodField
-import com.tambapps.marcel.semantic.variable.field.JavaField
-import com.tambapps.marcel.semantic.variable.field.MarcelArrayLengthField
 import com.tambapps.marcel.semantic.variable.field.MarcelField
+import com.tambapps.marcel.semantic.variable.field.MarcelArrayLengthField
+import com.tambapps.marcel.semantic.variable.field.CompositeField
 import com.tambapps.marcel.semantic.variable.field.MethodField
 import com.tambapps.marcel.semantic.method.ReflectJavaConstructor
 import com.tambapps.marcel.semantic.variable.field.ReflectJavaField
@@ -106,7 +106,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     methods.add(method)
   }
 
-  fun defineField(javaType: JavaType, field: JavaField) {
+  fun defineField(javaType: JavaType, field: MarcelField) {
     if (javaType.isLoaded) {
       throw MarcelSemanticException((field as? FieldNode)?.token, "Cannot define field on loaded class")
     }
@@ -174,7 +174,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     return fieldResolver.getField(javaType, fieldName)?.classField ?: throw MarcelSemanticException(node?.token, "Class field $javaType.$fieldName is not defined")
   }
 
-  fun getDeclaredFields(javaType: JavaType): Collection<MarcelField> {
+  fun getDeclaredFields(javaType: JavaType): Collection<CompositeField> {
     return fieldResolver.getAllFields(javaType).values
   }
 
@@ -322,13 +322,13 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     return marcelMethods.computeIfAbsent(javaType.className) { mutableListOf() }
   }
 
-  fun findField(javaType: JavaType, name: String): MarcelField? {
+  fun findField(javaType: JavaType, name: String): CompositeField? {
     if (javaType.isArray && (name == "size" || name == "length")) {
-      return MarcelField(MarcelArrayLengthField(javaType, name))
+      return CompositeField(MarcelArrayLengthField(javaType, name))
     }
     val field = fieldResolver.getField(javaType, name)
     if (field == null && javaType.implements(JavaType.DynamicObject)) {
-      return MarcelField(
+      return CompositeField(
         DynamicMethodField(javaType, name, JavaType.DynamicObject,
         ReflectJavaMethod(DynamicObject::class.java.getDeclaredMethod("getProperty", String::class.java)),
         ReflectJavaMethod(DynamicObject::class.java.getDeclaredMethod("setProperty", String::class.java, JavaType.DynamicObject.realClazz)))
@@ -339,18 +339,18 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
 
   /* resolve types */
   private inner class FieldResolver {
-    private val classFields = mutableMapOf<String, MutableMap<String, MarcelField>>()
+    private val classFields = mutableMapOf<String, MutableMap<String, CompositeField>>()
 
     // map fieldName -> MarcelField
-    fun getField(javaType: JavaType, fieldName: String): MarcelField? {
+    fun getField(javaType: JavaType, fieldName: String): CompositeField? {
       return getAllFields(javaType)[fieldName]
     }
 
-    fun computeFieldIfAbsent(javaType: JavaType, fieldName: String): MarcelField {
-      return getAllFields(javaType).computeIfAbsent(fieldName) { MarcelField(fieldName) }
+    fun computeFieldIfAbsent(javaType: JavaType, fieldName: String): CompositeField {
+      return getAllFields(javaType).computeIfAbsent(fieldName) { CompositeField(fieldName) }
     }
 
-    fun getAllFields(javaType: JavaType): MutableMap<String, MarcelField> {
+    fun getAllFields(javaType: JavaType): MutableMap<String, CompositeField> {
       return classFields.computeIfAbsent(javaType.className) {
         val directFields = loadAllFields(javaType)
 
@@ -359,10 +359,10 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
         val methods = loadAllMethods(javaType)
         for (method in methods) {
           if (method.isGetter) {
-            val field = fieldsMap.computeIfAbsent(method.propertyName) { MarcelField(method.propertyName) }
+            val field = fieldsMap.computeIfAbsent(method.propertyName) { CompositeField(method.propertyName) }
             field.addGetter(MethodField(method.returnType, method.propertyName, method.ownerClass, method, null, method is ExtensionJavaMethod))
           } else if (method.isSetter) {
-            val field = fieldsMap.computeIfAbsent(method.propertyName) { MarcelField(method.propertyName) }
+            val field = fieldsMap.computeIfAbsent(method.propertyName) { CompositeField(method.propertyName) }
             field.addSetter(MethodField(method.parameters.first().type, method.propertyName, method.ownerClass, null, method, method is ExtensionJavaMethod))
           }
         }
@@ -370,8 +370,8 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
       }
     }
 
-    private fun loadAllFields(javaType: JavaType): Set<MarcelField> {
-      return if (javaType.isLoaded) (javaType.realClazz.fields + javaType.realClazz.declaredFields).map { MarcelField(
+    private fun loadAllFields(javaType: JavaType): Set<CompositeField> {
+      return if (javaType.isLoaded) (javaType.realClazz.fields + javaType.realClazz.declaredFields).map { CompositeField(
         ReflectJavaField(it)
       ) }.toSet()
       else {
