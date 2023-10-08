@@ -58,7 +58,6 @@ class MethodWriter(
   }
 
   override fun visit(node: FunctionCallNode) {
-    // TODO NO. implement javamethod visitor and use this to know how to call the function
     node.owner?.accept(this)
     for (argumentNode in node.arguments) {
       argumentNode.accept(this)
