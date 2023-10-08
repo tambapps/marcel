@@ -10,6 +10,7 @@ import com.tambapps.marcel.parser.cst.expression.reference.DirectFieldReferenceC
 import com.tambapps.marcel.parser.cst.expression.reference.IncrCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.IndexAccessCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ReferenceCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.SuperReferenceCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ThisReferenceCstNode
 
 interface ExpressionCstNodeVisitor<T> {
@@ -24,6 +25,7 @@ interface ExpressionCstNodeVisitor<T> {
 
   fun visit(node: ClassReferenceCstNode): T
   fun visit(node: ThisReferenceCstNode): T
+  fun visit(node: SuperReferenceCstNode): T
   fun visit(node: DirectFieldReferenceCstNode): T
   fun visit(node: IncrCstNode): T
   fun visit(node: IndexAccessCstNode): T

@@ -14,6 +14,7 @@ import com.tambapps.marcel.parser.cst.expression.reference.DirectFieldReferenceC
 import com.tambapps.marcel.parser.cst.expression.reference.IncrCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.IndexAccessCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ReferenceCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.SuperReferenceCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ThisReferenceCstNode
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
@@ -27,6 +28,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
@@ -109,6 +111,7 @@ class MarcelSemantic(
 
   override fun visit(node: ClassReferenceCstNode) = ClassReferenceNode(node.value, node.token)
   override fun visit(node: ThisReferenceCstNode) = ThisReferenceNode(currentScope.classType, node.token)
+  override fun visit(node: SuperReferenceCstNode) = SuperReferenceNode(currentScope.classType.superType!!, node.token)
 
   override fun visit(node: DirectFieldReferenceCstNode): ExpressionNode {
     TODO("Not yet implemented")
