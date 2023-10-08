@@ -32,6 +32,7 @@ import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
+import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.MethodScope
@@ -70,10 +71,8 @@ class MarcelSemantic(
           visibility = Visibility.PUBLIC, returnType = JavaType.Object,
           isStatic = false, isConstructor = false,
           ownerClass = classType,
-          annotations = emptyList(),
-          parameters = emptyList(),
           tokenStart = cst.statements.first().tokenStart, tokenEnd = cst.statements.last().tokenEnd)
-      useScope(MethodScope(classScope, runMethod.isStatic)) {
+      useScope(MethodScope(classScope, runMethod, runMethod.isStatic)) {
         runMethod.blockStatement = BlockStatementNode(
           cst.statements.map { cstStmt -> cstStmt.accept(stmtVisitor) },
           runMethod.tokenStart, runMethod.tokenEnd)
@@ -132,6 +131,22 @@ class MarcelSemantic(
   private fun type(node: TypeCstNode): JavaType = typeResolver.of(node.value, emptyList())
 
   override fun visit(node: ExpressionStatementCstNode) = ExpressionStatementNode(node.expressionNode.accept(exprVisitor), node.tokenStart, node.tokenEnd)
-  override fun visit(node: ReturnCstNode) = ReturnStatementNode(node.expressionNode?.accept(exprVisitor), node.tokenStart, node.tokenEnd)
+  override fun visit(node: ReturnCstNode): StatementNode {
+    // TODO test error cases of this
+    val scope = currentScope as? MethodScope ?: throw MarcelSemanticException("Cannot return outside of a function")
+    val expression = node.expressionNode?.accept(exprVisitor)?.let { typeVerified(scope.method.returnType, it) }
+    if (expression != null && expression.type != JavaType.void && scope.method.returnType == JavaType.void) {
+      throw MarcelSemanticException(node, "Cannot return expression in void function")
+    } else if (expression == null && scope.method.returnType != JavaType.void) {
+      throw MarcelSemanticException(node, "Must return expression in non void function")
+    }
+    return ReturnStatementNode(node.expressionNode?.accept(exprVisitor), node.tokenStart, node.tokenEnd)
+  }
 
+  private fun typeVerified(expectedType: JavaType, node: ExpressionNode): ExpressionNode {
+    // TODO rename this method to isAssignableFrom
+    //  and rename isAssignableFrom isCompatible/convertibleFrom
+    if (expectedType.extendsOrImplement(node.type)) return node
+    else TODO("Check if cast is feasible. If so, return CastNode(node, type=expectedType). Else throw Marcel exception")
+  }
 }

@@ -2,6 +2,7 @@ package com.tambapps.marcel.semantic.exception;
 
 import com.tambapps.marcel.lexer.LexToken;
 import com.tambapps.marcel.lexer.TokenType;
+import com.tambapps.marcel.parser.cst.CstNode;
 import lombok.Getter;
 import lombok.Value;
 
@@ -29,6 +30,10 @@ public class MarcelSemanticException extends RuntimeException {
   public MarcelSemanticException(String message) {
     this(new LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, null), message, false);
   }
+  public MarcelSemanticException(CstNode node, String message) {
+    this(node.getToken(), message);
+  }
+
   public MarcelSemanticException(LexToken token, String message) {
     this(token, message, false);
   }

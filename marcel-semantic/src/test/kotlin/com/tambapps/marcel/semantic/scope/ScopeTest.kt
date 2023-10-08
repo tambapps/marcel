@@ -1,7 +1,11 @@
 package com.tambapps.marcel.semantic.scope
 
+import com.tambapps.marcel.lexer.LexToken
+import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.type.JavaType.Companion.Object
 import com.tambapps.marcel.semantic.type.JavaType.Companion.int
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -16,11 +20,13 @@ class ScopeTest {
   companion object {
     private val TYPE_RESOLVER = JavaTypeResolver()
     private val CLASS_SCOPE = ClassScope(JavaType.Object, TYPE_RESOLVER, emptyList())
+    private val METHOD = MethodNode("foo", Visibility.PUBLIC, Object, isStatic = false, isConstructor = false, LexToken.dummy(), LexToken.dummy(), Object)
   }
+
 
   @Test
   fun testAddLocalVariable() {
-    val scope = MethodScope(CLASS_SCOPE, false)
+    val scope = MethodScope(CLASS_SCOPE, METHOD, false)
 
     scope.addLocalVariable(int, "myInt")
 
@@ -33,7 +39,7 @@ class ScopeTest {
 
   @Test
   fun testInnerScope() {
-    val scope = MethodScope(CLASS_SCOPE, false)
+    val scope = MethodScope(CLASS_SCOPE, METHOD, false)
     val innerScope = MethodInnerScope(scope)
 
     scope.addLocalVariable(int, "var1")

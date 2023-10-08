@@ -13,10 +13,11 @@ class MethodNode(override val name: String,
                  override val isStatic: Boolean,
                  override val isConstructor: Boolean,
                  override val tokenStart: LexToken, override val tokenEnd: LexToken,
-                 override val annotations: List<AnnotationNode>,
                  override val ownerClass: JavaType,
-                 override val parameters: List<MethodParameterNode>
 ) : Ast2Node, AbstractMethod(), Annotable {
+
+  override val annotations: MutableList<AnnotationNode> = mutableListOf()
+  override val parameters: MutableList<MethodParameterNode> = mutableListOf()
 
   lateinit var blockStatement: BlockStatementNode
 

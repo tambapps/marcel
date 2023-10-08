@@ -93,6 +93,20 @@ interface JavaType: JavaTyped {
     return if (genericTypes.isEmpty()) this else withGenericTypes(emptyList())
   }
 
+  fun extendsOrImplement(other: JavaType): Boolean {
+    if (isLoaded && other.isLoaded) {
+      return realClazz.isAssignableFrom(other.realClazz)
+    } else if (this.isInterface) {
+      return other.implements(this, false)
+    } else {
+      var otherSuperType = other.superType
+      while (otherSuperType != null) {
+        if (otherSuperType == this) return true
+        otherSuperType = otherSuperType.superType
+      }
+      return false
+    }
+  }
   fun isAssignableFrom(other: JavaType): Boolean {
     if (this == other || this == Object && !other.primitive
       // to handle null values that can be cast to anything
@@ -114,18 +128,7 @@ interface JavaType: JavaTyped {
 
     // We don't smartly cast primitive types here because it would induce the compiler in error when checking types, especially when casting
 
-    if (isLoaded && other.isLoaded) {
-      return realClazz.isAssignableFrom(other.realClazz)
-    } else if (this.isInterface) {
-      return other.implements(this, false)
-    } else {
-      var otherSuperType = other.superType
-      while (otherSuperType != null) {
-        if (otherSuperType == this) return true
-        otherSuperType = otherSuperType.superType
-      }
-      return false
-    }
+    return extendsOrImplement(other)
   }
 
   fun implements(javaType: JavaType, compareGenerics: Boolean = false): Boolean {

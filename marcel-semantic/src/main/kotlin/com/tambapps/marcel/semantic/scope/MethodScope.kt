@@ -3,6 +3,7 @@ package com.tambapps.marcel.semantic.scope
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.variable.LocalVariable
@@ -13,6 +14,7 @@ import java.util.concurrent.ThreadLocalRandom
  */
 open class MethodScope internal constructor(
   private val parentScope: Scope?,
+  val method: JavaMethod,
   typeResolver: JavaTypeResolver,
   classType: JavaType,
   imports: List<ImportNode>,
@@ -20,8 +22,8 @@ open class MethodScope internal constructor(
   internal val localVariablePool: LocalVariablePool,
 ): AbstractScope(typeResolver, classType, imports) {
 
-  constructor(classScope: ClassScope, staticContext: Boolean)
-      : this(classScope, classScope.typeResolver, classScope.classType, classScope.imports, staticContext, LocalVariablePool(staticContext))
+  constructor(classScope: ClassScope, method: JavaMethod, staticContext: Boolean)
+      : this(classScope, method, classScope.typeResolver, classScope.classType, classScope.imports, staticContext, LocalVariablePool(staticContext))
 
   private val localVariables = mutableListOf<LocalVariable>()
 
