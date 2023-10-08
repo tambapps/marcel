@@ -22,8 +22,8 @@ open class MethodScope internal constructor(
   internal val localVariablePool: LocalVariablePool,
 ): AbstractScope(typeResolver, classType, imports) {
 
-  constructor(classScope: ClassScope, method: JavaMethod, staticContext: Boolean)
-      : this(classScope, method, classScope.typeResolver, classScope.classType, classScope.imports, staticContext, LocalVariablePool(staticContext))
+  constructor(classScope: ClassScope, method: JavaMethod)
+      : this(classScope, method, classScope.typeResolver, classScope.classType, classScope.imports, method.isStatic, LocalVariablePool(method.isStatic))
 
   private val localVariables = mutableListOf<LocalVariable>()
 

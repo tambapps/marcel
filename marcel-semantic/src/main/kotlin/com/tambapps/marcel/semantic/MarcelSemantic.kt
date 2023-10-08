@@ -51,7 +51,7 @@ class MarcelSemantic(
   val exprVisitor = this as ExpressionCstNodeVisitor<ExpressionNode>
   val stmtVisitor = this as StatementCstNodeVisitor<StatementNode>
 
-  private val scopeQueue = LinkedList<Scope>()
+  internal val scopeQueue = LinkedList<Scope>()
   // FIFO
   private val currentScope get() = scopeQueue.peek()
   fun apply(): ModuleNode {
@@ -72,7 +72,7 @@ class MarcelSemantic(
           isStatic = false, isConstructor = false,
           ownerClass = classType,
           tokenStart = cst.statements.first().tokenStart, tokenEnd = cst.statements.last().tokenEnd)
-      useScope(MethodScope(classScope, runMethod, runMethod.isStatic)) {
+      useScope(MethodScope(classScope, runMethod)) {
         runMethod.blockStatement = BlockStatementNode(
           cst.statements.map { cstStmt -> cstStmt.accept(stmtVisitor) },
           runMethod.tokenStart, runMethod.tokenEnd)
