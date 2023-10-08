@@ -21,6 +21,7 @@ import com.tambapps.marcel.parser.cst.statement.StatementCstNodeVisitor
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
+import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
@@ -50,6 +51,8 @@ class MarcelSemantic(
   private val typeResolver: JavaTypeResolver,
   private val cst: SourceFileCstNode
 ): ExpressionCstNodeVisitor<ExpressionNode>, StatementCstNodeVisitor<StatementNode> {
+
+  private val caster = AstNodeCaster(typeResolver)
 
   val exprVisitor = this as ExpressionCstNodeVisitor<ExpressionNode>
   val stmtVisitor = this as StatementCstNodeVisitor<StatementNode>
@@ -136,7 +139,7 @@ class MarcelSemantic(
   override fun visit(node: ReturnCstNode): StatementNode {
     // TODO test error cases of this
     val scope = currentScope as? MethodScope ?: throw MarcelSemanticException("Cannot return outside of a function")
-    val expression = node.expressionNode?.accept(exprVisitor)?.let { typeVerified(scope.method.returnType, it) }
+    val expression = node.expressionNode?.accept(exprVisitor)?.let { caster.cast(scope.method.returnType, it) }
     if (expression != null && expression.type != JavaType.void && scope.method.returnType == JavaType.void) {
       throw MarcelSemanticException(node, "Cannot return expression in void function")
     } else if (expression == null && scope.method.returnType != JavaType.void) {
@@ -145,10 +148,4 @@ class MarcelSemantic(
     return ReturnStatementNode(node.expressionNode?.accept(exprVisitor), node.tokenStart, node.tokenEnd)
   }
 
-  private fun typeVerified(expectedType: JavaType, node: ExpressionNode): ExpressionNode {
-    // TODO rename this method to isAssignableFrom
-    //  and rename isAssignableFrom isCompatible/convertibleFrom
-    if (expectedType.isExtendedOrImplementedBy(node.type)) return node
-    else TODO("Check if cast is feasible. If so, return CastNode(node, type=expectedType). Else throw Marcel exception")
-  }
 }
