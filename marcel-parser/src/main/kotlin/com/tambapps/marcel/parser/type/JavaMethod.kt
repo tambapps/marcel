@@ -199,8 +199,8 @@ abstract class AbstractConstructor(
 ) : AbstractMethod(access) {
   override val name: String = JavaMethod.CONSTRUCTOR_NAME
   override val returnType = JavaType.void // yes, constructor returns void, especially for the descriptor
-  override val actualReturnType = returnType
-  override val descriptor = AsmUtils.getMethodDescriptor(parameters, returnType)
+  override val actualReturnType get() = returnType
+  override val descriptor get() = AsmUtils.getMethodDescriptor(parameters, returnType)
   override val invokeCode = Opcodes.INVOKESPECIAL
   override val isConstructor = true
   override val isDefault = false

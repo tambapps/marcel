@@ -7,6 +7,7 @@ import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
 import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
+import com.tambapps.marcel.parser.cst.expression.SuperConstructorCallCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
@@ -161,6 +162,16 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         } else {
           ReferenceCstNode(parentNode, token.value, token)
         }
+      }
+      TokenType.SUPER -> {
+        if (current.type == TokenType.LPAR) {
+          skip()
+          val (arguments, namedArguments) = parseFunctionArguments(parentNode)
+          if (namedArguments.isNotEmpty()) {
+            throw MarcelParser2Exception(token, "Cannot have named arguments on super constructor call")
+          }
+          SuperConstructorCallCstNode(parentNode, arguments, token, arguments.lastOrNull()?.tokenEnd ?: token)
+        } else SuperReferenceCstNode(parentNode, token)
       }
       else -> TODO(token.type.name)
     }

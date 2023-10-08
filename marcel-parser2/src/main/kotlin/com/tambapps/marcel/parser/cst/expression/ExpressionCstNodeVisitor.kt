@@ -31,5 +31,6 @@ interface ExpressionCstNodeVisitor<T> {
   fun visit(node: IndexAccessCstNode): T
   fun visit(node: ReferenceCstNode): T
   fun visit(node: FunctionCallCstNode): T
+  fun visit(node: SuperConstructorCallCstNode): T
 
 }

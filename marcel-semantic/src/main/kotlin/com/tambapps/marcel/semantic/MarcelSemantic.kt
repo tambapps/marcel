@@ -4,6 +4,7 @@ import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNodeVisitor
 import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
+import com.tambapps.marcel.parser.cst.expression.SuperConstructorCallCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
@@ -40,6 +41,7 @@ import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
+import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.MethodScope
 import com.tambapps.marcel.semantic.scope.Scope
@@ -134,6 +136,12 @@ class MarcelSemantic(
     val castType = if (node.castType != null) type(node.castType!!) else null
     val owner = if (method.isStatic) null else ThisReferenceNode(currentScope.classType, node.token)
     return FunctionCallNode(method, owner, castType, arguments, node.token)
+  }
+
+  override fun visit(node: SuperConstructorCallCstNode): ExpressionNode {
+    val arguments = node.arguments.map { it.accept(exprVisitor) }
+    val method = currentScope.findMethodOrThrow(JavaMethod.CONSTRUCTOR_NAME, arguments, node)
+    return FunctionCallNode(method, SuperReferenceNode(currentScope.classType.superType!!, node.token), null, arguments, node.token)
   }
 
   private fun type(node: TypeCstNode): JavaType = typeResolver.of(node.value, emptyList())
