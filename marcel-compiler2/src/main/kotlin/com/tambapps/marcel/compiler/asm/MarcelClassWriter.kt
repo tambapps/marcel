@@ -7,7 +7,6 @@ import com.tambapps.marcel.compiler.extensions.internalName
 import com.tambapps.marcel.compiler.extensions.signature
 import com.tambapps.marcel.compiler.util.ReflectUtils
 import com.tambapps.marcel.semantic.ast.AnnotationNode
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.extensions.javaType
@@ -17,8 +16,7 @@ import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Label
 import java.lang.annotation.ElementType
 
-// TODO rename ClassWriter
-class ClassCompiler(
+class MarcelClassWriter(
   private val compilerConfiguration: CompilerConfiguration
 ) {
 

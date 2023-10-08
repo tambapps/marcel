@@ -1,6 +1,6 @@
 package com.tambapps.marcel.compiler
 
-import com.tambapps.marcel.compiler.asm.ClassCompiler
+import com.tambapps.marcel.compiler.asm.MarcelClassWriter
 import com.tambapps.marcel.compiler.exception.MarcelCompilerException
 import com.tambapps.marcel.compiler.file.SourceFile
 import com.tambapps.marcel.lexer.MarcelLexer
@@ -61,12 +61,12 @@ class MarcelCompiler(private val configuration: CompilerConfiguration) {
       ast
     }
 
-    val classCompiler = ClassCompiler(configuration, typeResolver)
+    val classWriter = MarcelClassWriter(configuration)
 
     // then compile them
     asts.forEach { ast ->
       //ast.extensionTypes.forEach(typeResolver::loadExtension)
-      val compiledClasses = classCompiler.compileDefinedClasses(ast.classes)
+      val compiledClasses = classWriter.compileDefinedClasses(ast.classes)
       //ast.extensionTypes.forEach(typeResolver::unloadExtension)
       compiledClasses.forEach(classConsumer)
     }
