@@ -18,8 +18,8 @@ import org.objectweb.asm.Label
 import java.lang.annotation.ElementType
 
 // TODO rename ClassWriter
-class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
-                    private val typeResolver: JavaTypeResolver
+class ClassCompiler(
+  private val compilerConfiguration: CompilerConfiguration
 ) {
 
   fun compileDefinedClasses(classNodes: Collection<ClassNode>): List<CompiledClass> {
@@ -36,7 +36,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
 
 
   private fun compileRec(classes: MutableList<CompiledClass>, classNode: ClassNode) {
-   // TODO checks.forEach { it.visit(classNode, typeResolver) }
+   // TODO these checks need to be done on MarcelSemantic checks.forEach { it.visit(classNode, typeResolver) }
 
     val classWriter = ClassWriter(ClassWriter.COMPUTE_MAXS or ClassWriter.COMPUTE_FRAMES)
     // creating class
@@ -79,7 +79,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     while (i < classNode.methods.size) {
       val methodNode = classNode.methods[i++]
       if (methodNode.isInline) continue // inline method are not to be written (?)
-      writeMethod(typeResolver, classWriter, classNode, methodNode)
+      writeMethod(classWriter, classNode, methodNode)
     }
 
     /*
@@ -96,8 +96,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
 
   }
 
-  private fun writeMethod(typeResolver: JavaTypeResolver, classWriter: ClassWriter,
-    classNode: ClassNode, methodNode: MethodNode) {
+  private fun writeMethod(classWriter: ClassWriter, classNode: ClassNode, methodNode: MethodNode) {
     val mv = classWriter.visitMethod(ReflectUtils.computeAccess(
       classNode.visibility, isStatic = methodNode.isStatic
     ), methodNode.name, methodNode.descriptor, methodNode.signature, null)
@@ -110,7 +109,19 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     mv.visitCode()
     val methodStartLabel = Label()
     mv.visitLabel(methodStartLabel)
-    TODO("Not yet implemented")
+
+    val instructionGenerator = MethodInstructionWriter(classNode, methodNode, mv)
+    instructionGenerator.visit(methodNode.blockStatement)
+
+    val methodEndLabel = Label()
+    mv.visitLabel(methodEndLabel)
+    mv.visitMaxs(0, 0) // args ignored since we used the flags COMPUTE_MAXS and COMPUTE_FRAMES
+    mv.visitEnd()
+    defineMethodParameters() // yes. This is to be done at the end
+  }
+
+  private fun defineMethodParameters() {
+    // TODO
   }
 
   private fun writeAnnotation(annotationVisitor: AnnotationVisitor, annotationNode: AnnotationNode, expectedElementType: ElementType) {

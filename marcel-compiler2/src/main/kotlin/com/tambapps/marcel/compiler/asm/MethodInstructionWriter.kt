@@ -35,7 +35,7 @@ import com.tambapps.marcel.semantic.variable.field.MethodField
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 
-class MethodWriter(
+class MethodInstructionWriter(
   private val classNode: ClassNode,
   private val methodNode: MethodNode,
   private val mv: MethodVisitor
@@ -101,7 +101,6 @@ class MethodWriter(
   /*
    * Variables
    */
-
   override fun visit(variable: LocalVariable) = mv.visitVarInsn(variable.type.loadCode, variable.index)
 
   override fun visit(variable: BoundField) {
