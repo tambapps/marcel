@@ -14,7 +14,6 @@ import com.tambapps.marcel.semantic.type.JavaType.Companion.short
 import com.tambapps.marcel.semantic.type.JavaType.Companion.void
 import com.tambapps.marcel.semantic.type.JavaTyped
 import org.objectweb.asm.Opcodes
-import java.lang.Boolean
 
 val JavaTyped.internalName: String get() = AsmUtils.getInternalName(type)
 val JavaTyped.signature: String get() {
@@ -47,7 +46,7 @@ val JavaType.signature: String get() {
   directlyImplementedInterfaces.joinTo(buffer = builder, separator = "", transform = { it.signature })
   return builder.toString()
 }
-private val PRIMITIVE_CODES = mapOf(
+private val PRIMITIVE_CODES_MAP = mapOf(
   Pair(void, PrimitiveAsmCodes(Opcodes.ALOAD, Opcodes.ASTORE, Opcodes.RETURN, 0,0,0,0, 0)),
   Pair(int, PrimitiveAsmCodes(Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV, Opcodes.IREM)),
   Pair(long, PrimitiveAsmCodes(Opcodes.LLOAD, Opcodes.LSTORE, Opcodes.LRETURN, Opcodes.LADD, Opcodes.LSUB, Opcodes.LMUL, Opcodes.LDIV, Opcodes.LREM)),
@@ -60,7 +59,7 @@ private val PRIMITIVE_CODES = mapOf(
   Pair(byte, PrimitiveAsmCodes(Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV, Opcodes.IREM)),
   Pair(short, PrimitiveAsmCodes(Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV, Opcodes.IREM))
 )
-private val OBJECT_CODES = AsmCodes(Opcodes.ALOAD, Opcodes.ASTORE, Opcodes.RETURN)
+private val OBJECT_CODES = AsmCodes(Opcodes.ALOAD, Opcodes.ASTORE, Opcodes.ARETURN)
 
 private open class AsmCodes(
   val loadCode: Int,
@@ -80,11 +79,11 @@ private class PrimitiveAsmCodes(
 ) :
   AsmCodes(loadCode, storeCode, returnCode)
 
-val JavaType.loadCode: Int get() = (if (primitive) PRIMITIVE_CODES.getValue(asPrimitiveType) else OBJECT_CODES).loadCode
-val JavaType.storeCode: Int get() = (if (primitive) PRIMITIVE_CODES.getValue(asPrimitiveType) else OBJECT_CODES).storeCode
-val JavaType.returnCode: Int get() = (if (primitive) PRIMITIVE_CODES.getValue(asPrimitiveType) else OBJECT_CODES).returnCode
-val JavaPrimitiveType.addCode: Int get() = PRIMITIVE_CODES.getValue(asPrimitiveType).addCode
-val JavaPrimitiveType.subCode: Int get() = PRIMITIVE_CODES.getValue(asPrimitiveType).subCode
-val JavaPrimitiveType.mulCode: Int get() = PRIMITIVE_CODES.getValue(asPrimitiveType).mulCode
-val JavaPrimitiveType.divCode: Int get() = PRIMITIVE_CODES.getValue(asPrimitiveType).divCode
-val JavaPrimitiveType.modCode: Int get() = PRIMITIVE_CODES.getValue(asPrimitiveType).modCode
+val JavaType.loadCode: Int get() = (if (primitive) PRIMITIVE_CODES_MAP.getValue(asPrimitiveType) else OBJECT_CODES).loadCode
+val JavaType.storeCode: Int get() = (if (primitive) PRIMITIVE_CODES_MAP.getValue(asPrimitiveType) else OBJECT_CODES).storeCode
+val JavaType.returnCode: Int get() = (if (primitive) PRIMITIVE_CODES_MAP.getValue(asPrimitiveType) else OBJECT_CODES).returnCode
+val JavaPrimitiveType.addCode: Int get() = PRIMITIVE_CODES_MAP.getValue(asPrimitiveType).addCode
+val JavaPrimitiveType.subCode: Int get() = PRIMITIVE_CODES_MAP.getValue(asPrimitiveType).subCode
+val JavaPrimitiveType.mulCode: Int get() = PRIMITIVE_CODES_MAP.getValue(asPrimitiveType).mulCode
+val JavaPrimitiveType.divCode: Int get() = PRIMITIVE_CODES_MAP.getValue(asPrimitiveType).divCode
+val JavaPrimitiveType.modCode: Int get() = PRIMITIVE_CODES_MAP.getValue(asPrimitiveType).modCode

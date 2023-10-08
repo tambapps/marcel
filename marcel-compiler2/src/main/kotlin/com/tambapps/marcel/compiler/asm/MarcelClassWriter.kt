@@ -108,7 +108,7 @@ class MarcelClassWriter(
     val methodStartLabel = Label()
     mv.visitLabel(methodStartLabel)
 
-    val instructionGenerator = MethodInstructionWriter(classNode, methodNode, mv)
+    val instructionGenerator = MethodInstructionWriter(mv)
     instructionGenerator.visit(methodNode.blockStatement)
 
     val methodEndLabel = Label()

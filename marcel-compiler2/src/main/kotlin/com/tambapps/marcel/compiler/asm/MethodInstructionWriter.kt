@@ -24,6 +24,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
+import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.VariableVisitor
 import com.tambapps.marcel.semantic.variable.field.BoundField
@@ -37,15 +38,12 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
 class MethodInstructionWriter(
-  private val classNode: ClassNode,
-  private val methodNode: MethodNode,
   private val mv: MethodVisitor
-
 ): AstNodeVisitor<Unit>, VariableVisitor<Unit> {
 
   override fun visit(node: ExpressionStatementNode) {
     node.expressionNode.accept(this)
-    popStack()
+    if (node.expressionNode.type != JavaType.void) popStack()
   }
 
   override fun visit(node: ReturnStatementNode) {
@@ -138,6 +136,6 @@ class MethodInstructionWriter(
   }
 
   private fun pop2Stack() {
-    mv.visitInsn(Opcodes.POP)
+    mv.visitInsn(Opcodes.POP2)
   }
 }
