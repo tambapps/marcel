@@ -52,6 +52,7 @@ class MarcelSemantic(
   // FIFO
   private val currentScope get() = scopeQueue.peek()
   fun apply(): ModuleNode {
+    val imports = Scope.DEFAULT_IMPORTS.toMutableList()
     // TODO parse package if any
 
     // TODO check return type of all functions, as the compiler should not check anything
@@ -59,7 +60,7 @@ class MarcelSemantic(
     val className = cst.fileName
     if (cst.statements.isNotEmpty()) {
       val classType = typeResolver.defineClass(cst.statements.first().tokenStart, Visibility.PUBLIC, className, Script::class.javaType, false, emptyList())
-      val classScope = ClassScope(classType, typeResolver, emptyList())
+      val classScope = ClassScope(classType, typeResolver, imports)
       scopeQueue.push(classScope)
       val classNode = ClassNode(classType, Visibility.PUBLIC, cst.tokenStart, cst.tokenEnd)
       val runMethod =

@@ -44,7 +44,7 @@ class MethodInstructionWriter(
 ): AstNodeVisitor<Unit>, VariableVisitor<Unit> {
 
   override fun visit(node: ExpressionStatementNode) {
-    node.accept(this)
+    node.expressionNode.accept(this)
     popStack()
   }
 

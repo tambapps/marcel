@@ -20,7 +20,7 @@ class MarcelCompiler(private val configuration: CompilerConfiguration) {
   @Throws(IOException::class, MarcelLexerException::class, MarcelParser2Exception::class, MarcelSemanticException::class, MarcelCompilerException::class)
   fun compileToJar(scriptLoader: MarcelClassLoader? = null, files: Collection<SourceFile>, outputJar: File) {
     val classes = mutableListOf<CompiledClass>()
-    compileSourceFiles(scriptLoader, files, classes::add)
+    compileSourceFiles(files, scriptLoader, classes::add)
 
     JarWriter(outputJar).use {
       classes.forEach { compiledClass ->
@@ -30,7 +30,19 @@ class MarcelCompiler(private val configuration: CompilerConfiguration) {
   }
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParser2Exception::class, MarcelSemanticException::class, MarcelCompilerException::class)
-  fun compileSourceFiles(marcelClassLoader: MarcelClassLoader? = null, sourceFiles: Collection<SourceFile>, classConsumer: Consumer<CompiledClass>) {
+  fun compile(fileName: String, text: String, marcelClassLoader: MarcelClassLoader? = null): List<CompiledClass> {
+    return compileSourceFiles(listOf(SourceFile.from(fileName, text)), marcelClassLoader)
+  }
+
+  @Throws(IOException::class, MarcelLexerException::class, MarcelParser2Exception::class, MarcelSemanticException::class, MarcelCompilerException::class)
+  fun compileSourceFiles(sourceFiles: Collection<SourceFile>, marcelClassLoader: MarcelClassLoader? = null): List<CompiledClass> {
+    val compiledClasses = mutableListOf<CompiledClass>()
+    compileSourceFiles(sourceFiles, marcelClassLoader, compiledClasses::add)
+    return compiledClasses
+  }
+
+  @Throws(IOException::class, MarcelLexerException::class, MarcelParser2Exception::class, MarcelSemanticException::class, MarcelCompilerException::class)
+  fun compileSourceFiles(sourceFiles: Collection<SourceFile>, marcelClassLoader: MarcelClassLoader? = null, classConsumer: Consumer<CompiledClass>) {
     val typeResolver = JavaTypeResolver(marcelClassLoader)
 
     // first load all classes in typeResolver
