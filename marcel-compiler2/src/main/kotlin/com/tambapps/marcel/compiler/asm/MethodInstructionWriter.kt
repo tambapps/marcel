@@ -3,14 +3,12 @@ package com.tambapps.marcel.compiler.asm
 import com.tambapps.marcel.compiler.extensions.descriptor
 import com.tambapps.marcel.compiler.extensions.internalName
 import com.tambapps.marcel.compiler.extensions.invokeCode
-import com.tambapps.marcel.compiler.extensions.loadCode
 import com.tambapps.marcel.compiler.extensions.returnCode
 import com.tambapps.marcel.semantic.ast.AstNodeVisitor
-import com.tambapps.marcel.semantic.ast.ClassNode
-import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ByteConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.CharConstantNode
@@ -25,21 +23,15 @@ import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.variable.LocalVariable
-import com.tambapps.marcel.semantic.variable.VariableVisitor
-import com.tambapps.marcel.semantic.variable.field.BoundField
-import com.tambapps.marcel.semantic.variable.field.DynamicMethodField
-import com.tambapps.marcel.semantic.variable.field.JavaClassField
-import com.tambapps.marcel.semantic.variable.field.MarcelArrayLengthField
-import com.tambapps.marcel.semantic.variable.field.CompositeField
-import com.tambapps.marcel.semantic.variable.field.MethodField
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
 class MethodInstructionWriter(
   private val mv: MethodVisitor
-): AstNodeVisitor<Unit>, VariableVisitor<Unit> {
+): AstNodeVisitor<Unit> {
+
+  private val loadVariableVisitor = LoadVariableVisitor(mv)
 
   override fun visit(node: ExpressionStatementNode) {
     node.expressionNode.accept(this)
@@ -66,9 +58,7 @@ class MethodInstructionWriter(
     mv.visitMethodInsn(node.javaMethod.invokeCode, node.javaMethod.ownerClass.internalName, node.javaMethod.name, node.javaMethod.descriptor, node.javaMethod.ownerClass.isInterface)
   }
 
-  override fun visit(node: ReferenceNode) {
-    TODO("Not yet implemented")
-  }
+  override fun visit(node: ReferenceNode) = node.variable.accept(loadVariableVisitor)
 
   override fun visit(node: ClassReferenceNode) {
     if (node.type.primitive) {
@@ -78,6 +68,7 @@ class MethodInstructionWriter(
     }
   }
 
+  override fun visit(node: ThisReferenceNode) = mv.visitVarInsn(Opcodes.ALOAD, 0) // O is this
   override fun visit(node: BoolConstantNode) = mv.visitInsn(if (node.value) Opcodes.ICONST_1 else Opcodes.ICONST_0)
 
   override fun visit(node: ByteConstantNode) = mv.visitIntInsn(Opcodes.BIPUSH, node.value.toInt())
@@ -99,37 +90,6 @@ class MethodInstructionWriter(
   override fun visit(node: VoidExpressionNode) {
     // push nothing
   }
-
-
-  /*
-   * Variables
-   */
-  override fun visit(variable: LocalVariable) = mv.visitVarInsn(variable.type.loadCode, variable.index)
-
-  override fun visit(variable: BoundField) {
-    TODO("Not yet implemented")
-  }
-
-  override fun visit(variable: DynamicMethodField) {
-    TODO("Not yet implemented")
-  }
-
-  override fun visit(variable: JavaClassField) {
-    TODO("Not yet implemented")
-  }
-
-  override fun visit(variable: MarcelArrayLengthField) {
-    TODO("Not yet implemented")
-  }
-
-  override fun visit(variable: CompositeField) {
-    TODO("Not yet implemented")
-  }
-
-  override fun visit(variable: MethodField) {
-    TODO("Not yet implemented")
-  }
-
 
   private fun popStack() {
     mv.visitInsn(Opcodes.POP)

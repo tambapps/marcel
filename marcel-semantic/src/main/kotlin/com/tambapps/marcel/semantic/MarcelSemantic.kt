@@ -14,6 +14,7 @@ import com.tambapps.marcel.parser.cst.expression.reference.DirectFieldReferenceC
 import com.tambapps.marcel.parser.cst.expression.reference.IncrCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.IndexAccessCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ReferenceCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.ThisReferenceCstNode
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNodeVisitor
@@ -25,6 +26,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
@@ -103,6 +105,7 @@ class MarcelSemantic(
   override fun visit(node: NullCstNode) = NullValueNode(node.token)
 
   override fun visit(node: ClassReferenceCstNode) = ClassReferenceNode(node.value, node.token)
+  override fun visit(node: ThisReferenceCstNode) = ThisReferenceNode(currentScope.classType, node.token)
 
   override fun visit(node: DirectFieldReferenceCstNode): ExpressionNode {
     TODO("Not yet implemented")
@@ -123,7 +126,7 @@ class MarcelSemantic(
     val arguments = node.positionalArgumentNodes.map { it.accept(exprVisitor) }
     val method = currentScope.findMethodOrThrow(node.value, arguments, node)
     val castType = if (node.castType != null) type(node.castType!!) else null
-    val owner = if (method.isStatic) null else null // TODO ThisNode()
+    val owner = if (method.isStatic) null else ThisReferenceNode(currentScope.classType, node.token)
     return FunctionCallNode(method, owner, castType, arguments, node.token)
   }
 
