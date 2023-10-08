@@ -13,7 +13,7 @@ class ReflectJavaField private constructor(
   override val name: String,
   override val owner: JavaType,
   access: Int
-) : ClassField(type, name, owner) {
+) : JavaClassField(type, name, owner) {
   constructor(field: Field): this(JavaType.of(field.type), field.name, JavaType.of(field.declaringClass), field.modifiers)
 
   override val visibility = Visibility.fromAccess(access)

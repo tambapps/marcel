@@ -8,6 +8,8 @@ import com.tambapps.marcel.semantic.type.JavaTyped
  */
 interface Variable : JavaTyped {
 
+  fun <T> accept(visitor: VariableVisitor<T>): T
+
   fun isAccessibleFrom(javaType: JavaType): Boolean
 
   override val type: JavaType

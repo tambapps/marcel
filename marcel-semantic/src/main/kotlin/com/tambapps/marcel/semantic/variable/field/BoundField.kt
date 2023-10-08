@@ -2,6 +2,7 @@ package com.tambapps.marcel.semantic.variable.field
 
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.variable.VariableVisitor
 
 /**
  * Field from a Script's Binding
@@ -11,6 +12,8 @@ class BoundField constructor(
   override val name: String,
   override val owner: JavaType
 ) : AbstractField() {
+
+  override fun <T> accept(visitor: VariableVisitor<T>) = visitor.visit(this)
 
   override val isGettable = true
   override val isSettable = true

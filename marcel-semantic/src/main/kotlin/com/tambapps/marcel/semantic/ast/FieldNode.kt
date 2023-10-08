@@ -4,7 +4,7 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.variable.field.ClassField
+import com.tambapps.marcel.semantic.variable.field.JavaClassField
 
 class FieldNode constructor(override val token: LexToken, type: JavaType, name: String, owner: JavaType,
                             val initialValue: ExpressionNode?,
@@ -15,7 +15,7 @@ class FieldNode constructor(override val token: LexToken, type: JavaType, name: 
                             override val tokenStart: LexToken,
                             override val tokenEnd: LexToken,
 ) : Ast2Node, Annotable,
-  ClassField(type, name, owner) {
+  JavaClassField(type, name, owner) {
 
   override fun toString(): String {
     var s =  "${type.simpleName} $name"

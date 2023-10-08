@@ -2,12 +2,17 @@ package com.tambapps.marcel.semantic.variable.field
 
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.Variable
+import com.tambapps.marcel.semantic.variable.VariableVisitor
 
 /**
  * A field regrouping different kinds of Variable for a same name
  */
+// TODO rename this compositeField
 open class MarcelField(override val name: String): Variable {
-  val classField: ClassField? get() = getters.firstNotNullOfOrNull { it as? ClassField }
+
+  override fun <T> accept(visitor: VariableVisitor<T>) = visitor.visit(this)
+
+  val classField: JavaClassField? get() = getters.firstNotNullOfOrNull { it as? JavaClassField }
   private val _getters = mutableSetOf<JavaField>()
   private val _setters = mutableSetOf<JavaField>()
   val getters: Set<JavaField> = _getters

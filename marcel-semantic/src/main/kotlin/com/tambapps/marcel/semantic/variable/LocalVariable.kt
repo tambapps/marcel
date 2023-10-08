@@ -9,6 +9,10 @@ class LocalVariable constructor(override var type: JavaType, override var name: 
                                 internal val nbSlots: Int,
                                 val index: Int = 0,
                                 override var isFinal: Boolean): AbstractVariable() {
+
+
+  override fun <T> accept(visitor: VariableVisitor<T>) = visitor.visit(this)
+
   override fun toString(): String {
     return "LocalVariable(type=$type, name='$name')"
   }

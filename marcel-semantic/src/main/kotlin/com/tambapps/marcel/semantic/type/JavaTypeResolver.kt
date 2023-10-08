@@ -13,7 +13,7 @@ import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.method.NoArgJavaConstructor
 import com.tambapps.marcel.semantic.method.ReflectJavaMethod
-import com.tambapps.marcel.semantic.variable.field.ClassField
+import com.tambapps.marcel.semantic.variable.field.JavaClassField
 import com.tambapps.marcel.semantic.variable.field.DynamicMethodField
 import com.tambapps.marcel.semantic.variable.field.JavaField
 import com.tambapps.marcel.semantic.variable.field.MarcelArrayLengthField
@@ -170,7 +170,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     else marcelMethods[javaType.className] ?: emptyList()
   }
 
-  fun getClassField(javaType: JavaType, fieldName: String, node: Ast2Node?): ClassField {
+  fun getClassField(javaType: JavaType, fieldName: String, node: Ast2Node?): JavaClassField {
     return fieldResolver.getField(javaType, fieldName)?.classField ?: throw MarcelSemanticException(node?.token, "Class field $javaType.$fieldName is not defined")
   }
 
@@ -324,7 +324,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
 
   fun findField(javaType: JavaType, name: String): MarcelField? {
     if (javaType.isArray && (name == "size" || name == "length")) {
-      return MarcelArrayLengthField(javaType, name)
+      return MarcelField(MarcelArrayLengthField(javaType, name))
     }
     val field = fieldResolver.getField(javaType, name)
     if (field == null && javaType.implements(JavaType.DynamicObject)) {

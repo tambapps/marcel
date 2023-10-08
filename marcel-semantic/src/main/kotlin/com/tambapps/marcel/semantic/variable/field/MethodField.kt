@@ -3,6 +3,7 @@ package com.tambapps.marcel.semantic.variable.field
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.variable.VariableVisitor
 
 /**
  * A Field using a getter and/or a setter
@@ -11,6 +12,8 @@ open class MethodField constructor(override val type: JavaType, override val nam
                                    private val _getterMethod: JavaMethod?,
                                    private val _setterMethod: JavaMethod?,
                                    val isExtension: Boolean): AbstractField() {
+
+  override fun <T> accept(visitor: VariableVisitor<T>) = visitor.visit(this)
 
   override val isFinal = false
   override val visibility = computeVisibility()

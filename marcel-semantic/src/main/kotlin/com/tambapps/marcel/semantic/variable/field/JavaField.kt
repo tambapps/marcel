@@ -4,6 +4,7 @@ import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.Variable
 
+// TODO rename this MarcelField
 sealed interface JavaField: Variable {
   val owner: JavaType
   val visibility: Visibility

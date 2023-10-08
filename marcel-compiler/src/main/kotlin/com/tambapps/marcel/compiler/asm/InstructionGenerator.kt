@@ -268,7 +268,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     mv.visitConstructorCall(node)
   }
 
-  override fun visit(node: NamedParametersConstructorCallNode) {
+  override fun visit(node: NamedParametersConsxtructorCallNode) {
     mv.visitNamedConstructorCall(node)
   }
 

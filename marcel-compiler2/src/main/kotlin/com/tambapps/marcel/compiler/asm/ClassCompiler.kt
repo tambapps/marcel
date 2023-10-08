@@ -17,6 +17,7 @@ import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Label
 import java.lang.annotation.ElementType
 
+// TODO rename ClassWriter
 class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
                     private val typeResolver: JavaTypeResolver
 ) {
