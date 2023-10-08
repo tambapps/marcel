@@ -7,6 +7,7 @@ import com.tambapps.marcel.semantic.type.JavaType
 
 class FunctionCallNode(
   val javaMethod: JavaMethod,
+  val owner: ExpressionNode?,
   val castType: JavaType?,
   val arguments: List<ExpressionNode>,
   token: LexToken

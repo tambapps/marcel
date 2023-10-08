@@ -1,5 +1,10 @@
 package com.tambapps.marcel.compiler.asm
 
+import com.tambapps.marcel.compiler.extensions.descriptor
+import com.tambapps.marcel.compiler.extensions.internalName
+import com.tambapps.marcel.compiler.extensions.invokeCode
+import com.tambapps.marcel.compiler.extensions.loadCode
+import com.tambapps.marcel.compiler.extensions.returnCode
 import com.tambapps.marcel.semantic.ast.AstNodeVisitor
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
@@ -43,7 +48,9 @@ class MethodWriter(
   }
 
   override fun visit(node: ReturnStatementNode) {
-    TODO("Not yet implemented")
+    node.expressionNode.accept(this)
+    // TODO cast if necessary. BUT MarcelSemantic should throw an error (if any)
+    mv.visitInsn(node.expressionNode.type.returnCode)
   }
 
   override fun visit(node: BlockStatementNode) {
@@ -51,7 +58,12 @@ class MethodWriter(
   }
 
   override fun visit(node: FunctionCallNode) {
-    TODO("Not yet implemented")
+    // TODO NO. implement javamethod visitor and use this to know how to call the function
+    node.owner?.accept(this)
+    for (argumentNode in node.arguments) {
+      argumentNode.accept(this)
+    }
+    mv.visitMethodInsn(node.javaMethod.invokeCode, node.javaMethod.ownerClass.internalName, node.javaMethod.name, node.javaMethod.descriptor, node.javaMethod.ownerClass.isInterface)
   }
 
   override fun visit(node: ReferenceNode) {
@@ -66,40 +78,24 @@ class MethodWriter(
     TODO("Not yet implemented")
   }
 
-  override fun visit(node: ByteConstantNode) {
-    TODO("Not yet implemented")
-  }
+  override fun visit(node: ByteConstantNode) = mv.visitIntInsn(Opcodes.BIPUSH, node.value.toInt())
 
-  override fun visit(node: CharConstantNode) {
-    TODO("Not yet implemented")
-  }
+  override fun visit(node: CharConstantNode) = mv.visitLdcInsn(node.value)
 
-  override fun visit(node: DoubleConstantNode) {
-    TODO("Not yet implemented")
-  }
+  override fun visit(node: DoubleConstantNode) = mv.visitLdcInsn(node.value)
 
-  override fun visit(node: FloatConstantNode) {
-    TODO("Not yet implemented")
-  }
+  override fun visit(node: FloatConstantNode) = mv.visitLdcInsn(node.value)
 
-  override fun visit(node: IntConstantNode) {
-    TODO("Not yet implemented")
-  }
+  override fun visit(node: IntConstantNode) = mv.visitLdcInsn(node.value)
 
-  override fun visit(node: LongConstantNode) {
-    TODO("Not yet implemented")
-  }
+  override fun visit(node: LongConstantNode) = mv.visitLdcInsn(node.value)
 
-  override fun visit(node: NullValueNode) {
-    TODO("Not yet implemented")
-  }
+  override fun visit(node: NullValueNode) = mv.visitInsn(Opcodes.ACONST_NULL)
 
-  override fun visit(node: ShortConstantNode) {
-    TODO("Not yet implemented")
-  }
+  override fun visit(node: ShortConstantNode) = mv.visitIntInsn(Opcodes.BIPUSH, node.value.toInt())
 
   override fun visit(node: VoidExpressionNode) {
-    TODO("Not yet implemented")
+    // push nothing
   }
 
 
@@ -107,9 +103,7 @@ class MethodWriter(
    * Variables
    */
 
-  override fun visit(variable: LocalVariable) {
-    TODO("Not yet implemented")
-  }
+  override fun visit(variable: LocalVariable) = mv.visitVarInsn(variable.type.loadCode, variable.index)
 
   override fun visit(variable: BoundField) {
     TODO("Not yet implemented")

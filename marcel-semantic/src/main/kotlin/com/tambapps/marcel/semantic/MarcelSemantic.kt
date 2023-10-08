@@ -121,7 +121,8 @@ class MarcelSemantic(
     val arguments = node.positionalArgumentNodes.map { it.accept(exprVisitor) }
     val method = currentScope.findMethodOrThrow(node.value, arguments, node)
     val castType = if (node.castType != null) type(node.castType!!) else null
-    return FunctionCallNode(method, castType, arguments, node.token)
+    val owner = if (method.isStatic) null else null // TODO ThisNode()
+    return FunctionCallNode(method, owner, castType, arguments, node.token)
   }
 
   private fun type(node: TypeCstNode): JavaType = typeResolver.of(node.value, emptyList())
