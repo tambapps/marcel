@@ -8,6 +8,7 @@ import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.LongCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.NullCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ClassReferenceCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.DirectFieldReferenceCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.IncrCstNode
@@ -26,6 +27,7 @@ import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
@@ -98,6 +100,7 @@ class MarcelSemantic(
   override fun visit(node: IntCstNode) = IntConstantNode(node.token, node.value)
 
   override fun visit(node: LongCstNode) = LongConstantNode(node.token, node.value)
+  override fun visit(node: NullCstNode) = NullValueNode(node.token)
 
   override fun visit(node: ClassReferenceCstNode): ExpressionNode {
     TODO("Not yet implemented")
@@ -129,6 +132,6 @@ class MarcelSemantic(
   private fun type(node: TypeCstNode): JavaType = typeResolver.of(node.value, emptyList())
 
   override fun visit(node: ExpressionStatementCstNode) = ExpressionStatementNode(node.expressionNode.accept(exprVisitor), node.tokenStart, node.tokenEnd)
-  override fun visit(node: ReturnCstNode) = ReturnStatementNode(node.expressionNode.accept(exprVisitor), node.tokenStart, node.tokenEnd)
+  override fun visit(node: ReturnCstNode) = ReturnStatementNode(node.expressionNode?.accept(exprVisitor), node.tokenStart, node.tokenEnd)
 
 }

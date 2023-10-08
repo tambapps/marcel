@@ -4,7 +4,7 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
 
-class ExpressionStatementCstNode(parent: CstNode?,
+class ExpressionStatementCstNode(parent: CstNode? = null,
                                  val expressionNode: CstExpressionNode,
                        tokenStart: LexToken, tokenEnd: LexToken) :
   AbstractStatementCstNode(parent, tokenStart, tokenEnd) {

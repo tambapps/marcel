@@ -10,6 +10,7 @@ import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.LongCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.NullCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.IndexAccessCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ReferenceCstNode
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
@@ -19,6 +20,13 @@ import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
 
 class MarcelParser2Test {
+
+    @Test
+    fun testManyStatements() {
+        val parser = parser("println(1); return null")
+        assertEquals(stmt(fCall(value = "println", positionalArgumentNodes = listOf(int(1)),)), parser.statement())
+        assertEquals(returnNode(nullValue()), parser.statement())
+    }
 
     @Test
     fun testReturn() {
@@ -121,6 +129,10 @@ class MarcelParser2Test {
         positionalArgumentNodes = positionalArgumentNodes, namedArgumentNodes = namedArgumentNodes,
         tokenStart = token(), tokenEnd = token()
     )
+
+    private fun stmt(expr: CstExpressionNode) = ExpressionStatementCstNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
+    private fun returnNode(expr: CstExpressionNode? = null) = ReturnCstNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
+    private fun nullValue() = NullCstNode(token = token())
     private fun type(value: String, genericTypes: List<String> = emptyList(), arrayDimensions: Int = 0) = TypeCstNode(null, value, genericTypes, arrayDimensions, token(), token())
     private fun int(value: Int) = IntCstNode(value = value, token = token())
     private fun float(value: Float) = FloatCstNode(value = value, token = token())

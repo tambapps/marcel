@@ -11,6 +11,7 @@ import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.LongCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.NullCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.*
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
@@ -43,7 +44,9 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       throw MarcelParser2Exception(LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, null), "Unexpected end of file")
     }
     val sourceFile = SourceFileCstNode(fileName = classSimpleName, tokenStart = tokens.first(), tokenEnd = tokens.last())
-    sourceFile.statements.add(statement(sourceFile))
+    while (current.type != TokenType.END_OF_FILE) {
+      sourceFile.statements.add(statement(sourceFile))
+    }
 
     if (errors.isNotEmpty()) {
       throw MarcelParser2Exception(errors)
@@ -90,16 +93,20 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
 
   fun statement(parentNode: CstNode? = null): StatementCstNode {
     val token = next()
-    return when (token.type) {
-      TokenType.RETURN -> {
-        val expr = expression(parentNode)
-        return ReturnCstNode(parentNode, expr, expr.tokenStart, acceptOptional(TokenType.SEMI_COLON) ?: expr.tokenEnd)
+    try {
+      return when (token.type) {
+        TokenType.RETURN -> {
+          val expr = expression(parentNode)
+          return ReturnCstNode(parentNode, expr, expr.tokenStart, acceptOptional(TokenType.SEMI_COLON) ?: expr.tokenEnd)
+        }
+        else -> {
+          rollback()
+          val expr = expression(parentNode)
+          return ExpressionStatementCstNode(parentNode, expr, expr.tokenStart, acceptOptional(TokenType.SEMI_COLON) ?: expr.tokenEnd)
+        }
       }
-      else -> {
-        rollback()
-        val expr = expression(parentNode)
-        return ExpressionStatementCstNode(parentNode, expr, expr.tokenStart, acceptOptional(TokenType.SEMI_COLON) ?: expr.tokenEnd)
-      }
+    } finally {
+      acceptOptional(TokenType.SEMI_COLON)
     }
  }
 
@@ -118,6 +125,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
           parseNumberConstant(parentNode=parentNode, token=token)
         }
       }
+      TokenType.NULL -> NullCstNode(parentNode, token)
       TokenType.AT -> {
         val referenceToken = accept(TokenType.IDENTIFIER)
         val node = DirectFieldReferenceCstNode(parentNode, referenceToken.value, referenceToken)
@@ -154,7 +162,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
           ReferenceCstNode(parentNode, token.value, token)
         }
       }
-      else -> TODO()
+      else -> TODO(token.type.name)
     }
   }
 
