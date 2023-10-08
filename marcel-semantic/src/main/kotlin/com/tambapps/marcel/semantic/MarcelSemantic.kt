@@ -20,6 +20,7 @@ import com.tambapps.marcel.parser.cst.statement.StatementCstNodeVisitor
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
+import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
@@ -101,9 +102,7 @@ class MarcelSemantic(
   override fun visit(node: LongCstNode) = LongConstantNode(node.token, node.value)
   override fun visit(node: NullCstNode) = NullValueNode(node.token)
 
-  override fun visit(node: ClassReferenceCstNode): ExpressionNode {
-    TODO("Not yet implemented")
-  }
+  override fun visit(node: ClassReferenceCstNode) = ClassReferenceNode(node.value, node.token)
 
   override fun visit(node: DirectFieldReferenceCstNode): ExpressionNode {
     TODO("Not yet implemented")
