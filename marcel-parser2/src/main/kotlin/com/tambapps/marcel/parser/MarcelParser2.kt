@@ -2,6 +2,7 @@ package com.tambapps.marcel.parser
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
+import com.tambapps.marcel.parser.cst.AnnotationCstNode
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
@@ -224,6 +225,37 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       indexAccessCstNode(parentNode, ownerNode)
     }
     return null
+  }
+
+  private fun parseAnnotations(parentNode: CstNode?): List<AnnotationCstNode> {
+    val classAnnotations = mutableListOf<AnnotationCstNode>()
+    while (current.type == TokenType.AT) {
+      classAnnotations.add(parseAnnotation(parentNode))
+    }
+    return classAnnotations
+  }
+
+  private fun parseAnnotation(parentNode: CstNode?): AnnotationCstNode {
+    val token = next()
+    val type = parseType(parentNode)
+    val attributes = mutableListOf<Pair<String, CstExpressionNode>>()
+    if (current.type == TokenType.LPAR) {
+      skip()
+      if (current.type == TokenType.IDENTIFIER && lookup(1)?.type == TokenType.ASSIGNMENT) {
+        while (current.type != TokenType.RPAR) {
+          val attributeName = accept(TokenType.IDENTIFIER).value
+          accept(TokenType.ASSIGNMENT)
+          val expression = expression(parentNode)
+          attributes.add(Pair(attributeName, expression))
+          if (current.type != TokenType.RPAR) accept(TokenType.COMMA)
+        }
+      } else {
+        val expression = expression(parentNode)
+        attributes.add(Pair("value", expression))
+      }
+      accept(TokenType.RPAR)
+    }
+    return AnnotationCstNode(parentNode, token, previous, type, attributes)
   }
 
   private fun parseNumberConstant(parentNode: CstNode? = null, token: LexToken): CstExpressionNode {
