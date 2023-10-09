@@ -92,6 +92,7 @@ interface JavaType: JavaTyped {
     return if (genericTypes.isEmpty()) this else withGenericTypes(emptyList())
   }
 
+  fun isSelfOrSuper(other: JavaType) = other == this || other.isExtendedOrImplementedBy(this)
   fun isExtendedOrImplementedBy(other: JavaType): Boolean {
     if (isLoaded && other.isLoaded) {
       return realClazz.isAssignableFrom(other.realClazz)

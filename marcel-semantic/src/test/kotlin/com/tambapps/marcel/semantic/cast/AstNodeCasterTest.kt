@@ -1,0 +1,123 @@
+package com.tambapps.marcel.semantic.cast
+
+import com.tambapps.marcel.lexer.LexToken
+import com.tambapps.marcel.lexer.TokenType
+import com.tambapps.marcel.semantic.ast.AstNodeVisitor
+import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
+import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
+import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
+import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
+import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.CharConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
+import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.extensions.javaType
+import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
+
+class AstNodeCasterTest {
+
+  companion object {
+    private val TYPE_RESOLVER = JavaTypeResolver()
+  }
+
+  private val caster = AstNodeCaster(TYPE_RESOLVER)
+
+  @Test
+  fun testCastDynamicObject() {
+    var node: ExpressionNode = int(2)
+    assertEquals(fCall(JavaType.DynamicObject, "of", listOf(
+      fCall(JavaType.Integer, "valueOf", listOf(node), node)
+    ), node), caster.cast(JavaType.DynamicObject, node))
+
+    assertNotEquals(fCall(JavaType.DynamicObject, "of", listOf(
+      fCall(JavaType.Integer, "valueOf", listOf(int(4)), node)
+    ), node), caster.cast(JavaType.DynamicObject, node))
+
+    node = node(JavaType.IntRange)
+    assertEquals(fCall(JavaType.DynamicObject, "of", listOf(node), node), caster.cast(JavaType.DynamicObject, node))
+  }
+
+  @Test
+  fun testCastObjectToObject() {
+    val node = node(Number::class.javaType)
+    assertEquals(JavaCastNode(JavaType.Integer, node, token()), caster.cast(JavaType.Integer, node))
+    assertEquals(JavaCastNode(JavaType.Integer, node, token()), caster.cast(JavaType.Integer, node))
+
+    // no need to cast anything
+    assertEquals(node, caster.cast(Number::class.javaType, node))
+    assertEquals(node, caster.cast(JavaType.Object, node))
+  }
+
+  @Test
+  fun testCastPrimitiveToObject() {
+    var node: ExpressionNode = int(2)
+
+    assertEquals(fCall(JavaType.Integer, "valueOf", listOf(node), node), caster.cast(JavaType.Integer, node))
+    assertEquals(fCall(JavaType.Integer, "valueOf", listOf(node), int(2)), caster.cast(JavaType.Integer, node))
+    assertEquals(fCall(JavaType.Integer, "valueOf", listOf(node), int(2)), caster.cast(JavaType.Object, node))
+    assertNotEquals(fCall(JavaType.Integer, "valueOf", listOf(node), int(3)), caster.cast(JavaType.int, node))
+
+    node = long(1L)
+    assertEquals(fCall(JavaType.Long, "valueOf", listOf(node), node), caster.cast(JavaType.Long, node))
+
+    node = float(1f)
+    assertEquals(fCall(JavaType.Float, "valueOf", listOf(node), node), caster.cast(JavaType.Float, node))
+
+    node = double(1.0)
+    assertEquals(fCall(JavaType.Double, "valueOf", listOf(node), node), caster.cast(JavaType.Double, node))
+
+    node = char('1')
+    assertEquals(fCall(JavaType.Character, "valueOf", listOf(node), node), caster.cast(JavaType.Character, node))
+
+    node = bool(true)
+    assertEquals(fCall(JavaType.Boolean, "valueOf", listOf(node), node), caster.cast(JavaType.Boolean, node))
+
+    assertThrows<MarcelSemanticException> { caster.cast(JavaType.String, node) }
+  }
+
+  @Test
+  fun testCastObjectToPrimitive() {
+    var node: ExpressionNode = node(JavaType.Integer)
+    assertEquals(fCall(JavaType.Integer, "intValue", emptyList(), node), caster.cast(JavaType.int, node))
+
+    node = node(JavaType.Long)
+    assertEquals(fCall(JavaType.Long, "longValue", emptyList(), node), caster.cast(JavaType.long, node))
+
+    node = node(JavaType.Float)
+    assertEquals(fCall(JavaType.Float, "floatValue", emptyList(), node), caster.cast(JavaType.float, node))
+
+    node = node(JavaType.Double)
+    assertEquals(fCall(JavaType.Double, "doubleValue", emptyList(), node), caster.cast(JavaType.double, node))
+
+    node = node(JavaType.Character)
+    assertEquals(fCall(JavaType.Character, "charValue", emptyList(), node), caster.cast(JavaType.char, node))
+
+    node = node(JavaType.Boolean)
+    assertEquals(fCall(JavaType.Boolean, "booleanValue", emptyList(), node), caster.cast(JavaType.boolean, node))
+  }
+
+  private fun node(type: JavaType) = MyExpressionNode(type)
+
+  private inner class MyExpressionNode(type: JavaType) : AbstractExpressionNode(type, token()) {
+    override fun <T> accept(visitor: AstNodeVisitor<T>) = throw UnsupportedOperationException()
+
+  }
+
+  private fun fCall(ownerType: JavaType, name: String, arguments: List<ExpressionNode>, node: ExpressionNode) = caster.functionCall(ownerType, name, arguments, node)
+  private fun int(value: Int) = IntConstantNode(value = value, token = token())
+  private fun float(value: Float) = FloatConstantNode(value = value, token = token())
+  private fun long(value: Long) = LongConstantNode(value = value, token = token())
+  private fun double(value: Double) = DoubleConstantNode(value = value, token = token())
+  private fun char(value: Char) = CharConstantNode(value = value, token = token())
+  private fun bool(value: Boolean) = BoolConstantNode(value = value, token = token())
+  private fun token() = LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, "")
+
+}

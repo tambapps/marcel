@@ -19,6 +19,7 @@ interface ExpressionNodeVisitor<T> {
   fun visit(node: ThisReferenceNode): T
   fun visit(node: SuperReferenceNode): T
 
+  fun visit(node: JavaCastNode): T
   fun visit(node: BoolConstantNode): T
   fun visit(node: ByteConstantNode): T
   fun visit(node: CharConstantNode): T

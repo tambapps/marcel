@@ -14,4 +14,22 @@ open class MethodParameter constructor(override val type: JavaType, val rawType:
     val s = "$type $name"
     return if (defaultValue != null) "$s = $defaultValue" else s
   }
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (javaClass != other?.javaClass) return false
+
+    other as MethodParameter
+
+    if (type != other.type) return false
+    if (name != other.name) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = type.hashCode()
+    result = 31 * result + name.hashCode()
+    return result
+  }
 }

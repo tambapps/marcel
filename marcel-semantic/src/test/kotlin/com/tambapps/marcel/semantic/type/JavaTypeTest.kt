@@ -18,6 +18,13 @@ import org.junit.jupiter.api.Test
 class JavaTypeTest {
 
   @Test
+  fun testIsSelfOrSuper() {
+    assertTrue(Object.isSelfOrSuper(Object))
+    assertTrue(DynamicObject.isSelfOrSuper(Object))
+    assertFalse(Object.isSelfOrSuper(DynamicObject))
+  }
+
+  @Test
   fun testIsAssignable() {
     assertTrue(Object.isAssignableFrom(DynamicObject))
     assertFalse(DynamicObject.isAssignableFrom(Object))

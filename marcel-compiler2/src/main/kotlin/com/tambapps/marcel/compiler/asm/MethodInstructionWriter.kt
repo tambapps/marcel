@@ -7,6 +7,7 @@ import com.tambapps.marcel.compiler.extensions.returnCode
 import com.tambapps.marcel.semantic.ast.AstNodeVisitor
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
+import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
@@ -24,6 +25,12 @@ import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.type.JavaType.Companion.boolean
+import com.tambapps.marcel.semantic.type.JavaType.Companion.char
+import com.tambapps.marcel.semantic.type.JavaType.Companion.double
+import com.tambapps.marcel.semantic.type.JavaType.Companion.float
+import com.tambapps.marcel.semantic.type.JavaType.Companion.int
+import com.tambapps.marcel.semantic.type.JavaType.Companion.long
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
@@ -31,6 +38,25 @@ import org.objectweb.asm.Type
 class MethodInstructionWriter(
   private val mv: MethodVisitor
 ): AstNodeVisitor<Unit> {
+
+  companion object {
+    val PRIMITIVE_CAST_INSTRUCTION_MAP = mapOf(
+      Pair(Pair(int, long), Opcodes.I2L),
+      Pair(Pair(int, float), Opcodes.I2F),
+      Pair(Pair(int, double), Opcodes.I2D),
+      Pair(Pair(int, boolean), Opcodes.I2B),
+      Pair(Pair(int, char), Opcodes.I2C),
+      Pair(Pair(long, int), Opcodes.L2I),
+      Pair(Pair(long, float), Opcodes.L2F),
+      Pair(Pair(long, double), Opcodes.L2D),
+      Pair(Pair(float, int), Opcodes.F2I),
+      Pair(Pair(float, long), Opcodes.F2L),
+      Pair(Pair(float, double), Opcodes.F2D),
+      Pair(Pair(double, int), Opcodes.D2I),
+      Pair(Pair(double, long), Opcodes.D2L),
+      Pair(Pair(double, float), Opcodes.D2F),
+    )
+  }
 
   private val loadVariableVisitor = LoadVariableVisitor(mv)
 
@@ -92,6 +118,21 @@ class MethodInstructionWriter(
 
   override fun visit(node: VoidExpressionNode) {
     // push nothing
+  }
+
+  override fun visit(node: JavaCastNode) {
+    node.expressionNode.accept(this)
+    val expectedType = node.type
+    val actualType = node.expressionNode.type
+    if (expectedType.primitive && actualType.primitive) {
+      val castInstruction = PRIMITIVE_CAST_INSTRUCTION_MAP[Pair(actualType, expectedType)]
+      // might be null because no need to cast for char to int conversion
+      if (castInstruction != null) {
+        mv.visitInsn(castInstruction)
+      }
+    } else {
+      mv.visitTypeInsn(Opcodes.CHECKCAST, expectedType.internalName)
+    }
   }
 
   private fun popStack() {

@@ -16,6 +16,13 @@ class FunctionCallNode(
 
 
   override fun toString() = StringBuilder().apply {
+    if (javaMethod.isStatic) {
+      append(javaMethod.ownerClass.simpleName)
+      append(".")
+    } else if (owner != null) {
+      append(owner)
+      append(".")
+    }
     append(javaMethod.name)
     if (castType != null) {
       append("<$castType>")
@@ -24,5 +31,25 @@ class FunctionCallNode(
     arguments.joinTo(buffer = this, separator = ", ")
     append(")")
   }.toString()
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is FunctionCallNode) return false
+
+    if (javaMethod != other.javaMethod) return false
+    if (owner != other.owner) return false
+    if (castType != other.castType) return false
+    if (arguments != other.arguments) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = javaMethod.hashCode()
+    result = 31 * result + (owner?.hashCode() ?: 0)
+    result = 31 * result + (castType?.hashCode() ?: 0)
+    result = 31 * result + arguments.hashCode()
+    return result
+  }
 
 }
