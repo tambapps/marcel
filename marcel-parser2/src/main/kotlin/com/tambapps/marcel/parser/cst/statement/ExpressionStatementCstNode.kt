@@ -9,6 +9,8 @@ class ExpressionStatementCstNode(parent: CstNode? = null,
                        tokenStart: LexToken, tokenEnd: LexToken) :
   AbstractStatementCstNode(parent, tokenStart, tokenEnd) {
 
+    constructor(expressionNode: CstExpressionNode): this(expressionNode.parent, expressionNode, expressionNode.tokenStart,
+      expressionNode.tokenEnd)
   override fun <T> accept(visitor: StatementCstNodeVisitor<T>) = visitor.visit(this)
 
   override fun equals(other: Any?): Boolean {

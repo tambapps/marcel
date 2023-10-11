@@ -20,15 +20,13 @@ abstract class AbstractCstNode(
 
     other as AbstractCstNode
 
-    if (parent != other.parent) return false
     if (value != other.value) return false
 
     return true
   }
 
   override fun hashCode(): Int {
-    var result = parent?.hashCode() ?: 0
-    result = 31 * result + (value?.hashCode() ?: 0)
+    var result = value?.hashCode() ?: 0
     return result
   }
 

@@ -3,6 +3,9 @@ package com.tambapps.marcel.parser
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.TokenType
+import com.tambapps.marcel.parser.cst.AnnotationCstNode
+import com.tambapps.marcel.parser.cst.MethodCstNode
+import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
 import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
@@ -17,9 +20,32 @@ import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 
 class MarcelParser2Test {
+
+    @ParameterizedTest
+    @ValueSource(strings = ["fun int foo() -> println(1)", "fun int foo() { println(1)  }"]) // six numbers
+    fun testMethod(text: String) {
+        val parser = parser(text)
+        val method = parser.method(null)
+        assertTrue(method is MethodCstNode)
+        method as MethodCstNode
+        assertEquals("foo", method.name)
+        assertEquals(type("int"), method.returnTypeCstNode)
+        assertEquals(emptyList<AnnotationCstNode>(), method.annotations)
+        assertEquals(emptyList<MethodParameterCstNode>(), method.parameters)
+
+        assertEquals(
+            listOf(
+                stmt(fCall("println", positionalArgumentNodes = listOf(int(1))))
+            ),
+            method.statements
+        )
+    }
 
     @Test
     fun testManyStatements() {

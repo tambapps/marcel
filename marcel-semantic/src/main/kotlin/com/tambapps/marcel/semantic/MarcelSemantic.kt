@@ -144,6 +144,7 @@ class MarcelSemantic(
     return FunctionCallNode(method, SuperReferenceNode(currentScope.classType.superType!!, node.token), null, arguments, node.token)
   }
 
+  // TODO use scope as it might depend on an import
   private fun type(node: TypeCstNode): JavaType = typeResolver.of(node.value, emptyList())
 
   override fun visit(node: ExpressionStatementCstNode) = ExpressionStatementNode(node.expressionNode.accept(exprVisitor), node.tokenStart, node.tokenEnd)

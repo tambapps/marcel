@@ -2,8 +2,13 @@ package com.tambapps.marcel.parser
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
+import com.tambapps.marcel.parser.cst.AbstractMethodNode
 import com.tambapps.marcel.parser.cst.AnnotationCstNode
+import com.tambapps.marcel.parser.cst.ConstructorCstNode
+import com.tambapps.marcel.parser.cst.CstAccessNode
 import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.parser.cst.MethodCstNode
+import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
@@ -54,6 +59,75 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       throw MarcelParser2Exception(errors)
     }
     return sourceFile
+  }
+
+  fun method(parentNode: CstNode?): AbstractMethodNode {
+    val token = current
+    val isConstructor = accept(TokenType.FUN, TokenType.CONSTRUCTOR).type == TokenType.CONSTRUCTOR
+    val accessNode = parseAccess(parentNode)
+    val node = if (!isConstructor) {
+      val returnType = parseType(parentNode)
+      val methodName = accept(TokenType.IDENTIFIER).value
+      MethodCstNode(parentNode, token, token, accessNode, methodName, returnType)
+    } else ConstructorCstNode(parentNode, token, token, accessNode)
+
+    // parameters
+    accept(TokenType.LPAR)
+    val parameters = mutableListOf<MethodParameterCstNode>()
+    while (current.type != TokenType.RPAR) {
+      val parameterTokenStart = current
+      val parameterAnnotations = parseAnnotations(parentNode)
+      val isThisParameter = acceptOptional(TokenType.THIS) != null && acceptOptional(TokenType.DOT) != null
+      val type =
+        if (!isThisParameter) parseType(parentNode)
+        else TypeCstNode(parentNode, "", emptyList(), 0, previous, previous)
+      val parameterName = accept(TokenType.IDENTIFIER).value
+      val defaultValue = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(parentNode) else null
+      parameters.add(MethodParameterCstNode(parentNode, parameterTokenStart, previous, parameterName, type, defaultValue, parameterAnnotations, isThisParameter))
+      acceptOptional(TokenType.COMMA)
+    }
+    skip() // skip RPAR
+
+    val statements = mutableListOf<StatementCstNode>()
+    // super/this method call if any
+    if (isConstructor && current.type == TokenType.COLON) {
+      skip()
+      when (val atom = atom(parentNode)) {
+        // TODO handle thisConstructorCall
+        is SuperConstructorCallCstNode  -> statements.add(ExpressionStatementCstNode(atom))
+        else -> throw MarcelParser2Exception(atom.token, "Expected this or super constructor call")
+      }
+    }
+
+    if (isConstructor && current.type != TokenType.RPAR) {
+      // constructor may not have a body
+      node.statements.addAll(statements)
+      return node
+    }
+
+    if (current.type == TokenType.ARROW) {
+      // fun foo() -> expression()
+      skip()
+      statements.add(statement(parentNode))
+    } else {
+      accept(TokenType.BRACKETS_OPEN)
+      while (current.type != TokenType.BRACKETS_CLOSE) {
+        statements.add(statement(node))
+      }
+      skip()
+    }
+    node.statements.addAll(statements)
+    return node
+  }
+
+  private fun parseAccess(parentNode: CstNode?): CstAccessNode {
+    val tokenStart = current
+    val visibilityToken = acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED,
+      TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE)?.type ?: TokenType.VISIBILITY_PUBLIC
+    val isStatic = acceptOptional(TokenType.STATIC) != null
+    val isFinal = acceptOptional(TokenType.FINAL) != null
+    val isInline = acceptOptional(TokenType.INLINE) != null
+    return CstAccessNode(parentNode, tokenStart, previous, isStatic, isInline, isFinal, visibilityToken)
   }
 
   internal fun parseType(parentNode: CstNode? = null): TypeCstNode {
