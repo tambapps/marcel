@@ -1,5 +1,6 @@
 package com.tambapps.marcel.semantic
 
+import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.semantic.type.JavaType
 import java.lang.reflect.Modifier
 
@@ -44,6 +45,14 @@ enum class Visibility {
                 flags and Modifier.PUBLIC != 0 -> PUBLIC
                 else -> INTERNAL
             }
+        }
+
+        fun fromTokenType(type: TokenType) = when (type) {
+            TokenType.VISIBILITY_PUBLIC -> PUBLIC
+            TokenType.VISIBILITY_PROTECTED -> PROTECTED
+            TokenType.VISIBILITY_INTERNAL -> INTERNAL
+            TokenType.VISIBILITY_PRIVATE -> PRIVATE
+            else -> throw IllegalArgumentException()
         }
     }
 }

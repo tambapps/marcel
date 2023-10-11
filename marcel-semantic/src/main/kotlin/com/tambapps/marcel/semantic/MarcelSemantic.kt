@@ -21,6 +21,7 @@ import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNodeVisitor
 import com.tambapps.marcel.semantic.ast.ClassNode
+import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
@@ -72,27 +73,52 @@ class MarcelSemantic(
 
     val className = cst.fileName
     if (cst.statements.isNotEmpty()) {
-      val classType = typeResolver.defineClass(cst.statements.first().tokenStart, Visibility.PUBLIC, className, Script::class.javaType, false, emptyList())
-      val classScope = ClassScope(classType, typeResolver, imports)
-      scopeQueue.push(classScope)
-      val classNode = ClassNode(classType, Visibility.PUBLIC, cst.tokenStart, cst.tokenEnd)
-      val runMethod =
-        MethodNode(name = "run",
-          visibility = Visibility.PUBLIC, returnType = JavaType.Object,
-          isStatic = false, isConstructor = false,
-          ownerClass = classType,
-          tokenStart = cst.statements.first().tokenStart, tokenEnd = cst.statements.last().tokenEnd)
-      useScope(MethodScope(classScope, runMethod)) {
-        runMethod.blockStatement = BlockStatementNode(
-          cst.statements.map { cstStmt -> cstStmt.accept(stmtVisitor) },
-          runMethod.tokenStart, runMethod.tokenEnd)
-      }
-      classNode.addMethod(runMethod)
-      return ModuleNode(cst.tokenStart, cst.tokenEnd).apply {
-        classes.add(classNode)
-      }
+      return scriptModule(className, imports)
     } else {
       TODO()
+    }
+  }
+
+  private fun scriptModule(className: String, imports: List<ImportNode>): ModuleNode {
+    val classType = typeResolver.defineClass(cst.statements.first().tokenStart, Visibility.PUBLIC, className, Script::class.javaType, false, emptyList())
+    val classScope = ClassScope(classType, typeResolver, imports)
+    scopeQueue.push(classScope)
+    val classNode = ClassNode(classType, Visibility.PUBLIC, cst.tokenStart, cst.tokenEnd)
+    val runMethod =
+      MethodNode(name = "run",
+        visibility = Visibility.PUBLIC, returnType = JavaType.Object,
+        isStatic = false,
+        ownerClass = classType,
+        tokenStart = cst.statements.first().tokenStart, tokenEnd = cst.statements.last().tokenEnd)
+    useScope(MethodScope(classScope, runMethod)) {
+      runMethod.blockStatement = BlockStatementNode(
+        cst.statements.map { cstStmt -> cstStmt.accept(stmtVisitor) },
+        runMethod.tokenStart, runMethod.tokenEnd)
+    }
+    classNode.addMethod(runMethod)
+    addMethodsTo(classNode, classScope)
+
+    val moduleNode = ModuleNode(cst.tokenStart, cst.tokenEnd)
+    moduleNode.classes.add(classNode)
+    return moduleNode
+  }
+
+  private fun addMethodsTo(classNode: ClassNode, classScope: ClassScope) {
+    for (methodCst in cst.methods) {
+      val methodNode = MethodNode(
+        name = methodCst.name,
+        visibility = Visibility.fromTokenType(methodCst.accessNode.visibility),
+        returnType = type(methodCst.returnTypeCstNode),
+        isStatic = methodCst.accessNode.isStatic,
+        tokenStart = methodCst.tokenStart,
+        tokenEnd = methodCst.tokenEnd,
+        ownerClass = classNode.type
+      )
+      useScope(MethodScope(classScope, methodNode)) {
+        methodNode.blockStatement = BlockStatementNode(
+          cst.statements.map { cstStmt -> cstStmt.accept(stmtVisitor) },
+          methodNode.tokenStart, methodNode.tokenEnd)
+      }
     }
   }
 

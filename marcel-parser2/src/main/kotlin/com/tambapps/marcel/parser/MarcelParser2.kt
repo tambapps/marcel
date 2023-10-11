@@ -52,7 +52,24 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     }
     val sourceFile = SourceFileCstNode(fileName = classSimpleName, tokenStart = tokens.first(), tokenEnd = tokens.last())
     while (current.type != TokenType.END_OF_FILE) {
-      sourceFile.statements.add(statement(sourceFile))
+      if (current.type == TokenType.CLASS
+        // visibility
+        || lookup(1)?.type == TokenType.CLASS
+        // visibility|extension + abstract
+        || lookup(2)?.type == TokenType.CLASS) {
+        TODO()
+      } else if (current.type == TokenType.FUN
+        // visibility
+        || lookup(1)?.type == TokenType.FUN
+        // visibility|extension + abstract
+        || lookup(2)?.type == TokenType.FUN) {
+        when (val method = method(sourceFile)) {
+          is MethodCstNode -> sourceFile.methods.add(method)
+          is ConstructorCstNode -> sourceFile.constructors.add(method)
+        }
+      } else {
+        sourceFile.statements.add(statement(sourceFile))
+      }
     }
 
     if (errors.isNotEmpty()) {
