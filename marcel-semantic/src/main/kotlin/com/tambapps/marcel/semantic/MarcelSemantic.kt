@@ -120,14 +120,8 @@ class MarcelSemantic(
     }
 
     if (classNode.constructorCount == 0) {
-      // add a default constructor
-      val defaultConstructorNode = MethodNode(JavaMethod.CONSTRUCTOR_NAME, Visibility.PUBLIC, JavaType.void, false, classNode.tokenStart, classNode.tokenEnd, JavaType.void)
-      val superConstructorMethod = typeResolver.findMethodOrThrow(classNode.superType, JavaMethod.CONSTRUCTOR_NAME, emptyList(), classNode)
-      defaultConstructorNode.blockStatement = BlockStatementNode(listOf(
-        ExpressionStatementNode(SuperConstructorCallNode(classNode.superType, superConstructorMethod, emptyList(), defaultConstructorNode.tokenStart, defaultConstructorNode.tokenEnd)),
-        ReturnStatementNode(VoidExpressionNode(defaultConstructorNode.token), defaultConstructorNode.tokenStart, defaultConstructorNode.tokenEnd)
-      ), defaultConstructorNode.tokenStart, defaultConstructorNode.tokenEnd)
-      classNode.methods.add(defaultConstructorNode)
+      // default no arg constructor
+      classNode.methods.add(SemanticHelper.noArgConstructor(classNode, typeResolver))
     }
   }
 
