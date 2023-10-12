@@ -20,6 +20,7 @@ import com.tambapps.marcel.parser.cst.expression.reference.SuperReferenceCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ThisReferenceCstNode
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
+import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNodeVisitor
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ImportNode
@@ -91,11 +92,7 @@ class MarcelSemantic(
         isStatic = false,
         ownerClass = classType,
         tokenStart = cst.statements.first().tokenStart, tokenEnd = cst.statements.last().tokenEnd)
-    useScope(MethodScope(classScope, runMethod)) {
-      runMethod.blockStatement = BlockStatementNode(
-        cst.statements.map { cstStmt -> cstStmt.accept(stmtVisitor) },
-        runMethod.tokenStart, runMethod.tokenEnd)
-    }
+    methodStatements(classScope, runMethod, cst.statements)
     classNode.addMethod(runMethod)
     addMethodsTo(classNode, classScope, cst.methods)
 
@@ -115,13 +112,27 @@ class MarcelSemantic(
         tokenEnd = methodCst.tokenEnd,
         ownerClass = classNode.type
       )
-      useScope(MethodScope(classScope, methodNode)) {
-        methodNode.blockStatement = BlockStatementNode(
-          cst.statements.map { cstStmt -> cstStmt.accept(stmtVisitor) },
-          methodNode.tokenStart, methodNode.tokenEnd)
-      }
+      methodStatements(classScope, methodNode, methodCst.statements)
     }
   }
+
+  private fun methodStatements(classScope: ClassScope, methodeNode: MethodNode, cstStatements: List<StatementCstNode>) =     useScope(MethodScope(classScope, methodeNode)) {
+    val statements = mutableListOf<StatementNode>()
+    for (i in cstStatements.indices) {
+      val statement = cstStatements[i].accept(stmtVisitor)
+      // TODO add this check in all block/list of statements
+      if (statement is ReturnStatementNode && i < cstStatements.lastIndex)
+        throw MarcelSemanticException("Cannot have statements after a return statement")
+      statements.add(statement)
+    }
+
+    if (methodeNode.returnType != JavaType.void && statements.lastOrNull() !is ReturnStatementNode) {
+      statements.add(ReturnStatementNode(NullValueNode(methodeNode.token), methodeNode.tokenStart, methodeNode.tokenEnd))
+    }
+    // TODO check all path returns if returnType is not void
+    methodeNode.blockStatement = BlockStatementNode(statements, methodeNode.tokenStart, methodeNode.tokenEnd)
+  }
+
 
   private inline fun useScope(scope: Scope, consumer: () -> Unit) {
     scopeQueue.push(scope)
@@ -162,7 +173,9 @@ class MarcelSemantic(
     val method = currentScope.findMethodOrThrow(node.value, arguments, node)
     val castType = if (node.castType != null) type(node.castType!!) else null
     val owner = if (method.isStatic) null else ThisReferenceNode(currentScope.classType, node.token)
-    return FunctionCallNode(method, owner, castType, arguments, node.token)
+    return FunctionCallNode(method, owner, castType,
+      arguments.mapIndexed { index, expressionNode -> caster.cast(method.parameters[index].type, expressionNode) }
+      , node.token)
   }
 
   override fun visit(node: SuperConstructorCallCstNode): ExpressionNode {
