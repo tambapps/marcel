@@ -42,7 +42,6 @@ abstract class AbstractCompilerTest {
     return writeJar(compiler.compile(text = text, fileName = className), className)
   }
   protected fun writeJar(result: List<CompiledClass>, className: String): File {
-
     val jarFile = Files.createTempFile("", "$className.jar").toFile()
     JarWriter(jarFile).use {
       it.writeClasses(result)
