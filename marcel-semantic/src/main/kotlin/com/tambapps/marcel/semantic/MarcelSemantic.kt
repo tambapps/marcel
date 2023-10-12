@@ -1,5 +1,6 @@
 package com.tambapps.marcel.semantic
 
+import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNodeVisitor
@@ -96,15 +97,15 @@ class MarcelSemantic(
         runMethod.tokenStart, runMethod.tokenEnd)
     }
     classNode.addMethod(runMethod)
-    addMethodsTo(classNode, classScope)
+    addMethodsTo(classNode, classScope, cst.methods)
 
     val moduleNode = ModuleNode(cst.tokenStart, cst.tokenEnd)
     moduleNode.classes.add(classNode)
     return moduleNode
   }
 
-  private fun addMethodsTo(classNode: ClassNode, classScope: ClassScope) {
-    for (methodCst in cst.methods) {
+  private fun addMethodsTo(classNode: ClassNode, classScope: ClassScope, methods: List<MethodCstNode>) {
+    for (methodCst in methods) {
       val methodNode = MethodNode(
         name = methodCst.name,
         visibility = Visibility.fromTokenType(methodCst.accessNode.visibility),
