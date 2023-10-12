@@ -33,14 +33,12 @@ import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
-import com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
-import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
@@ -53,6 +51,7 @@ import com.tambapps.marcel.semantic.scope.MethodScope
 import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
 import marcel.lang.Script
 import java.util.LinkedList
 
@@ -87,20 +86,15 @@ class MarcelSemantic(
   private fun scriptModule(className: String, imports: List<ImportNode>): ModuleNode {
     val classType = typeResolver.defineClass(cst.statements.first().tokenStart, Visibility.PUBLIC, className, Script::class.javaType, false, emptyList())
     val classScope = ClassScope(classType, typeResolver, imports)
-    scopeQueue.push(classScope)
-    val classNode = ClassNode(classType, Visibility.PUBLIC, cst.tokenStart, cst.tokenEnd)
-    val runMethod =
-      MethodNode(name = "run",
-        visibility = Visibility.PUBLIC, returnType = JavaType.Object,
-        isStatic = false,
-        ownerClass = classType,
-        tokenStart = cst.statements.first().tokenStart, tokenEnd = cst.statements.last().tokenEnd)
-    runMethod.parameters.add(MethodParameterNode(classNode.token, JavaType.String.arrayType, "args"))
-    fillClassNode(classNode, classScope, cst.methods)
-    fillMethodNode(classScope, runMethod, cst.statements)
-    classNode.methods.add(runMethod)
-
     val moduleNode = ModuleNode(cst.tokenStart, cst.tokenEnd)
+    val classNode = ClassNode(classType, Visibility.PUBLIC, cst.tokenStart, cst.tokenEnd)
+
+    useScope(classScope) {
+      val runMethod = SemanticHelper.scriptRunMethod(classType, cst)
+      fillClassNode(classNode, classScope, cst.methods)
+      fillMethodNode(classScope, runMethod, cst.statements, scriptRunMethod = true)
+      classNode.methods.add(runMethod)
+    }
     moduleNode.classes.add(classNode)
     return moduleNode
   }
@@ -125,7 +119,9 @@ class MarcelSemantic(
     }
   }
 
-  private fun fillMethodNode(classScope: ClassScope, methodeNode: MethodNode, cstStatements: List<StatementCstNode>) =     useScope(MethodScope(classScope, methodeNode)) {
+  private fun fillMethodNode(classScope: ClassScope, methodeNode: MethodNode, cstStatements: List<StatementCstNode>,
+                             scriptRunMethod: Boolean = false)
+  = useScope(MethodScope(classScope, methodeNode)) {
     val statements = mutableListOf<StatementNode>()
     for (i in cstStatements.indices) {
       val statement = cstStatements[i].accept(stmtVisitor)
@@ -135,11 +131,15 @@ class MarcelSemantic(
       statements.add(statement)
     }
 
-    if (methodeNode.returnType != JavaType.void && statements.lastOrNull() !is ReturnStatementNode) {
-      // TODO ALL FUNCTOINS SHOULD RETURN, EVEN VOID
-      statements.add(ReturnStatementNode(NullValueNode(methodeNode.token), methodeNode.tokenStart, methodeNode.tokenEnd))
+    if (!AllPathsReturnVisitor.test(statements)) {
+      if (methodeNode.returnType == JavaType.void) {
+        statements.add(SemanticHelper.returnVoid(methodeNode))
+      } else if (scriptRunMethod) {
+        statements.add(SemanticHelper.returnNull(methodeNode))
+      } else {
+        throw MarcelSemanticException(methodeNode.token, "Not all paths return a value")
+      }
     }
-    // TODO check all path returns if returnType is not void
     methodeNode.blockStatement = BlockStatementNode(statements, methodeNode.tokenStart, methodeNode.tokenEnd)
   }
 

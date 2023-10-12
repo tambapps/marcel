@@ -1,8 +1,12 @@
 package com.tambapps.marcel.semantic
 
+import com.tambapps.marcel.parser.cst.SourceFileCstNode
+import com.tambapps.marcel.semantic.ast.Ast2Node
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
+import com.tambapps.marcel.semantic.ast.MethodParameterNode
 import com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode
+import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
@@ -22,4 +26,15 @@ internal object SemanticHelper {
     ), defaultConstructorNode.tokenStart, defaultConstructorNode.tokenEnd)
     return defaultConstructorNode
   }
+
+  fun returnVoid(node: Ast2Node) = ReturnStatementNode(VoidExpressionNode(node.token), node.tokenStart, node.tokenEnd)
+  fun returnNull(node: Ast2Node) = ReturnStatementNode(NullValueNode(node.token), node.tokenStart, node.tokenEnd)
+
+  fun scriptRunMethod(classType: JavaType, cst: SourceFileCstNode) = MethodNode(name = "run",
+    visibility = Visibility.PUBLIC, returnType = JavaType.Object,
+    isStatic = false,
+    ownerClass = classType,
+    tokenStart = cst.statements.first().tokenStart, tokenEnd = cst.statements.last().tokenEnd).apply {
+    parameters.add(MethodParameterNode(token, JavaType.String.arrayType, "args"))
+    }
 }

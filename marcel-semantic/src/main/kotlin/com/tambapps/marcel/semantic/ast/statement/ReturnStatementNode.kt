@@ -14,4 +14,6 @@ class ReturnStatementNode(
 
   val returnsVoid = expressionNode is VoidExpressionNode
   override fun <T> accept(visitor: AstNodeVisitor<T>) = visitor.visit(this)
+  override fun <T> accept(visitor: StatementNodeVisitor<T>) = visitor.visit(this)
+
 }
