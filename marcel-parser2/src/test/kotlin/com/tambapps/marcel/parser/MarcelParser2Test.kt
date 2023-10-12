@@ -116,9 +116,9 @@ class MarcelParser2Test {
             parser("int").parseType())
         assertEquals(type(value = "DynamicObject"),
             parser("dynobj").parseType())
-        assertEquals(type(value = "list", genericTypes = listOf("int")),
+        assertEquals(type(value = "list", genericTypes = listOf(type("int"))),
             parser("list<int>").parseType())
-        assertEquals(type(value = "list", genericTypes = listOf("int"), arrayDimensions = 2),
+        assertEquals(type(value = "list", genericTypes = listOf(type("int")), arrayDimensions = 2),
             parser("list<int>[][]").parseType())
         assertEquals(type(value = "DynamicObject", arrayDimensions = 1),
             parser("dynobj[]").parseType())
@@ -159,7 +159,7 @@ class MarcelParser2Test {
     private fun stmt(expr: CstExpressionNode) = ExpressionStatementCstNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
     private fun returnNode(expr: CstExpressionNode? = null) = ReturnCstNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
     private fun nullValue() = NullCstNode(token = token())
-    private fun type(value: String, genericTypes: List<String> = emptyList(), arrayDimensions: Int = 0) = TypeCstNode(null, value, genericTypes, arrayDimensions, token(), token())
+    private fun type(value: String, genericTypes: List<TypeCstNode> = emptyList(), arrayDimensions: Int = 0) = TypeCstNode(null, value, genericTypes, arrayDimensions, token(), token())
     private fun int(value: Int) = IntCstNode(value = value, token = token())
     private fun float(value: Float) = FloatCstNode(value = value, token = token())
     private fun long(value: Long) = LongCstNode(value = value, token = token())
