@@ -25,6 +25,7 @@ import com.tambapps.marcel.parser.cst.statement.StatementCstNodeVisitor
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.ast.MethodNode
+import com.tambapps.marcel.semantic.ast.MethodParameterNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
@@ -32,12 +33,14 @@ import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
+import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
@@ -92,16 +95,17 @@ class MarcelSemantic(
         isStatic = false,
         ownerClass = classType,
         tokenStart = cst.statements.first().tokenStart, tokenEnd = cst.statements.last().tokenEnd)
-    methodStatements(classScope, runMethod, cst.statements)
-    classNode.addMethod(runMethod)
-    addMethodsTo(classNode, classScope, cst.methods)
+    runMethod.parameters.add(MethodParameterNode(classNode.token, JavaType.String.arrayType, "args"))
+    fillClassNode(classNode, classScope, cst.methods)
+    fillMethodNode(classScope, runMethod, cst.statements)
+    classNode.methods.add(runMethod)
 
     val moduleNode = ModuleNode(cst.tokenStart, cst.tokenEnd)
     moduleNode.classes.add(classNode)
     return moduleNode
   }
 
-  private fun addMethodsTo(classNode: ClassNode, classScope: ClassScope, methods: List<MethodCstNode>) {
+  private fun fillClassNode(classNode: ClassNode, classScope: ClassScope, methods: List<MethodCstNode>) {
     for (methodCst in methods) {
       val methodNode = MethodNode(
         name = methodCst.name,
@@ -112,11 +116,22 @@ class MarcelSemantic(
         tokenEnd = methodCst.tokenEnd,
         ownerClass = classNode.type
       )
-      methodStatements(classScope, methodNode, methodCst.statements)
+      fillMethodNode(classScope, methodNode, methodCst.statements)
+    }
+
+    if (classNode.constructorCount == 0) {
+      // add a default constructor
+      val defaultConstructorNode = MethodNode(JavaMethod.CONSTRUCTOR_NAME, Visibility.PUBLIC, JavaType.void, false, classNode.tokenStart, classNode.tokenEnd, JavaType.void)
+      val superConstructorMethod = typeResolver.findMethodOrThrow(classNode.superType, JavaMethod.CONSTRUCTOR_NAME, emptyList(), classNode)
+      defaultConstructorNode.blockStatement = BlockStatementNode(listOf(
+        ExpressionStatementNode(SuperConstructorCallNode(classNode.superType, superConstructorMethod, emptyList(), defaultConstructorNode.tokenStart, defaultConstructorNode.tokenEnd)),
+        ReturnStatementNode(VoidExpressionNode(defaultConstructorNode.token), defaultConstructorNode.tokenStart, defaultConstructorNode.tokenEnd)
+      ), defaultConstructorNode.tokenStart, defaultConstructorNode.tokenEnd)
+      classNode.methods.add(defaultConstructorNode)
     }
   }
 
-  private fun methodStatements(classScope: ClassScope, methodeNode: MethodNode, cstStatements: List<StatementCstNode>) =     useScope(MethodScope(classScope, methodeNode)) {
+  private fun fillMethodNode(classScope: ClassScope, methodeNode: MethodNode, cstStatements: List<StatementCstNode>) =     useScope(MethodScope(classScope, methodeNode)) {
     val statements = mutableListOf<StatementNode>()
     for (i in cstStatements.indices) {
       val statement = cstStatements[i].accept(stmtVisitor)
@@ -127,6 +142,7 @@ class MarcelSemantic(
     }
 
     if (methodeNode.returnType != JavaType.void && statements.lastOrNull() !is ReturnStatementNode) {
+      // TODO ALL FUNCTOINS SHOULD RETURN, EVEN VOID
       statements.add(ReturnStatementNode(NullValueNode(methodeNode.token), methodeNode.tokenStart, methodeNode.tokenEnd))
     }
     // TODO check all path returns if returnType is not void
@@ -140,6 +156,11 @@ class MarcelSemantic(
     scopeQueue.pop()
   }
 
+  private fun type(node: TypeCstNode): JavaType = currentScope.resolveTypeOrThrow(node)
+
+  /*
+   * node visits
+   */
   override fun visit(node: DoubleCstNode) = DoubleConstantNode(node.token, node.value)
 
   override fun visit(node: FloatCstNode) = FloatConstantNode(node.token, node.value)
@@ -183,9 +204,6 @@ class MarcelSemantic(
     val method = currentScope.findMethodOrThrow(JavaMethod.CONSTRUCTOR_NAME, arguments, node)
     return FunctionCallNode(method, SuperReferenceNode(currentScope.classType.superType!!, node.token), null, arguments, node.token)
   }
-
-  // TODO use scope as it might depend on an import
-  private fun type(node: TypeCstNode): JavaType = currentScope.resolveTypeOrThrow(node)
 
   override fun visit(node: ExpressionStatementCstNode) = ExpressionStatementNode(node.expressionNode.accept(exprVisitor), node.tokenStart, node.tokenEnd)
   override fun visit(node: ReturnCstNode): StatementNode {

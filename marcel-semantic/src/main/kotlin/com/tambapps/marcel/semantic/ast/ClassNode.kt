@@ -10,13 +10,12 @@ class ClassNode(
   val visibility: Visibility,
   tokenStart: LexToken, tokenEnd: LexToken
 ) : AbstractAst2Node(tokenStart, tokenEnd), JavaTyped {
+  val superType = type.superType!!
 
   val imports = mutableListOf<ImportNode>()
   val methods = mutableListOf<MethodNode>()
   val annotations = mutableListOf<AnnotationNode>()
 
-  fun addMethod(method: MethodNode) {
-    // TODO check for methods with same signature and throw exception if already has one
-    methods.add(method)
-  }
+  val constructorCount get() = methods.count { it.isConstructor }
+
 }

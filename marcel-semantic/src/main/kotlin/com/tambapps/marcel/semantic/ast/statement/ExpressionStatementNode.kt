@@ -11,6 +11,8 @@ open class ExpressionStatementNode(
   val expressionNode: ExpressionNode,
   tokenStart: LexToken, tokenEnd: LexToken) : AbstractStatementNode(tokenStart, tokenEnd) {
 
+    constructor(expressionNode: ExpressionNode): this(expressionNode, expressionNode.tokenStart, expressionNode.tokenEnd)
+
   override fun <T> accept(visitor: AstNodeVisitor<T>) = visitor.visit(this)
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

@@ -6,10 +6,13 @@ import com.tambapps.marcel.compiler.extensions.invokeCode
 import com.tambapps.marcel.compiler.extensions.returnCode
 import com.tambapps.marcel.semantic.ast.AstNodeVisitor
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.ThisConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ByteConstantNode
@@ -24,6 +27,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
+import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaType.Companion.boolean
 import com.tambapps.marcel.semantic.type.JavaType.Companion.char
@@ -85,6 +89,21 @@ class MethodInstructionWriter(
     mv.visitMethodInsn(node.javaMethod.invokeCode, node.javaMethod.ownerClass.internalName, node.javaMethod.name, node.javaMethod.descriptor, node.javaMethod.ownerClass.isInterface)
   }
 
+  override fun visit(node: ThisConstructorCallNode) {
+    visitOwnConstructorCall(node.classType, node.javaMethod, node.arguments)
+  }
+  override fun visit(node: SuperConstructorCallNode) {
+    visitOwnConstructorCall(node.classType, node.javaMethod, node.arguments)
+  }
+
+  private fun visitOwnConstructorCall(type: JavaType, method: JavaMethod, arguments: List<ExpressionNode>) {
+    mv.visitVarInsn(Opcodes.ALOAD, 0)
+    arguments.forEach { it.accept(this) }
+    mv.visitMethodInsn(Opcodes.INVOKESPECIAL, type.internalName, JavaMethod.CONSTRUCTOR_NAME,
+      // void return type for constructors
+      method.descriptor, false)
+
+  }
   override fun visit(node: ReferenceNode) = node.variable.accept(loadVariableVisitor)
 
   override fun visit(node: ClassReferenceNode) {

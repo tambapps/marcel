@@ -40,7 +40,7 @@ class MarcelClassWriter(
     // creating class
     classWriter.visit(compilerConfiguration.classVersion,  ReflectUtils.computeAccess(
       classNode.visibility, isStatic = false
-    ), classNode.internalName,
+    ), classNode.type.internalName,
 
       if (classNode.type.superType?.hasGenericTypes == true || classNode.type.directlyImplementedInterfaces.any { it.hasGenericTypes }) classNode.type.signature else null,
       classNode.type.superType!!.internalName, // we know it has a super type as it is not the Object class
@@ -48,7 +48,7 @@ class MarcelClassWriter(
 
     // writing annotations
     for (annotation in classNode.annotations) {
-      writeAnnotation(classWriter.visitAnnotation(annotation.descriptor, true), annotation, ElementType.TYPE)
+      writeAnnotation(classWriter.visitAnnotation(annotation.type.descriptor, true), annotation, ElementType.TYPE)
     }
 
     /*
@@ -101,7 +101,7 @@ class MarcelClassWriter(
 
     // writing annotations
     for (annotation in methodNode.annotations) {
-      writeAnnotation(mv.visitAnnotation(annotation.descriptor, true), annotation, ElementType.METHOD)
+      writeAnnotation(mv.visitAnnotation(annotation.type.descriptor, true), annotation, ElementType.METHOD)
     }
 
     mv.visitCode()
