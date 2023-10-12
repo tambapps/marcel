@@ -157,13 +157,13 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     }
 
     // generic types
-    val genericTypes = mutableListOf<String>()
+    val genericTypes = mutableListOf<TypeCstNode>()
     if (current.type == TokenType.LT) {
       skip()
-      genericTypes.add(parseTypeFragment(next()))
+      genericTypes.add(parseType(parentNode))
       while (current.type == TokenType.COMMA) {
         skip()
-        genericTypes.add(parseTypeFragment(next()))
+        genericTypes.add(parseType(parentNode))
       }
       accept(TokenType.GT)
     }

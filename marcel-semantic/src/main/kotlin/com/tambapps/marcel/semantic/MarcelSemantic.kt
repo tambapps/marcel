@@ -172,7 +172,7 @@ class MarcelSemantic(
   }
 
   // TODO use scope as it might depend on an import
-  private fun type(node: TypeCstNode): JavaType = typeResolver.of(node.value, emptyList())
+  private fun type(node: TypeCstNode): JavaType = currentScope.resolveTypeOrThrow(node)
 
   override fun visit(node: ExpressionStatementCstNode) = ExpressionStatementNode(node.expressionNode.accept(exprVisitor), node.tokenStart, node.tokenEnd)
   override fun visit(node: ReturnCstNode): StatementNode {

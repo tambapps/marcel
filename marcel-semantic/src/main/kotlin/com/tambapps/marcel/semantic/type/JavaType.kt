@@ -68,6 +68,13 @@ interface JavaType: JavaTyped {
   val isPrimitiveOrObjectPrimitive get() = primitive || isPrimitiveObjectType
 
   val arrayType: JavaArrayType get() = JavaType.arrayType(this)
+  fun array(dimensions: Int): JavaType {
+    var type = this
+    for (i in 0 until dimensions) {
+      type = type.arrayType
+    }
+    return type
+  }
 
   fun isAccessibleFrom(javaType: JavaType) = visibility.canAccess(javaType, this)
 

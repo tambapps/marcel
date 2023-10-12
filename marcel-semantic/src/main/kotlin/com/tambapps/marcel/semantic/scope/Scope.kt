@@ -2,6 +2,7 @@ package com.tambapps.marcel.semantic.scope
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.semantic.ast.Ast2Node
 import com.tambapps.marcel.semantic.ast.StaticImportNode
 import com.tambapps.marcel.semantic.ast.WildcardImportNode
@@ -28,6 +29,8 @@ interface Scope {
   }
 
   val classType: JavaType
+
+  fun resolveTypeOrThrow(node: TypeCstNode): JavaType
 
   fun findMethodOrThrow(name: String, argumentTypes: List<JavaTyped>, node: CstNode): JavaMethod {
     // find first on class, then on imports, then on extensions
