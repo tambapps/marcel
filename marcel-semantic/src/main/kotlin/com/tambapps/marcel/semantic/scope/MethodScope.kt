@@ -23,7 +23,12 @@ open class MethodScope internal constructor(
 ): AbstractScope(typeResolver, classType, imports) {
 
   constructor(classScope: ClassScope, method: JavaMethod)
-      : this(classScope, method, classScope.typeResolver, classScope.classType, classScope.imports, method.isStatic, LocalVariablePool(method.isStatic))
+      : this(classScope, method, classScope.typeResolver, classScope.classType, classScope.imports, method.isStatic, LocalVariablePool(method.isStatic)) {
+    // method parameters are stored in local variables
+    for (param in method.parameters) {
+      addLocalVariable(param.type, param.name, param.isFinal)
+    }
+  }
 
   private val localVariables = mutableListOf<LocalVariable>()
 
