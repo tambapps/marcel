@@ -25,7 +25,6 @@ import com.tambapps.marcel.parser.cst.statement.StatementCstNodeVisitor
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.ast.MethodNode
-import com.tambapps.marcel.semantic.ast.MethodParameterNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
@@ -73,8 +72,6 @@ class MarcelSemantic(
     val imports = Scope.DEFAULT_IMPORTS.toMutableList()
     // TODO parse package if any
 
-    // TODO check return type of all functions, as the compiler should not check anything
-
     val className = cst.fileName
     if (cst.statements.isNotEmpty()) {
       return scriptModule(className, imports)
@@ -85,42 +82,44 @@ class MarcelSemantic(
 
   private fun scriptModule(className: String, imports: List<ImportNode>): ModuleNode {
     val classType = typeResolver.defineClass(cst.statements.first().tokenStart, Visibility.PUBLIC, className, Script::class.javaType, false, emptyList())
-    val classScope = ClassScope(classType, typeResolver, imports)
     val moduleNode = ModuleNode(cst.tokenStart, cst.tokenEnd)
-    val classNode = ClassNode(classType, Visibility.PUBLIC, cst.tokenStart, cst.tokenEnd)
-
-    useScope(classScope) {
-      val runMethod = SemanticHelper.scriptRunMethod(classType, cst)
-      fillClassNode(classNode, classScope, cst.methods)
-      fillMethodNode(classScope, runMethod, cst.statements, scriptRunMethod = true)
-      classNode.methods.add(runMethod)
-    }
-    moduleNode.classes.add(classNode)
+    moduleNode.classes.add(classNode(classType, cst.methods, imports))
     return moduleNode
   }
 
-  private fun fillClassNode(classNode: ClassNode, classScope: ClassScope, methods: List<MethodCstNode>) {
-    for (methodCst in methods) {
-      val methodNode = MethodNode(
-        name = methodCst.name,
-        visibility = Visibility.fromTokenType(methodCst.accessNode.visibility),
-        returnType = type(methodCst.returnTypeCstNode),
-        isStatic = methodCst.accessNode.isStatic,
-        tokenStart = methodCst.tokenStart,
-        tokenEnd = methodCst.tokenEnd,
-        ownerClass = classNode.type
-      )
-      fillMethodNode(classScope, methodNode, methodCst.statements)
-    }
+  private fun classNode(classType: JavaType, methods: List<MethodCstNode>, imports: List<ImportNode>): ClassNode
+  = useScope(ClassScope(classType, typeResolver, imports)) { classScope ->
+    val classNode = ClassNode(classType, Visibility.PUBLIC, cst.tokenStart, cst.tokenEnd)
+
+    val runMethod = SemanticHelper.scriptRunMethod(classType, cst)
+    fillMethodNode(classScope, runMethod, cst.statements, scriptRunMethod = true)
+    classNode.methods.add(runMethod)
+
+    methods.forEach { classNode.methods.add(methodNode(it, classScope)) }
 
     if (classNode.constructorCount == 0) {
       // default no arg constructor
       classNode.methods.add(SemanticHelper.noArgConstructor(classNode, typeResolver))
     }
+    return classNode
+  }
+
+  private fun methodNode(methodCst: MethodCstNode, classScope: ClassScope): MethodNode {
+    val methodNode = MethodNode(
+      name = methodCst.name,
+      visibility = Visibility.fromTokenType(methodCst.accessNode.visibility),
+      returnType = visit(methodCst.returnTypeCstNode),
+      isStatic = methodCst.accessNode.isStatic,
+      tokenStart = methodCst.tokenStart,
+      tokenEnd = methodCst.tokenEnd,
+      ownerClass = classScope.classType
+    )
+    fillMethodNode(classScope, methodNode, methodCst.statements)
+    return methodNode
   }
 
   private fun fillMethodNode(classScope: ClassScope, methodeNode: MethodNode, cstStatements: List<StatementCstNode>,
-                             scriptRunMethod: Boolean = false)
+                             scriptRunMethod: Boolean = false): Unit
   = useScope(MethodScope(classScope, methodeNode)) {
     val statements = mutableListOf<StatementNode>()
     for (i in cstStatements.indices) {
@@ -144,13 +143,14 @@ class MarcelSemantic(
   }
 
 
-  private inline fun useScope(scope: Scope, consumer: () -> Unit) {
+  private inline fun <T: Scope, U> useScope(scope: T, consumer: (T) -> U): U {
     scopeQueue.push(scope)
-    consumer.invoke()
+    val u = consumer.invoke(scope)
     scopeQueue.pop()
+    return u
   }
 
-  private fun type(node: TypeCstNode): JavaType = currentScope.resolveTypeOrThrow(node)
+  private fun visit(node: TypeCstNode): JavaType = currentScope.resolveTypeOrThrow(node)
 
   /*
    * node visits
@@ -186,7 +186,7 @@ class MarcelSemantic(
     if (node.namedArgumentNodes.isNotEmpty()) TODO("Doesn't handle named arguments yet")
     val arguments = node.positionalArgumentNodes.map { it.accept(exprVisitor) }
     val method = currentScope.findMethodOrThrow(node.value, arguments, node)
-    val castType = if (node.castType != null) type(node.castType!!) else null
+    val castType = if (node.castType != null) visit(node.castType!!) else null
     val owner = if (method.isStatic) null else ThisReferenceNode(currentScope.classType, node.token)
     return FunctionCallNode(method, owner, castType,
       arguments.mapIndexed { index, expressionNode -> caster.cast(method.parameters[index].type, expressionNode) }
