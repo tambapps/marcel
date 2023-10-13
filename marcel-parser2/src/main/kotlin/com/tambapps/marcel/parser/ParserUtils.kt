@@ -30,7 +30,7 @@ object ParserUtils {
     Pair(LT, 5),
     Pair(GOE, 5),
     Pair(LOE, 5),
-    // instanceof 5
+    // TODO instanceof 5
 
     Pair(EQUAL, 6),
     Pair(NOT_EQUAL, 6),

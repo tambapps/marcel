@@ -14,6 +14,7 @@ import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
 import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
 import com.tambapps.marcel.parser.cst.expression.SuperConstructorCallCstNode
+import com.tambapps.marcel.parser.cst.expression.VariableAssignmentCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
@@ -223,7 +224,30 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
 
   fun expression(parentNode: CstNode? = null): CstExpressionNode {
     // TODO
-    return atom(parentNode)
+    return expression(parentNode, Int.MAX_VALUE)
+  }
+
+  private fun expression(parentNode: CstNode?, maxPriority: Int): CstExpressionNode {
+    var a = atom(parentNode)
+    var t = current
+    while (ParserUtils.isBinaryOperator(t.type) && ParserUtils.getPriority(t.type) < maxPriority) {
+      next()
+      val leftOperand = a
+      val rightOperand = expression(parentNode, ParserUtils.getPriority(t.type) + ParserUtils.getAssociativity(t.type))
+      a = operator(parentNode, t, leftOperand, rightOperand)
+      t = current
+    }
+    return a
+  }
+
+  private fun operator(parentNode: CstNode?, token: LexToken, leftOperand: CstExpressionNode, rightOperand: CstExpressionNode): CstExpressionNode {
+    return when(token.type) {
+      TokenType.ASSIGNMENT -> when (leftOperand) {
+        is ReferenceCstNode -> VariableAssignmentCstNode(leftOperand.value, rightOperand, parentNode, leftOperand.tokenStart, rightOperand.tokenEnd)
+        else -> TODO()
+      }
+      else -> TODO()
+    }
   }
 
   fun atom(parentNode: CstNode? = null): CstExpressionNode {
