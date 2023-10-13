@@ -17,6 +17,9 @@ open class CompositeField(override val name: String): Variable {
   val getters: Set<MarcelField> = _getters
   val setters: Set<MarcelField> = _setters
 
+  override val isSettable get() = _setters.isNotEmpty()
+  override val isGettable get() = _getters.isNotEmpty()
+
   override val isFinal get() = (getters + setters).all { it.isFinal }
   val isStatic get() = (getters + setters).all { it.isStatic }
   override fun isAccessibleFrom(javaType: JavaType) = (getters + setters).any { it.isAccessibleFrom(javaType) }

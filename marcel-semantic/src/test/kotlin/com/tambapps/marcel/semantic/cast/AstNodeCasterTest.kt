@@ -30,6 +30,28 @@ class AstNodeCasterTest {
 
   private val caster = AstNodeCaster(TYPE_RESOLVER)
 
+
+  @Test
+  fun testCastPrimitiveToPrimitive() {
+    assertEquals(cast(JavaType.double, float(2.0f)), caster.cast(JavaType.double, float(2.0f)))
+    assertEquals(cast(JavaType.float, double(0.2)), caster.cast(JavaType.float, double(0.2)))
+    assertEquals(cast(JavaType.long, int(6)), caster.cast(JavaType.long, int(6)))
+    assertEquals(cast(JavaType.double, int(6)), caster.cast(JavaType.double, int(6)))
+
+
+  }
+  @Test
+  fun testNoCast() {
+    var node: ExpressionNode = double(2.0)
+    assertEquals(node, caster.cast(JavaType.double, node))
+
+    node = int(2)
+    assertEquals(node, caster.cast(JavaType.int, node))
+
+    node = node(JavaType.Object)
+    assertEquals(node, caster.cast(JavaType.Object, node))
+
+  }
   @Test
   fun testCastDynamicObject() {
     var node: ExpressionNode = int(2)
@@ -111,6 +133,7 @@ class AstNodeCasterTest {
 
   }
 
+  private fun cast(type: JavaType, node: ExpressionNode) = JavaCastNode(type, node, token())
   private fun fCall(ownerType: JavaType, name: String, arguments: List<ExpressionNode>, node: ExpressionNode) = caster.functionCall(ownerType, name, arguments, node)
   private fun int(value: Int) = IntConstantNode(value = value, token = token())
   private fun float(value: Float) = FloatConstantNode(value = value, token = token())

@@ -15,6 +15,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
+import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.any
@@ -28,7 +29,7 @@ import org.objectweb.asm.Opcodes
 class MethodInstructionWriterTest {
 
   private val mv = mock(MethodVisitor::class.java)
-  private val writer = MethodInstructionWriter(mv)
+  private val writer = MethodInstructionWriter(mv, JavaType.Object)
 
   @Test
   fun testDontPopWhenExpressionStatementIsVoidExpression() {

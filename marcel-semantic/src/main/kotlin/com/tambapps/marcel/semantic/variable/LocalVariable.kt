@@ -10,6 +10,8 @@ class LocalVariable constructor(override var type: JavaType, override var name: 
                                 val index: Int = 0,
                                 override var isFinal: Boolean): AbstractVariable() {
 
+  override val isGettable = true
+  override val isSettable = true
 
   override fun <T> accept(visitor: VariableVisitor<T>) = visitor.visit(this)
 

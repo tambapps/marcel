@@ -15,4 +15,7 @@ interface Variable : JavaTyped {
   override val type: JavaType
   val name: String
   val isFinal: Boolean
+
+  val isGettable: Boolean
+  val isSettable: Boolean
 }

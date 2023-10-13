@@ -21,7 +21,7 @@ interface ExpressionCstNodeVisitor<T> {
   fun visit(node: LongCstNode): T
   fun visit(node: NullCstNode): T
 
-
+  fun visit(node: VariableAssignmentCstNode): T
 
   fun visit(node: ClassReferenceCstNode): T
   fun visit(node: ThisReferenceCstNode): T

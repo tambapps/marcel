@@ -18,6 +18,7 @@ import com.tambapps.marcel.parser.cst.expression.reference.IndexAccessCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ReferenceCstNode
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
+import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -26,6 +27,13 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
 class MarcelParser2Test {
+
+    @Test
+    fun testVariableDeclaration() {
+        assertEquals(varDecl(type("int"), "a", int(1)), parser("int a = 1;").statement())
+        assertEquals(varDecl(type("int"), "a", int(1)), parser("int a = 1").statement())
+        assertNotEquals(varDecl(type("float"), "a", int(1)), parser("int a = 1").statement())
+    }
 
     @ParameterizedTest
     @ValueSource(strings = ["fun int foo() -> println(1)", "fun int foo() { println(1)  }"]) // six numbers
@@ -156,6 +164,7 @@ class MarcelParser2Test {
         tokenStart = token(), tokenEnd = token()
     )
 
+    private fun varDecl(typeCstNode: TypeCstNode, name: String, expr: CstExpressionNode?) = VariableDeclarationCstNode(typeCstNode, name, expr, null, token(), token())
     private fun stmt(expr: CstExpressionNode) = ExpressionStatementCstNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
     private fun returnNode(expr: CstExpressionNode? = null) = ReturnCstNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
     private fun nullValue() = NullCstNode(token = token())

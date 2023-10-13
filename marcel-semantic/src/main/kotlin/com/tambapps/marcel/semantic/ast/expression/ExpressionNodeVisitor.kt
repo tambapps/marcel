@@ -13,6 +13,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 
 interface ExpressionNodeVisitor<T> {
 
+  fun visit(node: VariableAssignmentNode): T
   fun visit(node: FunctionCallNode): T
   fun visit(node: ThisConstructorCallNode): T
   fun visit(node: SuperConstructorCallNode): T

@@ -1,1 +1,2 @@
-println(args)
+double a = 567.0d
+println(a)

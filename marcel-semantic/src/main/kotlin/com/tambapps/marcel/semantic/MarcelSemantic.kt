@@ -1,5 +1,6 @@
 package com.tambapps.marcel.semantic
 
+import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
@@ -22,6 +23,8 @@ import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNodeVisitor
+import com.tambapps.marcel.parser.cst.expression.VariableAssignmentCstNode
+import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.ast.MethodNode
@@ -42,6 +45,7 @@ import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
+import com.tambapps.marcel.semantic.ast.expression.VariableAssignmentNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
@@ -50,6 +54,7 @@ import com.tambapps.marcel.semantic.scope.MethodScope
 import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
 import marcel.lang.Script
 import java.util.LinkedList
@@ -68,6 +73,8 @@ class MarcelSemantic(
   internal val scopeQueue = LinkedList<Scope>()
   // FIFO
   private val currentScope get() = scopeQueue.peek()
+  private val currentMethodScope get() = currentScope as? MethodScope ?: throw MarcelSemanticException("Not in a method")
+
   fun apply(): ModuleNode {
     val imports = Scope.DEFAULT_IMPORTS.toMutableList()
     // TODO parse package if any
@@ -180,7 +187,11 @@ class MarcelSemantic(
     TODO("Not yet implemented")
   }
 
-  override fun visit(node: ReferenceCstNode) = ReferenceNode(currentScope.findVariableOrThrow(node.value, node.token), node.token)
+  override fun visit(node: ReferenceCstNode): ExpressionNode {
+    val variable = currentScope.findVariableOrThrow(node.value, node.token)
+    checkVariableAccess(variable, node, checkGet = true)
+    return ReferenceNode(variable, node.token)
+  }
 
   override fun visit(node: FunctionCallCstNode): ExpressionNode {
     if (node.namedArgumentNodes.isNotEmpty()) TODO("Doesn't handle named arguments yet")
@@ -202,7 +213,7 @@ class MarcelSemantic(
   override fun visit(node: ExpressionStatementCstNode) = ExpressionStatementNode(node.expressionNode.accept(exprVisitor), node.tokenStart, node.tokenEnd)
   override fun visit(node: ReturnCstNode): StatementNode {
     // TODO test error cases of this
-    val scope = currentScope as? MethodScope ?: throw MarcelSemanticException("Cannot return outside of a function")
+    val scope = currentMethodScope
     val expression = node.expressionNode?.accept(exprVisitor)?.let { caster.cast(scope.method.returnType, it) }
     if (expression != null && expression.type != JavaType.void && scope.method.returnType == JavaType.void) {
       throw MarcelSemanticException(node, "Cannot return expression in void function")
@@ -212,4 +223,32 @@ class MarcelSemantic(
     return ReturnStatementNode(node.expressionNode?.accept(exprVisitor), node.tokenStart, node.tokenEnd)
   }
 
+  override fun visit(node: VariableAssignmentCstNode): ExpressionNode {
+    val variable = currentScope.findVariableOrThrow(node.value, node.token)
+    checkVariableAccess(variable, node, checkSet = true)
+    return VariableAssignmentNode(variable,
+      caster.cast(variable.type, node.expressionNode.accept(exprVisitor)), node.tokenStart, node.tokenEnd)
+  }
+
+  override fun visit(node: VariableDeclarationCstNode): StatementNode {
+    val variable = currentMethodScope.addLocalVariable(visit(node.type), node.value)
+    checkVariableAccess(variable, node, checkSet = true)
+    return ExpressionStatementNode(
+      VariableAssignmentNode(variable,
+        node.expressionNode?.accept(exprVisitor)?.let { caster.cast(variable.type, it) }
+          ?: variable.type.getDefaultValueExpression(node.token), node.tokenStart, node.tokenEnd)
+    )
+  }
+
+  private fun checkVariableAccess(variable: Variable, node: CstNode, checkGet: Boolean = false, checkSet: Boolean = false) {
+    if (!variable.isAccessibleFrom(currentScope.classType)) {
+      throw MarcelSemanticException(node, "Cannot access variable ${variable.name} from ${currentScope.classType}")
+    }
+    if (checkGet && !variable.isGettable) {
+      throw MarcelSemanticException(node, "Cannot get value of variable ${variable.name}")
+    }
+    if (checkSet && !variable.isSettable) {
+      throw MarcelSemanticException(node, "Cannot set value for variable ${variable.name}")
+    }
+  }
 }

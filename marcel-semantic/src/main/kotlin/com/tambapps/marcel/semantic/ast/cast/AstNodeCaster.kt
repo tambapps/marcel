@@ -24,11 +24,12 @@ class AstNodeCaster(
   fun cast(expectedType: JavaType, node: ExpressionNode): ExpressionNode {
     val actualType = node.type
     return when {
+      expectedType == actualType -> node
       expectedType == JavaType.DynamicObject -> functionCall(DynamicObject::class.javaType, "of", listOf(
         cast(JavaType.Object, node) // to handle primitives
       ), node)
       // primitive to primitive
-      actualType.primitive && expectedType.primitive -> node
+      actualType.primitive && expectedType.primitive -> JavaCastNode(expectedType, node, node.token)
       // Object to primitive
       expectedType.primitive && !actualType.primitive -> when {
         expectedType == JavaType.boolean && actualType == JavaType.Boolean -> functionCall(JavaType.Boolean, "booleanValue", emptyList(), node)

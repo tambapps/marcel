@@ -23,6 +23,7 @@ import com.tambapps.marcel.parser.cst.expression.reference.*
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
+import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import java.lang.NumberFormatException
 import java.util.*
 
@@ -190,18 +191,35 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       return when (token.type) {
         TokenType.RETURN -> {
           val expr = expression(parentNode)
-          return ReturnCstNode(parentNode, expr, expr.tokenStart, acceptOptional(TokenType.SEMI_COLON) ?: expr.tokenEnd)
+          ReturnCstNode(parentNode, expr, expr.tokenStart, acceptOptional(TokenType.SEMI_COLON) ?: expr.tokenEnd)
+        }
+        TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_SHORT, TokenType.TYPE_FLOAT,
+        TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL, TokenType.TYPE_BYTE, TokenType.TYPE_VOID,
+        TokenType.TYPE_CHAR, TokenType.DYNOBJ -> {
+          rollback()
+          varDecl(parentNode)
         }
         else -> {
           rollback()
           val expr = expression(parentNode)
-          return ExpressionStatementCstNode(parentNode, expr, expr.tokenStart, acceptOptional(TokenType.SEMI_COLON) ?: expr.tokenEnd)
+          if (expr is ReferenceCstNode && current.type == TokenType.DOT || current.type == TokenType.IDENTIFIER && lookup(1)?.type == TokenType.ASSIGNMENT) {
+            rollback()
+            varDecl(parentNode)
+           } else ExpressionStatementCstNode(parentNode, expr, expr.tokenStart, acceptOptional(TokenType.SEMI_COLON) ?: expr.tokenEnd)
         }
       }
     } finally {
       acceptOptional(TokenType.SEMI_COLON)
     }
  }
+
+  private fun varDecl(parentNode: CstNode?): VariableDeclarationCstNode {
+    val type = parseType(parentNode)
+    val identifierToken = accept(TokenType.IDENTIFIER)
+    accept(TokenType.ASSIGNMENT)
+    val expression = if (current.type != TokenType.SEMI_COLON) expression(parentNode) else null
+    return VariableDeclarationCstNode(type, identifierToken.value, expression, parentNode, type.tokenStart, expression?.tokenEnd ?: identifierToken)
+  }
 
   fun expression(parentNode: CstNode? = null): CstExpressionNode {
     // TODO

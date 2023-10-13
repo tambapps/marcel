@@ -9,6 +9,4 @@ sealed interface MarcelField: Variable {
   val visibility: Visibility
   val isStatic: Boolean
 
-  val isGettable: Boolean
-  val isSettable: Boolean
 }

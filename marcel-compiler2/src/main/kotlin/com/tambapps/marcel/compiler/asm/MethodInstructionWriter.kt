@@ -27,6 +27,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
+import com.tambapps.marcel.semantic.ast.expression.VariableAssignmentNode
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaType.Companion.boolean
@@ -40,11 +41,12 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
 class MethodInstructionWriter(
-  private val mv: MethodVisitor
+  private val mv: MethodVisitor,
+  private val classScopeType: JavaType
 ): AstNodeVisitor<Unit> {
 
   companion object {
-    val PRIMITIVE_CAST_INSTRUCTION_MAP = mapOf(
+    private val PRIMITIVE_CAST_INSTRUCTION_MAP = mapOf(
       Pair(Pair(int, long), Opcodes.I2L),
       Pair(Pair(int, float), Opcodes.I2F),
       Pair(Pair(int, double), Opcodes.I2D),
@@ -62,11 +64,12 @@ class MethodInstructionWriter(
     )
   }
 
-  private val loadVariableVisitor = LoadVariableVisitor(mv)
+  private val loadVariableVisitor = LoadVariableVisitor(mv, classScopeType)
+  private val storeVariableVisitor = StoreVariableVisitor(mv, classScopeType)
 
   override fun visit(node: ExpressionStatementNode) {
     node.expressionNode.accept(this)
-    if (node.expressionNode.type != JavaType.void) popStack()
+    if (node.expressionNode.type != JavaType.void) popStack(node.expressionNode.type)
   }
 
   override fun visit(node: ReturnStatementNode) {
@@ -79,6 +82,13 @@ class MethodInstructionWriter(
     node.statements.forEach {
       it.accept(this)
     }
+  }
+
+  override fun visit(node: VariableAssignmentNode) {
+    node.expression.accept(this)
+    node.variable.accept(storeVariableVisitor)
+    // push the value on the stack
+    node.variable.accept(loadVariableVisitor)
   }
 
   override fun visit(node: FunctionCallNode) {
@@ -154,11 +164,9 @@ class MethodInstructionWriter(
     }
   }
 
-  private fun popStack() {
-    mv.visitInsn(Opcodes.POP)
+  // TODO popping might depend on type as long and double takes 2 slots
+  private fun popStack(type: JavaType) {
+    mv.visitInsn(if (type == long || type == double) Opcodes.POP2 else Opcodes.POP)
   }
 
-  private fun pop2Stack() {
-    mv.visitInsn(Opcodes.POP2)
-  }
 }
