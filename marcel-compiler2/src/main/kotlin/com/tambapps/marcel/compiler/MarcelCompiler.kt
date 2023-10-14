@@ -73,7 +73,7 @@ class MarcelCompiler(private val configuration: CompilerConfiguration) {
       ast
     }
 
-    val classWriter = MarcelClassWriter(configuration)
+    val classWriter = MarcelClassWriter(configuration, typeResolver)
 
     // then compile them
     asts.forEach { ast ->

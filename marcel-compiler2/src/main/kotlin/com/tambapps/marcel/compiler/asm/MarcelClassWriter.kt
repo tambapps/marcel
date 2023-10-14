@@ -10,6 +10,7 @@ import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.extensions.javaType
+import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import marcel.lang.Script
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.ClassWriter
@@ -17,7 +18,8 @@ import org.objectweb.asm.Label
 import java.lang.annotation.ElementType
 
 class MarcelClassWriter(
-  private val compilerConfiguration: CompilerConfiguration
+  private val compilerConfiguration: CompilerConfiguration,
+  private val typeResolver: JavaTypeResolver
 ) {
 
   fun compileDefinedClasses(classNodes: Collection<ClassNode>): List<CompiledClass> {
@@ -108,7 +110,7 @@ class MarcelClassWriter(
     val methodStartLabel = Label()
     mv.visitLabel(methodStartLabel)
 
-    val instructionGenerator = MethodInstructionWriter(mv, classNode.type)
+    val instructionGenerator = MethodInstructionWriter(mv, typeResolver, classNode.type)
     instructionGenerator.visit(methodNode.blockStatement)
 
     val methodEndLabel = Label()

@@ -29,7 +29,8 @@ import org.objectweb.asm.Opcodes
 class MethodInstructionWriterTest {
 
   private val mv = mock(MethodVisitor::class.java)
-  private val writer = MethodInstructionWriter(mv, JavaType.Object)
+  private val typeResolver = mock(JavaTypeResolver::class.java)
+  private val writer = MethodInstructionWriter(mv, typeResolver, JavaType.Object)
 
   @Test
   fun testDontPopWhenExpressionStatementIsVoidExpression() {

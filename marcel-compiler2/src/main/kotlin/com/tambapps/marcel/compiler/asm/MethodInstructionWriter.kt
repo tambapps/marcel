@@ -4,6 +4,7 @@ import com.tambapps.marcel.compiler.extensions.descriptor
 import com.tambapps.marcel.compiler.extensions.internalName
 import com.tambapps.marcel.compiler.extensions.invokeCode
 import com.tambapps.marcel.compiler.extensions.returnCode
+import com.tambapps.marcel.compiler.extensions.visitMethodInsn
 import com.tambapps.marcel.semantic.ast.AstNodeVisitor
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
@@ -11,6 +12,7 @@ import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.StringNode
 import com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ThisConstructorCallNode
@@ -29,6 +31,8 @@ import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.expression.VariableAssignmentNode
+import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
+import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaType.Companion.boolean
@@ -37,12 +41,15 @@ import com.tambapps.marcel.semantic.type.JavaType.Companion.double
 import com.tambapps.marcel.semantic.type.JavaType.Companion.float
 import com.tambapps.marcel.semantic.type.JavaType.Companion.int
 import com.tambapps.marcel.semantic.type.JavaType.Companion.long
+import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
+import java.lang.StringBuilder
 
 class MethodInstructionWriter(
   private val mv: MethodVisitor,
+  private val typeResolver: JavaTypeResolver,
   private val classScopeType: JavaType
 ): AstNodeVisitor<Unit> {
 
@@ -95,7 +102,7 @@ class MethodInstructionWriter(
   override fun visit(node: FunctionCallNode) {
     node.owner?.accept(this)
     node.arguments.forEach { it.accept(this) }
-    mv.visitMethodInsn(node.javaMethod.invokeCode, node.javaMethod.ownerClass.internalName, node.javaMethod.name, node.javaMethod.descriptor, node.javaMethod.ownerClass.isInterface)
+    mv.visitMethodInsn(node.javaMethod)
   }
 
   override fun visit(node: NewInstanceNode) {
@@ -148,10 +155,26 @@ class MethodInstructionWriter(
   override fun visit(node: IntConstantNode) = mv.visitLdcInsn(node.value)
 
   override fun visit(node: LongConstantNode) = mv.visitLdcInsn(node.value)
-
+  override fun visit(node: StringConstantNode) = mv.visitLdcInsn(node.value)
   override fun visit(node: NullValueNode) = mv.visitInsn(Opcodes.ACONST_NULL)
-
   override fun visit(node: ShortConstantNode) = mv.visitIntInsn(Opcodes.BIPUSH, node.value.toInt())
+
+  override fun visit(node: StringNode) {
+    val stringBuilderType = StringBuilder::class.javaType
+    // using StringBuilder to build the whole string
+    val constructorMethod = typeResolver.findMethod(StringBuilder::class.javaType, JavaMethod.CONSTRUCTOR_NAME, emptyList())!!
+    // new StringBuilder()
+    visit(NewInstanceNode(stringBuilderType, constructorMethod, emptyList(), node.token))
+    for (part in node.parts) {
+      // chained calls .append(...)
+      part.accept(this)
+      val method = typeResolver.findMethod(stringBuilderType, "append", listOf(
+        if (part.type.primitive) part else JavaType.Object
+      ))!!
+      mv.visitMethodInsn(method)
+    }
+    mv.visitMethodInsn(typeResolver.findMethod(stringBuilderType, "toString", emptyList())!!)
+  }
 
   override fun visit(node: VoidExpressionNode) {
     // push nothing

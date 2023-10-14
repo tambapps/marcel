@@ -9,6 +9,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ShortConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 
 interface ExpressionNodeVisitor<T> {
@@ -27,6 +28,8 @@ interface ExpressionNodeVisitor<T> {
   fun visit(node: BoolConstantNode): T
   fun visit(node: ByteConstantNode): T
   fun visit(node: CharConstantNode): T
+  fun visit(node: StringConstantNode): T
+  fun visit(node: StringNode): T
   fun visit(node: DoubleConstantNode): T
   fun visit(node: FloatConstantNode): T
   fun visit(node: IntConstantNode): T

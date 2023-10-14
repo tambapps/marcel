@@ -15,12 +15,14 @@ import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
 import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
 import com.tambapps.marcel.parser.cst.expression.NewInstanceCstNode
 import com.tambapps.marcel.parser.cst.expression.SuperConstructorCallCstNode
+import com.tambapps.marcel.parser.cst.expression.TemplateStringNode
 import com.tambapps.marcel.parser.cst.expression.VariableAssignmentCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.LongCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.NullCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.*
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
@@ -261,6 +263,22 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
           parseNumberConstant(parentNode=parentNode, token=token)
         }
       }
+      TokenType.OPEN_QUOTE -> { // double quotes
+        val parts = mutableListOf<CstExpressionNode>()
+        while (current.type != TokenType.CLOSING_QUOTE) {
+          parts.add(stringPart(parentNode))
+        }
+        skip() // skip last quote
+        TemplateStringNode(parts, parentNode, token, previous)
+      }
+      TokenType.OPEN_SIMPLE_QUOTE -> {
+        val builder = StringBuilder()
+        while (current.type != TokenType.CLOSING_SIMPLE_QUOTE) {
+          builder.append(simpleStringPart())
+        }
+        skip() // skip last quote
+        StringCstNode(parentNode, builder.toString(), token, previous)
+      }
       TokenType.NULL -> NullCstNode(parentNode, token)
       TokenType.AT -> {
         val referenceToken = accept(TokenType.IDENTIFIER)
@@ -317,6 +335,61 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       else -> TODO(token.type.name)
     }
   }
+
+  private fun stringPart(parentNode: CstNode?): CstExpressionNode {
+    val token = next()
+    return when (token.type) {
+      TokenType.REGULAR_STRING_PART -> StringCstNode(parentNode, token.value, token, token)
+      TokenType.SHORT_TEMPLATE_ENTRY_START -> {
+        val identifierToken = accept(TokenType.IDENTIFIER)
+        ReferenceCstNode(parentNode, identifierToken.value, identifierToken)
+      }
+      TokenType.LONG_TEMPLATE_ENTRY_START -> {
+        val expr = expression(parentNode)
+        accept(TokenType.LONG_TEMPLATE_ENTRY_END)
+        expr
+      }
+      else -> {
+        rollback()
+        expression(parentNode)
+      }
+    }
+  }
+  private fun simpleStringPart(): String {
+    val token = next()
+    return when (token.type) {
+      TokenType.REGULAR_STRING_PART -> token.value
+      TokenType.ESCAPE_SEQUENCE -> escapedSequenceValue(token.value)
+      TokenType.END_OF_FILE -> throw MarcelParser2Exception(
+        token,
+        "Unexpected end of file",
+        true
+      )
+      else -> throw MarcelParser2Exception(
+        token,
+        "Illegal token ${token.type} when parsing literal string"
+      )
+    }
+  }
+
+  private fun escapedSequenceValue(tokenValue: String): String {
+    return when (val escapedSequence = tokenValue.substring(1)) {
+      "b" -> "\b"
+      "n" -> "\n"
+      "r" -> "\r"
+      "t" -> "\t"
+      "\\" -> "\\"
+      "\'" -> "'"
+      "\"" -> "\""
+      "`" -> "`"
+      "/" -> "/"
+      else -> throw MarcelParser2Exception(
+        previous,
+        "Unknown escaped sequence \\$escapedSequence"
+      )
+    }
+  }
+
 
   // LPAR must be already parsed
   private fun parseFunctionArguments(parentNode: CstNode? = null): Pair<MutableList<CstExpressionNode>, MutableList<Pair<String, CstExpressionNode>>> {

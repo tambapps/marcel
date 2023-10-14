@@ -8,6 +8,7 @@ import com.tambapps.marcel.parser.cst.expression.ExpressionCstNodeVisitor
 import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
 import com.tambapps.marcel.parser.cst.expression.NewInstanceCstNode
 import com.tambapps.marcel.parser.cst.expression.SuperConstructorCallCstNode
+import com.tambapps.marcel.parser.cst.expression.TemplateStringNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
@@ -25,6 +26,7 @@ import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNodeVisitor
 import com.tambapps.marcel.parser.cst.expression.VariableAssignmentCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ImportNode
@@ -37,6 +39,7 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.StringNode
 import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
@@ -48,6 +51,7 @@ import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.ast.expression.VariableAssignmentNode
+import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
@@ -172,6 +176,14 @@ class MarcelSemantic(
 
   override fun visit(node: LongCstNode) = LongConstantNode(node.token, node.value)
   override fun visit(node: NullCstNode) = NullValueNode(node.token)
+  override fun visit(node: StringCstNode) = StringConstantNode(node.value, node)
+
+  override fun visit(node: TemplateStringNode): ExpressionNode {
+    val expressions = node.expressions.map { it.accept(exprVisitor) }
+    return if (expressions.isEmpty()) StringConstantNode("", node)
+    else if (expressions.size == 1 && expressions.first() is StringConstantNode) expressions.first()
+    else StringNode(expressions, node)
+  }
 
   override fun visit(node: ClassReferenceCstNode) = ClassReferenceNode(node.value, node.token)
   override fun visit(node: ThisReferenceCstNode) = ThisReferenceNode(currentScope.classType, node.token)

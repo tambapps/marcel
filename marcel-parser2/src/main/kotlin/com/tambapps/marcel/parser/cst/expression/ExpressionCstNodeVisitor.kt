@@ -5,6 +5,7 @@ import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.LongCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.NullCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ClassReferenceCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.DirectFieldReferenceCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.IncrCstNode
@@ -20,6 +21,8 @@ interface ExpressionCstNodeVisitor<T> {
   fun visit(node: IntCstNode): T
   fun visit(node: LongCstNode): T
   fun visit(node: NullCstNode): T
+  fun visit(node: StringCstNode): T
+  fun visit(node: TemplateStringNode): T
 
   fun visit(node: VariableAssignmentCstNode): T
 

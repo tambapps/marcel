@@ -4,6 +4,7 @@ import com.tambapps.marcel.compiler.extensions.descriptor
 import com.tambapps.marcel.compiler.extensions.internalName
 import com.tambapps.marcel.compiler.extensions.invokeCode
 import com.tambapps.marcel.compiler.extensions.loadCode
+import com.tambapps.marcel.compiler.extensions.visitMethodInsn
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.VariableVisitor
@@ -47,6 +48,6 @@ class LoadVariableVisitor(
 
   override fun visit(variable: MethodField) {
     val javaMethod = variable.getterMethod
-    mv.visitMethodInsn(javaMethod.invokeCode, javaMethod.ownerClass.internalName, javaMethod.name, javaMethod.descriptor, javaMethod.ownerClass.isInterface)
+    mv.visitMethodInsn(javaMethod)
   }
 }
