@@ -323,6 +323,10 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     return marcelMethods.computeIfAbsent(javaType.className) { mutableListOf() }
   }
 
+  fun findFieldOrThrow(javaType: JavaType, name: String, token: LexToken? = null): CompositeField {
+    return findField(javaType, name) ?: throw MarcelSemanticException(token, "Field $javaType.$name is not defined")
+  }
+
   fun findField(javaType: JavaType, name: String): CompositeField? {
     if (javaType.isArray && (name == "size" || name == "length")) {
       return CompositeField(MarcelArrayLengthField(javaType, name))

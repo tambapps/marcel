@@ -1,2 +1,2 @@
 list<int> a = [0]
-println(a)
+println(a.size)

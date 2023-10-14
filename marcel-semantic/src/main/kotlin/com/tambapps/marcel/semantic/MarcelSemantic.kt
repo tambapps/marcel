@@ -29,6 +29,7 @@ import com.tambapps.marcel.parser.cst.expression.VariableAssignmentCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.ArrayCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.MapCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
+import com.tambapps.marcel.parser.cst.expression.operator.DotOperatorCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ImportNode
@@ -226,21 +227,45 @@ class MarcelSemantic(
     TODO("Not yet implemented")
   }
 
+  override fun visit(node: DotOperatorCstNode): ExpressionNode {
+    val owner = node.leftOperand.accept(exprVisitor)
+    return when (val rightOperand = node.rightOperand) {
+      is FunctionCallCstNode -> {
+        val arguments = getArguments(rightOperand)
+        val method = typeResolver.findMethodOrThrow(owner.type, rightOperand.value, arguments, node.token)
+        val castType = if (rightOperand.castType != null) visit(rightOperand.castType!!) else null
+        FunctionCallNode(method, owner, castType,
+          castedArguments(method, arguments)
+          , node.token)
+      }
+      is ReferenceCstNode -> {
+        val variable = typeResolver.findFieldOrThrow(owner.type, rightOperand.value, rightOperand.token)
+        checkVariableAccess(variable, node)
+        ReferenceNode(owner, variable, rightOperand.token)
+      }
+      else -> throw MarcelSemanticException(node, "Invalid dot operator use")
+    }
+  }
+
   override fun visit(node: ReferenceCstNode): ExpressionNode {
     val variable = currentScope.findVariableOrThrow(node.value, node.token)
     checkVariableAccess(variable, node, checkGet = true)
-    return ReferenceNode(variable, node.token)
+    return ReferenceNode(null, variable, node.token)
   }
 
   override fun visit(node: FunctionCallCstNode): ExpressionNode {
-    if (node.namedArgumentNodes.isNotEmpty()) TODO("Doesn't handle named arguments yet")
-    val arguments = node.positionalArgumentNodes.map { it.accept(exprVisitor) }
+    val arguments = getArguments(node)
     val method = currentScope.findMethodOrThrow(node.value, arguments, node)
     val castType = if (node.castType != null) visit(node.castType!!) else null
     val owner = if (method.isStatic) null else ThisReferenceNode(currentScope.classType, node.token)
     return FunctionCallNode(method, owner, castType,
       castedArguments(method, arguments)
       , node.token)
+  }
+
+  private fun getArguments(node: FunctionCallCstNode): List<ExpressionNode> {
+    if (node.namedArgumentNodes.isNotEmpty()) TODO("Doesn't handle named arguments yet")
+    return node.positionalArgumentNodes.map { it.accept(exprVisitor) }
   }
 
   private fun castedArguments(method: JavaMethod, arguments: List<ExpressionNode>) =

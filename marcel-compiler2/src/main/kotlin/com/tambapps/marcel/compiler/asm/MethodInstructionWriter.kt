@@ -134,7 +134,10 @@ class MethodInstructionWriter(
       method.descriptor, false)
 
   }
-  override fun visit(node: ReferenceNode) = node.variable.accept(loadVariableVisitor)
+  override fun visit(node: ReferenceNode) {
+    node.owner?.accept(this)
+    node.variable.accept(loadVariableVisitor)
+  }
 
   override fun visit(node: ClassReferenceNode) {
     if (node.type.primitive) {
