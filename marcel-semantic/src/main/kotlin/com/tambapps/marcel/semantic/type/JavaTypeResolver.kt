@@ -234,7 +234,9 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
 
   private fun pickMethodCandidate(candidates: List<JavaMethod>, name: String, argumentTypes: List<JavaTyped>): JavaMethod? {
     val exactCandidates = candidates.filter { it.exactMatch(name, argumentTypes) }
-    return if (exactCandidates.size == 1) exactCandidates.first() else getMoreSpecificMethod(candidates)
+    return if (exactCandidates.size == 1) exactCandidates.first() else getMoreSpecificMethod(
+      if (exactCandidates.isNotEmpty()) exactCandidates else candidates
+    )
   }
 
   fun findMatchingMethod(methods: List<JavaMethod>, name: String, argumentTypes: List<JavaTyped>): JavaMethod? {
