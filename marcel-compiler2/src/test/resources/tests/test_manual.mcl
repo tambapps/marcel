@@ -1,3 +1,2 @@
-int a  = 1
-Object o = "a=$a"
-println(o)
+list<int> a = null
+println(a)

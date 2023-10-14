@@ -203,13 +203,21 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
           rollback()
           varDecl(parentNode)
         }
+        TokenType.IDENTIFIER -> {
+          if (current.type == TokenType.IDENTIFIER && lookup(1)?.type == TokenType.ASSIGNMENT
+            || current.type == TokenType.LT)  {
+            rollback()
+            varDecl(parentNode)
+          } else {
+            rollback()
+            val expr = expression(parentNode)
+            ExpressionStatementCstNode(parentNode, expr, expr.tokenStart, acceptOptional(TokenType.SEMI_COLON) ?: expr.tokenEnd)
+          }
+        }
         else -> {
           rollback()
           val expr = expression(parentNode)
-          if (expr is ReferenceCstNode && current.type == TokenType.DOT || current.type == TokenType.IDENTIFIER && lookup(1)?.type == TokenType.ASSIGNMENT) {
-            rollback()
-            varDecl(parentNode)
-           } else ExpressionStatementCstNode(parentNode, expr, expr.tokenStart, acceptOptional(TokenType.SEMI_COLON) ?: expr.tokenEnd)
+          ExpressionStatementCstNode(parentNode, expr, expr.tokenStart, acceptOptional(TokenType.SEMI_COLON) ?: expr.tokenEnd)
         }
       }
     } finally {
