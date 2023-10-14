@@ -6,6 +6,7 @@ import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNodeVisitor
 import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
+import com.tambapps.marcel.parser.cst.expression.NewInstanceCstNode
 import com.tambapps.marcel.parser.cst.expression.SuperConstructorCallCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
@@ -34,6 +35,7 @@ import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
+import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
@@ -175,6 +177,14 @@ class MarcelSemantic(
   override fun visit(node: ThisReferenceCstNode) = ThisReferenceNode(currentScope.classType, node.token)
   override fun visit(node: SuperReferenceCstNode) = SuperReferenceNode(currentScope.classType.superType!!, node.token)
 
+  override fun visit(node: NewInstanceCstNode): ExpressionNode {
+    val type = visit(node.type)
+    if (node.namedArgumentNodes.isNotEmpty()) TODO()
+    val arguments = node.positionalArgumentNodes.map { it.accept(exprVisitor) }
+    val constructorMethod = typeResolver.findMethodOrThrow(type, JavaMethod.CONSTRUCTOR_NAME, arguments, node.token)
+    return NewInstanceNode(type, constructorMethod, castedArguments(constructorMethod, arguments), node.token)
+  }
+
   override fun visit(node: DirectFieldReferenceCstNode): ExpressionNode {
     TODO("Not yet implemented")
   }
@@ -200,9 +210,12 @@ class MarcelSemantic(
     val castType = if (node.castType != null) visit(node.castType!!) else null
     val owner = if (method.isStatic) null else ThisReferenceNode(currentScope.classType, node.token)
     return FunctionCallNode(method, owner, castType,
-      arguments.mapIndexed { index, expressionNode -> caster.cast(method.parameters[index].type, expressionNode) }
+      castedArguments(method, arguments)
       , node.token)
   }
+
+  private fun castedArguments(method: JavaMethod, arguments: List<ExpressionNode>) =
+    arguments.mapIndexed { index, expressionNode -> caster.cast(method.parameters[index].type, expressionNode) }
 
   override fun visit(node: SuperConstructorCallCstNode): ExpressionNode {
     val arguments = node.arguments.map { it.accept(exprVisitor) }

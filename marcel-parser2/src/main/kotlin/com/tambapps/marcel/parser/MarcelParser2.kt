@@ -13,6 +13,7 @@ import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
 import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
+import com.tambapps.marcel.parser.cst.expression.NewInstanceCstNode
 import com.tambapps.marcel.parser.cst.expression.SuperConstructorCallCstNode
 import com.tambapps.marcel.parser.cst.expression.VariableAssignmentCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
@@ -307,10 +308,17 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
           SuperConstructorCallCstNode(parentNode, arguments, token, arguments.lastOrNull()?.tokenEnd ?: token)
         } else SuperReferenceCstNode(parentNode, token)
       }
+      TokenType.NEW -> {
+        val type = parseType(parentNode)
+        accept(TokenType.LPAR)
+        val arguments = parseFunctionArguments(parentNode)
+        NewInstanceCstNode(parentNode, type, arguments.first, arguments.second, token, previous)
+      }
       else -> TODO(token.type.name)
     }
   }
 
+  // LPAR must be already parsed
   private fun parseFunctionArguments(parentNode: CstNode? = null): Pair<MutableList<CstExpressionNode>, MutableList<Pair<String, CstExpressionNode>>> {
     val arguments = mutableListOf<CstExpressionNode>()
     val namedArguments = mutableListOf<Pair<String, CstExpressionNode>>()

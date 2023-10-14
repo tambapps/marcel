@@ -15,6 +15,7 @@ interface ExpressionNodeVisitor<T> {
 
   fun visit(node: VariableAssignmentNode): T
   fun visit(node: FunctionCallNode): T
+  fun visit(node: NewInstanceNode): T
   fun visit(node: ThisConstructorCallNode): T
   fun visit(node: SuperConstructorCallNode): T
   fun visit(node: ReferenceNode): T

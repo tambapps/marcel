@@ -9,6 +9,7 @@ import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
+import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
@@ -93,10 +94,17 @@ class MethodInstructionWriter(
 
   override fun visit(node: FunctionCallNode) {
     node.owner?.accept(this)
-    for (argumentNode in node.arguments) {
-      argumentNode.accept(this)
-    }
+    node.arguments.forEach { it.accept(this) }
     mv.visitMethodInsn(node.javaMethod.invokeCode, node.javaMethod.ownerClass.internalName, node.javaMethod.name, node.javaMethod.descriptor, node.javaMethod.ownerClass.isInterface)
+  }
+
+  override fun visit(node: NewInstanceNode) {
+    val classInternalName = node.type.internalName
+    mv.visitTypeInsn(Opcodes.NEW, classInternalName)
+    mv.visitInsn(Opcodes.DUP)
+    node.arguments.forEach { it.accept(this) }
+    mv.visitMethodInsn(
+      Opcodes.INVOKESPECIAL, classInternalName, JavaMethod.CONSTRUCTOR_NAME, node.javaMethod.descriptor, false)
   }
 
   override fun visit(node: ThisConstructorCallNode) {

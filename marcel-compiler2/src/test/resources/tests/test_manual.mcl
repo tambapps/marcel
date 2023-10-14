@@ -1,3 +1,2 @@
-double a = 567.0d
-a = 5
-println(a)
+Object o = new Object()
+println(o)

@@ -2,7 +2,6 @@ package com.tambapps.marcel.semantic.type
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.Visibility
-import com.tambapps.marcel.semantic.ast.Ast2Node
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.MethodNode
@@ -143,24 +142,24 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
 
   fun findMethodByParametersOrThrow(javaType: JavaType, name: String,
                                     positionalArgumentTypes: List<JavaTyped>,
-                                    namedParameters: Collection<MethodParameter>, node: Ast2Node? = null): JavaMethod {
-    return findMethodByParameters(javaType, name, positionalArgumentTypes, namedParameters, false, node)
-      ?: throw MarcelSemanticException(node?.token, "Method $javaType.$name with parameters $namedParameters is not defined")
+                                    namedParameters: Collection<MethodParameter>, token: LexToken? = null): JavaMethod {
+    return findMethodByParameters(javaType, name, positionalArgumentTypes, namedParameters, false, token)
+      ?: throw MarcelSemanticException(token, "Method $javaType.$name with parameters $namedParameters is not defined")
   }
   fun findMethodByParameters(javaType: JavaType, name: String,
                              positionalArgumentTypes: List<JavaTyped>,
-                             namedParameters: Collection<MethodParameter>, excludeInterfaces: Boolean = false, node: Ast2Node? = null): JavaMethod? {
-    val m = doFindMethodByParameters(javaType, name, positionalArgumentTypes, namedParameters, excludeInterfaces, node) ?: return null
+                             namedParameters: Collection<MethodParameter>, excludeInterfaces: Boolean = false, token: LexToken? = null): JavaMethod? {
+    val m = doFindMethodByParameters(javaType, name, positionalArgumentTypes, namedParameters, excludeInterfaces, token) ?: return null
     return if (javaType.genericTypes.isNotEmpty()) m.withGenericTypes(javaType.genericTypes)
     else m
   }
 
-  fun findMethodOrThrow(javaType: JavaType, name: String, argumentTypes: List<JavaTyped>, node: Ast2Node? = null): JavaMethod {
-    return findMethod(javaType, name, argumentTypes, false, node) ?: throw MarcelSemanticException(node?.token, "Method $javaType.$name with parameters ${argumentTypes.map { it.type }} is not defined")
+  fun findMethodOrThrow(javaType: JavaType, name: String, argumentTypes: List<JavaTyped>, token: LexToken? = null): JavaMethod {
+    return findMethod(javaType, name, argumentTypes, false, token) ?: throw MarcelSemanticException(token, "Method $javaType.$name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
 
-  fun findMethod(javaType: JavaType, name: String, argumentTypes: List<JavaTyped>, excludeInterfaces: Boolean = false, node: Ast2Node? = null): JavaMethod? {
-    val m = doFindMethod(javaType, name, argumentTypes, excludeInterfaces, node) ?: return null
+  fun findMethod(javaType: JavaType, name: String, argumentTypes: List<JavaTyped>, excludeInterfaces: Boolean = false, token: LexToken? = null): JavaMethod? {
+    val m = doFindMethod(javaType, name, argumentTypes, excludeInterfaces, token) ?: return null
     return if (javaType.genericTypes.isNotEmpty()) m.withGenericTypes(javaType.genericTypes)
     else m
   }
@@ -170,8 +169,8 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     else marcelMethods[javaType.className] ?: emptyList()
   }
 
-  fun getClassField(javaType: JavaType, fieldName: String, node: Ast2Node?): JavaClassField {
-    return fieldResolver.getField(javaType, fieldName)?.classField ?: throw MarcelSemanticException(node?.token, "Class field $javaType.$fieldName is not defined")
+  fun getClassField(javaType: JavaType, fieldName: String, token: LexToken? = null): JavaClassField {
+    return fieldResolver.getField(javaType, fieldName)?.classField ?: throw MarcelSemanticException(token, "Class field $javaType.$fieldName is not defined")
   }
 
   fun getDeclaredFields(javaType: JavaType): Collection<CompositeField> {
@@ -216,19 +215,19 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
   private fun doFindMethodByParameters(javaType: JavaType, name: String,
                                         positionalArgumentTypes: List<JavaTyped>,
                                         namedParameters: Collection<MethodParameter>,
-                                        excludeInterfaces: Boolean, node: Ast2Node?): JavaMethod? {
+                                        excludeInterfaces: Boolean, token: LexToken? = null): JavaMethod? {
     return findMethod(javaType, name, { it.matchesUnorderedParameters(this, name, positionalArgumentTypes, namedParameters) },
       {candidates ->
         val exactCandidates = candidates.filter { it.parameters.size == namedParameters.size }
         if (exactCandidates.size == 1) exactCandidates.first() else getMoreSpecificMethod(candidates)
-      }, excludeInterfaces, node)
+      }, excludeInterfaces, token)
   }
 
-  private fun doFindMethod(javaType: JavaType, name: String, argumentTypes: List<JavaTyped>, excludeInterfaces: Boolean, node: Ast2Node?): JavaMethod? {
+  private fun doFindMethod(javaType: JavaType, name: String, argumentTypes: List<JavaTyped>, excludeInterfaces: Boolean, token: LexToken? = null): JavaMethod? {
     var m = findMethod(javaType, name, { it.matches(this, name, argumentTypes) },
-      {candidates ->  pickMethodCandidate(candidates, name, argumentTypes) }, excludeInterfaces, node)
+      {candidates ->  pickMethodCandidate(candidates, name, argumentTypes) }, excludeInterfaces, token)
     if (m == null && argumentTypes.isEmpty()) {
-      m = findMethodByParameters(javaType, name, argumentTypes, emptyList(), false, node)
+      m = findMethodByParameters(javaType, name, argumentTypes, emptyList(), false, token)
     }
     return m
   }
@@ -246,7 +245,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
   private fun findMethod(javaType: JavaType, name: String,
                          matcherPredicate: (JavaMethod) -> Boolean,
                          candidatesPicker: (List<JavaMethod>) -> JavaMethod?,
-                         excludeInterfaces: Boolean, node: Ast2Node?): JavaMethod? {
+                         excludeInterfaces: Boolean, token: LexToken? = null): JavaMethod? {
     val methods = getMarcelMethods(javaType)
     var m = methods.find(matcherPredicate)
     if (m != null) return m
@@ -271,7 +270,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
       val elementsType = javaType.asArrayType.elementsType.superType
       if (elementsType != null) {
         // recursive
-        val candidate = findMethod(elementsType.arrayType, name, matcherPredicate, candidatesPicker, true, node)
+        val candidate = findMethod(elementsType.arrayType, name, matcherPredicate, candidatesPicker, true, token)
         if (candidate != null) return candidate
       }
     }
@@ -290,7 +289,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     // search in super types, but not for constructors
     var type = javaType.superType
     while (type != null) {
-      m = findMethod(type, name, matcherPredicate, candidatesPicker, true, node)
+      m = findMethod(type, name, matcherPredicate, candidatesPicker, true, token)
       if (m != null) return m
       type = type.superType
     }
@@ -300,7 +299,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
 
     m = candidatesPicker.invoke(
       javaType.allImplementedInterfaces.mapNotNull {
-        findMethod(it, name, matcherPredicate, candidatesPicker, false, node)
+        findMethod(it, name, matcherPredicate, candidatesPicker, false, token)
       }
     )
     return m
