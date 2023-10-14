@@ -1,22 +1,63 @@
 package com.tambapps.marcel.compiler.extensions
 
 import com.tambapps.marcel.compiler.util.AsmUtils
+import com.tambapps.marcel.semantic.type.JavaArrayType
 import com.tambapps.marcel.semantic.type.JavaPrimitiveType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaType.Companion.boolean
+import com.tambapps.marcel.semantic.type.JavaType.Companion.booleanArray
 import com.tambapps.marcel.semantic.type.JavaType.Companion.byte
+import com.tambapps.marcel.semantic.type.JavaType.Companion.byteArray
 import com.tambapps.marcel.semantic.type.JavaType.Companion.char
+import com.tambapps.marcel.semantic.type.JavaType.Companion.charArray
 import com.tambapps.marcel.semantic.type.JavaType.Companion.double
+import com.tambapps.marcel.semantic.type.JavaType.Companion.doubleArray
 import com.tambapps.marcel.semantic.type.JavaType.Companion.float
+import com.tambapps.marcel.semantic.type.JavaType.Companion.floatArray
 import com.tambapps.marcel.semantic.type.JavaType.Companion.int
+import com.tambapps.marcel.semantic.type.JavaType.Companion.intArray
 import com.tambapps.marcel.semantic.type.JavaType.Companion.long
+import com.tambapps.marcel.semantic.type.JavaType.Companion.longArray
 import com.tambapps.marcel.semantic.type.JavaType.Companion.short
+import com.tambapps.marcel.semantic.type.JavaType.Companion.shortArray
 import com.tambapps.marcel.semantic.type.JavaType.Companion.void
-import com.tambapps.marcel.semantic.type.JavaTyped
 import org.objectweb.asm.Opcodes
 
 val JavaType.internalName: String get() = AsmUtils.getInternalName(type)
 
+val JavaArrayType.typeCode get() = when {
+  this == intArray -> Opcodes.T_INT
+  this == longArray -> Opcodes.T_LONG
+  this == floatArray -> Opcodes.T_FLOAT
+  this == doubleArray -> Opcodes.T_DOUBLE
+  this == booleanArray -> Opcodes.T_BOOLEAN
+  this == shortArray -> Opcodes.T_SHORT
+  this == byteArray -> Opcodes.T_BYTE
+  this == charArray -> Opcodes.T_CHAR
+  else -> 0
+}
+val JavaArrayType.arrayLoadCode get() = when {
+  this == intArray -> Opcodes.IALOAD
+  this == longArray -> Opcodes.LALOAD
+  this == floatArray -> Opcodes.FALOAD
+  this == doubleArray -> Opcodes.DALOAD
+  this == booleanArray -> Opcodes.BALOAD
+  this == shortArray -> Opcodes.SALOAD
+  this == byteArray -> Opcodes.BALOAD
+  this == charArray -> Opcodes.IALOAD
+  else -> Opcodes.AALOAD
+}
+val JavaArrayType.arrayStoreCode get() = when {
+  this == intArray -> Opcodes.IASTORE
+  this == longArray -> Opcodes.LASTORE
+  this == floatArray -> Opcodes.FASTORE
+  this == doubleArray -> Opcodes.DASTORE
+  this == booleanArray -> Opcodes.BASTORE
+  this == shortArray -> Opcodes.SASTORE
+  this == byteArray -> Opcodes.BASTORE
+  this == charArray -> Opcodes.IASTORE
+  else -> Opcodes.AASTORE
+}
 
 val JavaType.descriptor: String get() {
   val type = this.type

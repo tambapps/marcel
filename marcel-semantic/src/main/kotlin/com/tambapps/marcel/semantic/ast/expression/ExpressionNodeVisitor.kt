@@ -1,5 +1,6 @@
 package com.tambapps.marcel.semantic.ast.expression
 
+import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ByteConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.CharConstantNode
@@ -7,6 +8,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ShortConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
@@ -37,5 +39,7 @@ interface ExpressionNodeVisitor<T> {
   fun visit(node: NullValueNode): T
   fun visit(node: ShortConstantNode): T
   fun visit(node: VoidExpressionNode): T
+  fun visit(node: ArrayNode): T
+  fun visit(node: MapNode): T
 
 }

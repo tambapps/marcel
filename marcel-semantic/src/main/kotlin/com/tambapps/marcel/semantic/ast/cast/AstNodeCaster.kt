@@ -3,8 +3,10 @@ package com.tambapps.marcel.semantic.ast.cast
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
+import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
+import com.tambapps.marcel.semantic.type.JavaArrayType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import marcel.lang.DynamicObject
@@ -53,22 +55,31 @@ class AstNodeCaster(
       // Object to Object
       else -> when {
         expectedType.isExtendedOrImplementedBy(actualType) -> node
-        actualType.isArray -> when {
-          // lists
-          JavaType.intList.isAssignableFrom(expectedType) && actualType == JavaType.intArray -> functionCall(JavaType.intListImpl, "wrap", listOf(node), node)
-          JavaType.longList.isAssignableFrom(expectedType) && actualType == JavaType.longArray -> functionCall(JavaType.longListImpl, "wrap", listOf(node), node)
-          JavaType.floatList.isAssignableFrom(expectedType) && actualType == JavaType.floatArray -> functionCall(JavaType.floatListImpl, "wrap", listOf(node), node)
-          JavaType.doubleList.isAssignableFrom(expectedType) && actualType == JavaType.doubleArray -> functionCall(JavaType.doubleListImpl, "wrap", listOf(node), node)
-          JavaType.charList.isAssignableFrom(expectedType) && actualType == JavaType.charArray -> functionCall(JavaType.charListImpl, "wrap", listOf(node), node)
-          List::class.javaType.isAssignableFrom(expectedType) && actualType.isArray -> functionCall(BytecodeHelper::class.javaType, "createList", listOf(node), node)
-          // sets
-          JavaType.intSet.isAssignableFrom(expectedType) && actualType == JavaType.intArray
-              || JavaType.longSet.isAssignableFrom(expectedType) && actualType == JavaType.longArray
-              || JavaType.floatSet.isAssignableFrom(expectedType) && actualType == JavaType.floatArray
-              || JavaType.doubleSet.isAssignableFrom(expectedType) && actualType == JavaType.doubleArray
-              || JavaType.characterSet.isAssignableFrom(expectedType) && actualType == JavaType.charArray
-              || Set::class.javaType.isAssignableFrom(expectedType) && actualType.isArray -> functionCall(BytecodeHelper::class.javaType, "createSet", listOf(node), node)
-          else -> incompatibleTypes(node, expectedType, actualType)
+        actualType.isArray -> {
+          if (node is ArrayNode) { // override type
+            if (JavaType.intCollection.isAssignableFrom(expectedType)) castArrayNode(JavaType.intArray, node)
+            else if (JavaType.longCollection.isAssignableFrom(expectedType)) castArrayNode(JavaType.longArray, node)
+            else if (JavaType.floatCollection.isAssignableFrom(expectedType)) castArrayNode(JavaType.floatArray, node)
+            else if (JavaType.doubleCollection.isAssignableFrom(expectedType)) castArrayNode(JavaType.doubleArray, node)
+            else if (JavaType.charCollection.isAssignableFrom(expectedType)) castArrayNode(JavaType.charArray, node)
+          }
+          when {
+            // lists
+            JavaType.intList.isAssignableFrom(expectedType) && actualType == JavaType.intArray -> functionCall(JavaType.intListImpl, "wrap", listOf(node), node)
+            JavaType.longList.isAssignableFrom(expectedType) && actualType == JavaType.longArray -> functionCall(JavaType.longListImpl, "wrap", listOf(node), node)
+            JavaType.floatList.isAssignableFrom(expectedType) && actualType == JavaType.floatArray -> functionCall(JavaType.floatListImpl, "wrap", listOf(node), node)
+            JavaType.doubleList.isAssignableFrom(expectedType) && actualType == JavaType.doubleArray -> functionCall(JavaType.doubleListImpl, "wrap", listOf(node), node)
+            JavaType.charList.isAssignableFrom(expectedType) && actualType == JavaType.charArray -> functionCall(JavaType.charListImpl, "wrap", listOf(node), node)
+            List::class.javaType.isAssignableFrom(expectedType) && actualType.isArray -> functionCall(BytecodeHelper::class.javaType, "createList", listOf(node), node)
+            // sets
+            JavaType.intSet.isAssignableFrom(expectedType) && actualType == JavaType.intArray
+                || JavaType.longSet.isAssignableFrom(expectedType) && actualType == JavaType.longArray
+                || JavaType.floatSet.isAssignableFrom(expectedType) && actualType == JavaType.floatArray
+                || JavaType.doubleSet.isAssignableFrom(expectedType) && actualType == JavaType.doubleArray
+                || JavaType.characterSet.isAssignableFrom(expectedType) && actualType == JavaType.charArray
+                || Set::class.javaType.isAssignableFrom(expectedType) && actualType.isArray -> functionCall(BytecodeHelper::class.javaType, "createSet", listOf(node), node)
+            else -> incompatibleTypes(node, expectedType, actualType)
+          }
         }
         !actualType.isAssignableFrom(expectedType) -> incompatibleTypes(node, expectedType, actualType)
         else -> JavaCastNode(expectedType, node, node.token)
@@ -76,6 +87,10 @@ class AstNodeCaster(
     }
   }
 
+  private fun castArrayNode(type: JavaArrayType, node: ArrayNode) {
+    node._type = type
+    node.elements.replaceAll { cast(type.elementsType, it) }
+  }
 
   private fun incompatibleTypes(node: ExpressionNode, expectedType: JavaType, actualType: JavaType): ExpressionNode {
     throw MarcelSemanticException(node.token, "Expected expression of type $expectedType but got $actualType")

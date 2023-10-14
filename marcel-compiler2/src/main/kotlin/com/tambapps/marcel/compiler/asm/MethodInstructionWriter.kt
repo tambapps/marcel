@@ -1,9 +1,11 @@
 package com.tambapps.marcel.compiler.asm
 
+import com.tambapps.marcel.compiler.extensions.arrayStoreCode
 import com.tambapps.marcel.compiler.extensions.descriptor
 import com.tambapps.marcel.compiler.extensions.internalName
 import com.tambapps.marcel.compiler.extensions.invokeCode
 import com.tambapps.marcel.compiler.extensions.returnCode
+import com.tambapps.marcel.compiler.extensions.typeCode
 import com.tambapps.marcel.compiler.extensions.visitMethodInsn
 import com.tambapps.marcel.semantic.ast.AstNodeVisitor
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
@@ -31,10 +33,13 @@ import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.expression.VariableAssignmentNode
+import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
+import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.type.JavaType.Companion.Object
 import com.tambapps.marcel.semantic.type.JavaType.Companion.boolean
 import com.tambapps.marcel.semantic.type.JavaType.Companion.char
 import com.tambapps.marcel.semantic.type.JavaType.Companion.double
@@ -159,6 +164,44 @@ class MethodInstructionWriter(
   override fun visit(node: NullValueNode) = mv.visitInsn(Opcodes.ACONST_NULL)
   override fun visit(node: ShortConstantNode) = mv.visitIntInsn(Opcodes.BIPUSH, node.value.toInt())
 
+  override fun visit(node: ArrayNode) {
+    val type = node.type
+    val elements = node.elements
+    // Push the size of the array to the stack
+    mv.visitLdcInsn(node.elements.size)
+    // Create an int array of size n
+    if (type.elementsType.primitive) {
+      mv.visitIntInsn(Opcodes.NEWARRAY, type.typeCode)
+    } else {
+      mv.visitTypeInsn(Opcodes.ANEWARRAY, type.elementsType.internalName)
+    }
+    for (i in elements.indices) {
+      // Push the array reference on the stack
+      mv.visitInsn(Opcodes.DUP)
+      // push the index
+      mv.visitLdcInsn(i)
+      // push the value
+      elements[i].accept(this)
+      // store value at index
+      mv.visitInsn(type.arrayStoreCode)
+    }
+
+  }
+
+  override fun visit(node: MapNode) {
+    val mapType = HashMap::class.javaType
+    val method = typeResolver.findMethodOrThrow(mapType, JavaMethod.CONSTRUCTOR_NAME, emptyList())
+    visit(NewInstanceNode(mapType, method, emptyList(), node.token))
+
+    for (entry in node.entries) {
+      mv.visitInsn(Opcodes.DUP)
+      entry.first.accept(this)
+      entry.second.accept(this)
+      mv.visitMethodInsn(typeResolver.findMethodOrThrow(mapType, "put", listOf(Object, Object)))
+      popStack(Object)
+    }
+  }
+
   override fun visit(node: StringNode) {
     val stringBuilderType = StringBuilder::class.javaType
     // using StringBuilder to build the whole string
@@ -166,7 +209,7 @@ class MethodInstructionWriter(
     // new StringBuilder()
     visit(NewInstanceNode(stringBuilderType, constructorMethod, emptyList(), node.token))
     for (part in node.parts) {
-      // chained calls .append(...)
+      // chained .append(...) calls
       part.accept(this)
       val method = typeResolver.findMethod(stringBuilderType, "append", listOf(
         if (part.type.primitive) part else JavaType.Object
@@ -195,8 +238,8 @@ class MethodInstructionWriter(
     }
   }
 
-  // TODO popping might depend on type as long and double takes 2 slots
   private fun popStack(type: JavaType) {
+    // long and double takes 2 slots instead of 1 for other types
     mv.visitInsn(if (type == long || type == double) Opcodes.POP2 else Opcodes.POP)
   }
 

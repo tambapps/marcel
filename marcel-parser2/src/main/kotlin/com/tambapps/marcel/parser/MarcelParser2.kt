@@ -17,10 +17,12 @@ import com.tambapps.marcel.parser.cst.expression.NewInstanceCstNode
 import com.tambapps.marcel.parser.cst.expression.SuperConstructorCallCstNode
 import com.tambapps.marcel.parser.cst.expression.TemplateStringNode
 import com.tambapps.marcel.parser.cst.expression.VariableAssignmentCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.ArrayCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.LongCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.MapCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.NullCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.*
@@ -323,6 +325,39 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         } else {
           ReferenceCstNode(parentNode, token.value, token)
         }
+      }
+      TokenType.SQUARE_BRACKETS_OPEN -> {
+        if (current.type == TokenType.COLON && lookup(1)?.type == TokenType.SQUARE_BRACKETS_CLOSE) {
+          skip()
+          skip()
+          return MapCstNode(emptyList(), parentNode, token, previous)
+        }
+        val elements = mutableListOf<CstExpressionNode>()
+        var isMap = false
+        while (current.type != TokenType.SQUARE_BRACKETS_CLOSE) {
+          val isParenthesisBlock = current.type == TokenType.LPAR
+          elements.add(expression(parentNode))
+          if (current.type == TokenType.COLON) {
+            val key = elements.last()
+            if (!isParenthesisBlock && key is ReferenceCstNode) {
+              elements[elements.lastIndex] = StringCstNode(parentNode, key.value, key.tokenStart, key.tokenEnd)
+            }
+            isMap = true
+            skip()
+            elements.add(expression(parentNode))
+          }
+          if (current.type == TokenType.COMMA) {
+            skip()
+          }
+        }
+        next() // skip square brackets close
+        if (isMap) {
+          val entries = mutableListOf<Pair<CstExpressionNode, CstExpressionNode>>()
+          for (i in elements.indices step 2) {
+            entries.add(Pair(elements[i], elements[i + 1]))
+          }
+          MapCstNode(entries, parentNode, token, previous)
+        } else ArrayCstNode(elements, parentNode, token, previous)
       }
       TokenType.SUPER -> {
         if (current.type == TokenType.LPAR) {

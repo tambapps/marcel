@@ -15,6 +15,11 @@ import com.tambapps.marcel.semantic.ast.expression.literal.ShortConstantNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import marcel.lang.MarcelClassLoader
 import marcel.lang.lambda.Lambda
+import marcel.lang.primitives.collections.CharacterCollection
+import marcel.lang.primitives.collections.DoubleCollection
+import marcel.lang.primitives.collections.FloatCollection
+import marcel.lang.primitives.collections.IntCollection
+import marcel.lang.primitives.collections.LongCollection
 import marcel.lang.primitives.collections.lists.CharacterArrayList
 import marcel.lang.primitives.collections.lists.CharacterList
 import marcel.lang.primitives.collections.lists.DoubleArrayList
@@ -263,6 +268,7 @@ interface JavaType: JavaTyped {
     val Float = LoadedObjectType(Class.forName("java.lang.Float"))
     val Double = LoadedObjectType(Class.forName("java.lang.Double"))
     val Character = LoadedObjectType(Class.forName("java.lang.Character"))
+    val Map = of(Map::class.java)
 
     val void = JavaPrimitiveType(java.lang.Void::class) { NullValueNode(it) }
     val int = JavaPrimitiveType(java.lang.Integer::class) { IntConstantNode(it, value = 0) }
@@ -294,6 +300,13 @@ interface JavaType: JavaTyped {
 
     val IntRange = LoadedObjectType(marcel.lang.IntRange::class.java)
     val LongRange = LoadedObjectType(marcel.lang.LongRange::class.java)
+
+    // collections
+    val intCollection = of(IntCollection::class.java)
+    val longCollection = of(LongCollection::class.java)
+    val floatCollection = of(FloatCollection::class.java)
+    val doubleCollection = of(DoubleCollection::class.java)
+    val charCollection = of(CharacterCollection::class.java)
 
     // lists
     val intList = of(IntList::class.java)

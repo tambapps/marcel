@@ -26,6 +26,8 @@ import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNodeVisitor
 import com.tambapps.marcel.parser.cst.expression.VariableAssignmentCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.ArrayCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.MapCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
@@ -51,6 +53,8 @@ import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.ast.expression.VariableAssignmentNode
+import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
+import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
@@ -200,6 +204,19 @@ class MarcelSemantic(
   override fun visit(node: DirectFieldReferenceCstNode): ExpressionNode {
     TODO("Not yet implemented")
   }
+
+  override fun visit(node: ArrayCstNode) = ArrayNode(
+    elements = node.elements.map { it.accept(exprVisitor) }.toMutableList(),
+    node = node
+  )
+
+  override fun visit(node: MapCstNode) = MapNode(
+    entries = node.entries.map { Pair(
+      // need objects (not primitive) to call function Map.put(key, value)
+      caster.cast(JavaType.Object, it.first.accept(exprVisitor)),
+      caster.cast(JavaType.Object, it.second.accept(exprVisitor))) },
+    node = node
+  )
 
   override fun visit(node: IncrCstNode): ExpressionNode {
     TODO("Not yet implemented")
