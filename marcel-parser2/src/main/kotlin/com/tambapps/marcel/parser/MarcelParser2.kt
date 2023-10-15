@@ -257,11 +257,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     val token = next()
     return when (token.type) {
       TokenType.INTEGER, TokenType.FLOAT -> {
-        return if (current.type == TokenType.LT || current.type == TokenType.GT || current.type == TokenType.TWO_DOTS) {
-          TODO()
-        } else {
-          parseNumberConstant(parentNode=parentNode, token=token)
-        }
+        return parseNumberConstant(parentNode=parentNode, token=token)
       }
       TokenType.OPEN_QUOTE -> { // double quotes
         val parts = mutableListOf<CstExpressionNode>()

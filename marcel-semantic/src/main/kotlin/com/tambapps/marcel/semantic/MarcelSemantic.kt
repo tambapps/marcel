@@ -74,6 +74,8 @@ import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
+import marcel.lang.IntRanges
+import marcel.lang.LongRanges
 import marcel.lang.Script
 import java.util.LinkedList
 
@@ -274,8 +276,24 @@ class MarcelSemantic(
         }
         else -> throw MarcelSemanticException(node, "Invalid dot operator use")
       }
+      TokenType.TWO_DOTS -> rangeNode(leftOperand, rightOperand, "of")
+      TokenType.TWO_DOTS_END_EXCLUSIVE -> rangeNode(leftOperand, rightOperand, "ofToExclusive")
       else -> throw MarcelSemanticException(node, "Doesn't handle operator ${node.tokenType}")
     }
+  }
+
+  private fun rangeNode(leftOperand: CstExpressionNode, rightOperand: CstExpressionNode, methodName: String): ExpressionNode {
+    val left = leftOperand.accept(exprVisitor)
+    val right = rightOperand.accept(exprVisitor)
+
+    val rangeElementType = if (left.type == JavaType.Long || left.type == JavaType.long || right.type == JavaType.Long || right.type == JavaType.long) JavaType.long
+    else if (left.type == JavaType.Integer || left.type == JavaType.int || right.type == JavaType.Integer || right.type == JavaType.int) JavaType.int
+    else throw MarcelSemanticException(leftOperand, "Ranges can only be of int or long")
+
+    val rangeType = if (rangeElementType == JavaType.long) LongRanges::class.javaType else IntRanges::class.javaType
+
+    val method = typeResolver.findMethodOrThrow(rangeType, methodName, listOf(rangeElementType, rangeElementType))
+    return FunctionCallNode(method, null, null, castedArguments(method, listOf(left, right)), left.token)
   }
 
   private inline fun arithmeticBinaryOperator(leftOperand: CstExpressionNode, rightOperand: CstExpressionNode,

@@ -1,2 +1,2 @@
-String a = "Hello" + " " + "World"
+Object a = 1..>10
 println(a)
