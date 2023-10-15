@@ -248,8 +248,12 @@ class MarcelSemantic(
         }
         else -> throw MarcelSemanticException(node, "Invalid assignment operator use")
       }
-      // TODO handle + strings
-      TokenType.PLUS -> arithmeticBinaryOperator(leftOperand, rightOperand, "plus", ::PlusNode)
+      TokenType.PLUS -> {
+        val left = leftOperand.accept(exprVisitor)
+        val right = rightOperand.accept(exprVisitor)
+        if (left.type == JavaType.String || right.type == JavaType.String) StringNode(listOf(left, right), node)
+        else arithmeticBinaryOperator(leftOperand, rightOperand, "plus", ::PlusNode)
+      }
       TokenType.MINUS -> arithmeticBinaryOperator(leftOperand, rightOperand, "minus", ::MinusNode)
       TokenType.MUL -> arithmeticBinaryOperator(leftOperand, rightOperand, "multiply", ::MulNode)
       TokenType.DIV -> arithmeticBinaryOperator(leftOperand, rightOperand, "div", ::DivNode)
@@ -276,9 +280,12 @@ class MarcelSemantic(
 
   private inline fun arithmeticBinaryOperator(leftOperand: CstExpressionNode, rightOperand: CstExpressionNode,
                                        operatorMethodName: String,
+                                       nodeSupplier: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode)
+  = arithmeticBinaryOperator(leftOperand.accept(exprVisitor), rightOperand.accept(exprVisitor), operatorMethodName, nodeSupplier)
+
+  private inline fun arithmeticBinaryOperator(left: ExpressionNode, right: ExpressionNode,
+                                       operatorMethodName: String,
                                        nodeSupplier: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode): ExpressionNode {
-    val left = leftOperand.accept(exprVisitor)
-    val right = rightOperand.accept(exprVisitor)
     val commonType = JavaType.commonType(left, right)
     return if (commonType.isPrimitiveOrObjectPrimitive) {
       val commonPrimitiveType = commonType.asPrimitiveType
