@@ -13,11 +13,14 @@ import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ShortConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
+import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 
 interface ExpressionNodeVisitor<T> {
 
   fun visit(node: VariableAssignmentNode): T
+  fun visit(node: PlusNode): T
+
   fun visit(node: FunctionCallNode): T
   fun visit(node: NewInstanceNode): T
   fun visit(node: ThisConstructorCallNode): T

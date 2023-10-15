@@ -1,2 +1,2 @@
-int a = 2 + 4
+int a = 2 + 4L
 println(a)

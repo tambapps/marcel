@@ -268,20 +268,22 @@ interface JavaType: JavaTyped {
     val Float = LoadedObjectType(Class.forName("java.lang.Float"))
     val Double = LoadedObjectType(Class.forName("java.lang.Double"))
     val Character = LoadedObjectType(Class.forName("java.lang.Character"))
+    val Byte = LoadedObjectType(Class.forName("java.lang.Byte"))
+    val Short = LoadedObjectType(Class.forName("java.lang.Short"))
     val Map = of(Map::class.java)
 
-    val void = JavaPrimitiveType(java.lang.Void::class) { NullValueNode(it) }
-    val int = JavaPrimitiveType(java.lang.Integer::class) { IntConstantNode(it, value = 0) }
-    val long = JavaPrimitiveType(java.lang.Long::class) { LongConstantNode(it, value = 0L) }
-    val float = JavaPrimitiveType(java.lang.Float::class) { FloatConstantNode(it, value = 0f) }
-    val double = JavaPrimitiveType(java.lang.Double::class) { DoubleConstantNode(it, value = 0.0) }
+    val void = JavaPrimitiveType(java.lang.Void::class, false) { NullValueNode(it) }
+    val int = JavaPrimitiveType(java.lang.Integer::class, true) { IntConstantNode(it, value = 0) }
+    val long = JavaPrimitiveType(java.lang.Long::class, true) { LongConstantNode(it, value = 0L) }
+    val float = JavaPrimitiveType(java.lang.Float::class, true) { FloatConstantNode(it, value = 0f) }
+    val double = JavaPrimitiveType(java.lang.Double::class, true) { DoubleConstantNode(it, value = 0.0) }
     // apparently we use int instructions to store booleans
-    val boolean = JavaPrimitiveType(java.lang.Boolean::class) { BoolConstantNode(it, value = false) }
+    val boolean = JavaPrimitiveType(java.lang.Boolean::class, false) { BoolConstantNode(it, value = false) }
 
-    val char = JavaPrimitiveType(java.lang.Character::class) { CharConstantNode(it, value = 0.toChar()) }
+    val char = JavaPrimitiveType(java.lang.Character::class, true) { CharConstantNode(it, value = 0.toChar()) }
     // byte and short aren't supported in Marcel. The opcodes weren't verified
-    val byte = JavaPrimitiveType(java.lang.Byte::class) { ByteConstantNode(it, value = 0) }
-    val short = JavaPrimitiveType(java.lang.Short::class) { ShortConstantNode(it, value = 0) }
+    val byte = JavaPrimitiveType(java.lang.Byte::class, true) { ByteConstantNode(it, value = 0) }
+    val short = JavaPrimitiveType(java.lang.Short::class, true) { ShortConstantNode(it, value = 0) }
 
     val PRIMITIVES = listOf(void, int, long, float, double, boolean, char, byte, short)
 

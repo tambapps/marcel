@@ -8,6 +8,7 @@ import kotlin.reflect.KClass
 
 class JavaPrimitiveType internal constructor(
   objectKlazz: KClass<*>,
+  val isNumber: Boolean,
   val defaultValueGenerator: (LexToken) -> ExpressionNode,
 ): LoadedJavaType(objectKlazz.javaPrimitiveType!!, emptyList()) {
 

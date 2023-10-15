@@ -1,5 +1,6 @@
 package com.tambapps.marcel.compiler.asm
 
+import com.tambapps.marcel.compiler.extensions.addCode
 import com.tambapps.marcel.compiler.extensions.arrayStoreCode
 import com.tambapps.marcel.compiler.extensions.descriptor
 import com.tambapps.marcel.compiler.extensions.internalName
@@ -35,8 +36,11 @@ import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNo
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
+import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
+import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.type.JavaPrimitiveType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaType.Companion.Object
 import com.tambapps.marcel.semantic.type.JavaType.Companion.boolean
@@ -101,6 +105,14 @@ class MethodInstructionWriter(
     node.variable.accept(storeVariableVisitor)
     // push the value on the stack
     node.variable.accept(loadVariableVisitor)
+  }
+
+  override fun visit(node: PlusNode) = arithmeticOperator(node, JavaPrimitiveType::addCode)
+
+  private inline fun arithmeticOperator(node: BinaryOperatorNode, insCodeExtractor: (JavaPrimitiveType) -> Int) {
+    node.leftOperand.accept(this)
+    node.rightOperand.accept(this)
+    mv.visitInsn(insCodeExtractor.invoke(node.type.asPrimitiveType))
   }
 
   override fun visit(node: FunctionCallNode) {

@@ -20,6 +20,8 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
       JavaType.Float.realClazz -> JavaType.float
       JavaType.Double.realClazz -> JavaType.double
       JavaType.Boolean.realClazz -> JavaType.boolean
+      JavaType.Byte.realClazz -> JavaType.byte
+      JavaType.Short.realClazz -> JavaType.short
       else -> super.asPrimitiveType
     }
 

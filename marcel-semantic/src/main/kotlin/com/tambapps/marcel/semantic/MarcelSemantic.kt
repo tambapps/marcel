@@ -30,6 +30,7 @@ import com.tambapps.marcel.parser.cst.expression.literal.ArrayCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.MapCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
+import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ImportNode
@@ -57,6 +58,8 @@ import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNo
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
+import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
+import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
@@ -241,6 +244,8 @@ class MarcelSemantic(
         }
         else -> throw MarcelSemanticException(node, "Invalid assignment operator use")
       }
+      // TODO handle + strings
+      TokenType.PLUS -> arithmeticBinaryOperator(leftOperand, rightOperand, "plus", ::PlusNode)
       TokenType.DOT -> when (rightOperand) {
         is FunctionCallCstNode -> {
           val arguments = getArguments(rightOperand)
@@ -258,6 +263,25 @@ class MarcelSemantic(
         else -> throw MarcelSemanticException(node, "Invalid dot operator use")
       }
       else -> throw MarcelSemanticException(node, "Doesn't handle operator ${node.tokenType}")
+    }
+  }
+
+  private inline fun arithmeticBinaryOperator(leftOperand: CstExpressionNode, rightOperand: CstExpressionNode,
+                                       operatorMethodName: String,
+                                       nodeSupplier: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode): ExpressionNode {
+    val left = leftOperand.accept(exprVisitor)
+    val right = rightOperand.accept(exprVisitor)
+    val commonType = JavaType.commonType(left, right)
+    return if (commonType.isPrimitiveOrObjectPrimitive) {
+      val commonPrimitiveType = commonType.asPrimitiveType
+      if (!commonPrimitiveType.isNumber) throw MarcelSemanticException("Cannot apply operator on non number types")
+      nodeSupplier.invoke(caster.cast(commonPrimitiveType, left), caster.cast(commonPrimitiveType, right))
+    } else {
+      val arguments = listOf(right)
+      val method = typeResolver.findMethodOrThrow(left.type, operatorMethodName, arguments, left.token)
+      FunctionCallNode(method, left, null,
+        castedArguments(method, arguments)
+        , left.token)
     }
   }
 
