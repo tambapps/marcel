@@ -25,7 +25,7 @@ class AstNodeCaster(
      JavaType.boolean -> node
      JavaType.Boolean -> cast(JavaType.boolean, node)
      else -> {
-       if (node.type.primitive) throw MarcelSemanticException("Cannot cast non boolean primitive into boolean")
+       if (node.type.primitive) throw MarcelSemanticException(node.token, "Cannot cast primitive into boolean")
        functionCall(MarcelTruth::class.javaType, "isTruthy", listOf(node), node)
      }
    }

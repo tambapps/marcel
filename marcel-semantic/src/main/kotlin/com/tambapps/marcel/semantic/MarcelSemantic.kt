@@ -32,6 +32,7 @@ import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
 import com.tambapps.marcel.parser.cst.expression.NotCstNode
+import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
@@ -48,6 +49,7 @@ import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.StringNode
 import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.TernaryNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
@@ -242,6 +244,16 @@ class MarcelSemantic(
 
   override fun visit(node: IndexAccessCstNode): ExpressionNode {
     TODO("Not yet implemented")
+  }
+
+  override fun visit(node: TernaryCstNode): ExpressionNode {
+    val testExpr = caster.truthyCast(node.testExpressionNode.accept(exprVisitor))
+    val trueExpr = node.trueExpressionNode.accept(exprVisitor)
+    val falseExpr = node.falseExpressionNode.accept(exprVisitor)
+
+    // trueExpr and falseExpr need to be casted in case they return different types
+    val commonType = JavaType.commonType(trueExpr, falseExpr)
+    return TernaryNode(testExpr, caster.cast(commonType, trueExpr), caster.cast(commonType, falseExpr), node)
   }
 
   override fun visit(node: NotCstNode) = NotNode(caster.truthyCast(node.expression.accept(exprVisitor)), node)

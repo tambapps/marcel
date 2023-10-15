@@ -26,6 +26,7 @@ import com.tambapps.marcel.parser.cst.expression.literal.NullCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.NotCstNode
+import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.*
@@ -239,8 +240,15 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
   }
 
   fun expression(parentNode: CstNode? = null): CstExpressionNode {
-    // TODO
-    return expression(parentNode, Int.MAX_VALUE)
+    val expression = expression(parentNode, Int.MAX_VALUE)
+    if (current.type != TokenType.QUESTION_MARK) {
+      return expression
+    }
+    skip()
+    val trueExpression = expression(parentNode)
+    accept(TokenType.COLON)
+    val falseExpression = expression(parentNode)
+    return TernaryCstNode(expression, trueExpression, falseExpression, parentNode, expression.tokenStart, falseExpression.tokenEnd)
   }
 
   private fun expression(parentNode: CstNode?, maxPriority: Int): CstExpressionNode {

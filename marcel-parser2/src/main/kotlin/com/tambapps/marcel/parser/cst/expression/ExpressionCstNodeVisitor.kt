@@ -34,6 +34,7 @@ interface ExpressionCstNodeVisitor<T> {
   fun visit(node: NotCstNode): T
 
   fun visit(node: BinaryOperatorCstNode): T
+  fun visit(node: TernaryCstNode): T
   fun visit(node: ClassReferenceCstNode): T
   fun visit(node: ThisReferenceCstNode): T
   fun visit(node: SuperReferenceCstNode): T

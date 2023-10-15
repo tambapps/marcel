@@ -23,6 +23,7 @@ import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.StringNode
 import com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.TernaryNode
 import com.tambapps.marcel.semantic.ast.expression.ThisConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
@@ -146,6 +147,18 @@ class MethodInstructionWriter(
     node.leftOperand.accept(this)
     node.rightOperand.accept(this)
     mv.visitInsn(insCode)
+  }
+
+  override fun visit(node: TernaryNode) {
+    node.testExpressionNode.accept(this)
+    val endLabel = Label()
+    val falseLabel = Label()
+    mv.visitJumpInsn(Opcodes.IFEQ, falseLabel)
+    node.trueExpressionNode.accept(this)
+    mv.visitJumpInsn(Opcodes.GOTO, endLabel)
+    mv.visitLabel(falseLabel)
+    node.falseExpressionNode.accept(this)
+    mv.visitLabel(endLabel)
   }
 
   override fun visit(node: FunctionCallNode) {

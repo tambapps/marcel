@@ -35,6 +35,7 @@ interface ExpressionNodeVisitor<T> {
   fun visit(node: ModNode): T
   fun visit(node: MulNode): T
   fun visit(node: PlusNode): T
+  fun visit(node: TernaryNode): T
 
   fun visit(node: FunctionCallNode): T
   fun visit(node: NewInstanceNode): T
