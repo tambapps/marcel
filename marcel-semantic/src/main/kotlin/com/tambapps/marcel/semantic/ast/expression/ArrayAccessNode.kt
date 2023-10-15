@@ -1,14 +1,13 @@
 package com.tambapps.marcel.semantic.ast.expression
 
-import com.tambapps.marcel.lexer.LexToken
+import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.ast.AstNodeVisitor
 
 class ArrayAccessNode(
   val owner: ExpressionNode,
-  tokenStart: LexToken,
-  tokenEnd: LexToken) :
-  AbstractExpressionNode(owner.type.asArrayType.elementsType, tokenStart, tokenEnd) {
-  override fun <T> accept(visitor: AstNodeVisitor<T>): T {
-    TODO("Not yet implemented")
-  }
+  val indexNode: ExpressionNode,
+  node: CstNode) :
+  AbstractExpressionNode(owner.type.asArrayType.elementsType, node) {
+  override fun <T> accept(visitor: AstNodeVisitor<T>) = visitor.visit(this)
+
 }

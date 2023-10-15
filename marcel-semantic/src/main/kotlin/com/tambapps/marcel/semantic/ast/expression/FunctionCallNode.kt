@@ -5,7 +5,7 @@ import com.tambapps.marcel.semantic.ast.AstNodeVisitor
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 
-class FunctionCallNode(
+open class FunctionCallNode(
   val javaMethod: JavaMethod,
   val owner: ExpressionNode?,
   val castType: JavaType?,

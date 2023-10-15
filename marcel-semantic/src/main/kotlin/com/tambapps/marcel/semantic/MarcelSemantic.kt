@@ -41,6 +41,7 @@ import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
+import com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
@@ -64,6 +65,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
+import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
 import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
 import com.tambapps.marcel.semantic.ast.expression.operator.LeftShiftNode
@@ -243,7 +245,15 @@ class MarcelSemantic(
   }
 
   override fun visit(node: IndexAccessCstNode): ExpressionNode {
-    TODO("Not yet implemented")
+    val owner = node.ownerNode.accept(exprVisitor)
+    val arguments = node.indexNodes.map { it.accept(exprVisitor) }
+    return if (owner.type.isArray) {
+      if (node.indexNodes.size != 1) throw MarcelSemanticException(node, "Arrays need one index")
+      ArrayAccessNode(owner, caster.cast(JavaType.int, node.indexNodes.first().accept(exprVisitor)), node)
+    } else {
+      val getAtMethod = typeResolver.findMethodOrThrow(owner.type, "getAt", arguments)
+      FunctionCallNode(getAtMethod, owner, null, castedArguments(getAtMethod, arguments), node.token)
+    }
   }
 
   override fun visit(node: TernaryCstNode): ExpressionNode {
@@ -261,7 +271,6 @@ class MarcelSemantic(
   override fun visit(node: UnaryMinusCstNode) = MinusNode(IntConstantNode(node.token, 0), node.expression.accept(exprVisitor))
 
   override fun visit(node: BinaryOperatorCstNode): ExpressionNode {
-    val owner = node.leftOperand.accept(exprVisitor)
     val leftOperand = node.leftOperand
     val rightOperand = node.rightOperand
     return when (node.tokenType) {
@@ -271,6 +280,17 @@ class MarcelSemantic(
           checkVariableAccess(variable, node, checkSet = true)
           VariableAssignmentNode(variable,
             caster.cast(variable.type, rightOperand.accept(exprVisitor)), node.tokenStart, node.tokenEnd)
+        }
+        is IndexAccessCstNode -> {
+          val owner = leftOperand.ownerNode.accept(exprVisitor)
+          if (owner.type.isArray) {
+            if (leftOperand.indexNodes.size != 1) throw MarcelSemanticException(node, "Arrays need one index")
+            ArrayIndexAssignmentNode(owner, caster.cast(JavaType.int, leftOperand.indexNodes.first().accept(exprVisitor)), rightOperand.accept(exprVisitor), node)
+          } else {
+            val arguments = leftOperand.indexNodes.map { it.accept(exprVisitor) } + rightOperand.accept(exprVisitor)
+            val putAtMethod = typeResolver.findMethodOrThrow(owner.type, "putAt", arguments)
+            FunctionCallNode(putAtMethod, owner, null, arguments, node.token)
+          }
         }
         else -> throw MarcelSemanticException(node, "Invalid assignment operator use")
       }
@@ -297,6 +317,7 @@ class MarcelSemantic(
       TokenType.DIV_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, "div", ::DivNode)
       TokenType.DOT -> when (rightOperand) {
         is FunctionCallCstNode -> {
+          val owner = node.leftOperand.accept(exprVisitor)
           val arguments = getArguments(rightOperand)
           val method = typeResolver.findMethodOrThrow(owner.type, rightOperand.value, arguments, node.token)
           val castType = if (rightOperand.castType != null) visit(rightOperand.castType!!) else null
@@ -305,6 +326,7 @@ class MarcelSemantic(
             , node.token)
         }
         is ReferenceCstNode -> {
+          val owner = node.leftOperand.accept(exprVisitor)
           val variable = typeResolver.findFieldOrThrow(owner.type, rightOperand.value, rightOperand.token)
           checkVariableAccess(variable, node)
           ReferenceNode(owner, variable, rightOperand.token)

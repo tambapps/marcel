@@ -14,6 +14,7 @@ import com.tambapps.marcel.compiler.extensions.subCode
 import com.tambapps.marcel.compiler.extensions.typeCode
 import com.tambapps.marcel.compiler.extensions.visitMethodInsn
 import com.tambapps.marcel.semantic.ast.AstNodeVisitor
+import com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
@@ -43,6 +44,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNo
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
+import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryArithmeticOperatorNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
 import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
@@ -245,7 +247,14 @@ class MethodInstructionWriter(
       // store value at index
       mv.visitInsn(type.arrayStoreCode)
     }
+  }
 
+  override fun visit(node: ArrayAccessNode) {
+    TODO("Not yet implemented")
+  }
+
+  override fun visit(node: ArrayIndexAssignmentNode) {
+    TODO("Not yet implemented")
   }
 
   override fun visit(node: MapNode) {

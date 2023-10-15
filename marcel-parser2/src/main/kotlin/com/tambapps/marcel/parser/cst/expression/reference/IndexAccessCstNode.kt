@@ -8,8 +8,8 @@ import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNodeVisitor
 
 class IndexAccessCstNode(parent: CstNode?,
-                         val ownerNode: CstNode, // the owner of the access, the 'a' in a[...]
-                         val indexNodes: List<CstNode>,
+                         val ownerNode: CstExpressionNode, // the owner of the access, the 'a' in a[...]
+                         val indexNodes: List<CstExpressionNode>,
                          val isSafeAccess: Boolean,
                          tokenStart: LexToken, tokenEnd: LexToken) :
     AbstractExpressionCstNode(parent, tokenStart, tokenEnd) {

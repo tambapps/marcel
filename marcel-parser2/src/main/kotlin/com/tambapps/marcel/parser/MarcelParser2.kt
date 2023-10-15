@@ -464,11 +464,11 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
   }
 
 
-  private fun indexAccessCstNode(parentNode: CstNode?, ownerNode: CstNode): IndexAccessCstNode {
+  private fun indexAccessCstNode(parentNode: CstNode?, ownerNode: CstExpressionNode): IndexAccessCstNode {
     val isSafeIndex = acceptOptional(TokenType.QUESTION_MARK) != null
     val tokenStart = current
     skip()
-    val indexArguments = mutableListOf<CstNode>()
+    val indexArguments = mutableListOf<CstExpressionNode>()
     while (current.type != TokenType.SQUARE_BRACKETS_CLOSE) {
       indexArguments.add(expression(parentNode))
       if (current.type == TokenType.COMMA) skip()
@@ -477,7 +477,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     return IndexAccessCstNode(parentNode, ownerNode, indexArguments, isSafeIndex, tokenStart, previous)
   }
 
-  private fun optIndexAccessCstNode(parentNode: CstNode?, ownerNode: CstNode): IndexAccessCstNode? {
+  private fun optIndexAccessCstNode(parentNode: CstNode?, ownerNode: CstExpressionNode): IndexAccessCstNode? {
     if (current.type == TokenType.SQUARE_BRACKETS_OPEN
       || (current.type == TokenType.QUESTION_MARK && lookup(1)?.type == TokenType.SQUARE_BRACKETS_OPEN)) {
       indexAccessCstNode(parentNode, ownerNode)
