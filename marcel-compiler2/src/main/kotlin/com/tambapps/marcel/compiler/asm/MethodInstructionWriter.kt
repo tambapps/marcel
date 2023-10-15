@@ -134,18 +134,18 @@ class MethodInstructionWriter(
     node.variable.accept(loadVariableVisitor)
   }
 
-  override fun visit(node: PlusNode) = arithmeticOperator(node, JavaPrimitiveType::addCode)
-  override fun visit(node: MinusNode) = arithmeticOperator(node, JavaPrimitiveType::subCode)
-  override fun visit(node: MulNode) = arithmeticOperator(node, JavaPrimitiveType::mulCode)
-  override fun visit(node: DivNode) = arithmeticOperator(node, JavaPrimitiveType::divCode)
-  override fun visit(node: ModNode) = arithmeticOperator(node, JavaPrimitiveType::modCode)
-  override fun visit(node: LeftShiftNode) = arithmeticOperator(node, JavaPrimitiveType::shlCode)
-  override fun visit(node: RightShiftNode) = arithmeticOperator(node, JavaPrimitiveType::shrCode)
+  override fun visit(node: PlusNode) = arithmeticOperator(node, node.type.addCode)
+  override fun visit(node: MinusNode) = arithmeticOperator(node, node.type.subCode)
+  override fun visit(node: MulNode) = arithmeticOperator(node, node.type.mulCode)
+  override fun visit(node: DivNode) = arithmeticOperator(node, node.type.divCode)
+  override fun visit(node: ModNode) = arithmeticOperator(node, node.type.modCode)
+  override fun visit(node: LeftShiftNode) = arithmeticOperator(node, node.type.shlCode)
+  override fun visit(node: RightShiftNode) = arithmeticOperator(node, node.type.shrCode)
 
-  private inline fun arithmeticOperator(node: BinaryArithmeticOperatorNode, insCodeExtractor: (JavaPrimitiveType) -> Int) {
+  private fun arithmeticOperator(node: BinaryArithmeticOperatorNode, insCode: Int) {
     node.leftOperand.accept(this)
     node.rightOperand.accept(this)
-    mv.visitInsn(insCodeExtractor.invoke(node.type))
+    mv.visitInsn(insCode)
   }
 
   override fun visit(node: FunctionCallNode) {

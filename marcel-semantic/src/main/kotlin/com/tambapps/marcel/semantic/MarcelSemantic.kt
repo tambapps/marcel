@@ -268,12 +268,21 @@ class MarcelSemantic(
         if (left.type == JavaType.String || right.type == JavaType.String) StringNode(listOf(left, right), node)
         else arithmeticBinaryOperator(leftOperand, rightOperand, "plus", ::PlusNode)
       }
-      TokenType.RIGHT_SHIFT -> shiftOperator(leftOperand, rightOperand, "rightShift", ::RightShiftNode)
-      TokenType.LEFT_SHIFT -> shiftOperator(leftOperand, rightOperand, "leftShift", ::LeftShiftNode)
       TokenType.MINUS -> arithmeticBinaryOperator(leftOperand, rightOperand, "minus", ::MinusNode)
       TokenType.MUL -> arithmeticBinaryOperator(leftOperand, rightOperand, "multiply", ::MulNode)
       TokenType.DIV -> arithmeticBinaryOperator(leftOperand, rightOperand, "div", ::DivNode)
       TokenType.MODULO -> arithmeticBinaryOperator(leftOperand, rightOperand, "mod", ::ModNode)
+      TokenType.RIGHT_SHIFT -> shiftOperator(leftOperand, rightOperand, "rightShift", ::RightShiftNode)
+      TokenType.LEFT_SHIFT -> shiftOperator(leftOperand, rightOperand, "leftShift", ::LeftShiftNode)
+      TokenType.PLUS_ASSIGNMENT -> {
+        val left = leftOperand.accept(exprVisitor)
+        val right = rightOperand.accept(exprVisitor)
+        if (left.type == JavaType.String || right.type == JavaType.String) StringNode(listOf(left, right), node)
+        else arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, "plus", ::PlusNode)
+      }
+      TokenType.MINUS_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, "minus", ::MinusNode)
+      TokenType.MUL_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, "multiply", ::MulNode)
+      TokenType.DIV_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, "div", ::DivNode)
       TokenType.DOT -> when (rightOperand) {
         is FunctionCallCstNode -> {
           val arguments = getArguments(rightOperand)
@@ -323,6 +332,18 @@ class MarcelSemantic(
                                        operatorMethodName: String,
                                        nodeSupplier: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode)
   = arithmeticBinaryOperator(leftOperand.accept(exprVisitor), rightOperand.accept(exprVisitor), operatorMethodName, nodeSupplier)
+
+  private inline fun arithmeticAssignmentBinaryOperator(leftOperand: CstExpressionNode, rightOperand: CstExpressionNode,
+                                                        operatorMethodName: String,
+                                                        nodeSupplier: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode): ExpressionNode {
+    if (leftOperand !is ReferenceCstNode) throw MarcelSemanticException(leftOperand, "Invalid assignment operator use")
+
+    val variable = currentScope.findVariableOrThrow(leftOperand.value, leftOperand.token)
+    checkVariableAccess(variable, leftOperand, checkSet = true)
+    return VariableAssignmentNode(variable,
+      caster.cast(variable.type, arithmeticBinaryOperator(leftOperand, rightOperand, operatorMethodName, nodeSupplier)),
+      leftOperand.tokenStart, rightOperand.tokenEnd)
+  }
 
   private inline fun arithmeticBinaryOperator(left: ExpressionNode, right: ExpressionNode,
                                        operatorMethodName: String,
