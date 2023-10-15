@@ -53,7 +53,7 @@ import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
-import com.tambapps.marcel.semantic.ast.expression.VariableAssignmentNode
+import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
@@ -239,7 +239,7 @@ class MarcelSemantic(
           VariableAssignmentNode(variable,
             caster.cast(variable.type, rightOperand.accept(exprVisitor)), node.tokenStart, node.tokenEnd)
         }
-        else -> TODO()
+        else -> throw MarcelSemanticException(node, "Invalid assignment operator use")
       }
       TokenType.DOT -> when (rightOperand) {
         is FunctionCallCstNode -> {

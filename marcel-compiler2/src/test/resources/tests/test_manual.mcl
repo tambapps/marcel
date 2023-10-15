@@ -1,4 +1,2 @@
-int a = 2
-println(a)
-a = 3
+int a = 2 + 4
 println(a)
