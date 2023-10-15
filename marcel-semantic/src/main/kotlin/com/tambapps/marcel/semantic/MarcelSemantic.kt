@@ -1,5 +1,6 @@
 package com.tambapps.marcel.semantic
 
+import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
@@ -29,7 +30,7 @@ import com.tambapps.marcel.parser.cst.expression.VariableAssignmentCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.ArrayCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.MapCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
-import com.tambapps.marcel.parser.cst.expression.operator.DotOperatorCstNode
+import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ImportNode
@@ -227,23 +228,26 @@ class MarcelSemantic(
     TODO("Not yet implemented")
   }
 
-  override fun visit(node: DotOperatorCstNode): ExpressionNode {
+  override fun visit(node: BinaryOperatorCstNode): ExpressionNode {
     val owner = node.leftOperand.accept(exprVisitor)
-    return when (val rightOperand = node.rightOperand) {
-      is FunctionCallCstNode -> {
-        val arguments = getArguments(rightOperand)
-        val method = typeResolver.findMethodOrThrow(owner.type, rightOperand.value, arguments, node.token)
-        val castType = if (rightOperand.castType != null) visit(rightOperand.castType!!) else null
-        FunctionCallNode(method, owner, castType,
-          castedArguments(method, arguments)
-          , node.token)
+    return when (node.tokenType) {
+      TokenType.DOT -> when (val rightOperand = node.rightOperand) {
+        is FunctionCallCstNode -> {
+          val arguments = getArguments(rightOperand)
+          val method = typeResolver.findMethodOrThrow(owner.type, rightOperand.value, arguments, node.token)
+          val castType = if (rightOperand.castType != null) visit(rightOperand.castType!!) else null
+          FunctionCallNode(method, owner, castType,
+            castedArguments(method, arguments)
+            , node.token)
+        }
+        is ReferenceCstNode -> {
+          val variable = typeResolver.findFieldOrThrow(owner.type, rightOperand.value, rightOperand.token)
+          checkVariableAccess(variable, node)
+          ReferenceNode(owner, variable, rightOperand.token)
+        }
+        else -> throw MarcelSemanticException(node, "Invalid dot operator use")
       }
-      is ReferenceCstNode -> {
-        val variable = typeResolver.findFieldOrThrow(owner.type, rightOperand.value, rightOperand.token)
-        checkVariableAccess(variable, node)
-        ReferenceNode(owner, variable, rightOperand.token)
-      }
-      else -> throw MarcelSemanticException(node, "Invalid dot operator use")
+      else -> TODO()
     }
   }
 

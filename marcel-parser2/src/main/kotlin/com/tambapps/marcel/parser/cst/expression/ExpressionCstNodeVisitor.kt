@@ -8,7 +8,6 @@ import com.tambapps.marcel.parser.cst.expression.literal.LongCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.MapCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.NullCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
-import com.tambapps.marcel.parser.cst.expression.operator.DotOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ClassReferenceCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.DirectFieldReferenceCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.IncrCstNode
@@ -29,7 +28,7 @@ interface ExpressionCstNodeVisitor<T> {
   fun visit(node: MapCstNode): T
   fun visit(node: ArrayCstNode): T
 
-  fun visit(node: DotOperatorCstNode): T
+  fun visit(node: BinaryOperatorCstNode): T
   fun visit(node: VariableAssignmentCstNode): T
 
   fun visit(node: ClassReferenceCstNode): T
