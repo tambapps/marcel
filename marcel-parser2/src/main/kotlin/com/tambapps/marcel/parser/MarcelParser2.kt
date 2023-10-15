@@ -16,7 +16,6 @@ import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
 import com.tambapps.marcel.parser.cst.expression.NewInstanceCstNode
 import com.tambapps.marcel.parser.cst.expression.SuperConstructorCallCstNode
 import com.tambapps.marcel.parser.cst.expression.TemplateStringNode
-import com.tambapps.marcel.parser.cst.expression.VariableAssignmentCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.ArrayCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
@@ -248,22 +247,10 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       next()
       val leftOperand = a
       val rightOperand = expression(parentNode, ParserUtils.getPriority(t.type) + ParserUtils.getAssociativity(t.type))
-      a = operator(parentNode, t, leftOperand, rightOperand)
+      a = BinaryOperatorCstNode(t.type, leftOperand, rightOperand, parentNode, leftOperand.tokenStart, rightOperand.tokenEnd)
       t = current
     }
     return a
-  }
-
-  private fun operator(parentNode: CstNode?, token: LexToken, leftOperand: CstExpressionNode, rightOperand: CstExpressionNode): CstExpressionNode {
-    return when(token.type) {
-      // TODO assignment is binary operator
-      TokenType.ASSIGNMENT -> when (leftOperand) {
-        is ReferenceCstNode -> VariableAssignmentCstNode(leftOperand.value, rightOperand, parentNode, leftOperand.tokenStart, rightOperand.tokenEnd)
-        else -> TODO()
-      }
-      TokenType.DOT -> BinaryOperatorCstNode(TokenType.DOT, leftOperand, rightOperand, parentNode, leftOperand.tokenStart, rightOperand.tokenEnd)
-      else -> TODO()
-    }
   }
 
   fun atom(parentNode: CstNode? = null): CstExpressionNode {

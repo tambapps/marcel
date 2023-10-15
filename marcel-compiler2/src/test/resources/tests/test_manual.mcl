@@ -1,2 +1,4 @@
-list<int> a = [0]
-println(a.size())
+int a = 2
+println(a)
+a = 3
+println(a)

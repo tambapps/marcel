@@ -26,7 +26,6 @@ import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNodeVisitor
-import com.tambapps.marcel.parser.cst.expression.VariableAssignmentCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.ArrayCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.MapCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
@@ -230,8 +229,19 @@ class MarcelSemantic(
 
   override fun visit(node: BinaryOperatorCstNode): ExpressionNode {
     val owner = node.leftOperand.accept(exprVisitor)
+    val leftOperand = node.leftOperand
+    val rightOperand = node.rightOperand
     return when (node.tokenType) {
-      TokenType.DOT -> when (val rightOperand = node.rightOperand) {
+      TokenType.ASSIGNMENT -> when (leftOperand) {
+        is ReferenceCstNode -> {
+          val variable = currentScope.findVariableOrThrow(leftOperand.value, leftOperand.token)
+          checkVariableAccess(variable, node, checkSet = true)
+          VariableAssignmentNode(variable,
+            caster.cast(variable.type, rightOperand.accept(exprVisitor)), node.tokenStart, node.tokenEnd)
+        }
+        else -> TODO()
+      }
+      TokenType.DOT -> when (rightOperand) {
         is FunctionCallCstNode -> {
           val arguments = getArguments(rightOperand)
           val method = typeResolver.findMethodOrThrow(owner.type, rightOperand.value, arguments, node.token)
@@ -247,7 +257,7 @@ class MarcelSemantic(
         }
         else -> throw MarcelSemanticException(node, "Invalid dot operator use")
       }
-      else -> TODO()
+      else -> throw MarcelSemanticException(node, "Doesn't handle operator ${node.tokenType}")
     }
   }
 
@@ -292,13 +302,6 @@ class MarcelSemantic(
       throw MarcelSemanticException(node, "Must return expression in non void function")
     }
     return ReturnStatementNode(node.expressionNode?.accept(exprVisitor), node.tokenStart, node.tokenEnd)
-  }
-
-  override fun visit(node: VariableAssignmentCstNode): ExpressionNode {
-    val variable = currentScope.findVariableOrThrow(node.value, node.token)
-    checkVariableAccess(variable, node, checkSet = true)
-    return VariableAssignmentNode(variable,
-      caster.cast(variable.type, node.expressionNode.accept(exprVisitor)), node.tokenStart, node.tokenEnd)
   }
 
   override fun visit(node: VariableDeclarationCstNode): StatementNode {
