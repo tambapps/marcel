@@ -46,6 +46,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MinusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ModNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MulNode
+import com.tambapps.marcel.semantic.ast.expression.operator.NotNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
@@ -59,6 +60,7 @@ import com.tambapps.marcel.semantic.type.JavaType.Companion.float
 import com.tambapps.marcel.semantic.type.JavaType.Companion.int
 import com.tambapps.marcel.semantic.type.JavaType.Companion.long
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
@@ -107,6 +109,18 @@ class MethodInstructionWriter(
     node.statements.forEach {
       it.accept(this)
     }
+  }
+
+  override fun visit(node: NotNode) {
+    node.expressionNode.accept(this)
+    val endLabel = Label()
+    val trueLabel = Label()
+    mv.visitJumpInsn(Opcodes.IFEQ, trueLabel)
+    mv.visitInsn(Opcodes.ICONST_0)
+    mv.visitJumpInsn(Opcodes.GOTO, endLabel)
+    mv.visitLabel(trueLabel)
+    mv.visitInsn(Opcodes.ICONST_1)
+    mv.visitLabel(endLabel)
   }
 
   override fun visit(node: VariableAssignmentNode) {

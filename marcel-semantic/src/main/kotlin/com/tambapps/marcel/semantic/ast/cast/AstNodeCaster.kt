@@ -10,6 +10,7 @@ import com.tambapps.marcel.semantic.type.JavaArrayType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import marcel.lang.DynamicObject
+import marcel.lang.MarcelTruth
 import marcel.lang.runtime.BytecodeHelper
 
 /**
@@ -18,6 +19,17 @@ import marcel.lang.runtime.BytecodeHelper
 class AstNodeCaster(
   private val typeResolver: JavaTypeResolver
 ) {
+
+  fun truthyCast(node: ExpressionNode): ExpressionNode {
+   return when(node.type) {
+     JavaType.boolean -> node
+     JavaType.Boolean -> cast(JavaType.boolean, node)
+     else -> {
+       if (node.type.primitive) throw MarcelSemanticException("Cannot cast non boolean primitive into boolean")
+       functionCall(MarcelTruth::class.javaType, "isTruthy", listOf(node), node)
+     }
+   }
+  }
 
   /**
    * Cast the provided node (if necessary) so that it fits the expected type.

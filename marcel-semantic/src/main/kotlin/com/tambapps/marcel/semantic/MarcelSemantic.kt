@@ -31,6 +31,9 @@ import com.tambapps.marcel.parser.cst.expression.literal.MapCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
+import com.tambapps.marcel.parser.cst.expression.NotCstNode
+import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ImportNode
@@ -56,6 +59,7 @@ import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
+import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
@@ -63,6 +67,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MinusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ModNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MulNode
+import com.tambapps.marcel.semantic.ast.expression.operator.NotNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
@@ -183,6 +188,7 @@ class MarcelSemantic(
    * node visits
    */
   override fun visit(node: DoubleCstNode) = DoubleConstantNode(node.token, node.value)
+  override fun visit(node: BoolCstNode) = BoolConstantNode(node.token, node.value)
 
   override fun visit(node: FloatCstNode) = FloatConstantNode(node.token, node.value)
 
@@ -235,6 +241,10 @@ class MarcelSemantic(
   override fun visit(node: IndexAccessCstNode): ExpressionNode {
     TODO("Not yet implemented")
   }
+
+  override fun visit(node: NotCstNode) = NotNode(caster.truthyCast(node.expression.accept(exprVisitor)), node)
+
+  override fun visit(node: UnaryMinusCstNode) = MinusNode(IntConstantNode(node.token, 0), node.expression.accept(exprVisitor))
 
   override fun visit(node: BinaryOperatorCstNode): ExpressionNode {
     val owner = node.leftOperand.accept(exprVisitor)

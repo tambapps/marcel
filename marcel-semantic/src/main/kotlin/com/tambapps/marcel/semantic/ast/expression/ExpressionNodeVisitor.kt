@@ -17,10 +17,13 @@ import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MinusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ModNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MulNode
+import com.tambapps.marcel.semantic.ast.expression.operator.NotNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 
 interface ExpressionNodeVisitor<T> {
+
+  fun visit(node: NotNode): T
 
   fun visit(node: VariableAssignmentNode): T
   fun visit(node: DivNode): T

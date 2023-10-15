@@ -25,6 +25,9 @@ import com.tambapps.marcel.parser.cst.expression.literal.MapCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.NullCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
+import com.tambapps.marcel.parser.cst.expression.NotCstNode
+import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.*
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
@@ -361,6 +364,10 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         val arguments = parseFunctionArguments(parentNode)
         NewInstanceCstNode(parentNode, type, arguments.first, arguments.second, token, previous)
       }
+      TokenType.MINUS -> UnaryMinusCstNode(atom(parentNode), parentNode, token, previous)
+      TokenType.NOT -> NotCstNode(atom(parentNode), parentNode, token, previous)
+      TokenType.VALUE_TRUE -> BoolCstNode(parentNode, true, token)
+      TokenType.VALUE_FALSE -> BoolCstNode(parentNode, false, token)
       else -> TODO(token.type.name)
     }
   }
