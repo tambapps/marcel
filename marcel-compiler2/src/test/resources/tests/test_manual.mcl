@@ -1,2 +1,2 @@
-int a = 2 + 4L
+int a =  1 * 2 + 3 *4
 println(a)

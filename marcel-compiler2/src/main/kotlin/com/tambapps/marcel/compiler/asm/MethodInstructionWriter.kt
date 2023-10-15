@@ -3,8 +3,12 @@ package com.tambapps.marcel.compiler.asm
 import com.tambapps.marcel.compiler.extensions.addCode
 import com.tambapps.marcel.compiler.extensions.arrayStoreCode
 import com.tambapps.marcel.compiler.extensions.descriptor
+import com.tambapps.marcel.compiler.extensions.divCode
 import com.tambapps.marcel.compiler.extensions.internalName
+import com.tambapps.marcel.compiler.extensions.modCode
+import com.tambapps.marcel.compiler.extensions.mulCode
 import com.tambapps.marcel.compiler.extensions.returnCode
+import com.tambapps.marcel.compiler.extensions.subCode
 import com.tambapps.marcel.compiler.extensions.typeCode
 import com.tambapps.marcel.compiler.extensions.visitMethodInsn
 import com.tambapps.marcel.semantic.ast.AstNodeVisitor
@@ -36,7 +40,12 @@ import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNo
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
+import com.tambapps.marcel.semantic.ast.expression.operator.BinaryArithmeticOperatorNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
+import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
+import com.tambapps.marcel.semantic.ast.expression.operator.MinusNode
+import com.tambapps.marcel.semantic.ast.expression.operator.ModNode
+import com.tambapps.marcel.semantic.ast.expression.operator.MulNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
@@ -108,11 +117,15 @@ class MethodInstructionWriter(
   }
 
   override fun visit(node: PlusNode) = arithmeticOperator(node, JavaPrimitiveType::addCode)
+  override fun visit(node: MinusNode) = arithmeticOperator(node, JavaPrimitiveType::subCode)
+  override fun visit(node: MulNode) = arithmeticOperator(node, JavaPrimitiveType::mulCode)
+  override fun visit(node: DivNode) = arithmeticOperator(node, JavaPrimitiveType::divCode)
+  override fun visit(node: ModNode) = arithmeticOperator(node, JavaPrimitiveType::modCode)
 
-  private inline fun arithmeticOperator(node: BinaryOperatorNode, insCodeExtractor: (JavaPrimitiveType) -> Int) {
+  private inline fun arithmeticOperator(node: BinaryArithmeticOperatorNode, insCodeExtractor: (JavaPrimitiveType) -> Int) {
     node.leftOperand.accept(this)
     node.rightOperand.accept(this)
-    mv.visitInsn(insCodeExtractor.invoke(node.type.asPrimitiveType))
+    mv.visitInsn(insCodeExtractor.invoke(node.type))
   }
 
   override fun visit(node: FunctionCallNode) {

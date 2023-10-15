@@ -59,6 +59,10 @@ import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
+import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
+import com.tambapps.marcel.semantic.ast.expression.operator.MinusNode
+import com.tambapps.marcel.semantic.ast.expression.operator.ModNode
+import com.tambapps.marcel.semantic.ast.expression.operator.MulNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
@@ -246,6 +250,10 @@ class MarcelSemantic(
       }
       // TODO handle + strings
       TokenType.PLUS -> arithmeticBinaryOperator(leftOperand, rightOperand, "plus", ::PlusNode)
+      TokenType.MINUS -> arithmeticBinaryOperator(leftOperand, rightOperand, "minus", ::MinusNode)
+      TokenType.MUL -> arithmeticBinaryOperator(leftOperand, rightOperand, "multiply", ::MulNode)
+      TokenType.DIV -> arithmeticBinaryOperator(leftOperand, rightOperand, "div", ::DivNode)
+      TokenType.MODULO -> arithmeticBinaryOperator(leftOperand, rightOperand, "mod", ::ModNode)
       TokenType.DOT -> when (rightOperand) {
         is FunctionCallCstNode -> {
           val arguments = getArguments(rightOperand)
