@@ -80,17 +80,17 @@ val JavaType.signature: String get() {
   return builder.toString()
 }
 private val PRIMITIVE_CODES_MAP = mapOf(
-  Pair(void, PrimitiveAsmCodes(Opcodes.ALOAD, Opcodes.ASTORE, Opcodes.RETURN, 0,0,0,0, 0)),
-  Pair(int, PrimitiveAsmCodes(Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV, Opcodes.IREM)),
-  Pair(long, PrimitiveAsmCodes(Opcodes.LLOAD, Opcodes.LSTORE, Opcodes.LRETURN, Opcodes.LADD, Opcodes.LSUB, Opcodes.LMUL, Opcodes.LDIV, Opcodes.LREM)),
-  Pair(float, PrimitiveAsmCodes(Opcodes.FLOAD, Opcodes.FSTORE, Opcodes.FRETURN, Opcodes.FADD, Opcodes.FSUB, Opcodes.FMUL, Opcodes.FDIV, Opcodes.FREM)),
-  Pair(double, PrimitiveAsmCodes(Opcodes.DLOAD, Opcodes.DSTORE, Opcodes.DRETURN, Opcodes.DADD, Opcodes.DSUB, Opcodes.DMUL, Opcodes.DDIV, Opcodes.DREM)),
+  Pair(void, PrimitiveAsmCodes(Opcodes.ALOAD, Opcodes.ASTORE, Opcodes.RETURN, 0,0,0,0, 0, 0, 0)),
+  Pair(int, PrimitiveAsmCodes(Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV, Opcodes.IREM, Opcodes.ISHL, Opcodes.ISHR)),
+  Pair(long, PrimitiveAsmCodes(Opcodes.LLOAD, Opcodes.LSTORE, Opcodes.LRETURN, Opcodes.LADD, Opcodes.LSUB, Opcodes.LMUL, Opcodes.LDIV, Opcodes.LREM, Opcodes.LSHL, Opcodes.LSHR)),
+  Pair(float, PrimitiveAsmCodes(Opcodes.FLOAD, Opcodes.FSTORE, Opcodes.FRETURN, Opcodes.FADD, Opcodes.FSUB, Opcodes.FMUL, Opcodes.FDIV, Opcodes.FREM, 0, 0)),
+  Pair(double, PrimitiveAsmCodes(Opcodes.DLOAD, Opcodes.DSTORE, Opcodes.DRETURN, Opcodes.DADD, Opcodes.DSUB, Opcodes.DMUL, Opcodes.DDIV, Opcodes.DREM, 0, 0)),
   // apparently we use int instructions to store booleans
-  Pair(boolean, PrimitiveAsmCodes(Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN,  0,0,0,0, 0)),
-  Pair(char, PrimitiveAsmCodes(Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV, Opcodes.IREM)),
+  Pair(boolean, PrimitiveAsmCodes(Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN,  0,0,0,0, 0, 0, 0)),
+  Pair(char, PrimitiveAsmCodes(Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV, Opcodes.IREM, 0, 0)),
 // TODO verify byte and short OpCodes
-  Pair(byte, PrimitiveAsmCodes(Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV, Opcodes.IREM)),
-  Pair(short, PrimitiveAsmCodes(Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV, Opcodes.IREM))
+  Pair(byte, PrimitiveAsmCodes(Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV, Opcodes.IREM, 0, 0)),
+  Pair(short, PrimitiveAsmCodes(Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV, Opcodes.IREM, 0, 0))
 )
 private val OBJECT_CODES = AsmCodes(Opcodes.ALOAD, Opcodes.ASTORE, Opcodes.ARETURN)
 
@@ -109,6 +109,8 @@ private class PrimitiveAsmCodes(
   val mulCode: Int,
   val divCode: Int,
   val modCode: Int,
+  val shlCode: Int, // left shift
+  val shrCode: Int, // right shift
 ) :
   AsmCodes(loadCode, storeCode, returnCode)
 
@@ -120,3 +122,5 @@ val JavaPrimitiveType.subCode: Int get() = PRIMITIVE_CODES_MAP.getValue(asPrimit
 val JavaPrimitiveType.mulCode: Int get() = PRIMITIVE_CODES_MAP.getValue(asPrimitiveType).mulCode
 val JavaPrimitiveType.divCode: Int get() = PRIMITIVE_CODES_MAP.getValue(asPrimitiveType).divCode
 val JavaPrimitiveType.modCode: Int get() = PRIMITIVE_CODES_MAP.getValue(asPrimitiveType).modCode
+val JavaPrimitiveType.shlCode: Int get() = PRIMITIVE_CODES_MAP.getValue(asPrimitiveType).shlCode
+val JavaPrimitiveType.shrCode: Int get() = PRIMITIVE_CODES_MAP.getValue(asPrimitiveType).shrCode

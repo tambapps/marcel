@@ -8,6 +8,8 @@ import com.tambapps.marcel.compiler.extensions.internalName
 import com.tambapps.marcel.compiler.extensions.modCode
 import com.tambapps.marcel.compiler.extensions.mulCode
 import com.tambapps.marcel.compiler.extensions.returnCode
+import com.tambapps.marcel.compiler.extensions.shlCode
+import com.tambapps.marcel.compiler.extensions.shrCode
 import com.tambapps.marcel.compiler.extensions.subCode
 import com.tambapps.marcel.compiler.extensions.typeCode
 import com.tambapps.marcel.compiler.extensions.visitMethodInsn
@@ -43,11 +45,13 @@ import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryArithmeticOperatorNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
 import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
+import com.tambapps.marcel.semantic.ast.expression.operator.LeftShiftNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MinusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ModNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MulNode
 import com.tambapps.marcel.semantic.ast.expression.operator.NotNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
+import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaPrimitiveType
@@ -135,6 +139,8 @@ class MethodInstructionWriter(
   override fun visit(node: MulNode) = arithmeticOperator(node, JavaPrimitiveType::mulCode)
   override fun visit(node: DivNode) = arithmeticOperator(node, JavaPrimitiveType::divCode)
   override fun visit(node: ModNode) = arithmeticOperator(node, JavaPrimitiveType::modCode)
+  override fun visit(node: LeftShiftNode) = arithmeticOperator(node, JavaPrimitiveType::shlCode)
+  override fun visit(node: RightShiftNode) = arithmeticOperator(node, JavaPrimitiveType::shrCode)
 
   private inline fun arithmeticOperator(node: BinaryArithmeticOperatorNode, insCodeExtractor: (JavaPrimitiveType) -> Int) {
     node.leftOperand.accept(this)

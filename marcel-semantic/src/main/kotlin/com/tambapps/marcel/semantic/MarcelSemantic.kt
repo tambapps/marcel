@@ -64,11 +64,13 @@ import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
 import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
+import com.tambapps.marcel.semantic.ast.expression.operator.LeftShiftNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MinusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ModNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MulNode
 import com.tambapps.marcel.semantic.ast.expression.operator.NotNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
+import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
@@ -266,6 +268,8 @@ class MarcelSemantic(
         if (left.type == JavaType.String || right.type == JavaType.String) StringNode(listOf(left, right), node)
         else arithmeticBinaryOperator(leftOperand, rightOperand, "plus", ::PlusNode)
       }
+      TokenType.RIGHT_SHIFT -> shiftOperator(leftOperand, rightOperand, "rightShift", ::RightShiftNode)
+      TokenType.LEFT_SHIFT -> shiftOperator(leftOperand, rightOperand, "leftShift", ::LeftShiftNode)
       TokenType.MINUS -> arithmeticBinaryOperator(leftOperand, rightOperand, "minus", ::MinusNode)
       TokenType.MUL -> arithmeticBinaryOperator(leftOperand, rightOperand, "multiply", ::MulNode)
       TokenType.DIV -> arithmeticBinaryOperator(leftOperand, rightOperand, "div", ::DivNode)
@@ -306,6 +310,15 @@ class MarcelSemantic(
     return FunctionCallNode(method, null, null, castedArguments(method, listOf(left, right)), left.token)
   }
 
+  private fun shiftOperator(leftOperand: CstExpressionNode, rightOperand: CstExpressionNode,
+                            operatorMethodName: String,
+                            nodeSupplier: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode): ExpressionNode {
+    val node = arithmeticBinaryOperator(leftOperand, rightOperand, operatorMethodName, nodeSupplier)
+    if (node.type.primitive && node.type != JavaType.long && node.type != JavaType.int) {
+      throw MarcelSemanticException(node.token, "Can only shift ints or longs")
+    }
+    return node
+  }
   private inline fun arithmeticBinaryOperator(leftOperand: CstExpressionNode, rightOperand: CstExpressionNode,
                                        operatorMethodName: String,
                                        nodeSupplier: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode)

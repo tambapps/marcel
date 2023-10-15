@@ -14,11 +14,13 @@ import com.tambapps.marcel.semantic.ast.expression.literal.ShortConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
+import com.tambapps.marcel.semantic.ast.expression.operator.LeftShiftNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MinusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ModNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MulNode
 import com.tambapps.marcel.semantic.ast.expression.operator.NotNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
+import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 
 interface ExpressionNodeVisitor<T> {
@@ -26,6 +28,8 @@ interface ExpressionNodeVisitor<T> {
   fun visit(node: NotNode): T
 
   fun visit(node: VariableAssignmentNode): T
+  fun visit(node: LeftShiftNode): T
+  fun visit(node: RightShiftNode): T
   fun visit(node: DivNode): T
   fun visit(node: MinusNode): T
   fun visit(node: ModNode): T
