@@ -462,7 +462,7 @@ class MarcelSemantic(
   }
 
   override fun visit(node: IfCstStatementNode) = useScope(MethodInnerScope(currentMethodScope)) {
-    IfStatementNode(node.condition.accept(exprVisitor),
+    IfStatementNode(caster.truthyCast(node.condition.accept(exprVisitor)),
       node.trueStatementNode.accept(stmtVisitor),
       node.falseStatementNode?.accept(stmtVisitor), node)
   }
