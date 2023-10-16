@@ -36,6 +36,7 @@ import com.tambapps.marcel.parser.cst.expression.NotCstNode
 import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
+import com.tambapps.marcel.parser.cst.statement.IfCstStatementNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ImportNode
@@ -76,6 +77,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.MulNode
 import com.tambapps.marcel.semantic.ast.expression.operator.NotNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
+import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
@@ -452,6 +454,11 @@ class MarcelSemantic(
           ?: variable.type.getDefaultValueExpression(node.token), node.tokenStart, node.tokenEnd)
     )
   }
+
+  override fun visit(node: IfCstStatementNode)
+   = IfStatementNode(node.condition.accept(exprVisitor),
+    node.trueStatementNode.accept(stmtVisitor),
+    node.falseStatementNode?.accept(stmtVisitor), node)
 
   private fun fCall(
     node: CstNode,

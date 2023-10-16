@@ -55,6 +55,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.MulNode
 import com.tambapps.marcel.semantic.ast.expression.operator.NotNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
+import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaPrimitiveType
@@ -115,6 +116,25 @@ class MethodInstructionWriter(
   override fun visit(node: BlockStatementNode) {
     node.statements.forEach {
       it.accept(this)
+    }
+  }
+
+  override fun visit(node: IfStatementNode) {
+    node.conditionNode.accept(this)
+    val endLabel = Label()
+    val falseStatementNode = node.falseStatementNode
+    if (falseStatementNode == null) {
+      mv.visitJumpInsn(Opcodes.IFEQ, endLabel)
+      node.trueStatementNode.accept(this)
+      mv.visitLabel(endLabel)
+    } else {
+      val falseLabel = Label()
+      mv.visitJumpInsn(Opcodes.IFEQ, falseLabel)
+      node.trueStatementNode.accept(this)
+      mv.visitJumpInsn(Opcodes.GOTO, endLabel)
+      mv.visitLabel(falseLabel)
+      falseStatementNode.accept(this)
+      mv.visitLabel(endLabel)
     }
   }
 

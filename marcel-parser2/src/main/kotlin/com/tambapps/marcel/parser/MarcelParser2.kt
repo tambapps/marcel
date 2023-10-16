@@ -31,6 +31,7 @@ import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.*
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
+import com.tambapps.marcel.parser.cst.statement.IfCstStatementNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
@@ -220,6 +221,27 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
             ExpressionStatementCstNode(parentNode, expr, expr.tokenStart, acceptOptional(TokenType.SEMI_COLON) ?: expr.tokenEnd)
           }
         }
+        TokenType.IF -> {
+          accept(TokenType.LPAR)
+          val condition = ifConditionExpression(parentNode)
+          accept(TokenType.RPAR)
+          val rootIf = IfCstStatementNode(condition, statement(parentNode), null, parentNode, token, previous)
+          var currentIf = rootIf
+          while (current.type == TokenType.ELSE) {
+            skip()
+            if (acceptOptional(TokenType.IF) != null) {
+              accept(TokenType.LPAR)
+              val elseIfCondition = ifConditionExpression(parentNode)
+              accept(TokenType.RPAR)
+              val newIf = IfCstStatementNode(elseIfCondition, statement(parentNode), null, parentNode, token, previous)
+              currentIf.falseStatementNode = newIf
+              currentIf = newIf
+            } else {
+              currentIf.falseStatementNode = statement(parentNode)
+            }
+          }
+          rootIf
+        }
         else -> {
           rollback()
           val expr = expression(parentNode)
@@ -230,6 +252,15 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       acceptOptional(TokenType.SEMI_COLON)
     }
  }
+
+  private fun ifConditionExpression(parentNode: CstNode?): CstExpressionNode {
+    return if (ParserUtils.isTypeToken(current.type) && lookup(1)?.type == TokenType.IDENTIFIER) {
+      val type = parseType(parentNode)
+      val variableName = accept(TokenType.IDENTIFIER).value
+      accept(TokenType.ASSIGNMENT)
+      TODO("TruthyVariableDeclarationNode(token, scope, type, variableName, expression(scope))")
+    } else expression(parentNode)
+  }
 
   private fun varDecl(parentNode: CstNode?): VariableDeclarationCstNode {
     val type = parseType(parentNode)
