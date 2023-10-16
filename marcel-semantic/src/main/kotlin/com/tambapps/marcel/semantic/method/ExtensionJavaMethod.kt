@@ -2,7 +2,7 @@ package com.tambapps.marcel.semantic.method
 
 import com.tambapps.marcel.semantic.type.JavaType
 
-class ExtensionJavaMethod(
+class ExtensionJavaMethod private constructor(
   private val actualMethod: JavaMethod,
   override val ownerClass: JavaType,
   override val name: String,
@@ -17,6 +17,8 @@ class ExtensionJavaMethod(
 
   override val visibility = actualMethod.visibility
   override val isStatic = actualMethod.isStatic
+  // needed when computing descriptor/signature
+  override val actualParameters = actualMethod.actualParameters
 
   // could probably do some optimization here (with uses of java reflect API)
   constructor(javaMethod: JavaMethod): this(javaMethod,

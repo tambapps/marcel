@@ -6,13 +6,13 @@ import org.objectweb.asm.Opcodes
 
 
 val JavaMethod.descriptor: String
-  get() = AsmUtils.getMethodDescriptor(parameters, returnType)
+  get() = AsmUtils.getMethodDescriptor(actualParameters, returnType)
 
 val JavaMethod.signature: String
   get() {
     val builder = StringBuilder()
     // using rawType because these are the one used in compiled classes
-    parameters.joinTo(buffer = builder, separator = "", transform = { it.rawType.descriptor }, prefix = "(", postfix = ")")
+    actualParameters.joinTo(buffer = builder, separator = "", transform = { it.rawType.descriptor }, prefix = "(", postfix = ")")
     builder.append(returnType.descriptor)
     return builder.toString()
   }
