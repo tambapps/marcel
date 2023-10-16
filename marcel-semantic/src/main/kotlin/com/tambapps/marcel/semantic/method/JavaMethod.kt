@@ -25,7 +25,7 @@ interface JavaMethod: JavaTyped {
   val visibility: Visibility
   val name: String
   val parameters: List<MethodParameter>
-  // to handle extension methods when writting them
+  // to handle extension methods when writing them
   val actualParameters: List<MethodParameter> get() = parameters
   val returnType: JavaType
   // for generic methods TODO might need to be removed
