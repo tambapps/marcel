@@ -1,3 +1,9 @@
 
-if (false) println("true")
-else println("false")
+if (false) {
+  println("true")
+  println("true")
+} else {
+  println("false")
+  return 1
+  println("false")
+}

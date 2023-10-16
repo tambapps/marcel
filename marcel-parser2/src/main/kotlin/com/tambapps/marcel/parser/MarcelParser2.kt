@@ -30,6 +30,7 @@ import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.*
+import com.tambapps.marcel.parser.cst.statement.BlockCstNode
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.IfCstStatementNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
@@ -221,6 +222,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
             ExpressionStatementCstNode(parentNode, expr, expr.tokenStart, acceptOptional(TokenType.SEMI_COLON) ?: expr.tokenEnd)
           }
         }
+        TokenType.BRACKETS_OPEN -> block(parentNode, acceptBracketOpen = false)
         TokenType.IF -> {
           accept(TokenType.LPAR)
           val condition = ifConditionExpression(parentNode)
@@ -268,6 +270,18 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     accept(TokenType.ASSIGNMENT)
     val expression = if (current.type != TokenType.SEMI_COLON) expression(parentNode) else null
     return VariableDeclarationCstNode(type, identifierToken.value, expression, parentNode, type.tokenStart, expression?.tokenEnd ?: identifierToken)
+  }
+
+  private fun block(parentNode: CstNode?, acceptBracketOpen: Boolean = true): BlockCstNode {
+    val token = current
+    if (acceptBracketOpen) accept(TokenType.BRACKETS_OPEN)
+    val statements = mutableListOf<StatementCstNode>()
+    while (current.type != TokenType.BRACKETS_CLOSE) {
+      val statement = statement(parentNode)
+      statements.add(statement)
+    }
+    skip() // skipping BRACKETS_CLOSE
+    return BlockCstNode(statements, parentNode, token, previous)
   }
 
   fun expression(parentNode: CstNode? = null): CstExpressionNode {

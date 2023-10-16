@@ -36,6 +36,7 @@ import com.tambapps.marcel.parser.cst.expression.NotCstNode
 import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
+import com.tambapps.marcel.parser.cst.statement.BlockCstNode
 import com.tambapps.marcel.parser.cst.statement.IfCstStatementNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
@@ -82,6 +83,7 @@ import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.scope.ClassScope
+import com.tambapps.marcel.semantic.scope.MethodInnerScope
 import com.tambapps.marcel.semantic.scope.MethodScope
 import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaType
@@ -162,14 +164,7 @@ class MarcelSemantic(
   private fun fillMethodNode(classScope: ClassScope, methodeNode: MethodNode, cstStatements: List<StatementCstNode>,
                              scriptRunMethod: Boolean = false): Unit
   = useScope(MethodScope(classScope, methodeNode)) {
-    val statements = mutableListOf<StatementNode>()
-    for (i in cstStatements.indices) {
-      val statement = cstStatements[i].accept(stmtVisitor)
-      // TODO add this check in all block/list of statements
-      if (statement is ReturnStatementNode && i < cstStatements.lastIndex)
-        throw MarcelSemanticException("Cannot have statements after a return statement")
-      statements.add(statement)
-    }
+    val statements = blockStatements(cstStatements)
 
     if (!AllPathsReturnVisitor.test(statements)) {
       if (methodeNode.returnType == JavaType.void) {
@@ -183,6 +178,17 @@ class MarcelSemantic(
     methodeNode.blockStatement = BlockStatementNode(statements, methodeNode.tokenStart, methodeNode.tokenEnd)
   }
 
+  private fun blockStatements(cstStatements: List<StatementCstNode>): MutableList<StatementNode> {
+    val statements = mutableListOf<StatementNode>()
+    for (i in cstStatements.indices) {
+      val statement = cstStatements[i].accept(stmtVisitor)
+      // TODO add this check in all block/list of statements
+      if (statement is ReturnStatementNode && i < cstStatements.lastIndex)
+        throw MarcelSemanticException("Cannot have statements after a return statement")
+      statements.add(statement)
+    }
+    return statements
+  }
 
   private inline fun <T: Scope, U> useScope(scope: T, consumer: (T) -> U): U {
     scopeQueue.push(scope)
@@ -455,10 +461,16 @@ class MarcelSemantic(
     )
   }
 
-  override fun visit(node: IfCstStatementNode)
-   = IfStatementNode(node.condition.accept(exprVisitor),
-    node.trueStatementNode.accept(stmtVisitor),
-    node.falseStatementNode?.accept(stmtVisitor), node)
+  override fun visit(node: IfCstStatementNode) = useScope(MethodInnerScope(currentMethodScope)) {
+    IfStatementNode(node.condition.accept(exprVisitor),
+      node.trueStatementNode.accept(stmtVisitor),
+      node.falseStatementNode?.accept(stmtVisitor), node)
+  }
+
+  override fun visit(node: BlockCstNode) = useScope(MethodInnerScope(currentMethodScope)) {
+    val statements = blockStatements(node.statements)
+    BlockStatementNode(statements, node.tokenStart, node.tokenEnd)
+  }
 
   private fun fCall(
     node: CstNode,
