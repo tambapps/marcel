@@ -1,5 +1,6 @@
 package com.tambapps.marcel.semantic
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
@@ -252,7 +253,7 @@ class MarcelSemantic(
       ArrayAccessNode(owner, caster.cast(JavaType.int, node.indexNodes.first().accept(exprVisitor)), node)
     } else {
       val getAtMethod = typeResolver.findMethodOrThrow(owner.type, "getAt", arguments)
-      FunctionCallNode(getAtMethod, owner, null, castedArguments(getAtMethod, arguments), node.token)
+      fCall(method = getAtMethod, owner = owner, arguments = arguments, node = node)
     }
   }
 
@@ -289,7 +290,7 @@ class MarcelSemantic(
           } else {
             val arguments = leftOperand.indexNodes.map { it.accept(exprVisitor) } + rightOperand.accept(exprVisitor)
             val putAtMethod = typeResolver.findMethodOrThrow(owner.type, "putAt", arguments)
-            FunctionCallNode(putAtMethod, owner, null, arguments, node.token)
+            fCall(method = putAtMethod, owner = owner, arguments = arguments, node = node)
           }
         }
         else -> throw MarcelSemanticException(node, "Invalid assignment operator use")
@@ -321,9 +322,8 @@ class MarcelSemantic(
           val arguments = getArguments(rightOperand)
           val method = typeResolver.findMethodOrThrow(owner.type, rightOperand.value, arguments, node.token)
           val castType = if (rightOperand.castType != null) visit(rightOperand.castType!!) else null
-          FunctionCallNode(method, owner, castType,
-            castedArguments(method, arguments)
-            , node.token)
+          fCall(method = method, owner = owner, castType = castType,
+            arguments = arguments, node = node)
         }
         is ReferenceCstNode -> {
           val owner = node.leftOperand.accept(exprVisitor)
@@ -350,7 +350,7 @@ class MarcelSemantic(
     val rangeType = if (rangeElementType == JavaType.long) LongRanges::class.javaType else IntRanges::class.javaType
 
     val method = typeResolver.findMethodOrThrow(rangeType, methodName, listOf(rangeElementType, rangeElementType))
-    return FunctionCallNode(method, null, null, castedArguments(method, listOf(left, right)), left.token)
+    return fCall(method = method, arguments = listOf(left, right), node = leftOperand)
   }
 
   private fun shiftOperator(leftOperand: CstExpressionNode, rightOperand: CstExpressionNode,
@@ -390,9 +390,7 @@ class MarcelSemantic(
     } else {
       val arguments = listOf(right)
       val method = typeResolver.findMethodOrThrow(left.type, operatorMethodName, arguments, left.token)
-      FunctionCallNode(method, left, null,
-        castedArguments(method, arguments)
-        , left.token)
+      fCall(method = method, owner = left, castType = null, arguments = arguments, token = left.token)
     }
   }
 
@@ -407,9 +405,12 @@ class MarcelSemantic(
     val method = currentScope.findMethodOrThrow(node.value, arguments, node)
     val castType = if (node.castType != null) visit(node.castType!!) else null
     val owner = if (method.isStatic) null else ThisReferenceNode(currentScope.classType, node.token)
-    return FunctionCallNode(method, owner, castType,
-      castedArguments(method, arguments)
-      , node.token)
+    return fCall(
+      node = node,
+      method = method,
+      owner = owner,
+      castType = castType,
+      arguments = arguments)
   }
 
   private fun getArguments(node: FunctionCallCstNode): List<ExpressionNode> {
@@ -423,7 +424,10 @@ class MarcelSemantic(
   override fun visit(node: SuperConstructorCallCstNode): ExpressionNode {
     val arguments = node.arguments.map { it.accept(exprVisitor) }
     val method = currentScope.findMethodOrThrow(JavaMethod.CONSTRUCTOR_NAME, arguments, node)
-    return FunctionCallNode(method, SuperReferenceNode(currentScope.classType.superType!!, node.token), null, arguments, node.token)
+    return fCall(node = node,
+      method = method,
+      owner =  SuperReferenceNode(currentScope.classType.superType!!, node.token),
+      arguments = arguments)
   }
 
   override fun visit(node: ExpressionStatementCstNode) = ExpressionStatementNode(node.expressionNode.accept(exprVisitor), node.tokenStart, node.tokenEnd)
@@ -448,6 +452,19 @@ class MarcelSemantic(
           ?: variable.type.getDefaultValueExpression(node.token), node.tokenStart, node.tokenEnd)
     )
   }
+
+  private fun fCall(
+    node: CstNode,
+    method: JavaMethod,
+    arguments: List<ExpressionNode>,
+    owner: ExpressionNode? = null,
+    castType: JavaType? = null) = fCall(node.token, method, arguments, owner, castType)
+  private fun fCall(
+    token: LexToken,
+    method: JavaMethod,
+    arguments: List<ExpressionNode>,
+    owner: ExpressionNode? = null,
+    castType: JavaType? = null) = FunctionCallNode(method, owner, castType, castedArguments(method, arguments), token)
 
   private fun checkVariableAccess(variable: Variable, node: CstNode, checkGet: Boolean = false, checkSet: Boolean = false) {
     if (!variable.isAccessibleFrom(currentScope.classType)) {

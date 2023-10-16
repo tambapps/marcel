@@ -74,6 +74,7 @@ class AstNodeCaster(
             else if (JavaType.floatCollection.isAssignableFrom(expectedType)) castArrayNode(JavaType.floatArray, node)
             else if (JavaType.doubleCollection.isAssignableFrom(expectedType)) castArrayNode(JavaType.doubleArray, node)
             else if (JavaType.charCollection.isAssignableFrom(expectedType)) castArrayNode(JavaType.charArray, node)
+            else if (Collection::class.javaType.isAssignableFrom(expectedType)) castArrayNode(JavaType.objectArray, node)
           }
           when {
             // lists
