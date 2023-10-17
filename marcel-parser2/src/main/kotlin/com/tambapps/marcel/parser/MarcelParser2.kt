@@ -449,8 +449,8 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         val arguments = parseFunctionArguments(parentNode)
         NewInstanceCstNode(parentNode, type, arguments.first, arguments.second, token, previous)
       }
-      TokenType.MINUS -> UnaryMinusCstNode(atom(parentNode), parentNode, token, previous)
-      TokenType.NOT -> NotCstNode(atom(parentNode), parentNode, token, previous)
+      TokenType.MINUS -> UnaryMinusCstNode(expression(parentNode), parentNode, token, previous)
+      TokenType.NOT -> NotCstNode(expression(parentNode), parentNode, token, previous)
       TokenType.VALUE_TRUE -> BoolCstNode(parentNode, true, token)
       TokenType.VALUE_FALSE -> BoolCstNode(parentNode, false, token)
       else -> TODO(token.type.name)
