@@ -32,6 +32,8 @@ import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.*
 import com.tambapps.marcel.parser.cst.statement.BlockCstNode
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
+import com.tambapps.marcel.parser.cst.statement.ForInCstNode
+import com.tambapps.marcel.parser.cst.statement.ForVarCstNode
 import com.tambapps.marcel.parser.cst.statement.IfCstStatementNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
@@ -243,6 +245,36 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
             }
           }
           rootIf
+        }
+        TokenType.FOR -> {
+          accept(TokenType.LPAR)
+          if (lookup(1)?.type == TokenType.IDENTIFIER && lookup(2)?.type == TokenType.IN) {
+            // for in statement
+            val type = parseType(parentNode)
+            val identifier = accept(TokenType.IDENTIFIER).value
+            accept(TokenType.IN)
+            val expression = expression(parentNode)
+            accept(TokenType.RPAR)
+            val forBlock = statement(parentNode)
+            ForInCstNode(type, identifier, expression, forBlock, parentNode, token, previous)
+          } else {
+            // for (;;)
+            // needed especially if initStatement is var declaration
+            val initStatement = statement(parentNode)
+            if (initStatement !is VariableDeclarationCstNode) {
+              throw MarcelParser2Exception(
+                previous,
+                "For loops should start with variable declaration/assignment"
+              )
+            }
+            acceptOptional(TokenType.SEMI_COLON)
+            val condition = expression(parentNode)
+            accept(TokenType.SEMI_COLON)
+            val iteratorStatement = statement(parentNode)
+            accept(TokenType.RPAR)
+            val forBlock = statement(parentNode)
+            ForVarCstNode(initStatement, condition, iteratorStatement, forBlock, parentNode, token, forBlock.tokenEnd)
+          }
         }
         else -> {
           rollback()

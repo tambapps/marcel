@@ -55,6 +55,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.MulNode
 import com.tambapps.marcel.semantic.ast.expression.operator.NotNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
+import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
@@ -67,7 +68,13 @@ import com.tambapps.marcel.semantic.type.JavaType.Companion.double
 import com.tambapps.marcel.semantic.type.JavaType.Companion.float
 import com.tambapps.marcel.semantic.type.JavaType.Companion.int
 import com.tambapps.marcel.semantic.type.JavaType.Companion.long
+import com.tambapps.marcel.semantic.type.JavaType.Companion.void
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import marcel.lang.primitives.iterators.CharacterIterator
+import marcel.lang.primitives.iterators.DoubleIterator
+import marcel.lang.primitives.iterators.FloatIterator
+import marcel.lang.primitives.iterators.IntIterator
+import marcel.lang.primitives.iterators.LongIterator
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
@@ -102,10 +109,7 @@ class MethodInstructionWriter(
   private val loadVariableVisitor = LoadVariableVisitor(mv, classScopeType)
   private val storeVariableVisitor = StoreVariableVisitor(mv, classScopeType)
 
-  override fun visit(node: ExpressionStatementNode) {
-    node.expressionNode.accept(this)
-    if (node.expressionNode.type != JavaType.void) popStack(node.expressionNode.type)
-  }
+  override fun visit(node: ExpressionStatementNode) = visitAsStatement(node.expressionNode)
 
   override fun visit(node: ReturnStatementNode) {
     node.expressionNode.accept(this)
@@ -136,6 +140,31 @@ class MethodInstructionWriter(
       falseStatementNode.accept(this)
       mv.visitLabel(endLabel)
     }
+  }
+
+  override fun visit(node: ForInIteratorStatementNode) {
+    // assign the iterator to a variable
+    visitAsStatement(VariableAssignmentNode(node.iteratorVariable, node.iteratorExpression, node.tokenStart, node.tokenEnd))
+
+    // loop start
+    val loopStart = Label()
+    mv.visitLabel(loopStart)
+
+    // Verifying condition -> iterator.hasNext()
+    val iteratorVarReference = ReferenceNode(owner = null, node.iteratorVariable, node.token)
+    visit(iteratorVarReference)
+    mv.visitMethodInsn(typeResolver.findMethodOrThrow(Iterator::class.javaType, "hasNext", emptyList()))
+
+    val loopEnd = Label()
+    mv.visitJumpInsn(Opcodes.IFEQ, loopEnd)
+
+    // loop body
+    visitAsStatement(VariableAssignmentNode(node.variable, node.nextMethodCall, node.tokenStart, node.tokenEnd))
+    node.bodyStatement.accept(this)
+    mv.visitJumpInsn(Opcodes.GOTO, loopStart)
+
+    // loop end
+    mv.visitLabel(loopEnd)
   }
 
   override fun visit(node: NotNode) {
@@ -286,8 +315,7 @@ class MethodInstructionWriter(
       mv.visitInsn(Opcodes.DUP)
       entry.first.accept(this)
       entry.second.accept(this)
-      mv.visitMethodInsn(typeResolver.findMethodOrThrow(mapType, "put", listOf(Object, Object)))
-      popStack(Object)
+      invokeMethodAsStatement(typeResolver.findMethodOrThrow(mapType, "put", listOf(Object, Object)))
     }
   }
 
@@ -324,6 +352,20 @@ class MethodInstructionWriter(
       }
     } else {
       mv.visitTypeInsn(Opcodes.CHECKCAST, expectedType.internalName)
+    }
+  }
+
+  // visit and pop the value if necessary
+  private fun invokeMethodAsStatement(method: JavaMethod) {
+    mv.visitMethodInsn(method)
+    if (method.returnType != void) popStack(method.returnType)
+  }
+
+  // visit and pop the value if necessary
+  private fun visitAsStatement(expressionNode: ExpressionNode) {
+    expressionNode.accept(this)
+    if (expressionNode.type != void) {
+      popStack(expressionNode.type)
     }
   }
 

@@ -48,4 +48,6 @@ interface Scope {
   }
 
   fun findVariable(name: String): Variable?
+
+  fun dispose() {}
 }

@@ -1,9 +1,8 @@
+list<int> a = [1, 2, 3]
 
-if (false) {
-  println("true")
-  println("true")
-} else {
-  println("false")
-  return 1
-  println("false")
+for (int i in a) {
+  println(i)
+  println(i)
 }
+
+///println(a[0..1])

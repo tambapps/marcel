@@ -54,9 +54,13 @@ open class MethodScope internal constructor(
   fun freeLocalVariable(name: String) {
     val v = localVariables.find { it.name == name }
     if (v != null) {
-      localVariables.remove(v)
-      localVariablePool.free(v)
+      freeLocalVariable(v)
     }
+  }
+
+  private fun freeLocalVariable(v: LocalVariable) {
+    localVariables.remove(v)
+    localVariablePool.free(v)
   }
 
   fun findLocalVariable(name: String): LocalVariable? {
@@ -66,4 +70,9 @@ open class MethodScope internal constructor(
   }
 
   override fun findVariable(name: String) = findLocalVariable(name) ?: parentScope?.findVariable(name)
+
+  override fun dispose() {
+    val vars = localVariables.toList() // copy them to avoid modyfing original list while iterating on it
+    vars.forEach { freeLocalVariable(it) }
+  }
 }

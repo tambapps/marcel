@@ -37,6 +37,8 @@ import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.statement.BlockCstNode
+import com.tambapps.marcel.parser.cst.statement.ForInCstNode
+import com.tambapps.marcel.parser.cst.statement.ForVarCstNode
 import com.tambapps.marcel.parser.cst.statement.IfCstStatementNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
@@ -78,6 +80,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.MulNode
 import com.tambapps.marcel.semantic.ast.expression.operator.NotNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
+import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
@@ -93,6 +96,11 @@ import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
 import marcel.lang.IntRanges
 import marcel.lang.LongRanges
 import marcel.lang.Script
+import marcel.lang.primitives.iterators.CharacterIterator
+import marcel.lang.primitives.iterators.DoubleIterator
+import marcel.lang.primitives.iterators.FloatIterator
+import marcel.lang.primitives.iterators.IntIterator
+import marcel.lang.primitives.iterators.LongIterator
 import java.util.LinkedList
 
 // TODO implement multiple errors like in parser2
@@ -193,6 +201,7 @@ class MarcelSemantic(
   private inline fun <T: Scope, U> useScope(scope: T, consumer: (T) -> U): U {
     scopeQueue.push(scope)
     val u = consumer.invoke(scope)
+    scope.dispose()
     scopeQueue.pop()
     return u
   }
@@ -288,7 +297,7 @@ class MarcelSemantic(
           val variable = currentScope.findVariableOrThrow(leftOperand.value, leftOperand.token)
           checkVariableAccess(variable, node, checkSet = true)
           VariableAssignmentNode(variable,
-            caster.cast(variable.type, rightOperand.accept(exprVisitor)), node.tokenStart, node.tokenEnd)
+            caster.cast(variable.type, rightOperand.accept(exprVisitor)), node)
         }
         is IndexAccessCstNode -> {
           val owner = leftOperand.ownerNode.accept(exprVisitor)
@@ -467,9 +476,50 @@ class MarcelSemantic(
       node.falseStatementNode?.accept(stmtVisitor), node)
   }
 
+  override fun visit(node: ForInCstNode) = useScope(MethodInnerScope(currentMethodScope)) {
+    val variable = it.addLocalVariable(visit(node.varType), node.varName)
+
+    val inNode = node.inNode.accept(exprVisitor)
+
+    val iteratorExpression = when {
+      // TODO charsequence iterator
+      inNode.type.implements(Iterable::class.javaType) -> fCall(node, inNode.type, "iterator", emptyList(), inNode)
+      inNode.type.implements(Iterator::class.javaType) -> inNode
+      else -> throw MarcelSemanticException(node.token, "Cannot iterate over an expression of type ${inNode.type}")
+    }
+    val iteratorExpressionType = iteratorExpression.type
+    val iteratorVariable = it.addLocalVariable(iteratorExpressionType)
+
+    val (nextMethodOwnerType, nextMethodName) = if (IntIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(IntIterator::class.javaType, "nextInt")
+    else if (LongIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(LongIterator::class.javaType, "nextLong")
+    else if (FloatIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(FloatIterator::class.javaType, "nextFloat")
+    else if (DoubleIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(DoubleIterator::class.javaType, "nextDouble")
+    else if (CharacterIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(CharacterIterator::class.javaType, "nextCharacter")
+    else if (Iterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(Iterator::class.javaType, "next")
+    else throw UnsupportedOperationException("wtf")
+
+    val iteratorVarReference = ReferenceNode(owner = null, iteratorVariable, node.token)
+
+    val nextMethod = typeResolver.findMethodOrThrow(nextMethodOwnerType, nextMethodName, emptyList())
+    // cast to fit the declared variable type
+    val nextMethodCall = caster.cast(variable.type, fCall(node = node, method = nextMethod, arguments = emptyList(), owner = iteratorVarReference))
+    ForInIteratorStatementNode(node, variable, iteratorVariable, iteratorExpression, nextMethodCall, node.statementNode.accept(stmtVisitor))
+  }
+
+  override fun visit(node: ForVarCstNode): StatementNode {
+    TODO("Not yet implemented")
+  }
+
   override fun visit(node: BlockCstNode) = useScope(MethodInnerScope(currentMethodScope)) {
     val statements = blockStatements(node.statements)
     BlockStatementNode(statements, node.tokenStart, node.tokenEnd)
+  }
+
+  private fun fCall(node: CstNode, ownerType: JavaType, name: String, arguments: List<ExpressionNode>,
+                    owner: ExpressionNode? = null,
+                    castType: JavaType? = null): FunctionCallNode {
+    val method = typeResolver.findMethodOrThrow(ownerType, name, arguments, node.token)
+    return fCall(node, method, arguments, owner, castType)
   }
 
   private fun fCall(
