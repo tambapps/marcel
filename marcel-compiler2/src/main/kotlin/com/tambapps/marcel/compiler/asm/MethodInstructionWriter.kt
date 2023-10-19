@@ -44,6 +44,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNo
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
+import com.tambapps.marcel.semantic.ast.expression.operator.AndNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryArithmeticOperatorNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
@@ -55,6 +56,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.MinusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ModNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MulNode
 import com.tambapps.marcel.semantic.ast.expression.operator.NotNode
+import com.tambapps.marcel.semantic.ast.expression.operator.OrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
 import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
@@ -196,6 +198,35 @@ class MethodInstructionWriter(
   override fun visit(node: ModNode) = arithmeticOperator(node, node.type.modCode)
   override fun visit(node: LeftShiftNode) = arithmeticOperator(node, node.type.shlCode)
   override fun visit(node: RightShiftNode) = arithmeticOperator(node, node.type.shrCode)
+  override fun visit(node: AndNode) {
+    val labelFalse = Label()
+    val labelEnd = Label()
+    node.leftOperand.accept(this)
+    mv.visitJumpInsn(Opcodes.IFEQ, labelFalse)
+    node.rightOperand.accept(this)
+    mv.visitJumpInsn(Opcodes.IFEQ, labelFalse)
+    mv.visitInsn(Opcodes.ICONST_1)
+    mv.visitJumpInsn(Opcodes.GOTO, labelEnd)
+    mv.visitLabel(labelFalse)
+    mv.visitInsn(Opcodes.ICONST_0)
+    mv.visitLabel(labelEnd)
+  }
+
+  override fun visit(node: OrNode) {
+    val labelTrue = Label()
+    val labelFalse = Label()
+    val labelEnd = Label()
+    node.leftOperand.accept(this)
+    mv.visitJumpInsn(Opcodes.IFNE, labelTrue)
+    node.rightOperand.accept(this)
+    mv.visitJumpInsn(Opcodes.IFEQ, labelFalse)
+    mv.visitLabel(labelTrue)
+    mv.visitInsn(Opcodes.ICONST_1)
+    mv.visitJumpInsn(Opcodes.GOTO, labelEnd)
+    mv.visitLabel(labelFalse)
+    mv.visitInsn(Opcodes.ICONST_0)
+    mv.visitLabel(labelEnd)
+  }
 
   override fun visit(node: IsEqualNode) = comparisonOperator(node, Opcodes.IF_ACMPEQ, Opcodes.IF_ICMPEQ)
   override fun visit(node: IsNotEqualNode) = comparisonOperator(node, Opcodes.IF_ACMPNE, Opcodes.IF_ICMPNE)
@@ -219,8 +250,8 @@ class MethodInstructionWriter(
     mv.visitLabel(trueLabel)
     mv.visitInsn(Opcodes.ICONST_1)
     mv.visitLabel(endLabel)
-
   }
+
   private fun arithmeticOperator(node: BinaryArithmeticOperatorNode, insCode: Int) {
     node.leftOperand.accept(this)
     node.rightOperand.accept(this)

@@ -70,6 +70,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
+import com.tambapps.marcel.semantic.ast.expression.operator.AndNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
 import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
@@ -80,6 +81,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.MinusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ModNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MulNode
 import com.tambapps.marcel.semantic.ast.expression.operator.NotNode
+import com.tambapps.marcel.semantic.ast.expression.operator.OrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
 import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
@@ -354,6 +356,8 @@ class MarcelSemantic(
       }
       TokenType.TWO_DOTS -> rangeNode(leftOperand, rightOperand, "of")
       TokenType.TWO_DOTS_END_EXCLUSIVE -> rangeNode(leftOperand, rightOperand, "ofToExclusive")
+      TokenType.AND -> AndNode(caster.truthyCast(leftOperand.accept(exprVisitor)), caster.truthyCast(rightOperand.accept(exprVisitor)))
+      TokenType.OR -> OrNode(caster.truthyCast(leftOperand.accept(exprVisitor)), caster.truthyCast(rightOperand.accept(exprVisitor)))
       TokenType.EQUAL -> comparisonOperatorNode(leftOperand, rightOperand, ::IsEqualNode) { left, right ->
         TODO("invoke left not null AND left equals right")
       }

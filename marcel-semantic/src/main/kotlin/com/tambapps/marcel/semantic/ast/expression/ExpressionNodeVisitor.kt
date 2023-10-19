@@ -13,6 +13,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ShortConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
+import com.tambapps.marcel.semantic.ast.expression.operator.AndNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
@@ -22,6 +23,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.MinusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ModNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MulNode
 import com.tambapps.marcel.semantic.ast.expression.operator.NotNode
+import com.tambapps.marcel.semantic.ast.expression.operator.OrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
@@ -41,6 +43,8 @@ interface ExpressionNodeVisitor<T> {
   fun visit(node: PlusNode): T
   fun visit(node: IsEqualNode): T
   fun visit(node: IsNotEqualNode): T
+  fun visit(node: AndNode): T
+  fun visit(node: OrNode): T
 
   fun visit(node: TernaryNode): T
 

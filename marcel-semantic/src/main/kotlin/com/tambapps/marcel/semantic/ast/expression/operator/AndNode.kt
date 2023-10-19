@@ -4,9 +4,9 @@ import com.tambapps.marcel.semantic.ast.AstNodeVisitor
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 
 /**
- * Primitive or Object reference comparison Not Equal
+ * Logical AND
  */
-class IsNotEqualNode(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
+class AndNode(leftOperand: ExpressionNode, rightOperand: ExpressionNode) :
   BooleanOperatorNode(leftOperand, rightOperand) {
   override fun <T> accept(visitor: AstNodeVisitor<T>) = visitor.visit(this)
 }
