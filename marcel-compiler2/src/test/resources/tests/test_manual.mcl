@@ -1,8 +1,5 @@
 list<int> a = [1, 2, 3]
 
-for (int i in a) {
-  println(i)
-  println(i)
-}
+println(a === new Object())
 
 ///println(a[0..1])

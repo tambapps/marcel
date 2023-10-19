@@ -46,8 +46,8 @@ import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryArithmeticOperatorNode
-import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
 import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
+import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.LeftShiftNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MinusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ModNode
@@ -59,10 +59,10 @@ import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
-import com.tambapps.marcel.semantic.type.JavaPrimitiveType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaType.Companion.Object
 import com.tambapps.marcel.semantic.type.JavaType.Companion.boolean
+import com.tambapps.marcel.semantic.type.JavaType.Companion.byte
 import com.tambapps.marcel.semantic.type.JavaType.Companion.char
 import com.tambapps.marcel.semantic.type.JavaType.Companion.double
 import com.tambapps.marcel.semantic.type.JavaType.Companion.float
@@ -70,11 +70,6 @@ import com.tambapps.marcel.semantic.type.JavaType.Companion.int
 import com.tambapps.marcel.semantic.type.JavaType.Companion.long
 import com.tambapps.marcel.semantic.type.JavaType.Companion.void
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
-import marcel.lang.primitives.iterators.CharacterIterator
-import marcel.lang.primitives.iterators.DoubleIterator
-import marcel.lang.primitives.iterators.FloatIterator
-import marcel.lang.primitives.iterators.IntIterator
-import marcel.lang.primitives.iterators.LongIterator
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
@@ -103,6 +98,12 @@ class MethodInstructionWriter(
       Pair(Pair(double, int), Opcodes.D2I),
       Pair(Pair(double, long), Opcodes.D2L),
       Pair(Pair(double, float), Opcodes.D2F),
+    )
+
+    private val PRIMITIVE_COMPARISON_MAP = mapOf(
+      Pair(double, Opcodes.DCMPL),
+      Pair(float, Opcodes.FCMPL),
+      Pair(long, Opcodes.LCMP),
     )
   }
 
@@ -193,6 +194,27 @@ class MethodInstructionWriter(
   override fun visit(node: ModNode) = arithmeticOperator(node, node.type.modCode)
   override fun visit(node: LeftShiftNode) = arithmeticOperator(node, node.type.shlCode)
   override fun visit(node: RightShiftNode) = arithmeticOperator(node, node.type.shrCode)
+
+  override fun visit(node: IsEqualNode) {
+    node.leftOperand.accept(this)
+    node.rightOperand.accept(this)
+    val operandsType = node.leftOperand.type // both operands should have the same type
+    val objectComparison = !operandsType.primitive || !node.rightOperand.type.primitive
+    if (!objectComparison && operandsType != int && operandsType != byte && operandsType != char) {
+      // we need a custom comparison for the types matching this condition
+      mv.visitInsn(PRIMITIVE_COMPARISON_MAP[operandsType] ?: throw RuntimeException("Compiler/semantic error."))
+      mv.visitLdcInsn(0) // pushing 0 because we're comparing two numbers below
+    }
+
+    val endLabel = Label()
+    val trueLabel = Label()
+    mv.visitJumpInsn(if (objectComparison) Opcodes.IF_ACMPEQ else Opcodes.IF_ICMPEQ, trueLabel)
+    mv.visitInsn(Opcodes.ICONST_0)
+    mv.visitJumpInsn(Opcodes.GOTO, endLabel)
+    mv.visitLabel(trueLabel)
+    mv.visitInsn(Opcodes.ICONST_1)
+    mv.visitLabel(endLabel)
+  }
 
   private fun arithmeticOperator(node: BinaryArithmeticOperatorNode, insCode: Int) {
     node.leftOperand.accept(this)

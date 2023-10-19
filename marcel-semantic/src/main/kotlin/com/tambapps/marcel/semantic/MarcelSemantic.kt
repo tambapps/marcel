@@ -73,6 +73,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
 import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
+import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.LeftShiftNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MinusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ModNode
@@ -352,6 +353,21 @@ class MarcelSemantic(
       }
       TokenType.TWO_DOTS -> rangeNode(leftOperand, rightOperand, "of")
       TokenType.TWO_DOTS_END_EXCLUSIVE -> rangeNode(leftOperand, rightOperand, "ofToExclusive")
+      TokenType.EQUAL -> {
+        val left = leftOperand.accept(exprVisitor)
+        val right = rightOperand.accept(exprVisitor)
+
+        if (left.type.primitive && right.type.primitive) {
+          val type = if (left.type != JavaType.int) right.type else left.type
+          IsEqualNode(caster.cast(type, left), caster.cast(type, right))
+        } else TODO("invoke equals method")
+      }
+      TokenType.IS -> {
+        val left = leftOperand.accept(exprVisitor)
+        val right = rightOperand.accept(exprVisitor)
+        if (left.type.primitive || right.type.primitive) throw MarcelSemanticException(leftOperand, "=== operator is reserved for object comparison")
+        IsEqualNode(left, right)
+      }
       else -> throw MarcelSemanticException(node, "Doesn't handle operator ${node.tokenType}")
     }
   }

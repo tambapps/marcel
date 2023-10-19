@@ -15,6 +15,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
+import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.LeftShiftNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MinusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ModNode
@@ -37,6 +38,8 @@ interface ExpressionNodeVisitor<T> {
   fun visit(node: ModNode): T
   fun visit(node: MulNode): T
   fun visit(node: PlusNode): T
+  fun visit(node: IsEqualNode): T
+
   fun visit(node: TernaryNode): T
 
   fun visit(node: ArrayAccessNode): T
