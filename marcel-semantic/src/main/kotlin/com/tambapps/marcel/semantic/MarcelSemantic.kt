@@ -327,6 +327,17 @@ class MarcelSemantic(
         if (left.type == JavaType.String || right.type == JavaType.String) StringNode(listOf(left, right), node)
         else arithmeticBinaryOperator(leftOperand, rightOperand, "plus", ::PlusNode)
       }
+      TokenType.ELVIS -> {
+        val left = leftOperand.accept(exprVisitor)
+        val right = rightOperand.accept(exprVisitor)
+        val type = JavaType.commonType(left.type, right.type)
+        // need to store result of trueExpr (left) in a variable in order not to evaluate it twice (e.g. for function calls)
+        currentMethodScope.useTempLocalVariable(type) { localVar ->
+          val varAssignment = VariableAssignmentNode(localVar, caster.cast(type, left), leftOperand)
+          val varRef = ReferenceNode(null, localVar, left.token)
+          TernaryNode(caster.truthyCast(varAssignment), varRef, caster.cast(type, right), rightOperand)
+        }
+      }
       TokenType.MINUS -> arithmeticBinaryOperator(leftOperand, rightOperand, "minus", ::MinusNode)
       TokenType.MUL -> arithmeticBinaryOperator(leftOperand, rightOperand, "multiply", ::MulNode)
       TokenType.DIV -> arithmeticBinaryOperator(leftOperand, rightOperand, "div", ::DivNode)
@@ -560,22 +571,22 @@ class MarcelSemantic(
       else -> throw MarcelSemanticException(node.token, "Cannot iterate over an expression of type ${inNode.type}")
     }
     val iteratorExpressionType = iteratorExpression.type
-    val iteratorVariable = it.addLocalVariable(iteratorExpressionType)
+    it.useTempLocalVariable(iteratorExpressionType) { iteratorVariable ->
+      val (nextMethodOwnerType, nextMethodName) = if (IntIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(IntIterator::class.javaType, "nextInt")
+      else if (LongIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(LongIterator::class.javaType, "nextLong")
+      else if (FloatIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(FloatIterator::class.javaType, "nextFloat")
+      else if (DoubleIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(DoubleIterator::class.javaType, "nextDouble")
+      else if (CharacterIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(CharacterIterator::class.javaType, "nextCharacter")
+      else if (Iterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(Iterator::class.javaType, "next")
+      else throw UnsupportedOperationException("wtf")
 
-    val (nextMethodOwnerType, nextMethodName) = if (IntIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(IntIterator::class.javaType, "nextInt")
-    else if (LongIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(LongIterator::class.javaType, "nextLong")
-    else if (FloatIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(FloatIterator::class.javaType, "nextFloat")
-    else if (DoubleIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(DoubleIterator::class.javaType, "nextDouble")
-    else if (CharacterIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(CharacterIterator::class.javaType, "nextCharacter")
-    else if (Iterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(Iterator::class.javaType, "next")
-    else throw UnsupportedOperationException("wtf")
+      val iteratorVarReference = ReferenceNode(owner = null, iteratorVariable, node.token)
 
-    val iteratorVarReference = ReferenceNode(owner = null, iteratorVariable, node.token)
-
-    val nextMethod = typeResolver.findMethodOrThrow(nextMethodOwnerType, nextMethodName, emptyList())
-    // cast to fit the declared variable type
-    val nextMethodCall = caster.cast(variable.type, fCall(node = node, method = nextMethod, arguments = emptyList(), owner = iteratorVarReference))
-    ForInIteratorStatementNode(node, variable, iteratorVariable, iteratorExpression, nextMethodCall, node.statementNode.accept(stmtVisitor))
+      val nextMethod = typeResolver.findMethodOrThrow(nextMethodOwnerType, nextMethodName, emptyList())
+      // cast to fit the declared variable type
+      val nextMethodCall = caster.cast(variable.type, fCall(node = node, method = nextMethod, arguments = emptyList(), owner = iteratorVarReference))
+      ForInIteratorStatementNode(node, variable, iteratorVariable, iteratorExpression, nextMethodCall, node.statementNode.accept(stmtVisitor))
+    }
   }
 
   override fun visit(node: ForVarCstNode): StatementNode {

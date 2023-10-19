@@ -40,11 +40,13 @@ object ParserUtils {
     Pair(AND, 7),
     Pair(OR, 8),
 
-    Pair(ASSIGNMENT, 9),
-    Pair(MINUS_ASSIGNMENT, 9),
-    Pair(PLUS_ASSIGNMENT, 9),
-    Pair(MUL_ASSIGNMENT, 9),
-    Pair(DIV_ASSIGNMENT, 9),
+    Pair(ELVIS, 9),
+
+    Pair(ASSIGNMENT, 10),
+    Pair(MINUS_ASSIGNMENT, 10),
+    Pair(PLUS_ASSIGNMENT, 10),
+    Pair(MUL_ASSIGNMENT, 10),
+    Pair(DIV_ASSIGNMENT, 10),
   )
 
   private val RIGHT_ASSOCIATIVITY_OPERATOR = listOf(POWER, ASSIGNMENT)

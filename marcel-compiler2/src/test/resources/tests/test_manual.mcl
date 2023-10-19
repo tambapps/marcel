@@ -1,5 +1,6 @@
-list<int> a = [1, 2, 3]
+list<int> a = []
 
-println(2 <= 2)
+//println(2 <= 2)
 
-///println(a[0..1])
+//for (int i in a) println(i)
+println(a ?: 0)

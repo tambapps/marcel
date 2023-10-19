@@ -32,6 +32,15 @@ open class MethodScope internal constructor(
 
   private val localVariables = mutableListOf<LocalVariable>()
 
+  inline fun <T> useTempLocalVariable(type: JavaType, isFinal: Boolean = false, runnable: (LocalVariable) -> T): T {
+    val v = addLocalVariable(type, isFinal)
+    try {
+      return runnable.invoke(v)
+    } finally {
+      freeLocalVariable(v.name)
+    }
+  }
+
   fun addLocalVariable(type: JavaType, isFinal: Boolean = false, token: LexToken = LexToken.dummy()): LocalVariable {
     val name = generateLocalVarName()
     return addLocalVariable(type, name, isFinal, token)

@@ -364,6 +364,7 @@ LONELY_BACKTICK=`
 "%"          { return token(MODULO); }
 "!"          { return token(NOT); }
 "?"          { return token(QUESTION_MARK); }
+"?:"          { return token(ELVIS); }
 "<<"          { return token(LEFT_SHIFT); }
 ">>"          { return token(RIGHT_SHIFT); }
 "&&"          { return token(AND); }
