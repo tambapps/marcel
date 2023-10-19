@@ -74,6 +74,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignment
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
 import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
+import com.tambapps.marcel.semantic.ast.expression.operator.IsNotEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.LeftShiftNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MinusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ModNode
@@ -353,14 +354,11 @@ class MarcelSemantic(
       }
       TokenType.TWO_DOTS -> rangeNode(leftOperand, rightOperand, "of")
       TokenType.TWO_DOTS_END_EXCLUSIVE -> rangeNode(leftOperand, rightOperand, "ofToExclusive")
-      TokenType.EQUAL -> {
-        val left = leftOperand.accept(exprVisitor)
-        val right = rightOperand.accept(exprVisitor)
-
-        if (left.type.primitive && right.type.primitive) {
-          val type = if (left.type != JavaType.int) right.type else left.type
-          IsEqualNode(caster.cast(type, left), caster.cast(type, right))
-        } else TODO("invoke equals method")
+      TokenType.EQUAL -> comparisonOperatorNode(leftOperand, rightOperand, ::IsEqualNode) { left, right ->
+        TODO("invoke left not null AND left equals right")
+      }
+      TokenType.NOT_EQUAL -> comparisonOperatorNode(leftOperand, rightOperand, ::IsNotEqualNode) { left, right ->
+        TODO("invoke equals method")
       }
       TokenType.IS -> {
         val left = leftOperand.accept(exprVisitor)
@@ -368,8 +366,28 @@ class MarcelSemantic(
         if (left.type.primitive || right.type.primitive) throw MarcelSemanticException(leftOperand, "=== operator is reserved for object comparison")
         IsEqualNode(left, right)
       }
+      TokenType.IS_NOT -> {
+        val left = leftOperand.accept(exprVisitor)
+        val right = rightOperand.accept(exprVisitor)
+        if (left.type.primitive || right.type.primitive) throw MarcelSemanticException(leftOperand, "=== operator is reserved for object comparison")
+        IsNotEqualNode(left, right)
+      }
       else -> throw MarcelSemanticException(node, "Doesn't handle operator ${node.tokenType}")
     }
+  }
+
+  private fun comparisonOperatorNode(
+    leftOperand: CstExpressionNode,
+    rightOperand: CstExpressionNode,
+    nodeCreator: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode,
+    objectComparisonNodeCreator: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode): ExpressionNode {
+    val left = leftOperand.accept(exprVisitor)
+    val right = rightOperand.accept(exprVisitor)
+
+    return if (left.type.primitive && right.type.primitive) {
+      val type = if (left.type != JavaType.int) right.type else left.type
+      nodeCreator.invoke(caster.cast(type, left), caster.cast(type, right))
+    } else objectComparisonNodeCreator.invoke(caster.cast(JavaType.Object, left), caster.cast(JavaType.Object, right))
   }
 
   private fun rangeNode(leftOperand: CstExpressionNode, rightOperand: CstExpressionNode, methodName: String): ExpressionNode {

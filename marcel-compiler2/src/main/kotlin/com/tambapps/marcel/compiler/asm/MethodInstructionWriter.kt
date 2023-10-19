@@ -46,8 +46,10 @@ import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryArithmeticOperatorNode
+import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
 import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
+import com.tambapps.marcel.semantic.ast.expression.operator.IsNotEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.LeftShiftNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MinusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ModNode
@@ -195,7 +197,10 @@ class MethodInstructionWriter(
   override fun visit(node: LeftShiftNode) = arithmeticOperator(node, node.type.shlCode)
   override fun visit(node: RightShiftNode) = arithmeticOperator(node, node.type.shrCode)
 
-  override fun visit(node: IsEqualNode) {
+  override fun visit(node: IsEqualNode) = comparisonOperator(node, Opcodes.IF_ACMPEQ, Opcodes.IF_ICMPEQ)
+  override fun visit(node: IsNotEqualNode) = comparisonOperator(node, Opcodes.IF_ACMPNE, Opcodes.IF_ICMPNE)
+
+  private fun comparisonOperator(node: BinaryOperatorNode, objectIfCmpCode: Int, intCmpIfCode: Int) {
     node.leftOperand.accept(this)
     node.rightOperand.accept(this)
     val operandsType = node.leftOperand.type // both operands should have the same type
@@ -208,14 +213,14 @@ class MethodInstructionWriter(
 
     val endLabel = Label()
     val trueLabel = Label()
-    mv.visitJumpInsn(if (objectComparison) Opcodes.IF_ACMPEQ else Opcodes.IF_ICMPEQ, trueLabel)
+    mv.visitJumpInsn(if (objectComparison) objectIfCmpCode else intCmpIfCode, trueLabel)
     mv.visitInsn(Opcodes.ICONST_0)
     mv.visitJumpInsn(Opcodes.GOTO, endLabel)
     mv.visitLabel(trueLabel)
     mv.visitInsn(Opcodes.ICONST_1)
     mv.visitLabel(endLabel)
-  }
 
+  }
   private fun arithmeticOperator(node: BinaryArithmeticOperatorNode, insCode: Int) {
     node.leftOperand.accept(this)
     node.rightOperand.accept(this)

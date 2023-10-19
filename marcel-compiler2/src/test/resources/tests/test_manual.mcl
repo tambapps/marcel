@@ -1,5 +1,5 @@
 list<int> a = [1, 2, 3]
 
-println(a === new Object())
+println(1 != 0)
 
 ///println(a[0..1])
