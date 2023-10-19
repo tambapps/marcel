@@ -105,6 +105,7 @@ import marcel.lang.primitives.iterators.DoubleIterator
 import marcel.lang.primitives.iterators.FloatIterator
 import marcel.lang.primitives.iterators.IntIterator
 import marcel.lang.primitives.iterators.LongIterator
+import marcel.lang.runtime.BytecodeHelper
 import java.util.LinkedList
 
 // TODO implement multiple errors like in parser2
@@ -359,10 +360,12 @@ class MarcelSemantic(
       TokenType.AND -> AndNode(caster.truthyCast(leftOperand.accept(exprVisitor)), caster.truthyCast(rightOperand.accept(exprVisitor)))
       TokenType.OR -> OrNode(caster.truthyCast(leftOperand.accept(exprVisitor)), caster.truthyCast(rightOperand.accept(exprVisitor)))
       TokenType.EQUAL -> comparisonOperatorNode(leftOperand, rightOperand, ::IsEqualNode) { left, right ->
-        TODO("invoke left not null AND left equals right")
+        val method = typeResolver.findMethodOrThrow(BytecodeHelper::class.javaType, "objectsEqual", listOf(JavaType.Object, JavaType.Object))
+        fCall(node = node, method = method, arguments = listOf(left, right))
       }
       TokenType.NOT_EQUAL -> comparisonOperatorNode(leftOperand, rightOperand, ::IsNotEqualNode) { left, right ->
-        TODO("invoke equals method")
+        val method = typeResolver.findMethodOrThrow(BytecodeHelper::class.javaType, "objectsEqual", listOf(JavaType.Object, JavaType.Object))
+        NotNode(fCall(node = node, method = method, arguments = listOf(left, right)), node)
       }
       TokenType.IS -> {
         val left = leftOperand.accept(exprVisitor)
@@ -384,7 +387,7 @@ class MarcelSemantic(
     leftOperand: CstExpressionNode,
     rightOperand: CstExpressionNode,
     nodeCreator: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode,
-    objectComparisonNodeCreator: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode): ExpressionNode {
+    objectComparisonNodeCreator: (ExpressionNode, ExpressionNode) -> ExpressionNode): ExpressionNode {
     val left = leftOperand.accept(exprVisitor)
     val right = rightOperand.accept(exprVisitor)
 
