@@ -74,9 +74,13 @@ import com.tambapps.marcel.semantic.ast.expression.operator.AndNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
 import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
+import com.tambapps.marcel.semantic.ast.expression.operator.GeNode
+import com.tambapps.marcel.semantic.ast.expression.operator.GtNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsNotEqualNode
+import com.tambapps.marcel.semantic.ast.expression.operator.LeNode
 import com.tambapps.marcel.semantic.ast.expression.operator.LeftShiftNode
+import com.tambapps.marcel.semantic.ast.expression.operator.LtNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MinusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ModNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MulNode
@@ -367,6 +371,18 @@ class MarcelSemantic(
         val method = typeResolver.findMethodOrThrow(BytecodeHelper::class.javaType, "objectsEqual", listOf(JavaType.Object, JavaType.Object))
         NotNode(fCall(node = node, method = method, arguments = listOf(left, right)), node)
       }
+      TokenType.GOE -> numberComparisonOperatorNode(leftOperand, rightOperand, ::GeNode) { left, right ->
+        TODO("compareTo comparison")
+      }
+      TokenType.GT -> numberComparisonOperatorNode(leftOperand, rightOperand, ::GtNode) { left, right ->
+        TODO("compareTo comparison")
+      }
+      TokenType.LOE -> numberComparisonOperatorNode(leftOperand, rightOperand, ::LeNode) { left, right ->
+        TODO("compareTo comparison")
+      }
+      TokenType.LT -> numberComparisonOperatorNode(leftOperand, rightOperand, ::LtNode) { left, right ->
+        TODO("compareTo comparison")
+      }
       TokenType.IS -> {
         val left = leftOperand.accept(exprVisitor)
         val right = rightOperand.accept(exprVisitor)
@@ -391,10 +407,25 @@ class MarcelSemantic(
     val left = leftOperand.accept(exprVisitor)
     val right = rightOperand.accept(exprVisitor)
 
+    // TODO can do better, e.g. if is object but object of primitive, comparison is still feasible
     return if (left.type.primitive && right.type.primitive) {
       val type = if (left.type != JavaType.int) right.type else left.type
       nodeCreator.invoke(caster.cast(type, left), caster.cast(type, right))
     } else objectComparisonNodeCreator.invoke(caster.cast(JavaType.Object, left), caster.cast(JavaType.Object, right))
+  }
+
+  private fun numberComparisonOperatorNode(
+    leftOperand: CstExpressionNode,
+    rightOperand: CstExpressionNode,
+    nodeCreator: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode,
+    objectComparisonNodeCreator: (ExpressionNode, ExpressionNode) -> ExpressionNode): ExpressionNode {
+    val left = leftOperand.accept(exprVisitor)
+    val right = rightOperand.accept(exprVisitor)
+
+    if (left.type == JavaType.boolean || right.type == JavaType.boolean) {
+      throw MarcelSemanticException(leftOperand, "Cannot compare non number primitives")
+    }
+    return comparisonOperatorNode(leftOperand, rightOperand, nodeCreator, objectComparisonNodeCreator)
   }
 
   private fun rangeNode(leftOperand: CstExpressionNode, rightOperand: CstExpressionNode, methodName: String): ExpressionNode {

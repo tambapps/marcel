@@ -1,5 +1,5 @@
 list<int> a = [1, 2, 3]
 
-println(a != a)
+println(2 <= 2)
 
 ///println(a[0..1])

@@ -49,9 +49,13 @@ import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignment
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryArithmeticOperatorNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
 import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
+import com.tambapps.marcel.semantic.ast.expression.operator.GeNode
+import com.tambapps.marcel.semantic.ast.expression.operator.GtNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsNotEqualNode
+import com.tambapps.marcel.semantic.ast.expression.operator.LeNode
 import com.tambapps.marcel.semantic.ast.expression.operator.LeftShiftNode
+import com.tambapps.marcel.semantic.ast.expression.operator.LtNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MinusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ModNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MulNode
@@ -230,6 +234,12 @@ class MethodInstructionWriter(
 
   override fun visit(node: IsEqualNode) = comparisonOperator(node, Opcodes.IF_ACMPEQ, Opcodes.IF_ICMPEQ)
   override fun visit(node: IsNotEqualNode) = comparisonOperator(node, Opcodes.IF_ACMPNE, Opcodes.IF_ICMPNE)
+
+  // operands should always be primitive for 4 below operators
+  override fun visit(node: LtNode) = comparisonOperator(node, -1, Opcodes.IF_ICMPLT)
+  override fun visit(node: LeNode) = comparisonOperator(node, -1, Opcodes.IF_ICMPLE)
+  override fun visit(node: GtNode) = comparisonOperator(node, -1, Opcodes.IF_ICMPGT)
+  override fun visit(node: GeNode) = comparisonOperator(node, -1, Opcodes.IF_ICMPGE)
 
   private fun comparisonOperator(node: BinaryOperatorNode, objectIfCmpCode: Int, intCmpIfCode: Int) {
     node.leftOperand.accept(this)
