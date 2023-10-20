@@ -281,7 +281,7 @@ class MarcelSemantic(
       if (node.indexNodes.size != 1) throw MarcelSemanticException(node, "Arrays need one index")
       ArrayAccessNode(owner, caster.cast(JavaType.int, node.indexNodes.first().accept(exprVisitor)), node)
     } else {
-      val getAtMethod = typeResolver.findMethodOrThrow(owner.type, "getAt", arguments)
+      val getAtMethod = typeResolver.findMethodOrThrow(owner.type, if (node.isSafeAccess) "getAtSafe" else "getAt", arguments)
       fCall(method = getAtMethod, owner = owner, arguments = arguments, node = node)
     }
   }
@@ -318,7 +318,7 @@ class MarcelSemantic(
             ArrayIndexAssignmentNode(owner, caster.cast(JavaType.int, leftOperand.indexNodes.first().accept(exprVisitor)), rightOperand.accept(exprVisitor), node)
           } else {
             val arguments = leftOperand.indexNodes.map { it.accept(exprVisitor) } + rightOperand.accept(exprVisitor)
-            val putAtMethod = typeResolver.findMethodOrThrow(owner.type, "putAt", arguments)
+            val putAtMethod = typeResolver.findMethodOrThrow(owner.type, if (leftOperand.isSafeAccess) "putAtSafe" else "putAt", arguments)
             fCall(method = putAtMethod, owner = owner, arguments = arguments, node = node)
           }
         }
