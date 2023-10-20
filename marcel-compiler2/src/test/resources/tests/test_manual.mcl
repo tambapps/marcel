@@ -1,11 +1,12 @@
-Object a = 1..2
+list<int> list = [3, 1, 2]
 
-IntRange b = a as IntRange
+IntRange range = 1..2
+list?.sort()
+println(list?.size())
 
-
-println(a !instanceof IntRange)
-println(a !instanceof Object)
-println(a !instanceof LongRange)
+//println(a !instanceof IntRange)
+//println(a !instanceof Object)
+//println(a !instanceof LongRange)
 //println(2 <= 2)
 
 //for (int i in a) println(i)

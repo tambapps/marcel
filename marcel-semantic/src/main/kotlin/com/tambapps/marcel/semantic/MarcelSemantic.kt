@@ -53,7 +53,6 @@ import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
-import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.StringNode
@@ -73,6 +72,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.operator.AndNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
@@ -356,23 +356,21 @@ class MarcelSemantic(
       TokenType.MINUS_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, "minus", ::MinusNode)
       TokenType.MUL_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, "multiply", ::MulNode)
       TokenType.DIV_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, "div", ::DivNode)
-      TokenType.DOT -> when (rightOperand) {
-        is FunctionCallCstNode -> {
-          val owner = node.leftOperand.accept(exprVisitor)
-          val arguments = getArguments(rightOperand)
-          val method = typeResolver.findMethodOrThrow(owner.type, rightOperand.value, arguments, node.token)
-          val castType = if (rightOperand.castType != null) visit(rightOperand.castType!!) else null
-          fCall(method = method, owner = owner, castType = castType,
-            arguments = arguments, node = node)
+      TokenType.QUESTION_DOT -> {
+        val left = leftOperand.accept(exprVisitor)
+        currentMethodScope.useTempLocalVariable(left.type.objectType) { tempVar ->
+          var dotNode = dotOperator(node, ReferenceNode(variable = tempVar, token = node.token), rightOperand)
+          if (dotNode.type != JavaType.void && dotNode.type.primitive) dotNode = caster.cast(dotNode.type.objectType, dotNode) // needed as the result can be null
+          val falseNode = if (dotNode.type != JavaType.void) NullValueNode(node.token, tempVar.type) else VoidExpressionNode(node.token)
+          TernaryNode(
+            testExpressionNode = IsNotEqualNode(VariableAssignmentNode(tempVar, left, leftOperand), NullValueNode(node.token, tempVar.type)),
+            trueExpressionNode = dotNode,
+            falseExpressionNode = falseNode,
+            node = node
+          )
         }
-        is ReferenceCstNode -> {
-          val owner = node.leftOperand.accept(exprVisitor)
-          val variable = typeResolver.findFieldOrThrow(owner.type, rightOperand.value, rightOperand.token)
-          checkVariableAccess(variable, node)
-          ReferenceNode(owner, variable, rightOperand.token)
-        }
-        else -> throw MarcelSemanticException(node, "Invalid dot operator use")
       }
+      TokenType.DOT -> dotOperator(node, node.leftOperand.accept(exprVisitor), rightOperand)
       TokenType.TWO_DOTS -> rangeNode(leftOperand, rightOperand, "of")
       TokenType.TWO_DOTS_END_EXCLUSIVE -> rangeNode(leftOperand, rightOperand, "ofToExclusive")
       TokenType.AND -> AndNode(caster.truthyCast(leftOperand.accept(exprVisitor)), caster.truthyCast(rightOperand.accept(exprVisitor)))
@@ -411,6 +409,22 @@ class MarcelSemantic(
       }
       else -> throw MarcelSemanticException(node, "Doesn't handle operator ${node.tokenType}")
     }
+  }
+
+  private fun dotOperator(node: CstNode, owner: ExpressionNode, rightOperand: CstExpressionNode): ExpressionNode = when (rightOperand) {
+    is FunctionCallCstNode -> {
+      val arguments = getArguments(rightOperand)
+      val method = typeResolver.findMethodOrThrow(owner.type, rightOperand.value, arguments, node.token)
+      val castType = if (rightOperand.castType != null) visit(rightOperand.castType!!) else null
+      fCall(method = method, owner = owner, castType = castType,
+        arguments = arguments, node = node)
+    }
+    is ReferenceCstNode -> {
+      val variable = typeResolver.findFieldOrThrow(owner.type, rightOperand.value, rightOperand.token)
+      checkVariableAccess(variable, node)
+      ReferenceNode(owner, variable, rightOperand.token)
+    }
+    else -> throw MarcelSemanticException(node, "Invalid dot operator use")
   }
 
   override fun visit(node: BinaryTypeOperatorCstNode): ExpressionNode {

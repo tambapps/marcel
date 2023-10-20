@@ -270,6 +270,7 @@ interface JavaType: JavaTyped {
     val Character = LoadedObjectType(Class.forName("java.lang.Character"))
     val Byte = LoadedObjectType(Class.forName("java.lang.Byte"))
     val Short = LoadedObjectType(Class.forName("java.lang.Short"))
+    val Void = LoadedObjectType(Class.forName("java.lang.Void"))
     val Map = of(Map::class.java)
 
     val void = JavaPrimitiveType(java.lang.Void::class, false) { NullValueNode(it) }
