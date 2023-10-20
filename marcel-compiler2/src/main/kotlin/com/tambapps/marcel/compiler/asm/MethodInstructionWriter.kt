@@ -85,6 +85,9 @@ import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 import java.lang.StringBuilder
 
+// TODO make instructionPushing impl and instruction non pushing impl, or test how well does asm optimize code
+//  when pushing value for nothing (e.g. create a getter printing stuff, write some code assigning a value to this variable
+//   and see if the getter is called
 class MethodInstructionWriter(
   private val mv: MethodVisitor,
   private val typeResolver: JavaTypeResolver,
@@ -193,7 +196,9 @@ class MethodInstructionWriter(
     node.owner?.accept(this)
     node.expression.accept(this)
     node.variable.accept(storeVariableVisitor)
+
     // push the value on the stack
+    node.owner?.accept(this)
     node.variable.accept(loadVariableVisitor)
   }
 

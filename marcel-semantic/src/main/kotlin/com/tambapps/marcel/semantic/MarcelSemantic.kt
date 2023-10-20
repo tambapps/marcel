@@ -121,6 +121,12 @@ class MarcelSemantic(
   private val cst: SourceFileCstNode
 ): ExpressionCstNodeVisitor<ExpressionNode>, StatementCstNodeVisitor<StatementNode> {
 
+  companion object {
+    const val PUT_AT_METHOD_NAME = "putAt"
+    const val PUT_AT_SAFE_METHOD_NAME = "putAtSafe"
+    const val GET_AT_METHOD_NAME = "getAt"
+    const val GET_AT_SAFE_METHOD_NAME = "getAtSafe"
+  }
   private val caster = AstNodeCaster(typeResolver)
 
   val exprVisitor = this as ExpressionCstNodeVisitor<ExpressionNode>
@@ -281,7 +287,7 @@ class MarcelSemantic(
       if (node.indexNodes.size != 1) throw MarcelSemanticException(node, "Arrays need one index")
       ArrayAccessNode(owner, caster.cast(JavaType.int, node.indexNodes.first().accept(exprVisitor)), node)
     } else {
-      val getAtMethod = typeResolver.findMethodOrThrow(owner.type, if (node.isSafeAccess) "getAtSafe" else "getAt", arguments)
+      val getAtMethod = typeResolver.findMethodOrThrow(owner.type, if (node.isSafeAccess) GET_AT_SAFE_METHOD_NAME else GET_AT_METHOD_NAME, arguments)
       fCall(method = getAtMethod, owner = owner, arguments = arguments, node = node)
     }
   }
@@ -304,26 +310,33 @@ class MarcelSemantic(
     val leftOperand = node.leftOperand
     val rightOperand = node.rightOperand
     return when (node.tokenType) {
-      TokenType.ASSIGNMENT -> when (leftOperand) {
-        is ReferenceCstNode -> {
-          val variable = currentScope.findVariableOrThrow(leftOperand.value, leftOperand.token)
-          checkVariableAccess(variable, node, checkSet = true)
-          VariableAssignmentNode(variable,
-            // TODO IMPORTANT VISIT THE NODE FIRST AND THEN CHECK TYPE. PASS THE OWNER TO VariableAssignmentNode IN CASE OF REFERENCENODE
-            caster.cast(variable.type, rightOperand.accept(exprVisitor)), null, node)
-        }
-        is IndexAccessCstNode -> {
-          val owner = leftOperand.ownerNode.accept(exprVisitor)
-          if (owner.type.isArray) {
-            if (leftOperand.indexNodes.size != 1) throw MarcelSemanticException(node, "Arrays need one index")
-            ArrayIndexAssignmentNode(owner, caster.cast(JavaType.int, leftOperand.indexNodes.first().accept(exprVisitor)), rightOperand.accept(exprVisitor), node)
-          } else {
-            val arguments = leftOperand.indexNodes.map { it.accept(exprVisitor) } + rightOperand.accept(exprVisitor)
-            val putAtMethod = typeResolver.findMethodOrThrow(owner.type, if (leftOperand.isSafeAccess) "putAtSafe" else "putAt", arguments)
-            fCall(method = putAtMethod, owner = owner, arguments = arguments, node = node)
+      TokenType.ASSIGNMENT -> {
+        val left = leftOperand.accept(exprVisitor)
+        when (left) {
+          is ReferenceNode -> {
+            val variable = left.variable
+            checkVariableAccess(variable, node, checkSet = true)
+            VariableAssignmentNode(variable,
+              caster.cast(variable.type, rightOperand.accept(exprVisitor)), left.owner, node)
           }
+          // TODO handle method node, for putAt(Safe) using getAt(Safe). Create specific Node extending FCallNode to detect them easily
+          // TODO ArrayAccessNode
+          /*
+          is IndexAccessCstNode -> {
+            val owner = leftOperand.ownerNode.accept(exprVisitor)
+            if (owner.type.isArray) {
+              if (leftOperand.indexNodes.size != 1) throw MarcelSemanticException(node, "Arrays need one index")
+              ArrayIndexAssignmentNode(owner, caster.cast(JavaType.int, leftOperand.indexNodes.first().accept(exprVisitor)), rightOperand.accept(exprVisitor), node)
+            } else {
+              val arguments = leftOperand.indexNodes.map { it.accept(exprVisitor) } + rightOperand.accept(exprVisitor)
+              val putAtMethod = typeResolver.findMethodOrThrow(owner.type, if (leftOperand.isSafeAccess) PUT_AT_SAFE_METHOD_NAME else PUT_AT_METHOD_NAME, arguments)
+              fCall(method = putAtMethod, owner = owner, arguments = arguments, node = node)
+            }
+          }
+
+           */
+          else -> throw MarcelSemanticException(node, "Invalid assignment operator use")
         }
-        else -> throw MarcelSemanticException(node, "Invalid assignment operator use")
       }
       TokenType.PLUS -> {
         val left = leftOperand.accept(exprVisitor)
