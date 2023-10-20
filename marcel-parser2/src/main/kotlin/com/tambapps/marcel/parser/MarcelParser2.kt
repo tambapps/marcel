@@ -400,8 +400,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         } else if (current.type == TokenType.LT  && lookup(1)?.type == TokenType.TWO_DOTS
           || current.type == TokenType.GT && lookup(1)?.type == TokenType.TWO_DOTS || current.type == TokenType.TWO_DOTS) {
           TODO("Range node. Might convert it into an operator though")
-        } else if (current.type == TokenType.SQUARE_BRACKETS_OPEN
-          || (current.type == TokenType.QUESTION_MARK && lookup(1)?.type == TokenType.SQUARE_BRACKETS_OPEN)) {
+        } else if (current.type == TokenType.SQUARE_BRACKETS_OPEN || current.type == TokenType.QUESTION_SQUARE_BRACKETS_OPEN) {
           indexAccessCstNode(parentNode, ReferenceCstNode(parentNode, token.value, token))
         } else if (current.type == TokenType.DOT && lookup(1)?.type == TokenType.CLASS) {
           skip(2) // skip dot and class
@@ -552,7 +551,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
 
 
   private fun indexAccessCstNode(parentNode: CstNode?, ownerNode: CstExpressionNode): IndexAccessCstNode {
-    val isSafeIndex = acceptOptional(TokenType.QUESTION_MARK) != null
+    val isSafeIndex = current.type == TokenType.QUESTION_SQUARE_BRACKETS_OPEN
     val tokenStart = current
     skip()
     val indexArguments = mutableListOf<CstExpressionNode>()
@@ -565,8 +564,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
   }
 
   private fun optIndexAccessCstNode(parentNode: CstNode?, ownerNode: CstExpressionNode): IndexAccessCstNode? {
-    if (current.type == TokenType.SQUARE_BRACKETS_OPEN
-      || (current.type == TokenType.QUESTION_MARK && lookup(1)?.type == TokenType.SQUARE_BRACKETS_OPEN)) {
+    if (current.type == TokenType.SQUARE_BRACKETS_OPEN || current.type == TokenType.QUESTION_SQUARE_BRACKETS_OPEN) {
       indexAccessCstNode(parentNode, ownerNode)
     }
     return null

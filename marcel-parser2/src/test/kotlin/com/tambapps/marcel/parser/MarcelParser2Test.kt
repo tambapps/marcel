@@ -105,16 +105,13 @@ class MarcelParser2Test {
 
     @Test
     fun testIndexAccess() {
-        assertEquals(IndexAccessCstNode(null,
-            ref("a"),
-            listOf(ref("i")), false, token(), token()), parser("a[i]").atom())
-        assertEquals(IndexAccessCstNode(null,
-            ref("a"),
-            listOf(ref("i"), ref("b"), ref("c")), false, token(), token()), parser("a[i, b, c]").atom())
+        assertEquals(indexAccess(ref("a"), listOf(ref("i"))), parser("a[i]").atom())
+        assertEquals(indexAccess(ref("a"), listOf(ref("i")), isSafeAccess = true), parser("a?[i]").atom())
+        assertEquals(indexAccess(ref("a"), listOf(ref("i"), ref("b"), ref("c"))), parser("a[i, b, c]").atom())
 
-        assertNotEquals(IndexAccessCstNode(null,
-            ref("a"),
-            listOf(ref("ii")), false, token(), token()), parser("a[i]").atom())
+        assertNotEquals(indexAccess(ref("a"), listOf(ref("i"))), parser("a?[i]").atom())
+        assertNotEquals(indexAccess(ref("a"), listOf(ref("i")), isSafeAccess = true), parser("a[i]").atom())
+        assertNotEquals(indexAccess(ref("a"), listOf(ref("ii"))), parser("a[i]").atom())
 
     }
 
@@ -164,6 +161,9 @@ class MarcelParser2Test {
         tokenStart = token(), tokenEnd = token()
     )
 
+
+    private fun indexAccess(owner: CstExpressionNode, indexes: List<CstExpressionNode>, isSafeAccess: Boolean = false) =
+        IndexAccessCstNode(null, owner, indexes, isSafeAccess, token(), token())
     private fun varDecl(typeCstNode: TypeCstNode, name: String, expr: CstExpressionNode?) = VariableDeclarationCstNode(typeCstNode, name, expr, null, token(), token())
     private fun stmt(expr: CstExpressionNode) = ExpressionStatementCstNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
     private fun returnNode(expr: CstExpressionNode? = null) = ReturnCstNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
