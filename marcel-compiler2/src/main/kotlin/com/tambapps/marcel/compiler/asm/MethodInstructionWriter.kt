@@ -190,6 +190,7 @@ class MethodInstructionWriter(
   }
 
   override fun visit(node: VariableAssignmentNode) {
+    node.owner?.accept(this)
     node.expression.accept(this)
     node.variable.accept(storeVariableVisitor)
     // push the value on the stack

@@ -309,7 +309,8 @@ class MarcelSemantic(
           val variable = currentScope.findVariableOrThrow(leftOperand.value, leftOperand.token)
           checkVariableAccess(variable, node, checkSet = true)
           VariableAssignmentNode(variable,
-            caster.cast(variable.type, rightOperand.accept(exprVisitor)), node)
+            // TODO IMPORTANT VISIT THE NODE FIRST AND THEN CHECK TYPE. PASS THE OWNER TO VariableAssignmentNode IN CASE OF REFERENCENODE
+            caster.cast(variable.type, rightOperand.accept(exprVisitor)), null, node)
         }
         is IndexAccessCstNode -> {
           val owner = leftOperand.ownerNode.accept(exprVisitor)
@@ -489,8 +490,10 @@ class MarcelSemantic(
   private fun shiftOperator(leftOperand: CstExpressionNode, rightOperand: CstExpressionNode,
                             operatorMethodName: String,
                             nodeSupplier: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode): ExpressionNode {
-    val node = arithmeticBinaryOperator(leftOperand, rightOperand, operatorMethodName, nodeSupplier)
-    if (node.type.primitive && node.type != JavaType.long && node.type != JavaType.int) {
+    val left = leftOperand.accept(exprVisitor)
+    val right = rightOperand.accept(exprVisitor)
+    val node = arithmeticBinaryOperator(left, right, operatorMethodName, nodeSupplier)
+    if (JavaType.commonType(left, right).isPrimitiveOrObjectPrimitive && node.type.primitive && node.type != JavaType.long && node.type != JavaType.int) {
       throw MarcelSemanticException(node.token, "Can only shift ints or longs")
     }
     return node
@@ -503,12 +506,15 @@ class MarcelSemantic(
   private inline fun arithmeticAssignmentBinaryOperator(leftOperand: CstExpressionNode, rightOperand: CstExpressionNode,
                                                         operatorMethodName: String,
                                                         nodeSupplier: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode): ExpressionNode {
-    if (leftOperand !is ReferenceCstNode) throw MarcelSemanticException(leftOperand, "Invalid assignment operator use")
-
-    val variable = currentScope.findVariableOrThrow(leftOperand.value, leftOperand.token)
+    val left = leftOperand.accept(exprVisitor)
+    // TODO need to enable for indexNode
+    if (left !is ReferenceNode) throw MarcelSemanticException(leftOperand, "Invalid assignment operator use")
+    val right = rightOperand.accept(exprVisitor)
+    val variable = left.variable
     checkVariableAccess(variable, leftOperand, checkSet = true)
     return VariableAssignmentNode(variable,
-      caster.cast(variable.type, arithmeticBinaryOperator(leftOperand, rightOperand, operatorMethodName, nodeSupplier)),
+      caster.cast(variable.type, arithmeticBinaryOperator(left, right, operatorMethodName, nodeSupplier)),
+      left.owner,
       leftOperand.tokenStart, rightOperand.tokenEnd)
   }
 
@@ -582,7 +588,7 @@ class MarcelSemantic(
     return ExpressionStatementNode(
       VariableAssignmentNode(variable,
         node.expressionNode?.accept(exprVisitor)?.let { caster.cast(variable.type, it) }
-          ?: variable.type.getDefaultValueExpression(node.token), node.tokenStart, node.tokenEnd)
+          ?: variable.type.getDefaultValueExpression(node.token), null, node.tokenStart, node.tokenEnd)
     )
   }
 

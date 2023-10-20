@@ -5,16 +5,25 @@ import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.ast.AstNodeVisitor
 import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
+import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.Variable
 
 class VariableAssignmentNode(
   val variable: Variable,
   val expression: ExpressionNode,
+  val owner: ExpressionNode? = null,
   tokenStart: LexToken,
   tokenEnd: LexToken
 ) : AbstractExpressionNode(variable.type, tokenStart, tokenEnd) {
-  constructor(variable: Variable, expression: ExpressionNode, node: CstNode)
-      : this(variable, expression, node.tokenStart, node.tokenEnd)
+
+  constructor(variable: LocalVariable, expression: ExpressionNode, node: CstNode)
+      : this(variable, expression, null, node)
+  constructor(variable: LocalVariable, expression: ExpressionNode, tokenStart: LexToken,
+              tokenEnd: LexToken)
+      : this(variable, expression, null, tokenStart, tokenEnd)
+
+  constructor(variable: Variable, expression: ExpressionNode, owner: ExpressionNode? = null, node: CstNode)
+      : this(variable, expression, owner, node.tokenStart, node.tokenEnd)
 
   override fun <T> accept(visitor: AstNodeVisitor<T>) = visitor.visit(this)
 

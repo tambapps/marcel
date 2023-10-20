@@ -462,6 +462,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       TokenType.NOT -> NotCstNode(expression(parentNode), parentNode, token, previous)
       TokenType.VALUE_TRUE -> BoolCstNode(parentNode, true, token)
       TokenType.VALUE_FALSE -> BoolCstNode(parentNode, false, token)
+      TokenType.ESCAPE_SEQUENCE -> StringCstNode(parentNode, escapedSequenceValue(token.value), token, previous)
       else -> TODO(token.type.name)
     }
   }
@@ -485,6 +486,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       }
     }
   }
+
   private fun simpleStringPart(): String {
     val token = next()
     return when (token.type) {

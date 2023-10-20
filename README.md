@@ -1,8 +1,12 @@
-# marcel
+# mMarcel
 Marcel is language that compiles to Java bytecode, with a guaranteed support for Android. It also aims to use primitive types as much as possible when
 working with Collections.
 
 You can learn more about this programming language on [its website](https://tambapps.github.io/marcel)
+
+## Rewrite
+Marcel is undergoing a big refactoring of the parsing, semantic analysis and compiler. Building it from source might not work
+at the moment but you can still [install it from a release](https://tambapps.github.io/marcel/getting-started/installation.html#install-from-release)
 ## Example
 
 Here is an example on how to code the Fibonacci suite in Marcel

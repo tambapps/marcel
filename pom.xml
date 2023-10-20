@@ -35,6 +35,7 @@
     <module>marcel-stdlib</module>
     <module>marcel-semantic</module>
     <module>marcl</module>
+    <module>marcl2</module>
     <module>subprojects</module>
   </modules>
 
@@ -120,6 +121,11 @@
       <dependency>
         <groupId>com.tambapps.marcel</groupId>
         <artifactId>marcel-compiler</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tambapps.marcel</groupId>
+        <artifactId>marcel-compiler2</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>

@@ -29,6 +29,10 @@ class MarcelCompiler(private val configuration: CompilerConfiguration) {
     }
   }
 
+  fun compile(file: File, scriptLoader: MarcelClassLoader? = null): List<CompiledClass> {
+    return compileSourceFiles(listOf(SourceFile.fromFile(file)), scriptLoader)
+  }
+
   @Throws(IOException::class, MarcelLexerException::class, MarcelParser2Exception::class, MarcelSemanticException::class, MarcelCompilerException::class)
   fun compile(fileName: String, text: String, marcelClassLoader: MarcelClassLoader? = null): List<CompiledClass> {
     return compileSourceFiles(listOf(SourceFile.from(fileName, text)), marcelClassLoader)
