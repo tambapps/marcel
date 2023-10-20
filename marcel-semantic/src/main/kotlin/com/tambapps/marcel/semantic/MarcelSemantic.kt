@@ -52,6 +52,7 @@ import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
+import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
@@ -417,9 +418,14 @@ class MarcelSemantic(
     val right = visit(node.rightOperand)
 
 
-    return when(node.tokenType) {
-      TokenType.AS -> JavaCastNode(right, left, node.token)
-      TokenType.INSTANCEOF, TokenType.NOT_INSTANCEOF -> TODO("")
+    return when(val tokenType = node.tokenType) {
+      TokenType.AS -> caster.cast(right, left)
+      TokenType.INSTANCEOF, TokenType.NOT_INSTANCEOF -> {
+        if (left.type.primitive || right.primitive) throw MarcelSemanticException(left.token, "Primitive aren't instance of anything")
+        val instanceOfNode = InstanceOfNode(right, left, node)
+        // TODO document !instanceof
+        if (tokenType == TokenType.NOT_INSTANCEOF) NotNode(instanceOfNode, node) else instanceOfNode
+      }
       else -> throw MarcelSemanticException(node, "Doesn't handle operator ${node.tokenType}")
     }
   }

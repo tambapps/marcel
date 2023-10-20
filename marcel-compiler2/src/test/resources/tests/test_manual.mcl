@@ -3,7 +3,10 @@ Object a = 1..2
 IntRange b = a as IntRange
 
 
+println(a !instanceof IntRange)
+println(a !instanceof Object)
+println(a !instanceof LongRange)
 //println(2 <= 2)
 
 //for (int i in a) println(i)
-println(b)
+//println(b)

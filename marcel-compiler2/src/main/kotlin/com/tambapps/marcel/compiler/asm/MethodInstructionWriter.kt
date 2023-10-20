@@ -18,6 +18,7 @@ import com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
+import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
@@ -421,6 +422,11 @@ class MethodInstructionWriter(
     } else {
       mv.visitTypeInsn(Opcodes.CHECKCAST, expectedType.internalName)
     }
+  }
+
+  override fun visit(node: InstanceOfNode) {
+    node.expressionNode.accept(this)
+    mv.visitTypeInsn(Opcodes.INSTANCEOF, node.instanceType.internalName)
   }
 
   // visit and pop the value if necessary
