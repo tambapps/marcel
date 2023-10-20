@@ -1,7 +1,6 @@
 package com.tambapps.marcel.semantic.ast.statement
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.semantic.ast.AstNodeVisitor
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 
 /**
@@ -13,7 +12,6 @@ open class ExpressionStatementNode(
 
     constructor(expressionNode: ExpressionNode): this(expressionNode, expressionNode.tokenStart, expressionNode.tokenEnd)
 
-  override fun <T> accept(visitor: AstNodeVisitor<T>) = visitor.visit(this)
   override fun <T> accept(visitor: StatementNodeVisitor<T>) = visitor.visit(this)
 
   override fun equals(other: Any?): Boolean {

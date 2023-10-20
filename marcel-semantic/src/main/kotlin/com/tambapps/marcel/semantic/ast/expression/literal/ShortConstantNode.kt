@@ -1,14 +1,13 @@
 package com.tambapps.marcel.semantic.ast.expression.literal
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.semantic.ast.AstNodeVisitor
 import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
+import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.type.JavaType
 
 class ShortConstantNode(token: LexToken, val value: Short): AbstractExpressionNode(JavaType.short, token) {
 
-  override fun <T> accept(visitor: AstNodeVisitor<T>) = visitor.visit(this)
-
+  override fun <T> accept(visitor: ExpressionNodeVisitor<T>) = visitor.visit(this)
   override fun toString() = value.toString()
 
   override fun equals(other: Any?): Boolean {

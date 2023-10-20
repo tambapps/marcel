@@ -1,7 +1,6 @@
 package com.tambapps.marcel.semantic.ast.statement
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.semantic.ast.AstNodeVisitor
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 
@@ -13,7 +12,6 @@ class ReturnStatementNode(
   tokenStart: LexToken, tokenEnd: LexToken) : ExpressionStatementNode(expressionNode ?: VoidExpressionNode(tokenStart), tokenStart, tokenEnd) {
 
   val returnsVoid = expressionNode is VoidExpressionNode
-  override fun <T> accept(visitor: AstNodeVisitor<T>) = visitor.visit(this)
   override fun <T> accept(visitor: StatementNodeVisitor<T>) = visitor.visit(this)
 
 }

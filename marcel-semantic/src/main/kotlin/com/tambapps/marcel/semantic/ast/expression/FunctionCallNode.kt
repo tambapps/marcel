@@ -1,7 +1,6 @@
 package com.tambapps.marcel.semantic.ast.expression
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.semantic.ast.AstNodeVisitor
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 
@@ -12,8 +11,8 @@ open class FunctionCallNode(
   val arguments: List<ExpressionNode>,
   token: LexToken
 ) : AbstractExpressionNode(javaMethod.returnType, token) {
-  override fun <T> accept(visitor: AstNodeVisitor<T>) = visitor.visit(this)
 
+  override fun <T> accept(visitor: ExpressionNodeVisitor<T>) = visitor.visit(this)
 
   override fun toString() = StringBuilder().apply {
     if (javaMethod.isStatic) {

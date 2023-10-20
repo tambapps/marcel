@@ -2,10 +2,10 @@ package com.tambapps.marcel.semantic.cast
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
-import com.tambapps.marcel.semantic.ast.AstNodeVisitor
 import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
+import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
 import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.CharConstantNode
@@ -129,7 +129,7 @@ class AstNodeCasterTest {
   private fun node(type: JavaType) = MyExpressionNode(type)
 
   private inner class MyExpressionNode(type: JavaType) : AbstractExpressionNode(type, token()) {
-    override fun <T> accept(visitor: AstNodeVisitor<T>) = throw UnsupportedOperationException()
+    override fun <T> accept(visitor: ExpressionNodeVisitor<T>) = throw UnsupportedOperationException()
 
   }
 
