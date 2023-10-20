@@ -1,6 +1,9 @@
-list<int> a = []
+Object a = 1..2
+
+IntRange b = a as IntRange
+
 
 //println(2 <= 2)
 
 //for (int i in a) println(i)
-println(a ?: 0)
+println(b)

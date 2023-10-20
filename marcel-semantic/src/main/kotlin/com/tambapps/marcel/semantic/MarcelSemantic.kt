@@ -31,6 +31,7 @@ import com.tambapps.marcel.parser.cst.expression.literal.ArrayCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.MapCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
+import com.tambapps.marcel.parser.cst.expression.BinaryTypeOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
 import com.tambapps.marcel.parser.cst.expression.NotCstNode
 import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
@@ -51,6 +52,7 @@ import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
+import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.StringNode
@@ -410,6 +412,17 @@ class MarcelSemantic(
     }
   }
 
+  override fun visit(node: BinaryTypeOperatorCstNode): ExpressionNode {
+    val left = node.leftOperand.accept(exprVisitor)
+    val right = visit(node.rightOperand)
+
+
+    return when(node.tokenType) {
+      TokenType.AS -> JavaCastNode(right, left, node.token)
+      TokenType.INSTANCEOF, TokenType.NOT_INSTANCEOF -> TODO("")
+      else -> throw MarcelSemanticException(node, "Doesn't handle operator ${node.tokenType}")
+    }
+  }
   private fun comparisonOperatorNode(
     leftOperand: CstExpressionNode,
     rightOperand: CstExpressionNode,

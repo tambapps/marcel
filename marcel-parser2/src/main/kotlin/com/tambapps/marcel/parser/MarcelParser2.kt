@@ -25,6 +25,7 @@ import com.tambapps.marcel.parser.cst.expression.literal.MapCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.NullCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
+import com.tambapps.marcel.parser.cst.expression.BinaryTypeOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.NotCstNode
 import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
@@ -334,8 +335,17 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     while (ParserUtils.isBinaryOperator(t.type) && ParserUtils.getPriority(t.type) < maxPriority) {
       next()
       val leftOperand = a
-      val rightOperand = expression(parentNode, ParserUtils.getPriority(t.type) + ParserUtils.getAssociativity(t.type))
-      a = BinaryOperatorCstNode(t.type, leftOperand, rightOperand, parentNode, leftOperand.tokenStart, rightOperand.tokenEnd)
+
+      a = when (t.type) {
+        TokenType.AS, TokenType.NOT_INSTANCEOF, TokenType.INSTANCEOF -> {
+          val rightOperand = parseType(parentNode)
+          BinaryTypeOperatorCstNode(t.type, leftOperand, rightOperand, parentNode, leftOperand.tokenStart, rightOperand.tokenEnd)
+        }
+        else -> {
+          val rightOperand = expression(parentNode, ParserUtils.getPriority(t.type) + ParserUtils.getAssociativity(t.type))
+          BinaryOperatorCstNode(t.type, leftOperand, rightOperand, parentNode, leftOperand.tokenStart, rightOperand.tokenEnd)
+        }
+      }
       t = current
     }
     return a

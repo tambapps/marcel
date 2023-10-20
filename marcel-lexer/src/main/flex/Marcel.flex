@@ -341,6 +341,7 @@ LONELY_BACKTICK=`
 "finally"          { return token(FINALLY); }
 "dumbbell"          { return token(DUMBBELL); }
 "instanceof"          { return token(INSTANCEOF); }
+"!instanceof"          { return token(NOT_INSTANCEOF); }
 "throw"          { return token(THROW); }
 "throws"          { return token(THROWS); }
 "constructor"          { return token(CONSTRUCTOR); }
