@@ -312,29 +312,30 @@ class MarcelSemantic(
     return when (node.tokenType) {
       TokenType.ASSIGNMENT -> {
         val left = leftOperand.accept(exprVisitor)
+        val right = rightOperand.accept(exprVisitor)
         when (left) {
           is ReferenceNode -> {
             val variable = left.variable
             checkVariableAccess(variable, node, checkSet = true)
             VariableAssignmentNode(variable,
-              caster.cast(variable.type, rightOperand.accept(exprVisitor)), left.owner, node)
+              caster.cast(variable.type, right), left.owner, node)
           }
-          // TODO handle method node, for putAt(Safe) using getAt(Safe). Create specific Node extending FCallNode to detect them easily
-          // TODO ArrayAccessNode
-          /*
-          is IndexAccessCstNode -> {
-            val owner = leftOperand.ownerNode.accept(exprVisitor)
-            if (owner.type.isArray) {
-              if (leftOperand.indexNodes.size != 1) throw MarcelSemanticException(node, "Arrays need one index")
-              ArrayIndexAssignmentNode(owner, caster.cast(JavaType.int, leftOperand.indexNodes.first().accept(exprVisitor)), rightOperand.accept(exprVisitor), node)
-            } else {
-              val arguments = leftOperand.indexNodes.map { it.accept(exprVisitor) } + rightOperand.accept(exprVisitor)
-              val putAtMethod = typeResolver.findMethodOrThrow(owner.type, if (leftOperand.isSafeAccess) PUT_AT_SAFE_METHOD_NAME else PUT_AT_METHOD_NAME, arguments)
-              fCall(method = putAtMethod, owner = owner, arguments = arguments, node = node)
-            }
+          is FunctionCallNode -> {
+            val owner = left.owner
+            if (left.javaMethod.name != GET_AT_METHOD_NAME && left.javaMethod.name != GET_AT_SAFE_METHOD_NAME
+              || owner == null)
+              throw MarcelSemanticException(node, "Invalid assignment operator use")
+            val arguments = left.arguments + right
+            val isSafeAccess = left.javaMethod.name == GET_AT_SAFE_METHOD_NAME
+            // TODO implement putAtSafe in all primitive collections and List
+            val putAtMethod = typeResolver.findMethodOrThrow(owner.type, if (isSafeAccess) PUT_AT_SAFE_METHOD_NAME else PUT_AT_METHOD_NAME, arguments, node.token)
+            fCall(method = putAtMethod, owner = owner, arguments = arguments, node = node)
           }
-
-           */
+          is ArrayAccessNode -> {
+            val owner = left.owner
+            val elementType = owner.type.asArrayType.elementsType
+            ArrayIndexAssignmentNode(owner, caster.cast(JavaType.int, left.indexNode), caster.cast(elementType, right), node)
+          }
           else -> throw MarcelSemanticException(node, "Invalid assignment operator use")
         }
       }
@@ -361,15 +362,10 @@ class MarcelSemantic(
       TokenType.MODULO -> arithmeticBinaryOperator(leftOperand, rightOperand, "mod", ::ModNode)
       TokenType.RIGHT_SHIFT -> shiftOperator(leftOperand, rightOperand, "rightShift", ::RightShiftNode)
       TokenType.LEFT_SHIFT -> shiftOperator(leftOperand, rightOperand, "leftShift", ::LeftShiftNode)
-      TokenType.PLUS_ASSIGNMENT -> {
-        val left = leftOperand.accept(exprVisitor)
-        val right = rightOperand.accept(exprVisitor)
-        if (left.type == JavaType.String || right.type == JavaType.String) StringNode(listOf(left, right), node)
-        else arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, "plus", ::PlusNode)
-      }
-      TokenType.MINUS_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, "minus", ::MinusNode)
-      TokenType.MUL_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, "multiply", ::MulNode)
-      TokenType.DIV_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, "div", ::DivNode)
+      TokenType.PLUS_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, TokenType.PLUS)
+      TokenType.MINUS_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, TokenType.MINUS)
+      TokenType.MUL_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, TokenType.MUL)
+      TokenType.DIV_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, TokenType.DIV)
       TokenType.QUESTION_DOT -> {
         val left = leftOperand.accept(exprVisitor)
         currentMethodScope.useTempLocalVariable(left.type.objectType) { tempVar ->
@@ -516,19 +512,12 @@ class MarcelSemantic(
                                        nodeSupplier: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode)
   = arithmeticBinaryOperator(leftOperand.accept(exprVisitor), rightOperand.accept(exprVisitor), operatorMethodName, nodeSupplier)
 
-  private inline fun arithmeticAssignmentBinaryOperator(leftOperand: CstExpressionNode, rightOperand: CstExpressionNode,
-                                                        operatorMethodName: String,
-                                                        nodeSupplier: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode): ExpressionNode {
-    val left = leftOperand.accept(exprVisitor)
-    // TODO need to enable for indexNode
-    if (left !is ReferenceNode) throw MarcelSemanticException(leftOperand, "Invalid assignment operator use")
-    val right = rightOperand.accept(exprVisitor)
-    val variable = left.variable
-    checkVariableAccess(variable, leftOperand, checkSet = true)
-    return VariableAssignmentNode(variable,
-      caster.cast(variable.type, arithmeticBinaryOperator(left, right, operatorMethodName, nodeSupplier)),
-      left.owner,
-      leftOperand.tokenStart, rightOperand.tokenEnd)
+  private fun arithmeticAssignmentBinaryOperator(leftOperand: CstExpressionNode, rightOperand: CstExpressionNode,
+                                                        tokenType: TokenType): ExpressionNode {
+    return visit(BinaryOperatorCstNode(TokenType.ASSIGNMENT,
+      leftOperand = leftOperand,
+      rightOperand = BinaryOperatorCstNode(tokenType, leftOperand, rightOperand, leftOperand.parent, leftOperand.tokenStart, rightOperand.tokenEnd),
+      leftOperand.parent, leftOperand.tokenStart, rightOperand.tokenEnd))
   }
 
   private inline fun arithmeticBinaryOperator(left: ExpressionNode, right: ExpressionNode,
