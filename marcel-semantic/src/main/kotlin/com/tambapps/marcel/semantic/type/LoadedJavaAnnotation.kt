@@ -4,7 +4,6 @@ import java.lang.annotation.ElementType
 
 open class LoadedJavaAnnotation(final override val type: JavaType): JavaAnnotation {
 
-  private var _targets: List<ElementType>? = null
   override val targets = computeTargets()
 
   // lazy because we don't want to load it while compiling

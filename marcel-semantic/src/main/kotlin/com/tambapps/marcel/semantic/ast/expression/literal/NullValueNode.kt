@@ -5,8 +5,9 @@ import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.type.JavaType
 
-class NullValueNode(token: LexToken, type: JavaType?): AbstractExpressionNode(type ?: JavaType.Anything, token) {
+class NullValueNode(token: LexToken, type: JavaType?): AbstractExpressionNode(type ?: JavaType.Anything, token), JavaConstantExpression {
 
+  override val value = null
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) = visitor.visit(this)
 
   override var type = super.type

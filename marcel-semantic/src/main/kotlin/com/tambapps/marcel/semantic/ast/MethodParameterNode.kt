@@ -6,8 +6,8 @@ import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.type.JavaType
 
 class MethodParameterNode constructor(val token: LexToken, type: JavaType, rawType: JavaType, name: String, isFinal: Boolean,
-                                      defaultValue: ExpressionNode?, override val annotations: List<AnnotationNode>) :
-  MethodParameter(type, rawType, name, isFinal, defaultValue), Annotable {
+                                      defaultValue: ExpressionNode?, annotations: List<AnnotationNode>) :
+  MethodParameter(type, rawType, name, isFinal, annotations, defaultValue), Annotable {
   constructor(token: LexToken, type: JavaType, name: String, isFinal: Boolean = false, defaultValue: ExpressionNode? = null, annotations: List<AnnotationNode> = emptyList()): this(token, type, type, name, isFinal, defaultValue, annotations)
   constructor(token: LexToken, type: JavaType, name: String, isFinal: Boolean = false, defaultValue: ExpressionNode? = null): this(token, type, type, name, isFinal, defaultValue, emptyList())
   constructor(type: JavaType, name: String, isFinal: Boolean = false): this(LexToken.dummy(), type, name, isFinal, null, emptyList())

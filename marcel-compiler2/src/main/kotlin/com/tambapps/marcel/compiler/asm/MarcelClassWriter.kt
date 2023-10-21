@@ -50,7 +50,7 @@ class MarcelClassWriter(
 
     // writing annotations
     for (annotation in classNode.annotations) {
-      writeAnnotation(classWriter.visitAnnotation(annotation.type.descriptor, true), annotation, ElementType.TYPE)
+      writeAnnotation(classWriter.visitAnnotation(annotation.type.descriptor, true), annotation)
     }
 
     /*
@@ -103,7 +103,7 @@ class MarcelClassWriter(
 
     // writing annotations
     for (annotation in methodNode.annotations) {
-      writeAnnotation(mv.visitAnnotation(annotation.type.descriptor, true), annotation, ElementType.METHOD)
+      writeAnnotation(mv.visitAnnotation(annotation.type.descriptor, true), annotation)
     }
 
     mv.visitCode()
@@ -124,8 +124,16 @@ class MarcelClassWriter(
     // TODO
   }
 
-  private fun writeAnnotation(annotationVisitor: AnnotationVisitor, annotationNode: AnnotationNode, expectedElementType: ElementType) {
-    TODO("Not yet implemented")
+  private fun writeAnnotation(annotationVisitor: AnnotationVisitor, annotationNode: AnnotationNode) {
+    for (attr in annotationNode.attributeNodes) {
+     val attrValue = attr.value
+      if (attr.type.isEnum) {
+        annotationVisitor.visitEnum(attr.name, attr.type.descriptor, attrValue.toString())
+      } else {
+        annotationVisitor.visit(attr.name, attrValue)
+      }
+    }
+    annotationVisitor.visitEnd()
   }
 
 }

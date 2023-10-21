@@ -36,11 +36,12 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
       val type = methodParameterType(fromType, parameter)
       val rawType = JavaType.of(parameter.type)
       val annotations = parameter.annotations
+      // TODO annotations. it should help for default parameter
       val defaultValue: ExpressionNode? = when {
-        // TODO
+        // TODO default parameter
         else -> null
       }
-      return MethodParameter(type, rawType, parameter.name, (parameter.modifiers and Modifier.FINAL) != 0, defaultValue)
+      return MethodParameter(type, rawType, parameter.name, (parameter.modifiers and Modifier.FINAL) != 0, emptyList(),  defaultValue)
     }
 
     internal fun actualMethodReturnType(fromType: JavaType?, method: Method, extensionMethod: Boolean = false): JavaType {

@@ -8,6 +8,7 @@ open class ClassCstNode(
   val className: String,
 ) : AbstractCstNode(null, tokenStart, tokenEnd) {
 
+  val annotations: MutableList<AnnotationCstNode> = mutableListOf()
   val methods: MutableList<MethodCstNode> = mutableListOf()
   val fields: MutableList<FieldCstNode> = mutableListOf()
   val constructors: MutableList<ConstructorCstNode> = mutableListOf()

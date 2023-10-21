@@ -7,7 +7,7 @@ import com.tambapps.marcel.semantic.type.LoadedJavaAnnotation
 class AnnotationNode constructor(
   type: JavaType,
                                             // JavaConstantExpression
-  val specifiedAttributes: List<Pair<String, *>>,
+  val attributeNodes: List<AttributeNode>,
   override val tokenStart: LexToken, override val tokenEnd: LexToken) : Ast2Node, LoadedJavaAnnotation(type) {
-
-  }
+    data class AttributeNode(val name: String, val type: JavaType, val value: Any)
+}

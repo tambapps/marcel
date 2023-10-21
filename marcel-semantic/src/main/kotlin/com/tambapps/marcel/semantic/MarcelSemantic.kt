@@ -2,6 +2,7 @@ package com.tambapps.marcel.semantic
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
+import com.tambapps.marcel.parser.cst.AnnotationCstNode
 import com.tambapps.marcel.parser.cst.ClassCstNode
 import com.tambapps.marcel.parser.cst.ConstructorCstNode
 import com.tambapps.marcel.parser.cst.CstNode
@@ -46,6 +47,7 @@ import com.tambapps.marcel.parser.cst.statement.ForInCstNode
 import com.tambapps.marcel.parser.cst.statement.ForVarCstNode
 import com.tambapps.marcel.parser.cst.statement.IfCstStatementNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
+import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.ast.MethodNode
@@ -76,6 +78,7 @@ import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.JavaConstantExpression
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
@@ -110,6 +113,7 @@ import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.MethodInnerScope
 import com.tambapps.marcel.semantic.scope.MethodScope
 import com.tambapps.marcel.semantic.scope.Scope
+import com.tambapps.marcel.semantic.type.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.variable.Variable
@@ -124,6 +128,7 @@ import marcel.lang.primitives.iterators.FloatIterator
 import marcel.lang.primitives.iterators.IntIterator
 import marcel.lang.primitives.iterators.LongIterator
 import marcel.lang.runtime.BytecodeHelper
+import java.lang.annotation.ElementType
 import java.util.LinkedList
 
 // TODO implement multiple errors like in parser2
@@ -167,11 +172,11 @@ class MarcelSemantic(
       useScope(ClassScope(JavaType.Object, typeResolver, imports)) {
         defineClass(scriptCstNode, classType)
       }
-      val scriptNode = classNode(classType, scriptCstNode.methods, imports)
+      val scriptNode = classNode(classType, scriptCstNode, imports)
       useScope(ClassScope(classType, typeResolver, imports)) {
         // add the run method
         val runMethod = SemanticHelper.scriptRunMethod(classType, cst)
-        fillMethodNode(it, runMethod, scriptCstNode.runMethodStatements, scriptRunMethod = true)
+        fillMethodNode(it, runMethod, scriptCstNode.runMethodStatements, emptyList(),  scriptRunMethod = true)
         scriptNode.methods.add(runMethod)
       }
       moduleNode.classes.add(scriptNode)
@@ -194,11 +199,12 @@ class MarcelSemantic(
     classCstNode.innerClasses.forEach { defineClass(it) }
   }
 
-  private fun classNode(classType: JavaType, methods: List<MethodCstNode>, imports: List<ImportNode>): ClassNode
+  private fun classNode(classType: JavaType, node: ClassCstNode, imports: List<ImportNode>): ClassNode
   = useScope(ClassScope(classType, typeResolver, imports)) { classScope ->
     val classNode = ClassNode(classType, Visibility.PUBLIC, cst.tokenStart, cst.tokenEnd)
 
-    methods.forEach { classNode.methods.add(methodNode(it, classScope)) }
+    node.annotations.forEach { classNode.annotations.add(annotationNode(it, ElementType.TYPE)) }
+    node.methods.forEach { classNode.methods.add(methodNode(it, classScope)) }
 
     if (classNode.constructorCount == 0) {
       // default no arg constructor
@@ -206,6 +212,64 @@ class MarcelSemantic(
     }
     return classNode
   }
+
+  private fun annotationNode(cstAnnotation: AnnotationCstNode, elementType: ElementType): AnnotationNode {
+    val annotationType = visit(cstAnnotation.typeCstNode)
+    if (!annotationType.isAnnotation) throw MarcelSemanticException("$annotationType is not an annotation")
+    val javaAnnotation = JavaAnnotation.of(annotationType)
+    if (!javaAnnotation.targets.contains(elementType)) {
+      throw MarcelSemanticException(cstAnnotation, "Annotation ${javaAnnotation.type} is not expected on elements of type $elementType")
+    }
+
+    val annotation = AnnotationNode(
+      type = annotationType,
+      tokenStart = cstAnnotation.tokenStart,
+      attributeNodes = cstAnnotation.attributes.map { annotationAttribute(cstAnnotation, javaAnnotation, it) },
+      tokenEnd = cstAnnotation.tokenEnd
+    )
+
+    // check attributes without default values that weren't specified
+    for (attr in javaAnnotation.attributes) {
+      if (attr.defaultValue == null && annotation.attributeNodes.none { it.name == attr.name }) {
+        throw MarcelSemanticException(cstAnnotation, "Attribute ${attr.name} has no default value and was not specified for annotation ${javaAnnotation.type}")
+      }
+    }
+
+    return annotation
+  }
+
+  private fun annotationAttribute(node: AnnotationCstNode, javaAnnotation: JavaAnnotation, specifiedAttr: Pair<String, CstExpressionNode>): AnnotationNode.AttributeNode {
+    val attribute = javaAnnotation.attributes.find { it.name == specifiedAttr.first }
+      ?: throw MarcelSemanticException(node.token, "Unknown member ${specifiedAttr.first} for annotation $javaAnnotation")
+    // TODO create ImportScope and add it at the very beginning
+    val specifiedValueNode = specifiedAttr.second.accept(exprVisitor)
+        as? JavaConstantExpression ?: throw MarcelSemanticException(node, "Specified a non constant value for attribute ${attribute.name}")
+    return if (attribute.type.isEnum) {
+      TODO()
+    } else {
+      val attrValue = (specifiedValueNode.value ?: attribute.defaultValue)
+      ?: throw MarcelSemanticException(node, "Attribute value cannot be null${attribute.name}")
+
+      // check type
+      when(attribute.type) {
+        JavaType.String -> if (attrValue !is String) annotationErrorAttributeTypeError(node, javaAnnotation, attribute, attrValue)
+        JavaType.int -> if (attrValue !is Int) annotationErrorAttributeTypeError(node, javaAnnotation, attribute, attrValue)
+        JavaType.long -> if (attrValue !is Long) annotationErrorAttributeTypeError(node, javaAnnotation, attribute, attrValue)
+        JavaType.float -> if (attrValue !is Float) annotationErrorAttributeTypeError(node, javaAnnotation, attribute, attrValue)
+        JavaType.double -> if (attrValue !is Double) annotationErrorAttributeTypeError(node, javaAnnotation, attribute, attrValue)
+        JavaType.char -> if (attrValue !is Char) annotationErrorAttributeTypeError(node, javaAnnotation, attribute, attrValue)
+        JavaType.boolean -> if (attrValue !is Boolean) annotationErrorAttributeTypeError(node, javaAnnotation, attribute, attrValue)
+        JavaType.byte -> if (attrValue !is Byte) annotationErrorAttributeTypeError(node, javaAnnotation, attribute, attrValue)
+        JavaType.short -> if (attrValue !is Short) annotationErrorAttributeTypeError(node, javaAnnotation, attribute, attrValue)
+        else -> annotationErrorAttributeTypeError(node, javaAnnotation, attribute, attrValue)
+      }
+
+      AnnotationNode.AttributeNode(attribute.name, attribute.type, attrValue)
+    }
+  }
+
+  private fun annotationErrorAttributeTypeError(node: AnnotationCstNode, annotation: JavaAnnotation, attribute: JavaAnnotation.Attribute, attrValue: Any): Nothing
+      = throw MarcelSemanticException(node, "Incompatible type for annotation member ${attribute.name} of annotation ${annotation.type}. Wanted ${attribute.type} but got ${attrValue.javaClass}")
 
   private fun methodNode(methodCst: MethodCstNode, classScope: ClassScope): MethodNode {
     val methodNode = MethodNode(
@@ -215,16 +279,22 @@ class MarcelSemantic(
       isStatic = methodCst.accessNode.isStatic,
       tokenStart = methodCst.tokenStart,
       tokenEnd = methodCst.tokenEnd,
-      parameters = methodCst.parameters.map { MethodParameter(visit(it.type), visit(it.type), it.name, false, it.defaultValue?.accept(exprVisitor)) },
+      parameters = methodCst.parameters.map { toMethodParameter(it) },
       ownerClass = classScope.classType
     )
-    fillMethodNode(classScope, methodNode, methodCst.statements)
+    fillMethodNode(classScope, methodNode, methodCst.statements, methodCst.annotations)
     return methodNode
   }
 
-  private fun fillMethodNode(classScope: ClassScope, methodeNode: MethodNode, cstStatements: List<StatementCstNode>,
+  private fun fillMethodNode(classScope: ClassScope, methodeNode: MethodNode,
+                             cstStatements: List<StatementCstNode>,
+                             annotations: List<AnnotationCstNode>,
                              scriptRunMethod: Boolean = false): Unit
   = useScope(MethodScope(classScope, methodeNode)) {
+
+    // filling annotations
+    annotations.forEach { methodeNode.annotations.add(annotationNode(it, ElementType.METHOD)) }
+
     val statements = blockStatements(cstStatements)
     // for single statement functions
     if (!methodeNode.isConstructor && !scriptRunMethod && statements.size == 1) {
@@ -725,5 +795,7 @@ class MarcelSemantic(
   private fun toJavaField(ownerType: JavaType, fieldNode: FieldCstNode): MarcelField {
     TODO()
   }
-  private fun toMethodParameter(node: MethodParameterCstNode) = MethodParameter(visit(node.type), node.name)
+  private fun toMethodParameter(node: MethodParameterCstNode) =
+    // TODO doesn't handle thisParameter
+    MethodParameter(visit(node.type), node.name, node.annotations.map { annotationNode(it, ElementType.PARAMETER) }, node.defaultValue?.accept(exprVisitor))
 }

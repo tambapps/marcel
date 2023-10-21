@@ -5,7 +5,7 @@ import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.type.JavaType
 
-class CharConstantNode(token: LexToken, val value: Char): AbstractExpressionNode(JavaType.char, token) {
+class CharConstantNode(token: LexToken, override val value: Char): AbstractExpressionNode(JavaType.char, token), JavaConstantExpression {
 
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) = visitor.visit(this)
 
