@@ -68,18 +68,12 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     }
     val sourceFile = SourceFileCstNode(fileName = classSimpleName, tokenStart = tokens.first(), tokenEnd = tokens.last())
     while (current.type != TokenType.END_OF_FILE) {
-      if (current.type == TokenType.CLASS
-        // visibility
-        || lookup(1)?.type == TokenType.CLASS
-        // visibility|extension + abstract
-        || lookup(2)?.type == TokenType.CLASS) {
+      val annotations = parseAnnotations(sourceFile)
+      val access = parseAccess(sourceFile)
+      if (current.type == TokenType.CLASS) {
         TODO()
-      } else if (current.type == TokenType.FUN
-        // visibility
-        || lookup(1)?.type == TokenType.FUN
-        // visibility|extension + abstract
-        || lookup(2)?.type == TokenType.FUN) {
-        when (val method = method(sourceFile)) {
+      } else if (current.type == TokenType.FUN || current.type == TokenType.CONSTRUCTOR) {
+        when (val method = method(sourceFile, annotations, access)) {
           is MethodCstNode -> sourceFile.methods.add(method)
           is ConstructorCstNode -> sourceFile.constructors.add(method)
         }
@@ -94,15 +88,15 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     return sourceFile
   }
 
-  fun method(parentNode: CstNode?): AbstractMethodNode {
+  fun method(parentNode: CstNode?, annotations: List<AnnotationCstNode>, access: CstAccessNode): AbstractMethodNode {
     val token = current
     val isConstructor = accept(TokenType.FUN, TokenType.CONSTRUCTOR).type == TokenType.CONSTRUCTOR
-    val accessNode = parseAccess(parentNode)
     val node = if (!isConstructor) {
       val returnType = parseType(parentNode)
       val methodName = accept(TokenType.IDENTIFIER).value
-      MethodCstNode(parentNode, token, token, accessNode, methodName, returnType)
-    } else ConstructorCstNode(parentNode, token, token, accessNode)
+      MethodCstNode(parentNode, token, token, access, methodName, returnType)
+    } else ConstructorCstNode(parentNode, token, token, access)
+    node.annotations.addAll(annotations)
 
     // parameters
     accept(TokenType.LPAR)
@@ -154,13 +148,15 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
   }
 
   private fun parseAccess(parentNode: CstNode?): CstAccessNode {
+    val startIndex = currentIndex
     val tokenStart = current
     val visibilityToken = acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED,
       TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE)?.type ?: TokenType.VISIBILITY_PUBLIC
     val isStatic = acceptOptional(TokenType.STATIC) != null
     val isFinal = acceptOptional(TokenType.FINAL) != null
     val isInline = acceptOptional(TokenType.INLINE) != null
-    return CstAccessNode(parentNode, tokenStart, previous, isStatic, isInline, isFinal, visibilityToken)
+    val hasExplicitAccess = currentIndex > startIndex
+    return CstAccessNode(parentNode, tokenStart, if (hasExplicitAccess) previous else current, isStatic, isInline, isFinal, visibilityToken, hasExplicitAccess)
   }
 
   internal fun parseType(parentNode: CstNode? = null): TypeCstNode {
@@ -397,9 +393,6 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         } else if (current.type == TokenType.BRACKETS_OPEN) { // function call with a lambda
           skip()
           FunctionCallCstNode(parentNode, token.value, null, listOf(TODO("parse lambda")), emptyList(), token, previous)
-        } else if (current.type == TokenType.LT  && lookup(1)?.type == TokenType.TWO_DOTS
-          || current.type == TokenType.GT && lookup(1)?.type == TokenType.TWO_DOTS || current.type == TokenType.TWO_DOTS) {
-          TODO("Range node. Might convert it into an operator though")
         } else if (current.type == TokenType.SQUARE_BRACKETS_OPEN || current.type == TokenType.QUESTION_SQUARE_BRACKETS_OPEN) {
           indexAccessCstNode(parentNode, ReferenceCstNode(parentNode, token.value, token))
         } else if (current.type == TokenType.DOT && lookup(1)?.type == TokenType.CLASS) {
@@ -573,11 +566,11 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
   }
 
   private fun parseAnnotations(parentNode: CstNode?): List<AnnotationCstNode> {
-    val classAnnotations = mutableListOf<AnnotationCstNode>()
+    val annotations = mutableListOf<AnnotationCstNode>()
     while (current.type == TokenType.AT) {
-      classAnnotations.add(parseAnnotation(parentNode))
+      annotations.add(parseAnnotation(parentNode))
     }
-    return classAnnotations
+    return annotations
   }
 
   private fun parseAnnotation(parentNode: CstNode?): AnnotationCstNode {

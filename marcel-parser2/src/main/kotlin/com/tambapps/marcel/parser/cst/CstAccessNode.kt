@@ -10,7 +10,10 @@ class CstAccessNode(
   val isStatic: Boolean,
   val isInline: Boolean,
   val isFinal: Boolean,
-  val visibility: TokenType
+  val visibility: TokenType,
+  // whether some access were explicitly written or we're just
+  // using the default values because nothing was specified
+  val hasExplicitAccess: Boolean,
 ) :
   AbstractCstNode(parent, tokenStart, tokenEnd) {
 }

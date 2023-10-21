@@ -4,6 +4,7 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.cst.AnnotationCstNode
+import com.tambapps.marcel.parser.cst.CstAccessNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
@@ -30,6 +31,7 @@ import org.junit.jupiter.params.provider.ValueSource
 
 class MarcelParser2Test {
 
+    private val defaultAccess = CstAccessNode(null, token(), token(), false, false, false, TokenType.VISIBILITY_PUBLIC, false)
     @Test
     fun testVariableDeclaration() {
         assertEquals(varDecl(type("int"), "a", int(1)), parser("int a = 1;").statement())
@@ -41,7 +43,7 @@ class MarcelParser2Test {
     @ValueSource(strings = ["fun int foo() -> println(1)", "fun int foo() { println(1)  }"]) // six numbers
     fun testMethod(text: String) {
         val parser = parser(text)
-        val method = parser.method(null)
+        val method = parser.method(null, emptyList(), defaultAccess)
         assertTrue(method is MethodCstNode)
         method as MethodCstNode
         assertEquals("foo", method.name)
@@ -61,7 +63,7 @@ class MarcelParser2Test {
     @ValueSource(strings = ["fun int bar(int zoo) -> 25 + zoo", "fun int bar(int zoo) -> { return 25 + zoo }"]) // six numbers
     fun testMethodWithParameter(text: String) {
         val parser = parser(text)
-        val method = parser.method(null)
+        val method = parser.method(null, emptyList(), defaultAccess)
         assertTrue(method is MethodCstNode)
         method as MethodCstNode
         assertEquals("bar", method.name)
