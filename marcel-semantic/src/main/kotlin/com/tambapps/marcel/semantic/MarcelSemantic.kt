@@ -49,6 +49,7 @@ import com.tambapps.marcel.parser.cst.statement.IfCstStatementNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.ClassNode
+import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
@@ -105,8 +106,8 @@ import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.method.BasicJavaConstructor
-import com.tambapps.marcel.semantic.method.BasicJavaMethod
+import com.tambapps.marcel.semantic.method.JavaConstructorImpl
+import com.tambapps.marcel.semantic.method.JavaMethodImpl
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.ClassScope
@@ -118,6 +119,7 @@ import com.tambapps.marcel.semantic.type.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.variable.Variable
+import com.tambapps.marcel.semantic.variable.field.JavaClassFieldImpl
 import com.tambapps.marcel.semantic.variable.field.MarcelField
 import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
 import marcel.lang.IntRanges
@@ -194,7 +196,7 @@ class MarcelSemantic(
   private fun defineClass(classCstNode: ClassCstNode, classType: JavaType) {
     classCstNode.methods.forEach { typeResolver.defineMethod(classType, toJavaMethod(classType, it)) }
     classCstNode.constructors.forEach { typeResolver.defineMethod(classType, toJavaConstructor(classType, it)) }
-    classCstNode.fields.forEach { typeResolver.defineField(classType, toJavaField(classType, it)) }
+    classCstNode.fields.forEach { typeResolver.defineField(classType, toMarcelField(classType, it)) }
     classCstNode.innerClasses.forEach { defineClass(it) }
   }
 
@@ -204,6 +206,13 @@ class MarcelSemantic(
 
     node.annotations.forEach { classNode.annotations.add(annotationNode(it, ElementType.TYPE)) }
     node.methods.forEach { classNode.methods.add(methodNode(it, classScope)) }
+    // TODO handle fields default value if any
+    node.fields.forEach { cstFieldNode ->
+      classNode.fields.add(FieldNode(visit(cstFieldNode.type), cstFieldNode.name, classType,
+        cstFieldNode.annotations.map { annotationNode(it, ElementType.FIELD) },
+        cstFieldNode.access.isFinal, Visibility.fromTokenType(cstFieldNode.access.visibility),
+        cstFieldNode.access.isStatic, cstFieldNode.tokenStart, cstFieldNode.tokenEnd))
+    }
 
     if (classNode.constructorCount == 0) {
       // default no arg constructor
@@ -782,17 +791,19 @@ class MarcelSemantic(
   }
 
   private fun toJavaMethod(ownerType: JavaType, node: MethodCstNode): JavaMethod {
-    return BasicJavaMethod(ownerType, Visibility.fromTokenType(node.accessNode.visibility), node.name,
+    return JavaMethodImpl(ownerType, Visibility.fromTokenType(node.accessNode.visibility), node.name,
       node.parameters.map(this::toMethodParameter), visit(node.returnTypeCstNode), false, false, false, false)
   }
 
   private fun toJavaConstructor(ownerType: JavaType, node: ConstructorCstNode): JavaMethod {
-    return BasicJavaConstructor(Visibility.fromTokenType(node.accessNode.visibility), ownerType, node.parameters.map(this::toMethodParameter))
+    return JavaConstructorImpl(Visibility.fromTokenType(node.accessNode.visibility), ownerType, node.parameters.map(this::toMethodParameter))
   }
 
-  private fun toJavaField(ownerType: JavaType, fieldNode: FieldCstNode): MarcelField {
-    TODO()
+  private fun toMarcelField(ownerType: JavaType, fieldNode: FieldCstNode): MarcelField {
+   return JavaClassFieldImpl(visit(fieldNode.type), fieldNode.name, ownerType, fieldNode.access.isFinal,
+      Visibility.fromTokenType(fieldNode.access.visibility), fieldNode.access.isStatic)
   }
+
   private fun toMethodParameter(node: MethodParameterCstNode) =
     // TODO doesn't handle thisParameter
     MethodParameter(visit(node.type), node.name, node.annotations.map { annotationNode(it, ElementType.PARAMETER) }, node.defaultValue?.accept(exprVisitor))

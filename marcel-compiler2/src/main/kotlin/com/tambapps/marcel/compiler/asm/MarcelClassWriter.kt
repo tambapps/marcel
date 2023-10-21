@@ -8,6 +8,7 @@ import com.tambapps.marcel.compiler.extensions.signature
 import com.tambapps.marcel.compiler.util.ReflectUtils
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.ClassNode
+import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
@@ -53,22 +54,20 @@ class MarcelClassWriter(
       writeAnnotation(classWriter.visitAnnotation(annotation.type.descriptor, true), annotation)
     }
 
+    for (field in classNode.fields) {
+      writeField(classWriter, field)
+    }
+
     /*
-    if (classNode.constructorsCount == 0) {
-      // if no constructor is defined, we'll define one for you
-      classNode.methods.add(ConstructorNode.emptyConstructor(classNode))
-    } else {
-      for (constructor in classNode.constructors) {
+    / TODO in semantic
+    for (constructor in classNode.constructors) {
         if (!constructor.startsWithOwnConstructorCall) {
           constructor.block.statements.add(0, ExpressionStatementNode(classNode.token, SuperConstructorCallNode(
             classNode.token, constructor.scope, mutableListOf()
           )))
         }
       }
-    }
-    for (field in classNode.fields) {
-      writeField(classWriter, classNode, field)
-    }
+
 
     if (classNode.staticInitializationNode != null) {
       writeMethod(typeResolver, classWriter, classNode, classNode.staticInitializationNode!!)
@@ -94,6 +93,22 @@ class MarcelClassWriter(
     classWriter.visitEnd()
     classes.add(CompiledClass(classNode.type.className, Script::class.javaType.isAssignableFrom(classNode.type), classWriter.toByteArray()))
 
+  }
+
+  private fun writeField(classWriter: ClassWriter, field: FieldNode) {
+    val fieldVisitor = classWriter.visitField(
+      ReflectUtils.computeAccess(
+        field.visibility, isStatic = field.isStatic, isFinal = field.isFinal
+      )
+      , field.name, field.type.descriptor,
+      if (field.type.superType?.hasGenericTypes == true || field.type.directlyImplementedInterfaces.any { it.hasGenericTypes }) field.type.signature else null,
+      null
+    )
+
+    // writing annotations
+    for (annotation in field.annotations) {
+      writeAnnotation(fieldVisitor.visitAnnotation(annotation.type.descriptor, true), annotation)
+    }
   }
 
   private fun writeMethod(classWriter: ClassWriter, classNode: ClassNode, methodNode: MethodNode) {

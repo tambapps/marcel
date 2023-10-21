@@ -12,7 +12,7 @@ class ClassNode(
 ) : AbstractAst2Node(tokenStart, tokenEnd), JavaTyped {
   val superType = type.superType!!
 
-  val imports = mutableListOf<ImportNode>()
+  val fields = mutableListOf<FieldNode>()
   val methods = mutableListOf<MethodNode>()
   val annotations = mutableListOf<AnnotationNode>()
 

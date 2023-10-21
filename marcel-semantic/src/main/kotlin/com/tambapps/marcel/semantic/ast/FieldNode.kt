@@ -6,8 +6,7 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.field.JavaClassField
 
-class FieldNode constructor(override val token: LexToken, type: JavaType, name: String, owner: JavaType,
-                            val initialValue: ExpressionNode?,
+class FieldNode constructor(type: JavaType, name: String, owner: JavaType,
                             override val annotations: List<AnnotationNode>,
                             override val isFinal: Boolean,
                             override val visibility: Visibility,
@@ -18,8 +17,6 @@ class FieldNode constructor(override val token: LexToken, type: JavaType, name: 
   JavaClassField(type, name, owner) {
 
   override fun toString(): String {
-    var s =  "${type.simpleName} $name"
-    if (initialValue != null) s += " $initialValue"
-    return s
+    return "${type.simpleName} $name"
   }
 }
