@@ -160,7 +160,9 @@ class MarcelSemantic(
       cst.classes.forEach { defineClass(it) }
     }
     if (scriptCstNode != null) {
-      val classType = typeResolver.defineClass(scriptCstNode.tokenStart, Visibility.PUBLIC, scriptCstNode.className, Script::class.javaType, false, emptyList())
+      val classType = typeResolver.defineClass(scriptCstNode.tokenStart, Visibility.PUBLIC,
+        if (cst.packageName != null) "${cst.packageName}.${scriptCstNode.className}" else scriptCstNode.className,
+        Script::class.javaType, false, emptyList())
       // register script class members. Using scope in order to be able to resolve imports
       useScope(ClassScope(JavaType.Object, typeResolver, imports)) {
         defineClass(scriptCstNode, classType)
@@ -179,7 +181,9 @@ class MarcelSemantic(
 
   private fun defineClass(classCstNode: ClassCstNode) {
     // TODO handle custom superType and interfaces
-    val classType = typeResolver.defineClass(classCstNode.tokenStart, Visibility.PUBLIC, classCstNode.className, JavaType.Object, false, emptyList())
+    val classType = typeResolver.defineClass(classCstNode.tokenStart, Visibility.PUBLIC,
+      if (cst.packageName != null) "${cst.packageName}.${classCstNode.className}" else classCstNode.className,
+      JavaType.Object, false, emptyList())
     defineClass(classCstNode, classType)
   }
 

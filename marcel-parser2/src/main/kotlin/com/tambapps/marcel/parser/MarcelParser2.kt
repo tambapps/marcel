@@ -4,7 +4,6 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.cst.AbstractMethodNode
 import com.tambapps.marcel.parser.cst.AnnotationCstNode
-import com.tambapps.marcel.parser.cst.ClassCstNode
 import com.tambapps.marcel.parser.cst.ConstructorCstNode
 import com.tambapps.marcel.parser.cst.CstAccessNode
 import com.tambapps.marcel.parser.cst.CstNode
@@ -69,8 +68,8 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     if (tokens.isEmpty()) {
       throw MarcelParser2Exception(LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, null), "Unexpected end of file")
     }
-    // TODO parse package if any
-    val sourceFile = SourceFileCstNode(packageName = null, tokenStart = tokens.first(), tokenEnd = tokens.last())
+    val packageName = parsePackage()
+    val sourceFile = SourceFileCstNode(packageName = packageName, tokenStart = tokens.first(), tokenEnd = tokens.last())
     val scriptNode = ScriptCstNode(tokens.first(), tokens.last(), classSimpleName)
     while (current.type != TokenType.END_OF_FILE) {
       val annotations = parseAnnotations(sourceFile)
@@ -95,6 +94,17 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       throw MarcelParser2Exception(errors)
     }
     return sourceFile
+  }
+
+  private fun parsePackage(): String? {
+    if (acceptOptional(TokenType.PACKAGE) == null) return null
+    val parts = mutableListOf<String>(accept(TokenType.IDENTIFIER).value)
+    while (current.type == TokenType.DOT) {
+      skip()
+      parts.add(accept(TokenType.IDENTIFIER).value)
+    }
+    acceptOptional(TokenType.SEMI_COLON)
+    return parts.joinToString(separator = ".")
   }
 
   fun field(parentNode: CstNode?, annotations: List<AnnotationCstNode>, access: CstAccessNode): FieldCstNode {
