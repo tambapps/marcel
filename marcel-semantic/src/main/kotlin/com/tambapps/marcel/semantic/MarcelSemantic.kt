@@ -55,6 +55,7 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
+import com.tambapps.marcel.semantic.ast.expression.PopNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.StringNode
 import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
@@ -366,17 +367,19 @@ class MarcelSemantic(
       TokenType.DIV_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, TokenType.DIV)
       TokenType.QUESTION_DOT -> {
         val left = leftOperand.accept(exprVisitor)
-        currentMethodScope.useTempLocalVariable(left.type.objectType) { tempVar ->
-          var dotNode = dotOperator(node, ReferenceNode(variable = tempVar, token = node.token), rightOperand)
-          if (dotNode.type != JavaType.void && dotNode.type.primitive) dotNode = caster.cast(dotNode.type.objectType, dotNode) // needed as the result can be null
-          val falseNode = if (dotNode.type != JavaType.void) NullValueNode(node.token, tempVar.type) else VoidExpressionNode(node.token)
-          TernaryNode(
-            testExpressionNode = IsNotEqualNode(VariableAssignmentNode(tempVar, left, leftOperand), NullValueNode(node.token, tempVar.type)),
-            trueExpressionNode = dotNode,
-            falseExpressionNode = falseNode,
-            node = node
-          )
-        }
+        if (left.type.primitive) throw MarcelSemanticException(node, "Cannot use safe access operator on primitive type as it cannot be null")
+
+        var dotNode = dotOperator(node, left, rightOperand, discardOwnerInReturned = true)
+        if (dotNode.type != JavaType.void && dotNode.type.primitive) dotNode = caster.cast(dotNode.type.objectType, dotNode) // needed as the result can be null
+
+        TernaryNode(
+          testExpressionNode = IsNotEqualNode(DupNode(left), NullValueNode(node.token, left.type)),
+          trueExpressionNode = dotNode,
+          // void because the DUP value is null in false case, so we can just use it
+          // POP if return type is void as we still have a null value on the stack that won't be used as this expression is supposed to return nothing, void
+          falseExpressionNode = if (dotNode.type != JavaType.void) VoidExpressionNode(node.token) else PopNode(left.type, node),
+          node = node
+        )
       }
       TokenType.DOT -> dotOperator(node, node.leftOperand.accept(exprVisitor), rightOperand)
       TokenType.TWO_DOTS -> rangeNode(leftOperand, rightOperand, "of")
@@ -419,18 +422,20 @@ class MarcelSemantic(
     }
   }
 
-  private fun dotOperator(node: CstNode, owner: ExpressionNode, rightOperand: CstExpressionNode): ExpressionNode = when (rightOperand) {
+  private fun dotOperator(node: CstNode, owner: ExpressionNode, rightOperand: CstExpressionNode,
+                          // useful for ternaryNode which duplicate value to avoid using local variable
+                          discardOwnerInReturned: Boolean = false): ExpressionNode = when (rightOperand) {
     is FunctionCallCstNode -> {
       val arguments = getArguments(rightOperand)
       val method = typeResolver.findMethodOrThrow(owner.type, rightOperand.value, arguments, node.token)
       val castType = if (rightOperand.castType != null) visit(rightOperand.castType!!) else null
-      fCall(method = method, owner = owner, castType = castType,
+      fCall(method = method, owner = if (discardOwnerInReturned) null else owner, castType = castType,
         arguments = arguments, node = node)
     }
     is ReferenceCstNode -> {
       val variable = typeResolver.findFieldOrThrow(owner.type, rightOperand.value, rightOperand.token)
       checkVariableAccess(variable, node)
-      ReferenceNode(owner, variable, rightOperand.token)
+      ReferenceNode(if (discardOwnerInReturned) null else owner, variable, rightOperand.token)
     }
     else -> throw MarcelSemanticException(node, "Invalid dot operator use")
   }

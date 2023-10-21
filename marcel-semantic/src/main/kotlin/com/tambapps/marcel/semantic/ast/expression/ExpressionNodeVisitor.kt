@@ -37,6 +37,7 @@ interface ExpressionNodeVisitor<T> {
 
   fun visit(node: NotNode): T
   fun visit(node: DupNode): T
+  fun visit(node: PopNode): T
 
   fun visit(node: VariableAssignmentNode): T
   fun visit(node: ArrayIndexAssignmentNode): T
