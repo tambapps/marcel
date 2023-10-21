@@ -110,6 +110,7 @@ import com.tambapps.marcel.semantic.method.BasicJavaMethod
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.ClassScope
+import com.tambapps.marcel.semantic.scope.ImportScope
 import com.tambapps.marcel.semantic.scope.MethodInnerScope
 import com.tambapps.marcel.semantic.scope.MethodScope
 import com.tambapps.marcel.semantic.scope.Scope
@@ -160,18 +161,16 @@ class MarcelSemantic(
     val moduleNode = ModuleNode(cst.tokenStart, cst.tokenEnd)
     val scriptCstNode = cst.script
 
-    // define everything. Using scope in order to be able to resolve imports
-    useScope(ClassScope(JavaType.Object, typeResolver, imports)) {
-      cst.classes.forEach { defineClass(it) }
-    }
+    scopeQueue.push(ImportScope(typeResolver, imports))
+    // define everything
+    cst.classes.forEach { defineClass(it) }
+
     if (scriptCstNode != null) {
       val classType = typeResolver.defineClass(scriptCstNode.tokenStart, Visibility.PUBLIC,
         if (cst.packageName != null) "${cst.packageName}.${scriptCstNode.className}" else scriptCstNode.className,
         Script::class.javaType, false, emptyList())
-      // register script class members. Using scope in order to be able to resolve imports
-      useScope(ClassScope(JavaType.Object, typeResolver, imports)) {
-        defineClass(scriptCstNode, classType)
-      }
+      // register script class members
+      defineClass(scriptCstNode, classType)
       val scriptNode = classNode(classType, scriptCstNode, imports)
       useScope(ClassScope(classType, typeResolver, imports)) {
         // add the run method
@@ -241,7 +240,6 @@ class MarcelSemantic(
   private fun annotationAttribute(node: AnnotationCstNode, javaAnnotation: JavaAnnotation, specifiedAttr: Pair<String, CstExpressionNode>): AnnotationNode.AttributeNode {
     val attribute = javaAnnotation.attributes.find { it.name == specifiedAttr.first }
       ?: throw MarcelSemanticException(node.token, "Unknown member ${specifiedAttr.first} for annotation $javaAnnotation")
-    // TODO create ImportScope and add it at the very beginning
     val specifiedValueNode = specifiedAttr.second.accept(exprVisitor)
         as? JavaConstantExpression ?: throw MarcelSemanticException(node, "Specified a non constant value for attribute ${attribute.name}")
     return if (attribute.type.isEnum) {
