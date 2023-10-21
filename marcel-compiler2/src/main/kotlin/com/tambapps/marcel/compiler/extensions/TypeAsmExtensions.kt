@@ -25,6 +25,9 @@ import org.objectweb.asm.Opcodes
 
 val JavaType.internalName: String get() = AsmUtils.getInternalName(type)
 
+// long and double takes 2 slots instead of 1 for other types
+val JavaType.takes2Slots get() = this == long || this == double
+
 val JavaArrayType.typeCode get() = when {
   this == intArray -> Opcodes.T_INT
   this == longArray -> Opcodes.T_LONG

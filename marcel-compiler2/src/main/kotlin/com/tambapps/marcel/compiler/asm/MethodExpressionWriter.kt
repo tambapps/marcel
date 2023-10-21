@@ -3,8 +3,10 @@ package com.tambapps.marcel.compiler.asm
 import com.tambapps.marcel.compiler.extensions.arrayStoreCode
 import com.tambapps.marcel.compiler.extensions.descriptor
 import com.tambapps.marcel.compiler.extensions.internalName
+import com.tambapps.marcel.compiler.extensions.takes2Slots
 import com.tambapps.marcel.compiler.extensions.typeCode
 import com.tambapps.marcel.compiler.extensions.visitMethodInsn
+import com.tambapps.marcel.semantic.ast.expression.DupNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
@@ -17,6 +19,7 @@ import com.tambapps.marcel.semantic.ast.expression.ThisConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
+import com.tambapps.marcel.semantic.ast.expression.operator.ElvisNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
@@ -66,6 +69,12 @@ sealed class MethodExpressionWriter(
   override fun visit(node: ReferenceNode) {
     node.owner?.let { pushExpression(it) }
     node.variable.accept(loadVariableVisitor)
+  }
+
+  // this node should ALWAYS be pushed so don't override it
+  final override fun visit(node: DupNode) {
+    pushExpression(node.expression)
+    dup(node.type)
   }
 
   override fun visit(node: ArrayNode) {
@@ -165,8 +174,11 @@ sealed class MethodExpressionWriter(
 
   protected fun popStackIfNotVoid(type: JavaType) {
     if (type != JavaType.void) {
-      // long and double takes 2 slots instead of 1 for other types
-      mv.visitInsn(if (type == JavaType.long || type == JavaType.double) Opcodes.POP2 else Opcodes.POP)
+      mv.visitInsn(if (type.takes2Slots) Opcodes.POP2 else Opcodes.POP)
     }
+  }
+
+  protected fun dup(type: JavaType) {
+    mv.visitInsn(if (type.takes2Slots) Opcodes.DUP2 else Opcodes.DUP)
   }
 }

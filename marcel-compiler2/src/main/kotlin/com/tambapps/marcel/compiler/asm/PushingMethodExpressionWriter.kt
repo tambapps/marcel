@@ -31,6 +31,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignment
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryArithmeticOperatorNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
 import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
+import com.tambapps.marcel.semantic.ast.expression.operator.ElvisNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GeNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GtNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
@@ -146,6 +147,22 @@ class PushingMethodExpressionWriter(mv: MethodVisitor, typeResolver: JavaTypeRes
   override fun visit(node: LeNode) = comparisonOperator(node, -1, Opcodes.IF_ICMPLE)
   override fun visit(node: GtNode) = comparisonOperator(node, -1, Opcodes.IF_ICMPGT)
   override fun visit(node: GeNode) = comparisonOperator(node, -1, Opcodes.IF_ICMPGE)
+
+  override fun visit(node: ElvisNode) {
+    pushExpression(node.leftOperand)
+    // at this point we have on the stack
+    // - expression
+    // - truthyCastedExpression
+
+    val endLabel = Label()
+    mv.visitJumpInsn(Opcodes.IFNE, endLabel)
+    // now we only have the expression on the stack. If the truthyCastedExpression was true there is nothing to do
+    // the expression is already on the stack
+    // but if it was false we have to discard the expression and push the false value
+    popStackIfNotVoid(node.type)
+    node.rightOperand.accept(this)
+    mv.visitLabel(endLabel)
+  }
 
   private fun comparisonOperator(node: BinaryOperatorNode, objectIfCmpCode: Int, intCmpIfCode: Int) {
     node.leftOperand.accept(this)

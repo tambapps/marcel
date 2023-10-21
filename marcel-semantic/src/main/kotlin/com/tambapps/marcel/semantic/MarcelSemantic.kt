@@ -49,6 +49,7 @@ import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.DupNode
 import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
@@ -77,6 +78,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.AndNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
 import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
+import com.tambapps.marcel.semantic.ast.expression.operator.ElvisNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GeNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GtNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
@@ -349,12 +351,8 @@ class MarcelSemantic(
         val left = leftOperand.accept(exprVisitor)
         val right = rightOperand.accept(exprVisitor)
         val type = JavaType.commonType(left.type, right.type)
-        // need to store result of trueExpr (left) in a variable in order not to evaluate it twice (e.g. for function calls)
-        currentMethodScope.useTempLocalVariable(type) { localVar ->
-          val varAssignment = VariableAssignmentNode(localVar, caster.cast(type, left), leftOperand)
-          val varRef = ReferenceNode(null, localVar, left.token)
-          TernaryNode(caster.truthyCast(varAssignment), varRef, caster.cast(type, right), rightOperand)
-        }
+        // using DupNode to help compiler write better code than we would with a temp local variable
+        ElvisNode(caster.truthyCast(DupNode(caster.cast(type, left))), caster.cast(type, right), type)
       }
       TokenType.MINUS -> arithmeticBinaryOperator(leftOperand, rightOperand, "minus", ::MinusNode)
       TokenType.MUL -> arithmeticBinaryOperator(leftOperand, rightOperand, "multiply", ::MulNode)

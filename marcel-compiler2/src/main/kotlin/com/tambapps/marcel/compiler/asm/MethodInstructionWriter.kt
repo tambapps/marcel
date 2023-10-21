@@ -33,6 +33,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.AndNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
 import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
+import com.tambapps.marcel.semantic.ast.expression.operator.ElvisNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GeNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GtNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
@@ -96,6 +97,22 @@ class MethodInstructionWriter(
       falseStatementNode.accept(this)
       mv.visitLabel(endLabel)
     }
+  }
+
+  override fun visit(node: ElvisNode) {
+    pushExpression(node.leftOperand)
+    // at this point we have on the stack
+    // - expression
+    // - truthyCastedExpression
+
+    val endLabel = Label()
+    mv.visitJumpInsn(Opcodes.IFNE, endLabel)
+    node.rightOperand.accept(this)
+    mv.visitLabel(endLabel)
+
+    // we consumed the truthyCastedExpression but expression is still on the stack
+    // so we need to pop it
+    popStackIfNotVoid(node.type)
   }
 
   override fun visit(node: ForInIteratorStatementNode) {

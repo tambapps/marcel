@@ -16,6 +16,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.operator.AndNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
+import com.tambapps.marcel.semantic.ast.expression.operator.ElvisNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GeNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GtNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
@@ -35,6 +36,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNo
 interface ExpressionNodeVisitor<T> {
 
   fun visit(node: NotNode): T
+  fun visit(node: DupNode): T
 
   fun visit(node: VariableAssignmentNode): T
   fun visit(node: ArrayIndexAssignmentNode): T
@@ -53,6 +55,7 @@ interface ExpressionNodeVisitor<T> {
   fun visit(node: GtNode): T
   fun visit(node: LeNode): T
   fun visit(node: LtNode): T
+  fun visit(node: ElvisNode): T
 
   fun visit(node: TernaryNode): T
 
