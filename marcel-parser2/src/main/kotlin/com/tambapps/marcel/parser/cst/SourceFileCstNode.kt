@@ -12,5 +12,6 @@ class SourceFileCstNode(
     AbstractCstNode(null, tokenStart, tokenEnd) {
     val statements: MutableList<StatementCstNode> = mutableListOf()
   val methods: MutableList<MethodCstNode> = mutableListOf()
+  val fields: MutableList<FieldCstNode> = mutableListOf()
   val constructors: MutableList<ConstructorCstNode> = mutableListOf()
 }

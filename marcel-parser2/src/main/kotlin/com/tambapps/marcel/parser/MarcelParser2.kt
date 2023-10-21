@@ -7,6 +7,7 @@ import com.tambapps.marcel.parser.cst.AnnotationCstNode
 import com.tambapps.marcel.parser.cst.ConstructorCstNode
 import com.tambapps.marcel.parser.cst.CstAccessNode
 import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.parser.cst.FieldCstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
@@ -77,6 +78,9 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
           is MethodCstNode -> sourceFile.methods.add(method)
           is ConstructorCstNode -> sourceFile.constructors.add(method)
         }
+      } else if (annotations.isNotEmpty() || access.isExplicit) {
+        // it must be a field
+        sourceFile.fields.add(field(sourceFile, annotations, access))
       } else {
         sourceFile.statements.add(statement(sourceFile))
       }
@@ -86,6 +90,14 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       throw MarcelParser2Exception(errors)
     }
     return sourceFile
+  }
+
+  fun field(parentNode: CstNode?, annotations: List<AnnotationCstNode>, access: CstAccessNode): FieldCstNode {
+    val tokenStart = current
+    val type = parseType(parentNode)
+    val name = accept(TokenType.IDENTIFIER).value
+    val initialValue = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(parentNode) else null
+    return FieldCstNode(parentNode, tokenStart, previous, access, annotations, type, name, initialValue)
   }
 
   fun method(parentNode: CstNode?, annotations: List<AnnotationCstNode>, access: CstAccessNode): AbstractMethodNode {

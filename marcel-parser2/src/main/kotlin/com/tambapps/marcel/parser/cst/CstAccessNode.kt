@@ -13,7 +13,7 @@ class CstAccessNode(
   val visibility: TokenType,
   // whether some access were explicitly written or we're just
   // using the default values because nothing was specified
-  val hasExplicitAccess: Boolean,
+  val isExplicit: Boolean,
 ) :
   AbstractCstNode(parent, tokenStart, tokenEnd) {
 }
