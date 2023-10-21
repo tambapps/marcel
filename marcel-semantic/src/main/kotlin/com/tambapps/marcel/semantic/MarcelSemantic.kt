@@ -2,8 +2,10 @@ package com.tambapps.marcel.semantic
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
+import com.tambapps.marcel.parser.cst.ConstructorCstNode
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
+import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNodeVisitor
@@ -98,7 +100,10 @@ import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
+import com.tambapps.marcel.semantic.method.BasicJavaConstructor
+import com.tambapps.marcel.semantic.method.BasicJavaMethod
 import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.MethodInnerScope
 import com.tambapps.marcel.semantic.scope.MethodScope
@@ -145,17 +150,18 @@ class MarcelSemantic(
     // TODO parse package if any
 
     val className = cst.fileName
-    if (cst.statements.isNotEmpty()) {
-      return scriptModule(className, imports)
-    } else {
-      TODO()
-    }
-  }
-
-  private fun scriptModule(className: String, imports: List<ImportNode>): ModuleNode {
-    val classType = typeResolver.defineClass(cst.statements.first().tokenStart, Visibility.PUBLIC, className, Script::class.javaType, false, emptyList())
     val moduleNode = ModuleNode(cst.tokenStart, cst.tokenEnd)
-    moduleNode.classes.add(classNode(classType, cst.methods, imports))
+
+    if (cst.statements.isNotEmpty()) {
+      val classType = typeResolver.defineClass(cst.statements.first().tokenStart, Visibility.PUBLIC, className, Script::class.javaType, false, emptyList())
+      // register script class members
+      useScope(ClassScope(classType, typeResolver, imports)) {
+        cst.methods.forEach { typeResolver.defineMethod(classType, toJavaMethod(classType, it)) }
+        cst.constructors.forEach { typeResolver.defineMethod(classType, toJavaConstructor(classType, it)) }
+      }
+
+      moduleNode.classes.add(classNode(classType, cst.methods, imports))
+    }
     return moduleNode
   }
 
@@ -184,6 +190,7 @@ class MarcelSemantic(
       isStatic = methodCst.accessNode.isStatic,
       tokenStart = methodCst.tokenStart,
       tokenEnd = methodCst.tokenEnd,
+      parameters = methodCst.parameters.map { MethodParameter(visit(it.type), visit(it.type), it.name, false, it.defaultValue?.accept(exprVisitor)) },
       ownerClass = classScope.classType
     )
     fillMethodNode(classScope, methodNode, methodCst.statements)
@@ -194,6 +201,13 @@ class MarcelSemantic(
                              scriptRunMethod: Boolean = false): Unit
   = useScope(MethodScope(classScope, methodeNode)) {
     val statements = blockStatements(cstStatements)
+    // for single statement functions
+    if (!methodeNode.isConstructor && !scriptRunMethod && statements.size == 1) {
+      val statement = statements.first()
+      if (methodeNode.returnType != JavaType.void && statement is ExpressionStatementNode) {
+        statements[0] = ReturnStatementNode(statement.expressionNode, statement.tokenStart, statement.tokenEnd)
+      }
+    }
 
     if (!AllPathsReturnVisitor.test(statements)) {
       if (methodeNode.returnType == JavaType.void) {
@@ -673,4 +687,15 @@ class MarcelSemantic(
       throw MarcelSemanticException(node, "Cannot set value for variable ${variable.name}")
     }
   }
+
+  private fun toJavaMethod(ownerType: JavaType, node: MethodCstNode): JavaMethod {
+    return BasicJavaMethod(ownerType, Visibility.fromTokenType(node.accessNode.visibility), node.name,
+      node.parameters.map(this::toMethodParameter), visit(node.returnTypeCstNode), false, false, false, false)
+  }
+
+  private fun toJavaConstructor(ownerType: JavaType, node: ConstructorCstNode): JavaMethod {
+    return BasicJavaConstructor(Visibility.fromTokenType(node.accessNode.visibility), ownerType, node.parameters.map(this::toMethodParameter))
+  }
+
+  private fun toMethodParameter(node: MethodParameterCstNode) = MethodParameter(visit(node.type), node.name)
 }

@@ -14,4 +14,30 @@ class BinaryOperatorCstNode(
 ) : AbstractExpressionCstNode(parent, tokenStart, tokenEnd) {
 
   override fun <T> accept(visitor: ExpressionCstNodeVisitor<T>) = visitor.visit(this)
+
+  override fun toString(): String {
+    return "$leftOperand $tokenType $rightOperand"
+  }
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (javaClass != other?.javaClass) return false
+    if (!super.equals(other)) return false
+
+    other as BinaryOperatorCstNode
+
+    if (tokenType != other.tokenType) return false
+    if (leftOperand != other.leftOperand) return false
+    if (rightOperand != other.rightOperand) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = super.hashCode()
+    result = 31 * result + tokenType.hashCode()
+    result = 31 * result + leftOperand.hashCode()
+    result = 31 * result + rightOperand.hashCode()
+    return result
+  }
 }

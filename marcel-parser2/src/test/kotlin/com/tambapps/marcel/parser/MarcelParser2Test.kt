@@ -7,6 +7,7 @@ import com.tambapps.marcel.parser.cst.AnnotationCstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
+import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
 import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
@@ -20,6 +21,7 @@ import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -50,6 +52,30 @@ class MarcelParser2Test {
         assertEquals(
             listOf(
                 stmt(fCall("println", positionalArgumentNodes = listOf(int(1))))
+            ),
+            method.statements
+        )
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["fun int bar(int zoo) -> 25 + zoo", "fun int bar(int zoo) -> { return 25 + zoo }"]) // six numbers
+    fun testMethodWithParameter(text: String) {
+        val parser = parser(text)
+        val method = parser.method(null)
+        assertTrue(method is MethodCstNode)
+        method as MethodCstNode
+        assertEquals("bar", method.name)
+        assertEquals(1, method.parameters.size)
+        val parameter = method.parameters.first()
+        assertEquals(type("int"), parameter.type)
+        assertEquals("zoo", parameter.name)
+        assertFalse(parameter.thisParameter)
+        assertEquals(type("int"), method.returnTypeCstNode)
+        assertEquals(emptyList<AnnotationCstNode>(), method.annotations)
+
+        assertEquals(
+            listOf(
+                returnNode(binaryOperator(TokenType.PLUS, int(25), ref("zoo")))
             ),
             method.statements
         )
@@ -162,6 +188,8 @@ class MarcelParser2Test {
     )
 
 
+    private fun binaryOperator(type: TokenType, left: CstExpressionNode, right: CstExpressionNode) =
+        BinaryOperatorCstNode(type, left, right, null, token(), token())
     private fun indexAccess(owner: CstExpressionNode, indexes: List<CstExpressionNode>, isSafeAccess: Boolean = false) =
         IndexAccessCstNode(null, owner, indexes, isSafeAccess, token(), token())
     private fun varDecl(typeCstNode: TypeCstNode, name: String, expr: CstExpressionNode?) = VariableDeclarationCstNode(typeCstNode, name, expr, null, token(), token())

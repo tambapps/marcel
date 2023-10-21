@@ -18,7 +18,7 @@ import com.tambapps.marcel.semantic.type.JavaTypeResolver
 internal object SemanticHelper {
 
   fun noArgConstructor(classNode: ClassNode, typeResolver: JavaTypeResolver): MethodNode {
-    val defaultConstructorNode = MethodNode(JavaMethod.CONSTRUCTOR_NAME, Visibility.PUBLIC, JavaType.void, false, classNode.tokenStart, classNode.tokenEnd, JavaType.void)
+    val defaultConstructorNode = MethodNode(JavaMethod.CONSTRUCTOR_NAME, emptyList(),  Visibility.PUBLIC, JavaType.void, false, classNode.tokenStart, classNode.tokenEnd, JavaType.void)
     val superConstructorMethod = typeResolver.findMethodOrThrow(classNode.superType, JavaMethod.CONSTRUCTOR_NAME, emptyList(), classNode.token)
     defaultConstructorNode.blockStatement = BlockStatementNode(listOf(
       ExpressionStatementNode(SuperConstructorCallNode(classNode.superType, superConstructorMethod, emptyList(), defaultConstructorNode.tokenStart, defaultConstructorNode.tokenEnd)),
@@ -34,7 +34,7 @@ internal object SemanticHelper {
     visibility = Visibility.PUBLIC, returnType = JavaType.Object,
     isStatic = false,
     ownerClass = classType,
-    tokenStart = cst.statements.first().tokenStart, tokenEnd = cst.statements.last().tokenEnd).apply {
-    parameters.add(MethodParameterNode(token, JavaType.String.arrayType, "args"))
-    }
+    parameters = listOf(MethodParameterNode(cst.statements.first().tokenStart, JavaType.String.arrayType, "args")),
+    tokenStart = cst.statements.first().tokenStart,
+    tokenEnd = cst.statements.last().tokenEnd)
 }

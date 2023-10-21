@@ -106,7 +106,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
 
     // parameters
     accept(TokenType.LPAR)
-    val parameters = mutableListOf<MethodParameterCstNode>()
+    val parameters = node.parameters
     while (current.type != TokenType.RPAR) {
       val parameterTokenStart = current
       val parameterAnnotations = parseAnnotations(parentNode)
