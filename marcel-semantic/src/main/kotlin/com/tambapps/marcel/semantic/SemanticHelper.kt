@@ -34,7 +34,7 @@ internal object SemanticHelper {
     visibility = Visibility.PUBLIC, returnType = JavaType.Object,
     isStatic = false,
     ownerClass = classType,
-    parameters = listOf(MethodParameterNode(cst.statements.first().tokenStart, JavaType.String.arrayType, "args")),
-    tokenStart = cst.statements.first().tokenStart,
-    tokenEnd = cst.statements.last().tokenEnd)
+    parameters = listOf(MethodParameterNode(cst.tokenStart, JavaType.String.arrayType, "args")),
+    tokenStart = cst.tokenStart,
+    tokenEnd = cst.tokenEnd)
 }

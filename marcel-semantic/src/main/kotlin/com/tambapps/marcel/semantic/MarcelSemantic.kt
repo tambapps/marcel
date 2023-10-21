@@ -2,8 +2,10 @@ package com.tambapps.marcel.semantic
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
+import com.tambapps.marcel.parser.cst.ClassCstNode
 import com.tambapps.marcel.parser.cst.ConstructorCstNode
 import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.parser.cst.FieldCstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
@@ -111,6 +113,7 @@ import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.variable.Variable
+import com.tambapps.marcel.semantic.variable.field.MarcelField
 import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
 import marcel.lang.IntRanges
 import marcel.lang.LongRanges
@@ -147,31 +150,49 @@ class MarcelSemantic(
 
   fun apply(): ModuleNode {
     val imports = Scope.DEFAULT_IMPORTS.toMutableList()
-    // TODO parse package if any
+    // TODO analyse package and imports if any
 
-    val className = cst.fileName
     val moduleNode = ModuleNode(cst.tokenStart, cst.tokenEnd)
+    val scriptCstNode = cst.script
 
-    if (cst.statements.isNotEmpty()) {
-      val classType = typeResolver.defineClass(cst.statements.first().tokenStart, Visibility.PUBLIC, className, Script::class.javaType, false, emptyList())
-      // register script class members
-      useScope(ClassScope(classType, typeResolver, imports)) {
-        cst.methods.forEach { typeResolver.defineMethod(classType, toJavaMethod(classType, it)) }
-        cst.constructors.forEach { typeResolver.defineMethod(classType, toJavaConstructor(classType, it)) }
+    // define everything. Using scope in order to be able to resolve imports
+    useScope(ClassScope(JavaType.Object, typeResolver, imports)) {
+      cst.classes.forEach { defineClass(it) }
+    }
+    if (scriptCstNode != null) {
+      val classType = typeResolver.defineClass(scriptCstNode.tokenStart, Visibility.PUBLIC, scriptCstNode.className, Script::class.javaType, false, emptyList())
+      // register script class members. Using scope in order to be able to resolve imports
+      useScope(ClassScope(JavaType.Object, typeResolver, imports)) {
+        defineClass(scriptCstNode, classType)
       }
-
-      moduleNode.classes.add(classNode(classType, cst.methods, imports))
+      val scriptNode = classNode(classType, scriptCstNode.methods, imports)
+      useScope(ClassScope(classType, typeResolver, imports)) {
+        // add the run method
+        val runMethod = SemanticHelper.scriptRunMethod(classType, cst)
+        fillMethodNode(it, runMethod, scriptCstNode.runMethodStatements, scriptRunMethod = true)
+        scriptNode.methods.add(runMethod)
+      }
+      moduleNode.classes.add(scriptNode)
     }
     return moduleNode
+  }
+
+  private fun defineClass(classCstNode: ClassCstNode) {
+    // TODO handle custom superType and interfaces
+    val classType = typeResolver.defineClass(classCstNode.tokenStart, Visibility.PUBLIC, classCstNode.className, JavaType.Object, false, emptyList())
+    defineClass(classCstNode, classType)
+  }
+
+  private fun defineClass(classCstNode: ClassCstNode, classType: JavaType) {
+    classCstNode.methods.forEach { typeResolver.defineMethod(classType, toJavaMethod(classType, it)) }
+    classCstNode.constructors.forEach { typeResolver.defineMethod(classType, toJavaConstructor(classType, it)) }
+    classCstNode.fields.forEach { typeResolver.defineField(classType, toJavaField(classType, it)) }
+    classCstNode.innerClasses.forEach { defineClass(it) }
   }
 
   private fun classNode(classType: JavaType, methods: List<MethodCstNode>, imports: List<ImportNode>): ClassNode
   = useScope(ClassScope(classType, typeResolver, imports)) { classScope ->
     val classNode = ClassNode(classType, Visibility.PUBLIC, cst.tokenStart, cst.tokenEnd)
-
-    val runMethod = SemanticHelper.scriptRunMethod(classType, cst)
-    fillMethodNode(classScope, runMethod, cst.statements, scriptRunMethod = true)
-    classNode.methods.add(runMethod)
 
     methods.forEach { classNode.methods.add(methodNode(it, classScope)) }
 
@@ -697,5 +718,8 @@ class MarcelSemantic(
     return BasicJavaConstructor(Visibility.fromTokenType(node.accessNode.visibility), ownerType, node.parameters.map(this::toMethodParameter))
   }
 
+  private fun toJavaField(ownerType: JavaType, fieldNode: FieldCstNode): MarcelField {
+    TODO()
+  }
   private fun toMethodParameter(node: MethodParameterCstNode) = MethodParameter(visit(node.type), node.name)
 }

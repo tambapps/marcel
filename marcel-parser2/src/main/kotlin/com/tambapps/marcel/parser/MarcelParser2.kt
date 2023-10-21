@@ -4,12 +4,14 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.cst.AbstractMethodNode
 import com.tambapps.marcel.parser.cst.AnnotationCstNode
+import com.tambapps.marcel.parser.cst.ClassCstNode
 import com.tambapps.marcel.parser.cst.ConstructorCstNode
 import com.tambapps.marcel.parser.cst.CstAccessNode
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.FieldCstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
+import com.tambapps.marcel.parser.cst.ScriptCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
@@ -67,7 +69,9 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     if (tokens.isEmpty()) {
       throw MarcelParser2Exception(LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, null), "Unexpected end of file")
     }
-    val sourceFile = SourceFileCstNode(fileName = classSimpleName, tokenStart = tokens.first(), tokenEnd = tokens.last())
+    // TODO parse package if any
+    val sourceFile = SourceFileCstNode(packageName = null, tokenStart = tokens.first(), tokenEnd = tokens.last())
+    val scriptNode = ScriptCstNode(tokens.first(), tokens.last(), classSimpleName)
     while (current.type != TokenType.END_OF_FILE) {
       val annotations = parseAnnotations(sourceFile)
       val access = parseAccess(sourceFile)
@@ -75,17 +79,18 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         TODO()
       } else if (current.type == TokenType.FUN || current.type == TokenType.CONSTRUCTOR) {
         when (val method = method(sourceFile, annotations, access)) {
-          is MethodCstNode -> sourceFile.methods.add(method)
-          is ConstructorCstNode -> sourceFile.constructors.add(method)
+          is MethodCstNode -> scriptNode.methods.add(method)
+          is ConstructorCstNode -> scriptNode.constructors.add(method)
         }
       } else if (annotations.isNotEmpty() || access.isExplicit) {
         // it must be a field
-        sourceFile.fields.add(field(sourceFile, annotations, access))
+        scriptNode.fields.add(field(sourceFile, annotations, access))
       } else {
-        sourceFile.statements.add(statement(sourceFile))
+        scriptNode.runMethodStatements.add(statement(sourceFile))
       }
     }
 
+    if (scriptNode.isNotEmpty) sourceFile.script = scriptNode
     if (errors.isNotEmpty()) {
       throw MarcelParser2Exception(errors)
     }
