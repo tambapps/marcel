@@ -17,6 +17,24 @@ import com.tambapps.marcel.semantic.type.JavaTypeResolver
 
 internal object SemanticHelper {
 
+  fun staticInitialisationMethod(classNode: ClassNode): MethodNode {
+    return MethodNode(
+      ownerClass = classNode.type,
+      name = JavaMethod.STATIC_INITIALIZATION_BLOCK,
+      parameters = emptyList(),
+      // TODO when looking at compiled bytecode it is public
+      visibility = Visibility.PRIVATE,
+      isStatic = true,
+      returnType = JavaType.void,
+      tokenStart = classNode.tokenStart,
+      tokenEnd = classNode.tokenEnd
+    ).apply {
+      blockStatement = BlockStatementNode(mutableListOf(), tokenStart, tokenEnd)
+      // all functions should finish with a return statement, even the void ones
+      blockStatement.statements.add(ReturnStatementNode(null, tokenStart, tokenEnd))
+    }
+  }
+
   fun noArgConstructor(classNode: ClassNode, typeResolver: JavaTypeResolver): MethodNode {
     val defaultConstructorNode = MethodNode(JavaMethod.CONSTRUCTOR_NAME, emptyList(),  Visibility.PUBLIC, JavaType.void, false, classNode.tokenStart, classNode.tokenEnd, JavaType.void)
     val superConstructorMethod = typeResolver.findMethodOrThrow(classNode.superType, JavaMethod.CONSTRUCTOR_NAME, emptyList(), classNode.token)

@@ -208,7 +208,7 @@ class MarcelSemantic(
 
     node.annotations.forEach { classNode.annotations.add(annotationNode(it, ElementType.TYPE)) }
     node.methods.forEach { classNode.methods.add(methodNode(it, classScope)) }
-    // TODO handle fields default value if any
+    val staticFieldInitialValueMap = mutableMapOf<FieldNode, ExpressionNode>()
     val fieldInitialValueMap = mutableMapOf<FieldNode, ExpressionNode>()
     node.fields.forEach { cstFieldNode ->
       val fieldNode = FieldNode(visit(cstFieldNode.type), cstFieldNode.name, classType,
@@ -218,7 +218,14 @@ class MarcelSemantic(
       classNode.fields.add(fieldNode)
 
       if (cstFieldNode.initialValue != null) {
-        fieldInitialValueMap[fieldNode] = caster.cast(fieldNode.type, cstFieldNode.initialValue!!.accept(exprVisitor))
+        if (fieldNode.isStatic) {
+          val stInitMethod = classNode.getOrCreateStaticInitialisationMethod()
+          useScope(MethodScope(classScope, stInitMethod)) {
+            staticFieldInitialValueMap[fieldNode] = cstFieldNode.initialValue!!.accept(exprVisitor)
+          }
+        } else {
+          fieldInitialValueMap[fieldNode] = caster.cast(fieldNode.type, cstFieldNode.initialValue!!.accept(exprVisitor))
+        }
       }
     }
 
@@ -227,25 +234,35 @@ class MarcelSemantic(
       classNode.methods.add(SemanticHelper.noArgConstructor(classNode, typeResolver))
     }
 
-    val fieldAssignmentStatements = fieldInitialValueMap.map { entry ->
-      val field = entry.key
-      val initialValue = entry.value
-      ExpressionStatementNode(VariableAssignmentNode(variable = field,
-        owner = ThisReferenceNode(classType, field.token),
-        expression = initialValue,
-        tokenStart = field.tokenStart, tokenEnd = initialValue.tokenEnd))
-
-
-    }
-    for (constructorNode in classNode.constructors) {
-      // add at one because the first statement is the super call
-      constructorNode.blockStatement.statements.addAll(1,
-        fieldAssignmentStatements
+    if (fieldInitialValueMap.isNotEmpty()) {
+      val fieldAssignmentStatements = toFieldAssignmentStatements(classType, fieldInitialValueMap, false)
+      for (constructorNode in classNode.constructors) {
+        // add at one because the first statement is the super call
+        constructorNode.blockStatement.statements.addAll(1,
+          fieldAssignmentStatements
         )
+      }
+    }
+    if (staticFieldInitialValueMap.isNotEmpty()) {
+      val staticInitMethod = classNode.getOrCreateStaticInitialisationMethod()
+      staticInitMethod.blockStatement.statements.addAll(0,
+        toFieldAssignmentStatements(classType, staticFieldInitialValueMap, true)
+      )
     }
     return classNode
   }
 
+  private fun toFieldAssignmentStatements(classType: JavaType, map: Map<FieldNode, ExpressionNode>, isStaticContext: Boolean): List<ExpressionStatementNode> {
+    return map.map { entry ->
+      val field = entry.key
+      val initialValue = entry.value
+      ExpressionStatementNode(VariableAssignmentNode(variable = field,
+        owner = if (isStaticContext) null else ThisReferenceNode(classType, field.token),
+        expression = caster.cast(field.type, initialValue),
+        tokenStart = field.tokenStart, tokenEnd = initialValue.tokenEnd))
+    }
+
+  }
   private fun annotationNode(cstAnnotation: AnnotationCstNode, elementType: ElementType): AnnotationNode {
     val annotationType = visit(cstAnnotation.typeCstNode)
     if (!annotationType.isAnnotation) throw MarcelSemanticException("$annotationType is not an annotation")
@@ -393,7 +410,11 @@ class MarcelSemantic(
   }
 
   override fun visit(node: ClassReferenceCstNode) = ClassReferenceNode(node.value, node.token)
-  override fun visit(node: ThisReferenceCstNode) = ThisReferenceNode(currentScope.classType, node.token)
+  override fun visit(node: ThisReferenceCstNode): ExpressionNode {
+    if (currentMethodScope.staticContext) throw MarcelSemanticException(node, "Cannot reference this in a static context")
+    return ThisReferenceNode(currentScope.classType, node.token)
+  }
+
   override fun visit(node: SuperReferenceCstNode) = SuperReferenceNode(currentScope.classType.superType!!, node.token)
 
   override fun visit(node: NewInstanceCstNode): ExpressionNode {
@@ -681,7 +702,7 @@ class MarcelSemantic(
   }
 
   override fun visit(node: ReferenceCstNode): ExpressionNode {
-    val localVariable = currentMethodScope.findLocalVariable(node.value)
+    val localVariable = currentScope.findLocalVariable(node.value)
     if (localVariable != null) {
       return ReferenceNode(null, localVariable, node.token)
     }

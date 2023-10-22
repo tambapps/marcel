@@ -503,7 +503,19 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         CharCstNode(parentNode, value[0], token, previous)
       }
       TokenType.ESCAPE_SEQUENCE -> StringCstNode(parentNode, escapedSequenceValue(token.value), token, previous)
-      else -> TODO(token.type.name)
+
+      TokenType.LPAR -> {
+        val node = expression(parentNode)
+        if (current.type != TokenType.RPAR) {
+          throw MarcelParser2Exception(
+            previous,
+            "Parenthesis should be close"
+          )
+        }
+        next()
+        node
+      }
+      else -> TODO("atom " + token.type.name)
     }
   }
 
