@@ -5,6 +5,7 @@ import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.cst.AnnotationCstNode
 import com.tambapps.marcel.parser.cst.CstAccessNode
+import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
@@ -59,9 +60,19 @@ class MarcelParser2Test {
         )
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = ["fun int bar(int zoo) -> 25 + zoo", "fun int bar(int zoo) -> { return 25 + zoo }"]) // six numbers
-    fun testMethodWithParameter(text: String) {
+    @Test
+    fun testMethodWithParameter1() {
+        testMethodWithParameter("fun int bar(int zoo) -> 25 + zoo",
+            stmt(binaryOperator(TokenType.PLUS, int(25), ref("zoo"))))
+    }
+
+    @Test
+    fun testMethodWithParameter2() {
+        testMethodWithParameter("fun int bar(int zoo) { return 25 + zoo }",
+            returnNode(binaryOperator(TokenType.PLUS, int(25), ref("zoo"))))
+    }
+
+    private fun testMethodWithParameter(text: String, expectedBlock: CstNode) {
         val parser = parser(text)
         val method = parser.method(null, emptyList(), defaultAccess)
         assertTrue(method is MethodCstNode)
@@ -77,7 +88,7 @@ class MarcelParser2Test {
 
         assertEquals(
             listOf(
-                returnNode(binaryOperator(TokenType.PLUS, int(25), ref("zoo")))
+                expectedBlock
             ),
             method.statements
         )

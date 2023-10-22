@@ -1,5 +1,6 @@
 package com.tambapps.marcel.cl
 
+import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.JarWriter
 import com.tambapps.marcel.compiler.MarcelCompiler
 import java.lang.reflect.InvocationTargetException
@@ -9,7 +10,7 @@ import kotlin.math.absoluteValue
 
 abstract class AbstractCompilerTest {
 
-  protected val compiler = MarcelCompiler()
+  protected val compiler = MarcelCompiler(CompilerConfiguration())
 
   protected fun eval(resourceName: String): Any? {
     val className = "Test" + resourceName.hashCode().absoluteValue
@@ -20,7 +21,7 @@ abstract class AbstractCompilerTest {
   }
 
   protected fun evalSource(className: String, text: String): Any? {
-    val result = compiler.compile(text = text, className = className)
+    val result = compiler.compile(text = text, fileName = className)
 
     val jarFile = Files.createTempFile("", "$className.jar").toFile()
     JarWriter(jarFile).use {
