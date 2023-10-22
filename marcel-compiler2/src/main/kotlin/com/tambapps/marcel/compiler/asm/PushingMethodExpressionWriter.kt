@@ -34,6 +34,8 @@ import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ElvisNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GeNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GtNode
+import com.tambapps.marcel.semantic.ast.expression.operator.IncrLocalVariableNode
+import com.tambapps.marcel.semantic.ast.expression.operator.IncrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsNotEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.LeNode
@@ -80,6 +82,36 @@ class PushingMethodExpressionWriter(mv: MethodVisitor, typeResolver: JavaTypeRes
       Pair(JavaType.float, Opcodes.FCMPL),
       Pair(JavaType.long, Opcodes.LCMP),
     )
+  }
+
+  override fun visit(node: IncrLocalVariableNode) {
+    val variable = node.variable
+    if (node.returnValueBefore) {
+      loadVariableVisitor.visit(variable)
+      mv.visitIincInsn(variable.index, node.amount)
+    } else {
+      mv.visitIincInsn(variable.index, node.amount)
+      loadVariableVisitor.visit(variable)
+    }
+  }
+
+  override fun visit(node: IncrNode) {
+    val varAssign = VariableAssignmentNode(
+      owner = node.owner,
+      variable = node.variable,
+      expression = node.incrExpression,
+      tokenStart = node.tokenStart,
+      tokenEnd = node.tokenEnd
+    )
+    if (node.returnValueBefore) {
+      node.owner?.accept(this)
+      node.variable.accept(loadVariableVisitor)
+      visit(varAssign)
+    } else {
+      visit(varAssign)
+      node.owner?.accept(this)
+      node.variable.accept(loadVariableVisitor)
+    }
   }
 
   override fun visit(node: NotNode) {

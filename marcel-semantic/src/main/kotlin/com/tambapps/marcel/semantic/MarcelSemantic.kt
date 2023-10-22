@@ -92,6 +92,8 @@ import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ElvisNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GeNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GtNode
+import com.tambapps.marcel.semantic.ast.expression.operator.IncrLocalVariableNode
+import com.tambapps.marcel.semantic.ast.expression.operator.IncrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsNotEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.LeNode
@@ -120,6 +122,7 @@ import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.variable.field.JavaClassFieldImpl
 import com.tambapps.marcel.semantic.variable.field.MarcelField
@@ -443,7 +446,23 @@ class MarcelSemantic(
   )
 
   override fun visit(node: IncrCstNode): ExpressionNode {
-    TODO("Not yet implemented")
+    val (variable, owner) = findVariableAndOwner(node.value, node)
+    val varType = variable.type
+    if (varType != JavaType.int && varType != JavaType.long && varType != JavaType.float && varType != JavaType.double
+      && varType != JavaType.short && varType != JavaType.byte) {
+      throw MarcelSemanticException(node, "Can only increment primitive number variables")
+    }
+    checkVariableAccess(variable, node, checkGet = true, checkSet = true)
+    return if (variable is LocalVariable) IncrLocalVariableNode(node, variable, node.amount, node.returnValueBefore)
+     else {
+      val incrExpression = PlusNode(ReferenceNode(
+        owner = owner,
+        variable = variable,
+        token = node.token
+      ),
+        caster.cast(varType.type, IntConstantNode(value = node.amount, token = node.token)))
+      IncrNode(node, variable, owner, incrExpression, node.returnValueBefore)
+    }
   }
 
   override fun visit(node: IndexAccessCstNode): ExpressionNode {
@@ -702,17 +721,22 @@ class MarcelSemantic(
   }
 
   override fun visit(node: ReferenceCstNode): ExpressionNode {
-    val localVariable = currentScope.findLocalVariable(node.value)
+    val (variable, owner) = findVariableAndOwner(node.value, node)
+    return ReferenceNode(owner, variable, node.token)
+  }
+
+  private fun findVariableAndOwner(name: String, node: CstNode): Pair<Variable, ThisReferenceNode?> {
+    val localVariable = currentScope.findLocalVariable(name)
     if (localVariable != null) {
-      return ReferenceNode(null, localVariable, node.token)
+      return Pair(localVariable, null)
     }
-    val field = currentScope.findFieldOrThrow(node.value, node.token)
+    val field = currentScope.findFieldOrThrow(name, node.token)
+
     // TODO this check should not be here as this node can appear to be used for a set.
     //  remove this check here, create a CanGetVisitor and CanSetVisitor that we'll use only
     //  when we're sure of what to do with the expression
     checkVariableAccess(field, node, checkGet = true)
-    val owner = if (!field.isStatic) ThisReferenceNode(currentScope.classType, node.token) else null
-    return ReferenceNode(owner, field, node.token)
+    return Pair(field, if (!field.isStatic) ThisReferenceNode(currentScope.classType, node.token) else null)
   }
 
   override fun visit(node: FunctionCallCstNode): ExpressionNode {

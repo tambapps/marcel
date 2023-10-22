@@ -36,6 +36,8 @@ import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ElvisNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GeNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GtNode
+import com.tambapps.marcel.semantic.ast.expression.operator.IncrLocalVariableNode
+import com.tambapps.marcel.semantic.ast.expression.operator.IncrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsNotEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.LeNode
@@ -161,6 +163,23 @@ class MethodInstructionWriter(
 
   override fun visit(node: NotNode) {
     node.expressionNode.accept(this)
+  }
+
+  override fun visit(node: IncrLocalVariableNode) {
+    val variable = node.variable
+    mv.visitIincInsn(variable.index, node.amount)
+  }
+
+  override fun visit(node: IncrNode) {
+    visit(
+      VariableAssignmentNode(
+        owner = node.owner,
+        variable = node.variable,
+        expression = node.incrExpression,
+        tokenStart = node.tokenStart,
+        tokenEnd = node.tokenEnd
+      )
+    )
   }
 
   override fun visit(node: ArrayIndexAssignmentNode) {
