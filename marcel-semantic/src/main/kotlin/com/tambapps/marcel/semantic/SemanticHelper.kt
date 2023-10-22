@@ -22,7 +22,6 @@ internal object SemanticHelper {
       ownerClass = classNode.type,
       name = JavaMethod.STATIC_INITIALIZATION_BLOCK,
       parameters = emptyList(),
-      // TODO when looking at compiled bytecode it is public
       visibility = Visibility.PRIVATE,
       isStatic = true,
       returnType = JavaType.void,

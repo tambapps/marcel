@@ -99,8 +99,7 @@ class MarcelClassWriter(
     val fieldVisitor = classWriter.visitField(
       ReflectUtils.computeAccess(
         field.visibility, isStatic = field.isStatic, isFinal = field.isFinal
-      )
-      , field.name, field.type.descriptor,
+      ), field.name, field.type.descriptor,
       if (field.type.superType?.hasGenericTypes == true || field.type.directlyImplementedInterfaces.any { it.hasGenericTypes }) field.type.signature else null,
       null
     )
@@ -113,7 +112,7 @@ class MarcelClassWriter(
 
   private fun writeMethod(classWriter: ClassWriter, classNode: ClassNode, methodNode: MethodNode) {
     val mv = classWriter.visitMethod(ReflectUtils.computeAccess(
-      classNode.visibility, isStatic = methodNode.isStatic
+      methodNode.visibility, isStatic = methodNode.isStatic, isAbstract = methodNode.isAbstract,
     ), methodNode.name, methodNode.descriptor, methodNode.signature, null)
 
     // writing annotations

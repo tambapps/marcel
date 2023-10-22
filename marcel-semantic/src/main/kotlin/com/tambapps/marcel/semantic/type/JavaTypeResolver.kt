@@ -113,16 +113,6 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     marcelField.mergeWith(field)
   }
 
-  fun registerClass(classNode: ClassNode) {
-    _definedTypes[classNode.type.className] = classNode.type
- /* TODO
-    classNode.methods.forEach { defineMethod(classNode.type, it) }
-    classNode.fields.forEach { defineField(classNode.type, it) }
-    classNode.innerClasses.forEach { registerClass(it) }
-
-  */
-  }
-
   fun isDefined(className: String): Boolean {
     return try {
       of(className, emptyList())
