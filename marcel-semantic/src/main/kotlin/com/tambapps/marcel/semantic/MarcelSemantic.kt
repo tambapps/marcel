@@ -42,6 +42,7 @@ import com.tambapps.marcel.parser.cst.expression.NotCstNode
 import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.CharCstNode
 import com.tambapps.marcel.parser.cst.statement.BlockCstNode
 import com.tambapps.marcel.parser.cst.statement.ForInCstNode
 import com.tambapps.marcel.parser.cst.statement.ForVarCstNode
@@ -79,6 +80,7 @@ import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.CharConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.JavaConstantExpression
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
@@ -358,6 +360,7 @@ class MarcelSemantic(
   override fun visit(node: LongCstNode) = LongConstantNode(node.token, node.value)
   override fun visit(node: NullCstNode) = NullValueNode(node.token)
   override fun visit(node: StringCstNode) = StringConstantNode(node.value, node)
+  override fun visit(node: CharCstNode) = CharConstantNode(node.token, node.value)
 
   override fun visit(node: TemplateStringNode): ExpressionNode {
     val expressions = node.expressions.map { it.accept(exprVisitor) }

@@ -2,6 +2,7 @@ package com.tambapps.marcel.parser.cst.expression
 
 import com.tambapps.marcel.parser.cst.expression.literal.ArrayCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.CharCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
@@ -26,6 +27,7 @@ interface ExpressionCstNodeVisitor<T> {
   fun visit(node: LongCstNode): T
   fun visit(node: NullCstNode): T
   fun visit(node: StringCstNode): T
+  fun visit(node: CharCstNode): T
   fun visit(node: TemplateStringNode): T
   fun visit(node: MapCstNode): T
   fun visit(node: ArrayCstNode): T

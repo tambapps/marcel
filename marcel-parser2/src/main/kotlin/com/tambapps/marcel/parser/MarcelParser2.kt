@@ -32,6 +32,7 @@ import com.tambapps.marcel.parser.cst.expression.NotCstNode
 import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.CharCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.*
 import com.tambapps.marcel.parser.cst.statement.BlockCstNode
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
@@ -482,6 +483,25 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       TokenType.NOT -> NotCstNode(expression(parentNode), parentNode, token, previous)
       TokenType.VALUE_TRUE -> BoolCstNode(parentNode, true, token)
       TokenType.VALUE_FALSE -> BoolCstNode(parentNode, false, token)
+      TokenType.OPEN_CHAR_QUOTE -> {
+        val valueToken = next()
+        val value = when (valueToken.type) {
+          TokenType.REGULAR_STRING_PART -> valueToken.value
+          TokenType.ESCAPE_SEQUENCE -> escapedSequenceValue(valueToken.value)
+          TokenType.END_OF_FILE -> throw MarcelParser2Exception(
+            token,
+            "Unexpected end of file",
+            true
+          )
+          else -> throw MarcelParser2Exception(
+            previous,
+            "Unexpected token ${valueToken.type} for character constant"
+          )
+        }
+        accept(TokenType.CLOSING_CHAR_QUOTE)
+        if (value.length != 1) throw MarcelParser2Exception(token, "Char constant can only contain one character")
+        CharCstNode(parentNode, value[0], token, previous)
+      }
       TokenType.ESCAPE_SEQUENCE -> StringCstNode(parentNode, escapedSequenceValue(token.value), token, previous)
       else -> TODO(token.type.name)
     }
