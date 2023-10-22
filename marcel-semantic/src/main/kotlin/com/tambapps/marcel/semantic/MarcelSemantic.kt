@@ -209,16 +209,39 @@ class MarcelSemantic(
     node.annotations.forEach { classNode.annotations.add(annotationNode(it, ElementType.TYPE)) }
     node.methods.forEach { classNode.methods.add(methodNode(it, classScope)) }
     // TODO handle fields default value if any
+    val fieldInitialValueMap = mutableMapOf<FieldNode, ExpressionNode>()
     node.fields.forEach { cstFieldNode ->
-      classNode.fields.add(FieldNode(visit(cstFieldNode.type), cstFieldNode.name, classType,
+      val fieldNode = FieldNode(visit(cstFieldNode.type), cstFieldNode.name, classType,
         cstFieldNode.annotations.map { annotationNode(it, ElementType.FIELD) },
         cstFieldNode.access.isFinal, Visibility.fromTokenType(cstFieldNode.access.visibility),
-        cstFieldNode.access.isStatic, cstFieldNode.tokenStart, cstFieldNode.tokenEnd))
+        cstFieldNode.access.isStatic, cstFieldNode.tokenStart, cstFieldNode.tokenEnd)
+      classNode.fields.add(fieldNode)
+
+      if (cstFieldNode.initialValue != null) {
+        fieldInitialValueMap[fieldNode] = caster.cast(fieldNode.type, cstFieldNode.initialValue!!.accept(exprVisitor))
+      }
     }
 
     if (classNode.constructorCount == 0) {
       // default no arg constructor
       classNode.methods.add(SemanticHelper.noArgConstructor(classNode, typeResolver))
+    }
+
+    val fieldAssignmentStatements = fieldInitialValueMap.map { entry ->
+      val field = entry.key
+      val initialValue = entry.value
+      ExpressionStatementNode(VariableAssignmentNode(variable = field,
+        owner = ThisReferenceNode(classType, field.token),
+        expression = initialValue,
+        tokenStart = field.tokenStart, tokenEnd = initialValue.tokenEnd))
+
+
+    }
+    for (constructorNode in classNode.constructors) {
+      // add at one because the first statement is the super call
+      constructorNode.blockStatement.statements.addAll(1,
+        fieldAssignmentStatements
+        )
     }
     return classNode
   }

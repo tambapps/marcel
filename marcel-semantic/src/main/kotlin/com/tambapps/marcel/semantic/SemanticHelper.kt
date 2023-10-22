@@ -20,7 +20,7 @@ internal object SemanticHelper {
   fun noArgConstructor(classNode: ClassNode, typeResolver: JavaTypeResolver): MethodNode {
     val defaultConstructorNode = MethodNode(JavaMethod.CONSTRUCTOR_NAME, emptyList(),  Visibility.PUBLIC, JavaType.void, false, classNode.tokenStart, classNode.tokenEnd, JavaType.void)
     val superConstructorMethod = typeResolver.findMethodOrThrow(classNode.superType, JavaMethod.CONSTRUCTOR_NAME, emptyList(), classNode.token)
-    defaultConstructorNode.blockStatement = BlockStatementNode(listOf(
+    defaultConstructorNode.blockStatement = BlockStatementNode(mutableListOf(
       ExpressionStatementNode(SuperConstructorCallNode(classNode.superType, superConstructorMethod, emptyList(), defaultConstructorNode.tokenStart, defaultConstructorNode.tokenEnd)),
       ReturnStatementNode(VoidExpressionNode(defaultConstructorNode.token), defaultConstructorNode.tokenStart, defaultConstructorNode.tokenEnd)
     ), defaultConstructorNode.tokenStart, defaultConstructorNode.tokenEnd)

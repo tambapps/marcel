@@ -16,6 +16,7 @@ class ClassNode(
   val methods = mutableListOf<MethodNode>()
   val annotations = mutableListOf<AnnotationNode>()
 
+  val constructors get() = methods.filter { it.isConstructor }
   val constructorCount get() = methods.count { it.isConstructor }
 
 }
