@@ -1,6 +1,7 @@
 package com.tambapps.marcel.semantic.variable.field
 
 import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.variable.VariableVisitor
 
 /**
@@ -23,7 +24,10 @@ open class CompositeField(override val name: String): MarcelField {
   override val isStatic get() = (getters + setters).all { it.isStatic }
   override val owner get() = (getters.firstOrNull() ?: setters.first()).owner
   override val visibility get() = (getters + setters).map { it.visibility }.maxBy { it.ordinal }
-  override fun isAccessibleFrom(javaType: JavaType) = (getters + setters).any { it.isAccessibleFrom(javaType) }
+  override fun isVisibleFrom(javaType: JavaType, access: Variable.Access) = when (access) {
+    Variable.Access.GET -> getters.any { it.isVisibleFrom(javaType, access) }
+    Variable.Access.SET -> setters.any { it.isVisibleFrom(javaType, access) }
+  }
 
   override val type get() =  JavaType.commonType((getters + setters).map { it.type })
 
@@ -51,6 +55,6 @@ open class CompositeField(override val name: String): MarcelField {
     _setters.addAll(other._setters)
   }
 
-  fun settableFieldFrom(javaType: JavaType) = setters.find { it.isAccessibleFrom(javaType) }
-  fun gettableFieldFrom(javaType: JavaType) = getters.find { it.isAccessibleFrom(javaType) }
+  fun settableFieldFrom(javaType: JavaType) = setters.find { it.isVisibleFrom(javaType, Variable.Access.SET) }
+  fun gettableFieldFrom(javaType: JavaType) = getters.find { it.isVisibleFrom(javaType, Variable.Access.GET) }
 }

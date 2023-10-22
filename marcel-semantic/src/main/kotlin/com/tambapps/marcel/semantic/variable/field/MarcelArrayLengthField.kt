@@ -2,6 +2,7 @@ package com.tambapps.marcel.semantic.variable.field
 
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.variable.VariableVisitor
 
 class MarcelArrayLengthField(override val owner: JavaType, override val name: String): MarcelField  {
@@ -15,5 +16,5 @@ class MarcelArrayLengthField(override val owner: JavaType, override val name: St
 
 
   override fun <T> accept(visitor: VariableVisitor<T>) = visitor.visit(this)
-  override fun isAccessibleFrom(javaType: JavaType) = true
+  override fun isVisibleFrom(javaType: JavaType, access: Variable.Access) = true
 }

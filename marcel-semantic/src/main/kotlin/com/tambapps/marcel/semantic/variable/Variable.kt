@@ -7,11 +7,12 @@ import com.tambapps.marcel.semantic.type.JavaTyped
  * A Marcel Variable. It can be a local variable, a getter/setter, a field
  */
 interface Variable : JavaTyped {
-
+  enum class Access {
+    GET, SET
+  }
   fun <T> accept(visitor: VariableVisitor<T>): T
 
-  // TODO move this to MarcelField and add check or set enum/boolean as a parameter
-  fun isAccessibleFrom(javaType: JavaType): Boolean
+  fun isVisibleFrom(javaType: JavaType, access: Access): Boolean
 
   override val type: JavaType
   val name: String

@@ -25,5 +25,5 @@ class LocalVariable constructor(override var type: JavaType, override var name: 
     this.isFinal = isSettable
   }
 
-  override fun isAccessibleFrom(javaType: JavaType) = true
+  override fun isVisibleFrom(javaType: JavaType, access: Variable.Access) = true
 }

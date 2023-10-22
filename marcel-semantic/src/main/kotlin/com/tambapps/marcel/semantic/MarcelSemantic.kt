@@ -787,7 +787,8 @@ class MarcelSemantic(
     castType: JavaType? = null) = FunctionCallNode(method, owner, castType, castedArguments(method, arguments), token)
 
   private fun checkVariableAccess(variable: Variable, node: CstNode, checkGet: Boolean = false, checkSet: Boolean = false) {
-    if (!variable.isAccessibleFrom(currentScope.classType)) {
+    if (checkGet && !variable.isVisibleFrom(currentScope.classType, Variable.Access.GET)
+      || checkSet && !variable.isVisibleFrom(currentScope.classType, Variable.Access.SET)) {
       throw MarcelSemanticException(node, "Cannot access variable ${variable.name} from ${currentScope.classType}")
     }
     if (checkGet && !variable.isGettable) {
