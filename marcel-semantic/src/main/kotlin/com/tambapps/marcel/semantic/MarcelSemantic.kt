@@ -422,14 +422,16 @@ class MarcelSemantic(
 
   override fun visit(node: NewInstanceCstNode): ExpressionNode {
     val type = visit(node.type)
-    if (node.namedArgumentNodes.isNotEmpty()) TODO()
+    if (node.namedArgumentNodes.isNotEmpty()) TODO("named arguments")
     val arguments = node.positionalArgumentNodes.map { it.accept(exprVisitor) }
     val constructorMethod = typeResolver.findMethodOrThrow(type, JavaMethod.CONSTRUCTOR_NAME, arguments, node.token)
     return NewInstanceNode(type, constructorMethod, castedArguments(constructorMethod, arguments), node.token)
   }
 
   override fun visit(node: DirectFieldReferenceCstNode): ExpressionNode {
-    TODO("Not yet implemented")
+    val field = currentScope.findFieldOrThrow(node.value, node.token)
+    val owner = if (!field.isStatic) ThisReferenceNode(currentScope.classType, node.token) else null
+    return ReferenceNode(owner = owner, variable = field, token = node.token)
   }
 
   override fun visit(node: ArrayCstNode) = ArrayNode(
