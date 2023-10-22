@@ -13,7 +13,7 @@ import java.util.concurrent.ThreadLocalRandom
  * The scope inside a method
  */
 open class MethodScope internal constructor(
-  private val parentScope: Scope?,
+  private val parentScope: Scope,
   val method: JavaMethod,
   typeResolver: JavaTypeResolver,
   classType: JavaType,
@@ -72,16 +72,16 @@ open class MethodScope internal constructor(
     localVariablePool.free(v)
   }
 
-  fun findLocalVariable(name: String): LocalVariable? {
+  override fun findLocalVariable(name: String): LocalVariable? {
     return localVariables.find { it.name == name }
       // for MethodInnerScope
       ?: (parentScope as? MethodScope)?.findLocalVariable(name)
   }
 
-  override fun findVariable(name: String) = findLocalVariable(name) ?: parentScope?.findVariable(name)
+  override fun findField(name: String) = parentScope.findField(name)
 
   override fun dispose() {
-    val vars = localVariables.toList() // copy them to avoid modyfing original list while iterating on it
+    val vars = localVariables.toList() // copy them to avoid modifying original list while iterating on it
     vars.forEach { freeLocalVariable(it) }
   }
 }

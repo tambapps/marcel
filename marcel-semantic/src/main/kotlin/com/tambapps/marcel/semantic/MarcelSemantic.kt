@@ -655,9 +655,17 @@ class MarcelSemantic(
   }
 
   override fun visit(node: ReferenceCstNode): ExpressionNode {
-    val variable = currentScope.findVariableOrThrow(node.value, node.token)
-    checkVariableAccess(variable, node, checkGet = true)
-    return ReferenceNode(null, variable, node.token)
+    val localVariable = currentMethodScope.findLocalVariable(node.value)
+    if (localVariable != null) {
+      return ReferenceNode(null, localVariable, node.token)
+    }
+    val field = currentScope.findFieldOrThrow(node.value, node.token)
+    // TODO this check should not be here as this node can appear to be used for a set.
+    //  remove this check here, create a CanGetVisitor and CanSetVisitor that we'll use only
+    //  when we're sure of what to do with the expression
+    checkVariableAccess(field, node, checkGet = true)
+    val owner = if (!field.isStatic) ThisReferenceNode(currentScope.classType, node.token) else null
+    return ReferenceNode(owner, field, node.token)
   }
 
   override fun visit(node: FunctionCallCstNode): ExpressionNode {

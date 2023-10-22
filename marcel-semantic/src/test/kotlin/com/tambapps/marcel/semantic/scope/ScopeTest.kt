@@ -29,7 +29,7 @@ class ScopeTest {
 
     scope.addLocalVariable(int, "myInt")
 
-    assertTrue(scope.hasVariable("myInt"))
+    assertTrue(scope.hasLocalVariable("myInt"))
     assertEquals(int, scope.findLocalVariable("myInt")?.type)
     assertEquals("myInt", scope.findLocalVariable("myInt")?.name)
     assertEquals(1, scope.findLocalVariable("myInt")?.index)
@@ -42,15 +42,15 @@ class ScopeTest {
     val innerScope = MethodInnerScope(scope)
 
     scope.addLocalVariable(int, "var1")
-    assertTrue(scope.hasVariable("var1"))
-    assertTrue(innerScope.hasVariable("var1"))
-    assertSame(scope.findVariable("var1"), innerScope.findVariable("var1"))
+    assertTrue(scope.hasLocalVariable("var1"))
+    assertTrue(innerScope.hasLocalVariable("var1"))
+    assertSame(scope.findField("var1"), innerScope.findField("var1"))
     assertEquals(1, scope.findLocalVariable("var1")?.index)
 
 
     innerScope.addLocalVariable(int, "myInt")
-    assertTrue(innerScope.hasVariable("myInt"))
-    assertFalse(scope.hasVariable("myInt"))
+    assertTrue(innerScope.hasLocalVariable("myInt"))
+    assertFalse(scope.hasLocalVariable("myInt"))
     assertEquals(2, innerScope.findLocalVariable("myInt")?.index)
 
     assertThrows<MarcelSemanticException> { innerScope.addLocalVariable(int, "var1") }

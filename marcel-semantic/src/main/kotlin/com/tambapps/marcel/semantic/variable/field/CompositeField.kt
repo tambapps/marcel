@@ -1,13 +1,12 @@
 package com.tambapps.marcel.semantic.variable.field
 
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.variable.VariableVisitor
 
 /**
  * A field regrouping different kinds of Variable for a same name
  */
-open class CompositeField(override val name: String): Variable {
+open class CompositeField(override val name: String): MarcelField {
 
   override fun <T> accept(visitor: VariableVisitor<T>) = visitor.visit(this)
 
@@ -21,7 +20,9 @@ open class CompositeField(override val name: String): Variable {
   override val isGettable get() = _getters.isNotEmpty()
 
   override val isFinal get() = (getters + setters).all { it.isFinal }
-  val isStatic get() = (getters + setters).all { it.isStatic }
+  override val isStatic get() = (getters + setters).all { it.isStatic }
+  override val owner get() = (getters.firstOrNull() ?: setters.first()).owner
+  override val visibility get() = (getters + setters).map { it.visibility }.maxBy { it.ordinal }
   override fun isAccessibleFrom(javaType: JavaType) = (getters + setters).any { it.isAccessibleFrom(javaType) }
 
   override val type get() =  JavaType.commonType((getters + setters).map { it.type })

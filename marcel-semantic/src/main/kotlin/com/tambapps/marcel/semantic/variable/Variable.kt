@@ -10,6 +10,7 @@ interface Variable : JavaTyped {
 
   fun <T> accept(visitor: VariableVisitor<T>): T
 
+  // TODO move this to MarcelField and add check or set enum/boolean as a parameter
   fun isAccessibleFrom(javaType: JavaType): Boolean
 
   override val type: JavaType

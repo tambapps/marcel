@@ -9,5 +9,6 @@ import com.tambapps.marcel.semantic.type.JavaTypeResolver
  */
 class ImportScope(typeResolver: JavaTypeResolver, imports: List<ImportNode>) :
   AbstractScope(typeResolver, JavaType.Object, imports) {
-  override fun findVariable(name: String) = null
+  override fun findField(name: String) = null
+  override fun findLocalVariable(name: String) = null
 }
