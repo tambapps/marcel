@@ -3,6 +3,7 @@ package com.tambapps.marcel.semantic.visitor
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
+import com.tambapps.marcel.semantic.ast.statement.ForStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
@@ -20,5 +21,6 @@ object AllPathsReturnVisitor: StatementNodeVisitor<Boolean> {
       && node.falseStatementNode != null && node.falseStatementNode.accept(this)
 
   override fun visit(node: ForInIteratorStatementNode) = false
+  override fun visit(node: ForStatementNode) = false
   fun test(statements: List<StatementNode>) = statements.any { it.accept(this) }
 }

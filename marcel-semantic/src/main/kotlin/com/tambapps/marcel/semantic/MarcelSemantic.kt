@@ -107,6 +107,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.OrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
 import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
+import com.tambapps.marcel.semantic.ast.statement.ForStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
@@ -579,6 +580,7 @@ class MarcelSemantic(
         NotNode(fCall(node = node, method = method, arguments = listOf(left, right)), node)
       }
       TokenType.GOE -> numberComparisonOperatorNode(leftOperand, rightOperand, ::GeNode) { left, right ->
+
         TODO("compareTo comparison")
       }
       TokenType.GT -> numberComparisonOperatorNode(leftOperand, rightOperand, ::GtNode) { left, right ->
@@ -830,8 +832,18 @@ class MarcelSemantic(
     }
   }
 
-  override fun visit(node: ForVarCstNode): StatementNode {
-    TODO("Not yet implemented")
+  override fun visit(node: ForVarCstNode): StatementNode = useScope(MethodInnerScope(currentMethodScope)) {
+    val initStatement = node.varDecl.accept(stmtVisitor)
+    val condition = caster.truthyCast(node.condition.accept(exprVisitor))
+    val iteratorStatement = node.iteratorStatement.accept(stmtVisitor)
+    val bodyStatement = node.bodyStatement.accept(stmtVisitor)
+    ForStatementNode(
+      node = node,
+      initStatement = initStatement,
+      condition = condition,
+      iteratorStatement = iteratorStatement,
+      bodyStatement = bodyStatement
+    )
   }
 
   override fun visit(node: BlockCstNode) = useScope(MethodInnerScope(currentMethodScope)) {

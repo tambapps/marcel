@@ -51,6 +51,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.OrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
 import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
+import com.tambapps.marcel.semantic.ast.statement.ForStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNodeVisitor
 import com.tambapps.marcel.semantic.extensions.javaType
@@ -136,6 +137,32 @@ class MethodInstructionWriter(
     // loop body
     visit(VariableAssignmentNode(node.variable, node.nextMethodCall, node.tokenStart, node.tokenEnd))
     node.bodyStatement.accept(this)
+    mv.visitJumpInsn(Opcodes.GOTO, loopStart)
+
+    // loop end
+    mv.visitLabel(loopEnd)
+  }
+
+  override fun visit(node: ForStatementNode) {
+    // initialization
+    node.initStatement.accept(this)
+
+    // loop start
+    val loopStart = Label()
+    mv.visitLabel(loopStart)
+
+    // Verifying condition
+    pushExpression(node.condition)
+    val loopEnd = Label()
+    mv.visitJumpInsn(Opcodes.IFEQ, loopEnd)
+
+    // loop body
+    val incrementLabel = Label()
+    node.bodyStatement.accept(this)
+
+    // iteration
+    mv.visitLabel(incrementLabel)
+    node.iteratorStatement.accept(this)
     mv.visitJumpInsn(Opcodes.GOTO, loopStart)
 
     // loop end
