@@ -9,5 +9,7 @@ interface StatementCstNodeVisitor<T> {
   fun visit(node: ForInCstNode): T
   fun visit(node: ForVarCstNode): T
   fun visit(node: BlockCstNode): T
+  fun visit(node: BreakCstNode): T
+  fun visit(node: ContinueCstNode): T
 
 }

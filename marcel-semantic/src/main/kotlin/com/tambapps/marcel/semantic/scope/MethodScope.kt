@@ -13,7 +13,7 @@ import java.util.concurrent.ThreadLocalRandom
  * The scope inside a method
  */
 open class MethodScope internal constructor(
-  private val parentScope: Scope,
+  protected val parentScope: Scope,
   val method: JavaMethod,
   typeResolver: JavaTypeResolver,
   classType: JavaType,

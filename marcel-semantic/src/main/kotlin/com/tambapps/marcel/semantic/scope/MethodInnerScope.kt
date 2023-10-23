@@ -4,8 +4,12 @@ package com.tambapps.marcel.semantic.scope
  * A inner scope inside a method. E.g. in a if/else, in a switch, ...
  */
 class MethodInnerScope(
-  parentScope: MethodScope
+  parentScope: MethodScope,
+  isInLoop: Boolean = false,
 ) : MethodScope(parentScope, parentScope.method, parentScope.typeResolver, parentScope.classType,
   parentScope.imports, parentScope.staticContext, parentScope.localVariablePool) {
+
+  private val _isInLoop = isInLoop
+  val isInLoop: Boolean get() = _isInLoop || (parentScope as? MethodInnerScope)?.isInLoop ?: false
 
 }

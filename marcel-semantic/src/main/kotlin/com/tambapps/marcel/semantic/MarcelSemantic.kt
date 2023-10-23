@@ -44,6 +44,8 @@ import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.CharCstNode
 import com.tambapps.marcel.parser.cst.statement.BlockCstNode
+import com.tambapps.marcel.parser.cst.statement.BreakCstNode
+import com.tambapps.marcel.parser.cst.statement.ContinueCstNode
 import com.tambapps.marcel.parser.cst.statement.ForInCstNode
 import com.tambapps.marcel.parser.cst.statement.ForVarCstNode
 import com.tambapps.marcel.parser.cst.statement.IfCstStatementNode
@@ -106,6 +108,8 @@ import com.tambapps.marcel.semantic.ast.expression.operator.NotNode
 import com.tambapps.marcel.semantic.ast.expression.operator.OrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
+import com.tambapps.marcel.semantic.ast.statement.BreakNode
+import com.tambapps.marcel.semantic.ast.statement.ContinueNode
 import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ForStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
@@ -161,6 +165,7 @@ class MarcelSemantic(
   // FIFO
   private val currentScope get() = scopeQueue.peek()
   private val currentMethodScope get() = currentScope as? MethodScope ?: throw MarcelSemanticException("Not in a method")
+  private val currentInnerMethodScope get() = currentScope as? MethodInnerScope ?: throw MarcelSemanticException("Not in a inner scope")
 
   fun apply(): ModuleNode {
     val imports = Scope.DEFAULT_IMPORTS.toMutableList()
@@ -802,7 +807,7 @@ class MarcelSemantic(
       node.falseStatementNode?.accept(stmtVisitor), node)
   }
 
-  override fun visit(node: ForInCstNode) = useScope(MethodInnerScope(currentMethodScope)) {
+  override fun visit(node: ForInCstNode) = useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
     val variable = it.addLocalVariable(visit(node.varType), node.varName)
 
     val inNode = node.inNode.accept(exprVisitor)
@@ -832,7 +837,7 @@ class MarcelSemantic(
     }
   }
 
-  override fun visit(node: ForVarCstNode): StatementNode = useScope(MethodInnerScope(currentMethodScope)) {
+  override fun visit(node: ForVarCstNode): StatementNode = useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
     val initStatement = node.varDecl.accept(stmtVisitor)
     val condition = caster.truthyCast(node.condition.accept(exprVisitor))
     val iteratorStatement = node.iteratorStatement.accept(stmtVisitor)
@@ -844,6 +849,20 @@ class MarcelSemantic(
       iteratorStatement = iteratorStatement,
       bodyStatement = bodyStatement
     )
+  }
+
+  override fun visit(node: BreakCstNode): StatementNode {
+    if (!currentInnerMethodScope.isInLoop) {
+      throw MarcelSemanticException(node, "Cannot break outside of a loop")
+    }
+    return BreakNode(node)
+  }
+
+  override fun visit(node: ContinueCstNode): StatementNode {
+    if (!currentInnerMethodScope.isInLoop) {
+      throw MarcelSemanticException(node, "Cannot continue outside of a loop")
+    }
+    return ContinueNode(node)
   }
 
   override fun visit(node: BlockCstNode) = useScope(MethodInnerScope(currentMethodScope)) {

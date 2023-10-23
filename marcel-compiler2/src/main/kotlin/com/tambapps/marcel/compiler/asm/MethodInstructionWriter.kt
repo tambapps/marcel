@@ -50,6 +50,8 @@ import com.tambapps.marcel.semantic.ast.expression.operator.NotNode
 import com.tambapps.marcel.semantic.ast.expression.operator.OrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
+import com.tambapps.marcel.semantic.ast.statement.BreakNode
+import com.tambapps.marcel.semantic.ast.statement.ContinueNode
 import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ForStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
@@ -60,12 +62,16 @@ import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
+import java.util.LinkedList
 
 class MethodInstructionWriter(
   mv: MethodVisitor, typeResolver: JavaTypeResolver, classScopeType: JavaType
 ): MethodExpressionWriter(mv, typeResolver, classScopeType), StatementNodeVisitor<Unit> {
 
   private val expressionPusher = PushingMethodExpressionWriter(mv, typeResolver, classScopeType)
+
+  private val loopContextQueue = LinkedList<LoopContext>()
+  private val currentLoopContext get() = loopContextQueue.peek()
 
   /*
    * Statements
@@ -122,8 +128,10 @@ class MethodInstructionWriter(
     // assign the iterator to a variable
     visit(VariableAssignmentNode(node.iteratorVariable, node.iteratorExpression, node.tokenStart, node.tokenEnd))
 
-    // loop start
     val loopStart = Label()
+    val loopEnd = Label()
+    loopContextQueue.push(LoopContext(continueLabel = loopStart, breakLabel = loopEnd))
+    // loop start
     mv.visitLabel(loopStart)
 
     // Verifying condition -> iterator.hasNext()
@@ -131,7 +139,6 @@ class MethodInstructionWriter(
     pushExpression(iteratorVarReference)
     mv.visitMethodInsn(typeResolver.findMethodOrThrow(Iterator::class.javaType, "hasNext", emptyList()))
 
-    val loopEnd = Label()
     mv.visitJumpInsn(Opcodes.IFEQ, loopEnd)
 
     // loop body
@@ -147,17 +154,18 @@ class MethodInstructionWriter(
     // initialization
     node.initStatement.accept(this)
 
+    val incrementLabel = Label()
+    val loopEnd = Label()
+    loopContextQueue.push(LoopContext(continueLabel = incrementLabel, breakLabel = loopEnd))
     // loop start
     val loopStart = Label()
     mv.visitLabel(loopStart)
 
     // Verifying condition
     pushExpression(node.condition)
-    val loopEnd = Label()
     mv.visitJumpInsn(Opcodes.IFEQ, loopEnd)
 
     // loop body
-    val incrementLabel = Label()
     node.bodyStatement.accept(this)
 
     // iteration
@@ -167,6 +175,15 @@ class MethodInstructionWriter(
 
     // loop end
     mv.visitLabel(loopEnd)
+    loopContextQueue.pop()
+  }
+
+  override fun visit(node: BreakNode) {
+    mv.visitJumpInsn(Opcodes.GOTO, currentLoopContext.breakLabel)
+  }
+
+  override fun visit(node: ContinueNode) {
+    mv.visitJumpInsn(Opcodes.GOTO, currentLoopContext.continueLabel)
   }
 
   /*

@@ -1,6 +1,8 @@
 package com.tambapps.marcel.semantic.visitor
 
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
+import com.tambapps.marcel.semantic.ast.statement.BreakNode
+import com.tambapps.marcel.semantic.ast.statement.ContinueNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ForStatementNode
@@ -22,5 +24,7 @@ object AllPathsReturnVisitor: StatementNodeVisitor<Boolean> {
 
   override fun visit(node: ForInIteratorStatementNode) = false
   override fun visit(node: ForStatementNode) = false
+  override fun visit(node: BreakNode) = false
+  override fun visit(node: ContinueNode) = false
   fun test(statements: List<StatementNode>) = statements.any { it.accept(this) }
 }

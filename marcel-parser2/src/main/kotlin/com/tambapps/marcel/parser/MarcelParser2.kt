@@ -35,6 +35,8 @@ import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.CharCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.*
 import com.tambapps.marcel.parser.cst.statement.BlockCstNode
+import com.tambapps.marcel.parser.cst.statement.BreakCstNode
+import com.tambapps.marcel.parser.cst.statement.ContinueCstNode
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ForInCstNode
 import com.tambapps.marcel.parser.cst.statement.ForVarCstNode
@@ -301,6 +303,8 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
             ForVarCstNode(initStatement, condition, iteratorStatement, forBlock, parentNode, token, forBlock.tokenEnd)
           }
         }
+        TokenType.BREAK -> BreakCstNode(parentNode, token)
+        TokenType.CONTINUE -> ContinueCstNode(parentNode, token)
         else -> {
           rollback()
           val expr = expression(parentNode)
