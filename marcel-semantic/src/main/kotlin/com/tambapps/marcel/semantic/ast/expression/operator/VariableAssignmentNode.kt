@@ -17,11 +17,11 @@ class VariableAssignmentNode(
 ) : AbstractExpressionNode(variable.type, tokenStart, tokenEnd) {
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) = visitor.visit(this)
 
-  constructor(variable: LocalVariable, expression: ExpressionNode, node: CstNode)
-      : this(variable, expression, null, node)
-  constructor(variable: LocalVariable, expression: ExpressionNode, tokenStart: LexToken,
+  constructor(localVariable: LocalVariable, expression: ExpressionNode, node: CstNode)
+      : this(localVariable, expression, null, node)
+  constructor(localVariable: LocalVariable, expression: ExpressionNode, tokenStart: LexToken,
               tokenEnd: LexToken)
-      : this(variable, expression, null, tokenStart, tokenEnd)
+      : this(localVariable, expression, null, tokenStart, tokenEnd)
 
   constructor(variable: Variable, expression: ExpressionNode, owner: ExpressionNode? = null, node: CstNode)
       : this(variable, expression, owner, node.tokenStart, node.tokenEnd)

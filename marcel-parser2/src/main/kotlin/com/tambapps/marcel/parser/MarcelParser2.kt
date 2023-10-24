@@ -41,6 +41,7 @@ import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ForInCstNode
 import com.tambapps.marcel.parser.cst.statement.ForVarCstNode
 import com.tambapps.marcel.parser.cst.statement.IfCstStatementNode
+import com.tambapps.marcel.parser.cst.statement.MultiVarDeclarationCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ThrowCstNode
@@ -285,6 +286,25 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         TokenType.THROW -> {
           val expression = expression(parentNode)
           ThrowCstNode(parentNode, token, previous, expression)
+        }
+        TokenType.DEF -> {
+          accept(TokenType.LPAR)
+          val declarations = mutableListOf<Pair<TypeCstNode, String>?>()
+          while (current.type != TokenType.RPAR) {
+            if (current.type == TokenType.IDENTIFIER && current.value.all { it == '_' }) {
+              declarations.add(null)
+              skip()
+            } else {
+              val varType = parseType(parentNode)
+              val varName = accept(TokenType.IDENTIFIER).value
+              declarations.add(Pair(varType, varName))
+            }
+            if (current.type == TokenType.COMMA) skip()
+          }
+          skip() // skip RPAR
+          accept(TokenType.ASSIGNMENT)
+          val expression = expression(parentNode)
+          MultiVarDeclarationCstNode(parentNode, token, previous, declarations, expression)
         }
         TokenType.FOR -> {
           accept(TokenType.LPAR)

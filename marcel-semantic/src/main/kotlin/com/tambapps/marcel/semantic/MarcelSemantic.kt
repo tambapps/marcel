@@ -49,6 +49,7 @@ import com.tambapps.marcel.parser.cst.statement.ContinueCstNode
 import com.tambapps.marcel.parser.cst.statement.ForInCstNode
 import com.tambapps.marcel.parser.cst.statement.ForVarCstNode
 import com.tambapps.marcel.parser.cst.statement.IfCstStatementNode
+import com.tambapps.marcel.parser.cst.statement.MultiVarDeclarationCstNode
 import com.tambapps.marcel.parser.cst.statement.ThrowCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.parser.cst.statement.WhileCstNode
@@ -803,6 +804,64 @@ class MarcelSemantic(
         node.expressionNode?.accept(exprVisitor)?.let { caster.cast(variable.type, it) }
           ?: variable.type.getDefaultValueExpression(node.token), null, node.tokenStart, node.tokenEnd)
     )
+  }
+
+  override fun visit(node: MultiVarDeclarationCstNode): StatementNode {
+    if (node.declarations.isEmpty() || node.declarations.all { it == null }) {
+      throw MarcelSemanticException(node, "Need to declare at least one variable")
+    }
+    val expression = node.expressionNode.accept(exprVisitor)
+    val blockNode = BlockStatementNode(mutableListOf(), node.tokenStart, node.tokenEnd)
+    currentMethodScope.useTempLocalVariable(expression.type) { expressionVariable: LocalVariable ->
+      val expressionRef = ReferenceNode(owner = null, variable = expressionVariable, token = node.token)
+
+      // put the expression in a local variable
+      blockNode.statements.add(
+        ExpressionStatementNode(VariableAssignmentNode(
+          localVariable = expressionVariable,
+          expression = expression,
+          node = node
+        ))
+      )
+
+      // declare all variables
+      val variableMap = mutableMapOf<Int, LocalVariable>()
+      node.declarations.forEachIndexed { index, pair ->
+        if (pair != null) variableMap[index] = currentMethodScope.addLocalVariable(visit(pair.first), pair.second)
+      }
+      // then assign
+      when {
+        expressionVariable.type.implements(List::class.javaType) -> {
+          val getAtMethod = typeResolver.findMethodOrThrow(expressionVariable.type, GET_AT_METHOD_NAME, listOf(JavaType.int))
+          variableMap.forEach { (index, variable) ->
+            blockNode.statements.add(
+              ExpressionStatementNode(
+                VariableAssignmentNode(
+                  localVariable = variable,
+                  expression = fCall(method = getAtMethod, arguments = listOf(IntConstantNode(node.token, index)), owner = expressionRef, node = node, castType = variable.type),
+                  node = node
+                )
+              )
+            )
+          }
+        }
+        expression.type.isArray -> {
+          variableMap.forEach { (index, variable) ->
+            blockNode.statements.add(
+              ExpressionStatementNode(
+                VariableAssignmentNode(
+                  localVariable = variable,
+                  expression = ArrayAccessNode(expressionRef, IntConstantNode(node.token, index), node),
+                  node = node
+                )
+              )
+            )
+          }
+        }
+        else -> throw MarcelSemanticException(node, "Multi variable declarations only works on List or arrays")
+      }
+    }
+    return blockNode
   }
 
   override fun visit(node: IfCstStatementNode) = useScope(MethodInnerScope(currentMethodScope)) {

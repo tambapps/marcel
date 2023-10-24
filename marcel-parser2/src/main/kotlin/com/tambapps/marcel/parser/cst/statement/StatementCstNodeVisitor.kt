@@ -5,6 +5,7 @@ interface StatementCstNodeVisitor<T> {
   fun visit(node: ExpressionStatementCstNode): T
   fun visit(node: ReturnCstNode): T
   fun visit(node: VariableDeclarationCstNode): T
+  fun visit(node: MultiVarDeclarationCstNode): T
   fun visit(node: IfCstStatementNode): T
   fun visit(node: ForInCstNode): T
   fun visit(node: ForVarCstNode): T
