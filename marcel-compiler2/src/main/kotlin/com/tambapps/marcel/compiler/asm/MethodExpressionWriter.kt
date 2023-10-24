@@ -1,5 +1,6 @@
 package com.tambapps.marcel.compiler.asm
 
+import com.tambapps.marcel.compiler.extensions.arrayLoadCode
 import com.tambapps.marcel.compiler.extensions.arrayStoreCode
 import com.tambapps.marcel.compiler.extensions.descriptor
 import com.tambapps.marcel.compiler.extensions.internalName
@@ -20,6 +21,7 @@ import com.tambapps.marcel.semantic.ast.expression.ThisConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
+import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
@@ -45,6 +47,14 @@ sealed class MethodExpressionWriter(
     node.owner?.let { pushExpression(it) }
     pushExpression(node.expression)
     node.variable.accept(storeVariableVisitor)
+  }
+
+
+  override fun visit(node: ArrayIndexAssignmentNode) {
+    pushExpression(node.owner)
+    pushExpression(node.indexExpr)
+    pushExpression(node.expression)
+    mv.visitInsn(node.arrayType.arrayStoreCode)
   }
 
   override fun visit(node: FunctionCallNode) {

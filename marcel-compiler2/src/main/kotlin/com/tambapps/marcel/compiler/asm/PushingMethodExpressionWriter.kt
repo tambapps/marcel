@@ -260,7 +260,8 @@ class PushingMethodExpressionWriter(mv: MethodVisitor, typeResolver: JavaTypeRes
   }
 
   override fun visit(node: ArrayIndexAssignmentNode) {
-    TODO()
+    super.visit(node)
+    visit(ArrayAccessNode(node.owner, node.indexExpr, node.tokenStart, node.tokenEnd))
   }
 
   override fun visit(node: JavaCastNode) {

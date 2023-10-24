@@ -261,10 +261,6 @@ class MethodInstructionWriter(
     node.owner.accept(this)
   }
 
-  override fun visit(node: ArrayIndexAssignmentNode) {
-    TODO("Not yet implemented")
-  }
-
   override fun visit(node: LeftShiftNode) = binaryOperator(node)
 
   override fun visit(node: RightShiftNode) = binaryOperator(node)
