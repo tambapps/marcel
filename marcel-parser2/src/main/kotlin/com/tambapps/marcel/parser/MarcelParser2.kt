@@ -515,7 +515,14 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         CharCstNode(parentNode, value[0], token, previous)
       }
       TokenType.ESCAPE_SEQUENCE -> StringCstNode(parentNode, escapedSequenceValue(token.value), token, previous)
-
+      TokenType.INCR -> {
+        val identifierToken = accept(TokenType.IDENTIFIER)
+        IncrCstNode(parentNode, identifierToken.value, 1, false, token, identifierToken)
+      }
+      TokenType.DECR -> {
+        val identifierToken = accept(TokenType.IDENTIFIER)
+        IncrCstNode(parentNode, identifierToken.value, -1, false, token, identifierToken)
+      }
       TokenType.LPAR -> {
         val node = expression(parentNode)
         if (current.type != TokenType.RPAR) {
