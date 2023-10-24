@@ -45,6 +45,7 @@ import com.tambapps.marcel.parser.cst.statement.MultiVarDeclarationCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ThrowCstNode
+import com.tambapps.marcel.parser.cst.statement.TryCatchCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.parser.cst.statement.WhileCstNode
 import java.lang.NumberFormatException
@@ -343,6 +344,41 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         }
         TokenType.BREAK -> BreakCstNode(parentNode, token)
         TokenType.CONTINUE -> ContinueCstNode(parentNode, token)
+        TokenType.TRY -> {
+          val resources = mutableListOf<VariableDeclarationCstNode>()
+          if (current.type == TokenType.LPAR) {
+            skip()
+            while (current.type != TokenType.RPAR) {
+              val e = statement(parentNode)
+              if (e !is VariableDeclarationCstNode) throw MarcelParser2Exception(e.token, "Can only declare variables in try with resources")
+              resources.add(e)
+              if (current.type == TokenType.COMMA) skip()
+            }
+            skip() // skip RPAR
+          }
+          val tryNode = statement(parentNode)
+          val catchNodes = mutableListOf<Triple<List<TypeCstNode>, String, StatementCstNode>>()
+          while (current.type == TokenType.CATCH) {
+            skip()
+            accept(TokenType.LPAR)
+            val exceptions = mutableListOf(
+              parseType(parentNode)
+            )
+            while (current.type == TokenType.PIPE) {
+              skip()
+              exceptions.add(parseType(parentNode))
+            }
+            val exceptionVarName = accept(TokenType.IDENTIFIER).value
+            val statement = statement(parentNode)
+            accept(TokenType.RPAR)
+            catchNodes.add(
+              Triple(
+                exceptions, exceptionVarName, statement
+              ))
+          }
+          val finallyBlock = if (acceptOptional(TokenType.FINALLY) != null) statement(parentNode) else null
+          TryCatchCstNode(parentNode, token, previous, tryNode, resources, catchNodes, finallyBlock)
+        }
         else -> {
           rollback()
           val expr = expression(parentNode)

@@ -14,5 +14,6 @@ interface StatementCstNodeVisitor<T> {
   fun visit(node: BreakCstNode): T
   fun visit(node: ContinueCstNode): T
   fun visit(node: ThrowCstNode): T
+  fun visit(node: TryCatchCstNode): T
 
 }

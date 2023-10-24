@@ -51,6 +51,7 @@ import com.tambapps.marcel.parser.cst.statement.ForVarCstNode
 import com.tambapps.marcel.parser.cst.statement.IfCstStatementNode
 import com.tambapps.marcel.parser.cst.statement.MultiVarDeclarationCstNode
 import com.tambapps.marcel.parser.cst.statement.ThrowCstNode
+import com.tambapps.marcel.parser.cst.statement.TryCatchCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.parser.cst.statement.WhileCstNode
 import com.tambapps.marcel.semantic.ast.AnnotationNode
@@ -939,6 +940,11 @@ class MarcelSemantic(
     val expression = caster.cast(Throwable::class.javaType, node.expression.accept(exprVisitor))
     return ThrowNode(node, expression)
   }
+
+  override fun visit(node: TryCatchCstNode): StatementNode {
+    TODO("Not yet implemented")
+  }
+
   override fun visit(node: BlockCstNode) = useScope(MethodInnerScope(currentMethodScope)) {
     val statements = blockStatements(node.statements)
     BlockStatementNode(statements, node.tokenStart, node.tokenEnd)
