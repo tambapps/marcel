@@ -47,7 +47,7 @@ val JavaArrayType.arrayLoadCode get() = when {
   this == booleanArray -> Opcodes.BALOAD
   this == shortArray -> Opcodes.SALOAD
   this == byteArray -> Opcodes.BALOAD
-  this == charArray -> Opcodes.IALOAD
+  this == charArray -> Opcodes.CALOAD
   else -> Opcodes.AALOAD
 }
 val JavaArrayType.arrayStoreCode get() = when {
@@ -58,7 +58,7 @@ val JavaArrayType.arrayStoreCode get() = when {
   this == booleanArray -> Opcodes.BASTORE
   this == shortArray -> Opcodes.SASTORE
   this == byteArray -> Opcodes.BASTORE
-  this == charArray -> Opcodes.IASTORE
+  this == charArray -> Opcodes.CASTORE
   else -> Opcodes.AASTORE
 }
 
