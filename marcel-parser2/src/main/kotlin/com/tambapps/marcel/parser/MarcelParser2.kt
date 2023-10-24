@@ -214,12 +214,17 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     }
 
     // array dimensions
+    val arrayDimension = parseArrayDimensions()
+    return TypeCstNode(parentNode, typeFragments.joinToString(separator = "."), genericTypes, arrayDimension, tokenStart, previous)
+  }
+
+  private fun parseArrayDimensions(): Int {
     var arrayDimension = 0
     while (current.type == TokenType.SQUARE_BRACKETS_OPEN && lookup(1)?.type == TokenType.SQUARE_BRACKETS_CLOSE) {
       skip(2)
       arrayDimension++
     }
-    return TypeCstNode(parentNode, typeFragments.joinToString(separator = "."), genericTypes, arrayDimension, tokenStart, previous)
+    return arrayDimension
   }
 
   private fun parseTypeFragment(token: LexToken) = when (token.type) {
@@ -457,12 +462,15 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         } else if (current.type == TokenType.BRACKETS_OPEN) { // function call with a lambda
           skip()
           FunctionCallCstNode(parentNode, token.value, null, listOf(TODO("parse lambda")), emptyList(), token, previous)
+        } else if (current.type == TokenType.DOT && lookup(1)?.type == TokenType.CLASS
+          // for array class references
+          || current.type == TokenType.SQUARE_BRACKETS_OPEN && lookup(1)?.type == TokenType.SQUARE_BRACKETS_CLOSE) {
+          val arrayDimensions = parseArrayDimensions()
+          accept(TokenType.DOT)
+          accept(TokenType.CLASS)
+          ClassReferenceCstNode(parentNode, TypeCstNode(parentNode, token.value, emptyList(), arrayDimensions, token, previous), token, previous)
         } else if (current.type == TokenType.SQUARE_BRACKETS_OPEN || current.type == TokenType.QUESTION_SQUARE_BRACKETS_OPEN) {
           indexAccessCstNode(parentNode, ReferenceCstNode(parentNode, token.value, token))
-        } else if (current.type == TokenType.DOT && lookup(1)?.type == TokenType.CLASS) {
-          // TODO doesn't handle array types
-          skip(2) // skip dot and class
-          ClassReferenceCstNode(parentNode, TypeCstNode(parentNode, token.value, emptyList(), 0, token, previous), token, previous)
         } else {
           ReferenceCstNode(parentNode, token.value, token)
         }
@@ -561,10 +569,11 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       }
       TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_SHORT, TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE,
       TokenType.TYPE_BOOL, TokenType.TYPE_BYTE, TokenType.TYPE_VOID, TokenType.TYPE_CHAR -> {
+        val arrayDimensions = parseArrayDimensions()
         accept(TokenType.DOT)
         accept(TokenType.CLASS)
         ClassReferenceCstNode(parentNode,
-          TypeCstNode(parentNode, token.value, emptyList(), 0, token, previous), token, previous)
+          TypeCstNode(parentNode, token.value, emptyList(), arrayDimensions, token, previous), token, previous)
       }
       else -> TODO("atom " + token.type.name)
     }
