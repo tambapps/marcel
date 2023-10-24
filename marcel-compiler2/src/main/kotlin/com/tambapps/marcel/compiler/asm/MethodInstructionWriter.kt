@@ -56,6 +56,7 @@ import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ForStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNodeVisitor
+import com.tambapps.marcel.semantic.ast.statement.ThrowNode
 import com.tambapps.marcel.semantic.ast.statement.WhileNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaType
@@ -200,6 +201,11 @@ class MethodInstructionWriter(
     // loop end
     mv.visitLabel(loopEnd)
     loopContextQueue.pop()
+  }
+
+  override fun visit(node: ThrowNode) {
+    pushExpression(node.expressionNode)
+    mv.visitInsn(Opcodes.ATHROW)
   }
 
   override fun visit(node: BreakNode) {

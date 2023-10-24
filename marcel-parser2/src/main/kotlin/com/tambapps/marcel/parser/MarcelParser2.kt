@@ -43,6 +43,7 @@ import com.tambapps.marcel.parser.cst.statement.ForVarCstNode
 import com.tambapps.marcel.parser.cst.statement.IfCstStatementNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
+import com.tambapps.marcel.parser.cst.statement.ThrowCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.parser.cst.statement.WhileCstNode
 import java.lang.NumberFormatException
@@ -233,7 +234,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       return when (token.type) {
         TokenType.RETURN -> {
           val expr = expression(parentNode)
-          ReturnCstNode(parentNode, expr, expr.tokenStart, acceptOptional(TokenType.SEMI_COLON) ?: expr.tokenEnd)
+          ReturnCstNode(parentNode, expr, expr.tokenStart, expr.tokenEnd)
         }
         TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_SHORT, TokenType.TYPE_FLOAT,
         TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL, TokenType.TYPE_BYTE, TokenType.TYPE_VOID,
@@ -249,7 +250,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
           } else {
             rollback()
             val expr = expression(parentNode)
-            ExpressionStatementCstNode(parentNode, expr, expr.tokenStart, acceptOptional(TokenType.SEMI_COLON) ?: expr.tokenEnd)
+            ExpressionStatementCstNode(parentNode, expr, expr.tokenStart, expr.tokenEnd)
           }
         }
         TokenType.BRACKETS_OPEN -> block(parentNode, acceptBracketOpen = false)
@@ -281,6 +282,10 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
           val statement = statement(parentNode)
           WhileCstNode(parentNode, token, statement.tokenEnd, condition, statement)
         }
+        TokenType.THROW -> {
+          val expression = expression(parentNode)
+          ThrowCstNode(parentNode, token, previous, expression)
+        }
         TokenType.FOR -> {
           accept(TokenType.LPAR)
           if (lookup(1)?.type == TokenType.IDENTIFIER && lookup(2)?.type == TokenType.IN) {
@@ -302,7 +307,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
                 "For loops should start with variable declaration/assignment"
               )
             }
-            acceptOptional(TokenType.SEMI_COLON)
+            accept(TokenType.SEMI_COLON)
             val condition = expression(parentNode)
             accept(TokenType.SEMI_COLON)
             val iteratorStatement = statement(parentNode)
@@ -316,7 +321,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         else -> {
           rollback()
           val expr = expression(parentNode)
-          ExpressionStatementCstNode(parentNode, expr, expr.tokenStart, acceptOptional(TokenType.SEMI_COLON) ?: expr.tokenEnd)
+          ExpressionStatementCstNode(parentNode, expr, expr.tokenStart, expr.tokenEnd)
         }
       }
     } finally {
@@ -336,8 +341,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
   private fun varDecl(parentNode: CstNode?): VariableDeclarationCstNode {
     val type = parseType(parentNode)
     val identifierToken = accept(TokenType.IDENTIFIER)
-    accept(TokenType.ASSIGNMENT)
-    val expression = if (current.type != TokenType.SEMI_COLON) expression(parentNode) else null
+    val expression = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(parentNode) else null
     return VariableDeclarationCstNode(type, identifierToken.value, expression, parentNode, type.tokenStart, expression?.tokenEnd ?: identifierToken)
   }
 

@@ -49,6 +49,7 @@ import com.tambapps.marcel.parser.cst.statement.ContinueCstNode
 import com.tambapps.marcel.parser.cst.statement.ForInCstNode
 import com.tambapps.marcel.parser.cst.statement.ForVarCstNode
 import com.tambapps.marcel.parser.cst.statement.IfCstStatementNode
+import com.tambapps.marcel.parser.cst.statement.ThrowCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.parser.cst.statement.WhileCstNode
 import com.tambapps.marcel.semantic.ast.AnnotationNode
@@ -114,6 +115,7 @@ import com.tambapps.marcel.semantic.ast.statement.ContinueNode
 import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ForStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
+import com.tambapps.marcel.semantic.ast.statement.ThrowNode
 import com.tambapps.marcel.semantic.ast.statement.WhileNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
@@ -873,6 +875,11 @@ class MarcelSemantic(
     return ContinueNode(node)
   }
 
+  // TODO do elvis or throw
+  override fun visit(node: ThrowCstNode): StatementNode {
+    val expression = caster.cast(Throwable::class.javaType, node.expression.accept(exprVisitor))
+    return ThrowNode(node, expression)
+  }
   override fun visit(node: BlockCstNode) = useScope(MethodInnerScope(currentMethodScope)) {
     val statements = blockStatements(node.statements)
     BlockStatementNode(statements, node.tokenStart, node.tokenEnd)

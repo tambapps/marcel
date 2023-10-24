@@ -10,6 +10,7 @@ import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNodeVisitor
+import com.tambapps.marcel.semantic.ast.statement.ThrowNode
 import com.tambapps.marcel.semantic.ast.statement.WhileNode
 
 object AllPathsReturnVisitor: StatementNodeVisitor<Boolean> {
@@ -28,5 +29,6 @@ object AllPathsReturnVisitor: StatementNodeVisitor<Boolean> {
   override fun visit(node: BreakNode) = false
   override fun visit(node: ContinueNode) = false
   override fun visit(node: WhileNode) = false
+  override fun visit(node: ThrowNode) = true
   fun test(statements: List<StatementNode>) = statements.any { it.accept(this) }
 }
