@@ -256,11 +256,12 @@ class MethodInstructionWriter(
     )
   }
 
-  override fun visit(node: ArrayIndexAssignmentNode) {
-    TODO("Not yet implemented")
-  }
 
   override fun visit(node: ArrayAccessNode) {
+    node.owner.accept(this)
+  }
+
+  override fun visit(node: ArrayIndexAssignmentNode) {
     TODO("Not yet implemented")
   }
 

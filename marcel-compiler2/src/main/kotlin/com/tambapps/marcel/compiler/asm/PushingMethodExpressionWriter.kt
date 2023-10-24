@@ -1,9 +1,11 @@
 package com.tambapps.marcel.compiler.asm
 
 import com.tambapps.marcel.compiler.extensions.addCode
+import com.tambapps.marcel.compiler.extensions.arrayLoadCode
 import com.tambapps.marcel.compiler.extensions.descriptor
 import com.tambapps.marcel.compiler.extensions.divCode
 import com.tambapps.marcel.compiler.extensions.internalName
+import com.tambapps.marcel.compiler.extensions.loadCode
 import com.tambapps.marcel.compiler.extensions.modCode
 import com.tambapps.marcel.compiler.extensions.mulCode
 import com.tambapps.marcel.compiler.extensions.shlCode
@@ -252,11 +254,13 @@ class PushingMethodExpressionWriter(mv: MethodVisitor, typeResolver: JavaTypeRes
   override fun visit(node: ShortConstantNode) = mv.visitIntInsn(Opcodes.BIPUSH, node.value.toInt())
 
   override fun visit(node: ArrayAccessNode) {
-    TODO("Not yet implemented")
+    pushExpression(node.owner)
+    pushExpression(node.indexNode)
+    mv.visitInsn(node.arrayType.arrayLoadCode)
   }
 
   override fun visit(node: ArrayIndexAssignmentNode) {
-    TODO("Not yet implemented")
+    TODO()
   }
 
   override fun visit(node: JavaCastNode) {

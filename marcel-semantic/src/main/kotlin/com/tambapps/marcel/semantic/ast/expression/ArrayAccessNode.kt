@@ -7,6 +7,7 @@ class ArrayAccessNode(
   val indexNode: ExpressionNode,
   node: CstNode) :
   AbstractExpressionNode(owner.type.asArrayType.elementsType, node) {
+  val arrayType = owner.type.asArrayType
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) = visitor.visit(this)
 
 }
