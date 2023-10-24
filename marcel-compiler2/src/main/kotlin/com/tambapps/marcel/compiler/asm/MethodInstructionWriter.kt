@@ -56,6 +56,7 @@ import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ForStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNodeVisitor
+import com.tambapps.marcel.semantic.ast.statement.WhileNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
@@ -148,6 +149,29 @@ class MethodInstructionWriter(
 
     // loop end
     mv.visitLabel(loopEnd)
+    loopContextQueue.pop()
+  }
+
+  override fun visit(node: WhileNode) {
+    // loop start
+    val loopStart = Label()
+    val loopEnd = Label()
+    loopContextQueue.push(LoopContext(continueLabel = loopStart, breakLabel = loopEnd))
+    mv.visitLabel(loopStart)
+
+    // Verifying condition
+    pushExpression(node.condition)
+    mv.visitJumpInsn(Opcodes.IFEQ, loopEnd)
+
+    // loop body
+    node.statement.accept(this)
+
+    // Return to the beginning of the loop
+    mv.visitJumpInsn(Opcodes.GOTO, loopStart)
+
+    // loop end
+    mv.visitLabel(loopEnd)
+    loopContextQueue.pop()
   }
 
   override fun visit(node: ForStatementNode) {

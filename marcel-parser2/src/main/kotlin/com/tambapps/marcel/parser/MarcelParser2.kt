@@ -44,6 +44,7 @@ import com.tambapps.marcel.parser.cst.statement.IfCstStatementNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
+import com.tambapps.marcel.parser.cst.statement.WhileCstNode
 import java.lang.NumberFormatException
 import java.util.*
 
@@ -272,6 +273,13 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
             }
           }
           rootIf
+        }
+        TokenType.WHILE -> {
+          accept(TokenType.LPAR)
+          val condition = expression(parentNode)
+          accept(TokenType.RPAR)
+          val statement = statement(parentNode)
+          WhileCstNode(parentNode, token, statement.tokenEnd, condition, statement)
         }
         TokenType.FOR -> {
           accept(TokenType.LPAR)
