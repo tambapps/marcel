@@ -423,7 +423,7 @@ class MarcelSemantic(
     else StringNode(expressions, node)
   }
 
-  override fun visit(node: ClassReferenceCstNode) = ClassReferenceNode(node.value, node.token)
+  override fun visit(node: ClassReferenceCstNode) = ClassReferenceNode(visit(node.type), node.token)
   override fun visit(node: ThisReferenceCstNode): ExpressionNode {
     if (currentMethodScope.staticContext) throw MarcelSemanticException(node, "Cannot reference this in a static context")
     return ThisReferenceNode(currentScope.classType, node.token)

@@ -460,8 +460,9 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         } else if (current.type == TokenType.SQUARE_BRACKETS_OPEN || current.type == TokenType.QUESTION_SQUARE_BRACKETS_OPEN) {
           indexAccessCstNode(parentNode, ReferenceCstNode(parentNode, token.value, token))
         } else if (current.type == TokenType.DOT && lookup(1)?.type == TokenType.CLASS) {
+          // TODO doesn't handle array types
           skip(2) // skip dot and class
-          ClassReferenceCstNode(parentNode, token.value, token, previous)
+          ClassReferenceCstNode(parentNode, TypeCstNode(parentNode, token.value, emptyList(), 0, token, previous), token, previous)
         } else {
           ReferenceCstNode(parentNode, token.value, token)
         }
@@ -557,6 +558,13 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         }
         next()
         node
+      }
+      TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_SHORT, TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE,
+      TokenType.TYPE_BOOL, TokenType.TYPE_BYTE, TokenType.TYPE_VOID, TokenType.TYPE_CHAR -> {
+        accept(TokenType.DOT)
+        accept(TokenType.CLASS)
+        ClassReferenceCstNode(parentNode,
+          TypeCstNode(parentNode, token.value, emptyList(), 0, token, previous), token, previous)
       }
       else -> TODO("atom " + token.type.name)
     }

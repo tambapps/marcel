@@ -16,6 +16,7 @@ import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
+import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
@@ -226,10 +227,14 @@ class PushingMethodExpressionWriter(mv: MethodVisitor, typeResolver: JavaTypeRes
   }
 
   override fun visit(node: ClassReferenceNode) {
-    if (node.type.primitive) {
-      TODO("getField(node, scope, typeResolver.getClassField(clazz.objectType, \"TYPE\", node), true)")
+    if (node.classType.primitive) {
+      visit(ReferenceNode(
+        owner = null,
+        variable = typeResolver.getClassField(node.classType.objectType, "TYPE"),
+        node.token
+      ))
     } else {
-      mv.visitLdcInsn(Type.getType(node.type.descriptor))
+      mv.visitLdcInsn(Type.getType(node.classType.descriptor))
     }
   }
 
