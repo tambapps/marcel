@@ -398,7 +398,6 @@ class MarcelSemantic(
     val statements = mutableListOf<StatementNode>()
     for (i in cstStatements.indices) {
       val statement = cstStatements[i].accept(stmtVisitor)
-      // TODO add this check in all block/list of statements
       if (statement is ReturnStatementNode && i < cstStatements.lastIndex)
         throw MarcelSemanticException("Cannot have statements after a return statement")
       statements.add(statement)
