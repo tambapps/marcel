@@ -41,6 +41,7 @@ import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
 import com.tambapps.marcel.parser.cst.expression.NotCstNode
 import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
+import com.tambapps.marcel.parser.cst.expression.WhenCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.CharCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.RegexCstNode
@@ -143,6 +144,7 @@ import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.type.JavaTyped
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.variable.field.JavaClassFieldImpl
@@ -180,8 +182,8 @@ class MarcelSemantic(
   val stmtVisitor = this as StatementCstNodeVisitor<StatementNode>
 
   internal val scopeQueue = LinkedList<Scope>()
-  // FIFO
-  private val currentScope get() = scopeQueue.peek()
+  private val classNodeMap = mutableMapOf<JavaType, ClassNode>() // useful to add methods while performing analysis
+  private val currentScope get() = scopeQueue.peek() // FIFO
   private val currentMethodScope get() = currentScope as? MethodScope ?: throw MarcelSemanticException("Not in a method")
   private val currentInnerMethodScope get() = currentScope as? MethodInnerScope ?: throw MarcelSemanticException("Not in a inner scope")
 
@@ -234,8 +236,10 @@ class MarcelSemantic(
   private fun classNode(classType: JavaType, node: ClassCstNode, imports: List<ImportNode>): ClassNode
   = useScope(ClassScope(classType, typeResolver, imports)) { classScope ->
     val classNode = ClassNode(classType, Visibility.PUBLIC, cst.tokenStart, cst.tokenEnd)
+    classNodeMap[classType] = classNode
 
     node.annotations.forEach { classNode.annotations.add(annotationNode(it, ElementType.TYPE)) }
+    // iterating with i because we might add methods while
     node.methods.forEach { classNode.methods.add(methodNode(it, classScope)) }
     val staticFieldInitialValueMap = mutableMapOf<FieldNode, ExpressionNode>()
     val fieldInitialValueMap = mutableMapOf<FieldNode, ExpressionNode>()
@@ -831,7 +835,11 @@ class MarcelSemantic(
       arguments = arguments)
   }
 
-  override fun visit(node: ExpressionStatementCstNode) = ExpressionStatementNode(node.expressionNode.accept(exprVisitor), node.tokenStart, node.tokenEnd)
+  override fun visit(node: ExpressionStatementCstNode): StatementNode {
+    node.expressionNode.isStatement = true
+    return ExpressionStatementNode(node.expressionNode.accept(exprVisitor), node.tokenStart, node.tokenEnd)
+  }
+
   override fun visit(node: ReturnCstNode): StatementNode {
     // TODO test error cases of this
     val scope = currentMethodScope
@@ -918,6 +926,49 @@ class MarcelSemantic(
       node.falseStatementNode?.accept(stmtVisitor), node)
   }
 
+  override fun visit(node: WhenCstNode): ExpressionNode {
+    val shouldReturnValue = !node.isStatement
+    val elseStatement = node.elseStatement
+    if (shouldReturnValue && elseStatement == null) {
+      throw MarcelSemanticException(node, "When expression should have an else branch")
+    }
+    if (node.branches.isEmpty()) {
+      TODO()
+    }
+    val rootIfCstNode = node.branches.first().let {
+      toIf(it, node.tokenStart, node.tokenEnd)
+    }
+    var ifCstNode = rootIfCstNode
+    for (i in 1 until node.branches.size) {
+      val branch = node.branches[i]
+      val ifBranch = toIf(branch, branch.first.tokenStart, branch.second.tokenEnd)
+      ifCstNode.falseStatementNode = ifBranch
+      ifCstNode = ifBranch
+    }
+    if (elseStatement != null) ifCstNode.falseStatementNode = elseStatement
+
+    // TODO add parameter for referenced variables if any
+    val whenMethod = addMethod(emptyList(), JavaType.void, rootIfCstNode.accept(stmtVisitor))
+
+    return fCall(node = node, owner = ThisReferenceNode(currentScope.classType, node.token), arguments = emptyList(), method = whenMethod)
+  }
+
+  private fun addMethod(parameters: List<MethodParameter>, returnType: JavaType, statementNode: StatementNode): JavaMethod {
+    val classType = currentScope.classType
+    val classNode = classNodeMap.getValue(classType)
+    val methodName = "__when_" + currentMethodScope.method.name + classNode.methods.size
+    val methodNode = MethodNode(methodName, parameters, Visibility.PRIVATE, returnType, false, statementNode.tokenStart, statementNode.tokenEnd, classType)
+    val blockStatement = BlockStatementNode(mutableListOf(statementNode), statementNode.tokenStart, statementNode.tokenEnd)
+    if (returnType == JavaType.void) blockStatement.statements.add(SemanticHelper.returnVoid(methodNode))
+    // if it is not void statements already have return nodes
+    methodNode.blockStatement = blockStatement
+    typeResolver.defineMethod(classType, methodNode)
+    classNode.methods.add(methodNode)
+    return methodNode
+  }
+
+  private fun toIf(it: Pair<ExpressionCstNode, StatementCstNode>, tokenStart: LexToken, tokenEnd: LexToken)
+  = IfCstStatementNode(it.first, it.second, null, it.first.parent, tokenStart, tokenEnd)
   override fun visit(node: WhileCstNode) = useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
     val condition = caster.truthyCast(node.condition.accept(exprVisitor))
     val statement = node.statement.accept(stmtVisitor)

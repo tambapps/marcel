@@ -31,6 +31,7 @@ import com.tambapps.marcel.parser.cst.expression.BinaryTypeOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.NotCstNode
 import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
+import com.tambapps.marcel.parser.cst.expression.WhenCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.CharCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.RegexCstNode
@@ -694,6 +695,29 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         accept(TokenType.CLASS)
         ClassReferenceCstNode(parentNode,
           TypeCstNode(parentNode, token.value, emptyList(), arrayDimensions, token, previous), token, previous)
+      }
+      TokenType.WHEN -> {
+        accept(TokenType.BRACKETS_OPEN)
+        val branches = mutableListOf<Pair<ExpressionCstNode, StatementCstNode>>()
+
+        var elseStatement: StatementCstNode? = null
+        while (current.type != TokenType.BRACKETS_CLOSE) {
+          if (current.type == TokenType.ELSE) {
+            skip()
+            accept(TokenType.ARROW)
+            if (elseStatement != null) throw MarcelParser2Exception(
+              previous,
+              "Cannot have multiple else statements"
+            )
+            elseStatement = statement(parentNode)
+          } else {
+            val conditionExpression = expression(parentNode)
+            accept(TokenType.ARROW)
+            branches.add(Pair(conditionExpression, statement(parentNode)))
+          }
+        }
+        skip() // skip bracket_close
+        WhenCstNode(parentNode, token, previous, branches, elseStatement)
       }
       else -> TODO("atom " + token.type.name)
     }
