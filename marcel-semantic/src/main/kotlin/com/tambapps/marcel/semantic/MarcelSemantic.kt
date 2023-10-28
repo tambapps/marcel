@@ -144,7 +144,6 @@ import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
-import com.tambapps.marcel.semantic.type.JavaTyped
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.variable.field.JavaClassFieldImpl
@@ -948,20 +947,23 @@ class MarcelSemantic(
     if (elseStatement != null) ifCstNode.falseStatementNode = elseStatement
 
     // TODO add parameter for referenced variables if any
-    val whenMethod = addMethod(emptyList(), JavaType.void, rootIfCstNode.accept(stmtVisitor))
+    val whenMethod = generateWhenMethod(emptyList(), JavaType.void, node)
+    val whenStatement = useScope(MethodScope(ClassScope(currentScope.classType, typeResolver, currentScope.imports), whenMethod)) {
+      rootIfCstNode.accept(stmtVisitor)
+    }
+    whenMethod.blockStatement = BlockStatementNode(mutableListOf(whenStatement), whenStatement.tokenStart, whenStatement.tokenEnd).apply {
+      // if it is not void, statements already have return nodes
+      statements.add(SemanticHelper.returnVoid(this))
+    }
 
     return fCall(node = node, owner = ThisReferenceNode(currentScope.classType, node.token), arguments = emptyList(), method = whenMethod)
   }
 
-  private fun addMethod(parameters: List<MethodParameter>, returnType: JavaType, statementNode: StatementNode): JavaMethod {
+  private fun generateWhenMethod(parameters: List<MethodParameter>, returnType: JavaType, node: CstNode): MethodNode {
     val classType = currentScope.classType
     val classNode = classNodeMap.getValue(classType)
-    val methodName = "__when_" + currentMethodScope.method.name + classNode.methods.size
-    val methodNode = MethodNode(methodName, parameters, Visibility.PRIVATE, returnType, false, statementNode.tokenStart, statementNode.tokenEnd, classType)
-    val blockStatement = BlockStatementNode(mutableListOf(statementNode), statementNode.tokenStart, statementNode.tokenEnd)
-    if (returnType == JavaType.void) blockStatement.statements.add(SemanticHelper.returnVoid(methodNode))
-    // if it is not void statements already have return nodes
-    methodNode.blockStatement = blockStatement
+    val methodName = "__when_" + classNode.methods.size + "_" + currentMethodScope.method.name
+    val methodNode = MethodNode(methodName, parameters, Visibility.PRIVATE, returnType, false, node.tokenStart, node.tokenEnd, classType)
     typeResolver.defineMethod(classType, methodNode)
     classNode.methods.add(methodNode)
     return methodNode

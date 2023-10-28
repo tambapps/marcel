@@ -11,7 +11,7 @@ import com.tambapps.marcel.semantic.type.JavaTyped
 abstract class AbstractScope(
   internal val typeResolver: JavaTypeResolver,
   override val classType: JavaType,
-  internal val imports: List<ImportNode>,
+  override val imports: List<ImportNode>,
 ): Scope {
 
   override fun findMethod(name: String, argumentTypes: List<JavaTyped>): JavaMethod? {

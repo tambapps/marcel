@@ -3,6 +3,7 @@ package com.tambapps.marcel.semantic.scope
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
+import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.ast.StaticImportNode
 import com.tambapps.marcel.semantic.ast.WildcardImportNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
@@ -29,6 +30,7 @@ interface Scope {
   }
 
   val classType: JavaType
+  val imports: List<ImportNode>
 
   fun resolveTypeOrThrow(node: TypeCstNode): JavaType
 
