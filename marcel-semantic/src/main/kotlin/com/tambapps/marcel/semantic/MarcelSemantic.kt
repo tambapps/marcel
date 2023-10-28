@@ -607,27 +607,18 @@ class MarcelSemantic(
       TokenType.TWO_DOTS_END_EXCLUSIVE -> rangeNode(leftOperand, rightOperand, "ofToExclusive")
       TokenType.AND -> AndNode(caster.truthyCast(leftOperand.accept(exprVisitor)), caster.truthyCast(rightOperand.accept(exprVisitor)))
       TokenType.OR -> OrNode(caster.truthyCast(leftOperand.accept(exprVisitor)), caster.truthyCast(rightOperand.accept(exprVisitor)))
-      TokenType.EQUAL -> comparisonOperatorNode(leftOperand, rightOperand, ::IsEqualNode) { left, right ->
+      TokenType.EQUAL -> equalityComparisonOperatorNode(leftOperand, rightOperand, ::IsEqualNode) { left, right ->
         val method = typeResolver.findMethodOrThrow(BytecodeHelper::class.javaType, "objectsEqual", listOf(JavaType.Object, JavaType.Object))
         fCall(node = node, method = method, arguments = listOf(left, right))
       }
-      TokenType.NOT_EQUAL -> comparisonOperatorNode(leftOperand, rightOperand, ::IsNotEqualNode) { left, right ->
+      TokenType.NOT_EQUAL -> equalityComparisonOperatorNode(leftOperand, rightOperand, ::IsNotEqualNode) { left, right ->
         val method = typeResolver.findMethodOrThrow(BytecodeHelper::class.javaType, "objectsEqual", listOf(JavaType.Object, JavaType.Object))
         NotNode(fCall(node = node, method = method, arguments = listOf(left, right)), node)
       }
-      TokenType.GOE -> numberComparisonOperatorNode(leftOperand, rightOperand, ::GeNode) { left, right ->
-
-        TODO("compareTo comparison")
-      }
-      TokenType.GT -> numberComparisonOperatorNode(leftOperand, rightOperand, ::GtNode) { left, right ->
-        TODO("compareTo comparison")
-      }
-      TokenType.LOE -> numberComparisonOperatorNode(leftOperand, rightOperand, ::LeNode) { left, right ->
-        TODO("compareTo comparison")
-      }
-      TokenType.LT -> numberComparisonOperatorNode(leftOperand, rightOperand, ::LtNode) { left, right ->
-        TODO("compareTo comparison")
-      }
+      TokenType.GOE -> numberComparisonOperatorNode(leftOperand, rightOperand, ::GeNode)
+      TokenType.GT -> numberComparisonOperatorNode(leftOperand, rightOperand, ::GtNode)
+      TokenType.LOE -> numberComparisonOperatorNode(leftOperand, rightOperand, ::LeNode)
+      TokenType.LT -> numberComparisonOperatorNode(leftOperand, rightOperand, ::LtNode)
       TokenType.IS -> {
         val left = leftOperand.accept(exprVisitor)
         val right = rightOperand.accept(exprVisitor)
@@ -694,12 +685,31 @@ class MarcelSemantic(
   private fun comparisonOperatorNode(
     leftOperand: ExpressionCstNode,
     rightOperand: ExpressionCstNode,
+    nodeCreator: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode): ExpressionNode {
+    var left = leftOperand.accept(exprVisitor)
+    var right = rightOperand.accept(exprVisitor)
+
+    if (!left.type.primitive || !right.type.primitive) {
+      // compare left.compareTo(right) with 0
+      if (!left.type.implements(Comparable::class.javaType)) {
+        throw MarcelSemanticException(leftOperand, "Cannot compare non comparable type")
+      }
+      left = fCall(owner = left, ownerType = left.type, name = "compareTo", arguments = listOf(right), node = leftOperand)
+      right = IntConstantNode(leftOperand.token, 0)
+    }
+
+    val type = if (left.type != JavaType.int) right.type else left.type
+    return nodeCreator.invoke(caster.cast(type, left), caster.cast(type, right))
+  }
+
+  private fun equalityComparisonOperatorNode(
+    leftOperand: ExpressionCstNode,
+    rightOperand: ExpressionCstNode,
     nodeCreator: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode,
     objectComparisonNodeCreator: (ExpressionNode, ExpressionNode) -> ExpressionNode): ExpressionNode {
     val left = leftOperand.accept(exprVisitor)
     val right = rightOperand.accept(exprVisitor)
 
-    // TODO can do better, e.g. if is object but object of primitive, comparison is still feasible
     return if (left.type.primitive && right.type.primitive) {
       val type = if (left.type != JavaType.int) right.type else left.type
       nodeCreator.invoke(caster.cast(type, left), caster.cast(type, right))
@@ -709,15 +719,14 @@ class MarcelSemantic(
   private fun numberComparisonOperatorNode(
     leftOperand: ExpressionCstNode,
     rightOperand: ExpressionCstNode,
-    nodeCreator: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode,
-    objectComparisonNodeCreator: (ExpressionNode, ExpressionNode) -> ExpressionNode): ExpressionNode {
+    nodeCreator: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode): ExpressionNode {
     val left = leftOperand.accept(exprVisitor)
     val right = rightOperand.accept(exprVisitor)
 
     if (left.type == JavaType.boolean || right.type == JavaType.boolean) {
       throw MarcelSemanticException(leftOperand, "Cannot compare non number primitives")
     }
-    return comparisonOperatorNode(leftOperand, rightOperand, nodeCreator, objectComparisonNodeCreator)
+    return comparisonOperatorNode(leftOperand, rightOperand, nodeCreator)
   }
 
   private fun rangeNode(leftOperand: ExpressionCstNode, rightOperand: ExpressionCstNode, methodName: String): ExpressionNode {
