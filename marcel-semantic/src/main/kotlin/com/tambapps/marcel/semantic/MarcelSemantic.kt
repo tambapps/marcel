@@ -635,6 +635,19 @@ class MarcelSemantic(
         if (left.type.primitive || right.type.primitive) throw MarcelSemanticException(leftOperand, "=== operator is reserved for object comparison")
         IsEqualNode(left, right)
       }
+      TokenType.FIND -> {
+        val left = leftOperand.accept(exprVisitor)
+        val right = rightOperand.accept(exprVisitor)
+
+        if (!CharSequence::class.javaType.isAssignableFrom(left.type)) {
+          throw MarcelSemanticException(node, "FIND operator left operand must be a CharSequence")
+        }
+        if (!Pattern::class.javaType.isAssignableFrom(right.type)) {
+          throw MarcelSemanticException(node, "FIND operator right operand must be a Pattern")
+        }
+        fCall(owner = right, ownerType = Pattern::class.javaType,
+          name = "matcher", arguments = listOf(left), node = node)
+      }
       TokenType.IS_NOT -> {
         val left = leftOperand.accept(exprVisitor)
         val right = rightOperand.accept(exprVisitor)
