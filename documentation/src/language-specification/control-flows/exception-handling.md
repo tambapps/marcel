@@ -10,7 +10,7 @@ throw new RuntimeException("Error Message")
 
 You are not forced to catch checked Exceptions in Marcel.
 
-## Try/Catch/Finally
+## Try/Catch/Finally (Work In Progress)
 Exception handling is very similar as Java's.
 
 
