@@ -23,7 +23,7 @@ object AllPathsReturnVisitor: StatementNodeVisitor<Boolean> {
   override fun visit(node: BlockStatementNode) = test(node.statements)
 
   override fun visit(node: IfStatementNode) = node.trueStatementNode.accept(this)
-      && node.falseStatementNode != null && node.falseStatementNode.accept(this)
+      && node.falseStatementNode != null && node.falseStatementNode!!.accept(this)
 
   override fun visit(node: ForInIteratorStatementNode) = false
   override fun visit(node: ForStatementNode) = false

@@ -149,6 +149,7 @@ import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.variable.field.JavaClassFieldImpl
 import com.tambapps.marcel.semantic.variable.field.MarcelField
 import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
+import com.tambapps.marcel.semantic.visitor.ReturningWhenIfBranchTransformer
 import marcel.lang.IntRanges
 import marcel.lang.LongRanges
 import marcel.lang.Script
@@ -947,15 +948,34 @@ class MarcelSemantic(
     if (elseStatement != null) ifCstNode.falseStatementNode = elseStatement
 
     // TODO add parameter for referenced variables if any
-    val whenMethod = generateWhenMethod(emptyList(), JavaType.void, node)
-    val whenStatement = useScope(MethodScope(ClassScope(currentScope.classType, typeResolver, currentScope.imports), whenMethod)) {
-      rootIfCstNode.accept(stmtVisitor)
-    }
-    whenMethod.blockStatement = BlockStatementNode(mutableListOf(whenStatement), whenStatement.tokenStart, whenStatement.tokenEnd).apply {
-      // if it is not void, statements already have return nodes
-      statements.add(SemanticHelper.returnVoid(this))
-    }
+    val whenStatement = stmtVisitor.visit(rootIfCstNode) as IfStatementNode
+    val whenReturnType =  if (!node.isStatement) {
+      var tmpIfNode: IfStatementNode? = whenStatement
+      val branchTransformer = ReturningWhenIfBranchTransformer(node)
+      while (tmpIfNode != null) {
+        tmpIfNode.trueStatementNode = tmpIfNode.trueStatementNode.accept(branchTransformer)
+        if (tmpIfNode.falseStatementNode is IfStatementNode || tmpIfNode.falseStatementNode  == null) {
+          tmpIfNode = tmpIfNode.falseStatementNode as? IfStatementNode
+        } else {
+          tmpIfNode.falseStatementNode = tmpIfNode.falseStatementNode!!.accept(branchTransformer)
+          break
+        }
+      }
+      // to avoid having to cast, we're forcing the user to return types that don't need to be cast checked:
+      //  - object types in which case we will get the common parent class of all branches
+      //  - EXACT same primitive type
+      if (branchTransformer.collectedTypes.any { it.primitive } && branchTransformer.collectedTypes.any { !it.primitive }
+        || branchTransformer.collectedTypes.all { it.primitive } && branchTransformer.collectedTypes.toSet().size > 1) {
+        throw MarcelSemanticException(node.token, "when/switch expression need to return expression of same type (object type or exactly same primitive types for all branches)")
+      }
+      JavaType.commonType(branchTransformer.collectedTypes)
+    } else JavaType.void
 
+    val whenMethod = generateWhenMethod(emptyList(), whenReturnType, node)
+    whenMethod.blockStatement = BlockStatementNode(mutableListOf(whenStatement), whenStatement.tokenStart, whenStatement.tokenEnd).apply {
+      // if it is not void, statements already have return nodes because of ReturningWhenIfBranchTransformer
+      if (whenReturnType == JavaType.void) statements.add(SemanticHelper.returnVoid(this))
+    }
     return fCall(node = node, owner = ThisReferenceNode(currentScope.classType, node.token), arguments = emptyList(), method = whenMethod)
   }
 

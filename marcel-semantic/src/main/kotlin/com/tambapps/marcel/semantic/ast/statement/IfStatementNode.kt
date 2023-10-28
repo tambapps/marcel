@@ -5,8 +5,8 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 
 class IfStatementNode(
   val conditionNode: ExpressionNode,
-  val trueStatementNode: StatementNode,
-  val falseStatementNode: StatementNode?,
+  var trueStatementNode: StatementNode,
+  var falseStatementNode: StatementNode?,
   node: CstNode
 ) : AbstractStatementNode(node) {
 
