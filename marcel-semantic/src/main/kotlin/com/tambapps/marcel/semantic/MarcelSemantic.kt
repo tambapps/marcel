@@ -395,6 +395,10 @@ class MarcelSemantic(
     return statements
   }
 
+  private fun newInnerScope() = MethodInnerScope(currentMethodScope)
+  private inline fun <U> useInnerScope(consumer: (MethodInnerScope) -> U)
+  = useScope(newInnerScope(), consumer)
+
   private inline fun <T: Scope, U> useScope(scope: T, consumer: (T) -> U): U {
     scopeQueue.push(scope)
     val u = consumer.invoke(scope)
@@ -868,7 +872,7 @@ class MarcelSemantic(
     return blockNode
   }
 
-  override fun visit(node: IfCstStatementNode) = useScope(MethodInnerScope(currentMethodScope)) {
+  override fun visit(node: IfCstStatementNode) = useInnerScope {
     IfStatementNode(caster.truthyCast(node.condition.accept(exprVisitor)),
       node.trueStatementNode.accept(stmtVisitor),
       node.falseStatementNode?.accept(stmtVisitor), node)
@@ -948,7 +952,7 @@ class MarcelSemantic(
     if (node.finallyNode == null && node.catchNodes.isEmpty() && node.resources.isEmpty()) {
       throw MarcelSemanticException(node, "Try statement must have a finally, catch and/or resources")
     }
-    val resourceScope = MethodInnerScope(currentMethodScope)
+    val resourceScope = newInnerScope()
 
     val tryBlock = BlockStatementNode(mutableListOf(), node.tryNode.tokenStart, node.tryNode.tokenEnd)
     val finallyBlock = BlockStatementNode(mutableListOf(), node.finallyNode?.tokenStart ?: node.tokenStart,
@@ -983,8 +987,7 @@ class MarcelSemantic(
       tryBlock.statements.add(node.tryNode.accept(stmtVisitor))
     }
 
-    // TODO make method useInnerScope() instead of MethodInnerScope(currentMethodScope)
-    if (node.finallyNode != null) useScope(MethodInnerScope(currentMethodScope)) {
+    if (node.finallyNode != null) useInnerScope {
       finallyBlock.statements.add(node.finallyNode!!.accept(stmtVisitor))
     }
 
@@ -997,7 +1000,7 @@ class MarcelSemantic(
         throw MarcelSemanticException(node.token, "Need to catch at least one exception")
       }
 
-      val (throwableVar, catchStatement) = useScope(MethodInnerScope(currentMethodScope)) {
+      val (throwableVar, catchStatement) = useInnerScope {
         val v = it.addLocalVariable(JavaType.commonType(throwableTypes), triple.second)
         Pair(v, triple.third.accept(stmtVisitor))
       }
@@ -1005,12 +1008,12 @@ class MarcelSemantic(
     }
 
     val finallyNode = if (finallyBlock.statements.isNotEmpty())
-      useScope(MethodInnerScope(currentMethodScope)) { CatchNode(listOf(Throwable::class.javaType), it.addLocalVariable(Throwable::class.javaType), finallyBlock) }
+      useInnerScope { CatchNode(listOf(Throwable::class.javaType), it.addLocalVariable(Throwable::class.javaType), finallyBlock) }
     else null
     return TryCatchNode(node, tryBlock, catchNodes, finallyNode)
   }
 
-  override fun visit(node: BlockCstNode) = useScope(MethodInnerScope(currentMethodScope)) {
+  override fun visit(node: BlockCstNode) = useInnerScope {
     val statements = blockStatements(node.statements)
     BlockStatementNode(statements, node.tokenStart, node.tokenEnd)
   }
