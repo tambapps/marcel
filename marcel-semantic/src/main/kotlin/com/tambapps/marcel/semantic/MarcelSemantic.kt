@@ -43,6 +43,7 @@ import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.CharCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.RegexCstNode
 import com.tambapps.marcel.parser.cst.statement.BlockCstNode
 import com.tambapps.marcel.parser.cst.statement.BreakCstNode
 import com.tambapps.marcel.parser.cst.statement.ContinueCstNode
@@ -152,6 +153,7 @@ import marcel.lang.runtime.BytecodeHelper
 import java.io.Closeable
 import java.lang.annotation.ElementType
 import java.util.LinkedList
+import java.util.regex.Pattern
 
 // TODO implement multiple errors like in parser2
 class MarcelSemantic(
@@ -422,6 +424,14 @@ class MarcelSemantic(
   override fun visit(node: LongCstNode) = LongConstantNode(node.token, node.value)
   override fun visit(node: NullCstNode) = NullValueNode(node.token)
   override fun visit(node: StringCstNode) = StringConstantNode(node.value, node)
+
+  override fun visit(node: RegexCstNode): ExpressionNode {
+    val arguments =
+      if (node.flags.isNotEmpty()) listOf(StringConstantNode(node.value, node), IntConstantNode(node.token, node.flags.reduce { acc, i -> acc or i }))
+    else listOf(StringConstantNode(node.value, node))
+    return fCall(node = node, arguments = arguments, ownerType = Pattern::class.javaType, name = "compile")
+  }
+
   override fun visit(node: CharCstNode) = CharConstantNode(node.token, node.value)
 
   override fun visit(node: TemplateStringNode): ExpressionNode {

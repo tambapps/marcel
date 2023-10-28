@@ -33,6 +33,7 @@ import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.CharCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.RegexCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.*
 import com.tambapps.marcel.parser.cst.statement.BlockCstNode
 import com.tambapps.marcel.parser.cst.statement.BreakCstNode
@@ -473,6 +474,26 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         }
         skip() // skip last quote
         StringCstNode(parentNode, builder.toString(), token, previous)
+      }
+      TokenType.OPEN_REGEX_QUOTE -> {
+        val builder = StringBuilder()
+        while (current.type != TokenType.CLOSING_REGEX_QUOTE) {
+          builder.append(simpleStringPart())
+        }
+        skip() // skip last quote
+        val flags = mutableListOf<Int>()
+        val optFlags = acceptOptional(TokenType.IDENTIFIER)?.value
+        if (optFlags != null) {
+          for (char in optFlags) {
+            RegexCstNode.FLAGS_MAP
+            flags.add(RegexCstNode.FLAGS_MAP[char] ?: throw MarcelParser2Exception(
+              previous,
+              "Unknown pattern flag $char"
+            )
+            )
+          }
+        }
+        RegexCstNode(parentNode, builder.toString(), flags, token, previous)
       }
       TokenType.NULL -> NullCstNode(parentNode, token)
       TokenType.AT -> {
