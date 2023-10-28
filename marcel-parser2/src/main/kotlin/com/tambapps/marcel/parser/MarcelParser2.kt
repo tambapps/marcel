@@ -369,8 +369,8 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
               exceptions.add(parseType(parentNode))
             }
             val exceptionVarName = accept(TokenType.IDENTIFIER).value
-            val statement = statement(parentNode)
             accept(TokenType.RPAR)
+            val statement = statement(parentNode)
             catchNodes.add(
               Triple(
                 exceptions, exceptionVarName, statement

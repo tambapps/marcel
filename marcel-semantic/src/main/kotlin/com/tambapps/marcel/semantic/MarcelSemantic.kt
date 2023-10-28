@@ -113,11 +113,13 @@ import com.tambapps.marcel.semantic.ast.expression.operator.OrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
 import com.tambapps.marcel.semantic.ast.statement.BreakNode
+import com.tambapps.marcel.semantic.ast.statement.CatchNode
 import com.tambapps.marcel.semantic.ast.statement.ContinueNode
 import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ForStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ThrowNode
+import com.tambapps.marcel.semantic.ast.statement.TryCatchNode
 import com.tambapps.marcel.semantic.ast.statement.WhileNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
@@ -147,6 +149,7 @@ import marcel.lang.primitives.iterators.FloatIterator
 import marcel.lang.primitives.iterators.IntIterator
 import marcel.lang.primitives.iterators.LongIterator
 import marcel.lang.runtime.BytecodeHelper
+import java.io.Closeable
 import java.lang.annotation.ElementType
 import java.util.LinkedList
 
@@ -942,7 +945,69 @@ class MarcelSemantic(
   }
 
   override fun visit(node: TryCatchCstNode): StatementNode {
-    TODO("Not yet implemented")
+    if (node.finallyNode == null && node.catchNodes.isEmpty() && node.resources.isEmpty()) {
+      throw MarcelSemanticException(node, "Try statement must have a finally, catch and/or resources")
+    }
+    val resourceScope = MethodInnerScope(currentMethodScope)
+
+    val tryBlock = BlockStatementNode(mutableListOf(), node.tryNode.tokenStart, node.tryNode.tokenEnd)
+    val finallyBlock = BlockStatementNode(mutableListOf(), node.finallyNode?.tokenStart ?: node.tokenStart,
+      node.finallyNode?.tokenEnd ?: node.tokenEnd)
+
+    node.resources.forEach {
+      val resourceType = visit(it.type)
+      if (!resourceType.implements(Closeable::class.javaType)) {
+        throw MarcelSemanticException(node, "Try resources need to implement Closeable")
+      }
+      val resourceVar = resourceScope.addLocalVariable(resourceType, it.value)
+      val resourceRef = ReferenceNode(null, resourceVar, node.token)
+
+      if (it.expressionNode == null) throw MarcelSemanticException(it, "Resource declarations need to be initialised")
+      // assign the resource in the try block
+      tryBlock.statements.add(
+        ExpressionStatementNode(VariableAssignmentNode(resourceVar,
+          caster.cast(resourceType.type, it.expressionNode!!.accept(exprVisitor)),
+          it.tokenStart, it.tokenEnd))
+      )
+
+      // close the resources
+      finallyBlock.statements.add(
+        IfStatementNode(IsNotEqualNode(resourceRef, NullValueNode(node.token)),
+          ExpressionStatementNode(fCall(owner = resourceRef, arguments = emptyList(),
+            method = typeResolver.findMethodOrThrow(resourceType, "close", emptyList()), node = node))
+          , null, node)
+      )
+    }
+
+    useScope(MethodInnerScope(resourceScope)) {
+      tryBlock.statements.add(node.tryNode.accept(stmtVisitor))
+    }
+
+    // TODO make method useInnerScope() instead of MethodInnerScope(currentMethodScope)
+    if (node.finallyNode != null) useScope(MethodInnerScope(currentMethodScope)) {
+      finallyBlock.statements.add(node.finallyNode!!.accept(stmtVisitor))
+    }
+
+    val catchNodes = node.catchNodes.map { triple ->
+      val throwableTypes = triple.first.map(this::visit)
+      if (throwableTypes.any { !Throwable::class.javaType.isAssignableFrom(it) }) {
+        throw MarcelSemanticException(node.token, "Can only catch throwable types")
+      }
+      if (throwableTypes.isEmpty()) {
+        throw MarcelSemanticException(node.token, "Need to catch at least one exception")
+      }
+
+      val (throwableVar, catchStatement) = useScope(MethodInnerScope(currentMethodScope)) {
+        val v = it.addLocalVariable(JavaType.commonType(throwableTypes), triple.second)
+        Pair(v, triple.third.accept(stmtVisitor))
+      }
+      CatchNode(throwableTypes, throwableVar, catchStatement)
+    }
+
+    val finallyNode = if (finallyBlock.statements.isNotEmpty())
+      useScope(MethodInnerScope(currentMethodScope)) { CatchNode(listOf(Throwable::class.javaType), it.addLocalVariable(Throwable::class.javaType), finallyBlock) }
+    else null
+    return TryCatchNode(node, tryBlock, catchNodes, finallyNode)
   }
 
   override fun visit(node: BlockCstNode) = useScope(MethodInnerScope(currentMethodScope)) {

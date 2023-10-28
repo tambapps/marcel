@@ -1,5 +1,6 @@
 package com.tambapps.marcel.compiler.asm
 
+import com.tambapps.marcel.compiler.extensions.internalName
 import com.tambapps.marcel.compiler.extensions.returnCode
 import com.tambapps.marcel.compiler.extensions.visitMethodInsn
 import com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode
@@ -30,7 +31,6 @@ import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.operator.AndNode
-import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
 import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ElvisNode
@@ -51,16 +51,20 @@ import com.tambapps.marcel.semantic.ast.expression.operator.OrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
 import com.tambapps.marcel.semantic.ast.statement.BreakNode
+import com.tambapps.marcel.semantic.ast.statement.CatchNode
 import com.tambapps.marcel.semantic.ast.statement.ContinueNode
 import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ForStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
+import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNodeVisitor
 import com.tambapps.marcel.semantic.ast.statement.ThrowNode
+import com.tambapps.marcel.semantic.ast.statement.TryCatchNode
 import com.tambapps.marcel.semantic.ast.statement.WhileNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.variable.LocalVariable
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
@@ -214,6 +218,108 @@ class MethodInstructionWriter(
 
   override fun visit(node: ContinueNode) {
     mv.visitJumpInsn(Opcodes.GOTO, currentLoopContext.continueLabel)
+  }
+
+  // TODO finally doesn't work
+  override fun visit(node: TryCatchNode) {
+    if (node.finallyNode == null) {
+      tryCatch(node)
+    } else if (node.catchNodes.isEmpty()) {
+      tryFinally(node)
+    } else {
+      tryCatchFinally(node)
+    }
+  }
+
+  private fun tryCatchFinally(node: TryCatchNode) {
+    // bytecode looks weird but it seems to work
+    val tryStart = Label()
+    val tryEnd = Label()
+    val finallyLabel = Label()
+    val endLabel = Label()
+
+    val catchNodes = node.catchNodes
+    val catchLabelMap = generateCatchLabel(catchNodes, tryStart, tryEnd)
+    val finallyNode = node.finallyNode!!
+
+    mv.visitTryCatchBlock(tryStart, tryEnd, finallyLabel, null)
+
+    tryBranch(node, tryStart, tryEnd, endLabel)
+
+    catchNodes.forEach { catchNode ->
+      catchBlock(catchNode.throwableVariable, catchLabelMap.getValue(catchNode))
+      catchNode.statement.accept(this)
+
+      finallyNode.statement.accept(this)
+
+      mv.visitJumpInsn(Opcodes.GOTO, endLabel)
+    }
+
+    handleFinally(node.finallyNode!!, finallyLabel, endLabel)
+  }
+
+  private fun tryCatch(node: TryCatchNode) {
+    val tryStart = Label()
+    val tryEnd = Label()
+    val endLabel = Label()
+    val catchNodes = node.catchNodes
+    val catchLabelMap = generateCatchLabel(catchNodes, tryStart, tryEnd)
+
+    tryBranch(node, tryStart, tryEnd, endLabel)
+
+    catchNodes.forEach { catchNode ->
+      catchBlock(catchNode.throwableVariable, catchLabelMap.getValue(catchNode))
+      catchNode.statement.accept(this)
+      mv.visitJumpInsn(Opcodes.GOTO, endLabel)
+    }
+
+    mv.visitLabel(endLabel)
+  }
+
+  private fun tryFinally(node: TryCatchNode) {
+    val tryStart = Label()
+    val tryEnd = Label()
+    val finallyLabel = Label()
+    val endLabel = Label()
+
+    mv.visitTryCatchBlock(tryStart, tryEnd, finallyLabel, null)
+
+    tryBranch(node, tryStart, tryEnd, endLabel)
+
+    handleFinally(node.finallyNode!!, finallyLabel, endLabel)
+  }
+
+  private fun handleFinally(finallyNode: CatchNode, finallyLabel: Label, endLabel: Label) {
+    val throwableVar = finallyNode.throwableVariable
+    catchBlock(throwableVar, finallyLabel)
+    finallyNode.statement.accept(this)
+    throwableVar.accept(loadVariableVisitor)
+    mv.visitInsn(Opcodes.ATHROW)
+    mv.visitJumpInsn(Opcodes.GOTO, endLabel)
+
+    mv.visitLabel(endLabel)
+  }
+
+  private fun tryBranch(node: TryCatchNode, tryStart: Label, tryEnd: Label, endLabel: Label) {
+    mv.visitLabel(tryStart)
+    node.tryStatementNode.accept(this)
+    mv.visitLabel(tryEnd)
+    mv.visitJumpInsn(Opcodes.GOTO, endLabel)
+  }
+
+  private fun catchBlock(throwableVariable: LocalVariable, label: Label) {
+    mv.visitLabel(label)
+    mv.visitVarInsn(Opcodes.ASTORE, throwableVariable.index)
+  }
+
+  private fun generateCatchLabel(catchNodes: List<CatchNode>, tryStart: Label, tryEnd: Label): Map<CatchNode, Label> {
+    val map: Map<CatchNode, Label> = catchNodes.associateBy(keySelector = { it }, valueTransform = { Label() })
+    map.forEach { (node, label) ->
+      node.throwableTypes.forEach { throwableType ->
+        mv.visitTryCatchBlock(tryStart, tryEnd, label, throwableType.internalName)
+      }
+    }
+    return map
   }
 
   /*
