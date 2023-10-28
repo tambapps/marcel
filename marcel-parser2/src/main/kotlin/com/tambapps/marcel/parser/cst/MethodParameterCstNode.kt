@@ -1,7 +1,7 @@
 package com.tambapps.marcel.parser.cst
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
+import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
 
 class MethodParameterCstNode(
   parent: CstNode?,
@@ -9,7 +9,7 @@ class MethodParameterCstNode(
   tokenEnd: LexToken,
   val name: String,
   val type: TypeCstNode,
-  val defaultValue: CstExpressionNode?,
+  val defaultValue: ExpressionCstNode?,
   val annotations: List<AnnotationCstNode>,
   val thisParameter: Boolean
   ) :

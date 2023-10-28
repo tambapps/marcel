@@ -5,7 +5,7 @@ import com.tambapps.marcel.parser.cst.CstNode
 
 class SuperConstructorCallCstNode(
   parent: CstNode?,
-  val arguments: List<CstExpressionNode>,
+  val arguments: List<ExpressionCstNode>,
   tokenStart: LexToken,
   tokenEnd: LexToken
 ) : AbstractExpressionCstNode(parent, tokenStart, tokenEnd) {

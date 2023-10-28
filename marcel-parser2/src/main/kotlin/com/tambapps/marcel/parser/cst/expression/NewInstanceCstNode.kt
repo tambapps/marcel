@@ -7,8 +7,8 @@ import com.tambapps.marcel.parser.cst.TypeCstNode
 class NewInstanceCstNode(
   parent: CstNode?,
   val type: TypeCstNode,
-  val positionalArgumentNodes: List<CstExpressionNode>,
-  val namedArgumentNodes: List<Pair<String, CstExpressionNode>>,
+  val positionalArgumentNodes: List<ExpressionCstNode>,
+  val namedArgumentNodes: List<Pair<String, ExpressionCstNode>>,
   tokenStart: LexToken,
   tokenEnd: LexToken
 ) : AbstractExpressionCstNode(parent, tokenStart, tokenEnd) {

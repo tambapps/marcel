@@ -3,8 +3,8 @@ package com.tambapps.marcel.parser.cst.expression
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
 
-class TemplateStringNode(
-  val expressions: List<CstExpressionNode>,
+class TemplateStringCstNode(
+  val expressions: List<ExpressionCstNode>,
   parent: CstNode?,
   tokenStart: LexToken,
   tokenEnd: LexToken

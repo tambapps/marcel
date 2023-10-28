@@ -4,9 +4,9 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
 
 class TernaryCstNode(
-  val testExpressionNode: CstExpressionNode,
-  val trueExpressionNode: CstExpressionNode,
-  val falseExpressionNode: CstExpressionNode,
+  val testExpressionNode: ExpressionCstNode,
+  val trueExpressionNode: ExpressionCstNode,
+  val falseExpressionNode: ExpressionCstNode,
   parent: CstNode?,
   tokenStart: LexToken,
   tokenEnd: LexToken

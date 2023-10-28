@@ -30,7 +30,7 @@ interface ExpressionCstNodeVisitor<T> {
   fun visit(node: StringCstNode): T
   fun visit(node: RegexCstNode): T
   fun visit(node: CharCstNode): T
-  fun visit(node: TemplateStringNode): T
+  fun visit(node: TemplateStringCstNode): T
   fun visit(node: MapCstNode): T
   fun visit(node: ArrayCstNode): T
 

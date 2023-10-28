@@ -15,7 +15,7 @@ import com.tambapps.marcel.parser.cst.expression.ExpressionCstNodeVisitor
 import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
 import com.tambapps.marcel.parser.cst.expression.NewInstanceCstNode
 import com.tambapps.marcel.parser.cst.expression.SuperConstructorCallCstNode
-import com.tambapps.marcel.parser.cst.expression.TemplateStringNode
+import com.tambapps.marcel.parser.cst.expression.TemplateStringCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
@@ -37,14 +37,14 @@ import com.tambapps.marcel.parser.cst.expression.literal.MapCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryTypeOperatorCstNode
-import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
+import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
 import com.tambapps.marcel.parser.cst.expression.NotCstNode
 import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.CharCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.RegexCstNode
-import com.tambapps.marcel.parser.cst.imprt.CstImportVisitor
+import com.tambapps.marcel.parser.cst.imprt.ImportCstVisitor
 import com.tambapps.marcel.parser.cst.imprt.SimpleImportCstNode
 import com.tambapps.marcel.parser.cst.imprt.StaticImportCstNode
 import com.tambapps.marcel.parser.cst.imprt.WildcardImportCstNode
@@ -166,7 +166,7 @@ import java.util.regex.Pattern
 class MarcelSemantic(
   private val typeResolver: JavaTypeResolver,
   private val cst: SourceFileCstNode
-): ExpressionCstNodeVisitor<ExpressionNode>, StatementCstNodeVisitor<StatementNode>, CstImportVisitor<ImportNode> {
+): ExpressionCstNodeVisitor<ExpressionNode>, StatementCstNodeVisitor<StatementNode>, ImportCstVisitor<ImportNode> {
 
   companion object {
     const val PUT_AT_METHOD_NAME = "putAt"
@@ -317,7 +317,7 @@ class MarcelSemantic(
     return annotation
   }
 
-  private fun annotationAttribute(node: AnnotationCstNode, javaAnnotation: JavaAnnotation, specifiedAttr: Pair<String, CstExpressionNode>): AnnotationNode.AttributeNode {
+  private fun annotationAttribute(node: AnnotationCstNode, javaAnnotation: JavaAnnotation, specifiedAttr: Pair<String, ExpressionCstNode>): AnnotationNode.AttributeNode {
     val attribute = javaAnnotation.attributes.find { it.name == specifiedAttr.first }
       ?: throw MarcelSemanticException(node.token, "Unknown member ${specifiedAttr.first} for annotation $javaAnnotation")
     val specifiedValueNode = specifiedAttr.second.accept(exprVisitor)
@@ -443,7 +443,7 @@ class MarcelSemantic(
 
   override fun visit(node: CharCstNode) = CharConstantNode(node.token, node.value)
 
-  override fun visit(node: TemplateStringNode): ExpressionNode {
+  override fun visit(node: TemplateStringCstNode): ExpressionNode {
     val expressions = node.expressions.map { it.accept(exprVisitor) }
     return if (expressions.isEmpty()) StringConstantNode("", node)
     else if (expressions.size == 1 && expressions.first() is StringConstantNode) expressions.first()
@@ -658,7 +658,7 @@ class MarcelSemantic(
     }
   }
 
-  private fun dotOperator(node: CstNode, owner: ExpressionNode, rightOperand: CstExpressionNode,
+  private fun dotOperator(node: CstNode, owner: ExpressionNode, rightOperand: ExpressionCstNode,
                           // useful for ternaryNode which duplicate value to avoid using local variable
                           discardOwnerInReturned: Boolean = false): ExpressionNode = when (rightOperand) {
     is FunctionCallCstNode -> {
@@ -693,8 +693,8 @@ class MarcelSemantic(
     }
   }
   private fun comparisonOperatorNode(
-    leftOperand: CstExpressionNode,
-    rightOperand: CstExpressionNode,
+    leftOperand: ExpressionCstNode,
+    rightOperand: ExpressionCstNode,
     nodeCreator: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode,
     objectComparisonNodeCreator: (ExpressionNode, ExpressionNode) -> ExpressionNode): ExpressionNode {
     val left = leftOperand.accept(exprVisitor)
@@ -708,8 +708,8 @@ class MarcelSemantic(
   }
 
   private fun numberComparisonOperatorNode(
-    leftOperand: CstExpressionNode,
-    rightOperand: CstExpressionNode,
+    leftOperand: ExpressionCstNode,
+    rightOperand: ExpressionCstNode,
     nodeCreator: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode,
     objectComparisonNodeCreator: (ExpressionNode, ExpressionNode) -> ExpressionNode): ExpressionNode {
     val left = leftOperand.accept(exprVisitor)
@@ -721,7 +721,7 @@ class MarcelSemantic(
     return comparisonOperatorNode(leftOperand, rightOperand, nodeCreator, objectComparisonNodeCreator)
   }
 
-  private fun rangeNode(leftOperand: CstExpressionNode, rightOperand: CstExpressionNode, methodName: String): ExpressionNode {
+  private fun rangeNode(leftOperand: ExpressionCstNode, rightOperand: ExpressionCstNode, methodName: String): ExpressionNode {
     val left = leftOperand.accept(exprVisitor)
     val right = rightOperand.accept(exprVisitor)
 
@@ -735,7 +735,7 @@ class MarcelSemantic(
     return fCall(method = method, arguments = listOf(left, right), node = leftOperand)
   }
 
-  private fun shiftOperator(leftOperand: CstExpressionNode, rightOperand: CstExpressionNode,
+  private fun shiftOperator(leftOperand: ExpressionCstNode, rightOperand: ExpressionCstNode,
                             operatorMethodName: String,
                             nodeSupplier: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode): ExpressionNode {
     val left = leftOperand.accept(exprVisitor)
@@ -746,13 +746,13 @@ class MarcelSemantic(
     }
     return node
   }
-  private inline fun arithmeticBinaryOperator(leftOperand: CstExpressionNode, rightOperand: CstExpressionNode,
-                                       operatorMethodName: String,
-                                       nodeSupplier: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode)
+  private inline fun arithmeticBinaryOperator(leftOperand: ExpressionCstNode, rightOperand: ExpressionCstNode,
+                                              operatorMethodName: String,
+                                              nodeSupplier: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode)
   = arithmeticBinaryOperator(leftOperand.accept(exprVisitor), rightOperand.accept(exprVisitor), operatorMethodName, nodeSupplier)
 
-  private fun arithmeticAssignmentBinaryOperator(leftOperand: CstExpressionNode, rightOperand: CstExpressionNode,
-                                                        tokenType: TokenType): ExpressionNode {
+  private fun arithmeticAssignmentBinaryOperator(leftOperand: ExpressionCstNode, rightOperand: ExpressionCstNode,
+                                                 tokenType: TokenType): ExpressionNode {
     return visit(BinaryOperatorCstNode(TokenType.ASSIGNMENT,
       leftOperand = leftOperand,
       rightOperand = BinaryOperatorCstNode(tokenType, leftOperand, rightOperand, leftOperand.parent, leftOperand.tokenStart, rightOperand.tokenEnd),

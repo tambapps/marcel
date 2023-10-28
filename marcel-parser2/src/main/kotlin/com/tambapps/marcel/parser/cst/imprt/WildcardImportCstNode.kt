@@ -10,5 +10,5 @@ class WildcardImportCstNode(
   val prefix: String
 ) :
   AbstractImportCstNode(parent, tokenStart, tokenEnd) {
-  override fun <T> accept(visitor: CstImportVisitor<T>) = visitor.visit(this)
+  override fun <T> accept(visitor: ImportCstVisitor<T>) = visitor.visit(this)
 }

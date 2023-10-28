@@ -3,7 +3,7 @@ package com.tambapps.marcel.parser.cst.expression.literal
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.expression.AbstractExpressionCstNode
-import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
+import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNodeVisitor
 import java.util.regex.Pattern
 
@@ -15,7 +15,7 @@ class RegexCstNode(
   tokenEnd: LexToken
 )
   : AbstractExpressionCstNode(parent, tokenStart, tokenEnd),
-  CstExpressionNode {
+  ExpressionCstNode {
   companion object {
     val FLAGS_MAP = mapOf(
       Pair('d', Pattern.UNIX_LINES),

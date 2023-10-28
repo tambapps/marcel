@@ -13,11 +13,11 @@ import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.ScriptCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
-import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
+import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
 import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
 import com.tambapps.marcel.parser.cst.expression.NewInstanceCstNode
 import com.tambapps.marcel.parser.cst.expression.SuperConstructorCallCstNode
-import com.tambapps.marcel.parser.cst.expression.TemplateStringNode
+import com.tambapps.marcel.parser.cst.expression.TemplateStringCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.ArrayCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
@@ -35,7 +35,7 @@ import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.CharCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.RegexCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.*
-import com.tambapps.marcel.parser.cst.imprt.CstImportNode
+import com.tambapps.marcel.parser.cst.imprt.ImportCstNode
 import com.tambapps.marcel.parser.cst.imprt.SimpleImportCstNode
 import com.tambapps.marcel.parser.cst.imprt.StaticImportCstNode
 import com.tambapps.marcel.parser.cst.imprt.WildcardImportCstNode
@@ -114,8 +114,8 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     return sourceFile
   }
 
-  private fun parseImports(parentNode: CstNode?): Pair<List<CstImportNode>, List<TypeCstNode>>  {
-    val imports = mutableListOf<CstImportNode>()
+  private fun parseImports(parentNode: CstNode?): Pair<List<ImportCstNode>, List<TypeCstNode>>  {
+    val imports = mutableListOf<ImportCstNode>()
     val extensionTypes = mutableListOf<TypeCstNode>()
     while (current.type == TokenType.IMPORT) {
       if (lookup(1)?.type == TokenType.EXTENSION) {
@@ -128,7 +128,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     return Pair(imports, extensionTypes)
   }
 
-  fun import(parentNode: CstNode?): CstImportNode {
+  fun import(parentNode: CstNode?): ImportCstNode {
     val importToken = accept(TokenType.IMPORT)
     val staticImport = acceptOptional(TokenType.STATIC) != null
     val classParts = mutableListOf(accept(TokenType.IDENTIFIER).value)
@@ -454,7 +454,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     }
  }
 
-  private fun ifConditionExpression(parentNode: CstNode?): CstExpressionNode {
+  private fun ifConditionExpression(parentNode: CstNode?): ExpressionCstNode {
     return if (ParserUtils.isTypeToken(current.type) && lookup(1)?.type == TokenType.IDENTIFIER) {
       val type = parseType(parentNode)
       val variableName = accept(TokenType.IDENTIFIER).value
@@ -482,7 +482,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     return BlockCstNode(statements, parentNode, token, previous)
   }
 
-  fun expression(parentNode: CstNode? = null): CstExpressionNode {
+  fun expression(parentNode: CstNode? = null): ExpressionCstNode {
     val expression = expression(parentNode, Int.MAX_VALUE)
     if (current.type != TokenType.QUESTION_MARK) {
       return expression
@@ -494,7 +494,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     return TernaryCstNode(expression, trueExpression, falseExpression, parentNode, expression.tokenStart, falseExpression.tokenEnd)
   }
 
-  private fun expression(parentNode: CstNode?, maxPriority: Int): CstExpressionNode {
+  private fun expression(parentNode: CstNode?, maxPriority: Int): ExpressionCstNode {
     var a = atom(parentNode)
     var t = current
     while (ParserUtils.isBinaryOperator(t.type) && ParserUtils.getPriority(t.type) < maxPriority) {
@@ -516,19 +516,19 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     return a
   }
 
-  fun atom(parentNode: CstNode? = null): CstExpressionNode {
+  fun atom(parentNode: CstNode? = null): ExpressionCstNode {
     val token = next()
     return when (token.type) {
       TokenType.INTEGER, TokenType.FLOAT -> {
         return parseNumberConstant(parentNode=parentNode, token=token)
       }
       TokenType.OPEN_QUOTE -> { // double quotes
-        val parts = mutableListOf<CstExpressionNode>()
+        val parts = mutableListOf<ExpressionCstNode>()
         while (current.type != TokenType.CLOSING_QUOTE) {
           parts.add(stringPart(parentNode))
         }
         skip() // skip last quote
-        TemplateStringNode(parts, parentNode, token, previous)
+        TemplateStringCstNode(parts, parentNode, token, previous)
       }
       TokenType.OPEN_SIMPLE_QUOTE -> {
         val builder = StringBuilder()
@@ -601,7 +601,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
           skip()
           return MapCstNode(emptyList(), parentNode, token, previous)
         }
-        val elements = mutableListOf<CstExpressionNode>()
+        val elements = mutableListOf<ExpressionCstNode>()
         var isMap = false
         while (current.type != TokenType.SQUARE_BRACKETS_CLOSE) {
           val isParenthesisBlock = current.type == TokenType.LPAR
@@ -621,7 +621,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         }
         next() // skip square brackets close
         if (isMap) {
-          val entries = mutableListOf<Pair<CstExpressionNode, CstExpressionNode>>()
+          val entries = mutableListOf<Pair<ExpressionCstNode, ExpressionCstNode>>()
           for (i in elements.indices step 2) {
             entries.add(Pair(elements[i], elements[i + 1]))
           }
@@ -699,7 +699,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     }
   }
 
-  private fun stringPart(parentNode: CstNode?): CstExpressionNode {
+  private fun stringPart(parentNode: CstNode?): ExpressionCstNode {
     val token = next()
     return when (token.type) {
       TokenType.REGULAR_STRING_PART -> StringCstNode(parentNode, token.value, token, token)
@@ -756,9 +756,9 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
 
 
   // LPAR must be already parsed
-  private fun parseFunctionArguments(parentNode: CstNode? = null): Pair<MutableList<CstExpressionNode>, MutableList<Pair<String, CstExpressionNode>>> {
-    val arguments = mutableListOf<CstExpressionNode>()
-    val namedArguments = mutableListOf<Pair<String, CstExpressionNode>>()
+  private fun parseFunctionArguments(parentNode: CstNode? = null): Pair<MutableList<ExpressionCstNode>, MutableList<Pair<String, ExpressionCstNode>>> {
+    val arguments = mutableListOf<ExpressionCstNode>()
+    val namedArguments = mutableListOf<Pair<String, ExpressionCstNode>>()
     while (current.type != TokenType.RPAR) {
       if (current.type == TokenType.IDENTIFIER && lookup(1)?.type == TokenType.COLON) {
         val identifierToken = accept(TokenType.IDENTIFIER)
@@ -784,11 +784,11 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
   }
 
 
-  private fun indexAccessCstNode(parentNode: CstNode?, ownerNode: CstExpressionNode): IndexAccessCstNode {
+  private fun indexAccessCstNode(parentNode: CstNode?, ownerNode: ExpressionCstNode): IndexAccessCstNode {
     val isSafeIndex = current.type == TokenType.QUESTION_SQUARE_BRACKETS_OPEN
     val tokenStart = current
     skip()
-    val indexArguments = mutableListOf<CstExpressionNode>()
+    val indexArguments = mutableListOf<ExpressionCstNode>()
     while (current.type != TokenType.SQUARE_BRACKETS_CLOSE) {
       indexArguments.add(expression(parentNode))
       if (current.type == TokenType.COMMA) skip()
@@ -797,7 +797,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     return IndexAccessCstNode(parentNode, ownerNode, indexArguments, isSafeIndex, tokenStart, previous)
   }
 
-  private fun optIndexAccessCstNode(parentNode: CstNode?, ownerNode: CstExpressionNode): IndexAccessCstNode? {
+  private fun optIndexAccessCstNode(parentNode: CstNode?, ownerNode: ExpressionCstNode): IndexAccessCstNode? {
     if (current.type == TokenType.SQUARE_BRACKETS_OPEN || current.type == TokenType.QUESTION_SQUARE_BRACKETS_OPEN) {
       indexAccessCstNode(parentNode, ownerNode)
     }
@@ -815,7 +815,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
   private fun parseAnnotation(parentNode: CstNode?): AnnotationCstNode {
     val token = next()
     val type = parseType(parentNode)
-    val attributes = mutableListOf<Pair<String, CstExpressionNode>>()
+    val attributes = mutableListOf<Pair<String, ExpressionCstNode>>()
     if (current.type == TokenType.LPAR) {
       skip()
       if (current.type == TokenType.IDENTIFIER && lookup(1)?.type == TokenType.ASSIGNMENT) {
@@ -835,7 +835,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     return AnnotationCstNode(parentNode, token, previous, type, attributes)
   }
 
-  private fun parseNumberConstant(parentNode: CstNode? = null, token: LexToken): CstExpressionNode {
+  private fun parseNumberConstant(parentNode: CstNode? = null, token: LexToken): ExpressionCstNode {
     if (token.type == TokenType.INTEGER) {
       var valueString = token.value.lowercase(Locale.ENGLISH)
       val isLong = valueString.endsWith("l")

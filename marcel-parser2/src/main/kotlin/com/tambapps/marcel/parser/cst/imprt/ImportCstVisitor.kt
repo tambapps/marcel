@@ -1,6 +1,6 @@
 package com.tambapps.marcel.parser.cst.imprt
 
-interface CstImportVisitor<T> {
+interface ImportCstVisitor<T> {
 
   fun visit(node: SimpleImportCstNode): T
   fun visit(node: StaticImportCstNode): T

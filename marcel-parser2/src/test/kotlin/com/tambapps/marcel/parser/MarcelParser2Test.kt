@@ -10,7 +10,7 @@ import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
-import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
+import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
 import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
@@ -193,21 +193,21 @@ class MarcelParser2Test {
         assertNotEquals(double(value = 1234.4), parser("1234.45d").atom())
     }
 
-    private fun fCall(value: String, castType: TypeCstNode? = null, positionalArgumentNodes: List<CstExpressionNode> = emptyList(),
-                      namedArgumentNodes: List<Pair<String, CstExpressionNode>> = emptyList()
+    private fun fCall(value: String, castType: TypeCstNode? = null, positionalArgumentNodes: List<ExpressionCstNode> = emptyList(),
+                      namedArgumentNodes: List<Pair<String, ExpressionCstNode>> = emptyList()
     ) = FunctionCallCstNode(parent = null, value = value, castType = castType,
         positionalArgumentNodes = positionalArgumentNodes, namedArgumentNodes = namedArgumentNodes,
         tokenStart = token(), tokenEnd = token()
     )
 
 
-    private fun binaryOperator(type: TokenType, left: CstExpressionNode, right: CstExpressionNode) =
+    private fun binaryOperator(type: TokenType, left: ExpressionCstNode, right: ExpressionCstNode) =
         BinaryOperatorCstNode(type, left, right, null, token(), token())
-    private fun indexAccess(owner: CstExpressionNode, indexes: List<CstExpressionNode>, isSafeAccess: Boolean = false) =
+    private fun indexAccess(owner: ExpressionCstNode, indexes: List<ExpressionCstNode>, isSafeAccess: Boolean = false) =
         IndexAccessCstNode(null, owner, indexes, isSafeAccess, token(), token())
-    private fun varDecl(typeCstNode: TypeCstNode, name: String, expr: CstExpressionNode?) = VariableDeclarationCstNode(typeCstNode, name, expr, null, token(), token())
-    private fun stmt(expr: CstExpressionNode) = ExpressionStatementCstNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
-    private fun returnNode(expr: CstExpressionNode? = null) = ReturnCstNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
+    private fun varDecl(typeCstNode: TypeCstNode, name: String, expr: ExpressionCstNode?) = VariableDeclarationCstNode(typeCstNode, name, expr, null, token(), token())
+    private fun stmt(expr: ExpressionCstNode) = ExpressionStatementCstNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
+    private fun returnNode(expr: ExpressionCstNode? = null) = ReturnCstNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
     private fun nullValue() = NullCstNode(token = token())
     private fun type(value: String, genericTypes: List<TypeCstNode> = emptyList(), arrayDimensions: Int = 0) = TypeCstNode(null, value, genericTypes, arrayDimensions, token(), token())
     private fun int(value: Int) = IntCstNode(value = value, token = token())

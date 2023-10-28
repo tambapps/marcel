@@ -1,15 +1,14 @@
 package com.tambapps.marcel.parser.cst.expression.reference
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.parser.cst.AbstractCstNode
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.expression.AbstractExpressionCstNode
-import com.tambapps.marcel.parser.cst.expression.CstExpressionNode
+import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNodeVisitor
 
 class IndexAccessCstNode(parent: CstNode?,
-                         val ownerNode: CstExpressionNode, // the owner of the access, the 'a' in a[...]
-                         val indexNodes: List<CstExpressionNode>,
+                         val ownerNode: ExpressionCstNode, // the owner of the access, the 'a' in a[...]
+                         val indexNodes: List<ExpressionCstNode>,
                          val isSafeAccess: Boolean,
                          tokenStart: LexToken, tokenEnd: LexToken) :
     AbstractExpressionCstNode(parent, tokenStart, tokenEnd) {
