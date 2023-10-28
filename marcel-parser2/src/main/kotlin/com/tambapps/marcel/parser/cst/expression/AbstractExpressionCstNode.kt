@@ -11,6 +11,7 @@ abstract class AbstractExpressionCstNode(parent: CstNode?, tokenStart: LexToken,
 
     constructor(parent: CstNode?, token: LexToken): this(parent, token, token)
 
+  // TODO
   override fun <T> accept(visitor: StatementCstNodeVisitor<T>) = throw UnsupportedOperationException()
 
   override fun <T> accept(visitor: CstNodeVisitor<T>) = accept(visitor as ExpressionCstNodeVisitor<T>)

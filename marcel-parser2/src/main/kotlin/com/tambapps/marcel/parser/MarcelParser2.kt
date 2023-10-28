@@ -35,6 +35,10 @@ import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.CharCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.RegexCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.*
+import com.tambapps.marcel.parser.cst.imprt.CstImportNode
+import com.tambapps.marcel.parser.cst.imprt.SimpleImportCstNode
+import com.tambapps.marcel.parser.cst.imprt.StaticImportCstNode
+import com.tambapps.marcel.parser.cst.imprt.WildcardImportCstNode
 import com.tambapps.marcel.parser.cst.statement.BlockCstNode
 import com.tambapps.marcel.parser.cst.statement.BreakCstNode
 import com.tambapps.marcel.parser.cst.statement.ContinueCstNode
@@ -77,8 +81,14 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       throw MarcelParser2Exception(LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, null), "Unexpected end of file")
     }
     val packageName = parsePackage()
+
     val sourceFile = SourceFileCstNode(packageName = packageName, tokenStart = tokens.first(), tokenEnd = tokens.last())
     val scriptNode = ScriptCstNode(tokens.first(), tokens.last(), classSimpleName)
+
+    val (imports, extensionTypes) = parseImports(sourceFile)
+    sourceFile.imports.addAll(imports)
+    sourceFile.extensionTypes.addAll(extensionTypes)
+
     while (current.type != TokenType.END_OF_FILE) {
       val annotations = parseAnnotations(sourceFile)
       val access = parseAccess(sourceFile)
@@ -102,6 +112,59 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       throw MarcelParser2Exception(errors)
     }
     return sourceFile
+  }
+
+  private fun parseImports(parentNode: CstNode?): Pair<List<CstImportNode>, List<TypeCstNode>>  {
+    val imports = mutableListOf<CstImportNode>()
+    val extensionTypes = mutableListOf<TypeCstNode>()
+    while (current.type == TokenType.IMPORT) {
+      if (lookup(1)?.type == TokenType.EXTENSION) {
+        skip(2)
+        extensionTypes.add(parseType(parentNode))
+      } else {
+        imports.add(import(parentNode))
+      }
+    }
+    return Pair(imports, extensionTypes)
+  }
+
+  fun import(parentNode: CstNode?): CstImportNode {
+    val importToken = accept(TokenType.IMPORT)
+    val staticImport = acceptOptional(TokenType.STATIC) != null
+    val classParts = mutableListOf(accept(TokenType.IDENTIFIER).value)
+    while (current.type == TokenType.DOT) {
+      skip()
+      if (current.type == TokenType.MUL) {
+        if (staticImport) {
+          throw MarcelParser2Exception(
+            current,
+            "Invalid static import"
+          )
+        }
+        skip()
+        acceptOptional(TokenType.SEMI_COLON)
+        return WildcardImportCstNode(parentNode, importToken, previous, classParts.joinToString(separator = "."))
+      }
+      classParts.add(accept(TokenType.IDENTIFIER).value)
+    }
+    if (classParts.size <= 1) {
+      throw MarcelParser2Exception(
+        previous,
+        "Invalid class full name" + classParts.joinToString(
+          separator = "."
+        )
+      )
+    }
+    val node = if (staticImport) {
+      val className = classParts.subList(0, classParts.size - 1).joinToString(separator = ".")
+      val method = classParts.last()
+      StaticImportCstNode(parentNode, importToken, previous, className, method)
+    } else {
+      val asName = if (acceptOptional(TokenType.AS) != null) accept(TokenType.IDENTIFIER).value else null
+      SimpleImportCstNode(parentNode, importToken, previous, classParts.joinToString(separator = "."), asName)
+    }
+    acceptOptional(TokenType.SEMI_COLON)
+    return node
   }
 
   private fun parsePackage(): String? {

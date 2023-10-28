@@ -44,6 +44,10 @@ import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.CharCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.RegexCstNode
+import com.tambapps.marcel.parser.cst.imprt.CstImportVisitor
+import com.tambapps.marcel.parser.cst.imprt.SimpleImportCstNode
+import com.tambapps.marcel.parser.cst.imprt.StaticImportCstNode
+import com.tambapps.marcel.parser.cst.imprt.WildcardImportCstNode
 import com.tambapps.marcel.parser.cst.statement.BlockCstNode
 import com.tambapps.marcel.parser.cst.statement.BreakCstNode
 import com.tambapps.marcel.parser.cst.statement.ContinueCstNode
@@ -61,6 +65,9 @@ import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
+import com.tambapps.marcel.semantic.ast.SimpleImportNode
+import com.tambapps.marcel.semantic.ast.StaticImportNode
+import com.tambapps.marcel.semantic.ast.WildcardImportNode
 import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
@@ -159,7 +166,7 @@ import java.util.regex.Pattern
 class MarcelSemantic(
   private val typeResolver: JavaTypeResolver,
   private val cst: SourceFileCstNode
-): ExpressionCstNodeVisitor<ExpressionNode>, StatementCstNodeVisitor<StatementNode> {
+): ExpressionCstNodeVisitor<ExpressionNode>, StatementCstNodeVisitor<StatementNode>, CstImportVisitor<ImportNode> {
 
   companion object {
     const val PUT_AT_METHOD_NAME = "putAt"
@@ -180,7 +187,9 @@ class MarcelSemantic(
 
   fun apply(): ModuleNode {
     val imports = Scope.DEFAULT_IMPORTS.toMutableList()
-    // TODO analyse package and imports if any
+    imports.addAll(
+      cst.imports.map { it.accept(this) }
+    )
 
     val moduleNode = ModuleNode(cst.tokenStart, cst.tokenEnd)
     val scriptCstNode = cst.script
@@ -1023,6 +1032,11 @@ class MarcelSemantic(
     return TryCatchNode(node, tryBlock, catchNodes, finallyNode)
   }
 
+  override fun visit(node: SimpleImportCstNode) = SimpleImportNode(node.className, node.asName, node.tokenStart, node.tokenEnd)
+
+  override fun visit(node: StaticImportCstNode) = StaticImportNode(node.className, node.methodName, node.tokenStart, node.tokenEnd)
+
+  override fun visit(node: WildcardImportCstNode) = WildcardImportNode(node.prefix, node.tokenStart, node.tokenEnd)
   override fun visit(node: BlockCstNode) = useInnerScope {
     val statements = blockStatements(node.statements)
     BlockStatementNode(statements, node.tokenStart, node.tokenEnd)
