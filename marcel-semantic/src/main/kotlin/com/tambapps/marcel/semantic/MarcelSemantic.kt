@@ -1027,7 +1027,8 @@ class MarcelSemantic(
     val whenMethodArguments = whenLocalVariables.map {
       // need to replace the switch local variable by the actual expression since it wasn't yet really passed to the Ast tree
       if (switchExpression != null && it.name == switchExpressionLocalVariable.name) switchExpression
-      else ReferenceNode(owner = null, variable = it, token = node.token)
+      // we don't want the whenLocalVariable because the index of it is specific for IN the when/switch method
+      else ReferenceNode(owner = null, variable = localVariableReferencesMap.getValue(it.name), token = node.token)
     }.toMutableList()
     /*
      * generating method

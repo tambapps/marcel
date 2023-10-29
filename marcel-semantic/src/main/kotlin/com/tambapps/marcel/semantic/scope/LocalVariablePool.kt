@@ -17,8 +17,7 @@ class LocalVariablePool(staticContext: Boolean) {
     val v = variablePool.find { it.nbSlots == nbSlots }
     return if (v != null) {
       variablePool.remove(v)
-      v.reset(type, name, isFinal)
-      v
+      LocalVariable(type, name, nbSlots, v.index, isFinal).apply { variablePool.add(this) }
     } else newVariable(type, name, isFinal)
   }
 
@@ -33,5 +32,5 @@ class LocalVariablePool(staticContext: Boolean) {
     return LocalVariable(type, name, nbSlots, index, isFinal)
   }
 
-  private fun nbSlots(type: JavaType) = if (type == JavaType.long || type == JavaType.double) 2 else 1
+  private fun nbSlots(type: JavaType) = if (type.takes2Slots) 2 else 1
 }

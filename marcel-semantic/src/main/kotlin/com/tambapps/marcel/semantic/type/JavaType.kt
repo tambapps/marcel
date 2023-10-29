@@ -64,6 +64,8 @@ interface JavaType: JavaTyped {
     return if (i < 0) className else className.substring(i + 1)
   }
 
+  val takes2Slots get() = this == long || this == double
+
   override val type get() = this
   val genericTypes: List<JavaType>
   val isInterface: Boolean
