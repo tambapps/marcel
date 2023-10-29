@@ -88,7 +88,7 @@ class PushingMethodExpressionWriter(mv: MethodVisitor, typeResolver: JavaTypeRes
   }
 
   override fun visit(node: IncrLocalVariableNode) {
-    val variable = node.variable
+    val variable = node.localVariable
     if (node.returnValueBefore) {
       loadVariableVisitor.visit(variable)
       mv.visitIincInsn(variable.index, node.amount)

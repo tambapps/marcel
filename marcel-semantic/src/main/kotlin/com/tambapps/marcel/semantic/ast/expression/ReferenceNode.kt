@@ -1,9 +1,11 @@
 package com.tambapps.marcel.semantic.ast.expression
 
 import com.tambapps.marcel.lexer.LexToken
+import com.tambapps.marcel.semantic.ast.AstVariableNode
 import com.tambapps.marcel.semantic.variable.Variable
 
-class ReferenceNode(val owner: ExpressionNode? = null, val variable: Variable, token: LexToken) : AbstractExpressionNode(variable.type, token) {
+class ReferenceNode(val owner: ExpressionNode? = null, override var variable: Variable, token: LexToken) : AbstractExpressionNode(variable.type, token),
+  AstVariableNode {
 
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) = visitor.visit(this)
 

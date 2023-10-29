@@ -61,6 +61,7 @@ import com.tambapps.marcel.parser.cst.statement.TryCatchCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.parser.cst.statement.WhileCstNode
 import com.tambapps.marcel.semantic.ast.AnnotationNode
+import com.tambapps.marcel.semantic.ast.AstVariableNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.ImportNode
@@ -178,6 +179,7 @@ class MarcelSemantic(
   }
   private val caster = AstNodeCaster(typeResolver)
 
+  // TODO these two are useless. Just use this
   val exprVisitor = this as ExpressionCstNodeVisitor<ExpressionNode>
   val stmtVisitor = this as StatementCstNodeVisitor<StatementNode>
 
@@ -933,7 +935,7 @@ class MarcelSemantic(
       throw MarcelSemanticException(node, "When expression should have an else branch")
     }
     if (node.branches.isEmpty()) {
-      TODO()
+      TODO("handle empty branch")
     }
     val rootIfCstNode = node.branches.first().let {
       toIf(it, node.tokenStart, node.tokenEnd)
@@ -947,9 +949,8 @@ class MarcelSemantic(
     }
     if (elseStatement != null) ifCstNode.falseStatementNode = elseStatement
 
-    // TODO add parameter for referenced variables if any
-    val whenStatement = stmtVisitor.visit(rootIfCstNode) as IfStatementNode
-    val whenReturnType =  if (!node.isStatement) {
+    val whenStatement = visit(rootIfCstNode)
+    val whenReturnType =  if (shouldReturnValue) {
       var tmpIfNode: IfStatementNode? = whenStatement
       val branchTransformer = ReturningWhenIfBranchTransformer(node)
       while (tmpIfNode != null) {
@@ -971,12 +972,42 @@ class MarcelSemantic(
       JavaType.commonType(branchTransformer.collectedTypes)
     } else JavaType.void
 
-    val whenMethod = generateWhenMethod(emptyList(), whenReturnType, node)
+    /*
+     * Search for all local variables used, they will need to be passed to the generated
+     * when function
+     */
+    val localVariableReferencesMap = LinkedHashMap<String, LocalVariable>()
+
+    whenStatement.forEach(AstVariableNode::class) {
+      val variable = it.variable
+      if (variable is LocalVariable) {
+        localVariableReferencesMap[variable.name] = variable
+      }
+    }
+    val whenLocalVariables = localVariableReferencesMap.map { it.value }
+
+    // now re-set local variable to set the right index
+    whenStatement.forEach(AstVariableNode::class) { variableNode ->
+      val variable = variableNode.variable
+      if (variable is LocalVariable) {
+        val index = whenLocalVariables.indexOfFirst { it.name == variable.name }
+        variableNode.variable = LocalVariable(variable.type, variable.name, variable.nbSlots,
+          if (currentMethodScope.staticContext) index else index + 1, variable.isFinal
+          )
+      }
+    }
+
+    /*
+     * generating method
+     */
+    val whenMethod = generateWhenMethod(whenLocalVariables.map { MethodParameter(it.type, it.name) }, whenReturnType, node)
     whenMethod.blockStatement = BlockStatementNode(mutableListOf(whenStatement), whenStatement.tokenStart, whenStatement.tokenEnd).apply {
       // if it is not void, statements already have return nodes because of ReturningWhenIfBranchTransformer
       if (whenReturnType == JavaType.void) statements.add(SemanticHelper.returnVoid(this))
     }
-    return fCall(node = node, owner = ThisReferenceNode(currentScope.classType, node.token), arguments = emptyList(), method = whenMethod)
+    // now calling the method
+    return fCall(node = node, owner = ThisReferenceNode(currentScope.classType, node.token),
+      arguments = whenLocalVariables.map { ReferenceNode(owner = null, variable = it, token = node.token) }, method = whenMethod)
   }
 
   private fun generateWhenMethod(parameters: List<MethodParameter>, returnType: JavaType, node: CstNode): MethodNode {

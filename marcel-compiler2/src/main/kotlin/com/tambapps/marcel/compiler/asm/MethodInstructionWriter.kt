@@ -346,7 +346,7 @@ class MethodInstructionWriter(
   }
 
   override fun visit(node: IncrLocalVariableNode) {
-    val variable = node.variable
+    val variable = node.localVariable
     mv.visitIincInsn(variable.index, node.amount)
   }
 
