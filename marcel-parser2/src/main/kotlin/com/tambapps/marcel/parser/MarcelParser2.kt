@@ -29,6 +29,7 @@ import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryTypeOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.NotCstNode
+import com.tambapps.marcel.parser.cst.expression.SwitchCstNode
 import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.WhenCstNode
@@ -696,7 +697,13 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         ClassReferenceCstNode(parentNode,
           TypeCstNode(parentNode, token.value, emptyList(), arrayDimensions, token, previous), token, previous)
       }
-      TokenType.WHEN -> {
+      TokenType.WHEN, TokenType.SWITCH -> {
+        var switchExpression: ExpressionCstNode? = null
+        if (token.type == TokenType.SWITCH) {
+          accept(TokenType.LPAR)
+          switchExpression = expression(parentNode)
+          accept(TokenType.RPAR)
+        }
         accept(TokenType.BRACKETS_OPEN)
         val branches = mutableListOf<Pair<ExpressionCstNode, StatementCstNode>>()
 
@@ -717,7 +724,8 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
           }
         }
         skip() // skip bracket_close
-        WhenCstNode(parentNode, token, previous, branches, elseStatement)
+        if (switchExpression == null) WhenCstNode(parentNode, token, previous, branches, elseStatement)
+        else SwitchCstNode(parentNode, token, previous, branches, elseStatement, switchExpression)
       }
       else -> TODO("atom " + token.type.name)
     }

@@ -39,6 +39,7 @@ import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryTypeOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
 import com.tambapps.marcel.parser.cst.expression.NotCstNode
+import com.tambapps.marcel.parser.cst.expression.SwitchCstNode
 import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.WhenCstNode
@@ -928,22 +929,47 @@ class MarcelSemantic(
       node.falseStatementNode?.accept(stmtVisitor), node)
   }
 
-  override fun visit(node: WhenCstNode): ExpressionNode {
+  override fun visit(node: SwitchCstNode): ExpressionNode {
+    // transforming the switch into a when
+
+    val switchExpression = node.switchExpression.accept(this)
+    return switchWhen(node, switchExpression)
+  }
+
+  override fun visit(node: WhenCstNode) = switchWhen(node)
+
+
+  private fun switchWhen(node: WhenCstNode, switchExpression: ExpressionNode? = null): ExpressionNode {
     val shouldReturnValue = !node.isStatement
     val elseStatement = node.elseStatement
     if (shouldReturnValue && elseStatement == null) {
-      throw MarcelSemanticException(node, "When expression should have an else branch")
+      throw MarcelSemanticException(node, "When/switch expression should have an else branch")
     }
     if (node.branches.isEmpty()) {
-      TODO("handle empty branch")
+      if (elseStatement == null || shouldReturnValue) throw MarcelSemanticException("Switch/When should have at least 1 non else branch")
+      node.branches.add(
+        Pair(BoolCstNode(node.parent, false, node.token), BlockCstNode(emptyList(), node.parent, node.tokenStart, node.tokenEnd))
+      )
     }
+
+    val switchExpressionRef = ReferenceCstNode(node.parent, "__switch_expression", node.token)
+    val switchExpressionLocalVariable = currentMethodScope.addLocalVariable(switchExpression?.type ?: JavaType.Object, switchExpressionRef.value)
+
     val rootIfCstNode = node.branches.first().let {
-      toIf(it, node.tokenStart, node.tokenEnd)
+      if (switchExpression != null) IfCstStatementNode(
+        BinaryOperatorCstNode(
+          TokenType.EQUAL, switchExpressionRef, it.first, node.parent, node.tokenStart, node.tokenEnd
+        ), it.second, null, it.first.parent, it.first.tokenStart, it.second.tokenEnd)
+      else toIf(it, it.first.tokenStart, it.second.tokenEnd)
     }
     var ifCstNode = rootIfCstNode
     for (i in 1 until node.branches.size) {
       val branch = node.branches[i]
-      val ifBranch = toIf(branch, branch.first.tokenStart, branch.second.tokenEnd)
+      val ifBranch = if (switchExpression != null) IfCstStatementNode(
+        BinaryOperatorCstNode(
+          TokenType.EQUAL, switchExpressionRef, branch.first, node.parent, node.tokenStart, node.tokenEnd
+        ), branch.second, null, branch.first.parent, branch.first.tokenStart, branch.second.tokenEnd)
+      else toIf(branch, branch.first.tokenStart, branch.second.tokenEnd)
       ifCstNode.falseStatementNode = ifBranch
       ifCstNode = ifBranch
     }
@@ -993,21 +1019,31 @@ class MarcelSemantic(
         val index = whenLocalVariables.indexOfFirst { it.name == variable.name }
         variableNode.variable = LocalVariable(variable.type, variable.name, variable.nbSlots,
           if (currentMethodScope.staticContext) index else index + 1, variable.isFinal
-          )
+        )
       }
     }
 
+    val whenMethodParameters = whenLocalVariables.map { MethodParameter(it.type, it.name) }.toMutableList()
+    val whenMethodArguments = whenLocalVariables.map {
+      // need to replace the switch local variable by the actual expression since it wasn't yet really passed to the Ast tree
+      if (switchExpression != null && it.name == switchExpressionLocalVariable.name) switchExpression
+      else ReferenceNode(owner = null, variable = it, token = node.token)
+    }.toMutableList()
     /*
      * generating method
      */
-    val whenMethod = generateWhenMethod(whenLocalVariables.map { MethodParameter(it.type, it.name) }, whenReturnType, node)
+    val whenMethod = generateWhenMethod(whenMethodParameters, whenReturnType, node)
     whenMethod.blockStatement = BlockStatementNode(mutableListOf(whenStatement), whenStatement.tokenStart, whenStatement.tokenEnd).apply {
       // if it is not void, statements already have return nodes because of ReturningWhenIfBranchTransformer
       if (whenReturnType == JavaType.void) statements.add(SemanticHelper.returnVoid(this))
     }
+
+    // dispose switch expression variable
+    currentMethodScope.freeLocalVariable(switchExpressionLocalVariable.name)
+
     // now calling the method
     return fCall(node = node, owner = ThisReferenceNode(currentScope.classType, node.token),
-      arguments = whenLocalVariables.map { ReferenceNode(owner = null, variable = it, token = node.token) }, method = whenMethod)
+      arguments = whenMethodArguments, method = whenMethod)
   }
 
   private fun generateWhenMethod(parameters: List<MethodParameter>, returnType: JavaType, node: CstNode): MethodNode {

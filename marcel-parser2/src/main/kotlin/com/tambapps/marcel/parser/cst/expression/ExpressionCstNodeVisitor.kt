@@ -51,5 +51,6 @@ interface ExpressionCstNodeVisitor<T> {
   fun visit(node: SuperConstructorCallCstNode): T
   fun visit(node: NewInstanceCstNode): T
   fun visit(node: WhenCstNode): T
+  fun visit(node: SwitchCstNode): T
 
 }
