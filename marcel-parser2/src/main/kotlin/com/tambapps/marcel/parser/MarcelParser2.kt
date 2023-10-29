@@ -727,7 +727,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         if (switchExpression == null) WhenCstNode(parentNode, token, previous, branches, elseStatement)
         else SwitchCstNode(parentNode, token, previous, branches, elseStatement, switchExpression)
       }
-      else -> TODO("atom " + token.type.name)
+      else -> TODO("atom  ${token.type} l:${token.line} c:${token.column}")
     }
   }
 

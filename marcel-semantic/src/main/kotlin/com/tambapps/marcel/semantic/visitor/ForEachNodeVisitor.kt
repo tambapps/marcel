@@ -80,7 +80,6 @@ class ForEachNodeVisitor(
 
   override fun visit(node: IncrLocalVariableNode) {
     consume(node)
-
   }
 
   override fun visit(node: DupNode) {
@@ -274,6 +273,7 @@ class ForEachNodeVisitor(
   override fun visit(node: IfStatementNode) {
     consume(node)
     node.conditionNode.accept(this)
+    node.trueStatementNode.accept(this)
     node.falseStatementNode?.accept(this)
   }
 
