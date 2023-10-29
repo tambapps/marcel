@@ -852,7 +852,7 @@ class MarcelSemantic(
     } else if (expression == null && scope.method.returnType != JavaType.void) {
       throw MarcelSemanticException(node, "Must return expression in non void function")
     }
-    return ReturnStatementNode(node.expressionNode?.accept(exprVisitor), node.tokenStart, node.tokenEnd)
+    return ReturnStatementNode(expression, node.tokenStart, node.tokenEnd)
   }
 
   override fun visit(node: VariableDeclarationCstNode): StatementNode {
