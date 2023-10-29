@@ -7,7 +7,6 @@ import com.tambapps.marcel.semantic.type.JavaType
 open class FunctionCallNode(
   val javaMethod: JavaMethod,
   val owner: ExpressionNode?,
-  val castType: JavaType?,
   val arguments: List<ExpressionNode>,
   token: LexToken
 ) : AbstractExpressionNode(javaMethod.returnType, token) {
@@ -23,9 +22,6 @@ open class FunctionCallNode(
       append(".")
     }
     append(javaMethod.name)
-    if (castType != null) {
-      append("<$castType>")
-    }
     append("(")
     arguments.joinTo(buffer = this, separator = ", ")
     append(")")
@@ -37,7 +33,6 @@ open class FunctionCallNode(
 
     if (javaMethod != other.javaMethod) return false
     if (owner != other.owner) return false
-    if (castType != other.castType) return false
     if (arguments != other.arguments) return false
 
     return true
@@ -46,7 +41,6 @@ open class FunctionCallNode(
   override fun hashCode(): Int {
     var result = javaMethod.hashCode()
     result = 31 * result + (owner?.hashCode() ?: 0)
-    result = 31 * result + (castType?.hashCode() ?: 0)
     result = 31 * result + arguments.hashCode()
     return result
   }

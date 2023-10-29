@@ -4,6 +4,7 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
+import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
@@ -53,6 +54,8 @@ class AstNodeCaster(
         expectedType == JavaType.long && actualType == JavaType.Long -> functionCall(JavaType.Long, "longValue", emptyList(), node)
         expectedType == JavaType.float && actualType == JavaType.Float -> functionCall(JavaType.Float, "floatValue", emptyList(), node)
         expectedType == JavaType.double && actualType == JavaType.Double -> functionCall(JavaType.Double, "doubleValue", emptyList(), node)
+        expectedType == JavaType.char && actualType == JavaType.String -> functionCall(JavaType.String, "charAt", listOf(IntConstantNode(node.token, 0)), node)
+        actualType == JavaType.Object -> cast(expectedType, cast(expectedType.objectType, node))
         else -> incompatibleTypes(node, expectedType, actualType)
       }
       // primitive to Object
@@ -112,6 +115,6 @@ class AstNodeCaster(
 
   internal fun functionCall(ownerType: JavaType, name: String, arguments: List<ExpressionNode>, node: ExpressionNode): FunctionCallNode {
     val method = typeResolver.findMethodOrThrow(ownerType, name, arguments)
-    return FunctionCallNode(method, if (method.isStatic) null else node, null, arguments, node.token)
+    return FunctionCallNode(method, if (method.isStatic) null else node, arguments, node.token)
   }
 }

@@ -910,7 +910,7 @@ class MarcelSemantic(
               ExpressionStatementNode(
                 VariableAssignmentNode(
                   localVariable = variable,
-                  expression = ArrayAccessNode(expressionRef, IntConstantNode(node.token, index), node),
+                  expression = caster.cast(variable.type, ArrayAccessNode(expressionRef, IntConstantNode(node.token, index), node)),
                   node = node
                 )
               )
@@ -1205,7 +1205,7 @@ class MarcelSemantic(
 
   private fun fCall(node: CstNode, ownerType: JavaType, name: String, arguments: List<ExpressionNode>,
                     owner: ExpressionNode? = null,
-                    castType: JavaType? = null): FunctionCallNode {
+                    castType: JavaType? = null): ExpressionNode {
     val method = typeResolver.findMethodOrThrow(ownerType, name, arguments, node.token)
     return fCall(node, method, arguments, owner, castType)
   }
@@ -1221,7 +1221,10 @@ class MarcelSemantic(
     method: JavaMethod,
     arguments: List<ExpressionNode>,
     owner: ExpressionNode? = null,
-    castType: JavaType? = null) = FunctionCallNode(method, owner, castType, castedArguments(method, arguments), token)
+    castType: JavaType? = null): ExpressionNode {
+    val node = FunctionCallNode(method, owner, castedArguments(method, arguments), token)
+    return if (castType != null) caster.cast(castType, node) else node
+  }
 
   private fun checkVariableAccess(variable: Variable, node: CstNode, checkGet: Boolean = false, checkSet: Boolean = false) {
     if (checkGet && !variable.isVisibleFrom(currentScope.classType, Variable.Access.GET)
