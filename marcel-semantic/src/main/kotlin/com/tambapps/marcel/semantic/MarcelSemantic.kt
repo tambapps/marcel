@@ -939,10 +939,8 @@ class MarcelSemantic(
 
   override fun visit(node: WhenCstNode, smartCastType: JavaType?) = switchWhen(node, smartCastType)
 
-  private fun switchWhen(node: WhenCstNode, _smartCastType: JavaType?, switchExpression: ExpressionNode? = null): ExpressionNode {
-    // TODO use smart cast type and make it optional
-    val smartCastType = _smartCastType ?: throw RuntimeException("Compiler error.")
-    val shouldReturnValue = smartCastType != JavaType.void
+  private fun switchWhen(node: WhenCstNode, smartCastType: JavaType?, switchExpression: ExpressionNode? = null): ExpressionNode {
+    val shouldReturnValue = smartCastType != null && smartCastType != JavaType.void
     val elseStatement = node.elseStatement
     if (shouldReturnValue && elseStatement == null) {
       throw MarcelSemanticException(node, "When/switch expression should have an else branch")
@@ -954,33 +952,27 @@ class MarcelSemantic(
       )
     }
 
+    val whenReturnType = smartCastType ?: computeWhenReturnType(node)
+
     val switchExpressionRef = ReferenceCstNode(node.parent, "__switch_expression", node.token)
     val switchExpressionLocalVariable = currentMethodScope.addLocalVariable(switchExpression?.type ?: JavaType.Object, switchExpressionRef.value)
 
     val rootIfCstNode = node.branches.first().let {
-      if (switchExpression != null) IfCstStatementNode(
-        BinaryOperatorCstNode(
-          TokenType.EQUAL, switchExpressionRef, it.first, node.parent, node.tokenStart, node.tokenEnd
-        ), it.second, null, it.first.parent, it.first.tokenStart, it.second.tokenEnd)
-      else toIf(it, it.first.tokenStart, it.second.tokenEnd)
+      toIf(it, switchExpression, switchExpressionRef, node)
     }
     var ifCstNode = rootIfCstNode
     for (i in 1 until node.branches.size) {
       val branch = node.branches[i]
-      val ifBranch = if (switchExpression != null) IfCstStatementNode(
-        BinaryOperatorCstNode(
-          TokenType.EQUAL, switchExpressionRef, branch.first, node.parent, node.tokenStart, node.tokenEnd
-        ), branch.second, null, branch.first.parent, branch.first.tokenStart, branch.second.tokenEnd)
-      else toIf(branch, branch.first.tokenStart, branch.second.tokenEnd)
+      val ifBranch = toIf(branch, switchExpression, switchExpressionRef, node)
       ifCstNode.falseStatementNode = ifBranch
       ifCstNode = ifBranch
     }
     if (elseStatement != null) ifCstNode.falseStatementNode = elseStatement
 
-    val whenStatement = visit(rootIfCstNode)
-    val whenReturnType =  if (shouldReturnValue) {
+    val whenStatement = useInnerScope { visit(rootIfCstNode) }
+    if (shouldReturnValue) {
       var tmpIfNode: IfStatementNode? = whenStatement
-      val branchTransformer = ReturningWhenIfBranchTransformer(node)
+      val branchTransformer = ReturningWhenIfBranchTransformer(node) { caster.cast(whenReturnType, it) }
       while (tmpIfNode != null) {
         tmpIfNode.trueStatementNode = tmpIfNode.trueStatementNode.accept(branchTransformer)
         if (tmpIfNode.falseStatementNode is IfStatementNode || tmpIfNode.falseStatementNode  == null) {
@@ -990,16 +982,7 @@ class MarcelSemantic(
           break
         }
       }
-      // to avoid having to cast, we're forcing the user to return types that don't need to be cast checked:
-      //  - object types in which case we will get the common parent class of all branches
-      //  - EXACT same primitive type
-      if (branchTransformer.collectedTypes.any { it.primitive } && branchTransformer.collectedTypes.any { !it.primitive }
-        || branchTransformer.collectedTypes.all { it.primitive } && branchTransformer.collectedTypes.toSet().size > 1) {
-        // TODO just cast the result by visiting all return nodes and changing the expression by caster.cast(commonType, expression)
-        throw MarcelSemanticException(node.token, "when/switch expression need to return expression of same type (object type or exactly same primitive types for all branches)")
-      }
-      JavaType.commonType(branchTransformer.collectedTypes)
-    } else JavaType.void
+    }
 
     /*
      * Search for all local variables used, they will need to be passed to the generated
@@ -1050,6 +1033,15 @@ class MarcelSemantic(
       arguments = whenMethodArguments, method = whenMethod)
   }
 
+  private fun computeWhenReturnType(node: WhenCstNode): JavaType = useInnerScope {
+    val branchTransformer = ReturningWhenIfBranchTransformer(node)
+    node.branches.forEach {
+      it.second.accept(this).accept(branchTransformer)
+    }
+    node.elseStatement?.accept(this)?.accept(branchTransformer)
+    return JavaType.commonType(branchTransformer.collectedTypes)
+  }
+
   private fun generateWhenMethod(parameters: List<MethodParameter>, returnType: JavaType, node: CstNode): MethodNode {
     val classType = currentScope.classType
     val classNode = classNodeMap.getValue(classType)
@@ -1060,8 +1052,14 @@ class MarcelSemantic(
     return methodNode
   }
 
-  private fun toIf(it: Pair<ExpressionCstNode, StatementCstNode>, tokenStart: LexToken, tokenEnd: LexToken)
-  = IfCstStatementNode(it.first, it.second, null, it.first.parent, tokenStart, tokenEnd)
+  private fun toIf(it: Pair<ExpressionCstNode, StatementCstNode>, switchExpression: ExpressionNode?, switchExpressionRef: ExpressionCstNode, node: CstNode): IfCstStatementNode {
+    return if (switchExpression != null) IfCstStatementNode(
+      BinaryOperatorCstNode(
+        TokenType.EQUAL, switchExpressionRef, it.first, node.parent, node.tokenStart, node.tokenEnd
+      ), it.second, null, it.first.parent, it.first.tokenStart, it.second.tokenEnd)
+    else IfCstStatementNode(it.first, it.second, null, it.first.parent, node.tokenStart, node.tokenEnd)
+  }
+
   override fun visit(node: WhileCstNode) = useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
     val condition = caster.truthyCast(node.condition.accept(this))
     val statement = node.statement.accept(this)
