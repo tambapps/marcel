@@ -19,38 +19,41 @@ import com.tambapps.marcel.parser.cst.expression.reference.ReferenceCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.SuperReferenceCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ThisReferenceCstNode
 
-interface ExpressionCstNodeVisitor<T> {
+/**
+ * smartCastType corresponds to a type that can be used to better handle the node, but it is not necessarily used
+ */
+interface ExpressionCstNodeVisitor<T, U> {
 
-  fun visit(node: BoolCstNode): T
-  fun visit(node: DoubleCstNode): T
-  fun visit(node: FloatCstNode): T
-  fun visit(node: IntCstNode): T
-  fun visit(node: LongCstNode): T
-  fun visit(node: NullCstNode): T
-  fun visit(node: StringCstNode): T
-  fun visit(node: RegexCstNode): T
-  fun visit(node: CharCstNode): T
-  fun visit(node: TemplateStringCstNode): T
-  fun visit(node: MapCstNode): T
-  fun visit(node: ArrayCstNode): T
+  fun visit(node: BoolCstNode, smartCastType: U? = null): T
+  fun visit(node: DoubleCstNode, smartCastType: U? = null): T
+  fun visit(node: FloatCstNode, smartCastType: U? = null): T
+  fun visit(node: IntCstNode, smartCastType: U? = null): T
+  fun visit(node: LongCstNode, smartCastType: U? = null): T
+  fun visit(node: NullCstNode, smartCastType: U? = null): T
+  fun visit(node: StringCstNode, smartCastType: U? = null): T
+  fun visit(node: RegexCstNode, smartCastType: U? = null): T
+  fun visit(node: CharCstNode, smartCastType: U? = null): T
+  fun visit(node: TemplateStringCstNode, smartCastType: U? = null): T
+  fun visit(node: MapCstNode, smartCastType: U? = null): T
+  fun visit(node: ArrayCstNode, smartCastType: U? = null): T
 
-  fun visit(node: UnaryMinusCstNode): T
-  fun visit(node: NotCstNode): T
+  fun visit(node: UnaryMinusCstNode, smartCastType: U? = null): T
+  fun visit(node: NotCstNode, smartCastType: U? = null): T
 
-  fun visit(node: BinaryOperatorCstNode): T
-  fun visit(node: BinaryTypeOperatorCstNode): T
-  fun visit(node: TernaryCstNode): T
-  fun visit(node: ClassReferenceCstNode): T
-  fun visit(node: ThisReferenceCstNode): T
-  fun visit(node: SuperReferenceCstNode): T
-  fun visit(node: DirectFieldReferenceCstNode): T
-  fun visit(node: IncrCstNode): T
-  fun visit(node: IndexAccessCstNode): T
-  fun visit(node: ReferenceCstNode): T
-  fun visit(node: FunctionCallCstNode): T
-  fun visit(node: SuperConstructorCallCstNode): T
-  fun visit(node: NewInstanceCstNode): T
-  fun visit(node: WhenCstNode): T
-  fun visit(node: SwitchCstNode): T
+  fun visit(node: BinaryOperatorCstNode, smartCastType: U? = null): T
+  fun visit(node: BinaryTypeOperatorCstNode, smartCastType: U? = null): T
+  fun visit(node: TernaryCstNode, smartCastType: U? = null): T
+  fun visit(node: ClassReferenceCstNode, smartCastType: U? = null): T
+  fun visit(node: ThisReferenceCstNode, smartCastType: U? = null): T
+  fun visit(node: SuperReferenceCstNode, smartCastType: U? = null): T
+  fun visit(node: DirectFieldReferenceCstNode, smartCastType: U? = null): T
+  fun visit(node: IncrCstNode, smartCastType: U? = null): T
+  fun visit(node: IndexAccessCstNode, smartCastType: U? = null): T
+  fun visit(node: ReferenceCstNode, smartCastType: U? = null): T
+  fun visit(node: FunctionCallCstNode, smartCastType: U? = null): T
+  fun visit(node: SuperConstructorCallCstNode, smartCastType: U? = null): T
+  fun visit(node: NewInstanceCstNode, smartCastType: U? = null): T
+  fun visit(node: WhenCstNode, smartCastType: U? = null): T
+  fun visit(node: SwitchCstNode, smartCastType: U? = null): T
 
 }

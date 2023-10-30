@@ -13,6 +13,6 @@ class NewInstanceCstNode(
   tokenEnd: LexToken
 ) : AbstractExpressionCstNode(parent, tokenStart, tokenEnd) {
 
-  override fun <T> accept(visitor: ExpressionCstNodeVisitor<T>) = visitor.visit(this)
+  override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
 
 }

@@ -11,7 +11,7 @@ class IncrCstNode(
   val amount: Int,
   val returnValueBefore: Boolean,
   tokenStart: LexToken, tokenEnd: LexToken) : AbstractExpressionCstNode(parent, tokenStart, tokenEnd) {
-  override fun <T> accept(visitor: ExpressionCstNodeVisitor<T>) = visitor.visit(this)
+  override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

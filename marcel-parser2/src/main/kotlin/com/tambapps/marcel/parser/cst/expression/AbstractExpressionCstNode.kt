@@ -7,7 +7,6 @@ import com.tambapps.marcel.parser.cst.CstNode
 abstract class AbstractExpressionCstNode(parent: CstNode?, tokenStart: LexToken, tokenEnd: LexToken) :
   AbstractCstNode(parent, tokenStart, tokenEnd), ExpressionCstNode {
 
-  override var isStatement = false
   constructor(parent: CstNode?, token: LexToken): this(parent, token, token)
 
 }

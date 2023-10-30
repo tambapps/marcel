@@ -8,7 +8,7 @@ import com.tambapps.marcel.parser.cst.expression.ExpressionCstNodeVisitor
 
 class IntCstNode(parent: CstNode? = null, override val value: Int, token: LexToken) : AbstractExpressionCstNode(parent, token),
     ExpressionCstNode {
-    override fun <T> accept(visitor: ExpressionCstNodeVisitor<T>) = visitor.visit(this)
+    override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
 
     override fun toString() = value.toString()
 

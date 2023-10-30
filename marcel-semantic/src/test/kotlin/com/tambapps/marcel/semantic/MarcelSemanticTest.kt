@@ -95,7 +95,7 @@ class MarcelSemanticTest {
 
   private fun expr(text: String): ExpressionNode {
     val cstExpression = MarcelParser2("Test", MarcelLexer().lex(text)).expression()
-    return cstExpression.accept(semantic().exprVisitor)
+    return cstExpression.accept(semantic().exprVisitor,)
   }
   private fun stmt(text: String, semantic: MarcelSemantic = semantic()): StatementNode {
     val cstExpression = MarcelParser2("Test", MarcelLexer().lex(text)).statement()

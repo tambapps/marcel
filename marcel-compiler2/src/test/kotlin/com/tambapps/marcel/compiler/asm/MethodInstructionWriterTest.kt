@@ -18,10 +18,8 @@ import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.any
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
-import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
@@ -55,7 +53,7 @@ class MethodInstructionWriterTest {
   private fun expr(text: String): ExpressionNode {
     val cstExpression = MarcelParser2("Test", MarcelLexer().lex(text)).expression()
     val sourceFile = mock(SourceFileCstNode::class.java)
-    return cstExpression.accept(MarcelSemantic(JavaTypeResolver(), sourceFile).exprVisitor)
+    return cstExpression.accept(MarcelSemantic(JavaTypeResolver(), sourceFile).exprVisitor,)
   }
   private fun stmt(text: String): StatementNode {
     val cstExpression = MarcelParser2("Test", MarcelLexer().lex(text)).statement()

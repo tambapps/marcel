@@ -1,10 +1,8 @@
 package com.tambapps.marcel.compiler.asm
 
-import com.tambapps.marcel.compiler.extensions.arrayLoadCode
 import com.tambapps.marcel.compiler.extensions.arrayStoreCode
 import com.tambapps.marcel.compiler.extensions.descriptor
 import com.tambapps.marcel.compiler.extensions.internalName
-import com.tambapps.marcel.compiler.extensions.takes2Slots
 import com.tambapps.marcel.compiler.extensions.typeCode
 import com.tambapps.marcel.compiler.extensions.visitMethodInsn
 import com.tambapps.marcel.semantic.ast.expression.DupNode
