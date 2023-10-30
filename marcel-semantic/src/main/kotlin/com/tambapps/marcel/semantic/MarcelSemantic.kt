@@ -182,12 +182,14 @@ class MarcelSemantic(
 
   internal val scopeQueue = LinkedList<Scope>()
   private val classNodeMap = mutableMapOf<JavaType, ClassNode>() // useful to add methods while performing analysis
+
+  private val imports = Scope.DEFAULT_IMPORTS.toMutableList() // will be updated while performing analysis
+  private val methodResolver = MethodResolver(typeResolver, imports)
   private val currentScope get() = scopeQueue.peek() // FIFO
   private val currentMethodScope get() = currentScope as? MethodScope ?: throw MarcelSemanticException("Not in a method")
   private val currentInnerMethodScope get() = currentScope as? MethodInnerScope ?: throw MarcelSemanticException("Not in a inner scope")
 
   fun apply(): ModuleNode {
-    val imports = Scope.DEFAULT_IMPORTS.toMutableList()
     imports.addAll(
       cst.imports.map { it.accept(this) }
     )
@@ -663,9 +665,11 @@ class MarcelSemantic(
                           // useful for ternaryNode which duplicate value to avoid using local variable
                           discardOwnerInReturned: Boolean = false): ExpressionNode = when (rightOperand) {
     is FunctionCallCstNode -> {
-      val arguments = getArguments(rightOperand)
-      val method = typeResolver.findMethodOrThrow(owner.type, rightOperand.value, arguments, node.token)
-      val castType = if (rightOperand.castType != null) visit(rightOperand.castType!!) else null
+      val (method, arguments) = methodResolver.resolveMethod(owner.type, rightOperand.value,
+        rightOperand.positionalArgumentNodes.map { it.accept(this) },
+        rightOperand.namedArgumentNodes.map { Pair(it.first, it.second.accept(this)) })
+        ?: throw MarcelSemanticException(node.token, "Method ${owner.type}.${rightOperand.value} couldn't be resolved")
+      val castType = rightOperand.castType?.let { visit(it) }
       fCall(method = method, owner = if (discardOwnerInReturned) null else owner, castType = castType,
         arguments = arguments, node = node)
     }
@@ -813,8 +817,12 @@ class MarcelSemantic(
   }
 
   override fun visit(node: FunctionCallCstNode, smartCastType: JavaType?): ExpressionNode {
-    val arguments = getArguments(node)
-    val method = currentScope.findMethodOrThrow(node.value, arguments, node)
+    val positionalArguments = node.positionalArgumentNodes.map { it.accept(this) }
+    val namedArguments = node.namedArgumentNodes.map { Pair(it.first, it.second.accept(this)) }
+    val methodResolve = methodResolver.resolveMethod(currentScope.classType, node.value, positionalArguments, namedArguments, lookupImports = true)
+      ?: throw MarcelSemanticException(node.token, "Method ${currentScope.classType}.${node.value} couldn't be resolved")
+
+    val method = methodResolve.first
     val castType = if (node.castType != null) visit(node.castType!!) else null
     val owner = if (method.isStatic) null else ThisReferenceNode(currentScope.classType, node.token)
     return fCall(
@@ -822,12 +830,7 @@ class MarcelSemantic(
       method = method,
       owner = owner,
       castType = castType,
-      arguments = arguments)
-  }
-
-  private fun getArguments(node: FunctionCallCstNode): List<ExpressionNode> {
-    if (node.namedArgumentNodes.isNotEmpty()) TODO("Doesn't handle named arguments yet")
-    return node.positionalArgumentNodes.map { it.accept(this) }
+      arguments = methodResolve.second)
   }
 
   private fun castedArguments(method: JavaMethod, arguments: List<ExpressionNode>) =
@@ -835,7 +838,7 @@ class MarcelSemantic(
 
   override fun visit(node: SuperConstructorCallCstNode, smartCastType: JavaType?): ExpressionNode {
     val arguments = node.arguments.map { it.accept(this) }
-    val method = currentScope.findMethodOrThrow(JavaMethod.CONSTRUCTOR_NAME, arguments, node)
+    val method = typeResolver.findMethodOrThrow(currentScope.classType, JavaMethod.CONSTRUCTOR_NAME, arguments, node.token)
     return fCall(node = node,
       method = method,
       owner =  SuperReferenceNode(currentScope.classType.superType!!, node.token),

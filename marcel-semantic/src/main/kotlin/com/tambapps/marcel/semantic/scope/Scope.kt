@@ -34,13 +34,6 @@ interface Scope {
 
   fun resolveTypeOrThrow(node: TypeCstNode): JavaType
 
-  fun findMethodOrThrow(name: String, argumentTypes: List<JavaTyped>, node: CstNode): JavaMethod {
-    // find first on class, then on imports, then on extensions
-    return findMethod(name, argumentTypes) ?: throw MarcelSemanticException(node.token, "Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
-  }
-
-  fun findMethod(name: String, argumentTypes: List<JavaTyped>): JavaMethod?
-
   fun findFieldOrThrow(name: String, token: LexToken): MarcelField {
     return findField(name) ?: throw MarcelSemanticException(token, "Variable $name is not defined")
   }
