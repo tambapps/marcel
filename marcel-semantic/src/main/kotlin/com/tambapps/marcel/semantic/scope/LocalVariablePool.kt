@@ -17,7 +17,7 @@ class LocalVariablePool(staticContext: Boolean) {
     val v = variablePool.find { it.nbSlots == nbSlots }
     return if (v != null) {
       variablePool.remove(v)
-      LocalVariable(type, name, nbSlots, v.index, isFinal).apply { variablePool.add(this) }
+      LocalVariable(type, name, nbSlots, v.index, isFinal)
     } else newVariable(type, name, isFinal)
   }
 
