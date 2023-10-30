@@ -180,10 +180,6 @@ class MarcelSemantic(
   }
   private val caster = AstNodeCaster(typeResolver)
 
-  // TODO these two are useless. Just use this
-  val exprVisitor = this as ExpressionCstNodeVisitor<ExpressionNode, JavaType>
-  val stmtVisitor = this as StatementCstNodeVisitor<StatementNode>
-
   internal val scopeQueue = LinkedList<Scope>()
   private val classNodeMap = mutableMapOf<JavaType, ClassNode>() // useful to add methods while performing analysis
   private val currentScope get() = scopeQueue.peek() // FIFO
@@ -257,10 +253,10 @@ class MarcelSemantic(
         if (fieldNode.isStatic) {
           val stInitMethod = classNode.getOrCreateStaticInitialisationMethod()
           useScope(MethodScope(classScope, stInitMethod)) {
-            staticFieldInitialValueMap[fieldNode] = cstFieldNode.initialValue!!.accept(exprVisitor, fieldNode.type)
+            staticFieldInitialValueMap[fieldNode] = cstFieldNode.initialValue!!.accept(this, fieldNode.type)
           }
         } else {
-          fieldInitialValueMap[fieldNode] = caster.cast(fieldNode.type, cstFieldNode.initialValue!!.accept(exprVisitor, fieldNode.type))
+          fieldInitialValueMap[fieldNode] = caster.cast(fieldNode.type, cstFieldNode.initialValue!!.accept(this, fieldNode.type))
         }
       }
     }
@@ -327,7 +323,7 @@ class MarcelSemantic(
   private fun annotationAttribute(node: AnnotationCstNode, javaAnnotation: JavaAnnotation, specifiedAttr: Pair<String, ExpressionCstNode>): AnnotationNode.AttributeNode {
     val attribute = javaAnnotation.attributes.find { it.name == specifiedAttr.first }
       ?: throw MarcelSemanticException(node.token, "Unknown member ${specifiedAttr.first} for annotation $javaAnnotation")
-    val specifiedValueNode = specifiedAttr.second.accept(exprVisitor)
+    val specifiedValueNode = specifiedAttr.second.accept(this, attribute.type)
         as? JavaConstantExpression ?: throw MarcelSemanticException(node, "Specified a non constant value for attribute ${attribute.name}")
     return if (attribute.type.isEnum) {
       TODO()
@@ -404,7 +400,7 @@ class MarcelSemantic(
   private fun blockStatements(cstStatements: List<StatementCstNode>): MutableList<StatementNode> {
     val statements = mutableListOf<StatementNode>()
     for (i in cstStatements.indices) {
-      val statement = cstStatements[i].accept(stmtVisitor)
+      val statement = cstStatements[i].accept(this)
       if (statement is ReturnStatementNode && i < cstStatements.lastIndex)
         throw MarcelSemanticException("Cannot have statements after a return statement")
       statements.add(statement)
@@ -450,7 +446,7 @@ class MarcelSemantic(
   override fun visit(node: CharCstNode, smartCastType: JavaType?) = CharConstantNode(node.token, node.value)
 
   override fun visit(node: TemplateStringCstNode, smartCastType: JavaType?): ExpressionNode {
-    val expressions = node.expressions.map { it.accept(exprVisitor) }
+    val expressions = node.expressions.map { it.accept(this) }
     return if (expressions.isEmpty()) StringConstantNode("", node)
     else if (expressions.size == 1 && expressions.first() is StringConstantNode) expressions.first()
     else StringNode(expressions, node)
@@ -467,7 +463,7 @@ class MarcelSemantic(
   override fun visit(node: NewInstanceCstNode, smartCastType: JavaType?): ExpressionNode {
     val type = visit(node.type)
     if (node.namedArgumentNodes.isNotEmpty()) TODO("named arguments")
-    val arguments = node.positionalArgumentNodes.map { it.accept(exprVisitor) }
+    val arguments = node.positionalArgumentNodes.map { it.accept(this) }
     val constructorMethod = typeResolver.findMethodOrThrow(type, JavaMethod.CONSTRUCTOR_NAME, arguments, node.token)
     return NewInstanceNode(type, constructorMethod, castedArguments(constructorMethod, arguments), node.token)
   }
@@ -479,15 +475,15 @@ class MarcelSemantic(
   }
 
   override fun visit(node: ArrayCstNode, smartCastType: JavaType?) = ArrayNode(
-    elements = node.elements.map { it.accept(exprVisitor) }.toMutableList(),
+    elements = node.elements.map { it.accept(this) }.toMutableList(),
     node = node
   )
 
   override fun visit(node: MapCstNode, smartCastType: JavaType?) = MapNode(
     entries = node.entries.map { Pair(
       // need objects (not primitive) to call function Map.put(key, value)
-      caster.cast(JavaType.Object, it.first.accept(exprVisitor)),
-      caster.cast(JavaType.Object, it.second.accept(exprVisitor))) },
+      caster.cast(JavaType.Object, it.first.accept(this)),
+      caster.cast(JavaType.Object, it.second.accept(this))) },
     node = node
   )
 
@@ -512,11 +508,11 @@ class MarcelSemantic(
   }
 
   override fun visit(node: IndexAccessCstNode, smartCastType: JavaType?): ExpressionNode {
-    val owner = node.ownerNode.accept(exprVisitor)
-    val arguments = node.indexNodes.map { it.accept(exprVisitor) }
+    val owner = node.ownerNode.accept(this)
+    val arguments = node.indexNodes.map { it.accept(this) }
     return if (owner.type.isArray) {
       if (node.indexNodes.size != 1) throw MarcelSemanticException(node, "Arrays need one index")
-      ArrayAccessNode(owner, caster.cast(JavaType.int, node.indexNodes.first().accept(exprVisitor)), node)
+      ArrayAccessNode(owner, caster.cast(JavaType.int, node.indexNodes.first().accept(this, JavaType.int)), node)
     } else {
       val getAtMethod = typeResolver.findMethodOrThrow(owner.type, if (node.isSafeAccess) GET_AT_SAFE_METHOD_NAME else GET_AT_METHOD_NAME, arguments)
       fCall(method = getAtMethod, owner = owner, arguments = arguments, node = node)
@@ -524,9 +520,9 @@ class MarcelSemantic(
   }
 
   override fun visit(node: TernaryCstNode, smartCastType: JavaType?): ExpressionNode {
-    val testExpr = caster.truthyCast(node.testExpressionNode.accept(exprVisitor))
-    val trueExpr = node.trueExpressionNode.accept(exprVisitor)
-    val falseExpr = node.falseExpressionNode.accept(exprVisitor)
+    val testExpr = caster.truthyCast(node.testExpressionNode.accept(this))
+    val trueExpr = node.trueExpressionNode.accept(this)
+    val falseExpr = node.falseExpressionNode.accept(this)
 
     // trueExpr and falseExpr need to be casted in case they return different types
     val commonType = JavaType.commonType(trueExpr, falseExpr)
@@ -534,11 +530,11 @@ class MarcelSemantic(
   }
 
   override fun visit(node: NotCstNode, smartCastType: JavaType?) = NotNode(caster.truthyCast(node.expression.accept(
-    exprVisitor,
+    this,
   )), node)
 
   override fun visit(node: UnaryMinusCstNode, smartCastType: JavaType?) = MinusNode(IntConstantNode(node.token, 0), node.expression.accept(
-    exprVisitor,
+    this,
   ))
 
   override fun visit(node: BinaryOperatorCstNode, smartCastType: JavaType?): ExpressionNode {
@@ -546,8 +542,8 @@ class MarcelSemantic(
     val rightOperand = node.rightOperand
     return when (node.tokenType) {
       TokenType.ASSIGNMENT -> {
-        val left = leftOperand.accept(exprVisitor)
-        val right = rightOperand.accept(exprVisitor, left.type)
+        val left = leftOperand.accept(this)
+        val right = rightOperand.accept(this, left.type)
         when (left) {
           is ReferenceNode -> {
             val variable = left.variable
@@ -575,14 +571,14 @@ class MarcelSemantic(
         }
       }
       TokenType.PLUS -> {
-        val left = leftOperand.accept(exprVisitor)
-        val right = rightOperand.accept(exprVisitor)
+        val left = leftOperand.accept(this)
+        val right = rightOperand.accept(this)
         if (left.type == JavaType.String || right.type == JavaType.String) StringNode(listOf(left, right), node)
         else arithmeticBinaryOperator(leftOperand, rightOperand, "plus", ::PlusNode)
       }
       TokenType.ELVIS -> {
-        val left = leftOperand.accept(exprVisitor)
-        val right = rightOperand.accept(exprVisitor)
+        val left = leftOperand.accept(this)
+        val right = rightOperand.accept(this)
         val type = JavaType.commonType(left.type, right.type)
         // using DupNode to help compiler write better code than we would with a temp local variable
         ElvisNode(caster.truthyCast(DupNode(caster.cast(type, left))), caster.cast(type, right), type)
@@ -598,7 +594,7 @@ class MarcelSemantic(
       TokenType.MUL_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, TokenType.MUL)
       TokenType.DIV_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, TokenType.DIV)
       TokenType.QUESTION_DOT -> {
-        val left = leftOperand.accept(exprVisitor)
+        val left = leftOperand.accept(this)
         if (left.type.primitive) throw MarcelSemanticException(node, "Cannot use safe access operator on primitive type as it cannot be null")
 
         var dotNode = dotOperator(node, left, rightOperand, discardOwnerInReturned = true)
@@ -613,14 +609,14 @@ class MarcelSemantic(
           node = node
         )
       }
-      TokenType.DOT -> dotOperator(node, node.leftOperand.accept(exprVisitor), rightOperand)
+      TokenType.DOT -> dotOperator(node, node.leftOperand.accept(this), rightOperand)
       TokenType.TWO_DOTS -> rangeNode(leftOperand, rightOperand, "of")
       TokenType.TWO_DOTS_END_EXCLUSIVE -> rangeNode(leftOperand, rightOperand, "ofToExclusive")
-      TokenType.AND -> AndNode(caster.truthyCast(leftOperand.accept(exprVisitor)), caster.truthyCast(rightOperand.accept(
-        exprVisitor,
+      TokenType.AND -> AndNode(caster.truthyCast(leftOperand.accept(this)), caster.truthyCast(rightOperand.accept(
+        this,
       )))
-      TokenType.OR -> OrNode(caster.truthyCast(leftOperand.accept(exprVisitor)), caster.truthyCast(rightOperand.accept(
-        exprVisitor,
+      TokenType.OR -> OrNode(caster.truthyCast(leftOperand.accept(this)), caster.truthyCast(rightOperand.accept(
+        this,
       )))
       TokenType.EQUAL -> equalityComparisonOperatorNode(leftOperand, rightOperand, ::IsEqualNode) { left, right ->
         val method = typeResolver.findMethodOrThrow(BytecodeHelper::class.javaType, "objectsEqual", listOf(JavaType.Object, JavaType.Object))
@@ -635,14 +631,14 @@ class MarcelSemantic(
       TokenType.LOE -> numberComparisonOperatorNode(leftOperand, rightOperand, ::LeNode)
       TokenType.LT -> numberComparisonOperatorNode(leftOperand, rightOperand, ::LtNode)
       TokenType.IS -> {
-        val left = leftOperand.accept(exprVisitor)
-        val right = rightOperand.accept(exprVisitor)
+        val left = leftOperand.accept(this)
+        val right = rightOperand.accept(this)
         if (left.type.primitive || right.type.primitive) throw MarcelSemanticException(leftOperand, "=== operator is reserved for object comparison")
         IsEqualNode(left, right)
       }
       TokenType.FIND -> {
-        val left = leftOperand.accept(exprVisitor)
-        val right = rightOperand.accept(exprVisitor)
+        val left = leftOperand.accept(this)
+        val right = rightOperand.accept(this)
 
         if (!CharSequence::class.javaType.isAssignableFrom(left.type)) {
           throw MarcelSemanticException(node, "FIND operator left operand must be a CharSequence")
@@ -654,8 +650,8 @@ class MarcelSemantic(
           name = "matcher", arguments = listOf(left), node = node)
       }
       TokenType.IS_NOT -> {
-        val left = leftOperand.accept(exprVisitor)
-        val right = rightOperand.accept(exprVisitor)
+        val left = leftOperand.accept(this)
+        val right = rightOperand.accept(this)
         if (left.type.primitive || right.type.primitive) throw MarcelSemanticException(leftOperand, "=== operator is reserved for object comparison")
         IsNotEqualNode(left, right)
       }
@@ -682,7 +678,7 @@ class MarcelSemantic(
   }
 
   override fun visit(node: BinaryTypeOperatorCstNode, smartCastType: JavaType?): ExpressionNode {
-    val left = node.leftOperand.accept(exprVisitor)
+    val left = node.leftOperand.accept(this)
     val right = visit(node.rightOperand)
 
 
@@ -701,8 +697,8 @@ class MarcelSemantic(
     leftOperand: ExpressionCstNode,
     rightOperand: ExpressionCstNode,
     nodeCreator: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode): ExpressionNode {
-    var left = leftOperand.accept(exprVisitor)
-    var right = rightOperand.accept(exprVisitor)
+    var left = leftOperand.accept(this)
+    var right = rightOperand.accept(this)
 
     if (!left.type.primitive || !right.type.primitive) {
       // compare left.compareTo(right) with 0
@@ -722,8 +718,8 @@ class MarcelSemantic(
     rightOperand: ExpressionCstNode,
     nodeCreator: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode,
     objectComparisonNodeCreator: (ExpressionNode, ExpressionNode) -> ExpressionNode): ExpressionNode {
-    val left = leftOperand.accept(exprVisitor)
-    val right = rightOperand.accept(exprVisitor)
+    val left = leftOperand.accept(this)
+    val right = rightOperand.accept(this)
 
     return if (left.type.primitive && right.type.primitive) {
       val type = if (left.type != JavaType.int) right.type else left.type
@@ -735,8 +731,8 @@ class MarcelSemantic(
     leftOperand: ExpressionCstNode,
     rightOperand: ExpressionCstNode,
     nodeCreator: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode): ExpressionNode {
-    val left = leftOperand.accept(exprVisitor)
-    val right = rightOperand.accept(exprVisitor)
+    val left = leftOperand.accept(this)
+    val right = rightOperand.accept(this)
 
     if (left.type == JavaType.boolean || right.type == JavaType.boolean) {
       throw MarcelSemanticException(leftOperand, "Cannot compare non number primitives")
@@ -745,8 +741,8 @@ class MarcelSemantic(
   }
 
   private fun rangeNode(leftOperand: ExpressionCstNode, rightOperand: ExpressionCstNode, methodName: String): ExpressionNode {
-    val left = leftOperand.accept(exprVisitor)
-    val right = rightOperand.accept(exprVisitor)
+    val left = leftOperand.accept(this)
+    val right = rightOperand.accept(this)
 
     val rangeElementType = if (left.type == JavaType.Long || left.type == JavaType.long || right.type == JavaType.Long || right.type == JavaType.long) JavaType.long
     else if (left.type == JavaType.Integer || left.type == JavaType.int || right.type == JavaType.Integer || right.type == JavaType.int) JavaType.int
@@ -761,8 +757,8 @@ class MarcelSemantic(
   private fun shiftOperator(leftOperand: ExpressionCstNode, rightOperand: ExpressionCstNode,
                             operatorMethodName: String,
                             nodeSupplier: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode): ExpressionNode {
-    val left = leftOperand.accept(exprVisitor)
-    val right = rightOperand.accept(exprVisitor)
+    val left = leftOperand.accept(this)
+    val right = rightOperand.accept(this)
     val node = arithmeticBinaryOperator(left, right, operatorMethodName, nodeSupplier)
     if (JavaType.commonType(left, right).isPrimitiveOrObjectPrimitive && node.type.primitive && node.type != JavaType.long && node.type != JavaType.int) {
       throw MarcelSemanticException(node.token, "Can only shift ints or longs")
@@ -772,7 +768,7 @@ class MarcelSemantic(
   private inline fun arithmeticBinaryOperator(leftOperand: ExpressionCstNode, rightOperand: ExpressionCstNode,
                                               operatorMethodName: String,
                                               nodeSupplier: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode)
-  = arithmeticBinaryOperator(leftOperand.accept(exprVisitor), rightOperand.accept(exprVisitor), operatorMethodName, nodeSupplier)
+  = arithmeticBinaryOperator(leftOperand.accept(this), rightOperand.accept(this), operatorMethodName, nodeSupplier)
 
   private fun arithmeticAssignmentBinaryOperator(leftOperand: ExpressionCstNode, rightOperand: ExpressionCstNode,
                                                  tokenType: TokenType): ExpressionNode {
@@ -831,14 +827,14 @@ class MarcelSemantic(
 
   private fun getArguments(node: FunctionCallCstNode): List<ExpressionNode> {
     if (node.namedArgumentNodes.isNotEmpty()) TODO("Doesn't handle named arguments yet")
-    return node.positionalArgumentNodes.map { it.accept(exprVisitor) }
+    return node.positionalArgumentNodes.map { it.accept(this) }
   }
 
   private fun castedArguments(method: JavaMethod, arguments: List<ExpressionNode>) =
     arguments.mapIndexed { index, expressionNode -> caster.cast(method.parameters[index].type, expressionNode) }
 
   override fun visit(node: SuperConstructorCallCstNode, smartCastType: JavaType?): ExpressionNode {
-    val arguments = node.arguments.map { it.accept(exprVisitor) }
+    val arguments = node.arguments.map { it.accept(this) }
     val method = currentScope.findMethodOrThrow(JavaMethod.CONSTRUCTOR_NAME, arguments, node)
     return fCall(node = node,
       method = method,
@@ -847,12 +843,12 @@ class MarcelSemantic(
   }
 
   override fun visit(node: ExpressionStatementCstNode)
-  = ExpressionStatementNode(node.expressionNode.accept(exprVisitor, JavaType.void), node.tokenStart, node.tokenEnd)
+  = ExpressionStatementNode(node.expressionNode.accept(this, JavaType.void), node.tokenStart, node.tokenEnd)
 
   override fun visit(node: ReturnCstNode): StatementNode {
     // TODO test error cases of this
     val scope = currentMethodScope
-    val expression = node.expressionNode?.accept(exprVisitor, scope.method.returnType)?.let { caster.cast(scope.method.returnType, it) }
+    val expression = node.expressionNode?.accept(this, scope.method.returnType)?.let { caster.cast(scope.method.returnType, it) }
     if (expression != null && expression.type != JavaType.void && scope.method.returnType == JavaType.void) {
       throw MarcelSemanticException(node, "Cannot return expression in void function")
     } else if (expression == null && scope.method.returnType != JavaType.void) {
@@ -866,7 +862,7 @@ class MarcelSemantic(
     checkVariableAccess(variable, node, checkSet = true)
     return ExpressionStatementNode(
       VariableAssignmentNode(variable,
-        node.expressionNode?.accept(exprVisitor, variable.type)?.let { caster.cast(variable.type, it) }
+        node.expressionNode?.accept(this, variable.type)?.let { caster.cast(variable.type, it) }
           ?: variable.type.getDefaultValueExpression(node.token), null, node.tokenStart, node.tokenEnd)
     )
   }
@@ -875,7 +871,7 @@ class MarcelSemantic(
     if (node.declarations.isEmpty() || node.declarations.all { it == null }) {
       throw MarcelSemanticException(node, "Need to declare at least one variable")
     }
-    val expression = node.expressionNode.accept(exprVisitor)
+    val expression = node.expressionNode.accept(this)
     val blockNode = BlockStatementNode(mutableListOf(), node.tokenStart, node.tokenEnd)
     currentMethodScope.useTempLocalVariable(expression.type) { expressionVariable: LocalVariable ->
       val expressionRef = ReferenceNode(owner = null, variable = expressionVariable, token = node.token)
@@ -930,9 +926,9 @@ class MarcelSemantic(
   }
 
   override fun visit(node: IfCstStatementNode) = useInnerScope {
-    IfStatementNode(caster.truthyCast(node.condition.accept(exprVisitor)),
-      node.trueStatementNode.accept(stmtVisitor),
-      node.falseStatementNode?.accept(stmtVisitor), node)
+    IfStatementNode(caster.truthyCast(node.condition.accept(this)),
+      node.trueStatementNode.accept(this),
+      node.falseStatementNode?.accept(this), node)
   }
 
   override fun visit(node: SwitchCstNode, smartCastType: JavaType?): ExpressionNode {
@@ -1067,15 +1063,15 @@ class MarcelSemantic(
   private fun toIf(it: Pair<ExpressionCstNode, StatementCstNode>, tokenStart: LexToken, tokenEnd: LexToken)
   = IfCstStatementNode(it.first, it.second, null, it.first.parent, tokenStart, tokenEnd)
   override fun visit(node: WhileCstNode) = useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
-    val condition = caster.truthyCast(node.condition.accept(exprVisitor))
-    val statement = node.statement.accept(stmtVisitor)
+    val condition = caster.truthyCast(node.condition.accept(this))
+    val statement = node.statement.accept(this)
     WhileNode(node, condition, statement)
   }
 
   override fun visit(node: ForInCstNode) = useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
     val variable = it.addLocalVariable(visit(node.varType), node.varName)
 
-    val inNode = node.inNode.accept(exprVisitor)
+    val inNode = node.inNode.accept(this)
 
     val iteratorExpression = when {
       // TODO charsequence iterator
@@ -1098,15 +1094,15 @@ class MarcelSemantic(
       val nextMethod = typeResolver.findMethodOrThrow(nextMethodOwnerType, nextMethodName, emptyList())
       // cast to fit the declared variable type
       val nextMethodCall = caster.cast(variable.type, fCall(node = node, method = nextMethod, arguments = emptyList(), owner = iteratorVarReference))
-      ForInIteratorStatementNode(node, variable, iteratorVariable, iteratorExpression, nextMethodCall, node.statementNode.accept(stmtVisitor))
+      ForInIteratorStatementNode(node, variable, iteratorVariable, iteratorExpression, nextMethodCall, node.statementNode.accept(this))
     }
   }
 
   override fun visit(node: ForVarCstNode): StatementNode = useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
-    val initStatement = node.varDecl.accept(stmtVisitor)
-    val condition = caster.truthyCast(node.condition.accept(exprVisitor))
-    val iteratorStatement = node.iteratorStatement.accept(stmtVisitor)
-    val bodyStatement = node.bodyStatement.accept(stmtVisitor)
+    val initStatement = node.varDecl.accept(this)
+    val condition = caster.truthyCast(node.condition.accept(this))
+    val iteratorStatement = node.iteratorStatement.accept(this)
+    val bodyStatement = node.bodyStatement.accept(this)
     ForStatementNode(
       node = node,
       initStatement = initStatement,
@@ -1132,7 +1128,7 @@ class MarcelSemantic(
 
   // TODO do elvis or throw
   override fun visit(node: ThrowCstNode): StatementNode {
-    val expression = caster.cast(Throwable::class.javaType, node.expression.accept(exprVisitor))
+    val expression = caster.cast(Throwable::class.javaType, node.expression.accept(this, Throwable::class.javaType))
     return ThrowNode(node, expression)
   }
 
@@ -1158,7 +1154,7 @@ class MarcelSemantic(
       // assign the resource in the try block
       tryBlock.statements.add(
         ExpressionStatementNode(VariableAssignmentNode(resourceVar,
-          caster.cast(resourceType.type, it.expressionNode!!.accept(exprVisitor, resourceType.type)),
+          caster.cast(resourceType.type, it.expressionNode!!.accept(this, resourceType.type)),
           it.tokenStart, it.tokenEnd))
       )
 
@@ -1172,11 +1168,11 @@ class MarcelSemantic(
     }
 
     useScope(MethodInnerScope(resourceScope)) {
-      tryBlock.statements.add(node.tryNode.accept(stmtVisitor))
+      tryBlock.statements.add(node.tryNode.accept(this))
     }
 
     if (node.finallyNode != null) useInnerScope {
-      finallyBlock.statements.add(node.finallyNode!!.accept(stmtVisitor))
+      finallyBlock.statements.add(node.finallyNode!!.accept(this))
     }
 
     val catchNodes = node.catchNodes.map { triple ->
@@ -1190,7 +1186,7 @@ class MarcelSemantic(
 
       val (throwableVar, catchStatement) = useInnerScope {
         val v = it.addLocalVariable(JavaType.commonType(throwableTypes), triple.second)
-        Pair(v, triple.third.accept(stmtVisitor))
+        Pair(v, triple.third.accept(this))
       }
       CatchNode(throwableTypes, throwableVar, catchStatement)
     }
@@ -1264,6 +1260,6 @@ class MarcelSemantic(
   private fun toMethodParameter(node: MethodParameterCstNode) =
     // TODO doesn't handle thisParameter
     MethodParameter(visit(node.type), node.name, node.annotations.map { annotationNode(it, ElementType.PARAMETER) }, node.defaultValue?.accept(
-      exprVisitor,
+      this,
     ))
 }
