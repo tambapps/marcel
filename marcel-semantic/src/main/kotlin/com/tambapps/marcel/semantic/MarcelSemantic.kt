@@ -1019,7 +1019,7 @@ class MarcelSemantic(
     /*
      * generating method
      */
-    val whenMethod = generateWhenMethod(whenMethodParameters, whenReturnType, node)
+    val whenMethod = generateOrGetWhenMethod(whenMethodParameters, whenReturnType, node)
     whenMethod.blockStatement = BlockStatementNode(mutableListOf(whenStatement), whenStatement.tokenStart, whenStatement.tokenEnd).apply {
       // if it is not void, statements already have return nodes because of ReturningWhenIfBranchTransformer
       if (whenReturnType == JavaType.void) statements.add(SemanticHelper.returnVoid(this))
@@ -1042,11 +1042,15 @@ class MarcelSemantic(
     return JavaType.commonType(branchTransformer.collectedTypes)
   }
 
-  private fun generateWhenMethod(parameters: List<MethodParameter>, returnType: JavaType, node: CstNode): MethodNode {
+  private fun generateOrGetWhenMethod(parameters: List<MethodParameter>, returnType: JavaType, node: CstNode): MethodNode {
     val classType = currentScope.classType
     val classNode = classNodeMap.getValue(classType)
-    val methodName = "__when_" + classNode.methods.size + "_" + currentMethodScope.method.name
-    val methodNode = MethodNode(methodName, parameters, Visibility.PRIVATE, returnType, false, node.tokenStart, node.tokenEnd, classType)
+    val methodName = "__when_" + node.hashCode().toString().replace('-', '_') + "_" + currentMethodScope.method.name
+    val existingMethodNode = classNode.methods.find { it.name == methodName }
+    /// we don't want to define the same mehod twice, so we find it if we already registered it
+    if (existingMethodNode != null) return existingMethodNode
+    val methodNode = MethodNode(methodName, parameters, Visibility.PRIVATE, returnType,
+      currentMethodScope.staticContext, node.tokenStart, node.tokenEnd, classType)
     typeResolver.defineMethod(classType, methodNode)
     classNode.methods.add(methodNode)
     return methodNode
