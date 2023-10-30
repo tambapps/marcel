@@ -95,11 +95,11 @@ class MarcelSemanticTest {
 
   private fun expr(text: String): ExpressionNode {
     val cstExpression = MarcelParser2("Test", MarcelLexer().lex(text)).expression()
-    return cstExpression.accept(semantic().exprVisitor,)
+    return cstExpression.accept(semantic())
   }
   private fun stmt(text: String, semantic: MarcelSemantic = semantic()): StatementNode {
     val cstExpression = MarcelParser2("Test", MarcelLexer().lex(text)).statement()
-    return cstExpression.accept(semantic.stmtVisitor)
+    return cstExpression.accept(semantic)
   }
 
   private fun token() = LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, "")
