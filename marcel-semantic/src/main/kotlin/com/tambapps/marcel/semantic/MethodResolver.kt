@@ -33,7 +33,7 @@ internal class MethodResolver(
     if (namedArguments.isEmpty()) {
       val method = typeResolver.findMethod(ownerType, name, positionalArguments)
       if (method != null) {
-        return Pair(method, positionalArguments)
+        return Pair(method, completedArguments(node, method, positionalArguments, namedArguments))
       }
 
       // handle dynamic object method call
@@ -49,12 +49,7 @@ internal class MethodResolver(
     val namedMethodParameters = namedArguments.map { MethodParameter(it.second.type, it.first) }
     val method = typeResolver.findMethodByParameters(ownerType, name, positionalArguments, namedMethodParameters)
     if (method != null) {
-      val arguments = positionalArguments + method.parameters.subList(positionalArguments.size, method.parameters.size).map { parameter ->
-        namedArguments.find { it.first == parameter.name }?.second
-          ?: parameter.defaultValue
-          ?: parameter.type.getDefaultValueExpression(node.token)
-      }
-      return Pair(method, arguments)
+      return Pair(method, completedArguments(node, method, positionalArguments, namedArguments))
     }
     return null
   }
@@ -70,4 +65,13 @@ internal class MethodResolver(
     return null
   }
 
+  // complete the arguments if necessary by looking on the method parameters default value and/or named parameters
+  private fun completedArguments(node: CstNode, method: JavaMethod, positionalArguments: List<ExpressionNode>,
+                                 namedArguments: List<Pair<String, ExpressionNode>>): List<ExpressionNode> {
+    return positionalArguments + method.parameters.subList(positionalArguments.size, method.parameters.size).map { parameter ->
+      namedArguments.find { it.first == parameter.name }?.second
+        ?: parameter.defaultValue
+        ?: parameter.type.getDefaultValueExpression(node.token)
+    }
+  }
 }
