@@ -465,9 +465,9 @@ class MarcelSemantic(
 
   override fun visit(node: NewInstanceCstNode, smartCastType: JavaType?): ExpressionNode {
     val type = visit(node.type)
-    if (node.namedArgumentNodes.isNotEmpty()) TODO("named arguments")
-    val arguments = node.positionalArgumentNodes.map { it.accept(this) }
-    val constructorMethod = typeResolver.findMethodOrThrow(type, JavaMethod.CONSTRUCTOR_NAME, arguments, node.token)
+    val (constructorMethod, arguments) = methodResolver.resolveMethodOrThrow(node, type,
+      JavaMethod.CONSTRUCTOR_NAME, node.positionalArgumentNodes.map { it.accept(this) },
+      node.namedArgumentNodes.map { Pair(it.first, it.second.accept(this)) })
     return NewInstanceNode(type, constructorMethod, castedArguments(constructorMethod, arguments), node.token)
   }
 
