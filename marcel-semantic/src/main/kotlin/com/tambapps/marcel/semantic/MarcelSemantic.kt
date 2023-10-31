@@ -819,7 +819,8 @@ class MarcelSemantic(
   override fun visit(node: FunctionCallCstNode, smartCastType: JavaType?): ExpressionNode {
     val positionalArguments = node.positionalArgumentNodes.map { it.accept(this) }
     val namedArguments = node.namedArgumentNodes.map { Pair(it.first, it.second.accept(this)) }
-    val methodResolve = methodResolver.resolveMethod(currentScope.classType, node.value, positionalArguments, namedArguments, lookupImports = true)
+    val methodResolve = methodResolver.resolveMethod(currentScope.classType, node.value, positionalArguments, namedArguments)
+      ?: methodResolver.resolveMethodFromImports(node.value, positionalArguments, namedArguments)
       ?: throw MarcelSemanticException(node.token, "Method ${currentScope.classType}.${node.value} couldn't be resolved")
 
     val method = methodResolve.first

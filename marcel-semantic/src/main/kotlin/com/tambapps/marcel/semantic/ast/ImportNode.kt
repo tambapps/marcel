@@ -1,16 +1,15 @@
 package com.tambapps.marcel.semantic.ast
 
 import com.tambapps.marcel.lexer.LexToken
+import com.tambapps.marcel.semantic.MethodResolver
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.type.JavaTyped
 
 interface ImportNode: Ast2Node {
   fun resolveClassName(typeResolver: JavaTypeResolver, classSimpleName: String): String?
-  fun resolveMethod(typeResolver: JavaTypeResolver, methodName: String, argumentTypes: List<JavaTyped>): JavaMethod? {
-    return null
-  }
 
 }
 class SimpleImportNode(private val value: String, private val asName: String? = null,
@@ -48,21 +47,13 @@ class SimpleImportNode(private val value: String, private val asName: String? = 
   }
 }
 
-class StaticImportNode(private val className: String, private val methodName: String,
+class StaticImportNode(val className: String, val methodName: String,
                        override val tokenStart: LexToken, override val tokenEnd: LexToken): ImportNode {
 
   constructor(className: String, methodName: String): this(className, methodName, LexToken.dummy(), LexToken.dummy())
 
   override fun resolveClassName(typeResolver: JavaTypeResolver, classSimpleName: String): String? {
     return null
-  }
-
-  override fun resolveMethod(typeResolver: JavaTypeResolver, methodName: String, argumentTypes: List<JavaTyped>): JavaMethod? {
-    if (methodName != this.methodName) return null
-    val type = typeResolver.of(className, emptyList())
-    typeResolver.getDeclaredMethods(type)
-    val candidates = typeResolver.getDeclaredMethods(type).filter { it.name == methodName }
-    return typeResolver.findMatchingMethod(candidates, methodName, argumentTypes)
   }
 
   override fun toString(): String {
