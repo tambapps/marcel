@@ -31,6 +31,7 @@ import com.tambapps.marcel.parser.cst.expression.BinaryTypeOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.NotCstNode
 import com.tambapps.marcel.parser.cst.expression.SwitchCstNode
 import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
+import com.tambapps.marcel.parser.cst.expression.TruthyVariableDeclarationCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.WhenCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
@@ -350,7 +351,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         }
         TokenType.WHILE -> {
           accept(TokenType.LPAR)
-          val condition = expression(parentNode)
+          val condition = ifConditionExpression(parentNode)
           accept(TokenType.RPAR)
           val statement = statement(parentNode)
           WhileCstNode(parentNode, token, statement.tokenEnd, condition, statement)
@@ -461,7 +462,8 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       val type = parseType(parentNode)
       val variableName = accept(TokenType.IDENTIFIER).value
       accept(TokenType.ASSIGNMENT)
-      TODO("TruthyVariableDeclarationNode(token, scope, type, variableName, expression(scope))")
+      val expression = expression(parentNode)
+      TruthyVariableDeclarationCstNode(parentNode, type.tokenStart, expression.tokenEnd, type, variableName, expression)
     } else expression(parentNode)
   }
 

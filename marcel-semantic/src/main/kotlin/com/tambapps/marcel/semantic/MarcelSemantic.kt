@@ -41,6 +41,7 @@ import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
 import com.tambapps.marcel.parser.cst.expression.NotCstNode
 import com.tambapps.marcel.parser.cst.expression.SwitchCstNode
 import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
+import com.tambapps.marcel.parser.cst.expression.TruthyVariableDeclarationCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.WhenCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
@@ -1119,6 +1120,11 @@ class MarcelSemantic(
       val nextMethodCall = caster.cast(variable.type, fCall(node = node, method = nextMethod, arguments = emptyList(), owner = iteratorVarReference))
       ForInIteratorStatementNode(node, variable, iteratorVariable, iteratorExpression, nextMethodCall, node.statementNode.accept(this))
     }
+  }
+
+  override fun visit(node: TruthyVariableDeclarationCstNode, smartCastType: JavaType?): ExpressionNode {
+    val variable = currentMethodScope.addLocalVariable(visit(node.type), node.value)
+    return VariableAssignmentNode(localVariable = variable, expression = caster.cast(variable.type, node.expression.accept(this)), node = node)
   }
 
   override fun visit(node: ForVarCstNode): StatementNode = useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
