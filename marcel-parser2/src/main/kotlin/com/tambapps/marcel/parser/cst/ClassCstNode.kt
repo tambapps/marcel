@@ -5,8 +5,14 @@ import com.tambapps.marcel.lexer.LexToken
 open class ClassCstNode(
   tokenStart: LexToken,
   tokenEnd: LexToken,
+  val access: CstAccessNode,
   val className: String,
+  val superType: TypeCstNode?,
+  val interfaces: List<TypeCstNode>,
+  val forExtensionType: TypeCstNode?,
 ) : AbstractCstNode(null, tokenStart, tokenEnd) {
+
+  val isExtensionClass: Boolean get() = forExtensionType != null
 
   val annotations: MutableList<AnnotationCstNode> = mutableListOf()
   val methods: MutableList<MethodCstNode> = mutableListOf()

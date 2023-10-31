@@ -4,6 +4,7 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.cst.AbstractMethodNode
 import com.tambapps.marcel.parser.cst.AnnotationCstNode
+import com.tambapps.marcel.parser.cst.ClassCstNode
 import com.tambapps.marcel.parser.cst.ConstructorCstNode
 import com.tambapps.marcel.parser.cst.CstAccessNode
 import com.tambapps.marcel.parser.cst.CstNode
@@ -92,29 +93,33 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     sourceFile.imports.addAll(imports)
     sourceFile.extensionTypes.addAll(extensionTypes)
 
-    while (current.type != TokenType.END_OF_FILE) {
-      val annotations = parseAnnotations(sourceFile)
-      val access = parseAccess(sourceFile)
-      if (current.type == TokenType.CLASS) {
-        TODO()
-      } else if (current.type == TokenType.FUN || current.type == TokenType.CONSTRUCTOR) {
-        when (val method = method(sourceFile, annotations, access)) {
-          is MethodCstNode -> scriptNode.methods.add(method)
-          is ConstructorCstNode -> scriptNode.constructors.add(method)
-        }
-      } else if (annotations.isNotEmpty() || access.isExplicit) {
-        // it must be a field
-        scriptNode.fields.add(field(sourceFile, annotations, access))
-      } else {
-        scriptNode.runMethodStatements.add(statement(sourceFile))
-      }
-    }
+    parseMembers(packageName, sourceFile, scriptNode, null)
 
     if (scriptNode.isNotEmpty) sourceFile.script = scriptNode
     if (errors.isNotEmpty()) {
       throw MarcelParser2Exception(errors)
     }
     return sourceFile
+  }
+
+  private fun parseMembers(packageName: String?, parentNode: CstNode?, classCstNode: ClassCstNode, outerClassNode: ClassCstNode?) {
+    while (current.type != TokenType.END_OF_FILE) {
+      val annotations = parseAnnotations(parentNode)
+      val access = parseAccess(parentNode)
+      if (current.type == TokenType.CLASS) {
+        classCstNode.innerClasses.add(parseClass(packageName, parentNode, annotations, access, outerClassNode))
+      } else if (current.type == TokenType.FUN || current.type == TokenType.CONSTRUCTOR) {
+        when (val method = method(parentNode, annotations, access)) {
+          is MethodCstNode -> classCstNode.methods.add(method)
+          is ConstructorCstNode -> classCstNode.constructors.add(method)
+        }
+      } else if (annotations.isNotEmpty() || access.isExplicit) {
+        // it must be a field
+        classCstNode.fields.add(field(parentNode, annotations, access))
+      } else if (classCstNode is ScriptCstNode) {
+        classCstNode.runMethodStatements.add(statement(parentNode))
+      }
+    }
   }
 
   private fun parseImports(parentNode: CstNode?): Pair<List<ImportCstNode>, List<TypeCstNode>>  {
@@ -187,6 +192,39 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     val name = accept(TokenType.IDENTIFIER).value
     val initialValue = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(parentNode) else null
     return FieldCstNode(parentNode, tokenStart, previous, access, annotations, type, name, initialValue)
+  }
+
+  private fun parseClass(packageName: String?, parentNode: CstNode?, annotations: List<AnnotationCstNode>, access: CstAccessNode,
+                         outerClassNode: ClassCstNode? = null): ClassCstNode {
+    val isExtensionClass = acceptOptional(TokenType.EXTENSION) != null
+    val classToken = accept(TokenType.CLASS)
+    val classSimpleName = accept(TokenType.IDENTIFIER).value
+    val className =
+      if (outerClassNode != null) "${outerClassNode.className}\$$classSimpleName"
+      else if (packageName != null) "$packageName.$classSimpleName"
+      else classSimpleName
+
+    val forExtensionClassType = if (isExtensionClass) {
+      accept(TokenType.FOR)
+      parseType(parentNode)
+    } else null
+
+    val superType =
+      if (acceptOptional(TokenType.EXTENDS) != null) parseType(parentNode)
+      else null
+    val interfaces = mutableListOf<TypeCstNode>()
+    if (acceptOptional(TokenType.IMPLEMENTS) != null) {
+      while (current.type == TokenType.IDENTIFIER) {
+        interfaces.add(parseType(parentNode))
+        acceptOptional(TokenType.COMMA)
+      }
+    }
+    val classCstNode = ClassCstNode(classToken, classToken, access, className, superType, interfaces, forExtensionClassType)
+    classCstNode.annotations.addAll(annotations)
+
+    parseMembers(packageName, classCstNode, classCstNode, classCstNode)
+
+    return classCstNode
   }
 
   fun method(parentNode: CstNode?, annotations: List<AnnotationCstNode>, access: CstAccessNode): AbstractMethodNode {
