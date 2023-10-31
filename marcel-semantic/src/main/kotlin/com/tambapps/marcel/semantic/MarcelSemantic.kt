@@ -222,10 +222,10 @@ class MarcelSemantic(
   }
 
   private fun defineClass(classCstNode: ClassCstNode) {
-    // TODO handle custom superType and interfaces
-    val classType = typeResolver.defineClass(classCstNode.tokenStart, Visibility.PUBLIC,
-      if (cst.packageName != null) "${cst.packageName}.${classCstNode.className}" else classCstNode.className,
-      JavaType.Object, false, emptyList())
+    val superType = classCstNode.superType?.let { visit(it) } ?: JavaType.Object
+    val interfaces = classCstNode.interfaces.map { visit(it) }
+    val classType = typeResolver.defineClass(classCstNode.tokenStart, Visibility.fromTokenType(classCstNode.access.visibility),
+      classCstNode.className, superType, false, interfaces)
     defineClass(classCstNode, classType)
   }
 

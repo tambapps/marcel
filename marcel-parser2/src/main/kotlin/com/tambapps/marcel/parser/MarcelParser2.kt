@@ -87,13 +87,21 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     val packageName = parsePackage()
 
     val sourceFile = SourceFileCstNode(packageName = packageName, tokenStart = tokens.first(), tokenEnd = tokens.last())
-    val scriptNode = ScriptCstNode(tokens.first(), tokens.last(), classSimpleName)
+    val scriptNode = ScriptCstNode(tokens.first(), tokens.last(),
+      if (packageName != null) "$packageName.$classSimpleName"
+      else classSimpleName)
 
     val (imports, extensionTypes) = parseImports(sourceFile)
     sourceFile.imports.addAll(imports)
     sourceFile.extensionTypes.addAll(extensionTypes)
 
-    parseMembers(packageName, sourceFile, scriptNode, null)
+    while (current.type != TokenType.END_OF_FILE) {
+      parseMember(packageName, sourceFile, scriptNode, null)
+    }
+
+    // class defined are not script class inner classes
+    sourceFile.classes.addAll(scriptNode.innerClasses)
+    scriptNode.innerClasses.clear()
 
     if (scriptNode.isNotEmpty) sourceFile.script = scriptNode
     if (errors.isNotEmpty()) {
@@ -101,25 +109,22 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     }
     return sourceFile
   }
-
-  private fun parseMembers(packageName: String?, parentNode: CstNode?, classCstNode: ClassCstNode, outerClassNode: ClassCstNode?) {
-    while (current.type != TokenType.END_OF_FILE) {
-      val annotations = parseAnnotations(parentNode)
-      val access = parseAccess(parentNode)
-      if (current.type == TokenType.CLASS) {
-        classCstNode.innerClasses.add(parseClass(packageName, parentNode, annotations, access, outerClassNode))
-      } else if (current.type == TokenType.FUN || current.type == TokenType.CONSTRUCTOR) {
-        when (val method = method(parentNode, annotations, access)) {
-          is MethodCstNode -> classCstNode.methods.add(method)
-          is ConstructorCstNode -> classCstNode.constructors.add(method)
-        }
-      } else if (annotations.isNotEmpty() || access.isExplicit) {
-        // it must be a field
-        classCstNode.fields.add(field(parentNode, annotations, access))
-      } else if (classCstNode is ScriptCstNode) {
-        classCstNode.runMethodStatements.add(statement(parentNode))
+  private fun parseMember(packageName: String?, parentNode: CstNode?, classCstNode: ClassCstNode, outerClassNode: ClassCstNode?) {
+    val annotations = parseAnnotations(parentNode)
+    val access = parseAccess(parentNode)
+    if (current.type == TokenType.CLASS) {
+      classCstNode.innerClasses.add(parseClass(packageName, parentNode, annotations, access, outerClassNode))
+    } else if (current.type == TokenType.FUN || current.type == TokenType.CONSTRUCTOR) {
+      when (val method = method(parentNode, annotations, access)) {
+        is MethodCstNode -> classCstNode.methods.add(method)
+        is ConstructorCstNode -> classCstNode.constructors.add(method)
       }
-    }
+    } else if (annotations.isNotEmpty() || access.isExplicit) {
+      // it must be a field
+      classCstNode.fields.add(field(parentNode, annotations, access))
+    } else if (classCstNode is ScriptCstNode) {
+      classCstNode.runMethodStatements.add(statement(parentNode))
+    } else throw MarcelParser2Exception(current, "Illegal node " + current.type)
   }
 
   private fun parseImports(parentNode: CstNode?): Pair<List<ImportCstNode>, List<TypeCstNode>>  {
@@ -222,8 +227,11 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     val classCstNode = ClassCstNode(classToken, classToken, access, className, superType, interfaces, forExtensionClassType)
     classCstNode.annotations.addAll(annotations)
 
-    parseMembers(packageName, classCstNode, classCstNode, classCstNode)
-
+    accept(TokenType.BRACKETS_OPEN)
+    while (current.type != TokenType.BRACKETS_CLOSE) {
+      parseMember(packageName, classCstNode, classCstNode, classCstNode)
+    }
+    accept(TokenType.BRACKETS_CLOSE)
     return classCstNode
   }
 
