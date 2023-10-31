@@ -208,8 +208,8 @@ class MarcelSemantic(
         if (cst.packageName != null) "${cst.packageName}.${scriptCstNode.className}" else scriptCstNode.className,
         Script::class.javaType, false, emptyList())
       // register script class members
-      defineClass(scriptCstNode, classType)
-      val scriptNode = classNode(classType, scriptCstNode, imports)
+      defineClassMembers(scriptCstNode, classType)
+      val scriptNode = classNode(classType, scriptCstNode)
       useScope(ClassScope(classType, typeResolver, imports)) {
         // add the run method
         val runMethod = SemanticHelper.scriptRunMethod(classType, cst)
@@ -218,6 +218,11 @@ class MarcelSemantic(
       }
       moduleNode.classes.add(scriptNode)
     }
+
+    for (cstClass in cst.classes) {
+      moduleNode.classes.add(classNode(typeResolver.of(cstClass.className, emptyList()), cstClass))
+    }
+
     return moduleNode
   }
 
@@ -226,17 +231,17 @@ class MarcelSemantic(
     val interfaces = classCstNode.interfaces.map { visit(it) }
     val classType = typeResolver.defineClass(classCstNode.tokenStart, Visibility.fromTokenType(classCstNode.access.visibility),
       classCstNode.className, superType, false, interfaces)
-    defineClass(classCstNode, classType)
+    defineClassMembers(classCstNode, classType)
   }
 
-  private fun defineClass(classCstNode: ClassCstNode, classType: JavaType) {
+  private fun defineClassMembers(classCstNode: ClassCstNode, classType: JavaType) {
     classCstNode.methods.forEach { typeResolver.defineMethod(classType, toJavaMethod(classType, it)) }
     classCstNode.constructors.forEach { typeResolver.defineMethod(classType, toJavaConstructor(classType, it)) }
     classCstNode.fields.forEach { typeResolver.defineField(classType, toMarcelField(classType, it)) }
     classCstNode.innerClasses.forEach { defineClass(it) }
   }
 
-  private fun classNode(classType: JavaType, node: ClassCstNode, imports: List<ImportNode>): ClassNode
+  private fun classNode(classType: JavaType, node: ClassCstNode): ClassNode
   = useScope(ClassScope(classType, typeResolver, imports)) { classScope ->
     val classNode = ClassNode(classType, Visibility.PUBLIC, cst.tokenStart, cst.tokenEnd)
     classNodeMap[classType] = classNode
@@ -263,6 +268,10 @@ class MarcelSemantic(
           fieldInitialValueMap[fieldNode] = caster.cast(fieldNode.type, cstFieldNode.initialValue!!.accept(this, fieldNode.type))
         }
       }
+    }
+
+    node.innerClasses.forEach {
+      classNode.innerClasses.add(classNode(typeResolver.of(it.className, emptyList()), it))
     }
 
     if (classNode.constructorCount == 0) {
