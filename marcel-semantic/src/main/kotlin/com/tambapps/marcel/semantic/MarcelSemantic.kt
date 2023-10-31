@@ -152,6 +152,7 @@ import com.tambapps.marcel.semantic.variable.field.JavaClassFieldImpl
 import com.tambapps.marcel.semantic.variable.field.MarcelField
 import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
 import com.tambapps.marcel.semantic.visitor.ReturningWhenIfBranchTransformer
+import marcel.lang.DelegatedObject
 import marcel.lang.IntRanges
 import marcel.lang.LongRanges
 import marcel.lang.Script
@@ -184,7 +185,7 @@ class MarcelSemantic(
   private val classNodeMap = mutableMapOf<JavaType, ClassNode>() // useful to add methods while performing analysis
 
   private val imports = Scope.DEFAULT_IMPORTS.toMutableList() // will be updated while performing analysis
-  private val methodResolver = MethodResolver(typeResolver, imports)
+  private val methodResolver = MethodResolver(typeResolver, caster, imports)
   private val currentScope get() = scopeQueue.peek() // FIFO
   private val currentMethodScope get() = currentScope as? MethodScope ?: throw MarcelSemanticException("Not in a method")
   private val currentInnerMethodScope get() = currentScope as? MethodInnerScope ?: throw MarcelSemanticException("Not in a inner scope")
@@ -665,7 +666,7 @@ class MarcelSemantic(
                           // useful for ternaryNode which duplicate value to avoid using local variable
                           discardOwnerInReturned: Boolean = false): ExpressionNode = when (rightOperand) {
     is FunctionCallCstNode -> {
-      val (method, arguments) = methodResolver.resolveMethod(owner.type, rightOperand.value,
+      val (method, arguments) = methodResolver.resolveMethod(node, owner.type, rightOperand.value,
         rightOperand.positionalArgumentNodes.map { it.accept(this) },
         rightOperand.namedArgumentNodes.map { Pair(it.first, it.second.accept(this)) })
         ?: throw MarcelSemanticException(node.token, "Method ${owner.type}.${rightOperand.value} couldn't be resolved")
@@ -819,9 +820,25 @@ class MarcelSemantic(
   override fun visit(node: FunctionCallCstNode, smartCastType: JavaType?): ExpressionNode {
     val positionalArguments = node.positionalArgumentNodes.map { it.accept(this) }
     val namedArguments = node.namedArgumentNodes.map { Pair(it.first, it.second.accept(this)) }
-    val methodResolve = methodResolver.resolveMethod(currentScope.classType, node.value, positionalArguments, namedArguments)
-      ?: methodResolver.resolveMethodFromImports(node.value, positionalArguments, namedArguments)
-      ?: throw MarcelSemanticException(node.token, "Method ${currentScope.classType}.${node.value} couldn't be resolved")
+    val methodResolve = methodResolver.resolveMethod(node, currentScope.classType, node.value, positionalArguments, namedArguments)
+      ?: methodResolver.resolveMethodFromImports(node, node.value, positionalArguments, namedArguments)
+
+    // look for delegate if any
+    if (methodResolve == null && currentScope.classType.implements(DelegatedObject::class.javaType)) {
+      val delegateGetter = typeResolver.findMethod(currentScope.classType, "getDelegate", emptyList())
+      if (delegateGetter != null) {
+        val delegateMethodResolve = methodResolver.resolveMethod(node, delegateGetter.returnType, node.value, positionalArguments, namedArguments)
+        if (delegateMethodResolve != null) {
+          val owner = fCall(node=node, method = delegateGetter, arguments = emptyList(), owner = ThisReferenceNode(currentScope.classType, node.token))
+          return fCall(node = node, method = delegateMethodResolve.first, arguments = delegateMethodResolve.second, owner = owner)
+        }
+
+      }
+    }
+
+    if (methodResolve == null) {
+      throw MarcelSemanticException(node.token, "Method ${currentScope.classType}.${node.value} couldn't be resolved")
+    }
 
     val method = methodResolve.first
     val castType = if (node.castType != null) visit(node.castType!!) else null
