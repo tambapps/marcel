@@ -18,7 +18,6 @@ import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
-import java.lang.annotation.ElementType
 
 class MarcelClassWriter(
   private val compilerConfiguration: CompilerConfiguration,
@@ -36,7 +35,6 @@ class MarcelClassWriter(
     compileRec(classes, classNode)
     return classes
   }
-
 
   private fun compileRec(classes: MutableList<CompiledClass>, classNode: ClassNode) {
    // TODO these checks need to be done on MarcelSemantic checks.forEach { it.visit(classNode, typeResolver) }
@@ -94,7 +92,6 @@ class MarcelClassWriter(
 
     classWriter.visitEnd()
     classes.add(CompiledClass(classNode.type.className, Script::class.javaType.isAssignableFrom(classNode.type), classWriter.toByteArray()))
-
   }
 
   private fun writeField(classWriter: ClassWriter, field: FieldNode) {
