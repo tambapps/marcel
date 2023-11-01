@@ -162,10 +162,7 @@ import marcel.lang.compile.CharacterDefaultValue
 import marcel.lang.compile.DoubleDefaultValue
 import marcel.lang.compile.FloatDefaultValue
 import marcel.lang.compile.IntDefaultValue
-import marcel.lang.compile.IntRangeDefaultValue
 import marcel.lang.compile.LongDefaultValue
-import marcel.lang.compile.LongRangeDefaultValue
-import marcel.lang.compile.MethodCallDefaultValue
 import marcel.lang.compile.NullDefaultValue
 import marcel.lang.compile.StringDefaultValue
 import marcel.lang.primitives.iterators.CharacterIterator
@@ -380,14 +377,17 @@ class MarcelSemantic(
       = throw MarcelSemanticException(node, "Incompatible type for annotation member ${attribute.name} of annotation ${annotation.type}. Wanted ${attribute.type} but got ${attrValue.javaClass}")
 
   private fun methodNode(methodCst: MethodCstNode, classScope: ClassScope): MethodNode {
+    val visibility = Visibility.fromTokenType(methodCst.accessNode.visibility)
+    val isStatic = methodCst.accessNode.isStatic
     val methodNode = MethodNode(
       name = methodCst.name,
-      visibility = Visibility.fromTokenType(methodCst.accessNode.visibility),
+      visibility = visibility,
       returnType = visit(methodCst.returnTypeCstNode),
-      isStatic = methodCst.accessNode.isStatic,
+      isStatic = isStatic,
       tokenStart = methodCst.tokenStart,
       tokenEnd = methodCst.tokenEnd,
-      parameters = methodCst.parameters.map { toMethodParameter(it) },
+      parameters = methodCst.parameters.mapIndexed { index, methodParameterCstNode ->
+        toMethodParameterNode(classScope.classType, visibility, isStatic, index, methodCst.name, methodParameterCstNode) },
       ownerClass = classScope.classType
     )
     fillMethodNode(classScope, methodNode, methodCst.statements, methodCst.annotations)
@@ -447,6 +447,7 @@ class MarcelSemantic(
     return u
   }
 
+  private fun newMethodScope(classType: JavaType, method: JavaMethod) = MethodScope(ClassScope(classType, typeResolver, imports), method)
   private fun visit(node: TypeCstNode): JavaType = currentScope.resolveTypeOrThrow(node)
 
   /*
@@ -1296,12 +1297,22 @@ class MarcelSemantic(
   }
 
   private fun toJavaMethod(ownerType: JavaType, node: MethodCstNode): JavaMethod {
+    val visibility = Visibility.fromTokenType(node.accessNode.visibility)
+    val isStatic = node.accessNode.isStatic
     return JavaMethodImpl(ownerType, Visibility.fromTokenType(node.accessNode.visibility), node.name,
-      node.parameters.map(this::toMethodParameter), visit(node.returnTypeCstNode), false, false, false, false)
+      node.parameters.mapIndexed { index, methodParameterCstNode -> toMethodParameter(ownerType, visibility, isStatic, index, node.name, methodParameterCstNode) }, visit(node.returnTypeCstNode), false, false, isStatic, false)
   }
 
   private fun toJavaConstructor(ownerType: JavaType, node: ConstructorCstNode): JavaMethod {
-    return JavaConstructorImpl(Visibility.fromTokenType(node.accessNode.visibility), ownerType, node.parameters.map(this::toMethodParameter))
+    val visibility = Visibility.fromTokenType(node.accessNode.visibility)
+    return JavaConstructorImpl(visibility, ownerType, node.parameters.mapIndexed { index, methodParameterCstNode -> toMethodParameter(
+      ownerType,
+      visibility,
+      false,
+      index,
+      "constructor",
+      methodParameterCstNode
+    )})
   }
 
   private fun toMarcelField(ownerType: JavaType, fieldNode: FieldCstNode): MarcelField {
@@ -1309,11 +1320,36 @@ class MarcelSemantic(
       Visibility.fromTokenType(fieldNode.access.visibility), fieldNode.access.isStatic)
   }
 
-  private fun toMethodParameter(node: MethodParameterCstNode): MethodParameter {
+  private fun toMethodParameter(ownerType: JavaType, visibility: Visibility,
+                                isStatic: Boolean, parameterIndex: Int,
+                                methodName: String, node: MethodParameterCstNode): MethodParameter {
+    val parameterType = visit(node.type)
+    val defaultValue = if (node.defaultValue != null) {
+      val defaultValueMethod = defaultParameterMethod(node, ownerType, visibility, isStatic, methodName, parameterType, parameterIndex)
+      useScope(newMethodScope(ownerType, defaultValueMethod)) { caster.cast(parameterType, node.defaultValue!!.accept(this)) }
+    } else null
+    return MethodParameter(parameterType, node.name, node.annotations.map { annotationNode(it, ElementType.PARAMETER) }, defaultValue)
+  }
+
+  private fun defaultParameterMethod(node: CstNode, ownerClass: JavaType, visibility: Visibility, isStatic: Boolean, methodName: String, type: JavaType, parameterIndex: Int): MethodNode {
+    return MethodNode("${methodName}_defaultParam${parameterIndex}", emptyList(), visibility, type,
+      // always static because it can be called from outside this class
+      //  if it weren't static we would have to push the owner when calling the method, which can make the semantic analysis more complex
+      isStatic= true, node.tokenStart, node.tokenEnd, ownerClass)
+  }
+
+  // add annotation if necessary to the node, e.g. for default parameters. To use on to be compiled methods
+  private fun toMethodParameterNode(ownerType: JavaType, visibility: Visibility,
+                                    isStatic: Boolean, parameterIndex: Int,
+                                    methodName: String, node: MethodParameterCstNode): MethodParameter {
     val annotations = node.annotations.map { annotationNode(it, ElementType.PARAMETER) }.toMutableList()
     val parameterType = visit(node.type)
     val parameterName = node.name
-    val defaultValue = node.defaultValue?.accept(this, parameterType)
+    val defaultValue =
+      if (node.defaultValue != null) {
+        val defaultValueMethod = defaultParameterMethod(node, ownerType, visibility, isStatic, methodName, parameterType, parameterIndex)
+        useScope(newMethodScope(ownerType, defaultValueMethod)) { caster.cast(parameterType, node.defaultValue!!.accept(this)) }
+      } else null
     if (defaultValue != null) {
       when {
         defaultValue is NullValueNode -> {
@@ -1336,30 +1372,10 @@ class MarcelSemantic(
             && defaultValue is BoolConstantNode -> annotations.add(AnnotationNode(BooleanDefaultValue::class.javaType, listOf(AnnotationNode.AttributeNode("value", JavaType.boolean, defaultValue.value)), node.tokenStart, node.tokenEnd))
         parameterType == JavaType.String
             && defaultValue is StringConstantNode -> annotations.add(AnnotationNode(StringDefaultValue::class.javaType, listOf(AnnotationNode.AttributeNode("value", JavaType.String, defaultValue.value)), node.tokenStart, node.tokenEnd))
-        parameterType == JavaType.IntRange || parameterType == JavaType.LongRange -> {
-          TODO("Might just rely on else behaviour")
-          /*
-          val isIntRange = defaultValue.type == JavaType.IntRange
-          val annotationVisitor = mv.visitParameterAnnotation(i,
-            if (isIntRange) IntRangeDefaultValue::class.javaType.descriptor else LongRangeDefaultValue::class.javaType.descriptor,
-            true)
-          annotationVisitor.apply {
-            val rangeNode = defaultValue as? RangeNode ?: throw MarcelSemanticException(parameter.token, "Must specify a range for a range method default parameter")
-            val from = (rangeNode.from as? JavaConstantExpression)?.value ?: throw MarcelSemanticException(parameter.token, "Must specify constants for a method range default parameter")
-            val to = (rangeNode.to as? JavaConstantExpression)?.value ?: throw MarcelSemanticException(parameter.token, "Must specify constants for a method range default parameter")
-            visit("from", if (isIntRange) from as Int else from as Long)
-            visit("to", (if (isIntRange) to as? Int else to as? Long) ?: throw MarcelSemanticException(parameter.token, "Must specify an int or long constant for a method range default parameter"))
-            visit("fromExclusive", rangeNode.fromExclusive)
-            visit("toExclusive", rangeNode.toExclusive)
-          } */
-        }
         else -> {
-          TODO("Will need to add another method")
+          TODO("Doesn't handle complex method default parameters yet")
           /*
-          val defaultValueType = defaultValue.getType(typeResolver)
-          if (!parameterType.isAssignableFrom(defaultValueType)) {
-            throw MarcelSemanticException(parameter.token, "The default value of parameter ${parameter.name} is not assignable to the parameter. Expected value of type ${parameterType} but gave $defaultValueType")
-          }
+
           // always static because it can be called from outside this class
           val defaultParameterMethodNode = if (defaultValue is FunctionCallNode
             && defaultValue.getMethod(typeResolver).let { it.isStatic && it.parameters.isEmpty() && it.ownerClass == methodNode.ownerClass && it.isStatic }

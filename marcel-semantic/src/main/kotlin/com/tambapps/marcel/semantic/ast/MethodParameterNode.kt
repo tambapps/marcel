@@ -5,6 +5,7 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.type.JavaType
 
+// TODO remove me
 class MethodParameterNode constructor(val token: LexToken, type: JavaType, rawType: JavaType, name: String, isFinal: Boolean,
                                       defaultValue: ExpressionNode?, annotations: List<AnnotationNode>) :
   MethodParameter(type, rawType, name, isFinal, annotations, defaultValue), Annotable {

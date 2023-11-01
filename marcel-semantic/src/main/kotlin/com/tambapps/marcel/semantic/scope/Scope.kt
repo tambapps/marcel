@@ -30,7 +30,6 @@ interface Scope {
   }
 
   val classType: JavaType
-  val imports: List<ImportNode>
 
   fun resolveTypeOrThrow(node: TypeCstNode): JavaType
 

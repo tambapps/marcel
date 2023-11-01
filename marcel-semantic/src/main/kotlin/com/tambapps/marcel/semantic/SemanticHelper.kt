@@ -12,6 +12,7 @@ import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 
@@ -51,7 +52,7 @@ internal object SemanticHelper {
     visibility = Visibility.PUBLIC, returnType = JavaType.Object,
     isStatic = false,
     ownerClass = classType,
-    parameters = listOf(MethodParameterNode(cst.tokenStart, JavaType.String.arrayType, "args")),
+    parameters = listOf(MethodParameter(JavaType.String.arrayType, "args")),
     tokenStart = cst.tokenStart,
     tokenEnd = cst.tokenEnd)
 }
