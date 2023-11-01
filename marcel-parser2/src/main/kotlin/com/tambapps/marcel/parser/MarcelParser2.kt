@@ -273,7 +273,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       }
     }
 
-    if (isConstructor && current.type != TokenType.RPAR) {
+    if (isConstructor && current.type != TokenType.BRACKETS_OPEN) {
       // constructor may not have a body
       node.statements.addAll(statements)
       return node
