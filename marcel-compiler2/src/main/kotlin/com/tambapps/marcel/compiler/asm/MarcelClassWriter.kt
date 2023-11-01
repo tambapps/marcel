@@ -16,6 +16,8 @@ import marcel.lang.Script
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Label
+import org.objectweb.asm.MethodVisitor
+import org.objectweb.asm.Opcodes
 import java.lang.annotation.ElementType
 
 class MarcelClassWriter(
@@ -131,11 +133,23 @@ class MarcelClassWriter(
     mv.visitLabel(methodEndLabel)
     mv.visitMaxs(0, 0) // args ignored since we used the flags COMPUTE_MAXS and COMPUTE_FRAMES
     mv.visitEnd()
-    defineMethodParameters() // yes. This is to be done at the end
+    defineMethodParameters(mv, methodNode, methodStartLabel, methodEndLabel)  // yes. This is to be done at the end
   }
 
-  private fun defineMethodParameters() {
-    // TODO
+  private fun defineMethodParameters(mv: MethodVisitor, methodNode: MethodNode,
+                                     methodStartLabel: Label,
+                                     methodEndLabel: Label) {
+    for (i in methodNode.parameters.indices) {
+      val parameter = methodNode.parameters[i]
+      // this is important, to be able to resolve marcel method parameter names
+      mv.visitParameter(parameter.name, if (parameter.isFinal) Opcodes.ACC_FINAL else 0)
+      parameter.annotations.forEach {
+        writeAnnotation(mv.visitParameterAnnotation(i, it.type.descriptor, true), it)
+      }
+      val methodVarIndex = if (methodNode.isStatic) i else 1 + i
+      mv.visitLocalVariable(parameter.name,  parameter.type.descriptor, parameter.type.signature,
+        methodStartLabel, methodEndLabel, methodVarIndex)
+    }
   }
 
   private fun writeAnnotation(annotationVisitor: AnnotationVisitor, annotationNode: AnnotationNode) {
@@ -149,5 +163,4 @@ class MarcelClassWriter(
     }
     annotationVisitor.visitEnd()
   }
-
 }
