@@ -42,6 +42,7 @@ import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
 import com.tambapps.marcel.parser.cst.expression.NotCstNode
 import com.tambapps.marcel.parser.cst.expression.SwitchCstNode
 import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
+import com.tambapps.marcel.parser.cst.expression.ThisConstructorCallCstNode
 import com.tambapps.marcel.parser.cst.expression.TruthyVariableDeclarationCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.WhenCstNode
@@ -909,7 +910,14 @@ class MarcelSemantic(
     val superType = currentScope.classType.superType!!
     val superConstructorMethod = typeResolver.findMethodOrThrow(superType, JavaMethod.CONSTRUCTOR_NAME, arguments, node.token)
 
-    return SuperConstructorCallNode(superType, superConstructorMethod, emptyList(), node.tokenStart, node.tokenEnd)
+    return SuperConstructorCallNode(superType, superConstructorMethod, castedArguments(superConstructorMethod, arguments), node.tokenStart, node.tokenEnd)
+  }
+
+  override fun visit(node: ThisConstructorCallCstNode, smartCastType: JavaType?): ExpressionNode {
+    val arguments = node.arguments.map { it.accept(this) }
+    val classType = currentScope.classType
+    val constructorMethod = typeResolver.findMethodOrThrow(classType, JavaMethod.CONSTRUCTOR_NAME, arguments, node.token)
+    return ThisConstructorCallNode(classType, constructorMethod, castedArguments(constructorMethod, arguments), node.tokenStart, node.tokenEnd)
   }
 
   override fun visit(node: ExpressionStatementCstNode)

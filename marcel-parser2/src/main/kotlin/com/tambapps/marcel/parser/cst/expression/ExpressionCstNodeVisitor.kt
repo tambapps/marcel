@@ -52,6 +52,7 @@ interface ExpressionCstNodeVisitor<T, U> {
   fun visit(node: ReferenceCstNode, smartCastType: U? = null): T
   fun visit(node: FunctionCallCstNode, smartCastType: U? = null): T
   fun visit(node: SuperConstructorCallCstNode, smartCastType: U? = null): T
+  fun visit(node: ThisConstructorCallCstNode, smartCastType: U? = null): T
   fun visit(node: NewInstanceCstNode, smartCastType: U? = null): T
   fun visit(node: WhenCstNode, smartCastType: U? = null): T
   fun visit(node: SwitchCstNode, smartCastType: U? = null): T

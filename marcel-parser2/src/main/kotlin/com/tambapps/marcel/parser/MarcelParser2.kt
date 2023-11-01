@@ -32,6 +32,7 @@ import com.tambapps.marcel.parser.cst.expression.BinaryTypeOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.NotCstNode
 import com.tambapps.marcel.parser.cst.expression.SwitchCstNode
 import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
+import com.tambapps.marcel.parser.cst.expression.ThisConstructorCallCstNode
 import com.tambapps.marcel.parser.cst.expression.TruthyVariableDeclarationCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.WhenCstNode
@@ -267,8 +268,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     if (isConstructor && current.type == TokenType.COLON) {
       skip()
       when (val atom = atom(parentNode)) {
-        // TODO handle thisConstructorCall
-        is SuperConstructorCallCstNode  -> statements.add(ExpressionStatementCstNode(atom))
+        is SuperConstructorCallCstNode, is ThisConstructorCallCstNode  -> statements.add(ExpressionStatementCstNode(atom))
         else -> throw MarcelParser2Exception(atom.token, "Expected this or super constructor call")
       }
     }
@@ -678,15 +678,19 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
           MapCstNode(entries, parentNode, token, previous)
         } else ArrayCstNode(elements, parentNode, token, previous)
       }
-      TokenType.SUPER -> {
+      TokenType.SUPER, TokenType.THIS -> {
         if (current.type == TokenType.LPAR) {
           skip()
           val (arguments, namedArguments) = parseFunctionArguments(parentNode)
           if (namedArguments.isNotEmpty()) {
             throw MarcelParser2Exception(token, "Cannot have named arguments on super constructor call")
           }
-          SuperConstructorCallCstNode(parentNode, arguments, token, arguments.lastOrNull()?.tokenEnd ?: token)
-        } else SuperReferenceCstNode(parentNode, token)
+          if (token.type == TokenType.SUPER) SuperConstructorCallCstNode(parentNode, arguments, token, arguments.lastOrNull()?.tokenEnd ?: token)
+          else ThisConstructorCallCstNode(parentNode, arguments, token, arguments.lastOrNull()?.tokenEnd ?: token)
+        } else {
+          if (token.type == TokenType.SUPER) SuperReferenceCstNode(parentNode, token)
+          else ThisReferenceCstNode(parentNode, token)
+        }
       }
       TokenType.NEW -> {
         val type = parseType(parentNode)
