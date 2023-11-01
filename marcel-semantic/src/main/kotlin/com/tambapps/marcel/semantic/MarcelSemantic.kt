@@ -85,8 +85,10 @@ import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.PopNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.StringNode
+import com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.TernaryNode
+import com.tambapps.marcel.semantic.ast.expression.ThisConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
@@ -387,6 +389,17 @@ class MarcelSemantic(
   private fun constructorNode(methodCst: ConstructorCstNode, classScope: ClassScope): MethodNode {
     val methodNode = toMethodNode(methodCst, JavaMethod.CONSTRUCTOR_NAME, JavaType.void, classScope)
     fillMethodNode(classScope, methodNode, methodCst.statements, methodCst.annotations)
+    val firstStatement = methodNode.blockStatement.statements.firstOrNull()
+    if (firstStatement == null || firstStatement !is ExpressionStatementNode
+      || firstStatement.expressionNode !is ThisConstructorCallNode && firstStatement.expressionNode !is SuperConstructorCallNode) {
+      val superType = classScope.classType.superType!!
+      val superConstructorMethod = typeResolver.findMethod(superType, JavaMethod.CONSTRUCTOR_NAME, emptyList())
+        ?: throw MarcelSemanticException(methodNode.token, "Class $superType doesn't have a no-arg constructor")
+      methodNode.blockStatement.statements.add(0,
+        ExpressionStatementNode(SuperConstructorCallNode(superType, superConstructorMethod, emptyList(), methodNode.tokenStart, methodNode.tokenEnd)))
+    }
+    // TODO check for this/super constructor calls that aren't the first statement and throw error if any
+    //  also check recursive constructor calls (see RecursiveConstructorCheck class)
     return methodNode
   }
 
@@ -893,11 +906,10 @@ class MarcelSemantic(
 
   override fun visit(node: SuperConstructorCallCstNode, smartCastType: JavaType?): ExpressionNode {
     val arguments = node.arguments.map { it.accept(this) }
-    val method = typeResolver.findMethodOrThrow(currentScope.classType, JavaMethod.CONSTRUCTOR_NAME, arguments, node.token)
-    return fCall(node = node,
-      method = method,
-      owner =  SuperReferenceNode(currentScope.classType.superType!!, node.token),
-      arguments = arguments)
+    val superType = currentScope.classType.superType!!
+    val superConstructorMethod = typeResolver.findMethodOrThrow(superType, JavaMethod.CONSTRUCTOR_NAME, arguments, node.token)
+
+    return SuperConstructorCallNode(superType, superConstructorMethod, emptyList(), node.tokenStart, node.tokenEnd)
   }
 
   override fun visit(node: ExpressionStatementCstNode)
