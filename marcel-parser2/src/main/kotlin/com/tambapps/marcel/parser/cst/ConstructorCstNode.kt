@@ -8,6 +8,6 @@ class ConstructorCstNode(
   tokenEnd: LexToken,
   accessNode: CstAccessNode,
 ) :
-  AbstractMethodNode(parent, tokenStart, tokenEnd, accessNode) {
+  AbstractMethodCstNode(parent, tokenStart, tokenEnd, accessNode) {
 
 }

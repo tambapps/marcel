@@ -10,6 +10,6 @@ class MethodCstNode(
   val name: String,
   val returnTypeCstNode: TypeCstNode,
 ) :
-  AbstractMethodNode(parent, tokenStart, tokenEnd, accessNode) {
+  AbstractMethodCstNode(parent, tokenStart, tokenEnd, accessNode) {
 
 }

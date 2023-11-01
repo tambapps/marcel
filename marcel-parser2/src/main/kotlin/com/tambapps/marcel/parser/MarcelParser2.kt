@@ -2,7 +2,7 @@ package com.tambapps.marcel.parser
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
-import com.tambapps.marcel.parser.cst.AbstractMethodNode
+import com.tambapps.marcel.parser.cst.AbstractMethodCstNode
 import com.tambapps.marcel.parser.cst.AnnotationCstNode
 import com.tambapps.marcel.parser.cst.ClassCstNode
 import com.tambapps.marcel.parser.cst.ConstructorCstNode
@@ -235,7 +235,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     return classCstNode
   }
 
-  fun method(parentNode: CstNode?, annotations: List<AnnotationCstNode>, access: CstAccessNode): AbstractMethodNode {
+  fun method(parentNode: CstNode?, annotations: List<AnnotationCstNode>, access: CstAccessNode): AbstractMethodCstNode {
     val token = current
     val isConstructor = accept(TokenType.FUN, TokenType.CONSTRUCTOR).type == TokenType.CONSTRUCTOR
     val node = if (!isConstructor) {

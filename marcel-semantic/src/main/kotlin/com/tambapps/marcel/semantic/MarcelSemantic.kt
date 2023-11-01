@@ -2,6 +2,7 @@ package com.tambapps.marcel.semantic
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
+import com.tambapps.marcel.parser.cst.AbstractMethodCstNode
 import com.tambapps.marcel.parser.cst.AnnotationCstNode
 import com.tambapps.marcel.parser.cst.ClassCstNode
 import com.tambapps.marcel.parser.cst.ConstructorCstNode
@@ -260,6 +261,7 @@ class MarcelSemantic(
     node.annotations.forEach { classNode.annotations.add(annotationNode(it, ElementType.TYPE)) }
     // iterating with i because we might add methods while
     node.methods.forEach { classNode.methods.add(methodNode(it, classScope)) }
+    node.constructors.forEach { classNode.methods.add(constructorNode(it, classScope)) }
     val staticFieldInitialValueMap = mutableMapOf<FieldNode, ExpressionNode>()
     val fieldInitialValueMap = mutableMapOf<FieldNode, ExpressionNode>()
     node.fields.forEach { cstFieldNode ->
@@ -377,21 +379,31 @@ class MarcelSemantic(
       = throw MarcelSemanticException(node, "Incompatible type for annotation member ${attribute.name} of annotation ${annotation.type}. Wanted ${attribute.type} but got ${attrValue.javaClass}")
 
   private fun methodNode(methodCst: MethodCstNode, classScope: ClassScope): MethodNode {
+    val methodNode = toMethodNode(methodCst, methodCst.name, visit(methodCst.returnTypeCstNode), classScope)
+    fillMethodNode(classScope, methodNode, methodCst.statements, methodCst.annotations)
+    return methodNode
+  }
+
+  private fun constructorNode(methodCst: ConstructorCstNode, classScope: ClassScope): MethodNode {
+    val methodNode = toMethodNode(methodCst, JavaMethod.CONSTRUCTOR_NAME, JavaType.void, classScope)
+    fillMethodNode(classScope, methodNode, methodCst.statements, methodCst.annotations)
+    return methodNode
+  }
+
+  private fun toMethodNode(methodCst: AbstractMethodCstNode, methodName: String, returnType: JavaType, classScope: ClassScope): MethodNode {
     val visibility = Visibility.fromTokenType(methodCst.accessNode.visibility)
     val isStatic = methodCst.accessNode.isStatic
-    val methodNode = MethodNode(
-      name = methodCst.name,
+    return MethodNode(
+      name = methodName,
       visibility = visibility,
-      returnType = visit(methodCst.returnTypeCstNode),
+      returnType = returnType,
       isStatic = isStatic,
       tokenStart = methodCst.tokenStart,
       tokenEnd = methodCst.tokenEnd,
       parameters = methodCst.parameters.mapIndexed { index, methodParameterCstNode ->
-        toMethodParameterNode(classScope.classType, visibility, isStatic, index, methodCst.name, methodParameterCstNode) },
+        toMethodParameterNode(classScope.classType, visibility, isStatic, index, methodName, methodParameterCstNode) },
       ownerClass = classScope.classType
     )
-    fillMethodNode(classScope, methodNode, methodCst.statements, methodCst.annotations)
-    return methodNode
   }
 
   private fun fillMethodNode(classScope: ClassScope, methodeNode: MethodNode,
