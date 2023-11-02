@@ -65,6 +65,7 @@ interface JavaType: JavaTyped {
   }
 
   val takes2Slots get() = this == long || this == double
+  val nbSlots get() = if (takes2Slots) 2 else 1
 
   override val type get() = this
   val genericTypes: List<JavaType>

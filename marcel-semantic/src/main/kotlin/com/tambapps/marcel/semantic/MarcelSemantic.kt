@@ -138,6 +138,7 @@ import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ThrowNode
 import com.tambapps.marcel.semantic.ast.statement.TryCatchNode
 import com.tambapps.marcel.semantic.ast.statement.WhileNode
+import com.tambapps.marcel.semantic.check.ClassNodeChecks
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaConstructorImpl
@@ -313,6 +314,9 @@ class MarcelSemantic(
       staticInitMethod.blockStatement.statements.addAll(0,
         toFieldAssignmentStatements(classType, staticFieldInitialValueMap, true)
       )
+    }
+    ClassNodeChecks.ALL.forEach {
+      it.visit(classNode, typeResolver)
     }
     return classNode
   }

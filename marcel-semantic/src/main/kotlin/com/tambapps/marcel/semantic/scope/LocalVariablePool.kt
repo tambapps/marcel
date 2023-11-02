@@ -13,7 +13,7 @@ class LocalVariablePool(staticContext: Boolean) {
   private val slotStart = if (staticContext) 0 else 1
 
   fun obtain(type: JavaType, name: String, isFinal: Boolean): LocalVariable {
-    val nbSlots = nbSlots(type)
+    val nbSlots = type.nbSlots
     val v = variablePool.find { it.nbSlots == nbSlots }
     return if (v != null) {
       variablePool.remove(v)
@@ -26,11 +26,9 @@ class LocalVariablePool(staticContext: Boolean) {
   }
 
   private fun newVariable(type: JavaType, name: String, isFinal: Boolean): LocalVariable {
-    val nbSlots = nbSlots(type)
+    val nbSlots = type.nbSlots
     val index = slotStart + maxSlot // "1 +" because the slot 0 is reserved for this
     maxSlot+= nbSlots
     return LocalVariable(type, name, nbSlots, index, isFinal)
   }
-
-  private fun nbSlots(type: JavaType) = if (type.takes2Slots) 2 else 1
 }

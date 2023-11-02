@@ -14,6 +14,7 @@ import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.variable.LocalVariable
 
 internal object SemanticHelper {
 
@@ -46,6 +47,12 @@ internal object SemanticHelper {
 
   fun returnVoid(node: Ast2Node) = ReturnStatementNode(VoidExpressionNode(node.token), node.tokenStart, node.tokenEnd)
   fun returnNull(node: Ast2Node) = ReturnStatementNode(NullValueNode(node.token), node.tokenStart, node.tokenEnd)
+
+  fun parameterToLocalVariable(method: JavaMethod, parameter: MethodParameter): LocalVariable {
+    val parameterIndex = method.parameters.indexOf(parameter)
+    val index = if (method.isStatic) parameterIndex else parameterIndex + 1
+    return LocalVariable(parameter.type, parameter.name, parameter.type.nbSlots, index, parameter.isFinal)
+  }
 
   fun scriptRunMethod(classType: JavaType, cst: SourceFileCstNode) = MethodNode(name = "run",
     visibility = Visibility.PUBLIC, returnType = JavaType.Object,
