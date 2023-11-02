@@ -13,6 +13,7 @@ open class WhenCstNode(
   val elseStatement: StatementCstNode?
 ) : AbstractExpressionCstNode(parent, tokenStart, tokenEnd) {
 
+  // TODO allow declaring variables in when
   var variableDeclarationNode: VariableDeclarationCstNode? = null
   override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
 }

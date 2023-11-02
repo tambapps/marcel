@@ -39,6 +39,7 @@ import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryTypeOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
+import com.tambapps.marcel.parser.cst.expression.LambdaCstNode
 import com.tambapps.marcel.parser.cst.expression.NotCstNode
 import com.tambapps.marcel.parser.cst.expression.SwitchCstNode
 import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
@@ -1013,6 +1014,10 @@ class MarcelSemantic(
     // transforming the switch into a when
     val switchExpression = node.switchExpression.accept(this,)
     return switchWhen(node, smartCastType, switchExpression)
+  }
+
+  override fun visit(node: LambdaCstNode, smartCastType: JavaType?): ExpressionNode {
+    TODO("Not yet implemented")
   }
 
   override fun visit(node: WhenCstNode, smartCastType: JavaType?) = switchWhen(node, smartCastType)

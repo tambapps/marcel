@@ -29,6 +29,7 @@ import com.tambapps.marcel.parser.cst.expression.literal.NullCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryTypeOperatorCstNode
+import com.tambapps.marcel.parser.cst.expression.LambdaCstNode
 import com.tambapps.marcel.parser.cst.expression.NotCstNode
 import com.tambapps.marcel.parser.cst.expression.SwitchCstNode
 import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
@@ -631,7 +632,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
           FunctionCallCstNode(parentNode, token.value, castType, arguments, namedArguments, token, previous)
         } else if (current.type == TokenType.BRACKETS_OPEN) { // function call with a lambda
           skip()
-          FunctionCallCstNode(parentNode, token.value, null, listOf(TODO("parse lambda")), emptyList(), token, previous)
+          FunctionCallCstNode(parentNode, token.value, null, listOf(parseLambda(token, parentNode)), emptyList(), token, previous)
         } else if (current.type == TokenType.DOT && lookup(1)?.type == TokenType.CLASS
           // for array class references
           || current.type == TokenType.SQUARE_BRACKETS_OPEN && lookup(1)?.type == TokenType.SQUARE_BRACKETS_CLOSE) {
@@ -779,6 +780,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         if (switchExpression == null) WhenCstNode(parentNode, token, previous, branches, elseStatement)
         else SwitchCstNode(parentNode, token, previous, branches, elseStatement, switchExpression)
       }
+      TokenType.BRACKETS_OPEN -> parseLambda(token, parentNode)
       else -> TODO("atom  ${token.type} l:${token.line} c:${token.column}")
     }
   }
@@ -802,6 +804,33 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       }
     }
   }
+
+  private fun parseLambda(token: LexToken, parentNode: CstNode?): LambdaCstNode {
+    val parameters = mutableListOf<LambdaCstNode.MethodParameterCstNode>()
+    var explicit0Parameters = false
+    // first parameter with no type specified
+    if (current.type == TokenType.IDENTIFIER && lookup(1)?.type in listOf(TokenType.COMMA, TokenType.ARROW)
+      // first parameter with type specified
+      || current.type == TokenType.IDENTIFIER && lookup(1)?.type == TokenType.IDENTIFIER && lookup(2)?.type in listOf(TokenType.COMMA, TokenType.ARROW)) {
+      explicit0Parameters = true
+      while (current.type != TokenType.ARROW) {
+        val firstToken = accept(TokenType.IDENTIFIER)
+        val parameter = if (current.type == TokenType.IDENTIFIER) {
+          rollback()
+          val type = parseType(parentNode)
+          val identifier = accept(TokenType.IDENTIFIER)
+          LambdaCstNode.MethodParameterCstNode(parentNode, firstToken, identifier, type, identifier.value)
+        } else LambdaCstNode.MethodParameterCstNode(parentNode, firstToken, firstToken, null, firstToken.value)
+        parameters.add(parameter)
+        if (current.type == TokenType.COMMA) skip()
+      }
+      skip() // skip arrow
+    }
+    // now parse function block
+    val block = block(parentNode, acceptBracketOpen = false)
+    return LambdaCstNode(parentNode, token, previous, parameters, block, explicit0Parameters)
+  }
+
 
   private fun simpleStringPart(): String {
     val token = next()
