@@ -359,7 +359,13 @@ class MarcelSemantic(
     val specifiedValueNode = specifiedAttr.second.accept(this, attribute.type)
         as? JavaConstantExpression ?: throw MarcelSemanticException(node, "Specified a non constant value for attribute ${attribute.name}")
     return if (attribute.type.isEnum) {
-      TODO()
+      val specifiedName = (specifiedAttr.second as? ReferenceCstNode)?.value
+        ?: throw MarcelSemanticException(node, "Need the enum name for an enum attribute")
+      val enumValues = attribute.type.realClazz.enumConstants
+      if (enumValues?.any { (it as Enum<*>).name == specifiedName } != true) {
+        throw MarcelSemanticException(node, "Unknown enum $specifiedName")
+      }
+      AnnotationNode.AttributeNode(attribute.name, attribute.type, specifiedName)
     } else {
       val attrValue = (specifiedValueNode.value ?: attribute.defaultValue)
       ?: throw MarcelSemanticException(node, "Attribute value cannot be null${attribute.name}")
