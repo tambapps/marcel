@@ -121,12 +121,17 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         is MethodCstNode -> classCstNode.methods.add(method)
         is ConstructorCstNode -> classCstNode.constructors.add(method)
       }
-    } else if (annotations.isNotEmpty() || access.isExplicit) {
+    } else if (classCstNode is ScriptCstNode) {
+      if (annotations.isNotEmpty() || access.isExplicit) {
+        // class fields in script always have access specified, or annotations
+        classCstNode.fields.add(field(parentNode, annotations, access))
+      } else {
+        classCstNode.runMethodStatements.add(statement(parentNode))
+      }
+    } else {
       // it must be a field
       classCstNode.fields.add(field(parentNode, annotations, access))
-    } else if (classCstNode is ScriptCstNode) {
-      classCstNode.runMethodStatements.add(statement(parentNode))
-    } else throw MarcelParser2Exception(current, "Illegal node " + current.type)
+    }
   }
 
   private fun parseImports(parentNode: CstNode?): Pair<List<ImportCstNode>, List<TypeCstNode>>  {
