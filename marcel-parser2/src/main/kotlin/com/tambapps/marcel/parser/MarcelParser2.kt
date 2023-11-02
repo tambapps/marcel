@@ -351,7 +351,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_VOID, TokenType.TYPE_CHAR,
     TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL, TokenType.TYPE_BYTE, TokenType.TYPE_SHORT, TokenType.IDENTIFIER -> token.value
     TokenType.DYNOBJ -> "DynamicObject"
-    else -> throw MarcelParser2Exception(token, "Doesn't handle type ${token.type}") // TODO this error can be a non fatal one
+    else -> throw MarcelParser2Exception(token, "Doesn't handle type ${token.type}")
   }
 
   fun statement(parentNode: CstNode? = null): StatementCstNode {
@@ -786,7 +786,8 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         else SwitchCstNode(parentNode, token, previous, branches, elseStatement, switchExpression)
       }
       TokenType.BRACKETS_OPEN -> parseLambda(token, parentNode)
-      else -> TODO("atom  ${token.type} l:${token.line} c:${token.column}")
+      else -> throw MarcelParser2Exception(token, "Not supported $token")
+
     }
   }
 
