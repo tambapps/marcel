@@ -216,6 +216,11 @@ class MarcelSemantic(
     // define everything
     cst.classes.forEach { defineClass(it) }
 
+    // define classes first, because script may use classes, but it can't be the other way around
+    for (cstClass in cst.classes) {
+      moduleNode.classes.add(classNode(typeResolver.of(cstClass.className, emptyList()), cstClass))
+    }
+
     if (scriptCstNode != null) {
       if (scriptCstNode.constructors.isNotEmpty()) {
         throw MarcelSemanticException(scriptCstNode.constructors.first().token, "Cannot define constructors for scripts")
@@ -233,10 +238,6 @@ class MarcelSemantic(
         scriptNode.methods.add(runMethod)
       }
       moduleNode.classes.add(scriptNode)
-    }
-
-    for (cstClass in cst.classes) {
-      moduleNode.classes.add(classNode(typeResolver.of(cstClass.className, emptyList()), cstClass))
     }
 
     return moduleNode
@@ -293,7 +294,9 @@ class MarcelSemantic(
 
     if (classNode.constructorCount == 0) {
       // default no arg constructor
-      classNode.methods.add(SemanticHelper.noArgConstructor(classNode, typeResolver))
+      val noArgConstructor = SemanticHelper.noArgConstructor(classNode, typeResolver)
+      classNode.methods.add(noArgConstructor)
+      typeResolver.defineMethod(classType, noArgConstructor)
     }
 
     if (fieldInitialValueMap.isNotEmpty()) {
