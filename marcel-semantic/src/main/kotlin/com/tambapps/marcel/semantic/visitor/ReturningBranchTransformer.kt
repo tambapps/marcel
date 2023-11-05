@@ -1,7 +1,8 @@
 package com.tambapps.marcel.semantic.visitor
 
-import com.tambapps.marcel.parser.cst.expression.WhenCstNode
+import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
+import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.BreakNode
 import com.tambapps.marcel.semantic.ast.statement.ContinueNode
@@ -22,8 +23,9 @@ import com.tambapps.marcel.semantic.type.JavaType
 /**
  * Valid and transform if necessary when/switch node branches to make them return a value
  */
-class ReturningWhenIfBranchTransformer(
-  private val node: WhenCstNode,
+class ReturningBranchTransformer(
+  private val node: CstNode,
+  private val forceNonVoid: Boolean,
   // useful to cast
   private val nodeTransformer: ((ExpressionNode) -> ExpressionNode)? = null
 ): StatementNodeVisitor<StatementNode> {
@@ -31,7 +33,13 @@ class ReturningWhenIfBranchTransformer(
 
   override fun visit(node: ExpressionStatementNode): StatementNode {
     val expressionType = node.expressionNode.type
-    if (expressionType == JavaType.void) throw MarcelSemanticException(node.token, "Expected a non void expression")
+    if (expressionType == JavaType.void) {
+      if (forceNonVoid) throw MarcelSemanticException(node.token, "Expected a non void expression")
+      return BlockStatementNode(mutableListOf(
+        node,
+        ReturnStatementNode(NullValueNode(node.token), node.tokenStart, node.tokenEnd)
+      ), node.tokenStart, node.tokenEnd)
+    }
     else if (expressionType !== JavaType.Anything) collectedTypes.add(expressionType)
     return ReturnStatementNode(nodeTransformer?.invoke(node.expressionNode) ?: node.expressionNode, node.tokenStart, node.tokenEnd)
   }

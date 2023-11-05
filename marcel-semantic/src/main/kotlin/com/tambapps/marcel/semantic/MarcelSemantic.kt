@@ -70,6 +70,7 @@ import com.tambapps.marcel.semantic.ast.AstVariableNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.ImportNode
+import com.tambapps.marcel.semantic.ast.LambdaClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.ast.SimpleImportNode
@@ -158,7 +159,7 @@ import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.variable.field.JavaClassFieldImpl
 import com.tambapps.marcel.semantic.variable.field.MarcelField
 import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
-import com.tambapps.marcel.semantic.visitor.ReturningWhenIfBranchTransformer
+import com.tambapps.marcel.semantic.visitor.ReturningBranchTransformer
 import marcel.lang.DelegatedObject
 import marcel.lang.IntRanges
 import marcel.lang.LongRanges
@@ -171,6 +172,7 @@ import marcel.lang.compile.IntDefaultValue
 import marcel.lang.compile.LongDefaultValue
 import marcel.lang.compile.NullDefaultValue
 import marcel.lang.compile.StringDefaultValue
+import marcel.lang.lambda.Lambda
 import marcel.lang.primitives.iterators.CharacterIterator
 import marcel.lang.primitives.iterators.DoubleIterator
 import marcel.lang.primitives.iterators.FloatIterator
@@ -396,13 +398,13 @@ class MarcelSemantic(
       = throw MarcelSemanticException(node, "Incompatible type for annotation member ${attribute.name} of annotation ${annotation.type}. Wanted ${attribute.type} but got ${attrValue.javaClass}")
 
   private fun methodNode(methodCst: MethodCstNode, classScope: ClassScope): MethodNode {
-    val methodNode = toMethodNode(methodCst, methodCst.name, visit(methodCst.returnTypeCstNode), classScope)
+    val methodNode = toMethodNode(methodCst, methodCst.name, visit(methodCst.returnTypeCstNode), classScope.classType)
     fillMethodNode(classScope, methodNode, methodCst.statements, methodCst.annotations)
     return methodNode
   }
 
   private fun constructorNode(methodCst: ConstructorCstNode, classScope: ClassScope): MethodNode {
-    val methodNode = toMethodNode(methodCst, JavaMethod.CONSTRUCTOR_NAME, JavaType.void, classScope)
+    val methodNode = toConstructorNode(methodCst, classScope.classType)
     fillMethodNode(classScope, methodNode, methodCst.statements, methodCst.annotations)
     val firstStatement = methodNode.blockStatement.statements.firstOrNull()
     if (firstStatement == null || firstStatement !is ExpressionStatementNode
@@ -418,7 +420,8 @@ class MarcelSemantic(
     return methodNode
   }
 
-  private fun toMethodNode(methodCst: AbstractMethodCstNode, methodName: String, returnType: JavaType, classScope: ClassScope): MethodNode {
+  private fun toConstructorNode(methodCst: AbstractMethodCstNode, classType: JavaType) = toMethodNode(methodCst, JavaMethod.CONSTRUCTOR_NAME, JavaType.void, classType)
+  private fun toMethodNode(methodCst: AbstractMethodCstNode, methodName: String, returnType: JavaType, classType: JavaType): MethodNode {
     val visibility = Visibility.fromTokenType(methodCst.accessNode.visibility)
     val isStatic = methodCst.accessNode.isStatic
     return MethodNode(
@@ -429,8 +432,8 @@ class MarcelSemantic(
       tokenStart = methodCst.tokenStart,
       tokenEnd = methodCst.tokenEnd,
       parameters = methodCst.parameters.mapIndexed { index, methodParameterCstNode ->
-        toMethodParameterNode(classScope.classType, visibility, isStatic, index, methodName, methodParameterCstNode) },
-      ownerClass = classScope.classType
+        toMethodParameterNode(classType, visibility, isStatic, index, methodName, methodParameterCstNode) },
+      ownerClass = classType
     )
   }
 
@@ -1030,9 +1033,82 @@ class MarcelSemantic(
   }
 
   override fun visit(node: LambdaCstNode, smartCastType: JavaType?): ExpressionNode {
-    TODO("Not yet implemented")
+    // search for already generated lambdanode if not empty
+    val lambdaClassName = generateLambdaName(node)
+    val lambdaOuterClassNode = classNodeMap.getValue(currentScope.classType)
+    val alreadyExistingLambdaNode = lambdaOuterClassNode.innerClasses
+      .find { it.type.simpleName == lambdaClassName } as? LambdaClassNode
+
+    if (alreadyExistingLambdaNode != null) {
+      return alreadyExistingLambdaNode.constructorCallNode
+    }
+
+    val interfaceType = if (smartCastType != null && !Lambda::class.javaType.isAssignableFrom(smartCastType)) smartCastType else null
+
+    /*
+     * Search for all local variables used, they will need to be passed to the constructor
+     * of the lambda
+     */
+    val localVariableReferencesMap = LinkedHashMap<String, LocalVariable>()
+
+    val lambdaBody = useInnerScope { visit(node.blockCstNode) }
+    lambdaBody.accept(ReturningBranchTransformer(node, false))
+
+    lambdaBody.forEach(AstVariableNode::class) {
+      val variable = it.variable
+      if (variable is LocalVariable) {
+        localVariableReferencesMap[variable.name] = variable
+      }
+    }
+    val whenLocalVariables = localVariableReferencesMap.map { it.value }
+
+    // now re-set local variable to set the right index
+    lambdaBody.forEach(AstVariableNode::class) { variableNode ->
+      val variable = variableNode.variable
+      if (variable is LocalVariable) {
+        val index = whenLocalVariables.indexOfFirst { it.name == variable.name }
+        variableNode.variable = LocalVariable(variable.type, variable.name, variable.nbSlots,
+          if (currentMethodScope.staticContext) index else index + 1, variable.isFinal
+        )
+      }
+    }
+
+
+    val lambdaImplementedInterfaces = emptyList<JavaType>() // TODO depend on number of arguments, and if interfaceType is not null
+    val lambdaType = typeResolver.defineClass(node.token, Visibility.PRIVATE, lambdaOuterClassNode.type, lambdaClassName, JavaType.Object, false, lambdaImplementedInterfaces)
+    val lambdaNode = LambdaClassNode(lambdaType, node.tokenStart, node.tokenEnd)
+    lambdaNode.interfaceType = interfaceType
+    lambdaNode.body = lambdaBody
+    lambdaOuterClassNode.innerClasses.add(lambdaNode)
+
+    val whenMethodParameters = whenLocalVariables.map { MethodParameter(it.type, it.name) }.toMutableList()
+    val whenMethodArguments = whenLocalVariables.map {
+      ReferenceNode(owner = null, variable = localVariableReferencesMap.getValue(it.name), token = node.token)
+    }.toMutableList()
+
+    val lambdaConstructor = MethodNode(
+      name = JavaMethod.CONSTRUCTOR_NAME,
+      visibility = Visibility.PRIVATE,
+      returnType = JavaType.void,
+      isStatic = false,
+      tokenStart = node.tokenStart,
+      tokenEnd = node.tokenEnd,
+      parameters = whenMethodParameters,
+      ownerClass = lambdaNode.type
+    )
+    typeResolver.defineMethod(lambdaType, lambdaConstructor)
+    // TODO add field assignements and the return if needed
+
+    // TODO handle lambda invoke method generation, with interface method generation too if needed
+
+    val constructorCallNode = NewInstanceNode(lambdaNode.type, lambdaConstructor, whenMethodArguments, node.token)
+    lambdaNode.constructorCallNode = constructorCallNode
+    return constructorCallNode
   }
 
+  private fun generateLambdaName(node: CstNode): String {
+    return node.hashCode().toString().replace('-', '_') + "_" + currentMethodScope.method.name
+  }
   override fun visit(node: WhenCstNode, smartCastType: JavaType?) = switchWhen(node, smartCastType)
 
   private fun switchWhen(node: WhenCstNode, smartCastType: JavaType?, switchExpression: ExpressionNode? = null): ExpressionNode {
@@ -1068,7 +1144,7 @@ class MarcelSemantic(
     val whenStatement = useInnerScope { visit(rootIfCstNode) }
     if (shouldReturnValue) {
       var tmpIfNode: IfStatementNode? = whenStatement
-      val branchTransformer = ReturningWhenIfBranchTransformer(node) { caster.cast(whenReturnType, it) }
+      val branchTransformer = ReturningBranchTransformer(node, true) { caster.cast(whenReturnType, it) }
       while (tmpIfNode != null) {
         tmpIfNode.trueStatementNode = tmpIfNode.trueStatementNode.accept(branchTransformer)
         if (tmpIfNode.falseStatementNode is IfStatementNode || tmpIfNode.falseStatementNode  == null) {
@@ -1112,6 +1188,7 @@ class MarcelSemantic(
       // we don't want the whenLocalVariable because the index of it is specific for IN the when/switch method
       else ReferenceNode(owner = null, variable = localVariableReferencesMap.getValue(it.name), token = node.token)
     }.toMutableList()
+
     /*
      * generating method
      */
@@ -1130,7 +1207,7 @@ class MarcelSemantic(
   }
 
   private fun computeWhenReturnType(node: WhenCstNode): JavaType = useInnerScope {
-    val branchTransformer = ReturningWhenIfBranchTransformer(node)
+    val branchTransformer = ReturningBranchTransformer(node, true)
     node.branches.forEach {
       it.second.accept(this).accept(branchTransformer)
     }

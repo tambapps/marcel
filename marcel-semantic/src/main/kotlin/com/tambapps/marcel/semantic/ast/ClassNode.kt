@@ -7,7 +7,7 @@ import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTyped
 
-class ClassNode(
+open class ClassNode(
   override val type: JavaType,
   val visibility: Visibility,
   tokenStart: LexToken, tokenEnd: LexToken
