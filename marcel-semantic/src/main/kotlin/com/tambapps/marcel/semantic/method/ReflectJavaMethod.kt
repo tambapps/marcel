@@ -1,8 +1,27 @@
 package com.tambapps.marcel.semantic.method
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
+import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
+import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.CharConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import marcel.lang.compile.BooleanDefaultValue
+import marcel.lang.compile.CharacterDefaultValue
+import marcel.lang.compile.DoubleDefaultValue
+import marcel.lang.compile.FloatDefaultValue
+import marcel.lang.compile.IntDefaultValue
+import marcel.lang.compile.IntRangeDefaultValue
+import marcel.lang.compile.LongDefaultValue
+import marcel.lang.compile.MethodCallDefaultValue
+import marcel.lang.compile.NullDefaultValue
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.lang.reflect.Parameter
@@ -18,7 +37,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
 
   override val name: String = method.name
   override val visibility = Visibility.fromAccess(method.modifiers)
-  override val parameters = method.parameters.map { methodParameter(ownerClass, fromType, it) }
+  override val parameters = method.parameters.map { methodParameter(method.name, ownerClass, fromType, it) }
   override val returnType = JavaType.of(method.returnType)
   override val actualReturnType = actualMethodReturnType(fromType, method)
   override val isConstructor = false
@@ -32,15 +51,49 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
 
   companion object {
 
-    internal fun methodParameter(ownerType: JavaType, fromType: JavaType?, parameter: Parameter): MethodParameter {
+    internal fun methodParameter(methodName: String, ownerType: JavaType, fromType: JavaType?, parameter: Parameter): MethodParameter {
       val type = methodParameterType(fromType, parameter)
       val rawType = JavaType.of(parameter.type)
       val annotations = parameter.annotations
-      // TODO annotations. it should help for default parameter
       val defaultValue: ExpressionNode? = when {
-        // TODO default parameter
+        annotations.any { it is NullDefaultValue } -> NullValueNode(LexToken.dummy())
+        type == JavaType.int || type == JavaType.Integer -> annotations.firstNotNullOfOrNull { it as? IntDefaultValue }?.let {
+          IntConstantNode(value = it.value, token = LexToken.dummy())
+        }
+        type == JavaType.long || type == JavaType.Long -> annotations.firstNotNullOfOrNull { it as? LongDefaultValue }?.let {
+          LongConstantNode(value = it.value, token = LexToken.dummy())
+        }
+        type == JavaType.float || type == JavaType.Float -> annotations.firstNotNullOfOrNull { it as? FloatDefaultValue }?.let {
+          FloatConstantNode(value = it.value, token = LexToken.dummy())
+        }
+        type == JavaType.double || type == JavaType.Double -> annotations.firstNotNullOfOrNull { it as? DoubleDefaultValue }?.let {
+          DoubleConstantNode(value = it.value, token = LexToken.dummy())
+        }
+        type == JavaType.char || type == JavaType.Character -> annotations.firstNotNullOfOrNull { it as? CharacterDefaultValue }?.let {
+          CharConstantNode(value = it.value, token = LexToken.dummy())
+        }
+        type == JavaType.boolean || type == JavaType.Boolean -> annotations.firstNotNullOfOrNull { it as? BooleanDefaultValue }?.let {
+          BoolConstantNode(value = it.value, token = LexToken.dummy())
+        }
+        annotations.any { it is MethodCallDefaultValue } -> {
+          val defaultValueMethodName = annotations.firstNotNullOfOrNull { it as? MethodCallDefaultValue }!!.methodName
+          // using reflect to search method and not type resolver in order to avoid infinite recursion
+          val match = try {
+            // check to avoid infinite recursion
+            if (defaultValueMethodName != methodName) ReflectJavaMethod(ownerType.realClazz.getDeclaredMethod(defaultValueMethodName))
+            else null
+          } catch (e: NoSuchMethodException) { null }
+
+          if (match != null && type.isAssignableFrom(match.returnType)
+            && match.isStatic
+            && match.visibility == Visibility.PUBLIC
+            && match.parameters.isEmpty()) FunctionCallNode(match, null, emptyList(), LexToken.dummy())
+          else null
+        }
+        // TODO range annotation
         else -> null
       }
+
       return MethodParameter(type, rawType, parameter.name, (parameter.modifiers and Modifier.FINAL) != 0, emptyList(),  defaultValue)
     }
 

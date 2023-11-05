@@ -1097,7 +1097,6 @@ class MarcelSemantic(
       ownerClass = lambdaNode.type
     )
     typeResolver.defineMethod(lambdaType, lambdaConstructor)
-    // TODO add field assignements and the return if needed
 
     // TODO handle lambda invoke method generation, with interface method generation too if needed
 
