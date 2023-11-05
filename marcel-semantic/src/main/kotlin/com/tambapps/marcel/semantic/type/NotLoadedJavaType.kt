@@ -41,4 +41,7 @@ open class NotLoadedJavaType internal constructor(
     throw UnsupportedOperationException("Doesn't support generics for marcel classes")
   }
 
+  open fun addImplementedInterface(javaType: JavaType) {
+    directlyImplementedInterfaces.add(javaType)
+  }
 }

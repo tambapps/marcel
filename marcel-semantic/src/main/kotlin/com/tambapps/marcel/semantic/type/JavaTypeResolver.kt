@@ -80,10 +80,10 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
   }
 
   /* definition */
-  fun defineClass(token: LexToken? = null, visibility: Visibility, className: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): JavaType {
+  fun defineClass(token: LexToken? = null, visibility: Visibility, className: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): NotLoadedJavaType {
     return defineClass(token, visibility, null, className, superClass, isInterface, interfaces)
   }
-  fun defineClass(token: LexToken? = null, visibility: Visibility, outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): JavaType {
+  fun defineClass(token: LexToken? = null, visibility: Visibility, outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): NotLoadedJavaType {
     val className = if (outerClassType != null) "${outerClassType.className}\$$cName" else cName
     try {
       Class.forName(className)
