@@ -24,8 +24,19 @@ internal class MethodResolver(
 
   fun resolveMethodOrThrow(node: CstNode, ownerType: JavaType, name: String, positionalArguments: List<ExpressionNode>,
                     namedArguments: List<Pair<String, ExpressionNode>>): Pair<JavaMethod, List<ExpressionNode>> {
-    return resolveMethod(node, ownerType, name, positionalArguments, namedArguments)
-      ?: throw MarcelSemanticException(node.token, "Method $ownerType.$name with parameters ${positionalArguments.map { it.type }} is not defined")
+    val resolve = resolveMethod(node, ownerType, name, positionalArguments, namedArguments)
+    if (resolve == null) {
+      val allParametersString = mutableListOf<String>()
+      positionalArguments.forEach { allParametersString.add(it.type.simpleName) }
+      namedArguments.forEach { allParametersString.add("${it.first}: ${it.second.type.simpleName}") }
+
+      val displayedName = if (name == JavaMethod.CONSTRUCTOR_NAME) "Constructor $ownerType"
+      else "Method $ownerType.$name"
+      throw MarcelSemanticException(node.token, allParametersString.joinToString(separator = ", ",
+        prefix = "$displayedName(", postfix = ") is not defined")
+      )
+    }
+    return resolve
   }
 
   fun resolveMethod(node: CstNode, ownerType: JavaType, name: String, positionalArguments: List<ExpressionNode>,
