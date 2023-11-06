@@ -816,7 +816,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     var explicit0Parameters = false
     // first parameter with no type specified
     if (current.type == TokenType.IDENTIFIER && lookup(1)?.type in listOf(TokenType.COMMA, TokenType.ARROW)
-      // first parameter with type specified
+      // first parameter with type specified TODO doesn't handle primitive types or dynobj. Use ParserUtils.isTypeToken
       || current.type == TokenType.IDENTIFIER && lookup(1)?.type == TokenType.IDENTIFIER && lookup(2)?.type in listOf(TokenType.COMMA, TokenType.ARROW)) {
       explicit0Parameters = true
       while (current.type != TokenType.ARROW) {

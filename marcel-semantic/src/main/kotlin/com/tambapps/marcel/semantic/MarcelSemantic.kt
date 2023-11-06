@@ -200,6 +200,7 @@ class MarcelSemantic(
 
   internal val scopeQueue = LinkedList<Scope>()
   private val classNodeMap = mutableMapOf<JavaType, ClassNode>() // useful to add methods while performing analysis
+  private val lambdaHandler = LambdaHandler(typeResolver, classNodeMap)
 
   private val imports = Scope.DEFAULT_IMPORTS.toMutableList() // will be updated while performing analysis
   private val methodResolver = MethodResolver(typeResolver, caster, imports)
@@ -221,7 +222,13 @@ class MarcelSemantic(
 
     // define classes first, because script may use classes, but it can't be the other way around
     for (cstClass in cst.classes) {
-      moduleNode.classes.add(classNode(typeResolver.of(cstClass.className, emptyList()), cstClass))
+      val classNode = classNode(typeResolver.of(cstClass.className, emptyList()), cstClass)
+      moduleNode.classes.add(classNode)
+      classNode.innerClasses.forEach {
+        if (it is LambdaClassNode) {
+          lambdaHandler.defineLambda(it)
+        }
+      }
     }
 
     if (scriptCstNode != null) {
@@ -239,6 +246,11 @@ class MarcelSemantic(
         val runMethod = SemanticHelper.scriptRunMethod(classType, cst)
         fillMethodNode(it, runMethod, scriptCstNode.runMethodStatements, emptyList(),  scriptRunMethod = true)
         scriptNode.methods.add(runMethod)
+      }
+      scriptNode.innerClasses.forEach {
+        if (it is LambdaClassNode) {
+          lambdaHandler.defineLambda(it)
+        }
       }
       moduleNode.classes.add(scriptNode)
     }
@@ -1033,81 +1045,9 @@ class MarcelSemantic(
   }
 
   override fun visit(node: LambdaCstNode, smartCastType: JavaType?): ExpressionNode {
-    // search for already generated lambdanode if not empty
-    val lambdaClassName = generateLambdaName(node)
-    val lambdaOuterClassNode = classNodeMap.getValue(currentScope.classType)
-    val alreadyExistingLambdaNode = lambdaOuterClassNode.innerClasses
-      .find { it.type.simpleName == lambdaClassName } as? LambdaClassNode
-
-    if (alreadyExistingLambdaNode != null) {
-      return alreadyExistingLambdaNode.constructorCallNode
-    }
-
-    val interfaceType = if (smartCastType != null && !Lambda::class.javaType.isAssignableFrom(smartCastType)) smartCastType else null
-
-    /*
-     * Search for all local variables used, they will need to be passed to the constructor
-     * of the lambda
-     */
-    val localVariableReferencesMap = LinkedHashMap<String, LocalVariable>()
-
-    val lambdaBody = useInnerScope { visit(node.blockCstNode) }
-    lambdaBody.accept(ReturningBranchTransformer(node, false))
-
-    lambdaBody.forEach(AstVariableNode::class) {
-      val variable = it.variable
-      if (variable is LocalVariable) {
-        localVariableReferencesMap[variable.name] = variable
-      }
-    }
-    val whenLocalVariables = localVariableReferencesMap.map { it.value }
-
-    // now re-set local variable to set the right index
-    lambdaBody.forEach(AstVariableNode::class) { variableNode ->
-      val variable = variableNode.variable
-      if (variable is LocalVariable) {
-        val index = whenLocalVariables.indexOfFirst { it.name == variable.name }
-        variableNode.variable = LocalVariable(variable.type, variable.name, variable.nbSlots,
-          if (currentMethodScope.staticContext) index else index + 1, variable.isFinal
-        )
-      }
-    }
-
-
-    val lambdaImplementedInterfaces = emptyList<JavaType>() // TODO depend on number of arguments, and if interfaceType is not null
-    val lambdaType = typeResolver.defineClass(node.token, Visibility.PRIVATE, lambdaOuterClassNode.type, lambdaClassName, JavaType.Object, false, lambdaImplementedInterfaces)
-    val lambdaNode = LambdaClassNode(lambdaType, node.tokenStart, node.tokenEnd)
-    lambdaNode.interfaceType = interfaceType
-    lambdaNode.body = lambdaBody
-    lambdaOuterClassNode.innerClasses.add(lambdaNode)
-
-    val whenMethodParameters = whenLocalVariables.map { MethodParameter(it.type, it.name) }.toMutableList()
-    val whenMethodArguments = whenLocalVariables.map {
-      ReferenceNode(owner = null, variable = localVariableReferencesMap.getValue(it.name), token = node.token)
-    }.toMutableList()
-
-    val lambdaConstructor = MethodNode(
-      name = JavaMethod.CONSTRUCTOR_NAME,
-      visibility = Visibility.PRIVATE,
-      returnType = JavaType.void,
-      isStatic = false,
-      tokenStart = node.tokenStart,
-      tokenEnd = node.tokenEnd,
-      parameters = whenMethodParameters,
-      ownerClass = lambdaNode.type
-    )
-    typeResolver.defineMethod(lambdaType, lambdaConstructor)
-
-    // TODO handle lambda invoke method generation, with interface method generation too if needed
-
-    val constructorCallNode = NewInstanceNode(lambdaNode.type, lambdaConstructor, whenMethodArguments, node.token)
-    lambdaNode.constructorCallNode = constructorCallNode
-    return constructorCallNode
+    return lambdaHandler.predefineLambda(node, smartCastType, currentMethodScope)
   }
 
-  private fun generateLambdaName(node: CstNode): String {
-    return node.hashCode().toString().replace('-', '_') + "_" + currentMethodScope.method.name
-  }
   override fun visit(node: WhenCstNode, smartCastType: JavaType?) = switchWhen(node, smartCastType)
 
   private fun switchWhen(node: WhenCstNode, smartCastType: JavaType?, switchExpression: ExpressionNode? = null): ExpressionNode {

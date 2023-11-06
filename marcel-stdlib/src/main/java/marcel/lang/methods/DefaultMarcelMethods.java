@@ -710,6 +710,24 @@ public final class DefaultMarcelMethods {
     return intList;
   }
 
+  /**
+   * Map list elements to another type using the provided lambda
+   *
+   *
+   * @param list    the list
+   * @param lambda1 the mapping function
+   * @param <T>     the type of the list
+   * @param <U>     the type of the returned list
+   * @return an IntList
+   */
+  public static <T, U> List<U> map(Collection<T> list, Function<T, U> lambda1) {
+    List<U> uList = new ArrayList<>(list.size());
+    for (T t : list) {
+      uList.add(lambda1.apply(t));
+    }
+    return uList;
+  }
+
   public static <T> IntList mapToInt(T[] list, ToIntFunction<T> lambda1) {
     IntList intList = new IntArrayList(list.length);
     for (int i = 0; i < list.length; i++) {

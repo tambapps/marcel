@@ -111,11 +111,7 @@ interface JavaMethod: JavaTyped {
     return if (expectedType.isInterface && actualType.isLambda) {
       val declaredMethods = typeResolver.getDeclaredMethods(expectedType)
         .filter { it.isAbstract }
-      if (declaredMethods.size != 1) return false
-      val interfaceMethod = declaredMethods.first()
-      val lambdaMethod = typeResolver.getInterfaceLambdaMethod(actualType)
-      return interfaceMethod.parameters.size == lambdaMethod.parameters.size // there's probably if there's a better way for that
-    //return interfaceMethod.matches(typeResolver, lambdaMethod.parameters)
+      return declaredMethods.size == 1 // lambda parameter matches will be done by lambda handler
     } else expectedType.isAssignableFrom(actualType)
   }
 

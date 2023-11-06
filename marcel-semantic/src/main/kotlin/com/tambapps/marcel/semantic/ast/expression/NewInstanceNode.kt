@@ -4,10 +4,10 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 
-class NewInstanceNode(
+open class NewInstanceNode constructor(
   type: JavaType,
   val javaMethod: JavaMethod,
-  val arguments: List<ExpressionNode>,
+  open val arguments: List<ExpressionNode>,
   token: LexToken
 ) : AbstractExpressionNode(type, token) {
 

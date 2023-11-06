@@ -2,8 +2,11 @@ package com.tambapps.marcel.semantic.type
 
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.ReflectJavaMethod
+import marcel.lang.lambda.Lambda
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.util.function.Function
+import java.util.stream.Stream
 
 class JavaTypeResolverTest {
 
@@ -14,6 +17,11 @@ class JavaTypeResolverTest {
   private val typeResolver = JavaTypeResolver()
 
 
+  @Test
+  fun getMethodWithLambdaParameter() {
+    val method = typeResolver.findMethod(Stream::class.javaType, "map", listOf(Lambda::class.javaType))
+    assertEquals(ReflectJavaMethod(Stream::class.java.getDeclaredMethod("map", Function::class.java)), method)
+  }
 
   @Test
   fun getMethodWithMultipleSignature() {

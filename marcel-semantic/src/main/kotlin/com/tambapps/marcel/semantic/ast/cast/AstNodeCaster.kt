@@ -3,6 +3,7 @@ package com.tambapps.marcel.semantic.ast.cast
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
+import com.tambapps.marcel.semantic.ast.expression.NewLambdaInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
@@ -97,6 +98,11 @@ class AstNodeCaster(
                 || Set::class.javaType.isAssignableFrom(expectedType) && actualType.isArray -> functionCall(BytecodeHelper::class.javaType, "createSet", listOf(node), node)
             else -> incompatibleTypes(node, expectedType, actualType)
           }
+        }
+        expectedType.isInterface && node is NewLambdaInstanceNode -> {
+          // effective cast check will be done later by the LambdaHandler
+          node.lambdaNode.interfaceTypes.add(expectedType)
+          node
         }
         !actualType.isAssignableFrom(expectedType) -> incompatibleTypes(node, expectedType, actualType)
         else -> JavaCastNode(expectedType, node, node.token)
