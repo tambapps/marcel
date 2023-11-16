@@ -1,6 +1,6 @@
 package com.tambapps.marcel.semantic.ast
 
-import com.tambapps.marcel.lexer.LexToken
+import com.tambapps.marcel.parser.cst.expression.LambdaCstNode
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
@@ -10,10 +10,14 @@ import com.tambapps.marcel.semantic.type.JavaType
 class LambdaClassNode(
   type: JavaType,
   val constructorNode: MethodNode,
-  tokenStart: LexToken,
-  tokenEnd: LexToken
-) : ClassNode(type, Visibility.PRIVATE, tokenStart, tokenEnd) {
+  cstNode: LambdaCstNode,
+  val lambdaMethodParameters: List<MethodParameter>
+) : ClassNode(type, Visibility.PRIVATE, cstNode.tokenStart, cstNode.tokenEnd) {
 
+  data class MethodParameter(val type: JavaType?, val name: String)
+
+  val explicit0Parameters = cstNode.explicit0Parameters
+  val blockCstNode = cstNode.blockCstNode
   val interfaceTypes = mutableSetOf<JavaType>()
 
   var expectedReturnType: JavaType? = null

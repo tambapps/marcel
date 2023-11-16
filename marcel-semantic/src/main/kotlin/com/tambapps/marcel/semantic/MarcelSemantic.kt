@@ -224,9 +224,11 @@ class MarcelSemantic(
     for (cstClass in cst.classes) {
       val classNode = classNode(typeResolver.of(cstClass.className, emptyList()), cstClass)
       moduleNode.classes.add(classNode)
-      classNode.innerClasses.forEach {
-        if (it is LambdaClassNode) {
-          lambdaHandler.defineLambda(it)
+      classNode.innerClasses.forEach { innerClassNode ->
+        if (innerClassNode is LambdaClassNode) {
+          useScope(ClassScope(innerClassNode.type, typeResolver, imports)) {
+            lambdaHandler.defineLambda(innerClassNode, it)
+          }
         }
       }
     }
@@ -247,9 +249,11 @@ class MarcelSemantic(
         fillMethodNode(it, runMethod, scriptCstNode.runMethodStatements, emptyList(),  scriptRunMethod = true)
         scriptNode.methods.add(runMethod)
       }
-      scriptNode.innerClasses.forEach {
-        if (it is LambdaClassNode) {
-          lambdaHandler.defineLambda(it)
+      scriptNode.innerClasses.forEach { innerClassNode ->
+        if (innerClassNode is LambdaClassNode) {
+          useScope(ClassScope(innerClassNode.type, typeResolver, imports)) {
+            lambdaHandler.defineLambda(innerClassNode, it)
+          }
         }
       }
       moduleNode.classes.add(scriptNode)
@@ -503,7 +507,7 @@ class MarcelSemantic(
   }
 
   private fun newMethodScope(classType: JavaType, method: JavaMethod) = MethodScope(ClassScope(classType, typeResolver, imports), method)
-  private fun visit(node: TypeCstNode): JavaType = currentScope.resolveTypeOrThrow(node)
+  fun visit(node: TypeCstNode): JavaType = currentScope.resolveTypeOrThrow(node)
 
   /*
    * node visits
@@ -1045,7 +1049,8 @@ class MarcelSemantic(
   }
 
   override fun visit(node: LambdaCstNode, smartCastType: JavaType?): ExpressionNode {
-    return lambdaHandler.predefineLambda(node, smartCastType, currentMethodScope)
+    return lambdaHandler.predefineLambda(node, node.parameters.map { LambdaClassNode.MethodParameter(it.type?.let { visit(it) }, it.name) },
+      smartCastType, currentMethodScope)
   }
 
   override fun visit(node: WhenCstNode, smartCastType: JavaType?) = switchWhen(node, smartCastType)

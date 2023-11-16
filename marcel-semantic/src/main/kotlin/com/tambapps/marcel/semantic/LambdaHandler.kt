@@ -7,8 +7,11 @@ import com.tambapps.marcel.semantic.ast.LambdaClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.NewLambdaInstanceNode
+import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MethodParameter
+import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.MethodScope
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
@@ -22,7 +25,9 @@ class LambdaHandler(
 
   private val classLambdasMap = mutableMapOf<JavaType, LambdaClassNode>()
 
-  fun predefineLambda(node: LambdaCstNode, smartCastType: JavaType?, currentMethodScope: MethodScope): NewInstanceNode {
+  fun predefineLambda(node: LambdaCstNode,
+                      parameters: List<LambdaClassNode.MethodParameter>,
+                      smartCastType: JavaType?, currentMethodScope: MethodScope): NewInstanceNode {
     // search for already generated lambdaNode if not empty
     val lambdaClassName = generateLambdaName(node, currentMethodScope)
     val lambdaOuterClassNode = classNodeMap.getValue(currentMethodScope.classType)
@@ -50,7 +55,7 @@ class LambdaHandler(
       ownerClass = lambdaType
     )
 
-    val lambdaNode = LambdaClassNode(lambdaType, lambdaConstructor, node.tokenStart, node.tokenEnd).apply {
+    val lambdaNode = LambdaClassNode(lambdaType, lambdaConstructor, node, parameters).apply {
       interfaceType?.let { interfaceTypes.add(it) }
     }
     lambdaOuterClassNode.innerClasses.add(lambdaNode)
@@ -66,7 +71,41 @@ class LambdaHandler(
     return "_lambda_" + node.hashCode().toString().replace('-', '0') + "_" + currentMethodScope.method.name
   }
 
-  fun defineLambda(lambdaNode: LambdaClassNode) {
+  fun defineLambda(lambdaNode: LambdaClassNode, lambdaClassScope: ClassScope) {
+    val interfaceType =
+      if (lambdaNode.interfaceTypes.size == 1
+        && !Lambda::class.javaType.isAssignableFrom(lambdaNode.interfaceTypes.first())) lambdaNode.interfaceTypes.first()
+    else if (lambdaNode.interfaceTypes.isEmpty()) null
+    else throw MarcelSemanticException(lambdaNode.token, "Expected lambda to be of multiple types: " + lambdaNode.interfaceTypes)
+
+    val methodParameters = computeLambdaParameters(lambdaNode, interfaceType)
+
+
     TODO("Not yet implemented")
+  }
+
+  private fun computeLambdaParameters(lambdaNode: LambdaClassNode, interfaceType: JavaType?): List<MethodParameter> {
+    if (interfaceType == null) {
+      return if (lambdaNode.explicit0Parameters) emptyList()
+      else if (lambdaNode.lambdaMethodParameters.isEmpty()) listOf(MethodParameter(JavaType.Object, "it"))
+      else lambdaNode.lambdaMethodParameters.map { MethodParameter(it.type ?: JavaType.Object, it.name) }
+    }
+    val method = typeResolver.getInterfaceLambdaMethod(interfaceType)
+
+    if (lambdaNode.explicit0Parameters) {
+      if (method.parameters.isNotEmpty()) throw MarcelSemanticException(lambdaNode.token, "Lambda parameters mismatch. Expected parameters ${method.parameters}")
+      return emptyList()
+    }
+    if (lambdaNode.lambdaMethodParameters.isEmpty()) {
+      if (method.parameters.size > 1) throw MarcelSemanticException(lambdaNode.token, "Lambda parameters mismatch. Expected parameters ${method.parameters}")
+      return method.parameters.map { MethodParameter(it.type, "it") }
+    }
+
+    if (lambdaNode.lambdaMethodParameters.size != method.parameters.size) {
+      throw MarcelSemanticException(lambdaNode.token, "Lambda parameters mismatch. Expected parameters ${method.parameters}")
+    }
+    return lambdaNode.lambdaMethodParameters.mapIndexed { index, lambdaMethodParameter ->
+      MethodParameter(lambdaMethodParameter.type ?: method.parameters[index].type, lambdaMethodParameter.name)
+    }
   }
 }
