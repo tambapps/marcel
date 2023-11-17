@@ -1049,57 +1049,58 @@ class MarcelSemantic(
       smartCastType, currentMethodScope)
   }
 
+  /**
+   * Define the lambda. If we wanted a particular (non lambda) interface, it will implement it.
+   * Otherwise, it will implement the lambda object
+   */
   private fun defineLambda(lambdaNode: LambdaClassNode): Unit = useScope(ClassScope(lambdaNode.type, typeResolver, imports)) { classScope ->
+    if (lambdaNode.interfaceTypes.size > 1) {
+      throw MarcelSemanticException(lambdaNode.token, "Expected lambda to be of multiple types: " + lambdaNode.interfaceTypes)
+    }
     val interfaceType =
-      if (lambdaNode.interfaceTypes.size == 1
-        && !Lambda::class.javaType.isAssignableFrom(lambdaNode.interfaceTypes.first())) lambdaNode.interfaceTypes.first()
-      else if (lambdaNode.interfaceTypes.isEmpty()) null
-      else throw MarcelSemanticException(lambdaNode.token, "Expected lambda to be of multiple types: " + lambdaNode.interfaceTypes)
+      if (lambdaNode.interfaceTypes.size == 1) lambdaNode.interfaceTypes.first()
+      else null
     interfaceType?.let {
-      lambdaNode.type.directlyImplementedInterfaces.remove(Lambda::class.javaType)
+      lambdaNode.type.directlyImplementedInterfaces.remove(Lambda::class.javaType) // not needed anymore
       lambdaNode.type.addImplementedInterface(it)
     }
-    val interfaceMethod = interfaceType?.let { typeResolver.getInterfaceLambdaMethod(it) }
     val methodParameters = computeLambdaParameters(lambdaNode, interfaceType)
-    val lambdaType = SemanticHelper.getLambdaType(lambdaNode, interfaceMethod, methodParameters)
-    lambdaNode.type.addImplementedInterface(lambdaType)
-
-    val lambdaMethod = typeResolver.getInterfaceLambdaMethod(lambdaType)
-    val lambdaMethodNode = MethodNode(lambdaMethod.name, methodParameters, lambdaMethod.visibility,
-      lambdaMethod.actualReturnType, lambdaMethod.isStatic, lambdaNode.tokenStart, lambdaNode.tokenEnd, lambdaNode.type)
-    lambdaMethodNode.annotations.add(AnnotationNode(Override::class.javaType, emptyList(), lambdaMethodNode.tokenStart, lambdaMethodNode.tokenEnd))
-
-    val blockStatement = useScope(MethodScope(classScope, lambdaMethodNode)) {
-      lambdaNode.blockCstNode.accept(this).accept(
-        // need to cast to objectType because lambdas always return objects
-        ReturningBranchTransformer(lambdaNode.blockCstNode, true) { caster.cast(interfaceMethod?.returnType?.objectType ?: JavaType.Object, it) }
-      ) as BlockStatementNode
-    }
-    lambdaMethodNode.blockStatement = blockStatement
-
-    lambdaNode.methods.add(lambdaMethodNode)
-
-    if (interfaceType != null && interfaceMethod != null) {
-      // TODO we might just want to define the interface method and not implement Lambda to improve performance. It's doable if we aren't expecting a lambda type but a specific interface object
-      //   ORRRRR do it the other way around (define the interface method and make the lambda method call the interface method)
-      // define the interface method if any
-      val interfaceMethodNode = MethodNode(interfaceMethod.name, interfaceMethod.parameters, interfaceMethod.visibility,
+    if (interfaceType != null && interfaceType.packageName != "marcel.lang.lambda") {
+      val interfaceMethod = typeResolver.getInterfaceLambdaMethod(interfaceType)
+      val interfaceMethodNode = MethodNode(interfaceMethod.name,
+        interfaceMethod.parameters.mapIndexed { index, methodParameter -> MethodParameter(methodParameter.type, methodParameters[index].name) }, interfaceMethod.visibility,
         interfaceMethod.actualReturnType, interfaceMethod.isStatic, lambdaNode.tokenStart, lambdaNode.tokenEnd, interfaceMethod.type)
 
-      val fCall = useScope(MethodScope(classScope, interfaceMethodNode)) { methodScope ->
-        fCall(node = lambdaNode.blockCstNode, method = lambdaMethodNode,
-          arguments = interfaceMethod.parameters.map { ReferenceNode(owner = null, variable = methodScope.findLocalVariable(it.name)!!, token = lambdaNode.token) },
-          owner = ThisReferenceNode(methodScope.classType, lambdaNode.token))
+      var interfaceMethodBlockStatement = useScope(MethodScope(classScope, interfaceMethodNode)) {
+        lambdaNode.blockCstNode.accept(this) as BlockStatementNode
       }
-      val interfaceMethodBlockStatement = BlockStatementNode(
-        if (interfaceMethod.returnType == JavaType.void) mutableListOf(
-          ExpressionStatementNode(fCall),
-          SemanticHelper.returnVoid(blockStatement)
+      if (interfaceMethodNode.returnType != JavaType.void) {
+        interfaceMethodBlockStatement = interfaceMethodBlockStatement.accept(ReturningBranchTransformer(lambdaNode.blockCstNode, false) { caster.cast(interfaceMethodNode.returnType, it) }) as BlockStatementNode
+      } else {
+        interfaceMethodBlockStatement.statements.add(
+          SemanticHelper.returnVoid(interfaceMethodBlockStatement)
         )
-        else mutableListOf(ReturnStatementNode(caster.cast(interfaceMethod.returnType, fCall))), lambdaNode.tokenStart, lambdaNode.tokenEnd
-      )
+      }
       interfaceMethodNode.blockStatement = interfaceMethodBlockStatement
       lambdaNode.methods.add(interfaceMethodNode)
+    } else {
+      // defining the lambda "invoke" method
+      val lambdaType = SemanticHelper.getLambdaType(lambdaNode, methodParameters)
+      // needed because we don't want to add this twice
+      if (interfaceType?.packageName != "marcel.lang.lambda") lambdaNode.type.addImplementedInterface(lambdaType)
+
+      val lambdaMethod = typeResolver.getInterfaceLambdaMethod(lambdaType)
+      val lambdaMethodNode = MethodNode(lambdaMethod.name, methodParameters, lambdaMethod.visibility,
+        lambdaMethod.actualReturnType, lambdaMethod.isStatic, lambdaNode.tokenStart, lambdaNode.tokenEnd, lambdaNode.type)
+
+      val blockStatement = useScope(MethodScope(classScope, lambdaMethodNode)) {
+        lambdaNode.blockCstNode.accept(this).accept(
+          // need to cast to objectType because lambdas always return objects
+          ReturningBranchTransformer(lambdaNode.blockCstNode, false) { caster.cast(JavaType.Object, it) }
+        ) as BlockStatementNode
+      }
+      lambdaMethodNode.blockStatement = blockStatement
+      lambdaNode.methods.add(lambdaMethodNode)
     }
 
     ClassNodeChecks.ALL.forEach {

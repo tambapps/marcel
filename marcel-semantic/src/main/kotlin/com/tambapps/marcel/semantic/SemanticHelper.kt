@@ -69,8 +69,8 @@ internal object SemanticHelper {
     tokenEnd = cst.tokenEnd)
 
 
-  fun getLambdaType(node: Ast2Node, interfaceMethod: JavaMethod?, lambdaParameters: List<MethodParameter>): JavaType {
-    val returnType = interfaceMethod?.actualReturnType?.objectType ?: JavaType.Object
+  fun getLambdaType(node: Ast2Node, lambdaParameters: List<MethodParameter>): JavaType {
+    val returnType = JavaType.Object
 
     return when (lambdaParameters.size) {
       0 -> JavaType.of(Lambda1::class.java).withGenericTypes(JavaType.Object)

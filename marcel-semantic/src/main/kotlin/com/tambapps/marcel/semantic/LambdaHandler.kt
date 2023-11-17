@@ -39,7 +39,7 @@ class LambdaHandler(
 
     val interfaceType = if (smartCastType != null && !Lambda::class.javaType.isAssignableFrom(smartCastType)) smartCastType else null
 
-    // other implemented interfaces are not handled now. They will be handled in another method
+    // useful for method type resolver, when matching method parameters.
     val lambdaImplementedInterfaces = listOf(Lambda::class.javaType)
     val lambdaType = typeResolver.defineClass(node.token, Visibility.INTERNAL, lambdaOuterClassNode.type, lambdaClassName, JavaType.Object, false, lambdaImplementedInterfaces)
 
@@ -72,6 +72,7 @@ class LambdaHandler(
     return constructorCallNode
   }
 
+  // TODO see why node.hashCode() always return 0
   private fun generateLambdaName(node: CstNode, currentMethodScope: MethodScope): String {
     return "_lambda_" + node.hashCode().toString().replace('-', '0') + "_" + currentMethodScope.method.name
   }

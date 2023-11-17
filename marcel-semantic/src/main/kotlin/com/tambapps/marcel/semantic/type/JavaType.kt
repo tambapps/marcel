@@ -158,11 +158,6 @@ interface JavaType: JavaTyped {
 
   companion object {
 
-    fun newType(visibility: Visibility, outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): JavaType {
-      val className = if (outerClassType != null) "${outerClassType.className}\$$cName" else cName
-      return NotLoadedJavaType(visibility, className, emptyList(), superClass, isInterface, interfaces.toMutableList())
-    }
-
     fun commonType(list: List<JavaTyped>): JavaType {
       if (list.isEmpty()) return void
       return list.reduce { acc, javaType -> commonType(acc, javaType) }.type
