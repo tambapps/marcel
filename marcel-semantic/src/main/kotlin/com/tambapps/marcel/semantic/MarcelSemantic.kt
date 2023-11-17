@@ -1118,7 +1118,7 @@ class MarcelSemantic(
       val interfaceMethod = typeResolver.getInterfaceLambdaMethod(interfaceType)
       val interfaceMethodNode = MethodNode(interfaceMethod.name,
         interfaceMethod.parameters.mapIndexed { index, methodParameter -> MethodParameter(methodParameters[index].type, methodParameters[index].name) }, interfaceMethod.visibility,
-        interfaceMethod.actualReturnType, interfaceMethod.isStatic, lambdaNode.tokenStart, lambdaNode.tokenEnd, interfaceMethod.type)
+        interfaceMethod.actualReturnType, interfaceMethod.isStatic, lambdaNode.tokenStart, lambdaNode.tokenEnd, lambdaNode.type)
 
       var interfaceMethodBlockStatement = useScope(MethodScope(classScope, interfaceMethodNode)) {
         lambdaNode.blockCstNode.accept(this) as BlockStatementNode
