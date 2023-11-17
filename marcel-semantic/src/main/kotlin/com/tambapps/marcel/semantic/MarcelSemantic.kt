@@ -180,6 +180,7 @@ import marcel.lang.primitives.iterators.FloatIterator
 import marcel.lang.primitives.iterators.IntIterator
 import marcel.lang.primitives.iterators.LongIterator
 import marcel.lang.runtime.BytecodeHelper
+import marcel.lang.util.CharSequenceIterator
 import java.io.Closeable
 import java.lang.annotation.ElementType
 import java.util.LinkedList
@@ -1116,7 +1117,7 @@ class MarcelSemantic(
     if (interfaceType != null && interfaceType.packageName != "marcel.lang.lambda") {
       val interfaceMethod = typeResolver.getInterfaceLambdaMethod(interfaceType)
       val interfaceMethodNode = MethodNode(interfaceMethod.name,
-        interfaceMethod.parameters.mapIndexed { index, methodParameter -> MethodParameter(methodParameter.type, methodParameters[index].name) }, interfaceMethod.visibility,
+        interfaceMethod.parameters.mapIndexed { index, methodParameter -> MethodParameter(methodParameters[index].type, methodParameters[index].name) }, interfaceMethod.visibility,
         interfaceMethod.actualReturnType, interfaceMethod.isStatic, lambdaNode.tokenStart, lambdaNode.tokenEnd, interfaceMethod.type)
 
       var interfaceMethodBlockStatement = useScope(MethodScope(classScope, interfaceMethodNode)) {
@@ -1177,6 +1178,9 @@ class MarcelSemantic(
       throw MarcelSemanticException(lambdaNode.token, "Lambda parameters mismatch. Expected parameters ${method.parameters}")
     }
     return lambdaNode.lambdaMethodParameters.mapIndexed { index, lambdaMethodParameter ->
+      if (lambdaMethodParameter.type != null && !method.parameters[index].type.isAssignableFrom(lambdaMethodParameter.type)) {
+        throw MarcelSemanticException(lambdaNode.token, "Type ${method.parameters[index].type} is not assignable to ${lambdaMethodParameter.type}")
+      }
       MethodParameter(lambdaMethodParameter.type ?: method.parameters[index].type, lambdaMethodParameter.name)
     }
   }
@@ -1321,9 +1325,10 @@ class MarcelSemantic(
     val inNode = node.inNode.accept(this)
 
     val iteratorExpression = when {
-      // TODO charsequence iterator
       inNode.type.implements(Iterable::class.javaType) -> fCall(node, inNode.type, "iterator", emptyList(), inNode)
       inNode.type.implements(Iterator::class.javaType) -> inNode
+      inNode.type.implements(CharSequence::class.javaType) -> NewInstanceNode(CharSequenceIterator::class.javaType,
+        typeResolver.findMethod(CharSequenceIterator::class.javaType, JavaMethod.CONSTRUCTOR_NAME, listOf(inNode))!!,listOf(inNode), node.token)
       else -> throw MarcelSemanticException(node.token, "Cannot iterate over an expression of type ${inNode.type}")
     }
     val iteratorExpressionType = iteratorExpression.type

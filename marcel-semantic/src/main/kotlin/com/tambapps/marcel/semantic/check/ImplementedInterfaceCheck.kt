@@ -45,7 +45,7 @@ internal object ImplementedInterfaceCheck: ClassNodeVisitor {
                 classNode.token
             ))
           }
-          val fCall = FunctionCallNode(javaMethod = rawInterfaceMethod, owner = ThisReferenceNode(classNode.type, classNode.token), arguments = rawParameterArguments, token = classNode.token)
+          val fCall = FunctionCallNode(javaMethod = implementationMethod, owner = ThisReferenceNode(classNode.type, classNode.token), arguments = rawParameterArguments, token = classNode.token)
           if (rawInterfaceMethod.returnType != JavaType.void) {
             rawMethodNode.blockStatement.statements.add(
               ReturnStatementNode(fCall, fCall.tokenStart, fCall.tokenEnd)

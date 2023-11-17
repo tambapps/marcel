@@ -20,7 +20,9 @@ class MethodNode(override val name: String,
 
   companion object {
     fun fromJavaMethod(method: JavaMethod, tokenStart: LexToken, tokenEnd: LexToken): MethodNode {
-      return MethodNode(method.name, method.parameters, method.visibility, method.returnType, method.isStatic, tokenStart, tokenEnd, method.ownerClass)
+      val m = MethodNode(method.name, method.parameters, method.visibility, method.returnType, method.isStatic, tokenStart, tokenEnd, method.ownerClass)
+      m.blockStatement = BlockStatementNode(mutableListOf(), tokenStart, tokenEnd)
+      return m
     }
   }
   override val annotations: MutableList<AnnotationNode> = mutableListOf()
