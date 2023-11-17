@@ -85,6 +85,7 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
+import com.tambapps.marcel.semantic.ast.expression.NewLambdaInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.PopNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.StringNode
@@ -200,7 +201,6 @@ class MarcelSemantic(
 
   internal val scopeQueue = LinkedList<Scope>()
   private val classNodeMap = mutableMapOf<JavaType, ClassNode>() // useful to add methods while performing analysis
-  private val lambdaHandler = LambdaHandler(typeResolver, classNodeMap)
 
   private val imports = Scope.DEFAULT_IMPORTS.toMutableList() // will be updated while performing analysis
   private val methodResolver = MethodResolver(typeResolver, caster, imports)
@@ -1044,9 +1044,61 @@ class MarcelSemantic(
     return switchWhen(node, smartCastType, switchExpression)
   }
 
+  /**
+   * Predefine the lambda. This methods just creates the lambda class node and return a constructor call of it.
+   * The lambda class will be constructed and sematically checked later, as we first we to continue the analysis
+   * to get potential wanted cast types of the lambda
+   */
   override fun visit(node: LambdaCstNode, smartCastType: JavaType?): ExpressionNode {
-    return lambdaHandler.predefineLambda(node, node.parameters.map { LambdaClassNode.MethodParameter(it.type?.let { visit(it) }, it.name) },
-      smartCastType, currentMethodScope)
+    val parameters = node.parameters.map { param -> LambdaClassNode.MethodParameter(param.type?.let { visit(it) }, param.name) }
+    // search for already generated lambdaNode if not empty
+    val lambdaClassName = generateLambdaName(node, currentMethodScope)
+    val lambdaOuterClassNode = classNodeMap.getValue(currentMethodScope.classType)
+    val alreadyExistingLambdaNode = lambdaOuterClassNode.innerClasses
+      .find { it.type.simpleName == lambdaClassName } as? LambdaClassNode
+
+    if (alreadyExistingLambdaNode != null) {
+      return alreadyExistingLambdaNode.constructorCallNode
+    }
+
+    val interfaceType = if (smartCastType != null && !Lambda::class.javaType.isAssignableFrom(smartCastType)) smartCastType else null
+
+    // useful for method type resolver, when matching method parameters.
+    val lambdaImplementedInterfaces = listOf(Lambda::class.javaType)
+    val lambdaType = typeResolver.defineClass(node.token, Visibility.INTERNAL, lambdaOuterClassNode.type, lambdaClassName, JavaType.Object, false, lambdaImplementedInterfaces)
+
+    val lambdaConstructor = MethodNode(
+      name = JavaMethod.CONSTRUCTOR_NAME,
+      visibility = Visibility.INTERNAL,
+      returnType = JavaType.void,
+      isStatic = false,
+      tokenStart = node.tokenStart,
+      tokenEnd = node.tokenEnd,
+      parameters = mutableListOf(),
+      ownerClass = lambdaType
+    )
+
+    val lambdaNode = LambdaClassNode(lambdaType, lambdaConstructor, node, parameters).apply {
+      interfaceType?.let { interfaceTypes.add(it) }
+    }
+
+    lambdaConstructor.blockStatement = BlockStatementNode(mutableListOf(
+      ExpressionStatementNode(SemanticHelper.superNoArgConstructorCall(lambdaNode, typeResolver)),
+      SemanticHelper.returnVoid(lambdaNode)
+    ), node.tokenStart, node.tokenEnd)
+
+    lambdaOuterClassNode.innerClasses.add(lambdaNode)
+
+    val constructorCallNode = NewLambdaInstanceNode(lambdaNode.type, lambdaConstructor,
+      // this part is important, as we will compute the constructorParameters later
+      lambdaNode.constructorParameters, lambdaNode, node.token)
+    lambdaNode.constructorCallNode = constructorCallNode
+    return constructorCallNode
+  }
+
+  // TODO see why node.hashCode() always return 0
+  private fun generateLambdaName(node: CstNode, currentMethodScope: MethodScope): String {
+    return "_lambda_" + node.hashCode().toString().replace('-', '0') + "_" + currentMethodScope.method.name
   }
 
   /**
