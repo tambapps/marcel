@@ -1052,8 +1052,9 @@ class MarcelSemantic(
   override fun visit(node: LambdaCstNode, smartCastType: JavaType?): ExpressionNode {
     val parameters = node.parameters.map { param -> LambdaClassNode.MethodParameter(param.type?.let { visit(it) }, param.name) }
     // search for already generated lambdaNode if not empty
-    val lambdaClassName = generateLambdaName(node, currentMethodScope)
     val lambdaOuterClassNode = classNodeMap.getValue(currentMethodScope.classType)
+
+    val lambdaClassName = currentMethodScope.method.name + "_lambda" + (lambdaOuterClassNode.innerClasses.count { it is LambdaClassNode } + 1)
     val alreadyExistingLambdaNode = lambdaOuterClassNode.innerClasses
       .find { it.type.simpleName == lambdaClassName } as? LambdaClassNode
 
@@ -1094,11 +1095,6 @@ class MarcelSemantic(
       lambdaNode.constructorParameters, lambdaNode, node.token)
     lambdaNode.constructorCallNode = constructorCallNode
     return constructorCallNode
-  }
-
-  // TODO see why node.hashCode() always return 0
-  private fun generateLambdaName(node: CstNode, currentMethodScope: MethodScope): String {
-    return "_lambda_" + node.hashCode().toString().replace('-', '0') + "_" + currentMethodScope.method.name
   }
 
   /**
