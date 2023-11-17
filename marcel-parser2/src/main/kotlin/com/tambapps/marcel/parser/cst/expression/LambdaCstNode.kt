@@ -23,5 +23,30 @@ class LambdaCstNode(
     tokenEnd: LexToken,
     val type: TypeCstNode?,
     val name: String,
-  ) : AbstractCstNode(parent, tokenStart, tokenEnd)
+  ) : AbstractCstNode(parent, tokenStart, tokenEnd) {
+
+    override fun toString(): String {
+      return if (type != null) "$type $name" else name
+    }
+    override fun equals(other: Any?): Boolean {
+      if (this === other) return true
+      if (javaClass != other?.javaClass) return false
+      if (!super.equals(other)) return false
+
+      other as MethodParameterCstNode
+
+      if (type != other.type) return false
+      if (name != other.name) return false
+
+      return true
+    }
+
+    override fun hashCode(): Int {
+      var result = super.hashCode()
+      result = 31 * result + (type?.hashCode() ?: 0)
+      result = 31 * result + name.hashCode()
+      return result
+    }
+
+  }
 }

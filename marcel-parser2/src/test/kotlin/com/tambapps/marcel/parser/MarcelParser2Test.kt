@@ -12,6 +12,7 @@ import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
 import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
+import com.tambapps.marcel.parser.cst.expression.LambdaCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
@@ -38,6 +39,34 @@ class MarcelParser2Test {
         assertEquals(varDecl(type("int"), "a", int(1)), parser("int a = 1;").statement())
         assertEquals(varDecl(type("int"), "a", int(1)), parser("int a = 1").statement())
         assertNotEquals(varDecl(type("float"), "a", int(1)), parser("int a = 1").statement())
+    }
+
+    @Test
+    fun testLambdaExplicit0Args() {
+        val lambda = parser("{ -> }").atom()
+        assertTrue(lambda is LambdaCstNode)
+        lambda as LambdaCstNode
+
+        assertTrue(lambda.explicit0Parameters)
+        assertTrue(lambda.parameters.isEmpty())
+    }
+
+    @Test
+    fun testLambdaArgs() {
+        val lambda = parser("{ arg1, Integer arg2 -> }").atom()
+        assertTrue(lambda is LambdaCstNode)
+        lambda as LambdaCstNode
+
+        assertFalse(lambda.explicit0Parameters)
+        assertEquals(
+            listOf(lambdaParam(name = "arg1"), lambdaParam(type = type("Integer"), name = "arg2")),
+            lambda.parameters
+        )
+        // just to verify equals method
+        assertNotEquals(
+            listOf(lambdaParam(name = "not"), lambdaParam(type = type("Integer"), name = "arg2")),
+            lambda.parameters
+        )
     }
 
     @ParameterizedTest
@@ -217,4 +246,5 @@ class MarcelParser2Test {
     private fun ref(name: String) = ReferenceCstNode(value = name, token = token(), parent = null)
     private fun parser(text: String) = MarcelParser2("Test", MarcelLexer().lex(text))
     private fun token() = LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, "")
+    private fun lambdaParam(type: TypeCstNode? = null, name: String) = LambdaCstNode.MethodParameterCstNode(null, token(), token(), type, name)
 }
