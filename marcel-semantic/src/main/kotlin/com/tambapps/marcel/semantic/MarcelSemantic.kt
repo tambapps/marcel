@@ -226,9 +226,7 @@ class MarcelSemantic(
       moduleNode.classes.add(classNode)
       classNode.innerClasses.forEach { innerClassNode ->
         if (innerClassNode is LambdaClassNode) {
-          useScope(ClassScope(innerClassNode.type, typeResolver, imports)) {
-            lambdaHandler.defineLambda(innerClassNode, it)
-          }
+          defineLambda(innerClassNode)
         }
       }
     }
@@ -251,9 +249,7 @@ class MarcelSemantic(
       }
       scriptNode.innerClasses.forEach { innerClassNode ->
         if (innerClassNode is LambdaClassNode) {
-          useScope(ClassScope(innerClassNode.type, typeResolver, imports)) {
-            lambdaHandler.defineLambda(innerClassNode, it)
-          }
+          defineLambda(innerClassNode)
         }
       }
       moduleNode.classes.add(scriptNode)
@@ -1051,6 +1047,86 @@ class MarcelSemantic(
   override fun visit(node: LambdaCstNode, smartCastType: JavaType?): ExpressionNode {
     return lambdaHandler.predefineLambda(node, node.parameters.map { LambdaClassNode.MethodParameter(it.type?.let { visit(it) }, it.name) },
       smartCastType, currentMethodScope)
+  }
+
+  private fun defineLambda(lambdaNode: LambdaClassNode): Unit = useScope(ClassScope(lambdaNode.type, typeResolver, imports)) { classScope ->
+    val interfaceType =
+      if (lambdaNode.interfaceTypes.size == 1
+        && !Lambda::class.javaType.isAssignableFrom(lambdaNode.interfaceTypes.first())) lambdaNode.interfaceTypes.first()
+      else if (lambdaNode.interfaceTypes.isEmpty()) null
+      else throw MarcelSemanticException(lambdaNode.token, "Expected lambda to be of multiple types: " + lambdaNode.interfaceTypes)
+    interfaceType?.let { lambdaNode.type.addImplementedInterface(it) }
+    val interfaceMethod = interfaceType?.let { typeResolver.getInterfaceLambdaMethod(it) }
+    val methodParameters = computeLambdaParameters(lambdaNode, interfaceType)
+    val lambdaType = SemanticHelper.getLambdaType(lambdaNode, interfaceMethod, methodParameters)
+    lambdaNode.type.addImplementedInterface(lambdaType)
+
+    val lambdaMethod = typeResolver.getInterfaceLambdaMethod(lambdaType)
+    val lambdaMethodNode = MethodNode(lambdaMethod.name, methodParameters, lambdaMethod.visibility,
+      lambdaMethod.actualReturnType, lambdaMethod.isStatic, lambdaNode.tokenStart, lambdaNode.tokenEnd, lambdaNode.type)
+    lambdaMethodNode.annotations.add(AnnotationNode(Override::class.javaType, emptyList(), lambdaMethodNode.tokenStart, lambdaMethodNode.tokenEnd))
+
+    val blockStatement = useScope(MethodScope(classScope, lambdaMethodNode)) {
+      lambdaNode.blockCstNode.accept(this).accept(
+        // need to cast to objectType because lambdas always return objects
+        ReturningBranchTransformer(lambdaNode.blockCstNode, true) { caster.cast(interfaceMethod?.returnType?.objectType ?: JavaType.Object, it) }
+      ) as BlockStatementNode
+    }
+    lambdaMethodNode.blockStatement = blockStatement
+
+    lambdaNode.methods.add(lambdaMethodNode)
+
+    if (interfaceType != null && interfaceMethod != null) {
+      // TODO we might just want to define the interface method and not implement Lambda to improve performance. It's doable if we aren't expecting a lambda type but a specific interface object
+      //   ORRRRR do it the other way around (define the interface method and make the lambda method call the interface method)
+      // define the interface method if any
+      val interfaceMethodNode = MethodNode(interfaceMethod.name, interfaceMethod.parameters, interfaceMethod.visibility,
+        interfaceMethod.actualReturnType, interfaceMethod.isStatic, lambdaNode.tokenStart, lambdaNode.tokenEnd, interfaceMethod.type)
+
+      val fCall = useScope(MethodScope(classScope, interfaceMethodNode)) { methodScope ->
+        fCall(node = lambdaNode.blockCstNode, method = lambdaMethod,
+          arguments = interfaceMethod.parameters.map { ReferenceNode(owner = null, variable = methodScope.findLocalVariable(it.name)!!, token = lambdaNode.token) },
+          owner = ThisReferenceNode(methodScope.classType, lambdaNode.token))
+      }
+      val interfaceMethodBlockStatement = BlockStatementNode(
+        if (interfaceMethod.returnType == JavaType.void) mutableListOf(
+          ExpressionStatementNode(fCall),
+          SemanticHelper.returnVoid(blockStatement)
+        )
+        else mutableListOf(ReturnStatementNode(caster.cast(interfaceMethod.returnType, fCall))), lambdaNode.tokenStart, lambdaNode.tokenEnd
+      )
+      interfaceMethodNode.blockStatement = interfaceMethodBlockStatement
+      lambdaNode.methods.add(interfaceMethodNode)
+    }
+
+    ClassNodeChecks.ALL.forEach {
+      it.visit(lambdaNode, typeResolver)
+    }
+  }
+
+  private fun computeLambdaParameters(lambdaNode: LambdaClassNode, interfaceType: JavaType?): List<MethodParameter> {
+    if (interfaceType == null) {
+      return if (lambdaNode.explicit0Parameters) emptyList()
+      else if (lambdaNode.lambdaMethodParameters.isEmpty()) listOf(MethodParameter(JavaType.Object, "it"))
+      else lambdaNode.lambdaMethodParameters.map { MethodParameter(it.type ?: JavaType.Object, it.name) }
+    }
+    val method = typeResolver.getInterfaceLambdaMethod(interfaceType)
+
+    if (lambdaNode.explicit0Parameters) {
+      if (method.parameters.isNotEmpty()) throw MarcelSemanticException(lambdaNode.token, "Lambda parameters mismatch. Expected parameters ${method.parameters}")
+      return emptyList()
+    }
+    if (lambdaNode.lambdaMethodParameters.isEmpty()) {
+      if (method.parameters.size > 1) throw MarcelSemanticException(lambdaNode.token, "Lambda parameters mismatch. Expected parameters ${method.parameters}")
+      return method.parameters.map { MethodParameter(it.type, "it") }
+    }
+
+    if (lambdaNode.lambdaMethodParameters.size != method.parameters.size) {
+      throw MarcelSemanticException(lambdaNode.token, "Lambda parameters mismatch. Expected parameters ${method.parameters}")
+    }
+    return lambdaNode.lambdaMethodParameters.mapIndexed { index, lambdaMethodParameter ->
+      MethodParameter(lambdaMethodParameter.type ?: method.parameters[index].type, lambdaMethodParameter.name)
+    }
   }
 
   override fun visit(node: WhenCstNode, smartCastType: JavaType?) = switchWhen(node, smartCastType)

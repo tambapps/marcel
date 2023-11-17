@@ -10,11 +10,13 @@ import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
+import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.variable.LocalVariable
+import marcel.lang.lambda.*
 
 internal object SemanticHelper {
 
@@ -37,12 +39,16 @@ internal object SemanticHelper {
 
   fun noArgConstructor(classNode: ClassNode, typeResolver: JavaTypeResolver): MethodNode {
     val defaultConstructorNode = MethodNode(JavaMethod.CONSTRUCTOR_NAME, emptyList(),  Visibility.PUBLIC, JavaType.void, false, classNode.tokenStart, classNode.tokenEnd, JavaType.void)
-    val superConstructorMethod = typeResolver.findMethodOrThrow(classNode.superType, JavaMethod.CONSTRUCTOR_NAME, emptyList(), classNode.token)
     defaultConstructorNode.blockStatement = BlockStatementNode(mutableListOf(
-      ExpressionStatementNode(SuperConstructorCallNode(classNode.superType, superConstructorMethod, emptyList(), defaultConstructorNode.tokenStart, defaultConstructorNode.tokenEnd)),
+      ExpressionStatementNode(superNoArgConstructorCall(classNode, typeResolver)),
       ReturnStatementNode(VoidExpressionNode(defaultConstructorNode.token), defaultConstructorNode.tokenStart, defaultConstructorNode.tokenEnd)
     ), defaultConstructorNode.tokenStart, defaultConstructorNode.tokenEnd)
     return defaultConstructorNode
+  }
+
+  fun superNoArgConstructorCall(classNode: ClassNode, typeResolver: JavaTypeResolver): SuperConstructorCallNode {
+    val superConstructorMethod = typeResolver.findMethodOrThrow(classNode.superType, JavaMethod.CONSTRUCTOR_NAME, emptyList(), classNode.token)
+    return SuperConstructorCallNode(classNode.superType, superConstructorMethod, emptyList(), classNode.tokenStart, classNode.tokenEnd)
   }
 
   fun returnVoid(node: Ast2Node) = ReturnStatementNode(VoidExpressionNode(node.token), node.tokenStart, node.tokenEnd)
@@ -61,4 +67,32 @@ internal object SemanticHelper {
     parameters = listOf(MethodParameter(JavaType.String.arrayType, "args")),
     tokenStart = cst.tokenStart,
     tokenEnd = cst.tokenEnd)
+
+
+  fun getLambdaType(node: Ast2Node, interfaceMethod: JavaMethod?, lambdaParameters: List<MethodParameter>): JavaType {
+    val returnType = interfaceMethod?.actualReturnType?.objectType ?: JavaType.Object
+
+    return when (lambdaParameters.size) {
+      0 -> JavaType.of(Lambda1::class.java).withGenericTypes(JavaType.Object)
+      1 -> when(lambdaParameters.first().type) {
+        JavaType.int -> JavaType.of(IntLambda1::class.java).withGenericTypes(returnType)
+        JavaType.long -> JavaType.of(LongLambda1::class.java).withGenericTypes(returnType)
+        JavaType.float -> JavaType.of(FloatLambda1::class.java).withGenericTypes(returnType)
+        JavaType.double -> JavaType.of(DoubleLambda1::class.java).withGenericTypes(returnType)
+        JavaType.char -> JavaType.of(CharacterLambda1::class.java).withGenericTypes(returnType)
+        else -> JavaType.of(Lambda1::class.java).withGenericTypes(lambdaParameters.first().type.objectType, returnType)
+      }
+      2 -> JavaType.of(Lambda2::class.java).withGenericTypes(lambdaParameters.map { it.type } + returnType)
+      3 -> JavaType.of(Lambda3::class.java).withGenericTypes(lambdaParameters.map { it.type } + returnType)
+      4 -> JavaType.of(Lambda4::class.java).withGenericTypes(lambdaParameters.map { it.type } + returnType)
+      5 -> JavaType.of(Lambda5::class.java).withGenericTypes(lambdaParameters.map { it.type } + returnType)
+      6 -> JavaType.of(Lambda6::class.java).withGenericTypes(lambdaParameters.map { it.type } + returnType)
+      7 -> JavaType.of(Lambda7::class.java).withGenericTypes(lambdaParameters.map { it.type } + returnType)
+      8 -> JavaType.of(Lambda8::class.java).withGenericTypes(lambdaParameters.map { it.type } + returnType)
+      9 -> JavaType.of(Lambda9::class.java).withGenericTypes(lambdaParameters.map { it.type } + returnType)
+      10 -> JavaType.of(Lambda10::class.java).withGenericTypes(lambdaParameters.map { it.type } + returnType)
+      else -> throw MarcelSemanticException(node.token, "Doesn't handle lambdas with more than 10 parameters")
+    }
+  }
+
 }

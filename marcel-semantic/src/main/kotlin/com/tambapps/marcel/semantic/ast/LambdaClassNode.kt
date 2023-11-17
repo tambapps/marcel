@@ -6,9 +6,10 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.type.NotLoadedJavaType
 
 class LambdaClassNode(
-  type: JavaType,
+  override val type: NotLoadedJavaType,
   val constructorNode: MethodNode,
   cstNode: LambdaCstNode,
   val lambdaMethodParameters: List<MethodParameter>

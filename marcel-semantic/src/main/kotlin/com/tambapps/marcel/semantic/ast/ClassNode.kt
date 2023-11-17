@@ -12,7 +12,7 @@ open class ClassNode(
   val visibility: Visibility,
   tokenStart: LexToken, tokenEnd: LexToken
 ) : AbstractAst2Node(tokenStart, tokenEnd), JavaTyped {
-  val superType = type.superType!!
+  val superType: JavaType get() = type.superType!!
 
   val fields = mutableListOf<FieldNode>()
   val methods = mutableListOf<MethodNode>()

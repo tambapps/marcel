@@ -11,6 +11,8 @@ class ReturnStatementNode(
   expressionNode: ExpressionNode?,
   tokenStart: LexToken, tokenEnd: LexToken) : ExpressionStatementNode(expressionNode ?: VoidExpressionNode(tokenStart), tokenStart, tokenEnd) {
 
+  constructor(expressionNode: ExpressionNode): this(expressionNode, expressionNode.tokenStart, expressionNode.tokenEnd)
+
   val returnsVoid = expressionNode is VoidExpressionNode
   override fun <T> accept(visitor: StatementNodeVisitor<T>) = visitor.visit(this)
 
