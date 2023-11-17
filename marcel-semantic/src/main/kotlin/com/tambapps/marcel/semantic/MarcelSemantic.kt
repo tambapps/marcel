@@ -1055,7 +1055,10 @@ class MarcelSemantic(
         && !Lambda::class.javaType.isAssignableFrom(lambdaNode.interfaceTypes.first())) lambdaNode.interfaceTypes.first()
       else if (lambdaNode.interfaceTypes.isEmpty()) null
       else throw MarcelSemanticException(lambdaNode.token, "Expected lambda to be of multiple types: " + lambdaNode.interfaceTypes)
-    interfaceType?.let { lambdaNode.type.addImplementedInterface(it) }
+    interfaceType?.let {
+      lambdaNode.type.directlyImplementedInterfaces.remove(Lambda::class.javaType)
+      lambdaNode.type.addImplementedInterface(it)
+    }
     val interfaceMethod = interfaceType?.let { typeResolver.getInterfaceLambdaMethod(it) }
     val methodParameters = computeLambdaParameters(lambdaNode, interfaceType)
     val lambdaType = SemanticHelper.getLambdaType(lambdaNode, interfaceMethod, methodParameters)
@@ -1084,7 +1087,7 @@ class MarcelSemantic(
         interfaceMethod.actualReturnType, interfaceMethod.isStatic, lambdaNode.tokenStart, lambdaNode.tokenEnd, interfaceMethod.type)
 
       val fCall = useScope(MethodScope(classScope, interfaceMethodNode)) { methodScope ->
-        fCall(node = lambdaNode.blockCstNode, method = lambdaMethod,
+        fCall(node = lambdaNode.blockCstNode, method = lambdaMethodNode,
           arguments = interfaceMethod.parameters.map { ReferenceNode(owner = null, variable = methodScope.findLocalVariable(it.name)!!, token = lambdaNode.token) },
           owner = ThisReferenceNode(methodScope.classType, lambdaNode.token))
       }
