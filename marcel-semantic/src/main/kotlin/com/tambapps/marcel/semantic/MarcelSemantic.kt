@@ -269,8 +269,8 @@ class MarcelSemantic(
 
   private fun defineClassMembers(classCstNode: ClassCstNode, classType: JavaType) {
     classCstNode.methods.forEach { typeResolver.defineMethod(classType, toJavaMethod(classType, it)) }
-    classCstNode.constructors.forEach { typeResolver.defineMethod(classType, toJavaConstructor(classType, it)) }
     classCstNode.fields.forEach { typeResolver.defineField(classType, toMarcelField(classType, it)) }
+    classCstNode.constructors.forEach { typeResolver.defineMethod(classType, toJavaConstructor(classType, it)) }
     classCstNode.innerClasses.forEach { defineClass(it) }
   }
 
@@ -1527,7 +1527,9 @@ class MarcelSemantic(
   private fun toMethodParameter(ownerType: JavaType, visibility: Visibility,
                                 isStatic: Boolean, parameterIndex: Int,
                                 methodName: String, node: MethodParameterCstNode): MethodParameter {
-    val parameterType = visit(node.type)
+    val parameterType =
+      if (node.thisParameter) typeResolver.findFieldOrThrow(ownerType, node.name, node.token).type
+      else visit(node.type)
     val defaultValue = if (node.defaultValue != null) {
       val defaultValueMethod = defaultParameterMethod(node, ownerType, visibility, isStatic, methodName, parameterType, parameterIndex)
       useScope(newMethodScope(ownerType, defaultValueMethod)) { caster.cast(parameterType, node.defaultValue!!.accept(this)) }
@@ -1547,7 +1549,9 @@ class MarcelSemantic(
                                     isStatic: Boolean, parameterIndex: Int,
                                     methodName: String, node: MethodParameterCstNode): MethodParameter {
     val annotations = node.annotations.map { annotationNode(it, ElementType.PARAMETER) }.toMutableList()
-    val parameterType = visit(node.type)
+    val parameterType =
+      if (node.thisParameter) typeResolver.findFieldOrThrow(ownerType, node.name, node.token).type
+      else visit(node.type)
     val parameterName = node.name
     val defaultValue =
       if (node.defaultValue != null) {
