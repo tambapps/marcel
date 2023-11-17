@@ -32,6 +32,9 @@ open class MethodScope internal constructor(
 
   private val localVariables = mutableListOf<LocalVariable>()
 
+  // returns all the local variables at a particular moment
+  open val localVariablesSnapshot get() = localVariables.toList()
+
   inline fun <T> useTempLocalVariable(type: JavaType, isFinal: Boolean = false, runnable: (LocalVariable) -> T): T {
     val v = addLocalVariable(type, isFinal)
     try {

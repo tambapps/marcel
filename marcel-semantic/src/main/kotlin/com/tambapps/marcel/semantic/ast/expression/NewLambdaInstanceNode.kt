@@ -8,7 +8,7 @@ import com.tambapps.marcel.semantic.type.JavaType
 class NewLambdaInstanceNode(
   type: JavaType,
   javaMethod: JavaMethod,
-  override val arguments: MutableList<ExpressionNode>,
+  arguments: MutableList<ExpressionNode>,
   val lambdaNode: LambdaClassNode,
   token: LexToken
 ) :

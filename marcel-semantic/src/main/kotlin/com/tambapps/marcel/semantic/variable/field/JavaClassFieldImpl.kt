@@ -6,6 +6,7 @@ import com.tambapps.marcel.semantic.type.JavaType
 class JavaClassFieldImpl(type: JavaType, name: String, owner: JavaType,
                          override val isFinal: Boolean,
                          override val visibility: Visibility,
-                         override val isStatic: Boolean
-) : JavaClassField(type, name, owner) {
+                         override val isStatic: Boolean,
+                         isSettable: Boolean = true
+) : JavaClassField(type, name, owner, isSettable) {
 }

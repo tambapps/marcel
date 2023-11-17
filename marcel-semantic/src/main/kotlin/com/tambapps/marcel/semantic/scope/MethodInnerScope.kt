@@ -1,5 +1,7 @@
 package com.tambapps.marcel.semantic.scope
 
+import com.tambapps.marcel.semantic.variable.LocalVariable
+
 /**
  * A inner scope inside a method. E.g. in a if/else, in a switch, ...
  */
@@ -8,6 +10,9 @@ class MethodInnerScope(
   isInLoop: Boolean = false,
 ) : MethodScope(parentScope, parentScope.method, parentScope.typeResolver, parentScope.classType,
   parentScope.imports, parentScope.staticContext, parentScope.localVariablePool) {
+
+  override val localVariablesSnapshot: List<LocalVariable>
+    get() = (parentScope as MethodScope).localVariablesSnapshot + super.localVariablesSnapshot
 
   private val _isInLoop = isInLoop
   val isInLoop: Boolean get() = _isInLoop || (parentScope as? MethodInnerScope)?.isInLoop ?: false

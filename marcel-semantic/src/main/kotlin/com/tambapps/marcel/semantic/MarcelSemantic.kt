@@ -149,6 +149,7 @@ import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.ImportScope
+import com.tambapps.marcel.semantic.scope.LambdaMethodScope
 import com.tambapps.marcel.semantic.scope.MethodInnerScope
 import com.tambapps.marcel.semantic.scope.MethodScope
 import com.tambapps.marcel.semantic.scope.Scope
@@ -1080,7 +1081,7 @@ class MarcelSemantic(
       ownerClass = lambdaType
     )
 
-    val lambdaNode = LambdaClassNode(lambdaType, lambdaConstructor, node, parameters).apply {
+    val lambdaNode = LambdaClassNode(lambdaType, lambdaConstructor, node, parameters, currentMethodScope.localVariablesSnapshot).apply {
       interfaceType?.let { interfaceTypes.add(it) }
     }
 
@@ -1093,7 +1094,7 @@ class MarcelSemantic(
 
     val constructorCallNode = NewLambdaInstanceNode(lambdaNode.type, lambdaConstructor,
       // this part is important, as we will compute the constructorParameters later
-      lambdaNode.constructorParameters, lambdaNode, node.token)
+      lambdaNode.constructorArguments, lambdaNode, node.token)
     lambdaNode.constructorCallNode = constructorCallNode
     return constructorCallNode
   }
@@ -1114,13 +1115,15 @@ class MarcelSemantic(
       lambdaNode.type.addImplementedInterface(it)
     }
     val methodParameters = computeLambdaParameters(lambdaNode, interfaceType)
+    val lambdaMethodScope: LambdaMethodScope
     if (interfaceType != null && interfaceType.packageName != "marcel.lang.lambda") {
       val interfaceMethod = typeResolver.getInterfaceLambdaMethod(interfaceType)
       val interfaceMethodNode = MethodNode(interfaceMethod.name,
         interfaceMethod.parameters.mapIndexed { index, methodParameter -> MethodParameter(methodParameters[index].type, methodParameters[index].name) }, interfaceMethod.visibility,
         interfaceMethod.actualReturnType, interfaceMethod.isStatic, lambdaNode.tokenStart, lambdaNode.tokenEnd, lambdaNode.type)
 
-      var interfaceMethodBlockStatement = useScope(MethodScope(classScope, interfaceMethodNode)) {
+      lambdaMethodScope = LambdaMethodScope(classScope, interfaceMethodNode, lambdaNode.localVariablesSnapshot)
+      var interfaceMethodBlockStatement = useScope(lambdaMethodScope) {
         lambdaNode.blockCstNode.accept(this) as BlockStatementNode
       }
       if (interfaceMethodNode.returnType != JavaType.void) {
@@ -1142,7 +1145,8 @@ class MarcelSemantic(
       val lambdaMethodNode = MethodNode(lambdaMethod.name, methodParameters, lambdaMethod.visibility,
         lambdaMethod.actualReturnType, lambdaMethod.isStatic, lambdaNode.tokenStart, lambdaNode.tokenEnd, lambdaNode.type)
 
-      val blockStatement = useScope(MethodScope(classScope, lambdaMethodNode)) {
+      lambdaMethodScope = LambdaMethodScope(classScope, lambdaMethodNode, lambdaNode.localVariablesSnapshot)
+      val blockStatement = useScope(lambdaMethodScope) {
         lambdaNode.blockCstNode.accept(this).accept(
           // need to cast to objectType because lambdas always return objects
           ReturningBranchTransformer(lambdaNode.blockCstNode, false) { caster.cast(JavaType.Object, it) }
@@ -1150,6 +1154,35 @@ class MarcelSemantic(
       }
       lambdaMethodNode.blockStatement = blockStatement
       lambdaNode.methods.add(lambdaMethodNode)
+    }
+
+    /*
+     * Examining referenced local variables so that we declare them as fields in the lambda class
+     * and then pass them in the constructor call
+     */
+    val usedLocalVariables = lambdaMethodScope.usedOuterScopeLocalVariable.toList() // to list so that order is constant
+    if (usedLocalVariables.isNotEmpty()) {
+      val lambdaConstructor = lambdaNode.constructors.first()
+      val constructorParameters = lambdaConstructor.parameters as MutableList<MethodParameter>
+      for (lv in usedLocalVariables) {
+        val field = FieldNode(lv.type, lv.name, lambdaNode.type, emptyList(), true, Visibility.PRIVATE, false, lambdaNode.tokenStart, lambdaNode.tokenEnd)
+        lambdaNode.fields.add(field)
+
+        constructorParameters.add(MethodParameter(lv.type, lv.name))
+        lambdaConstructor.blockStatement.statements.add(1, // 1 because 0 is super constructor call
+          ExpressionStatementNode(
+            VariableAssignmentNode(
+              owner = ThisReferenceNode(lambdaNode.type, lambdaNode.token),
+              variable = field,
+              // using index of method parameter
+              expression = ReferenceNode(variable = lv.withIndex(usedLocalVariables.indexOf(lv) + 1), token = lambdaNode.token),
+              tokenStart = lambdaNode.tokenStart,
+              tokenEnd = lambdaNode.tokenEnd
+            )
+          )
+        )
+        lambdaNode.constructorArguments.add(ReferenceNode(owner = null, variable = lv, token = lambdaNode.token))
+      }
     }
 
     ClassNodeChecks.ALL.forEach {

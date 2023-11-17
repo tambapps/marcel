@@ -20,6 +20,9 @@ class LocalVariable constructor(override val type: JavaType, override val name: 
   }
 
   override fun isVisibleFrom(javaType: JavaType, access: Variable.Access) = true
+
+  fun withIndex(index: Int) = LocalVariable(type, name, nbSlots, index, isFinal)
+
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (javaClass != other?.javaClass) return false
