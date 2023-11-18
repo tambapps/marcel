@@ -66,7 +66,6 @@ import com.tambapps.marcel.parser.cst.statement.TryCatchCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.parser.cst.statement.WhileCstNode
 import com.tambapps.marcel.semantic.ast.AnnotationNode
-import com.tambapps.marcel.semantic.ast.AstVariableNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.ImportNode
@@ -429,8 +428,23 @@ class MarcelSemantic(
       methodNode.blockStatement.statements.add(0,
         ExpressionStatementNode(SuperConstructorCallNode(superType, superConstructorMethod, emptyList(), methodNode.tokenStart, methodNode.tokenEnd)))
     }
-    // TODO check for this/super constructor calls that aren't the first statement and throw error if any
-    //  also check recursive constructor calls (see RecursiveConstructorCheck class)
+
+    /*
+     * Handling this parameters
+     */
+    // going in reverse to add in order assignements in correct order
+    for (i in (methodCst.parameters.size - 1)downTo 0) {
+      if (!methodCst.parameters[i].thisParameter) continue
+      val param = methodNode.parameters[i]
+      val field = typeResolver.getClassField(classScope.classType, param.name, methodNode.token)
+      methodNode.blockStatement.statements.add(1, // 1 because 0 is the super call
+        ExpressionStatementNode(
+          VariableAssignmentNode(owner = ThisReferenceNode(classScope.classType, methodCst.token), variable = field,
+            // using index of method parameter. +1 because not in static context
+            expression = ReferenceNode(variable = LocalVariable(field.type, param.name, field.type.nbSlots, i + 1, true), token = methodCst.token), node = methodCst)
+        )
+      )
+    }
     return methodNode
   }
 
@@ -504,6 +518,7 @@ class MarcelSemantic(
     return u
   }
 
+  private fun newMethodScope(method: JavaMethod) = MethodScope(ClassScope(currentScope.classType, typeResolver, imports), method)
   private fun newMethodScope(classType: JavaType, method: JavaMethod) = MethodScope(ClassScope(classType, typeResolver, imports), method)
   fun visit(node: TypeCstNode): JavaType = currentScope.resolveTypeOrThrow(node)
 
@@ -1174,7 +1189,7 @@ class MarcelSemantic(
             VariableAssignmentNode(
               owner = ThisReferenceNode(lambdaNode.type, lambdaNode.token),
               variable = field,
-              // using index of method parameter
+              // using index of method parameter. +1 because not in static context
               expression = ReferenceNode(variable = lv.withIndex(usedLocalVariables.indexOf(lv) + 1), token = lambdaNode.token),
               tokenStart = lambdaNode.tokenStart,
               tokenEnd = lambdaNode.tokenEnd
@@ -1250,7 +1265,27 @@ class MarcelSemantic(
     }
     if (elseStatement != null) ifCstNode.falseStatementNode = elseStatement
 
-    val whenStatement = useInnerScope { visit(rootIfCstNode) }
+    /*
+     * Looking for all local variables used from cst node as we'll need to pass them to the 'when' method
+     */
+    val referencedLocalVariables = findAllReferencedLocalVariables(node, currentMethodScope)
+
+    val whenMethodParameters = mutableListOf<MethodParameter>()
+    val whenMethodArguments = mutableListOf<ExpressionNode>()
+    if (switchExpression != null) {
+      whenMethodParameters.add(MethodParameter(switchExpressionLocalVariable.type, switchExpressionLocalVariable.name))
+      whenMethodArguments.add(switchExpression)
+    }
+    for (lv in referencedLocalVariables) {
+      whenMethodParameters.add(MethodParameter(lv.type, lv.name, isFinal = true))
+      whenMethodArguments.add(ReferenceNode(variable = lv, token = node.token))
+    }
+
+    /*
+     * generating method
+     */
+    val whenMethod = generateOrGetWhenMethod(whenMethodParameters, whenReturnType, node)
+    val whenStatement = useScope(newMethodScope(whenMethod)) { visit(rootIfCstNode) }
     if (shouldReturnValue) {
       var tmpIfNode: IfStatementNode? = whenStatement
       val branchTransformer = ReturningBranchTransformer(node, true) { caster.cast(whenReturnType, it) }
@@ -1265,43 +1300,6 @@ class MarcelSemantic(
       }
     }
 
-    /*
-     * Search for all local variables used, they will need to be passed to the generated
-     * when function
-     */
-    val localVariableReferencesMap = LinkedHashMap<String, LocalVariable>()
-
-    whenStatement.forEach(AstVariableNode::class) {
-      val variable = it.variable
-      if (variable is LocalVariable) {
-        localVariableReferencesMap[variable.name] = variable
-      }
-    }
-    val whenLocalVariables = localVariableReferencesMap.map { it.value }
-
-    // now re-set local variable to set the right index
-    whenStatement.forEach(AstVariableNode::class) { variableNode ->
-      val variable = variableNode.variable
-      if (variable is LocalVariable) {
-        val index = whenLocalVariables.indexOfFirst { it.name == variable.name }
-        variableNode.variable = LocalVariable(variable.type, variable.name, variable.nbSlots,
-          if (currentMethodScope.staticContext) index else index + 1, variable.isFinal
-        )
-      }
-    }
-
-    val whenMethodParameters = whenLocalVariables.map { MethodParameter(it.type, it.name) }.toMutableList()
-    val whenMethodArguments = whenLocalVariables.map {
-      // need to replace the switch local variable by the actual expression since it wasn't yet really passed to the Ast tree
-      if (switchExpression != null && it.name == switchExpressionLocalVariable.name) switchExpression
-      // we don't want the whenLocalVariable because the index of it is specific for IN the when/switch method
-      else ReferenceNode(owner = null, variable = localVariableReferencesMap.getValue(it.name), token = node.token)
-    }.toMutableList()
-
-    /*
-     * generating method
-     */
-    val whenMethod = generateOrGetWhenMethod(whenMethodParameters, whenReturnType, node)
     whenMethod.blockStatement = BlockStatementNode(mutableListOf(whenStatement), whenStatement.tokenStart, whenStatement.tokenEnd).apply {
       // if it is not void, statements already have return nodes because of ReturningWhenIfBranchTransformer
       if (whenReturnType == JavaType.void) statements.add(SemanticHelper.returnVoid(this))
@@ -1313,6 +1311,22 @@ class MarcelSemantic(
     // now calling the method
     return fCall(node = node, owner = ThisReferenceNode(currentScope.classType, node.token),
       arguments = whenMethodArguments, method = whenMethod)
+  }
+
+  private fun findAllReferencedLocalVariables(node: WhenCstNode, scope: MethodScope): List<LocalVariable> {
+    val localVariables = mutableSetOf<LocalVariable>()
+    val consumer: (CstNode) -> Unit = { cstNode ->
+      if (cstNode is ReferenceCstNode) {
+        val lv = scope.findLocalVariable(cstNode.value)
+        if (lv != null) localVariables.add(lv)
+      }
+    }
+    for (branch in node.branches) {
+      branch.first.forEach(consumer)
+      branch.second.forEach(consumer)
+    }
+    node.elseStatement?.forEach(consumer)
+    return localVariables.toList() // to list so that order is constant
   }
 
   private fun computeWhenReturnType(node: WhenCstNode): JavaType = useInnerScope {
