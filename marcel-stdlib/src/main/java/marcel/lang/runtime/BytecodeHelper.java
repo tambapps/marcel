@@ -15,6 +15,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.Set;
 
 // methods are used by the compiler
@@ -69,5 +72,17 @@ public final class BytecodeHelper {
       return true;
     }
     return left.equals(right);
+  }
+
+  public static Integer orElseNull(OptionalInt opt) {
+    return opt.isPresent() ? opt.getAsInt() : null;
+  }
+
+  public static Long orElseNull(OptionalLong opt) {
+    return opt.isPresent() ? opt.getAsLong() : null;
+  }
+
+  public static Double orElseNull(OptionalDouble opt) {
+    return opt.isPresent() ? opt.getAsDouble() : null;
   }
 }

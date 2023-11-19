@@ -184,6 +184,10 @@ import marcel.lang.util.CharSequenceIterator
 import java.io.Closeable
 import java.lang.annotation.ElementType
 import java.util.LinkedList
+import java.util.Optional
+import java.util.OptionalDouble
+import java.util.OptionalInt
+import java.util.OptionalLong
 import java.util.regex.Pattern
 
 // TODO implement multiple errors like in parser2
@@ -1443,7 +1447,24 @@ class MarcelSemantic(
 
   override fun visit(node: TruthyVariableDeclarationCstNode, smartCastType: JavaType?): ExpressionNode {
     val variable = currentMethodScope.addLocalVariable(visit(node.type), node.value)
-    return VariableAssignmentNode(localVariable = variable, expression = caster.cast(variable.type, node.expression.accept(this)), node = node)
+    var expression = node.expression.accept(this)
+    /*
+     * handle Optional unboxing
+     */
+    if (variable.type != Optional::class.javaType && !variable.type.primitive
+      // comparing class name because we want to ignore generic types
+      && expression.type.className == Optional::class.javaType.className) {
+      val nullNode = NullValueNode(node.token, variable.type)
+      expression = fCall(node = node, method = typeResolver.findMethod(Optional::class.javaType, "orElse", listOf(nullNode))!!, arguments = listOf(nullNode), owner = expression)
+    } else if (variable.type == JavaType.Integer && expression.type == OptionalInt::class.javaType
+      || variable.type == JavaType.Long && expression.type == OptionalLong::class.javaType
+      || variable.type == JavaType.Double && expression.type == OptionalDouble::class.javaType) {
+      // no owner because method is static
+      expression = fCall(node = node, method = typeResolver.findMethod(BytecodeHelper::class.javaType, "orElseNull", listOf(expression))!!, arguments = listOf(expression))
+    }
+    val astNode = VariableAssignmentNode(localVariable = variable, expression = caster.cast(variable.type, expression), node = node)
+    currentMethodScope.freeLocalVariable(variable.name)
+    return astNode
   }
 
   override fun visit(node: ForVarCstNode): StatementNode = useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
