@@ -437,7 +437,7 @@ class MarcelSemantic(
     /*
      * Handling this parameters
      */
-    // going in reverse to add in order assignements in correct order
+    // going in reverse to add in order assignments in correct order
     for (i in (methodCst.parameters.size - 1)downTo 0) {
       if (!methodCst.parameters[i].thisParameter) continue
       val param = methodNode.parameters[i]
@@ -712,17 +712,17 @@ class MarcelSemantic(
         val left = leftOperand.accept(this)
         if (left.type.primitive) throw MarcelSemanticException(node, "Cannot use safe access operator on primitive type as it cannot be null")
 
-        var dotNode = dotOperator(node, left, rightOperand, discardOwnerInReturned = true)
-        if (dotNode.type != JavaType.void && dotNode.type.primitive) dotNode = caster.cast(dotNode.type.objectType, dotNode) // needed as the result can be null
+        currentMethodScope.useTempLocalVariable(left.type) { lv ->
+          var dotNode = dotOperator(node, ReferenceNode(variable = lv, token = node.token), rightOperand)
+          if (dotNode.type != JavaType.void && dotNode.type.primitive) dotNode = caster.cast(dotNode.type.objectType, dotNode) // needed as the result can be null
 
-        TernaryNode(
-          testExpressionNode = IsNotEqualNode(DupNode(left), NullValueNode(node.token, left.type)),
-          trueExpressionNode = dotNode,
-          // void because the DUP value is null in false case, so we can just use it
-          // POP if return type is void as we still have a null value on the stack that won't be used as this expression is supposed to return nothing, void
-          falseExpressionNode = if (dotNode.type != JavaType.void) VoidExpressionNode(node.token) else PopNode(left.type, node),
-          node = node
-        )
+          TernaryNode(
+            testExpressionNode = IsNotEqualNode(VariableAssignmentNode(lv, left), NullValueNode(node.token, left.type)),
+            trueExpressionNode = dotNode,
+            falseExpressionNode = NullValueNode(node.token, dotNode.type.objectType),
+            node = node
+          )
+        }
       }
       TokenType.DOT -> {
         if (node.leftOperand is ReferenceCstNode) {

@@ -26,5 +26,7 @@ class VariableAssignmentNode(
 
   constructor(variable: Variable, expression: ExpressionNode, owner: ExpressionNode? = null, node: CstNode)
       : this(variable, expression, owner, node.tokenStart, node.tokenEnd)
+  constructor(variable: Variable, expression: ExpressionNode, owner: ExpressionNode? = null)
+      : this(variable, expression, owner, expression.tokenStart, expression.tokenEnd)
 
 }
