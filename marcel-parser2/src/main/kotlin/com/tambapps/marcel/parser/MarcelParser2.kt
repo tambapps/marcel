@@ -349,7 +349,8 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
 
   private fun parseTypeFragment(token: LexToken) = when (token.type) {
     TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_VOID, TokenType.TYPE_CHAR,
-    TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL, TokenType.TYPE_BYTE, TokenType.TYPE_SHORT, TokenType.IDENTIFIER -> token.value
+    TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BYTE, TokenType.TYPE_SHORT, TokenType.IDENTIFIER -> token.value
+    TokenType.TYPE_BOOL -> "boolean"
     TokenType.DYNOBJ -> "DynamicObject"
     else -> throw MarcelParser2Exception(token, "Doesn't handle type ${token.type}")
   }
