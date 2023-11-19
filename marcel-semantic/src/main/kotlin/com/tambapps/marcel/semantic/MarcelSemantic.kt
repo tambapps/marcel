@@ -417,7 +417,7 @@ class MarcelSemantic(
 
   private fun methodNode(methodCst: MethodCstNode, classScope: ClassScope): MethodNode {
     val methodNode = toMethodNode(methodCst, methodCst.name, visit(methodCst.returnTypeCstNode), classScope.classType)
-    fillMethodNode(classScope, methodNode, methodCst.statements, methodCst.annotations)
+    fillMethodNode(classScope, methodNode, methodCst.statements, methodCst.annotations, isSingleStatementMethod = methodCst.isSingleStatementFunction)
     return methodNode
   }
 
@@ -473,20 +473,19 @@ class MarcelSemantic(
   private fun fillMethodNode(classScope: ClassScope, methodeNode: MethodNode,
                              cstStatements: List<StatementCstNode>,
                              annotations: List<AnnotationCstNode>,
+                             isSingleStatementMethod: Boolean = false,
                              scriptRunMethod: Boolean = false): Unit
   = useScope(MethodScope(classScope, methodeNode)) {
 
     // filling annotations
     annotations.forEach { methodeNode.annotations.add(annotationNode(it, ElementType.METHOD)) }
 
-    val statements = blockStatements(cstStatements)
-    // for single statement functions
-    if (!methodeNode.isConstructor && !scriptRunMethod && statements.size == 1) {
-      val statement = statements.first()
-      if (methodeNode.returnType != JavaType.void && statement is ExpressionStatementNode) {
-        statements[0] = ReturnStatementNode(statement.expressionNode, statement.tokenStart, statement.tokenEnd)
-      }
-    }
+    val statements =  if (isSingleStatementMethod && cstStatements.size == 1
+      && methodeNode.returnType != JavaType.void
+      && cstStatements.first() is ExpressionStatementCstNode) {
+      val statement = cstStatements.first() as ExpressionStatementCstNode
+      mutableListOf(ReturnCstNode(statement, statement.expressionNode, statement.tokenStart, statement.tokenEnd).accept(this))
+    } else blockStatements(cstStatements)
 
     if (scriptRunMethod) {
       // make the last statement the return value of the run method if possible

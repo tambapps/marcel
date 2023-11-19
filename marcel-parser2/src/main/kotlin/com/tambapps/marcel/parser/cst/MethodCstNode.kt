@@ -11,5 +11,5 @@ class MethodCstNode(
   val returnTypeCstNode: TypeCstNode,
 ) :
   AbstractMethodCstNode(parent, tokenStart, tokenEnd, accessNode) {
-
+    var isSingleStatementFunction = false // whether if is fun type method() -> statement()
 }

@@ -286,6 +286,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     }
 
     if (current.type == TokenType.ARROW) {
+      (node as? MethodCstNode)?.isSingleStatementFunction = true
       // fun foo() -> expression()
       skip()
       statements.add(statement(parentNode))
@@ -784,9 +785,16 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
             )
             elseStatement = statement(parentNode)
           } else {
-            val conditionExpression = expression(parentNode)
+            val conditionExpressions = mutableListOf(expression(parentNode))
+            while (current.type == TokenType.COMMA) {
+              skip()
+              conditionExpressions.add(expression(parentNode))
+            }
             accept(TokenType.ARROW)
-            branches.add(Pair(conditionExpression, statement(parentNode)))
+            val statement = statement(parentNode)
+            conditionExpressions.forEach { conditionExpression ->
+              branches.add(Pair(conditionExpression, statement))
+            }
           }
         }
         skip() // skip bracket_close
