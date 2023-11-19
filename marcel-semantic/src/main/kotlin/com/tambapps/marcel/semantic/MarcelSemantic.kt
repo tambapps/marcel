@@ -811,6 +811,11 @@ class MarcelSemantic(
       checkVariableAccess(variable, node)
       ReferenceNode(if (discardOwnerInReturned || variable.isMarcelStatic) null else owner, variable, rightOperand.token)
     }
+    is DirectFieldReferenceCstNode -> {
+      val variable = typeResolver.getClassField(owner.type, rightOperand.value, rightOperand.token)
+      checkVariableAccess(variable, node)
+      ReferenceNode(if (discardOwnerInReturned || variable.isMarcelStatic) null else owner, variable, rightOperand.token)
+    }
     is IndexAccessCstNode -> {
       val indexOwner = dotOperator(node, owner, rightOperand.ownerNode, false)
       indexAccess(indexOwner, rightOperand)
@@ -1653,7 +1658,7 @@ class MarcelSemantic(
                                 isStatic: Boolean, parameterIndex: Int,
                                 methodName: String, node: MethodParameterCstNode): MethodParameter {
     val parameterType =
-      if (node.thisParameter) typeResolver.findFieldOrThrow(ownerType, node.name, node.token).type
+      if (node.thisParameter) typeResolver.getClassField(ownerType, node.name, node.token).type
       else visit(node.type)
     val defaultValue = if (node.defaultValue != null) {
       val defaultValueMethod = generateDefaultParameterMethod(node, ownerType, visibility, isStatic, methodName, parameterType, parameterIndex)
@@ -1675,7 +1680,7 @@ class MarcelSemantic(
     val ownerType = classNode.type
     val annotations = node.annotations.map { annotationNode(it, ElementType.PARAMETER) }.toMutableList()
     val parameterType =
-      if (node.thisParameter) typeResolver.findFieldOrThrow(ownerType, node.name, node.token).type
+      if (node.thisParameter) typeResolver.getClassField(ownerType, node.name, node.token).type
       else visit(node.type)
     val parameterName = node.name
     // may be needed
