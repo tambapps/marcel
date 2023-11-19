@@ -31,7 +31,15 @@ You have to be located on this project's root directory when executing the scrip
 ```shell
 ./install/install-from-source.sh
 ```
+#### Skipping javadoc
 
+If you're building it directly with maven, you can skip the javadoc by passing the `-Djavadoc.skip=true` option.
+
+Example
+
+```shell
+mvn clean verify -Djavadoc.skip=true
+```
 ### From release
 
 
