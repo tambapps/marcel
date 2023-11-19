@@ -723,15 +723,17 @@ class MarcelSemantic(
       TokenType.DOT -> {
         if (node.leftOperand is ReferenceCstNode) {
           val cstReference = (node.leftOperand as ReferenceCstNode)
-          try {
-            val (variable, owner) = findVariableAndOwner(cstReference.value, node)
-            dotOperator(node, ReferenceNode(owner, variable, node.token), rightOperand)
-          } catch (e: MarcelSemanticException) {
+          val p = try {
+            findVariableAndOwner(cstReference.value, node)
+          } catch (e: MarcelSemanticException) { null }
+          if (p != null) {
+            dotOperator(node, ReferenceNode(p.second, p.first, node.token), rightOperand)
+          } else {
             // it may be a static method call
             val type = try {
               currentScope.resolveTypeOrThrow(TypeCstNode(null, cstReference.value, emptyList(), 0, cstReference.tokenStart, cst.tokenEnd))
             } catch (e2: MarcelSemanticException) {
-              throw MarcelSemanticException("Neither a variable nor a class ${cstReference.value} was found")
+              throw MarcelSemanticException(node.token, "Neither a variable nor a class ${cstReference.value} was found")
             }
             staticDotOperator(node, type, rightOperand)
           }
