@@ -803,8 +803,7 @@ class MarcelSemantic(
         rightOperand.namedArgumentNodes.map { Pair(it.first, it.second.accept(this)) })
         ?: throw MarcelSemanticException(node.token, "Method ${owner.type}.${rightOperand.value} couldn't be resolved")
       val castType = rightOperand.castType?.let { visit(it) }
-      // keeping owner even if method is static because it must be an extension method
-      fCall(method = method, owner = if (discardOwnerInReturned) null else owner, castType = castType,
+      fCall(method = method, owner = if (discardOwnerInReturned || method.isStatic && !method.isExtension) null else owner, castType = castType,
         arguments = arguments, node = node)
     }
     is ReferenceCstNode -> {
@@ -999,7 +998,7 @@ class MarcelSemantic(
 
     val method = methodResolve.first
     val castType = if (node.castType != null) visit(node.castType!!) else null
-    val owner = if (method.isStatic && !method.isExtension) null else ThisReferenceNode(currentScope.classType, node.token)
+    val owner = if (method.isStatic) null else ThisReferenceNode(currentScope.classType, node.token)
     return fCall(
       node = node,
       method = method,
