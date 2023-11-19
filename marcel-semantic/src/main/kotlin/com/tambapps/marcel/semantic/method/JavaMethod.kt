@@ -32,6 +32,7 @@ interface JavaMethod: JavaTyped {
   val actualReturnType: JavaType
   val isDefault: Boolean // for interface
   val isAbstract: Boolean
+  val isExtension: Boolean get() = false
 
   val isStatic: Boolean
   val isConstructor: Boolean

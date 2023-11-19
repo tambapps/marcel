@@ -14,6 +14,7 @@ class ExtensionJavaMethod private constructor(
   // the static is excluded here in purpose so that self is pushed to the stack
   override val isAbstract = false
   override val isDefault = false
+  override val isExtension = true
 
   override val visibility = actualMethod.visibility
   override val isStatic = actualMethod.isStatic
