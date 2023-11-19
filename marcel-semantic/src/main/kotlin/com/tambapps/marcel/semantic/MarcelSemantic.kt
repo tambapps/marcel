@@ -618,7 +618,7 @@ class MarcelSemantic(
   override fun visit(node: IndexAccessCstNode, smartCastType: JavaType?): ExpressionNode {
     val owner = node.ownerNode.accept(this)
     val arguments = node.indexNodes.map { it.accept(this) }
-    return if (owner.type.isArray) {
+    return if (owner.type.isArray && !node.isSafeAccess) { // because array safe access is an extension method
       if (node.indexNodes.size != 1) throw MarcelSemanticException(node, "Arrays need one index")
       ArrayAccessNode(owner, caster.cast(JavaType.int, node.indexNodes.first().accept(this, JavaType.int)), node)
     } else {
