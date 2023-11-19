@@ -190,6 +190,8 @@ import java.util.OptionalInt
 import java.util.OptionalLong
 import java.util.regex.Pattern
 
+// TODO handle extension classes. Once its done see todo in marcel-extensions pom (remove hardcoded version)
+
 // TODO implement multiple errors like in parser2
 //   but BE CAREFUL: sometimes I rely on an exception to be thrown because I catch it and do some other behaviour
 class MarcelSemantic(

@@ -36,6 +36,8 @@
       <plugin>
         <groupId>com.tambapps.marcel.maven</groupId>
         <artifactId>marcel-maven-plugin</artifactId>
+        <!-- TODO remove this when marcel will support extension classes again -->
+        <version>0.0.2</version>
         <executions>
           <execution>
             <goals>
