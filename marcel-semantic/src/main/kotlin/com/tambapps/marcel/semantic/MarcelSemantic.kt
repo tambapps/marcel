@@ -187,6 +187,7 @@ import java.util.LinkedList
 import java.util.regex.Pattern
 
 // TODO implement multiple errors like in parser2
+//   but BE CAREFUL: sometimes I rely on an exception to be thrown because I catch it and do some other behaviour
 class MarcelSemantic(
   private val typeResolver: JavaTypeResolver,
   private val cst: SourceFileCstNode
@@ -716,7 +717,23 @@ class MarcelSemantic(
           node = node
         )
       }
-      TokenType.DOT -> dotOperator(node, node.leftOperand.accept(this), rightOperand)
+      TokenType.DOT -> {
+        if (node.leftOperand is ReferenceCstNode) {
+          val cstReference = (node.leftOperand as ReferenceCstNode)
+          try {
+            val (variable, owner) = findVariableAndOwner(cstReference.value, node)
+            dotOperator(node, ReferenceNode(owner, variable, node.token), rightOperand)
+          } catch (e: MarcelSemanticException) {
+            // it may be a static method call
+            val type = try {
+              currentScope.resolveTypeOrThrow(TypeCstNode(null, cstReference.value, emptyList(), 0, cstReference.tokenStart, cst.tokenEnd))
+            } catch (e2: MarcelSemanticException) {
+              throw MarcelSemanticException("Neither a variable nor a class ${cstReference.value} was found")
+            }
+            staticDotOperator(node, type, rightOperand)
+          }
+        } else dotOperator(node, node.leftOperand.accept(this), rightOperand)
+      }
       TokenType.TWO_DOTS -> rangeNode(leftOperand, rightOperand, "of")
       TokenType.TWO_DOTS_END_EXCLUSIVE -> rangeNode(leftOperand, rightOperand, "ofToExclusive")
       TokenType.AND -> AndNode(caster.truthyCast(leftOperand.accept(this)), caster.truthyCast(rightOperand.accept(
@@ -775,13 +792,33 @@ class MarcelSemantic(
         rightOperand.namedArgumentNodes.map { Pair(it.first, it.second.accept(this)) })
         ?: throw MarcelSemanticException(node.token, "Method ${owner.type}.${rightOperand.value} couldn't be resolved")
       val castType = rightOperand.castType?.let { visit(it) }
-      fCall(method = method, owner = if (discardOwnerInReturned) null else owner, castType = castType,
+      fCall(method = method, owner = if (discardOwnerInReturned || method.isStatic) null else owner, castType = castType,
         arguments = arguments, node = node)
     }
     is ReferenceCstNode -> {
       val variable = typeResolver.findFieldOrThrow(owner.type, rightOperand.value, rightOperand.token)
       checkVariableAccess(variable, node)
-      ReferenceNode(if (discardOwnerInReturned) null else owner, variable, rightOperand.token)
+      ReferenceNode(if (discardOwnerInReturned || variable.isStatic) null else owner, variable, rightOperand.token)
+    }
+    else -> throw MarcelSemanticException(node, "Invalid dot operator use")
+  }
+
+  private fun staticDotOperator(node: CstNode, ownerType: JavaType, rightOperand: ExpressionCstNode): ExpressionNode = when (rightOperand) {
+    is FunctionCallCstNode -> {
+      val (method, arguments) = methodResolver.resolveMethod(node, ownerType, rightOperand.value,
+        rightOperand.positionalArgumentNodes.map { it.accept(this) },
+        rightOperand.namedArgumentNodes.map { Pair(it.first, it.second.accept(this)) })
+        ?: throw MarcelSemanticException(node.token, "Method ${ownerType}.${rightOperand.value} couldn't be resolved")
+      val castType = rightOperand.castType?.let { visit(it) }
+      if (!method.isStatic) throw MarcelSemanticException(node, "Method $method is not static")
+      fCall(method = method, owner = null, castType = castType,
+        arguments = arguments, node = node)
+    }
+    is ReferenceCstNode -> {
+      val variable = typeResolver.findFieldOrThrow(ownerType, rightOperand.value, rightOperand.token)
+      if (!variable.isStatic) throw MarcelSemanticException(node, "Variable $variable is not static")
+      checkVariableAccess(variable, node)
+      ReferenceNode(null, variable, rightOperand.token)
     }
     else -> throw MarcelSemanticException(node, "Invalid dot operator use")
   }

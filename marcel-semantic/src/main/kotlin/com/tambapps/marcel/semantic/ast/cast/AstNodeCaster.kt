@@ -57,6 +57,9 @@ class AstNodeCaster(
         expectedType == JavaType.double && actualType == JavaType.Double -> functionCall(JavaType.Double, "doubleValue", emptyList(), node)
         expectedType == JavaType.char && actualType == JavaType.String -> functionCall(JavaType.String, "charAt", listOf(IntConstantNode(node.token, 0)), node)
         actualType == JavaType.Object -> cast(expectedType, cast(expectedType.objectType, node))
+        expectedType == JavaType.boolean ->
+          if (actualType.implements(MarcelTruth::class.javaType)) functionCall(actualType, "isTruthy", emptyList(), node)
+          else functionCall(actualType, "isTruthy", listOf(node), node)
         else -> incompatibleTypes(node, expectedType, actualType)
       }
       // primitive to Object

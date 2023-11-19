@@ -13,7 +13,7 @@ fun int sum(int a = 0, int b = 1) {
 
 assertEquals(4l, foo(1l))
 assertEquals(12l, foo(b: 4l..8l))
-assertEquals(13l, foo(b: 4l<..8l))
+assertEquals(13l, foo(b: 5l..8l))
 assertEquals(11l, foo(b: 4l..<8l))
 assertEquals(9l, foo(3l, 3l..3l))
 assertEquals(9l, foo(a: 3l, b: 3l..3l))

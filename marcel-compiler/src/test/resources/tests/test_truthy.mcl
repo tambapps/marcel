@@ -7,6 +7,8 @@ assertFalse(new A(a: 1) as bool)
 class A implements MarcelTruth {
   int a
 
+  constructor(this.a)
+
   fun bool isTruthy() {
     return a == 2
   }

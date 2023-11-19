@@ -453,7 +453,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
                 "For loops should start with variable declaration/assignment"
               )
             }
-            accept(TokenType.SEMI_COLON)
+            // semi should have been parsed by the above statement
             val condition = expression(parentNode)
             accept(TokenType.SEMI_COLON)
             val iteratorStatement = statement(parentNode)

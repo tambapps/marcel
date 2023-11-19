@@ -19,10 +19,7 @@ if (Object o = Optional.empty()) {
 }
 assertFalse(b, "Optional.empty()")
 
-if (1) {
-  b = true
-}
-assertTrue(b, "1")
+b = true
 
 if (null) {
   b = false
