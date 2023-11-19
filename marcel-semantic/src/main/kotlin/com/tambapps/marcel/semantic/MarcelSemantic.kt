@@ -483,6 +483,13 @@ class MarcelSemantic(
       }
     }
 
+    if (scriptRunMethod) {
+      // make the last statement the return value of the run method if possible
+      val lastStatement = statements.lastOrNull()
+      if (lastStatement is ExpressionStatementNode && lastStatement.expressionNode.type != JavaType.void) {
+        statements[statements.lastIndex] = ReturnStatementNode(caster.cast(JavaType.Object, lastStatement.expressionNode))
+      }
+    }
     if (!AllPathsReturnVisitor.test(statements)) {
       if (methodeNode.returnType == JavaType.void) {
         statements.add(SemanticHelper.returnVoid(methodeNode))
