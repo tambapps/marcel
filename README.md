@@ -41,7 +41,11 @@ Example
 mvn clean verify -Djavadoc.skip=true
 ```
 ### From release
+You can run the script to install marcel from a release
 
+```shell
+./install/install-from-release.sh
+```
 
 ## Maven Plugin
 
