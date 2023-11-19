@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// TODO rename me MarcelParserException
 public class MarcelParser2Exception extends RuntimeException {
 
   public static MarcelParser2Exception.Error error(String message, boolean eof, LexToken token) {

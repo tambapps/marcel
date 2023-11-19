@@ -48,6 +48,11 @@ class MarcelCompiler(private val configuration: CompilerConfiguration) {
   }
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParser2Exception::class, MarcelSemanticException::class, MarcelCompilerException::class)
+  fun compileFiles(file: Collection<File>, marcelClassLoader: MarcelClassLoader? = null, classConsumer: Consumer<CompiledClass>) {
+    compileSourceFiles(file.map(SourceFile::fromFile), marcelClassLoader, classConsumer)
+  }
+
+  @Throws(IOException::class, MarcelLexerException::class, MarcelParser2Exception::class, MarcelSemanticException::class, MarcelCompilerException::class)
   fun compileSourceFiles(sourceFiles: Collection<SourceFile>, marcelClassLoader: MarcelClassLoader? = null, classConsumer: Consumer<CompiledClass>) {
     val typeResolver = JavaTypeResolver(marcelClassLoader)
 

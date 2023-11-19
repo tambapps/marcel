@@ -31,7 +31,7 @@
     </dependency>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
-      <artifactId>marcel-compiler-legacy</artifactId>
+      <artifactId>marcel-compiler</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>

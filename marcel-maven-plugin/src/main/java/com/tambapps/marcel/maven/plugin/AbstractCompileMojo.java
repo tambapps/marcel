@@ -4,15 +4,14 @@ import com.tambapps.marcel.compiler.CompilerConfiguration;
 import com.tambapps.marcel.compiler.MarcelCompiler;
 import com.tambapps.marcel.compiler.exception.MarcelCompilerException;
 import com.tambapps.marcel.lexer.MarcelLexerException;
-import com.tambapps.marcel.parser.exception.MarcelParserException;
-import com.tambapps.marcel.parser.exception.MarcelSemanticException;
+import com.tambapps.marcel.parser.MarcelParser2Exception;
+import com.tambapps.marcel.semantic.exception.MarcelSemanticException;
 import marcel.lang.MarcelClassLoader;
 import marcel.lang.URLMarcelClassLoader;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.util.HashMap;
@@ -64,7 +63,7 @@ public abstract class AbstractCompileMojo extends AbstractMarcelSourcesMojo {
      */
     @SuppressWarnings({"rawtypes"})
     protected synchronized void doCompile(final Set<File> sources, final List<String> classpath, final File compileOutputDirectory)
-            throws IOException, MarcelLexerException, MarcelParserException, MarcelSemanticException, MarcelCompilerException {
+            throws IOException, MarcelLexerException, MarcelParser2Exception, MarcelSemanticException, MarcelCompilerException {
         if (sources == null || sources.isEmpty()) {
             getLog().info("No sources specified for compilation. Skipping.");
             return;
@@ -86,7 +85,7 @@ public abstract class AbstractCompileMojo extends AbstractMarcelSourcesMojo {
         MarcelCompiler compiler = new MarcelCompiler(configuration);
 
         AtomicInteger classesCount = new AtomicInteger();
-        compiler.compile(marcelClassLoader, sources, (c) -> {
+        compiler.compileFiles(sources, marcelClassLoader, (c) -> {
             String name = c.getClassName().replace('.', File.separatorChar) + ".class";
             File path = new File(compileOutputDirectory, name);
             // ensure the path is ready for the file
