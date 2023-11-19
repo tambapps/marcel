@@ -1,4 +1,4 @@
-# mMarcel
+# Marcel
 Marcel is language that compiles to Java bytecode, with a guaranteed support for Android. It also aims to use primitive types as much as possible when
 working with Collections.
 
