@@ -43,6 +43,7 @@ object ParserUtils {
     Pair(AND, 8),
     Pair(OR, 9),
 
+    Pair(QUESTION_MARK, 10), // for ternary
     Pair(ELVIS, 10),
 
     Pair(ASSIGNMENT, 11),

@@ -540,19 +540,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     return BlockCstNode(statements, parentNode, token, previous)
   }
 
-  fun expression(parentNode: CstNode? = null): ExpressionCstNode {
-    val expression = expression(parentNode, Int.MAX_VALUE)
-    if (current.type != TokenType.QUESTION_MARK) {
-      return expression
-    }
-    skip()
-    val trueExpression = expression(parentNode)
-    accept(TokenType.COLON)
-    val falseExpression = expression(parentNode)
-    return TernaryCstNode(expression, trueExpression, falseExpression, parentNode, expression.tokenStart, falseExpression.tokenEnd)
-  }
-
-  private fun expression(parentNode: CstNode?, maxPriority: Int): ExpressionCstNode {
+  fun expression(parentNode: CstNode? = null, maxPriority: Int = Int.MAX_VALUE): ExpressionCstNode {
     var a = atom(parentNode)
     var t = current
     while (ParserUtils.isBinaryOperator(t.type) && ParserUtils.getPriority(t.type) < maxPriority) {
@@ -563,6 +551,12 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         TokenType.AS, TokenType.NOT_INSTANCEOF, TokenType.INSTANCEOF -> {
           val rightOperand = parseType(parentNode)
           BinaryTypeOperatorCstNode(t.type, leftOperand, rightOperand, parentNode, leftOperand.tokenStart, rightOperand.tokenEnd)
+        }
+        TokenType.QUESTION_MARK -> { // ternary
+          val trueExpr = expression(parentNode)
+          accept(TokenType.COLON)
+          val falseExpr = expression(parentNode)
+          TernaryCstNode(leftOperand, trueExpr, falseExpr, parentNode, leftOperand.tokenStart, falseExpr.tokenEnd)
         }
         else -> {
           val rightOperand = expression(parentNode, ParserUtils.getPriority(t.type) + ParserUtils.getAssociativity(t.type))
