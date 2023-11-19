@@ -11,7 +11,7 @@ import com.tambapps.marcel.semantic.variable.VariableVisitor
 open class MethodField constructor(override val type: JavaType, override val name: String, override val owner: JavaType,
                                    private val _getterMethod: JavaMethod?,
                                    private val _setterMethod: JavaMethod?,
-                                   val isExtension: Boolean): AbstractField() {
+                                   override val isExtension: Boolean): AbstractField() {
 
   override fun <T> accept(visitor: VariableVisitor<T>) = visitor.visit(this)
 
@@ -21,6 +21,7 @@ open class MethodField constructor(override val type: JavaType, override val nam
 
   override val isGettable = _getterMethod != null
   override val isSettable = _setterMethod != null
+
   val getterMethod get() = _getterMethod!!
   val setterMethod get() = _setterMethod!!
 

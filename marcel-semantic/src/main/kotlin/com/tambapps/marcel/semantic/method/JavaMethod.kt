@@ -32,9 +32,12 @@ interface JavaMethod: JavaTyped {
   val actualReturnType: JavaType
   val isDefault: Boolean // for interface
   val isAbstract: Boolean
-  val isExtension: Boolean get() = false
 
   val isStatic: Boolean
+  val isExtension: Boolean get() = false
+  // extension field/methods are not considered static in marcel
+  val isMarcelStatic: Boolean get() = isStatic && !isExtension
+
   val isConstructor: Boolean
   val isInline: Boolean get() = false
 

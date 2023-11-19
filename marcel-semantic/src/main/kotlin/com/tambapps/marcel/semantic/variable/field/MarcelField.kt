@@ -8,5 +8,9 @@ sealed interface MarcelField: Variable {
   val owner: JavaType
   val visibility: Visibility
   val isStatic: Boolean
+  val isExtension: Boolean get() = false
+
+  // extension field/methods are not considered static in marcel
+  val isMarcelStatic: Boolean get() = isStatic && !isExtension
 
 }

@@ -803,13 +803,13 @@ class MarcelSemantic(
         rightOperand.namedArgumentNodes.map { Pair(it.first, it.second.accept(this)) })
         ?: throw MarcelSemanticException(node.token, "Method ${owner.type}.${rightOperand.value} couldn't be resolved")
       val castType = rightOperand.castType?.let { visit(it) }
-      fCall(method = method, owner = if (discardOwnerInReturned || method.isStatic && !method.isExtension) null else owner, castType = castType,
+      fCall(method = method, owner = if (discardOwnerInReturned || method.isMarcelStatic) null else owner, castType = castType,
         arguments = arguments, node = node)
     }
     is ReferenceCstNode -> {
       val variable = typeResolver.findFieldOrThrow(owner.type, rightOperand.value, rightOperand.token)
       checkVariableAccess(variable, node)
-      ReferenceNode(if (discardOwnerInReturned || variable.isStatic) null else owner, variable, rightOperand.token)
+      ReferenceNode(if (discardOwnerInReturned || variable.isMarcelStatic) null else owner, variable, rightOperand.token)
     }
     is IndexAccessCstNode -> {
       val indexOwner = dotOperator(node, owner, rightOperand.ownerNode, false)
@@ -998,7 +998,7 @@ class MarcelSemantic(
 
     val method = methodResolve.first
     val castType = if (node.castType != null) visit(node.castType!!) else null
-    val owner = if (method.isStatic) null else ThisReferenceNode(currentScope.classType, node.token)
+    val owner = if (method.isMarcelStatic) null else ThisReferenceNode(currentScope.classType, node.token)
     return fCall(
       node = node,
       method = method,

@@ -22,6 +22,7 @@ open class CompositeField(override val name: String): MarcelField {
 
   override val isFinal get() = (getters + setters).all { it.isFinal }
   override val isStatic get() = (getters + setters).all { it.isStatic }
+  override val isMarcelStatic get() = (getters + setters).all { it.isMarcelStatic }
   override val owner get() = (getters.firstOrNull() ?: setters.first()).owner
   override val visibility get() = (getters + setters).map { it.visibility }.maxBy { it.ordinal }
   override fun isVisibleFrom(javaType: JavaType, access: Variable.Access) = when (access) {
