@@ -1,5 +1,6 @@
 
 class DefaultMethodParamsClass {
+
     fun int sum(int a = 0, int b = 1) {
       return a + b
     }
@@ -23,17 +24,15 @@ class DefaultMethodParamsClass {
       return String.valueOf(o)
     }
 
-    fun String bar2(String a = defaultValueTest()) {
-      return String.valueOf(a)
-    }
-
-
     static fun String defaultValueTest() {
       return ""
+    }
+
+    fun String bar2(String a = defaultValueTest()) {
+      return String.valueOf(a)
     }
 
    fun int bar3(list<int> a = [1, 2, 3] as list<int>) {
      return a.size()
    }
 }
-

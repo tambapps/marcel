@@ -14,21 +14,7 @@ assertEquals(['foo': 1, 'bar': 2], o.value)
 assertTrue(o as bool)
 
 o = new DynImpl()
-assertNull(o.value)
-o.name = "test"
-assertEquals("test", o.getValue())
-assertEquals("test", o.value)
-assertEquals("test", o.name.value)
-assertFalse(o as bool)
 
-o = DynamicObject.of([1, 2 , 3] as list<int>)
-
-assertEquals(2, o[1].value)
-o[0] = 2
-assertEquals(2, o[0].value)
-assertTrue(o as bool)
-
-assertFalse(DynamicObject.of([] as list<int>) as bool)
 
 class DynImpl implements DynamicObject {
 

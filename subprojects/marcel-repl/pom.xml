@@ -18,7 +18,7 @@
   <dependencies>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
-      <artifactId>marcel-compiler</artifactId>
+      <artifactId>marcel-compiler-legacy</artifactId>
     </dependency>
     <!-- Needed in order to load default extensions -->
     <dependency>

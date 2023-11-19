@@ -8,7 +8,7 @@ import kotlin.math.absoluteValue
 
 abstract class AbstractCompilerTest {
 
-  protected val compiler = MarcelCompiler()
+  protected val compiler = MarcelCompiler(CompilerConfiguration())
 
   protected fun eval(resourceName: String): Any? {
     val className = "Test" + resourceName.hashCode().absoluteValue
@@ -39,10 +39,9 @@ abstract class AbstractCompilerTest {
   }
 
   protected fun writeJar(className: String, text: String): File {
-    return writeJar(compiler.compile(text = text, className = className), className)
+    return writeJar(compiler.compile(text = text, fileName = className), className)
   }
   protected fun writeJar(result: List<CompiledClass>, className: String): File {
-
     val jarFile = Files.createTempFile("", "$className.jar").toFile()
     JarWriter(jarFile).use {
       it.writeClasses(result)

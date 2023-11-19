@@ -39,7 +39,7 @@ class AstNodeCaster(
    * Throws a MarcelSemanticException in case of casting failure
    */
   fun cast(expectedType: JavaType, node: ExpressionNode): ExpressionNode {
-    val actualType = node.type
+    var actualType = node.type
     return when {
       expectedType == actualType -> node
       expectedType == JavaType.DynamicObject ->
@@ -86,6 +86,8 @@ class AstNodeCaster(
             else if (JavaType.charCollection.isAssignableFrom(expectedType)) castArrayNode(JavaType.charArray, node)
             else if (Collection::class.javaType.isAssignableFrom(expectedType)) castArrayNode(JavaType.objectArray, node)
           }
+          // need to recompute type as it might have been updated because of above castArrayNode calls
+          actualType = node.type
           when {
             // lists
             JavaType.intList.isAssignableFrom(expectedType) && actualType == JavaType.intArray -> functionCall(JavaType.intListImpl, "wrap", listOf(node), node)

@@ -86,11 +86,9 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
 
           if (match != null && type.isAssignableFrom(match.returnType)
             && match.isStatic
-            && match.visibility == Visibility.PUBLIC
             && match.parameters.isEmpty()) FunctionCallNode(match, null, emptyList(), LexToken.dummy())
           else null
         }
-        // TODO range annotation
         else -> null
       }
 

@@ -1,42 +1,41 @@
 import static org.junit.jupiter.api.Assertions.assertEquals
 
 
-@Delegate
 private DefaultMethodParamsClass a = new DefaultMethodParamsClass()
 
-assertEquals(7, sum(a: 6))
-assertEquals(7, sum(b: 7))
-assertEquals(1, sum())
-assertEquals(2, sum(1))
+assertEquals(7, a.sum(a: 6))
+assertEquals(7, a.sum(b: 7))
+assertEquals(1, a.sum())
+assertEquals(2, a.sum(1))
 
-assertEquals(4l, foo(1l))
-assertEquals(12l, foo(b: 4l..8l))
-assertEquals(13l, foo(b: 4l<..8l))
-assertEquals(11l, foo(b: 4l..<8l))
-assertEquals(9l, foo(3l, 3l..3l))
-assertEquals(9l, foo(a: 3l, b: 3l..3l))
+assertEquals(4l, a.foo(1l))
+assertEquals(12l, a.foo(b: 4l..8l))
+assertEquals(13l, a.foo(b: 5l..8l))
+assertEquals(11l, a.foo(b: 4l..<8l))
+assertEquals(9l, a.foo(3l, 3l..3l))
+assertEquals(9l, a.foo(a: 3l, b: 3l..3l))
 
-assertEquals(6, foo2(1))
-assertEquals(20, foo2(b: 5..15))
-assertEquals(21, foo2(b: 5<..15))
-assertEquals(19, foo2(b: 5..<15))
-assertEquals(9, foo2(3, 3..3))
-assertEquals(9, foo2(a: 3, b: 3..3))
-
-
-assertEquals("GET bar?foo=5", get("bar", foo: 5))
+assertEquals(6, a.foo2(1))
+assertEquals(20, a.foo2(b: 5..15))
+assertEquals(21, a.foo2(b: 6..15))
+assertEquals(19, a.foo2(b: 5..<15))
+assertEquals(9, a.foo2(3, 3..3))
+assertEquals(9, a.foo2(a: 3, b: 3..3))
 
 
-assertEquals("null", bar())
-assertEquals("null", bar(o: null))
-assertEquals("1", bar(o: 1))
+assertEquals("GET bar?foo=5", a.get("bar", foo: 5))
 
 
-assertEquals("nullnull", zoo())
+assertEquals("null", a.bar())
+assertEquals("null", a.bar(o: null))
+assertEquals("1", a.bar(o: 1))
 
 
-assertEquals("", bar2())
-assertEquals("Hello World", bar2("Hello World"))
+assertEquals("nullnull", a.zoo())
 
-assertEquals(3, bar3())
-assertEquals(0, bar3([] as list<int>))
+
+assertEquals("", a.bar2())
+assertEquals("Hello World", a.bar2("Hello World"))
+
+assertEquals(3, a.bar3())
+assertEquals(0, a.bar3([] as list<int>))

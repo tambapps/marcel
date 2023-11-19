@@ -4,7 +4,6 @@ import java.util.*
 
 abstract class AbstractMethod: JavaMethod {
 
-
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is JavaMethod) return false
@@ -16,5 +15,9 @@ abstract class AbstractMethod: JavaMethod {
 
   override fun hashCode(): Int {
     return Objects.hash(name, parameters, returnType)
+  }
+
+  override fun toString(): String {
+    return "fun $returnType $name(" + parameters.joinToString(separator = ",") + ")"
   }
 }

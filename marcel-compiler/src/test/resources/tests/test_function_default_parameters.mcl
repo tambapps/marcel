@@ -25,7 +25,7 @@ fun long foo(long a = 0l, LongRange b = 1l..2l) {
 
 assertEquals(6, foo2(1))
 assertEquals(20, foo2(b: 5..15))
-assertEquals(21, foo2(b: 5<..15))
+assertEquals(21, foo2(b: 6..15))
 assertEquals(19, foo2(b: 5..<15))
 assertEquals(9, foo2(3, 3..3))
 assertEquals(9, foo2(a: 3, b: 3..3))

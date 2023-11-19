@@ -10,6 +10,8 @@ assertEquals(4, i1 + 3)
 class MyInt {
   int i
 
+  constructor(this.i)
+
   fun int plus(MyInt mi) {
     return i + mi.i
   }

@@ -14,6 +14,7 @@ import java.util.jar.JarOutputStream
 import java.util.jar.Manifest
 import kotlin.jvm.Throws
 
+// open because of DexJarWriter
 open class JarWriter constructor(outputStream: OutputStream, manifest: Manifest): Closeable, Consumer<CompiledClass> {
   constructor(outputStream: OutputStream): this(outputStream, Manifest())
   constructor(file: File): this(FileOutputStream(file))

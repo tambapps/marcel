@@ -23,7 +23,7 @@
     </dependency>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
-      <artifactId>marcel-parser2</artifactId>
+      <artifactId>marcel-parser</artifactId>
     </dependency>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>

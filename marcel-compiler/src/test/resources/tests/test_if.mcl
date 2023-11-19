@@ -20,6 +20,7 @@ if (Object o = Optional.empty()) {
 assertFalse(b, "Optional.empty()")
 
 b = true
+
 if (null) {
   b = false
 }

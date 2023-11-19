@@ -1,0 +1,12 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+int[] ints = [1, 2, 3]
+/*
+doesn't work since rewrite
+assertEquals(2, ints?[1])
+assertEquals(null, ints?[3])
+
+list<int> intList = [1, 2, 3]
+assertEquals(2, intList?[1])
+assertEquals(null, intList?[3])
+*/

@@ -21,11 +21,12 @@ fun String testSwitch(int c) {
   return switch (c) {
            1 -> "youhou"
            2 -> "yipi"
+           else -> null
          }
 }
 
 fun int testSwitchInt(int c) {
-  return switch (c) {
+  return switch (int it = c) {
            1 -> 1
            2 -> c
            else -> it + 1

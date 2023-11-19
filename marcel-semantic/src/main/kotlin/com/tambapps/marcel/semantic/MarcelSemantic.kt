@@ -1669,8 +1669,8 @@ class MarcelSemantic(
 
   private fun generateDefaultParameterMethod(node: CstNode, ownerClass: JavaType, visibility: Visibility, isStatic: Boolean, methodName: String, type: JavaType, parameterIndex: Int): MethodNode {
     return MethodNode("${methodName}_defaultParam${parameterIndex}", emptyList(), visibility, type,
-      // because we can't access private/internal/protected members if method is called from outside the class
-      isStatic= isStatic || visibility == Visibility.PRIVATE, node.tokenStart, node.tokenEnd, ownerClass)
+      // always static because we don't it is painful to push the owner
+      isStatic= true, node.tokenStart, node.tokenEnd, ownerClass)
   }
 
   // add annotation if necessary to the node, e.g. for default parameters. To use on to be compiled methods

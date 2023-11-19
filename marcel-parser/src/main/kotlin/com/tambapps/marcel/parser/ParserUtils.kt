@@ -2,7 +2,6 @@ package com.tambapps.marcel.parser
 
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.lexer.TokenType.*
-import org.objectweb.asm.Opcodes
 
 object ParserUtils {
 
@@ -14,46 +13,48 @@ object ParserUtils {
     Pair(QUESTION_DOT, 1),
     Pair(NOT, 1),
 
-    Pair(MUL, 2),
-    Pair(DIV, 2),
-    Pair(MODULO, 2),
-    Pair(FIND, 2),
+    Pair(TWO_DOTS, 2),
+    Pair(TWO_DOTS_END_EXCLUSIVE, 2),
 
-    Pair(PLUS, 3),
-    Pair(MINUS, 3),
+    Pair(MUL, 3),
+    Pair(DIV, 3),
+    Pair(MODULO, 3),
+    Pair(FIND, 3),
 
-    Pair(LEFT_SHIFT, 4),
-    Pair(RIGHT_SHIFT, 4),
+    Pair(PLUS, 4),
+    Pair(MINUS, 4),
 
-    Pair(GT, 5),
-    Pair(LT, 5),
-    Pair(GOE, 5),
-    Pair(LOE, 5),
-    // instanceof 5
+    Pair(LEFT_SHIFT, 5),
+    Pair(RIGHT_SHIFT, 5),
 
-    Pair(EQUAL, 6),
-    Pair(NOT_EQUAL, 6),
-    Pair(IS, 6),
-    Pair(IS_NOT, 6),
+    Pair(GT, 6),
+    Pair(LT, 6),
+    Pair(GOE, 6),
+    Pair(LOE, 6),
+    Pair(INSTANCEOF, 6),
+    Pair(NOT_INSTANCEOF, 6),
+    Pair(AS, 6),
 
-    Pair(AND, 7),
-    Pair(OR, 8),
+    Pair(EQUAL, 7),
+    Pair(NOT_EQUAL, 7),
+    Pair(IS, 7),
+    Pair(IS_NOT, 7),
 
-    Pair(ASSIGNMENT, 9),
-    Pair(MINUS_ASSIGNMENT, 9),
-    Pair(PLUS_ASSIGNMENT, 9),
-    Pair(MUL_ASSIGNMENT, 9),
-    Pair(DIV_ASSIGNMENT, 9),
+    Pair(AND, 8),
+    Pair(OR, 9),
+
+    Pair(QUESTION_MARK, 10), // for ternary
+    Pair(ELVIS, 10),
+
+    Pair(ASSIGNMENT, 11),
+    Pair(MINUS_ASSIGNMENT, 11),
+    Pair(PLUS_ASSIGNMENT, 11),
+    Pair(MUL_ASSIGNMENT, 11),
+    Pair(DIV_ASSIGNMENT, 11),
   )
 
   private val RIGHT_ASSOCIATIVITY_OPERATOR = listOf(POWER, ASSIGNMENT)
 
-  val TOKEN_VISIBILITY_MAP = mapOf(
-    Pair(VISIBILITY_PUBLIC, Opcodes.ACC_PUBLIC),
-    Pair(VISIBILITY_PROTECTED, Opcodes.ACC_PROTECTED),
-    Pair(VISIBILITY_INTERNAL, 0),
-    Pair(VISIBILITY_PRIVATE, Opcodes.ACC_PRIVATE)
-  )
   fun isBinaryOperator(t: TokenType): Boolean {
     return t in PRIORITY_MAP.keys
   }
