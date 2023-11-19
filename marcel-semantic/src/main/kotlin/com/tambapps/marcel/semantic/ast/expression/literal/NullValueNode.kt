@@ -23,6 +23,6 @@ class NullValueNode(token: LexToken, type: JavaType?): AbstractExpressionNode(ty
   }
 
   override fun toString(): String {
-    return if (type != null) "($type) null" else "null"
+    return if (type != JavaType.Object) "($type) null" else "null"
   }
 }
