@@ -620,6 +620,10 @@ class MarcelSemantic(
 
   override fun visit(node: IndexAccessCstNode, smartCastType: JavaType?): ExpressionNode {
     val owner = node.ownerNode.accept(this)
+    return indexAccess(owner, node)
+  }
+
+  private fun indexAccess(owner: ExpressionNode, node: IndexAccessCstNode): ExpressionNode {
     val arguments = node.indexNodes.map { it.accept(this) }
     return if (owner.type.isArray && !node.isSafeAccess) { // because array safe access is an extension method
       if (node.indexNodes.size != 1) throw MarcelSemanticException(node, "Arrays need one index")
@@ -788,7 +792,9 @@ class MarcelSemantic(
     }
   }
 
-  private fun dotOperator(node: CstNode, owner: ExpressionNode, rightOperand: ExpressionCstNode,
+  private fun dotOperator(node: CstNode,
+                          // its actually the left operand
+                          owner: ExpressionNode, rightOperand: ExpressionCstNode,
                           // useful for ternaryNode which duplicate value to avoid using local variable
                           discardOwnerInReturned: Boolean = false): ExpressionNode = when (rightOperand) {
     is FunctionCallCstNode -> {
@@ -804,6 +810,10 @@ class MarcelSemantic(
       val variable = typeResolver.findFieldOrThrow(owner.type, rightOperand.value, rightOperand.token)
       checkVariableAccess(variable, node)
       ReferenceNode(if (discardOwnerInReturned || variable.isStatic) null else owner, variable, rightOperand.token)
+    }
+    is IndexAccessCstNode -> {
+      val indexOwner = dotOperator(node, owner, rightOperand.ownerNode, false)
+      indexAccess(indexOwner, rightOperand)
     }
     else -> throw MarcelSemanticException(node, "Invalid dot operator use")
   }
