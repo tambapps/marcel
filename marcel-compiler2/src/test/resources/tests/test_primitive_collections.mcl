@@ -1,0 +1,38 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertNull
+
+// lists
+list<int> ints = [1, 2, 3]
+assertEquals(3, ints.size())
+
+list<long> longs = [1l, 2l, 3]
+assertEquals(3, longs.size())
+assertEquals(3l, longs.get(2))
+
+list<float> floats = [1f, 2f, 3]
+assertEquals(3, floats.size())
+assertEquals(3f, floats.get(2))
+
+list<double> doubles = [1d, 2d, 3]
+assertEquals(3, doubles.size())
+assertEquals(3d, doubles.get(2))
+
+list<char> chars = [`a`, `b`, `c`]
+assertEquals(3, chars.size())
+assertEquals(`c`, chars.get(2))
+
+// sets
+set<int> intSet = [1, 2, 3, 3]
+assertEquals(3, intSet.size())
+
+set<long> longSet = [1l, 2l, 3l, 3]
+assertEquals(3, longSet.size())
+
+set<float> floatSet = [1f, 2f, 3f, 3f]
+assertEquals(3, floatSet.size())
+
+set<double> doubleSet = [1d, 2d, 3d, 3]
+assertEquals(3, doubleSet.size())
+
+set<char> charSet = [`a`, `b`, `c`, `c`]
+assertEquals(3, doubleSet.size())

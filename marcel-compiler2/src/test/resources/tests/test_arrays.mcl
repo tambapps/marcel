@@ -1,0 +1,17 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertArrayEquals
+
+int[] intArray = [1, 2, 3]
+list<int> intList = [1, 2, 3]
+
+assertArrayEquals([1, 2, 3], intArray)
+assertEquals(2, intList[1])
+assertEquals(intArray[1], intList[1])
+
+intArray[1] = 3
+intList[1] = 3
+assertArrayEquals([1, 3, 3], intArray)
+assertEquals(3, intList[1])
+assertEquals(intArray[1], intList[1])
+
+

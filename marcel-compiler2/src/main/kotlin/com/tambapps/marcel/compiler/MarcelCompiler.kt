@@ -17,6 +17,8 @@ import java.util.function.Consumer
 
 class MarcelCompiler(private val configuration: CompilerConfiguration) {
 
+  constructor(): this(CompilerConfiguration())
+
   @Throws(IOException::class, MarcelLexerException::class, MarcelParser2Exception::class, MarcelSemanticException::class, MarcelCompilerException::class)
   fun compileToJar(scriptLoader: MarcelClassLoader? = null, files: Collection<SourceFile>, outputJar: File) {
     val classes = mutableListOf<CompiledClass>()

@@ -1,0 +1,10 @@
+
+int a = 2
+
+if (true) {
+  int b = 3
+  println(b)
+}
+
+bool b = true
+new Boolean(b)

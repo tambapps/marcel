@@ -1,0 +1,15 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+A a = new A()
+
+assertEquals(2, a.ints[1])
+assertEquals('b', a.m['a'])
+assertEquals(2, a.array[1])
+
+
+class A {
+
+  list<int> ints = [1, 2 ,3]
+  Map m = [a: 'b']
+  int[] array = [1, 2, 3]
+}

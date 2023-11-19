@@ -13,7 +13,7 @@ import org.junit.jupiter.api.TestFactory
 import java.nio.file.Path
 import java.nio.file.Paths
 
-class MarcelCompilerTest: AbstractCompilerTest() {
+class MarcelCompiler2Test: AbstractCompilerTest() {
 
   @TestFactory
   fun testRunAllScripts(): Collection<DynamicTest?> {
