@@ -1106,7 +1106,7 @@ class MarcelSemantic(
   override fun visit(node: SwitchCstNode, smartCastType: JavaType?): ExpressionNode {
     // transforming the switch into a when
     val switchExpression = node.switchExpression.accept(this,)
-    return switchWhen(node, smartCastType, switchExpression)
+    return switchWhen(node, smartCastType, switchExpression, node.varDeclaration)
   }
 
   /**
@@ -1283,7 +1283,7 @@ class MarcelSemantic(
 
   override fun visit(node: WhenCstNode, smartCastType: JavaType?) = switchWhen(node, smartCastType)
 
-  private fun switchWhen(node: WhenCstNode, smartCastType: JavaType?, switchExpression: ExpressionNode? = null): ExpressionNode {
+  private fun switchWhen(node: WhenCstNode, smartCastType: JavaType?, switchExpression: ExpressionNode? = null, varDecl: VariableDeclarationCstNode? = null): ExpressionNode {
     val shouldReturnValue = smartCastType != null && smartCastType != JavaType.void
     val elseStatement = node.elseStatement
     if (shouldReturnValue && elseStatement == null) {
@@ -1298,8 +1298,8 @@ class MarcelSemantic(
 
     val whenReturnType = smartCastType ?: computeWhenReturnType(node)
 
-    val switchExpressionRef = ReferenceCstNode(node.parent, "__switch_expression", node.token)
-    val switchExpressionLocalVariable = currentMethodScope.addLocalVariable(switchExpression?.type ?: JavaType.Object, switchExpressionRef.value)
+    val switchExpressionRef = ReferenceCstNode(node.parent, varDecl?.value ?: "__switch_expression", node.token)
+    val switchExpressionLocalVariable = currentMethodScope.addLocalVariable(varDecl?.let { visit(it.type) } ?: switchExpression?.type ?: JavaType.Object, switchExpressionRef.value)
 
     val rootIfCstNode = node.branches.first().let {
       toIf(it, switchExpression, switchExpressionRef, node)
@@ -1316,7 +1316,7 @@ class MarcelSemantic(
     /*
      * Looking for all local variables used from cst node as we'll need to pass them to the 'when' method
      */
-    val referencedLocalVariables = findAllReferencedLocalVariables(node, currentMethodScope)
+    val referencedLocalVariables = findAllReferencedLocalVariables(node, currentMethodScope, switchExpressionLocalVariable)
 
     val whenMethodParameters = mutableListOf<MethodParameter>()
     val whenMethodArguments = mutableListOf<ExpressionNode>()
@@ -1361,12 +1361,14 @@ class MarcelSemantic(
       arguments = whenMethodArguments, method = whenMethod)
   }
 
-  private fun findAllReferencedLocalVariables(node: WhenCstNode, scope: MethodScope): List<LocalVariable> {
+  private fun findAllReferencedLocalVariables(node: WhenCstNode, scope: MethodScope,
+                                              // variable to ignore
+                                              switchLocalVariable: LocalVariable): List<LocalVariable> {
     val localVariables = mutableSetOf<LocalVariable>()
     val consumer: (CstNode) -> Unit = { cstNode ->
       if (cstNode is ReferenceCstNode) {
         val lv = scope.findLocalVariable(cstNode.value)
-        if (lv != null) localVariables.add(lv)
+        if (lv != null && lv.name != switchLocalVariable.name) localVariables.add(lv)
       }
     }
     for (branch in node.branches) {

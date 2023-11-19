@@ -26,7 +26,7 @@ fun String testSwitch(int c) {
 }
 
 fun int testSwitchInt(int c) {
-  return switch (c) {
+  return switch (int it = c) {
            1 -> 1
            2 -> c
            else -> it + 1

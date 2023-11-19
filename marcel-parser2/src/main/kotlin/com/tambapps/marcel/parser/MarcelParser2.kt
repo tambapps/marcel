@@ -758,8 +758,15 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       }
       TokenType.WHEN, TokenType.SWITCH -> {
         var switchExpression: ExpressionCstNode? = null
+        var varDecl: VariableDeclarationCstNode? = null
         if (token.type == TokenType.SWITCH) {
           accept(TokenType.LPAR)
+          if (ParserUtils.isTypeToken(current.type) && lookup(1)?.type == TokenType.IDENTIFIER && lookup(2)?.type == TokenType.ASSIGNMENT) {
+            val type = parseType(parentNode)
+            val varName = accept(TokenType.IDENTIFIER).value
+            varDecl = VariableDeclarationCstNode(type, varName, null, parentNode, type.tokenStart, current)
+            accept(TokenType.ASSIGNMENT)
+          }
           switchExpression = expression(parentNode)
           accept(TokenType.RPAR)
         }
@@ -784,7 +791,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         }
         skip() // skip bracket_close
         if (switchExpression == null) WhenCstNode(parentNode, token, previous, branches, elseStatement)
-        else SwitchCstNode(parentNode, token, previous, branches, elseStatement, switchExpression)
+        else SwitchCstNode(parentNode, token, previous, branches, elseStatement, varDecl, switchExpression)
       }
       TokenType.BRACKETS_OPEN -> parseLambda(token, parentNode)
       else -> throw MarcelParser2Exception(token, "Not supported $token")
