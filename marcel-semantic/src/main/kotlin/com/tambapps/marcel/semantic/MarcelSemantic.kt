@@ -222,13 +222,27 @@ class MarcelSemantic(
     )
 
     val moduleNode = ModuleNode(cst.tokenStart, cst.tokenEnd)
-    val scriptCstNode = cst.script
 
     scopeQueue.push(ImportScope(typeResolver, imports))
     // define everything
     cst.classes.forEach { defineClass(it) }
+    // load extension types
+    val extensionTypes = cst.extensionImports.map(this::visit)
+    extensionTypes.forEach(typeResolver::loadExtension)
 
-    // define classes first, because script may use classes, but it can't be the other way around
+    try {
+        doApply(moduleNode)
+    } catch (e: MarcelSemanticException) {
+      extensionTypes.forEach(typeResolver::unloadExtension)
+      throw e
+    }
+
+    return moduleNode
+  }
+
+  private fun doApply(moduleNode: ModuleNode) {
+    val scriptCstNode = cst.script
+
     for (cstClass in cst.classes) {
       val classNode = classNode(typeResolver.of(cstClass.className, emptyList()), cstClass)
       moduleNode.classes.add(classNode)
@@ -262,8 +276,6 @@ class MarcelSemantic(
       }
       moduleNode.classes.add(scriptNode)
     }
-
-    return moduleNode
   }
 
   private fun defineClass(classCstNode: ClassCstNode) {

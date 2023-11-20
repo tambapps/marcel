@@ -3,10 +3,12 @@ package com.tambapps.marcel.compiler
 import com.tambapps.marcel.compiler.asm.MarcelClassWriter
 import com.tambapps.marcel.compiler.exception.MarcelCompilerException
 import com.tambapps.marcel.compiler.file.SourceFile
+import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser2
 import com.tambapps.marcel.parser.MarcelParser2Exception
+import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.semantic.MarcelSemantic
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
@@ -56,31 +58,14 @@ class MarcelCompiler(private val configuration: CompilerConfiguration) {
   fun compileSourceFiles(sourceFiles: Collection<SourceFile>, marcelClassLoader: MarcelClassLoader? = null, classConsumer: Consumer<CompiledClass>) {
     val typeResolver = JavaTypeResolver(marcelClassLoader)
 
-    // first load all classes in typeResolver
     val asts = sourceFiles.map { sourceFile ->
       val tokens = MarcelLexer().lex(sourceFile.text)
       val cst = MarcelParser2(classSimpleName = sourceFile.className, tokens = tokens).parse()
+
+      handleDumbbells(marcelClassLoader, cst)
+
       val ast = MarcelSemantic(typeResolver, cst).apply()
-      //visitAst(ast, typeResolver)
 
-      /*
-      if (ast.dumbbells.isNotEmpty() && !compilerConfiguration.dumbbellEnabled) {
-        throw MarcelCompilerException("Cannot use dumbbells because dumbbell feature is not enabled")
-      }
-      if (ast.dumbbells.isNotEmpty() && marcelClassLoader != null) {
-        for (dumbbell in ast.dumbbells) {
-          val artifacts = Dumbbell.pull(dumbbell)
-          artifacts.forEach {
-            if (it.jarFile != null) {
-              marcelClassLoader.addLibraryJar(it.jarFile)
-            }
-          }
-        }
-      }
-      ast.extensionTypes.forEach(typeResolver::loadExtension)
-      ast.classes.forEach { typeResolver.registerClass(it) }
-
-       */
       ast
     }
 
@@ -88,10 +73,27 @@ class MarcelCompiler(private val configuration: CompilerConfiguration) {
 
     // then compile them
     asts.forEach { ast ->
-      //ast.extensionTypes.forEach(typeResolver::loadExtension)
       val compiledClasses = classWriter.compileDefinedClasses(ast.classes)
-      //ast.extensionTypes.forEach(typeResolver::unloadExtension)
       compiledClasses.forEach(classConsumer)
+    }
+  }
+
+  private fun handleDumbbells(marcelClassLoader: MarcelClassLoader?, cst: SourceFileCstNode) {
+    if (cst.dumbbells.isNotEmpty()) {
+      if (!configuration.dumbbellEnabled) {
+        throw MarcelCompilerException("Cannot use dumbbells because dumbbell feature is not enabled")
+      }
+      if (marcelClassLoader == null) {
+        throw MarcelCompilerException("Cannot use dumbbells because no class loader was provided")
+      }
+      for (dumbbell in cst.dumbbells) {
+        val artifacts = Dumbbell.pull(dumbbell)
+        artifacts.forEach {
+          if (it.jarFile != null) {
+            marcelClassLoader.addLibraryJar(it.jarFile)
+          }
+        }
+      }
     }
   }
 }

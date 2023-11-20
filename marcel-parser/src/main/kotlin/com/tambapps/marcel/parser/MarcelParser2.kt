@@ -86,16 +86,23 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     if (tokens.isEmpty()) {
       throw MarcelParser2Exception(LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, null), "Unexpected end of file")
     }
-    val packageName = parsePackage()
+    val packageName = parseOptPackage()
 
-    val sourceFile = SourceFileCstNode(packageName = packageName, tokenStart = tokens.first(), tokenEnd = tokens.last())
+    val dumbbells = mutableListOf<String>()
+    while (current.type == TokenType.DUMBBELL) {
+      dumbbells.add(dumbbell())
+    }
+
+    val sourceFile = SourceFileCstNode(packageName = packageName, tokenStart = tokens.first(),
+      dumbbells = dumbbells,
+      tokenEnd = tokens.last())
     val scriptNode = ScriptCstNode(tokens.first(), tokens.last(),
       if (packageName != null) "$packageName.$classSimpleName"
       else classSimpleName)
 
     val (imports, extensionTypes) = parseImports(sourceFile)
     sourceFile.imports.addAll(imports)
-    sourceFile.extensionTypes.addAll(extensionTypes)
+    sourceFile.extensionImports.addAll(extensionTypes)
 
     while (current.type != TokenType.END_OF_FILE) {
       parseMember(packageName, sourceFile, scriptNode, null)
@@ -187,7 +194,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     return node
   }
 
-  private fun parsePackage(): String? {
+  private fun parseOptPackage(): String? {
     if (acceptOptional(TokenType.PACKAGE) == null) return null
     val parts = mutableListOf<String>(accept(TokenType.IDENTIFIER).value)
     while (current.type == TokenType.DOT) {
@@ -196,6 +203,14 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     }
     acceptOptional(TokenType.SEMI_COLON)
     return parts.joinToString(separator = ".")
+  }
+
+  private fun dumbbell(): String {
+    accept(TokenType.DUMBBELL)
+    accept(TokenType.OPEN_SIMPLE_QUOTE)
+    val d = simpleStringPart()
+    accept(TokenType.CLOSING_SIMPLE_QUOTE)
+    return d
   }
 
   fun field(parentNode: CstNode?, annotations: List<AnnotationCstNode>, access: CstAccessNode): FieldCstNode {

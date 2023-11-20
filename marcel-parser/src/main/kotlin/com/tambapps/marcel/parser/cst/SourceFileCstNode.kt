@@ -8,12 +8,13 @@ class SourceFileCstNode(
   tokenStart: LexToken,
   tokenEnd: LexToken,
   val packageName: String?, // without extension
-): AbstractCstNode(null, tokenStart, tokenEnd) {
+  val dumbbells: List<String>
+  ): AbstractCstNode(null, tokenStart, tokenEnd) {
 
   var script: ScriptCstNode? = null
 
   val classes = mutableListOf<ClassCstNode>()
   val imports = mutableListOf<ImportCstNode>()
-  val extensionTypes = mutableListOf<TypeCstNode>()
+  val extensionImports = mutableListOf<TypeCstNode>()
 
 }
