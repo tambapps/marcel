@@ -1023,41 +1023,40 @@ class MarcelSemantic(
     var methodResolve = methodResolver.resolveMethod(node, currentScope.classType, node.value, positionalArguments, namedArguments)
       ?: methodResolver.resolveMethodFromImports(node, node.value, positionalArguments, namedArguments)
 
+    val castType = node.castType?.let(this::visit)
+
+    if (methodResolve != null) {
+      val owner = if (methodResolve.first.isMarcelStatic) null else ThisReferenceNode(currentScope.classType, node.token)
+      return fCall(
+        node = node,
+        methodResolve = methodResolve,
+        owner = owner,
+        castType = castType
+        )
+    }
+
     // look for delegate if any
-    if (methodResolve == null && currentScope.classType.implements(DelegatedObject::class.javaType)) {
+    if (currentScope.classType.implements(DelegatedObject::class.javaType)) {
       val delegateGetter = typeResolver.findMethod(currentScope.classType, "getDelegate", emptyList())
       if (delegateGetter != null) {
-        val delegateMethodResolve = methodResolver.resolveMethod(node, delegateGetter.returnType, node.value, positionalArguments, namedArguments)
-        if (delegateMethodResolve != null) {
+        methodResolve = methodResolver.resolveMethod(node, delegateGetter.returnType, node.value, positionalArguments, namedArguments)
+        if (methodResolve != null) {
           val owner = fCall(node=node, method = delegateGetter, arguments = emptyList(), owner = ThisReferenceNode(currentScope.classType, node.token))
-          return fCall(node = node, method = delegateMethodResolve.first, arguments = delegateMethodResolve.second, owner = owner)
+          return fCall(node = node, methodResolve = methodResolve, owner = owner, castType = castType)
         }
-
       }
     }
 
+    // searching on extension class if it is one
     val extensionType = currentScope.forExtensionType
-
-
-    if (methodResolve == null && extensionType != null) {
-      // searching on extension class if it is one
+    if (extensionType != null) {
       methodResolve = methodResolver.resolveMethod(node, extensionType, node.value, positionalArguments, namedArguments)
+      if (methodResolve != null) {
+        val owner = ReferenceNode(currentMethodScope.findLocalVariable("self")!!, token = node.token)
+        return fCall(node = node, methodResolve = methodResolve, owner = owner, castType = castType)
+      }
     }
-    if (methodResolve == null) {
-      throw MarcelSemanticException(node.token, "Method ${currentScope.classType}.${node.value} couldn't be resolved")
-    }
-
-    val method = methodResolve.first
-    val castType = if (node.castType != null) visit(node.castType!!) else null
-    val owner = if (!method.isMarcelStatic) ThisReferenceNode(currentScope.classType, node.token)
-    else if (extensionType != null) ReferenceNode(owner = null, currentMethodScope.findLocalVariable("self")!!, token = node.token)
-    else null
-    return fCall(
-      node = node,
-      method = method,
-      owner = owner,
-      castType = castType,
-      arguments = methodResolve.second)
+    throw MarcelSemanticException(node.token, "Method with name ${node.value} couldn't be resolved")
   }
 
   private fun castedArguments(method: JavaMethod, arguments: List<ExpressionNode>) =
@@ -1648,6 +1647,8 @@ class MarcelSemantic(
     return fCall(node, method, arguments, owner, castType)
   }
 
+  private fun fCall(node: CstNode, methodResolve: Pair<JavaMethod, List<ExpressionNode>>, owner: ExpressionNode?, castType: JavaType? = null)
+  = fCall(node = node, method = methodResolve.first, arguments = methodResolve.second, owner = owner, castType = castType)
   private fun fCall(
     node: CstNode,
     method: JavaMethod,
