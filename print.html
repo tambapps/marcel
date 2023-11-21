@@ -1202,13 +1202,11 @@ extension class MyExtension for Integer {
 }
 </code></pre>
 <p>The above example will add the method <code>next()</code> to the class Integer.</p>
-<p>In such classes you can reference, you can only reference public properties/methods of the class you're extending, and you have
-to explicitly specify <code>this</code> when you do so.
-E.g.</p>
+<p>You can also call methods from the original class</p>
 <pre><code class="language-marcel">// MyExtension.mcl
 extension class MyExtension for Integer {
   fun float nextToFloat() {
-    return this.floatValue() + 1f
+    return floatValue() + 1f
   }
 }
 </code></pre>
