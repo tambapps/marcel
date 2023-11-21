@@ -8,10 +8,12 @@ import com.tambapps.marcel.semantic.variable.LocalVariable
 /**
  * Scope inside a class
  */
-class ClassScope(
+class ClassScope constructor(
+  typeResolver: JavaTypeResolver,
   classType: JavaType,
-  typeResolver: JavaTypeResolver, imports: List<ImportNode>
-): AbstractScope(typeResolver, classType, imports) {
+  forExtensionType: JavaType?,
+  imports: List<ImportNode>
+): AbstractScope(typeResolver, classType, forExtensionType, imports) {
 
 
   override fun findField(name: String) = typeResolver.findField(classType, name)

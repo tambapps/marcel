@@ -2,10 +2,6 @@ package marcel.lang.extensions
 
 extension class CharacterExtensions for Character {
 
-  fun String toString() {
-    return String.valueOf(this as char)
-  }
-
   fun bool isHighSurrogate() {
     return Character.isHighSurrogate(this as char)
   }

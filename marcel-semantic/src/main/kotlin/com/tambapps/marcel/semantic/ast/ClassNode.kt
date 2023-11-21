@@ -7,12 +7,14 @@ import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTyped
 
-open class ClassNode(
+open class ClassNode constructor(
   override val type: JavaType,
   val visibility: Visibility,
+  val forExtensionType: JavaType?, // if the class is an extension class
   tokenStart: LexToken, tokenEnd: LexToken
 ) : AbstractAst2Node(tokenStart, tokenEnd), JavaTyped {
   val superType: JavaType get() = type.superType!!
+  val isExtensionClass get() = forExtensionType != null
 
   val fields = mutableListOf<FieldNode>()
   val methods = mutableListOf<MethodNode>()

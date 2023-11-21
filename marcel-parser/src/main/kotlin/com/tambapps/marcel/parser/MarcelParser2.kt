@@ -130,7 +130,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
   private fun parseMember(packageName: String?, parentNode: CstNode?, classCstNode: ClassCstNode, outerClassNode: ClassCstNode?) {
     val annotations = parseAnnotations(parentNode)
     val access = parseAccess(parentNode)
-    if (current.type == TokenType.CLASS) {
+    if (current.type == TokenType.CLASS || current.type == TokenType.EXTENSION) {
       classCstNode.innerClasses.add(parseClass(packageName, parentNode, annotations, access, outerClassNode))
     } else if (current.type == TokenType.FUN || current.type == TokenType.CONSTRUCTOR) {
       when (val method = method(parentNode, annotations, access)) {

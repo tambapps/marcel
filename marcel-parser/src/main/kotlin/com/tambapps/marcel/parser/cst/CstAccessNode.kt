@@ -7,7 +7,7 @@ class CstAccessNode(
   parent: CstNode?,
   tokenStart: LexToken,
   tokenEnd: LexToken,
-  val isStatic: Boolean,
+  var isStatic: Boolean,
   val isInline: Boolean,
   val isFinal: Boolean,
   val visibility: TokenType,

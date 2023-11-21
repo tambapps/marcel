@@ -8,7 +8,8 @@ import com.tambapps.marcel.semantic.type.JavaTypeResolver
 
 abstract class AbstractScope(
   internal val typeResolver: JavaTypeResolver,
-  override val classType: JavaType,
+  final override val classType: JavaType,
+  final override val forExtensionType: JavaType?,
   val imports: List<ImportNode>,
 ): Scope {
 

@@ -100,7 +100,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
   fun defineMethod(javaType: JavaType, method: JavaMethod) {
     val methods = getMarcelMethods(javaType)
     if (methods.any { it.matches(this, method.name, method.parameters) }) {
-      throw MarcelSemanticException((method as? MethodNode)?.token, "Method with $method is already defined")
+      throw MarcelSemanticException((method as? MethodNode)?.token ?: LexToken.dummy(), "Method with $method is already defined")
     }
     methods.add(method)
   }

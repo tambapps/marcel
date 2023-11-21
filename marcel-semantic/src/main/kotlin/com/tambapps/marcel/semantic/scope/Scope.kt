@@ -30,6 +30,7 @@ interface Scope {
   }
 
   val classType: JavaType
+  val forExtensionType: JavaType?
 
   fun resolveTypeOrThrow(node: TypeCstNode): JavaType
 

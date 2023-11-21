@@ -20,7 +20,7 @@ open class MethodScope internal constructor(
   imports: List<ImportNode>,
   internal val staticContext: Boolean,
   internal val localVariablePool: LocalVariablePool,
-): AbstractScope(typeResolver, classType, imports) {
+): AbstractScope(typeResolver, classType, parentScope.forExtensionType, imports) {
 
   constructor(classScope: ClassScope, method: JavaMethod)
       : this(classScope, method, classScope.typeResolver, classScope.classType, classScope.imports, method.isStatic, LocalVariablePool(method.isStatic)) {
