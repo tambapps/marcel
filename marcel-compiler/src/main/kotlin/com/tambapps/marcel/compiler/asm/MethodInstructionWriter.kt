@@ -141,7 +141,7 @@ class MethodInstructionWriter(
     mv.visitLabel(loopStart)
 
     // Verifying condition -> iterator.hasNext()
-    val iteratorVarReference = ReferenceNode(owner = null, node.iteratorVariable, node.token)
+    val iteratorVarReference = ReferenceNode(variable = node.iteratorVariable, token = node.token)
     pushExpression(iteratorVarReference)
     mv.visitMethodInsn(typeResolver.findMethodOrThrow(Iterator::class.javaType, "hasNext", emptyList()))
 

@@ -215,6 +215,8 @@ class MarcelSemantic(
   private val currentMethodScope get() = currentScope as? MethodScope ?: throw MarcelSemanticException("Not in a method")
   private val currentInnerMethodScope get() = currentScope as? MethodInnerScope ?: throw MarcelSemanticException("Not in a inner scope")
 
+  private val selfLocalVariable: LocalVariable get() = currentMethodScope.findLocalVariable("self") ?: throw RuntimeException("Compiler error.")
+
   fun apply(): ModuleNode {
     imports.addAll(
       cst.imports.map { it.accept(this) }
@@ -603,7 +605,7 @@ class MarcelSemantic(
   override fun visit(node: ThisReferenceCstNode, smartCastType: JavaType?): ExpressionNode {
     return if (getCurrentClassNode().isExtensionClass)
       // if is extension, this is self
-      ReferenceNode(owner = null, variable = currentMethodScope.findLocalVariable("self")!!, token = node.token)
+      ReferenceNode(variable = selfLocalVariable, token = node.token)
     else if (!currentMethodScope.staticContext) ThisReferenceNode(currentScope.classType, node.token)
     else throw MarcelSemanticException(node, "Cannot reference this in a static context")
   }
@@ -1052,7 +1054,7 @@ class MarcelSemantic(
     if (extensionType != null) {
       methodResolve = methodResolver.resolveMethod(node, extensionType, node.value, positionalArguments, namedArguments)
       if (methodResolve != null) {
-        val owner = ReferenceNode(currentMethodScope.findLocalVariable("self")!!, token = node.token)
+        val owner = ReferenceNode(variable = selfLocalVariable, token = node.token)
         return fCall(node = node, methodResolve = methodResolve, owner = owner, castType = castType)
       }
     }
@@ -1108,7 +1110,7 @@ class MarcelSemantic(
     val expression = node.expressionNode.accept(this)
     val blockNode = BlockStatementNode(mutableListOf(), node.tokenStart, node.tokenEnd)
     currentMethodScope.useTempLocalVariable(expression.type) { expressionVariable: LocalVariable ->
-      val expressionRef = ReferenceNode(owner = null, variable = expressionVariable, token = node.token)
+      val expressionRef = ReferenceNode(variable = expressionVariable, token = node.token)
 
       // put the expression in a local variable
       blockNode.statements.add(
@@ -1306,7 +1308,7 @@ class MarcelSemantic(
             )
           )
         )
-        lambdaNode.constructorArguments.add(ReferenceNode(owner = null, variable = lv, token = lambdaNode.token))
+        lambdaNode.constructorArguments.add(ReferenceNode(variable = lv, token = lambdaNode.token))
       }
     }
 
@@ -1500,7 +1502,7 @@ class MarcelSemantic(
       else if (Iterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(Iterator::class.javaType, "next")
       else throw UnsupportedOperationException("wtf")
 
-      val iteratorVarReference = ReferenceNode(owner = null, iteratorVariable, node.token)
+      val iteratorVarReference = ReferenceNode(variable = iteratorVariable, token = node.token)
 
       val nextMethod = typeResolver.findMethodOrThrow(nextMethodOwnerType, nextMethodName, emptyList())
       // cast to fit the declared variable type
@@ -1581,7 +1583,7 @@ class MarcelSemantic(
         throw MarcelSemanticException(node, "Try resources need to implement Closeable")
       }
       val resourceVar = resourceScope.addLocalVariable(resourceType, it.value)
-      val resourceRef = ReferenceNode(null, resourceVar, node.token)
+      val resourceRef = ReferenceNode(variable = resourceVar, token = node.token)
 
       if (it.expressionNode == null) throw MarcelSemanticException(it, "Resource declarations need to be initialised")
       // assign the resource in the try block
