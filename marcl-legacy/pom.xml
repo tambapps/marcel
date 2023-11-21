@@ -11,8 +11,8 @@
   </parent>
   <artifactId>marcl-legacy</artifactId>
 
-  <name>MarCL</name>
-  <description>MARcel Command Line tool</description>
+  <name>MarCL Legacy</name>
+  <description>MARcel Legacy Command Line tool</description>
 
   <dependencies>
     <dependency>
