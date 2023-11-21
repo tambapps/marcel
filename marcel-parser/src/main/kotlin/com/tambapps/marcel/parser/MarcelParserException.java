@@ -8,10 +8,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// TODO rename me MarcelParserException
-public class MarcelParser2Exception extends RuntimeException {
+@Getter
+public class MarcelParserException extends RuntimeException {
 
-  public static MarcelParser2Exception.Error error(String message, boolean eof, LexToken token) {
+  public static MarcelParserException.Error error(String message, boolean eof, LexToken token) {
     return new Error(message, eof, token);
   }
 
@@ -22,22 +22,21 @@ public class MarcelParser2Exception extends RuntimeException {
     LexToken token;
   }
 
-  @Getter
   private final List<Error> errors;
 
-  public MarcelParser2Exception(LexToken token, String message) {
+  public MarcelParserException(LexToken token, String message) {
     this(token, message, false);
   }
 
-  public MarcelParser2Exception(LexToken token, String message, boolean eof) {
+  public MarcelParserException(LexToken token, String message, boolean eof) {
     this(new Error(message, eof, token));
   }
 
-  private MarcelParser2Exception(Error error) {
+  private MarcelParserException(Error error) {
     this(Collections.singletonList(error));
   }
 
-  public MarcelParser2Exception(List<Error> errors) {
+  public MarcelParserException(List<Error> errors) {
     super(generateErrorMessage(errors));
     this.errors = errors;
   }
@@ -54,8 +53,8 @@ public class MarcelParser2Exception extends RuntimeException {
             error.token.getType(), error.token.getLine() + 1, error.token.getColumn(), error.message);
   }
 
-  public static MarcelParser2Exception.Error malformedNumber(NumberFormatException e, LexToken token, boolean eof) {
-    return new MarcelParser2Exception.Error("Malformed number (" + e.getMessage() + ")", eof, token);
+  public static MarcelParserException.Error malformedNumber(NumberFormatException e, LexToken token, boolean eof) {
+    return new MarcelParserException.Error("Malformed number (" + e.getMessage() + ")", eof, token);
   }
 
 }

@@ -80,11 +80,20 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
   private val currentSafe: LexToken?
     get() = if (eof) null else tokens[currentIndex]
 
-  private val errors = mutableListOf<MarcelParser2Exception.Error>()
+  private val errors = mutableListOf<MarcelParserException.Error>()
 
   fun parse(): SourceFileCstNode {
     if (tokens.isEmpty()) {
-      throw MarcelParser2Exception(LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, null), "Unexpected end of file")
+      throw MarcelParserException(
+        LexToken(
+          0,
+          0,
+          0,
+          0,
+          TokenType.END_OF_FILE,
+          null
+        ), "Unexpected end of file"
+      )
     }
     val packageName = parseOptPackage()
 
@@ -114,7 +123,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
 
     if (scriptNode.isNotEmpty) sourceFile.script = scriptNode
     if (errors.isNotEmpty()) {
-      throw MarcelParser2Exception(errors)
+      throw MarcelParserException(errors)
     }
     return sourceFile
   }
@@ -163,7 +172,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       skip()
       if (current.type == TokenType.MUL) {
         if (staticImport) {
-          throw MarcelParser2Exception(
+          throw MarcelParserException(
             current,
             "Invalid static import"
           )
@@ -175,7 +184,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       classParts.add(accept(TokenType.IDENTIFIER).value)
     }
     if (classParts.size <= 1) {
-      throw MarcelParser2Exception(
+      throw MarcelParserException(
         previous,
         "Invalid class full name" + classParts.joinToString(
           separator = "."
@@ -290,7 +299,10 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       skip()
       when (val atom = atom(parentNode)) {
         is SuperConstructorCallCstNode, is ThisConstructorCallCstNode  -> statements.add(ExpressionStatementCstNode(atom))
-        else -> throw MarcelParser2Exception(atom.token, "Expected this or super constructor call")
+        else -> throw MarcelParserException(
+          atom.token,
+          "Expected this or super constructor call"
+        )
       }
     }
 
@@ -368,7 +380,10 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BYTE, TokenType.TYPE_SHORT, TokenType.IDENTIFIER -> token.value
     TokenType.TYPE_BOOL -> "boolean"
     TokenType.DYNOBJ -> "DynamicObject"
-    else -> throw MarcelParser2Exception(token, "Doesn't handle type ${token.type}")
+    else -> throw MarcelParserException(
+      token,
+      "Doesn't handle type ${token.type}"
+    )
   }
 
   fun statement(parentNode: CstNode? = null): StatementCstNode {
@@ -464,7 +479,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
             // needed especially if initStatement is var declaration
             val initStatement = statement(parentNode)
             if (initStatement !is VariableDeclarationCstNode) {
-              throw MarcelParser2Exception(
+              throw MarcelParserException(
                 previous,
                 "For loops should start with variable declaration/assignment"
               )
@@ -486,7 +501,10 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
             skip()
             while (current.type != TokenType.RPAR) {
               val e = statement(parentNode)
-              if (e !is VariableDeclarationCstNode) throw MarcelParser2Exception(e.token, "Can only declare variables in try with resources")
+              if (e !is VariableDeclarationCstNode) throw MarcelParserException(
+                e.token,
+                "Can only declare variables in try with resources"
+              )
               resources.add(e)
               if (current.type == TokenType.COMMA) skip()
             }
@@ -616,7 +634,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         if (optFlags != null) {
           for (char in optFlags) {
             RegexCstNode.FLAGS_MAP
-            flags.add(RegexCstNode.FLAGS_MAP[char] ?: throw MarcelParser2Exception(
+            flags.add(RegexCstNode.FLAGS_MAP[char] ?: throw MarcelParserException(
               previous,
               "Unknown pattern flag $char"
             )
@@ -700,7 +718,10 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
           skip()
           val (arguments, namedArguments) = parseFunctionArguments(parentNode)
           if (namedArguments.isNotEmpty()) {
-            throw MarcelParser2Exception(token, "Cannot have named arguments on super constructor call")
+            throw MarcelParserException(
+              token,
+              "Cannot have named arguments on super constructor call"
+            )
           }
           if (token.type == TokenType.SUPER) SuperConstructorCallCstNode(parentNode, arguments, token, arguments.lastOrNull()?.tokenEnd ?: token)
           else ThisConstructorCallCstNode(parentNode, arguments, token, arguments.lastOrNull()?.tokenEnd ?: token)
@@ -724,18 +745,21 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         val value = when (valueToken.type) {
           TokenType.REGULAR_STRING_PART -> valueToken.value
           TokenType.ESCAPE_SEQUENCE -> escapedSequenceValue(valueToken.value)
-          TokenType.END_OF_FILE -> throw MarcelParser2Exception(
+          TokenType.END_OF_FILE -> throw MarcelParserException(
             token,
             "Unexpected end of file",
             true
           )
-          else -> throw MarcelParser2Exception(
+          else -> throw MarcelParserException(
             previous,
             "Unexpected token ${valueToken.type} for character constant"
           )
         }
         accept(TokenType.CLOSING_CHAR_QUOTE)
-        if (value.length != 1) throw MarcelParser2Exception(token, "Char constant can only contain one character")
+        if (value.length != 1) throw MarcelParserException(
+          token,
+          "Char constant can only contain one character"
+        )
         CharCstNode(parentNode, value[0], token, previous)
       }
       TokenType.ESCAPE_SEQUENCE -> StringCstNode(parentNode, escapedSequenceValue(token.value), token, previous)
@@ -750,7 +774,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       TokenType.LPAR -> {
         val node = expression(parentNode)
         if (current.type != TokenType.RPAR) {
-          throw MarcelParser2Exception(
+          throw MarcelParserException(
             previous,
             "Parenthesis should be close"
           )
@@ -788,7 +812,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
           if (current.type == TokenType.ELSE) {
             skip()
             accept(TokenType.ARROW)
-            if (elseStatement != null) throw MarcelParser2Exception(
+            if (elseStatement != null) throw MarcelParserException(
               previous,
               "Cannot have multiple else statements"
             )
@@ -811,7 +835,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         else SwitchCstNode(parentNode, token, previous, branches, elseStatement, varDecl, switchExpression)
       }
       TokenType.BRACKETS_OPEN -> parseLambda(token, parentNode)
-      else -> throw MarcelParser2Exception(token, "Not supported $token")
+      else -> throw MarcelParserException(token, "Not supported $token")
 
     }
   }
@@ -870,12 +894,12 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     return when (token.type) {
       TokenType.REGULAR_STRING_PART -> token.value
       TokenType.ESCAPE_SEQUENCE -> escapedSequenceValue(token.value)
-      TokenType.END_OF_FILE -> throw MarcelParser2Exception(
+      TokenType.END_OF_FILE -> throw MarcelParserException(
         token,
         "Unexpected end of file",
         true
       )
-      else -> throw MarcelParser2Exception(
+      else -> throw MarcelParserException(
         token,
         "Illegal token ${token.type} when parsing literal string"
       )
@@ -893,7 +917,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
       "\"" -> "\""
       "`" -> "`"
       "/" -> "/"
-      else -> throw MarcelParser2Exception(
+      else -> throw MarcelParserException(
         previous,
         "Unknown escaped sequence \\$escapedSequence"
       )
@@ -995,7 +1019,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         val value = try {
           numberString.toLong(radix)
         } catch (e: NumberFormatException) {
-          recordError(MarcelParser2Exception.malformedNumber(e, token, eof))
+          recordError(MarcelParserException.malformedNumber(e, token, eof))
           0L
         }
         LongCstNode(parentNode, value, token)
@@ -1003,7 +1027,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         val value = try {
           numberString.toInt(radix)
         } catch (e: NumberFormatException) {
-          recordError(MarcelParser2Exception.malformedNumber(e, token, eof))
+          recordError(MarcelParserException.malformedNumber(e, token, eof))
           0
         }
         IntCstNode(parentNode, value, token)
@@ -1017,7 +1041,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         val value = try {
           valueString.toDouble()
         } catch (e: NumberFormatException) {
-          recordError(MarcelParser2Exception.malformedNumber(e, token, eof))
+          recordError(MarcelParserException.malformedNumber(e, token, eof))
           0.0
         }
         DoubleCstNode(parentNode, value, token)
@@ -1025,13 +1049,13 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
         val value = try {
           valueString.toFloat()
         } catch (e: NumberFormatException) {
-          recordError(MarcelParser2Exception.malformedNumber(e, token, eof))
+          recordError(MarcelParserException.malformedNumber(e, token, eof))
           0f
         }
         FloatCstNode(parentNode, value, token)
       }
     } else {
-      throw MarcelParser2Exception(
+      throw MarcelParserException(
         token,
         "Unexpected token $token",
         eof
@@ -1042,7 +1066,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
   private fun accept(vararg types: TokenType): LexToken {
     val token = current
     if (token.type !in types) {
-      throw MarcelParser2Exception(
+      throw MarcelParserException(
         current,
         "Expected token of type ${types.contentToString()} but got ${token.type}"
       )
@@ -1071,9 +1095,9 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
   }
 
   private fun recordError(message: String, token: LexToken = current) {
-    recordError(MarcelParser2Exception.error(message, eof, token))
+    recordError(MarcelParserException.error(message, eof, token))
   }
-  private fun recordError(error: MarcelParser2Exception.Error) {
+  private fun recordError(error: MarcelParserException.Error) {
     errors.add(error)
   }
 
@@ -1103,7 +1127,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
 
   private fun checkEof() {
     if (eof) {
-      throw MarcelParser2Exception(
+      throw MarcelParserException(
         currentSafe ?: previous,
         "Unexpected end of file",
         true

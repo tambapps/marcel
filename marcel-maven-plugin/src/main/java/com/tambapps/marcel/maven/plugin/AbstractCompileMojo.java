@@ -4,7 +4,7 @@ import com.tambapps.marcel.compiler.CompilerConfiguration;
 import com.tambapps.marcel.compiler.MarcelCompiler;
 import com.tambapps.marcel.compiler.exception.MarcelCompilerException;
 import com.tambapps.marcel.lexer.MarcelLexerException;
-import com.tambapps.marcel.parser.MarcelParser2Exception;
+import com.tambapps.marcel.parser.MarcelParserException;
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException;
 import marcel.lang.MarcelClassLoader;
 import marcel.lang.URLMarcelClassLoader;
@@ -63,7 +63,7 @@ public abstract class AbstractCompileMojo extends AbstractMarcelSourcesMojo {
      */
     @SuppressWarnings({"rawtypes"})
     protected synchronized void doCompile(final Set<File> sources, final List<String> classpath, final File compileOutputDirectory)
-            throws IOException, MarcelLexerException, MarcelParser2Exception, MarcelSemanticException, MarcelCompilerException {
+            throws IOException, MarcelLexerException, MarcelParserException, MarcelSemanticException, MarcelCompilerException {
         if (sources == null || sources.isEmpty()) {
             getLog().info("No sources specified for compilation. Skipping.");
             return;

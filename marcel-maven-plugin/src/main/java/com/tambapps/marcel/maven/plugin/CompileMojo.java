@@ -18,7 +18,7 @@ package com.tambapps.marcel.maven.plugin;
 
 import com.tambapps.marcel.compiler.exception.MarcelCompilerException;
 import com.tambapps.marcel.lexer.MarcelLexerException;
-import com.tambapps.marcel.parser.MarcelParser2Exception;
+import com.tambapps.marcel.parser.MarcelParserException;
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
@@ -73,7 +73,7 @@ public class CompileMojo extends AbstractCompileMojo {
             doCompile(getFiles(sources, false), project.getCompileClasspathElements(), outputDirectory);
         } catch (IOException e) {
             throw new MojoExecutionException("An unexpected error occurred", e);
-        } catch (MarcelLexerException | MarcelParser2Exception | MarcelSemanticException | MarcelCompilerException e) {
+        } catch (MarcelLexerException | MarcelParserException | MarcelSemanticException | MarcelCompilerException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         } catch (DependencyResolutionRequiredException e) {
             throw new MojoExecutionException("Compile dependencies weren't resolved.", e);

@@ -12,7 +12,7 @@ import com.tambapps.marcel.compiler.JarWriter
 import com.tambapps.marcel.compiler.MarcelCompiler
 import com.tambapps.marcel.dumbbell.DumbbellException
 import com.tambapps.marcel.lexer.MarcelLexerException
-import com.tambapps.marcel.parser.MarcelParser2Exception
+import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import marcel.lang.MarcelClassLoader
 import marcel.lang.URLMarcelClassLoader
@@ -109,7 +109,7 @@ fun compile(file: File, keepClassFiles: Boolean, keepJarFile: Boolean, printStac
     println("Lexer error: ${e.message}")
     if (printStackTrace) e.printStackTrace()
     return null
-  } catch (e: MarcelParser2Exception) {
+  } catch (e: MarcelParserException) {
     println("Parsing error: ${e.message}")
     if (printStackTrace) e.printStackTrace()
     return null
