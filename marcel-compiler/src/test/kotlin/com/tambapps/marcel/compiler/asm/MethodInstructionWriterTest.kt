@@ -7,6 +7,7 @@ import com.tambapps.marcel.parser.MarcelParser2
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.semantic.MarcelSemantic
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
+import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
@@ -15,6 +16,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
+import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import org.junit.jupiter.api.Test
@@ -27,8 +29,9 @@ import org.objectweb.asm.Opcodes
 class MethodInstructionWriterTest {
 
   private val mv = mock(MethodVisitor::class.java)
-  private val typeResolver = mock(JavaTypeResolver::class.java)
+  private val typeResolver = JavaTypeResolver()
   private val writer = MethodInstructionWriter(mv, typeResolver, JavaType.Object)
+  private val pushingWriter = PushingMethodExpressionWriter(mv, typeResolver, JavaType.Object)
 
   @Test
   fun testDontPopWhenExpressionStatementIsVoidExpression() {
@@ -38,11 +41,12 @@ class MethodInstructionWriterTest {
 
   @Test
   fun testPopWhenExpressionStatementIsNotVoidExpression() {
-    // TODO test with an expression that push something
-    writer.visit(exprStmt(int(1)))
-    //verify(mv, times(1)).visitInsn(Opcodes.POP)
+    writer.visit(exprStmt(fCall(JavaType.Object, "hashCode")))
+    verify(mv).visitInsn(Opcodes.POP)
   }
 
+  private fun fCall(owner: JavaType, name: String, arguments: List<JavaType> = emptyList()) = fCall(typeResolver.findMethod(owner, name, arguments)!!)
+  private fun fCall(method: JavaMethod) = FunctionCallNode(javaMethod = method, arguments = emptyList(), token = token(), owner = null)
   private fun int(value: Int) = IntConstantNode(value = value, token = token())
   private fun float(value: Float) = FloatConstantNode(value = value, token = token())
   private fun long(value: Long) = LongConstantNode(value = value, token = token())

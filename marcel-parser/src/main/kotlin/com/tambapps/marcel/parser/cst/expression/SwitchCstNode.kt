@@ -12,7 +12,6 @@ class SwitchCstNode(
   tokenEnd: LexToken,
   branches: MutableList<Pair<ExpressionCstNode, StatementCstNode>>,
   elseStatement: StatementCstNode?,
-  // TODO document variable declaration in switch. See test_switch for an example
   // expression should be taken from switch expression
   val varDeclaration: VariableDeclarationCstNode?,
   val switchExpression: ExpressionCstNode

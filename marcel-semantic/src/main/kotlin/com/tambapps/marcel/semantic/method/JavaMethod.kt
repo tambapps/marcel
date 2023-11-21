@@ -28,7 +28,6 @@ interface JavaMethod: JavaTyped {
   // to handle extension methods when writing them
   val actualParameters: List<MethodParameter> get() = parameters
   val returnType: JavaType
-  // for generic methods TODO might need to be removed
   val actualReturnType: JavaType
   val isDefault: Boolean // for interface
   val isAbstract: Boolean

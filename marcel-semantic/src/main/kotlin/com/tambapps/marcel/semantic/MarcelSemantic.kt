@@ -1048,7 +1048,6 @@ class MarcelSemantic(
   = ExpressionStatementNode(node.expressionNode.accept(this, JavaType.void), node.tokenStart, node.tokenEnd)
 
   override fun visit(node: ReturnCstNode): StatementNode {
-    // TODO test error cases of this
     val scope = currentMethodScope
     val expression = node.expressionNode?.accept(this, scope.method.returnType)?.let { caster.cast(scope.method.returnType, it) }
     if (expression != null && expression.type != JavaType.void && scope.method.returnType == JavaType.void) {

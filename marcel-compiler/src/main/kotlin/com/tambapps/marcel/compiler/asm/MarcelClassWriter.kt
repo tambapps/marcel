@@ -54,22 +54,6 @@ class MarcelClassWriter(
       writeField(classWriter, field)
     }
 
-    /*
-    / TODO in semantic
-    for (constructor in classNode.constructors) {
-        if (!constructor.startsWithOwnConstructorCall) {
-          constructor.block.statements.add(0, ExpressionStatementNode(classNode.token, SuperConstructorCallNode(
-            classNode.token, constructor.scope, mutableListOf()
-          )))
-        }
-      }
-
-
-    if (classNode.staticInitializationNode != null) {
-      writeMethod(typeResolver, classWriter, classNode, classNode.staticInitializationNode!!)
-    }
-    */
-
     var i = 0 // using plain old for i loop because while writing method we might add some other to write (e.g. for switch)
     while (i < classNode.methods.size) {
       val methodNode = classNode.methods[i++]

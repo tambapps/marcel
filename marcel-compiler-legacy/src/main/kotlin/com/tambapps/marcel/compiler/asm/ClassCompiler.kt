@@ -34,8 +34,6 @@ import java.lang.annotation.ElementType
 class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
                     private val typeResolver: JavaTypeResolver) {
 
-  // TODO check for final fields not initialized
-  //   be careful of constructors calling other constructors as we might assign values twice, if a constructor calls another constructor
   private val checks = MarcelCompilerChecks.ALL
 
   fun compileClass(classNode: ClassNode): List<CompiledClass> {

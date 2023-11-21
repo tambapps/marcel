@@ -91,7 +91,6 @@ private val PRIMITIVE_CODES_MAP = mapOf(
   // apparently we use int instructions to store booleans
   Pair(boolean, PrimitiveAsmCodes(Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN,  0,0,0,0, 0, 0, 0)),
   Pair(char, PrimitiveAsmCodes(Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV, Opcodes.IREM, 0, 0)),
-// TODO verify byte and short OpCodes
   Pair(byte, PrimitiveAsmCodes(Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV, Opcodes.IREM, 0, 0)),
   Pair(short, PrimitiveAsmCodes(Opcodes.ILOAD, Opcodes.ISTORE, Opcodes.IRETURN, Opcodes.IADD, Opcodes.ISUB, Opcodes.IMUL, Opcodes.IDIV, Opcodes.IREM, 0, 0))
 )
