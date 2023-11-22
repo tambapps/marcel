@@ -2,8 +2,8 @@ package com.tambapps.marcel.repl
 
 import com.tambapps.marcel.compiler.CompiledClass
 import com.tambapps.marcel.lexer.MarcelLexerException
-import com.tambapps.marcel.parser.exception.MarcelParserException
-import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.exception.MarcelParserLegacyException
+import com.tambapps.marcel.parser.exception.MarcelSemanticLegacyException
 import com.tambapps.marcel.repl.jar.JarWriterFactory
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
@@ -19,7 +19,7 @@ class MarcelEvaluator constructor(
 ) {
 
   @Throws(
-    MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class,
+    MarcelLexerException::class, MarcelParserLegacyException::class, MarcelSemanticLegacyException::class,
     ClassNotFoundException::class
   )
   fun eval(code: String): Any? {
@@ -36,7 +36,7 @@ class MarcelEvaluator constructor(
     if (scriptNode == null) return null
 
     if (scriptNode.fields.isNotEmpty()) {
-      throw MarcelSemanticException("Cannot define field variables in Marshell. Use global or local variables only")
+      throw MarcelSemanticLegacyException("Cannot define field variables in Marshell. Use global or local variables only")
     }
 
     val className = scriptNode.type.simpleName

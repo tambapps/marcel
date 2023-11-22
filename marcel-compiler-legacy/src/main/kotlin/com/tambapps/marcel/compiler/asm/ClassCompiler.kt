@@ -9,7 +9,7 @@ import com.tambapps.marcel.compiler.util.javaType
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
-import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticLegacyException
 import com.tambapps.marcel.parser.type.JavaAnnotation
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
@@ -108,11 +108,11 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
 
   private fun writeAnnotation(annotationVisitor: AnnotationVisitor, annotationNode: AnnotationNode, expectedElementType: ElementType) {
     if (!annotationNode.targets.contains(expectedElementType)) {
-      throw MarcelSemanticException("Annotation ${annotationNode.type} is not expected on elements of type $expectedElementType")
+      throw MarcelSemanticLegacyException("Annotation ${annotationNode.type} is not expected on elements of type $expectedElementType")
     }
     for (attr in annotationNode.specifiedAttributes) {
       val attribute = annotationNode.attributes.find { it.name == attr.first }
-        ?: throw MarcelSemanticException(annotationNode.token, "Unknown member ${attr.first} for annotation ${annotationNode.type}")
+        ?: throw MarcelSemanticLegacyException(annotationNode.token, "Unknown member ${attr.first} for annotation ${annotationNode.type}")
       val attrValue = attr.second.value
       val isEnum = attribute.type.isEnum
       if (!isEnum) {
@@ -134,17 +134,17 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
 
     for (attr in annotationNode.attributes) {
       if (attr.defaultValue == null && annotationNode.specifiedAttributes.none { it.first == attr.name }) {
-        throw MarcelSemanticException(annotationNode.token, "Required member $attr was not provided for annotation ${annotationNode.type}")
+        throw MarcelSemanticLegacyException(annotationNode.token, "Required member $attr was not provided for annotation ${annotationNode.type}")
       }
     }
     annotationVisitor.visitEnd()
   }
 
   private fun annotationErrorAttributeTypeError(annotationNode: AnnotationNode, attribute: JavaAnnotation.Attribute, attrValue: Any): Nothing
-  = throw MarcelSemanticException(annotationNode.token, "Incompatible type for annotation member ${attribute.name} of annotation ${annotationNode.type}. Wanted ${attribute.type} but got ${attrValue.javaClass}")
+  = throw MarcelSemanticLegacyException(annotationNode.token, "Incompatible type for annotation member ${attribute.name} of annotation ${annotationNode.type}. Wanted ${attribute.type} but got ${attrValue.javaClass}")
   private fun writeField(classWriter: ClassWriter, classNode: ClassNode, marcelField: FieldNode) {
     if (classNode.isExtensionClass) {
-      throw MarcelSemanticException(classNode.token, "Extension classes cannot have fields")
+      throw MarcelSemanticLegacyException(classNode.token, "Extension classes cannot have fields")
     }
     val fieldVisitor = classWriter.visitField(marcelField.access, marcelField.name, marcelField.type.descriptor,
       if (marcelField.type.superType?.hasGenericTypes == true || marcelField.type.directlyImplementedInterfaces.any { it.hasGenericTypes }) marcelField.type.signature else null,
@@ -204,7 +204,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
     if (methodReturnType != JavaType.void && !methodReturnType.isAssignableFrom(blockReturnType) &&
       !blockReturnType.isAssignableFrom(methodReturnType)
       && methodReturnType.primitive && !blockReturnType.primitive) {
-      throw MarcelSemanticException(methodNode.token, "Return type of method $methodNode doesn't match method return type. "
+      throw MarcelSemanticLegacyException(methodNode.token, "Return type of method $methodNode doesn't match method return type. "
           + "Expected $methodReturnType but got $blockReturnType")
     }
 
@@ -238,7 +238,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
         when {
           defaultValue is NullValueNode -> {
             if (parameter.type.primitive) {
-              throw MarcelSemanticException(parameter.token, "Primitive types cannot have null default value")
+              throw MarcelSemanticLegacyException(parameter.token, "Primitive types cannot have null default value")
             }
             mv.visitParameterAnnotation(i, NullDefaultValue::class.javaType.descriptor, true)
           }
@@ -262,11 +262,11 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
               if (isIntRange) IntRangeDefaultValue::class.javaType.descriptor else LongRangeDefaultValue::class.javaType.descriptor,
               true)
             annotationVisitor.apply {
-              val rangeNode = defaultValue as? RangeNode ?: throw MarcelSemanticException(parameter.token, "Must specify a range for a range method default parameter")
-              val from = (rangeNode.from as? JavaConstantExpression)?.value ?: throw MarcelSemanticException(parameter.token, "Must specify constants for a method range default parameter")
-              val to = (rangeNode.to as? JavaConstantExpression)?.value ?: throw MarcelSemanticException(parameter.token, "Must specify constants for a method range default parameter")
+              val rangeNode = defaultValue as? RangeNode ?: throw MarcelSemanticLegacyException(parameter.token, "Must specify a range for a range method default parameter")
+              val from = (rangeNode.from as? JavaConstantExpression)?.value ?: throw MarcelSemanticLegacyException(parameter.token, "Must specify constants for a method range default parameter")
+              val to = (rangeNode.to as? JavaConstantExpression)?.value ?: throw MarcelSemanticLegacyException(parameter.token, "Must specify constants for a method range default parameter")
               visit("from", if (isIntRange) from as Int else from as Long)
-              visit("to", (if (isIntRange) to as? Int else to as? Long) ?: throw MarcelSemanticException(parameter.token, "Must specify an int or long constant for a method range default parameter"))
+              visit("to", (if (isIntRange) to as? Int else to as? Long) ?: throw MarcelSemanticLegacyException(parameter.token, "Must specify an int or long constant for a method range default parameter"))
               visit("fromExclusive", rangeNode.fromExclusive)
               visit("toExclusive", rangeNode.toExclusive)
             }
@@ -274,7 +274,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
           else -> {
             val defaultValueType = defaultValue.getType(typeResolver)
             if (!parameter.type.isAssignableFrom(defaultValueType)) {
-              throw MarcelSemanticException(parameter.token, "The default value of parameter ${parameter.name} is not assignable to the parameter. Expected value of type ${parameter.type} but gave $defaultValueType")
+              throw MarcelSemanticLegacyException(parameter.token, "The default value of parameter ${parameter.name} is not assignable to the parameter. Expected value of type ${parameter.type} but gave $defaultValueType")
             }
             // always static because it can be called from outside this class
             val defaultParameterMethodNode = if (defaultValue is FunctionCallNode

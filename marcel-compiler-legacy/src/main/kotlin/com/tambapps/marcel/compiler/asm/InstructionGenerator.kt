@@ -26,7 +26,7 @@ import com.tambapps.marcel.parser.ast.statement.ThrowStatementNode
 import com.tambapps.marcel.parser.ast.statement.TryCatchNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
-import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticLegacyException
 import com.tambapps.marcel.parser.scope.BoundField
 import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.scope.LocalVariable
@@ -109,12 +109,12 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   private fun visitConditionalBranchFlow(switchNode: ConditionalBranchFlowNode<*>, itParameter: MethodParameter? = null, itArgument: ExpressionNode? = null) {
     if (switchNode.branches.isEmpty()) {
-      throw MarcelSemanticException(switchNode.token, "Switch must have at least one branch")
+      throw MarcelSemanticLegacyException(switchNode.token, "Switch must have at least one branch")
     }
 
     val switchType = switchNode.getType(typeResolver)
     if (switchNode.elseStatement == null && switchType.primitive && switchType.type != JavaType.void) {
-      throw MarcelSemanticException(switchNode.token, "Need to cover all cases (an else branch) for  switch returning primitives as they cannot be null")
+      throw MarcelSemanticLegacyException(switchNode.token, "Need to cover all cases (an else branch) for  switch returning primitives as they cannot be null")
     }
 
     val elseStatement = switchNode.elseStatement ?: ExpressionStatementNode(switchNode.token, NullValueNode(switchNode.token, switchType))
@@ -216,7 +216,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   override fun visit(node: ThrowStatementNode) {
     val throwableExpression = node.throwableExpression
     if (!Throwable::class.javaType.isAssignableFrom(throwableExpression.getType(typeResolver))) {
-      throw MarcelSemanticException(node, "Can only throw Throwable")
+      throw MarcelSemanticLegacyException(node, "Can only throw Throwable")
     }
     pushArgument(throwableExpression)
     mv.visitInsn(Opcodes.ATHROW)
@@ -263,7 +263,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   override fun visit(node: ConstructorCallNode) {
     if (node.type.primitive) {
-      throw MarcelSemanticException(node.token, "Cannot instantiate a primitive type")
+      throw MarcelSemanticLegacyException(node.token, "Cannot instantiate a primitive type")
     }
     mv.visitConstructorCall(node)
   }
@@ -284,10 +284,10 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   private fun ownConstructorCallCheck(node: AstNode) {
     if (!methodNode.isConstructor) {
-      throw MarcelSemanticException(node.token, "Cannot call constructor in a non constructor method")
+      throw MarcelSemanticLegacyException(node.token, "Cannot call constructor in a non constructor method")
     }
     if ((methodNode.block.statements.firstOrNull() as? ExpressionStatementNode)?.expression !== node) {
-      throw MarcelSemanticException(node.token, "Constructor call should be the first statement of a constructor")
+      throw MarcelSemanticLegacyException(node.token, "Constructor call should be the first statement of a constructor")
     }
   }
 
@@ -317,7 +317,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   override fun visit(node: PowOperator) {
     arithmeticMarcelOperator(node) {
-      throw MarcelSemanticException(node.token, "Operator pow is not handled yet")
+      throw MarcelSemanticLegacyException(node.token, "Operator pow is not handled yet")
     }
   }
 
@@ -354,7 +354,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
     val type1 = binaryOperatorNode.leftOperand.getType(typeResolver)
     if (binaryOperatorNode.operatorMethodName == null) {
       val type2 = binaryOperatorNode.leftOperand.getType(typeResolver)
-      throw MarcelSemanticException(binaryOperatorNode.token, "Doesn't handle this operator with types $type1 $type2")
+      throw MarcelSemanticLegacyException(binaryOperatorNode.token, "Doesn't handle this operator with types $type1 $type2")
     }
     val leftShiftMethod = typeResolver.findMethodOrThrow(type1, binaryOperatorNode.operatorMethodName!!, listOf(binaryOperatorNode.rightOperand.getType(typeResolver)), binaryOperatorNode)
     pushArgument(binaryOperatorNode.leftOperand)
@@ -365,10 +365,10 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   override fun visit(node: InstanceofNode) {
     if (node.expressionNode.getType(typeResolver).primitive) {
-      throw MarcelSemanticException(node, "primitives can not be instance of anything")
+      throw MarcelSemanticLegacyException(node, "primitives can not be instance of anything")
     }
     if (node.type.primitive) {
-      throw MarcelSemanticException(node, "primitives can not be instance of anything")
+      throw MarcelSemanticLegacyException(node, "primitives can not be instance of anything")
     }
     pushArgument(node.expressionNode)
     mv.instanceOfInsn(node.type)
@@ -384,7 +384,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       else if (node.type == JavaType.doubleList || node.type == JavaType.doubleSet) JavaType.doubleArray
       else if (node.type == JavaType.charList || node.type == JavaType.characterSet) JavaType.charArray
       else if (node.type.raw() == List::class.javaType || node.type.raw() == Set::class.javaType) JavaType.objectArray
-      else throw MarcelSemanticException(node.token, "Array cannot be converted into " + node.type)
+      else throw MarcelSemanticLegacyException(node.token, "Array cannot be converted into " + node.type)
       expression.type = arrayType
       // literal arrays can also be cast as collections (which will be handled in castIfNecessaryOrThrow
       if (expression.elements.isEmpty()) {
@@ -406,7 +406,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   override fun visit(node: IsOperator) {
     if (node.leftOperand.getType(typeResolver).primitive || node.rightOperand.getType(typeResolver).primitive) {
-      throw MarcelSemanticException(node.token, "Cannot apply '===' operator on primitive types")
+      throw MarcelSemanticLegacyException(node.token, "Cannot apply '===' operator on primitive types")
     }
     pushBinaryOperatorOperands(node)
     val l1 = Label()
@@ -421,7 +421,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
   }
   override fun visit(node: IsNotOperator) {
     if (node.leftOperand.getType(typeResolver).primitive || node.rightOperand.getType(typeResolver).primitive) {
-      throw MarcelSemanticException(node.token, "Cannot apply '!==' operator on primitive types")
+      throw MarcelSemanticLegacyException(node.token, "Cannot apply '!==' operator on primitive types")
     }
 
     pushBinaryOperatorOperands(node)
@@ -450,7 +450,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       if ((leftOperand is NullValueNode || rightOperand is NullValueNode)) {
         objectcomparison = true
         if (operator != ComparisonOperator.EQUAL && operator != ComparisonOperator.NOT_EQUAL) {
-          throw MarcelSemanticException(node.token, "Cannot compare null value with ${operator.symbolString} operator")
+          throw MarcelSemanticLegacyException(node.token, "Cannot compare null value with ${operator.symbolString} operator")
         }
       } else {
         when (operator) {
@@ -461,7 +461,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
           }
           else -> {
             val method = typeResolver.findMethodOrThrow(leftOperand.getType(typeResolver), "compareTo", listOf(rightOperand.getType(typeResolver)), node)
-            if (method.returnType != JavaType.int) throw MarcelSemanticException(node.token, "compareTo method should return an int in order to be used in comparator")
+            if (method.returnType != JavaType.int) throw MarcelSemanticLegacyException(node.token, "compareTo method should return an int in order to be used in comparator")
             mv.invokeMethod(node, classNode.scope, method)
             mv.pushConstant(0) // pushing 0 because we're comparing two numbers below
           }
@@ -523,10 +523,10 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   override fun visit(node: FindOperator) {
     if (!CharSequence::class.java.javaType.isAssignableFrom(node.leftOperand.getType(typeResolver))) {
-      throw MarcelSemanticException(node.token, "Left operand of find operator should be a string")
+      throw MarcelSemanticLegacyException(node.token, "Left operand of find operator should be a string")
     }
     if (!Pattern::class.java.javaType.isAssignableFrom(node.rightOperand.getType(typeResolver))) {
-      throw MarcelSemanticException(node.token, "Right operand of find operator should be a Pattern")
+      throw MarcelSemanticLegacyException(node.token, "Right operand of find operator should be a Pattern")
     }
     pushArgument(node.rightOperand)
     mv.invokeMethodWithArguments(node, classNode.scope, Pattern::class.java.getMethod("matcher", CharSequence::class.java), node.leftOperand)
@@ -630,7 +630,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
 
   override fun visit(node: MethodDefaultParameterMethodCall) {
     val method = typeResolver.findMethod(node.ownerType, node.methodName, emptyList(), excludeInterfaces= true, node= node)
-      ?: throw MarcelSemanticException(node.token, "Couldn't find default parameter value for method ${node.methodName} from classs ${node.ownerType}")
+      ?: throw MarcelSemanticLegacyException(node.token, "Couldn't find default parameter value for method ${node.methodName} from classs ${node.ownerType}")
 
     visit(SimpleFunctionCallNode(node.token, classNode.scope, node.methodName, emptyList(), method))
   }
@@ -651,12 +651,12 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       // this probably doesn't work anymore, but hey, let's keep it for when I'll decide whether to implement this feature or not
       val inlineMethod = method as MethodNode
       val innerScope = InnerScope(
-        node.scope as? MethodScope ?: throw MarcelSemanticException(node.token, "Can only call inline functions in a method"))
+        node.scope as? MethodScope ?: throw MarcelSemanticLegacyException(node.token, "Can only call inline functions in a method"))
       val inlineBlock = inlineMethod.block.asSimpleBlock(inlineMethod.block.token, innerScope)
       inlineBlock.setTreeScope(innerScope)
       // initializing arguments
       if (node.getArguments(typeResolver).size != inlineMethod.parameters.size) {
-        throw MarcelSemanticException(node.token, "Invalid number of arguments for method ${method.name}")
+        throw MarcelSemanticLegacyException(node.token, "Invalid number of arguments for method ${method.name}")
       }
       val variables = method.parameters.map { innerScope.addLocalVariable(it.type, it.name, token = node.token) }
       for (i in variables.indices) {
@@ -714,7 +714,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       else if (JavaType.doubleList.isAssignableFrom(variableType) || JavaType.doubleSet.isAssignableFrom(variableType)) JavaType.double
       else if (JavaType.charList.isAssignableFrom(variableType) || JavaType.characterSet.isAssignableFrom(variableType)) JavaType.char
       else if (JavaType.of(Collection::class.java).isAssignableFrom(variableType) && variableType.genericTypes.isNotEmpty()) variableType.genericTypes.first()
-      else throw MarcelSemanticException(expression.token, "Couldn't guess type of empty array. You can explicitly specify your wanted type with the 'as' keyword (e.g. '[] as int[]')")
+      else throw MarcelSemanticLegacyException(expression.token, "Couldn't guess type of empty array. You can explicitly specify your wanted type with the 'as' keyword (e.g. '[] as int[]')")
       expression.type = JavaType.arrayType(elementsType)
     } else if (variableType.isInterface && expression is LambdaNode) {
       expression.interfaceType = variableType
@@ -835,16 +835,16 @@ class InstructionGenerator(
 
   override fun visit(node: TryCatchNode) {
     if (node.tryBlock.statementNode.statesNothing()) {
-      throw MarcelSemanticException(node, "Try block mustn't be empty")
+      throw MarcelSemanticLegacyException(node, "Try block mustn't be empty")
     }
     if (node.catchNodes.isEmpty() && node.finallyBlock == null) {
-      throw MarcelSemanticException(node, "Try block must have catch clause(s) and/or a finally clause")
+      throw MarcelSemanticLegacyException(node, "Try block must have catch clause(s) and/or a finally clause")
     }
     val finallyStatements = mutableListOf<StatementNode>()
     finallyStatements.addAll(node.resources.map {
       val scope = node.finallyBlock?.scope ?: InnerScope(node.scope)
       if (!it.type.implements(Closeable::class.javaType)) {
-        throw MarcelSemanticException(node, "Try resources need to implement Closeable")
+        throw MarcelSemanticLegacyException(node, "Try resources need to implement Closeable")
       }
       val ref = ReferenceExpression(node.token, scope, it.name)
       IfStatementNode(node.token,
@@ -946,7 +946,7 @@ class InstructionGenerator(
     catchesWithLabel.forEach { c ->
       c.first.exceptionTypes.forEach { exceptionType ->
         if (!Throwable::class.javaType.isAssignableFrom(exceptionType)) {
-          throw MarcelSemanticException(node.token, "Can only catch throwable")
+          throw MarcelSemanticLegacyException(node.token, "Can only catch throwable")
         }
         mv.tryCatchBlock(tryStart, tryEnd, c.second, exceptionType)
       }
@@ -983,7 +983,7 @@ class InstructionGenerator(
     else if (Iterator::class.javaType.isAssignableFrom(expressionType)) expression
     else if (CharSequence::class.javaType.isAssignableFrom(expressionType)) ConstructorCallNode(node.token, scope, CharSequenceIterator::class.java.javaType,
       mutableListOf(expression))
-    else throw MarcelSemanticException(node.token, "Doesn't handle iterating on $expressionType")
+    else throw MarcelSemanticLegacyException(node.token, "Doesn't handle iterating on $expressionType")
     val iteratorExpressionType = iteratorExpression.getType(typeResolver)
 
     val iteratorVariable = scope.addLocalVariable(iteratorExpressionType, token = node.token)
@@ -1073,12 +1073,12 @@ class InstructionGenerator(
   }
 
   override fun visit(node: BreakLoopNode) {
-    val label = node.scope.breakLabel ?: throw MarcelSemanticException(node.token, "Cannot use break statement outside of a loop")
+    val label = node.scope.breakLabel ?: throw MarcelSemanticLegacyException(node.token, "Cannot use break statement outside of a loop")
     mv.jumpTo(label)
   }
 
   override fun visit(node: ContinueLoopNode) {
-    val label = node.scope.continueLabel ?: throw MarcelSemanticException(node.token, "Cannot use continue statement outside of a loop")
+    val label = node.scope.continueLabel ?: throw MarcelSemanticLegacyException(node.token, "Cannot use continue statement outside of a loop")
     mv.jumpTo(label)
   }
 
@@ -1244,7 +1244,7 @@ class InstructionGenerator(
         mv.pushNull()
         mv.returnCode(node.scope.returnType.returnCode)
       } else if (lastStatement == null || !lastStatement.allBranchesReturn()) {
-        throw MarcelSemanticException(node.token, "Function returning primitive types must explicitly return an expression as the last statement." +
+        throw MarcelSemanticLegacyException(node.token, "Function returning primitive types must explicitly return an expression as the last statement." +
             "You must explicitly return an expression, a switch or a when.")
       } else {
         lastStatement.accept(this)
@@ -1351,7 +1351,7 @@ class InstructionGenerator(
     val scope = node.scope
     val expressionType = node.expression.getType(typeResolver)
     if (!List::class.javaType.isAssignableFrom(expressionType) && !expressionType.isArray) {
-      throw MarcelSemanticException(node.token, "Multi variable declarations must use an array or a list as the expression")
+      throw MarcelSemanticLegacyException(node.token, "Multi variable declarations must use an array or a list as the expression")
     }
     val tempVar = scope.addLocalVariable(expressionType, token = node.token)
     // assign expression to variable
@@ -1378,7 +1378,7 @@ class InstructionGenerator(
 
   override fun visit(node: ReturnNode) {
     if (node.scope.returnType == JavaType.void && node.expression !is VoidExpression) {
-      throw MarcelSemanticException(node.token, "Cannot return an expression in a void function")
+      throw MarcelSemanticLegacyException(node.token, "Cannot return an expression in a void function")
     }
     pushArgument(node.expression)
     mv.castIfNecessaryOrThrow(classNode.scope, node, node.scope.returnType, node.expression.getType(typeResolver))
@@ -1550,7 +1550,7 @@ private class PushingInstructionGenerator(
 
   override fun visit(node: CharConstantNode) {
     val value = node.value
-    if (value.length != 1) throw MarcelSemanticException(node.token, "Characters should be strings of exactly one char")
+    if (value.length != 1) throw MarcelSemanticLegacyException(node.token, "Characters should be strings of exactly one char")
     mv.pushConstant(value[0])
   }
   override fun visit(node: NullValueNode) {
@@ -1558,7 +1558,7 @@ private class PushingInstructionGenerator(
   }
 
   override fun visit(node: SuperReference) {
-    if (methodNode.isStatic) throw MarcelSemanticException(node.token, "Cannot reference 'super' in a static context")
+    if (methodNode.isStatic) throw MarcelSemanticLegacyException(node.token, "Cannot reference 'super' in a static context")
     mv.pushThis() // super is actually this. The difference is in the class internalName supplied when performing ASM instructions
   }
 
@@ -1567,7 +1567,7 @@ private class PushingInstructionGenerator(
       !methodNode.isStatic -> mv.pushThis()
       // for extension class
       classNode.isExtensionClass && node.scope.hasVariable("self") -> visit(ReferenceExpression(node.token, node.scope, "self"))
-      else -> throw MarcelSemanticException(node.token, "Cannot reference 'this' in a static context")
+      else -> throw MarcelSemanticLegacyException(node.token, "Cannot reference 'this' in a static context")
     }
   }
 

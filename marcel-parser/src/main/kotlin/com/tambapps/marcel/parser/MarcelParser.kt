@@ -62,7 +62,7 @@ import com.tambapps.marcel.parser.cst.statement.WhileCstNode
 import java.lang.NumberFormatException
 import java.util.*
 
-class MarcelParser2 constructor(private val classSimpleName: String, tokens: List<LexToken>) {
+class MarcelParser constructor(private val classSimpleName: String, tokens: List<LexToken>) {
 
   private val tokens = tokens.filter { it.type != TokenType.WHITE_SPACE }
 
@@ -164,7 +164,7 @@ class MarcelParser2 constructor(private val classSimpleName: String, tokens: Lis
     return Pair(imports, extensionTypes)
   }
 
-  fun import(parentNode: CstNode?): ImportCstNode {
+  fun import(parentNode: CstNode? = null): ImportCstNode {
     val importToken = accept(TokenType.IMPORT)
     val staticImport = acceptOptional(TokenType.STATIC) != null
     val classParts = mutableListOf(accept(TokenType.IDENTIFIER).value)

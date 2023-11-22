@@ -6,7 +6,7 @@ import com.tambapps.marcel.compiler.file.SourceFile
 import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
-import com.tambapps.marcel.parser.MarcelParser2
+import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.semantic.MarcelSemantic
@@ -17,7 +17,7 @@ import java.io.File
 import java.io.IOException
 import java.util.function.Consumer
 
-class MarcelCompiler(private val configuration: CompilerConfiguration) {
+class MarcelCompiler(configuration: CompilerConfiguration): AbstractMarcelCompiler(configuration) {
 
   constructor(): this(CompilerConfiguration())
 
@@ -60,7 +60,7 @@ class MarcelCompiler(private val configuration: CompilerConfiguration) {
 
     val asts = sourceFiles.map { sourceFile ->
       val tokens = MarcelLexer().lex(sourceFile.text)
-      val cst = MarcelParser2(classSimpleName = sourceFile.className, tokens = tokens).parse()
+      val cst = MarcelParser(classSimpleName = sourceFile.className, tokens = tokens).parse()
 
       handleDumbbells(marcelClassLoader, cst)
 

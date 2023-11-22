@@ -18,7 +18,7 @@ import com.tambapps.marcel.parser.ast.expression.SimpleFunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.parser.ast.statement.StatementNode
-import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticLegacyException
 import com.tambapps.marcel.parser.scope.LambdaScope
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Variable
@@ -84,13 +84,13 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
       lambdaNode.parameters.add(MethodParameterNode(lambdaNode.token, itParameter))
     } else if (lambdaNode.parameters.isNotEmpty()) {
       if (lambdaMethod.parameters.size != lambdaNode.parameters.size) {
-        throw MarcelSemanticException(token, "Lambda method parameters count is not consistent")
+        throw MarcelSemanticLegacyException(token, "Lambda method parameters count is not consistent")
       }
       for (i in lambdaMethod.parameters.indices) {
         val methodParameter = lambdaMethod.parameters[i]
         val nodeParameter = lambdaNode.parameters[i]
         if (!nodeParameter.type.isAssignableFrom(methodParameter.type)) {
-          throw MarcelSemanticException(token, "Bad parameter lambda ${nodeParameter.type} ${nodeParameter.name}")
+          throw MarcelSemanticLegacyException(token, "Bad parameter lambda ${nodeParameter.type} ${nodeParameter.name}")
         }
         parameters[i] = nodeParameter
       }
@@ -113,7 +113,7 @@ class LambdaHandler(private val classNode: ClassNode, private val typeResolver: 
       val declaredMethods = scope.typeResolver.getDeclaredMethods(interfaceType)
         .filter { it.isAbstract }
       if (declaredMethods.size != 1) {
-        throw MarcelSemanticException(token, "Cannot make a lambda out of interface $interfaceType")
+        throw MarcelSemanticLegacyException(token, "Cannot make a lambda out of interface $interfaceType")
       }
 
       val interfaceMethod = declaredMethods.first()

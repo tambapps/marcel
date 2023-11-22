@@ -105,7 +105,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     methods.add(method)
   }
 
-  fun defineField(javaType: JavaType, field: MarcelField) {
+  open fun defineField(javaType: JavaType, field: MarcelField) {
     if (javaType.isLoaded) {
       throw MarcelSemanticException((field as? FieldNode)?.token, "Cannot define field on loaded class")
     }
@@ -163,7 +163,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     return fieldResolver.getField(javaType, fieldName)?.classField ?: throw MarcelSemanticException(token, "Class field $javaType.$fieldName is not defined")
   }
 
-  fun getDeclaredFields(javaType: JavaType): Collection<CompositeField> {
+  open fun getDeclaredFields(javaType: JavaType): Collection<CompositeField> {
     return fieldResolver.getAllFields(javaType).values
   }
 
@@ -317,7 +317,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     return findField(javaType, name) ?: throw MarcelSemanticException(token, "Field $javaType.$name is not defined")
   }
 
-  fun findField(javaType: JavaType, name: String): CompositeField? {
+  open fun findField(javaType: JavaType, name: String): CompositeField? {
     if (javaType.isArray && (name == "size" || name == "length")) {
       return CompositeField(MarcelArrayLengthField(javaType, name))
     }

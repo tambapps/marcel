@@ -12,8 +12,8 @@ import com.tambapps.marcel.compiler.JarWriter
 import com.tambapps.marcel.compiler.MarcelCompiler
 import com.tambapps.marcel.dumbbell.DumbbellException
 import com.tambapps.marcel.lexer.MarcelLexerException
-import com.tambapps.marcel.parser.exception.MarcelParserException
-import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.exception.MarcelParserLegacyException
+import com.tambapps.marcel.parser.exception.MarcelSemanticLegacyException
 import marcel.lang.MarcelClassLoader
 import marcel.lang.URLMarcelClassLoader
 import marcel.lang.util.MarcelVersion
@@ -109,11 +109,11 @@ fun compile(file: File, keepClassFiles: Boolean, keepJarFile: Boolean, printStac
     println("Lexer error: ${e.message}")
     if (printStackTrace) e.printStackTrace()
     return null
-  } catch (e: MarcelParserException) {
+  } catch (e: MarcelParserLegacyException) {
     println("Parsing error: ${e.message}")
     if (printStackTrace) e.printStackTrace()
     return null
-  } catch (e: MarcelSemanticException) {
+  } catch (e: MarcelSemanticLegacyException) {
     println("Semantic error: ${e.message}")
     if (printStackTrace) e.printStackTrace()
     return null

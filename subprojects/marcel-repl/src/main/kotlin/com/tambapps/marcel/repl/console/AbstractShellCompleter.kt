@@ -8,8 +8,7 @@ import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.expression.GetFieldAccessOperator
 import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
 import com.tambapps.marcel.parser.ast.statement.ExpressionStatementNode
-import com.tambapps.marcel.parser.exception.MarcelSemanticException
-import com.tambapps.marcel.parser.scope.JavaField
+import com.tambapps.marcel.parser.exception.MarcelSemanticLegacyException
 import com.tambapps.marcel.parser.scope.MarcelField
 import com.tambapps.marcel.parser.type.JavaMethod
 
@@ -60,7 +59,7 @@ abstract class AbstractShellCompleter<T>(
   }
 
   private fun completeClassMember(lastNode: GetFieldAccessOperator, endsWithDot: Boolean, candidates: MutableList<T>) {
-    val type = try { lastNode.leftOperand.getType(typeResolver) } catch (e: MarcelSemanticException) { null } ?: return
+    val type = try { lastNode.leftOperand.getType(typeResolver) } catch (e: MarcelSemanticLegacyException) { null } ?: return
 
     val methodFilter: (JavaMethod) -> Boolean
     val fieldFilter: (MarcelField) -> Boolean

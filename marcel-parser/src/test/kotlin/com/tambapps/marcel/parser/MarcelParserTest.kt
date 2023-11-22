@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
-class MarcelParser2Test {
+class MarcelParserTest {
 
     private val defaultAccess = CstAccessNode(null, token(), token(), false, false, false, TokenType.VISIBILITY_PUBLIC, false)
     @Test
@@ -244,7 +244,7 @@ class MarcelParser2Test {
     private fun long(value: Long) = LongCstNode(value = value, token = token())
     private fun double(value: Double) = DoubleCstNode(value = value, token = token())
     private fun ref(name: String) = ReferenceCstNode(value = name, token = token(), parent = null)
-    private fun parser(text: String) = MarcelParser2("Test", MarcelLexer().lex(text))
+    private fun parser(text: String) = MarcelParser("Test", MarcelLexer().lex(text))
     private fun token() = LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, "")
     private fun lambdaParam(type: TypeCstNode? = null, name: String) = LambdaCstNode.MethodParameterCstNode(null, token(), token(), type, name)
 }

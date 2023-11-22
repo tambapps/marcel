@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.objectweb.asm.Opcodes
 
-class MarcelParserTest {
+class MarcelParserLegacyTest {
 
     private val lexer = MarcelLexer()
     private val typeResolver = AstNodeTypeResolver()
@@ -24,7 +24,7 @@ class MarcelParserTest {
 
     @Test
     fun testExpression() {
-        val parser = MarcelParser(typeResolver, listOf(
+        val parser = MarcelParserLegacy(typeResolver, listOf(
             lexToken(TokenType.INTEGER, "2"),
             lexToken(TokenType.MUL, null),
             lexToken(TokenType.INTEGER, "3"),
@@ -95,8 +95,8 @@ class MarcelParserTest {
         return lexer.lex(s)
     }
 
-    private fun parser(s: String): MarcelParser {
-        return MarcelParser(typeResolver, tokens(s))
+    private fun parser(s: String): MarcelParserLegacy {
+        return MarcelParserLegacy(typeResolver, tokens(s))
     }
     private fun lexToken(type: TokenType, value: String? = null): LexToken {
         return LexToken(0, 0, 0, 0, type, value)

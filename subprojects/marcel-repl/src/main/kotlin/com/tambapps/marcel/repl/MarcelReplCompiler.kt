@@ -7,13 +7,13 @@ import com.tambapps.marcel.compiler.asm.ClassCompiler
 import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
-import com.tambapps.marcel.parser.MarcelParser
-import com.tambapps.marcel.parser.exception.MarcelParserException
+import com.tambapps.marcel.parser.MarcelParserLegacy
+import com.tambapps.marcel.parser.exception.MarcelParserLegacyException
 import com.tambapps.marcel.parser.ParserConfiguration
 import com.tambapps.marcel.parser.ast.ImportNode
 import com.tambapps.marcel.parser.ast.MethodNode
 import com.tambapps.marcel.parser.ast.ScopedNode
-import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticLegacyException
 import com.tambapps.marcel.parser.scope.MethodScope
 import marcel.lang.DelegatedObject
 import marcel.lang.MarcelClassLoader
@@ -35,7 +35,7 @@ class MarcelReplCompiler constructor(
     private set
 
   fun addImport(importString: String) {
-    addImport(MarcelParser(typeResolver, lexer.lex(importString), ParserConfiguration()).import())
+    addImport(MarcelParserLegacy(typeResolver, lexer.lex(importString), ParserConfiguration()).import())
   }
   fun addImport(importNode: ImportNode) {
     imports.add(importNode)
@@ -83,7 +83,7 @@ class MarcelReplCompiler constructor(
       updateAndGet(text, true)
     }  catch (e: Exception) {
       when (e) {
-        is MarcelLexerException, is MarcelParserException, is MarcelSemanticException -> null
+        is MarcelLexerException, is MarcelParserLegacyException, is MarcelSemanticLegacyException -> null
         else -> throw e
       }
     }
@@ -94,13 +94,13 @@ class MarcelReplCompiler constructor(
       updateAndGet(text)
     }  catch (e: Exception) {
       when (e) {
-        is MarcelLexerException, is MarcelParserException, is MarcelSemanticException -> null
+        is MarcelLexerException, is MarcelParserLegacyException, is MarcelSemanticLegacyException -> null
         else -> throw e
       }
     }
   }
 
-  @Throws(MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class)
+  @Throws(MarcelLexerException::class, MarcelParserLegacyException::class, MarcelSemanticLegacyException::class)
   fun parse(text: String): ParserResult {
     return updateAndGet(text)
   }
@@ -112,7 +112,7 @@ class MarcelReplCompiler constructor(
       if (parserResult.hashCode() == text.hashCode()) return parserResult!!
     }
     val tokens = lexer.lex(text)
-    val parser = MarcelParser(typeResolver, tokens, ParserConfiguration(
+    val parser = MarcelParserLegacy(typeResolver, tokens, ParserConfiguration(
       independentScriptInnerClasses= true,
       scriptInterfaces = if (_definedFunctions.any { it.name == "getDelegate" && it.parameters.isEmpty() }) listOf(DelegatedObject::class.java)
       else emptyList()
@@ -125,7 +125,7 @@ class MarcelReplCompiler constructor(
     if (scriptNode != null) {
       for (method in _definedFunctions) {
         if (scriptNode.methods.any { it.matches(method) }) {
-          throw MarcelSemanticException("Method $method is already defined")
+          throw MarcelSemanticLegacyException("Method $method is already defined")
         }
         method.ownerClass = scriptNode.type
         method.scope.classType = scriptNode.type

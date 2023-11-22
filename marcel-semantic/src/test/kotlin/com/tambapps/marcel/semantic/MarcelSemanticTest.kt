@@ -3,7 +3,7 @@ package com.tambapps.marcel.semantic
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.TokenType
-import com.tambapps.marcel.parser.MarcelParser2
+import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.semantic.ast.MethodNode
@@ -94,11 +94,11 @@ class MarcelSemanticTest {
   private fun exprStmt(node: ExpressionNode) = ExpressionStatementNode(node, token(), token())
 
   private fun expr(text: String): ExpressionNode {
-    val cstExpression = MarcelParser2("Test", MarcelLexer().lex(text)).expression()
+    val cstExpression = MarcelParser("Test", MarcelLexer().lex(text)).expression()
     return cstExpression.accept(semantic())
   }
   private fun stmt(text: String, semantic: MarcelSemantic = semantic()): StatementNode {
-    val cstExpression = MarcelParser2("Test", MarcelLexer().lex(text)).statement()
+    val cstExpression = MarcelParser("Test", MarcelLexer().lex(text)).statement()
     return cstExpression.accept(semantic)
   }
 

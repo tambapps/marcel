@@ -6,7 +6,7 @@ import com.tambapps.marcel.parser.ast.AstInstructionNode
 import com.tambapps.marcel.parser.ast.AstNodeTypeResolver
 import com.tambapps.marcel.parser.ast.AstNodeVisitor
 import com.tambapps.marcel.parser.ast.ScopedNode
-import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticLegacyException
 import com.tambapps.marcel.parser.scope.Scope
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
@@ -88,7 +88,7 @@ open class SimpleFunctionCallNode constructor(
     return try {
       if (methodOwnerType != null) typeResolver.findMethodOrThrow(typeResolver.resolve(methodOwnerType!!), name, arguments.map { it.accept(typeResolver) }, this)
       else scope.findMethodOrThrow(name, arguments.map { it.accept(typeResolver) }, this)
-    } catch (e: MarcelSemanticException) {
+    } catch (e: MarcelSemanticLegacyException) {
       if (isDynamicObjectDynamicCall(typeResolver)) ReflectJavaMethod(DynamicObject::class.java.getMethod("invokeMethod", String::class.java, JavaType.objectArray.realClazz))
       else throw e
     }

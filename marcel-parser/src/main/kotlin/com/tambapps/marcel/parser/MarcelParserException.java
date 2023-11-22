@@ -57,4 +57,7 @@ public class MarcelParserException extends RuntimeException {
     return new MarcelParserException.Error("Malformed number (" + e.getMessage() + ")", eof, token);
   }
 
+  public boolean isEof() {
+    return errors.get(errors.size() - 1).isEof();
+  }
 }

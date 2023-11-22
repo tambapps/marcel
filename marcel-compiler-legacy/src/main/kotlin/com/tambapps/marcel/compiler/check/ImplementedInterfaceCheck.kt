@@ -8,7 +8,7 @@ import com.tambapps.marcel.parser.ast.expression.AsNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
 import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
 import com.tambapps.marcel.parser.ast.expression.SimpleFunctionCallNode
-import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticLegacyException
 
 /**
  * Check that all implemented interfaces methods are defined.
@@ -25,7 +25,7 @@ internal class ImplementedInterfaceCheck: ClassNodeVisitor {
 
         if (implementationMethod == null || implementationMethod.isAbstract) {
           // maybe there is a generic implementation, in which case we have to generate the method with raw types
-          throw MarcelSemanticException(classNode.token, "Class ${classNode.type} doesn't define method $interfaceMethod of interface $interfaze")
+          throw MarcelSemanticLegacyException(classNode.token, "Class ${classNode.type} doesn't define method $interfaceMethod of interface $interfaze")
         }
         val rawInterfaceMethod = typeResolver.findMethod(interfaze.raw(), interfaceMethod.name, interfaceMethod.parameters, true, classNode)!!
         // we only need the match on parameters (== ignoring return type) because returning a more specific type is still a valid definition that doesn't need another implementation

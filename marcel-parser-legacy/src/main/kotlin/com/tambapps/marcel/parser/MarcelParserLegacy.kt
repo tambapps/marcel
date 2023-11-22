@@ -18,13 +18,12 @@ import com.tambapps.marcel.parser.ast.statement.ThrowStatementNode
 import com.tambapps.marcel.parser.ast.statement.TryCatchNode
 import com.tambapps.marcel.parser.ast.statement.VariableDeclarationNode
 import com.tambapps.marcel.parser.ast.statement.WhileStatement
-import com.tambapps.marcel.parser.exception.MarcelParserException
-import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.exception.MarcelParserLegacyException
+import com.tambapps.marcel.parser.exception.MarcelSemanticLegacyException
 import com.tambapps.marcel.parser.scope.InnerScope
 import com.tambapps.marcel.parser.scope.LambdaScope
 import com.tambapps.marcel.parser.scope.MethodScope
 import com.tambapps.marcel.parser.scope.Scope
-import com.tambapps.marcel.parser.type.JavaAnnotation
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import com.tambapps.marcel.parser.type.Visibility
@@ -36,7 +35,7 @@ import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.abs
 
-class MarcelParser constructor(
+class MarcelParserLegacy constructor(
   private val typeResolver: AstNodeTypeResolver,
   private val classSimpleName: String, tokens: List<LexToken>,
   private val configuration: ParserConfiguration) {
@@ -66,15 +65,15 @@ class MarcelParser constructor(
 
   init {
     if (configuration.scriptClass != null && !Script::class.java.isAssignableFrom(configuration.scriptClass)) {
-      throw MarcelParserException(
-        "scriptSuperClass should be a subclass of marcel.lang.Script",
-        false
+      throw MarcelParserLegacyException(
+          "scriptSuperClass should be a subclass of marcel.lang.Script",
+          false
       )
     }
     if (configuration.scriptInterfaces.any { !it.isInterface }) {
-      throw MarcelParserException(
-        "Script interfaces should ve java interfaces",
-        false
+      throw MarcelParserLegacyException(
+          "Script interfaces should ve java interfaces",
+          false
       )
     }
   }
@@ -120,17 +119,17 @@ class MarcelParser constructor(
 
   private fun parseField(classNode: ClassNode, annotations: List<AnnotationNode>): FieldNode {
     val (access, isInline) = parseAccess()
-    if (isInline) throw MarcelParserException(
-      previous,
-      "Cannot use 'inline' keyword for a field"
+    if (isInline) throw MarcelParserLegacyException(
+        previous,
+        "Cannot use 'inline' keyword for a field"
     )
     val type = parseType(classNode.scope)
     val identifierToken = accept(TokenType.IDENTIFIER)
     val name = identifierToken.value
 
-    if (classNode.fields.any { it.name == name }) throw MarcelParserException(
-      previous,
-      "Field with name $name was defined more than once"
+    if (classNode.fields.any { it.name == name }) throw MarcelParserLegacyException(
+        previous,
+        "Field with name $name was defined more than once"
     )
 
     val expression = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(
@@ -163,14 +162,20 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
           accept(TokenType.ASSIGNMENT)
           val e = expression(scope)
           val expression = e as? JavaConstantExpression
-            ?: throw MarcelParserException(e.token, "Annotations attributes can only have constant value ")
+            ?: throw MarcelParserLegacyException(
+                e.token,
+                "Annotations attributes can only have constant value "
+            )
           attributes.add(Pair(attributeName, expression))
           if (current.type != TokenType.RPAR) accept(TokenType.COMMA)
         }
       } else {
         val e = expression(scope)
         val expression = e as? JavaConstantExpression
-          ?: throw MarcelParserException(e.token, "Annotations attributes can only have constant value ")
+          ?: throw MarcelParserLegacyException(
+              e.token,
+              "Annotations attributes can only have constant value "
+          )
         attributes.add(Pair("value", expression))
       }
       accept(TokenType.RPAR)
@@ -180,9 +185,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
 
   private fun parseClass(imports: MutableList<ImportNode>, packageName: String?, classAnnotations: List<AnnotationNode>, outerClassNode: ClassNode? = null): ClassNode {
     val (access, isInline) = parseAccess()
-    if (isInline) throw MarcelParserException(
-      previous,
-      "Cannot use 'inline' keyword for a class"
+    if (isInline) throw MarcelParserLegacyException(
+        previous,
+        "Cannot use 'inline' keyword for a class"
     )
     val isExtensionClass = acceptOptional(TokenType.EXTENSION) != null
     val classToken = accept(TokenType.CLASS)
@@ -201,9 +206,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
 
     if (outerClassNode != null) {
       val conflictClass = outerClassNode.innerClasses.find { it.type.className == className }
-      if (conflictClass != null) throw MarcelParserException(
-        previous,
-        "Class with name $className was defined more than once"
+      if (conflictClass != null) throw MarcelParserLegacyException(
+          previous,
+          "Class with name $className was defined more than once"
       )
     }
 
@@ -282,11 +287,14 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
             TokenType.FUN -> {
               val method = method(classNode, annotations)
               if (method.name == "main") {
-                throw MarcelSemanticException(classNode.token, "Cannot have a \"main\" function in a script")
+                throw MarcelSemanticLegacyException(classNode.token, "Cannot have a \"main\" function in a script")
               }
               classNode.addMethod(method)
             }
-            TokenType.CONSTRUCTOR -> throw MarcelParserException(current, "Scripts cannot have constructors")
+            TokenType.CONSTRUCTOR -> throw MarcelParserLegacyException(
+                current,
+                "Scripts cannot have constructors"
+            )
             // must be a type token
             else -> classFields.add(parseField(classNode, annotations))
           }
@@ -302,9 +310,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
   private fun getNextMemberToken(): TokenType {
     var i = currentIndex
     while (i < tokens.size && tokens[i].type !in listOf(TokenType.CLASS, TokenType.FUN, TokenType.CONSTRUCTOR) && !isTypeToken(tokens[i].type)) i++
-    if (i >= tokens.size) throw MarcelParserException(
-      current,
-      "Unexpected tokens"
+    if (i >= tokens.size) throw MarcelParserLegacyException(
+        current,
+        "Unexpected tokens"
     )
     return tokens[i].type
   }
@@ -324,9 +332,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       skip()
       if (current.type == TokenType.MUL) {
         if (staticImport) {
-          throw MarcelParserException(
-            current,
-            "Invalid static import"
+          throw MarcelParserLegacyException(
+              current,
+              "Invalid static import"
           )
         }
         skip()
@@ -336,11 +344,11 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       classParts.add(accept(TokenType.IDENTIFIER).value)
     }
     if (classParts.size <= 1) {
-      throw MarcelParserException(
-        previous,
-        "Invalid class full name" + classParts.joinToString(
-          separator = "."
-        )
+      throw MarcelParserLegacyException(
+          previous,
+          "Invalid class full name" + classParts.joinToString(
+              separator = "."
+          )
       )
     }
     val node = if (staticImport) {
@@ -381,15 +389,17 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
 
       if (isThisParameter) {
         identifierToken = accept(TokenType.IDENTIFIER)
-        type = classNode.fields.find { it.name == identifierToken.value }?.type ?: throw MarcelParserException(identifierToken,
-          "Cannot find field ${identifierToken.value}. Note that they should be defined before the constructor")
+        type = classNode.fields.find { it.name == identifierToken.value }?.type ?: throw MarcelParserLegacyException(
+            identifierToken,
+            "Cannot find field ${identifierToken.value}. Note that they should be defined before the constructor"
+        )
       } else {
         type = parseType(classScope)
         identifierToken = accept(TokenType.IDENTIFIER)
       }
       val argName = identifierToken.value
       if (parameters.any { it.name == argName }) {
-        throw MarcelSemanticException(token, "Cannot two method parameters with the same name")
+        throw MarcelSemanticLegacyException(token, "Cannot two method parameters with the same name")
       }
       if (isThisParameter) {
         thisParameters.add(argName)
@@ -415,12 +425,18 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       skip()
       when (val atom = atom(methodScope)) {
         is SuperConstructorCallNode, is ThisConstructorCallNode -> statements.add(ExpressionStatementNode(atom.token, atom))
-        else -> throw MarcelParserException(atom.token, "Expected this or super constructor call")
+        else -> throw MarcelParserLegacyException(
+            atom.token,
+            "Expected this or super constructor call"
+        )
       }
     }
 
     if (thisParameters.isNotEmpty()) {
-      if (!isConstructor) throw MarcelParserException(token, "Methods cannot have this parameters")
+      if (!isConstructor) throw MarcelParserLegacyException(
+          token,
+          "Methods cannot have this parameters"
+      )
       for (thisParameter in thisParameters) {
         statements.add(
           ExpressionStatementNode(token,
@@ -470,7 +486,7 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       val statement = statement(scope)
       if (statements.lastOrNull() is ReturnNode) {
         // we have another statement after a return? shouldn't be possible
-        throw MarcelSemanticException(statement.token, "Cannot have other statements after a return")
+        throw MarcelSemanticLegacyException(statement.token, "Cannot have other statements after a return")
       }
       statements.add(statement)
     }
@@ -486,9 +502,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         val type = JavaType.TOKEN_TYPE_MAP.getValue(token.type)
         if (acceptOptional(TokenType.SQUARE_BRACKETS_OPEN) != null) {
           accept(TokenType.SQUARE_BRACKETS_CLOSE)
-          JavaType.ARRAYS.find { it.elementsType == type } ?: throw MarcelParserException(
-            previous,
-            "Doesn't handle array of $type"
+          JavaType.ARRAYS.find { it.elementsType == type } ?: throw MarcelParserLegacyException(
+              previous,
+              "Doesn't handle array of $type"
           )
         } else type
       }
@@ -512,14 +528,14 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
           JavaType.lazy(scope, className, genericTypes)
         }
       }
-      TokenType.END_OF_FILE -> throw MarcelParserException(
-        token,
-        "Unexpected end of file",
-        true
+      TokenType.END_OF_FILE -> throw MarcelParserLegacyException(
+          token,
+          "Unexpected end of file",
+          true
       )
-      else -> throw MarcelParserException(
-        token,
-        "Doesn't handle type ${token.type}"
+      else -> throw MarcelParserLegacyException(
+          token,
+          "Doesn't handle type ${token.type}"
       )
     }
     while (current.type == TokenType.SQUARE_BRACKETS_OPEN && lookup(1)?.type == TokenType.SQUARE_BRACKETS_CLOSE) {
@@ -563,9 +579,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       TokenType.RETURN -> {
         val expression = if (current.type == TokenType.SEMI_COLON) VoidExpression(token) else expression(scope)
         if (scope !is MethodScope) {
-          throw MarcelParserException(
-            previous,
-            "Cannot have a return instruction outside of a function"
+          throw MarcelParserLegacyException(
+              previous,
+              "Cannot have a return instruction outside of a function"
           )
         }
         acceptOptional(TokenType.SEMI_COLON)
@@ -579,9 +595,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       TokenType.BRACKETS_OPEN -> {
         rollback()
         if (scope !is MethodScope) {
-          throw MarcelParserException(
-            current,
-            "Cannot have blocks outside of a method"
+          throw MarcelParserLegacyException(
+              current,
+              "Cannot have blocks outside of a method"
           )
         }
         // starting a new inner scope for the block
@@ -612,9 +628,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         accept(TokenType.LPAR)
         val condition = BooleanExpressionNode.of(token, expression(scope))
         accept(TokenType.RPAR)
-        val whileScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(
-          previous,
-          "Cannot have for outside of a method"
+        val whileScope = InnerScope(scope as? MethodScope ?: throw MarcelParserLegacyException(
+            previous,
+            "Cannot have for outside of a method"
         )
         )
         WhileStatement(token, whileScope, condition, loopBody(whileScope))
@@ -628,9 +644,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
           accept(TokenType.IN)
           val expression = expression(scope)
           accept(TokenType.RPAR)
-          val loopScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(
-            previous,
-            "Cannot have for outside of a method"
+          val loopScope = InnerScope(scope as? MethodScope ?: throw MarcelParserLegacyException(
+              previous,
+              "Cannot have for outside of a method"
           )
           )
           val forBlock = loopBody(loopScope)
@@ -638,16 +654,16 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         } else {
           // for (;;)
           // needed especially if initStatement is var declaration
-          val forScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(
-            previous,
-            "Cannot have for outside of a method"
+          val forScope = InnerScope(scope as? MethodScope ?: throw MarcelParserLegacyException(
+              previous,
+              "Cannot have for outside of a method"
           )
           )
           val initStatement = statement(forScope)
           if (initStatement !is VariableAssignmentNode) {
-            throw MarcelParserException(
-              previous,
-              "For loops should start with variable declaration/assignment"
+            throw MarcelParserLegacyException(
+                previous,
+                "For loops should start with variable declaration/assignment"
             )
           }
           acceptOptional(TokenType.SEMI_COLON)
@@ -655,9 +671,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
           accept(TokenType.SEMI_COLON)
           val iteratorStatement = statement(forScope)
           if (iteratorStatement !is VariableAssignmentNode && iteratorStatement !is ExpressionStatementNode) {
-            throw MarcelParserException(
-              previous,
-              "Invalid for loop"
+            throw MarcelParserLegacyException(
+                previous,
+                "Invalid for loop"
             )
           }
           accept(TokenType.RPAR)
@@ -667,15 +683,19 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       }
       TokenType.TRY -> {
         val resources = mutableListOf<VariableDeclarationNode>()
-        val nodeScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(
-          previous,
-          "Cannot have try outside of a method"
-        ))
+        val nodeScope = InnerScope(scope as? MethodScope ?: throw MarcelParserLegacyException(
+            previous,
+            "Cannot have try outside of a method"
+        )
+        )
         if (current.type == TokenType.LPAR) {
           skip()
           while (current.type != TokenType.RPAR) {
             val e = statement(nodeScope)
-            if (e !is VariableDeclarationNode) throw MarcelParserException(e.token, "Can only declare variables in try with resources")
+            if (e !is VariableDeclarationNode) throw MarcelParserLegacyException(
+                e.token,
+                "Can only declare variables in try with resources"
+            )
             resources.add(e)
             if (current.type == TokenType.COMMA) skip()
           }
@@ -709,9 +729,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       }
       TokenType.CONTINUE -> {
         if (scope !is InnerScope) {
-          throw MarcelParserException(
-            previous,
-            "Cannot have a continue outside of an inner block"
+          throw MarcelParserLegacyException(
+              previous,
+              "Cannot have a continue outside of an inner block"
           )
         }
         acceptOptional(TokenType.SEMI_COLON)
@@ -719,9 +739,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       }
       TokenType.BREAK -> {
         if (scope !is InnerScope) {
-          throw MarcelParserException(
-            previous,
-            "Cannot have a continue outside of an inner block"
+          throw MarcelParserLegacyException(
+              previous,
+              "Cannot have a continue outside of an inner block"
           )
         }
         acceptOptional(TokenType.SEMI_COLON)
@@ -796,9 +816,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
   private fun loopBody(scope: Scope): BlockNode {
     val loopStatement = statement(scope)
     if (loopStatement is BlockStatement) return loopStatement.block
-    val newScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(
-      previous,
-      "Cannot have for outside of a method"
+    val newScope = InnerScope(scope as? MethodScope ?: throw MarcelParserLegacyException(
+        previous,
+        "Cannot have for outside of a method"
     )
     )
     return BlockNode(loopStatement.token, newScope, mutableListOf(loopStatement))
@@ -843,7 +863,10 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
           skip()
           val (arguments, namedArguments) = parseFunctionArguments(scope)
           if (namedArguments.isNotEmpty()) {
-            throw MarcelParserException(token, "Cannot have named arguments on constructor call")
+            throw MarcelParserLegacyException(
+                token,
+                "Cannot have named arguments on constructor call"
+            )
           }
           ThisConstructorCallNode(token, scope, arguments)
         } else ThisReference(token, scope)
@@ -853,7 +876,10 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
           skip()
           val (arguments, namedArguments) = parseFunctionArguments(scope)
           if (namedArguments.isNotEmpty()) {
-            throw MarcelParserException(token, "Cannot have named arguments on super constructor call")
+            throw MarcelParserLegacyException(
+                token,
+                "Cannot have named arguments on super constructor call"
+            )
           }
           SuperConstructorCallNode(token, scope, arguments)
         } else SuperReference(token, scope)
@@ -868,14 +894,14 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         val value = when (valueToken.type) {
           TokenType.REGULAR_STRING_PART -> valueToken.value
           TokenType.ESCAPE_SEQUENCE -> escapedSequenceValue(valueToken.value)
-          TokenType.END_OF_FILE -> throw MarcelParserException(
-            token,
-            "Unexpected end of file",
-            true
+          TokenType.END_OF_FILE -> throw MarcelParserLegacyException(
+              token,
+              "Unexpected end of file",
+              true
           )
-          else -> throw MarcelParserException(
-            previous,
-            "Unexpected token ${valueToken.type} for character constant"
+          else -> throw MarcelParserLegacyException(
+              previous,
+              "Unexpected token ${valueToken.type} for character constant"
           )
         }
         accept(TokenType.CLOSING_CHAR_QUOTE)
@@ -908,9 +934,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         if (optFlags != null) {
           for (char in optFlags) {
             LiteralPatternNode.FLAGS_MAP
-            flags.add(LiteralPatternNode.FLAGS_MAP[char] ?: throw MarcelParserException(
-              previous,
-              "Unknown pattern flag $char"
+            flags.add(LiteralPatternNode.FLAGS_MAP[char] ?: throw MarcelParserLegacyException(
+                previous,
+                "Unknown pattern flag $char"
             )
             )
           }
@@ -926,9 +952,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         accept(TokenType.LPAR)
         val (arguments, namedArguments) = parseFunctionArguments(scope)
         if (arguments.isNotEmpty() && namedArguments.isNotEmpty()) {
-          throw MarcelParserException(
-            current,
-            "Cannot have both positional and named arguments for constructor calls"
+          throw MarcelParserLegacyException(
+              current,
+              "Cannot have both positional and named arguments for constructor calls"
           )
         }
         if (namedArguments.isNotEmpty()) NamedParametersConstructorCallNode(token, Scope(typeResolver, type, false), type, namedArguments)
@@ -941,9 +967,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         accept(TokenType.BRACKETS_OPEN)
         val branches = mutableListOf<SwitchBranchNode>()
         var elseStatement: StatementNode? = null
-        val switchScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(
-          previous,
-          "Cannot have switch outside of method"
+        val switchScope = InnerScope(scope as? MethodScope ?: throw MarcelParserLegacyException(
+            previous,
+            "Cannot have switch outside of method"
         )
         )
         while (current.type != TokenType.BRACKETS_CLOSE) {
@@ -951,9 +977,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
             skip()
             accept(TokenType.ARROW)
 
-            if (elseStatement != null) throw MarcelParserException(
-              previous,
-              "Cannot have multiple else statements"
+            if (elseStatement != null) throw MarcelParserLegacyException(
+                previous,
+                "Cannot have multiple else statements"
             )
             elseStatement = statement(switchScope)
           } else {
@@ -975,9 +1001,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       TokenType.WHEN -> {
         accept(TokenType.BRACKETS_OPEN)
         val branches = mutableListOf<WhenBranchNode>()
-        val whenScope = InnerScope(scope as? MethodScope ?: throw MarcelParserException(
-          previous,
-          "Cannot have switch outside of method"
+        val whenScope = InnerScope(scope as? MethodScope ?: throw MarcelParserLegacyException(
+            previous,
+            "Cannot have switch outside of method"
         )
         )
         var elseStatement: StatementNode? = null
@@ -985,9 +1011,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
           if (current.type == TokenType.ELSE) {
             skip()
             accept(TokenType.ARROW)
-            if (elseStatement != null) throw MarcelParserException(
-              previous,
-              "Cannot have multiple else statements"
+            if (elseStatement != null) throw MarcelParserLegacyException(
+                previous,
+                "Cannot have multiple else statements"
             )
             elseStatement = statement(whenScope)
           } else {
@@ -1050,9 +1076,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       TokenType.LPAR -> {
         val node = expression(scope)
         if (current.type != TokenType.RPAR) {
-          throw MarcelParserException(
-            previous,
-            "Parenthesis should be close"
+          throw MarcelParserLegacyException(
+              previous,
+              "Parenthesis should be close"
           )
         }
         next()
@@ -1095,10 +1121,10 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
           LiteralMapNode(token, entries)
         } else LiteralArrayNode(token, elements)
       }
-      TokenType.END_OF_FILE -> throw MarcelParserException(
-        token,
-        "Unexpected end of file",
-        true
+      TokenType.END_OF_FILE -> throw MarcelParserLegacyException(
+          token,
+          "Unexpected end of file",
+          true
       )
       TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_SHORT, TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE,
       TokenType.TYPE_BOOL, TokenType.TYPE_BYTE, TokenType.TYPE_VOID, TokenType.TYPE_CHAR
@@ -1109,9 +1135,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         accept(TokenType.CLASS)
         ClassExpressionNode(token, type)
       }
-      else -> throw MarcelParserException(
-        token,
-        "Not supported $token"
+      else -> throw MarcelParserLegacyException(
+          token,
+          "Not supported $token"
       )
 
     }
@@ -1128,9 +1154,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       "\"" -> "\""
       "`" -> "`"
       "/" -> "/"
-      else -> throw MarcelParserException(
-        previous,
-        "Unknown escaped sequence \\$escapedSequence"
+      else -> throw MarcelParserLegacyException(
+          previous,
+          "Unknown escaped sequence \\$escapedSequence"
       )
     }
   }
@@ -1172,14 +1198,14 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         val value = try {
           numberString.toLong(radix)
         } catch (e: NumberFormatException) {
-          throw MarcelParserException.malformedNumber(token, e)
+          throw MarcelParserLegacyException.malformedNumber(token, e)
         }
         LongConstantNode(token, value)
       } else {
         val value = try {
           numberString.toInt(radix)
         } catch (e: NumberFormatException) {
-          throw MarcelParserException.malformedNumber(token, e)
+          throw MarcelParserLegacyException.malformedNumber(token, e)
         }
         IntConstantNode(token, value)
       }
@@ -1192,22 +1218,22 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         val value = try {
           valueString.toDouble()
         } catch (e: NumberFormatException) {
-          throw MarcelParserException.malformedNumber(token, e)
+          throw MarcelParserLegacyException.malformedNumber(token, e)
         }
         DoubleConstantNode(token, value)
       } else {
         val value = try {
           valueString.toFloat()
         } catch (e: NumberFormatException) {
-          throw MarcelParserException.malformedNumber(token, e)
+          throw MarcelParserLegacyException.malformedNumber(token, e)
         }
         FloatConstantNode(token, value)
       }
     } else {
-      throw MarcelParserException(
-        token,
-        "Unexpected token $token",
-        token.type == TokenType.END_OF_FILE
+      throw MarcelParserLegacyException(
+          token,
+          "Unexpected token $token",
+          token.type == TokenType.END_OF_FILE
       )
     }
   }
@@ -1243,14 +1269,14 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
     return when (token.type) {
       TokenType.REGULAR_STRING_PART -> token.value
       TokenType.ESCAPE_SEQUENCE -> escapedSequenceValue(token.value)
-      TokenType.END_OF_FILE -> throw MarcelParserException(
-        token,
-        "Unexpected end of file",
-        true
+      TokenType.END_OF_FILE -> throw MarcelParserLegacyException(
+          token,
+          "Unexpected end of file",
+          true
       )
-      else -> throw MarcelParserException(
-        token,
-        "Illegal token ${token.type} when parsing literal string"
+      else -> throw MarcelParserLegacyException(
+          token,
+          "Illegal token ${token.type} when parsing literal string"
       )
     }
   }
@@ -1264,18 +1290,18 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         val identifierToken = accept(TokenType.IDENTIFIER)
         val name = identifierToken.value
         if (namedArguments.any { it.name == name }) {
-          throw MarcelParserException(
-            identifierToken,
-            "Method parameter $name was specified more than one"
+          throw MarcelParserLegacyException(
+              identifierToken,
+              "Method parameter $name was specified more than one"
           )
         }
         accept(TokenType.COLON)
         namedArguments.add(NamedArgument(name, expression(scope)))
       } else {
         if (namedArguments.isNotEmpty()) {
-          throw MarcelParserException(
-            current,
-            "Cannot have a positional function argument after a named one"
+          throw MarcelParserLegacyException(
+              current,
+              "Cannot have a positional function argument after a named one"
           )
         }
         arguments.add(expression(scope))
@@ -1305,9 +1331,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
           is ReferenceExpression -> VariableAssignmentNode(token, scope, leftOperand.name, actualRightOperand)
           is IndexedReferenceExpression -> IndexedVariableAssignmentNode(token, scope, leftOperand, actualRightOperand)
           is GetFieldAccessOperator -> FieldAssignmentNode(token, scope, leftOperand, actualRightOperand)
-          else -> throw MarcelParserException(
-                  token,
-                  "Cannot assign to $leftOperand"
+          else -> throw MarcelParserLegacyException(
+              token,
+              "Cannot assign to $leftOperand"
           )
         }
       }
@@ -1330,9 +1356,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         // TODO do IndexedDirectFieldAccessNode
         is DirectFieldAccessNode -> GetFieldAccessOperator(token, leftOperand, ReferenceExpression(rightOperand.token, rightOperand.scope, rightOperand.name), false, true)
         is IndexedReferenceExpression -> GetIndexFieldAccessOperator(token, leftOperand, rightOperand, false, false)
-        else -> throw MarcelParserException(
-          token,
-          "Can only handle function calls and fields with dot operators"
+        else -> throw MarcelParserLegacyException(
+            token,
+            "Can only handle function calls and fields with dot operators"
         )
       }
       TokenType.QUESTION_DOT -> when (rightOperand) {
@@ -1340,19 +1366,19 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
         is ReferenceExpression -> GetFieldAccessOperator(token, leftOperand, rightOperand, true, false)
         is DirectFieldAccessNode -> GetFieldAccessOperator(token, leftOperand, ReferenceExpression(rightOperand.token, rightOperand.scope, rightOperand.name), true, true)
         is IndexedReferenceExpression -> GetIndexFieldAccessOperator(token, leftOperand, rightOperand, true, false)
-        else -> throw MarcelParserException(
-          token,
-          "Can only handle function calls and fields with dot operators"
+        else -> throw MarcelParserLegacyException(
+            token,
+            "Can only handle function calls and fields with dot operators"
         )
       }
-      TokenType.END_OF_FILE -> throw MarcelParserException(
-        token,
-        "Unexpected end of file",
-        true
+      TokenType.END_OF_FILE -> throw MarcelParserLegacyException(
+          token,
+          "Unexpected end of file",
+          true
       )
-      else -> throw MarcelParserException(
-        token,
-        "Doesn't handle operator with token type $t"
+      else -> throw MarcelParserLegacyException(
+          token,
+          "Doesn't handle operator with token type $t"
       )
     }
   }
@@ -1371,9 +1397,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
   private fun accept(t: TokenType): LexToken {
     val token = current
     if (token.type != t) {
-      throw MarcelParserException(
-        current, "Expected token of type $t but got ${token.type}",
-        current.type == TokenType.END_OF_FILE
+      throw MarcelParserLegacyException(
+          current, "Expected token of type $t but got ${token.type}",
+          current.type == TokenType.END_OF_FILE
       )
     }
     currentIndex++
@@ -1383,9 +1409,9 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
   private fun accept(vararg types: TokenType): LexToken {
     val token = current
     if (token.type !in types) {
-      throw MarcelParserException(
-        current,
-        "Expected token of type ${types.contentToString()} but got ${token.type}"
+      throw MarcelParserLegacyException(
+          current,
+          "Expected token of type ${types.contentToString()} but got ${token.type}"
       )
     }
     currentIndex++
@@ -1437,10 +1463,10 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
 
   private fun checkEof() {
     if (eof) {
-      throw MarcelParserException(
-        currentSafe ?: previous,
-        "Unexpected end of file",
-        true
+      throw MarcelParserLegacyException(
+          currentSafe ?: previous,
+          "Unexpected end of file",
+          true
       )
     }
   }

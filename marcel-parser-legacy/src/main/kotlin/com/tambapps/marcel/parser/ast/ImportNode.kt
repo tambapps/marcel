@@ -1,7 +1,7 @@
 package com.tambapps.marcel.parser.ast
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticLegacyException
 import com.tambapps.marcel.parser.type.JavaMethod
 
 interface ImportNode: AstNode {
@@ -89,7 +89,7 @@ class WildcardImportNode(override val token: LexToken, private val prefix: Strin
   override fun resolveClassName(typeResolver: AstNodeTypeResolver, classSimpleName: String): String? {
     return try {
       typeResolver.of("$prefix.$classSimpleName", emptyList()).className
-    } catch (e: MarcelSemanticException) {
+    } catch (e: MarcelSemanticLegacyException) {
        null
     }
   }

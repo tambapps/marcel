@@ -10,7 +10,6 @@ import com.tambapps.marcel.parser.ast.AstNode
 import com.tambapps.marcel.parser.ast.ComparisonOperator
 import com.tambapps.marcel.parser.ast.expression.ConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.ExpressionNode
-import com.tambapps.marcel.parser.ast.expression.FunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.LambdaNode
 import com.tambapps.marcel.parser.ast.expression.NamedParametersConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
@@ -18,7 +17,7 @@ import com.tambapps.marcel.parser.ast.expression.SimpleFunctionCallNode
 import com.tambapps.marcel.parser.ast.expression.StringConstantNode
 import com.tambapps.marcel.parser.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.parser.ast.expression.ThisConstructorCallNode
-import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticLegacyException
 import com.tambapps.marcel.parser.scope.*
 import com.tambapps.marcel.parser.type.JavaArrayType
 import com.tambapps.marcel.parser.type.JavaMethod
@@ -43,7 +42,7 @@ class MethodBytecodeWriter( val mv: MethodVisitor, private val typeResolver: Jav
       val constructorMethod = fCall.getMethod(typeResolver)
       val arguments = fCall.getArguments(typeResolver)
       visitConstructorCall(fCall, type, constructorMethod, fCall.scope, arguments)
-    } catch (e: MarcelSemanticException) {
+    } catch (e: MarcelSemanticLegacyException) {
       // finding an empty constructor to then set the fields manually
       typeResolver.findMethod(type, JavaMethod.CONSTRUCTOR_NAME, emptyList(), true, fCall) ?: throw e
       visitConstructorCall(ConstructorCallNode(fCall.token, fCall.scope, type, mutableListOf()))
@@ -51,7 +50,7 @@ class MethodBytecodeWriter( val mv: MethodVisitor, private val typeResolver: Jav
         dup()
         argumentPusher.pushArgument(namedParameter.valueExpression)
         val field = typeResolver.findFieldOrThrow(type, namedParameter.name, fCall)
-        if (field.isFinal) throw MarcelSemanticException(fCall.token, "Cannot use named parameters constructor on a final field")
+        if (field.isFinal) throw MarcelSemanticLegacyException(fCall.token, "Cannot use named parameters constructor on a final field")
         castIfNecessaryOrThrow(fCall.scope, namedParameter.valueExpression, field.type, namedParameter.valueExpression.getType(typeResolver))
         storeInVariable(fCall, fCall.scope, field)
       }
@@ -118,7 +117,7 @@ class MethodBytecodeWriter( val mv: MethodVisitor, private val typeResolver: Jav
   }
   private fun pushFunctionCallArguments(from: AstNode, scope: Scope, method: JavaMethod, arguments: List<ExpressionNode>) {
     if (method.parameters.size != arguments.size) {
-      throw MarcelSemanticException(from.token, "Tried to call function $method with ${arguments.size} arguments instead of ${method.parameters.size}")
+      throw MarcelSemanticLegacyException(from.token, "Tried to call function $method with ${arguments.size} arguments instead of ${method.parameters.size}")
     }
     for (i in method.parameters.indices) {
       val expectedType = method.parameters[i].type
@@ -265,7 +264,7 @@ class MethodBytecodeWriter( val mv: MethodVisitor, private val typeResolver: Jav
             throw RuntimeException("Compiler error. Shouldn't push class field of not current class with this method")
           }
           if (!variable.isGettable) {
-            throw MarcelSemanticException(from.token, "Variable ${variable.name} has no getter")
+            throw MarcelSemanticLegacyException(from.token, "Variable ${variable.name} has no getter")
           }
           invokeMethod(from, scope, variable.getterMethod)
         }
@@ -282,7 +281,7 @@ class MethodBytecodeWriter( val mv: MethodVisitor, private val typeResolver: Jav
         val field = variable.gettableFieldFrom(scope) ?: throw VariableNotAccessibleException(from.token, variable, scope.classType)
         pushVariable(from, scope, field)
       }
-      else -> throw MarcelSemanticException(from.token, "Variable type ${variable.javaClass} is not handled")
+      else -> throw MarcelSemanticLegacyException(from.token, "Variable type ${variable.javaClass} is not handled")
     }
   }
 
@@ -299,7 +298,7 @@ class MethodBytecodeWriter( val mv: MethodVisitor, private val typeResolver: Jav
         if (castInstruction != null) {
           mv.visitInsn(castInstruction)
         } else if (expectedType == JavaType.char && actualType == JavaType.int) { // no need to cast for char to int conversion
-          throw MarcelSemanticException(from.token, "Cannot cast primitive $actualType to primitive $expectedType")
+          throw MarcelSemanticLegacyException(from.token, "Cannot cast primitive $actualType to primitive $expectedType")
         }
       } else if (expectedType != JavaType.Object && actualType.isArray) {
         // lists
@@ -330,7 +329,7 @@ class MethodBytecodeWriter( val mv: MethodVisitor, private val typeResolver: Jav
         } else if (Set::class.javaType.isAssignableFrom(expectedType) && actualType.isArray) {
           invokeMethod(from, scope, BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.Object.realClazz))
         } else {
-          throw MarcelSemanticException(from.token, "Incompatible types. Expected type $expectedType but gave an expression of type $actualType")
+          throw MarcelSemanticLegacyException(from.token, "Incompatible types. Expected type $expectedType but gave an expression of type $actualType")
         }
       } else if (!expectedType.primitive && !actualType.primitive) {
         // both Object classes
@@ -346,7 +345,7 @@ class MethodBytecodeWriter( val mv: MethodVisitor, private val typeResolver: Jav
             // actualType is a parent of expectedType? might be able to cast it
             mv.visitTypeInsn(Opcodes.CHECKCAST, expectedType.internalName)
           } else {
-            throw MarcelSemanticException(from.token, "Incompatible types. Expected type $expectedType but gave an expression of type $actualType")
+            throw MarcelSemanticLegacyException(from.token, "Incompatible types. Expected type $expectedType but gave an expression of type $actualType")
           }
         }
       } else {
@@ -400,7 +399,7 @@ class MethodBytecodeWriter( val mv: MethodVisitor, private val typeResolver: Jav
               }
               invokeMethod(from, scope, Class.forName(JavaType.Double.className).getMethod("doubleValue"))
             }
-            else -> throw MarcelSemanticException(from.token, "Doesn't handle conversion from $actualType to $expectedType")
+            else -> throw MarcelSemanticLegacyException(from.token, "Doesn't handle conversion from $actualType to $expectedType")
           }
         } else {
           // cast primitive to Object
@@ -413,7 +412,7 @@ class MethodBytecodeWriter( val mv: MethodVisitor, private val typeResolver: Jav
             || expectedType !in listOf(
               JavaType.Boolean, JavaType.Integer, JavaType.Long, JavaType.Float, JavaType.Double, JavaType.Character, Number::class.javaType, JavaType.Object
             )) {
-            throw MarcelSemanticException(from.token, "Cannot cast $actualType to $expectedType")
+            throw MarcelSemanticLegacyException(from.token, "Cannot cast $actualType to $expectedType")
           }
           when (actualType) {
             JavaType.boolean -> invokeMethod(from, scope, Class.forName(JavaType.Boolean.className).getMethod("valueOf", Boolean::class.java))
@@ -422,7 +421,7 @@ class MethodBytecodeWriter( val mv: MethodVisitor, private val typeResolver: Jav
             JavaType.float -> invokeMethod(from, scope, Class.forName(JavaType.Float.className).getMethod("valueOf", Float::class.java))
             JavaType.double -> invokeMethod(from, scope, Class.forName(JavaType.Double.className).getMethod("valueOf", Double::class.java))
             JavaType.char -> invokeMethod(from, scope, Class.forName(JavaType.Character.className).getMethod("valueOf", JavaType.char.realClazz))
-            else -> throw MarcelSemanticException(from.token, "Doesn't handle conversion from $actualType to $expectedType")
+            else -> throw MarcelSemanticLegacyException(from.token, "Doesn't handle conversion from $actualType to $expectedType")
           }
         }
       }
@@ -445,7 +444,7 @@ class MethodBytecodeWriter( val mv: MethodVisitor, private val typeResolver: Jav
       is ClassField -> mv.visitFieldInsn(variable.putCode, variable.owner.internalName, variable.name, variable.type.descriptor)
       is MethodField -> {
         if (!variable.isSettable) {
-          throw MarcelSemanticException(node.token, "Field ${variable.name} of class ${variable.owner} is not settable")
+          throw MarcelSemanticLegacyException(node.token, "Field ${variable.name} of class ${variable.owner} is not settable")
         }
         invokeMethod(node, scope, variable.setterMethod)
       }
@@ -477,7 +476,7 @@ class MethodBytecodeWriter( val mv: MethodVisitor, private val typeResolver: Jav
 
   fun getField(from: AstNode, scope: Scope, field: JavaField, directFieldAccess: Boolean) {
     if (directFieldAccess && field !is ClassField) {
-      throw MarcelSemanticException(from.token, "Class field ${scope.classType}.${field.name} is not defined")
+      throw MarcelSemanticLegacyException(from.token, "Class field ${scope.classType}.${field.name} is not defined")
     }
     if (!field.isAccessibleFrom(scope)) throw VariableNotAccessibleException(from.token, field, scope.classType)
     if (field.owner.implements(JavaType.DynamicObject) && field is DynamicMethodField) {
@@ -490,7 +489,7 @@ class MethodBytecodeWriter( val mv: MethodVisitor, private val typeResolver: Jav
       }
       is MethodField -> {
         if (!field.isGettable) {
-          throw MarcelSemanticException(from.token, "Field ${field.name} of class ${field.owner} is not gettable")
+          throw MarcelSemanticLegacyException(from.token, "Field ${field.name} of class ${field.owner} is not gettable")
         }
         invokeMethod(from, scope, field.getterMethod)
       }
@@ -531,7 +530,7 @@ class MethodBytecodeWriter( val mv: MethodVisitor, private val typeResolver: Jav
   }
   fun getAt(from: AstNode, scope: Scope, type: JavaType, indexArguments: List<ExpressionNode>) {
     if (type.isArray) {
-      if (indexArguments.size != 1) throw MarcelSemanticException(from.token, "Need only one int argument to get an array")
+      if (indexArguments.size != 1) throw MarcelSemanticLegacyException(from.token, "Need only one int argument to get an array")
       val arg = indexArguments.first()
       // push index
       argumentPusher.pushArgument(arg)
@@ -556,7 +555,7 @@ class MethodBytecodeWriter( val mv: MethodVisitor, private val typeResolver: Jav
 
     if (variable.type.isArray) {
       val variableType = variable.type.asArrayType
-      if (indexArguments.size != 1) throw MarcelSemanticException(from.token, "Need only one int argument to get an array")
+      if (indexArguments.size != 1) throw MarcelSemanticLegacyException(from.token, "Need only one int argument to get an array")
       val arg = indexArguments.first()
       // push array
       pushVariable(from, scope, variable)

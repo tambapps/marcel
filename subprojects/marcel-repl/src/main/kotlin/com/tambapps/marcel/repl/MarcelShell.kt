@@ -4,10 +4,10 @@ import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.dumbbell.DumbbellException
 import com.tambapps.marcel.lexer.MarcelLexerException
-import com.tambapps.marcel.parser.exception.MarcelParserException
+import com.tambapps.marcel.parser.exception.MarcelParserLegacyException
 import com.tambapps.marcel.parser.ast.ClassNode
 import com.tambapps.marcel.parser.ast.ImportNode
-import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticLegacyException
 import com.tambapps.marcel.repl.command.*
 import com.tambapps.marcel.repl.jar.JarWriterFactory
 import com.tambapps.marcel.repl.printer.SuspendPrinter
@@ -59,10 +59,10 @@ abstract class MarcelShell constructor(
         } catch (e: MarcelLexerException) {
           printer.suspendPrintln("Error from init script: ${e.message}")
           onInitScriptFail(e)
-        } catch (e: MarcelSemanticException) {
+        } catch (e: MarcelSemanticLegacyException) {
           printer.suspendPrintln("Error from init script: ${e.message}")
           onInitScriptFail(e)
-        } catch (e: MarcelParserException) {
+        } catch (e: MarcelParserLegacyException) {
           printer.suspendPrintln("Error from init script: ${e.message}")
           onInitScriptFail(e)
         } catch (ex: Exception) {
@@ -126,13 +126,13 @@ abstract class MarcelShell constructor(
       } catch (e: MarcelLexerException) {
         printer.suspendPrintln("Error: ${e.message}")
         buffer.clear()
-      } catch (e: MarcelSemanticException) {
+      } catch (e: MarcelSemanticLegacyException) {
         printer.suspendPrintln(e.message)
         buffer.clear()
       } catch (e: DumbbellException) {
         printer.suspendPrintln("Error while pulling a dumbbell: ${e.message}")
         buffer.clear()
-      } catch (e: MarcelParserException) {
+      } catch (e: MarcelParserLegacyException) {
         if (e.isEof) {
           buffer.add(line)
         } else {

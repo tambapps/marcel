@@ -14,7 +14,7 @@ import com.tambapps.marcel.parser.ast.expression.LongConstantNode
 import com.tambapps.marcel.parser.ast.expression.NullValueNode
 import com.tambapps.marcel.parser.ast.expression.ShortConstantNode
 import com.tambapps.marcel.parser.ast.expression.VoidExpression
-import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticLegacyException
 import com.tambapps.marcel.parser.scope.Scope
 import marcel.lang.DynamicObject
 import marcel.lang.MarcelClassLoader
@@ -116,7 +116,7 @@ interface JavaType: AstTypedObject {
   }
 
   fun addImplementedInterface(javaType: JavaType) {
-    throw MarcelSemanticException("Compiler error: Cannot add interface to type")
+    throw MarcelSemanticLegacyException("Compiler error: Cannot add interface to type")
   }
 
   fun isAssignableFrom(other: JavaType): Boolean {
@@ -240,7 +240,7 @@ interface JavaType: AstTypedObject {
           double -> doubleArray
           boolean -> booleanArray
           char -> charArray
-          else -> throw MarcelSemanticException("Doesn't handle primitive $elementsType arrays")
+          else -> throw MarcelSemanticLegacyException("Doesn't handle primitive $elementsType arrays")
         }
       }
 
@@ -266,7 +266,7 @@ interface JavaType: AstTypedObject {
         else Class.forName(className)
         return of(clazz).withGenericTypes(genericTypes)
       } catch (e: ClassNotFoundException) {
-        throw MarcelSemanticException("Class $className was not found")
+        throw MarcelSemanticLegacyException("Class $className was not found")
       }
     }
 
@@ -581,14 +581,14 @@ open class LoadedObjectType(
 
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
     if (genericTypes == this.genericTypes) return this
-    if (genericTypes.any { it.primitive }) throw MarcelSemanticException("Cannot have a primitive generic type")
+    if (genericTypes.any { it.primitive }) throw MarcelSemanticLegacyException("Cannot have a primitive generic type")
     if (isLambda && genericTypes.size == realClazz.typeParameters.size - 1) {
       return LoadedObjectType(realClazz, genericTypes + JavaType.Object)
     }
 
     if (genericTypes.size != realClazz.typeParameters.size
       // for lambda, we can omit return type. It will be cast
-      && !isLambda && genericTypes.size != realClazz.typeParameters.size - 1) throw MarcelSemanticException("Typed $realClazz expects ${realClazz.typeParameters.size} parameters")
+      && !isLambda && genericTypes.size != realClazz.typeParameters.size - 1) throw MarcelSemanticLegacyException("Typed $realClazz expects ${realClazz.typeParameters.size} parameters")
     return LoadedObjectType(realClazz, genericTypes)
   }
 
@@ -639,7 +639,7 @@ class LoadedJavaArrayType internal constructor(
     get() = this
 
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
-    throw MarcelSemanticException("Cannot have array type with generic types")
+    throw MarcelSemanticLegacyException("Cannot have array type with generic types")
   }
 
 }
@@ -662,7 +662,7 @@ class JavaPrimitiveType internal constructor(
   override val objectType: JavaType
     get() = JavaType.of(objectClass)
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaPrimitiveType {
-    if (genericTypes.isNotEmpty()) throw MarcelSemanticException("Cannot have primitive type with generic types")
+    if (genericTypes.isNotEmpty()) throw MarcelSemanticLegacyException("Cannot have primitive type with generic types")
     return this
   }
 
@@ -757,6 +757,6 @@ private class AnythingJavaType: LoadedObjectType(Object::class.java) {
 
 
   private fun <T> throwException(): T {
-    throw MarcelSemanticException("Compiler error. Shouldn't be called")
+    throw MarcelSemanticLegacyException("Compiler error. Shouldn't be called")
   }
 }

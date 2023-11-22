@@ -4,7 +4,7 @@ import com.tambapps.marcel.compiler.util.getElementsType
 import com.tambapps.marcel.compiler.util.javaType
 import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.ast.expression.*
-import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticLegacyException
 import com.tambapps.marcel.parser.scope.*
 import com.tambapps.marcel.parser.type.*
 import marcel.lang.DynamicObject
@@ -65,14 +65,14 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   override fun defineMethod(javaType: JavaType, method: JavaMethod) {
     val methods = getMarcelMethods(javaType)
     if (methods.any { it.matches(this, method.name, method.parameters) }) {
-      throw MarcelSemanticException((method as? MethodNode)?.token, "Method with $method is already defined")
+      throw MarcelSemanticLegacyException((method as? MethodNode)?.token, "Method with $method is already defined")
     }
     methods.add(method)
   }
 
   override fun defineField(javaType: JavaType, field: JavaField) {
     if (javaType.isLoaded) {
-      throw MarcelSemanticException((field as? FieldNode)?.token, "Cannot define field on loaded class")
+      throw MarcelSemanticLegacyException((field as? FieldNode)?.token, "Cannot define field on loaded class")
     }
     val marcelField = fieldResolver.computeFieldIfAbsent(javaType, field.name)
     marcelField.mergeWith(field)
@@ -84,7 +84,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   }
 
   override fun getClassField(javaType: JavaType, fieldName: String, node: AstNode?): ClassField {
-    return fieldResolver.getField(javaType, fieldName)?.classField ?: throw MarcelSemanticException(node?.token, "Class field $javaType.$fieldName is not defined")
+    return fieldResolver.getField(javaType, fieldName)?.classField ?: throw MarcelSemanticLegacyException(node?.token, "Class field $javaType.$fieldName is not defined")
   }
 
   override fun getDeclaredFields(javaType: JavaType): Collection<MarcelField> {
@@ -250,7 +250,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   override fun visit(node: GetFieldAccessOperator): JavaType {
     val field = findFieldOrThrow(node.leftOperand.accept(this), node.rightOperand.name, node)
     if (node.directFieldAccess && field.classField == null) {
-      throw MarcelSemanticException(node.token, "Class field ${node.scope.classType}.${node.rightOperand.name} is not defined")
+      throw MarcelSemanticLegacyException(node.token, "Class field ${node.scope.classType}.${node.rightOperand.name} is not defined")
     }
     val type = if (node.directFieldAccess) field.classField!!.type else field.type
     return if (node.nullSafe) type.objectType
@@ -260,7 +260,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   override fun visit(node: GetIndexFieldAccessOperator): JavaType {
     val field = findFieldOrThrow(node.leftOperand.accept(this), node.rightOperand.name, node)
     if (node.directFieldAccess && field.classField == null) {
-      throw MarcelSemanticException(node.token, "Class field ${node.scope.classType}.${node.rightOperand.name} is not defined")
+      throw MarcelSemanticLegacyException(node.token, "Class field ${node.scope.classType}.${node.rightOperand.name} is not defined")
     }
 
     val type = if (node.directFieldAccess) field.classField!!.type else field.type
@@ -271,7 +271,7 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
   override fun visit(node: LiteralArrayNode): JavaArrayType {
     if (node.type != null) return node.type!!
     val elementsType = node.getElementsType(this)
-      ?: throw MarcelSemanticException(node.token, "Couldn't guess type of array. Use the 'as' keyword to explicitly specify the type")
+      ?: throw MarcelSemanticLegacyException(node.token, "Couldn't guess type of array. Use the 'as' keyword to explicitly specify the type")
     return JavaType.arrayType(elementsType)
   }
 

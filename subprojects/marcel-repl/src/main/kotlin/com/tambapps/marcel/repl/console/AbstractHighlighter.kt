@@ -12,7 +12,7 @@ import com.tambapps.marcel.parser.ast.expression.IndexedReferenceExpression
 import com.tambapps.marcel.parser.ast.expression.IndexedVariableAssignmentNode
 import com.tambapps.marcel.parser.ast.expression.ReferenceExpression
 import com.tambapps.marcel.parser.ast.expression.VariableAssignmentNode
-import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticLegacyException
 
 abstract class AbstractHighlighter<T, Style> constructor(
   private val typeResolver: JavaTypeResolver,
@@ -82,7 +82,7 @@ abstract class AbstractHighlighter<T, Style> constructor(
       is VariableAssignmentNode -> variableHighlight(node, node.name)
       is ReferenceExpression -> variableHighlight(node, node.name)
       is FunctionCallNode -> {
-        val method = try { node.getMethod(typeResolver) } catch (e: MarcelSemanticException) { null }
+        val method = try { node.getMethod(typeResolver) } catch (e: MarcelSemanticLegacyException) { null }
         if (method != null) functionStyle
         else defaultStyle
       }

@@ -14,6 +14,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ShortConstantNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import marcel.lang.MarcelClassLoader
+import marcel.lang.Script
 import marcel.lang.lambda.Lambda
 import marcel.lang.primitives.collections.CharacterCollection
 import marcel.lang.primitives.collections.DoubleCollection

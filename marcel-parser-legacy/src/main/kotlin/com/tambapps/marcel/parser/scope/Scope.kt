@@ -2,7 +2,7 @@ package com.tambapps.marcel.parser.scope
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.ast.*
-import com.tambapps.marcel.parser.exception.MarcelSemanticException
+import com.tambapps.marcel.parser.exception.MarcelSemanticLegacyException
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.methods.DefaultMarcelStaticMethods
@@ -44,7 +44,7 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
 
   open fun addLocalVariable(type: JavaType, name: String, isFinal: Boolean = false, token: LexToken = LexToken.dummy()): LocalVariable {
     if (findLocalVariable(name) != null) {
-      throw MarcelSemanticException(token, "A variable with name $name is already defined")
+      throw MarcelSemanticLegacyException(token, "A variable with name $name is already defined")
     }
     val v = localVariablePool.obtain(type, name, isFinal)
     localVariables.add(v)
@@ -61,12 +61,12 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
 
   fun getMethodWithParameters(lexToken: LexToken, name: String, positionalArgumentTypes: List<AstTypedObject>, namedParameters: List<MethodParameter>): JavaMethod {
     return typeResolver.findMethodByParameters(classType, name, positionalArgumentTypes, namedParameters)
-      ?: throw MarcelSemanticException(lexToken, "Method $name with parameters $namedParameters is not defined")
+      ?: throw MarcelSemanticLegacyException(lexToken, "Method $name with parameters $namedParameters is not defined")
   }
 
   fun findMethodOrThrow(name: String, argumentTypes: List<AstTypedObject>, node: AstNode): JavaMethod {
     // find first on class, then on imports, then on extensions
-    return findMethod(name, argumentTypes) ?: throw MarcelSemanticException(node.token, "Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
+    return findMethod(name, argumentTypes) ?: throw MarcelSemanticLegacyException(node.token, "Method $name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
 
   fun findMethod(name: String, argumentTypes: List<AstTypedObject>): JavaMethod? {
@@ -81,7 +81,7 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
   }
 
   open fun findVariableOrThrow(name: String, node: AstNode): Variable {
-    return findVariable(name) ?: throw MarcelSemanticException(node.token, "Variable $name is not defined")
+    return findVariable(name) ?: throw MarcelSemanticLegacyException(node.token, "Variable $name is not defined")
   }
 
   fun hasVariable(name: String): Boolean {
@@ -115,13 +115,13 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
     val matchedClasses = imports.mapNotNull { it.resolveClassName(typeResolver, classSimpleName) }.toSet()
     return if (matchedClasses.isEmpty()) classSimpleName
     else if (matchedClasses.size == 1) matchedClasses.first()
-    else throw MarcelSemanticException("Ambiguous import for class $classSimpleName")
+    else throw MarcelSemanticLegacyException("Ambiguous import for class $classSimpleName")
   }
 
   fun getTypeOrNull(name: String): JavaType? {
     return try {
       resolveType(name, emptyList())
-    } catch (e: MarcelSemanticException) {
+    } catch (e: MarcelSemanticLegacyException) {
       null
     }
   }
