@@ -61,8 +61,12 @@ import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.parser.cst.statement.WhileCstNode
 import java.lang.NumberFormatException
 import java.util.*
+import java.util.concurrent.ThreadLocalRandom
+import kotlin.math.abs
 
 class MarcelParser constructor(private val classSimpleName: String, tokens: List<LexToken>) {
+
+  constructor(tokens: List<LexToken>): this("MarcelRandomClass_" + abs(ThreadLocalRandom.current().nextInt()), tokens)
 
   private val tokens = tokens.filter { it.type != TokenType.WHITE_SPACE }
 

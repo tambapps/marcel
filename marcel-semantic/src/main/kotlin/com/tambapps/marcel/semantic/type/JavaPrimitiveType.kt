@@ -16,6 +16,7 @@ class JavaPrimitiveType internal constructor(
 
   override val visibility = Visibility.PUBLIC
   override val packageName = null
+  override val isScript = false
   val objectClass = objectKlazz.java
   override val objectType: JavaType
     get() = JavaType.of(objectClass)

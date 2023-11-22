@@ -8,7 +8,8 @@ open class NotLoadedJavaType internal constructor(
   override val genericTypes: List<JavaType>,
   override val superType: JavaType?,
   override val isInterface: Boolean,
-  override val directlyImplementedInterfaces: MutableCollection<JavaType>): AbstractJavaType() {
+  override val directlyImplementedInterfaces: MutableCollection<JavaType>,
+  override val isScript: Boolean): AbstractJavaType() {
 
 
   // doesn't support enum for now

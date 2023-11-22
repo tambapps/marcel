@@ -15,7 +15,7 @@ class MethodNode(override val name: String,
                  override val returnType: JavaType,
                  override val isStatic: Boolean,
                  override val tokenStart: LexToken, override val tokenEnd: LexToken,
-                 override val ownerClass: JavaType,
+                 override var ownerClass: JavaType,
 ) : Ast2Node, AbstractMethod(), Annotable {
 
   companion object {

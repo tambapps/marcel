@@ -80,10 +80,10 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
   }
 
   /* definition */
-  fun defineClass(token: LexToken? = null, visibility: Visibility, className: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): NotLoadedJavaType {
-    return defineClass(token, visibility, null, className, superClass, isInterface, interfaces)
+  fun defineClass(token: LexToken? = null, visibility: Visibility, className: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>, isScript: Boolean = false): NotLoadedJavaType {
+    return defineClass(token, visibility, null, className, superClass, isInterface, interfaces, isScript)
   }
-  fun defineClass(token: LexToken? = null, visibility: Visibility, outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>): NotLoadedJavaType {
+  fun defineClass(token: LexToken? = null, visibility: Visibility, outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>, isScript: Boolean = false): NotLoadedJavaType {
     val className = if (outerClassType != null) "${outerClassType.className}\$$cName" else cName
     try {
       Class.forName(className)
@@ -92,7 +92,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
       // ignore
     }
     if (_definedTypes.containsKey(className)) throw MarcelSemanticException(token, "Class $className is already defined")
-    val type = NotLoadedJavaType(visibility, className, emptyList(),  superClass, isInterface, interfaces.toMutableSet())
+    val type = NotLoadedJavaType(visibility, className, emptyList(),  superClass, isInterface, interfaces.toMutableSet(), isScript = isScript)
     _definedTypes[className] = type
     return type
   }
@@ -111,6 +111,20 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     }
     val marcelField = fieldResolver.computeFieldIfAbsent(javaType, field.name)
     marcelField.mergeWith(field)
+  }
+
+  fun defineClass(classNode: ClassNode) {
+    _definedTypes[classNode.type.className] = classNode.type
+    classNode.methods.forEach { defineMethod(classNode.type, it) }
+    classNode.fields.forEach { defineField(classNode.type, it) }
+    classNode.innerClasses.forEach { defineClass(it) }
+  }
+
+  fun undefineClass(scriptNode: ClassNode) {
+    _definedTypes.remove(scriptNode.type.className)
+    marcelMethods.remove(scriptNode.type.className)
+    fieldResolver.dispose(scriptNode.type.className)
+    scriptNode.innerClasses.forEach { undefineClass(it) }
   }
 
   fun isDefined(className: String): Boolean {

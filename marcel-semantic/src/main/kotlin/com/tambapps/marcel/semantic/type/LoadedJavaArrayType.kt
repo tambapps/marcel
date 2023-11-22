@@ -15,6 +15,8 @@ class LoadedJavaArrayType internal constructor(
   override val visibility = Visibility.PUBLIC
   override val isArray = true
   override val packageName = null
+  override val isScript = false
+
   override val asArrayType: JavaArrayType
     get() = this
 

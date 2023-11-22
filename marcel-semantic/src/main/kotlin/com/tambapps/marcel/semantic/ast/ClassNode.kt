@@ -11,6 +11,7 @@ open class ClassNode constructor(
   override val type: JavaType,
   val visibility: Visibility,
   val forExtensionType: JavaType?, // if the class is an extension class
+  val isScript: Boolean,
   tokenStart: LexToken, tokenEnd: LexToken
 ) : AbstractAst2Node(tokenStart, tokenEnd), JavaTyped {
   val superType: JavaType get() = type.superType!!

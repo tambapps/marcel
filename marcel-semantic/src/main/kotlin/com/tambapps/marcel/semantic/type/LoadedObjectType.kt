@@ -10,6 +10,8 @@ open class LoadedObjectType(
 
   override val packageName: String? = realClazz.`package`?.name
   override val visibility = Visibility.fromAccess(realClazz.modifiers)
+  override val isScript = false
+
   constructor(realClazz: Class<*>): this(realClazz, emptyList())
 
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {

@@ -6,6 +6,7 @@ import java.lang.reflect.ParameterizedType
 abstract class LoadedJavaType internal constructor(final override val realClazz: Class<*>, final override val genericTypes: List<JavaType>): AbstractJavaType() {
   override val isLoaded = true
   override val isEnum = realClazz.isEnum
+  override val isScript = false
 
   override val className: String = realClazz.name
   override val isFinal = (realClazz.modifiers and Modifier.FINAL) != 0

@@ -10,6 +10,7 @@ import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.FieldCstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
+import com.tambapps.marcel.parser.cst.ScriptCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNodeVisitor
@@ -209,7 +210,7 @@ class MarcelSemantic(
   internal val scopeQueue = LinkedList<Scope>()
   private val classNodeMap = mutableMapOf<JavaType, ClassNode>() // useful to add methods while performing analysis
 
-  private val imports = Scope.DEFAULT_IMPORTS.toMutableList() // will be updated while performing analysis
+  val imports = Scope.DEFAULT_IMPORTS.toMutableList() // will be updated while performing analysis
   private val methodResolver = MethodResolver(typeResolver, caster, imports)
   private val currentScope get() = scopeQueue.peek() // FIFO
   private val currentMethodScope get() = currentScope as? MethodScope ?: throw MarcelSemanticException("Not in a method")
@@ -260,7 +261,7 @@ class MarcelSemantic(
       }
       val classType = typeResolver.defineClass(scriptCstNode.tokenStart, Visibility.PUBLIC,
         if (cst.packageName != null) "${cst.packageName}.${scriptCstNode.className}" else scriptCstNode.className,
-        Script::class.javaType, false, emptyList())
+        Script::class.javaType, false, emptyList(), isScript = true)
       // register script class members
       defineClassMembers(scriptCstNode, classType)
       val scriptNode = classNode(classType, scriptCstNode)
@@ -317,7 +318,7 @@ class MarcelSemantic(
 
   private fun classNode(classType: JavaType, node: ClassCstNode): ClassNode
   = useScope(ClassScope(typeResolver, classType, node.forExtensionType?.let(this::visit), imports)) { classScope ->
-    val classNode = ClassNode(classType, Visibility.fromTokenType(node.access.visibility), classScope.forExtensionType, cst.tokenStart, cst.tokenEnd)
+    val classNode = ClassNode(classType, Visibility.fromTokenType(node.access.visibility), classScope.forExtensionType, node is ScriptCstNode, cst.tokenStart, cst.tokenEnd)
     classNodeMap[classType] = classNode
 
     node.annotations.forEach { classNode.annotations.add(annotationNode(it, ElementType.TYPE)) }

@@ -52,6 +52,7 @@ interface JavaType: JavaTyped {
   val isAnnotation: Boolean
   val isFinal: Boolean
   val visibility: Visibility
+  val isScript: Boolean
   val objectType: JavaType get() = this
   val isTopLevel get() = !className.contains("$")
 
