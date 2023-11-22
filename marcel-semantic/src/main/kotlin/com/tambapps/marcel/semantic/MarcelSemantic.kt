@@ -195,7 +195,7 @@ import java.util.regex.Pattern
 
 // TODO implement multiple errors like in parser2
 //   but BE CAREFUL: sometimes I rely on an exception to be thrown because I catch it and do some other behaviour
-class MarcelSemantic(
+open class MarcelSemantic(
   private val typeResolver: JavaTypeResolver,
   private val cst: SourceFileCstNode
 ): ExpressionCstNodeVisitor<ExpressionNode, JavaType>, StatementCstNodeVisitor<StatementNode>, ImportCstVisitor<ImportNode> {
@@ -704,32 +704,7 @@ class MarcelSemantic(
     val leftOperand = node.leftOperand
     val rightOperand = node.rightOperand
     return when (node.tokenType) {
-      TokenType.ASSIGNMENT -> {
-        val left = leftOperand.accept(this)
-        val right = rightOperand.accept(this, left.type)
-        when (left) {
-          is ReferenceNode -> {
-            val variable = left.variable
-            checkVariableAccess(variable, node, checkSet = true)
-            VariableAssignmentNode(variable,
-              caster.cast(variable.type, right), left.owner, node)
-          }
-          is GetAtFunctionCallNode -> {
-            val owner = left.ownerNode
-            val arguments = left.arguments + right
-            val isSafeAccess = left.javaMethod.name == GET_AT_SAFE_METHOD_NAME
-            // TODO implement putAtSafe in all primitive collections and List
-            val putAtMethod = typeResolver.findMethodOrThrow(owner.type, if (isSafeAccess) PUT_AT_SAFE_METHOD_NAME else PUT_AT_METHOD_NAME, arguments, node.token)
-            fCall(method = putAtMethod, owner = owner, arguments = arguments, node = node)
-          }
-          is ArrayAccessNode -> {
-            val owner = left.owner
-            val elementType = owner.type.asArrayType.elementsType
-            ArrayIndexAssignmentNode(owner, caster.cast(JavaType.int, left.indexNode), caster.cast(elementType, right), node)
-          }
-          else -> throw MarcelSemanticException(node, "Invalid assignment operator use")
-        }
-      }
+      TokenType.ASSIGNMENT -> assignment(node)
       TokenType.PLUS -> {
         val left = leftOperand.accept(this)
         val right = rightOperand.accept(this)
@@ -834,6 +809,35 @@ class MarcelSemantic(
         IsNotEqualNode(left, right)
       }
       else -> throw MarcelSemanticException(node, "Doesn't handle operator ${node.tokenType}")
+    }
+  }
+
+  protected open fun assignment(node: BinaryOperatorCstNode): ExpressionNode {
+    return assignment(node, node.leftOperand.accept(this))
+  }
+  protected fun assignment(node: BinaryOperatorCstNode, left: ExpressionNode): ExpressionNode {
+    val right = node.rightOperand.accept(this, left.type)
+    return when (left) {
+      is ReferenceNode -> {
+        val variable = left.variable
+        checkVariableAccess(variable, node, checkSet = true)
+        VariableAssignmentNode(variable,
+          caster.cast(variable.type, right), left.owner, node)
+      }
+      is GetAtFunctionCallNode -> {
+        val owner = left.ownerNode
+        val arguments = left.arguments + right
+        val isSafeAccess = left.javaMethod.name == GET_AT_SAFE_METHOD_NAME
+        // TODO implement putAtSafe in all primitive collections and List
+        val putAtMethod = typeResolver.findMethodOrThrow(owner.type, if (isSafeAccess) PUT_AT_SAFE_METHOD_NAME else PUT_AT_METHOD_NAME, arguments, node.token)
+        fCall(method = putAtMethod, owner = owner, arguments = arguments, node = node)
+      }
+      is ArrayAccessNode -> {
+        val owner = left.owner
+        val elementType = owner.type.asArrayType.elementsType
+        ArrayIndexAssignmentNode(owner, caster.cast(JavaType.int, left.indexNode), caster.cast(elementType, right), node)
+      }
+      else -> throw MarcelSemanticException(node, "Invalid assignment operator use")
     }
   }
 

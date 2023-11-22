@@ -9,7 +9,7 @@ import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
-import com.tambapps.marcel.semantic.MarcelSemantic
+import com.tambapps.marcel.repl.semantic.MarcelReplSemantic
 import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
@@ -117,7 +117,7 @@ class MarcelReplCompiler constructor(
 
     val cst = parser.parse()
 
-    val semantic = MarcelSemantic(typeResolver, cst)
+    val semantic = MarcelReplSemantic(typeResolver, cst)
     semantic.imports.addAll(imports)
     val ast = semantic.apply()
 
