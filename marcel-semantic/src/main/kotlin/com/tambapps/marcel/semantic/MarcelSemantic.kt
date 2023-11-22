@@ -83,6 +83,7 @@ import com.tambapps.marcel.semantic.ast.expression.DupNode
 import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
+import com.tambapps.marcel.semantic.ast.expression.GetAtFunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
@@ -672,7 +673,12 @@ class MarcelSemantic(
       ArrayAccessNode(owner, caster.cast(JavaType.int, node.indexNodes.first().accept(this, JavaType.int)), node)
     } else {
       val getAtMethod = typeResolver.findMethodOrThrow(owner.type, if (node.isSafeAccess) GET_AT_SAFE_METHOD_NAME else GET_AT_METHOD_NAME, arguments)
-      fCall(method = getAtMethod, owner = owner, arguments = arguments, node = node)
+      GetAtFunctionCallNode(
+        javaMethod = getAtMethod,
+        ownerNode = owner,
+        arguments = castedArguments(getAtMethod, arguments),
+        token = node.token
+      )
     }
   }
 
@@ -708,11 +714,8 @@ class MarcelSemantic(
             VariableAssignmentNode(variable,
               caster.cast(variable.type, right), left.owner, node)
           }
-          is FunctionCallNode -> {
-            val owner = left.owner
-            if (left.javaMethod.name != GET_AT_METHOD_NAME && left.javaMethod.name != GET_AT_SAFE_METHOD_NAME
-              || owner == null)
-              throw MarcelSemanticException(node, "Invalid assignment operator use")
+          is GetAtFunctionCallNode -> {
+            val owner = left.ownerNode
             val arguments = left.arguments + right
             val isSafeAccess = left.javaMethod.name == GET_AT_SAFE_METHOD_NAME
             // TODO implement putAtSafe in all primitive collections and List
