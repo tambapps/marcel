@@ -226,7 +226,7 @@ open class MarcelSemantic(
 
     val moduleNode = ModuleNode(cst.tokenStart, cst.tokenEnd)
 
-    scopeQueue.push(ImportScope(typeResolver, imports))
+    scopeQueue.push(ImportScope(typeResolver, imports, cst.packageName))
     // define everything
     cst.classes.forEach { defineClass(it) }
     // load extension types

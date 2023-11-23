@@ -16,11 +16,13 @@ open class MethodScope internal constructor(
   protected val parentScope: Scope,
   val method: JavaMethod,
   typeResolver: JavaTypeResolver,
-  classType: JavaType,
+  override val classType: JavaType,
   imports: List<ImportNode>,
   internal val staticContext: Boolean,
   internal val localVariablePool: LocalVariablePool,
-): AbstractScope(typeResolver, classType, parentScope.forExtensionType, imports) {
+): AbstractScope(typeResolver, classType.packageName, imports) {
+
+  override val forExtensionType = parentScope.forExtensionType
 
   constructor(classScope: ClassScope, method: JavaMethod)
       : this(classScope, method, classScope.typeResolver, classScope.classType, classScope.imports, method.isStatic, LocalVariablePool(method.isStatic)) {

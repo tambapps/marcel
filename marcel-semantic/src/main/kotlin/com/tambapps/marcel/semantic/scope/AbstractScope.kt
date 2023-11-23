@@ -8,28 +8,32 @@ import com.tambapps.marcel.semantic.type.JavaTypeResolver
 
 abstract class AbstractScope(
   internal val typeResolver: JavaTypeResolver,
-  final override val classType: JavaType,
-  final override val forExtensionType: JavaType?,
+  private val packageName: String?,
   val imports: List<ImportNode>,
 ): Scope {
 
-
   override fun resolveTypeOrThrow(node: TypeCstNode): JavaType {
-    // try to find inner class with this name
-    val innerClassName = if (classType.innerName == node.value) classType.className
-    else classType.className + '$' + node.value
-    if (typeResolver.isDefined(innerClassName)) return typeResolver.of(innerClassName, node.genericTypes.map { resolveTypeOrThrow(it) }).array(node.arrayDimensions)
-    val className = resolveClassName(node.value)
-    if (classType.packageName != null) {
-      val classFullName = "${classType.packageName}.$className"
-      if (typeResolver.isDefined(classFullName)) return typeResolver.of(classFullName, node.genericTypes.map { resolveTypeOrThrow(it) }).array(node.arrayDimensions)
+    // search on imports
+    val importClassName = resolveImportClassName(node.value)
+    if (importClassName != null) {
+      return of(importClassName, node)
     }
-    return typeResolver.of(className, node.genericTypes.map { resolveTypeOrThrow(it) }).array(node.arrayDimensions)
+
+    // search on own package
+    val classSimpleName = node.value
+    if (packageName != null) {
+      val classFullName = "$packageName.$classSimpleName"
+      if (typeResolver.isDefined(classFullName)) return of(classFullName, node).array(node.arrayDimensions)
+    }
+    return of(classSimpleName, node)
   }
 
-  private fun resolveClassName(classSimpleName: String): String {
+  protected fun of(simpleName: String, node: TypeCstNode): JavaType {
+    return typeResolver.of(simpleName, node.genericTypes.map { resolveTypeOrThrow(it) }).array(node.arrayDimensions)
+  }
+  private fun resolveImportClassName(classSimpleName: String): String? {
     val matchedClasses = imports.mapNotNull { it.resolveClassName(typeResolver, classSimpleName) }.toSet()
-    return if (matchedClasses.isEmpty()) classSimpleName
+    return if (matchedClasses.isEmpty()) null
     else if (matchedClasses.size == 1) matchedClasses.first()
     else throw MarcelSemanticException("Ambiguous import for class $classSimpleName")
   }
