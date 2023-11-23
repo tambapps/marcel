@@ -46,7 +46,7 @@ class MethodInstructionWriterTest {
   }
 
   private fun fCall(owner: JavaType, name: String, arguments: List<JavaType> = emptyList()) = fCall(typeResolver.findMethod(owner, name, arguments)!!)
-  private fun fCall(method: JavaMethod) = FunctionCallNode(javaMethod = method, arguments = emptyList(), token = token(), owner = null)
+  private fun fCall(method: JavaMethod) = FunctionCallNode(javaMethod = method, arguments = emptyList(), tokenStart = token(), tokenEnd = token(), owner = null)
   private fun int(value: Int) = IntConstantNode(value = value, token = token())
   private fun float(value: Float) = FloatConstantNode(value = value, token = token())
   private fun long(value: Long) = LongConstantNode(value = value, token = token())

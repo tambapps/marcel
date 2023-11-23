@@ -8,7 +8,7 @@ class GetAtFunctionCallNode(
   // in order to get it non-null
   val ownerNode: ExpressionNode,
   arguments: List<ExpressionNode>,
-  token: LexToken
-) : FunctionCallNode(javaMethod, ownerNode, arguments, token) {
+  token: LexToken,
+) : FunctionCallNode(javaMethod, ownerNode, arguments, token, LexToken.DUMMY) {
 
 }

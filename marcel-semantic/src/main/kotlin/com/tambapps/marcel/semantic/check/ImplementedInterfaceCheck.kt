@@ -1,5 +1,6 @@
 package com.tambapps.marcel.semantic.check
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.SemanticHelper
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
@@ -45,7 +46,7 @@ internal object ImplementedInterfaceCheck: ClassNodeVisitor {
                 classNode.token
             ))
           }
-          val fCall = FunctionCallNode(javaMethod = implementationMethod, owner = ThisReferenceNode(classNode.type, classNode.token), arguments = rawParameterArguments, token = classNode.token)
+          val fCall = FunctionCallNode(javaMethod = implementationMethod, owner = ThisReferenceNode(classNode.type, classNode.token), arguments = rawParameterArguments, tokenStart = classNode.token, tokenEnd = LexToken.DUMMY)
           if (rawInterfaceMethod.returnType != JavaType.void) {
             rawMethodNode.blockStatement.statements.add(
               ReturnStatementNode(fCall, fCall.tokenStart, fCall.tokenEnd)

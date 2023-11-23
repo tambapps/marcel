@@ -843,7 +843,7 @@ open class MarcelSemantic(
   }
 
   private fun dotOperator(node: CstNode,
-                          // its actually the left operand
+                          // owner is actually the left operand
                           owner: ExpressionNode, rightOperand: ExpressionCstNode,
                           // useful for ternaryNode which duplicate value to avoid using local variable
                           discardOwnerInReturned: Boolean = false): ExpressionNode = when (rightOperand) {
@@ -854,7 +854,9 @@ open class MarcelSemantic(
         ?: throw MarcelSemanticException(node.token, "Method ${owner.type}.${rightOperand.value} couldn't be resolved")
       val castType = rightOperand.castType?.let { visit(it) }
       fCall(method = method, owner = if (discardOwnerInReturned || method.isMarcelStatic) null else owner, castType = castType,
-        arguments = arguments, node = node)
+        arguments = arguments,
+        // this is important for code highlight
+        tokenStart = rightOperand.tokenStart, tokenEnd = rightOperand.tokenEnd)
     }
     is ReferenceCstNode -> {
       val variable = typeResolver.findFieldOrThrow(owner.type, rightOperand.value, rightOperand.token)
@@ -1005,7 +1007,7 @@ open class MarcelSemantic(
     } else {
       val arguments = listOf(right)
       val method = typeResolver.findMethodOrThrow(left.type, operatorMethodName, arguments, left.token)
-      fCall(method = method, owner = left, castType = null, arguments = arguments, token = left.token)
+      fCall(method = method, owner = left, castType = null, arguments = arguments, tokenStart = left.tokenStart, tokenEnd = right.tokenEnd)
     }
   }
 
@@ -1039,7 +1041,8 @@ open class MarcelSemantic(
     if (methodResolve != null) {
       val owner = if (methodResolve.first.isMarcelStatic) null else ThisReferenceNode(currentScope.classType, node.token)
       return fCall(
-        node = node,
+        tokenStart = node.tokenStart,
+        tokenEnd = node.tokenEnd,
         methodResolve = methodResolve,
         owner = owner,
         castType = castType
@@ -1052,8 +1055,12 @@ open class MarcelSemantic(
       if (delegateGetter != null) {
         methodResolve = methodResolver.resolveMethod(node, delegateGetter.returnType, node.value, positionalArguments, namedArguments)
         if (methodResolve != null) {
-          val owner = fCall(node=node, method = delegateGetter, arguments = emptyList(), owner = ThisReferenceNode(currentScope.classType, node.token))
-          return fCall(node = node, methodResolve = methodResolve, owner = owner, castType = castType)
+          val owner = fCall(method = delegateGetter, arguments = emptyList(), owner = ThisReferenceNode(currentScope.classType, node.token),
+            tokenStart = node.tokenStart,
+            tokenEnd = node.tokenEnd)
+          return fCall(methodResolve = methodResolve, owner = owner, castType = castType,
+            tokenStart = node.tokenStart,
+            tokenEnd = node.tokenEnd,)
         }
       }
     }
@@ -1064,7 +1071,9 @@ open class MarcelSemantic(
       methodResolve = methodResolver.resolveMethod(node, extensionType, node.value, positionalArguments, namedArguments)
       if (methodResolve != null) {
         val owner = ReferenceNode(variable = selfLocalVariable, token = node.token)
-        return fCall(node = node, methodResolve = methodResolve, owner = owner, castType = castType)
+        return fCall(methodResolve = methodResolve, owner = owner, castType = castType,
+          tokenStart = node.tokenStart,
+          tokenEnd = node.tokenEnd)
       }
     }
     throw MarcelSemanticException(node.token, "Method with name ${node.value} couldn't be resolved")
@@ -1658,21 +1667,25 @@ open class MarcelSemantic(
     return fCall(node, method, arguments, owner, castType)
   }
 
-  private fun fCall(node: CstNode, methodResolve: Pair<JavaMethod, List<ExpressionNode>>, owner: ExpressionNode?, castType: JavaType? = null)
-  = fCall(node = node, method = methodResolve.first, arguments = methodResolve.second, owner = owner, castType = castType)
+  private fun fCall(methodResolve: Pair<JavaMethod, List<ExpressionNode>>, owner: ExpressionNode?, castType: JavaType? = null,
+                    tokenStart: LexToken, tokenEnd: LexToken)
+  = fCall(tokenStart = tokenStart, tokenEnd = tokenEnd, method = methodResolve.first, arguments = methodResolve.second, owner = owner, castType = castType)
   private fun fCall(
     node: CstNode,
     method: JavaMethod,
     arguments: List<ExpressionNode>,
     owner: ExpressionNode? = null,
-    castType: JavaType? = null) = fCall(node.token, method, arguments, owner, castType)
+    castType: JavaType? = null) = fCall(node.tokenStart,
+    LexToken.DUMMY, // passing dummy to inform code highlight that this is not a fCall from the real marcel source code
+    method, arguments, owner, castType)
   private fun fCall(
-    token: LexToken,
+    tokenStart: LexToken,
+    tokenEnd: LexToken,
     method: JavaMethod,
     arguments: List<ExpressionNode>,
     owner: ExpressionNode? = null,
     castType: JavaType? = null): ExpressionNode {
-    val node = FunctionCallNode(method, owner, castedArguments(method, arguments), token)
+    val node = FunctionCallNode(method, owner, castedArguments(method, arguments), tokenStart, tokenEnd)
     return if (castType != null) caster.cast(castType, node) else node
   }
 

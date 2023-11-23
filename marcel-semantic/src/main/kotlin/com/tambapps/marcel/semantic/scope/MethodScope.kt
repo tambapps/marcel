@@ -45,7 +45,7 @@ open class MethodScope internal constructor(
     }
   }
 
-  fun addLocalVariable(type: JavaType, isFinal: Boolean = false, token: LexToken = LexToken.dummy()): LocalVariable {
+  fun addLocalVariable(type: JavaType, isFinal: Boolean = false, token: LexToken = LexToken.DUMMY): LocalVariable {
     val name = generateLocalVarName()
     return addLocalVariable(type, name, isFinal, token)
   }
@@ -55,7 +55,7 @@ open class MethodScope internal constructor(
         ThreadLocalRandom.current().nextInt().toString().replace('-', '_')
   }
 
-  fun addLocalVariable(type: JavaType, name: String, isFinal: Boolean = false, token: LexToken = LexToken.dummy()): LocalVariable {
+  fun addLocalVariable(type: JavaType, name: String, isFinal: Boolean = false, token: LexToken = LexToken.DUMMY): LocalVariable {
     if (findLocalVariable(name) != null) {
       throw MarcelSemanticException(token, "A variable with name $name is already defined")
     }

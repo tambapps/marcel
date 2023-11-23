@@ -22,6 +22,7 @@ class MarcelReplSemantic(private val replTypeResolver: ReplJavaTypeResolver, cst
     // if we went here this means the field was not defined
     val right = node.rightOperand.accept(this)
 
+    // this is important. We always want bound field to be object type as values are obtained from getVariable which returns an Object
     val boundField = BoundField(right.type.objectType, (node.leftOperand as ReferenceCstNode).value, scope.classType)
     replTypeResolver.defineBoundField(boundField)
 

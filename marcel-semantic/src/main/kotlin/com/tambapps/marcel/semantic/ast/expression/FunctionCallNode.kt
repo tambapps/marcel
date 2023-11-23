@@ -4,12 +4,13 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 
-open class FunctionCallNode(
+open class FunctionCallNode constructor(
   val javaMethod: JavaMethod,
   val owner: ExpressionNode?,
   val arguments: List<ExpressionNode>,
-  token: LexToken
-) : AbstractExpressionNode(javaMethod.returnType, token) {
+  tokenStart: LexToken,
+  tokenEnd: LexToken
+) : AbstractExpressionNode(javaMethod.returnType, tokenStart, tokenEnd) {
 
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) = visitor.visit(this)
 

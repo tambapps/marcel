@@ -50,7 +50,7 @@ class SimpleImportNode(private val value: String, private val asName: String? = 
 class StaticImportNode(val className: String, val methodName: String,
                        override val tokenStart: LexToken, override val tokenEnd: LexToken): ImportNode {
 
-  constructor(className: String, methodName: String): this(className, methodName, LexToken.dummy(), LexToken.dummy())
+  constructor(className: String, methodName: String): this(className, methodName, LexToken.DUMMY, LexToken.DUMMY)
 
   override fun resolveClassName(typeResolver: JavaTypeResolver, classSimpleName: String): String? {
     return null
@@ -80,7 +80,7 @@ class StaticImportNode(val className: String, val methodName: String,
 class WildcardImportNode(private val prefix: String,
                          override val tokenStart: LexToken, override val tokenEnd: LexToken): ImportNode {
 
-                           constructor(prefix: String): this(prefix, LexToken.dummy(), LexToken.dummy())
+                           constructor(prefix: String): this(prefix, LexToken.DUMMY, LexToken.DUMMY)
 
   override fun resolveClassName(typeResolver: JavaTypeResolver, classSimpleName: String): String? {
     return try {

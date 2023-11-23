@@ -8,6 +8,10 @@ import lombok.Value;
 @Value
 public class LexToken {
 
+  public static final LexToken DUMMY = new LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, "");
+
+
+  // should only be used in legacy code
   public static LexToken dummy() {
     return new LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, "");
   }

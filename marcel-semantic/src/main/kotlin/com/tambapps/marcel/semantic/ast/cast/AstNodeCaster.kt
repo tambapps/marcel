@@ -1,5 +1,6 @@
 package com.tambapps.marcel.semantic.ast.cast
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
@@ -128,6 +129,8 @@ class AstNodeCaster(
 
   internal fun functionCall(ownerType: JavaType, name: String, arguments: List<ExpressionNode>, node: ExpressionNode): FunctionCallNode {
     val method = typeResolver.findMethodOrThrow(ownerType, name, arguments)
-    return FunctionCallNode(method, if (method.isStatic) null else node, arguments, node.token)
+    return FunctionCallNode(method, if (method.isStatic) null else node, arguments, node.token,
+      // passing dummy to inform code highlight that this is not a fCall from the real marcel source code
+      LexToken.DUMMY)
   }
 }

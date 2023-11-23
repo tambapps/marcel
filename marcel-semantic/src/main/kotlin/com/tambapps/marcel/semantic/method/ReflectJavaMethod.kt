@@ -56,24 +56,24 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
       val rawType = JavaType.of(parameter.type)
       val annotations = parameter.annotations
       val defaultValue: ExpressionNode? = when {
-        annotations.any { it is NullDefaultValue } -> NullValueNode(LexToken.dummy())
+        annotations.any { it is NullDefaultValue } -> NullValueNode(LexToken.DUMMY)
         type == JavaType.int || type == JavaType.Integer -> annotations.firstNotNullOfOrNull { it as? IntDefaultValue }?.let {
-          IntConstantNode(value = it.value, token = LexToken.dummy())
+          IntConstantNode(value = it.value, token = LexToken.DUMMY)
         }
         type == JavaType.long || type == JavaType.Long -> annotations.firstNotNullOfOrNull { it as? LongDefaultValue }?.let {
-          LongConstantNode(value = it.value, token = LexToken.dummy())
+          LongConstantNode(value = it.value, token = LexToken.DUMMY)
         }
         type == JavaType.float || type == JavaType.Float -> annotations.firstNotNullOfOrNull { it as? FloatDefaultValue }?.let {
-          FloatConstantNode(value = it.value, token = LexToken.dummy())
+          FloatConstantNode(value = it.value, token = LexToken.DUMMY)
         }
         type == JavaType.double || type == JavaType.Double -> annotations.firstNotNullOfOrNull { it as? DoubleDefaultValue }?.let {
-          DoubleConstantNode(value = it.value, token = LexToken.dummy())
+          DoubleConstantNode(value = it.value, token = LexToken.DUMMY)
         }
         type == JavaType.char || type == JavaType.Character -> annotations.firstNotNullOfOrNull { it as? CharacterDefaultValue }?.let {
-          CharConstantNode(value = it.value, token = LexToken.dummy())
+          CharConstantNode(value = it.value, token = LexToken.DUMMY)
         }
         type == JavaType.boolean || type == JavaType.Boolean -> annotations.firstNotNullOfOrNull { it as? BooleanDefaultValue }?.let {
-          BoolConstantNode(value = it.value, token = LexToken.dummy())
+          BoolConstantNode(value = it.value, token = LexToken.DUMMY)
         }
         annotations.any { it is MethodCallDefaultValue } -> {
           val defaultValueMethodName = annotations.firstNotNullOfOrNull { it as? MethodCallDefaultValue }!!.methodName
@@ -86,7 +86,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
 
           if (match != null && type.isAssignableFrom(match.returnType)
             && match.isStatic
-            && match.parameters.isEmpty()) FunctionCallNode(match, null, emptyList(), LexToken.dummy())
+            && match.parameters.isEmpty()) FunctionCallNode(match, null, emptyList(), LexToken.DUMMY, LexToken.DUMMY)
           else null
         }
         else -> null

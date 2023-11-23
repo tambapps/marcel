@@ -155,7 +155,17 @@
       </dependency>
       <dependency>
         <groupId>com.tambapps.marcel</groupId>
+        <artifactId>marcel-repl</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tambapps.marcel</groupId>
         <artifactId>marcel-repl-legacy</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tambapps.marcel</groupId>
+        <artifactId>marshell</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>

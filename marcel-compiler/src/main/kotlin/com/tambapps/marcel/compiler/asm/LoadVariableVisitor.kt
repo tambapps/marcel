@@ -34,6 +34,8 @@ class LoadVariableVisitor(
   override fun visit(variable: BoundField) {
     mv.visitLdcInsn(variable.name)
     mv.visitMethodInsn(typeResolver.findMethodOrThrow(Script::class.javaType, "getVariable", listOf(JavaType.String)))
+    // bound variable type should always be an object, so no need to check primitive from/to object casting. this will always be object to object
+    mv.visitTypeInsn(Opcodes.CHECKCAST, variable.type.internalName)
   }
 
   override fun visit(variable: DynamicMethodField) {
