@@ -38,14 +38,14 @@ class MarcelEvaluatorTest {
 
   @Test
   fun testObjectBoundField() {
-    val result = evaluator.eval("a = 1..2")
-    assertEquals(IntRanges.of(1, 2), result)
+    assertEquals(IntRanges.of(1, 2), evaluator.eval("a = 1..2"))
+    assertEquals(IntRanges.of(1, 2), evaluator.eval("a"))
   }
 
   @Test
   fun testPrimitiveBoundField() {
-    val result = evaluator.eval("a = 1")
-    assertEquals(1, result)
+    assertEquals(1, evaluator.eval("a = 1"))
+    assertEquals(1, evaluator.eval("a"))
   }
 
 }

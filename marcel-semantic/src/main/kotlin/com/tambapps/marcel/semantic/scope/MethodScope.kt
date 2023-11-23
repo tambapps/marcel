@@ -30,6 +30,7 @@ open class MethodScope internal constructor(
     }
   }
 
+  val isStatic get() = method.isStatic
   private val localVariables = mutableListOf<LocalVariable>()
 
   // returns all the local variables at a particular moment

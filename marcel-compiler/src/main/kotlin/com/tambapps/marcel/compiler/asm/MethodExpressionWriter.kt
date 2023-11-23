@@ -36,8 +36,8 @@ sealed class MethodExpressionWriter(
   classScopeType: JavaType
 ): ExpressionNodeVisitor<Unit> {
 
-  protected val loadVariableVisitor = LoadVariableVisitor(mv, classScopeType)
-  private val storeVariableVisitor = StoreVariableVisitor(mv, classScopeType)
+  protected val loadVariableVisitor = LoadVariableVisitor(typeResolver, mv, classScopeType)
+  private val storeVariableVisitor = StoreVariableVisitor(typeResolver, mv, classScopeType)
 
   internal abstract fun pushExpression(node: ExpressionNode)
 

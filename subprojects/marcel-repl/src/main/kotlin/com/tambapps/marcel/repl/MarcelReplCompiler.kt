@@ -130,7 +130,6 @@ class MarcelReplCompiler constructor(
         method.ownerClass = scriptNode.type
         scriptNode.methods.add(method)
       }
-      typeResolver.defineClass(scriptNode)
     }
     val r = SemanticResult(tokens, cst, ast.classes, semantic.imports, text.hashCode())
     if (!skipUpdate) {

@@ -5,7 +5,9 @@ import com.tambapps.marcel.compiler.extensions.internalName
 import com.tambapps.marcel.compiler.extensions.invokeCode
 import com.tambapps.marcel.compiler.extensions.loadCode
 import com.tambapps.marcel.compiler.extensions.visitMethodInsn
+import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.VariableVisitor
 import com.tambapps.marcel.semantic.variable.field.BoundField
@@ -14,6 +16,7 @@ import com.tambapps.marcel.semantic.variable.field.DynamicMethodField
 import com.tambapps.marcel.semantic.variable.field.JavaClassField
 import com.tambapps.marcel.semantic.variable.field.MarcelArrayLengthField
 import com.tambapps.marcel.semantic.variable.field.MethodField
+import marcel.lang.Script
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 
@@ -21,6 +24,7 @@ import org.objectweb.asm.Opcodes
  * Visitor loading variables on the stack
  */
 class LoadVariableVisitor(
+  private val typeResolver: JavaTypeResolver,
   private val mv: MethodVisitor,
   private val classScopeType: JavaType
 ) : VariableVisitor<Unit> {
@@ -28,7 +32,8 @@ class LoadVariableVisitor(
   override fun visit(variable: LocalVariable) = mv.visitVarInsn(variable.type.loadCode, variable.index)
 
   override fun visit(variable: BoundField) {
-    TODO("Not yet implemented")
+    mv.visitLdcInsn(variable.name)
+    mv.visitMethodInsn(typeResolver.findMethodOrThrow(Script::class.javaType, "getVariable", listOf(JavaType.String)))
   }
 
   override fun visit(variable: DynamicMethodField) {

@@ -4,6 +4,7 @@ import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.semantic.ast.Ast2Node
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
+import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
@@ -11,11 +12,14 @@ import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.variable.LocalVariable
+import marcel.lang.Binding
+import marcel.lang.Script
 import marcel.lang.lambda.*
 
 internal object SemanticHelper {
@@ -35,6 +39,21 @@ internal object SemanticHelper {
       // all functions should finish with a return statement, even the void ones
       blockStatement.statements.add(ReturnStatementNode(null, tokenStart, tokenEnd))
     }
+  }
+
+  fun scriptBindingConstructor(classNode: ClassNode, typeResolver: JavaTypeResolver): MethodNode {
+    val parameter = MethodParameter(Binding::class.javaType, "binding")
+    val methodNode = MethodNode(JavaMethod.CONSTRUCTOR_NAME, listOf(parameter),  Visibility.PUBLIC, JavaType.void, false, classNode.tokenStart, classNode.tokenEnd, JavaType.void)
+    methodNode.blockStatement = BlockStatementNode(mutableListOf(
+      ExpressionStatementNode(
+
+        SuperConstructorCallNode(classNode.superType,
+          typeResolver.findMethod(Script::class.javaType, JavaMethod.CONSTRUCTOR_NAME, listOf(parameter))!!,
+          listOf(ReferenceNode(variable = LocalVariable(parameter.type, parameter.name, parameter.type.nbSlots, 1, false), token = classNode.token)), classNode.tokenStart, classNode.tokenEnd)
+      ),
+      ReturnStatementNode(VoidExpressionNode(methodNode.token), methodNode.tokenStart, methodNode.tokenEnd)
+    ), methodNode.tokenStart, methodNode.tokenEnd)
+    return methodNode
   }
 
   fun noArgConstructor(classNode: ClassNode, typeResolver: JavaTypeResolver, visibility: Visibility = Visibility.PUBLIC): MethodNode {

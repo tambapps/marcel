@@ -206,15 +206,15 @@ open class MarcelSemantic(
     const val GET_AT_METHOD_NAME = "getAt"
     const val GET_AT_SAFE_METHOD_NAME = "getAtSafe"
   }
-  private val caster = AstNodeCaster(typeResolver)
+  protected val caster = AstNodeCaster(typeResolver)
 
   internal val scopeQueue = LinkedList<Scope>()
   private val classNodeMap = mutableMapOf<JavaType, ClassNode>() // useful to add methods while performing analysis
 
   val imports = Scope.DEFAULT_IMPORTS.toMutableList() // will be updated while performing analysis
   private val methodResolver = MethodResolver(typeResolver, caster, imports)
-  private val currentScope get() = scopeQueue.peek() // FIFO
-  private val currentMethodScope get() = currentScope as? MethodScope ?: throw MarcelSemanticException("Not in a method")
+  protected val currentScope get() = scopeQueue.peek() // FIFO
+  protected val currentMethodScope get() = currentScope as? MethodScope ?: throw MarcelSemanticException("Not in a method")
   private val currentInnerMethodScope get() = currentScope as? MethodInnerScope ?: throw MarcelSemanticException("Not in a inner scope")
 
   private val selfLocalVariable: LocalVariable get() = currentMethodScope.findLocalVariable("self") ?: throw RuntimeException("Compiler error.")
@@ -266,6 +266,8 @@ open class MarcelSemantic(
       // register script class members
       defineClassMembers(scriptCstNode, classType)
       val scriptNode = classNode(classType, scriptCstNode)
+      // need the binding constructor. the no-arg constructor should have been added in the classNode() method
+      scriptNode.methods.add(SemanticHelper.scriptBindingConstructor(scriptNode, typeResolver))
       useScope(ClassScope(typeResolver, classType, null, imports)) {
         // add the run method
         val runMethod = SemanticHelper.scriptRunMethod(classType, cst)
@@ -815,8 +817,7 @@ open class MarcelSemantic(
   protected open fun assignment(node: BinaryOperatorCstNode): ExpressionNode {
     return assignment(node, node.leftOperand.accept(this))
   }
-  protected fun assignment(node: BinaryOperatorCstNode, left: ExpressionNode): ExpressionNode {
-    val right = node.rightOperand.accept(this, left.type)
+  protected fun assignment(node: BinaryOperatorCstNode, left: ExpressionNode, right: ExpressionNode = node.rightOperand.accept(this, left.type)): ExpressionNode {
     return when (left) {
       is ReferenceNode -> {
         val variable = left.variable
