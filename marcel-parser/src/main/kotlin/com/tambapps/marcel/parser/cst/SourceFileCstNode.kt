@@ -7,7 +7,6 @@ import com.tambapps.marcel.parser.cst.imprt.ImportCstNode
 class SourceFileCstNode(
   tokenStart: LexToken,
   tokenEnd: LexToken,
-  val packageName: String?, // without extension
   val dumbbells: List<String>
   ): AbstractCstNode(null, tokenStart, tokenEnd) {
 

@@ -20,6 +20,10 @@ abstract class AbstractScope(
     else classType.className + '$' + node.value
     if (typeResolver.isDefined(innerClassName)) return typeResolver.of(innerClassName, node.genericTypes.map { resolveTypeOrThrow(it) }).array(node.arrayDimensions)
     val className = resolveClassName(node.value)
+    if (classType.packageName != null) {
+      val classFullName = "${classType.packageName}.$className"
+      if (typeResolver.isDefined(classFullName)) return typeResolver.of(classFullName, node.genericTypes.map { resolveTypeOrThrow(it) }).array(node.arrayDimensions)
+    }
     return typeResolver.of(className, node.genericTypes.map { resolveTypeOrThrow(it) }).array(node.arrayDimensions)
   }
 

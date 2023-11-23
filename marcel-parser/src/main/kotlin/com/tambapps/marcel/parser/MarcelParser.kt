@@ -106,7 +106,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
       dumbbells.add(dumbbell())
     }
 
-    val sourceFile = SourceFileCstNode(packageName = packageName, tokenStart = tokens.first(),
+    val sourceFile = SourceFileCstNode(tokenStart = tokens.first(),
       dumbbells = dumbbells,
       tokenEnd = tokens.last())
     val scriptNode = ScriptCstNode(tokens.first(), tokens.last(),

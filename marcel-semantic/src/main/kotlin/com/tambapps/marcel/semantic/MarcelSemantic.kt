@@ -261,7 +261,7 @@ open class MarcelSemantic(
         throw MarcelSemanticException(scriptCstNode.constructors.first().token, "Cannot define constructors for scripts")
       }
       val classType = typeResolver.defineClass(scriptCstNode.tokenStart, Visibility.PUBLIC,
-        if (cst.packageName != null) "${cst.packageName}.${scriptCstNode.className}" else scriptCstNode.className,
+        scriptCstNode.className,
         Script::class.javaType, false, emptyList(), isScript = true)
       // register script class members
       defineClassMembers(scriptCstNode, classType)
