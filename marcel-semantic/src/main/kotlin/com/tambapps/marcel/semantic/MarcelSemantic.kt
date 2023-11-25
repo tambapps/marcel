@@ -187,8 +187,6 @@ import java.util.OptionalInt
 import java.util.OptionalLong
 import java.util.regex.Pattern
 
-// TODO implement multiple errors like in parser2
-//   but BE CAREFUL: sometimes I rely on an exception to be thrown because I catch it and do some other behaviour
 open class MarcelSemantic(
   private val typeResolver: JavaTypeResolver,
   val cst: SourceFileCstNode
@@ -839,7 +837,6 @@ open class MarcelSemantic(
         val owner = left.ownerNode
         val arguments = left.arguments + right
         val isSafeAccess = left.javaMethod.name == GET_AT_SAFE_METHOD_NAME
-        // TODO implement putAtSafe in all primitive collections and List
         val putAtMethod = typeResolver.findMethodOrThrow(owner.type, if (isSafeAccess) PUT_AT_SAFE_METHOD_NAME else PUT_AT_METHOD_NAME, arguments, node.token)
         fCall(method = putAtMethod, owner = owner, arguments = arguments, node = node)
       }

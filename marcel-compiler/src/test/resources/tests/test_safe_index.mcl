@@ -7,4 +7,5 @@ assertEquals(null, ints?[3])
 
 list<int> intList = [1, 2, 3]
 assertEquals(2, intList?[1])
+intList?[3] = 334
 assertEquals(null, intList?[3])

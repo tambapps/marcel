@@ -1395,6 +1395,110 @@ public final class DefaultMarcelMethods {
   }
 
   /**
+   * Set the element at the specified index, if the index is within the array's bounds
+   *
+   * @param self  the list
+   * @param index the index
+   * @param value the value to set
+   */
+  public static void putAtSafe(int[] self, int index, int value) {
+    if (index >= 0 && index < self.length) {
+      self[index] = value;
+    }
+  }
+
+  /**
+   * Set the element at the specified index, if the index is within the array's bounds
+   *
+   * @param self  the list
+   * @param index the index
+   * @param value the value to set
+   */
+  public static void putAtSafe(float[] self, int index, float value) {
+    if (index >= 0 && index < self.length) {
+      self[index] = value;
+    }
+  }
+
+  /**
+   * Set the element at the specified index, if the index is within the array's bounds
+   *
+   * @param self  the list
+   * @param index the index
+   * @param value the value to set
+   */
+  public static void putAtSafe(double[] self, int index, double value) {
+    if (index >= 0 && index < self.length) {
+      self[index] = value;
+    }
+  }
+
+  /**
+   * Set the element at the specified index, if the index is within the array's bounds
+   *
+   * @param self  the list
+   * @param index the index
+   * @param value the value to set
+   */
+  public static void putAtSafe(long[] self, int index, long value) {
+    if (index >= 0 && index < self.length) {
+      self[index] = value;
+    }
+  }
+
+  /**
+   * Set the element at the specified index, if the index is within the array's bounds
+   *
+   * @param self  the list
+   * @param index the index
+   * @param value the value to set
+   */
+  public static void putAtSafe(char[] self, int index, char value) {
+    if (index >= 0 && index < self.length) {
+      self[index] = value;
+    }
+  }
+
+  /**
+   * Set the element at the specified index, if the index is within the array's bounds
+   *
+   * @param self  the list
+   * @param index the index
+   * @param value the value to set
+   */
+  public static void putAtSafe(short[] self, int index, short value) {
+    if (index >= 0 && index < self.length) {
+      self[index] = value;
+    }
+  }
+
+  /**
+   * Set the element at the specified index, if the index is within the array's bounds
+   *
+   * @param self  the list
+   * @param index the index
+   * @param value the value to set
+   */
+  public static void putAtSafe(byte[] self, int index, byte value) {
+    if (index >= 0 && index < self.length) {
+      self[index] = value;
+    }
+  }
+
+  /**
+   * Set the element at the specified index, if the index is within the array's bounds
+   *
+   * @param self  the list
+   * @param index the index
+   * @param value the value to set
+   */
+  public static void putAtSafe(boolean[] self, int index, boolean value) {
+    if (index >= 0 && index < self.length) {
+      self[index] = value;
+    }
+  }
+
+  /**
    * Get the element at the specified key
    *
    * @param self  the map

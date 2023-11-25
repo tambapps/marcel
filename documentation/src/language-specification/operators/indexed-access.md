@@ -17,7 +17,7 @@ list[1] = 4
 
 You can also [define your own accesses for custom types](./operator-overloading.md)
 
-## Safe indexed access
+## Safe indexed access (getAtSafe)
 
 Similarly to [safe navigation](./safe-navigation.md), you can access elements of list/arrays
 
@@ -25,4 +25,13 @@ Similarly to [safe navigation](./safe-navigation.md), you can access elements of
 println(list?[5]) // will print null
 ```
 
-This operator checks that the index provided is within range (`0 <= index < length`)
+This operator checks that the index provided is within the list/array's bounds (`0 <= index < length`)
+
+You can also set elements safely with the `putAtSafe` operator
+
+```marcel
+list<int> = [1, 2, 3]
+
+list?[1] = 5 // will actually set the value
+list?[10] = 4 // will not set the value as the index is not within bounds
+```

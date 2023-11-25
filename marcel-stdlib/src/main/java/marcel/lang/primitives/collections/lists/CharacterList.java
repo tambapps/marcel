@@ -61,6 +61,7 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 
 
 
+
 	// don't mind IntelIJ warning
 	boolean isEmpty();
 
@@ -274,6 +275,17 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	 * @see List#get(int)
 	 */
 	char getAt(int index);
+
+	default Character getAtSafe(int index) {
+		return index >= 0 && index < size() ? getAt(index) : null;
+	}
+
+	default void putAtSafe(int index, char value) {
+		if (index >= 0 && index < size()) {
+			putAt(index, value);
+		}
+	}
+
 	/** Returns the index of the first occurrence of the specified element in this list, or -1 if this list does not contain the element.
 	 * @see List#indexOf(Object)
 	 */

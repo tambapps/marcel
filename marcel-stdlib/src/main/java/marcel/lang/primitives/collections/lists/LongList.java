@@ -255,6 +255,17 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 	 * @see List#get(int)
 	 */
 	long getAt(int index);
+
+	default Long getAtSafe(int index) {
+		return index >= 0 && index < size() ? getAt(index) : null;
+	}
+
+	default void putAtSafe(int index, long value) {
+		if (index >= 0 && index < size()) {
+			putAt(index, value);
+		}
+	}
+
 	/** Returns the index of the first occurrence of the specified element in this list, or -1 if this list does not contain the element.
 	 * @see List#indexOf(Object)
 	 */

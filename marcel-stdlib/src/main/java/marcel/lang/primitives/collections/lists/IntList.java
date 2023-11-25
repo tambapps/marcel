@@ -252,6 +252,17 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	 * @see List#get(int)
 	 */
 	int getAt(int index);
+
+	default Integer getAtSafe(int index) {
+		return index >= 0 && index < size() ? getAt(index) : null;
+	}
+
+	default void putAtSafe(int index, int value) {
+		if (index >= 0 && index < size()) {
+			putAt(index, value);
+		}
+	}
+
 	/** Returns the index of the first occurrence of the specified element in this list, or -1 if this list does not contain the element.
 	 * @see List#indexOf(Object)
 	 */
