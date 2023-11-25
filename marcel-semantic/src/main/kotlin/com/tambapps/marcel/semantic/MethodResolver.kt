@@ -69,7 +69,7 @@ internal class MethodResolver(
                                namedArguments: List<Pair<String, ExpressionNode>>): Pair<JavaMethod, List<ExpressionNode>>? {
     for (import in imports) {
       import as? StaticImportNode ?: continue
-      val type = typeResolver.of(import.className, emptyList())
+      val type = typeResolver.of(node.token, import.className, emptyList())
       val result = resolveMethod(node, type, name, positionalArguments, namedArguments)
       if (result != null && result.first.isStatic) return result
     }

@@ -250,7 +250,7 @@ open class MarcelSemantic(
     val scriptCstNode = cst.script
 
     for (cstClass in cst.classes) {
-      val classNode = classNode(typeResolver.of(cstClass.className, emptyList()), cstClass)
+      val classNode = classNode(typeResolver.of(cstClass.token, cstClass.className, emptyList()), cstClass)
       moduleNode.classes.add(classNode)
       classNode.innerClasses.forEach { innerClassNode ->
         if (innerClassNode is LambdaClassNode) {
@@ -358,7 +358,7 @@ open class MarcelSemantic(
     }
 
     node.innerClasses.forEach {
-      classNode.innerClasses.add(classNode(typeResolver.of(it.className, emptyList()), it))
+      classNode.innerClasses.add(classNode(typeResolver.of(it.token, it.className, emptyList()), it))
     }
 
     if (classNode.constructorCount == 0) {

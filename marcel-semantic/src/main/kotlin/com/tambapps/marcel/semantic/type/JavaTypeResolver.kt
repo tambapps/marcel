@@ -139,19 +139,35 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
 
   fun isDefined(className: String): Boolean {
     return try {
-      of(className, emptyList())
+      of(LexToken.DUMMY, className, emptyList())
       true
     } catch (e: MarcelSemanticException) {
       false
     }
   }
 
-  fun clear() {
-    _definedTypes.clear()
+  fun of(token: LexToken, className: String, genericTypes: List<JavaType>): JavaType {
+    if (_definedTypes.containsKey(className)) return _definedTypes.getValue(className)
+    val optPrimitiveType = JavaType.PRIMITIVES.find { it.className == className }
+    if (optPrimitiveType != null) return optPrimitiveType
+    val optArrayType = JavaType.ARRAYS.find { it.className == className }
+    if (optArrayType != null) return optArrayType
+
+    if (genericTypes.size == 1) {
+      val type = JavaType.PRIMITIVE_COLLECTION_TYPE_MAP[className]?.get(genericTypes.first())
+      if (type != null) return type
+    }
+    try {
+      val clazz = if (classLoader != null) classLoader.loadClass(className)
+      else Class.forName(className)
+      return JavaType.of(clazz).withGenericTypes(genericTypes)
+    } catch (e: ClassNotFoundException) {
+      throw MarcelSemanticException(token, "Class $className was not found")
+    }
   }
 
-  fun of(className: String, genericTypes: List<JavaType>): JavaType {
-    return _definedTypes[className] ?: JavaType.of(classLoader, className, genericTypes)
+  fun clear() {
+    _definedTypes.clear()
   }
 
   fun findMethodByParametersOrThrow(javaType: JavaType, name: String,

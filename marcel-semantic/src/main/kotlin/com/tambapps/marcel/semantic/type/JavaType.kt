@@ -203,11 +203,6 @@ interface JavaType: JavaTyped {
       else LoadedObjectType(clazz, genericTypes)
     }
 
-    fun mapType(keysType: JavaType, valuesType: JavaType): JavaType {
-      return if (keysType.primitive) of("map", listOf(keysType, valuesType))
-      else of(java.util.Map::class.java, listOf(keysType, valuesType))
-    }
-
     fun arrayTypeFrom(type: JavaType): JavaArrayType? {
       return if (type.isArray) return type.asArrayType
       else if (intList.isAssignableFrom(type) || intSet.isAssignableFrom(type)) return intArray
@@ -237,28 +232,7 @@ interface JavaType: JavaTyped {
       else NotLoadedJavaArrayType(elementsType)
     }
 
-    // TODO put these two below method in typeresolver in order to pass token when throwing exceptinn
-    fun of(className: String, genericTypes: List<JavaType>): JavaType {
-      return of(null, className, genericTypes)
-    }
-    fun of(classLoader: MarcelClassLoader?, className: String, genericTypes: List<JavaType>): JavaType {
-      val optPrimitiveType = PRIMITIVES.find { it.className == className }
-      if (optPrimitiveType != null) return optPrimitiveType
-      val optArrayType = ARRAYS.find { it.className == className }
-      if (optArrayType != null) return optArrayType
 
-      if (genericTypes.size == 1 || className == "map" && genericTypes.size == 2) {
-        val type = PRIMITIVE_COLLECTION_TYPE_MAP[className]?.get(genericTypes.first())
-        if (type != null) return type
-      }
-      try {
-        val clazz = if (classLoader != null) classLoader.loadClass(className)
-        else Class.forName(className)
-        return of(clazz).withGenericTypes(genericTypes)
-      } catch (e: ClassNotFoundException) {
-        throw MarcelSemanticException("Class $className was not found")
-      }
-    }
 
     val Anything: JavaType = AnythingJavaType
     val Object = LoadedObjectType(Object::class.java)

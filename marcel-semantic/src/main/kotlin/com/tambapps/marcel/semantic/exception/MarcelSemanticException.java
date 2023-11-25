@@ -60,7 +60,7 @@ public class MarcelSemanticException extends RuntimeException {
 
   private static String generateErrorMessage(Error error) {
     return String.format("Semantic error at token %s (line %d, column %d): %s",
-            error.token.getType(), error.token.getLine() + 1, error.token.getColumn(), error.message);
+            error.token, error.token.getLine() + 1, error.token.getColumn(), error.message);
   }
 
   public static MarcelSemanticException.Error malformedNumber(NumberFormatException e, LexToken token, boolean eof) {

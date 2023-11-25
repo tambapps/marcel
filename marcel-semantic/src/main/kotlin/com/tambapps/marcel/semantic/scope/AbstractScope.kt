@@ -14,7 +14,7 @@ abstract class AbstractScope(
 
   override fun resolveTypeOrThrow(node: TypeCstNode): JavaType {
     // search on imports
-    val importClassName = resolveImportClassName(node.value)
+    val importClassName = resolveImportClassName(node)
     if (importClassName != null) {
       return of(importClassName, node)
     }
@@ -29,10 +29,11 @@ abstract class AbstractScope(
   }
 
   protected fun of(simpleName: String, node: TypeCstNode): JavaType {
-    return typeResolver.of(simpleName, node.genericTypes.map { resolveTypeOrThrow(it) }).array(node.arrayDimensions)
+    return typeResolver.of(node.token, simpleName, node.genericTypes.map { resolveTypeOrThrow(it) }).array(node.arrayDimensions)
   }
-  private fun resolveImportClassName(classSimpleName: String): String? {
-    val matchedClasses = imports.mapNotNull { it.resolveClassName(typeResolver, classSimpleName) }.toSet()
+  private fun resolveImportClassName(node: TypeCstNode): String? {
+    val classSimpleName = node.value
+    val matchedClasses = imports.mapNotNull { it.resolveClassName(node.token, typeResolver, classSimpleName) }.toSet()
     return if (matchedClasses.isEmpty()) null
     else if (matchedClasses.size == 1) matchedClasses.first()
     else throw MarcelSemanticException("Ambiguous import for class $classSimpleName")
