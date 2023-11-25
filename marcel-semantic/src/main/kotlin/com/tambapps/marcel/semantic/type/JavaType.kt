@@ -77,7 +77,23 @@ interface JavaType: JavaTyped {
   val isPrimitiveObjectType get() = PRIMITIVES.any { it.objectType == this }
   val isPrimitiveOrObjectPrimitive get() = primitive || isPrimitiveObjectType
 
-  val arrayType: JavaArrayType get() = JavaType.arrayType(this)
+  val arrayType: JavaArrayType get() {
+    if (primitive) {
+      return when (this) {
+        int -> intArray
+        long -> longArray
+        float -> floatArray
+        double -> doubleArray
+        boolean -> booleanArray
+        char -> charArray
+        else -> throw MarcelSemanticException("Doesn't handle primitive $this arrays")
+      }
+    }
+    // this is the only way to get the array class of a class, pre java 12
+    return if (this.isLoaded) LoadedJavaArrayType(java.lang.reflect.Array.newInstance(this.realClazz, 0).javaClass)
+    else NotLoadedJavaArrayType(this)
+  }
+
   fun array(dimensions: Int): JavaType {
     var type = this
     for (i in 0 until dimensions) {
@@ -88,15 +104,15 @@ interface JavaType: JavaTyped {
 
   fun isAccessibleFrom(javaType: JavaType) = visibility.canAccess(javaType, this)
 
-  open val isArray get() = isLoaded && realClazz.isArray
+  val isArray: Boolean
 
   val realClazzOrObject: Class<*>
   val directlyImplementedInterfaces: Collection<JavaType>
   val allImplementedInterfaces: Collection<JavaType>
   val asPrimitiveType: JavaPrimitiveType
-    get() = throw RuntimeException("Compiler error: Illegal JavaType cast")
+    get() = throw RuntimeException("Illegal JavaType cast")
   val asArrayType: JavaArrayType
-    get() = throw RuntimeException("Compiler error: Illegal JavaType cast")
+    get() = throw RuntimeException("Illegal JavaType cast")
   fun getDefaultValueExpression(token: LexToken): ExpressionNode
 
   fun withGenericTypes(vararg genericTypes: JavaType): JavaType {
@@ -213,26 +229,6 @@ interface JavaType: JavaTyped {
       else if (of(List::class.java).isAssignableFrom(type)) return objectArray
       else null
     }
-
-    fun arrayType(elementsType: JavaType): JavaArrayType {
-      if (elementsType.primitive) {
-        return when (elementsType) {
-          int -> intArray
-          long -> longArray
-          float -> floatArray
-          double -> doubleArray
-          boolean -> booleanArray
-          char -> charArray
-          else -> throw MarcelSemanticException("Doesn't handle primitive $elementsType arrays")
-        }
-      }
-
-      // this is the only way to get the array class of a class, pre java 12
-      return if (elementsType.isLoaded) LoadedJavaArrayType(java.lang.reflect.Array.newInstance(elementsType.realClazz, 0).javaClass)
-      else NotLoadedJavaArrayType(elementsType)
-    }
-
-
 
     val Anything: JavaType = AnythingJavaType
     val Object = LoadedObjectType(Object::class.java)

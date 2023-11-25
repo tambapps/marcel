@@ -10,6 +10,7 @@ class NotLoadedJavaArrayType internal  constructor(
 
   override val isFinal = true
   override val asArrayType: JavaArrayType get() = this
+  override val isArray = true
 
   override fun addImplementedInterface(javaType: JavaType) {
     throw UnsupportedOperationException()

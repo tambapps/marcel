@@ -7,6 +7,7 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
   override val isLoaded = true
   override val isEnum = realClazz.isEnum
   override val isScript = false
+  override val isArray = realClazz.isArray
 
   override val className: String = realClazz.name
   override val isFinal = (realClazz.modifiers and Modifier.FINAL) != 0

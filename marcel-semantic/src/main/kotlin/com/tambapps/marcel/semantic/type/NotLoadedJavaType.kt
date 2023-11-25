@@ -1,6 +1,7 @@
 package com.tambapps.marcel.semantic.type
 
 import com.tambapps.marcel.semantic.Visibility
+import java.lang.Exception
 
 open class NotLoadedJavaType internal constructor(
   override val visibility: Visibility,
@@ -11,11 +12,9 @@ open class NotLoadedJavaType internal constructor(
   override val directlyImplementedInterfaces: MutableCollection<JavaType>,
   override val isScript: Boolean): AbstractJavaType() {
 
-
   // doesn't support enum for now
   override val isEnum = false
-  override val arrayType: JavaArrayType
-    get() = this as NotLoadedJavaArrayType
+  override val isArray = false
 
   override val isFinal = false
 
