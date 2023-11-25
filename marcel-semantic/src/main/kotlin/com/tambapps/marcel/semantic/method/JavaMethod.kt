@@ -4,6 +4,7 @@ import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.type.JavaTyped
+import kotlin.math.max
 
 interface JavaMethod: JavaTyped {
 
@@ -84,12 +85,13 @@ interface JavaMethod: JavaTyped {
     return true
   }
 
-  fun matches(typeResolver: JavaTypeResolver, name: String, types: List<JavaTyped>): Boolean {
-    return this.name == name && matches(typeResolver, types)
+  fun matches(typeResolver: JavaTypeResolver, name: String, types: List<JavaTyped>, strict: Boolean = false): Boolean {
+    return this.name == name && matches(typeResolver, types, strict)
   }
 
-  fun matches(typeResolver: JavaTypeResolver, argumentTypes: List<JavaTyped>): Boolean {
-    if (argumentTypes.size > parameters.size) return false
+  fun matches(typeResolver: JavaTypeResolver, argumentTypes: List<JavaTyped>, strict: Boolean = false): Boolean {
+    if (strict && argumentTypes.size != parameters.size
+      || !strict && argumentTypes.size > parameters.size) return false
     var i = 0
     while (i < argumentTypes.size) {
       val expectedType = parameters[i].type
@@ -103,7 +105,7 @@ interface JavaMethod: JavaTyped {
       if (!parameters[i].hasDefaultValue) return false
       i++
     }
-    return true
+    return i == max(parameters.size, argumentTypes.size)
   }
 
   fun exactMatch(name: String, types: List<JavaTyped>): Boolean {

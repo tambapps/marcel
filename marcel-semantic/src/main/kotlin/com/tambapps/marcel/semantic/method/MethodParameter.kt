@@ -12,6 +12,7 @@ open class MethodParameter constructor(override val type: JavaType, val rawType:
   constructor(type: JavaType, name: String, annotations: List<AnnotationNode>, defaultValue: ExpressionNode?, isFinal: Boolean = false): this(type, type, name, isFinal, annotations, defaultValue)
   constructor(type: JavaType, name: String, annotations: List<AnnotationNode>, isFinal: Boolean = false): this(type, name, annotations, null, isFinal)
   constructor(type: JavaType, name: String, isFinal: Boolean = false): this(type, name, emptyList(), isFinal)
+  constructor(type: JavaType, name: String, defaultValue: ExpressionNode?): this(type, name, emptyList(), defaultValue)
 
   val hasDefaultValue get() = defaultValue != null
   override fun toString(): String {

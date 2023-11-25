@@ -8,16 +8,23 @@ abstract class AbstractMethod: JavaMethod {
     if (this === other) return true
     if (other !is JavaMethod) return false
     if (name != other.name) return false
+    if (isConstructor && ownerClass != other.ownerClass) return false
     if (parameters != other.parameters) return false
     if (returnType != other.returnType) return false
     return true
   }
 
   override fun hashCode(): Int {
-    return Objects.hash(name, parameters, returnType)
+    return Objects.hash(ownerClass, name, parameters, returnType)
   }
 
-  override fun toString(): String {
-    return "fun $returnType $name(" + parameters.joinToString(separator = ",") + ")"
-  }
+  override fun toString() = StringBuilder().apply {
+    if (isAbstract) append("abstract ")
+    if (isStatic) append("static ")
+    append("fun ")
+    append(returnType)
+    append(" ")
+    append(name)
+    append(parameters.joinToString(separator = ",", prefix = "(", postfix = ")"))
+  }.toString()
 }

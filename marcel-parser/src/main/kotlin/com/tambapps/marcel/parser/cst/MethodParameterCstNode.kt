@@ -14,4 +14,17 @@ class MethodParameterCstNode(
   val thisParameter: Boolean
   ) :
   AbstractCstNode(parent, tokenStart, tokenEnd) {
+
+  override fun toString(): String {
+    if (thisParameter) return "this.$name"
+    val builder = StringBuilder()
+    builder.append(type)
+      .append(" ")
+      .append(name)
+    if (defaultValue != null) {
+      builder.append(" = ")
+        .append(defaultValue)
+    }
+    return builder.toString()
+  }
 }

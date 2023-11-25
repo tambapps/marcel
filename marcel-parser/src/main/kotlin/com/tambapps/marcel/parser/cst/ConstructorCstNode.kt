@@ -10,4 +10,8 @@ class ConstructorCstNode(
 ) :
   AbstractMethodCstNode(parent, tokenStart, tokenEnd, accessNode) {
 
+
+  override fun toString(): String {
+    return "constructor" + parameters.joinToString(separator = ", ", prefix = "(", postfix = ")")
+  }
 }
