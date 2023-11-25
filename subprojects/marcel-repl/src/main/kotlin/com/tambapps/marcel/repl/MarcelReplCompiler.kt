@@ -13,6 +13,7 @@ import com.tambapps.marcel.repl.semantic.MarcelReplSemantic
 import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.visitor.ImportCstNodeConverter
 import marcel.lang.MarcelClassLoader
 import kotlin.jvm.Throws
 
@@ -32,9 +33,9 @@ class MarcelReplCompiler constructor(
     private set
 
   fun addImport(importString: String) {
-    TODO()
-  //addImport(MarcelParserLegacy(typeResolver, lexer.lex(importString), ParserConfiguration()).import())
+    addImport(ImportCstNodeConverter.convert(MarcelParser(lexer.lex(importString)).import()))
   }
+
   fun addImport(importNode: ImportNode) {
     imports.add(importNode)
   }
