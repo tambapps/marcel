@@ -155,11 +155,17 @@ list[1] = 4
 </code></pre>
 <br/>
 <p>You can also <a href="./operator-overloading.html">define your own accesses for custom types</a></p>
-<h2 id="safe-indexed-access"><a class="header" href="#safe-indexed-access">Safe indexed access</a></h2>
+<h2 id="safe-indexed-access-getatsafe"><a class="header" href="#safe-indexed-access-getatsafe">Safe indexed access (getAtSafe)</a></h2>
 <p>Similarly to <a href="./safe-navigation.html">safe navigation</a>, you can access elements of list/arrays</p>
 <pre><code class="language-marcel">println(list?[5]) // will print null
 </code></pre>
-<p>This operator checks that the index provided is within range (<code>0 &lt;= index &lt; length</code>)</p>
+<p>This operator checks that the index provided is within the list/array's bounds (<code>0 &lt;= index &lt; length</code>)</p>
+<p>You can also set elements safely with the <code>putAtSafe</code> operator</p>
+<pre><code class="language-marcel">list&lt;int&gt; = [1, 2, 3]
+
+list?[1] = 5 // will actually set the value
+list?[10] = 4 // will not set the value as the index is not within bounds
+</code></pre>
 
                     </main>
 

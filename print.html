@@ -1139,11 +1139,17 @@ list[1] = 4
 </code></pre>
 <br/>
 <p>You can also <a href="language-specification/operators/./operator-overloading.html">define your own accesses for custom types</a></p>
-<h2 id="safe-indexed-access"><a class="header" href="#safe-indexed-access">Safe indexed access</a></h2>
+<h2 id="safe-indexed-access-getatsafe"><a class="header" href="#safe-indexed-access-getatsafe">Safe indexed access (getAtSafe)</a></h2>
 <p>Similarly to <a href="language-specification/operators/./safe-navigation.html">safe navigation</a>, you can access elements of list/arrays</p>
 <pre><code class="language-marcel">println(list?[5]) // will print null
 </code></pre>
-<p>This operator checks that the index provided is within range (<code>0 &lt;= index &lt; length</code>)</p>
+<p>This operator checks that the index provided is within the list/array's bounds (<code>0 &lt;= index &lt; length</code>)</p>
+<p>You can also set elements safely with the <code>putAtSafe</code> operator</p>
+<pre><code class="language-marcel">list&lt;int&gt; = [1, 2, 3]
+
+list?[1] = 5 // will actually set the value
+list?[10] = 4 // will not set the value as the index is not within bounds
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="safe-navigation-operator-"><a class="header" href="#safe-navigation-operator-">Safe Navigation Operator (?.)</a></h1>
 <p>The safe navigation operator is used to access a property of an object that might be null, without getting a <code>NullPointerException</code>.</p>
 <p>It is a simple syntax allowing you to simple code. In Java, you could code</p>
@@ -1171,6 +1177,7 @@ Bar bar = foo?.bar // Marcel recognizes getters and translates '.bar' into '.get
 <tr><td>a?[b]</td><td>a.getAtSafe(b)</td></tr>
 <tr><td>a[b, c, d]</td><td>a.getAt(b, c, d)</td></tr>
 <tr><td>a[b] = c</td><td>a.putAt(b, c)</td></tr>
+<tr><td>a?[b] = c</td><td>a.putAtSafe(b, c)</td></tr>
 </tbody></table>
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="lambdas"><a class="header" href="#lambdas">Lambdas</a></h1>
 <p>Marcel supports lambda expressions, but note that they are not compiled
