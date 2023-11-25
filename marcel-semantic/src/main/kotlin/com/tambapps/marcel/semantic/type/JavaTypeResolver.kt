@@ -85,6 +85,19 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
   }
   fun defineClass(token: LexToken? = null, visibility: Visibility, outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>, isScript: Boolean = false): NotLoadedJavaType {
     val className = if (outerClassType != null) "${outerClassType.className}\$$cName" else cName
+
+    checkTypeAlreadyDefined(token, className)
+    val type = NotLoadedJavaType(visibility, className, emptyList(),  superClass, isInterface, interfaces.toMutableSet(), isScript = isScript)
+    _definedTypes[className] = type
+    return type
+  }
+
+  internal fun defineType(token: LexToken? = null, javaType: JavaType) {
+    checkTypeAlreadyDefined(token, javaType.className)
+    _definedTypes[javaType.className] = javaType
+  }
+
+  private fun checkTypeAlreadyDefined(token: LexToken? = null, className: String) {
     try {
       Class.forName(className)
       throw MarcelSemanticException(token, "Class $className is already defined")
@@ -92,11 +105,8 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
       // ignore
     }
     if (_definedTypes.containsKey(className)) throw MarcelSemanticException(token, "Class $className is already defined")
-    val type = NotLoadedJavaType(visibility, className, emptyList(),  superClass, isInterface, interfaces.toMutableSet(), isScript = isScript)
-    _definedTypes[className] = type
-    return type
-  }
 
+  }
   fun defineMethod(javaType: JavaType, method: JavaMethod) {
     val methods = getMarcelMethods(javaType)
     if (methods.any { it.matches(this, method.name, method.parameters) }) {

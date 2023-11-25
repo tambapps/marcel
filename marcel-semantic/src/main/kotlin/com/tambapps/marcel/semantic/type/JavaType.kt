@@ -236,6 +236,8 @@ interface JavaType: JavaTyped {
       return if (elementsType.isLoaded) LoadedJavaArrayType(java.lang.reflect.Array.newInstance(elementsType.realClazz, 0).javaClass)
       else NotLoadedJavaArrayType(elementsType)
     }
+
+    // TODO put these two below method in typeresolver in order to pass token when throwing exceptinn
     fun of(className: String, genericTypes: List<JavaType>): JavaType {
       return of(null, className, genericTypes)
     }

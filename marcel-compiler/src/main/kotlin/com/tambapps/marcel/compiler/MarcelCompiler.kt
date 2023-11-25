@@ -12,6 +12,7 @@ import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.semantic.MarcelSemantic
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.type.SymbolsDefiner
 import marcel.lang.MarcelClassLoader
 import java.io.File
 import java.io.IOException
@@ -58,16 +59,20 @@ class MarcelCompiler(configuration: CompilerConfiguration): AbstractMarcelCompil
   fun compileSourceFiles(sourceFiles: Collection<SourceFile>, marcelClassLoader: MarcelClassLoader? = null, classConsumer: Consumer<CompiledClass>) {
     val typeResolver = JavaTypeResolver(marcelClassLoader)
 
-    val asts = sourceFiles.map { sourceFile ->
+    val semantics = sourceFiles.map { sourceFile ->
       val tokens = MarcelLexer().lex(sourceFile.text)
       val cst = MarcelParser(classSimpleName = sourceFile.className, tokens = tokens).parse()
 
       handleDumbbells(marcelClassLoader, cst)
 
-      val ast = MarcelSemantic(typeResolver, cst).apply()
-
-      ast
+      MarcelSemantic(typeResolver, cst)
     }
+
+    // defining types
+    SymbolsDefiner(typeResolver).defineSymbols(semantics)
+
+    // applying semantic analysis
+    val asts = semantics.map { it.apply(defineSymbols = false) }
 
     val classWriter = MarcelClassWriter(configuration, typeResolver)
 

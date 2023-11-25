@@ -51,10 +51,6 @@ import com.tambapps.marcel.parser.cst.expression.WhenCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.CharCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.RegexCstNode
-import com.tambapps.marcel.parser.cst.imprt.ImportCstVisitor
-import com.tambapps.marcel.parser.cst.imprt.SimpleImportCstNode
-import com.tambapps.marcel.parser.cst.imprt.StaticImportCstNode
-import com.tambapps.marcel.parser.cst.imprt.WildcardImportCstNode
 import com.tambapps.marcel.parser.cst.statement.BlockCstNode
 import com.tambapps.marcel.parser.cst.statement.BreakCstNode
 import com.tambapps.marcel.parser.cst.statement.ContinueCstNode
@@ -69,13 +65,9 @@ import com.tambapps.marcel.parser.cst.statement.WhileCstNode
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode
-import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.ast.LambdaClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
-import com.tambapps.marcel.semantic.ast.SimpleImportNode
-import com.tambapps.marcel.semantic.ast.StaticImportNode
-import com.tambapps.marcel.semantic.ast.WildcardImportNode
 import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
@@ -157,11 +149,13 @@ import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.type.NotLoadedJavaType
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.variable.field.JavaClassFieldImpl
 import com.tambapps.marcel.semantic.variable.field.MarcelField
 import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
+import com.tambapps.marcel.semantic.visitor.ImportCstNodeConverter
 import com.tambapps.marcel.semantic.visitor.ReturningBranchTransformer
 import marcel.lang.DelegatedObject
 import marcel.lang.IntRanges
@@ -197,15 +191,18 @@ import java.util.regex.Pattern
 //   but BE CAREFUL: sometimes I rely on an exception to be thrown because I catch it and do some other behaviour
 open class MarcelSemantic(
   private val typeResolver: JavaTypeResolver,
-  private val cst: SourceFileCstNode
-): ExpressionCstNodeVisitor<ExpressionNode, JavaType>, StatementCstNodeVisitor<StatementNode>, ImportCstVisitor<ImportNode> {
+  val cst: SourceFileCstNode
+): ExpressionCstNodeVisitor<ExpressionNode, JavaType>, StatementCstNodeVisitor<StatementNode> {
 
   companion object {
     const val PUT_AT_METHOD_NAME = "putAt"
     const val PUT_AT_SAFE_METHOD_NAME = "putAtSafe"
     const val GET_AT_METHOD_NAME = "getAt"
     const val GET_AT_SAFE_METHOD_NAME = "getAtSafe"
+
+
   }
+
   protected val caster = AstNodeCaster(typeResolver)
 
   internal val scopeQueue = LinkedList<Scope>()
@@ -219,25 +216,31 @@ open class MarcelSemantic(
 
   private val selfLocalVariable: LocalVariable get() = currentMethodScope.findLocalVariable("self") ?: throw RuntimeException("Compiler error.")
 
-  fun apply(): ModuleNode {
-    imports.addAll(
-      cst.imports.map { it.accept(this) }
-    )
+  init {
+    imports.addAll(ImportCstNodeConverter.convert(cst.imports))
+    scopeQueue.push(ImportScope(typeResolver, imports, cst.packageName))
+  }
+
+  fun defineSymbols() {
+    // define everything
+    cst.classes.forEach { defineClass(it) }
+  }
+
+  fun apply(defineSymbols: Boolean = true): ModuleNode {
 
     val moduleNode = ModuleNode(cst.tokenStart, cst.tokenEnd)
 
-    scopeQueue.push(ImportScope(typeResolver, imports, cst.packageName))
-    // define everything
-    cst.classes.forEach { defineClass(it) }
+    if (defineSymbols) {
+      defineSymbols()
+    }
     // load extension types
     val extensionTypes = cst.extensionImports.map(this::visit)
     extensionTypes.forEach(typeResolver::loadExtension)
 
     try {
         doApply(moduleNode)
-    } catch (e: MarcelSemanticException) {
+    } finally {
       extensionTypes.forEach(typeResolver::unloadExtension)
-      throw e
     }
 
     return moduleNode
@@ -291,7 +294,7 @@ open class MarcelSemantic(
     defineClassMembers(classCstNode, classType)
   }
 
-  private fun defineClassMembers(classCstNode: ClassCstNode, classType: JavaType) {
+  fun defineClassMembers(classCstNode: ClassCstNode, classType: JavaType, recursive: Boolean = true) {
     if (classCstNode.isExtensionClass) {
       val extensionCstType = classCstNode.forExtensionType!!
       val extensionType = visit(extensionCstType)
@@ -302,27 +305,32 @@ open class MarcelSemantic(
         // define extension method so that we can reference them in methods of this extension class
         typeResolver.defineMethod(extensionType, ExtensionJavaMethod(toJavaMethod(classType, classCstNode.forExtensionType?.let(this::visit), m)))
       }
-
-      if (classCstNode.constructors.isNotEmpty()) {
-        throw MarcelSemanticException(classCstNode, "Extension classes cannot have constructors")
-      }
-
-      classCstNode.fields.forEach { f ->
-        if (!f.access.isStatic) {
-          throw MarcelSemanticException(f, "Cannot have non static members in extension class")
-        }
-      }
     }
     classCstNode.methods.forEach { typeResolver.defineMethod(classType, toJavaMethod(classType, classCstNode.forExtensionType?.let(this::visit), it)) }
     classCstNode.fields.forEach { typeResolver.defineField(classType, toMarcelField(classType, it)) }
     classCstNode.constructors.forEach { typeResolver.defineMethod(classType, toJavaConstructor(classType, it)) }
-    classCstNode.innerClasses.forEach { defineClass(it) }
+
+    if (recursive) {
+      classCstNode.innerClasses.forEach { defineClass(it) }
+    }
   }
 
   private fun classNode(classType: JavaType, node: ClassCstNode): ClassNode
   = useScope(ClassScope(typeResolver, classType, node.forExtensionType?.let(this::visit), imports)) { classScope ->
     val classNode = ClassNode(classType, Visibility.fromTokenType(node.access.visibility), classScope.forExtensionType, node is ScriptCstNode, cst.tokenStart, cst.tokenEnd)
     classNodeMap[classType] = classNode
+
+    // extension types check
+    if (classNode.forExtensionType != null) {
+      if (node.constructors.isNotEmpty()) {
+        throw MarcelSemanticException(node, "Extension classes cannot have constructors")
+      }
+      node.fields.forEach { f ->
+        if (!f.access.isStatic) {
+          throw MarcelSemanticException(f, "Cannot have non static members in extension class")
+        }
+      }
+    }
 
     node.annotations.forEach { classNode.annotations.add(annotationNode(it, ElementType.TYPE)) }
     // iterating with i because we might add methods while
@@ -542,7 +550,7 @@ open class MarcelSemantic(
       } else if (scriptRunMethod) {
         statements.add(SemanticHelper.returnNull(methodeNode))
       } else {
-        throw MarcelSemanticException(methodeNode.token, "Not all paths return a value")
+        throw MarcelSemanticException(methodeNode.token, "Not all paths return a value in method ${methodeNode.ownerClass}.${methodeNode.name}()")
       }
     }
     methodeNode.blockStatement = BlockStatementNode(statements, methodeNode.tokenStart, methodeNode.tokenEnd)
@@ -607,7 +615,7 @@ open class MarcelSemantic(
 
   override fun visit(node: ClassReferenceCstNode, smartCastType: JavaType?) = ClassReferenceNode(visit(node.type), node.token)
   override fun visit(node: ThisReferenceCstNode, smartCastType: JavaType?): ExpressionNode {
-    return if (getCurrentClassNode().isExtensionClass)
+    return if (getCurrentClassNode()?.isExtensionClass == true)
       // if is extension, this is self
       ReferenceNode(variable = selfLocalVariable, token = node.token)
     else if (!currentMethodScope.staticContext) ThisReferenceNode(currentScope.classType, node.token)
@@ -1199,7 +1207,7 @@ open class MarcelSemantic(
   override fun visit(node: LambdaCstNode, smartCastType: JavaType?): ExpressionNode {
     val parameters = node.parameters.map { param -> LambdaClassNode.MethodParameter(param.type?.let { visit(it) }, param.name) }
     // search for already generated lambdaNode if not empty
-    val lambdaOuterClassNode = getCurrentClassNode()
+    val lambdaOuterClassNode = getCurrentClassNode() ?: throw MarcelSemanticException(node.token, "Cannot use lambdas in such context")
 
     val lambdaClassName = currentMethodScope.method.name + "_lambda" + (lambdaOuterClassNode.innerClasses.count { it is LambdaClassNode } + 1)
     val alreadyExistingLambdaNode = lambdaOuterClassNode.innerClasses
@@ -1650,11 +1658,6 @@ open class MarcelSemantic(
     return TryCatchNode(node, tryBlock, catchNodes, finallyNode)
   }
 
-  override fun visit(node: SimpleImportCstNode) = SimpleImportNode(node.className, node.asName, node.tokenStart, node.tokenEnd)
-
-  override fun visit(node: StaticImportCstNode) = StaticImportNode(node.className, node.methodName, node.tokenStart, node.tokenEnd)
-
-  override fun visit(node: WildcardImportCstNode) = WildcardImportNode(node.prefix, node.tokenStart, node.tokenEnd)
   override fun visit(node: BlockCstNode) = useInnerScope {
     val statements = blockStatements(node.statements)
     BlockStatementNode(statements, node.tokenStart, node.tokenEnd)
@@ -1804,5 +1807,5 @@ open class MarcelSemantic(
     return MethodParameter(parameterType, parameterName, annotations, defaultValue)
   }
 
-  private fun getCurrentClassNode() = classNodeMap.getValue(currentMethodScope.classType)
+  private fun getCurrentClassNode() = classNodeMap[currentMethodScope.classType]
 }

@@ -6,7 +6,7 @@ open class ClassCstNode(
   tokenStart: LexToken,
   tokenEnd: LexToken,
   val access: CstAccessNode,
-  val className: String, // full class name
+  val className: String, // full class name. also handles inner class names
   val superType: TypeCstNode?,
   val interfaces: List<TypeCstNode>,
   val forExtensionType: TypeCstNode?,

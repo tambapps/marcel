@@ -6,7 +6,7 @@ open class NotLoadedJavaType internal constructor(
   override val visibility: Visibility,
   override val className: String,
   override val genericTypes: List<JavaType>,
-  override val superType: JavaType?,
+  override var superType: JavaType?,
   override val isInterface: Boolean,
   override val directlyImplementedInterfaces: MutableCollection<JavaType>,
   override val isScript: Boolean): AbstractJavaType() {
