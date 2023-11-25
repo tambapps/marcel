@@ -4,6 +4,7 @@ import com.tambapps.marcel.parser.cst.ClassCstNode
 import com.tambapps.marcel.parser.cst.ScriptCstNode
 import com.tambapps.marcel.semantic.MarcelSemantic
 import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 
 /**
  * Define symbols of multiple marcel semantics in a lazy way to avoid failing to do so when a type is referenced from
@@ -33,9 +34,26 @@ class SymbolsDefiner(
     // now that we defined everything we can complete the definition of all types
 
     for ((semantic, classCstNode, classType) in toDefineTypes) {
-      classType.superType = classCstNode.superType?.let { semantic.visit(it) } ?: JavaType.Object
+      val superType = classCstNode.superType?.let { semantic.visit(it) } ?: JavaType.Object
+      if (!superType.isAccessibleFrom(classType)) {
+        throw MarcelSemanticException(classCstNode, "Class $superType is not accessible from $classType")
+      }
+      if (superType.isFinal) {
+        throw MarcelSemanticException(classCstNode, "Class $superType is final and therefore cannot be extended")
+      }
+      if (superType.isInterface) {
+        throw MarcelSemanticException(classCstNode, "Cannot extend an interface")
+      }
+      classType.superType = superType
       classType.directlyImplementedInterfaces.addAll(classCstNode.interfaces.map { semantic.visit(it) })
-      // TODO add some checks on super and implemented types
+      for (interfaceType in classType.directlyImplementedInterfaces) {
+        if (!interfaceType.isInterface) {
+          throw MarcelSemanticException(classCstNode, "Cannot implement a non-interface")
+        }
+        if (!interfaceType.isAccessibleFrom(classType)) {
+          throw MarcelSemanticException(classCstNode, "Class $interfaceType is not accessible from $classType")
+        }
+      }
     }
     return toDefineTypes
   }
