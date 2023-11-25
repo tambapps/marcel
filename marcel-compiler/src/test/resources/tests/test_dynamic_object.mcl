@@ -30,6 +30,7 @@ assertTrue(o as bool)
 
 assertFalse(DynamicObject.of([] as list<int>) as bool)
 assertEquals(123, DynamicObject.of("123").asInt())
+assertEquals("123", DynamicObject.of("123").toString())
 
 class DynImpl implements DynamicObject {
 

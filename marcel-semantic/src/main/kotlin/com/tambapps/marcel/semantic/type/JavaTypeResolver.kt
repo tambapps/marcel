@@ -319,7 +319,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
       return null
     }
     // search in super types, but not for constructors
-    var type = javaType.superType
+    var type = if (!javaType.isInterface) javaType.superType else JavaType.Object
     while (type != null) {
       m = findMethod(type, name, matcherPredicate, candidatesPicker, true, token)
       if (m != null) return m

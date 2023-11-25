@@ -46,4 +46,12 @@ class JavaTypeResolverTest {
     assertEquals(ReflectJavaMethod(java.lang.StringBuilder::class.java.getDeclaredMethod("append", String::class.java)),
       typeResolver.findMethod(StringBuilder, "append", listOf(JavaType.String)))
   }
+
+  @Test
+  fun getSuperMethodOfInterface() {
+    assertEquals(ReflectJavaMethod(Any::class.java.getDeclaredMethod("toString")),
+      typeResolver.findMethod(JavaType.DynamicObject, "toString", emptyList()))
+
+
+  }
 }
