@@ -18,6 +18,7 @@ import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.LongCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.NullCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.ClassReferenceCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.IndexAccessCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ReferenceCstNode
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
@@ -26,6 +27,7 @@ import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -80,6 +82,24 @@ class MarcelParserTest {
             listOf(lambdaParam(type = type("int"), name = "arg")),
             lambda.parameters
         )
+    }
+
+    @Test
+    fun testFunctionCallWithLambdaArg() {
+        val parser = parser("assertThrows(ErrorResponseException.class) { ->\n}")
+        val fCall = parser.expression(null)
+        assertTrue(fCall is FunctionCallCstNode)
+        fCall as FunctionCallCstNode
+        assertEquals("assertThrows", fCall.value)
+        assertNull(fCall.castType)
+        assertEquals(2, fCall.positionalArgumentNodes.size)
+        assertEquals(classReference(type("ErrorResponseException")), fCall.positionalArgumentNodes.first())
+        val lambdaArg = fCall.positionalArgumentNodes[1]
+        assertTrue(lambdaArg is LambdaCstNode)
+        lambdaArg as LambdaCstNode
+        assertTrue(lambdaArg.explicit0Parameters)
+        assertTrue(lambdaArg.parameters.isEmpty())
+        assertTrue(fCall.namedArgumentNodes.isEmpty())
     }
 
     @ParameterizedTest
@@ -260,4 +280,8 @@ class MarcelParserTest {
     private fun parser(text: String) = MarcelParser("Test", MarcelLexer().lex(text))
     private fun token() = LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, "")
     private fun lambdaParam(type: TypeCstNode? = null, name: String) = LambdaCstNode.MethodParameterCstNode(null, token(), token(), type, name)
+    private fun methodParam(type: TypeCstNode, name: String, defaultValue: ExpressionCstNode? = null,
+                            annotations: List<AnnotationCstNode> = emptyList(), thisParameter: Boolean = false
+    ) = MethodParameterCstNode(null, token(), token(), name, type, defaultValue, annotations, thisParameter)
+    private fun classReference(type: TypeCstNode) = ClassReferenceCstNode(null, type, token(), token())
 }

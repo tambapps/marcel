@@ -1,6 +1,9 @@
 package com.tambapps.marcel.semantic.type
 
+import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.extensions.javaType
+import com.tambapps.marcel.semantic.method.JavaMethodImpl
+import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.method.ReflectJavaMethod
 import marcel.lang.lambda.Lambda
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -51,7 +54,19 @@ class JavaTypeResolverTest {
   fun getSuperMethodOfInterface() {
     assertEquals(ReflectJavaMethod(Any::class.java.getDeclaredMethod("toString")),
       typeResolver.findMethod(JavaType.DynamicObject, "toString", emptyList()))
+  }
 
-
+  @Test
+  fun testLambdaArgMatch() {
+    val method = JavaMethodImpl(
+      ownerClass = JavaType.Object,
+      visibility = Visibility.PUBLIC,
+      name = "assertThrows",
+      parameters = listOf(MethodParameter(type = Class::class.javaType, name = "clazz"), MethodParameter(type = Runnable::class.javaType, name = "runnable")),
+      returnType = Class::class.javaType
+    )
+    typeResolver.defineMethod(method.ownerClass, method)
+    assertEquals(method,
+      typeResolver.findMethod(JavaType.Object, "assertThrows", listOf(Class::class.javaType, Lambda::class.javaType)))
   }
 }

@@ -12,10 +12,10 @@ class JavaMethodImpl(
   override val name: String,
   override val parameters: List<MethodParameter>,
   override val returnType: JavaType,
-  override val isDefault: Boolean,
-  override val isAbstract: Boolean,
-  override val isStatic: Boolean,
-  override val isConstructor: Boolean
+  override val isDefault: Boolean = false,
+  override val isAbstract: Boolean = false,
+  override val isStatic: Boolean = false,
+  override val isConstructor: Boolean = false
 ) : AbstractMethod() {
 
   override val actualReturnType = returnType

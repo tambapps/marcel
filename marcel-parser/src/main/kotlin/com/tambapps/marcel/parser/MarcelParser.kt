@@ -721,7 +721,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
       TokenType.SUPER, TokenType.THIS -> {
         if (current.type == TokenType.LPAR) {
           skip()
-          val (arguments, namedArguments) = parseFunctionArguments(parentNode)
+          val (arguments, namedArguments) = parseFunctionArguments(parentNode, allowLambdaLastArg = false)
           if (namedArguments.isNotEmpty()) {
             throw MarcelParserException(
               token,
@@ -861,6 +861,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     }
   }
 
+  // BRACKETS_OPEN should have alreadt been parsed
   private fun parseLambda(token: LexToken, parentNode: CstNode?): LambdaCstNode {
     val parameters = mutableListOf<LambdaCstNode.MethodParameterCstNode>()
     var explicit0Parameters = false
@@ -924,7 +925,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
 
 
   // LPAR must be already parsed
-  private fun parseFunctionArguments(parentNode: CstNode? = null): Pair<MutableList<ExpressionCstNode>, MutableList<Pair<String, ExpressionCstNode>>> {
+  private fun parseFunctionArguments(parentNode: CstNode? = null, allowLambdaLastArg: Boolean = true): Pair<MutableList<ExpressionCstNode>, MutableList<Pair<String, ExpressionCstNode>>> {
     val arguments = mutableListOf<ExpressionCstNode>()
     val namedArguments = mutableListOf<Pair<String, ExpressionCstNode>>()
     while (current.type != TokenType.RPAR) {
@@ -948,6 +949,10 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
       }
     }
     skip() // skipping RPAR
+    if (allowLambdaLastArg && current.type == TokenType.BRACKETS_OPEN) {
+      // fcall ending with a lambda
+      arguments.add(parseLambda(next(), null))
+    }
     return Pair(arguments, namedArguments)
   }
 
