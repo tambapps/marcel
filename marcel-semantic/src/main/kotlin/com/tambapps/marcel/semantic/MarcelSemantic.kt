@@ -915,7 +915,6 @@ open class MarcelSemantic(
       TokenType.INSTANCEOF, TokenType.NOT_INSTANCEOF -> {
         if (left.type.primitive || right.primitive) throw MarcelSemanticException(left.token, "Primitive aren't instance of anything")
         val instanceOfNode = InstanceOfNode(right, left, node)
-        // TODO document !instanceof
         if (tokenType == TokenType.NOT_INSTANCEOF) NotNode(instanceOfNode, node) else instanceOfNode
       }
       else -> throw MarcelSemanticException(node, "Doesn't handle operator ${node.tokenType}")

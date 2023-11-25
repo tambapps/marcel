@@ -14,3 +14,15 @@ println(a instanceof Integer) // true
 println(a instanceof Number) // true
 println(a instanceof Long) // false
 ```
+
+## Not Instance Of
+
+To check the opposite, use `!instanceof`
+
+```marcel
+Integer a = 1
+
+println(a !instanceof Integer) // false
+println(a !instanceof Number) // false
+println(a !instanceof Long) // true
+```
