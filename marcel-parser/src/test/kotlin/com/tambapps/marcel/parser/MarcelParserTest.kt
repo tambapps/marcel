@@ -69,6 +69,19 @@ class MarcelParserTest {
         )
     }
 
+    @Test
+    fun testLambdaPrimitiveArgs() {
+        val lambda = parser("{ int arg -> }").atom()
+        assertTrue(lambda is LambdaCstNode)
+        lambda as LambdaCstNode
+
+        assertFalse(lambda.explicit0Parameters)
+        assertEquals(
+            listOf(lambdaParam(type = type("int"), name = "arg")),
+            lambda.parameters
+        )
+    }
+
     @ParameterizedTest
     @ValueSource(strings = ["fun int foo() -> println(1)", "fun int foo() { println(1)  }"]) // six numbers
     fun testMethod(text: String) {

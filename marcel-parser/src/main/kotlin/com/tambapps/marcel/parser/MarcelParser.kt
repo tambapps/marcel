@@ -866,16 +866,17 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     var explicit0Parameters = false
     // first parameter with no type specified
     if (current.type == TokenType.IDENTIFIER && lookup(1)?.type in listOf(TokenType.COMMA, TokenType.ARROW)
-      // first parameter with type specified TODO doesn't handle primitive types or dynobj. Use ParserUtils.isTypeToken
-      || current.type == TokenType.IDENTIFIER && lookup(1)?.type == TokenType.IDENTIFIER && lookup(2)?.type in listOf(TokenType.COMMA, TokenType.ARROW)) {
+      || ParserUtils.isTypeToken(current.type) && lookup(1)?.type == TokenType.IDENTIFIER && lookup(2)?.type in listOf(TokenType.COMMA, TokenType.ARROW)) {
       while (current.type != TokenType.ARROW) {
-        val firstToken = accept(TokenType.IDENTIFIER)
-        val parameter = if (current.type == TokenType.IDENTIFIER) {
-          rollback()
+        val firstToken = current
+        val parameter = if (lookup(1)?.type == TokenType.IDENTIFIER) {
           val type = parseType(parentNode)
           val identifier = accept(TokenType.IDENTIFIER)
           LambdaCstNode.MethodParameterCstNode(parentNode, firstToken, identifier, type, identifier.value)
-        } else LambdaCstNode.MethodParameterCstNode(parentNode, firstToken, firstToken, null, firstToken.value)
+        } else {
+          next()
+          LambdaCstNode.MethodParameterCstNode(parentNode, firstToken, firstToken, null, firstToken.value)
+        }
         parameters.add(parameter)
         if (current.type == TokenType.COMMA) skip()
       }
