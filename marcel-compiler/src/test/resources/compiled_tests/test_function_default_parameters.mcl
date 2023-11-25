@@ -39,3 +39,10 @@ assertEquals("Hello World", a.bar2("Hello World"))
 
 assertEquals(3, a.bar3())
 assertEquals(0, a.bar3([] as list<int>))
+
+
+assertEquals("6null", a.add("6"))
+assertEquals("6null", a.add(a: "6"))
+
+
+assertNotNull(new DefaultMethodParamsClass(a: ""))

@@ -1,7 +1,15 @@
 
 class DefaultMethodParamsClass {
 
+    constructor()
+
+    constructor(String a, String b = null, String c = null)
+
     fun int sum(int a = 0, int b = 1) {
+      return a + b
+    }
+
+    fun String add(String a, String b = null) {
       return a + b
     }
 
