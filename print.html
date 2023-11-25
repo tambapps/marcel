@@ -1118,6 +1118,14 @@ println(a instanceof Integer) // true
 println(a instanceof Number) // true
 println(a instanceof Long) // false
 </code></pre>
+<h2 id="not-instance-of"><a class="header" href="#not-instance-of">Not Instance Of</a></h2>
+<p>To check the opposite, use <code>!instanceof</code></p>
+<pre><code class="language-marcel">Integer a = 1
+
+println(a !instanceof Integer) // false
+println(a !instanceof Number) // false
+println(a !instanceof Long) // true
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="indexed-access-operator-exprindex"><a class="header" href="#indexed-access-operator-exprindex">Indexed Access Operator (expr[index])</a></h1>
 <p>This operator is usually (or at least in Java) reserved for arrays, 
 but in Marcel you can also use it to access lists. You can get/set 
