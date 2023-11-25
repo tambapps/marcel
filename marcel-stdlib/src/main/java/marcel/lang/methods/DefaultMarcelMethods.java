@@ -328,9 +328,6 @@ public final class DefaultMarcelMethods {
     return true;
   }
 
-
-  // TODO add any method in primitive collections, with their corresponding predicate (e.g. IntPredicate for IntList)
-  //    there are probably other methods missing
   /**
    * Returns true if at least one element matches the given predicate
    *

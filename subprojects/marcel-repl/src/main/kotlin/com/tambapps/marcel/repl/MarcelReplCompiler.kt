@@ -126,7 +126,7 @@ class MarcelReplCompiler constructor(
     if (scriptNode != null) {
       for (method in _definedFunctions) {
         if (scriptNode.methods.any { it.matches(method) }) {
-          throw MarcelSemanticException("Method $method is already defined")
+          throw MarcelSemanticException(method.token, "Method $method is already defined")
         }
         method.ownerClass = scriptNode.type
         scriptNode.methods.add(method)

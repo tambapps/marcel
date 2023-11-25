@@ -86,7 +86,7 @@ interface JavaType: JavaTyped {
         double -> doubleArray
         boolean -> booleanArray
         char -> charArray
-        else -> throw MarcelSemanticException("Doesn't handle primitive $this arrays")
+        else -> throw MarcelSemanticException(LexToken.DUMMY, "Doesn't handle primitive $this arrays")
       }
     }
     // this is the only way to get the array class of a class, pre java 12

@@ -36,6 +36,6 @@ abstract class AbstractScope(
     val matchedClasses = imports.mapNotNull { it.resolveClassName(node.token, typeResolver, classSimpleName) }.toSet()
     return if (matchedClasses.isEmpty()) null
     else if (matchedClasses.size == 1) matchedClasses.first()
-    else throw MarcelSemanticException("Ambiguous import for class $classSimpleName")
+    else throw MarcelSemanticException(node.token, "Ambiguous import for class $classSimpleName")
   }
 }

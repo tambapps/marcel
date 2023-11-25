@@ -1,5 +1,6 @@
 package com.tambapps.marcel.semantic.type
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 
@@ -16,14 +17,14 @@ open class LoadedObjectType(
 
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
     if (genericTypes == this.genericTypes) return this
-    if (genericTypes.any { it.primitive }) throw MarcelSemanticException("Cannot have a primitive generic type")
+    if (genericTypes.any { it.primitive }) throw MarcelSemanticException(LexToken.DUMMY, "Cannot have a primitive generic type")
     if (isLambda && genericTypes.size == realClazz.typeParameters.size - 1) {
       return LoadedObjectType(realClazz, genericTypes + JavaType.Object)
     }
 
     if (genericTypes.size != realClazz.typeParameters.size
       // for lambda, we can omit return type. It will be cast
-      && !isLambda && genericTypes.size != realClazz.typeParameters.size - 1) throw MarcelSemanticException("Typed $realClazz expects ${realClazz.typeParameters.size} parameters")
+      && !isLambda && genericTypes.size != realClazz.typeParameters.size - 1) throw MarcelSemanticException(LexToken.DUMMY, "Typed $realClazz expects ${realClazz.typeParameters.size} parameters")
     return LoadedObjectType(realClazz, genericTypes)
   }
 

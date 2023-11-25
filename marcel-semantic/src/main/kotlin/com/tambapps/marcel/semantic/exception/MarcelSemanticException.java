@@ -26,10 +26,6 @@ public class MarcelSemanticException extends RuntimeException {
   @Getter
   private final List<Error> errors;
 
-  // TODO should remove this constructor
-  public MarcelSemanticException(String message) {
-    this(new LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, null), message, false);
-  }
   public MarcelSemanticException(CstNode node, String message) {
     this(node.getToken(), message);
   }

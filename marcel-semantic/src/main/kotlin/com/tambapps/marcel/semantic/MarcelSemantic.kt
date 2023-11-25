@@ -211,8 +211,8 @@ open class MarcelSemantic(
   val imports = Scope.DEFAULT_IMPORTS.toMutableList() // will be updated while performing analysis
   private val methodResolver = MethodResolver(typeResolver, caster, imports)
   protected val currentScope get() = scopeQueue.peek() // FIFO
-  protected val currentMethodScope get() = currentScope as? MethodScope ?: throw MarcelSemanticException("Not in a method")
-  private val currentInnerMethodScope get() = currentScope as? MethodInnerScope ?: throw MarcelSemanticException("Not in a inner scope")
+  protected val currentMethodScope get() = currentScope as? MethodScope ?: throw MarcelSemanticException(LexToken.DUMMY, "Not in a method")
+  private val currentInnerMethodScope get() = currentScope as? MethodInnerScope ?: throw MarcelSemanticException(LexToken.DUMMY, "Not in a inner scope")
 
   private val selfLocalVariable: LocalVariable get() = currentMethodScope.findLocalVariable("self") ?: throw RuntimeException("Compiler error.")
 
@@ -405,7 +405,7 @@ open class MarcelSemantic(
   }
   private fun annotationNode(cstAnnotation: AnnotationCstNode, elementType: ElementType): AnnotationNode {
     val annotationType = visit(cstAnnotation.typeCstNode)
-    if (!annotationType.isAnnotation) throw MarcelSemanticException("$annotationType is not an annotation")
+    if (!annotationType.isAnnotation) throw MarcelSemanticException(cstAnnotation.token, "$annotationType is not an annotation")
     val javaAnnotation = JavaAnnotation.of(annotationType)
     if (!javaAnnotation.targets.contains(elementType)) {
       throw MarcelSemanticException(cstAnnotation, "Annotation ${javaAnnotation.type} is not expected on elements of type $elementType")
@@ -563,7 +563,7 @@ open class MarcelSemantic(
     for (i in cstStatements.indices) {
       val statement = cstStatements[i].accept(this)
       if (statement is ReturnStatementNode && i < cstStatements.lastIndex)
-        throw MarcelSemanticException("Cannot have statements after a return statement")
+        throw MarcelSemanticException(statement.token, "Cannot have statements after a return statement")
       statements.add(statement)
     }
     return statements
@@ -1011,7 +1011,7 @@ open class MarcelSemantic(
     val commonType = JavaType.commonType(left, right)
     return if (commonType.isPrimitiveOrObjectPrimitive) {
       val commonPrimitiveType = commonType.asPrimitiveType
-      if (!commonPrimitiveType.isNumber) throw MarcelSemanticException("Cannot apply operator on non number types")
+      if (!commonPrimitiveType.isNumber) throw MarcelSemanticException(left.token, "Cannot apply operator on non number types")
       nodeSupplier.invoke(caster.cast(commonPrimitiveType, left), caster.cast(commonPrimitiveType, right))
     } else {
       val arguments = listOf(right)
@@ -1381,7 +1381,7 @@ open class MarcelSemantic(
       throw MarcelSemanticException(node, "When/switch expression should have an else branch")
     }
     if (node.branches.isEmpty()) {
-      if (elseStatement == null || shouldReturnValue) throw MarcelSemanticException("Switch/When should have at least 1 non else branch")
+      if (elseStatement == null || shouldReturnValue) throw MarcelSemanticException(node.token, "Switch/When should have at least 1 non else branch")
       node.branches.add(
         Pair(BoolCstNode(node.parent, false, node.token), BlockCstNode(emptyList(), node.parent, node.tokenStart, node.tokenEnd))
       )

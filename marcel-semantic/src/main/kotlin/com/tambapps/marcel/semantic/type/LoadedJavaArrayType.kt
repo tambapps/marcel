@@ -1,5 +1,6 @@
 package com.tambapps.marcel.semantic.type
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 
@@ -21,7 +22,7 @@ class LoadedJavaArrayType internal constructor(
     get() = this
 
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
-    throw MarcelSemanticException("Cannot have array type with generic types")
+    throw MarcelSemanticException(LexToken.DUMMY, "Cannot have array type with generic types")
   }
 
 }
