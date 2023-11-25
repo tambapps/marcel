@@ -431,8 +431,7 @@ open class MarcelSemantic(
   private fun annotationAttribute(node: AnnotationCstNode, javaAnnotation: JavaAnnotation, specifiedAttr: Pair<String, ExpressionCstNode>): AnnotationNode.AttributeNode {
     val attribute = javaAnnotation.attributes.find { it.name == specifiedAttr.first }
       ?: throw MarcelSemanticException(node.token, "Unknown member ${specifiedAttr.first} for annotation $javaAnnotation")
-    val specifiedValueNode = specifiedAttr.second.accept(this, attribute.type)
-        as? JavaConstantExpression ?: throw MarcelSemanticException(node, "Specified a non constant value for attribute ${attribute.name}")
+
     return if (attribute.type.isEnum) {
       val specifiedName = (specifiedAttr.second as? ReferenceCstNode)?.value
         ?: throw MarcelSemanticException(node, "Need the enum name for an enum attribute")
@@ -442,6 +441,8 @@ open class MarcelSemantic(
       }
       AnnotationNode.AttributeNode(attribute.name, attribute.type, specifiedName)
     } else {
+      val specifiedValueNode = specifiedAttr.second.accept(this, attribute.type)
+          as? JavaConstantExpression ?: throw MarcelSemanticException(node, "Specified a non constant value for attribute ${attribute.name}")
       val attrValue = (specifiedValueNode.value ?: attribute.defaultValue)
       ?: throw MarcelSemanticException(node, "Attribute value cannot be null${attribute.name}")
 
