@@ -3,17 +3,23 @@ package com.tambapps.marcel.semantic.variable.field
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.variable.VariableVisitor
+import java.util.Comparator
+import java.util.TreeSet
 
 /**
  * A field regrouping different kinds of Variable for a same name
  */
 open class CompositeField(override val name: String): MarcelField {
 
+  companion object {
+    // we want method fields to come first, as we can just use direct field access for java fields
+    private val fieldComparator: Comparator<MarcelField> = compareBy { it !is MethodField }
+  }
   override fun <T> accept(visitor: VariableVisitor<T>) = visitor.visit(this)
 
   val classField: JavaClassField? get() = getters.firstNotNullOfOrNull { it as? JavaClassField }
-  private val _getters = mutableSetOf<MarcelField>()
-  private val _setters = mutableSetOf<MarcelField>()
+  private val _getters = TreeSet<MarcelField>(fieldComparator)
+  private val _setters = TreeSet<MarcelField>(fieldComparator)
   val getters: Set<MarcelField> = _getters
   val setters: Set<MarcelField> = _setters
 

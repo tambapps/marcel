@@ -294,7 +294,8 @@ open class MarcelSemantic(
     defineClassMembers(classCstNode, classType)
   }
 
-  fun defineClassMembers(classCstNode: ClassCstNode, classType: JavaType, recursive: Boolean = true) {
+  fun defineClassMembers(classCstNode: ClassCstNode, classType: JavaType, recursive: Boolean = true) = useScope(
+    ClassScope(typeResolver, classType, classCstNode.forExtensionType?.let { visit(it) }, imports)) {
     if (classCstNode.isExtensionClass) {
       val extensionCstType = classCstNode.forExtensionType!!
       val extensionType = visit(extensionCstType)

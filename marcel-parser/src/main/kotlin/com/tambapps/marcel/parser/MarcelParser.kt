@@ -384,6 +384,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BYTE, TokenType.TYPE_SHORT, TokenType.IDENTIFIER -> token.value
     TokenType.TYPE_BOOL -> "boolean"
     TokenType.DYNOBJ -> "DynamicObject"
+    TokenType.END_OF_FILE -> throw eofException(token)
     else -> throw MarcelParserException(
       token,
       "Doesn't handle type ${token.type}"
@@ -749,12 +750,8 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         val value = when (valueToken.type) {
           TokenType.REGULAR_STRING_PART -> valueToken.value
           TokenType.ESCAPE_SEQUENCE -> escapedSequenceValue(valueToken.value)
-          TokenType.END_OF_FILE -> throw MarcelParserException(
-            token,
-            "Unexpected end of file",
-            true
-          )
-          else -> throw MarcelParserException(
+          TokenType.END_OF_FILE -> throw eofException(token)
+            else -> throw MarcelParserException(
             previous,
             "Unexpected token ${valueToken.type} for character constant"
           )
@@ -898,11 +895,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     return when (token.type) {
       TokenType.REGULAR_STRING_PART -> token.value
       TokenType.ESCAPE_SEQUENCE -> escapedSequenceValue(token.value)
-      TokenType.END_OF_FILE -> throw MarcelParserException(
-        token,
-        "Unexpected end of file",
-        true
-      )
+      TokenType.END_OF_FILE -> throw eofException(token)
       else -> throw MarcelParserException(
         token,
         "Illegal token ${token.type} when parsing literal string"
@@ -1137,5 +1130,13 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         true
       )
     }
+  }
+
+  private fun eofException(token: LexToken = current): MarcelParserException {
+    return MarcelParserException(
+      token,
+      "Unexpected end of file",
+      true
+    )
   }
 }
