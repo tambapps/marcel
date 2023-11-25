@@ -1353,7 +1353,6 @@ private fun parseAnnotation(scope: Scope): AnnotationNode {
       TokenType.DOT -> when (rightOperand) {
         is FunctionCallNode -> InvokeAccessOperator(token, leftOperand, rightOperand, false)
         is ReferenceExpression -> GetFieldAccessOperator(token, leftOperand, rightOperand, false, false)
-        // TODO do IndexedDirectFieldAccessNode
         is DirectFieldAccessNode -> GetFieldAccessOperator(token, leftOperand, ReferenceExpression(rightOperand.token, rightOperand.scope, rightOperand.name), false, true)
         is IndexedReferenceExpression -> GetIndexFieldAccessOperator(token, leftOperand, rightOperand, false, false)
         else -> throw MarcelParserLegacyException(
