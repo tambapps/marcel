@@ -7,7 +7,7 @@ import com.tambapps.marcel.semantic.ast.MethodNode
 
 
 val ClassNode.access: Int get() = ReflectUtils.computeAccess(
-  visibility, isStatic = false
+  visibility, isStatic = isStatic
 )
 
 val MethodNode.access: Int get() = ReflectUtils.computeAccess(
@@ -15,5 +15,5 @@ val MethodNode.access: Int get() = ReflectUtils.computeAccess(
 )
 
 val FieldNode.access: Int get() = ReflectUtils.computeAccess(
-  visibility, isStatic = isStatic, isFinal = isFinal
+  visibility, isStatic = isStatic, isFinal = isFinal, isSynthetic = isSynthetic
 )

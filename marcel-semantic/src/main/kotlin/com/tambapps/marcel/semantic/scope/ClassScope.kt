@@ -1,9 +1,11 @@
 package com.tambapps.marcel.semantic.scope
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.variable.field.MarcelField
 
 /**
  * Scope inside a class
@@ -15,7 +17,16 @@ class ClassScope constructor(
   imports: List<ImportNode>
 ): AbstractScope(typeResolver, classType.packageName, imports) {
 
-  override fun findField(name: String) = typeResolver.findField(classType, name)
+  // TODO allow finding fields from outer class and make sure this is pushed as owner when doing so
+  override fun findField(name: String): MarcelField? {
+    var type: JavaType? = classType
+    while (type != null) {
+      val f = typeResolver.findField(type, name)
+      if (f != null) return f
+      type = type.outerTypeName?.let { typeResolver.of(LexToken.DUMMY, it, emptyList()) }
+    }
+    return null
+  }
 
   override fun findLocalVariable(name: String) = null
 

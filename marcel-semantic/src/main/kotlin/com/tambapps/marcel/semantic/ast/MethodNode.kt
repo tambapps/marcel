@@ -10,7 +10,7 @@ import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.type.JavaType
 
 class MethodNode(override val name: String,
-                 override val parameters: List<MethodParameter>,
+                 override val parameters: MutableList<MethodParameter>,
                  override val visibility: Visibility,
                  override val returnType: JavaType,
                  override val isStatic: Boolean,
@@ -20,7 +20,7 @@ class MethodNode(override val name: String,
 
   companion object {
     fun fromJavaMethod(method: JavaMethod, tokenStart: LexToken, tokenEnd: LexToken): MethodNode {
-      val m = MethodNode(method.name, method.parameters, method.visibility, method.returnType, method.isStatic, tokenStart, tokenEnd, method.ownerClass)
+      val m = MethodNode(method.name, method.parameters.toMutableList(), method.visibility, method.returnType, method.isStatic, tokenStart, tokenEnd, method.ownerClass)
       m.blockStatement = BlockStatementNode(mutableListOf(), tokenStart, tokenEnd)
       return m
     }

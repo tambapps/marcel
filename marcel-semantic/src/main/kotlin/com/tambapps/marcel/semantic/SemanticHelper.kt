@@ -28,7 +28,7 @@ internal object SemanticHelper {
     return MethodNode(
       ownerClass = classNode.type,
       name = JavaMethod.STATIC_INITIALIZATION_BLOCK,
-      parameters = emptyList(),
+      parameters = mutableListOf(),
       visibility = Visibility.PRIVATE,
       isStatic = true,
       returnType = JavaType.void,
@@ -43,7 +43,7 @@ internal object SemanticHelper {
 
   fun scriptBindingConstructor(classNode: ClassNode, typeResolver: JavaTypeResolver): MethodNode {
     val parameter = MethodParameter(Binding::class.javaType, "binding")
-    val methodNode = MethodNode(JavaMethod.CONSTRUCTOR_NAME, listOf(parameter),  Visibility.PUBLIC, JavaType.void, false, classNode.tokenStart, classNode.tokenEnd, JavaType.void)
+    val methodNode = MethodNode(JavaMethod.CONSTRUCTOR_NAME, mutableListOf(parameter),  Visibility.PUBLIC, JavaType.void, false, classNode.tokenStart, classNode.tokenEnd, JavaType.void)
     methodNode.blockStatement = BlockStatementNode(mutableListOf(
       ExpressionStatementNode(
 
@@ -57,7 +57,7 @@ internal object SemanticHelper {
   }
 
   fun noArgConstructor(classNode: ClassNode, typeResolver: JavaTypeResolver, visibility: Visibility = Visibility.PUBLIC): MethodNode {
-    val defaultConstructorNode = MethodNode(JavaMethod.CONSTRUCTOR_NAME, emptyList(),  visibility, JavaType.void, false, classNode.tokenStart, classNode.tokenEnd, JavaType.void)
+    val defaultConstructorNode = MethodNode(JavaMethod.CONSTRUCTOR_NAME, mutableListOf(),  visibility, JavaType.void, false, classNode.tokenStart, classNode.tokenEnd, JavaType.void)
     defaultConstructorNode.blockStatement = BlockStatementNode(mutableListOf(
       ExpressionStatementNode(superNoArgConstructorCall(classNode, typeResolver)),
       ReturnStatementNode(VoidExpressionNode(defaultConstructorNode.token), defaultConstructorNode.tokenStart, defaultConstructorNode.tokenEnd)
@@ -83,7 +83,7 @@ internal object SemanticHelper {
     visibility = Visibility.PUBLIC, returnType = JavaType.Object,
     isStatic = false,
     ownerClass = classType,
-    parameters = listOf(MethodParameter(JavaType.String.arrayType, "args")),
+    parameters = mutableListOf(MethodParameter(JavaType.String.arrayType, "args")),
     tokenStart = cst.tokenStart,
     tokenEnd = cst.tokenEnd)
 

@@ -1,0 +1,12 @@
+import static org.junit.jupiter.api.Assertions.assertFalse
+import static org.junit.jupiter.api.Assertions.assertTrue
+
+
+internal int a = 1
+
+list<int> list = [1, 2, 3]
+
+assertTrue(list.any { it == a })
+
+a = 5
+assertFalse(list.any { it == a })

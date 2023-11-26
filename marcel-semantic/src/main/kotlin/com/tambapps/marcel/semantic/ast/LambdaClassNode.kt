@@ -11,10 +11,11 @@ import com.tambapps.marcel.semantic.variable.LocalVariable
 class LambdaClassNode(
   override val type: NotLoadedJavaType,
   val constructorNode: MethodNode,
+  isStatic: Boolean,
   cstNode: LambdaCstNode,
   val lambdaMethodParameters: List<MethodParameter>,
   val localVariablesSnapshot: List<LocalVariable>
-) : ClassNode(type, Visibility.PUBLIC, null, isScript = false, cstNode.tokenStart, cstNode.tokenEnd) {
+) : ClassNode(type, Visibility.PUBLIC, null, isStatic = isStatic, isScript = false, cstNode.tokenStart, cstNode.tokenEnd) {
 
   data class MethodParameter(val type: JavaType?, val name: String)
 

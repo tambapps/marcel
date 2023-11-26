@@ -19,7 +19,7 @@ class ScopeTest {
   companion object {
     private val TYPE_RESOLVER = JavaTypeResolver()
     private val CLASS_SCOPE = ClassScope(TYPE_RESOLVER, Object, null, emptyList())
-    private val METHOD = MethodNode("foo", emptyList(),  Visibility.PUBLIC, Object, isStatic = false, LexToken.DUMMY, LexToken.DUMMY, Object)
+    private val METHOD = MethodNode("foo", mutableListOf(),  Visibility.PUBLIC, Object, isStatic = false, LexToken.DUMMY, LexToken.DUMMY, Object)
   }
 
 

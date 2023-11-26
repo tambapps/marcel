@@ -61,6 +61,15 @@ interface JavaType: JavaTyped {
     val i = className.lastIndexOf('$')
     return if (i < 0) null else className.substring(i + 1)
   }
+
+  val outerTypeName: String? get() {
+    val i = className.lastIndexOf('$')
+    return if (i < 0) null else className.substring(0, i)
+  }
+
+  // returns whether this class is an outer class (no matter the level) of the provided one
+  fun isOuterTypeOf(javaType: JavaType) = javaType.className.contains("$className$")
+
   val simpleName: String get() {
     val i = className.lastIndexOf('.')
     return if (i < 0) className else className.substring(i + 1)

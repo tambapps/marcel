@@ -13,6 +13,7 @@ class FieldNode constructor(type: JavaType, name: String, owner: JavaType,
                             override val isStatic: Boolean,
                             override val tokenStart: LexToken,
                             override val tokenEnd: LexToken,
+                            val isSynthetic: Boolean = false,
 ) : Ast2Node, Annotable,
   JavaClassField(type, name, owner) {
 
