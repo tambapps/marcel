@@ -15,4 +15,8 @@ class NotLoadedJavaArrayType internal  constructor(
   override fun addImplementedInterface(javaType: JavaType) {
     throw UnsupportedOperationException()
   }
+
+  override fun toString(): String {
+    return "$elementsType[]"
+  }
 }

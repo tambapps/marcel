@@ -25,4 +25,7 @@ class LoadedJavaArrayType internal constructor(
     throw MarcelSemanticException(LexToken.DUMMY, "Cannot have array type with generic types")
   }
 
+  override fun toString(): String {
+    return "$elementsType[]"
+  }
 }

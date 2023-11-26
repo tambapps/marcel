@@ -82,13 +82,6 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
   override val primitive = realClazz.isPrimitive
   override val realClazzOrObject = realClazz
 
-  override fun toString(): String {
-    if (genericTypes.isNotEmpty()) {
-      return className + "<" + genericTypes.joinToString(separator = ", ") + ">"
-    }
-    return className
-  }
-
   override fun hashCode(): Int {
     var result = className.hashCode()
     result = 31 * result + genericTypes.hashCode()
