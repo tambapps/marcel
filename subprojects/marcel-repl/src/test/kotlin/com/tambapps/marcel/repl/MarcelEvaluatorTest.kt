@@ -7,6 +7,7 @@ import marcel.lang.IntRanges
 import marcel.lang.URLMarcelClassLoader
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
@@ -48,4 +49,9 @@ class MarcelEvaluatorTest {
     assertEquals(1, evaluator.eval("a"))
   }
 
+  @Test
+  fun defineAndUseFunction() {
+    assertNull(evaluator.eval("fun int incr(int a) -> a + 1"))
+    assertEquals(4, evaluator.eval("incr(3)"))
+  }
 }

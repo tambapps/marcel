@@ -9,6 +9,7 @@ import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
+import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.repl.semantic.MarcelReplSemantic
 import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.ast.MethodNode
@@ -25,8 +26,8 @@ class MarcelReplCompiler constructor(
 
   val imports = LinkedHashSet<ImportNode>()
   private val lexer = MarcelLexer(false)
-  private val _definedFunctions = mutableSetOf<MethodNode>()
-  val definedFunctions: Set<MethodNode> get() = _definedFunctions
+  private val _definedFunctions = mutableSetOf<MethodCstNode>()
+  val definedFunctions: Set<MethodCstNode> get() = _definedFunctions
   private val classCompiler = MarcelClassWriter(compilerConfiguration, typeResolver)
   @Volatile
   var semanticResult: SemanticResult? = null
@@ -42,6 +43,13 @@ class MarcelReplCompiler constructor(
 
   fun compile(text: String): ReplCompilerResult {
     val result = parse(text)
+
+    // keeping function for next runs.
+    result.cst.script?.methods?.forEach {
+      if (it.name != "run" && it.name != "main") {
+        _definedFunctions.add(it)
+      }
+    }
 
     for (artifactString in result.dumbbells) {
       val pulledArtifacts = Dumbbell.pull(artifactString)
@@ -64,13 +72,6 @@ class MarcelReplCompiler constructor(
     if (scriptNode != null) {
       // writing script. class members were defined when parsing
       compiledScriptClass = classCompiler.compileDefinedClass(scriptNode)
-
-      // keeping function for next runs. Needs to be AFTER compilation because this step may add some methods (e.g. switch, properties...)
-      _definedFunctions.addAll(
-              scriptNode.methods.filter {
-                      !it.isConstructor && it.name != "run" && it.name != "main"
-              }
-      )
     }
 
     return ReplCompilerResult(result, compiledScriptClass, otherClasses)
@@ -117,21 +118,20 @@ class MarcelReplCompiler constructor(
     val parser = MarcelParser(tokens)
 
     val cst = parser.parse()
+    val cstScriptNode = cst.script
+    if (cstScriptNode != null) {
+      for (method in _definedFunctions) {
+        if (cstScriptNode.methods.any { it == method }) {
+          throw MarcelSemanticException(method.token, "Method $method is already defined")
+        }
+        cstScriptNode.methods.add(method)
+      }
+    }
 
     val semantic = MarcelReplSemantic(typeResolver, cst)
     semantic.imports.addAll(imports)
     val ast = semantic.apply()
 
-    val scriptNode = ast.classes.find { it.isScript }
-    if (scriptNode != null) {
-      for (method in _definedFunctions) {
-        if (scriptNode.methods.any { it.matches(method) }) {
-          throw MarcelSemanticException(method.token, "Method $method is already defined")
-        }
-        method.ownerClass = scriptNode.type
-        scriptNode.methods.add(method)
-      }
-    }
     val r = SemanticResult(tokens, cst, ast.classes, semantic.imports, text.hashCode())
     if (!skipUpdate) {
       this.semanticResult = r

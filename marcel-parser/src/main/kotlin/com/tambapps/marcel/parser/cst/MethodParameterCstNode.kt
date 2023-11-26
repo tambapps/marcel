@@ -27,4 +27,24 @@ class MethodParameterCstNode(
     }
     return builder.toString()
   }
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (javaClass != other?.javaClass) return false
+    if (!super.equals(other)) return false
+
+    other as MethodParameterCstNode
+
+    if (name != other.name) return false
+    if (type != other.type) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = super.hashCode()
+    result = 31 * result + name.hashCode()
+    result = 31 * result + type.hashCode()
+    return result
+  }
 }

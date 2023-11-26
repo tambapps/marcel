@@ -1,5 +1,6 @@
 package com.tambapps.marcel.repl.command
 
+import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.repl.MarcelShell
 import com.tambapps.marcel.repl.printer.SuspendPrinter
 import com.tambapps.marcel.semantic.ast.ImportNode
@@ -54,7 +55,7 @@ class ListCommand: AbstractShellCommand() {
     }
   }
 
-  private suspend fun printFunctions(definedMethods: Collection<MethodNode>, out: SuspendPrinter) {
+  private suspend fun printFunctions(definedMethods: Collection<MethodCstNode>, out: SuspendPrinter) {
     if (definedMethods.isEmpty()) {
       out.suspendPrintln("No functions defined")
       return
