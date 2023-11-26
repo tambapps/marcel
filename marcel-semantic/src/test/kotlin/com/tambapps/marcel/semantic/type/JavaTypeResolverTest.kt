@@ -6,9 +6,12 @@ import com.tambapps.marcel.semantic.method.JavaMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.method.ReflectJavaMethod
 import marcel.lang.lambda.Lambda
+import marcel.lang.primitives.collections.IntCollection
+import marcel.lang.primitives.collections.lists.IntList
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.util.function.Function
+import java.util.function.IntPredicate
 import java.util.stream.Stream
 
 class JavaTypeResolverTest {
@@ -68,5 +71,12 @@ class JavaTypeResolverTest {
     typeResolver.defineMethod(method.ownerClass, method)
     assertEquals(method,
       typeResolver.findMethod(JavaType.Object, "assertThrows", listOf(Class::class.javaType, Lambda::class.javaType)))
+  }
+
+  @Test
+  fun testExtensionMethodPriority() {
+    assertEquals(ReflectJavaMethod(IntCollection::class.java.getDeclaredMethod("any", IntPredicate::class.java)),
+      typeResolver.findMethod(IntList::class.javaType, "any", listOf(Lambda::class.javaType)))
+
   }
 }

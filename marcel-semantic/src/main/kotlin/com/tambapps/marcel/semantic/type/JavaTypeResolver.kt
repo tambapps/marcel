@@ -333,18 +333,21 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     if (excludeInterfaces) return null
     // now search on all implemented interfaces
 
-    m = candidatesPicker.invoke(
-      javaType.allImplementedInterfaces.mapNotNull {
-        findMethod(it, name, matcherPredicate, candidatesPicker, false, token)
-      }
-    )
+    val candidates = javaType.allImplementedInterfaces.mapNotNull {
+      findMethod(it, name, matcherPredicate, candidatesPicker, false, token)
+    }
+
+    m = candidatesPicker.invoke(candidates)
     return m
   }
 
   private fun getMoreSpecificMethod(candidates: List<JavaMethod>): JavaMethod? {
+    val nonExtensionMethods = candidates.filter { !it.isExtension }
+    val toIterate = nonExtensionMethods.ifEmpty { candidates }
+
     // inspired from Class.searchMethods()
     var m: JavaMethod? = null
-    for (candidate in candidates) {
+    for (candidate in toIterate) {
       if (m == null
         || (m.returnType != candidate.returnType
             && m.returnType.isAssignableFrom(candidate.returnType))) m = candidate
