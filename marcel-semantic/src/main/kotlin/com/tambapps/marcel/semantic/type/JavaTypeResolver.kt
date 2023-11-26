@@ -10,6 +10,7 @@ import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.ExtensionJavaMethod
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
+import com.tambapps.marcel.semantic.method.NoArgJavaConstructor
 import com.tambapps.marcel.semantic.method.ReflectJavaMethod
 import com.tambapps.marcel.semantic.variable.field.JavaClassField
 import com.tambapps.marcel.semantic.variable.field.DynamicMethodField
@@ -112,6 +113,10 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
       throw MarcelSemanticException((method as? MethodNode)?.token ?: LexToken.DUMMY, "Method with $method is already defined")
     }
     methods.add(method)
+  }
+
+  fun undefineMethod(javaType: JavaType, method: JavaMethod): Boolean {
+    return getMarcelMethods(javaType).remove(method)
   }
 
   open fun defineField(javaType: JavaType, field: MarcelField) {
@@ -307,6 +312,13 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     }
 
     if (name == JavaMethod.CONSTRUCTOR_NAME) {
+      if (!javaType.isLoaded) {
+        val noArgConstructor = NoArgJavaConstructor(javaType)
+
+        // if no constructors is explicitly defined for a marcel type, there is a default no arg constructor
+        if (methods.count { it.isConstructor } == 0
+          && matcherPredicate.invoke(noArgConstructor)) return noArgConstructor
+      }
       // for constructors, we don't want to look in super types
       return null
     }

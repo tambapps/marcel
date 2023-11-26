@@ -353,11 +353,13 @@ open class MarcelSemantic(
     val outerClassFields = generateOutClassFields(classType, classNode)
     if (outerClassFields.isNotEmpty()) {
       classNode.constructors.forEach { constructorNode ->
+        // undefining method as the signature will change (we erase the definition of the 'definition' phase. THIS IS IMPORTANT. DON'T REMOVE ME
+        typeResolver.undefineMethod(classType, constructorNode)
         for (i in outerClassFields.indices) {
           // if we're here we know the context is not static as the above method only generates fields if it is not static
           val outerClassField = outerClassFields[i]
           // adding parameter at the beginning
-          (constructorNode.parameters as MutableList).add(i, MethodParameter(outerClassField.type, outerClassField.name))
+          constructorNode.parameters.add(i, MethodParameter(outerClassField.type, outerClassField.name))
          constructorNode.blockStatement.statements.add(i + 1, // +1 because first statement should be super call
             ExpressionStatementNode(
               VariableAssignmentNode(
@@ -368,6 +370,8 @@ open class MarcelSemantic(
               )
             ))
         }
+        // now that the method has been updated we're redefining it. THIS IS IMPORTANT. DON'T REMOVE ME
+        typeResolver.defineMethod(classType, constructorNode)
       }
     }
     node.annotations.forEach { classNode.annotations.add(annotationNode(it, ElementType.TYPE)) }
@@ -686,18 +690,18 @@ open class MarcelSemantic(
   override fun visit(node: NewInstanceCstNode, smartCastType: JavaType?): ExpressionNode {
     val type = visit(node.type)
 
-    val positionalArguments = mutableListOf<ExpressionNode>()
-    node.positionalArgumentNodes.map {
-      positionalArguments.add(it.accept(this))
-    }
-    val namedArguments = mutableListOf<Pair<String, ExpressionNode>>()
-    node.namedArgumentNodes.map {
-      namedArguments.add(Pair(it.first, it.second.accept(this)))
-    }
+    val positionalArguments = node.positionalArgumentNodes.map { it.accept(this) }
+    val namedArguments = node.namedArgumentNodes.map {Pair(it.first, it.second.accept(this))  }
 
     // handling inner class arguments
-    // TODO
-    if (currentScope.classType.isOuterTypeOf(type) /* && !type.isStatic */) {
+
+    var resolve = methodResolver.resolveMethod(node, type,
+      JavaMethod.CONSTRUCTOR_NAME, positionalArguments, namedArguments)
+
+    // didn't find the constructor? maybe it was for an inner class with outer parameters
+    if (resolve == null && currentScope.classType.isOuterTypeOf(type) && !currentMethodScope.staticContext) {
+      val positionalArguments = positionalArguments.toMutableList()
+      val namedArguments = namedArguments.toMutableList()
       val (outerLevel, _) = outerLevel(node.token, type, currentScope.classType)
         ?: throw MarcelSemanticException(node.token, "Lambda cannot be generated in this context")
 
@@ -714,10 +718,24 @@ open class MarcelSemantic(
           positionalArguments.add(argument)
         }
       }
+      resolve = methodResolver.resolveMethod(node, type, JavaMethod.CONSTRUCTOR_NAME, positionalArguments, namedArguments)
     }
-    val (constructorMethod, arguments) = methodResolver.resolveMethodOrThrow(node, type,
-      JavaMethod.CONSTRUCTOR_NAME, positionalArguments, namedArguments)
-    return NewInstanceNode(type, constructorMethod, castedArguments(constructorMethod, arguments), node.token)
+    if (resolve != null) {
+      return NewInstanceNode(type, resolve.first, castedArguments(resolve.first, resolve.second), node.token)
+    } else {
+      val allParametersString = mutableListOf<String>()
+      positionalArguments.forEach {
+        allParametersString.add(it.type.simpleName)
+      }
+      namedArguments.forEach {
+        allParametersString.add("${it.first}: ${it.second.type.simpleName}")
+      }
+
+      val displayedName = "Constructor $type"
+      throw MarcelSemanticException(node.token, allParametersString.joinToString(separator = ", ",
+        prefix = "$displayedName(", postfix = ") is not defined")
+      )
+    }
   }
 
   override fun visit(node: DirectFieldReferenceCstNode, smartCastType: JavaType?): ExpressionNode {
