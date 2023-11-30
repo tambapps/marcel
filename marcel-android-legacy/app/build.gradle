@@ -17,7 +17,7 @@ android {
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.tambapps.marcel.android.marshell"
+        applicationId "com.tambapps.marcel.android.marshell_legacy"
         minSdk 26
         targetSdk 34
         versionCode 4
