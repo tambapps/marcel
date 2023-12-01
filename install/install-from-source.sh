@@ -34,6 +34,7 @@ mvn clean package -Djavadoc.skip=true
 cp marcel-lexer/target/marcel-lexer-$version.jar $marcelDir/lib/marcel-lexer.jar
 cp marcel-stdlib/target/marcel-stdlib-$version.jar $marcelDir/lib/marcel-stdlib.jar
 cp marcel-parser/target/marcel-parser-$version.jar $marcelDir/lib/marcel-parser.jar
+cp marcel-semantic/target/marcel-semantic-$version.jar $marcelDir/lib/marcel-semantic.jar
 cp marcel-compiler/target/marcel-compiler-$version.jar $marcelDir/lib/marcel-compiler.jar
 cp marcel-extensions/target/marcel-extensions-$version.jar $marcelDir/lib/marcel-extensions.jar
 cp marcl/target/marcl-$version.jar $marcelDir/lib/marcl.jar
