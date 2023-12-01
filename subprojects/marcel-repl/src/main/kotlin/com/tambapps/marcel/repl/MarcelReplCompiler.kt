@@ -32,6 +32,7 @@ class MarcelReplCompiler constructor(
   @Volatile
   var semanticResult: SemanticResult? = null
     private set
+  private val dumbbells = mutableSetOf<String>()
 
   fun addImport(importString: String) {
     addImport(ImportCstNodeConverter.convert(MarcelParser(lexer.lex(importString)).import()))
@@ -125,6 +126,17 @@ class MarcelReplCompiler constructor(
           throw MarcelSemanticException(method.token, "Method $method is already defined")
         }
         cstScriptNode.methods.add(method)
+      }
+    }
+
+    // handle dumbbells
+    for (artifactString in cst.dumbbells) {
+      if (!dumbbells.add(artifactString)) continue
+      val pulledArtifacts = Dumbbell.pull(artifactString)
+      pulledArtifacts.forEach {
+        if (it.jarFile != null) {
+          marcelClassLoader.addLibraryJar(it.jarFile)
+        }
       }
     }
 
