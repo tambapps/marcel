@@ -157,6 +157,7 @@ import com.tambapps.marcel.semantic.variable.field.MarcelField
 import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
 import com.tambapps.marcel.semantic.visitor.ImportCstNodeConverter
 import com.tambapps.marcel.semantic.visitor.ReturningBranchTransformer
+import com.tambapps.marcel.semantic.visitor.ReturningWhenIfBranchTransformer
 import marcel.lang.DelegatedObject
 import marcel.lang.IntRanges
 import marcel.lang.LongRanges
@@ -1175,7 +1176,7 @@ open class MarcelSemantic(
   private fun getInnerOuterReference(token: LexToken, outerLevel: Int): ExpressionNode? {
     val thisNode = ThisReferenceNode(currentScope.classType, token)
     return if (outerLevel == 0) thisNode
-    else currentScope.findField("this$$outerLevel")?.let { ReferenceNode(owner = thisNode, variable = it, token = token) }
+    else currentScope.findField("this$${outerLevel - 1}")?.let { ReferenceNode(owner = thisNode, variable = it, token = token) }
   }
 
   override fun visit(node: FunctionCallCstNode, smartCastType: JavaType?): ExpressionNode {
@@ -1378,6 +1379,7 @@ open class MarcelSemantic(
     val lambdaNode = LambdaClassNode(lambdaType, lambdaConstructor, isStatic = lambdaOuterClassNode.isStatic, node, parameters, currentMethodScope.localVariablesSnapshot).apply {
       interfaceType?.let { interfaceTypes.add(it) }
     }
+    classNodeMap[lambdaNode.type] = lambdaNode
     lambdaConstructor.blockStatement = BlockStatementNode(mutableListOf(
       ExpressionStatementNode(SemanticHelper.superNoArgConstructorCall(lambdaNode, typeResolver)),
       SemanticHelper.returnVoid(lambdaNode)
@@ -1449,7 +1451,7 @@ open class MarcelSemantic(
         lambdaNode.blockCstNode.accept(this) as BlockStatementNode
       }
       if (interfaceMethodNode.returnType != JavaType.void) {
-        interfaceMethodBlockStatement = interfaceMethodBlockStatement.accept(ReturningBranchTransformer(lambdaNode.blockCstNode, false) { caster.cast(interfaceMethodNode.returnType, it) }) as BlockStatementNode
+        interfaceMethodBlockStatement = interfaceMethodBlockStatement.accept(ReturningBranchTransformer(lambdaNode.blockCstNode) { caster.cast(interfaceMethodNode.returnType, it) }) as BlockStatementNode
       } else {
         interfaceMethodBlockStatement.statements.add(
           SemanticHelper.returnVoid(interfaceMethodBlockStatement)
@@ -1471,7 +1473,7 @@ open class MarcelSemantic(
       val blockStatement = useScope(lambdaMethodScope) {
         lambdaNode.blockCstNode.accept(this).accept(
           // need to cast to objectType because lambdas always return objects
-          ReturningBranchTransformer(lambdaNode.blockCstNode, false) { caster.cast(JavaType.Object, it) }
+          ReturningBranchTransformer(lambdaNode.blockCstNode) { caster.cast(JavaType.Object, it) }
         ) as BlockStatementNode
       }
       lambdaMethodNode.blockStatement = blockStatement
@@ -1509,6 +1511,11 @@ open class MarcelSemantic(
 
     ClassNodeChecks.ALL.forEach {
       it.visit(lambdaNode, typeResolver)
+    }
+    for (innerClass in lambdaNode.innerClasses) {
+      if (innerClass is LambdaClassNode) {
+        defineLambda(innerClass)
+      }
     }
   }
 
@@ -1595,7 +1602,7 @@ open class MarcelSemantic(
     val whenStatement = useScope(newMethodScope(whenMethod)) { visit(rootIfCstNode) }
     if (shouldReturnValue) {
       var tmpIfNode: IfStatementNode? = whenStatement
-      val branchTransformer = ReturningBranchTransformer(node, true) { caster.cast(whenReturnType, it) }
+      val branchTransformer = ReturningWhenIfBranchTransformer(node) { caster.cast(whenReturnType, it) }
       while (tmpIfNode != null) {
         tmpIfNode.trueStatementNode = tmpIfNode.trueStatementNode.accept(branchTransformer)
         if (tmpIfNode.falseStatementNode is IfStatementNode || tmpIfNode.falseStatementNode  == null) {
@@ -1639,7 +1646,7 @@ open class MarcelSemantic(
   }
 
   private fun computeWhenReturnType(node: WhenCstNode): JavaType = useInnerScope {
-    val branchTransformer = ReturningBranchTransformer(node, true)
+    val branchTransformer = ReturningWhenIfBranchTransformer(node)
     node.branches.forEach {
       it.second.accept(this).accept(branchTransformer)
     }

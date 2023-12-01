@@ -23,9 +23,8 @@ import com.tambapps.marcel.semantic.type.JavaType
 /**
  * Valid and transform if necessary when/switch node branches to make them return a value
  */
-class ReturningBranchTransformer(
+open class ReturningBranchTransformer(
   private val node: CstNode,
-  private val forceNonVoid: Boolean,
   // useful to cast
   private val nodeTransformer: ((ExpressionNode) -> ExpressionNode)? = null
 ): StatementNodeVisitor<StatementNode> {
@@ -34,10 +33,9 @@ class ReturningBranchTransformer(
   override fun visit(node: ExpressionStatementNode): StatementNode {
     val expressionType = node.expressionNode.type
     if (expressionType == JavaType.void) {
-      if (forceNonVoid) throw MarcelSemanticException(node.token, "Expected a non void expression")
       return BlockStatementNode(mutableListOf(
         node,
-        ReturnStatementNode(NullValueNode(node.token), node.tokenStart, node.tokenEnd)
+        ReturnStatementNode(nodeTransformer?.invoke(NullValueNode(node.token)) ?: NullValueNode(node.token), node.tokenStart, node.tokenEnd)
       ), node.tokenStart, node.tokenEnd)
     }
     else if (expressionType !== JavaType.Anything) collectedTypes.add(expressionType)
@@ -45,7 +43,8 @@ class ReturningBranchTransformer(
   }
 
   override fun visit(node: ReturnStatementNode): StatementNode {
-    throw MarcelSemanticException(node.token, "Cannot return in when/switch expressions")
+    return ReturnStatementNode(nodeTransformer?.invoke(node.expressionNode) ?: node.expressionNode,
+      node.tokenStart, node.tokenEnd)
   }
 
   override fun visit(node: BlockStatementNode): StatementNode {
