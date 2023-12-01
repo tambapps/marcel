@@ -44,6 +44,11 @@ class MarcelEvaluatorTest {
   }
 
   @Test
+  fun testDefineAndUseBoundField() {
+    assertEquals(IntRanges.of(1, 2), evaluator.eval("a = 1..2\na"))
+  }
+
+  @Test
   fun testPrimitiveBoundField() {
     assertEquals(1, evaluator.eval("a = 1"))
     assertEquals(1, evaluator.eval("a"))
