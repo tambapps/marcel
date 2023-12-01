@@ -396,8 +396,10 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     try {
       return when (token.type) {
         TokenType.RETURN -> {
-          val expr = expression(parentNode)
-          ReturnCstNode(parentNode, expr, expr.tokenStart, expr.tokenEnd)
+          val expr =
+            if (current.type != TokenType.SEMI_COLON && current.type != TokenType.BRACKETS_CLOSE) expression(parentNode)
+          else null
+          ReturnCstNode(parentNode, expr, expr?.tokenStart ?: token, expr?.tokenEnd ?: token)
         }
         TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_SHORT, TokenType.TYPE_FLOAT,
         TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL, TokenType.TYPE_BYTE, TokenType.TYPE_VOID,
