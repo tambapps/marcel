@@ -4,9 +4,6 @@ working with Collections.
 
 You can learn more about this programming language on [its website](https://tambapps.github.io/marcel)
 
-## Rewrite
-Marcel is undergoing a big refactoring of the parsing, semantic analysis and compiler. Building it from source might not work
-at the moment but you can still [install it from a release](https://tambapps.github.io/marcel/getting-started/installation.html#install-from-release)
 ## Example
 
 Here is an example on how to code the Fibonacci suite in Marcel
@@ -14,11 +11,9 @@ Here is an example on how to code the Fibonacci suite in Marcel
 ```kotlin
 println(fibonacci(10))
 
-fun int fibonacci(int n) {
-  return switch (n) {
-    0, 1 -> n
-    else -> fibonacci(n - 1) + fibonacci(n - 2)
-  }
+fun int fibonacci(int n) -> switch (n) {
+  0, 1 -> n
+  else -> fibonacci(n - 1) + fibonacci(n - 2)
 }
 ```
 
