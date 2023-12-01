@@ -42,9 +42,28 @@ public class StringMarcelMethods {
     return null;
   }
 
+  // TODO add findLast and findLastPrimitive in collection and primitive collections
+  public static Character findLast(CharSequence self, CharacterPredicate predicate)  {
+    char c;
+    for (int i = self.length() - 1; i >= 0; i--) {
+      c = self.charAt(i);
+      if (predicate.test(c)) return c;
+    }
+    return null;
+  }
+
   public static char findCharacter(CharSequence self, CharacterPredicate predicate)  {
     char c;
     for (int i = 0; i < self.length(); i++) {
+      c = self.charAt(i);
+      if (predicate.test(c)) return c;
+    }
+    throw new NoSuchElementException();
+  }
+
+  public static char findLastCharacter(CharSequence self, CharacterPredicate predicate)  {
+    char c;
+    for (int i = self.length() - 1; i >= 0; i--) {
       c = self.charAt(i);
       if (predicate.test(c)) return c;
     }
@@ -72,5 +91,23 @@ public class StringMarcelMethods {
 
   public static int lastIndexOf(String self, char c) {
     return self.lastIndexOf(c);
+  }
+
+  public static int indexOf(CharSequence self, CharacterPredicate predicate) {
+    for (int i = 0; i < self.length(); i++) {
+      if (predicate.test(self.charAt(i))) return i;
+    }
+    return -1;
+  }
+
+  public static int lastIndexOf(CharSequence self, CharacterPredicate predicate) {
+    for (int i = self.length() - 1; i >= 0; i--) {
+      if (predicate.test(self.charAt(i))) return i;
+    }
+    return -1;
+  }
+
+  public static String reversed(CharSequence self) {
+    return new StringBuilder(self).reverse().toString();
   }
 }
