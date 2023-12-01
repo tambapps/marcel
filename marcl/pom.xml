@@ -78,7 +78,7 @@
             <configuration>
               <archive>
                 <manifest>
-                  <mainClass>com.tambapps.marcel.cl.MarCl2Kt</mainClass>
+                  <mainClass>com.tambapps.marcel.cl.MarClKt</mainClass>
                 </manifest>
               </archive>
               <descriptorRefs>

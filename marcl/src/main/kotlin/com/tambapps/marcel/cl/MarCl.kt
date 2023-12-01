@@ -1,4 +1,4 @@
-package com.tambapps.marcel.cl2
+package com.tambapps.marcel.cl
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
