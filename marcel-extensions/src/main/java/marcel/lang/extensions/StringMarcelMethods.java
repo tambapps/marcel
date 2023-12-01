@@ -12,8 +12,24 @@ import java.util.NoSuchElementException;
 @SuppressWarnings({"unused", "deprecation"})
 public class StringMarcelMethods {
 
-  public static char getAt(String self, int i) {
+  public static char getAt(CharSequence self, int i) {
     return self.charAt(i);
+  }
+
+  public static String getAt(CharSequence self, IntRange r) {
+    StringBuilder builder = new StringBuilder();
+    r.forEach((int i) -> builder.append(self.charAt(i)));
+    return builder.toString();
+  }
+
+  public static String getAtSafe(CharSequence self, IntRange r) {
+    StringBuilder builder = new StringBuilder();
+    r.forEach((int i) -> {
+      if (i >= 0 && i < self.length()) {
+        builder.append(self.charAt(i));
+      }
+    });
+    return builder.toString();
   }
 
   public static CharacterList toCharList(String self) {
