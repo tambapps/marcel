@@ -1180,9 +1180,10 @@ open class MarcelSemantic(
   }
 
   override fun visit(node: FunctionCallCstNode, smartCastType: JavaType?): ExpressionNode {
+    val currentScopeType = currentScope.classType
     val positionalArguments = node.positionalArgumentNodes.map { it.accept(this) }
     val namedArguments = node.namedArgumentNodes.map { Pair(it.first, it.second.accept(this)) }
-    var methodResolve = methodResolver.resolveMethod(node, currentScope.classType, node.value, positionalArguments, namedArguments)
+    var methodResolve = methodResolver.resolveMethod(node, currentScopeType, node.value, positionalArguments, namedArguments)
       ?: methodResolver.resolveMethodFromImports(node, node.value, positionalArguments, namedArguments)
 
     val castType = node.castType?.let(this::visit)
@@ -1198,6 +1199,30 @@ open class MarcelSemantic(
         )
     }
 
+    if (currentScopeType.outerTypeName != null) {
+      // searching on outer classes
+      var outerLevel = 0
+      var outerType = currentScopeType.outerTypeName?.let { typeResolver.of(node.token, it, emptyList()) }
+      while (outerType != null) {
+        methodResolve = methodResolver.resolveMethod(node, outerType, node.value, positionalArguments, namedArguments)
+        if (methodResolve != null) {
+          // TODO test this. method call from outer class
+          val owner = if (methodResolve.first.isMarcelStatic) null else
+            currentScope.findField("this$$outerLevel")?.let { ReferenceNode(owner = ThisReferenceNode(currentScopeType, node.token), variable = it, token = node.token) }
+              ?: throw RuntimeException("Compiler error. Couldn't get outer level field")
+          return fCall(
+            tokenStart = node.tokenStart,
+            tokenEnd = node.tokenEnd,
+            methodResolve = methodResolve,
+            owner = owner,
+            castType = castType
+          )
+
+        }
+        outerType = currentScopeType.outerTypeName?.let { typeResolver.of(node.token, it, emptyList()) }
+        outerLevel++
+      }
+    }
     // look for delegate if any
     if (currentScope.classType.implements(DelegatedObject::class.javaType)) {
       val delegateGetter = typeResolver.findMethod(currentScope.classType, "getDelegate", emptyList())
