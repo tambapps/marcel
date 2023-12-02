@@ -563,6 +563,58 @@ public final class DefaultMarcelMethods {
     return list;
   }
 
+  // TODO implement these reduce function in primivite collections
+  public static <T> T reduce(Collection<T> collection, BiFunction<T, T, T> function) {
+    Iterator<T> iterator = collection.iterator();
+    if (!iterator.hasNext()) throw new NoSuchElementException();
+
+    T result = iterator.next();
+    while (iterator.hasNext()) {
+      result = function.apply(result, iterator.next());
+    }
+    return result;
+  }
+
+  public static <T, U> U reduce(Collection<T> collection, U seed, BiFunction<U, T, U> function) {
+    U u = seed;
+    for (T t : collection) {
+      u = function.apply(u, t);
+    }
+    return u;
+  }
+
+  public static int sumInt(Collection<?> collection) {
+    int sum = 0;
+    for (Object o : collection) {
+      sum += ((Number) o).intValue();
+    }
+    return sum;
+  }
+
+  public static long sumLong(Collection<?> collection) {
+    long sum = 0;
+    for (Object o : collection) {
+      sum += ((Number) o).longValue();
+    }
+    return sum;
+  }
+
+  public static float sumFloat(Collection<?> collection) {
+    float sum = 0;
+    for (Object o : collection) {
+      sum += ((Number) o).floatValue();
+    }
+    return sum;
+  }
+
+  public static double sumDouble(Collection<?> collection) {
+    double sum = 0;
+    for (Object o : collection) {
+      sum += ((Number) o).doubleValue();
+    }
+    return sum;
+  }
+
   /**
    * Converts a collection into a set
    *
