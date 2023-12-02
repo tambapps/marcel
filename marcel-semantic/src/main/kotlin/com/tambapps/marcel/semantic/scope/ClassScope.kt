@@ -17,7 +17,6 @@ class ClassScope constructor(
   imports: List<ImportNode>
 ): AbstractScope(typeResolver, classType.packageName, imports) {
 
-  // TODO allow finding fields from outer class and make sure this is pushed as owner when doing so
   override fun findField(name: String): MarcelField? {
     var type: JavaType? = classType
     while (type != null) {
