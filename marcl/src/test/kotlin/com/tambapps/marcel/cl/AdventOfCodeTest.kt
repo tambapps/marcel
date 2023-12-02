@@ -11,7 +11,7 @@ import java.net.URL
 class AdventOfCodeTest: AbstractCompilerTest() {
 
   companion object {
-    const val URL_TEMPLATE = "https://raw.githubusercontent.com/tambapps/advent-of-code/main/%02d/%s"
+    const val URL_TEMPLATE = "https://raw.githubusercontent.com/tambapps/advent-of-code/main/2022/%02d/%s"
 
     @JvmStatic
     @AfterAll
