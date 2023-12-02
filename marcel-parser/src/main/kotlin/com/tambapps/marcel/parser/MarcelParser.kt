@@ -231,6 +231,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     val type = parseType(parentNode)
     val name = accept(TokenType.IDENTIFIER).value
     val initialValue = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(parentNode) else null
+    acceptOptional(TokenType.SEMI_COLON)
     return FieldCstNode(parentNode, tokenStart, previous, access, annotations, type, name, initialValue)
   }
 
