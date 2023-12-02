@@ -1712,29 +1712,60 @@ open class MarcelSemantic(
 
     val inNode = node.inNode.accept(this)
 
-    val iteratorExpression = when {
-      inNode.type.implements(Iterable::class.javaType) -> fCall(node, inNode.type, "iterator", emptyList(), inNode)
-      inNode.type.implements(Iterator::class.javaType) -> inNode
-      inNode.type.implements(CharSequence::class.javaType) -> NewInstanceNode(CharSequenceIterator::class.javaType,
-        typeResolver.findMethod(CharSequenceIterator::class.javaType, JavaMethod.CONSTRUCTOR_NAME, listOf(inNode))!!,listOf(inNode), node.token)
-      else -> throw MarcelSemanticException(node.token, "Cannot iterate over an expression of type ${inNode.type}")
-    }
-    val iteratorExpressionType = iteratorExpression.type
-    it.useTempLocalVariable(iteratorExpressionType) { iteratorVariable ->
-      val (nextMethodOwnerType, nextMethodName) = if (IntIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(IntIterator::class.javaType, "nextInt")
-      else if (LongIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(LongIterator::class.javaType, "nextLong")
-      else if (FloatIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(FloatIterator::class.javaType, "nextFloat")
-      else if (DoubleIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(DoubleIterator::class.javaType, "nextDouble")
-      else if (CharacterIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(CharacterIterator::class.javaType, "nextCharacter")
-      else if (Iterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(Iterator::class.javaType, "next")
-      else throw UnsupportedOperationException("wtf")
+    return@useScope if (inNode.type.isArray) {
+      val iVar = it.addLocalVariable(JavaType.int)
+      val iRef = ReferenceNode(variable = iVar, token = node.token)
+      val arrayVar = it.addLocalVariable(inNode.type)
+      val arrayRef = ReferenceNode(variable = arrayVar, token = node.token)
 
-      val iteratorVarReference = ReferenceNode(variable = iteratorVariable, token = node.token)
+      // init variable
+      val initStatement = BlockStatementNode(mutableListOf(
+        ExpressionStatementNode(VariableAssignmentNode(localVariable = arrayVar, expression = inNode, node)),
+        ExpressionStatementNode(VariableAssignmentNode(localVariable = iVar, expression = IntConstantNode(node.token, 0), node))
+      ), node.tokenStart, node.tokenEnd)
 
-      val nextMethod = typeResolver.findMethodOrThrow(nextMethodOwnerType, nextMethodName, emptyList())
-      // cast to fit the declared variable type
-      val nextMethodCall = caster.cast(variable.type, fCall(node = node, method = nextMethod, arguments = emptyList(), owner = iteratorVarReference))
-      ForInIteratorStatementNode(node, variable, iteratorVariable, iteratorExpression, nextMethodCall, node.statementNode.accept(this))
+      // i < array.length
+      val condition = LtNode(leftOperand = iRef, rightOperand = ReferenceNode(owner = arrayRef, typeResolver.findField(arrayVar.type, "length")!!, node.token))
+
+      // i++
+      val iteratorStatement = ExpressionStatementNode(IncrLocalVariableNode(node, iVar, 1, false))
+
+      // body
+      val body = BlockStatementNode(mutableListOf(
+        ExpressionStatementNode(VariableAssignmentNode(localVariable = variable, expression = caster.cast(variable.type, ArrayAccessNode(owner = arrayRef, indexNode = iRef, node = node)), node = node)),
+        node.statementNode.accept(this)
+      ), node.tokenStart, node.tokenEnd)
+
+      val forNode = ForStatementNode(node, initStatement, condition, iteratorStatement, body)
+
+      it.freeLocalVariable(iVar.name)
+      it.freeLocalVariable(arrayVar.name)
+      forNode
+    } else {
+      val iteratorExpression = when {
+        inNode.type.implements(Iterable::class.javaType) -> fCall(node, inNode.type, "iterator", emptyList(), inNode)
+        inNode.type.implements(Iterator::class.javaType) -> inNode
+        inNode.type.implements(CharSequence::class.javaType) -> NewInstanceNode(CharSequenceIterator::class.javaType,
+          typeResolver.findMethod(CharSequenceIterator::class.javaType, JavaMethod.CONSTRUCTOR_NAME, listOf(inNode))!!,listOf(inNode), node.token)
+        else -> throw MarcelSemanticException(node.token, "Cannot iterate over an expression of type ${inNode.type}")
+      }
+      val iteratorExpressionType = iteratorExpression.type
+      it.useTempLocalVariable(iteratorExpressionType) { iteratorVariable ->
+        val (nextMethodOwnerType, nextMethodName) = if (IntIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(IntIterator::class.javaType, "nextInt")
+        else if (LongIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(LongIterator::class.javaType, "nextLong")
+        else if (FloatIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(FloatIterator::class.javaType, "nextFloat")
+        else if (DoubleIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(DoubleIterator::class.javaType, "nextDouble")
+        else if (CharacterIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(CharacterIterator::class.javaType, "nextCharacter")
+        else if (Iterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(Iterator::class.javaType, "next")
+        else throw UnsupportedOperationException("wtf")
+
+        val iteratorVarReference = ReferenceNode(variable = iteratorVariable, token = node.token)
+
+        val nextMethod = typeResolver.findMethodOrThrow(nextMethodOwnerType, nextMethodName, emptyList())
+        // cast to fit the declared variable type
+        val nextMethodCall = caster.cast(variable.type, fCall(node = node, method = nextMethod, arguments = emptyList(), owner = iteratorVarReference))
+        ForInIteratorStatementNode(node, variable, iteratorVariable, iteratorExpression, nextMethodCall, node.statementNode.accept(this))
+      }
     }
   }
 
