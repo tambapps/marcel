@@ -118,6 +118,15 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
    * @return {@code true} if this collection changed as a result of the call.
    */
   boolean addAll(CharacterCollection c);
+
+  default boolean addAll(CharSequence c) {
+    boolean changed = false;
+    for (int i = 0; i < c.length(); i++) {
+      if (add(c.charAt(i))) changed = true;
+    }
+    return changed;
+  }
+
   /** Checks whether this collection contains all elements from the given type-specific collection.
    *
    * @param c a type-specific collection.
