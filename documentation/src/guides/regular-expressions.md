@@ -5,7 +5,7 @@ allows you to create pattern in a simple manner. When you add that with the [fin
 matching with regular expression has never been this easy.
 
 ````marcel
-Pattern pattern = /Hello (\w+)/; // semi-colon required because of pattern flags
+Pattern pattern = r/Hello (\w+)/; // semi-colon required because of pattern flags
 Matcher matcher = "Hello you" =~ pattern
 println(matcher.matches())
 ````

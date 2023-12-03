@@ -35,7 +35,7 @@ The backslash is **not** considered as an escape, except for the backlash charac
 (which would be escaped as `\/`).
 
 ```marcel
-/some \w+/
+r/some \w+/
 ```
 
 Note that such strings **doesn't** resolve variables. If you want to construct a Pattern while resolving Strings, you could
@@ -48,7 +48,7 @@ is not a regex flag (we'll talk about that just after) but a 'real' identifier.
 E.g.
 
 ```marcel
-Pattern pattern = /myPattern/; // without the semi-colon, Marcel would think that 'println' characters are regex flags
+Pattern pattern = r/myPattern/; // without the semi-colon, Marcel would think that 'println' characters are regex flags
 println(pattern)
 ```
 
@@ -59,7 +59,7 @@ You can also specify flags by adding a suffix at the end of your regex String.
 
 
 ```marcel
-Pattern pattern = /myPattern/iu; // you can specify many flags at once
+Pattern pattern = r/myPattern/iu; // you can specify many flags at once
 println(pattern)
 ```
 
