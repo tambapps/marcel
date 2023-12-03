@@ -188,7 +188,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     else m
   }
 
-  fun findMethodOrThrow(javaType: JavaType, name: String, argumentTypes: List<JavaTyped>, token: LexToken? = null): JavaMethod {
+  fun findMethodOrThrow(javaType: JavaType, name: String, argumentTypes: List<JavaTyped>, token: LexToken? = LexToken.DUMMY): JavaMethod {
     return findMethod(javaType, name, argumentTypes, false, token) ?: throw MarcelSemanticException(token, "Method $javaType.$name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
 
