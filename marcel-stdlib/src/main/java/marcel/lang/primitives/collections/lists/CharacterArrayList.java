@@ -533,6 +533,11 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 				a[size - 1 - i] = temp;
 			}
 		}
+
+		@Override
+		public String toString() {
+			return new String(a, from, size());
+		}
 	}
 	@Override
 	public CharacterList subList(int from, int to) {
