@@ -194,8 +194,8 @@ interface JavaType: JavaTyped {
 
     fun commonType(a: JavaType, b: JavaType): JavaType {
       if (a == b) return if (a === Anything) Object else a
-      if (a === Anything) return b
-      if (b === Anything) return a
+      if (a === Anything) return b.objectType
+      if (b === Anything) return a.objectType
       if (a.isAssignableFrom(b)) return a
       if (b.isAssignableFrom(a)) return b
 
