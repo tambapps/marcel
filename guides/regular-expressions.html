@@ -154,18 +154,18 @@ println(matcher.matches())
 <h2 id="extract-groups-from-a-pattern"><a class="header" href="#extract-groups-from-a-pattern">Extract groups from a pattern</a></h2>
 <p>With Marcel's <a href="../language-specification/variables.html#multiple-declarations">multiple variable declaration</a>, you can extract
 matched groups in the following way</p>
-<pre><code class="language-marcel">def (String wholeMatch, String groupMatch) = (&quot;Hello you&quot; =~ /Hello (\w+)/).groups() // method from the Marcel Development Kit
+<pre><code class="language-marcel">def (String wholeMatch, String groupMatch) = (&quot;Hello you&quot; =~ r/Hello (\w+)/).groups() // method from the Marcel Development Kit
 </code></pre>
 <p>In some case, you might not care about the whole match (you just want the groups you declared in your regex).
 If that's so you can ignore it like this</p>
-<pre><code class="language-marcel">def (_, String groupMatch) = (&quot;Hello you&quot; =~ /Hello (\w+)/).groups()
+<pre><code class="language-marcel">def (_, String groupMatch) = (&quot;Hello you&quot; =~ r/Hello (\w+)/).groups()
 </code></pre>
 <p>Wait for it, there's an even better way to do that</p>
-<pre><code class="language-marcel">def (String groupMatch) = (&quot;Hello you&quot; =~ /Hello (\w+)/).definedGroups()
+<pre><code class="language-marcel">def (String groupMatch) = (&quot;Hello you&quot; =~ r/Hello (\w+)/).definedGroups()
 </code></pre>
 <p>The defined groups only return the groups you defined in the regex, and therefore skip the group corresponding to the whole match.</p>
 <h2 id="truthy-pattern-declaration"><a class="header" href="#truthy-pattern-declaration">Truthy pattern declaration</a></h2>
-<pre><code class="language-marcel">Pattern pattern = /Hello (\w+)/;
+<pre><code class="language-marcel">Pattern pattern = r/Hello (\w+)/;
 
 if (&quot;yellow me&quot; =~ pattern) {
   println(&quot;It matched????&quot;)
