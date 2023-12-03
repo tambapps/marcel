@@ -146,7 +146,7 @@
 <p>Marcel's <a href="../language-specification/types/string.html#pattern-strings">Pattern strings</a>
 allows you to create pattern in a simple manner. When you add that with the <a href="../language-specification/operators/find.html">find operator</a>,
 matching with regular expression has never been this easy.</p>
-<pre><code class="language-marcel">Pattern pattern = /Hello (\w+)/; // semi-colon required because of pattern flags
+<pre><code class="language-marcel">Pattern pattern = r/Hello (\w+)/; // semi-colon required because of pattern flags
 Matcher matcher = &quot;Hello you&quot; =~ pattern
 println(matcher.matches())
 </code></pre>
