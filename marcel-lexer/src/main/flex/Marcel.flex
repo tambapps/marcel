@@ -187,15 +187,8 @@ LONELY_BACKTICK=`
                                  }
 
 \'                          { pushState(SIMPLE_STRING); return token(OPEN_SIMPLE_QUOTE); }
-\/                          {
-      Character lastChar = getLastNonWhitespaceChar();
-      if (lastChar == null || !Character.isLetterOrDigit(lastChar)) {
-        pushState(REGEX_STRING);
-        return token(OPEN_REGEX_QUOTE);
-      } else {
-        return token(DIV);
-      }
-      }
+"r/"                        { pushState(REGEX_STRING); return token(OPEN_REGEX_QUOTE); }
+\/                          { return token(DIV); }
 \`                          { pushState(CHAR_STRING); return token(OPEN_CHAR_QUOTE); }
 \"                          { pushState(STRING); return token(OPEN_QUOTE); }
 <STRING> \n                 { popState(); yypushback(1); return valueToken(DANGLING_NEWLINE); }
