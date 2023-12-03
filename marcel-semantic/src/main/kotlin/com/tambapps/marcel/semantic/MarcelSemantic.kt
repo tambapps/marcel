@@ -55,6 +55,7 @@ import com.tambapps.marcel.parser.cst.statement.BlockCstNode
 import com.tambapps.marcel.parser.cst.statement.BreakCstNode
 import com.tambapps.marcel.parser.cst.statement.ContinueCstNode
 import com.tambapps.marcel.parser.cst.statement.ForInCstNode
+import com.tambapps.marcel.parser.cst.statement.ForInMultiVarCstNode
 import com.tambapps.marcel.parser.cst.statement.ForVarCstNode
 import com.tambapps.marcel.parser.cst.statement.IfCstStatementNode
 import com.tambapps.marcel.parser.cst.statement.MultiVarDeclarationCstNode
@@ -1347,6 +1348,24 @@ open class MarcelSemantic(
             )
           }
         }
+        expression.type.implements(Map.Entry::class.javaType) -> {
+          if (node.declarations.size != 2) {
+            throw MarcelSemanticException(node, "multi var declaration of Map.Entry should declare 2 variables")
+          }
+          for (i in 0..1) {
+            val variable = variableMap[i]!!
+            blockNode.statements.add(
+              ExpressionStatementNode(
+                VariableAssignmentNode(
+                  localVariable = variable,
+                  expression = fCall(method = typeResolver.findMethodOrThrow(expression.type, if (i == 0) "getKey" else "getValue", emptyList(), token = node.token),
+                    arguments = emptyList(), owner = expressionRef, node = node, castType = variable.type),
+                  node = node
+                )
+              )
+            )
+          }
+        }
         else -> throw MarcelSemanticException(node, "Multi variable declarations only works on List or arrays")
       }
     }
@@ -1742,30 +1761,77 @@ open class MarcelSemantic(
       it.freeLocalVariable(arrayVar.name)
       forNode
     } else {
-      val iteratorExpression = when {
-        inNode.type.implements(Iterable::class.javaType) -> fCall(node, inNode.type, "iterator", emptyList(), inNode)
-        inNode.type.implements(Iterator::class.javaType) -> inNode
-        inNode.type.implements(CharSequence::class.javaType) -> NewInstanceNode(CharSequenceIterator::class.javaType,
-          typeResolver.findMethod(CharSequenceIterator::class.javaType, JavaMethod.CONSTRUCTOR_NAME, listOf(inNode))!!,listOf(inNode), node.token)
-        else -> throw MarcelSemanticException(node.token, "Cannot iterate over an expression of type ${inNode.type}")
-      }
-      val iteratorExpressionType = iteratorExpression.type
-      it.useTempLocalVariable(iteratorExpressionType) { iteratorVariable ->
-        val (nextMethodOwnerType, nextMethodName) = if (IntIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(IntIterator::class.javaType, "nextInt")
-        else if (LongIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(LongIterator::class.javaType, "nextLong")
-        else if (FloatIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(FloatIterator::class.javaType, "nextFloat")
-        else if (DoubleIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(DoubleIterator::class.javaType, "nextDouble")
-        else if (CharacterIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(CharacterIterator::class.javaType, "nextCharacter")
-        else if (Iterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(Iterator::class.javaType, "next")
-        else throw UnsupportedOperationException("wtf")
+      forInIteratorNode(node, it, variable, inNode) { node.statementNode.accept(this) }
+    }
+  }
 
-        val iteratorVarReference = ReferenceNode(variable = iteratorVariable, token = node.token)
+  private inline fun forInIteratorNode(node: CstNode, it: MethodScope, variable: LocalVariable, inNode: ExpressionNode,
+                                       // lambda because we want the body to be semanticallly checked AFTER we created the iteratorVariable
+                                       bodyCreator: () -> StatementNode): ForInIteratorStatementNode {
+    val iteratorExpression = when {
+      inNode.type.implements(Iterable::class.javaType) -> fCall(node, inNode.type, "iterator", emptyList(), inNode)
+      inNode.type.implements(Iterator::class.javaType) -> inNode
+      inNode.type.implements(CharSequence::class.javaType) -> NewInstanceNode(CharSequenceIterator::class.javaType,
+        typeResolver.findMethod(CharSequenceIterator::class.javaType, JavaMethod.CONSTRUCTOR_NAME, listOf(inNode))!!,listOf(inNode), node.token)
+      else -> throw MarcelSemanticException(node.token, "Cannot iterate over an expression of type ${inNode.type}")
+    }
+    val iteratorExpressionType = iteratorExpression.type
+    return it.useTempLocalVariable(iteratorExpressionType) { iteratorVariable ->
+      val (nextMethodOwnerType, nextMethodName) = if (IntIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(IntIterator::class.javaType, "nextInt")
+      else if (LongIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(LongIterator::class.javaType, "nextLong")
+      else if (FloatIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(FloatIterator::class.javaType, "nextFloat")
+      else if (DoubleIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(DoubleIterator::class.javaType, "nextDouble")
+      else if (CharacterIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(CharacterIterator::class.javaType, "nextCharacter")
+      else if (Iterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(Iterator::class.javaType, "next")
+      else throw UnsupportedOperationException("wtf")
 
-        val nextMethod = typeResolver.findMethodOrThrow(nextMethodOwnerType, nextMethodName, emptyList())
-        // cast to fit the declared variable type
-        val nextMethodCall = caster.cast(variable.type, fCall(node = node, method = nextMethod, arguments = emptyList(), owner = iteratorVarReference))
-        ForInIteratorStatementNode(node, variable, iteratorVariable, iteratorExpression, nextMethodCall, node.statementNode.accept(this))
+      val iteratorVarReference = ReferenceNode(variable = iteratorVariable, token = node.token)
+
+      val nextMethod = typeResolver.findMethodOrThrow(nextMethodOwnerType, nextMethodName, emptyList())
+      // cast to fit the declared variable type
+      val nextMethodCall = caster.cast(variable.type, fCall(node = node, method = nextMethod, arguments = emptyList(), owner = iteratorVarReference))
+      ForInIteratorStatementNode(node, variable, iteratorVariable, iteratorExpression, nextMethodCall, bodyCreator.invoke())
+    }
+  }
+
+  override fun visit(node: ForInMultiVarCstNode) = useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
+    val inNode = node.inNode.accept(this)
+
+    val localVars = node.declarations.map { pair ->
+      it.addLocalVariable(visit(pair.first), pair.second)
+    }
+
+    if (inNode.type.implements(JavaType.Map)) {
+      if (localVars.size != 2) {
+        throw MarcelSemanticException(node.token, "Needs 2 variables when iterating over maps")
       }
+      val mapVar = it.addLocalVariable(Map::class.javaType)
+      val keyVar = localVars.first()
+      val valueVar = localVars.last()
+
+      // need to init map variable before going in the loop
+      BlockStatementNode(mutableListOf(
+        ExpressionStatementNode(
+          // valueVar = map[keyVar]. keyVar is initialized before, in MethodInstructionWriter
+          VariableAssignmentNode(localVariable = mapVar,
+            expression = inNode, node)),
+        forInIteratorNode(node = node, it = it, variable = keyVar,
+          // iterating over keys
+          inNode = fCall(node = node, owner = ReferenceNode(variable = mapVar, token = node.token), name = "keySet", arguments = emptyList())) {
+          // body statement generator
+          BlockStatementNode(mutableListOf(
+            ExpressionStatementNode(
+              // valueVar = map[keyVar]. keyVar is initialized before, in MethodInstructionWriter
+              VariableAssignmentNode(localVariable = valueVar,
+                expression = fCall(castType = valueVar.type, owner = ReferenceNode(variable = mapVar, token = node.token),
+                  method = typeResolver.findMethod(JavaType.Map, "get", listOf(JavaType.Object))!!,
+                  arguments = listOf(ReferenceNode(variable = keyVar, token = node.token)), node = node), node)),
+            node.statementNode.accept(this)
+          ), node.tokenStart, node.tokenEnd)
+        }
+      ), node.tokenStart, node.tokenEnd)
+    } else {
+      throw MarcelSemanticException(node.token, "Cannot iterate multiple variables on an expression of type ${inNode.type}")
     }
   }
 
@@ -1895,6 +1961,12 @@ open class MarcelSemantic(
     BlockStatementNode(statements, node.tokenStart, node.tokenEnd)
   }
 
+  private fun fCall(node: CstNode, name: String, arguments: List<ExpressionNode>,
+                    owner: ExpressionNode,
+                    castType: JavaType? = null): ExpressionNode {
+    return fCall(node, owner.type, name, arguments, owner, castType)
+  }
+
   private fun fCall(node: CstNode, ownerType: JavaType, name: String, arguments: List<ExpressionNode>,
                     owner: ExpressionNode? = null,
                     castType: JavaType? = null): ExpressionNode {
@@ -1920,6 +1992,7 @@ open class MarcelSemantic(
     arguments: List<ExpressionNode>,
     owner: ExpressionNode? = null,
     castType: JavaType? = null): ExpressionNode {
+    if (owner != null && method.isMarcelStatic) throw MarcelSemanticException(tokenStart, "Method $method is static but was call from an instance")
     val node = FunctionCallNode(method, owner, castedArguments(method, arguments), tokenStart, tokenEnd)
     return if (castType != null) caster.cast(castType, node) else node
   }

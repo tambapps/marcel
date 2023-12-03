@@ -50,6 +50,7 @@ import com.tambapps.marcel.parser.cst.statement.BreakCstNode
 import com.tambapps.marcel.parser.cst.statement.ContinueCstNode
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ForInCstNode
+import com.tambapps.marcel.parser.cst.statement.ForInMultiVarCstNode
 import com.tambapps.marcel.parser.cst.statement.ForVarCstNode
 import com.tambapps.marcel.parser.cst.statement.IfCstStatementNode
 import com.tambapps.marcel.parser.cst.statement.MultiVarDeclarationCstNode
@@ -482,6 +483,26 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
             accept(TokenType.RPAR)
             val forBlock = statement(parentNode)
             ForInCstNode(type, identifier, expression, forBlock, parentNode, token, previous)
+          } else if (current.type == TokenType.LPAR) {
+            // multi var declaration
+            accept(TokenType.LPAR)
+            val declarations = mutableListOf<Pair<TypeCstNode, String>>()
+            while (current.type != TokenType.RPAR) {
+              val varType = parseType(parentNode)
+              val varName = accept(TokenType.IDENTIFIER).value
+              declarations.add(Pair(varType, varName))
+              if (current.type == TokenType.COMMA) skip()
+            }
+            accept(TokenType.RPAR)
+            if (declarations.isEmpty()) {
+              throw MarcelParserException(token, "Cannot have for loop with no variables")
+            }
+            accept(TokenType.IN)
+            val expression = expression(parentNode)
+            accept(TokenType.RPAR)
+            val forBlock = statement(parentNode)
+
+            ForInMultiVarCstNode(declarations, expression, forBlock, parentNode, token, forBlock.tokenEnd)
           } else {
             // for (;;)
             // needed especially if initStatement is var declaration
@@ -550,7 +571,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     } finally {
       acceptOptional(TokenType.SEMI_COLON)
     }
- }
+  }
 
   private fun ifConditionExpression(parentNode: CstNode?): ExpressionCstNode {
     return if (ParserUtils.isTypeToken(current.type) && lookup(1)?.type == TokenType.IDENTIFIER) {
@@ -1069,6 +1090,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     }
   }
 
+  // TODO rename acceptOneOf to avoid ambiguity
   private fun accept(vararg types: TokenType): LexToken {
     val token = current
     if (token.type !in types) {
@@ -1081,6 +1103,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     return token
   }
 
+  // TODO rename acceptOptionalOneOf to avoid ambiguity
   private fun acceptOptional(vararg types: TokenType): LexToken? {
     val token = currentSafe
     if (token?.type in types) {

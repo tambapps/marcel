@@ -13,4 +13,15 @@ for (int i in 0..<10) {
 
 assertEquals(sum, sum2)
 
+
+// testing declaring variables in for.
+// this test failed at some point so it's important to keep it to avoid regression
+List list = ["1", "22", "333"]
+int sum3 = 0
+for (String line in list) {
+  int length = line.length()
+  sum3+= length
+}
+assertEquals(6, sum3)
+
 new Integer(sum)

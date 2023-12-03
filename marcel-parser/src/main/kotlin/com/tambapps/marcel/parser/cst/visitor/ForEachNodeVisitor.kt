@@ -39,6 +39,7 @@ import com.tambapps.marcel.parser.cst.statement.BreakCstNode
 import com.tambapps.marcel.parser.cst.statement.ContinueCstNode
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ForInCstNode
+import com.tambapps.marcel.parser.cst.statement.ForInMultiVarCstNode
 import com.tambapps.marcel.parser.cst.statement.ForVarCstNode
 import com.tambapps.marcel.parser.cst.statement.IfCstStatementNode
 import com.tambapps.marcel.parser.cst.statement.MultiVarDeclarationCstNode
@@ -237,6 +238,11 @@ class ForEachNodeVisitor(
     node.statementNode.accept(this)
   }
 
+  override fun visit(node: ForInMultiVarCstNode) {
+    consume(node)
+    node.inNode.accept(this)
+    node.statementNode.accept(this)
+  }
   override fun visit(node: ForVarCstNode) {
     consume(node)
     node.bodyStatement.accept(this)
