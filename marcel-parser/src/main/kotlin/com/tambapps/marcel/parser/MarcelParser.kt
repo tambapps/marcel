@@ -754,6 +754,8 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
           }
           if (token.type == TokenType.SUPER) SuperConstructorCallCstNode(parentNode, arguments, token, arguments.lastOrNull()?.tokenEnd ?: token)
           else ThisConstructorCallCstNode(parentNode, arguments, token, arguments.lastOrNull()?.tokenEnd ?: token)
+        } else if (current.type == TokenType.SQUARE_BRACKETS_OPEN || current.type == TokenType.QUESTION_SQUARE_BRACKETS_OPEN) {
+          indexAccessCstNode(parentNode, ThisReferenceCstNode(parentNode, token))
         } else {
           if (token.type == TokenType.SUPER) SuperReferenceCstNode(parentNode, token)
           else ThisReferenceCstNode(parentNode, token)
