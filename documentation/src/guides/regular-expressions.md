@@ -17,19 +17,19 @@ With Marcel's [multiple variable declaration](../language-specification/variable
 matched groups in the following way
 
 ````marcel
-def (String wholeMatch, String groupMatch) = ("Hello you" =~ /Hello (\w+)/).groups() // method from the Marcel Development Kit
+def (String wholeMatch, String groupMatch) = ("Hello you" =~ r/Hello (\w+)/).groups() // method from the Marcel Development Kit
 ````
 
 In some case, you might not care about the whole match (you just want the groups you declared in your regex).
 If that's so you can ignore it like this
 
 ````marcel
-def (_, String groupMatch) = ("Hello you" =~ /Hello (\w+)/).groups()
+def (_, String groupMatch) = ("Hello you" =~ r/Hello (\w+)/).groups()
 ````
 
 Wait for it, there's an even better way to do that
 ````marcel
-def (String groupMatch) = ("Hello you" =~ /Hello (\w+)/).definedGroups()
+def (String groupMatch) = ("Hello you" =~ r/Hello (\w+)/).definedGroups()
 ````
 
 The defined groups only return the groups you defined in the regex, and therefore skip the group corresponding to the whole match.
@@ -37,7 +37,7 @@ The defined groups only return the groups you defined in the regex, and therefor
 ## Truthy pattern declaration
 
 ```marcel
-Pattern pattern = /Hello (\w+)/;
+Pattern pattern = r/Hello (\w+)/;
 
 if ("yellow me" =~ pattern) {
   println("It matched????")
