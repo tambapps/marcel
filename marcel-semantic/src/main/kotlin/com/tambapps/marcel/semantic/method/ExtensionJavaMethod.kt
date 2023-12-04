@@ -3,7 +3,7 @@ package com.tambapps.marcel.semantic.method
 import com.tambapps.marcel.semantic.type.JavaType
 
 class ExtensionJavaMethod private constructor(
-  private val actualMethod: JavaMethod,
+  val actualMethod: JavaMethod,
   override val ownerClass: JavaType,
   override val name: String,
   override val parameters: List<MethodParameter>,

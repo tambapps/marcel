@@ -2,13 +2,16 @@ package com.tambapps.marcel.semantic.type
 
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.extensions.javaType
+import com.tambapps.marcel.semantic.method.ExtensionJavaMethod
 import com.tambapps.marcel.semantic.method.JavaMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.method.ReflectJavaMethod
 import marcel.lang.lambda.Lambda
+import marcel.lang.methods.DefaultMarcelMethods
 import marcel.lang.primitives.collections.IntCollection
 import marcel.lang.primitives.collections.lists.IntList
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.util.function.Function
 import java.util.function.IntPredicate
@@ -27,6 +30,15 @@ class JavaTypeResolverTest {
   fun getMethodWithLambdaParameter() {
     val method = typeResolver.findMethod(Stream::class.javaType, "map", listOf(Lambda::class.javaType))
     assertEquals(ReflectJavaMethod(Stream::class.java.getDeclaredMethod("map", Function::class.java)), method)
+  }
+
+  @Test
+  fun getMethodWithLambdaParameterOfArray() {
+    val stringArrayType = Array<String>::class.javaType
+    val method = typeResolver.findMethod(stringArrayType, "map", listOf(Lambda::class.javaType))
+    assertTrue(method is ExtensionJavaMethod)
+    method as ExtensionJavaMethod
+    assertEquals(ReflectJavaMethod(DefaultMarcelMethods::class.java.getDeclaredMethod("map", Array<Any>::class.java,Function::class.java)), method.actualMethod)
   }
 
   @Test

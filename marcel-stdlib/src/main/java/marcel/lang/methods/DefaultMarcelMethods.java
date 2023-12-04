@@ -779,6 +779,14 @@ public final class DefaultMarcelMethods {
     return uList;
   }
 
+  public static <T, U> List<U> map(T[] array, Function<T, U> lambda1) {
+    List<U> uList = new ArrayList<>(array.length);
+    for (T t : array) {
+      uList.add(lambda1.apply(t));
+    }
+    return uList;
+  }
+
   public static <T> IntList mapToInt(T[] list, ToIntFunction<T> lambda1) {
     IntList intList = new IntArrayList(list.length);
     for (int i = 0; i < list.length; i++) {
