@@ -17,13 +17,10 @@ package marcel.lang.primitives.collections;
 
 import marcel.lang.primitives.collections.lists.FloatArrayList;
 import marcel.lang.primitives.collections.lists.FloatList;
-import marcel.lang.primitives.collections.lists.IntArrayList;
-import marcel.lang.primitives.collections.lists.IntList;
 import marcel.lang.primitives.collections.sets.FloatOpenHashSet;
 import marcel.lang.primitives.collections.sets.FloatSet;
 import marcel.lang.primitives.iterable.FloatIterable;
 import marcel.lang.primitives.iterators.FloatIterator;
-import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.spliterators.FloatSpliterator;
 import marcel.lang.util.function.FloatFunction;
 import marcel.lang.util.function.FloatPredicate;
@@ -32,7 +29,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.function.IntFunction;
 
 /** A type-specific Collection; provides some additional methods
  * that use polymorphism to avoid (un)boxing.
@@ -277,6 +273,14 @@ public interface FloatCollection extends Collection<Float>, FloatIterable {
       if (predicate.test(e)) return false;
     }
     return true;
+  }
+
+  default int count(FloatPredicate predicate) {
+    int count = 0;
+    for (float e : this) {
+      if (predicate.test(e)) count++;
+    }
+    return count;
   }
 
   default FloatList toList() {

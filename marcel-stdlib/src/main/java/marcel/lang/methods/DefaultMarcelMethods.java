@@ -499,6 +499,70 @@ public final class DefaultMarcelMethods {
     return null;
   }
 
+
+  /**
+   * Count the number of times the provided predicate matched on an element of this collection
+   * @param self self
+   * @param predicate predicate
+   * @return the number of times the provided predicate matched on an element of this collection
+   * @param <T> the type of the list
+   */
+  public static <T> int count(Collection<T> self, Predicate<T> predicate) {
+    int count = 0;
+    for (T e : self) {
+      if (predicate.test(e)) count++;
+    }
+    return count;
+  }
+
+  public static <T> int count(T[] self, Predicate<T> predicate) {
+    int count = 0;
+    for (T e : self) {
+      if (predicate.test(e)) count++;
+    }
+    return count;
+  }
+
+  public static int count(int[] self, IntPredicate predicate) {
+    int count = 0;
+    for (int e : self) {
+      if (predicate.test(e)) count++;
+    }
+    return count;
+  }
+
+  public static int count(long[] self, LongPredicate predicate) {
+    int count = 0;
+    for (long e : self) {
+      if (predicate.test(e)) count++;
+    }
+    return count;
+  }
+
+  public static int count(float[] self, FloatPredicate predicate) {
+    int count = 0;
+    for (float e : self) {
+      if (predicate.test(e)) count++;
+    }
+    return count;
+  }
+
+  public static int count(double[] self, DoublePredicate predicate) {
+    int count = 0;
+    for (double e : self) {
+      if (predicate.test(e)) count++;
+    }
+    return count;
+  }
+
+  public static int count(char[] self, CharacterPredicate predicate) {
+    int count = 0;
+    for (char e : self) {
+      if (predicate.test(e)) count++;
+    }
+    return count;
+  }
+
   /**
    * Find all elements matching the given predicate
    *

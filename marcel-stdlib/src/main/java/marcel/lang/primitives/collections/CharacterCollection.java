@@ -18,14 +18,10 @@ package marcel.lang.primitives.collections;
 
 import marcel.lang.primitives.collections.lists.CharacterArrayList;
 import marcel.lang.primitives.collections.lists.CharacterList;
-import marcel.lang.primitives.collections.lists.IntArrayList;
-import marcel.lang.primitives.collections.lists.IntList;
 import marcel.lang.primitives.collections.sets.CharacterOpenHashSet;
 import marcel.lang.primitives.collections.sets.CharacterSet;
 import marcel.lang.primitives.iterable.CharacterIterable;
 import marcel.lang.primitives.iterators.CharacterIterator;
-import marcel.lang.primitives.iterators.IntIterator;
-import marcel.lang.primitives.iterators.LongIterator;
 import marcel.lang.primitives.spliterators.CharacterSpliterator;
 import marcel.lang.util.function.CharacterFunction;
 import marcel.lang.util.function.CharacterPredicate;
@@ -34,8 +30,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.function.IntFunction;
-import java.util.function.LongPredicate;
 
 /** A type-specific Collection; provides some additional methods
  * that use polymorphism to avoid (un)boxing.
@@ -267,6 +261,14 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
       if (predicate.test(e)) return false;
     }
     return true;
+  }
+
+  default int count(CharacterPredicate predicate) {
+    int count = 0;
+    for (char e : this) {
+      if (predicate.test(e)) count++;
+    }
+    return count;
   }
 
   default CharacterList toList() {

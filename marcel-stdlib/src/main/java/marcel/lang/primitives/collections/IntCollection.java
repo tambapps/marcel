@@ -15,7 +15,6 @@
  */
 package marcel.lang.primitives.collections;
 
-
 import marcel.lang.primitives.collections.lists.IntArrayList;
 import marcel.lang.primitives.collections.lists.IntList;
 import marcel.lang.primitives.collections.sets.IntOpenHashSet;
@@ -273,6 +272,14 @@ public interface IntCollection extends Collection<Integer>, IntIterable {
       if (predicate.test(e)) return false;
     }
     return true;
+  }
+
+  default int count(IntPredicate predicate) {
+    int count = 0;
+    for (int e : this) {
+      if (predicate.test(e)) count++;
+    }
+    return count;
   }
 
   default IntList toList() {

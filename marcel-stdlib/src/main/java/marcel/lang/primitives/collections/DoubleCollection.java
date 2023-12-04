@@ -18,13 +18,10 @@ package marcel.lang.primitives.collections;
 
 import marcel.lang.primitives.collections.lists.DoubleArrayList;
 import marcel.lang.primitives.collections.lists.DoubleList;
-import marcel.lang.primitives.collections.lists.IntArrayList;
-import marcel.lang.primitives.collections.lists.IntList;
 import marcel.lang.primitives.collections.sets.DoubleOpenHashSet;
 import marcel.lang.primitives.collections.sets.DoubleSet;
 import marcel.lang.primitives.iterable.DoubleIterable;
 import marcel.lang.primitives.iterators.DoubleIterator;
-import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.spliterators.DoubleSpliterator;
 
 import java.util.Collection;
@@ -33,7 +30,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.DoubleFunction;
 import java.util.function.DoublePredicate;
-import java.util.function.IntFunction;
 
 /** A type-specific Collection; provides some additional methods
  * that use polymorphism to avoid (un)boxing.
@@ -256,6 +252,14 @@ public interface DoubleCollection extends Collection<Double>, DoubleIterable {
       if (predicate.test(e)) return false;
     }
     return true;
+  }
+
+  default int count(DoublePredicate predicate) {
+    int count = 0;
+    for (double e : this) {
+      if (predicate.test(e)) count++;
+    }
+    return count;
   }
 
   default DoubleList toList() {
