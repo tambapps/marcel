@@ -128,7 +128,7 @@ public class MarcelLexerTest {
         token(ESCAPE_SEQUENCE, "\\/"),
         token(CLOSING_REGEX_QUOTE),
         token(END_OF_FILE)
-    ), lexer.lex("/some$'\"\\w\\//"));
+    ), lexer.lex("r/some$'\"\\w\\//"));
   }
 
 
