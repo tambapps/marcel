@@ -1220,7 +1220,7 @@ open class MarcelSemantic(
           )
 
         }
-        outerType = currentScopeType.outerTypeName?.let { typeResolver.of(node.token, it, emptyList()) }
+        outerType = outerType.outerTypeName?.let { typeResolver.of(node.token, it, emptyList()) }
         outerLevel++
       }
     }
