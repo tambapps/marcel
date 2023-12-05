@@ -1372,10 +1372,13 @@ open class MarcelSemantic(
     return blockNode
   }
 
-  override fun visit(node: IfCstStatementNode) = useInnerScope {
-    IfStatementNode(caster.truthyCast(node.condition.accept(this)),
-      node.trueStatementNode.accept(this),
-      node.falseStatementNode?.accept(this), node)
+  override fun visit(node: IfCstStatementNode): IfStatementNode {
+    val (condition, trueStatement) = useInnerScope {
+      Pair(caster.truthyCast(node.condition.accept(this)), node.trueStatementNode.accept(this))
+    }
+    val falseStatement = useInnerScope { node.falseStatementNode?.accept(this) }
+
+    return IfStatementNode(condition, trueStatement, falseStatement, node)
   }
 
   override fun visit(node: SwitchCstNode, smartCastType: JavaType?): ExpressionNode {
@@ -1852,9 +1855,7 @@ open class MarcelSemantic(
       // no owner because method is static
       expression = fCall(node = node, method = typeResolver.findMethod(BytecodeHelper::class.javaType, "orElseNull", listOf(expression))!!, arguments = listOf(expression))
     }
-    val astNode = VariableAssignmentNode(localVariable = variable, expression = caster.cast(variable.type, expression), node = node)
-    currentMethodScope.freeLocalVariable(variable.name)
-    return astNode
+    return VariableAssignmentNode(localVariable = variable, expression = caster.cast(variable.type, expression), node = node)
   }
 
   override fun visit(node: ForVarCstNode): StatementNode = useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
