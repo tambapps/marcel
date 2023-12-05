@@ -29,6 +29,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
+import java.util.function.ToIntFunction;
 
 /** A type-specific Collection; provides some additional methods
  * that use polymorphism to avoid (un)boxing.
@@ -169,6 +170,17 @@ public interface IntCollection extends Collection<Integer>, IntIterable {
   default java.util.stream.IntStream intStream() {
     return java.util.stream.StreamSupport.intStream(spliterator(), false);
   }
+
+  // TODO add equivalent to other primitives, and in other primitive classes, and the basic map function
+  default IntList mapToInt(IntFunction<Integer> function) {
+    IntList intList = new IntArrayList(size());
+    IntIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      intList.add(function.apply(iterator.nextInt()));
+    }
+    return intList;
+  }
+
 
   default Integer find(IntPredicate predicate)  {
     IntIterator iterator = iterator();
