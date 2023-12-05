@@ -170,6 +170,16 @@ public interface LongCollection extends Collection<Long>, LongIterable {
     return java.util.stream.StreamSupport.longStream(spliterator(), false);
   }
 
+  // TODO add equivalent to other primitives, and in other primitive classes, and the basic map function
+  default LongList mapToLong(LongFunction<Long> function) {
+    LongList list = new LongArrayList(size());
+    LongIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      list.add(function.apply(iterator.nextLong()));
+    }
+    return list;
+  }
+
   default Long find(LongPredicate predicate)  {
     LongIterator iterator = iterator();
     long e;
