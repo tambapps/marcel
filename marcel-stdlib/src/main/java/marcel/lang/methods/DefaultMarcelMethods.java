@@ -23,6 +23,7 @@ import marcel.lang.primitives.collections.sets.IntSet;
 import marcel.lang.primitives.collections.sets.LongOpenHashSet;
 import marcel.lang.primitives.collections.sets.LongSet;
 import marcel.lang.primitives.iterators.IntIterator;
+import marcel.lang.util.MapWithDefault;
 import marcel.lang.util.function.*;
 
 import java.util.*;
@@ -1620,6 +1621,15 @@ public final class DefaultMarcelMethods {
     if (index >= 0 && index < self.length) {
       self[index] = value;
     }
+  }
+
+  // TODO document this
+  public static <T, U> Map<T, U> withDefault(Map<T, U> self, Function<Object, U> defaultFunction) {
+    return withDefault(self, defaultFunction, false);
+  }
+
+  public static <T, U> Map<T, U> withDefault(Map<T, U> self, Function<Object, U> defaultFunction, boolean insert) {
+    return MapWithDefault.newInstance(self, defaultFunction, insert);
   }
 
   /**

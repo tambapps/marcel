@@ -52,7 +52,7 @@ public interface MarcelTruth {
   }
 
   public static boolean isTruthy(String s) {
-    return !s.isEmpty();
+    return s != null && !s.isEmpty();
   }
 
   public static boolean isTruthy(Boolean b) {
