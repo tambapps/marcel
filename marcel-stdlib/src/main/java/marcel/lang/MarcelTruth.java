@@ -26,7 +26,9 @@ public interface MarcelTruth {
       return false;
     }
     Class<?> clazz = o.getClass();
-    if (clazz == Boolean.class) {
+    if (clazz == String.class) {
+      return isTruthy((String) o);
+    } else if (clazz == Boolean.class) {
       return isTruthy((Boolean) o);
     } else if (clazz == Optional.class) {
       return isTruthy((Optional<?>) o);
@@ -47,6 +49,10 @@ public interface MarcelTruth {
     } else {
       return true;
     }
+  }
+
+  public static boolean isTruthy(String s) {
+    return !s.isEmpty();
   }
 
   public static boolean isTruthy(Boolean b) {

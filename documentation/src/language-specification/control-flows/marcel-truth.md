@@ -11,6 +11,7 @@ The only falsey values are the following:
 - An empty collection
 - An empty array
 - An empty Map
+- An empty String
 - A [Matcher](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html) who's `find()` method would return false
 - An object implementing MarcelTruth who's `isTruthy()` method would return false
 
