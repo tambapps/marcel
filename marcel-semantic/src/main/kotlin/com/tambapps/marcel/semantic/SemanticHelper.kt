@@ -74,8 +74,11 @@ internal object SemanticHelper {
   fun returnNull(node: Ast2Node) = ReturnStatementNode(NullValueNode(node.token), node.tokenStart, node.tokenEnd)
 
   fun parameterToLocalVariable(method: JavaMethod, parameter: MethodParameter): LocalVariable {
-    val parameterIndex = method.parameters.indexOf(parameter)
-    val index = if (method.isStatic) parameterIndex else parameterIndex + 1
+    var index = if (method.isStatic) 0 else 1
+    var i = 0
+    while (i < method.parameters.size && method.parameters[i] != parameter) {
+      index+= method.parameters[i++].type.nbSlots
+    }
     return LocalVariable(parameter.type, parameter.name, parameter.type.nbSlots, index, parameter.isFinal)
   }
 

@@ -150,7 +150,6 @@ import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
-import com.tambapps.marcel.semantic.type.NotLoadedJavaType
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.variable.field.JavaClassFieldImpl
@@ -367,7 +366,9 @@ open class MarcelSemantic(
               VariableAssignmentNode(
                 owner = ThisReferenceNode(classType, classNode.token),
                 variable = outerClassField,
-                expression = ReferenceNode(variable = LocalVariable(outerClassField.type, outerClassField.name, nbSlots = 1, index = i + 1, isFinal = false),  token = node.token),
+                expression = ReferenceNode(variable = LocalVariable(outerClassField.type, outerClassField.name, nbSlots = outerClassField.type.nbSlots,
+                  // we can out i+1 here because we know these inner outer class arguments are references, so always take one slot
+                  index = i + 1, isFinal = false),  token = node.token),
                 node = node
               )
             ))
@@ -558,7 +559,7 @@ open class MarcelSemantic(
         ExpressionStatementNode(
           VariableAssignmentNode(owner = ThisReferenceNode(classScope.classType, methodCst.token), variable = field,
             // using index of method parameter. +1 because not in static context
-            expression = ReferenceNode(variable = LocalVariable(field.type, param.name, field.type.nbSlots, i + 1, true), token = methodCst.token), node = methodCst)
+            expression = ReferenceNode(variable = SemanticHelper.parameterToLocalVariable(methodNode, param), token = methodCst.token), node = methodCst)
         )
       )
     }
@@ -2046,7 +2047,7 @@ open class MarcelSemantic(
       val defaultValueMethod = generateDefaultParameterMethod(node, ownerType, visibility, isStatic, methodName, parameterType, parameterIndex)
       useScope(newMethodScope(ownerType, forExtensionType, defaultValueMethod)) { caster.cast(parameterType, node.defaultValue!!.accept(this)) }
     } else null
-    return MethodParameter(parameterType, node.name, node.annotations.map { annotationNode(it, ElementType.PARAMETER) }, defaultValue)
+    return MethodParameter(parameterType, node.name, node.annotations.map { annotationNode(it, ElementType.PARAMETER) }, defaultValue, isFinal = node.thisParameter)
   }
 
   private fun generateDefaultParameterMethod(node: CstNode, ownerClass: JavaType, visibility: Visibility, isStatic: Boolean, methodName: String, type: JavaType, parameterIndex: Int): MethodNode {
