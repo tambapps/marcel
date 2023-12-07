@@ -1382,6 +1382,25 @@ open class MarcelSemantic(
     return IfStatementNode(condition, trueStatement, falseStatement, node)
   }
 
+  fun visit(node: IfCstStatementNode, smartCastType: JavaType?): IfStatementNode {
+    if (smartCastType == null) return visit(node)
+    val (condition, trueStatement) = useInnerScope {
+      Pair(caster.truthyCast(node.condition.accept(this)), visitSmartCast(node.trueStatementNode, smartCastType))
+    }
+    val falseStatement = useInnerScope { node.falseStatementNode?.let { visitSmartCast(it, smartCastType) } }
+    return IfStatementNode(condition, trueStatement, falseStatement, node)
+  }
+
+  // allow to pass smartCast to statements. Useful for nested switches/whens
+  private fun visitSmartCast(stmtNode: StatementCstNode, smartCastType: JavaType): StatementNode {
+    return when (stmtNode) {
+      is ExpressionStatementCstNode -> ExpressionStatementNode(stmtNode.expressionNode.accept(this, smartCastType))
+      // because when/switches are transformed to ifs
+      is IfCstStatementNode -> visit(stmtNode, smartCastType)
+      else -> stmtNode.accept(this)
+    }
+  }
+
   override fun visit(node: SwitchCstNode, smartCastType: JavaType?): ExpressionNode {
     // transforming the switch into a when
     val switchExpression = node.switchExpression.accept(this,)
@@ -1647,7 +1666,7 @@ open class MarcelSemantic(
      * generating method
      */
     val whenMethod = generateOrGetWhenMethod(whenMethodParameters, whenReturnType, node)
-    val whenStatement = useScope(newMethodScope(whenMethod)) { visit(rootIfCstNode) }
+    val whenStatement = useScope(newMethodScope(whenMethod)) { visit(rootIfCstNode, smartCastType) }
     if (shouldReturnValue) {
       var tmpIfNode: IfStatementNode? = whenStatement
       val branchTransformer = ReturningWhenIfBranchTransformer(node) { caster.cast(whenReturnType, it) }
