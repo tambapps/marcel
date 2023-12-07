@@ -212,7 +212,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
   }
 
   fun getInterfaceLambdaMethod(type: JavaType): JavaMethod {
-    return getDeclaredMethods(type).first { it.isAbstract }
+    return getDeclaredMethods(type).first { it.isAbstract && it.name != "equals" && it.name != "hashCode" }
   }
 
   private fun loadAllMethods(javaType: JavaType, excludeInterfaces: Boolean = false): Set<JavaMethod> {

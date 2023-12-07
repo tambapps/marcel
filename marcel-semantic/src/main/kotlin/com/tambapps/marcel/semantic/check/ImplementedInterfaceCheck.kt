@@ -23,7 +23,7 @@ internal object ImplementedInterfaceCheck: ClassNodeVisitor {
 
   override fun visit(classNode: ClassNode, typeResolver: JavaTypeResolver) {
     for (interfaze in classNode.type.directlyImplementedInterfaces) {
-      for (interfaceMethod in typeResolver.getDeclaredMethods(interfaze).filter { it.isAbstract }) {
+      for (interfaceMethod in typeResolver.getDeclaredMethods(interfaze).filter { it.isAbstract && it.name != "equals" && it.name != "hashCode" }) {
         val implementationMethod = classNode.methods.find { it.name == interfaceMethod.name
             && it.parameters.size == interfaceMethod.parameters.size
             && it.parametersAssignableTo(interfaceMethod)
