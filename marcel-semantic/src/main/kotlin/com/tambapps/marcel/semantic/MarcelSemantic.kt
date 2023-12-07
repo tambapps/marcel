@@ -1288,7 +1288,7 @@ open class MarcelSemantic(
   }
 
   override fun visit(node: VariableDeclarationCstNode): StatementNode {
-    val variable = currentMethodScope.addLocalVariable(visit(node.type), node.value)
+    val variable = currentMethodScope.addLocalVariable(visit(node.type), node.value, token = node.token)
     checkVariableAccess(variable, node, checkSet = true)
     return ExpressionStatementNode(
       VariableAssignmentNode(variable,
@@ -1318,7 +1318,7 @@ open class MarcelSemantic(
       // declare all variables
       val variableMap = mutableMapOf<Int, LocalVariable>()
       node.declarations.forEachIndexed { index, pair ->
-        if (pair != null) variableMap[index] = currentMethodScope.addLocalVariable(visit(pair.first), pair.second)
+        if (pair != null) variableMap[index] = currentMethodScope.addLocalVariable(visit(pair.first), pair.second, token = node.token)
       }
       // then assign
       when {
@@ -1613,7 +1613,7 @@ open class MarcelSemantic(
     val whenReturnType = smartCastType ?: computeWhenReturnType(node)
 
     val switchExpressionRef = ReferenceCstNode(node.parent, varDecl?.value ?: ("__switch_expression" + node.hashCode().toString().replace('-', '_')), node.token)
-    val switchExpressionLocalVariable = currentMethodScope.addLocalVariable(varDecl?.let { visit(it.type) } ?: switchExpression?.type ?: JavaType.Object, switchExpressionRef.value)
+    val switchExpressionLocalVariable = currentMethodScope.addLocalVariable(varDecl?.let { visit(it.type) } ?: switchExpression?.type ?: JavaType.Object, switchExpressionRef.value, token = node.token)
 
     val rootIfCstNode = node.branches.first().let {
       toIf(it, switchExpression, switchExpressionRef, node)
@@ -1731,12 +1731,12 @@ open class MarcelSemantic(
   }
 
   override fun visit(node: ForInCstNode) = useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
-    val variable = it.addLocalVariable(visit(node.varType), node.varName)
+    val variable = it.addLocalVariable(visit(node.varType), node.varName, token = node.token)
 
     val inNode = node.inNode.accept(this)
 
     return@useScope if (inNode.type.isArray) {
-      val iVar = it.addLocalVariable(JavaType.int)
+      val iVar = it.addLocalVariable(JavaType.int, token = node.token)
       val iRef = ReferenceNode(variable = iVar, token = node.token)
       val arrayVar = it.addLocalVariable(inNode.type)
       val arrayRef = ReferenceNode(variable = arrayVar, token = node.token)
@@ -1802,7 +1802,7 @@ open class MarcelSemantic(
     val inNode = node.inNode.accept(this)
 
     val localVars = node.declarations.map { pair ->
-      it.addLocalVariable(visit(pair.first), pair.second)
+      it.addLocalVariable(visit(pair.first), pair.second, token = node.token)
     }
 
     if (inNode.type.implements(JavaType.Map)) {
@@ -1840,7 +1840,7 @@ open class MarcelSemantic(
   }
 
   override fun visit(node: TruthyVariableDeclarationCstNode, smartCastType: JavaType?): ExpressionNode {
-    val variable = currentMethodScope.addLocalVariable(visit(node.type), node.value)
+    val variable = currentMethodScope.addLocalVariable(visit(node.type), node.value, token = node.token)
     var expression = node.expression.accept(this)
     /*
      * handle Optional unboxing
@@ -1908,7 +1908,7 @@ open class MarcelSemantic(
       if (!resourceType.implements(Closeable::class.javaType)) {
         throw MarcelSemanticException(node, "Try resources need to implement Closeable")
       }
-      val resourceVar = resourceScope.addLocalVariable(resourceType, it.value)
+      val resourceVar = resourceScope.addLocalVariable(resourceType, it.value, token = it.token)
       val resourceRef = ReferenceNode(variable = resourceVar, token = node.token)
 
       if (it.expressionNode == null) throw MarcelSemanticException(it, "Resource declarations need to be initialised")
