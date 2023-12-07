@@ -892,11 +892,11 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     val parameters = mutableListOf<LambdaCstNode.MethodParameterCstNode>()
     var explicit0Parameters = false
     // first parameter with no type specified
-    if (current.type == TokenType.IDENTIFIER && lookup(1)?.type in listOf(TokenType.COMMA, TokenType.ARROW)
+    if (current.type == TokenType.IDENTIFIER && lookup(1)?.type in listOf(TokenType.COMMA, TokenType.ARROW, TokenType.LT) // LT for generic types
       || ParserUtils.isTypeToken(current.type) && lookup(1)?.type == TokenType.IDENTIFIER && lookup(2)?.type in listOf(TokenType.COMMA, TokenType.ARROW)) {
       while (current.type != TokenType.ARROW) {
         val firstToken = current
-        val parameter = if (lookup(1)?.type == TokenType.IDENTIFIER) {
+        val parameter = if (lookup(1)?.type == TokenType.IDENTIFIER || lookup(1)?.type == TokenType.LT) {
           val type = parseType(parentNode)
           val identifier = accept(TokenType.IDENTIFIER)
           LambdaCstNode.MethodParameterCstNode(parentNode, firstToken, identifier, type, identifier.value)
