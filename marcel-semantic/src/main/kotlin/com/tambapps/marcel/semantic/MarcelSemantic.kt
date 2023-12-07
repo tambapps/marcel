@@ -1612,7 +1612,7 @@ open class MarcelSemantic(
 
     val whenReturnType = smartCastType ?: computeWhenReturnType(node)
 
-    val switchExpressionRef = ReferenceCstNode(node.parent, varDecl?.value ?: "__switch_expression", node.token)
+    val switchExpressionRef = ReferenceCstNode(node.parent, varDecl?.value ?: ("__switch_expression" + node.hashCode().toString().replace('-', '_')), node.token)
     val switchExpressionLocalVariable = currentMethodScope.addLocalVariable(varDecl?.let { visit(it.type) } ?: switchExpression?.type ?: JavaType.Object, switchExpressionRef.value)
 
     val rootIfCstNode = node.branches.first().let {
