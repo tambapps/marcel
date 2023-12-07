@@ -126,4 +126,12 @@ public class StringMarcelMethods {
   public static String reversed(CharSequence self) {
     return new StringBuilder(self).reverse().toString();
   }
+
+  public static int count(CharSequence self, CharacterPredicate predicate) {
+    int count = 0;
+    for (int i = 0; i < self.length(); i++) {
+      if (predicate.test(self.charAt(i))) count++;
+    }
+    return count;
+  }
 }
