@@ -37,7 +37,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ElvisNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GeNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GtNode
-import com.tambapps.marcel.semantic.ast.expression.operator.IncrLocalVariableNode
+import com.tambapps.marcel.semantic.ast.expression.operator.IncrIntLocalVariableNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IncrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsNotEqualNode
@@ -78,7 +78,7 @@ class ForEachNodeVisitor(
     node.incrExpression.accept(this)
   }
 
-  override fun visit(node: IncrLocalVariableNode) {
+  override fun visit(node: IncrIntLocalVariableNode) {
     consume(node)
   }
 

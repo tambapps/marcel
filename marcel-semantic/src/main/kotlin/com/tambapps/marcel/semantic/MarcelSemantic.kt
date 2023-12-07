@@ -110,7 +110,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ElvisNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GeNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GtNode
-import com.tambapps.marcel.semantic.ast.expression.operator.IncrLocalVariableNode
+import com.tambapps.marcel.semantic.ast.expression.operator.IncrIntLocalVariableNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IncrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsNotEqualNode
@@ -768,7 +768,7 @@ open class MarcelSemantic(
       throw MarcelSemanticException(node, "Can only increment primitive number variables")
     }
     checkVariableAccess(variable, node, checkGet = true, checkSet = true)
-    return if (variable is LocalVariable) IncrLocalVariableNode(node, variable, node.amount, node.returnValueBefore)
+    return if (variable is LocalVariable && variable.type == JavaType.int) IncrIntLocalVariableNode(node, variable, node.amount, node.returnValueBefore)
      else {
       val incrExpression = PlusNode(ReferenceNode(
         owner = owner,
@@ -1751,7 +1751,7 @@ open class MarcelSemantic(
       val condition = LtNode(leftOperand = iRef, rightOperand = ReferenceNode(owner = arrayRef, typeResolver.findField(arrayVar.type, "length")!!, node.token))
 
       // i++
-      val iteratorStatement = ExpressionStatementNode(IncrLocalVariableNode(node, iVar, 1, false))
+      val iteratorStatement = ExpressionStatementNode(IncrIntLocalVariableNode(node, iVar, 1, false))
 
       // body
       val body = BlockStatementNode(mutableListOf(

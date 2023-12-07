@@ -5,7 +5,6 @@ import com.tambapps.marcel.compiler.extensions.arrayLoadCode
 import com.tambapps.marcel.compiler.extensions.descriptor
 import com.tambapps.marcel.compiler.extensions.divCode
 import com.tambapps.marcel.compiler.extensions.internalName
-import com.tambapps.marcel.compiler.extensions.loadCode
 import com.tambapps.marcel.compiler.extensions.modCode
 import com.tambapps.marcel.compiler.extensions.mulCode
 import com.tambapps.marcel.compiler.extensions.shlCode
@@ -37,7 +36,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ElvisNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GeNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GtNode
-import com.tambapps.marcel.semantic.ast.expression.operator.IncrLocalVariableNode
+import com.tambapps.marcel.semantic.ast.expression.operator.IncrIntLocalVariableNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IncrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsNotEqualNode
@@ -87,7 +86,7 @@ class PushingMethodExpressionWriter(mv: MethodVisitor, typeResolver: JavaTypeRes
     )
   }
 
-  override fun visit(node: IncrLocalVariableNode) {
+  override fun visit(node: IncrIntLocalVariableNode) {
     val variable = node.localVariable
     if (node.returnValueBefore) {
       loadVariableVisitor.visit(variable)
