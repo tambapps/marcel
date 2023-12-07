@@ -192,6 +192,7 @@ class ForEachNodeVisitor(
 
   override fun visit(node: SwitchCstNode, smartCastType: Unit?) {
     consume(node)
+    node.switchExpression.accept(this)
     node.branches.forEach { it.first.accept(this); it.second.accept(this) }
     node.elseStatement?.accept(this)
   }
