@@ -114,9 +114,7 @@ interface JavaMethod: JavaTyped {
 
   private fun matches(typeResolver: JavaTypeResolver, expectedType: JavaType, actualType: JavaType): Boolean {
     return if (expectedType.isInterface && actualType.isLambda) {
-      val declaredMethods = typeResolver.getDeclaredMethods(expectedType)
-        .filter { it.isAbstract }
-      return declaredMethods.size == 1 // lambda parameter matches will be done by lambda handler
+      return typeResolver.getInterfaceLambdaMethod(expectedType) != null // lambda parameter matches will be done by lambda handler
     } else expectedType.isAssignableFrom(actualType)
   }
 

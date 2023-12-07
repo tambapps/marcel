@@ -211,8 +211,11 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     return fieldResolver.getAllFields(javaType).values
   }
 
-  fun getInterfaceLambdaMethod(type: JavaType): JavaMethod {
-    return getDeclaredMethods(type).first { it.isAbstract && it.name != "equals" && it.name != "hashCode" }
+  fun getInterfaceLambdaMethodOrThrow(type: JavaType, token: LexToken): JavaMethod {
+    return getInterfaceLambdaMethod(type) ?: throw MarcelSemanticException(token, "Interface isn't a functional interface")
+  }
+  fun getInterfaceLambdaMethod(type: JavaType): JavaMethod? {
+    return getDeclaredMethods(type).firstOrNull { it.isAbstract && it.name != "equals" && it.name != "hashCode" }
   }
 
   private fun loadAllMethods(javaType: JavaType, excludeInterfaces: Boolean = false): Set<JavaMethod> {

@@ -1504,7 +1504,7 @@ open class MarcelSemantic(
     val methodParameters = computeLambdaParameters(lambdaNode, interfaceType)
     val lambdaMethodScope: LambdaMethodScope
     if (interfaceType != null && interfaceType.packageName != "marcel.lang.lambda") {
-      val interfaceMethod = typeResolver.getInterfaceLambdaMethod(interfaceType)
+      val interfaceMethod = typeResolver.getInterfaceLambdaMethodOrThrow(interfaceType, lambdaNode.token)
       val lambdaParameters = mutableListOf<MethodParameter>()
       interfaceMethod.parameters.forEachIndexed { index, methodParameter ->
         lambdaParameters.add(MethodParameter(methodParameters[index].type, methodParameters[index].name))
@@ -1532,7 +1532,7 @@ open class MarcelSemantic(
       // needed because we don't want to add this twice
       if (interfaceType?.packageName != "marcel.lang.lambda") lambdaNode.type.addImplementedInterface(lambdaType)
 
-      val lambdaMethod = typeResolver.getInterfaceLambdaMethod(lambdaType)
+      val lambdaMethod = typeResolver.getInterfaceLambdaMethodOrThrow(lambdaType, lambdaNode.token)
       val lambdaMethodNode = MethodNode(lambdaMethod.name, methodParameters, lambdaMethod.visibility,
         lambdaMethod.actualReturnType, lambdaMethod.isStatic, lambdaNode.tokenStart, lambdaNode.tokenEnd, lambdaNode.type)
 
@@ -1592,7 +1592,7 @@ open class MarcelSemantic(
       else if (lambdaNode.lambdaMethodParameters.isEmpty()) mutableListOf(MethodParameter(JavaType.Object, "it"))
       else lambdaNode.lambdaMethodParameters.map { MethodParameter(it.type ?: JavaType.Object, it.name) }.toMutableList()
     }
-    val method = typeResolver.getInterfaceLambdaMethod(interfaceType)
+    val method = typeResolver.getInterfaceLambdaMethodOrThrow(interfaceType, lambdaNode.token)
 
     if (lambdaNode.explicit0Parameters) {
       if (method.parameters.isNotEmpty()) throw MarcelSemanticException(lambdaNode.token, "Lambda parameters mismatch. Expected parameters ${method.parameters}")
