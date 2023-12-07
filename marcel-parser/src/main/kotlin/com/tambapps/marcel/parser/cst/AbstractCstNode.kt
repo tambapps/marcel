@@ -25,10 +25,5 @@ abstract class AbstractCstNode(
     return true
   }
 
-  override fun hashCode(): Int {
-    var result = value?.hashCode() ?: 0
-    return result
-  }
-
 
 }
