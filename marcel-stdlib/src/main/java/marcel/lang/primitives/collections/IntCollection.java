@@ -63,6 +63,15 @@ public interface IntCollection extends Collection<Integer>, IntIterable {
    * @see Collection#remove(Object)
    */
   boolean removeInt(int key);
+
+  // TODO add this method on non primitive collections, and other primitive collections
+  default boolean replace(int element, int replacement) {
+    if (removeInt(element)) {
+      return add(replacement);
+    }
+    throw new NoSuchElementException();
+  }
+
   /** {@inheritDoc}
    * @deprecated Please use the corresponding type-specific method instead.
    */

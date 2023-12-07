@@ -443,6 +443,19 @@ public final class DefaultMarcelMethods {
     return true;
   }
 
+  // TODO add equivalent on arrays
+  public static <T, U extends Comparable<? super U>> T max(Collection<T> self, Function<T, U> predicate) {
+    return self.stream()
+        .max(Comparator.comparing(predicate))
+        .orElseThrow(NoSuchElementException::new);
+  }
+
+  public static <T, U extends Comparable<? super U>> T min(Collection<T> self, Function<T, U> predicate) {
+    return self.stream()
+        .min(Comparator.comparing(predicate))
+        .orElseThrow(NoSuchElementException::new);
+  }
+
   /**
    * Find the first element matching the given predicate
    *
@@ -855,6 +868,51 @@ public final class DefaultMarcelMethods {
     return set;
   }
 
+  public static IntList toIntList(Collection<?> self) {
+    Iterator<?> iterator = self.iterator();
+    IntList list = new IntArrayList();
+    while (iterator.hasNext()) {
+      list.add(((Number)iterator.next()).intValue());
+    }
+    return list;
+  }
+
+  public static LongList toLongList(Collection<?> self) {
+    Iterator<?> iterator = self.iterator();
+    LongList set = new LongArrayList();
+    while (iterator.hasNext()) {
+      set.add(((Number)iterator.next()).longValue());
+    }
+    return set;
+  }
+
+  public static FloatList toFloatList(Collection<?> self) {
+    Iterator<?> iterator = self.iterator();
+    FloatList list = new FloatArrayList();
+    while (iterator.hasNext()) {
+      list.add(((Number)iterator.next()).floatValue());
+    }
+    return list;
+  }
+
+  public static DoubleList toDoubleList(Collection<?> self) {
+    Iterator<?> iterator = self.iterator();
+    DoubleList list = new DoubleArrayList();
+    while (iterator.hasNext()) {
+      list.add(((Number)iterator.next()).doubleValue());
+    }
+    return list;
+  }
+
+  public static CharacterList toCharacterList(Collection<?> self) {
+    Iterator<?> iterator = self.iterator();
+    CharacterList list = new CharacterArrayList();
+    while (iterator.hasNext()) {
+      list.add((Character) iterator.next());
+    }
+    return list;
+  }
+
   /**
    * Map the list into an IntList
    *
@@ -1202,7 +1260,7 @@ public final class DefaultMarcelMethods {
    * @param <T>          the type of the list
    * @param <U>          the comparable type
    */
-  public static <T, U extends Comparable<U>> void sort(List<T> self, Function<T, U> keyExtractor) {
+  public static <T, U extends Comparable<U>> void sortBy(List<T> self, Function<T, U> keyExtractor) {
     self.sort(Comparator.comparing(keyExtractor));
   }
 
@@ -1216,7 +1274,7 @@ public final class DefaultMarcelMethods {
     }
   }
 
-  public static <T, U extends Comparable<U>> void sort(T[] self, Function<T, U> keyExtractor) {
+  public static <T, U extends Comparable<U>> void sortBy(T[] self, Function<T, U> keyExtractor) {
     Arrays.sort(self, Comparator.comparing(keyExtractor));
   }
 
