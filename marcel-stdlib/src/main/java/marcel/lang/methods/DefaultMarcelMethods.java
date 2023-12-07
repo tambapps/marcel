@@ -696,6 +696,51 @@ public final class DefaultMarcelMethods {
     return set;
   }
 
+  public static IntSet toIntSet(Collection<?> self) {
+    Iterator<?> iterator = self.iterator();
+    IntSet set = new IntOpenHashSet();
+    while (iterator.hasNext()) {
+      set.add(((Number)iterator.next()).intValue());
+    }
+    return set;
+  }
+
+  public static LongSet toLongSet(Collection<?> self) {
+    Iterator<?> iterator = self.iterator();
+    LongSet set = new LongOpenHashSet();
+    while (iterator.hasNext()) {
+      set.add(((Number)iterator.next()).longValue());
+    }
+    return set;
+  }
+
+  public static FloatSet toFloatSet(Collection<?> self) {
+    Iterator<?> iterator = self.iterator();
+    FloatSet set = new FloatOpenHashSet();
+    while (iterator.hasNext()) {
+      set.add(((Number)iterator.next()).floatValue());
+    }
+    return set;
+  }
+
+  public static DoubleSet toDoubleSet(Collection<?> self) {
+    Iterator<?> iterator = self.iterator();
+    DoubleSet set = new DoubleOpenHashSet();
+    while (iterator.hasNext()) {
+      set.add(((Number)iterator.next()).doubleValue());
+    }
+    return set;
+  }
+
+  public static CharacterSet toCharacterSet(Collection<?> self) {
+    Iterator<?> iterator = self.iterator();
+    CharacterSet set = new CharacterOpenHashSet();
+    while (iterator.hasNext()) {
+      set.add((Character) iterator.next());
+    }
+    return set;
+  }
+
   public static <T> Set<T> toSet(T[] self) {
     Set<T> set = new HashSet<>();
     for (T e : self) {
@@ -704,7 +749,7 @@ public final class DefaultMarcelMethods {
     return set;
   }
 
-  public static <T> IntSet toSet(int[] self) {
+  public static IntSet toSet(int[] self) {
     IntSet set = new IntOpenHashSet();
     for (int e : self) {
       set.add(e);
@@ -712,7 +757,7 @@ public final class DefaultMarcelMethods {
     return set;
   }
 
-  public static <T> LongSet toSet(long[] self) {
+  public static LongSet toSet(long[] self) {
     LongSet set = new LongOpenHashSet();
     for (long e : self) {
       set.add(e);
@@ -720,7 +765,7 @@ public final class DefaultMarcelMethods {
     return set;
   }
 
-  public static <T> FloatSet toSet(float[] self) {
+  public static FloatSet toSet(float[] self) {
     FloatSet set = new FloatOpenHashSet();
     for (float e : self) {
       set.add(e);
@@ -728,7 +773,7 @@ public final class DefaultMarcelMethods {
     return set;
   }
 
-  public static <T> DoubleSet toSet(double[] self) {
+  public static DoubleSet toSet(double[] self) {
     DoubleSet set = new DoubleOpenHashSet();
     for (double e : self) {
       set.add(e);
@@ -736,7 +781,7 @@ public final class DefaultMarcelMethods {
     return set;
   }
 
-  public static <T> CharacterSet toSet(char[] self) {
+  public static CharacterSet toSet(char[] self) {
     CharacterSet set = new CharacterOpenHashSet();
     for (char e : self) {
       set.add(e);
