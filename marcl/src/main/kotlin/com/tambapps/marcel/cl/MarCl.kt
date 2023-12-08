@@ -57,15 +57,12 @@ class ExecuteCommand(private val scriptArguments: Array<String>) : CliktCommand(
     // we want to keep jar because we will run it
     val (className, jarFile) = compile(file, keepClassFiles, true, printStackTrace, scriptLoader) ?: return
 
-    try {
-      // and then run it with the new classLoader
-      scriptLoader.loadScript(className, jarFile)
-        .run(scriptArguments)
-    } finally {
-      if (!keepJarFile) {
-        jarFile.delete()
-      }
+    if (!keepJarFile) {
+      jarFile.deleteOnExit()
     }
+    // and then run it with the new classLoader
+    scriptLoader.loadScript(className, jarFile)
+      .run(scriptArguments)
   }
 }
 
@@ -98,7 +95,7 @@ fun main(args : Array<String>) {
   }
 }
 
-fun compile(file: File, keepClassFiles: Boolean, keepJarFile: Boolean, printStackTrace: Boolean, scriptLoader: MarcelClassLoader? = null): Pair<String, File>? {
+fun compile(file: File, generateClassFiles: Boolean, generateJarFile: Boolean, printStackTrace: Boolean, scriptLoader: MarcelClassLoader? = null): Pair<String, File>? {
   val classes = try {
     MarcelCompiler(CompilerConfiguration(dumbbellEnabled = true)).compile(file, scriptLoader)
   } catch (e: IOException) {
@@ -128,12 +125,13 @@ fun compile(file: File, keepClassFiles: Boolean, keepJarFile: Boolean, printStac
   }
 
   for (compiledClass in classes) {
-    if (!keepClassFiles && !keepJarFile || keepClassFiles) { // if no option is specified
+    if (!generateClassFiles && !generateJarFile // if no option is specified
+      || generateClassFiles) {
       File("${compiledClass.className}.class").writeBytes(compiledClass.bytes)
     }
   }
 
-  if (!keepJarFile) return null
+  if (!generateJarFile) return null
   // script can have a package. That's why we need to lookup className from compiled classes
   val scriptClassName = classes.find { it.isScript }?.className ?: return null
 
