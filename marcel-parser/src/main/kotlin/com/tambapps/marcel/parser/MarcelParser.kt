@@ -274,7 +274,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
 
   fun method(parentNode: CstNode?, annotations: List<AnnotationCstNode>, access: CstAccessNode): AbstractMethodCstNode {
     val token = current
-    val isConstructor = accept(TokenType.FUN, TokenType.CONSTRUCTOR).type == TokenType.CONSTRUCTOR
+    val isConstructor = acceptOneOf(TokenType.FUN, TokenType.CONSTRUCTOR).type == TokenType.CONSTRUCTOR
     val node = if (!isConstructor) {
       val returnType = parseType(parentNode)
       val methodName = accept(TokenType.IDENTIFIER).value
@@ -337,7 +337,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
   private fun parseAccess(parentNode: CstNode?): CstAccessNode {
     val startIndex = currentIndex
     val tokenStart = current
-    val visibilityToken = acceptOptional(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED,
+    val visibilityToken = acceptOptionalOneOf(TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED,
       TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE)?.type ?: TokenType.VISIBILITY_PUBLIC
     val isStatic = acceptOptional(TokenType.STATIC) != null
     val isFinal = acceptOptional(TokenType.FINAL) != null
@@ -1092,8 +1092,18 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     }
   }
 
-  // TODO rename acceptOneOf to avoid ambiguity
-  private fun accept(vararg types: TokenType): LexToken {
+  private fun accept(type: TokenType): LexToken {
+    val token = current
+    if (token.type != type) {
+      throw MarcelParserException(
+        current, "Expected token of type $type but got ${token.type}"
+      )
+    }
+    currentIndex++
+    return token
+  }
+
+  private fun acceptOneOf(vararg types: TokenType): LexToken {
     val token = current
     if (token.type !in types) {
       throw MarcelParserException(
@@ -1105,8 +1115,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     return token
   }
 
-  // TODO rename acceptOptionalOneOf to avoid ambiguity
-  private fun acceptOptional(vararg types: TokenType): LexToken? {
+  private fun acceptOptionalOneOf(vararg types: TokenType): LexToken? {
     val token = currentSafe
     if (token?.type in types) {
       currentIndex++
@@ -1151,9 +1160,6 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
 
   private fun lookup(howFar: Int): LexToken? {
     return tokens.getOrNull(currentIndex + howFar)
-  }
-  fun reset() {
-    currentIndex = 0
   }
 
   private fun checkEof() {
