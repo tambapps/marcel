@@ -1226,7 +1226,7 @@ open class MarcelSemantic(
       }
     }
     // look for delegate if any
-    if (currentScope.classType.implements(DelegatedObject::class.javaType)) {
+    if (currentScope.classType.isScript) {
       val delegateGetter = typeResolver.findMethod(currentScope.classType, "getDelegate", emptyList())
       if (delegateGetter != null) {
         methodResolve = methodResolver.resolveMethod(node, delegateGetter.returnType, node.value, positionalArguments, namedArguments)
