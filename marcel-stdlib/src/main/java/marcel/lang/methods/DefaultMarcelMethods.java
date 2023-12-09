@@ -450,16 +450,51 @@ public final class DefaultMarcelMethods {
     return true;
   }
 
-  // TODO add equivalent on arrays
-  public static <T, U extends Comparable<? super U>> T max(Collection<T> self, Function<T, U> predicate) {
+  public static <T, U extends Comparable<? super U>> T max(Collection<T> self, Function<T, U> keyExtractor) {
     return self.stream()
-        .max(Comparator.comparing(predicate))
+        .max(Comparator.comparing(keyExtractor))
         .orElseThrow(NoSuchElementException::new);
   }
 
-  public static <T, U extends Comparable<? super U>> T min(Collection<T> self, Function<T, U> predicate) {
+  public static <T, U extends Comparable<? super U>> T max(T[] self, Function<T, U> keyExtractor) {
+    return Arrays.stream(self)
+        .max(Comparator.comparing(keyExtractor))
+        .orElseThrow(NoSuchElementException::new);
+  }
+
+  public static <T extends Comparable<? super T>> T max(Collection<T> self) {
     return self.stream()
-        .min(Comparator.comparing(predicate))
+        .max(Comparator.comparing(Function.identity()))
+        .orElseThrow(NoSuchElementException::new);
+  }
+
+  public static <T extends Comparable<? super T>> T max(T[] self) {
+    return Arrays.stream(self)
+        .max(Comparator.comparing(Function.identity()))
+        .orElseThrow(NoSuchElementException::new);
+  }
+
+  public static <T, U extends Comparable<? super U>> T min(Collection<T> self, Function<T, U> keyExtractor) {
+    return self.stream()
+        .min(Comparator.comparing(keyExtractor))
+        .orElseThrow(NoSuchElementException::new);
+  }
+
+  public static <T, U extends Comparable<? super U>> T min(T[] self, Function<T, U> keyExtractor) {
+    return Arrays.stream(self)
+        .min(Comparator.comparing(keyExtractor))
+        .orElseThrow(NoSuchElementException::new);
+  }
+
+  public static <T extends Comparable<? super T>> T min(Collection<T> self) {
+    return self.stream()
+        .min(Comparator.comparing(Function.identity()))
+        .orElseThrow(NoSuchElementException::new);
+  }
+
+  public static <T extends Comparable<? super T>> T min(T[] self) {
+    return Arrays.stream(self)
+        .min(Comparator.comparing(Function.identity()))
         .orElseThrow(NoSuchElementException::new);
   }
 
@@ -648,7 +683,6 @@ public final class DefaultMarcelMethods {
     return list;
   }
 
-  // TODO implement these reduce function in primivite collections
   public static <T> T reduce(Collection<T> collection, BiFunction<T, T, T> function) {
     Iterator<T> iterator = collection.iterator();
     if (!iterator.hasNext()) throw new NoSuchElementException();
