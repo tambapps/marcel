@@ -474,16 +474,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         }
         TokenType.FOR -> {
           accept(TokenType.LPAR)
-          if (lookup(1)?.type == TokenType.IDENTIFIER && lookup(2)?.type == TokenType.IN) {
-            // for in statement
-            val type = parseType(parentNode)
-            val identifier = accept(TokenType.IDENTIFIER).value
-            accept(TokenType.IN)
-            val expression = expression(parentNode)
-            accept(TokenType.RPAR)
-            val forBlock = statement(parentNode)
-            ForInCstNode(type, identifier, expression, forBlock, parentNode, token, previous)
-          } else if (current.type == TokenType.LPAR) {
+          if (current.type == TokenType.LPAR) {
             // multi var declaration
             accept(TokenType.LPAR)
             val declarations = mutableListOf<Pair<TypeCstNode, String>>()
@@ -504,22 +495,27 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
 
             ForInMultiVarCstNode(declarations, expression, forBlock, parentNode, token, forBlock.tokenEnd)
           } else {
-            // for (;;)
-            // needed especially if initStatement is var declaration
-            val initStatement = statement(parentNode)
-            if (initStatement !is VariableDeclarationCstNode) {
-              throw MarcelParserException(
-                previous,
-                "For loops should start with variable declaration/assignment"
-              )
+            val type = parseType(parentNode)
+            if (lookup(1)?.type == TokenType.IN) {
+              // for in statement
+              val identifier = accept(TokenType.IDENTIFIER).value
+              accept(TokenType.IN)
+              val expression = expression(parentNode)
+              accept(TokenType.RPAR)
+              val forBlock = statement(parentNode)
+              ForInCstNode(type, identifier, expression, forBlock, parentNode, token, previous)
+            } else {
+              // for (;;)
+              // needed especially if initStatement is var declaration
+              val initStatement = varDecl(parentNode, type)
+              accept(TokenType.SEMI_COLON)
+              val condition = expression(parentNode)
+              accept(TokenType.SEMI_COLON)
+              val iteratorStatement = statement(parentNode)
+              accept(TokenType.RPAR)
+              val forBlock = statement(parentNode)
+              ForVarCstNode(initStatement, condition, iteratorStatement, forBlock, parentNode, token, forBlock.tokenEnd)
             }
-            // semi should have been parsed by the above statement
-            val condition = expression(parentNode)
-            accept(TokenType.SEMI_COLON)
-            val iteratorStatement = statement(parentNode)
-            accept(TokenType.RPAR)
-            val forBlock = statement(parentNode)
-            ForVarCstNode(initStatement, condition, iteratorStatement, forBlock, parentNode, token, forBlock.tokenEnd)
           }
         }
         TokenType.BREAK -> BreakCstNode(parentNode, token)
@@ -583,8 +579,8 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     } else expression(parentNode)
   }
 
-  private fun varDecl(parentNode: CstNode?): VariableDeclarationCstNode {
-    val type = parseType(parentNode)
+  private fun varDecl(parentNode: CstNode?) = varDecl(parentNode, parseType(parentNode))
+  private fun varDecl(parentNode: CstNode?, type: TypeCstNode): VariableDeclarationCstNode {
     val identifierToken = accept(TokenType.IDENTIFIER)
     val expression = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(parentNode) else null
     return VariableDeclarationCstNode(type, identifierToken.value, expression, parentNode, type.tokenStart, expression?.tokenEnd ?: identifierToken)
