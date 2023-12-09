@@ -661,38 +661,6 @@ public final class DefaultMarcelMethods {
     return u;
   }
 
-  public static int sumInt(Collection<?> collection) {
-    int sum = 0;
-    for (Object o : collection) {
-      sum += ((Number) o).intValue();
-    }
-    return sum;
-  }
-
-  public static long sumLong(Collection<?> collection) {
-    long sum = 0;
-    for (Object o : collection) {
-      sum += ((Number) o).longValue();
-    }
-    return sum;
-  }
-
-  public static float sumFloat(Collection<?> collection) {
-    float sum = 0;
-    for (Object o : collection) {
-      sum += ((Number) o).floatValue();
-    }
-    return sum;
-  }
-
-  public static double sumDouble(Collection<?> collection) {
-    double sum = 0;
-    for (Object o : collection) {
-      sum += ((Number) o).doubleValue();
-    }
-    return sum;
-  }
-
   /**
    * Converts a collection into a set
    *
