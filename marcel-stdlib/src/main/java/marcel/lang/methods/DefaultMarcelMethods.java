@@ -211,6 +211,13 @@ public final class DefaultMarcelMethods {
     return new CharacterOpenHashSet(CharacterArrayList.wrap(self));
   }
 
+  public static <T> boolean replace(Collection<T> collection, T element, T replacement) {
+    if (collection.remove(element)) {
+      return collection.add(replacement);
+    }
+    throw new NoSuchElementException();
+  }
+
   public static void shuffle(List<?> self) {
     Collections.shuffle(self);
   }

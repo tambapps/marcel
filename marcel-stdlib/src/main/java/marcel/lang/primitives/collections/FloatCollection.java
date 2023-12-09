@@ -15,8 +15,16 @@
  */
 package marcel.lang.primitives.collections;
 
+import marcel.lang.primitives.collections.lists.CharacterArrayList;
+import marcel.lang.primitives.collections.lists.CharacterList;
+import marcel.lang.primitives.collections.lists.DoubleArrayList;
+import marcel.lang.primitives.collections.lists.DoubleList;
 import marcel.lang.primitives.collections.lists.FloatArrayList;
 import marcel.lang.primitives.collections.lists.FloatList;
+import marcel.lang.primitives.collections.lists.IntArrayList;
+import marcel.lang.primitives.collections.lists.IntList;
+import marcel.lang.primitives.collections.lists.LongArrayList;
+import marcel.lang.primitives.collections.lists.LongList;
 import marcel.lang.primitives.collections.sets.FloatOpenHashSet;
 import marcel.lang.primitives.collections.sets.FloatSet;
 import marcel.lang.primitives.iterable.FloatIterable;
@@ -62,6 +70,14 @@ public interface FloatCollection extends Collection<Float>, FloatIterable {
    * @see Collection#remove(Object)
    */
   boolean removeFloat(float key);
+
+  default boolean replace(float element, float replacement) {
+    if (removeFloat(element)) {
+      return add(replacement);
+    }
+    throw new NoSuchElementException();
+  }
+
   /** {@inheritDoc}
    * @deprecated Please use the corresponding type-specific method instead.
    */
@@ -165,6 +181,51 @@ public interface FloatCollection extends Collection<Float>, FloatIterable {
   boolean retainAll(FloatCollection c);
 
   FloatSpliterator spliterator();
+
+  default LongList mapToLong(FloatFunction<Long> function) {
+    LongList list = new LongArrayList(size());
+    FloatIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      list.add(function.apply(iterator.nextFloat()));
+    }
+    return list;
+  }
+
+  default IntList mapToInt(FloatFunction<Integer> function) {
+    IntList intList = new IntArrayList(size());
+    FloatIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      intList.add(function.apply(iterator.nextFloat()));
+    }
+    return intList;
+  }
+
+  default FloatList mapToFloat(FloatFunction<Float> function) {
+    FloatList intList = new FloatArrayList(size());
+    FloatIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      intList.add(function.apply(iterator.nextFloat()));
+    }
+    return intList;
+  }
+
+  default DoubleList mapToDouble(FloatFunction<Double> function) {
+    DoubleList intList = new DoubleArrayList(size());
+    FloatIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      intList.add(function.apply(iterator.nextFloat()));
+    }
+    return intList;
+  }
+
+  default CharacterList mapToCharacter(FloatFunction<Character> function) {
+    CharacterList intList = new CharacterArrayList(size());
+    FloatIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      intList.add(function.apply(iterator.nextFloat()));
+    }
+    return intList;
+  }
 
   default java.util.stream.DoubleStream doubleStream() {
     return stream().mapToDouble(Float::doubleValue);

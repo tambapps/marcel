@@ -15,6 +15,14 @@
  */
 package marcel.lang.primitives.collections;
 
+import marcel.lang.primitives.collections.lists.CharacterArrayList;
+import marcel.lang.primitives.collections.lists.CharacterList;
+import marcel.lang.primitives.collections.lists.DoubleArrayList;
+import marcel.lang.primitives.collections.lists.DoubleList;
+import marcel.lang.primitives.collections.lists.FloatArrayList;
+import marcel.lang.primitives.collections.lists.FloatList;
+import marcel.lang.primitives.collections.lists.IntArrayList;
+import marcel.lang.primitives.collections.lists.IntList;
 import marcel.lang.primitives.collections.lists.LongArrayList;
 import marcel.lang.primitives.collections.lists.LongList;
 import marcel.lang.primitives.collections.sets.LongOpenHashSet;
@@ -62,6 +70,14 @@ public interface LongCollection extends Collection<Long>, LongIterable {
    * @see Collection#remove(Object)
    */
   boolean removeLong(long key);
+
+  default boolean replace(long element, long replacement) {
+    if (removeLong(element)) {
+      return add(replacement);
+    }
+    throw new NoSuchElementException();
+  }
+
   /** {@inheritDoc}
    * @deprecated Please use the corresponding type-specific method instead.
    */
@@ -170,7 +186,6 @@ public interface LongCollection extends Collection<Long>, LongIterable {
     return java.util.stream.StreamSupport.longStream(spliterator(), false);
   }
 
-  // TODO add equivalent to other primitives, and in other primitive classes, and the basic map function
   default LongList mapToLong(LongFunction<Long> function) {
     LongList list = new LongArrayList(size());
     LongIterator iterator = iterator();
@@ -178,6 +193,42 @@ public interface LongCollection extends Collection<Long>, LongIterable {
       list.add(function.apply(iterator.nextLong()));
     }
     return list;
+  }
+
+  default IntList mapToInt(LongFunction<Integer> function) {
+    IntList intList = new IntArrayList(size());
+    LongIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      intList.add(function.apply(iterator.nextLong()));
+    }
+    return intList;
+  }
+
+  default FloatList mapToFloat(LongFunction<Float> function) {
+    FloatList intList = new FloatArrayList(size());
+    LongIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      intList.add(function.apply(iterator.nextLong()));
+    }
+    return intList;
+  }
+
+  default DoubleList mapToDouble(LongFunction<Double> function) {
+    DoubleList intList = new DoubleArrayList(size());
+    LongIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      intList.add(function.apply(iterator.nextLong()));
+    }
+    return intList;
+  }
+
+  default CharacterList mapToCharacter(LongFunction<Character> function) {
+    CharacterList intList = new CharacterArrayList(size());
+    LongIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      intList.add(function.apply(iterator.nextLong()));
+    }
+    return intList;
   }
 
   default Long find(LongPredicate predicate)  {

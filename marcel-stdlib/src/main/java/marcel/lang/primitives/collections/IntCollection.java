@@ -15,8 +15,16 @@
  */
 package marcel.lang.primitives.collections;
 
+import marcel.lang.primitives.collections.lists.CharacterArrayList;
+import marcel.lang.primitives.collections.lists.CharacterList;
+import marcel.lang.primitives.collections.lists.DoubleArrayList;
+import marcel.lang.primitives.collections.lists.DoubleList;
+import marcel.lang.primitives.collections.lists.FloatArrayList;
+import marcel.lang.primitives.collections.lists.FloatList;
 import marcel.lang.primitives.collections.lists.IntArrayList;
 import marcel.lang.primitives.collections.lists.IntList;
+import marcel.lang.primitives.collections.lists.LongArrayList;
+import marcel.lang.primitives.collections.lists.LongList;
 import marcel.lang.primitives.collections.sets.IntOpenHashSet;
 import marcel.lang.primitives.collections.sets.IntSet;
 import marcel.lang.primitives.iterable.IntIterable;
@@ -29,7 +37,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
-import java.util.function.ToIntFunction;
 
 /** A type-specific Collection; provides some additional methods
  * that use polymorphism to avoid (un)boxing.
@@ -64,7 +71,6 @@ public interface IntCollection extends Collection<Integer>, IntIterable {
    */
   boolean removeInt(int key);
 
-  // TODO add this method on non primitive collections, and other primitive collections
   default boolean replace(int element, int replacement) {
     if (removeInt(element)) {
       return add(replacement);
@@ -180,7 +186,6 @@ public interface IntCollection extends Collection<Integer>, IntIterable {
     return java.util.stream.StreamSupport.intStream(spliterator(), false);
   }
 
-  // TODO add equivalent to other primitives, and in other primitive classes, and the basic map function
   default IntList mapToInt(IntFunction<Integer> function) {
     IntList intList = new IntArrayList(size());
     IntIterator iterator = iterator();
@@ -190,6 +195,41 @@ public interface IntCollection extends Collection<Integer>, IntIterable {
     return intList;
   }
 
+  default LongList mapToLong(IntFunction<Long> function) {
+    LongList intList = new LongArrayList(size());
+    IntIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      intList.add(function.apply(iterator.nextInt()));
+    }
+    return intList;
+  }
+
+  default FloatList mapToFloat(IntFunction<Float> function) {
+    FloatList intList = new FloatArrayList(size());
+    IntIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      intList.add(function.apply(iterator.nextInt()));
+    }
+    return intList;
+  }
+
+  default DoubleList mapToDouble(IntFunction<Double> function) {
+    DoubleList intList = new DoubleArrayList(size());
+    IntIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      intList.add(function.apply(iterator.nextInt()));
+    }
+    return intList;
+  }
+
+  default CharacterList mapToCharacter(IntFunction<Character> function) {
+    CharacterList intList = new CharacterArrayList(size());
+    IntIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      intList.add(function.apply(iterator.nextInt()));
+    }
+    return intList;
+  }
 
   default Integer find(IntPredicate predicate)  {
     IntIterator iterator = iterator();

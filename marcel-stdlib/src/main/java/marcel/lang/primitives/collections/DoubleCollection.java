@@ -16,8 +16,16 @@
 package marcel.lang.primitives.collections;
 
 
+import marcel.lang.primitives.collections.lists.CharacterArrayList;
+import marcel.lang.primitives.collections.lists.CharacterList;
 import marcel.lang.primitives.collections.lists.DoubleArrayList;
 import marcel.lang.primitives.collections.lists.DoubleList;
+import marcel.lang.primitives.collections.lists.FloatArrayList;
+import marcel.lang.primitives.collections.lists.FloatList;
+import marcel.lang.primitives.collections.lists.IntArrayList;
+import marcel.lang.primitives.collections.lists.IntList;
+import marcel.lang.primitives.collections.lists.LongArrayList;
+import marcel.lang.primitives.collections.lists.LongList;
 import marcel.lang.primitives.collections.sets.DoubleOpenHashSet;
 import marcel.lang.primitives.collections.sets.DoubleSet;
 import marcel.lang.primitives.iterable.DoubleIterable;
@@ -67,6 +75,12 @@ public interface DoubleCollection extends Collection<Double>, DoubleIterable {
    * @deprecated Please use the corresponding type-specific method instead.
    */
 
+  default boolean replace(double element, double replacement) {
+    if (removeDouble(element)) {
+      return add(replacement);
+    }
+    throw new NoSuchElementException();
+  }
 
   @Override
   default boolean add(final Double key) {
@@ -168,6 +182,51 @@ public interface DoubleCollection extends Collection<Double>, DoubleIterable {
   boolean retainAll(DoubleCollection c);
 
   DoubleSpliterator spliterator();
+
+  default LongList mapToLong(DoubleFunction<Long> function) {
+    LongList list = new LongArrayList(size());
+    DoubleIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      list.add(function.apply(iterator.nextDouble()));
+    }
+    return list;
+  }
+
+  default IntList mapToInt(DoubleFunction<Integer> function) {
+    IntList intList = new IntArrayList(size());
+    DoubleIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      intList.add(function.apply(iterator.nextDouble()));
+    }
+    return intList;
+  }
+
+  default FloatList mapToFloat(DoubleFunction<Float> function) {
+    FloatList intList = new FloatArrayList(size());
+    DoubleIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      intList.add(function.apply(iterator.nextDouble()));
+    }
+    return intList;
+  }
+
+  default DoubleList mapToDouble(DoubleFunction<Double> function) {
+    DoubleList intList = new DoubleArrayList(size());
+    DoubleIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      intList.add(function.apply(iterator.nextDouble()));
+    }
+    return intList;
+  }
+
+  default CharacterList mapToCharacter(DoubleFunction<Character> function) {
+    CharacterList intList = new CharacterArrayList(size());
+    DoubleIterator iterator = iterator();
+    while (iterator.hasNext()) {
+      intList.add(function.apply(iterator.nextDouble()));
+    }
+    return intList;
+  }
 
   default java.util.stream.DoubleStream doubleStream() {
     return java.util.stream.StreamSupport.doubleStream(spliterator(), false);
