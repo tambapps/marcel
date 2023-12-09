@@ -41,7 +41,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
 
   /* extensions */
   private fun loadDefaultExtensions() {
-    loadExtension(DefaultMarcelMethods::class.javaType)
+    loadExtensionUnsafe(DefaultMarcelMethods::class.javaType)
     loadExtensionsIfClassLoaded("FileExtensions", "StringMarcelMethods", "CharacterExtensions", "CharExtensions")
   }
 
@@ -54,7 +54,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     } catch (e: ClassNotFoundException) {
       return
     }
-    loadExtension(type)
+    loadExtensionUnsafe(type)
   }
 
   fun loadExtension(vararg types: JavaType) {
@@ -62,6 +62,16 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
   }
 
   fun loadExtension(type: JavaType) {
+    getDeclaredMethods(type).filter { it.isStatic && it.parameters.isNotEmpty() }
+      .forEach {
+        val owner = it.parameters.first().type
+        defineMethod(owner, ExtensionJavaMethod(it))
+      }
+  }
+
+
+  // Not checking if method is already defined. will allow going faster
+  private fun loadExtensionUnsafe(type: JavaType) {
     getDeclaredMethods(type).filter { it.isStatic && it.parameters.isNotEmpty() }
       .forEach {
         val owner = it.parameters.first().type
