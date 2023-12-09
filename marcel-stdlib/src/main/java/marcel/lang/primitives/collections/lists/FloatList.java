@@ -455,7 +455,9 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 	default float getFirst() {
 		return getAt(0);
 	}
-
+	default void setFirst(float value) {
+		putAt(0, value);
+	}
 	/**
 	 * Sets the last element of the list. This method wil throw an exception if the list is empty
 	 *

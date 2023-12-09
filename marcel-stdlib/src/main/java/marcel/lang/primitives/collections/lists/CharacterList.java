@@ -435,7 +435,9 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	default char getFirst() {
 		return getAt(0);
 	}
-
+	default void setFirst(char value) {
+		putAt(0, value);
+	}
 	/**
 	 * Sets the last element of the list. This method wil throw an exception if the list is empty
 	 *

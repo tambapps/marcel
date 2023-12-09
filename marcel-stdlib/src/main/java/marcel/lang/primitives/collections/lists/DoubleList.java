@@ -453,7 +453,9 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 	default double getFirst() {
 		return getAt(0);
 	}
-
+	default void setFirst(double value) {
+		putAt(0, value);
+	}
 	/**
 	 * Sets the last element of the list. This method wil throw an exception if the list is empty
 	 *

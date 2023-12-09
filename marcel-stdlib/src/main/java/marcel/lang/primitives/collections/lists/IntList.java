@@ -430,7 +430,9 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	default int getFirst() {
 		return getAt(0);
 	}
-
+	default void setFirst(int value) {
+		putAt(0, value);
+	}
 
 	/**
 	 * Sets the last element of the list. This method wil throw an exception if the list is empty

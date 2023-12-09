@@ -454,7 +454,9 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 	default long getFirst() {
 		return getAt(0);
 	}
-
+	default void setFirst(long value) {
+		putAt(0, value);
+	}
 	/**
 	 * Sets the last element of the list. This method wil throw an exception if the list is empty
 	 *
