@@ -1,17 +1,17 @@
 package com.tambapps.marcel.parser.cst
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
+import com.tambapps.marcel.parser.cst.expression.ExpressionNode
 
 class FieldCstNode(
   parent: CstNode?,
   tokenStart: LexToken,
   tokenEnd: LexToken,
-  val access: CstAccessNode,
-  val annotations: List<AnnotationCstNode>,
-  val type: TypeCstNode,
+  val access: AccessNode,
+  val annotations: List<AnnotationNode>,
+  val type: TypeNode,
   val name: String,
-  val initialValue: ExpressionCstNode?
+  val initialValue: ExpressionNode?
 ) :
   AbstractCstNode(parent, tokenStart, tokenEnd) {
 

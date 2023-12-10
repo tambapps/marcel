@@ -2,67 +2,67 @@ package com.tambapps.marcel.semantic
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
-import com.tambapps.marcel.parser.cst.AbstractMethodCstNode
-import com.tambapps.marcel.parser.cst.AnnotationCstNode
-import com.tambapps.marcel.parser.cst.ClassCstNode
-import com.tambapps.marcel.parser.cst.ConstructorCstNode
+import com.tambapps.marcel.parser.cst.AbstractMethodNode as AbstractMethodCstNode
+import com.tambapps.marcel.parser.cst.AnnotationNode as AnnotationCstNode
+import com.tambapps.marcel.parser.cst.ClassCstNode as ClassCstNode
+import com.tambapps.marcel.parser.cst.ConstructorNode as ConstructorCstNode
 import com.tambapps.marcel.parser.cst.CstNode
-import com.tambapps.marcel.parser.cst.FieldCstNode
-import com.tambapps.marcel.parser.cst.MethodCstNode
-import com.tambapps.marcel.parser.cst.MethodParameterCstNode
-import com.tambapps.marcel.parser.cst.ScriptCstNode
-import com.tambapps.marcel.parser.cst.SourceFileCstNode
-import com.tambapps.marcel.parser.cst.TypeCstNode
-import com.tambapps.marcel.parser.cst.expression.ExpressionCstNodeVisitor
-import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
-import com.tambapps.marcel.parser.cst.expression.NewInstanceCstNode
-import com.tambapps.marcel.parser.cst.expression.SuperConstructorCallCstNode
-import com.tambapps.marcel.parser.cst.expression.TemplateStringCstNode
-import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
-import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
-import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
-import com.tambapps.marcel.parser.cst.expression.literal.LongCstNode
-import com.tambapps.marcel.parser.cst.expression.literal.NullCstNode
-import com.tambapps.marcel.parser.cst.expression.reference.ClassReferenceCstNode
-import com.tambapps.marcel.parser.cst.expression.reference.DirectFieldReferenceCstNode
-import com.tambapps.marcel.parser.cst.expression.reference.IncrCstNode
-import com.tambapps.marcel.parser.cst.expression.reference.IndexAccessCstNode
-import com.tambapps.marcel.parser.cst.expression.reference.ReferenceCstNode
-import com.tambapps.marcel.parser.cst.expression.reference.SuperReferenceCstNode
-import com.tambapps.marcel.parser.cst.expression.reference.ThisReferenceCstNode
-import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
-import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
-import com.tambapps.marcel.parser.cst.statement.StatementCstNode
+import com.tambapps.marcel.parser.cst.FieldCstNode as FieldCstNode
+import com.tambapps.marcel.parser.cst.MethodNode as MethodCstNode
+import com.tambapps.marcel.parser.cst.MethodParameterCstNode as MethodParameterCstNode
+import com.tambapps.marcel.parser.cst.ScriptCstNode as ScriptCstNode
+import com.tambapps.marcel.parser.cst.SourceFileNode as SourceFileCstNode
+import com.tambapps.marcel.parser.cst.TypeNode as TypeCstNode
+import com.tambapps.marcel.parser.cst.expression.ExpressionCstNodeVisitor as ExpressionCstNodeVisitor
+import com.tambapps.marcel.parser.cst.expression.FunctionCallNode as FunctionCallCstNode
+import com.tambapps.marcel.parser.cst.expression.NewInstanceNode as NewInstanceCstNode
+import com.tambapps.marcel.parser.cst.expression.SuperConstructorCallNode as SuperConstructorCallCstNode
+import com.tambapps.marcel.parser.cst.expression.TemplateStringNode as TemplateStringCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.DoubleNode as DoubleCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.FloatNode as FloatCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.IntNode as IntCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.LongNode as LongCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.NullNode as NullCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.ClassReferenceNode as ClassReferenceCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.DirectFieldReferenceNode as DirectFieldReferenceCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.IncrNode as IncrCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.IndexAccessNode as IndexAccessCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.ReferenceNode as ReferenceCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.SuperReferenceNode as SuperReferenceCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.ThisReferenceNode as ThisReferenceCstNode
+import com.tambapps.marcel.parser.cst.statement.ExpressionStatementNode as ExpressionStatementCstNode
+import com.tambapps.marcel.parser.cst.statement.ReturnNode as ReturnCstNode
+import com.tambapps.marcel.parser.cst.statement.StatementNode as StatementCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNodeVisitor
-import com.tambapps.marcel.parser.cst.expression.literal.ArrayCstNode
-import com.tambapps.marcel.parser.cst.expression.literal.MapCstNode
-import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
-import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
-import com.tambapps.marcel.parser.cst.expression.BinaryTypeOperatorCstNode
-import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
-import com.tambapps.marcel.parser.cst.expression.LambdaCstNode
-import com.tambapps.marcel.parser.cst.expression.NotCstNode
-import com.tambapps.marcel.parser.cst.expression.SwitchCstNode
-import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
-import com.tambapps.marcel.parser.cst.expression.ThisConstructorCallCstNode
-import com.tambapps.marcel.parser.cst.expression.TruthyVariableDeclarationCstNode
-import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
-import com.tambapps.marcel.parser.cst.expression.WhenCstNode
-import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
-import com.tambapps.marcel.parser.cst.expression.literal.CharCstNode
-import com.tambapps.marcel.parser.cst.expression.literal.RegexCstNode
-import com.tambapps.marcel.parser.cst.statement.BlockCstNode
-import com.tambapps.marcel.parser.cst.statement.BreakCstNode
-import com.tambapps.marcel.parser.cst.statement.ContinueCstNode
-import com.tambapps.marcel.parser.cst.statement.ForInCstNode
-import com.tambapps.marcel.parser.cst.statement.ForInMultiVarCstNode
-import com.tambapps.marcel.parser.cst.statement.ForVarCstNode
-import com.tambapps.marcel.parser.cst.statement.IfCstStatementNode
-import com.tambapps.marcel.parser.cst.statement.MultiVarDeclarationCstNode
-import com.tambapps.marcel.parser.cst.statement.ThrowCstNode
-import com.tambapps.marcel.parser.cst.statement.TryCatchCstNode
-import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
-import com.tambapps.marcel.parser.cst.statement.WhileCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.ArrayNode as ArrayCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.MapNode as MapCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.StringNode as StringCstNode
+import com.tambapps.marcel.parser.cst.expression.BinaryOperatorNode as BinaryOperatorCstNode
+import com.tambapps.marcel.parser.cst.expression.BinaryTypeOperatorNode as BinaryTypeOperatorCstNode
+import com.tambapps.marcel.parser.cst.expression.ExpressionNode as ExpressionCstNode
+import com.tambapps.marcel.parser.cst.expression.LambdaNode as LambdaCstNode
+import com.tambapps.marcel.parser.cst.expression.NotNode as NotCstNode
+import com.tambapps.marcel.parser.cst.expression.SwitchNode as SwitchCstNode
+import com.tambapps.marcel.parser.cst.expression.TernaryNode as TernaryCstNode
+import com.tambapps.marcel.parser.cst.expression.ThisConstructorCallNode as ThisConstructorCallCstNode
+import com.tambapps.marcel.parser.cst.expression.TruthyVariableDeclarationNode as TruthyVariableDeclarationCstNode
+import com.tambapps.marcel.parser.cst.expression.UnaryMinusNode as UnaryMinusCstNode
+import com.tambapps.marcel.parser.cst.expression.WhenNode as WhenCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.BoolNode as BoolCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.CharNode as CharCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.RegexNode as RegexCstNode
+import com.tambapps.marcel.parser.cst.statement.BlockNode as BlockCstNode
+import com.tambapps.marcel.parser.cst.statement.BreakNode as BreakCstNode
+import com.tambapps.marcel.parser.cst.statement.ContinueNode as ContinueCstNode
+import com.tambapps.marcel.parser.cst.statement.ForInNode as ForInCstNode
+import com.tambapps.marcel.parser.cst.statement.ForInMultiVarNode as ForInMultiVarCstNode
+import com.tambapps.marcel.parser.cst.statement.ForVarNode as ForVarCstNode
+import com.tambapps.marcel.parser.cst.statement.IfStatementNode as IfCstStatementNode
+import com.tambapps.marcel.parser.cst.statement.MultiVarDeclarationNode as MultiVarDeclarationCstNode
+import com.tambapps.marcel.parser.cst.statement.ThrowNode as ThrowCstNode
+import com.tambapps.marcel.parser.cst.statement.TryCatchNode as TryCatchCstNode
+import com.tambapps.marcel.parser.cst.statement.VariableDeclarationNode as VariableDeclarationCstNode
+import com.tambapps.marcel.parser.cst.statement.WhileNode as WhileCstNode
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode
@@ -158,7 +158,6 @@ import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
 import com.tambapps.marcel.semantic.visitor.ImportCstNodeConverter
 import com.tambapps.marcel.semantic.visitor.ReturningBranchTransformer
 import com.tambapps.marcel.semantic.visitor.ReturningWhenIfBranchTransformer
-import marcel.lang.DelegatedObject
 import marcel.lang.IntRanges
 import marcel.lang.LongRanges
 import marcel.lang.Script
@@ -468,7 +467,7 @@ open class MarcelSemantic(
 
   }
   private fun annotationNode(cstAnnotation: AnnotationCstNode, elementType: ElementType): AnnotationNode {
-    val annotationType = visit(cstAnnotation.typeCstNode)
+    val annotationType = visit(cstAnnotation.typeNode)
     if (!annotationType.isAnnotation) throw MarcelSemanticException(cstAnnotation.token, "$annotationType is not an annotation")
     val javaAnnotation = JavaAnnotation.of(annotationType)
     if (!javaAnnotation.targets.contains(elementType)) {
@@ -532,7 +531,7 @@ open class MarcelSemantic(
       = throw MarcelSemanticException(node, "Incompatible type for annotation member ${attribute.name} of annotation ${annotation.type}. Wanted ${attribute.type} but got ${attrValue.javaClass}")
 
   private fun methodNode(classNode: ClassNode, methodCst: MethodCstNode, classScope: ClassScope): MethodNode {
-    val methodNode = toMethodNode(classNode, methodCst, methodCst.name, visit(methodCst.returnTypeCstNode), classScope.classType)
+    val methodNode = toMethodNode(classNode, methodCst, methodCst.name, visit(methodCst.returnTypeNode), classScope.classType)
     fillMethodNode(classScope, methodNode, methodCst.statements, methodCst.annotations, isSingleStatementMethod = methodCst.isSingleStatementFunction)
     return methodNode
   }
@@ -2041,7 +2040,7 @@ open class MarcelSemantic(
     val visibility = Visibility.fromTokenType(node.accessNode.visibility)
     val isStatic = node.accessNode.isStatic
     return JavaMethodImpl(ownerType, Visibility.fromTokenType(node.accessNode.visibility), node.name,
-      node.parameters.mapIndexed { index, methodParameterCstNode -> toMethodParameter(ownerType, forExtensionType, visibility, isStatic, index, node.name, methodParameterCstNode) }, visit(node.returnTypeCstNode), false, false, isStatic, false)
+      node.parameters.mapIndexed { index, methodParameterCstNode -> toMethodParameter(ownerType, forExtensionType, visibility, isStatic, index, node.name, methodParameterCstNode) }, visit(node.returnTypeNode), false, false, isStatic, false)
   }
 
   private fun toJavaConstructor(ownerType: JavaType, node: ConstructorCstNode): JavaMethod {

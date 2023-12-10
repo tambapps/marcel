@@ -1,6 +1,6 @@
 package com.tambapps.marcel.semantic.ast
 
-import com.tambapps.marcel.parser.cst.expression.LambdaCstNode
+import com.tambapps.marcel.parser.cst.expression.LambdaNode
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
@@ -12,7 +12,7 @@ class LambdaClassNode(
   override val type: NotLoadedJavaType,
   val constructorNode: MethodNode,
   isStatic: Boolean,
-  cstNode: LambdaCstNode,
+  cstNode: LambdaNode,
   val lambdaMethodParameters: List<MethodParameter>,
   val localVariablesSnapshot: List<LocalVariable>
 ) : ClassNode(type, Visibility.PUBLIC, null, isStatic = isStatic, isScript = false, cstNode.tokenStart, cstNode.tokenEnd) {

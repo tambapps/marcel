@@ -4,7 +4,7 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.MarcelParser
-import com.tambapps.marcel.parser.cst.SourceFileCstNode
+import com.tambapps.marcel.parser.cst.SourceFileNode
 import com.tambapps.marcel.semantic.MarcelSemantic
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
@@ -56,12 +56,12 @@ class MethodInstructionWriterTest {
   private fun exprStmt(node: ExpressionNode) = ExpressionStatementNode(node, token(), token())
   private fun expr(text: String): ExpressionNode {
     val cstExpression = MarcelParser("Test", MarcelLexer().lex(text)).expression()
-    val sourceFile = mock(SourceFileCstNode::class.java)
+    val sourceFile = mock(SourceFileNode::class.java)
     return cstExpression.accept(MarcelSemantic(JavaTypeResolver(), sourceFile),)
   }
   private fun stmt(text: String): StatementNode {
     val cstExpression = MarcelParser("Test", MarcelLexer().lex(text)).statement()
-    val sourceFile = mock(SourceFileCstNode::class.java)
+    val sourceFile = mock(SourceFileNode::class.java)
     return cstExpression.accept(MarcelSemantic(JavaTypeResolver(), sourceFile))
   }
 

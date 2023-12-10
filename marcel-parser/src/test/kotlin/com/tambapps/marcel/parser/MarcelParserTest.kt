@@ -3,27 +3,27 @@ package com.tambapps.marcel.parser
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.TokenType
-import com.tambapps.marcel.parser.cst.AnnotationCstNode
-import com.tambapps.marcel.parser.cst.CstAccessNode
+import com.tambapps.marcel.parser.cst.AnnotationNode
+import com.tambapps.marcel.parser.cst.AccessNode
 import com.tambapps.marcel.parser.cst.CstNode
-import com.tambapps.marcel.parser.cst.MethodCstNode
+import com.tambapps.marcel.parser.cst.MethodNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
-import com.tambapps.marcel.parser.cst.TypeCstNode
-import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
-import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
-import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
-import com.tambapps.marcel.parser.cst.expression.LambdaCstNode
-import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
-import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
-import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
-import com.tambapps.marcel.parser.cst.expression.literal.LongCstNode
-import com.tambapps.marcel.parser.cst.expression.literal.NullCstNode
-import com.tambapps.marcel.parser.cst.expression.reference.ClassReferenceCstNode
-import com.tambapps.marcel.parser.cst.expression.reference.IndexAccessCstNode
-import com.tambapps.marcel.parser.cst.expression.reference.ReferenceCstNode
-import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
-import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
-import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
+import com.tambapps.marcel.parser.cst.TypeNode
+import com.tambapps.marcel.parser.cst.expression.BinaryOperatorNode
+import com.tambapps.marcel.parser.cst.expression.ExpressionNode
+import com.tambapps.marcel.parser.cst.expression.FunctionCallNode
+import com.tambapps.marcel.parser.cst.expression.LambdaNode
+import com.tambapps.marcel.parser.cst.expression.literal.DoubleNode
+import com.tambapps.marcel.parser.cst.expression.literal.FloatNode
+import com.tambapps.marcel.parser.cst.expression.literal.IntNode
+import com.tambapps.marcel.parser.cst.expression.literal.LongNode
+import com.tambapps.marcel.parser.cst.expression.literal.NullNode
+import com.tambapps.marcel.parser.cst.expression.reference.ClassReferenceNode
+import com.tambapps.marcel.parser.cst.expression.reference.IndexAccessNode
+import com.tambapps.marcel.parser.cst.expression.reference.ReferenceNode
+import com.tambapps.marcel.parser.cst.statement.ExpressionStatementNode
+import com.tambapps.marcel.parser.cst.statement.ReturnNode
+import com.tambapps.marcel.parser.cst.statement.VariableDeclarationNode
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotEquals
@@ -35,7 +35,7 @@ import org.junit.jupiter.params.provider.ValueSource
 
 class MarcelParserTest {
 
-    private val defaultAccess = CstAccessNode(null, token(), token(), false, false, false, TokenType.VISIBILITY_PUBLIC, false)
+    private val defaultAccess = AccessNode(null, token(), token(), false, false, false, TokenType.VISIBILITY_PUBLIC, false)
     @Test
     fun testVariableDeclaration() {
         assertEquals(varDecl(type("int"), "a", int(1)), parser("int a = 1;").statement())
@@ -46,8 +46,8 @@ class MarcelParserTest {
     @Test
     fun testLambdaExplicit0Args() {
         val lambda = parser("{ -> }").atom()
-        assertTrue(lambda is LambdaCstNode)
-        lambda as LambdaCstNode
+        assertTrue(lambda is LambdaNode)
+        lambda as LambdaNode
 
         assertTrue(lambda.explicit0Parameters)
         assertTrue(lambda.parameters.isEmpty())
@@ -56,8 +56,8 @@ class MarcelParserTest {
     @Test
     fun testLambdaArgs() {
         val lambda = parser("{ arg1, Integer arg2 -> }").atom()
-        assertTrue(lambda is LambdaCstNode)
-        lambda as LambdaCstNode
+        assertTrue(lambda is LambdaNode)
+        lambda as LambdaNode
 
         assertFalse(lambda.explicit0Parameters)
         assertEquals(
@@ -74,8 +74,8 @@ class MarcelParserTest {
     @Test
     fun testLambdaPrimitiveArgs() {
         val lambda = parser("{ int arg -> }").atom()
-        assertTrue(lambda is LambdaCstNode)
-        lambda as LambdaCstNode
+        assertTrue(lambda is LambdaNode)
+        lambda as LambdaNode
 
         assertFalse(lambda.explicit0Parameters)
         assertEquals(
@@ -88,15 +88,15 @@ class MarcelParserTest {
     fun testFunctionCallWithLambdaArg() {
         val parser = parser("assertThrows(ErrorResponseException.class) { ->\n}")
         val fCall = parser.expression(null)
-        assertTrue(fCall is FunctionCallCstNode)
-        fCall as FunctionCallCstNode
+        assertTrue(fCall is FunctionCallNode)
+        fCall as FunctionCallNode
         assertEquals("assertThrows", fCall.value)
         assertNull(fCall.castType)
         assertEquals(2, fCall.positionalArgumentNodes.size)
         assertEquals(classReference(type("ErrorResponseException")), fCall.positionalArgumentNodes.first())
         val lambdaArg = fCall.positionalArgumentNodes[1]
-        assertTrue(lambdaArg is LambdaCstNode)
-        lambdaArg as LambdaCstNode
+        assertTrue(lambdaArg is LambdaNode)
+        lambdaArg as LambdaNode
         assertTrue(lambdaArg.explicit0Parameters)
         assertTrue(lambdaArg.parameters.isEmpty())
         assertTrue(fCall.namedArgumentNodes.isEmpty())
@@ -107,11 +107,11 @@ class MarcelParserTest {
     fun testMethod(text: String) {
         val parser = parser(text)
         val method = parser.method(null, emptyList(), defaultAccess)
-        assertTrue(method is MethodCstNode)
-        method as MethodCstNode
+        assertTrue(method is MethodNode)
+        method as MethodNode
         assertEquals("foo", method.name)
-        assertEquals(type("int"), method.returnTypeCstNode)
-        assertEquals(emptyList<AnnotationCstNode>(), method.annotations)
+        assertEquals(type("int"), method.returnTypeNode)
+        assertEquals(emptyList<AnnotationNode>(), method.annotations)
         assertEquals(emptyList<MethodParameterCstNode>(), method.parameters)
 
         assertEquals(
@@ -137,16 +137,16 @@ class MarcelParserTest {
     private fun testMethodWithParameter(text: String, expectedBlock: CstNode) {
         val parser = parser(text)
         val method = parser.method(null, emptyList(), defaultAccess)
-        assertTrue(method is MethodCstNode)
-        method as MethodCstNode
+        assertTrue(method is MethodNode)
+        method as MethodNode
         assertEquals("bar", method.name)
         assertEquals(1, method.parameters.size)
         val parameter = method.parameters.first()
         assertEquals(type("int"), parameter.type)
         assertEquals("zoo", parameter.name)
         assertFalse(parameter.thisParameter)
-        assertEquals(type("int"), method.returnTypeCstNode)
-        assertEquals(emptyList<AnnotationCstNode>(), method.annotations)
+        assertEquals(type("int"), method.returnTypeNode)
+        assertEquals(emptyList<AnnotationNode>(), method.annotations)
 
         assertEquals(
             listOf(
@@ -165,7 +165,7 @@ class MarcelParserTest {
 
     @Test
     fun testReturn() {
-        val expect = ReturnCstNode(null,
+        val expect = ReturnNode(null,
             fCall(value = "a", positionalArgumentNodes = listOf(int(1), float(2f), ref("b")),),
             token(), token()
         )
@@ -178,13 +178,13 @@ class MarcelParserTest {
     @Test
     fun testStatement() {
         assertEquals(
-            ExpressionStatementCstNode(null,
+            ExpressionStatementNode(null,
                 fCall(value = "a", positionalArgumentNodes = listOf(int(1), float(2f), ref("b")),),
                 token(), token()
                 )
             , parser("a(1, 2f, b);").statement())
         assertNotEquals(
-            ExpressionStatementCstNode(null,
+            ExpressionStatementNode(null,
                 int(1),
                 token(), token()
                 )
@@ -255,33 +255,33 @@ class MarcelParserTest {
         assertNotEquals(double(value = 1234.4), parser("1234.45d").atom())
     }
 
-    private fun fCall(value: String, castType: TypeCstNode? = null, positionalArgumentNodes: List<ExpressionCstNode> = emptyList(),
-                      namedArgumentNodes: List<Pair<String, ExpressionCstNode>> = emptyList()
-    ) = FunctionCallCstNode(parent = null, value = value, castType = castType,
+    private fun fCall(value: String, castType: TypeNode? = null, positionalArgumentNodes: List<ExpressionNode> = emptyList(),
+                      namedArgumentNodes: List<Pair<String, ExpressionNode>> = emptyList()
+    ) = FunctionCallNode(parent = null, value = value, castType = castType,
         positionalArgumentNodes = positionalArgumentNodes, namedArgumentNodes = namedArgumentNodes,
         tokenStart = token(), tokenEnd = token()
     )
 
 
-    private fun binaryOperator(type: TokenType, left: ExpressionCstNode, right: ExpressionCstNode) =
-        BinaryOperatorCstNode(type, left, right, null, token(), token())
-    private fun indexAccess(owner: ExpressionCstNode, indexes: List<ExpressionCstNode>, isSafeAccess: Boolean = false) =
-        IndexAccessCstNode(null, owner, indexes, isSafeAccess, token(), token())
-    private fun varDecl(typeCstNode: TypeCstNode, name: String, expr: ExpressionCstNode?) = VariableDeclarationCstNode(typeCstNode, name, expr, null, token(), token())
-    private fun stmt(expr: ExpressionCstNode) = ExpressionStatementCstNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
-    private fun returnNode(expr: ExpressionCstNode? = null) = ReturnCstNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
-    private fun nullValue() = NullCstNode(token = token())
-    private fun type(value: String, genericTypes: List<TypeCstNode> = emptyList(), arrayDimensions: Int = 0) = TypeCstNode(null, value, genericTypes, arrayDimensions, token(), token())
-    private fun int(value: Int) = IntCstNode(value = value, token = token())
-    private fun float(value: Float) = FloatCstNode(value = value, token = token())
-    private fun long(value: Long) = LongCstNode(value = value, token = token())
-    private fun double(value: Double) = DoubleCstNode(value = value, token = token())
-    private fun ref(name: String) = ReferenceCstNode(value = name, token = token(), parent = null)
+    private fun binaryOperator(type: TokenType, left: ExpressionNode, right: ExpressionNode) =
+        BinaryOperatorNode(type, left, right, null, token(), token())
+    private fun indexAccess(owner: ExpressionNode, indexes: List<ExpressionNode>, isSafeAccess: Boolean = false) =
+        IndexAccessNode(null, owner, indexes, isSafeAccess, token(), token())
+    private fun varDecl(typeNode: TypeNode, name: String, expr: ExpressionNode?) = VariableDeclarationNode(typeNode, name, expr, null, token(), token())
+    private fun stmt(expr: ExpressionNode) = ExpressionStatementNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
+    private fun returnNode(expr: ExpressionNode? = null) = ReturnNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
+    private fun nullValue() = NullNode(token = token())
+    private fun type(value: String, genericTypes: List<TypeNode> = emptyList(), arrayDimensions: Int = 0) = TypeNode(null, value, genericTypes, arrayDimensions, token(), token())
+    private fun int(value: Int) = IntNode(value = value, token = token())
+    private fun float(value: Float) = FloatNode(value = value, token = token())
+    private fun long(value: Long) = LongNode(value = value, token = token())
+    private fun double(value: Double) = DoubleNode(value = value, token = token())
+    private fun ref(name: String) = ReferenceNode(value = name, token = token(), parent = null)
     private fun parser(text: String) = MarcelParser("Test", MarcelLexer().lex(text))
     private fun token() = LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, "")
-    private fun lambdaParam(type: TypeCstNode? = null, name: String) = LambdaCstNode.MethodParameterCstNode(null, token(), token(), type, name)
-    private fun methodParam(type: TypeCstNode, name: String, defaultValue: ExpressionCstNode? = null,
-                            annotations: List<AnnotationCstNode> = emptyList(), thisParameter: Boolean = false
+    private fun lambdaParam(type: TypeNode? = null, name: String) = LambdaNode.MethodParameterCstNode(null, token(), token(), type, name)
+    private fun methodParam(type: TypeNode, name: String, defaultValue: ExpressionNode? = null,
+                            annotations: List<AnnotationNode> = emptyList(), thisParameter: Boolean = false
     ) = MethodParameterCstNode(null, token(), token(), name, type, defaultValue, annotations, thisParameter)
-    private fun classReference(type: TypeCstNode) = ClassReferenceCstNode(null, type, token(), token())
+    private fun classReference(type: TypeNode) = ClassReferenceNode(null, type, token(), token())
 }

@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.method
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.IntNode
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.type.JavaType
@@ -30,5 +30,5 @@ class JavaMethodTest {
     assertFalse(m2.matches(typeResolver, m1.name, m1.parameters, strict = true))
   }
 
-  private fun cstNode() = IntCstNode(null, 0, LexToken.DUMMY)
+  private fun cstNode() = IntNode(null, 0, LexToken.DUMMY)
 }

@@ -4,8 +4,8 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.MarcelParser
-import com.tambapps.marcel.parser.cst.SourceFileCstNode
-import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
+import com.tambapps.marcel.parser.cst.SourceFileNode
+import com.tambapps.marcel.parser.cst.statement.ReturnNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
@@ -34,11 +34,11 @@ class MarcelSemanticTest {
     private val CLASS_SCOPE = ClassScope(TYPE_RESOLVER, JavaType.Object, null, emptyList())
     private val METHOD = MethodNode("foo", mutableListOf(),  Visibility.PUBLIC, JavaType.int, isStatic = false, LexToken.DUMMY, LexToken.DUMMY, JavaType.Object)
   }
-  private val sourceFile = mock(SourceFileCstNode::class.java)
+  private val sourceFile = mock(SourceFileNode::class.java)
 
   @Test
   fun testReturnInvalidType() {
-    val node = mock(ReturnCstNode::class.java)
+    val node = mock(ReturnNode::class.java)
     `when`(node.token).thenReturn(token())
     `when`(node.expressionNode).thenReturn(null)
     val semantic = semantic()

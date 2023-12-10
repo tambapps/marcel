@@ -8,7 +8,7 @@ import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
-import com.tambapps.marcel.parser.cst.SourceFileCstNode
+import com.tambapps.marcel.parser.cst.SourceFileNode
 import com.tambapps.marcel.semantic.MarcelSemantic
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
@@ -83,7 +83,7 @@ class MarcelCompiler(configuration: CompilerConfiguration): AbstractMarcelCompil
     }
   }
 
-  private fun handleDumbbells(marcelClassLoader: MarcelClassLoader?, cst: SourceFileCstNode) {
+  private fun handleDumbbells(marcelClassLoader: MarcelClassLoader?, cst: SourceFileNode) {
     if (cst.dumbbells.isNotEmpty()) {
       if (!configuration.dumbbellEnabled) {
         throw MarcelCompilerException("Cannot use dumbbells because dumbbell feature is not enabled")

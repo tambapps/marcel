@@ -9,10 +9,8 @@ import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
-import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.repl.semantic.MarcelReplSemantic
 import com.tambapps.marcel.semantic.ast.ImportNode
-import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.visitor.ImportCstNodeConverter
 import marcel.lang.MarcelClassLoader
@@ -26,8 +24,8 @@ class MarcelReplCompiler constructor(
 
   val imports = LinkedHashSet<ImportNode>()
   private val lexer = MarcelLexer(false)
-  private val _definedFunctions = mutableSetOf<MethodCstNode>()
-  val definedFunctions: Set<MethodCstNode> get() = _definedFunctions
+  private val _definedFunctions = mutableSetOf<com.tambapps.marcel.parser.cst.MethodNode>()
+  val definedFunctions: Set<com.tambapps.marcel.parser.cst.MethodNode> get() = _definedFunctions
   private val classCompiler = MarcelClassWriter(compilerConfiguration, typeResolver)
   @Volatile
   var semanticResult: SemanticResult? = null
