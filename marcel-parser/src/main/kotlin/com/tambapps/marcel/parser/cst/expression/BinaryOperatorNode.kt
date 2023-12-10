@@ -6,8 +6,8 @@ import com.tambapps.marcel.parser.cst.CstNode
 
 class BinaryOperatorNode(
   val tokenType: TokenType,
-  val leftOperand: ExpressionNode,
-  val rightOperand: ExpressionNode,
+  var leftOperand: ExpressionNode,
+  var rightOperand: ExpressionNode,
   parent: CstNode?,
   tokenStart: LexToken,
   tokenEnd: LexToken

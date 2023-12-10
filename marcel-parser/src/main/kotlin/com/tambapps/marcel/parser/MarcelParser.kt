@@ -37,6 +37,7 @@ import com.tambapps.marcel.parser.cst.expression.ThisConstructorCallNode
 import com.tambapps.marcel.parser.cst.expression.TruthyVariableDeclarationNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusNode
 import com.tambapps.marcel.parser.cst.expression.WhenNode
+import com.tambapps.marcel.parser.cst.expression.WrappedExpressionNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolNode
 import com.tambapps.marcel.parser.cst.expression.literal.CharNode
 import com.tambapps.marcel.parser.cst.expression.literal.RegexNode
@@ -763,8 +764,8 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         val arguments = parseFunctionArguments(parentNode)
         NewInstanceNode(parentNode, type, arguments.first, arguments.second, token, previous)
       }
-      TokenType.MINUS -> UnaryMinusNode(expression(parentNode), parentNode, token, previous)
-      TokenType.NOT -> NotNode(expression(parentNode), parentNode, token, previous)
+      TokenType.MINUS -> unaryOperator(TokenType.MINUS, parentNode, token, ::UnaryMinusNode)
+      TokenType.NOT -> unaryOperator(TokenType.NOT, parentNode, token, ::NotNode)
       TokenType.VALUE_TRUE -> BoolNode(parentNode, true, token)
       TokenType.VALUE_FALSE -> BoolNode(parentNode, false, token)
       TokenType.OPEN_CHAR_QUOTE -> {
@@ -795,11 +796,11 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         IncrNode(parentNode, identifierToken.value, -1, false, token, identifierToken)
       }
       TokenType.LPAR -> {
-        val node = expression(parentNode)
+        val node = WrappedExpressionNode(expression(parentNode))
         if (current.type != TokenType.RPAR) {
           throw MarcelParserException(
             previous,
-            "Parenthesis should be close"
+            "Parenthesis should be closed"
           )
         }
         next()
@@ -860,6 +861,24 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
       TokenType.BRACKETS_OPEN -> parseLambda(token, parentNode)
       else -> throw MarcelParserException(token, "Not supported $token")
 
+    }
+  }
+
+  private inline fun unaryOperator(tokenType: TokenType, parentNode: CstNode?, token: LexToken,
+                            nodeCreator: (ExpressionNode, CstNode?, LexToken, LexToken) -> ExpressionNode): ExpressionNode {
+    val priority = ParserUtils.getPriority(tokenType)
+    val rootExpr = expression(parentNode)
+    return if (rootExpr !is BinaryOperatorNode || ParserUtils.getPriority(rootExpr.tokenType) <= priority) nodeCreator(rootExpr, parentNode, token, previous)
+    else {
+      var expr = rootExpr
+      while (expr is BinaryOperatorNode
+        && expr.leftOperand is BinaryOperatorNode
+        && ParserUtils.getPriority((expr.leftOperand as BinaryOperatorNode).tokenType) > priority) {
+        expr = expr.leftOperand
+      }
+      expr as BinaryOperatorNode
+      expr.leftOperand = nodeCreator(expr.leftOperand, parentNode, token, previous)
+      rootExpr
     }
   }
 

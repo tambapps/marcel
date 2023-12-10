@@ -13,6 +13,9 @@ import com.tambapps.marcel.parser.cst.expression.BinaryOperatorNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionNode
 import com.tambapps.marcel.parser.cst.expression.FunctionCallNode
 import com.tambapps.marcel.parser.cst.expression.LambdaNode
+import com.tambapps.marcel.parser.cst.expression.NotNode
+import com.tambapps.marcel.parser.cst.expression.UnaryMinusNode
+import com.tambapps.marcel.parser.cst.expression.WrappedExpressionNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleNode
 import com.tambapps.marcel.parser.cst.expression.literal.FloatNode
 import com.tambapps.marcel.parser.cst.expression.literal.IntNode
@@ -41,6 +44,56 @@ class MarcelParserTest {
         assertEquals(varDecl(type("int"), "a", int(1)), parser("int a = 1;").statement())
         assertEquals(varDecl(type("int"), "a", int(1)), parser("int a = 1").statement())
         assertNotEquals(varDecl(type("float"), "a", int(1)), parser("int a = 1").statement())
+    }
+
+    @Test
+    fun testUnaryMinusNode() {
+        assertEquals(minus(int(1)), parser("-1").expression())
+        assertEquals(binaryOperator(TokenType.AND,
+            left = minus(binaryOperator(TokenType.DOT, left = ref("a"), right = fCall("isTruthy"))),
+            right = int(1))
+            , parser("-a.isTruthy() && 1").expression())
+
+        assertEquals(binaryOperator(TokenType.AND,
+            left = minus(binaryOperator(TokenType.MUL, left = int(3), right = int(5))),
+            right = int(1))
+            , parser("- 3 * 5 && 1").expression())
+    }
+
+    @Test
+    fun testNotNode() {
+        assertEquals(not(int(1)), parser("!1").expression())
+
+        assertEquals(binaryOperator(TokenType.AND,
+            left = not(binaryOperator(TokenType.DOT, left = ref("a"), right = fCall("isTruthy"))),
+            right = int(1))
+            , parser("!a.isTruthy() && 1").expression())
+        assertEquals(binaryOperator(TokenType.AND,
+            left = not(int(45)),
+            right = int(1))
+            , parser("!45 && 1").expression())
+
+        assertEquals(binaryOperator(TokenType.AND,
+            left = not(binaryOperator(TokenType.DOT, left = binaryOperator(TokenType.DOT, left = ref("a"), right = ref("b")), right = fCall("isTruthy"))),
+            right = int(1))
+            , parser("!a.b.isTruthy() && 1").expression())
+
+
+        assertEquals(binaryOperator(TokenType.AND,
+            left = not(WrappedExpressionNode(binaryOperator(TokenType.AND, left = int(1), right = int(2)))),
+            right = int(1))
+            , parser("!(1 && 2) && 1").expression())
+
+        assertEquals(binaryOperator(TokenType.AND,
+            left = binaryOperator(TokenType.AND, left = not(int(1)), right = int(2)),
+            right = int(1))
+            , parser("!1 && 2 && 1").expression())
+
+        assertEquals(WrappedExpressionNode(
+            not(
+                binaryOperator(TokenType.DOT, left = ref("c"), right = fCall("isTruthy"))
+            )
+        ), parser("(!c.isTruthy())").expression())
     }
 
     @Test
@@ -263,6 +316,8 @@ class MarcelParserTest {
     )
 
 
+    private fun minus(expr: ExpressionNode) = UnaryMinusNode(expr, null, token(), token())
+    private fun not(expr: ExpressionNode) = NotNode(expr, null, token(), token())
     private fun binaryOperator(type: TokenType, left: ExpressionNode, right: ExpressionNode) =
         BinaryOperatorNode(type, left, right, null, token(), token())
     private fun indexAccess(owner: ExpressionNode, indexes: List<ExpressionNode>, isSafeAccess: Boolean = false) =
