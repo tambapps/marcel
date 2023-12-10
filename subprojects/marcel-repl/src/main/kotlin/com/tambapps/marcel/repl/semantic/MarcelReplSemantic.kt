@@ -2,7 +2,7 @@ package com.tambapps.marcel.repl.semantic
 
 import com.tambapps.marcel.parser.cst.SourceFileNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorNode
-import com.tambapps.marcel.parser.cst.expression.reference.ReferenceNode
+import com.tambapps.marcel.parser.cst.expression.reference.ReferenceNode as ReferenceCstNode
 import com.tambapps.marcel.repl.ReplJavaTypeResolver
 import com.tambapps.marcel.semantic.MarcelSemantic
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
@@ -14,7 +14,7 @@ class MarcelReplSemantic(private val replTypeResolver: ReplJavaTypeResolver, cst
 
   override fun assignment(node: BinaryOperatorNode): ExpressionNode {
     val scope = currentMethodScope
-    if (scope.isStatic || !scope.classType.isScript || node.leftOperand !is com.tambapps.marcel.parser.cst.expression.reference.ReferenceNode) return super.assignment(node)
+    if (scope.isStatic || !scope.classType.isScript || node.leftOperand !is ReferenceCstNode) return super.assignment(node)
     val leftResult = runCatching { node.leftOperand.accept(this) }
     if (leftResult.isSuccess) return assignment(node, leftResult.getOrThrow())
 
@@ -22,7 +22,7 @@ class MarcelReplSemantic(private val replTypeResolver: ReplJavaTypeResolver, cst
     val right = node.rightOperand.accept(this)
 
     // this is important. We always want bound field to be object type as values are obtained from getVariable which returns an Object
-    val boundField = BoundField(right.type.objectType, (node.leftOperand as com.tambapps.marcel.parser.cst.expression.reference.ReferenceNode).value, scope.classType)
+    val boundField = BoundField(right.type.objectType, (node.leftOperand as ReferenceCstNode).value, scope.classType)
     replTypeResolver.defineBoundField(boundField)
 
     return assignment(node, left = ReferenceNode(
