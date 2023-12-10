@@ -4,13 +4,13 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.cst.AbstractMethodNode as AbstractMethodCstNode
 import com.tambapps.marcel.parser.cst.AnnotationNode as AnnotationCstNode
-import com.tambapps.marcel.parser.cst.ClassCstNode as ClassCstNode
+import com.tambapps.marcel.parser.cst.ClassNode as ClassCstNode
 import com.tambapps.marcel.parser.cst.ConstructorNode as ConstructorCstNode
 import com.tambapps.marcel.parser.cst.CstNode
-import com.tambapps.marcel.parser.cst.FieldCstNode as FieldCstNode
+import com.tambapps.marcel.parser.cst.FieldNode as FieldCstNode
 import com.tambapps.marcel.parser.cst.MethodNode as MethodCstNode
-import com.tambapps.marcel.parser.cst.MethodParameterCstNode as MethodParameterCstNode
-import com.tambapps.marcel.parser.cst.ScriptCstNode as ScriptCstNode
+import com.tambapps.marcel.parser.cst.MethodParameterNode as MethodParameterCstNode
+import com.tambapps.marcel.parser.cst.ScriptNode as ScriptCstNode
 import com.tambapps.marcel.parser.cst.SourceFileNode as SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeNode as TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNodeVisitor as ExpressionCstNodeVisitor

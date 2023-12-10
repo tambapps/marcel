@@ -3,7 +3,7 @@ package com.tambapps.marcel.parser.cst
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.expression.ExpressionNode
 
-class MethodParameterCstNode(
+class MethodParameterNode(
   parent: CstNode?,
   tokenStart: LexToken,
   tokenEnd: LexToken,
@@ -33,7 +33,7 @@ class MethodParameterCstNode(
     if (javaClass != other?.javaClass) return false
     if (!super.equals(other)) return false
 
-    other as MethodParameterCstNode
+    other as MethodParameterNode
 
     if (name != other.name) return false
     if (type != other.type) return false

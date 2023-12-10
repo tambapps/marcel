@@ -3,7 +3,7 @@ package com.tambapps.marcel.parser.cst
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.expression.ExpressionNode
 
-class FieldCstNode(
+class FieldNode(
   parent: CstNode?,
   tokenStart: LexToken,
   tokenEnd: LexToken,

@@ -4,14 +4,14 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.cst.AbstractMethodNode
 import com.tambapps.marcel.parser.cst.AnnotationNode
-import com.tambapps.marcel.parser.cst.ClassCstNode
+import com.tambapps.marcel.parser.cst.ClassNode
 import com.tambapps.marcel.parser.cst.ConstructorNode
 import com.tambapps.marcel.parser.cst.AccessNode
 import com.tambapps.marcel.parser.cst.CstNode
-import com.tambapps.marcel.parser.cst.FieldCstNode
+import com.tambapps.marcel.parser.cst.FieldNode
 import com.tambapps.marcel.parser.cst.MethodNode
-import com.tambapps.marcel.parser.cst.MethodParameterCstNode
-import com.tambapps.marcel.parser.cst.ScriptCstNode
+import com.tambapps.marcel.parser.cst.MethodParameterNode
+import com.tambapps.marcel.parser.cst.ScriptNode
 import com.tambapps.marcel.parser.cst.SourceFileNode
 import com.tambapps.marcel.parser.cst.TypeNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionNode
@@ -111,7 +111,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     val sourceFile = SourceFileNode(packageName = packageName, tokenStart = tokens.first(),
       dumbbells = dumbbells,
       tokenEnd = tokens.last())
-    val scriptNode = ScriptCstNode(tokens.first(), tokens.last(),
+    val scriptNode = ScriptNode(tokens.first(), tokens.last(),
       if (packageName != null) "$packageName.$classSimpleName"
       else classSimpleName)
 
@@ -133,26 +133,26 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     }
     return sourceFile
   }
-  private fun parseMember(packageName: String?, parentNode: CstNode?, classCstNode: ClassCstNode, outerClassNode: ClassCstNode?) {
+  private fun parseMember(packageName: String?, parentNode: CstNode?, classNode: ClassNode, outerClassNode: ClassNode?) {
     val annotations = parseAnnotations(parentNode)
     val access = parseAccess(parentNode)
     if (current.type == TokenType.CLASS || current.type == TokenType.EXTENSION) {
-      classCstNode.innerClasses.add(parseClass(packageName, parentNode, annotations, access, outerClassNode))
+      classNode.innerClasses.add(parseClass(packageName, parentNode, annotations, access, outerClassNode))
     } else if (current.type == TokenType.FUN || current.type == TokenType.CONSTRUCTOR) {
       when (val method = method(parentNode, annotations, access)) {
-        is MethodNode -> classCstNode.methods.add(method)
-        is ConstructorNode -> classCstNode.constructors.add(method)
+        is MethodNode -> classNode.methods.add(method)
+        is ConstructorNode -> classNode.constructors.add(method)
       }
-    } else if (classCstNode is ScriptCstNode) {
+    } else if (classNode is ScriptNode) {
       if (annotations.isNotEmpty() || access.isExplicit) {
         // class fields in script always have access specified, or annotations
-        classCstNode.fields.add(field(parentNode, annotations, access))
+        classNode.fields.add(field(parentNode, annotations, access))
       } else {
-        classCstNode.runMethodStatements.add(statement(parentNode))
+        classNode.runMethodStatements.add(statement(parentNode))
       }
     } else {
       // it must be a field
-      classCstNode.fields.add(field(parentNode, annotations, access))
+      classNode.fields.add(field(parentNode, annotations, access))
     }
   }
 
@@ -228,17 +228,17 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     return d
   }
 
-  fun field(parentNode: CstNode?, annotations: List<AnnotationNode>, access: AccessNode): FieldCstNode {
+  fun field(parentNode: CstNode?, annotations: List<AnnotationNode>, access: AccessNode): FieldNode {
     val tokenStart = current
     val type = parseType(parentNode)
     val name = accept(TokenType.IDENTIFIER).value
     val initialValue = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(parentNode) else null
     acceptOptional(TokenType.SEMI_COLON)
-    return FieldCstNode(parentNode, tokenStart, previous, access, annotations, type, name, initialValue)
+    return FieldNode(parentNode, tokenStart, previous, access, annotations, type, name, initialValue)
   }
 
   private fun parseClass(packageName: String?, parentNode: CstNode?, annotations: List<AnnotationNode>, access: AccessNode,
-                         outerClassNode: ClassCstNode? = null): ClassCstNode {
+                         outerClassNode: ClassNode? = null): ClassNode {
     val isExtensionClass = acceptOptional(TokenType.EXTENSION) != null
     val classToken = accept(TokenType.CLASS)
     val classSimpleName = accept(TokenType.IDENTIFIER).value
@@ -262,15 +262,15 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         acceptOptional(TokenType.COMMA)
       }
     }
-    val classCstNode = ClassCstNode(classToken, classToken, access, className, superType, interfaces, forExtensionClassType)
-    classCstNode.annotations.addAll(annotations)
+    val classNode = ClassNode(classToken, classToken, access, className, superType, interfaces, forExtensionClassType)
+    classNode.annotations.addAll(annotations)
 
     accept(TokenType.BRACKETS_OPEN)
     while (current.type != TokenType.BRACKETS_CLOSE) {
-      parseMember(packageName, classCstNode, classCstNode, classCstNode)
+      parseMember(packageName, classNode, classNode, classNode)
     }
     accept(TokenType.BRACKETS_CLOSE)
-    return classCstNode
+    return classNode
   }
 
   fun method(parentNode: CstNode?, annotations: List<AnnotationNode>, access: AccessNode): AbstractMethodNode {
@@ -295,7 +295,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         else TypeNode(parentNode, "", emptyList(), 0, previous, previous)
       val parameterName = accept(TokenType.IDENTIFIER).value
       val defaultValue = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(parentNode) else null
-      parameters.add(MethodParameterCstNode(parentNode, parameterTokenStart, previous, parameterName, type, defaultValue, parameterAnnotations, isThisParameter))
+      parameters.add(MethodParameterNode(parentNode, parameterTokenStart, previous, parameterName, type, defaultValue, parameterAnnotations, isThisParameter))
       acceptOptional(TokenType.COMMA)
     }
     skip() // skip RPAR

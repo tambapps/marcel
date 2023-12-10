@@ -2,7 +2,7 @@ package com.tambapps.marcel.parser.cst
 
 import com.tambapps.marcel.lexer.LexToken
 
-open class ClassCstNode(
+open class ClassNode(
   tokenStart: LexToken,
   tokenEnd: LexToken,
   val access: AccessNode,
@@ -16,8 +16,8 @@ open class ClassCstNode(
 
   val annotations: MutableList<AnnotationNode> = mutableListOf()
   val methods: MutableList<MethodNode> = mutableListOf()
-  val fields: MutableList<FieldCstNode> = mutableListOf()
+  val fields: MutableList<FieldNode> = mutableListOf()
   val constructors: MutableList<ConstructorNode> = mutableListOf()
-  val innerClasses: MutableList<ClassCstNode> = mutableListOf()
+  val innerClasses: MutableList<ClassNode> = mutableListOf()
 
 }

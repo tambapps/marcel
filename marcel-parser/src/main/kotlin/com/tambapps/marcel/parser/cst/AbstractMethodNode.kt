@@ -7,7 +7,7 @@ sealed class AbstractMethodNode(parent: CstNode?, tokenStart: LexToken, tokenEnd
                                 val accessNode: AccessNode) :
   AbstractCstNode(parent, tokenStart, tokenEnd) {
 
-  val parameters = mutableListOf<MethodParameterCstNode>()
+  val parameters = mutableListOf<MethodParameterNode>()
   val annotations = mutableListOf<AnnotationNode>()
   val statements = mutableListOf<StatementNode>()
   override fun equals(other: Any?): Boolean {

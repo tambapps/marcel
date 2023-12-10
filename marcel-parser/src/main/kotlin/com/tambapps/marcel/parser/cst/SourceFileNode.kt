@@ -11,9 +11,9 @@ class SourceFileNode(
   val dumbbells: List<String>
   ): AbstractCstNode(null, tokenStart, tokenEnd) {
 
-  var script: ScriptCstNode? = null
+  var script: ScriptNode? = null
 
-  val classes = mutableListOf<ClassCstNode>()
+  val classes = mutableListOf<ClassNode>()
   val imports = mutableListOf<ImportNode>()
   val extensionImports = mutableListOf<TypeNode>()
 

@@ -7,7 +7,7 @@ import com.tambapps.marcel.parser.cst.AnnotationNode
 import com.tambapps.marcel.parser.cst.AccessNode
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.MethodNode
-import com.tambapps.marcel.parser.cst.MethodParameterCstNode
+import com.tambapps.marcel.parser.cst.MethodParameterNode
 import com.tambapps.marcel.parser.cst.TypeNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionNode
@@ -165,7 +165,7 @@ class MarcelParserTest {
         assertEquals("foo", method.name)
         assertEquals(type("int"), method.returnTypeNode)
         assertEquals(emptyList<AnnotationNode>(), method.annotations)
-        assertEquals(emptyList<MethodParameterCstNode>(), method.parameters)
+        assertEquals(emptyList<MethodParameterNode>(), method.parameters)
 
         assertEquals(
             listOf(
@@ -337,6 +337,6 @@ class MarcelParserTest {
     private fun lambdaParam(type: TypeNode? = null, name: String) = LambdaNode.MethodParameterCstNode(null, token(), token(), type, name)
     private fun methodParam(type: TypeNode, name: String, defaultValue: ExpressionNode? = null,
                             annotations: List<AnnotationNode> = emptyList(), thisParameter: Boolean = false
-    ) = MethodParameterCstNode(null, token(), token(), name, type, defaultValue, annotations, thisParameter)
+    ) = MethodParameterNode(null, token(), token(), name, type, defaultValue, annotations, thisParameter)
     private fun classReference(type: TypeNode) = ClassReferenceNode(null, type, token(), token())
 }
