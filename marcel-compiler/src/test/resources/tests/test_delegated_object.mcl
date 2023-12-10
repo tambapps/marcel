@@ -1,28 +1,23 @@
 import static org.junit.jupiter.api.Assertions.assertTrue
 import static org.junit.jupiter.api.Assertions.assertFalse
 
-class MyDelegatedObject implements DelegatedObject {
-  Integer delegate
+private Integer delegate = 0
 
-  constructor(this.delegate)
+fun Integer getDelegate() -> this.@delegate
 
-  fun bool foo() {
-    return intValue() == 0
-  }
 
-  fun bool bar(int dummy) {
-    return intValue() == dummy
-  }
-
-  fun Integer getDelegate() -> this.@delegate
+fun bool foo() {
+  return intValue() == 0
 }
 
+fun bool bar(int dummy) {
+  return intValue() == dummy
+}
 
-MyDelegatedObject o = new MyDelegatedObject(delegate: 0)
-MyDelegatedObject o2 = new MyDelegatedObject(delegate: 1)
+assertTrue(foo())
+assertTrue(bar(dummy: 0))
 
-assertTrue(o.foo())
-assertFalse(o2.foo())
+delegate = 2
+assertFalse(foo())
 
-assertTrue(o.bar(dummy: 0))
-assertFalse(o2.bar(dummy: 0))
+assertFalse(bar(dummy: 0))
