@@ -390,13 +390,16 @@ open class MarcelSemantic(
       classNode.fields.add(fieldNode)
 
       if (cstFieldNode.initialValue != null) {
+        // need to create method scope to properly resolve everything
         if (fieldNode.isStatic) {
           val stInitMethod = classNode.getOrCreateStaticInitialisationMethod()
           useScope(MethodScope(classScope, stInitMethod)) {
             staticFieldInitialValueMap[fieldNode] = cstFieldNode.initialValue!!.accept(this, fieldNode.type)
           }
         } else {
-          fieldInitialValueMap[fieldNode] = caster.cast(fieldNode.type, cstFieldNode.initialValue!!.accept(this, fieldNode.type))
+          fieldInitialValueMap[fieldNode] = useScope(MethodScope(classScope, JavaConstructorImpl(Visibility.PRIVATE, classType, emptyList()))) {
+            caster.cast(fieldNode.type, cstFieldNode.initialValue!!.accept(this, fieldNode.type))
+          }
         }
       }
     }
@@ -1417,7 +1420,10 @@ open class MarcelSemantic(
     // search for already generated lambdaNode if not empty
     val lambdaOuterClassNode = getCurrentClassNode() ?: throw MarcelSemanticException(node.token, "Cannot use lambdas in such context")
 
-    val lambdaClassName = currentMethodScope.method.name + "_lambda" + (lambdaOuterClassNode.innerClasses.count { it is LambdaClassNode } + 1)
+    val lambdaClassName = (
+        if (currentMethodScope.method.isConstructor) "init"
+        else currentMethodScope.method.name
+        ) + "_lambda" + (lambdaOuterClassNode.innerClasses.count { it is LambdaClassNode } + 1)
     val alreadyExistingLambdaNode = lambdaOuterClassNode.innerClasses
       .find { it.type.simpleName == lambdaClassName } as? LambdaClassNode
 
