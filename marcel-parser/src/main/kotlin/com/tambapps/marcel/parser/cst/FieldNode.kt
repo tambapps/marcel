@@ -4,7 +4,7 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.expression.ExpressionNode
 
 class FieldNode(
-  parent: CstNode?,
+  val parentClassNode: ClassNode,
   tokenStart: LexToken,
   tokenEnd: LexToken,
   val access: AccessNode,
@@ -13,6 +13,6 @@ class FieldNode(
   val name: String,
   val initialValue: ExpressionNode?
 ) :
-  AbstractCstNode(parent, tokenStart, tokenEnd) {
+  AbstractCstNode(parentClassNode, tokenStart, tokenEnd) {
 
 }

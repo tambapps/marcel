@@ -139,20 +139,20 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     if (current.type == TokenType.CLASS || current.type == TokenType.EXTENSION) {
       classNode.innerClasses.add(parseClass(packageName, parentNode, annotations, access, outerClassNode))
     } else if (current.type == TokenType.FUN || current.type == TokenType.CONSTRUCTOR) {
-      when (val method = method(parentNode, annotations, access)) {
+      when (val method = method(classNode, annotations, access)) {
         is MethodNode -> classNode.methods.add(method)
         is ConstructorNode -> classNode.constructors.add(method)
       }
     } else if (classNode is ScriptNode) {
       if (annotations.isNotEmpty() || access.isExplicit) {
         // class fields in script always have access specified, or annotations
-        classNode.fields.add(field(parentNode, annotations, access))
+        classNode.fields.add(field(classNode, annotations, access))
       } else {
         classNode.runMethodStatements.add(statement(parentNode))
       }
     } else {
       // it must be a field
-      classNode.fields.add(field(parentNode, annotations, access))
+      classNode.fields.add(field(classNode, annotations, access))
     }
   }
 
@@ -228,7 +228,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     return d
   }
 
-  fun field(parentNode: CstNode?, annotations: List<AnnotationNode>, access: AccessNode): FieldNode {
+  fun field(parentNode: ClassNode, annotations: List<AnnotationNode>, access: AccessNode): FieldNode {
     val tokenStart = current
     val type = parseType(parentNode)
     val name = accept(TokenType.IDENTIFIER).value
@@ -273,7 +273,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     return classNode
   }
 
-  fun method(parentNode: CstNode?, annotations: List<AnnotationNode>, access: AccessNode): AbstractMethodNode {
+  fun method(parentNode: ClassNode, annotations: List<AnnotationNode>, access: AccessNode): AbstractMethodNode {
     val token = current
     val isConstructor = acceptOneOf(TokenType.FUN, TokenType.CONSTRUCTOR).type == TokenType.CONSTRUCTOR
     val node = if (!isConstructor) {
