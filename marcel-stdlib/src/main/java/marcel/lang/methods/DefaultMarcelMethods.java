@@ -1737,10 +1737,10 @@ public final class DefaultMarcelMethods {
 
   // TODO document this
   public static <T, U> Map<T, U> withDefault(Map<T, U> self, Function<Object, U> defaultFunction) {
-    return withDefault(self, defaultFunction, false);
+    return withDefault(self, false, defaultFunction);
   }
 
-  public static <T, U> Map<T, U> withDefault(Map<T, U> self, Function<Object, U> defaultFunction, boolean insert) {
+  public static <T, U> Map<T, U> withDefault(Map<T, U> self, boolean insert, Function<Object, U> defaultFunction) {
     return MapWithDefault.newInstance(self, defaultFunction, insert);
   }
 
