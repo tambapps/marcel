@@ -102,6 +102,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.CharConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.JavaConstantExpression
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
+import com.tambapps.marcel.semantic.ast.expression.literal.ShortConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.operator.AndNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
@@ -817,10 +818,15 @@ open class MarcelSemantic(
     this,
   )), node)
 
-  override fun visit(node: UnaryMinusCstNode, smartCastType: JavaType?) = MinusNode(IntConstantNode(node.token, 0), node.expression.accept(
-    this,
-  ))
-
+  override fun visit(node: UnaryMinusCstNode, smartCastType: JavaType?): ExpressionNode {
+    return when(val expr = node.expression) {
+      is IntCstNode -> IntConstantNode(node.token, - expr.value)
+      is LongCstNode -> LongConstantNode(node.token, - expr.value)
+      is FloatCstNode -> FloatConstantNode(node.token, - expr.value)
+      is DoubleCstNode -> DoubleConstantNode(node.token, - expr.value)
+      else -> visit(BinaryOperatorCstNode(TokenType.MINUS, IntCstNode(node.parent, 0, node.token), expr, node.parent, node.tokenStart, node.tokenEnd))
+    }
+  }
   override fun visit(node: BinaryOperatorCstNode, smartCastType: JavaType?): ExpressionNode {
     val leftOperand = node.leftOperand
     val rightOperand = node.rightOperand
