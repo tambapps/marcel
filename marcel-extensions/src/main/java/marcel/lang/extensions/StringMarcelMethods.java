@@ -134,4 +134,25 @@ public class StringMarcelMethods {
     }
     return count;
   }
+
+  public static boolean all(CharSequence self, CharacterPredicate predicate) {
+    for (int i = 0; i < self.length(); i++) {
+      if (!predicate.test(self.charAt(i))) return false;
+    }
+    return true;
+  }
+
+  public static boolean none(CharSequence self, CharacterPredicate predicate) {
+    for (int i = 0; i < self.length(); i++) {
+      if (predicate.test(self.charAt(i))) return false;
+    }
+    return true;
+  }
+
+  public static boolean any(CharSequence self, CharacterPredicate predicate) {
+    for (int i = 0; i < self.length(); i++) {
+      if (predicate.test(self.charAt(i))) return true;
+    }
+    return false;
+  }
 }
