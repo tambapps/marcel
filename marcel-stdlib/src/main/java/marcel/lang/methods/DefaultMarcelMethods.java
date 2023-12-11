@@ -925,15 +925,15 @@ public final class DefaultMarcelMethods {
   /**
    * Map the list into an IntList
    *
-   * @param list    the list
+   * @param collection    the list
    * @param lambda1 the mapping function
    * @param <T>     the type of the list
    * @return an IntList
    */
-  public static <T> IntList mapToInt(List<T> list, ToIntFunction<T> lambda1) {
-    IntList intList = new IntArrayList(list.size());
-    for (int i = 0; i < list.size(); i++) {
-      intList.add(lambda1.applyAsInt(list.get(i)));
+  public static <T> IntList mapToInt(Collection<T> collection, ToIntFunction<T> lambda1) {
+    IntList intList = new IntArrayList(collection.size());
+    for (T t : collection) {
+      intList.add(lambda1.applyAsInt(t));
     }
     return intList;
   }
@@ -1007,15 +1007,15 @@ public final class DefaultMarcelMethods {
   /**
    * Map the list into a LongList
    *
-   * @param list    the list
+   * @param collection    the list
    * @param lambda1 the mapping function
    * @param <T>     the type of the list
    * @return a LongList
    */
-  public static <T> LongList mapToLong(List<T> list, ToLongFunction<T> lambda1) {
-    LongList longList = new LongArrayList(list.size());
-    for (int i = 0; i < list.size(); i++) {
-      longList.add(lambda1.applyAsLong(list.get(i)));
+  public static <T> LongList mapToLong(Collection<T> collection, ToLongFunction<T> lambda1) {
+    LongList longList = new LongArrayList(collection.size());
+    for (T t : collection) {
+      longList.add(lambda1.applyAsLong(t));
     }
     return longList;
   }
@@ -1063,15 +1063,15 @@ public final class DefaultMarcelMethods {
   /**
    * Map the list into a FloatList
    *
-   * @param list    the list
+   * @param collection    the list
    * @param lambda1 the mapping function
    * @param <T>     the type of the list
    * @return a FloatList
    */
-  public static <T> FloatList mapToFloat(List<T> list, ToFloatFunction<T> lambda1) {
-    FloatList floatList = new FloatArrayList(list.size());
-    for (int i = 0; i < list.size(); i++) {
-      floatList.add(lambda1.applyAsFloat(list.get(i)));
+  public static <T> FloatList mapToFloat(Collection<T> collection, ToFloatFunction<T> lambda1) {
+    FloatList floatList = new FloatArrayList(collection.size());
+    for (T t : collection) {
+      floatList.add(lambda1.applyAsFloat(t));
     }
     return floatList;
   }
@@ -1119,15 +1119,15 @@ public final class DefaultMarcelMethods {
   /**
    * Map the list into a DoubleList
    *
-   * @param list    the list
+   * @param collection    the list
    * @param lambda1 the mapping function
    * @param <T>     the type of the list
    * @return a DoubleList
    */
-  public static <T> DoubleList mapToDouble(List<T> list, ToDoubleFunction<T> lambda1) {
-    DoubleList floatList = new DoubleArrayList(list.size());
-    for (int i = 0; i < list.size(); i++) {
-      floatList.add(lambda1.applyAsDouble(list.get(i)));
+  public static <T> DoubleList mapToDouble(List<T> collection, ToDoubleFunction<T> lambda1) {
+    DoubleList floatList = new DoubleArrayList(collection.size());
+    for (T t : collection) {
+      floatList.add(lambda1.applyAsDouble(t));
     }
     return floatList;
   }
@@ -1171,6 +1171,8 @@ public final class DefaultMarcelMethods {
     }
     return floatList;
   }
+
+  // TODO mapToCharacter
 
   // getLength
 
