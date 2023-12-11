@@ -49,7 +49,11 @@ class AstNodeCaster(
           cast(JavaType.Object, node) // to handle primitives
         ), node)
       // primitive to primitive
-      actualType.primitive && expectedType.primitive -> JavaCastNode(expectedType, node, node.token)
+      actualType.primitive && expectedType.primitive -> {
+        if (expectedType.asPrimitiveType.isNumber && !actualType.asPrimitiveType.isNumber
+          || actualType.asPrimitiveType.isNumber && !expectedType.asPrimitiveType.isNumber) incompatibleTypes(node, expectedType, actualType)
+        JavaCastNode(expectedType, node, node.token)
+      }
       // Object to primitive
       expectedType.primitive && !actualType.primitive -> when {
         expectedType == JavaType.boolean && actualType == JavaType.Boolean -> functionCall(JavaType.Boolean, "booleanValue", emptyList(), node)
