@@ -109,10 +109,10 @@ class PushingMethodExpressionWriter(mv: MethodVisitor, typeResolver: JavaTypeRes
       node.owner?.accept(this)
       node.variable.accept(loadVariableVisitor)
       visit(varAssign)
+      popStackIfNotVoid(varAssign.type) // pop because this class always pushed and we already pushed the value before assignment
     } else {
+      // pushing of the new value will be handled while visiting var assignment
       visit(varAssign)
-      node.owner?.accept(this)
-      node.variable.accept(loadVariableVisitor)
     }
   }
 
