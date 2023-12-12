@@ -3,6 +3,8 @@ package marcel.lang.extensions;
 import marcel.lang.IntRange;
 import marcel.lang.primitives.collections.lists.CharacterArrayList;
 import marcel.lang.primitives.collections.lists.CharacterList;
+import marcel.lang.primitives.collections.sets.CharacterOpenHashSet;
+import marcel.lang.primitives.collections.sets.CharacterSet;
 import marcel.lang.primitives.iterators.CharacterIterator;
 import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.util.function.CharacterPredicate;
@@ -32,8 +34,12 @@ public class StringMarcelMethods {
     return builder.toString();
   }
 
-  public static CharacterList toCharList(String self) {
+  public static CharacterList toList(String self) {
     return CharacterArrayList.wrap(self.toCharArray());
+  }
+
+  public static CharacterSet toSet(String self) {
+    return new CharacterOpenHashSet(self.toCharArray());
   }
 
   public static int toInt(String self) {
