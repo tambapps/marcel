@@ -2089,4 +2089,30 @@ public final class DefaultMarcelMethods {
     }
     return answer ;
   }
+
+  public static List<List<Object>> combinations(Collection<? extends Collection<?>> collections) {
+    List<List<Object>> combos = new ArrayList<>();
+    for (Collection<?> collection : collections) {
+      if (combos.isEmpty()) {
+        for (Object object : collection) {
+          List<Object> list = new ArrayList<>();
+          list.add(object);
+          combos.add(list);
+        }
+      } else {
+        List<List<Object>> next = new ArrayList<>(); // each list plus each item
+        for (Object object : collection) {
+          for (List<?> combo : combos) {
+            List<Object> list = new ArrayList<>(combo);
+            list.add(object);
+            next.add(list);
+          }
+        }
+        combos = next;
+      }
+      if (combos.isEmpty())
+        break;
+    }
+    return combos;
+  }
 }
