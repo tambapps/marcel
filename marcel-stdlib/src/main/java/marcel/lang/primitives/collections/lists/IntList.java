@@ -418,7 +418,8 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	 *
 	 * @return the last element of the list
 	 */
-	default int getLast() {
+	// object in order not to class with Java 21's getFirst
+	default Integer getLast() {
 		return getAt(size() - 1);
 	}
 
@@ -427,10 +428,11 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	 *
 	 * @return the first element of the list
 	 */
-	default int getFirst() {
+	// object in order not to class with Java 21's getFirst
+	default Integer getFirst() {
 		return getAt(0);
 	}
-	default void setFirst(int value) {
+	default void setFirst(Integer value) {
 		putAt(0, value);
 	}
 
@@ -439,7 +441,7 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	 *
 	 * @param value the value to set
 	 */
-	default void setLast(int value) {
+	default void setLast(Integer value) {
 		putAt(size() - 1, value);
 	}
 

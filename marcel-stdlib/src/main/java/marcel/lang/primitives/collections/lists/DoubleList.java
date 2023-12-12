@@ -440,7 +440,8 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 	 *
 	 * @return the last element of the list
 	 */
-	default double getLast() {
+	// object in order not to class with Java 21's getFirst
+	default Double getLast() {
 		return getAt(size() - 1);
 	}
 
@@ -450,10 +451,12 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 	 *
 	 * @return the first element of the list
 	 */
-	default double getFirst() {
+	// object in order not to class with Java 21's getFirst
+	default Double getFirst() {
 		return getAt(0);
 	}
-	default void setFirst(double value) {
+
+	default void setFirst(Double value) {
 		putAt(0, value);
 	}
 	/**
@@ -461,7 +464,7 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 	 *
 	 * @param value the value to set
 	 */
-	default void setLast(double value) {
+	default void setLast(Double value) {
 		putAt(size() - 1, value);
 	}
 

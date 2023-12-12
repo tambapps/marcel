@@ -423,7 +423,7 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	 *
 	 * @return the last element of the list
 	 */
-	default char getLast() {
+	default Character getLast() {
 		return getAt(size() - 1);
 	}
 
@@ -432,10 +432,12 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	 *
 	 * @return the last element of the list
 	 */
-	default char getFirst() {
+	// object in order not to class with Java 21's getFirst
+	default Character getFirst() {
 		return getAt(0);
 	}
-	default void setFirst(char value) {
+
+	default void setFirst(Character value) {
 		putAt(0, value);
 	}
 	/**
@@ -443,7 +445,7 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	 *
 	 * @param value the value to set
 	 */
-	default void setLast(char value) {
+	default void setLast(Character value) {
 		putAt(size() - 1, value);
 	}
 

@@ -442,7 +442,8 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 	 *
 	 * @return the last element of the list
 	 */
-	default float getLast() {
+	// object in order not to class with Java 21's getFirst
+	default Float getLast() {
 		return getAt(size() - 1);
 	}
 
@@ -452,10 +453,12 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 	 *
 	 * @return the first element of the list
 	 */
-	default float getFirst() {
+	// object in order not to class with Java 21's getFirst
+	default Float getFirst() {
 		return getAt(0);
 	}
-	default void setFirst(float value) {
+
+	default void setFirst(Float value) {
 		putAt(0, value);
 	}
 	/**
@@ -463,7 +466,7 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 	 *
 	 * @param value the value to set
 	 */
-	default void setLast(float value) {
+	default void setLast(Float value) {
 		putAt(size() - 1, value);
 	}
 

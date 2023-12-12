@@ -442,7 +442,8 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 	 *
 	 * @return the last element of the list
 	 */
-	default long getLast() {
+	// object in order not to class with Java 21's getFirst
+	default Long getLast() {
 		return getAt(size() - 1);
 	}
 
@@ -451,10 +452,12 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 	 *
 	 * @return the first element of the list
 	 */
-	default long getFirst() {
+	// object in order not to class with Java 21's getFirst
+	default Long getFirst() {
 		return getAt(0);
 	}
-	default void setFirst(long value) {
+
+	default void setFirst(Long value) {
 		putAt(0, value);
 	}
 	/**
@@ -462,7 +465,7 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 	 *
 	 * @param value the value to set
 	 */
-	default void setLast(long value) {
+	default void setLast(Long value) {
 		putAt(size() - 1, value);
 	}
 
