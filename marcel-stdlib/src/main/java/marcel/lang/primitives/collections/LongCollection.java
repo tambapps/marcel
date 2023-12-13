@@ -294,6 +294,14 @@ public interface LongCollection extends Collection<Long>, LongIterable {
   default boolean leftShift(long value) {
     return add(value);
   }
+  default boolean leftShift(LongCollection value) {
+    return addAll(value);
+  }
+  default boolean leftShift(long[] value) {
+    boolean b = false;
+    for (long c : value) if (add(c) && !b) b = true;
+    return b;
+  }
 
   default <T> LongCollection unique(LongFunction<T> keyExtractor) {
     Set<Object> set = new HashSet<>();

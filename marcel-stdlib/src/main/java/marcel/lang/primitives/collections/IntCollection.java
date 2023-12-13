@@ -294,6 +294,14 @@ public interface IntCollection extends Collection<Integer>, IntIterable {
   default boolean leftShift(int value) {
     return add(value);
   }
+  default boolean leftShift(IntCollection value) {
+    return addAll(value);
+  }
+  default boolean leftShift(int[] array) {
+    boolean b = false;
+    for (int c : array) if (add(c) && !b) b = true;
+    return b;
+  }
 
   default <T> IntCollection unique(IntFunction<T> keyExtractor) {
     Set<Object> set = new HashSet<>();

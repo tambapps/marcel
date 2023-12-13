@@ -34,6 +34,7 @@ import marcel.lang.primitives.spliterators.CharacterSpliterator;
 import marcel.lang.util.function.CharacterFunction;
 import marcel.lang.util.function.CharacterPredicate;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
@@ -294,6 +295,19 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
    */
   default boolean leftShift(char value) {
     return add(value);
+  }
+
+  default boolean leftShift(CharacterCollection collection) {
+    return addAll(collection);
+  }
+  default boolean leftShift(char[] array) {
+    boolean b = false;
+    for (char c : array) if (add(c) && !b) b = true;
+    return b;
+  }
+
+  default boolean leftShift(String string) {
+    return addAll(string);
   }
 
   default boolean all(CharacterPredicate predicate) {

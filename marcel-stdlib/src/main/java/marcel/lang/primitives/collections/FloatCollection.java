@@ -308,6 +308,15 @@ public interface FloatCollection extends Collection<Float>, FloatIterable {
   default boolean leftShift(float value) {
     return add(value);
   }
+  default boolean leftShift(FloatCollection value) {
+    return addAll(value);
+  }
+
+  default boolean leftShift(float[] value) {
+    boolean b = false;
+    for (float c : value) if (add(c) && !b) b = true;
+    return b;
+  }
 
   default boolean all(FloatPredicate predicate) {
     FloatIterator iterator = iterator();

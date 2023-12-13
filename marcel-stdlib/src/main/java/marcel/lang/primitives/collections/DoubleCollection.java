@@ -272,6 +272,14 @@ public interface DoubleCollection extends Collection<Double>, DoubleIterable {
   default boolean leftShift(double value) {
     return add(value);
   }
+  default boolean leftShift(DoubleCollection value) {
+    return addAll(value);
+  }
+  default boolean leftShift(double[] value) {
+    boolean b = false;
+    for (double c : value) if (add(c) && !b) b = true;
+    return b;
+  }
 
   default <T> DoubleCollection unique(DoubleFunction<T> keyExtractor) {
     Set<Object> set = new HashSet<>();

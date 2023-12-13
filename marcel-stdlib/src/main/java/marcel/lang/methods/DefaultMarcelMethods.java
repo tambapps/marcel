@@ -1371,6 +1371,16 @@ public final class DefaultMarcelMethods {
     return self.add(value);
   }
 
+  public static <T> boolean leftShift(Collection<T> self, Collection<T> value) {
+    return self.addAll(value);
+  }
+
+  public static <T> boolean leftShift(Collection<T> self, T[] value) {
+    boolean b = false;
+    for (T c : value) if (self.add(c) && !b) b = true;
+    return b;
+  }
+
   /**
    * Get the last element of the list. This method will throw an exception if the list is empty
    *
