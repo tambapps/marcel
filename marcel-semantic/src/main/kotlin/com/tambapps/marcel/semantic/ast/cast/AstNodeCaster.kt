@@ -42,6 +42,7 @@ class AstNodeCaster(
     JavaType.long -> value.toLong()
     JavaType.float -> value.toFloat()
     JavaType.double -> value.toDouble()
+    JavaType.short -> value.toShort()
     else -> throw MarcelSemanticException(token, "Cannot convert value $value to $type")
   }
 

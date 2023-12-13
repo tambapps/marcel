@@ -19,7 +19,6 @@ import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ElvisNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GeNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GtNode
-import com.tambapps.marcel.semantic.ast.expression.operator.IncrIntLocalVariableNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IncrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsNotEqualNode
@@ -39,7 +38,6 @@ interface ExpressionNodeVisitor<T> {
 
   fun visit(node: NotNode): T
   fun visit(node: IncrNode): T
-  fun visit(node: IncrIntLocalVariableNode): T
   fun visit(node: DupNode): T
   fun visit(node: PopNode): T
 

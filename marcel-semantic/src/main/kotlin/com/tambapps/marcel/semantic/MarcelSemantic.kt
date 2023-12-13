@@ -102,7 +102,6 @@ import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.CharConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.JavaConstantExpression
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
-import com.tambapps.marcel.semantic.ast.expression.literal.ShortConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.operator.AndNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
@@ -111,7 +110,6 @@ import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ElvisNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GeNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GtNode
-import com.tambapps.marcel.semantic.ast.expression.operator.IncrIntLocalVariableNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IncrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsNotEqualNode
@@ -771,15 +769,13 @@ open class MarcelSemantic(
       throw MarcelSemanticException(node, "Can only increment primitive number variables")
     }
     checkVariableAccess(variable, node, checkGet = true, checkSet = true)
-    // TODO remove IncrIntLocalVariableNode and handle it in expressionWriter
-    return if (variable is LocalVariable && variable.type == JavaType.int) IncrIntLocalVariableNode(node, variable, node.amount, node.returnValueBefore)
-    else if (varType.primitive)  {
-      currentMethodScope.useTempLocalVariable(varType) {
-        IncrNode(node, variable, it, owner, caster.castNumberConstant(node.amount, varType.asPrimitiveType, node.token),
-          varType.asPrimitiveType, node.returnValueBefore)
-      }
+    return if (varType.primitive)  {
+      // a local variable is needed when the expression needs to be pushed and owner is not null and value is returned before assignment
+      val lv  = if (owner != null && smartCastType != JavaType.void && node.returnValueBefore) currentMethodScope.addLocalVariable(varType)
+      else null
+      IncrNode(node.token, variable, lv, owner, caster.castNumberConstant(node.amount, varType.asPrimitiveType, node.token),
+        varType.asPrimitiveType, node.returnValueBefore)
     } else {
-
       TODO("Object primitive. Should be a += Node")
     }
   }
@@ -1121,6 +1117,7 @@ open class MarcelSemantic(
 
   private fun arithmeticAssignmentBinaryOperator(leftOperand: ExpressionCstNode, rightOperand: ExpressionCstNode,
                                                  tokenType: TokenType): ExpressionNode {
+    // TODO no. use += nodes, etc...
     return visit(BinaryOperatorCstNode(TokenType.ASSIGNMENT,
       leftOperand = leftOperand,
       rightOperand = BinaryOperatorCstNode(tokenType, leftOperand, rightOperand, leftOperand.parent, leftOperand.tokenStart, rightOperand.tokenEnd),
@@ -1789,7 +1786,7 @@ open class MarcelSemantic(
       val condition = LtNode(leftOperand = iRef, rightOperand = ReferenceNode(owner = arrayRef, typeResolver.findField(arrayVar.type, "length")!!, node.token))
 
       // i++
-      val iteratorStatement = ExpressionStatementNode(IncrIntLocalVariableNode(node, iVar, 1, false))
+      val iteratorStatement = ExpressionStatementNode(IncrNode(node.token, iVar, 1, JavaType.int, false))
 
       // body
       val body = BlockStatementNode(mutableListOf(

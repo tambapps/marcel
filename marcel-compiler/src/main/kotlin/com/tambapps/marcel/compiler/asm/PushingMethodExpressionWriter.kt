@@ -36,7 +36,6 @@ import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ElvisNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GeNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GtNode
-import com.tambapps.marcel.semantic.ast.expression.operator.IncrIntLocalVariableNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IncrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsNotEqualNode
@@ -53,6 +52,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.variable.LocalVariable
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
@@ -86,43 +86,47 @@ class PushingMethodExpressionWriter(mv: MethodVisitor, typeResolver: JavaTypeRes
     )
   }
 
-  override fun visit(node: IncrIntLocalVariableNode) {
-    val variable = node.localVariable
-    if (node.returnValueBefore) {
-      loadVariableVisitor.visit(variable)
-      mv.visitIincInsn(variable.index, node.amount)
-    } else {
-      mv.visitIincInsn(variable.index, node.amount)
-      loadVariableVisitor.visit(variable)
-    }
-  }
-
   override fun visit(node: IncrNode) {
-    if (node.owner == null) {
+    val variable = node.variable
+    if (variable is LocalVariable && variable.type == JavaType.int) {
       if (node.returnValueBefore) {
-        node.variable.accept(loadVariableVisitor)
-        pushConstant(node.amount)
-        mv.visitInsn(node.primitiveType.addCode)
-        node.variable.accept(storeVariableVisitor)
+        variable.accept(loadVariableVisitor)
+        mv.visitIincInsn(variable.index, node.amount as Int)
       } else {
+        mv.visitIincInsn(variable.index, node.amount as Int)
+        variable.accept(loadVariableVisitor)
+      }
+    } else if (node.owner == null) {
+      if (node.returnValueBefore) {
+        // loading it twice because we want to push the value before the increment
+        variable.accept(loadVariableVisitor)
+        variable.accept(loadVariableVisitor)
         pushConstant(node.amount)
         mv.visitInsn(node.primitiveType.addCode)
-        node.variable.accept(storeVariableVisitor)
-        node.variable.accept(loadVariableVisitor)
+        variable.accept(storeVariableVisitor)
+      } else {
+        variable.accept(loadVariableVisitor)
+        pushConstant(node.amount)
+        mv.visitInsn(node.primitiveType.addCode)
+        variable.accept(storeVariableVisitor)
+        variable.accept(loadVariableVisitor)
       }
     } else {
       val owner = node.owner!!
       if (node.returnValueBefore) {
+        val tempVariable = node.tempVariable ?: throw RuntimeException(
+          "Compiler error. tempVariable should not be null for an pushed incr node returning value before"
+        )
         pushExpression(owner)
         // duplicating reference because we're about to consume one ref by loading the variable, and we'll need one more to store
         mv.visitInsn(Opcodes.DUP)
-        node.variable.accept(loadVariableVisitor)
-        node.tempVariable.accept(storeVariableVisitor) // storing value in temp local variable
-        node.tempVariable.accept(loadVariableVisitor)
+        variable.accept(loadVariableVisitor)
+        tempVariable.accept(storeVariableVisitor) // storing value in temp local variable
+        tempVariable.accept(loadVariableVisitor)
         pushConstant(node.amount)
         mv.visitInsn(node.primitiveType.addCode)
-        node.variable.accept(storeVariableVisitor)
-        node.tempVariable.accept(loadVariableVisitor) // load the value stored before the increment
+        variable.accept(storeVariableVisitor)
+        tempVariable.accept(loadVariableVisitor) // load the value stored before the increment
       } else {
         pushExpression(owner)
         // duplicating reference twice because we'll need the reference
@@ -131,11 +135,11 @@ class PushingMethodExpressionWriter(mv: MethodVisitor, typeResolver: JavaTypeRes
         // 3.  to load the updated value
         mv.visitInsn(Opcodes.DUP)
         mv.visitInsn(Opcodes.DUP)
-        node.variable.accept(loadVariableVisitor)
+        variable.accept(loadVariableVisitor)
         pushConstant(node.amount)
         mv.visitInsn(node.primitiveType.addCode)
-        node.variable.accept(storeVariableVisitor)
-        node.variable.accept(loadVariableVisitor)
+        variable.accept(storeVariableVisitor)
+        variable.accept(loadVariableVisitor)
       }
     }
   }
@@ -282,8 +286,11 @@ class PushingMethodExpressionWriter(mv: MethodVisitor, typeResolver: JavaTypeRes
   override fun visit(node: ShortConstantNode) = mv.visitIntInsn(Opcodes.BIPUSH, node.value.toInt())
 
   override fun pushConstant(value: Any) {
-    if (value is Byte) mv.visitIntInsn(Opcodes.BIPUSH, value.toInt())
-    else mv.visitLdcInsn(value)
+    when (value) {
+      is Byte -> mv.visitIntInsn(Opcodes.BIPUSH, value.toInt())
+      is Short -> mv.visitIntInsn(Opcodes.BIPUSH, value.toInt())
+      else -> mv.visitLdcInsn(value)
+    }
   }
 
   override fun visit(node: ArrayAccessNode) {

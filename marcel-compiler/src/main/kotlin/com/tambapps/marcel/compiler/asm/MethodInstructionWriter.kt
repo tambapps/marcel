@@ -3,7 +3,6 @@ package com.tambapps.marcel.compiler.asm
 import com.tambapps.marcel.compiler.extensions.addCode
 import com.tambapps.marcel.compiler.extensions.internalName
 import com.tambapps.marcel.compiler.extensions.returnCode
-import com.tambapps.marcel.compiler.extensions.storeCode
 import com.tambapps.marcel.compiler.extensions.visitMethodInsn
 import com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
@@ -38,7 +37,6 @@ import com.tambapps.marcel.semantic.ast.expression.operator.DivNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ElvisNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GeNode
 import com.tambapps.marcel.semantic.ast.expression.operator.GtNode
-import com.tambapps.marcel.semantic.ast.expression.operator.IncrIntLocalVariableNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IncrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsNotEqualNode
@@ -346,20 +344,20 @@ class MethodInstructionWriter(
     node.expressionNode.accept(this)
   }
 
-  override fun visit(node: IncrIntLocalVariableNode) {
-    val variable = node.localVariable
-    mv.visitIincInsn(variable.index, node.amount)
-  }
-
   override fun visit(node: IncrNode) {
+    val variable = node.variable
+    if (variable is LocalVariable && variable.type == JavaType.int) {
+      mv.visitIincInsn(variable.index, node.amount as Int)
+      return
+    }
     if (node.owner != null) {
       pushExpression(node.owner!!)
       mv.visitInsn(Opcodes.DUP)
     }
-    node.variable.accept(loadVariableVisitor)
+    variable.accept(loadVariableVisitor)
     pushConstant(node.amount)
     mv.visitInsn(node.primitiveType.addCode)
-    node.variable.accept(storeVariableVisitor)
+    variable.accept(storeVariableVisitor)
   }
 
 
