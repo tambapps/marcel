@@ -98,7 +98,46 @@ class PushingMethodExpressionWriter(mv: MethodVisitor, typeResolver: JavaTypeRes
   }
 
   override fun visit(node: IncrNode) {
-    TODO()
+    if (node.owner == null) {
+      if (node.returnValueBefore) {
+        node.variable.accept(loadVariableVisitor)
+        pushConstant(node.amount)
+        mv.visitInsn(node.primitiveType.addCode)
+        node.variable.accept(storeVariableVisitor)
+      } else {
+        pushConstant(node.amount)
+        mv.visitInsn(node.primitiveType.addCode)
+        node.variable.accept(storeVariableVisitor)
+        node.variable.accept(loadVariableVisitor)
+      }
+    } else {
+      val owner = node.owner!!
+      if (node.returnValueBefore) {
+        pushExpression(owner)
+        // duplicating reference because we're about to consume one ref by loading the variable, and we'll need one more to store
+        mv.visitInsn(Opcodes.DUP)
+        node.variable.accept(loadVariableVisitor)
+        node.tempVariable.accept(storeVariableVisitor) // storing value in temp local variable
+        node.tempVariable.accept(loadVariableVisitor)
+        pushConstant(node.amount)
+        mv.visitInsn(node.primitiveType.addCode)
+        node.variable.accept(storeVariableVisitor)
+        node.tempVariable.accept(loadVariableVisitor) // load the value stored before the increment
+      } else {
+        pushExpression(owner)
+        // duplicating reference twice because we'll need the reference
+        // 1.  to load the value
+        // 2.  to store the value
+        // 3.  to load the updated value
+        mv.visitInsn(Opcodes.DUP)
+        mv.visitInsn(Opcodes.DUP)
+        node.variable.accept(loadVariableVisitor)
+        pushConstant(node.amount)
+        mv.visitInsn(node.primitiveType.addCode)
+        node.variable.accept(storeVariableVisitor)
+        node.variable.accept(loadVariableVisitor)
+      }
+    }
   }
 
   override fun visit(node: NotNode) {
