@@ -75,7 +75,7 @@ class ForEachNodeVisitor(
 
   override fun visit(node: IncrNode) {
     consume(node)
-    node.incrExpression.accept(this)
+    node.owner?.accept(this)
   }
 
   override fun visit(node: IncrIntLocalVariableNode) {

@@ -771,15 +771,14 @@ open class MarcelSemantic(
       throw MarcelSemanticException(node, "Can only increment primitive number variables")
     }
     checkVariableAccess(variable, node, checkGet = true, checkSet = true)
+    // TODO remove IncrIntLocalVariableNode and handle it in expressionWriter
     return if (variable is LocalVariable && variable.type == JavaType.int) IncrIntLocalVariableNode(node, variable, node.amount, node.returnValueBefore)
-     else {
-      val incrExpression = PlusNode(ReferenceNode(
-        owner = owner,
-        variable = variable,
-        token = node.token
-      ),
-        caster.cast(varType.type, IntConstantNode(value = node.amount, token = node.token)))
-      IncrNode(node, variable, owner, incrExpression, node.returnValueBefore)
+    else if (varType.primitive)  {
+      IncrNode(node, variable, owner, caster.castNumberConstant(node.amount, varType.asPrimitiveType, node.token),
+        varType.asPrimitiveType, node.returnValueBefore)
+    } else {
+
+      TODO("Object primitive. Should be a += Node")
     }
   }
 
@@ -995,6 +994,13 @@ open class MarcelSemantic(
     is IndexAccessCstNode -> {
       val indexOwner = dotOperator(node, owner, rightOperand.ownerNode, false)
       indexAccess(indexOwner, rightOperand)
+    }
+    is IncrCstNode -> {
+      val variable = typeResolver.findFieldOrThrow(owner.type, rightOperand.value, rightOperand.token)
+      checkVariableAccess(variable, node, checkGet = true, checkSet = true)
+
+     // IncrNode
+      TODO()
     }
     else -> throw MarcelSemanticException(node, "Invalid dot operator use")
   }

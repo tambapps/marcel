@@ -37,9 +37,12 @@ sealed class MethodExpressionWriter(
 ): ExpressionNodeVisitor<Unit> {
 
   protected val loadVariableVisitor = LoadVariableVisitor(typeResolver, mv, classScopeType)
-  private val storeVariableVisitor = StoreVariableVisitor(typeResolver, mv, classScopeType)
+  protected val storeVariableVisitor = StoreVariableVisitor(typeResolver, mv, classScopeType)
 
   internal abstract fun pushExpression(node: ExpressionNode)
+
+  // should be an Int, Byte, Long, Float, Double, String
+  internal abstract fun pushConstant(value: Any)
 
   override fun visit(node: VariableAssignmentNode) {
     node.owner?.let { pushExpression(it) }

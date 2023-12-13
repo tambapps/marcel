@@ -98,22 +98,7 @@ class PushingMethodExpressionWriter(mv: MethodVisitor, typeResolver: JavaTypeRes
   }
 
   override fun visit(node: IncrNode) {
-    val varAssign = VariableAssignmentNode(
-      owner = node.owner,
-      variable = node.variable,
-      expression = node.incrExpression,
-      tokenStart = node.tokenStart,
-      tokenEnd = node.tokenEnd
-    )
-    if (node.returnValueBefore) {
-      node.owner?.accept(this)
-      node.variable.accept(loadVariableVisitor)
-      visit(varAssign)
-      popStackIfNotVoid(varAssign.type) // pop because this class always pushed and we already pushed the value before assignment
-    } else {
-      // pushing of the new value will be handled while visiting var assignment
-      visit(varAssign)
-    }
+    TODO()
   }
 
   override fun visit(node: NotNode) {
@@ -256,6 +241,11 @@ class PushingMethodExpressionWriter(mv: MethodVisitor, typeResolver: JavaTypeRes
   override fun visit(node: StringConstantNode) = mv.visitLdcInsn(node.value)
   override fun visit(node: NullValueNode) = mv.visitInsn(Opcodes.ACONST_NULL)
   override fun visit(node: ShortConstantNode) = mv.visitIntInsn(Opcodes.BIPUSH, node.value.toInt())
+
+  override fun pushConstant(value: Any) {
+    if (value is Byte) mv.visitIntInsn(Opcodes.BIPUSH, value.toInt())
+    else mv.visitLdcInsn(value)
+  }
 
   override fun visit(node: ArrayAccessNode) {
     pushExpression(node.owner)

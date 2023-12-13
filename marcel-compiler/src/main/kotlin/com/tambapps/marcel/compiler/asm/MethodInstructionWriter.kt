@@ -1,7 +1,9 @@
 package com.tambapps.marcel.compiler.asm
 
+import com.tambapps.marcel.compiler.extensions.addCode
 import com.tambapps.marcel.compiler.extensions.internalName
 import com.tambapps.marcel.compiler.extensions.returnCode
+import com.tambapps.marcel.compiler.extensions.storeCode
 import com.tambapps.marcel.compiler.extensions.visitMethodInsn
 import com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
@@ -350,15 +352,14 @@ class MethodInstructionWriter(
   }
 
   override fun visit(node: IncrNode) {
-    visit(
-      VariableAssignmentNode(
-        owner = node.owner,
-        variable = node.variable,
-        expression = node.incrExpression,
-        tokenStart = node.tokenStart,
-        tokenEnd = node.tokenEnd
-      )
-    )
+    if (node.owner != null) {
+      pushExpression(node.owner!!)
+      mv.visitInsn(Opcodes.DUP)
+    }
+    node.variable.accept(loadVariableVisitor)
+    pushConstant(node.amount)
+    mv.visitInsn(node.primitiveType.addCode)
+    node.variable.accept(storeVariableVisitor)
   }
 
 
@@ -462,5 +463,6 @@ class MethodInstructionWriter(
   }
 
   override fun pushExpression(node: ExpressionNode) = node.accept(expressionPusher)
+  override fun pushConstant(value: Any) = expressionPusher.pushConstant(value)
 
 }

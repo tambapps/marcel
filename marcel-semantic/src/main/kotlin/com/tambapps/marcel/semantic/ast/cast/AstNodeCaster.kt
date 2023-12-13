@@ -11,6 +11,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaArrayType
+import com.tambapps.marcel.semantic.type.JavaPrimitiveType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import marcel.lang.DynamicObject
@@ -33,6 +34,15 @@ class AstNodeCaster(
        functionCall(MarcelTruth::class.javaType, "isTruthy", listOf(node), node)
      }
    }
+  }
+
+  fun castNumberConstant(value: Int, type: JavaPrimitiveType, token: LexToken): Any = when(type) {
+    JavaType.byte -> value.toByte()
+    JavaType.int -> value
+    JavaType.long -> value.toLong()
+    JavaType.float -> value.toFloat()
+    JavaType.double -> value.toDouble()
+    else -> throw MarcelSemanticException(token, "Cannot convert value $value to $type")
   }
 
   /**
