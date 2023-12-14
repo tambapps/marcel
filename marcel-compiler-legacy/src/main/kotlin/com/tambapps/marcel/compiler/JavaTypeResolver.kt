@@ -48,7 +48,8 @@ open class JavaTypeResolver constructor(classLoader: MarcelClassLoader?) : AstNo
     getDeclaredMethods(type).filter { it.isStatic && it.parameters.isNotEmpty() }
       .forEach {
         val owner = it.parameters.first().type
-        defineMethod(owner, ExtensionJavaMethod(it))
+        val methods = getMarcelMethods(owner)
+        methods.add(ExtensionJavaMethod(it))
       }
   }
 
