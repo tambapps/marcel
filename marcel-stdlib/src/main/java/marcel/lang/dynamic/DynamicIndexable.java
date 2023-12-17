@@ -7,10 +7,6 @@ interface DynamicIndexable extends DynamicObject {
 
   int size();
 
-  default int getLength() {
-    return size();
-  }
-
   default DynamicObject getAtSafe(Object object) {
     if (object instanceof Integer) {
       int i = (Integer) object;

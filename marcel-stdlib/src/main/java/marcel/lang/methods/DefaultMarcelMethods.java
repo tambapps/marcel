@@ -1174,18 +1174,6 @@ public final class DefaultMarcelMethods {
 
   // TODO mapToCharacter
 
-  // getLength
-
-  /**
-   * Returns the size of the Collection
-   *
-   * @param self the collection
-   * @return the size of the collection
-   */
-  public static int getLength(Collection<?> self) {
-    return self.size();
-  }
-
   public static String join(Collection<?> self) {
     return join(self, "");
   }

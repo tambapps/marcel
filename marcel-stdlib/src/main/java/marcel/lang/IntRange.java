@@ -65,7 +65,5 @@ public interface IntRange extends IntIterable {
   }
 
   int size();
-  default int getLength() {
-    return size();
-  }
+
 }

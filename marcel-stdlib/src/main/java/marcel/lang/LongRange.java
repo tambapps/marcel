@@ -67,7 +67,4 @@ public interface LongRange extends LongIterable {
 
   int size();
 
-  default int getLength() {
-    return size();
-  }
 }
