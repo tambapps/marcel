@@ -2,6 +2,7 @@ package com.tambapps.marcel.parser
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
+import com.tambapps.marcel.parser.ParserUtils.UNARY_PRIORITY
 import com.tambapps.marcel.parser.cst.AbstractMethodNode
 import com.tambapps.marcel.parser.cst.AnnotationNode
 import com.tambapps.marcel.parser.cst.ClassNode
@@ -768,8 +769,8 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         val arguments = parseFunctionArguments(parentNode)
         NewInstanceNode(parentNode, type, arguments.first, arguments.second, token, previous)
       }
-      TokenType.MINUS -> unaryOperator(TokenType.MINUS, parentNode, token, ::UnaryMinusNode)
-      TokenType.NOT -> unaryOperator(TokenType.NOT, parentNode, token, ::NotNode)
+      TokenType.MINUS -> unaryOperator(parentNode, token, ::UnaryMinusNode)
+      TokenType.NOT -> unaryOperator(parentNode, token, ::NotNode)
       TokenType.VALUE_TRUE -> BoolNode(parentNode, true, token)
       TokenType.VALUE_FALSE -> BoolNode(parentNode, false, token)
       TokenType.OPEN_CHAR_QUOTE -> {
@@ -868,16 +869,15 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     }
   }
 
-  private inline fun unaryOperator(tokenType: TokenType, parentNode: CstNode?, token: LexToken,
+  private inline fun unaryOperator(parentNode: CstNode?, token: LexToken,
                             nodeCreator: (ExpressionNode, CstNode?, LexToken, LexToken) -> ExpressionNode): ExpressionNode {
-    val priority = ParserUtils.getPriority(tokenType)
-    val rootExpr = expression(parentNode)
-    return if (rootExpr !is BinaryOperatorNode || ParserUtils.getPriority(rootExpr.tokenType) <= priority) nodeCreator(rootExpr, parentNode, token, previous)
+    val rootExpr = expression(parentNode, UNARY_PRIORITY)
+    return if (rootExpr !is BinaryOperatorNode || ParserUtils.getPriority(rootExpr.tokenType) <= UNARY_PRIORITY) nodeCreator(rootExpr, parentNode, token, previous)
     else {
       var expr = rootExpr
       while (expr is BinaryOperatorNode
         && expr.leftOperand is BinaryOperatorNode
-        && ParserUtils.getPriority((expr.leftOperand as BinaryOperatorNode).tokenType) > priority) {
+        && ParserUtils.getPriority((expr.leftOperand as BinaryOperatorNode).tokenType) > UNARY_PRIORITY) {
         expr = expr.leftOperand
       }
       expr as BinaryOperatorNode

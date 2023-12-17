@@ -7,11 +7,15 @@ object ParserUtils {
 
   const val LEFT = 0
   const val RIGHT = 1
+
+  const val UNARY_PRIORITY = 1
+
   private val PRIORITY_MAP = mapOf(
+    Pair(DOT, 0),
+
     Pair(POWER, 1),
-    Pair(DOT, 1),
     Pair(QUESTION_DOT, 1),
-    Pair(NOT, 1),
+    Pair(NOT, UNARY_PRIORITY),
 
     Pair(TWO_DOTS, 2),
     Pair(TWO_DOTS_END_EXCLUSIVE, 2),
@@ -41,6 +45,7 @@ object ParserUtils {
     Pair(IS_NOT, 7),
 
     Pair(AND, 8),
+
     Pair(OR, 9),
 
     Pair(QUESTION_MARK, 10), // for ternary

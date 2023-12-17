@@ -58,9 +58,18 @@ class MarcelParserTest {
             , parser("-a.isTruthy() && 1").expression())
 
         assertEquals(binaryOperator(TokenType.AND,
-            left = minus(binaryOperator(TokenType.MUL, left = int(3), right = int(5))),
+            left = binaryOperator(TokenType.MUL, left = minus(int(3)), right = int(5)),
             right = int(1))
             , parser("- 3 * 5 && 1").expression())
+
+
+        assertEquals(binaryOperator(TokenType.AND,
+            left = binaryOperator(TokenType.EQUAL, left = int(0), right = minus(int(1))),
+            right = binaryOperator(TokenType.GT,
+                left = int(2),
+                right = int(0))
+        )
+            , parser("0 == -1 && 2 > 0").expression())
     }
 
     @Test
