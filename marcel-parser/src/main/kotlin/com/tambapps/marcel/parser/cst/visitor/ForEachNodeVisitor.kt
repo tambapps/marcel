@@ -229,6 +229,7 @@ class ForEachNodeVisitor(
 
   override fun visit(node: IfStatementNode) {
     consume(node)
+    node.condition.accept(this)
     node.trueStatementNode.accept(this)
     node.falseStatementNode?.accept(this)
   }
