@@ -773,8 +773,11 @@ open class MarcelSemantic(
       // a local variable is needed when the expression needs to be pushed and owner is not null and value is returned before assignment
       val lv  = if (owner != null && smartCastType != JavaType.void && node.returnValueBefore) currentMethodScope.addLocalVariable(varType)
       else null
-      IncrNode(node.token, variable, lv, owner, caster.castNumberConstant(node.amount, varType.asPrimitiveType, node.token),
+      val node = IncrNode(node.token, variable, lv, owner, caster.castNumberConstant(node.amount, varType.asPrimitiveType, node.token),
         varType.asPrimitiveType, node.returnValueBefore)
+
+      if (lv != null) currentMethodScope.freeLocalVariable(lv.name)
+      node
     } else {
       TODO("Object primitive. Should be a += Node")
     }
