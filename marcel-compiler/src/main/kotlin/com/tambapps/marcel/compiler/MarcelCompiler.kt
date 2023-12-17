@@ -1,6 +1,6 @@
 package com.tambapps.marcel.compiler
 
-import com.tambapps.marcel.compiler.asm.MarcelClassWriter
+import com.tambapps.marcel.compiler.asm.MarcelClassCompiler
 import com.tambapps.marcel.compiler.exception.MarcelCompilerException
 import com.tambapps.marcel.compiler.file.SourceFile
 import com.tambapps.marcel.dumbbell.Dumbbell
@@ -74,7 +74,7 @@ class MarcelCompiler(configuration: CompilerConfiguration): AbstractMarcelCompil
     // applying semantic analysis
     val asts = semantics.map { it.apply(defineSymbols = false) }
 
-    val classWriter = MarcelClassWriter(configuration, typeResolver)
+    val classWriter = MarcelClassCompiler(configuration, typeResolver)
 
     // then compile them
     asts.forEach { ast ->

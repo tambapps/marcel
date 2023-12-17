@@ -19,8 +19,7 @@ import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 
-// TODO rename class compiler
-class MarcelClassWriter(
+class MarcelClassCompiler(
   private val compilerConfiguration: CompilerConfiguration,
   private val typeResolver: JavaTypeResolver
 ) {
@@ -38,7 +37,7 @@ class MarcelClassWriter(
   }
 
   private fun compileRec(classes: MutableList<CompiledClass>, classNode: ClassNode) {
-    val classWriter = AsmClassWriter(typeResolver)
+    val classWriter = MarcelAsmClassWriter(typeResolver)
     // creating class
     classWriter.visit(compilerConfiguration.classVersion, classNode.access, classNode.type.internalName,
 

@@ -3,7 +3,7 @@ package com.tambapps.marcel.repl
 import com.tambapps.marcel.compiler.AbstractMarcelCompiler
 import com.tambapps.marcel.compiler.CompiledClass
 import com.tambapps.marcel.compiler.CompilerConfiguration
-import com.tambapps.marcel.compiler.asm.MarcelClassWriter
+import com.tambapps.marcel.compiler.asm.MarcelClassCompiler
 import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
@@ -26,7 +26,7 @@ class MarcelReplCompiler constructor(
   private val lexer = MarcelLexer(false)
   private val _definedFunctions = mutableSetOf<com.tambapps.marcel.parser.cst.MethodNode>()
   val definedFunctions: Set<com.tambapps.marcel.parser.cst.MethodNode> get() = _definedFunctions
-  private val classCompiler = MarcelClassWriter(compilerConfiguration, typeResolver)
+  private val classCompiler = MarcelClassCompiler(compilerConfiguration, typeResolver)
   @Volatile
   var semanticResult: SemanticResult? = null
     private set

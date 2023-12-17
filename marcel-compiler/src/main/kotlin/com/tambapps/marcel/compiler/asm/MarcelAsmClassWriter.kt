@@ -10,7 +10,7 @@ import org.objectweb.asm.ClassWriter
 /**
  * Marcel class writer
  */
-class AsmClassWriter(
+class MarcelAsmClassWriter(
   val typeResolver: JavaTypeResolver
 ) : ClassWriter(COMPUTE_MAXS or COMPUTE_FRAMES) {
 
