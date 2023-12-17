@@ -873,7 +873,7 @@ open class MarcelSemantic(
           val cstReference = (node.leftOperand as ReferenceCstNode)
           val p = try {
             findVariableAndOwner(cstReference.value, node)
-          } catch (e: MarcelSemanticException) { null }
+          } catch (e: MarcelSemanticException) { null } // TODO too generic need to catch specific variable not found exception and re-throw others
           if (p != null) {
             dotOperator(node, ReferenceNode(p.second, p.first, node.token), rightOperand)
           } else {
@@ -1203,7 +1203,9 @@ open class MarcelSemantic(
 
     val castType = node.castType?.let(this::visit)
 
-    if (methodResolve != null) {
+    if (methodResolve != null
+      // need this especially for extensions classes to avoid referencing an instance method even though only static methods can be referenced. In this case we want the real static, not isMarcelStatic
+      && (!currentMethodScope.isStatic || methodResolve.first.isStatic)) {
       val owner = if (methodResolve.first.isMarcelStatic) null else ThisReferenceNode(currentScope.classType, node.token)
       return fCall(
         tokenStart = node.tokenStart,
