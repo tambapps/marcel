@@ -65,6 +65,14 @@ extension class CharacterExtensions for Character {
   fun bool isISOControl() {
     return Character.isISOControl(this as char)
   }
+
+  fun int toInt() -> Integer.parseInt(toString())
+
+  fun long toLong() -> Long.parseLong(toString())
+
+  fun float toFloat() -> Float.parseFloat(toString())
+
+  fun double toDouble() -> Double.parseDouble(toString())
 }
 
 extension class CharExtensions for char {
@@ -135,4 +143,12 @@ extension class CharExtensions for char {
   fun bool isISOControl() {
     return Character.isISOControl(this)
   }
+
+  fun int toInt() -> Integer.parseInt(toString())
+
+  fun long toLong() -> Long.parseLong(toString())
+
+  fun float toFloat() -> Float.parseFloat(toString())
+
+  fun double toDouble() -> Double.parseDouble(toString())
 }
