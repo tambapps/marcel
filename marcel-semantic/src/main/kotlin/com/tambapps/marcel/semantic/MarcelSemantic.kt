@@ -773,11 +773,10 @@ open class MarcelSemantic(
       // a local variable is needed when the expression needs to be pushed and owner is not null and value is returned before assignment
       val lv  = if (owner != null && smartCastType != JavaType.void && node.returnValueBefore) currentMethodScope.addLocalVariable(varType)
       else null
-      val node = IncrNode(node.token, variable, lv, owner, caster.castNumberConstant(node.amount, varType.asPrimitiveType, node.token),
+      val incrNode = IncrNode(node.token, variable, lv, owner, caster.castNumberConstant(node.amount, varType.asPrimitiveType, node.token),
         varType.asPrimitiveType, node.returnValueBefore)
-
       if (lv != null) currentMethodScope.freeLocalVariable(lv.name)
-      node
+      incrNode
     } else {
       TODO("Object primitive. Should be a += Node")
     }
@@ -855,6 +854,7 @@ open class MarcelSemantic(
       TokenType.MINUS_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, TokenType.MINUS)
       TokenType.MUL_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, TokenType.MUL)
       TokenType.DIV_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, TokenType.DIV)
+      TokenType.MODULO_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, TokenType.MODULO)
       TokenType.QUESTION_DOT -> {
         val left = leftOperand.accept(this)
         if (left.type.primitive) throw MarcelSemanticException(node, "Cannot use safe access operator on primitive type as it cannot be null")

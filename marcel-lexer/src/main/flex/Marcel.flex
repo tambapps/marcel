@@ -378,6 +378,7 @@ LONELY_BACKTICK=`
 "-="          { return token(MINUS_ASSIGNMENT); }
 "*="          { return token(MUL_ASSIGNMENT); }
 "/="          { return token(DIV_ASSIGNMENT); }
+"%="          { return token(MODULO_ASSIGNMENT); }
 ".."          { return token(TWO_DOTS); }
 "..>"          { return token(TWO_DOTS_END_EXCLUSIVE); }
 "..<"          { return token(TWO_DOTS_END_EXCLUSIVE); }
