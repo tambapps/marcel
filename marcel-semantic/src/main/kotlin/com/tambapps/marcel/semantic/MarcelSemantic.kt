@@ -763,23 +763,24 @@ open class MarcelSemantic(
 
   override fun visit(node: IncrCstNode, smartCastType: JavaType?): ExpressionNode {
     val (variable, owner) = findVariableAndOwner(node.value, node)
+    return incr(node, variable, owner, smartCastType)
+  }
+
+  private fun incr(node: IncrCstNode, variable: Variable, owner: ExpressionNode?, smartCastType: JavaType? = null): ExpressionNode {
     val varType = variable.type
     if (varType != JavaType.int && varType != JavaType.long && varType != JavaType.float && varType != JavaType.double
       && varType != JavaType.short && varType != JavaType.byte) {
       throw MarcelSemanticException(node, "Can only increment primitive number variables")
     }
     checkVariableAccess(variable, node, checkGet = true, checkSet = true)
-    return if (varType.primitive)  {
-      // a local variable is needed when the expression needs to be pushed and owner is not null and value is returned before assignment
-      val lv  = if (owner != null && smartCastType != JavaType.void && node.returnValueBefore) currentMethodScope.addLocalVariable(varType)
-      else null
-      val incrNode = IncrNode(node.token, variable, lv, owner, caster.castNumberConstant(node.amount, varType.asPrimitiveType, node.token),
-        varType.asPrimitiveType, node.returnValueBefore)
-      if (lv != null) currentMethodScope.freeLocalVariable(lv.name)
-      incrNode
-    } else {
-      TODO("Object primitive. Should be a += Node")
-    }
+
+    // a local variable is needed when the expression needs to be pushed and owner is not null and value is returned before assignment
+    val lv  = if (owner != null && smartCastType != JavaType.void && node.returnValueBefore) currentMethodScope.addLocalVariable(varType)
+    else null
+    val incrNode = IncrNode(node.token, variable, lv, owner, caster.castNumberConstant(node.amount, varType.asPrimitiveType, node.token),
+      varType.asPrimitiveType, node.returnValueBefore)
+    if (lv != null) currentMethodScope.freeLocalVariable(lv.name)
+    return incrNode
   }
 
   override fun visit(node: IndexAccessCstNode, smartCastType: JavaType?): ExpressionNode {
@@ -998,10 +999,7 @@ open class MarcelSemantic(
     }
     is IncrCstNode -> {
       val variable = typeResolver.findFieldOrThrow(owner.type, rightOperand.value, rightOperand.token)
-      checkVariableAccess(variable, node, checkGet = true, checkSet = true)
-
-     // IncrNode
-      TODO()
+      incr(rightOperand, variable, owner)
     }
     else -> throw MarcelSemanticException(node, "Invalid dot operator use")
   }
