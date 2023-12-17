@@ -12,5 +12,18 @@ class CharNode(parent: CstNode? = null, override val value: Char, tokenStart: Le
     override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
 
     override fun toString() = "`${value}`"
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CharNode) return false
+        if (!super.equals(other)) return false
+
+        if (value != other.value) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
 
 }

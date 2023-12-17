@@ -11,5 +11,18 @@ class LongNode(parent: CstNode? = null, override val value: Long, token: LexToke
     override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
 
     override fun toString() = "${value}L"
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is LongNode) return false
+        if (!super.equals(other)) return false
+
+        if (value != other.value) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
 
 }
