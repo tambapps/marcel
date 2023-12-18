@@ -6,7 +6,7 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.FIELD;
 
-// TODO handle me. it should have the same behaviour as Groovy's @Delegate
+// TODO handle me. it is for script only. Groovy's @Delegate should be called @UnwrapFunctions
 /**
  * Interface used to indicate that the annotated field should be a delegate of the class
  */
