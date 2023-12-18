@@ -123,7 +123,7 @@ class MarcelClassCompiler(
   }
 
   private fun writeAnnotation(annotationVisitor: AnnotationVisitor, annotationNode: AnnotationNode) {
-    for (attr in annotationNode.attributeNodes) {
+    for (attr in annotationNode.attributes) {
      val attrValue = attr.value
       if (attr.type.isEnum) {
         annotationVisitor.visitEnum(attr.name, attr.type.descriptor, attrValue.toString())
