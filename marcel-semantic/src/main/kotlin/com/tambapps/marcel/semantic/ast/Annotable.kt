@@ -10,7 +10,7 @@ interface Annotable {
     val annotations: List<AnnotationNode>
 
     fun getAnnotation(javaType: JavaType): AnnotationNode? {
-        return annotations.find { it.type == javaType }
+        return annotations.find { it.annotationType == javaType }
     }
 
 }

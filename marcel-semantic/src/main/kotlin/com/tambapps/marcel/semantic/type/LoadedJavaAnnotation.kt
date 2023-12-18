@@ -2,7 +2,7 @@ package com.tambapps.marcel.semantic.type
 
 import java.lang.annotation.ElementType
 
-open class LoadedJavaAnnotation(final override val type: JavaType): JavaAnnotation {
+open class LoadedJavaAnnotation(realClazz: Class<*>): LoadedObjectType(realClazz, emptyList()), JavaAnnotation {
 
   override val targets = computeTargets()
 
@@ -10,7 +10,7 @@ open class LoadedJavaAnnotation(final override val type: JavaType): JavaAnnotati
   private var _attributes: List<JavaAnnotation.Attribute>? = null
   override val attributes: List<JavaAnnotation.Attribute> get() {
     if (_attributes == null) {
-      _attributes = type.realClazz.declaredMethods.map {
+      _attributes = realClazz.declaredMethods.map {
         JavaAnnotation.Attribute(it.name, LoadedObjectType(it.returnType), it.defaultValue)
       }
     }
@@ -18,7 +18,7 @@ open class LoadedJavaAnnotation(final override val type: JavaType): JavaAnnotati
   }
 
   private fun computeTargets(): List<ElementType> {
-    val targetAnnotation = type.realClazz.getAnnotation(java.lang.annotation.Target::class.java)
+    val targetAnnotation = realClazz.getAnnotation(java.lang.annotation.Target::class.java)
     return targetAnnotation?.value?.toList() ?: ElementType.values().toList()
   }
 }

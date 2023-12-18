@@ -134,6 +134,7 @@ import com.tambapps.marcel.semantic.ast.statement.TryCatchNode
 import com.tambapps.marcel.semantic.ast.statement.WhileNode
 import com.tambapps.marcel.semantic.check.ClassNodeChecks
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.ExtensionJavaMethod
 import com.tambapps.marcel.semantic.method.JavaConstructorImpl
@@ -375,14 +376,15 @@ open class MarcelSemantic(
         typeResolver.defineMethod(classType, constructorNode)
       }
     }
-    node.annotations.forEach { classNode.annotations.add(annotationNode(it, ElementType.TYPE)) }
+    node.annotations.forEach { classNode.annotations.add(visit(it, ElementType.TYPE)) }
     // iterating with i because we might add methods while
     node.methods.forEach { classNode.methods.add(methodNode(classNode, it, classScope)) }
     val staticFieldInitialValueMap = mutableMapOf<FieldNode, ExpressionNode>()
     val fieldInitialValueMap = mutableMapOf<FieldNode, ExpressionNode>()
     node.fields.forEach { cstFieldNode ->
-      val fieldNode = FieldNode(visit(cstFieldNode.type), cstFieldNode.name, classType,
-        cstFieldNode.annotations.map { annotationNode(it, ElementType.FIELD) },
+      val fieldNode = FieldNode(
+        visit(cstFieldNode.type), cstFieldNode.name, classType,
+        cstFieldNode.annotations.map { visit(it, ElementType.FIELD) },
         cstFieldNode.access.isFinal, Visibility.fromTokenType(cstFieldNode.access.visibility),
         cstFieldNode.access.isStatic, cstFieldNode.tokenStart, cstFieldNode.tokenEnd)
       classNode.fields.add(fieldNode)
@@ -465,16 +467,16 @@ open class MarcelSemantic(
     }
 
   }
-  private fun annotationNode(cstAnnotation: AnnotationCstNode, elementType: ElementType): AnnotationNode {
+  fun visit(cstAnnotation: AnnotationCstNode, elementType: ElementType): AnnotationNode {
     val annotationType = visit(cstAnnotation.typeNode)
     if (!annotationType.isAnnotation) throw MarcelSemanticException(cstAnnotation.token, "$annotationType is not an annotation")
     val javaAnnotation = JavaAnnotation.of(annotationType)
     if (!javaAnnotation.targets.contains(elementType)) {
-      throw MarcelSemanticException(cstAnnotation, "Annotation ${javaAnnotation.type} is not expected on elements of type $elementType")
+      throw MarcelSemanticException(cstAnnotation, "Annotation $javaAnnotation is not expected on elements of type $elementType")
     }
 
     val annotation = AnnotationNode(
-      type = annotationType,
+      annotationType = annotationType.asAnnotationType,
       tokenStart = cstAnnotation.tokenStart,
       attributeNodes = cstAnnotation.attributes.map { annotationAttribute(cstAnnotation, javaAnnotation, it) },
       tokenEnd = cstAnnotation.tokenEnd
@@ -483,7 +485,7 @@ open class MarcelSemantic(
     // check attributes without default values that weren't specified
     for (attr in javaAnnotation.attributes) {
       if (attr.defaultValue == null && annotation.attributeNodes.none { it.name == attr.name }) {
-        throw MarcelSemanticException(cstAnnotation, "Attribute ${attr.name} has no default value and was not specified for annotation ${javaAnnotation.type}")
+        throw MarcelSemanticException(cstAnnotation, "Attribute ${attr.name} has no default value and was not specified for annotation $javaAnnotation")
       }
     }
 
@@ -527,10 +529,11 @@ open class MarcelSemantic(
   }
 
   private fun annotationErrorAttributeTypeError(node: AnnotationCstNode, annotation: JavaAnnotation, attribute: JavaAnnotation.Attribute, attrValue: Any): Nothing
-      = throw MarcelSemanticException(node, "Incompatible type for annotation member ${attribute.name} of annotation ${annotation.type}. Wanted ${attribute.type} but got ${attrValue.javaClass}")
+      = throw MarcelSemanticException(node, "Incompatible type for annotation member ${attribute.name} of annotation ${annotation}. Wanted ${attribute.type} but got ${attrValue.javaClass}")
 
   private fun methodNode(classNode: ClassNode, methodCst: MethodCstNode, classScope: ClassScope): MethodNode {
-    val methodNode = toMethodNode(classNode, methodCst, methodCst.name, visit(methodCst.returnTypeNode), classScope.classType)
+    val methodNode = toMethodNode(classNode, methodCst, methodCst.name,
+      visit(methodCst.returnTypeNode), classScope.classType)
     fillMethodNode(classScope, methodNode, methodCst.statements, methodCst.annotations, isSingleStatementMethod = methodCst.isSingleStatementFunction)
     return methodNode
   }
@@ -595,7 +598,7 @@ open class MarcelSemantic(
   = useScope(MethodScope(classScope, methodeNode)) {
 
     // filling annotations
-    annotations.forEach { methodeNode.annotations.add(annotationNode(it, ElementType.METHOD)) }
+    annotations.forEach { methodeNode.annotations.add(visit(it, ElementType.METHOD)) }
 
     val statements =  if (isSingleStatementMethod && cstStatements.size == 1
       && methodeNode.returnType != JavaType.void
@@ -2054,7 +2057,8 @@ open class MarcelSemantic(
     val visibility = Visibility.fromTokenType(node.accessNode.visibility)
     val isStatic = node.accessNode.isStatic
     return JavaMethodImpl(ownerType, Visibility.fromTokenType(node.accessNode.visibility), node.name,
-      node.parameters.mapIndexed { index, methodParameterCstNode -> toMethodParameter(ownerType, forExtensionType, visibility, isStatic, index, node.name, methodParameterCstNode) }, visit(node.returnTypeNode), false, false, isStatic, false)
+      node.parameters.mapIndexed { index, methodParameterCstNode -> toMethodParameter(ownerType, forExtensionType, visibility, isStatic, index, node.name, methodParameterCstNode) },
+      visit(node.returnTypeNode), false, false, isStatic, false)
   }
 
   private fun toJavaConstructor(ownerType: JavaType, node: ConstructorCstNode): JavaMethod {
@@ -2071,7 +2075,8 @@ open class MarcelSemantic(
   }
 
   private fun toMarcelField(ownerType: JavaType, fieldNode: FieldCstNode): MarcelField {
-   return JavaClassFieldImpl(visit(fieldNode.type), fieldNode.name, ownerType, fieldNode.access.isFinal,
+   return JavaClassFieldImpl(
+     visit(fieldNode.type), fieldNode.name, ownerType, fieldNode.access.isFinal,
       Visibility.fromTokenType(fieldNode.access.visibility), fieldNode.access.isStatic)
   }
 
@@ -2085,7 +2090,7 @@ open class MarcelSemantic(
       val defaultValueMethod = generateDefaultParameterMethod(node, ownerType, visibility, isStatic, methodName, parameterType, parameterIndex)
       useScope(newMethodScope(ownerType, forExtensionType, defaultValueMethod)) { caster.cast(parameterType, node.defaultValue!!.accept(this)) }
     } else null
-    return MethodParameter(parameterType, node.name, node.annotations.map { annotationNode(it, ElementType.PARAMETER) }, defaultValue, isFinal = node.thisParameter)
+    return MethodParameter(parameterType, node.name, node.annotations.map { visit(it, ElementType.PARAMETER) }, defaultValue, isFinal = node.thisParameter)
   }
 
   private fun generateDefaultParameterMethod(node: CstNode, ownerClass: JavaType, visibility: Visibility, isStatic: Boolean, methodName: String, type: JavaType, parameterIndex: Int): MethodNode {
@@ -2099,7 +2104,7 @@ open class MarcelSemantic(
                                     isStatic: Boolean, parameterIndex: Int,
                                     methodName: String, node: MethodParameterCstNode): MethodParameter {
     val ownerType = classNode.type
-    val annotations = node.annotations.map { annotationNode(it, ElementType.PARAMETER) }.toMutableList()
+    val annotations = node.annotations.map { visit(it, ElementType.PARAMETER) }.toMutableList()
     val parameterType =
       if (node.thisParameter) typeResolver.getClassField(ownerType, node.name, node.token).type
       else visit(node.type)
@@ -2118,22 +2123,22 @@ open class MarcelSemantic(
           if (parameterType.primitive) {
             throw MarcelSemanticException(node.token, "Primitive types cannot have null default value")
           }
-          annotations.add(AnnotationNode(NullDefaultValue::class.javaType, emptyList(), node.tokenStart, node.tokenEnd))
+          annotations.add(AnnotationNode(NullDefaultValue::class.javaAnnotationType, emptyList(), node.tokenStart, node.tokenEnd))
         }
         (parameterType == JavaType.int || parameterType == JavaType.Integer)
-            && defaultValue is IntConstantNode -> annotations.add(AnnotationNode(IntDefaultValue::class.javaType, listOf(AnnotationNode.AttributeNode("value", JavaType.int, defaultValue.value)), node.tokenStart, node.tokenEnd))
+            && defaultValue is IntConstantNode -> annotations.add(AnnotationNode(IntDefaultValue::class.javaAnnotationType, listOf(AnnotationNode.AttributeNode("value", JavaType.int, defaultValue.value)), node.tokenStart, node.tokenEnd))
         (parameterType == JavaType.long || parameterType == JavaType.Long)
-            && defaultValue is LongConstantNode -> annotations.add(AnnotationNode(LongDefaultValue::class.javaType, listOf(AnnotationNode.AttributeNode("value", JavaType.long, defaultValue.value)), node.tokenStart, node.tokenEnd))
+            && defaultValue is LongConstantNode -> annotations.add(AnnotationNode(LongDefaultValue::class.javaAnnotationType, listOf(AnnotationNode.AttributeNode("value", JavaType.long, defaultValue.value)), node.tokenStart, node.tokenEnd))
         (parameterType == JavaType.float || parameterType == JavaType.Float)
-            && defaultValue is FloatConstantNode -> annotations.add(AnnotationNode(FloatDefaultValue::class.javaType, listOf(AnnotationNode.AttributeNode("value", JavaType.float, defaultValue.value)), node.tokenStart, node.tokenEnd))
+            && defaultValue is FloatConstantNode -> annotations.add(AnnotationNode(FloatDefaultValue::class.javaAnnotationType, listOf(AnnotationNode.AttributeNode("value", JavaType.float, defaultValue.value)), node.tokenStart, node.tokenEnd))
         (parameterType == JavaType.double || parameterType == JavaType.Double)
-            && defaultValue is DoubleConstantNode -> annotations.add(AnnotationNode(DoubleDefaultValue::class.javaType, listOf(AnnotationNode.AttributeNode("value", JavaType.double, defaultValue.value)), node.tokenStart, node.tokenEnd))
+            && defaultValue is DoubleConstantNode -> annotations.add(AnnotationNode(DoubleDefaultValue::class.javaAnnotationType, listOf(AnnotationNode.AttributeNode("value", JavaType.double, defaultValue.value)), node.tokenStart, node.tokenEnd))
         (parameterType == JavaType.char || parameterType == JavaType.Character)
-            && defaultValue is CharConstantNode -> annotations.add(AnnotationNode(CharacterDefaultValue::class.javaType, listOf(AnnotationNode.AttributeNode("value", JavaType.char, defaultValue.value)), node.tokenStart, node.tokenEnd))
+            && defaultValue is CharConstantNode -> annotations.add(AnnotationNode(CharacterDefaultValue::class.javaAnnotationType, listOf(AnnotationNode.AttributeNode("value", JavaType.char, defaultValue.value)), node.tokenStart, node.tokenEnd))
         (parameterType == JavaType.boolean || parameterType == JavaType.Boolean)
-            && defaultValue is BoolConstantNode -> annotations.add(AnnotationNode(BooleanDefaultValue::class.javaType, listOf(AnnotationNode.AttributeNode("value", JavaType.boolean, defaultValue.value)), node.tokenStart, node.tokenEnd))
+            && defaultValue is BoolConstantNode -> annotations.add(AnnotationNode(BooleanDefaultValue::class.javaAnnotationType, listOf(AnnotationNode.AttributeNode("value", JavaType.boolean, defaultValue.value)), node.tokenStart, node.tokenEnd))
         parameterType == JavaType.String
-            && defaultValue is StringConstantNode -> annotations.add(AnnotationNode(StringDefaultValue::class.javaType, listOf(AnnotationNode.AttributeNode("value", JavaType.String, defaultValue.value)), node.tokenStart, node.tokenEnd))
+            && defaultValue is StringConstantNode -> annotations.add(AnnotationNode(StringDefaultValue::class.javaAnnotationType, listOf(AnnotationNode.AttributeNode("value", JavaType.String, defaultValue.value)), node.tokenStart, node.tokenEnd))
         else -> {
           // defining method
           defaultValueMethod.blockStatement = BlockStatementNode(mutableListOf(
@@ -2143,7 +2148,7 @@ open class MarcelSemantic(
           typeResolver.defineMethod(ownerType, defaultValueMethod)
 
           // now adding annotation
-          annotations.add(AnnotationNode(MethodCallDefaultValue::class.javaType,
+          annotations.add(AnnotationNode(MethodCallDefaultValue::class.javaAnnotationType,
             listOf(AnnotationNode.AttributeNode("methodName", JavaType.String, defaultValueMethod.name)),
             node.tokenStart, node.tokenEnd))
         }

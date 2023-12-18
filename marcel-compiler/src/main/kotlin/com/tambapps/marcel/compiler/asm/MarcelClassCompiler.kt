@@ -47,7 +47,7 @@ class MarcelClassCompiler(
 
     // writing annotations
     for (annotation in classNode.annotations) {
-      writeAnnotation(classWriter.visitAnnotation(annotation.type.descriptor, true), annotation)
+      writeAnnotation(classWriter.visitAnnotation(annotation.annotationType.descriptor, true), annotation)
     }
 
     for (field in classNode.fields) {
@@ -80,7 +80,7 @@ class MarcelClassCompiler(
 
     // writing annotations
     for (annotation in field.annotations) {
-      writeAnnotation(fieldVisitor.visitAnnotation(annotation.type.descriptor, true), annotation)
+      writeAnnotation(fieldVisitor.visitAnnotation(annotation.annotationType.descriptor, true), annotation)
     }
   }
 
@@ -89,7 +89,7 @@ class MarcelClassCompiler(
 
     // writing annotations
     for (annotation in methodNode.annotations) {
-      writeAnnotation(mv.visitAnnotation(annotation.type.descriptor, true), annotation)
+      writeAnnotation(mv.visitAnnotation(annotation.annotationType.descriptor, true), annotation)
     }
 
     mv.visitCode()
@@ -114,7 +114,7 @@ class MarcelClassCompiler(
       // this is important, to be able to resolve marcel method parameter names
       mv.visitParameter(parameter.name, if (parameter.isFinal) Opcodes.ACC_FINAL else 0)
       parameter.annotations.forEach {
-        writeAnnotation(mv.visitParameterAnnotation(i, it.type.descriptor, true), it)
+        writeAnnotation(mv.visitParameterAnnotation(i, it.annotationType.descriptor, true), it)
       }
       val methodVarIndex = if (methodNode.isStatic) i else 1 + i
       mv.visitLocalVariable(parameter.name,  parameter.type.descriptor, parameter.type.signature,

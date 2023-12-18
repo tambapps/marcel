@@ -122,6 +122,8 @@ interface JavaType: JavaTyped {
     get() = throw RuntimeException("Illegal JavaType cast")
   val asArrayType: JavaArrayType
     get() = throw RuntimeException("Illegal JavaType cast")
+  val asAnnotationType: JavaAnnotation
+    get() = throw RuntimeException("Illegal JavaType cast")
   fun getDefaultValueExpression(token: LexToken): ExpressionNode
 
   fun withGenericTypes(vararg genericTypes: JavaType): JavaType {
@@ -225,6 +227,7 @@ interface JavaType: JavaTyped {
       return if (clazz.isPrimitive) PRIMITIVES.find { it.className == clazz.name } ?: throw RuntimeException("Primitive type $clazz is not being handled")
       else if (clazz.isArray)
         ARRAYS.find { it.realClazz == clazz } ?: LoadedJavaArrayType(clazz)
+      else if (clazz.isAnnotation) LoadedJavaAnnotation(clazz)
       else LoadedObjectType(clazz, genericTypes)
     }
 
