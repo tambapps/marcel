@@ -13,8 +13,6 @@ import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ShortConstantNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
-import marcel.lang.MarcelClassLoader
-import marcel.lang.Script
 import marcel.lang.lambda.Lambda
 import marcel.lang.primitives.collections.CharacterCollection
 import marcel.lang.primitives.collections.DoubleCollection
@@ -122,7 +120,7 @@ interface JavaType: JavaTyped {
     get() = throw RuntimeException("Illegal JavaType cast")
   val asArrayType: JavaArrayType
     get() = throw RuntimeException("Illegal JavaType cast")
-  val asAnnotationType: JavaAnnotation
+  val asAnnotationType: JavaAnnotationType
     get() = throw RuntimeException("Illegal JavaType cast")
   fun getDefaultValueExpression(token: LexToken): ExpressionNode
 
@@ -227,7 +225,7 @@ interface JavaType: JavaTyped {
       return if (clazz.isPrimitive) PRIMITIVES.find { it.className == clazz.name } ?: throw RuntimeException("Primitive type $clazz is not being handled")
       else if (clazz.isArray)
         ARRAYS.find { it.realClazz == clazz } ?: LoadedJavaArrayType(clazz)
-      else if (clazz.isAnnotation) LoadedJavaAnnotation(clazz)
+      else if (clazz.isAnnotation) LoadedJavaAnnotationType(clazz)
       else LoadedObjectType(clazz, genericTypes)
     }
 

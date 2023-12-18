@@ -147,7 +147,7 @@ import com.tambapps.marcel.semantic.scope.LambdaMethodScope
 import com.tambapps.marcel.semantic.scope.MethodInnerScope
 import com.tambapps.marcel.semantic.scope.MethodScope
 import com.tambapps.marcel.semantic.scope.Scope
-import com.tambapps.marcel.semantic.type.JavaAnnotation
+import com.tambapps.marcel.semantic.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.variable.LocalVariable
@@ -470,31 +470,31 @@ open class MarcelSemantic(
   fun visit(cstAnnotation: AnnotationCstNode, elementType: ElementType): AnnotationNode {
     val annotationType = visit(cstAnnotation.typeNode)
     if (!annotationType.isAnnotation) throw MarcelSemanticException(cstAnnotation.token, "$annotationType is not an annotation")
-    val javaAnnotation = JavaAnnotation.of(annotationType)
-    if (!javaAnnotation.targets.contains(elementType)) {
-      throw MarcelSemanticException(cstAnnotation, "Annotation $javaAnnotation is not expected on elements of type $elementType")
+    val javaAnnotationType = JavaAnnotationType.of(annotationType)
+    if (!javaAnnotationType.targets.contains(elementType)) {
+      throw MarcelSemanticException(cstAnnotation, "Annotation $javaAnnotationType is not expected on elements of type $elementType")
     }
 
     val annotation = AnnotationNode(
       annotationType = annotationType.asAnnotationType,
       tokenStart = cstAnnotation.tokenStart,
-      attributeNodes = cstAnnotation.attributes.map { annotationAttribute(cstAnnotation, javaAnnotation, it) },
+      attributeNodes = cstAnnotation.attributes.map { annotationAttribute(cstAnnotation, javaAnnotationType, it) },
       tokenEnd = cstAnnotation.tokenEnd
     )
 
     // check attributes without default values that weren't specified
-    for (attr in javaAnnotation.attributes) {
+    for (attr in javaAnnotationType.attributes) {
       if (attr.defaultValue == null && annotation.attributeNodes.none { it.name == attr.name }) {
-        throw MarcelSemanticException(cstAnnotation, "Attribute ${attr.name} has no default value and was not specified for annotation $javaAnnotation")
+        throw MarcelSemanticException(cstAnnotation, "Attribute ${attr.name} has no default value and was not specified for annotation $javaAnnotationType")
       }
     }
 
     return annotation
   }
 
-  private fun annotationAttribute(node: AnnotationCstNode, javaAnnotation: JavaAnnotation, specifiedAttr: Pair<String, ExpressionCstNode>): AnnotationNode.AttributeNode {
-    val attribute = javaAnnotation.attributes.find { it.name == specifiedAttr.first }
-      ?: throw MarcelSemanticException(node.token, "Unknown member ${specifiedAttr.first} for annotation $javaAnnotation")
+  private fun annotationAttribute(node: AnnotationCstNode, javaAnnotationType: JavaAnnotationType, specifiedAttr: Pair<String, ExpressionCstNode>): AnnotationNode.AttributeNode {
+    val attribute = javaAnnotationType.attributes.find { it.name == specifiedAttr.first }
+      ?: throw MarcelSemanticException(node.token, "Unknown member ${specifiedAttr.first} for annotation $javaAnnotationType")
 
     return if (attribute.type.isEnum) {
       val specifiedName = (specifiedAttr.second as? ReferenceCstNode)?.value
@@ -512,23 +512,23 @@ open class MarcelSemantic(
 
       // check type
       when(attribute.type) {
-        JavaType.String -> if (attrValue !is String) annotationErrorAttributeTypeError(node, javaAnnotation, attribute, attrValue)
-        JavaType.int -> if (attrValue !is Int) annotationErrorAttributeTypeError(node, javaAnnotation, attribute, attrValue)
-        JavaType.long -> if (attrValue !is Long) annotationErrorAttributeTypeError(node, javaAnnotation, attribute, attrValue)
-        JavaType.float -> if (attrValue !is Float) annotationErrorAttributeTypeError(node, javaAnnotation, attribute, attrValue)
-        JavaType.double -> if (attrValue !is Double) annotationErrorAttributeTypeError(node, javaAnnotation, attribute, attrValue)
-        JavaType.char -> if (attrValue !is Char) annotationErrorAttributeTypeError(node, javaAnnotation, attribute, attrValue)
-        JavaType.boolean -> if (attrValue !is Boolean) annotationErrorAttributeTypeError(node, javaAnnotation, attribute, attrValue)
-        JavaType.byte -> if (attrValue !is Byte) annotationErrorAttributeTypeError(node, javaAnnotation, attribute, attrValue)
-        JavaType.short -> if (attrValue !is Short) annotationErrorAttributeTypeError(node, javaAnnotation, attribute, attrValue)
-        else -> annotationErrorAttributeTypeError(node, javaAnnotation, attribute, attrValue)
+        JavaType.String -> if (attrValue !is String) annotationErrorAttributeTypeError(node, javaAnnotationType, attribute, attrValue)
+        JavaType.int -> if (attrValue !is Int) annotationErrorAttributeTypeError(node, javaAnnotationType, attribute, attrValue)
+        JavaType.long -> if (attrValue !is Long) annotationErrorAttributeTypeError(node, javaAnnotationType, attribute, attrValue)
+        JavaType.float -> if (attrValue !is Float) annotationErrorAttributeTypeError(node, javaAnnotationType, attribute, attrValue)
+        JavaType.double -> if (attrValue !is Double) annotationErrorAttributeTypeError(node, javaAnnotationType, attribute, attrValue)
+        JavaType.char -> if (attrValue !is Char) annotationErrorAttributeTypeError(node, javaAnnotationType, attribute, attrValue)
+        JavaType.boolean -> if (attrValue !is Boolean) annotationErrorAttributeTypeError(node, javaAnnotationType, attribute, attrValue)
+        JavaType.byte -> if (attrValue !is Byte) annotationErrorAttributeTypeError(node, javaAnnotationType, attribute, attrValue)
+        JavaType.short -> if (attrValue !is Short) annotationErrorAttributeTypeError(node, javaAnnotationType, attribute, attrValue)
+        else -> annotationErrorAttributeTypeError(node, javaAnnotationType, attribute, attrValue)
       }
 
       AnnotationNode.AttributeNode(attribute.name, attribute.type, attrValue)
     }
   }
 
-  private fun annotationErrorAttributeTypeError(node: AnnotationCstNode, annotation: JavaAnnotation, attribute: JavaAnnotation.Attribute, attrValue: Any): Nothing
+  private fun annotationErrorAttributeTypeError(node: AnnotationCstNode, annotation: JavaAnnotationType, attribute: JavaAnnotationType.Attribute, attrValue: Any): Nothing
       = throw MarcelSemanticException(node, "Incompatible type for annotation member ${attribute.name} of annotation ${annotation}. Wanted ${attribute.type} but got ${attrValue.javaClass}")
 
   private fun methodNode(classNode: ClassNode, methodCst: MethodCstNode, classScope: ClassScope): MethodNode {

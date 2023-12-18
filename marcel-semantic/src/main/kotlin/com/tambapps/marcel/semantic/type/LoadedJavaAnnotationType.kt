@@ -2,16 +2,16 @@ package com.tambapps.marcel.semantic.type
 
 import java.lang.annotation.ElementType
 
-open class LoadedJavaAnnotation(realClazz: Class<*>): LoadedObjectType(realClazz, emptyList()), JavaAnnotation {
+open class LoadedJavaAnnotationType(realClazz: Class<*>): LoadedObjectType(realClazz, emptyList()), JavaAnnotationType {
 
   override val targets = computeTargets()
 
   // lazy because we don't want to load it while compiling
-  private var _attributes: List<JavaAnnotation.Attribute>? = null
-  override val attributes: List<JavaAnnotation.Attribute> get() {
+  private var _attributes: List<JavaAnnotationType.Attribute>? = null
+  override val attributes: List<JavaAnnotationType.Attribute> get() {
     if (_attributes == null) {
       _attributes = realClazz.declaredMethods.map {
-        JavaAnnotation.Attribute(it.name, LoadedObjectType(it.returnType), it.defaultValue)
+        JavaAnnotationType.Attribute(it.name, LoadedObjectType(it.returnType), it.defaultValue)
       }
     }
     return _attributes!!

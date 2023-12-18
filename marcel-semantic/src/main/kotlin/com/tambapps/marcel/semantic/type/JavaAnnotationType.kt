@@ -3,13 +3,12 @@ package com.tambapps.marcel.semantic.type
 import java.lang.annotation.ElementType
 import kotlin.reflect.KClass
 
-// TODO rename JavaAnnotationType
-interface JavaAnnotation: JavaType {
+interface JavaAnnotationType: JavaType {
 
   companion object {
     fun of (klass: KClass<*>) = of(klass.java)
 
-    fun of(clazz: Class<*>) = LoadedJavaAnnotation(clazz)
+    fun of(clazz: Class<*>) = LoadedJavaAnnotationType(clazz)
     fun of(javaType: JavaType) = of(javaType.realClazz)
   }
 
@@ -19,6 +18,6 @@ interface JavaAnnotation: JavaType {
 
   val targets: List<ElementType>
 
-  override val asAnnotationType: JavaAnnotation
+  override val asAnnotationType: JavaAnnotationType
     get() = this
 }
