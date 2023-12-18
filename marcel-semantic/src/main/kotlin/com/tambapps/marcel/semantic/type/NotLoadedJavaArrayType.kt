@@ -16,6 +16,10 @@ class NotLoadedJavaArrayType internal  constructor(
     throw UnsupportedOperationException()
   }
 
+  override fun addAnnotation(annotation: JavaAnnotation) {
+    throw UnsupportedOperationException()
+  }
+
   override fun toString(): String {
     return "$elementsType[]"
   }

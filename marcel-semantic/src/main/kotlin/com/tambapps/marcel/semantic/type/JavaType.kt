@@ -60,6 +60,8 @@ interface JavaType: JavaTyped {
     return if (i < 0) null else className.substring(i + 1)
   }
 
+  fun getAnnotation(javaAnnotationType: JavaAnnotationType): JavaAnnotation?
+
   val outerTypeName: String? get() {
     val i = className.lastIndexOf('$')
     return if (i < 0) null else className.substring(0, i)

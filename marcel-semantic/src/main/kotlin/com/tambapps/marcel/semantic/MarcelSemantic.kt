@@ -151,6 +151,7 @@ import com.tambapps.marcel.semantic.type.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.type.NotLoadedJavaType
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.variable.field.JavaClassFieldImpl
@@ -377,7 +378,11 @@ open class MarcelSemantic(
         typeResolver.defineMethod(classType, constructorNode)
       }
     }
-    node.annotations.forEach { classNode.annotations.add(visit(it, ElementType.TYPE)) }
+    node.annotations.forEach {
+      val annotation = visit(it, ElementType.TYPE)
+      classNode.annotations.add(annotation)
+      (classNode.type as? NotLoadedJavaType)?.addAnnotation(annotation)
+    }
     // iterating with i because we might add methods while
     node.methods.forEach { classNode.methods.add(methodNode(classNode, it, classScope)) }
     val staticFieldInitialValueMap = mutableMapOf<FieldNode, ExpressionNode>()
@@ -477,7 +482,7 @@ open class MarcelSemantic(
     }
 
     val annotation = AnnotationNode(
-      annotationType = annotationType.asAnnotationType,
+      type = annotationType.asAnnotationType,
       tokenStart = cstAnnotation.tokenStart,
       attributes = cstAnnotation.attributes.map { annotationAttribute(cstAnnotation, javaAnnotationType, it) },
       tokenEnd = cstAnnotation.tokenEnd

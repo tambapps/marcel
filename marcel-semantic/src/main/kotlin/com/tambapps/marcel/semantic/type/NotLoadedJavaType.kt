@@ -12,6 +12,12 @@ open class NotLoadedJavaType internal constructor(
   override val directlyImplementedInterfaces: MutableCollection<JavaType>,
   override val isScript: Boolean): AbstractJavaType() {
 
+  private val annotations = mutableListOf<JavaAnnotation>()
+
+  override fun getAnnotation(javaAnnotationType: JavaAnnotationType): JavaAnnotation? {
+    return annotations.find { it.type == javaAnnotationType }
+  }
+
   // doesn't support enum for now
   override val isEnum = false
   override val isArray = false
@@ -44,4 +50,9 @@ open class NotLoadedJavaType internal constructor(
   open fun addImplementedInterface(javaType: JavaType) {
     directlyImplementedInterfaces.add(javaType)
   }
+
+  open fun addAnnotation(annotation: JavaAnnotation) {
+    annotations.add(annotation)
+  }
+
 }

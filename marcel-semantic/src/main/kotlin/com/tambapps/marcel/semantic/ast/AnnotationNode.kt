@@ -5,7 +5,12 @@ import com.tambapps.marcel.semantic.type.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
 
 class AnnotationNode constructor(
-  val annotationType: JavaAnnotationType,
+  override val type: JavaAnnotationType,
   val attributes: List<JavaAnnotation.Attribute>,
-  override val tokenStart: LexToken, override val tokenEnd: LexToken) : Ast2Node {
+  override val tokenStart: LexToken, override val tokenEnd: LexToken
+) : JavaAnnotation, Ast2Node {
+
+  override fun getAttribute(name: String): JavaAnnotation.Attribute? {
+    return attributes.find { it.name == name }
+  }
 }

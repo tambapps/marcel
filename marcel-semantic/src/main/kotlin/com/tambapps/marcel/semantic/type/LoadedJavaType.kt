@@ -38,6 +38,10 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
       return _interfaces!!
     }
 
+  override fun getAnnotation(javaAnnotationType: JavaAnnotationType): JavaAnnotation? {
+    throw UnsupportedOperationException()
+  }
+
   override val directlyImplementedInterfaces: Collection<JavaType>
     get() = realClazz.interfaces.map { toJavaType(realClazz, it) }
 
