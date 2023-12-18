@@ -5,6 +5,8 @@ volumes/
 
 .flattened-pom.xml
 
+.run/
+
 ### STS ###
 .apt_generated
 .classpath
