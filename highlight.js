@@ -132,7 +132,7 @@ hljs.registerLanguage("marcel", function () {
                 relevance: 0
             }, {
                 className: "function",
-                beginKeywords: "function",
+                beginKeywords: "fun",
                 end: /[\{;]/,
                 excludeEnd: !0,
                 keywords: t,
