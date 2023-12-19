@@ -1,11 +1,18 @@
 package com.tambapps.marcel.semantic.ast.expression.literal
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.type.JavaType
 
-class StringConstantNode(override val value: String, node: CstNode): AbstractExpressionNode(JavaType.String, node), JavaConstantExpression {
+class StringConstantNode(
+  override val value: String,
+  tokenStart: LexToken,
+  tokenEnd: LexToken
+): AbstractExpressionNode(JavaType.String, tokenStart, tokenEnd), JavaConstantExpression {
+
+  constructor(value: String, node: CstNode): this(value, node.tokenStart, node.tokenEnd)
 
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) = visitor.visit(this)
 

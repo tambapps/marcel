@@ -7,6 +7,6 @@ import com.tambapps.marcel.semantic.type.NotLoadedJavaType
 
 interface AstTransformation {
   fun init(typeResolver: JavaTypeResolver)
-  fun transformType(javaType: NotLoadedJavaType)
+  fun transformType(javaType: NotLoadedJavaType, annotation: AnnotationNode)
   fun transform(node: Ast2Node, annotation: AnnotationNode)
 }

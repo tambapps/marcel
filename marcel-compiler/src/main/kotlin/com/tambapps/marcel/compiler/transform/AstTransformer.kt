@@ -12,6 +12,7 @@ import com.tambapps.marcel.semantic.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.type.NotLoadedJavaType
 import marcel.lang.MarcelAstTransformationClass
+import java.lang.Exception
 import java.lang.annotation.ElementType
 
 class AstTransformer(
@@ -49,7 +50,14 @@ class AstTransformer(
   }
 
   private fun applyTransformations(node: Ast2Node, annotation: AnnotationNode) {
-    map[annotation.type]?.forEach { transformation -> transformation.transform(node, annotation) }
+    map[annotation.type]?.forEach { transformation ->
+      try {
+        transformation.transform(node, annotation)
+      } catch (e: Exception) {
+        System.err.println("Error while applying AST transformation ${transformation.javaClass} from annotation ${annotation.type}")
+        e.printStackTrace()
+      }
+    }
   }
 
   private fun doLoadTransformations(semantic: MarcelSemantic, classNode: ClassCstNode) {
@@ -67,18 +75,23 @@ class AstTransformer(
   // also init and apply type transformation. TODO document that clearly, also for self
   private fun loadFromAnnotations(semantic: MarcelSemantic, classType: NotLoadedJavaType, annotations: List<AnnotationCstNode>) {
     annotations.asSequence()
-      .map { semantic.visit(it, ElementType.TYPE).type }
-      .filter { annotationType -> annotationType.isLoaded
-          && annotationType.realClazz.getAnnotation(MarcelAstTransformationClass::class.java) != null }
-      .forEach { annotationType ->
-        val transformations = map.computeIfAbsent(annotationType, this::getTransformations)
+      .map { semantic.visit(it, ElementType.TYPE) }
+      .filter { annotation -> annotation.type.isLoaded
+          && annotation.type.realClazz.getAnnotation(MarcelAstTransformationClass::class.java) != null }
+      .forEach { annotation ->
+        val transformations = map.computeIfAbsent(annotation.type, this::getTransformations)
         if (transformations.isNotEmpty()) {
           transformations.forEach { transformation ->
             transformation.init(typeResolver)
-            transformation.transformType(classType)
+            try {
+              transformation.transformType(classType, annotation)
+            } catch (e: Exception) {
+              System.err.println("Error while applying AST transformation ${transformation.javaClass} from annotation ${annotation.type}")
+              e.printStackTrace()
+            }
           }
         } else {
-          map.remove(annotationType)
+          map.remove(annotation.type)
         }
       }
   }
