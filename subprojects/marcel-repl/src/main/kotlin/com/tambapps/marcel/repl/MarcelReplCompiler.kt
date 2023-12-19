@@ -4,6 +4,7 @@ import com.tambapps.marcel.compiler.AbstractMarcelCompiler
 import com.tambapps.marcel.compiler.CompiledClass
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.asm.MarcelClassCompiler
+import com.tambapps.marcel.compiler.transform.AstTransformer
 import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
@@ -128,19 +129,25 @@ class MarcelReplCompiler constructor(
     }
 
     // handle dumbbells
-    for (artifactString in cst.dumbbells) {
-      if (!dumbbells.add(artifactString)) continue
-      val pulledArtifacts = Dumbbell.pull(artifactString)
-      pulledArtifacts.forEach {
-        if (it.jarFile != null) {
-          marcelClassLoader.addLibraryJar(it.jarFile)
-        }
-      }
+    for (dumbbell in cst.dumbbells) {
+      if (dumbbells.add(dumbbell)) handleDumbbell(marcelClassLoader, dumbbell)
     }
 
     val semantic = MarcelReplSemantic(typeResolver, cst)
     semantic.imports.addAll(imports)
-    val ast = semantic.apply()
+
+    // defining types
+    defineSymbols(typeResolver, semantic)
+
+    // load transformations if any
+    val astTransformer = AstTransformer(typeResolver)
+    astTransformer.loadTransformations(semantic)
+
+    // apply semantic analysis
+    val ast = semantic.apply(defineSymbols = false)
+
+    // apply transformations if any
+    astTransformer.applyTransformations(ast)
 
     val r = SemanticResult(tokens, cst, ast.classes, semantic.imports, text.hashCode())
     if (!skipUpdate) {

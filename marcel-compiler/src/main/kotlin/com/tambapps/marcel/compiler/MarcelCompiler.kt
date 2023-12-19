@@ -70,13 +70,13 @@ class MarcelCompiler(configuration: CompilerConfiguration): AbstractMarcelCompil
     }
 
     // defining types
-    SymbolsDefiner(typeResolver).defineSymbols(semantics)
+    defineSymbols(typeResolver, semantics)
 
     // load transformations if any
     val astTransformer = AstTransformer(typeResolver)
     semantics.forEach { astTransformer.loadTransformations(it) }
 
-    // applying semantic analysis
+    // apply semantic analysis
     val asts = semantics.map { it.apply(defineSymbols = false) }
 
     // apply transformations if any
@@ -91,22 +91,4 @@ class MarcelCompiler(configuration: CompilerConfiguration): AbstractMarcelCompil
     }
   }
 
-  private fun handleDumbbells(marcelClassLoader: MarcelClassLoader?, cst: SourceFileNode) {
-    if (cst.dumbbells.isNotEmpty()) {
-      if (!configuration.dumbbellEnabled) {
-        throw MarcelCompilerException("Cannot use dumbbells because dumbbell feature is not enabled")
-      }
-      if (marcelClassLoader == null) {
-        throw MarcelCompilerException("Cannot use dumbbells because no class loader was provided")
-      }
-      for (dumbbell in cst.dumbbells) {
-        val artifacts = Dumbbell.pull(dumbbell)
-        artifacts.forEach {
-          if (it.jarFile != null) {
-            marcelClassLoader.addLibraryJar(it.jarFile)
-          }
-        }
-      }
-    }
-  }
 }
