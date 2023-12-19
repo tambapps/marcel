@@ -25,8 +25,13 @@ class AdventOfCodeTest: AbstractCompilerTest() {
   fun aocDay_2022(day: Int) = aocDay(2022, day)
 
   @ParameterizedTest(name = "AOC 2023 day {arguments}")
-  @ValueSource(ints = [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
+  @ValueSource(ints = [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 13, 15])
   fun aocDay_2023(day: Int) = aocDay(2023, day)
+
+  // AOC that takes long to run
+  @ParameterizedTest(name = "AOC 2023 day {arguments}")
+  @ValueSource(ints = [12, 14, 16])
+  fun aocDay_2023_longDays(day: Int) = aocDay(2023, day)
 
   fun aocDay(year: Int, day: Int) {
     File("input.txt").writeText(URL(URL_TEMPLATE.format(year, day, "input.txt")).readText())
