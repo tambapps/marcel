@@ -106,12 +106,6 @@ hljs.registerLanguage("marcel", function () {
                 className: "meta",
                 begin: /^\s*['"]use strict['"]/
             }, r.APOS_STRING_MODE, r.QUOTE_STRING_MODE, c, l, E, r.C_LINE_COMMENT_MODE, r.C_BLOCK_COMMENT_MODE, i, {
-                begin: "(" + r.RE_STARTERS_RE + "|\\b(case|return|throw)\\b)\\s*",
-                keywords: "return throw case",
-                contains: [r.C_LINE_COMMENT_MODE, r.C_BLOCK_COMMENT_MODE, r.REGEXP_MODE],
-                relevance: 0
-            }, {beginKeywords: "fun", end: /[\{;]/, excludeEnd: !0, contains: ["self", u]},
-                {beginKeywords: "constructor", end: /[\{;]/, excludeEnd: !0, contains: ["self", u]}, {
                 begin: /module\./,
                 keywords: {built_in: "module"},
                 relevance: 0
