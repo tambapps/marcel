@@ -106,6 +106,40 @@ hljs.registerLanguage("marcel", function () {
                 className: "meta",
                 begin: /^\s*['"]use strict['"]/
             }, r.APOS_STRING_MODE, r.QUOTE_STRING_MODE, c, l, E, r.C_LINE_COMMENT_MODE, r.C_BLOCK_COMMENT_MODE, i, {
+                begin: "(" + r.RE_STARTERS_RE + "|\\b(case|return|throw)\\b)\\s*",
+                keywords: "return throw case",
+                contains: [r.C_LINE_COMMENT_MODE, r.C_BLOCK_COMMENT_MODE, r.REGEXP_MODE, {
+                    className: "function",
+                    begin: "(\\([^(]*(\\([^(]*(\\([^(]*\\))?\\))?\\)|" + r.UNDERSCORE_IDENT_RE + ")\\s*=>",
+                    returnBegin: !0,
+                    end: "\\s*=>",
+                    contains: [{
+                        className: "params",
+                        variants: [{begin: r.UNDERSCORE_IDENT_RE}, {
+                            className: null,
+                            begin: /\(\s*\)/,
+                            skip: !0
+                        }, {
+                            begin: /\(/,
+                            end: /\)/,
+                            excludeBegin: !0,
+                            excludeEnd: !0,
+                            keywords: t,
+                            contains: d.contains
+                        }]
+                    }]
+                }],
+                relevance: 0
+            }, {
+                className: "function",
+                beginKeywords: "function",
+                end: /[\{;]/,
+                excludeEnd: !0,
+                keywords: t,
+                contains: ["this", r.inherit(r.TITLE_MODE, {begin: "[A-Za-z$_][0-9A-Za-z$_]*"}), u],
+                illegal: /%/,
+                relevance: 0
+            }, {beginKeywords: "constructor", end: /[\{;]/, excludeEnd: !0, contains: ["self", u]}, {
                 begin: /module\./,
                 keywords: {built_in: "module"},
                 relevance: 0
