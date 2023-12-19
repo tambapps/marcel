@@ -4,7 +4,7 @@ import com.tambapps.marcel.semantic.type.JavaTypeResolver
 
 abstract class AbstractAstTransformation : AstTransformation {
 
-  private var typeResolver: JavaTypeResolver? = null
+  private lateinit var typeResolver: JavaTypeResolver
 
   final override fun init(typeResolver: JavaTypeResolver) {
     this.typeResolver = typeResolver
