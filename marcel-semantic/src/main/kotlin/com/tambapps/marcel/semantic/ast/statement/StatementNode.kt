@@ -1,8 +1,8 @@
 package com.tambapps.marcel.semantic.ast.statement
 
-import com.tambapps.marcel.semantic.ast.Ast2Node
+import com.tambapps.marcel.semantic.ast.AstNode
 
-interface StatementNode: Ast2Node {
+interface StatementNode: AstNode {
 
   fun <T> accept(visitor: StatementNodeVisitor<T>): T
 

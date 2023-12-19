@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.transform
 
 import com.tambapps.marcel.semantic.ast.AnnotationNode
-import com.tambapps.marcel.semantic.ast.Ast2Node
+import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.method.JavaMethod
@@ -17,12 +17,12 @@ abstract class GenerateMethodAstTransformation: AbstractAstTransformation() {
     }
   }
 
-  final override fun transform(node: Ast2Node, annotation: AnnotationNode) {
+  final override fun transform(node: AstNode, annotation: AnnotationNode) {
     val classNode = getClassNode(node)
     classNode.methods.addAll(generateMethodNodes(classNode, annotation))
   }
 
-  protected open fun getClassNode(node: Ast2Node): ClassNode = node as ClassNode
+  protected open fun getClassNode(node: AstNode): ClassNode = node as ClassNode
 
   /**
    * Returns the list of the method signatures that will be added by this AST transformation.

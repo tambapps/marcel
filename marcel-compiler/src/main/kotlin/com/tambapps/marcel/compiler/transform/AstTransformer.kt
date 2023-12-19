@@ -4,7 +4,7 @@ import com.tambapps.marcel.parser.cst.AnnotationNode as AnnotationCstNode
 import com.tambapps.marcel.parser.cst.ClassNode as ClassCstNode
 import com.tambapps.marcel.semantic.MarcelSemantic
 import com.tambapps.marcel.semantic.ast.AnnotationNode
-import com.tambapps.marcel.semantic.ast.Ast2Node
+import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
@@ -50,7 +50,7 @@ class AstTransformer(
     }
   }
 
-  private fun applyTransformations(node: Ast2Node, annotation: AnnotationNode) {
+  private fun applyTransformations(node: AstNode, annotation: AnnotationNode) {
     map[annotation.type]?.forEach { transformation ->
       try {
         transformation.transform(node, annotation)

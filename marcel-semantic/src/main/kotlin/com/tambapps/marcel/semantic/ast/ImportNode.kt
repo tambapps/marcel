@@ -1,14 +1,10 @@
 package com.tambapps.marcel.semantic.ast
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.semantic.MethodResolver
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
-import com.tambapps.marcel.semantic.method.JavaMethod
-import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
-import com.tambapps.marcel.semantic.type.JavaTyped
 
-interface ImportNode: Ast2Node {
+interface ImportNode: AstNode {
   fun resolveClassName(token: LexToken, typeResolver: JavaTypeResolver, classSimpleName: String): String?
 
 }

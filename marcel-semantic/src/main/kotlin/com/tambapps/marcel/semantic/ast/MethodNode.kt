@@ -3,7 +3,6 @@ package com.tambapps.marcel.semantic.ast
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
-import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.method.AbstractMethod
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
@@ -16,7 +15,7 @@ class MethodNode(override val name: String,
                  override val isStatic: Boolean,
                  override val tokenStart: LexToken, override val tokenEnd: LexToken,
                  override var ownerClass: JavaType,
-) : Ast2Node, AbstractMethod(), Annotable {
+) : AstNode, AbstractMethod(), Annotable {
 
   companion object {
     fun fromJavaMethod(method: JavaMethod, tokenStart: LexToken, tokenEnd: LexToken): MethodNode {

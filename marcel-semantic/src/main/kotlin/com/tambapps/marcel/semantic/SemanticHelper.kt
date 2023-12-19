@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic
 
 import com.tambapps.marcel.parser.cst.SourceFileNode
-import com.tambapps.marcel.semantic.ast.Ast2Node
+import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
@@ -70,8 +70,8 @@ internal object SemanticHelper {
     return SuperConstructorCallNode(classNode.superType, superConstructorMethod, emptyList(), classNode.tokenStart, classNode.tokenEnd)
   }
 
-  fun returnVoid(node: Ast2Node) = ReturnStatementNode(VoidExpressionNode(node.token), node.tokenStart, node.tokenEnd)
-  fun returnNull(node: Ast2Node) = ReturnStatementNode(NullValueNode(node.token), node.tokenStart, node.tokenEnd)
+  fun returnVoid(node: AstNode) = ReturnStatementNode(VoidExpressionNode(node.token), node.tokenStart, node.tokenEnd)
+  fun returnNull(node: AstNode) = ReturnStatementNode(NullValueNode(node.token), node.tokenStart, node.tokenEnd)
 
   fun parameterToLocalVariable(method: JavaMethod, parameter: MethodParameter): LocalVariable {
     var index = if (method.isStatic) 0 else 1
@@ -91,7 +91,7 @@ internal object SemanticHelper {
     tokenEnd = cst.tokenEnd)
 
 
-  fun getLambdaType(node: Ast2Node, lambdaParameters: List<MethodParameter>): JavaType {
+  fun getLambdaType(node: AstNode, lambdaParameters: List<MethodParameter>): JavaType {
     val returnType = JavaType.Object
 
     return when (lambdaParameters.size) {

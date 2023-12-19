@@ -3,7 +3,7 @@ package com.tambapps.marcel.semantic.ast
 import com.tambapps.marcel.lexer.LexToken
 
 
-class ModuleNode constructor(tokenStart: LexToken, tokenEnd: LexToken) : AbstractAst2Node(tokenStart, tokenEnd) {
+class ModuleNode constructor(tokenStart: LexToken, tokenEnd: LexToken) : AbstractAstNode(tokenStart, tokenEnd) {
 
   val classes = mutableListOf<ClassNode>()
 

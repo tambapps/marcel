@@ -1,6 +1,6 @@
 package com.tambapps.marcel.semantic.visitor
 
-import com.tambapps.marcel.semantic.ast.Ast2Node
+import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.DupNode
@@ -65,7 +65,7 @@ import com.tambapps.marcel.semantic.ast.statement.TryCatchNode
 import com.tambapps.marcel.semantic.ast.statement.WhileNode
 
 class ForEachNodeVisitor(
-  val consume: (Ast2Node) -> Unit
+  val consume: (AstNode) -> Unit
 ): StatementNodeVisitor<Unit>, ExpressionNodeVisitor<Unit> {
   override fun visit(node: NotNode) {
     consume(node)
