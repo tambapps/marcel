@@ -130,7 +130,8 @@ hljs.registerLanguage("marcel", function () {
                     }]
                 }],
                 relevance: 0
-            }, {beginKeywords: "constructor", end: /[\{;]/, excludeEnd: !0, contains: ["self", u]}, {
+            }, {beginKeywords: "fun", end: /[\{;]/, excludeEnd: !0, contains: ["self", u]},
+                {beginKeywords: "constructor", end: /[\{;]/, excludeEnd: !0, contains: ["self", u]}, {
                 begin: /module\./,
                 keywords: {built_in: "module"},
                 relevance: 0
