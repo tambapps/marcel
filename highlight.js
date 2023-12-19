@@ -108,27 +108,7 @@ hljs.registerLanguage("marcel", function () {
             }, r.APOS_STRING_MODE, r.QUOTE_STRING_MODE, c, l, E, r.C_LINE_COMMENT_MODE, r.C_BLOCK_COMMENT_MODE, i, {
                 begin: "(" + r.RE_STARTERS_RE + "|\\b(case|return|throw)\\b)\\s*",
                 keywords: "return throw case",
-                contains: [r.C_LINE_COMMENT_MODE, r.C_BLOCK_COMMENT_MODE, r.REGEXP_MODE, {
-                    className: "function",
-                    begin: "(\\([^(]*(\\([^(]*(\\([^(]*\\))?\\))?\\)|" + r.UNDERSCORE_IDENT_RE + ")\\s*=>",
-                    returnBegin: !0,
-                    end: "\\s*=>",
-                    contains: [{
-                        className: "params",
-                        variants: [{begin: r.UNDERSCORE_IDENT_RE}, {
-                            className: null,
-                            begin: /\(\s*\)/,
-                            skip: !0
-                        }, {
-                            begin: /\(/,
-                            end: /\)/,
-                            excludeBegin: !0,
-                            excludeEnd: !0,
-                            keywords: t,
-                            contains: d.contains
-                        }]
-                    }]
-                }],
+                contains: [r.C_LINE_COMMENT_MODE, r.C_BLOCK_COMMENT_MODE, r.REGEXP_MODE],
                 relevance: 0
             }, {beginKeywords: "fun", end: /[\{;]/, excludeEnd: !0, contains: ["self", u]},
                 {beginKeywords: "constructor", end: /[\{;]/, excludeEnd: !0, contains: ["self", u]}, {
