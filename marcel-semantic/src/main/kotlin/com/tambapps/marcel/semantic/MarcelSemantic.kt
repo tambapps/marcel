@@ -221,9 +221,11 @@ open class MarcelSemantic(
     scopeQueue.push(ImportScope(typeResolver, imports, cst.packageName))
   }
 
+  // TODO get rid of this method. ReplCompiler should use a SymbolDefiner too
   fun defineSymbols() {
     // define everything
     cst.classes.forEach { defineClass(it) }
+    cst.script?.let { defineClass(it) }
   }
 
   fun apply(defineSymbols: Boolean = true): ModuleNode {
@@ -263,11 +265,7 @@ open class MarcelSemantic(
       if (scriptCstNode.constructors.isNotEmpty()) {
         throw MarcelSemanticException(scriptCstNode.constructors.first().token, "Cannot define constructors for scripts")
       }
-      val classType = typeResolver.defineClass(scriptCstNode.tokenStart, Visibility.PUBLIC,
-        scriptCstNode.className,
-        Script::class.javaType, false, emptyList(), isScript = true)
-      // register script class members
-      defineClassMembers(scriptCstNode, classType)
+      val classType = typeResolver.of(scriptCstNode.className)
       val scriptNode = classNode(classType, scriptCstNode)
       // need the binding constructor. the no-arg constructor should have been added in the classNode() method
       scriptNode.methods.add(SemanticHelper.scriptBindingConstructor(scriptNode, typeResolver))

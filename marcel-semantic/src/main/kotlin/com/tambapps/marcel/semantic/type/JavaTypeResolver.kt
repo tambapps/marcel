@@ -161,6 +161,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     }
   }
 
+  fun of(className: String, genericTypes: List<JavaType> = emptyList()) = of(LexToken.DUMMY, className, genericTypes)
   fun of(token: LexToken, className: String, genericTypes: List<JavaType> = emptyList()): JavaType {
     if (_definedTypes.containsKey(className)) return _definedTypes.getValue(className)
     val optPrimitiveType = JavaType.PRIMITIVES.find { it.className == className }

@@ -6,6 +6,7 @@ import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.visitor.ForEachNodeVisitor
 import kotlin.reflect.KClass
 
+// TODO rename me AstNode
 interface Ast2Node {
   val tokenStart: LexToken
   val tokenEnd: LexToken

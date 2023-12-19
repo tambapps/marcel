@@ -3,6 +3,7 @@ package com.tambapps.marcel.compiler
 import com.tambapps.marcel.compiler.asm.MarcelClassCompiler
 import com.tambapps.marcel.compiler.exception.MarcelCompilerException
 import com.tambapps.marcel.compiler.file.SourceFile
+import com.tambapps.marcel.compiler.transform.AstTransformer
 import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
@@ -71,8 +72,15 @@ class MarcelCompiler(configuration: CompilerConfiguration): AbstractMarcelCompil
     // defining types
     SymbolsDefiner(typeResolver).defineSymbols(semantics)
 
+    // load transformations if any
+    val astTransformer = AstTransformer(typeResolver)
+    semantics.forEach { astTransformer.loadTransformations(it) }
+
     // applying semantic analysis
     val asts = semantics.map { it.apply(defineSymbols = false) }
+
+    // apply transformations if any
+    asts.forEach { astTransformer.applyTransformations(it) }
 
     val classWriter = MarcelClassCompiler(configuration, typeResolver)
 
