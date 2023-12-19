@@ -44,6 +44,8 @@
     - [Define your own operators](language-specification/operators/operator-overloading.md)
   - [Lambdas](language-specification/lambdas.md)
   - [Extension Classes](language-specification/extension-classes.md)
+- [Meta Programming](./metaprogramming/index.md)
+  - [Meta Annotations](./metaprogramming/meta-annotations.md)
 - [Guides](./guides/index.md)
   - [Collections](./guides/collections.md)
   - [Regular Expressions](./guides/regular-expressions.md)
