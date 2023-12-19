@@ -7,6 +7,7 @@ import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.Ast2Node
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
+import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.transform.AstTransformation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
@@ -54,6 +55,7 @@ class AstTransformer(
       try {
         transformation.transform(node, annotation)
       } catch (e: Exception) {
+        if (e is MarcelSemanticException) throw e
         System.err.println("Error while applying AST transformation ${transformation.javaClass} from annotation ${annotation.type}")
         e.printStackTrace()
       }
@@ -62,20 +64,22 @@ class AstTransformer(
 
   private fun doLoadTransformations(semantic: MarcelSemantic, classNode: ClassCstNode) {
     val javaType = typeResolver.of(classNode.className) as NotLoadedJavaType
-    loadFromAnnotations(semantic, javaType, classNode.annotations)
+    loadFromAnnotations(semantic, ElementType.TYPE, javaType, classNode.annotations)
     classNode.fields.forEach { fieldNode ->
-      loadFromAnnotations(semantic, javaType, fieldNode.annotations)
+      loadFromAnnotations(semantic, ElementType.FIELD, javaType, fieldNode.annotations)
     }
     classNode.methods.forEach { methodNode ->
-      loadFromAnnotations(semantic, javaType, methodNode.annotations)
+      loadFromAnnotations(semantic, ElementType.METHOD, javaType, methodNode.annotations)
     }
     classNode.innerClasses.forEach { doLoadTransformations(semantic, it) }
   }
 
   // also init and apply type transformation. TODO document that clearly, also for self
-  private fun loadFromAnnotations(semantic: MarcelSemantic, classType: NotLoadedJavaType, annotations: List<AnnotationCstNode>) {
+  private fun loadFromAnnotations(semantic: MarcelSemantic,
+                                  elementType: ElementType,
+                                  classType: NotLoadedJavaType, annotations: List<AnnotationCstNode>) {
     annotations.asSequence()
-      .map { semantic.visit(it, ElementType.TYPE) }
+      .map { semantic.visit(it, elementType) }
       .filter { annotation -> annotation.type.isLoaded
           && annotation.type.realClazz.getAnnotation(MarcelAstTransformationClass::class.java) != null }
       .forEach { annotation ->
@@ -86,6 +90,7 @@ class AstTransformer(
             try {
               transformation.transformType(classType, annotation)
             } catch (e: Exception) {
+              if (e is MarcelSemanticException) throw e
               System.err.println("Error while applying AST transformation ${transformation.javaClass} from annotation ${annotation.type}")
               e.printStackTrace()
             }

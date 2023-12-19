@@ -190,9 +190,9 @@ import java.util.OptionalLong
 import java.util.regex.Pattern
 
 open class MarcelSemantic(
-  private val typeResolver: JavaTypeResolver,
+  override val typeResolver: JavaTypeResolver,
   val cst: SourceFileCstNode
-): ExpressionCstNodeVisitor<ExpressionNode, JavaType>, StatementCstNodeVisitor<StatementNode> {
+): MarcelBaseSemantic(), ExpressionCstNodeVisitor<ExpressionNode, JavaType>, StatementCstNodeVisitor<StatementNode> {
 
   companion object {
     const val PUT_AT_METHOD_NAME = "putAt"
@@ -203,7 +203,7 @@ open class MarcelSemantic(
 
   }
 
-  protected val caster = AstNodeCaster(typeResolver)
+  override val caster = AstNodeCaster(typeResolver)
 
   internal val scopeQueue = LinkedList<Scope>()
   private val classNodeMap = mutableMapOf<JavaType, ClassNode>() // useful to add methods while performing analysis
@@ -1278,9 +1278,6 @@ open class MarcelSemantic(
     throw MarcelSemanticException(node.token, "Method with name ${node.value} couldn't be resolved")
   }
 
-  private fun castedArguments(method: JavaMethod, arguments: List<ExpressionNode>) =
-    arguments.mapIndexed { index, expressionNode -> caster.cast(method.parameters[index].type, expressionNode) }
-
   override fun visit(node: SuperConstructorCallCstNode, smartCastType: JavaType?): ExpressionNode {
     val arguments = node.arguments.map { it.accept(this) }
     val superType = currentScope.classType.superType!!
@@ -2008,41 +2005,9 @@ open class MarcelSemantic(
     BlockStatementNode(statements, node.tokenStart, node.tokenEnd)
   }
 
-  private fun fCall(node: CstNode, name: String, arguments: List<ExpressionNode>,
-                    owner: ExpressionNode,
-                    castType: JavaType? = null): ExpressionNode {
-    return fCall(node, owner.type, name, arguments, owner, castType)
-  }
-
-  private fun fCall(node: CstNode, ownerType: JavaType, name: String, arguments: List<ExpressionNode>,
-                    owner: ExpressionNode? = null,
-                    castType: JavaType? = null): ExpressionNode {
-    val method = typeResolver.findMethodOrThrow(ownerType, name, arguments, node.token)
-    return fCall(node, method, arguments, owner, castType)
-  }
-
   private fun fCall(methodResolve: Pair<JavaMethod, List<ExpressionNode>>, owner: ExpressionNode?, castType: JavaType? = null,
                     tokenStart: LexToken, tokenEnd: LexToken)
-  = fCall(tokenStart = tokenStart, tokenEnd = tokenEnd, method = methodResolve.first, arguments = methodResolve.second, owner = owner, castType = castType)
-  private fun fCall(
-    node: CstNode,
-    method: JavaMethod,
-    arguments: List<ExpressionNode>,
-    owner: ExpressionNode? = null,
-    castType: JavaType? = null) = fCall(node.tokenStart,
-    LexToken.DUMMY, // passing dummy to inform code highlight that this is not a fCall from the real marcel source code
-    method, arguments, owner, castType)
-  private fun fCall(
-    tokenStart: LexToken,
-    tokenEnd: LexToken,
-    method: JavaMethod,
-    arguments: List<ExpressionNode>,
-    owner: ExpressionNode? = null,
-    castType: JavaType? = null): ExpressionNode {
-    if (owner != null && method.isMarcelStatic) throw MarcelSemanticException(tokenStart, "Method $method is static but was call from an instance")
-    val node = FunctionCallNode(method, owner, castedArguments(method, arguments), tokenStart, tokenEnd)
-    return if (castType != null) caster.cast(castType, node) else node
-  }
+      = fCall(tokenStart = tokenStart, tokenEnd = tokenEnd, method = methodResolve.first, arguments = methodResolve.second, owner = owner, castType = castType)
 
   private fun checkVariableAccess(variable: Variable, node: CstNode, checkGet: Boolean = false, checkSet: Boolean = false) {
     if (checkGet && !variable.isVisibleFrom(currentScope.classType, Variable.Access.GET)

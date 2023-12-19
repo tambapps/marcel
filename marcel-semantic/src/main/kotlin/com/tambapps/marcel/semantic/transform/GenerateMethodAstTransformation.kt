@@ -18,8 +18,6 @@ abstract class GenerateMethodAstTransformation: AbstractAstTransformation() {
   }
 
   final override fun transform(node: Ast2Node, annotation: AnnotationNode) {
-    println("Transform node $node with annotation $annotation")
-
     val classNode = getClassNode(node)
     classNode.methods.addAll(generateMethodNodes(classNode, annotation))
   }

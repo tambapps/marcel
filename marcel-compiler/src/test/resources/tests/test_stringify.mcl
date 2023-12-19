@@ -1,0 +1,17 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+@stringify(includeGetters=true)
+class A {
+ int i = 1
+
+ @stringify.Exclude
+ String b = "srsr"
+
+ fun String getFoo() -> "foo"
+
+ @stringify.Exclude
+ fun String getBar() -> "bar"
+
+}
+
+assertEquals("A(i=1, foo=foo)", new A().toString())
