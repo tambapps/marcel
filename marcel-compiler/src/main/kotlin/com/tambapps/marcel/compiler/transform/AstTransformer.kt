@@ -8,10 +8,10 @@ import com.tambapps.marcel.semantic.ast.Ast2Node
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.transform.AstTransformation
-import com.tambapps.marcel.semantic.transform.MarcelAstTransformationClass
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.type.NotLoadedJavaType
+import marcel.lang.MarcelAstTransformationClass
 import java.lang.annotation.ElementType
 
 class AstTransformer(
