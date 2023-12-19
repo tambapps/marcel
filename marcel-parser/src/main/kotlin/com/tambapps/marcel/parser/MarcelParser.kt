@@ -350,10 +350,13 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
 
   internal fun parseType(parentNode: CstNode? = null): TypeNode {
     val tokenStart = next()
+    // parts are inner class levels. in Marcel you can't specify classes full name, like marcel.lang.IntRange.
+    // you have to import the class and then use its simple name. In case of conflict there is the import as
     val typeFragments = mutableListOf<String>(
       parseTypeFragment(tokenStart)
     )
     while (current.type == TokenType.DOT) {
+      skip()
       typeFragments.add(parseTypeFragment(next()))
     }
 
@@ -371,7 +374,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
 
     // array dimensions
     val arrayDimension = parseArrayDimensions()
-    return TypeNode(parentNode, typeFragments.joinToString(separator = "."), genericTypes, arrayDimension, tokenStart, previous)
+    return TypeNode(parentNode, typeFragments.joinToString(separator = "$"), genericTypes, arrayDimension, tokenStart, previous)
   }
 
   private fun parseArrayDimensions(): Int {
