@@ -20,6 +20,7 @@ abstract class AbstractMarcelCompiler(protected val configuration: CompilerConfi
                               semantics: List<MarcelSemantic>) {
     SymbolsDefiner(typeResolver).defineSymbols(semantics)
   }
+
   protected fun handleDumbbells(marcelClassLoader: MarcelClassLoader?, cst: SourceFileNode) {
     if (cst.dumbbells.isNotEmpty()) {
       if (!configuration.dumbbellEnabled) {

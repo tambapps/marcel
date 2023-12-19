@@ -77,7 +77,7 @@ class MarcelCompiler(configuration: CompilerConfiguration): AbstractMarcelCompil
     semantics.forEach { astTransformer.loadTransformations(it) }
 
     // apply semantic analysis
-    val asts = semantics.map { it.apply(defineSymbols = false) }
+    val asts = semantics.map { it.apply() }
 
     // apply transformations if any
     asts.forEach { astTransformer.applyTransformations(it) }

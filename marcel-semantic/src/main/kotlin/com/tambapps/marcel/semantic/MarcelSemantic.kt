@@ -190,7 +190,7 @@ import java.util.OptionalLong
 import java.util.regex.Pattern
 
 open class MarcelSemantic(
-  override val typeResolver: JavaTypeResolver,
+  override final val typeResolver: JavaTypeResolver,
   val cst: SourceFileCstNode
 ): MarcelBaseSemantic(), ExpressionCstNodeVisitor<ExpressionNode, JavaType>, StatementCstNodeVisitor<StatementNode> {
 
@@ -199,18 +199,16 @@ open class MarcelSemantic(
     const val PUT_AT_SAFE_METHOD_NAME = "putAtSafe"
     const val GET_AT_METHOD_NAME = "getAt"
     const val GET_AT_SAFE_METHOD_NAME = "getAtSafe"
-
-
   }
 
-  override val caster = AstNodeCaster(typeResolver)
+  final override val caster = AstNodeCaster(typeResolver)
 
   internal val scopeQueue = LinkedList<Scope>()
   private val classNodeMap = mutableMapOf<JavaType, ClassNode>() // useful to add methods while performing analysis
 
   val imports = Scope.DEFAULT_IMPORTS.toMutableList() // will be updated while performing analysis
   private val methodResolver = MethodResolver(typeResolver, caster, imports)
-  protected val currentScope get() = scopeQueue.peek() // FIFO
+  protected val currentScope: Scope get() = scopeQueue.peek() // FIFO
   protected val currentMethodScope get() = currentScope as? MethodScope ?: throw MarcelSemanticException(LexToken.DUMMY, "Not in a method")
   private val currentInnerMethodScope get() = currentScope as? MethodInnerScope ?: throw MarcelSemanticException(LexToken.DUMMY, "Not in a inner scope")
 
@@ -221,20 +219,10 @@ open class MarcelSemantic(
     scopeQueue.push(ImportScope(typeResolver, imports, cst.packageName))
   }
 
-  // TODO get rid of this method. ReplCompiler should use a SymbolDefiner too
-  fun defineSymbols() {
-    // define everything
-    cst.classes.forEach { defineClass(it) }
-    cst.script?.let { defineClass(it) }
-  }
-
-  fun apply(defineSymbols: Boolean = true): ModuleNode {
+  fun apply(): ModuleNode {
 
     val moduleNode = ModuleNode(cst.tokenStart, cst.tokenEnd)
 
-    if (defineSymbols) {
-      defineSymbols()
-    }
     // load extension types
     val extensionTypes = cst.extensionImports.map(this::visit)
     extensionTypes.forEach(typeResolver::loadExtension)

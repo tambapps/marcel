@@ -144,7 +144,7 @@ class MarcelReplCompiler constructor(
     astTransformer.loadTransformations(semantic)
 
     // apply semantic analysis
-    val ast = semantic.apply(defineSymbols = false)
+    val ast = semantic.apply()
 
     // apply transformations if any
     astTransformer.applyTransformations(ast)
