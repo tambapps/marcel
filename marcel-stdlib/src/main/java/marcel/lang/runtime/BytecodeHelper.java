@@ -59,6 +59,7 @@ public final class BytecodeHelper {
     return set;
   }
 
+  // TODO remove this. just smart compare in semantic analysis
   public static boolean objectsEqual(Object left, Object right) {
     if (left == right) return true;
     if (left == null) return false;

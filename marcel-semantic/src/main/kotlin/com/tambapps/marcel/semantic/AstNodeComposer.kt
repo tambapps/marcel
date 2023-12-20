@@ -3,12 +3,16 @@ package com.tambapps.marcel.semantic
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
+import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.StringNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
+import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
+import com.tambapps.marcel.semantic.ast.expression.operator.NotNode
+import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
@@ -20,6 +24,8 @@ import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.MethodScope
 import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.variable.LocalVariable
+import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.variable.field.MarcelField
 import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
 
@@ -76,13 +82,16 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
     )
   }
 
-  protected fun ref(field: MarcelField): ReferenceNode {
+  protected fun ref(field: MarcelField,
+                    owner: ExpressionNode? = if (field.isMarcelStatic) null else ThisReferenceNode(field.owner, LexToken.DUMMY)): ReferenceNode {
     return ReferenceNode(
-      owner = if (field.isMarcelStatic) null else ThisReferenceNode(field.owner, LexToken.DUMMY),
+      owner = owner,
       variable = field,
       token = LexToken.DUMMY
     )
   }
+
+  protected fun ref(lv: LocalVariable) = ReferenceNode(owner = null, variable = lv, token = LexToken.DUMMY)
 
   protected fun string(value: String) = StringConstantNode(value, LexToken.DUMMY, LexToken.DUMMY)
   protected fun string(parts: List<ExpressionNode>) = StringNode(parts, LexToken.DUMMY, LexToken.DUMMY)
@@ -100,10 +109,21 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
     return fCall(LexToken.DUMMY, LexToken.DUMMY, method, arguments, null, castType)
   }
 
-  protected fun thisRef(type: JavaType) = ThisReferenceNode(type, LexToken.DUMMY)
+  protected fun thisRef() = ThisReferenceNode(currentScope.classType, LexToken.DUMMY)
 
   protected fun bool(b: Boolean) = BoolConstantNode(LexToken.DUMMY, b)
   protected fun int(i: Int) = IntConstantNode(LexToken.DUMMY, i)
+
+  protected fun argRef(i: Int) = ref(currentMethodScope.findLocalVariable(currentMethodScope.method.parameters[i].name)!!)
+  protected fun lvRef(name: String) = ref(currentMethodScope.findLocalVariable(name)!!)
+
+  protected fun notExpr(expr: ExpressionNode) = NotNode(expr)
+  protected fun isExpr(op1: ExpressionNode, op2: ExpressionNode) = IsEqualNode(op1, op2)
+  protected fun isInstanceExpr(type: JavaType, op2: ExpressionNode) = InstanceOfNode(type, op2, LexToken.DUMMY, LexToken.DUMMY)
+
+  protected fun varAssignExpr(variable: Variable, expr: ExpressionNode, owner: ExpressionNode? = null): ExpressionNode {
+    return VariableAssignmentNode(variable = variable, expression = caster.cast(variable.type, expr), owner = owner, tokenStart = LexToken.DUMMY, tokenEnd = LexToken.DUMMY)
+  }
 
   protected inner class StatementsComposer(
     private val statements: MutableList<StatementNode>
@@ -113,6 +133,10 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
       val statement = ExpressionStatementNode(expr)
       if (add) statements.add(statement)
       return statement
+    }
+
+    fun varAssignStmt(variable: Variable, expr: ExpressionNode, owner: ExpressionNode? = null): StatementNode {
+      return stmt(varAssignExpr(variable, expr, owner))
     }
 
     fun returnStmt(expr: ExpressionNode? = null, add: Boolean = true): StatementNode {

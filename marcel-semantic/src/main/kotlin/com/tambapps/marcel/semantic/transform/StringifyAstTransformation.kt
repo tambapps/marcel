@@ -44,7 +44,7 @@ class StringifyAstTransformation: GenerateMethodAstTransformation() {
         stringParts.add(string(method.propertyName + "="))
         stringParts.add(
           fCall(ownerType = JavaType.String, name = "valueOf", arguments = listOf(fCall(
-            owner = thisRef(classNode.type),
+            owner = thisRef(),
             name = method.name,
             arguments = emptyList()
           )))
