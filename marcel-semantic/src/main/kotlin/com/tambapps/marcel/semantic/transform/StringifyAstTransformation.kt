@@ -55,11 +55,9 @@ class StringifyAstTransformation: GenerateMethodAstTransformation() {
 
     stringParts.removeLast() // remove trailing ", "
     stringParts.add(string(")"))
-    val methodNode = methodNode(ownerClass = classNode.type, name = "toString", returnType = JavaType.String,
-      statements = mutableListOf(
-        returnStatement(string(stringParts), JavaType.String)
-      )
-    )
+    val methodNode = methodNode(ownerClass = classNode.type, name = "toString", returnType = JavaType.String) {
+      returnStmt(string(stringParts))
+    }
     return listOf(methodNode)
   }
 }

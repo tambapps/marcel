@@ -7,13 +7,34 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.scope.MethodInnerScope
+import com.tambapps.marcel.semantic.scope.MethodScope
+import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import java.util.*
 
 abstract class MarcelBaseSemantic {
 
   protected abstract val typeResolver: JavaTypeResolver
   protected abstract val caster: AstNodeCaster
+
+  protected val scopeQueue = LinkedList<Scope>()
+  protected val currentScope: Scope get() = scopeQueue.peek() // FIFO
+  protected val currentMethodScope get() = currentScope as? MethodScope ?: throw MarcelSemanticException(LexToken.DUMMY, "Not in a method")
+  protected val currentInnerMethodScope get() = currentScope as? MethodInnerScope ?: throw MarcelSemanticException(LexToken.DUMMY, "Not in a inner scope")
+
+  protected inline fun <T: Scope, U> useScope(scope: T, consumer: (T) -> U): U {
+    scopeQueue.push(scope)
+    val u = consumer.invoke(scope)
+    scope.dispose()
+    scopeQueue.pop()
+    return u
+  }
+
+  protected fun newInnerScope() = MethodInnerScope(currentMethodScope)
+  protected inline fun <U> useInnerScope(consumer: (MethodInnerScope) -> U)
+      = useScope(newInnerScope(), consumer)
 
   protected fun castedArguments(method: JavaMethod, arguments: List<ExpressionNode>) =
     arguments.mapIndexed { index, expressionNode -> caster.cast(method.parameters[index].type, expressionNode) }

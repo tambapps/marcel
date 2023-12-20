@@ -55,9 +55,8 @@ class AstTransformer(
       try {
         transformation.transform(node, annotation)
       } catch (e: Exception) {
-        if (e is MarcelSemanticException) throw e
         System.err.println("Error while applying AST transformation ${transformation.javaClass} from annotation ${annotation.type}")
-        e.printStackTrace()
+        throw e
       }
     }
   }
@@ -90,9 +89,8 @@ class AstTransformer(
             try {
               transformation.transformType(classType, annotation)
             } catch (e: Exception) {
-              if (e is MarcelSemanticException) throw e
               System.err.println("Error while applying AST transformation ${transformation.javaClass} from annotation ${annotation.type}")
-              e.printStackTrace()
+              throw e
             }
           }
         } else {

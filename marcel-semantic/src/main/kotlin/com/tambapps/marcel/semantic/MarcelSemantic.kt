@@ -190,7 +190,7 @@ import java.util.OptionalLong
 import java.util.regex.Pattern
 
 open class MarcelSemantic(
-  override final val typeResolver: JavaTypeResolver,
+  final override val typeResolver: JavaTypeResolver,
   val cst: SourceFileCstNode
 ): MarcelBaseSemantic(), ExpressionCstNodeVisitor<ExpressionNode, JavaType>, StatementCstNodeVisitor<StatementNode> {
 
@@ -203,14 +203,10 @@ open class MarcelSemantic(
 
   final override val caster = AstNodeCaster(typeResolver)
 
-  internal val scopeQueue = LinkedList<Scope>()
   private val classNodeMap = mutableMapOf<JavaType, ClassNode>() // useful to add methods while performing analysis
 
   val imports = Scope.DEFAULT_IMPORTS.toMutableList() // will be updated while performing analysis
   private val methodResolver = MethodResolver(typeResolver, caster, imports)
-  protected val currentScope: Scope get() = scopeQueue.peek() // FIFO
-  protected val currentMethodScope get() = currentScope as? MethodScope ?: throw MarcelSemanticException(LexToken.DUMMY, "Not in a method")
-  private val currentInnerMethodScope get() = currentScope as? MethodInnerScope ?: throw MarcelSemanticException(LexToken.DUMMY, "Not in a inner scope")
 
   private val selfLocalVariable: LocalVariable get() = currentMethodScope.findLocalVariable("self") ?: throw RuntimeException("Compiler error.")
 
@@ -627,18 +623,6 @@ open class MarcelSemantic(
       statements.add(statement)
     }
     return statements
-  }
-
-  private fun newInnerScope() = MethodInnerScope(currentMethodScope)
-  private inline fun <U> useInnerScope(consumer: (MethodInnerScope) -> U)
-  = useScope(newInnerScope(), consumer)
-
-  private inline fun <T: Scope, U> useScope(scope: T, consumer: (T) -> U): U {
-    scopeQueue.push(scope)
-    val u = consumer.invoke(scope)
-    scope.dispose()
-    scopeQueue.pop()
-    return u
   }
 
   private fun newMethodScope(method: JavaMethod) = MethodScope(ClassScope(typeResolver, currentScope.classType, null, imports), method)

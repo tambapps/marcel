@@ -22,7 +22,7 @@ import marcel.lang.Binding
 import marcel.lang.Script
 import marcel.lang.lambda.*
 
-internal object SemanticHelper {
+object SemanticHelper {
 
   fun staticInitialisationMethod(classNode: ClassNode): MethodNode {
     return MethodNode(

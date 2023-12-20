@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Generates the toString method based on the class's fields and getters
+ * Meta-annotation generating the toString method of a class based on its properties
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
