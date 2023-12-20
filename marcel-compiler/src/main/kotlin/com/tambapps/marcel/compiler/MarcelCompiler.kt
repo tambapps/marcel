@@ -11,6 +11,7 @@ import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.parser.cst.SourceFileNode
 import com.tambapps.marcel.semantic.MarcelSemantic
+import com.tambapps.marcel.semantic.check.ClassNodeChecks
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.type.SymbolsDefiner
@@ -81,6 +82,9 @@ class MarcelCompiler(configuration: CompilerConfiguration): AbstractMarcelCompil
 
     // apply transformations if any
     asts.forEach { astTransformer.applyTransformations(it) }
+
+    // checks
+    asts.forEach { check(it, typeResolver) }
 
     val classWriter = MarcelClassCompiler(configuration, typeResolver)
 

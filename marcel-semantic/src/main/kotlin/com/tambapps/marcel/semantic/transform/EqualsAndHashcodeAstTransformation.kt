@@ -23,13 +23,13 @@ class EqualsAndHashcodeAstTransformation: GenerateMethodAstTransformation() {
 
   override fun generateSignatures(javaType: NotLoadedJavaType, annotation: AnnotationNode): List<JavaMethod> {
     return listOf(
-      signature(ownerClass = javaType, name = "equals", parameters = listOf(parameter(JavaType.Object, "obj")), returnType = JavaType.boolean),
-      signature(ownerClass = javaType, name = "hashCode", returnType = JavaType.int)
+      signature(name = "equals", parameters = listOf(parameter(JavaType.Object, "obj")), returnType = JavaType.boolean),
+      signature(name = "hashCode", returnType = JavaType.int)
     )
   }
 
   override fun generateMethodNodes(classNode: ClassNode, annotation: AnnotationNode): List<MethodNode> {
-    val fields = classNode.fields.filter { !isAnnotableExcluded(it) }
+    val fields = classNode.fields.filter { !isAnnotableExcluded(it) && !it.isStatic }
     val equalsMethod = methodNode(
       ownerClass = classNode.type, name = "equals",
       parameters = listOf(parameter(JavaType.Object, "obj")),
@@ -37,7 +37,7 @@ class EqualsAndHashcodeAstTransformation: GenerateMethodAstTransformation() {
       annotations = listOf(annotationNode(Override::class.javaAnnotationType))
     ) {
       val argRef = lvRef("obj")
-      ifStmt(isExpr(argRef, thisRef())) {
+      ifStmt(isEqualExpr(argRef, thisRef())) {
         returnStmt(bool(true))
       }
       if (classNode.superType != JavaType.Object) {
@@ -86,6 +86,8 @@ class EqualsAndHashcodeAstTransformation: GenerateMethodAstTransformation() {
       fieldNode.type.isArray -> fCall(name = "deepHashCode", ownerType = Arrays::class.javaType,
         arguments = listOf(ref(fieldNode)))
       fieldNode.type.primitive -> fCall(name = "hashCode", ownerType = fieldNode.type.objectType, arguments = listOf(ref(fieldNode)))
+
+      // TODO handle variables being nullable
       else -> fCall(name = "hashCode", owner = ref(fieldNode), arguments = emptyList())
     }
   }
@@ -97,11 +99,13 @@ class EqualsAndHashcodeAstTransformation: GenerateMethodAstTransformation() {
       fieldNode.type.isArray -> notExpr(
         fCall(name = "deepEquals", ownerType = Arrays::class.javaType, arguments = listOf(ownFieldRef, otherFieldRef))
       )
-      fieldNode.type == JavaType.float || fieldNode.type == JavaType.double ->
-        IsNotEqualNode(
+      fieldNode.type == JavaType.float || fieldNode.type == JavaType.double || fieldNode.type == JavaType.boolean ->
+        isNotEqualExpr(
           fCall(name = "compare", ownerType = fieldNode.type.objectType, arguments = listOf(ownFieldRef, otherFieldRef)),
           int(0)
         )
+      // TODO we want equals(...) call
+      // TODO handle variables being nullable
       else -> IsNotEqualNode(ownFieldRef, otherFieldRef)
     }
   }

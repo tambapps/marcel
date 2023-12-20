@@ -4,6 +4,9 @@ import com.tambapps.marcel.compiler.exception.MarcelCompilerException
 import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.parser.cst.SourceFileNode
 import com.tambapps.marcel.semantic.MarcelSemantic
+import com.tambapps.marcel.semantic.ast.ClassNode
+import com.tambapps.marcel.semantic.ast.ModuleNode
+import com.tambapps.marcel.semantic.check.ClassNodeChecks
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.type.SymbolsDefiner
 import marcel.lang.MarcelClassLoader
@@ -39,6 +42,19 @@ abstract class AbstractMarcelCompiler(protected val configuration: CompilerConfi
       if (it.jarFile != null) { // can be null as there could be pom-only artifacs
         marcelClassLoader.addLibraryJar(it.jarFile)
       }
+    }
+  }
+
+  protected fun check(ast: ModuleNode, typeResolver: JavaTypeResolver) {
+    ast.classes.forEach { check(it, typeResolver) }
+  }
+
+  protected fun check(classNode: ClassNode, typeResolver: JavaTypeResolver) {
+    ClassNodeChecks.ALL.forEach {
+      it.visit(classNode, typeResolver)
+    }
+    for (innerClassNode in classNode.innerClasses) {
+      check(innerClassNode, typeResolver)
     }
   }
 }

@@ -20,7 +20,7 @@ import java.util.Arrays
 class StringifyAstTransformation: GenerateMethodAstTransformation() {
 
   override fun generateSignatures(javaType: NotLoadedJavaType, annotation: AnnotationNode) = listOf(
-    signature(ownerClass = javaType, name = "toString", returnType = JavaType.String)
+    signature(name = "toString", returnType = JavaType.String)
   )
 
   override fun generateMethodNodes(classNode: ClassNode, annotation: AnnotationNode): List<MethodNode> {
@@ -33,7 +33,7 @@ class StringifyAstTransformation: GenerateMethodAstTransformation() {
     }
 
     for (field in classNode.fields) {
-      if (isAnnotableExcluded(field) || field.isStatic || field.visibility != Visibility.PUBLIC) continue
+      if (isAnnotableExcluded(field) || field.isStatic) continue
       stringParts.add(string(field.name + "="))
       stringParts.add(toString(ref(field)))
       stringParts.add(string(", "))
@@ -41,7 +41,7 @@ class StringifyAstTransformation: GenerateMethodAstTransformation() {
     if (annotation.getAttribute("includeGetters")?.value == true) {
       for (method in classNode.methods) {
         if (isAnnotableExcluded(method) || !method.isGetter
-          || method.isStatic || method.visibility != Visibility.PUBLIC) continue
+          || method.isStatic) continue
         stringParts.add(string(method.propertyName + "="))
         stringParts.add(toString(fCall(
           owner = thisRef(),

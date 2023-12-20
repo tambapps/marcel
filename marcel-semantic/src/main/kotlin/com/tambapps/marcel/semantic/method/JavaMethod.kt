@@ -96,7 +96,7 @@ interface JavaMethod: JavaTyped {
     while (i < argumentTypes.size) {
       val expectedType = parameters[i].type
       val actualType = argumentTypes[i].type
-      if (!matches(typeResolver, expectedType, actualType)) return false
+      if (!matches(typeResolver, expectedType, actualType, strict)) return false
       i++
     }
 
@@ -112,10 +112,11 @@ interface JavaMethod: JavaTyped {
     return this.name == name && this.parameters.map { it.type } == types.map { it.type }
   }
 
-  private fun matches(typeResolver: JavaTypeResolver, expectedType: JavaType, actualType: JavaType): Boolean {
+  private fun matches(typeResolver: JavaTypeResolver, expectedType: JavaType, actualType: JavaType, strict: Boolean): Boolean {
     return if (expectedType.isInterface && actualType.isLambda) {
       return typeResolver.getInterfaceLambdaMethod(expectedType) != null // lambda parameter matches will be done by lambda handler
-    } else expectedType.isAssignableFrom(actualType)
+    } else if (!strict) expectedType.isAssignableFrom(actualType)
+    else expectedType.raw() == actualType.raw()
   }
 
   fun withGenericTypes(types: List<JavaType>): JavaMethod {

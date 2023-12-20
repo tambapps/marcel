@@ -408,9 +408,6 @@ open class MarcelSemantic(
         toFieldAssignmentStatements(classType, staticFieldInitialValueMap, true)
       )
     }
-    ClassNodeChecks.ALL.forEach {
-      it.visit(classNode, typeResolver)
-    }
     return classNode
   }
 
@@ -1571,9 +1568,6 @@ open class MarcelSemantic(
       }
     }
 
-    ClassNodeChecks.ALL.forEach {
-      it.visit(lambdaNode, typeResolver)
-    }
     for (innerClass in lambdaNode.innerClasses) {
       if (innerClass is LambdaClassNode) {
         defineLambda(innerClass)

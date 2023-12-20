@@ -13,6 +13,8 @@ import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
+import com.tambapps.marcel.semantic.ast.expression.operator.IsNotEqualNode
+import com.tambapps.marcel.semantic.ast.expression.operator.MinusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MulNode
 import com.tambapps.marcel.semantic.ast.expression.operator.NotNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
@@ -43,7 +45,6 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
   protected fun parameter(type: JavaType, name: String) = MethodParameter(type, name)
 
   protected fun signature(
-    ownerClass: JavaType,
     visibility: Visibility = Visibility.PUBLIC,
     name: String,
     parameters: List<MethodParameter> = emptyList(),
@@ -53,7 +54,7 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
     isStatic: Boolean = false,
     isConstructor: Boolean = false
   ): JavaMethod {
-    return JavaMethodImpl(ownerClass, visibility, name, parameters, returnType, isDefault, isAbstract, isStatic, isConstructor)
+    return JavaMethodImpl(currentScope.classType, visibility, name, parameters, returnType, isDefault, isAbstract, isStatic, isConstructor)
   }
 
   protected fun annotationNode(type: JavaAnnotationType, attributes: List<JavaAnnotation.Attribute> = emptyList()): AnnotationNode {
@@ -61,7 +62,7 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
   }
 
   protected inline fun methodNode(
-    ownerClass: JavaType,
+    ownerClass: JavaType = currentScope.classType,
     visibility: Visibility = Visibility.PUBLIC,
     name: String,
     parameters: List<MethodParameter> = emptyList(),
@@ -115,6 +116,11 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
     val method = typeResolver.findMethodOrThrow(owner.type, name, arguments, LexToken.DUMMY)
     return fCall(LexToken.DUMMY, LexToken.DUMMY, method, arguments, owner, castType)
   }
+  protected fun fCall(method: JavaMethod, arguments: List<ExpressionNode>,
+                      owner: ExpressionNode,
+                      castType: JavaType? = null): ExpressionNode {
+    return fCall(LexToken.DUMMY, LexToken.DUMMY, method, arguments, owner, castType)
+  }
   protected fun fCall(name: String, arguments: List<ExpressionNode>,
                       ownerType: JavaType,
                       castType: JavaType? = null): ExpressionNode {
@@ -131,7 +137,8 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
   protected fun lvRef(name: String) = ref(currentMethodScope.findLocalVariable(name)!!)
 
   protected fun notExpr(expr: ExpressionNode) = NotNode(expr)
-  protected fun isExpr(op1: ExpressionNode, op2: ExpressionNode) = IsEqualNode(op1, op2)
+  protected fun isEqualExpr(op1: ExpressionNode, op2: ExpressionNode) = IsEqualNode(op1, op2)
+  protected fun isNotEqualExpr(op1: ExpressionNode, op2: ExpressionNode) = IsNotEqualNode(op1, op2)
   protected fun isInstanceExpr(type: JavaType, op2: ExpressionNode) = InstanceOfNode(type, op2, LexToken.DUMMY, LexToken.DUMMY)
 
   protected fun varAssignExpr(variable: Variable, expr: ExpressionNode, owner: ExpressionNode? = null): ExpressionNode {
@@ -141,6 +148,11 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
   protected fun plus(e1: ExpressionNode, e2: ExpressionNode): ExpressionNode {
     val commonType = JavaType.commonType(e1, e2)
     return PlusNode(caster.cast(commonType, e1), caster.cast(commonType, e2))
+  }
+
+  protected fun minus(e1: ExpressionNode, e2: ExpressionNode): ExpressionNode {
+    val commonType = JavaType.commonType(e1, e2)
+    return MinusNode(caster.cast(commonType, e1), caster.cast(commonType, e2))
   }
 
   protected fun mul(e1: ExpressionNode, e2: ExpressionNode): ExpressionNode {

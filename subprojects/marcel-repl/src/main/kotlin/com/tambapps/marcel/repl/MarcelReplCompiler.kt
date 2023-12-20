@@ -149,6 +149,9 @@ class MarcelReplCompiler constructor(
     // apply transformations if any
     astTransformer.applyTransformations(ast)
 
+    // checks
+    check(ast, typeResolver)
+
     val r = SemanticResult(tokens, cst, ast.classes, semantic.imports, text.hashCode())
     if (!skipUpdate) {
       this.semanticResult = r
