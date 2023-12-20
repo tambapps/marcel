@@ -1,13 +1,4 @@
-# Meta-annotations (metaprogramming with annotations)
-[AST transformations](./index.md) can be specified on annotations. Doing so allows to perform specific transformations when annotating a given
-class, field, method and/or field.
-
-Marcel's standard library provides many annotations useful to avoid writing boilerplate code. Some of them are similar as the one you could find in [Lombok](https://projectlombok.org/).
-
-Meta-annotations from the Marcel's standard-library are all lowercase (even the first letter), this is how you can differentiate them from
-other (non-meta) annotations.
-
-## @stringify
+# @stringify
 
 This annotation is similar to [Lombok's @ToString annotation](https://projectlombok.org/features/ToString).
 It auto-generates a `toString()` method for your class, based on your class's members.
