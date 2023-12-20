@@ -1,5 +1,6 @@
 package com.tambapps.marcel.semantic.transform
 
+import com.tambapps.marcel.semantic.ast.Annotable
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode
@@ -12,6 +13,7 @@ import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.NotLoadedJavaType
+import marcel.lang.data
 import java.util.Arrays
 
 /**
@@ -27,6 +29,7 @@ class EqualsAndHashcodeAstTransformation: GenerateMethodAstTransformation() {
   }
 
   override fun generateMethodNodes(classNode: ClassNode, annotation: AnnotationNode): List<MethodNode> {
+    val fields = classNode.fields.filter { !isAnnotableExcluded(it) }
     val equalsMethod = methodNode(
       ownerClass = classNode.type, name = "equals",
       parameters = listOf(parameter(JavaType.Object, "obj")),
@@ -50,7 +53,7 @@ class EqualsAndHashcodeAstTransformation: GenerateMethodAstTransformation() {
       varAssignStmt(otherVar, argRef)
 
       val otherRef = ref(otherVar)
-      for (field in classNode.fields) {
+      for (field in fields) {
         ifStmt(notEqual(field, otherRef)) {
           returnStmt(bool(false))
         }
@@ -63,14 +66,14 @@ class EqualsAndHashcodeAstTransformation: GenerateMethodAstTransformation() {
       returnType = JavaType.int,
       annotations = listOf(annotationNode(Override::class.javaAnnotationType))
     ) {
-      if (classNode.fields.isEmpty()) {
+      if (fields.isEmpty()) {
         returnStmt(fCall(name = "hashCode", owner = superRef(), arguments = emptyList()))
       } else {
         val resultVar = currentMethodScope.addLocalVariable(JavaType.int)
         var i = 0
-        varAssignStmt(resultVar, if (classNode.superType == JavaType.Object) hash(classNode.fields[i++]) else TODO("super.hashCode()"))
-        while (i < classNode.fields.size) {
-          varAssignStmt(resultVar, plus(mul(int(31), ref(resultVar)), hash(classNode.fields[i++])))
+        varAssignStmt(resultVar, if (classNode.superType == JavaType.Object) hash(fields[i++]) else TODO("super.hashCode()"))
+        while (i < fields.size) {
+          varAssignStmt(resultVar, plus(mul(int(31), ref(resultVar)), hash(fields[i++])))
         }
         returnStmt(ref(resultVar))
       }
@@ -101,5 +104,8 @@ class EqualsAndHashcodeAstTransformation: GenerateMethodAstTransformation() {
         )
       else -> IsNotEqualNode(ownFieldRef, otherFieldRef)
     }
+  }
+  private fun isAnnotableExcluded(annotable: Annotable): Boolean {
+    return annotable.getAnnotation(data.Exclude::class.javaType) != null
   }
 }
