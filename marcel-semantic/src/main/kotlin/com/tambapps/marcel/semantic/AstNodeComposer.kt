@@ -7,6 +7,7 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.StringNode
+import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
@@ -93,6 +94,7 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
     )
   }
 
+  protected fun superRef() = SuperReferenceNode(currentScope.classType.superType!!, LexToken.DUMMY)
   protected fun ref(field: MarcelField,
                     owner: ExpressionNode? = if (field.isMarcelStatic) null else ThisReferenceNode(field.owner, LexToken.DUMMY)): ReferenceNode {
     return ReferenceNode(

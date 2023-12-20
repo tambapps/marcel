@@ -10,6 +10,7 @@ import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.NotLoadedJavaType
 import marcel.lang.stringify
+import java.util.Arrays
 
 /**
  * AST transformation to generate toString method. Implicitly referenced in stringify annotation
@@ -25,17 +26,15 @@ class StringifyAstTransformation: GenerateMethodAstTransformation() {
       string(classNode.type.simpleName + "(")
     )
     if (classNode.superType != JavaType.Object) {
-      TODO("Add super=super.toString()")
+      stringParts.add(string("super="))
+      stringParts.add(toString(fCall(name = "toString", owner = superRef(), arguments = emptyList())))
     }
 
     for (field in classNode.fields) {
       if (field.getAnnotation(stringify.Exclude::class.javaType) != null
         || field.isStatic || field.visibility != Visibility.PUBLIC) continue
       stringParts.add(string(field.name + "="))
-      stringParts.add(
-        if (field.type == JavaType.String) ref(field)
-        else fCall(ownerType = JavaType.String, name = "valueOf", arguments = listOf(ref(field)))
-      )
+      stringParts.add(toString(ref(field)))
       stringParts.add(string(", "))
     }
     if (annotation.getAttribute("includeGetters")?.value == true) {
@@ -43,13 +42,11 @@ class StringifyAstTransformation: GenerateMethodAstTransformation() {
         if (method.getAnnotation(stringify.Exclude::class.javaType) != null || !method.isGetter
           || method.isStatic || method.visibility != Visibility.PUBLIC) continue
         stringParts.add(string(method.propertyName + "="))
-        stringParts.add(
-          fCall(ownerType = JavaType.String, name = "valueOf", arguments = listOf(fCall(
-            owner = thisRef(),
-            name = method.name,
-            arguments = emptyList()
-          )))
-        )
+        stringParts.add(toString(fCall(
+          owner = thisRef(),
+          name = method.name,
+          arguments = emptyList()
+        )))
         stringParts.add(string(", "))
       }
     }
@@ -65,5 +62,14 @@ class StringifyAstTransformation: GenerateMethodAstTransformation() {
       returnStmt(string(stringParts))
     }
     return listOf(methodNode)
+  }
+
+  private fun toString(expr: ExpressionNode): ExpressionNode {
+    return when {
+      expr.type.isArray -> if (expr.type.asArrayType.elementsType.primitive) fCall(name = "toString", ownerType = Arrays::class.javaType, arguments = listOf(expr))
+      else fCall(name = "deepToString", ownerType = Arrays::class.javaType, arguments = listOf(expr))
+      expr.type == JavaType.String -> expr
+      else -> fCall(ownerType = JavaType.String, name = "valueOf", arguments = listOf(expr))
+    }
   }
 }

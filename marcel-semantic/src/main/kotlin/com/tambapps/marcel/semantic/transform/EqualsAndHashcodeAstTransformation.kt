@@ -37,16 +37,17 @@ class EqualsAndHashcodeAstTransformation: GenerateMethodAstTransformation() {
       ifStmt(isExpr(argRef, thisRef())) {
         returnStmt(bool(true))
       }
+      if (classNode.superType != JavaType.Object) {
+        ifStmt(notExpr(fCall(name = "equals", owner = superRef(), arguments = listOf(argRef)))) {
+          returnStmt(bool(false))
+        }
+      }
       ifStmt(notExpr(isInstanceExpr(classNode.type, argRef))) {
         returnStmt(bool(false))
       }
       // now we know it is the right type
       val otherVar = currentMethodScope.addLocalVariable(classNode.type)
       varAssignStmt(otherVar, argRef)
-
-      if (classNode.superType != JavaType.Object) {
-        TODO("Add super.equals(argRef)")
-      }
 
       val otherRef = ref(otherVar)
       for (field in classNode.fields) {
@@ -63,7 +64,7 @@ class EqualsAndHashcodeAstTransformation: GenerateMethodAstTransformation() {
       annotations = listOf(annotationNode(Override::class.javaAnnotationType))
     ) {
       if (classNode.fields.isEmpty()) {
-        TODO("super.hashCode()")
+        returnStmt(fCall(name = "hashCode", owner = superRef(), arguments = emptyList()))
       } else {
         val resultVar = currentMethodScope.addLocalVariable(JavaType.int)
         var i = 0

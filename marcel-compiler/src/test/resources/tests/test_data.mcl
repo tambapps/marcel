@@ -1,0 +1,17 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+@data
+class A {
+ int i = 1
+ double d = 2d
+ String[] s = ["", "&"]
+
+ String b = "srsr"
+
+ fun String getFoo() -> "foo"
+
+ fun String getBar() -> "bar"
+}
+
+assertEquals(new A(), new A())
+

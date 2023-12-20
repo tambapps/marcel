@@ -19,7 +19,7 @@ abstract class MarcelBaseSemantic {
   protected abstract val typeResolver: JavaTypeResolver
   protected abstract val caster: AstNodeCaster
 
-  protected val scopeQueue = LinkedList<Scope>()
+  val scopeQueue = LinkedList<Scope>()
   protected val currentScope: Scope get() = scopeQueue.peek() // FIFO
   protected val currentMethodScope get() = currentScope as? MethodScope ?: throw MarcelSemanticException(LexToken.DUMMY, "Not in a method")
   protected val currentInnerMethodScope get() = currentScope as? MethodInnerScope ?: throw MarcelSemanticException(LexToken.DUMMY, "Not in a inner scope")

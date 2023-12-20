@@ -5,6 +5,7 @@ import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.type.NotLoadedJavaType
 
 /**
@@ -19,7 +20,9 @@ abstract class GenerateMethodAstTransformation: AbstractAstTransformation() {
 
   final override fun transform(node: AstNode, annotation: AnnotationNode) {
     val classNode = getClassNode(node)
-    classNode.methods.addAll(generateMethodNodes(classNode, annotation))
+    useScope(ClassScope(typeResolver, classNode.type, null, emptyList())) {
+      classNode.methods.addAll(generateMethodNodes(classNode, annotation))
+    }
   }
 
   protected open fun getClassNode(node: AstNode): ClassNode = node as ClassNode
