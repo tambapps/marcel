@@ -18,6 +18,7 @@ import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
+import java.lang.annotation.RetentionPolicy
 
 class MarcelClassCompiler(
   private val compilerConfiguration: CompilerConfiguration,
@@ -47,7 +48,9 @@ class MarcelClassCompiler(
 
     // writing annotations
     for (annotation in classNode.annotations) {
-      writeAnnotation(classWriter.visitAnnotation(annotation.type.descriptor, true), annotation)
+      if (annotation.type.retentionPolicy != RetentionPolicy.SOURCE) {
+        writeAnnotation(classWriter.visitAnnotation(annotation.type.descriptor, true), annotation)
+      }
     }
 
     for (field in classNode.fields) {
@@ -80,7 +83,9 @@ class MarcelClassCompiler(
 
     // writing annotations
     for (annotation in field.annotations) {
-      writeAnnotation(fieldVisitor.visitAnnotation(annotation.type.descriptor, true), annotation)
+      if (annotation.type.retentionPolicy != RetentionPolicy.SOURCE) {
+        writeAnnotation(fieldVisitor.visitAnnotation(annotation.type.descriptor, true), annotation)
+      }
     }
   }
 
@@ -89,7 +94,9 @@ class MarcelClassCompiler(
 
     // writing annotations
     for (annotation in methodNode.annotations) {
-      writeAnnotation(mv.visitAnnotation(annotation.type.descriptor, true), annotation)
+      if (annotation.type.retentionPolicy != RetentionPolicy.SOURCE) {
+        writeAnnotation(mv.visitAnnotation(annotation.type.descriptor, true), annotation)
+      }
     }
 
     mv.visitCode()
@@ -114,7 +121,9 @@ class MarcelClassCompiler(
       // this is important, to be able to resolve marcel method parameter names
       mv.visitParameter(parameter.name, if (parameter.isFinal) Opcodes.ACC_FINAL else 0)
       parameter.annotations.forEach {
-        writeAnnotation(mv.visitParameterAnnotation(i, it.type.descriptor, true), it)
+        if (it.type.retentionPolicy != RetentionPolicy.SOURCE) {
+          writeAnnotation(mv.visitParameterAnnotation(i, it.type.descriptor, true), it)
+        }
       }
       val methodVarIndex = if (methodNode.isStatic) i else 1 + i
       mv.visitLocalVariable(parameter.name,  parameter.type.descriptor, parameter.type.signature,

@@ -1,6 +1,7 @@
 package com.tambapps.marcel.semantic.type
 
 import java.lang.annotation.ElementType
+import java.lang.annotation.RetentionPolicy
 import kotlin.reflect.KClass
 
 interface JavaAnnotationType: JavaType {
@@ -17,6 +18,7 @@ interface JavaAnnotationType: JavaType {
   val attributes: List<Attribute>
 
   val targets: List<ElementType>
+  val retentionPolicy: RetentionPolicy
 
   override val asAnnotationType: JavaAnnotationType
     get() = this

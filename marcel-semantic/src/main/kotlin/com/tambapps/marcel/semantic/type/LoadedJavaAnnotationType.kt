@@ -1,9 +1,13 @@
 package com.tambapps.marcel.semantic.type
 
 import java.lang.annotation.ElementType
+import java.lang.annotation.RetentionPolicy
 
 open class LoadedJavaAnnotationType(realClazz: Class<*>): LoadedObjectType(realClazz, emptyList()), JavaAnnotationType {
 
+  override val retentionPolicy
+  = realClazz.getAnnotation(java.lang.annotation.Retention::class.java)?.value
+    ?: RetentionPolicy.CLASS
   override val targets = computeTargets()
 
   // lazy because we don't want to load it while compiling
