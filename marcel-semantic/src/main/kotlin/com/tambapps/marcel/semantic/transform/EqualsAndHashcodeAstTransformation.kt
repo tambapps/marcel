@@ -7,6 +7,7 @@ import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsNotEqualNode
+import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
@@ -27,9 +28,12 @@ class EqualsAndHashcodeAstTransformation: GenerateMethodAstTransformation() {
 
   override fun generateMethodNodes(classNode: ClassNode, annotation: AnnotationNode): List<MethodNode> {
     // TODO annotate with override. Same for toString method in stringify
-    val equalsMethod = methodNode(ownerClass = classNode.type, name = "equals",
+    val equalsMethod = methodNode(
+      ownerClass = classNode.type, name = "equals",
       parameters = listOf(parameter(JavaType.Object, "obj")),
-      returnType = JavaType.boolean) {
+      returnType = JavaType.boolean,
+      annotations = listOf(annotationNode(Override::class.javaAnnotationType))
+    ) {
       val argRef = lvRef("obj")
       ifStmt(isExpr(argRef, thisRef())) {
         returnStmt(bool(true))
@@ -53,7 +57,12 @@ class EqualsAndHashcodeAstTransformation: GenerateMethodAstTransformation() {
       }
       returnStmt(bool(true))
     }
-    val hashCode = methodNode(ownerClass = classNode.type, name = "hashCode", returnType = JavaType.int) {
+    val hashCode = methodNode(
+      ownerClass = classNode.type,
+      name = "hashCode",
+      returnType = JavaType.int,
+      annotations = listOf(annotationNode(Override::class.javaAnnotationType))
+    ) {
       // TODO
       returnStmt(int(1))
     }

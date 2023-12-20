@@ -1,6 +1,7 @@
 package com.tambapps.marcel.semantic
 
 import com.tambapps.marcel.lexer.LexToken
+import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
@@ -23,6 +24,8 @@ import com.tambapps.marcel.semantic.method.JavaMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.MethodScope
+import com.tambapps.marcel.semantic.type.JavaAnnotation
+import com.tambapps.marcel.semantic.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.Variable
@@ -50,6 +53,10 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
     return JavaMethodImpl(ownerClass, visibility, name, parameters, returnType, isDefault, isAbstract, isStatic, isConstructor)
   }
 
+  protected fun annotationNode(type: JavaAnnotationType, attributes: List<JavaAnnotation.Attribute> = emptyList()): AnnotationNode {
+    return AnnotationNode(type, attributes, LexToken.DUMMY, LexToken.DUMMY)
+  }
+
   protected inline fun methodNode(
     ownerClass: JavaType,
     visibility: Visibility = Visibility.PUBLIC,
@@ -59,9 +66,11 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
     isDefault: Boolean = false,
     isAbstract: Boolean = false,
     isStatic: Boolean = false,
+    annotations: List<AnnotationNode> = emptyList(),
     statementsSupplier: StatementsComposer.() -> Unit
   ): MethodNode {
     val methodNode = MethodNode(name, parameters.toMutableList(), visibility, returnType, isStatic, LexToken.DUMMY, LexToken.DUMMY, ownerClass)
+    methodNode.annotations.addAll(annotations)
     val statements = mutableListOf<StatementNode>()
     methodNode.blockStatement = BlockStatementNode(statements, LexToken.DUMMY, LexToken.DUMMY)
 

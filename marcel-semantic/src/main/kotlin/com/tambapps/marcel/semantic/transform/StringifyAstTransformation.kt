@@ -5,6 +5,7 @@ import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
+import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.NotLoadedJavaType
@@ -55,7 +56,12 @@ class StringifyAstTransformation: GenerateMethodAstTransformation() {
 
     stringParts.removeLast() // remove trailing ", "
     stringParts.add(string(")"))
-    val methodNode = methodNode(ownerClass = classNode.type, name = "toString", returnType = JavaType.String) {
+    val methodNode = methodNode(
+      ownerClass = classNode.type,
+      name = "toString",
+      returnType = JavaType.String,
+      annotations = listOf(annotationNode(Override::class.javaAnnotationType))
+    ) {
       returnStmt(string(stringParts))
     }
     return listOf(methodNode)
