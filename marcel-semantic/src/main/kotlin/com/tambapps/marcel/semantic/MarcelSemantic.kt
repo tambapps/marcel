@@ -851,24 +851,24 @@ open class MarcelSemantic(
           )
         }
       }
-      TokenType.DOT -> {
-        if (node.leftOperand is ReferenceCstNode) {
-          val cstReference = (node.leftOperand as ReferenceCstNode)
+      TokenType.DOT -> when (val leftOperand = node.leftOperand) {
+        is ReferenceCstNode -> {
           val p = try {
-            findVariableAndOwner(cstReference.value, node)
-          } catch (e: MarcelSemanticException) { null } // TODO too generic need to catch specific variable not found exception and re-throw others
+            findVariableAndOwner(leftOperand.value, node)
+          } catch (e: MarcelSemanticException) { null } // TODO too global need to catch specific variable not found exception and re-throw others
           if (p != null) {
             dotOperator(node, ReferenceNode(p.second, p.first, node.token), rightOperand)
           } else {
             // it may be a static method call
             val type = try {
-              currentScope.resolveTypeOrThrow(TypeCstNode(null, cstReference.value, emptyList(), 0, cstReference.tokenStart, cst.tokenEnd))
+              currentScope.resolveTypeOrThrow(TypeCstNode(null, leftOperand.value, emptyList(), 0, leftOperand.tokenStart, cst.tokenEnd))
             } catch (e2: MarcelSemanticException) {
-              throw MarcelSemanticException(node.token, "Neither a variable nor a class ${cstReference.value} was found")
+              throw MarcelSemanticException(node.token, "Neither a variable nor a class ${leftOperand.value} was found")
             }
             staticDotOperator(node, type, rightOperand)
           }
-        } else dotOperator(node, node.leftOperand.accept(this), rightOperand)
+        }
+        else -> dotOperator(node, node.leftOperand.accept(this), rightOperand)
       }
       TokenType.TWO_DOTS -> rangeNode(leftOperand, rightOperand, "of")
       TokenType.TWO_DOTS_END_EXCLUSIVE -> rangeNode(leftOperand, rightOperand, "ofToExclusive")

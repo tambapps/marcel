@@ -3,8 +3,10 @@ package com.tambapps.marcel.compiler.asm
 import com.tambapps.marcel.compiler.extensions.arrayStoreCode
 import com.tambapps.marcel.compiler.extensions.descriptor
 import com.tambapps.marcel.compiler.extensions.internalName
+import com.tambapps.marcel.compiler.extensions.invokeCode
 import com.tambapps.marcel.compiler.extensions.typeCode
 import com.tambapps.marcel.compiler.extensions.visitMethodInsn
+import com.tambapps.marcel.compiler.extensions.visitSuperMethodInsn
 import com.tambapps.marcel.semantic.ast.expression.DupNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
@@ -14,6 +16,7 @@ import com.tambapps.marcel.semantic.ast.expression.PopNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.StringNode
 import com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode
+import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.TernaryNode
 import com.tambapps.marcel.semantic.ast.expression.ThisConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
@@ -61,7 +64,8 @@ sealed class MethodExpressionWriter(
   override fun visit(node: FunctionCallNode) {
     node.owner?.let { pushExpression(it) }
     node.arguments.forEach { pushExpression(it) }
-    mv.visitMethodInsn(node.javaMethod)
+    if (node.owner !is SuperReferenceNode) mv.visitMethodInsn(node.javaMethod)
+    else mv.visitSuperMethodInsn(node.javaMethod)
   }
 
   override fun visit(node: TernaryNode) {
