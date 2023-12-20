@@ -10,12 +10,17 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
-@MarcelAstTransformationClass({
-    "com.tambapps.marcel.semantic.transform.StringifyAstTransformation",
-    "com.tambapps.marcel.semantic.transform.EqualsAndHashcodeAstTransformation"
-})
+@MarcelAstTransformationClass({"com.tambapps.marcel.semantic.transform.DataAstTransformation"})
 public @interface data {
+
+  /**
+   * Annotation allowing to exclude a particular field/method
+   */
+  @Retention(RetentionPolicy.SOURCE)
+  @Target({ElementType.FIELD, ElementType.METHOD})
+  @interface Exclude { }
 
   // TODO handle me
   boolean comparable() default false;
+  boolean stringify() default true;
 }

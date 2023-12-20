@@ -12,7 +12,7 @@ abstract class AbstractAstTransformation : AstNodeComposer(), AstTransformation 
   override lateinit var typeResolver: JavaTypeResolver
   override lateinit var caster: AstNodeCaster
 
-  final override fun init(typeResolver: JavaTypeResolver) {
+  override fun init(typeResolver: JavaTypeResolver) {
     this.typeResolver = typeResolver
     this.caster = AstNodeCaster(typeResolver)
   }
