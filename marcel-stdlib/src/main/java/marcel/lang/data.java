@@ -20,7 +20,11 @@ public @interface data {
   @Target({ElementType.FIELD, ElementType.METHOD})
   @interface Exclude { }
 
-  // TODO handle me
   boolean comparable() default false;
   boolean stringify() default true;
+
+  /**
+   * Whether to include getters for the stringify and the comparable if enabled
+   */
+  boolean includeGetters() default false;
 }

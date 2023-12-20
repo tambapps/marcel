@@ -20,7 +20,6 @@ public @interface comparable {
   @Target({ElementType.FIELD, ElementType.METHOD})
   @interface Exclude { }
 
-  // TODO handle me
   /**
    * Whether to include getters in the string representation.
    * Note that this only applies to public getters as others are always excluded
