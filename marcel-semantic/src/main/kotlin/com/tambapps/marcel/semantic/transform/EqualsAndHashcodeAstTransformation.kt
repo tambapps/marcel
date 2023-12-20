@@ -27,7 +27,6 @@ class EqualsAndHashcodeAstTransformation: GenerateMethodAstTransformation() {
   }
 
   override fun generateMethodNodes(classNode: ClassNode, annotation: AnnotationNode): List<MethodNode> {
-    // TODO annotate with override. Same for toString method in stringify
     val equalsMethod = methodNode(
       ownerClass = classNode.type, name = "equals",
       parameters = listOf(parameter(JavaType.Object, "obj")),
@@ -63,10 +62,28 @@ class EqualsAndHashcodeAstTransformation: GenerateMethodAstTransformation() {
       returnType = JavaType.int,
       annotations = listOf(annotationNode(Override::class.javaAnnotationType))
     ) {
-      // TODO
-      returnStmt(int(1))
+      if (classNode.fields.isEmpty()) {
+        TODO("super.hashCode()")
+      } else {
+        val resultVar = currentMethodScope.addLocalVariable(JavaType.int)
+        var i = 0
+        varAssignStmt(resultVar, if (classNode.superType == JavaType.Object) hash(classNode.fields[i++]) else TODO("super.hashCode()"))
+        while (i < classNode.fields.size) {
+          varAssignStmt(resultVar, plus(mul(int(31), ref(resultVar)), hash(classNode.fields[i++])))
+        }
+        returnStmt(ref(resultVar))
+      }
     }
     return listOf(equalsMethod, hashCode)
+  }
+
+  private fun hash(fieldNode: FieldNode): ExpressionNode {
+    return when {
+      fieldNode.type.isArray -> fCall(name = "deepHashCode", ownerType = Arrays::class.javaType,
+        arguments = listOf(ref(fieldNode)))
+      fieldNode.type.primitive -> fCall(name = "hashCode", ownerType = fieldNode.type.objectType, arguments = listOf(ref(fieldNode)))
+      else -> fCall(name = "hashCode", owner = ref(fieldNode), arguments = emptyList())
+    }
   }
 
   private fun notEqual(fieldNode: FieldNode, argRef: ReferenceNode): ExpressionNode {

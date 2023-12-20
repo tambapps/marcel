@@ -12,7 +12,9 @@ import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
+import com.tambapps.marcel.semantic.ast.expression.operator.MulNode
 import com.tambapps.marcel.semantic.ast.expression.operator.NotNode
+import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
@@ -132,6 +134,16 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
 
   protected fun varAssignExpr(variable: Variable, expr: ExpressionNode, owner: ExpressionNode? = null): ExpressionNode {
     return VariableAssignmentNode(variable = variable, expression = caster.cast(variable.type, expr), owner = owner, tokenStart = LexToken.DUMMY, tokenEnd = LexToken.DUMMY)
+  }
+
+  protected fun plus(e1: ExpressionNode, e2: ExpressionNode): ExpressionNode {
+    val commonType = JavaType.commonType(e1, e2)
+    return PlusNode(caster.cast(commonType, e1), caster.cast(commonType, e2))
+  }
+
+  protected fun mul(e1: ExpressionNode, e2: ExpressionNode): ExpressionNode {
+    val commonType = JavaType.commonType(e1, e2)
+    return MulNode(caster.cast(commonType, e1), caster.cast(commonType, e2))
   }
 
   protected inner class StatementsComposer(
