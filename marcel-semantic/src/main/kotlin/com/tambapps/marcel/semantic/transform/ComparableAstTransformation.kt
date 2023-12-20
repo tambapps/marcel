@@ -5,7 +5,7 @@ import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
-import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.exception.MarcelAstTransformationException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
@@ -78,8 +78,7 @@ class ComparableAstTransformation: GenerateMethodAstTransformation() {
 
       type.implements(java.lang.Comparable::class.javaType) ->
         fCall(owner = ownProperty, name = "compareTo", arguments = listOf(otherProperty))
-      // TODO make special exception extending MarcelSemanticException for the ones thrown in AstTransformations
-      else -> throw MarcelSemanticException(ownProperty.token, "Property $propertyName is not comparable")
+      else -> throw MarcelAstTransformationException(this, ownProperty.token, "Property $propertyName is not comparable")
     }
   }
 

@@ -1,11 +1,10 @@
 package com.tambapps.marcel.semantic.transform
 
-import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
-import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.exception.MarcelAstTransformationException
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.type.NotLoadedJavaType
@@ -30,8 +29,7 @@ abstract class GenerateMethodAstTransformation: AbstractAstTransformation() {
       for (method in methods) {
         val duplicate = classNode.methods.find { it.matches(typeResolver, method.name, method.parameters, strict = true) }
         if (duplicate != null) {
-          // TODO custom exception
-          throw MarcelSemanticException(duplicate.token, "Method with $method is already defined")
+          throw MarcelAstTransformationException(this, duplicate.token, "Method with $method is already defined")
         }
         classNode.methods.add(method)
       }
