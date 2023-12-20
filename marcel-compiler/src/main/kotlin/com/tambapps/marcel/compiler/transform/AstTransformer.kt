@@ -55,7 +55,7 @@ class AstTransformer(
       try {
         transformation.transform(node, annotation)
       } catch (e: Exception) {
-        System.err.println("Error while applying AST transformation ${transformation.javaClass} from annotation ${annotation.type}")
+        if (e !is MarcelSemanticException) System.err.println("Error while applying AST transformation ${transformation.javaClass} from annotation ${annotation.type}")
         throw e
       }
     }
@@ -73,7 +73,6 @@ class AstTransformer(
     classNode.innerClasses.forEach { doLoadTransformations(semantic, it) }
   }
 
-  // also init and apply type transformation. TODO document that clearly, also for self
   private fun loadFromAnnotations(semantic: MarcelSemantic,
                                   elementType: ElementType,
                                   classType: NotLoadedJavaType, annotations: List<AnnotationCstNode>) {
@@ -89,7 +88,7 @@ class AstTransformer(
             try {
               transformation.transformType(classType, annotation)
             } catch (e: Exception) {
-              System.err.println("Error while applying AST transformation ${transformation.javaClass} from annotation ${annotation.type}")
+              if (e !is MarcelSemanticException) System.err.println("Error while applying AST transformation ${transformation.javaClass} from annotation ${annotation.type}")
               throw e
             }
           }
@@ -99,7 +98,6 @@ class AstTransformer(
       }
   }
 
-  // TODO log in case of errors in this function
   private fun getTransformations(annotationType: JavaAnnotationType): List<AstTransformation> {
     val transformationAnnotation = annotationType.realClazz.getAnnotation(MarcelAstTransformationClass::class.java)
     val classes =
@@ -107,7 +105,11 @@ class AstTransformer(
       else transformationAnnotation.value.mapNotNull {
         try {
           Class.forName(it)
-        } catch (e: ClassNotFoundException) { null }
+        } catch (e: ClassNotFoundException) {
+          System.err.println("Couldn't find AST transformation class $it for annotation $annotationType")
+          e.printStackTrace()
+          null
+        }
       }
         .toList()
 
@@ -115,6 +117,8 @@ class AstTransformer(
       try {
         it.getDeclaredConstructor().newInstance() as AstTransformation
       } catch (e: ReflectiveOperationException) {
+        System.err.println("Error while attempting to instantiate AST Transformation $it for annotation $annotationType")
+        e.printStackTrace()
         null
       }
     }
