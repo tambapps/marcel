@@ -16,7 +16,7 @@ println(new Foo())
 
 This script would print `Foo(bar=myBar)`. 
 
-### Include getters
+## Include getters
 The getters are not included in the generated String by default. To change this behaviour, you can use the flag `includeGetters=true`.
 
 ```marcel

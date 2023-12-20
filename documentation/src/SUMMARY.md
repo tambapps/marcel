@@ -47,6 +47,7 @@
 - [Meta Programming](./metaprogramming/index.md)
   - [Meta Annotations](metaprogramming/meta-annotations/index.md)
     - [@stringify](metaprogramming/meta-annotations/stringify.md)
+    - [@comparable](metaprogramming/meta-annotations/comparable.md)
     - [@data](metaprogramming/meta-annotations/data.md)
 - [Guides](./guides/index.md)
   - [Collections](./guides/collections.md)
