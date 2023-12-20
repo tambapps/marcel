@@ -7,11 +7,10 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.METHOD;
 
 /**
- * Method annotation to cache results of the annoted method
+ * Meta-annotation to cache results of the annotated method
  */
-// TODO handle me
 @Retention(RetentionPolicy.SOURCE)
 @Target(value={METHOD})
-// @GroovyASTTransformationClass("org.codehaus.groovy.transform.ReadWriteLockASTTransformation")
+@MarcelAstTransformationClass("com.tambapps.marcel.semantic.transform.CachedAstTransformation")
 public @interface cached {
 }

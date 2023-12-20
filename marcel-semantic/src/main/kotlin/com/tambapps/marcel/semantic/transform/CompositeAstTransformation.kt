@@ -1,7 +1,9 @@
 package com.tambapps.marcel.semantic.transform
 
+import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
+import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.type.NotLoadedJavaType
 
@@ -16,15 +18,15 @@ abstract class CompositeAstTransformation(
     }
   }
 
-  override fun transformType(javaType: NotLoadedJavaType, annotation: AnnotationNode) {
+  override fun transformType(javaType: NotLoadedJavaType, annotation: AnnotationNode, node: CstNode) {
     for (t in transformations) {
-      if (shouldApply(t, annotation)) t.transformType(javaType, annotation)
+      if (shouldApply(t, annotation)) t.transformType(javaType, annotation, node)
     }
   }
 
-  override fun transform(node: AstNode, annotation: AnnotationNode) {
+  override fun transform(node: AstNode, classNode: ClassNode, annotation: AnnotationNode) {
     for (t in transformations) {
-      if (shouldApply(t, annotation)) t.transform(node, annotation)
+      if (shouldApply(t, annotation)) t.transform(node, classNode, annotation)
     }
   }
 

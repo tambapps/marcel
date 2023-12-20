@@ -1,7 +1,9 @@
 package com.tambapps.marcel.semantic.transform
 
+import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.ast.Annotable
 import com.tambapps.marcel.semantic.ast.AnnotationNode
+import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
@@ -22,14 +24,14 @@ class ComparableAstTransformation: GenerateMethodAstTransformation() {
     javaType.addImplementedInterface(java.lang.Comparable::class.javaType)
   }
 
-  override fun generateSignatures(javaType: NotLoadedJavaType, annotation: AnnotationNode): List<JavaMethod> {
+  override fun generateSignatures(node: CstNode, javaType: NotLoadedJavaType, annotation: AnnotationNode): List<JavaMethod> {
     return listOf(
       signature(name = "compareTo", parameters = listOf(parameter(type = JavaType.Object, "obj")), returnType = JavaType.int),
       signature(name = "compareTo", parameters = listOf(parameter(type = javaType, "other")), returnType = JavaType.int)
     )
   }
 
-  override fun generateMethodNodes(classNode: ClassNode, annotation: AnnotationNode): List<MethodNode> {
+  override fun generateMethodNodes(node: AstNode, classNode: ClassNode, annotation: AnnotationNode): List<MethodNode> {
     val compareTo = methodNode(
       name = "compareTo",
       parameters = listOf(parameter(type = classNode.type, "other")),

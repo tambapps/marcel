@@ -164,6 +164,9 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
     private val statements: MutableList<StatementNode>
   ) {
 
+    fun addAllStmt(statements: List<StatementNode>) = this.statements.addAll(statements)
+    fun addStmt(statement: StatementNode) = this.statements.add(statement)
+
     fun stmt(expr: ExpressionNode, add: Boolean = true): StatementNode {
       val statement = ExpressionStatementNode(expr)
       if (add) statements.add(statement)

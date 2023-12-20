@@ -1,5 +1,6 @@
 package com.tambapps.marcel.compiler.transform
 
+import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.AnnotationNode as AnnotationCstNode
 import com.tambapps.marcel.parser.cst.ClassNode as ClassCstNode
 import com.tambapps.marcel.semantic.MarcelSemantic
@@ -35,25 +36,25 @@ class AstTransformer(
   }
 
   private fun applyTransformations(classNode: ClassNode) {
-    classNode.annotations.forEach { annotationNode -> applyTransformations(classNode, annotationNode) }
+    classNode.annotations.forEach { annotationNode -> applyTransformations(classNode, classNode, annotationNode) }
 
-    for (fieldNode in classNode.fields) {
-      fieldNode.annotations.forEach { annotationNode -> applyTransformations(fieldNode, annotationNode) }
+    for (fieldNode in classNode.fields.toList()) { // copying to avoid concurrent modifications
+      fieldNode.annotations.forEach { annotationNode -> applyTransformations(fieldNode, classNode, annotationNode) }
     }
 
-    for (methodNode in classNode.methods) {
-      methodNode.annotations.forEach { annotationNode -> applyTransformations(methodNode, annotationNode) }
+    for (methodNode in classNode.methods.toList()) { // copying to avoid concurrent modifications
+      methodNode.annotations.forEach { annotationNode -> applyTransformations(methodNode, classNode, annotationNode) }
     }
 
-    for (innerClass in classNode.innerClasses) {
+    for (innerClass in classNode.innerClasses.toList()) { // copying to avoid concurrent modifications
       applyTransformations(innerClass)
     }
   }
 
-  private fun applyTransformations(node: AstNode, annotation: AnnotationNode) {
+  private fun applyTransformations(node: AstNode, classNode: ClassNode, annotation: AnnotationNode) {
     map[annotation.type]?.forEach { transformation ->
       try {
-        transformation.transform(node, annotation)
+        transformation.transform(node, classNode, annotation)
       } catch (e: Exception) {
         if (e !is MarcelSemanticException) System.err.println("Error while applying AST transformation ${transformation.javaClass} from annotation ${annotation.type}")
         throw e
@@ -63,17 +64,18 @@ class AstTransformer(
 
   private fun doLoadTransformations(semantic: MarcelSemantic, classNode: ClassCstNode) {
     val javaType = typeResolver.of(classNode.className) as NotLoadedJavaType
-    loadFromAnnotations(semantic, ElementType.TYPE, javaType, classNode.annotations)
+    loadFromAnnotations(semantic, classNode, ElementType.TYPE, javaType, classNode.annotations)
     classNode.fields.forEach { fieldNode ->
-      loadFromAnnotations(semantic, ElementType.FIELD, javaType, fieldNode.annotations)
+      loadFromAnnotations(semantic, fieldNode, ElementType.FIELD, javaType, fieldNode.annotations)
     }
     classNode.methods.forEach { methodNode ->
-      loadFromAnnotations(semantic, ElementType.METHOD, javaType, methodNode.annotations)
+      loadFromAnnotations(semantic, methodNode, ElementType.METHOD, javaType, methodNode.annotations)
     }
     classNode.innerClasses.forEach { doLoadTransformations(semantic, it) }
   }
 
   private fun loadFromAnnotations(semantic: MarcelSemantic,
+                                  node: CstNode,
                                   elementType: ElementType,
                                   classType: NotLoadedJavaType, annotations: List<AnnotationCstNode>) {
     annotations.asSequence()
@@ -86,7 +88,7 @@ class AstTransformer(
           transformations.forEach { transformation ->
             transformation.init(typeResolver)
             try {
-              transformation.transformType(classType, annotation)
+              transformation.transformType(classType, annotation, node)
             } catch (e: Exception) {
               if (e !is MarcelSemanticException) System.err.println("Error while applying AST transformation ${transformation.javaClass} from annotation ${annotation.type}")
               throw e

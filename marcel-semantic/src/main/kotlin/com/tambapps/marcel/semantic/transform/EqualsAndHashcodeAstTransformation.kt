@@ -1,7 +1,9 @@
 package com.tambapps.marcel.semantic.transform
 
+import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.ast.Annotable
 import com.tambapps.marcel.semantic.ast.AnnotationNode
+import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.MethodNode
@@ -21,14 +23,14 @@ import java.util.Arrays
  */
 class EqualsAndHashcodeAstTransformation: GenerateMethodAstTransformation() {
 
-  override fun generateSignatures(javaType: NotLoadedJavaType, annotation: AnnotationNode): List<JavaMethod> {
+  override fun generateSignatures(node: CstNode, javaType: NotLoadedJavaType, annotation: AnnotationNode): List<JavaMethod> {
     return listOf(
       signature(name = "equals", parameters = listOf(parameter(JavaType.Object, "obj")), returnType = JavaType.boolean),
       signature(name = "hashCode", returnType = JavaType.int)
     )
   }
 
-  override fun generateMethodNodes(classNode: ClassNode, annotation: AnnotationNode): List<MethodNode> {
+  override fun generateMethodNodes(node: AstNode, classNode: ClassNode, annotation: AnnotationNode): List<MethodNode> {
     val fields = classNode.fields.filter { !isAnnotableExcluded(it) && !it.isStatic }
     val equalsMethod = methodNode(
       ownerClass = classNode.type, name = "equals",

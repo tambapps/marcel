@@ -1,8 +1,9 @@
 package com.tambapps.marcel.semantic.transform
 
-import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.ast.Annotable
 import com.tambapps.marcel.semantic.ast.AnnotationNode
+import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
@@ -19,11 +20,11 @@ import java.util.Arrays
  */
 class StringifyAstTransformation: GenerateMethodAstTransformation() {
 
-  override fun generateSignatures(javaType: NotLoadedJavaType, annotation: AnnotationNode) = listOf(
+  override fun generateSignatures(node: CstNode, javaType: NotLoadedJavaType, annotation: AnnotationNode) = listOf(
     signature(name = "toString", returnType = JavaType.String)
   )
 
-  override fun generateMethodNodes(classNode: ClassNode, annotation: AnnotationNode): List<MethodNode> {
+  override fun generateMethodNodes(node: AstNode, classNode: ClassNode, annotation: AnnotationNode): List<MethodNode> {
     val stringParts = mutableListOf<ExpressionNode>(
       string(classNode.type.simpleName + "(")
     )
