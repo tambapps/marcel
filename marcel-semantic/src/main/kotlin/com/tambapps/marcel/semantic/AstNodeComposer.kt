@@ -137,6 +137,9 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
     )
   }
 
+  // 0 is outer, 1 is outer of outer, and so on...
+  protected fun outerRef(level: Int = 0) = ref(currentMethodScope.findField("this$$level")!!)
+
   protected fun cast(expr: ExpressionNode, type: JavaType): ExpressionNode = caster.cast(type, expr)
 
   protected fun ref(methodParameter: MethodParameter) = ReferenceNode(owner = null,
