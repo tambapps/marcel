@@ -143,9 +143,9 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="cached"><a class="header" href="#cached">@cached</a></h1>
-<p>This annotation allows to cache results of a method in order to having to compute multiple times the value for a same input.
-It will generate a cache and make the annotated method use this cache. </p>
-<p>If the value for the given input is in the cache, we just return it from the cache. If it isn't in it, we compute the value, put
+<p>This annotation allows to cache results of a method in order to prevent having to compute multiple times the result for a same input.
+It will generate a cache and make the annotated method use this cache. The cache key is produced with the method parameter(s).</p>
+<p>If the value for the given input (method parameters) is in the cache, we just return it from the cache. If it isn't in it, we compute the value, put
 it in the cache and then return it.</p>
 <p>A perfect example is a recursive implementation of the fibonacci suite. With high numbers, we may compute multiple times the value
 for a same input, making the operation really long. That's where <code>@cached</code> comes to save the day. No value for a same input will be computed more than once, this
