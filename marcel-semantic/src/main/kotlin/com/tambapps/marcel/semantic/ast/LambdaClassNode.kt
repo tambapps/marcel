@@ -15,7 +15,7 @@ class LambdaClassNode(
   cstNode: LambdaNode,
   val lambdaMethodParameters: List<MethodParameter>,
   val localVariablesSnapshot: List<LocalVariable>
-) : ClassNode(type, Visibility.PUBLIC, null, isStatic = isStatic, isScript = false, cstNode.tokenStart, cstNode.tokenEnd) {
+) : ClassNode(type, Visibility.INTERNAL, null, isStatic = isStatic, isScript = false, cstNode.tokenStart, cstNode.tokenEnd) {
 
   data class MethodParameter(val type: JavaType?, val name: String)
 
