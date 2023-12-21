@@ -17,5 +17,4 @@ abstract class AbstractAstTransformation : AstNodeComposer(), AstTransformation 
     this.caster = AstNodeCaster(typeResolver)
   }
 
-
 }

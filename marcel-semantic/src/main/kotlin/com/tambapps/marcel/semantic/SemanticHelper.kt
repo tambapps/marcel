@@ -11,6 +11,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
+import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
@@ -117,4 +118,14 @@ object SemanticHelper {
     }
   }
 
+  // add the statement last, but before the return instruction if any
+  fun addStatementLast(statement: StatementNode, block: BlockStatementNode) {
+    addStatementLast(statement, block.statements)
+  }
+
+  private fun addStatementLast(statement: StatementNode, statements: MutableList<StatementNode>) {
+    if (statements.last() is ReturnStatementNode) {
+      statements.add(statements.lastIndex, statement)
+    } else statements.add(statement)
+  }
 }

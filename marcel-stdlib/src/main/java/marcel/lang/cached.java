@@ -13,4 +13,10 @@ import static java.lang.annotation.ElementType.METHOD;
 @Target(value={METHOD})
 @MarcelAstTransformationClass("com.tambapps.marcel.semantic.transform.CachedAstTransformation")
 public @interface cached {
+
+  /**
+   * Whether the caching mechanism should be thread-safe or not
+   * @return whether the caching mechanism should be thread-safe or not
+   */
+  boolean threadSafe() default false;
 }

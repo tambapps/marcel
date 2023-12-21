@@ -2,9 +2,13 @@ package com.tambapps.marcel.semantic
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.ast.AnnotationNode
+import com.tambapps.marcel.semantic.ast.ClassNode
+import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
+import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
+import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.StringNode
 import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
@@ -89,6 +93,36 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
     return methodNode
   }
 
+  protected fun addStatements(methodNode: MethodNode, statementsSupplier: StatementsComposer.() -> Unit): MethodNode {
+    val statements = methodNode.blockStatement.statements
+    useScope(MethodScope(ClassScope(typeResolver, methodNode.ownerClass, null, emptyList()), methodNode)) {
+      val statementComposer = StatementsComposer(statements)
+      statementsSupplier.invoke(statementComposer) // it will directly add the statements on the method's statements
+    }
+
+    if (!AllPathsReturnVisitor.test(statements) && methodNode.returnType == JavaType.void) {
+      statements.add(SemanticHelper.returnVoid(methodNode))
+    }
+    return methodNode
+  }
+
+  protected fun addField(classNode: ClassNode, fieldNode: FieldNode, defaultValue: ExpressionNode? = null) {
+    classNode.fields.add(fieldNode)
+    if (defaultValue != null) {
+      classNode.constructors.forEach {
+        SemanticHelper.addStatementLast(ExpressionStatementNode(varAssignExpr(fieldNode, defaultValue, thisRef())), it.blockStatement)
+     }
+    }
+  }
+
+  protected fun fieldNode(type: JavaType, name: String, owner: JavaType = currentScope.classType,
+                          annotations: List<AnnotationNode> = emptyList(),
+                          visibility: Visibility = Visibility.PRIVATE,
+                          isFinal: Boolean = false,
+                          isStatic: Boolean = false): FieldNode {
+    return FieldNode(type, name, owner, annotations, isFinal, visibility, isStatic, LexToken.DUMMY, LexToken.DUMMY)
+  }
+
   protected fun returnStatement(expr: ExpressionNode, methodReturnType: JavaType): StatementNode {
     return ReturnStatementNode(
       caster.cast(methodReturnType, expr)
@@ -128,6 +162,9 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
     return fCall(LexToken.DUMMY, LexToken.DUMMY, method, arguments, null, castType)
   }
 
+  protected fun constructorCall(method: JavaMethod, arguments: List<ExpressionNode>): NewInstanceNode {
+    return NewInstanceNode(method.ownerClass, method, castedArguments(method, arguments), LexToken.DUMMY)
+  }
   protected fun thisRef() = ThisReferenceNode(currentScope.classType, LexToken.DUMMY)
 
   protected fun bool(b: Boolean) = BoolConstantNode(LexToken.DUMMY, b)

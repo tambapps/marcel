@@ -1,16 +1,20 @@
 package com.tambapps.marcel.semantic.transform
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
+import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.exception.MarcelAstTransformationException
+import com.tambapps.marcel.semantic.extensions.javaType
 
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.NotLoadedJavaType
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * AST Transformations caching results of the annotated method
@@ -34,7 +38,39 @@ class CachedAstTransformation: GenerateMethodAstTransformation() {
       addAllStmt(originalMethod.blockStatement.statements)
     }
 
-    // TODO modify the original method
+    val threadSafe = annotation.getAttribute("threadSafe")?.value == true
+    val cacheField = fieldNode(Map::class.javaType, "_cache")
+    addField(classNode, cacheField, constructorCall(method = typeResolver.findMethodOrThrow(
+      if (threadSafe) ConcurrentHashMap::class.javaType
+      else HashMap::class.javaType
+      , JavaMethod.CONSTRUCTOR_NAME, emptyList()), arguments = emptyList()))
+
+
+    originalMethod.blockStatement.statements.clear()
+    addStatements(originalMethod) {
+      if (originalMethod.parameters.size == 1) {
+        val cacheKeyRef = argRef(0)
+        if (threadSafe) {
+
+          returnStmt(fCall(
+            owner = ref(cacheField),
+            name = "computeIfAbsent",
+            arguments = listOf(caster.cast(JavaType.Object, cacheKeyRef))))
+          TODO()
+        } else {
+          ifStmt(notExpr(fCall(owner = ref(cacheField), name = "containsKey", arguments = listOf(caster.cast(JavaType.Object, cacheKeyRef))))) {
+            stmt(fCall(owner = ref(cacheField), name = "put",
+              arguments = listOf(
+                caster.cast(JavaType.Object, cacheKeyRef),
+                caster.cast(JavaType.Object, fCall(owner = thisRef(), method = doComputeMethod, arguments = listOf(cacheKeyRef)))
+              )))
+          }
+          returnStmt(fCall(owner = ref(cacheField), name = "get", arguments = listOf(caster.cast(JavaType.Object, cacheKeyRef))))
+        }
+      } else {
+        TODO("handle multi parameters")
+      }
+    }
     return listOf(doComputeMethod)
   }
 }
