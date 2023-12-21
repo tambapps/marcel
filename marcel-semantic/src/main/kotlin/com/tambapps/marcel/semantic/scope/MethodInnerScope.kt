@@ -3,9 +3,9 @@ package com.tambapps.marcel.semantic.scope
 import com.tambapps.marcel.semantic.variable.LocalVariable
 
 /**
- * A inner scope inside a method. E.g. in a if/else, in a switch, ...
+ * An inner scope inside a method. E.g. in a if/else, in a switch, ...
  */
-class MethodInnerScope(
+open class MethodInnerScope(
   parentScope: MethodScope,
   isInLoop: Boolean = false,
 ) : MethodScope(parentScope, parentScope.method, parentScope.typeResolver, parentScope.classType,

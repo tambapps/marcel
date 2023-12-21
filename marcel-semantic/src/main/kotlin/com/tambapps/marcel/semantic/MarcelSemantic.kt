@@ -75,7 +75,6 @@ import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.DupNode
 import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
-import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.GetAtFunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
@@ -132,7 +131,6 @@ import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ThrowNode
 import com.tambapps.marcel.semantic.ast.statement.TryCatchNode
 import com.tambapps.marcel.semantic.ast.statement.WhileNode
-import com.tambapps.marcel.semantic.check.ClassNodeChecks
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
@@ -141,6 +139,7 @@ import com.tambapps.marcel.semantic.method.JavaConstructorImpl
 import com.tambapps.marcel.semantic.method.JavaMethodImpl
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
+import com.tambapps.marcel.semantic.scope.CatchBlockScope
 import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.ImportScope
 import com.tambapps.marcel.semantic.scope.LambdaMethodScope
@@ -162,7 +161,6 @@ import com.tambapps.marcel.semantic.visitor.ReturningBranchTransformer
 import com.tambapps.marcel.semantic.visitor.ReturningWhenIfBranchTransformer
 import marcel.lang.IntRanges
 import marcel.lang.LongRanges
-import marcel.lang.Script
 import marcel.lang.compile.BooleanDefaultValue
 import marcel.lang.compile.CharacterDefaultValue
 import marcel.lang.compile.DoubleDefaultValue
@@ -182,7 +180,6 @@ import marcel.lang.runtime.BytecodeHelper
 import marcel.lang.util.CharSequenceIterator
 import java.io.Closeable
 import java.lang.annotation.ElementType
-import java.util.LinkedList
 import java.util.Optional
 import java.util.OptionalDouble
 import java.util.OptionalInt
@@ -1832,7 +1829,7 @@ open class MarcelSemantic(
     }
 
     // handle resources first, as they need to be declared
-    val resourceVars = node.resources.map {
+    val resourceVarDecls = node.resources.map {
       val resourceType = visit(it.type)
       if (!resourceType.implements(Closeable::class.javaType)) {
         throw MarcelSemanticException(node, "Try resources need to implement Closeable")
@@ -1844,11 +1841,13 @@ open class MarcelSemantic(
         caster.cast(resourceType.type, it.expressionNode!!.accept(this, resourceType.type)),
         it.tokenStart, it.tokenEnd)
     }
+    val resourceVarNames = resourceVarDecls.asSequence()
+      .map { it.variable.name }
+      .toSet()
 
     // handle try block
     val tryBlock = useInnerScope { node.tryNode.accept(this) }
 
-    // TODO resources should not be accessible in catch and finally block, but they neither shouldn"t be removed from scope
     // handle catch blocks
     val catchNodes = node.catchNodes.map { triple ->
       val throwableTypes = triple.first.map(this::visit)
@@ -1858,7 +1857,7 @@ open class MarcelSemantic(
         throw MarcelSemanticException(node.token, "Need to catch at least one exception")
       }
 
-      val (throwableVar, catchStatement) = useInnerScope { catchScope ->
+      val (throwableVar, catchStatement) = useScope(CatchBlockScope(resourcesScope, resourceVarNames)) { catchScope ->
         val v = catchScope.addLocalVariable(JavaType.commonType(throwableTypes), triple.second)
         Pair(v, triple.third.accept(this))
       }
@@ -1867,11 +1866,11 @@ open class MarcelSemantic(
 
     // handle finally block
     val finallyNode = if (node.finallyNode == null && node.resources.isEmpty()) null
-    else useInnerScope { finallyScope ->
+    else useScope(CatchBlockScope(resourcesScope, resourceVarNames)) { finallyScope ->
       val finallyBlock = BlockStatementNode(mutableListOf(), node.finallyNode?.tokenStart ?: node.tokenStart,
         node.finallyNode?.tokenEnd ?: node.tokenEnd)
       // dispose the resources first, if any
-      resourceVars.forEach { resourceVarDecl ->
+      resourceVarDecls.forEach { resourceVarDecl ->
         val resourceRef = ReferenceNode(variable = resourceVarDecl.variable, token = node.token)
         finallyBlock.statements.add(
           IfStatementNode(IsNotEqualNode(resourceRef, NullValueNode(node.token)),
@@ -1887,11 +1886,12 @@ open class MarcelSemantic(
     }
 
     val tryCatchNode = TryCatchNode(node, tryBlock, catchNodes, finallyNode)
-    return if (resourceVars.isEmpty()) tryCatchNode
+
+    if (resourceVarDecls.isEmpty()) tryCatchNode
     else {
       // initialize the resources first
       val statements = mutableListOf<StatementNode>()
-      resourceVars.forEach { resourceVarDecl ->
+      resourceVarDecls.forEach { resourceVarDecl ->
         statements.add(ExpressionStatementNode(resourceVarDecl))
       }
       // then process the actual try/catch block
