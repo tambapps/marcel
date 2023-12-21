@@ -411,36 +411,6 @@ open class MarcelSemantic(
     return classNode
   }
 
-  private fun generateOutClassFields(classType: JavaType, classNode: ClassNode): List<FieldNode> {
-    val fields = mutableListOf<FieldNode>()
-    if (!classNode.isStatic && classType.outerTypeName != null) {
-      // java generates fields to reference outer class(es) from inner class. So does marcel.
-      var outerLevel = 0
-      var levelType: JavaType? = classType.outerTypeName?.let { typeResolver.of(classNode.token, it) }
-      while (levelType != null) {
-        val outerFieldName = "this$$outerLevel"
-        val fieldNode = FieldNode(
-          type = levelType,
-          name = outerFieldName,
-          owner = classNode.type,
-          annotations = emptyList(),
-          isFinal = true,
-          visibility = Visibility.INTERNAL,
-          isStatic = false,
-          isSynthetic = true,
-          tokenStart = classNode.tokenStart,
-          tokenEnd = classNode.tokenEnd
-        )
-        fields.add(fieldNode)
-        classNode.fields.add(fieldNode)
-        typeResolver.defineField(classType, fieldNode)
-
-        outerLevel++
-        levelType = levelType.outerTypeName?.let { typeResolver.of(classNode.token, it, emptyList()) }
-      }
-    }
-    return fields
-  }
   private fun toFieldAssignmentStatements(classType: JavaType, map: Map<FieldNode, ExpressionNode>, isStaticContext: Boolean): List<ExpressionStatementNode> {
     return map.map { entry ->
       val field = entry.key
@@ -1151,26 +1121,6 @@ open class MarcelSemantic(
     } else Pair(field, null)
   }
 
-  // -1 means self, 0 means outer, 1 means outer.outer and so on
-  // this is in order to be coherent with this$0 which corresponds to the outer, and so on
-  private fun outerLevel(token: LexToken, innerClass: JavaType, outerClass: JavaType): Pair<Int, JavaType>? {
-    var outerLevel = -1
-    var levelType: JavaType? = innerClass
-    while (levelType != null && !outerClass.isAssignableFrom(levelType)) {
-      outerLevel++
-      levelType = levelType.outerTypeName?.let { typeResolver.of(token, it, emptyList()) }
-    }
-    return if (levelType == null) null
-    else Pair(outerLevel, levelType)
-  }
-
-  // get the reference to pass to an inner class constructor for the provided outerLevel
-  private fun getInnerOuterReference(token: LexToken, outerLevel: Int): ExpressionNode? {
-    val thisNode = ThisReferenceNode(currentScope.classType, token)
-    return if (outerLevel == 0) thisNode
-    else currentScope.findField("this$${outerLevel - 1}")?.let { ReferenceNode(owner = thisNode, variable = it, token = token) }
-  }
-
   override fun visit(node: FunctionCallCstNode, smartCastType: JavaType?): ExpressionNode {
     val currentScopeType = currentScope.classType
     val positionalArguments = node.positionalArgumentNodes.map { it.accept(this) }
@@ -1406,10 +1356,7 @@ open class MarcelSemantic(
     // search for already generated lambdaNode if not empty
     val lambdaOuterClassNode = getCurrentClassNode() ?: throw MarcelSemanticException(node.token, "Cannot use lambdas in such context")
 
-    val lambdaClassName = (
-        if (currentMethodScope.method.isConstructor) "init"
-        else currentMethodScope.method.name
-        ) + "_lambda" + (lambdaOuterClassNode.innerClasses.count { it is LambdaClassNode } + 1)
+    val lambdaClassName = generateLambdaClassName(lambdaOuterClassNode)
     val alreadyExistingLambdaNode = lambdaOuterClassNode.innerClasses
       .find { it.type.simpleName == lambdaClassName } as? LambdaClassNode
 
@@ -1423,7 +1370,6 @@ open class MarcelSemantic(
     val lambdaImplementedInterfaces = listOf(Lambda::class.javaType)
     val lambdaType = typeResolver.defineClass(node.token, Visibility.INTERNAL, lambdaOuterClassNode.type, lambdaClassName, JavaType.Object, false, lambdaImplementedInterfaces)
 
-    val lambdaConstructorParameters = mutableListOf<MethodParameter>()
     val lambdaConstructor = MethodNode(
       name = JavaMethod.CONSTRUCTOR_NAME,
       visibility = Visibility.INTERNAL,
@@ -1431,7 +1377,7 @@ open class MarcelSemantic(
       isStatic = false,
       tokenStart = node.tokenStart,
       tokenEnd = node.tokenEnd,
-      parameters = lambdaConstructorParameters,
+      parameters = mutableListOf(),
       ownerClass = lambdaType
     )
 
@@ -1446,28 +1392,7 @@ open class MarcelSemantic(
 
 
     // handling inner class fields if any
-    val outerClassFields = generateOutClassFields(lambdaType, lambdaNode)
-    for (i in outerClassFields.indices) {
-      // if we're here we know the context is not static as the above method only generates fields if it is not static
-      val outerClassField = outerClassFields[i]
-      // adding at the beginning
-      lambdaConstructorParameters.add(i, MethodParameter(outerClassField.type, outerClassField.name))
-      val (outerLevel, _) = outerLevel(node.token, lambdaType, outerClassField.type)
-        ?: throw MarcelSemanticException(node.token, "Lambda cannot be generated in this context")
-
-      val argument = getInnerOuterReference(node.token, outerLevel)
-        ?: throw MarcelSemanticException(node.token, "Lambda cannot be generated in this context")
-      lambdaNode.constructorArguments.add(i, argument)
-      lambdaConstructor.blockStatement.statements.add(i + 1, // +1 because first statement should be super call
-        ExpressionStatementNode(
-          VariableAssignmentNode(
-            owner = ThisReferenceNode(lambdaNode.type, lambdaNode.token),
-            variable = outerClassField,
-            expression = ReferenceNode(variable = LocalVariable(outerClassField.type, outerClassField.name, nbSlots = 1, index = i + 1, isFinal = false),  token = node.token),
-            node = node
-          )
-        ))
-    }
+    handleLambdaInnerClassFields(lambdaNode, lambdaConstructor, lambdaNode.constructorArguments, node.token)
 
     lambdaOuterClassNode.innerClasses.add(lambdaNode)
 

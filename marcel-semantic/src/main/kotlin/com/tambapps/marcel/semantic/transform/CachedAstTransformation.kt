@@ -33,7 +33,7 @@ class CachedAstTransformation: GenerateMethodAstTransformation() {
     if (originalMethod.parameters.isEmpty()) throw MarcelAstTransformationException(this, node.token, "Cannot cache methods with no parameters")
     val newMethodName = "do" + originalMethod.name.first().uppercase() + originalMethod.name.substring(1)
 
-    val doComputeMethod = methodNode(visibility = Visibility.PRIVATE, name = newMethodName, parameters = originalMethod.parameters, returnType = originalMethod.returnType) {
+    val doComputeMethod = methodNode(visibility = Visibility.INTERNAL, name = newMethodName, parameters = originalMethod.parameters, returnType = originalMethod.returnType) {
       addAllStmt(originalMethod.blockStatement.statements)
     }
 
@@ -45,21 +45,32 @@ class CachedAstTransformation: GenerateMethodAstTransformation() {
       , JavaMethod.CONSTRUCTOR_NAME, emptyList()), arguments = emptyList()))
 
 
+    // rewrite the original method
     originalMethod.blockStatement.statements.clear()
     addStatements(originalMethod) {
-      val cacheKeyRef = if (originalMethod.parameters.size == 1) argRef(0)
-      else  {
+      val isMultiParams = originalMethod.parameters.size > 1
+      val cacheKeyRef = if (!isMultiParams) argRef(0)
+      else {
         val lv = currentMethodScope.addLocalVariable(List::class.javaType)
         varAssignStmt(lv, cast(array(originalMethod.parameters.map { cast(ref(it), JavaType.Object) }, JavaType.objectArray), List::class.javaType))
         ref(lv)
       }
       val cacheKeyObjectRef = cast(cacheKeyRef, JavaType.Object)
       if (threadSafe) {
+        val ciaLambda = newLambda(classNode,
+          parameters = listOf(parameter(cacheKeyObjectRef.type, "param")),
+          returnType = cacheKeyObjectRef.type,
+          interfaceType = java.util.function.Function::class.javaType,
+        ) {
+          val doComputeMethodCall = if (isMultiParams) TODO()
+          // TODO need to be able to lookup method of outer classes in AstNodeComposer
+          else fCall(owner = ref(currentMethodScope.findField("this$0")!!), method = doComputeMethod, arguments = listOf(cast(argRef(0), cacheKeyRef.type)))
+          returnStmt(doComputeMethodCall)
+        }
         returnStmt(fCall(
           owner = ref(cacheField),
           name = "computeIfAbsent",
-          arguments = listOf(cacheKeyObjectRef)))
-        TODO()
+          arguments = listOf(cacheKeyObjectRef, ciaLambda)))
       } else {
         ifStmt(notExpr(fCall(owner = ref(cacheField), name = "containsKey", arguments = listOf(cacheKeyObjectRef)))) {
           stmt(fCall(owner = ref(cacheField), name = "put",
