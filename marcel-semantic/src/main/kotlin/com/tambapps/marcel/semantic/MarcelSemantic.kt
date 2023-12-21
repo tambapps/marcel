@@ -1638,7 +1638,7 @@ open class MarcelSemantic(
   private fun generateOrGetWhenMethod(parameters: MutableList<MethodParameter>, returnType: JavaType, node: CstNode): MethodNode {
     val classType = currentScope.classType
     val classNode = classNodeMap.getValue(classType)
-    val methodName = currentMethodScope.method.name + "\$when_" + node.hashCode().toString().replace('-', '0')
+    val methodName = currentMethodScope.method.name + "__when_" + node.hashCode().toString().replace('-', '0')
     val existingMethodNode = classNode.methods.find { it.name == methodName }
     /// we don't want to define the same mehod twice, so we find it if we already registered it
     if (existingMethodNode != null) return existingMethodNode
