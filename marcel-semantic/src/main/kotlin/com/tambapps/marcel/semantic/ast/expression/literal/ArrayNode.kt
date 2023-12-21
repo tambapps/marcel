@@ -1,5 +1,6 @@
 package com.tambapps.marcel.semantic.ast.expression.literal
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
@@ -7,12 +8,19 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.type.JavaArrayType
 import com.tambapps.marcel.semantic.type.JavaType
 
-class ArrayNode(
+class ArrayNode constructor(
   val elements: MutableList<ExpressionNode>,
-  node: CstNode,
+  tokenStart: LexToken,
+  tokenEnd: LexToken,
   var _type: JavaArrayType? = null
   // don't care about type passed to parent. we will override it anyway
-) : AbstractExpressionNode(JavaType.Object, node) {
+) : AbstractExpressionNode(JavaType.Object, tokenStart, tokenEnd) {
+
+  constructor(
+    elements: MutableList<ExpressionNode>,
+    node: CstNode,
+    _type: JavaArrayType? = null
+  ): this(elements, node.tokenStart, node.tokenEnd, _type)
 
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) = visitor.visit(this)
 

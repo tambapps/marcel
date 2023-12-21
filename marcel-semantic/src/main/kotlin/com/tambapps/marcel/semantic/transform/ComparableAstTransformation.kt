@@ -64,7 +64,7 @@ class ComparableAstTransformation: GenerateMethodAstTransformation() {
       name = "compareTo",
       parameters = listOf(parameter(type = JavaType.Object, "obj")),
       returnType = JavaType.int) {
-      returnStmt(fCall(owner = thisRef(), method = compareTo, arguments = listOf(caster.cast(classNode.type, argRef(0)))))
+      returnStmt(fCall(owner = thisRef(), method = compareTo, arguments = listOf(cast(argRef(0), classNode.type))))
     }
     return listOf(compareToObject, compareTo)
   }

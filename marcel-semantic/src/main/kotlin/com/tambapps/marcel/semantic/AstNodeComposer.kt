@@ -13,6 +13,7 @@ import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.StringNode
 import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
@@ -35,6 +36,7 @@ import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.MethodScope
 import com.tambapps.marcel.semantic.type.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
+import com.tambapps.marcel.semantic.type.JavaArrayType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.Variable
@@ -139,11 +141,18 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
     )
   }
 
+  protected fun cast(expr: ExpressionNode, type: JavaType): ExpressionNode = caster.cast(type, expr)
+  protected fun ref(methodParameter: MethodParameter) = ReferenceNode(owner = null,
+    variable = currentMethodScope.findLocalVariable(methodParameter.name)!!, token = LexToken.DUMMY)
   protected fun ref(lv: LocalVariable) = ReferenceNode(owner = null, variable = lv, token = LexToken.DUMMY)
 
   protected fun string(value: String) = StringConstantNode(value, LexToken.DUMMY, LexToken.DUMMY)
   protected fun string(parts: List<ExpressionNode>) = StringNode(parts, LexToken.DUMMY, LexToken.DUMMY)
 
+  protected fun array(elements: List<ExpressionNode>, asType: JavaArrayType): ArrayNode {
+    return ArrayNode(if (elements is MutableList) elements else elements.toMutableList(),
+      LexToken.DUMMY, LexToken.DUMMY, asType)
+  }
   protected fun fCall(name: String, arguments: List<ExpressionNode>,
                       owner: ExpressionNode,
                       castType: JavaType? = null): ExpressionNode {

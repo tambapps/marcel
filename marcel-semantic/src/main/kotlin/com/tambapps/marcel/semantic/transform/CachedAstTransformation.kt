@@ -6,7 +6,6 @@ import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
-import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.exception.MarcelAstTransformationException
 import com.tambapps.marcel.semantic.extensions.javaType
@@ -48,27 +47,28 @@ class CachedAstTransformation: GenerateMethodAstTransformation() {
 
     originalMethod.blockStatement.statements.clear()
     addStatements(originalMethod) {
-      if (originalMethod.parameters.size == 1) {
-        val cacheKeyRef = argRef(0)
-        if (threadSafe) {
-
-          returnStmt(fCall(
-            owner = ref(cacheField),
-            name = "computeIfAbsent",
-            arguments = listOf(caster.cast(JavaType.Object, cacheKeyRef))))
-          TODO()
-        } else {
-          ifStmt(notExpr(fCall(owner = ref(cacheField), name = "containsKey", arguments = listOf(caster.cast(JavaType.Object, cacheKeyRef))))) {
-            stmt(fCall(owner = ref(cacheField), name = "put",
-              arguments = listOf(
-                caster.cast(JavaType.Object, cacheKeyRef),
-                caster.cast(JavaType.Object, fCall(owner = thisRef(), method = doComputeMethod, arguments = listOf(cacheKeyRef)))
-              )))
-          }
-          returnStmt(fCall(owner = ref(cacheField), name = "get", arguments = listOf(caster.cast(JavaType.Object, cacheKeyRef))))
-        }
+      val cacheKeyRef = if (originalMethod.parameters.size == 1) argRef(0)
+      else  {
+        val lv = currentMethodScope.addLocalVariable(List::class.javaType)
+        varAssignStmt(lv, cast(array(originalMethod.parameters.map { cast(ref(it), JavaType.Object) }, JavaType.objectArray), List::class.javaType))
+        ref(lv)
+      }
+      val cacheKeyObjectRef = cast(cacheKeyRef, JavaType.Object)
+      if (threadSafe) {
+        returnStmt(fCall(
+          owner = ref(cacheField),
+          name = "computeIfAbsent",
+          arguments = listOf(cacheKeyObjectRef)))
+        TODO()
       } else {
-        TODO("handle multi parameters")
+        ifStmt(notExpr(fCall(owner = ref(cacheField), name = "containsKey", arguments = listOf(cacheKeyObjectRef)))) {
+          stmt(fCall(owner = ref(cacheField), name = "put",
+            arguments = listOf(
+              cacheKeyObjectRef,
+              cast(fCall(owner = thisRef(), method = doComputeMethod, arguments = originalMethod.parameters.map { ref(it) }), JavaType.Object)
+            )))
+        }
+        returnStmt(fCall(owner = ref(cacheField), name = "get", arguments = listOf(cacheKeyObjectRef)))
       }
     }
     return listOf(doComputeMethod)
