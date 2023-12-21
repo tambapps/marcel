@@ -14,16 +14,14 @@ fun int fibonacci(int n) {
 ```
 
 But this implementation takes a lot of time when using large `n` values. A way to solve this problem would be to cache
-fibonnaci's results, which can be done using the `@Cached` annotation (Not Yet Implemented)
+fibonnaci's results, which can be done using the [@cached annotation](../metaprogramming/meta-annotations/cached.md)
 
 ```marcel
 println(fibonacci(10))
 
-@Cached
-fun int fibonacci(int n) {
-  return switch (n) {
-    0, 1 -> n
-    else -> fibonacci(n - 1) + fibonacci(n - 2)
-  }
+@cached
+fun int fibonacci(int n) -> switch (n) {
+  0, 1 -> n
+  else -> fibonacci(n - 1) + fibonacci(n - 2)
 }
 ```

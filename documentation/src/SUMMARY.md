@@ -49,6 +49,7 @@
     - [@stringify](metaprogramming/meta-annotations/stringify.md)
     - [@comparable](metaprogramming/meta-annotations/comparable.md)
     - [@data](metaprogramming/meta-annotations/data.md)
+    - [@cached](metaprogramming/meta-annotations/cached.md)
 - [Guides](./guides/index.md)
   - [Collections](./guides/collections.md)
   - [Regular Expressions](./guides/regular-expressions.md)
