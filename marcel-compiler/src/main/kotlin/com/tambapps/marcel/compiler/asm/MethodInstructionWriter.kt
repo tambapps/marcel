@@ -231,7 +231,7 @@ class MethodInstructionWriter(
   }
 
   private fun tryCatchFinally(node: TryCatchNode) {
-    // bytecode looks weird but it seems to work
+    // TODO bytecode looks weird but it seems to work
     val tryStart = Label()
     val tryEnd = Label()
     val finallyLabel = Label()
