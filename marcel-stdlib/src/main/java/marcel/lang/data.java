@@ -20,11 +20,28 @@ public @interface data {
   @Target({ElementType.FIELD, ElementType.METHOD})
   @interface Exclude { }
 
-  boolean comparable() default false;
+  /**
+   * Whether the class should also be {@link stringify}
+   * @return whether the class should also be {@link stringify}
+   */
   boolean stringify() default true;
 
   /**
-   * Whether to include getters for the stringify and the comparable if enabled
+   * Whether the class should also be {@link comparable}
+   * @return whether the class should also be {@link comparable}
+   */
+  boolean comparable() default false;
+
+  // TODO implement and document this flag
+  /**
+   * Whether to generate a constructor to initialize all class fields, if none exist
+   * @return whether to generate a constructor to initialize all class fields, if none exist
+   */
+  boolean allArgsConstructor() default true;
+
+  /**
+   * Whether to include getters for equals and hashCode (and toString, compareTo if corresponding flag enabled) methods
    */
   boolean includeGetters() default false;
+
 }
