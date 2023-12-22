@@ -5,7 +5,6 @@ import com.tambapps.marcel.parser.ast.*
 import com.tambapps.marcel.parser.exception.MarcelSemanticLegacyException
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
-import marcel.lang.methods.DefaultMarcelStaticMethods
 import org.objectweb.asm.Label
 import java.util.concurrent.ThreadLocalRandom
 
@@ -27,7 +26,6 @@ open class Scope constructor(val typeResolver: AstNodeTypeResolver, val imports:
       WildcardImportNode("java.util"),
       WildcardImportNode("java.io"),
       WildcardImportNode("marcel.lang"),
-      StaticImportNode(DefaultMarcelStaticMethods::class.java.name, "println")
     )
   }
 
