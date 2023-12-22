@@ -180,10 +180,7 @@ import marcel.lang.runtime.BytecodeHelper
 import marcel.lang.util.CharSequenceIterator
 import java.io.Closeable
 import java.lang.annotation.ElementType
-import java.util.Optional
-import java.util.OptionalDouble
-import java.util.OptionalInt
-import java.util.OptionalLong
+import java.util.*
 import java.util.regex.Pattern
 
 open class MarcelSemantic constructor(
@@ -842,13 +839,19 @@ open class MarcelSemantic constructor(
       TokenType.OR -> OrNode(caster.truthyCast(leftOperand.accept(this)), caster.truthyCast(rightOperand.accept(
         this,
       )))
-      TokenType.EQUAL -> equalityComparisonOperatorNode(leftOperand, rightOperand, ::IsEqualNode) { left, right ->
-        val method = typeResolver.findMethodOrThrow(BytecodeHelper::class.javaType, "objectsEqual", listOf(JavaType.Object, JavaType.Object))
-        fCall(node = node, method = method, arguments = listOf(left, right))
-      }
-      TokenType.NOT_EQUAL -> equalityComparisonOperatorNode(leftOperand, rightOperand, ::IsNotEqualNode) { left, right ->
-        val method = typeResolver.findMethodOrThrow(BytecodeHelper::class.javaType, "objectsEqual", listOf(JavaType.Object, JavaType.Object))
-        NotNode(fCall(node = node, method = method, arguments = listOf(left, right)), node)
+      TokenType.EQUAL, TokenType.NOT_EQUAL -> equalityComparisonOperatorNode(leftOperand, rightOperand, ::IsEqualNode) { left, right ->
+        val equalNode = when {
+          left.type.isArray && left.type.isArray -> {
+            if (left.type == right.type) {
+              if (left.type.asArrayType.elementsType.primitive) fCall(node = node, name = "equals", ownerType = Arrays::class.javaType, arguments = listOf(left, right))
+              else fCall(node = node, name = "deepEquals", ownerType = Arrays::class.javaType, arguments = listOf(left, right))
+            }
+            // Objects.equals(...) handles any Object whereas Arrays.equals() handles Object[]
+            else fCall(node = node, name = "deepEquals", ownerType = Objects::class.javaType, arguments = listOf(left, right))
+          }
+          else -> fCall(node = node, name = "equals", ownerType = Objects::class.javaType, arguments = listOf(left, right))
+        }
+        if (node.tokenType == TokenType.EQUAL) equalNode else NotNode(equalNode)
       }
       TokenType.GOE -> numberComparisonOperatorNode(leftOperand, rightOperand, ::GeNode)
       TokenType.GT -> numberComparisonOperatorNode(leftOperand, rightOperand, ::GtNode)
@@ -1011,8 +1014,17 @@ open class MarcelSemantic constructor(
     val right = rightOperand.accept(this)
 
     return if (left.type.primitive && right.type.primitive) {
-      val type = if (left.type != JavaType.int) right.type else left.type
-      nodeCreator.invoke(caster.cast(type, left), caster.cast(type, right))
+      val commonType = JavaType.commonType(left.type, right.type)
+      nodeCreator.invoke(caster.cast(commonType, left), caster.cast(commonType, right))
+    } else if (left.type.primitive && !left.type.primitive || !left.type.primitive && left.type.primitive) {
+      if (!left.type.isPrimitiveObjectType || !left.type.isPrimitiveObjectType) {
+        throw MarcelSemanticException(leftOperand.token, "Cannot compare ${left.type} with ${right.type}")
+      }
+      val leftType = left.type.asPrimitiveType
+      val rightType = left.type.asPrimitiveType
+      val commonType = JavaType.commonType(leftType, rightType)
+      IsEqualNode(caster.cast(commonType, caster.cast(leftType, left)), caster.cast(commonType, caster.cast(rightType, right)))
+
     } else objectComparisonNodeCreator.invoke(caster.cast(JavaType.Object, left), caster.cast(JavaType.Object, right))
   }
 

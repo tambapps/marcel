@@ -219,7 +219,6 @@ class MethodInstructionWriter(
     mv.visitJumpInsn(Opcodes.GOTO, currentLoopContext.continueLabel)
   }
 
-  // TODO finally doesn't work
   override fun visit(node: TryCatchNode) {
     if (node.finallyNode == null) {
       tryCatch(node)

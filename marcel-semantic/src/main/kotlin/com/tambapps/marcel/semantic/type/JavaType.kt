@@ -202,11 +202,13 @@ interface JavaType: JavaTyped {
       if (b.isAssignableFrom(a)) return b
 
       if (a.primitive && b.primitive) {
+        if (a == double || b == double
+          || a == long && b == float || a == float && b == long) return double
+        if (a == float || b == float) return float
+        if (a == long || b == long) return long
         if (a == int && b == char || a == char && b == int) return int
-        if (a == int && b in listOf(long, double, float)) return b
-        if (b == int && a in listOf(long, double, float)) return a
-        if (a == float && b == double) return b
-        if (b == float && a == double) return a
+        if (a == short || b == short) return short
+        if (a == byte || b == byte) return byte
       } else {
         var aType = a
         var bType = b
