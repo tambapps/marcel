@@ -4,7 +4,7 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.TypeNode
 import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.ast.WildcardImportNode
-import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.exception.VariableNotFoundException
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.field.MarcelField
@@ -29,7 +29,7 @@ interface Scope {
   fun resolveTypeOrThrow(node: TypeNode): JavaType
 
   fun findFieldOrThrow(name: String, token: LexToken): MarcelField {
-    return findField(name) ?: throw MarcelSemanticException(token, "Variable $name is not defined")
+    return findField(name) ?: throw VariableNotFoundException(token, "Variable $name is not defined")
   }
   fun findField(name: String): MarcelField?
 

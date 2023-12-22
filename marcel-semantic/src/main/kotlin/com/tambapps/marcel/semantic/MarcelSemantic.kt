@@ -132,6 +132,7 @@ import com.tambapps.marcel.semantic.ast.statement.ThrowNode
 import com.tambapps.marcel.semantic.ast.statement.TryCatchNode
 import com.tambapps.marcel.semantic.ast.statement.WhileNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.exception.VariableNotFoundException
 import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.ExtensionJavaMethod
@@ -816,7 +817,7 @@ open class MarcelSemantic constructor(
         is ReferenceCstNode -> {
           val p = try {
             findVariableAndOwner(leftOperand.value, node)
-          } catch (e: MarcelSemanticException) { null } // TODO too global need to catch specific variable not found exception and re-throw others
+          } catch (e: VariableNotFoundException) { null }
           if (p != null) {
             dotOperator(node, ReferenceNode(p.second, p.first, node.token), rightOperand)
           } else {
