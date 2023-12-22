@@ -1,8 +1,11 @@
 package com.tambapps.marcel.compiler
 
+import marcel.lang.Script
+
 data class CompilerConfiguration(
   val classVersion: Int = computeClassVersion(),
-  val dumbbellEnabled: Boolean = false
+  val dumbbellEnabled: Boolean = false,
+  val scriptClass: Class<*> = Script::class.java
 ) {
   companion object {
     @JvmStatic

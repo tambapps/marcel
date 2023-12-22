@@ -16,9 +16,11 @@ import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
+import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import marcel.lang.Script
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
@@ -57,12 +59,12 @@ class MethodInstructionWriterTest {
   private fun expr(text: String): ExpressionNode {
     val cstExpression = MarcelParser("Test", MarcelLexer().lex(text)).expression()
     val sourceFile = mock(SourceFileNode::class.java)
-    return cstExpression.accept(MarcelSemantic(JavaTypeResolver(), sourceFile),)
+    return cstExpression.accept(MarcelSemantic(JavaTypeResolver(), Script::class.javaType, sourceFile),)
   }
   private fun stmt(text: String): StatementNode {
     val cstExpression = MarcelParser("Test", MarcelLexer().lex(text)).statement()
     val sourceFile = mock(SourceFileNode::class.java)
-    return cstExpression.accept(MarcelSemantic(JavaTypeResolver(), sourceFile))
+    return cstExpression.accept(MarcelSemantic(JavaTypeResolver(), Script::class.javaType, sourceFile))
   }
 
   private fun token() = LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, "")

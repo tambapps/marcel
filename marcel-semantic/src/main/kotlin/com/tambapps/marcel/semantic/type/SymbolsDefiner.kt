@@ -13,7 +13,8 @@ import marcel.lang.Script
  * another semantic
  */
 class SymbolsDefiner(
-  private val typeResolver: JavaTypeResolver
+  private val typeResolver: JavaTypeResolver,
+  private val scriptClass: JavaType
 ) {
 
   fun defineSymbols(semantics: List<MarcelSemantic>) {
@@ -41,7 +42,7 @@ class SymbolsDefiner(
 
     for ((semantic, classCstNode, classType) in toDefineTypes) {
       val superType =
-        if (classCstNode is ScriptNode) Script::class.javaType
+        if (classCstNode is ScriptNode) scriptClass
         else classCstNode.superType?.let { semantic.visit(it) } ?: JavaType.Object
       if (!superType.isAccessibleFrom(classType)) {
         throw MarcelSemanticException(classCstNode, "Class $superType is not accessible from $classType")

@@ -20,7 +20,6 @@ import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import marcel.lang.Binding
-import marcel.lang.Script
 import marcel.lang.lambda.*
 
 object SemanticHelper {
@@ -42,14 +41,14 @@ object SemanticHelper {
     }
   }
 
-  fun scriptBindingConstructor(classNode: ClassNode, typeResolver: JavaTypeResolver): MethodNode {
+  fun scriptBindingConstructor(classNode: ClassNode, typeResolver: JavaTypeResolver, scriptType: JavaType): MethodNode {
     val parameter = MethodParameter(Binding::class.javaType, "binding")
     val methodNode = MethodNode(JavaMethod.CONSTRUCTOR_NAME, mutableListOf(parameter),  Visibility.PUBLIC, JavaType.void, false, classNode.tokenStart, classNode.tokenEnd, JavaType.void)
     methodNode.blockStatement = BlockStatementNode(mutableListOf(
       ExpressionStatementNode(
 
         SuperConstructorCallNode(classNode.superType,
-          typeResolver.findMethod(Script::class.javaType, JavaMethod.CONSTRUCTOR_NAME, listOf(parameter))!!,
+          typeResolver.findMethod(scriptType, JavaMethod.CONSTRUCTOR_NAME, listOf(parameter))!!,
           listOf(ReferenceNode(variable = LocalVariable(parameter.type, parameter.name, parameter.type.nbSlots, 1, false), token = classNode.token)), classNode.tokenStart, classNode.tokenEnd)
       ),
       ReturnStatementNode(VoidExpressionNode(methodNode.token), methodNode.tokenStart, methodNode.tokenEnd)

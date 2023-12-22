@@ -2,18 +2,27 @@ package com.tambapps.marcel.compiler
 
 import com.tambapps.marcel.compiler.exception.MarcelCompilerException
 import com.tambapps.marcel.dumbbell.Dumbbell
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.SourceFileNode
 import com.tambapps.marcel.semantic.MarcelSemantic
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.check.ClassNodeChecks
+import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.type.SymbolsDefiner
 import marcel.lang.MarcelClassLoader
+import marcel.lang.Script
 
 // will enrich it maybe someday if needed
 abstract class AbstractMarcelCompiler(protected val configuration: CompilerConfiguration) {
 
+  init {
+    if (!Script::class.java.isAssignableFrom(configuration.scriptClass)) {
+      throw MarcelSemanticException(LexToken.DUMMY, "Invalid compiler configuration: Class ${configuration.scriptClass} does not extends marcel.lang.Script")
+    }
+  }
   protected fun defineSymbols(typeResolver: JavaTypeResolver,
                               semantics: MarcelSemantic) {
     defineSymbols(typeResolver, listOf(semantics))
@@ -21,7 +30,7 @@ abstract class AbstractMarcelCompiler(protected val configuration: CompilerConfi
 
   protected fun defineSymbols(typeResolver: JavaTypeResolver,
                               semantics: List<MarcelSemantic>) {
-    SymbolsDefiner(typeResolver).defineSymbols(semantics)
+    SymbolsDefiner(typeResolver, configuration.scriptClass.javaType).defineSymbols(semantics)
   }
 
   protected fun handleDumbbells(marcelClassLoader: MarcelClassLoader?, cst: SourceFileNode) {

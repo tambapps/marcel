@@ -186,8 +186,9 @@ import java.util.OptionalInt
 import java.util.OptionalLong
 import java.util.regex.Pattern
 
-open class MarcelSemantic(
+open class MarcelSemantic constructor(
   final override val typeResolver: JavaTypeResolver,
+  private val scriptType: JavaType,
   val cst: SourceFileCstNode
 ): MarcelBaseSemantic(), ExpressionCstNodeVisitor<ExpressionNode, JavaType>, StatementCstNodeVisitor<StatementNode> {
 
@@ -249,7 +250,7 @@ open class MarcelSemantic(
       val classType = typeResolver.of(scriptCstNode.className)
       val scriptNode = classNode(classType, scriptCstNode)
       // need the binding constructor. the no-arg constructor should have been added in the classNode() method
-      scriptNode.methods.add(SemanticHelper.scriptBindingConstructor(scriptNode, typeResolver))
+      scriptNode.methods.add(SemanticHelper.scriptBindingConstructor(scriptNode, typeResolver, scriptType))
       useScope(ClassScope(typeResolver, classType, null, imports)) {
         // add the run method
         val runMethod = SemanticHelper.scriptRunMethod(classType, cst)

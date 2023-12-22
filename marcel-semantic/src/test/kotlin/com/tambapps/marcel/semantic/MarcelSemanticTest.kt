@@ -16,10 +16,12 @@ import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.MethodScope
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import marcel.lang.Script
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
@@ -83,7 +85,7 @@ class MarcelSemanticTest {
     assertNotEquals(double(value = 1234.4), expr("1234.45d"))
   }
 
-  private fun semantic() = MarcelSemantic(TYPE_RESOLVER, sourceFile)
+  private fun semantic() = MarcelSemantic(TYPE_RESOLVER, Script::class.javaType, sourceFile)
 
   private fun int(value: Int) = IntConstantNode(value = value, token = token())
   private fun float(value: Float) = FloatConstantNode(value = value, token = token())

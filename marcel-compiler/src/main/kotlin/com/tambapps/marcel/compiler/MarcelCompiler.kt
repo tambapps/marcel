@@ -9,12 +9,10 @@ import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
-import com.tambapps.marcel.parser.cst.SourceFileNode
 import com.tambapps.marcel.semantic.MarcelSemantic
-import com.tambapps.marcel.semantic.check.ClassNodeChecks
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
-import com.tambapps.marcel.semantic.type.SymbolsDefiner
 import marcel.lang.MarcelClassLoader
 import java.io.File
 import java.io.IOException
@@ -67,7 +65,7 @@ class MarcelCompiler(configuration: CompilerConfiguration): AbstractMarcelCompil
 
       handleDumbbells(marcelClassLoader, cst)
 
-      MarcelSemantic(typeResolver, cst)
+      MarcelSemantic(typeResolver, configuration.scriptClass.javaType, cst)
     }
 
     // defining types
