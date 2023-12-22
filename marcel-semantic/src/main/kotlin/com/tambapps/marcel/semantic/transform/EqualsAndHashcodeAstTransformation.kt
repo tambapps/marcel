@@ -5,11 +5,8 @@ import com.tambapps.marcel.semantic.ast.Annotable
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
-import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
-import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
-import com.tambapps.marcel.semantic.ast.expression.operator.IsNotEqualNode
 import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
@@ -17,6 +14,7 @@ import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.NotLoadedJavaType
 import marcel.lang.data
 import java.util.Arrays
+import java.util.Objects
 
 /**
  * Transformation generating the class's equals and hashcode based on its properties
@@ -32,6 +30,12 @@ class EqualsAndHashcodeAstTransformation: GenerateMethodAstTransformation() {
 
   override fun generateMethodNodes(node: AstNode, classNode: ClassNode, annotation: AnnotationNode): List<MethodNode> {
     val fields = classNode.fields.filter { !isAnnotableExcluded(it) && !it.isStatic }
+    val methods =
+      // only handle method properties if field is enabled
+      if (annotation.getAttribute("includeGetters")?.value == true)
+      classNode.methods.filter { !isAnnotableExcluded(it) && !it.isStatic && it.isGetter }
+      else emptyList()
+
     val equalsMethod = methodNode(
       ownerClass = classNode.type, name = "equals",
       parameters = listOf(parameter(JavaType.Object, "obj")),
@@ -56,7 +60,14 @@ class EqualsAndHashcodeAstTransformation: GenerateMethodAstTransformation() {
 
       val otherRef = ref(otherVar)
       for (field in fields) {
-        ifStmt(notEqual(field, otherRef)) {
+        ifStmt(notEqual(ref(field), ref(field, owner = otherRef))) {
+          returnStmt(bool(false))
+        }
+      }
+      for (method in methods) {
+        val ownProperty = fCall(method = method, owner = thisRef(), arguments = emptyList())
+        val otherProperty = fCall(method = method, owner = otherRef, arguments = emptyList())
+        ifStmt(notEqual(ownProperty, otherProperty)) {
           returnStmt(bool(false))
         }
       }
@@ -68,15 +79,18 @@ class EqualsAndHashcodeAstTransformation: GenerateMethodAstTransformation() {
       returnType = JavaType.int,
       annotations = listOf(annotationNode(Override::class.javaAnnotationType))
     ) {
-      if (fields.isEmpty()) {
+      if (fields.isEmpty() && methods.isEmpty()) {
         returnStmt(fCall(name = "hashCode", owner = superRef(), arguments = emptyList()))
       } else {
         val resultVar = currentMethodScope.addLocalVariable(JavaType.int)
-        var i = 0
         varAssignStmt(resultVar,
-          if (classNode.superType == JavaType.Object) hash(fields[i++]) else fCall(owner = superRef(), name = "hashCode", arguments = emptyList()))
-        while (i < fields.size) {
-          varAssignStmt(resultVar, plus(mul(int(31), ref(resultVar)), hash(fields[i++])))
+          if (classNode.superType == JavaType.Object) int(0) else fCall(owner = superRef(), name = "hashCode", arguments = emptyList()))
+        for (field in fields) {
+          varAssignStmt(resultVar, plus(mul(int(31), ref(resultVar)), hash(ref(field))))
+        }
+        for (method in methods) {
+          val methodProperty = fCall(method = method, owner = thisRef(), arguments = emptyList())
+          varAssignStmt(resultVar, plus(mul(int(31), ref(resultVar)), hash(methodProperty)))
         }
         returnStmt(ref(resultVar))
       }
@@ -84,32 +98,30 @@ class EqualsAndHashcodeAstTransformation: GenerateMethodAstTransformation() {
     return listOf(equalsMethod, hashCode)
   }
 
-  private fun hash(fieldNode: FieldNode): ExpressionNode {
+  private fun hash(propertyExpr: ExpressionNode): ExpressionNode {
+    val type = propertyExpr.type
     return when {
-      fieldNode.type.isArray -> fCall(name = "deepHashCode", ownerType = Arrays::class.javaType,
-        arguments = listOf(ref(fieldNode)))
-      fieldNode.type.primitive -> fCall(name = "hashCode", ownerType = fieldNode.type.objectType, arguments = listOf(ref(fieldNode)))
-
-      // TODO handle variables being nullable
-      else -> fCall(name = "hashCode", owner = ref(fieldNode), arguments = emptyList())
+      type.isArray -> fCall(name = "deepHashCode", ownerType = Arrays::class.javaType,
+        arguments = listOf(propertyExpr))
+      type.primitive -> fCall(name = "hashCode", ownerType = type.objectType, arguments = listOf(propertyExpr))
+      else -> fCall(ownerType = Objects::class.javaType, name = "hashCode", arguments = listOf(propertyExpr))
     }
   }
 
-  private fun notEqual(fieldNode: FieldNode, argRef: ReferenceNode): ExpressionNode {
-    val ownFieldRef = ref(fieldNode)
-    val otherFieldRef = ref(fieldNode, owner = argRef)
+  private fun notEqual(ownPropertyRef: ExpressionNode, otherPropertyRef: ExpressionNode): ExpressionNode {
+    val type = ownPropertyRef.type
     return when {
-      fieldNode.type.isArray -> notExpr(
-        fCall(name = "deepEquals", ownerType = Arrays::class.javaType, arguments = listOf(ownFieldRef, otherFieldRef))
+      type.isArray -> notExpr(
+        fCall(name = "deepEquals", ownerType = Arrays::class.javaType, arguments = listOf(ownPropertyRef, otherPropertyRef))
       )
-      fieldNode.type == JavaType.float || fieldNode.type == JavaType.double || fieldNode.type == JavaType.boolean ->
+      type == JavaType.float || type == JavaType.double || type == JavaType.boolean ->
         isNotEqualExpr(
-          fCall(name = "compare", ownerType = fieldNode.type.objectType, arguments = listOf(ownFieldRef, otherFieldRef)),
+          fCall(name = "compare", ownerType = type.objectType, arguments = listOf(ownPropertyRef, otherPropertyRef)),
           int(0)
         )
-      // TODO we want equals(...) call
-      // TODO handle variables being nullable
-      else -> IsNotEqualNode(ownFieldRef, otherFieldRef)
+      else -> notExpr(
+        fCall(ownerType = Objects::class.javaType, name = "equals", arguments = listOf(ownPropertyRef, otherPropertyRef))
+      )
     }
   }
   private fun isAnnotableExcluded(annotable: Annotable): Boolean {
