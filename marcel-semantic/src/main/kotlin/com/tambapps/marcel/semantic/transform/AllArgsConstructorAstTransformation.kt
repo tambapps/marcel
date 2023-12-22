@@ -9,7 +9,7 @@ import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
-import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.exception.MarcelAstTransformationException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
@@ -24,19 +24,19 @@ class AllArgsConstructorAstTransformation: GenerateMethodAstTransformation() {
     javaType: NotLoadedJavaType,
     annotation: AnnotationNode
   ): List<JavaMethod> {
-    val classNode = node as? ClassCstNode ?: throw MarcelSemanticException(node, "Cannot perform AllArgsConstructor as the annotated member is not a class")
+    val classNode = node as? ClassCstNode ?: throw MarcelAstTransformationException(this, node.token, "Cannot perform AllArgsConstructor as the annotated member is not a class")
 
     val fields = classNode.fields.filter { fieldCstNode: FieldCstNode ->
       !fieldCstNode.access.isStatic && fieldCstNode.annotations.none { visit(it.typeNode) == data.Exclude::class.javaType }
     }
 
     if (fields.isEmpty()) {
-      throw MarcelSemanticException(node.token, "No fields matched to create a constructor")
+      throw MarcelAstTransformationException(this, node.token, "No fields matched to create a constructor")
     }
 
     for (f in fields) {
       if (f.initialValue != null) {
-        throw MarcelSemanticException(f.token, "Cannot generate all args constructor as field $f has an initial value")
+        throw MarcelAstTransformationException(this, f.token, "Cannot generate all args constructor as field $f has an initial value")
       }
     }
     return listOf(
