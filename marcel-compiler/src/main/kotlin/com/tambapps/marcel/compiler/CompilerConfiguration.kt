@@ -7,6 +7,9 @@ data class CompilerConfiguration(
   val dumbbellEnabled: Boolean = false,
   val scriptClass: Class<*> = Script::class.java
 ) {
+
+  constructor(classVersion: Int, dumbbellEnabled: Boolean): this(classVersion, dumbbellEnabled, Script::class.java)
+
   companion object {
     @JvmStatic
     val DEFAULT_VERSION = 52 // 52 is for Java 8

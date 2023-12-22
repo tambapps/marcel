@@ -1,25 +1,23 @@
 package marcel.lang.extensions
 
-import java.io.*
 import java.nio.charset.*
-import java.nio.file.Files
 
 extension class FileExtensions for File {
 
   fun String readText() {
-    return new String(Files.readAllBytes(this.toPath()))
+    return new String(Files.readBytes(this.toPath()))
   }
 
   fun String readText(Charset charset) {
-    return new String(Files.readAllBytes(this.toPath()), charset)
+    return new String(Files.readBytes(this.toPath()), charset)
   }
 
   fun List<String> readLines() {
-    return Files.readAllLines(this.toPath())
+    return Files.readLines(this.toPath())
   }
 
   fun List<String> readLines(Charset charset) {
-    return Files.readAllLines(this.toPath(), charset)
+    return Files.readLines(this.toPath(), charset)
   }
 
 }
