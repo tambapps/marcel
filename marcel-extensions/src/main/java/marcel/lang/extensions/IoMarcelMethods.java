@@ -1,13 +1,14 @@
 package marcel.lang.extensions;
 
+import marcel.io.Files;
 import marcel.lang.io.LineIterator;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.stream.Collectors;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
+// TODO delete me
 public class IoMarcelMethods {
 
   public static LineIterator lineIterator(File self) throws IOException {
@@ -15,10 +16,11 @@ public class IoMarcelMethods {
   }
 
   public static String readText(File self) throws IOException {
-    try (BufferedReader reader = new BufferedReader(new FileReader(self))) {
-      return reader.lines()
-              .collect(Collectors.joining("\n"));
-    }
+    return Files.readText(self.toPath(), StandardCharsets.UTF_8);
+  }
+
+  public static String readText(File self, Charset charset) throws IOException {
+    return Files.readText(self.toPath(), charset);
   }
 
 }

@@ -20,6 +20,7 @@ interface Scope {
       WildcardImportNode("java.util"),
       WildcardImportNode("java.io"),
       WildcardImportNode("marcel.lang"),
+      WildcardImportNode("marcel.io"),
     )
   }
 
