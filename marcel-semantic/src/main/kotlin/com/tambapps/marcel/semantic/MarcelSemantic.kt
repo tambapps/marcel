@@ -591,7 +591,6 @@ open class MarcelSemantic(
 
   private fun newMethodScope(method: JavaMethod) = MethodScope(ClassScope(typeResolver, currentScope.classType, null, imports), method)
   private fun newMethodScope(classType: JavaType, forExtensionType: JavaType?, method: JavaMethod) = MethodScope(ClassScope(typeResolver, classType, forExtensionType, imports), method)
-  fun visit(node: TypeCstNode): JavaType = currentScope.resolveTypeOrThrow(node)
 
   /*
    * node visits

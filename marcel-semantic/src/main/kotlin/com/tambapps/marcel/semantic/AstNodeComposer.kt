@@ -11,12 +11,14 @@ import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.StringNode
+import com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsNotEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MinusNode
@@ -35,6 +37,7 @@ import com.tambapps.marcel.semantic.method.JavaMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.MethodScope
+import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.type.JavaArrayType
@@ -69,6 +72,21 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
     return AnnotationNode(type, attributes, LexToken.DUMMY, LexToken.DUMMY)
   }
 
+  protected inline fun constructorNode(
+    classNode: ClassNode,
+    visibility: Visibility = Visibility.PUBLIC,
+    parameters: List<MethodParameter> = emptyList(),
+    statementsSupplier: StatementsComposer.() -> Unit
+  ) = methodNode(classNode.type, visibility, JavaMethod.CONSTRUCTOR_NAME, parameters, JavaType.void, isDefault = false,
+    isAbstract = false, isStatic = false, emptyList()) {
+    // super method call
+    stmt(SemanticHelper.superNoArgConstructorCall(classNode, typeResolver))
+    statementsSupplier.invoke(this)
+
+    // return void because constructor
+    returnStmt(VoidExpressionNode(LexToken.DUMMY))
+  }
+
   protected inline fun methodNode(
     ownerClass: JavaType = currentScope.classType,
     visibility: Visibility = Visibility.PUBLIC,
@@ -86,7 +104,7 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
     val statements = mutableListOf<StatementNode>()
     methodNode.blockStatement = BlockStatementNode(statements, LexToken.DUMMY, LexToken.DUMMY)
 
-    useScope(MethodScope(ClassScope(typeResolver, ownerClass, null, emptyList()), methodNode)) {
+    useScope(MethodScope(ClassScope(typeResolver, ownerClass, null, Scope.DEFAULT_IMPORTS), methodNode)) {
       val statementComposer = StatementsComposer(statements)
       statementsSupplier.invoke(statementComposer) // it will directly add the statements on the method's statements
     }
@@ -99,7 +117,7 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
 
   protected fun addStatements(methodNode: MethodNode, statementsSupplier: StatementsComposer.() -> Unit): MethodNode {
     val statements = methodNode.blockStatement.statements
-    useScope(MethodScope(ClassScope(typeResolver, methodNode.ownerClass, null, emptyList()), methodNode)) {
+    useScope(MethodScope(ClassScope(typeResolver, methodNode.ownerClass, null, Scope.DEFAULT_IMPORTS), methodNode)) {
       val statementComposer = StatementsComposer(statements)
       statementsSupplier.invoke(statementComposer) // it will directly add the statements on the method's statements
     }
@@ -300,7 +318,7 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
       Visibility.PUBLIC, returnType, isStatic = false, LexToken.DUMMY, LexToken.DUMMY, lambdaType).apply {
         blockStatement = BlockStatementNode(statements, LexToken.DUMMY, LexToken.DUMMY)
     }
-    useScope(MethodScope(ClassScope(typeResolver, lambdaType, null, emptyList()), lambdaMethod)) {
+    useScope(MethodScope(ClassScope(typeResolver, lambdaType, null, Scope.DEFAULT_IMPORTS), lambdaMethod)) {
       val statementComposer = StatementsComposer(statements)
       lambdaBodyStatementComposerFunc.invoke(statementComposer)
       if (!AllPathsReturnVisitor.test(statements) && returnType == JavaType.void) {

@@ -6,11 +6,13 @@ class DataAstTransformation:
   CompositeAstTransformation(listOf(
     StringifyAstTransformation(),
     EqualsAndHashcodeAstTransformation(),
-    ComparableAstTransformation()
+    ComparableAstTransformation(),
+    AllArgsConstructorAstTransformation()
   )) {
   override fun shouldApply(transformation: AstTransformation, annotation: AnnotationNode) = when (transformation) {
     is StringifyAstTransformation -> annotation.getAttribute("stringify")?.value != false
     is ComparableAstTransformation -> annotation.getAttribute("comparable")?.value == true
+    is AllArgsConstructorAstTransformation -> annotation.getAttribute("withConstructor")?.value == true
     else -> true
   }
 }

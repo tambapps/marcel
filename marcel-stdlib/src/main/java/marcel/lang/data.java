@@ -32,12 +32,11 @@ public @interface data {
    */
   boolean comparable() default false;
 
-  // TODO implement and document this flag
   /**
-   * Whether to generate a constructor to initialize all class fields, if none exist
-   * @return whether to generate a constructor to initialize all class fields, if none exist
+   * Whether to generate a constructor to initialize all class fields.
+   * @return whether to generate a constructor to initialize all class fields
    */
-  boolean allArgsConstructor() default true;
+  boolean withConstructor() default false;
 
   /**
    * Whether to include getters for equals and hashCode (and toString, compareTo if corresponding flag enabled) methods

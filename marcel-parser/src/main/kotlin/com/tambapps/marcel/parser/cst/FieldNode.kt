@@ -15,4 +15,7 @@ class FieldNode(
 ) :
   AbstractCstNode(parentClassNode, tokenStart, tokenEnd) {
 
+  override fun toString(): String {
+    return "$type $name"
+  }
 }

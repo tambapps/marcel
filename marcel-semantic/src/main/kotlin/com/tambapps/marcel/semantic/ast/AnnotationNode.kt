@@ -11,6 +11,9 @@ class AnnotationNode constructor(
 ) : JavaAnnotation, AstNode {
 
   override fun getAttribute(name: String): JavaAnnotation.Attribute? {
+    type.attributes.find { it.name == name }
     return attributes.find { it.name == name }
+      // find on default values
+      ?: type.attributes.find { it.name == name && it.defaultValue != null }?.let { JavaAnnotation.Attribute(it.name, it.type, it.defaultValue!!) }
   }
 }

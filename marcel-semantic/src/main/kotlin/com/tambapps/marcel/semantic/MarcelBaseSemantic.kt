@@ -2,6 +2,7 @@ package com.tambapps.marcel.semantic
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.parser.cst.TypeNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.LambdaClassNode
@@ -45,6 +46,8 @@ abstract class MarcelBaseSemantic {
   protected fun newInnerScope() = MethodInnerScope(currentMethodScope)
   protected inline fun <U> useInnerScope(consumer: (MethodInnerScope) -> U)
       = useScope(newInnerScope(), consumer)
+
+  fun visit(node: TypeNode): JavaType = currentScope.resolveTypeOrThrow(node)
 
   protected fun castedArguments(method: JavaMethod, arguments: List<ExpressionNode>) =
     arguments.mapIndexed { index, expressionNode -> caster.cast(method.parameters[index].type, expressionNode) }

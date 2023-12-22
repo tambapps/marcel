@@ -1,7 +1,11 @@
 package com.tambapps.marcel.semantic.transform
 
 import com.tambapps.marcel.semantic.AstNodeComposer
+import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
+import com.tambapps.marcel.semantic.scope.ClassScope
+import com.tambapps.marcel.semantic.scope.Scope
+import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 
 /**
@@ -17,4 +21,6 @@ abstract class AbstractAstTransformation : AstNodeComposer(), AstTransformation 
     this.caster = AstNodeCaster(typeResolver)
   }
 
+  protected fun classScope(classNode: ClassNode) = classScope(classNode.type)
+  protected fun classScope(classType: JavaType) = ClassScope(typeResolver, classType, null, Scope.DEFAULT_IMPORTS)
 }

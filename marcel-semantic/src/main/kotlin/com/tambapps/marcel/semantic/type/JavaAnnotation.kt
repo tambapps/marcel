@@ -1,6 +1,5 @@
 package com.tambapps.marcel.semantic.type
 
-// TODO may be useless. ASTTransformations will always be loaded anyway so...
 interface JavaAnnotation: JavaTyped {
 
   override val type: JavaAnnotationType

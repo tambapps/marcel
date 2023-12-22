@@ -15,7 +15,7 @@ import com.tambapps.marcel.semantic.type.NotLoadedJavaType
  */
 abstract class GenerateMethodAstTransformation: AbstractAstTransformation() {
   final override fun transformType(javaType: NotLoadedJavaType, annotation: AnnotationNode, node: CstNode) {
-    useScope(ClassScope(typeResolver, javaType, null, emptyList())) {
+    useScope(classScope(javaType)) {
       doTransformType(javaType, annotation)
       generateSignatures(node, javaType, annotation).forEach { signature ->
         typeResolver.defineMethod(javaType, signature)
@@ -24,7 +24,7 @@ abstract class GenerateMethodAstTransformation: AbstractAstTransformation() {
   }
 
   final override fun transform(node: AstNode, classNode: ClassNode, annotation: AnnotationNode) {
-    useScope(ClassScope(typeResolver, classNode.type, null, emptyList())) {
+    useScope(classScope(classNode)) {
       val methods = generateMethodNodes(node, classNode, annotation)
       for (method in methods) {
         val duplicate = classNode.methods.find { it.matches(typeResolver, method.name, method.parameters, strict = true) }
