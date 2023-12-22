@@ -73,7 +73,8 @@ class EqualsAndHashcodeAstTransformation: GenerateMethodAstTransformation() {
       } else {
         val resultVar = currentMethodScope.addLocalVariable(JavaType.int)
         var i = 0
-        varAssignStmt(resultVar, if (classNode.superType == JavaType.Object) hash(fields[i++]) else TODO("super.hashCode()"))
+        varAssignStmt(resultVar,
+          if (classNode.superType == JavaType.Object) hash(fields[i++]) else fCall(owner = superRef(), name = "hashCode", arguments = emptyList()))
         while (i < fields.size) {
           varAssignStmt(resultVar, plus(mul(int(31), ref(resultVar)), hash(fields[i++])))
         }
