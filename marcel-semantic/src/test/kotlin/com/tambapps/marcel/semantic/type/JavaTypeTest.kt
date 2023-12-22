@@ -43,7 +43,7 @@ class JavaTypeTest {
     assertEquals(float, commonType(int, float))
     assertEquals(float, commonType(float, float))
     assertEquals(double, commonType(int, double))
-    assertEquals(Object, commonType(long, double))
+    assertEquals(double, commonType(long, double))
     assertEquals(List::class.javaType, commonType(List::class.javaType, intList))
     assertEquals(Object, commonType(Object, Object))
   }
