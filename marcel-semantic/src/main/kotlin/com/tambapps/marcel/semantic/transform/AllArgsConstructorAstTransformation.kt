@@ -30,6 +30,10 @@ class AllArgsConstructorAstTransformation: GenerateMethodAstTransformation() {
       !fieldCstNode.access.isStatic && fieldCstNode.annotations.none { visit(it.typeNode) == data.Exclude::class.javaType }
     }
 
+    if (fields.isEmpty()) {
+      throw MarcelSemanticException(node.token, "No fields matched to create a constructor")
+    }
+
     for (f in fields) {
       if (f.initialValue != null) {
         throw MarcelSemanticException(f.token, "Cannot generate all args constructor as field $f has an initial value")
