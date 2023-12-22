@@ -1,12 +1,13 @@
 package com.tambapps.marcel.compiler
 
 data class CompilerConfiguration(
-  val classVersion: Int = computeClassVersion(), // 52 is for Java 8
+  val classVersion: Int = computeClassVersion(),
   val dumbbellEnabled: Boolean = false
 ) {
   companion object {
     @JvmStatic
-    val DEFAULT_VERSION = 52
+    val DEFAULT_VERSION = 52 // 52 is for Java 8
+    // https://stackoverflow.com/questions/9170832/list-of-java-class-file-format-major-version-numbers
     @JvmStatic
     val VERSION_MAP = mutableMapOf(
       Pair("1.8", 52),
@@ -23,6 +24,8 @@ data class CompilerConfiguration(
       Pair("18", 62),
       Pair("19", 63),
       Pair("20", 64),
+      Pair("21", 65),
+      Pair("22", 66),
     )
 
     @JvmStatic
