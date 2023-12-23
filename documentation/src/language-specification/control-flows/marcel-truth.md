@@ -5,7 +5,8 @@ A truthy value is a value that is considered true for an if, or a while.
 A falsey value is a value that is considered false in those places.
 
 The only falsey values are the following:
-- `false` 
+- `false`
+- a Boolean instance whose value is `false`
 - `null`
 - `Optional.empty()`
 - An empty collection

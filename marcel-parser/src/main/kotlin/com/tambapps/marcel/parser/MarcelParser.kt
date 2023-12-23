@@ -30,6 +30,7 @@ import com.tambapps.marcel.parser.cst.expression.literal.NullNode
 import com.tambapps.marcel.parser.cst.expression.literal.StringNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorNode
 import com.tambapps.marcel.parser.cst.expression.BinaryTypeOperatorNode
+import com.tambapps.marcel.parser.cst.expression.ElvisThrowNode
 import com.tambapps.marcel.parser.cst.expression.LambdaNode
 import com.tambapps.marcel.parser.cst.expression.NotNode
 import com.tambapps.marcel.parser.cst.expression.SwitchNode
@@ -624,6 +625,16 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
           accept(TokenType.COLON)
           val falseExpr = expression(parentNode)
           TernaryNode(leftOperand, trueExpr, falseExpr, parentNode, leftOperand.tokenStart, falseExpr.tokenEnd)
+        }
+        TokenType.ELVIS -> {
+          if (current.type == TokenType.THROW) {
+            skip()
+            val throwableExpression = expression(parentNode, ParserUtils.getPriority(t.type) + ParserUtils.getAssociativity(t.type))
+            ElvisThrowNode(parentNode, leftOperand.tokenStart, throwableExpression.tokenEnd, leftOperand, throwableExpression)
+          } else {
+            val rightOperand = expression(parentNode, ParserUtils.getPriority(t.type) + ParserUtils.getAssociativity(t.type))
+            BinaryOperatorNode(t.type, leftOperand, rightOperand, parentNode, leftOperand.tokenStart, rightOperand.tokenEnd)
+          }
         }
         else -> {
           val rightOperand = expression(parentNode, ParserUtils.getPriority(t.type) + ParserUtils.getAssociativity(t.type))

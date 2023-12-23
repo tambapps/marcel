@@ -1,5 +1,6 @@
 package marcel.lang.runtime;
 
+import marcel.lang.MarcelTruth;
 import marcel.lang.primitives.collections.sets.CharOpenHashSet;
 import marcel.lang.primitives.collections.sets.CharSet;
 import marcel.lang.primitives.collections.sets.DoubleOpenHashSet;
@@ -57,6 +58,11 @@ public final class BytecodeHelper {
       set.add(Array.get(array, i));
     }
     return set;
+  }
+
+  public static <T> T elvisThrow(T o, Throwable throwable) throws Throwable {
+    if (!MarcelTruth.isTruthy(o)) throw throwable;
+    return o;
   }
 
   // TODO remove this when marcel legacy will be removed

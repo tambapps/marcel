@@ -41,6 +41,7 @@ interface ExpressionCstNodeVisitor<T, U> {
   fun visit(node: NotNode, smartCastType: U? = null): T
 
   fun visit(node: BinaryOperatorNode, smartCastType: U? = null): T
+  fun visit(node: ElvisThrowNode, smartCastType: U? = null): T
   fun visit(node: BinaryTypeOperatorNode, smartCastType: U? = null): T
   fun visit(node: TernaryNode, smartCastType: U? = null): T
   fun visit(node: ClassReferenceNode, smartCastType: U? = null): T

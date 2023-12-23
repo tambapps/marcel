@@ -3,6 +3,7 @@ package com.tambapps.marcel.parser.cst.visitor
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorNode
 import com.tambapps.marcel.parser.cst.expression.BinaryTypeOperatorNode
+import com.tambapps.marcel.parser.cst.expression.ElvisThrowNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNodeVisitor
 import com.tambapps.marcel.parser.cst.expression.FunctionCallNode
 import com.tambapps.marcel.parser.cst.expression.LambdaNode
@@ -125,6 +126,11 @@ class ForEachNodeVisitor(
     node.leftOperand.accept(this)
   }
 
+  override fun visit(node: ElvisThrowNode, smartCastType: Unit?) {
+    consume(node)
+    node.expression.accept(this)
+    node.throwableException.accept(this)
+  }
   override fun visit(node: TernaryNode, smartCastType: Unit?) {
     consume(node)
     node.testExpressionNode.accept(this)

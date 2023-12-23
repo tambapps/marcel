@@ -7,6 +7,7 @@ import com.tambapps.marcel.parser.cst.AnnotationNode as AnnotationCstNode
 import com.tambapps.marcel.parser.cst.ClassNode as ClassCstNode
 import com.tambapps.marcel.parser.cst.ConstructorNode as ConstructorCstNode
 import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.parser.cst.expression.ElvisThrowNode
 import com.tambapps.marcel.parser.cst.FieldNode as FieldCstNode
 import com.tambapps.marcel.parser.cst.MethodNode as MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterNode as MethodParameterCstNode
@@ -987,6 +988,15 @@ open class MarcelSemantic constructor(
       else -> throw MarcelSemanticException(node, "Doesn't handle operator ${node.tokenType}")
     }
   }
+
+  override fun visit(node: ElvisThrowNode, smartCastType: JavaType?): ExpressionNode {
+    return fCall(node = node, ownerType = BytecodeHelper::class.javaType, name = "elvisThrow",
+      arguments = listOf(
+        caster.cast(JavaType.Object, node.expression.accept(this)),
+        caster.cast(Throwable::class.javaType, node.throwableException.accept(this))
+      ))
+  }
+
   private fun comparisonOperatorNode(
     leftOperand: ExpressionCstNode,
     rightOperand: ExpressionCstNode,
@@ -1832,7 +1842,6 @@ open class MarcelSemantic constructor(
     return ContinueNode(node)
   }
 
-  // TODO do elvis or throw
   override fun visit(node: ThrowCstNode): StatementNode {
     val expression = caster.cast(Throwable::class.javaType, node.expression.accept(this, Throwable::class.javaType))
     return ThrowNode(node, expression)
