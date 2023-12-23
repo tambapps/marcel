@@ -104,7 +104,7 @@ class MarcelReplCompiler constructor(
     return updateAndGet(text)
   }
 
-  // TODO handle delegated objects
+  // TODO handle delegated objects. Maybe handle them in MarcelReplSemantic?
   //     if (_definedFunctions.any { it.name == "getDelegate" && it.parameters.isEmpty() }) listOf(DelegatedObject::class.java)
   //      else emptyList()
 
