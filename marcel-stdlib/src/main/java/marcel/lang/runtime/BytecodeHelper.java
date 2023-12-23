@@ -21,9 +21,12 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.Set;
 
-// methods are used by the compiler
+/**
+ * Helpful methods used by the compiler
+ */
 public final class BytecodeHelper {
 
+  // Object parameter to handle all kinds of arrays. Object[], char[][], etc...
   // list
   public static List<?> createList(Object array) {
     int length = Array.getLength(array);
@@ -51,6 +54,7 @@ public final class BytecodeHelper {
     return new CharOpenHashSet(array);
   }
 
+  // Object parameter to handle all kinds of arrays. Object[], char[][], etc...
   public static Set<?> createSet(Object array) {
     int length = Array.getLength(array);
     Set<Object> set = new HashSet<>(length);
