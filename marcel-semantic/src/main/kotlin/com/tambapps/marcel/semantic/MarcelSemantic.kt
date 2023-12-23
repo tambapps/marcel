@@ -1023,7 +1023,7 @@ open class MarcelSemantic constructor(
         throw MarcelSemanticException(leftOperand.token, "Cannot compare ${left.type} with ${right.type}")
       }
       val leftType = left.type.asPrimitiveType
-      val rightType = left.type.asPrimitiveType
+      val rightType = right.type.asPrimitiveType
       val commonType = JavaType.commonType(leftType, rightType)
       nodeCreator.invoke(caster.cast(commonType, caster.cast(leftType, left)), caster.cast(commonType, caster.cast(rightType, right)))
 
