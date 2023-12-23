@@ -37,7 +37,7 @@ Finally
 Try with resources is like in Java. You can declare Variables as resources and they will be properly closed automatically by the compiler.
 
 ````marcel
-try (BufferedReader reader = new BufferedReader(new FileReader("/Users/nfonkoua/workspace/marcel/Test.marcel"))) {
+try (BufferedReader reader = Files.reader('input.txt')) {
   println(reader.readLine())
 } catch (IOException e) {
   e.printStackTrace()
