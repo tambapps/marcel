@@ -24,10 +24,12 @@ import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.iterators.list.CharacterListIterator;
 import marcel.lang.primitives.spliterators.CharacterSpliterator;
 import marcel.lang.util.Arrays;
+import marcel.lang.util.function.CharacterPredicate;
 import marcel.lang.util.function.CharacterUnaryOperator;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Spliterator;
 
@@ -463,6 +465,23 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 		return subList;
 	}
 
+	default Character findLast(CharacterPredicate predicate)  {
+		char e;
+		for (int i = size() - 1; i >= 0; i--) {
+			e = getAt(i);
+			if (predicate.test(e)) return e;
+		}
+		return null;
+	}
+
+	default char findLastChar(CharacterPredicate predicate)  {
+		char e;
+		for (int i = size() - 1; i >= 0; i--) {
+			e = getAt(i);
+			if (predicate.test(e)) return e;
+		}
+		throw new NoSuchElementException();
+	}
 
 	/**
 	 * Returns a new collection containing the content of the first one then the content of the second

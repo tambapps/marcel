@@ -483,6 +483,23 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 		return subList;
 	}
 
+	default Long findLast(LongPredicate predicate)  {
+		long e;
+		for (int i = size() - 1; i >= 0; i--) {
+			e = getAt(i);
+			if (predicate.test(e)) return e;
+		}
+		return null;
+	}
+
+	default long findLastLong(LongPredicate predicate)  {
+		long e;
+		for (int i = size() - 1; i >= 0; i--) {
+			e = getAt(i);
+			if (predicate.test(e)) return e;
+		}
+		throw new NoSuchElementException();
+	}
 
 	/**
 	 * Returns a new collection containing the content of the first one then the content of the second

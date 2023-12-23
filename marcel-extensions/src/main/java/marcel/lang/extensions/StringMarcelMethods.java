@@ -5,7 +5,6 @@ import marcel.lang.primitives.collections.lists.CharacterArrayList;
 import marcel.lang.primitives.collections.lists.CharacterList;
 import marcel.lang.primitives.collections.sets.CharacterOpenHashSet;
 import marcel.lang.primitives.collections.sets.CharacterSet;
-import marcel.lang.primitives.iterators.CharacterIterator;
 import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.util.function.CharacterPredicate;
 
@@ -64,16 +63,6 @@ public class StringMarcelMethods {
     return null;
   }
 
-  // TODO add findLast and findLastPrimitive in collection and primitive collections
-  public static Character findLast(CharSequence self, CharacterPredicate predicate)  {
-    char c;
-    for (int i = self.length() - 1; i >= 0; i--) {
-      c = self.charAt(i);
-      if (predicate.test(c)) return c;
-    }
-    return null;
-  }
-
   public static char findCharacter(CharSequence self, CharacterPredicate predicate)  {
     char c;
     for (int i = 0; i < self.length(); i++) {
@@ -83,7 +72,16 @@ public class StringMarcelMethods {
     throw new NoSuchElementException();
   }
 
-  public static char findLastCharacter(CharSequence self, CharacterPredicate predicate)  {
+  public static Character findLast(CharSequence self, CharacterPredicate predicate)  {
+    char c;
+    for (int i = self.length() - 1; i >= 0; i--) {
+      c = self.charAt(i);
+      if (predicate.test(c)) return c;
+    }
+    return null;
+  }
+
+  public static char findLastChar(CharSequence self, CharacterPredicate predicate)  {
     char c;
     for (int i = self.length() - 1; i >= 0; i--) {
       c = self.charAt(i);

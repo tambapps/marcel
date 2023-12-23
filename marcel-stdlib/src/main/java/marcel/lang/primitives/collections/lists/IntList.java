@@ -26,6 +26,7 @@ import marcel.lang.primitives.spliterators.IntSpliterator;
 import marcel.lang.util.Arrays;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Spliterator;
 import java.util.function.IntPredicate;
@@ -457,6 +458,24 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 		IntIterator iterator = range.iterator();
 		while (iterator.hasNext()) subList.add(get(iterator.nextInt()));
 		return subList;
+	}
+
+	default Integer findLast(IntPredicate predicate)  {
+		int e;
+		for (int i = size() - 1; i >= 0; i--) {
+			e = getAt(i);
+			if (predicate.test(e)) return e;
+		}
+		return null;
+	}
+
+	default int findLastInt(IntPredicate predicate)  {
+		int e;
+		for (int i = size() - 1; i >= 0; i--) {
+			e = getAt(i);
+			if (predicate.test(e)) return e;
+		}
+		throw new NoSuchElementException();
 	}
 
 	/**

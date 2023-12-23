@@ -484,6 +484,23 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 		return subList;
 	}
 
+	default Float findLast(FloatPredicate predicate)  {
+		float e;
+		for (int i = size() - 1; i >= 0; i--) {
+			e = getAt(i);
+			if (predicate.test(e)) return e;
+		}
+		return null;
+	}
+
+	default float findLastFloat(FloatPredicate predicate)  {
+		float e;
+		for (int i = size() - 1; i >= 0; i--) {
+			e = getAt(i);
+			if (predicate.test(e)) return e;
+		}
+		throw new NoSuchElementException();
+	}
 
 	/**
 	 * Returns a new collection containing the content of the first one then the content of the second

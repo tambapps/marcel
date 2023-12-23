@@ -482,6 +482,23 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 		return subList;
 	}
 
+	default Double findLast(DoublePredicate predicate)  {
+		double e;
+		for (int i = size() - 1; i >= 0; i--) {
+			e = getAt(i);
+			if (predicate.test(e)) return e;
+		}
+		return null;
+	}
+
+	default double findLastDouble(DoublePredicate predicate)  {
+		double e;
+		for (int i = size() - 1; i >= 0; i--) {
+			e = getAt(i);
+			if (predicate.test(e)) return e;
+		}
+		throw new NoSuchElementException();
+	}
 
 	/**
 	 * Returns a new collection containing the content of the first one then the content of the second
