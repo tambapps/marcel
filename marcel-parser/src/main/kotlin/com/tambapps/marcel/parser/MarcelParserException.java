@@ -43,14 +43,14 @@ public class MarcelParserException extends RuntimeException {
 
   private static String generateErrorMessage(List<Error> errors) {
     if (errors.size() == 1) return generateErrorMessage(errors.get(0));
-    return "Multiple parser errors were found:" + errors.stream()
+    return "Multiple syntax errors were found:" + errors.stream()
             .map(e -> "\n  -" + generateErrorMessage(e))
             .collect(Collectors.joining());
   }
 
   private static String generateErrorMessage(Error error) {
-    return String.format("Parser error at token %s (line %d, column %d): %s",
-            error.token.getType(), error.token.getLine() + 1, error.token.getColumn(), error.message);
+    return String.format("Syntax error line %d, column %d at %s: %s",
+        error.token.getLine() + 1, error.token.getColumn(), error.token.infoString(), error.message);
   }
 
   public static MarcelParserException.Error malformedNumber(NumberFormatException e, LexToken token, boolean eof) {

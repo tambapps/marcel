@@ -55,8 +55,8 @@ public class MarcelSemanticException extends RuntimeException {
   }
 
   private static String generateErrorMessage(Error error) {
-    return String.format("Semantic error at token %s (line %d, column %d): %s",
-            error.token, error.token.getLine() + 1, error.token.getColumn(), error.message);
+    return String.format("Semantic error line %d, column %d at %s: %s",
+        error.token.getLine() + 1, error.token.getColumn(), error.token.infoString(), error.message);
   }
 
   public static MarcelSemanticException.Error malformedNumber(NumberFormatException e, LexToken token, boolean eof) {

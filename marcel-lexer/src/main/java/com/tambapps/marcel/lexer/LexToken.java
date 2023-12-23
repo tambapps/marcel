@@ -10,12 +10,6 @@ public class LexToken {
 
   public static final LexToken DUMMY = new LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, "");
 
-
-  // should only be used in legacy code
-  public static LexToken dummy() {
-    return new LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, "");
-  }
-
   @EqualsAndHashCode.Exclude
   int start;
   @EqualsAndHashCode.Exclude
@@ -36,6 +30,10 @@ public class LexToken {
       builder.append(" ,value=")
           .append(value);
     }
-    return builder.append("}").toString();
+    return builder.append(")").toString();
+  }
+  
+  public String infoString() {
+    return getValue() != null ? String.format("\"%s\" (%s)", value, type) : type.toString();
   }
 }
