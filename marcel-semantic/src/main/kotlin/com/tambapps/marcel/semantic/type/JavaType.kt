@@ -215,8 +215,8 @@ interface JavaType: JavaTyped {
         while (aType.superType != null && bType.superType != null) {
           aType = aType.superType!!
           bType = bType.superType!!
-          if (aType.isAssignableFrom(bType)) return a
-          if (bType.isAssignableFrom(aType)) return b
+          if (aType.isAssignableFrom(bType)) return aType
+          if (bType.isAssignableFrom(aType)) return bType
         }
       }
       return JavaType.Object

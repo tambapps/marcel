@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.util.Optional
 
 class JavaTypeTest {
 
@@ -46,6 +47,9 @@ class JavaTypeTest {
     assertEquals(double, commonType(long, double))
     assertEquals(List::class.javaType, commonType(List::class.javaType, intList))
     assertEquals(Object, commonType(Object, Object))
+
+    assertEquals(Object, commonType(RuntimeException::class.javaType, Optional::class.javaType))
+    assertEquals(Object, commonType(Optional::class.javaType, RuntimeException::class.javaType))
   }
 
   @Test
