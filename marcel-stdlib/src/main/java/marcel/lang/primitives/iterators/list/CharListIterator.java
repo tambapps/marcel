@@ -1,14 +1,14 @@
 package marcel.lang.primitives.iterators.list;
 
 
-import marcel.lang.primitives.iterators.CharacterIterator;
+import marcel.lang.primitives.iterators.CharIterator;
 
 import java.util.ListIterator;
 
-public interface CharacterListIterator extends CharacterIterator, ListIterator<Character> {
+public interface CharListIterator extends CharIterator, ListIterator<Character> {
 
 	default Character next() {
-		return nextCharacter();
+		return nextChar();
 	}
 
 	/**
@@ -48,9 +48,9 @@ public interface CharacterListIterator extends CharacterIterator, ListIterator<C
 	@Override
 	default void add(final Character k) { add(k.charValue()); }
 
-	char previousCharacter();
+	char previousChar();
 
 	default Character previous() {
-		return previousCharacter();
+		return previousChar();
 	}
 }

@@ -1,12 +1,12 @@
 package marcel.lang.extensions;
 
 import marcel.lang.IntRange;
-import marcel.lang.primitives.collections.lists.CharacterArrayList;
-import marcel.lang.primitives.collections.lists.CharacterList;
-import marcel.lang.primitives.collections.sets.CharacterOpenHashSet;
-import marcel.lang.primitives.collections.sets.CharacterSet;
+import marcel.lang.primitives.collections.lists.CharArrayList;
+import marcel.lang.primitives.collections.lists.CharList;
+import marcel.lang.primitives.collections.sets.CharOpenHashSet;
+import marcel.lang.primitives.collections.sets.CharSet;
 import marcel.lang.primitives.iterators.IntIterator;
-import marcel.lang.util.function.CharacterPredicate;
+import marcel.lang.util.function.CharPredicate;
 
 import java.util.NoSuchElementException;
 
@@ -33,12 +33,12 @@ public class StringMarcelMethods {
     return builder.toString();
   }
 
-  public static CharacterList toList(String self) {
-    return CharacterArrayList.wrap(self.toCharArray());
+  public static CharList toList(String self) {
+    return CharArrayList.wrap(self.toCharArray());
   }
 
-  public static CharacterSet toSet(String self) {
-    return new CharacterOpenHashSet(self.toCharArray());
+  public static CharSet toSet(String self) {
+    return new CharOpenHashSet(self.toCharArray());
   }
 
   public static int toInt(String self) {
@@ -54,7 +54,7 @@ public class StringMarcelMethods {
     return Double.parseDouble(self);
   }
 
-  public static Character find(CharSequence self, CharacterPredicate predicate)  {
+  public static Character find(CharSequence self, CharPredicate predicate)  {
     char c;
     for (int i = 0; i < self.length(); i++) {
       c = self.charAt(i);
@@ -63,7 +63,7 @@ public class StringMarcelMethods {
     return null;
   }
 
-  public static char findCharacter(CharSequence self, CharacterPredicate predicate)  {
+  public static char findChar(CharSequence self, CharPredicate predicate)  {
     char c;
     for (int i = 0; i < self.length(); i++) {
       c = self.charAt(i);
@@ -72,7 +72,7 @@ public class StringMarcelMethods {
     throw new NoSuchElementException();
   }
 
-  public static Character findLast(CharSequence self, CharacterPredicate predicate)  {
+  public static Character findLast(CharSequence self, CharPredicate predicate)  {
     char c;
     for (int i = self.length() - 1; i >= 0; i--) {
       c = self.charAt(i);
@@ -81,7 +81,7 @@ public class StringMarcelMethods {
     return null;
   }
 
-  public static char findLastChar(CharSequence self, CharacterPredicate predicate)  {
+  public static char findLastChar(CharSequence self, CharPredicate predicate)  {
     char c;
     for (int i = self.length() - 1; i >= 0; i--) {
       c = self.charAt(i);
@@ -90,8 +90,8 @@ public class StringMarcelMethods {
     throw new NoSuchElementException();
   }
 
-  public static CharacterList getAt(String self, IntRange range) {
-    CharacterList characters = new CharacterArrayList();
+  public static CharList getAt(String self, IntRange range) {
+    CharList characters = new CharArrayList();
     IntIterator iterator = range.iterator();
     while (iterator.hasNext()) characters.add(self.charAt(iterator.nextInt()));
     return characters;
@@ -108,14 +108,14 @@ public class StringMarcelMethods {
     return self.lastIndexOf(c);
   }
 
-  public static int indexOf(CharSequence self, CharacterPredicate predicate) {
+  public static int indexOf(CharSequence self, CharPredicate predicate) {
     for (int i = 0; i < self.length(); i++) {
       if (predicate.test(self.charAt(i))) return i;
     }
     return -1;
   }
 
-  public static int lastIndexOf(CharSequence self, CharacterPredicate predicate) {
+  public static int lastIndexOf(CharSequence self, CharPredicate predicate) {
     for (int i = self.length() - 1; i >= 0; i--) {
       if (predicate.test(self.charAt(i))) return i;
     }
@@ -126,7 +126,7 @@ public class StringMarcelMethods {
     return new StringBuilder(self).reverse().toString();
   }
 
-  public static int count(CharSequence self, CharacterPredicate predicate) {
+  public static int count(CharSequence self, CharPredicate predicate) {
     int count = 0;
     for (int i = 0; i < self.length(); i++) {
       if (predicate.test(self.charAt(i))) count++;
@@ -134,21 +134,21 @@ public class StringMarcelMethods {
     return count;
   }
 
-  public static boolean all(CharSequence self, CharacterPredicate predicate) {
+  public static boolean all(CharSequence self, CharPredicate predicate) {
     for (int i = 0; i < self.length(); i++) {
       if (!predicate.test(self.charAt(i))) return false;
     }
     return true;
   }
 
-  public static boolean none(CharSequence self, CharacterPredicate predicate) {
+  public static boolean none(CharSequence self, CharPredicate predicate) {
     for (int i = 0; i < self.length(); i++) {
       if (predicate.test(self.charAt(i))) return false;
     }
     return true;
   }
 
-  public static boolean any(CharSequence self, CharacterPredicate predicate) {
+  public static boolean any(CharSequence self, CharPredicate predicate) {
     for (int i = 0; i < self.length(); i++) {
       if (predicate.test(self.charAt(i))) return true;
     }

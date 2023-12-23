@@ -1,6 +1,6 @@
 package marcel.lang.lambda;
 
-public interface CharacterLambda1<R> extends Lambda1<Character, R> {
+public interface CharLambda1<R> extends Lambda1<Character, R> {
 
   R invoke(char i);
 

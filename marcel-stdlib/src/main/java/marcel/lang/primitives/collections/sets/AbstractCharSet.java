@@ -1,22 +1,22 @@
 package marcel.lang.primitives.collections.sets;
 
-import marcel.lang.primitives.collections.AbstractCharacterCollection;
-import marcel.lang.primitives.iterators.CharacterIterator;
+import marcel.lang.primitives.collections.AbstractCharCollection;
+import marcel.lang.primitives.iterators.CharIterator;
 
 import java.util.Set;
 
-public abstract class AbstractCharacterSet extends AbstractCharacterCollection implements Cloneable, CharacterSet {
-	protected AbstractCharacterSet() {}
+public abstract class AbstractCharSet extends AbstractCharCollection implements Cloneable, CharSet {
+	protected AbstractCharSet() {}
 	@Override
-	public abstract CharacterIterator iterator();
+	public abstract CharIterator iterator();
 	@Override
 	public boolean equals(final Object o) {
 	 if (o == this) return true;
 	 if (!(o instanceof Set)) return false;
 	 Set<?> s = (Set<?>) o;
 	 if (s.size() != size()) return false;
-	 if (s instanceof CharacterSet) {
-	  return containsAll((CharacterSet) s);
+	 if (s instanceof CharSet) {
+	  return containsAll((CharSet) s);
 	 }
 	 return containsAll(s);
 	}
@@ -30,10 +30,10 @@ public abstract class AbstractCharacterSet extends AbstractCharacterCollection i
 	@Override
 	public int hashCode() {
 	 int h = 0, n = size();
-	 CharacterIterator i = iterator();
+	 CharIterator i = iterator();
 	 char k;
 	 while(n-- != 0) {
-	  k = i.nextCharacter(); // We need k because KEY2JAVAHASH() is a macro with repeated evaluation.
+	  k = i.nextChar(); // We need k because KEY2JAVAHASH() is a macro with repeated evaluation.
 	  h += (k);
 	 }
 	 return h;

@@ -1,15 +1,15 @@
 package marcel.lang.primitives.collections.sets;
 
 import lombok.AllArgsConstructor;
-import marcel.lang.primitives.iterators.CharacterIterator;
+import marcel.lang.primitives.iterators.CharIterator;
 
 @AllArgsConstructor
-public class UnmodifiableCharacterSet extends AbstractCharacterSet {
+public class UnmodifiableCharSet extends AbstractCharSet {
 
-  private final CharacterSet base;
+  private final CharSet base;
 
   @Override
-  public CharacterIterator iterator() {
+  public CharIterator iterator() {
     return base.iterator();
   }
 

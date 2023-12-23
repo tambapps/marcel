@@ -1,17 +1,17 @@
 package marcel.lang.primitives.collections;
 
-import marcel.lang.primitives.iterators.CharacterIterator;
+import marcel.lang.primitives.iterators.CharIterator;
 import marcel.lang.util.Arrays;
-import marcel.lang.util.function.CharacterConsumer;
-import marcel.lang.util.function.CharacterPredicate;
+import marcel.lang.util.function.CharConsumer;
+import marcel.lang.util.function.CharPredicate;
 
 import java.util.AbstractCollection;
 import java.util.Collection;
 
-public abstract class AbstractCharacterCollection extends AbstractCollection<Character> implements CharacterCollection {
-	protected AbstractCharacterCollection() {}
+public abstract class AbstractCharCollection extends AbstractCollection<Character> implements CharCollection {
+	protected AbstractCharCollection() {}
 	@Override
-	public abstract CharacterIterator iterator();
+	public abstract CharIterator iterator();
 	/** {@inheritDoc}
 	 *
 	 * This implementation always throws an {@link UnsupportedOperationException}.
@@ -27,9 +27,9 @@ public abstract class AbstractCharacterCollection extends AbstractCollection<Cha
 	 */
 	@Override
 	public boolean contains(final char k) {
-	 final CharacterIterator iterator = iterator();
+	 final CharIterator iterator = iterator();
     while (iterator.hasNext()) {
-      if (k == iterator.nextCharacter()) {
+      if (k == iterator.nextChar()) {
         return true;
       }
     }
@@ -42,7 +42,7 @@ public abstract class AbstractCharacterCollection extends AbstractCollection<Cha
 	@Deprecated
 	@Override
 	public boolean add(final Character key) {
-	 return CharacterCollection.super.add(key);
+	 return CharCollection.super.add(key);
 	}
 	/** {@inheritDoc}
 	 * @deprecated Please use the corresponding type-specific method instead.
@@ -50,7 +50,7 @@ public abstract class AbstractCharacterCollection extends AbstractCollection<Cha
 	@Deprecated
 	@Override
 	public boolean contains(final Object key) {
-	 return CharacterCollection.super.contains(key);
+	 return CharCollection.super.contains(key);
 	}
 	/** {@inheritDoc}
 	 * @deprecated Please use the corresponding type-specific method instead.
@@ -58,7 +58,7 @@ public abstract class AbstractCharacterCollection extends AbstractCollection<Cha
 	@Deprecated
 	@Override
 	public boolean remove(final Object key) {
-	 return CharacterCollection.super.remove(key);
+	 return CharCollection.super.remove(key);
 	}
 	@Override
 	public char[] toArray(char a[]) {
@@ -72,7 +72,7 @@ public abstract class AbstractCharacterCollection extends AbstractCollection<Cha
 	 return a;
 	}
 	@Override
-	public char[] toCharacterArray() {
+	public char[] toCharArray() {
 		final int size = size();
 		if (size == 0) {
 			return Arrays.EMPTY_CHARACTER_ARRAY;
@@ -86,22 +86,22 @@ public abstract class AbstractCharacterCollection extends AbstractCollection<Cha
 	 * This method exists to make final what should have been final in the interface.
 	 */
 	@Override
-	public void forEach(final CharacterConsumer action) {
-	 CharacterCollection.super.forEach(action);
+	public void forEach(final CharConsumer action) {
+	 CharCollection.super.forEach(action);
 	}
 	/** {@inheritDoc}
 	 *
 	 * This method exists to make final what should have been final in the interface.
 	 */
 	@Override
-	public boolean removeIf(final CharacterPredicate filter) {
-	 return CharacterCollection.super.removeIf(filter);
+	public boolean removeIf(final CharPredicate filter) {
+	 return CharCollection.super.removeIf(filter);
 	}
 	@Override
-	public boolean addAll(final CharacterCollection c) {
+	public boolean addAll(final CharCollection c) {
 	 boolean retVal = false;
-	 for(final CharacterIterator i = c.iterator(); i.hasNext();)
-     if (add(i.nextCharacter())) {
+	 for(final CharIterator i = c.iterator(); i.hasNext();)
+     if (add(i.nextChar())) {
        retVal = true;
      }
 	 return retVal;
@@ -113,15 +113,15 @@ public abstract class AbstractCharacterCollection extends AbstractCollection<Cha
 	 */
 	@Override
 	public boolean addAll(final Collection<? extends Character> c) {
-	 if (c instanceof CharacterCollection) {
-	  return addAll((CharacterCollection) c);
+	 if (c instanceof CharCollection) {
+	  return addAll((CharCollection) c);
 	 }
 	 return super.addAll(c);
 	}
 	@Override
-	public boolean containsAll(final CharacterCollection c) {
-	 for(final CharacterIterator i = c.iterator(); i.hasNext();)
-     if (!contains(i.nextCharacter())) {
+	public boolean containsAll(final CharCollection c) {
+	 for(final CharIterator i = c.iterator(); i.hasNext();)
+     if (!contains(i.nextChar())) {
        return false;
      }
 	 return true;
@@ -133,16 +133,16 @@ public abstract class AbstractCharacterCollection extends AbstractCollection<Cha
 	 */
 	@Override
 	public boolean containsAll(final Collection<?> c) {
-	 if (c instanceof CharacterCollection) {
-	  return containsAll((CharacterCollection) c);
+	 if (c instanceof CharCollection) {
+	  return containsAll((CharCollection) c);
 	 }
 	 return super.containsAll(c);
 	}
 	@Override
-	public boolean removeAll(final CharacterCollection c) {
+	public boolean removeAll(final CharCollection c) {
 	 boolean retVal = false;
-	 for(final CharacterIterator i = c.iterator(); i.hasNext();)
-     if (removeCharacter(i.nextCharacter())) {
+	 for(final CharIterator i = c.iterator(); i.hasNext();)
+     if (removeChar(i.nextChar())) {
        retVal = true;
      }
 	 return retVal;
@@ -154,16 +154,16 @@ public abstract class AbstractCharacterCollection extends AbstractCollection<Cha
 	 */
 	@Override
 	public boolean removeAll(final Collection<?> c) {
-	 if (c instanceof CharacterCollection) {
-	  return removeAll((CharacterCollection) c);
+	 if (c instanceof CharCollection) {
+	  return removeAll((CharCollection) c);
 	 }
 	 return super.removeAll(c);
 	}
 	@Override
-	public boolean retainAll(final CharacterCollection c) {
+	public boolean retainAll(final CharCollection c) {
 	 boolean retVal = false;
-	 for(final CharacterIterator i = iterator(); i.hasNext();)
-	  if (! c.contains(i.nextCharacter())) {
+	 for(final CharIterator i = iterator(); i.hasNext();)
+	  if (! c.contains(i.nextChar())) {
 	   i.remove();
 	   retVal = true;
 	  }
@@ -176,15 +176,15 @@ public abstract class AbstractCharacterCollection extends AbstractCollection<Cha
 	 */
 	@Override
 	public boolean retainAll(final Collection<?> c) {
-	 if (c instanceof CharacterCollection) {
-	  return retainAll((CharacterCollection) c);
+	 if (c instanceof CharCollection) {
+	  return retainAll((CharCollection) c);
 	 }
 	 return super.retainAll(c);
 	}
 	@Override
 	public String toString() {
 	 final StringBuilder s = new StringBuilder();
-	 final CharacterIterator i = iterator();
+	 final CharIterator i = iterator();
 	 int n = size();
 	 char k;
 	 boolean first = true;
@@ -195,7 +195,7 @@ public abstract class AbstractCharacterCollection extends AbstractCollection<Cha
      } else {
        s.append(", ");
      }
-	  k = i.nextCharacter();
+	  k = i.nextChar();
 	   s.append(String.valueOf(k));
 	 }
 	 s.append("}");

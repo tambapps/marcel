@@ -1,6 +1,6 @@
 package marcel.lang.util;
 
-import marcel.lang.util.function.CharacterComparator;
+import marcel.lang.util.function.CharComparator;
 import marcel.lang.util.function.DoubleComparator;
 import marcel.lang.util.function.FloatComparator;
 import marcel.lang.util.function.IntComparator;
@@ -37,9 +37,9 @@ public class Comparators {
       public int compare(Float x, Float y) { return c.compare(x, y); }
     };
   }
-  public static CharacterComparator asCharacterComparator(final Comparator<? super Character> c) {
-    if (c == null || c instanceof CharacterComparator) return (CharacterComparator) c;
-    return new CharacterComparator() {
+  public static CharComparator asCharComparator(final Comparator<? super Character> c) {
+    if (c == null || c instanceof CharComparator) return (CharComparator) c;
+    return new CharComparator() {
       @Override
       public int compare(char x, char y) { return c.compare(Character.valueOf(x), Character.valueOf(y)); }
       @Override

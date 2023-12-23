@@ -101,7 +101,7 @@ object SemanticHelper {
         JavaType.long -> JavaType.of(LongLambda1::class.java).withGenericTypes(returnType)
         JavaType.float -> JavaType.of(FloatLambda1::class.java).withGenericTypes(returnType)
         JavaType.double -> JavaType.of(DoubleLambda1::class.java).withGenericTypes(returnType)
-        JavaType.char -> JavaType.of(CharacterLambda1::class.java).withGenericTypes(returnType)
+        JavaType.char -> JavaType.of(CharLambda1::class.java).withGenericTypes(returnType)
         else -> JavaType.of(Lambda1::class.java).withGenericTypes(lambdaParameters.first().type.objectType, returnType)
       }
       2 -> JavaType.of(Lambda2::class.java).withGenericTypes(lambdaParameters.map { it.type } + returnType)

@@ -1,7 +1,7 @@
 package marcel.lang.util.function;
 
 @FunctionalInterface
-public interface CharacterFunction<R> {
+public interface CharFunction<R> {
 
     /**
      * Applies this function to the given argument.

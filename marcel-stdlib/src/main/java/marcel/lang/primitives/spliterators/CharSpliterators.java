@@ -1,19 +1,19 @@
 package marcel.lang.primitives.spliterators;
 
-import marcel.lang.primitives.iterators.CharacterIterator;
+import marcel.lang.primitives.iterators.CharIterator;
 import marcel.lang.util.Arrays;
 import marcel.lang.util.Comparators;
 import marcel.lang.util.SafeMath;
-import marcel.lang.util.function.CharacterComparator;
-import marcel.lang.util.function.CharacterConsumer;
-import marcel.lang.util.function.CharacterPredicate;
+import marcel.lang.util.function.CharComparator;
+import marcel.lang.util.function.CharConsumer;
+import marcel.lang.util.function.CharPredicate;
 
 import java.util.Objects;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-public final class CharacterSpliterators {
-	private CharacterSpliterators() {}
+public final class CharSpliterators {
+	private CharSpliterators() {}
 	static final int BASE_SPLITERATOR_CHARACTERISTICS = Spliterator.NONNULL;
 	// Default characteristics for various Collection implementations
 	public static final int COLLECTION_SPLITERATOR_CHARACTERISTICS = BASE_SPLITERATOR_CHARACTERISTICS | Spliterator.SIZED;
@@ -26,23 +26,23 @@ public final class CharacterSpliterators {
 	 * <p>This class may be useful to implement your own in case you subclass
 	 * a type-specific spliterator.
 	 */
-	public static class EmptySpliterator implements CharacterSpliterator , java.io.Serializable, Cloneable {
+	public static class EmptySpliterator implements CharSpliterator, java.io.Serializable, Cloneable {
 	 private static final long serialVersionUID = 8379247926738230492L;
 	 private static final int CHARACTERISTICS = Spliterator.SIZED | Spliterator.SUBSIZED;
 	 protected EmptySpliterator() {}
 	 @Override
-	 public boolean tryAdvance(final CharacterConsumer action) { return false; }
+	 public boolean tryAdvance(final CharConsumer action) { return false; }
 	 @Deprecated
 	 @Override
 	 public boolean tryAdvance(final Consumer<? super Character> action) { return false; }
 	 @Override
-	 public CharacterSpliterator trySplit() { return null; }
+	 public CharSpliterator trySplit() { return null; }
 	 @Override
 	 public long estimateSize() { return 0; }
 	 @Override
 	 public int characteristics() { return CHARACTERISTICS; }
 	 @Override
-	 public void forEachRemaining(final CharacterConsumer action) { }
+	 public void forEachRemaining(final CharConsumer action) { }
 	 @Deprecated
 	 @Override
 	 public void forEachRemaining(final Consumer<? super Character> action) { }
@@ -57,9 +57,9 @@ public final class CharacterSpliterators {
 	 */
 	public static final EmptySpliterator EMPTY_SPLITERATOR = new EmptySpliterator();
 	/** a spliterator returning a single element. */
-	private static class SingletonSpliterator implements CharacterSpliterator {
+	private static class SingletonSpliterator implements CharSpliterator {
 	 private final char element;
-	 private final CharacterComparator comparator;
+	 private final CharComparator comparator;
 	 private boolean consumed = false;
 	 private static final int CHARACTERISTICS = BASE_SPLITERATOR_CHARACTERISTICS
 	  | Spliterator.SIZED | Spliterator.SUBSIZED | Spliterator.ORDERED
@@ -67,12 +67,12 @@ public final class CharacterSpliterators {
 	 public SingletonSpliterator(final char element) {
 	  this(element, null);
 	 }
-	 public SingletonSpliterator(final char element, final CharacterComparator comparator) {
+	 public SingletonSpliterator(final char element, final CharComparator comparator) {
 	  this.element = element;
 	  this.comparator = comparator;
 	 }
 	 @Override
-	 public boolean tryAdvance(CharacterConsumer action) {
+	 public boolean tryAdvance(CharConsumer action) {
 	  Objects.requireNonNull(action);
 	  if (consumed) return false;
 	  // Existing JVM implementations advance even if the action throw.
@@ -81,7 +81,7 @@ public final class CharacterSpliterators {
 	  return true;
 	 }
 	 @Override
-	 public CharacterSpliterator trySplit() { return null; }
+	 public CharSpliterator trySplit() { return null; }
 	 @Override
 	 public long estimateSize() { return consumed ? 0 : 1; }
 	 @Override
@@ -89,7 +89,7 @@ public final class CharacterSpliterators {
 	  return CHARACTERISTICS;
 	 }
 	 @Override
-	 public void forEachRemaining(final CharacterConsumer action) {
+	 public void forEachRemaining(final CharConsumer action) {
 	  Objects.requireNonNull(action);
 	  if (!consumed) {
 	   consumed = true;
@@ -97,7 +97,7 @@ public final class CharacterSpliterators {
 	  }
 	 }
 	 @Override
-	 public CharacterComparator getComparator() {
+	 public CharComparator getComparator() {
 	  return comparator;
 	 }
 	 @Override
@@ -113,7 +113,7 @@ public final class CharacterSpliterators {
 	 * @param element the only element to be returned by a type-specific spliterator.
 	 * @return a spliterator that iterates just over {@code element}.
 	 */
-	public static CharacterSpliterator singleton(final char element) {
+	public static CharSpliterator singleton(final char element) {
 	 return new SingletonSpliterator (element);
 	}
 	/** Returns a spliterator that iterates just over the given element.
@@ -126,11 +126,11 @@ public final class CharacterSpliterators {
 	 * @param comparator the comparator to return when {@link Spliterator#getComparator()} is called.
 	 * @return a spliterator that iterates just over {@code element}.
 	 */
-	public static CharacterSpliterator singleton(final char element, final CharacterComparator comparator) {
+	public static CharSpliterator singleton(final char element, final CharComparator comparator) {
 	 return new SingletonSpliterator (element, comparator);
 	}
 	/** A class to wrap arrays in spiterators. */
-	private static class ArraySpliterator implements CharacterSpliterator {
+	private static class ArraySpliterator implements CharSpliterator {
 	 private static final int BASE_CHARACTERISTICS = BASE_SPLITERATOR_CHARACTERISTICS
 	  | Spliterator.SIZED | Spliterator.SUBSIZED | Spliterator.ORDERED;
 	 final char[] array;
@@ -145,7 +145,7 @@ public final class CharacterSpliterators {
 	  characteristics = BASE_CHARACTERISTICS | additionalCharacteristics;
 	 }
 	 @Override
-	 public boolean tryAdvance(CharacterConsumer action) {
+	 public boolean tryAdvance(CharConsumer action) {
 	  if (curr >= length) return false;
 	  Objects.requireNonNull(action);
 	  action.accept(array[offset + curr++]);
@@ -159,7 +159,7 @@ public final class CharacterSpliterators {
 	  return new ArraySpliterator (array, newOffset, newLength, characteristics);
 	 }
 	 @Override
-	 public CharacterSpliterator trySplit() {
+	 public CharSpliterator trySplit() {
 	  int retLength = (length - curr) >> 1;
 	  if (retLength <= 1) return null;
 	  int myNewCurr = curr + retLength;
@@ -170,7 +170,7 @@ public final class CharacterSpliterators {
 	  return makeForSplit(retOffset, retLength);
 	 }
 	 @Override
-	 public void forEachRemaining(final CharacterConsumer action) {
+	 public void forEachRemaining(final CharConsumer action) {
 	  Objects.requireNonNull(action);
 	  for (; curr < length; ++curr) {
 	   action.accept(array[offset + curr]);
@@ -191,8 +191,8 @@ public final class CharacterSpliterators {
 	 }
 	}
 	private static class ArraySpliteratorWithComparator extends ArraySpliterator {
-	 private final CharacterComparator comparator;
-	 public ArraySpliteratorWithComparator(final char[] array, final int offset, final int length, int additionalCharacteristics, final CharacterComparator comparator) {
+	 private final CharComparator comparator;
+	 public ArraySpliteratorWithComparator(final char[] array, final int offset, final int length, int additionalCharacteristics, final CharComparator comparator) {
 	  super(array, offset, length, additionalCharacteristics | SORTED_CHARACTERISTICS);
 	  this.comparator = comparator;
 	 }
@@ -201,7 +201,7 @@ public final class CharacterSpliterators {
 	  return new ArraySpliteratorWithComparator (array, newOffset, newLength, characteristics, comparator);
 	 }
 	 @Override
-	 public CharacterComparator getComparator() {
+	 public CharComparator getComparator() {
 	  return comparator;
 	 }
 	}
@@ -220,7 +220,7 @@ public final class CharacterSpliterators {
 	 * @param length the number of elements to return.
 	 * @return a spliterator that will iterate over {@code length} elements of {@code array} starting at position {@code offset}.
 	 */
-	public static CharacterSpliterator wrap(final char[] array, final int offset, final int length) {
+	public static CharSpliterator wrap(final char[] array, final int offset, final int length) {
 	 Arrays.ensureOffsetLength(array, offset, length);
 	 return new ArraySpliterator (array, offset, length, 0);
 	}
@@ -236,7 +236,7 @@ public final class CharacterSpliterators {
 	 * @param array an array to wrap into a type-specific spliterator.
 	 * @return a spliterator that will iterate over the elements of {@code array}.
 	 */
-	public static CharacterSpliterator wrap(final char[] array) {
+	public static CharSpliterator wrap(final char[] array) {
 	 return new ArraySpliterator (array, 0, array.length, 0);
 	}
 	/** Wraps the given part of an array into a type-specific spliterator.
@@ -257,7 +257,7 @@ public final class CharacterSpliterators {
 	 * @param additionalCharacteristics any additional characteristics to report.
 	 * @return a spliterator that will iterate over {@code length} elements of {@code array} starting at position {@code offset}.
 	 */
-	public static CharacterSpliterator wrap(final char[] array, final int offset, final int length, final int additionalCharacteristics) {
+	public static CharSpliterator wrap(final char[] array, final int offset, final int length, final int additionalCharacteristics) {
 	 Arrays.ensureOffsetLength(array, offset, length);
 	 return new ArraySpliterator (array, offset, length, additionalCharacteristics);
 	}
@@ -284,8 +284,8 @@ public final class CharacterSpliterators {
 	 * @param comparator the comparator the array was sorted with (or {@code null} for natural ordering)
 	 * @return a spliterator that will iterate over {@code length} elements of {@code array} starting at position {@code offset}.
 	 */
-	public static CharacterSpliterator wrapPreSorted(
-	  final char[] array, final int offset, final int length, final int additionalCharacteristics, CharacterComparator comparator) {
+	public static CharSpliterator wrapPreSorted(
+	  final char[] array, final int offset, final int length, final int additionalCharacteristics, CharComparator comparator) {
 	 Arrays.ensureOffsetLength(array, offset, length);
 	 return new ArraySpliteratorWithComparator (array, offset, length, additionalCharacteristics, comparator);
 	}
@@ -309,8 +309,8 @@ public final class CharacterSpliterators {
 	 * @param comparator the comparator the array was sorted with (or {@code null} for natural ordering)
 	 * @return a spliterator that will iterate over {@code length} elements of {@code array} starting at position {@code offset}.
 	 */
-	public static CharacterSpliterator wrapPreSorted(
-	  final char[] array, final int offset, final int length, CharacterComparator comparator) {
+	public static CharSpliterator wrapPreSorted(
+	  final char[] array, final int offset, final int length, CharComparator comparator) {
 	 return wrapPreSorted(array, offset, length, 0, comparator);
 	}
 	/** Wraps the given sorted array into a type-specific spliterator.
@@ -330,8 +330,8 @@ public final class CharacterSpliterators {
 	 * @param comparator the comparator the array was sorted with (or {@code null} for natural ordering)
 	 * @return a spliterator that will iterate over {@code length} elements of {@code array} starting at position {@code offset}.
 	 */
-	public static CharacterSpliterator wrapPreSorted(
-	  final char[] array, CharacterComparator comparator) {
+	public static CharSpliterator wrapPreSorted(
+	  final char[] array, CharComparator comparator) {
 	 return wrapPreSorted(array, 0, array.length, comparator);
 	}
 	// There is no non-comparator version of wrapPreSorted; because Spliterator has to return the Comparator
@@ -339,7 +339,7 @@ public final class CharacterSpliterators {
 	// wrap, unwrap, and pour are not provided because if you are using Spliterators, you typically
 	// are going to be using streams. That and Spliterator's API isn't well suited for these
 	// types of tasks.
-	private static class SpliteratorWrapper implements CharacterSpliterator {
+	private static class SpliteratorWrapper implements CharSpliterator {
 	 final Spliterator<Character> i;
 	 public SpliteratorWrapper(final Spliterator<Character> i) {
 	  this.i = i;
@@ -349,7 +349,7 @@ public final class CharacterSpliterators {
 
 	 @SuppressWarnings("unchecked")
 	 @Override
-	 public boolean tryAdvance(final CharacterConsumer action) {
+	 public boolean tryAdvance(final CharConsumer action) {
 	  Objects.requireNonNull(action);
 	  return i.tryAdvance(action);
 	 }
@@ -362,7 +362,7 @@ public final class CharacterSpliterators {
 	 // delegate as an Object consumer, not wrap it as a primitive one.
 	 @SuppressWarnings("unchecked")
 	 @Override
-	 public void forEachRemaining(final CharacterConsumer action) {
+	 public void forEachRemaining(final CharConsumer action) {
 	  Objects.requireNonNull(action);
 	  i.forEachRemaining(action);
 	 }
@@ -376,44 +376,44 @@ public final class CharacterSpliterators {
 	 @Override
 	 public int characteristics() { return i.characteristics(); }
 	 @Override
-	 public CharacterComparator getComparator() {
-	  return Comparators.asCharacterComparator(i.getComparator());
+	 public CharComparator getComparator() {
+	  return Comparators.asCharComparator(i.getComparator());
 	 }
 	 @Override
-	 public CharacterSpliterator trySplit() {
+	 public CharSpliterator trySplit() {
 	  Spliterator<Character> innerSplit = i.trySplit();
 	  if (innerSplit == null) return null;
 	  return new SpliteratorWrapper (innerSplit);
 	 }
 	}
 	private static class SpliteratorWrapperWithComparator extends SpliteratorWrapper {
-	 final CharacterComparator comparator;
-	 public SpliteratorWrapperWithComparator(final Spliterator<Character> i, final CharacterComparator comparator) {
+	 final CharComparator comparator;
+	 public SpliteratorWrapperWithComparator(final Spliterator<Character> i, final CharComparator comparator) {
 	  super(i);
 	  this.comparator = comparator;
 	 }
 	 @Override
-	 public CharacterComparator getComparator() {
+	 public CharComparator getComparator() {
 	  return comparator;
 	 }
 	 @Override
-	 public CharacterSpliterator trySplit() {
+	 public CharSpliterator trySplit() {
 	  Spliterator<Character> innerSplit = i.trySplit();
 	  if (innerSplit == null) return null;
 	  return new SpliteratorWrapperWithComparator (innerSplit, comparator);
 	 }
 	}
-	private static class PrimitiveSpliteratorWrapper implements CharacterSpliterator {
-	 final OfPrimitive<Character, CharacterConsumer, CharacterSpliterator> i;
-	 public PrimitiveSpliteratorWrapper(final OfPrimitive<Character, CharacterConsumer, CharacterSpliterator> i) {
+	private static class PrimitiveSpliteratorWrapper implements CharSpliterator {
+	 final OfPrimitive<Character, CharConsumer, CharSpliterator> i;
+	 public PrimitiveSpliteratorWrapper(final OfPrimitive<Character, CharConsumer, CharSpliterator> i) {
 	  this.i = i;
 	 }
 	 @Override
-	 public boolean tryAdvance(final CharacterConsumer action) {
+	 public boolean tryAdvance(final CharConsumer action) {
 	  return i.tryAdvance(action);
 	 }
 	 @Override
-	 public void forEachRemaining(final CharacterConsumer action) {
+	 public void forEachRemaining(final CharConsumer action) {
 	  i.forEachRemaining(action);
 	 }
 	 @Override
@@ -421,29 +421,29 @@ public final class CharacterSpliterators {
 	 @Override
 	 public int characteristics() { return i.characteristics(); }
 	 @Override
-	 public CharacterComparator getComparator() {
-	   return Comparators.asCharacterComparator(i.getComparator());
+	 public CharComparator getComparator() {
+	   return Comparators.asCharComparator(i.getComparator());
 	 }
 	 @Override
-	 public CharacterSpliterator trySplit() {
-		 OfPrimitive<Character, CharacterConsumer, CharacterSpliterator> innerSplit = i.trySplit();
+	 public CharSpliterator trySplit() {
+		 OfPrimitive<Character, CharConsumer, CharSpliterator> innerSplit = i.trySplit();
 	  if (innerSplit == null) return null;
 	  return new PrimitiveSpliteratorWrapper(innerSplit);
 	 }
 	}
 	private static class PrimitiveSpliteratorWrapperWithComparator extends PrimitiveSpliteratorWrapper {
-	 final CharacterComparator comparator;
-	 public PrimitiveSpliteratorWrapperWithComparator(final OfPrimitive<Character, CharacterConsumer, CharacterSpliterator> i, final CharacterComparator comparator) {
+	 final CharComparator comparator;
+	 public PrimitiveSpliteratorWrapperWithComparator(final OfPrimitive<Character, CharConsumer, CharSpliterator> i, final CharComparator comparator) {
 	  super(i);
 	  this.comparator = comparator;
 	 }
 	 @Override
-	 public CharacterComparator getComparator() {
+	 public CharComparator getComparator() {
 	  return comparator;
 	 }
 	 @Override
-	 public CharacterSpliterator trySplit() {
-		 OfPrimitive<Character, CharacterConsumer, CharacterSpliterator> innerSplit = i.trySplit();
+	 public CharSpliterator trySplit() {
+		 OfPrimitive<Character, CharConsumer, CharSpliterator> innerSplit = i.trySplit();
 	  if (innerSplit == null) return null;
 	  return new PrimitiveSpliteratorWrapperWithComparator(innerSplit, comparator);
 	 }
@@ -463,9 +463,9 @@ public final class CharacterSpliterators {
 	 * @return a type-specific spliterator backed by {@code i}.
 	 */
 	@SuppressWarnings({"unchecked","rawtypes"})
-	public static CharacterSpliterator asCharacterSpliterator(final Spliterator i) {
-	 if (i instanceof CharacterSpliterator) return (CharacterSpliterator )i;
-	 if (i instanceof Spliterator.OfPrimitive) return new PrimitiveSpliteratorWrapper ((Spliterator.OfPrimitive<Character, CharacterConsumer, CharacterSpliterator>)i);
+	public static CharSpliterator asCharacterSpliterator(final Spliterator i) {
+	 if (i instanceof CharSpliterator) return (CharSpliterator)i;
+	 if (i instanceof Spliterator.OfPrimitive) return new PrimitiveSpliteratorWrapper ((Spliterator.OfPrimitive<Character, CharConsumer, CharSpliterator>)i);
 	 return new SpliteratorWrapper (i);
 	}
 	/** Wraps a standard spliterator into a type-specific spliterator.
@@ -491,9 +491,9 @@ public final class CharacterSpliterators {
 	 * @return a type-specific spliterator backed by {@code i}.
 	 */
 	@SuppressWarnings({"unchecked","rawtypes"})
-	public static CharacterSpliterator asCharacterSpliterator(final Spliterator i, final CharacterComparator comparatorOverride) {
-	 if (i instanceof CharacterSpliterator) throw new IllegalArgumentException("Cannot override comparator on instance that is already a " + CharacterSpliterator.class.getSimpleName());
-	 if (i instanceof Spliterator.OfPrimitive) return new PrimitiveSpliteratorWrapperWithComparator ((Spliterator.OfPrimitive<Character, CharacterConsumer, CharacterSpliterator>)i, comparatorOverride);
+	public static CharSpliterator asCharacterSpliterator(final Spliterator i, final CharComparator comparatorOverride) {
+	 if (i instanceof CharSpliterator) throw new IllegalArgumentException("Cannot override comparator on instance that is already a " + CharSpliterator.class.getSimpleName());
+	 if (i instanceof Spliterator.OfPrimitive) return new PrimitiveSpliteratorWrapperWithComparator ((Spliterator.OfPrimitive<Character, CharConsumer, CharSpliterator>)i, comparatorOverride);
 	 return new SpliteratorWrapperWithComparator (i, comparatorOverride);
 	}
 	/**
@@ -502,7 +502,7 @@ public final class CharacterSpliterators {
 	 * <p>This is equivalent to {@code java.util.stream.StreamSupport.stream(spliterator).filter(predicate).forEach(action)}
 	 * (substitute the proper primitive stream as needed), except it may perform better (but no potential for parallelism).
 	 */
-	public static void onEachMatching(final CharacterSpliterator spliterator, final CharacterPredicate predicate, final CharacterConsumer action) {
+	public static void onEachMatching(final CharSpliterator spliterator, final CharPredicate predicate, final CharConsumer action) {
 	 Objects.requireNonNull(predicate);
 	 Objects.requireNonNull(action);
 	 spliterator.forEachRemaining((char value) -> {
@@ -525,7 +525,7 @@ public final class CharacterSpliterators {
 	 * good idea to override the class as {@code final} as to encourage the JVM to inline
 	 * them (or alternatively, override the abstract methods as final).
 	 */
-	public static abstract class AbstractIndexBasedSpliterator implements CharacterSpliterator {
+	public static abstract class AbstractIndexBasedSpliterator implements CharSpliterator {
 	 /** The current position index, the index of the item to be given after the next call to {@link #tryAdvance}.
 		 *
 		 * <p>This value will be between {@code minPos} and {@link #getMaxPos()} (exclusive) (on a best effort, so concurrent
@@ -576,7 +576,7 @@ public final class CharacterSpliterators {
 		 * end point.
 		 * As such, this method should also not change what {@link #getMaxPos()} returns.
 		 */
-	 protected abstract CharacterSpliterator makeForSplit(int pos, int maxPos);
+	 protected abstract CharSpliterator makeForSplit(int pos, int maxPos);
 	 /** Compute where to split on the next {@link #trySplit()}, given the current pos and
 		 * {@link #getMaxPos()} (or any other metric the implementation wishes to use).
 		 *
@@ -610,17 +610,17 @@ public final class CharacterSpliterators {
 	 }
 	 // Since this is an index based spliterator, list characteristics make sense.
 	 @Override
-	 public int characteristics() { return CharacterSpliterators.LIST_SPLITERATOR_CHARACTERISTICS; }
+	 public int characteristics() { return CharSpliterators.LIST_SPLITERATOR_CHARACTERISTICS; }
 	 @Override
 	 public long estimateSize() { return (long)getMaxPos() - pos; }
 	 @Override
-	 public boolean tryAdvance(final CharacterConsumer action) {
+	 public boolean tryAdvance(final CharConsumer action) {
 	  if (pos >= getMaxPos()) return false;
 	  action.accept(get(pos++));
 	  return true;
 	 }
 	 @Override
-	 public void forEachRemaining(final CharacterConsumer action) {
+	 public void forEachRemaining(final CharConsumer action) {
 	  for (final int max = getMaxPos(); pos < max; ++pos) {
 	   action.accept(get(pos));
 	  }
@@ -652,13 +652,13 @@ public final class CharacterSpliterators {
 		 *  {@code < pos} or {@code > {@link #getMaxPos()}}.
 		 */
 	 @Override
-	 public CharacterSpliterator trySplit() {
+	 public CharSpliterator trySplit() {
 	  final int max = getMaxPos();
 	  final int splitPoint = computeSplitPoint();
 	  if (splitPoint == pos || splitPoint == max) return null;
 	  splitPointCheck(splitPoint, max);
 	  int oldPos = pos;
-	  CharacterSpliterator maybeSplit = makeForSplit(oldPos, splitPoint);
+	  CharSpliterator maybeSplit = makeForSplit(oldPos, splitPoint);
 	  if (maybeSplit != null) this.pos = splitPoint;
 	  return maybeSplit;
 	 }
@@ -728,8 +728,8 @@ public final class CharacterSpliterators {
 	 @Override
 	 protected final int getMaxPos() { return maxPosFixed ? maxPos : getMaxPosFromBackingStore(); }
 	 @Override
-	 public CharacterSpliterator trySplit() {
-	  CharacterSpliterator maybeSplit = super.trySplit();
+	 public CharSpliterator trySplit() {
+	  CharSpliterator maybeSplit = super.trySplit();
 	  if (!maxPosFixed && maybeSplit != null) {
 	   maxPos = getMaxPosFromBackingStore();
 	   maxPosFixed = true;
@@ -737,7 +737,7 @@ public final class CharacterSpliterators {
 	  return maybeSplit;
 	 }
 	}
-	private static class IntervalSpliterator implements CharacterSpliterator {
+	private static class IntervalSpliterator implements CharSpliterator {
 	 private static final int DONT_SPLIT_THRESHOLD = 2;
 	 private static final int CHARACTERISTICS = BASE_SPLITERATOR_CHARACTERISTICS
 	  | Spliterator.SIZED | Spliterator.SUBSIZED | Spliterator.ORDERED
@@ -749,13 +749,13 @@ public final class CharacterSpliterators {
 	  this.to = to;
 	 }
 	 @Override
-	 public boolean tryAdvance(final CharacterConsumer action) {
+	 public boolean tryAdvance(final CharConsumer action) {
 	  if (curr >= to) return false;
 	  action.accept(curr++);
 	  return true;
 	 }
 	 @Override
-	 public void forEachRemaining(final CharacterConsumer action) {
+	 public void forEachRemaining(final CharConsumer action) {
 	  Objects.requireNonNull(action);
 	  for (; curr < to; ++curr) {
 	   action.accept(curr);
@@ -770,12 +770,12 @@ public final class CharacterSpliterators {
 	  return CHARACTERISTICS;
 	 }
 	 @Override
-	 public CharacterComparator getComparator() {
+	 public CharComparator getComparator() {
 	  // Return null to indicate natural ordering.
 	  return null;
 	 }
 	 @Override
-	 public CharacterSpliterator trySplit() {
+	 public CharSpliterator trySplit() {
 	  long remaining = to - curr;
 	  char mid = (char)(curr + (remaining >> 1));
 	  if (remaining >= 0 && remaining <= DONT_SPLIT_THRESHOLD) return null;
@@ -809,21 +809,21 @@ public final class CharacterSpliterators {
 	 * @param to the ending element (exclusive).
 	 * @return a type-specific spliterator enumerating the elements from {@code from} to {@code to}.
 	 */
-	public static CharacterSpliterator fromTo(final char from, final char to) {
+	public static CharSpliterator fromTo(final char from, final char to) {
 	 return new IntervalSpliterator(from, to);
 	}
-	private static class SpliteratorConcatenator implements CharacterSpliterator {
+	private static class SpliteratorConcatenator implements CharSpliterator {
 	 private static final int EMPTY_CHARACTERISTICS = Spliterator.SIZED | Spliterator.SUBSIZED;
 	 // Neither SORTED nor DISTINCT "combine". Two combined spliterators with these characteristics may not have it.
 	 // Example, {1, 2} and {1, 3}, both SORTED and DISTINCT, concat to {1, 2, 1, 3}, which isn't.
 	 private static final int CHARACTERISTICS_NOT_SUPPORTED_WHILE_MULTIPLE = Spliterator.SORTED | Spliterator.DISTINCT;
-	 final CharacterSpliterator[] a;
+	 final CharSpliterator[] a;
 	 // Unlike the other classes in this file, length represents remaining, NOT the high mark for offset.
 	 int offset, length;
 	 /** The sum of estimatedRemaining <em>except</em> current offset */
 	 long remainingEstimatedExceptCurrent = Long.MAX_VALUE;
 	 int characteristics = 0;
-	 public SpliteratorConcatenator(final CharacterSpliterator[] a, int offset, int length) {
+	 public SpliteratorConcatenator(final CharSpliterator[] a, int offset, int length) {
 	  this.a = a;
 	  this.offset = offset;
 	  this.length = length;
@@ -875,7 +875,7 @@ public final class CharacterSpliterators {
 	  // return value on an instance is after a call to trySplt().
 	 }
 	 @Override
-	 public boolean tryAdvance(final CharacterConsumer action) {
+	 public boolean tryAdvance(final CharConsumer action) {
 	  boolean any = false;
 	  while(length > 0) {
 	   if (a[offset].tryAdvance(action)) {
@@ -887,7 +887,7 @@ public final class CharacterSpliterators {
 	  return any;
 	 }
 	 @Override
-	 public void forEachRemaining(final CharacterConsumer action) {
+	 public void forEachRemaining(final CharConsumer action) {
 	  while (length > 0) {
 	   a[offset].forEachRemaining(action);
 	   advanceNextSpliterator();
@@ -916,14 +916,14 @@ public final class CharacterSpliterators {
 	  return characteristics;
 	 }
 	 @Override
-	 public CharacterComparator getComparator() {
+	 public CharComparator getComparator() {
 	  if (length == 1 && ((characteristics & Spliterator.SORTED) != 0) ) {
-	   return (CharacterComparator) a[offset].getComparator();
+	   return (CharComparator) a[offset].getComparator();
 	  }
 	  throw new IllegalStateException();
 	 }
 	 @Override
-	 public CharacterSpliterator trySplit() {
+	 public CharSpliterator trySplit() {
 	  /* First we split on the spliterators array, with new concating spliterators for those array slices.
 			 * Then if we can't split anymore due to only 1 spliterator we are "concating", return the splits
 			 * of that single spliterator.
@@ -932,7 +932,7 @@ public final class CharacterSpliterators {
 	   case 0: return null;
 	   case 1: {
 	    // We are on the last spliterator. So now we ask it to split.
-	    CharacterSpliterator split = a[offset].trySplit();
+	    CharSpliterator split = a[offset].trySplit();
 	    // It is possible for a Spliterator to change characteristics after a split.
 	    // e.g. a SIZED but not SUBSIZED spliterator may split into non-SIZED spliterators.
 	    this.characteristics = a[offset].characteristics();
@@ -941,7 +941,7 @@ public final class CharacterSpliterators {
 	   case 2: {
 	    // Per spec, this instance becomes suffix, and we return prefix.
 	    // Fetch first to return
-	    CharacterSpliterator split = a[offset++];
+	    CharSpliterator split = a[offset++];
 	    --length;
 	    // assert length == 1;
 	    // We become the second
@@ -993,7 +993,7 @@ public final class CharacterSpliterators {
 	 * @param a an array of spliterators.
 	 * @return a spliterator obtained by concatenation.
 	 */
-	public static CharacterSpliterator concat(final CharacterSpliterator ... a) {
+	public static CharSpliterator concat(final CharSpliterator... a) {
 	 return concat(a, 0, a.length);
 	}
 	/** Concatenates a sequence of spliterators contained in an array.
@@ -1013,13 +1013,13 @@ public final class CharacterSpliterators {
 	 * @param length the number of spliterators to concatenate.
 	 * @return a spliterator obtained by concatenation of {@code length} elements of {@code a} starting at {@code offset}.
 	 */
-	public static CharacterSpliterator concat(final CharacterSpliterator[] a, final int offset, final int length) {
+	public static CharSpliterator concat(final CharSpliterator[] a, final int offset, final int length) {
 	 return new SpliteratorConcatenator (a, offset, length);
 	}
-	private static class SpliteratorFromIterator implements CharacterSpliterator {
+	private static class SpliteratorFromIterator implements CharSpliterator {
 	 private static final int BATCH_INCREMENT_SIZE = 1024;
 	 private static final int BATCH_MAX_SIZE = 1 << 25;
-	 private final CharacterIterator iter;
+	 private final CharIterator iter;
 	 final int characteristics;
 	 private final boolean knownSize;
 	 /** If {@code knownSize}, then has the remaining size left.
@@ -1028,13 +1028,13 @@ public final class CharacterSpliterators {
 	 private long size = Long.MAX_VALUE;
 	 private int nextBatchSize = BATCH_INCREMENT_SIZE;
 	 /** Used to "finish off" elements once we hit the end while splitting. */
-	 private CharacterSpliterator delegate = null;
-	 SpliteratorFromIterator(final CharacterIterator iter, int characteristics) {
+	 private CharSpliterator delegate = null;
+	 SpliteratorFromIterator(final CharIterator iter, int characteristics) {
 	  this.iter = iter;
 	  this.characteristics = BASE_SPLITERATOR_CHARACTERISTICS | characteristics;
 	  knownSize = false;
 	 }
-	 SpliteratorFromIterator(final CharacterIterator iter, long size, int additionalCharacteristics) {
+	 SpliteratorFromIterator(final CharIterator iter, long size, int additionalCharacteristics) {
 	  this.iter = iter;
 	  knownSize = true;
 	  this.size = size;
@@ -1045,7 +1045,7 @@ public final class CharacterSpliterators {
 	  }
 	 }
 	 @Override
-	 public boolean tryAdvance(final CharacterConsumer action) {
+	 public boolean tryAdvance(final CharConsumer action) {
 	  if (delegate != null){
 	   boolean hadRemaining = delegate.tryAdvance(action);
 	   if (!hadRemaining) delegate = null;
@@ -1053,11 +1053,11 @@ public final class CharacterSpliterators {
 	  }
 	  if (!iter.hasNext()) return false;
 	  --size;
-	  action.accept(iter.nextCharacter());
+	  action.accept(iter.nextChar());
 	  return true;
 	 }
 	 @Override
-	 public void forEachRemaining(final CharacterConsumer action) {
+	 public void forEachRemaining(final CharConsumer action) {
 	  if (delegate != null) {
 	   delegate.forEachRemaining(action);
 	   delegate = null;
@@ -1077,30 +1077,30 @@ public final class CharacterSpliterators {
 	 public int characteristics() {
 	  return characteristics;
 	 }
-	 protected CharacterSpliterator makeForSplit(char[] batch, int len) {
+	 protected CharSpliterator makeForSplit(char[] batch, int len) {
 	  return wrap(batch, 0, len, characteristics);
 	 }
 	 @Override
-	 public CharacterSpliterator trySplit() {
+	 public CharSpliterator trySplit() {
 	  if (!iter.hasNext()) return null;
 	  int batchSizeEst = knownSize && size > 0 ? (int)Math.min(nextBatchSize, size) : nextBatchSize;
 	  char[] batch = new char[batchSizeEst];
 	  int actualSeen = 0;
 	  while (actualSeen < batchSizeEst && iter.hasNext()) {
-	   batch[actualSeen++] = iter.nextCharacter();
+	   batch[actualSeen++] = iter.nextChar();
 	   --size;
 	  }
 	  // Check if the local size variable fell behind the backing source, and if so, fill up remaining of batch
 	  if (batchSizeEst < nextBatchSize && iter.hasNext()) {
 	   batch = java.util.Arrays.copyOf(batch, nextBatchSize);
 	   while (iter.hasNext() && actualSeen < nextBatchSize) {
-	    batch[actualSeen++] = iter.nextCharacter();
+	    batch[actualSeen++] = iter.nextChar();
 	    --size;
 	   }
 	  }
 	  nextBatchSize = Math.min(BATCH_MAX_SIZE, nextBatchSize + BATCH_INCREMENT_SIZE);
 	  // If we have none remaining, then set our delegate to "finish off" the batch we just made.
-	  CharacterSpliterator split = makeForSplit(batch, actualSeen);
+	  CharSpliterator split = makeForSplit(batch, actualSeen);
 	  if (!iter.hasNext()) {
 	   delegate = split;
 	   return split.trySplit();
@@ -1121,21 +1121,21 @@ public final class CharacterSpliterators {
 	 }
 	}
 	private static class SpliteratorFromIteratorWithComparator extends SpliteratorFromIterator {
-	 private final CharacterComparator comparator;
-	 SpliteratorFromIteratorWithComparator(final CharacterIterator iter, int additionalCharacteristics, final CharacterComparator comparator) {
+	 private final CharComparator comparator;
+	 SpliteratorFromIteratorWithComparator(final CharIterator iter, int additionalCharacteristics, final CharComparator comparator) {
 	  super(iter, additionalCharacteristics | SORTED_CHARACTERISTICS);
 	  this.comparator = comparator;
 	 }
-	 SpliteratorFromIteratorWithComparator(final CharacterIterator iter, long size, int additionalCharacteristics, final CharacterComparator comparator) {
+	 SpliteratorFromIteratorWithComparator(final CharIterator iter, long size, int additionalCharacteristics, final CharComparator comparator) {
 	  super(iter, size, additionalCharacteristics | SORTED_CHARACTERISTICS);
 	  this.comparator = comparator;
 	 }
 	 @Override
-	 public CharacterComparator getComparator() {
+	 public CharComparator getComparator() {
 	  return comparator;
 	 }
 	 @Override
-	 protected CharacterSpliterator makeForSplit(char[] array, int len) {
+	 protected CharSpliterator makeForSplit(char[] array, int len) {
 	  return wrapPreSorted(array, 0, len, characteristics, comparator);
 	 }
 	}
@@ -1158,7 +1158,7 @@ public final class CharacterSpliterators {
 	 * @return a type-specific {@code Spliterator} that will give the same elements the iterator will return.
 	 * @see java.util.Spliterators#spliterator(java.util.Iterator, long, int)
 	 */
-	public static CharacterSpliterator asSpliterator(final CharacterIterator iter, final long size, final int additionalCharacterisitcs) {
+	public static CharSpliterator asSpliterator(final CharIterator iter, final long size, final int additionalCharacterisitcs) {
 	 return new SpliteratorFromIterator (iter, size, additionalCharacterisitcs);
 	}
 	/** Wrap a type-specific, sorted {@link java.util.Iterator} of a known size as a type-specific Spliterator
@@ -1184,8 +1184,8 @@ public final class CharacterSpliterators {
 	 * @param comparator the comparator the iterator is ordered on (or {@code null} for natural ordering)
 	 * @return a type-specific {@code Spliterator} that will give the same elements the iterator will return.
 	 */
-	public static CharacterSpliterator asSpliteratorFromSorted(
-	  final CharacterIterator iter, final long size, final int additionalCharacterisitcs, final CharacterComparator comparator) {
+	public static CharSpliterator asSpliteratorFromSorted(
+			final CharIterator iter, final long size, final int additionalCharacterisitcs, final CharComparator comparator) {
 	 return new SpliteratorFromIteratorWithComparator (iter, size, additionalCharacterisitcs, comparator);
 	}
 	/** Wrap a type-specific {@link java.util.Iterator} of an unknown size as a type-specific Spliterator
@@ -1202,7 +1202,7 @@ public final class CharacterSpliterators {
 	 * @return a type-specific {@code Spliterator} that will give the same elements the iterator will return.
 	 * @see java.util.Spliterators#spliteratorUnknownSize(java.util.Iterator, int)
 	 */
-	public static CharacterSpliterator asSpliteratorUnknownSize(final CharacterIterator iter, final int characterisitcs) {
+	public static CharSpliterator asSpliteratorUnknownSize(final CharIterator iter, final int characterisitcs) {
 	 return new SpliteratorFromIterator (iter, characterisitcs);
 	}
 	/** Wrap a type-specific, sorted {@link java.util.Iterator} of an unknown size as a type-specific Spliterator
@@ -1224,15 +1224,15 @@ public final class CharacterSpliterators {
 	 * @param comparator the comparator the iterator is ordered on (or {@code null} for natural ordering)
 	 * @return a type-specific {@code Spliterator} that will give the same elements the iterator will return.
 	 */
-	public static CharacterSpliterator asSpliteratorFromSortedUnknownSize(final CharacterIterator iter, final int additionalCharacterisitcs, final CharacterComparator comparator) {
+	public static CharSpliterator asSpliteratorFromSortedUnknownSize(final CharIterator iter, final int additionalCharacterisitcs, final CharComparator comparator) {
 	 return new SpliteratorFromIteratorWithComparator (iter, additionalCharacterisitcs, comparator);
 	}
-	private static final class IteratorFromSpliterator implements CharacterIterator , CharacterConsumer {
-	 private final CharacterSpliterator spliterator;
+	private static final class IteratorFromSpliterator implements CharIterator, CharConsumer {
+	 private final CharSpliterator spliterator;
 	 private char holder = (0);
 	 /** Whether we have an element "peeked" from a hasNext that we have yet to return */
 	 private boolean hasPeeked = false;
-	 IteratorFromSpliterator(final CharacterSpliterator spliterator) {
+	 IteratorFromSpliterator(final CharSpliterator spliterator) {
 	  this.spliterator = spliterator;
 	 }
 	 @Override
@@ -1248,7 +1248,7 @@ public final class CharacterSpliterators {
 	  return true;
 	 }
 	 @Override
-	 public char nextCharacter() {
+	 public char nextChar() {
 	  if (hasPeeked) {
 	   hasPeeked = false;
 	   return holder;
@@ -1258,7 +1258,7 @@ public final class CharacterSpliterators {
 	  return holder;
 	 }
 	 @Override
-	 public void forEachRemaining(final CharacterConsumer action) {
+	 public void forEachRemaining(final CharConsumer action) {
 	  if (hasPeeked) {
 	   hasPeeked = false;
 	   action.accept(holder);
@@ -1287,7 +1287,7 @@ public final class CharacterSpliterators {
 	 * @return a type-specific {@code Iterator} that will return the same elements the spliterator will give.
 	 * @see java.util.Spliterators#iterator(Spliterator)
 	 */
-	public static CharacterIterator asIterator(final CharacterSpliterator spliterator) {
+	public static CharIterator asIterator(final CharSpliterator spliterator) {
 	 return new IteratorFromSpliterator (spliterator);
 	}
 

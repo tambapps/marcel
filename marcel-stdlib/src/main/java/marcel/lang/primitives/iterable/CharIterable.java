@@ -15,8 +15,8 @@
 	*/
 package marcel.lang.primitives.iterable;
 
-import marcel.lang.primitives.iterators.CharacterIterator;
-import marcel.lang.util.function.CharacterConsumer;
+import marcel.lang.primitives.iterators.CharIterator;
+import marcel.lang.util.function.CharConsumer;
 
 import java.util.function.Consumer;
 
@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 	*
 	* @see Iterable
 	*/
-public interface CharacterIterable extends Iterable<Character> {
+public interface CharIterable extends Iterable<Character> {
 	/** Returns a type-specific iterator.
 	 *
 	 * Note that this specification strengthens the one given in {@link Iterable#iterator()}.
@@ -33,7 +33,7 @@ public interface CharacterIterable extends Iterable<Character> {
 	 * @see Iterable#iterator()
 	 */
 	@Override
-	CharacterIterator iterator();
+	CharIterator iterator();
 
 	/**
 	 * Performs the given action for each element of this type-specific {@link Iterable}
@@ -47,7 +47,7 @@ public interface CharacterIterable extends Iterable<Character> {
 	 *   implementation of the other overloads which will delegate to this method (after proper
 	 *   conversions).
 	 */
-	default void forEach(final CharacterConsumer action) {
+	default void forEach(final CharConsumer action) {
 		iterator().forEachRemaining(action);
 	}
 }

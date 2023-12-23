@@ -6,8 +6,8 @@ import marcel.lang.DynamicObject;
 import marcel.lang.lambda.DynamicObjectLambda1;
 import marcel.lang.methods.DefaultMarcelMethods;
 import marcel.lang.MarcelTruth;
-import marcel.lang.primitives.collections.lists.CharacterArrayList;
-import marcel.lang.primitives.collections.lists.CharacterList;
+import marcel.lang.primitives.collections.lists.CharArrayList;
+import marcel.lang.primitives.collections.lists.CharList;
 import marcel.lang.primitives.collections.lists.DoubleArrayList;
 import marcel.lang.primitives.collections.lists.DoubleList;
 import marcel.lang.primitives.collections.lists.FloatArrayList;
@@ -16,8 +16,8 @@ import marcel.lang.primitives.collections.lists.IntArrayList;
 import marcel.lang.primitives.collections.lists.IntList;
 import marcel.lang.primitives.collections.lists.LongArrayList;
 import marcel.lang.primitives.collections.lists.LongList;
-import marcel.lang.primitives.collections.sets.CharacterOpenHashSet;
-import marcel.lang.primitives.collections.sets.CharacterSet;
+import marcel.lang.primitives.collections.sets.CharOpenHashSet;
+import marcel.lang.primitives.collections.sets.CharSet;
 import marcel.lang.primitives.collections.sets.DoubleOpenHashSet;
 import marcel.lang.primitives.collections.sets.DoubleSet;
 import marcel.lang.primitives.collections.sets.FloatOpenHashSet;
@@ -108,8 +108,8 @@ abstract class DynamicCollection<T extends Collection> extends AbstractDynamicOb
   }
 
   @Override
-  public CharacterList asCharacterList() {
-    CharacterList list = new CharacterArrayList();
+  public CharList asCharList() {
+    CharList list = new CharArrayList();
     value.forEach(e -> list.add((Character) e));
     return list;
   }
@@ -148,8 +148,8 @@ abstract class DynamicCollection<T extends Collection> extends AbstractDynamicOb
   }
 
   @Override
-  public CharacterSet asCharacterSet() {
-    CharacterSet set = new CharacterOpenHashSet();
+  public CharSet asCharSet() {
+    CharSet set = new CharOpenHashSet();
     value.forEach(e -> set.add((Character) e));
     return set;
   }

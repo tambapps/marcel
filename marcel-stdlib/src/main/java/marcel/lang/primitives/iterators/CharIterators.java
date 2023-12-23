@@ -1,9 +1,9 @@
 package marcel.lang.primitives.iterators;
 
-import marcel.lang.primitives.iterators.list.CharacterListIterator;
+import marcel.lang.primitives.iterators.list.CharListIterator;
 import marcel.lang.util.Arrays;
-import marcel.lang.util.function.CharacterConsumer;
-import marcel.lang.util.function.CharacterPredicate;
+import marcel.lang.util.function.CharConsumer;
+import marcel.lang.util.function.CharPredicate;
 
 import java.util.Iterator;
 import java.util.ListIterator;
@@ -12,14 +12,14 @@ import java.util.Objects;
 import java.util.PrimitiveIterator;
 import java.util.function.Consumer;
 
-public final class CharacterIterators {
-	private CharacterIterators() {}
+public final class CharIterators {
+	private CharIterators() {}
 	/** A class returning no elements and a type-specific iterator interface.
 	 *
 	 * <p>This class may be useful to implement your own in case you subclass
 	 * a type-specific iterator.
 	 */
-	public static class EmptyIterator implements CharacterListIterator, java.io.Serializable, Cloneable {
+	public static class EmptyIterator implements CharListIterator, java.io.Serializable, Cloneable {
 	 private static final long serialVersionUID = -7046029254386353129L;
 	 protected EmptyIterator() {}
 	 @Override
@@ -27,9 +27,9 @@ public final class CharacterIterators {
 	 @Override
 	 public boolean hasPrevious() { return false; }
 	 @Override
-	 public char nextCharacter() { throw new NoSuchElementException(); }
+	 public char nextChar() { throw new NoSuchElementException(); }
 	 @Override
-	 public char previousCharacter() { throw new NoSuchElementException(); }
+	 public char previousChar() { throw new NoSuchElementException(); }
 	 @Override
 	 public int nextIndex() { return 0; }
 	 @Override
@@ -39,7 +39,7 @@ public final class CharacterIterators {
 	 //@Override
 	 public int back(int n) { return 0; }
 	 @Override
-	 public void forEachRemaining(final CharacterConsumer action) { }
+	 public void forEachRemaining(final CharConsumer action) { }
 	 @Deprecated
 	 @Override
 	 public void forEachRemaining(final Consumer<? super Character> action) { }
@@ -54,7 +54,7 @@ public final class CharacterIterators {
 	 */
 	public static final EmptyIterator EMPTY_ITERATOR = new EmptyIterator();
 	/** An iterator returning a single element. */
-	private static class SingletonIterator implements CharacterListIterator {
+	private static class SingletonIterator implements CharListIterator {
 	 private final char element;
 	 private byte curr;
 	 public SingletonIterator(final char element) {
@@ -65,19 +65,19 @@ public final class CharacterIterators {
 	 @Override
 	 public boolean hasPrevious() { return curr == 1; }
 	 @Override
-	 public char nextCharacter() {
+	 public char nextChar() {
 	  if (! hasNext()) throw new NoSuchElementException();
 	  curr = 1;
 	  return element;
 	 }
 	 @Override
-	 public char previousCharacter() {
+	 public char previousChar() {
 	  if (! hasPrevious()) throw new NoSuchElementException();
 	  curr = 0;
 	  return element;
 	 }
 	 @Override
-	 public void forEachRemaining(final CharacterConsumer action) {
+	 public void forEachRemaining(final CharConsumer action) {
 	  Objects.requireNonNull(action);
 	  if (curr == 0) {
 	   action.accept(element);
@@ -112,11 +112,11 @@ public final class CharacterIterators {
 	 * @param element the only element to be returned by a type-specific list iterator.
 	 * @return an immutable iterator that iterates just over {@code element}.
 	 */
-	public static CharacterListIterator singleton(final char element) {
+	public static CharListIterator singleton(final char element) {
 	 return new SingletonIterator (element);
 	}
 	/** A class to wrap arrays in iterators. */
-	private static class ArrayIterator implements CharacterListIterator {
+	private static class ArrayIterator implements CharListIterator {
 	 private final char[] array;
 	 private final int offset, length;
 	 private int curr;
@@ -130,17 +130,17 @@ public final class CharacterIterators {
 	 @Override
 	 public boolean hasPrevious() { return curr > 0; }
 	 @Override
-	 public char nextCharacter() {
+	 public char nextChar() {
 	  if (! hasNext()) throw new NoSuchElementException();
 	  return array[offset + curr++];
 	 }
 	 @Override
-	 public char previousCharacter() {
+	 public char previousChar() {
 	  if (! hasPrevious()) throw new NoSuchElementException();
 	  return array[offset + --curr];
 	 }
 	 @Override
-	 public void forEachRemaining(final CharacterConsumer action) {
+	 public void forEachRemaining(final CharConsumer action) {
 	  Objects.requireNonNull(action);
 	  for (; curr < length; ++curr) {
 	   action.accept(array[offset + curr]);
@@ -188,7 +188,7 @@ public final class CharacterIterators {
 	 * @param length the number of elements to return.
 	 * @return an iterator that will return {@code length} elements of {@code array} starting at position {@code offset}.
 	 */
-	public static CharacterListIterator wrap(final char[] array, final int offset, final int length) {
+	public static CharListIterator wrap(final char[] array, final int offset, final int length) {
 	 Arrays.ensureOffsetLength(array, offset, length);
 	 return new ArrayIterator (array, offset, length);
 	}
@@ -200,7 +200,7 @@ public final class CharacterIterators {
 	 * @param array an array to wrap into a type-specific list iterator.
 	 * @return an iterator that will return the elements of {@code array}.
 	 */
-	public static CharacterListIterator wrap(final char[] array) {
+	public static CharListIterator wrap(final char[] array) {
 	 return new ArrayIterator (array, 0, array.length);
 	}
 	/** Unwraps an iterator into an array starting at a given offset for a given number of elements.
@@ -216,15 +216,15 @@ public final class CharacterIterators {
 	 * @param max the maximum number of elements to unwrap.
 	 * @return the number of elements unwrapped.
 	 */
-	public static int unwrap(final CharacterIterator i, final char[] array, int offset, final int max) {
+	public static int unwrap(final CharIterator i, final char[] array, int offset, final int max) {
 	 if (max < 0) throw new IllegalArgumentException("The maximum number of elements (" + max + ") is negative");
 	 if (offset < 0 || offset + max > array.length) throw new IllegalArgumentException();
 	 int j = max;
-	 while(j-- != 0 && i.hasNext()) array[offset++] = i.nextCharacter();
+	 while(j-- != 0 && i.hasNext()) array[offset++] = i.nextChar();
 	 return max - j - 1;
 	}
 
-	private static class IteratorWrapper implements CharacterIterator {
+	private static class IteratorWrapper implements CharIterator {
 	 final Iterator<Character> i;
 	 public IteratorWrapper(final Iterator<Character> i) {
 	  this.i = i;
@@ -234,11 +234,11 @@ public final class CharacterIterators {
 	 @Override
 	 public void remove() { i.remove(); }
 	 @Override
-	 public char nextCharacter() { return (i.next()).charValue(); }
+	 public char nextChar() { return (i.next()).charValue(); }
 
 	 @SuppressWarnings("unchecked")
 	 @Override
-	 public void forEachRemaining(final CharacterConsumer action) {
+	 public void forEachRemaining(final CharConsumer action) {
 	  Objects.requireNonNull(action);
 	  i.forEachRemaining(action);
 	 }
@@ -248,9 +248,9 @@ public final class CharacterIterators {
 	  i.forEachRemaining(action);
 	 }
 	}
-	private static class PrimitiveIteratorWrapper implements CharacterIterator {
-	 final PrimitiveIterator<Character, CharacterConsumer> i;
-	 public PrimitiveIteratorWrapper(PrimitiveIterator<Character, CharacterConsumer> i) {
+	private static class PrimitiveIteratorWrapper implements CharIterator {
+	 final PrimitiveIterator<Character, CharConsumer> i;
+	 public PrimitiveIteratorWrapper(PrimitiveIterator<Character, CharConsumer> i) {
 	  this.i = i;
 	 }
 	 @Override
@@ -258,9 +258,9 @@ public final class CharacterIterators {
 	 @Override
 	 public void remove() { i.remove(); }
 	 @Override
-	 public char nextCharacter() { return i.next(); }
+	 public char nextChar() { return i.next(); }
 	 @Override
-	 public void forEachRemaining(final CharacterConsumer action) {
+	 public void forEachRemaining(final CharConsumer action) {
 	  i.forEachRemaining(action);
 	 }
 	}
@@ -279,12 +279,12 @@ public final class CharacterIterators {
 	 * @return a type-specific iterator backed by {@code i}.
 	 */
 	@SuppressWarnings({"unchecked","rawtypes"})
-	public static CharacterIterator asCharacterIterator(final Iterator i) {
-	 if (i instanceof CharacterIterator) return (CharacterIterator )i;
-	 if (i instanceof PrimitiveIterator) return new PrimitiveIteratorWrapper ((PrimitiveIterator<Character, CharacterConsumer>)i);
+	public static CharIterator asCharIterator(final Iterator i) {
+	 if (i instanceof CharIterator) return (CharIterator)i;
+	 if (i instanceof PrimitiveIterator) return new PrimitiveIteratorWrapper ((PrimitiveIterator<Character, CharConsumer>)i);
 	 return new IteratorWrapper (i);
 	}
-	private static class ListIteratorWrapper implements CharacterListIterator {
+	private static class ListIteratorWrapper implements CharListIterator {
 	 final ListIterator<Character> i;
 	 public ListIteratorWrapper(final ListIterator<Character> i) {
 	  this.i = i;
@@ -304,12 +304,12 @@ public final class CharacterIterators {
 	 @Override
 	 public void remove() { i.remove(); }
 	 @Override
-	 public char nextCharacter() { return (i.next()).charValue(); }
+	 public char nextChar() { return (i.next()).charValue(); }
 	 @Override
-	 public char previousCharacter() { return (i.previous()).charValue(); }
+	 public char previousChar() { return (i.previous()).charValue(); }
 	 @SuppressWarnings("unchecked")
 	 @Override
-	 public void forEachRemaining(final CharacterConsumer action) {
+	 public void forEachRemaining(final CharConsumer action) {
 	  Objects.requireNonNull(action);
 	  i.forEachRemaining(action);
 	 }
@@ -335,8 +335,8 @@ public final class CharacterIterators {
 	 * @return a type-specific list iterator backed by {@code i}.
 	 */
 	@SuppressWarnings({"unchecked","rawtypes"})
-	public static CharacterListIterator asCharacterIterator(final ListIterator i) {
-	 if (i instanceof CharacterListIterator) return (CharacterListIterator )i;
+	public static CharListIterator asCharIterator(final ListIterator i) {
+	 if (i instanceof CharListIterator) return (CharListIterator)i;
 	 return new ListIteratorWrapper (i);
 	}
 	/**
@@ -344,7 +344,7 @@ public final class CharacterIterators {
 	 * <p>Short circuit evaluation is performed; the first {@code true} from the predicate terminates the loop.
 	 * @return true if an element returned by {@code iterator} satisfies {@code predicate}.
 	 */
-	public static boolean any(final CharacterIterator iterator, final CharacterPredicate predicate) {
+	public static boolean any(final CharIterator iterator, final CharPredicate predicate) {
 	 return indexOf(iterator, predicate) != -1;
 	}
 	/**
@@ -352,11 +352,11 @@ public final class CharacterIterators {
 	 * <p>Short circuit evaluation is performed; the first {@code false} from the predicate terminates the loop.
 	 * @return true if all elements returned by {@code iterator} satisfy {@code predicate}.
 	 */
-	public static boolean all(final CharacterIterator iterator, final CharacterPredicate predicate) {
+	public static boolean all(final CharIterator iterator, final CharPredicate predicate) {
 	 Objects.requireNonNull(predicate);
 	 do {
 	  if (!iterator.hasNext()) return true;
-	 } while (predicate.test(iterator.nextCharacter()));
+	 } while (predicate.test(iterator.nextChar()));
 	 return false;
 	}
 	/**
@@ -368,10 +368,10 @@ public final class CharacterIterators {
 	 * @return the index of the first element returned by {@code iterator} that satisfies {@code predicate}, or &minus;1 if
 	 * no such element was found.
 	 */
-	public static int indexOf(final CharacterIterator iterator, final CharacterPredicate predicate) {
+	public static int indexOf(final CharIterator iterator, final CharPredicate predicate) {
 	 Objects.requireNonNull(predicate);
 	 for (int i = 0; iterator.hasNext(); ++i) {
-	  if (predicate.test(iterator.nextCharacter())) return i;
+	  if (predicate.test(iterator.nextChar())) return i;
 	 }
 	 return -1;
 	}
@@ -389,7 +389,7 @@ public final class CharacterIterators {
 	 * good idea to override the class as {@code final} as to encourage the JVM to inline
 	 * them (or alternatively, override the abstract methods as final).
 	 */
-	public static abstract class AbstractIndexBasedIterator extends AbstractCharacterIterator {
+	public static abstract class AbstractIndexBasedIterator extends AbstractCharIterator {
 	 /** The minimum pos can be, and is the logical start of the "range".
 		 * Usually set to the initialPos unless it is a ListIterator, in which case it can vary.
 		 *
@@ -445,7 +445,7 @@ public final class CharacterIterators {
 	 @Override
 	 public boolean hasNext() { return pos < getMaxPos(); }
 	 @Override
-	 public char nextCharacter() { if (! hasNext()) throw new NoSuchElementException(); return get(lastReturned = pos++); }
+	 public char nextChar() { if (! hasNext()) throw new NoSuchElementException(); return get(lastReturned = pos++); }
 	 @Override
 	 public void remove() {
 	  if (lastReturned == -1) throw new IllegalStateException();
@@ -455,7 +455,7 @@ public final class CharacterIterators {
 	  lastReturned = -1;
 	 }
 	 @Override
-	 public void forEachRemaining(final CharacterConsumer action) {
+	 public void forEachRemaining(final CharConsumer action) {
 	  while(pos < getMaxPos()) {
 	   action.accept(get(lastReturned = pos++));
 	  }
@@ -489,7 +489,7 @@ public final class CharacterIterators {
 	 * good idea to override the class as {@code final} as to encourage the JVM to inline
 	 * them (or alternatively, override the abstract methods as final).
 	 */
-	public static abstract class AbstractIndexBasedListIterator extends AbstractIndexBasedIterator implements CharacterListIterator {
+	public static abstract class AbstractIndexBasedListIterator extends AbstractIndexBasedIterator implements CharListIterator {
 	 protected AbstractIndexBasedListIterator(int minPos, int initialPos) {
 	  super(minPos, initialPos);
 	 }
@@ -513,7 +513,7 @@ public final class CharacterIterators {
 	 @Override
 	 public boolean hasPrevious() { return pos > minPos; }
 	 @Override
-	 public char previousCharacter() { if (! hasPrevious()) throw new NoSuchElementException(); return get(lastReturned = --pos); }
+	 public char previousChar() { if (! hasPrevious()) throw new NoSuchElementException(); return get(lastReturned = --pos); }
 	 @Override
 	 public int nextIndex() { return pos; }
 	 @Override
@@ -542,10 +542,10 @@ public final class CharacterIterators {
 	  return n;
 	 }
 	}
-	private static class CharacterIntervalIterator implements CharacterListIterator {
+	private static class CharIntervalIterator implements CharListIterator {
 	 private final char from, to;
 	 char curr;
-	 public CharacterIntervalIterator(final char from, final char to) {
+	 public CharIntervalIterator(final char from, final char to) {
 	  this.from = this.curr = from;
 	  this.to = to;
 	 }
@@ -554,17 +554,17 @@ public final class CharacterIterators {
 	 @Override
 	 public boolean hasPrevious() { return curr > from; }
 	 @Override
-	 public char nextCharacter() {
+	 public char nextChar() {
 	  if (! hasNext()) throw new NoSuchElementException();
 	  return curr++;
 	 }
 	 @Override
-	 public char previousCharacter() {
+	 public char previousChar() {
 	  if (! hasPrevious()) throw new NoSuchElementException();
 	  return --curr;
 	 }
 	 @Override
-	 public void forEachRemaining(final CharacterConsumer action) {
+	 public void forEachRemaining(final CharConsumer action) {
 	  Objects.requireNonNull(action);
 	  for (; curr < to; ++curr) {
 	   action.accept(curr);
@@ -605,13 +605,13 @@ public final class CharacterIterators {
 	 * @param to the ending element (exclusive).
 	 * @return a type-specific list iterator enumerating the elements from {@code from} to {@code to}.
 	 */
-	public static CharacterListIterator fromTo(final char from, final char to) {
-	 return new CharacterIntervalIterator(from, to);
+	public static CharListIterator fromTo(final char from, final char to) {
+	 return new CharIntervalIterator(from, to);
 	}
-	private static class IteratorConcatenator implements CharacterIterator {
-	 final CharacterIterator[] a;
+	private static class IteratorConcatenator implements CharIterator {
+	 final CharIterator[] a;
 	 int offset, length, lastOffset = -1;
-	 public IteratorConcatenator(final CharacterIterator[] a, int offset, int length) {
+	 public IteratorConcatenator(final CharIterator[] a, int offset, int length) {
 	  this.a = a;
 	  this.offset = offset;
 	  this.length = length;
@@ -629,14 +629,14 @@ public final class CharacterIterators {
 	  return length > 0;
 	 }
 	 @Override
-	 public char nextCharacter() {
+	 public char nextChar() {
 	  if (! hasNext()) throw new NoSuchElementException();
-		 char next = a[lastOffset = offset].nextCharacter();
+		 char next = a[lastOffset = offset].nextChar();
 	  advance();
 	  return next;
 	 }
 	 @Override
-	 public void forEachRemaining(final CharacterConsumer action) {
+	 public void forEachRemaining(final CharConsumer action) {
 	  while (length > 0) {
 	   a[lastOffset = offset].forEachRemaining(action);
 	   advance();
@@ -677,7 +677,7 @@ public final class CharacterIterators {
 	 * @param a an array of iterators.
 	 * @return an iterator obtained by concatenation.
 	 */
-	public static CharacterIterator concat(final CharacterIterator ... a) {
+	public static CharIterator concat(final CharIterator... a) {
 	 return concat(a, 0, a.length);
 	}
 	/** Concatenates a sequence of iterators contained in an array.
@@ -692,21 +692,21 @@ public final class CharacterIterators {
 	 * @param length the number of iterators to concatenate.
 	 * @return an iterator obtained by concatenation of {@code length} elements of {@code a} starting at {@code offset}.
 	 */
-	public static CharacterIterator concat(final CharacterIterator[] a, final int offset, final int length) {
+	public static CharIterator concat(final CharIterator[] a, final int offset, final int length) {
 	 return new IteratorConcatenator (a, offset, length);
 	}
 	/** An unmodifiable wrapper class for iterators. */
-	public static class UnmodifiableIterator implements CharacterIterator {
-	 protected final CharacterIterator i;
-	 public UnmodifiableIterator(final CharacterIterator i) {
+	public static class UnmodifiableIterator implements CharIterator {
+	 protected final CharIterator i;
+	 public UnmodifiableIterator(final CharIterator i) {
 	  this.i = i;
 	 }
 	 @Override
 	 public boolean hasNext() { return i.hasNext(); }
 	 @Override
-	 public char nextCharacter() { return i.nextCharacter(); }
+	 public char nextChar() { return i.nextChar(); }
 	 @Override
-	 public void forEachRemaining(final CharacterConsumer action) {
+	 public void forEachRemaining(final CharConsumer action) {
 	  i.forEachRemaining(action);
 	 }
 	 @Deprecated

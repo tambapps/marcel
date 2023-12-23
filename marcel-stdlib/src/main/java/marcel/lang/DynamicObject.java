@@ -2,7 +2,7 @@ package marcel.lang;
 
 import marcel.lang.dynamic.DefaultDynamicObject;
 import marcel.lang.dynamic.DynamicArray;
-import marcel.lang.dynamic.DynamicCharacter;
+import marcel.lang.dynamic.DynamicChar;
 import marcel.lang.dynamic.DynamicList;
 import marcel.lang.dynamic.DynamicMap;
 import marcel.lang.dynamic.DynamicNumber;
@@ -12,12 +12,12 @@ import marcel.lang.dynamic.DynamicCharSequence;
 import marcel.lang.dynamic.MissingMethodException;
 import marcel.lang.dynamic.MissingPropertyException;
 import marcel.lang.lambda.DynamicObjectLambda1;
-import marcel.lang.primitives.collections.lists.CharacterList;
+import marcel.lang.primitives.collections.lists.CharList;
 import marcel.lang.primitives.collections.lists.DoubleList;
 import marcel.lang.primitives.collections.lists.FloatList;
 import marcel.lang.primitives.collections.lists.IntList;
 import marcel.lang.primitives.collections.lists.LongList;
-import marcel.lang.primitives.collections.sets.CharacterSet;
+import marcel.lang.primitives.collections.sets.CharSet;
 import marcel.lang.primitives.collections.sets.DoubleSet;
 import marcel.lang.primitives.collections.sets.FloatSet;
 import marcel.lang.primitives.collections.sets.IntSet;
@@ -122,8 +122,8 @@ public interface DynamicObject extends Iterable<DynamicObject>, MarcelTruth {
     throw new ClassCastException("Value isn't instance of DoubleList");
   }
 
-  default CharacterList asCharacterList() {
-    if (getValue() instanceof CharacterList) return (CharacterList) getValue();
+  default CharList asCharList() {
+    if (getValue() instanceof CharList) return (CharList) getValue();
     throw new ClassCastException("Value isn't instance of CharacterList");
   }
 
@@ -152,8 +152,8 @@ public interface DynamicObject extends Iterable<DynamicObject>, MarcelTruth {
     throw new ClassCastException("Value isn't instance of DoubleSet");
   }
 
-  default CharacterSet asCharacterSet() {
-    if (getValue() instanceof CharacterSet) return (CharacterSet) getValue();
+  default CharSet asCharSet() {
+    if (getValue() instanceof CharSet) return (CharSet) getValue();
     throw new ClassCastException("Value isn't instance of CharacterSet");
   }
 
@@ -216,7 +216,7 @@ public interface DynamicObject extends Iterable<DynamicObject>, MarcelTruth {
     else if (o instanceof DynamicObject) return (DynamicObject) o;
     else if (o instanceof Number) return new DynamicNumber((Number) o);
     else if (o instanceof String) return new DynamicCharSequence((String) o);
-    else if (o instanceof Character) return new DynamicCharacter((Character) o);
+    else if (o instanceof Character) return new DynamicChar((Character) o);
     else if (o instanceof List) return new DynamicList((List) o);
     else if (o instanceof Set) return new DynamicSet((Set) o);
     else if (o instanceof Queue) return new DynamicQueue((Queue) o);

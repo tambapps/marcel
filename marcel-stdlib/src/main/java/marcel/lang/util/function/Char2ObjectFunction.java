@@ -3,7 +3,7 @@ package marcel.lang.util.function;
 import java.util.function.Function;
 
 @FunctionalInterface
-public interface Character2ObjectFunction<V> extends Function<Character, V>, CharacterFunction <V> {
+public interface Char2ObjectFunction<V> extends Function<Character, V>, CharFunction<V> {
 	/**
 	 * {@inheritDoc}
 	 *

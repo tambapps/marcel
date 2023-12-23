@@ -14,7 +14,7 @@ import com.tambapps.marcel.parser.type.JavaAnnotation
 import com.tambapps.marcel.parser.type.JavaMethod
 import com.tambapps.marcel.parser.type.JavaType
 import marcel.lang.compile.BooleanDefaultValue
-import marcel.lang.compile.CharacterDefaultValue
+import marcel.lang.compile.CharDefaultValue
 import marcel.lang.compile.DoubleDefaultValue
 import marcel.lang.compile.FloatDefaultValue
 import marcel.lang.compile.IntDefaultValue
@@ -250,7 +250,7 @@ class ClassCompiler(private val compilerConfiguration: CompilerConfiguration,
             .visit("value", defaultValue.value)
           (parameter.type == JavaType.double || parameter.type == JavaType.Double) && defaultValue is DoubleConstantNode -> mv.visitParameterAnnotation(i, DoubleDefaultValue::class.javaType.descriptor, true)
             .visit("value", defaultValue.value)
-          (parameter.type == JavaType.char || parameter.type == JavaType.Character) && defaultValue is CharConstantNode -> mv.visitParameterAnnotation(i, CharacterDefaultValue::class.javaType.descriptor, true)
+          (parameter.type == JavaType.char || parameter.type == JavaType.Character) && defaultValue is CharConstantNode -> mv.visitParameterAnnotation(i, CharDefaultValue::class.javaType.descriptor, true)
             .visit("value", defaultValue.value[0])
           (parameter.type == JavaType.boolean || parameter.type == JavaType.Boolean) && defaultValue is BooleanConstantNode -> mv.visitParameterAnnotation(i, BooleanDefaultValue::class.javaType.descriptor, true)
             .visit("value", defaultValue.value)

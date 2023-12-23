@@ -1,20 +1,20 @@
 package marcel.lang.primitives.collections.lists;
 
-import marcel.lang.primitives.collections.CharacterCollection;
-import marcel.lang.primitives.iterators.CharacterIterator;
-import marcel.lang.primitives.iterators.list.CharacterListIterator;
-import marcel.lang.primitives.spliterators.CharacterSpliterator;
-import marcel.lang.primitives.spliterators.CharacterSpliterators;
+import marcel.lang.primitives.collections.CharCollection;
+import marcel.lang.primitives.iterators.CharIterator;
+import marcel.lang.primitives.iterators.list.CharListIterator;
+import marcel.lang.primitives.spliterators.CharSpliterator;
+import marcel.lang.primitives.spliterators.CharSpliterators;
 import marcel.lang.util.Arrays;
 import marcel.lang.util.SafeMath;
-import marcel.lang.util.function.CharacterConsumer;
+import marcel.lang.util.function.CharConsumer;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 
-public class CharacterArrayList extends AbstractCharacterList implements RandomAccess, Cloneable, java.io.Serializable {
+public class CharArrayList extends AbstractCharList implements RandomAccess, Cloneable, java.io.Serializable {
 	private static final long serialVersionUID = -7046029254386353130L;
 	/** The initial default capacity of an array list. */
 	public static final int DEFAULT_INITIAL_CAPACITY = 10;
@@ -35,7 +35,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
     }
 	 return java.util.Arrays.copyOf(a, length);
 	}
-	private static final char[] copyArrayFromSafe(CharacterArrayList l) {
+	private static final char[] copyArrayFromSafe(CharArrayList l) {
 	 return copyArraySafe(l.a, l.size);
 	}
 	/** Creates a new array list using a given array.
@@ -44,7 +44,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 *
 	 * @param a the array that will be used to back this array list.
 	 */
-	protected CharacterArrayList(final char a[], @SuppressWarnings("unused") boolean wrapped) {
+	protected CharArrayList(final char a[], @SuppressWarnings("unused") boolean wrapped) {
 	 this.a = a;
 	}
 
@@ -62,28 +62,28 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 *
 	 * @param capacity the initial capacity of the array list (may be 0).
 	 */
-	public CharacterArrayList(final int capacity) {
+	public CharArrayList(final int capacity) {
 	 initArrayFromCapacity(capacity);
 	}
 	/** Creates a new array list with {@link #DEFAULT_INITIAL_CAPACITY} capacity. */
 
-	public CharacterArrayList() {
+	public CharArrayList() {
 	 a = Arrays.EMPTY_CHARACTER_ARRAY; // We delay allocation
 	}
 	/** Creates a new array list and fills it with a given collection.
 	 *
 	 * @param c a collection that will be used to fill the array list.
 	 */
-	public CharacterArrayList(final Collection<? extends Character> c) {
-	 if (c instanceof CharacterArrayList) {
-	  a = copyArrayFromSafe((CharacterArrayList)c);
+	public CharArrayList(final Collection<? extends Character> c) {
+	 if (c instanceof CharArrayList) {
+	  a = copyArrayFromSafe((CharArrayList)c);
 	  size = a.length;
 	 } else {
 	  initArrayFromCapacity(c.size());
-	  if (c instanceof CharacterList) {
-	   ((CharacterList )c).getElements(0, a, 0, size = c.size());
-	  } else if (c instanceof CharacterCollection) {
-			size = ((CharacterCollection) c).iterator().unwrap(a);
+	  if (c instanceof CharList) {
+	   ((CharList)c).getElements(0, a, 0, size = c.size());
+	  } else if (c instanceof CharCollection) {
+			size = ((CharCollection) c).iterator().unwrap(a);
 		} else {
 			Iterator<? extends Character> iterator = c.iterator();
 			int i = 0;
@@ -98,14 +98,14 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 *
 	 * @param c a type-specific collection that will be used to fill the array list.
 	 */
-	public CharacterArrayList(final CharacterCollection c) {
-	 if (c instanceof CharacterArrayList) {
-	  a = copyArrayFromSafe((CharacterArrayList)c);
+	public CharArrayList(final CharCollection c) {
+	 if (c instanceof CharArrayList) {
+	  a = copyArrayFromSafe((CharArrayList)c);
 	  size = a.length;
 	 } else {
 	  initArrayFromCapacity(c.size());
-	  if (c instanceof CharacterList) {
-	   ((CharacterList )c).getElements(0, a, 0, size = c.size());
+	  if (c instanceof CharList) {
+	   ((CharList)c).getElements(0, a, 0, size = c.size());
 	  } else {
 	   size = c.iterator().unwrap(a);
 	  }
@@ -115,9 +115,9 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 *
 	 * @param l a type-specific list that will be used to fill the array list.
 	 */
-	public CharacterArrayList(final CharacterList l) {
-	 if (l instanceof CharacterArrayList) {
-	  a = copyArrayFromSafe((CharacterArrayList)l);
+	public CharArrayList(final CharList l) {
+	 if (l instanceof CharArrayList) {
+	  a = copyArrayFromSafe((CharArrayList)l);
 	  size = a.length;
 	 } else {
 	  initArrayFromCapacity(l.size());
@@ -125,14 +125,14 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 }
 	}
 
-	public CharacterArrayList(String s) {
+	public CharArrayList(String s) {
 		this(s.toCharArray());
 	}
 	/** Creates a new array list and fills it with the elements of a given array.
 	 *
 	 * @param a an array whose elements will be used to fill the array list.
 	 */
-	public CharacterArrayList(final char a[]) {
+	public CharArrayList(final char a[]) {
 	 this(a, 0, a.length);
 	}
 	/** Creates a new array list and fills it with the elements of a given array.
@@ -141,7 +141,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 * @param offset the first element to use.
 	 * @param length the number of elements to use.
 	 */
-	public CharacterArrayList(final char a[], final int offset, final int length) {
+	public CharArrayList(final char a[], final int offset, final int length) {
 	 this(length);
 	 System.arraycopy(a, offset, this.a, 0, length);
 	 size = length;
@@ -150,7 +150,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 *
 	 * @param i an iterator whose returned elements will fill the array list.
 	 */
-	public CharacterArrayList(final Iterator<? extends Character> i) {
+	public CharArrayList(final Iterator<? extends Character> i) {
 	 this();
     while (i.hasNext()) {
       this.add((i.next()).charValue());
@@ -160,10 +160,10 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 *
 	 * @param i a type-specific iterator whose returned elements will fill the array list.
 	 */
-	public CharacterArrayList(final CharacterIterator i) {
+	public CharArrayList(final CharIterator i) {
 	 this();
     while (i.hasNext()) {
-      this.add(i.nextCharacter());
+      this.add(i.nextChar());
     }
 	}
 	/** Returns the backing array of this list.
@@ -183,13 +183,13 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 * @param length the length of the resulting array list.
 	 * @return a new array list of the given size, wrapping the given array.
 	 */
-	public static CharacterArrayList wrap(final char a[], final int length) {
+	public static CharArrayList wrap(final char a[], final int length) {
     if (length > a.length) {
       throw new IllegalArgumentException(
           "The specified length (" + length + ") is greater than the array size (" + a.length
               + ")");
     }
-	 final CharacterArrayList l = new CharacterArrayList(a, true);
+	 final CharArrayList l = new CharArrayList(a, true);
 	 l.size = length;
 	 return l;
 	}
@@ -202,15 +202,15 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 * @param a an array to wrap.
 	 * @return a new array list wrapping the given array.
 	 */
-	public static CharacterArrayList wrap(final char a[]) {
+	public static CharArrayList wrap(final char a[]) {
 	 return wrap(a, a.length);
 	}
 	/** Creates a new empty array list.
 	 *
 	 * @return a new empty array list.
 	 */
-	public static CharacterArrayList of() {
-	 return new CharacterArrayList();
+	public static CharArrayList of() {
+	 return new CharArrayList();
 	}
 	/** Creates an array list using an array of elements.
 	 *
@@ -219,7 +219,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 * @see #wrap
 	 */
 
-	public static CharacterArrayList of(final char... init) {
+	public static CharArrayList of(final char... init) {
 	 return wrap(init);
 	}
 	/** Collects the result of a primitive {@code Stream} into a new ArrayList.
@@ -230,11 +230,11 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 * {@link java.util.stream.Collector Collector} is necessary because there is no
 	 * primitive {@code Collector} equivalent in the Java API.
 	 */
-	 public static CharacterArrayList toList(java.util.stream.Stream<Character> stream) {
+	 public static CharArrayList toList(java.util.stream.Stream<Character> stream) {
 	  return stream.collect(
-	   CharacterArrayList::new,
+	   CharArrayList::new,
 				(f, e) -> f.add(e.charValue()),
-	   CharacterArrayList::addAll);
+	   CharArrayList::addAll);
 	 }
 
 	public static char[] ensureCapacity(char[] array, int length, int preserve) {
@@ -321,7 +321,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 return old;
 	}
 	@Override
-	public boolean removeCharacter(final char k) {
+	public boolean removeChar(final char k) {
 	 int index = indexOf(k);
     if (index == -1) {
       return false;
@@ -391,10 +391,10 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 System.arraycopy(a, 0, t, 0, size);
 	 a = t;
 	}
-	private class SubList extends CharacterRandomAccessSubList {
+	private class SubList extends CharRandomAccessSubList {
 	 private static final long serialVersionUID = -3185226345314976296L;
 	 protected SubList(int from, int to) {
-	  super(CharacterArrayList.this, from, to);
+	  super(CharArrayList.this, from, to);
 	 }
 	 // Most of the inherited methods should be fine, but we can override a few of them for performance.
 	 // Needed because we can't access the parent class' instance variables directly in a different instance of SubList.
@@ -408,10 +408,10 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 }
 
 	 @Override
-	 public CharacterListIterator listIterator(int index) {
+	 public CharListIterator listIterator(int index) {
 	  throw new RuntimeException("");
 	 }
-	 private final class SubListSpliterator extends CharacterSpliterators.LateBindingSizeIndexBasedSpliterator {
+	 private final class SubListSpliterator extends CharSpliterators.LateBindingSizeIndexBasedSpliterator {
 	  // We are using pos == 0 to be 0 relative to real array 0
 	  SubListSpliterator() {
 	   super(from);
@@ -428,7 +428,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	   return new SubListSpliterator(pos, maxPos);
 	  }
 	  @Override
-	  public boolean tryAdvance(final CharacterConsumer action) {
+	  public boolean tryAdvance(final CharConsumer action) {
       if (pos >= getMaxPos()) {
         return false;
       }
@@ -436,7 +436,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	   return true;
 	  }
 	  @Override
-	  public void forEachRemaining(final CharacterConsumer action) {
+	  public void forEachRemaining(final CharConsumer action) {
 	   final int max = getMaxPos();
 	   while(pos < max) {
 	    action.accept(a[pos++]);
@@ -444,7 +444,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	  }
 	 }
 	 @Override
-	 public CharacterSpliterator spliterator() {
+	 public CharSpliterator spliterator() {
 	  return new SubListSpliterator();
 	 }
 	 boolean contentsEquals(char[] otherA, int otherAFrom, int otherATo) {
@@ -475,14 +475,14 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
      if (!(o instanceof java.util.List)) {
        return false;
      }
-	  if (o instanceof CharacterArrayList) {
+	  if (o instanceof CharArrayList) {
 	  
-	   CharacterArrayList other = (CharacterArrayList) o;
+	   CharArrayList other = (CharArrayList) o;
 	   return contentsEquals(other.a, 0, other.size());
 	  }
-	  if (o instanceof CharacterArrayList.SubList) {
+	  if (o instanceof CharArrayList.SubList) {
 	  
-	   CharacterArrayList.SubList other = (CharacterArrayList.SubList) o;
+	   CharArrayList.SubList other = (CharArrayList.SubList) o;
 	   return contentsEquals(other.getParentArray(), other.from, other.to);
 	  }
 	  return super.equals(o);
@@ -506,14 +506,14 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	
 	 @Override
 	 public int compareTo(final java.util.List <? extends Character> l) {
-	  if (l instanceof CharacterArrayList) {
+	  if (l instanceof CharArrayList) {
 	  
-	   CharacterArrayList other = (CharacterArrayList) l;
+	   CharArrayList other = (CharArrayList) l;
 	   return contentsCompareTo(other.a, 0, other.size());
 	  }
-	  if (l instanceof CharacterArrayList.SubList) {
+	  if (l instanceof CharArrayList.SubList) {
 	  
-	   CharacterArrayList.SubList other = (CharacterArrayList.SubList) l;
+	   CharArrayList.SubList other = (CharArrayList.SubList) l;
 	   return contentsCompareTo(other.getParentArray(), other.from, other.to);
 	  }
 	  return super.compareTo(l);
@@ -540,7 +540,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 		}
 	}
 	@Override
-	public CharacterList subList(int from, int to) {
+	public CharList subList(int from, int to) {
     if (from == 0 && to == size()) {
       return this;
     }
@@ -609,15 +609,15 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 System.arraycopy(a, offset, this.a, index, length);
 	}
 	@Override
-	public void forEach(final CharacterConsumer action) {
+	public void forEach(final CharConsumer action) {
 	 for (int i = 0; i < size; ++i) {
 	  action.accept(a[i]);
 	 }
 	}
 	@Override
-	public boolean addAll(int index, final CharacterCollection c) {
-	 if (c instanceof CharacterList) {
-	  return addAll(index, (CharacterList )c);
+	public boolean addAll(int index, final CharCollection c) {
+	 if (c instanceof CharList) {
+	  return addAll(index, (CharList)c);
 	 }
 	 ensureIndex(index);
 	 int n = c.size();
@@ -626,15 +626,15 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
     }
 	 grow(size + n);
 	 System.arraycopy(a, index, a, index + n, size - index);
-	 final CharacterIterator i = c.iterator();
+	 final CharIterator i = c.iterator();
 	 size += n;
     while (n-- != 0) {
-      a[index++] = i.nextCharacter();
+      a[index++] = i.nextChar();
     }
 	 return true;
 	}
 	@Override
-	public boolean addAll(final int index, final CharacterList l) {
+	public boolean addAll(final int index, final CharList l) {
 	 ensureIndex(index);
 	 final int n = l.size();
     if (n == 0) {
@@ -647,7 +647,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 return true;
 	}
 	@Override
-	public boolean removeAll(final CharacterCollection c) {
+	public boolean removeAll(final CharCollection c) {
 	 final char[] a = this.a;
 	 int j = 0;
 	 for(int i = 0; i < size; i++)
@@ -667,9 +667,9 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 return a;
 	}
 	@Override
-	public CharacterListIterator listIterator(final int index) {
+	public CharListIterator listIterator(final int index) {
 	 ensureIndex(index);
-	 return new CharacterListIterator () {
+	 return new CharListIterator() {
 	   int pos = index, last = -1;
 	   @Override
 	   public boolean hasNext() { return pos < size; }
@@ -677,13 +677,13 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	   public boolean hasPrevious() { return pos > 0; }
 
 		 @Override
-	   public char nextCharacter() {
+	   public char nextChar() {
        if (!hasNext()) {
          throw new NoSuchElementException();
        }
        return a[last = pos++]; }
 	   @Override
-	   public char previousCharacter() {
+	   public char previousChar() {
        if (!hasPrevious()) {
          throw new NoSuchElementException();
        }
@@ -694,7 +694,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	   public int previousIndex() { return pos - 1; }
 	   @Override
 	   public void add(char k) {
-	    CharacterArrayList.this.add(pos++, k);
+	    CharArrayList.this.add(pos++, k);
 	    last = -1;
 	   }
 	   @Override
@@ -702,14 +702,14 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
        if (last == -1) {
          throw new IllegalStateException();
        }
-	    CharacterArrayList.this.putAt(last, k);
+	    CharArrayList.this.putAt(last, k);
 	   }
 	   @Override
 	   public void remove() {
        if (last == -1) {
          throw new IllegalStateException();
        }
-	    CharacterArrayList.this.removeAt(last);
+	    CharArrayList.this.removeAt(last);
 	    /* If the last operation was a next(), we are removing an element *before* us, and we must decrease pos correspondingly. */
        if (last < pos) {
          pos--;
@@ -717,7 +717,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	    last = -1;
 	   }
 	   @Override
-	   public void forEachRemaining(final CharacterConsumer action) {
+	   public void forEachRemaining(final CharConsumer action) {
 	    while (pos < size) {
 	     action.accept(a[last = pos++]);
 	    }
@@ -741,14 +741,14 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	  };
 	}
 	// If you update this, you will probably want to update ArraySet as well
-	private final class Spliterator implements CharacterSpliterator {
+	private final class Spliterator implements CharSpliterator {
 	 // Until we split, we will track the size of the list.
 	 // Once we split, then we stop updating on structural modifications.
 	 // Aka, size is late-binding.
 	 boolean hasSplit = false;
 	 int pos, max;
 	 public Spliterator() {
-	  this(0, CharacterArrayList.this.size, false);
+	  this(0, CharArrayList.this.size, false);
 	 }
 	 private Spliterator(int pos, int max, boolean hasSplit) {
 	  this.pos = pos;
@@ -756,14 +756,14 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	  this.hasSplit = hasSplit;
 	 }
 	 private int getWorkingMax() {
-	  return hasSplit ? max : CharacterArrayList.this.size;
+	  return hasSplit ? max : CharArrayList.this.size;
 	 }
 	 @Override
-	 public int characteristics() { return CharacterSpliterators.LIST_SPLITERATOR_CHARACTERISTICS; }
+	 public int characteristics() { return CharSpliterators.LIST_SPLITERATOR_CHARACTERISTICS; }
 	 @Override
 	 public long estimateSize() { return getWorkingMax() - pos; }
 	 @Override
-	 public boolean tryAdvance(final CharacterConsumer action) {
+	 public boolean tryAdvance(final CharConsumer action) {
      if (pos >= getWorkingMax()) {
        return false;
      }
@@ -771,7 +771,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	  return true;
 	 }
 	 @Override
-	 public void forEachRemaining(final CharacterConsumer action) {
+	 public void forEachRemaining(final CharConsumer action) {
 	  for (final int max = getWorkingMax(); pos < max; ++pos) {
 	   action.accept(a[pos]);
 	  }
@@ -795,7 +795,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	  return n;
 	 }
 	 @Override
-	 public CharacterSpliterator trySplit() {
+	 public CharSpliterator trySplit() {
 	  final int max = getWorkingMax();
 	  int retLen = (max - pos) >> 1;
      if (retLen <= 1) {
@@ -820,7 +820,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 * {@link java.util.Spliterator#trySplit() trySplit()} will result in unspecified behavior.
 	 */
 	@Override
-	public CharacterSpliterator spliterator() {
+	public CharSpliterator spliterator() {
 	 // If it wasn't for the possibility of the list being expanded or shrunk,
 	 // we could return SPLITERATORS.wrap(a, 0, size).
 	 return new Spliterator();
@@ -849,7 +849,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 * @param l a type-specific array list.
 	 * @return true if the argument contains the same elements of this type-specific array list.
 	 */
-	public boolean equals(final CharacterArrayList l) {
+	public boolean equals(final CharArrayList l) {
     if (l == this) {
       return true;
     }
@@ -881,14 +881,14 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
     if (!(o instanceof java.util.List)) {
       return false;
     }
-	 if (o instanceof CharacterArrayList) {
+	 if (o instanceof CharArrayList) {
 	  // Safe cast because we are only going to take elements from other list, never give them
-	  return equals((CharacterArrayList) o);
+	  return equals((CharArrayList) o);
 	 }
-	 if (o instanceof CharacterArrayList.SubList) {
+	 if (o instanceof CharArrayList.SubList) {
 	  // Safe cast because we are only going to take elements from other list, never give them
 	  // Sublist has an optimized sub-array based comparison, reuse that.
-	  return ((CharacterArrayList.SubList)o).equals(this);
+	  return ((CharArrayList.SubList)o).equals(this);
 	 }
 	 return super.equals(o);
 	}
@@ -903,7 +903,7 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 	 * to, or greater than the argument.
 	 */
 
-	public int compareTo(final CharacterArrayList l) {
+	public int compareTo(final CharArrayList l) {
 	 final int s1 = size(), s2 = l.size();
 	 final char a1[] = a, a2[] = l.a;
     if (a1 == a2 && s1 == s2) {
@@ -923,12 +923,12 @@ public class CharacterArrayList extends AbstractCharacterList implements RandomA
 
 	@Override
 	public int compareTo(final java.util.List <? extends Character> l) {
-	 if (l instanceof CharacterArrayList) {
-	  return compareTo((CharacterArrayList)l);
+	 if (l instanceof CharArrayList) {
+	  return compareTo((CharArrayList)l);
 	 }
-	 if (l instanceof CharacterArrayList.SubList) {
+	 if (l instanceof CharArrayList.SubList) {
 	  // Must negate because we are inverting the order of the comparison.
-	  return -((CharacterArrayList.SubList) l).compareTo(this);
+	  return -((CharArrayList.SubList) l).compareTo(this);
 	 }
 	 return super.compareTo(l);
 	}

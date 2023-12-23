@@ -42,7 +42,7 @@ import com.tambapps.marcel.parser.type.ReflectJavaMethod
 import marcel.lang.IntRanges
 import marcel.lang.LongRanges
 import marcel.lang.MarcelTruth
-import marcel.lang.primitives.iterators.CharacterIterator
+import marcel.lang.primitives.iterators.CharIterator
 import marcel.lang.primitives.iterators.DoubleIterator
 import marcel.lang.primitives.iterators.FloatIterator
 import marcel.lang.primitives.iterators.IntIterator
@@ -993,7 +993,7 @@ class InstructionGenerator(
     else if (LongIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) "nextLong"
     else if (FloatIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) "nextFloat"
     else if (DoubleIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) "nextDouble"
-    else if (CharacterIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) "nextCharacter"
+    else if (CharIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) "nextChar"
     else if (Iterator::class.javaType.isAssignableFrom(iteratorExpressionType)) "next"
     else throw UnsupportedOperationException("wtf")
     visit(VariableAssignmentNode(node.token, scope, iteratorVariable.name, iteratorExpression))

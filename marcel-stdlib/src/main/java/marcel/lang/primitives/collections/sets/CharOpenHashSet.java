@@ -1,20 +1,20 @@
 package marcel.lang.primitives.collections.sets;
 
 import marcel.lang.primitives.Hash;
-import marcel.lang.primitives.collections.CharacterCollection;
-import marcel.lang.primitives.collections.lists.CharacterArrayList;
-import marcel.lang.primitives.iterators.CharacterIterator;
-import marcel.lang.primitives.iterators.CharacterIterators;
-import marcel.lang.primitives.spliterators.CharacterSpliterator;
-import marcel.lang.primitives.spliterators.CharacterSpliterators;
-import marcel.lang.util.function.CharacterConsumer;
+import marcel.lang.primitives.collections.CharCollection;
+import marcel.lang.primitives.collections.lists.CharArrayList;
+import marcel.lang.primitives.iterators.CharIterator;
+import marcel.lang.primitives.iterators.CharIterators;
+import marcel.lang.primitives.spliterators.CharSpliterator;
+import marcel.lang.primitives.spliterators.CharSpliterators;
+import marcel.lang.util.function.CharConsumer;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class CharacterOpenHashSet extends AbstractCharacterSet implements java.io.Serializable, Cloneable, Hash {
+public class CharOpenHashSet extends AbstractCharSet implements java.io.Serializable, Cloneable, Hash {
 	private static final long serialVersionUID = 0L;
 	private static final boolean ASSERTS = false;
 	/** The array of keys. */
@@ -40,7 +40,7 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 	 * @param expected the expected number of elements in the hash set.
 	 * @param f the load factor.
 	 */
-	public CharacterOpenHashSet(final int expected, final float f) {
+	public CharOpenHashSet(final int expected, final float f) {
 		if (f <= 0 || f >= 1) throw new IllegalArgumentException("Load factor must be greater than 0 and smaller than 1");
 		if (expected < 0) throw new IllegalArgumentException("The expected number of elements must be nonnegative");
 		this.f = f;
@@ -53,13 +53,13 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 	 *
 	 * @param expected the expected number of elements in the hash set.
 	 */
-	public CharacterOpenHashSet(final int expected) {
+	public CharOpenHashSet(final int expected) {
 		this(expected, DEFAULT_LOAD_FACTOR);
 	}
 	/** Creates a new hash set with initial expected {@link Hash#DEFAULT_INITIAL_SIZE} elements
 	 * and {@link Hash#DEFAULT_LOAD_FACTOR} as load factor.
 	 */
-	public CharacterOpenHashSet() {
+	public CharOpenHashSet() {
 		this(DEFAULT_INITIAL_SIZE, DEFAULT_LOAD_FACTOR);
 	}
 	/** Creates a new hash set copying a given collection.
@@ -67,7 +67,7 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 	 * @param c a Collection to be copied into the new hash set.
 	 * @param f the load factor.
 	 */
-	public CharacterOpenHashSet(final Collection<? extends Character> c, final float f) {
+	public CharOpenHashSet(final Collection<? extends Character> c, final float f) {
 		this(c.size(), f);
 		addAll(c);
 	}
@@ -76,7 +76,7 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 	 *
 	 * @param c a Collection to be copied into the new hash set.
 	 */
-	public CharacterOpenHashSet(final Collection<? extends Character> c) {
+	public CharOpenHashSet(final Collection<? extends Character> c) {
 		this(c, DEFAULT_LOAD_FACTOR);
 	}
 	/** Creates a new hash set copying a given type-specific collection.
@@ -84,7 +84,7 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 	 * @param c a type-specific collection to be copied into the new hash set.
 	 * @param f the load factor.
 	 */
-	public CharacterOpenHashSet(final CharacterCollection c, final float f) {
+	public CharOpenHashSet(final CharCollection c, final float f) {
 		this(c.size(), f);
 		addAll(c);
 	}
@@ -93,7 +93,7 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 	 *
 	 * @param c a type-specific collection to be copied into the new hash set.
 	 */
-	public CharacterOpenHashSet(final CharacterCollection c) {
+	public CharOpenHashSet(final CharCollection c) {
 		this(c, DEFAULT_LOAD_FACTOR);
 	}
 	/** Creates a new hash set using elements provided by a type-specific iterator.
@@ -101,15 +101,15 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 	 * @param i a type-specific iterator whose elements will fill the set.
 	 * @param f the load factor.
 	 */
-	public CharacterOpenHashSet(final CharacterIterator i, final float f) {
+	public CharOpenHashSet(final CharIterator i, final float f) {
 		this(DEFAULT_INITIAL_SIZE, f);
-		while(i.hasNext()) add(i.nextCharacter());
+		while(i.hasNext()) add(i.nextChar());
 	}
 	/** Creates a new hash set with {@link Hash#DEFAULT_LOAD_FACTOR} as load factor using elements provided by a type-specific iterator.
 	 *
 	 * @param i a type-specific iterator whose elements will fill the set.
 	 */
-	public CharacterOpenHashSet(final CharacterIterator i) {
+	public CharOpenHashSet(final CharIterator i) {
 		this(i, DEFAULT_LOAD_FACTOR);
 	}
 	/** Creates a new hash set using elements provided by an iterator.
@@ -117,15 +117,15 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 	 * @param i an iterator whose elements will fill the set.
 	 * @param f the load factor.
 	 */
-	public CharacterOpenHashSet(final Iterator<?> i, final float f) {
-		this(CharacterIterators.asCharacterIterator(i), f);
+	public CharOpenHashSet(final Iterator<?> i, final float f) {
+		this(CharIterators.asCharIterator(i), f);
 	}
 	/** Creates a new hash set with {@link Hash#DEFAULT_LOAD_FACTOR} as load factor using elements provided by an iterator.
 	 *
 	 * @param i an iterator whose elements will fill the set.
 	 */
-	public CharacterOpenHashSet(final Iterator<?> i) {
-		this(CharacterIterators.asCharacterIterator(i));
+	public CharOpenHashSet(final Iterator<?> i) {
+		this(CharIterators.asCharIterator(i));
 	}
 	/** Creates a new hash set and fills it with the elements of a given array.
 	 *
@@ -134,7 +134,7 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 	 * @param length the number of elements to use.
 	 * @param f the load factor.
 	 */
-	public CharacterOpenHashSet(final char[] a, final int offset, final int length, final float f) {
+	public CharOpenHashSet(final char[] a, final int offset, final int length, final float f) {
 		this(length < 0 ? 0 : length, f);
 		marcel.lang.util.Arrays.ensureOffsetLength(a, offset, length);
 		for(int i = 0; i < length; i++) add(a[offset + i]);
@@ -145,7 +145,7 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 	 * @param offset the first element to use.
 	 * @param length the number of elements to use.
 	 */
-	public CharacterOpenHashSet(final char[] a, final int offset, final int length) {
+	public CharOpenHashSet(final char[] a, final int offset, final int length) {
 		this(a, offset, length, DEFAULT_LOAD_FACTOR);
 	}
 	/** Creates a new hash set copying the elements of an array.
@@ -153,11 +153,11 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 	 * @param a an array to be copied into the new hash set.
 	 * @param f the load factor.
 	 */
-	public CharacterOpenHashSet(final char[] a, final float f) {
+	public CharOpenHashSet(final char[] a, final float f) {
 		this(a, 0, a.length, f);
 	}
 
-	public CharacterOpenHashSet(String s) {
+	public CharOpenHashSet(String s) {
 		this(s.toCharArray());
 	}
 
@@ -166,15 +166,15 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 	 *
 	 * @param a an array to be copied into the new hash set.
 	 */
-	public CharacterOpenHashSet(final char[] a) {
+	public CharOpenHashSet(final char[] a) {
 		this(a, DEFAULT_LOAD_FACTOR);
 	}
 	/** Creates a new empty hash set.
 	 *
 	 * @return a new empty hash set.
 	 */
-	public static CharacterOpenHashSet of() {
-		return new CharacterOpenHashSet();
+	public static CharOpenHashSet of() {
+		return new CharOpenHashSet();
 	}
 	/** Creates a new hash set with {@link Hash#DEFAULT_LOAD_FACTOR} as load factor
 	 * using the given element.
@@ -182,8 +182,8 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 	 * @param e the element that the returned set will contain.
 	 * @return a new hash set with {@link Hash#DEFAULT_LOAD_FACTOR} as load factor containing {@code e}.
 	 */
-	public static CharacterOpenHashSet of(final char e) {
-		CharacterOpenHashSet result = new CharacterOpenHashSet(1, DEFAULT_LOAD_FACTOR);
+	public static CharOpenHashSet of(final char e) {
+		CharOpenHashSet result = new CharOpenHashSet(1, DEFAULT_LOAD_FACTOR);
 		result.add(e);
 		return result;
 	}
@@ -195,8 +195,8 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 	 * @return a new hash set with {@link Hash#DEFAULT_LOAD_FACTOR} as load factor containing {@code e0} and {@code e1}.
 	 * @throws IllegalArgumentException if there were duplicate entries.
 	 */
-	public static CharacterOpenHashSet of(final char e0, final char e1) {
-		CharacterOpenHashSet result = new CharacterOpenHashSet(2, DEFAULT_LOAD_FACTOR);
+	public static CharOpenHashSet of(final char e0, final char e1) {
+		CharOpenHashSet result = new CharOpenHashSet(2, DEFAULT_LOAD_FACTOR);
 		result.add(e0);
 		if (!result.add(e1)) {
 			throw new IllegalArgumentException("Duplicate element: " + e1);
@@ -212,8 +212,8 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 	 * @return a new hash set with {@link Hash#DEFAULT_LOAD_FACTOR} as load factor containing {@code e0}, {@code e1}, and {@code e2}.
 	 * @throws IllegalArgumentException if there were duplicate entries.
 	 */
-	public static CharacterOpenHashSet of(final char e0, final char e1, final char e2) {
-		CharacterOpenHashSet result = new CharacterOpenHashSet(3, DEFAULT_LOAD_FACTOR);
+	public static CharOpenHashSet of(final char e0, final char e1, final char e2) {
+		CharOpenHashSet result = new CharOpenHashSet(3, DEFAULT_LOAD_FACTOR);
 		result.add(e0);
 		if (!result.add(e1)) {
 			throw new IllegalArgumentException("Duplicate element: " + e1);
@@ -230,8 +230,8 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 	 * @return a new hash set with {@link Hash#DEFAULT_LOAD_FACTOR} as load factor containing the elements of {@code a}.
 	 * @throws IllegalArgumentException if a duplicate entry was encountered.
 	 */
-	public static CharacterOpenHashSet of(final char... a) {
-		CharacterOpenHashSet result = new CharacterOpenHashSet(a.length, DEFAULT_LOAD_FACTOR);
+	public static CharOpenHashSet of(final char... a) {
+		CharOpenHashSet result = new CharOpenHashSet(a.length, DEFAULT_LOAD_FACTOR);
 		for (char element : a) {
 			if (!result.add(element)) {
 				throw new IllegalArgumentException("Duplicate element " + element);
@@ -247,11 +247,11 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 	 * {@link java.util.stream.Collector Collector} is necessary because there is no
 	 * primitive {@code Collector} equivalent in the Java API.
 	 */
-	public static CharacterOpenHashSet toSet(java.util.stream.IntStream stream) {
+	public static CharOpenHashSet toSet(java.util.stream.IntStream stream) {
 		return stream.collect(
-				CharacterOpenHashSet::new,
+				CharOpenHashSet::new,
 				(a,b) -> a.add((char) b),
-				CharacterOpenHashSet::addAll);
+				CharOpenHashSet::addAll);
 	}
 
 	private int realSize() {
@@ -271,7 +271,7 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 		if (needed > n) rehash(needed);
 	}
 	@Override
-	public boolean addAll(CharacterCollection c) {
+	public boolean addAll(CharCollection c) {
 		if (f <= .5) ensureCapacity(c.size()); // The resulting collection will be sized for c.size() elements
 		else tryCapacity(size() + c.size()); // The resulting collection will be tentatively sized for size() + c.size() elements
 		return super.addAll(c);
@@ -394,7 +394,7 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 		return size == 0;
 	}
 	/** An iterator over a hash set. */
-	private final class SetIterator implements CharacterIterator {
+	private final class SetIterator implements CharIterator {
 		/** The index of the last entry returned, if positive or zero; initially, {@link #n}. If negative, the last
 		 element returned was that of index {@code - pos - 1} from the {@link #wrapped} list. */
 		int pos = n;
@@ -405,15 +405,15 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 		/** A downward counter measuring how many entries must still be returned. */
 		int c = size;
 		/** A boolean telling us whether we should return the null key. */
-		boolean mustReturnNull = CharacterOpenHashSet.this.containsNull;
+		boolean mustReturnNull = CharOpenHashSet.this.containsNull;
 		/** A lazily allocated list containing elements that have wrapped around the table because of removals. */
-		CharacterArrayList wrapped;
+		CharArrayList wrapped;
 		@Override
 		public boolean hasNext() {
 			return c != 0;
 		}
 		@Override
-		public char nextCharacter() {
+		public char nextChar() {
 			if (! hasNext()) throw new NoSuchElementException();
 			c--;
 			if (mustReturnNull) {
@@ -421,7 +421,7 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 				last = n;
 				return key[n];
 			}
-			final char key[] = CharacterOpenHashSet.this.key;
+			final char key[] = CharOpenHashSet.this.key;
 			for(;;) {
 				if (--pos < 0) {
 					// We are just enumerating elements from the wrapped list.
@@ -440,7 +440,7 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 			// Shift entries with the same hash.
 			int last, slot;
 			char curr;
-			final char[] key = CharacterOpenHashSet.this.key;
+			final char[] key = CharOpenHashSet.this.key;
 			for(;;) {
 				pos = ((last = pos) + 1) & mask;
 				for(;;) {
@@ -453,7 +453,7 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 					pos = (pos + 1) & mask;
 				}
 				if (pos < last) { // Wrapped entry.
-					if (wrapped == null) wrapped = new CharacterArrayList(2);
+					if (wrapped == null) wrapped = new CharArrayList(2);
 					wrapped.add(key[pos]);
 				}
 				key[last] = curr;
@@ -463,13 +463,13 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 		public void remove() {
 			if (last == -1) throw new IllegalStateException();
 			if (last == n) {
-				CharacterOpenHashSet.this.containsNull = false;
-				CharacterOpenHashSet.this.key[n] = (0);
+				CharOpenHashSet.this.containsNull = false;
+				CharOpenHashSet.this.key[n] = (0);
 			}
 			else if (pos >= 0) shiftKeys(last);
 			else {
 				// We're removing wrapped entries.
-				CharacterOpenHashSet.this.remove(wrapped.getAt(- pos - 1));
+				CharOpenHashSet.this.remove(wrapped.getAt(- pos - 1));
 				last = -1; // Note that we must not decrement size
 				return;
 			}
@@ -477,8 +477,8 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 			last = -1; // You can no charer remove this entry.
 		}
 		@Override
-		public void forEachRemaining(final CharacterConsumer action) {
-			final char key[] = CharacterOpenHashSet.this.key;
+		public void forEachRemaining(final CharConsumer action) {
+			final char key[] = CharOpenHashSet.this.key;
 			if (mustReturnNull) {
 				mustReturnNull = false;
 				last = n;
@@ -499,13 +499,13 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 		}
 	}
 	@Override
-	public CharacterIterator iterator() {
-		return new CharacterOpenHashSet.SetIterator();
+	public CharIterator iterator() {
+		return new CharOpenHashSet.SetIterator();
 	}
-	private final class SetSpliterator implements CharacterSpliterator {
-		private static final int POST_SPLIT_CHARACTERISTICS = CharacterSpliterators.SET_SPLITERATOR_CHARACTERISTICS & ~java.util.Spliterator.SIZED;
+	private final class SetSpliterator implements CharSpliterator {
+		private static final int POST_SPLIT_CHARACTERISTICS = CharSpliterators.SET_SPLITERATOR_CHARACTERISTICS & ~java.util.Spliterator.SIZED;
 		/** The index (which bucket) of the next item to give to the action.
-		 * Unlike {@link CharacterOpenHashSet.SetIterator}, this counts up instead of down.
+		 * Unlike {@link CharOpenHashSet.SetIterator}, this counts up instead of down.
 		 */
 		int pos = 0;
 		/** The maximum bucket (exclusive) to iterate to */
@@ -513,7 +513,7 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 		/** An upwards counter counting how many we have given */
 		int c = 0;
 		/** A boolean telling us whether we should return the null key. */
-		boolean mustReturnNull = CharacterOpenHashSet.this.containsNull;
+		boolean mustReturnNull = CharOpenHashSet.this.containsNull;
 		boolean hasSplit = false;
 		SetSpliterator() {}
 		SetSpliterator(int pos, int max, boolean mustReturnNull, boolean hasSplit) {
@@ -523,14 +523,14 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 			this.hasSplit = hasSplit;
 		}
 		@Override
-		public boolean tryAdvance(final CharacterConsumer action) {
+		public boolean tryAdvance(final CharConsumer action) {
 			if (mustReturnNull) {
 				mustReturnNull = false;
 				++c;
 				action.accept(key[n]);
 				return true;
 			}
-			final char key[] = CharacterOpenHashSet.this.key;
+			final char key[] = CharOpenHashSet.this.key;
 			while (pos < max) {
 				if (! ( (key[pos]) == (0) )) {
 					++c;
@@ -543,8 +543,8 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 			return false;
 		}
 		@Override
-		public void forEachRemaining(final CharacterConsumer action) {
-			final char key[] = CharacterOpenHashSet.this.key;
+		public void forEachRemaining(final CharConsumer action) {
+			final char key[] = CharOpenHashSet.this.key;
 			if (mustReturnNull) {
 				mustReturnNull = false;
 				action.accept(key[n]);
@@ -560,7 +560,7 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 		}
 		@Override
 		public int characteristics() {
-			return hasSplit ? POST_SPLIT_CHARACTERISTICS : CharacterSpliterators.SET_SPLITERATOR_CHARACTERISTICS;
+			return hasSplit ? POST_SPLIT_CHARACTERISTICS : CharSpliterators.SET_SPLITERATOR_CHARACTERISTICS;
 		}
 		@Override
 		public long estimateSize() {
@@ -599,7 +599,7 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 				++skipped;
 				--n;
 			}
-			final char key[] = CharacterOpenHashSet.this.key;
+			final char key[] = CharOpenHashSet.this.key;
 			while (pos < max && n > 0) {
 				if (! ( (key[pos++]) == (0) )) {
 					++skipped;
@@ -610,11 +610,11 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 		}
 	}
 	@Override
-	public CharacterSpliterator spliterator() {
+	public CharSpliterator spliterator() {
 		return new SetSpliterator();
 	}
 	@Override
-	public void forEach(final CharacterConsumer action) {
+	public void forEach(final CharConsumer action) {
 		if (containsNull) action.accept(key[n]);
 		final char key[] = this.key;
 		for(int pos = n; pos-- != 0; ) if (! ( (key[pos]) == (0) )) action.accept(key[pos]);
@@ -694,10 +694,10 @@ public class CharacterOpenHashSet extends AbstractCharacterSet implements java.i
 	 *  @return a deep copy of this set.
 	 */
 	@Override
-	public CharacterOpenHashSet clone() {
-		CharacterOpenHashSet c;
+	public CharOpenHashSet clone() {
+		CharOpenHashSet c;
 		try {
-			c = (CharacterOpenHashSet)super.clone();
+			c = (CharOpenHashSet)super.clone();
 		}
 		catch(CloneNotSupportedException cantHappen) {
 			throw new InternalError();

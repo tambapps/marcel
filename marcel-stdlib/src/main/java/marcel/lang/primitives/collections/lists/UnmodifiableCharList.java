@@ -1,18 +1,18 @@
 package marcel.lang.primitives.collections.lists;
 
 import lombok.AllArgsConstructor;
-import marcel.lang.primitives.iterators.list.CharacterListIterator;
-import marcel.lang.primitives.spliterators.CharacterSpliterator;
-import marcel.lang.primitives.spliterators.CharacterSpliterators;
+import marcel.lang.primitives.iterators.list.CharListIterator;
+import marcel.lang.primitives.spliterators.CharSpliterator;
+import marcel.lang.primitives.spliterators.CharSpliterators;
 import marcel.lang.util.SafeMath;
-import marcel.lang.util.function.CharacterConsumer;
+import marcel.lang.util.function.CharConsumer;
 
 import java.util.NoSuchElementException;
 
 @AllArgsConstructor
-class UnmodifiableCharacterList extends AbstractCharacterList {
+class UnmodifiableCharList extends AbstractCharList {
 
-  private final CharacterList base;
+  private final CharList base;
 
   @Override
   public int size() {
@@ -20,7 +20,7 @@ class UnmodifiableCharacterList extends AbstractCharacterList {
   }
 
   @Override
-  public CharacterListIterator listIterator(int index) {
+  public CharListIterator listIterator(int index) {
     return new ImmutableListIterator(index);
   }
 
@@ -44,18 +44,18 @@ class UnmodifiableCharacterList extends AbstractCharacterList {
   }
 
   @Override
-  public CharacterSpliterator spliterator() {
+  public CharSpliterator spliterator() {
     return new ImmutableSpliterator();
   }
 
-  private final class ImmutableSpliterator implements CharacterSpliterator {
+  private final class ImmutableSpliterator implements CharSpliterator {
     // Until we split, we will track the size of the list.
     // Once we split, then we stop updating on structural modifications.
     // Aka, size is late-binding.
     boolean hasSplit = false;
     int pos, max;
     public ImmutableSpliterator() {
-      this(0, UnmodifiableCharacterList.this.size(), false);
+      this(0, UnmodifiableCharList.this.size(), false);
     }
     private ImmutableSpliterator(int pos, int max, boolean hasSplit) {
       this.pos = pos;
@@ -63,14 +63,14 @@ class UnmodifiableCharacterList extends AbstractCharacterList {
       this.hasSplit = hasSplit;
     }
     private int getWorkingMax() {
-      return hasSplit ? max : UnmodifiableCharacterList.this.size();
+      return hasSplit ? max : UnmodifiableCharList.this.size();
     }
     @Override
-    public int characteristics() { return CharacterSpliterators.LIST_SPLITERATOR_CHARACTERISTICS; }
+    public int characteristics() { return CharSpliterators.LIST_SPLITERATOR_CHARACTERISTICS; }
     @Override
     public long estimateSize() { return getWorkingMax() - pos; }
     @Override
-    public boolean tryAdvance(final CharacterConsumer action) {
+    public boolean tryAdvance(final CharConsumer action) {
       if (pos >= getWorkingMax()) {
         return false;
       }
@@ -78,7 +78,7 @@ class UnmodifiableCharacterList extends AbstractCharacterList {
       return true;
     }
     @Override
-    public void forEachRemaining(final CharacterConsumer action) {
+    public void forEachRemaining(final CharConsumer action) {
       for (final int max = getWorkingMax(); pos < max; ++pos) {
         action.accept(getAt(pos));
       }
@@ -102,7 +102,7 @@ class UnmodifiableCharacterList extends AbstractCharacterList {
       return n;
     }
     @Override
-    public CharacterSpliterator trySplit() {
+    public CharSpliterator trySplit() {
       final int max = getWorkingMax();
       int retLen = (max - pos) >> 1;
       if (retLen <= 1) {
@@ -118,7 +118,7 @@ class UnmodifiableCharacterList extends AbstractCharacterList {
       return new ImmutableSpliterator(oldPos, retMax, true);
     }
   }
-  private class ImmutableListIterator implements CharacterListIterator {
+  private class ImmutableListIterator implements CharListIterator {
     int pos, last = -1;
 
     ImmutableListIterator(int index) {
@@ -130,13 +130,13 @@ class UnmodifiableCharacterList extends AbstractCharacterList {
     public boolean hasPrevious() { return pos > 0; }
 
     @Override
-    public char nextCharacter() {
+    public char nextChar() {
       if (!hasNext()) {
         throw new NoSuchElementException();
       }
       return getAt(last = pos++); }
     @Override
-    public char previousCharacter() {
+    public char previousChar() {
       if (!hasPrevious()) {
         throw new NoSuchElementException();
       }
@@ -158,7 +158,7 @@ class UnmodifiableCharacterList extends AbstractCharacterList {
       unsupportedOperation();
     }
     @Override
-    public void forEachRemaining(final CharacterConsumer action) {
+    public void forEachRemaining(final CharConsumer action) {
       while (pos < size()) {
         action.accept(getAt(last = pos++));
       }

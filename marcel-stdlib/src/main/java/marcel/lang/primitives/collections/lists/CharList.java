@@ -16,16 +16,16 @@
 package marcel.lang.primitives.collections.lists;
 
 import marcel.lang.IntRange;
-import marcel.lang.primitives.collections.CharacterCollection;
-import marcel.lang.primitives.collections.sets.CharacterOpenHashSet;
-import marcel.lang.primitives.collections.sets.CharacterSet;
-import marcel.lang.primitives.iterators.CharacterIterator;
+import marcel.lang.primitives.collections.CharCollection;
+import marcel.lang.primitives.collections.sets.CharOpenHashSet;
+import marcel.lang.primitives.collections.sets.CharSet;
+import marcel.lang.primitives.iterators.CharIterator;
 import marcel.lang.primitives.iterators.IntIterator;
-import marcel.lang.primitives.iterators.list.CharacterListIterator;
-import marcel.lang.primitives.spliterators.CharacterSpliterator;
+import marcel.lang.primitives.iterators.list.CharListIterator;
+import marcel.lang.primitives.spliterators.CharSpliterator;
 import marcel.lang.util.Arrays;
-import marcel.lang.util.function.CharacterPredicate;
-import marcel.lang.util.function.CharacterUnaryOperator;
+import marcel.lang.util.function.CharPredicate;
+import marcel.lang.util.function.CharUnaryOperator;
 
 import java.util.Comparator;
 import java.util.List;
@@ -49,7 +49,7 @@ import java.util.Spliterator;
 	*
 	* @see List
 	*/
-public interface CharacterList extends List<Character>, Comparable<List<? extends Character>>, CharacterCollection, CharSequence {
+public interface CharList extends List<Character>, Comparable<List<? extends Character>>, CharCollection, CharSequence {
 
 	@Override
 	default int length() {
@@ -82,7 +82,7 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	 * @return an iterator on the elements of this list.
 	 */
 	@Override
-  CharacterListIterator iterator();
+	CharListIterator iterator();
 	/** Returns a type-specific spliterator on the elements of this list.
 	 *
 	 * <p>List spliterators must report at least Spliterator#SIZED and {@link Spliterator#ORDERED}.
@@ -118,19 +118,19 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	 * @since 8.5.0
 	 */
 	@Override
-	CharacterSpliterator spliterator();
+	CharSpliterator spliterator();
 	/** Returns a type-specific list iterator on the list.
 	 *
 	 * @see List#listIterator()
 	 */
 	@Override
-	CharacterListIterator listIterator();
+	CharListIterator listIterator();
 	/** Returns a type-specific list iterator on the list starting at a given index.
 	 *
 	 * @see List#listIterator(int)
 	 */
 	@Override
-	CharacterListIterator listIterator(int index);
+	CharListIterator listIterator(int index);
 	/** Returns a type-specific view of the portion of this list from the index {@code from}, inclusive, to the index {@code to}, exclusive.
 	 *
 	 * This specification strengthens the one given in {@link List#subList(int,int)}.
@@ -138,7 +138,7 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	 * @see List#subList(int,int)
 	 */
 	@Override
-  CharacterList subList(int from, int to);
+	CharList subList(int from, int to);
 	/** Sets the size of this list.
 	 *
 	 * <p>If the specified size is smaller than the current size, the last elements are
@@ -217,10 +217,10 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	 if (index > size()) throw new IndexOutOfBoundsException("Index (" + index + ") is greater than list size (" + (size()) + ")");
 	 Arrays.ensureOffsetLength(a, offset, length);
 	 if (index + length > size()) throw new IndexOutOfBoundsException("End index (" + (index + length) + ") is greater than list size (" + size() + ")");
-	 CharacterListIterator iter = listIterator(index);
+	 CharListIterator iter = listIterator(index);
 	 int i = 0;
 	 while (i < length) {
-	  iter.nextCharacter();
+	  iter.nextChar();
 	  iter.set(a[offset + i++]);
 	 }
 	}
@@ -243,7 +243,7 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	/** Inserts all of the elements in the specified type-specific collection into this type-specific list at the specified position (optional operation).
 	 * @see List#addAll(int,java.util.Collection)
 	 */
-	boolean addAll(int index, CharacterCollection c);
+	boolean addAll(int index, CharCollection c);
 	/** Replaces the element at the specified position in this list with the specified element (optional operation).
 	 * @see List#set(int,Object)
 	 */
@@ -254,10 +254,10 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	 * @param operator the operator to apply to each element.
 	 * @see List#replaceAll
 	 */
-	default void replaceAll(final CharacterUnaryOperator operator) {
-	 final CharacterListIterator iter = listIterator();
+	default void replaceAll(final CharUnaryOperator operator) {
+	 final CharListIterator iter = listIterator();
 	 while(iter.hasNext()) {
-	  iter.set(operator.applyAsCharacter(iter.nextCharacter()));
+	  iter.set(operator.applyAsChar(iter.nextChar()));
 	 }
 	}
 
@@ -271,7 +271,7 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	 java.util.Objects.requireNonNull(operator);
 	 // The instanceof and cast is required for performance. Without it, calls routed through this
 	 // overload using a primitive consumer would go through the slow lambda.
-	 replaceAll(operator instanceof CharacterUnaryOperator ? (CharacterUnaryOperator) operator : (CharacterUnaryOperator) operator::apply);
+	 replaceAll(operator instanceof CharUnaryOperator ? (CharUnaryOperator) operator : (CharUnaryOperator) operator::apply);
 	}
 	/** Returns the element at the specified position in this list.
 	 * @see List#get(int)
@@ -302,7 +302,7 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	@Deprecated
 	@Override
 	default boolean contains(final Object key) {
-	 return CharacterCollection.super.contains(key);
+	 return CharCollection.super.contains(key);
 	}
 	/** {@inheritDoc}
 	 * @deprecated Please use the corresponding type-specific method instead. */
@@ -344,7 +344,7 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	@Deprecated
 	@Override
 	default boolean remove(final Object key) {
-	 return CharacterCollection.super.remove(key);
+	 return CharCollection.super.remove(key);
 	}
 	/** {@inheritDoc}
 	 * @deprecated Please use the corresponding type-specific method instead. */
@@ -365,13 +365,13 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	 * This method delegates to the one accepting a collection, but it might be implemented more efficiently.
 	 * @see List#addAll(int,Collection)
 	 */
-	default boolean addAll(int index, CharacterList l) {
-	 return addAll(index, (CharacterCollection ) l);
+	default boolean addAll(int index, CharList l) {
+	 return addAll(index, (CharCollection) l);
 	}
 	/** Appends all of the elements in the specified type-specific list to the end of this type-specific list (optional operation).
 	 * This method delegates to the index-based version, passing {@link #size()} as first argument.
 	 */
-	default boolean addAll(CharacterList l) {
+	default boolean addAll(CharList l) {
 	 return addAll(size(), l);
 	}
 
@@ -411,11 +411,11 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 		}
 	}
 
-	default CharacterSet toSet() {
-		CharacterIterator iterator = iterator();
-		CharacterSet set = new CharacterOpenHashSet(size());
+	default CharSet toSet() {
+		CharIterator iterator = iterator();
+		CharSet set = new CharOpenHashSet(size());
 		while (iterator.hasNext()) {
-			set.add(iterator.nextCharacter());
+			set.add(iterator.nextChar());
 		}
 		return set;
 	}
@@ -458,14 +458,14 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	 * @param range the range
 	 * @return the elements at the specified indexes from the ranges
 	 */
-	default CharacterList getAt(IntRange range) {
-		CharacterList subList = new CharacterArrayList();
+	default CharList getAt(IntRange range) {
+		CharList subList = new CharArrayList();
 		IntIterator iterator = range.iterator();
 		while (iterator.hasNext()) subList.add(get(iterator.nextInt()));
 		return subList;
 	}
 
-	default Character findLast(CharacterPredicate predicate)  {
+	default Character findLast(CharPredicate predicate)  {
 		char e;
 		for (int i = size() - 1; i >= 0; i--) {
 			e = getAt(i);
@@ -474,7 +474,7 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 		return null;
 	}
 
-	default char findLastChar(CharacterPredicate predicate)  {
+	default char findLastChar(CharPredicate predicate)  {
 		char e;
 		for (int i = size() - 1; i >= 0; i--) {
 			e = getAt(i);
@@ -489,18 +489,18 @@ public interface CharacterList extends List<Character>, Comparable<List<? extend
 	 * @param b the second collection
 	 * @return a new array containing the content of the first one then the content of the second
 	 */
-	default CharacterList plus(char[] b) {
-		CharacterList sum = new CharacterArrayList(size() + b.length);
+	default CharList plus(char[] b) {
+		CharList sum = new CharArrayList(size() + b.length);
 		sum.addAll(this);
 		for (char l : b) sum.add(l);
 		return sum;
 	}
 
-	default CharacterList asUnmodifiable() {
-		return new UnmodifiableCharacterList(this);
+	default CharList asUnmodifiable() {
+		return new UnmodifiableCharList(this);
 	}
 
-	default CharacterList toImmutable() {
-		return new UnmodifiableCharacterList(new CharacterArrayList(this));
+	default CharList toImmutable() {
+		return new UnmodifiableCharList(new CharArrayList(this));
 	}
 }

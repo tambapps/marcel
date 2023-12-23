@@ -16,8 +16,8 @@
 package marcel.lang.primitives.collections;
 
 
-import marcel.lang.primitives.collections.lists.CharacterArrayList;
-import marcel.lang.primitives.collections.lists.CharacterList;
+import marcel.lang.primitives.collections.lists.CharArrayList;
+import marcel.lang.primitives.collections.lists.CharList;
 import marcel.lang.primitives.collections.lists.DoubleArrayList;
 import marcel.lang.primitives.collections.lists.DoubleList;
 import marcel.lang.primitives.collections.lists.FloatArrayList;
@@ -26,15 +26,14 @@ import marcel.lang.primitives.collections.lists.IntArrayList;
 import marcel.lang.primitives.collections.lists.IntList;
 import marcel.lang.primitives.collections.lists.LongArrayList;
 import marcel.lang.primitives.collections.lists.LongList;
-import marcel.lang.primitives.collections.sets.CharacterOpenHashSet;
-import marcel.lang.primitives.collections.sets.CharacterSet;
-import marcel.lang.primitives.iterable.CharacterIterable;
-import marcel.lang.primitives.iterators.CharacterIterator;
-import marcel.lang.primitives.spliterators.CharacterSpliterator;
-import marcel.lang.util.function.CharacterFunction;
-import marcel.lang.util.function.CharacterPredicate;
+import marcel.lang.primitives.collections.sets.CharOpenHashSet;
+import marcel.lang.primitives.collections.sets.CharSet;
+import marcel.lang.primitives.iterable.CharIterable;
+import marcel.lang.primitives.iterators.CharIterator;
+import marcel.lang.primitives.spliterators.CharSpliterator;
+import marcel.lang.util.function.CharFunction;
+import marcel.lang.util.function.CharPredicate;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
@@ -54,7 +53,7 @@ import java.util.Set;
  *
  * @see Collection
  */
-public interface CharacterCollection extends Collection<Character>, CharacterIterable {
+public interface CharCollection extends Collection<Character>, CharIterable {
 
   boolean add(char key);
   /** Returns {@code true} if this collection contains the specified element.
@@ -73,10 +72,10 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
    *
    * @see Collection#remove(Object)
    */
-  boolean removeCharacter(char key);
+  boolean removeChar(char key);
 
   default boolean replace(char element, char replacement) {
-    if (removeCharacter(element)) {
+    if (removeChar(element)) {
       return add(replacement);
     }
     throw new NoSuchElementException();
@@ -108,7 +107,7 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
    * @return a primitive type array containing the items of this collection.
    * @see Collection#toArray()
    */
-  char[] toCharacterArray();
+  char[] toCharArray();
 
   /** Returns an array containing all of the elements in this collection; the runtime type of the returned array is that of the specified array.
    *
@@ -127,7 +126,7 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
    * @see Collection#addAll(Collection)
    * @return {@code true} if this collection changed as a result of the call.
    */
-  boolean addAll(CharacterCollection c);
+  boolean addAll(CharCollection c);
 
   default boolean addAll(CharSequence c) {
     boolean changed = false;
@@ -143,14 +142,14 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
    * @see Collection#containsAll(Collection)
    * @return {@code true} if this collection contains all elements of the argument.
    */
-  boolean containsAll(CharacterCollection c);
+  boolean containsAll(CharCollection c);
   /** Remove from this collection all elements in the given type-specific collection.
    *
    * @param c a type-specific collection.
    * @see Collection#removeAll(Collection)
    * @return {@code true} if this collection changed as a result of the call.
    */
-  boolean removeAll(CharacterCollection c);
+  boolean removeAll(CharCollection c);
   /** {@inheritDoc}
    * @deprecated Please use the corresponding type-specific method instead.
    */
@@ -158,9 +157,9 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
   @Override
   default boolean removeIf(final java.util.function.Predicate<? super Character> filter) {
     return removeIf(
-        filter instanceof CharacterPredicate ?
-            ((CharacterPredicate) filter) :
-            (CharacterPredicate) key -> filter.test(Character.valueOf(key)));
+        filter instanceof CharPredicate ?
+            ((CharPredicate) filter) :
+            (CharPredicate) key -> filter.test(Character.valueOf(key)));
   }
   /** Remove from this collection all elements which satisfy the given predicate.
    *
@@ -172,11 +171,11 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
    *   implementation of the other overloads which will delegate to this method (after proper
    *   conversions).
    */
-  default boolean removeIf(final CharacterPredicate filter) {
+  default boolean removeIf(final CharPredicate filter) {
     boolean removed = false;
-    final CharacterIterator each = iterator();
+    final CharIterator each = iterator();
     while (each.hasNext()) {
-      if (filter.test(each.nextCharacter())) {
+      if (filter.test(each.nextChar())) {
         each.remove();
         removed = true;
       }
@@ -190,51 +189,51 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
    * @see Collection#retainAll(Collection)
    * @return {@code true} if this collection changed as a result of the call.
    */
-  boolean retainAll(CharacterCollection c);
+  boolean retainAll(CharCollection c);
 
-  CharacterSpliterator spliterator();
+  CharSpliterator spliterator();
 
-  default LongList mapToLong(CharacterFunction<Long> function) {
+  default LongList mapToLong(CharFunction<Long> function) {
     LongList list = new LongArrayList(size());
-    CharacterIterator iterator = iterator();
+    CharIterator iterator = iterator();
     while (iterator.hasNext()) {
-      list.add(function.apply(iterator.nextCharacter()));
+      list.add(function.apply(iterator.nextChar()));
     }
     return list;
   }
 
-  default IntList mapToInt(CharacterFunction<Integer> function) {
+  default IntList mapToInt(CharFunction<Integer> function) {
     IntList intList = new IntArrayList(size());
-    CharacterIterator iterator = iterator();
+    CharIterator iterator = iterator();
     while (iterator.hasNext()) {
-      intList.add(function.apply(iterator.nextCharacter()));
+      intList.add(function.apply(iterator.nextChar()));
     }
     return intList;
   }
 
-  default FloatList mapToFloat(CharacterFunction<Float> function) {
+  default FloatList mapToFloat(CharFunction<Float> function) {
     FloatList intList = new FloatArrayList(size());
-    CharacterIterator iterator = iterator();
+    CharIterator iterator = iterator();
     while (iterator.hasNext()) {
-      intList.add(function.apply(iterator.nextCharacter()));
+      intList.add(function.apply(iterator.nextChar()));
     }
     return intList;
   }
 
-  default DoubleList mapToDouble(CharacterFunction<Double> function) {
+  default DoubleList mapToDouble(CharFunction<Double> function) {
     DoubleList intList = new DoubleArrayList(size());
-    CharacterIterator iterator = iterator();
+    CharIterator iterator = iterator();
     while (iterator.hasNext()) {
-      intList.add(function.apply(iterator.nextCharacter()));
+      intList.add(function.apply(iterator.nextChar()));
     }
     return intList;
   }
 
-  default CharacterList mapToCharacter(CharacterFunction<Character> function) {
-    CharacterList intList = new CharacterArrayList(size());
-    CharacterIterator iterator = iterator();
+  default CharList mapToChar(CharFunction<Character> function) {
+    CharList intList = new CharArrayList(size());
+    CharIterator iterator = iterator();
     while (iterator.hasNext()) {
-      intList.add(function.apply(iterator.nextCharacter()));
+      intList.add(function.apply(iterator.nextChar()));
     }
     return intList;
   }
@@ -243,43 +242,43 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
     return stream().mapToInt(Character::charValue);
   }
 
-  default Character find(CharacterPredicate predicate)  {
-    CharacterIterator iterator = iterator();
+  default Character find(CharPredicate predicate)  {
+    CharIterator iterator = iterator();
     char c;
     while (iterator.hasNext()) {
-      c = iterator.nextCharacter();
+      c = iterator.nextChar();
       if (predicate.test(c)) return c;
     }
     return null;
   }
 
-  default char findCharacter(CharacterPredicate predicate)  {
-    CharacterIterator iterator = iterator();
+  default char findChar(CharPredicate predicate)  {
+    CharIterator iterator = iterator();
     char c;
     while (iterator.hasNext()) {
-      c = iterator.nextCharacter();
+      c = iterator.nextChar();
       if (predicate.test(c)) return c;
     }
     throw new NoSuchElementException();
   }
 
-  default CharacterList findAll(CharacterPredicate predicate)  {
-    CharacterIterator iterator = iterator();
+  default CharList findAll(CharPredicate predicate)  {
+    CharIterator iterator = iterator();
     char e;
-    CharacterList l = new CharacterArrayList(size());
+    CharList l = new CharArrayList(size());
     while (iterator.hasNext()) {
-      e = iterator.nextCharacter();
+      e = iterator.nextChar();
       if (predicate.test(e)) l.add(e);
     }
     return l;
   }
 
-  default <T> CharacterCollection unique(CharacterFunction<T> keyExtractor) {
+  default <T> CharCollection unique(CharFunction<T> keyExtractor) {
     Set<Object> set = new HashSet<>();
-    CharacterList list = new CharacterArrayList();
-    CharacterIterator iterator = iterator();
+    CharList list = new CharArrayList();
+    CharIterator iterator = iterator();
     while (iterator.hasNext()) {
-      char o = iterator.nextCharacter();
+      char o = iterator.nextChar();
       if (set.add(keyExtractor.apply(o))) {
         list.add(o);
       }
@@ -297,7 +296,7 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
     return add(value);
   }
 
-  default boolean leftShift(CharacterCollection collection) {
+  default boolean leftShift(CharCollection collection) {
     return addAll(collection);
   }
   default boolean leftShift(char[] array) {
@@ -310,34 +309,34 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
     return addAll(string);
   }
 
-  default boolean all(CharacterPredicate predicate) {
-    CharacterIterator iterator = iterator();
+  default boolean all(CharPredicate predicate) {
+    CharIterator iterator = iterator();
     while (iterator.hasNext()) {
-      char e = iterator.nextCharacter();
+      char e = iterator.nextChar();
       if (!predicate.test(e)) return false;
     }
     return true;
   }
 
-  default boolean any(CharacterPredicate predicate) {
-    CharacterIterator iterator = iterator();
+  default boolean any(CharPredicate predicate) {
+    CharIterator iterator = iterator();
     while (iterator.hasNext()) {
-      char e = iterator.nextCharacter();
+      char e = iterator.nextChar();
       if (predicate.test(e)) return true;
     }
     return false;
   }
 
-  default boolean none(CharacterPredicate predicate) {
-    CharacterIterator iterator = iterator();
+  default boolean none(CharPredicate predicate) {
+    CharIterator iterator = iterator();
     while (iterator.hasNext()) {
-      char e = iterator.nextCharacter();
+      char e = iterator.nextChar();
       if (predicate.test(e)) return false;
     }
     return true;
   }
 
-  default int count(CharacterPredicate predicate) {
+  default int count(CharPredicate predicate) {
     int count = 0;
     for (char e : this) {
       if (predicate.test(e)) count++;
@@ -345,11 +344,11 @@ public interface CharacterCollection extends Collection<Character>, CharacterIte
     return count;
   }
 
-  default CharacterList toList() {
-    return new CharacterArrayList(this);
+  default CharList toList() {
+    return new CharArrayList(this);
   }
 
-  default CharacterSet toSet() {
-    return new CharacterOpenHashSet(this);
+  default CharSet toSet() {
+    return new CharOpenHashSet(this);
   }
 }

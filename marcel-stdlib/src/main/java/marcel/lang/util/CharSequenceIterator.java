@@ -1,17 +1,17 @@
 package marcel.lang.util;
 
 import lombok.RequiredArgsConstructor;
-import marcel.lang.primitives.iterators.AbstractCharacterIterator;
-import marcel.lang.util.function.CharacterConsumer;
+import marcel.lang.primitives.iterators.AbstractCharIterator;
+import marcel.lang.util.function.CharConsumer;
 
 @RequiredArgsConstructor
-public class CharSequenceIterator extends AbstractCharacterIterator {
+public class CharSequenceIterator extends AbstractCharIterator {
 
   private final CharSequence charSequence;
   private int i = 0;
 
   @Override
-  public char nextCharacter() {
+  public char nextChar() {
     return charSequence.charAt(i++);
   }
 
@@ -22,7 +22,7 @@ public class CharSequenceIterator extends AbstractCharacterIterator {
   }
 
   @Override
-  public void forEachRemaining(CharacterConsumer action) {
-    while (hasNext()) action.accept(nextCharacter());
+  public void forEachRemaining(CharConsumer action) {
+    while (hasNext()) action.accept(this.nextChar());
   }
 }

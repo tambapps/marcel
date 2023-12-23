@@ -12,13 +12,11 @@ import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import marcel.lang.compile.BooleanDefaultValue
-import marcel.lang.compile.CharacterDefaultValue
+import marcel.lang.compile.CharDefaultValue
 import marcel.lang.compile.DoubleDefaultValue
 import marcel.lang.compile.FloatDefaultValue
 import marcel.lang.compile.IntDefaultValue
-import marcel.lang.compile.IntRangeDefaultValue
 import marcel.lang.compile.LongDefaultValue
 import marcel.lang.compile.MethodCallDefaultValue
 import marcel.lang.compile.NullDefaultValue
@@ -69,7 +67,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
         type == JavaType.double || type == JavaType.Double -> annotations.firstNotNullOfOrNull { it as? DoubleDefaultValue }?.let {
           DoubleConstantNode(value = it.value, token = LexToken.DUMMY)
         }
-        type == JavaType.char || type == JavaType.Character -> annotations.firstNotNullOfOrNull { it as? CharacterDefaultValue }?.let {
+        type == JavaType.char || type == JavaType.Character -> annotations.firstNotNullOfOrNull { it as? CharDefaultValue }?.let {
           CharConstantNode(value = it.value, token = LexToken.DUMMY)
         }
         type == JavaType.boolean || type == JavaType.Boolean -> annotations.firstNotNullOfOrNull { it as? BooleanDefaultValue }?.let {

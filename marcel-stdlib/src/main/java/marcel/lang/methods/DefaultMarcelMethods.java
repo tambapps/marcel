@@ -2,8 +2,8 @@ package marcel.lang.methods;
 
 import marcel.lang.IntRange;
 import marcel.lang.primitives.collections.*;
-import marcel.lang.primitives.collections.lists.CharacterArrayList;
-import marcel.lang.primitives.collections.lists.CharacterList;
+import marcel.lang.primitives.collections.lists.CharArrayList;
+import marcel.lang.primitives.collections.lists.CharList;
 import marcel.lang.primitives.collections.lists.DoubleArrayList;
 import marcel.lang.primitives.collections.lists.DoubleList;
 import marcel.lang.primitives.collections.lists.FloatArrayList;
@@ -12,8 +12,8 @@ import marcel.lang.primitives.collections.lists.IntArrayList;
 import marcel.lang.primitives.collections.lists.IntList;
 import marcel.lang.primitives.collections.lists.LongArrayList;
 import marcel.lang.primitives.collections.lists.LongList;
-import marcel.lang.primitives.collections.sets.CharacterOpenHashSet;
-import marcel.lang.primitives.collections.sets.CharacterSet;
+import marcel.lang.primitives.collections.sets.CharOpenHashSet;
+import marcel.lang.primitives.collections.sets.CharSet;
 import marcel.lang.primitives.collections.sets.DoubleOpenHashSet;
 import marcel.lang.primitives.collections.sets.DoubleSet;
 import marcel.lang.primitives.collections.sets.FloatOpenHashSet;
@@ -196,9 +196,9 @@ public final class DefaultMarcelMethods {
     return new DoubleOpenHashSet(DoubleArrayList.wrap(self));
   }
 
-  public static CharacterCollection unique(char[] self, CharacterFunction<?> keyExtractor) {
+  public static CharCollection unique(char[] self, CharFunction<?> keyExtractor) {
     Set<Object> set = new HashSet<>();
-    CharacterList list = new CharacterArrayList();
+    CharList list = new CharArrayList();
     for (char o : self) {
       if (set.add(keyExtractor.apply(o))) {
         list.add(o);
@@ -207,8 +207,8 @@ public final class DefaultMarcelMethods {
     return list;
   }
 
-  public static CharacterSet unique(char[] self) {
-    return new CharacterOpenHashSet(CharacterArrayList.wrap(self));
+  public static CharSet unique(char[] self) {
+    return new CharOpenHashSet(CharArrayList.wrap(self));
   }
 
   public static <T> boolean replace(Collection<T> collection, T element, T replacement) {
@@ -329,7 +329,7 @@ public final class DefaultMarcelMethods {
     return true;
   }
 
-  public static boolean all(char[] self, CharacterPredicate predicate) {
+  public static boolean all(char[] self, CharPredicate predicate) {
     for (char e : self) {
       if (!predicate.test(e)) return false;
     }
@@ -386,7 +386,7 @@ public final class DefaultMarcelMethods {
     return false;
   }
 
-  public static boolean any(char[] self, CharacterPredicate predicate) {
+  public static boolean any(char[] self, CharPredicate predicate) {
     for (char e : self) {
       if (predicate.test(e)) return true;
     }
@@ -443,7 +443,7 @@ public final class DefaultMarcelMethods {
     return true;
   }
 
-  public static boolean none(char[] self, CharacterPredicate predicate) {
+  public static boolean none(char[] self, CharPredicate predicate) {
     for (char e : self) {
       if (predicate.test(e)) return false;
     }
@@ -548,7 +548,7 @@ public final class DefaultMarcelMethods {
     return null;
   }
 
-  public static Character find(char[] self, CharacterPredicate predicate) {
+  public static Character find(char[] self, CharPredicate predicate) {
     for (char e : self) {
       if (predicate.test(e)) return e;
     }
@@ -611,7 +611,7 @@ public final class DefaultMarcelMethods {
     return count;
   }
 
-  public static int count(char[] self, CharacterPredicate predicate) {
+  public static int count(char[] self, CharPredicate predicate) {
     int count = 0;
     for (char e : self) {
       if (predicate.test(e)) count++;
@@ -675,8 +675,8 @@ public final class DefaultMarcelMethods {
     return list;
   }
 
-  public static CharacterList findAll(char[] self, CharacterPredicate predicate) {
-    CharacterList list = new CharacterArrayList(self.length);
+  public static CharList findAll(char[] self, CharPredicate predicate) {
+    CharList list = new CharArrayList(self.length);
     for (char e : self) {
       if (predicate.test(e)) list.add(e);
     }
@@ -754,9 +754,9 @@ public final class DefaultMarcelMethods {
     return set;
   }
 
-  public static CharacterSet toCharacterSet(Collection<?> self) {
+  public static CharSet toCharSet(Collection<?> self) {
     Iterator<?> iterator = self.iterator();
-    CharacterSet set = new CharacterOpenHashSet();
+    CharSet set = new CharOpenHashSet();
     while (iterator.hasNext()) {
       set.add((Character) iterator.next());
     }
@@ -803,8 +803,8 @@ public final class DefaultMarcelMethods {
     return set;
   }
 
-  public static CharacterSet toSet(char[] self) {
-    CharacterSet set = new CharacterOpenHashSet();
+  public static CharSet toSet(char[] self) {
+    CharSet set = new CharOpenHashSet();
     for (char e : self) {
       set.add(e);
     }
@@ -869,8 +869,8 @@ public final class DefaultMarcelMethods {
     return set;
   }
 
-  public static <T> CharacterList toList(char[] self) {
-    CharacterList set = new CharacterArrayList();
+  public static <T> CharList toList(char[] self) {
+    CharList set = new CharArrayList();
     for (char e : self) {
       set.add(e);
     }
@@ -913,9 +913,9 @@ public final class DefaultMarcelMethods {
     return list;
   }
 
-  public static CharacterList toCharacterList(Collection<?> self) {
+  public static CharList toCharList(Collection<?> self) {
     Iterator<?> iterator = self.iterator();
-    CharacterList list = new CharacterArrayList();
+    CharList list = new CharArrayList();
     while (iterator.hasNext()) {
       list.add((Character) iterator.next());
     }

@@ -15,8 +15,8 @@
  */
 package marcel.lang.primitives.collections;
 
-import marcel.lang.primitives.collections.lists.CharacterArrayList;
-import marcel.lang.primitives.collections.lists.CharacterList;
+import marcel.lang.primitives.collections.lists.CharArrayList;
+import marcel.lang.primitives.collections.lists.CharList;
 import marcel.lang.primitives.collections.lists.DoubleArrayList;
 import marcel.lang.primitives.collections.lists.DoubleList;
 import marcel.lang.primitives.collections.lists.FloatArrayList;
@@ -222,8 +222,8 @@ public interface LongCollection extends Collection<Long>, LongIterable {
     return intList;
   }
 
-  default CharacterList mapToCharacter(LongFunction<Character> function) {
-    CharacterList intList = new CharacterArrayList(size());
+  default CharList mapToChar(LongFunction<Character> function) {
+    CharList intList = new CharArrayList(size());
     LongIterator iterator = iterator();
     while (iterator.hasNext()) {
       intList.add(function.apply(iterator.nextLong()));

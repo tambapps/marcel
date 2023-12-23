@@ -163,7 +163,7 @@ import com.tambapps.marcel.semantic.visitor.ReturningWhenIfBranchTransformer
 import marcel.lang.IntRanges
 import marcel.lang.LongRanges
 import marcel.lang.compile.BooleanDefaultValue
-import marcel.lang.compile.CharacterDefaultValue
+import marcel.lang.compile.CharDefaultValue
 import marcel.lang.compile.DoubleDefaultValue
 import marcel.lang.compile.FloatDefaultValue
 import marcel.lang.compile.IntDefaultValue
@@ -172,7 +172,7 @@ import marcel.lang.compile.MethodCallDefaultValue
 import marcel.lang.compile.NullDefaultValue
 import marcel.lang.compile.StringDefaultValue
 import marcel.lang.lambda.Lambda
-import marcel.lang.primitives.iterators.CharacterIterator
+import marcel.lang.primitives.iterators.CharIterator
 import marcel.lang.primitives.iterators.DoubleIterator
 import marcel.lang.primitives.iterators.FloatIterator
 import marcel.lang.primitives.iterators.IntIterator
@@ -1728,7 +1728,8 @@ open class MarcelSemantic constructor(
       else if (LongIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(LongIterator::class.javaType, "nextLong")
       else if (FloatIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(FloatIterator::class.javaType, "nextFloat")
       else if (DoubleIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(DoubleIterator::class.javaType, "nextDouble")
-      else if (CharacterIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(CharacterIterator::class.javaType, "nextCharacter")
+      else if (CharIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(
+        CharIterator::class.javaType, "nextChar")
       else if (Iterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(Iterator::class.javaType, "next")
       else throw UnsupportedOperationException("wtf")
 
@@ -2016,7 +2017,7 @@ open class MarcelSemantic constructor(
         (parameterType == JavaType.double || parameterType == JavaType.Double)
             && defaultValue is DoubleConstantNode -> annotations.add(AnnotationNode(DoubleDefaultValue::class.javaAnnotationType, listOf(JavaAnnotation.Attribute("value", JavaType.double, defaultValue.value)), node.tokenStart, node.tokenEnd))
         (parameterType == JavaType.char || parameterType == JavaType.Character)
-            && defaultValue is CharConstantNode -> annotations.add(AnnotationNode(CharacterDefaultValue::class.javaAnnotationType, listOf(JavaAnnotation.Attribute("value", JavaType.char, defaultValue.value)), node.tokenStart, node.tokenEnd))
+            && defaultValue is CharConstantNode -> annotations.add(AnnotationNode(CharDefaultValue::class.javaAnnotationType, listOf(JavaAnnotation.Attribute("value", JavaType.char, defaultValue.value)), node.tokenStart, node.tokenEnd))
         (parameterType == JavaType.boolean || parameterType == JavaType.Boolean)
             && defaultValue is BoolConstantNode -> annotations.add(AnnotationNode(BooleanDefaultValue::class.javaAnnotationType, listOf(JavaAnnotation.Attribute("value", JavaType.boolean, defaultValue.value)), node.tokenStart, node.tokenEnd))
         parameterType == JavaType.String

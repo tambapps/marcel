@@ -3,7 +3,7 @@ package marcel.lang.util.function;
 import java.util.Objects;
 
 @FunctionalInterface
-public interface CharacterUnaryOperator {
+public interface CharUnaryOperator {
 
   /**
    * Applies this operator to the given operand.
@@ -11,7 +11,7 @@ public interface CharacterUnaryOperator {
    * @param operand the operand
    * @return the operator result
    */
-  char applyAsCharacter(char operand);
+  char applyAsChar(char operand);
 
   /**
    * Returns a composed operator that first applies the {@code before}
@@ -24,11 +24,11 @@ public interface CharacterUnaryOperator {
    * operator and then applies this operator
    * @throws NullPointerException if before is null
    *
-   * @see #andThen(CharacterUnaryOperator)
+   * @see #andThen(CharUnaryOperator)
    */
-  default CharacterUnaryOperator compose(CharacterUnaryOperator before) {
+  default CharUnaryOperator compose(CharUnaryOperator before) {
     Objects.requireNonNull(before);
-    return (char v) -> applyAsCharacter(before.applyAsCharacter(v));
+    return (char v) -> applyAsChar(before.applyAsChar(v));
   }
 
   /**
@@ -42,11 +42,11 @@ public interface CharacterUnaryOperator {
    * applies the {@code after} operator
    * @throws NullPointerException if after is null
    *
-   * @see #compose(CharacterUnaryOperator)
+   * @see #compose(CharUnaryOperator)
    */
-  default CharacterUnaryOperator andThen(CharacterUnaryOperator after) {
+  default CharUnaryOperator andThen(CharUnaryOperator after) {
     Objects.requireNonNull(after);
-    return (char t) -> after.applyAsCharacter(applyAsCharacter(t));
+    return (char t) -> after.applyAsChar(applyAsChar(t));
   }
 
   /**
@@ -54,7 +54,7 @@ public interface CharacterUnaryOperator {
    *
    * @return a unary operator that always returns its input argument
    */
-  static CharacterUnaryOperator identity() {
+  static CharUnaryOperator identity() {
     return t -> t;
   }
 }

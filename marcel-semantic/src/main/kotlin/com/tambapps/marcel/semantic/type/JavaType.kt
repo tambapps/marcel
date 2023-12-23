@@ -14,13 +14,13 @@ import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ShortConstantNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import marcel.lang.lambda.Lambda
-import marcel.lang.primitives.collections.CharacterCollection
+import marcel.lang.primitives.collections.CharCollection
 import marcel.lang.primitives.collections.DoubleCollection
 import marcel.lang.primitives.collections.FloatCollection
 import marcel.lang.primitives.collections.IntCollection
 import marcel.lang.primitives.collections.LongCollection
-import marcel.lang.primitives.collections.lists.CharacterArrayList
-import marcel.lang.primitives.collections.lists.CharacterList
+import marcel.lang.primitives.collections.lists.CharArrayList
+import marcel.lang.primitives.collections.lists.CharList
 import marcel.lang.primitives.collections.lists.DoubleArrayList
 import marcel.lang.primitives.collections.lists.DoubleList
 import marcel.lang.primitives.collections.lists.FloatArrayList
@@ -29,7 +29,7 @@ import marcel.lang.primitives.collections.lists.IntArrayList
 import marcel.lang.primitives.collections.lists.IntList
 import marcel.lang.primitives.collections.lists.LongArrayList
 import marcel.lang.primitives.collections.lists.LongList
-import marcel.lang.primitives.collections.sets.CharacterSet
+import marcel.lang.primitives.collections.sets.CharSet
 import marcel.lang.primitives.collections.sets.DoubleSet
 import marcel.lang.primitives.collections.sets.FloatSet
 import marcel.lang.primitives.collections.sets.IntSet
@@ -296,7 +296,7 @@ interface JavaType: JavaTyped {
     val longCollection = of(LongCollection::class.java)
     val floatCollection = of(FloatCollection::class.java)
     val doubleCollection = of(DoubleCollection::class.java)
-    val charCollection = of(CharacterCollection::class.java)
+    val charCollection = of(CharCollection::class.java)
 
     // lists
     val intList = of(IntList::class.java)
@@ -307,15 +307,15 @@ interface JavaType: JavaTyped {
     val floatListImpl = of(FloatArrayList::class.java)
     val doubleList = of(DoubleList::class.java)
     val doubleListImpl = of(DoubleArrayList::class.java)
-    val charList = of(CharacterList::class.java)
-    val charListImpl = of(CharacterArrayList::class.java)
+    val charList = of(CharList::class.java)
+    val charListImpl = of(CharArrayList::class.java)
 
     // lists
     val intSet = of(IntSet::class.java)
     val longSet = of(LongSet::class.java)
     val floatSet = of(FloatSet::class.java)
     val doubleSet = of(DoubleSet::class.java)
-    val characterSet = of(CharacterSet::class.java)
+    val characterSet = of(CharSet::class.java)
 
     internal val PRIMITIVE_COLLECTION_TYPE_MAP = mapOf(
       Pair("list", mapOf(

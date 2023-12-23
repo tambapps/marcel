@@ -15,7 +15,7 @@
 	*/
 package marcel.lang.primitives.spliterators;
 
-import marcel.lang.util.function.CharacterConsumer;
+import marcel.lang.util.function.CharConsumer;
 
 import java.util.Spliterator;
 import java.util.function.Consumer;
@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 	* @see Spliterator
 	* @since 8.5.0
 	*/
-public interface CharacterSpliterator extends Spliterator.OfPrimitive<Character, CharacterConsumer, CharacterSpliterator> {
+public interface CharSpliterator extends Spliterator.OfPrimitive<Character, CharConsumer, CharSpliterator> {
 
 	/** Skips the given number of elements.
 	 *
@@ -54,14 +54,14 @@ public interface CharacterSpliterator extends Spliterator.OfPrimitive<Character,
 	  * Note that this specification strengthens the one given in {@link Spliterator#trySplit()}.
 	  */
 	@Override
-	CharacterSpliterator trySplit();
+	CharSpliterator trySplit();
 
 	default boolean tryAdvance(Consumer<? super Character> action) {
-		if (action instanceof CharacterConsumer) {
-			return tryAdvance((CharacterConsumer) action);
+		if (action instanceof CharConsumer) {
+			return tryAdvance((CharConsumer) action);
 		}
 		else {
-			return tryAdvance((CharacterConsumer) action::accept);
+			return tryAdvance((CharConsumer) action::accept);
 		}
 	}
 }

@@ -4,12 +4,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CharacterListTest {
+public class CharListTest {
 
 
   @Test
   void testSublist() {
-    CharacterList list = new CharacterArrayList("Hello world");
+    CharList list = new CharArrayList("Hello world");
 
     assertEquals("Hello", list.subList(0, 5).toString());
     assertEquals("world", list.subList(6, 11).toString());

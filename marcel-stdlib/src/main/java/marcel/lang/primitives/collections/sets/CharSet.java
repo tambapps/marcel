@@ -1,13 +1,13 @@
 package marcel.lang.primitives.collections.sets;
 
-import marcel.lang.primitives.collections.CharacterCollection;
-import marcel.lang.primitives.iterators.CharacterIterator;
-import marcel.lang.primitives.spliterators.CharacterSpliterator;
-import marcel.lang.primitives.spliterators.CharacterSpliterators;
+import marcel.lang.primitives.collections.CharCollection;
+import marcel.lang.primitives.iterators.CharIterator;
+import marcel.lang.primitives.spliterators.CharSpliterator;
+import marcel.lang.primitives.spliterators.CharSpliterators;
 
 import java.util.Set;
 
-public interface CharacterSet extends CharacterCollection, Set<Character> {
+public interface CharSet extends CharCollection, Set<Character> {
 	/** Returns a type-specific iterator on the elements of this set.
 	 *
 	 * This specification strengthens the one given in {@link Iterable#iterator()},
@@ -18,7 +18,7 @@ public interface CharacterSet extends CharacterCollection, Set<Character> {
 	 * @return a type-specific iterator on the elements of this set.
 	 */
 	@Override
-	CharacterIterator iterator();
+	CharIterator iterator();
 	/**
 	 * Returns a type-specific spliterator on the elements of this set.
 	 *
@@ -47,9 +47,9 @@ public interface CharacterSet extends CharacterCollection, Set<Character> {
 	 * @since 8.5.0
 	 */
 	@Override
-	default CharacterSpliterator spliterator() {
-	 return CharacterSpliterators.asSpliterator(
-	   iterator(), size(), CharacterSpliterators.SET_SPLITERATOR_CHARACTERISTICS);
+	default CharSpliterator spliterator() {
+	 return CharSpliterators.asSpliterator(
+	   iterator(), size(), CharSpliterators.SET_SPLITERATOR_CHARACTERISTICS);
 	}
 	/** Removes an element from this set.
 	 *
@@ -62,7 +62,7 @@ public interface CharacterSet extends CharacterCollection, Set<Character> {
 	boolean remove(char k);
 
 	@Override
-	default boolean removeCharacter(char key) {
+	default boolean removeChar(char key) {
 		return remove(key);
 	}
 
@@ -73,7 +73,7 @@ public interface CharacterSet extends CharacterCollection, Set<Character> {
 	@Deprecated
 	@Override
 	default boolean remove(final Object o) {
-	 return CharacterCollection.super.remove(o);
+	 return CharCollection.super.remove(o);
 	}
 	/** {@inheritDoc}
 	 * @deprecated Please use the corresponding type-specific method instead.
@@ -82,7 +82,7 @@ public interface CharacterSet extends CharacterCollection, Set<Character> {
 	@Deprecated
 	@Override
 	default boolean add(final Character o) {
-	 return CharacterCollection.super.add(o);
+	 return CharCollection.super.add(o);
 	}
 	/** {@inheritDoc}
 	 * @deprecated Please use the corresponding type-specific method instead.
@@ -91,14 +91,14 @@ public interface CharacterSet extends CharacterCollection, Set<Character> {
 	@Deprecated
 	@Override
 	default boolean contains(final Object o) {
-	 return CharacterCollection.super.contains(o);
+	 return CharCollection.super.contains(o);
 	}
 
-	default CharacterSet asUnmodifiable() {
-		return new UnmodifiableCharacterSet(this);
+	default CharSet asUnmodifiable() {
+		return new UnmodifiableCharSet(this);
 	}
 
-	default CharacterSet toImmutable() {
-		return new UnmodifiableCharacterSet(new CharacterOpenHashSet(this));
+	default CharSet toImmutable() {
+		return new UnmodifiableCharSet(new CharOpenHashSet(this));
 	}
 }

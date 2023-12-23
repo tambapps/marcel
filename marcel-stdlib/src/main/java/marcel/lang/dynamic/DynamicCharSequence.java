@@ -3,10 +3,10 @@ package marcel.lang.dynamic;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import marcel.lang.DynamicObject;
-import marcel.lang.primitives.collections.lists.CharacterArrayList;
-import marcel.lang.primitives.collections.lists.CharacterList;
-import marcel.lang.primitives.collections.sets.CharacterOpenHashSet;
-import marcel.lang.primitives.collections.sets.CharacterSet;
+import marcel.lang.primitives.collections.lists.CharArrayList;
+import marcel.lang.primitives.collections.lists.CharList;
+import marcel.lang.primitives.collections.sets.CharOpenHashSet;
+import marcel.lang.primitives.collections.sets.CharSet;
 
 @AllArgsConstructor
 public class DynamicCharSequence extends AbstractDynamicObject implements DynamicIndexable {
@@ -57,13 +57,13 @@ public class DynamicCharSequence extends AbstractDynamicObject implements Dynami
   }
 
   @Override
-  public CharacterList asCharacterList() {
-    return new CharacterArrayList(value.toString());
+  public CharList asCharList() {
+    return new CharArrayList(value.toString());
   }
 
   @Override
-  public CharacterSet asCharacterSet() {
-    return new CharacterOpenHashSet(value.toString());
+  public CharSet asCharSet() {
+    return new CharOpenHashSet(value.toString());
   }
 
   @Override

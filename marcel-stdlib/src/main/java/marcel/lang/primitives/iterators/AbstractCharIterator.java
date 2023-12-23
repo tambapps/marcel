@@ -1,15 +1,15 @@
 package marcel.lang.primitives.iterators;
 
-public abstract class AbstractCharacterIterator implements CharacterIterator {
-  protected AbstractCharacterIterator() {
+public abstract class AbstractCharIterator implements CharIterator {
+  protected AbstractCharIterator() {
   }
 
-  public char nextCharacter() {
+  public char nextChar() {
     return this.next();
   }
 
   public Character next() {
-    return this.nextCharacter();
+    return this.nextChar();
   }
 
   public void remove() {
@@ -20,7 +20,7 @@ public abstract class AbstractCharacterIterator implements CharacterIterator {
     int i = n;
 
     while(i-- != 0 && this.hasNext()) {
-      this.nextCharacter();
+      this.nextChar();
     }
 
     return n - i - 1;

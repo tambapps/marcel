@@ -1,12 +1,12 @@
 package marcel.lang.primitives.collections.lists;
 
-import marcel.lang.primitives.collections.AbstractCharacterCollection;
-import marcel.lang.primitives.collections.CharacterCollection;
-import marcel.lang.primitives.iterators.CharacterIterator;
-import marcel.lang.primitives.iterators.list.CharacterListIterator;
-import marcel.lang.primitives.spliterators.CharacterSpliterator;
+import marcel.lang.primitives.collections.AbstractCharCollection;
+import marcel.lang.primitives.collections.CharCollection;
+import marcel.lang.primitives.iterators.CharIterator;
+import marcel.lang.primitives.iterators.list.CharListIterator;
+import marcel.lang.primitives.spliterators.CharSpliterator;
 import marcel.lang.util.Arrays;
-import marcel.lang.util.function.CharacterUnaryOperator;
+import marcel.lang.util.function.CharUnaryOperator;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -14,10 +14,10 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
 
-public abstract class AbstractCharacterList extends AbstractCharacterCollection implements CharacterList {
+public abstract class AbstractCharList extends AbstractCharCollection implements CharList {
 
 
-	protected AbstractCharacterList() {}
+	protected AbstractCharList() {}
 	/** Ensures that the given index is nonnegative and not greater than the list size.
 	 *
 	 * @param index an index.
@@ -67,7 +67,7 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
 	 *
 	 */
 	@Override
-	public boolean removeCharacter(final char i) {
+	public boolean removeChar(final char i) {
 	 throw new UnsupportedOperationException();
 	}
 	/** {@inheritDoc}
@@ -81,8 +81,8 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
 	/** Adds all of the elements in the specified collection to this list (optional operation). */
 	@Override
 	public boolean addAll(int index, final Collection<? extends Character> c) {
-	 if (c instanceof CharacterCollection) {
-	  return addAll(index, (CharacterCollection) c);
+	 if (c instanceof CharCollection) {
+	  return addAll(index, (CharCollection) c);
 	 }
 	 ensureIndex(index);
 	 final Iterator<? extends Character> i = c.iterator();
@@ -105,7 +105,7 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
 	 * This implementation delegates to {@link #listIterator()}.
 	 */
 	@Override
-	public CharacterListIterator iterator() {
+	public CharListIterator iterator() {
 	 return listIterator();
 	}
 
@@ -120,13 +120,13 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
 	 * This implementation delegates to {@link #listIterator(int) listIterator(0)}.
 	 */
 	@Override
-	public CharacterListIterator listIterator() {
+	public CharListIterator listIterator() {
 	 return listIterator(0);
 	}
 	/** {@inheritDoc}
 	 * This implementation is based on the random-access methods. */
 	@Override
-	public CharacterListIterator listIterator(final int index) {
+	public CharListIterator listIterator(final int index) {
 		throw new UnsupportedOperationException("Not supported yet");
 	}
 
@@ -140,10 +140,10 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
 	}
 	@Override
 	public int indexOf(final char k) {
-	 final CharacterListIterator i = listIterator();
+	 final CharListIterator i = listIterator();
 		char e;
 	 while(i.hasNext()) {
-	  e = i.nextCharacter();
+	  e = i.nextChar();
      if (((k) == (e))) {
        return i.previousIndex();
      }
@@ -152,10 +152,10 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
 	}
 	@Override
 	public int lastIndexOf(final char k) {
-	 CharacterListIterator i = listIterator(size());
+	 CharListIterator i = listIterator(size());
 		char e;
 	 while(i.hasPrevious()) {
-	  e = i.previousCharacter();
+	  e = i.previousChar();
      if (((k) == (e))) {
        return i.nextIndex();
      }
@@ -176,14 +176,14 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
     }
 	}
 	@Override
-	public CharacterList subList(final int from, final int to) {
+	public CharList subList(final int from, final int to) {
 	 ensureIndex(from);
 	 ensureIndex(to);
     if (from > to) {
       throw new IndexOutOfBoundsException(
           "Start index (" + from + ") is greater than end index (" + to + ")");
     }
-	 return this instanceof java.util.RandomAccess ? new CharacterRandomAccessSubList (this, from, to) : new CharacterSubList(this, from, to);
+	 return this instanceof java.util.RandomAccess ? new CharRandomAccessSubList(this, from, to) : new CharSubList(this, from, to);
 	}
 
 	/** {@inheritDoc}
@@ -195,14 +195,14 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
 	public void removeElements(final int from, final int to) {
 	 ensureIndex(to);
 	 // Always use the iterator based implementation even for RandomAccess so we don't have to worry about shifting indexes.
-	 CharacterListIterator i = listIterator(from);
+	 CharListIterator i = listIterator(from);
 	 int n = to - from;
     if (n < 0) {
       throw new IllegalArgumentException(
           "Start index (" + from + ") is greater than end index (" + to + ")");
     }
 	 while(n-- != 0) {
-	  i.nextCharacter();
+	  i.nextChar();
 	  i.remove();
 	 }
 	}
@@ -220,7 +220,7 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
        add(index++, a[offset++]);
      }
 	 } else {
-	  CharacterListIterator iter = listIterator(index);
+	  CharListIterator iter = listIterator(index);
      while (length-- != 0) {
        iter.add(a[offset++]);
      }
@@ -253,9 +253,9 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
        a[offset++] = getAt(current++);
      }
 	 } else {
-	  CharacterListIterator i = listIterator(from);
+	  CharListIterator i = listIterator(from);
      while (length-- != 0) {
-       a[offset++] = i.nextCharacter();
+       a[offset++] = i.nextChar();
      }
 	 }
 	}
@@ -272,10 +272,10 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
 	   putAt(i + index, a[i + offset]);
 	  }
 	 } else {
-	  CharacterListIterator iter = listIterator(index);
+	  CharListIterator iter = listIterator(index);
 	  int i = 0;
 	  while (i < length) {
-	   iter.nextCharacter();
+	   iter.nextChar();
 	   iter.set(a[offset + i++]);
 	  }
 	 }
@@ -292,10 +292,10 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
 	 */
 	@Override
 	public int hashCode() {
-	 CharacterIterator i = iterator();
+	 CharIterator i = iterator();
 	 int h = 1, s = size();
 	 while (s-- != 0) {
-	  int k = (int) i.nextCharacter();
+	  int k = (int) i.nextChar();
 	  h = 31 * h + (k);
 	 }
 	 return h;
@@ -313,10 +313,10 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
     if (s != l.size()) {
       return false;
     }
-	 if (l instanceof CharacterList) {
-	  final CharacterListIterator i1 = listIterator(), i2 = ((CharacterList )l).listIterator();
+	 if (l instanceof CharList) {
+	  final CharListIterator i1 = listIterator(), i2 = ((CharList)l).listIterator();
      while (s-- != 0) {
-       if (i1.nextCharacter() != i2.nextCharacter()) {
+       if (i1.nextChar() != i2.nextChar()) {
          return false;
        }
      }
@@ -346,13 +346,13 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
     if (l == this) {
       return 0;
     }
-	 if (l instanceof CharacterList) {
-	  final CharacterListIterator i1 = listIterator(), i2 = ((CharacterList )l).listIterator();
+	 if (l instanceof CharList) {
+	  final CharListIterator i1 = listIterator(), i2 = ((CharList)l).listIterator();
 	  int r;
 	  char e1, e2;
 	  while(i1.hasNext() && i2.hasNext()) {
-	   e1 = i1.nextCharacter();
-	   e2 = i2.nextCharacter();
+	   e1 = i1.nextChar();
+	   e2 = i2.nextChar();
       if ((r = (Character.compare((e1), (e2)))) != 0) {
         return r;
       }
@@ -382,7 +382,7 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
 	 return removeAt(index);
 	}
 	@Override
-	public char[] toCharacterArray() {
+	public char[] toCharArray() {
 	 final int size = size();
     if (size == 0) {
       return Arrays.EMPTY_CHARACTER_ARRAY;
@@ -401,12 +401,12 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
 	 return a;
 	}
 	@Override
-	public boolean addAll(int index, final CharacterCollection c) {
+	public boolean addAll(int index, final CharCollection c) {
 	 ensureIndex(index);
-	 final CharacterIterator i = c.iterator();
+	 final CharIterator i = c.iterator();
 	 final boolean retVal = i.hasNext();
     while (i.hasNext()) {
-      add(index++, i.nextCharacter());
+      add(index++, i.nextChar());
     }
 	 return retVal;
 	}
@@ -415,7 +415,7 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
 	 * This implementation delegates to the type-specific version of {@link List#addAll(int, Collection)}.
 	 */
 	@Override
-	public boolean addAll(final CharacterCollection c) {
+	public boolean addAll(final CharCollection c) {
 	 return addAll(size(), c);
 	}
 	/** {@inheritDoc} 
@@ -423,35 +423,35 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
 	 * as the default method, but it is final, so it cannot be overridden.
 	 */
 	@Override
-	public final void replaceAll(final CharacterUnaryOperator operator) {
+	public final void replaceAll(final CharUnaryOperator operator) {
 		Objects.requireNonNull(operator);
-		final CharacterListIterator li = this.listIterator();
+		final CharListIterator li = this.listIterator();
 		while (li.hasNext()) {
-			li.set(operator.applyAsCharacter(li.next()));
+			li.set(operator.applyAsChar(li.next()));
 		}
 	}
 
 	@Override
 	public String toString() {
 	 final StringBuilder s = new StringBuilder();
-	 final CharacterIterator i = iterator();
+	 final CharIterator i = iterator();
 	 int n = size();
 	 while(n-- != 0) {
-	   s.append(i.nextCharacter());
+	   s.append(i.nextChar());
 	 }
 	 return s.toString();
 	}
 
 	/** A class implementing a sublist view. */
-	public static class CharacterSubList extends AbstractCharacterList implements java.io.Serializable {
+	public static class CharSubList extends AbstractCharList implements java.io.Serializable {
 	 private static final long serialVersionUID = -7046029254386353129L;
 	 /** The list this sublist restricts. */
-	 protected final CharacterList l;
+	 protected final CharList l;
 	 /** Initial (inclusive) index of this sublist. */
 	 protected final int from;
 	 /** Final (exclusive) index of this sublist. */
 	 protected int to;
-	 public CharacterSubList(final CharacterList l, final int from, final int to) {
+	 public CharSubList(final CharList l, final int from, final int to) {
 	  this.l = l;
 	  this.from = from;
 	  this.to = to;
@@ -525,16 +525,16 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
 
 
 	 @Override
-	 public CharacterListIterator listIterator(final int index) {
+	 public CharListIterator listIterator(final int index) {
 	  ensureIndex(index);
 		throw new UnsupportedOperationException("Not implemented yet");
 	 }
 	 @Override
-	 public CharacterSpliterator spliterator() {
+	 public CharSpliterator spliterator() {
 		 throw new UnsupportedOperationException("Not implemented yet");
 	 }
 	 @Override
-	 public CharacterList subList(final int from, final int to) {
+	 public CharList subList(final int from, final int to) {
 	  ensureIndex(from);
 	  ensureIndex(to);
      if (from > to) {
@@ -543,16 +543,16 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
      }
 	  // Sadly we have to rewrap this, because if there is a sublist of a sublist, and the
 	  // subsublist adds, both sublists need to update their "to" value.
-	  return new CharacterSubList (this, from, to);
+	  return new CharSubList(this, from, to);
 	 }
 
 	 @Override
-	 public boolean addAll(final int index, final CharacterCollection c) {
+	 public boolean addAll(final int index, final CharCollection c) {
 	  ensureIndex(index);
 	  return super.addAll(index, c);
 	 }
 	 @Override
-	 public boolean addAll(final int index, final CharacterList l) {
+	 public boolean addAll(final int index, final CharList l) {
 	  ensureIndex(index);
 	  return super.addAll(index, l);
 	 }
@@ -567,13 +567,13 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
 			throw new UnsupportedOperationException("Not implemented yet");
 		}
 	}
-	public static class CharacterRandomAccessSubList extends CharacterSubList implements java.util.RandomAccess {
+	public static class CharRandomAccessSubList extends CharSubList implements java.util.RandomAccess {
 	 private static final long serialVersionUID = -107070782945191929L;
-	 public CharacterRandomAccessSubList(final CharacterList l, final int from, final int to) {
+	 public CharRandomAccessSubList(final CharList l, final int from, final int to) {
 	  super(l, from, to);
 	 }
 	 @Override
-	 public CharacterList subList(final int from, final int to) {
+	 public CharList subList(final int from, final int to) {
 	  ensureIndex(from);
 	  ensureIndex(to);
      if (from > to) {
@@ -582,7 +582,7 @@ public abstract class AbstractCharacterList extends AbstractCharacterCollection 
      }
 	  // Sadly we have to rewrap this, because if there is a sublist of a sublist, and the
 	  // subsublist adds, both sublists need to update their "to" value.
-	  return new CharacterRandomAccessSubList (this, from, to);
+	  return new CharRandomAccessSubList(this, from, to);
 	 }
 	}
 

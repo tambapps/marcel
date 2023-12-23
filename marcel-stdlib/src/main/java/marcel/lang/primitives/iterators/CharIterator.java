@@ -15,8 +15,8 @@
 	*/
 package marcel.lang.primitives.iterators;
 
-import marcel.lang.primitives.collections.CharacterCollection;
-import marcel.lang.util.function.CharacterConsumer;
+import marcel.lang.primitives.collections.CharCollection;
+import marcel.lang.util.function.CharConsumer;
 
 import java.util.Iterator;
 import java.util.PrimitiveIterator;
@@ -26,18 +26,18 @@ import java.util.PrimitiveIterator;
 	*
 	* @see Iterator
 	*/
-public interface CharacterIterator extends Iterator<Character>, PrimitiveIterator<Character, CharacterConsumer> {
+public interface CharIterator extends Iterator<Character>, PrimitiveIterator<Character, CharConsumer> {
 	/**
 	 * Returns the next element as a primitive type.
 	 *
 	 * @return the next element in the iteration.
 	 * @see Iterator#next()
 	 */
-	char nextCharacter();
+	char nextChar();
 
 	@Override
 	default Character next() {
-	 return nextCharacter();
+	 return nextChar();
 	}
 
 	default int unwrap(final char array[]) {
@@ -48,21 +48,21 @@ public interface CharacterIterator extends Iterator<Character>, PrimitiveIterato
 		if (max < 0) throw new IllegalArgumentException("The maximum number of elements (" + max + ") is negative");
 		if (offset < 0 || offset + max > array.length) throw new IllegalArgumentException();
 		int j = max;
-		while(j-- != 0 && hasNext()) array[offset++] = nextCharacter();
+		while(j-- != 0 && hasNext()) array[offset++] = nextChar();
 		return max - j - 1;
 	}
 
 	default int skip(final int n) {
 		if (n < 0) throw new IllegalArgumentException("Argument must be nonnegative: " + n);
 		int i = n;
-		while(i-- != 0 && hasNext()) nextCharacter();
+		while(i-- != 0 && hasNext()) nextChar();
 		return n - i - 1;
 	}
 
-	default long unwrap(final CharacterCollection c) {
+	default long unwrap(final CharCollection c) {
 		long n = 0;
 		while(hasNext()) {
-			c.add(nextCharacter());
+			c.add(nextChar());
 			n++;
 		}
 		return n;

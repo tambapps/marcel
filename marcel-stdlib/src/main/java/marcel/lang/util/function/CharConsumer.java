@@ -3,7 +3,7 @@ package marcel.lang.util.function;
 import java.util.function.Consumer;
 
 @FunctionalInterface
-public interface CharacterConsumer extends Consumer<Character> {
+public interface CharConsumer extends Consumer<Character> {
 	/**
 	 * Performs this operation on the given input.
 	 *
@@ -29,7 +29,7 @@ public interface CharacterConsumer extends Consumer<Character> {
 	 * keep the default implementation of the other overloads, which will 
 	 * delegate to this method (after proper conversions).
 	 */
-	default CharacterConsumer andThen(final CharacterConsumer after) {
+	default CharConsumer andThen(final CharConsumer after) {
 	 return t -> { accept(t); after.accept(t); };
 	}
 

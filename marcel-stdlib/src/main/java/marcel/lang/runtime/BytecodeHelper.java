@@ -1,7 +1,7 @@
 package marcel.lang.runtime;
 
-import marcel.lang.primitives.collections.sets.CharacterOpenHashSet;
-import marcel.lang.primitives.collections.sets.CharacterSet;
+import marcel.lang.primitives.collections.sets.CharOpenHashSet;
+import marcel.lang.primitives.collections.sets.CharSet;
 import marcel.lang.primitives.collections.sets.DoubleOpenHashSet;
 import marcel.lang.primitives.collections.sets.DoubleSet;
 import marcel.lang.primitives.collections.sets.FloatOpenHashSet;
@@ -46,8 +46,8 @@ public final class BytecodeHelper {
   public static DoubleSet createSet(double[] array) {
     return new DoubleOpenHashSet(array);
   }
-  public static CharacterSet createSet(char[] array) {
-    return new CharacterOpenHashSet(array);
+  public static CharSet createSet(char[] array) {
+    return new CharOpenHashSet(array);
   }
 
   public static Set<?> createSet(Object array) {

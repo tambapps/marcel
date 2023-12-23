@@ -3,7 +3,7 @@ package marcel.lang.util.function;
 import java.util.Objects;
 
 @FunctionalInterface
-public interface CharacterPredicate {
+public interface CharPredicate {
 
     /**
      * Evaluates this predicate on the given argument.
@@ -30,7 +30,7 @@ public interface CharacterPredicate {
      * AND of this predicate and the {@code other} predicate
      * @throws NullPointerException if other is null
      */
-    default CharacterPredicate and(CharacterPredicate other) {
+    default CharPredicate and(CharPredicate other) {
         Objects.requireNonNull(other);
         return (value) -> test(value) && other.test(value);
     }
@@ -42,7 +42,7 @@ public interface CharacterPredicate {
      * @return a predicate that represents the logical negation of this
      * predicate
      */
-    default CharacterPredicate negate() {
+    default CharPredicate negate() {
         return (value) -> !test(value);
     }
 
@@ -62,7 +62,7 @@ public interface CharacterPredicate {
      * OR of this predicate and the {@code other} predicate
      * @throws NullPointerException if other is null
      */
-    default CharacterPredicate or(CharacterPredicate other) {
+    default CharPredicate or(CharPredicate other) {
         Objects.requireNonNull(other);
         return (value) -> test(value) || other.test(value);
     }
