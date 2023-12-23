@@ -7,7 +7,7 @@ import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.repl.command.*
 import com.tambapps.marcel.repl.jar.JarWriterFactory
-import com.tambapps.marcel.repl.printer.SuspendPrinter
+import com.tambapps.marcel.repl.printer.Printer
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 abstract class MarcelShell constructor(
   compilerConfiguration: CompilerConfiguration,
-  protected val printer: SuspendPrinter,
+  protected val printer: Printer,
   val marcelClassLoader: MarcelClassLoader,
   jarWriterFactory: JarWriterFactory,
   protected val tempDir: File,
@@ -57,16 +57,16 @@ abstract class MarcelShell constructor(
         try {
           evaluator.eval(text)
         } catch (e: MarcelLexerException) {
-          printer.suspendPrintln("Error from init script: ${e.message}")
+          printer.println("Error from init script: ${e.message}")
           onInitScriptFail(e)
         } catch (e: MarcelSemanticException) {
-          printer.suspendPrintln("Error from init script: ${e.message}")
+          printer.println("Error from init script: ${e.message}")
           onInitScriptFail(e)
         } catch (e: MarcelParserException) {
-          printer.suspendPrintln("Error from init script: ${e.message}")
+          printer.println("Error from init script: ${e.message}")
           onInitScriptFail(e)
         } catch (ex: Exception) {
-          printer.suspendPrintln("Error from init script: ${ex.message}")
+          printer.println("Error from init script: ${ex.message}")
           onInitScriptFail(ex)
         }
       }
@@ -95,9 +95,9 @@ abstract class MarcelShell constructor(
       val eval = evaluator.evalJarFile(jarFile, className)
       printEval(eval)
     } catch (e: Exception) {
-      printer.suspendPrintln("${e.javaClass.name}: ${e.message}")
+      printer.println("${e.javaClass.name}: ${e.message}")
     } catch (e: DumbbellException) {
-      printer.suspendPrintln("Error while pulling a dumbbell: ${e.message}")
+      printer.println("Error while pulling a dumbbell: ${e.message}")
     }
   }
 
@@ -113,7 +113,7 @@ abstract class MarcelShell constructor(
       if (command != null) {
         command.run(this, args.subList(1, args.size), printer)
       } else {
-        printer.suspendPrintln("Unknown command $commandName")
+        printer.println("Unknown command $commandName")
       }
     } else {
       try {
@@ -124,23 +124,23 @@ abstract class MarcelShell constructor(
         buffer.clear()
         printEval(eval)
       } catch (e: MarcelLexerException) {
-        printer.suspendPrintln("Error: ${e.message}")
+        printer.println("Error: ${e.message}")
         buffer.clear()
       } catch (e: MarcelSemanticException) {
-        printer.suspendPrintln(e.message)
+        printer.println(e.message)
         buffer.clear()
       } catch (e: DumbbellException) {
-        printer.suspendPrintln("Error while pulling a dumbbell: ${e.message}")
+        printer.println("Error while pulling a dumbbell: ${e.message}")
         buffer.clear()
       } catch (e: MarcelParserException) {
         if (e.isEof) {
           buffer.add(line)
         } else {
-          printer.suspendPrintln(e.message)
+          printer.println(e.message)
           buffer.clear()
         }
       } catch (ex: Exception) {
-        printer.suspendPrintln("${ex.javaClass.name}: ${ex.message}")
+        printer.println("${ex.javaClass.name}: ${ex.message}")
         buffer.clear()
       }
     }
@@ -172,7 +172,7 @@ abstract class MarcelShell constructor(
 
 
   open suspend fun printVersion() {
-    printer.suspendPrint("Marshell (Marcel: ${MarcelVersion.VERSION}, Java: " + System.getProperty("java.version") + ")")
+    printer.print("Marshell (Marcel: ${MarcelVersion.VERSION}, Java: " + System.getProperty("java.version") + ")")
   }
 
   protected open suspend fun onStart() {
@@ -186,7 +186,7 @@ abstract class MarcelShell constructor(
   }
 
   protected open suspend fun printEval(eval: Any?) {
-    printer.suspendPrint(eval)
+    printer.print(eval)
   }
 
   protected open suspend fun onPreEval(text: String) {}

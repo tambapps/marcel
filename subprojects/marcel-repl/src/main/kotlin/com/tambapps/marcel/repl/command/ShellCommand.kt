@@ -1,7 +1,7 @@
 package com.tambapps.marcel.repl.command
 
 import com.tambapps.marcel.repl.MarcelShell
-import com.tambapps.marcel.repl.printer.SuspendPrinter
+import com.tambapps.marcel.repl.printer.Printer
 
 interface ShellCommand {
   val name: String
@@ -10,6 +10,6 @@ interface ShellCommand {
 
   val helpDescription: String
 
-  suspend fun run(shell: MarcelShell, args: List<String>, out: SuspendPrinter)
-  suspend fun printHelp(out: SuspendPrinter)
+  suspend fun run(shell: MarcelShell, args: List<String>, out: Printer)
+  suspend fun printHelp(out: Printer)
 }

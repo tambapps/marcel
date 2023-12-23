@@ -6,7 +6,7 @@ import com.tambapps.marcel.marshell.console.MarshellSnippetParser
 import com.tambapps.marcel.marshell.console.ReaderHighlighter
 import com.tambapps.marcel.repl.MarcelShell
 import com.tambapps.marcel.repl.jar.BasicJarWriterFactory
-import com.tambapps.marcel.repl.printer.PrintStreamSuspendPrinter
+import com.tambapps.marcel.repl.printer.PrintStreamPrinter
 import marcel.lang.Binding
 import marcel.lang.URLMarcelClassLoader
 import org.jline.reader.EndOfFileException
@@ -22,12 +22,18 @@ suspend fun main(args: Array<String>) {
   marshell.run()
 }
 
+fun tempDir(): File {
+  val f = Files.createTempDirectory("marshell").toFile()
+  f.deleteOnExit()
+  return f
+}
+
 class Marshell: MarcelShell(
         compilerConfiguration = CompilerConfiguration(dumbbellEnabled = true),
-        printer = PrintStreamSuspendPrinter(System.out),
+        printer = PrintStreamPrinter(System.out),
         marcelClassLoader = URLMarcelClassLoader(Marshell::class.java.classLoader),
         jarWriterFactory = BasicJarWriterFactory(),
-        tempDir = Files.createTempDirectory("marshell").toFile(),
+        tempDir = tempDir(),
         binding = Binding(),
         promptTemplate = "marshell:%03d> ") {
 
@@ -57,13 +63,8 @@ class Marshell: MarcelShell(
     catch (ex: Exception) { ex.printStackTrace() }
   }
 
-
   override suspend fun onStart() {
     printVersion()
-  }
-
-  override suspend fun onFinish() {
-    tempDir.deleteRecursively()
   }
 
   override fun onInitScriptFail(e: Exception) {

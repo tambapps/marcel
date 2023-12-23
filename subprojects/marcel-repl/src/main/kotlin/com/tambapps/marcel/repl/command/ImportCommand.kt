@@ -1,7 +1,7 @@
 package com.tambapps.marcel.repl.command
 
 import com.tambapps.marcel.repl.MarcelShell
-import com.tambapps.marcel.repl.printer.SuspendPrinter
+import com.tambapps.marcel.repl.printer.Printer
 
 class ImportCommand: AbstractShellCommand() {
 
@@ -10,7 +10,7 @@ class ImportCommand: AbstractShellCommand() {
   override val usage = ":import some.class"
   override val helpDescription = "Import a/some class(es)"
 
-  override suspend fun run(shell: MarcelShell, args: List<String>, out: SuspendPrinter) {
+  override suspend fun run(shell: MarcelShell, args: List<String>, out: Printer) {
     if (args.isEmpty()) {
       shell.listImports()
       return
@@ -21,7 +21,7 @@ class ImportCommand: AbstractShellCommand() {
       shell.addImport(importArgs)
       shell.listImports()
     } catch (e: Exception) {
-      out.suspendPrintln("Couldn't add import: ${e.message}")
+      out.println("Couldn't add import: ${e.message}")
     }
   }
 

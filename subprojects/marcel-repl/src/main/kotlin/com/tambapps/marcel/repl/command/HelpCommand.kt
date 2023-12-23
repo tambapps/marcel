@@ -1,7 +1,7 @@
 package com.tambapps.marcel.repl.command
 
 import com.tambapps.marcel.repl.MarcelShell
-import com.tambapps.marcel.repl.printer.SuspendPrinter
+import com.tambapps.marcel.repl.printer.Printer
 
 class HelpCommand: AbstractShellCommand() {
   override val name = "help"
@@ -9,7 +9,7 @@ class HelpCommand: AbstractShellCommand() {
   override val usage = ":help or :help [commandName]"
   override val helpDescription = "print this summary or command-specific help"
 
-  override suspend fun run(shell: MarcelShell, args: List<String>, out: SuspendPrinter) {
+  override suspend fun run(shell: MarcelShell, args: List<String>, out: Printer) {
     if (args.isEmpty()) {
       shell.printHelp()
     } else {
@@ -18,7 +18,7 @@ class HelpCommand: AbstractShellCommand() {
       if (command != null) {
         command.printHelp(out)
       } else {
-        out.suspendPrintln("Unknown command $name")
+        out.println("Unknown command $name")
       }
     }
   }

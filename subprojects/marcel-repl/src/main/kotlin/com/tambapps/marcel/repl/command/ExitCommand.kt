@@ -1,7 +1,7 @@
 package com.tambapps.marcel.repl.command
 
 import com.tambapps.marcel.repl.MarcelShell
-import com.tambapps.marcel.repl.printer.SuspendPrinter
+import com.tambapps.marcel.repl.printer.Printer
 
 class ExitCommand: AbstractShellCommand() {
 
@@ -10,7 +10,7 @@ class ExitCommand: AbstractShellCommand() {
   override val helpDescription = "Exit the shell"
   override val usage = ":exit"
 
-  override suspend fun run(shell: MarcelShell, args: List<String>, out: SuspendPrinter) {
+  override suspend fun run(shell: MarcelShell, args: List<String>, out: Printer) {
     shell.exit()
   }
 }
