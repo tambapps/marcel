@@ -382,7 +382,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       else if (node.type == JavaType.longList || node.type == JavaType.longSet) JavaType.longArray
       else if (node.type == JavaType.floatList || node.type == JavaType.floatSet) JavaType.floatArray
       else if (node.type == JavaType.doubleList || node.type == JavaType.doubleSet) JavaType.doubleArray
-      else if (node.type == JavaType.charList || node.type == JavaType.characterSet) JavaType.charArray
+      else if (node.type == JavaType.charList || node.type == JavaType.charSet) JavaType.charArray
       else if (node.type.raw() == List::class.javaType || node.type.raw() == Set::class.javaType) JavaType.objectArray
       else throw MarcelSemanticLegacyException(node.token, "Array cannot be converted into " + node.type)
       expression.type = arrayType
@@ -712,7 +712,7 @@ private interface IInstructionGenerator: AstNodeVisitor<Unit>, ArgumentPusher {
       else if (JavaType.longList.isAssignableFrom(variableType) || JavaType.longSet.isAssignableFrom(variableType)) JavaType.long
       else if (JavaType.floatList.isAssignableFrom(variableType) || JavaType.floatSet.isAssignableFrom(variableType)) JavaType.float
       else if (JavaType.doubleList.isAssignableFrom(variableType) || JavaType.doubleSet.isAssignableFrom(variableType)) JavaType.double
-      else if (JavaType.charList.isAssignableFrom(variableType) || JavaType.characterSet.isAssignableFrom(variableType)) JavaType.char
+      else if (JavaType.charList.isAssignableFrom(variableType) || JavaType.charSet.isAssignableFrom(variableType)) JavaType.char
       else if (JavaType.of(Collection::class.java).isAssignableFrom(variableType) && variableType.genericTypes.isNotEmpty()) variableType.genericTypes.first()
       else throw MarcelSemanticLegacyException(expression.token, "Couldn't guess type of empty array. You can explicitly specify your wanted type with the 'as' keyword (e.g. '[] as int[]')")
       expression.type = JavaType.arrayType(elementsType)

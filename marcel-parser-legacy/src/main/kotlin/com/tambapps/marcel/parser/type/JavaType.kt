@@ -224,7 +224,7 @@ interface JavaType: AstTypedObject {
       return if (type.isArray) return type.asArrayType
       else if (intList.isAssignableFrom(type) || intSet.isAssignableFrom(type)) return intArray
       else if (longList.isAssignableFrom(type) || longSet.isAssignableFrom(type)) return longArray
-      else if (charList.isAssignableFrom(type) || characterSet.isAssignableFrom(type)) return charArray
+      else if (charList.isAssignableFrom(type) || charSet.isAssignableFrom(type)) return charArray
       else if (floatList.isAssignableFrom(type)) return floatArray
       else if (doubleList.isAssignableFrom(type)) return doubleArray
       else if (of(List::class.java).isAssignableFrom(type)) return objectArray
@@ -362,7 +362,7 @@ interface JavaType: AstTypedObject {
     val longSet = of(LongSet::class.java)
     val floatSet = of(FloatSet::class.java)
     val doubleSet = of(DoubleSet::class.java)
-    val characterSet = of(CharSet::class.java)
+    val charSet = of(CharSet::class.java)
 
     internal val PRIMITIVE_COLLECTION_TYPE_MAP = mapOf(
       Pair("list", mapOf(
@@ -377,7 +377,7 @@ interface JavaType: AstTypedObject {
         Pair(long, longSet),
         Pair(float, floatSet),
         Pair(double, doubleSet),
-        Pair(char, characterSet),
+        Pair(char, charSet),
       )),
     )
   }

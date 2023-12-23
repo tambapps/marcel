@@ -324,7 +324,7 @@ class MethodBytecodeWriter( val mv: MethodVisitor, private val typeResolver: Jav
           invokeMethod(from, scope, BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.floatArray.realClazz))
         } else if (JavaType.doubleSet.isAssignableFrom(expectedType) && actualType == JavaType.doubleArray) {
           invokeMethod(from, scope, BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.doubleArray.realClazz))
-        } else if (JavaType.characterSet.isAssignableFrom(expectedType) && actualType == JavaType.charArray) {
+        } else if (JavaType.charSet.isAssignableFrom(expectedType) && actualType == JavaType.charArray) {
           invokeMethod(from, scope, BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.charArray.realClazz))
         } else if (Set::class.javaType.isAssignableFrom(expectedType) && actualType.isArray) {
           invokeMethod(from, scope, BytecodeHelper::class.java.getDeclaredMethod("createSet", JavaType.Object.realClazz))
