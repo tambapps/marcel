@@ -5,10 +5,12 @@ import com.tambapps.marcel.semantic.ast.AstVariableNode
 import com.tambapps.marcel.semantic.variable.Variable
 
 class ReferenceNode constructor(
-  val owner: ExpressionNode? = null,
+  override val owner: ExpressionNode? = null,
   override var variable: Variable, token: LexToken
 ) : AbstractExpressionNode(variable.type, token),
-  AstVariableNode {
+  AstVariableNode, OwnableAstNode {
+
+  override fun withOwner(owner: ExpressionNode) = ReferenceNode(owner, variable, token)
 
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) = visitor.visit(this)
 

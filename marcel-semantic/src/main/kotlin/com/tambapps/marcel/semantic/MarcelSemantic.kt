@@ -81,6 +81,7 @@ import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.NewLambdaInstanceNode
+import com.tambapps.marcel.semantic.ast.expression.OwnableAstNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.StringNode
 import com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode
@@ -793,11 +794,11 @@ open class MarcelSemantic constructor(
       TokenType.MODULO -> arithmeticBinaryOperator(leftOperand, rightOperand, "mod", ::ModNode)
       TokenType.RIGHT_SHIFT -> shiftOperator(leftOperand, rightOperand, "rightShift", ::RightShiftNode)
       TokenType.LEFT_SHIFT -> shiftOperator(leftOperand, rightOperand, "leftShift", ::LeftShiftNode)
-      TokenType.PLUS_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, TokenType.PLUS)
-      TokenType.MINUS_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, TokenType.MINUS)
-      TokenType.MUL_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, TokenType.MUL)
-      TokenType.DIV_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, TokenType.DIV)
-      TokenType.MODULO_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, TokenType.MODULO)
+      TokenType.PLUS_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, "plus", ::PlusNode)
+      TokenType.MINUS_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, "minus", ::MinusNode)
+      TokenType.MUL_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, "multiply", ::MulNode)
+      TokenType.DIV_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, "div", ::DivNode)
+      TokenType.MODULO_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, "mod", ::ModNode)
       TokenType.QUESTION_DOT -> {
         val left = leftOperand.accept(this)
         if (left.type.primitive) throw MarcelSemanticException(node, "Cannot use safe access operator on primitive type as it cannot be null")
@@ -893,6 +894,10 @@ open class MarcelSemantic constructor(
     return assignment(node, node.leftOperand.accept(this))
   }
   protected fun assignment(node: BinaryOperatorCstNode, left: ExpressionNode, right: ExpressionNode = node.rightOperand.accept(this, left.type)): ExpressionNode {
+    return assignment(left, right, node)
+  }
+
+  protected fun assignment(left: ExpressionNode, right: ExpressionNode, node: CstNode): ExpressionNode {
     return when (left) {
       is ReferenceNode -> {
         val variable = left.variable
@@ -1083,13 +1088,30 @@ open class MarcelSemantic constructor(
                                               nodeSupplier: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode)
   = arithmeticBinaryOperator(leftOperand.accept(this), rightOperand.accept(this), operatorMethodName, nodeSupplier)
 
-  private fun arithmeticAssignmentBinaryOperator(leftOperand: ExpressionCstNode, rightOperand: ExpressionCstNode,
-                                                 tokenType: TokenType): ExpressionNode {
-    // TODO no. use += nodes, etc...
-    return visit(BinaryOperatorCstNode(TokenType.ASSIGNMENT,
-      leftOperand = leftOperand,
-      rightOperand = BinaryOperatorCstNode(tokenType, leftOperand, rightOperand, leftOperand.parent, leftOperand.tokenStart, rightOperand.tokenEnd),
-      leftOperand.parent, leftOperand.tokenStart, rightOperand.tokenEnd))
+  private inline fun arithmeticAssignmentBinaryOperator(leftOperand: ExpressionCstNode, rightOperand: ExpressionCstNode,
+                                                 operatorMethodName: String, nodeSupplier: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode): ExpressionNode
+  = useInnerScope {
+    var left = leftOperand.accept(this)
+
+    val right = if (left is OwnableAstNode && left.owner != null) {
+      // for owned node, in order to prevent evaluating twice the owner, we have to store it into a local variable
+      val owner = left.owner!!
+      val lv = it.addLocalVariable(owner.type)
+      // assign the local variable while pushing the owner for the variable store instruction
+      left = left.withOwner(VariableAssignmentNode(node = leftOperand, variable = lv, owner = null, expression = owner))
+      arithmeticBinaryOperator(
+        left = left.withOwner(ReferenceNode(variable = lv, token = left.token)),
+        right = rightOperand.accept(this),
+        operatorMethodName, nodeSupplier
+      )
+    } else {
+      arithmeticBinaryOperator(
+        left = left,
+        right = rightOperand.accept(this),
+        operatorMethodName, nodeSupplier
+      )
+    }
+    return@useInnerScope assignment(left = left, right = right, node = leftOperand)
   }
 
   private inline fun arithmeticBinaryOperator(left: ExpressionNode, right: ExpressionNode,

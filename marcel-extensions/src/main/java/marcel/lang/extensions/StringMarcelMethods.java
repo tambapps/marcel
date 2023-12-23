@@ -13,6 +13,14 @@ import java.util.NoSuchElementException;
 @SuppressWarnings({"unused", "deprecation"})
 public class StringMarcelMethods {
 
+  public static String plus(String self, String other) {
+    return self + other;
+  }
+
+  public static String plus(String self, Object other) {
+    return self + other;
+  }
+
   public static char getAt(CharSequence self, int i) {
     return self.charAt(i);
   }

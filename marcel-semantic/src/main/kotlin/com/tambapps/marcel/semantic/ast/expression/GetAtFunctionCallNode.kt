@@ -11,4 +11,5 @@ class GetAtFunctionCallNode(
   token: LexToken,
 ) : FunctionCallNode(javaMethod, ownerNode, arguments, token, LexToken.DUMMY) {
 
+  override fun withOwner(owner: ExpressionNode) = GetAtFunctionCallNode(javaMethod, owner, arguments, token)
 }
