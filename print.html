@@ -711,7 +711,7 @@ Finally
 </code></pre>
 <h2 id="try-with-resources"><a class="header" href="#try-with-resources">Try with resources</a></h2>
 <p>Try with resources is like in Java. You can declare Variables as resources and they will be properly closed automatically by the compiler.</p>
-<pre><code class="language-marcel">try (BufferedReader reader = new BufferedReader(new FileReader(&quot;/Users/nfonkoua/workspace/marcel/Test.marcel&quot;))) {
+<pre><code class="language-marcel">try (BufferedReader reader = Files.reader('input.txt')) {
   println(reader.readLine())
 } catch (IOException e) {
   e.printStackTrace()
