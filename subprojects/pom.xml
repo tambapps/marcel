@@ -20,8 +20,6 @@
     <module>dumbbell</module>
     <module>marcel-libs</module>
     <module>marcel-repl</module>
-    <module>marcel-repl-legacy</module>
-    <module>marshell-legacy</module>
     <module>marshell</module>
   </modules>
 

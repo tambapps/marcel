@@ -1,6 +1,0 @@
-
-bool b = false
-b = true
-
-
-new Boolean(b)

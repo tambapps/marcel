@@ -1,4 +1,0 @@
-import static org.junit.jupiter.api.Assertions.assertEquals
-
-assertEquals(3, 0b11)
-assertEquals(3 * 16 + 10, 0x3A)

@@ -1,6 +1,0 @@
-import static org.junit.jupiter.api.Assertions.assertNotNull
-import static org.junit.jupiter.api.Assertions.assertEquals
-
-assertNotNull(System.out)
-assertEquals(Runtime.runtime, Runtime.getRuntime())
-

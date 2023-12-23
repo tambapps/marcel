@@ -25,16 +25,13 @@
   </properties>
 
   <modules>
-    <module>marcel-compiler-legacy</module>
     <module>marcel-compiler</module>
     <module>marcel-extensions</module>
     <module>marcel-lexer</module>
     <module>marcel-maven-plugin</module>
-    <module>marcel-parser-legacy</module>
     <module>marcel-parser</module>
     <module>marcel-stdlib</module>
     <module>marcel-semantic</module>
-    <module>marcl-legacy</module>
     <module>marcl</module>
     <module>subprojects</module>
   </modules>
@@ -110,22 +107,12 @@
       </dependency>
       <dependency>
         <groupId>com.tambapps.marcel</groupId>
-        <artifactId>marcel-parser-legacy</artifactId>
-        <version>${revision}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.tambapps.marcel</groupId>
         <artifactId>marcel-semantic</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>
         <groupId>com.tambapps.marcel</groupId>
         <artifactId>marcel-compiler</artifactId>
-        <version>${revision}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.tambapps.marcel</groupId>
-        <artifactId>marcel-compiler-legacy</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>
@@ -160,17 +147,7 @@
       </dependency>
       <dependency>
         <groupId>com.tambapps.marcel</groupId>
-        <artifactId>marcel-repl-legacy</artifactId>
-        <version>${revision}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.tambapps.marcel</groupId>
         <artifactId>marshell</artifactId>
-        <version>${revision}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.tambapps.marcel</groupId>
-        <artifactId>marshell-legacy</artifactId>
         <version>${revision}</version>
       </dependency>
     </dependencies>
