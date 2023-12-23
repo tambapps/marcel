@@ -405,7 +405,7 @@ open class MarcelSemantic constructor(
         toFieldAssignmentStatements(classType, staticFieldInitialValueMap, true)
       )
     }
-    return classNode
+    return@useScope classNode
   }
 
   private fun toFieldAssignmentStatements(classType: JavaType, map: Map<FieldNode, ExpressionNode>, isStaticContext: Boolean): List<ExpressionStatementNode> {
@@ -1653,7 +1653,7 @@ open class MarcelSemantic constructor(
       it.second.accept(this).accept(branchTransformer)
     }
     node.elseStatement?.accept(this)?.accept(branchTransformer)
-    return JavaType.commonType(branchTransformer.collectedTypes)
+    return@useInnerScope JavaType.commonType(branchTransformer.collectedTypes)
   }
 
   private fun generateOrGetWhenMethod(parameters: MutableList<MethodParameter>, returnType: JavaType, node: CstNode): MethodNode {
