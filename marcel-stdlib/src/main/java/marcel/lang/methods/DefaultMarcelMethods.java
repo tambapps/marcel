@@ -835,7 +835,10 @@ public final class DefaultMarcelMethods {
     return set;
   }
 
-
+  public static int getLastIndex(List<?> list) {
+    if (list.isEmpty()) throw new NoSuchElementException();
+    return list.size() - 1;
+  }
 
   public static <T> IntList toList(int[] self) {
     IntList set = new IntArrayList();
