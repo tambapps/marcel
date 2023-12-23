@@ -1175,7 +1175,7 @@ public final class DefaultMarcelMethods {
     return floatList;
   }
 
-  // TODO mapToCharacter
+  // TODO mapToChar. Will need a ToCharFunction interface
 
   public static String join(Collection<?> self) {
     return join(self, "");
