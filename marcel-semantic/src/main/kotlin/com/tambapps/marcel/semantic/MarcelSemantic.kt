@@ -771,7 +771,7 @@ open class MarcelSemantic constructor(
   override fun visit(node: BinaryOperatorCstNode, smartCastType: JavaType?): ExpressionNode {
     val leftOperand = node.leftOperand
     val rightOperand = node.rightOperand
-    return when (node.tokenType) {
+    return when (val tokenType = node.tokenType) {
       TokenType.ASSIGNMENT -> assignment(node)
       TokenType.PLUS -> {
         val left = leftOperand.accept(this)
@@ -840,7 +840,8 @@ open class MarcelSemantic constructor(
       TokenType.OR -> OrNode(caster.truthyCast(leftOperand.accept(this)), caster.truthyCast(rightOperand.accept(
         this,
       )))
-      TokenType.EQUAL, TokenType.NOT_EQUAL -> equalityComparisonOperatorNode(leftOperand, rightOperand, ::IsEqualNode) { left, right ->
+      TokenType.EQUAL, TokenType.NOT_EQUAL -> equalityComparisonOperatorNode(leftOperand, rightOperand,
+        if (tokenType == TokenType.EQUAL) ::IsEqualNode else ::IsNotEqualNode) { left, right ->
         val equalNode = when {
           left.type.isArray && left.type.isArray -> {
             if (left.type == right.type) {
@@ -852,7 +853,7 @@ open class MarcelSemantic constructor(
           }
           else -> fCall(node = node, name = "equals", ownerType = Objects::class.javaType, arguments = listOf(left, right))
         }
-        if (node.tokenType == TokenType.EQUAL) equalNode else NotNode(equalNode)
+        if (tokenType == TokenType.EQUAL) equalNode else NotNode(equalNode)
       }
       TokenType.GOE -> numberComparisonOperatorNode(leftOperand, rightOperand, ::GeNode)
       TokenType.GT -> numberComparisonOperatorNode(leftOperand, rightOperand, ::GtNode)
@@ -883,7 +884,7 @@ open class MarcelSemantic constructor(
         if (left.type.primitive || right.type.primitive) throw MarcelSemanticException(leftOperand, "=== operator is reserved for object comparison")
         IsNotEqualNode(left, right)
       }
-      else -> throw MarcelSemanticException(node, "Doesn't handle operator ${node.tokenType}")
+      else -> throw MarcelSemanticException(node, "Doesn't handle operator $tokenType")
     }
   }
 
@@ -1024,7 +1025,7 @@ open class MarcelSemantic constructor(
       val leftType = left.type.asPrimitiveType
       val rightType = left.type.asPrimitiveType
       val commonType = JavaType.commonType(leftType, rightType)
-      IsEqualNode(caster.cast(commonType, caster.cast(leftType, left)), caster.cast(commonType, caster.cast(rightType, right)))
+      nodeCreator.invoke(caster.cast(commonType, caster.cast(leftType, left)), caster.cast(commonType, caster.cast(rightType, right)))
 
     } else objectComparisonNodeCreator.invoke(caster.cast(JavaType.Object, left), caster.cast(JavaType.Object, right))
   }
