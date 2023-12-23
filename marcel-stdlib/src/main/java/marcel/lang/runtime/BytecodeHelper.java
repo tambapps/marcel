@@ -69,22 +69,6 @@ public final class BytecodeHelper {
     return o;
   }
 
-  // TODO remove this when marcel legacy will be removed
-  public static boolean objectsEqual(Object left, Object right) {
-    if (left == right) return true;
-    if (left == null) return false;
-    if (right == null) return false;
-    if (left.getClass().isArray() && right.getClass().isArray()) {
-      int length = Array.getLength(left);
-      if (length != Array.getLength(right)) return false;
-      for (int i = 0; i < length; i++) {
-        if (!objectsEqual(Array.get(left, i), Array.get(right, i))) return false;
-      }
-      return true;
-    }
-    return left.equals(right);
-  }
-
   public static Integer orElseNull(OptionalInt opt) {
     return opt.isPresent() ? opt.getAsInt() : null;
   }
