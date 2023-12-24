@@ -1175,7 +1175,53 @@ public final class DefaultMarcelMethods {
     return floatList;
   }
 
-  // TODO mapToChar. Will need a ToCharFunction interface
+  public static <T> CharList mapToChar(List<T> collection, ToCharFunction<T> lambda1) {
+    CharList floatList = new CharArrayList(collection.size());
+    for (T t : collection) {
+      floatList.add(lambda1.applyAsChar(t));
+    }
+    return floatList;
+  }
+
+  public static <T> CharList mapToChar(T[] list, ToCharFunction<T> lambda1) {
+    CharList floatList = new CharArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      floatList.add(lambda1.applyAsChar(list[i]));
+    }
+    return floatList;
+  }
+
+  public static <T> CharList mapToChar(int[] list, ToCharFunction<Integer> lambda1) {
+    CharList floatList = new CharArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      floatList.add(lambda1.applyAsChar(list[i]));
+    }
+    return floatList;
+  }
+
+  public static <T> CharList mapToChar(long[] list, ToCharFunction<Long> lambda1) {
+    CharList floatList = new CharArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      floatList.add(lambda1.applyAsChar(list[i]));
+    }
+    return floatList;
+  }
+
+  public static <T> CharList mapToChar(float[] list, ToCharFunction<Float> lambda1) {
+    CharList floatList = new CharArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      floatList.add(lambda1.applyAsChar(list[i]));
+    }
+    return floatList;
+  }
+
+  public static <T> CharList mapToChar(char[] list, ToCharFunction<Character> lambda1) {
+    CharList floatList = new CharArrayList(list.length);
+    for (int i = 0; i < list.length; i++) {
+      floatList.add(lambda1.applyAsChar(list[i]));
+    }
+    return floatList;
+  }
 
   public static String join(Collection<?> self) {
     return join(self, "");
@@ -1732,7 +1778,6 @@ public final class DefaultMarcelMethods {
     }
   }
 
-  // TODO document this
   public static <T, U> Map<T, U> withDefault(Map<T, U> self, Function<Object, U> defaultFunction) {
     return withDefault(self, false, defaultFunction);
   }
