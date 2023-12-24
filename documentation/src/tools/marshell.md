@@ -66,5 +66,5 @@ marshell:000> gson = new Gson()
 If you want to always load some data everytime you run marshell, you can create a
 script in `$MARCEL_HOME/marshell/init.mcl`.
 
-In this script you **can't** use marcel commands. If you want to import a dependency/dumbbell,
+In this script you **can't** use commands. If you want to import a dependency/dumbbell,
 just do it like you would in a normal marcel script (`import ...` or `dumbbell '...'`)
