@@ -4,6 +4,7 @@ import com.tambapps.marcel.compiler.extensions.addCode
 import com.tambapps.marcel.compiler.extensions.internalName
 import com.tambapps.marcel.compiler.extensions.returnCode
 import com.tambapps.marcel.compiler.extensions.visitMethodInsn
+import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode
 import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
@@ -81,20 +82,26 @@ class MethodInstructionWriter(
   /*
    * Statements
    */
-  override fun visit(node: ExpressionStatementNode) = node.expressionNode.accept(this)
+  override fun visit(node: ExpressionStatementNode) {
+    label(node)
+    node.expressionNode.accept(this)
+  }
 
   override fun visit(node: ReturnStatementNode) {
+    label(node)
     pushExpression(node.expressionNode)
     mv.visitInsn(node.expressionNode.type.returnCode)
   }
 
   override fun visit(node: BlockStatementNode) {
+    label(node)
     node.statements.forEach {
       it.accept(this)
     }
   }
 
   override fun visit(node: IfStatementNode) {
+    label(node)
     pushExpression(node.conditionNode)
     val endLabel = Label()
     val falseStatementNode = node.falseStatementNode
@@ -114,6 +121,7 @@ class MethodInstructionWriter(
   }
 
   override fun visit(node: ElvisNode) {
+    label(node)
     pushExpression(node.leftOperand)
     // at this point we have on the stack
     // - expression
@@ -130,6 +138,7 @@ class MethodInstructionWriter(
   }
 
   override fun visit(node: ForInIteratorStatementNode) {
+    label(node)
     // assign the iterator to a variable
     visit(VariableAssignmentNode(node.iteratorVariable, node.iteratorExpression, node.tokenStart, node.tokenEnd))
 
@@ -157,6 +166,7 @@ class MethodInstructionWriter(
   }
 
   override fun visit(node: WhileNode) {
+    label(node)
     // loop start
     val loopStart = Label()
     val loopEnd = Label()
@@ -179,6 +189,7 @@ class MethodInstructionWriter(
   }
 
   override fun visit(node: ForStatementNode) {
+    label(node)
     // initialization
     node.initStatement.accept(this)
 
@@ -207,19 +218,23 @@ class MethodInstructionWriter(
   }
 
   override fun visit(node: ThrowNode) {
+    label(node)
     pushExpression(node.expressionNode)
     mv.visitInsn(Opcodes.ATHROW)
   }
 
   override fun visit(node: BreakNode) {
+    label(node)
     mv.visitJumpInsn(Opcodes.GOTO, currentLoopContext.breakLabel)
   }
 
   override fun visit(node: ContinueNode) {
+    label(node)
     mv.visitJumpInsn(Opcodes.GOTO, currentLoopContext.continueLabel)
   }
 
   override fun visit(node: TryCatchNode) {
+    label(node)
     if (node.finallyNode == null) {
       tryCatch(node)
     } else if (node.catchNodes.isEmpty()) {
@@ -318,6 +333,15 @@ class MethodInstructionWriter(
       }
     }
     return map
+  }
+
+  /**
+   * Add line number to bytecode, so that it can be displayed when an exception occured.
+   * Only useful for statements
+   */
+  private fun label(node: AstNode) = Label().apply {
+    mv.visitLabel(this)
+    mv.visitLineNumber(node.token.line + 1, this)
   }
 
   /*

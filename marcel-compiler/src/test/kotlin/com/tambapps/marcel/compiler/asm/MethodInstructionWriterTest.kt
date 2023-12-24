@@ -59,12 +59,12 @@ class MethodInstructionWriterTest {
   private fun expr(text: String): ExpressionNode {
     val cstExpression = MarcelParser("Test", MarcelLexer().lex(text)).expression()
     val sourceFile = mock(SourceFileNode::class.java)
-    return cstExpression.accept(MarcelSemantic(JavaTypeResolver(), Script::class.javaType, sourceFile),)
+    return cstExpression.accept(MarcelSemantic(JavaTypeResolver(), Script::class.javaType, sourceFile, "Test.mcl"),)
   }
   private fun stmt(text: String): StatementNode {
     val cstExpression = MarcelParser("Test", MarcelLexer().lex(text)).statement()
     val sourceFile = mock(SourceFileNode::class.java)
-    return cstExpression.accept(MarcelSemantic(JavaTypeResolver(), Script::class.javaType, sourceFile))
+    return cstExpression.accept(MarcelSemantic(JavaTypeResolver(), Script::class.javaType, sourceFile, "Test.mcl"))
   }
 
   private fun token() = LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, "")

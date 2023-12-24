@@ -286,6 +286,7 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
       forExtensionType = null,
       isStatic = classNode.isStatic,
       isScript = false,
+      fileName = classNode.fileName,
       LexToken.DUMMY,
       LexToken.DUMMY
     )

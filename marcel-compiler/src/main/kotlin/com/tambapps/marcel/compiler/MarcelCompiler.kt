@@ -65,7 +65,7 @@ class MarcelCompiler(configuration: CompilerConfiguration): AbstractMarcelCompil
 
       handleDumbbells(marcelClassLoader, cst)
 
-      MarcelSemantic(typeResolver, configuration.scriptClass.javaType, cst)
+      MarcelSemantic(typeResolver, configuration.scriptClass.javaType, cst, sourceFile.fileName)
     }
 
     // defining types

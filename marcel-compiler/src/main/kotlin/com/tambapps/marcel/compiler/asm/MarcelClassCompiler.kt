@@ -41,10 +41,12 @@ class MarcelClassCompiler(
     val classWriter = MarcelAsmClassWriter(typeResolver)
     // creating class
     classWriter.visit(compilerConfiguration.classVersion, classNode.access, classNode.type.internalName,
-
       if (classNode.type.superType?.hasGenericTypes == true || classNode.type.directlyImplementedInterfaces.any { it.hasGenericTypes }) classNode.type.signature else null,
       classNode.type.superType!!.internalName, // we know it has a super type as it is not the Object class
       classNode.type.directlyImplementedInterfaces.map { it.internalName }.toTypedArray())
+
+    // Set the source file name
+    classWriter.visitSource(classNode.fileName, null)
 
     // writing annotations
     for (annotation in classNode.annotations) {

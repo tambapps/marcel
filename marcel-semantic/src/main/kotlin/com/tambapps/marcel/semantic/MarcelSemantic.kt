@@ -189,7 +189,8 @@ import java.util.regex.Pattern
 open class MarcelSemantic constructor(
   final override val typeResolver: JavaTypeResolver,
   private val scriptType: JavaType,
-  val cst: SourceFileCstNode
+  val cst: SourceFileCstNode,
+  val fileName: String,
 ): MarcelBaseSemantic(), ExpressionCstNodeVisitor<ExpressionNode, JavaType>, StatementCstNodeVisitor<StatementNode> {
 
   companion object {
@@ -302,6 +303,7 @@ open class MarcelSemantic constructor(
       classScope.forExtensionType,
       isStatic = classType.outerTypeName != null && node.access.isStatic,
       isScript = node is ScriptCstNode,
+      fileName = fileName,
       cst.tokenStart, cst.tokenEnd)
     classNodeMap[classType] = classNode
 
@@ -1424,7 +1426,7 @@ open class MarcelSemantic constructor(
       ownerClass = lambdaType
     )
 
-    val lambdaNode = LambdaClassNode(lambdaType, lambdaConstructor, isStatic = lambdaOuterClassNode.isStatic, node, parameters, currentMethodScope.localVariablesSnapshot).apply {
+    val lambdaNode = LambdaClassNode(lambdaType, lambdaConstructor, isStatic = lambdaOuterClassNode.isStatic, node, fileName = fileName, parameters, currentMethodScope.localVariablesSnapshot).apply {
       interfaceType?.let { interfaceTypes.add(it) }
     }
     classNodeMap[lambdaNode.type] = lambdaNode

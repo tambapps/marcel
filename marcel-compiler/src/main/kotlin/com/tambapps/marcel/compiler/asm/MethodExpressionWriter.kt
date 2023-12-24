@@ -3,7 +3,6 @@ package com.tambapps.marcel.compiler.asm
 import com.tambapps.marcel.compiler.extensions.arrayStoreCode
 import com.tambapps.marcel.compiler.extensions.descriptor
 import com.tambapps.marcel.compiler.extensions.internalName
-import com.tambapps.marcel.compiler.extensions.invokeCode
 import com.tambapps.marcel.compiler.extensions.typeCode
 import com.tambapps.marcel.compiler.extensions.visitMethodInsn
 import com.tambapps.marcel.compiler.extensions.visitSuperMethodInsn
@@ -183,12 +182,6 @@ sealed class MethodExpressionWriter(
   private fun invokeMethodAsStatement(method: JavaMethod) {
     mv.visitMethodInsn(method)
     popStackIfNotVoid(method.returnType)
-  }
-
-  // visit and pop the value if necessary
-  protected fun visitAsStatement(expressionNode: ExpressionNode) {
-    expressionNode.accept(this)
-    popStackIfNotVoid(expressionNode.type)
   }
 
   protected fun popStackIfNotVoid(type: JavaType) {

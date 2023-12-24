@@ -13,9 +13,10 @@ class LambdaClassNode(
   val constructorNode: MethodNode,
   isStatic: Boolean,
   cstNode: LambdaNode,
+  fileName: String,
   val lambdaMethodParameters: List<MethodParameter>,
   val localVariablesSnapshot: List<LocalVariable>
-) : ClassNode(type, Visibility.INTERNAL, null, isStatic = isStatic, isScript = false, cstNode.tokenStart, cstNode.tokenEnd) {
+) : ClassNode(type, Visibility.INTERNAL, null, isStatic = isStatic, isScript = false, fileName, cstNode.tokenStart, cstNode.tokenEnd) {
 
   data class MethodParameter(val type: JavaType?, val name: String)
 
