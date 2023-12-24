@@ -296,6 +296,7 @@ LONELY_BACKTICK=`
 "int"          { return valueToken(TYPE_INT); }
 "long"          { return valueToken(TYPE_LONG); }
 "float"          { return valueToken(TYPE_FLOAT); }
+"do"          { return valueToken(DO); }
 "double"          { return valueToken(TYPE_DOUBLE); }
 "bool"          { return valueToken(TYPE_BOOL); }
 "char"          { return valueToken(TYPE_CHAR); }

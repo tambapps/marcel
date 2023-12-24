@@ -181,22 +181,23 @@ public class MarcelJflexer {
     "\1\45\1\0\1\46\1\47\2\3\1\0\2\50\1\51"+
     "\1\52\1\53\1\54\1\0\1\55\1\0\2\3\1\50"+
     "\1\56\1\57\1\60\1\61\1\0\1\62\1\2\1\63"+
-    "\1\2\1\64\1\65\16\2\1\66\22\2\1\67\1\70"+
-    "\1\71\1\72\1\73\1\74\1\75\1\76\1\77\1\100"+
-    "\1\101\1\102\1\103\1\104\1\105\1\106\2\107\1\0"+
-    "\1\110\1\111\1\36\1\50\1\112\1\0\1\113\1\114"+
-    "\1\115\2\2\1\116\5\2\1\117\2\2\1\120\4\2"+
-    "\1\121\1\122\14\2\1\123\12\2\1\124\1\0\1\125"+
-    "\1\0\1\126\1\0\1\2\1\127\10\2\1\130\1\2"+
-    "\1\131\1\132\4\2\1\133\5\2\1\134\1\135\1\136"+
-    "\4\2\1\137\5\2\1\140\3\0\11\2\1\141\1\2"+
-    "\1\142\1\143\1\144\1\145\1\2\1\146\1\2\1\147"+
-    "\2\2\1\150\1\151\4\2\1\152\3\0\1\153\1\2"+
-    "\1\154\1\2\1\155\2\2\1\156\1\157\1\160\3\2"+
-    "\1\161\1\162\2\2\1\163\3\2\1\0\4\2\1\164"+
-    "\1\2\1\165\3\2\1\166\1\167\1\0\1\170\2\2"+
-    "\1\171\1\2\1\172\2\2\1\0\2\2\1\173\1\2"+
-    "\1\174\1\0\1\175\1\176\1\2\1\177\1\200";
+    "\1\2\1\64\1\65\2\2\1\66\13\2\1\67\22\2"+
+    "\1\70\1\71\1\72\1\73\1\74\1\75\1\76\1\77"+
+    "\1\100\1\101\1\102\1\103\1\104\1\105\1\106\1\107"+
+    "\2\110\1\0\1\111\1\112\1\36\1\50\1\113\1\0"+
+    "\1\114\1\115\1\116\2\2\1\117\5\2\1\120\2\2"+
+    "\1\121\4\2\1\122\1\123\14\2\1\124\12\2\1\125"+
+    "\1\0\1\126\1\0\1\127\1\0\1\2\1\130\10\2"+
+    "\1\131\1\2\1\132\1\133\4\2\1\134\5\2\1\135"+
+    "\1\136\1\137\4\2\1\140\5\2\1\141\3\0\11\2"+
+    "\1\142\1\2\1\143\1\144\1\145\1\146\1\2\1\147"+
+    "\1\2\1\150\2\2\1\151\1\152\4\2\1\153\3\0"+
+    "\1\154\1\2\1\155\1\2\1\156\2\2\1\157\1\160"+
+    "\1\161\3\2\1\162\1\163\2\2\1\164\3\2\1\0"+
+    "\4\2\1\165\1\2\1\166\3\2\1\167\1\170\1\0"+
+    "\1\171\2\2\1\172\1\2\1\173\2\2\1\0\2\2"+
+    "\1\174\1\2\1\175\1\0\1\176\1\177\1\2\1\200"+
+    "\1\201";
 
   private static int [] zzUnpackAction() {
     int [] result = new int[338];
@@ -1180,192 +1181,192 @@ public class MarcelJflexer {
             { return token(BAD_CHARACTER);
             } 
             // fall through
-          case 129: break;
+          case 130: break;
           case 2: 
             { return valueToken(IDENTIFIER);
             } 
             // fall through
-          case 130: break;
+          case 131: break;
           case 3: 
             { return valueToken(INTEGER);
             } 
             // fall through
-          case 131: break;
+          case 132: break;
           case 4: 
             { return token(WHITE_SPACE);
             } 
             // fall through
-          case 132: break;
+          case 133: break;
           case 5: 
             { return token(DIV);
             } 
             // fall through
-          case 133: break;
+          case 134: break;
           case 6: 
             { return token(NOT);
             } 
             // fall through
-          case 134: break;
+          case 135: break;
           case 7: 
             { return token(DOT);
             } 
             // fall through
-          case 135: break;
+          case 136: break;
           case 8: 
             { return token(MINUS);
             } 
             // fall through
-          case 136: break;
+          case 137: break;
           case 9: 
             { pushState(SIMPLE_STRING); return token(OPEN_SIMPLE_QUOTE);
             } 
             // fall through
-          case 137: break;
+          case 138: break;
           case 10: 
             { pushState(STRING); return token(OPEN_QUOTE);
             } 
             // fall through
-          case 138: break;
+          case 139: break;
           case 11: 
             { pushState(CHAR_STRING); return token(OPEN_CHAR_QUOTE);
             } 
             // fall through
-          case 139: break;
+          case 140: break;
           case 12: 
             { return token(BRACKETS_OPEN);
             } 
             // fall through
-          case 140: break;
+          case 141: break;
           case 13: 
             { return token(BRACKETS_CLOSE);
             } 
             // fall through
-          case 141: break;
+          case 142: break;
           case 14: 
             { return token(MUL);
             } 
             // fall through
-          case 142: break;
+          case 143: break;
           case 15: 
             { return token(LPAR);
             } 
             // fall through
-          case 143: break;
+          case 144: break;
           case 16: 
             { return token(RPAR);
             } 
             // fall through
-          case 144: break;
+          case 145: break;
           case 17: 
             { return token(SQUARE_BRACKETS_OPEN);
             } 
             // fall through
-          case 145: break;
+          case 146: break;
           case 18: 
             { return token(QUESTION_MARK);
             } 
             // fall through
-          case 146: break;
+          case 147: break;
           case 19: 
             { return token(SQUARE_BRACKETS_CLOSE);
             } 
             // fall through
-          case 147: break;
+          case 148: break;
           case 20: 
             { return token(COLON);
             } 
             // fall through
-          case 148: break;
+          case 149: break;
           case 21: 
             { return token(SEMI_COLON);
             } 
             // fall through
-          case 149: break;
+          case 150: break;
           case 22: 
             { return token(PLUS);
             } 
             // fall through
-          case 150: break;
+          case 151: break;
           case 23: 
             { return token(MODULO);
             } 
             // fall through
-          case 151: break;
+          case 152: break;
           case 24: 
             { return token(LT);
             } 
             // fall through
-          case 152: break;
+          case 153: break;
           case 25: 
             { return token(GT);
             } 
             // fall through
-          case 153: break;
+          case 154: break;
           case 26: 
             { return token(PIPE);
             } 
             // fall through
-          case 154: break;
+          case 155: break;
           case 27: 
             { return token(ASSIGNMENT);
             } 
             // fall through
-          case 155: break;
+          case 156: break;
           case 28: 
             { return token(COMMA);
             } 
             // fall through
-          case 156: break;
+          case 157: break;
           case 29: 
             { return token(AT);
             } 
             // fall through
-          case 157: break;
+          case 158: break;
           case 30: 
             { return valueToken(REGULAR_STRING_PART);
             } 
             // fall through
-          case 158: break;
+          case 159: break;
           case 31: 
             { popState(); yypushback(1); return valueToken(DANGLING_NEWLINE);
             } 
             // fall through
-          case 159: break;
+          case 160: break;
           case 32: 
             { popState(); return token(CLOSING_QUOTE);
             } 
             // fall through
-          case 160: break;
+          case 161: break;
           case 33: 
             { popState(); return valueToken(IDENTIFIER);
             } 
             // fall through
-          case 161: break;
+          case 162: break;
           case 34: 
             { 
             } 
             // fall through
-          case 162: break;
+          case 163: break;
           case 35: 
             { popState(); return token(CLOSING_CHAR_QUOTE);
             } 
             // fall through
-          case 163: break;
+          case 164: break;
           case 36: 
             { popState(); return token(CLOSING_SIMPLE_QUOTE);
             } 
             // fall through
-          case 164: break;
+          case 165: break;
           case 37: 
             { popState(); return token(CLOSING_REGEX_QUOTE);
             } 
             // fall through
-          case 165: break;
+          case 166: break;
           case 38: 
             { lBraceCount++; return valueToken(LBRACE);
             } 
             // fall through
-          case 166: break;
+          case 167: break;
           case 39: 
             { if (lBraceCount == 0) {
                                              popState();
@@ -1375,29 +1376,29 @@ public class MarcelJflexer {
                                            return valueToken(RBRACE);
             } 
             // fall through
-          case 167: break;
+          case 168: break;
           case 40: 
             { return valueToken(FLOAT);
             } 
             // fall through
-          case 168: break;
+          case 169: break;
           case 41: 
             { return token(TokenType.EOL_COMMENT);
             } 
             // fall through
-          case 169: break;
+          case 170: break;
           case 42: 
             { pushState(BLOCK_COMMENT);
     commentDepth = 0;
     commentStart = getTokenStart();
             } 
             // fall through
-          case 170: break;
+          case 171: break;
           case 43: 
             { return token(DIV_ASSIGNMENT);
             } 
             // fall through
-          case 171: break;
+          case 172: break;
           case 44: 
             { if (zzCurrentPos == 0) {
                 return token(TokenType.SHEBANG_COMMENT);
@@ -1408,150 +1409,155 @@ public class MarcelJflexer {
             }
             } 
             // fall through
-          case 172: break;
+          case 173: break;
           case 45: 
             { return token(NOT_EQUAL);
             } 
             // fall through
-          case 173: break;
+          case 174: break;
           case 46: 
             { return token(TWO_DOTS);
             } 
             // fall through
-          case 174: break;
+          case 175: break;
           case 47: 
             { return token(DECR);
             } 
             // fall through
-          case 175: break;
+          case 176: break;
           case 48: 
             { return token(ARROW);
             } 
             // fall through
-          case 176: break;
+          case 177: break;
           case 49: 
             { return token(MINUS_ASSIGNMENT);
             } 
             // fall through
-          case 177: break;
+          case 178: break;
           case 50: 
             { pushState(REGEX_STRING); return token(OPEN_REGEX_QUOTE);
             } 
             // fall through
-          case 178: break;
+          case 179: break;
           case 51: 
             { return token(MUL_ASSIGNMENT);
             } 
             // fall through
-          case 179: break;
+          case 180: break;
           case 52: 
             { return token(IF);
             } 
             // fall through
-          case 180: break;
+          case 181: break;
           case 53: 
             { return token(IN);
             } 
             // fall through
-          case 181: break;
-          case 54: 
-            { return token(AS);
-            } 
-            // fall through
           case 182: break;
-          case 55: 
-            { return token(QUESTION_DOT);
+          case 54: 
+            { return valueToken(DO);
             } 
             // fall through
           case 183: break;
-          case 56: 
-            { return token(QUESTION_SQUARE_BRACKETS_OPEN);
+          case 55: 
+            { return token(AS);
             } 
             // fall through
           case 184: break;
-          case 57: 
-            { return token(ELVIS);
+          case 56: 
+            { return token(QUESTION_DOT);
             } 
             // fall through
           case 185: break;
-          case 58: 
-            { return token(INCR);
+          case 57: 
+            { return token(QUESTION_SQUARE_BRACKETS_OPEN);
             } 
             // fall through
           case 186: break;
-          case 59: 
-            { return token(PLUS_ASSIGNMENT);
+          case 58: 
+            { return token(ELVIS);
             } 
             // fall through
           case 187: break;
-          case 60: 
-            { return token(MODULO_ASSIGNMENT);
+          case 59: 
+            { return token(INCR);
             } 
             // fall through
           case 188: break;
-          case 61: 
-            { return token(LEFT_SHIFT);
+          case 60: 
+            { return token(PLUS_ASSIGNMENT);
             } 
             // fall through
           case 189: break;
-          case 62: 
-            { return token(LOE);
+          case 61: 
+            { return token(MODULO_ASSIGNMENT);
             } 
             // fall through
           case 190: break;
-          case 63: 
-            { return token(RIGHT_SHIFT);
+          case 62: 
+            { return token(LEFT_SHIFT);
             } 
             // fall through
           case 191: break;
-          case 64: 
-            { return token(GOE);
+          case 63: 
+            { return token(LOE);
             } 
             // fall through
           case 192: break;
-          case 65: 
-            { return token(AND);
+          case 64: 
+            { return token(RIGHT_SHIFT);
             } 
             // fall through
           case 193: break;
-          case 66: 
-            { return token(OR);
+          case 65: 
+            { return token(GOE);
             } 
             // fall through
           case 194: break;
-          case 67: 
-            { return token(EQUAL);
+          case 66: 
+            { return token(AND);
             } 
             // fall through
           case 195: break;
-          case 68: 
-            { return token(FIND);
+          case 67: 
+            { return token(OR);
             } 
             // fall through
           case 196: break;
+          case 68: 
+            { return token(EQUAL);
+            } 
+            // fall through
+          case 197: break;
           case 69: 
+            { return token(FIND);
+            } 
+            // fall through
+          case 198: break;
+          case 70: 
             { pushState(SHORT_TEMPLATE_ENTRY);
                                                         yypushback(yylength() - 1);
                                                         return token(SHORT_TEMPLATE_ENTRY_START);
             } 
             // fall through
-          case 197: break;
-          case 70: 
+          case 199: break;
+          case 71: 
             { pushState(LONG_TEMPLATE_ENTRY); return token(LONG_TEMPLATE_ENTRY_START);
             } 
             // fall through
-          case 198: break;
-          case 71: 
+          case 200: break;
+          case 72: 
             { return valueToken(ESCAPE_SEQUENCE);
             } 
             // fall through
-          case 199: break;
-          case 72: 
+          case 201: break;
+          case 73: 
             { commentDepth++;
             } 
             // fall through
-          case 200: break;
-          case 73: 
+          case 202: break;
+          case 74: 
             { if (commentDepth > 0) {
             commentDepth--;
         }
@@ -1563,65 +1569,65 @@ public class MarcelJflexer {
         }
             } 
             // fall through
-          case 201: break;
-          case 74: 
+          case 203: break;
+          case 75: 
             { pushState(DOC_COMMENT);
     commentDepth = 0;
     commentStart = getTokenStart();
             } 
             // fall through
-          case 202: break;
-          case 75: 
+          case 204: break;
+          case 76: 
             { return token(IS_NOT);
             } 
             // fall through
-          case 203: break;
-          case 76: 
+          case 205: break;
+          case 77: 
             { return token(TWO_DOTS_END_EXCLUSIVE);
             } 
             // fall through
-          case 204: break;
-          case 77: 
+          case 206: break;
+          case 78: 
             { pushState(RAW_STRING); return token(OPEN_QUOTE);
             } 
             // fall through
-          case 205: break;
-          case 78: 
+          case 207: break;
+          case 79: 
             { return valueToken(TYPE_INT);
             } 
             // fall through
-          case 206: break;
-          case 79: 
+          case 208: break;
+          case 80: 
             { return valueToken(DEF);
             } 
             // fall through
-          case 207: break;
-          case 80: 
+          case 209: break;
+          case 81: 
             { return token(TRY);
             } 
             // fall through
-          case 208: break;
-          case 81: 
+          case 210: break;
+          case 82: 
             { return token(FUN);
             } 
             // fall through
-          case 209: break;
-          case 82: 
+          case 211: break;
+          case 83: 
             { return token(FOR);
             } 
             // fall through
-          case 210: break;
-          case 83: 
+          case 212: break;
+          case 84: 
             { return token(NEW);
             } 
             // fall through
-          case 211: break;
-          case 84: 
+          case 213: break;
+          case 85: 
             { return token(IS);
             } 
             // fall through
-          case 212: break;
-          case 85: 
+          case 214: break;
+          case 86: 
             { int length = yytext().length();
                                     if (length <= 3) { // closing """
                                         popState();
@@ -1633,222 +1639,222 @@ public class MarcelJflexer {
                                     }
             } 
             // fall through
-          case 213: break;
-          case 86: 
+          case 215: break;
+          case 87: 
             { return token(TokenType.BLOCK_COMMENT);
             } 
             // fall through
-          case 214: break;
-          case 87: 
+          case 216: break;
+          case 88: 
             { return valueToken(TYPE_VOID);
             } 
             // fall through
-          case 215: break;
-          case 88: 
+          case 217: break;
+          case 89: 
             { return token(VALUE_TRUE);
             } 
             // fall through
-          case 216: break;
-          case 89: 
+          case 218: break;
+          case 90: 
             { return token(THIS);
             } 
             // fall through
-          case 217: break;
-          case 90: 
+          case 219: break;
+          case 91: 
             { return token(ELSE);
             } 
             // fall through
-          case 218: break;
-          case 91: 
+          case 220: break;
+          case 92: 
             { return valueToken(TYPE_LONG);
             } 
             // fall through
-          case 219: break;
-          case 92: 
+          case 221: break;
+          case 93: 
             { return valueToken(TYPE_BOOL);
             } 
             // fall through
-          case 220: break;
-          case 93: 
+          case 222: break;
+          case 94: 
             { return valueToken(TYPE_BYTE);
             } 
             // fall through
-          case 221: break;
-          case 94: 
+          case 223: break;
+          case 95: 
             { return token(NULL);
             } 
             // fall through
-          case 222: break;
-          case 95: 
+          case 224: break;
+          case 96: 
             { return valueToken(TYPE_CHAR);
             } 
             // fall through
-          case 223: break;
-          case 96: 
+          case 225: break;
+          case 97: 
             { return token(WHEN);
             } 
             // fall through
-          case 224: break;
-          case 97: 
+          case 226: break;
+          case 98: 
             { return token(THROW);
             } 
             // fall through
-          case 225: break;
-          case 98: 
+          case 227: break;
+          case 99: 
             { return token(FINAL);
             } 
             // fall through
-          case 226: break;
-          case 99: 
+          case 228: break;
+          case 100: 
             { return token(VALUE_FALSE);
             } 
             // fall through
-          case 227: break;
-          case 100: 
+          case 229: break;
+          case 101: 
             { return valueToken(TYPE_FLOAT);
             } 
             // fall through
-          case 228: break;
-          case 101: 
+          case 230: break;
+          case 102: 
             { return token(SUPER);
             } 
             // fall through
-          case 229: break;
-          case 102: 
+          case 231: break;
+          case 103: 
             { return valueToken(TYPE_SHORT);
             } 
             // fall through
-          case 230: break;
-          case 103: 
+          case 232: break;
+          case 104: 
             { return token(BREAK);
             } 
             // fall through
-          case 231: break;
-          case 104: 
+          case 233: break;
+          case 105: 
             { return token(CATCH);
             } 
             // fall through
-          case 232: break;
-          case 105: 
+          case 234: break;
+          case 106: 
             { return token(CLASS);
             } 
             // fall through
-          case 233: break;
-          case 106: 
+          case 235: break;
+          case 107: 
             { return token(WHILE);
             } 
             // fall through
-          case 234: break;
-          case 107: 
+          case 236: break;
+          case 108: 
             { return token(RETURN);
             } 
             // fall through
-          case 235: break;
-          case 108: 
+          case 237: break;
+          case 109: 
             { return token(INLINE);
             } 
             // fall through
-          case 236: break;
-          case 109: 
+          case 238: break;
+          case 110: 
             { return token(IMPORT);
             } 
             // fall through
-          case 237: break;
-          case 110: 
+          case 239: break;
+          case 111: 
             { return valueToken(TYPE_DOUBLE);
             } 
             // fall through
-          case 238: break;
-          case 111: 
+          case 240: break;
+          case 112: 
             { return token(DYNOBJ);
             } 
             // fall through
-          case 239: break;
-          case 112: 
+          case 241: break;
+          case 113: 
             { return token(THROWS);
             } 
             // fall through
-          case 240: break;
-          case 113: 
+          case 242: break;
+          case 114: 
             { return token(STATIC);
             } 
             // fall through
-          case 241: break;
-          case 114: 
+          case 243: break;
+          case 115: 
             { return token(SWITCH);
             } 
             // fall through
-          case 242: break;
-          case 115: 
+          case 244: break;
+          case 116: 
             { return token(VISIBILITY_PUBLIC);
             } 
             // fall through
-          case 243: break;
-          case 116: 
+          case 245: break;
+          case 117: 
             { return token(EXTENDS);
             } 
             // fall through
-          case 244: break;
-          case 117: 
+          case 246: break;
+          case 118: 
             { return token(FINALLY);
             } 
             // fall through
-          case 245: break;
-          case 118: 
+          case 247: break;
+          case 119: 
             { return token(VISIBILITY_PRIVATE);
             } 
             // fall through
-          case 246: break;
-          case 119: 
+          case 248: break;
+          case 120: 
             { return token(PACKAGE);
             } 
             // fall through
-          case 247: break;
-          case 120: 
+          case 249: break;
+          case 121: 
             { return token(VISIBILITY_INTERNAL);
             } 
             // fall through
-          case 248: break;
-          case 121: 
+          case 250: break;
+          case 122: 
             { return token(DUMBBELL);
             } 
             // fall through
-          case 249: break;
-          case 122: 
+          case 251: break;
+          case 123: 
             { return token(CONTINUE);
             } 
             // fall through
-          case 250: break;
-          case 123: 
+          case 252: break;
+          case 124: 
             { return token(EXTENSION);
             } 
             // fall through
-          case 251: break;
-          case 124: 
+          case 253: break;
+          case 125: 
             { return token(VISIBILITY_PROTECTED);
             } 
             // fall through
-          case 252: break;
-          case 125: 
+          case 254: break;
+          case 126: 
             { return token(INSTANCEOF);
             } 
             // fall through
-          case 253: break;
-          case 126: 
+          case 255: break;
+          case 127: 
             { return token(IMPLEMENTS);
             } 
             // fall through
-          case 254: break;
-          case 127: 
+          case 256: break;
+          case 128: 
             { return token(NOT_INSTANCEOF);
             } 
             // fall through
-          case 255: break;
-          case 128: 
+          case 257: break;
+          case 129: 
             { return token(CONSTRUCTOR);
             } 
             // fall through
-          case 256: break;
+          case 258: break;
           default:
             zzScanError(ZZ_NO_MATCH);
           }
