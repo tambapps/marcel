@@ -88,7 +88,7 @@ class MethodInstructionWriter(
   }
 
   override fun visit(node: ReturnStatementNode) {
-    label(node)
+    label(node.expressionNode)
     pushExpression(node.expressionNode)
     mv.visitInsn(node.expressionNode.type.returnCode)
   }
@@ -101,7 +101,7 @@ class MethodInstructionWriter(
   }
 
   override fun visit(node: IfStatementNode) {
-    label(node)
+    label(node.conditionNode)
     pushExpression(node.conditionNode)
     val endLabel = Label()
     val falseStatementNode = node.falseStatementNode
@@ -121,7 +121,7 @@ class MethodInstructionWriter(
   }
 
   override fun visit(node: ElvisNode) {
-    label(node)
+    label(node.leftOperand)
     pushExpression(node.leftOperand)
     // at this point we have on the stack
     // - expression
@@ -129,6 +129,7 @@ class MethodInstructionWriter(
 
     val endLabel = Label()
     mv.visitJumpInsn(Opcodes.IFNE, endLabel)
+    label(node.rightOperand)
     node.rightOperand.accept(this)
     mv.visitLabel(endLabel)
 
@@ -138,7 +139,7 @@ class MethodInstructionWriter(
   }
 
   override fun visit(node: ForInIteratorStatementNode) {
-    label(node)
+    label(node.iteratorExpression)
     // assign the iterator to a variable
     visit(VariableAssignmentNode(node.iteratorVariable, node.iteratorExpression, node.tokenStart, node.tokenEnd))
 
@@ -156,6 +157,7 @@ class MethodInstructionWriter(
     mv.visitJumpInsn(Opcodes.IFEQ, loopEnd)
 
     // loop body
+    label(node.nextMethodCall)
     visit(VariableAssignmentNode(node.variable, node.nextMethodCall, node.tokenStart, node.tokenEnd))
     node.bodyStatement.accept(this)
     mv.visitJumpInsn(Opcodes.GOTO, loopStart)
@@ -166,9 +168,9 @@ class MethodInstructionWriter(
   }
 
   override fun visit(node: WhileNode) {
-    label(node)
     // loop start
     val loopStart = Label()
+    mv.visitLineNumber(node.condition.token.line + 1, loopStart)
     val loopEnd = Label()
     loopContextQueue.push(LoopContext(continueLabel = loopStart, breakLabel = loopEnd))
     mv.visitLabel(loopStart)
@@ -189,7 +191,7 @@ class MethodInstructionWriter(
   }
 
   override fun visit(node: ForStatementNode) {
-    label(node)
+    label(node.initStatement)
     // initialization
     node.initStatement.accept(this)
 
@@ -199,6 +201,7 @@ class MethodInstructionWriter(
     // loop start
     val loopStart = Label()
     mv.visitLabel(loopStart)
+    mv.visitLineNumber(node.condition.token.line + 1, loopStart)
 
     // Verifying condition
     pushExpression(node.condition)
@@ -218,7 +221,7 @@ class MethodInstructionWriter(
   }
 
   override fun visit(node: ThrowNode) {
-    label(node)
+    label(node.expressionNode)
     pushExpression(node.expressionNode)
     mv.visitInsn(Opcodes.ATHROW)
   }
