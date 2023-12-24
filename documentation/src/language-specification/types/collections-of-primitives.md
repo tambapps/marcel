@@ -24,9 +24,9 @@ literal array will be converted into a IntArrayList (a int list that store eleme
 Here is the list of all list of primitives supported
 - list\<int> -> IntList
 - list\<long> -> LongList
-- list\<char> -> CharacterList
 - list\<float> -> FloatList
 - list\<double> -> DoubleList
+- list\<char> -> CharacterList
 
 ## Sets
 You can do the same with sets
@@ -38,4 +38,6 @@ set<int> mySet = [1, 2, 3, 3] // will actually contain just 1, 2 and 3
 Here is the list of all set of primitives supported
 - set\<int> -> IntSet
 - set\<long> -> LongSet
+- set\<float> -> FloatSet
+- set\<double> -> DoubleSet
 - set\<char> -> CharacterSet

@@ -25,7 +25,7 @@ The getters are not included in the generated Comparison by default. To change t
 You can use the annotation `@comparable.Exclude` to exclude a particular field or getter.
 
 ```marcel
-@comparable
+@comparable(includeGetters=true)
 class Foo {
  int i = 1
 

@@ -6,7 +6,6 @@
 - [Language Specification](./language-specification/index.md)
   - [Syntax](language-specification/syntax/index.md)
     - [Comments](language-specification/syntax/comments.md)
-    - [Keywords](language-specification/syntax/keywords.md)
     - [Identifier rules](language-specification/syntax/identifiers.md)
   - [Variables](language-specification/variables.md)
   - [Types](language-specification/types/index.md)

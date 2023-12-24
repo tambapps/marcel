@@ -4,10 +4,13 @@ Marcel supports the following Java primitives
 - void
 - boolean (bool)
 - byte
+- short
 - int
 - long
 - float
 - double
+- char
+- byte
 
 ## Literal Numbers
 

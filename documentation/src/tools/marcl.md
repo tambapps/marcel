@@ -1,6 +1,6 @@
 # Marcl
 
-MarCL (MARcel Command Line tool) is useful to compile/execute marcel source files.
+MarCL (MARcel Command Line tool) is useful to compile/execute marcel source files/scripts.
 
 Let's explore all the commands it provides
 

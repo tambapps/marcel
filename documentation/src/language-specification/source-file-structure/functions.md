@@ -91,9 +91,8 @@ class C {
   int b
 }
 
-B b = new B(i: 1, j: 2) // will call new B(i, j) and the fields will be initialized in the constructor
-C c = new C(a: 1, b: 2) // will call new C() and then the fields will be initialized outside the constructor
-
+B b = new B(i: 1, j: 2) // will call new B(i, j)
+C c = new C(b: 2, a: 1) // will call new C(a, b)
 ```
 
 ```marcel
@@ -104,21 +103,6 @@ int otherResult = sum(a: 2, 1) // ERROR, positional argument is not at the start
 ```
 
 Note that you can only used named parameters call for functions of Marcel-compiled classes, because Java doesn't keep method parameter names available at runtime by default.
-
-### Fields Constructor Call
-
-Similar calls also work with constructors. You can specify class's field names with their values to set.
-Note that it will only work if your class has a no-arg constructor and that the fields referenced are `public` and **not** `final`.
-
-```marcel
-
-Foo foo = new Foo(bar: 1, baz: "baz")
-
-class Foo {
-  int bar
-  String baz
-}
-```
 
 ## Parameter default value
 Function parameters can have default values, which are used when you skip the corresponding argument. These can be useful especially
