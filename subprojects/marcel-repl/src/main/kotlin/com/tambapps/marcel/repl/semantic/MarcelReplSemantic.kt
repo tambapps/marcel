@@ -12,7 +12,7 @@ import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.variable.field.BoundField
 import marcel.lang.Script
 
-class MarcelReplSemantic(private val replTypeResolver: ReplJavaTypeResolver, cst: SourceFileNode) : MarcelSemantic(replTypeResolver, Script::class.javaType, cst) {
+class MarcelReplSemantic(private val replTypeResolver: ReplJavaTypeResolver, cst: SourceFileNode, fileName: String) : MarcelSemantic(replTypeResolver, Script::class.javaType, cst, fileName) {
 
   override fun assignment(node: BinaryOperatorNode): ExpressionNode {
     val scope = currentMethodScope

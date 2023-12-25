@@ -133,7 +133,7 @@ class MarcelReplCompiler constructor(
       if (dumbbells.add(dumbbell)) handleDumbbell(marcelClassLoader, dumbbell)
     }
 
-    val semantic = MarcelReplSemantic(typeResolver, cst)
+    val semantic = MarcelReplSemantic(typeResolver, cst, "prompt.mcl")
     semantic.imports.addAll(imports)
 
     // defining types
