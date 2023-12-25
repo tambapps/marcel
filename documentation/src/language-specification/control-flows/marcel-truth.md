@@ -8,12 +8,13 @@ The only falsey values are the following:
 - `false`
 - a Boolean instance whose value is `false`
 - `null`
-- `Optional.empty()`
+- `Optional.empty()`, `OptionalInt.empty()`, `OptionalDouble.empty()`, `OptionalLong.empty()`
 - An empty collection
 - An empty array
 - An empty Map
 - An empty String
 - A [Matcher](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html) who's `find()` method would return false
+- A [File](https://docs.oracle.com/javase/8/docs/api/java/io/File.html) who's `exists()` method would return false
 - An object implementing MarcelTruth who's `isTruthy()` method would return false
 
 Any other value is truthy.
