@@ -554,12 +554,13 @@ is not designed to be a dynamic language in the first place.</p>
 <li><code>false</code></li>
 <li>a Boolean instance whose value is <code>false</code></li>
 <li><code>null</code></li>
-<li><code>Optional.empty()</code></li>
+<li><code>Optional.empty()</code>, <code>OptionalInt.empty()</code>, <code>OptionalDouble.empty()</code>, <code>OptionalLong.empty()</code></li>
 <li>An empty collection</li>
 <li>An empty array</li>
 <li>An empty Map</li>
 <li>An empty String</li>
 <li>A <a href="https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html">Matcher</a> who's <code>find()</code> method would return false</li>
+<li>A <a href="https://docs.oracle.com/javase/8/docs/api/java/io/File.html">File</a> who's <code>exists()</code> method would return false</li>
 <li>An object implementing MarcelTruth who's <code>isTruthy()</code> method would return false</li>
 </ul>
 <p>Any other value is truthy.</p>
