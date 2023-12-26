@@ -98,6 +98,12 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
 
   private val errors = mutableListOf<MarcelParserException.Error>()
 
+
+  /**
+   * Parse the list of tokens to transform them into a Concrete Syntax Tree
+   *
+   * @return the resulting CST
+   */
   fun parse(): SourceFileNode {
     if (tokens.isEmpty()) {
       throw MarcelParserException(
@@ -180,6 +186,12 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     return Pair(imports, extensionTypes)
   }
 
+  /**
+   * Parse an import instruction
+   *
+   * @param parentNode the optional parent node
+   * @return an import node
+   */
   fun import(parentNode: CstNode? = null): ImportNode {
     val importToken = accept(TokenType.IMPORT)
     val staticImport = acceptOptional(TokenType.STATIC) != null

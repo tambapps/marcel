@@ -1,14 +1,37 @@
 package com.tambapps.marcel.lexer
 
-import java.util.*
-
-
+/**
+ * Marcel lexer
+ *
+ * @property ignoreWhitespaces
+ * @constructor Create empty Marcel lexer
+ */
 class MarcelLexer @JvmOverloads constructor(private val ignoreWhitespaces: Boolean = true) {
+
+  companion object {
+    private val COMMENT_TOKENS: List<TokenType> = listOf(
+      TokenType.BLOCK_COMMENT, TokenType.DOC_COMMENT, TokenType.HASH, TokenType.SHEBANG_COMMENT, TokenType.EOL_COMMENT
+    )
+  }
+
+  /**
+   * perform the lexical analysis on the provided string
+   *
+   * @param content a string representing Marcel source code
+   * @return the list of tokens resulting from the lexical analysis
+   */
   @Throws(MarcelLexerException::class)
   fun lex(content: String): List<LexToken> {
     return lex(content, false)
   }
 
+  /**
+   * perform the lexical analysis safely, without throwing any error. If an error
+   * is caught the analysis will just stop there
+   *
+   * @param content a string representing Marcel source code
+   * @return the list of tokens resulting from the lexical analysis
+   */
   @Throws(MarcelLexerException::class)
   fun lexSafely(content: String): List<LexToken> {
     return lex(content, true)
@@ -55,9 +78,4 @@ class MarcelLexer @JvmOverloads constructor(private val ignoreWhitespaces: Boole
     return tokens
   }
 
-  companion object {
-    private val COMMENT_TOKENS: List<TokenType> = Arrays.asList(
-      TokenType.BLOCK_COMMENT, TokenType.DOC_COMMENT, TokenType.HASH, TokenType.SHEBANG_COMMENT, TokenType.EOL_COMMENT
-    )
-  }
 }
