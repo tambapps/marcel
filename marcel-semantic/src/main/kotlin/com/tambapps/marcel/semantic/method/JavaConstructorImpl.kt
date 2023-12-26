@@ -8,5 +8,6 @@ import com.tambapps.marcel.semantic.type.JavaType
  */
 class JavaConstructorImpl(
   override val visibility: Visibility,
+  override val isVarArgs: Boolean,
   ownerClass: JavaType, parameters: List<MethodParameter>
 ) : AbstractConstructor(ownerClass, parameters)

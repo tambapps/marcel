@@ -15,6 +15,7 @@ class ExtensionJavaMethod private constructor(
   override val isAbstract = false
   override val isDefault = false
   override val isExtension = true
+  override val isVarArgs = actualMethod.isVarArgs
 
   override val visibility = actualMethod.visibility
   override val isStatic = actualMethod.isStatic

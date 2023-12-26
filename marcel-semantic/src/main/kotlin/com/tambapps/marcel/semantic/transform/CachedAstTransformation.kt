@@ -63,7 +63,7 @@ class CachedAstTransformation: GenerateMethodAstTransformation() {
       val cacheKeyRef = if (!isMultiParams) argRef(0)
       else {
         val lv = currentMethodScope.addLocalVariable(List::class.javaType)
-        varAssignStmt(lv, cast(array(originalMethod.parameters.map { cast(ref(it), JavaType.Object) }, JavaType.objectArray), List::class.javaType))
+        varAssignStmt(lv, cast(array(JavaType.objectArray, originalMethod.parameters.map { cast(ref(it), JavaType.Object) }), List::class.javaType))
         ref(lv)
       }
       val cacheKeyObjectRef = cast(cacheKeyRef, JavaType.Object)

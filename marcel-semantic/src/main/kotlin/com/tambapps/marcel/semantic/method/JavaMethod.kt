@@ -40,6 +40,7 @@ interface JavaMethod: JavaTyped {
 
   val isConstructor: Boolean
   val isInline: Boolean get() = false
+  val isVarArgs: Boolean
 
   fun isAccessibleFrom(type: JavaType): Boolean {
     return visibility.canAccess(type, ownerClass)
@@ -63,6 +64,8 @@ interface JavaMethod: JavaTyped {
     if (returnType != other.returnType) return false
     return true
   }
+
+  // TODO move these below methods in typeresolver
   fun matchesUnorderedParameters(typeResolver: JavaTypeResolver, name: String,
                                  positionalArguments: List<JavaTyped>,
                                  arguments: Collection<MethodParameter>): Boolean {

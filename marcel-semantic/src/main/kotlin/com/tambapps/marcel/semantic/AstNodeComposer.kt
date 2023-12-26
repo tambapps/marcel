@@ -167,9 +167,13 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
   protected fun string(value: String) = StringConstantNode(value, LexToken.DUMMY, LexToken.DUMMY)
   protected fun string(parts: List<ExpressionNode>) = StringNode(parts, LexToken.DUMMY, LexToken.DUMMY)
 
-  protected fun array(elements: List<ExpressionNode>, asType: JavaArrayType): ArrayNode {
+  protected fun array(asType: JavaArrayType, vararg elements: ExpressionNode): ArrayNode {
+    return array(asType, elements.toMutableList())
+  }
+
+  protected fun array(arrayType: JavaArrayType, elements: List<ExpressionNode>): ArrayNode {
     return ArrayNode(if (elements is MutableList) elements else elements.toMutableList(),
-      LexToken.DUMMY, LexToken.DUMMY, asType)
+      LexToken.DUMMY, LexToken.DUMMY, arrayType)
   }
   protected fun fCall(name: String, arguments: List<ExpressionNode>,
                       owner: ExpressionNode,

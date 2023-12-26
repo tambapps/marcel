@@ -42,6 +42,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
   override val isAbstract = (method.modifiers and Modifier.ABSTRACT) != 0
   override val isDefault = method.isDefault
   override val isStatic = (method.modifiers and Modifier.STATIC) != 0
+  override val isVarArgs = method.isVarArgs
 
   override fun toString(): String {
     return "$ownerClass.$name(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType

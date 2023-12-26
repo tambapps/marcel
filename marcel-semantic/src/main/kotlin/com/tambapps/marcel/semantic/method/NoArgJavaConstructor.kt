@@ -6,5 +6,6 @@ import com.tambapps.marcel.semantic.type.JavaType
 class NoArgJavaConstructor(ownerClass: JavaType) :
   AbstractConstructor(ownerClass, emptyList()) {
   override val visibility = Visibility.PUBLIC
+  override val isVarArgs = false
 
 }

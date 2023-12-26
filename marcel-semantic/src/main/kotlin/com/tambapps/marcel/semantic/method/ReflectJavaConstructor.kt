@@ -9,6 +9,7 @@ class ReflectJavaConstructor(constructor: Constructor<*>): AbstractConstructor(
   constructor.parameters.map { ReflectJavaMethod.methodParameter(constructor.name, JavaType.of(constructor.declaringClass), null, it) }
 ) {
   override val visibility = Visibility.fromAccess(constructor.modifiers)
+  override val isVarArgs = constructor.isVarArgs
   override fun toString(): String {
     return "${ownerClass.className}(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType
   }

@@ -385,7 +385,7 @@ open class MarcelSemantic constructor(
             staticFieldInitialValueMap[fieldNode] = cstFieldNode.initialValue!!.accept(this, fieldNode.type)
           }
         } else {
-          fieldInitialValueMap[fieldNode] = useScope(MethodScope(classScope, JavaConstructorImpl(Visibility.PRIVATE, classType, emptyList()))) {
+          fieldInitialValueMap[fieldNode] = useScope(MethodScope(classScope, JavaConstructorImpl(Visibility.PRIVATE, isVarArgs = false, classType, emptyList()))) {
             caster.cast(fieldNode.type, cstFieldNode.initialValue!!.accept(this, fieldNode.type))
           }
         }
@@ -1980,7 +1980,7 @@ open class MarcelSemantic constructor(
 
   private fun toJavaConstructor(ownerType: JavaType, node: ConstructorCstNode): JavaMethod {
     val visibility = Visibility.fromTokenType(node.accessNode.visibility)
-    return JavaConstructorImpl(visibility, ownerType, node.parameters.mapIndexed { index, methodParameterCstNode -> toMethodParameter(
+    return JavaConstructorImpl(visibility, isVarArgs = false, ownerType, node.parameters.mapIndexed { index, methodParameterCstNode -> toMethodParameter(
       ownerType,
       null,
       visibility,

@@ -31,4 +31,6 @@ class MethodNode(override val name: String,
   override val isAbstract = false
   override val isDefault = false
   override val actualReturnType = returnType
+  // TODO handle varargs methods
+  override val isVarArgs = false
 }
