@@ -35,8 +35,8 @@ class JavaMethodTest: AstNodeComposer() {
     assertFalse(m1.matches(m2))
     assertFalse(m2.matches(m1))
 
-    assertFalse(m1.matches(typeResolver, m2.name, m2.parameters, strict = true))
-    assertFalse(m2.matches(typeResolver, m1.name, m1.parameters, strict = true))
+    assertFalse(typeResolver.matches(m1, m2.name, m2.parameters, strict = true))
+    assertFalse(typeResolver.matches(m2, m1.name, m1.parameters, strict = true))
   }
 
   @Disabled // TODO make vararg method matching
@@ -45,10 +45,10 @@ class JavaMethodTest: AstNodeComposer() {
     val joinMethod = ReflectJavaMethod(java.lang.String::class.java.getMethod("join", CharSequence::class.java, Array<CharSequence>::class.java))
 
 
-    assertTrue(joinMethod.matches(typeResolver, listOf(string("s1"))))
-    assertTrue(joinMethod.matches(typeResolver, listOf(string("s1"), string("s2"))))
-    assertTrue(joinMethod.matches(typeResolver, listOf(string("s1"), string("s2"), string("s3"))))
-    assertTrue(joinMethod.matches(typeResolver, listOf(string("s1"), array(CharSequence::class.javaType.arrayType, string("s3")))))
+    assertTrue(typeResolver.matches(joinMethod, listOf(string("s1"))))
+    assertTrue(typeResolver.matches(joinMethod, listOf(string("s1"), string("s2"))))
+    assertTrue(typeResolver.matches(joinMethod, listOf(string("s1"), string("s2"), string("s3"))))
+    assertTrue(typeResolver.matches(joinMethod, listOf(string("s1"), array(CharSequence::class.javaType.arrayType, string("s3")))))
   }
 
   private fun cstNode() = IntNode(null, 0, LexToken.DUMMY)

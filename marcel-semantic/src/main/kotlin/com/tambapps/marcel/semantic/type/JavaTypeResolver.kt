@@ -23,6 +23,7 @@ import com.tambapps.marcel.semantic.variable.field.ReflectJavaField
 import marcel.lang.DynamicObject
 import marcel.lang.MarcelClassLoader
 import marcel.lang.methods.DefaultMarcelMethods
+import kotlin.math.max
 
 open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoader?) {
 
@@ -85,7 +86,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
       .forEach { extensionMethod ->
         val owner = extensionMethod.parameters.first().type
         val methods = getMarcelMethods(owner)
-        methods.removeIf { it.matches(this, extensionMethod.name, extensionMethod.parameters) }
+        methods.removeIf { matches(it, extensionMethod.name, extensionMethod.parameters) }
 
       }
   }
@@ -120,7 +121,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
   }
   fun defineMethod(javaType: JavaType, method: JavaMethod) {
     val methods = getMarcelMethods(javaType)
-    if (methods.any { it.matches(this, method.name, method.parameters, strict = true) }) {
+    if (methods.any { matches(it, method.name, method.parameters, strict = true) }) {
       throw MarcelSemanticException((method as? MethodNode)?.token ?: LexToken.DUMMY, "Method with $method is already defined")
     }
     methods.add(method)
@@ -265,7 +266,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
                                         positionalArgumentTypes: List<JavaTyped>,
                                         namedParameters: Collection<MethodParameter>,
                                         excludeInterfaces: Boolean, token: LexToken? = null): JavaMethod? {
-    return findMethod(javaType, name, { it.matchesUnorderedParameters(this, name, positionalArgumentTypes, namedParameters) },
+    return findMethod(javaType, name, { matchesUnorderedParameters(it, name, positionalArgumentTypes, namedParameters) },
       {candidates ->
         val exactCandidates = candidates.filter { it.parameters.size == namedParameters.size }
         if (exactCandidates.size == 1) exactCandidates.first() else getMoreSpecificMethod(candidates)
@@ -273,12 +274,65 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
   }
 
   private fun doFindMethod(javaType: JavaType, name: String, argumentTypes: List<JavaTyped>, excludeInterfaces: Boolean, token: LexToken? = null): JavaMethod? {
-    var m = findMethod(javaType, name, { it.matches(this, name, argumentTypes) },
+    var m = findMethod(javaType, name, { matches(it, name, argumentTypes) },
       {candidates ->  pickMethodCandidate(candidates, name, argumentTypes) }, excludeInterfaces, token)
     if (m == null && argumentTypes.isEmpty()) {
       m = findMethodByParameters(javaType, name, argumentTypes, emptyList(), false, token)
     }
     return m
+  }
+
+  private fun matchesUnorderedParameters(method: JavaMethod, name: String,
+                                           positionalArguments: List<JavaTyped>,
+                                           arguments: Collection<MethodParameter>): Boolean {
+    if (positionalArguments.isNotEmpty()) {
+      if (positionalArguments.size > method.parameters.size || positionalArguments.size + arguments.size > method.parameters.size) return false
+      for (i in positionalArguments.indices) {
+        if (!method.parameters[i].type.isAssignableFrom(positionalArguments[i].type)) {
+          return false
+        }
+      }
+    }
+    val methodParameters = method.parameters.subList(positionalArguments.size, method.parameters.size)
+    if (method.name != name) return false
+    if (arguments.size > methodParameters.size || arguments.any { p -> methodParameters.none { it.name == p.name } }) return false
+    for (methodParameter in methodParameters) {
+      if (arguments.none { methodParameter.type.isAssignableFrom(it.type) && it.name == methodParameter.name } && methodParameter.defaultValue == null) {
+        return false
+      }
+    }
+    return true
+  }
+
+  fun matches(method: JavaMethod, name: String, types: List<JavaTyped>, strict: Boolean = false): Boolean {
+    return method.name == name && matches(method, types, strict)
+  }
+
+  // TODO split strict match and match strict=false in separate methods
+  fun matches(method: JavaMethod, argumentTypes: List<JavaTyped>, strict: Boolean = false): Boolean {
+    if (strict && argumentTypes.size != method.parameters.size
+      || !strict && argumentTypes.size > method.parameters.size) return false
+    var i = 0
+    while (i < argumentTypes.size) {
+      val expectedType = method.parameters[i].type
+      val actualType = argumentTypes[i].type
+      if (!methodParameterTypeMatches(expectedType, actualType, strict)) return false
+      i++
+    }
+
+    // if all remaining parameters have default value, this is a valid function call
+    while (i < method.parameters.size) {
+      if (!method.parameters[i].hasDefaultValue) return false
+      i++
+    }
+    return i == max(method.parameters.size, argumentTypes.size)
+  }
+
+  private fun methodParameterTypeMatches(expectedType: JavaType, actualType: JavaType, strict: Boolean): Boolean {
+    return if (expectedType.isInterface && actualType.isLambda) {
+      return getInterfaceLambdaMethod(expectedType) != null // lambda parameter matches will be done by lambda handler
+    } else if (!strict) expectedType.isAssignableFrom(actualType)
+    else expectedType.raw() == actualType.raw()
   }
 
   private fun pickMethodCandidate(candidates: List<JavaMethod>, name: String, argumentTypes: List<JavaTyped>): JavaMethod? {
@@ -289,7 +343,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
   }
 
   fun findMatchingMethod(methods: List<JavaMethod>, name: String, argumentTypes: List<JavaTyped>): JavaMethod? {
-    val candidates = methods.filter { it.matches(this, argumentTypes) }
+    val candidates = methods.filter { matches(it, argumentTypes) }
     return pickMethodCandidate(candidates, name, argumentTypes)
   }
 
