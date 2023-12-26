@@ -27,7 +27,8 @@ abstract class GenerateMethodAstTransformation: AbstractAstTransformation() {
     useScope(classScope(classNode)) {
       val methods = generateMethodNodes(node, classNode, annotation)
       for (method in methods) {
-        val duplicate = classNode.methods.find { typeResolver.matches(it, method.name, method.parameters, strict = true) }
+
+        val duplicate = classNode.methods.find { method.matches(it) }
         if (duplicate != null) {
           throw MarcelAstTransformationException(this, duplicate.token, "Method with $method is already defined")
         }

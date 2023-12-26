@@ -25,7 +25,7 @@ import marcel.lang.MarcelClassLoader
 import marcel.lang.methods.DefaultMarcelMethods
 import kotlin.math.max
 
-open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoader?) {
+open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoader?): MethodMatcherTrait {
 
   constructor(): this(null)
 
@@ -227,7 +227,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
   fun getInterfaceLambdaMethodOrThrow(type: JavaType, token: LexToken): JavaMethod {
     return getInterfaceLambdaMethod(type) ?: throw MarcelSemanticException(token, "Interface isn't a functional interface")
   }
-  fun getInterfaceLambdaMethod(type: JavaType): JavaMethod? {
+  override fun getInterfaceLambdaMethod(type: JavaType): JavaMethod? {
     return getDeclaredMethods(type).firstOrNull { it.isAbstract && it.name != "equals" && it.name != "hashCode" }
   }
 
@@ -282,61 +282,10 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     return m
   }
 
-  private fun matchesUnorderedParameters(method: JavaMethod, name: String,
-                                           positionalArguments: List<JavaTyped>,
-                                           arguments: Collection<MethodParameter>): Boolean {
-    if (positionalArguments.isNotEmpty()) {
-      if (positionalArguments.size > method.parameters.size || positionalArguments.size + arguments.size > method.parameters.size) return false
-      for (i in positionalArguments.indices) {
-        if (!method.parameters[i].type.isAssignableFrom(positionalArguments[i].type)) {
-          return false
-        }
-      }
-    }
-    val methodParameters = method.parameters.subList(positionalArguments.size, method.parameters.size)
-    if (method.name != name) return false
-    if (arguments.size > methodParameters.size || arguments.any { p -> methodParameters.none { it.name == p.name } }) return false
-    for (methodParameter in methodParameters) {
-      if (arguments.none { methodParameter.type.isAssignableFrom(it.type) && it.name == methodParameter.name } && methodParameter.defaultValue == null) {
-        return false
-      }
-    }
-    return true
-  }
 
-  fun matches(method: JavaMethod, name: String, types: List<JavaTyped>, strict: Boolean = false): Boolean {
-    return method.name == name && matches(method, types, strict)
-  }
-
-  // TODO split strict match and match strict=false in separate methods
-  fun matches(method: JavaMethod, argumentTypes: List<JavaTyped>, strict: Boolean = false): Boolean {
-    if (strict && argumentTypes.size != method.parameters.size
-      || !strict && argumentTypes.size > method.parameters.size) return false
-    var i = 0
-    while (i < argumentTypes.size) {
-      val expectedType = method.parameters[i].type
-      val actualType = argumentTypes[i].type
-      if (!methodParameterTypeMatches(expectedType, actualType, strict)) return false
-      i++
-    }
-
-    // if all remaining parameters have default value, this is a valid function call
-    while (i < method.parameters.size) {
-      if (!method.parameters[i].hasDefaultValue) return false
-      i++
-    }
-    return i == max(method.parameters.size, argumentTypes.size)
-  }
-
-  private fun methodParameterTypeMatches(expectedType: JavaType, actualType: JavaType, strict: Boolean): Boolean {
-    return if (expectedType.isInterface && actualType.isLambda) {
-      return getInterfaceLambdaMethod(expectedType) != null // lambda parameter matches will be done by lambda handler
-    } else if (!strict) expectedType.isAssignableFrom(actualType)
-    else expectedType.raw() == actualType.raw()
-  }
 
   private fun pickMethodCandidate(candidates: List<JavaMethod>, name: String, argumentTypes: List<JavaTyped>): JavaMethod? {
-    val exactCandidates = candidates.filter { it.exactMatch(name, argumentTypes) }
+    val exactCandidates = candidates.filter { exactMatch(it, name, argumentTypes) }
     return if (exactCandidates.size == 1) exactCandidates.first() else getMoreSpecificMethod(
       if (exactCandidates.isNotEmpty()) exactCandidates else candidates
     )
