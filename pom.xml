@@ -157,15 +157,22 @@
     <pluginManagement>
       <plugins>
         <plugin>
-          <!-- Kotlin javadoc -->
+          <!-- Kotlin doc -->
           <groupId>org.jetbrains.dokka</groupId>
           <artifactId>dokka-maven-plugin</artifactId>
-          <version>1.9.0</version>
+          <version>1.9.10</version>
           <executions>
             <execution>
+              <id>dokka-kdoc</id>
               <phase>prepare-package</phase>
               <goals>
                 <goal>dokka</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>dokka-javadoc</id>
+              <phase>deploy</phase>
+              <goals>
                 <goal>javadoc</goal>
                 <goal>javadocJar</goal>
               </goals>
@@ -194,6 +201,20 @@
           <groupId>org.jetbrains.kotlin</groupId>
           <artifactId>kotlin-maven-plugin</artifactId>
           <version>${kotlin.version}</version>
+          <executions>
+            <execution>
+              <id>compile</id>
+              <goals>
+                <goal>compile</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>test-compile</id>
+              <goals>
+                <goal>test-compile</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
     </pluginManagement>
