@@ -1,6 +1,10 @@
 package com.tambapps.marcel.lexer;
 
-enum class TokenType {
+// need to keep it Java as it is used by MarcelJflexer
+/**
+ * Token Type
+ */
+public enum TokenType {
   IDENTIFIER,
   WHITE_SPACE,
   // keywords
