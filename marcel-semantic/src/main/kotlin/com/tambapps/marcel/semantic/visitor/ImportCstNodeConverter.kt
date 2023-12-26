@@ -1,10 +1,10 @@
 package com.tambapps.marcel.semantic.visitor
 
-import com.tambapps.marcel.parser.cst.imprt.ImportNode as ImportCstNode
+import com.tambapps.marcel.parser.cst.imprt.ImportCstNode as ImportCstNode
 import com.tambapps.marcel.parser.cst.imprt.ImportCstVisitor
-import com.tambapps.marcel.parser.cst.imprt.SimpleImportNode as SimpleImportCstNode
-import com.tambapps.marcel.parser.cst.imprt.StaticImportNode as StaticImportCstNode
-import com.tambapps.marcel.parser.cst.imprt.WildcardImportNode as WildcardImportCstNode
+import com.tambapps.marcel.parser.cst.imprt.SimpleImportCstNode as SimpleImportCstNode
+import com.tambapps.marcel.parser.cst.imprt.StaticImportCstNode as StaticImportCstNode
+import com.tambapps.marcel.parser.cst.imprt.WildcardImportCstNode as WildcardImportCstNode
 import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.ast.SimpleImportNode
 import com.tambapps.marcel.semantic.ast.StaticImportNode

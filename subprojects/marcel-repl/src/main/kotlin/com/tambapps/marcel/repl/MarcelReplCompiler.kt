@@ -25,8 +25,8 @@ class MarcelReplCompiler constructor(
 
   val imports = LinkedHashSet<ImportNode>()
   private val lexer = MarcelLexer(false)
-  private val _definedFunctions = mutableSetOf<com.tambapps.marcel.parser.cst.MethodNode>()
-  val definedFunctions: Set<com.tambapps.marcel.parser.cst.MethodNode> get() = _definedFunctions
+  private val _definedFunctions = mutableSetOf<com.tambapps.marcel.parser.cst.MethodCstNode>()
+  val definedFunctions: Set<com.tambapps.marcel.parser.cst.MethodCstNode> get() = _definedFunctions
   private val classCompiler = MarcelClassCompiler(compilerConfiguration, typeResolver)
   @Volatile
   var semanticResult: SemanticResult? = null

@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.scope
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.parser.cst.TypeNode
+import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.method.JavaMethod
@@ -100,7 +100,7 @@ open class MethodScope internal constructor(
     vars.forEach { freeLocalVariable(it) }
   }
 
-  override fun resolveTypeOrThrow(node: TypeNode): JavaType {
+  override fun resolveTypeOrThrow(node: TypeCstNode): JavaType {
     // we want the class scope to find the type as it can also resolve inner classes
     return parentScope.resolveTypeOrThrow(node)
   }

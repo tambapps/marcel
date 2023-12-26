@@ -1,8 +1,8 @@
 package com.tambapps.marcel.repl.semantic
 
-import com.tambapps.marcel.parser.cst.SourceFileNode
-import com.tambapps.marcel.parser.cst.expression.BinaryOperatorNode
-import com.tambapps.marcel.parser.cst.expression.reference.ReferenceNode as ReferenceCstNode
+import com.tambapps.marcel.parser.cst.SourceFileCstNode
+import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.ReferenceCstNode as ReferenceCstNode
 import com.tambapps.marcel.repl.ReplJavaTypeResolver
 import com.tambapps.marcel.semantic.MarcelSemantic
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
@@ -12,9 +12,9 @@ import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.variable.field.BoundField
 import marcel.lang.Script
 
-class MarcelReplSemantic(private val replTypeResolver: ReplJavaTypeResolver, cst: SourceFileNode, fileName: String) : MarcelSemantic(replTypeResolver, Script::class.javaType, cst, fileName) {
+class MarcelReplSemantic(private val replTypeResolver: ReplJavaTypeResolver, cst: SourceFileCstNode, fileName: String) : MarcelSemantic(replTypeResolver, Script::class.javaType, cst, fileName) {
 
-  override fun assignment(node: BinaryOperatorNode): ExpressionNode {
+  override fun assignment(node: BinaryOperatorCstNode): ExpressionNode {
     val scope = currentMethodScope
     if (scope.isStatic || !scope.classType.isScript || node.leftOperand !is ReferenceCstNode) return super.assignment(node)
     val leftResult = runCatching { node.leftOperand.accept(this) }

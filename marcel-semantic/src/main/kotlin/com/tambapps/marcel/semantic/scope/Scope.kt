@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.scope
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.parser.cst.TypeNode
+import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.ast.WildcardImportNode
 import com.tambapps.marcel.semantic.exception.VariableNotFoundException
@@ -27,7 +27,7 @@ interface Scope {
   val classType: JavaType
   val forExtensionType: JavaType?
 
-  fun resolveTypeOrThrow(node: TypeNode): JavaType
+  fun resolveTypeOrThrow(node: TypeCstNode): JavaType
 
   fun findFieldOrThrow(name: String, token: LexToken): MarcelField {
     return findField(name) ?: throw VariableNotFoundException(token, "Variable $name is not defined")

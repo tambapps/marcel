@@ -1,6 +1,6 @@
 package com.tambapps.marcel.semantic
 
-import com.tambapps.marcel.parser.cst.SourceFileNode
+import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
@@ -82,7 +82,7 @@ object SemanticHelper {
     return LocalVariable(parameter.type, parameter.name, parameter.type.nbSlots, index, parameter.isFinal)
   }
 
-  fun scriptRunMethod(classType: JavaType, cst: SourceFileNode) = MethodNode(name = "run",
+  fun scriptRunMethod(classType: JavaType, cst: SourceFileCstNode) = MethodNode(name = "run",
     visibility = Visibility.PUBLIC, returnType = JavaType.Object,
     isStatic = false,
     ownerClass = classType,

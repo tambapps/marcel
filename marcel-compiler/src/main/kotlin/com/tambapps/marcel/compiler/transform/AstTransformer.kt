@@ -1,8 +1,8 @@
 package com.tambapps.marcel.compiler.transform
 
 import com.tambapps.marcel.parser.cst.CstNode
-import com.tambapps.marcel.parser.cst.AnnotationNode as AnnotationCstNode
-import com.tambapps.marcel.parser.cst.ClassNode as ClassCstNode
+import com.tambapps.marcel.parser.cst.AnnotationCstNode as AnnotationCstNode
+import com.tambapps.marcel.parser.cst.ClassCstNode as ClassCstNode
 import com.tambapps.marcel.semantic.MarcelSemantic
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode

@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.method
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.parser.cst.expression.literal.IntNode
+import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
 import com.tambapps.marcel.semantic.AstNodeComposer
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
@@ -9,7 +9,6 @@ import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Disabled
@@ -51,5 +50,5 @@ class JavaMethodTest: AstNodeComposer() {
     assertTrue(typeResolver.matches(joinMethod, listOf(string("s1"), array(CharSequence::class.javaType.arrayType, string("s3")))))
   }
 
-  private fun cstNode() = IntNode(null, 0, LexToken.DUMMY)
+  private fun cstNode() = IntCstNode(null, 0, LexToken.DUMMY)
 }

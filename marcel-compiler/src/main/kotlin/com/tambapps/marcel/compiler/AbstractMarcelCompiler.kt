@@ -3,7 +3,7 @@ package com.tambapps.marcel.compiler
 import com.tambapps.marcel.compiler.exception.MarcelCompilerException
 import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.parser.cst.SourceFileNode
+import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.semantic.MarcelSemantic
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
@@ -33,7 +33,7 @@ abstract class AbstractMarcelCompiler(protected val configuration: CompilerConfi
     SymbolsDefiner(typeResolver, configuration.scriptClass.javaType).defineSymbols(semantics)
   }
 
-  protected fun handleDumbbells(marcelClassLoader: MarcelClassLoader?, cst: SourceFileNode) {
+  protected fun handleDumbbells(marcelClassLoader: MarcelClassLoader?, cst: SourceFileCstNode) {
     if (cst.dumbbells.isNotEmpty()) {
       if (!configuration.dumbbellEnabled) {
         throw MarcelCompilerException("Cannot use dumbbells because dumbbell feature is not enabled")

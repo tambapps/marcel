@@ -1,12 +1,10 @@
 package com.tambapps.marcel.semantic.type
 
-import com.tambapps.marcel.parser.cst.ClassNode
-import com.tambapps.marcel.parser.cst.ScriptNode
+import com.tambapps.marcel.parser.cst.ClassCstNode
+import com.tambapps.marcel.parser.cst.ScriptCstNode
 import com.tambapps.marcel.semantic.MarcelSemantic
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
-import com.tambapps.marcel.semantic.extensions.javaType
-import marcel.lang.Script
 
 /**
  * Define symbols of multiple marcel semantics in a lazy way to avoid failing to do so when a type is referenced from
@@ -27,9 +25,9 @@ class SymbolsDefiner(
   }
 
   // predefining types, but not fully to avoid trying to find types we haven't predefined yet
-  private fun defineTypes(semantics: List<MarcelSemantic>): MutableList<Triple<MarcelSemantic, ClassNode, NotLoadedJavaType>> {
+  private fun defineTypes(semantics: List<MarcelSemantic>): MutableList<Triple<MarcelSemantic, ClassCstNode, NotLoadedJavaType>> {
     // first define types, without super parent because one supertype may reference a type from another class that wasn't defined yet
-    val toDefineTypes = mutableListOf<Triple<MarcelSemantic, ClassNode, NotLoadedJavaType>>()
+    val toDefineTypes = mutableListOf<Triple<MarcelSemantic, ClassCstNode, NotLoadedJavaType>>()
     for (s in semantics) {
       s.cst.classes.forEach { predefineTypes(s, it, toDefineTypes) }
     }
@@ -42,7 +40,7 @@ class SymbolsDefiner(
 
     for ((semantic, classCstNode, classType) in toDefineTypes) {
       val superType =
-        if (classCstNode is ScriptNode) scriptClass
+        if (classCstNode is ScriptCstNode) scriptClass
         else classCstNode.superType?.let { semantic.visit(it) } ?: JavaType.Object
       if (!superType.isAccessibleFrom(classType)) {
         throw MarcelSemanticException(classCstNode, "Class $superType is not accessible from $classType")
@@ -71,14 +69,14 @@ class SymbolsDefiner(
    * Define java types without taking care of associating their parent types and implemented interface
    */
   private fun predefineTypes(s: MarcelSemantic,
-                             classNode: ClassNode,
-                             toDefineTypes: MutableList<Triple<MarcelSemantic, ClassNode, NotLoadedJavaType>>) {
+                             classNode: ClassCstNode,
+                             toDefineTypes: MutableList<Triple<MarcelSemantic, ClassCstNode, NotLoadedJavaType>>) {
     val classType = NotLoadedJavaType(
       visibility = Visibility.fromTokenType(classNode.access.visibility),
       className = classNode.className,
       genericTypes = emptyList(),
       superType = null, // will be set later
-      isInterface = false, directlyImplementedInterfaces = mutableSetOf(), isScript = classNode is ScriptNode)
+      isInterface = false, directlyImplementedInterfaces = mutableSetOf(), isScript = classNode is ScriptCstNode)
     typeResolver.defineType(classNode.token, classType)
     toDefineTypes.add(Triple(s, classNode, classType))
     classNode.innerClasses.forEach { predefineTypes(s, it, toDefineTypes) }

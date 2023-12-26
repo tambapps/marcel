@@ -53,7 +53,7 @@ class ListCommand: AbstractShellCommand() {
     }
   }
 
-  private suspend fun printFunctions(definedMethods: Collection<com.tambapps.marcel.parser.cst.MethodNode>, out: Printer) {
+  private suspend fun printFunctions(definedMethods: Collection<com.tambapps.marcel.parser.cst.MethodCstNode>, out: Printer) {
     if (definedMethods.isEmpty()) {
       out.println("No functions defined")
       return

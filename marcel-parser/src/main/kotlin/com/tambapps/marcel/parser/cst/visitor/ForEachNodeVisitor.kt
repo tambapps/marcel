@@ -1,288 +1,288 @@
 package com.tambapps.marcel.parser.cst.visitor
 
 import com.tambapps.marcel.parser.cst.CstNode
-import com.tambapps.marcel.parser.cst.expression.BinaryOperatorNode
-import com.tambapps.marcel.parser.cst.expression.BinaryTypeOperatorNode
-import com.tambapps.marcel.parser.cst.expression.ElvisThrowNode
+import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
+import com.tambapps.marcel.parser.cst.expression.BinaryTypeOperatorCstNode
+import com.tambapps.marcel.parser.cst.expression.ElvisThrowCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNodeVisitor
-import com.tambapps.marcel.parser.cst.expression.FunctionCallNode
-import com.tambapps.marcel.parser.cst.expression.LambdaNode
-import com.tambapps.marcel.parser.cst.expression.NewInstanceNode
-import com.tambapps.marcel.parser.cst.expression.NotNode
-import com.tambapps.marcel.parser.cst.expression.SuperConstructorCallNode
-import com.tambapps.marcel.parser.cst.expression.SwitchNode
-import com.tambapps.marcel.parser.cst.expression.TemplateStringNode
-import com.tambapps.marcel.parser.cst.expression.TernaryNode
-import com.tambapps.marcel.parser.cst.expression.ThisConstructorCallNode
-import com.tambapps.marcel.parser.cst.expression.TruthyVariableDeclarationNode
-import com.tambapps.marcel.parser.cst.expression.UnaryMinusNode
-import com.tambapps.marcel.parser.cst.expression.WhenNode
-import com.tambapps.marcel.parser.cst.expression.literal.ArrayNode
-import com.tambapps.marcel.parser.cst.expression.literal.BoolNode
-import com.tambapps.marcel.parser.cst.expression.literal.CharNode
-import com.tambapps.marcel.parser.cst.expression.literal.DoubleNode
-import com.tambapps.marcel.parser.cst.expression.literal.FloatNode
-import com.tambapps.marcel.parser.cst.expression.literal.IntNode
-import com.tambapps.marcel.parser.cst.expression.literal.LongNode
-import com.tambapps.marcel.parser.cst.expression.literal.MapNode
-import com.tambapps.marcel.parser.cst.expression.literal.NullNode
-import com.tambapps.marcel.parser.cst.expression.literal.RegexNode
-import com.tambapps.marcel.parser.cst.expression.literal.StringNode
-import com.tambapps.marcel.parser.cst.expression.reference.ClassReferenceNode
-import com.tambapps.marcel.parser.cst.expression.reference.DirectFieldReferenceNode
-import com.tambapps.marcel.parser.cst.expression.reference.IncrNode
-import com.tambapps.marcel.parser.cst.expression.reference.IndexAccessNode
-import com.tambapps.marcel.parser.cst.expression.reference.ReferenceNode
-import com.tambapps.marcel.parser.cst.expression.reference.SuperReferenceNode
-import com.tambapps.marcel.parser.cst.expression.reference.ThisReferenceNode
-import com.tambapps.marcel.parser.cst.statement.BlockNode
-import com.tambapps.marcel.parser.cst.statement.BreakNode
-import com.tambapps.marcel.parser.cst.statement.ContinueNode
-import com.tambapps.marcel.parser.cst.statement.ExpressionStatementNode
-import com.tambapps.marcel.parser.cst.statement.ForInNode
-import com.tambapps.marcel.parser.cst.statement.ForInMultiVarNode
-import com.tambapps.marcel.parser.cst.statement.ForVarNode
-import com.tambapps.marcel.parser.cst.statement.IfStatementNode
-import com.tambapps.marcel.parser.cst.statement.MultiVarDeclarationNode
-import com.tambapps.marcel.parser.cst.statement.ReturnNode
+import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
+import com.tambapps.marcel.parser.cst.expression.LambdaCstNode
+import com.tambapps.marcel.parser.cst.expression.NewInstanceCstNode
+import com.tambapps.marcel.parser.cst.expression.NotCstNode
+import com.tambapps.marcel.parser.cst.expression.SuperConstructorCallCstNode
+import com.tambapps.marcel.parser.cst.expression.SwitchCstNode
+import com.tambapps.marcel.parser.cst.expression.TemplateStringCstNode
+import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
+import com.tambapps.marcel.parser.cst.expression.ThisConstructorCallCstNode
+import com.tambapps.marcel.parser.cst.expression.TruthyVariableDeclarationCstNode
+import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
+import com.tambapps.marcel.parser.cst.expression.WhenCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.ArrayCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.CharCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.LongCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.MapCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.NullCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.RegexCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.ClassReferenceCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.DirectFieldReferenceCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.IncrCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.IndexAccessCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.ReferenceCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.SuperReferenceCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.ThisReferenceCstNode
+import com.tambapps.marcel.parser.cst.statement.BlockCstNode
+import com.tambapps.marcel.parser.cst.statement.BreakCstNode
+import com.tambapps.marcel.parser.cst.statement.ContinueCstNode
+import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
+import com.tambapps.marcel.parser.cst.statement.ForInCstNode
+import com.tambapps.marcel.parser.cst.statement.ForInMultiVarCstNode
+import com.tambapps.marcel.parser.cst.statement.ForVarCstNode
+import com.tambapps.marcel.parser.cst.statement.IfStatementCstNode
+import com.tambapps.marcel.parser.cst.statement.MultiVarDeclarationCstNode
+import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNodeVisitor
-import com.tambapps.marcel.parser.cst.statement.ThrowNode
-import com.tambapps.marcel.parser.cst.statement.TryCatchNode
-import com.tambapps.marcel.parser.cst.statement.VariableDeclarationNode
-import com.tambapps.marcel.parser.cst.statement.WhileNode
+import com.tambapps.marcel.parser.cst.statement.ThrowCstNode
+import com.tambapps.marcel.parser.cst.statement.TryCatchCstNode
+import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
+import com.tambapps.marcel.parser.cst.statement.WhileCstNode
 
 class ForEachNodeVisitor(
   val consume: (CstNode) -> Unit,
 ): ExpressionCstNodeVisitor<Unit, Unit>, StatementCstNodeVisitor<Unit> {
-  override fun visit(node: BoolNode, smartCastType: Unit?) {
+  override fun visit(node: BoolCstNode, smartCastType: Unit?) {
     consume(node)
   }
 
-  override fun visit(node: DoubleNode, smartCastType: Unit?) {
+  override fun visit(node: DoubleCstNode, smartCastType: Unit?) {
     consume(node)
   }
 
-  override fun visit(node: FloatNode, smartCastType: Unit?) {
+  override fun visit(node: FloatCstNode, smartCastType: Unit?) {
     consume(node)
   }
 
-  override fun visit(node: IntNode, smartCastType: Unit?) {
+  override fun visit(node: IntCstNode, smartCastType: Unit?) {
     consume(node)
   }
 
-  override fun visit(node: LongNode, smartCastType: Unit?) {
+  override fun visit(node: LongCstNode, smartCastType: Unit?) {
     consume(node)
   }
 
-  override fun visit(node: NullNode, smartCastType: Unit?) {
+  override fun visit(node: NullCstNode, smartCastType: Unit?) {
     consume(node)
   }
 
-  override fun visit(node: StringNode, smartCastType: Unit?) {
+  override fun visit(node: StringCstNode, smartCastType: Unit?) {
     consume(node)
   }
 
-  override fun visit(node: RegexNode, smartCastType: Unit?) {
+  override fun visit(node: RegexCstNode, smartCastType: Unit?) {
     consume(node)
   }
 
-  override fun visit(node: CharNode, smartCastType: Unit?) {
+  override fun visit(node: CharCstNode, smartCastType: Unit?) {
     consume(node)
   }
 
-  override fun visit(node: TemplateStringNode, smartCastType: Unit?) {
+  override fun visit(node: TemplateStringCstNode, smartCastType: Unit?) {
     consume(node)
     node.expressions.forEach { it.accept(this) }
   }
 
-  override fun visit(node: MapNode, smartCastType: Unit?) {
+  override fun visit(node: MapCstNode, smartCastType: Unit?) {
     consume(node)
     node.entries.forEach { it.first.accept(this); it.second.accept(this) }
   }
 
-  override fun visit(node: ArrayNode, smartCastType: Unit?) {
+  override fun visit(node: ArrayCstNode, smartCastType: Unit?) {
     consume(node)
     node.elements.forEach { it.accept(this) }
   }
 
-  override fun visit(node: UnaryMinusNode, smartCastType: Unit?) {
+  override fun visit(node: UnaryMinusCstNode, smartCastType: Unit?) {
     consume(node)
     node.expression.accept(this)
   }
 
-  override fun visit(node: NotNode, smartCastType: Unit?) {
+  override fun visit(node: NotCstNode, smartCastType: Unit?) {
     consume(node)
     node.expression.accept(this)
   }
 
-  override fun visit(node: BinaryOperatorNode, smartCastType: Unit?) {
+  override fun visit(node: BinaryOperatorCstNode, smartCastType: Unit?) {
     consume(node)
     node.leftOperand.accept(this)
     node.rightOperand.accept(this)
   }
 
-  override fun visit(node: BinaryTypeOperatorNode, smartCastType: Unit?) {
+  override fun visit(node: BinaryTypeOperatorCstNode, smartCastType: Unit?) {
     consume(node)
     node.leftOperand.accept(this)
   }
 
-  override fun visit(node: ElvisThrowNode, smartCastType: Unit?) {
+  override fun visit(node: ElvisThrowCstNode, smartCastType: Unit?) {
     consume(node)
     node.expression.accept(this)
     node.throwableException.accept(this)
   }
-  override fun visit(node: TernaryNode, smartCastType: Unit?) {
+  override fun visit(node: TernaryCstNode, smartCastType: Unit?) {
     consume(node)
     node.testExpressionNode.accept(this)
     node.trueExpressionNode.accept(this)
     node.falseExpressionNode.accept(this)
   }
 
-  override fun visit(node: ClassReferenceNode, smartCastType: Unit?) {
+  override fun visit(node: ClassReferenceCstNode, smartCastType: Unit?) {
     consume(node)
   }
 
-  override fun visit(node: ThisReferenceNode, smartCastType: Unit?) {
+  override fun visit(node: ThisReferenceCstNode, smartCastType: Unit?) {
     consume(node)
   }
 
-  override fun visit(node: SuperReferenceNode, smartCastType: Unit?) {
+  override fun visit(node: SuperReferenceCstNode, smartCastType: Unit?) {
     consume(node)
   }
 
-  override fun visit(node: DirectFieldReferenceNode, smartCastType: Unit?) {
+  override fun visit(node: DirectFieldReferenceCstNode, smartCastType: Unit?) {
     consume(node)
   }
 
-  override fun visit(node: IncrNode, smartCastType: Unit?) {
+  override fun visit(node: IncrCstNode, smartCastType: Unit?) {
     consume(node)
   }
 
-  override fun visit(node: IndexAccessNode, smartCastType: Unit?) {
+  override fun visit(node: IndexAccessCstNode, smartCastType: Unit?) {
     consume(node)
     node.ownerNode.accept(this)
     node.indexNodes.forEach { it.accept(this) }
   }
 
-  override fun visit(node: ReferenceNode, smartCastType: Unit?) {
+  override fun visit(node: ReferenceCstNode, smartCastType: Unit?) {
     consume(node)
   }
 
-  override fun visit(node: FunctionCallNode, smartCastType: Unit?) {
-    consume(node)
-    node.namedArgumentNodes.forEach { it.second.accept(this) }
-    node.positionalArgumentNodes.forEach { it.accept(this) }
-  }
-
-  override fun visit(node: SuperConstructorCallNode, smartCastType: Unit?) {
-    consume(node)
-    node.arguments.forEach { it.accept(this) }
-  }
-
-  override fun visit(node: ThisConstructorCallNode, smartCastType: Unit?) {
-    consume(node)
-    node.arguments.forEach { it.accept(this) }
-  }
-
-  override fun visit(node: NewInstanceNode, smartCastType: Unit?) {
+  override fun visit(node: FunctionCallCstNode, smartCastType: Unit?) {
     consume(node)
     node.namedArgumentNodes.forEach { it.second.accept(this) }
     node.positionalArgumentNodes.forEach { it.accept(this) }
   }
 
-  override fun visit(node: WhenNode, smartCastType: Unit?) {
+  override fun visit(node: SuperConstructorCallCstNode, smartCastType: Unit?) {
+    consume(node)
+    node.arguments.forEach { it.accept(this) }
+  }
+
+  override fun visit(node: ThisConstructorCallCstNode, smartCastType: Unit?) {
+    consume(node)
+    node.arguments.forEach { it.accept(this) }
+  }
+
+  override fun visit(node: NewInstanceCstNode, smartCastType: Unit?) {
+    consume(node)
+    node.namedArgumentNodes.forEach { it.second.accept(this) }
+    node.positionalArgumentNodes.forEach { it.accept(this) }
+  }
+
+  override fun visit(node: WhenCstNode, smartCastType: Unit?) {
     consume(node)
     node.branches.forEach { it.first.accept(this); it.second.accept(this) }
     node.elseStatement?.accept(this)
   }
 
-  override fun visit(node: SwitchNode, smartCastType: Unit?) {
+  override fun visit(node: SwitchCstNode, smartCastType: Unit?) {
     consume(node)
     node.switchExpression.accept(this)
     node.branches.forEach { it.first.accept(this); it.second.accept(this) }
     node.elseStatement?.accept(this)
   }
 
-  override fun visit(node: LambdaNode, smartCastType: Unit?) {
+  override fun visit(node: LambdaCstNode, smartCastType: Unit?) {
     consume(node)
     node.blockCstNode.accept(this)
   }
 
-  override fun visit(node: TruthyVariableDeclarationNode, smartCastType: Unit?) {
+  override fun visit(node: TruthyVariableDeclarationCstNode, smartCastType: Unit?) {
     consume(node)
     node.expression.accept(this)
   }
 
-  override fun visit(node: ExpressionStatementNode) {
+  override fun visit(node: ExpressionStatementCstNode) {
     consume(node)
     node.expressionNode.accept(this)
   }
 
-  override fun visit(node: ReturnNode) {
+  override fun visit(node: ReturnCstNode) {
     consume(node)
     node.expressionNode?.accept(this)
   }
 
-  override fun visit(node: VariableDeclarationNode) {
+  override fun visit(node: VariableDeclarationCstNode) {
     consume(node)
     node.expressionNode?.accept(this)
   }
 
-  override fun visit(node: MultiVarDeclarationNode) {
+  override fun visit(node: MultiVarDeclarationCstNode) {
     consume(node)
     node.expressionNode.accept(this)
   }
 
-  override fun visit(node: IfStatementNode) {
+  override fun visit(node: IfStatementCstNode) {
     consume(node)
     node.condition.accept(this)
     node.trueStatementNode.accept(this)
     node.falseStatementNode?.accept(this)
   }
 
-  override fun visit(node: ForInNode) {
+  override fun visit(node: ForInCstNode) {
     consume(node)
     node.inNode.accept(this)
     node.statementNode.accept(this)
   }
 
-  override fun visit(node: ForInMultiVarNode) {
+  override fun visit(node: ForInMultiVarCstNode) {
     consume(node)
     node.inNode.accept(this)
     node.statementNode.accept(this)
   }
-  override fun visit(node: ForVarNode) {
+  override fun visit(node: ForVarCstNode) {
     consume(node)
     node.bodyStatement.accept(this)
     node.condition.accept(this)
     node.iteratorStatement.accept(this)
   }
 
-  override fun visit(node: WhileNode) {
+  override fun visit(node: WhileCstNode) {
     consume(node)
     node.condition.accept(this)
     node.statement.accept(this)
   }
 
-  override fun visit(node: BlockNode) {
+  override fun visit(node: BlockCstNode) {
     consume(node)
     node.statements.forEach { it.accept(this) }
   }
 
-  override fun visit(node: BreakNode) {
+  override fun visit(node: BreakCstNode) {
     consume(node)
   }
 
-  override fun visit(node: ContinueNode) {
+  override fun visit(node: ContinueCstNode) {
     consume(node)
   }
 
-  override fun visit(node: ThrowNode) {
+  override fun visit(node: ThrowCstNode) {
     consume(node)
     node.expression.accept(this)
   }
 
-  override fun visit(node: TryCatchNode) {
+  override fun visit(node: TryCatchCstNode) {
     consume(node)
     node.tryNode.accept(this)
     node.resources.forEach { it.accept(this) }

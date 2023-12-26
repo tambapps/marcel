@@ -1,6 +1,6 @@
 package com.tambapps.marcel.semantic.scope
 
-import com.tambapps.marcel.parser.cst.TypeNode
+import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.type.JavaType
@@ -12,7 +12,7 @@ abstract class AbstractScope(
   val imports: List<ImportNode>,
 ): Scope {
 
-  override fun resolveTypeOrThrow(node: TypeNode): JavaType {
+  override fun resolveTypeOrThrow(node: TypeCstNode): JavaType {
     // search on imports
     val importClassName = resolveImportClassName(node)
     if (importClassName != null) {
@@ -28,10 +28,10 @@ abstract class AbstractScope(
     return of(classSimpleName, node)
   }
 
-  protected fun of(simpleName: String, node: TypeNode): JavaType {
+  protected fun of(simpleName: String, node: TypeCstNode): JavaType {
     return typeResolver.of(node.token, simpleName, node.genericTypes.map { resolveTypeOrThrow(it) }).array(node.arrayDimensions)
   }
-  private fun resolveImportClassName(node: TypeNode): String? {
+  private fun resolveImportClassName(node: TypeCstNode): String? {
     val classSimpleName = node.value
     val matchedClasses = imports.mapNotNull { it.resolveClassName(node.token, typeResolver, classSimpleName) }.toSet()
     return if (matchedClasses.isEmpty()) null

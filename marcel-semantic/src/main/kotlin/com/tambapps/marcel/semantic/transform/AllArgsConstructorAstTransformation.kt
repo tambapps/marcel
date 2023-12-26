@@ -3,8 +3,8 @@ package com.tambapps.marcel.semantic.transform
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.Annotable
-import com.tambapps.marcel.parser.cst.ClassNode as ClassCstNode
-import com.tambapps.marcel.parser.cst.FieldNode as FieldCstNode
+import com.tambapps.marcel.parser.cst.ClassCstNode as ClassCstNode
+import com.tambapps.marcel.parser.cst.FieldCstNode as FieldCstNode
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
