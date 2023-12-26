@@ -1,6 +1,6 @@
 package com.tambapps.marcel.lexer;
 
-public enum TokenType {
+enum class TokenType {
   IDENTIFIER,
   WHITE_SPACE,
   // keywords

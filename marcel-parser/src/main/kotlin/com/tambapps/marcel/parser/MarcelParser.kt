@@ -68,6 +68,14 @@ import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.abs
 
+/**
+ * The official Parser of Marcel Lang
+ *
+ * @property classSimpleName the class simple name to use for scripts
+ * @constructor creates a MarcelParser instance
+ *
+ * @param tokens the list of [tokens][LexToken] returned by the [Lexer][com.tambapps.marcel.lexer.MarcelLexer]
+ */
 class MarcelParser constructor(private val classSimpleName: String, tokens: List<LexToken>) {
 
   constructor(tokens: List<LexToken>): this("MarcelRandomClass_" + abs(ThreadLocalRandom.current().nextInt()), tokens)
