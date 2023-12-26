@@ -96,7 +96,7 @@ class ListCommand(private val dumbbell: DumbbellEngine): CliktCommand(help = "Li
 }
 
 fun main(args : Array<String>) {
-  val dumbbellEngine = Dumbbell.getEngine()
+  val dumbbellEngine = Dumbbell.engine
   val dumbbelCl = DumbbellCl().subcommands(PullCommand(dumbbellEngine),
     InstallCommand(dumbbellEngine),
     UninstallCommand(dumbbellEngine),
