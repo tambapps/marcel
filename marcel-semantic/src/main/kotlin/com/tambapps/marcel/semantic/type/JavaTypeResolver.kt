@@ -92,10 +92,10 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
   }
 
   /* definition */
-  fun defineClass(token: LexToken? = null, visibility: Visibility, className: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>, isScript: Boolean = false): NotLoadedJavaType {
+  fun defineClass(token: LexToken = LexToken.DUMMY, visibility: Visibility, className: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>, isScript: Boolean = false): NotLoadedJavaType {
     return defineClass(token, visibility, null, className, superClass, isInterface, interfaces, isScript)
   }
-  fun defineClass(token: LexToken? = null, visibility: Visibility, outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>, isScript: Boolean = false): NotLoadedJavaType {
+  fun defineClass(token: LexToken = LexToken.DUMMY, visibility: Visibility, outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>, isScript: Boolean = false): NotLoadedJavaType {
     val className = if (outerClassType != null) "${outerClassType.className}\$$cName" else cName
 
     checkTypeAlreadyDefined(token, className)
@@ -104,12 +104,12 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     return type
   }
 
-  internal fun defineType(token: LexToken? = null, javaType: JavaType) {
+  internal fun defineType(token: LexToken = LexToken.DUMMY, javaType: JavaType) {
     checkTypeAlreadyDefined(token, javaType.className)
     _definedTypes[javaType.className] = javaType
   }
 
-  private fun checkTypeAlreadyDefined(token: LexToken? = null, className: String) {
+  private fun checkTypeAlreadyDefined(token: LexToken, className: String) {
     try {
       Class.forName(className)
       throw MarcelSemanticException(token, "Class $className is already defined")
@@ -133,7 +133,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
 
   open fun defineField(javaType: JavaType, field: MarcelField) {
     if (javaType.isLoaded) {
-      throw MarcelSemanticException((field as? FieldNode)?.token, "Cannot define field on loaded class")
+      throw MarcelSemanticException((field as? FieldNode)?.token ?: LexToken.DUMMY, "Cannot define field on loaded class")
     }
     val marcelField = fieldResolver.computeFieldIfAbsent(javaType, field.name)
     marcelField.mergeWith(field)
@@ -189,23 +189,23 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
 
   fun findMethodByParametersOrThrow(javaType: JavaType, name: String,
                                     positionalArgumentTypes: List<JavaTyped>,
-                                    namedParameters: Collection<MethodParameter>, token: LexToken? = null): JavaMethod {
+                                    namedParameters: Collection<MethodParameter>, token: LexToken = LexToken.DUMMY): JavaMethod {
     return findMethodByParameters(javaType, name, positionalArgumentTypes, namedParameters, false, token)
       ?: throw MarcelSemanticException(token, "Method $javaType.$name with parameters $namedParameters is not defined")
   }
   fun findMethodByParameters(javaType: JavaType, name: String,
                              positionalArgumentTypes: List<JavaTyped>,
-                             namedParameters: Collection<MethodParameter>, excludeInterfaces: Boolean = false, token: LexToken? = null): JavaMethod? {
+                             namedParameters: Collection<MethodParameter>, excludeInterfaces: Boolean = false, token: LexToken = LexToken.DUMMY): JavaMethod? {
     val m = doFindMethodByParameters(javaType, name, positionalArgumentTypes, namedParameters, excludeInterfaces, token) ?: return null
     return if (javaType.genericTypes.isNotEmpty()) m.withGenericTypes(javaType.genericTypes)
     else m
   }
 
-  fun findMethodOrThrow(javaType: JavaType, name: String, argumentTypes: List<JavaTyped>, token: LexToken? = LexToken.DUMMY): JavaMethod {
+  fun findMethodOrThrow(javaType: JavaType, name: String, argumentTypes: List<JavaTyped>, token: LexToken = LexToken.DUMMY): JavaMethod {
     return findMethod(javaType, name, argumentTypes, false, token) ?: throw MarcelSemanticException(token, "Method $javaType.$name with parameters ${argumentTypes.map { it.type }} is not defined")
   }
 
-  fun findMethod(javaType: JavaType, name: String, argumentTypes: List<JavaTyped>, excludeInterfaces: Boolean = false, token: LexToken? = null): JavaMethod? {
+  fun findMethod(javaType: JavaType, name: String, argumentTypes: List<JavaTyped>, excludeInterfaces: Boolean = false, token: LexToken = LexToken.DUMMY): JavaMethod? {
     val m = doFindMethod(javaType, name, argumentTypes, excludeInterfaces, token) ?: return null
     return if (javaType.genericTypes.isNotEmpty()) m.withGenericTypes(javaType.genericTypes)
     else m
@@ -216,7 +216,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     else marcelMethods[javaType.className] ?: emptyList()
   }
 
-  fun getClassField(javaType: JavaType, fieldName: String, token: LexToken? = null): JavaClassField {
+  fun getClassField(javaType: JavaType, fieldName: String, token: LexToken = LexToken.DUMMY): JavaClassField {
     return fieldResolver.getField(javaType, fieldName)?.classField ?: throw MarcelSemanticException(token, "Class field $javaType.$fieldName is not defined")
   }
 
@@ -273,7 +273,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
       }, excludeInterfaces, token)
   }
 
-  private fun doFindMethod(javaType: JavaType, name: String, argumentTypes: List<JavaTyped>, excludeInterfaces: Boolean, token: LexToken? = null): JavaMethod? {
+  private fun doFindMethod(javaType: JavaType, name: String, argumentTypes: List<JavaTyped>, excludeInterfaces: Boolean, token: LexToken = LexToken.DUMMY): JavaMethod? {
     var m = findMethod(javaType, name, { matches(it, name, argumentTypes) },
       {candidates ->  pickMethodCandidate(candidates, name, argumentTypes) }, excludeInterfaces, token)
     if (m == null && argumentTypes.isEmpty()) {
@@ -378,7 +378,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     return marcelMethods.computeIfAbsent(javaType.className) { mutableListOf() }
   }
 
-  fun findFieldOrThrow(javaType: JavaType, name: String, token: LexToken? = null): CompositeField {
+  fun findFieldOrThrow(javaType: JavaType, name: String, token: LexToken = LexToken.DUMMY): CompositeField {
     return findField(javaType, name) ?: throw MarcelSemanticException(token, "Field $javaType.$name is not defined")
   }
 
