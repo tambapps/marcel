@@ -33,9 +33,6 @@ class JavaMethodTest: AstNodeComposer() {
 
     assertFalse(m1.matches(m2))
     assertFalse(m2.matches(m1))
-
-    assertFalse(typeResolver.matches(m1, m2.name, m2.parameters, strict = true))
-    assertFalse(typeResolver.matches(m2, m1.name, m1.parameters, strict = true))
   }
 
   @Disabled // TODO make vararg method matching

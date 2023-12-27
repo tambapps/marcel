@@ -6,29 +6,51 @@ import kotlin.math.max
 
 /**
  * Trait providing methods to verify if a JavaMethod matches another
- *
  */
 interface MethodMatcherTrait {
 
 
+  /**
+   * Get the lambda method of a functional interface or null if ambiguous
+   *
+   * @param type the interface type
+   * @return the lambda method of a functional interface or null if ambiguous
+   */
   fun getInterfaceLambdaMethod(type: JavaType): JavaMethod?
 
   fun exactMatch(method: JavaMethod, name: String, types: List<JavaTyped>): Boolean {
-    return method.name == name && method.parameters.map { it.type } == types.map { it.type }
-  }
-  fun matches(method: JavaMethod, name: String, types: List<JavaTyped>, strict: Boolean = false): Boolean {
-    return method.name == name && matches(method, types, strict)
+    return method.name == name && method.parameters.map { it.type.raw() } == types.map { it.type.raw() }
   }
 
-  // TODO split strict match and match strict=false in separate methods
-  fun matches(method: JavaMethod, argumentTypes: List<JavaTyped>, strict: Boolean = false): Boolean {
-    if (strict && argumentTypes.size != method.parameters.size
-      || !strict && argumentTypes.size > method.parameters.size) return false
+  /**
+   * Returns whether the method matches the provided method name and argument types. In other words
+   * whether the provided method matches the provided name, and the argument types matches the method parameters
+   *
+   * @param method the JavaMethod
+   * @param name the name of the method
+   * @param types the argument types
+   * @return whether the method matches the provided method name and argument types
+   */
+  fun matches(method: JavaMethod, name: String, types: List<JavaTyped>): Boolean {
+    return method.name == name && matches(method, types)
+  }
+
+  /**
+   *
+   * Returns whether the method matches the provided argument types. In other words
+   * whether the provided method could be called with the provided argument types
+   *
+   * @param method
+   * @param argumentTypes
+   * @return whether the method matches the provided argument types
+   */
+  fun matches(method: JavaMethod, argumentTypes: List<JavaTyped>): Boolean {
+    if (!method.isVarArgs && argumentTypes.size > method.parameters.size) return false
     var i = 0
     while (i < argumentTypes.size) {
       val expectedType = method.parameters[i].type
       val actualType = argumentTypes[i].type
-      if (!methodParameterTypeMatches(expectedType, actualType, strict)) return false
+      if (!methodParameterTypeMatches(expectedType, actualType)) return false
       i++
     }
 
@@ -40,11 +62,10 @@ interface MethodMatcherTrait {
     return i == max(method.parameters.size, argumentTypes.size)
   }
 
-  private fun methodParameterTypeMatches(expectedType: JavaType, actualType: JavaType, strict: Boolean): Boolean {
-    return if (expectedType.isInterface && actualType.isLambda) {
-      return getInterfaceLambdaMethod(expectedType) != null // lambda parameter matches will be done by lambda handler
-    } else if (!strict) expectedType.isAssignableFrom(actualType)
-    else expectedType.raw() == actualType.raw()
+  private fun methodParameterTypeMatches(expectedType: JavaType, actualType: JavaType): Boolean {
+    return if (expectedType.isInterface && actualType.isLambda)
+      getInterfaceLambdaMethod(expectedType) != null // lambda parameter matches will be done by lambda handler
+    else expectedType.isAssignableFrom(actualType)
   }
 
   fun matchesUnorderedParameters(method: JavaMethod, name: String,
