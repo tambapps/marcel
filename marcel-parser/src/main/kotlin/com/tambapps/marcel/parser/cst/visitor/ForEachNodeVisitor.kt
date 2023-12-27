@@ -51,6 +51,12 @@ import com.tambapps.marcel.parser.cst.statement.TryCatchCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.parser.cst.statement.WhileCstNode
 
+/**
+ * CST node visitor to iterate over all subsequent nodes of a Concrete Syntax Tree
+ *
+ * @property consume
+ * @constructor Create empty For each node visitor
+ */
 class ForEachNodeVisitor(
   val consume: (CstNode) -> Unit,
 ): ExpressionCstNodeVisitor<Unit, Unit>, StatementCstNodeVisitor<Unit> {

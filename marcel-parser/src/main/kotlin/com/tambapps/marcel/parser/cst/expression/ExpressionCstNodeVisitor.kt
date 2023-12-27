@@ -20,7 +20,12 @@ import com.tambapps.marcel.parser.cst.expression.reference.SuperReferenceCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ThisReferenceCstNode
 
 /**
- * smartCastType corresponds to a type that can be used to better handle the node, but it is not necessarily used
+ * Visitor of a [CstNode][com.tambapps.marcel.parser.cst.CstNode]
+ *
+ *  smartCastType corresponds to a type that can be used to better handle the node, but it is not necessarily used
+ *
+ * @param T the return type of the visitor
+ * @param U the smart cast type
  */
 interface ExpressionCstNodeVisitor<T, U> {
 

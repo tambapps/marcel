@@ -2,6 +2,17 @@ package com.tambapps.marcel.parser.cst
 
 import com.tambapps.marcel.lexer.LexToken
 
+/**
+ * Type cst node
+ *
+ * @property value the type string
+ * @property genericTypes the generic types
+ * @property arrayDimensions the number of array dimensions
+ *
+ * @param parent the parent node if any
+ * @param tokenStart the token start
+ * @param tokenEnd the token end
+ */
 class TypeCstNode(
   parent: CstNode?,
   override val value: String, // the type
