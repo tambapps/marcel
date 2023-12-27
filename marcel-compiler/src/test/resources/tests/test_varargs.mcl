@@ -1,0 +1,9 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+assertEquals("s1,s2", String.join(",", "s1", "s2"))
+assertEquals("s1,s2", String.join(",", ["s1", "s2"] as CharSequence[]))
+assertEquals("", String.join(","))
+assertEquals("", String.join(",", [] as CharSequence[]))
+
+assertEquals(Objects.hash(["true", "false"] as Object[]), Objects.hash("true", "false"))
+assertEquals(1, Objects.hash())

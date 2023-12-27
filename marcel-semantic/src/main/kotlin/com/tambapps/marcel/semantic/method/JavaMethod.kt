@@ -1,6 +1,7 @@
 package com.tambapps.marcel.semantic.method
 
 import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.type.JavaArrayType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTyped
 
@@ -39,6 +40,10 @@ interface JavaMethod: JavaTyped {
   val isConstructor: Boolean
   val isInline: Boolean get() = false
   val isVarArgs: Boolean
+  val varArgsType: JavaArrayType
+    get() = parameters.last().type.asArrayType
+  val varArgType: JavaType
+    get() = varArgsType.elementsType
 
   fun isAccessibleFrom(type: JavaType): Boolean {
     return visibility.canAccess(type, ownerClass)

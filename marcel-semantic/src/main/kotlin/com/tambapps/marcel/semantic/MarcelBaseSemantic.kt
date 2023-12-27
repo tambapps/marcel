@@ -12,6 +12,7 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
@@ -49,8 +50,35 @@ abstract class MarcelBaseSemantic {
 
   fun visit(node: TypeCstNode): JavaType = currentScope.resolveTypeOrThrow(node)
 
-  protected fun castedArguments(method: JavaMethod, arguments: List<ExpressionNode>) =
-    arguments.mapIndexed { index, expressionNode -> caster.cast(method.parameters[index].type, expressionNode) }
+  /**
+   * Cast method arguments if necessary and transform them to handle varags if necessary
+   *
+   * @param method the methods
+   * @param arguments the arguments
+   * @return the list of arguments to call the provided method
+   */
+  protected fun castedArguments(method: JavaMethod, arguments: List<ExpressionNode>): List<ExpressionNode> {
+    if (!method.isVarArgs
+      // in case the provider did provide the array
+      || typeResolver.matchesMethod(method, arguments)) return arguments.mapIndexed { index, expressionNode -> caster.cast(method.parameters[index].type, expressionNode) }
+    val castedArguments = mutableListOf<ExpressionNode>()
+
+    var i = 0
+    while (i < method.parameters.size - 1) {
+      castedArguments.add(
+        caster.cast(method.parameters[i].type, arguments[i])
+      )
+      i++
+    }
+    val varArgType = method.varArgType
+    val arrayArgs = mutableListOf<ExpressionNode>()
+    while (i < arguments.size) {
+      arrayArgs.add(caster.cast(varArgType, arguments[i]))
+      i++
+    }
+    castedArguments.add(ArrayNode(arrayArgs, LexToken.DUMMY, LexToken.DUMMY, method.varArgsType))
+    return castedArguments
+  }
 
   protected fun fCall(node: CstNode, name: String, arguments: List<ExpressionNode>,
                     owner: ExpressionNode,

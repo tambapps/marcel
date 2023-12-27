@@ -103,6 +103,7 @@ class AstNodeCaster(
             else if (JavaType.doubleCollection.isAssignableFrom(expectedType)) castArrayNode(JavaType.doubleArray, node)
             else if (JavaType.charCollection.isAssignableFrom(expectedType)) castArrayNode(JavaType.charArray, node)
             else if (Collection::class.javaType.isAssignableFrom(expectedType)) castArrayNode(JavaType.objectArray, node)
+            else if (expectedType.isArray) castArrayNode(expectedType.asArrayType, node)
           }
           // need to recompute type as it might have been updated because of above castArrayNode calls
           actualType = node.type
@@ -121,6 +122,7 @@ class AstNodeCaster(
                 || JavaType.doubleSet.isAssignableFrom(expectedType) && actualType == JavaType.doubleArray
                 || JavaType.characterSet.isAssignableFrom(expectedType) && actualType == JavaType.charArray
                 || Set::class.javaType.isAssignableFrom(expectedType) && actualType.isArray -> functionCall(BytecodeHelper::class.javaType, "createSet", listOf(node), node)
+            expectedType.isExtendedOrImplementedBy(actualType) -> node
             else -> incompatibleTypes(node, expectedType, actualType)
           }
         }

@@ -79,7 +79,8 @@ internal class MethodResolver(
   // complete the arguments if necessary by looking on the method parameters default value and/or named parameters
   private fun completedArguments(node: CstNode, method: JavaMethod, positionalArguments: List<ExpressionNode>,
                                  namedArguments: List<Pair<String, ExpressionNode>>): List<ExpressionNode> {
-    return positionalArguments + method.parameters.subList(positionalArguments.size, method.parameters.size).map { parameter ->
+    return if (positionalArguments.size >= method.parameters.size || method.isVarArgs) positionalArguments
+    else positionalArguments + method.parameters.subList(positionalArguments.size, method.parameters.size).map { parameter ->
       namedArguments.find { it.first == parameter.name }?.second
         ?: parameter.defaultValue
         ?: parameter.type.getDefaultValueExpression(node.token)

@@ -26,26 +26,39 @@ interface MethodMatcherTrait {
    * Returns whether the method matches the provided method name and argument types. In other words
    * whether the provided method matches the provided name, and the argument types matches the method parameters
    *
-   * @param method the JavaMethod
+   * @param method the [JavaMethod]
    * @param name the name of the method
-   * @param types the argument types
+   * @param argumentTypes the argument types
    * @return whether the method matches the provided method name and argument types
    */
-  fun matches(method: JavaMethod, name: String, types: List<JavaTyped>): Boolean {
-    return method.name == name && matches(method, types)
+  fun matches(method: JavaMethod, name: String, argumentTypes: List<JavaTyped>): Boolean {
+    return method.name == name && matches(method, argumentTypes)
   }
 
   /**
-   *
    * Returns whether the method matches the provided argument types. In other words
    * whether the provided method could be called with the provided argument types
    *
-   * @param method
+   * @param method the [JavaMethod]
    * @param argumentTypes
    * @return whether the method matches the provided argument types
    */
   fun matches(method: JavaMethod, argumentTypes: List<JavaTyped>): Boolean {
-    if (!method.isVarArgs && argumentTypes.size > method.parameters.size) return false
+    return matchesMethod(method, argumentTypes)
+        || method.isVarArgs && matchesVarArgsMethod(method, argumentTypes)
+  }
+
+  /**
+   * Returns whether the method matches the provided argument types. In other words
+   * whether the provided method could be called with the provided argument types.
+   * VarArgs methods are **not** handled by this method
+   *
+   * @param method the [JavaMethod]
+   * @param argumentTypes
+   * @return whether the method matches the provided argument types
+   */
+  fun matchesMethod(method: JavaMethod, argumentTypes: List<JavaTyped>): Boolean {
+    if (argumentTypes.size > method.parameters.size) return false
     var i = 0
     while (i < argumentTypes.size) {
       val expectedType = method.parameters[i].type
@@ -60,6 +73,18 @@ interface MethodMatcherTrait {
       i++
     }
     return i == max(method.parameters.size, argumentTypes.size)
+  }
+
+  private fun matchesVarArgsMethod(method: JavaMethod, argumentTypes: List<JavaTyped>): Boolean {
+    val varArgType = method.varArgType
+    var i = 0
+    while (i < argumentTypes.size) {
+      val expectedType = if (i < method.parameters.lastIndex) method.parameters[i].type else varArgType
+      val actualType = argumentTypes[i].type
+      if (!methodParameterTypeMatches(expectedType, actualType)) return false
+      i++
+    }
+    return i >= method.parameters.size - 1 // - 1 because we could specify empty array for vararg
   }
 
   private fun methodParameterTypeMatches(expectedType: JavaType, actualType: JavaType): Boolean {
