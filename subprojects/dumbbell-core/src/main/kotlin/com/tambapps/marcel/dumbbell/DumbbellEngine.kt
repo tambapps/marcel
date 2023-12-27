@@ -1,8 +1,9 @@
 package com.tambapps.marcel.dumbbell
 
+import com.tambapps.marcel.dumbbell.storage.RemoteStorage
 import com.tambapps.maven.dependency.resolver.DependencyResolver
 import com.tambapps.maven.dependency.resolver.data.Artifact
-import com.tambapps.maven.dependency.resolver.exceptions.ArtifactNotFoundException
+import com.tambapps.maven.dependency.resolver.exception.ArtifactNotFoundException
 import com.tambapps.maven.dependency.resolver.repository.RemoteSavingMavenRepository
 import com.tambapps.maven.dependency.resolver.version.FirstVersionFoundConflictResolver
 import java.io.File
@@ -11,7 +12,7 @@ import java.util.*
 import java.util.stream.Collectors
 
 class DumbbellEngine(val repository: RemoteSavingMavenRepository) {
-  constructor(dumbbellRoot: File?) : this(RemoteSavingMavenRepository(dumbbellRoot))
+  constructor(dumbbellRoot: File?) : this(RemoteSavingMavenRepository(dumbbellRoot, RemoteStorage()))
 
 
   @Throws(DumbbellException::class)

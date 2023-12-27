@@ -10,7 +10,7 @@ import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.dumbbell.DumbbellEngine
 import com.tambapps.maven.dependency.resolver.DependencyResolver
 import com.tambapps.maven.dependency.resolver.data.Artifact
-import com.tambapps.maven.dependency.resolver.exceptions.ArtifactNotFoundException
+import com.tambapps.maven.dependency.resolver.exception.ArtifactNotFoundException
 import com.tambapps.maven.dependency.resolver.repository.LocalMavenRepository
 import java.io.File
 import java.io.IOException
