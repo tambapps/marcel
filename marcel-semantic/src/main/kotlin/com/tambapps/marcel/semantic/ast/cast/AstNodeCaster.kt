@@ -92,7 +92,9 @@ class AstNodeCaster(
       }
       // Object to Object
       else -> when {
-        expectedType.isExtendedOrImplementedBy(actualType) -> node
+        expectedType.isExtendedOrImplementedBy(actualType) ->
+          if (expectedType.isArray && node is ArrayNode) node.apply { _type = expectedType.asArrayType }
+          else node
         actualType.isArray -> {
           if (node is ArrayNode) { // override type
             if (JavaType.intCollection.isAssignableFrom(expectedType)) castArrayNode(JavaType.intArray, node)
