@@ -24,6 +24,8 @@ abstract class AbstractMethod: JavaMethod {
     append("fun ")
     append(returnType)
     append(" ")
+    append(ownerClass.simpleName)
+    append(".")
     append(name)
     append(parameters.joinToString(separator = ",", prefix = "(", postfix = ")"))
   }.toString()

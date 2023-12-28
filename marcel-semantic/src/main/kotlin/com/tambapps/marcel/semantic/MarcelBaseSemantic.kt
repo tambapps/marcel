@@ -109,6 +109,9 @@ abstract class MarcelBaseSemantic {
     owner: ExpressionNode? = null,
     castType: JavaType? = null): ExpressionNode {
     if (owner != null && method.isMarcelStatic) throw MarcelSemanticException(tokenStart, "Method $method is static but was call from an instance")
+    if (!method.isAccessibleFrom(currentScope.classType)) {
+      throw MarcelSemanticException(tokenStart, "Method $method is not accessible from class" + currentScope.classType)
+    }
     val node = FunctionCallNode(method, owner, castedArguments(method, arguments), tokenStart, tokenEnd)
     return if (castType != null) caster.cast(castType, node) else node
   }

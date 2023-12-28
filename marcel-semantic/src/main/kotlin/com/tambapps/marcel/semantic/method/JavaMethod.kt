@@ -69,7 +69,6 @@ interface JavaMethod: JavaTyped {
     return true
   }
 
-  // TODO see if we can remove this method
   fun parametersAssignableTo(other: JavaMethod): Boolean {
     if (parameters.size != other.parameters.size) return false
     for (i in parameters.indices) if (!other.parameters[i].type.isAssignableFrom(parameters[i].type)) return false
