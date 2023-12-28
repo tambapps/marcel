@@ -51,6 +51,7 @@ import com.tambapps.marcel.parser.cst.imprt.WildcardImportCstNode
 import com.tambapps.marcel.parser.cst.statement.BlockCstNode
 import com.tambapps.marcel.parser.cst.statement.BreakCstNode
 import com.tambapps.marcel.parser.cst.statement.ContinueCstNode
+import com.tambapps.marcel.parser.cst.statement.DoWhileStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ForInCstNode
 import com.tambapps.marcel.parser.cst.statement.ForInMultiVarCstNode
@@ -478,6 +479,20 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
           accept(TokenType.RPAR)
           val statement = statement(parentNode)
           WhileCstNode(parentNode, token, statement.tokenEnd, condition, statement)
+        }
+        TokenType.DO -> {
+          val statement = statement(parentNode)
+          if (current.type != TokenType.WHILE) {
+            // do statement just to have an inner scope
+            if (statement is BlockCstNode) statement
+            else BlockCstNode(listOf(statement), parentNode, token, statement.tokenEnd)
+          } else {
+            skip()
+            accept(TokenType.LPAR)
+            val condition = expression(parentNode)
+            accept(TokenType.RPAR)
+            DoWhileStatementCstNode(parentNode, token, condition.tokenEnd, statement, condition)
+          }
         }
         TokenType.THROW -> {
           val expression = expression(parentNode)

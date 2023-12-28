@@ -54,6 +54,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
 import com.tambapps.marcel.semantic.ast.statement.BreakNode
 import com.tambapps.marcel.semantic.ast.statement.CatchNode
 import com.tambapps.marcel.semantic.ast.statement.ContinueNode
+import com.tambapps.marcel.semantic.ast.statement.DoWhileNode
 import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ForStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
@@ -181,6 +182,29 @@ class MethodInstructionWriter(
 
     // loop body
     node.statement.accept(this)
+
+    // Return to the beginning of the loop
+    mv.visitJumpInsn(Opcodes.GOTO, loopStart)
+
+    // loop end
+    mv.visitLabel(loopEnd)
+    loopContextQueue.pop()
+  }
+
+  override fun visit(node: DoWhileNode) {
+    // loop start
+    val loopStart = Label()
+    mv.visitLineNumber(node.condition.token.line + 1, loopStart)
+    val loopEnd = Label()
+    loopContextQueue.push(LoopContext(continueLabel = loopStart, breakLabel = loopEnd))
+    mv.visitLabel(loopStart)
+
+    // loop body
+    node.statement.accept(this)
+
+    // Verifying condition
+    pushExpression(node.condition)
+    mv.visitJumpInsn(Opcodes.IFEQ, loopEnd)
 
     // Return to the beginning of the loop
     mv.visitJumpInsn(Opcodes.GOTO, loopStart)

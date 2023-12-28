@@ -21,6 +21,7 @@
   - [Control Flows](./language-specification/control-flows/index.md)
     - [Marcel Truth](./language-specification/control-flows/marcel-truth.md)
     - [If/Else Statements](./language-specification/control-flows/if-else.md)
+    - [While loops](./language-specification/control-flows/while-loops.md)
     - [For loops](./language-specification/control-flows/for-loops.md)
     - [Switch and When](./language-specification/control-flows/switch-when.md)
     - [Exception Handling](./language-specification/control-flows/exception-handling.md)

@@ -6,8 +6,8 @@ A falsey value is a value that is considered false in those places.
 
 The only falsey values are the following:
 - `false`
-- a Boolean instance whose value is `false`
 - `null`
+- a Boolean instance whose value is `false`
 - `Optional.empty()`, `OptionalInt.empty()`, `OptionalDouble.empty()`, `OptionalLong.empty()`
 - An empty collection
 - An empty array

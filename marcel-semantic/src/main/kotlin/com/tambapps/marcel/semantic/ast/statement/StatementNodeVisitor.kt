@@ -8,6 +8,7 @@ interface StatementNodeVisitor<T> {
   fun visit(node: IfStatementNode): T
   fun visit(node: ForInIteratorStatementNode): T
   fun visit(node: WhileNode): T
+  fun visit(node: DoWhileNode): T
   fun visit(node: ForStatementNode): T
   fun visit(node: BreakNode): T
   fun visit(node: ContinueNode): T

@@ -54,6 +54,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNo
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.BreakNode
 import com.tambapps.marcel.semantic.ast.statement.ContinueNode
+import com.tambapps.marcel.semantic.ast.statement.DoWhileNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ForStatementNode
@@ -280,6 +281,12 @@ class ForEachNodeVisitor(
   }
 
   override fun visit(node: WhileNode) {
+    consume(node)
+    node.condition.accept(this)
+    node.statement.accept(this)
+  }
+
+  override fun visit(node: DoWhileNode) {
     consume(node)
     node.condition.accept(this)
     node.statement.accept(this)

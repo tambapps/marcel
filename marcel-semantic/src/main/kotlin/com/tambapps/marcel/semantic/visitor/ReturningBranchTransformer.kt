@@ -6,6 +6,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.BreakNode
 import com.tambapps.marcel.semantic.ast.statement.ContinueNode
+import com.tambapps.marcel.semantic.ast.statement.DoWhileNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ForStatementNode
@@ -60,6 +61,7 @@ open class ReturningBranchTransformer(
   override fun visit(node: ForInIteratorStatementNode) = invalidStatement("for loop")
 
   override fun visit(node: WhileNode) = invalidStatement("while loop")
+  override fun visit(node: DoWhileNode) = invalidStatement("do while loop")
 
   override fun visit(node: ForStatementNode) = invalidStatement("for loop")
 

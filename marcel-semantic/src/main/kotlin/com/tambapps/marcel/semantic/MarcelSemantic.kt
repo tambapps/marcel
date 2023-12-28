@@ -8,6 +8,7 @@ import com.tambapps.marcel.parser.cst.ClassCstNode as ClassCstNode
 import com.tambapps.marcel.parser.cst.ConstructorCstNode as ConstructorCstNode
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.expression.ElvisThrowCstNode
+import com.tambapps.marcel.parser.cst.statement.DoWhileStatementCstNode
 import com.tambapps.marcel.parser.cst.FieldCstNode as FieldCstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode as MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode as MethodParameterCstNode
@@ -127,6 +128,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
 import com.tambapps.marcel.semantic.ast.statement.BreakNode
 import com.tambapps.marcel.semantic.ast.statement.CatchNode
 import com.tambapps.marcel.semantic.ast.statement.ContinueNode
+import com.tambapps.marcel.semantic.ast.statement.DoWhileNode
 import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ForStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
@@ -1706,6 +1708,13 @@ open class MarcelSemantic constructor(
     val condition = caster.truthyCast(node.condition.accept(this))
     val statement = node.statement.accept(this)
     WhileNode(node, condition, statement)
+  }
+
+
+  override fun visit(node: DoWhileStatementCstNode) = useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
+    val condition = caster.truthyCast(node.condition.accept(this))
+    val statement = node.statement.accept(this)
+    DoWhileNode(node, condition, statement)
   }
 
   override fun visit(node: ForInCstNode) = useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {

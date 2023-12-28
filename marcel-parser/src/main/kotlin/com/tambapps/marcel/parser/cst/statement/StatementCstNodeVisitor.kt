@@ -11,6 +11,7 @@ interface StatementCstNodeVisitor<T> {
   fun visit(node: ForInMultiVarCstNode): T
   fun visit(node: ForVarCstNode): T
   fun visit(node: WhileCstNode): T
+  fun visit(node: DoWhileStatementCstNode): T
   fun visit(node: BlockCstNode): T
   fun visit(node: BreakCstNode): T
   fun visit(node: ContinueCstNode): T

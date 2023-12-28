@@ -38,6 +38,7 @@ import com.tambapps.marcel.parser.cst.expression.reference.ThisReferenceCstNode
 import com.tambapps.marcel.parser.cst.statement.BlockCstNode
 import com.tambapps.marcel.parser.cst.statement.BreakCstNode
 import com.tambapps.marcel.parser.cst.statement.ContinueCstNode
+import com.tambapps.marcel.parser.cst.statement.DoWhileStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ForInCstNode
 import com.tambapps.marcel.parser.cst.statement.ForInMultiVarCstNode
@@ -265,6 +266,12 @@ class ForEachNodeVisitor(
   }
 
   override fun visit(node: WhileCstNode) {
+    consume(node)
+    node.condition.accept(this)
+    node.statement.accept(this)
+  }
+
+  override fun visit(node: DoWhileStatementCstNode) {
     consume(node)
     node.condition.accept(this)
     node.statement.accept(this)
