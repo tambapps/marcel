@@ -22,6 +22,8 @@ hljs.registerLanguage("marcel", function () {
             "static",
             "for",
             "in",
+            "do",
+            "while",
             "if",
             "else",
             "null",

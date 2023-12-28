@@ -8,6 +8,7 @@ Marcel has the following keywords, which you cannot use as variable/function/fie
 
 - int
 - dynobj
+- do
 - long
 - short
 - float
@@ -55,3 +56,4 @@ Marcel has the following keywords, which you cannot use as variable/function/fie
 - protected
 - internal
 - private
+- while
