@@ -3,6 +3,7 @@ package com.tambapps.marcel.semantic.ast.expression
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.ast.AstVariableNode
 import com.tambapps.marcel.semantic.variable.Variable
+import com.tambapps.marcel.semantic.variable.field.MarcelField
 
 class ReferenceNode constructor(
   override val owner: ExpressionNode? = null,
@@ -27,8 +28,15 @@ class ReferenceNode constructor(
     return variable.hashCode()
   }
 
-  override fun toString(): String {
-    return variable.name
-  }
+  override fun toString() = StringBuilder().apply {
+    if ((variable as? MarcelField)?.isMarcelStatic == true) {
+      append((variable as MarcelField).owner.simpleName)
+      append(".")
+    } else if (owner != null) {
+      append(owner)
+      append(".")
+    }
+    append(variable.name)
+  }.toString()
 
 }

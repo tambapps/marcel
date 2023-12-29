@@ -326,7 +326,6 @@ open class MarcelSemantic constructor(
     node.innerClasses.forEach {
       classNode.innerClasses.add(classNode(typeResolver.of(it.token, it.className, emptyList()), it))
     }
-    // must handle constructors BEFORE handling this class being an inner class because in this case constructors will be modified
     node.constructors.forEach { classNode.methods.add(constructorNode(classNode, it, classScope)) }
     if (classNode.constructorCount == 0) {
       // default no arg constructor
@@ -337,32 +336,6 @@ open class MarcelSemantic constructor(
       typeResolver.defineMethod(classType, noArgConstructor)
     }
 
-    val outerClassFields = generateOutClassFields(classType, classNode)
-    if (outerClassFields.isNotEmpty()) {
-      classNode.constructors.forEach { constructorNode ->
-        // undefining method as the signature will change (we erase the definition of the 'definition' phase. THIS IS IMPORTANT. DON'T REMOVE ME
-        typeResolver.undefineMethod(classType, constructorNode)
-        for (i in outerClassFields.indices) {
-          // if we're here we know the context is not static as the above method only generates fields if it is not static
-          val outerClassField = outerClassFields[i]
-          // adding parameter at the beginning
-          constructorNode.parameters.add(i, MethodParameter(outerClassField.type, outerClassField.name))
-         constructorNode.blockStatement.statements.add(i + 1, // +1 because first statement should be super call
-            ExpressionStatementNode(
-              VariableAssignmentNode(
-                owner = ThisReferenceNode(classType, classNode.token),
-                variable = outerClassField,
-                expression = ReferenceNode(variable = LocalVariable(outerClassField.type, outerClassField.name, nbSlots = outerClassField.type.nbSlots,
-                  // we can out i+1 here because we know these inner outer class arguments are references, so always take one slot
-                  index = i + 1, isFinal = false),  token = node.token),
-                node = node
-              )
-            ))
-        }
-        // now that the method has been updated we're redefining it. THIS IS IMPORTANT. DON'T REMOVE ME
-        typeResolver.defineMethod(classType, constructorNode)
-      }
-    }
     node.annotations.forEach {
       val annotation = visit(it, ElementType.TYPE)
       classNode.annotations.add(annotation)
@@ -498,7 +471,11 @@ open class MarcelSemantic constructor(
 
   private fun constructorNode(classNode: ClassNode, methodCst: ConstructorCstNode, classScope: ClassScope): MethodNode {
     val methodNode = toConstructorNode(classNode, methodCst, classScope.classType)
+
+    val outerClassFields = generateOutClassFields(classNode.type, classNode)
+
     fillMethodNode(classScope, methodNode, methodCst.statements, methodCst.annotations)
+
     val firstStatement = methodNode.blockStatement.statements.firstOrNull()
     if (firstStatement == null || firstStatement !is ExpressionStatementNode
       || firstStatement.expressionNode !is ThisConstructorCallNode && firstStatement.expressionNode !is SuperConstructorCallNode) {
@@ -507,6 +484,31 @@ open class MarcelSemantic constructor(
         ?: throw MarcelSemanticException(methodNode.token, "Class $superType doesn't have a no-arg constructor")
       methodNode.blockStatement.statements.add(0,
         ExpressionStatementNode(SuperConstructorCallNode(superType, superConstructorMethod, emptyList(), methodNode.tokenStart, methodNode.tokenEnd)))
+    }
+
+    // TODO don't know if it works right when the constructor have method parameters
+    if (outerClassFields.isNotEmpty()) {
+      // undefining method as the signature will change (we erase the definition of the 'definition' phase. THIS IS IMPORTANT. DON'T REMOVE ME
+      typeResolver.undefineMethod(classNode.type, methodNode)
+      for (i in outerClassFields.indices) {
+        // if we're here we know the context is not static as the above method only generates fields if it is not static
+        val outerClassField = outerClassFields[i]
+        // adding parameter at the beginning
+        methodNode.parameters.add(i, MethodParameter(outerClassField.type, outerClassField.name))
+        methodNode.blockStatement.statements.add(i + 1, // +1 because first statement should be super call
+          ExpressionStatementNode(
+            VariableAssignmentNode(
+              owner = ThisReferenceNode(classNode.type, classNode.token),
+              variable = outerClassField,
+              expression = ReferenceNode(variable = LocalVariable(outerClassField.type, outerClassField.name, nbSlots = outerClassField.type.nbSlots,
+                // we can out i+1 here because we know these inner outer class arguments are references, so always take one slot
+                index = i + 1, isFinal = false),  token = classNode.token),
+              node = methodCst
+            )
+          ))
+      }
+      // now that the method has been updated we're redefining it. THIS IS IMPORTANT. DON'T REMOVE ME
+      typeResolver.defineMethod(classNode.type, methodNode)
     }
 
     /*
@@ -960,7 +962,12 @@ open class MarcelSemantic constructor(
       val variable = typeResolver.findFieldOrThrow(owner.type, rightOperand.value, rightOperand.token)
       incr(rightOperand, variable, owner)
     }
-    else -> throw MarcelSemanticException(node, "Invalid dot operator use")
+    is BinaryOperatorCstNode -> {
+
+
+      TODO(rightOperand.tokenType.toString())
+    }
+    else -> throw MarcelSemanticException(node, "Invalid dot operator use" + rightOperand.javaClass)
   }
 
   private fun staticDotOperator(node: CstNode, ownerType: JavaType, rightOperand: ExpressionCstNode): ExpressionNode = when (rightOperand) {
@@ -1209,7 +1216,6 @@ open class MarcelSemantic constructor(
       while (outerType != null) {
         methodResolve = methodResolver.resolveMethod(node, outerType, node.value, positionalArguments, namedArguments)
         if (methodResolve != null) {
-          // TODO test this. method call from outer class
           val owner = if (methodResolve.first.isMarcelStatic) null else
             currentScope.findField("this$$outerLevel")?.let { ReferenceNode(owner = ThisReferenceNode(currentScopeType, node.token), variable = it, token = node.token) }
               ?: throw RuntimeException("Compiler error. Couldn't get outer level field")

@@ -17,6 +17,9 @@ class SomeObject {
   }
 
   class SomeInnerObject {
+    constructor() {
+      assertEquals("Hello World", foo())
+    }
     fun String bar() {
       return "Goodbye world"
     }

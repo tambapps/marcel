@@ -29,4 +29,5 @@ class VariableAssignmentNode(
   constructor(variable: Variable, expression: ExpressionNode, owner: ExpressionNode? = null)
       : this(variable, expression, owner, expression.tokenStart, expression.tokenEnd)
 
+  override fun toString() = if (owner != null) "${owner}.$variable = $expression" else "$variable = $expression"
 }

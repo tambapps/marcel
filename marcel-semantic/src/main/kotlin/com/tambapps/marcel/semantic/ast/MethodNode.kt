@@ -25,6 +25,7 @@ class MethodNode(override val name: String,
     }
   }
   override val annotations: MutableList<AnnotationNode> = mutableListOf()
+  // TODO stop making it lateinit
   lateinit var blockStatement: BlockStatementNode
   override val isConstructor = name == JavaMethod.CONSTRUCTOR_NAME
 

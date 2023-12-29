@@ -9,4 +9,5 @@ class VoidExpressionNode(token: LexToken) : AbstractExpressionNode(JavaType.void
 
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) = visitor.visit(this)
 
+  override fun toString() = "<void>"
 }

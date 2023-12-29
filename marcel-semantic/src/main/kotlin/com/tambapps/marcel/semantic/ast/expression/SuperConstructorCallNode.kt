@@ -12,4 +12,9 @@ class SuperConstructorCallNode(
 
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) = visitor.visit(this)
 
+  override fun toString() = StringBuilder().apply {
+    append("super(")
+    arguments.joinTo(buffer = this, separator = ", ")
+    append(")")
+  }.toString()
 }

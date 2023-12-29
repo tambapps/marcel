@@ -26,4 +26,6 @@ open class ExpressionStatementNode(
   override fun hashCode(): Int {
     return expressionNode.hashCode()
   }
+
+  override fun toString() = "$expressionNode;"
 }
