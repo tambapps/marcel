@@ -497,6 +497,8 @@ open class MarcelSemantic constructor(
         ExpressionStatementNode(SuperConstructorCallNode(superType, superConstructorMethod, emptyList(), methodNode.tokenStart, methodNode.tokenEnd)))
     }
 
+    // because we want to add thisParameter varAssign AFTER outer class fields assignements
+    val thisParameterInstructionsStart = 1 + outerClassFields.size
     if (outerClassFields.isNotEmpty()) {
       // now we also need to assign these outer class references fields
       for (i in outerClassFields.indices) {
@@ -519,12 +521,11 @@ open class MarcelSemantic constructor(
      * Handling this parameters
      */
     // going in reverse to add in order assignments in correct order
-    // TODO need to find by name, not by index because else it doesn't work on inner classes
-    for (i in (methodCst.parameters.size - 1)downTo 0) {
-      if (!methodCst.parameters[i].thisParameter) continue
-      val param = methodNode.parameters[i]
+    for (methodCstParameter in methodCst.parameters) {
+      if (!methodCstParameter.thisParameter) continue
+      val param = methodNode.parameters.find { it.name == methodCstParameter.name }!!
       val field = typeResolver.getClassField(classScope.classType, param.name, methodNode.token)
-      methodNode.blockStatement.statements.add(1, // 1 because 0 is the super call
+      methodNode.blockStatement.statements.add(thisParameterInstructionsStart, // 1 because 0 is the super call
         ExpressionStatementNode(
           VariableAssignmentNode(owner = ThisReferenceNode(classScope.classType, methodCst.token), variable = field,
             // using index of method parameter. +1 because not in static context

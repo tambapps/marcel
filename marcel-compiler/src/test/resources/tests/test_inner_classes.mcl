@@ -1,6 +1,5 @@
 import static org.junit.jupiter.api.Assertions.assertEquals
 
-
 SomeObject o = new SomeObject()
 
 assertEquals("Hello World", o.foo())
@@ -29,7 +28,6 @@ class SomeObject {
 
 SomeObjectWithParam oWithParam = new SomeObjectWithParam()
 
-
 class SomeObjectWithParam {
 
   constructor() {
@@ -49,5 +47,30 @@ class SomeObjectWithParam {
       return "Goodbye $p"
     }
   }
+}
 
+
+SomeObjectWithThisParam oWithThisParam = new SomeObjectWithThisParam("dummy")
+
+class SomeObjectWithThisParam {
+    String dummy
+
+  constructor(this.dummy) {
+    SomeInnerObjectWithThisParam innerObject = new SomeInnerObjectWithThisParam("me")
+    System.out.println(innerObject.bye("you"))
+  }
+
+  fun String greet(String p) {
+    return "Hello $p"
+  }
+
+  class SomeInnerObjectWithThisParam {
+    String p
+    constructor(this.p) {
+      System.out.println(greet(this.p))
+    }
+    fun String bye(String p) {
+      return "Goodbye $p"
+    }
+  }
 }
