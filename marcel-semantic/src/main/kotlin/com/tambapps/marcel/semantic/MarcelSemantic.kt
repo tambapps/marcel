@@ -971,11 +971,6 @@ open class MarcelSemantic constructor(
       val variable = typeResolver.findFieldOrThrow(owner.type, rightOperand.value, rightOperand.token)
       incr(rightOperand, variable, owner)
     }
-    is BinaryOperatorCstNode -> {
-
-
-      TODO(rightOperand.tokenType.toString())
-    }
     else -> throw MarcelSemanticException(node, "Invalid dot operator use" + rightOperand.javaClass)
   }
 
