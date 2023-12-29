@@ -207,8 +207,9 @@ open class MarcelSemantic constructor(
   private val classNodeMap = mutableMapOf<JavaType, ClassNode>() // useful to add methods while performing analysis
 
   val imports = Scope.DEFAULT_IMPORTS.toMutableList() // will be updated while performing analysis
-  private val methodResolver = MethodResolver(typeResolver, caster, imports)
+  protected val methodResolver = MethodResolver(typeResolver, caster, imports)
 
+  // for extension classes
   private val selfLocalVariable: LocalVariable get() = currentMethodScope.findLocalVariable("self") ?: throw RuntimeException("Compiler error.")
 
   init {
@@ -999,9 +1000,10 @@ open class MarcelSemantic constructor(
   }
 
   override fun visit(node: ElvisThrowCstNode, smartCastType: JavaType?): ExpressionNode {
+    val expr = node.expression.accept(this)
     return fCall(node = node, ownerType = BytecodeHelper::class.javaType, name = "elvisThrow",
       arguments = listOf(
-        caster.cast(JavaType.Object, node.expression.accept(this)),
+        caster.cast(expr.type.objectType, expr),
         caster.cast(Throwable::class.javaType, node.throwableException.accept(this))
       ))
   }
@@ -1168,14 +1170,24 @@ open class MarcelSemantic constructor(
     } else Pair(field, null)
   }
 
-  override fun visit(node: FunctionCallCstNode, smartCastType: JavaType?): ExpressionNode {
-    val currentScopeType = currentScope.classType
+  override final fun visit(node: FunctionCallCstNode, smartCastType: JavaType?): ExpressionNode {
     val positionalArguments = node.positionalArgumentNodes.map { it.accept(this) }
     val namedArguments = node.namedArgumentNodes.map { Pair(it.first, it.second.accept(this)) }
-    var methodResolve = methodResolver.resolveMethod(node, currentScopeType, node.value, positionalArguments, namedArguments)
-      ?: methodResolver.resolveMethodFromImports(node, node.value, positionalArguments, namedArguments)
 
     val castType = node.castType?.let(this::visit)
+
+    return resolveMethodCall(node, positionalArguments, namedArguments, castType)
+      ?: throw MarcelSemanticException(node.token, "Method with name ${node.value} couldn't be resolved")
+  }
+
+  protected open fun resolveMethodCall(
+    node: FunctionCallCstNode, positionalArguments: List<ExpressionNode>,
+    namedArguments: List<Pair<String, ExpressionNode>>,
+    castType: JavaType?
+  ): ExpressionNode? {
+    val currentScopeType = currentScope.classType
+    var methodResolve = methodResolver.resolveMethod(node, currentScopeType, node.value, positionalArguments, namedArguments)
+      ?: methodResolver.resolveMethodFromImports(node, node.value, positionalArguments, namedArguments)
 
     if (methodResolve != null
       // need this especially for extensions classes to avoid referencing an instance method even though only static methods can be referenced. In this case we want the real static, not isMarcelStatic
@@ -1187,7 +1199,7 @@ open class MarcelSemantic constructor(
         methodResolve = methodResolve,
         owner = owner,
         castType = castType
-        )
+      )
     }
 
     if (currentScopeType.outerTypeName != null) {
@@ -1241,7 +1253,7 @@ open class MarcelSemantic constructor(
           tokenEnd = node.tokenEnd)
       }
     }
-    throw MarcelSemanticException(node.token, "Method with name ${node.value} couldn't be resolved")
+    return null
   }
 
   override fun visit(node: SuperConstructorCallCstNode, smartCastType: JavaType?): ExpressionNode {
@@ -1962,7 +1974,7 @@ open class MarcelSemantic constructor(
     BlockStatementNode(statements, node.tokenStart, node.tokenEnd)
   }
 
-  private fun fCall(methodResolve: Pair<JavaMethod, List<ExpressionNode>>, owner: ExpressionNode?, castType: JavaType? = null,
+  protected fun fCall(methodResolve: Pair<JavaMethod, List<ExpressionNode>>, owner: ExpressionNode?, castType: JavaType? = null,
                     tokenStart: LexToken, tokenEnd: LexToken)
       = fCall(tokenStart = tokenStart, tokenEnd = tokenEnd, method = methodResolve.first, arguments = methodResolve.second, owner = owner, castType = castType)
 

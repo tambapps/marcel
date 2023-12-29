@@ -55,8 +55,14 @@ class MarcelEvaluatorTest {
   }
 
   @Test
-  fun defineAndUseFunction() {
+  fun testDefineAndUseFunction() {
     assertNull(evaluator.eval("fun int incr(int a) -> a + 1"))
     assertEquals(4, evaluator.eval("incr(3)"))
+  }
+
+  @Test
+  fun testDelegateFunctionCall() {
+    evaluator.eval("delegate = Integer.valueOf(4)")
+    assertEquals(4, evaluator.eval("intValue()"))
   }
 }

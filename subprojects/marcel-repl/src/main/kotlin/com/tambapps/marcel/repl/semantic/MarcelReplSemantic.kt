@@ -2,6 +2,7 @@ package com.tambapps.marcel.repl.semantic
 
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
+import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ReferenceCstNode as ReferenceCstNode
 import com.tambapps.marcel.repl.ReplJavaTypeResolver
 import com.tambapps.marcel.semantic.MarcelSemantic
@@ -9,6 +10,7 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.extensions.javaType
+import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.field.BoundField
 import marcel.lang.Script
 
@@ -33,4 +35,29 @@ class MarcelReplSemantic(private val replTypeResolver: ReplJavaTypeResolver, cst
       token = node.token
     ), right = caster.cast(boundField.type, right))
   }
+
+  override fun resolveMethodCall(
+    node: FunctionCallCstNode,
+    positionalArguments: List<ExpressionNode>,
+    namedArguments: List<Pair<String, ExpressionNode>>,
+    castType: JavaType?
+  ): ExpressionNode? {
+    val e = super.resolveMethodCall(node, positionalArguments, namedArguments, castType)
+    if (e != null) return e
+
+    // handle delegate function call
+    val delegateVariable = getDelegate() ?: return null
+
+    val methodResolve = methodResolver.resolveMethod(node, delegateVariable.type, node.value, positionalArguments, namedArguments)
+
+    if (methodResolve != null && !methodResolve.first.isMarcelStatic) {
+      val owner = ReferenceNode(variable = delegateVariable, token = node.token, owner = ThisReferenceNode(currentScope.classType, node.token))
+      return fCall(methodResolve = methodResolve, owner = owner, castType = castType,
+        tokenStart = node.tokenStart,
+        tokenEnd = node.tokenEnd)
+    }
+    return null
+  }
+
+  private fun getDelegate() = (typeResolver as ReplJavaTypeResolver).getBoundField("delegate")
 }

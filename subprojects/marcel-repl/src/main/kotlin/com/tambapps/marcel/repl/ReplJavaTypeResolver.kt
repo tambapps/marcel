@@ -25,6 +25,8 @@ class ReplJavaTypeResolver constructor(classLoader: MarcelClassLoader?, private 
     scriptVariables[field.name] = field
   }
 
+  fun getBoundField(name: String): BoundField? = scriptVariables[name]
+
   override fun findField(javaType: JavaType, name: String): CompositeField? {
     val f = super.findField(javaType, name)
     if (f != null || !javaType.isScript) return f

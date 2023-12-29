@@ -16,7 +16,7 @@ import com.tambapps.marcel.semantic.type.JavaTypeResolver
 /**
  * Class allowing to resolve method and method parameters
  */
-internal class MethodResolver(
+class MethodResolver(
   private val typeResolver: JavaTypeResolver,
   private val nodeCaster: AstNodeCaster,
   private val imports: List<ImportNode>

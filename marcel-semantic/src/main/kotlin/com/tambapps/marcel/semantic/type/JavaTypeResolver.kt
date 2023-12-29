@@ -6,6 +6,7 @@ import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.exception.VariableNotFoundException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.ExtensionJavaMethod
 import com.tambapps.marcel.semantic.method.JavaMethod
@@ -379,7 +380,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
   }
 
   fun findFieldOrThrow(javaType: JavaType, name: String, token: LexToken = LexToken.DUMMY): CompositeField {
-    return findField(javaType, name) ?: throw MarcelSemanticException(token, "Field $javaType.$name is not defined")
+    return findField(javaType, name) ?: throw VariableNotFoundException(token, "Field $javaType.$name is not defined")
   }
 
   open fun findField(javaType: JavaType, name: String): CompositeField? {
