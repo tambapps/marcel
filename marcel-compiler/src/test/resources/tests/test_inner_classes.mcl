@@ -24,5 +24,30 @@ class SomeObject {
       return "Goodbye world"
     }
   }
+}
+
+
+SomeObjectWithParam oWithParam = new SomeObjectWithParam()
+
+
+class SomeObjectWithParam {
+
+  constructor() {
+    SomeInnerObjectWithParam innerObject = new SomeInnerObjectWithParam("me")
+    assertEquals("Goodbye you", innerObject.bye("you"))
+  }
+
+  fun String greet(String p) {
+    return "Hello $p"
+  }
+
+  class SomeInnerObjectWithParam {
+    constructor(String p) {
+      assertEquals("Hello $p", greet(p))
+    }
+    fun String bye(String p) {
+      return "Goodbye $p"
+    }
+  }
 
 }

@@ -34,4 +34,18 @@ open class ClassNode constructor(
     methods.add(newMethod)
     return newMethod
   }
+
+  override fun toString() = StringBuilder().apply {
+    if (isExtensionClass) append("extension ")
+    append("class ${type.simpleName}")
+    if (isExtensionClass) append("for " + forExtensionType?.simpleName)
+    if (superType != JavaType.Object) {
+      append(" extends ")
+      append(superType.simpleName)
+    }
+    if (type.directlyImplementedInterfaces.isNotEmpty()) {
+      append(" implements ")
+      type.directlyImplementedInterfaces.joinTo(buffer = this, separator = ",", transform = { it.simpleName })
+    }
+  }.toString()
 }

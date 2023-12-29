@@ -19,14 +19,18 @@ abstract class AbstractMethod: JavaMethod {
   }
 
   override fun toString() = StringBuilder().apply {
-    if (isAbstract) append("abstract ")
-    if (isStatic) append("static ")
-    append("fun ")
-    append(returnType)
-    append(" ")
-    append(ownerClass.simpleName)
-    append(".")
-    append(name)
+    if (isConstructor) {
+      append(ownerClass.simpleName)
+    } else {
+      if (isAbstract) append("abstract ")
+      if (isStatic) append("static ")
+      append("fun ")
+      append(returnType)
+      append(" ")
+      append(ownerClass.simpleName)
+      append(".")
+      append(name)
+    }
     append(parameters.joinToString(separator = ",", prefix = "(", postfix = ")"))
   }.toString()
 }

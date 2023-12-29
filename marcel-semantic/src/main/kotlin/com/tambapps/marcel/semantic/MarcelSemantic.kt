@@ -473,6 +473,17 @@ open class MarcelSemantic constructor(
     val methodNode = toConstructorNode(classNode, methodCst, classScope.classType)
 
     val outerClassFields = generateOutClassFields(classNode.type, classNode)
+    if (outerClassFields.isNotEmpty()) {
+      // undefining method as the signature will change (we erase the definition of the 'definition' phase. THIS IS IMPORTANT. DON'T REMOVE ME
+      typeResolver.undefineMethod(classNode.type, methodNode)
+      for (i in outerClassFields.indices) {
+        val outerClassField = outerClassFields[i]
+        // adding parameter at the beginning
+        methodNode.parameters.add(i, MethodParameter(outerClassField.type, outerClassField.name))
+      }
+      // now that the method has been updated we're redefining it. THIS IS IMPORTANT. DON'T REMOVE ME
+      typeResolver.defineMethod(classNode.type, methodNode)
+    }
 
     fillMethodNode(classScope, methodNode, methodCst.statements, methodCst.annotations)
 
@@ -486,15 +497,10 @@ open class MarcelSemantic constructor(
         ExpressionStatementNode(SuperConstructorCallNode(superType, superConstructorMethod, emptyList(), methodNode.tokenStart, methodNode.tokenEnd)))
     }
 
-    // TODO don't know if it works right when the constructor have method parameters
     if (outerClassFields.isNotEmpty()) {
-      // undefining method as the signature will change (we erase the definition of the 'definition' phase. THIS IS IMPORTANT. DON'T REMOVE ME
-      typeResolver.undefineMethod(classNode.type, methodNode)
+      // now we also need to assign these outer class references fields
       for (i in outerClassFields.indices) {
-        // if we're here we know the context is not static as the above method only generates fields if it is not static
         val outerClassField = outerClassFields[i]
-        // adding parameter at the beginning
-        methodNode.parameters.add(i, MethodParameter(outerClassField.type, outerClassField.name))
         methodNode.blockStatement.statements.add(i + 1, // +1 because first statement should be super call
           ExpressionStatementNode(
             VariableAssignmentNode(
@@ -507,14 +513,13 @@ open class MarcelSemantic constructor(
             )
           ))
       }
-      // now that the method has been updated we're redefining it. THIS IS IMPORTANT. DON'T REMOVE ME
-      typeResolver.defineMethod(classNode.type, methodNode)
     }
 
     /*
      * Handling this parameters
      */
     // going in reverse to add in order assignments in correct order
+    // TODO need to find by name, not by index because else it doesn't work on inner classes
     for (i in (methodCst.parameters.size - 1)downTo 0) {
       if (!methodCst.parameters[i].thisParameter) continue
       val param = methodNode.parameters[i]
@@ -666,10 +671,11 @@ open class MarcelSemantic constructor(
           namedArguments.add(Pair("this$$i", argument))
         }
       } else {
-        for (i in 0..outerLevel) {
+        // going in reverse order to add arguments in right order
+        for (i in outerLevel downTo 0) {
           val argument = getInnerOuterReference(node.token, outerLevel)
             ?: throw MarcelSemanticException(node.token, "Lambda cannot be generated in this context")
-          positionalArguments.add(argument)
+          positionalArguments.add(0, argument)
         }
       }
       resolve = methodResolver.resolveMethod(node, type, JavaMethod.CONSTRUCTOR_NAME, positionalArguments, namedArguments)
@@ -934,10 +940,12 @@ open class MarcelSemantic constructor(
                           // useful for ternaryNode which duplicate value to avoid using local variable
                           discardOwnerInReturned: Boolean = false): ExpressionNode = when (rightOperand) {
     is FunctionCallCstNode -> {
+      val positionalArguments = rightOperand.positionalArgumentNodes.map { it.accept(this) }
+      val namedArguments = rightOperand.namedArgumentNodes.map { Pair(it.first, it.second.accept(this)) }
       val (method, arguments) = methodResolver.resolveMethod(node, owner.type, rightOperand.value,
-        rightOperand.positionalArgumentNodes.map { it.accept(this) },
-        rightOperand.namedArgumentNodes.map { Pair(it.first, it.second.accept(this)) })
-        ?: throw MarcelSemanticException(node.token, "Method ${owner.type}.${rightOperand.value} couldn't be resolved")
+        positionalArguments,
+        namedArguments)
+        ?: throw MarcelSemanticException(node.token, MethodResolver.methodResolveErrorMessage(positionalArguments, namedArguments, owner.type, rightOperand.value))
       val castType = rightOperand.castType?.let { visit(it) }
       fCall(method = method, owner = if (discardOwnerInReturned || method.isMarcelStatic) null else owner, castType = castType,
         arguments = arguments,

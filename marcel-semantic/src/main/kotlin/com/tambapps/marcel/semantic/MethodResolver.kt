@@ -1,5 +1,6 @@
 package com.tambapps.marcel.semantic
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.ast.StaticImportNode
@@ -24,20 +25,10 @@ class MethodResolver(
 
   fun resolveMethodOrThrow(node: CstNode, ownerType: JavaType, name: String, positionalArguments: List<ExpressionNode>,
                     namedArguments: List<Pair<String, ExpressionNode>>): Pair<JavaMethod, List<ExpressionNode>> {
-    val resolve = resolveMethod(node, ownerType, name, positionalArguments, namedArguments)
-    if (resolve == null) {
-      val allParametersString = mutableListOf<String>()
-      positionalArguments.forEach { allParametersString.add(it.type.simpleName) }
-      namedArguments.forEach { allParametersString.add("${it.first}: ${it.second.type.simpleName}") }
-
-      val displayedName = if (name == JavaMethod.CONSTRUCTOR_NAME) "Constructor $ownerType"
-      else "Method $ownerType.$name"
-      throw MarcelSemanticException(node.token, allParametersString.joinToString(separator = ", ",
-        prefix = "$displayedName(", postfix = ") is not defined")
-      )
-    }
-    return resolve
+    return resolveMethod(node, ownerType, name, positionalArguments, namedArguments)
+      ?: throw MarcelSemanticException(node.token, methodResolveErrorMessage(positionalArguments, namedArguments, ownerType, name))
   }
+
 
   fun resolveMethod(node: CstNode, ownerType: JavaType, name: String, positionalArguments: List<ExpressionNode>,
                     namedArguments: List<Pair<String, ExpressionNode>>): Pair<JavaMethod, List<ExpressionNode>>? {
@@ -84,6 +75,23 @@ class MethodResolver(
       namedArguments.find { it.first == parameter.name }?.second
         ?: parameter.defaultValue
         ?: parameter.type.getDefaultValueExpression(node.token)
+    }
+  }
+
+  companion object {
+    internal fun methodResolveErrorMessage(positionalArguments: List<ExpressionNode>,
+                                           namedArguments: List<Pair<String, ExpressionNode>>,
+                                           ownerType: JavaType,
+                                           name: String): String {
+      val allParametersString = mutableListOf<String>()
+      positionalArguments.forEach { allParametersString.add(it.type.simpleName) }
+      namedArguments.forEach { allParametersString.add("${it.first}: ${it.second.type.simpleName}") }
+
+      val displayedName = if (name == JavaMethod.CONSTRUCTOR_NAME) "Constructor $ownerType"
+      else "Method $ownerType.$name"
+
+      return allParametersString.joinToString(separator = ", ",
+        prefix = "$displayedName(", postfix = ") is not defined")
     }
   }
 }
