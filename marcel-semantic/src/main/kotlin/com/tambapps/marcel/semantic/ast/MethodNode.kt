@@ -19,18 +19,16 @@ class MethodNode(override val name: String,
 
   companion object {
     fun fromJavaMethod(method: JavaMethod, tokenStart: LexToken, tokenEnd: LexToken): MethodNode {
-      val m = MethodNode(method.name, method.parameters.toMutableList(), method.visibility, method.returnType, method.isStatic, tokenStart, tokenEnd, method.ownerClass)
-      m.blockStatement = BlockStatementNode(mutableListOf(), tokenStart, tokenEnd)
-      return m
+      return MethodNode(method.name, method.parameters.toMutableList(), method.visibility, method.returnType, method.isStatic, tokenStart, tokenEnd, method.ownerClass)
     }
   }
   override val annotations: MutableList<AnnotationNode> = mutableListOf()
-  // TODO stop making it lateinit
-  lateinit var blockStatement: BlockStatementNode
   override val isConstructor = name == JavaMethod.CONSTRUCTOR_NAME
 
   override val isAbstract = false
   override val isDefault = false
   override val actualReturnType = returnType
   override val isVarArgs = false
+  val blockStatement = BlockStatementNode(mutableListOf(), tokenStart, tokenEnd)
+
 }

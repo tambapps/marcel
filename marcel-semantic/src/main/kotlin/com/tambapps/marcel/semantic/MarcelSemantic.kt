@@ -469,32 +469,32 @@ open class MarcelSemantic constructor(
     return methodNode
   }
 
-  private fun constructorNode(classNode: ClassNode, methodCst: ConstructorCstNode, classScope: ClassScope): MethodNode {
-    val methodNode = toConstructorNode(classNode, methodCst, classScope.classType)
+  private fun constructorNode(classNode: ClassNode, constructorCstNode: ConstructorCstNode, classScope: ClassScope): MethodNode {
+    val constructorNode = toConstructorNode(classNode, constructorCstNode, classScope.classType)
 
     val outerClassFields = generateOutClassFields(classNode.type, classNode)
     if (outerClassFields.isNotEmpty()) {
       // undefining method as the signature will change (we erase the definition of the 'definition' phase. THIS IS IMPORTANT. DON'T REMOVE ME
-      typeResolver.undefineMethod(classNode.type, methodNode)
+      typeResolver.undefineMethod(classNode.type, constructorNode)
       for (i in outerClassFields.indices) {
         val outerClassField = outerClassFields[i]
         // adding parameter at the beginning
-        methodNode.parameters.add(i, MethodParameter(outerClassField.type, outerClassField.name))
+        constructorNode.parameters.add(i, MethodParameter(outerClassField.type, outerClassField.name))
       }
       // now that the method has been updated we're redefining it. THIS IS IMPORTANT. DON'T REMOVE ME
-      typeResolver.defineMethod(classNode.type, methodNode)
+      typeResolver.defineMethod(classNode.type, constructorNode)
     }
 
-    fillMethodNode(classScope, methodNode, methodCst.statements, methodCst.annotations)
+    fillMethodNode(classScope, constructorNode, constructorCstNode.statements, constructorCstNode.annotations)
 
-    val firstStatement = methodNode.blockStatement.statements.firstOrNull()
+    val firstStatement = constructorNode.blockStatement.statements.firstOrNull()
     if (firstStatement == null || firstStatement !is ExpressionStatementNode
       || firstStatement.expressionNode !is ThisConstructorCallNode && firstStatement.expressionNode !is SuperConstructorCallNode) {
       val superType = classScope.classType.superType!!
       val superConstructorMethod = typeResolver.findMethod(superType, JavaMethod.CONSTRUCTOR_NAME, emptyList())
-        ?: throw MarcelSemanticException(methodNode.token, "Class $superType doesn't have a no-arg constructor")
-      methodNode.blockStatement.statements.add(0,
-        ExpressionStatementNode(SuperConstructorCallNode(superType, superConstructorMethod, emptyList(), methodNode.tokenStart, methodNode.tokenEnd)))
+        ?: throw MarcelSemanticException(constructorNode.token, "Class $superType doesn't have a no-arg constructor")
+      constructorNode.blockStatement.statements.add(0,
+        ExpressionStatementNode(SuperConstructorCallNode(superType, superConstructorMethod, emptyList(), constructorNode.tokenStart, constructorNode.tokenEnd)))
     }
 
     // because we want to add thisParameter varAssign AFTER outer class fields assignements
@@ -503,7 +503,7 @@ open class MarcelSemantic constructor(
       // now we also need to assign these outer class references fields
       for (i in outerClassFields.indices) {
         val outerClassField = outerClassFields[i]
-        methodNode.blockStatement.statements.add(i + 1, // +1 because first statement should be super call
+        constructorNode.blockStatement.statements.add(i + 1, // +1 because first statement should be super call
           ExpressionStatementNode(
             VariableAssignmentNode(
               owner = ThisReferenceNode(classNode.type, classNode.token),
@@ -511,7 +511,7 @@ open class MarcelSemantic constructor(
               expression = ReferenceNode(variable = LocalVariable(outerClassField.type, outerClassField.name, nbSlots = outerClassField.type.nbSlots,
                 // we can out i+1 here because we know these inner outer class arguments are references, so always take one slot
                 index = i + 1, isFinal = false),  token = classNode.token),
-              node = methodCst
+              node = constructorCstNode
             )
           ))
       }
@@ -521,19 +521,19 @@ open class MarcelSemantic constructor(
      * Handling this parameters
      */
     // going in reverse to add in order assignments in correct order
-    for (methodCstParameter in methodCst.parameters) {
+    for (methodCstParameter in constructorCstNode.parameters) {
       if (!methodCstParameter.thisParameter) continue
-      val param = methodNode.parameters.find { it.name == methodCstParameter.name }!!
-      val field = typeResolver.getClassField(classScope.classType, param.name, methodNode.token)
-      methodNode.blockStatement.statements.add(thisParameterInstructionsStart, // 1 because 0 is the super call
+      val param = constructorNode.parameters.find { it.name == methodCstParameter.name }!!
+      val field = typeResolver.getClassField(classScope.classType, param.name, constructorNode.token)
+      constructorNode.blockStatement.statements.add(thisParameterInstructionsStart, // 1 because 0 is the super call
         ExpressionStatementNode(
-          VariableAssignmentNode(owner = ThisReferenceNode(classScope.classType, methodCst.token), variable = field,
+          VariableAssignmentNode(owner = ThisReferenceNode(classScope.classType, constructorCstNode.token), variable = field,
             // using index of method parameter. +1 because not in static context
-            expression = ReferenceNode(variable = SemanticHelper.parameterToLocalVariable(methodNode, param), token = methodCst.token), node = methodCst)
+            expression = ReferenceNode(variable = SemanticHelper.parameterToLocalVariable(constructorNode, param), token = constructorCstNode.token), node = constructorCstNode)
         )
       )
     }
-    return methodNode
+    return constructorNode
   }
 
   private fun toConstructorNode(classNode: ClassNode, methodCst: AbstractMethodCstNode, classType: JavaType) = toMethodNode(classNode, methodCst, JavaMethod.CONSTRUCTOR_NAME, JavaType.void, classType)
@@ -566,7 +566,7 @@ open class MarcelSemantic constructor(
     // filling annotations
     annotations.forEach { methodeNode.annotations.add(visit(it, ElementType.METHOD)) }
 
-    val statements =  if (isSingleStatementMethod && cstStatements.size == 1
+    val statements = if (isSingleStatementMethod && cstStatements.size == 1
       && methodeNode.returnType != JavaType.void
       && cstStatements.first() is ExpressionStatementCstNode) {
       val statement = cstStatements.first() as ExpressionStatementCstNode
@@ -589,7 +589,7 @@ open class MarcelSemantic constructor(
         throw MarcelSemanticException(methodeNode.token, "Not all paths return a value in method ${methodeNode.ownerClass}.${methodeNode.name}()")
       }
     }
-    methodeNode.blockStatement = BlockStatementNode(statements, methodeNode.tokenStart, methodeNode.tokenEnd)
+    methodeNode.blockStatement.addAll(statements)
   }
 
   private fun blockStatements(cstStatements: List<StatementCstNode>): MutableList<StatementNode> {
@@ -1459,10 +1459,12 @@ open class MarcelSemantic constructor(
       interfaceType?.let { interfaceTypes.add(it) }
     }
     classNodeMap[lambdaNode.type] = lambdaNode
-    lambdaConstructor.blockStatement = BlockStatementNode(mutableListOf(
-      ExpressionStatementNode(SemanticHelper.superNoArgConstructorCall(lambdaNode, typeResolver)),
-      SemanticHelper.returnVoid(lambdaNode)
-    ), node.tokenStart, node.tokenEnd)
+    lambdaConstructor.blockStatement.addAll(
+      listOf(
+        ExpressionStatementNode(SemanticHelper.superNoArgConstructorCall(lambdaNode, typeResolver)),
+        SemanticHelper.returnVoid(lambdaNode)
+      )
+    )
 
 
     // handling inner class fields if any
@@ -1515,7 +1517,7 @@ open class MarcelSemantic constructor(
           SemanticHelper.returnVoid(interfaceMethodBlockStatement)
         )
       }
-      interfaceMethodNode.blockStatement = interfaceMethodBlockStatement
+      interfaceMethodNode.blockStatement.addAll(interfaceMethodBlockStatement.statements)
       lambdaNode.methods.add(interfaceMethodNode)
     } else {
       // defining the lambda "invoke" method
@@ -1534,7 +1536,7 @@ open class MarcelSemantic constructor(
           ReturningBranchTransformer(lambdaNode.blockCstNode) { caster.cast(JavaType.Object, it) }
         ) as BlockStatementNode
       }
-      lambdaMethodNode.blockStatement = blockStatement
+      lambdaMethodNode.blockStatement.addAll(blockStatement.statements)
       lambdaNode.methods.add(lambdaMethodNode)
     }
 
@@ -1669,9 +1671,10 @@ open class MarcelSemantic constructor(
       }
     }
 
-    whenMethod.blockStatement = BlockStatementNode(mutableListOf(whenStatement), whenStatement.tokenStart, whenStatement.tokenEnd).apply {
+    whenMethod.blockStatement.apply {
+      add(whenStatement)
       // if it is not void, statements already have return nodes because of ReturningWhenIfBranchTransformer
-      if (whenReturnType == JavaType.void) statements.add(SemanticHelper.returnVoid(this))
+      if (whenReturnType == JavaType.void) add(SemanticHelper.returnVoid(this))
     }
 
     // dispose switch expression variable
@@ -2094,9 +2097,7 @@ open class MarcelSemantic constructor(
             && defaultValue is StringConstantNode -> annotations.add(AnnotationNode(StringDefaultValue::class.javaAnnotationType, listOf(JavaAnnotation.Attribute("value", JavaType.String, defaultValue.value)), node.tokenStart, node.tokenEnd))
         else -> {
           // defining method
-          defaultValueMethod.blockStatement = BlockStatementNode(mutableListOf(
-            ReturnStatementNode(caster.cast(parameterType, defaultValue))
-          ), node.tokenStart, node.tokenEnd)
+          defaultValueMethod.blockStatement.add(ReturnStatementNode(caster.cast(parameterType, defaultValue)))
           classNode.methods.add(defaultValueMethod)
           typeResolver.defineMethod(ownerType, defaultValueMethod)
 

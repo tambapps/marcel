@@ -101,8 +101,7 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
   ): MethodNode {
     val methodNode = MethodNode(name, parameters.toMutableList(), visibility, returnType, isStatic, LexToken.DUMMY, LexToken.DUMMY, ownerClass)
     methodNode.annotations.addAll(annotations)
-    val statements = mutableListOf<StatementNode>()
-    methodNode.blockStatement = BlockStatementNode(statements, LexToken.DUMMY, LexToken.DUMMY)
+    val statements = methodNode.blockStatement.statements
 
     useScope(MethodScope(ClassScope(typeResolver, ownerClass, null, Scope.DEFAULT_IMPORTS), methodNode)) {
       val statementComposer = StatementsComposer(statements)
@@ -306,10 +305,12 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
       parameters = mutableListOf(),
       ownerClass = lambdaType
     ).apply {
-      blockStatement = BlockStatementNode(mutableListOf(
-        ExpressionStatementNode(SemanticHelper.superNoArgConstructorCall(lambdaClassNode, typeResolver)),
-        SemanticHelper.returnVoid(lambdaClassNode)
-      ), LexToken.DUMMY, LexToken.DUMMY)
+      blockStatement.addAll(
+        listOf(
+          ExpressionStatementNode(SemanticHelper.superNoArgConstructorCall(lambdaClassNode, typeResolver)),
+          SemanticHelper.returnVoid(lambdaClassNode)
+        )
+      )
     }
     val constructorArguments = mutableListOf<ExpressionNode>()
     handleLambdaInnerClassFields(lambdaClassNode, lambdaConstructor, constructorArguments, LexToken.DUMMY)
@@ -318,11 +319,9 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
 
     val interfaceMethod = typeResolver.getInterfaceLambdaMethodOrThrow(interfaceType, LexToken.DUMMY)
     // define lambda method
-    val statements = mutableListOf<StatementNode>()
     val lambdaMethod = MethodNode(interfaceMethod.name, parameters.toMutableList(),
-      Visibility.PUBLIC, returnType, isStatic = false, LexToken.DUMMY, LexToken.DUMMY, lambdaType).apply {
-        blockStatement = BlockStatementNode(statements, LexToken.DUMMY, LexToken.DUMMY)
-    }
+      Visibility.PUBLIC, returnType, isStatic = false, LexToken.DUMMY, LexToken.DUMMY, lambdaType)
+    val statements = lambdaMethod.blockStatement.statements
     useScope(MethodScope(ClassScope(typeResolver, lambdaType, null, Scope.DEFAULT_IMPORTS), lambdaMethod)) {
       val statementComposer = StatementsComposer(statements)
       lambdaBodyStatementComposerFunc.invoke(statementComposer)

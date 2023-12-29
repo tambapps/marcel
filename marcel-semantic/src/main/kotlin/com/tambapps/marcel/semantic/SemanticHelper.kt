@@ -35,33 +35,36 @@ object SemanticHelper {
       tokenStart = classNode.tokenStart,
       tokenEnd = classNode.tokenEnd
     ).apply {
-      blockStatement = BlockStatementNode(mutableListOf(), tokenStart, tokenEnd)
       // all functions should finish with a return statement, even the void ones
-      blockStatement.statements.add(ReturnStatementNode(null, tokenStart, tokenEnd))
+      blockStatement.add(ReturnStatementNode(null, tokenStart, tokenEnd))
     }
   }
 
   fun scriptBindingConstructor(classNode: ClassNode, typeResolver: JavaTypeResolver, scriptType: JavaType): MethodNode {
     val parameter = MethodParameter(Binding::class.javaType, "binding")
     val methodNode = MethodNode(JavaMethod.CONSTRUCTOR_NAME, mutableListOf(parameter),  Visibility.PUBLIC, JavaType.void, false, classNode.tokenStart, classNode.tokenEnd, JavaType.void)
-    methodNode.blockStatement = BlockStatementNode(mutableListOf(
-      ExpressionStatementNode(
+    methodNode.blockStatement.addAll(
+      mutableListOf(
+        ExpressionStatementNode(
 
-        SuperConstructorCallNode(classNode.superType,
-          typeResolver.findMethod(scriptType, JavaMethod.CONSTRUCTOR_NAME, listOf(parameter))!!,
-          listOf(ReferenceNode(variable = LocalVariable(parameter.type, parameter.name, parameter.type.nbSlots, 1, false), token = classNode.token)), classNode.tokenStart, classNode.tokenEnd)
-      ),
-      ReturnStatementNode(VoidExpressionNode(methodNode.token), methodNode.tokenStart, methodNode.tokenEnd)
-    ), methodNode.tokenStart, methodNode.tokenEnd)
+          SuperConstructorCallNode(classNode.superType,
+            typeResolver.findMethod(scriptType, JavaMethod.CONSTRUCTOR_NAME, listOf(parameter))!!,
+            listOf(ReferenceNode(variable = LocalVariable(parameter.type, parameter.name, parameter.type.nbSlots, 1, false), token = classNode.token)), classNode.tokenStart, classNode.tokenEnd)
+        ),
+        ReturnStatementNode(VoidExpressionNode(methodNode.token), methodNode.tokenStart, methodNode.tokenEnd)
+      )
+    )
     return methodNode
   }
 
   fun noArgConstructor(classNode: ClassNode, typeResolver: JavaTypeResolver, visibility: Visibility = Visibility.PUBLIC): MethodNode {
     val defaultConstructorNode = MethodNode(JavaMethod.CONSTRUCTOR_NAME, mutableListOf(),  visibility, JavaType.void, false, classNode.tokenStart, classNode.tokenEnd, JavaType.void)
-    defaultConstructorNode.blockStatement = BlockStatementNode(mutableListOf(
-      ExpressionStatementNode(superNoArgConstructorCall(classNode, typeResolver)),
-      ReturnStatementNode(VoidExpressionNode(defaultConstructorNode.token), defaultConstructorNode.tokenStart, defaultConstructorNode.tokenEnd)
-    ), defaultConstructorNode.tokenStart, defaultConstructorNode.tokenEnd)
+    defaultConstructorNode.blockStatement.addAll(
+      listOf(
+        ExpressionStatementNode(superNoArgConstructorCall(classNode, typeResolver)),
+        ReturnStatementNode(VoidExpressionNode(defaultConstructorNode.token), defaultConstructorNode.tokenStart, defaultConstructorNode.tokenEnd)
+      )
+    )
     return defaultConstructorNode
   }
 
