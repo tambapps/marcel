@@ -703,7 +703,7 @@ open class MarcelSemantic constructor(
   }
 
   override fun visit(node: DirectFieldReferenceCstNode, smartCastType: JavaType?): ExpressionNode {
-    val field = currentScope.findFieldOrThrow(node.value, node.token)
+    val field = typeResolver.getClassField(currentScope.classType, node.value, node.token)
     val owner = if (!field.isStatic) ThisReferenceNode(currentScope.classType, node.token) else null
     return ReferenceNode(owner = owner, variable = field, token = node.token)
   }

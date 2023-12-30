@@ -52,16 +52,17 @@ class Foo {
   private int bar
   
   fun getBar() {
-    return this.bar
+    return this.@bar
   }
   
   fun setBar(int bar) {
-    this.bar = bar
+    this.@bar = bar
   }
 }
 ```
 
-You could call these `getBar/setBar` methods using the property syntax
+You could call these `getBar/setBar` methods using the property syntax.
+The `@bar` notation is the [direct field access operator](./operators/direct-field-access.md), make sure to reference the Java class's field.
 
 ```marcel
 Foo foo = new Foo()

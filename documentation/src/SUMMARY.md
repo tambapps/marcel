@@ -42,6 +42,7 @@
     - [Indexed Access (expr[index])](language-specification/operators/indexed-access.md)
     - [Safe Navigation (?.)](language-specification/operators/safe-navigation.md)
     - [Ternary and Elvis(?:)](language-specification/operators/ternary-elvis.md)
+    - [Direct Field Access(@fieldName)](language-specification/operators/direct-field-access.md)
     - [Define your own operators](language-specification/operators/operator-overloading.md)
   - [Lambdas](language-specification/lambdas.md)
   - [Extension Classes](language-specification/extension-classes.md)

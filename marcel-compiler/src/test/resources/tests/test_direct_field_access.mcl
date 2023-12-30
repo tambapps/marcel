@@ -1,15 +1,20 @@
 import static org.junit.jupiter.api.Assertions.assertEquals
 
+class Foo {
+  private int bar = 1
 
-class A {
+  fun int getBar() {
+    return @bar
+  }
 
-  int b = 1
-
-  fun int getBb() {
-   return @b
+  fun void setBar(int bar) {
+    @bar = bar
   }
 }
 
-A a = new A()
-assertEquals(1, a.bb)
+Foo foo = new Foo()
+assertEquals(1, foo.bar)
 
+foo.bar = 5
+
+assertEquals(5, foo.bar)
