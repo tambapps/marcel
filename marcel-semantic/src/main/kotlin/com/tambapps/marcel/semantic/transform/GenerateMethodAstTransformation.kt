@@ -7,16 +7,15 @@ import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.exception.MarcelAstTransformationException
 import com.tambapps.marcel.semantic.method.JavaMethod
-import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.type.NotLoadedJavaType
 
 /**
  * Base class for AST transformations adding methods to classes
  */
 abstract class GenerateMethodAstTransformation: AbstractAstTransformation() {
-  final override fun transformType(javaType: NotLoadedJavaType, annotation: AnnotationNode, node: CstNode) {
+  override fun transform(javaType: NotLoadedJavaType, node: CstNode, annotation: AnnotationNode) {
     useScope(classScope(javaType)) {
-      doTransformType(javaType, annotation)
+      doTransformType(javaType, annotation, node)
       generateSignatures(node, javaType, annotation).forEach { signature ->
         typeResolver.defineMethod(javaType, signature)
       }
@@ -37,13 +36,15 @@ abstract class GenerateMethodAstTransformation: AbstractAstTransformation() {
     }
   }
 
-  protected open fun doTransformType(javaType: NotLoadedJavaType, annotation: AnnotationNode) {}
+  protected open fun doTransformType(javaType: NotLoadedJavaType, annotation: AnnotationNode, node: CstNode) {}
 
   /**
    * Returns the list of the method signatures that will be added by this AST transformation.
    * The signatures must be in the same order as the method nodes
    */
-  protected abstract fun generateSignatures(node: CstNode, javaType: NotLoadedJavaType, annotation: AnnotationNode): List<JavaMethod>
+  protected open fun generateSignatures(node: CstNode, javaType: NotLoadedJavaType, annotation: AnnotationNode): List<JavaMethod> {
+    return emptyList()
+  }
 
   /**
    * Returns the list of the method nodes that will be added by this AST transformation.

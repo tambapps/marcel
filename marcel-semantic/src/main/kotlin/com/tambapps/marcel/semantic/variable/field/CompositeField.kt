@@ -52,6 +52,14 @@ open class CompositeField(override val name: String): MarcelField {
     _setters.add(marcelField)
   }
 
+  fun removeGetter(methodField: MethodField) {
+    _getters.remove(methodField)
+  }
+
+  fun removeSetter(methodField: MethodField) {
+    _setters.remove(methodField)
+  }
+
   fun mergeWith(field: MarcelField) {
     if (field.isGettable) addGetter(field)
     if (field.isSettable) addSetter(field)
@@ -62,6 +70,8 @@ open class CompositeField(override val name: String): MarcelField {
     _setters.addAll(other._setters)
   }
 
+  fun isEmpty() = getters.isEmpty() && setters.isEmpty()
   fun settableFieldFrom(javaType: JavaType) = setters.find { it.isVisibleFrom(javaType, Variable.Access.SET) }
   fun gettableFieldFrom(javaType: JavaType) = getters.find { it.isVisibleFrom(javaType, Variable.Access.GET) }
+
 }

@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
-@MarcelAstTransformationClass("com.tambapps.marcel.semantic.transform.StringifyAstTransformation")
+@MarcelSyntaxTreeTransformationClass("com.tambapps.marcel.semantic.transform.StringifyAstTransformation")
 public @interface stringify {
 
   /**

@@ -7,10 +7,18 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.FIELD;
 
 /**
- * Field annotation to simplify lazy initialization.
+ * Meta annotation to implement lazy initialization of a field
  */
-// TODO handle me
+// TODO document me
 @Retention(RetentionPolicy.SOURCE)
 @Target(value={FIELD})
+@MarcelSyntaxTreeTransformationClass({"com.tambapps.marcel.semantic.transform.LazyAstTransformation"})
 public @interface lazy {
+
+  /**
+   * Whether the lazy mechanism should be thread-safe or not
+   * @return whether the lazy mechanism should be thread-safe or not
+   */
+  boolean threadSafe() default false;
+
 }

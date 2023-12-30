@@ -126,10 +126,16 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
       throw MarcelSemanticException((method as? MethodNode)?.token ?: LexToken.DUMMY, "Method $method conflicts with method " + methods.find { it.matches(method) })
     }
     methods.add(method)
+    if (method.isGetter || method.isSetter) {
+      fieldResolver.defineMethodField(method)
+    }
   }
 
-  fun undefineMethod(javaType: JavaType, method: JavaMethod): Boolean {
-    return getMarcelMethods(javaType).remove(method)
+  fun undefineMethod(javaType: JavaType, method: JavaMethod) {
+    getMarcelMethods(javaType).remove(method)
+    if (method.isGetter || method.isSetter) {
+      fieldResolver.undefineMethodField(method)
+    }
   }
 
   open fun defineField(javaType: JavaType, field: MarcelField) {
@@ -221,6 +227,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     return fieldResolver.getField(javaType, fieldName)?.classField ?: throw MarcelSemanticException(token, "Class field $javaType.$fieldName is not defined")
   }
 
+  fun undefineField(javaType: JavaType, fieldName: String) = fieldResolver.undefineField(javaType, fieldName)
   open fun getDeclaredFields(javaType: JavaType): Collection<CompositeField> {
     return fieldResolver.getAllFields(javaType).values
   }
@@ -421,15 +428,38 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
         for (method in methods) {
           if (method.isGetter) {
             val field = fieldsMap.computeIfAbsent(method.propertyName) { CompositeField(method.propertyName) }
-            field.addGetter(MethodField(method.returnType, method.propertyName, method.ownerClass, method, null, method is ExtensionJavaMethod))
+            field.addGetter(MethodField.fromGetter(method))
           } else if (method.isSetter) {
             val field = fieldsMap.computeIfAbsent(method.propertyName) { CompositeField(method.propertyName) }
-            field.addSetter(MethodField(method.parameters.first().type, method.propertyName, method.ownerClass, null, method, method is ExtensionJavaMethod))
+            field.addSetter(MethodField.fromSetter(method))
           }
         }
         return@computeIfAbsent fieldsMap
       }
     }
+
+    fun defineMethodField(method: JavaMethod) {
+      val compositeField = computeFieldIfAbsent(method.ownerClass, method.propertyName)
+      if (method.isGetter) {
+        compositeField.addGetter(MethodField.fromGetter(method))
+      } else if (method.isSetter) {
+        compositeField.addSetter(MethodField.fromSetter(method))
+      }
+    }
+
+    fun undefineMethodField(method: JavaMethod) {
+      val compositeField = computeFieldIfAbsent(method.ownerClass, method.propertyName)
+      if (method.isGetter) {
+        compositeField.removeGetter(MethodField.fromGetter(method))
+      } else if (method.isSetter) {
+        compositeField.removeSetter(MethodField.fromSetter(method))
+      }
+      if (compositeField.isEmpty()) {
+        getAllFields(method.ownerClass).remove(method.propertyName)
+      }
+    }
+
+    fun undefineField(javaType: JavaType, name: String) = getAllFields(javaType).remove(name)
 
     private fun loadAllFields(javaType: JavaType): Set<CompositeField> {
       return if (javaType.isLoaded) (javaType.realClazz.fields + javaType.realClazz.declaredFields).map { CompositeField(
@@ -455,6 +485,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     fun dispose(className: String) {
       classFields.remove(className)
     }
+
   }
 
 }

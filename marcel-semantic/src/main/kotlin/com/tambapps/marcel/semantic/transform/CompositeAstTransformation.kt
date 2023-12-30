@@ -8,7 +8,7 @@ import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.type.NotLoadedJavaType
 
 abstract class CompositeAstTransformation(
-  private val transformations: List<AstTransformation>
+  private val transformations: List<SyntaxTreeTransformation>
 ): AbstractAstTransformation() {
 
   override fun init(typeResolver: JavaTypeResolver) {
@@ -18,9 +18,9 @@ abstract class CompositeAstTransformation(
     }
   }
 
-  override fun transformType(javaType: NotLoadedJavaType, annotation: AnnotationNode, node: CstNode) {
+  override fun transform(javaType: NotLoadedJavaType, node: CstNode, annotation: AnnotationNode) {
     for (t in transformations) {
-      if (shouldApply(t, annotation)) t.transformType(javaType, annotation, node)
+      if (shouldApply(t, annotation)) t.transform(javaType, node, annotation)
     }
   }
 
@@ -30,6 +30,6 @@ abstract class CompositeAstTransformation(
     }
   }
 
-  protected abstract fun shouldApply(transformation: AstTransformation, annotation: AnnotationNode): Boolean
+  protected abstract fun shouldApply(transformation: SyntaxTreeTransformation, annotation: AnnotationNode): Boolean
 
 }

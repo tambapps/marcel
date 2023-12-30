@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)
-public @interface MarcelAstTransformationClass {
+public @interface MarcelSyntaxTreeTransformationClass {
 
   String[] value() default {};
   Class[] classes() default {};

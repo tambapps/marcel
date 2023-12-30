@@ -11,7 +11,7 @@ import com.tambapps.marcel.semantic.type.JavaTypeResolver
 /**
  * Base class for AST transformations providing handy methods to handle/generate AST nodes
  */
-abstract class AbstractAstTransformation : AstNodeComposer(), AstTransformation {
+abstract class AbstractAstTransformation : AstNodeComposer(), SyntaxTreeTransformation {
 
   override lateinit var typeResolver: JavaTypeResolver
   override lateinit var caster: AstNodeCaster

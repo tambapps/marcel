@@ -9,19 +9,19 @@ import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
-import com.tambapps.marcel.semantic.transform.AstTransformation
+import com.tambapps.marcel.semantic.transform.SyntaxTreeTransformation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import com.tambapps.marcel.semantic.type.NotLoadedJavaType
-import marcel.lang.MarcelAstTransformationClass
+import marcel.lang.MarcelSyntaxTreeTransformationClass
 import java.lang.Exception
 import java.lang.annotation.ElementType
 
-class AstTransformer(
+class SyntaxTreeTransformer(
   private val typeResolver: JavaTypeResolver
 ) {
 
-  private val map = mutableMapOf<JavaAnnotationType, List<AstTransformation>>()
+  private val map = mutableMapOf<JavaAnnotationType, List<SyntaxTreeTransformation>>()
 
   fun loadTransformations(semantic: MarcelSemantic) {
     semantic.cst.classes.forEach { doLoadTransformations(semantic, it) }
@@ -81,14 +81,14 @@ class AstTransformer(
     annotations.asSequence()
       .map { semantic.visit(it, elementType) }
       .filter { annotation -> annotation.type.isLoaded
-          && annotation.type.realClazz.getAnnotation(MarcelAstTransformationClass::class.java) != null }
+          && annotation.type.realClazz.getAnnotation(MarcelSyntaxTreeTransformationClass::class.java) != null }
       .forEach { annotation ->
         val transformations = map.computeIfAbsent(annotation.type, this::getTransformations)
         if (transformations.isNotEmpty()) {
           transformations.forEach { transformation ->
             transformation.init(typeResolver)
             try {
-              transformation.transformType(classType, annotation, node)
+              transformation.transform(classType, node, annotation)
             } catch (e: Exception) {
               if (e !is MarcelSemanticException) System.err.println("Error while applying AST transformation ${transformation.javaClass} from annotation ${annotation.type}")
               throw e
@@ -100,8 +100,8 @@ class AstTransformer(
       }
   }
 
-  private fun getTransformations(annotationType: JavaAnnotationType): List<AstTransformation> {
-    val transformationAnnotation = annotationType.realClazz.getAnnotation(MarcelAstTransformationClass::class.java)
+  private fun getTransformations(annotationType: JavaAnnotationType): List<SyntaxTreeTransformation> {
+    val transformationAnnotation = annotationType.realClazz.getAnnotation(MarcelSyntaxTreeTransformationClass::class.java)
     val classes =
       if (transformationAnnotation.classes.isNotEmpty()) transformationAnnotation.classes.map { it.java }
       else transformationAnnotation.value.mapNotNull {
@@ -117,7 +117,7 @@ class AstTransformer(
 
     return classes.mapNotNull {
       try {
-        it.getDeclaredConstructor().newInstance() as AstTransformation
+        it.getDeclaredConstructor().newInstance() as SyntaxTreeTransformation
       } catch (e: ReflectiveOperationException) {
         System.err.println("Error while attempting to instantiate AST Transformation $it for annotation $annotationType")
         e.printStackTrace()

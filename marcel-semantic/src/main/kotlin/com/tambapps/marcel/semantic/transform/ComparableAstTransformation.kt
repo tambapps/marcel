@@ -20,7 +20,7 @@ import marcel.lang.data
  */
 class ComparableAstTransformation: GenerateMethodAstTransformation() {
 
-  override fun doTransformType(javaType: NotLoadedJavaType, annotation: AnnotationNode) {
+  override fun doTransformType(javaType: NotLoadedJavaType, annotation: AnnotationNode, node: CstNode) {
     javaType.addImplementedInterface(java.lang.Comparable::class.javaType)
   }
 

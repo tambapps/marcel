@@ -11,7 +11,7 @@ import static java.lang.annotation.ElementType.METHOD;
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(value={METHOD})
-@MarcelAstTransformationClass("com.tambapps.marcel.semantic.transform.CachedAstTransformation")
+@MarcelSyntaxTreeTransformationClass("com.tambapps.marcel.semantic.transform.CachedAstTransformation")
 public @interface cached {
 
   /**
