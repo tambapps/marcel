@@ -51,6 +51,7 @@
     - [@comparable](metaprogramming/meta-annotations/comparable.md)
     - [@data](metaprogramming/meta-annotations/data.md)
     - [@cached](metaprogramming/meta-annotations/cached.md)
+    - [@lazy](metaprogramming/meta-annotations/lazy.md)
 - [Guides](./guides/index.md)
   - [Collections](./guides/collections.md)
   - [Regular Expressions](./guides/regular-expressions.md)

@@ -2,12 +2,19 @@ package com.tambapps.marcel.semantic.transform
 
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.FieldCstNode
+import com.tambapps.marcel.parser.cst.MethodCstNode
+import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
+import com.tambapps.marcel.semantic.CstNodeComposer
+import com.tambapps.marcel.semantic.CstSemantic
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
+import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.JavaMethodImpl
+import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.ImportScope
 import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaType
@@ -20,7 +27,7 @@ import com.tambapps.marcel.semantic.visitor.ImportCstNodeConverter
 /**
  * Base class for CST transformations providing handy methods to handle/generate CST nodes
  */
-abstract class AbstractCstTransformation : SyntaxTreeTransformation {
+abstract class AbstractCstTransformation : CstNodeComposer(), CstSemantic, SyntaxTreeTransformation {
 
   lateinit var typeResolver: JavaTypeResolver
 
@@ -49,15 +56,24 @@ abstract class AbstractCstTransformation : SyntaxTreeTransformation {
     return ImportScope(typeResolver, Scope.DEFAULT_IMPORTS + ImportCstNodeConverter.convert(cstNode.imports), cstNode.packageName)
   }
 
-  abstract fun doTransform(javaType: NotLoadedJavaType, node: CstNode, annotation: AnnotationNode)
-
-  protected fun toMarcelField(ownerType: JavaType, fieldNode: FieldCstNode): MarcelField {
-    //val scope = ImportScope(typeResolver, fieldNode.parentClassNode.parentSourceFileNode.imports,)
-    return JavaClassFieldImpl(
-      resolve(fieldNode.type), fieldNode.name, ownerType, fieldNode.access.isFinal,
-      Visibility.fromTokenType(fieldNode.access.visibility), fieldNode.access.isStatic)
+  override fun toMethodParameter(
+    ownerType: JavaType,
+    forExtensionType: JavaType?,
+    visibility: Visibility,
+    isStatic: Boolean,
+    parameterIndex: Int,
+    methodName: String,
+    node: MethodParameterCstNode
+  ): MethodParameter {
+    // we don't handle annotations nor defaultValue. Yup, CST transformations are limited
+    return MethodParameter(
+      resolve(node.type), node.name, emptyList(), null
+    )
   }
 
-  fun resolve(node: TypeCstNode): JavaType = scope!!.resolveTypeOrThrow(node)
+  abstract fun doTransform(javaType: NotLoadedJavaType, node: CstNode, annotation: AnnotationNode)
+
+
+  override fun resolve(node: TypeCstNode): JavaType = scope!!.resolveTypeOrThrow(node)
 
 }

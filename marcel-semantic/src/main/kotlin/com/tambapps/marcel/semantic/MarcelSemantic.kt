@@ -193,7 +193,10 @@ open class MarcelSemantic constructor(
   private val scriptType: JavaType,
   val cst: SourceFileCstNode,
   val fileName: String,
-): MarcelBaseSemantic(), ExpressionCstNodeVisitor<ExpressionNode, JavaType>, StatementCstNodeVisitor<StatementNode> {
+): MarcelBaseSemantic(),
+  CstSemantic,
+  ExpressionCstNodeVisitor<ExpressionNode, JavaType>,
+  StatementCstNodeVisitor<StatementNode> {
 
   companion object {
     const val PUT_AT_METHOD_NAME = "putAt"
@@ -222,7 +225,7 @@ open class MarcelSemantic constructor(
     val moduleNode = ModuleNode(cst.tokenStart, cst.tokenEnd)
 
     // load extension types
-    val extensionTypes = cst.extensionImports.map(this::visit)
+    val extensionTypes = cst.extensionImports.map(this::resolve)
     extensionTypes.forEach(typeResolver::loadExtension)
 
     try {
@@ -271,27 +274,27 @@ open class MarcelSemantic constructor(
   }
 
   private fun defineClass(classCstNode: ClassCstNode) {
-    val superType = classCstNode.superType?.let { visit(it) } ?: JavaType.Object
-    val interfaces = classCstNode.interfaces.map { visit(it) }
+    val superType = classCstNode.superType?.let { resolve(it) } ?: JavaType.Object
+    val interfaces = classCstNode.interfaces.map { resolve(it) }
     val classType = typeResolver.defineClass(classCstNode.tokenStart, Visibility.fromTokenType(classCstNode.access.visibility),
       classCstNode.className, superType, false, interfaces)
     defineClassMembers(classCstNode, classType)
   }
 
   fun defineClassMembers(classCstNode: ClassCstNode, classType: JavaType, recursive: Boolean = true) = useScope(
-    ClassScope(typeResolver, classType, classCstNode.forExtensionType?.let { visit(it) }, imports)) {
+    ClassScope(typeResolver, classType, classCstNode.forExtensionType?.let { resolve(it) }, imports)) {
     if (classCstNode.isExtensionClass) {
       val extensionCstType = classCstNode.forExtensionType!!
-      val extensionType = visit(extensionCstType)
+      val extensionType = resolve(extensionCstType)
       classCstNode.methods.forEach { m ->
         m.accessNode.isStatic = true
         // extension class methods first parameter is self, which can be considered as this
         m.parameters.add(0, MethodParameterCstNode(m, m.tokenStart, m.tokenEnd, "self", extensionCstType, null, emptyList(), false))
         // define extension method so that we can reference them in methods of this extension class
-        typeResolver.defineMethod(extensionType, ExtensionJavaMethod(toJavaMethod(classType, classCstNode.forExtensionType?.let(this::visit), m)))
+        typeResolver.defineMethod(extensionType, ExtensionJavaMethod(toJavaMethod(classType, classCstNode.forExtensionType?.let(this::resolve), m)))
       }
     }
-    classCstNode.methods.forEach { typeResolver.defineMethod(classType, toJavaMethod(classType, classCstNode.forExtensionType?.let(this::visit), it)) }
+    classCstNode.methods.forEach { typeResolver.defineMethod(classType, toJavaMethod(classType, classCstNode.forExtensionType?.let(this::resolve), it)) }
     classCstNode.fields.forEach { typeResolver.defineField(classType, toMarcelField(classType, it)) }
     classCstNode.constructors.forEach { typeResolver.defineMethod(classType, toJavaConstructor(classType, it)) }
 
@@ -301,7 +304,7 @@ open class MarcelSemantic constructor(
   }
 
   private fun classNode(classType: JavaType, node: ClassCstNode): ClassNode
-  = useScope(ClassScope(typeResolver, classType, node.forExtensionType?.let(this::visit), imports)) { classScope ->
+  = useScope(ClassScope(typeResolver, classType, node.forExtensionType?.let(this::resolve), imports)) { classScope ->
     val classNode = ClassNode(classType, Visibility.fromTokenType(node.access.visibility),
       classScope.forExtensionType,
       isStatic = classType.outerTypeName != null && node.access.isStatic,
@@ -347,7 +350,7 @@ open class MarcelSemantic constructor(
     val fieldInitialValueMap = mutableMapOf<FieldNode, ExpressionNode>()
     node.fields.forEach { cstFieldNode ->
       val fieldNode = FieldNode(
-        visit(cstFieldNode.type), cstFieldNode.name, classType,
+        resolve(cstFieldNode.type), cstFieldNode.name, classType,
         cstFieldNode.annotations.map { visit(it, ElementType.FIELD) },
         cstFieldNode.access.isFinal, Visibility.fromTokenType(cstFieldNode.access.visibility),
         cstFieldNode.access.isStatic, cstFieldNode.tokenStart, cstFieldNode.tokenEnd)
@@ -399,7 +402,7 @@ open class MarcelSemantic constructor(
 
   }
   fun visit(cstAnnotation: AnnotationCstNode, elementType: ElementType): AnnotationNode {
-    val annotationType = visit(cstAnnotation.typeNode)
+    val annotationType = resolve(cstAnnotation.typeNode)
     if (!annotationType.isAnnotation) throw MarcelSemanticException(cstAnnotation.token, "$annotationType is not an annotation")
     val javaAnnotationType = JavaAnnotationType.of(annotationType)
     if (!javaAnnotationType.targets.contains(elementType)) {
@@ -464,7 +467,7 @@ open class MarcelSemantic constructor(
 
   private fun methodNode(classNode: ClassNode, methodCst: MethodCstNode, classScope: ClassScope): MethodNode {
     val methodNode = toMethodNode(classNode, methodCst, methodCst.name,
-      visit(methodCst.returnTypeNode), classScope.classType)
+      resolve(methodCst.returnTypeNode), classScope.classType)
     fillMethodNode(classScope, methodNode, methodCst.statements, methodCst.annotations, isSingleStatementMethod = methodCst.isSingleStatementFunction)
     return methodNode
   }
@@ -636,7 +639,7 @@ open class MarcelSemantic constructor(
     else StringNode(expressions, node)
   }
 
-  override fun visit(node: ClassReferenceCstNode, smartCastType: JavaType?) = ClassReferenceNode(visit(node.type), node.token)
+  override fun visit(node: ClassReferenceCstNode, smartCastType: JavaType?) = ClassReferenceNode(resolve(node.type), node.token)
   override fun visit(node: ThisReferenceCstNode, smartCastType: JavaType?): ExpressionNode {
     return if (getCurrentClassNode()?.isExtensionClass == true)
       // if is extension, this is self
@@ -648,7 +651,7 @@ open class MarcelSemantic constructor(
   override fun visit(node: SuperReferenceCstNode, smartCastType: JavaType?) = SuperReferenceNode(currentScope.classType.superType!!, node.token)
 
   override fun visit(node: NewInstanceCstNode, smartCastType: JavaType?): ExpressionNode {
-    val type = visit(node.type)
+    val type = resolve(node.type)
 
     val positionalArguments = node.positionalArgumentNodes.map { it.accept(this) }
     val namedArguments = node.namedArgumentNodes.map {Pair(it.first, it.second.accept(this))  }
@@ -867,6 +870,7 @@ open class MarcelSemantic constructor(
             // Objects.equals(...) handles any Object whereas Arrays.equals() handles Object[]
             else fCall(node = node, name = "deepEquals", ownerType = Objects::class.javaType, arguments = listOf(left, right))
           }
+          // TODO sometimes it could be better. E.G. Objects.equals(this._i, (Object)null)
           else -> fCall(node = node, name = "equals", ownerType = Objects::class.javaType, arguments = listOf(left, right))
         }
         if (tokenType == TokenType.EQUAL) equalNode else NotNode(equalNode)
@@ -947,7 +951,7 @@ open class MarcelSemantic constructor(
         positionalArguments,
         namedArguments)
         ?: throw MarcelSemanticException(node.token, MethodResolver.methodResolveErrorMessage(positionalArguments, namedArguments, owner.type, rightOperand.value))
-      val castType = rightOperand.castType?.let { visit(it) }
+      val castType = rightOperand.castType?.let { resolve(it) }
       fCall(method = method, owner = if (discardOwnerInReturned || method.isMarcelStatic) null else owner, castType = castType,
         arguments = arguments,
         // this is important for code highlight
@@ -980,7 +984,7 @@ open class MarcelSemantic constructor(
         rightOperand.positionalArgumentNodes.map { it.accept(this) },
         rightOperand.namedArgumentNodes.map { Pair(it.first, it.second.accept(this)) })
         ?: throw MarcelSemanticException(node.token, "Method ${ownerType}.${rightOperand.value} couldn't be resolved")
-      val castType = rightOperand.castType?.let { visit(it) }
+      val castType = rightOperand.castType?.let { resolve(it) }
       if (!method.isStatic) throw MarcelSemanticException(node, "Method $method is not static")
       fCall(method = method, owner = null, castType = castType,
         arguments = arguments, node = node)
@@ -996,7 +1000,7 @@ open class MarcelSemantic constructor(
 
   override fun visit(node: BinaryTypeOperatorCstNode, smartCastType: JavaType?): ExpressionNode {
     val left = node.leftOperand.accept(this)
-    val right = visit(node.rightOperand)
+    val right = resolve(node.rightOperand)
 
 
     return when(val tokenType = node.tokenType) {
@@ -1185,7 +1189,7 @@ open class MarcelSemantic constructor(
     val positionalArguments = node.positionalArgumentNodes.map { it.accept(this) }
     val namedArguments = node.namedArgumentNodes.map { Pair(it.first, it.second.accept(this)) }
 
-    val castType = node.castType?.let(this::visit)
+    val castType = node.castType?.let(this::resolve)
 
     return resolveMethodCall(node, positionalArguments, namedArguments, castType)
       ?: throw MarcelSemanticException(node.token, "Method with name ${node.value} couldn't be resolved")
@@ -1296,7 +1300,7 @@ open class MarcelSemantic constructor(
   }
 
   override fun visit(node: VariableDeclarationCstNode): StatementNode {
-    val variable = currentMethodScope.addLocalVariable(visit(node.type), node.value, token = node.token)
+    val variable = currentMethodScope.addLocalVariable(resolve(node.type), node.value, token = node.token)
     checkVariableAccess(variable, node, checkSet = true)
     return ExpressionStatementNode(
       VariableAssignmentNode(variable,
@@ -1326,7 +1330,7 @@ open class MarcelSemantic constructor(
       // declare all variables
       val variableMap = mutableMapOf<Int, LocalVariable>()
       node.declarations.forEachIndexed { index, pair ->
-        if (pair != null) variableMap[index] = currentMethodScope.addLocalVariable(visit(pair.first), pair.second, token = node.token)
+        if (pair != null) variableMap[index] = currentMethodScope.addLocalVariable(resolve(pair.first), pair.second, token = node.token)
       }
       // then assign
       when {
@@ -1421,7 +1425,7 @@ open class MarcelSemantic constructor(
    * to get potential wanted cast types of the lambda
    */
   override fun visit(node: LambdaCstNode, smartCastType: JavaType?): ExpressionNode {
-    val parameters = node.parameters.map { param -> LambdaClassNode.MethodParameter(param.type?.let { visit(it) }, param.name) }
+    val parameters = node.parameters.map { param -> LambdaClassNode.MethodParameter(param.type?.let { resolve(it) }, param.name) }
     // search for already generated lambdaNode if not empty
     val lambdaOuterClassNode = getCurrentClassNode() ?: throw MarcelSemanticException(node.token, "Cannot use lambdas in such context")
 
@@ -1617,7 +1621,7 @@ open class MarcelSemantic constructor(
     val whenReturnType = smartCastType ?: computeWhenReturnType(node)
 
     val switchExpressionRef = ReferenceCstNode(node.parent, varDecl?.value ?: ("__switch_expression" + node.hashCode().toString().replace('-', '_')), node.token)
-    val switchExpressionLocalVariable = currentMethodScope.addLocalVariable(varDecl?.let { visit(it.type) } ?: switchExpression?.type ?: JavaType.Object, switchExpressionRef.value, token = node.token)
+    val switchExpressionLocalVariable = currentMethodScope.addLocalVariable(varDecl?.let { resolve(it.type) } ?: switchExpression?.type ?: JavaType.Object, switchExpressionRef.value, token = node.token)
 
     val rootIfCstNode = node.branches.first().let {
       toIf(it, switchExpression, switchExpressionRef, node)
@@ -1743,7 +1747,7 @@ open class MarcelSemantic constructor(
   }
 
   override fun visit(node: ForInCstNode) = useScope(MethodInnerScope(currentMethodScope, isInLoop = true)) {
-    val variable = it.addLocalVariable(visit(node.varType), node.varName, token = node.token)
+    val variable = it.addLocalVariable(resolve(node.varType), node.varName, token = node.token)
 
     val inNode = node.inNode.accept(this)
 
@@ -1815,7 +1819,7 @@ open class MarcelSemantic constructor(
     val inNode = node.inNode.accept(this)
 
     val localVars = node.declarations.map { pair ->
-      it.addLocalVariable(visit(pair.first), pair.second, token = node.token)
+      it.addLocalVariable(resolve(pair.first), pair.second, token = node.token)
     }
 
     if (inNode.type.implements(JavaType.Map)) {
@@ -1853,7 +1857,7 @@ open class MarcelSemantic constructor(
   }
 
   override fun visit(node: TruthyVariableDeclarationCstNode, smartCastType: JavaType?): ExpressionNode {
-    val variable = currentMethodScope.addLocalVariable(visit(node.type), node.value, token = node.token)
+    val variable = currentMethodScope.addLocalVariable(resolve(node.type), node.value, token = node.token)
     var expression = node.expression.accept(this)
     /*
      * handle Optional unboxing
@@ -1912,7 +1916,7 @@ open class MarcelSemantic constructor(
 
     // handle resources first, as they need to be declared
     val resourceVarDecls = node.resources.map {
-      val resourceType = visit(it.type)
+      val resourceType = resolve(it.type)
       if (!resourceType.implements(Closeable::class.javaType)) {
         throw MarcelSemanticException(node, "Try resources need to implement Closeable")
       }
@@ -1932,7 +1936,7 @@ open class MarcelSemantic constructor(
 
     // handle catch blocks
     val catchNodes = node.catchNodes.map { triple ->
-      val throwableTypes = triple.first.map(this::visit)
+      val throwableTypes = triple.first.map(this::resolve)
       if (throwableTypes.any { !Throwable::class.javaType.isAssignableFrom(it) }) {
         throw MarcelSemanticException(node.token, "Can only catch throwable types")
       } else if (throwableTypes.isEmpty()) {
@@ -2004,42 +2008,14 @@ open class MarcelSemantic constructor(
     }
   }
 
-  // TODO rename resolve
-  fun visit(node: TypeCstNode): JavaType = currentScope.resolveTypeOrThrow(node)
+  override fun resolve(node: TypeCstNode): JavaType = currentScope.resolveTypeOrThrow(node)
 
-  private fun toJavaMethod(ownerType: JavaType, forExtensionType: JavaType?, node: MethodCstNode): JavaMethod {
-    val visibility = Visibility.fromTokenType(node.accessNode.visibility)
-    val isStatic = node.accessNode.isStatic
-    return JavaMethodImpl(ownerType, Visibility.fromTokenType(node.accessNode.visibility), node.name,
-      node.parameters.mapIndexed { index, methodParameterCstNode -> toMethodParameter(ownerType, forExtensionType, visibility, isStatic, index, node.name, methodParameterCstNode) },
-      visit(node.returnTypeNode), false, false, isStatic, false)
-  }
-
-  private fun toJavaConstructor(ownerType: JavaType, node: ConstructorCstNode): JavaMethod {
-    val visibility = Visibility.fromTokenType(node.accessNode.visibility)
-    return JavaConstructorImpl(visibility, isVarArgs = false, ownerType, node.parameters.mapIndexed { index, methodParameterCstNode -> toMethodParameter(
-      ownerType,
-      null,
-      visibility,
-      false,
-      index,
-      "constructor",
-      methodParameterCstNode
-    )})
-  }
-
-  private fun toMarcelField(ownerType: JavaType, fieldNode: FieldCstNode): MarcelField {
-   return JavaClassFieldImpl(
-     visit(fieldNode.type), fieldNode.name, ownerType, fieldNode.access.isFinal,
-      Visibility.fromTokenType(fieldNode.access.visibility), fieldNode.access.isStatic)
-  }
-
-  private fun toMethodParameter(ownerType: JavaType, forExtensionType: JavaType?, visibility: Visibility,
+  override fun toMethodParameter(ownerType: JavaType, forExtensionType: JavaType?, visibility: Visibility,
                                 isStatic: Boolean, parameterIndex: Int,
                                 methodName: String, node: MethodParameterCstNode): MethodParameter {
     val parameterType =
       if (node.thisParameter) typeResolver.getClassField(ownerType, node.name, node.token).type
-      else visit(node.type)
+      else resolve(node.type)
     val defaultValue = if (node.defaultValue != null) {
       val defaultValueMethod = generateDefaultParameterMethod(node, ownerType, visibility, isStatic, methodName, parameterType, parameterIndex)
       useScope(newMethodScope(ownerType, forExtensionType, defaultValueMethod)) { caster.cast(parameterType, node.defaultValue!!.accept(this)) }
@@ -2061,7 +2037,7 @@ open class MarcelSemantic constructor(
     val annotations = node.annotations.map { visit(it, ElementType.PARAMETER) }.toMutableList()
     val parameterType =
       if (node.thisParameter) typeResolver.getClassField(ownerType, node.name, node.token).type
-      else visit(node.type)
+      else resolve(node.type)
     val parameterName = node.name
     // may be needed
     val defaultValueMethod = generateDefaultParameterMethod(node, ownerType, visibility, isStatic, methodName, parameterType, parameterIndex)

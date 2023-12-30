@@ -42,6 +42,34 @@ int a = 2
 a = 3
 ```
 
+## Properties
+Marcel allows to access getters and setters as properties.
+
+Suppose you have the below class
+
+```marcel
+class Foo {
+  private int bar
+  
+  fun getBar() {
+    return this.bar
+  }
+  
+  fun setBar(int bar) {
+    this.bar = bar
+  }
+}
+```
+
+You could call these `getBar/setBar` methods using the property syntax
+
+```marcel
+Foo foo = new Foo()
+
+foo.bar = 5 // will actully call foo.setBar(5)
+println(foo.bar) // will actually call foo.getBar()
+
+```
 
 ### Automatic casting
 Variable assignments are automatically casted when needed.

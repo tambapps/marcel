@@ -41,7 +41,7 @@ class SymbolsDefiner(
     for ((semantic, classCstNode, classType) in toDefineTypes) {
       val superType =
         if (classCstNode is ScriptCstNode) scriptClass
-        else classCstNode.superType?.let { semantic.visit(it) } ?: JavaType.Object
+        else classCstNode.superType?.let { semantic.resolve(it) } ?: JavaType.Object
       if (!superType.isAccessibleFrom(classType)) {
         throw MarcelSemanticException(classCstNode, "Class $superType is not accessible from $classType")
       }
@@ -52,7 +52,7 @@ class SymbolsDefiner(
         throw MarcelSemanticException(classCstNode, "Cannot extend an interface")
       }
       classType.superType = superType
-      classType.directlyImplementedInterfaces.addAll(classCstNode.interfaces.map { semantic.visit(it) })
+      classType.directlyImplementedInterfaces.addAll(classCstNode.interfaces.map { semantic.resolve(it) })
       for (interfaceType in classType.directlyImplementedInterfaces) {
         if (!interfaceType.isInterface) {
           throw MarcelSemanticException(classCstNode, "Cannot implement a non-interface")

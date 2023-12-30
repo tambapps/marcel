@@ -3,14 +3,14 @@ package com.tambapps.marcel.parser.cst
 import com.tambapps.marcel.lexer.LexToken
 
 class MethodCstNode(
-  parent: CstNode?,
+  val parentClassNode: ClassCstNode,
   tokenStart: LexToken,
   tokenEnd: LexToken,
   accessNode: AccessCstNode,
   val name: String,
   val returnTypeNode: TypeCstNode,
 ) :
-  AbstractMethodCstNode(parent, tokenStart, tokenEnd, accessNode) {
+  AbstractMethodCstNode(parentClassNode, tokenStart, tokenEnd, accessNode) {
     var isSingleStatementFunction = false // whether if is fun type method() -> statement()
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
