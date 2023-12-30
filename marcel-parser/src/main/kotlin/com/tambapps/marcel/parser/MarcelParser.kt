@@ -128,7 +128,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     val sourceFile = SourceFileCstNode(packageName = packageName, tokenStart = tokens.first(),
       dumbbells = dumbbells,
       tokenEnd = tokens.last())
-    val scriptNode = ScriptCstNode(tokens.first(), tokens.last(),
+    val scriptNode = ScriptCstNode(sourceFile, tokens.first(), tokens.last(),
       if (packageName != null) "$packageName.$classSimpleName"
       else classSimpleName)
 
@@ -137,7 +137,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     sourceFile.extensionImports.addAll(extensionTypes)
 
     while (current.type != TokenType.END_OF_FILE) {
-      parseMember(packageName, sourceFile, scriptNode, null)
+      parseMember(sourceFile, packageName, sourceFile, scriptNode, null)
     }
 
     // class defined are not script class inner classes
@@ -150,11 +150,17 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     }
     return sourceFile
   }
-  private fun parseMember(packageName: String?, parentNode: CstNode?, classNode: ClassCstNode, outerClassNode: ClassCstNode?) {
+  private fun parseMember(
+    sourceFile: SourceFileCstNode,
+    packageName: String?,
+    parentNode: CstNode?,
+    classNode: ClassCstNode,
+    outerClassNode: ClassCstNode?
+  ) {
     val annotations = parseAnnotations(parentNode)
     val access = parseAccess(parentNode)
     if (current.type == TokenType.CLASS || current.type == TokenType.EXTENSION) {
-      classNode.innerClasses.add(parseClass(packageName, parentNode, annotations, access, outerClassNode))
+      classNode.innerClasses.add(parseClass(sourceFile, packageName, parentNode, annotations, access, outerClassNode))
     } else if (current.type == TokenType.FUN || current.type == TokenType.CONSTRUCTOR) {
       when (val method = method(classNode, annotations, access)) {
         is MethodCstNode -> classNode.methods.add(method)
@@ -260,8 +266,12 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     return FieldCstNode(parentNode, tokenStart, previous, access, annotations, type, name, initialValue)
   }
 
-  private fun parseClass(packageName: String?, parentNode: CstNode?, annotations: List<AnnotationCstNode>, access: AccessCstNode,
-                         outerClassNode: ClassCstNode? = null): ClassCstNode {
+  private fun parseClass(
+    sourceFile: SourceFileCstNode,
+    packageName: String?, parentNode: CstNode?, annotations: List<AnnotationCstNode>,
+    access: AccessCstNode,
+    outerClassNode: ClassCstNode? = null
+  ): ClassCstNode {
     val isExtensionClass = acceptOptional(TokenType.EXTENSION) != null
     val classToken = accept(TokenType.CLASS)
     val classSimpleName = accept(TokenType.IDENTIFIER).value
@@ -285,12 +295,12 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         acceptOptional(TokenType.COMMA)
       }
     }
-    val classNode = ClassCstNode(classToken, classToken, access, className, superType, interfaces, forExtensionClassType)
+    val classNode = ClassCstNode(sourceFile, classToken, classToken, access, className, superType, interfaces, forExtensionClassType)
     classNode.annotations.addAll(annotations)
 
     accept(TokenType.BRACKETS_OPEN)
     while (current.type != TokenType.BRACKETS_CLOSE) {
-      parseMember(packageName, classNode, classNode, classNode)
+      parseMember(sourceFile, packageName, classNode, classNode, classNode)
     }
     accept(TokenType.BRACKETS_CLOSE)
     return classNode

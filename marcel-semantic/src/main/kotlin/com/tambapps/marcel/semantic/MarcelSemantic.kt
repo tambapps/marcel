@@ -2004,6 +2004,9 @@ open class MarcelSemantic constructor(
     }
   }
 
+  // TODO rename resolve
+  fun visit(node: TypeCstNode): JavaType = currentScope.resolveTypeOrThrow(node)
+
   private fun toJavaMethod(ownerType: JavaType, forExtensionType: JavaType?, node: MethodCstNode): JavaMethod {
     val visibility = Visibility.fromTokenType(node.accessNode.visibility)
     val isStatic = node.accessNode.isStatic

@@ -48,8 +48,6 @@ abstract class MarcelBaseSemantic {
   protected inline fun <U> useInnerScope(consumer: (MethodInnerScope) -> U)
       = useScope(newInnerScope(), consumer)
 
-  fun visit(node: TypeCstNode): JavaType = currentScope.resolveTypeOrThrow(node)
-
   /**
    * Cast method arguments if necessary and transform them to handle varags if necessary
    *

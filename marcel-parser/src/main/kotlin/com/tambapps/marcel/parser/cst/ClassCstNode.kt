@@ -2,7 +2,8 @@ package com.tambapps.marcel.parser.cst
 
 import com.tambapps.marcel.lexer.LexToken
 
-open class ClassCstNode(
+open class ClassCstNode constructor(
+  val parentSourceFileNode: SourceFileCstNode,
   tokenStart: LexToken,
   tokenEnd: LexToken,
   val access: AccessCstNode,

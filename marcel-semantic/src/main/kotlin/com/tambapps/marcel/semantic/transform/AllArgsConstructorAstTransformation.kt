@@ -27,7 +27,7 @@ class AllArgsConstructorAstTransformation: GenerateMethodAstTransformation() {
     val classNode = node as? ClassCstNode ?: throw MarcelAstTransformationException(this, node.token, "Cannot perform AllArgsConstructor as the annotated member is not a class")
 
     val fields = classNode.fields.filter { fieldCstNode: FieldCstNode ->
-      !fieldCstNode.access.isStatic && fieldCstNode.annotations.none { visit(it.typeNode) == data.Exclude::class.javaType }
+      !fieldCstNode.access.isStatic && fieldCstNode.annotations.none { resolve(it.typeNode) == data.Exclude::class.javaType }
     }
 
     if (fields.isEmpty()) {
@@ -43,7 +43,7 @@ class AllArgsConstructorAstTransformation: GenerateMethodAstTransformation() {
       signature(
         visibility = Visibility.PUBLIC,
         name = JavaMethod.CONSTRUCTOR_NAME,
-        parameters = fields.map { MethodParameter(visit(it.type), it.name) },
+        parameters = fields.map { MethodParameter(resolve(it.type), it.name) },
         returnType = JavaType.void // constructor return void
       )
     )

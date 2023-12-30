@@ -10,7 +10,7 @@ class FieldCstNode(
   val access: AccessCstNode,
   val annotations: List<AnnotationCstNode>,
   val type: TypeCstNode,
-  val name: String,
+  var name: String,
   val initialValue: ExpressionCstNode?
 ) :
   AbstractCstNode(parentClassNode, tokenStart, tokenEnd) {
