@@ -870,7 +870,6 @@ open class MarcelSemantic constructor(
             // Objects.equals(...) handles any Object whereas Arrays.equals() handles Object[]
             else fCall(node = node, name = "deepEquals", ownerType = Objects::class.javaType, arguments = listOf(left, right))
           }
-          // TODO sometimes it could be better. E.G. Objects.equals(this._i, (Object)null)
           else -> fCall(node = node, name = "equals", ownerType = Objects::class.javaType, arguments = listOf(left, right))
         }
         if (tokenType == TokenType.EQUAL) equalNode else NotNode(equalNode)
@@ -1054,7 +1053,7 @@ open class MarcelSemantic constructor(
     return if (left.type.primitive && right.type.primitive) {
       val commonType = JavaType.commonType(left.type, right.type)
       nodeCreator.invoke(caster.cast(commonType, left), caster.cast(commonType, right))
-    } else if (left.type.primitive && !left.type.primitive || !left.type.primitive && left.type.primitive) {
+    } else if (left.type.primitive && !right.type.primitive || !left.type.primitive && right.type.primitive) {
       if (!left.type.isPrimitiveObjectType || !left.type.isPrimitiveObjectType) {
         throw MarcelSemanticException(leftOperand.token, "Cannot compare ${left.type} with ${right.type}")
       }
@@ -1062,8 +1061,11 @@ open class MarcelSemantic constructor(
       val rightType = right.type.asPrimitiveType
       val commonType = JavaType.commonType(leftType, rightType)
       nodeCreator.invoke(caster.cast(commonType, caster.cast(leftType, left)), caster.cast(commonType, caster.cast(rightType, right)))
-
-    } else objectComparisonNodeCreator.invoke(caster.cast(JavaType.Object, left), caster.cast(JavaType.Object, right))
+    } else if (left is NullValueNode || right is NullValueNode) {
+      nodeCreator.invoke(left, right)
+    } else {
+      objectComparisonNodeCreator.invoke(caster.cast(JavaType.Object, left), caster.cast(JavaType.Object, right))
+    }
   }
 
   private fun numberComparisonOperatorNode(
