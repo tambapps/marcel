@@ -12,13 +12,7 @@ import static java.lang.annotation.ElementType.FIELD;
 // TODO document me
 @Retention(RetentionPolicy.SOURCE)
 @Target(value={FIELD})
-@MarcelSyntaxTreeTransformationClass({"com.tambapps.marcel.semantic.transform.LazyAstTransformation"})
+@MarcelSyntaxTreeTransformationClass({"com.tambapps.marcel.semantic.transform.LazyCstTransformation"})
 public @interface lazy {
-
-  /**
-   * Whether the lazy mechanism should be thread-safe or not
-   * @return whether the lazy mechanism should be thread-safe or not
-   */
-  boolean threadSafe() default false;
 
 }

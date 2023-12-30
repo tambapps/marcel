@@ -2,11 +2,8 @@ package com.tambapps.marcel.semantic.transform
 
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.FieldCstNode
-import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
-import com.tambapps.marcel.semantic.ast.AstNode
-import com.tambapps.marcel.semantic.ast.ClassNode
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.exception.MarcelSyntaxTreeTransformationException
 import com.tambapps.marcel.semantic.type.NotLoadedJavaType
 
 // TODO WIP
@@ -21,6 +18,15 @@ class LazyCstTransformation: AbstractCstTransformation() {
     node.name = "_" + originalField.name
 
     typeResolver.defineField(javaType, toMarcelField(javaType, node))
+
+    if (node.initialValue == null) {
+      throw MarcelSyntaxTreeTransformationException(this, node.token, "Need initial value to make field lazy")
+    }
+
+    val initialValue = node.initialValue!!
+    node.initialValue = null
+
+    // TODO
     /*
     val visibility = Visibility.fromTokenType(node.access.visibility)
     val suffix = node.name.first().uppercase() + node.name.substring(1)
@@ -44,9 +50,6 @@ class LazyCstTransformation: AbstractCstTransformation() {
      */
   }
 
-  override fun transform(node: AstNode, classNode: ClassNode, annotation: AnnotationNode) {
-    TODO("Not yet implemented")
-  }
   /*
   override fun generateMethodNodes(node: AstNode, classNode: ClassNode, annotation: AnnotationNode): List<MethodNode> {
     node as FieldCstNode

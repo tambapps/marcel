@@ -5,7 +5,7 @@ import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
-import com.tambapps.marcel.semantic.exception.MarcelAstTransformationException
+import com.tambapps.marcel.semantic.exception.MarcelSyntaxTreeTransformationException
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.NotLoadedJavaType
 
@@ -29,7 +29,7 @@ abstract class GenerateMethodAstTransformation: AbstractAstTransformation() {
 
         val duplicate = classNode.methods.find { method.matches(it) }
         if (duplicate != null) {
-          throw MarcelAstTransformationException(this, duplicate.token, "Method with $method is already defined")
+          throw MarcelSyntaxTreeTransformationException(this, duplicate.token, "Method with $method is already defined")
         }
         classNode.methods.add(method)
       }

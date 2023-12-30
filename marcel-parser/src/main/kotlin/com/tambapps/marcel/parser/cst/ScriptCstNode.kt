@@ -10,7 +10,7 @@ class ScriptCstNode(
   tokenEnd: LexToken,
   className: String
 ) : ClassCstNode(parentSourceFileNode, tokenStart, tokenEnd,
-  AccessCstNode(null, tokenStart, tokenEnd, false, false, false, TokenType.VISIBILITY_PUBLIC, false),
+  AccessCstNode(parentSourceFileNode, tokenStart, tokenEnd, false, false, false, TokenType.VISIBILITY_PUBLIC, false),
   className, null, emptyList(), null
 ) {
 

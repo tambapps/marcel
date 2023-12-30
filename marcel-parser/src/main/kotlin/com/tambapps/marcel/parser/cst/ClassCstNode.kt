@@ -11,7 +11,7 @@ open class ClassCstNode constructor(
   val superType: TypeCstNode?,
   val interfaces: List<TypeCstNode>,
   val forExtensionType: TypeCstNode?,
-) : AbstractCstNode(null, tokenStart, tokenEnd) {
+) : AbstractCstNode(parentSourceFileNode, tokenStart, tokenEnd) {
 
   val isExtensionClass: Boolean get() = forExtensionType != null
 

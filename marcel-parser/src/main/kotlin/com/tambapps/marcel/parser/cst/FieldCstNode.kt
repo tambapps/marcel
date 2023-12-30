@@ -11,7 +11,7 @@ class FieldCstNode(
   val annotations: List<AnnotationCstNode>,
   val type: TypeCstNode,
   var name: String,
-  val initialValue: ExpressionCstNode?
+  var initialValue: ExpressionCstNode?
 ) :
   AbstractCstNode(parentClassNode, tokenStart, tokenEnd) {
 

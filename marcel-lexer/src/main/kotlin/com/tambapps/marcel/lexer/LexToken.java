@@ -40,7 +40,7 @@ public class LexToken {
   }
   
   public String infoString() {
-    return getValue() != null ? String.format("\"%s\" (%s)", value, type) : type.toString();
+    return getValue() != null ? String.format("\"%s\"", value) : type.toString();
   }
 
   public int getColumn() {

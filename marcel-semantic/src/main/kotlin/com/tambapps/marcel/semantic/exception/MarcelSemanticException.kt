@@ -35,7 +35,7 @@ open class MarcelSemanticException(errors: List<Error>) : RuntimeException(
 
     private fun generateErrorMessage(error: Error): String {
       return String.format(
-        "Semantic error line %d, column %d at %s: %s",
+        "Semantic error line %d, column %d near %s: %s",
         error.token.line + 1, error.token.column, error.token.infoString(), error.message
       )
     }

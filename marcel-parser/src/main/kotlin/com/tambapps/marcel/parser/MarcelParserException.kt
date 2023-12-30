@@ -35,7 +35,7 @@ class MarcelParserException(private val errors: List<Error>) : RuntimeException(
 
     private fun generateErrorMessage(error: Error): String {
       return String.format(
-        "Syntax error line %d, column %d at %s: %s",
+        "Syntax error line %d, column %d near %s: %s",
         error.token.line + 1, error.token.column, error.token.infoString(), error.message
       )
     }
