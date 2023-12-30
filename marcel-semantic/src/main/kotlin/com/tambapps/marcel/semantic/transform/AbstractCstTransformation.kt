@@ -1,5 +1,6 @@
 package com.tambapps.marcel.semantic.transform
 
+import com.tambapps.marcel.parser.cst.ClassCstNode
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.FieldCstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
@@ -12,6 +13,7 @@ import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
+import com.tambapps.marcel.semantic.exception.MarcelSyntaxTreeTransformationException
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.JavaMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
@@ -76,4 +78,9 @@ abstract class AbstractCstTransformation : CstNodeComposer(), CstSemantic, Synta
 
   override fun resolve(node: TypeCstNode): JavaType = scope!!.resolveTypeOrThrow(node)
 
+  protected fun addMethod(javaType: JavaType, classNode: ClassCstNode, methodNode: MethodCstNode) {
+    // if the method already exists, the typeResolver will throw an error
+    typeResolver.defineMethod(javaType, toJavaMethod(ownerType = javaType, node = methodNode))
+    classNode.methods.add(methodNode)
+  }
 }

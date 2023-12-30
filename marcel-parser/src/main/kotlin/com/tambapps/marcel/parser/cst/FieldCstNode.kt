@@ -7,7 +7,7 @@ class FieldCstNode(
   val parentClassNode: ClassCstNode,
   tokenStart: LexToken,
   tokenEnd: LexToken,
-  val access: AccessCstNode,
+  var access: AccessCstNode,
   val annotations: List<AnnotationCstNode>,
   val type: TypeCstNode,
   var name: String,

@@ -1,5 +1,8 @@
 package com.tambapps.marcel.semantic.transform
 
+import com.tambapps.marcel.lexer.LexToken
+import com.tambapps.marcel.lexer.TokenType
+import com.tambapps.marcel.parser.cst.AccessCstNode
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.FieldCstNode
 import com.tambapps.marcel.semantic.ast.AnnotationNode
@@ -17,10 +20,14 @@ class LazyCstTransformation: AbstractCstTransformation() {
   override fun doTransform(javaType: NotLoadedJavaType, node: CstNode, annotation: AnnotationNode) {
     node as FieldCstNode
     val originalField = typeResolver.getClassField(javaType, node.name)
+    val originalVisibility = node.access.visibility
+    // making field private
+    node.access.visibility = TokenType.VISIBILITY_PRIVATE
     val originalFieldName = originalField.name
 
     typeResolver.undefineField(javaType, node.name)
 
+    // rename original field
     node.name = "_" + originalField.name
     val fieldName = node.name
 
@@ -29,35 +36,25 @@ class LazyCstTransformation: AbstractCstTransformation() {
     }
     typeResolver.defineField(javaType, toMarcelField(javaType, node))
 
-    if (node.initialValue == null) {
-      throw MarcelSyntaxTreeTransformationException(this, node.token, "Need initial value to make field lazy")
-    }
-
     val classNode = node.parentClassNode
-    val initialValue = node.initialValue!!
+    val initialValue = node.initialValue ?: throw MarcelSyntaxTreeTransformationException(this, node.token, "Need initial value to make field lazy")
     node.initialValue = null
 
     val getMethod = methodNode(
       classNode = classNode,
-      accessNode = node.access, name = "get" + originalFieldName[0].uppercase() + originalFieldName.substring(1),
+      accessNode = AccessCstNode(classNode, LexToken.DUMMY, LexToken.DUMMY,
+        isStatic = node.access.isStatic, isInline = false, isFinal = true, visibility = originalVisibility,
+        isExplicit = true),
+      name = "get" + originalFieldName[0].uppercase() + originalFieldName.substring(1),
       returnType = node.type,
       tokenStart = node.tokenStart,
       tokenEnd = node.tokenEnd
       ) {
-      ifStmt(
-        condition = isNull(ref(fieldName))
-      ) {
+      ifStmt(condition = isNull(ref(fieldName))) {
         varAssignStmt(fieldName, initialValue)
       }
       returnStmt(ref(fieldName))
     }
-
-    if (classNode.methods.any { it.name == getMethod.name && it.parameters == getMethod.parameters }) {
-      throw MarcelSyntaxTreeTransformationException(this, node.token, "Method ${getMethod.name} already exists")
-    }
-
-    typeResolver.defineMethod(javaType, toJavaMethod(ownerType = javaType, node = getMethod))
-    classNode.methods.add(getMethod)
+    addMethod(javaType, classNode, getMethod)
   }
-
 }
