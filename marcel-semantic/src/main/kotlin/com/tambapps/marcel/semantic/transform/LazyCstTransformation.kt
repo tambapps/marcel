@@ -19,13 +19,13 @@ class LazyCstTransformation: AbstractCstTransformation() {
 
   override fun doTransform(javaType: SourceJavaType, node: CstNode, annotation: AnnotationNode) {
     node as FieldCstNode
-    val originalField = typeResolver.getClassField(javaType, node.name)
+    val originalField = symbolResolver.getClassField(javaType, node.name)
     val originalVisibility = node.access.visibility
     // making field private
     node.access.visibility = TokenType.VISIBILITY_PRIVATE
     val originalFieldName = originalField.name
 
-    typeResolver.undefineField(javaType, node.name)
+    symbolResolver.undefineField(javaType, node.name)
 
     // rename original field
     node.name = "_" + originalField.name
@@ -34,7 +34,7 @@ class LazyCstTransformation: AbstractCstTransformation() {
     if (originalField.type.primitive) {
       throw MarcelSyntaxTreeTransformationException(this, node.token, "Lazy only works for object types")
     }
-    typeResolver.defineField(javaType, toMarcelField(javaType, node))
+    symbolResolver.defineField(javaType, toMarcelField(javaType, node))
 
     val classNode = node.parentClassNode
     val initialValue = node.initialValue ?: throw MarcelSyntaxTreeTransformationException(this, node.token, "Need initial value to make field lazy")

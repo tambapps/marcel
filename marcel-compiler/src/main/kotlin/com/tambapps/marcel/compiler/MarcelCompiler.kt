@@ -11,7 +11,7 @@ import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.semantic.MarcelSemantic
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import marcel.lang.MarcelClassLoader
 import java.io.File
 import java.io.IOException
@@ -56,7 +56,7 @@ class MarcelCompiler(configuration: CompilerConfiguration): AbstractMarcelCompil
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class, MarcelCompilerException::class)
   fun compileSourceFiles(sourceFiles: Collection<SourceFile>, marcelClassLoader: MarcelClassLoader? = null, classConsumer: Consumer<CompiledClass>) {
-    val typeResolver = JavaTypeResolver(marcelClassLoader)
+    val symbolResolver = MarcelSymbolResolver(marcelClassLoader)
 
     val semantics = sourceFiles.map { sourceFile ->
       val tokens = MarcelLexer().lex(sourceFile.text)
@@ -64,14 +64,14 @@ class MarcelCompiler(configuration: CompilerConfiguration): AbstractMarcelCompil
 
       handleDumbbells(marcelClassLoader, cst)
 
-      MarcelSemantic(typeResolver, configuration.scriptClass.javaType, cst, sourceFile.fileName)
+      MarcelSemantic(symbolResolver, configuration.scriptClass.javaType, cst, sourceFile.fileName)
     }
 
     // defining types
-    defineSymbols(typeResolver, semantics)
+    defineSymbols(symbolResolver, semantics)
 
     // load transformations if any
-    val syntaxTreeTransformer = SyntaxTreeTransformer(typeResolver)
+    val syntaxTreeTransformer = SyntaxTreeTransformer(symbolResolver)
     semantics.forEach { syntaxTreeTransformer.loadTransformations(it) }
 
     // apply semantic analysis
@@ -81,9 +81,9 @@ class MarcelCompiler(configuration: CompilerConfiguration): AbstractMarcelCompil
     asts.forEach { syntaxTreeTransformer.applyTransformations(it) }
 
     // checks
-    asts.forEach { check(it, typeResolver) }
+    asts.forEach { check(it, symbolResolver) }
 
-    val classWriter = MarcelClassCompiler(configuration, typeResolver)
+    val classWriter = MarcelClassCompiler(configuration, symbolResolver)
 
     // then compile them
     asts.forEach { ast ->

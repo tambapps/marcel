@@ -51,7 +51,7 @@ class CachedAstTransformation: GenerateMethodAstTransformation() {
 
     val threadSafe = annotation.getAttribute(THREAD_SAFE_OPTION)?.value == true
     val cacheField = fieldNode(Map::class.javaType, originalMethod.name + "\$cache")
-    addField(classNode, cacheField, constructorCall(method = typeResolver.findMethodOrThrow(
+    addField(classNode, cacheField, constructorCall(method = symbolResolver.findMethodOrThrow(
       if (threadSafe) ConcurrentHashMap::class.javaType
       else HashMap::class.javaType
       , JavaMethod.CONSTRUCTOR_NAME, emptyList()), arguments = emptyList()))

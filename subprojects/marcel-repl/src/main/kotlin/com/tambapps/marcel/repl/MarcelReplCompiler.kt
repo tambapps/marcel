@@ -20,14 +20,14 @@ import kotlin.jvm.Throws
 class MarcelReplCompiler constructor(
   compilerConfiguration: CompilerConfiguration,
   private val marcelClassLoader: MarcelClassLoader,
-  private val typeResolver: ReplJavaTypeResolver,
+  private val symbolResolver: ReplMarcelSymbolResolver,
 ): AbstractMarcelCompiler(compilerConfiguration) {
 
   val imports = LinkedHashSet<ImportNode>()
   private val lexer = MarcelLexer(false)
   private val _definedFunctions = mutableSetOf<com.tambapps.marcel.parser.cst.MethodCstNode>()
   val definedFunctions: Set<com.tambapps.marcel.parser.cst.MethodCstNode> get() = _definedFunctions
-  private val classCompiler = MarcelClassCompiler(compilerConfiguration, typeResolver)
+  private val classCompiler = MarcelClassCompiler(compilerConfiguration, symbolResolver)
   @Volatile
   var semanticResult: SemanticResult? = null
     private set
@@ -64,7 +64,7 @@ class MarcelReplCompiler constructor(
     val otherClasses = result.classes
       .filter { !it.isScript }
       .flatMap {
-        typeResolver.defineLibraryClass(it)
+        symbolResolver.defineLibraryClass(it)
         classCompiler.compileDefinedClass(it)
       }
 
@@ -107,7 +107,7 @@ class MarcelReplCompiler constructor(
   @Synchronized
   private fun updateAndGet(text: String, skipUpdate: Boolean = false): SemanticResult {
     if (semanticResult != null && semanticResult!!.scriptNode != null) {
-      typeResolver.undefineClass(semanticResult!!.scriptNode!!) // some cleaning
+      symbolResolver.undefineClass(semanticResult!!.scriptNode!!) // some cleaning
       if (semanticResult.hashCode() == text.hashCode()) return semanticResult!!
     }
     val tokens = lexer.lex(text)
@@ -129,14 +129,14 @@ class MarcelReplCompiler constructor(
       if (dumbbells.add(dumbbell)) handleDumbbell(marcelClassLoader, dumbbell)
     }
 
-    val semantic = MarcelReplSemantic(typeResolver, cst, "prompt.mcl")
+    val semantic = MarcelReplSemantic(symbolResolver, cst, "prompt.mcl")
     semantic.imports.addAll(imports)
 
     // defining types
-    defineSymbols(typeResolver, semantic)
+    defineSymbols(symbolResolver, semantic)
 
     // load transformations if any
-    val syntaxTreeTransformer = SyntaxTreeTransformer(typeResolver)
+    val syntaxTreeTransformer = SyntaxTreeTransformer(symbolResolver)
     syntaxTreeTransformer.loadTransformations(semantic)
 
     // apply semantic analysis
@@ -146,7 +146,7 @@ class MarcelReplCompiler constructor(
     syntaxTreeTransformer.applyTransformations(ast)
 
     // checks
-    check(ast, typeResolver)
+    check(ast, symbolResolver)
 
     val r = SemanticResult(tokens, cst, ast.classes, semantic.imports, text.hashCode())
     if (!skipUpdate) {

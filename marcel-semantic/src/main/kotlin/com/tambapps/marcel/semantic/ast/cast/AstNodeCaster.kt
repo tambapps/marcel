@@ -7,13 +7,12 @@ import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
 import com.tambapps.marcel.semantic.ast.expression.NewLambdaInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
-import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaArrayType
 import com.tambapps.marcel.semantic.type.JavaPrimitiveType
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import marcel.lang.DynamicObject
 import marcel.lang.MarcelTruth
 import marcel.lang.runtime.BytecodeHelper
@@ -22,7 +21,7 @@ import marcel.lang.runtime.BytecodeHelper
  * Class transforming nodes if necessary in order to cast them.
  */
 class AstNodeCaster(
-  private val typeResolver: JavaTypeResolver
+  private val symbolResolver: MarcelSymbolResolver
 ) {
 
   fun truthyCast(node: ExpressionNode): ExpressionNode {
@@ -147,7 +146,7 @@ class AstNodeCaster(
   }
 
   internal fun functionCall(ownerType: JavaType, name: String, arguments: List<ExpressionNode>, node: ExpressionNode): FunctionCallNode {
-    val method = typeResolver.findMethodOrThrow(ownerType, name, arguments)
+    val method = symbolResolver.findMethodOrThrow(ownerType, name, arguments)
     return FunctionCallNode(method, if (method.isStatic) null else node, arguments, node.token,
       // passing dummy to inform code highlight that this is not a fCall from the real marcel source code
       LexToken.DUMMY)

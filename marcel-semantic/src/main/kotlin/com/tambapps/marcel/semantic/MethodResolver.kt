@@ -1,6 +1,5 @@
 package com.tambapps.marcel.semantic
 
-import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.ast.StaticImportNode
@@ -12,13 +11,13 @@ import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 
 /**
  * Class allowing to resolve method and method parameters
  */
 class MethodResolver(
-  private val typeResolver: JavaTypeResolver,
+  private val symbolResolver: MarcelSymbolResolver,
   private val nodeCaster: AstNodeCaster,
   private val imports: List<ImportNode>
 ) {
@@ -33,14 +32,14 @@ class MethodResolver(
   fun resolveMethod(node: CstNode, ownerType: JavaType, name: String, positionalArguments: List<ExpressionNode>,
                     namedArguments: List<Pair<String, ExpressionNode>>): Pair<JavaMethod, List<ExpressionNode>>? {
     if (namedArguments.isEmpty()) {
-      val method = typeResolver.findMethod(ownerType, name, positionalArguments)
+      val method = symbolResolver.findMethod(ownerType, name, positionalArguments)
       if (method != null) {
         return Pair(method, completedArguments(node, method, positionalArguments, namedArguments))
       }
 
       // handle dynamic object method call
       if (ownerType.implements(JavaType.DynamicObject) && name != JavaMethod.CONSTRUCTOR_NAME) {
-        val dynamicInvokeMethod = typeResolver.findMethod(JavaType.DynamicObject, "invokeMethod", listOf(JavaType.String, JavaType.objectArray))!!
+        val dynamicInvokeMethod = symbolResolver.findMethod(JavaType.DynamicObject, "invokeMethod", listOf(JavaType.String, JavaType.objectArray))!!
         return Pair(dynamicInvokeMethod, listOf(StringConstantNode(name, node),
           ArrayNode(positionalArguments.map { nodeCaster.cast(JavaType.Object, it) }.toMutableList(),
             node, JavaType.objectArray)))
@@ -49,7 +48,7 @@ class MethodResolver(
     }
 
     val namedMethodParameters = namedArguments.map { MethodParameter(it.second.type, it.first) }
-    val method = typeResolver.findMethodByParameters(ownerType, name, positionalArguments, namedMethodParameters)
+    val method = symbolResolver.findMethodByParameters(ownerType, name, positionalArguments, namedMethodParameters)
     if (method != null) {
       return Pair(method, completedArguments(node, method, positionalArguments, namedArguments))
     }
@@ -60,7 +59,7 @@ class MethodResolver(
                                namedArguments: List<Pair<String, ExpressionNode>>): Pair<JavaMethod, List<ExpressionNode>>? {
     for (import in imports) {
       import as? StaticImportNode ?: continue
-      val type = typeResolver.of(node.token, import.className, emptyList())
+      val type = symbolResolver.of(node.token, import.className, emptyList())
       val result = resolveMethod(node, type, name, positionalArguments, namedArguments)
       if (result != null && result.first.isStatic) return result
     }

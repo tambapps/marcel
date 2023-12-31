@@ -6,7 +6,7 @@ import com.tambapps.marcel.compiler.extensions.storeCode
 import com.tambapps.marcel.compiler.extensions.visitMethodInsn
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.VariableVisitor
 import com.tambapps.marcel.semantic.variable.field.BoundField
@@ -20,7 +20,7 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 
 class StoreVariableVisitor(
-  private val typeResolver: JavaTypeResolver,
+  private val symbolResolver: MarcelSymbolResolver,
   private val mv: MethodVisitor,
   private val classScopeType: JavaType
 ): VariableVisitor<Unit> {
@@ -29,7 +29,7 @@ class StoreVariableVisitor(
   override fun visit(variable: BoundField) {
     mv.visitLdcInsn(variable.name)
     mv.visitInsn(Opcodes.SWAP) // need to swap because the value to store is before the name on the stack
-    mv.visitMethodInsn(typeResolver.findMethodOrThrow(Script::class.javaType, "setVariable", listOf(JavaType.String, JavaType.Object)))
+    mv.visitMethodInsn(symbolResolver.findMethodOrThrow(Script::class.javaType, "setVariable", listOf(JavaType.String, JavaType.Object)))
   }
 
   override fun visit(variable: DynamicMethodField) {

@@ -1,4 +1,4 @@
-package com.tambapps.marcel.semantic.type
+package com.tambapps.marcel.semantic.symbol
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.Visibility
@@ -21,6 +21,9 @@ import com.tambapps.marcel.semantic.variable.field.MarcelArrayLengthField
 import com.tambapps.marcel.semantic.variable.field.CompositeField
 import com.tambapps.marcel.semantic.variable.field.MethodField
 import com.tambapps.marcel.semantic.method.ReflectJavaConstructor
+import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.type.JavaTyped
+import com.tambapps.marcel.semantic.type.SourceJavaType
 import com.tambapps.marcel.semantic.variable.field.ReflectJavaField
 import marcel.lang.DynamicObject
 import marcel.lang.MarcelClassLoader
@@ -31,8 +34,8 @@ import marcel.lang.methods.DefaultMarcelMethods
  *
  * @property classLoader an optional class loader
  */
-// TODO rename JavaSymbolResolver?
-open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoader?): MethodMatcherTrait {
+open class MarcelSymbolResolver constructor(private val classLoader: MarcelClassLoader?): MethodMatcherTrait,
+  SymbolDefinerTrait {
 
   constructor(): this(null)
 
@@ -111,7 +114,7 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
     return type
   }
 
-  internal fun defineType(token: LexToken = LexToken.DUMMY, javaType: JavaType) {
+  override fun defineType(token: LexToken, javaType: JavaType) {
     checkTypeAlreadyDefined(token, javaType.className)
     _definedTypes[javaType.className] = javaType
   }
@@ -277,9 +280,9 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
   }
 
   private fun doFindMethodByParameters(javaType: JavaType, name: String,
-                                        positionalArgumentTypes: List<JavaTyped>,
-                                        namedParameters: Collection<MethodParameter>,
-                                        excludeInterfaces: Boolean, token: LexToken? = null): JavaMethod? {
+                                       positionalArgumentTypes: List<JavaTyped>,
+                                       namedParameters: Collection<MethodParameter>,
+                                       excludeInterfaces: Boolean, token: LexToken? = null): JavaMethod? {
     return findMethod(javaType, name, { matchesUnorderedParameters(it, name, positionalArgumentTypes, namedParameters) },
       {candidates ->
         val exactCandidates = candidates.filter { it.parameters.size == namedParameters.size }

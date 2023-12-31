@@ -26,7 +26,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNo
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
@@ -34,12 +34,12 @@ import java.lang.StringBuilder
 
 sealed class MethodExpressionWriter(
   protected val mv: MethodVisitor,
-  protected val typeResolver: JavaTypeResolver,
+  protected val symbolResolver: MarcelSymbolResolver,
   classScopeType: JavaType
 ): ExpressionNodeVisitor<Unit> {
 
-  protected val loadVariableVisitor = LoadVariableVisitor(typeResolver, mv, classScopeType)
-  protected val storeVariableVisitor = StoreVariableVisitor(typeResolver, mv, classScopeType)
+  protected val loadVariableVisitor = LoadVariableVisitor(symbolResolver, mv, classScopeType)
+  protected val storeVariableVisitor = StoreVariableVisitor(symbolResolver, mv, classScopeType)
 
   internal abstract fun pushExpression(node: ExpressionNode)
 
@@ -120,32 +120,32 @@ sealed class MethodExpressionWriter(
 
   override fun visit(node: MapNode) {
     val mapType = HashMap::class.javaType
-    val method = typeResolver.findMethodOrThrow(mapType, JavaMethod.CONSTRUCTOR_NAME, emptyList())
+    val method = symbolResolver.findMethodOrThrow(mapType, JavaMethod.CONSTRUCTOR_NAME, emptyList())
     visit(NewInstanceNode(mapType, method, emptyList(), node.token))
 
     for (entry in node.entries) {
       mv.visitInsn(Opcodes.DUP)
       entry.first.accept(this)
       entry.second.accept(this)
-      invokeMethodAsStatement(typeResolver.findMethodOrThrow(mapType, "put", listOf(JavaType.Object, JavaType.Object)))
+      invokeMethodAsStatement(symbolResolver.findMethodOrThrow(mapType, "put", listOf(JavaType.Object, JavaType.Object)))
     }
   }
 
   override fun visit(node: StringNode) {
     val stringBuilderType = StringBuilder::class.javaType
     // using StringBuilder to build the whole string
-    val constructorMethod = typeResolver.findMethod(StringBuilder::class.javaType, JavaMethod.CONSTRUCTOR_NAME, emptyList())!!
+    val constructorMethod = symbolResolver.findMethod(StringBuilder::class.javaType, JavaMethod.CONSTRUCTOR_NAME, emptyList())!!
     // new StringBuilder()
     visit(NewInstanceNode(stringBuilderType, constructorMethod, emptyList(), node.token))
     for (part in node.parts) {
       // chained .append(...) calls
       part.accept(this)
-      val method = typeResolver.findMethod(stringBuilderType, "append", listOf(
+      val method = symbolResolver.findMethod(stringBuilderType, "append", listOf(
         if (part.type.primitive) part else JavaType.Object
       ))!!
       mv.visitMethodInsn(method)
     }
-    mv.visitMethodInsn(typeResolver.findMethod(stringBuilderType, "toString", emptyList())!!)
+    mv.visitMethodInsn(symbolResolver.findMethod(stringBuilderType, "toString", emptyList())!!)
   }
 
   override fun visit(node: VoidExpressionNode) {

@@ -27,8 +27,8 @@ class MarcelEvaluatorTest {
   private val marcelClassLoader = URLMarcelClassLoader(MarcelEvaluatorTest::class.java.classLoader)
   private val compilerConfiguration = CompilerConfiguration(dumbbellEnabled = false)
   private val binding: Binding = Binding()
-  private val typeResolver = ReplJavaTypeResolver(marcelClassLoader, binding)
-  private val replCompiler = MarcelReplCompiler(compilerConfiguration, marcelClassLoader, typeResolver)
+  private val symbolResolver = ReplMarcelSymbolResolver(marcelClassLoader, binding)
+  private val replCompiler = MarcelReplCompiler(compilerConfiguration, marcelClassLoader, symbolResolver)
   private val jarWriterFactory = BasicJarWriterFactory()
   private lateinit var evaluator: MarcelEvaluator
 

@@ -4,17 +4,17 @@ import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.type.SourceJavaType
 
 abstract class CompositeAstTransformation(
   private val transformations: List<SyntaxTreeTransformation>
 ): AbstractAstTransformation() {
 
-  override fun init(typeResolver: JavaTypeResolver) {
-    super.init(typeResolver)
+  override fun init(symbolResolver: MarcelSymbolResolver) {
+    super.init(symbolResolver)
     for (t in transformations) {
-      t.init(typeResolver)
+      t.init(symbolResolver)
     }
   }
 

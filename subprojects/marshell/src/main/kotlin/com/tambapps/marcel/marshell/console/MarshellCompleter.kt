@@ -1,7 +1,7 @@
 package com.tambapps.marcel.marshell.console
 
 import com.tambapps.marcel.repl.MarcelReplCompiler
-import com.tambapps.marcel.repl.ReplJavaTypeResolver
+import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 import com.tambapps.marcel.repl.console.AbstractShellCompleter
 import org.jline.reader.Candidate
 import org.jline.reader.Completer
@@ -10,8 +10,8 @@ import org.jline.reader.ParsedLine
 
 class MarshellCompleter(
   compiler: MarcelReplCompiler,
-  typeResolver: ReplJavaTypeResolver
-): AbstractShellCompleter<Candidate>(compiler, typeResolver), Completer {
+  symbolResolver: ReplMarcelSymbolResolver
+): AbstractShellCompleter<Candidate>(compiler, symbolResolver), Completer {
 
   override fun complete(reader: LineReader, parsedLine: ParsedLine, candidates: MutableList<Candidate>) {
     val line = parsedLine.line()

@@ -2,7 +2,6 @@ package com.tambapps.marcel.semantic
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
-import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.LambdaClassNode
@@ -22,13 +21,13 @@ import com.tambapps.marcel.semantic.scope.MethodInnerScope
 import com.tambapps.marcel.semantic.scope.MethodScope
 import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import java.util.*
 
 abstract class MarcelBaseSemantic {
 
-  protected abstract val typeResolver: JavaTypeResolver
+  protected abstract val symbolResolver: MarcelSymbolResolver
   protected abstract val caster: AstNodeCaster
 
   val scopeQueue = LinkedList<Scope>()
@@ -58,7 +57,7 @@ abstract class MarcelBaseSemantic {
   protected fun castedArguments(method: JavaMethod, arguments: List<ExpressionNode>): List<ExpressionNode> {
     if (!method.isVarArgs
       // in case the provider did provide the array
-      || typeResolver.matchesMethod(method, arguments)) return arguments.mapIndexed { index, expressionNode -> caster.cast(method.parameters[index].type, expressionNode) }
+      || symbolResolver.matchesMethod(method, arguments)) return arguments.mapIndexed { index, expressionNode -> caster.cast(method.parameters[index].type, expressionNode) }
     val castedArguments = mutableListOf<ExpressionNode>()
 
     var i = 0
@@ -87,7 +86,7 @@ abstract class MarcelBaseSemantic {
   protected fun fCall(node: CstNode, ownerType: JavaType, name: String, arguments: List<ExpressionNode>,
                     owner: ExpressionNode? = null,
                     castType: JavaType? = null): ExpressionNode {
-    val method = typeResolver.findMethodOrThrow(ownerType, name, arguments, node.token)
+    val method = symbolResolver.findMethodOrThrow(ownerType, name, arguments, node.token)
     return fCall(node, method, arguments, owner, castType)
   }
 
@@ -126,7 +125,7 @@ abstract class MarcelBaseSemantic {
     if (!classNode.isStatic && classType.outerTypeName != null) {
       // java generates fields to reference outer class(es) from inner class. So does marcel.
       var outerLevel = 0
-      var levelType: JavaType? = classType.outerTypeName?.let { typeResolver.of(classNode.token, it) }
+      var levelType: JavaType? = classType.outerTypeName?.let { symbolResolver.of(classNode.token, it) }
       while (levelType != null) {
         val outerFieldName = "this$$outerLevel"
         val fieldNode = FieldNode(
@@ -143,10 +142,10 @@ abstract class MarcelBaseSemantic {
         )
         fields.add(fieldNode)
         classNode.fields.add(fieldNode)
-        typeResolver.defineField(classType, fieldNode)
+        symbolResolver.defineField(classType, fieldNode)
 
         outerLevel++
-        levelType = levelType.outerTypeName?.let { typeResolver.of(classNode.token, it, emptyList()) }
+        levelType = levelType.outerTypeName?.let { symbolResolver.of(classNode.token, it, emptyList()) }
       }
     }
     return fields
@@ -199,7 +198,7 @@ abstract class MarcelBaseSemantic {
     var levelType: JavaType? = innerClass
     while (levelType != null && !outerClass.isAssignableFrom(levelType)) {
       outerLevel++
-      levelType = levelType.outerTypeName?.let { typeResolver.of(token, it, emptyList()) }
+      levelType = levelType.outerTypeName?.let { symbolResolver.of(token, it, emptyList()) }
     }
     return if (levelType == null) null
     else Pair(outerLevel, levelType)

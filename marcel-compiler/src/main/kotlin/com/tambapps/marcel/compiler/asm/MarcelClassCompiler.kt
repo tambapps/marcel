@@ -11,7 +11,7 @@ import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import marcel.lang.Script
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.ClassWriter
@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy
 
 class MarcelClassCompiler(
   private val compilerConfiguration: CompilerConfiguration,
-  private val typeResolver: JavaTypeResolver
+  private val symbolResolver: MarcelSymbolResolver
 ) {
 
   fun compileDefinedClasses(classNodes: Collection<ClassNode>): List<CompiledClass> {
@@ -38,7 +38,7 @@ class MarcelClassCompiler(
   }
 
   private fun compileRec(classes: MutableList<CompiledClass>, classNode: ClassNode) {
-    val classWriter = MarcelAsmClassWriter(typeResolver)
+    val classWriter = MarcelAsmClassWriter(symbolResolver)
     // creating class
     classWriter.visit(compilerConfiguration.classVersion, classNode.access, classNode.type.internalName,
       if (classNode.type.superType?.hasGenericTypes == true || classNode.type.directlyImplementedInterfaces.any { it.hasGenericTypes }) classNode.type.signature else null,
@@ -105,7 +105,7 @@ class MarcelClassCompiler(
     val methodStartLabel = Label()
     mv.visitLabel(methodStartLabel)
 
-    val instructionGenerator = MethodInstructionWriter(mv, typeResolver, classNode.type)
+    val instructionGenerator = MethodInstructionWriter(mv, symbolResolver, classNode.type)
     instructionGenerator.visit(methodNode.blockStatement)
 
     val methodEndLabel = Label()

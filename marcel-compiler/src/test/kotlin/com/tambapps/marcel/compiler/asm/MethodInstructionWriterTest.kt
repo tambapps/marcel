@@ -19,7 +19,7 @@ import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import marcel.lang.Script
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
@@ -31,9 +31,9 @@ import org.objectweb.asm.Opcodes
 class MethodInstructionWriterTest {
 
   private val mv = mock(MethodVisitor::class.java)
-  private val typeResolver = JavaTypeResolver()
-  private val writer = MethodInstructionWriter(mv, typeResolver, JavaType.Object)
-  private val pushingWriter = PushingMethodExpressionWriter(mv, typeResolver, JavaType.Object)
+  private val symbolResolver = MarcelSymbolResolver()
+  private val writer = MethodInstructionWriter(mv, symbolResolver, JavaType.Object)
+  private val pushingWriter = PushingMethodExpressionWriter(mv, symbolResolver, JavaType.Object)
 
   @Test
   fun testDontPopWhenExpressionStatementIsVoidExpression() {
@@ -47,7 +47,7 @@ class MethodInstructionWriterTest {
     verify(mv).visitInsn(Opcodes.POP)
   }
 
-  private fun fCall(owner: JavaType, name: String, arguments: List<JavaType> = emptyList()) = fCall(typeResolver.findMethod(owner, name, arguments)!!)
+  private fun fCall(owner: JavaType, name: String, arguments: List<JavaType> = emptyList()) = fCall(symbolResolver.findMethod(owner, name, arguments)!!)
   private fun fCall(method: JavaMethod) = FunctionCallNode(javaMethod = method, arguments = emptyList(), tokenStart = token(), tokenEnd = token(), owner = null)
   private fun int(value: Int) = IntConstantNode(value = value, token = token())
   private fun float(value: Float) = FloatConstantNode(value = value, token = token())
@@ -59,12 +59,12 @@ class MethodInstructionWriterTest {
   private fun expr(text: String): ExpressionNode {
     val cstExpression = MarcelParser("Test", MarcelLexer().lex(text)).expression()
     val sourceFile = mock(SourceFileCstNode::class.java)
-    return cstExpression.accept(MarcelSemantic(JavaTypeResolver(), Script::class.javaType, sourceFile, "Test.mcl"),)
+    return cstExpression.accept(MarcelSemantic(MarcelSymbolResolver(), Script::class.javaType, sourceFile, "Test.mcl"),)
   }
   private fun stmt(text: String): StatementNode {
     val cstExpression = MarcelParser("Test", MarcelLexer().lex(text)).statement()
     val sourceFile = mock(SourceFileCstNode::class.java)
-    return cstExpression.accept(MarcelSemantic(JavaTypeResolver(), Script::class.javaType, sourceFile, "Test.mcl"))
+    return cstExpression.accept(MarcelSemantic(MarcelSymbolResolver(), Script::class.javaType, sourceFile, "Test.mcl"))
   }
 
   private fun token() = LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, "")

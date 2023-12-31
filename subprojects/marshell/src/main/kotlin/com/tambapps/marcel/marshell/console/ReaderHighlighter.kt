@@ -2,7 +2,7 @@ package com.tambapps.marcel.marshell.console
 
 import com.tambapps.marcel.marshell.console.style.HighlightTheme
 import com.tambapps.marcel.repl.MarcelReplCompiler
-import com.tambapps.marcel.repl.ReplJavaTypeResolver
+import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 import com.tambapps.marcel.repl.console.AbstractHighlighter
 import org.jline.reader.Highlighter
 import org.jline.reader.LineReader
@@ -12,9 +12,9 @@ import org.jline.utils.AttributedStyle
 import java.util.regex.Pattern
 
 class ReaderHighlighter constructor(
-  typeResolver: ReplJavaTypeResolver,
+  symbolResolver: ReplMarcelSymbolResolver,
   replCompiler: MarcelReplCompiler
-): AbstractHighlighter<AttributedStringBuilder, AttributedStyle>(typeResolver, replCompiler), Highlighter {
+): AbstractHighlighter<AttributedStringBuilder, AttributedStyle>(symbolResolver, replCompiler), Highlighter {
 
   private val style = HighlightTheme()
   override val variableStyle: AttributedStyle = style.variable

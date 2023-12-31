@@ -4,7 +4,7 @@ import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.type.SourceJavaType
 
 /**
@@ -14,9 +14,9 @@ interface SyntaxTreeTransformation {
   /**
    * Initialize this transformation
    *
-   * @param typeResolver the [JavaTypeResolver] used when compiling source code
+   * @param symbolResolver the [MarcelSymbolResolver] used when compiling source code
    */
-  fun init(typeResolver: JavaTypeResolver)
+  fun init(symbolResolver: MarcelSymbolResolver)
 
   /**
    * Transform the [JavaType][com.tambapps.marcel.semantic.type.JavaType] and/or the Concrete Syntax Tree

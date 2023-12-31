@@ -16,7 +16,7 @@ import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.ImportScope
 import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.type.SourceJavaType
 import com.tambapps.marcel.semantic.visitor.ImportCstNodeConverter
 
@@ -25,12 +25,12 @@ import com.tambapps.marcel.semantic.visitor.ImportCstNodeConverter
  */
 abstract class AbstractCstTransformation : CstNodeComposer(), CstSemantic, SyntaxTreeTransformation {
 
-  lateinit var typeResolver: JavaTypeResolver
+  lateinit var symbolResolver: MarcelSymbolResolver
 
   private var scope: ImportScope? = null
 
-  override fun init(typeResolver: JavaTypeResolver) {
-    this.typeResolver = typeResolver
+  override fun init(symbolResolver: MarcelSymbolResolver) {
+    this.symbolResolver = symbolResolver
   }
 
   final override fun transform(javaType: SourceJavaType, node: CstNode, annotation: AnnotationNode) {
@@ -46,10 +46,10 @@ abstract class AbstractCstTransformation : CstNodeComposer(), CstSemantic, Synta
   private fun newScope(node: CstNode): ImportScope {
     var cstNode: CstNode = node
     while (cstNode !is SourceFileCstNode) {
-      if (node.parent == null) return ImportScope(typeResolver, Scope.DEFAULT_IMPORTS, null)
+      if (node.parent == null) return ImportScope(symbolResolver, Scope.DEFAULT_IMPORTS, null)
       cstNode = cstNode.parent!!
     }
-    return ImportScope(typeResolver, Scope.DEFAULT_IMPORTS + ImportCstNodeConverter.convert(cstNode.imports), cstNode.packageName)
+    return ImportScope(symbolResolver, Scope.DEFAULT_IMPORTS + ImportCstNodeConverter.convert(cstNode.imports), cstNode.packageName)
   }
 
   override fun toMethodParameter(
@@ -73,8 +73,8 @@ abstract class AbstractCstTransformation : CstNodeComposer(), CstSemantic, Synta
   override fun resolve(node: TypeCstNode): JavaType = scope!!.resolveTypeOrThrow(node)
 
   protected fun addMethod(javaType: JavaType, classNode: ClassCstNode, methodNode: MethodCstNode) {
-    // if the method already exists, the typeResolver will throw an error
-    typeResolver.defineMethod(javaType, toJavaMethod(ownerType = javaType, node = methodNode))
+    // if the method already exists, the symbolResolver will throw an error
+    symbolResolver.defineMethod(javaType, toJavaMethod(ownerType = javaType, node = methodNode))
     classNode.methods.add(methodNode)
   }
 }

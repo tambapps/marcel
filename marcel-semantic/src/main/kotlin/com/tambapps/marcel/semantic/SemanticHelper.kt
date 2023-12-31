@@ -17,7 +17,7 @@ import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import marcel.lang.Binding
 import marcel.lang.lambda.*
@@ -40,7 +40,7 @@ object SemanticHelper {
     }
   }
 
-  fun scriptBindingConstructor(classNode: ClassNode, typeResolver: JavaTypeResolver, scriptType: JavaType): MethodNode {
+  fun scriptBindingConstructor(classNode: ClassNode, symbolResolver: MarcelSymbolResolver, scriptType: JavaType): MethodNode {
     val parameter = MethodParameter(Binding::class.javaType, "binding")
     val methodNode = MethodNode(JavaMethod.CONSTRUCTOR_NAME, mutableListOf(parameter),  Visibility.PUBLIC, JavaType.void, false, classNode.tokenStart, classNode.tokenEnd, JavaType.void)
     methodNode.blockStatement.addAll(
@@ -48,7 +48,7 @@ object SemanticHelper {
         ExpressionStatementNode(
 
           SuperConstructorCallNode(classNode.superType,
-            typeResolver.findMethod(scriptType, JavaMethod.CONSTRUCTOR_NAME, listOf(parameter))!!,
+            symbolResolver.findMethod(scriptType, JavaMethod.CONSTRUCTOR_NAME, listOf(parameter))!!,
             listOf(ReferenceNode(variable = LocalVariable(parameter.type, parameter.name, parameter.type.nbSlots, 1, false), token = classNode.token)), classNode.tokenStart, classNode.tokenEnd)
         ),
         ReturnStatementNode(VoidExpressionNode(methodNode.token), methodNode.tokenStart, methodNode.tokenEnd)
@@ -57,19 +57,19 @@ object SemanticHelper {
     return methodNode
   }
 
-  fun noArgConstructor(classNode: ClassNode, typeResolver: JavaTypeResolver, visibility: Visibility = Visibility.PUBLIC): MethodNode {
+  fun noArgConstructor(classNode: ClassNode, symbolResolver: MarcelSymbolResolver, visibility: Visibility = Visibility.PUBLIC): MethodNode {
     val defaultConstructorNode = MethodNode(JavaMethod.CONSTRUCTOR_NAME, mutableListOf(),  visibility, JavaType.void, false, classNode.tokenStart, classNode.tokenEnd, JavaType.void)
     defaultConstructorNode.blockStatement.addAll(
       listOf(
-        ExpressionStatementNode(superNoArgConstructorCall(classNode, typeResolver)),
+        ExpressionStatementNode(superNoArgConstructorCall(classNode, symbolResolver)),
         ReturnStatementNode(VoidExpressionNode(defaultConstructorNode.token), defaultConstructorNode.tokenStart, defaultConstructorNode.tokenEnd)
       )
     )
     return defaultConstructorNode
   }
 
-  fun superNoArgConstructorCall(classNode: ClassNode, typeResolver: JavaTypeResolver): SuperConstructorCallNode {
-    val superConstructorMethod = typeResolver.findMethodOrThrow(classNode.superType, JavaMethod.CONSTRUCTOR_NAME, emptyList(), classNode.token)
+  fun superNoArgConstructorCall(classNode: ClassNode, symbolResolver: MarcelSymbolResolver): SuperConstructorCallNode {
+    val superConstructorMethod = symbolResolver.findMethodOrThrow(classNode.superType, JavaMethod.CONSTRUCTOR_NAME, emptyList(), classNode.token)
     return SuperConstructorCallNode(classNode.superType, superConstructorMethod, emptyList(), classNode.tokenStart, classNode.tokenEnd)
   }
 

@@ -20,7 +20,7 @@ import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.MethodScope
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import marcel.lang.Script
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
@@ -32,7 +32,7 @@ import org.mockito.Mockito.`when`
 class MarcelSemanticTest {
 
   companion object {
-    private val TYPE_RESOLVER = JavaTypeResolver()
+    private val TYPE_RESOLVER = MarcelSymbolResolver()
     private val CLASS_SCOPE = ClassScope(TYPE_RESOLVER, JavaType.Object, null, emptyList())
     private val METHOD = MethodNode("foo", mutableListOf(),  Visibility.PUBLIC, JavaType.int, isStatic = false, LexToken.DUMMY, LexToken.DUMMY, JavaType.Object)
   }

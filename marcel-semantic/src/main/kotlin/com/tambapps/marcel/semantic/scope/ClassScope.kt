@@ -4,25 +4,25 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.variable.field.MarcelField
 
 /**
  * Scope inside a class
  */
 class ClassScope constructor(
-  typeResolver: JavaTypeResolver,
+  symbolResolver: MarcelSymbolResolver,
   override val classType: JavaType,
   override val forExtensionType: JavaType?,
   imports: List<ImportNode>
-): AbstractScope(typeResolver, classType.packageName, imports) {
+): AbstractScope(symbolResolver, classType.packageName, imports) {
 
   override fun findField(name: String): MarcelField? {
     var type: JavaType? = classType
     while (type != null) {
-      val f = typeResolver.findField(type, name)
+      val f = symbolResolver.findField(type, name)
       if (f != null) return f
-      type = type.outerTypeName?.let { typeResolver.of(LexToken.DUMMY, it, emptyList()) }
+      type = type.outerTypeName?.let { symbolResolver.of(LexToken.DUMMY, it, emptyList()) }
     }
     return null
   }
@@ -33,7 +33,7 @@ class ClassScope constructor(
     // try to find inner class with this name
     val innerClassName = if (classType.innerName == node.value) classType.className
     else classType.className + '$' + node.value
-    if (typeResolver.isDefined(innerClassName)) return of(innerClassName, node)
+    if (symbolResolver.isDefined(innerClassName)) return of(innerClassName, node)
     return super.resolveTypeOrThrow(node)
   }
 }

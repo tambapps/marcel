@@ -13,7 +13,7 @@ import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.visitor.ClassNodeVisitor
 
 /**
@@ -21,9 +21,9 @@ import com.tambapps.marcel.semantic.visitor.ClassNodeVisitor
  */
 internal object ImplementedInterfaceCheck: ClassNodeVisitor {
 
-  override fun visit(classNode: ClassNode, typeResolver: JavaTypeResolver) {
+  override fun visit(classNode: ClassNode, symbolResolver: MarcelSymbolResolver) {
     for (interfaze in classNode.type.directlyImplementedInterfaces) {
-      for (interfaceMethod in typeResolver.getDeclaredMethods(interfaze).filter { it.isAbstract && it.name != "equals" && it.name != "hashCode" }) {
+      for (interfaceMethod in symbolResolver.getDeclaredMethods(interfaze).filter { it.isAbstract && it.name != "equals" && it.name != "hashCode" }) {
         val implementationMethod = classNode.methods.find { it.name == interfaceMethod.name
             && it.parameters.size == interfaceMethod.parameters.size
             && it.parametersAssignableTo(interfaceMethod)
@@ -33,7 +33,7 @@ internal object ImplementedInterfaceCheck: ClassNodeVisitor {
           // maybe there is a generic implementation, in which case we have to generate the method with raw types
           throw MarcelSemanticException(classNode.token, "Class ${classNode.type} doesn't define method $interfaceMethod of interface $interfaze")
         }
-        val rawInterfaceMethod = typeResolver.findMethod(interfaze.raw(), interfaceMethod.name, interfaceMethod.parameters, true, classNode.token)!!
+        val rawInterfaceMethod = symbolResolver.findMethod(interfaze.raw(), interfaceMethod.name, interfaceMethod.parameters, true, classNode.token)!!
         // we only need the match on parameters (== ignoring return type) because returning a more specific type is still a valid definition that doesn't need another implementation
         if (!rawInterfaceMethod.parameterMatches(implementationMethod)) {
           // need to write implementation method with raw type

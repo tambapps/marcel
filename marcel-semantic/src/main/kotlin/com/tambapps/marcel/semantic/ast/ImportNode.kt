@@ -2,15 +2,15 @@ package com.tambapps.marcel.semantic.ast
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 
 interface ImportNode: AstNode {
-  fun resolveClassName(token: LexToken, typeResolver: JavaTypeResolver, classSimpleName: String): String?
+  fun resolveClassName(token: LexToken, symbolResolver: MarcelSymbolResolver, classSimpleName: String): String?
 
 }
 class SimpleImportNode(private val value: String, private val asName: String? = null,
                        override val tokenStart: LexToken, override val tokenEnd: LexToken): ImportNode {
-  override fun resolveClassName(token: LexToken, typeResolver: JavaTypeResolver, classSimpleName: String): String? {
+  override fun resolveClassName(token: LexToken, symbolResolver: MarcelSymbolResolver, classSimpleName: String): String? {
     return if (asName != null) {
       if (classSimpleName == asName) value
       else null
@@ -48,7 +48,7 @@ class StaticImportNode(val className: String, val methodName: String,
 
   constructor(className: String, methodName: String): this(className, methodName, LexToken.DUMMY, LexToken.DUMMY)
 
-  override fun resolveClassName(token: LexToken, typeResolver: JavaTypeResolver, classSimpleName: String): String? {
+  override fun resolveClassName(token: LexToken, symbolResolver: MarcelSymbolResolver, classSimpleName: String): String? {
     return null
   }
 
@@ -78,9 +78,9 @@ class WildcardImportNode(private val prefix: String,
 
                            constructor(prefix: String): this(prefix, LexToken.DUMMY, LexToken.DUMMY)
 
-  override fun resolveClassName(token: LexToken, typeResolver: JavaTypeResolver, classSimpleName: String): String? {
+  override fun resolveClassName(token: LexToken, symbolResolver: MarcelSymbolResolver, classSimpleName: String): String? {
     return try {
-      typeResolver.of(token, "$prefix.$classSimpleName", emptyList()).className
+      symbolResolver.of(token, "$prefix.$classSimpleName", emptyList()).className
     } catch (e: MarcelSemanticException) {
        null
     }

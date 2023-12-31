@@ -8,7 +8,7 @@ import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -16,8 +16,8 @@ import java.lang.CharSequence
 
 class JavaMethodTest: AstNodeComposer() {
 
-  override val typeResolver = JavaTypeResolver()
-  override val caster = AstNodeCaster(typeResolver)
+  override val symbolResolver = MarcelSymbolResolver()
+  override val caster = AstNodeCaster(symbolResolver)
 
   @Test
   fun test() {
@@ -39,17 +39,17 @@ class JavaMethodTest: AstNodeComposer() {
     val joinMethod = ReflectJavaMethod(java.lang.String::class.java.getMethod("join", CharSequence::class.java, Array<CharSequence>::class.java))
     assertTrue(joinMethod.isVarArgs)
 
-    assertTrue(typeResolver.matches(joinMethod, listOf(string("s1"))))
-    assertTrue(typeResolver.matches(joinMethod, listOf(string("s1"), string("s2"))))
-    assertTrue(typeResolver.matches(joinMethod, listOf(string("s1"), string("s2"), string("s3"))))
-    assertTrue(typeResolver.matches(joinMethod, listOf(string("s1"), array(CharSequence::class.javaType.arrayType, string("s3")))))
+    assertTrue(symbolResolver.matches(joinMethod, listOf(string("s1"))))
+    assertTrue(symbolResolver.matches(joinMethod, listOf(string("s1"), string("s2"))))
+    assertTrue(symbolResolver.matches(joinMethod, listOf(string("s1"), string("s2"), string("s3"))))
+    assertTrue(symbolResolver.matches(joinMethod, listOf(string("s1"), array(CharSequence::class.javaType.arrayType, string("s3")))))
 
 
 
-    assertFalse(typeResolver.matches(joinMethod, emptyList()))
-    assertFalse(typeResolver.matches(joinMethod, listOf(string("s1"), int(2))))
-    assertFalse(typeResolver.matches(joinMethod, listOf(string("s1"), string("s2"), int(2))))
-    assertFalse(typeResolver.matches(joinMethod, listOf(string("s1"), array(Int::class.javaType.arrayType, string("s3")))))
+    assertFalse(symbolResolver.matches(joinMethod, emptyList()))
+    assertFalse(symbolResolver.matches(joinMethod, listOf(string("s1"), int(2))))
+    assertFalse(symbolResolver.matches(joinMethod, listOf(string("s1"), string("s2"), int(2))))
+    assertFalse(symbolResolver.matches(joinMethod, listOf(string("s1"), array(Int::class.javaType.arrayType, string("s3")))))
   }
 
   private fun cstNode() = IntCstNode(null, 0, LexToken.DUMMY)

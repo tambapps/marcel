@@ -4,14 +4,14 @@ import com.tambapps.marcel.compiler.extensions.internalName
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import org.objectweb.asm.ClassWriter
 
 /**
  * Marcel class writer
  */
 class MarcelAsmClassWriter(
-  val typeResolver: JavaTypeResolver
+  private val symbolResolver: MarcelSymbolResolver
 ) : ClassWriter(COMPUTE_MAXS or COMPUTE_FRAMES) {
 
 
@@ -37,6 +37,6 @@ class MarcelAsmClassWriter(
   }
 
   private fun resolve(type: String) = try {
-    typeResolver.of(LexToken.DUMMY, type)
+    symbolResolver.of(LexToken.DUMMY, type)
   } catch (e: MarcelSemanticException) { throw TypeNotPresentException(type, e) }
 }

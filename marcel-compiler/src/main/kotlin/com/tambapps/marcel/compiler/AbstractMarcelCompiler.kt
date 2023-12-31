@@ -10,8 +10,7 @@ import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.check.ClassNodeChecks
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
-import com.tambapps.marcel.semantic.type.SymbolsDefiner
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import marcel.lang.MarcelClassLoader
 import marcel.lang.Script
 
@@ -23,14 +22,14 @@ abstract class AbstractMarcelCompiler(protected val configuration: CompilerConfi
       throw MarcelSemanticException(LexToken.DUMMY, "Invalid compiler configuration: Class ${configuration.scriptClass} does not extends marcel.lang.Script")
     }
   }
-  protected fun defineSymbols(typeResolver: JavaTypeResolver,
+  protected fun defineSymbols(symbolResolver: MarcelSymbolResolver,
                               semantics: MarcelSemantic) {
-    defineSymbols(typeResolver, listOf(semantics))
+    defineSymbols(symbolResolver, listOf(semantics))
   }
 
-  protected fun defineSymbols(typeResolver: JavaTypeResolver,
+  protected fun defineSymbols(symbolResolver: MarcelSymbolResolver,
                               semantics: List<MarcelSemantic>) {
-    SymbolsDefiner(typeResolver, configuration.scriptClass.javaType).defineSymbols(semantics)
+    symbolResolver.defineSymbols(semantics, configuration.scriptClass.javaType)
   }
 
   protected fun handleDumbbells(marcelClassLoader: MarcelClassLoader?, cst: SourceFileCstNode) {
@@ -54,16 +53,16 @@ abstract class AbstractMarcelCompiler(protected val configuration: CompilerConfi
     }
   }
 
-  protected fun check(ast: ModuleNode, typeResolver: JavaTypeResolver) {
-    ast.classes.forEach { check(it, typeResolver) }
+  protected fun check(ast: ModuleNode, symbolResolver: MarcelSymbolResolver) {
+    ast.classes.forEach { check(it, symbolResolver) }
   }
 
-  protected fun check(classNode: ClassNode, typeResolver: JavaTypeResolver) {
+  protected fun check(classNode: ClassNode, symbolResolver: MarcelSymbolResolver) {
     ClassNodeChecks.ALL.forEach {
-      it.visit(classNode, typeResolver)
+      it.visit(classNode, symbolResolver)
     }
     for (innerClassNode in classNode.innerClasses) {
-      check(innerClassNode, typeResolver)
+      check(innerClassNode, symbolResolver)
     }
   }
 }

@@ -16,7 +16,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test
@@ -25,7 +25,7 @@ import org.junit.jupiter.api.assertThrows
 class AstNodeCasterTest {
 
   companion object {
-    private val TYPE_RESOLVER = JavaTypeResolver()
+    private val TYPE_RESOLVER = MarcelSymbolResolver()
   }
 
   private val caster = AstNodeCaster(TYPE_RESOLVER)

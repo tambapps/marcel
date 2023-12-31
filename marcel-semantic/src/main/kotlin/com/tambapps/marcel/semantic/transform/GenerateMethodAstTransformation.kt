@@ -17,7 +17,7 @@ abstract class GenerateMethodAstTransformation: AbstractAstTransformation() {
     useScope(classScope(javaType)) {
       doTransformType(javaType, annotation, node)
       generateSignatures(node, javaType, annotation).forEach { signature ->
-        typeResolver.defineMethod(javaType, signature)
+        symbolResolver.defineMethod(javaType, signature)
       }
     }
   }

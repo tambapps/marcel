@@ -8,7 +8,7 @@ import com.tambapps.marcel.semantic.variable.LocalVariable
 open class MethodInnerScope(
   parentScope: MethodScope,
   isInLoop: Boolean = false,
-) : MethodScope(parentScope, parentScope.method, parentScope.typeResolver, parentScope.classType,
+) : MethodScope(parentScope, parentScope.method, parentScope.symbolResolver, parentScope.classType,
   parentScope.imports, parentScope.staticContext, parentScope.localVariablePool) {
 
   override val localVariablesSnapshot: List<LocalVariable>

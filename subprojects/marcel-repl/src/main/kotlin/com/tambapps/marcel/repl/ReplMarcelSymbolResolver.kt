@@ -2,13 +2,13 @@ package com.tambapps.marcel.repl
 
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.variable.field.BoundField
 import com.tambapps.marcel.semantic.variable.field.CompositeField
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
 
-class ReplJavaTypeResolver constructor(classLoader: MarcelClassLoader?, private val binding: Binding) : JavaTypeResolver(classLoader) {
+class ReplMarcelSymbolResolver constructor(classLoader: MarcelClassLoader?, private val binding: Binding) : MarcelSymbolResolver(classLoader) {
 
   private val _libraryClasses = mutableListOf<ClassNode>()
   private val scriptVariables = mutableMapOf<String, BoundField>()

@@ -6,10 +6,10 @@ import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 
 abstract class AbstractHighlighter<T, Style> constructor(
-  private val typeResolver: JavaTypeResolver,
+  private val symbolResolver: MarcelSymbolResolver,
   private val replCompiler: MarcelReplCompiler
 ) {
 

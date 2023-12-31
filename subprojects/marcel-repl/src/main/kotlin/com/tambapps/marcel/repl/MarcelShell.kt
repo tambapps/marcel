@@ -24,16 +24,16 @@ abstract class MarcelShell constructor(
   jarWriterFactory: JarWriterFactory,
   protected val tempDir: File,
   val binding: Binding = Binding(),
-  protected val typeResolver: ReplJavaTypeResolver = ReplJavaTypeResolver(marcelClassLoader, binding),
+  protected val symbolResolver: ReplMarcelSymbolResolver = ReplMarcelSymbolResolver(marcelClassLoader, binding),
   private val promptTemplate: String = "marshell:%03d> ") {
 
   val lastNode: ClassNode? get() = replCompiler.semanticResult?.scriptNode
-  val definedTypes get() = typeResolver.definedTypes.filter { !it.isScript }
+  val definedTypes get() = symbolResolver.definedTypes.filter { !it.isScript }
   val definedFunctions get() = replCompiler.definedFunctions
   val imports: Collection<ImportNode> get() = replCompiler.imports
   abstract val initScriptFile: File?
 
-  protected val replCompiler = MarcelReplCompiler(compilerConfiguration, marcelClassLoader, typeResolver)
+  protected val replCompiler = MarcelReplCompiler(compilerConfiguration, marcelClassLoader, symbolResolver)
   private val evaluator = MarcelEvaluator(binding, replCompiler, marcelClassLoader, jarWriterFactory, tempDir)
   private val buffer = mutableListOf<String>()
   private val commands = mutableListOf<ShellCommand>(

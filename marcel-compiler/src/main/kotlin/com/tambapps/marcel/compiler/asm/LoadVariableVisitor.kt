@@ -2,12 +2,11 @@ package com.tambapps.marcel.compiler.asm
 
 import com.tambapps.marcel.compiler.extensions.descriptor
 import com.tambapps.marcel.compiler.extensions.internalName
-import com.tambapps.marcel.compiler.extensions.invokeCode
 import com.tambapps.marcel.compiler.extensions.loadCode
 import com.tambapps.marcel.compiler.extensions.visitMethodInsn
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.VariableVisitor
 import com.tambapps.marcel.semantic.variable.field.BoundField
@@ -24,7 +23,7 @@ import org.objectweb.asm.Opcodes
  * Visitor loading variables on the stack
  */
 class LoadVariableVisitor(
-  private val typeResolver: JavaTypeResolver,
+  private val symbolResolver: MarcelSymbolResolver,
   private val mv: MethodVisitor,
   private val classScopeType: JavaType
 ) : VariableVisitor<Unit> {
@@ -33,7 +32,7 @@ class LoadVariableVisitor(
 
   override fun visit(variable: BoundField) {
     mv.visitLdcInsn(variable.name)
-    mv.visitMethodInsn(typeResolver.findMethodOrThrow(Script::class.javaType, "getVariable", listOf(JavaType.String)))
+    mv.visitMethodInsn(symbolResolver.findMethodOrThrow(Script::class.javaType, "getVariable", listOf(JavaType.String)))
     // bound variable type should always be an object, so no need to check primitive from/to object casting. this will always be object to object
     mv.visitTypeInsn(Opcodes.CHECKCAST, variable.type.internalName)
   }

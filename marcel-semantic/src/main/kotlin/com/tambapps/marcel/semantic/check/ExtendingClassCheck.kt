@@ -2,7 +2,7 @@ package com.tambapps.marcel.semantic.check
 
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.visitor.ClassNodeVisitor
 
 /**
@@ -10,7 +10,7 @@ import com.tambapps.marcel.semantic.visitor.ClassNodeVisitor
  */
 internal object ExtendingClassCheck: ClassNodeVisitor {
 
-  override fun visit(classNode: ClassNode, typeResolver: JavaTypeResolver) {
+  override fun visit(classNode: ClassNode, symbolResolver: MarcelSymbolResolver) {
     val superType = classNode.superType
     if (superType.isInterface) {
       throw MarcelSemanticException(classNode.token, "Cannot extend a interface $superType. Implement it")

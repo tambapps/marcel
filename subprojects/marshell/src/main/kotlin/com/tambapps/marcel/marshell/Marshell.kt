@@ -41,13 +41,13 @@ class Marshell: MarcelShell(
 
   override val initScriptFile: File get() = File(marcelHome, "marshell/init.mcl")
 
-  private val highlighter = ReaderHighlighter(typeResolver, replCompiler)
+  private val highlighter = ReaderHighlighter(symbolResolver, replCompiler)
   private val reader = LineReaderBuilder.builder()
     .highlighter(highlighter)
     // to store history into a file
     .variable(LineReader.HISTORY_FILE, File(marcelHome, "marshell/marshell.history"))
     .parser(MarshellSnippetParser()) // useful for completer. To know from where start completion
-    .completer(MarshellCompleter(replCompiler, typeResolver))
+    .completer(MarshellCompleter(replCompiler, symbolResolver))
     .build()
 
   override suspend fun readLine(prompt: String): String {

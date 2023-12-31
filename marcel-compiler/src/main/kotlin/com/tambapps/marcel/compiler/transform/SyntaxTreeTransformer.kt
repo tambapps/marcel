@@ -11,14 +11,14 @@ import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.transform.SyntaxTreeTransformation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.type.SourceJavaType
 import marcel.lang.MarcelSyntaxTreeTransformationClass
 import java.lang.Exception
 import java.lang.annotation.ElementType
 
 class SyntaxTreeTransformer(
-  private val typeResolver: JavaTypeResolver
+  private val symbolResolver: MarcelSymbolResolver
 ) {
 
   private val map = mutableMapOf<JavaAnnotationType, List<SyntaxTreeTransformation>>()
@@ -63,7 +63,7 @@ class SyntaxTreeTransformer(
   }
 
   private fun doLoadTransformations(semantic: MarcelSemantic, classNode: ClassCstNode) {
-    val javaType = typeResolver.of(classNode.className) as SourceJavaType
+    val javaType = symbolResolver.of(classNode.className) as SourceJavaType
     loadFromAnnotations(semantic, classNode, ElementType.TYPE, javaType, classNode.annotations)
     classNode.fields.forEach { fieldNode ->
       loadFromAnnotations(semantic, fieldNode, ElementType.FIELD, javaType, fieldNode.annotations)
@@ -86,7 +86,7 @@ class SyntaxTreeTransformer(
         val transformations = map.computeIfAbsent(annotation.type, this::getTransformations)
         if (transformations.isNotEmpty()) {
           transformations.forEach { transformation ->
-            transformation.init(typeResolver)
+            transformation.init(symbolResolver)
             try {
               transformation.transform(classType, node, annotation)
             } catch (e: Exception) {

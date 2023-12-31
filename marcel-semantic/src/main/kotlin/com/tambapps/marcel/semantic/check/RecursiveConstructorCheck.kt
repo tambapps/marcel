@@ -5,7 +5,7 @@ import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ThisConstructorCallNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.visitor.ClassNodeVisitor
 
 /**
@@ -13,7 +13,7 @@ import com.tambapps.marcel.semantic.visitor.ClassNodeVisitor
  */
 internal object RecursiveConstructorCheck: ClassNodeVisitor {
 
-  override fun visit(classNode: ClassNode, typeResolver: JavaTypeResolver) {
+  override fun visit(classNode: ClassNode, symbolResolver: MarcelSymbolResolver) {
     classNode.constructors.forEach {
       checkConstructor(classNode, it)
     }

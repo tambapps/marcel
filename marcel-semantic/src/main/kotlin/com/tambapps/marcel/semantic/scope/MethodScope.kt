@@ -6,7 +6,7 @@ import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.JavaTypeResolver
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import java.util.concurrent.ThreadLocalRandom
 
@@ -16,17 +16,17 @@ import java.util.concurrent.ThreadLocalRandom
 open class MethodScope internal constructor(
   protected val parentScope: Scope,
   val method: JavaMethod,
-  typeResolver: JavaTypeResolver,
+  symbolResolver: MarcelSymbolResolver,
   override val classType: JavaType,
   imports: List<ImportNode>,
   internal val staticContext: Boolean,
   internal val localVariablePool: LocalVariablePool,
-): AbstractScope(typeResolver, classType.packageName, imports) {
+): AbstractScope(symbolResolver, classType.packageName, imports) {
 
   override val forExtensionType = parentScope.forExtensionType
 
   constructor(classScope: ClassScope, method: JavaMethod)
-      : this(classScope, method, classScope.typeResolver, classScope.classType, classScope.imports, method.isStatic, LocalVariablePool(method.isStatic)) {
+      : this(classScope, method, classScope.symbolResolver, classScope.classType, classScope.imports, method.isStatic, LocalVariablePool(method.isStatic)) {
     // method parameters are stored in local variables
     for (param in method.parameters) {
       addLocalVariable(param.type, param.name, param.isFinal)

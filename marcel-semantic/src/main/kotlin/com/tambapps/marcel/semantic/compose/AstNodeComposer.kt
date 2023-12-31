@@ -81,7 +81,7 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
   ) = methodNode(classNode.type, visibility, JavaMethod.CONSTRUCTOR_NAME, parameters, JavaType.void, isDefault = false,
     isAbstract = false, isStatic = false, emptyList()) {
     // super method call
-    stmt(SemanticHelper.superNoArgConstructorCall(classNode, typeResolver))
+    stmt(SemanticHelper.superNoArgConstructorCall(classNode, symbolResolver))
     statementsSupplier.invoke(this)
 
     // return void because constructor
@@ -104,7 +104,7 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
     methodNode.annotations.addAll(annotations)
     val statements = methodNode.blockStatement.statements
 
-    useScope(MethodScope(ClassScope(typeResolver, ownerClass, null, Scope.DEFAULT_IMPORTS), methodNode)) {
+    useScope(MethodScope(ClassScope(symbolResolver, ownerClass, null, Scope.DEFAULT_IMPORTS), methodNode)) {
       val statementComposer = StatementsComposer(statements)
       statementsSupplier.invoke(statementComposer) // it will directly add the statements on the method's statements
     }
@@ -117,7 +117,7 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
 
   protected fun addStatements(methodNode: MethodNode, statementsSupplier: StatementsComposer.() -> Unit): MethodNode {
     val statements = methodNode.blockStatement.statements
-    useScope(MethodScope(ClassScope(typeResolver, methodNode.ownerClass, null, Scope.DEFAULT_IMPORTS), methodNode)) {
+    useScope(MethodScope(ClassScope(symbolResolver, methodNode.ownerClass, null, Scope.DEFAULT_IMPORTS), methodNode)) {
       val statementComposer = StatementsComposer(statements)
       statementsSupplier.invoke(statementComposer) // it will directly add the statements on the method's statements
     }
@@ -181,7 +181,7 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
   protected fun fCall(name: String, arguments: List<ExpressionNode>,
                       owner: ExpressionNode,
                       castType: JavaType? = null): ExpressionNode {
-    val method = typeResolver.findMethodOrThrow(owner.type, name, arguments, LexToken.DUMMY)
+    val method = symbolResolver.findMethodOrThrow(owner.type, name, arguments, LexToken.DUMMY)
     return fCall(LexToken.DUMMY, LexToken.DUMMY, method, arguments, owner, castType)
   }
   protected fun fCall(method: JavaMethod, arguments: List<ExpressionNode>,
@@ -192,7 +192,7 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
   protected fun fCall(name: String, arguments: List<ExpressionNode>,
                       ownerType: JavaType,
                       castType: JavaType? = null): ExpressionNode {
-    val method = typeResolver.findMethodOrThrow(ownerType, name, arguments, LexToken.DUMMY)
+    val method = symbolResolver.findMethodOrThrow(ownerType, name, arguments, LexToken.DUMMY)
     return fCall(LexToken.DUMMY, LexToken.DUMMY, method, arguments, null, castType)
   }
 
@@ -285,7 +285,7 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
                           parameters: List<MethodParameter>, returnType: JavaType, interfaceType: JavaType,
                           lambdaBodyStatementComposerFunc: StatementsComposer.() -> Unit): NewInstanceNode {
     val lambdaImplementedInterfaces = listOf(Lambda::class.javaType, interfaceType)
-    val lambdaType = typeResolver.defineClass(LexToken.DUMMY,
+    val lambdaType = symbolResolver.defineClass(LexToken.DUMMY,
       Visibility.INTERNAL, classNode.type, generateLambdaClassName(classNode), JavaType.Object, false, lambdaImplementedInterfaces)
 
     val lambdaClassNode = ClassNode(
@@ -312,7 +312,7 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
     ).apply {
       blockStatement.addAll(
         listOf(
-          ExpressionStatementNode(SemanticHelper.superNoArgConstructorCall(lambdaClassNode, typeResolver)),
+          ExpressionStatementNode(SemanticHelper.superNoArgConstructorCall(lambdaClassNode, symbolResolver)),
           SemanticHelper.returnVoid(lambdaClassNode)
         )
       )
@@ -322,12 +322,12 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
 
     lambdaClassNode.methods.add(lambdaConstructor)
 
-    val interfaceMethod = typeResolver.getInterfaceLambdaMethodOrThrow(interfaceType, LexToken.DUMMY)
+    val interfaceMethod = symbolResolver.getInterfaceLambdaMethodOrThrow(interfaceType, LexToken.DUMMY)
     // define lambda method
     val lambdaMethod = MethodNode(interfaceMethod.name, parameters.toMutableList(),
       Visibility.PUBLIC, returnType, isStatic = false, LexToken.DUMMY, LexToken.DUMMY, lambdaType)
     val statements = lambdaMethod.blockStatement.statements
-    useScope(MethodScope(ClassScope(typeResolver, lambdaType, null, Scope.DEFAULT_IMPORTS), lambdaMethod)) {
+    useScope(MethodScope(ClassScope(symbolResolver, lambdaType, null, Scope.DEFAULT_IMPORTS), lambdaMethod)) {
       val statementComposer = StatementsComposer(statements)
       lambdaBodyStatementComposerFunc.invoke(statementComposer)
       if (!AllPathsReturnVisitor.test(statements) && returnType == JavaType.void) {

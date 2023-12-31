@@ -1,23 +1,36 @@
-package com.tambapps.marcel.semantic.type
+package com.tambapps.marcel.semantic.symbol
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.ClassCstNode
 import com.tambapps.marcel.parser.cst.ScriptCstNode
 import com.tambapps.marcel.semantic.MarcelSemantic
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.type.SourceJavaType
 
 /**
- * Define symbols (classes, methods, fields) of multiple marcel semantics in a lazy way to avoid failing to do so when a type is referenced from
- * another semantic
+ * Define symbols (classes, methods, fields) of multiple marcel semantics in a lazy way to avoid failing
+ * to do so when a type is referenced from another semantic CST
  */
-// TODO transform into a trait and make JavaTypeResolver implement it?
-class SymbolsDefiner(
-  private val typeResolver: JavaTypeResolver,
-  private val scriptClass: JavaType
-) {
+interface SymbolDefinerTrait {
 
-  fun defineSymbols(semantics: List<MarcelSemantic>) {
-    val triples = defineTypes(semantics)
+  /**
+   * Define a new type
+   *
+   * @param token the token to use referencing the location in case of error
+   * @param javaType the type to define
+   */
+  fun defineType(token: LexToken = LexToken.DUMMY, javaType: JavaType)
+
+  /**
+   * Define classes, methods, fields of all CSTs
+   *
+   * @param semantics all the semantic CSTs
+   * @param scriptParentType the script parent type to use when encountering a script node
+   */
+  fun defineSymbols(semantics: List<MarcelSemantic>, scriptParentType: JavaType) {
+    val triples = defineTypes(semantics, scriptParentType)
     for ((semantic, classCstNode, classType) in triples) {
       semantic.defineClassMembers(classCstNode, classType,
         // not recursive because we're iterating over ALL class cst nodes, even inner ones
@@ -26,7 +39,7 @@ class SymbolsDefiner(
   }
 
   // predefining types, but not fully to avoid trying to find types we haven't predefined yet
-  private fun defineTypes(semantics: List<MarcelSemantic>): MutableList<Triple<MarcelSemantic, ClassCstNode, SourceJavaType>> {
+  private fun defineTypes(semantics: List<MarcelSemantic>, scriptParentType: JavaType): MutableList<Triple<MarcelSemantic, ClassCstNode, SourceJavaType>> {
     // first define types, without super parent because one supertype may reference a type from another class that wasn't defined yet
     val toDefineTypes = mutableListOf<Triple<MarcelSemantic, ClassCstNode, SourceJavaType>>()
     for (s in semantics) {
@@ -41,7 +54,7 @@ class SymbolsDefiner(
 
     for ((semantic, classCstNode, classType) in toDefineTypes) {
       val superType =
-        if (classCstNode is ScriptCstNode) scriptClass
+        if (classCstNode is ScriptCstNode) scriptParentType
         else classCstNode.superType?.let { semantic.resolve(it) } ?: JavaType.Object
       if (!superType.isAccessibleFrom(classType)) {
         throw MarcelSemanticException(classCstNode, "Class $superType is not accessible from $classType")
@@ -78,7 +91,7 @@ class SymbolsDefiner(
       genericTypes = emptyList(),
       superType = null, // will be set later
       isInterface = false, directlyImplementedInterfaces = mutableSetOf(), isScript = classNode is ScriptCstNode)
-    typeResolver.defineType(classNode.token, classType)
+    defineType(classNode.token, classType)
     toDefineTypes.add(Triple(s, classNode, classType))
     classNode.innerClasses.forEach { predefineTypes(s, it, toDefineTypes) }
   }
