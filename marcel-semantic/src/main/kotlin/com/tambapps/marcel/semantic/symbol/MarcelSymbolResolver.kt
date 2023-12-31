@@ -102,12 +102,11 @@ open class MarcelSymbolResolver constructor(private val classLoader: MarcelClass
   }
 
   /* definition */
-  fun defineClass(token: LexToken = LexToken.DUMMY, visibility: Visibility, className: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>, isScript: Boolean = false): SourceJavaType {
-    return defineClass(token, visibility, null, className, superClass, isInterface, interfaces, isScript)
+  fun defineType(token: LexToken = LexToken.DUMMY, visibility: Visibility, className: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>, isScript: Boolean = false): SourceJavaType {
+    return defineType(token, visibility, null, className, superClass, isInterface, interfaces, isScript)
   }
-  fun defineClass(token: LexToken = LexToken.DUMMY, visibility: Visibility, outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>, isScript: Boolean = false): SourceJavaType {
+  fun defineType(token: LexToken = LexToken.DUMMY, visibility: Visibility, outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>, isScript: Boolean = false): SourceJavaType {
     val className = if (outerClassType != null) "${outerClassType.className}\$$cName" else cName
-
     checkTypeAlreadyDefined(token, className)
     val type = SourceJavaType(visibility, className, emptyList(),  superClass, isInterface, interfaces.toMutableSet(), isScript = isScript)
     _definedTypes[className] = type
@@ -155,11 +154,11 @@ open class MarcelSymbolResolver constructor(private val classLoader: MarcelClass
     marcelField.mergeWith(field)
   }
 
-  fun defineClass(classNode: ClassNode) {
+  fun defineType(classNode: ClassNode) {
     _definedTypes[classNode.type.className] = classNode.type
     classNode.methods.forEach { defineMethod(classNode.type, it) }
     classNode.fields.forEach { defineField(classNode.type, it) }
-    classNode.innerClasses.forEach { defineClass(it) }
+    classNode.innerClasses.forEach { defineType(it) }
   }
 
   fun undefineClass(scriptNode: ClassNode) {

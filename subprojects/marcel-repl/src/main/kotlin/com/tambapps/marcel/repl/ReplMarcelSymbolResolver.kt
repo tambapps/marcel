@@ -16,7 +16,7 @@ class ReplMarcelSymbolResolver constructor(classLoader: MarcelClassLoader?, priv
   val libraryClasses: List<ClassNode> get() = _libraryClasses
 
   fun defineLibraryClass(classNode: ClassNode) {
-    defineClass(classNode)
+    defineType(classNode)
     _libraryClasses.add(classNode)
   }
 

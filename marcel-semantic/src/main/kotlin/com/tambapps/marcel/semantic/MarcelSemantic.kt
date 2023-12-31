@@ -272,7 +272,7 @@ open class MarcelSemantic constructor(
   private fun defineClass(classCstNode: ClassCstNode) {
     val superType = classCstNode.superType?.let { resolve(it) } ?: JavaType.Object
     val interfaces = classCstNode.interfaces.map { resolve(it) }
-    val classType = symbolResolver.defineClass(classCstNode.tokenStart, Visibility.fromTokenType(classCstNode.access.visibility),
+    val classType = symbolResolver.defineType(classCstNode.tokenStart, Visibility.fromTokenType(classCstNode.access.visibility),
       classCstNode.className, superType, false, interfaces)
     defineClassMembers(classCstNode, classType)
   }
@@ -1448,7 +1448,7 @@ open class MarcelSemantic constructor(
 
     // useful for method type resolver, when matching method parameters.
     val lambdaImplementedInterfaces = listOf(Lambda::class.javaType)
-    val lambdaType = symbolResolver.defineClass(node.token, Visibility.INTERNAL, lambdaOuterClassNode.type, lambdaClassName, JavaType.Object, false, lambdaImplementedInterfaces)
+    val lambdaType = symbolResolver.defineType(node.token, Visibility.INTERNAL, lambdaOuterClassNode.type, lambdaClassName, JavaType.Object, false, lambdaImplementedInterfaces)
 
     val lambdaConstructor = MethodNode(
       name = JavaMethod.CONSTRUCTOR_NAME,

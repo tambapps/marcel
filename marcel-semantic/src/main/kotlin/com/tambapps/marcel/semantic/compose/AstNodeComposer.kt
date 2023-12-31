@@ -285,7 +285,7 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
                           parameters: List<MethodParameter>, returnType: JavaType, interfaceType: JavaType,
                           lambdaBodyStatementComposerFunc: StatementsComposer.() -> Unit): NewInstanceNode {
     val lambdaImplementedInterfaces = listOf(Lambda::class.javaType, interfaceType)
-    val lambdaType = symbolResolver.defineClass(LexToken.DUMMY,
+    val lambdaType = symbolResolver.defineType(LexToken.DUMMY,
       Visibility.INTERNAL, classNode.type, generateLambdaClassName(classNode), JavaType.Object, false, lambdaImplementedInterfaces)
 
     val lambdaClassNode = ClassNode(
