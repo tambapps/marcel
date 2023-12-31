@@ -4,3 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 assertNotNull(System.out)
 assertEquals(Runtime.runtime, Runtime.getRuntime())
 
+private int _a
+
+a = 10 // should be possible even if getter doesn't exists
+
+assertEquals(10, _a)
+
+fun void setA(int a) {
+  _a = a
+}

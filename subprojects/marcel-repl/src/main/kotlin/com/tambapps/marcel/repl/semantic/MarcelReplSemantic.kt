@@ -16,9 +16,9 @@ import marcel.lang.Script
 
 class MarcelReplSemantic(private val replTypeResolver: ReplJavaTypeResolver, cst: SourceFileCstNode, fileName: String) : MarcelSemantic(replTypeResolver, Script::class.javaType, cst, fileName) {
 
-  override fun assignment(node: BinaryOperatorCstNode): ExpressionNode {
+  override fun assignment(node: BinaryOperatorCstNode, smartCastType: JavaType?): ExpressionNode {
     val scope = currentMethodScope
-    if (scope.isStatic || !scope.classType.isScript || node.leftOperand !is ReferenceCstNode) return super.assignment(node)
+    if (scope.isStatic || !scope.classType.isScript || node.leftOperand !is ReferenceCstNode) return super.assignment(node, smartCastType)
     val leftResult = runCatching { node.leftOperand.accept(this) }
     if (leftResult.isSuccess) return assignment(node, leftResult.getOrThrow())
 

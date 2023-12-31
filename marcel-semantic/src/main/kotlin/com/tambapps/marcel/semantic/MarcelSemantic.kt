@@ -574,15 +574,18 @@ open class MarcelSemantic constructor(
       && cstStatements.first() is ExpressionStatementCstNode) {
       val statement = cstStatements.first() as ExpressionStatementCstNode
       mutableListOf(ReturnCstNode(statement, statement.expressionNode, statement.tokenStart, statement.tokenEnd).accept(this))
-    } else blockStatements(cstStatements)
-
-    if (scriptRunMethod) {
-      // make the last statement the return value of the run method if possible
-      val lastStatement = statements.lastOrNull()
-      if (lastStatement is ExpressionStatementNode && lastStatement.expressionNode.type != JavaType.void) {
-        statements[statements.lastIndex] = ReturnStatementNode(caster.cast(JavaType.Object, lastStatement.expressionNode))
+    } else if (scriptRunMethod && cstStatements.isNotEmpty()) {
+      // if it's the script run method and the last statement is an expression statement, It becomes the return value of the run() method
+      blockStatements(cstStatements.subList(0, cstStatements.size - 1)).apply {
+        var lastStatement = cstStatements.last().accept(this@MarcelSemantic)
+        if (lastStatement is ExpressionStatementNode && lastStatement.expressionNode.type != JavaType.void) {
+          lastStatement = ReturnStatementNode(caster.cast(JavaType.Object, lastStatement.expressionNode))
+        }
+        add(lastStatement)
       }
     }
+    else blockStatements(cstStatements)
+
     if (!AllPathsReturnVisitor.test(statements)) {
       if (methodeNode.returnType == JavaType.void) {
         statements.add(SemanticHelper.returnVoid(methodeNode))
@@ -723,6 +726,8 @@ open class MarcelSemantic constructor(
 
   override fun visit(node: IncrCstNode, smartCastType: JavaType?): ExpressionNode {
     val (variable, owner) = findVariableAndOwner(node.value, node)
+    checkVariableAccess(variable, node, checkGet = true, checkSet = true)
+
     return incr(node, variable, owner, smartCastType)
   }
 
@@ -791,7 +796,7 @@ open class MarcelSemantic constructor(
     val leftOperand = node.leftOperand
     val rightOperand = node.rightOperand
     return when (val tokenType = node.tokenType) {
-      TokenType.ASSIGNMENT -> assignment(node)
+      TokenType.ASSIGNMENT -> assignment(node, smartCastType)
       TokenType.PLUS -> {
         val left = leftOperand.accept(this)
         val right = rightOperand.accept(this)
@@ -838,6 +843,7 @@ open class MarcelSemantic constructor(
             findVariableAndOwner(leftOperand.value, node)
           } catch (e: VariableNotFoundException) { null }
           if (p != null) {
+            checkVariableAccess(p.first, node, checkGet = true)
             dotOperator(node, ReferenceNode(p.second, p.first, node.token), rightOperand)
           } else {
             // it may be a static method call
@@ -907,8 +913,9 @@ open class MarcelSemantic constructor(
     }
   }
 
-  protected open fun assignment(node: BinaryOperatorCstNode): ExpressionNode {
-    return assignment(node, node.leftOperand.accept(this))
+  protected open fun assignment(node: BinaryOperatorCstNode, smartCastType: JavaType?): ExpressionNode {
+    // passing smartCastType to indicate whether we need to check get access or not
+    return assignment(node, node.leftOperand.accept(this, smartCastType))
   }
   protected fun assignment(node: BinaryOperatorCstNode, left: ExpressionNode, right: ExpressionNode = node.rightOperand.accept(this, left.type)): ExpressionNode {
     return assignment(left, right, node)
@@ -1154,6 +1161,10 @@ open class MarcelSemantic constructor(
 
   override fun visit(node: ReferenceCstNode, smartCastType: JavaType?): ExpressionNode {
     val (variable, owner) = findVariableAndOwner(node.value, node)
+    checkVariableAccess(variable, node,
+      // we pass the void type to tell not to check get access (see assignement operator)
+      checkGet = smartCastType != JavaType.void)
+
     return ReferenceNode(owner, variable, node.token)
   }
 
@@ -1164,10 +1175,6 @@ open class MarcelSemantic constructor(
     }
     val field = currentScope.findFieldOrThrow(name, node.token)
 
-    // TODO this check should not be here as this node can appear to be used for a set.
-    //  remove this check here, create a CanGetVisitor and CanSetVisitor that we'll use only
-    //  when we're sure of what to do with the expression
-    checkVariableAccess(field, node, checkGet = true)
     val classType = currentScope.classType
     val thisNode = ThisReferenceNode(classType, node.token)
     return if (!field.isStatic) {
@@ -1288,7 +1295,9 @@ open class MarcelSemantic constructor(
   }
 
   override fun visit(node: ExpressionStatementCstNode)
-  = ExpressionStatementNode(node.expressionNode.accept(this, JavaType.void), node.tokenStart, node.tokenEnd)
+  = ExpressionStatementNode(node.expressionNode.accept(this,
+    // void to specify we won't use the returned value
+    JavaType.void), node.tokenStart, node.tokenEnd)
 
   override fun visit(node: ReturnCstNode): StatementNode {
     val scope = currentMethodScope
@@ -2000,7 +2009,7 @@ open class MarcelSemantic constructor(
   private fun checkVariableAccess(variable: Variable, node: CstNode, checkGet: Boolean = false, checkSet: Boolean = false) {
     if (checkGet && !variable.isVisibleFrom(currentScope.classType, Variable.Access.GET)
       || checkSet && !variable.isVisibleFrom(currentScope.classType, Variable.Access.SET)) {
-      throw MarcelSemanticException(node, "Cannot access variable ${variable.name} from ${currentScope.classType}")
+      throw MarcelSemanticException(node, "Variable ${variable.name} is not visible from ${currentScope.classType}")
     }
     if (checkGet && !variable.isGettable) {
       throw MarcelSemanticException(node, "Cannot get value of variable ${variable.name}")
