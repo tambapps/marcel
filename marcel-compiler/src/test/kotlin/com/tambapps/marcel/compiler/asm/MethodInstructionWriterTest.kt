@@ -32,8 +32,8 @@ class MethodInstructionWriterTest {
 
   private val mv = mock(MethodVisitor::class.java)
   private val symbolResolver = MarcelSymbolResolver()
-  private val writer = MethodInstructionWriter(mv, symbolResolver, JavaType.Object)
-  private val pushingWriter = PushingMethodExpressionWriter(mv, symbolResolver, JavaType.Object)
+  private val writer = MethodInstructionWriter(mv, JavaType.Object)
+  private val pushingWriter = PushingMethodExpressionWriter(mv, JavaType.Object)
 
   @Test
   fun testDontPopWhenExpressionStatementIsVoidExpression() {

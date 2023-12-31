@@ -62,9 +62,8 @@ import com.tambapps.marcel.semantic.ast.statement.StatementNodeVisitor
 import com.tambapps.marcel.semantic.ast.statement.ThrowNode
 import com.tambapps.marcel.semantic.ast.statement.TryCatchNode
 import com.tambapps.marcel.semantic.ast.statement.WhileNode
-import com.tambapps.marcel.semantic.extensions.javaType
+import com.tambapps.marcel.semantic.method.ReflectJavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
@@ -72,13 +71,17 @@ import org.objectweb.asm.Opcodes
 import java.util.LinkedList
 
 class MethodInstructionWriter(
-  mv: MethodVisitor, symbolResolver: MarcelSymbolResolver, classScopeType: JavaType
-): MethodExpressionWriter(mv, symbolResolver, classScopeType), StatementNodeVisitor<Unit> {
+  mv: MethodVisitor, classScopeType: JavaType
+): MethodExpressionWriter(mv, classScopeType), StatementNodeVisitor<Unit> {
 
-  private val expressionPusher = PushingMethodExpressionWriter(mv, symbolResolver, classScopeType)
+  private val expressionPusher = PushingMethodExpressionWriter(mv, classScopeType)
 
   private val loopContextQueue = LinkedList<LoopContext>()
   private val currentLoopContext get() = loopContextQueue.peek()
+
+  private companion object {
+    val ITERATOR_HAS_NEXT_METHOD = ReflectJavaMethod(Iterator::class.java.getMethod("hasNext"))
+  }
 
   /*
    * Statements
@@ -153,7 +156,7 @@ class MethodInstructionWriter(
     // Verifying condition -> iterator.hasNext()
     val iteratorVarReference = ReferenceNode(variable = node.iteratorVariable, token = node.token)
     pushExpression(iteratorVarReference)
-    mv.visitMethodInsn(symbolResolver.findMethodOrThrow(Iterator::class.javaType, "hasNext", emptyList()))
+    mv.visitMethodInsn(ITERATOR_HAS_NEXT_METHOD)
 
     mv.visitJumpInsn(Opcodes.IFEQ, loopEnd)
 

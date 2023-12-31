@@ -51,15 +51,15 @@ import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.variable.LocalVariable
+import com.tambapps.marcel.semantic.variable.field.ReflectJavaField
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.Type
 
-class PushingMethodExpressionWriter(mv: MethodVisitor, symbolResolver: MarcelSymbolResolver, classScopeType: JavaType) :
-  MethodExpressionWriter(mv, symbolResolver, classScopeType) {
+class PushingMethodExpressionWriter(mv: MethodVisitor, classScopeType: JavaType) :
+  MethodExpressionWriter(mv, classScopeType) {
 
   companion object {
     private val PRIMITIVE_CAST_INSTRUCTION_MAP = mapOf(
@@ -254,10 +254,10 @@ class PushingMethodExpressionWriter(mv: MethodVisitor, symbolResolver: MarcelSym
   }
 
   override fun visit(node: ClassReferenceNode) {
-    if (node.classType.primitive) {
+    if (node.classType.primitive) {Integer.TYPE
       visit(ReferenceNode(
         owner = null,
-        variable = symbolResolver.getClassField(node.classType.objectType, "TYPE"),
+        variable = ReflectJavaField(node.classType.objectType.realClazz.getField("TYPE")),
         node.token
       ))
     } else {

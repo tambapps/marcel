@@ -23,8 +23,9 @@ import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
-import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.ReflectJavaConstructor
+import com.tambapps.marcel.semantic.method.ReflectJavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import org.objectweb.asm.Label
@@ -34,12 +35,17 @@ import java.lang.StringBuilder
 
 sealed class MethodExpressionWriter(
   protected val mv: MethodVisitor,
-  protected val symbolResolver: MarcelSymbolResolver,
   classScopeType: JavaType
 ): ExpressionNodeVisitor<Unit> {
 
-  protected val loadVariableVisitor = LoadVariableVisitor(symbolResolver, mv, classScopeType)
-  protected val storeVariableVisitor = StoreVariableVisitor(symbolResolver, mv, classScopeType)
+  private companion object {
+    val HASH_MAP_CONSTRUCTOR = ReflectJavaConstructor(HashMap::class.java.getConstructor())
+    val MAP_PUT_METHOD = ReflectJavaMethod(HashMap::class.java.getMethod("put", Object::class.java, Object::class.java))
+    val STRING_BUILDER_CONSTRUCTOR = ReflectJavaConstructor(StringBuilder::class.java.getConstructor())
+    val STRING_BUILDER_TO_STRING_METHOD = ReflectJavaMethod(StringBuilder::class.java.getMethod("toString"))
+  }
+  protected val loadVariableVisitor = LoadVariableVisitor(mv, classScopeType)
+  protected val storeVariableVisitor = StoreVariableVisitor(mv, classScopeType)
 
   internal abstract fun pushExpression(node: ExpressionNode)
 
@@ -119,33 +125,31 @@ sealed class MethodExpressionWriter(
   }
 
   override fun visit(node: MapNode) {
-    val mapType = HashMap::class.javaType
-    val method = symbolResolver.findMethodOrThrow(mapType, JavaMethod.CONSTRUCTOR_NAME, emptyList())
-    visit(NewInstanceNode(mapType, method, emptyList(), node.token))
+    val mapType = HASH_MAP_CONSTRUCTOR.ownerClass
+    visit(NewInstanceNode(mapType, HASH_MAP_CONSTRUCTOR, emptyList(), node.token))
 
     for (entry in node.entries) {
       mv.visitInsn(Opcodes.DUP)
       entry.first.accept(this)
       entry.second.accept(this)
-      invokeMethodAsStatement(symbolResolver.findMethodOrThrow(mapType, "put", listOf(JavaType.Object, JavaType.Object)))
+      invokeMethodAsStatement(MAP_PUT_METHOD)
     }
   }
 
   override fun visit(node: StringNode) {
-    val stringBuilderType = StringBuilder::class.javaType
+    val stringBuilderType = STRING_BUILDER_CONSTRUCTOR.ownerClass
     // using StringBuilder to build the whole string
-    val constructorMethod = symbolResolver.findMethod(StringBuilder::class.javaType, JavaMethod.CONSTRUCTOR_NAME, emptyList())!!
     // new StringBuilder()
-    visit(NewInstanceNode(stringBuilderType, constructorMethod, emptyList(), node.token))
+    visit(NewInstanceNode(stringBuilderType, STRING_BUILDER_CONSTRUCTOR, emptyList(), node.token))
     for (part in node.parts) {
       // chained .append(...) calls
       part.accept(this)
-      val method = symbolResolver.findMethod(stringBuilderType, "append", listOf(
-        if (part.type.primitive) part else JavaType.Object
-      ))!!
+      val method = ReflectJavaMethod(stringBuilderType.realClazz.getMethod("append",
+        if (part.type.primitive) part.type.realClazz else Object::class.java
+      ))
       mv.visitMethodInsn(method)
     }
-    mv.visitMethodInsn(symbolResolver.findMethod(stringBuilderType, "toString", emptyList())!!)
+    mv.visitMethodInsn(STRING_BUILDER_TO_STRING_METHOD)
   }
 
   override fun visit(node: VoidExpressionNode) {
