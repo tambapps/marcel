@@ -34,7 +34,6 @@ open class SourceJavaType internal constructor(
   override val realClazz: Class<*>
     get() = throw RuntimeException("Class $className is not loaded")
   override val primitive = false
-  override val realClazzOrObject = java.lang.Object::class.java
   override val isAnnotation = false
 
   override val allImplementedInterfaces: Collection<JavaType>

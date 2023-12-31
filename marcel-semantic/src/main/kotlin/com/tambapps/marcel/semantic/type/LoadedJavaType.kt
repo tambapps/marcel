@@ -87,7 +87,6 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
   }
 
   override val primitive = realClazz.isPrimitive
-  override val realClazzOrObject = realClazz
 
   override fun hashCode(): Int {
     var result = className.hashCode()

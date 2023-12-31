@@ -38,7 +38,37 @@ import marcel.lang.primitives.collections.sets.LongSet
 /**
  * Represents a Java class that may or may not be loaded on the classpath
  *
- * TODO properties
+ * @property isLoaded whether the class is loaded on the classpath
+ * @property realClazz get the [Class] representing this type. Only available for loaded types
+ * @property isEnum whether this type represents an enum class or not
+ * @property className the class full name
+ * @property packageName the class package name (may be null)
+ * @property superType the class super type
+ * @property isAnnotation whether this type represents an annotation class or not
+ * @property isFinal whether the class is declared as final
+ * @property visibility the visibility of the class
+ * @property isScript whether the class was declared from a marcel script source file
+ * @property objectType returns the object type representing this class. E.g. for the primitive [int] class it will return [Integer], and for object types it will return itself
+ * @property isTopLevel whether the class is top level, has no outer type above it
+ * @property hasGenericTypes whether this type has generic types specified
+ * @property innerName the inner name of this class (for non-top-level classes) or null
+ * @property outerTypeName the outer type full name of the class (for non-top-level classes) or null
+ * @property simpleName the simple name of this type
+ * @property takes2Slots whether this type takes 2 Java ARM slots (for long and doubles)
+ * @property nbSlots the number of Java ARM slots this type takes
+ * @property type returns itself
+ * @property genericTypes the generic types specified
+ * @property isLambda whether this type represents a lambda
+ * @property primitive whether this type represents a primitive class
+ * @property isPrimitiveObjectType whether this type represents the [objectType] of a primitive type
+ * @property isPrimitiveOrObjectPrimitive whether this type represents a primitive type or an [objectType] of a primitive type
+ * @property arrayType returns the array type whose elements would be of this type
+ * @property isArray whether this class represents an array type
+ * @property directlyImplementedInterfaces the collection of directly implemented interfaces of this type
+ * @property allImplementedInterfaces the collection of all the implemented interfaces of this type
+ * @property asPrimitiveType returns this type as a [JavaPrimitiveType] or fail if it not
+ * @property asArrayType returns this type as a [JavaArrayType] or fail if it not
+ * @property asAnnotationType returns this type as a [JavaAnnotationType] or fail if it not
  */
 interface JavaType: JavaTyped {
 
@@ -62,6 +92,12 @@ interface JavaType: JavaTyped {
     return if (i < 0) null else className.substring(i + 1)
   }
 
+  /**
+   * Retrieves the annotation of the given type or null
+   *
+   * @param javaAnnotationType the type of the annotation
+   * @return the annotation of the given type or null
+   */
   fun getAnnotation(javaAnnotationType: JavaAnnotationType): JavaAnnotation?
 
   val outerTypeName: String? get() {
@@ -69,7 +105,12 @@ interface JavaType: JavaTyped {
     return if (i < 0) null else className.substring(0, i)
   }
 
-  // returns whether this class is an outer class (no matter the level) of the provided one
+  /**
+   * Returns whether this class is an outer class (no matter the level) of the provided one
+   *
+   * @param javaType
+   * @return whether this class is an outer class (no matter the level) of the provided one
+   */
   fun isOuterTypeOf(javaType: JavaType) = javaType.className.contains("$className$")
 
   val simpleName: String get() {
@@ -105,6 +146,12 @@ interface JavaType: JavaTyped {
     else SourceJavaArrayType(this)
   }
 
+  /**
+   * Returns the array type top of n [dimensions] of this type
+   *
+   * @param dimensions the number of dimensions of this type
+   * @return the array type top of n [dimensions] of this type
+   */
   fun array(dimensions: Int): JavaType {
     var type = this
     for (i in 0 until dimensions) {
@@ -113,11 +160,16 @@ interface JavaType: JavaTyped {
     return type
   }
 
+  /**
+   * Returns whether this type is accessible from the provided type
+   *
+   * @param javaType the other type
+   * @return whether this type is accessible from the provided type
+   */
   fun isAccessibleFrom(javaType: JavaType) = visibility.canAccess(javaType, this)
 
   val isArray: Boolean
 
-  val realClazzOrObject: Class<*>
   val directlyImplementedInterfaces: Collection<JavaType>
   val allImplementedInterfaces: Collection<JavaType>
   val asPrimitiveType: JavaPrimitiveType
@@ -126,19 +178,57 @@ interface JavaType: JavaTyped {
     get() = throw RuntimeException("Illegal JavaType cast")
   val asAnnotationType: JavaAnnotationType
     get() = throw RuntimeException("Illegal JavaType cast")
+
+  /**
+   * Get the default value expression of this type.
+   * 0 for number primitives, false for boolean, and null for object types
+   *
+   * @param token the token representing the expression
+   * @return the default value expresion of this type
+   */
   fun getDefaultValueExpression(token: LexToken): ExpressionNode
 
+  /**
+   * Returns this type with the provided generic types specified
+   *
+   * @param genericTypes the generic types to specify
+   * @return this type with the provided generic types specified
+   */
   fun withGenericTypes(vararg genericTypes: JavaType): JavaType {
     return withGenericTypes(genericTypes.toList())
   }
 
+  /**
+   * Returns this type with the provided generic types specified
+   *
+   * @param genericTypes the generic types to specify
+   * @return this type with the provided generic types specified
+   */
   fun withGenericTypes(genericTypes: List<JavaType>): JavaType
-  // return this type without generic types
+
+  /**
+   * Returns this type without generic types
+   *
+   * @return this type without generic types
+   */
   fun raw(): JavaType {
     return if (genericTypes.isEmpty()) this else withGenericTypes(emptyList())
   }
 
+  /**
+   * Returns whether the [other] type is this or a parent type of this
+   *
+   * @param other the other type
+   * @return whether the [other] type is this or a parent type of this
+   */
   fun isSelfOrSuper(other: JavaType) = other == this || other.isExtendedOrImplementedBy(this)
+
+  /**
+   * Returns whether this type is extended/implemented by the [other] type
+   *
+   * @param other the other type
+   * @return whether this type is extended/implemented by the [other] type
+   */
   fun isExtendedOrImplementedBy(other: JavaType): Boolean {
     if (isLoaded && other.isLoaded) {
       return realClazz.isAssignableFrom(other.realClazz)
@@ -153,6 +243,15 @@ interface JavaType: JavaTyped {
       return false
     }
   }
+
+  /**
+   * Returns whether this type is assignable from the [other].
+   * In other words whether if we had a variable of this type, we could assign safely
+   * a value of [other] type, without any cast checks
+   *
+   * @param other the other type
+   * @return whether this type is assignable from the [other]
+   */
   fun isAssignableFrom(other: JavaType): Boolean {
     if (this == other || this == Object && !other.primitive
       // to handle null values that can be cast to anything
@@ -177,6 +276,13 @@ interface JavaType: JavaTyped {
     return isExtendedOrImplementedBy(other)
   }
 
+  /**
+   * Whether this type implements the provided [javaType]
+   *
+   * @param javaType the other type
+   * @param compareGenerics whether to also compare generic types or not
+   * @return whether this type implements the provided [javaType]
+   */
   fun implements(javaType: JavaType, compareGenerics: Boolean = false): Boolean {
     return (
         if (compareGenerics) this == javaType
@@ -187,15 +293,40 @@ interface JavaType: JavaTyped {
     }
   }
 
+  /**
+   * Util static methods
+   */
   companion object {
 
+    /**
+     *  Returns the common type between all the provided typed object
+     *
+     * @param list the list of types
+     * @return the common type between all the provided typed object
+     */
     fun commonType(list: List<JavaTyped>): JavaType {
       if (list.isEmpty()) return void
       return list.reduce { acc, javaType -> commonType(acc, javaType) }.type
     }
 
+
+    /**
+     * Returns the common type between the 2 types
+     *
+     * @param a the first type
+     * @param b the second type
+     * @return the common type between the 2 types
+     */
     fun commonType(a: JavaTyped, b: JavaTyped) = commonType(a.type, b.type)
 
+    /**
+     * Returns the common type between the 2 types. Not that the common type may not be assignable from [a] or [b]
+     * but both [a] and [b] should always be Marcel-casted into the common type.
+     *
+     * @param a the first type
+     * @param b the second type
+     * @return the common type between the 2 types
+     */
     fun commonType(a: JavaType, b: JavaType): JavaType {
       if (a == b) return if (a === Anything) Object else a
       if (a === Anything) return b.objectType
@@ -224,26 +355,29 @@ interface JavaType: JavaTyped {
       return JavaType.Object
     }
 
+    /**
+     * Returns the [JavaType] representing the provided [Class]
+     *
+     * @param clazz the java class
+     * @return the [JavaType] representing this [Class]
+     */
     fun of(clazz: Class<*>): JavaType {
       return of(clazz, emptyList())
     }
+
+    /**
+     * Returns the [JavaType] representing the provided [Class] with the provided generic types to specify
+     *
+     * @param clazz the java class
+     * @param genericTypes the generic types to specify
+     * @return the [JavaType] representing this [Class]
+     */
     fun of(clazz: Class<*>, genericTypes: List<JavaType>): JavaType {
       return if (clazz.isPrimitive) PRIMITIVES.find { it.className == clazz.name } ?: throw RuntimeException("Primitive type $clazz is not being handled")
       else if (clazz.isArray)
         ARRAYS.find { it.realClazz == clazz } ?: LoadedJavaArrayType(clazz)
       else if (clazz.isAnnotation) LoadedJavaAnnotationType(clazz)
       else LoadedObjectType(clazz, genericTypes)
-    }
-
-    fun arrayTypeFrom(type: JavaType): JavaArrayType? {
-      return if (type.isArray) return type.asArrayType
-      else if (intList.isAssignableFrom(type) || intSet.isAssignableFrom(type)) return intArray
-      else if (longList.isAssignableFrom(type) || longSet.isAssignableFrom(type)) return longArray
-      else if (charList.isAssignableFrom(type) || characterSet.isAssignableFrom(type)) return charArray
-      else if (floatList.isAssignableFrom(type)) return floatArray
-      else if (doubleList.isAssignableFrom(type)) return doubleArray
-      else if (of(List::class.java).isAssignableFrom(type)) return objectArray
-      else null
     }
 
     val Anything: JavaType = AnythingJavaType
