@@ -80,7 +80,7 @@ class WildcardImportNode(private val prefix: String,
 
   override fun resolveClassName(token: LexToken, symbolResolver: MarcelSymbolResolver, classSimpleName: String): String? {
     return try {
-      symbolResolver.of(token, "$prefix.$classSimpleName", emptyList()).className
+      symbolResolver.of("$prefix.$classSimpleName", emptyList(), token).className
     } catch (e: MarcelSemanticException) {
        null
     }

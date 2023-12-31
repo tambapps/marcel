@@ -1,7 +1,6 @@
 package com.tambapps.marcel.compiler.asm
 
 import com.tambapps.marcel.compiler.extensions.internalName
-import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
@@ -36,7 +35,6 @@ class MarcelAsmClassWriter(
     return class1.internalName
   }
 
-  private fun resolve(type: String) = try {
-    symbolResolver.of(LexToken.DUMMY, type)
-  } catch (e: MarcelSemanticException) { throw TypeNotPresentException(type, e) }
+  private fun resolve(type: String) = try { symbolResolver.of(type) }
+    catch (e: MarcelSemanticException) { throw TypeNotPresentException(type, e) }
 }

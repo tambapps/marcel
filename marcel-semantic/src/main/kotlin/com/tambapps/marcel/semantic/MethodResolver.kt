@@ -59,7 +59,7 @@ class MethodResolver(
                                namedArguments: List<Pair<String, ExpressionNode>>): Pair<JavaMethod, List<ExpressionNode>>? {
     for (import in imports) {
       import as? StaticImportNode ?: continue
-      val type = symbolResolver.of(node.token, import.className, emptyList())
+      val type = symbolResolver.of(import.className, emptyList(), node.token)
       val result = resolveMethod(node, type, name, positionalArguments, namedArguments)
       if (result != null && result.first.isStatic) return result
     }

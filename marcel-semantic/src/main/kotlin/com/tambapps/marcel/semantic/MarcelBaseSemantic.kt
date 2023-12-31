@@ -125,7 +125,7 @@ abstract class MarcelBaseSemantic {
     if (!classNode.isStatic && classType.outerTypeName != null) {
       // java generates fields to reference outer class(es) from inner class. So does marcel.
       var outerLevel = 0
-      var levelType: JavaType? = classType.outerTypeName?.let { symbolResolver.of(classNode.token, it) }
+      var levelType: JavaType? = classType.outerTypeName?.let { symbolResolver.of(it, token = classNode.token) }
       while (levelType != null) {
         val outerFieldName = "this$$outerLevel"
         val fieldNode = FieldNode(
@@ -145,7 +145,7 @@ abstract class MarcelBaseSemantic {
         symbolResolver.defineField(classType, fieldNode)
 
         outerLevel++
-        levelType = levelType.outerTypeName?.let { symbolResolver.of(classNode.token, it, emptyList()) }
+        levelType = levelType.outerTypeName?.let { symbolResolver.of(it, emptyList(), classNode.token) }
       }
     }
     return fields
@@ -198,7 +198,7 @@ abstract class MarcelBaseSemantic {
     var levelType: JavaType? = innerClass
     while (levelType != null && !outerClass.isAssignableFrom(levelType)) {
       outerLevel++
-      levelType = levelType.outerTypeName?.let { symbolResolver.of(token, it, emptyList()) }
+      levelType = levelType.outerTypeName?.let { symbolResolver.of(it, emptyList(), token) }
     }
     return if (levelType == null) null
     else Pair(outerLevel, levelType)

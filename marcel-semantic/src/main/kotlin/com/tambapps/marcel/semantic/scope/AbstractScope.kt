@@ -29,7 +29,7 @@ abstract class AbstractScope(
   }
 
   protected fun of(simpleName: String, node: TypeCstNode): JavaType {
-    return symbolResolver.of(node.token, simpleName, node.genericTypes.map { resolveTypeOrThrow(it) }).array(node.arrayDimensions)
+    return symbolResolver.of(simpleName, node.genericTypes.map { resolveTypeOrThrow(it) }, node.token).array(node.arrayDimensions)
   }
   private fun resolveImportClassName(node: TypeCstNode): String? {
     val classSimpleName = node.value

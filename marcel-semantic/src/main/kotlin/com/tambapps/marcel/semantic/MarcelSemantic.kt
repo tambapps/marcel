@@ -237,7 +237,7 @@ open class MarcelSemantic constructor(
     val scriptCstNode = cst.script
 
     for (cstClass in cst.classes) {
-      val classNode = classNode(symbolResolver.of(cstClass.token, cstClass.className, emptyList()), cstClass)
+      val classNode = classNode(symbolResolver.of(cstClass.className, emptyList(), cstClass.token), cstClass)
       moduleNode.classes.add(classNode)
       classNode.innerClasses.forEach { innerClassNode ->
         if (innerClassNode is LambdaClassNode) {
@@ -323,7 +323,7 @@ open class MarcelSemantic constructor(
 
     // must handle inner classes BEFORE handling this class being an inner class because in this case constructors will be modified
     node.innerClasses.forEach {
-      classNode.innerClasses.add(classNode(symbolResolver.of(it.token, it.className, emptyList()), it))
+      classNode.innerClasses.add(classNode(symbolResolver.of(it.className, emptyList(), it.token), it))
     }
     node.constructors.forEach { classNode.methods.add(constructorNode(classNode, it, classScope)) }
     if (classNode.constructorCount == 0) {
@@ -1225,7 +1225,7 @@ open class MarcelSemantic constructor(
     if (currentScopeType.outerTypeName != null) {
       // searching on outer classes
       var outerLevel = 0
-      var outerType = currentScopeType.outerTypeName?.let { symbolResolver.of(node.token, it, emptyList()) }
+      var outerType = currentScopeType.outerTypeName?.let { symbolResolver.of(it, emptyList(), node.token) }
       while (outerType != null) {
         methodResolve = methodResolver.resolveMethod(node, outerType, node.value, positionalArguments, namedArguments)
         if (methodResolve != null) {
@@ -1241,7 +1241,7 @@ open class MarcelSemantic constructor(
           )
 
         }
-        outerType = outerType.outerTypeName?.let { symbolResolver.of(node.token, it, emptyList()) }
+        outerType = outerType.outerTypeName?.let { symbolResolver.of(it, emptyList(), node.token) }
         outerLevel++
       }
     }

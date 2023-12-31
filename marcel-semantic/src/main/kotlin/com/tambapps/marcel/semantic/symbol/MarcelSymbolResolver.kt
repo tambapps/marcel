@@ -171,15 +171,15 @@ open class MarcelSymbolResolver constructor(private val classLoader: MarcelClass
 
   fun isDefined(className: String): Boolean {
     return try {
-      of(LexToken.DUMMY, className, emptyList())
+      of(className, emptyList(), LexToken.DUMMY)
       true
     } catch (e: MarcelSemanticException) {
       false
     }
   }
 
-  fun of(className: String, genericTypes: List<JavaType> = emptyList()) = of(LexToken.DUMMY, className, genericTypes)
-  fun of(token: LexToken, className: String, genericTypes: List<JavaType> = emptyList()): JavaType {
+  fun of(className: String, genericTypes: List<JavaType> = emptyList()) = of(className, genericTypes, LexToken.DUMMY)
+  fun of(className: String, genericTypes: List<JavaType> = emptyList(), token: LexToken): JavaType {
     if (_definedTypes.containsKey(className)) return _definedTypes.getValue(className)
     val optPrimitiveType = JavaType.PRIMITIVES.find { it.className == className }
     if (optPrimitiveType != null) return optPrimitiveType

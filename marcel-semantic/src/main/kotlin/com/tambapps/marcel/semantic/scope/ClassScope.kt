@@ -22,7 +22,7 @@ class ClassScope constructor(
     while (type != null) {
       val f = symbolResolver.findField(type, name)
       if (f != null) return f
-      type = type.outerTypeName?.let { symbolResolver.of(LexToken.DUMMY, it, emptyList()) }
+      type = type.outerTypeName?.let { symbolResolver.of(it, emptyList(), LexToken.DUMMY) }
     }
     return null
   }
