@@ -1,9 +1,12 @@
 package com.tambapps.marcel.semantic.type
 
 import com.tambapps.marcel.semantic.Visibility
-import java.lang.Exception
 
-open class NotLoadedJavaType internal constructor(
+/**
+ * A [JavaType] that is NOT loaded on the classpath. Such classes always represents an Object as Java
+ * doesn't allow to define new primitives
+ */
+open class SourceJavaType internal constructor(
   override val visibility: Visibility,
   override val className: String,
   override val genericTypes: List<JavaType>,

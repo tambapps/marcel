@@ -9,7 +9,6 @@ import com.tambapps.marcel.parser.cst.ConstructorCstNode as ConstructorCstNode
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.expression.ElvisThrowCstNode
 import com.tambapps.marcel.parser.cst.statement.DoWhileStatementCstNode
-import com.tambapps.marcel.parser.cst.FieldCstNode as FieldCstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode as MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode as MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.ScriptCstNode as ScriptCstNode
@@ -141,7 +140,6 @@ import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.ExtensionJavaMethod
 import com.tambapps.marcel.semantic.method.JavaConstructorImpl
-import com.tambapps.marcel.semantic.method.JavaMethodImpl
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.CatchBlockScope
@@ -155,11 +153,9 @@ import com.tambapps.marcel.semantic.type.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
-import com.tambapps.marcel.semantic.type.NotLoadedJavaType
+import com.tambapps.marcel.semantic.type.SourceJavaType
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.Variable
-import com.tambapps.marcel.semantic.variable.field.JavaClassFieldImpl
-import com.tambapps.marcel.semantic.variable.field.MarcelField
 import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
 import com.tambapps.marcel.semantic.visitor.ImportCstNodeConverter
 import com.tambapps.marcel.semantic.visitor.ReturningBranchTransformer
@@ -342,7 +338,7 @@ open class MarcelSemantic constructor(
     node.annotations.forEach {
       val annotation = visit(it, ElementType.TYPE)
       classNode.annotations.add(annotation)
-      (classNode.type as? NotLoadedJavaType)?.addAnnotation(annotation)
+      (classNode.type as? SourceJavaType)?.addAnnotation(annotation)
     }
     // iterating with i because we might add methods while
     node.methods.forEach { classNode.methods.add(methodNode(classNode, it, classScope)) }

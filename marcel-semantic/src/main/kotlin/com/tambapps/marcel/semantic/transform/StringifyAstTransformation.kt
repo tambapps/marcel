@@ -10,7 +10,7 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.NotLoadedJavaType
+import com.tambapps.marcel.semantic.type.SourceJavaType
 import marcel.lang.data
 import marcel.lang.stringify
 import java.util.Arrays
@@ -20,7 +20,7 @@ import java.util.Arrays
  */
 class StringifyAstTransformation: GenerateMethodAstTransformation() {
 
-  override fun generateSignatures(node: CstNode, javaType: NotLoadedJavaType, annotation: AnnotationNode) = listOf(
+  override fun generateSignatures(node: CstNode, javaType: SourceJavaType, annotation: AnnotationNode) = listOf(
     signature(name = "toString", returnType = JavaType.String)
   )
 

@@ -11,7 +11,7 @@ import com.tambapps.marcel.semantic.exception.MarcelSyntaxTreeTransformationExce
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.NotLoadedJavaType
+import com.tambapps.marcel.semantic.type.SourceJavaType
 import marcel.lang.comparable
 import marcel.lang.data
 
@@ -20,11 +20,11 @@ import marcel.lang.data
  */
 class ComparableAstTransformation: GenerateMethodAstTransformation() {
 
-  override fun doTransformType(javaType: NotLoadedJavaType, annotation: AnnotationNode, node: CstNode) {
+  override fun doTransformType(javaType: SourceJavaType, annotation: AnnotationNode, node: CstNode) {
     javaType.addImplementedInterface(java.lang.Comparable::class.javaType)
   }
 
-  override fun generateSignatures(node: CstNode, javaType: NotLoadedJavaType, annotation: AnnotationNode): List<JavaMethod> {
+  override fun generateSignatures(node: CstNode, javaType: SourceJavaType, annotation: AnnotationNode): List<JavaMethod> {
     return listOf(
       signature(name = "compareTo", parameters = listOf(parameter(type = JavaType.Object, "obj")), returnType = JavaType.int),
       signature(name = "compareTo", parameters = listOf(parameter(type = javaType, "other")), returnType = JavaType.int)

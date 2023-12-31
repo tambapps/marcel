@@ -10,6 +10,7 @@ import com.tambapps.marcel.semantic.exception.VariableNotFoundException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.ExtensionJavaMethod
 import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MethodMatcherTrait
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.method.NoArgJavaConstructor
 import com.tambapps.marcel.semantic.method.ReflectJavaMethod
@@ -24,8 +25,13 @@ import com.tambapps.marcel.semantic.variable.field.ReflectJavaField
 import marcel.lang.DynamicObject
 import marcel.lang.MarcelClassLoader
 import marcel.lang.methods.DefaultMarcelMethods
-import kotlin.math.max
 
+/**
+ * Class allowing to define and resolve all symbols (classes, methods, fields) of a Marcel AST
+ *
+ * @property classLoader an optional class loader
+ */
+// TODO rename JavaSymbolResolver?
 open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoader?): MethodMatcherTrait {
 
   constructor(): this(null)
@@ -93,14 +99,14 @@ open class JavaTypeResolver constructor(private val classLoader: MarcelClassLoad
   }
 
   /* definition */
-  fun defineClass(token: LexToken = LexToken.DUMMY, visibility: Visibility, className: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>, isScript: Boolean = false): NotLoadedJavaType {
+  fun defineClass(token: LexToken = LexToken.DUMMY, visibility: Visibility, className: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>, isScript: Boolean = false): SourceJavaType {
     return defineClass(token, visibility, null, className, superClass, isInterface, interfaces, isScript)
   }
-  fun defineClass(token: LexToken = LexToken.DUMMY, visibility: Visibility, outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>, isScript: Boolean = false): NotLoadedJavaType {
+  fun defineClass(token: LexToken = LexToken.DUMMY, visibility: Visibility, outerClassType: JavaType?, cName: String, superClass: JavaType, isInterface: Boolean, interfaces: List<JavaType>, isScript: Boolean = false): SourceJavaType {
     val className = if (outerClassType != null) "${outerClassType.className}\$$cName" else cName
 
     checkTypeAlreadyDefined(token, className)
-    val type = NotLoadedJavaType(visibility, className, emptyList(),  superClass, isInterface, interfaces.toMutableSet(), isScript = isScript)
+    val type = SourceJavaType(visibility, className, emptyList(),  superClass, isInterface, interfaces.toMutableSet(), isScript = isScript)
     _definedTypes[className] = type
     return type
   }

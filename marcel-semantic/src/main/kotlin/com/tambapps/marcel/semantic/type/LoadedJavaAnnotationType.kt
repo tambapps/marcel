@@ -3,6 +3,9 @@ package com.tambapps.marcel.semantic.type
 import java.lang.annotation.ElementType
 import java.lang.annotation.RetentionPolicy
 
+/**
+ * [JavaType] representing an annotation loaded on the classpath
+ */
 open class LoadedJavaAnnotationType(realClazz: Class<*>): LoadedObjectType(realClazz, emptyList()), JavaAnnotationType {
 
   override val retentionPolicy

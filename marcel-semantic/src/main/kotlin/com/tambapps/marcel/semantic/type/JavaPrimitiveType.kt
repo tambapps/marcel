@@ -6,6 +6,9 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import kotlin.reflect.KClass
 
+/**
+ * [JavaType] of a primitive type
+ */
 class JavaPrimitiveType internal constructor(
   objectKlazz: KClass<*>,
   val isNumber: Boolean,

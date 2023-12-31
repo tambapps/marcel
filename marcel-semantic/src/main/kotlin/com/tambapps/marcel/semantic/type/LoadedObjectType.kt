@@ -4,6 +4,9 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 
+/**
+ * [JavaType] of an object class available on the classpath
+ */
 open class LoadedObjectType(
   realClazz: Class<*>,
   genericTypes: List<JavaType>,

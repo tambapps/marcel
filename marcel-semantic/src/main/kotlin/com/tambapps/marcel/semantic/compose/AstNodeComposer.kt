@@ -1,17 +1,18 @@
-package com.tambapps.marcel.semantic
+package com.tambapps.marcel.semantic.compose
 
 import com.tambapps.marcel.lexer.LexToken
+import com.tambapps.marcel.semantic.MarcelBaseSemantic
+import com.tambapps.marcel.semantic.SemanticHelper
+import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
-import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.StringNode
-import com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
@@ -131,7 +132,10 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
     classNode.fields.add(fieldNode)
     if (defaultValue != null) {
       classNode.constructors.forEach {
-        SemanticHelper.addStatementLast(ExpressionStatementNode(varAssignExpr(fieldNode, defaultValue, thisRef())), it.blockStatement)
+        SemanticHelper.addStatementLast(
+          ExpressionStatementNode(varAssignExpr(fieldNode, defaultValue, thisRef())),
+          it.blockStatement
+        )
      }
     }
   }
@@ -281,7 +285,8 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
                           parameters: List<MethodParameter>, returnType: JavaType, interfaceType: JavaType,
                           lambdaBodyStatementComposerFunc: StatementsComposer.() -> Unit): NewInstanceNode {
     val lambdaImplementedInterfaces = listOf(Lambda::class.javaType, interfaceType)
-    val lambdaType = typeResolver.defineClass(LexToken.DUMMY, Visibility.INTERNAL, classNode.type, generateLambdaClassName(classNode), JavaType.Object, false, lambdaImplementedInterfaces)
+    val lambdaType = typeResolver.defineClass(LexToken.DUMMY,
+      Visibility.INTERNAL, classNode.type, generateLambdaClassName(classNode), JavaType.Object, false, lambdaImplementedInterfaces)
 
     val lambdaClassNode = ClassNode(
       type = lambdaType,

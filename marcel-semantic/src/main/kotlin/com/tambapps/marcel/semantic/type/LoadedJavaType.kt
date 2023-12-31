@@ -3,6 +3,9 @@ package com.tambapps.marcel.semantic.type
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 
+/**
+ * [JavaType] of a class that is loaded on the classpath and therefore available in Java reflect APIs
+ */
 abstract class LoadedJavaType internal constructor(final override val realClazz: Class<*>, final override val genericTypes: List<JavaType>): AbstractJavaType() {
   override val isLoaded = true
   override val isEnum = realClazz.isEnum

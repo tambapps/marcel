@@ -4,6 +4,9 @@ import java.lang.annotation.ElementType
 import java.lang.annotation.RetentionPolicy
 import kotlin.reflect.KClass
 
+/**
+ * [JavaType] representing an annotation type
+ */
 interface JavaAnnotationType: JavaType {
 
   companion object {

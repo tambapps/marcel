@@ -2,28 +2,22 @@ package com.tambapps.marcel.semantic.transform
 
 import com.tambapps.marcel.parser.cst.ClassCstNode
 import com.tambapps.marcel.parser.cst.CstNode
-import com.tambapps.marcel.parser.cst.FieldCstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
-import com.tambapps.marcel.semantic.CstNodeComposer
+import com.tambapps.marcel.semantic.compose.CstNodeComposer
 import com.tambapps.marcel.semantic.CstSemantic
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
-import com.tambapps.marcel.semantic.exception.MarcelSyntaxTreeTransformationException
-import com.tambapps.marcel.semantic.method.JavaMethod
-import com.tambapps.marcel.semantic.method.JavaMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.ImportScope
 import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
-import com.tambapps.marcel.semantic.type.NotLoadedJavaType
-import com.tambapps.marcel.semantic.variable.field.JavaClassFieldImpl
-import com.tambapps.marcel.semantic.variable.field.MarcelField
+import com.tambapps.marcel.semantic.type.SourceJavaType
 import com.tambapps.marcel.semantic.visitor.ImportCstNodeConverter
 
 /**
@@ -39,7 +33,7 @@ abstract class AbstractCstTransformation : CstNodeComposer(), CstSemantic, Synta
     this.typeResolver = typeResolver
   }
 
-  final override fun transform(javaType: NotLoadedJavaType, node: CstNode, annotation: AnnotationNode) {
+  final override fun transform(javaType: SourceJavaType, node: CstNode, annotation: AnnotationNode) {
     scope = newScope(node)
     doTransform(javaType, node, annotation)
     scope = null
@@ -73,7 +67,7 @@ abstract class AbstractCstTransformation : CstNodeComposer(), CstSemantic, Synta
     )
   }
 
-  abstract fun doTransform(javaType: NotLoadedJavaType, node: CstNode, annotation: AnnotationNode)
+  abstract fun doTransform(javaType: SourceJavaType, node: CstNode, annotation: AnnotationNode)
 
 
   override fun resolve(node: TypeCstNode): JavaType = scope!!.resolveTypeOrThrow(node)

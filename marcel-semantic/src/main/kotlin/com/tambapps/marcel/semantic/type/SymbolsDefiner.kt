@@ -7,9 +7,10 @@ import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 
 /**
- * Define symbols of multiple marcel semantics in a lazy way to avoid failing to do so when a type is referenced from
+ * Define symbols (classes, methods, fields) of multiple marcel semantics in a lazy way to avoid failing to do so when a type is referenced from
  * another semantic
  */
+// TODO transform into a trait and make JavaTypeResolver implement it?
 class SymbolsDefiner(
   private val typeResolver: JavaTypeResolver,
   private val scriptClass: JavaType
@@ -25,9 +26,9 @@ class SymbolsDefiner(
   }
 
   // predefining types, but not fully to avoid trying to find types we haven't predefined yet
-  private fun defineTypes(semantics: List<MarcelSemantic>): MutableList<Triple<MarcelSemantic, ClassCstNode, NotLoadedJavaType>> {
+  private fun defineTypes(semantics: List<MarcelSemantic>): MutableList<Triple<MarcelSemantic, ClassCstNode, SourceJavaType>> {
     // first define types, without super parent because one supertype may reference a type from another class that wasn't defined yet
-    val toDefineTypes = mutableListOf<Triple<MarcelSemantic, ClassCstNode, NotLoadedJavaType>>()
+    val toDefineTypes = mutableListOf<Triple<MarcelSemantic, ClassCstNode, SourceJavaType>>()
     for (s in semantics) {
       s.cst.classes.forEach { predefineTypes(s, it, toDefineTypes) }
     }
@@ -70,8 +71,8 @@ class SymbolsDefiner(
    */
   private fun predefineTypes(s: MarcelSemantic,
                              classNode: ClassCstNode,
-                             toDefineTypes: MutableList<Triple<MarcelSemantic, ClassCstNode, NotLoadedJavaType>>) {
-    val classType = NotLoadedJavaType(
+                             toDefineTypes: MutableList<Triple<MarcelSemantic, ClassCstNode, SourceJavaType>>) {
+    val classType = SourceJavaType(
       visibility = Visibility.fromTokenType(classNode.access.visibility),
       className = classNode.className,
       genericTypes = emptyList(),

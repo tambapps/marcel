@@ -1,4 +1,4 @@
-package com.tambapps.marcel.semantic
+package com.tambapps.marcel.semantic.compose
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
@@ -18,8 +18,7 @@ import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.IfStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
-import com.tambapps.marcel.semantic.ast.ClassNode
-import com.tambapps.marcel.semantic.method.MethodParameter
+import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.Variable
 

@@ -2,7 +2,7 @@ package com.tambapps.marcel.semantic.method
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
-import com.tambapps.marcel.semantic.AstNodeComposer
+import com.tambapps.marcel.semantic.compose.AstNodeComposer
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
@@ -11,7 +11,6 @@ import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.lang.CharSequence
 

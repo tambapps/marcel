@@ -14,14 +14,14 @@ import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.NotLoadedJavaType
+import com.tambapps.marcel.semantic.type.SourceJavaType
 import marcel.lang.data
 
 class AllArgsConstructorAstTransformation: GenerateMethodAstTransformation() {
 
   override fun generateSignatures(
     node: CstNode,
-    javaType: NotLoadedJavaType,
+    javaType: SourceJavaType,
     annotation: AnnotationNode
   ): List<JavaMethod> {
     val classNode = node as? ClassCstNode ?: throw MarcelSyntaxTreeTransformationException(this, node.token, "Cannot perform AllArgsConstructor as the annotated member is not a class")

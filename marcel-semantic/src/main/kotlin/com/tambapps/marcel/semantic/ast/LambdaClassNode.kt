@@ -5,11 +5,11 @@ import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.NotLoadedJavaType
+import com.tambapps.marcel.semantic.type.SourceJavaType
 import com.tambapps.marcel.semantic.variable.LocalVariable
 
 class LambdaClassNode(
-  override val type: NotLoadedJavaType,
+  override val type: SourceJavaType,
   val constructorNode: MethodNode,
   isStatic: Boolean,
   cstNode: LambdaCstNode,

@@ -11,7 +11,7 @@ import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.NotLoadedJavaType
+import com.tambapps.marcel.semantic.type.SourceJavaType
 import marcel.lang.data
 import java.util.Arrays
 import java.util.Objects
@@ -21,7 +21,7 @@ import java.util.Objects
  */
 class EqualsAndHashcodeAstTransformation: GenerateMethodAstTransformation() {
 
-  override fun generateSignatures(node: CstNode, javaType: NotLoadedJavaType, annotation: AnnotationNode): List<JavaMethod> {
+  override fun generateSignatures(node: CstNode, javaType: SourceJavaType, annotation: AnnotationNode): List<JavaMethod> {
     return listOf(
       signature(name = "equals", parameters = listOf(parameter(JavaType.Object, "obj")), returnType = JavaType.boolean),
       signature(name = "hashCode", returnType = JavaType.int)

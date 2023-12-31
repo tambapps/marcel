@@ -7,7 +7,7 @@ import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.FieldCstNode
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.exception.MarcelSyntaxTreeTransformationException
-import com.tambapps.marcel.semantic.type.NotLoadedJavaType
+import com.tambapps.marcel.semantic.type.SourceJavaType
 
 /**
  * CST Transformation making a field lazy to only compute its value when it is requesting. In order to implement the behaviour
@@ -17,7 +17,7 @@ import com.tambapps.marcel.semantic.type.NotLoadedJavaType
  */
 class LazyCstTransformation: AbstractCstTransformation() {
 
-  override fun doTransform(javaType: NotLoadedJavaType, node: CstNode, annotation: AnnotationNode) {
+  override fun doTransform(javaType: SourceJavaType, node: CstNode, annotation: AnnotationNode) {
     node as FieldCstNode
     val originalField = typeResolver.getClassField(javaType, node.name)
     val originalVisibility = node.access.visibility

@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.transform
 
 import com.tambapps.marcel.parser.cst.TypeCstNode
-import com.tambapps.marcel.semantic.AstNodeComposer
+import com.tambapps.marcel.semantic.compose.AstNodeComposer
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.scope.ClassScope

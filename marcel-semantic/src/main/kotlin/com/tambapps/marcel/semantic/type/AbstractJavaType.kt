@@ -4,6 +4,9 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 
+/**
+ * Base class for any [JavaType]
+ */
 abstract class AbstractJavaType: JavaType {
 
   override fun getDefaultValueExpression(token: LexToken): ExpressionNode = NullValueNode(token)

@@ -36,7 +36,9 @@ import marcel.lang.primitives.collections.sets.IntSet
 import marcel.lang.primitives.collections.sets.LongSet
 
 /**
- * Represents a Java class
+ * Represents a Java class that may or may not be loaded on the classpath
+ *
+ * TODO properties
  */
 interface JavaType: JavaTyped {
 
@@ -100,7 +102,7 @@ interface JavaType: JavaTyped {
     }
     // this is the only way to get the array class of a class, pre java 12
     return if (this.isLoaded) LoadedJavaArrayType(java.lang.reflect.Array.newInstance(this.realClazz, 0).javaClass)
-    else NotLoadedJavaArrayType(this)
+    else SourceJavaArrayType(this)
   }
 
   fun array(dimensions: Int): JavaType {

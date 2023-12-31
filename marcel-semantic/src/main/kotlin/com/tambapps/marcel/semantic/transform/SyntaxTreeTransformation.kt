@@ -5,7 +5,7 @@ import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
-import com.tambapps.marcel.semantic.type.NotLoadedJavaType
+import com.tambapps.marcel.semantic.type.SourceJavaType
 
 /**
  * Syntax tree transformation
@@ -26,7 +26,7 @@ interface SyntaxTreeTransformation {
    * @param node the annotated CST node
    * @param annotation the AST annotation node
    */
-  fun transform(javaType: NotLoadedJavaType, node: CstNode, annotation: AnnotationNode)
+  fun transform(javaType: SourceJavaType, node: CstNode, annotation: AnnotationNode)
 
   /**
    * Transform the Abstract Syntax Tree AFTER having performed the semantic analysis

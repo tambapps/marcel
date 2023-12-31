@@ -12,7 +12,7 @@ import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.transform.SyntaxTreeTransformation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.type.JavaTypeResolver
-import com.tambapps.marcel.semantic.type.NotLoadedJavaType
+import com.tambapps.marcel.semantic.type.SourceJavaType
 import marcel.lang.MarcelSyntaxTreeTransformationClass
 import java.lang.Exception
 import java.lang.annotation.ElementType
@@ -63,7 +63,7 @@ class SyntaxTreeTransformer(
   }
 
   private fun doLoadTransformations(semantic: MarcelSemantic, classNode: ClassCstNode) {
-    val javaType = typeResolver.of(classNode.className) as NotLoadedJavaType
+    val javaType = typeResolver.of(classNode.className) as SourceJavaType
     loadFromAnnotations(semantic, classNode, ElementType.TYPE, javaType, classNode.annotations)
     classNode.fields.forEach { fieldNode ->
       loadFromAnnotations(semantic, fieldNode, ElementType.FIELD, javaType, fieldNode.annotations)
@@ -77,7 +77,7 @@ class SyntaxTreeTransformer(
   private fun loadFromAnnotations(semantic: MarcelSemantic,
                                   node: CstNode,
                                   elementType: ElementType,
-                                  classType: NotLoadedJavaType, annotations: List<AnnotationCstNode>) {
+                                  classType: SourceJavaType, annotations: List<AnnotationCstNode>) {
     annotations.asSequence()
       .map { semantic.visit(it, elementType) }
       .filter { annotation -> annotation.type.isLoaded

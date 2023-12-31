@@ -1,7 +1,7 @@
-package com.tambapps.marcel.semantic.type
+package com.tambapps.marcel.semantic.method
 
-import com.tambapps.marcel.semantic.method.JavaMethod
-import com.tambapps.marcel.semantic.method.MethodParameter
+import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.type.JavaTyped
 import kotlin.math.max
 
 /**
@@ -94,8 +94,8 @@ interface MethodMatcherTrait {
   }
 
   fun matchesUnorderedParameters(method: JavaMethod, name: String,
-                                         positionalArguments: List<JavaTyped>,
-                                         arguments: Collection<MethodParameter>): Boolean {
+                                 positionalArguments: List<JavaTyped>,
+                                 arguments: Collection<MethodParameter>): Boolean {
     if (positionalArguments.isNotEmpty()) {
       if (positionalArguments.size > method.parameters.size || positionalArguments.size + arguments.size > method.parameters.size) return false
       for (i in positionalArguments.indices) {

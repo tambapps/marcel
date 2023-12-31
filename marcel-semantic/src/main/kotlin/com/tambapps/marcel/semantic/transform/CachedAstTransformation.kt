@@ -11,7 +11,7 @@ import com.tambapps.marcel.semantic.extensions.javaType
 
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.type.NotLoadedJavaType
+import com.tambapps.marcel.semantic.type.SourceJavaType
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -23,7 +23,7 @@ class CachedAstTransformation: GenerateMethodAstTransformation() {
     const val THREAD_SAFE_OPTION = "threadSafe"
   }
 
-  override fun generateSignatures(node: CstNode, javaType: NotLoadedJavaType, annotation: AnnotationNode): List<JavaMethod> {
+  override fun generateSignatures(node: CstNode, javaType: SourceJavaType, annotation: AnnotationNode): List<JavaMethod> {
     // as the generated method is private and only called for this caching usecase, no need to define it here
     //  (it would be anyway hard to do so as we don't have the AST node here)
     return emptyList()

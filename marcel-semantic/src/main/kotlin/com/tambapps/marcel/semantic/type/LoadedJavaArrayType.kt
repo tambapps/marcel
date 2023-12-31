@@ -4,6 +4,9 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 
+/**
+ * [JavaType] representing an array of a type loaded on the classpath
+ */
 class LoadedJavaArrayType internal constructor(
   realClazz: Class<*>,
   override val elementsType: JavaType,
