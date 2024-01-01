@@ -8,8 +8,13 @@ import okhttp3.Response
 import java.io.IOException
 import java.io.InputStream
 
-class RemoteStorage constructor(private val repoUrl: String = MAVEN_REPO_URL) : RepositoryStorage {
-  private val client = OkHttpClient()
+class RemoteRepositoryStorage constructor(
+  private val repoUrl: String = MAVEN_REPO_URL,
+  private val client: OkHttpClient = OkHttpClient()
+) : RepositoryStorage {
+  companion object {
+    const val MAVEN_REPO_URL: String = "https://repo1.maven.org/maven2"
+  }
 
   @Throws(IOException::class)
   override fun exists(resourcePath: String): Boolean {
@@ -93,7 +98,4 @@ class RemoteStorage constructor(private val repoUrl: String = MAVEN_REPO_URL) : 
     }
   }
 
-  companion object {
-    const val MAVEN_REPO_URL: String = "https://repo1.maven.org/maven2"
-  }
 }
