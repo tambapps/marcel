@@ -1127,13 +1127,13 @@ open class MarcelSemantic constructor(
       left = left.withOwner(VariableAssignmentNode(node = leftOperand, variable = lv, owner = null, expression = owner))
       arithmeticBinaryOperator(
         left = left.withOwner(ReferenceNode(variable = lv, token = left.token)),
-        right = rightOperand.accept(this),
+        right = rightOperand.accept(this, left.type),
         operatorMethodName, nodeSupplier
       )
     } else {
       arithmeticBinaryOperator(
         left = left,
-        right = rightOperand.accept(this),
+        right = rightOperand.accept(this, left.type),
         operatorMethodName, nodeSupplier
       )
     }
@@ -1320,7 +1320,8 @@ open class MarcelSemantic constructor(
     if (node.declarations.isEmpty() || node.declarations.all { it == null }) {
       throw MarcelSemanticException(node, "Need to declare at least one variable")
     }
-    val expression = node.expressionNode.accept(this)
+    // needed for switch/whens, which need a smartCastType to work
+    val expression = node.expressionNode.accept(this, List::class.javaType)
     val blockNode = BlockStatementNode(mutableListOf(), node.tokenStart, node.tokenEnd)
     currentMethodScope.useTempLocalVariable(expression.type) { expressionVariable: LocalVariable ->
       val expressionRef = ReferenceNode(variable = expressionVariable, token = node.token)
