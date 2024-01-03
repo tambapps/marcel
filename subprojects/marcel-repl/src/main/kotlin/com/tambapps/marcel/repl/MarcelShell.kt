@@ -14,7 +14,10 @@ import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
 import marcel.lang.util.MarcelVersion
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.PrintStream
+import java.io.StringWriter
 import java.util.concurrent.atomic.AtomicBoolean
 
 abstract class MarcelShell constructor(
@@ -58,7 +61,12 @@ abstract class MarcelShell constructor(
           evaluator.eval(text)
         } catch (ex: Exception) {
           printer.println("Error from init script: ${ex.message}")
-          onInitScriptFail(ex)
+          if (ex !is MarcelSemanticException && ex !is MarcelParserException) {
+            val baos = ByteArrayOutputStream()
+            ex.printStackTrace(PrintStream(baos, true))
+            printer.println(baos.toString())
+            onInitScriptFail(ex)
+          }
         }
       }
     }
