@@ -61,12 +61,12 @@ abstract class MarcelShell constructor(
           evaluator.eval(text)
         } catch (ex: Exception) {
           printer.println("Error from init script: ${ex.message}")
-          if (ex !is MarcelSemanticException && ex !is MarcelParserException) {
+          if (ex !is MarcelSemanticException && ex !is MarcelParserException && ex !is MarcelLexerException) {
             val baos = ByteArrayOutputStream()
             ex.printStackTrace(PrintStream(baos, true))
             printer.println(baos.toString())
-            onInitScriptFail(ex)
           }
+          onInitScriptFail(ex)
         }
       }
     }
