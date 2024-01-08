@@ -19,8 +19,9 @@ class MarshellCompleter(
     complete(line.trim(), candidates)
   }
 
-  override fun newCandidate(complete: String): Candidate {
-    return Candidate(complete, complete, null, null, "", null,
+  override fun newCandidate(kind: Kind, value: String): Candidate {
+    return Candidate(
+      value, value, kind.name, null, null, null,
       // complete=false to avoid having a space at the end
       false)
   }
