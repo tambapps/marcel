@@ -16,11 +16,13 @@ class MarshellCompleter(
   override fun complete(reader: LineReader, parsedLine: ParsedLine, candidates: MutableList<Candidate>) {
     val line = parsedLine.line()
     if (parsedLine.cursor() < line.lastIndex) return
-    complete(line, candidates)
+    complete(line.trim(), candidates)
   }
 
   override fun newCandidate(complete: String): Candidate {
-    return Candidate(complete)
+    return Candidate(complete, complete, null, null, "", null,
+      // complete=false to avoid having a space at the end
+      false)
   }
 
 }

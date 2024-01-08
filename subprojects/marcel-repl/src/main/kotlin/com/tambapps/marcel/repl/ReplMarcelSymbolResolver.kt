@@ -11,9 +11,10 @@ import marcel.lang.MarcelClassLoader
 class ReplMarcelSymbolResolver constructor(classLoader: MarcelClassLoader?, private val binding: Binding) : MarcelSymbolResolver(classLoader) {
 
   private val _libraryClasses = mutableListOf<ClassNode>()
-  private val scriptVariables = mutableMapOf<String, BoundField>()
+  private val _scriptVariables = mutableMapOf<String, BoundField>()
 
   val libraryClasses: List<ClassNode> get() = _libraryClasses
+  val scriptVariables: Map<String, BoundField> get() = _scriptVariables
 
   fun defineLibraryClass(classNode: ClassNode) {
     defineType(classNode)
@@ -22,15 +23,15 @@ class ReplMarcelSymbolResolver constructor(classLoader: MarcelClassLoader?, priv
 
   fun defineBoundField(field: BoundField) {
     defineField(field.owner, field)
-    scriptVariables[field.name] = field
+    _scriptVariables[field.name] = field
   }
 
-  fun getBoundField(name: String): BoundField? = scriptVariables[name]
+  fun getBoundField(name: String): BoundField? = _scriptVariables[name]
 
   override fun findField(javaType: JavaType, name: String): CompositeField? {
     val f = super.findField(javaType, name)
     if (f != null || !javaType.isScript) return f
     // if we're looking for a variable of a script, it may be a BoundField
-    return scriptVariables[name]?.withOwner(javaType)?.let { CompositeField(it) }
+    return _scriptVariables[name]?.withOwner(javaType)?.let { CompositeField(it) }
   }
 }
