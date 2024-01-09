@@ -107,7 +107,7 @@ public final class DefaultMarcelMethods {
   }
 
   public static <T> List<T> unique(Collection<T> self, Function<T, ?> keyExtractor) {
-    Set<Object> set = new HashSet<>();
+    Set<Object> set = new HashSet<>(self.size());
     List<T> list = new ArrayList<>();
     for (T o : self) {
       if (set.add(keyExtractor.apply(o))) {
@@ -122,8 +122,8 @@ public final class DefaultMarcelMethods {
   }
 
   public static <T> Collection<T> unique(T[] self, Function<T, ?> keyExtractor) {
-    Set<Object> set = new HashSet<>();
-    List<T> list = new ArrayList<>();
+    Set<Object> set = new HashSet<>(self.length);
+    List<T> list = new ArrayList<>(self.length);
     for (T o : self) {
       if (set.add(keyExtractor.apply(o))) {
         list.add(o);
@@ -137,8 +137,8 @@ public final class DefaultMarcelMethods {
   }
 
   public static IntCollection unique(int[] self, IntFunction<?> keyExtractor) {
-    Set<Object> set = new HashSet<>();
-    IntList list = new IntArrayList();
+    Set<Object> set = new HashSet<>(self.length);
+    IntList list = new IntArrayList(self.length);
     for (int o : self) {
       if (set.add(keyExtractor.apply(o))) {
         list.add(o);
@@ -152,8 +152,8 @@ public final class DefaultMarcelMethods {
   }
 
   public static LongCollection unique(long[] self, LongFunction<?> keyExtractor) {
-    Set<Object> set = new HashSet<>();
-    LongList list = new LongArrayList();
+    Set<Object> set = new HashSet<>(self.length);
+    LongList list = new LongArrayList(self.length);
     for (long o : self) {
       if (set.add(keyExtractor.apply(o))) {
         list.add(o);
@@ -167,8 +167,8 @@ public final class DefaultMarcelMethods {
   }
 
   public static FloatCollection unique(float[] self, FloatFunction<?> keyExtractor) {
-    Set<Object> set = new HashSet<>();
-    FloatList list = new FloatArrayList();
+    Set<Object> set = new HashSet<>(self.length);
+    FloatList list = new FloatArrayList(self.length);
     for (float o : self) {
       if (set.add(keyExtractor.apply(o))) {
         list.add(o);
@@ -182,8 +182,8 @@ public final class DefaultMarcelMethods {
   }
 
   public static DoubleCollection unique(double[] self, DoubleFunction<?> keyExtractor) {
-    Set<Object> set = new HashSet<>();
-    DoubleList list = new DoubleArrayList();
+    Set<Object> set = new HashSet<>(self.length);
+    DoubleList list = new DoubleArrayList(self.length);
     for (double o : self) {
       if (set.add(keyExtractor.apply(o))) {
         list.add(o);
@@ -197,8 +197,8 @@ public final class DefaultMarcelMethods {
   }
 
   public static CharCollection unique(char[] self, CharFunction<?> keyExtractor) {
-    Set<Object> set = new HashSet<>();
-    CharList list = new CharArrayList();
+    Set<Object> set = new HashSet<>(self.length);
+    CharList list = new CharArrayList(self.length);
     for (char o : self) {
       if (set.add(keyExtractor.apply(o))) {
         list.add(o);
@@ -711,7 +711,7 @@ public final class DefaultMarcelMethods {
    */
   public static <T> Set<T> toSet(Collection<T> self) {
     Iterator<T> iterator = self.iterator();
-    Set<T> set = new HashSet<>();
+    Set<T> set = new HashSet<>(self.size());
     while (iterator.hasNext()) {
       set.add(iterator.next());
     }
@@ -720,7 +720,7 @@ public final class DefaultMarcelMethods {
 
   public static IntSet toIntSet(Collection<?> self) {
     Iterator<?> iterator = self.iterator();
-    IntSet set = new IntOpenHashSet();
+    IntSet set = new IntOpenHashSet(self.size());
     while (iterator.hasNext()) {
       set.add(((Number)iterator.next()).intValue());
     }
@@ -729,7 +729,7 @@ public final class DefaultMarcelMethods {
 
   public static LongSet toLongSet(Collection<?> self) {
     Iterator<?> iterator = self.iterator();
-    LongSet set = new LongOpenHashSet();
+    LongSet set = new LongOpenHashSet(self.size());
     while (iterator.hasNext()) {
       set.add(((Number)iterator.next()).longValue());
     }
@@ -738,7 +738,7 @@ public final class DefaultMarcelMethods {
 
   public static FloatSet toFloatSet(Collection<?> self) {
     Iterator<?> iterator = self.iterator();
-    FloatSet set = new FloatOpenHashSet();
+    FloatSet set = new FloatOpenHashSet(self.size());
     while (iterator.hasNext()) {
       set.add(((Number)iterator.next()).floatValue());
     }
@@ -747,7 +747,7 @@ public final class DefaultMarcelMethods {
 
   public static DoubleSet toDoubleSet(Collection<?> self) {
     Iterator<?> iterator = self.iterator();
-    DoubleSet set = new DoubleOpenHashSet();
+    DoubleSet set = new DoubleOpenHashSet(self.size());
     while (iterator.hasNext()) {
       set.add(((Number)iterator.next()).doubleValue());
     }
@@ -756,7 +756,7 @@ public final class DefaultMarcelMethods {
 
   public static CharSet toCharSet(Collection<?> self) {
     Iterator<?> iterator = self.iterator();
-    CharSet set = new CharOpenHashSet();
+    CharSet set = new CharOpenHashSet(self.size());
     while (iterator.hasNext()) {
       set.add((Character) iterator.next());
     }
@@ -764,7 +764,7 @@ public final class DefaultMarcelMethods {
   }
 
   public static <T> Set<T> toSet(T[] self) {
-    Set<T> set = new HashSet<>();
+    Set<T> set = new HashSet<>(self.length);
     for (T e : self) {
       set.add(e);
     }
@@ -772,7 +772,7 @@ public final class DefaultMarcelMethods {
   }
 
   public static IntSet toSet(int[] self) {
-    IntSet set = new IntOpenHashSet();
+    IntSet set = new IntOpenHashSet(self.length);
     for (int e : self) {
       set.add(e);
     }
@@ -780,7 +780,7 @@ public final class DefaultMarcelMethods {
   }
 
   public static LongSet toSet(long[] self) {
-    LongSet set = new LongOpenHashSet();
+    LongSet set = new LongOpenHashSet(self.length);
     for (long e : self) {
       set.add(e);
     }
@@ -788,7 +788,7 @@ public final class DefaultMarcelMethods {
   }
 
   public static FloatSet toSet(float[] self) {
-    FloatSet set = new FloatOpenHashSet();
+    FloatSet set = new FloatOpenHashSet(self.length);
     for (float e : self) {
       set.add(e);
     }
@@ -796,7 +796,7 @@ public final class DefaultMarcelMethods {
   }
 
   public static DoubleSet toSet(double[] self) {
-    DoubleSet set = new DoubleOpenHashSet();
+    DoubleSet set = new DoubleOpenHashSet(self.length);
     for (double e : self) {
       set.add(e);
     }
@@ -804,7 +804,7 @@ public final class DefaultMarcelMethods {
   }
 
   public static CharSet toSet(char[] self) {
-    CharSet set = new CharOpenHashSet();
+    CharSet set = new CharOpenHashSet(self.length);
     for (char e : self) {
       set.add(e);
     }
@@ -841,7 +841,7 @@ public final class DefaultMarcelMethods {
   }
 
   public static <T> IntList toList(int[] self) {
-    IntList set = new IntArrayList();
+    IntList set = new IntArrayList(self.length);
     for (int e : self) {
       set.add(e);
     }
@@ -849,7 +849,7 @@ public final class DefaultMarcelMethods {
   }
 
   public static <T> LongList toList(long[] self) {
-    LongList set = new LongArrayList();
+    LongList set = new LongArrayList(self.length);
     for (long e : self) {
       set.add(e);
     }
@@ -857,7 +857,7 @@ public final class DefaultMarcelMethods {
   }
 
   public static <T> FloatList toList(float[] self) {
-    FloatList set = new FloatArrayList();
+    FloatList set = new FloatArrayList(self.length);
     for (float e : self) {
       set.add(e);
     }
@@ -865,7 +865,7 @@ public final class DefaultMarcelMethods {
   }
 
   public static <T> DoubleList toList(double[] self) {
-    DoubleList set = new DoubleArrayList();
+    DoubleList set = new DoubleArrayList(self.length);
     for (double e : self) {
       set.add(e);
     }
@@ -873,7 +873,7 @@ public final class DefaultMarcelMethods {
   }
 
   public static <T> CharList toList(char[] self) {
-    CharList set = new CharArrayList();
+    CharList set = new CharArrayList(self.length);
     for (char e : self) {
       set.add(e);
     }
@@ -882,7 +882,7 @@ public final class DefaultMarcelMethods {
 
   public static IntList toIntList(Collection<?> self) {
     Iterator<?> iterator = self.iterator();
-    IntList list = new IntArrayList();
+    IntList list = new IntArrayList(self.size());
     while (iterator.hasNext()) {
       list.add(((Number)iterator.next()).intValue());
     }
@@ -891,7 +891,7 @@ public final class DefaultMarcelMethods {
 
   public static LongList toLongList(Collection<?> self) {
     Iterator<?> iterator = self.iterator();
-    LongList set = new LongArrayList();
+    LongList set = new LongArrayList(self.size());
     while (iterator.hasNext()) {
       set.add(((Number)iterator.next()).longValue());
     }
@@ -900,7 +900,7 @@ public final class DefaultMarcelMethods {
 
   public static FloatList toFloatList(Collection<?> self) {
     Iterator<?> iterator = self.iterator();
-    FloatList list = new FloatArrayList();
+    FloatList list = new FloatArrayList(self.size());
     while (iterator.hasNext()) {
       list.add(((Number)iterator.next()).floatValue());
     }
@@ -909,7 +909,7 @@ public final class DefaultMarcelMethods {
 
   public static DoubleList toDoubleList(Collection<?> self) {
     Iterator<?> iterator = self.iterator();
-    DoubleList list = new DoubleArrayList();
+    DoubleList list = new DoubleArrayList(self.size());
     while (iterator.hasNext()) {
       list.add(((Number)iterator.next()).doubleValue());
     }
@@ -918,7 +918,7 @@ public final class DefaultMarcelMethods {
 
   public static CharList toCharList(Collection<?> self) {
     Iterator<?> iterator = self.iterator();
-    CharList list = new CharArrayList();
+    CharList list = new CharArrayList(self.size());
     while (iterator.hasNext()) {
       list.add((Character) iterator.next());
     }
@@ -1312,14 +1312,9 @@ public final class DefaultMarcelMethods {
     self.sort(Comparator.comparing(keyExtractor));
   }
 
-  public static <T, U extends Comparable<U>> void sort(List<T> self) {
+  public static <T extends Comparable<? super T>> void sort(List<T> self) {
     Object[] a = self.toArray();
-    Arrays.sort(a);
-    ListIterator<T> i = self.listIterator();
-    for (Object e : a) {
-      i.next();
-      i.set((T) e);
-    }
+    self.sort(Comparator.naturalOrder());
   }
 
   public static <T, U extends Comparable<U>> void sortBy(T[] self, Function<T, U> keyExtractor) {
@@ -1576,7 +1571,7 @@ public final class DefaultMarcelMethods {
    * @return the elements at the specified indexes from the ranges
    */
   public static <T> List<T> getAt(List<T> self, IntRange range) {
-    List<T> subList = new ArrayList<>();
+    List<T> subList = new ArrayList<>(self.size());
     IntIterator iterator = range.iterator();
     while (iterator.hasNext()) subList.add(self.get(iterator.nextInt()));
     return subList;
