@@ -3,7 +3,7 @@ package com.tambapps.marcel.compiler
 import marcel.lang.URLMarcelClassLoader
 import org.junit.jupiter.api.Test
 
-class MarcelCompiledClass2Test: AbstractCompilerTest() {
+class MarcelCompiledClassTest: AbstractCompilerTest() {
 
   // test that default parameters are loaded correctly from compiled classes
   @Test
