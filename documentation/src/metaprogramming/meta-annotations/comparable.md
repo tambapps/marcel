@@ -1,6 +1,6 @@
 # @comparable
 
-This makes your class implement Comparable interface. The comparison will be made based on your class's field, in the order
+This makes your class implement [Comparable](https://docs.oracle.com/javase/8/docs/api/java/lang/Comparable.html) interface. The comparison will be made based on your class's field, in the order
 in which they were defined.
 
 For example take a look at the below class
