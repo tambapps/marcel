@@ -653,13 +653,13 @@ do {
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="for-loops"><a class="header" href="#for-loops">For loops</a></h1>
 <p>There are different ways to iterate over elements</p>
-<h4 id="for-i"><a class="header" href="#for-i">For i</a></h4>
+<h2 id="for-i"><a class="header" href="#for-i">For i</a></h2>
 <p>The Java for i is compatible with Marcel</p>
 <pre><code class="language-marcel">for (int i = 0; i &lt; 10; i++) {
   println(i)
 }
 </code></pre>
-<h4 id="for-in"><a class="header" href="#for-in">For in</a></h4>
+<h2 id="for-in"><a class="header" href="#for-in">For in</a></h2>
 <p>The <code>in</code> keyword allows to iterate over values in an array, any objects implementing Iterable (including all Collections) or Iterator.</p>
 <pre><code class="language-marcel">int[] ints = getInts()
 for (int i in ints) {
@@ -686,6 +686,11 @@ for (int i in 9..0) {
 for (int i in 10&gt;..0) {
   println(i)
 }
+</code></pre>
+<h2 id="for-in-map"><a class="header" href="#for-in-map">For in map</a></h2>
+<p>You can also iterate over a Map entries using the below syntax</p>
+<pre><code class="language-marcel">Map m = [foo: 1, bar: 2]
+for ((String key, int value) in m) println(&quot;$key=$value&quot;)
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="switch-and-when"><a class="header" href="#switch-and-when">Switch and When</a></h1>
 <p>Marcel defines conditional control flows that can return values. Note that in the below
