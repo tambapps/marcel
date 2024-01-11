@@ -2,7 +2,7 @@
 
 set -e # exit on any command failure
 
-MARCEL_RELEASE=0.0.2 # Update the release number you want here
+MARCEL_RELEASE=0.1.0 # Update the release number you want here
 if ! command -v wget &> /dev/null
 then
     echo "Error: wget must be installed"
@@ -16,12 +16,15 @@ else
   marcelDir="$HOME/.marcel"
 fi
 
+echo "Installing Marcel $MARCEL_RELEASE"
+
 MARCEL_LIB_FOLDER=$marcelDir/lib
 MARCEL_BIN_FOLDER=$marcelDir/bin
 mkdir -p $MARCEL_LIB_FOLDER
 mkdir -p $MARCEL_BIN_FOLDER
-
-wget -q https://github.com/tambapps/marcel/releases/download/v${MARCEL_RELEASE}/release.zip -O release.zip
+echo 'Downloading release...'
+wget -q https://github.com/tambapps/marcel/releases/download/v${MARCEL_RELEASE}/marcel-${MARCEL_RELEASE}.zip -O release.zip
+echo 'Extracting release...'
 unzip -qq -j -o release.zip -d $MARCEL_LIB_FOLDER
 rm release.zip
 
