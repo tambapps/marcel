@@ -90,7 +90,7 @@ class ListCommand(private val dumbbell: DumbbellEngine): CliktCommand(help = "Li
 
   override fun run() {
     dumbbell.allFetchedArtifacts.forEach {
-      println(it)
+      println(it.toArtifactString())
     }
   }
 }
