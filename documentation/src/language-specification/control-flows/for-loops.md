@@ -2,7 +2,7 @@
 
 There are different ways to iterate over elements
 
-#### For i
+## For i
 The Java for i is compatible with Marcel
 ```marcel
 for (int i = 0; i < 10; i++) {
@@ -10,7 +10,7 @@ for (int i = 0; i < 10; i++) {
 }
 ```
 
-#### For in
+## For in
 The `in` keyword allows to iterate over values in an array, any objects implementing Iterable (including all Collections) or Iterator.
 ```marcel
 int[] ints = getInts()
@@ -40,4 +40,12 @@ for (int i in 9..0) {
 for (int i in 10>..0) {
   println(i)
 }
+```
+
+## For in map
+
+You can also iterate over a Map entries using the below syntax
+```marcel
+Map m = [foo: 1, bar: 2]
+for ((String key, int value) in m) println("$key=$value")
 ```
