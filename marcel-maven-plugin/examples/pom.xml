@@ -6,7 +6,7 @@
 
   <groupId>com.tambapps.marcel.maven</groupId>
   <artifactId>marcel-maven-plugin-tests-root</artifactId>
-  <version>0.0.2-SNAPSHOT</version>
+  <version>0.1.0</version>
   <packaging>pom</packaging>
 
   <name>GMavenPlus Plugin Test Compile Test</name>

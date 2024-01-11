@@ -15,7 +15,7 @@
   <inceptionYear>2023</inceptionYear>
 
   <properties>
-    <revision>0.1.0-SNAPSHOT</revision>
+    <revision>0.1.0</revision>
     <kotlin.version>1.8.10</kotlin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>1.8</java.version>
@@ -41,8 +41,7 @@
       <dependency>
         <groupId>com.tambapps.maven</groupId>
         <artifactId>maven-dependency-resolver</artifactId>
-        <!-- TODO bump to release -->
-        <version>3.0-SNAPSHOT</version>
+        <version>3.0</version>
       </dependency>
       <dependency>
         <groupId>org.jline</groupId>
@@ -179,7 +178,7 @@
             </execution>
             <execution>
               <id>dokka-javadoc</id>
-              <phase>deploy</phase>
+              <phase>package</phase>
               <goals>
                 <goal>javadoc</goal>
                 <goal>javadocJar</goal>
