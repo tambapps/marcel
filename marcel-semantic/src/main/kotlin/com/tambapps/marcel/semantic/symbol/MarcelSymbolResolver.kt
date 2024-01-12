@@ -53,7 +53,7 @@ open class MarcelSymbolResolver constructor(private val classLoader: MarcelClass
   /* extensions */
   private fun loadDefaultExtensions() {
     loadExtensionUnsafe(DefaultMarcelMethods::class.javaType)
-    loadExtensionsIfClassLoaded("FileExtensions", "StringMarcelMethods", "CharacterExtensions", "CharExtensions")
+    loadExtensionsIfClassLoaded("FileExtensions", "StringMarcelMethods", "CharacterExtensions", "CharExtensions", "TimeMarcelMethods")
   }
 
   private fun loadExtensionsIfClassLoaded(vararg classNames: String) {
