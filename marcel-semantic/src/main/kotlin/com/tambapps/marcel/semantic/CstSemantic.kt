@@ -27,7 +27,7 @@ interface CstSemantic {
     val isStatic = node.accessNode.isStatic
     return JavaMethodImpl(ownerType, Visibility.fromTokenType(node.accessNode.visibility), node.name,
       node.parameters.mapIndexed { index, methodParameterCstNode -> toMethodParameter(ownerType, forExtensionType, visibility, isStatic, index, node.name, methodParameterCstNode) },
-      resolve(node.returnTypeNode), false, false, isStatic, false)
+      resolveReturnType(node), false, false, isStatic, false)
   }
 
   fun toJavaConstructor(ownerType: JavaType, node: ConstructorCstNode): JavaMethod {
@@ -49,5 +49,10 @@ interface CstSemantic {
   ): MethodParameter
 
   fun resolve(node: TypeCstNode): JavaType
+
+  fun resolveReturnType(node: MethodCstNode): JavaType {
+    val type = resolve(node.returnTypeNode)
+    return if (!node.isAsync) type else JavaType.Future.withGenericTypes(type)
+  }
 
 }

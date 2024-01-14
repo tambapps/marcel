@@ -34,6 +34,7 @@ import marcel.lang.primitives.collections.sets.DoubleSet
 import marcel.lang.primitives.collections.sets.FloatSet
 import marcel.lang.primitives.collections.sets.IntSet
 import marcel.lang.primitives.collections.sets.LongSet
+import java.util.concurrent.Future
 
 /**
  * Represents a Java class that may or may not be loaded on the classpath
@@ -395,6 +396,8 @@ interface JavaType: JavaTyped {
     val Void = LoadedObjectType(Class.forName("java.lang.Void"))
     val Map = of(Map::class.java)
     val Set = of(Set::class.java)
+
+    val Future = LoadedObjectType(Future::class.java)
 
     val void = JavaPrimitiveType(java.lang.Void::class, false) { NullValueNode(it) }
     val int = JavaPrimitiveType(java.lang.Integer::class, true) { IntConstantNode(it, value = 0) }

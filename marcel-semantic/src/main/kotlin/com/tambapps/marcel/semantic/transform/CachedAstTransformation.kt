@@ -1,6 +1,7 @@
 package com.tambapps.marcel.semantic.transform
 
 import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
@@ -24,6 +25,9 @@ class CachedAstTransformation: GenerateMethodAstTransformation() {
   }
 
   override fun generateSignatures(node: CstNode, javaType: SourceJavaType, annotation: AnnotationNode): List<JavaMethod> {
+    if ((node as? MethodCstNode)?.isAsync == true) {
+      throw MarcelSyntaxTreeTransformationException(this, node.token, "Cannot cache async methods")
+    }
     // as the generated method is private and only called for this caching usecase, no need to define it here
     //  (it would be anyway hard to do so as we don't have the AST node here)
     return emptyList()

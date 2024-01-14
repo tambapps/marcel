@@ -463,7 +463,7 @@ open class MarcelSemantic constructor(
 
   private fun methodNode(classNode: ClassNode, methodCst: MethodCstNode, classScope: ClassScope): MethodNode {
     val methodNode = toMethodNode(classNode, methodCst, methodCst.name,
-      resolve(methodCst.returnTypeNode), classScope.classType)
+      resolveReturnType(methodCst), classScope.classType)
     fillMethodNode(classScope, methodNode, methodCst.statements, methodCst.annotations, isSingleStatementMethod = methodCst.isSingleStatementFunction)
     return methodNode
   }

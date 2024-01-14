@@ -161,7 +161,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     val access = parseAccess(parentNode)
     if (current.type == TokenType.CLASS || current.type == TokenType.EXTENSION) {
       classNode.innerClasses.add(parseClass(sourceFile, packageName, parentNode, annotations, access, outerClassNode))
-    } else if (current.type == TokenType.FUN || current.type == TokenType.CONSTRUCTOR) {
+    } else if (current.type == TokenType.FUN || current.type == TokenType.CONSTRUCTOR || current.type == TokenType.ASYNC) {
       when (val method = method(classNode, annotations, access)) {
         is MethodCstNode -> classNode.methods.add(method)
         is ConstructorCstNode -> classNode.constructors.add(method)
@@ -308,11 +308,13 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
 
   fun method(parentNode: ClassCstNode, annotations: List<AnnotationCstNode>, access: AccessCstNode): AbstractMethodCstNode {
     val token = current
+    val isAsync = acceptOptional(TokenType.ASYNC) != null
     val isConstructor = acceptOneOf(TokenType.FUN, TokenType.CONSTRUCTOR).type == TokenType.CONSTRUCTOR
+    if (isAsync && isConstructor) throw MarcelParserException(current, "Constructors cannot be async")
     val node = if (!isConstructor) {
       val returnType = parseType(parentNode)
       val methodName = accept(TokenType.IDENTIFIER).value
-      MethodCstNode(parentNode, token, token, access, methodName, returnType)
+      MethodCstNode(parentNode, token, token, access, methodName, returnType, isAsync)
     } else ConstructorCstNode(parentNode, token, token, access)
     node.annotations.addAll(annotations)
 

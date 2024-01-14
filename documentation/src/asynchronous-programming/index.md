@@ -7,7 +7,7 @@ In Marcel, asynchronous (AKA `async`) code will be executed on background thread
 ## Async functions
 Async functions provide a way to write functions that are executed in the background when called
 ```marcel
-fun async int compute() {
+async fun int compute() {
   Thread.sleep(2000l)
   return 1
 }
@@ -18,7 +18,7 @@ The actual return type of async functions are [Futures](https://docs.oracle.com/
 ## Await
 The `await` keyword allows to wait for the result of an asynchronous function.
 ```marcel
-fun async int computeInBackground() {
+async fun int computeInBackground() {
   int result = await doCompute()
   println(result)
 }
@@ -29,7 +29,7 @@ It's important to know that **async functions can only be executed in an async c
 
 E.g. the below code example wouldn't compile
 ```marcel
-fun async int doCompute() -> 1
+async fun int doCompute() -> 1
 
 fun void computeInBackground() {
   int result = await doCompute() // Compiler error: cannot call async function in a non async context
@@ -37,11 +37,10 @@ fun void computeInBackground() {
 }
 ```
 
-
 ### Async block
 An `async` code block is a block in which you can perform async operations
 ```marcel
-fun async int doCompute() -> 1
+async fun int doCompute() -> 1
 
 fun void computeInBackground() {
   async {
