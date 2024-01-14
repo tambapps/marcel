@@ -21,6 +21,7 @@
     <module>marcel-libs</module>
     <module>marcel-repl</module>
     <module>marshell</module>
+    <module>threadmill</module>
   </modules>
 
 </project>

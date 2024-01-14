@@ -157,6 +157,11 @@
         <artifactId>marshell</artifactId>
         <version>${revision}</version>
       </dependency>
+      <dependency>
+        <groupId>com.tambapps.marcel</groupId>
+        <artifactId>threadmill</artifactId>
+        <version>${revision}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 

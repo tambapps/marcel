@@ -53,6 +53,7 @@
     - [@data](metaprogramming/meta-annotations/data.md)
     - [@cached](metaprogramming/meta-annotations/cached.md)
     - [@lazy](metaprogramming/meta-annotations/lazy.md)
+- [Asynchronous Programmming](./asynchronous-programming/index.md)
 - [Guides](./guides/index.md)
   - [Collections](./guides/collections.md)
   - [Regular Expressions](./guides/regular-expressions.md)
