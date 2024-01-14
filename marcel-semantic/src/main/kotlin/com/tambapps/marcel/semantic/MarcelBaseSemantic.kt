@@ -9,12 +9,14 @@ import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
+import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.MethodInnerScope
@@ -23,6 +25,7 @@ import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.variable.LocalVariable
+import marcel.lang.lambda.Lambda
 import java.util.*
 
 abstract class MarcelBaseSemantic {
@@ -202,5 +205,74 @@ abstract class MarcelBaseSemantic {
     }
     return if (levelType == null) null
     else Pair(outerLevel, levelType)
+  }
+
+
+  /**
+   * Create lambda node and returns the lambda node, the lambda method node and the new instance node.
+   *
+   * Note that the lambda method node statements are not filled. It is the caller's responsibility to fill it
+   *
+   * @param outerClassNode the outer class node
+   * @param parameters the lambda parameters
+   * @param returnType the lambda return type
+   * @param interfaceType the interface the lambda should implement
+   * @param tokenStart the tokenStart
+   * @param tokenEnd the tokenEnd
+   * @return the lambda node, the lambda method node and the new instance node
+   */
+  protected fun createLambdaNode(outerClassNode: ClassNode,
+                                 parameters: List<MethodParameter>,
+                                 returnType: JavaType,
+                                 interfaceType: JavaType,
+                                 tokenStart: LexToken,
+                                 tokenEnd: LexToken
+  ): Triple<ClassNode, MethodNode, NewInstanceNode> {
+    val lambdaImplementedInterfaces = listOf(Lambda::class.javaType, interfaceType)
+    val lambdaType = symbolResolver.defineType(tokenStart,
+      Visibility.INTERNAL, outerClassNode.type, generateLambdaClassName(outerClassNode), JavaType.Object, false, lambdaImplementedInterfaces)
+
+    val lambdaClassNode = ClassNode(
+      type = lambdaType,
+      visibility = Visibility.INTERNAL,
+      forExtensionType = null,
+      isStatic = outerClassNode.isStatic,
+      isScript = false,
+      fileName = outerClassNode.fileName,
+      tokenStart,
+      tokenEnd
+    )
+    outerClassNode.innerClasses.add(lambdaClassNode)
+
+    val lambdaConstructor = MethodNode(
+      name = JavaMethod.CONSTRUCTOR_NAME,
+      visibility = Visibility.INTERNAL,
+      returnType = JavaType.void,
+      isStatic = false,
+      tokenStart = tokenStart,
+      tokenEnd = tokenEnd,
+      parameters = mutableListOf(),
+      ownerClass = lambdaType
+    ).apply {
+      blockStatement.addAll(
+        listOf(
+          ExpressionStatementNode(SemanticHelper.superNoArgConstructorCall(lambdaClassNode, symbolResolver)),
+          SemanticHelper.returnVoid(lambdaClassNode)
+        )
+      )
+    }
+    val constructorArguments = mutableListOf<ExpressionNode>()
+    handleLambdaInnerClassFields(lambdaClassNode, lambdaConstructor, constructorArguments, tokenStart)
+
+    lambdaClassNode.methods.add(lambdaConstructor)
+
+    val interfaceMethod = symbolResolver.getInterfaceLambdaMethodOrThrow(interfaceType, tokenStart)
+    // define lambda method
+    val lambdaMethod = MethodNode(interfaceMethod.name, parameters.toMutableList(),
+      Visibility.PUBLIC, returnType, isStatic = false, tokenStart, tokenEnd, lambdaType)
+
+    lambdaClassNode.methods.add(lambdaMethod)
+
+    return Triple(lambdaClassNode, lambdaMethod, NewInstanceNode(lambdaType, lambdaConstructor, constructorArguments, tokenStart))
   }
 }

@@ -32,7 +32,6 @@ import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
-import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.JavaMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
@@ -47,7 +46,6 @@ import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.variable.field.MarcelField
 import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
-import marcel.lang.lambda.Lambda
 
 /**
  * Abstract class providing handy methods to constructor AST nodes in an elegant way
@@ -284,58 +282,24 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
   protected fun newLambda(classNode: ClassNode,
                           parameters: List<MethodParameter>, returnType: JavaType, interfaceType: JavaType,
                           lambdaBodyStatementComposerFunc: StatementsComposer.() -> Unit): NewInstanceNode {
-    val lambdaImplementedInterfaces = listOf(Lambda::class.javaType, interfaceType)
-    val lambdaType = symbolResolver.defineType(LexToken.DUMMY,
-      Visibility.INTERNAL, classNode.type, generateLambdaClassName(classNode), JavaType.Object, false, lambdaImplementedInterfaces)
 
-    val lambdaClassNode = ClassNode(
-      type = lambdaType,
-      visibility = Visibility.INTERNAL,
-      forExtensionType = null,
-      isStatic = classNode.isStatic,
-      isScript = false,
-      fileName = classNode.fileName,
-      LexToken.DUMMY,
-      LexToken.DUMMY
-    )
-    classNode.innerClasses.add(lambdaClassNode)
-
-    val lambdaConstructor = MethodNode(
-      name = JavaMethod.CONSTRUCTOR_NAME,
-      visibility = Visibility.INTERNAL,
-      returnType = JavaType.void,
-      isStatic = false,
+    val (lambdaClassNode, lambdaMethod, newInstanceNode) = createLambdaNode(
+      outerClassNode = classNode,
+      parameters = parameters,
+      returnType = returnType,
+      interfaceType = interfaceType,
       tokenStart = LexToken.DUMMY,
-      tokenEnd = LexToken.DUMMY,
-      parameters = mutableListOf(),
-      ownerClass = lambdaType
-    ).apply {
-      blockStatement.addAll(
-        listOf(
-          ExpressionStatementNode(SemanticHelper.superNoArgConstructorCall(lambdaClassNode, symbolResolver)),
-          SemanticHelper.returnVoid(lambdaClassNode)
-        )
-      )
-    }
-    val constructorArguments = mutableListOf<ExpressionNode>()
-    handleLambdaInnerClassFields(lambdaClassNode, lambdaConstructor, constructorArguments, LexToken.DUMMY)
+      tokenEnd = LexToken.DUMMY
+    )
 
-    lambdaClassNode.methods.add(lambdaConstructor)
-
-    val interfaceMethod = symbolResolver.getInterfaceLambdaMethodOrThrow(interfaceType, LexToken.DUMMY)
-    // define lambda method
-    val lambdaMethod = MethodNode(interfaceMethod.name, parameters.toMutableList(),
-      Visibility.PUBLIC, returnType, isStatic = false, LexToken.DUMMY, LexToken.DUMMY, lambdaType)
     val statements = lambdaMethod.blockStatement.statements
-    useScope(MethodScope(ClassScope(symbolResolver, lambdaType, null, Scope.DEFAULT_IMPORTS), lambdaMethod)) {
+    useScope(MethodScope(ClassScope(symbolResolver, lambdaClassNode.type, null, Scope.DEFAULT_IMPORTS), lambdaMethod)) {
       val statementComposer = StatementsComposer(statements)
       lambdaBodyStatementComposerFunc.invoke(statementComposer)
       if (!AllPathsReturnVisitor.test(statements) && returnType == JavaType.void) {
         statements.add(SemanticHelper.returnVoid(lambdaMethod))
       }
     }
-    lambdaClassNode.methods.add(lambdaMethod)
-
-    return NewInstanceNode(lambdaType, lambdaConstructor, constructorArguments, LexToken.DUMMY)
+    return newInstanceNode
   }
 }

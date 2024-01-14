@@ -141,7 +141,6 @@ import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.ExtensionJavaMethod
 import com.tambapps.marcel.semantic.method.JavaConstructorImpl
 import com.tambapps.marcel.semantic.method.JavaMethod
-import com.tambapps.marcel.semantic.method.JavaMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.CatchBlockScope
 import com.tambapps.marcel.semantic.scope.ClassScope
@@ -615,15 +614,41 @@ open class MarcelSemantic constructor(
     if (!methodeNode.isAsync) {
       methodeNode.blockStatement.addAll(statements)
     } else {
+
+      methodeNode.blockStatement.addAll(statements) // TODO remove this line
+
+      val doMethodNode = MethodNode(
+        name = "_do" + methodeNode.name[0].uppercase() + methodeNode.name.substring(1),
+        parameters = methodeNode.parameters,
+        visibility = Visibility.PRIVATE,
+        returnType = methodeNode.asyncReturnType!!,
+        isStatic = methodeNode.isStatic,
+        tokenStart = methodeNode.tokenStart,
+        tokenEnd = methodeNode.tokenEnd,
+        ownerClass = methodeNode.ownerClass
+      )
+      doMethodNode.blockStatement.addAll(statements)
+      getCurrentClassNode()!!.methods.add(doMethodNode)
       val returnsVoid = methodeNode.asyncReturnType == JavaType.void
       val interfaceType = if (returnsVoid) Runnable::class.javaType else Callable::class.javaType
-      // TODO define a method _doMethodName() using the statements as the body. And generate  a lambda that will call this method,
+
+/*
+TODO
+      val (lambdaClassNode, lambdaMethod, newInstanceNode) = createLambdaNode(
+        outerClassNode = classNode,
+        parameters = parameters,
+        returnType = returnType,
+        interfaceType = interfaceType,
+        tokenStart = LexToken.DUMMY,
+        tokenEnd = LexToken.DUMMY
+      )
+      computeLambdaParameters()
+     // TODO define a method _doMethodName() using the statements as the body. And generate  a lambda that will call this method,
       //   the lambda being the argument of threadmill supply/run async
-      if (methodeNode.returnType == JavaType.void || methodeNode.asyncReturnType == JavaType.void) {
-        TODO("Call threadmill runnable")
-      } else {
-        TODO("Call threadmill callable")
-      }
+
+
+ */
+
     }
   }
 
