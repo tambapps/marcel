@@ -1580,7 +1580,7 @@ will just use the already computed value.</p>
 In Marcel, asynchronous (AKA <code>async</code>) code will be executed on background threads (virtual threads if you JRE supports it).</p>
 <h2 id="async-functions"><a class="header" href="#async-functions">Async functions</a></h2>
 <p>Async functions provide a way to write functions that are executed in the background when called</p>
-<pre><code class="language-marcel">fun async int compute() {
+<pre><code class="language-marcel">async fun int compute() {
   Thread.sleep(2000l)
   return 1
 }
@@ -1589,7 +1589,7 @@ In Marcel, asynchronous (AKA <code>async</code>) code will be executed on backgr
 (in above example a <code>Future&lt;Integer&gt;</code>).</p>
 <h2 id="await"><a class="header" href="#await">Await</a></h2>
 <p>The <code>await</code> keyword allows to wait for the result of an asynchronous function.</p>
-<pre><code class="language-marcel">fun async int computeInBackground() {
+<pre><code class="language-marcel">async fun int computeInBackground() {
   int result = await doCompute()
   println(result)
 }
@@ -1597,7 +1597,7 @@ In Marcel, asynchronous (AKA <code>async</code>) code will be executed on backgr
 <h2 id="async-context"><a class="header" href="#async-context">Async context</a></h2>
 <p>It's important to know that <strong>async functions can only be executed in an async context.</strong>, that is in an async function or in an async block (we'll get on that later).</p>
 <p>E.g. the below code example wouldn't compile</p>
-<pre><code class="language-marcel">fun async int doCompute() -&gt; 1
+<pre><code class="language-marcel">async fun int doCompute() -&gt; 1
 
 fun void computeInBackground() {
   int result = await doCompute() // Compiler error: cannot call async function in a non async context
@@ -1606,7 +1606,7 @@ fun void computeInBackground() {
 </code></pre>
 <h3 id="async-block"><a class="header" href="#async-block">Async block</a></h3>
 <p>An <code>async</code> code block is a block in which you can perform async operations</p>
-<pre><code class="language-marcel">fun async int doCompute() -&gt; 1
+<pre><code class="language-marcel">async fun int doCompute() -&gt; 1
 
 fun void computeInBackground() {
   async {
