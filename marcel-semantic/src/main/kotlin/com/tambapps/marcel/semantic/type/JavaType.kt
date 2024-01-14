@@ -383,6 +383,7 @@ interface JavaType: JavaTyped {
 
     val Anything: JavaType = AnythingJavaType
     val Object = LoadedObjectType(Object::class.java)
+    val Clazz = LoadedObjectType(Class::class.java)
     val String = LoadedObjectType(String::class.java)
     val DynamicObject = LoadedObjectType(marcel.lang.DynamicObject::class.java)
     val Boolean = LoadedObjectType(Class.forName("java.lang.Boolean"))

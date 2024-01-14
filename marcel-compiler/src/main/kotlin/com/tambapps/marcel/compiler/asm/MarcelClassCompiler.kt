@@ -12,12 +12,14 @@ import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.semantic.type.JavaType
 import marcel.lang.Script
 import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
+import org.objectweb.asm.Type
 import java.lang.annotation.RetentionPolicy
 
 class MarcelClassCompiler(
@@ -138,6 +140,8 @@ class MarcelClassCompiler(
      val attrValue = attr.value
       if (attr.type.isEnum) {
         annotationVisitor.visitEnum(attr.name, attr.type.descriptor, attrValue.toString())
+      } else if (attrValue is JavaType) {
+        annotationVisitor.visit(attr.name, Type.getType(attrValue.descriptor))
       } else {
         annotationVisitor.visit(attr.name, attrValue)
       }

@@ -1,10 +1,9 @@
 package com.tambapps.marcel.semantic.ast.expression
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaType
 
-class ClassReferenceNode(val classType: JavaType, token: LexToken) : AbstractExpressionNode(Class::class.javaType, token) {
+class ClassReferenceNode(val classType: JavaType, token: LexToken) : AbstractExpressionNode(JavaType.Clazz, token) {
 
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) = visitor.visit(this)
 

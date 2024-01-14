@@ -179,6 +179,7 @@ import marcel.lang.primitives.iterators.IntIterator
 import marcel.lang.primitives.iterators.LongIterator
 import marcel.lang.runtime.BytecodeHelper
 import marcel.lang.util.CharSequenceIterator
+import marcel.util.concurrent.Async
 import java.io.Closeable
 import java.lang.annotation.ElementType
 import java.util.*
@@ -257,7 +258,7 @@ open class MarcelSemantic constructor(
       useScope(ClassScope(symbolResolver, classType, null, imports)) {
         // add the run method
         val runMethod = SemanticHelper.scriptRunMethod(classType, cst)
-        fillMethodNode(it, runMethod, scriptCstNode.runMethodStatements, emptyList(),  scriptRunMethod = true)
+        fillMethodNode(it, runMethod, scriptCstNode.runMethodStatements, emptyList(),  scriptRunMethod = true, isAsync = false)
         scriptNode.methods.add(runMethod)
       }
       scriptNode.innerClasses.forEach { innerClassNode ->
@@ -451,6 +452,7 @@ open class MarcelSemantic constructor(
         JavaType.boolean -> if (attrValue !is Boolean) annotationErrorAttributeTypeError(node, javaAnnotationType, attribute, attrValue)
         JavaType.byte -> if (attrValue !is Byte) annotationErrorAttributeTypeError(node, javaAnnotationType, attribute, attrValue)
         JavaType.short -> if (attrValue !is Short) annotationErrorAttributeTypeError(node, javaAnnotationType, attribute, attrValue)
+        JavaType.Clazz -> if (attrValue !is JavaType) annotationErrorAttributeTypeError(node, javaAnnotationType, attribute, attrValue)
         else -> annotationErrorAttributeTypeError(node, javaAnnotationType, attribute, attrValue)
       }
 
@@ -464,7 +466,9 @@ open class MarcelSemantic constructor(
   private fun methodNode(classNode: ClassNode, methodCst: MethodCstNode, classScope: ClassScope): MethodNode {
     val methodNode = toMethodNode(classNode, methodCst, methodCst.name,
       resolveReturnType(methodCst), classScope.classType)
-    fillMethodNode(classScope, methodNode, methodCst.statements, methodCst.annotations, isSingleStatementMethod = methodCst.isSingleStatementFunction)
+    fillMethodNode(classScope, methodNode, methodCst.statements, methodCst.annotations,
+      isAsync = methodCst.isAsync,
+      isSingleStatementMethod = methodCst.isSingleStatementFunction)
     return methodNode
   }
 
@@ -484,7 +488,7 @@ open class MarcelSemantic constructor(
       symbolResolver.defineMethod(classNode.type, constructorNode)
     }
 
-    fillMethodNode(classScope, constructorNode, constructorCstNode.statements, constructorCstNode.annotations)
+    fillMethodNode(classScope, constructorNode, constructorCstNode.statements, constructorCstNode.annotations, isAsync = false)
 
     val firstStatement = constructorNode.blockStatement.statements.firstOrNull()
     if (firstStatement == null || firstStatement !is ExpressionStatementNode
@@ -558,12 +562,24 @@ open class MarcelSemantic constructor(
   private fun fillMethodNode(classScope: ClassScope, methodeNode: MethodNode,
                              cstStatements: List<StatementCstNode>,
                              annotations: List<AnnotationCstNode>,
+                             isAsync: Boolean,
                              isSingleStatementMethod: Boolean = false,
                              scriptRunMethod: Boolean = false): Unit
   = useScope(MethodScope(classScope, methodeNode)) {
 
     // filling annotations
     annotations.forEach { methodeNode.annotations.add(visit(it, ElementType.METHOD)) }
+    if (isAsync) {
+      val annotation = AnnotationNode(
+        type = Async::class.javaAnnotationType,
+        tokenStart = methodeNode.tokenStart,
+        tokenEnd = methodeNode.tokenEnd,
+        attributes = listOf(
+          JavaAnnotation.Attribute("returnType", JavaType.Clazz, methodeNode.returnType.genericTypes.first())
+        ),
+      )
+      methodeNode.annotations.add(annotation)
+    }
 
     val statements = if (isSingleStatementMethod && cstStatements.size == 1
       && methodeNode.returnType != JavaType.void
