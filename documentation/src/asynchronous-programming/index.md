@@ -12,8 +12,8 @@ fun async int compute() {
   return 1
 }
 ```
-The actual return type of async functions are [CompletableFutures](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html)
-(in above example a `CompletableFuture<Integer>`).
+The actual return type of async functions are [Futures](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/Future.html)
+(in above example a `Future<Integer>`).
 
 ## Await
 The `await` keyword allows to wait for the result of an asynchronous function.
