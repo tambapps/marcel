@@ -1,6 +1,6 @@
 # Threadmill
 
-Threadmill is the library handling asynchronous programming in Marcel.
+Threadmill is the library handling asynchronous programming in Marcel, included in the Standard Library (stdlib).
 It is written in Java 8.
 
 ## Etymology

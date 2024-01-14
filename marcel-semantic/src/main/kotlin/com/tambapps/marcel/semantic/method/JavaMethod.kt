@@ -27,6 +27,9 @@ interface JavaMethod: JavaTyped {
   val parameters: List<MethodParameter>
   // to handle extension methods when writing them
   val actualParameters: List<MethodParameter> get() = parameters
+  val isAsync get() = asyncReturnType != null
+  val asyncReturnType: JavaType? get() = null // only use when isAsync is true
+
   val returnType: JavaType
   val actualReturnType: JavaType
   val isDefault: Boolean // for interface

@@ -22,6 +22,10 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>com.tambapps.marcel</groupId>
+      <artifactId>threadmill</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
       <scope>test</scope>

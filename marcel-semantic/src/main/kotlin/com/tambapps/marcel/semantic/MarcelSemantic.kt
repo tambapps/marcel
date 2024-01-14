@@ -141,6 +141,7 @@ import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.ExtensionJavaMethod
 import com.tambapps.marcel.semantic.method.JavaConstructorImpl
 import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.JavaMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.CatchBlockScope
 import com.tambapps.marcel.semantic.scope.ClassScope
@@ -183,6 +184,7 @@ import marcel.util.concurrent.Async
 import java.io.Closeable
 import java.lang.annotation.ElementType
 import java.util.*
+import java.util.concurrent.Callable
 import java.util.regex.Pattern
 
 open class MarcelSemantic constructor(
@@ -547,6 +549,8 @@ open class MarcelSemantic constructor(
     methodCst.parameters.forEachIndexed { index, methodParameterCstNode ->
       parameters.add(toMethodParameterNode(classNode, visibility, isStatic, index, methodName, methodParameterCstNode))
     }
+    val asyncReturnType = if (methodCst is MethodCstNode && methodCst.isAsync)
+      returnType.genericTypes.first().objectType else null
     return MethodNode(
       name = methodName,
       visibility = visibility,
@@ -555,7 +559,8 @@ open class MarcelSemantic constructor(
       tokenStart = methodCst.tokenStart,
       tokenEnd = methodCst.tokenEnd,
       parameters = parameters,
-      ownerClass = classType
+      ownerClass = classType,
+      asyncReturnType = asyncReturnType
     )
   }
 
@@ -575,7 +580,7 @@ open class MarcelSemantic constructor(
         tokenStart = methodeNode.tokenStart,
         tokenEnd = methodeNode.tokenEnd,
         attributes = listOf(
-          JavaAnnotation.Attribute("returnType", JavaType.Clazz, methodeNode.returnType.genericTypes.first())
+          JavaAnnotation.Attribute("returnType", JavaType.Clazz, methodeNode.returnType.genericTypes.first().objectType)
         ),
       )
       methodeNode.annotations.add(annotation)
@@ -599,7 +604,7 @@ open class MarcelSemantic constructor(
     else blockStatements(cstStatements)
 
     if (!AllPathsReturnVisitor.test(statements)) {
-      if (methodeNode.returnType == JavaType.void) {
+      if (methodeNode.returnType == JavaType.void || methodeNode.asyncReturnType == JavaType.void) {
         statements.add(SemanticHelper.returnVoid(methodeNode))
       } else if (scriptRunMethod) {
         statements.add(SemanticHelper.returnNull(methodeNode))
@@ -607,7 +612,19 @@ open class MarcelSemantic constructor(
         throw MarcelSemanticException(methodeNode.token, "Not all paths return a value in method ${methodeNode.ownerClass}.${methodeNode.name}()")
       }
     }
-    methodeNode.blockStatement.addAll(statements)
+    if (!methodeNode.isAsync) {
+      methodeNode.blockStatement.addAll(statements)
+    } else {
+      val returnsVoid = methodeNode.asyncReturnType == JavaType.void
+      val interfaceType = if (returnsVoid) Runnable::class.javaType else Callable::class.javaType
+      // TODO define a method _doMethodName() using the statements as the body. And generate  a lambda that will call this method,
+      //   the lambda being the argument of threadmill supply/run async
+      if (methodeNode.returnType == JavaType.void || methodeNode.asyncReturnType == JavaType.void) {
+        TODO("Call threadmill runnable")
+      } else {
+        TODO("Call threadmill callable")
+      }
+    }
   }
 
   private fun blockStatements(cstStatements: List<StatementCstNode>): MutableList<StatementNode> {
@@ -1313,10 +1330,12 @@ open class MarcelSemantic constructor(
 
   override fun visit(node: ReturnCstNode): StatementNode {
     val scope = currentMethodScope
-    val expression = node.expressionNode?.accept(this, scope.method.returnType)?.let { caster.cast(scope.method.returnType, it) }
-    if (expression != null && expression.type != JavaType.void && scope.method.returnType == JavaType.void) {
+    val expectedReturnType = scope.method.let { if (it.isAsync) it.asyncReturnType!! else it.returnType }
+    val expression = node.expressionNode?.accept(this, expectedReturnType)?.let { caster.cast(expectedReturnType, it) }
+
+    if (expression != null && expression.type != JavaType.void && expectedReturnType == JavaType.void) {
       throw MarcelSemanticException(node, "Cannot return expression in void function")
-    } else if (expression == null && scope.method.returnType != JavaType.void) {
+    } else if (expression == null && expectedReturnType != JavaType.void) {
       throw MarcelSemanticException(node, "Must return expression in non void function")
     }
     return ReturnStatementNode(expression, node.tokenStart, node.tokenEnd)

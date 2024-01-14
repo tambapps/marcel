@@ -13,6 +13,7 @@ abstract class AbstractConstructor(
   override val isDefault = false
   override val isAbstract = false
   override val isStatic = false
+  override val isAsync = false
 
 
   override fun toString(): String {

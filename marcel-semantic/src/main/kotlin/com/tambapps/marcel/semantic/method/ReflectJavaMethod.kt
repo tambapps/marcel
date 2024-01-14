@@ -11,6 +11,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
+import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaType
 import marcel.lang.compile.BooleanDefaultValue
 import marcel.lang.compile.CharDefaultValue
@@ -20,6 +21,7 @@ import marcel.lang.compile.IntDefaultValue
 import marcel.lang.compile.LongDefaultValue
 import marcel.lang.compile.MethodCallDefaultValue
 import marcel.lang.compile.NullDefaultValue
+import marcel.util.concurrent.Async
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import java.lang.reflect.Parameter
@@ -43,6 +45,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
   override val isDefault = method.isDefault
   override val isStatic = (method.modifiers and Modifier.STATIC) != 0
   override val isVarArgs = method.isVarArgs
+  override val asyncReturnType = method.getAnnotation(Async::class.java)?.returnType?.javaType
 
   override fun toString(): String {
     return "$ownerClass.$name(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType

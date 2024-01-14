@@ -6,7 +6,7 @@ import com.tambapps.marcel.semantic.type.JavaType
 /**
  * Java Method impl useful to register to a TypeResolver
  */
-class JavaMethodImpl(
+class JavaMethodImpl constructor(
   override val ownerClass: JavaType,
   override val visibility: Visibility,
   override val name: String,
@@ -17,6 +17,8 @@ class JavaMethodImpl(
   override val isStatic: Boolean = false,
   override val isConstructor: Boolean = false,
   override val isVarArgs: Boolean = false,
+  override val isAsync: Boolean = false,
+  override val asyncReturnType: JavaType? = null
 ) : AbstractMethod() {
 
   override val actualReturnType = returnType
