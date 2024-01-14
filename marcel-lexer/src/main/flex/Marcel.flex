@@ -288,6 +288,8 @@ LONELY_BACKTICK=`
           }
 
 // keywords
+"async"          { return valueToken(ASYNC); }
+"await"          { return valueToken(AWAIT); }
 "void"          { return valueToken(TYPE_VOID); }
 "true"          { return token(VALUE_TRUE); }
 "false"          { return token(VALUE_FALSE); }
