@@ -160,6 +160,7 @@ import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
 import com.tambapps.marcel.semantic.visitor.ImportCstNodeConverter
 import com.tambapps.marcel.semantic.visitor.ReturningBranchTransformer
 import com.tambapps.marcel.semantic.visitor.ReturningWhenIfBranchTransformer
+import com.tambapps.marcel.threadmill.Threadmill
 import marcel.lang.IntRanges
 import marcel.lang.LongRanges
 import marcel.lang.compile.BooleanDefaultValue
@@ -614,13 +615,11 @@ open class MarcelSemantic constructor(
     if (!methodeNode.isAsync) {
       methodeNode.blockStatement.addAll(statements)
     } else {
-
-      methodeNode.blockStatement.addAll(statements) // TODO remove this line
-
+      // generate doMethod which will have the actual statements
       val doMethodNode = MethodNode(
         name = "_do" + methodeNode.name[0].uppercase() + methodeNode.name.substring(1),
         parameters = methodeNode.parameters,
-        visibility = Visibility.PRIVATE,
+        visibility = Visibility.INTERNAL,
         returnType = methodeNode.asyncReturnType!!,
         isStatic = methodeNode.isStatic,
         tokenStart = methodeNode.tokenStart,
@@ -628,27 +627,50 @@ open class MarcelSemantic constructor(
         ownerClass = methodeNode.ownerClass
       )
       doMethodNode.blockStatement.addAll(statements)
-      getCurrentClassNode()!!.methods.add(doMethodNode)
+      val classNode = getCurrentClassNode() ?: throw MarcelSemanticException(methodeNode.token, "Cannot create async method in such context")
+      classNode.methods.add(doMethodNode)
       val returnsVoid = methodeNode.asyncReturnType == JavaType.void
       val interfaceType = if (returnsVoid) Runnable::class.javaType else Callable::class.javaType
 
-/*
-TODO
+      // TODO handle passing method arguments to lambda constructor
       val (lambdaClassNode, lambdaMethod, newInstanceNode) = createLambdaNode(
         outerClassNode = classNode,
-        parameters = parameters,
-        returnType = returnType,
+        lambdaMethodParameters = methodeNode.parameters.toList(),
+        returnType = doMethodNode.returnType,
         interfaceType = interfaceType,
-        tokenStart = LexToken.DUMMY,
-        tokenEnd = LexToken.DUMMY
+        tokenStart = methodeNode.tokenStart,
+        tokenEnd = methodeNode.tokenEnd
       )
-      computeLambdaParameters()
-     // TODO define a method _doMethodName() using the statements as the body. And generate  a lambda that will call this method,
-      //   the lambda being the argument of threadmill supply/run async
+      useScope(MethodScope(ClassScope(symbolResolver, lambdaClassNode.type, null, Scope.DEFAULT_IMPORTS), lambdaMethod)) { scope ->
+        lambdaMethod.blockStatement.statements.apply {
+          val fCall = fCall(
+            arguments = doMethodNode.parameters.map { ReferenceNode(owner = ThisReferenceNode(lambdaClassNode.type, lambdaClassNode.token), variable = scope.findField(it.name)!!, token = methodeNode.tokenStart) },
+            owner = if (doMethodNode.isStatic) null else ThisReferenceNode(classNode.type, methodeNode.tokenStart),
+            method = doMethodNode,
+            tokenStart = methodeNode.tokenStart,
+            tokenEnd = methodeNode.tokenEnd
+          )
+          if (returnsVoid) {
+            add(ExpressionStatementNode(fCall))
+            add(SemanticHelper.returnVoid(lambdaMethod))
+          } else {
+            add(ReturnStatementNode(fCall))
+          }
+        }
+      }
 
-
- */
-
+      // now fill the method with the call to Threadmill
+      methodeNode.blockStatement.apply {
+        add(ReturnStatementNode(
+          fCall(
+            ownerType = Threadmill::class.javaType,
+            name = if (returnsVoid) "runAsync" else "supplyAsync",
+            arguments = listOf(newInstanceNode),
+            tokenStart = methodeNode.tokenStart,
+            tokenEnd = methodeNode.tokenEnd
+          )
+        ))
+      }
     }
   }
 

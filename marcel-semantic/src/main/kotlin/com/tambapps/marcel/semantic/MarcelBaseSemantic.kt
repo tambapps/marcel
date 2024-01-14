@@ -93,6 +93,13 @@ abstract class MarcelBaseSemantic {
     return fCall(node, method, arguments, owner, castType)
   }
 
+  protected fun fCall(tokenStart: LexToken, tokenEnd: LexToken, ownerType: JavaType, name: String, arguments: List<ExpressionNode>,
+                    owner: ExpressionNode? = null,
+                    castType: JavaType? = null): ExpressionNode {
+    val method = symbolResolver.findMethodOrThrow(ownerType, name, arguments, tokenStart)
+    return fCall(tokenStart, tokenEnd, method, arguments, owner, castType)
+  }
+
   protected fun fCall(
     node: CstNode,
     method: JavaMethod,
@@ -214,7 +221,7 @@ abstract class MarcelBaseSemantic {
    * Note that the lambda method node statements are not filled. It is the caller's responsibility to fill it
    *
    * @param outerClassNode the outer class node
-   * @param parameters the lambda parameters
+   * @param lambdaMethodParameters the lambda method parameters
    * @param returnType the lambda return type
    * @param interfaceType the interface the lambda should implement
    * @param tokenStart the tokenStart
@@ -222,7 +229,7 @@ abstract class MarcelBaseSemantic {
    * @return the lambda node, the lambda method node and the new instance node
    */
   protected fun createLambdaNode(outerClassNode: ClassNode,
-                                 parameters: List<MethodParameter>,
+                                 lambdaMethodParameters: List<MethodParameter>,
                                  returnType: JavaType,
                                  interfaceType: JavaType,
                                  tokenStart: LexToken,
@@ -268,7 +275,7 @@ abstract class MarcelBaseSemantic {
 
     val interfaceMethod = symbolResolver.getInterfaceLambdaMethodOrThrow(interfaceType, tokenStart)
     // define lambda method
-    val lambdaMethod = MethodNode(interfaceMethod.name, parameters.toMutableList(),
+    val lambdaMethod = MethodNode(interfaceMethod.name, lambdaMethodParameters.toMutableList(),
       Visibility.PUBLIC, returnType, isStatic = false, tokenStart, tokenEnd, lambdaType)
 
     lambdaClassNode.methods.add(lambdaMethod)

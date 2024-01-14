@@ -285,7 +285,7 @@ abstract class AstNodeComposer: MarcelBaseSemantic() {
 
     val (lambdaClassNode, lambdaMethod, newInstanceNode) = createLambdaNode(
       outerClassNode = classNode,
-      parameters = parameters,
+      lambdaMethodParameters = parameters,
       returnType = returnType,
       interfaceType = interfaceType,
       tokenStart = LexToken.DUMMY,

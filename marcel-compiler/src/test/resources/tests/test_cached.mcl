@@ -1,0 +1,18 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+@cached
+fun int fibonacci(int n) -> switch (n) {
+  0, 1 -> n
+  else -> fibonacci(n - 1) + fibonacci(n - 2)
+}
+
+
+@cached(threadSafe=true)
+fun int fibonacci_ts(int n) -> switch (n) {
+  0, 1 -> n
+  else -> fibonacci(n - 1) + fibonacci(n - 2)
+}
+
+assertEquals(55, fibonacci(10))
+assertEquals(55, fibonacci_ts(10))
+
