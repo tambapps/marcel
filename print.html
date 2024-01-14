@@ -1585,8 +1585,8 @@ In Marcel, asynchronous (AKA <code>async</code>) code will be executed on backgr
   return 1
 }
 </code></pre>
-<p>The actual return type of async functions are <a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html">CompletableFutures</a>
-(in above example a <code>CompletableFuture&lt;Integer&gt;</code>).</p>
+<p>The actual return type of async functions are <a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/Future.html">Futures</a>
+(in above example a <code>Future&lt;Integer&gt;</code>).</p>
 <h2 id="await"><a class="header" href="#await">Await</a></h2>
 <p>The <code>await</code> keyword allows to wait for the result of an asynchronous function.</p>
 <pre><code class="language-marcel">fun async int computeInBackground() {
