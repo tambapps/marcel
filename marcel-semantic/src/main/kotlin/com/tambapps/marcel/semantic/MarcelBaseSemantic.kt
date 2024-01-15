@@ -31,6 +31,23 @@ import java.util.*
 
 abstract class MarcelBaseSemantic {
 
+  /**
+   * Object providing constants for class outer class levels.
+   */
+  object ClassOuterLevels {
+    /**
+     * Self level. This level doesn't actually exist in Java as this is just "this".
+     */
+    const val THIS = -1
+
+    /**
+     * Outer level. References the field "this$0"
+     */
+    const val OUTER = 0
+
+    // OUTER.OUTER would be 1, and so on
+  }
+
   protected abstract val symbolResolver: MarcelSymbolResolver
   protected abstract val caster: AstNodeCaster
 
@@ -116,6 +133,7 @@ abstract class MarcelBaseSemantic {
     arguments: List<ExpressionNode>,
     owner: ExpressionNode? = null,
     castType: JavaType? = null): ExpressionNode {
+    // TODO if method is async, check if in async context
     if (owner != null && method.isMarcelStatic) throw MarcelSemanticException(tokenStart, "Method $method is static but was call from an instance")
     if (!method.isAccessibleFrom(currentScope.classType)) {
       throw MarcelSemanticException(tokenStart, "Method $method is not accessible from class" + currentScope.classType)
@@ -194,23 +212,35 @@ abstract class MarcelBaseSemantic {
     }
   }
 
-  // get the reference to pass to an inner class constructor for the provided outerLevel
-  protected fun getInnerOuterReference(token: LexToken, outerLevel: Int) = getInnerOuterReference(currentScope, token, outerLevel)
+  /**
+   * Get the reference to pass to an inner class constructor for the provided outerLevel.
+   * E.g. for the level OUTER, it would give THIS. For the level OUTER.OUTER, it would give THIS.OUTER
+   *
+   * @param token the token in case of error
+   * @param outerLevel the outer level
+   * @return the reference to pass to an inner class constructor for the provided outerLevel
+   */
+  protected fun getInnerOuterReference(token: LexToken, outerLevel: Int) = getOuterLevelReference(currentScope, token, outerLevel - 1)
 
-  // get the reference to pass to an inner class constructor for the provided outerLevel
-  // DIFFERENT FROM THE BELOW outerLevel METHOD. 0 MEANS THIS, 1 MEANS OUTER
-  // TODO change this. make this coherent with below method outerLevel. Make constants so that it becomes clearer
-  protected fun getInnerOuterReference(scope: Scope, token: LexToken, outerLevel: Int): ExpressionNode? {
+  /**
+   * Get the reference of given outer class level
+   *
+   * @param scope the scope from which to extract types/fields
+   * @param token the token in case of error
+   * @param outerLevel the outer level
+   * @return the reference of given outer class level
+   */
+  protected fun getOuterLevelReference(scope: Scope, token: LexToken, outerLevel: Int): ExpressionNode? {
     val thisNode = ThisReferenceNode(scope.classType, token)
-    return if (outerLevel == 0) thisNode
-    else scope.findField("this$${outerLevel - 1}")?.let { ReferenceNode(owner = thisNode, variable = it, token = token) }
+    return if (outerLevel == ClassOuterLevels.THIS) thisNode
+    // this name pattern is Java's outer class references pattern
+    else scope.findField("this$$outerLevel")?.let { ReferenceNode(owner = thisNode, variable = it, token = token) }
   }
-
 
   // -1 means self, 0 means outer, 1 means outer.outer and so on
   // this is in order to be coherent with this$0 which corresponds to the outer, and so on
   protected fun outerLevel(token: LexToken, innerClass: JavaType, outerClass: JavaType): Pair<Int, JavaType>? {
-    var outerLevel = -1
+    var outerLevel = ClassOuterLevels.THIS
     var levelType: JavaType? = innerClass
     while (levelType != null && !outerClass.isAssignableFrom(levelType)) {
       outerLevel++
@@ -219,7 +249,6 @@ abstract class MarcelBaseSemantic {
     return if (levelType == null) null
     else Pair(outerLevel, levelType)
   }
-
 
   /**
    * Create lambda node and returns the lambda node, the lambda method node and the new instance node.

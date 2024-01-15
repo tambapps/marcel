@@ -632,7 +632,6 @@ open class MarcelSemantic constructor(
       val returnsVoid = methodeNode.asyncReturnType == JavaType.void
       val interfaceType = if (returnsVoid) Runnable::class.javaType else Callable::class.javaType
 
-      // TODO handle passing method arguments to lambda constructor
       val (lambdaClassNode, lambdaMethod, newInstanceNode) = createLambdaNode(
         outerClassNode = classNode,
         references = methodeNode.parameters.map { ReferenceNode(variable = currentMethodScope.findLocalVariable(it.name)!!, token = methodeNode.token) },
@@ -646,7 +645,7 @@ open class MarcelSemantic constructor(
         lambdaMethod.blockStatement.statements.apply {
           val fCall = fCall(
             arguments = doMethodNode.parameters.map { ReferenceNode(owner = ThisReferenceNode(lambdaClassNode.type, lambdaClassNode.token), variable = scope.findField(it.name)!!, token = methodeNode.tokenStart) },
-            owner = if (doMethodNode.isStatic) null else getInnerOuterReference(scope, methodeNode.tokenStart, 1),
+            owner = if (doMethodNode.isStatic) null else getOuterLevelReference(scope, methodeNode.tokenStart, ClassOuterLevels.OUTER),
             method = doMethodNode,
             tokenStart = methodeNode.tokenStart,
             tokenEnd = methodeNode.tokenEnd
