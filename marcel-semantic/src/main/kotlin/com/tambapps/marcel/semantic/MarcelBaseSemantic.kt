@@ -19,6 +19,7 @@ import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
+import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.MethodInnerScope
 import com.tambapps.marcel.semantic.scope.MethodScope
 import com.tambapps.marcel.semantic.scope.Scope
@@ -221,6 +222,7 @@ abstract class MarcelBaseSemantic {
    * Note that the lambda method node statements are not filled. It is the caller's responsibility to fill it
    *
    * @param outerClassNode the outer class node
+   * @param references the references used in this lambda. They will be fields of the lambda and passed to the lambda's constructor
    * @param lambdaMethodParameters the lambda method parameters
    * @param returnType the lambda return type
    * @param interfaceType the interface the lambda should implement
@@ -229,6 +231,7 @@ abstract class MarcelBaseSemantic {
    * @return the lambda node, the lambda method node and the new instance node
    */
   protected fun createLambdaNode(outerClassNode: ClassNode,
+                                 references: List<ReferenceNode>,
                                  lambdaMethodParameters: List<MethodParameter>,
                                  returnType: JavaType,
                                  interfaceType: JavaType,
@@ -271,6 +274,33 @@ abstract class MarcelBaseSemantic {
     val constructorArguments = mutableListOf<ExpressionNode>()
     handleLambdaInnerClassFields(lambdaClassNode, lambdaConstructor, constructorArguments, tokenStart)
 
+    if (references.isNotEmpty()) {
+      for (reference in references) {
+        // add field node
+        val fieldNode = FieldNode(reference.type, reference.variable.name, lambdaType, emptyList(), true, Visibility.PRIVATE,
+          isStatic = false, tokenStart, tokenEnd)
+        symbolResolver.defineField(lambdaType, fieldNode)
+        lambdaClassNode.fields.add(fieldNode)
+        // ... method parameter
+        lambdaConstructor.parameters.add(MethodParameter(reference.type, reference.variable.name))
+        // ... and constructor argument
+        constructorArguments.add(reference)
+      }
+
+      // add field assignments in constructor
+      useScope(MethodScope(ClassScope(symbolResolver, lambdaType, null, Scope.DEFAULT_IMPORTS), lambdaConstructor)) { scope ->
+        val insertIndex = lambdaConstructor.blockStatement.statements.size - 1 // inserting just before the return void statement (the last statement)
+        for (reference in references) {
+          lambdaConstructor.blockStatement.statements.add(insertIndex, ExpressionStatementNode(
+            VariableAssignmentNode(
+              owner = ThisReferenceNode(lambdaClassNode.type, tokenStart),
+              variable = lambdaClassNode.fields.find { it.name == reference.variable.name }!!,
+              expression = ReferenceNode(variable = scope.findLocalVariable(reference.variable.name)!!, token = tokenStart)
+            )
+          ))
+        }
+      }
+    }
     lambdaClassNode.methods.add(lambdaConstructor)
 
     val interfaceMethod = symbolResolver.getInterfaceLambdaMethodOrThrow(interfaceType, tokenStart)

@@ -635,7 +635,8 @@ open class MarcelSemantic constructor(
       // TODO handle passing method arguments to lambda constructor
       val (lambdaClassNode, lambdaMethod, newInstanceNode) = createLambdaNode(
         outerClassNode = classNode,
-        lambdaMethodParameters = methodeNode.parameters.toList(),
+        references = methodeNode.parameters.map { ReferenceNode(variable = currentMethodScope.findLocalVariable(it.name)!!, token = methodeNode.token) },
+        lambdaMethodParameters = emptyList(),
         returnType = doMethodNode.returnType,
         interfaceType = interfaceType,
         tokenStart = methodeNode.tokenStart,
