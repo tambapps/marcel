@@ -195,10 +195,15 @@ abstract class MarcelBaseSemantic {
   }
 
   // get the reference to pass to an inner class constructor for the provided outerLevel
-  protected fun getInnerOuterReference(token: LexToken, outerLevel: Int): ExpressionNode? {
-    val thisNode = ThisReferenceNode(currentScope.classType, token)
+  protected fun getInnerOuterReference(token: LexToken, outerLevel: Int) = getInnerOuterReference(currentScope, token, outerLevel)
+
+  // get the reference to pass to an inner class constructor for the provided outerLevel
+  // DIFFERENT FROM THE BELOW outerLevel METHOD. 0 MEANS THIS, 1 MEANS OUTER
+  // TODO change this. make this coherent with below method outerLevel. Make constants so that it becomes clearer
+  protected fun getInnerOuterReference(scope: Scope, token: LexToken, outerLevel: Int): ExpressionNode? {
+    val thisNode = ThisReferenceNode(scope.classType, token)
     return if (outerLevel == 0) thisNode
-    else currentScope.findField("this$${outerLevel - 1}")?.let { ReferenceNode(owner = thisNode, variable = it, token = token) }
+    else scope.findField("this$${outerLevel - 1}")?.let { ReferenceNode(owner = thisNode, variable = it, token = token) }
   }
 
 

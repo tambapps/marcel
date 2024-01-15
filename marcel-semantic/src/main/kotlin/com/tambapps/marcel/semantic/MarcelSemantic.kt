@@ -646,7 +646,7 @@ open class MarcelSemantic constructor(
         lambdaMethod.blockStatement.statements.apply {
           val fCall = fCall(
             arguments = doMethodNode.parameters.map { ReferenceNode(owner = ThisReferenceNode(lambdaClassNode.type, lambdaClassNode.token), variable = scope.findField(it.name)!!, token = methodeNode.tokenStart) },
-            owner = if (doMethodNode.isStatic) null else ThisReferenceNode(classNode.type, methodeNode.tokenStart),
+            owner = if (doMethodNode.isStatic) null else getInnerOuterReference(scope, methodeNode.tokenStart, 1),
             method = doMethodNode,
             tokenStart = methodeNode.tokenStart,
             tokenEnd = methodeNode.tokenEnd
