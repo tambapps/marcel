@@ -1604,17 +1604,18 @@ fun void computeInBackground() {
   println(result)
 }
 </code></pre>
-<h3 id="async-block"><a class="header" href="#async-block">Async block</a></h3>
+<h2 id="async-block"><a class="header" href="#async-block">Async block</a></h2>
 <p>An <code>async</code> code block is a block in which you can perform async operations</p>
 <pre><code class="language-marcel">async fun int doCompute() -&gt; 1
 
-fun void computeInBackground() {
-  async {
+fun Future computeInBackground() {
+  return async {
     int result = await doCompute()
-    println(result)
+    result
   }
 }
 </code></pre>
+<p><code>async</code> blocks return a Future whose type is based on the last statement of the block. In the above example, a <code>Future&lt;Integer&gt;</code>.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="tutorials"><a class="header" href="#tutorials">Tutorials</a></h1>
 <p>In this section, you'll find all sort of tutorials explaining
 how to implement a given pattern (or play with a given feature) in Marcel.</p>
