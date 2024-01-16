@@ -1,6 +1,7 @@
 package com.tambapps.marcel.parser.cst.visitor
 
 import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.parser.cst.expression.AsyncBlockCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryTypeOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.ElvisThrowCstNode
@@ -213,6 +214,11 @@ class ForEachNodeVisitor(
   override fun visit(node: LambdaCstNode, smartCastType: Unit?) {
     consume(node)
     node.blockCstNode.accept(this)
+  }
+
+  override fun visit(node: AsyncBlockCstNode, smartCastType: Unit?) {
+    consume(node)
+    node.block.accept(this)
   }
 
   override fun visit(node: TruthyVariableDeclarationCstNode, smartCastType: Unit?) {

@@ -15,6 +15,7 @@ import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.ScriptCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
+import com.tambapps.marcel.parser.cst.expression.AsyncBlockCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
 import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
 import com.tambapps.marcel.parser.cst.expression.NewInstanceCstNode
@@ -161,7 +162,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     val access = parseAccess(parentNode)
     if (current.type == TokenType.CLASS || current.type == TokenType.EXTENSION) {
       classNode.innerClasses.add(parseClass(sourceFile, packageName, parentNode, annotations, access, outerClassNode))
-    } else if (current.type == TokenType.FUN || current.type == TokenType.CONSTRUCTOR || current.type == TokenType.ASYNC) {
+    } else if (current.type == TokenType.FUN || current.type == TokenType.CONSTRUCTOR || current.type == TokenType.ASYNC && lookup(1)?.type == TokenType.FUN) {
       when (val method = method(classNode, annotations, access)) {
         is MethodCstNode -> classNode.methods.add(method)
         is ConstructorCstNode -> classNode.constructors.add(method)
@@ -925,6 +926,9 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         else SwitchCstNode(parentNode, token, previous, branches, elseStatement, varDecl, switchExpression)
       }
       TokenType.BRACKETS_OPEN -> parseLambda(token, parentNode)
+      TokenType.ASYNC ->  block(parentNode).let {
+        AsyncBlockCstNode(parentNode, token, it.tokenEnd, it)
+      }
       else -> throw MarcelParserException(token, "Not supported $token")
 
     }
