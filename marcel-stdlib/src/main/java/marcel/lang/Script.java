@@ -42,15 +42,15 @@ public abstract class Script {
     }
   }
 
-  protected void println() {
+  public void println() {
     out.println();
   }
 
-  protected void println(Object o) {
+  public void println(Object o) {
     out.println(o);
   }
 
-  protected void print(Object o) {
+  public void print(Object o) {
     out.print(o);
   }
 }
