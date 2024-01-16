@@ -1699,6 +1699,7 @@ open class MarcelSemantic constructor(
     }.toMutableList()
   }
 
+  // TODO test async
   override fun visit(node: AsyncBlockCstNode, smartCastType: JavaType?): ExpressionNode {
     if (currentMethodScope.isAsync) {
       throw MarcelSemanticException(node, "Cannot start async context because current context is already async")
@@ -1774,14 +1775,12 @@ open class MarcelSemantic constructor(
           node = node,
           tryStatementNode = asyncStatementBlock,
           catchNodes = emptyList(),
-          // TODO make a method to generate finallyNode
-          finallyNode = useInnerScope { finallyScope -> CatchNode(listOf(Throwable::class.javaType), finallyScope.addLocalVariable(Throwable::class.javaType),
-            ExpressionStatementNode(fCall(
-              node = node,
-              owner = ReferenceNode(variable = threadmillResourceVariable, token = node.token),
-              name = "close",
-              arguments = emptyList()
-            )))
+          finallyNode = useInnerScope { finallyScope -> finallyCatchNode(finallyScope, ExpressionStatementNode(fCall(
+            node = node,
+            owner = ReferenceNode(variable = threadmillResourceVariable, token = node.token),
+            name = "close",
+            arguments = emptyList()
+          )))
           }
         )
       )
@@ -2164,7 +2163,7 @@ open class MarcelSemantic constructor(
 
       // then do the finally-block
       node.finallyNode?.let { finallyBlock.statements.add(it.accept(this)) }
-      CatchNode(listOf(Throwable::class.javaType), finallyScope.addLocalVariable(Throwable::class.javaType), finallyBlock)
+      finallyCatchNode(finallyScope, finallyBlock)
     }
 
     val tryCatchNode = TryCatchNode(node, tryBlock, catchNodes, finallyNode)
@@ -2181,6 +2180,8 @@ open class MarcelSemantic constructor(
       BlockStatementNode(statements, node.tokenStart, node.tokenEnd)
     }
   }
+
+  private fun finallyCatchNode(finallyScope: MethodScope, finallyBlock: StatementNode) = CatchNode(listOf(Throwable::class.javaType), finallyScope.addLocalVariable(Throwable::class.javaType), finallyBlock)
 
   override fun visit(node: BlockCstNode) = useInnerScope {
     val statements = blockStatements(node.statements)
