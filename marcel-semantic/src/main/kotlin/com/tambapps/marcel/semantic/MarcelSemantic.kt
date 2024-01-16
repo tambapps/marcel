@@ -1291,7 +1291,7 @@ open class MarcelSemantic constructor(
 
     if (methodResolve != null
       // need this especially for extensions classes to avoid referencing an instance method even though only static methods can be referenced. In this case we want the real static, not isMarcelStatic
-      && (!currentMethodScope.isStatic || methodResolve.first.isStatic)) {
+      && (!currentMethodScope.staticContext || methodResolve.first.isStatic)) {
       val owner = if (methodResolve.first.isMarcelStatic) null else ThisReferenceNode(currentScope.classType, node.token)
       return fCall(
         tokenStart = node.tokenStart,

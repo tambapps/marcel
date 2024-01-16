@@ -18,7 +18,7 @@ class MarcelReplSemantic(private val replSymbolResolver: ReplMarcelSymbolResolve
 
   override fun assignment(node: BinaryOperatorCstNode, smartCastType: JavaType?): ExpressionNode {
     val scope = currentMethodScope
-    if (scope.isStatic || !scope.classType.isScript || node.leftOperand !is ReferenceCstNode) return super.assignment(node, smartCastType)
+    if (scope.staticContext || !scope.classType.isScript || node.leftOperand !is ReferenceCstNode) return super.assignment(node, smartCastType)
     val leftResult = runCatching { node.leftOperand.accept(this) }
     if (leftResult.isSuccess) return assignment(node, leftResult.getOrThrow())
 

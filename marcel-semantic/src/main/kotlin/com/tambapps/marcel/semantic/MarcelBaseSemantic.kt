@@ -133,7 +133,7 @@ abstract class MarcelBaseSemantic {
     arguments: List<ExpressionNode>,
     owner: ExpressionNode? = null,
     castType: JavaType? = null): ExpressionNode {
-    // TODO if method is async, check if in async context
+    if (method.isAsync &&  (currentScope as? MethodScope)?.isAsync != true) throw MarcelSemanticException(tokenStart, "Method $method is async but was call in a non async context")
     if (owner != null && method.isMarcelStatic) throw MarcelSemanticException(tokenStart, "Method $method is static but was call from an instance")
     if (!method.isAccessibleFrom(currentScope.classType)) {
       throw MarcelSemanticException(tokenStart, "Method $method is not accessible from class" + currentScope.classType)

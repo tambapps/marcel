@@ -19,21 +19,22 @@ open class MethodScope internal constructor(
   symbolResolver: MarcelSymbolResolver,
   override val classType: JavaType,
   imports: List<ImportNode>,
-  internal val staticContext: Boolean,
+  val staticContext: Boolean,
   internal val localVariablePool: LocalVariablePool,
+  val isAsync: Boolean,
 ): AbstractScope(symbolResolver, classType.packageName, imports) {
 
   override val forExtensionType = parentScope.forExtensionType
 
   constructor(classScope: ClassScope, method: JavaMethod)
-      : this(classScope, method, classScope.symbolResolver, classScope.classType, classScope.imports, method.isStatic, LocalVariablePool(method.isStatic)) {
+      : this(classScope, method, classScope.symbolResolver, classScope.classType, classScope.imports,
+    staticContext = method.isStatic, LocalVariablePool(method.isStatic), isAsync = method.isAsync) {
     // method parameters are stored in local variables
     for (param in method.parameters) {
       addLocalVariable(param.type, param.name, param.isFinal)
     }
   }
 
-  val isStatic get() = method.isStatic
   private val localVariables = mutableListOf<LocalVariable>()
 
   // returns all the local variables at a particular moment

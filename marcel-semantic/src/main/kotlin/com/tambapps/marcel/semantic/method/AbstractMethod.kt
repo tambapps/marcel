@@ -24,6 +24,7 @@ abstract class AbstractMethod: JavaMethod {
     } else {
       if (isAbstract) append("abstract ")
       if (isStatic) append("static ")
+      if (isAsync) append("async ")
       append("fun ")
       append(returnType)
       append(" ")
