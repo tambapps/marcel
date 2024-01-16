@@ -37,15 +37,17 @@ fun void computeInBackground() {
 }
 ```
 
-### Async block
+## Async block
 An `async` code block is a block in which you can perform async operations
 ```marcel
 async fun int doCompute() -> 1
 
-fun void computeInBackground() {
-  async {
+fun Future computeInBackground() {
+  return async {
     int result = await doCompute()
-    println(result)
+    result
   }
 }
 ```
+
+`async` blocks return a Future whose type is based on the last statement of the block. In the above example, a `Future<Integer>`.
