@@ -576,15 +576,7 @@ open class MarcelSemantic constructor(
     // filling annotations
     annotations.forEach { methodeNode.annotations.add(visit(it, ElementType.METHOD)) }
     if (isAsync) {
-      val annotation = AnnotationNode(
-        type = Async::class.javaAnnotationType,
-        tokenStart = methodeNode.tokenStart,
-        tokenEnd = methodeNode.tokenEnd,
-        attributes = listOf(
-          JavaAnnotation.Attribute("returnType", JavaType.Clazz, methodeNode.returnType.genericTypes.first().objectType)
-        ),
-      )
-      methodeNode.annotations.add(annotation)
+      addAsyncAnnotation(methodeNode)
     }
 
     val statements = if (isSingleStatementMethod && cstStatements.size == 1
@@ -637,7 +629,8 @@ open class MarcelSemantic constructor(
         outerClassNode = classNode,
         references = methodeNode.parameters.map { ReferenceNode(variable = currentMethodScope.findLocalVariable(it.name)!!, token = methodeNode.token) },
         lambdaMethodParameters = emptyList(),
-        returnType = doMethodNode.returnType,
+        // as generic types aren't supported in Marcel, we need to return an Object because otherwise Java wouldn't recognize implemented method
+        returnType = if (doMethodNode.returnType == JavaType.void) JavaType.void else JavaType.Object,
         interfaceType = interfaceType,
         tokenStart = methodeNode.tokenStart,
         tokenEnd = methodeNode.tokenEnd
@@ -673,6 +666,18 @@ open class MarcelSemantic constructor(
         ))
       }
     }
+  }
+
+  private fun addAsyncAnnotation(methodeNode: MethodNode) {
+    val annotation = AnnotationNode(
+      type = Async::class.javaAnnotationType,
+      tokenStart = methodeNode.tokenStart,
+      tokenEnd = methodeNode.tokenEnd,
+      attributes = listOf(
+        JavaAnnotation.Attribute("returnType", JavaType.Clazz, methodeNode.returnType.genericTypes.first().objectType)
+      ),
+    )
+    methodeNode.annotations.add(annotation)
   }
 
   private fun blockStatements(cstStatements: List<StatementCstNode>): MutableList<StatementNode> {
@@ -1569,10 +1574,6 @@ open class MarcelSemantic constructor(
     return constructorCallNode
   }
 
-  override fun visit(node: AsyncBlockCstNode, smartCastType: JavaType?): ExpressionNode {
-    TODO("Not yet implemented")
-  }
-
   /**
    * Define the lambda. If we wanted a particular (non lambda) interface, it will implement it.
    * Otherwise, it will implement the lambda object
@@ -1698,6 +1699,97 @@ open class MarcelSemantic constructor(
     }.toMutableList()
   }
 
+  override fun visit(node: AsyncBlockCstNode, smartCastType: JavaType?): ExpressionNode {
+    if (currentMethodScope.isAsync) {
+      throw MarcelSemanticException(node, "Cannot start async context because current context is already async")
+    }
+    node.block.apply {
+      if (statements.isEmpty()) {
+        throw MarcelSemanticException(node, "async block need to have at least one statements")
+      }
+      forEach {
+        if (it is ReturnCstNode) throw MarcelSemanticException(node, "Cannot have return statement in an async block")
+      }
+    }
+
+    /*
+     * Looking for all local variables used from cst node as we'll need to pass them to the 'when' method
+     */
+    val referencedLocalVariables = mutableListOf<LocalVariable>()
+    node.block.forEach {  cstNode ->
+      if (cstNode is ReferenceCstNode && currentMethodScope.hasLocalVariable(cstNode.value)) {
+        referencedLocalVariables.add(currentMethodScope.findLocalVariable(cstNode.value)!!)
+      }
+    }
+    val asyncMethodParameters = mutableListOf<MethodParameter>()
+    val asyncMethodArguments = mutableListOf<ReferenceNode>()
+    for (lv in referencedLocalVariables) {
+      asyncMethodParameters.add(MethodParameter(lv.type, lv.name, isFinal = true))
+      asyncMethodArguments.add(ReferenceNode(variable = lv, token = node.token))
+    }
+
+    /*
+     * generating method that will initialize Threadmill context, and execute the async block
+     */
+    val asyncReturnType = smartCastType ?: JavaType.void
+    val asyncMethodNode = generateOrGetMethod("__async_", asyncMethodParameters,
+      returnType = if (asyncReturnType == JavaType.void) JavaType.void else JavaType.Future.withGenericTypes(asyncReturnType.objectType)
+      , node)
+    // generating method body
+    val asyncMethodStatements = useScope(
+      // making inner scope because the method isn't async itself (it doesn't particularly returns a Threadmill future)
+      //  but the code inside it is safe to use async features
+      MethodInnerScope(
+        parentScope = newMethodScope(asyncMethodNode),
+        isAsync = true
+      )
+    ) { asyncScope ->
+      val asyncStatementBlock = visit(node.block).apply {
+        if (asyncReturnType != JavaType.void) {
+          val lastStatement = statements.last()
+          lastStatement as? ExpressionStatementNode ?: throw MarcelSemanticException(lastStatement.token, "Expected an expression of type $asyncReturnType")
+          statements[statements.lastIndex] = ReturnStatementNode(
+            caster.cast(asyncReturnType, lastStatement.expressionNode)
+          )
+        } else {
+          statements.add(SemanticHelper.returnVoid(asyncMethodNode))
+        }
+      }
+      // initializing Threadmill context
+      val threadmillResourceVariable = asyncScope.addLocalVariable(Closeable::class.javaType)
+      listOf(
+        // Closeable context = Threadmill.startNewContext()
+        ExpressionStatementNode(VariableAssignmentNode(
+          localVariable = threadmillResourceVariable,
+          expression = fCall(
+            node = node,
+            ownerType = Threadmill::class.javaType,
+            name = "startNewContext",
+            arguments = emptyList()
+          ),
+          node = node
+        )),
+        // try { run async block } finally { context.close() }
+        TryCatchNode(
+          node = node,
+          tryStatementNode = asyncStatementBlock,
+          catchNodes = emptyList(),
+          // TODO make a method to generate finallyNode
+          finallyNode = useInnerScope { finallyScope -> CatchNode(listOf(Throwable::class.javaType), finallyScope.addLocalVariable(Throwable::class.javaType),
+            ExpressionStatementNode(fCall(
+              node = node,
+              owner = ReferenceNode(variable = threadmillResourceVariable, token = node.token),
+              name = "close",
+              arguments = emptyList()
+            )))
+          }
+        )
+      )
+    }
+    asyncMethodNode.blockStatement.addAll(asyncMethodStatements)
+    return fCall(node = node, owner = ThisReferenceNode(currentScope.classType, node.token), method = asyncMethodNode, arguments = asyncMethodArguments)
+  }
+
   override fun visit(node: WhenCstNode, smartCastType: JavaType?) = switchWhen(node, smartCastType)
 
   private fun switchWhen(node: WhenCstNode, smartCastType: JavaType?, switchExpression: ExpressionNode? = null, varDecl: VariableDeclarationCstNode? = null): ExpressionNode {
@@ -1749,7 +1841,7 @@ open class MarcelSemantic constructor(
     /*
      * generating method
      */
-    val whenMethod = generateOrGetWhenMethod(whenMethodParameters, whenReturnType, node)
+    val whenMethod = generateOrGetMethod("__when_", whenMethodParameters, whenReturnType, node)
     val whenStatement = useScope(newMethodScope(whenMethod)) { visit(rootIfCstNode, smartCastType) }
     if (shouldReturnValue) {
       var tmpIfNode: IfStatementNode? = whenStatement
@@ -1806,15 +1898,24 @@ open class MarcelSemantic constructor(
     return@useInnerScope JavaType.commonType(branchTransformer.collectedTypes)
   }
 
-  private fun generateOrGetWhenMethod(parameters: MutableList<MethodParameter>, returnType: JavaType, node: CstNode): MethodNode {
+  private fun generateOrGetMethod(
+    prefix: String,
+    parameters: MutableList<MethodParameter>,
+    returnType: JavaType,
+    node: CstNode,
+    asyncReturnType: JavaType? = null
+    ): MethodNode {
     val classType = currentScope.classType
     val classNode = classNodeMap.getValue(classType)
-    val methodName = currentMethodScope.method.name + "__when_" + node.hashCode().toString().replace('-', '0')
+    val methodName = currentMethodScope.method.name + prefix + node.hashCode().toString().replace('-', '0')
     val existingMethodNode = classNode.methods.find { it.name == methodName }
-    /// we don't want to define the same mehod twice, so we find it if we already registered it
+    /// we don't want to define the same method twice, so we find it if we already registered it
     if (existingMethodNode != null) return existingMethodNode
     val methodNode = MethodNode(methodName, parameters, Visibility.PRIVATE, returnType,
-      currentMethodScope.staticContext, node.tokenStart, node.tokenEnd, classType)
+      currentMethodScope.staticContext, asyncReturnType, node.tokenStart, node.tokenEnd, classType)
+    if (methodNode.isAsync) {
+      addAsyncAnnotation(methodNode)
+    }
     symbolResolver.defineMethod(classType, methodNode)
     classNode.methods.add(methodNode)
     return methodNode
