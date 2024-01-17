@@ -143,6 +143,7 @@ import com.tambapps.marcel.semantic.method.ExtensionJavaMethod
 import com.tambapps.marcel.semantic.method.JavaConstructorImpl
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
+import com.tambapps.marcel.semantic.scope.AsyncScope
 import com.tambapps.marcel.semantic.scope.CatchBlockScope
 import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.ImportScope
@@ -210,7 +211,7 @@ open class MarcelSemantic constructor(
   private val classNodeMap = mutableMapOf<JavaType, ClassNode>() // useful to add methods while performing analysis
 
   val imports = Scope.DEFAULT_IMPORTS.toMutableList() // will be updated while performing analysis
-  protected val methodResolver = MethodResolver(symbolResolver, caster, imports)
+  protected val methodResolver = MethodResolver(symbolResolver, caster)
 
   // for extension classes
   private val selfLocalVariable: LocalVariable get() = currentMethodScope.findLocalVariable("self") ?: throw RuntimeException("Compiler error.")
@@ -1293,7 +1294,7 @@ open class MarcelSemantic constructor(
   ): ExpressionNode? {
     val currentScopeType = currentScope.classType
     var methodResolve = methodResolver.resolveMethod(node, currentScopeType, node.value, positionalArguments, namedArguments)
-      ?: methodResolver.resolveMethodFromImports(node, node.value, positionalArguments, namedArguments)
+      ?: methodResolver.resolveMethodFromImports(node, node.value, positionalArguments, namedArguments, currentMethodScope.imports)
 
     if (methodResolve != null
       // need this especially for extensions classes to avoid referencing an instance method even though only static methods can be referenced. In this case we want the real static, not isMarcelStatic
@@ -1736,11 +1737,10 @@ open class MarcelSemantic constructor(
       , node)
     // generating method body
     val asyncMethodStatements = useScope(
-      // making inner scope because the method isn't async itself (it doesn't particularly return a Threadmill future)
-      //  but the code inside it is safe to use async features
-      MethodInnerScope(
-        parentScope = newMethodScope(asyncMethodNode),
-        isAsync = true
+      AsyncScope(
+        symbolResolver = symbolResolver,
+        method = asyncMethodNode,
+        imports = currentMethodScope.imports,
       )
     ) { asyncScope ->
       val asyncStatementBlock = visit(node.block).apply {

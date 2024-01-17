@@ -19,7 +19,6 @@ import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 class MethodResolver(
   private val symbolResolver: MarcelSymbolResolver,
   private val nodeCaster: AstNodeCaster,
-  private val imports: List<ImportNode>
 ) {
 
   fun resolveMethodOrThrow(node: CstNode, ownerType: JavaType, name: String, positionalArguments: List<ExpressionNode>,
@@ -56,7 +55,7 @@ class MethodResolver(
   }
 
   fun resolveMethodFromImports(node: CstNode, name: String, positionalArguments: List<ExpressionNode>,
-                               namedArguments: List<Pair<String, ExpressionNode>>): Pair<JavaMethod, List<ExpressionNode>>? {
+                               namedArguments: List<Pair<String, ExpressionNode>>, imports: List<ImportNode>): Pair<JavaMethod, List<ExpressionNode>>? {
     for (import in imports) {
       import as? StaticImportNode ?: continue
       val type = symbolResolver.of(import.className, emptyList(), node.token)

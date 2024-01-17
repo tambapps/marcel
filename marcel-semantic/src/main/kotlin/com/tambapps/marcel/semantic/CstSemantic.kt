@@ -54,7 +54,7 @@ interface CstSemantic {
 
   fun resolveReturnType(node: MethodCstNode): JavaType {
     val type = resolve(node.returnTypeNode)
-    return if (!node.isAsync) type else JavaType.Future.withGenericTypes(type)
+    return if (!node.isAsync) type else JavaType.Future.withGenericTypes(type.objectType)
   }
 
 }
