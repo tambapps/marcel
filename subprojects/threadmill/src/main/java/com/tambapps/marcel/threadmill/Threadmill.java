@@ -5,12 +5,17 @@ import lombok.SneakyThrows;
 import java.io.Closeable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class Threadmill {
 
@@ -41,16 +46,7 @@ public class Threadmill {
    */
   public static <T> Future<T> supplyAsync(Callable<T> callable) {
     ThredmillContext context = getCurrentContext();
-
-    return context.executorService.submit(() -> {
-      Long threadId = getCurrentThreadId();
-      CONTEXTS.put(threadId, context);
-      try {
-        return callable.call();
-      } finally {
-        CONTEXTS.remove(threadId);
-      }
-    });
+    return context.executorService.submit(callable);
   }
 
   /**
@@ -60,15 +56,67 @@ public class Threadmill {
    */
   public static Future<Void> runAsync(Runnable runnable) {
     ThredmillContext context = getCurrentContext();
-    return context.executorService.submit(() -> {
-      Long threadId = getCurrentThreadId();
-      CONTEXTS.put(threadId, context);
-      try {
-        runnable.run();
-      } finally {
-        CONTEXTS.remove(threadId);
-      }
-    }, null);
+    return context.executorService.submit(runnable, null);
+  }
+
+  /**
+   * Waits if necessary for the computation to complete, and then retrieves the Future's result
+   * @param future the future
+   * @return the result of the future
+   * @param <T> the return type of the future
+   */
+  @SneakyThrows
+  public static <T> T await(Future<T> future) {
+    try {
+      return future.get();
+    } catch (ExecutionException e) {
+      if (e.getCause() != null) throw e.getCause();
+      else throw e;
+    }
+  }
+
+  /**
+   * Waits if necessary for the computation of all Futures to complete, and then retrieves all the results into an array
+   * @param collection a collection holding futures
+   * @return all the results put into an array
+   */
+  public Object[] await(Collection<?> collection) {
+    Object[] result = new Object[collection.size()];
+    Iterator<?> iterator = collection.iterator();
+    int i = 0;
+    while (iterator.hasNext()) {
+      result[i] = await((Future<?>) iterator.next());
+
+    }
+    return result;
+  }
+
+  /**
+   * Waits if necessary for the computation of all Futures to complete, and then retrieves all the results into an array
+   * @param array an array holding futures
+   * @return all the results put into an array
+   */
+  public Object[] await(Object[] array) {
+    Object[] result = new Object[array.length];
+    for (int i = 0; i < array.length; i++) {
+      result[i] = await((Future<?>) array[i]);
+    }
+    return result;
+  }
+
+  /**
+   * Wait for all previously async tasks to complete
+   */
+  public static void await() {
+    await(1L, TimeUnit.DAYS);
+  }
+
+  @SneakyThrows
+  public static void await(long timeout, TimeUnit unit) {
+    ThredmillContext context = getCurrentContext();
+    if (!context.executorService.awaitTermination(timeout, unit)) {
+      throw new TimeoutException("Timeout while awaiting for async tasks termination");
+    }
   }
 
   private static ThredmillContext getCurrentContext() {

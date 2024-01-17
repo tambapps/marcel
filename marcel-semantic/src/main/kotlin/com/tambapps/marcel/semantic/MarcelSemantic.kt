@@ -1700,45 +1700,43 @@ open class MarcelSemantic constructor(
   }
 
   // TODO test async
+  // TODO await. Should not be a keyword. Should be a method. A method only accessible in async context
+  //  should have a await(Future) method, and a await(Future futures...)
   override fun visit(node: AsyncBlockCstNode, smartCastType: JavaType?): ExpressionNode {
     if (currentMethodScope.isAsync) {
       throw MarcelSemanticException(node, "Cannot start async context because current context is already async")
     }
-    node.block.apply {
-      if (statements.isEmpty()) {
-        throw MarcelSemanticException(node, "async block need to have at least one statements")
-      }
-      forEach {
-        if (it is ReturnCstNode) throw MarcelSemanticException(node, "Cannot have return statement in an async block")
-      }
+    if (node.block.statements.isEmpty()) {
+      throw MarcelSemanticException(node, "async block need to have at least one statements")
     }
 
     /*
      * Looking for all local variables used from cst node as we'll need to pass them to the 'when' method
      */
     val referencedLocalVariables = mutableListOf<LocalVariable>()
-    node.block.forEach {  cstNode ->
-      if (cstNode is ReferenceCstNode && currentMethodScope.hasLocalVariable(cstNode.value)) {
+    node.block.forEach { cstNode ->
+      if (cstNode is ReturnCstNode) throw MarcelSemanticException(node, "Cannot have return statement in an async block")
+      else if (cstNode is ReferenceCstNode && currentMethodScope.hasLocalVariable(cstNode.value)) {
         referencedLocalVariables.add(currentMethodScope.findLocalVariable(cstNode.value)!!)
       }
     }
+
+    /*
+     * generating method that will initialize Threadmill context, and execute the async block
+     */
     val asyncMethodParameters = mutableListOf<MethodParameter>()
     val asyncMethodArguments = mutableListOf<ReferenceNode>()
     for (lv in referencedLocalVariables) {
       asyncMethodParameters.add(MethodParameter(lv.type, lv.name, isFinal = true))
       asyncMethodArguments.add(ReferenceNode(variable = lv, token = node.token))
     }
-
-    /*
-     * generating method that will initialize Threadmill context, and execute the async block
-     */
     val asyncReturnType = smartCastType ?: JavaType.void
     val asyncMethodNode = generateOrGetMethod("__async_", asyncMethodParameters,
       returnType = if (asyncReturnType == JavaType.void) JavaType.void else JavaType.Future.withGenericTypes(asyncReturnType.objectType)
       , node)
     // generating method body
     val asyncMethodStatements = useScope(
-      // making inner scope because the method isn't async itself (it doesn't particularly returns a Threadmill future)
+      // making inner scope because the method isn't async itself (it doesn't particularly return a Threadmill future)
       //  but the code inside it is safe to use async features
       MethodInnerScope(
         parentScope = newMethodScope(asyncMethodNode),
