@@ -1776,6 +1776,7 @@ open class MarcelSemantic constructor(
           node = node,
           tryStatementNode = asyncStatementBlock,
           catchNodes = emptyList(),
+          // TODO weirdly the finally block never gets called even though the decompiled bytecode shown by intelijIJ show the opposite
           finallyNode = useInnerScope { finallyScope -> finallyCatchNode(finallyScope, ExpressionStatementNode(fCall(
             node = node,
             owner = ReferenceNode(variable = threadmillResourceVariable, token = node.token),

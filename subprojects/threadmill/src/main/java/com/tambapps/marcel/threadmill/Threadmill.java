@@ -3,6 +3,7 @@ package com.tambapps.marcel.threadmill;
 import lombok.SneakyThrows;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -15,7 +16,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class Threadmill {
 
@@ -35,6 +35,14 @@ public class Threadmill {
     return () -> {
       CONTEXTS.remove(threadId);
       context.executorService.shutdown();
+      try {
+        if (!context.executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS)) {
+          context.executorService.shutdownNow();
+        }
+      } catch (InterruptedException ex) {
+        context.executorService.shutdownNow();
+        Thread.currentThread().interrupt();
+      }
     };
   }
 
@@ -46,7 +54,9 @@ public class Threadmill {
    */
   public static <T> Future<T> supplyAsync(Callable<T> callable) {
     ThredmillContext context = getCurrentContext();
-    return context.executorService.submit(callable);
+    Future<T> future = context.executorService.submit(callable);
+    context.futures.add(future);
+    return future;
   }
 
   /**
@@ -56,7 +66,9 @@ public class Threadmill {
    */
   public static Future<Void> runAsync(Runnable runnable) {
     ThredmillContext context = getCurrentContext();
-    return context.executorService.submit(runnable, null);
+    Future<Void> future = context.executorService.submit(runnable, null);
+    context.futures.add(future);
+    return future;
   }
 
   /**
@@ -105,18 +117,14 @@ public class Threadmill {
   }
 
   /**
-   * Wait for all previously async tasks to complete
+   * Wait for all previously submitted async tasks to complete
    */
   public static void await() {
-    await(1L, TimeUnit.DAYS);
-  }
-
-  @SneakyThrows
-  public static void await(long timeout, TimeUnit unit) {
     ThredmillContext context = getCurrentContext();
-    if (!context.executorService.awaitTermination(timeout, unit)) {
-      throw new TimeoutException("Timeout while awaiting for async tasks termination");
+    for (Future<?> future : context.futures) {
+      await(future);
     }
+    context.futures.clear();
   }
 
   private static ThredmillContext getCurrentContext() {
