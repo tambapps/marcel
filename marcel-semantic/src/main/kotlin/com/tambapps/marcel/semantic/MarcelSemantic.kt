@@ -1743,6 +1743,20 @@ open class MarcelSemantic constructor(
         imports = currentMethodScope.imports,
       )
     ) { asyncScope ->
+      // initializing Threadmill context. Needs to be declared BEFORE the block as we will initialize this variable
+      // before running the block instructions
+      val threadmillResourceVariable = asyncScope.addLocalVariable(Closeable::class.javaType)
+      val resourceAssignment = VariableAssignmentNode(
+        localVariable = threadmillResourceVariable,
+        expression = fCall(
+          node = node,
+          ownerType = Threadmill::class.javaType,
+          name = "startNewContext",
+          arguments = emptyList()
+        ),
+        node = node
+      )
+
       val asyncStatementBlock = visit(node.block).apply {
         if (asyncReturnType != JavaType.void) {
           val lastStatement = statements.last()
@@ -1754,20 +1768,9 @@ open class MarcelSemantic constructor(
           statements.add(SemanticHelper.returnVoid(asyncMethodNode))
         }
       }
-      // initializing Threadmill context
-      val threadmillResourceVariable = asyncScope.addLocalVariable(Closeable::class.javaType)
       listOf(
         // Closeable context = Threadmill.startNewContext()
-        ExpressionStatementNode(VariableAssignmentNode(
-          localVariable = threadmillResourceVariable,
-          expression = fCall(
-            node = node,
-            ownerType = Threadmill::class.javaType,
-            name = "startNewContext",
-            arguments = emptyList()
-          ),
-          node = node
-        )),
+        ExpressionStatementNode(resourceAssignment),
         // try { run async block } finally { context.close() }
         TryCatchNode(
           node = node,
