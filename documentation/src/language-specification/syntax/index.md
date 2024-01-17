@@ -7,7 +7,6 @@ This chapter covers the syntax of the Marcel programming language.
 Marcel has the following keywords, which you cannot use as variable/function/fields names
 
 - async
-- await
 - int
 - dynobj
 - do
