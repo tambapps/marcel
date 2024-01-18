@@ -1733,7 +1733,7 @@ open class MarcelSemantic constructor(
     }
     val asyncReturnType = smartCastType ?: JavaType.void
     val asyncMethodNode = generateOrGetMethod("__async_", asyncMethodParameters,
-      returnType = if (asyncReturnType == JavaType.void) JavaType.void else JavaType.Future.withGenericTypes(asyncReturnType.objectType)
+      returnType = if (asyncReturnType == JavaType.void) JavaType.void else asyncReturnType.objectType
       , node)
     // generating method body
     val asyncMethodStatements = useScope(
@@ -1756,35 +1756,50 @@ open class MarcelSemantic constructor(
         ),
         node = node
       )
+      val resourceCloseStmt = ExpressionStatementNode(fCall(
+        node = node,
+        owner = ReferenceNode(variable = threadmillResourceVariable, token = node.token),
+        name = "close",
+        arguments = emptyList()
+      ))
 
-      val asyncStatementBlock = visit(node.block).apply {
+      val asyncStatementSuccessFinallyBlock: StatementNode
+      val asyncStatementTryBlock = visit(node.block).apply {
         if (asyncReturnType != JavaType.void) {
           val lastStatement = statements.last()
           lastStatement as? ExpressionStatementNode ?: throw MarcelSemanticException(lastStatement.token, "Expected an expression of type $asyncReturnType")
-          statements[statements.lastIndex] = ReturnStatementNode(
-            caster.cast(asyncReturnType, lastStatement.expressionNode)
+          val returnExpression = caster.cast(asyncReturnType, lastStatement.expressionNode)
+
+          // store return expression in local variable to be able to execute finally block
+          val returnExprLocalVariable = asyncScope.addLocalVariable(returnExpression.type)
+          statements[statements.lastIndex] = ExpressionStatementNode(
+            VariableAssignmentNode(localVariable = returnExprLocalVariable, expression = returnExpression, node = node)
           )
+          asyncStatementSuccessFinallyBlock = BlockStatementNode(mutableListOf(
+            // execute finally statement
+            resourceCloseStmt,
+            // then return value
+            ReturnStatementNode(returnExpression)
+          ), node.tokenStart, node.tokenEnd)
         } else {
-          statements.add(SemanticHelper.returnVoid(asyncMethodNode))
+          asyncStatementSuccessFinallyBlock = BlockStatementNode(mutableListOf(
+            // execute finally statement
+            resourceCloseStmt,
+            // then return value
+            SemanticHelper.returnVoid(asyncMethodNode)
+          ), node.tokenStart, node.tokenEnd)
         }
       }
       listOf(
         // Closeable context = Threadmill.startNewContext()
         ExpressionStatementNode(resourceAssignment),
-        // try { run async block } finally { context.close() }
+        // try { runAsyncBlock() } finally { context.close() }
         TryCatchNode(
           node = node,
-          tryStatementNode = asyncStatementBlock,
-          catchNodes = emptyList(),
-          // TODO weirdly the finally block never gets called even though the decompiled bytecode shown by intelijIJ show the opposite
-          finallyNode = useInnerScope { finallyScope -> finallyCatchNode(finallyScope, ExpressionStatementNode(fCall(
-            node = node,
-            owner = ReferenceNode(variable = threadmillResourceVariable, token = node.token),
-            name = "close",
-            arguments = emptyList()
-          )))
-          }
-        )
+          tryStatementNode = asyncStatementTryBlock,
+          successFinallyNode = asyncStatementSuccessFinallyBlock,
+          catchNodes = listOf(useInnerScope { finallyScope -> finallyCatchNode(finallyScope, resourceCloseStmt) }),
+          finallyNode = null),
       )
     }
     asyncMethodNode.blockStatement.addAll(asyncMethodStatements)
@@ -2168,7 +2183,7 @@ open class MarcelSemantic constructor(
       finallyCatchNode(finallyScope, finallyBlock)
     }
 
-    val tryCatchNode = TryCatchNode(node, tryBlock, catchNodes, finallyNode)
+    val tryCatchNode = TryCatchNode(node, tryBlock, TODO("implement"), catchNodes, finallyNode)
 
     if (resourceVarDecls.isEmpty()) tryCatchNode
     else {
@@ -2183,7 +2198,19 @@ open class MarcelSemantic constructor(
     }
   }
 
-  private fun finallyCatchNode(finallyScope: MethodScope, finallyBlock: StatementNode) = CatchNode(listOf(Throwable::class.javaType), finallyScope.addLocalVariable(Throwable::class.javaType), finallyBlock)
+  /**
+   * Returns the catch node for a 'finally' block. As finally doesn't explicitely exists in Java ASM, we have to execute
+   * the 'finally' block on success, and also on a dedicated catch block, and then rethrow the exception. This method is to generate
+   * the dedicated catch node of a 'finally' block
+   *
+   * @param finallyScope the 'finally' scope
+   * @param finallyBlock the 'finally' block
+   * @return the catch node for a 'finally' block
+   */
+  private fun finallyCatchNode(finallyScope: MethodScope, finallyBlock: StatementNode): CatchNode {
+    val throwableVar = finallyScope.addLocalVariable(Throwable::class.javaType)
+    return CatchNode(listOf(Throwable::class.javaType), throwableVar, finallyBlock, isFinally = true)
+  }
 
   override fun visit(node: BlockCstNode) = useInnerScope {
     val statements = blockStatements(node.statements)

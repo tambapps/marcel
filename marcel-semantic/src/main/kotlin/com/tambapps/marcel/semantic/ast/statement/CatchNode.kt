@@ -6,6 +6,7 @@ import com.tambapps.marcel.semantic.variable.LocalVariable
 class CatchNode(
   val throwableTypes: List<JavaType>,
   val throwableVariable: LocalVariable,
-  val statement: StatementNode
+  val statement: StatementNode,
+  val isFinally: Boolean = false
 ) {
 }
