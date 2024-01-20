@@ -12,7 +12,7 @@ import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNodeVisitor
 import com.tambapps.marcel.semantic.ast.statement.ThrowNode
-import com.tambapps.marcel.semantic.ast.statement.TryCatchNode
+import com.tambapps.marcel.semantic.ast.statement.TryNode
 import com.tambapps.marcel.semantic.ast.statement.WhileNode
 
 object AllPathsReturnVisitor: StatementNodeVisitor<Boolean> {
@@ -35,7 +35,7 @@ object AllPathsReturnVisitor: StatementNodeVisitor<Boolean> {
   override fun visit(node: ThrowNode) = true
   fun test(statements: List<StatementNode>) = statements.any { it.accept(this) }
 
-  override fun visit(node: TryCatchNode) =
+  override fun visit(node: TryNode) =
     node.tryStatementNode.accept(this) && (
         node.catchNodes.isEmpty() || node.catchNodes.all { it.statement.accept(this) }
       )

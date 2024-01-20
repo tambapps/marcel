@@ -4,7 +4,7 @@ import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.LocalVariable
 
-class TryCatchNode(
+class TryNode(
   node: CstNode,
   val tryStatementNode: StatementNode,
   val catchNodes: List<CatchNode>,

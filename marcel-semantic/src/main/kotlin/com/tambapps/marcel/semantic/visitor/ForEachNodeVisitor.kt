@@ -62,7 +62,7 @@ import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNodeVisitor
 import com.tambapps.marcel.semantic.ast.statement.ThrowNode
-import com.tambapps.marcel.semantic.ast.statement.TryCatchNode
+import com.tambapps.marcel.semantic.ast.statement.TryNode
 import com.tambapps.marcel.semantic.ast.statement.WhileNode
 
 class ForEachNodeVisitor(
@@ -313,7 +313,7 @@ class ForEachNodeVisitor(
     node.expressionNode.accept(this)
   }
 
-  override fun visit(node: TryCatchNode) {
+  override fun visit(node: TryNode) {
     consume(node)
     node.tryStatementNode.accept(this)
     node.catchNodes.forEach { it.statement.accept(this) }

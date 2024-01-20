@@ -15,7 +15,7 @@ import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNodeVisitor
 import com.tambapps.marcel.semantic.ast.statement.ThrowNode
-import com.tambapps.marcel.semantic.ast.statement.TryCatchNode
+import com.tambapps.marcel.semantic.ast.statement.TryNode
 import com.tambapps.marcel.semantic.ast.statement.WhileNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.type.JavaType
@@ -71,7 +71,7 @@ open class ReturningBranchTransformer(
 
   override fun visit(node: ThrowNode) = node
 
-  override fun visit(node: TryCatchNode) = invalidStatement("try/catch")
+  override fun visit(node: TryNode) = invalidStatement("try/catch")
 
   private fun invalidStatement(stmtName: String): StatementNode {
     throw MarcelSemanticException(node.token, "Cannot have a $stmtName as last statement of a when/switch branch")

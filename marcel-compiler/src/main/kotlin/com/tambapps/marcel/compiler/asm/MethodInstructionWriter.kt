@@ -60,7 +60,7 @@ import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNodeVisitor
 import com.tambapps.marcel.semantic.ast.statement.ThrowNode
-import com.tambapps.marcel.semantic.ast.statement.TryCatchNode
+import com.tambapps.marcel.semantic.ast.statement.TryNode
 import com.tambapps.marcel.semantic.ast.statement.WhileNode
 import com.tambapps.marcel.semantic.method.ReflectJavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
@@ -271,7 +271,7 @@ class MethodInstructionWriter(
    *
    * @param node the node
    */
-  override fun visit(node: TryCatchNode) {
+  override fun visit(node: TryNode) {
     label(node)
     val tryStart = Label()
     val tryEnd = Label()
@@ -299,7 +299,7 @@ class MethodInstructionWriter(
     mv.visitLabel(endLabel)
   }
 
-  private fun tryBranch(node: TryCatchNode, tryStart: Label, tryEnd: Label, endLabel: Label, finallyBlock : StatementNode?) {
+  private fun tryBranch(node: TryNode, tryStart: Label, tryEnd: Label, endLabel: Label, finallyBlock : StatementNode?) {
     mv.visitLabel(tryStart)
     node.tryStatementNode.accept(this)
     mv.visitLabel(tryEnd)
@@ -316,12 +316,12 @@ class MethodInstructionWriter(
   }
 
   private fun generateCatchLabel(
-    catchNodes: List<TryCatchNode.CatchNode>,
+    catchNodes: List<TryNode.CatchNode>,
     tryStart: Label,
     tryEnd: Label,
-    finallyWithLabel: Pair<TryCatchNode.FinallyNode, Label>? = null
-  ): Map<TryCatchNode.CatchNode, Label> {
-    val map: Map<TryCatchNode.CatchNode, Label> = catchNodes.associateBy(keySelector = { it }, valueTransform = { Label() })
+    finallyWithLabel: Pair<TryNode.FinallyNode, Label>? = null
+  ): Map<TryNode.CatchNode, Label> {
+    val map: Map<TryNode.CatchNode, Label> = catchNodes.associateBy(keySelector = { it }, valueTransform = { Label() })
     map.forEach { (node, label) ->
       node.throwableTypes.forEach { throwableType ->
         mv.visitTryCatchBlock(tryStart, tryEnd, label, throwableType.internalName)
