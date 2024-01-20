@@ -21,7 +21,6 @@ class AsyncScope(symbolResolver: MarcelSymbolResolver, method: JavaMethod, impor
     MethodScope(
       ClassScope(symbolResolver, method.ownerClass, null,
         // await methods are available in an async block
-        // TODO also put this in async method scopes
         imports = imports + listOf<ImportNode>(
           StaticImportNode(Threadmill::class.qualifiedName!!, "await")
         )

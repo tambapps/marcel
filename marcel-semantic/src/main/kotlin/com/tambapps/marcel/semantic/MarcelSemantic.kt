@@ -1699,9 +1699,6 @@ open class MarcelSemantic constructor(
     }.toMutableList()
   }
 
-  // TODO test async
-  // TODO await. Should not be a keyword. Should be a method. A method only accessible in async context
-  //  should have a await(Future) method, and a await(Future futures...)
   override fun visit(node: AsyncBlockCstNode, smartCastType: JavaType?): ExpressionNode {
     if (currentMethodScope.isAsync) {
       throw MarcelSemanticException(node, "Cannot start async context because current context is already async")
