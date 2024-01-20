@@ -42,7 +42,8 @@ cp subprojects/dumbbell-core/target/dumbbell-core-$version.jar $marcelDir/lib/du
 cp subprojects/dumbbell/target/dumbbell-$version.jar $marcelDir/lib/dumbbell.jar
 cp subprojects/marcel-repl/target/marcel-repl-$version.jar $marcelDir/lib/marcel-repl.jar
 cp subprojects/marshell/target/marshell-$version.jar $marcelDir/lib/marshell.jar
-# Marcel libs used to be included in classpath when running marcel command line tools
+cp subprojects/threadmill/target/threadmill-$version.jar $marcelDir/lib/threadmill.jar
+# Marcel libs is included in classpath when running marcel command line tools
 cp subprojects/marcel-libs/target/marcel-libs-$version-jar-with-dependencies.jar $marcelDir/lib/marcel-libs.jar
 
 ########################
