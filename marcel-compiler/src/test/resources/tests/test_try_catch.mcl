@@ -105,6 +105,49 @@ fun int returningTryFinally(int a) {
   }
 }
 
+tryCatch(1)
+assertEquals(1, tryEndCount, "try end")
+assertEquals(0, catchCount, "catch")
+assertEquals(0, finallyCount, "finally")
+
+tryCatch(0)
+assertEquals(0, tryEndCount, "try end")
+assertEquals(1, catchCount, "catch")
+assertEquals(0, finallyCount, "finally")
+
+fun void tryCatch(int a) {
+  init()
+  try {
+    int result = 100 / a
+    tryEndCount++
+  } catch (Exception e) {
+    catchCount++
+  }
+}
+
+assertEquals(0, returningTryCatch(1))
+assertEquals(1, tryEndCount, "try end")
+assertEquals(0, catchCount, "catch")
+assertEquals(0, finallyCount, "finally")
+
+assertEquals(1, returningTryCatch(0))
+assertEquals(0, tryEndCount, "try end")
+assertEquals(1, catchCount, "catch")
+assertEquals(0, finallyCount, "finally")
+
+fun int returningTryCatch(int a) {
+  init()
+  try {
+    int result = 100 / a
+    tryEndCount++
+    return 0
+  } catch (Exception e) {
+    catchCount++
+    return 1
+  }
+}
+
+
 fun void init() {
   tryEndCount = 0
   catchCount = 0
