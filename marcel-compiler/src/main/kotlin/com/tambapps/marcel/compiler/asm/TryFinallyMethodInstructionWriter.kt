@@ -80,7 +80,6 @@ class TryFinallyMethodInstructionWriter(mv: MethodVisitor, classScopeType: JavaT
   }
 
   override fun visit(node: ReturnStatementNode) {
-    if (contextQueue.isNotEmpty())
     if (contextQueue.isEmpty() || !currentContext.hasFinally) {
       super.visit(node)
       return

@@ -14,7 +14,9 @@ import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
+import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
+import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
@@ -345,5 +347,13 @@ abstract class MarcelBaseSemantic {
     lambdaClassNode.methods.add(lambdaMethod)
 
     return Triple(lambdaClassNode, lambdaMethod, NewInstanceNode(lambdaType, lambdaConstructor, constructorArguments, tokenStart))
+  }
+
+  protected fun block(vararg statements: StatementNode): BlockStatementNode {
+    return block(statements.toMutableList())
+  }
+  protected fun block(statements: List<StatementNode>): BlockStatementNode {
+    return BlockStatementNode(if (statements is MutableList) statements else statements.toMutableList(),
+      statements.firstOrNull()?.tokenStart ?: LexToken.DUMMY, statements.firstOrNull()?.tokenEnd ?: LexToken.DUMMY)
   }
 }

@@ -16,6 +16,9 @@ try {
   tryFinally(0)
   fail("Should have thrown exception")
 } catch (ArithmeticException e) {
+  assertEquals(0, tryEndCount, "try end")
+  assertEquals(0, catchCount, "catch")
+  assertEquals(1, finallyCount, "finally")
 }
 assertEquals(0, tryEndCount, "try end")
 assertEquals(0, catchCount, "catch")
@@ -72,6 +75,31 @@ fun int returningTryCatchFinally(int a) {
   } catch (Exception e) {
     catchCount++
     return 1
+  } finally {
+    finallyCount++
+  }
+}
+
+assertEquals(0, returningTryFinally(1))
+assertEquals(1, tryEndCount, "try end")
+assertEquals(0, catchCount, "catch")
+assertEquals(1, finallyCount, "finally")
+
+try {
+  returningTryFinally(0)
+  fail("Should have thrown exception")
+} catch (ArithmeticException e) {
+    assertEquals(0, tryEndCount, "try end")
+    assertEquals(0, catchCount, "catch")
+    assertEquals(1, finallyCount, "finally")
+}
+
+fun int returningTryFinally(int a) {
+  init()
+  try {
+    int result = 100 / a
+    tryEndCount++
+    return 0
   } finally {
     finallyCount++
   }

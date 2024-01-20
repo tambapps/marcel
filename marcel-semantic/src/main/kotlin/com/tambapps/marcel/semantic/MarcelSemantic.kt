@@ -1735,7 +1735,7 @@ open class MarcelSemantic constructor(
       returnType = if (asyncReturnType == JavaType.void) JavaType.void else asyncReturnType.objectType
       , node)
     // generating method body
-    val asyncMethodStatements = useScope(
+    useScope(
       AsyncScope(
         symbolResolver = symbolResolver,
         method = asyncMethodNode,
@@ -1762,49 +1762,44 @@ open class MarcelSemantic constructor(
         arguments = emptyList()
       ))
 
-      val asyncStatementSuccessFinallyBlock: StatementNode
+      // store return expression in local variable to be able to execute finally block
+      val returnValueVar = if (asyncReturnType != JavaType.void) asyncScope.addLocalVariable(asyncMethodNode.returnType)
+      else null
       val asyncStatementTryBlock = visit(node.block).apply {
         if (asyncReturnType != JavaType.void) {
           val lastStatement = statements.last()
           lastStatement as? ExpressionStatementNode ?: throw MarcelSemanticException(lastStatement.token, "Expected an expression of type $asyncReturnType")
-          val returnExpression = caster.cast(asyncReturnType, lastStatement.expressionNode)
-
-          // store return expression in local variable to be able to execute finally block
-          val returnExprLocalVariable = asyncScope.addLocalVariable(returnExpression.type)
           statements[statements.lastIndex] = ExpressionStatementNode(
-            VariableAssignmentNode(localVariable = returnExprLocalVariable, expression = returnExpression, node = node)
+            VariableAssignmentNode(
+              localVariable = returnValueVar!!,
+              expression = caster.cast(asyncReturnType, lastStatement.expressionNode),
+              node = node
+            )
           )
-          asyncStatementSuccessFinallyBlock = BlockStatementNode(mutableListOf(
-            // execute finally statement
-            resourceCloseStmt,
-            // then return value
-            ReturnStatementNode(returnExpression)
-          ), node.tokenStart, node.tokenEnd)
         } else {
-          asyncStatementSuccessFinallyBlock = BlockStatementNode(mutableListOf(
-            // execute finally statement
-            resourceCloseStmt,
-            // then return value
-            SemanticHelper.returnVoid(asyncMethodNode)
-          ), node.tokenStart, node.tokenEnd)
+          statements.add(SemanticHelper.returnVoid(asyncMethodNode))
         }
       }
-      listOf(
-        // Closeable context = Threadmill.startNewContext()
-        ExpressionStatementNode(resourceAssignment),
-        // try { runAsyncBlock() } finally { context.close() }
-        // TODO review this. it doesn't work anymore since try/catch changes
-        TryNode(
-          node = node,
-          tryStatementNode = asyncStatementTryBlock,
-          // TODO
-     //     successFinallyNode = asyncStatementSuccessFinallyBlock,
-         // catchNodes = listOf(useInnerScope { finallyScope -> finallyCatchNode(finallyScope, resourceCloseStmt) }),
-          catchNodes = emptyList(),
-          finallyNode = null),
+      asyncMethodNode.blockStatement.addAll(
+        listOf(
+          // Closeable context = Threadmill.startNewContext()
+          ExpressionStatementNode(resourceAssignment),
+          // try { runAsyncBlock() } finally { context.close() }
+          TryNode(
+            node = node,
+            tryStatementNode = asyncStatementTryBlock,
+            catchNodes = emptyList(),
+            finallyNode =
+            useInnerScope { finallyScope -> TryNode.FinallyNode(
+              finallyScope.addLocalVariable(Throwable::class.javaType)
+              , block(resourceCloseStmt), returnValueVar) }
+          )
+        )
       )
+      if (asyncReturnType == JavaType.void) {
+        asyncMethodNode.blockStatement.add(SemanticHelper.returnVoid(asyncMethodNode))
+      }
     }
-    asyncMethodNode.blockStatement.addAll(asyncMethodStatements)
     return fCall(node = node, owner = ThisReferenceNode(currentScope.classType, node.token), method = asyncMethodNode, arguments = asyncMethodArguments)
   }
 
@@ -2147,6 +2142,10 @@ open class MarcelSemantic constructor(
 
     // will be needed for later, to run the finally statements and then return the value stored in this variable
     val hasReturnStatements = node.any { it is ReturnCstNode }
+    if (hasReturnStatements && node.finallyNode != null && node.any { it is ReturnCstNode && it.expressionNode == null}) {
+      // yup. throw error in this case because I don't know how to properly handle 'finally' block otherwise.
+      throw MarcelSemanticException(node.token, "Cannot have void return statement in a try with a finally block")
+    }
     val returnValueVar = if (hasReturnStatements) resourcesScope.addLocalVariable(resourcesScope.method.returnType)
     else null
 

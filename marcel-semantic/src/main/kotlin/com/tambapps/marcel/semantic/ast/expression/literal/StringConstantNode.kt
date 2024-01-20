@@ -17,7 +17,7 @@ class StringConstantNode(
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) = visitor.visit(this)
 
   override fun toString(): String {
-    return "\"value\""
+    return "\"$value\""
   }
 
   override fun equals(other: Any?): Boolean {
