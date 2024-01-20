@@ -126,7 +126,6 @@ import com.tambapps.marcel.semantic.ast.expression.operator.OrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
 import com.tambapps.marcel.semantic.ast.statement.BreakNode
-import com.tambapps.marcel.semantic.ast.statement.CatchNode
 import com.tambapps.marcel.semantic.ast.statement.ContinueNode
 import com.tambapps.marcel.semantic.ast.statement.DoWhileNode
 import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
@@ -1794,11 +1793,14 @@ open class MarcelSemantic constructor(
         // Closeable context = Threadmill.startNewContext()
         ExpressionStatementNode(resourceAssignment),
         // try { runAsyncBlock() } finally { context.close() }
+        // TODO review this. it doesn't work anymore since try/catch changes
         TryCatchNode(
           node = node,
           tryStatementNode = asyncStatementTryBlock,
-          successFinallyNode = asyncStatementSuccessFinallyBlock,
-          catchNodes = listOf(useInnerScope { finallyScope -> finallyCatchNode(finallyScope, resourceCloseStmt) }),
+          // TODO
+     //     successFinallyNode = asyncStatementSuccessFinallyBlock,
+         // catchNodes = listOf(useInnerScope { finallyScope -> finallyCatchNode(finallyScope, resourceCloseStmt) }),
+          catchNodes = emptyList(),
           finallyNode = null),
       )
     }
@@ -2159,12 +2161,14 @@ open class MarcelSemantic constructor(
         val v = catchScope.addLocalVariable(JavaType.commonType(throwableTypes), triple.second)
         Pair(v, triple.third.accept(this))
       }
-      CatchNode(throwableTypes, throwableVar, catchStatement)
+      TryCatchNode.CatchNode(throwableTypes, throwableVar, catchStatement)
     }
 
     // handle finally block
     val finallyNode = if (node.finallyNode == null && node.resources.isEmpty()) null
     else useScope(CatchBlockScope(resourcesScope, resourceVarNames)) { finallyScope ->
+      finallyScope.addLocalVariable(Throwable::class.javaType)
+      val throwableVar = finallyScope.addLocalVariable(Throwable::class.javaType)
       val finallyBlock = BlockStatementNode(mutableListOf(), node.finallyNode?.tokenStart ?: node.tokenStart,
         node.finallyNode?.tokenEnd ?: node.tokenEnd)
       // dispose the resources first, if any
@@ -2180,10 +2184,10 @@ open class MarcelSemantic constructor(
 
       // then do the finally-block
       node.finallyNode?.let { finallyBlock.statements.add(it.accept(this)) }
-      finallyCatchNode(finallyScope, finallyBlock)
+      TryCatchNode.FinallyNode(throwableVar, finallyBlock)
     }
 
-    val tryCatchNode = TryCatchNode(node, tryBlock, TODO("implement"), catchNodes, finallyNode)
+    val tryCatchNode = TryCatchNode(node, tryBlock, catchNodes, finallyNode)
 
     if (resourceVarDecls.isEmpty()) tryCatchNode
     else {
@@ -2207,9 +2211,10 @@ open class MarcelSemantic constructor(
    * @param finallyBlock the 'finally' block
    * @return the catch node for a 'finally' block
    */
-  private fun finallyCatchNode(finallyScope: MethodScope, finallyBlock: StatementNode): CatchNode {
+  // TODO remove this method. it is bad because it declares the throwableVar AFTER having semantically generated the finallyBlockStatement
+  private fun finallyCatchNode(finallyScope: MethodScope, finallyBlock: StatementNode): TryCatchNode.FinallyNode {
     val throwableVar = finallyScope.addLocalVariable(Throwable::class.javaType)
-    return CatchNode(listOf(Throwable::class.javaType), throwableVar, finallyBlock, isFinally = true)
+    return TryCatchNode.FinallyNode(throwableVar, finallyBlock)
   }
 
   override fun visit(node: BlockCstNode) = useInnerScope {

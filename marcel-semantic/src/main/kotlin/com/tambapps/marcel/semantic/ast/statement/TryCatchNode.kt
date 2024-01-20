@@ -1,17 +1,25 @@
 package com.tambapps.marcel.semantic.ast.statement
 
 import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.variable.LocalVariable
 
 class TryCatchNode(
   node: CstNode,
   val tryStatementNode: StatementNode,
-  // TODO use below
-  // the finally statement to execute at the end of the try block but for which we don't catch exceptions
-  val successFinallyNode: StatementNode?,
   val catchNodes: List<CatchNode>,
-  val finallyNode: CatchNode?, // TODO remove finallyNode. asm only support try/catch
+  val finallyNode: FinallyNode?,
 
   ) : AbstractStatementNode(node) {
+  data class CatchNode(
+    val throwableTypes: List<JavaType>,
+    val throwableVariable: LocalVariable,
+    val statement: StatementNode,
+  )
+
+  data class FinallyNode(
+    val throwableVariable: LocalVariable,
+    val statement: StatementNode,)
 
   override fun <T> accept(visitor: StatementNodeVisitor<T>) = visitor.visit(this)
 

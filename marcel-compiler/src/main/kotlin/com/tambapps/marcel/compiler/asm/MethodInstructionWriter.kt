@@ -52,7 +52,6 @@ import com.tambapps.marcel.semantic.ast.expression.operator.OrNode
 import com.tambapps.marcel.semantic.ast.expression.operator.PlusNode
 import com.tambapps.marcel.semantic.ast.expression.operator.RightShiftNode
 import com.tambapps.marcel.semantic.ast.statement.BreakNode
-import com.tambapps.marcel.semantic.ast.statement.CatchNode
 import com.tambapps.marcel.semantic.ast.statement.ContinueNode
 import com.tambapps.marcel.semantic.ast.statement.DoWhileNode
 import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
@@ -264,101 +263,50 @@ class MethodInstructionWriter(
     mv.visitJumpInsn(Opcodes.GOTO, currentLoopContext.continueLabel)
   }
 
+  /**
+   * Writes TryCatchNode. Java ASM does not have explicit support for finnally block, that is why we do some tricks
+   * (that even the Java compiler does) to implement finally.
+   * 'Finally' instructions are duplicated in the code, at the end of the try block, at the end of each catch block, and in a
+   * special catch block that catches everything, run the 'finally' statement and rethrow the exception
+   *
+   * @param node the node
+   */
   override fun visit(node: TryCatchNode) {
     label(node)
-    if (node.finallyNode == null) {
-      tryCatch(node)
-    } else if (node.catchNodes.isEmpty()) {
-      tryFinally(node)
-    } else {
-      tryCatchFinally(node)
-    }
-  }
-
-  private fun tryCatchFinally(node: TryCatchNode) {
-    // TODO bytecode looks weird but it seems to work
     val tryStart = Label()
     val tryEnd = Label()
-    val finallyLabel = Label()
     val endLabel = Label()
-
     val catchNodes = node.catchNodes
-    val catchLabelMap = generateCatchLabel(catchNodes, tryStart, tryEnd)
-    val finallyNode = node.finallyNode!!
+    val finallyCatchWithLabel = node.finallyNode?.let { it to Label() }
+    val catchLabelMap = generateCatchLabel(catchNodes, tryStart, tryEnd, finallyCatchWithLabel)
 
-    mv.visitTryCatchBlock(tryStart, tryEnd, finallyLabel, null)
-
-    tryBranch(node, tryStart, tryEnd, endLabel)
+    tryBranch(node, tryStart, tryEnd, endLabel, finallyCatchWithLabel?.first?.statement)
 
     catchNodes.forEach { catchNode ->
       catchBlock(catchNode.throwableVariable, catchLabelMap.getValue(catchNode))
       catchNode.statement.accept(this)
-
-      finallyNode.statement.accept(this)
-
+      finallyCatchWithLabel?.first?.statement?.accept(this)
       mv.visitJumpInsn(Opcodes.GOTO, endLabel)
     }
 
-    handleFinally(node.finallyNode!!, finallyLabel, endLabel)
-  }
-
-  // TODO delete tryFinally and tryCatchFinally functions
-  private fun tryCatch(node: TryCatchNode) {
-    val tryStart = Label()
-    val tryEnd = Label()
-    val endLabel = Label()
-    val catchNodes = node.catchNodes
-    val catchLabelMap = generateCatchLabel(catchNodes, tryStart, tryEnd)
-
-    tryBranch(node, tryStart, tryEnd, endLabel)
-
-    catchNodes.forEach { catchNode ->
-      catchBlock(catchNode.throwableVariable, catchLabelMap.getValue(catchNode))
-      catchNode.statement.accept(this)
-      if (catchNode.isFinally) {
-        catchNode.throwableVariable.accept(loadVariableVisitor)
-        mv.visitInsn(Opcodes.ATHROW)
-      } else {
-        mv.visitJumpInsn(Opcodes.GOTO, endLabel)
-      }
+    // catch everything, run finally and rethrow
+    finallyCatchWithLabel?.let {
+      catchBlock(it.first.throwableVariable, it.second)
+      it.first.statement.accept(this)
+      it.first.throwableVariable.accept(loadVariableVisitor)
+      mv.visitInsn(Opcodes.ATHROW)
     }
     mv.visitLabel(endLabel)
   }
 
-  private fun tryFinally(node: TryCatchNode) {
-    val tryStart = Label()
-    val tryEnd = Label()
-    val finallyLabel = Label()
-    val endLabel = Label()
-
-    mv.visitTryCatchBlock(tryStart, tryEnd, finallyLabel, null)
-
-    // TODO need to repeat finally statement in try block.
-    //  also in semantic need to place finally statement before return statement but after having evaluated return value
-    //  (store value in local variable, execute finally block, then return local variable)
-    //   even java compiler does this way
-
-    tryBranch(node, tryStart, tryEnd, endLabel)
-
-    handleFinally(node.finallyNode!!, finallyLabel, endLabel)
-  }
-
-  private fun handleFinally(finallyNode: CatchNode, finallyLabel: Label, endLabel: Label) {
-    val throwableVar = finallyNode.throwableVariable
-    catchBlock(throwableVar, finallyLabel)
-    finallyNode.statement.accept(this)
-    throwableVar.accept(loadVariableVisitor)
-    mv.visitInsn(Opcodes.ATHROW)
-    mv.visitJumpInsn(Opcodes.GOTO, endLabel)
-
-    mv.visitLabel(endLabel)
-  }
-
-  private fun tryBranch(node: TryCatchNode, tryStart: Label, tryEnd: Label, endLabel: Label) {
+  private fun tryBranch(node: TryCatchNode, tryStart: Label, tryEnd: Label, endLabel: Label, finallyBlock : StatementNode?) {
     mv.visitLabel(tryStart)
     node.tryStatementNode.accept(this)
     mv.visitLabel(tryEnd)
-    node.successFinallyNode?.accept(this)
+    if (finallyBlock != null) {
+      finallyBlock.accept(this)
+      // TODO here use the local variable for returning type if any
+    }
     mv.visitJumpInsn(Opcodes.GOTO, endLabel)
   }
 
@@ -367,16 +315,20 @@ class MethodInstructionWriter(
     mv.visitVarInsn(Opcodes.ASTORE, throwableVariable.index)
   }
 
-  private fun generateCatchLabel(catchNodes: List<CatchNode>, tryStart: Label, tryEnd: Label): Map<CatchNode, Label> {
-    val map: Map<CatchNode, Label> = catchNodes.associateBy(keySelector = { it }, valueTransform = { Label() })
+  private fun generateCatchLabel(
+    catchNodes: List<TryCatchNode.CatchNode>,
+    tryStart: Label,
+    tryEnd: Label,
+    finallyWithLabel: Pair<TryCatchNode.FinallyNode, Label>? = null
+  ): Map<TryCatchNode.CatchNode, Label> {
+    val map: Map<TryCatchNode.CatchNode, Label> = catchNodes.associateBy(keySelector = { it }, valueTransform = { Label() })
     map.forEach { (node, label) ->
-      if (node.isFinally) {
-        mv.visitTryCatchBlock(tryStart, tryEnd, label, null)
-      } else {
-        node.throwableTypes.forEach { throwableType ->
-          mv.visitTryCatchBlock(tryStart, tryEnd, label, throwableType.internalName)
-        }
+      node.throwableTypes.forEach { throwableType ->
+        mv.visitTryCatchBlock(tryStart, tryEnd, label, throwableType.internalName)
       }
+    }
+    finallyWithLabel?.let {
+      mv.visitTryCatchBlock(tryStart, tryEnd, it.second, null)
     }
     return map
   }
