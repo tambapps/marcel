@@ -2145,6 +2145,11 @@ open class MarcelSemantic constructor(
       .map { it.variable.name }
       .toSet()
 
+    // will be needed for later, to run the finally statements and then return the value stored in this variable
+    val hasReturnStatements = node.any { it is ReturnCstNode }
+    val returnValueVar = if (hasReturnStatements) resourcesScope.addLocalVariable(resourcesScope.method.returnType)
+    else null
+
     // handle try block
     val tryBlock = useInnerScope { node.tryNode.accept(this) }
 
@@ -2184,10 +2189,15 @@ open class MarcelSemantic constructor(
 
       // then do the finally-block
       node.finallyNode?.let { finallyBlock.statements.add(it.accept(this)) }
-      TryNode.FinallyNode(throwableVar, finallyBlock)
+      TryNode.FinallyNode(throwableVar, finallyBlock, returnValueVar)
     }
 
     val tryCatchNode = TryNode(node, tryBlock, catchNodes, finallyNode)
+
+    if (hasReturnStatements && node.finallyNode != null && !AllPathsReturnVisitor.test(tryCatchNode)) {
+      // yup. throw error in this case because I don't know how to properly handle 'finally' block otherwise.
+      throw MarcelSemanticException(tryBlock.token, "All paths of the try/catch block need to return if there is at least one return in this statement block")
+    }
 
     if (resourceVarDecls.isEmpty()) tryCatchNode
     else {
@@ -2200,21 +2210,6 @@ open class MarcelSemantic constructor(
       statements.add(tryCatchNode)
       BlockStatementNode(statements, node.tokenStart, node.tokenEnd)
     }
-  }
-
-  /**
-   * Returns the catch node for a 'finally' block. As finally doesn't explicitely exists in Java ASM, we have to execute
-   * the 'finally' block on success, and also on a dedicated catch block, and then rethrow the exception. This method is to generate
-   * the dedicated catch node of a 'finally' block
-   *
-   * @param finallyScope the 'finally' scope
-   * @param finallyBlock the 'finally' block
-   * @return the catch node for a 'finally' block
-   */
-  // TODO remove this method. it is bad because it declares the throwableVar AFTER having semantically generated the finallyBlockStatement
-  private fun finallyCatchNode(finallyScope: MethodScope, finallyBlock: StatementNode): TryNode.FinallyNode {
-    val throwableVar = finallyScope.addLocalVariable(Throwable::class.javaType)
-    return TryNode.FinallyNode(throwableVar, finallyBlock)
   }
 
   override fun visit(node: BlockCstNode) = useInnerScope {

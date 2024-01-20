@@ -300,13 +300,9 @@ class ForEachNodeVisitor(
     node.bodyStatement.accept(this)
   }
 
-  override fun visit(node: BreakNode) {
-    consume(node)
-  }
+  override fun visit(node: BreakNode) = consume(node)
 
-  override fun visit(node: ContinueNode) {
-    consume(node)
-  }
+  override fun visit(node: ContinueNode) = consume(node)
 
   override fun visit(node: ThrowNode) {
     consume(node)

@@ -34,6 +34,7 @@ object AllPathsReturnVisitor: StatementNodeVisitor<Boolean> {
   override fun visit(node: DoWhileNode) = false
   override fun visit(node: ThrowNode) = true
   fun test(statements: List<StatementNode>) = statements.any { it.accept(this) }
+  fun test(statement: StatementNode) = statement.accept(this)
 
   override fun visit(node: TryNode) =
     node.tryStatementNode.accept(this) && (

@@ -35,7 +35,7 @@ import java.lang.StringBuilder
 
 sealed class MethodExpressionWriter(
   protected val mv: MethodVisitor,
-  classScopeType: JavaType
+  protected val classScopeType: JavaType
 ): ExpressionNodeVisitor<Unit> {
 
   private companion object {

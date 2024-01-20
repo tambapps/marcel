@@ -10,7 +10,7 @@ class ForInIteratorStatementNode(
   val iteratorVariable: LocalVariable,
   val iteratorExpression: ExpressionNode,
   val nextMethodCall: ExpressionNode,
-  val bodyStatement: StatementNode
+  var bodyStatement: StatementNode
 ) : AbstractStatementNode(node) {
   override fun <T> accept(visitor: StatementNodeVisitor<T>) = visitor.visit(this)
 }

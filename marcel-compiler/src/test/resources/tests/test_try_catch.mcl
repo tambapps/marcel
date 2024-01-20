@@ -21,7 +21,15 @@ assertEquals(0, tryEndCount, "try end")
 assertEquals(0, catchCount, "catch")
 assertEquals(1, finallyCount, "finally")
 
-
+fun void tryFinally(int a) {
+  init()
+  try {
+    int result = 100 / a
+    tryEndCount++
+  } finally {
+    finallyCount++
+  }
+}
 
 tryCatchFinally(1)
 assertEquals(1, tryEndCount, "try end")
@@ -32,12 +40,6 @@ tryCatchFinally(0)
 assertEquals(0, tryEndCount, "try end")
 assertEquals(1, catchCount, "catch")
 assertEquals(1, finallyCount, "finally")
-
-fun void init() {
-  tryEndCount = 0
-  catchCount = 0
-  finallyCount = 0
-}
 
 fun void tryCatchFinally(int a) {
   init()
@@ -51,12 +53,32 @@ fun void tryCatchFinally(int a) {
   }
 }
 
-fun void tryFinally(int a) {
+assertEquals(0, returningTryCatchFinally(1))
+assertEquals(1, tryEndCount, "try end")
+assertEquals(0, catchCount, "catch")
+assertEquals(1, finallyCount, "finally")
+
+assertEquals(1, returningTryCatchFinally(0))
+assertEquals(0, tryEndCount, "try end")
+assertEquals(1, catchCount, "catch")
+assertEquals(1, finallyCount, "finally")
+
+fun int returningTryCatchFinally(int a) {
   init()
   try {
     int result = 100 / a
     tryEndCount++
+    return 0
+  } catch (Exception e) {
+    catchCount++
+    return 1
   } finally {
     finallyCount++
   }
+}
+
+fun void init() {
+  tryEndCount = 0
+  catchCount = 0
+  finallyCount = 0
 }

@@ -6,7 +6,7 @@ import com.tambapps.marcel.semantic.variable.LocalVariable
 
 class TryNode(
   node: CstNode,
-  val tryStatementNode: StatementNode,
+  var tryStatementNode: StatementNode,
   val catchNodes: List<CatchNode>,
   val finallyNode: FinallyNode?,
 
@@ -14,12 +14,14 @@ class TryNode(
   data class CatchNode(
     val throwableTypes: List<JavaType>,
     val throwableVariable: LocalVariable,
-    val statement: StatementNode,
+    var statement: StatementNode,
   )
 
   data class FinallyNode(
     val throwableVariable: LocalVariable,
-    val statement: StatementNode,)
+    var statement: BlockStatementNode,
+    val returnVariable: LocalVariable?,
+    )
 
   override fun <T> accept(visitor: StatementNodeVisitor<T>) = visitor.visit(this)
 

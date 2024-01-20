@@ -1,7 +1,6 @@
 package com.tambapps.marcel.compiler.asm
 
 import com.tambapps.marcel.compiler.extensions.addCode
-import com.tambapps.marcel.compiler.extensions.internalName
 import com.tambapps.marcel.compiler.extensions.returnCode
 import com.tambapps.marcel.compiler.extensions.visitMethodInsn
 import com.tambapps.marcel.semantic.ast.AstNode
@@ -57,7 +56,6 @@ import com.tambapps.marcel.semantic.ast.statement.DoWhileNode
 import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ForStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
-import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNodeVisitor
 import com.tambapps.marcel.semantic.ast.statement.ThrowNode
 import com.tambapps.marcel.semantic.ast.statement.TryNode
@@ -70,7 +68,7 @@ import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import java.util.LinkedList
 
-class MethodInstructionWriter(
+open class MethodInstructionWriter(
   mv: MethodVisitor, classScopeType: JavaType
 ): MethodExpressionWriter(mv, classScopeType), StatementNodeVisitor<Unit> {
 
@@ -263,81 +261,13 @@ class MethodInstructionWriter(
     mv.visitJumpInsn(Opcodes.GOTO, currentLoopContext.continueLabel)
   }
 
-  /**
-   * Writes TryCatchNode. Java ASM does not have explicit support for finnally block, that is why we do some tricks
-   * (that even the Java compiler does) to implement finally.
-   * 'Finally' instructions are duplicated in the code, at the end of the try block, at the end of each catch block, and in a
-   * special catch block that catches everything, run the 'finally' statement and rethrow the exception
-   *
-   * @param node the node
-   */
-  override fun visit(node: TryNode) {
-    label(node)
-    val tryStart = Label()
-    val tryEnd = Label()
-    val endLabel = Label()
-    val catchNodes = node.catchNodes
-    val finallyCatchWithLabel = node.finallyNode?.let { it to Label() }
-    val catchLabelMap = generateCatchLabel(catchNodes, tryStart, tryEnd, finallyCatchWithLabel)
-
-    tryBranch(node, tryStart, tryEnd, endLabel, finallyCatchWithLabel?.first?.statement)
-
-    catchNodes.forEach { catchNode ->
-      catchBlock(catchNode.throwableVariable, catchLabelMap.getValue(catchNode))
-      catchNode.statement.accept(this)
-      finallyCatchWithLabel?.first?.statement?.accept(this)
-      mv.visitJumpInsn(Opcodes.GOTO, endLabel)
-    }
-
-    // catch everything, run finally and rethrow
-    finallyCatchWithLabel?.let {
-      catchBlock(it.first.throwableVariable, it.second)
-      it.first.statement.accept(this)
-      it.first.throwableVariable.accept(loadVariableVisitor)
-      mv.visitInsn(Opcodes.ATHROW)
-    }
-    mv.visitLabel(endLabel)
-  }
-
-  private fun tryBranch(node: TryNode, tryStart: Label, tryEnd: Label, endLabel: Label, finallyBlock : StatementNode?) {
-    mv.visitLabel(tryStart)
-    node.tryStatementNode.accept(this)
-    mv.visitLabel(tryEnd)
-    if (finallyBlock != null) {
-      finallyBlock.accept(this)
-      // TODO here use the local variable for returning type if any
-    }
-    mv.visitJumpInsn(Opcodes.GOTO, endLabel)
-  }
-
-  private fun catchBlock(throwableVariable: LocalVariable, label: Label) {
-    mv.visitLabel(label)
-    mv.visitVarInsn(Opcodes.ASTORE, throwableVariable.index)
-  }
-
-  private fun generateCatchLabel(
-    catchNodes: List<TryNode.CatchNode>,
-    tryStart: Label,
-    tryEnd: Label,
-    finallyWithLabel: Pair<TryNode.FinallyNode, Label>? = null
-  ): Map<TryNode.CatchNode, Label> {
-    val map: Map<TryNode.CatchNode, Label> = catchNodes.associateBy(keySelector = { it }, valueTransform = { Label() })
-    map.forEach { (node, label) ->
-      node.throwableTypes.forEach { throwableType ->
-        mv.visitTryCatchBlock(tryStart, tryEnd, label, throwableType.internalName)
-      }
-    }
-    finallyWithLabel?.let {
-      mv.visitTryCatchBlock(tryStart, tryEnd, it.second, null)
-    }
-    return map
-  }
+  override fun visit(node: TryNode) = TryFinallyMethodInstructionWriter(mv, classScopeType).visit(node)
 
   /**
    * Add line number to bytecode, so that it can be displayed when an exception occured.
    * Only useful for statements
    */
-  private fun label(node: AstNode) = Label().apply {
+  protected fun label(node: AstNode) = Label().apply {
     mv.visitLabel(this)
     mv.visitLineNumber(node.token.line + 1, this)
   }

@@ -1,6 +1,7 @@
 package com.tambapps.marcel.parser.cst.statement
 
 import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.parser.cst.visitor.AnyStatementCstNodeVisitor
 import com.tambapps.marcel.parser.cst.visitor.ForEachNodeVisitor
 
 /**
@@ -11,5 +12,7 @@ interface StatementCstNode: CstNode {
   fun <T> accept(visitor: StatementCstNodeVisitor<T>): T
 
   fun forEach(consume: (CstNode) -> Unit) = accept(ForEachNodeVisitor(consume))
+
+  fun any(predicate: (StatementCstNode) -> Boolean) = accept(AnyStatementCstNodeVisitor(predicate))
 
 }

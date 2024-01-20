@@ -8,7 +8,7 @@ class ForStatementNode(
   val initStatement: StatementNode,
   val condition: ExpressionNode,
   val iteratorStatement: StatementNode,
-  val bodyStatement: StatementNode
+  var bodyStatement: StatementNode
 ) : AbstractStatementNode(node) {
   override fun <T> accept(visitor: StatementNodeVisitor<T>) = visitor.visit(this)
 }
