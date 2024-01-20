@@ -24,6 +24,7 @@ hljs.registerLanguage("marcel", function () {
             "new",
             "import",
             "as",
+            "async",
             "inline",
             "static",
             "for",

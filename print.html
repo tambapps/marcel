@@ -1607,14 +1607,33 @@ fun void computeInBackground() {
 <p>An <code>async</code> code block is a block in which you can perform async operations</p>
 <pre><code class="language-marcel">async fun int doCompute() -&gt; 1
 
-fun Future computeInBackground() {
+fun int computeInBackground() {
   return async {
-    int result = await doCompute()
+    int result = await(doCompute())
     result
   }
 }
 </code></pre>
-<p><code>async</code> blocks return a Future whose type is based on the last statement of the block. In the above example, a <code>Future&lt;Integer&gt;</code>.</p>
+<p><code>async</code> blocks will always wait (at the end) for all asynchronous tasks to complete.
+Although this is done automatically, you can also do it manually with the <code>await</code> function.</p>
+<h2 id="await-1"><a class="header" href="#await-1">await</a></h2>
+<p>Await is (a set of) static methods that you can use in <code>async</code> contexts.</p>
+<h2 id="await-2"><a class="header" href="#await-2">await()</a></h2>
+<p>Awaits for all asynchronous tasks to complete.</p>
+<h2 id="awaitfuture"><a class="header" href="#awaitfuture">await(Future)</a></h2>
+<p>Awaits for a particular asynchronous task to complete.</p>
+<h2 id="awaitcollection-awaitobject"><a class="header" href="#awaitcollection-awaitobject">await(Collection), await(Object[])</a></h2>
+<p>Awaits for a collection/array of asynchronous tasks to complete.</p>
+<h2 id="awaitawaitprogresslistener"><a class="header" href="#awaitawaitprogresslistener">await(AwaitProgressListener)</a></h2>
+<p>Awaits using the provider lambda to listen to progress update.
+E.g.</p>
+<pre><code class="language-marcel">async {
+  doCompute()
+  await { int completedTasks, int total -&gt; 
+    print(&quot;\rComputed $completedTasks out of $total configurations&quot;)
+  }
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="tutorials"><a class="header" href="#tutorials">Tutorials</a></h1>
 <p>In this section, you'll find all sort of tutorials explaining
 how to implement a given pattern (or play with a given feature) in Marcel.</p>
