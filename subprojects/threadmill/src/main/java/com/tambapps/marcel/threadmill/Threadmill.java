@@ -16,6 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.function.IntConsumer;
 
 public class Threadmill {
 
@@ -123,6 +124,17 @@ public class Threadmill {
     ThredmillContext context = getCurrentContext();
     for (Future<?> future : context.futures) {
       await(future);
+    }
+    context.futures.clear();
+  }
+
+  public static void await(AwaitProgressListener listener) {
+    ThredmillContext context = getCurrentContext();
+    int size = context.futures.size();
+    listener.onProgress(0, size);
+    for (int i = 0; i < size; i++) {
+      await(context.futures.get(i));
+      listener.onProgress(i + 1, size);
     }
     context.futures.clear();
   }
