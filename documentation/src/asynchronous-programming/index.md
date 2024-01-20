@@ -42,12 +42,40 @@ An `async` code block is a block in which you can perform async operations
 ```marcel
 async fun int doCompute() -> 1
 
-fun Future computeInBackground() {
+fun int computeInBackground() {
   return async {
-    int result = await doCompute()
+    int result = await(doCompute())
     result
   }
 }
 ```
 
-`async` blocks return a Future whose type is based on the last statement of the block. In the above example, a `Future<Integer>`.
+`async` blocks will always wait (at the end) for all asynchronous tasks to complete.
+Although this is done automatically, you can also do it manually with the `await` function.
+
+## await
+
+Await is (a set of) static methods that you can use in `async` contexts.
+
+
+## await()
+Awaits for all asynchronous tasks to complete.
+
+## await(Future)
+Awaits for a particular asynchronous task to complete.
+
+## await(Collection), await(Object[])
+Awaits for a collection/array of asynchronous tasks to complete.
+
+
+## await(AwaitProgressListener)
+Awaits using the provider lambda to listen to progress update.
+E.g.
+```marcel
+async {
+  doCompute()
+  await { int completedTasks, int total -> 
+    print("\rComputed $completedTasks out of $total configurations")
+  }
+}
+```
