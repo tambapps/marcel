@@ -12,7 +12,6 @@ import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ShortConstantNode
-import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import marcel.lang.lambda.Lambda
 import marcel.lang.primitives.collections.CharCollection
 import marcel.lang.primitives.collections.DoubleCollection
@@ -130,24 +129,7 @@ interface JavaType: JavaTyped {
   val isPrimitiveObjectType get() = PRIMITIVES.any { it.objectType == this }
   val isPrimitiveOrObjectPrimitive get() = primitive || isPrimitiveObjectType
 
-  val arrayType: JavaArrayType get() {
-    if (primitive) {
-      return when (this) {
-        int -> intArray
-        long -> longArray
-        float -> floatArray
-        double -> doubleArray
-        boolean -> booleanArray
-        char -> charArray
-        byte -> byteArray
-        short -> shortArray
-        else -> throw MarcelSemanticException(LexToken.DUMMY, "Doesn't handle primitive $this arrays")
-      }
-    }
-    // this is the only way to get the array class of a class, pre java 12
-    return if (this.isLoaded) LoadedJavaArrayType(java.lang.reflect.Array.newInstance(this.realClazz, 0).javaClass)
-    else SourceJavaArrayType(this)
-  }
+  val arrayType: JavaArrayType
 
   /**
    * Returns the array type top of n [dimensions] of this type

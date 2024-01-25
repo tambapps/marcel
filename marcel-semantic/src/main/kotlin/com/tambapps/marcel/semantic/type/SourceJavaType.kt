@@ -45,6 +45,8 @@ open class SourceJavaType internal constructor(
       return allInterfaces
     }
 
+  override val arrayType: JavaArrayType
+    get() = SourceJavaArrayType(this)
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
     throw UnsupportedOperationException("Doesn't support generics for marcel classes")
   }

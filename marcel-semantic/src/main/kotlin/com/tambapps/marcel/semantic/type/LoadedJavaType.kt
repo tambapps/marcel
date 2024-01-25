@@ -41,6 +41,10 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
       return _interfaces!!
     }
 
+  // this is the only way to get the array class of a class, pre java 12
+  override val arrayType: JavaArrayType
+    get() = LoadedJavaArrayType(java.lang.reflect.Array.newInstance(this.realClazz, 0).javaClass)
+
   override fun getAnnotation(javaAnnotationType: JavaAnnotationType): JavaAnnotation? {
     throw UnsupportedOperationException()
   }
