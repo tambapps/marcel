@@ -340,6 +340,9 @@ interface JavaType: JavaTyped {
       return JavaType.Object
     }
 
+    // caching to avoid creating new instances each time we want a type
+    private val TYPES_CACHE = mutableMapOf<Class<*>, JavaType>()
+
     /**
      * Returns the [JavaType] representing the provided [Class]
      *
@@ -358,11 +361,16 @@ interface JavaType: JavaTyped {
      * @return the [JavaType] representing this [Class]
      */
     fun of(clazz: Class<*>, genericTypes: List<JavaType>): JavaType {
+      val t = TYPES_CACHE.computeIfAbsent(clazz, this::getOrCreate)
+      return if (genericTypes.isEmpty()) t else t.withGenericTypes(genericTypes)
+    }
+
+    private fun getOrCreate(clazz: Class<*>): JavaType {
       return if (clazz.isPrimitive) PRIMITIVES.find { it.className == clazz.name } ?: throw RuntimeException("Primitive type $clazz is not being handled")
       else if (clazz.isArray)
         ARRAYS.find { it.realClazz == clazz } ?: LoadedJavaArrayType(clazz)
       else if (clazz.isAnnotation) LoadedJavaAnnotationType(clazz)
-      else LoadedObjectType(clazz, genericTypes)
+      else LoadedObjectType(clazz, emptyList())
     }
 
     val Anything: JavaType = AnythingJavaType

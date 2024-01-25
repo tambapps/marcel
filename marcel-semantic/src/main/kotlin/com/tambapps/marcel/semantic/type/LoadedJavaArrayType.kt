@@ -25,7 +25,8 @@ class LoadedJavaArrayType internal constructor(
     get() = this
 
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
-    throw MarcelSemanticException(LexToken.DUMMY, "Cannot have array type with generic types")
+    if (genericTypes.isNotEmpty()) throw MarcelSemanticException(LexToken.DUMMY, "Cannot have array type with generic types")
+    return this
   }
 
   override fun toString(): String {

@@ -12,7 +12,7 @@ interface JavaAnnotationType: JavaType {
   companion object {
     fun of (klass: KClass<*>) = of(klass.java)
 
-    fun of(clazz: Class<*>) = LoadedJavaAnnotationType(clazz)
+    fun of(clazz: Class<*>) = JavaType.of(clazz) as JavaAnnotationType
     fun of(javaType: JavaType) = of(javaType.realClazz)
   }
 
