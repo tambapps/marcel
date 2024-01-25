@@ -139,6 +139,8 @@ interface JavaType: JavaTyped {
         double -> doubleArray
         boolean -> booleanArray
         char -> charArray
+        byte -> byteArray
+        short -> shortArray
         else -> throw MarcelSemanticException(LexToken.DUMMY, "Doesn't handle primitive $this arrays")
       }
     }
