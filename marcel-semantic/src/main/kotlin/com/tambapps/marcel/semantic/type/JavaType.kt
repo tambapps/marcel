@@ -375,23 +375,23 @@ interface JavaType: JavaTyped {
     }
 
     val Anything: JavaType = AnythingJavaType
-    val Object = LoadedObjectType(Object::class.java)
-    val Clazz = LoadedObjectType(Class::class.java)
-    val String = LoadedObjectType(String::class.java)
-    val DynamicObject = LoadedObjectType(marcel.lang.DynamicObject::class.java)
-    val Boolean = LoadedObjectType(Class.forName("java.lang.Boolean"))
-    val Integer = LoadedObjectType(Class.forName("java.lang.Integer"))
-    val Long = LoadedObjectType(Class.forName("java.lang.Long"))
-    val Float = LoadedObjectType(Class.forName("java.lang.Float"))
-    val Double = LoadedObjectType(Class.forName("java.lang.Double"))
-    val Character = LoadedObjectType(Class.forName("java.lang.Character"))
-    val Byte = LoadedObjectType(Class.forName("java.lang.Byte"))
-    val Short = LoadedObjectType(Class.forName("java.lang.Short"))
-    val Void = LoadedObjectType(Class.forName("java.lang.Void"))
-    val Map = of(Map::class.java)
-    val Set = of(Set::class.java)
+    val Object: JavaType = LoadedObjectType(java.lang.Object::class.java)
+    val Clazz: JavaType = LoadedObjectType(Class::class.java)
+    val String: JavaType = LoadedObjectType(java.lang.String::class.java)
+    val DynamicObject: JavaType = LoadedObjectType(marcel.lang.DynamicObject::class.java)
+    val Boolean: JavaType = LoadedObjectType(java.lang.Boolean::class.java)
+    val Integer: JavaType = LoadedObjectType(java.lang.Integer::class.java)
+    val Long: JavaType = LoadedObjectType(java.lang.Long::class.java)
+    val Float: JavaType = LoadedObjectType(java.lang.Float::class.java)
+    val Double: JavaType = LoadedObjectType(java.lang.Double::class.java)
+    val Character: JavaType = LoadedObjectType(java.lang.Character::class.java)
+    val Byte: JavaType = LoadedObjectType(java.lang.Byte::class.java)
+    val Short: JavaType = LoadedObjectType(java.lang.Short::class.java)
+    val Void: JavaType = LoadedObjectType(java.lang.Void::class.java)
+    val Map: JavaType = LoadedObjectType(java.util.Map::class.java)
+    val Set: JavaType = LoadedObjectType(java.util.Set::class.java)
 
-    val Future = LoadedObjectType(Future::class.java)
+    val Future: JavaType = LoadedObjectType(java.util.concurrent.Future::class.java)
 
     val void = JavaPrimitiveType(java.lang.Void::class, false) { NullValueNode(it) }
     val int = JavaPrimitiveType(java.lang.Integer::class, true) { IntConstantNode(it, value = 0) }
@@ -408,21 +408,21 @@ interface JavaType: JavaTyped {
 
     val PRIMITIVES = listOf(void, int, long, float, double, boolean, char, byte, short)
 
-    val intArray = LoadedJavaArrayType(IntArray::class.java, int)
-    val longArray = LoadedJavaArrayType(LongArray::class.java, long)
-    val floatArray = LoadedJavaArrayType(FloatArray::class.java, float)
-    val doubleArray = LoadedJavaArrayType(DoubleArray::class.java, double)
-    val booleanArray = LoadedJavaArrayType(BooleanArray::class.java, boolean)
-    val shortArray = LoadedJavaArrayType(ShortArray::class.java, short)
-    val byteArray = LoadedJavaArrayType(ByteArray::class.java, byte)
-    val charArray = LoadedJavaArrayType(CharArray::class.java, char)
-    val objectArray = LoadedJavaArrayType(Array<Any>::class.java, Object)
+    val intArray: JavaArrayType = LoadedJavaArrayType(IntArray::class.java, int)
+    val longArray: JavaArrayType = LoadedJavaArrayType(LongArray::class.java, long)
+    val floatArray: JavaArrayType = LoadedJavaArrayType(FloatArray::class.java, float)
+    val doubleArray: JavaArrayType = LoadedJavaArrayType(DoubleArray::class.java, double)
+    val booleanArray: JavaArrayType = LoadedJavaArrayType(BooleanArray::class.java, boolean)
+    val shortArray: JavaArrayType = LoadedJavaArrayType(ShortArray::class.java, short)
+    val byteArray: JavaArrayType = LoadedJavaArrayType(ByteArray::class.java, byte)
+    val charArray: JavaArrayType = LoadedJavaArrayType(CharArray::class.java, char)
+    val objectArray: JavaArrayType = LoadedJavaArrayType(Array<Any>::class.java, Object)
     val ARRAYS = listOf(intArray, longArray, floatArray, doubleArray, booleanArray, shortArray, byteArray, charArray, objectArray)
 
     val lambda = of(Lambda::class.java)
 
-    val IntRange = LoadedObjectType(marcel.lang.IntRange::class.java)
-    val LongRange = LoadedObjectType(marcel.lang.LongRange::class.java)
+    val IntRange: JavaType = LoadedObjectType(marcel.lang.IntRange::class.java)
+    val LongRange: JavaType = LoadedObjectType(marcel.lang.LongRange::class.java)
 
     // collections
     val intCollection = of(IntCollection::class.java)
@@ -467,5 +467,4 @@ interface JavaType: JavaTyped {
       )),
     )
   }
-
 }
