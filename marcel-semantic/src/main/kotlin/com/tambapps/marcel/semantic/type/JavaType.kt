@@ -33,6 +33,7 @@ import marcel.lang.primitives.collections.sets.DoubleSet
 import marcel.lang.primitives.collections.sets.FloatSet
 import marcel.lang.primitives.collections.sets.IntSet
 import marcel.lang.primitives.collections.sets.LongSet
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Future
 
 /**
@@ -341,7 +342,7 @@ interface JavaType: JavaTyped {
     }
 
     // caching to avoid creating new instances each time we want a type
-    private val TYPES_CACHE = mutableMapOf<Class<*>, JavaType>()
+    private val TYPES_CACHE = ConcurrentHashMap<Class<*>, JavaType>()
 
     /**
      * Returns the [JavaType] representing the provided [Class]
