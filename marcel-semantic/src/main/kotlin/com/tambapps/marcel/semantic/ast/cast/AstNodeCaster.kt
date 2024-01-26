@@ -72,6 +72,8 @@ class AstNodeCaster(
         expectedType == JavaType.long && actualType == JavaType.Long -> functionCall(JavaType.Long, "longValue", emptyList(), node)
         expectedType == JavaType.float && actualType == JavaType.Float -> functionCall(JavaType.Float, "floatValue", emptyList(), node)
         expectedType == JavaType.double && actualType == JavaType.Double -> functionCall(JavaType.Double, "doubleValue", emptyList(), node)
+        expectedType == JavaType.byte && actualType == JavaType.Byte -> functionCall(JavaType.Byte, "byteValue", emptyList(), node)
+        expectedType == JavaType.short && actualType == JavaType.Short -> functionCall(JavaType.Short, "shortValue", emptyList(), node)
         expectedType == JavaType.char && actualType == JavaType.String -> functionCall(JavaType.String, "charAt", listOf(IntConstantNode(node.token, 0)), node)
         actualType == JavaType.Object -> cast(expectedType, cast(expectedType.objectType, node))
         expectedType == JavaType.boolean ->
@@ -86,6 +88,8 @@ class AstNodeCaster(
             || JavaType.Character.isSelfOrSuper(expectedType) && actualType == JavaType.char
             || JavaType.Long.isSelfOrSuper(expectedType) && actualType == JavaType.long
             || JavaType.Float.isSelfOrSuper(expectedType) && actualType == JavaType.float
+            || JavaType.Short.isSelfOrSuper(expectedType) && actualType == JavaType.short
+            || JavaType.Byte.isSelfOrSuper(expectedType) && actualType == JavaType.byte
             || JavaType.Double.isSelfOrSuper(expectedType) && actualType == JavaType.double -> functionCall(actualType.objectType, "valueOf", listOf(node), node)
         else -> incompatibleTypes(node, expectedType, actualType)
       }
