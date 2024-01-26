@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Console;
 import java.io.PrintStream;
 
 /**
@@ -52,5 +53,29 @@ public abstract class Script {
 
   public void print(Object o) {
     out.print(o);
+  }
+
+  public String readLine() {
+    return getConsole().readLine();
+  }
+
+  public String readLine(String fmt, Object ... args) {
+    return getConsole().readLine(fmt, args);
+  }
+
+  public String readPassword() {
+    char[] c = getConsole().readPassword();
+    return c != null ? new String(c) : null;
+  }
+
+  public String readPassword(String fmt, Object ... args) {
+    char[] c = getConsole().readPassword(fmt, args);
+    return c != null ? new String(c) : null;
+  }
+
+  protected Console getConsole() {
+    Console console = System.console();
+    if (console == null) throw new UnsupportedOperationException("No console was found");
+    return console;
   }
 }
