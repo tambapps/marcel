@@ -25,11 +25,11 @@ interface CstSemantic {
   fun toJavaMethod(ownerType: JavaType, forExtensionType: JavaType? = null, node: MethodCstNode): JavaMethod {
     val visibility = Visibility.fromTokenType(node.accessNode.visibility)
     val isStatic = node.accessNode.isStatic
-    val returnType = resolveReturnType(node)
+    val (returnType, asyncReturnType) = resolveReturnType(node)
     return JavaMethodImpl(ownerType, Visibility.fromTokenType(node.accessNode.visibility), node.name,
       node.parameters.mapIndexed { index, methodParameterCstNode -> toMethodParameter(ownerType, forExtensionType, visibility, isStatic, index, node.name, methodParameterCstNode) },
       returnType, isDefault = false, isAbstract = false, isStatic = isStatic, isConstructor = false,
-      isAsync = node.isAsync, asyncReturnType = if (node.isAsync) returnType.genericTypes.first().objectType else JavaType.Object)
+      isAsync = node.isAsync, asyncReturnType = asyncReturnType)
   }
 
   fun toJavaConstructor(ownerType: JavaType, node: ConstructorCstNode): JavaMethod {
@@ -52,9 +52,12 @@ interface CstSemantic {
 
   fun resolve(node: TypeCstNode): JavaType
 
-  fun resolveReturnType(node: MethodCstNode): JavaType {
+  // returnType, asyncReturnType
+  fun resolveReturnType(node: MethodCstNode): Pair<JavaType, JavaType?> {
     val type = resolve(node.returnTypeNode)
-    return if (!node.isAsync) type else JavaType.Future.withGenericTypes(type.objectType)
+    return if (!node.isAsync) type to null
+    else JavaType.Future.withGenericTypes(type.objectType) to
+        if (type == JavaType.void) JavaType.void else type.objectType
   }
 
 }

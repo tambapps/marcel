@@ -467,8 +467,9 @@ open class MarcelSemantic constructor(
       = throw MarcelSemanticException(node, "Incompatible type for annotation member ${attribute.name} of annotation ${annotation}. Wanted ${attribute.type} but got ${attrValue.javaClass}")
 
   private fun methodNode(classNode: ClassNode, methodCst: MethodCstNode, classScope: ClassScope): MethodNode {
+    val (returnType, asyncReturnType) = resolveReturnType(methodCst)
     val methodNode = toMethodNode(classNode, methodCst, methodCst.name,
-      resolveReturnType(methodCst), classScope.classType)
+      returnType, asyncReturnType, classScope.classType)
     fillMethodNode(classScope, methodNode, methodCst.statements, methodCst.annotations,
       isAsync = methodCst.isAsync,
       isSingleStatementMethod = methodCst.isSingleStatementFunction)
@@ -542,16 +543,15 @@ open class MarcelSemantic constructor(
     return constructorNode
   }
 
-  private fun toConstructorNode(classNode: ClassNode, methodCst: AbstractMethodCstNode, classType: JavaType) = toMethodNode(classNode, methodCst, JavaMethod.CONSTRUCTOR_NAME, JavaType.void, classType)
-  private fun toMethodNode(classNode: ClassNode, methodCst: AbstractMethodCstNode, methodName: String, returnType: JavaType, classType: JavaType): MethodNode {
+  private fun toConstructorNode(classNode: ClassNode, methodCst: AbstractMethodCstNode, classType: JavaType) = toMethodNode(classNode, methodCst, JavaMethod.CONSTRUCTOR_NAME, JavaType.void, asyncReturnType = null, classType)
+  private fun toMethodNode(classNode: ClassNode, methodCst: AbstractMethodCstNode, methodName: String,
+                           returnType: JavaType, asyncReturnType: JavaType?,classType: JavaType): MethodNode {
     val visibility = Visibility.fromTokenType(methodCst.accessNode.visibility)
     val isStatic = methodCst.accessNode.isStatic
     val parameters = mutableListOf<MethodParameter>()
     methodCst.parameters.forEachIndexed { index, methodParameterCstNode ->
       parameters.add(toMethodParameterNode(classNode, visibility, isStatic, index, methodName, methodParameterCstNode))
     }
-    val asyncReturnType = if (methodCst is MethodCstNode && methodCst.isAsync)
-      returnType.genericTypes.first().objectType else null
     return MethodNode(
       name = methodName,
       visibility = visibility,
