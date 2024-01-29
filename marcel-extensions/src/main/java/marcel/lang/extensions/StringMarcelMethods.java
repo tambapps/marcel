@@ -162,4 +162,8 @@ public class StringMarcelMethods {
     }
     return false;
   }
+
+  public static String fmt(String self, Object... args) {
+    return String.format(self, args);
+  }
 }

@@ -81,10 +81,14 @@ public class Files {
   }
 
   public static void write(String path, byte[] bytes, boolean append) throws IOException {
+    write(Paths.get(path), bytes, append);
+  }
+
+  public static void write(Path path, byte[] bytes, boolean append) throws IOException {
     if (append) {
-      java.nio.file.Files.write(Paths.get(path), bytes, StandardOpenOption.APPEND);
+      java.nio.file.Files.write(path, bytes, StandardOpenOption.APPEND);
     } else {
-      java.nio.file.Files.write(Paths.get(path), bytes);
+      java.nio.file.Files.write(path, bytes);
     }
   }
 
@@ -132,7 +136,10 @@ public class Files {
     return outputStream(path, false);
   }
   public static OutputStream outputStream(String path, boolean append) throws IOException {
-    return append ? java.nio.file.Files.newOutputStream(Paths.get(path), StandardOpenOption.APPEND)
-        : java.nio.file.Files.newOutputStream(Paths.get(path));
+    return outputStream(Paths.get(path), append);
+  }
+  public static OutputStream outputStream(Path path, boolean append) throws IOException {
+    return append ? java.nio.file.Files.newOutputStream(path, StandardOpenOption.APPEND)
+        : java.nio.file.Files.newOutputStream(path);
   }
 }
