@@ -15,6 +15,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// TODO use these methods in advent of code and remove FileExtensions
 /**
  * Class providing util methods to handle files
  */
