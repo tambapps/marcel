@@ -142,4 +142,12 @@ public class Files {
     return append ? java.nio.file.Files.newOutputStream(path, StandardOpenOption.APPEND)
         : java.nio.file.Files.newOutputStream(path);
   }
+
+  public static boolean exists(String path) {
+    return exists(Paths.get(path));
+  }
+
+  public static boolean exists(Path path) {
+    return java.nio.file.Files.exists(path);
+  }
 }
