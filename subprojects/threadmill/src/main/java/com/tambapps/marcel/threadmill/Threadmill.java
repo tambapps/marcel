@@ -3,7 +3,6 @@ package com.tambapps.marcel.threadmill;
 import lombok.SneakyThrows;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -16,7 +15,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.function.IntConsumer;
 
 public class Threadmill {
 
@@ -131,10 +129,22 @@ public class Threadmill {
   public static void await(AwaitProgressListener listener) {
     ThredmillContext context = getCurrentContext();
     int size = context.futures.size();
-    listener.onProgress(0, size);
-    for (int i = 0; i < size; i++) {
-      await(context.futures.get(i));
-      listener.onProgress(i + 1, size);
+
+    int lastProgress = -1;
+    while (lastProgress < size) {
+      int currentProgress = (int) context.futures.stream()
+          .filter(Future::isDone)
+          .count();
+      if (currentProgress != lastProgress) {
+        listener.onProgress(currentProgress, size);
+      }
+      lastProgress = currentProgress;
+      try {
+        Thread.sleep(100L);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        break;
+      }
     }
     context.futures.clear();
   }
