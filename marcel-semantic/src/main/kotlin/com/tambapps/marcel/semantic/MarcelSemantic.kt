@@ -581,6 +581,7 @@ open class MarcelSemantic constructor(
 
     val statements = if (isSingleStatementMethod && cstStatements.size == 1
       && methodeNode.returnType != JavaType.void
+      && methodeNode.asyncReturnType != JavaType.void // asyncType == null || asyncType != void
       && cstStatements.first() is ExpressionStatementCstNode) {
       val statement = cstStatements.first() as ExpressionStatementCstNode
       mutableListOf(ReturnCstNode(statement, statement.expressionNode, statement.tokenStart, statement.tokenEnd).accept(this))
