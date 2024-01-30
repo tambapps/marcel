@@ -1592,7 +1592,8 @@ open class MarcelSemantic constructor(
     }
     val methodParameters = computeLambdaParameters(lambdaNode, interfaceType)
     val lambdaMethodScope: LambdaMethodScope
-    if (interfaceType != null && interfaceType.packageName != "marcel.lang.lambda") {
+    // because we don't want to match on Lambda, Lambda0, Lambda1, ...
+    if (interfaceType != null && !interfaceType.className.startsWith("marcel.lang.lambda.Lambda")) {
       val interfaceMethod = symbolResolver.getInterfaceLambdaMethodOrThrow(interfaceType, lambdaNode.token)
       val lambdaParameters = mutableListOf<MethodParameter>()
       interfaceMethod.parameters.forEachIndexed { index, methodParameter ->
