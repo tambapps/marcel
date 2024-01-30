@@ -83,11 +83,11 @@ public interface DynamicObject extends Iterable<DynamicObject>, MarcelTruth {
   }
 
   default DynamicObject find(DynamicObjectLambda1 lambda1) {
-    return MarcelTruth.isTruthy(lambda1.apply(this)) ? this : null;
+    return MarcelTruth.isTruthy(lambda1.invoke(this)) ? this : null;
   }
 
   default DynamicObject map(DynamicObjectLambda1 lambda1) {
-    return lambda1.apply(this);
+    return lambda1.invoke(this);
   }
 
   @Override

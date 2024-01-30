@@ -4,9 +4,9 @@ import marcel.lang.DynamicObject;
 
 import java.util.function.Function;
 
-public interface DynamicObjectLambda1 extends Function<DynamicObject, DynamicObject> {
+public interface DynamicObjectLambda1 extends Lambda1<DynamicObject, DynamicObject> {
 
   @Override
-  DynamicObject apply(DynamicObject object);
+  DynamicObject invoke(DynamicObject object);
 
 }
