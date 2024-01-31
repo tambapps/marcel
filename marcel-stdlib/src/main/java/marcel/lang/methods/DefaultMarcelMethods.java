@@ -2015,6 +2015,11 @@ public final class DefaultMarcelMethods {
     return Collections.unmodifiableList(Arrays.asList(self));
   }
 
+  public static <T, U> Map<U, List<T>> groupBy(Collection<T> collection, Function<T, U> keyExtractor) {
+    return collection.stream()
+        .collect(Collectors.groupingBy(keyExtractor));
+  }
+
   /**
    * Collates this iterable into sub-lists of length <code>size</code>.
    * Example:
