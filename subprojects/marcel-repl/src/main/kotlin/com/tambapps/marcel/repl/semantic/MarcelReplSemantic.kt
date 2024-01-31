@@ -59,5 +59,5 @@ class MarcelReplSemantic(private val replSymbolResolver: ReplMarcelSymbolResolve
     return null
   }
 
-  private fun getDelegate() = (symbolResolver as ReplMarcelSymbolResolver).getBoundField("delegate")
+  private fun getDelegate() = replSymbolResolver.getBoundField("delegate")
 }

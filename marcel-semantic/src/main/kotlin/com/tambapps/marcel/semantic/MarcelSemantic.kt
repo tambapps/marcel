@@ -162,6 +162,7 @@ import com.tambapps.marcel.semantic.visitor.ImportCstNodeConverter
 import com.tambapps.marcel.semantic.visitor.ReturningBranchTransformer
 import com.tambapps.marcel.semantic.visitor.ReturningWhenIfBranchTransformer
 import com.tambapps.marcel.threadmill.Threadmill
+import marcel.lang.Delegable
 import marcel.lang.IntRanges
 import marcel.lang.LongRanges
 import marcel.lang.compile.BooleanDefaultValue
@@ -1245,7 +1246,7 @@ open class MarcelSemantic constructor(
   override fun visit(node: ReferenceCstNode, smartCastType: JavaType?): ExpressionNode {
     val (variable, owner) = findVariableAndOwner(node.value, node)
     checkVariableAccess(variable, node,
-      // we pass the void type to tell not to check get access (see assignement operator)
+      // we pass the void type to tell not to check get access (see assignment operator)
       checkGet = smartCastType != JavaType.void)
 
     return ReferenceNode(owner, variable, node.token)
@@ -1277,7 +1278,7 @@ open class MarcelSemantic constructor(
     } else Pair(field, null)
   }
 
-  override final fun visit(node: FunctionCallCstNode, smartCastType: JavaType?): ExpressionNode {
+  final override fun visit(node: FunctionCallCstNode, smartCastType: JavaType?): ExpressionNode {
     val positionalArguments = node.positionalArgumentNodes.map { it.accept(this) }
     val namedArguments = node.namedArgumentNodes.map { Pair(it.first, it.second.accept(this)) }
 
@@ -1348,6 +1349,15 @@ open class MarcelSemantic constructor(
       }
     }
 
+    if (!currentMethodScope.staticContext && currentScopeType.implements(Delegable::class.javaType)) {
+      // TODO also handle delegable reference (ReferenceCstNode)
+      val owner = fCall(name = "getDelegate", owner = ThisReferenceNode(currentScopeType, node.token), arguments = emptyList(), node = node)
+      methodResolve = methodResolver.resolveMethod(node, owner.type, node.value, positionalArguments, namedArguments)
+      if (methodResolve != null) {
+        return fCall(methodResolve = methodResolve, owner = owner, castType = castType,
+          tokenStart = node.tokenStart, tokenEnd = node.tokenEnd)
+      }
+    }
     // searching on extension class if it is one
     val extensionType = currentScope.forExtensionType
     if (extensionType != null) {

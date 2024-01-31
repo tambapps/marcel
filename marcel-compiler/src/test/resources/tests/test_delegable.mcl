@@ -1,0 +1,15 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+
+new DelegateTest().test()
+
+class DelegateTest implements Delegable {
+  private Integer _delegate = 1
+
+  fun void test()  {
+    assertEquals(1, intValue())
+    _delegate = 5
+    assertEquals(5, intValue())
+  }
+
+  fun Integer getDelegate() -> _delegate
+}
