@@ -21,6 +21,7 @@
     <module>marcel-json</module>
     <module>marcel-libs</module>
     <module>marcel-repl</module>
+    <module>marcel-yaml</module>
     <module>marshell</module>
     <module>threadmill</module>
   </modules>

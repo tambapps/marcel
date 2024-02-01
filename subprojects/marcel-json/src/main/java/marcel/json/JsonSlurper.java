@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 public class JsonSlurper {
-  private final ObjectMapper mapper;
+  protected final ObjectMapper mapper;
 
   public JsonSlurper() {
     this(newObjectMapper());
@@ -100,8 +100,11 @@ public class JsonSlurper {
     }
   }
 
-  private  static ObjectMapper newObjectMapper() {
-    final ObjectMapper mapper = new ObjectMapper();
+  public static ObjectMapper newObjectMapper() {
+    return newObjectMapper(new ObjectMapper());
+  }
+
+  public static ObjectMapper newObjectMapper(ObjectMapper mapper) {
     mapper.registerModule(new JavaTimeModule());
     mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 

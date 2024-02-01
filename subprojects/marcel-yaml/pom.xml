@@ -10,23 +10,20 @@
     <version>${revision}</version>
   </parent>
 
-  <artifactId>marcel-json</artifactId>
+  <artifactId>marcel-yaml</artifactId>
 
-  <name>Marcel JSON</name>
-  <description>Marcel JSON library</description>
+  <name>Marcel YAML</name>
+  <description>Marcel YAML library</description>
 
   <dependencies>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
-      <artifactId>marcel-stdlib</artifactId>
+      <artifactId>marcel-json</artifactId>
     </dependency>
+
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.datatype</groupId>
-      <artifactId>jackson-datatype-jsr310</artifactId>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
     </dependency>
 
     <dependency>
