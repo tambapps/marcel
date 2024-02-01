@@ -11,7 +11,9 @@ import marcel.lang.DynamicObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,8 +31,27 @@ public class JsonSlurper {
   }
 
   public DynamicObject slurp(String text) throws JsonProcessingException {
-    JsonNode node = mapper.readTree(text);
-    return DynamicObject.of(toObject(node));
+    return mapper.readValue(text, DynamicObject.class);
+  }
+
+  public DynamicObject slurp(byte[] bytes) throws IOException {
+    return mapper.readValue(bytes, DynamicObject.class);
+  }
+
+  public DynamicObject slurp(InputStream inputStream) throws IOException {
+    return mapper.readValue(inputStream, DynamicObject.class);
+  }
+
+  public DynamicObject slurp(File file) throws IOException {
+    return mapper.readValue(file, DynamicObject.class);
+  }
+
+  public DynamicObject slurpFile(String path) throws IOException {
+    return slurp(new File(path));
+  }
+
+  public DynamicObject slurpFile(Reader reader) throws IOException {
+    return mapper.readValue(reader, DynamicObject.class);
   }
 
   public String serializeToString(Object o) throws JsonProcessingException {

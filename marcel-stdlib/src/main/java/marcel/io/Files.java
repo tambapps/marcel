@@ -2,6 +2,7 @@ package marcel.io;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,6 +21,18 @@ import java.util.stream.Collectors;
  * Class providing util methods to handle files
  */
 public class Files {
+
+  public static File get(String path) {
+    return new File(path);
+  }
+
+  public static File get(String parent, String child) {
+    return new File(parent, child);
+  }
+
+  public static File get(File parent, String child) {
+    return new File(parent, child);
+  }
 
   public static String readText(String path) throws IOException {
     return readText(path, StandardCharsets.UTF_8);
