@@ -40,6 +40,7 @@ cp marcel-extensions/target/marcel-extensions-$version.jar $marcelDir/lib/marcel
 cp marcl/target/marcl-$version.jar $marcelDir/lib/marcl.jar
 cp subprojects/dumbbell-core/target/dumbbell-core-$version.jar $marcelDir/lib/dumbbell-core.jar
 cp subprojects/dumbbell/target/dumbbell-$version.jar $marcelDir/lib/dumbbell.jar
+cp subprojects/marcel-json/target/marcel-json-$version.jar $marcelDir/lib/marcel-json.jar
 cp subprojects/marcel-repl/target/marcel-repl-$version.jar $marcelDir/lib/marcel-repl.jar
 cp subprojects/marshell/target/marshell-$version.jar $marcelDir/lib/marshell.jar
 cp subprojects/threadmill/target/threadmill-$version.jar $marcelDir/lib/threadmill.jar

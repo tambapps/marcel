@@ -18,6 +18,7 @@
   <modules>
     <module>dumbbell-core</module>
     <module>dumbbell</module>
+    <module>marcel-json</module>
     <module>marcel-libs</module>
     <module>marcel-repl</module>
     <module>marshell</module>
