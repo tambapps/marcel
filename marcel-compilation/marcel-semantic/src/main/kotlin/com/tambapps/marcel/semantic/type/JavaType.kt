@@ -172,6 +172,7 @@ interface JavaType: JavaTyped {
    * @param token the token representing the expression
    * @return the default value expresion of this type
    */
+  // TODO put this method in semantic, or at least elsewhere. prerequisite to split marcel-semantic into multiple submodules
   fun getDefaultValueExpression(token: LexToken): ExpressionNode
 
   /**
