@@ -48,15 +48,21 @@ class MethodInstructionWriterTest {
   }
 
   private fun fCall(owner: JavaType, name: String, arguments: List<JavaType> = emptyList()) = fCall(symbolResolver.findMethod(owner, name, arguments)!!)
-  private fun fCall(method: JavaMethod) = FunctionCallNode(javaMethod = method, arguments = emptyList(), tokenStart = token(), tokenEnd = token(), owner = null)
+  private fun fCall(method: JavaMethod) = com.tambapps.marcel.semantic.ast.expression.FunctionCallNode(
+    javaMethod = method,
+    arguments = emptyList(),
+    tokenStart = token(),
+    tokenEnd = token(),
+    owner = null
+  )
   private fun int(value: Int) = IntConstantNode(value = value, token = token())
   private fun float(value: Float) = FloatConstantNode(value = value, token = token())
   private fun long(value: Long) = LongConstantNode(value = value, token = token())
   private fun double(value: Double) = DoubleConstantNode(value = value, token = token())
 
-  private fun `return`(node: ExpressionNode) = ReturnStatementNode(node, token(), token())
-  private fun exprStmt(node: ExpressionNode) = ExpressionStatementNode(node, token(), token())
-  private fun expr(text: String): ExpressionNode {
+  private fun `return`(node: com.tambapps.marcel.semantic.ast.expression.ExpressionNode) = ReturnStatementNode(node, token(), token())
+  private fun exprStmt(node: com.tambapps.marcel.semantic.ast.expression.ExpressionNode) = ExpressionStatementNode(node, token(), token())
+  private fun expr(text: String): com.tambapps.marcel.semantic.ast.expression.ExpressionNode {
     val cstExpression = MarcelParser("Test", MarcelLexer().lex(text)).expression()
     val sourceFile = mock(SourceFileCstNode::class.java)
     return cstExpression.accept(MarcelSemantic(MarcelSymbolResolver(), Script::class.javaType, sourceFile, "Test.mcl"),)

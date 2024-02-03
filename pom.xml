@@ -138,7 +138,17 @@
       </dependency>
       <dependency>
         <groupId>com.tambapps.marcel</groupId>
-        <artifactId>marcel-semantic</artifactId>
+        <artifactId>marcel-semantic-processor</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tambapps.marcel</groupId>
+        <artifactId>marcel-semantic-core</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tambapps.marcel</groupId>
+        <artifactId>marcel-symbols</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>

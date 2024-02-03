@@ -16,7 +16,7 @@ import marcel.lang.Script
 
 class MarcelReplSemantic(private val replSymbolResolver: ReplMarcelSymbolResolver, cst: SourceFileCstNode, fileName: String) : MarcelSemantic(replSymbolResolver, Script::class.javaType, cst, fileName) {
 
-  override fun assignment(node: BinaryOperatorCstNode, smartCastType: JavaType?): ExpressionNode {
+  override fun assignment(node: BinaryOperatorCstNode, smartCastType: JavaType?): com.tambapps.marcel.semantic.ast.expression.ExpressionNode {
     val scope = currentMethodScope
     if (scope.staticContext || !scope.classType.isScript || node.leftOperand !is ReferenceCstNode) return super.assignment(node, smartCastType)
     val leftResult = runCatching { node.leftOperand.accept(this) }
@@ -38,10 +38,10 @@ class MarcelReplSemantic(private val replSymbolResolver: ReplMarcelSymbolResolve
 
   override fun resolveMethodCall(
     node: FunctionCallCstNode,
-    positionalArguments: List<ExpressionNode>,
-    namedArguments: List<Pair<String, ExpressionNode>>,
+    positionalArguments: List<com.tambapps.marcel.semantic.ast.expression.ExpressionNode>,
+    namedArguments: List<Pair<String, com.tambapps.marcel.semantic.ast.expression.ExpressionNode>>,
     castType: JavaType?
-  ): ExpressionNode? {
+  ): com.tambapps.marcel.semantic.ast.expression.ExpressionNode? {
     val e = super.resolveMethodCall(node, positionalArguments, namedArguments, castType)
     if (e != null) return e
 

@@ -6,6 +6,7 @@ import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
+import com.tambapps.marcel.semantic.extensions.forEach
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 
 abstract class AbstractHighlighter<T, Style> constructor(
@@ -40,7 +41,7 @@ abstract class AbstractHighlighter<T, Style> constructor(
         && !tokenMap.containsKey(it.tokenStart)) {
         when (it) {
           is ReferenceNode -> tokenMap[it.tokenStart] = variableStyle
-          is FunctionCallNode -> tokenMap[it.tokenStart] = functionStyle
+          is com.tambapps.marcel.semantic.ast.expression.FunctionCallNode -> tokenMap[it.tokenStart] = functionStyle
         }
       }
     }

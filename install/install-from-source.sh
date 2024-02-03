@@ -34,6 +34,7 @@ mvn clean package -Djavadoc.skip=true
 
 # compilation modules
 cp marcel-compilation/marcel-lexer/target/marcel-lexer-$version.jar $marcelDir/lib/marcel-lexer.jar
+# TODO fix semantic
 cp marcel-compilation/marcel-semantic/target/marcel-semantic-$version.jar $marcelDir/lib/marcel-semantic.jar
 cp marcel-compilation/marcel-parser/target/marcel-parser-$version.jar $marcelDir/lib/marcel-parser.jar
 cp marcel-compilation/marcel-compiler/target/marcel-compiler-$version.jar $marcelDir/lib/marcel-compiler.jar

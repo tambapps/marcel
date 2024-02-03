@@ -17,7 +17,6 @@ import marcel.lang.util.MarcelVersion
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.PrintStream
-import java.io.StringWriter
 import java.util.concurrent.atomic.AtomicBoolean
 
 abstract class MarcelShell constructor(

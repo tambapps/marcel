@@ -36,7 +36,7 @@ import java.lang.StringBuilder
 sealed class MethodExpressionWriter(
   protected val mv: MethodVisitor,
   protected val classScopeType: JavaType
-): ExpressionNodeVisitor<Unit> {
+): com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor<Unit> {
 
   private companion object {
     val HASH_MAP_CONSTRUCTOR = ReflectJavaConstructor(HashMap::class.java.getConstructor())
@@ -47,7 +47,7 @@ sealed class MethodExpressionWriter(
   protected val loadVariableVisitor = LoadVariableVisitor(mv, classScopeType)
   protected val storeVariableVisitor = StoreVariableVisitor(mv, classScopeType)
 
-  internal abstract fun pushExpression(node: ExpressionNode)
+  internal abstract fun pushExpression(node: com.tambapps.marcel.semantic.ast.expression.ExpressionNode)
 
   // should be an Int, Byte, Long, Float, Double, String
   internal abstract fun pushConstant(value: Any)
@@ -66,7 +66,7 @@ sealed class MethodExpressionWriter(
     mv.visitInsn(node.arrayType.arrayStoreCode)
   }
 
-  override fun visit(node: FunctionCallNode) {
+  override fun visit(node: com.tambapps.marcel.semantic.ast.expression.FunctionCallNode) {
     node.owner?.let { pushExpression(it) }
     node.arguments.forEach { pushExpression(it) }
     if (node.owner !is SuperReferenceNode) mv.visitMethodInsn(node.javaMethod)
@@ -92,7 +92,7 @@ sealed class MethodExpressionWriter(
   }
 
   // this node should ALWAYS be pushed so don't override it
-  final override fun visit(node: DupNode) {
+  final override fun visit(node: com.tambapps.marcel.semantic.ast.expression.DupNode) {
     pushExpression(node.expression)
     dup(node.type)
   }
@@ -173,7 +173,7 @@ sealed class MethodExpressionWriter(
     visitOwnConstructorCall(node.classType, node.javaMethod, node.arguments)
   }
 
-  private fun visitOwnConstructorCall(type: JavaType, method: JavaMethod, arguments: List<ExpressionNode>) {
+  private fun visitOwnConstructorCall(type: JavaType, method: JavaMethod, arguments: List<com.tambapps.marcel.semantic.ast.expression.ExpressionNode>) {
     mv.visitVarInsn(Opcodes.ALOAD, 0)
     arguments.forEach { pushExpression(it) }
     mv.visitMethodInsn(

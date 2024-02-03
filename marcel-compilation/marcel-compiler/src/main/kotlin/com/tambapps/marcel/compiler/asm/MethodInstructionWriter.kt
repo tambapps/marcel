@@ -312,7 +312,7 @@ open class MethodInstructionWriter(
   }
 
 
-  override fun visit(node: ArrayAccessNode) {
+  override fun visit(node: com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode) {
     node.owner.accept(this)
   }
 
@@ -342,7 +342,7 @@ open class MethodInstructionWriter(
 
   override fun visit(node: LtNode) = binaryOperator(node)
 
-  override fun visit(node: FunctionCallNode) {
+  override fun visit(node: com.tambapps.marcel.semantic.ast.expression.FunctionCallNode) {
     super.visit(node)
     popStackIfNotVoid(node.javaMethod.returnType)
   }
@@ -357,7 +357,7 @@ open class MethodInstructionWriter(
     popStackIfNotVoid(node.type)
   }
 
-  override fun visit(node: ClassReferenceNode) {}
+  override fun visit(node: com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode) {}
 
   override fun visit(node: ThisReferenceNode) {}
 
@@ -411,7 +411,7 @@ open class MethodInstructionWriter(
     node.rightOperand.accept(this)
   }
 
-  override fun pushExpression(node: ExpressionNode) = node.accept(expressionPusher)
+  override fun pushExpression(node: com.tambapps.marcel.semantic.ast.expression.ExpressionNode) = node.accept(expressionPusher)
   override fun pushConstant(value: Any) = expressionPusher.pushConstant(value)
 
 }

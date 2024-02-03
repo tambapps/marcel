@@ -11,48 +11,14 @@
   </parent>
   <artifactId>marcel-semantic</artifactId>
 
-
   <name>Marcel Semantic</name>
-  <description>Marcel Lang's Semantic</description>
+  <description>Marcel Semantic modules</description>
+  <packaging>pom</packaging>
 
-  <dependencies>
-    <dependency>
-      <groupId>com.tambapps.marcel</groupId>
-      <artifactId>marcel-parser</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.tambapps.marcel</groupId>
-      <artifactId>marcel-stdlib</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jetbrains.kotlin</groupId>
-      <artifactId>kotlin-stdlib</artifactId>
-    </dependency>
+  <modules>
+    <module>marcel-semantic-processor</module>
+    <module>marcel-symbols</module>
+    <module>marcel-semantic-core</module>
+  </modules>
 
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
-  <build>
-    <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
-    <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
-    <plugins>
-      <plugin>
-        <groupId>org.jetbrains.kotlin</groupId>
-        <artifactId>kotlin-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.jetbrains.dokka</groupId>
-        <artifactId>dokka-maven-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
 </project>
