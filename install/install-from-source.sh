@@ -31,20 +31,25 @@ version=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpres
 
 echo "Installing marcel..."
 mvn clean package -Djavadoc.skip=true
-cp marcel-lexer/target/marcel-lexer-$version.jar $marcelDir/lib/marcel-lexer.jar
+
+# compilation modules
+cp marcel-compilation/marcel-lexer/target/marcel-lexer-$version.jar $marcelDir/lib/marcel-lexer.jar
+cp marcel-compilation/marcel-semantic/target/marcel-semantic-$version.jar $marcelDir/lib/marcel-semantic.jar
+cp marcel-compilation/marcel-parser/target/marcel-parser-$version.jar $marcelDir/lib/marcel-parser.jar
+cp marcel-compilation/marcel-compiler/target/marcel-compiler-$version.jar $marcelDir/lib/marcel-compiler.jar
+
+# stdlib modules
 cp marcel-stdlib/target/marcel-stdlib-$version.jar $marcelDir/lib/marcel-stdlib.jar
-cp marcel-parser/target/marcel-parser-$version.jar $marcelDir/lib/marcel-parser.jar
-cp marcel-semantic/target/marcel-semantic-$version.jar $marcelDir/lib/marcel-semantic.jar
-cp marcel-compiler/target/marcel-compiler-$version.jar $marcelDir/lib/marcel-compiler.jar
 cp marcel-extensions/target/marcel-extensions-$version.jar $marcelDir/lib/marcel-extensions.jar
-cp marcl/target/marcl-$version.jar $marcelDir/lib/marcl.jar
-cp subprojects/dumbbell-core/target/dumbbell-core-$version.jar $marcelDir/lib/dumbbell-core.jar
-cp subprojects/dumbbell/target/dumbbell-$version.jar $marcelDir/lib/dumbbell.jar
-cp subprojects/marcel-repl/target/marcel-repl-$version.jar $marcelDir/lib/marcel-repl.jar
-cp subprojects/marshell/target/marshell-$version.jar $marcelDir/lib/marshell.jar
-cp subprojects/threadmill/target/threadmill-$version.jar $marcelDir/lib/threadmill.jar
-# Marcel libs is included in classpath when running marcel command line tools
-cp subprojects/marcel-deps/target/marcel-deps-$version-jar-with-dependencies.jar $marcelDir/lib/marcel-deps.jar
+
+# subprojects
+cp marcel-subprojects/marcl/target/marcl-$version.jar $marcelDir/lib/marcl.jar
+cp marcel-subprojects/dumbbell-core/target/dumbbell-core-$version.jar $marcelDir/lib/dumbbell-core.jar
+cp marcel-subprojects/dumbbell/target/dumbbell-$version.jar $marcelDir/lib/dumbbell.jar
+cp marcel-subprojects/marcel-repl/target/marcel-repl-$version.jar $marcelDir/lib/marcel-repl.jar
+cp marcel-subprojects/marshell/target/marshell-$version.jar $marcelDir/lib/marshell.jar
+cp marcel-subprojects/threadmill/target/threadmill-$version.jar $marcelDir/lib/threadmill.jar
+cp marcel-subprojects/marcel-deps/target/marcel-deps-$version-jar-with-dependencies.jar $marcelDir/lib/marcel-deps.jar
 
 ########################
 # Creating Executables #
