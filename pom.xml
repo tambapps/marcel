@@ -183,11 +183,6 @@
       </dependency>
       <dependency>
         <groupId>com.tambapps.marcel</groupId>
-        <artifactId>threadmill</artifactId>
-        <version>${revision}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.tambapps.marcel</groupId>
         <artifactId>marcel-json</artifactId>
         <version>${revision}</version>
       </dependency>

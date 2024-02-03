@@ -161,7 +161,7 @@ import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
 import com.tambapps.marcel.semantic.visitor.ImportCstNodeConverter
 import com.tambapps.marcel.semantic.visitor.ReturningBranchTransformer
 import com.tambapps.marcel.semantic.visitor.ReturningWhenIfBranchTransformer
-import com.tambapps.marcel.threadmill.Threadmill
+import marcel.util.concurrent.Threadmill
 import marcel.lang.Delegable
 import marcel.lang.IntRanges
 import marcel.lang.LongRanges

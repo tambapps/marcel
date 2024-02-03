@@ -4,7 +4,7 @@ import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.ast.StaticImportNode
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
-import com.tambapps.marcel.threadmill.Threadmill
+import marcel.util.concurrent.Threadmill
 
 /**
  * Scope of an async block. It extends an inner scope because

@@ -1,4 +1,4 @@
-package com.tambapps.marcel.threadmill;
+package marcel.util.concurrent;
 
 import java.util.concurrent.ExecutorService;
 

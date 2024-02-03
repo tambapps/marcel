@@ -22,7 +22,6 @@
     <module>marcel-repl</module>
     <module>marcl</module>
     <module>marshell</module>
-    <module>threadmill</module>
   </modules>
 
 </project>
