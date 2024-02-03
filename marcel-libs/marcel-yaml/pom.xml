@@ -6,7 +6,7 @@
 
   <parent>
     <groupId>com.tambapps.marcel</groupId>
-    <artifactId>subprojects</artifactId>
+    <artifactId>marcel-libs</artifactId>
     <version>${revision}</version>
   </parent>
 

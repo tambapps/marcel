@@ -29,6 +29,7 @@
     <module>marcel-compiler</module>
     <module>marcel-extensions</module>
     <module>marcel-lexer</module>
+    <module>marcel-libs</module>
     <module>marcel-maven-plugin</module>
     <module>marcel-parser</module>
     <module>marcel-stdlib</module>
