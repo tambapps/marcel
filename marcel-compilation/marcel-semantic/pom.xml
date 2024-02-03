@@ -6,36 +6,29 @@
 
   <parent>
     <groupId>com.tambapps.marcel</groupId>
-    <artifactId>marcel</artifactId>
+    <artifactId>marcel-compilation</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>marcel-compiler</artifactId>
+  <artifactId>marcel-semantic</artifactId>
 
-  <name>Marcel Compiler</name>
-  <description>The Compiler of Marcel Lang</description>
+
+  <name>Marcel Semantic</name>
+  <description>Marcel Lang's Semantic</description>
 
   <dependencies>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
-      <artifactId>dumbbell-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.tambapps.marcel</groupId>
-      <artifactId>marcel-semantic</artifactId>
+      <artifactId>marcel-parser</artifactId>
     </dependency>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
       <artifactId>marcel-stdlib</artifactId>
     </dependency>
-    <!-- bytecode manipulation -->
-    <dependency>
-      <groupId>org.ow2.asm</groupId>
-      <artifactId>asm</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-stdlib</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
@@ -52,15 +45,6 @@
     <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
     <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.0</version>
-        <configuration>
-          <compilerArgument>-parameters</compilerArgument>
-        </configuration>
-      </plugin>
-
       <plugin>
         <groupId>org.jetbrains.kotlin</groupId>
         <artifactId>kotlin-maven-plugin</artifactId>

@@ -6,23 +6,31 @@
 
   <parent>
     <groupId>com.tambapps.marcel</groupId>
-    <artifactId>marcel</artifactId>
+    <artifactId>marcel-compilation</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>marcel-parser</artifactId>
+  <artifactId>marcel-compiler</artifactId>
 
-
-  <name>Marcel Parser</name>
-  <description>Marcel Lang's Parser</description>
+  <name>Marcel Compiler</name>
+  <description>The Compiler of Marcel Lang</description>
 
   <dependencies>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
-      <artifactId>marcel-lexer</artifactId>
+      <artifactId>dumbbell-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.tambapps.marcel</groupId>
+      <artifactId>marcel-semantic</artifactId>
     </dependency>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
       <artifactId>marcel-stdlib</artifactId>
+    </dependency>
+    <!-- bytecode manipulation -->
+    <dependency>
+      <groupId>org.ow2.asm</groupId>
+      <artifactId>asm</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
@@ -34,8 +42,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-params</artifactId>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -44,6 +52,15 @@
     <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
     <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.0</version>
+        <configuration>
+          <compilerArgument>-parameters</compilerArgument>
+        </configuration>
+      </plugin>
+
       <plugin>
         <groupId>org.jetbrains.kotlin</groupId>
         <artifactId>kotlin-maven-plugin</artifactId>
