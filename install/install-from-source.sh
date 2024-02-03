@@ -34,8 +34,9 @@ mvn clean package -Djavadoc.skip=true
 
 # compilation modules
 cp marcel-compilation/marcel-lexer/target/marcel-lexer-$version.jar $marcelDir/lib/marcel-lexer.jar
-# TODO fix semantic
-cp marcel-compilation/marcel-semantic/target/marcel-semantic-$version.jar $marcelDir/lib/marcel-semantic.jar
+cp marcel-compilation/marcel-semantic/marcel-semantic-core/target/marcel-semantic-core-$version.jar $marcelDir/lib/marcel-semantic-core.jar
+cp marcel-compilation/marcel-semantic/marcel-semantic-processor/target/marcel-semantic-processor-$version.jar $marcelDir/lib/marcel-semantic-processor.jar
+cp marcel-compilation/marcel-semantic/marcel-semantic-transformer/target/marcel-semantic-transformer-$version.jar $marcelDir/lib/marcel-semantic-transformer.jar
 cp marcel-compilation/marcel-parser/target/marcel-parser-$version.jar $marcelDir/lib/marcel-parser.jar
 cp marcel-compilation/marcel-compiler/target/marcel-compiler-$version.jar $marcelDir/lib/marcel-compiler.jar
 
@@ -49,7 +50,6 @@ cp marcel-subprojects/dumbbell-core/target/dumbbell-core-$version.jar $marcelDir
 cp marcel-subprojects/dumbbell/target/dumbbell-$version.jar $marcelDir/lib/dumbbell.jar
 cp marcel-subprojects/marcel-repl/target/marcel-repl-$version.jar $marcelDir/lib/marcel-repl.jar
 cp marcel-subprojects/marshell/target/marshell-$version.jar $marcelDir/lib/marshell.jar
-cp marcel-subprojects/threadmill/target/threadmill-$version.jar $marcelDir/lib/threadmill.jar
 cp marcel-subprojects/marcel-deps/target/marcel-deps-$version-jar-with-dependencies.jar $marcelDir/lib/marcel-deps.jar
 
 ########################
