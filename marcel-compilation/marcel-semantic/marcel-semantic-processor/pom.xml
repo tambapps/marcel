@@ -12,8 +12,8 @@
   <artifactId>marcel-semantic-processor</artifactId>
 
 
-  <name>Marcel Semantic</name>
-  <description>Marcel Lang's Semantic</description>
+  <name>Marcel Semantic Processor</name>
+  <description>Marcel Lang's Semantic Processor allowing to perform semantic analysis</description>
 
   <dependencies>
     <dependency>
