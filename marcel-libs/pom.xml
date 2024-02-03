@@ -12,7 +12,7 @@
   <artifactId>marcel-libs</artifactId>
 
   <name>Marcel Libraries</name>
-  <description>Util Marcel libraries (not included in the classpath by default)</description>
+  <description>Marcel libraries</description>
   <packaging>pom</packaging>
 
   <modules>
