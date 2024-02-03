@@ -34,7 +34,6 @@
     <module>marcel-parser</module>
     <module>marcel-stdlib</module>
     <module>marcel-semantic</module>
-    <module>marcl</module>
     <module>marcel-subprojects</module>
   </modules>
 
