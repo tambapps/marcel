@@ -84,7 +84,6 @@
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
         <version>${jackson.version}</version>
-        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -193,6 +192,11 @@
       <dependency>
         <groupId>com.tambapps.marcel</groupId>
         <artifactId>marcel-json</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tambapps.marcel</groupId>
+        <artifactId>marcel-yaml</artifactId>
         <version>${revision}</version>
       </dependency>
     </dependencies>
