@@ -4,7 +4,6 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
 import java.util.stream.Collectors
 
-// TODO may not be the right place to be. add a semantic-core module?
 open class MarcelSemanticException(errors: List<Error>) : RuntimeException(
   generateErrorMessage(
     errors

@@ -9,7 +9,6 @@ import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 
-// TODO put this in another submodule
 /**
  * Base class for AST transformations providing handy methods to handle/generate AST nodes
  */
