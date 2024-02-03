@@ -44,7 +44,7 @@ cp subprojects/marcel-repl/target/marcel-repl-$version.jar $marcelDir/lib/marcel
 cp subprojects/marshell/target/marshell-$version.jar $marcelDir/lib/marshell.jar
 cp subprojects/threadmill/target/threadmill-$version.jar $marcelDir/lib/threadmill.jar
 # Marcel libs is included in classpath when running marcel command line tools
-cp subprojects/marcel-libs/target/marcel-libs-$version-jar-with-dependencies.jar $marcelDir/lib/marcel-libs.jar
+cp subprojects/marcel-deps/target/marcel-deps-$version-jar-with-dependencies.jar $marcelDir/lib/marcel-deps.jar
 
 ########################
 # Creating Executables #

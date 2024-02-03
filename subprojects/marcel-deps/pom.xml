@@ -9,11 +9,12 @@
     <artifactId>subprojects</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>marcel-libs</artifactId>
+  <artifactId>marcel-deps</artifactId>
 
-  <name>Marcel libs</name>
+  <name>Marcel Dependencies</name>
   <description>Project to have all marcel external dependencies in one jar</description>
 
+  <!-- TODO skip this module in deployment -->
   <dependencies>
     <dependency>
       <groupId>com.tambapps.maven</groupId>

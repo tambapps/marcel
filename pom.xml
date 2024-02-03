@@ -171,7 +171,7 @@
       </dependency>
       <dependency>
         <groupId>com.tambapps.marcel</groupId>
-        <artifactId>marcel-libs</artifactId>
+        <artifactId>marcel-deps</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>
