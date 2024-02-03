@@ -8,6 +8,7 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.extensions.getDefaultValueExpression
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.type.JavaType

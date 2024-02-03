@@ -2,7 +2,6 @@ package com.tambapps.marcel.semantic.type
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.Visibility
-import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import kotlin.reflect.KClass
 
@@ -12,10 +11,7 @@ import kotlin.reflect.KClass
 class JavaPrimitiveType internal constructor(
   objectKlazz: KClass<*>,
   val isNumber: Boolean,
-  val defaultValueGenerator: (LexToken) -> ExpressionNode,
 ): LoadedJavaType(objectKlazz.javaPrimitiveType!!, emptyList()) {
-
-  override fun getDefaultValueExpression(token: LexToken): ExpressionNode = defaultValueGenerator(token)
 
   override val visibility = Visibility.PUBLIC
   override val packageName = null

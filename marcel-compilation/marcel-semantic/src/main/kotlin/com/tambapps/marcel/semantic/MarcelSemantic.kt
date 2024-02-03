@@ -136,6 +136,7 @@ import com.tambapps.marcel.semantic.ast.statement.TryNode
 import com.tambapps.marcel.semantic.ast.statement.WhileNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.exception.VariableNotFoundException
+import com.tambapps.marcel.semantic.extensions.getDefaultValueExpression
 import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.ExtensionJavaMethod

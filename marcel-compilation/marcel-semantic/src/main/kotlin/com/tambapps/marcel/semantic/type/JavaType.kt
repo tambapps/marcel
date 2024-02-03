@@ -1,17 +1,6 @@
 package com.tambapps.marcel.semantic.type
 
-import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.Visibility
-import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
-import com.tambapps.marcel.semantic.ast.expression.literal.ByteConstantNode
-import com.tambapps.marcel.semantic.ast.expression.literal.CharConstantNode
-import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
-import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
-import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
-import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
-import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
-import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
-import com.tambapps.marcel.semantic.ast.expression.literal.ShortConstantNode
 import marcel.lang.lambda.Lambda
 import marcel.lang.primitives.collections.CharCollection
 import marcel.lang.primitives.collections.DoubleCollection
@@ -34,7 +23,6 @@ import marcel.lang.primitives.collections.sets.FloatSet
 import marcel.lang.primitives.collections.sets.IntSet
 import marcel.lang.primitives.collections.sets.LongSet
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Future
 
 /**
  * Represents a Java class that may or may not be loaded on the classpath
@@ -164,16 +152,6 @@ interface JavaType: JavaTyped {
     get() = throw RuntimeException("Illegal JavaType cast")
   val asAnnotationType: JavaAnnotationType
     get() = throw RuntimeException("Illegal JavaType cast")
-
-  /**
-   * Get the default value expression of this type.
-   * 0 for number primitives, false for boolean, and null for object types
-   *
-   * @param token the token representing the expression
-   * @return the default value expresion of this type
-   */
-  // TODO put this method in semantic, or at least elsewhere. prerequisite to split marcel-semantic into multiple submodules
-  fun getDefaultValueExpression(token: LexToken): ExpressionNode
 
   /**
    * Returns this type with the provided generic types specified
@@ -394,18 +372,18 @@ interface JavaType: JavaTyped {
 
     val Future: JavaType = LoadedObjectType(java.util.concurrent.Future::class.java)
 
-    val void = JavaPrimitiveType(java.lang.Void::class, false) { NullValueNode(it) }
-    val int = JavaPrimitiveType(java.lang.Integer::class, true) { IntConstantNode(it, value = 0) }
-    val long = JavaPrimitiveType(java.lang.Long::class, true) { LongConstantNode(it, value = 0L) }
-    val float = JavaPrimitiveType(java.lang.Float::class, true) { FloatConstantNode(it, value = 0f) }
-    val double = JavaPrimitiveType(java.lang.Double::class, true) { DoubleConstantNode(it, value = 0.0) }
+    val void = JavaPrimitiveType(java.lang.Void::class, false)
+    val int = JavaPrimitiveType(java.lang.Integer::class, true)
+    val long = JavaPrimitiveType(java.lang.Long::class, true)
+    val float = JavaPrimitiveType(java.lang.Float::class, true)
+    val double = JavaPrimitiveType(java.lang.Double::class, true)
     // apparently we use int instructions to store booleans
-    val boolean = JavaPrimitiveType(java.lang.Boolean::class, false) { BoolConstantNode(it, value = false) }
+    val boolean = JavaPrimitiveType(java.lang.Boolean::class, false)
 
-    val char = JavaPrimitiveType(java.lang.Character::class, true) { CharConstantNode(it, value = 0.toChar()) }
+    val char = JavaPrimitiveType(java.lang.Character::class, true)
     // byte and short aren't supported in Marcel. The opcodes weren't verified
-    val byte = JavaPrimitiveType(java.lang.Byte::class, true) { ByteConstantNode(it, value = 0) }
-    val short = JavaPrimitiveType(java.lang.Short::class, true) { ShortConstantNode(it, value = 0) }
+    val byte = JavaPrimitiveType(java.lang.Byte::class, true)
+    val short = JavaPrimitiveType(java.lang.Short::class, true)
 
     val PRIMITIVES = listOf(void, int, long, float, double, boolean, char, byte, short)
 
