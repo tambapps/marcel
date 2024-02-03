@@ -6,24 +6,23 @@
 
   <parent>
     <groupId>com.tambapps.marcel</groupId>
-    <artifactId>subprojects</artifactId>
+    <artifactId>marcel-subprojects</artifactId>
     <version>${revision}</version>
   </parent>
 
-  <artifactId>marcel-repl</artifactId>
+  <artifactId>dumbbell</artifactId>
 
-  <name>Marcel REPL</name>
-  <description>Marcel REPL library</description>
+  <name>Dumbbell</name>
+  <description>Dumbbell - Marcel's dependency manager</description>
 
   <dependencies>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
-      <artifactId>marcel-compiler</artifactId>
+      <artifactId>dumbbell-core</artifactId>
     </dependency>
-    <!-- Needed in order to load default extensions -->
     <dependency>
-      <groupId>com.tambapps.marcel</groupId>
-      <artifactId>marcel-extensions</artifactId>
+      <groupId>com.github.ajalt</groupId>
+      <artifactId>clikt</artifactId>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -52,7 +51,7 @@
             <configuration>
               <archive>
                 <manifest>
-                  <mainClass>com.tambapps.marcel.marshell.MarshellKt</mainClass>
+                  <mainClass>com.tambapps.marcel.dumbbell.cl.DumbbellKt</mainClass>
                 </manifest>
               </archive>
               <descriptorRefs>

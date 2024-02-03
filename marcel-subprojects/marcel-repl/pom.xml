@@ -6,23 +6,24 @@
 
   <parent>
     <groupId>com.tambapps.marcel</groupId>
-    <artifactId>subprojects</artifactId>
+    <artifactId>marcel-subprojects</artifactId>
     <version>${revision}</version>
   </parent>
 
-  <artifactId>marshell</artifactId>
+  <artifactId>marcel-repl</artifactId>
 
-  <name>Marshell</name>
-  <description>Marshell for desktop terminals</description>
+  <name>Marcel REPL</name>
+  <description>Marcel REPL library</description>
 
   <dependencies>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
-      <artifactId>marcel-repl</artifactId>
+      <artifactId>marcel-compiler</artifactId>
     </dependency>
+    <!-- Needed in order to load default extensions -->
     <dependency>
-      <groupId>org.jline</groupId>
-      <artifactId>jline</artifactId>
+      <groupId>com.tambapps.marcel</groupId>
+      <artifactId>marcel-extensions</artifactId>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -35,14 +36,6 @@
     <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
     <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.0</version>
-        <configuration>
-          <compilerArgument>-parameters</compilerArgument>
-        </configuration>
-      </plugin>
       <plugin>
         <groupId>org.jetbrains.kotlin</groupId>
         <artifactId>kotlin-maven-plugin</artifactId>

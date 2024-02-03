@@ -9,10 +9,10 @@
     <artifactId>marcel</artifactId>
     <version>${revision}</version>
   </parent>
+  <artifactId>marcel-subprojects</artifactId>
 
   <name>Marcel Subprojects</name>
   <description>Subprojects enhancing your Marcel experience</description>
-  <artifactId>subprojects</artifactId>
   <packaging>pom</packaging>
 
   <modules>

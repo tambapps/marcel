@@ -6,23 +6,23 @@
 
   <parent>
     <groupId>com.tambapps.marcel</groupId>
-    <artifactId>subprojects</artifactId>
+    <artifactId>marcel-subprojects</artifactId>
     <version>${revision}</version>
   </parent>
 
-  <artifactId>dumbbell</artifactId>
+  <artifactId>marshell</artifactId>
 
-  <name>Dumbbell</name>
-  <description>Dumbbell - Marcel's dependency manager</description>
+  <name>Marshell</name>
+  <description>Marshell for desktop terminals</description>
 
   <dependencies>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
-      <artifactId>dumbbell-core</artifactId>
+      <artifactId>marcel-repl</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.github.ajalt</groupId>
-      <artifactId>clikt</artifactId>
+      <groupId>org.jline</groupId>
+      <artifactId>jline</artifactId>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -35,6 +35,14 @@
     <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
     <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.0</version>
+        <configuration>
+          <compilerArgument>-parameters</compilerArgument>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.jetbrains.kotlin</groupId>
         <artifactId>kotlin-maven-plugin</artifactId>
@@ -51,7 +59,7 @@
             <configuration>
               <archive>
                 <manifest>
-                  <mainClass>com.tambapps.marcel.dumbbell.cl.DumbbellKt</mainClass>
+                  <mainClass>com.tambapps.marcel.marshell.MarshellKt</mainClass>
                 </manifest>
               </archive>
               <descriptorRefs>

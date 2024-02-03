@@ -35,7 +35,7 @@
     <module>marcel-stdlib</module>
     <module>marcel-semantic</module>
     <module>marcl</module>
-    <module>subprojects</module>
+    <module>marcel-subprojects</module>
   </modules>
 
   <dependencyManagement>
