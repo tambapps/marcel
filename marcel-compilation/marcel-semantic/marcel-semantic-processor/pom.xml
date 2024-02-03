@@ -20,22 +20,6 @@
       <groupId>com.tambapps.marcel</groupId>
       <artifactId>marcel-semantic-core</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.tambapps.marcel</groupId>
-      <artifactId>marcel-symbols</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.tambapps.marcel</groupId>
-      <artifactId>marcel-parser</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.tambapps.marcel</groupId>
-      <artifactId>marcel-stdlib</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jetbrains.kotlin</groupId>
-      <artifactId>kotlin-stdlib</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>org.junit.jupiter</groupId>

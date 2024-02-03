@@ -25,6 +25,10 @@
     </dependency>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
+      <artifactId>marcel-semantic-transformer</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.tambapps.marcel</groupId>
       <artifactId>marcel-stdlib</artifactId>
     </dependency>
     <!-- bytecode manipulation -->

@@ -17,7 +17,7 @@
 
   <modules>
     <module>marcel-semantic-processor</module>
-    <module>marcel-symbols</module>
+    <module>marcel-semantic-transformer</module>
     <module>marcel-semantic-core</module>
   </modules>
 

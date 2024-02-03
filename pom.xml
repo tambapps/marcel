@@ -148,7 +148,7 @@
       </dependency>
       <dependency>
         <groupId>com.tambapps.marcel</groupId>
-        <artifactId>marcel-symbols</artifactId>
+        <artifactId>marcel-semantic-transformer</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>
