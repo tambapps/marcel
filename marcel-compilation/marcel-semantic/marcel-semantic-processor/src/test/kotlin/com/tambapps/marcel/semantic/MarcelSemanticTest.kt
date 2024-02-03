@@ -92,10 +92,10 @@ class MarcelSemanticTest {
   private fun long(value: Long) = LongConstantNode(value = value, token = token())
   private fun double(value: Double) = DoubleConstantNode(value = value, token = token())
 
-  private fun `return`(node: com.tambapps.marcel.semantic.ast.expression.ExpressionNode) = ReturnStatementNode(node, token(), token())
-  private fun exprStmt(node: com.tambapps.marcel.semantic.ast.expression.ExpressionNode) = ExpressionStatementNode(node, token(), token())
+  private fun `return`(node: ExpressionNode) = ReturnStatementNode(node, token(), token())
+  private fun exprStmt(node: ExpressionNode) = ExpressionStatementNode(node, token(), token())
 
-  private fun expr(text: String): com.tambapps.marcel.semantic.ast.expression.ExpressionNode {
+  private fun expr(text: String): ExpressionNode {
     val cstExpression = MarcelParser("Test", MarcelLexer().lex(text)).expression()
     return cstExpression.accept(semantic())
   }

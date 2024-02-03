@@ -1,4 +1,4 @@
-package com.tambapps.marcel.semantic.cast
+package com.tambapps.marcel.semantic.ast.cast
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType

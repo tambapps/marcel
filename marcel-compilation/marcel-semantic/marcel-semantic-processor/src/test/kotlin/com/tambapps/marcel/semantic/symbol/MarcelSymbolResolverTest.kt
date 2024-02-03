@@ -1,4 +1,4 @@
-package com.tambapps.marcel.semantic.type
+package com.tambapps.marcel.semantic.symbol
 
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.extensions.javaType
@@ -6,14 +6,16 @@ import com.tambapps.marcel.semantic.method.ExtensionJavaMethod
 import com.tambapps.marcel.semantic.method.JavaMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.method.ReflectJavaMethod
-import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.semantic.type.JavaType
 import marcel.lang.lambda.Lambda
 import marcel.lang.methods.DefaultMarcelMethods
 import marcel.lang.primitives.collections.IntCollection
 import marcel.lang.primitives.collections.lists.IntList
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.lang.CharSequence
 import java.util.function.Function
 import java.util.function.IntPredicate
 import java.util.stream.Stream
@@ -25,6 +27,22 @@ class MarcelSymbolResolverTest {
   }
 
   private val symbolResolver = MarcelSymbolResolver()
+
+  @Test
+  fun testVarArg() {
+    val joinMethod = ReflectJavaMethod(java.lang.String::class.java.getMethod("join", CharSequence::class.java, Array<CharSequence>::class.java))
+    assertTrue(joinMethod.isVarArgs)
+
+    assertTrue(symbolResolver.matches(joinMethod, listOf(JavaType.String)))
+    assertTrue(symbolResolver.matches(joinMethod, listOf(JavaType.String, JavaType.String)))
+    assertTrue(symbolResolver.matches(joinMethod, listOf(JavaType.String, JavaType.String, JavaType.String)))
+    assertTrue(symbolResolver.matches(joinMethod, listOf(JavaType.String, CharSequence::class.javaType.arrayType)))
+
+    Assertions.assertFalse(symbolResolver.matches(joinMethod, emptyList()))
+    Assertions.assertFalse(symbolResolver.matches(joinMethod, listOf(JavaType.String, JavaType.int)))
+    Assertions.assertFalse(symbolResolver.matches(joinMethod, listOf(JavaType.String, JavaType.String, JavaType.int)))
+    Assertions.assertFalse(symbolResolver.matches(joinMethod, listOf(JavaType.String, Int::class.javaType.arrayType)))
+  }
 
 
   @Test
