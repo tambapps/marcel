@@ -3,7 +3,9 @@ package marcel.lang;
 import marcel.lang.dynamic.DefaultDynamicObject;
 import marcel.lang.dynamic.DynamicArray;
 import marcel.lang.dynamic.DynamicChar;
+import marcel.lang.dynamic.DynamicIntRange;
 import marcel.lang.dynamic.DynamicList;
+import marcel.lang.dynamic.DynamicLongRange;
 import marcel.lang.dynamic.DynamicMap;
 import marcel.lang.dynamic.DynamicNumber;
 import marcel.lang.dynamic.DynamicQueue;
@@ -221,6 +223,8 @@ public interface DynamicObject extends Iterable<DynamicObject>, MarcelTruth {
     else if (o instanceof Set) return new DynamicSet((Set) o);
     else if (o instanceof Queue) return new DynamicQueue((Queue) o);
     else if (o instanceof Map) return new DynamicMap((Map) o);
+    else if (o instanceof IntRange) return new DynamicIntRange((IntRange) o);
+    else if (o instanceof LongRange) return new DynamicLongRange((LongRange) o);
     else if (o.getClass().isArray()) return new DynamicArray(o);
     else return new DefaultDynamicObject(o);
   }
