@@ -1682,7 +1682,7 @@ open class MarcelSemantic(
     if (field != null) {
       val classType = currentScope.classType
       val thisNode = ThisReferenceNode(classType, node.token)
-      return if (!field.isStatic) { // TODO shouldn't it be isMarcelStatic? Verify.
+      return if (!field.isMarcelStatic) {
         val owner =
           if (field.owner.isAssignableFrom(classType)) thisNode
           else {
