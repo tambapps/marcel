@@ -1,15 +1,19 @@
 import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertFalse
+import static org.junit.jupiter.api.Assertions.assertTrue
 
 new DelegateTest().test()
 
 class DelegateTest implements Delegable {
-  private Integer _delegate = 1
+  private IntRange _delegate = 1..5
 
   fun void test()  {
-    assertEquals(1, intValue())
-    _delegate = 5
-    assertEquals(5, intValue())
+    assertEquals(1, getFrom())
+    assertEquals(1, from)
+    assertFalse(isEmpty())
+    _delegate = 0..<0
+    assertTrue(isEmpty())
   }
 
-  fun Integer getDelegate() -> _delegate
+  fun IntRange getDelegate() -> _delegate
 }

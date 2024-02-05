@@ -1678,25 +1678,38 @@ open class MarcelSemantic(
     if (localVariable != null) {
       return Pair(localVariable, null)
     }
-    val field = currentScope.findFieldOrThrow(name, node.token)
+    val field = currentScope.findField(name)
+    if (field != null) {
+      val classType = currentScope.classType
+      val thisNode = ThisReferenceNode(classType, node.token)
+      return if (!field.isStatic) { // TODO shouldn't it be isMarcelStatic? Verify.
+        val owner =
+          if (field.owner.isAssignableFrom(classType)) thisNode
+          else {
+            val (outerLevel, _) = outerLevel(node.token, currentScope.classType, field.owner)
+              ?: throw RuntimeException("Compiler error. Couldn't get outer level")
 
-    val classType = currentScope.classType
-    val thisNode = ThisReferenceNode(classType, node.token)
-    return if (!field.isStatic) {
-      val owner =
-        if (field.owner.isAssignableFrom(classType)) thisNode
-        else {
-          val (outerLevel, _) = outerLevel(node.token, currentScope.classType, field.owner)
-            ?: throw RuntimeException("Compiler error. Couldn't get outer level")
+            val variable = currentScope.findField("this$$outerLevel")
+              ?: throw RuntimeException("Compiler error. Couldn't get outer level field")
 
-          val variable = currentScope.findField("this$$outerLevel")
-            ?: throw RuntimeException("Compiler error. Couldn't get outer level field")
-
-          ReferenceNode(owner = thisNode, variable = variable, token = node.token)
-        }
-      Pair(field, owner)
-
-    } else Pair(field, null)
+            ReferenceNode(owner = thisNode, variable = variable, token = node.token)
+          }
+        Pair(field, owner)
+      } else Pair(field, null)
+    }
+    if (!currentMethodScope.staticContext && currentScope.classType.implements(Delegable::class.javaType)) {
+      val owner = fCall(
+        name = "getDelegate",
+        owner = ThisReferenceNode(currentScope.classType, node.token),
+        arguments = emptyList(),
+        node = node
+      )
+      val delegatedField = symbolResolver.findField(owner.type, name)
+      if (delegatedField != null && !delegatedField.isMarcelStatic) {
+        return Pair(delegatedField, owner)
+      }
+    }
+    throw VariableNotFoundException(node.token, "Variable $name is not defined")
   }
 
   final override fun visit(node: FunctionCallCstNode, smartCastType: JavaType?): ExpressionNode {
@@ -1793,7 +1806,6 @@ open class MarcelSemantic(
     }
 
     if (!currentMethodScope.staticContext && currentScopeType.implements(Delegable::class.javaType)) {
-      // TODO also handle delegable reference (ReferenceCstNode)
       val owner = fCall(
         name = "getDelegate",
         owner = ThisReferenceNode(currentScopeType, node.token),
