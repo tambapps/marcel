@@ -799,6 +799,9 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         }
         next() // skip square brackets close
         if (isMap) {
+          if (elements.size % 2 != 0) {
+            throw MarcelParserException(token, "Invalid map: it should contains key/value mappings")
+          }
           val entries = mutableListOf<Pair<ExpressionCstNode, ExpressionCstNode>>()
           for (i in elements.indices step 2) {
             entries.add(Pair(elements[i], elements[i + 1]))
