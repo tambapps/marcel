@@ -1217,6 +1217,8 @@ open class MarcelSemantic(
                 )
               )
             } catch (e2: MarcelSemanticException) {
+              // TODO create custom exception type not found and only catch this.
+              //   as we can throw other exceptions
               throw MarcelSemanticException(node.token, "Neither a variable nor a class ${leftOperand.value} was found")
             }
             staticDotOperator(node, type, rightOperand)

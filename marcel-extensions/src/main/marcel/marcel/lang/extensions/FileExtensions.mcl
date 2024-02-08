@@ -1,23 +1,32 @@
 package marcel.lang.extensions
 
 import java.nio.charset.*
+import java.nio.file.StandardOpenOption
+import java.nio.file.Files
 
 extension class FileExtensions for File {
 
-  fun String readText() {
-    return new String(Files.readBytes(this.toPath()))
-  }
+  fun String readText() -> new String(Files.readBytes(this.toPath()))
 
-  fun String readText(Charset charset) {
-    return new String(Files.readBytes(this.toPath()), charset)
-  }
+  fun String readText(String charset) -> new String(Files.readBytes(this.toPath()), charset)
 
-  fun List<String> readLines() {
-    return Files.readLines(this.toPath())
-  }
+  fun String readText(Charset charset) -> new String(Files.readBytes(this.toPath()), charset)
 
-  fun List<String> readLines(Charset charset) {
-    return Files.readLines(this.toPath(), charset)
-  }
+  fun List<String> readLines() -> Files.readAllLines(this.toPath())
 
+  fun List<String> readLines(Charset charset) -> Files.readAllLines(this.toPath(), charset)
+
+  fun void writeText(String text, bool append = false) -> writeBytes(text.bytes, append)
+
+  fun void writeText(String text, String charset, bool append = false) -> writeBytes(text.getBytes(charset), append)
+
+  fun void writeText(String text, Charset charset, bool append = false) -> writeBytes(text.getBytes(charset), append)
+
+  fun void writeBytes(byte[] bytes, bool append = false) {
+    if (append) {
+      Files.write(path, bytes, StandardOpenOption.APPEND);
+    } else {
+      Files.write(path, bytes);
+    }
+  }
 }

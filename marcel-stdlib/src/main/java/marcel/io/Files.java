@@ -16,6 +16,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// TODO review File APIs
 /**
  * Class providing util methods to handle files
  */
@@ -41,6 +42,14 @@ public class Files {
     return readText(Paths.get(path), charset);
   }
 
+  public static String readText(File file) throws IOException {
+    return readText(file.toPath(), StandardCharsets.UTF_8);
+  }
+
+  public static String readText(File file, Charset charset) throws IOException {
+    return readText(file.toPath(), charset);
+  }
+
   public static String readText(Path path, Charset charset) throws IOException {
     try (BufferedReader reader = new BufferedReader(
         new InputStreamReader(java.nio.file.Files.newInputStream(path), charset))) {
@@ -57,8 +66,16 @@ public class Files {
     return java.nio.file.Files.readAllBytes(path);
   }
 
+  public static byte[] readBytes(File file) throws IOException {
+    return readBytes(file.toPath());
+  }
+
   public static List<String> readLines(String path) throws IOException {
     return readLines(Paths.get(path));
+  }
+
+  public static List<String> readLines(File file) throws IOException {
+    return readLines(file.toPath());
   }
 
   public static List<String> readLines(Path path) throws IOException {
@@ -94,6 +111,14 @@ public class Files {
 
   public static void write(String path, byte[] bytes, boolean append) throws IOException {
     write(Paths.get(path), bytes, append);
+  }
+
+  public static void write(File file, byte[] bytes) throws IOException {
+    write(file.toPath(), bytes, false);
+  }
+
+  public static void write(File file, byte[] bytes, boolean append) throws IOException {
+    write(file.toPath(), bytes, append);
   }
 
   public static void write(Path path, byte[] bytes, boolean append) throws IOException {
