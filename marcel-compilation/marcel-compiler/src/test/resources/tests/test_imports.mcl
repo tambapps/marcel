@@ -1,0 +1,10 @@
+import java.lang.Integer as MyInteger
+import static org.junit.jupiter.api.Assertions.assertEquals
+import marcel.lang.dynamic.*
+import marcel.lang.lambda.CharLambda1
+
+assertEquals(new MyInteger(5), new Integer(5))
+
+assertEquals(DynamicArray.class, Class.forName("marcel.lang.dynamic.DynamicArray"))
+assertEquals(DynamicList.class, Class.forName("marcel.lang.dynamic.DynamicList"))
+assertEquals(CharLambda1.class, Class.forName("marcel.lang.lambda.CharLambda1"))
