@@ -19,10 +19,10 @@ class ImportResolver internal constructor(
     val staticMemberImports: MutableMap<String, JavaType>,
   ) {
     companion object {
-      fun empty() = Imports(mutableMapOf(), mutableSetOf(), mutableMapOf())
+      fun empty() = Imports(LinkedHashMap(), LinkedHashSet(), LinkedHashMap())
     }
 
-    fun isEmpty() = typeImports.isEmpty() && wildcardTypeImportPrefixes.isEmpty() && wildcardTypeImportPrefixes.isEmpty()
+    fun isEmpty() = typeImports.isEmpty() && wildcardTypeImportPrefixes.isEmpty() && staticMemberImports.isEmpty()
 
     fun toResolver() = ImportResolver(typeImports.toMap(), wildcardTypeImportPrefixes.toSet(), staticMemberImports.toMap())
 
