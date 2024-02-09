@@ -6,7 +6,7 @@ import java.nio.file.Files as JavaFiles
 
 extension class FileExtensions for File {
 
-  fun String readText() -> new String(JavaFiles.readAllBytes(toPath(), StandardCharsets.UTF_8))
+  fun String readText() -> new String(JavaFiles.readAllBytes(toPath()), StandardCharsets.UTF_8)
 
   fun String readText(String charset) -> new String(JavaFiles.readAllBytes(toPath()), charset)
 
@@ -24,7 +24,7 @@ extension class FileExtensions for File {
 
   fun void appendText(CharSequence text) -> JavaFiles.writeString(toPath(), text, StandardCharsets.UTF_8, StandardOpenOption.APPEND)
 
-  fun void appendText(CharSequence text, String charset) -> appendText(text, Charset.forName(charset), StandardOpenOption.APPEND)
+  fun void appendText(CharSequence text, String charset) -> appendText(text, Charset.forName(charset))
 
   fun void appendText(CharSequence text, Charset charset) -> JavaFiles.writeString(toPath(), text, charset, StandardOpenOption.APPEND)
 
