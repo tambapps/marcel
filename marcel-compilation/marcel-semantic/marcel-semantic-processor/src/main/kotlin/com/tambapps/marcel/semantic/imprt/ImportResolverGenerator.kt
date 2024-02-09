@@ -2,10 +2,8 @@ package com.tambapps.marcel.semantic.imprt
 
 import com.tambapps.marcel.parser.cst.imprt.*
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
-import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.imprt.ImportResolver.Companion.DEFAULT_IMPORT_RESOLVER
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
-import com.tambapps.marcel.semantic.type.JavaType
 
 object ImportResolverGenerator {
 
@@ -33,7 +31,7 @@ object ImportResolverGenerator {
     }
 
     override fun visit(node: StaticImportCstNode) {
-      val memberName = node.methodName
+      val memberName = node.memberName
       if (staticMemberImports.containsKey(memberName)) {
         throw MarcelSemanticException(node.token, "An import for member $memberName already exists")
       }

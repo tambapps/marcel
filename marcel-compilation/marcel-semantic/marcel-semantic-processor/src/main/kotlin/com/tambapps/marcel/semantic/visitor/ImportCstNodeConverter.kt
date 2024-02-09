@@ -21,7 +21,7 @@ object ImportCstNodeConverter : ImportCstVisitor<ImportNode> {
     SimpleImportNode(node.className, node.asName, node.tokenStart, node.tokenEnd)
 
   override fun visit(node: StaticImportCstNode) =
-    StaticImportNode(node.className, node.methodName, node.tokenStart, node.tokenEnd)
+    StaticImportNode(node.className, node.memberName, node.tokenStart, node.tokenEnd)
 
   override fun visit(node: WildcardImportCstNode) = WildcardImportNode(node.prefix, node.tokenStart, node.tokenEnd)
 
