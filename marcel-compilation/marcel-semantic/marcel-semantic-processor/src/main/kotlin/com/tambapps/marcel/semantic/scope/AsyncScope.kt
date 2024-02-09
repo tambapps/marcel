@@ -1,7 +1,6 @@
 package com.tambapps.marcel.semantic.scope
 
-import com.tambapps.marcel.semantic.ast.ImportNode
-import com.tambapps.marcel.semantic.ast.StaticImportNode
+import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import marcel.util.concurrent.Threadmill
@@ -14,17 +13,14 @@ import marcel.util.concurrent.Threadmill
  *
  * @param symbolResolver the marcel symbol resolver
  * @param method the generated method that will run the async block
- * @param parentScope the parent scope
+ * @param originalScope the scope in which the async block was declared
  */
-class AsyncScope(symbolResolver: MarcelSymbolResolver, method: JavaMethod, imports: List<ImportNode>) :
+class AsyncScope(symbolResolver: MarcelSymbolResolver, method: JavaMethod, originalScope: MethodScope) :
   MethodInnerScope(
     MethodScope(
       ClassScope(
         symbolResolver, method.ownerClass, null,
         // await methods are available in an async block
-        imports = imports + listOf<ImportNode>(
-          StaticImportNode(Threadmill::class.qualifiedName!!, "await")
-        )
-      ), method
-    ), isInLoop = false, isAsync = true
+        importResolver = originalScope.importResolver.plus(staticMemberImports = mapOf(Pair("await", Threadmill::class.javaType)))),
+      method), isInLoop = false, isAsync = true
   )

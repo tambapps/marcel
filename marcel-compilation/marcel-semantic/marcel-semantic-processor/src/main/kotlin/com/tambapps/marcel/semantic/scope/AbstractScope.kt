@@ -3,20 +3,20 @@ package com.tambapps.marcel.semantic.scope
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 
 abstract class AbstractScope(
   internal val symbolResolver: MarcelSymbolResolver,
   private val packageName: String?,
-  val imports: List<ImportNode>,
+  val importResolver: ImportResolver,
 ) : Scope {
 
   override fun resolveTypeOrThrow(node: TypeCstNode): JavaType {
     // search on imports
-    val importClassName = resolveImportClassName(node)
-    if (importClassName != null) {
-      return of(importClassName, node)
+    importResolver.resolveType(symbolResolver, node.value)?.let { resolvedType ->
+      return resolvedType.withGenericTypes(node.genericTypes.map { resolveTypeOrThrow(it) }).array(node.arrayDimensions)
     }
 
     // search on own package
@@ -33,11 +33,4 @@ abstract class AbstractScope(
       .array(node.arrayDimensions)
   }
 
-  private fun resolveImportClassName(node: TypeCstNode): String? {
-    val classSimpleName = node.value
-    val matchedClasses = imports.mapNotNull { it.resolveClassName(node.token, symbolResolver, classSimpleName) }.toSet()
-    return if (matchedClasses.isEmpty()) null
-    else if (matchedClasses.size == 1) matchedClasses.first()
-    else throw MarcelSemanticException(node.token, "Ambiguous import for class $classSimpleName")
-  }
 }

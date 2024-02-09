@@ -4,6 +4,7 @@ import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.semantic.compose.AstNodeComposer
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
+import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaType
@@ -24,7 +25,7 @@ abstract class AbstractAstTransformation : AstNodeComposer(), SyntaxTreeTransfor
   }
 
   protected fun classScope(classNode: ClassNode) = classScope(classNode.type)
-  protected fun classScope(classType: JavaType) = ClassScope(symbolResolver, classType, null, Scope.DEFAULT_IMPORTS)
+  protected fun classScope(classType: JavaType) = ClassScope(symbolResolver, classType, null, ImportResolver.DEFAULT_IMPORT_RESOLVER)
 
   fun resolve(node: TypeCstNode): JavaType = currentScope.resolveTypeOrThrow(node)
 

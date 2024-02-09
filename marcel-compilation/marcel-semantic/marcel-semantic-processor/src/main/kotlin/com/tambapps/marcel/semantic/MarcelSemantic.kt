@@ -139,6 +139,8 @@ import com.tambapps.marcel.semantic.exception.VariableNotFoundException
 import com.tambapps.marcel.semantic.extensions.getDefaultValueExpression
 import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
+import com.tambapps.marcel.semantic.imprt.ImportResolver
+import com.tambapps.marcel.semantic.imprt.ImportResolverGenerator
 import com.tambapps.marcel.semantic.method.ExtensionJavaMethod
 import com.tambapps.marcel.semantic.method.JavaConstructorImpl
 import com.tambapps.marcel.semantic.method.JavaMethod
@@ -211,7 +213,7 @@ open class MarcelSemantic(
 
   private val classNodeMap = mutableMapOf<JavaType, ClassNode>() // useful to add methods while performing analysis
 
-  val imports = Scope.DEFAULT_IMPORTS.toMutableList() // will be updated while performing analysis
+  protected var importResolver = ImportResolverGenerator.generate(symbolResolver, cst.imports)
   protected val methodResolver = MethodResolver(symbolResolver, caster)
 
   // for extension classes
@@ -219,8 +221,7 @@ open class MarcelSemantic(
     get() = currentMethodScope.findLocalVariable("self") ?: throw RuntimeException("Compiler error.")
 
   init {
-    imports.addAll(ImportCstNodeConverter.convert(cst.imports))
-    scopeQueue.push(ImportScope(symbolResolver, imports, cst.packageName))
+    scopeQueue.push(ImportScope(symbolResolver, importResolver, cst.packageName))
   }
 
   fun apply(): ModuleNode {
@@ -264,7 +265,7 @@ open class MarcelSemantic(
       val scriptNode = classNode(classType, scriptCstNode)
       // need the binding constructor. the no-arg constructor should have been added in the classNode() method
       scriptNode.methods.add(SemanticHelper.scriptBindingConstructor(scriptNode, symbolResolver, scriptType))
-      useScope(ClassScope(symbolResolver, classType, null, imports)) {
+      useScope(ClassScope(symbolResolver, classType, null, importResolver)) {
         // add the run method
         val runMethod = SemanticHelper.scriptRunMethod(classType, cst)
         fillMethodNode(
@@ -297,7 +298,7 @@ open class MarcelSemantic(
   }
 
   fun defineClassMembers(classCstNode: ClassCstNode, classType: JavaType, recursive: Boolean = true) = useScope(
-    ClassScope(symbolResolver, classType, classCstNode.forExtensionType?.let { resolve(it) }, imports)
+    ClassScope(symbolResolver, classType, classCstNode.forExtensionType?.let { resolve(it) }, importResolver)
   ) {
     if (classCstNode.isExtensionClass) {
       val extensionCstType = classCstNode.forExtensionType!!
@@ -331,7 +332,7 @@ open class MarcelSemantic(
   }
 
   private fun classNode(classType: JavaType, node: ClassCstNode): ClassNode =
-    useScope(ClassScope(symbolResolver, classType, node.forExtensionType?.let(this::resolve), imports)) { classScope ->
+    useScope(ClassScope(symbolResolver, classType, node.forExtensionType?.let(this::resolve), importResolver)) { classScope ->
       val classNode = ClassNode(
         classType, Visibility.fromTokenType(node.access.visibility),
         classScope.forExtensionType,
@@ -835,7 +836,7 @@ open class MarcelSemantic(
       )
       useScope(
         MethodScope(
-          ClassScope(symbolResolver, lambdaClassNode.type, null, Scope.DEFAULT_IMPORTS),
+          ClassScope(symbolResolver, lambdaClassNode.type, null, ImportResolver.DEFAULT_IMPORT_RESOLVER),
           lambdaMethod
         )
       ) { scope ->
@@ -908,10 +909,10 @@ open class MarcelSemantic(
   }
 
   private fun newMethodScope(method: JavaMethod) =
-    MethodScope(ClassScope(symbolResolver, currentScope.classType, null, imports), method)
+    MethodScope(ClassScope(symbolResolver, currentScope.classType, null, importResolver), method)
 
   private fun newMethodScope(classType: JavaType, forExtensionType: JavaType?, method: JavaMethod) =
-    MethodScope(ClassScope(symbolResolver, classType, forExtensionType, imports), method)
+    MethodScope(ClassScope(symbolResolver, classType, forExtensionType, importResolver), method)
 
   /*
    * node visits
@@ -1737,7 +1738,7 @@ open class MarcelSemantic(
           node.value,
           positionalArguments,
           namedArguments,
-          currentMethodScope.imports
+          currentMethodScope.importResolver
         )
 
     if (methodResolve != null
@@ -2121,7 +2122,7 @@ open class MarcelSemantic(
    * Otherwise, it will implement the lambda object
    */
   private fun defineLambda(lambdaNode: LambdaClassNode): Unit =
-    useScope(ClassScope(symbolResolver, lambdaNode.type, null, imports)) { classScope ->
+    useScope(ClassScope(symbolResolver, lambdaNode.type, null, importResolver)) { classScope ->
       if (lambdaNode.interfaceTypes.size > 1) {
         throw MarcelSemanticException(
           lambdaNode.token,
@@ -2336,7 +2337,7 @@ open class MarcelSemantic(
       AsyncScope(
         symbolResolver = symbolResolver,
         method = asyncMethodNode,
-        imports = currentMethodScope.imports,
+        originalScope = currentMethodScope,
       )
     ) { asyncScope ->
       // initializing Threadmill context. Needs to be declared BEFORE the block as we will initialize this variable

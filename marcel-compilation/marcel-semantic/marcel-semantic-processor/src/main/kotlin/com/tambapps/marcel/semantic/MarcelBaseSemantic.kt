@@ -19,6 +19,7 @@ import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
+import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.ClassScope
@@ -382,7 +383,7 @@ abstract class MarcelBaseSemantic {
       // add field assignments in constructor
       useScope(
         MethodScope(
-          ClassScope(symbolResolver, lambdaType, null, Scope.DEFAULT_IMPORTS),
+          ClassScope(symbolResolver, lambdaType, null, ImportResolver.DEFAULT_IMPORT_RESOLVER),
           lambdaConstructor
         )
       ) { scope ->

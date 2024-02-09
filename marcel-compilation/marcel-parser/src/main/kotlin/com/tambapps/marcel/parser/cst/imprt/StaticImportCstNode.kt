@@ -8,6 +8,7 @@ class StaticImportCstNode(
   tokenStart: LexToken,
   tokenEnd: LexToken,
   val className: String,
+  // TODO rename memberName
   val methodName: String,
 
   ) :

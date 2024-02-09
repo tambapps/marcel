@@ -2,31 +2,33 @@ package marcel.lang.extensions
 
 import java.nio.charset.*
 import java.nio.file.StandardOpenOption
-import java.nio.file.Files
+import java.nio.file.Files as JavaFiles
 
 extension class FileExtensions for File {
 
-  fun String readText() -> new String(Files.readBytes(this.toPath()))
+  fun String readText() -> new String(JavaFiles.readAllBytes(toPath(), StandardCharsets.UTF_8))
 
-  fun String readText(String charset) -> new String(Files.readBytes(this.toPath()), charset)
+  fun String readText(String charset) -> new String(JavaFiles.readAllBytes(toPath()), charset)
 
-  fun String readText(Charset charset) -> new String(Files.readBytes(this.toPath()), charset)
+  fun String readText(Charset charset) -> new String(JavaFiles.readAllBytes(toPath()), charset)
 
-  fun List<String> readLines() -> Files.readAllLines(this.toPath())
+  fun List<String> readLines() -> JavaFiles.readAllLines(this.toPath(), StandardCharsets.UTF_8)
 
-  fun List<String> readLines(Charset charset) -> Files.readAllLines(this.toPath(), charset)
+  fun List<String> readLines(Charset charset) -> JavaFiles.readAllLines(toPath(), charset)
 
-  fun void writeText(String text, bool append = false) -> writeBytes(text.bytes, append)
+  fun void writeText(CharSequence text) -> JavaFiles.writeString(toPath(), text, StandardCharsets.UTF_8)
 
-  fun void writeText(String text, String charset, bool append = false) -> writeBytes(text.getBytes(charset), append)
+  fun void writeText(CharSequence text, String charset) -> writeText(text, Charset.forName(charset))
 
-  fun void writeText(String text, Charset charset, bool append = false) -> writeBytes(text.getBytes(charset), append)
+  fun void writeText(CharSequence text, Charset charset) -> JavaFiles.writeString(toPath(), text, charset)
 
-  fun void writeBytes(byte[] bytes, bool append = false) {
-    if (append) {
-      Files.write(path, bytes, StandardOpenOption.APPEND);
-    } else {
-      Files.write(path, bytes);
-    }
-  }
+  fun void appendText(CharSequence text) -> JavaFiles.writeString(toPath(), text, StandardCharsets.UTF_8, StandardOpenOption.APPEND)
+
+  fun void appendText(CharSequence text, String charset) -> appendText(text, Charset.forName(charset), StandardOpenOption.APPEND)
+
+  fun void appendText(CharSequence text, Charset charset) -> JavaFiles.writeString(toPath(), text, charset, StandardOpenOption.APPEND)
+
+  fun void writeBytes(byte[] bytes) -> JavaFiles.write(toPath(), bytes)
+
+  fun void appendBytes(byte[] bytes) -> JavaFiles.write(toPath(), bytes, StandardOpenOption.APPEND)
 }

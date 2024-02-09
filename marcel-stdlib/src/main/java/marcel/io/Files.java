@@ -16,23 +16,11 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// TODO review File APIs
+// TODO review File APIs. maybe delete this class?
 /**
  * Class providing util methods to handle files
  */
 public class Files {
-
-  public static File get(String path) {
-    return new File(path);
-  }
-
-  public static File get(String parent, String child) {
-    return new File(parent, child);
-  }
-
-  public static File get(File parent, String child) {
-    return new File(parent, child);
-  }
 
   public static String readText(String path) throws IOException {
     return readText(path, StandardCharsets.UTF_8);

@@ -2,8 +2,8 @@ package com.tambapps.marcel.semantic.scope
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.TypeCstNode
-import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
@@ -18,17 +18,17 @@ open class MethodScope internal constructor(
   val method: JavaMethod,
   symbolResolver: MarcelSymbolResolver,
   override val classType: JavaType,
-  imports: List<ImportNode>,
+  importResolver: ImportResolver,
   val staticContext: Boolean,
   internal val localVariablePool: LocalVariablePool,
   val isAsync: Boolean,
-) : AbstractScope(symbolResolver, classType.packageName, imports) {
+) : AbstractScope(symbolResolver, classType.packageName, importResolver) {
 
   override val forExtensionType = parentScope.forExtensionType
 
   constructor(classScope: ClassScope, method: JavaMethod)
       : this(
-    classScope, method, classScope.symbolResolver, classScope.classType, classScope.imports,
+    classScope, method, classScope.symbolResolver, classScope.classType, classScope.importResolver,
     staticContext = method.isStatic, LocalVariablePool(method.isStatic), isAsync = method.isAsync
   ) {
     // method parameters are stored in local variables

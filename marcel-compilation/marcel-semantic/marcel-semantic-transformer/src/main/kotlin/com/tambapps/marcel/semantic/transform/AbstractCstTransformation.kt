@@ -12,6 +12,8 @@ import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
+import com.tambapps.marcel.semantic.imprt.ImportResolver
+import com.tambapps.marcel.semantic.imprt.ImportResolverGenerator
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.ImportScope
 import com.tambapps.marcel.semantic.scope.Scope
@@ -46,12 +48,12 @@ abstract class AbstractCstTransformation : CstNodeComposer(), CstSemantic, Synta
   private fun newScope(node: CstNode): ImportScope {
     var cstNode: CstNode = node
     while (cstNode !is SourceFileCstNode) {
-      if (node.parent == null) return ImportScope(symbolResolver, Scope.DEFAULT_IMPORTS, null)
+      if (node.parent == null) return ImportScope(symbolResolver, ImportResolver.DEFAULT_IMPORT_RESOLVER, null)
       cstNode = cstNode.parent!!
     }
     return ImportScope(
       symbolResolver,
-      Scope.DEFAULT_IMPORTS + ImportCstNodeConverter.convert(cstNode.imports),
+      ImportResolverGenerator.generate(symbolResolver, cstNode.imports),
       cstNode.packageName
     )
   }

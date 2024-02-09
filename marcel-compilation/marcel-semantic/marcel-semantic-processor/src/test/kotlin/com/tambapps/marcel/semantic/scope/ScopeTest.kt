@@ -4,6 +4,7 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.type.JavaType.Companion.Object
 import com.tambapps.marcel.semantic.type.JavaType.Companion.int
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
@@ -18,7 +19,7 @@ class ScopeTest {
 
   companion object {
     private val TYPE_RESOLVER = MarcelSymbolResolver()
-    private val CLASS_SCOPE = ClassScope(TYPE_RESOLVER, Object, null, emptyList())
+    private val CLASS_SCOPE = ClassScope(TYPE_RESOLVER, Object, null, ImportResolver.DEFAULT_IMPORT_RESOLVER)
     private val METHOD = MethodNode("foo", mutableListOf(),  Visibility.PUBLIC, Object, isStatic = false, LexToken.DUMMY, LexToken.DUMMY, Object)
   }
 

@@ -9,6 +9,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.getDefaultValueExpression
+import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.type.JavaType
@@ -74,15 +75,13 @@ class MethodResolver(
 
   fun resolveMethodFromImports(
     node: CstNode, name: String, positionalArguments: List<ExpressionNode>,
-    namedArguments: List<Pair<String, ExpressionNode>>, imports: List<ImportNode>
+    namedArguments: List<Pair<String, ExpressionNode>>, importResolver: ImportResolver
   ): Pair<JavaMethod, List<ExpressionNode>>? {
-    for (import in imports) {
-      import as? StaticImportNode ?: continue
-      val type = symbolResolver.of(import.className, emptyList(), node.token)
-      val result = resolveMethod(node, type, name, positionalArguments, namedArguments)
-      if (result != null && result.first.isStatic) return result
-    }
-    return null
+
+    val ownerType = importResolver.resolveMemberOwnerType(name) ?: return null
+    val result = resolveMethod(node, ownerType, name, positionalArguments, namedArguments)
+    if (result != null && result.first.isStatic) return result
+    else return null
   }
 
   // complete the arguments if necessary by looking on the method parameters default value and/or named parameters

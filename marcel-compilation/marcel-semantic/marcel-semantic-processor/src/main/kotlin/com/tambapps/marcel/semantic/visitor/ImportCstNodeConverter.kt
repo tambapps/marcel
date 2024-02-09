@@ -10,6 +10,7 @@ import com.tambapps.marcel.semantic.ast.SimpleImportNode
 import com.tambapps.marcel.semantic.ast.StaticImportNode
 import com.tambapps.marcel.semantic.ast.WildcardImportNode
 
+// TODO remove me along with ast Import nodes
 object ImportCstNodeConverter : ImportCstVisitor<ImportNode> {
 
   fun convert(importCstNodes: List<ImportCstNode>): List<ImportNode> = importCstNodes.map(this::convert)

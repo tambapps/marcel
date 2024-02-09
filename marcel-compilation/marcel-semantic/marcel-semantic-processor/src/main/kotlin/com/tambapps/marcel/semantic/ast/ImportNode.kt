@@ -9,7 +9,7 @@ interface ImportNode: AstNode {
   fun resolveClassName(token: LexToken, symbolResolver: MarcelSymbolResolver, classSimpleName: String): String?
 
 }
-class SimpleImportNode(private val value: String, private val asName: String? = null,
+class SimpleImportNode(val value: String, val asName: String? = null,
                        override val tokenStart: LexToken, override val tokenEnd: LexToken): ImportNode {
   override fun resolveClassName(token: LexToken, symbolResolver: MarcelSymbolResolver, classSimpleName: String): String? {
     return if (asName != null) {
@@ -74,7 +74,7 @@ class StaticImportNode(val className: String, val methodName: String,
   }
 }
 
-class WildcardImportNode(private val prefix: String,
+class WildcardImportNode(val prefix: String,
                          override val tokenStart: LexToken, override val tokenEnd: LexToken): ImportNode {
 
                            constructor(prefix: String): this(prefix, LexToken.DUMMY, LexToken.DUMMY)

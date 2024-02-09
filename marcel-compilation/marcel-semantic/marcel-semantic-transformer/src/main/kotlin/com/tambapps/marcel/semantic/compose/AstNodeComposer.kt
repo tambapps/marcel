@@ -32,6 +32,7 @@ import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
+import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.JavaMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
@@ -126,7 +127,7 @@ abstract class AstNodeComposer : MarcelBaseSemantic() {
     methodNode.annotations.addAll(annotations)
     val statements = methodNode.blockStatement.statements
 
-    useScope(MethodScope(ClassScope(symbolResolver, ownerClass, null, Scope.DEFAULT_IMPORTS), methodNode)) {
+    useScope(MethodScope(ClassScope(symbolResolver, ownerClass, null, ImportResolver.DEFAULT_IMPORT_RESOLVER), methodNode)) {
       val statementComposer = StatementsComposer(statements)
       statementsSupplier.invoke(statementComposer) // it will directly add the statements on the method's statements
     }
@@ -139,7 +140,7 @@ abstract class AstNodeComposer : MarcelBaseSemantic() {
 
   protected fun addStatements(methodNode: MethodNode, statementsSupplier: StatementsComposer.() -> Unit): MethodNode {
     val statements = methodNode.blockStatement.statements
-    useScope(MethodScope(ClassScope(symbolResolver, methodNode.ownerClass, null, Scope.DEFAULT_IMPORTS), methodNode)) {
+    useScope(MethodScope(ClassScope(symbolResolver, methodNode.ownerClass, null, ImportResolver.DEFAULT_IMPORT_RESOLVER), methodNode)) {
       val statementComposer = StatementsComposer(statements)
       statementsSupplier.invoke(statementComposer) // it will directly add the statements on the method's statements
     }
@@ -404,7 +405,7 @@ abstract class AstNodeComposer : MarcelBaseSemantic() {
     )
 
     val statements = lambdaMethod.blockStatement.statements
-    useScope(MethodScope(ClassScope(symbolResolver, lambdaClassNode.type, null, Scope.DEFAULT_IMPORTS), lambdaMethod)) {
+    useScope(MethodScope(ClassScope(symbolResolver, lambdaClassNode.type, null, ImportResolver.DEFAULT_IMPORT_RESOLVER), lambdaMethod)) {
       val statementComposer = StatementsComposer(statements)
       lambdaBodyStatementComposerFunc.invoke(statementComposer)
       if (!AllPathsReturnVisitor.test(statements) && returnType == JavaType.void) {

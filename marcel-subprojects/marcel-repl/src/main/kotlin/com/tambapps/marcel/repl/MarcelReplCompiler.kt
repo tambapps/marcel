@@ -130,7 +130,8 @@ class MarcelReplCompiler constructor(
     }
 
     val semantic = MarcelReplSemantic(symbolResolver, cst, "prompt.mcl")
-    semantic.imports.addAll(imports)
+    // TODO handle imports in repl compiler semantic.imports.addAll(imports)
+
 
     // defining types
     defineSymbols(symbolResolver, semantic)
@@ -148,7 +149,8 @@ class MarcelReplCompiler constructor(
     // checks
     check(ast, symbolResolver)
 
-    val r = SemanticResult(tokens, cst, ast.classes, semantic.imports, text.hashCode())
+    // TODO handle imports
+    val r = SemanticResult(tokens, cst, ast.classes, emptyList(), text.hashCode())
     if (!skipUpdate) {
       this.semanticResult = r
     }
