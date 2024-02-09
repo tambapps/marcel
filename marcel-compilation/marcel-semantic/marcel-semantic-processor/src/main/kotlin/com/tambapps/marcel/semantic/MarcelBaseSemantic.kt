@@ -383,7 +383,7 @@ abstract class MarcelBaseSemantic {
       // add field assignments in constructor
       useScope(
         MethodScope(
-          ClassScope(symbolResolver, lambdaType, null, ImportResolver.DEFAULT_IMPORT_RESOLVER),
+          ClassScope(symbolResolver, lambdaType, null, ImportResolver.DEFAULT_IMPORTS),
           lambdaConstructor
         )
       ) { scope ->

@@ -10,11 +10,21 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.extensions.javaType
+import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.field.BoundField
 import marcel.lang.Script
 
-class MarcelReplSemantic(private val replSymbolResolver: ReplMarcelSymbolResolver, cst: SourceFileCstNode, fileName: String) : MarcelSemantic(replSymbolResolver, Script::class.javaType, cst, fileName) {
+class MarcelReplSemantic(
+  private val replSymbolResolver: ReplMarcelSymbolResolver,
+  cst: SourceFileCstNode,
+  fileName: String,
+  imports: ImportResolver.Imports
+) : MarcelSemantic(replSymbolResolver, Script::class.javaType, cst, fileName) {
+
+  init {
+    this.imports.add(imports)
+  }
 
   override fun assignment(node: BinaryOperatorCstNode, smartCastType: JavaType?): com.tambapps.marcel.semantic.ast.expression.ExpressionNode {
     val scope = currentMethodScope

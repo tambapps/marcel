@@ -24,9 +24,7 @@ class MarcelEvaluator constructor(
   )
   fun eval(code: String): Any? {
     val result = replCompiler.compile(code)
-    for (importNode in result.semanticResult.imports) {
-      replCompiler.addImport(importNode)
-    }
+    replCompiler.addImports(result.semanticResult.imports)
     val scriptNode = result.semanticResult.scriptNode
 
     if (result.otherClasses.isNotEmpty()) {

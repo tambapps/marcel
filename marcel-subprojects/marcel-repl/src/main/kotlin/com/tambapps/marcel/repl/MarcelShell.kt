@@ -9,7 +9,6 @@ import com.tambapps.marcel.repl.command.*
 import com.tambapps.marcel.repl.jar.JarWriterFactory
 import com.tambapps.marcel.repl.printer.Printer
 import com.tambapps.marcel.semantic.ast.ClassNode
-import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
@@ -32,7 +31,7 @@ abstract class MarcelShell constructor(
   val lastNode: ClassNode? get() = replCompiler.semanticResult?.scriptNode
   val definedTypes get() = symbolResolver.definedTypes.filter { !it.isScript }
   val definedFunctions get() = replCompiler.definedFunctions
-  val imports: Collection<ImportNode> get() = replCompiler.imports
+  val imports get() = replCompiler.imports
   abstract val initScriptFile: File?
 
   protected val replCompiler = MarcelReplCompiler(compilerConfiguration, marcelClassLoader, symbolResolver)
@@ -196,7 +195,7 @@ abstract class MarcelShell constructor(
   }
 
   fun addImport(importArgs: String) {
-    replCompiler.addImport("import $importArgs")
+    replCompiler.addRawImport("import $importArgs")
   }
 
 }

@@ -16,11 +16,9 @@ import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.imprt.ImportResolverGenerator
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.ImportScope
-import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.type.SourceJavaType
-import com.tambapps.marcel.semantic.visitor.ImportCstNodeConverter
 
 /**
  * Base class for CST transformations providing handy methods to handle/generate CST nodes
@@ -48,7 +46,7 @@ abstract class AbstractCstTransformation : CstNodeComposer(), CstSemantic, Synta
   private fun newScope(node: CstNode): ImportScope {
     var cstNode: CstNode = node
     while (cstNode !is SourceFileCstNode) {
-      if (node.parent == null) return ImportScope(symbolResolver, ImportResolver.DEFAULT_IMPORT_RESOLVER, null)
+      if (node.parent == null) return ImportScope(symbolResolver, ImportResolver.DEFAULT_IMPORTS, null)
       cstNode = cstNode.parent!!
     }
     return ImportScope(

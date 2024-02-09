@@ -127,7 +127,7 @@ abstract class AstNodeComposer : MarcelBaseSemantic() {
     methodNode.annotations.addAll(annotations)
     val statements = methodNode.blockStatement.statements
 
-    useScope(MethodScope(ClassScope(symbolResolver, ownerClass, null, ImportResolver.DEFAULT_IMPORT_RESOLVER), methodNode)) {
+    useScope(MethodScope(ClassScope(symbolResolver, ownerClass, null, ImportResolver.DEFAULT_IMPORTS), methodNode)) {
       val statementComposer = StatementsComposer(statements)
       statementsSupplier.invoke(statementComposer) // it will directly add the statements on the method's statements
     }
@@ -140,7 +140,7 @@ abstract class AstNodeComposer : MarcelBaseSemantic() {
 
   protected fun addStatements(methodNode: MethodNode, statementsSupplier: StatementsComposer.() -> Unit): MethodNode {
     val statements = methodNode.blockStatement.statements
-    useScope(MethodScope(ClassScope(symbolResolver, methodNode.ownerClass, null, ImportResolver.DEFAULT_IMPORT_RESOLVER), methodNode)) {
+    useScope(MethodScope(ClassScope(symbolResolver, methodNode.ownerClass, null, ImportResolver.DEFAULT_IMPORTS), methodNode)) {
       val statementComposer = StatementsComposer(statements)
       statementsSupplier.invoke(statementComposer) // it will directly add the statements on the method's statements
     }
@@ -405,7 +405,7 @@ abstract class AstNodeComposer : MarcelBaseSemantic() {
     )
 
     val statements = lambdaMethod.blockStatement.statements
-    useScope(MethodScope(ClassScope(symbolResolver, lambdaClassNode.type, null, ImportResolver.DEFAULT_IMPORT_RESOLVER), lambdaMethod)) {
+    useScope(MethodScope(ClassScope(symbolResolver, lambdaClassNode.type, null, ImportResolver.DEFAULT_IMPORTS), lambdaMethod)) {
       val statementComposer = StatementsComposer(statements)
       lambdaBodyStatementComposerFunc.invoke(statementComposer)
       if (!AllPathsReturnVisitor.test(statements) && returnType == JavaType.void) {

@@ -152,7 +152,6 @@ import com.tambapps.marcel.semantic.scope.ImportScope
 import com.tambapps.marcel.semantic.scope.LambdaMethodScope
 import com.tambapps.marcel.semantic.scope.MethodInnerScope
 import com.tambapps.marcel.semantic.scope.MethodScope
-import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.type.JavaType
@@ -161,7 +160,6 @@ import com.tambapps.marcel.semantic.type.SourceJavaType
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
-import com.tambapps.marcel.semantic.visitor.ImportCstNodeConverter
 import com.tambapps.marcel.semantic.visitor.ReturningBranchTransformer
 import com.tambapps.marcel.semantic.visitor.ReturningWhenIfBranchTransformer
 import marcel.util.concurrent.Threadmill
@@ -213,7 +211,7 @@ open class MarcelSemantic(
 
   private val classNodeMap = mutableMapOf<JavaType, ClassNode>() // useful to add methods while performing analysis
 
-  protected var importResolver = ImportResolverGenerator.generate(symbolResolver, cst.imports)
+  val imports = ImportResolverGenerator.generateImports(symbolResolver, cst.imports)
   protected val methodResolver = MethodResolver(symbolResolver, caster)
 
   // for extension classes
@@ -221,7 +219,7 @@ open class MarcelSemantic(
     get() = currentMethodScope.findLocalVariable("self") ?: throw RuntimeException("Compiler error.")
 
   init {
-    scopeQueue.push(ImportScope(symbolResolver, importResolver, cst.packageName))
+    scopeQueue.push(ImportScope(symbolResolver, imports.toResolver(), cst.packageName))
   }
 
   fun apply(): ModuleNode {
@@ -265,7 +263,7 @@ open class MarcelSemantic(
       val scriptNode = classNode(classType, scriptCstNode)
       // need the binding constructor. the no-arg constructor should have been added in the classNode() method
       scriptNode.methods.add(SemanticHelper.scriptBindingConstructor(scriptNode, symbolResolver, scriptType))
-      useScope(ClassScope(symbolResolver, classType, null, importResolver)) {
+      useScope(ClassScope(symbolResolver, classType, null, imports.toResolver())) {
         // add the run method
         val runMethod = SemanticHelper.scriptRunMethod(classType, cst)
         fillMethodNode(
@@ -298,7 +296,7 @@ open class MarcelSemantic(
   }
 
   fun defineClassMembers(classCstNode: ClassCstNode, classType: JavaType, recursive: Boolean = true) = useScope(
-    ClassScope(symbolResolver, classType, classCstNode.forExtensionType?.let { resolve(it) }, importResolver)
+    ClassScope(symbolResolver, classType, classCstNode.forExtensionType?.let { resolve(it) }, imports.toResolver())
   ) {
     if (classCstNode.isExtensionClass) {
       val extensionCstType = classCstNode.forExtensionType!!
@@ -332,7 +330,7 @@ open class MarcelSemantic(
   }
 
   private fun classNode(classType: JavaType, node: ClassCstNode): ClassNode =
-    useScope(ClassScope(symbolResolver, classType, node.forExtensionType?.let(this::resolve), importResolver)) { classScope ->
+    useScope(ClassScope(symbolResolver, classType, node.forExtensionType?.let(this::resolve), imports.toResolver())) { classScope ->
       val classNode = ClassNode(
         classType, Visibility.fromTokenType(node.access.visibility),
         classScope.forExtensionType,
@@ -836,7 +834,7 @@ open class MarcelSemantic(
       )
       useScope(
         MethodScope(
-          ClassScope(symbolResolver, lambdaClassNode.type, null, ImportResolver.DEFAULT_IMPORT_RESOLVER),
+          ClassScope(symbolResolver, lambdaClassNode.type, null, ImportResolver.DEFAULT_IMPORTS),
           lambdaMethod
         )
       ) { scope ->
@@ -909,10 +907,10 @@ open class MarcelSemantic(
   }
 
   private fun newMethodScope(method: JavaMethod) =
-    MethodScope(ClassScope(symbolResolver, currentScope.classType, null, importResolver), method)
+    MethodScope(ClassScope(symbolResolver, currentScope.classType, null, imports.toResolver()), method)
 
   private fun newMethodScope(classType: JavaType, forExtensionType: JavaType?, method: JavaMethod) =
-    MethodScope(ClassScope(symbolResolver, classType, forExtensionType, importResolver), method)
+    MethodScope(ClassScope(symbolResolver, classType, forExtensionType, imports.toResolver()), method)
 
   /*
    * node visits
@@ -2122,7 +2120,7 @@ open class MarcelSemantic(
    * Otherwise, it will implement the lambda object
    */
   private fun defineLambda(lambdaNode: LambdaClassNode): Unit =
-    useScope(ClassScope(symbolResolver, lambdaNode.type, null, importResolver)) { classScope ->
+    useScope(ClassScope(symbolResolver, lambdaNode.type, null, imports.toResolver())) { classScope ->
       if (lambdaNode.interfaceTypes.size > 1) {
         throw MarcelSemanticException(
           lambdaNode.token,

@@ -19,7 +19,7 @@ class ScopeTest {
 
   companion object {
     private val TYPE_RESOLVER = MarcelSymbolResolver()
-    private val CLASS_SCOPE = ClassScope(TYPE_RESOLVER, Object, null, ImportResolver.DEFAULT_IMPORT_RESOLVER)
+    private val CLASS_SCOPE = ClassScope(TYPE_RESOLVER, Object, null, ImportResolver.DEFAULT_IMPORTS)
     private val METHOD = MethodNode("foo", mutableListOf(),  Visibility.PUBLIC, Object, isStatic = false, LexToken.DUMMY, LexToken.DUMMY, Object)
   }
 

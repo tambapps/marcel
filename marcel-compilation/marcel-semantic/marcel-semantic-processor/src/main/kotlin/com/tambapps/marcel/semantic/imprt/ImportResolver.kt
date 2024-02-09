@@ -13,8 +13,28 @@ class ImportResolver internal constructor(
   val staticMemberImports: Map<String, JavaType>, // memberName -> memberOwnerType
 ) {
 
+  data class Imports internal constructor(
+    val typeImports: MutableMap<String, JavaType>,
+    val wildcardTypeImportPrefixes: MutableSet<String>,
+    val staticMemberImports: MutableMap<String, JavaType>,
+  ) {
+    companion object {
+      fun empty() = Imports(mutableMapOf(), mutableSetOf(), mutableMapOf())
+    }
+
+    fun isEmpty() = typeImports.isEmpty() && wildcardTypeImportPrefixes.isEmpty() && wildcardTypeImportPrefixes.isEmpty()
+
+    fun toResolver() = ImportResolver(typeImports.toMap(), wildcardTypeImportPrefixes.toSet(), staticMemberImports.toMap())
+
+    fun add(imports: Imports) {
+      typeImports.putAll(imports.typeImports)
+      wildcardTypeImportPrefixes.addAll(imports.wildcardTypeImportPrefixes)
+      staticMemberImports.putAll(imports.staticMemberImports)
+    }
+  }
+
   companion object {
-    val DEFAULT_IMPORT_RESOLVER = ImportResolver(
+    val DEFAULT_IMPORTS = ImportResolver(
       typeImports = mapOf(),
       wildcardTypeImportPrefixes = listOf(
         "java.lang",
@@ -56,4 +76,6 @@ class ImportResolver internal constructor(
     wildcardTypeImportPrefixes: Collection<String> = this.wildcardTypeImportPrefixes,
     staticMemberImports: Map<String, JavaType> = this.staticMemberImports
   ) = ImportResolver(typeImports, wildcardTypeImportPrefixes, staticMemberImports)
+
+  fun toImports() = Imports(typeImports.toMutableMap(), wildcardTypeImportPrefixes.toMutableSet(), staticMemberImports.toMutableMap())
 }

@@ -34,7 +34,7 @@ class MarcelSemanticTest {
 
   companion object {
     private val TYPE_RESOLVER = MarcelSymbolResolver()
-    private val CLASS_SCOPE = ClassScope(TYPE_RESOLVER, JavaType.Object, null, ImportResolver.DEFAULT_IMPORT_RESOLVER)
+    private val CLASS_SCOPE = ClassScope(TYPE_RESOLVER, JavaType.Object, null, ImportResolver.DEFAULT_IMPORTS)
     private val METHOD = MethodNode("foo", mutableListOf(),  Visibility.PUBLIC, JavaType.int, isStatic = false, LexToken.DUMMY, LexToken.DUMMY, JavaType.Object)
   }
   private val sourceFile = mock(SourceFileCstNode::class.java)

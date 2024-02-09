@@ -2,7 +2,7 @@ package com.tambapps.marcel.semantic.imprt
 
 import com.tambapps.marcel.parser.cst.imprt.*
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
-import com.tambapps.marcel.semantic.imprt.ImportResolver.Companion.DEFAULT_IMPORT_RESOLVER
+import com.tambapps.marcel.semantic.imprt.ImportResolver.Companion.DEFAULT_IMPORTS
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 
 object ImportResolverGenerator {
@@ -13,12 +13,18 @@ object ImportResolverGenerator {
     return builder.build()
   }
 
+  fun generateImports(symbolResolver: MarcelSymbolResolver, cstImports: List<ImportCstNode>): ImportResolver.Imports {
+    val builder = ImportResolverBuilder(symbolResolver)
+    cstImports.forEach { it.accept(builder) }
+    return builder.buildImports()
+  }
+
   private class ImportResolverBuilder(
     private val symbolResolver: MarcelSymbolResolver
   ): ImportCstVisitor<Unit> {
-    val typeImports = DEFAULT_IMPORT_RESOLVER.typeImports.toMutableMap()
-    val wildcardTypeImportPrefixes = DEFAULT_IMPORT_RESOLVER.wildcardTypeImportPrefixes.toMutableSet()
-    val staticMemberImports = DEFAULT_IMPORT_RESOLVER.staticMemberImports.toMutableMap()
+    val typeImports = DEFAULT_IMPORTS.typeImports.toMutableMap()
+    val wildcardTypeImportPrefixes = DEFAULT_IMPORTS.wildcardTypeImportPrefixes.toMutableSet()
+    val staticMemberImports = DEFAULT_IMPORTS.staticMemberImports.toMutableMap()
 
     override fun visit(node: SimpleImportCstNode) {
       val key = node.asName ?: node.className.let {
@@ -45,6 +51,7 @@ object ImportResolverGenerator {
     }
 
     fun build() = ImportResolver(typeImports, wildcardTypeImportPrefixes, staticMemberImports)
+    fun buildImports() = ImportResolver.Imports(typeImports, wildcardTypeImportPrefixes, staticMemberImports)
 
   }
 }

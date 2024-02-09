@@ -11,9 +11,9 @@ import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.repl.semantic.MarcelReplSemantic
-import com.tambapps.marcel.semantic.ast.ImportNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
-import com.tambapps.marcel.semantic.visitor.ImportCstNodeConverter
+import com.tambapps.marcel.semantic.imprt.ImportResolver
+import com.tambapps.marcel.semantic.imprt.ImportResolverGenerator
 import marcel.lang.MarcelClassLoader
 import kotlin.jvm.Throws
 
@@ -23,7 +23,7 @@ class MarcelReplCompiler constructor(
   private val symbolResolver: ReplMarcelSymbolResolver,
 ): AbstractMarcelCompiler(compilerConfiguration) {
 
-  val imports = LinkedHashSet<ImportNode>()
+  val imports = ImportResolver.Imports.empty()
   private val lexer = MarcelLexer(false)
   private val _definedFunctions = mutableSetOf<com.tambapps.marcel.parser.cst.MethodCstNode>()
   val definedFunctions: Set<com.tambapps.marcel.parser.cst.MethodCstNode> get() = _definedFunctions
@@ -33,12 +33,12 @@ class MarcelReplCompiler constructor(
     private set
   private val dumbbells = mutableSetOf<String>()
 
-  fun addImport(importString: String) {
-    addImport(ImportCstNodeConverter.convert(MarcelParser(lexer.lex(importString)).import()))
+  fun addRawImport(importString: String) {
+    addImports(ImportResolverGenerator.generateImports(symbolResolver, listOf(MarcelParser(lexer.lex(importString)).import())))
   }
 
-  fun addImport(importNode: ImportNode) {
-    imports.add(importNode)
+  fun addImports(imports: ImportResolver.Imports) {
+    this.imports.add(imports)
   }
 
   fun compile(text: String): ReplCompilerResult {
@@ -129,8 +129,7 @@ class MarcelReplCompiler constructor(
       if (dumbbells.add(dumbbell)) handleDumbbell(marcelClassLoader, dumbbell)
     }
 
-    val semantic = MarcelReplSemantic(symbolResolver, cst, "prompt.mcl")
-    // TODO handle imports in repl compiler semantic.imports.addAll(imports)
+    val semantic = MarcelReplSemantic(symbolResolver, cst, "prompt.mcl", imports)
 
 
     // defining types
@@ -149,8 +148,7 @@ class MarcelReplCompiler constructor(
     // checks
     check(ast, symbolResolver)
 
-    // TODO handle imports
-    val r = SemanticResult(tokens, cst, ast.classes, emptyList(), text.hashCode())
+    val r = SemanticResult(tokens, cst, ast.classes, semantic.imports, text.hashCode())
     if (!skipUpdate) {
       this.semanticResult = r
     }

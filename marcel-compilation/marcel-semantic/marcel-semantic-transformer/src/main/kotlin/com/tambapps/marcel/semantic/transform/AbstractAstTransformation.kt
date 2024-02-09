@@ -25,7 +25,7 @@ abstract class AbstractAstTransformation : AstNodeComposer(), SyntaxTreeTransfor
   }
 
   protected fun classScope(classNode: ClassNode) = classScope(classNode.type)
-  protected fun classScope(classType: JavaType) = ClassScope(symbolResolver, classType, null, ImportResolver.DEFAULT_IMPORT_RESOLVER)
+  protected fun classScope(classType: JavaType) = ClassScope(symbolResolver, classType, null, ImportResolver.DEFAULT_IMPORTS)
 
   fun resolve(node: TypeCstNode): JavaType = currentScope.resolveTypeOrThrow(node)
 

@@ -1,8 +1,6 @@
 package com.tambapps.marcel.semantic
 
 import com.tambapps.marcel.parser.cst.CstNode
-import com.tambapps.marcel.semantic.ast.ImportNode
-import com.tambapps.marcel.semantic.ast.StaticImportNode
 import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode

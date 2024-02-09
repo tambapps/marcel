@@ -2,7 +2,7 @@ package com.tambapps.marcel.repl.command
 
 import com.tambapps.marcel.repl.MarcelShell
 import com.tambapps.marcel.repl.printer.Printer
-import com.tambapps.marcel.semantic.ast.ImportNode
+import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.type.JavaType
 import marcel.lang.Binding
 
@@ -77,12 +77,24 @@ class ListCommand: AbstractShellCommand() {
     }
   }
 
-  private suspend fun printImports(imports: Collection<ImportNode>, out: Printer) {
+  private suspend fun printImports(imports: ImportResolver.Imports, out: Printer) {
     if (imports.isEmpty()) {
       out.println("No imports added")
       return
     }
-    imports.forEach { out.println(it) }
+    for ((importKey, javaType) in imports.typeImports) {
+      if (javaType.simpleName == importKey) {
+        out.println("import $javaType")
+      } else {
+        out.println("import $javaType as $importKey")
+      }
+    }
+    for (wildcardPrefix in imports.wildcardTypeImportPrefixes) {
+      out.println("import $wildcardPrefix.*")
+    }
+    for ((memberName, javaType) in imports.staticMemberImports) {
+      out.println("import $javaType.$memberName")
+    }
   }
 
 }
