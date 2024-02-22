@@ -31,9 +31,10 @@ open class CompositeField(override val name: String): MarcelField {
   override val isMarcelStatic get() = (getters + setters).all { it.isMarcelStatic }
   override val owner get() = (getters.firstOrNull() ?: setters.first()).owner
   override val visibility get() = (getters + setters).map { it.visibility }.maxBy { it.ordinal }
-  override fun isVisibleFrom(javaType: JavaType, access: Variable.Access) = when (access) {
+  override fun isVisibleFrom(javaType: JavaType, access: Variable.Access): Boolean = when (access) {
     Variable.Access.GET -> getters.any { it.isVisibleFrom(javaType, access) }
     Variable.Access.SET -> setters.any { it.isVisibleFrom(javaType, access) }
+    Variable.Access.ANY -> isVisibleFrom(javaType, Variable.Access.GET) || isVisibleFrom(javaType, Variable.Access.SET)
   }
 
   override val type get() =  JavaType.commonType((getters + setters).map { it.type })

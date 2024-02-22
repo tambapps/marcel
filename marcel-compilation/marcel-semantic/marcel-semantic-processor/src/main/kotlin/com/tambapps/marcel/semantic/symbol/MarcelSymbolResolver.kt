@@ -6,6 +6,7 @@ import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.exception.TypeNotFoundException
 import com.tambapps.marcel.semantic.exception.VariableNotFoundException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.ExtensionJavaMethod
@@ -253,7 +254,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
       else Class.forName(className)
       return JavaType.of(clazz).withGenericTypes(genericTypes)
     } catch (e: ClassNotFoundException) {
-      throw MarcelSemanticException(token, "Class $className was not found")
+      throw TypeNotFoundException(token, "Class $className was not found")
     }
   }
 

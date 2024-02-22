@@ -5,6 +5,7 @@ import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.variable.field.MarcelField
 
 /**
@@ -21,10 +22,13 @@ class ClassScope(
     var type: JavaType? = classType
     while (type != null) {
       val f = symbolResolver.findField(type, name)
-      if (f != null) return f
+      if (f != null && f.isVisibleFrom(classType, Variable.Access.ANY)) return f
       type = type.outerTypeName?.let { symbolResolver.of(it, emptyList(), LexToken.DUMMY) }
     }
-    return null
+
+    // find from imports
+    val fieldOwner = importResolver.resolveMemberOwnerType(name) ?: return null
+    return symbolResolver.findField(fieldOwner, name)
   }
 
   override fun findLocalVariable(name: String) = null

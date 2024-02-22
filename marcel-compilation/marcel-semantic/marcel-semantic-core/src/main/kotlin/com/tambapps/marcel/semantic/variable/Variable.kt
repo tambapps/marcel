@@ -8,7 +8,7 @@ import com.tambapps.marcel.semantic.type.JavaTyped
  */
 interface Variable : JavaTyped {
   enum class Access {
-    GET, SET
+    GET, SET, ANY
   }
   fun <T> accept(visitor: VariableVisitor<T>): T
 

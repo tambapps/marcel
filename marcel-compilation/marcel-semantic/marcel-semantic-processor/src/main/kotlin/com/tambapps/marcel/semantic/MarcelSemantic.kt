@@ -135,6 +135,7 @@ import com.tambapps.marcel.semantic.ast.statement.ThrowNode
 import com.tambapps.marcel.semantic.ast.statement.TryNode
 import com.tambapps.marcel.semantic.ast.statement.WhileNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.exception.TypeNotFoundException
 import com.tambapps.marcel.semantic.exception.VariableNotFoundException
 import com.tambapps.marcel.semantic.extensions.getDefaultValueExpression
 import com.tambapps.marcel.semantic.extensions.javaAnnotationType
@@ -1215,9 +1216,7 @@ open class MarcelSemantic(
                   cst.tokenEnd
                 )
               )
-            } catch (e2: MarcelSemanticException) {
-              // TODO create custom exception type not found and only catch this.
-              //   as we can throw other exceptions
+            } catch (e2: TypeNotFoundException) {
               throw MarcelSemanticException(node.token, "Neither a variable nor a class ${leftOperand.value} was found")
             }
             staticDotOperator(node, type, rightOperand)

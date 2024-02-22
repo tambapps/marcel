@@ -56,9 +56,8 @@ class ImportResolver internal constructor(
       }
   }
 
-  // TODO memberName use it also for enums and static fields
-  fun resolveMemberOwnerType(methodName: String): JavaType? {
-    return staticMemberImports[methodName]
+  fun resolveMemberOwnerType(memberName: String): JavaType? {
+    return staticMemberImports[memberName]
   }
 
   fun plus(
