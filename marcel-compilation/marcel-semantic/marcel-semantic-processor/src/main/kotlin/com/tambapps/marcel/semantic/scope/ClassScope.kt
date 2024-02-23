@@ -28,7 +28,8 @@ class ClassScope(
 
     // find from imports
     val fieldOwner = importResolver.resolveMemberOwnerType(name) ?: return null
-    return symbolResolver.findField(fieldOwner, name)
+    val field = symbolResolver.findField(fieldOwner, name) ?: return null
+    return if (field.isMarcelStatic) field else null
   }
 
   override fun findLocalVariable(name: String) = null
