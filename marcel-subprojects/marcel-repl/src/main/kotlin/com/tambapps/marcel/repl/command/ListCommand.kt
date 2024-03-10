@@ -2,7 +2,7 @@ package com.tambapps.marcel.repl.command
 
 import com.tambapps.marcel.repl.MarcelShell
 import com.tambapps.marcel.repl.printer.Printer
-import com.tambapps.marcel.semantic.imprt.ImportResolver
+import com.tambapps.marcel.semantic.imprt.MutableImportResolver
 import com.tambapps.marcel.semantic.type.JavaType
 import marcel.lang.Binding
 
@@ -77,7 +77,7 @@ class ListCommand: AbstractShellCommand() {
     }
   }
 
-  private suspend fun printImports(imports: ImportResolver.Imports, out: Printer) {
+  private suspend fun printImports(imports: MutableImportResolver, out: Printer) {
     if (imports.isEmpty()) {
       out.println("No imports added")
       return

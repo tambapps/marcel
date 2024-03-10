@@ -13,27 +13,6 @@ open class ImportResolver internal constructor(
   val staticMemberImports: Map<String, JavaType>, // memberName -> memberOwnerType
 ) {
 
-  // TODO rename MutableImportResolver and make it a top-level class
-  class Imports internal constructor(
-    typeImports: MutableMap<String, JavaType>,
-    wildcardTypeImportPrefixes: MutableSet<String>,
-    staticMemberImports: MutableMap<String, JavaType>,
-  ): ImportResolver(typeImports, wildcardTypeImportPrefixes, staticMemberImports) {
-    companion object {
-      fun empty() = Imports(LinkedHashMap(), LinkedHashSet(), LinkedHashMap())
-    }
-
-    fun isEmpty() = typeImports.isEmpty() && wildcardTypeImportPrefixes.isEmpty() && staticMemberImports.isEmpty()
-
-    fun toResolver() = ImportResolver(typeImports.toMap(), wildcardTypeImportPrefixes.toSet(), staticMemberImports.toMap())
-
-    fun add(imports: Imports) {
-      (typeImports as MutableMap).putAll(imports.typeImports)
-      (wildcardTypeImportPrefixes as MutableCollection).addAll(imports.wildcardTypeImportPrefixes)
-      (staticMemberImports as MutableMap).putAll(imports.staticMemberImports)
-    }
-  }
-
   companion object {
     val DEFAULT_IMPORTS = ImportResolver(
       typeImports = mapOf(),
@@ -81,5 +60,5 @@ open class ImportResolver internal constructor(
     staticMemberImports: Map<String, JavaType> = this.staticMemberImports
   ) = ImportResolver(typeImports, wildcardTypeImportPrefixes, staticMemberImports)
 
-  fun toImports() = Imports(typeImports.toMutableMap(), wildcardTypeImportPrefixes.toMutableSet(), staticMemberImports.toMutableMap())
+  fun toImports() = MutableImportResolver(typeImports.toMutableMap(), wildcardTypeImportPrefixes.toMutableSet(), staticMemberImports.toMutableMap())
 }

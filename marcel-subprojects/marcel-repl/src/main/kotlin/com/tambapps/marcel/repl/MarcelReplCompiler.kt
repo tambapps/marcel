@@ -14,6 +14,7 @@ import com.tambapps.marcel.repl.semantic.MarcelReplSemantic
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.imprt.ImportResolverGenerator
+import com.tambapps.marcel.semantic.imprt.MutableImportResolver
 import marcel.lang.MarcelClassLoader
 import kotlin.jvm.Throws
 
@@ -23,7 +24,7 @@ class MarcelReplCompiler constructor(
   private val symbolResolver: ReplMarcelSymbolResolver,
 ): AbstractMarcelCompiler(compilerConfiguration) {
 
-  val imports = ImportResolver.Imports.empty()
+  val imports = MutableImportResolver.empty()
   private val lexer = MarcelLexer(false)
   private val _definedFunctions = mutableSetOf<com.tambapps.marcel.parser.cst.MethodCstNode>()
   val definedFunctions: Set<com.tambapps.marcel.parser.cst.MethodCstNode> get() = _definedFunctions
@@ -37,7 +38,7 @@ class MarcelReplCompiler constructor(
     addImports(ImportResolverGenerator.generateImports(symbolResolver, listOf(MarcelParser(lexer.lex(importString)).import())))
   }
 
-  fun addImports(imports: ImportResolver.Imports) {
+  fun addImports(imports: ImportResolver) {
     this.imports.add(imports)
   }
 

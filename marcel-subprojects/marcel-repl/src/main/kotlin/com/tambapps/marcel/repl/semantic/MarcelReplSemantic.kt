@@ -6,11 +6,10 @@ import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ReferenceCstNode as ReferenceCstNode
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 import com.tambapps.marcel.semantic.MarcelSemantic
-import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.imprt.ImportResolver
+import com.tambapps.marcel.semantic.imprt.MutableImportResolver
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.field.BoundField
 import marcel.lang.Script
@@ -19,7 +18,7 @@ class MarcelReplSemantic(
   private val replSymbolResolver: ReplMarcelSymbolResolver,
   cst: SourceFileCstNode,
   fileName: String,
-  imports: ImportResolver.Imports
+  imports: MutableImportResolver
 ) : MarcelSemantic(replSymbolResolver, Script::class.javaType, cst, fileName) {
 
   init {
