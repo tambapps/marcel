@@ -51,7 +51,12 @@ interface SymbolDefinerTrait {
       s.cst.classes.forEach { predefineTypes(s, it, toDefineTypes) }
     }
 
-    // define scripts after the rest, because script might use other classes but it can't be the other way around
+    // then make the semantic resolve imports, now that we registered the existence of all source types
+    for (s in semantics) {
+      s.resolveImports()
+    }
+
+    // define scripts after the rest, because script might use other classes, but it can't be the other way around
     for (s in semantics) {
       s.cst.script?.let { predefineTypes(s, it, toDefineTypes) }
     }

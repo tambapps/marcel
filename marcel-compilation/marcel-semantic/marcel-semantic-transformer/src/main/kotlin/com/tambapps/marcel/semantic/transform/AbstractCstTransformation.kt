@@ -51,7 +51,7 @@ abstract class AbstractCstTransformation : CstNodeComposer(), CstSemantic, Synta
     }
     return ImportScope(
       symbolResolver,
-      ImportResolverGenerator.generate(symbolResolver, cstNode.imports),
+      ImportResolver.DEFAULT_IMPORTS + ImportResolverGenerator.generate(symbolResolver, cstNode.imports),
       cstNode.packageName
     )
   }

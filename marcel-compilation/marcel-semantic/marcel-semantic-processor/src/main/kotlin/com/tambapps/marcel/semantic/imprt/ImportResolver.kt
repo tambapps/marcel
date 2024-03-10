@@ -7,17 +7,18 @@ import com.tambapps.marcel.semantic.type.JavaType
 /**
  * Class allowing to resolve types from imports
  */
-class ImportResolver internal constructor(
+open class ImportResolver internal constructor(
   val typeImports: Map<String, JavaType>, // valueSimpleName -> value, asName -> value
   val wildcardTypeImportPrefixes: Collection<String>,
   val staticMemberImports: Map<String, JavaType>, // memberName -> memberOwnerType
 ) {
 
-  data class Imports internal constructor(
-    val typeImports: MutableMap<String, JavaType>,
-    val wildcardTypeImportPrefixes: MutableSet<String>,
-    val staticMemberImports: MutableMap<String, JavaType>,
-  ) {
+  // TODO rename MutableImportResolver and make it a top-level class
+  class Imports internal constructor(
+    typeImports: MutableMap<String, JavaType>,
+    wildcardTypeImportPrefixes: MutableSet<String>,
+    staticMemberImports: MutableMap<String, JavaType>,
+  ): ImportResolver(typeImports, wildcardTypeImportPrefixes, staticMemberImports) {
     companion object {
       fun empty() = Imports(LinkedHashMap(), LinkedHashSet(), LinkedHashMap())
     }
@@ -27,9 +28,9 @@ class ImportResolver internal constructor(
     fun toResolver() = ImportResolver(typeImports.toMap(), wildcardTypeImportPrefixes.toSet(), staticMemberImports.toMap())
 
     fun add(imports: Imports) {
-      typeImports.putAll(imports.typeImports)
-      wildcardTypeImportPrefixes.addAll(imports.wildcardTypeImportPrefixes)
-      staticMemberImports.putAll(imports.staticMemberImports)
+      (typeImports as MutableMap).putAll(imports.typeImports)
+      (wildcardTypeImportPrefixes as MutableCollection).addAll(imports.wildcardTypeImportPrefixes)
+      (staticMemberImports as MutableMap).putAll(imports.staticMemberImports)
     }
   }
 
@@ -69,6 +70,10 @@ class ImportResolver internal constructor(
     wildcardTypeImportPrefixes = wildcardTypeImportPrefixes + this.wildcardTypeImportPrefixes,
     staticMemberImports = staticMemberImports + this.staticMemberImports
   )
+
+  operator fun plus(other: ImportResolver): ImportResolver {
+    return plus(typeImports = other.typeImports, wildcardTypeImportPrefixes = other.wildcardTypeImportPrefixes, staticMemberImports = other.staticMemberImports)
+  }
 
   fun copy(
     typeImports: Map<String, JavaType> = this.typeImports,

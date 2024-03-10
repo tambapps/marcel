@@ -93,7 +93,7 @@ class MarcelCompilerTest: AbstractCompilerTest() {
   @Disabled
   @Test
   fun manualTest() {
-    val eval = eval("/tests/test_imports.mcl")
+    val eval = eval("/tests/test_lazy.mcl")
     println(eval)
   }
 }

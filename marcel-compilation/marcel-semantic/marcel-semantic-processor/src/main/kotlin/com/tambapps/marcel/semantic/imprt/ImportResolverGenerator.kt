@@ -4,6 +4,7 @@ import com.tambapps.marcel.parser.cst.imprt.*
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.imprt.ImportResolver.Companion.DEFAULT_IMPORTS
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.semantic.type.JavaType
 
 object ImportResolverGenerator {
 
@@ -22,9 +23,9 @@ object ImportResolverGenerator {
   private class ImportResolverBuilder(
     private val symbolResolver: MarcelSymbolResolver
   ): ImportCstVisitor<Unit> {
-    val typeImports = DEFAULT_IMPORTS.typeImports.toMutableMap()
-    val wildcardTypeImportPrefixes = DEFAULT_IMPORTS.wildcardTypeImportPrefixes.toMutableSet()
-    val staticMemberImports = DEFAULT_IMPORTS.staticMemberImports.toMutableMap()
+    val typeImports = mutableMapOf<String, JavaType>()
+    val wildcardTypeImportPrefixes = mutableSetOf<String>()
+    val staticMemberImports = mutableMapOf<String, JavaType>()
 
     override fun visit(node: SimpleImportCstNode) {
       val key = node.asName ?: node.className.let {
@@ -33,8 +34,6 @@ object ImportResolverGenerator {
       if (typeImports.containsKey(key)) {
         throw MarcelSemanticException(node.token, "An import for type $key already exists")
       }
-      // TODO big problem. in a maven project, where there are multiple source files, we can't reference,
-      //  classes defined in another file. We may need to use this class later in the semantic analysis (after having defined the symbols)
       typeImports[key] = symbolResolver.of(node.className, token = node.token)
     }
 
