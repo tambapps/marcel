@@ -14,7 +14,10 @@
   <name>Marcel Dependencies</name>
   <description>Project to have all marcel external dependencies in one jar</description>
 
-  <!-- TODO skip this module in deployment -->
+  <properties>
+    <maven.deploy.skip>true</maven.deploy.skip>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.tambapps.maven</groupId>
@@ -48,8 +51,14 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>${maven.deploy.skip}</skip>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.4.2</version>
         <executions>
           <execution>
             <id>make-assembly</id>
