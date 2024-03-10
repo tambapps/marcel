@@ -2,7 +2,7 @@
 
 set -e # exit on any command failure
 
-MARCEL_RELEASE=0.1.0 # Update the release number you want here
+MARCEL_RELEASE=0.1.1 # Update the release number you want here
 if ! command -v wget &> /dev/null
 then
     echo "Error: wget must be installed"
