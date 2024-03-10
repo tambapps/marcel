@@ -33,6 +33,8 @@ object ImportResolverGenerator {
       if (typeImports.containsKey(key)) {
         throw MarcelSemanticException(node.token, "An import for type $key already exists")
       }
+      // TODO big problem. in a maven project, where there are multiple source files, we can't reference,
+      //  classes defined in another file. We may need to use this class later in the semantic analysis (after having defined the symbols)
       typeImports[key] = symbolResolver.of(node.className, token = node.token)
     }
 
