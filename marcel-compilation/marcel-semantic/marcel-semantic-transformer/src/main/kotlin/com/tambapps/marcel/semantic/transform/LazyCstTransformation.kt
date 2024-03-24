@@ -46,11 +46,13 @@ class LazyCstTransformation : AbstractCstTransformation() {
 
     val getMethod = methodNode(
       classNode = classNode,
-      accessNode = AccessCstNode(
-        classNode, LexToken.DUMMY, LexToken.DUMMY,
-        isStatic = node.access.isStatic, isInline = false, isFinal = true, visibility = originalVisibility,
-        isExplicit = true
-      ),
+      accessNode = access(
+        parent = classNode,
+        isStatic = node.access.isStatic,
+        isFinal = true,
+        visibility = originalVisibility
+      )
+      ,
       name = "get" + originalFieldName[0].uppercase() + originalFieldName.substring(1),
       returnType = node.type,
       tokenStart = node.tokenStart,

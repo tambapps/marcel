@@ -12,6 +12,7 @@ import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.NullCstNode
+import com.tambapps.marcel.parser.cst.expression.reference.DirectFieldReferenceCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ReferenceCstNode
 import com.tambapps.marcel.parser.cst.statement.BlockCstNode
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
@@ -19,8 +20,10 @@ import com.tambapps.marcel.parser.cst.statement.IfStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.Variable
+import kotlin.reflect.KClass
 
 open class CstNodeComposer {
 
@@ -54,10 +57,27 @@ open class CstNodeComposer {
     Visibility.PRIVATE -> TokenType.VISIBILITY_PRIVATE
   }
 
+  protected fun access(parent: CstNode, isStatic: Boolean = false, isFinal: Boolean = false, isExplicit: Boolean = true,
+                       visibility: Visibility = Visibility.PUBLIC) =
+    access(parent = parent, isStatic = isStatic, isFinal = isFinal, isExplicit = isExplicit, visibility = visibility(visibility))
+
+  protected fun access(parent: CstNode, isStatic: Boolean = false, isFinal: Boolean = false, isExplicit: Boolean = true,
+                       visibility: TokenType) = AccessCstNode(
+    parent = parent,
+    tokenStart = LexToken.DUMMY,
+    tokenEnd = LexToken.DUMMY,
+    isStatic = isStatic,
+    isFinal = isFinal,
+    isInline = false,
+    visibility = visibility,
+    isExplicit = isExplicit
+  )
+  protected fun type(type: KClass<*>): TypeCstNode = type(type.javaType)
   protected fun type(type: JavaType): TypeCstNode =
     TypeCstNode(null, type.className, emptyList(), 0, LexToken.DUMMY, LexToken.DUMMY)
 
   protected fun ref(name: String) = ReferenceCstNode(null, name, LexToken.DUMMY)
+  protected fun directFieldRef(name: String) = DirectFieldReferenceCstNode(null, name, LexToken.DUMMY)
 
   protected fun isNull(expr: ExpressionCstNode) = equal(expr, NullCstNode(null, LexToken.DUMMY))
 

@@ -5,15 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue
 new DelegateTest().test()
 
 class DelegateTest implements Delegable {
-  private IntRange _delegate = 1..5
+  @delegate
+  private IntRange delegate = 1..5
 
   fun void test()  {
     assertEquals(1, getFrom())
     assertEquals(1, from)
     assertFalse(isEmpty())
-    _delegate = 0..<0
+    delegate = 0..<0
     assertTrue(isEmpty())
   }
-
-  fun IntRange getDelegate() -> _delegate
 }
