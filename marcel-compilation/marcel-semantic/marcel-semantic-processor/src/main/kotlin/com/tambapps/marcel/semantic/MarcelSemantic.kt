@@ -7,6 +7,7 @@ import com.tambapps.marcel.parser.cst.AnnotationCstNode as AnnotationCstNode
 import com.tambapps.marcel.parser.cst.ClassCstNode as ClassCstNode
 import com.tambapps.marcel.parser.cst.ConstructorCstNode as ConstructorCstNode
 import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.parser.cst.expression.ArrayMapFilterCstNode
 import com.tambapps.marcel.parser.cst.expression.AsyncBlockCstNode
 import com.tambapps.marcel.parser.cst.expression.ElvisThrowCstNode
 import com.tambapps.marcel.parser.cst.statement.DoWhileStatementCstNode
@@ -1031,6 +1032,10 @@ open class MarcelSemantic(
     elements = node.elements.map { it.accept(this) }.toMutableList(),
     node = node
   )
+
+  override fun visit(node: ArrayMapFilterCstNode, smartCastType: JavaType?): ExpressionNode {
+    TODO("Not yet implemented")
+  }
 
   override fun visit(node: MapCstNode, smartCastType: JavaType?) = MapNode(
     entries = node.entries.map {

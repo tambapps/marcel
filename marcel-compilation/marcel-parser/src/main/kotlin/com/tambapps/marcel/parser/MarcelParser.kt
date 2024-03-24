@@ -15,6 +15,7 @@ import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.ScriptCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
+import com.tambapps.marcel.parser.cst.expression.ArrayMapFilterCstNode
 import com.tambapps.marcel.parser.cst.expression.AsyncBlockCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
 import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
@@ -778,6 +779,22 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
           skip()
           skip()
           return MapCstNode(emptyList(), parentNode, token, previous)
+        }
+        if (current.type == TokenType.FOR) {
+          // array map filter
+          skip()
+          val varType = parseType(parentNode)
+          val varName = accept(TokenType.IDENTIFIER).value
+          accept(TokenType.IN)
+          val inExpr = expression(parentNode)
+          accept(TokenType.ARROW)
+          val mapExpr = expression(parentNode)
+          val filterExpr = if (current.type == TokenType.IF) {
+            skip()
+            expression(parentNode)
+          } else null
+          accept(TokenType.SQUARE_BRACKETS_CLOSE)
+          return ArrayMapFilterCstNode(parentNode, token, previous, varType, varName, inExpr, mapExpr, filterExpr)
         }
         val elements = mutableListOf<ExpressionCstNode>()
         var isMap = false
