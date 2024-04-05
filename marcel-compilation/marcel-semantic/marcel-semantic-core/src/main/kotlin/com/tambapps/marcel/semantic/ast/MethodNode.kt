@@ -8,31 +8,43 @@ import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.type.JavaType
 
-class MethodNode constructor(override val name: String,
-                             override val parameters: MutableList<MethodParameter>,
-                             override val visibility: Visibility,
-                             override val returnType: JavaType,
-                             override val isStatic: Boolean,
-                             override val asyncReturnType: JavaType?,
-                             override val tokenStart: LexToken, override val tokenEnd: LexToken,
-                             override var ownerClass: JavaType,
+class MethodNode(
+  override val name: String,
+  override val parameters: MutableList<MethodParameter>,
+  override val visibility: Visibility,
+  override val returnType: JavaType,
+  override val isStatic: Boolean,
+  override val asyncReturnType: JavaType?,
+  override val tokenStart: LexToken, override val tokenEnd: LexToken,
+  override var ownerClass: JavaType,
 ) : AstNode, AbstractMethod(), Annotable {
 
   // constructor for non async functions
-  constructor(name: String,
-              parameters: MutableList<MethodParameter>,
-              visibility: Visibility,
-              returnType: JavaType,
-              isStatic: Boolean,
-              tokenStart: LexToken, tokenEnd: LexToken,
-              ownerClass: JavaType,
-  ): this(name, parameters, visibility, returnType, isStatic, null, tokenStart, tokenEnd, ownerClass)
+  constructor(
+    name: String,
+    parameters: MutableList<MethodParameter>,
+    visibility: Visibility,
+    returnType: JavaType,
+    isStatic: Boolean,
+    tokenStart: LexToken, tokenEnd: LexToken,
+    ownerClass: JavaType,
+  ) : this(name, parameters, visibility, returnType, isStatic, null, tokenStart, tokenEnd, ownerClass)
 
   companion object {
     fun fromJavaMethod(method: JavaMethod, tokenStart: LexToken, tokenEnd: LexToken): MethodNode {
-      return MethodNode(method.name, method.parameters.toMutableList(), method.visibility, method.returnType, method.isStatic, tokenStart, tokenEnd, method.ownerClass)
+      return MethodNode(
+        method.name,
+        method.parameters.toMutableList(),
+        method.visibility,
+        method.returnType,
+        method.isStatic,
+        tokenStart,
+        tokenEnd,
+        method.ownerClass
+      )
     }
   }
+
   override val annotations: MutableList<AnnotationNode> = mutableListOf()
   override val isConstructor = name == JavaMethod.CONSTRUCTOR_NAME
 

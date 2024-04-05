@@ -6,9 +6,15 @@ import com.tambapps.marcel.semantic.type.JavaType
 /**
  * Java cast node
  */
-class JavaCastNode(type: JavaType, val expressionNode: com.tambapps.marcel.semantic.ast.expression.ExpressionNode, token: LexToken) : com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode(type, token) {
+class JavaCastNode(
+  type: JavaType,
+  val expressionNode: ExpressionNode,
+  token: LexToken
+) : AbstractExpressionNode(type, token) {
 
-  override fun <T> accept(visitor: com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor<T>) = visitor.visit(this)
+  override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
+    visitor.visit(this)
+
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is JavaCastNode) return false

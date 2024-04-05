@@ -21,7 +21,7 @@ class TryNode(
     val throwableVariable: LocalVariable,
     var statement: BlockStatementNode,
     val returnVariable: LocalVariable?,
-    )
+  )
 
   override fun <T> accept(visitor: StatementNodeVisitor<T>) = visitor.visit(this)
 

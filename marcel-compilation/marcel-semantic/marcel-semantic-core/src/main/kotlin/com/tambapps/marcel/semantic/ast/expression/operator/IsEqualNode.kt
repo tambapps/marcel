@@ -6,8 +6,12 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 /**
  * Primitive or Object reference comparison EQual
  */
-class IsEqualNode(leftOperand: com.tambapps.marcel.semantic.ast.expression.ExpressionNode, rightOperand: com.tambapps.marcel.semantic.ast.expression.ExpressionNode) :
+class IsEqualNode(
+  leftOperand: ExpressionNode,
+  rightOperand: ExpressionNode
+) :
   BooleanOperatorNode(leftOperand, rightOperand) {
-  override fun <T> accept(visitor: com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor<T>) = visitor.visit(this)
+  override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
+    visitor.visit(this)
 
 }

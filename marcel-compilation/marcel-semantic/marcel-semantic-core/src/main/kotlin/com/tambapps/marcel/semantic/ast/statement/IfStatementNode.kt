@@ -5,7 +5,7 @@ import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 
 class IfStatementNode(
-  val conditionNode: com.tambapps.marcel.semantic.ast.expression.ExpressionNode,
+  val conditionNode: ExpressionNode,
   var trueStatementNode: StatementNode,
   var falseStatementNode: StatementNode?,
   tokenStart: LexToken,
@@ -13,10 +13,11 @@ class IfStatementNode(
 ) : AbstractStatementNode(tokenStart, tokenEnd) {
 
   constructor(
-    conditionNode: com.tambapps.marcel.semantic.ast.expression.ExpressionNode,
+    conditionNode: ExpressionNode,
     trueStatementNode: StatementNode,
     falseStatementNode: StatementNode?,
     node: CstNode
-  ): this(conditionNode, trueStatementNode, falseStatementNode, node.tokenStart, node.tokenEnd)
+  ) : this(conditionNode, trueStatementNode, falseStatementNode, node.tokenStart, node.tokenEnd)
+
   override fun <T> accept(visitor: StatementNodeVisitor<T>) = visitor.visit(this)
 }

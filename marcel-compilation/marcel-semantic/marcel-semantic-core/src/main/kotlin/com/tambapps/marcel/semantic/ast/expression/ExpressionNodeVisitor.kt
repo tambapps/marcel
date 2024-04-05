@@ -38,8 +38,8 @@ interface ExpressionNodeVisitor<T> {
 
   fun visit(node: NotNode): T
   fun visit(node: IncrNode): T
-  fun visit(node: com.tambapps.marcel.semantic.ast.expression.DupNode): T
-  fun visit(node: com.tambapps.marcel.semantic.ast.expression.PopNode): T
+  fun visit(node: DupNode): T
+  fun visit(node: PopNode): T
 
   fun visit(node: VariableAssignmentNode): T
   fun visit(node: ArrayIndexAssignmentNode): T
@@ -60,25 +60,25 @@ interface ExpressionNodeVisitor<T> {
   fun visit(node: LtNode): T
   fun visit(node: ElvisNode): T
 
-  fun visit(node: com.tambapps.marcel.semantic.ast.expression.TernaryNode): T
+  fun visit(node: TernaryNode): T
 
-  fun visit(node: com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode): T
-  fun visit(node: com.tambapps.marcel.semantic.ast.expression.FunctionCallNode): T
-  fun visit(node: com.tambapps.marcel.semantic.ast.expression.NewInstanceNode): T
-  fun visit(node: com.tambapps.marcel.semantic.ast.expression.ThisConstructorCallNode): T
-  fun visit(node: com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode): T
-  fun visit(node: com.tambapps.marcel.semantic.ast.expression.ReferenceNode): T
-  fun visit(node: com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode): T
-  fun visit(node: com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode): T
-  fun visit(node: com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode): T
+  fun visit(node: ArrayAccessNode): T
+  fun visit(node: FunctionCallNode): T
+  fun visit(node: NewInstanceNode): T
+  fun visit(node: ThisConstructorCallNode): T
+  fun visit(node: SuperConstructorCallNode): T
+  fun visit(node: ReferenceNode): T
+  fun visit(node: ClassReferenceNode): T
+  fun visit(node: ThisReferenceNode): T
+  fun visit(node: SuperReferenceNode): T
 
-  fun visit(node: com.tambapps.marcel.semantic.ast.expression.JavaCastNode): T
-  fun visit(node: com.tambapps.marcel.semantic.ast.expression.InstanceOfNode): T
+  fun visit(node: JavaCastNode): T
+  fun visit(node: InstanceOfNode): T
   fun visit(node: BoolConstantNode): T
   fun visit(node: ByteConstantNode): T
   fun visit(node: CharConstantNode): T
   fun visit(node: StringConstantNode): T
-  fun visit(node: com.tambapps.marcel.semantic.ast.expression.StringNode): T
+  fun visit(node: StringNode): T
   fun visit(node: DoubleConstantNode): T
   fun visit(node: FloatConstantNode): T
   fun visit(node: IntConstantNode): T

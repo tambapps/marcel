@@ -8,8 +8,8 @@ class ForInIteratorStatementNode(
   node: CstNode,
   val variable: LocalVariable,
   val iteratorVariable: LocalVariable,
-  val iteratorExpression: com.tambapps.marcel.semantic.ast.expression.ExpressionNode,
-  val nextMethodCall: com.tambapps.marcel.semantic.ast.expression.ExpressionNode,
+  val iteratorExpression: ExpressionNode,
+  val nextMethodCall: ExpressionNode,
   var bodyStatement: StatementNode
 ) : AbstractStatementNode(node) {
   override fun <T> accept(visitor: StatementNodeVisitor<T>) = visitor.visit(this)

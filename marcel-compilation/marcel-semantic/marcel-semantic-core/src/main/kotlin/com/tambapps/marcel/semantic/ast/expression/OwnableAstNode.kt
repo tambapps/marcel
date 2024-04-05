@@ -3,9 +3,9 @@ package com.tambapps.marcel.semantic.ast.expression
 /**
  * Node that can have an owner
  */
-interface OwnableAstNode: com.tambapps.marcel.semantic.ast.expression.ExpressionNode {
-  val owner: com.tambapps.marcel.semantic.ast.expression.ExpressionNode?
+interface OwnableAstNode : ExpressionNode {
+  val owner: ExpressionNode?
 
-  fun withOwner(owner: com.tambapps.marcel.semantic.ast.expression.ExpressionNode): OwnableAstNode
+  fun withOwner(owner: ExpressionNode): OwnableAstNode
 
 }

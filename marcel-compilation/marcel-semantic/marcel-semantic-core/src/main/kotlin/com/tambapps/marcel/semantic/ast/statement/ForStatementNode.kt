@@ -6,7 +6,7 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 class ForStatementNode(
   node: CstNode,
   val initStatement: StatementNode,
-  val condition: com.tambapps.marcel.semantic.ast.expression.ExpressionNode,
+  val condition: ExpressionNode,
   val iteratorStatement: StatementNode,
   var bodyStatement: StatementNode
 ) : AbstractStatementNode(node) {

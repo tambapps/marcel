@@ -5,7 +5,7 @@ import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTyped
 
-open class ClassNode constructor(
+open class ClassNode(
   override val type: JavaType,
   val visibility: Visibility,
   val forExtensionType: JavaType?, // if the class is an extension class

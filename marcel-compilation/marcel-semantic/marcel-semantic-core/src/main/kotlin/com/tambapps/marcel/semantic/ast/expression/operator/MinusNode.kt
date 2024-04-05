@@ -3,8 +3,12 @@ package com.tambapps.marcel.semantic.ast.expression.operator
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 
-class MinusNode(leftOperand: com.tambapps.marcel.semantic.ast.expression.ExpressionNode, rightOperand: com.tambapps.marcel.semantic.ast.expression.ExpressionNode) :
+class MinusNode(
+  leftOperand: ExpressionNode,
+  rightOperand: ExpressionNode
+) :
   BinaryArithmeticOperatorNode(leftOperand, rightOperand) {
-  override fun <T> accept(visitor: com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor<T>) = visitor.visit(this)
+  override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
+    visitor.visit(this)
 
 }

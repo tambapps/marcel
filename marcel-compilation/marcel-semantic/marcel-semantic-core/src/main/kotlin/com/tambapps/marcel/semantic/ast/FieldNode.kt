@@ -5,14 +5,15 @@ import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.field.JavaClassField
 
-class FieldNode constructor(type: JavaType, name: String, owner: JavaType,
-                            override val annotations: List<AnnotationNode>,
-                            override val isFinal: Boolean,
-                            override val visibility: Visibility,
-                            override val isStatic: Boolean,
-                            override val tokenStart: LexToken,
-                            override val tokenEnd: LexToken,
-                            val isSynthetic: Boolean = false,
+class FieldNode(
+  type: JavaType, name: String, owner: JavaType,
+  override val annotations: List<AnnotationNode>,
+  override val isFinal: Boolean,
+  override val visibility: Visibility,
+  override val isStatic: Boolean,
+  override val tokenStart: LexToken,
+  override val tokenEnd: LexToken,
+  val isSynthetic: Boolean = false,
 ) : AstNode, Annotable,
   JavaClassField(type, name, owner) {
 

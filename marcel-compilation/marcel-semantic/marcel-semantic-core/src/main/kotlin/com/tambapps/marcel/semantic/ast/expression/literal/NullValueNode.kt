@@ -5,14 +5,17 @@ import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.type.JavaType
 
-class NullValueNode(token: LexToken, type: JavaType?): com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode(type ?: JavaType.Anything, token), JavaConstantExpression {
+class NullValueNode(token: LexToken, type: JavaType?) :
+  AbstractExpressionNode(type ?: JavaType.Anything, token),
+  JavaConstantExpression {
 
   override val value = null
-  override fun <T> accept(visitor: com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor<T>) = visitor.visit(this)
+  override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
+    visitor.visit(this)
 
   override var type = super.type
 
-  constructor(token: LexToken): this(token, null)
+  constructor(token: LexToken) : this(token, null)
 
   override fun equals(other: Any?): Boolean {
     return other is NullValueNode

@@ -5,14 +5,19 @@ import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.type.JavaType
 
 class StringNode(
-  val parts: List<com.tambapps.marcel.semantic.ast.expression.ExpressionNode>,
+  val parts: List<ExpressionNode>,
   tokenStart: LexToken,
   tokenEnd: LexToken
 ) :
-  com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode(JavaType.String, tokenStart, tokenEnd) {
+  AbstractExpressionNode(JavaType.String, tokenStart, tokenEnd) {
 
-  constructor(parts: List<com.tambapps.marcel.semantic.ast.expression.ExpressionNode>, node: CstNode): this(parts, node.tokenStart, node.tokenEnd)
+  constructor(parts: List<ExpressionNode>, node: CstNode) : this(
+    parts,
+    node.tokenStart,
+    node.tokenEnd
+  )
 
-  override fun <T> accept(visitor: com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor<T>) = visitor.visit(this)
+  override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
+    visitor.visit(this)
 
 }

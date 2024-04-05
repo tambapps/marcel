@@ -6,12 +6,13 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 
 class ArrayIndexAssignmentNode(
-  val owner: com.tambapps.marcel.semantic.ast.expression.ExpressionNode,
-  val indexExpr: com.tambapps.marcel.semantic.ast.expression.ExpressionNode,
-  val expression: com.tambapps.marcel.semantic.ast.expression.ExpressionNode,
+  val owner: ExpressionNode,
+  val indexExpr: ExpressionNode,
+  val expression: ExpressionNode,
   node: CstNode
-) : com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode(owner.type.asArrayType.elementsType, node) {
+) : AbstractExpressionNode(owner.type.asArrayType.elementsType, node) {
   val arrayType = owner.type.asArrayType
-  override fun <T> accept(visitor: com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor<T>) = visitor.visit(this)
+  override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
+    visitor.visit(this)
 
 }

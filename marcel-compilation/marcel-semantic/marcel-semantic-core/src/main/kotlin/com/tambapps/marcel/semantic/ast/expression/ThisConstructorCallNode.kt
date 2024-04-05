@@ -7,9 +7,11 @@ import com.tambapps.marcel.semantic.type.JavaType
 class ThisConstructorCallNode(
   val classType: JavaType,
   val javaMethod: JavaMethod,
-  val arguments: List<com.tambapps.marcel.semantic.ast.expression.ExpressionNode>,
-  tokenStart: LexToken, tokenEnd: LexToken): com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode(JavaType.void, tokenStart, tokenEnd) {
+  val arguments: List<ExpressionNode>,
+  tokenStart: LexToken, tokenEnd: LexToken
+) : AbstractExpressionNode(JavaType.void, tokenStart, tokenEnd) {
 
-  override fun <T> accept(visitor: com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor<T>) = visitor.visit(this)
+  override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
+    visitor.visit(this)
 
 }

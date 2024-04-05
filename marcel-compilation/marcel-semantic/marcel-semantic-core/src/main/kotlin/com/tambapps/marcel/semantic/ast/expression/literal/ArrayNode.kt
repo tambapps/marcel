@@ -8,21 +8,21 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.type.JavaArrayType
 import com.tambapps.marcel.semantic.type.JavaType
 
-class ArrayNode constructor(
-  val elements: MutableList<com.tambapps.marcel.semantic.ast.expression.ExpressionNode>,
+class ArrayNode(
+  val elements: MutableList<ExpressionNode>,
   tokenStart: LexToken,
   tokenEnd: LexToken,
   var _type: JavaArrayType? = null
   // don't care about type passed to parent. we will override it anyway
-) : com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode(JavaType.Object, tokenStart, tokenEnd) {
+) : AbstractExpressionNode(JavaType.Object, tokenStart, tokenEnd) {
 
   constructor(
-    elements: MutableList<com.tambapps.marcel.semantic.ast.expression.ExpressionNode>,
+    elements: MutableList<ExpressionNode>,
     node: CstNode,
     _type: JavaArrayType? = null
-  ): this(elements, node.tokenStart, node.tokenEnd, _type)
+  ) : this(elements, node.tokenStart, node.tokenEnd, _type)
 
-  override fun <T> accept(visitor: com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor<T>) = visitor.visit(this)
+  override fun <T> accept(visitor: ExpressionNodeVisitor<T>) = visitor.visit(this)
 
   override val type: JavaArrayType
     get() {

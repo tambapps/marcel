@@ -5,7 +5,8 @@ import com.tambapps.marcel.lexer.LexToken
 /**
  * Node for a block of statements
  */
-class BlockStatementNode(val statements: MutableList<StatementNode>, tokenStart: LexToken, tokenEnd: LexToken) : AbstractStatementNode(tokenStart, tokenEnd) {
+class BlockStatementNode(val statements: MutableList<StatementNode>, tokenStart: LexToken, tokenEnd: LexToken) :
+  AbstractStatementNode(tokenStart, tokenEnd) {
 
   override fun <T> accept(visitor: StatementNodeVisitor<T>) = visitor.visit(this)
 

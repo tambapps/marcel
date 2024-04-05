@@ -10,11 +10,13 @@ class StringConstantNode(
   override val value: String,
   tokenStart: LexToken,
   tokenEnd: LexToken
-): com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode(JavaType.String, tokenStart, tokenEnd), JavaConstantExpression {
+) : AbstractExpressionNode(JavaType.String, tokenStart, tokenEnd),
+  JavaConstantExpression {
 
-  constructor(value: String, node: CstNode): this(value, node.tokenStart, node.tokenEnd)
+  constructor(value: String, node: CstNode) : this(value, node.tokenStart, node.tokenEnd)
 
-  override fun <T> accept(visitor: com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor<T>) = visitor.visit(this)
+  override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
+    visitor.visit(this)
 
   override fun toString(): String {
     return "\"$value\""
@@ -26,9 +28,7 @@ class StringConstantNode(
 
     other as StringConstantNode
 
-    if (value != other.value) return false
-
-    return true
+    return value == other.value
   }
 
   override fun hashCode(): Int {

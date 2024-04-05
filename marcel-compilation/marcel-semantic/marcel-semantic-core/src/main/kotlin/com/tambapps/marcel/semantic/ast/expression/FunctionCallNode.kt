@@ -4,19 +4,20 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 
-open class FunctionCallNode constructor(
+open class FunctionCallNode(
   val javaMethod: JavaMethod,
-  override val owner: com.tambapps.marcel.semantic.ast.expression.ExpressionNode?,
-  val arguments: List<com.tambapps.marcel.semantic.ast.expression.ExpressionNode>,
+  override val owner: ExpressionNode?,
+  val arguments: List<ExpressionNode>,
   tokenStart: LexToken,
   tokenEnd: LexToken
-) : com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode(javaMethod.returnType, tokenStart, tokenEnd),
-  com.tambapps.marcel.semantic.ast.expression.OwnableAstNode {
+) : AbstractExpressionNode(javaMethod.returnType, tokenStart, tokenEnd),
+  OwnableAstNode {
 
-  override fun <T> accept(visitor: com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor<T>) = visitor.visit(this)
+  override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
+    visitor.visit(this)
 
-  override fun withOwner(owner: com.tambapps.marcel.semantic.ast.expression.ExpressionNode) =
-    com.tambapps.marcel.semantic.ast.expression.FunctionCallNode(javaMethod, owner, arguments, tokenStart, tokenEnd)
+  override fun withOwner(owner: ExpressionNode) =
+    FunctionCallNode(javaMethod, owner, arguments, tokenStart, tokenEnd)
 
   override fun toString() = StringBuilder().apply {
     if (javaMethod.isStatic) {
@@ -34,7 +35,7 @@ open class FunctionCallNode constructor(
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
-    if (other !is com.tambapps.marcel.semantic.ast.expression.FunctionCallNode) return false
+    if (other !is FunctionCallNode) return false
 
     if (javaMethod != other.javaMethod) return false
     if (owner != other.owner) return false

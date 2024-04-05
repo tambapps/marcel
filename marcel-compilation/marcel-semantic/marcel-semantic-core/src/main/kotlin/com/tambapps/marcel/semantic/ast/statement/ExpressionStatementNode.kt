@@ -7,10 +7,15 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
  * Expression as a statement
  */
 open class ExpressionStatementNode(
-  val expressionNode: com.tambapps.marcel.semantic.ast.expression.ExpressionNode,
-  tokenStart: LexToken, tokenEnd: LexToken) : AbstractStatementNode(tokenStart, tokenEnd) {
+  val expressionNode: ExpressionNode,
+  tokenStart: LexToken, tokenEnd: LexToken
+) : AbstractStatementNode(tokenStart, tokenEnd) {
 
-    constructor(expressionNode: com.tambapps.marcel.semantic.ast.expression.ExpressionNode): this(expressionNode, expressionNode.tokenStart, expressionNode.tokenEnd)
+  constructor(expressionNode: ExpressionNode) : this(
+    expressionNode,
+    expressionNode.tokenStart,
+    expressionNode.tokenEnd
+  )
 
   override fun <T> accept(visitor: StatementNodeVisitor<T>) = visitor.visit(this)
 

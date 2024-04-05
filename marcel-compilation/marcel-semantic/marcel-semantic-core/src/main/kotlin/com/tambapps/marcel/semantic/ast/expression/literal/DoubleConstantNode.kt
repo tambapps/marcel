@@ -5,9 +5,11 @@ import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.type.JavaType
 
-class DoubleConstantNode(token: LexToken, override val value: Double): com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode(JavaType.double, token), JavaConstantExpression {
+class DoubleConstantNode(token: LexToken, override val value: Double) :
+  AbstractExpressionNode(JavaType.double, token), JavaConstantExpression {
 
-  override fun <T> accept(visitor: com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor<T>) = visitor.visit(this)
+  override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
+    visitor.visit(this)
 
   override fun toString(): String {
     return value.toString()
@@ -19,9 +21,7 @@ class DoubleConstantNode(token: LexToken, override val value: Double): com.tamba
 
     other as DoubleConstantNode
 
-    if (value != other.value) return false
-
-    return true
+    return value == other.value
   }
 
   override fun hashCode(): Int {

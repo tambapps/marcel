@@ -5,15 +5,17 @@ import com.tambapps.marcel.semantic.ast.AstVariableNode
 import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.variable.field.MarcelField
 
-class ReferenceNode constructor(
-  override val owner: com.tambapps.marcel.semantic.ast.expression.ExpressionNode? = null,
+class ReferenceNode(
+  override val owner: ExpressionNode? = null,
   override var variable: Variable, token: LexToken
-) : com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode(variable.type, token),
+) : AbstractExpressionNode(variable.type, token),
   AstVariableNode, OwnableAstNode {
 
-  override fun withOwner(owner: com.tambapps.marcel.semantic.ast.expression.ExpressionNode) = ReferenceNode(owner, variable, token)
+  override fun withOwner(owner: ExpressionNode) =
+    ReferenceNode(owner, variable, token)
 
-  override fun <T> accept(visitor: com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor<T>) = visitor.visit(this)
+  override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
+    visitor.visit(this)
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

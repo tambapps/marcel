@@ -5,9 +5,11 @@ import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.type.JavaType
 
-class ByteConstantNode(token: LexToken, override val value: Byte): com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode(JavaType.byte, token), JavaConstantExpression {
+class ByteConstantNode(token: LexToken, override val value: Byte) :
+  AbstractExpressionNode(JavaType.byte, token), JavaConstantExpression {
 
-  override fun <T> accept(visitor: com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor<T>) = visitor.visit(this)
+  override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
+    visitor.visit(this)
 
   override fun toString() = value.toString()
 
@@ -17,9 +19,7 @@ class ByteConstantNode(token: LexToken, override val value: Byte): com.tambapps.
 
     other as ByteConstantNode
 
-    if (value != other.value) return false
-
-    return true
+    return value == other.value
   }
 
   override fun hashCode() = value.hashCode()

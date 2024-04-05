@@ -8,10 +8,15 @@ import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
  * Return node
  */
 class ReturnStatementNode(
-  expressionNode: com.tambapps.marcel.semantic.ast.expression.ExpressionNode?,
-  tokenStart: LexToken, tokenEnd: LexToken) : ExpressionStatementNode(expressionNode ?: VoidExpressionNode(tokenStart), tokenStart, tokenEnd) {
+  expressionNode: ExpressionNode?,
+  tokenStart: LexToken, tokenEnd: LexToken
+) : ExpressionStatementNode(expressionNode ?: VoidExpressionNode(tokenStart), tokenStart, tokenEnd) {
 
-  constructor(expressionNode: com.tambapps.marcel.semantic.ast.expression.ExpressionNode): this(expressionNode, expressionNode.tokenStart, expressionNode.tokenEnd)
+  constructor(expressionNode: ExpressionNode) : this(
+    expressionNode,
+    expressionNode.tokenStart,
+    expressionNode.tokenEnd
+  )
 
   val returnsVoid = expressionNode is VoidExpressionNode
   override fun <T> accept(visitor: StatementNodeVisitor<T>) = visitor.visit(this)
