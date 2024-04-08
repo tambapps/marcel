@@ -78,6 +78,7 @@ import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.DupNode
 import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
+import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.GetAtFunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
@@ -105,6 +106,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.CharConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.JavaConstantExpression
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
+import com.tambapps.marcel.semantic.ast.expression.literal.NewArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.operator.AndNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
@@ -1034,7 +1036,63 @@ open class MarcelSemantic(
   )
 
   override fun visit(node: ArrayMapFilterCstNode, smartCastType: JavaType?): ExpressionNode {
-    TODO("Not yet implemented")
+    val expectedType = smartCastType ?: JavaType.objectArray
+
+    val arrayType =
+      if (expectedType.isArray) expectedType.asArrayType
+      else if (expectedType.implements(Collection::class.javaType)) {
+        if (JavaType.intCollection.isAssignableFrom(expectedType)) JavaType.intArray
+        else if (JavaType.longCollection.isAssignableFrom(expectedType)) JavaType.longArray
+        else if (JavaType.floatCollection.isAssignableFrom(expectedType)) JavaType.floatArray
+        else if (JavaType.doubleCollection.isAssignableFrom(expectedType)) JavaType.doubleArray
+        else if (JavaType.charCollection.isAssignableFrom(expectedType)) JavaType.charArray
+        else JavaType.objectArray
+      }
+      else throw MarcelSemanticException(node, "Incompatible type. Expected Collection/array but got $expectedType")
+
+    // TODO will need to store inNode in local variable in case it is not a reference
+    val inNode = node.inExpr.accept(this)
+    if (!inNode.type.isArray && !inNode.type.implements(Collection::class.javaType)) {
+      throw MarcelSemanticException(node.inExpr, "Can only mapfilter a collection or array")
+    }
+    val inValueName = "it"
+    val mapFilterMethodNode = generateOrGetMethod("mapFilter_", mutableListOf(MethodParameter(inNode.type, inValueName)), expectedType, node)
+
+    useScope(newMethodScope(mapFilterMethodNode)) { methodScope ->
+      val arrayVar = methodScope.addLocalVariable(arrayType)
+      val arrayRef = ReferenceNode(variable = arrayVar, token = node.token)
+      val inNodeVarRef = ReferenceNode(variable = methodScope.findLocalVariable(inValueName)!!, token = node.token)
+      val varAssign = VariableAssignmentNode(arrayVar,
+        NewArrayNode(type = arrayType,
+          sizeExpr = if (inNodeVarRef.type.isArray) ReferenceNode(owner = ReferenceNode(variable = inNodeVarRef.variable, token = node.token), variable = symbolResolver.findFieldOrThrow(inNode.type, "length",  node.token), token = node.token)
+          else fCall(owner = inNodeVarRef, name = "size", arguments = emptyList(), node = node),
+          token = node.tokenStart))
+
+      // TODO forEach
+
+      val returnValue = if (expectedType == arrayVar.type) arrayRef
+      else {
+        // TODO handle sets
+        if (JavaType.intCollection.isAssignableFrom(expectedType)) fCall(name = "wrap", arguments = listOf(arrayRef), node = node, ownerType =  JavaType.intListImpl)
+        else if (JavaType.longCollection.isAssignableFrom(expectedType)) fCall(name = "wrap", arguments = listOf(arrayRef), node = node, ownerType =  JavaType.longListImpl)
+        else if (JavaType.floatCollection.isAssignableFrom(expectedType)) fCall(name = "wrap", arguments = listOf(arrayRef), node = node, ownerType =  JavaType.floatListImpl)
+        else if (JavaType.doubleCollection.isAssignableFrom(expectedType)) fCall(name = "wrap", arguments = listOf(arrayRef), node = node, ownerType =  JavaType.doubleListImpl)
+        else if (JavaType.charCollection.isAssignableFrom(expectedType)) fCall(name = "wrap", arguments = listOf(arrayRef), node = node, ownerType =  JavaType.charListImpl)
+        else TODO("handle that")
+      }
+
+      mapFilterMethodNode.blockStatement.apply {
+        add(ExpressionStatementNode(varAssign))
+        add(ReturnStatementNode(returnValue))
+      }
+    }
+    return FunctionCallNode(
+      javaMethod = mapFilterMethodNode,
+      owner = ThisReferenceNode(currentScope.classType, node.token),
+      arguments = listOf(inNode),
+      tokenStart = node.tokenStart,
+      tokenEnd = node.tokenEnd,
+    )
   }
 
   override fun visit(node: MapCstNode, smartCastType: JavaType?) = MapNode(
@@ -1477,8 +1535,8 @@ open class MarcelSemantic(
     }
 
   override fun visit(node: BinaryTypeOperatorCstNode, smartCastType: JavaType?): ExpressionNode {
-    val left = node.leftOperand.accept(this)
     val right = resolve(node.rightOperand)
+    val left = node.leftOperand.accept(this, right)
 
 
     return when (val tokenType = node.tokenType) {
