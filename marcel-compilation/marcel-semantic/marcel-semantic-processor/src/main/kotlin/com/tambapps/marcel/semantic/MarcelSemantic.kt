@@ -1050,7 +1050,6 @@ open class MarcelSemantic(
       }
       else throw MarcelSemanticException(node, "Incompatible type. Expected Collection/array but got $expectedType")
 
-    // TODO will need to store inNode in local variable in case it is not a reference
     val inNode = node.inExpr.accept(this)
     if (!inNode.type.isArray && !inNode.type.implements(Collection::class.javaType)) {
       throw MarcelSemanticException(node.inExpr, "Can only mapfilter a collection or array")
@@ -1070,16 +1069,7 @@ open class MarcelSemantic(
 
       // TODO forEach
 
-      val returnValue = if (expectedType == arrayVar.type) arrayRef
-      else {
-        // TODO handle sets
-        if (JavaType.intCollection.isAssignableFrom(expectedType)) fCall(name = "wrap", arguments = listOf(arrayRef), node = node, ownerType =  JavaType.intListImpl)
-        else if (JavaType.longCollection.isAssignableFrom(expectedType)) fCall(name = "wrap", arguments = listOf(arrayRef), node = node, ownerType =  JavaType.longListImpl)
-        else if (JavaType.floatCollection.isAssignableFrom(expectedType)) fCall(name = "wrap", arguments = listOf(arrayRef), node = node, ownerType =  JavaType.floatListImpl)
-        else if (JavaType.doubleCollection.isAssignableFrom(expectedType)) fCall(name = "wrap", arguments = listOf(arrayRef), node = node, ownerType =  JavaType.doubleListImpl)
-        else if (JavaType.charCollection.isAssignableFrom(expectedType)) fCall(name = "wrap", arguments = listOf(arrayRef), node = node, ownerType =  JavaType.charListImpl)
-        else TODO("handle that")
-      }
+      val returnValue = caster.cast(expectedType, arrayRef)
 
       mapFilterMethodNode.blockStatement.apply {
         add(ExpressionStatementNode(varAssign))
