@@ -26,6 +26,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
+import com.tambapps.marcel.semantic.ast.expression.literal.NewArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ShortConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
@@ -244,6 +245,11 @@ class ForEachNodeVisitor(
   override fun visit(node: ArrayNode) {
     consume(node)
     node.elements.forEach { it.accept(this) }
+  }
+
+  override fun visit(node: NewArrayNode) {
+    consume(node)
+    node.sizeExpr.accept(this)
   }
 
   override fun visit(node: MapNode) {

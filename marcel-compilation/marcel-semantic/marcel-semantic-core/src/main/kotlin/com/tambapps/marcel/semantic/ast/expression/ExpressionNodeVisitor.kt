@@ -9,6 +9,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
+import com.tambapps.marcel.semantic.ast.expression.literal.NewArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ShortConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
@@ -87,6 +88,7 @@ interface ExpressionNodeVisitor<T> {
   fun visit(node: ShortConstantNode): T
   fun visit(node: VoidExpressionNode): T
   fun visit(node: ArrayNode): T
+  fun visit(node: NewArrayNode): T
   fun visit(node: MapNode): T
 
 }

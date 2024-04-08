@@ -30,6 +30,7 @@ import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
+import com.tambapps.marcel.semantic.ast.expression.literal.NewArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.operator.AndNode
 import com.tambapps.marcel.semantic.ast.expression.operator.BinaryOperatorNode
@@ -397,6 +398,11 @@ open class MethodInstructionWriter(
   }
 
   override fun visit(node: ArrayNode) {
+    super.visit(node)
+    popStackIfNotVoid(node.type)
+  }
+
+  override fun visit(node: NewArrayNode) {
     super.visit(node)
     popStackIfNotVoid(node.type)
   }

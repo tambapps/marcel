@@ -20,6 +20,7 @@ import com.tambapps.marcel.semantic.ast.expression.TernaryNode
 import com.tambapps.marcel.semantic.ast.expression.ThisConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
+import com.tambapps.marcel.semantic.ast.expression.literal.NewArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
@@ -121,6 +122,16 @@ sealed class MethodExpressionWriter(
       elements[i].accept(this)
       // store value at index
       mv.visitInsn(type.arrayStoreCode)
+    }
+  }
+
+  override fun visit(node: NewArrayNode) {
+    val type = node.type
+    pushExpression(node.sizeExpr)
+    if (type.elementsType.primitive) {
+      mv.visitIntInsn(Opcodes.NEWARRAY, type.typeCode)
+    } else {
+      mv.visitTypeInsn(Opcodes.ANEWARRAY, type.elementsType.internalName)
     }
   }
 
