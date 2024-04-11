@@ -8,6 +8,8 @@ import com.tambapps.marcel.lexer.LexToken
 class BlockStatementNode(val statements: MutableList<StatementNode>, tokenStart: LexToken, tokenEnd: LexToken) :
   AbstractStatementNode(tokenStart, tokenEnd) {
 
+  constructor(statements: MutableList<StatementNode>): this(statements, statements.first().tokenStart, statements.last().tokenEnd)
+
   override fun <T> accept(visitor: StatementNodeVisitor<T>) = visitor.visit(this)
 
   fun add(statementNode: StatementNode) = statements.add(statementNode)

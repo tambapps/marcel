@@ -1036,18 +1036,18 @@ open class MarcelSemantic(
   )
 
   override fun visit(node: ArrayMapFilterCstNode, smartCastType: JavaType?): ExpressionNode {
-    val expectedType = smartCastType ?: JavaType.objectArray
+    val expectedType = smartCastType ?: List::class.javaType
 
-    val arrayType =
-      if (expectedType.isArray) expectedType.asArrayType
-      else if (expectedType.implements(Collection::class.javaType)) {
-        if (JavaType.intCollection.isAssignableFrom(expectedType)) JavaType.intArray
-        else if (JavaType.longCollection.isAssignableFrom(expectedType)) JavaType.longArray
-        else if (JavaType.floatCollection.isAssignableFrom(expectedType)) JavaType.floatArray
-        else if (JavaType.doubleCollection.isAssignableFrom(expectedType)) JavaType.doubleArray
-        else if (JavaType.charCollection.isAssignableFrom(expectedType)) JavaType.charArray
-        else JavaType.objectArray
+    val collectionType =
+      if (expectedType.isArray) when (expectedType) {
+        JavaType.intArray -> JavaType.intList
+        JavaType.longArray -> JavaType.longList
+        JavaType.floatArray -> JavaType.floatList
+        JavaType.doubleArray -> JavaType.doubleList
+        JavaType.charArray -> JavaType.charList
+        else -> List::class.javaType
       }
+      else if (expectedType.implements(Collection::class.javaType)) expectedType
       else throw MarcelSemanticException(node, "Incompatible type. Expected Collection/array but got $expectedType")
 
     val inNode = node.inExpr.accept(this)
@@ -1055,24 +1055,50 @@ open class MarcelSemantic(
       throw MarcelSemanticException(node.inExpr, "Can only mapfilter a collection or array")
     }
     val inValueName = "it"
-    val mapFilterMethodNode = generateOrGetMethod("mapFilter_", mutableListOf(MethodParameter(inNode.type, inValueName)), expectedType, node)
+    // TODO handle referencing local variables
+    val mapFilterMethodNode = generateOrGetMethod("_mapFilter_", mutableListOf(MethodParameter(inNode.type, inValueName)), expectedType, node)
 
     useScope(newMethodScope(mapFilterMethodNode)) { methodScope ->
-      val arrayVar = methodScope.addLocalVariable(arrayType)
-      val arrayRef = ReferenceNode(variable = arrayVar, token = node.token)
+      val collectionVar = methodScope.addLocalVariable(collectionType)
+      val collectionRef = ReferenceNode(variable = collectionVar, token = node.token)
       val inNodeVarRef = ReferenceNode(variable = methodScope.findLocalVariable(inValueName)!!, token = node.token)
-      val varAssign = VariableAssignmentNode(arrayVar,
-        NewArrayNode(type = arrayType,
-          sizeExpr = if (inNodeVarRef.type.isArray) ReferenceNode(owner = ReferenceNode(variable = inNodeVarRef.variable, token = node.token), variable = symbolResolver.findFieldOrThrow(inNode.type, "length",  node.token), token = node.token)
-          else fCall(owner = inNodeVarRef, name = "size", arguments = emptyList(), node = node),
-          token = node.tokenStart))
+      val expectedElementType = if (JavaType.intCollection.isAssignableFrom(collectionType)) JavaType.int
+      else if (JavaType.longCollection.isAssignableFrom(collectionType)) JavaType.long
+      else if (JavaType.floatCollection.isAssignableFrom(collectionType)) JavaType.float
+      else if (JavaType.doubleCollection.isAssignableFrom(collectionType)) JavaType.double
+      else if (JavaType.charCollection.isAssignableFrom(collectionType)) JavaType.char
+      else JavaType.Object
 
-      // TODO forEach
+      val varAssign = VariableAssignmentNode(collectionVar,
+        expression = caster.cast(collectionType, NewArrayNode(expectedElementType.arrayType, IntConstantNode(token = node.token, value = 0), token = node.token)))
 
-      val returnValue = caster.cast(expectedType, arrayRef)
+      val forStatement = useInnerScope { forScope ->
+        val forVariable = forScope.addLocalVariable(resolve(node.varType), node.varName)
+        var addStmt: StatementNode = ExpressionStatementNode(
+          fCall(node = node, name = "add", arguments = listOf(caster.cast(expectedElementType, node.mapExpr.accept(this))), owner = collectionRef)
+        )
+        node.filterExpr?.let { filterExpr ->
+          addStmt = IfStatementNode(
+            conditionNode = caster.truthyCast(filterExpr.accept(this)),
+            trueStatementNode = addStmt,
+            falseStatementNode = null,
+            node = node
+          )
+        }
+        if (inNodeVarRef.type.isArray) {
+          val iVar = forScope.addLocalVariable(JavaType.int, token = node.token)
+          forInArrayNode(node = node, forScope = forScope, iVar = iVar, inNode = inNodeVarRef, forVariable = forVariable, statementNode = addStmt)
+        }
+        else { // iterating over iterable
+          forInIteratorNode(node = node, forScope = forScope, variable = forVariable, inNode = inNodeVarRef, bodtStmt = addStmt)
+        }
+      }
+
+      val returnValue = caster.cast(expectedType, collectionRef)
 
       mapFilterMethodNode.blockStatement.apply {
         add(ExpressionStatementNode(varAssign))
+        add(forStatement)
         add(ReturnStatementNode(returnValue))
       }
     }
@@ -2653,63 +2679,73 @@ open class MarcelSemantic(
 
     val inNode = node.inNode.accept(this)
 
-    return@useScope if (inNode.type.isArray) {
-      val iVar = it.addLocalVariable(JavaType.int, token = node.token)
-      val iRef = ReferenceNode(variable = iVar, token = node.token)
-      val arrayVar = it.addLocalVariable(inNode.type)
-      val arrayRef = ReferenceNode(variable = arrayVar, token = node.token)
-
-      // init variable
-      val initStatement = BlockStatementNode(
-        mutableListOf(
-          ExpressionStatementNode(VariableAssignmentNode(localVariable = arrayVar, expression = inNode, node)),
-          ExpressionStatementNode(
-            VariableAssignmentNode(
-              localVariable = iVar,
-              expression = IntConstantNode(node.token, 0),
-              node
-            )
-          )
-        ), node.tokenStart, node.tokenEnd
-      )
-
-      // i < array.length
-      val condition = LtNode(
-        leftOperand = iRef,
-        rightOperand = ReferenceNode(owner = arrayRef, symbolResolver.findField(arrayVar.type, "length")!!, node.token)
-      )
-
-      // i++
-      val iteratorStatement = ExpressionStatementNode(IncrNode(node.token, iVar, 1, JavaType.int, false))
-
-      // body
-      val body = BlockStatementNode(
-        mutableListOf(
-          ExpressionStatementNode(
-            VariableAssignmentNode(
-              localVariable = variable, expression = caster.cast(
-                variable.type,
-                ArrayAccessNode(owner = arrayRef, indexNode = iRef, node = node)
-              ), node = node
-            )
-          ),
-          node.statementNode.accept(this)
-        ), node.tokenStart, node.tokenEnd
-      )
-
-      val forNode = ForStatementNode(node, initStatement, condition, iteratorStatement, body)
-
-      it.freeLocalVariable(iVar.name)
-      it.freeLocalVariable(arrayVar.name)
-      forNode
-    } else {
-      forInIteratorNode(node, it, variable, inNode) { node.statementNode.accept(this) }
-    }
+    return@useScope if (inNode.type.isArray) forInArrayNode(node = node, forScope = it, inNode = inNode, forVariable = variable, statementNode = node.statementNode.accept(this))
+     else forInIteratorNode(node, it, variable, inNode) { node.statementNode.accept(this) }
   }
 
+  private fun forInArrayNode(node: CstNode, forScope: MethodScope, inNode: ExpressionNode, forVariable: LocalVariable, statementNode: StatementNode): ForStatementNode {
+    val iVar = forScope.addLocalVariable(JavaType.int, token = node.token)
+    return forInArrayNode(node, forScope, inNode, iVar, forVariable, statementNode)
+  }
+
+  private fun forInArrayNode(node: CstNode, forScope: MethodScope, inNode: ExpressionNode, iVar: LocalVariable, forVariable: LocalVariable, statementNode: StatementNode): ForStatementNode {
+    val iRef = ReferenceNode(variable = iVar, token = node.token)
+    val arrayVar = forScope.addLocalVariable(inNode.type)
+    val arrayRef = ReferenceNode(variable = arrayVar, token = node.token)
+
+    // init variable
+    val initStatement = BlockStatementNode(
+      mutableListOf(
+        ExpressionStatementNode(VariableAssignmentNode(localVariable = arrayVar, expression = inNode, node)),
+        ExpressionStatementNode(
+          VariableAssignmentNode(
+            localVariable = iVar,
+            expression = IntConstantNode(node.token, 0),
+            node
+          )
+        )
+      ), node.tokenStart, node.tokenEnd
+    )
+
+    // i < array.length
+    val condition = LtNode(
+      leftOperand = iRef,
+      rightOperand = ReferenceNode(owner = arrayRef, symbolResolver.findField(arrayVar.type, "length")!!, node.token)
+    )
+
+    // i++
+    val iteratorStatement = ExpressionStatementNode(IncrNode(node.token, iVar, 1, JavaType.int, false))
+
+    // body
+    val body = BlockStatementNode(
+      mutableListOf(
+        ExpressionStatementNode(
+          VariableAssignmentNode(
+            localVariable = forVariable, expression = caster.cast(
+              forVariable.type,
+              ArrayAccessNode(owner = arrayRef, indexNode = iRef, node = node)
+            ), node = node
+          )
+        ),
+        statementNode
+      ), node.tokenStart, node.tokenEnd
+    )
+
+    val forNode = ForStatementNode(node, initStatement, condition, iteratorStatement, body)
+
+    forScope.freeLocalVariable(iVar.name)
+    forScope.freeLocalVariable(arrayVar.name)
+    return forNode
+  }
+
+  private fun forInIteratorNode(
+    node: CstNode, forScope: MethodScope, variable: LocalVariable, inNode: ExpressionNode,
+    bodtStmt: StatementNode
+  ) = forInIteratorNode(node, forScope, variable, inNode) { bodtStmt }
+
   private inline fun forInIteratorNode(
-    node: CstNode, it: MethodScope, variable: LocalVariable, inNode: ExpressionNode,
-    // lambda because we want the body to be semanticallly checked AFTER we created the iteratorVariable
+    node: CstNode, forScope: MethodScope, variable: LocalVariable, inNode: ExpressionNode,
+    // lambda because we want the body to be semantically checked AFTER we created the iteratorVariable
     bodyCreator: () -> StatementNode
   ): ForInIteratorStatementNode {
     val iteratorExpression = when {
@@ -2725,7 +2761,7 @@ open class MarcelSemantic(
       else -> throw MarcelSemanticException(node.token, "Cannot iterate over an expression of type ${inNode.type}")
     }
     val iteratorExpressionType = iteratorExpression.type
-    return it.useTempLocalVariable(iteratorExpressionType) { iteratorVariable ->
+    return forScope.useTempLocalVariable(iteratorExpressionType) { iteratorVariable ->
       val (nextMethodOwnerType, nextMethodName) = if (IntIterator::class.javaType.isAssignableFrom(
           iteratorExpressionType
         )
@@ -2792,7 +2828,7 @@ open class MarcelSemantic(
           )
         ),
         forInIteratorNode(
-          node = node, it = it, variable = keyVar,
+          node = node, forScope = it, variable = keyVar,
           // iterating over keys
           inNode = fCall(
             node = node,
