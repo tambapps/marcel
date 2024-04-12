@@ -787,12 +787,20 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
           val varName = accept(TokenType.IDENTIFIER).value
           accept(TokenType.IN)
           val inExpr = expression(parentNode)
-          accept(TokenType.ARROW)
-          val mapExpr = expression(parentNode)
-          val filterExpr = if (current.type == TokenType.IF) {
+          val mapExpr: ExpressionCstNode?
+          val filterExpr: ExpressionCstNode?
+          if (current.type == TokenType.IF) { // find all, no map
             skip()
-            expression(parentNode)
-          } else null
+            filterExpr = expression(parentNode)
+            mapExpr = null
+          } else { // map, with optional filtering
+            accept(TokenType.ARROW)
+            mapExpr = expression(parentNode)
+            filterExpr = if (current.type == TokenType.IF) {
+              skip()
+              expression(parentNode)
+            } else null
+          }
           accept(TokenType.SQUARE_BRACKETS_CLOSE)
           return ArrayMapFilterCstNode(parentNode, token, previous, varType, varName, inExpr, mapExpr, filterExpr)
         }
@@ -950,7 +958,6 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         AsyncBlockCstNode(parentNode, token, it.tokenEnd, it)
       }
       else -> throw MarcelParserException(token, "Not supported $token")
-
     }
   }
 

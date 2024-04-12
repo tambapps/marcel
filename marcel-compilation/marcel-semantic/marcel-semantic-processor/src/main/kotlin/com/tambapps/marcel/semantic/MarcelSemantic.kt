@@ -1048,6 +1048,7 @@ open class MarcelSemantic(
         else -> List::class.javaType
       }
       else if (expectedType.implements(Collection::class.javaType)) expectedType
+      // TODO handle strings
       else throw MarcelSemanticException(node, "Incompatible type. Expected Collection/array but got $expectedType")
 
     val inNode = node.inExpr.accept(this)
@@ -1075,7 +1076,8 @@ open class MarcelSemantic(
       val forStatement = useInnerScope { forScope ->
         val forVariable = forScope.addLocalVariable(resolve(node.varType), node.varName)
         var addStmt: StatementNode = ExpressionStatementNode(
-          fCall(node = node, name = "add", arguments = listOf(caster.cast(expectedElementType, node.mapExpr.accept(this))), owner = collectionRef)
+          fCall(node = node, name = "add", arguments = listOf(caster.cast(expectedElementType,
+            node.mapExpr?.accept(this) ?: ReferenceNode(variable = forVariable, token = node.token))), owner = collectionRef)
         )
         node.filterExpr?.let { filterExpr ->
           addStmt = IfStatementNode(
