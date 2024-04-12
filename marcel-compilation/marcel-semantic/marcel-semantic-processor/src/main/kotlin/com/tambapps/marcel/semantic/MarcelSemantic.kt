@@ -2699,16 +2699,18 @@ open class MarcelSemantic(
 
     val inNode = node.inNode.accept(this)
 
-    return@useScope if (inNode.type.isArray) forInArrayNode(node = node, forScope = it, inNode = inNode, forVariable = variable, statementNode = node.statementNode.accept(this))
+    return@useScope if (inNode.type.isArray) forInArrayNode(node = node, forScope = it, inNode = inNode,
+      forVariable = variable, iVar = it.addLocalVariable(JavaType.int, token = node.token)) { node.statementNode.accept(this) }
      else forInIteratorNode(node, it, variable, inNode) { node.statementNode.accept(this) }
   }
 
-  private fun forInArrayNode(node: CstNode, forScope: MethodScope, inNode: ExpressionNode, forVariable: LocalVariable, statementNode: StatementNode): ForStatementNode {
-    val iVar = forScope.addLocalVariable(JavaType.int, token = node.token)
-    return forInArrayNode(node, forScope, inNode, iVar, forVariable, statementNode)
+  private fun forInArrayNode(node: CstNode, forScope: MethodScope, inNode: ExpressionNode, iVar: LocalVariable, forVariable: LocalVariable, statementNode: StatementNode): ForStatementNode {
+    return forInArrayNode(node, forScope, inNode, iVar, forVariable) { statementNode }
   }
 
-  private fun forInArrayNode(node: CstNode, forScope: MethodScope, inNode: ExpressionNode, iVar: LocalVariable, forVariable: LocalVariable, statementNode: StatementNode): ForStatementNode {
+  private inline fun forInArrayNode(node: CstNode, forScope: MethodScope, inNode: ExpressionNode, iVar: LocalVariable, forVariable: LocalVariable,
+    // lambda because we want the body to be semantically checked AFTER we created the iteratorVariable
+                             bodyCreator: () -> StatementNode): ForStatementNode {
     val iRef = ReferenceNode(variable = iVar, token = node.token)
     val arrayVar = forScope.addLocalVariable(inNode.type)
     val arrayRef = ReferenceNode(variable = arrayVar, token = node.token)
@@ -2747,7 +2749,7 @@ open class MarcelSemantic(
             ), node = node
           )
         ),
-        statementNode
+        bodyCreator.invoke()
       ), node.tokenStart, node.tokenEnd
     )
 
