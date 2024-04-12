@@ -1054,7 +1054,7 @@ open class MarcelSemantic(
     if (!inNode.type.isArray && !inNode.type.implements(Collection::class.javaType)) {
       throw MarcelSemanticException(node.inExpr, "Can only mapfilter a collection or array")
     }
-    val inValueName = "it"
+    val inValueName = "_inValue" + node.hashCode().toString().replace('-', '_')
     // TODO handle referencing local variables
     val mapFilterMethodNode = generateOrGetMethod("_mapFilter_", mutableListOf(MethodParameter(inNode.type, inValueName)), expectedType, node)
 
