@@ -1036,6 +1036,7 @@ open class MarcelSemantic(
   )
 
   override fun visit(node: ArrayMapFilterCstNode, smartCastType: JavaType?): ExpressionNode {
+    // TODO add smart cast syntax?
     val expectedType = smartCastType ?: List::class.javaType
 
     val collectionType =
@@ -1056,8 +1057,21 @@ open class MarcelSemantic(
       throw MarcelSemanticException(node.inExpr, "Can only mapfilter a collection or array")
     }
     val inValueName = "_inValue" + node.hashCode().toString().replace('-', '_')
-    // TODO handle referencing local variables
-    val mapFilterMethodNode = generateOrGetMethod("_mapFilter_", mutableListOf(MethodParameter(inNode.type, inValueName)), expectedType, node)
+
+    /*
+    * Looking for all local variables used from cst node as we'll need to pass them to the 'mapFilter' method
+    */
+    val referencedLocalVariables = LinkedHashSet<LocalVariable>() // want a constant order, so linkedhashset which is retains insertion order
+    val consumer: (CstNode) -> Unit = { cstNode ->
+      if (cstNode is ReferenceCstNode && currentScope.hasLocalVariable(cstNode.value)) {
+        referencedLocalVariables.add(currentScope.findLocalVariable(cstNode.value)!!)
+      }
+    }
+    node.mapExpr?.forEach(consumer)
+    node.filterExpr?.forEach(consumer)
+    val mapFilterMethodParameters = mutableListOf(MethodParameter(inNode.type, inValueName))
+    mapFilterMethodParameters.addAll(referencedLocalVariables.map { MethodParameter(it.type, it.name) })
+    val mapFilterMethodNode = generateOrGetMethod("_mapFilter_", mapFilterMethodParameters, expectedType, node)
 
     useScope(newMethodScope(mapFilterMethodNode)) { methodScope ->
       val collectionVar = methodScope.addLocalVariable(collectionType)
@@ -1104,10 +1118,14 @@ open class MarcelSemantic(
         add(ReturnStatementNode(returnValue))
       }
     }
+    val arguments = mutableListOf(inNode)
+    for (lv in referencedLocalVariables) {
+      arguments.add(ReferenceNode(variable = lv, token = node.token))
+    }
     return FunctionCallNode(
       javaMethod = mapFilterMethodNode,
       owner = ThisReferenceNode(currentScope.classType, node.token),
-      arguments = listOf(inNode),
+      arguments = arguments,
       tokenStart = node.tokenStart,
       tokenEnd = node.tokenEnd,
     )
