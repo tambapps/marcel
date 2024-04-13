@@ -1036,7 +1036,6 @@ open class MarcelSemantic(
   )
 
   override fun visit(node: ArrayMapFilterCstNode, smartCastType: JavaType?): ExpressionNode {
-    // TODO add smart cast syntax?
     val expectedType = smartCastType ?: List::class.javaType
 
     val collectionType =
@@ -1049,12 +1048,11 @@ open class MarcelSemantic(
         else -> List::class.javaType
       }
       else if (expectedType.implements(Collection::class.javaType)) expectedType
-      // TODO handle strings
       else throw MarcelSemanticException(node, "Incompatible type. Expected Collection/array but got $expectedType")
 
     val inNode = node.inExpr.accept(this)
-    if (!inNode.type.isArray && !inNode.type.implements(Collection::class.javaType)) {
-      throw MarcelSemanticException(node.inExpr, "Can only mapfilter a collection or array")
+    if (!inNode.type.isArray && !inNode.type.implements(Iterable::class.javaType) && !inNode.type.implements(CharSequence::class.javaType)) {
+      throw MarcelSemanticException(node.inExpr, "Can only mapfilter an iterable, charsequence or array")
     }
     val inValueName = "_inValue" + node.hashCode().toString().replace('-', '_')
 
