@@ -1048,6 +1048,8 @@ open class MarcelSemantic(
         else -> List::class.javaType
       }
       else if (expectedType.implements(Collection::class.javaType)) expectedType
+      else if (expectedType.isAssignableFrom(List::class.javaType)) List::class.javaType
+      else if (expectedType == JavaType.void) throw MarcelSemanticException(node, "mapfilter cannot be used as a statement")
       else throw MarcelSemanticException(node, "Incompatible type. Expected Collection/array but got $expectedType")
 
     val inNode = node.inExpr.accept(this)
