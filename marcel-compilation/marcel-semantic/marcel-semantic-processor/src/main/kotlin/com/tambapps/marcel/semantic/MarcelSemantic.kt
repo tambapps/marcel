@@ -160,6 +160,7 @@ import com.tambapps.marcel.semantic.type.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.semantic.type.PrimitiveCollectionTypes
 import com.tambapps.marcel.semantic.type.SourceJavaType
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.Variable
@@ -1038,15 +1039,8 @@ open class MarcelSemantic(
   override fun visit(node: ArrayMapFilterCstNode, smartCastType: JavaType?): ExpressionNode {
     val expectedType = smartCastType ?: List::class.javaType
 
-    val collectionType =
-      if (expectedType.isArray) when (expectedType) {
-        JavaType.intArray -> JavaType.intList
-        JavaType.longArray -> JavaType.longList
-        JavaType.floatArray -> JavaType.floatList
-        JavaType.doubleArray -> JavaType.doubleList
-        JavaType.charArray -> JavaType.charList
-        else -> List::class.javaType
-      }
+    var collectionType =
+      if (expectedType.isArray) PrimitiveCollectionTypes.fromArrayType(expectedType.asArrayType) ?: List::class.javaType
       else if (expectedType.implements(Collection::class.javaType)) expectedType
       else if (expectedType.isAssignableFrom(List::class.javaType)) List::class.javaType
       else if (expectedType == JavaType.void) throw MarcelSemanticException(node, "mapfilter cannot be used as a statement")
@@ -1077,21 +1071,34 @@ open class MarcelSemantic(
       val collectionVar = methodScope.addLocalVariable(collectionType)
       val collectionRef = ReferenceNode(variable = collectionVar, token = node.token)
       val inNodeVarRef = ReferenceNode(variable = methodScope.findLocalVariable(inValueName)!!, token = node.token)
-      val expectedElementType = if (JavaType.intCollection.isAssignableFrom(collectionType)) JavaType.int
+      var expectedElementType = if (JavaType.intCollection.isAssignableFrom(collectionType)) JavaType.int
       else if (JavaType.longCollection.isAssignableFrom(collectionType)) JavaType.long
       else if (JavaType.floatCollection.isAssignableFrom(collectionType)) JavaType.float
       else if (JavaType.doubleCollection.isAssignableFrom(collectionType)) JavaType.double
       else if (JavaType.charCollection.isAssignableFrom(collectionType)) JavaType.char
       else JavaType.Object
 
-      val varAssign = VariableAssignmentNode(collectionVar,
-        expression = caster.cast(collectionType, NewArrayNode(expectedElementType.arrayType, IntConstantNode(token = node.token, value = 0), token = node.token)))
-
-      val forStatement = useInnerScope { forScope ->
+      useInnerScope { forScope ->
         val forVariable = forScope.addLocalVariable(resolve(node.varType), node.varName)
+        val addedExpression = node.mapExpr?.accept(this) ?: ReferenceNode(variable = forVariable, token = node.token)
+        if (addedExpression.type.primitive
+          && PrimitiveCollectionTypes.hasPrimitiveCollection(addedExpression.type.asPrimitiveType)
+          && (collectionVar.type == List::class.javaType || collectionVar.type == Set::class.javaType)) {
+          // try to guess a primitive collection type if the addStmt always adds a primitive
+          expectedElementType = addedExpression.type
+          collectionType =
+            if (collectionVar.type == List::class.javaType) PrimitiveCollectionTypes.listFromPrimitiveType(expectedElementType.asPrimitiveType)!!
+           else PrimitiveCollectionTypes.setFromPrimitiveType(expectedElementType.asPrimitiveType)!!
+          mapFilterMethodNode.returnType = collectionType
+        }
+
+        mapFilterMethodNode.blockStatement.add(ExpressionStatementNode(
+          VariableAssignmentNode(collectionVar,
+            expression = caster.cast(collectionType, NewArrayNode(expectedElementType.arrayType, IntConstantNode(token = node.token, value = 0), token = node.token)))
+        ))
+
         var addStmt: StatementNode = ExpressionStatementNode(
-          fCall(node = node, name = "add", arguments = listOf(caster.cast(expectedElementType,
-            node.mapExpr?.accept(this) ?: ReferenceNode(variable = forVariable, token = node.token))), owner = collectionRef)
+          fCall(node = node, name = "add", arguments = listOf(caster.cast(expectedElementType, addedExpression)), owner = collectionRef)
         )
         node.filterExpr?.let { filterExpr ->
           addStmt = IfStatementNode(
@@ -1101,22 +1108,15 @@ open class MarcelSemantic(
             node = node
           )
         }
-        if (inNodeVarRef.type.isArray) {
+        val forStatement = if (inNodeVarRef.type.isArray) {
           val iVar = forScope.addLocalVariable(JavaType.int, token = node.token)
           forInArrayNode(node = node, forScope = forScope, iVar = iVar, inNode = inNodeVarRef, forVariable = forVariable, statementNode = addStmt)
-        }
-        else { // iterating over iterable
+        } else { // iterating over iterable
           forInIteratorNode(node = node, forScope = forScope, variable = forVariable, inNode = inNodeVarRef, bodtStmt = addStmt)
         }
+        mapFilterMethodNode.blockStatement.add(forStatement)
       }
-
-      val returnValue = caster.cast(expectedType, collectionRef)
-
-      mapFilterMethodNode.blockStatement.apply {
-        add(ExpressionStatementNode(varAssign))
-        add(forStatement)
-        add(ReturnStatementNode(returnValue))
-      }
+      mapFilterMethodNode.blockStatement.add(ReturnStatementNode(caster.cast(expectedType, collectionRef)))
     }
     val arguments = mutableListOf(inNode)
     for (lv in referencedLocalVariables) {

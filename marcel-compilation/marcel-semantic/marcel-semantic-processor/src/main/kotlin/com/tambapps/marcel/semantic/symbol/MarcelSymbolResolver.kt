@@ -23,6 +23,8 @@ import com.tambapps.marcel.semantic.variable.field.CompositeField
 import com.tambapps.marcel.semantic.variable.field.MethodField
 import com.tambapps.marcel.semantic.method.ReflectJavaConstructor
 import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.type.JavaType.Companion.PRIMITIVE_LIST_MAP
+import com.tambapps.marcel.semantic.type.JavaType.Companion.PRIMITIVE_SET_MAP
 import com.tambapps.marcel.semantic.type.JavaTyped
 import com.tambapps.marcel.semantic.type.SourceJavaType
 import com.tambapps.marcel.semantic.variable.field.ReflectJavaField
@@ -40,24 +42,8 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
 
   companion object {
     private val PRIMITIVE_COLLECTION_TYPE_MAP = mapOf(
-      Pair(
-        "list", mapOf(
-          Pair(JavaType.int, JavaType.intList),
-          Pair(JavaType.long, JavaType.longList),
-          Pair(JavaType.float, JavaType.floatList),
-          Pair(JavaType.double, JavaType.doubleList),
-          Pair(JavaType.char, JavaType.charList),
-        )
-      ),
-      Pair(
-        "set", mapOf(
-          Pair(JavaType.int, JavaType.intSet),
-          Pair(JavaType.long, JavaType.longSet),
-          Pair(JavaType.float, JavaType.floatSet),
-          Pair(JavaType.double, JavaType.doubleSet),
-          Pair(JavaType.char, JavaType.characterSet),
-        )
-      ),
+      Pair("list", PRIMITIVE_LIST_MAP),
+      Pair("set", PRIMITIVE_SET_MAP),
     )
   }
 

@@ -429,5 +429,20 @@ interface JavaType: JavaTyped {
     val doubleSet = of(DoubleSet::class.java)
     val characterSet = of(CharSet::class.java)
 
+    val PRIMITIVE_LIST_MAP = mapOf(
+      Pair(int, intList),
+      Pair(long, longList),
+      Pair(float, floatList),
+      Pair(double, doubleList),
+      Pair(char, charList),
+    )
+
+    val PRIMITIVE_SET_MAP = mapOf(
+      Pair(int, intSet),
+      Pair(long, longSet),
+      Pair(float, floatSet),
+      Pair(double, doubleSet),
+      Pair(char, characterSet),
+    )
   }
 }

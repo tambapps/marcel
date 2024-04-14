@@ -12,7 +12,7 @@ class MethodNode(
   override val name: String,
   override val parameters: MutableList<MethodParameter>,
   override val visibility: Visibility,
-  override val returnType: JavaType,
+  override var returnType: JavaType,
   override val isStatic: Boolean,
   override val asyncReturnType: JavaType?,
   override val tokenStart: LexToken, override val tokenEnd: LexToken,
