@@ -15,6 +15,8 @@ import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.ScriptCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
+import com.tambapps.marcel.parser.cst.expression.AllInCstNode
+import com.tambapps.marcel.parser.cst.expression.AnyInCstNode
 import com.tambapps.marcel.parser.cst.expression.ArrayMapFilterCstNode
 import com.tambapps.marcel.parser.cst.expression.AsyncBlockCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
@@ -910,6 +912,9 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
           TypeCstNode(parentNode, token.value, emptyList(), arrayDimensions, token, previous), token, previous)
       }
       TokenType.WHEN, TokenType.SWITCH -> {
+        if (token.type == TokenType.WHEN && current.type != TokenType.BRACKETS_OPEN) {
+          return whenIn(parentNode, token, negate = false)
+        }
         var switchExpression: ExpressionCstNode? = null
         var varDecl: VariableDeclarationCstNode? = null
         if (token.type == TokenType.SWITCH) {
@@ -953,6 +958,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         if (switchExpression == null) WhenCstNode(parentNode, token, previous, branches, elseStatement)
         else SwitchCstNode(parentNode, token, previous, branches, elseStatement, varDecl, switchExpression)
       }
+      TokenType.NOT_WHEN -> whenIn(parentNode, token, negate = true)
       TokenType.BRACKETS_OPEN -> parseLambda(token, parentNode)
       TokenType.ASYNC ->  block(parentNode).let {
         AsyncBlockCstNode(parentNode, token, it.tokenEnd, it)
@@ -961,6 +967,19 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     }
   }
 
+  private fun whenIn(parentNode: CstNode?, token: LexToken, negate: Boolean): ExpressionCstNode {
+    val type = parseType(parentNode)
+    val varName = accept(TokenType.IDENTIFIER).value
+    accept(TokenType.IN)
+    val inExpr = expression(parentNode)
+    val operatorToken = next()
+    val filterExpr = expression(parentNode)
+    return when (operatorToken.type) {
+      TokenType.OR_ARROW -> AnyInCstNode(parentNode, token, previous, type, varName, inExpr, filterExpr, negate)
+      TokenType.AND_ARROW -> AllInCstNode(parentNode, token, previous, type, varName, inExpr, filterExpr, negate)
+      else -> throw MarcelParserException(token, "Invalid token ${token.type}")
+    }
+  }
   private inline fun unaryOperator(parentNode: CstNode?, token: LexToken,
                             nodeCreator: (ExpressionCstNode, CstNode?, LexToken, LexToken) -> ExpressionCstNode): ExpressionCstNode {
     val rootExpr = expression(parentNode, UNARY_PRIORITY)

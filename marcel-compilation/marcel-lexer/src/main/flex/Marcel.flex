@@ -324,6 +324,7 @@ LONELY_BACKTICK=`
 "if"          { return token(IF); }
 "switch"          { return token(SWITCH); }
 "when"          { return token(WHEN); }
+"!when"          { return token(NOT_WHEN); }
 "else"          { return token(ELSE); }
 "while"          { return token(WHILE); }
 "null"          { return token(NULL); }
@@ -391,6 +392,8 @@ LONELY_BACKTICK=`
 "--"          { return token(DECR); }
 "=~"          { return token(FIND); }
 "->"          { return token(ARROW); }
+"&>"          { return token(AND_ARROW); }
+"|>"          { return token(OR_ARROW); }
 "@"          { return token(AT); }
 
 

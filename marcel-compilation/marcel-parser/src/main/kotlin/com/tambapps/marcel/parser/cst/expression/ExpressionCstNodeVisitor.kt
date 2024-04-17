@@ -42,6 +42,8 @@ interface ExpressionCstNodeVisitor<T, U> {
   fun visit(node: MapCstNode, smartCastType: U? = null): T
   fun visit(node: ArrayCstNode, smartCastType: U? = null): T
   fun visit(node: ArrayMapFilterCstNode, smartCastType: U? = null): T
+  fun visit(node: AllInCstNode, smartCastType: U? = null): T
+  fun visit(node: AnyInCstNode, smartCastType: U? = null): T
 
   fun visit(node: UnaryMinusCstNode, smartCastType: U? = null): T
   fun visit(node: NotCstNode, smartCastType: U? = null): T

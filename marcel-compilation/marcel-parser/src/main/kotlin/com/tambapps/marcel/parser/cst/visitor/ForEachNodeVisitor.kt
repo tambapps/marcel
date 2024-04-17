@@ -1,6 +1,8 @@
 package com.tambapps.marcel.parser.cst.visitor
 
 import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.parser.cst.expression.AllInCstNode
+import com.tambapps.marcel.parser.cst.expression.AnyInCstNode
 import com.tambapps.marcel.parser.cst.expression.ArrayMapFilterCstNode
 import com.tambapps.marcel.parser.cst.expression.AsyncBlockCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
@@ -119,6 +121,18 @@ class ForEachNodeVisitor(
     node.inExpr.accept(this)
     node.mapExpr?.accept(this)
     node.filterExpr?.accept(this)
+  }
+
+  override fun visit(node: AllInCstNode, smartCastType: Unit?) {
+    consume(node)
+    node.inExpr.accept(this)
+    node.filterExpr.accept(this)
+  }
+
+  override fun visit(node: AnyInCstNode, smartCastType: Unit?) {
+    consume(node)
+    node.inExpr.accept(this)
+    node.filterExpr.accept(this)
   }
 
   override fun visit(node: UnaryMinusCstNode, smartCastType: Unit?) {
