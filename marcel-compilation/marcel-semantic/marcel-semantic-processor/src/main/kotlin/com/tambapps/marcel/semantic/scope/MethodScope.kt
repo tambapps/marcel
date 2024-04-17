@@ -102,6 +102,8 @@ open class MethodScope internal constructor(
       ?: (parentScope as? MethodScope)?.findLocalVariable(name)
   }
 
+  fun getMethodParameterVariable(i: Int) = findLocalVariable(method.parameters[i].name)!!
+
   override fun findField(name: String) = parentScope.findField(name)
 
   override fun dispose() {

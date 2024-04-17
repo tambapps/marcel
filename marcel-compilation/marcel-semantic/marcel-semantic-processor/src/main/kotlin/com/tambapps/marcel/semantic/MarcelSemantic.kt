@@ -1048,31 +1048,14 @@ open class MarcelSemantic(
       else if (expectedType == JavaType.void) throw MarcelSemanticException(node, "mapfilter cannot be used as a statement")
       else throw MarcelSemanticException(node, "Incompatible type. Expected Collection/array but got $expectedType")
 
-    val inNode = node.inExpr.accept(this)
-    if (!inNode.type.isArray && !inNode.type.implements(Iterable::class.javaType) && !inNode.type.implements(CharSequence::class.javaType)) {
-      throw MarcelSemanticException(node.inExpr, "Can only mapfilter an iterable, charsequence or array")
-    }
-    val inValueName = "_inValue" + node.hashCode().toString().replace('-', '_')
+    val bodyCstNodes = mutableListOf<ExpressionCstNode>()
+    node.mapExpr?.let(bodyCstNodes::add)
+    node.filterExpr?.let(bodyCstNodes::add)
 
-    /*
-    * Looking for all local variables used from cst node as we'll need to pass them to the 'mapFilter' method
-    */
-    val referencedLocalVariables = LinkedHashSet<LocalVariable>() // want a constant order, so linkedhashset which is retains insertion order
-    val consumer: (CstNode) -> Unit = { cstNode ->
-      if (cstNode is ReferenceCstNode && currentScope.hasLocalVariable(cstNode.value)) {
-        referencedLocalVariables.add(currentScope.findLocalVariable(cstNode.value)!!)
-      }
-    }
-    node.mapExpr?.forEach(consumer)
-    node.filterExpr?.forEach(consumer)
-    val mapFilterMethodParameters = mutableListOf(MethodParameter(inNode.type, inValueName))
-    mapFilterMethodParameters.addAll(referencedLocalVariables.map { MethodParameter(it.type, it.name) })
-    val mapFilterMethodNode = generateOrGetMethod("_mapFilter_", mapFilterMethodParameters, expectedType, node)
-
-    useScope(newMethodScope(mapFilterMethodNode)) { methodScope ->
+    return inOperator(node, node.inExpr, "_mapFilter_", bodyCstNodes, expectedType) { mapFilterMethodNode: MethodNode, methodScope: MethodScope ->
       val collectionVar = methodScope.addLocalVariable(collectionType)
       val collectionRef = ReferenceNode(variable = collectionVar, token = node.token)
-      val inNodeVarRef = ReferenceNode(variable = methodScope.findLocalVariable(inValueName)!!, token = node.token)
+      val inNodeVarRef = ReferenceNode(variable = methodScope.getMethodParameterVariable(0), token = node.token)
       var expectedElementType = if (JavaType.intCollection.isAssignableFrom(collectionType)) JavaType.int
       else if (JavaType.longCollection.isAssignableFrom(collectionType)) JavaType.long
       else if (JavaType.floatCollection.isAssignableFrom(collectionType)) JavaType.float
@@ -1090,7 +1073,7 @@ open class MarcelSemantic(
           expectedElementType = addedExpression.type
           collectionType =
             if (collectionVar.type == List::class.javaType) PrimitiveCollectionTypes.listFromPrimitiveType(expectedElementType.asPrimitiveType)!!
-           else PrimitiveCollectionTypes.setFromPrimitiveType(expectedElementType.asPrimitiveType)!!
+            else PrimitiveCollectionTypes.setFromPrimitiveType(expectedElementType.asPrimitiveType)!!
           mapFilterMethodNode.returnType = collectionType
         }
 
@@ -1120,25 +1103,108 @@ open class MarcelSemantic(
       }
       mapFilterMethodNode.blockStatement.add(ReturnStatementNode(caster.cast(expectedType, collectionRef)))
     }
+  }
+
+  override fun visit(node: AllInCstNode, smartCastType: JavaType?): ExpressionNode {
+    if (node.negate) {
+      return AnyInCstNode(node.parent, node.tokenStart, node.tokenEnd, node.varType, node.varName, node.inExpr, NotCstNode(
+        expression = node.filterExpr,
+        parent = node.parent,
+        tokenStart = node.tokenStart,
+        tokenEnd = node.tokenEnd
+      ), false).accept(this)
+    }
+    return anyAllOperator(node, methodPrefix = "_all_", inExpr = node.inExpr, filterExpr = node.filterExpr,
+      varType = node.varType, varName = node.varName, finalReturnValue = true) { filterExpr -> IfStatementNode(
+      conditionNode = caster.truthyCast(NotNode(filterExpr)),
+      trueStatementNode = ReturnStatementNode(BoolConstantNode(value = false, token = node.token)),
+      falseStatementNode = null,
+      node = node
+    )
+    }
+  }
+
+  override fun visit(node: AnyInCstNode, smartCastType: JavaType?): ExpressionNode {
+    if (node.negate) {
+      return AllInCstNode(node.parent, node.tokenStart, node.tokenEnd, node.varType, node.varName, node.inExpr, NotCstNode(
+        expression = node.filterExpr,
+        parent = node.parent,
+        tokenStart = node.tokenStart,
+        tokenEnd = node.tokenEnd
+      ), false).accept(this)
+    }
+    return anyAllOperator(node, methodPrefix = "_any_", inExpr = node.inExpr, filterExpr = node.filterExpr,
+      varType = node.varType, varName = node.varName, finalReturnValue = false) { filterExpr -> IfStatementNode(
+      conditionNode = caster.truthyCast(filterExpr),
+      trueStatementNode = ReturnStatementNode(BoolConstantNode(value = true, token = node.token)),
+      falseStatementNode = null,
+      node = node
+    )
+    }
+  }
+
+  private inline fun anyAllOperator(node: CstNode, methodPrefix: String, inExpr: ExpressionCstNode, filterExpr: ExpressionCstNode,
+                             varType: TypeCstNode, varName: String, finalReturnValue: Boolean, forBodyGenerator: (ExpressionNode) -> StatementNode): ExpressionNode {
+    return inOperator(node, inExpr, methodPrefix, listOf(filterExpr), JavaType.boolean) { methodNode, methodScope ->
+
+      val forStatement =useInnerScope { forScope ->
+        val forVariable = forScope.addLocalVariable(resolve(varType), varName)
+        val inNodeVarRef = ReferenceNode(variable = methodScope.getMethodParameterVariable(0), token = node.token)
+
+        val forBody = forBodyGenerator.invoke(filterExpr.accept(this))
+        if (inNodeVarRef.type.isArray) {
+          val iVar = forScope.addLocalVariable(JavaType.int, token = node.token)
+          forInArrayNode(node = node, forScope = forScope, iVar = iVar, inNode = inNodeVarRef, forVariable = forVariable, statementNode = forBody)
+        } else { // iterating over iterable
+          forInIteratorNode(node = node, forScope = forScope, variable = forVariable, inNode = inNodeVarRef, bodtStmt = forBody)
+        }
+      }
+
+      methodNode.blockStatement.apply {
+        add(forStatement)
+        add(ReturnStatementNode(BoolConstantNode(value = finalReturnValue, token = node.token)))
+      }
+    }
+  }
+  private inline fun inOperator(node: CstNode, inExpr: ExpressionCstNode,
+                                methodPrefix: String,
+                                bodyCstNodes: List<ExpressionCstNode>,
+                                methodReturnType: JavaType,
+                                methodFiller: (MethodNode, MethodScope) -> Unit): ExpressionNode {
+    val inNode = inExpr.accept(this)
+    if (!inNode.type.isArray && !inNode.type.implements(Iterable::class.javaType) && !inNode.type.implements(CharSequence::class.javaType)) {
+      throw MarcelSemanticException(inExpr, "Can only mapfilter an iterable, charsequence or array")
+    }
+    val inValueName = "_inValue" + node.hashCode().toString().replace('-', '_')
+    /*
+    * Looking for all local variables used from cst node as we'll need to pass them to the 'mapFilter' method
+    */
+    val referencedLocalVariables = LinkedHashSet<LocalVariable>() // want a constant order, so linkedhashset which is retains insertion order
+    val consumer: (CstNode) -> Unit = { cstNode ->
+      if (cstNode is ReferenceCstNode && currentScope.hasLocalVariable(cstNode.value)) {
+        referencedLocalVariables.add(currentScope.findLocalVariable(cstNode.value)!!)
+      }
+    }
+    bodyCstNodes.forEach { bodyCstNode -> bodyCstNode.forEach(consumer) }
+
+    val inOperatorMethodParameters = mutableListOf(MethodParameter(inNode.type, inValueName))
+    inOperatorMethodParameters.addAll(referencedLocalVariables.map { MethodParameter(it.type, it.name) })
+    val inOperatorMethodNode = generateOrGetMethod(methodPrefix, inOperatorMethodParameters, methodReturnType, node)
+
+    useScope(newMethodScope(inOperatorMethodNode)) { methodScope ->
+      methodFiller.invoke(inOperatorMethodNode, methodScope)
+    }
     val arguments = mutableListOf(inNode)
     for (lv in referencedLocalVariables) {
       arguments.add(ReferenceNode(variable = lv, token = node.token))
     }
     return FunctionCallNode(
-      javaMethod = mapFilterMethodNode,
+      javaMethod = inOperatorMethodNode,
       owner = ThisReferenceNode(currentScope.classType, node.token),
       arguments = arguments,
       tokenStart = node.tokenStart,
       tokenEnd = node.tokenEnd,
     )
-  }
-
-  override fun visit(node: AllInCstNode, smartCastType: JavaType?): ExpressionNode {
-    TODO("Not yet implemented")
-  }
-
-  override fun visit(node: AnyInCstNode, smartCastType: JavaType?): ExpressionNode {
-    TODO("Not yet implemented")
   }
 
   override fun visit(node: MapCstNode, smartCastType: JavaType?) = MapNode(
