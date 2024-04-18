@@ -9,7 +9,7 @@ import com.tambapps.marcel.parser.cst.ConstructorCstNode as ConstructorCstNode
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.expression.AllInCstNode
 import com.tambapps.marcel.parser.cst.expression.AnyInCstNode
-import com.tambapps.marcel.parser.cst.expression.ArrayMapFilterCstNode
+import com.tambapps.marcel.parser.cst.expression.MapFilterCstNode
 import com.tambapps.marcel.parser.cst.expression.AsyncBlockCstNode
 import com.tambapps.marcel.parser.cst.expression.ElvisThrowCstNode
 import com.tambapps.marcel.parser.cst.expression.FindInCstNode
@@ -1040,7 +1040,7 @@ open class MarcelSemantic(
     node = node
   )
 
-  override fun visit(node: ArrayMapFilterCstNode, smartCastType: JavaType?): ExpressionNode {
+  override fun visit(node: MapFilterCstNode, smartCastType: JavaType?): ExpressionNode {
     val expectedType = smartCastType ?: List::class.javaType
 
     var collectionType =

@@ -3,7 +3,7 @@ package com.tambapps.marcel.parser.cst.visitor
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.expression.AllInCstNode
 import com.tambapps.marcel.parser.cst.expression.AnyInCstNode
-import com.tambapps.marcel.parser.cst.expression.ArrayMapFilterCstNode
+import com.tambapps.marcel.parser.cst.expression.MapFilterCstNode
 import com.tambapps.marcel.parser.cst.expression.AsyncBlockCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryTypeOperatorCstNode
@@ -117,7 +117,7 @@ class ForEachNodeVisitor(
     node.elements.forEach { it.accept(this) }
   }
 
-  override fun visit(node: ArrayMapFilterCstNode, smartCastType: Unit?) {
+  override fun visit(node: MapFilterCstNode, smartCastType: Unit?) {
     consume(node)
     node.inExpr?.accept(this)
     node.mapExpr?.accept(this)
