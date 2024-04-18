@@ -10,13 +10,14 @@ class AnyInCstNode(
   parent: CstNode?,
   tokenStart: LexToken,
   tokenEnd: LexToken,
-  val varType: TypeCstNode,
-  val varName: String,
-  val inExpr: ExpressionCstNode,
-  val filterExpr: ExpressionCstNode,
+  varType: TypeCstNode,
+  varName: String,
+  inExpr: ExpressionCstNode,
+  filterExpr: ExpressionCstNode,
   val negate: Boolean,
-  ) : AbstractExpressionCstNode(parent, tokenStart, tokenEnd) {
+  ) : InOperationCstNode(parent, tokenStart, tokenEnd, varType, varName, inExpr, filterExpr) {
 
+  override val filterExpr: ExpressionCstNode get() = super.filterExpr!!
   override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
 
 }

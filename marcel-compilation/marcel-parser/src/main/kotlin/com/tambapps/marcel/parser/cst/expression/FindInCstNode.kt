@@ -10,12 +10,12 @@ class FindInCstNode(
   parent: CstNode?,
   tokenStart: LexToken,
   tokenEnd: LexToken,
-  val varType: TypeCstNode,
-  val varName: String,
+  varType: TypeCstNode,
+  varName: String,
   // TODO make this optional and allow right shift operators on all in nodes
-  val inExpr: ExpressionCstNode,
-  val filterExpr: ExpressionCstNode,
-) : AbstractExpressionCstNode(parent, tokenStart, tokenEnd) {
+  inExpr: ExpressionCstNode,
+  filterExpr: ExpressionCstNode,
+) : InOperationCstNode(parent, tokenStart, tokenEnd, varType, varName, inExpr, filterExpr) {
 
   override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) =  TODO() //visitor.visit(this, arg)
 

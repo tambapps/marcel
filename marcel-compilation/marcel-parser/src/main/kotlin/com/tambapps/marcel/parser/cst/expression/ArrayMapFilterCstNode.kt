@@ -15,12 +15,12 @@ class ArrayMapFilterCstNode(
   parent: CstNode?,
   tokenStart: LexToken,
   tokenEnd: LexToken,
-  val varType: TypeCstNode,
-  val varName: String,
-  val inExpr: ExpressionCstNode,
+  varType: TypeCstNode,
+  varName: String,
+  inExpr: ExpressionCstNode,
   val mapExpr: ExpressionCstNode?,
-  val filterExpr: ExpressionCstNode?
-) : AbstractExpressionCstNode(parent, tokenStart, tokenEnd) {
+  filterExpr: ExpressionCstNode?,
+) : InOperationCstNode(parent, tokenStart, tokenEnd, varType, varName, inExpr, filterExpr) {
 
   override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
 
