@@ -788,8 +788,10 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
           skip()
           val varType = parseType(parentNode)
           val varName = accept(TokenType.IDENTIFIER).value
-          accept(TokenType.IN)
-          val inExpr = expression(parentNode)
+          val inExpr = if (current.type == TokenType.IN) {
+            skip()
+            expression(parentNode)
+          } else null
           val mapExpr: ExpressionCstNode?
           val filterExpr: ExpressionCstNode?
           if (current.type == TokenType.IF) { // find all, no map
@@ -971,8 +973,10 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
   private fun whenIn(parentNode: CstNode?, token: LexToken, negate: Boolean, allowFind: Boolean = false): ExpressionCstNode {
     val type = parseType(parentNode)
     val varName = accept(TokenType.IDENTIFIER).value
-    accept(TokenType.IN)
-    val inExpr = expression(parentNode)
+    val inExpr = if (current.type == TokenType.IN) {
+      skip()
+      expression(parentNode)
+    } else null
     val operatorToken = next()
     val filterExpr = expression(parentNode)
     if (allowFind && operatorToken.type == TokenType.ARROW) {

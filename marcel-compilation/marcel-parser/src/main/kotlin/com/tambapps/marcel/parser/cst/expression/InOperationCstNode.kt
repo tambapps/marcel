@@ -10,7 +10,7 @@ abstract class InOperationCstNode(
   tokenEnd: LexToken,
   val varType: TypeCstNode,
   val varName: String,
-  val inExpr: ExpressionCstNode,
+  var inExpr: ExpressionCstNode?,
   open val filterExpr: ExpressionCstNode?,
 ) : AbstractExpressionCstNode(parent, tokenStart, tokenEnd) {
 }

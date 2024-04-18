@@ -17,7 +17,7 @@ class ArrayMapFilterCstNode(
   tokenEnd: LexToken,
   varType: TypeCstNode,
   varName: String,
-  inExpr: ExpressionCstNode,
+  inExpr: ExpressionCstNode?,
   val mapExpr: ExpressionCstNode?,
   filterExpr: ExpressionCstNode?,
 ) : InOperationCstNode(parent, tokenStart, tokenEnd, varType, varName, inExpr, filterExpr) {

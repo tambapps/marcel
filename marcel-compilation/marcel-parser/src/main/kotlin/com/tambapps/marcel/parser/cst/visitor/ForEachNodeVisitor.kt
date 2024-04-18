@@ -119,26 +119,26 @@ class ForEachNodeVisitor(
 
   override fun visit(node: ArrayMapFilterCstNode, smartCastType: Unit?) {
     consume(node)
-    node.inExpr.accept(this)
+    node.inExpr?.accept(this)
     node.mapExpr?.accept(this)
     node.filterExpr?.accept(this)
   }
 
   override fun visit(node: AllInCstNode, smartCastType: Unit?) {
     consume(node)
-    node.inExpr.accept(this)
+    node.inExpr?.accept(this)
     node.filterExpr.accept(this)
   }
 
   override fun visit(node: AnyInCstNode, smartCastType: Unit?) {
     consume(node)
-    node.inExpr.accept(this)
+    node.inExpr?.accept(this)
     node.filterExpr.accept(this)
   }
 
   override fun visit(node: FindInCstNode, smartCastType: Unit?) {
     consume(node)
-    node.inExpr.accept(this)
+    node.inExpr?.accept(this)
     node.filterExpr.accept(this)
   }
 

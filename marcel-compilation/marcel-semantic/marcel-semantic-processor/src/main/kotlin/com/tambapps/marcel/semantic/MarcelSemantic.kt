@@ -13,6 +13,7 @@ import com.tambapps.marcel.parser.cst.expression.ArrayMapFilterCstNode
 import com.tambapps.marcel.parser.cst.expression.AsyncBlockCstNode
 import com.tambapps.marcel.parser.cst.expression.ElvisThrowCstNode
 import com.tambapps.marcel.parser.cst.expression.FindInCstNode
+import com.tambapps.marcel.parser.cst.expression.InOperationCstNode
 import com.tambapps.marcel.parser.cst.statement.DoWhileStatementCstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode as MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode as MethodParameterCstNode
@@ -1053,7 +1054,7 @@ open class MarcelSemantic(
     node.mapExpr?.let(bodyCstNodes::add)
     node.filterExpr?.let(bodyCstNodes::add)
 
-    return inOperator(node, node.inExpr, "_mapFilter_", bodyCstNodes, expectedType) { mapFilterMethodNode: MethodNode, methodScope: MethodScope ->
+    return inOperation(node, node.inExpr, "_mapFilter_", bodyCstNodes, expectedType) { mapFilterMethodNode: MethodNode, methodScope: MethodScope ->
       val collectionVar = methodScope.addLocalVariable(collectionType)
       val collectionRef = ReferenceNode(variable = collectionVar, token = node.token)
       val inNodeVarRef = ReferenceNode(variable = methodScope.getMethodParameterVariable(0), token = node.token)
@@ -1147,7 +1148,7 @@ open class MarcelSemantic(
 
   override fun visit(node: FindInCstNode, smartCastType: JavaType?): ExpressionNode {
     val varType = resolve(node.varType)
-    return inOperator(node, node.inExpr, "_find_", listOf(node.filterExpr), varType.objectType) { methodNode, methodScope ->
+    return inOperation(node, node.inExpr, "_find_", listOf(node.filterExpr), varType.objectType) { methodNode, methodScope ->
       useInnerScope { forScope ->
         val forVariable = forScope.addLocalVariable(varType, node.varName)
         val inNodeVarRef = ReferenceNode(variable = methodScope.getMethodParameterVariable(0), token = node.token)
@@ -1184,9 +1185,9 @@ open class MarcelSemantic(
     }
   }
 
-  private inline fun anyAllOperator(node: CstNode, methodPrefix: String, inExpr: ExpressionCstNode, filterExpr: ExpressionCstNode,
+  private inline fun anyAllOperator(node: CstNode, methodPrefix: String, inExpr: ExpressionCstNode?, filterExpr: ExpressionCstNode,
                              varType: TypeCstNode, varName: String, finalReturnValue: Boolean, forBodyGenerator: (ExpressionNode) -> StatementNode): ExpressionNode {
-    return inOperator(node, inExpr, methodPrefix, listOf(filterExpr), JavaType.boolean) { methodNode, methodScope ->
+    return inOperation(node, inExpr, methodPrefix, listOf(filterExpr), JavaType.boolean) { methodNode, methodScope ->
 
       val forStatement = useInnerScope { forScope ->
         val forVariable = forScope.addLocalVariable(resolve(varType), varName)
@@ -1210,14 +1211,17 @@ open class MarcelSemantic(
       }
     }
   }
-  private inline fun inOperator(node: CstNode, inExpr: ExpressionCstNode,
-                                methodPrefix: String,
-                                bodyCstNodes: List<ExpressionCstNode>,
-                                methodReturnType: JavaType,
-                                methodFiller: (MethodNode, MethodScope) -> Unit): ExpressionNode {
+  private inline fun inOperation(node: CstNode, inExpr: ExpressionCstNode?,
+                                 methodPrefix: String,
+                                 bodyCstNodes: List<ExpressionCstNode>,
+                                 methodReturnType: JavaType,
+                                 methodFiller: (MethodNode, MethodScope) -> Unit): ExpressionNode {
+    if (inExpr == null) {
+      throw MarcelSemanticException(node, "Invalid use of IN operation: missing IN value")
+    }
     val inNode = inExpr.accept(this)
     if (!inNode.type.isArray && !inNode.type.implements(Iterable::class.javaType) && !inNode.type.implements(CharSequence::class.javaType)) {
-      throw MarcelSemanticException(inExpr, "Can only mapfilter an iterable, charsequence or array")
+      throw MarcelSemanticException(inExpr, "Can only perform IN operation on an Iterable, CharSequence or array")
     }
     val inValueName = "_inValue" + node.hashCode().toString().replace('-', '_')
     /*
@@ -1387,7 +1391,9 @@ open class MarcelSemantic(
       TokenType.MUL -> arithmeticBinaryOperator(leftOperand, rightOperand, "multiply", ::MulNode)
       TokenType.DIV -> arithmeticBinaryOperator(leftOperand, rightOperand, "div", ::DivNode)
       TokenType.MODULO -> arithmeticBinaryOperator(leftOperand, rightOperand, "mod", ::ModNode)
-      TokenType.RIGHT_SHIFT -> shiftOperator(leftOperand, rightOperand, "rightShift", ::RightShiftNode)
+      TokenType.RIGHT_SHIFT ->
+        if (rightOperand is InOperationCstNode) rightOperand.apply { inExpr = leftOperand }.accept(this)
+        else shiftOperator(leftOperand, rightOperand, "rightShift", ::RightShiftNode)
       TokenType.LEFT_SHIFT -> shiftOperator(leftOperand, rightOperand, "leftShift", ::LeftShiftNode)
       TokenType.PLUS_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, "plus", ::PlusNode)
       TokenType.MINUS_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(leftOperand, rightOperand, "minus", ::MinusNode)

@@ -12,8 +12,7 @@ class FindInCstNode(
   tokenEnd: LexToken,
   varType: TypeCstNode,
   varName: String,
-  // TODO make this optional and allow right shift operators on all in nodes
-  inExpr: ExpressionCstNode,
+  inExpr: ExpressionCstNode?,
   filterExpr: ExpressionCstNode,
 ) : InOperationCstNode(parent, tokenStart, tokenEnd, varType, varName, inExpr, filterExpr) {
 

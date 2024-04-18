@@ -12,7 +12,7 @@ class AllInCstNode(
   tokenEnd: LexToken,
   varType: TypeCstNode,
   varName: String,
-  inExpr: ExpressionCstNode,
+  inExpr: ExpressionCstNode?,
   filterExpr: ExpressionCstNode,
   val negate: Boolean,
 ) : InOperationCstNode(parent, tokenStart, tokenEnd, varType, varName, inExpr, filterExpr) {
