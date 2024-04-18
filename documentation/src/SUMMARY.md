@@ -44,6 +44,8 @@
     - [Ternary and Elvis(?:)](language-specification/operators/ternary-elvis.md)
     - [Direct Field Access(@)](language-specification/operators/direct-field-access.md)
     - [Define your own operators](language-specification/operators/operator-overloading.md)
+  - [Iterable Operations](language-specification/iterable-operations/index.md)
+    - [Map/Filter](language-specification/iterable-operations/map-filter.md)
   - [Lambdas](language-specification/lambdas.md)
   - [Extension Classes](language-specification/extension-classes.md)
 - [Meta Programming](./metaprogramming/index.md)
