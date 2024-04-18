@@ -8,9 +8,6 @@ import com.tambapps.marcel.parser.cst.TypeCstNode
 //   list<int> list2 = [for int a in list -> a + 1 if a <= 2]
 //    list<int> list2 = [for int a in list if a <= 2]
 //    int list2 = for int a in list if a <= 2 NYI // find
-
-
-// TODO test me
 class ArrayMapFilterCstNode(
   parent: CstNode?,
   tokenStart: LexToken,
