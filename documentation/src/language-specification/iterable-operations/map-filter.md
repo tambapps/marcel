@@ -32,5 +32,5 @@ you can explicitly specify the wanted type using the [as operator](../operators/
 ```marcel
 list<int> list = [1, 2, 3, 4]
 set<int> list2 = [for int i in list -> i % 2] // [0, 1]
-println([for int i in list -> Optional.of(i % 2)] as Set)
+println([for int i in list -> Optional.of(i % 2)] as Set) // [Optional(0), Optional(1)]
 ```

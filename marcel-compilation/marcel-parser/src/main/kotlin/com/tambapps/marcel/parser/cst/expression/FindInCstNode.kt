@@ -4,7 +4,6 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 
-// TODO document me.
 class FindInCstNode(
   parent: CstNode?,
   tokenStart: LexToken,
