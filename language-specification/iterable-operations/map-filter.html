@@ -164,7 +164,7 @@ usually guessed by the compiler when possible (e.g. looking at the type of the v
 you can explicitly specify the wanted type using the <a href="../operators/as.html">as operator</a>.</p>
 <pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
 set&lt;int&gt; list2 = [for int i in list -&gt; i % 2] // [0, 1]
-println([for int i in list -&gt; Optional.of(i % 2)] as Set)
+println([for int i in list -&gt; Optional.of(i % 2)] as Set) // [Optional(0), Optional(1)]
 </code></pre>
 
                     </main>

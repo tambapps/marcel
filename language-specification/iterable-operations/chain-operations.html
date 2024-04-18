@@ -143,7 +143,19 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="chain-operations"><a class="header" href="#chain-operations">Chain operations</a></h1>
-<p>TODO &gt;&gt;</p>
+<p>You can chain multiple iterable operations in a same expression using the right shift (<code>&gt;&gt;</code>) operator.</p>
+<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
+println(list &gt;&gt; when int a -&gt; a % 2 == 0)
+println([for int a in list -&gt; a + 3] &gt;&gt; when int a -&gt; a % 2 == 0)
+</code></pre>
+<p>In those example you can see that we omit the <code>in something</code> part of the operations, this is because the left operand
+of the <code>&gt;&gt;</code> operator is used instead.</p>
+<p>So the above code is equivalent of the below code.</p>
+<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
+println(when int a in list -&gt; a % 2 == 0)
+println(when int a in [for int a in list -&gt; a + 3] -&gt; a % 2 == 0)
+</code></pre>
+<p>But this piece of code is hard to read, right? That is why the <code>&gt;&gt;</code> is here. </p>
 
                     </main>
 

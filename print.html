@@ -1304,14 +1304,54 @@ usually guessed by the compiler when possible (e.g. looking at the type of the v
 you can explicitly specify the wanted type using the <a href="language-specification/iterable-operations/../operators/as.html">as operator</a>.</p>
 <pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
 set&lt;int&gt; list2 = [for int i in list -&gt; i % 2] // [0, 1]
-println([for int i in list -&gt; Optional.of(i % 2)] as Set)
+println([for int i in list -&gt; Optional.of(i % 2)] as Set) // [Optional(0), Optional(1)]
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="any-all"><a class="header" href="#any-all">Any, All</a></h1>
-<p>TODO</p>
+<p>Checking if any/all elements of an Iterable, CharSequence or array all matches a given predicates
+is possible using the below syntax.</p>
+<h2 id="any"><a class="header" href="#any">Any</a></h2>
+<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
+println(when int a in list |&gt; a &gt;= 3) // true
+</code></pre>
+<p>The <code>|&gt;</code> arrow is used to check if at least one element matches the predicate.</p>
+<h2 id="any-1"><a class="header" href="#any-1">Any</a></h2>
+<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
+println(when int a in list &amp;&gt; a &gt;= 3) // false
+</code></pre>
+<p>The <code>&amp;&gt;</code> arrow is used to check if all elements matche the predicate.</p>
+<h2 id="negations"><a class="header" href="#negations">Negations</a></h2>
+<p>You can also negate those conditions using the <code>!when</code> keyword.</p>
+<pre><code class="language-marcel">println(!when int a in list |&gt; a &gt;= 3) // false
+println(!when int a in list &amp;&gt; a &gt;= 3) // true
+</code></pre>
+<h2 id="complex-boolean-expressions"><a class="header" href="#complex-boolean-expressions">Complex boolean expressions</a></h2>
+<p>To use properly the above described operations in boolean expressions, wrap them with the parenthesis to
+avoid any ambiguity</p>
+<pre><code class="language-marcel">if ((when int a in list &amp;&gt; a &gt;= 3) &amp;&amp; somethingElse) {
+  doAllTheThings()
+}
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="find"><a class="header" href="#find">Find</a></h1>
-<p>TODO</p>
+<p>This iterable operation allows to find an element on an Iterable, CharSequence or array and return it, or null.
+As the element may not be found, this operator always return an object, even for primitive collections (e.g. Integer for a <code>list&lt;int&gt;</code>).</p>
+<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
+println(when int a in list -&gt; a % 2 == 0) // 2
+println(when int a in list -&gt; a % 2 == 5) // null
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chain-operations"><a class="header" href="#chain-operations">Chain operations</a></h1>
-<p>TODO &gt;&gt;</p>
+<p>You can chain multiple iterable operations in a same expression using the right shift (<code>&gt;&gt;</code>) operator.</p>
+<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
+println(list &gt;&gt; when int a -&gt; a % 2 == 0)
+println([for int a in list -&gt; a + 3] &gt;&gt; when int a -&gt; a % 2 == 0)
+</code></pre>
+<p>In those example you can see that we omit the <code>in something</code> part of the operations, this is because the left operand
+of the <code>&gt;&gt;</code> operator is used instead.</p>
+<p>So the above code is equivalent of the below code.</p>
+<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
+println(when int a in list -&gt; a % 2 == 0)
+println(when int a in [for int a in list -&gt; a + 3] -&gt; a % 2 == 0)
+</code></pre>
+<p>But this piece of code is hard to read, right? That is why the <code>&gt;&gt;</code> is here. </p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="lambdas"><a class="header" href="#lambdas">Lambdas</a></h1>
 <p>Marcel supports lambda expressions, but note that they are not compiled
 to Java 8 lambdas, they are compiled to anonymous classes instead. This is to guaranty
