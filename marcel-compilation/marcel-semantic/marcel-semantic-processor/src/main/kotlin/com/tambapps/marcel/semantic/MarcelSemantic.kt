@@ -12,6 +12,7 @@ import com.tambapps.marcel.parser.cst.expression.AnyInCstNode
 import com.tambapps.marcel.parser.cst.expression.ArrayMapFilterCstNode
 import com.tambapps.marcel.parser.cst.expression.AsyncBlockCstNode
 import com.tambapps.marcel.parser.cst.expression.ElvisThrowCstNode
+import com.tambapps.marcel.parser.cst.expression.FindInCstNode
 import com.tambapps.marcel.parser.cst.statement.DoWhileStatementCstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode as MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode as MethodParameterCstNode
@@ -1143,20 +1144,63 @@ open class MarcelSemantic(
     }
   }
 
+
+  override fun visit(node: FindInCstNode, smartCastType: JavaType?): ExpressionNode {
+    val varType = resolve(node.varType)
+    return inOperator(node, node.inExpr, "_find_", listOf(node.filterExpr), varType.objectType) { methodNode, methodScope ->
+      useInnerScope { forScope ->
+        val forVariable = forScope.addLocalVariable(varType, node.varName)
+        val inNodeVarRef = ReferenceNode(variable = methodScope.getMethodParameterVariable(0), token = node.token)
+
+        val forStatement = if (inNodeVarRef.type.isArray) {
+          val iVar = forScope.addLocalVariable(JavaType.int, token = node.token)
+          forInArrayNode(node = node, forScope = forScope, iVar = iVar, inNode = inNodeVarRef, forVariable = forVariable) {
+            IfStatementNode(
+              conditionNode = caster.truthyCast(node.filterExpr.accept(this)),
+              trueStatementNode = ReturnStatementNode(
+                caster.cast(varType.objectType, ReferenceNode(variable = forVariable, token = node.token))
+              ),
+              falseStatementNode = null,
+              node = node
+            )
+          }
+        } else { // iterating over iterable
+          forInIteratorNode(node = node, forScope = forScope, variable = forVariable, inNode = inNodeVarRef) {
+            IfStatementNode(
+              conditionNode = caster.truthyCast(node.filterExpr.accept(this)),
+              trueStatementNode = ReturnStatementNode(
+                caster.cast(varType.objectType, ReferenceNode(variable = forVariable, token = node.token))
+              ),
+              falseStatementNode = null,
+              node = node
+            )
+          }
+        }
+        methodNode.blockStatement.apply {
+          add(forStatement)
+          add(ReturnStatementNode(NullValueNode(token = node.token, type = varType.objectType)))
+        }
+      }
+    }
+  }
+
   private inline fun anyAllOperator(node: CstNode, methodPrefix: String, inExpr: ExpressionCstNode, filterExpr: ExpressionCstNode,
                              varType: TypeCstNode, varName: String, finalReturnValue: Boolean, forBodyGenerator: (ExpressionNode) -> StatementNode): ExpressionNode {
     return inOperator(node, inExpr, methodPrefix, listOf(filterExpr), JavaType.boolean) { methodNode, methodScope ->
 
-      val forStatement =useInnerScope { forScope ->
+      val forStatement = useInnerScope { forScope ->
         val forVariable = forScope.addLocalVariable(resolve(varType), varName)
         val inNodeVarRef = ReferenceNode(variable = methodScope.getMethodParameterVariable(0), token = node.token)
 
-        val forBody = forBodyGenerator.invoke(filterExpr.accept(this))
         if (inNodeVarRef.type.isArray) {
           val iVar = forScope.addLocalVariable(JavaType.int, token = node.token)
-          forInArrayNode(node = node, forScope = forScope, iVar = iVar, inNode = inNodeVarRef, forVariable = forVariable, statementNode = forBody)
+          forInArrayNode(node = node, forScope = forScope, iVar = iVar, inNode = inNodeVarRef, forVariable = forVariable) {
+            forBodyGenerator.invoke(filterExpr.accept(this))
+          }
         } else { // iterating over iterable
-          forInIteratorNode(node = node, forScope = forScope, variable = forVariable, inNode = inNodeVarRef, bodtStmt = forBody)
+          forInIteratorNode(node = node, forScope = forScope, variable = forVariable, inNode = inNodeVarRef) {
+            forBodyGenerator.invoke(filterExpr.accept(this))
+          }
         }
       }
 

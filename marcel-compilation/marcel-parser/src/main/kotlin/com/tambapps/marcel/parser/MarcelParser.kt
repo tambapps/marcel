@@ -35,6 +35,7 @@ import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryTypeOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.ElvisThrowCstNode
+import com.tambapps.marcel.parser.cst.expression.FindInCstNode
 import com.tambapps.marcel.parser.cst.expression.LambdaCstNode
 import com.tambapps.marcel.parser.cst.expression.NotCstNode
 import com.tambapps.marcel.parser.cst.expression.SwitchCstNode
@@ -913,7 +914,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
       }
       TokenType.WHEN, TokenType.SWITCH -> {
         if (token.type == TokenType.WHEN && current.type != TokenType.BRACKETS_OPEN) {
-          return whenIn(parentNode, token, negate = false)
+          return whenIn(parentNode, token, negate = false, allowFind = true)
         }
         var switchExpression: ExpressionCstNode? = null
         var varDecl: VariableDeclarationCstNode? = null
@@ -967,13 +968,16 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     }
   }
 
-  private fun whenIn(parentNode: CstNode?, token: LexToken, negate: Boolean): ExpressionCstNode {
+  private fun whenIn(parentNode: CstNode?, token: LexToken, negate: Boolean, allowFind: Boolean = false): ExpressionCstNode {
     val type = parseType(parentNode)
     val varName = accept(TokenType.IDENTIFIER).value
     accept(TokenType.IN)
     val inExpr = expression(parentNode)
     val operatorToken = next()
     val filterExpr = expression(parentNode)
+    if (allowFind && operatorToken.type == TokenType.ARROW) {
+      return FindInCstNode(parentNode, token, previous, type, varName, inExpr, filterExpr)
+    }
     return when (operatorToken.type) {
       TokenType.OR_ARROW -> AnyInCstNode(parentNode, token, previous, type, varName, inExpr, filterExpr, negate)
       TokenType.AND_ARROW -> AllInCstNode(parentNode, token, previous, type, varName, inExpr, filterExpr, negate)

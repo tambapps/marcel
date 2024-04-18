@@ -9,6 +9,7 @@ import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryTypeOperatorCstNode
 import com.tambapps.marcel.parser.cst.expression.ElvisThrowCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNodeVisitor
+import com.tambapps.marcel.parser.cst.expression.FindInCstNode
 import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
 import com.tambapps.marcel.parser.cst.expression.LambdaCstNode
 import com.tambapps.marcel.parser.cst.expression.NewInstanceCstNode
@@ -130,6 +131,12 @@ class ForEachNodeVisitor(
   }
 
   override fun visit(node: AnyInCstNode, smartCastType: Unit?) {
+    consume(node)
+    node.inExpr.accept(this)
+    node.filterExpr.accept(this)
+  }
+
+  override fun visit(node: FindInCstNode, smartCastType: Unit?) {
     consume(node)
     node.inExpr.accept(this)
     node.filterExpr.accept(this)

@@ -17,6 +17,7 @@ class FindInCstNode(
   filterExpr: ExpressionCstNode,
 ) : InOperationCstNode(parent, tokenStart, tokenEnd, varType, varName, inExpr, filterExpr) {
 
-  override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) =  TODO() //visitor.visit(this, arg)
+  override val filterExpr: ExpressionCstNode get() = super.filterExpr!!
+  override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) =  visitor.visit(this, arg)
 
 }
