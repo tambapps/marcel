@@ -36,23 +36,24 @@ fun ShellScreen(scope: CoroutineScope = rememberCoroutineScope(), viewModel: She
   Column(modifier = Modifier.fillMaxSize()) {
     val listState = rememberLazyListState()
     LazyColumn(modifier = Modifier.weight(1f).fillMaxWidth(), state = listState) {
+      item {
+        HistoryText(text = viewModel.header.value)
+      }
       viewModel.prompts.forEach {  prompt: Prompt ->
-        if (prompt.input != null) {
+        prompt.input?.let { input ->
           item {
-            Text(
-              text = prompt.input,
-              style = shellTextStyle
-            )
+            HistoryText(text = input)
           }
         }
 
-        if (prompt.output != null) {
+        prompt.result?.let { result ->
           item {
-            Text(
-              text = prompt.output,
-              style = shellTextStyle
+            HistoryText(
+              text = result.output,
+              color = if (result.success) Color.Green else Color.Red
             )
           }
+
         }
       }
     }
@@ -67,6 +68,14 @@ fun ShellScreen(scope: CoroutineScope = rememberCoroutineScope(), viewModel: She
       PromptButton(viewModel, scope, listState)
     }
   }
+}
+
+@Composable
+fun HistoryText(text: String, color: Color? = null) {
+  Text(
+    text = text,
+    style = color?.let { shellTextStyle.copy(color = it) } ?: shellTextStyle,
+  )
 }
 
 @Composable
@@ -95,10 +104,11 @@ fun PromptButton(viewModel: ShellViewModel, scope: CoroutineScope, listState: La
 class ShellViewModel @Inject constructor() : ViewModel() {
   // ViewModel logic here
   val textInput = mutableStateOf("")
+  val header = mutableStateOf("Marshell (Marcel: 0.1.2, Java: 21.0.2)")
 
-  val prompts = mutableStateListOf<Prompt>(Prompt(null, "Marshell (Marcel: 0.1.2, Java: 21.0.2)"))
+  val prompts = mutableStateListOf<Prompt>()
 
-  val isProcessing get() = prompts.lastOrNull()?.let { it.output == null } ?: false
+  val isProcessing get() = prompts.lastOrNull()?.let { it.result == null } ?: false
 
   fun prompt(input: String) {
     prompts.add(Prompt(input, null))
