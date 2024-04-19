@@ -25,8 +25,7 @@ abstract class MarcelShell constructor(
   jarWriterFactory: JarWriterFactory,
   protected val tempDir: File,
   val binding: Binding = Binding(),
-  protected val symbolResolver: ReplMarcelSymbolResolver = ReplMarcelSymbolResolver(marcelClassLoader, binding),
-  private val promptTemplate: String = "marshell:%03d> ") {
+  protected val symbolResolver: ReplMarcelSymbolResolver = ReplMarcelSymbolResolver(marcelClassLoader, binding)) {
 
   val lastNode: ClassNode? get() = replCompiler.semanticResult?.scriptNode
   val definedTypes get() = symbolResolver.definedTypes.filter { !it.isScript }
@@ -47,7 +46,7 @@ abstract class MarcelShell constructor(
   )
   private val runningReference = AtomicBoolean()
 
-  abstract suspend fun readLine(prompt: String): String
+  abstract suspend fun readLine(linesBufferSize: Int): String
 
   suspend fun run() {
     runningReference.set(true)
@@ -99,8 +98,7 @@ abstract class MarcelShell constructor(
   }
 
   open suspend fun doRun() {
-    val prompt = String.format(promptTemplate, buffer.size)
-    val line = readLine(prompt)
+    val line = readLine(buffer.size)
     if (line.isEmpty()) return
     if (isCommand(line)) {
       val args = line.split("\\s+".toRegex())

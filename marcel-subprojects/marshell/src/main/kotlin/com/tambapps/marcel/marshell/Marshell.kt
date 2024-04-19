@@ -34,8 +34,7 @@ class Marshell: MarcelShell(
         marcelClassLoader = URLMarcelClassLoader(Marshell::class.java.classLoader),
         jarWriterFactory = BasicJarWriterFactory(),
         tempDir = tempDir(),
-        binding = Binding(),
-        promptTemplate = "marshell:%03d> ") {
+        binding = Binding()) {
 
   private val marcelHome get() = File(System.getenv("MARCEL_HOME") ?: (System.getenv("HOME") + "/.marcel/"))
 
@@ -50,9 +49,9 @@ class Marshell: MarcelShell(
     .completer(MarshellCompleter(replCompiler, symbolResolver))
     .build()
 
-  override suspend fun readLine(prompt: String): String {
+  override suspend fun readLine(linesBufferSize: Int): String {
     println()
-    return reader.readLine(prompt)
+    return reader.readLine(String.format("marshell:%03d> ", linesBufferSize))
   }
 
   override suspend fun doRun() {
