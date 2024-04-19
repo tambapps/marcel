@@ -26,7 +26,6 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -41,7 +40,6 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContent {
-      // TODO put these in a viewmodel
       val navController = rememberNavController()
       val drawerState = rememberDrawerState(DrawerValue.Closed)
       val scope = rememberCoroutineScope()
@@ -99,20 +97,4 @@ fun NavigationDrawer(drawerState: DrawerState, content: @Composable () -> Unit) 
       }
     }
   , content = content)
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-  Text(
-    text = "Hello $name!",
-    modifier = modifier
-  )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-  MarcelAndroidTheme {
-    Greeting("Android")
-  }
 }
