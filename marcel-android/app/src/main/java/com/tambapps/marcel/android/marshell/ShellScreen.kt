@@ -108,6 +108,7 @@ class ShellViewModel @Inject constructor() : ViewModel() {
 
   val prompts = mutableStateListOf<Prompt>()
 
+  // TODO remove Prompt class. Just make a list of typed text (e.g. [(input, "bla"), (output, "bli"), (output, "blo")]
   val isProcessing get() = prompts.lastOrNull()?.let { it.result == null } ?: false
 
   fun prompt(input: String) {
