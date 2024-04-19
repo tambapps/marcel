@@ -13,11 +13,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MarcelAndroid"
         tools:targetApi="31">
+        <!-- Adjust resize in order to keep top bar on the screen when keyboard opens -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.MarcelAndroid">
+            android:theme="@style/Theme.MarcelAndroid"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
