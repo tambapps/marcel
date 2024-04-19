@@ -20,7 +20,7 @@ import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 @Composable
 fun ShellScreen() {
   // TODO put this in viewmodel. See Fandem or tutorials for that
-  val textInputState = remember { mutableStateOf("caca") }
+  val textInputState = remember { mutableStateOf("") }
   Column(modifier = Modifier.fillMaxSize()) {
     Row(modifier = Modifier.fillMaxWidth()) {
       Text(
