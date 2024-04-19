@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -14,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -24,12 +27,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tambapps.marcel.android.marshell.ui.model.Prompt
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Composable
-fun ShellScreen(viewModel: ShellViewModel = viewModel()) {
+fun ShellScreen(scope: CoroutineScope = rememberCoroutineScope(), viewModel: ShellViewModel = viewModel()) {
   Column(modifier = Modifier.fillMaxSize()) {
-    LazyColumn(modifier = Modifier.weight(1f).fillMaxWidth()) {
+    val listState = rememberLazyListState()
+    LazyColumn(modifier = Modifier.weight(1f).fillMaxWidth(), state = listState) {
       viewModel.prompts.forEach {  prompt: Prompt ->
         if (prompt.input != null) {
           item {
@@ -58,13 +64,13 @@ fun ShellScreen(viewModel: ShellViewModel = viewModel()) {
         modifier = Modifier.weight(1f),
         shape = RoundedCornerShape(36.dp)
       )
-      PromptButton(viewModel)
+      PromptButton(viewModel, scope, listState)
     }
   }
 }
 
 @Composable
-fun PromptButton(viewModel: ShellViewModel) {
+fun PromptButton(viewModel: ShellViewModel, scope: CoroutineScope, listState: LazyListState) {
   IconButton(
     colors = IconButtonDefaults.iconButtonColors().copy(containerColor = Color.White, disabledContainerColor = Color.Gray),
     enabled = !viewModel.isProcessing,
@@ -72,6 +78,7 @@ fun PromptButton(viewModel: ShellViewModel) {
       val input = viewModel.textInput.value
       if (input.isNotBlank()) {
         viewModel.prompt(input)
+        scope.launch { listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1) }
       }
     },
   ) {
