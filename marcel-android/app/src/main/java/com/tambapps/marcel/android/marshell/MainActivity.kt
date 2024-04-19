@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -23,7 +24,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -52,7 +55,7 @@ fun NavigationDrawer(content: @Composable () -> Unit) {
     drawerContent = {
       ModalDrawerSheet {
         Text("Marcel for Android", modifier = Modifier.padding(16.dp))
-        Divider()
+        HorizontalDivider()
         NavigationDrawerItem(
           label = { Text(text = "Drawer Item") },
           selected = false,
