@@ -76,7 +76,7 @@ class MainActivity : ComponentActivity() {
           content = { contentPadding ->
             NavigationDrawer(drawerState = drawerState) {
               Box(modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(contentPadding)) {
-                NavHost(navController = navController, startDestination = "profile", modifier = Modifier.fillMaxSize()) {
+                NavHost(navController = navController, startDestination = "profile", modifier = Modifier.fillMaxSize().padding(all = 8.dp)) {
                   composable("profile") {
                     Surface(modifier = Modifier.fillMaxSize()) {
                       ShellScreen(shellSessionFactory)

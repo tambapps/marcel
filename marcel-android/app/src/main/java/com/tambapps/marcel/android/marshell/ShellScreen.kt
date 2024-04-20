@@ -1,5 +1,6 @@
 package com.tambapps.marcel.android.marshell
 
+import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,6 +31,9 @@ import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import marcel.lang.util.MarcelVersion
+
+val HEADER = "Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSION.RELEASE})"
 
 @Composable
 fun ShellScreen(shellSessionFactory: ShellSessionFactory, scope: CoroutineScope = rememberCoroutineScope(), viewModel: ShellViewModel = viewModel(factory = ShellViewModelFactory(shellSessionFactory))) {
@@ -37,7 +41,7 @@ fun ShellScreen(shellSessionFactory: ShellSessionFactory, scope: CoroutineScope 
     val listState = rememberLazyListState()
     LazyColumn(modifier = Modifier.weight(1f).fillMaxWidth(), state = listState) {
       item {
-        HistoryText(text = viewModel.header.value)
+        HistoryText(text = HEADER)
       }
       viewModel.prompts.forEach {  prompt: Prompt ->
         item {
@@ -96,13 +100,11 @@ class ShellViewModel constructor(private val shellSession: ShellSession) : ViewM
 
   // ViewModel logic here
   val textInput = mutableStateOf("")
-  val header = mutableStateOf("Marshell (Marcel: 0.1.2, Java: 21.0.2)")
   val prompts = mutableStateListOf<Prompt>()
-
   val isEvaluating = mutableStateOf(false)
 
   fun prompt(text: String) {
-    prompts.add(Prompt(Prompt.Type.INPUT, text))
+    prompts.add(Prompt(Prompt.Type.INPUT, "> $text"))
     textInput.value = ""
     isEvaluating.value = true
     shellSession.eval(text) { type, result ->
