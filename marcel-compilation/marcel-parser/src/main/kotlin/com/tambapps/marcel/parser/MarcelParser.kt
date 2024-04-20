@@ -966,7 +966,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
       TokenType.ASYNC ->  block(parentNode).let {
         AsyncBlockCstNode(parentNode, token, it.tokenEnd, it)
       }
-      else -> throw MarcelParserException(token, "Not supported $token")
+      else -> throw MarcelParserException(token, "Not supported $token", eof)
     }
   }
 
