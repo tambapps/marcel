@@ -1,9 +1,11 @@
 package com.tambapps.marcel.repl
 
 import com.tambapps.marcel.compiler.CompiledClass
+import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.repl.jar.JarWriterFactory
+import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
@@ -11,12 +13,17 @@ import java.io.File
 import java.util.concurrent.ThreadLocalRandom
 
 class MarcelEvaluator constructor(
-  private val binding: Binding,
+  val binding: Binding,
   private val replCompiler: MarcelReplCompiler,
   private val scriptLoader: MarcelClassLoader,
   private val jarWriterFactory: JarWriterFactory,
   private val tempDir: File
 ) {
+
+  val lastNode: ClassNode? get() = replCompiler.semanticResult?.scriptNode
+  val definedTypes get() = replCompiler.symbolResolver.definedTypes.filter { !it.isScript }
+  val definedFunctions get() = replCompiler.definedFunctions
+  val imports get() = replCompiler.imports
 
   @Throws(
     MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class,
@@ -63,5 +70,25 @@ class MarcelEvaluator constructor(
       it.writeClasses(compiledClasses)
     }
     scriptLoader.addLibraryJar(libraryJar)
+  }
+
+  fun addImport(importArgs: String) {
+    replCompiler.addRawImport("import $importArgs")
+  }
+
+  // caller should catch exception and dumbbell exception
+  fun evalJarFile(jarFile: File, className: String?, dumbbells: List<String>): Any? {
+    // import dumbbells
+    for (artifactString in dumbbells) {
+      val pulledArtifacts = Dumbbell.pull(artifactString)
+      pulledArtifacts.forEach {
+        if (it.jarFile != null) {
+          replCompiler.marcelClassLoader.addLibraryJar(it.jarFile)
+        }
+      }
+    }
+
+    // then run script
+    return evalJarFile(jarFile, className)
   }
 }

@@ -1,10 +1,11 @@
-package com.tambapps.marcel.repl.command
+package com.tambapps.marcel.marshell.command
 
-import com.tambapps.marcel.repl.MarcelShell
-import com.tambapps.marcel.repl.printer.Printer
+import com.tambapps.marcel.marshell.Marshell
+import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.semantic.imprt.MutableImportResolver
 import com.tambapps.marcel.semantic.type.JavaType
 import marcel.lang.Binding
+import java.io.PrintStream
 
 class ListCommand: AbstractShellCommand() {
 
@@ -14,32 +15,32 @@ class ListCommand: AbstractShellCommand() {
   override val helpDescription = "list defined members"
 
 
-  override suspend fun run(shell: MarcelShell, args: List<String>, out: Printer) {
+  override fun run(shell: Marshell, args: List<String>, out: PrintStream) {
     if (args.isEmpty()) {
       out.println("Imports:")
-      printImports(shell.imports, out)
+      printImports(shell.evaluator.imports, out)
       out.println()
       out.println("Classes:")
-      printDefinedClasses(shell.definedTypes, out)
+      printDefinedClasses(shell.evaluator.definedTypes, out)
       out.println()
       out.println("Functions:")
-      printFunctions(shell.definedFunctions, out)
+      printFunctions(shell.evaluator.definedFunctions, out)
       out.println()
       out.println("Variables:")
-      printVariables(shell.binding, out)
+      printVariables(shell.evaluator.binding, out)
       out.println()
     } else {
       when (val arg = args.first().lowercase()) {
-        "v", "var", "variable", "variables" -> printVariables(shell.binding, out)
-        "f", "func", "function", "functions" -> printFunctions(shell.definedFunctions, out)
-        "c", "class", "classes" -> printDefinedClasses(shell.definedTypes, out)
-        "i", "import", "imports" -> printImports(shell.imports, out)
+        "v", "var", "variable", "variables" -> printVariables(shell.evaluator.binding, out)
+        "f", "func", "function", "functions" -> printFunctions(shell.evaluator.definedFunctions, out)
+        "c", "class", "classes" -> printDefinedClasses(shell.evaluator.definedTypes, out)
+        "i", "import", "imports" -> printImports(shell.evaluator.imports, out)
         else -> out.println("Unknown value $arg. Provide 'variables', 'functions' or 'classes'")
       }
     }
   }
 
-  private suspend fun printVariables(binding: Binding, out: Printer) {
+  private fun printVariables(binding: Binding, out: PrintStream) {
     if (binding.variables.isEmpty()) {
       out.println("No variables defined")
     }
@@ -53,7 +54,7 @@ class ListCommand: AbstractShellCommand() {
     }
   }
 
-  private suspend fun printFunctions(definedMethods: Collection<com.tambapps.marcel.parser.cst.MethodCstNode>, out: Printer) {
+  private fun printFunctions(definedMethods: Collection<MethodCstNode>, out: PrintStream) {
     if (definedMethods.isEmpty()) {
       out.println("No functions defined")
       return
@@ -63,7 +64,7 @@ class ListCommand: AbstractShellCommand() {
     }
   }
 
-  private suspend fun printDefinedClasses(classes: List<JavaType>, out: Printer) {
+  private fun printDefinedClasses(classes: List<JavaType>, out: PrintStream) {
     if (classes.isEmpty()) {
       out.println("No classes defined")
       return
@@ -77,7 +78,7 @@ class ListCommand: AbstractShellCommand() {
     }
   }
 
-  private suspend fun printImports(imports: MutableImportResolver, out: Printer) {
+  private fun printImports(imports: MutableImportResolver, out: PrintStream) {
     if (imports.isEmpty()) {
       out.println("No imports added")
       return

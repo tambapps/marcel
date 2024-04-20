@@ -20,8 +20,8 @@ import kotlin.jvm.Throws
 
 class MarcelReplCompiler constructor(
   compilerConfiguration: CompilerConfiguration,
-  private val marcelClassLoader: MarcelClassLoader,
-  private val symbolResolver: ReplMarcelSymbolResolver,
+  internal val marcelClassLoader: MarcelClassLoader,
+  internal val symbolResolver: ReplMarcelSymbolResolver,
 ): AbstractMarcelCompiler(compilerConfiguration) {
 
   val imports = MutableImportResolver.empty()

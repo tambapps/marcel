@@ -1,7 +1,7 @@
-package com.tambapps.marcel.repl.command
+package com.tambapps.marcel.marshell.command
 
-import com.tambapps.marcel.repl.MarcelShell
-import com.tambapps.marcel.repl.printer.Printer
+import com.tambapps.marcel.marshell.Marshell
+import java.io.PrintStream
 
 class ImportCommand: AbstractShellCommand() {
 
@@ -10,7 +10,7 @@ class ImportCommand: AbstractShellCommand() {
   override val usage = ":import some.class"
   override val helpDescription = "Import a/some class(es)"
 
-  override suspend fun run(shell: MarcelShell, args: List<String>, out: Printer) {
+  override fun run(shell: Marshell, args: List<String>, out: PrintStream) {
     if (args.isEmpty()) {
       shell.listImports()
       return
@@ -18,7 +18,7 @@ class ImportCommand: AbstractShellCommand() {
     val importArgs = args.joinToString(separator = " ")
 
     try {
-      shell.addImport(importArgs)
+      shell.evaluator.addImport(importArgs)
       shell.listImports()
     } catch (e: Exception) {
       out.println("Couldn't add import: ${e.message}")

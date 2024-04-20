@@ -1,7 +1,7 @@
-package com.tambapps.marcel.repl.command
+package com.tambapps.marcel.marshell.command
 
-import com.tambapps.marcel.repl.MarcelShell
-import com.tambapps.marcel.repl.printer.Printer
+import com.tambapps.marcel.marshell.Marshell
+import java.io.PrintStream
 
 class ClearBufferCommand: AbstractShellCommand() {
   override val name = "clear"
@@ -9,7 +9,7 @@ class ClearBufferCommand: AbstractShellCommand() {
   override val usage = ":clear"
   override val helpDescription = "clear the current buffer"
 
-  override suspend fun run(shell: MarcelShell, args: List<String>, out: Printer) {
+  override fun run(shell: Marshell, args: List<String>, out: PrintStream) {
     shell.clearBuffer()
   }
 }
