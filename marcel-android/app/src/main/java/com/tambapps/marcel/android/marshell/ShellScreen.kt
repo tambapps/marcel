@@ -3,9 +3,11 @@ package com.tambapps.marcel.android.marshell
 import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -49,7 +51,9 @@ fun ShellScreen(shellSessionFactory: ShellSessionFactory, scope: CoroutineScope 
             Prompt.Type.INPUT -> Color.White
             Prompt.Type.SUCCESS_OUTPUT -> Color.Green
             Prompt.Type.ERROR_OUTPUT -> Color.Red
-          })
+          },
+            padding = PaddingValues(top = if (prompt.type == Prompt.Type.INPUT) 16.dp else 8.dp)
+          )
         }
       }
     }
@@ -67,8 +71,9 @@ fun ShellScreen(shellSessionFactory: ShellSessionFactory, scope: CoroutineScope 
 }
 
 @Composable
-fun HistoryText(text: String, color: Color? = null) {
+fun HistoryText(text: String, color: Color? = null, padding: PaddingValues = PaddingValues(all = 0.dp)) {
   Text(
+    modifier = Modifier.padding(padding),
     text = text,
     style = color?.let { shellTextStyle.copy(color = it) } ?: shellTextStyle,
   )
@@ -80,7 +85,7 @@ fun PromptButton(viewModel: ShellViewModel, scope: CoroutineScope, listState: La
     colors = IconButtonDefaults.iconButtonColors().copy(containerColor = Color.White, disabledContainerColor = Color.Gray),
     enabled = !viewModel.isEvaluating.value,
     onClick = {
-      val input = viewModel.textInput.value
+      val input = viewModel.textInput.value.trim()
       if (input.isNotBlank()) {
         viewModel.prompt(input)
         scope.launch { listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1) }
