@@ -23,16 +23,16 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.tambapps.marcel.android.marshell.ui.model.Prompt
+import com.tambapps.marcel.android.marshell.repl.ShellSession
+import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @Composable
-fun ShellScreen(scope: CoroutineScope = rememberCoroutineScope(), viewModel: ShellViewModel = viewModel()) {
+fun ShellScreen(shellSessionFactory: ShellSessionFactory, scope: CoroutineScope = rememberCoroutineScope(), viewModel: ShellViewModel = viewModel(factory = ShellViewModelFactory(shellSessionFactory))) {
   Column(modifier = Modifier.fillMaxSize()) {
     val listState = rememberLazyListState()
     LazyColumn(modifier = Modifier.weight(1f).fillMaxWidth(), state = listState) {
@@ -40,20 +40,12 @@ fun ShellScreen(scope: CoroutineScope = rememberCoroutineScope(), viewModel: She
         HistoryText(text = viewModel.header.value)
       }
       viewModel.prompts.forEach {  prompt: Prompt ->
-        prompt.input?.let { input ->
-          item {
-            HistoryText(text = input)
-          }
-        }
-
-        prompt.result?.let { result ->
-          item {
-            HistoryText(
-              text = result.output,
-              color = if (result.success) Color.Green else Color.Red
-            )
-          }
-
+        item {
+          HistoryText(text = prompt.text, color = when (prompt.type) {
+            Prompt.Type.INPUT -> Color.White
+            Prompt.Type.SUCCESS_OUTPUT -> Color.Green
+            Prompt.Type.ERROR_OUTPUT -> Color.Red
+          })
         }
       }
     }
@@ -82,7 +74,7 @@ fun HistoryText(text: String, color: Color? = null) {
 fun PromptButton(viewModel: ShellViewModel, scope: CoroutineScope, listState: LazyListState) {
   IconButton(
     colors = IconButtonDefaults.iconButtonColors().copy(containerColor = Color.White, disabledContainerColor = Color.Gray),
-    enabled = !viewModel.isProcessing,
+    enabled = !viewModel.isEvaluating.value,
     onClick = {
       val input = viewModel.textInput.value
       if (input.isNotBlank()) {
@@ -100,19 +92,35 @@ fun PromptButton(viewModel: ShellViewModel, scope: CoroutineScope, listState: La
   }
 }
 
-@HiltViewModel
-class ShellViewModel @Inject constructor() : ViewModel() {
+class ShellViewModel constructor(private val shellSession: ShellSession) : ViewModel() {
+
   // ViewModel logic here
   val textInput = mutableStateOf("")
   val header = mutableStateOf("Marshell (Marcel: 0.1.2, Java: 21.0.2)")
-
   val prompts = mutableStateListOf<Prompt>()
 
-  // TODO remove Prompt class. Just make a list of typed text (e.g. [(input, "bla"), (output, "bli"), (output, "blo")]
-  val isProcessing get() = prompts.lastOrNull()?.let { it.result == null } ?: false
+  val isEvaluating = mutableStateOf(false)
 
-  fun prompt(input: String) {
-    prompts.add(Prompt(input, null))
+  fun prompt(text: String) {
+    prompts.add(Prompt(Prompt.Type.INPUT, text))
     textInput.value = ""
+    isEvaluating.value = true
+    shellSession.eval(text) { type, result ->
+      isEvaluating.value = false
+      prompts.add(Prompt(type, java.lang.String.valueOf(result)))
+    }
   }
+}
+
+class ShellViewModelFactory(
+  private val shellSessionFactory: ShellSessionFactory
+): ViewModelProvider.Factory {
+
+  override fun <T : ViewModel> create(modelClass: Class<T>): T {
+    return ShellViewModel(shellSessionFactory.newSession()) as T
+  }
+}
+
+data class Prompt(val type: Type, val text: String) {
+  enum class Type {INPUT, SUCCESS_OUTPUT, ERROR_OUTPUT}
 }

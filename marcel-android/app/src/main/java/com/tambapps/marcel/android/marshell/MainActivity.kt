@@ -34,12 +34,18 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+  @Inject
+  lateinit var shellSessionFactory: ShellSessionFactory
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContent {
@@ -73,9 +79,8 @@ class MainActivity : ComponentActivity() {
                 NavHost(navController = navController, startDestination = "profile", modifier = Modifier.fillMaxSize()) {
                   composable("profile") {
                     Surface(modifier = Modifier.fillMaxSize()) {
-                      ShellScreen()
+                      ShellScreen(shellSessionFactory)
                     }
-
                   }
                   /*...*/
                 }
