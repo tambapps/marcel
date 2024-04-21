@@ -59,15 +59,27 @@ fun ShellScreen(shellSessionFactory: ShellSessionFactory, scope: CoroutineScope 
       item {
         HistoryText(text = HEADER)
       }
-      viewModel.prompts.forEach {  prompt: Prompt ->
+      viewModel.prompts.forEach { prompt: Prompt ->
         item {
-          HistoryText(text = prompt.text, color = when (prompt.type) {
-            Prompt.Type.INPUT -> Color.White
-            Prompt.Type.SUCCESS_OUTPUT -> Color.Green
-            Prompt.Type.ERROR_OUTPUT -> Color.Red
-          },
-            padding = PaddingValues(top = if (prompt.type == Prompt.Type.INPUT) 16.dp else 8.dp)
-          )
+          if (prompt.type == Prompt.Type.INPUT) {
+            Row {
+              HistoryText(text = "> ", color = Color.White,
+                padding = PaddingValues(top = 16.dp)
+              )
+              HistoryText(text = prompt.text, color = Color.White,
+                padding = PaddingValues(top = 16.dp)
+              )
+            }
+          } else {
+            HistoryText(text = prompt.text, color = when (prompt.type) {
+              Prompt.Type.INPUT -> Color.White
+              Prompt.Type.SUCCESS_OUTPUT -> Color.Green
+              Prompt.Type.ERROR_OUTPUT -> Color.Red
+            },
+              padding = PaddingValues(top = 8.dp)
+            )
+
+          }
         }
       }
     }
@@ -145,7 +157,7 @@ class ShellViewModel constructor(private val shellSession: ShellSession) : ViewM
   val isEvaluating = mutableStateOf(false)
 
   fun prompt(text: String) {
-    prompts.add(Prompt(Prompt.Type.INPUT, "> $text"))
+    prompts.add(Prompt(Prompt.Type.INPUT, text))
     textInput.value = ""
     isEvaluating.value = true
     shellSession.eval(text) { type, result ->
