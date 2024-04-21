@@ -6,11 +6,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DrawerState
@@ -22,12 +23,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -36,6 +37,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
+import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
+import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -51,44 +54,52 @@ class MainActivity : ComponentActivity() {
     setContent {
       val navController = rememberNavController()
       val drawerState = rememberDrawerState(DrawerValue.Closed)
-      val scope = rememberCoroutineScope()
       MarcelAndroidTheme {
-        Scaffold(topBar = {
-          Row {
-            IconButton(
-              onClick = {
-                if (!drawerState.isAnimationRunning) {
-                  scope.launch {
-                    if (drawerState.isOpen) drawerState.close()
-                    else drawerState.open()
-                  }
+        NavigationDrawer(drawerState = drawerState) {
+          Box(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
+            NavHost(navController = navController, startDestination = "profile", modifier = Modifier
+              .fillMaxSize()
+              .padding(top = TopBarHeight + 8.dp, start = 8.dp, end = 8.dp)) {
+              composable("profile") {
+                Surface(modifier = Modifier.fillMaxSize()) {
+                  ShellScreen(shellSessionFactory)
                 }
               }
-            ) {
-              Icon(
-                imageVector = Icons.Default.Menu,
-                contentDescription = null,
-                tint = Color.White
-              )
+              /*...*/
             }
+            TopBar(drawerState) // putting it at the end because we want it to have top priority in terms of displaying
           }
-        },
-          content = { contentPadding ->
-            NavigationDrawer(drawerState = drawerState) {
-              Box(modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(contentPadding)) {
-                NavHost(navController = navController, startDestination = "profile", modifier = Modifier.fillMaxSize().padding(all = 8.dp)) {
-                  composable("profile") {
-                    Surface(modifier = Modifier.fillMaxSize()) {
-                      ShellScreen(shellSessionFactory)
-                    }
-                  }
-                  /*...*/
-                }
-              }
-            }
-
-          })
+        }
       }
+    }
+  }
+}
+
+@Composable
+fun TopBar(drawerState: DrawerState) {
+  val scope = rememberCoroutineScope()
+  Row(modifier = Modifier.fillMaxWidth()
+    .height(TopBarHeight)
+    .padding(start = 8.dp, end = 8.dp),
+    verticalAlignment = Alignment.CenterVertically) {
+    IconButton(
+      modifier = Modifier.size(TopBarIconSize),
+      onClick = {
+        if (!drawerState.isAnimationRunning) {
+          scope.launch {
+            if (drawerState.isOpen) drawerState.close()
+            else drawerState.open()
+          }
+        }
+      }
+    ) {
+      Icon(
+        modifier = Modifier.size(TopBarIconSize),
+
+        imageVector = Icons.Default.Menu,
+        contentDescription = null,
+        tint = Color.White
+      )
     }
   }
 }
