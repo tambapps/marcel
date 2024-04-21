@@ -1,6 +1,6 @@
 package com.tambapps.marcel.android.marshell.repl
 
-import com.tambapps.marcel.android.marshell.Prompt
+import com.tambapps.marcel.android.marshell.ui.component.Prompt
 import com.tambapps.marcel.android.marshell.repl.jar.DexJarWriterFactory
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.MarcelEvaluator
