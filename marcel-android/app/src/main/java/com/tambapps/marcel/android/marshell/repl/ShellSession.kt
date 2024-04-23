@@ -1,5 +1,6 @@
 package com.tambapps.marcel.android.marshell.repl
 
+import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.ui.component.Prompt
 import com.tambapps.marcel.android.marshell.repl.jar.DexJarWriterFactory
 import com.tambapps.marcel.compiler.CompilerConfiguration
@@ -37,4 +38,6 @@ class ShellSession(compilerConfiguration: CompilerConfiguration, classesDir: Fil
       }
     }
   }
+
+  fun newHighlighter() = SpannableHighlighter(symbolResolver, replCompiler)
 }

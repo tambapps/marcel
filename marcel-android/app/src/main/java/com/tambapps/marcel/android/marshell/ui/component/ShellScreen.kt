@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -16,9 +15,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -32,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -39,7 +37,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.repl.ShellSession
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
-import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import kotlinx.coroutines.CoroutineScope
@@ -86,7 +83,7 @@ fun ShellScreen(shellSessionFactory: ShellSessionFactory, scope: CoroutineScope 
 
     Row(verticalAlignment = Alignment.CenterVertically) {
       OutlinedTextField(value = viewModel.textInput.value,
-        onValueChange = { viewModel.textInput.value = it },
+        onValueChange = { viewModel.textInput.value = it.copy(annotatedString = viewModel.highlighter.highlight(it.annotatedString).toAnnotatedString()) },
         textStyle = shellTextStyle,
         modifier = Modifier.weight(1f),
         shape = RoundedCornerShape(36.dp)
@@ -133,7 +130,7 @@ fun PromptButton(viewModel: ShellViewModel, scope: CoroutineScope, listState: La
     colors = IconButtonDefaults.iconButtonColors().copy(containerColor = Color.White, disabledContainerColor = Color.Gray),
     enabled = !viewModel.isEvaluating.value,
     onClick = {
-      val input = viewModel.textInput.value.trim()
+      val input = viewModel.textInput.value.text.trim()
       if (input.isNotBlank()) {
         viewModel.prompt(input)
         scope.launch { listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1) }
@@ -152,13 +149,14 @@ fun PromptButton(viewModel: ShellViewModel, scope: CoroutineScope, listState: La
 class ShellViewModel constructor(private val shellSession: ShellSession) : ViewModel() {
 
   // ViewModel logic here
-  val textInput = mutableStateOf("")
+  val textInput = mutableStateOf(TextFieldValue())
   val prompts = mutableStateListOf<Prompt>()
   val isEvaluating = mutableStateOf(false)
+  val highlighter = shellSession.newHighlighter()
 
   fun prompt(text: String) {
     prompts.add(Prompt(Prompt.Type.INPUT, text))
-    textInput.value = ""
+    textInput.value = TextFieldValue()
     isEvaluating.value = true
     shellSession.eval(text) { type, result ->
       isEvaluating.value = false
