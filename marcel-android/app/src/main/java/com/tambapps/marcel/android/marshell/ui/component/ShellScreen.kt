@@ -35,12 +35,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tambapps.marcel.android.marshell.R
+import com.tambapps.marcel.android.marshell.repl.MarshellScript
 import com.tambapps.marcel.android.marshell.repl.ShellSession
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
+import com.tambapps.marcel.android.marshell.repl.console.PromptPrinter
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import marcel.lang.Script
 import marcel.lang.util.MarcelVersion
 
 val HEADER = "Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSION.RELEASE})"
@@ -69,7 +72,7 @@ fun ShellScreen(shellSessionFactory: ShellSessionFactory, scope: CoroutineScope 
             }
           } else {
             HistoryText(text = prompt.text, color = when (prompt.type) {
-              Prompt.Type.INPUT -> Color.White
+              Prompt.Type.INPUT, Prompt.Type.STDOUT -> Color.White
               Prompt.Type.SUCCESS_OUTPUT -> Color.Green
               Prompt.Type.ERROR_OUTPUT -> Color.Red
             },
@@ -154,6 +157,11 @@ class ShellViewModel constructor(private val shellSession: ShellSession) : ViewM
   val isEvaluating = mutableStateOf(false)
   val highlighter = shellSession.newHighlighter()
 
+  init {
+    shellSession.scriptConfigurer = { script: Script ->
+      (script as MarshellScript).setPrinter(PromptPrinter(prompts))
+    }
+  }
   fun prompt(text: String) {
     prompts.add(Prompt(Prompt.Type.INPUT, text))
     textInput.value = TextFieldValue()
@@ -175,5 +183,5 @@ class ShellViewModelFactory(
 }
 
 data class Prompt(val type: Type, val text: String) {
-  enum class Type {INPUT, SUCCESS_OUTPUT, ERROR_OUTPUT}
+  enum class Type {INPUT, SUCCESS_OUTPUT, ERROR_OUTPUT, STDOUT}
 }

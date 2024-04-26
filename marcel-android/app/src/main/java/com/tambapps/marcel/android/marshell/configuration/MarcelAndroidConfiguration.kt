@@ -1,6 +1,7 @@
 package com.tambapps.marcel.android.marshell.configuration
 
 import android.content.Context
+import com.tambapps.marcel.android.marshell.repl.MarshellScript
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import dagger.Module
 import dagger.Provides
@@ -41,7 +42,11 @@ class MarcelAndroidConfiguration {
   @Provides
   fun compilerConfiguration(): CompilerConfiguration {
     // TODO make classVersion depend on device android version
-    return CompilerConfiguration(dumbbellEnabled = true, classVersion = 52) // Java 8
+    return CompilerConfiguration(
+      dumbbellEnabled = true,
+      classVersion = 52, // Java 8
+      scriptClass = MarshellScript::class.java
+    )
   }
 
   /* TODO for shell works
