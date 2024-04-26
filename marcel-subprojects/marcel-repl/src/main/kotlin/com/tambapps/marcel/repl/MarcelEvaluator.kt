@@ -9,10 +9,11 @@ import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
+import marcel.lang.Script
 import java.io.File
 import java.util.concurrent.ThreadLocalRandom
 
-class MarcelEvaluator constructor(
+open class MarcelEvaluator constructor(
   val binding: Binding,
   private val replCompiler: MarcelReplCompiler,
   private val scriptLoader: MarcelClassLoader,
@@ -24,6 +25,7 @@ class MarcelEvaluator constructor(
   val definedTypes get() = replCompiler.symbolResolver.definedTypes.filter { !it.isScript }
   val definedFunctions get() = replCompiler.definedFunctions
   val imports get() = replCompiler.imports
+  var scriptConfigurer: ((Script) -> Unit)? = null
 
   @Throws(
     MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class,
@@ -50,26 +52,35 @@ class MarcelEvaluator constructor(
     jarWriterFactory.newJarWriter(jarFile).use {
       it.writeClasses(result.compiledScript)
     }
-    return scriptLoader.loadScript(className, jarFile, binding).run()
+    try {
+      val script = scriptLoader.loadScript(className, jarFile, binding)
+      scriptConfigurer?.invoke(script)
+      return script.run()
+    } finally {
+      scriptLoader.removeJar(jarFile)
+      jarFile.delete()
+    }
   }
 
   fun evalJarFile(jarFile: File, className: String?): Any? {
     if (className == null) {
-      scriptLoader.addLibraryJar(jarFile)
+      scriptLoader.addJar(jarFile)
       return null
     } else {
-      return scriptLoader.loadScript(className, jarFile, binding).run()
+      val script = scriptLoader.loadScript(className, jarFile, binding)
+      scriptConfigurer?.invoke(script)
+      return script.run()
     }
   }
 
   private fun addLibraryJar(prefix: String?,
                             compiledClasses: List<CompiledClass>) {
     val actualPrefix = prefix ?: ThreadLocalRandom.current().nextInt(0, Int.MAX_VALUE - 1).toString()
-    val libraryJar = File(tempDir.parentFile, "${actualPrefix}_library.jar")
+    val libraryJar = File(tempDir, "${actualPrefix}_library.jar")
     jarWriterFactory.newJarWriter(libraryJar).use {
       it.writeClasses(compiledClasses)
     }
-    scriptLoader.addLibraryJar(libraryJar)
+    scriptLoader.addJar(libraryJar)
   }
 
   fun addImport(importArgs: String) {
@@ -83,7 +94,7 @@ class MarcelEvaluator constructor(
       val pulledArtifacts = Dumbbell.pull(artifactString)
       pulledArtifacts.forEach {
         if (it.jarFile != null) {
-          replCompiler.marcelClassLoader.addLibraryJar(it.jarFile)
+          replCompiler.marcelClassLoader.addJar(it.jarFile)
         }
       }
     }
