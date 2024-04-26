@@ -51,7 +51,7 @@ public abstract class AbstractCompileMojo extends AbstractMarcelSourcesMojo {
         }
         MarcelClassLoader marcelClassLoader = new URLMarcelClassLoader(getClass().getClassLoader());
         for (String path : classpath) {
-            marcelClassLoader.addLibraryJar(new File(path));
+            marcelClassLoader.addJar(new File(path));
         }
 
         int classVersion = CompilerConfiguration.computeClassVersion();

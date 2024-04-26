@@ -187,7 +187,7 @@ class Marshell(private val printer: PrintStream) {
   }
 
   fun addLibraryJar(jarFile: File) {
-    classLoader.addLibraryJar(jarFile)
+    classLoader.addJar(jarFile)
   }
   fun exit() {
     runningReference.set(false)

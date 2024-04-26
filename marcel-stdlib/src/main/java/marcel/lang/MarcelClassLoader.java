@@ -8,9 +8,19 @@ abstract public class MarcelClassLoader {
     return loadScript(className, jarFile, null);
   }
 
+  /**
+   * Add the provided jar to the classpath, load the script class with the provided className and returns an instance of it.
+   * The caller of this method should
+   * be responsible for removing the jar from the classpath when needed
+   * @param className the class name
+   * @param jarFile the jar file
+   * @param binding the binding
+   * @return an instance of the script class loaded
+   * @throws ReflectiveOperationException in case a reflective error occurs when loading the script
+   */
   public Script loadScript(String className, File jarFile, Binding binding) throws ReflectiveOperationException {
     // load the jar into the classpath
-    addLibraryJar(jarFile);
+    addJar(jarFile);
 
     // and then load the class
     Class<?> clazz = getClassLoader().loadClass(className);
@@ -28,10 +38,18 @@ abstract public class MarcelClassLoader {
     return getClassLoader().loadClass(name);
   }
 
-  abstract public void addLibraryJar(File jarFile);
+  /**
+   * Adds the jar to the classpath
+   * @param jarFile the jar to add
+   */
+  public abstract void addJar(File jarFile);
 
-  abstract public void removeLibraryJar(File jarFile);
+  /**
+   * Remove the jar from the classpath. Note that this method might delete the file
+   * @param jarFile the jar to remove from the classpath
+   */
+  public abstract boolean removeJar(File jarFile);
 
-  abstract public ClassLoader getClassLoader();
+  public abstract ClassLoader getClassLoader();
 
 }

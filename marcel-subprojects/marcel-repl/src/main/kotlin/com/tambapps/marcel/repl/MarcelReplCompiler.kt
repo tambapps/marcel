@@ -56,7 +56,7 @@ class MarcelReplCompiler constructor(
       val pulledArtifacts = Dumbbell.pull(artifactString)
       pulledArtifacts.forEach {
         if (it.jarFile != null) {
-          marcelClassLoader.addLibraryJar(it.jarFile)
+          marcelClassLoader.addJar(it.jarFile)
         }
       }
     }

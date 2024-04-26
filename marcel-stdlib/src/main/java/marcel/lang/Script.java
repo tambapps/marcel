@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Console;
-import java.io.PrintStream;
 
 /**
  * Base class for any Marcel scripts
@@ -16,14 +15,8 @@ public abstract class Script {
   @Setter
   private Binding binding;
 
-  private PrintStream out;
-
   public Script() {
     this(new Binding());
-  }
-
-  public Script(Binding binding) {
-    this(binding, System.out);
   }
 
   public abstract Object run(String[] args);
@@ -38,21 +31,18 @@ public abstract class Script {
 
   public void setVariable(String name, Object value) {
     binding.setVariable(name, value);
-    if ("out".equals(name) && value instanceof PrintStream) {
-      out = (PrintStream) value;
-    }
   }
 
   public void println() {
-    out.println();
+    System.out.println();
   }
 
   public void println(Object o) {
-    out.println(o);
+    System.out.println(o);
   }
 
   public void print(Object o) {
-    out.print(o);
+    System.out.print(o);
   }
 
   public String readLine() {

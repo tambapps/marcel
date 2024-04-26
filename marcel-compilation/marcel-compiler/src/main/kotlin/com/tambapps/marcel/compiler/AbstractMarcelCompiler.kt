@@ -48,7 +48,7 @@ abstract class AbstractMarcelCompiler(protected val configuration: CompilerConfi
     val artifacts = Dumbbell.pull(dumbbell)
     artifacts.forEach {
       if (it.jarFile != null) { // can be null as there could be pom-only artifacs
-        marcelClassLoader.addLibraryJar(it.jarFile)
+        marcelClassLoader.addJar(it.jarFile)
       }
     }
   }

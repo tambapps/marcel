@@ -25,14 +25,14 @@ public class URLMarcelClassLoader extends MarcelClassLoader {
 
   @SneakyThrows
   @Override
-  public void addLibraryJar(File jarFile) {
+  public void addJar(File jarFile) {
     classLoader.addURL(jarFile.toURI().toURL());
   }
 
   @Override
-  public void removeLibraryJar(File jarFile) {
+  public boolean removeJar(File jarFile) {
     // actually we can't remove URLs from URLClassLoader, so we'll have to delete the file
-    jarFile.delete();
+    return jarFile.delete();
   }
 
   @SneakyThrows

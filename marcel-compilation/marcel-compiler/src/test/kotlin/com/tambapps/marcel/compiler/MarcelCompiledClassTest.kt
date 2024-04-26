@@ -11,7 +11,7 @@ class MarcelCompiledClassTest: AbstractCompilerTest() {
     val compiledClassJarFile = writeJar("DefaultMethodParamsClass", getResourceText("/compiled_tests/DefaultMethodParamsClass.mcl"))
     val marcelClassLoader = URLMarcelClassLoader()
 
-    marcelClassLoader.addLibraryJar(compiledClassJarFile)
+    marcelClassLoader.addJar(compiledClassJarFile)
 
     val compiler = MarcelCompiler()
 

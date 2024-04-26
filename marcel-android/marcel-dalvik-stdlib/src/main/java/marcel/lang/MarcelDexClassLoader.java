@@ -34,7 +34,7 @@ public class MarcelDexClassLoader extends MarcelClassLoader {
     }
 
     @Override
-    public void addLibraryJar(File file) {
+    public void addJar(File file) {
         // can also be a directory, or a dex class
         Object existing = getDexClassLoaderElements();
         if (containsDexPath(existing, file.getAbsolutePath())) {
@@ -47,7 +47,7 @@ public class MarcelDexClassLoader extends MarcelClassLoader {
     }
 
     @Override
-    public void removeLibraryJar(File file) {
+    public boolean removeJar(File file) {
         if (isBaseApk(file.getAbsolutePath())) {
             throw new IllegalArgumentException("Cannot remove base apk from classpath");
         }
@@ -60,13 +60,14 @@ public class MarcelDexClassLoader extends MarcelClassLoader {
             }
         }
         if (Array.getLength(dexElements) == remainingDexElements.size()) {
-            return;
+            return false;
         }
         Object remainingDexElementsArray = Array.newInstance(DEX_PATH_ELEMENT_CLASS, remainingDexElements.size());
         for (int i = 0; i < remainingDexElements.size(); i++) {
             Array.set(remainingDexElementsArray, i, remainingDexElements.get(i));
         }
         setDexClassLoaderElements(remainingDexElementsArray);
+        return false;
     }
 
     @Override
