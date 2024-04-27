@@ -104,6 +104,7 @@ fun ShellScreen(
       OutlinedTextField(
         value = viewModel.textInput.value,
         onValueChange = {
+          // TODO something weird. called too many times
           viewModel.textInput.value = it
           viewModel.highlightTextInput()
         },

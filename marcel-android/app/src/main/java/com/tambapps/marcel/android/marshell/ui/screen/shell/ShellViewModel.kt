@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import marcel.lang.Script
 
 class ShellViewModel constructor(private val shellSession: ShellSession) : ViewModel() {
@@ -57,7 +58,9 @@ class ShellViewModel constructor(private val shellSession: ShellSession) : ViewM
 
   fun highlightTextInput(text: String) {
     textInput.value = TextFieldValue(text = text)
-    highlightTextInput()
+    highlightScope.launch {
+      textInput.value = textInput.value.copy(annotatedString = highlighter.highlight(textInput.value.annotatedString).toAnnotatedString())
+    }
   }
 
   fun highlightTextInput() {
