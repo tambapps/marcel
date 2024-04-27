@@ -150,11 +150,11 @@ is possible using the below syntax.</p>
 println(when int a in list |&gt; a &gt;= 3) // true
 </code></pre>
 <p>The <code>|&gt;</code> arrow is used to check if at least one element matches the predicate.</p>
-<h2 id="any-1"><a class="header" href="#any-1">Any</a></h2>
+<h2 id="all"><a class="header" href="#all">All</a></h2>
 <pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
 println(when int a in list &amp;&gt; a &gt;= 3) // false
 </code></pre>
-<p>The <code>&amp;&gt;</code> arrow is used to check if all elements matche the predicate.</p>
+<p>The <code>&amp;&gt;</code> arrow is used to check if all elements matches the predicate.</p>
 <h2 id="negations"><a class="header" href="#negations">Negations</a></h2>
 <p>You can also negate those conditions using the <code>!when</code> keyword.</p>
 <pre><code class="language-marcel">println(!when int a in list |&gt; a &gt;= 3) // false
