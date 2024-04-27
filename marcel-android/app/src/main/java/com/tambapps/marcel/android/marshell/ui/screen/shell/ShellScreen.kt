@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tambapps.marcel.android.marshell.R
@@ -47,6 +48,8 @@ import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import marcel.lang.util.MarcelVersion
+import java.io.IOException
+import java.io.InputStream
 
 val HEADER = "Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSION.RELEASE})"
 
@@ -116,14 +119,9 @@ fun ShellScreen(
 @Composable
 fun TopBar(viewModel: ShellViewModel) {
   val context = LocalContext.current
-  val modifier = Modifier
-    .size(TopBarIconSize)
-    .padding(horizontal = 6.dp)
   TopBarLayout(horizontalArrangement = Arrangement.End) {
     ShellIconButton(
-      modifier = Modifier
-        .size(TopBarIconSize)
-        .padding(horizontal = 4.dp),
+      modifier = shellIconModifier(4.dp),
       onClick = { Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show() },
       drawable = R.drawable.dumbell,
       contentDescription = "handle dumbbells"
@@ -132,9 +130,7 @@ fun TopBar(viewModel: ShellViewModel) {
     Box(modifier = Modifier.width(10.dp))
 
     ShellIconButton(
-      modifier = Modifier
-        .size(TopBarIconSize)
-        .padding(horizontal = 4.dp),
+      modifier = shellIconModifier(3.dp),
       onClick = { Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show() },
       drawable = R.drawable.view,
       contentDescription = "view shell functions/variables"
@@ -143,7 +139,7 @@ fun TopBar(viewModel: ShellViewModel) {
     Box(modifier = Modifier.width(10.dp))
 
     ShellIconButton(
-      modifier = modifier,
+      modifier = shellIconModifier(),
       onClick = { Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show() },
       drawable = R.drawable.save,
       enabled = viewModel.prompts.any { it.type == Prompt.Type.INPUT },
@@ -156,22 +152,27 @@ fun TopBar(viewModel: ShellViewModel) {
       ActivityResultContracts.GetContent()
     ) { imageUri ->
       if (imageUri != null) {
-        val text = context.contentResolver.openInputStream(imageUri)!!.reader().use { it.readText() }
-        viewModel.highlightTextInput(text)
+        val result = readText(context.contentResolver.openInputStream(imageUri))
+        if (result.isFailure) {
+          Toast.makeText(context, "Error: ${result.exceptionOrNull()?.localizedMessage}", Toast.LENGTH_SHORT).show()
+          return@rememberLauncherForActivityResult
+        }
+        viewModel.highlightTextInput(result.getOrNull()!!)
       }
     }
     ShellIconButton(
-      modifier = modifier,
+      modifier = shellIconModifier(),
       onClick = {
         pickPictureLauncher.launch("*/*")
       },
       drawable = R.drawable.downloads,
       contentDescription = "import script"
     )
+
     Box(modifier = Modifier.width(10.dp))
 
     ShellIconButton(
-      modifier = modifier,
+      modifier = shellIconModifier(),
       onClick = { viewModel.historyUp() },
       drawable = R.drawable.navigate_up_arrow,
       contentDescription = "navigate up"
@@ -180,11 +181,26 @@ fun TopBar(viewModel: ShellViewModel) {
     Box(modifier = Modifier.width(4.dp))
 
     ShellIconButton(
-      modifier = modifier.rotate(180f),
+      modifier = shellIconModifier().rotate(180f),
       onClick = { viewModel.historyDown() },
       drawable = R.drawable.navigate_up_arrow,
       contentDescription = "navigate down"
     )
+  }
+}
+
+private fun shellIconModifier(horizontalPadding: Dp = 6.dp) = Modifier
+  .size(TopBarIconSize)
+  .padding(horizontal = horizontalPadding)
+
+private fun readText(inputStream: InputStream?): Result<String> {
+  if (inputStream == null) {
+    return Result.failure(IOException("Couldn't open file"))
+  }
+  return try {
+    Result.success(inputStream.reader().use { it.readText() })
+  } catch (e: IOException) {
+    Result.failure(e)
   }
 }
 
