@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,15 +20,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,7 +41,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -52,6 +55,7 @@ import kotlinx.coroutines.launch
 import marcel.lang.util.MarcelVersion
 import java.io.IOException
 import java.io.InputStream
+import java.io.OutputStream
 
 val HEADER = "Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSION.RELEASE})"
 
@@ -143,12 +147,18 @@ fun TopBar(viewModel: ShellViewModel) {
 
     Box(modifier = Modifier.width(10.dp))
 
+    val exportDialogOpen = remember { mutableStateOf(false) }
     ShellIconButton(
       modifier = shellIconModifier(),
-      onClick = { Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show() },
+      onClick = { exportDialogOpen.value = true },
       drawable = R.drawable.save,
       enabled = viewModel.prompts.any { it.type == Prompt.Type.INPUT },
       contentDescription = "save session to file"
+    )
+    ExportSessionDialog(
+      viewModel = viewModel,
+      isOpen = exportDialogOpen.value,
+      onDismissRequest = { exportDialogOpen.value = false }
     )
 
     Box(modifier = Modifier.width(10.dp))
@@ -191,6 +201,116 @@ fun TopBar(viewModel: ShellViewModel) {
       drawable = R.drawable.navigate_up_arrow,
       contentDescription = "navigate down"
     )
+  }
+}
+
+@Composable
+private fun ExportSessionDialog(
+  isOpen: Boolean,
+  onDismissRequest: () -> Unit,
+  viewModel: ShellViewModel,
+) {
+  if (!isOpen) {
+    return
+  }
+  val onlySuccessfulPrompts = remember { mutableStateOf(false) }
+  val writeOutput = remember { mutableStateOf(false) }
+  val writeStandardOutput = remember { mutableStateOf(false) }
+
+  val context = LocalContext.current
+  val exportFileLauncher = rememberLauncherForActivityResult(
+    ActivityResultContracts.CreateDocument("*/*")
+  ) { uri ->
+    if (uri == null) return@rememberLauncherForActivityResult
+    val typesOfInterest = mutableListOf(Prompt.Type.INPUT)
+    if (writeOutput.value) {
+      typesOfInterest.add(Prompt.Type.SUCCESS_OUTPUT)
+      typesOfInterest.add(Prompt.Type.ERROR_OUTPUT)
+    }
+    if (writeStandardOutput.value) {
+      typesOfInterest.add(Prompt.Type.STDOUT)
+    }
+    val prompts = viewModel.prompts.filter { typesOfInterest.contains(it.type) }.toMutableList()
+    if (onlySuccessfulPrompts.value) {
+      // filter input (and output of input) of error output
+      var i = 0
+      while (i < prompts.size - 1) {
+        val prompt = prompts[i++]
+        if (prompt.type != Prompt.Type.INPUT) {
+          continue
+        }
+        val nextOutput = prompts.subList(i, prompts.size).find { it.type == Prompt.Type.SUCCESS_OUTPUT || it.type == Prompt.Type.ERROR_OUTPUT }
+        if (nextOutput?.type == Prompt.Type.ERROR_OUTPUT) {
+          prompts.remove(prompt)
+          prompts.remove(nextOutput)
+        }
+      }
+    }
+    // now the export can begin
+    val error = export(prompts, context.contentResolver.openOutputStream(uri)).exceptionOrNull()
+    if (error != null) {
+      Toast.makeText(context, "Error: " + error.localizedMessage, Toast.LENGTH_SHORT).show()
+    } else {
+      Toast.makeText(context, "Session exported successfully", Toast.LENGTH_SHORT).show()
+    }
+    onDismissRequest()
+  }
+  AlertDialog(
+    title = {
+      Text(text = "Export session to file")
+    },
+    text = {
+      Column {
+        DialogCheckBox(valueState = onlySuccessfulPrompts, text = "Only successful prompts")
+        DialogCheckBox(valueState = writeOutput, text = "Include prompt outputs")
+        if (viewModel.prompts.any { it.type == Prompt.Type.STDOUT }) {
+          DialogCheckBox(valueState = writeStandardOutput, text = "Include standard output")
+        }
+      }
+    },
+    onDismissRequest = onDismissRequest,
+    dismissButton = {
+      TextButton(onClick = onDismissRequest) {
+        Text("Cancel")
+      }
+    },
+    confirmButton = {
+      TextButton(
+        onClick = { exportFileLauncher.launch("MarshellSession.mcl") }
+      ) {
+        Text("Export")
+      }
+    }
+  )
+}
+
+private fun export(prompts: List<Prompt>, outputStream: OutputStream?): Result<Unit> {
+  if (outputStream == null) {
+    return Result.failure(IOException("Couldn't open file"))
+  }
+  try {
+    outputStream.bufferedWriter().use { writer ->
+      prompts.forEach { prompt ->
+        when (prompt.type) {
+          Prompt.Type.INPUT -> writer.append(prompt.text)
+          Prompt.Type.SUCCESS_OUTPUT -> writer.append("// ${prompt.text}")
+          Prompt.Type.ERROR_OUTPUT -> writer.append("// ${prompt.text}")
+          Prompt.Type.STDOUT -> writer.append("// STDOUT: ${prompt.text}")
+        }
+        writer.newLine()
+      }
+    }
+  } catch (e: IOException) {
+    return Result.failure(e)
+  }
+  return Result.success(Unit)
+}
+
+@Composable
+fun DialogCheckBox(valueState: MutableState<Boolean>, text: String) {
+  Row(verticalAlignment = Alignment.CenterVertically) {
+    Checkbox(checked = valueState.value, onCheckedChange = { isChecked -> valueState.value = isChecked })
+    Text(text, modifier = Modifier.clickable { valueState.value = !valueState.value })
   }
 }
 
