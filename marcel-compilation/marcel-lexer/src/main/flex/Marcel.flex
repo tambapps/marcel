@@ -288,7 +288,7 @@ LONELY_BACKTICK=`
           }
 
 // keywords
-"async"          { return valueToken(ASYNC); }
+"async"          { return token(ASYNC); }
 "void"          { return valueToken(TYPE_VOID); }
 "true"          { return token(VALUE_TRUE); }
 "false"          { return token(VALUE_FALSE); }
@@ -297,11 +297,11 @@ LONELY_BACKTICK=`
 "int"          { return valueToken(TYPE_INT); }
 "long"          { return valueToken(TYPE_LONG); }
 "float"          { return valueToken(TYPE_FLOAT); }
-"do"          { return valueToken(DO); }
+"do"          { return token(DO); }
 "double"          { return valueToken(TYPE_DOUBLE); }
 "bool"          { return valueToken(TYPE_BOOL); }
 "char"          { return valueToken(TYPE_CHAR); }
-"def"          { return valueToken(DEF); }
+"def"          { return token(DEF); }
 "public"          { return token(VISIBILITY_PUBLIC); }
 "protected"          { return token(VISIBILITY_PROTECTED); }
 "internal"          { return token(VISIBILITY_INTERNAL); }

@@ -1233,9 +1233,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
   private fun accept(type: TokenType): LexToken {
     val token = current
     if (token.type != type) {
-      throw MarcelParserException(
-        current, "Expected token of type $type but got ${token.type}"
-      )
+      throw MarcelParserException(current, "Expected $type but got ${token.type}")
     }
     currentIndex++
     return token

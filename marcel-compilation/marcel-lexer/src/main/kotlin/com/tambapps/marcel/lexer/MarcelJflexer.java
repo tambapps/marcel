@@ -1470,7 +1470,7 @@ public class MarcelJflexer {
             // fall through
           case 187: break;
           case 55: 
-            { return valueToken(DO);
+            { return token(DO);
             } 
             // fall through
           case 188: break;
@@ -1622,7 +1622,7 @@ public class MarcelJflexer {
             // fall through
           case 215: break;
           case 83: 
-            { return valueToken(DEF);
+            { return token(DEF);
             } 
             // fall through
           case 216: break;
@@ -1720,7 +1720,7 @@ public class MarcelJflexer {
             // fall through
           case 233: break;
           case 101: 
-            { return valueToken(ASYNC);
+            { return token(ASYNC);
             } 
             // fall through
           case 234: break;
