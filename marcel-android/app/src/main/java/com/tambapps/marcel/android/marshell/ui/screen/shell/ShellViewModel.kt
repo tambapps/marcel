@@ -8,12 +8,6 @@ import androidx.lifecycle.ViewModel
 import com.tambapps.marcel.android.marshell.repl.MarshellScript
 import com.tambapps.marcel.android.marshell.repl.ShellSession
 import com.tambapps.marcel.android.marshell.repl.console.PromptPrinter
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import marcel.lang.Script
 
 class ShellViewModel constructor(private val shellSession: ShellSession) : ViewModel() {
@@ -26,8 +20,6 @@ class ShellViewModel constructor(private val shellSession: ShellSession) : ViewM
   // services and miscellaneous
   private val historyNavigator = PromptHistoryNavigator(prompts)
   private val highlighter = shellSession.newHighlighter()
-  private val highlightScope = CoroutineScope(Dispatchers.IO)
-  private var job: Job? = null
 
   init {
     shellSession.scriptConfigurer = { script: Script ->
@@ -56,18 +48,9 @@ class ShellViewModel constructor(private val shellSession: ShellSession) : ViewM
     historyNavigator.reset()
   }
 
-  fun highlightTextInput(text: String) {
-    textInput.value = TextFieldValue(text = text)
-    highlightScope.launch {
-      textInput.value = textInput.value.copy(annotatedString = highlighter.highlight(textInput.value.annotatedString).toAnnotatedString())
-    }
-  }
+  fun highlight(text: CharSequence) = highlighter.highlight(text).toAnnotatedString()
 
-  fun highlightTextInput() {
-    job?.cancel()
-    job = highlightScope.launch {
-      delay(500)
-      textInput.value = textInput.value.copy(annotatedString = highlighter.highlight(textInput.value.annotatedString).toAnnotatedString())
-    }
+  fun setTextInput(text: CharSequence) {
+    textInput.value = TextFieldValue(annotatedString = highlight(text))
   }
 }

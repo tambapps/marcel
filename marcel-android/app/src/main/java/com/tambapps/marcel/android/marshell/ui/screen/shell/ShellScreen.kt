@@ -36,7 +36,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -103,10 +105,12 @@ fun ShellScreen(
     Row(verticalAlignment = Alignment.CenterVertically) {
       OutlinedTextField(
         value = viewModel.textInput.value,
-        onValueChange = {
-          // TODO something weird. called too many times
-          viewModel.textInput.value = it
-          viewModel.highlightTextInput()
+        onValueChange = { viewModel.textInput.value = it },
+        visualTransformation = { text ->
+          TransformedText(
+            text = viewModel.highlight(text),
+            offsetMapping = OffsetMapping.Identity
+          )
         },
         textStyle = shellTextStyle,
         modifier = Modifier.weight(1f),
@@ -158,7 +162,7 @@ fun TopBar(viewModel: ShellViewModel) {
           Toast.makeText(context, "Error: ${result.exceptionOrNull()?.localizedMessage}", Toast.LENGTH_SHORT).show()
           return@rememberLauncherForActivityResult
         }
-        viewModel.highlightTextInput(result.getOrNull()!!)
+        viewModel.setTextInput(result.getOrNull()!!)
       }
     }
     ShellIconButton(
