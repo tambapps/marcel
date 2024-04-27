@@ -28,7 +28,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.ui.component.IconButton
-import com.tambapps.marcel.android.marshell.ui.component.ShellScreen
+import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellScreen
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize

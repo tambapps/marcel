@@ -2,7 +2,7 @@ package com.tambapps.marcel.android.marshell.repl
 
 import android.util.Log
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
-import com.tambapps.marcel.android.marshell.ui.component.Prompt
+import com.tambapps.marcel.android.marshell.ui.screen.shell.Prompt
 import com.tambapps.marcel.android.marshell.repl.jar.DexJarWriterFactory
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.MarcelEvaluator

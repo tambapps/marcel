@@ -1,6 +1,6 @@
 package com.tambapps.marcel.android.marshell.repl.console
 
-import com.tambapps.marcel.android.marshell.ui.component.Prompt
+import com.tambapps.marcel.android.marshell.ui.screen.shell.Prompt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
