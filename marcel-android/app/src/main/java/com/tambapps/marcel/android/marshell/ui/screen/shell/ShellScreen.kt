@@ -117,54 +117,82 @@ fun TopBar(viewModel: ShellViewModel) {
     .size(TopBarIconSize)
     .padding(horizontal = 6.dp)
   TopBarLayout(horizontalArrangement = Arrangement.End) {
-    IconButton(
-      onClick = {
-        Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show()
-      },
-      modifier = modifier,
-    ) {
-      Icon(
-        painter = painterResource(id = R.drawable.save),
-        contentDescription = null,
-        tint = Color.White
-      )
-    }
-    Box(modifier = Modifier.width(10.dp))
-
-    IconButton(
-      onClick = {},
-      modifier = modifier,
-    ) {
-      Icon(
-        painter = painterResource(id = R.drawable.downloads),
-        contentDescription = null,
-        tint = Color.White
-      )
-    }
+    ShellIconButton(
+      modifier = Modifier
+        .size(TopBarIconSize)
+        .padding(horizontal = 4.dp),
+      onClick = { Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show() },
+      drawable = R.drawable.dumbell,
+      contentDescription = "handle dumbbells"
+    )
 
     Box(modifier = Modifier.width(10.dp))
 
-    IconButton(
+    ShellIconButton(
+      modifier = Modifier
+        .size(TopBarIconSize)
+        .padding(horizontal = 4.dp),
+      onClick = { Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show() },
+      drawable = R.drawable.view,
+      contentDescription = "view shell functions/variables"
+    )
+
+    Box(modifier = Modifier.width(10.dp))
+
+    ShellIconButton(
+      modifier = modifier,
+      onClick = { Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show() },
+      drawable = R.drawable.save,
+      enabled = viewModel.prompts.any { it.type == Prompt.Type.INPUT },
+      contentDescription = "save session to file"
+    )
+
+    Box(modifier = Modifier.width(10.dp))
+
+    ShellIconButton(
+      modifier = modifier,
+      onClick = { Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show() },
+      drawable = R.drawable.downloads,
+      contentDescription = "import script"
+    )
+    Box(modifier = Modifier.width(10.dp))
+
+    ShellIconButton(
+      modifier = modifier,
       onClick = { viewModel.historyUp() },
-      modifier = modifier,
-    ) {
-      Icon(
-        painter = painterResource(id = R.drawable.navigate_up_arrow),
-        contentDescription = null,
-        tint = Color.White
-      )
-    }
+      drawable = R.drawable.navigate_up_arrow,
+      contentDescription = "navigate up"
+    )
+
     Box(modifier = Modifier.width(4.dp))
-    IconButton(
-      onClick = { viewModel.historyDown() },
+
+    ShellIconButton(
       modifier = modifier.rotate(180f),
-    ) {
-      Icon(
-        painter = painterResource(id = R.drawable.navigate_up_arrow),
-        contentDescription = null,
-        tint = Color.White
-      )
-    }
+      onClick = { viewModel.historyDown() },
+      drawable = R.drawable.navigate_up_arrow,
+      contentDescription = "navigate down"
+    )
+  }
+}
+
+@Composable
+private fun ShellIconButton(
+  modifier: Modifier = Modifier,
+  onClick: () -> Unit,
+  enabled: Boolean = true,
+  drawable: Int,
+  contentDescription: String
+) {
+  IconButton(
+    onClick = onClick,
+    modifier = modifier,
+    enabled = enabled,
+  ) {
+    Icon(
+      painter = painterResource(id = drawable),
+      contentDescription = contentDescription,
+      tint = if (enabled) Color.White else Color.Gray
+    )
   }
 }
 
