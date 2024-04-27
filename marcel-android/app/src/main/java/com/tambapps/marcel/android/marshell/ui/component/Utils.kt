@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
@@ -38,6 +39,21 @@ fun IconButton(size: Dp, modifier: Modifier = Modifier, onClick: () -> Unit, ima
         Icon(
             modifier = Modifier.size(size),
             imageVector = imageVector,
+            contentDescription = null,
+            tint = Color.White
+        )
+    }
+}
+
+@Composable
+fun IconButton(size: Dp, modifier: Modifier = Modifier, onClick: () -> Unit, imagePainter: Painter) {
+    androidx.compose.material3.IconButton(
+        onClick = onClick,
+        modifier = modifier.size(size),
+        ) {
+        Icon(
+            modifier = Modifier.size(size),
+            painter = imagePainter,
             contentDescription = null,
             tint = Color.White
         )

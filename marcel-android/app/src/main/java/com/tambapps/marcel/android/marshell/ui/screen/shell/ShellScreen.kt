@@ -1,14 +1,18 @@
 package com.tambapps.marcel.android.marshell.ui.screen.shell
 
 import android.os.Build
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -16,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -24,8 +29,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -105,18 +112,59 @@ fun ShellScreen(
 
 @Composable
 fun TopBar(viewModel: ShellViewModel) {
+  val context = LocalContext.current
+  val modifier = Modifier
+    .size(TopBarIconSize)
+    .padding(horizontal = 6.dp)
   TopBarLayout(horizontalArrangement = Arrangement.End) {
-    com.tambapps.marcel.android.marshell.ui.component.IconButton(
-      imageVector = Icons.Filled.KeyboardArrowUp,
-      modifier = Modifier.padding(end = 8.dp),
-      size = TopBarIconSize,
-      onClick = { viewModel.historyUp() }
-    )
-    com.tambapps.marcel.android.marshell.ui.component.IconButton(
-      imageVector = Icons.Filled.KeyboardArrowDown,
-      size = TopBarIconSize,
-      onClick = { viewModel.historyDown() }
-    )
+    IconButton(
+      onClick = {
+        Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show()
+      },
+      modifier = modifier,
+    ) {
+      Icon(
+        painter = painterResource(id = R.drawable.save),
+        contentDescription = null,
+        tint = Color.White
+      )
+    }
+    Box(modifier = Modifier.width(10.dp))
+
+    IconButton(
+      onClick = {},
+      modifier = modifier,
+    ) {
+      Icon(
+        painter = painterResource(id = R.drawable.downloads),
+        contentDescription = null,
+        tint = Color.White
+      )
+    }
+
+    Box(modifier = Modifier.width(10.dp))
+
+    IconButton(
+      onClick = { viewModel.historyUp() },
+      modifier = modifier,
+    ) {
+      Icon(
+        painter = painterResource(id = R.drawable.navigate_up_arrow),
+        contentDescription = null,
+        tint = Color.White
+      )
+    }
+    Box(modifier = Modifier.width(4.dp))
+    IconButton(
+      onClick = { viewModel.historyDown() },
+      modifier = modifier.rotate(180f),
+    ) {
+      Icon(
+        painter = painterResource(id = R.drawable.navigate_up_arrow),
+        contentDescription = null,
+        tint = Color.White
+      )
+    }
   }
 }
 
