@@ -55,6 +55,11 @@ class ShellViewModel constructor(private val shellSession: ShellSession) : ViewM
     historyNavigator.reset()
   }
 
+  fun highlightTextInput(text: String) {
+    textInput.value = TextFieldValue(text = text)
+    highlightTextInput()
+  }
+
   fun highlightTextInput() {
     job?.cancel()
     job = highlightScope.launch {

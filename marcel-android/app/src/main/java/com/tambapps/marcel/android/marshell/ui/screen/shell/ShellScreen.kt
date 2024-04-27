@@ -2,6 +2,8 @@ package com.tambapps.marcel.android.marshell.ui.screen.shell
 
 import android.os.Build
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tambapps.marcel.android.marshell.R
@@ -149,9 +152,19 @@ fun TopBar(viewModel: ShellViewModel) {
 
     Box(modifier = Modifier.width(10.dp))
 
+    val pickPictureLauncher = rememberLauncherForActivityResult(
+      ActivityResultContracts.GetContent()
+    ) { imageUri ->
+      if (imageUri != null) {
+        val text = context.contentResolver.openInputStream(imageUri)!!.reader().use { it.readText() }
+        viewModel.highlightTextInput(text)
+      }
+    }
     ShellIconButton(
       modifier = modifier,
-      onClick = { Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show() },
+      onClick = {
+        pickPictureLauncher.launch("*/*")
+      },
       drawable = R.drawable.downloads,
       contentDescription = "import script"
     )
