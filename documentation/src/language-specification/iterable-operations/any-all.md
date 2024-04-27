@@ -11,13 +11,13 @@ println(when int a in list |> a >= 3) // true
 
 The `|>` arrow is used to check if at least one element matches the predicate.
 
-## Any
+## All
 ```marcel
 list<int> list = [1, 2, 3, 4]
 println(when int a in list &> a >= 3) // false
 ```
 
-The `&>` arrow is used to check if all elements matche the predicate.
+The `&>` arrow is used to check if all elements matches the predicate.
 
 ## Negations
 You can also negate those conditions using the `!when` keyword.
