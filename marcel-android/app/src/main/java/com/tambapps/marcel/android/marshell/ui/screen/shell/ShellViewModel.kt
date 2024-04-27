@@ -2,6 +2,7 @@ package com.tambapps.marcel.android.marshell.ui.screen.shell
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import com.tambapps.marcel.android.marshell.repl.MarshellScript
@@ -16,12 +17,14 @@ import marcel.lang.Script
 
 class ShellViewModel constructor(private val shellSession: ShellSession) : ViewModel() {
 
-  // ViewModel logic here
+  // states
   val textInput = mutableStateOf(TextFieldValue())
   val prompts = mutableStateListOf<Prompt>()
   val isEvaluating = mutableStateOf(false)
+
+  // services and miscellaneous
+  private val historyNavigator = PromptHistoryNavigator(prompts)
   private val highlighter = shellSession.newHighlighter()
-  private var historyIndex = -1
   private val highlightScope = CoroutineScope(Dispatchers.IO)
   private var job: Job? = null
 
@@ -31,19 +34,14 @@ class ShellViewModel constructor(private val shellSession: ShellSession) : ViewM
     }
   }
 
-  // TODO fix history functions
   fun historyUp() {
-    val prompts = this.prompts.filter { it.type == Prompt.Type.INPUT }
-    if (prompts.isEmpty() || prompts.size <= historyIndex) return
-    val text = prompts[prompts.size - 1 - ++historyIndex].text
-    textInput.value = textInput.value.copy(annotatedString = highlighter.highlight(text).toAnnotatedString())
+    val text = historyNavigator.up() ?: return
+    textInput.value = TextFieldValue(annotatedString = highlighter.highlight(text).toAnnotatedString(), selection = TextRange(text.length))
   }
 
   fun historyDown() {
-    val prompts = this.prompts.filter { it.type == Prompt.Type.INPUT }
-    if (prompts.isEmpty() || historyIndex <= 0) return
-    val text = prompts[prompts.size - 1 - --historyIndex].text
-    textInput.value = textInput.value.copy(annotatedString = highlighter.highlight(text).toAnnotatedString())
+    val text = historyNavigator.down() ?: return
+    textInput.value = TextFieldValue(annotatedString = highlighter.highlight(text).toAnnotatedString(), selection = TextRange(text.length))
   }
 
   fun prompt(text: String) {
@@ -54,7 +52,7 @@ class ShellViewModel constructor(private val shellSession: ShellSession) : ViewM
       isEvaluating.value = false
       prompts.add(Prompt(type, java.lang.String.valueOf(result)))
     }
-    historyIndex = -1
+    historyNavigator.reset()
   }
 
   fun highlightTextInput() {
