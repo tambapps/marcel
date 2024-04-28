@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -21,11 +22,15 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.ui.component.IconButton
@@ -34,9 +39,14 @@ import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+object Routes {
+  const val SHELL = "shell"
+  const val EDITOR = "editor"
+}
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -48,16 +58,24 @@ class MainActivity : ComponentActivity() {
     setContent {
       val navController = rememberNavController()
       val drawerState = rememberDrawerState(DrawerValue.Closed)
+      val scope = rememberCoroutineScope()
       MarcelAndroidTheme {
-        NavigationDrawer(drawerState = drawerState) {
+        NavigationDrawer(drawerState = drawerState, navController = navController, scope = scope) {
           Box(modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
-            NavHost(navController = navController, startDestination = "profile", modifier = Modifier.fillMaxSize()) {
-              composable("profile") {
+            NavHost(
+              navController = navController,
+              startDestination = Routes.SHELL,
+              modifier = Modifier.fillMaxSize()
+            ) {
+              composable(Routes.SHELL) {
                 ShellScreen(shellSessionFactory)
               }
-              /*...*/
+              composable(Routes.EDITOR) {
+                // TODO
+              }
+
             }
-            TopBar(drawerState) // putting it at the end because we want it to have top priority in terms of displaying
+            TopBar(drawerState, scope) // putting it at the end because we want it to have top priority in terms of displaying
           }
         }
       }
@@ -66,8 +84,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun TopBar(drawerState: DrawerState) {
-  val scope = rememberCoroutineScope()
+fun TopBar(drawerState: DrawerState, scope: CoroutineScope) {
   TopBarLayout {
     IconButton(
       modifier = Modifier.size(TopBarIconSize),
@@ -86,20 +103,60 @@ fun TopBar(drawerState: DrawerState) {
 }
 
 @Composable
-fun NavigationDrawer(drawerState: DrawerState, content: @Composable () -> Unit) {
+fun NavigationDrawer(
+  drawerState: DrawerState,
+  navController: NavController,
+  scope: CoroutineScope,
+  content: @Composable () -> Unit
+) {
   ModalNavigationDrawer(
     drawerState = drawerState,
     drawerContent = {
-      ModalDrawerSheet {
+      ModalDrawerSheet(
+        modifier = Modifier.fillMaxWidth(0.6f)
+        ) {
         Text("Marcel for Android", modifier = Modifier.padding(16.dp))
         HorizontalDivider()
-        NavigationDrawerItem(
-          label = { Text(text = "Drawer Item") },
-          selected = false,
-          onClick = { /*TODO*/ }
+
+        val backStackState = navController.currentBackStackEntryAsState()
+
+        DrawerItem(
+          navController = navController,
+          drawerState = drawerState,
+          scope = scope,
+          text = "Shell",
+          backStackState = backStackState,
+          route = Routes.SHELL
         )
-        // ...other drawer items
+
+        DrawerItem(
+          navController = navController,
+          drawerState = drawerState,
+          scope = scope,
+          text = "Editor",
+          backStackState = backStackState,
+          route = Routes.EDITOR
+        )
       }
     }
     , content = content)
+}
+
+@Composable
+private fun DrawerItem(
+  navController: NavController,
+  drawerState: DrawerState,
+  backStackState: State<NavBackStackEntry?>,
+  scope: CoroutineScope,
+  text: String,
+  route: String,
+) {
+  NavigationDrawerItem(
+    label = { Text(text = text) },
+    selected = backStackState.value?.destination?.route == route,
+    onClick = {
+      navController.navigate(route)
+      scope.launch { drawerState.close() }
+    }
+  )
 }
