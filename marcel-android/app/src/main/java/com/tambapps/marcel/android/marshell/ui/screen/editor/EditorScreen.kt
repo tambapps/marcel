@@ -44,7 +44,7 @@ fun EditorScreen(viewModel: EditorViewModel) {
         onClick = { /*TODO*/ }
       ) {
         Icon(
-          modifier = Modifier.size(32.dp),
+          modifier = Modifier.size(23.dp),
           painter = painterResource(id = R.drawable.save),
           contentDescription = "Save",
           tint = Color.White
@@ -60,7 +60,7 @@ private fun TopBar() {
   val context = LocalContext.current
   TopBarLayout(horizontalArrangement = Arrangement.End) {
     TopBarIconButton(
-      modifier = shellIconModifier(),
+      modifier = shellIconModifier(4.dp),
       onClick = { /*TODO*/ },
       drawable = R.drawable.folder,
       contentDescription = "Open file"
