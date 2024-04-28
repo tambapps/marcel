@@ -46,6 +46,8 @@ import javax.inject.Inject
 object Routes {
   const val SHELL = "shell"
   const val EDITOR = "editor"
+  const val WORKS = "works"
+  const val SETTINGS = "settings"
 }
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -71,6 +73,9 @@ class MainActivity : ComponentActivity() {
                 ShellScreen(shellSessionFactory)
               }
               composable(Routes.EDITOR) {
+                // TODO
+              }
+              composable(Routes.WORKS) {
                 // TODO
               }
 
@@ -137,6 +142,25 @@ fun NavigationDrawer(
           backStackState = backStackState,
           route = Routes.EDITOR
         )
+
+        DrawerItem(
+          navController = navController,
+          drawerState = drawerState,
+          scope = scope,
+          text = "Background works",
+          backStackState = backStackState,
+          route = Routes.WORKS
+        )
+
+        DrawerItem(
+          navController = navController,
+          drawerState = drawerState,
+          scope = scope,
+          text = "Settings",
+          backStackState = backStackState,
+          route = Routes.SETTINGS
+        )
+
       }
     }
     , content = content)
