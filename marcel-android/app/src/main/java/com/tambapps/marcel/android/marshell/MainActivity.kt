@@ -37,6 +37,7 @@ import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.ui.component.IconButton
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellScreen
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
+import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorScreen
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModelFactory
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
@@ -78,7 +79,7 @@ class MainActivity : ComponentActivity() {
                 ShellScreen(viewModel)
               }
               composable(Routes.EDITOR) {
-                // TODO
+                EditorScreen()
               }
               composable(Routes.WORKS) {
                 // TODO

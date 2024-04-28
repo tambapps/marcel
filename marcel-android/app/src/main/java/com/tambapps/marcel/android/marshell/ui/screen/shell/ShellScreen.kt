@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -22,7 +21,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -42,11 +40,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tambapps.marcel.android.marshell.R
+import com.tambapps.marcel.android.marshell.ui.component.TopBarIconButton
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
-import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
+import com.tambapps.marcel.android.marshell.ui.component.shellIconModifier
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -121,10 +119,10 @@ fun ShellScreen(
 }
 
 @Composable
-fun TopBar(viewModel: ShellViewModel) {
+private fun TopBar(viewModel: ShellViewModel) {
   val context = LocalContext.current
   TopBarLayout(horizontalArrangement = Arrangement.End) {
-    ShellIconButton(
+    TopBarIconButton(
       modifier = shellIconModifier(4.dp),
       onClick = { Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show() },
       drawable = R.drawable.dumbell,
@@ -133,7 +131,7 @@ fun TopBar(viewModel: ShellViewModel) {
 
     Box(modifier = Modifier.width(10.dp))
 
-    ShellIconButton(
+    TopBarIconButton(
       modifier = shellIconModifier(3.dp),
       onClick = { Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show() },
       drawable = R.drawable.view,
@@ -143,7 +141,7 @@ fun TopBar(viewModel: ShellViewModel) {
     Box(modifier = Modifier.width(10.dp))
 
     val exportDialogOpen = remember { mutableStateOf(false) }
-    ShellIconButton(
+    TopBarIconButton(
       modifier = shellIconModifier(),
       onClick = { exportDialogOpen.value = true },
       drawable = R.drawable.save,
@@ -170,7 +168,7 @@ fun TopBar(viewModel: ShellViewModel) {
         viewModel.setTextInput(result.getOrNull()!!)
       }
     }
-    ShellIconButton(
+    TopBarIconButton(
       modifier = shellIconModifier(),
       onClick = {
         pickPictureLauncher.launch("*/*")
@@ -181,7 +179,7 @@ fun TopBar(viewModel: ShellViewModel) {
 
     Box(modifier = Modifier.width(10.dp))
 
-    ShellIconButton(
+    TopBarIconButton(
       modifier = shellIconModifier(),
       onClick = { viewModel.historyUp() },
       drawable = R.drawable.navigate_up_arrow,
@@ -190,7 +188,7 @@ fun TopBar(viewModel: ShellViewModel) {
 
     Box(modifier = Modifier.width(4.dp))
 
-    ShellIconButton(
+    TopBarIconButton(
       modifier = shellIconModifier().rotate(180f),
       onClick = { viewModel.historyDown() },
       drawable = R.drawable.navigate_up_arrow,
@@ -309,10 +307,6 @@ fun DialogCheckBox(valueState: MutableState<Boolean>, text: String) {
   }
 }
 
-private fun shellIconModifier(horizontalPadding: Dp = 6.dp) = Modifier
-  .size(TopBarIconSize)
-  .padding(horizontal = horizontalPadding)
-
 private fun readText(inputStream: InputStream?): Result<String> {
   if (inputStream == null) {
     return Result.failure(IOException("Couldn't open file"))
@@ -321,27 +315,6 @@ private fun readText(inputStream: InputStream?): Result<String> {
     Result.success(inputStream.reader().use { it.readText() })
   } catch (e: IOException) {
     Result.failure(e)
-  }
-}
-
-@Composable
-private fun ShellIconButton(
-  modifier: Modifier = Modifier,
-  onClick: () -> Unit,
-  enabled: Boolean = true,
-  drawable: Int,
-  contentDescription: String
-) {
-  IconButton(
-    onClick = onClick,
-    modifier = modifier,
-    enabled = enabled,
-  ) {
-    Icon(
-      painter = painterResource(id = drawable),
-      contentDescription = contentDescription,
-      tint = if (enabled) Color.White else Color.Gray
-    )
   }
 }
 

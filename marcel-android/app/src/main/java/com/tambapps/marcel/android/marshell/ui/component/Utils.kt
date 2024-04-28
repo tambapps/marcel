@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -15,7 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
 
@@ -46,16 +49,27 @@ fun IconButton(size: Dp, modifier: Modifier = Modifier, onClick: () -> Unit, ima
 }
 
 @Composable
-fun IconButton(size: Dp, modifier: Modifier = Modifier, onClick: () -> Unit, imagePainter: Painter) {
+fun TopBarIconButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    drawable: Int,
+    contentDescription: String
+) {
     androidx.compose.material3.IconButton(
         onClick = onClick,
-        modifier = modifier.size(size),
-        ) {
+        modifier = modifier,
+        enabled = enabled,
+    ) {
         Icon(
-            modifier = Modifier.size(size),
-            painter = imagePainter,
-            contentDescription = null,
-            tint = Color.White
+            painter = painterResource(id = drawable),
+            contentDescription = contentDescription,
+            tint = if (enabled) Color.White else Color.Gray
         )
     }
 }
+
+
+fun shellIconModifier(horizontalPadding: Dp = 6.dp) = Modifier
+    .size(TopBarIconSize)
+    .padding(horizontal = horizontalPadding)
