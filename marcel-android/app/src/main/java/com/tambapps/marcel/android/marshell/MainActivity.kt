@@ -33,11 +33,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.ui.component.IconButton
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellScreen
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorScreen
+import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorViewModel
+import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorViewModelFactory
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModelFactory
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
@@ -57,7 +58,9 @@ object Routes {
 class MainActivity : ComponentActivity() {
 
   @Inject
-  lateinit var shellSessionFactory: ShellSessionFactory
+  lateinit var shellViewModelFactory: ShellViewModelFactory
+  @Inject
+  lateinit var editorViewModelFactory: EditorViewModelFactory
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -69,17 +72,18 @@ class MainActivity : ComponentActivity() {
         NavigationDrawer(drawerState = drawerState, navController = navController, scope = scope) {
           Box(modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
             // instantiating shell VM here because we want to keep state even if we changed route and then go back to ShellScreen
-            val viewModel: ShellViewModel = viewModel(factory = ShellViewModelFactory(shellSessionFactory))
+            val shellViewModel: ShellViewModel = viewModel(factory = shellViewModelFactory)
             NavHost(
               navController = navController,
               startDestination = Routes.SHELL,
               modifier = Modifier.fillMaxSize()
             ) {
               composable(Routes.SHELL) {
-                ShellScreen(viewModel)
+                ShellScreen(shellViewModel)
               }
               composable(Routes.EDITOR) {
-                EditorScreen()
+                val viewModel: EditorViewModel = viewModel(factory = editorViewModelFactory)
+                EditorScreen(viewModel)
               }
               composable(Routes.WORKS) {
                 // TODO

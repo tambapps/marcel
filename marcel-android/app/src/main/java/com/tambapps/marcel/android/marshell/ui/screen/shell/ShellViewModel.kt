@@ -8,9 +8,10 @@ import androidx.lifecycle.ViewModel
 import com.tambapps.marcel.android.marshell.repl.MarshellScript
 import com.tambapps.marcel.android.marshell.repl.ShellSession
 import com.tambapps.marcel.android.marshell.repl.console.PromptPrinter
+import com.tambapps.marcel.android.marshell.ui.screen.HighlightTransformation
 import marcel.lang.Script
 
-class ShellViewModel constructor(private val shellSession: ShellSession) : ViewModel() {
+class ShellViewModel constructor(private val shellSession: ShellSession) : ViewModel(), HighlightTransformation {
 
   // states
   val textInput = mutableStateOf(TextFieldValue())
@@ -48,7 +49,7 @@ class ShellViewModel constructor(private val shellSession: ShellSession) : ViewM
     historyNavigator.reset()
   }
 
-  fun highlight(text: CharSequence) = highlighter.highlight(text).toAnnotatedString()
+  override fun highlight(text: CharSequence) = highlighter.highlight(text).toAnnotatedString()
 
   fun setTextInput(text: CharSequence) {
     textInput.value = TextFieldValue(annotatedString = highlight(text))

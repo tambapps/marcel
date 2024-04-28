@@ -17,10 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.ui.component.TopBarIconButton
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
@@ -28,7 +25,7 @@ import com.tambapps.marcel.android.marshell.ui.component.shellIconModifier
 
 
 @Composable
-fun EditorScreen(viewModel: EditorViewModel = viewModel()) {
+fun EditorScreen(viewModel: EditorViewModel) {
   Column(modifier = Modifier.fillMaxSize()) {
     TopBar()
     Box(modifier = Modifier
@@ -40,17 +37,7 @@ fun EditorScreen(viewModel: EditorViewModel = viewModel()) {
         modifier = Modifier.fillMaxSize(),
         value = viewModel.textInput.value,
         onValueChange = { viewModel.textInput.value = it },
-        /*
- TODO
-visualTransformation = { text ->
-  TransformedText(
-    text = viewModel.highlight(text),
-    offsetMapping = OffsetMapping.Identity
-  )
-
-        }
-         */
-
+        visualTransformation = viewModel
       )
       FloatingActionButton(
         modifier = Modifier.padding(all = 16.dp),

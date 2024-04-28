@@ -103,12 +103,7 @@ fun ShellScreen(
       OutlinedTextField(
         value = viewModel.textInput.value,
         onValueChange = { viewModel.textInput.value = it },
-        visualTransformation = { text ->
-          TransformedText(
-            text = viewModel.highlight(text),
-            offsetMapping = OffsetMapping.Identity
-          )
-        },
+        visualTransformation = viewModel,
         textStyle = shellTextStyle,
         modifier = Modifier.weight(1f),
         shape = RoundedCornerShape(36.dp)
