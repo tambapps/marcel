@@ -26,6 +26,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -36,6 +37,8 @@ import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.ui.component.IconButton
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellScreen
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
+import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
+import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModelFactory
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
 import dagger.hilt.android.AndroidEntryPoint
@@ -64,13 +67,15 @@ class MainActivity : ComponentActivity() {
       MarcelAndroidTheme {
         NavigationDrawer(drawerState = drawerState, navController = navController, scope = scope) {
           Box(modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
+            // instantiating shell VM here because we want to keep state even if we changed route and then go back to ShellScreen
+            val viewModel: ShellViewModel = viewModel(factory = ShellViewModelFactory(shellSessionFactory))
             NavHost(
               navController = navController,
               startDestination = Routes.SHELL,
               modifier = Modifier.fillMaxSize()
             ) {
               composable(Routes.SHELL) {
-                ShellScreen(shellSessionFactory)
+                ShellScreen(viewModel)
               }
               composable(Routes.EDITOR) {
                 // TODO

@@ -44,9 +44,7 @@ import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tambapps.marcel.android.marshell.R
-import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
@@ -61,11 +59,8 @@ val HEADER = "Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSIO
 
 @Composable
 fun ShellScreen(
-  shellSessionFactory: ShellSessionFactory,
+  viewModel: ShellViewModel,
   scope: CoroutineScope = rememberCoroutineScope(),
-  viewModel: ShellViewModel = viewModel(
-    factory = ShellViewModelFactory(shellSessionFactory)
-  )
 ) {
   Column(modifier = Modifier.fillMaxSize()) {
     TopBar(viewModel)
