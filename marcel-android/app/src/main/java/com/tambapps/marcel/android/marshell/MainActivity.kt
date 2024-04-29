@@ -33,6 +33,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.tambapps.marcel.android.marshell.service.PreferencesDataStore
 import com.tambapps.marcel.android.marshell.ui.component.IconButton
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellScreen
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
@@ -61,6 +62,8 @@ class MainActivity : ComponentActivity() {
   lateinit var shellViewModelFactory: ShellViewModelFactory
   @Inject
   lateinit var editorViewModelFactory: EditorViewModelFactory
+  @Inject
+  lateinit var preferencesDataStore: PreferencesDataStore
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -79,13 +82,16 @@ class MainActivity : ComponentActivity() {
               modifier = Modifier.fillMaxSize()
             ) {
               composable(Routes.SHELL) {
-                ShellScreen(shellViewModel)
+                ShellScreen(shellViewModel, preferencesDataStore.shellPreferencesFlow)
               }
               composable(Routes.EDITOR) {
                 val viewModel: EditorViewModel = viewModel(factory = editorViewModelFactory)
                 EditorScreen(viewModel)
               }
               composable(Routes.WORKS) {
+                // TODO
+              }
+              composable(Routes.SETTINGS) {
                 // TODO
               }
 

@@ -1,6 +1,10 @@
 package com.tambapps.marcel.android.marshell.configuration
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStoreFile
 import com.tambapps.marcel.android.marshell.repl.MarshellScript
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import dagger.Module
@@ -49,6 +53,11 @@ class MarcelAndroidConfiguration {
     )
   }
 
+  @Provides
+  fun dataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+    return PreferenceDataStoreFactory.create { context.preferencesDataStoreFile("preferences") }
+  }
+
   /* TODO for shell works
   @Provides
   fun appDatabase(@ApplicationContext context: Context): AppDatabase {
@@ -72,11 +81,6 @@ class MarcelAndroidConfiguration {
   @Provides
   fun cacheableScriptDao(appDatabase: AppDatabase): CacheableScriptDao {
     return appDatabase.cacheableScriptDao()
-  }
-
-  @Provides
-  fun sharedPreferences(@ApplicationContext context: Context): SharedPreferences {
-    return PreferenceManager.getDefaultSharedPreferences(context)
   }
 
   @Provides

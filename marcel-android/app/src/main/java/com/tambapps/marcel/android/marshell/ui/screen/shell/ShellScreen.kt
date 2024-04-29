@@ -16,9 +16,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.IconButton
@@ -28,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -38,15 +40,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.tambapps.marcel.android.marshell.R
+import com.tambapps.marcel.android.marshell.data.ShellPreferences
 import com.tambapps.marcel.android.marshell.ui.component.TopBarIconButton
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.component.shellIconModifier
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import marcel.lang.util.MarcelVersion
 import java.io.IOException
@@ -58,6 +61,7 @@ val HEADER = "Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSIO
 @Composable
 fun ShellScreen(
   viewModel: ShellViewModel,
+  shellPreferencesFlow: Flow<ShellPreferences>,
   scope: CoroutineScope = rememberCoroutineScope(),
 ) {
   Column(modifier = Modifier.fillMaxSize()) {
@@ -100,15 +104,29 @@ fun ShellScreen(
     }
 
     Row(verticalAlignment = Alignment.CenterVertically) {
+      val shellPreferences = shellPreferencesFlow.collectAsState(initial = ShellPreferences.DEFAULT)
+      val onPrompt: () -> Unit = {
+        val input = viewModel.textInput.value.text.trim()
+        if (input.isNotBlank()) {
+          viewModel.prompt(input)
+          scope.launch { listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1) }
+        }
+      }
+
       OutlinedTextField(
         value = viewModel.textInput.value,
         onValueChange = { viewModel.textInput.value = it },
         visualTransformation = viewModel,
         textStyle = shellTextStyle,
         modifier = Modifier.weight(1f),
-        shape = RoundedCornerShape(36.dp)
+        shape = RoundedCornerShape(36.dp),
+        singleLine = shellPreferences.value.singleLineInput,
+        keyboardOptions = if (shellPreferences.value.singleLineInput) KeyboardOptions(imeAction = ImeAction.Done) else KeyboardOptions.Default,
+        keyboardActions = if (shellPreferences.value.singleLineInput) KeyboardActions(
+          onDone = { onPrompt.invoke() }
+        ) else KeyboardActions.Default
       )
-      PromptButton(viewModel, scope, listState)
+      PromptButton(viewModel, onPrompt)
     }
   }
 }
@@ -327,18 +345,12 @@ fun HistoryText(
 }
 
 @Composable
-fun PromptButton(viewModel: ShellViewModel, scope: CoroutineScope, listState: LazyListState) {
+fun PromptButton(viewModel: ShellViewModel, onClick: () -> Unit) {
   IconButton(
     colors = IconButtonDefaults.iconButtonColors()
       .copy(containerColor = Color.White, disabledContainerColor = Color.Gray),
     enabled = !viewModel.isEvaluating.value,
-    onClick = {
-      val input = viewModel.textInput.value.text.trim()
-      if (input.isNotBlank()) {
-        viewModel.prompt(input)
-        scope.launch { listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1) }
-      }
-    },
+    onClick = onClick,
   ) {
     Image(
       painter = painterResource(id = R.drawable.prompt),
