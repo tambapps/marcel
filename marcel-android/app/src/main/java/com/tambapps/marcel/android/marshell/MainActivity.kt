@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
               modifier = Modifier.fillMaxSize()
             ) {
               composable(Routes.SHELL) {
-                ShellScreen(shellViewModel, preferencesDataStore.shellPreferencesFlow)
+                ShellScreen(shellViewModel)
               }
               composable(Routes.EDITOR) {
                 val viewModel: EditorViewModel = viewModel(factory = editorViewModelFactory)

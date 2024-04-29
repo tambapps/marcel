@@ -17,6 +17,7 @@ class ShellViewModel constructor(private val shellSession: ShellSession) : ViewM
   val textInput = mutableStateOf(TextFieldValue())
   val prompts = mutableStateListOf<Prompt>()
   val isEvaluating = mutableStateOf(false)
+  val singleLineInput = mutableStateOf(true)
 
   // services and miscellaneous
   private val historyNavigator = PromptHistoryNavigator(prompts)

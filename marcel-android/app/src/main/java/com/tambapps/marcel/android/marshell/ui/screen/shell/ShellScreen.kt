@@ -1,11 +1,15 @@
 package com.tambapps.marcel.android.marshell.ui.screen.shell
 
+import android.content.Context
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,7 +54,6 @@ import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.component.shellIconModifier
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import marcel.lang.util.MarcelVersion
 import java.io.IOException
@@ -61,7 +65,6 @@ val HEADER = "Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSIO
 @Composable
 fun ShellScreen(
   viewModel: ShellViewModel,
-  shellPreferencesFlow: Flow<ShellPreferences>,
   scope: CoroutineScope = rememberCoroutineScope(),
 ) {
   Column(modifier = Modifier.fillMaxSize()) {
@@ -104,7 +107,6 @@ fun ShellScreen(
     }
 
     Row(verticalAlignment = Alignment.CenterVertically) {
-      val shellPreferences = shellPreferencesFlow.collectAsState(initial = ShellPreferences.DEFAULT)
       val onPrompt: () -> Unit = {
         val input = viewModel.textInput.value.text.trim()
         if (input.isNotBlank()) {
@@ -112,7 +114,7 @@ fun ShellScreen(
           scope.launch { listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1) }
         }
       }
-
+      val singleLineInput = viewModel.singleLineInput
       OutlinedTextField(
         value = viewModel.textInput.value,
         onValueChange = { viewModel.textInput.value = it },
@@ -120,9 +122,9 @@ fun ShellScreen(
         textStyle = shellTextStyle,
         modifier = Modifier.weight(1f),
         shape = RoundedCornerShape(36.dp),
-        singleLine = shellPreferences.value.singleLineInput,
-        keyboardOptions = if (shellPreferences.value.singleLineInput) KeyboardOptions(imeAction = ImeAction.Done) else KeyboardOptions.Default,
-        keyboardActions = if (shellPreferences.value.singleLineInput) KeyboardActions(
+        singleLine = singleLineInput.value,
+        keyboardOptions = if (singleLineInput.value) KeyboardOptions(imeAction = ImeAction.Done) else KeyboardOptions.Default,
+        keyboardActions = if (singleLineInput.value) KeyboardActions(
           onDone = { onPrompt.invoke() }
         ) else KeyboardActions.Default
       )
@@ -345,12 +347,13 @@ fun HistoryText(
 }
 
 @Composable
-fun PromptButton(viewModel: ShellViewModel, onClick: () -> Unit) {
+fun PromptButton(viewModel: ShellViewModel, onPrompt: () -> Unit) {
+  val context = LocalContext.current
   IconButton(
     colors = IconButtonDefaults.iconButtonColors()
       .copy(containerColor = Color.White, disabledContainerColor = Color.Gray),
     enabled = !viewModel.isEvaluating.value,
-    onClick = onClick,
+    onClick = OnPromptButtonClick(context, onPrompt, viewModel),
   ) {
     Image(
       painter = painterResource(id = R.drawable.prompt),
@@ -358,5 +361,30 @@ fun PromptButton(viewModel: ShellViewModel, onClick: () -> Unit) {
       colorFilter = ColorFilter.tint(Color.Black),
       modifier = Modifier.fillMaxSize(fraction = 0.5f)
     )
+  }
+}
+
+// when clicking 2 times on an empty textField, it changes the singleLineInput toggle
+private class OnPromptButtonClick(
+  private val context: Context,
+  private val onPrompt: () -> Unit,
+  private val viewModel: ShellViewModel
+): () -> Unit {
+
+  private var lastClickTimestamp = 0L
+  override fun invoke() {
+    if (viewModel.textInput.value.annotatedString.isEmpty()) {
+      val now = System.currentTimeMillis()
+      if (now - lastClickTimestamp < 500L) {
+        viewModel.singleLineInput.value = !viewModel.singleLineInput.value
+        Toast.makeText(context, "Single line mode: " + (
+            if (viewModel.singleLineInput.value) "ON" else "OFF"
+            ), Toast.LENGTH_SHORT).show()
+      } else {
+        lastClickTimestamp = System.currentTimeMillis()
+      }
+    } else {
+      onPrompt.invoke()
+    }
   }
 }
