@@ -42,8 +42,10 @@ import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorViewModelFactory
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModelFactory
+import com.tambapps.marcel.android.marshell.ui.screen.works_list.WorksListScreen
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
+import com.tambapps.marcel.android.marshell.work.ShellWorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -52,7 +54,7 @@ import javax.inject.Inject
 object Routes {
   const val SHELL = "shell"
   const val EDITOR = "editor"
-  const val WORKS = "works"
+  const val WORKS_LIST = "works_list"
   const val SETTINGS = "settings"
 }
 @AndroidEntryPoint
@@ -64,6 +66,8 @@ class MainActivity : ComponentActivity() {
   lateinit var editorViewModelFactory: EditorViewModelFactory
   @Inject
   lateinit var preferencesDataStore: PreferencesDataStore
+  @Inject
+  lateinit var shellWorkManager: ShellWorkManager
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -73,7 +77,9 @@ class MainActivity : ComponentActivity() {
       val scope = rememberCoroutineScope()
       MarcelAndroidTheme {
         NavigationDrawer(drawerState = drawerState, navController = navController, scope = scope) {
-          Box(modifier = Modifier.background(MaterialTheme.colorScheme.background).padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
+          Box(modifier = Modifier
+            .background(MaterialTheme.colorScheme.background)
+            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
             // instantiating shell VM here because we want to keep state even if we changed route and then go back to ShellScreen
             val shellViewModel: ShellViewModel = viewModel(factory = shellViewModelFactory)
             NavHost(
@@ -88,8 +94,8 @@ class MainActivity : ComponentActivity() {
                 val viewModel: EditorViewModel = viewModel(factory = editorViewModelFactory)
                 EditorScreen(viewModel)
               }
-              composable(Routes.WORKS) {
-                // TODO
+              composable(Routes.WORKS_LIST) {
+                WorksListScreen(shellWorkManager = shellWorkManager)
               }
               composable(Routes.SETTINGS) {
                 // TODO
@@ -165,7 +171,7 @@ fun NavigationDrawer(
           scope = scope,
           text = "Background works",
           backStackState = backStackState,
-          route = Routes.WORKS
+          route = Routes.WORKS_LIST
         )
 
         DrawerItem(

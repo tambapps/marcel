@@ -42,12 +42,11 @@ class MarcelAndroidConfiguration {
     return context.getDir("dumbbell", Context.MODE_PRIVATE)
   }
 
-
   @Provides
   fun compilerConfiguration(): CompilerConfiguration {
     // TODO make classVersion depend on device android version
     return CompilerConfiguration(
-      dumbbellEnabled = true,
+      dumbbellEnabled = false, // TODO handle dumbbell with DexRemoteSavingRepository
       classVersion = 52, // Java 8
       scriptClass = MarshellScript::class.java
     )
@@ -59,28 +58,11 @@ class MarcelAndroidConfiguration {
   }
 
   /* TODO for shell works
-  @Provides
-  fun appDatabase(@ApplicationContext context: Context): AppDatabase {
-    return Room.databaseBuilder(
-      context,
-      AppDatabase::class.java, "marshell_android"
-    ).build()
-  }
 
 
   @Provides
   fun dumbbellMavenRepository(@Named("dumbbellRootFile") dumbbellRootFile: File): RemoteSavingMavenRepository {
     return DexRemoteSavingRepository(dumbbellRootFile)
-  }
-
-  @Provides
-  fun shellWorkDataDao(appDatabase: AppDatabase): ShellWorkDao {
-    return appDatabase.shellWorkDataDao()
-  }
-
-  @Provides
-  fun cacheableScriptDao(appDatabase: AppDatabase): CacheableScriptDao {
-    return appDatabase.cacheableScriptDao()
   }
 
   @Provides
