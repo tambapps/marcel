@@ -17,13 +17,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.work.WorkInfo
-import com.tambapps.marcel.android.marshell.R
+import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
@@ -35,8 +35,8 @@ import java.time.temporal.ChronoUnit
 
 @Composable
 fun WorksListScreen(
-  shellWorkManager: ShellWorkManager,
-  viewModel: WorksListViewModel = viewModel(factory = WorksListViewModelFactory(shellWorkManager))
+  viewModel: WorksListViewModel,
+  navController: NavController
 ) {
   Box(modifier = Modifier
     .fillMaxSize(),
@@ -58,7 +58,9 @@ fun WorksListScreen(
 
     FloatingActionButton(
       modifier = Modifier.padding(all = 16.dp),
-      onClick = { /*TODO*/ }
+      onClick = {
+        navController.navigate(Routes.WORK_CREATE)
+      }
     ) {
       Icon(
         Icons.Filled.Add,
@@ -121,7 +123,7 @@ private fun runtimeText(work: ShellWork) = when {
 }
 
 @Composable
-fun Header() {
+private fun Header() {
   Text(
     text = "Shell Works",
     style = shellTextStyle,

@@ -34,18 +34,19 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.tambapps.marcel.android.marshell.service.PreferencesDataStore
+import com.tambapps.marcel.android.marshell.service.ViewModelFactory
 import com.tambapps.marcel.android.marshell.ui.component.IconButton
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellScreen
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorScreen
 import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorViewModel
-import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorViewModelFactory
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
-import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModelFactory
+import com.tambapps.marcel.android.marshell.ui.screen.work.create.WorkCreateScreen
+import com.tambapps.marcel.android.marshell.ui.screen.work.create.WorkCreateViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.work.list.WorksListScreen
+import com.tambapps.marcel.android.marshell.ui.screen.work.list.WorksListViewModel
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
-import com.tambapps.marcel.android.marshell.work.ShellWorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -62,13 +63,9 @@ object Routes {
 class MainActivity : ComponentActivity() {
 
   @Inject
-  lateinit var shellViewModelFactory: ShellViewModelFactory
-  @Inject
-  lateinit var editorViewModelFactory: EditorViewModelFactory
+  lateinit var viewModelFactory: ViewModelFactory
   @Inject
   lateinit var preferencesDataStore: PreferencesDataStore
-  @Inject
-  lateinit var shellWorkManager: ShellWorkManager
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -82,7 +79,7 @@ class MainActivity : ComponentActivity() {
             .background(MaterialTheme.colorScheme.background)
             .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
             // instantiating shell VM here because we want to keep state even if we changed route and then go back to ShellScreen
-            val shellViewModel: ShellViewModel = viewModel(factory = shellViewModelFactory)
+            val shellViewModel: ShellViewModel = viewModel(factory = viewModelFactory)
             NavHost(
               navController = navController,
               startDestination = Routes.SHELL,
@@ -92,14 +89,16 @@ class MainActivity : ComponentActivity() {
                 ShellScreen(shellViewModel)
               }
               composable(Routes.EDITOR) {
-                val viewModel: EditorViewModel = viewModel(factory = editorViewModelFactory)
+                val viewModel: EditorViewModel = viewModel(factory = viewModelFactory)
                 EditorScreen(viewModel)
               }
               composable(Routes.WORK_LIST) {
-                WorksListScreen(shellWorkManager = shellWorkManager)
+                val viewModel: WorksListViewModel = viewModel(factory = viewModelFactory)
+                WorksListScreen(viewModel = viewModel, navController = navController)
               }
-              composable(Routes.WORK_LIST) {
-                WorksListScreen(shellWorkManager = shellWorkManager)
+              composable(Routes.WORK_CREATE) {
+                val viewModel: WorkCreateViewModel = viewModel(factory = viewModelFactory)
+                WorkCreateScreen(viewModel)
               }
               composable(Routes.SETTINGS) {
                 // TODO
