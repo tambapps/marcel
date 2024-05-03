@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.marshell.ui.screen.works_list
+package com.tambapps.marcel.android.marshell.ui.screen.work.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

@@ -42,7 +42,7 @@ import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorViewModelFactory
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModelFactory
-import com.tambapps.marcel.android.marshell.ui.screen.works_list.WorksListScreen
+import com.tambapps.marcel.android.marshell.ui.screen.work.list.WorksListScreen
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
 import com.tambapps.marcel.android.marshell.work.ShellWorkManager

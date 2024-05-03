@@ -1,12 +1,8 @@
-package com.tambapps.marcel.android.marshell.ui.screen.works_list
+package com.tambapps.marcel.android.marshell.ui.screen.work.list
 
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
-import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
-import com.tambapps.marcel.android.marshell.ui.screen.HighlightTransformation
 import com.tambapps.marcel.android.marshell.work.ShellWorkManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
