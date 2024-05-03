@@ -26,7 +26,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -79,7 +78,7 @@ class MainActivity : ComponentActivity() {
             .background(MaterialTheme.colorScheme.background)
             .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
             // instantiating shell VM here because we want to keep state even if we changed route and then go back to ShellScreen
-            val shellViewModel: ShellViewModel = viewModel(factory = viewModelFactory)
+            val shellViewModel: ShellViewModel = viewModelFactory.newInstance()
             NavHost(
               navController = navController,
               startDestination = Routes.SHELL,
@@ -89,15 +88,15 @@ class MainActivity : ComponentActivity() {
                 ShellScreen(shellViewModel)
               }
               composable(Routes.EDITOR) {
-                val viewModel: EditorViewModel = viewModel(factory = viewModelFactory)
+                val viewModel: EditorViewModel = viewModelFactory.newInstance()
                 EditorScreen(viewModel)
               }
               composable(Routes.WORK_LIST) {
-                val viewModel: WorksListViewModel = viewModel(factory = viewModelFactory)
+                val viewModel: WorksListViewModel = viewModelFactory.newInstance()
                 WorksListScreen(viewModel = viewModel, navController = navController)
               }
               composable(Routes.WORK_CREATE) {
-                val viewModel: WorkCreateViewModel = viewModel(factory = viewModelFactory)
+                val viewModel: WorkCreateViewModel = viewModelFactory.newInstance()
                 WorkCreateScreen(viewModel)
               }
               composable(Routes.SETTINGS) {

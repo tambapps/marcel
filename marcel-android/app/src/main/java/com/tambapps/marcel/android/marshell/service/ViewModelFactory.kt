@@ -1,7 +1,9 @@
 package com.tambapps.marcel.android.marshell.service
 
+import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorViewModel
@@ -21,6 +23,9 @@ class ViewModelFactory @Inject constructor(
   private val shellSessionFactory: ShellSessionFactory,
   private val shellWorkManager: ShellWorkManager
 ): ViewModelProvider.Factory {
+
+  @Composable
+  inline fun <reified VM : ViewModel> newInstance(): VM = viewModel(factory = this)
 
   override fun <T : ViewModel> create(modelClass: Class<T>): T {
     return when (modelClass) {
