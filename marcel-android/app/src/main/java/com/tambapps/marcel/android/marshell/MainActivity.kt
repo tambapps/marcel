@@ -54,7 +54,8 @@ import javax.inject.Inject
 object Routes {
   const val SHELL = "shell"
   const val EDITOR = "editor"
-  const val WORKS_LIST = "works_list"
+  const val WORK_LIST = "work_list"
+  const val WORK_CREATE = "work_create"
   const val SETTINGS = "settings"
 }
 @AndroidEntryPoint
@@ -94,7 +95,10 @@ class MainActivity : ComponentActivity() {
                 val viewModel: EditorViewModel = viewModel(factory = editorViewModelFactory)
                 EditorScreen(viewModel)
               }
-              composable(Routes.WORKS_LIST) {
+              composable(Routes.WORK_LIST) {
+                WorksListScreen(shellWorkManager = shellWorkManager)
+              }
+              composable(Routes.WORK_LIST) {
                 WorksListScreen(shellWorkManager = shellWorkManager)
               }
               composable(Routes.SETTINGS) {
@@ -170,8 +174,8 @@ fun NavigationDrawer(
           drawerState = drawerState,
           scope = scope,
           text = "Background works",
-          backStackState = backStackState,
-          route = Routes.WORKS_LIST
+          selected = backStackState.value?.destination?.route?.let { it == Routes.WORK_LIST || it == Routes.WORK_CREATE } ?: false,
+          route = Routes.WORK_LIST
         )
 
         DrawerItem(
@@ -196,10 +200,20 @@ private fun DrawerItem(
   scope: CoroutineScope,
   text: String,
   route: String,
+) = DrawerItem(navController, drawerState, backStackState.value?.destination?.route == route, scope, text, route)
+
+@Composable
+private fun DrawerItem(
+  navController: NavController,
+  drawerState: DrawerState,
+  selected: Boolean,
+  scope: CoroutineScope,
+  text: String,
+  route: String,
 ) {
   NavigationDrawerItem(
     label = { Text(text = text) },
-    selected = backStackState.value?.destination?.route == route,
+    selected = selected,
     onClick = {
       navController.navigate(route)
       scope.launch { drawerState.close() }
