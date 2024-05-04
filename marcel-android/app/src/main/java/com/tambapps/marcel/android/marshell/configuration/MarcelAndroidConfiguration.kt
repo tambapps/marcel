@@ -57,7 +57,7 @@ class MarcelAndroidConfiguration {
     return PreferenceDataStoreFactory.create { context.preferencesDataStoreFile("preferences") }
   }
 
-  /* TODO for shell works
+  /* TODO
 
 
   @Provides
@@ -65,10 +65,7 @@ class MarcelAndroidConfiguration {
     return DexRemoteSavingRepository(dumbbellRootFile)
   }
 
-  @Provides
-  fun workManager(@ApplicationContext context: Context): WorkManager {
-    return WorkManager.getInstance(context)
-  }
+
 
    */
 }

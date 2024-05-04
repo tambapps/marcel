@@ -61,9 +61,7 @@ fun WorkCreateScreen(viewModel: WorkCreateViewModel) {
 
     FloatingActionButton(
       modifier = Modifier.padding(all = 16.dp),
-      onClick = {
-        // TODO
-      }
+      onClick = { viewModel.validateAndSave() }
     ) {
       Icon(
         Icons.Filled.Add,
@@ -80,8 +78,16 @@ fun WorkCreateScreen(viewModel: WorkCreateViewModel) {
 private fun Form(viewModel: WorkCreateViewModel) {
   OutlinedTextField(
     value = viewModel.name,
-    onValueChange = { viewModel.name = it },
-    label = { Text("Name") }
+    onValueChange = viewModel::onNameChange,
+    label = { Text("Name") },
+    supportingText = viewModel.nameError?.let { error -> {
+      Text(
+        modifier = Modifier.fillMaxWidth(),
+        text = error,
+        color = MaterialTheme.colorScheme.error
+      )
+    }},
+    isError = viewModel.nameError != null
   )
 
   OutlinedTextField(
@@ -204,7 +210,8 @@ fun ExpandableCard(
           }
         }
         IconButton(
-          modifier = Modifier.weight(1f)
+          modifier = Modifier
+            .weight(1f)
             .size(24.dp),
           onClick = { pickPictureLauncher.launch("*/*") }) {
           Icon(

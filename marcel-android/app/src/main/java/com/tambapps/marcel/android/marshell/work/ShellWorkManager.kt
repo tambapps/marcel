@@ -1,13 +1,20 @@
 package com.tambapps.marcel.android.marshell.work
 
+import android.content.Context
 import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import com.tambapps.marcel.android.marshell.room.entity.WorkPeriodUnit
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
 
-class ShellWorkManager @Inject constructor() {
+class ShellWorkManager @Inject constructor(
+  @ApplicationContext private val applicationContext: Context
+) {
+
+  private val workManager by lazy { WorkManager.getInstance(applicationContext) }
 
   suspend fun list(): List<ShellWork> {
     return listOf(
@@ -29,5 +36,9 @@ class ShellWorkManager @Inject constructor() {
         scriptText = null
     )
     )
+  }
+
+  suspend fun create() {
+
   }
 }
