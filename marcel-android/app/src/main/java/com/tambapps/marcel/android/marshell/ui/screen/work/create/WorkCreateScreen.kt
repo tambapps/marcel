@@ -101,6 +101,7 @@ private fun Form(viewModel: WorkCreateViewModel) {
   Box(modifier = Modifier.padding(8.dp))
 
   ExpandableCard(viewModel = viewModel, title = "Script") {
+    // TODO find a way to add line numbers. same on editor screen
     TextField(
       modifier = Modifier.fillMaxWidth(),
       value = viewModel.scriptTextInput,
