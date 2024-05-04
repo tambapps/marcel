@@ -19,5 +19,8 @@ class WorkCreateViewModel(
   var silent by mutableStateOf(false)
 
   override fun highlight(text: CharSequence) = highlighter.highlight(text).toAnnotatedString()
+  fun setScriptTextInput(text: CharSequence) {
+    scriptTextInput = TextFieldValue(annotatedString = highlight(text))
+  }
 
 }

@@ -1,5 +1,8 @@
 package com.tambapps.marcel.android.marshell.ui.screen.work.create
 
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -14,11 +17,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -26,7 +27,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,9 +37,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.tambapps.marcel.android.marshell.R
+import com.tambapps.marcel.android.marshell.ui.screen.shell.readText
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 
@@ -88,7 +92,7 @@ private fun Form(viewModel: WorkCreateViewModel) {
   )
   Box(modifier = Modifier.padding(8.dp))
 
-  ExpandableCard(title = "Script") {
+  ExpandableCard(viewModel = viewModel, title = "Script") {
     TextField(
       modifier = Modifier.fillMaxWidth(),
       value = viewModel.scriptTextInput,
@@ -147,12 +151,13 @@ private fun Header() {
 
 @Composable
 fun ExpandableCard(
+  viewModel: WorkCreateViewModel,
   title: String,
   expandedContent: @Composable () -> Unit
 ) {
-  var expandedState by remember { mutableStateOf(false) }
-  val rotationState by animateFloatAsState(
-    targetValue = if (expandedState) 180f else 0f, label = "Arrow Animation"
+  var expanded by remember { mutableStateOf(false) }
+  val rotation by animateFloatAsState(
+    targetValue = if (expanded) 180f else 0f, label = "Arrow Animation"
   )
   Card(
     modifier = Modifier
@@ -164,7 +169,7 @@ fun ExpandableCard(
         )
       ),
     onClick = {
-      expandedState = !expandedState
+      expanded = !expanded
     }
   ) {
     Column(
@@ -183,13 +188,40 @@ fun ExpandableCard(
           color = MaterialTheme.colorScheme.primary,
           maxLines = 1,
         )
+
+        val context = LocalContext.current
+        val pickPictureLauncher = rememberLauncherForActivityResult(
+          ActivityResultContracts.GetContent()
+        ) { imageUri ->
+          if (imageUri != null) {
+            val result = readText(context.contentResolver.openInputStream(imageUri))
+            if (result.isFailure) {
+              Toast.makeText(context, "Error: ${result.exceptionOrNull()?.localizedMessage}", Toast.LENGTH_SHORT).show()
+              return@rememberLauncherForActivityResult
+            }
+            viewModel.setScriptTextInput(result.getOrNull()!!)
+            expanded = true
+          }
+        }
+        IconButton(
+          modifier = Modifier.weight(1f)
+            .size(24.dp),
+          onClick = { pickPictureLauncher.launch("*/*") }) {
+          Icon(
+            modifier = Modifier.size(24.dp),
+            painter = painterResource(id = R.drawable.folder),
+            contentDescription = "Pick file",
+            tint = MaterialTheme.colorScheme.primary,
+          )
+        }
+
         IconButton(
           modifier = Modifier
             .weight(1f)
-            .rotate(rotationState)
+            .rotate(rotation)
             .size(36.dp),
           onClick = {
-            expandedState = !expandedState
+            expanded = !expanded
           }) {
           Icon(
             modifier = Modifier.size(50.dp),
@@ -199,7 +231,7 @@ fun ExpandableCard(
             )
         }
       }
-      if (expandedState) {
+      if (expanded) {
         expandedContent.invoke()
       }
     }

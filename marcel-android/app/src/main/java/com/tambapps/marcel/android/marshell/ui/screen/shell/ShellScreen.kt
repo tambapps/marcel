@@ -307,7 +307,7 @@ private fun export(prompts: List<Prompt>, outputStream: OutputStream?): Result<U
   return Result.success(Unit)
 }
 
-private fun readText(inputStream: InputStream?): Result<String> {
+fun readText(inputStream: InputStream?): Result<String> {
   if (inputStream == null) {
     return Result.failure(IOException("Couldn't open file"))
   }
