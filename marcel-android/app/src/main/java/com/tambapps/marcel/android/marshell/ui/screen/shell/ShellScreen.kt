@@ -101,7 +101,7 @@ fun ShellScreen(
 
     Row(verticalAlignment = Alignment.CenterVertically) {
       val onPrompt: () -> Unit = {
-        val input = viewModel.textInput.value.text.trim()
+        val input = viewModel.textInput.text.trim()
         if (input.isNotBlank()) {
           viewModel.prompt(input)
           scope.launch { listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1) }
@@ -109,15 +109,15 @@ fun ShellScreen(
       }
       val singleLineInput = viewModel.singleLineInput
       OutlinedTextField(
-        value = viewModel.textInput.value,
-        onValueChange = { viewModel.textInput.value = it },
+        value = viewModel.textInput,
+        onValueChange = { viewModel.textInput = it },
         visualTransformation = viewModel,
         textStyle = shellTextStyle,
         modifier = Modifier.weight(1f),
         shape = RoundedCornerShape(36.dp),
-        singleLine = singleLineInput.value,
-        keyboardOptions = if (singleLineInput.value) KeyboardOptions(imeAction = ImeAction.Done) else KeyboardOptions.Default,
-        keyboardActions = if (singleLineInput.value) KeyboardActions(
+        singleLine = singleLineInput,
+        keyboardOptions = if (singleLineInput) KeyboardOptions(imeAction = ImeAction.Done) else KeyboardOptions.Default,
+        keyboardActions = if (singleLineInput) KeyboardActions(
           onDone = { onPrompt.invoke() }
         ) else KeyboardActions.Default
       )
@@ -337,7 +337,7 @@ fun PromptButton(viewModel: ShellViewModel, onPrompt: () -> Unit) {
   IconButton(
     colors = IconButtonDefaults.iconButtonColors()
       .copy(containerColor = Color.White, disabledContainerColor = Color.Gray),
-    enabled = !viewModel.isEvaluating.value,
+    enabled = !viewModel.isEvaluating,
     onClick = OnPromptButtonClick(context, onPrompt, viewModel),
   ) {
     Image(
@@ -358,12 +358,12 @@ private class OnPromptButtonClick(
 
   private var lastClickTimestamp = 0L
   override fun invoke() {
-    if (viewModel.textInput.value.annotatedString.isEmpty()) {
+    if (viewModel.textInput.annotatedString.isEmpty()) {
       val now = System.currentTimeMillis()
       if (now - lastClickTimestamp < 500L) {
-        viewModel.singleLineInput.value = !viewModel.singleLineInput.value
+        viewModel.singleLineInput = !viewModel.singleLineInput
         Toast.makeText(context, "Single line mode: " + (
-            if (viewModel.singleLineInput.value) "ON" else "OFF"
+            if (viewModel.singleLineInput) "ON" else "OFF"
             ), Toast.LENGTH_SHORT).show()
       } else {
         lastClickTimestamp = System.currentTimeMillis()

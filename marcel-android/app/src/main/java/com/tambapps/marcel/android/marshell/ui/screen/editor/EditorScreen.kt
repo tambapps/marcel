@@ -1,6 +1,5 @@
 package com.tambapps.marcel.android.marshell.ui.screen.editor
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,8 +34,8 @@ fun EditorScreen(viewModel: EditorViewModel) {
 
       TextField(
         modifier = Modifier.fillMaxSize(),
-        value = viewModel.textInput.value,
-        onValueChange = { viewModel.textInput.value = it },
+        value = viewModel.textInput,
+        onValueChange = { viewModel.textInput = it },
         visualTransformation = viewModel
       )
       FloatingActionButton(
