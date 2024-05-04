@@ -2,14 +2,10 @@ package com.tambapps.marcel.android.marshell.ui.screen.shell
 
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,9 +28,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -48,7 +41,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.tambapps.marcel.android.marshell.R
-import com.tambapps.marcel.android.marshell.data.ShellPreferences
+import com.tambapps.marcel.android.marshell.ui.component.CheckBoxText
 import com.tambapps.marcel.android.marshell.ui.component.TopBarIconButton
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.component.shellIconModifier
@@ -269,10 +262,10 @@ private fun ExportSessionDialog(
     },
     text = {
       Column {
-        DialogCheckBox(valueState = onlySuccessfulPrompts, text = "Only successful prompts")
-        DialogCheckBox(valueState = writeOutput, text = "Include prompt outputs")
+        CheckBoxText(valueState = onlySuccessfulPrompts, text = "Only successful prompts")
+        CheckBoxText(valueState = writeOutput, text = "Include prompt outputs")
         if (viewModel.prompts.any { it.type == Prompt.Type.STDOUT }) {
-          DialogCheckBox(valueState = writeStandardOutput, text = "Include standard output")
+          CheckBoxText(valueState = writeStandardOutput, text = "Include standard output")
         }
       }
     },
@@ -312,14 +305,6 @@ private fun export(prompts: List<Prompt>, outputStream: OutputStream?): Result<U
     return Result.failure(e)
   }
   return Result.success(Unit)
-}
-
-@Composable
-fun DialogCheckBox(valueState: MutableState<Boolean>, text: String) {
-  Row(verticalAlignment = Alignment.CenterVertically) {
-    Checkbox(checked = valueState.value, onCheckedChange = { isChecked -> valueState.value = isChecked })
-    Text(text, modifier = Modifier.clickable { valueState.value = !valueState.value })
-  }
 }
 
 private fun readText(inputStream: InputStream?): Result<String> {

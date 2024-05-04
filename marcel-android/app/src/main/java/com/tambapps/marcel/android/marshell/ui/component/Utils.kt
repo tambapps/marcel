@@ -1,5 +1,6 @@
 package com.tambapps.marcel.android.marshell.ui.component
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -9,8 +10,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -69,6 +73,13 @@ fun TopBarIconButton(
     }
 }
 
+@Composable
+fun CheckBoxText(valueState: MutableState<Boolean>, text: String, textColor: Color = Color.Unspecified) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { valueState.value = !valueState.value }) {
+        Checkbox(checked = valueState.value, onCheckedChange = { isChecked -> valueState.value = isChecked })
+        Text(text, color = textColor)
+    }
+}
 
 fun shellIconModifier(horizontalPadding: Dp = 6.dp) = Modifier
     .size(TopBarIconSize)
