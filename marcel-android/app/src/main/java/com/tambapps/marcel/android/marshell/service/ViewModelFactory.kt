@@ -31,7 +31,12 @@ class ViewModelFactory @Inject constructor(
     return when (modelClass) {
       EditorViewModel::class.java -> EditorViewModel(newSpannableHighlighter())
       ShellViewModel::class.java -> ShellViewModel(shellSessionFactory.newSession())
-      WorkCreateViewModel::class.java -> WorkCreateViewModel(newSpannableHighlighter())
+      WorkCreateViewModel::class.java -> {
+        val classLoader = MarcelDexClassLoader()
+        val symbolResolver = ReplMarcelSymbolResolver(classLoader, Binding())
+        val replCompiler = MarcelReplCompiler(compilerConfiguration, classLoader, symbolResolver)
+        WorkCreateViewModel(symbolResolver, replCompiler)
+      }
       WorksListViewModel::class.java -> WorksListViewModel(shellWorkManager)
       else -> throw UnsupportedOperationException("Cannot create ViewModel of class $modelClass")
     } as T

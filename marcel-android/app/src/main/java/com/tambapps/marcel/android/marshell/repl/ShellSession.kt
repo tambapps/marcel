@@ -23,6 +23,10 @@ import java.lang.Exception
 
 class ShellSession(compilerConfiguration: CompilerConfiguration, classesDir: File) {
 
+  companion object {
+    fun isMarcelCompilerException(throwable: Throwable) = throwable is MarcelLexerException || throwable is MarcelParserException || throwable is MarcelSemanticException || throwable is MarcelCompilerException
+
+  }
   private val coroutineScope = CoroutineScope(Dispatchers.IO)
   private val binding = Binding()
   private val classLoader = MarcelDexClassLoader()
@@ -54,6 +58,5 @@ class ShellSession(compilerConfiguration: CompilerConfiguration, classesDir: Fil
     }
   }
 
-  private fun isMarcelCompilerException(throwable: Throwable) = throwable is MarcelLexerException || throwable is MarcelParserException || throwable is MarcelSemanticException || throwable is MarcelCompilerException
   fun newHighlighter() = SpannableHighlighter(symbolResolver, replCompiler)
 }

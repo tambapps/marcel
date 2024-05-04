@@ -5,11 +5,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
+import com.tambapps.marcel.android.marshell.repl.ShellSession
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.ui.screen.HighlightTransformation
+import com.tambapps.marcel.repl.MarcelReplCompiler
+import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 
 class WorkCreateViewModel(
-  private val highlighter: SpannableHighlighter
+  symbolResolver: ReplMarcelSymbolResolver,
+  private val replCompiler: MarcelReplCompiler
 ): ViewModel(), HighlightTransformation {
 
   companion object {
@@ -17,13 +21,17 @@ class WorkCreateViewModel(
   }
 
   var scriptTextInput by mutableStateOf(TextFieldValue())
+  var scriptTextError by mutableStateOf<String?>(null)
+
   var name by mutableStateOf("")
   var nameError by mutableStateOf<String?>(null)
-
-
   var description by mutableStateOf("")
   var requiresNetwork by mutableStateOf(false)
   var silent by mutableStateOf(false)
+
+  var scriptCardExpanded by mutableStateOf(false)
+
+  private val highlighter = SpannableHighlighter(symbolResolver, replCompiler)
 
   override fun highlight(text: CharSequence) = highlighter.highlight(text).toAnnotatedString()
 
@@ -32,7 +40,13 @@ class WorkCreateViewModel(
     if (nameError != null) {
       validateName()
     }
+  }
 
+  fun onScriptTextChange(text: TextFieldValue) {
+    scriptTextInput = text
+    if (scriptTextError != null) {
+      validateScriptText()
+    }
   }
 
   fun setScriptTextInput(text: CharSequence) {
@@ -41,12 +55,32 @@ class WorkCreateViewModel(
 
   fun validateAndSave() {
     validateName()
+    validateScriptText()
+    if (nameError == null && scriptTextError == null) {
+      // TODO
+    }
+  }
 
+  private fun validateScriptText() {
+    val scriptText = scriptTextInput.annotatedString
+    if (scriptText.isBlank()) {
+      scriptTextError = "Must not be blank"
+      scriptCardExpanded = true
+      return
+    }
+    val result = replCompiler.tryParseWithoutUpdateAsResult(scriptText.text)
+    if (result.isFailure) {
+      val e = result.exceptionOrNull()!!
+      scriptTextError = if (ShellSession.isMarcelCompilerException(e)) e.localizedMessage else "An error occurred"
+      scriptCardExpanded = true
+      return
+    }
+    scriptTextError = null
   }
 
   private fun validateName() {
     if (name.isBlank()) {
-      nameError = "Must not be empty"
+      nameError = "Must not be blank"
       return
     }
     if (!VALID_NAME_REGEX.matches(name)) {
@@ -55,6 +89,7 @@ class WorkCreateViewModel(
     }
     if (name.length > 100) {
       nameError = "Must not be longer than 100 chars"
+      return
     }
     nameError = null
   }

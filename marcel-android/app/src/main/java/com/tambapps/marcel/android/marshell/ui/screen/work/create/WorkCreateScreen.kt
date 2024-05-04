@@ -78,6 +78,7 @@ fun WorkCreateScreen(viewModel: WorkCreateViewModel) {
 private fun Form(viewModel: WorkCreateViewModel) {
   OutlinedTextField(
     value = viewModel.name,
+    singleLine = true,
     onValueChange = viewModel::onNameChange,
     label = { Text("Name") },
     supportingText = viewModel.nameError?.let { error -> {
@@ -93,6 +94,7 @@ private fun Form(viewModel: WorkCreateViewModel) {
   OutlinedTextField(
     modifier = Modifier.padding(vertical = 8.dp),
     value = viewModel.description,
+    singleLine = true,
     onValueChange = { viewModel.description = it },
     label = { Text("Description (optional)") }
   )
@@ -102,8 +104,16 @@ private fun Form(viewModel: WorkCreateViewModel) {
     TextField(
       modifier = Modifier.fillMaxWidth(),
       value = viewModel.scriptTextInput,
-      onValueChange = { viewModel.scriptTextInput = it },
-      visualTransformation = viewModel
+      onValueChange = viewModel::onScriptTextChange,
+      visualTransformation = viewModel,
+      isError = viewModel.scriptTextError != null,
+      supportingText = viewModel.scriptTextError?.let { error -> {
+        Text(
+          modifier = Modifier.fillMaxWidth(),
+          text = error,
+          color = MaterialTheme.colorScheme.error
+        )
+      }},
       )
   }
   Box(modifier = Modifier.padding(8.dp))
@@ -161,9 +171,8 @@ fun ExpandableCard(
   title: String,
   expandedContent: @Composable () -> Unit
 ) {
-  var expanded by remember { mutableStateOf(false) }
   val rotation by animateFloatAsState(
-    targetValue = if (expanded) 180f else 0f, label = "Arrow Animation"
+    targetValue = if (viewModel.scriptCardExpanded) 180f else 0f, label = "Arrow Animation"
   )
   Card(
     modifier = Modifier
@@ -174,9 +183,6 @@ fun ExpandableCard(
           easing = LinearOutSlowInEasing
         )
       ),
-    onClick = {
-      expanded = !expanded
-    }
   ) {
     Column(
       modifier = Modifier
@@ -206,7 +212,7 @@ fun ExpandableCard(
               return@rememberLauncherForActivityResult
             }
             viewModel.setScriptTextInput(result.getOrNull()!!)
-            expanded = true
+            viewModel.scriptCardExpanded = true
           }
         }
         IconButton(
@@ -227,9 +233,7 @@ fun ExpandableCard(
             .weight(1f)
             .rotate(rotation)
             .size(36.dp),
-          onClick = {
-            expanded = !expanded
-          }) {
+          onClick = { viewModel.scriptCardExpanded = !viewModel.scriptCardExpanded }) {
           Icon(
             modifier = Modifier.size(50.dp),
             imageVector = Icons.Default.ArrowDropDown,
@@ -238,7 +242,7 @@ fun ExpandableCard(
             )
         }
       }
-      if (expanded) {
+      if (viewModel.scriptCardExpanded) {
         expandedContent.invoke()
       }
     }

@@ -78,6 +78,14 @@ class MarcelReplCompiler constructor(
     return ReplCompilerResult(result, compiledScriptClass, otherClasses)
   }
 
+  fun tryParseWithoutUpdateAsResult(text: String): Result<SemanticResult> {
+    return try {
+      Result.success(updateAndGet(text, true))
+    }  catch (e: Exception) {
+      Result.failure(e)
+    }
+  }
+
   fun tryParseWithoutUpdate(text: String): SemanticResult? {
     return try {
       updateAndGet(text, true)
