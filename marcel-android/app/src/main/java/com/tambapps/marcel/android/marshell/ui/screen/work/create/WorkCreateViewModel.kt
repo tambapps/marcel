@@ -13,6 +13,10 @@ import com.tambapps.marcel.android.marshell.ui.screen.HighlightTransformation
 import com.tambapps.marcel.android.marshell.work.ShellWorkManager
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 
 class WorkCreateViewModel(
@@ -59,15 +63,29 @@ class WorkCreateViewModel(
     scriptTextInput = TextFieldValue(annotatedString = highlight(text))
   }
 
-  fun validateAndSave(context: Context) {
+  fun validateAndSave(context: Context, onSuccess: () -> Unit) {
     validateName()
     validateScriptText()
     if (scheduleAt?.isBefore(LocalDateTime.now().plusMinutes(1)) == true) {
       Toast.makeText(context, "Time must be at least 15 minutes from now", Toast.LENGTH_SHORT).show()
       return
     }
-    if (nameError == null && scriptTextError == null) {
-      // TODO
+    if (nameError != null || scriptTextError != null) {
+      return
+    }
+    CoroutineScope(Dispatchers.IO).launch {
+      shellWorkManager.save(
+        name = name,
+        description = description,
+        scriptText = scriptTextInput.text,
+        period = null, // TODO
+        scheduleAt = scheduleAt,
+        requiresNetwork = requiresNetwork,
+        silent = silent
+      )
+      withContext(Dispatchers.Main) {
+        onSuccess.invoke()
+      }
     }
   }
 

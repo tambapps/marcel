@@ -86,7 +86,11 @@ fun WorkCreateScreen(viewModel: WorkCreateViewModel) {
 
     FloatingActionButton(
       modifier = Modifier.padding(all = 16.dp),
-      onClick = { viewModel.validateAndSave(context) }
+      onClick = {
+        viewModel.validateAndSave(context) {
+          // TODO
+        }
+      }
     ) {
       Icon(
         Icons.Filled.Add,
