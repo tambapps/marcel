@@ -7,6 +7,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,13 +31,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -103,7 +106,8 @@ private fun Form(viewModel: WorkCreateViewModel) {
   ExpandableCard(viewModel = viewModel, title = "Script") {
     // TODO find a way to add line numbers. same on editor screen
     TextField(
-      modifier = Modifier.fillMaxWidth(),
+      // this is a hack to prevent this https://stackoverflow.com/questions/76287857/when-parent-of-textfield-is-clickable-hardware-enter-return-button-triggers-its
+      modifier = Modifier.fillMaxWidth().onKeyEvent { it.type == KeyEventType.KeyUp && it.key == Key.Enter },
       value = viewModel.scriptTextInput,
       onValueChange = viewModel::onScriptTextChange,
       visualTransformation = viewModel,
@@ -183,7 +187,8 @@ fun ExpandableCard(
           durationMillis = 300,
           easing = LinearOutSlowInEasing
         )
-      ),
+      )
+      .clickable { viewModel.scriptCardExpanded = !viewModel.scriptCardExpanded },
   ) {
     Column(
       modifier = Modifier
