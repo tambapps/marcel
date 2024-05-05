@@ -1,5 +1,7 @@
 package com.tambapps.marcel.android.marshell.ui.screen.work.create
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,6 +13,7 @@ import com.tambapps.marcel.android.marshell.ui.screen.HighlightTransformation
 import com.tambapps.marcel.android.marshell.work.ShellWorkManager
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
+import java.time.LocalDateTime
 
 class WorkCreateViewModel(
   private val shellWorkManager: ShellWorkManager,
@@ -32,6 +35,7 @@ class WorkCreateViewModel(
   var silent by mutableStateOf(false)
 
   var scriptCardExpanded by mutableStateOf(false)
+  var scheduleAt by mutableStateOf<LocalDateTime?>(null)
 
   private val highlighter = SpannableHighlighter(symbolResolver, replCompiler)
 
@@ -55,9 +59,13 @@ class WorkCreateViewModel(
     scriptTextInput = TextFieldValue(annotatedString = highlight(text))
   }
 
-  fun validateAndSave() {
+  fun validateAndSave(context: Context) {
     validateName()
     validateScriptText()
+    if (scheduleAt?.isBefore(LocalDateTime.now().plusMinutes(1)) == true) {
+      Toast.makeText(context, "Time must be at least 15 minutes from now", Toast.LENGTH_SHORT).show()
+      return
+    }
     if (nameError == null && scriptTextError == null) {
       // TODO
     }
