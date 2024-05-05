@@ -32,7 +32,7 @@ import com.tambapps.marcel.android.marshell.util.TimeUtils
 import java.time.Duration
 
 @Composable
-fun WorkScriptCard(viewModel: ScriptCardViewModel) {
+fun WorkScriptCard(viewModel: ScriptCardViewModel, readOnly: Boolean = false) {
   ExpandableCard(expanded = viewModel.scriptCardExpanded, title = "Script",
     additionalLogos = {
       val context = LocalContext.current
@@ -69,6 +69,7 @@ fun WorkScriptCard(viewModel: ScriptCardViewModel) {
         .fillMaxWidth()
         .onKeyEvent { it.type == KeyEventType.KeyUp && it.key == Key.Enter },
       value = viewModel.scriptTextInput,
+      readOnly = readOnly,
       onValueChange = viewModel::onScriptTextChange,
       visualTransformation = viewModel,
       isError = viewModel.scriptTextError != null,

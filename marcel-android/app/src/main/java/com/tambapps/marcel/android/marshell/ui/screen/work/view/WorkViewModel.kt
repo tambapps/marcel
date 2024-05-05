@@ -40,7 +40,9 @@ class WorkViewModel(
 
   override fun onScriptTextChange(text: TextFieldValue) {
     super.onScriptTextChange(text)
-    scriptEdited = true
+    if (work?.isPeriodic == true) {
+      scriptEdited = true
+    }
   }
 
   fun init(workName: String) {

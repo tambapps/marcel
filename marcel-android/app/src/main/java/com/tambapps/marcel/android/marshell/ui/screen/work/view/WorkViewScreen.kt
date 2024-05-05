@@ -103,7 +103,11 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
         fontSize = 22.sp,
         overflow = TextOverflow.Ellipsis
       )
-      WorkStateText(shellWork = work, fontSize = 16.sp, modifier = Modifier.align(Alignment.TopEnd))
+      WorkStateText(
+        shellWork = work,
+        fontSize = 16.sp,
+        modifier = Modifier.align(Alignment.TopEnd),
+      )
     }
 
     if (work.description != null) {
@@ -135,7 +139,7 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
       }
     }
     Box(modifier = Modifier.padding(16.dp))
-    WorkScriptCard(viewModel = viewModel)
+    WorkScriptCard(viewModel = viewModel, readOnly = !work.isPeriodic)
   }
 
 }
