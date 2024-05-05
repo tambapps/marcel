@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
@@ -27,6 +28,8 @@ import androidx.navigation.NavController
 import androidx.work.WorkInfo
 import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
+import com.tambapps.marcel.android.marshell.ui.screen.work.WorkStateText
+import com.tambapps.marcel.android.marshell.ui.screen.work.runtimeText
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import com.tambapps.marcel.android.marshell.util.TimeUtils
@@ -50,10 +53,8 @@ fun WorksListScreen(
           .weight(1f)
           .fillMaxWidth()
       ) {
-        viewModel.works.forEach { shellWork ->
-          item {
-            ShellWorkItem(shellWork, navController)
-          }
+        items(viewModel.works) { shellWork ->
+          ShellWorkItem(shellWork, navController)
         }
       }
     }
@@ -93,42 +94,8 @@ fun ShellWorkItem(shellWork: ShellWork, navController: NavController) {
       Text(text = "next run in " + TimeUtils.humanReadableFormat(it, ChronoUnit.SECONDS), style = shellTextStyle, fontSize = 16.sp)
     }
 
-    Text(text = stateText(shellWork), color = stateColor(shellWork), modifier = Modifier.align(Alignment.End), textAlign = TextAlign.Center, fontSize = 14.sp)
+    WorkStateText(shellWork = shellWork, modifier = Modifier.align(Alignment.End), textAlign = TextAlign.Center, fontSize = 14.sp)
   }
-}
-
-val Orange = Color(0xFFFFA500)
-val SkyBlue = Color(0xFF87CEEB)
-
-
-private fun stateText(work: ShellWork): String {
-  return if (work.period != null && !work.state.isFinished) {
-    if (work.state == WorkInfo.State.RUNNING) "RUNNING"
-    else if (work.period.amount == 1) "PERIODIC\n(every ${work.period.unit.toString().removeSuffix("s")})"
-    else "PERIODIC\n(every ${work.period.amount} ${work.period.unit})"
-  } else work.state.name
-}
-
-private fun stateColor(work: ShellWork) = when {
-  work.state == WorkInfo.State.SUCCEEDED -> Color.Green
-  work.state == WorkInfo.State.CANCELLED -> Orange
-  work.state == WorkInfo.State.FAILED -> Color.Red
-  work.isPeriodic || work.state == WorkInfo.State.RUNNING -> SkyBlue
-  else -> Color.White
-}
-
-private fun runtimeText(work: ShellWork) = when {
-  work.startTime != null ->
-    if (work.isFinished) "ran ${TimeUtils.smartToString(work.startTime)} for ${TimeUtils.humanReadableFormat(Duration.between(work.startTime, work.endTime))}"
-    else if (work.isPeriodic) when {
-      work.state == WorkInfo.State.RUNNING -> "started ${TimeUtils.smartToString(work.startTime)}"
-      work.endTime != null -> "last ran ${TimeUtils.smartToString(work.startTime)} for ${TimeUtils.humanReadableFormat(Duration.between(work.startTime, work.endTime))}"
-      else -> "has not ran yet"
-    }
-    else "started " + TimeUtils.smartToString(work.startTime)
-  work.scheduledAt != null -> "Scheduled for " + TimeUtils.smartToString(work.scheduledAt)
-  work.failedReason == null -> "has not ran yet"
-  else -> "has not ran yet"
 }
 
 @Composable

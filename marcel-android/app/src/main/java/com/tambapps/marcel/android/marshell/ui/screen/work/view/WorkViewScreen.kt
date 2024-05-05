@@ -17,8 +17,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
+import com.tambapps.marcel.android.marshell.ui.screen.work.WorkStateText
+import com.tambapps.marcel.android.marshell.ui.screen.work.runtimeText
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
+import com.tambapps.marcel.android.marshell.util.TimeUtils
+import java.time.temporal.ChronoUnit
 
 
 @Composable
@@ -52,37 +56,34 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
       .fillMaxSize()
       .padding(horizontal = 8.dp)
   ) {
-    Box {
+    Box(modifier = Modifier
+      .fillMaxWidth()
+      .padding(bottom = 16.dp)) {
       Text(
         modifier = Modifier
-          .padding(bottom = 16.dp)
           .fillMaxWidth(0.75f),
         text = work.name,
         style = shellTextStyle,
         fontSize = 22.sp,
         overflow = TextOverflow.Ellipsis
       )
-
-      Text(
-        modifier = Modifier.align(Alignment.TopEnd),
-        text = work.state.name,
-        style = shellTextStyle,
-        fontSize = 22.sp,
-        overflow = TextOverflow.Ellipsis
-      )
-
+      WorkStateText(shellWork = work, fontSize = 16.sp, modifier = Modifier.align(Alignment.TopEnd))
     }
 
     if (work.description != null) {
       Text(
         modifier = Modifier
-          .padding(bottom = 8.dp)
+          .padding(bottom = 16.dp)
           .fillMaxWidth(0.75f),
         text = work.description,
         style = shellTextStyle,
         fontSize = 16.sp,
         overflow = TextOverflow.Ellipsis
       )
+    }
+    Text(text = runtimeText(work), style = shellTextStyle, fontSize = 16.sp)
+    work.durationBetweenNowAndNext?.let {
+      Text(text = "next run in " + TimeUtils.humanReadableFormat(it, ChronoUnit.SECONDS), style = shellTextStyle, fontSize = 16.sp)
     }
   }
 
