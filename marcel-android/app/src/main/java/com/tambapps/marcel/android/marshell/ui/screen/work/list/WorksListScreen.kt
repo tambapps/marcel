@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -79,7 +80,8 @@ fun WorksListScreen(
 @Composable
 fun ShellWorkItem(shellWork: ShellWork, navController: NavController) {
   Column(
-    modifier = Modifier.fillMaxWidth()
+    modifier = Modifier
+      .fillMaxWidth()
       .combinedClickable(
         onClick = {
           navController.navigate(Routes.WORK_VIEW + "/" + shellWork.name)
@@ -87,6 +89,7 @@ fun ShellWorkItem(shellWork: ShellWork, navController: NavController) {
         onLongClick = {}
       )
   ) {
+    Box(modifier = Modifier.padding(8.dp))
     Text(text = shellWork.name, style = shellTextStyle, fontSize = 18.sp)
     Text(text = runtimeText(shellWork), style = shellTextStyle, fontSize = 16.sp)
 
@@ -95,6 +98,8 @@ fun ShellWorkItem(shellWork: ShellWork, navController: NavController) {
     }
 
     WorkStateText(shellWork = shellWork, modifier = Modifier.align(Alignment.End), textAlign = TextAlign.Center, fontSize = 14.sp)
+    Box(modifier = Modifier.padding(8.dp))
+    HorizontalDivider()
   }
 }
 
