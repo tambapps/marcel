@@ -58,7 +58,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.tambapps.marcel.android.marshell.R
+import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.ui.screen.shell.readText
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
@@ -69,10 +71,12 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.time.temporal.TemporalUnit
 
 @Composable
-fun WorkCreateScreen(viewModel: WorkCreateViewModel) {
+fun WorkCreateScreen(
+  viewModel: WorkCreateViewModel,
+  navController: NavController
+) {
   val context = LocalContext.current
   Box(modifier = Modifier
     .fillMaxSize(),
@@ -88,7 +92,10 @@ fun WorkCreateScreen(viewModel: WorkCreateViewModel) {
       modifier = Modifier.padding(all = 16.dp),
       onClick = {
         viewModel.validateAndSave(context) {
-          // TODO
+          // navigate back to works list and force the screen to reload
+          navController.navigate(Routes.WORK_LIST) {
+            popUpTo(Routes.WORK_LIST) { inclusive = true }
+          }
         }
       }
     ) {
@@ -278,7 +285,7 @@ private fun TextIconButton(fieldName: String, value: String, onClick: () -> Unit
 private fun Header() {
   // TODO write help button that opens a dialog and explain shell works to user
   Text(
-    text = "New Work",
+    text = "New Workout",
     style = shellTextStyle,
     modifier = Modifier
       .fillMaxWidth()

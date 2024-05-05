@@ -97,7 +97,7 @@ class MainActivity : ComponentActivity() {
               }
               composable(Routes.WORK_CREATE) {
                 val viewModel: WorkCreateViewModel = viewModelFactory.newInstance()
-                WorkCreateScreen(viewModel)
+                WorkCreateScreen(viewModel, navController)
               }
               composable(Routes.SETTINGS) {
                 // TODO
@@ -171,7 +171,7 @@ fun NavigationDrawer(
           navController = navController,
           drawerState = drawerState,
           scope = scope,
-          text = "Background works",
+          text = "Workouts",
           selected = backStackState.value?.destination?.route?.let { it == Routes.WORK_LIST || it == Routes.WORK_CREATE } ?: false,
           route = Routes.WORK_LIST
         )
