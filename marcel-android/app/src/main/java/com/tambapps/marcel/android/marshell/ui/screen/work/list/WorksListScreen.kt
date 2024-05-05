@@ -1,5 +1,7 @@
 package com.tambapps.marcel.android.marshell.ui.screen.work.list
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -50,7 +52,7 @@ fun WorksListScreen(
       ) {
         viewModel.works.forEach { shellWork ->
           item {
-            ShellWorkItem(shellWork)
+            ShellWorkItem(shellWork, navController)
           }
         }
       }
@@ -72,10 +74,17 @@ fun WorksListScreen(
   }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ShellWorkItem(shellWork: ShellWork) {
+fun ShellWorkItem(shellWork: ShellWork, navController: NavController) {
   Column(
     modifier = Modifier.fillMaxWidth()
+      .combinedClickable(
+        onClick = {
+          navController.navigate(Routes.WORK_VIEW + "/" + shellWork.name)
+        },
+        onLongClick = {}
+      )
   ) {
     Text(text = shellWork.name, style = shellTextStyle, fontSize = 18.sp)
     Text(text = runtimeText(shellWork), style = shellTextStyle, fontSize = 16.sp)

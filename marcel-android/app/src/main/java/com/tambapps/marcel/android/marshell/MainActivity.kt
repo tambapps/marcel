@@ -28,10 +28,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.tambapps.marcel.android.marshell.service.PreferencesDataStore
 import com.tambapps.marcel.android.marshell.service.ViewModelFactory
 import com.tambapps.marcel.android.marshell.ui.component.IconButton
@@ -44,6 +46,8 @@ import com.tambapps.marcel.android.marshell.ui.screen.work.create.WorkCreateScre
 import com.tambapps.marcel.android.marshell.ui.screen.work.create.WorkCreateViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.work.list.WorksListScreen
 import com.tambapps.marcel.android.marshell.ui.screen.work.list.WorksListViewModel
+import com.tambapps.marcel.android.marshell.ui.screen.work.view.WorkViewModel
+import com.tambapps.marcel.android.marshell.ui.screen.work.view.WorkViewScreen
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
 import dagger.hilt.android.AndroidEntryPoint
@@ -56,7 +60,10 @@ object Routes {
   const val EDITOR = "editor"
   const val WORK_LIST = "work_list"
   const val WORK_CREATE = "work_create"
+  const val WORK_VIEW = "work_view"
   const val SETTINGS = "settings"
+
+  const val WORK_NAME_ARG = "workName"
 }
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -98,6 +105,15 @@ class MainActivity : ComponentActivity() {
               composable(Routes.WORK_CREATE) {
                 val viewModel: WorkCreateViewModel = viewModelFactory.newInstance()
                 WorkCreateScreen(viewModel, navController)
+              }
+              composable(Routes.WORK_VIEW + "/{${Routes.WORK_NAME_ARG}}", arguments = listOf(navArgument(Routes.WORK_NAME_ARG) { type = NavType.StringType })
+              ) { backStackEntry ->
+                val viewModel: WorkViewModel = viewModelFactory.newInstance()
+                val workName = backStackEntry.arguments?.getString(Routes.WORK_NAME_ARG)
+                if (workName != null) {
+                  viewModel.init(workName)
+                }
+                WorkViewScreen(viewModel)
               }
               composable(Routes.SETTINGS) {
                 // TODO
@@ -172,7 +188,7 @@ fun NavigationDrawer(
           drawerState = drawerState,
           scope = scope,
           text = "Workouts",
-          selected = backStackState.value?.destination?.route?.let { it == Routes.WORK_LIST || it == Routes.WORK_CREATE } ?: false,
+          selected = backStackState.value?.destination?.route?.let { it == Routes.WORK_LIST || it == Routes.WORK_CREATE || it.startsWith(Routes.WORK_VIEW) } ?: false,
           route = Routes.WORK_LIST
         )
 

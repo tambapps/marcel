@@ -10,6 +10,7 @@ import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.work.create.WorkCreateViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.work.list.WorksListViewModel
+import com.tambapps.marcel.android.marshell.ui.screen.work.view.WorkViewModel
 import com.tambapps.marcel.android.marshell.work.ShellWorkManager
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.MarcelReplCompiler
@@ -37,6 +38,12 @@ class ViewModelFactory @Inject constructor(
         val symbolResolver = ReplMarcelSymbolResolver(classLoader, Binding())
         val replCompiler = MarcelReplCompiler(compilerConfiguration, classLoader, symbolResolver)
         WorkCreateViewModel(shellWorkManager, symbolResolver, replCompiler)
+      }
+      WorkViewModel::class.java -> {
+        val classLoader = MarcelDexClassLoader()
+        val symbolResolver = ReplMarcelSymbolResolver(classLoader, Binding())
+        val replCompiler = MarcelReplCompiler(compilerConfiguration, classLoader, symbolResolver)
+        WorkViewModel(shellWorkManager, symbolResolver, replCompiler)
       }
       WorksListViewModel::class.java -> WorksListViewModel(shellWorkManager)
       else -> throw UnsupportedOperationException("Cannot create ViewModel of class $modelClass")
