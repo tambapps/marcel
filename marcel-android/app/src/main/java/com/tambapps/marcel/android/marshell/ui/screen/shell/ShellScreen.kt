@@ -103,7 +103,7 @@ fun ShellScreen(
       val onPrompt: () -> Unit = {
         val input = viewModel.textInput.text.trim()
         if (input.isNotBlank()) {
-          viewModel.prompt(input)
+          viewModel.prompt(input) // TODO it blocks UI, it shouldn't. process should be run in the background
           scope.launch { listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1) }
         }
       }

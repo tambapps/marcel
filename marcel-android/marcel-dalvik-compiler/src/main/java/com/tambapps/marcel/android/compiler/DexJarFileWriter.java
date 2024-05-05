@@ -20,7 +20,7 @@ public class DexJarFileWriter extends DexJarWriter {
     @Override
     public void close() throws IOException {
         super.close();
-        if (!file.setReadOnly()) {
+        if (!file.setReadOnly()) { // needed because of an android security restriction
             throw new IOException("Couldn't make the file read only");
         }
     }
