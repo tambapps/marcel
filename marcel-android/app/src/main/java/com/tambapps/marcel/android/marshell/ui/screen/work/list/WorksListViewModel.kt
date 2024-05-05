@@ -15,7 +15,7 @@ class WorksListViewModel(
 
   init {
     CoroutineScope(Dispatchers.IO).launch {
-      val list = shellWorkManager.list()
+      val list = shellWorkManager.listFake()
       withContext(Dispatchers.Main) {
         works.addAll(list)
       }

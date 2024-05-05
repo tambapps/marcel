@@ -18,8 +18,7 @@ data class ShellWork(
   @ColumnInfo(name = "is_network_required") val isNetworkRequired: Boolean,
   @ColumnInfo(name = "is_silent") val isSilent: Boolean,
   @ColumnInfo(name = "state") val state: State,
-  @ColumnInfo(name = "period_amount") val periodAmount: Int?,
-  @ColumnInfo(name = "period_unit") val periodUnit: WorkPeriodUnit?,
+  @ColumnInfo(name = "period_amount") val period: WorkPeriod?,
   @ColumnInfo(name = "start_time") val startTime: LocalDateTime?,
   @ColumnInfo(name = "end_time") val endTime: LocalDateTime?,
   @ColumnInfo(name = "scheduled_at") val scheduledAt: LocalDateTime?,
@@ -33,12 +32,12 @@ data class ShellWork(
   @Ignore
   val isFinished = state.isFinished
   @Ignore
-  val isPeriodic = periodAmount != null && periodUnit != null
+  val isPeriodic = period != null
 
   val durationBetweenNowAndNext: Duration?
     get() {
-      if (endTime == null || periodUnit == null || periodAmount == null) return null
-    return Duration.between(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), endTime.plusMinutes(periodUnit.toMinutes(periodAmount)))
+      if (endTime == null || period == null) return null
+    return Duration.between(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), endTime.plusMinutes(period.toMinutes()))
   }
 
 }

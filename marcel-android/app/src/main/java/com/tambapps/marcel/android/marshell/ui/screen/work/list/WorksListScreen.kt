@@ -93,10 +93,10 @@ val SkyBlue = Color(0xFF87CEEB)
 
 
 private fun stateText(work: ShellWork): String {
-  return if (work.isPeriodic && !work.state.isFinished) {
+  return if (work.period != null && !work.state.isFinished) {
     if (work.state == WorkInfo.State.RUNNING) "RUNNING"
-    else if (work.periodAmount == 1) "PERIODIC\n(every ${work.periodUnit!!.toString().removeSuffix("s")})"
-    else "PERIODIC\n(every ${work.periodAmount} ${work.periodUnit})"
+    else if (work.period.amount == 1) "PERIODIC\n(every ${work.period.unit.toString().removeSuffix("s")})"
+    else "PERIODIC\n(every ${work.period.amount} ${work.period.unit})"
   } else work.state.name
 }
 
