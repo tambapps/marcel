@@ -27,6 +27,7 @@ class ViewModelFactory @Inject constructor(
   @Composable
   inline fun <reified VM : ViewModel> newInstance(): VM = viewModel(factory = this)
 
+  @Suppress("UNCHECKED_CAST")
   override fun <T : ViewModel> create(modelClass: Class<T>): T {
     return when (modelClass) {
       EditorViewModel::class.java -> EditorViewModel(newSpannableHighlighter())

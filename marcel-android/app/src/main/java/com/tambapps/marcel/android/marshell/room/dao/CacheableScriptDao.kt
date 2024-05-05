@@ -23,6 +23,7 @@ interface CacheableScriptDao {
   suspend fun findAll(): List<CacheableScript>
 
   // we don't fetch cachedJar
+  @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
   @Query("SELECT name, text, hash, script_class_name, dumbbells FROM cacheable_scripts WHERE name = :name")
   suspend fun findByName(name: String): CacheableScript?
   @Query("SELECT * FROM cacheable_scripts WHERE name = :name")
