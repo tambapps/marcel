@@ -5,8 +5,11 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
+import com.tambapps.marcel.android.marshell.maven.DexRemoteSavingRepository
 import com.tambapps.marcel.android.marshell.repl.MarshellScript
 import com.tambapps.marcel.compiler.CompilerConfiguration
+import com.tambapps.marcel.dumbbell.DumbbellEngine
+import com.tambapps.maven.dependency.resolver.repository.RemoteSavingMavenRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -45,18 +48,19 @@ class MarcelAndroidConfiguration {
   @Provides
   fun compilerConfiguration(): CompilerConfiguration {
     return CompilerConfiguration(
-      dumbbellEnabled = false, // TODO handle dumbbell with DexRemoteSavingRepository
+      dumbbellEnabled = true,
       classVersion = CompilerConfiguration.VERSION_MAP["17"]!!, // Java 8
       scriptClass = MarshellScript::class.java
     )
   }
 
-  /*
   @Provides
   fun dumbbellMavenRepository(@Named("dumbbellRootFile") dumbbellRootFile: File): RemoteSavingMavenRepository {
     return DexRemoteSavingRepository(dumbbellRootFile)
   }
-   */
+
+  @Provides
+  fun dumbbellEngine(dumbbellMavenRepository: RemoteSavingMavenRepository): DumbbellEngine = DumbbellEngine(dumbbellMavenRepository)
 
   @Provides
   fun dataStore(@ApplicationContext context: Context): DataStore<Preferences> {

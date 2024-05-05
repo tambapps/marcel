@@ -64,6 +64,7 @@ dependencies {
 
   // marcel
   implementation("com.tambapps.marcel:marcel-repl:$marcelVersion")
+  implementation("com.tambapps.marcel:dumbbell-core:$marcelVersion")
   implementation(project(path = ":marcel-dalvik-compiler"))
   implementation(project(path = ":marcel-dalvik-stdlib"))
 

@@ -12,6 +12,8 @@ import com.tambapps.marcel.android.marshell.repl.jar.DexJarWriterFactory
 import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDao
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import com.tambapps.marcel.compiler.CompilerConfiguration
+import com.tambapps.marcel.dumbbell.Dumbbell
+import com.tambapps.marcel.dumbbell.DumbbellEngine
 import com.tambapps.marcel.repl.MarcelEvaluator
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
@@ -31,7 +33,8 @@ class MarshellWorkout @AssistedInject constructor(
   private val compilerConfiguration: CompilerConfiguration,
   private val shellWorkDao: ShellWorkDao,
   @Named("shellWorksDirectory")
-  private val shellWorksDirectory: File
+  private val shellWorksDirectory: File,
+  private val dumbbellEngine: DumbbellEngine
 ): CoroutineWorker(appContext, workerParams) {
 
   companion object {
@@ -74,12 +77,14 @@ class MarshellWorkout @AssistedInject constructor(
   }
 
   private suspend fun runWorkout(work: ShellWork, scriptText: String, classesDirectory: File): Result {
+    // setup
     val binding = Binding()
     val classLoader = MarcelDexClassLoader()
     val symbolResolver = ReplMarcelSymbolResolver(classLoader, binding)
     val replCompiler = MarcelReplCompiler(compilerConfiguration, classLoader, symbolResolver)
     val evaluator = MarcelEvaluator(binding, replCompiler, classLoader, DexJarWriterFactory(), classesDirectory)
     val printer = StringBuilderPrinter()
+    Dumbbell.setEngine(dumbbellEngine)
     evaluator.scriptConfigurer = { script ->
       (script as MarshellScript).setPrinter(printer)
     }

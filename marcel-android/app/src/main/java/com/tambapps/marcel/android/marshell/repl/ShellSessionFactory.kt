@@ -2,20 +2,24 @@ package com.tambapps.marcel.android.marshell.repl
 
 import android.util.Log
 import com.tambapps.marcel.compiler.CompilerConfiguration
+import com.tambapps.marcel.dumbbell.Dumbbell
+import com.tambapps.marcel.dumbbell.DumbbellEngine
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import javax.inject.Named
 
 class ShellSessionFactory @Inject constructor(
-    private val compilerConfiguration: CompilerConfiguration,
-    @Named("shellSessionsDirectory")
-    private val shellSessionsDirectory: File
+  private val compilerConfiguration: CompilerConfiguration,
+  @Named("shellSessionsDirectory")
+  private val shellSessionsDirectory: File,
+  private val dumbbellEngine: DumbbellEngine
 ) {
 
   private val autoIncrement = AtomicInteger()
 
   fun newSession(): ShellSession {
+    Dumbbell.setEngine(dumbbellEngine)
     val sessionDirectory = File(shellSessionsDirectory, "session_" + autoIncrement.incrementAndGet())
     if (!sessionDirectory.isDirectory && !sessionDirectory.mkdirs()) {
       Log.e("ShellSessionFactory", "Couldn't create shell session directory")
