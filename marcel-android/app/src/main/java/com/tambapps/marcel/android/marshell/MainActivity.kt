@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -25,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -36,7 +38,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tambapps.marcel.android.marshell.service.PreferencesDataStore
 import com.tambapps.marcel.android.marshell.service.ViewModelFactory
-import com.tambapps.marcel.android.marshell.ui.component.IconButton
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellScreen
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorScreen
@@ -131,10 +132,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun TopBar(drawerState: DrawerState, scope: CoroutineScope) {
   TopBarLayout {
-    IconButton(
+    androidx.compose.material3.IconButton(
       modifier = Modifier.size(TopBarIconSize),
-      imageVector = Icons.Filled.Menu,
-      size = TopBarIconSize,
       onClick = {
         if (!drawerState.isAnimationRunning) {
           scope.launch {
@@ -142,8 +141,15 @@ fun TopBar(drawerState: DrawerState, scope: CoroutineScope) {
             else drawerState.open()
           }
         }
-      }
-    )
+      },
+    ) {
+      Icon(
+        modifier = Modifier.size(TopBarIconSize),
+        imageVector = Icons.Filled.Menu,
+        contentDescription = null,
+        tint = Color.White
+      )
+    }
   }
 }
 

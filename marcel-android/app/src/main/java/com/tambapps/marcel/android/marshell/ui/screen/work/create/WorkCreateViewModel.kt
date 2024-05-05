@@ -38,7 +38,7 @@ class WorkCreateViewModel(
   var requiresNetwork by mutableStateOf(false)
   var silent by mutableStateOf(false)
 
-  var scriptCardExpanded by mutableStateOf(false)
+  val scriptCardExpanded = mutableStateOf(false)
   var scheduleAt by mutableStateOf<LocalDateTime?>(null)
 
   private val highlighter = SpannableHighlighter(symbolResolver, replCompiler)
@@ -93,14 +93,14 @@ class WorkCreateViewModel(
     val scriptText = scriptTextInput.annotatedString
     if (scriptText.isBlank()) {
       scriptTextError = "Must not be blank"
-      scriptCardExpanded = true
+      scriptCardExpanded.value = true
       return
     }
     val result = replCompiler.tryParseWithoutUpdateAsResult(scriptText.text)
     if (result.isFailure) {
       val e = result.exceptionOrNull()!!
       scriptTextError = if (ShellSession.isMarcelCompilerException(e)) e.localizedMessage else "An error occurred"
-      scriptCardExpanded = true
+      scriptCardExpanded.value = true
       return
     }
     scriptTextError = null

@@ -3,11 +3,6 @@ package com.tambapps.marcel.android.marshell.ui.screen.work.create
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,11 +14,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CalendarLocale
-import androidx.compose.material3.Card
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,7 +39,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -61,6 +53,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.Routes
+import com.tambapps.marcel.android.marshell.ui.component.ExpandableCard
 import com.tambapps.marcel.android.marshell.ui.screen.shell.readText
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
@@ -137,7 +130,35 @@ private fun Form(viewModel: WorkCreateViewModel) {
   )
   Box(modifier = Modifier.padding(8.dp))
 
-  ExpandableCard(viewModel = viewModel, title = "Script") {
+  ExpandableCard(expanded = viewModel.scriptCardExpanded, title = "Script",
+    additionalLogos = {
+      val context = LocalContext.current
+      val pickPictureLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+      ) { imageUri ->
+        if (imageUri != null) {
+          val result = readText(context.contentResolver.openInputStream(imageUri))
+          if (result.isFailure) {
+            Toast.makeText(context, "Error: ${result.exceptionOrNull()?.localizedMessage}", Toast.LENGTH_SHORT).show()
+            return@rememberLauncherForActivityResult
+          }
+          viewModel.setScriptTextInput(result.getOrNull()!!)
+          viewModel.scriptCardExpanded.value = true
+        }
+      }
+      IconButton(
+        modifier = Modifier
+          .weight(1f)
+          .size(24.dp),
+        onClick = { pickPictureLauncher.launch("*/*") }) {
+        Icon(
+          modifier = Modifier.size(24.dp),
+          painter = painterResource(id = R.drawable.folder),
+          contentDescription = "Pick file",
+          tint = MaterialTheme.colorScheme.primary,
+        )
+      }
+    }) {
     // TODO find a way to add line numbers. same on editor screen
     TextField(
       // this is a hack to prevent this https://stackoverflow.com/questions/76287857/when-parent-of-textfield-is-clickable-hardware-enter-return-button-triggers-its
@@ -293,90 +314,4 @@ private fun Header() {
       .height(TopBarHeight), textAlign = TextAlign.Center,
     fontSize = 22.sp
   )
-}
-
-@Composable
-fun ExpandableCard(
-  viewModel: WorkCreateViewModel,
-  title: String,
-  expandedContent: @Composable () -> Unit
-) {
-  val rotation by animateFloatAsState(
-    targetValue = if (viewModel.scriptCardExpanded) 180f else 0f, label = "Arrow Animation"
-  )
-  Card(
-    modifier = Modifier
-      .fillMaxWidth()
-      .animateContentSize(
-        animationSpec = tween(
-          durationMillis = 300,
-          easing = LinearOutSlowInEasing
-        )
-      )
-      .clickable { viewModel.scriptCardExpanded = !viewModel.scriptCardExpanded },
-  ) {
-    Column(
-      modifier = Modifier
-        .fillMaxWidth()
-        .padding(12.dp)
-    ) {
-      Row(
-        verticalAlignment = Alignment.CenterVertically
-      ) {
-        Text(
-          modifier = Modifier
-            .weight(6f),
-          text = title,
-          style = shellTextStyle,
-          color = MaterialTheme.colorScheme.primary,
-          maxLines = 1,
-        )
-
-        val context = LocalContext.current
-        val pickPictureLauncher = rememberLauncherForActivityResult(
-          ActivityResultContracts.GetContent()
-        ) { imageUri ->
-          if (imageUri != null) {
-            val result = readText(context.contentResolver.openInputStream(imageUri))
-            if (result.isFailure) {
-              Toast.makeText(context, "Error: ${result.exceptionOrNull()?.localizedMessage}", Toast.LENGTH_SHORT).show()
-              return@rememberLauncherForActivityResult
-            }
-            viewModel.setScriptTextInput(result.getOrNull()!!)
-            viewModel.scriptCardExpanded = true
-          }
-        }
-        IconButton(
-          modifier = Modifier
-            .weight(1f)
-            .size(24.dp),
-          onClick = { pickPictureLauncher.launch("*/*") }) {
-          Icon(
-            modifier = Modifier.size(24.dp),
-            painter = painterResource(id = R.drawable.folder),
-            contentDescription = "Pick file",
-            tint = MaterialTheme.colorScheme.primary,
-          )
-        }
-
-        IconButton(
-          modifier = Modifier
-            .weight(1f)
-            .rotate(rotation)
-            .size(36.dp),
-          onClick = { viewModel.scriptCardExpanded = !viewModel.scriptCardExpanded }) {
-          Icon(
-            modifier = Modifier.size(50.dp),
-            imageVector = Icons.Default.ArrowDropDown,
-            contentDescription = "Drop-Down Arrow",
-            tint = MaterialTheme.colorScheme.primary,
-            )
-        }
-      }
-      if (viewModel.scriptCardExpanded) {
-        expandedContent.invoke()
-      }
-    }
-
-  }
 }
