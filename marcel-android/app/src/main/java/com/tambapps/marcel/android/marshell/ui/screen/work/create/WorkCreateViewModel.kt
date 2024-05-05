@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import com.tambapps.marcel.android.marshell.repl.ShellSession
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.ui.screen.HighlightTransformation
+import com.tambapps.marcel.android.marshell.ui.screen.work.ScriptCardViewModel
 import com.tambapps.marcel.android.marshell.work.ShellWorkManager
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
@@ -23,14 +24,15 @@ class WorkCreateViewModel(
   private val shellWorkManager: ShellWorkManager,
   symbolResolver: ReplMarcelSymbolResolver,
   private val replCompiler: MarcelReplCompiler,
-): ViewModel(), HighlightTransformation {
+): ViewModel(), ScriptCardViewModel {
 
   companion object {
     private val VALID_NAME_REGEX = Regex("^[A-Za-z0-9.\\s_-]+\$")
   }
 
-  var scriptTextInput by mutableStateOf(TextFieldValue())
-  var scriptTextError by mutableStateOf<String?>(null)
+  override var scriptTextInput by mutableStateOf(TextFieldValue())
+  override var scriptTextError by mutableStateOf<String?>(null)
+  override val scriptCardExpanded = mutableStateOf(false)
 
   var name by mutableStateOf("")
   var nameError by mutableStateOf<String?>(null)
@@ -38,7 +40,6 @@ class WorkCreateViewModel(
   var requiresNetwork by mutableStateOf(false)
   var silent by mutableStateOf(false)
 
-  val scriptCardExpanded = mutableStateOf(false)
   var scheduleAt by mutableStateOf<LocalDateTime?>(null)
 
   private val highlighter = SpannableHighlighter(symbolResolver, replCompiler)
@@ -50,17 +51,6 @@ class WorkCreateViewModel(
     if (nameError != null) {
       validateName()
     }
-  }
-
-  fun onScriptTextChange(text: TextFieldValue) {
-    scriptTextInput = text
-    if (scriptTextError != null) {
-      scriptTextError = null
-    }
-  }
-
-  fun setScriptTextInput(text: CharSequence) {
-    scriptTextInput = TextFieldValue(annotatedString = highlight(text))
   }
 
   fun validateAndSave(context: Context, onSuccess: () -> Unit) {

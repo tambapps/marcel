@@ -1,17 +1,88 @@
 package com.tambapps.marcel.android.marshell.ui.screen.work
 
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
 import androidx.work.WorkInfo
+import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
+import com.tambapps.marcel.android.marshell.ui.component.ExpandableCard
+import com.tambapps.marcel.android.marshell.ui.screen.shell.readText
 import com.tambapps.marcel.android.marshell.util.TimeUtils
 import java.time.Duration
 
+@Composable
+fun WorkScriptCard(viewModel: ScriptCardViewModel) {
+  ExpandableCard(expanded = viewModel.scriptCardExpanded, title = "Script",
+    additionalLogos = {
+      val context = LocalContext.current
+      val pickPictureLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+      ) { imageUri ->
+        if (imageUri != null) {
+          val result = readText(context.contentResolver.openInputStream(imageUri))
+          if (result.isFailure) {
+            Toast.makeText(context, "Error: ${result.exceptionOrNull()?.localizedMessage}", Toast.LENGTH_SHORT).show()
+            return@rememberLauncherForActivityResult
+          }
+          viewModel.setScriptTextInput(result.getOrNull()!!)
+          viewModel.scriptCardExpanded.value = true
+        }
+      }
+      IconButton(
+        modifier = Modifier
+          .weight(1f)
+          .size(24.dp),
+        onClick = { pickPictureLauncher.launch("*/*") }) {
+        Icon(
+          modifier = Modifier.size(24.dp),
+          painter = painterResource(id = R.drawable.folder),
+          contentDescription = "Pick file",
+          tint = MaterialTheme.colorScheme.primary,
+        )
+      }
+    }) {
+    // TODO find a way to add line numbers. same on editor screen
+    TextField(
+      // this is a hack to prevent this https://stackoverflow.com/questions/76287857/when-parent-of-textfield-is-clickable-hardware-enter-return-button-triggers-its
+      modifier = Modifier
+        .fillMaxWidth()
+        .onKeyEvent { it.type == KeyEventType.KeyUp && it.key == Key.Enter },
+      value = viewModel.scriptTextInput,
+      onValueChange = viewModel::onScriptTextChange,
+      visualTransformation = viewModel,
+      isError = viewModel.scriptTextError != null,
+      supportingText = viewModel.scriptTextError?.let { error -> {
+        Text(
+          modifier = Modifier.fillMaxWidth(),
+          text = error,
+          color = MaterialTheme.colorScheme.error
+        )
+      }},
+    )
+  }
+
+}
 
 @Composable
 fun WorkStateText(shellWork: ShellWork, modifier: Modifier = Modifier,

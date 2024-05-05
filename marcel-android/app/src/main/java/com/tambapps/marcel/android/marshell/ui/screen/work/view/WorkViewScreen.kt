@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -17,6 +19,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
+import com.tambapps.marcel.android.marshell.ui.component.ExpandableCard
+import com.tambapps.marcel.android.marshell.ui.screen.work.WorkScriptCard
 import com.tambapps.marcel.android.marshell.ui.screen.work.WorkStateText
 import com.tambapps.marcel.android.marshell.ui.screen.work.runtimeText
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
@@ -81,10 +85,25 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
         overflow = TextOverflow.Ellipsis
       )
     }
-    Text(text = runtimeText(work), style = shellTextStyle, fontSize = 16.sp)
+    Text(text = runtimeText(work),
+      modifier = Modifier.padding(bottom = 16.dp),
+      style = shellTextStyle, fontSize = 16.sp)
     work.durationBetweenNowAndNext?.let {
-      Text(text = "next run in " + TimeUtils.humanReadableFormat(it, ChronoUnit.SECONDS), style = shellTextStyle, fontSize = 16.sp)
+      Text(
+        text = "next run in " + TimeUtils.humanReadableFormat(it, ChronoUnit.SECONDS),
+        modifier = Modifier.padding(bottom = 16.dp),
+        style = shellTextStyle, fontSize = 16.sp)
     }
+
+    Box(modifier = Modifier.padding(16.dp))
+    if (work.logs != null) {
+      val logsExpanded = remember { mutableStateOf(false) }
+      ExpandableCard(expanded = logsExpanded, title = "Logs") {
+        Text(text = work.logs, style = shellTextStyle)
+      }
+    }
+    Box(modifier = Modifier.padding(16.dp))
+    WorkScriptCard(viewModel = viewModel)
   }
 
 }
