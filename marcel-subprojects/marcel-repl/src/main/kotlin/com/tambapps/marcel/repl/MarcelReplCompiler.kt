@@ -80,7 +80,7 @@ class MarcelReplCompiler constructor(
 
   fun tryParseWithoutUpdateAsResult(text: String): Result<SemanticResult> {
     return try {
-      Result.success(updateAndGet(text, true))
+      Result.success(semanticallyCheck(text))
     }  catch (e: Exception) {
       Result.failure(e)
     }
@@ -88,7 +88,7 @@ class MarcelReplCompiler constructor(
 
   fun tryParseWithoutUpdate(text: String): SemanticResult? {
     return try {
-      updateAndGet(text, true)
+      semanticallyCheck(text)
     }  catch (e: Exception) {
       when (e) {
         is MarcelLexerException, is MarcelParserException, is MarcelSemanticException -> null
@@ -97,9 +97,9 @@ class MarcelReplCompiler constructor(
     }
   }
 
-  fun tryParse(text: String): SemanticResult? {
+  fun tryParse(text: String, fetchDumbbells: Boolean = false): SemanticResult? {
     return try {
-      updateAndGet(text)
+      updateAndGet(text, fetchDumbbells)
     }  catch (e: Exception) {
       when (e) {
         is MarcelLexerException, is MarcelParserException, is MarcelSemanticException -> null
@@ -113,8 +113,7 @@ class MarcelReplCompiler constructor(
     return updateAndGet(text)
   }
 
-  @Synchronized
-  private fun updateAndGet(text: String, skipUpdate: Boolean = false): SemanticResult {
+  private fun semanticallyCheck(text: String, fetchDumbbells: Boolean = true): SemanticResult {
     if (semanticResult != null && semanticResult!!.scriptNode != null) {
       symbolResolver.undefineClass(semanticResult!!.scriptNode!!) // some cleaning
       if (semanticResult.hashCode() == text.hashCode()) return semanticResult!!
@@ -134,8 +133,10 @@ class MarcelReplCompiler constructor(
     }
 
     // handle dumbbells
-    for (dumbbell in cst.dumbbells) {
-      if (dumbbells.add(dumbbell)) handleDumbbell(marcelClassLoader, dumbbell)
+    if (fetchDumbbells) {
+      for (dumbbell in cst.dumbbells) {
+        if (dumbbells.add(dumbbell)) handleDumbbell(marcelClassLoader, dumbbell)
+      }
     }
 
     val semantic = MarcelReplSemantic(symbolResolver, cst, "prompt.mcl", imports)
@@ -158,9 +159,13 @@ class MarcelReplCompiler constructor(
     check(ast, symbolResolver)
 
     val r = SemanticResult(tokens, cst, ast.classes, semantic.imports, text.hashCode())
-    if (!skipUpdate) {
-      this.semanticResult = r
-    }
     return r
+  }
+
+  @Synchronized
+  private fun updateAndGet(text: String, fetchDumbbells: Boolean = true): SemanticResult {
+    val result = semanticallyCheck(text, fetchDumbbells)
+    this.semanticResult = result
+    return result
   }
 }
