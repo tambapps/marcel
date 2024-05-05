@@ -151,9 +151,8 @@ private fun LoadingComponent() {
 }
 @Composable
 private fun Header() {
-  // TODO write help button that opens a dialog and explain shell works to user
   Text(
-    text = "View Workout",
+    text = "Workout",
     style = shellTextStyle,
     modifier = Modifier
       .fillMaxWidth()

@@ -44,13 +44,19 @@ class MarcelAndroidConfiguration {
 
   @Provides
   fun compilerConfiguration(): CompilerConfiguration {
-    // TODO make classVersion depend on device android version
     return CompilerConfiguration(
       dumbbellEnabled = false, // TODO handle dumbbell with DexRemoteSavingRepository
-      classVersion = 52, // Java 8
+      classVersion = CompilerConfiguration.VERSION_MAP["17"]!!, // Java 8
       scriptClass = MarshellScript::class.java
     )
   }
+
+  /*
+  @Provides
+  fun dumbbellMavenRepository(@Named("dumbbellRootFile") dumbbellRootFile: File): RemoteSavingMavenRepository {
+    return DexRemoteSavingRepository(dumbbellRootFile)
+  }
+   */
 
   @Provides
   fun dataStore(@ApplicationContext context: Context): DataStore<Preferences> {
@@ -63,15 +69,4 @@ class MarcelAndroidConfiguration {
     return context.getDir("shell_works", Context.MODE_PRIVATE)
   }
 
-  /* TODO
-
-
-  @Provides
-  fun dumbbellMavenRepository(@Named("dumbbellRootFile") dumbbellRootFile: File): RemoteSavingMavenRepository {
-    return DexRemoteSavingRepository(dumbbellRootFile)
-  }
-
-
-
-   */
 }

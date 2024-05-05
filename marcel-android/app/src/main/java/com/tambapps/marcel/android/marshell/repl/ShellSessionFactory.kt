@@ -1,5 +1,6 @@
 package com.tambapps.marcel.android.marshell.repl
 
+import android.util.Log
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
@@ -17,7 +18,8 @@ class ShellSessionFactory @Inject constructor(
   fun newSession(): ShellSession {
     val sessionDirectory = File(shellSessionsDirectory, "session_" + autoIncrement.incrementAndGet())
     if (!sessionDirectory.isDirectory && !sessionDirectory.mkdirs()) {
-      throw RuntimeException("Uh ohhhhhhhhh") // TODO handle failure better
+      Log.e("ShellSessionFactory", "Couldn't create shell session directory")
+      throw RuntimeException("Couldn't create shell session directory")
     }
     return ShellSession(compilerConfiguration, sessionDirectory)
   }
