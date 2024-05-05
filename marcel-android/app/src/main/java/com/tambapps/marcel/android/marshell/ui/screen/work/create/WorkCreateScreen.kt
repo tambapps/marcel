@@ -73,7 +73,6 @@ fun WorkCreateScreen(viewModel: WorkCreateViewModel) {
         tint = Color.White
       )
     }
-
   }
 }
 

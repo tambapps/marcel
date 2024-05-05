@@ -36,7 +36,7 @@ class ViewModelFactory @Inject constructor(
         val classLoader = MarcelDexClassLoader()
         val symbolResolver = ReplMarcelSymbolResolver(classLoader, Binding())
         val replCompiler = MarcelReplCompiler(compilerConfiguration, classLoader, symbolResolver)
-        WorkCreateViewModel(symbolResolver, replCompiler)
+        WorkCreateViewModel(shellWorkManager, symbolResolver, replCompiler)
       }
       WorksListViewModel::class.java -> WorksListViewModel(shellWorkManager)
       else -> throw UnsupportedOperationException("Cannot create ViewModel of class $modelClass")

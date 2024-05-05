@@ -8,12 +8,14 @@ import androidx.lifecycle.ViewModel
 import com.tambapps.marcel.android.marshell.repl.ShellSession
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.ui.screen.HighlightTransformation
+import com.tambapps.marcel.android.marshell.work.ShellWorkManager
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 
 class WorkCreateViewModel(
+  private val shellWorkManager: ShellWorkManager,
   symbolResolver: ReplMarcelSymbolResolver,
-  private val replCompiler: MarcelReplCompiler
+  private val replCompiler: MarcelReplCompiler,
 ): ViewModel(), HighlightTransformation {
 
   companion object {
@@ -45,7 +47,7 @@ class WorkCreateViewModel(
   fun onScriptTextChange(text: TextFieldValue) {
     scriptTextInput = text
     if (scriptTextError != null) {
-      validateScriptText()
+      scriptTextError = null
     }
   }
 
@@ -89,6 +91,10 @@ class WorkCreateViewModel(
     }
     if (name.length > 100) {
       nameError = "Must not be longer than 100 chars"
+      return
+    }
+    if (shellWorkManager.existsByName(name)) {
+      nameError = "A work with this name already exists"
       return
     }
     nameError = null
