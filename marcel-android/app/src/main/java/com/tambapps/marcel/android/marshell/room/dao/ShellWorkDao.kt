@@ -17,7 +17,7 @@ interface ShellWorkDao {
 
   companion object {
     // we doesn't fetch scriptText and logs for list endpoint
-    const val MAIN_COLUMNS = "work_id, name, description, is_silent, period_amount, period_unit, state, " +
+    const val MAIN_COLUMNS = "work_id, name, description, is_silent, period, state, " +
         "start_time, end_time, scheduled_at, result, failure_reason, is_network_required"
   }
 

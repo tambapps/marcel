@@ -18,7 +18,7 @@ data class ShellWork(
   @ColumnInfo(name = "is_network_required") val isNetworkRequired: Boolean,
   @ColumnInfo(name = "is_silent") val isSilent: Boolean,
   @ColumnInfo(name = "state") val state: State,
-  @ColumnInfo(name = "period_amount") val period: WorkPeriod?,
+  @ColumnInfo(name = "period") val period: WorkPeriod?,
   @ColumnInfo(name = "start_time") val startTime: LocalDateTime?,
   @ColumnInfo(name = "end_time") val endTime: LocalDateTime?,
   @ColumnInfo(name = "scheduled_at") val scheduledAt: LocalDateTime?,

@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 class ShellWorkManager @Inject constructor(
   @ApplicationContext private val applicationContext: Context,
-  //private val shellWorkDao: ShellWorkDao
+  private val shellWorkDao: ShellWorkDao
 ) {
 
   private companion object {
@@ -25,7 +25,17 @@ class ShellWorkManager @Inject constructor(
 
   private val workManager by lazy { WorkManager.getInstance(applicationContext) }
 
+  suspend fun list(): List<ShellWork> = shellWorkDao.findAll()
 
+  suspend fun findByName(name: String) = shellWorkDao.findByName(name)
+
+  private fun listWorkInfo(): ListenableFuture<MutableList<WorkInfo>> {
+    return workManager.getWorkInfos(WorkQuery.fromTags(SHELL_WORK_TAG))
+  }
+  fun existsByName(name: String): Boolean {
+    val works = listWorkInfo().get()
+    return works.any { it.tags.contains("name:$name") }
+  }
 
   suspend fun listFake(): List<ShellWork> {
     return listOf(

@@ -3,7 +3,7 @@ import java.util.Properties
 plugins {
   id("com.android.application")
   id("org.jetbrains.kotlin.android")
-  kotlin("kapt")
+  id("com.google.devtools.ksp")
   id("com.google.dagger.hilt.android")
 }
 
@@ -42,14 +42,14 @@ android {
     targetCompatibility = JavaVersion.VERSION_17
   }
   kotlinOptions {
-    jvmTarget = "17"
+    jvmTarget = "17" // TODO reflect this in marcel compiler configuration class version
   }
   buildFeatures {
     compose = true
     buildConfig = true
   }
   composeOptions {
-    kotlinCompilerExtensionVersion = "1.4.3"
+    kotlinCompilerExtensionVersion = "1.5.13"
   }
   packaging {
     resources {
@@ -80,12 +80,14 @@ dependencies {
   implementation("androidx.work:work-runtime-ktx:2.9.0")
 
   // hilt
-  implementation("com.google.dagger:hilt-android:2.49")
-  kapt("com.google.dagger:hilt-android-compiler:2.44")
+  implementation("com.google.dagger:hilt-android:2.51.1")
+  ksp("com.google.dagger:hilt-android-compiler:2.51.1")
 
   // room
   implementation("androidx.room:room-runtime:2.6.1")
+  implementation("androidx.room:room-ktx:2.6.1")
   annotationProcessor("androidx.room:room-compiler:2.6.1")
+  ksp("androidx.room:room-compiler:2.6.1")
 
   // tests
   testImplementation("junit:junit:4.13.2")
@@ -95,9 +97,4 @@ dependencies {
   androidTestImplementation("androidx.compose.ui:ui-test-junit4")
   debugImplementation("androidx.compose.ui:ui-tooling")
   debugImplementation("androidx.compose.ui:ui-test-manifest")
-}
-
-// Allow references to generated code
-kapt {
-  correctErrorTypes = true
 }
