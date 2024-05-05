@@ -23,7 +23,7 @@ import java.time.LocalDateTime
 class WorkCreateViewModel(
   private val shellWorkManager: ShellWorkManager,
   symbolResolver: ReplMarcelSymbolResolver,
-  private val replCompiler: MarcelReplCompiler,
+  override val replCompiler: MarcelReplCompiler,
 ): ViewModel(), ScriptCardViewModel {
 
   companion object {
@@ -77,23 +77,6 @@ class WorkCreateViewModel(
         onSuccess.invoke()
       }
     }
-  }
-
-  private fun validateScriptText() {
-    val scriptText = scriptTextInput.annotatedString
-    if (scriptText.isBlank()) {
-      scriptTextError = "Must not be blank"
-      scriptCardExpanded.value = true
-      return
-    }
-    val result = replCompiler.tryParseWithoutUpdateAsResult(scriptText.text)
-    if (result.isFailure) {
-      val e = result.exceptionOrNull()!!
-      scriptTextError = if (ShellSession.isMarcelCompilerException(e)) e.localizedMessage else "An error occurred"
-      scriptCardExpanded.value = true
-      return
-    }
-    scriptTextError = null
   }
 
   private fun validateName() {

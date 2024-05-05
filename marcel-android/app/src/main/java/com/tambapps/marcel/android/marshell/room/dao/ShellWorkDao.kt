@@ -61,4 +61,6 @@ interface ShellWorkDao {
   suspend fun updateEndTime(name: String, endTime: LocalDateTime)
   @Query("UPDATE shell_works SET logs = :logs WHERE name =:name")
   suspend fun updateLogs(name: String, logs: String)
+  @Query("UPDATE shell_works SET script_text = :scriptText WHERE name =:name")
+  suspend fun updateScriptText(name: String, scriptText: String)
 }

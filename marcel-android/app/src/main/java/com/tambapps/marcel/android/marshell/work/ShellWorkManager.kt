@@ -48,6 +48,13 @@ class ShellWorkManager @Inject constructor(
     return works.any { it.tags.contains("name:$name") }
   }
 
+  suspend fun update(name: String, scriptText: String?): ShellWork? {
+    if (scriptText != null) {
+      shellWorkDao.updateScriptText(name, scriptText)
+    }
+    return shellWorkDao.findByName(name)
+  }
+
   suspend fun listFake(): List<ShellWork> {
     return listOf(
       ShellWork(

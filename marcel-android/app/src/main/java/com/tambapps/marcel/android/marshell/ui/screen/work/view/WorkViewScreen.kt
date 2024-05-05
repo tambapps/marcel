@@ -1,12 +1,17 @@
 package com.tambapps.marcel.android.marshell.ui.screen.work.view
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,10 +19,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import com.tambapps.marcel.android.marshell.ui.component.ExpandableCard
 import com.tambapps.marcel.android.marshell.ui.screen.work.WorkScriptCard
@@ -34,9 +43,7 @@ fun WorkViewScreen(
   viewModel: WorkViewModel
 ) {
   Box(
-    modifier = Modifier
-      .fillMaxSize(),
-    contentAlignment = Alignment.BottomEnd
+    modifier = Modifier.fillMaxSize(),
   ) {
     Column(
       modifier = Modifier
@@ -50,9 +57,34 @@ fun WorkViewScreen(
         WorkComponent(viewModel, viewModel.work!!)
       }
     }
+    SaveFab(viewModel = viewModel, modifier = Modifier.align(Alignment.BottomEnd))
   }
 }
 
+@Composable
+fun SaveFab(viewModel: WorkViewModel, modifier: Modifier) {
+  AnimatedVisibility(
+    modifier = modifier,
+    visible = viewModel.scriptEdited,
+    enter = scaleIn(),
+    exit = scaleOut(),
+  ) {
+    val context = LocalContext.current
+    FloatingActionButton(
+      modifier = Modifier.padding(all = 16.dp),
+      onClick = {
+        viewModel.validateAndSave(context)
+      }
+    ) {
+      Icon(
+        painterResource(id = R.drawable.save),
+        modifier = Modifier.size(23.dp),
+        contentDescription = "Save",
+        tint = Color.White
+      )
+    }
+  }
+}
 @Composable
 private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
   Column(

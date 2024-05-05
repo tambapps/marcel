@@ -1,5 +1,7 @@
 package com.tambapps.marcel.android.marshell.ui.screen.work.view
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -21,7 +23,7 @@ import kotlinx.coroutines.withContext
 class WorkViewModel(
   private val shellWorkManager: ShellWorkManager,
   symbolResolver: ReplMarcelSymbolResolver,
-  private val replCompiler: MarcelReplCompiler,
+  override val replCompiler: MarcelReplCompiler,
 ): ViewModel(), ScriptCardViewModel {
 
   override var scriptTextInput by mutableStateOf(TextFieldValue())
@@ -29,18 +31,45 @@ class WorkViewModel(
   override val scriptCardExpanded = mutableStateOf(false)
 
   var work by mutableStateOf<ShellWork?>(null)
+  var scriptEdited by mutableStateOf(false)
 
   private val highlighter = SpannableHighlighter(symbolResolver, replCompiler)
+  private val ioScope = CoroutineScope(Dispatchers.IO)
 
   override fun highlight(text: CharSequence) = highlighter.highlight(text).toAnnotatedString()
 
+  override fun onScriptTextChange(text: TextFieldValue) {
+    super.onScriptTextChange(text)
+    scriptEdited = true
+  }
+
   fun init(workName: String) {
-    CoroutineScope(Dispatchers.IO).launch {
+    ioScope.launch {
       val w = shellWorkManager.findByName(workName)
       if (w != null) {
         withContext(Dispatchers.Main) {
           work = w
+          if (w.scriptText != null) {
+            setScriptTextInput(w.scriptText)
+            scriptEdited = false
+          }
         }
+      }
+    }
+  }
+
+  fun validateAndSave(context: Context) {
+    val workName = this.work?.name ?: return
+    validateScriptText()
+    if (scriptTextError != null) {
+      return
+    }
+    ioScope.launch {
+      val updatedWork = shellWorkManager.update(workName, scriptTextInput.text)
+      withContext(Dispatchers.Main) {
+        work = updatedWork
+        scriptEdited = false
+        Toast.makeText(context, "Work successfully updated", Toast.LENGTH_SHORT).show()
       }
     }
   }
