@@ -16,10 +16,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.IconButton
@@ -64,16 +66,16 @@ fun ShellScreen(
   Column(modifier = Modifier.fillMaxSize()) {
     TopBar(viewModel)
     val listState = rememberLazyListState()
-    LazyColumn(
-      modifier = Modifier
-        .weight(1f)
-        .fillMaxWidth(), state = listState
-    ) {
-      item {
-        HistoryText(text = HEADER)
-      }
-      viewModel.prompts.forEach { prompt: Prompt ->
+    SelectionContainer(Modifier
+      .weight(1f)
+      .fillMaxWidth()) {
+      LazyColumn(
+        modifier = Modifier.fillMaxWidth(), state = listState
+      ) {
         item {
+          HistoryText(text = HEADER)
+        }
+        items(viewModel.prompts) { prompt: Prompt ->
           if (prompt.type == Prompt.Type.INPUT) {
             Row {
               HistoryText(
@@ -106,7 +108,6 @@ fun ShellScreen(
         }
       }
     }
-
     Row(verticalAlignment = Alignment.CenterVertically) {
       val onPrompt: () -> Unit = {
         // when we get the annotatedString here, it is not highlighted yet. So we have to
