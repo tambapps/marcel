@@ -34,32 +34,34 @@ import java.time.Duration
 @Composable
 fun WorkScriptCard(viewModel: ScriptCardViewModel, readOnly: Boolean = false) {
   ExpandableCard(expanded = viewModel.scriptCardExpanded, title = "Script",
-    additionalLogos = {
-      val context = LocalContext.current
-      val pickPictureLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
-      ) { imageUri ->
-        if (imageUri != null) {
-          val result = readText(context.contentResolver.openInputStream(imageUri))
-          if (result.isFailure) {
-            Toast.makeText(context, "Error: ${result.exceptionOrNull()?.localizedMessage}", Toast.LENGTH_SHORT).show()
-            return@rememberLauncherForActivityResult
+    additionalLogos = if (readOnly) null else {
+      {
+        val context = LocalContext.current
+        val pickPictureLauncher = rememberLauncherForActivityResult(
+          ActivityResultContracts.GetContent()
+        ) { imageUri ->
+          if (imageUri != null) {
+            val result = readText(context.contentResolver.openInputStream(imageUri))
+            if (result.isFailure) {
+              Toast.makeText(context, "Error: ${result.exceptionOrNull()?.localizedMessage}", Toast.LENGTH_SHORT).show()
+              return@rememberLauncherForActivityResult
+            }
+            viewModel.setScriptTextInput(result.getOrNull()!!)
+            viewModel.scriptCardExpanded.value = true
           }
-          viewModel.setScriptTextInput(result.getOrNull()!!)
-          viewModel.scriptCardExpanded.value = true
         }
-      }
-      IconButton(
-        modifier = Modifier
-          .weight(1f)
-          .size(24.dp),
-        onClick = { pickPictureLauncher.launch("*/*") }) {
-        Icon(
-          modifier = Modifier.size(24.dp),
-          painter = painterResource(id = R.drawable.folder),
-          contentDescription = "Pick file",
-          tint = MaterialTheme.colorScheme.primary,
-        )
+        IconButton(
+          modifier = Modifier
+            .weight(1f)
+            .size(24.dp),
+          onClick = { pickPictureLauncher.launch("*/*") }) {
+          Icon(
+            modifier = Modifier.size(24.dp),
+            painter = painterResource(id = R.drawable.folder),
+            contentDescription = "Pick file",
+            tint = MaterialTheme.colorScheme.primary,
+          )
+        }
       }
     }) {
     // TODO find a way to add line numbers. same on editor screen
