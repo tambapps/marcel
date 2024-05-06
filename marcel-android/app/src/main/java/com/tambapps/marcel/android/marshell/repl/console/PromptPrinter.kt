@@ -24,7 +24,7 @@ class PromptPrinter(private val prompts: MutableList<Prompt>): Printer {
     override fun print(o: Any?) {
         if (!newLine.get() && prompts.lastOrNull()?.type == Prompt.Type.STDOUT) {
             scope.launch {
-                prompts[prompts.lastIndex] = prompt(prompts.last().text + o)
+                prompts[prompts.lastIndex] = prompt(prompts.last().text.toString() + o)
             }
         } else {
             scope.launch {

@@ -5,7 +5,7 @@ class PromptHistoryNavigator(private val prompts: List<Prompt>) {
   private var historyIndex = 0
   private var navigated: Boolean = false
 
-  fun up(): String? {
+  fun up(): CharSequence? {
     val prompts = prompts.filter { it.type == Prompt.Type.INPUT }
     if (prompts.isEmpty()) return null
     if (!navigated) {
@@ -17,7 +17,7 @@ class PromptHistoryNavigator(private val prompts: List<Prompt>) {
     return prompts.getOrNull(prompts.size - 1 - ++historyIndex)?.text
   }
 
-  fun down(): String? {
+  fun down(): CharSequence? {
     val prompts = prompts.filter { it.type == Prompt.Type.INPUT }
     if (prompts.isEmpty() || !navigated || historyIndex <= -1) return null
     // get or null because historyIndex can be -1, which correspond to empty string

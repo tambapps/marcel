@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.tambapps.marcel.android.marshell.R
@@ -79,14 +80,21 @@ fun ShellScreen(
                 text = "> ", color = Color.White,
                 padding = PaddingValues(top = 16.dp)
               )
-              HistoryText(
-                text = prompt.text, color = Color.White,
-                padding = PaddingValues(top = 16.dp)
-              )
+              if (prompt.text is AnnotatedString) {
+                HistoryText(
+                  text = prompt.text, color = Color.White,
+                  padding = PaddingValues(top = 16.dp)
+                )
+              } else {
+                HistoryText(
+                  text = prompt.text.toString(), color = Color.White,
+                  padding = PaddingValues(top = 16.dp)
+                )
+              }
             }
           } else {
             HistoryText(
-              text = prompt.text, color = when (prompt.type) {
+              text = prompt.text.toString(), color = when (prompt.type) {
                 Prompt.Type.INPUT, Prompt.Type.STDOUT -> Color.White
                 Prompt.Type.SUCCESS_OUTPUT -> Color.Green
                 Prompt.Type.ERROR_OUTPUT -> Color.Red
@@ -101,7 +109,8 @@ fun ShellScreen(
 
     Row(verticalAlignment = Alignment.CenterVertically) {
       val onPrompt: () -> Unit = {
-        val input = viewModel.textInput.text.trim()
+        // when we get the annotatedString here, it is not highlighted yet. So we have to
+        val input = viewModel.highlight(viewModel.textInput.annotatedString)
         if (input.isNotBlank()) {
           viewModel.prompt(input) // TODO it blocks UI, it shouldn't. process should be run in the background
           scope.launch { listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1) }
@@ -321,6 +330,19 @@ fun readText(inputStream: InputStream?): Result<String> {
 @Composable
 fun HistoryText(
   text: String,
+  color: Color? = null,
+  padding: PaddingValues = PaddingValues(all = 0.dp)
+) {
+  Text(
+    modifier = Modifier.padding(padding),
+    text = text,
+    style = color?.let { shellTextStyle.copy(color = it) } ?: shellTextStyle,
+  )
+}
+
+@Composable
+fun HistoryText(
+  text: AnnotatedString,
   color: Color? = null,
   padding: PaddingValues = PaddingValues(all = 0.dp)
 ) {

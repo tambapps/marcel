@@ -41,11 +41,12 @@ class ShellViewModel constructor(private val shellSession: ShellSession) : ViewM
     textInput = TextFieldValue(annotatedString = highlighter.highlight(text).toAnnotatedString(), selection = TextRange(text.length))
   }
 
-  fun prompt(text: String) {
+  fun prompt(text: CharSequence) {
     prompts.add(Prompt(Prompt.Type.INPUT, text))
     textInput = TextFieldValue()
     isEvaluating = true
-    shellSession.eval(text) { type, result ->
+    // TODO maybe make marcel compiler accept charsequence instead of string, and stop calling toString here
+    shellSession.eval(text.toString()) { type, result ->
       isEvaluating = false
       prompts.add(Prompt(type, java.lang.String.valueOf(result)))
     }
