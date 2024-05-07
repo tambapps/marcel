@@ -11,7 +11,4 @@ enum class WorkPeriodUnit {
     }
   }
 
-  override fun toString(): String {
-    return super.toString().lowercase()
-  }
 }
