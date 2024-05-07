@@ -52,6 +52,7 @@ import androidx.navigation.NavController
 import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.room.entity.WorkPeriod
 import com.tambapps.marcel.android.marshell.room.entity.WorkPeriodUnit
+import com.tambapps.marcel.android.marshell.ui.component.EXPANDABLE_CARD_ANIMATION_SPEC
 import com.tambapps.marcel.android.marshell.ui.component.PickerExample
 import com.tambapps.marcel.android.marshell.ui.screen.work.WorkScriptCard
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
@@ -105,14 +106,9 @@ private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyy
 
 @Composable
 private fun Form(viewModel: WorkCreateViewModel) {
-  Box(modifier = Modifier
+  Box(modifier = Modifier // TODO do same in edit screen
     .fillMaxWidth()
-    .animateContentSize(
-      animationSpec = tween(
-        durationMillis = 300,
-        easing = LinearOutSlowInEasing
-      )
-    )
+    .animateContentSize(animationSpec = EXPANDABLE_CARD_ANIMATION_SPEC)
   ) {
     if (!viewModel.scriptCardExpanded.value) {
       Column {
