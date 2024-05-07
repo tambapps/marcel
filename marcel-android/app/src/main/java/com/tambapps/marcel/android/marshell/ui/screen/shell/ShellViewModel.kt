@@ -45,7 +45,6 @@ class ShellViewModel constructor(private val shellSession: ShellSession) : ViewM
     prompts.add(Prompt(Prompt.Type.INPUT, text))
     textInput = TextFieldValue()
     isEvaluating = true
-    // TODO maybe make marcel compiler accept charsequence instead of string, and stop calling toString here
     shellSession.eval(text.toString()) { type, result ->
       isEvaluating = false
       prompts.add(Prompt(type, java.lang.String.valueOf(result)))

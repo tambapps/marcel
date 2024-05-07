@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,7 +46,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.tambapps.marcel.android.marshell.R
-import com.tambapps.marcel.android.marshell.ui.component.CheckBoxText
 import com.tambapps.marcel.android.marshell.ui.component.TopBarIconButton
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.component.shellIconModifier
@@ -293,6 +294,14 @@ private fun ExportSessionDialog(
       }
     }
   )
+}
+
+@Composable
+fun CheckBoxText(valueState: MutableState<Boolean>, text: String, textColor: Color = Color.Unspecified) {
+  Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { valueState.value = !valueState.value }) {
+    Checkbox(checked = valueState.value, onCheckedChange = { isChecked -> valueState.value = isChecked })
+    Text(text, color = textColor)
+  }
 }
 
 private fun export(prompts: List<Prompt>, outputStream: OutputStream?): Result<Unit> {
