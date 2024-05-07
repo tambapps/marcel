@@ -88,9 +88,8 @@ fun WorkScriptCard(viewModel: ScriptCardViewModel, readOnly: Boolean = false) {
 }
 
 @Composable
-fun WorkStateText(shellWork: ShellWork, modifier: Modifier = Modifier,
-                  textAlign: TextAlign = TextAlign.Unspecified, fontSize: TextUnit = TextUnit.Unspecified) {
-  Text(text = stateText(shellWork), color = stateColor(shellWork), modifier = modifier, textAlign = textAlign, fontSize = fontSize)
+fun WorkStateText(shellWork: ShellWork, modifier: Modifier = Modifier, fontSize: TextUnit = TextUnit.Unspecified) {
+  Text(text = stateText(shellWork), color = stateColor(shellWork), modifier = modifier, textAlign = TextAlign.Center, fontSize = fontSize)
 }
 
 fun runtimeText(work: ShellWork) = when {
@@ -116,9 +115,10 @@ private val SkyBlue = Color(0xFF87CEEB)
 
 private fun stateText(work: ShellWork): String {
   return if (work.period != null && !work.state.isFinished) {
+    val unitStr = work.period.unit.name.lowercase()
     if (work.state == WorkInfo.State.RUNNING) "RUNNING"
-    else if (work.period.amount == 1) "PERIODIC\n(every ${work.period.unit.toString().removeSuffix("s")})"
-    else "PERIODIC\n(every ${work.period.amount} ${work.period.unit})"
+    else if (work.period.amount == 1) "PERIODIC\n(every ${unitStr.removeSuffix("s")})"
+    else "PERIODIC\n(every ${work.period.amount} $unitStr)"
   } else work.state.name
 }
 
