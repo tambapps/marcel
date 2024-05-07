@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -40,7 +41,7 @@ fun ExpandableCard(
     expanded: MutableState<Boolean>,
     title: String,
     additionalLogos: @Composable (RowScope.() -> Unit)? = null,
-    expandedContent: @Composable () -> Unit
+    expandedContent: @Composable (ColumnScope.() -> Unit)
 ) {
     val rotation by animateFloatAsState(
         targetValue = if (expanded.value) 180f else 0f, label = "Arrow Animation"
@@ -90,7 +91,7 @@ fun ExpandableCard(
                 }
             }
             if (expanded.value) {
-                expandedContent.invoke()
+                expandedContent.invoke(this)
             }
         }
     }
