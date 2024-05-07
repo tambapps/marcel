@@ -18,6 +18,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,6 +36,9 @@ import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import com.tambapps.marcel.android.marshell.util.TimeUtils
 import com.tambapps.marcel.android.marshell.work.ShellWorkManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 
@@ -44,6 +48,14 @@ fun WorksListScreen(
   viewModel: WorksListViewModel,
   navController: NavController
 ) {
+  LaunchedEffect(Unit) {
+    withContext(Dispatchers.IO) {
+      while (true) {
+        delay(1_000L)
+        viewModel.refresh()
+      }
+    }
+  }
   Box(modifier = Modifier
     .fillMaxSize(),
     contentAlignment = Alignment.BottomEnd) {

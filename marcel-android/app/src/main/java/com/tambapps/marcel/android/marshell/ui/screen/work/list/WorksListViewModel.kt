@@ -15,12 +15,17 @@ class WorksListViewModel(
 
   init {
     CoroutineScope(Dispatchers.IO).launch {
-      val list = shellWorkManager.list()
-      withContext(Dispatchers.Main) {
-        works.addAll(list)
-      }
+      refresh()
     }
   }
 
   val works = mutableStateListOf<ShellWork>()
+
+  suspend fun refresh() {
+    val list = shellWorkManager.list()
+    withContext(Dispatchers.Main) {
+      works.clear()
+      works.addAll(list)
+    }
+  }
 }
