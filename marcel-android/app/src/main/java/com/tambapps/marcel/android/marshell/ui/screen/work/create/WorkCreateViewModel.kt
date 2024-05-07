@@ -9,6 +9,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import com.tambapps.marcel.android.marshell.repl.ShellSession
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
+import com.tambapps.marcel.android.marshell.room.entity.WorkPeriod
 import com.tambapps.marcel.android.marshell.ui.screen.HighlightTransformation
 import com.tambapps.marcel.android.marshell.ui.screen.work.ScriptCardViewModel
 import com.tambapps.marcel.android.marshell.work.ShellWorkManager
@@ -39,6 +40,7 @@ class WorkCreateViewModel(
   var description by mutableStateOf("")
   var requiresNetwork by mutableStateOf(false)
   var silent by mutableStateOf(false)
+  var period by mutableStateOf<WorkPeriod?>(null)
 
   var scheduleAt by mutableStateOf<LocalDateTime?>(null)
 
@@ -68,7 +70,7 @@ class WorkCreateViewModel(
         name = name,
         description = description,
         scriptText = scriptTextInput.text,
-        period = null, // TODO
+        period = period,
         scheduleAt = scheduleAt,
         requiresNetwork = requiresNetwork,
         silent = silent

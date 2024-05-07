@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
@@ -44,13 +42,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.tambapps.marcel.android.marshell.Routes
+import com.tambapps.marcel.android.marshell.room.entity.WorkPeriod
 import com.tambapps.marcel.android.marshell.room.entity.WorkPeriodUnit
+import com.tambapps.marcel.android.marshell.ui.component.PickerExample
 import com.tambapps.marcel.android.marshell.ui.screen.work.WorkScriptCard
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
@@ -130,14 +129,6 @@ private fun Form(viewModel: WorkCreateViewModel) {
   WorkScriptCard(viewModel = viewModel)
   Box(modifier = Modifier.padding(8.dp))
 
-  val showPeriodDialog = remember { mutableStateOf(false) }
-  TextIconButton(fieldName = "Period", value = "One-shot", onClick = { showPeriodDialog.value = true })
-  PeriodPickerDialog(
-    viewModel = viewModel,
-    show = showPeriodDialog,
-    onDismissRequest = { showPeriodDialog.value = false }
-  )
-
   val showSchedulePickerDialog = remember { mutableStateOf(false) }
   TextIconButton(
     fieldName = "Schedule for",
@@ -148,6 +139,14 @@ private fun Form(viewModel: WorkCreateViewModel) {
     viewModel = viewModel,
     show = showSchedulePickerDialog,
     onDismissRequest = { showSchedulePickerDialog.value = false }
+  )
+
+  val showPeriodDialog = remember { mutableStateOf(false) }
+  TextIconButton(fieldName = "Period", value = if (viewModel.period == null) "One-shot" else "${viewModel.period?.amount} ${viewModel.period?.unit?.name?.lowercase()}", onClick = { showPeriodDialog.value = true })
+  PeriodPickerDialog(
+    viewModel = viewModel,
+    show = showPeriodDialog,
+    onDismissRequest = { showPeriodDialog.value = false }
   )
 
   TextIconButton(fieldName = "Requires Network?", value = if (viewModel.requiresNetwork) "Yes" else "No", onClick = { viewModel.requiresNetwork = !viewModel.requiresNetwork })
@@ -166,7 +165,6 @@ private class TodayOrAfter: SelectableDates {
     return year >= nowYear
   }
 }
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PeriodPickerDialog(
   viewModel: WorkCreateViewModel,
@@ -177,30 +175,46 @@ private fun PeriodPickerDialog(
     return
   }
 
-  var periodAmount by remember { mutableIntStateOf(1) }
-  val periodState = remember { mutableStateOf(WorkPeriodUnit.HOURS) }
+  val amountState = remember { mutableIntStateOf(viewModel.period?.amount ?: 1) }
+  val unitState = remember { mutableStateOf(viewModel.period?.unit ?: WorkPeriodUnit.HOURS) }
+  val period = WorkPeriod(amountState.intValue, unitState.value)
+  val isValidPeriod = period.toMinutes() in 15..43200
   AlertDialog(
     text = {
-      Row(modifier = Modifier.fillMaxWidth()) {
+      Box(modifier = Modifier.fillMaxWidth().height(300.dp)) {
+        PickerExample(
+          amountState = amountState,
+          unitState = unitState,
+          footer = {
 
-        TextField(value = periodAmount.toString(),
-          keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-          onValueChange = { periodAmount = it.toIntOrNull() ?: 1},
-          modifier = Modifier.width(100.dp))
-        ExposedDropdownMenu(
-          values = WorkPeriodUnit.entries.toList(),
-          selectedItem = periodState
+          }
         )
+        if (!isValidPeriod) {
+          Text(
+            text = "Period must be greater than 15 minutes",
+            modifier = Modifier.align(Alignment.BottomCenter).padding(vertical = 16.dp),
+            color = Color.Red
+          )
 
+        }
       }
     },
     onDismissRequest = onDismissRequest,
     dismissButton = {
-      TextButton(onClick = onDismissRequest) {
-        Text("Cancel")
+      TextButton(onClick = {
+        viewModel.period = null
+        onDismissRequest.invoke()
+      }) {
+        Text("One-shot")
       }
     },
     confirmButton = {
+      TextButton(onClick = {
+         viewModel.period = period
+        onDismissRequest.invoke()
+      }, enabled = isValidPeriod) {
+        Text("Confirm")
+      }
     }
   )
 }
