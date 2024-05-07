@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -151,7 +152,9 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
     if (!work.logs.isNullOrEmpty()) {
       val logsExpanded = remember { mutableStateOf(false) }
       ExpandableCard(expanded = logsExpanded, title = "Logs") {
-        Text(text = work.logs, style = shellTextStyle)
+        SelectionContainer {
+          Text(text = work.logs, style = shellTextStyle)
+        }
       }
     }
     Box(modifier = Modifier.padding(16.dp))
