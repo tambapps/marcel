@@ -1,6 +1,5 @@
 package com.tambapps.marcel.android.marshell.ui.screen.work
 
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,7 +27,6 @@ import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import com.tambapps.marcel.android.marshell.ui.component.ExpandableCard
 import com.tambapps.marcel.android.marshell.util.TimeUtils
-import com.tambapps.marcel.android.marshell.util.readText
 import java.time.Duration
 
 @Composable
@@ -40,15 +38,7 @@ fun WorkScriptCard(viewModel: ScriptCardViewModel, readOnly: Boolean = false) {
         val pickPictureLauncher = rememberLauncherForActivityResult(
           ActivityResultContracts.GetContent()
         ) { imageUri ->
-          if (imageUri != null) {
-            val result = readText(context.contentResolver.openInputStream(imageUri))
-            if (result.isFailure) {
-              Toast.makeText(context, "Error: ${result.exceptionOrNull()?.localizedMessage}", Toast.LENGTH_SHORT).show()
-              return@rememberLauncherForActivityResult
-            }
-            viewModel.setScriptTextInput(result.getOrNull()!!)
-            viewModel.scriptCardExpanded.value = true
-          }
+          viewModel.loadScript(context, imageUri)
         }
         IconButton(
           modifier = Modifier

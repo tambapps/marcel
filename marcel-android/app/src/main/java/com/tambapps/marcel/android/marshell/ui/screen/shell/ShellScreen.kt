@@ -175,7 +175,7 @@ private fun TopBar(viewModel: ShellViewModel) {
     val pickScriptLauncher = rememberLauncherForActivityResult(
       ActivityResultContracts.GetContent()
     ) { imageUri ->
-      viewModel.pickScript(context, imageUri)
+      viewModel.loadScript(context, imageUri)
     }
     TopBarIconButton(
       modifier = shellIconModifier(),

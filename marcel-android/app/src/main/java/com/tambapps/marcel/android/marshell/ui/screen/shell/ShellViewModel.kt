@@ -100,7 +100,7 @@ class ShellViewModel constructor(private val shellSession: ShellSession) : ViewM
 
   override fun highlight(text: CharSequence) = highlighter.highlight(text).toAnnotatedString()
 
-  fun pickScript(context: Context, imageUri: Uri?) {
+  fun loadScript(context: Context, imageUri: Uri?) {
     if (imageUri != null) {
       val result = readText(context.contentResolver.openInputStream(imageUri))
       if (result.isFailure) {
