@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
@@ -39,6 +40,8 @@ val EXPANDABLE_CARD_ANIMATION_SPEC: FiniteAnimationSpec<IntSize> = tween(
 fun ExpandableCard(
     expanded: MutableState<Boolean>,
     title: String,
+    titleColor: Color = MaterialTheme.colorScheme.primary,
+    logoTint: Color = MaterialTheme.colorScheme.primary,
     additionalLogos: @Composable (RowScope.() -> Unit)? = null,
     expandedContent: @Composable (ColumnScope.() -> Unit)
 ) {
@@ -65,7 +68,7 @@ fun ExpandableCard(
                         .weight(6f),
                     text = title,
                     style = shellTextStyle,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = titleColor,
                     maxLines = 1,
                 )
 
@@ -81,7 +84,7 @@ fun ExpandableCard(
                         modifier = Modifier.size(50.dp),
                         imageVector = Icons.Default.ArrowDropDown,
                         contentDescription = "Drop-Down Arrow",
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = logoTint,
                     )
                 }
             }

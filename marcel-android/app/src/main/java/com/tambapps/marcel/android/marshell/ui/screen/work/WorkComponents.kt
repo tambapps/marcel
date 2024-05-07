@@ -45,7 +45,11 @@ import java.time.Duration
 
 @Composable
 fun WorkScriptCard(viewModel: ScriptCardViewModel, readOnly: Boolean = false) {
-  ExpandableCard(expanded = viewModel.scriptCardExpanded, title = "Script",
+  val tintColor = if (viewModel.scriptTextError != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+  ExpandableCard(expanded = viewModel.scriptCardExpanded,
+    title = "Script",
+    titleColor = tintColor,
+    logoTint = tintColor,
     additionalLogos = if (readOnly) null else {
       {
         val context = LocalContext.current
