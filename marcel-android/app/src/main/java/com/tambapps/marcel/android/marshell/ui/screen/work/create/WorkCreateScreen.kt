@@ -136,9 +136,8 @@ private fun Form(viewModel: WorkCreateViewModel) {
         label = { Text("Description (optional)") }
       )
     }
+    Box(modifier = Modifier.padding(8.dp))
   }
-
-  Box(modifier = Modifier.padding(8.dp))
 
   WorkScriptCard(viewModel = viewModel)
   Box(modifier = Modifier.padding(8.dp))
