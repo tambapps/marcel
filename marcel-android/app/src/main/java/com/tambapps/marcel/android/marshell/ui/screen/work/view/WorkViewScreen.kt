@@ -58,9 +58,10 @@ fun WorkViewScreen(
       if (viewModel.work == null) {
         LoadingComponent()
       } else {
-        WorkComponent(viewModel, viewModel.work!!)
+        val work = viewModel.work!!
+        WorkComponent(viewModel, work)
         LaunchedEffect(Unit) {
-          if (viewModel.work!!.isPeriodic) {
+          if (work.isPeriodic) {
             withContext(Dispatchers.IO) {
               while (true) {
                 delay(1_000L)

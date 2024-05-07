@@ -17,7 +17,7 @@ interface ShellWorkDao {
 
   companion object {
     // we doesn't fetch scriptText and logs for list endpoint
-    const val MAIN_COLUMNS = "work_id, name, description, is_silent, period, state, " +
+    const val MAIN_COLUMNS = "work_id, name, description, is_silent, period, state, created_at, last_updated_at," +
         "start_time, end_time, scheduled_at, result, failure_reason, is_network_required"
   }
 
@@ -56,11 +56,11 @@ interface ShellWorkDao {
   @Query("UPDATE shell_works SET start_time = :startTime WHERE name =:name")
   suspend fun updateStartTime(name: String, startTime: LocalDateTime)
 
-
   @Query("UPDATE shell_works SET end_time = :endTime WHERE name =:name")
   suspend fun updateEndTime(name: String, endTime: LocalDateTime)
   @Query("UPDATE shell_works SET logs = :logs WHERE name =:name")
   suspend fun updateLogs(name: String, logs: String)
-  @Query("UPDATE shell_works SET script_text = :scriptText WHERE name =:name")
-  suspend fun updateScriptText(name: String, scriptText: String)
+  @Query("UPDATE shell_works SET script_text = :scriptText, last_updated_at = :lastUpdatedAt WHERE name =:name")
+  suspend fun updateScriptText(name: String, scriptText: String, lastUpdatedAt: LocalDateTime)
+  suspend fun updateScriptText(name: String, scriptText: String) = updateScriptText(name, scriptText, LocalDateTime.now())
 }

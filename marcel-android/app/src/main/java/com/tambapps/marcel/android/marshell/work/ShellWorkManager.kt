@@ -55,27 +55,6 @@ class ShellWorkManager @Inject constructor(
     return shellWorkDao.findByName(name)
   }
 
-  suspend fun listFake(): List<ShellWork> {
-    return listOf(
-      ShellWork(
-      name = "Work 1",
-      workId = UUID.randomUUID(),
-        description = "some work",
-        isNetworkRequired = true,
-        isSilent = false,
-        state = WorkInfo.State.ENQUEUED,
-        period = WorkPeriod(amount = 2, unit = WorkPeriodUnit.DAYS),
-        startTime = LocalDateTime.now().minusSeconds(36000),
-        endTime = LocalDateTime.now().minusSeconds(26000),
-        scheduledAt = null,
-        logs = null,
-        result = null,
-        failedReason = null,
-        scriptText = null
-    )
-    )
-  }
-
   /**
    * Upsert a ShellWork (the ID being the name)
    */
@@ -121,6 +100,8 @@ class ShellWorkManager @Inject constructor(
       isSilent = silent,
       scriptText = scriptText,
       state = WorkInfo.State.ENQUEUED,
+      createdAt = LocalDateTime.now(),
+      lastUpdatedAt = LocalDateTime.now(),
       startTime = null, endTime = null,
       logs = null, result = null, failedReason = null
     )
