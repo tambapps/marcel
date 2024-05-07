@@ -106,34 +106,35 @@ private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyy
 
 @Composable
 private fun Form(viewModel: WorkCreateViewModel) {
-  Box(modifier = Modifier // TODO do same in edit screen
+  Box(modifier = Modifier
     .fillMaxWidth()
     .animateContentSize(animationSpec = EXPANDABLE_CARD_ANIMATION_SPEC)
   ) {
-    if (!viewModel.scriptCardExpanded.value) {
-      Column {
-        OutlinedTextField(
-          value = viewModel.name,
-          singleLine = true,
-          onValueChange = viewModel::onNameChange,
-          label = { Text("Name") },
-          supportingText = viewModel.nameError?.let { error -> {
-            Text(
-              modifier = Modifier.fillMaxWidth(),
-              text = error,
-              color = MaterialTheme.colorScheme.error
-            )
-          }},
-          isError = viewModel.nameError != null
-        )
-        OutlinedTextField(
-          modifier = Modifier.padding(vertical = 8.dp),
-          value = viewModel.description,
-          singleLine = true,
-          onValueChange = { viewModel.description = it },
-          label = { Text("Description (optional)") }
-        )
-      }
+    if (viewModel.scriptCardExpanded.value) {
+      return@Box
+    }
+    Column {
+      OutlinedTextField(
+        value = viewModel.name,
+        singleLine = true,
+        onValueChange = viewModel::onNameChange,
+        label = { Text("Name") },
+        supportingText = viewModel.nameError?.let { error -> {
+          Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = error,
+            color = MaterialTheme.colorScheme.error
+          )
+        }},
+        isError = viewModel.nameError != null
+      )
+      OutlinedTextField(
+        modifier = Modifier.padding(vertical = 8.dp),
+        value = viewModel.description,
+        singleLine = true,
+        onValueChange = { viewModel.description = it },
+        label = { Text("Description (optional)") }
+      )
     }
   }
 

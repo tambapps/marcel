@@ -1,6 +1,7 @@
 package com.tambapps.marcel.android.marshell.ui.screen.work.view
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Box
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
+import com.tambapps.marcel.android.marshell.ui.component.EXPANDABLE_CARD_ANIMATION_SPEC
 import com.tambapps.marcel.android.marshell.ui.component.ExpandableCard
 import com.tambapps.marcel.android.marshell.ui.screen.work.WorkScriptCard
 import com.tambapps.marcel.android.marshell.ui.screen.work.WorkStateText
@@ -106,9 +108,12 @@ fun SaveFab(viewModel: WorkViewModel, modifier: Modifier) {
 private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
   Column(
     modifier = Modifier
-      .fillMaxSize()
       .padding(horizontal = 8.dp)
+      .animateContentSize(animationSpec = EXPANDABLE_CARD_ANIMATION_SPEC)
   ) {
+    if (viewModel.scriptCardExpanded.value) {
+      return@Column
+    }
     Box(modifier = Modifier
       .fillMaxWidth()
       .padding(bottom = 16.dp)) {
@@ -158,10 +163,10 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
       }
     }
     Box(modifier = Modifier.padding(16.dp))
-    WorkScriptCard(viewModel = viewModel, readOnly = !work.isPeriodic)
   }
-
+  WorkScriptCard(viewModel = viewModel, readOnly = !work.isPeriodic)
 }
+
 @Composable
 private fun LoadingComponent() {
   Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
