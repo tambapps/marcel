@@ -27,8 +27,8 @@ import androidx.work.WorkInfo
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import com.tambapps.marcel.android.marshell.ui.component.ExpandableCard
-import com.tambapps.marcel.android.marshell.ui.screen.shell.readText
 import com.tambapps.marcel.android.marshell.util.TimeUtils
+import com.tambapps.marcel.android.marshell.util.readText
 import java.time.Duration
 
 @Composable

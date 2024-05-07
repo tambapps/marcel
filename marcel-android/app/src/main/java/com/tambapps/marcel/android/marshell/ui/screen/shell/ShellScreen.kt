@@ -53,9 +53,6 @@ import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import marcel.lang.util.MarcelVersion
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
 
 val HEADER = "Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSION.RELEASE})"
 
@@ -175,22 +172,15 @@ private fun TopBar(viewModel: ShellViewModel) {
 
     Box(modifier = Modifier.width(10.dp))
 
-    val pickPictureLauncher = rememberLauncherForActivityResult(
+    val pickScriptLauncher = rememberLauncherForActivityResult(
       ActivityResultContracts.GetContent()
     ) { imageUri ->
-      if (imageUri != null) {
-        val result = readText(context.contentResolver.openInputStream(imageUri))
-        if (result.isFailure) {
-          Toast.makeText(context, "Error: ${result.exceptionOrNull()?.localizedMessage}", Toast.LENGTH_SHORT).show()
-          return@rememberLauncherForActivityResult
-        }
-        viewModel.setTextInput(result.getOrNull()!!)
-      }
+      viewModel.pickScript(context, imageUri)
     }
     TopBarIconButton(
       modifier = shellIconModifier(),
       onClick = {
-        pickPictureLauncher.launch("*/*")
+        pickScriptLauncher.launch("*/*")
       },
       drawable = R.drawable.downloads,
       contentDescription = "import script"
@@ -233,38 +223,9 @@ private fun ExportSessionDialog(
   val exportFileLauncher = rememberLauncherForActivityResult(
     ActivityResultContracts.CreateDocument("*/*")
   ) { uri ->
-    if (uri == null) return@rememberLauncherForActivityResult
-    val typesOfInterest = mutableListOf(Prompt.Type.INPUT)
-    if (writeOutput.value) {
-      typesOfInterest.add(Prompt.Type.SUCCESS_OUTPUT)
-      typesOfInterest.add(Prompt.Type.ERROR_OUTPUT)
-    }
-    if (writeStandardOutput.value) {
-      typesOfInterest.add(Prompt.Type.STDOUT)
-    }
-    val prompts = viewModel.prompts.filter { typesOfInterest.contains(it.type) }.toMutableList()
-    if (onlySuccessfulPrompts.value) {
-      // filter input (and output of input) of error output
-      var i = 0
-      while (i < prompts.size - 1) {
-        val prompt = prompts[i++]
-        if (prompt.type != Prompt.Type.INPUT) {
-          continue
-        }
-        val nextOutput = prompts.subList(i, prompts.size).find { it.type == Prompt.Type.SUCCESS_OUTPUT || it.type == Prompt.Type.ERROR_OUTPUT }
-        if (nextOutput?.type == Prompt.Type.ERROR_OUTPUT) {
-          prompts.remove(prompt)
-          prompts.remove(nextOutput)
-        }
-      }
-    }
-    // now the export can begin
-    val error = export(prompts, context.contentResolver.openOutputStream(uri)).exceptionOrNull()
-    if (error != null) {
-      Toast.makeText(context, "Error: " + error.localizedMessage, Toast.LENGTH_SHORT).show()
-    } else {
-      Toast.makeText(context, "Session exported successfully", Toast.LENGTH_SHORT).show()
-    }
+    viewModel.exportFile(context, uri,
+      writeOutput = writeOutput.value, writeStandardOutput = writeStandardOutput.value,
+      onlySuccessfulPrompts = onlySuccessfulPrompts.value)
     onDismissRequest()
   }
   AlertDialog(
@@ -301,39 +262,6 @@ fun CheckBoxText(valueState: MutableState<Boolean>, text: String, textColor: Col
   Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { valueState.value = !valueState.value }) {
     Checkbox(checked = valueState.value, onCheckedChange = { isChecked -> valueState.value = isChecked })
     Text(text, color = textColor)
-  }
-}
-
-private fun export(prompts: List<Prompt>, outputStream: OutputStream?): Result<Unit> {
-  if (outputStream == null) {
-    return Result.failure(IOException("Couldn't open file"))
-  }
-  try {
-    outputStream.bufferedWriter().use { writer ->
-      prompts.forEach { prompt ->
-        when (prompt.type) {
-          Prompt.Type.INPUT -> writer.append(prompt.text)
-          Prompt.Type.SUCCESS_OUTPUT -> writer.append("// ${prompt.text}")
-          Prompt.Type.ERROR_OUTPUT -> writer.append("// ${prompt.text}")
-          Prompt.Type.STDOUT -> writer.append("// STDOUT: ${prompt.text}")
-        }
-        writer.newLine()
-      }
-    }
-  } catch (e: IOException) {
-    return Result.failure(e)
-  }
-  return Result.success(Unit)
-}
-
-fun readText(inputStream: InputStream?): Result<String> {
-  if (inputStream == null) {
-    return Result.failure(IOException("Couldn't open file"))
-  }
-  return try {
-    Result.success(inputStream.reader().use { it.readText() })
-  } catch (e: IOException) {
-    Result.failure(e)
   }
 }
 
