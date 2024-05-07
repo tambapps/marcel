@@ -1,5 +1,8 @@
 package com.tambapps.marcel.android.marshell.ui.screen.work.create
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -102,28 +105,42 @@ private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyy
 
 @Composable
 private fun Form(viewModel: WorkCreateViewModel) {
-  OutlinedTextField(
-    value = viewModel.name,
-    singleLine = true,
-    onValueChange = viewModel::onNameChange,
-    label = { Text("Name") },
-    supportingText = viewModel.nameError?.let { error -> {
-      Text(
-        modifier = Modifier.fillMaxWidth(),
-        text = error,
-        color = MaterialTheme.colorScheme.error
+  Box(modifier = Modifier
+    .fillMaxWidth()
+    .animateContentSize(
+      animationSpec = tween(
+        durationMillis = 300,
+        easing = LinearOutSlowInEasing
       )
-    }},
-    isError = viewModel.nameError != null
-  )
+    )
+  ) {
+    if (!viewModel.scriptCardExpanded.value) {
+      Column {
+        OutlinedTextField(
+          value = viewModel.name,
+          singleLine = true,
+          onValueChange = viewModel::onNameChange,
+          label = { Text("Name") },
+          supportingText = viewModel.nameError?.let { error -> {
+            Text(
+              modifier = Modifier.fillMaxWidth(),
+              text = error,
+              color = MaterialTheme.colorScheme.error
+            )
+          }},
+          isError = viewModel.nameError != null
+        )
+        OutlinedTextField(
+          modifier = Modifier.padding(vertical = 8.dp),
+          value = viewModel.description,
+          singleLine = true,
+          onValueChange = { viewModel.description = it },
+          label = { Text("Description (optional)") }
+        )
+      }
+    }
+  }
 
-  OutlinedTextField(
-    modifier = Modifier.padding(vertical = 8.dp),
-    value = viewModel.description,
-    singleLine = true,
-    onValueChange = { viewModel.description = it },
-    label = { Text("Description (optional)") }
-  )
   Box(modifier = Modifier.padding(8.dp))
 
   WorkScriptCard(viewModel = viewModel)
@@ -181,7 +198,9 @@ private fun PeriodPickerDialog(
   val isValidPeriod = period.toMinutes() in 15..43200
   AlertDialog(
     text = {
-      Box(modifier = Modifier.fillMaxWidth().height(300.dp)) {
+      Box(modifier = Modifier
+        .fillMaxWidth()
+        .height(300.dp)) {
         PickerExample(
           amountState = amountState,
           unitState = unitState,
@@ -192,7 +211,9 @@ private fun PeriodPickerDialog(
         if (!isValidPeriod) {
           Text(
             text = "Period must be greater than 15 minutes",
-            modifier = Modifier.align(Alignment.BottomCenter).padding(vertical = 16.dp),
+            modifier = Modifier
+              .align(Alignment.BottomCenter)
+              .padding(vertical = 16.dp),
             color = Color.Red
           )
 
