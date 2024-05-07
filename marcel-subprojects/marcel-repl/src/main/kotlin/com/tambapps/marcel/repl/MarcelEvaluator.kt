@@ -58,7 +58,6 @@ open class MarcelEvaluator constructor(
       return script.run()
     } finally {
       scriptLoader.removeJar(jarFile)
-      jarFile.delete()
     }
   }
 
