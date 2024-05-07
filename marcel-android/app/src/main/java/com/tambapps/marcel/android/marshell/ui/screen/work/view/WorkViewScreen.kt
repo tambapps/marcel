@@ -15,6 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -35,6 +36,9 @@ import com.tambapps.marcel.android.marshell.ui.screen.work.runtimeText
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import com.tambapps.marcel.android.marshell.util.TimeUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import java.time.temporal.ChronoUnit
 
 
@@ -55,6 +59,17 @@ fun WorkViewScreen(
         LoadingComponent()
       } else {
         WorkComponent(viewModel, viewModel.work!!)
+        LaunchedEffect(Unit) {
+          if (viewModel.work!!.isPeriodic) {
+            withContext(Dispatchers.IO) {
+              while (true) {
+                delay(1_000L)
+                viewModel.refresh(viewModel.work!!.name)
+              }
+            }
+          }
+        }
+
       }
     }
     SaveFab(viewModel = viewModel, modifier = Modifier.align(Alignment.BottomEnd))
@@ -124,7 +139,7 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
     Text(text = runtimeText(work),
       modifier = Modifier.padding(bottom = 16.dp),
       style = shellTextStyle, fontSize = 16.sp)
-    work.durationBetweenNowAndNext?.let {
+    viewModel.durationBetweenNowAndNext?.let {
       Text(
         text = "next run in " + TimeUtils.humanReadableFormat(it, ChronoUnit.SECONDS),
         modifier = Modifier.padding(bottom = 16.dp),

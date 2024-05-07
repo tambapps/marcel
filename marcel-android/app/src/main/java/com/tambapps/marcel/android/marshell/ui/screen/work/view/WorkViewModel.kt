@@ -18,6 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.Duration
 
 
 class WorkViewModel(
@@ -31,6 +32,7 @@ class WorkViewModel(
   override val scriptCardExpanded = mutableStateOf(false)
 
   var work by mutableStateOf<ShellWork?>(null)
+  var durationBetweenNowAndNext  by mutableStateOf<Duration?>(null) // storing this info in a state to benefit of android compose recomposition
   var scriptEdited by mutableStateOf(false)
 
   private val highlighter = SpannableHighlighter(symbolResolver, replCompiler)
@@ -51,12 +53,21 @@ class WorkViewModel(
       if (w != null) {
         withContext(Dispatchers.Main) {
           work = w
+          durationBetweenNowAndNext = work?.durationBetweenNowAndNext
           if (w.scriptText != null) {
             setScriptTextInput(w.scriptText)
             scriptEdited = false
           }
         }
       }
+    }
+  }
+
+  suspend fun refresh(workName: String) {
+    val w = shellWorkManager.findByName(workName)
+    withContext(Dispatchers.Main) {
+      work = w
+      durationBetweenNowAndNext = work?.durationBetweenNowAndNext
     }
   }
 
