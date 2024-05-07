@@ -54,7 +54,9 @@ import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
+import javax.inject.Named
 
 object Routes {
   const val SHELL = "shell"
@@ -73,6 +75,9 @@ class MainActivity : ComponentActivity() {
   lateinit var viewModelFactory: ViewModelFactory
   @Inject
   lateinit var preferencesDataStore: PreferencesDataStore
+  @Inject
+  @Named("shellSessionsDirectory")
+  lateinit var shellSessionsDirectory: File
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -126,6 +131,11 @@ class MainActivity : ComponentActivity() {
         }
       }
     }
+  }
+
+  override fun onDestroy() {
+    shellSessionsDirectory.deleteRecursively()
+    super.onDestroy()
   }
 }
 

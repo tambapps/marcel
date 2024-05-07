@@ -48,6 +48,18 @@ public class MarcelDexClassLoader extends MarcelClassLoader {
 
     @Override
     public boolean removeJar(File file) {
+        return file.delete();
+        /*
+        // the below code removed the file from the classpath but it caused the below exception. That's why we just delete the file instead
+
+        java.lang.AssertionError: Failed to close dex file in finalizer.
+          at dalvik.system.DexFile.finalize(DexFile.java:388)
+          at java.lang.Daemons$FinalizerDaemon.doFinalize(Daemons.java:339)
+          at java.lang.Daemons$FinalizerDaemon.processReference(Daemons.java:324)
+          at java.lang.Daemons$FinalizerDaemon.runInternal(Daemons.java:300)
+          at java.lang.Daemons$Daemon.run(Daemons.java:145)
+          at java.lang.Thread.run(Thread.java:1012)
+
         if (isBaseApk(file.getAbsolutePath())) {
             throw new IllegalArgumentException("Cannot remove base apk from classpath");
         }
@@ -68,6 +80,8 @@ public class MarcelDexClassLoader extends MarcelClassLoader {
         }
         setDexClassLoaderElements(remainingDexElementsArray);
         return false;
+
+         */
     }
 
     @Override
