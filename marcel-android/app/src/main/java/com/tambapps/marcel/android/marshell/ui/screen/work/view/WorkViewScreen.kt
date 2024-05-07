@@ -148,7 +148,7 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
     }
 
     Box(modifier = Modifier.padding(16.dp))
-    if (work.logs != null) {
+    if (!work.logs.isNullOrEmpty()) {
       val logsExpanded = remember { mutableStateOf(false) }
       ExpandableCard(expanded = logsExpanded, title = "Logs") {
         Text(text = work.logs, style = shellTextStyle)
