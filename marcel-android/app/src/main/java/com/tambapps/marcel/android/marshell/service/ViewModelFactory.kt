@@ -10,6 +10,7 @@ import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorViewModel
+import com.tambapps.marcel.android.marshell.ui.screen.settings.SettingsViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.work.create.WorkCreateViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.work.list.WorksListViewModel
@@ -60,6 +61,7 @@ class ViewModelFactory @Inject constructor(
         WorkViewModel(shellWorkManager, symbolResolver, replCompiler, workName)
       }
       WorksListViewModel::class.java -> WorksListViewModel(shellWorkManager)
+      SettingsViewModel::class.java -> SettingsViewModel()
       else -> throw UnsupportedOperationException("Cannot create ViewModel of class $modelClass")
     } as T
   }

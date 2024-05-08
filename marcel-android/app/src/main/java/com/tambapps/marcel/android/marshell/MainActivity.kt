@@ -42,6 +42,8 @@ import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellScreen
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorScreen
 import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorViewModel
+import com.tambapps.marcel.android.marshell.ui.screen.settings.SettingsScreen
+import com.tambapps.marcel.android.marshell.ui.screen.settings.SettingsViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.work.create.WorkCreateScreen
 import com.tambapps.marcel.android.marshell.ui.screen.work.create.WorkCreateViewModel
@@ -118,7 +120,8 @@ class MainActivity : ComponentActivity() {
                 WorkViewScreen(viewModel, navController)
               }
               composable(Routes.SETTINGS) {
-                // TODO
+                val viewModel: SettingsViewModel = viewModelFactory.newInstance()
+                SettingsScreen(viewModel)
               }
             }
             TopBar(drawerState, scope) // putting it at the end because we want it to have top priority in terms of displaying
