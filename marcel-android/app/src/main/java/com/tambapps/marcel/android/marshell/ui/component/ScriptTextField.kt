@@ -38,8 +38,6 @@ fun ScriptField(viewModel: ScriptCardViewModel, readOnly: Boolean, modifier: Mod
   val linesTextScroll = rememberScrollState()
   val scriptTextScroll = rememberScrollState()
 
-  // TODO answer to https://stackoverflow.com/questions/76655920/how-to-add-line-numbers-to-basictextfield-in-jetpack-compose
-  //   with this code example
   // synchronize scrolling
   LaunchedEffect(linesTextScroll.value) {
     scriptTextScroll.scrollTo(linesTextScroll.value)
