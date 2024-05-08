@@ -14,13 +14,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -87,27 +90,33 @@ fun WorkViewScreen(
 
     if (work != null) {
       val isCancelable = work.state != WorkInfo.State.CANCELLED
-      SaveFab(
+      val showDialog = remember { mutableStateOf(false) }
+      Fab(
         visible = true,
         modifier = Modifier.align(Alignment.BottomStart),
-        onClick = {
-          // TODO alert dialog
-          if (isCancelable) viewModel.cancelWork(context, work.name)
-          else viewModel.deleteWork(context, work.name, navController)
-        },
+        onClick = { showDialog.value = true },
         color = if (isCancelable) Orange else Color.Red,
         icon = {
           Icon(
             Icons.Filled.Add,
-            modifier = Modifier.size(23.dp).rotate(45f),
+            modifier = Modifier
+              .size(23.dp)
+              .rotate(45f),
             contentDescription = "Cancel",
             tint = Color.White
           )
         }
       )
+      CancelOrDeleteDialog(
+        viewModel = viewModel,
+        work = work,
+        isCancelable = isCancelable,
+        navController = navController,
+        show = showDialog
+      )
     }
 
-    SaveFab(
+    Fab(
       visible = viewModel.scriptEdited,
       modifier = Modifier.align(Alignment.BottomEnd),
       onClick = { viewModel.validateAndSave(context) },
@@ -124,7 +133,43 @@ fun WorkViewScreen(
 }
 
 @Composable
-fun SaveFab(
+fun CancelOrDeleteDialog(
+  viewModel: WorkViewModel,
+  work: ShellWork,
+  isCancelable: Boolean,
+  navController: NavController,
+  show: MutableState<Boolean>,
+  ) {
+  if (!show.value) {
+    return
+  }
+  val context = LocalContext.current
+  AlertDialog(
+    onDismissRequest = { show.value = false },
+    dismissButton = {
+      TextButton(onClick = { show.value = false }) {
+        Text(text = "Cancel")
+      }
+    },
+    confirmButton = {
+      TextButton(onClick = {
+        if (isCancelable) viewModel.cancelWork(context, work.name)
+        else viewModel.deleteWork(context, work.name, navController)
+      }) {
+        Text(text = "Confirm")
+      }
+    },
+    title = {
+      Text(text = if (isCancelable) "Cancel workout?" else "Delete work?")
+    },
+    text = {
+      Text(text = if (isCancelable) "The workout won't run anymore" else "This action is not reversible")
+    }
+  )
+}
+
+@Composable
+fun Fab(
   visible: Boolean,
   modifier: Modifier,
   onClick: () -> Unit,
