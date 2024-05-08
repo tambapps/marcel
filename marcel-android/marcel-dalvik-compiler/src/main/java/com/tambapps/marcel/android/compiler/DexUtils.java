@@ -60,6 +60,7 @@ public class DexUtils {
             "--min-sdk-version=%d --output=%s %s", BuildConfig.MIN_SDK_VERSION,
             dexOutputFile.getAbsolutePath(),
             jarFile.getAbsolutePath()).split("\\s"));
+        // TODO this process seems to block main thread (we can observe behaviour when fetching new dumbbell)
         int result = Main.run(arguments);
         if (result != 0) {
             dexOutputFile.delete();
