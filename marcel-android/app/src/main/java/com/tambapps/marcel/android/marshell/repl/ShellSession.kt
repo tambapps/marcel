@@ -1,8 +1,6 @@
 package com.tambapps.marcel.android.marshell.repl
 
-import android.util.Log
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
-import com.tambapps.marcel.android.marshell.ui.screen.shell.Prompt
 import com.tambapps.marcel.android.marshell.repl.jar.DexJarWriterFactory
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.compiler.exception.MarcelCompilerException
@@ -14,12 +12,9 @@ import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import marcel.lang.Binding
 import marcel.lang.MarcelDexClassLoader
 import java.io.File
-import java.lang.Exception
 
 class ShellSession(compilerConfiguration: CompilerConfiguration, classesDir: File) {
 
@@ -40,23 +35,7 @@ class ShellSession(compilerConfiguration: CompilerConfiguration, classesDir: Fil
       evaluator.scriptConfigurer = value
     }
 
-  fun eval(text: String) = evaluator.eval(text)
-
-  fun eval(text: String, callback: (Prompt.Type, Any?) -> Unit) {
-    coroutineScope.launch {
-      val result = runCatching { eval(text) }
-      withContext(Dispatchers.Main) {
-        if (result.isSuccess) {
-          callback.invoke(Prompt.Type.SUCCESS_OUTPUT, result.getOrNull())
-        } else {
-          val exception = result.exceptionOrNull()!!
-          Log.e("ShellSession", "Error while running prompt", exception)
-          callback.invoke(Prompt.Type.ERROR_OUTPUT,
-            if (isMarcelCompilerException(exception)) exception.message else exception)
-        }
-      }
-    }
-  }
+  fun evalAsResult(text: String) = runCatching { evaluator.eval(text) }
 
   fun newHighlighter() = SpannableHighlighter(symbolResolver, replCompiler)
 }

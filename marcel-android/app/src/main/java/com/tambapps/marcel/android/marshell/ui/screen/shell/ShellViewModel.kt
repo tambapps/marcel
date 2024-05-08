@@ -2,7 +2,9 @@ package com.tambapps.marcel.android.marshell.ui.screen.shell
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -15,6 +17,10 @@ import com.tambapps.marcel.android.marshell.repl.ShellSession
 import com.tambapps.marcel.android.marshell.repl.console.PromptPrinter
 import com.tambapps.marcel.android.marshell.ui.screen.HighlightTransformation
 import com.tambapps.marcel.android.marshell.util.readText
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import marcel.lang.Script
 import java.io.IOException
 import java.io.OutputStream
@@ -30,6 +36,7 @@ class ShellViewModel constructor(private val shellSession: ShellSession) : ViewM
   // services and miscellaneous
   private val historyNavigator = PromptHistoryNavigator(prompts)
   private val highlighter = shellSession.newHighlighter()
+  private val ioScope = CoroutineScope(Dispatchers.IO)
 
   init {
     shellSession.scriptConfigurer = { script: Script ->
@@ -89,13 +96,22 @@ class ShellViewModel constructor(private val shellSession: ShellSession) : ViewM
 
   fun prompt(text: CharSequence) {
     prompts.add(Prompt(Prompt.Type.INPUT, text))
-    textInput = TextFieldValue()
+    textInput = TextFieldValue() // reset text input
     isEvaluating = true
-    shellSession.eval(text.toString()) { type, result ->
-      isEvaluating = false
-      prompts.add(Prompt(type, java.lang.String.valueOf(result)))
-    }
     historyNavigator.reset()
+    ioScope.launch {
+      val result = shellSession.evalAsResult(text.toString())
+      val prompt = if (result.isSuccess) Prompt(Prompt.Type.SUCCESS_OUTPUT, java.lang.String.valueOf(result.getOrNull()))
+      else {
+        val exception = result.exceptionOrNull()!!
+        Log.e("ShellSession", "Error while running prompt", exception)
+        Prompt(Prompt.Type.ERROR_OUTPUT, if (ShellSession.isMarcelCompilerException(exception)) exception.localizedMessage else exception.toString())
+      }
+      withContext(Dispatchers.Main) {
+        isEvaluating = false
+        prompts.add(prompt)
+      }
+    }
   }
 
   override fun highlight(text: CharSequence) = highlighter.highlight(text).toAnnotatedString()

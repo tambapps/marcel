@@ -31,6 +31,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,8 +51,6 @@ import com.tambapps.marcel.android.marshell.ui.component.TopBarIconButton
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.component.shellIconModifier
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import marcel.lang.util.MarcelVersion
 
 val HEADER = "Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSION.RELEASE})"
@@ -59,14 +58,14 @@ val HEADER = "Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSIO
 @Composable
 fun ShellScreen(
   viewModel: ShellViewModel,
-  scope: CoroutineScope = rememberCoroutineScope(),
 ) {
   Column(modifier = Modifier.fillMaxSize()) {
     TopBar(viewModel)
     val listState = rememberLazyListState()
-    SelectionContainer(Modifier
-      .weight(1f)
-      .fillMaxWidth()) {
+    SelectionContainer(
+      Modifier
+        .weight(1f)
+        .fillMaxWidth()) {
       LazyColumn(
         modifier = Modifier.fillMaxWidth(), state = listState
       ) {
@@ -101,18 +100,20 @@ fun ShellScreen(
               },
               padding = PaddingValues(top = 8.dp)
             )
-
           }
         }
       }
     }
+    LaunchedEffect(viewModel.prompts.size) {
+      // make sure to scroll to the end each time a new item is added on the prompts list
+      listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1)
+    }
     Row(verticalAlignment = Alignment.CenterVertically) {
       val onPrompt: () -> Unit = {
         // when we get the annotatedString here, it is not highlighted yet. So we have to
-        val input = viewModel.highlight(viewModel.textInput.annotatedString)
+        val input = viewModel.highlight(viewModel.textInput.annotatedString) // TODO it blocks UI, it shouldn't. process should be run in the background
         if (input.isNotBlank()) {
-          viewModel.prompt(input) // TODO it blocks UI, it shouldn't. process should be run in the background
-          scope.launch { listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1) }
+          viewModel.prompt(input)
         }
       }
       val singleLineInput = viewModel.singleLineInput
