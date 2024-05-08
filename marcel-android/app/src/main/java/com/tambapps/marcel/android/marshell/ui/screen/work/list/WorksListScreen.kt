@@ -105,8 +105,10 @@ fun ShellWorkItem(shellWork: ShellWork, navController: NavController) {
     Text(text = shellWork.name, style = shellTextStyle, fontSize = 18.sp)
     Text(text = runtimeText(shellWork), style = shellTextStyle, fontSize = 16.sp)
 
-    shellWork.durationBetweenNowAndNext?.let {
-      Text(text = "next run in " + TimeUtils.humanReadableFormat(it, ChronoUnit.SECONDS), style = shellTextStyle, fontSize = 16.sp)
+    if (!shellWork.isFinished) {
+      shellWork.durationBetweenNowAndNext?.let {
+        Text(text = "next run in " + TimeUtils.humanReadableFormat(it, ChronoUnit.SECONDS), style = shellTextStyle, fontSize = 16.sp)
+      }
     }
 
     WorkStateText(shellWork = shellWork, modifier = Modifier.align(Alignment.End), fontSize = 14.sp)
