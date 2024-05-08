@@ -22,7 +22,7 @@ class WorksListViewModel(
   val works = mutableStateListOf<ShellWork>()
 
   suspend fun refresh() {
-    val list = shellWorkManager.list()
+    val list = shellWorkManager.list().sortedByDescending { it.createdAt }
     withContext(Dispatchers.Main) {
       works.clear()
       works.addAll(list)
