@@ -190,7 +190,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
   }
 
   open fun defineField(javaType: JavaType, field: MarcelField) {
-    if (javaType.isLoaded) {
+    if (javaType.isLoaded && field is JavaClassField) {
       throw MarcelSemanticException(
         (field as? FieldNode)?.token ?: LexToken.DUMMY,
         "Cannot define field on loaded class"
