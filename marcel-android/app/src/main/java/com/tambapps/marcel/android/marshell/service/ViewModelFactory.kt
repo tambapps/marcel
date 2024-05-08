@@ -31,7 +31,12 @@ class ViewModelFactory @Inject constructor(
   @Suppress("UNCHECKED_CAST")
   override fun <T : ViewModel> create(modelClass: Class<T>): T {
     return when (modelClass) {
-      EditorViewModel::class.java -> EditorViewModel(newSpannableHighlighter())
+      EditorViewModel::class.java -> {
+        val classLoader = MarcelDexClassLoader()
+        val symbolResolver = ReplMarcelSymbolResolver(classLoader, Binding())
+        val replCompiler = MarcelReplCompiler(compilerConfiguration, classLoader, symbolResolver)
+        EditorViewModel(symbolResolver, replCompiler)
+      }
       ShellViewModel::class.java -> ShellViewModel(shellSessionFactory.newSession())
       WorkCreateViewModel::class.java -> {
         val classLoader = MarcelDexClassLoader()

@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.tambapps.marcel.android.marshell.R
+import com.tambapps.marcel.android.marshell.ui.component.ScriptField
 import com.tambapps.marcel.android.marshell.ui.component.TopBarIconButton
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.component.shellIconModifier
@@ -32,11 +33,9 @@ fun EditorScreen(viewModel: EditorViewModel) {
       .fillMaxWidth(),
       contentAlignment = Alignment.BottomEnd) {
 
-      TextField(
+      ScriptField(
+        viewModel = viewModel,
         modifier = Modifier.fillMaxSize(),
-        value = viewModel.textInput,
-        onValueChange = { viewModel.textInput = it },
-        visualTransformation = viewModel
       )
       FloatingActionButton(
         modifier = Modifier.padding(all = 16.dp),

@@ -7,11 +7,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
-import com.tambapps.marcel.android.marshell.repl.ShellSession
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.room.entity.WorkPeriod
-import com.tambapps.marcel.android.marshell.ui.screen.HighlightTransformation
-import com.tambapps.marcel.android.marshell.ui.screen.work.ScriptCardViewModel
+import com.tambapps.marcel.android.marshell.ui.screen.ScriptCardEditorViewModel
 import com.tambapps.marcel.android.marshell.work.ShellWorkManager
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
@@ -25,7 +23,7 @@ class WorkCreateViewModel(
   private val shellWorkManager: ShellWorkManager,
   symbolResolver: ReplMarcelSymbolResolver,
   override val replCompiler: MarcelReplCompiler,
-): ViewModel(), ScriptCardViewModel {
+): ViewModel(), ScriptCardEditorViewModel {
 
   companion object {
     private val VALID_NAME_REGEX = Regex("^[A-Za-z0-9.\\s_-]+\$")

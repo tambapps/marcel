@@ -27,11 +27,11 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.tambapps.marcel.android.marshell.ui.screen.work.ScriptCardViewModel
+import com.tambapps.marcel.android.marshell.ui.screen.ScriptEditorViewModel
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 
 @Composable
-fun ScriptField(viewModel: ScriptCardViewModel, readOnly: Boolean, modifier: Modifier) {
+fun ScriptField(viewModel: ScriptEditorViewModel, modifier: Modifier = Modifier, readOnly: Boolean = false) {
   var linesText by remember { mutableIntStateOf(1) }
   val style = remember { shellTextStyle.copy(lineHeight = 26.sp) }
 

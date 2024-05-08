@@ -9,8 +9,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
-import com.tambapps.marcel.android.marshell.ui.screen.HighlightTransformation
-import com.tambapps.marcel.android.marshell.ui.screen.work.ScriptCardViewModel
+import com.tambapps.marcel.android.marshell.ui.screen.ScriptCardEditorViewModel
+import com.tambapps.marcel.android.marshell.ui.screen.ScriptEditorViewModel
 import com.tambapps.marcel.android.marshell.work.ShellWorkManager
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
@@ -25,7 +25,7 @@ class WorkViewModel(
   private val shellWorkManager: ShellWorkManager,
   symbolResolver: ReplMarcelSymbolResolver,
   override val replCompiler: MarcelReplCompiler,
-): ViewModel(), ScriptCardViewModel {
+): ViewModel(), ScriptCardEditorViewModel {
 
   override var scriptTextInput by mutableStateOf(TextFieldValue())
   override var scriptTextError by mutableStateOf<String?>(null)
