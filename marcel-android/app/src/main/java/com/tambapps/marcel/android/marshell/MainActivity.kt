@@ -115,7 +115,7 @@ class MainActivity : ComponentActivity() {
               composable(Routes.WORK_VIEW + "/{${Routes.WORK_NAME_ARG}}", arguments = listOf(navArgument(Routes.WORK_NAME_ARG) { type = NavType.StringType })
               ) {
                 val viewModel: WorkViewModel = viewModelFactory.newInstance()
-                WorkViewScreen(viewModel)
+                WorkViewScreen(viewModel, navController)
               }
               composable(Routes.SETTINGS) {
                 // TODO

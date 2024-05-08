@@ -107,4 +107,17 @@ class ShellWorkManager @Inject constructor(
     )
     shellWorkDao.upsert(data)
   }
+
+  suspend fun cancel(name: String): ShellWork? {
+    workManager.cancelUniqueWork(name).result.get()
+    shellWorkDao.updateState(name, WorkInfo.State.CANCELLED)
+    return findByName(name)
+  }
+
+  suspend fun delete(name: String): Boolean {
+    workManager.cancelUniqueWork(name).result.get()
+    val data = shellWorkDao.findByName(name) ?: return false
+    shellWorkDao.delete(data)
+    return true
+  }
 }

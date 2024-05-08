@@ -12,7 +12,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
@@ -22,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -29,6 +33,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.work.WorkInfo
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import com.tambapps.marcel.android.marshell.ui.component.EXPANDABLE_CARD_ANIMATION_SPEC
@@ -44,11 +50,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.time.temporal.ChronoUnit
 
+private val Orange = Color(0xFF925F00)
 
 @Composable
 fun WorkViewScreen(
-  viewModel: WorkViewModel
+  viewModel: WorkViewModel,
+  navController: NavController,
 ) {
+  val work = viewModel.work
   Box(
     modifier = Modifier.fillMaxSize(),
   ) {
@@ -58,10 +67,9 @@ fun WorkViewScreen(
         .padding(horizontal = 8.dp)
     ) {
       Header()
-      if (viewModel.work == null) {
+      if (work == null) {
         LoadingComponent()
       } else {
-        val work = viewModel.work!!
         WorkComponent(viewModel, work)
         LaunchedEffect(Unit) {
           if (work.isPeriodic) {
@@ -73,35 +81,67 @@ fun WorkViewScreen(
             }
           }
         }
-
       }
     }
-    SaveFab(viewModel = viewModel, modifier = Modifier.align(Alignment.BottomEnd))
+    val context = LocalContext.current
+
+    if (work != null) {
+      val isCancelable = work.state != WorkInfo.State.CANCELLED
+      SaveFab(
+        visible = true,
+        modifier = Modifier.align(Alignment.BottomStart),
+        onClick = {
+          // TODO alert dialog
+          if (isCancelable) viewModel.cancelWork(context, work.name)
+          else viewModel.deleteWork(context, work.name, navController)
+        },
+        color = if (isCancelable) Orange else Color.Red,
+        icon = {
+          Icon(
+            Icons.Filled.Add,
+            modifier = Modifier.size(23.dp).rotate(45f),
+            contentDescription = "Cancel",
+            tint = Color.White
+          )
+        }
+      )
+    }
+
+    SaveFab(
+      visible = viewModel.scriptEdited,
+      modifier = Modifier.align(Alignment.BottomEnd),
+      onClick = { viewModel.validateAndSave(context) },
+      icon = {
+        Icon(
+          painterResource(id = R.drawable.save),
+          modifier = Modifier.size(23.dp),
+          contentDescription = "Save",
+          tint = Color.White
+        )
+      }
+    )
   }
 }
 
 @Composable
-fun SaveFab(viewModel: WorkViewModel, modifier: Modifier) {
+fun SaveFab(
+  visible: Boolean,
+  modifier: Modifier,
+  onClick: () -> Unit,
+  color: Color = FloatingActionButtonDefaults.containerColor,
+  icon: @Composable () -> Unit
+  ) {
   AnimatedVisibility(
     modifier = modifier,
-    visible = viewModel.scriptEdited,
+    visible = visible,
     enter = scaleIn(),
     exit = scaleOut(),
   ) {
-    val context = LocalContext.current
     FloatingActionButton(
+      containerColor = color,
       modifier = Modifier.padding(all = 16.dp),
-      onClick = {
-        viewModel.validateAndSave(context)
-      }
-    ) {
-      Icon(
-        painterResource(id = R.drawable.save),
-        modifier = Modifier.size(23.dp),
-        contentDescription = "Save",
-        tint = Color.White
-      )
-    }
+      onClick = onClick, content = icon
+    )
   }
 }
 @Composable
@@ -164,7 +204,7 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
     }
     Box(modifier = Modifier.padding(16.dp))
   }
-  WorkScriptCard(viewModel = viewModel, readOnly = !work.isPeriodic)
+  WorkScriptCard(viewModel = viewModel, readOnly = !work.isPeriodic || work.isFinished)
 }
 
 @Composable

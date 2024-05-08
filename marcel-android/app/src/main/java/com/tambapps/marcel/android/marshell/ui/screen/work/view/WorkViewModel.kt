@@ -7,10 +7,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavController
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import com.tambapps.marcel.android.marshell.ui.screen.ScriptCardEditorViewModel
-import com.tambapps.marcel.android.marshell.ui.screen.ScriptEditorViewModel
 import com.tambapps.marcel.android.marshell.work.ShellWorkManager
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
@@ -19,7 +19,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Duration
-
 
 class WorkViewModel(
   private val shellWorkManager: ShellWorkManager,
@@ -85,6 +84,27 @@ class WorkViewModel(
         work = updatedWork
         scriptEdited = false
         Toast.makeText(context, "Work successfully updated", Toast.LENGTH_SHORT).show()
+      }
+    }
+  }
+
+  fun cancelWork(context: Context, workName: String) {
+    ioScope.launch {
+      val updatedWork = shellWorkManager.cancel(workName)
+      withContext(Dispatchers.Main) {
+        work = updatedWork
+        scriptEdited = false
+        Toast.makeText(context, "Work successfully cancelled", Toast.LENGTH_SHORT).show()
+      }
+    }
+  }
+
+  fun deleteWork(context: Context, workName: String, navController: NavController) {
+    ioScope.launch {
+      shellWorkManager.delete(workName)
+      withContext(Dispatchers.Main) {
+        navController.navigateUp()
+        Toast.makeText(context, "Work successfully deleted", Toast.LENGTH_SHORT).show()
       }
     }
   }
