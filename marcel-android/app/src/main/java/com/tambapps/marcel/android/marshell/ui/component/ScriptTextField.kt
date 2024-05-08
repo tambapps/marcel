@@ -31,7 +31,7 @@ import com.tambapps.marcel.android.marshell.ui.screen.ScriptEditorViewModel
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 
 @Composable
-fun ScriptField(viewModel: ScriptEditorViewModel, modifier: Modifier = Modifier, readOnly: Boolean = false) {
+fun ScriptTextField(viewModel: ScriptEditorViewModel, modifier: Modifier = Modifier, readOnly: Boolean = false) {
   var linesText by remember { mutableIntStateOf(1) }
   val style = remember { shellTextStyle.copy(lineHeight = 26.sp) }
 

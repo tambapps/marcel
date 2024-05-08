@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,7 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.tambapps.marcel.android.marshell.R
-import com.tambapps.marcel.android.marshell.ui.component.ScriptField
+import com.tambapps.marcel.android.marshell.ui.component.ScriptTextField
 import com.tambapps.marcel.android.marshell.ui.component.TopBarIconButton
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.component.shellIconModifier
@@ -33,7 +32,7 @@ fun EditorScreen(viewModel: EditorViewModel) {
       .fillMaxWidth(),
       contentAlignment = Alignment.BottomEnd) {
 
-      ScriptField(
+      ScriptTextField(
         viewModel = viewModel,
         modifier = Modifier.fillMaxSize(),
       )

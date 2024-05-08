@@ -20,7 +20,7 @@ import androidx.work.WorkInfo
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import com.tambapps.marcel.android.marshell.ui.component.ExpandableCard
-import com.tambapps.marcel.android.marshell.ui.component.ScriptField
+import com.tambapps.marcel.android.marshell.ui.component.ScriptTextField
 import com.tambapps.marcel.android.marshell.ui.screen.ScriptCardEditorViewModel
 import com.tambapps.marcel.android.marshell.util.TimeUtils
 import java.time.Duration
@@ -54,7 +54,7 @@ fun WorkScriptCard(viewModel: ScriptCardEditorViewModel, readOnly: Boolean = fal
         }
       }
     }) {
-    ScriptField(viewModel = viewModel, readOnly = readOnly, modifier = Modifier.weight(1f).padding(top = 8.dp))
+    ScriptTextField(viewModel = viewModel, readOnly = readOnly, modifier = Modifier.weight(1f).padding(top = 8.dp))
   }
 }
 
