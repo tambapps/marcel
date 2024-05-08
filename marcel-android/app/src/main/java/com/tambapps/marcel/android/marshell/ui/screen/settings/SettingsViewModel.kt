@@ -15,7 +15,6 @@ class SettingsViewModel: ViewModel() {
   }
 
   fun refresh() {
-    // TODO move to min API level 30
     canManageFiles = Environment.isExternalStorageManager()
   }
 

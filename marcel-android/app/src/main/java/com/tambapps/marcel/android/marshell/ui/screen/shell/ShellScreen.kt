@@ -111,7 +111,7 @@ fun ShellScreen(
     Row(verticalAlignment = Alignment.CenterVertically) {
       val onPrompt: () -> Unit = {
         // when we get the annotatedString here, it is not highlighted yet. So we have to
-        val input = viewModel.highlight(viewModel.textInput.annotatedString) // TODO it blocks UI, it shouldn't. process should be run in the background
+        val input = viewModel.highlight(viewModel.textInput.annotatedString)
         if (input.isNotBlank()) {
           viewModel.prompt(input)
         }
