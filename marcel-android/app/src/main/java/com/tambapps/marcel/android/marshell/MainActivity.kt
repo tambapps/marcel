@@ -162,7 +162,7 @@ fun TopBar(drawerState: DrawerState, scope: CoroutineScope) {
 }
 
 @Composable
-fun NavigationDrawer(
+private fun NavigationDrawer(
   drawerState: DrawerState,
   navController: NavController,
   scope: CoroutineScope,
