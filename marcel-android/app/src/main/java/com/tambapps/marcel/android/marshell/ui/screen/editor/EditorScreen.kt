@@ -1,5 +1,7 @@
 package com.tambapps.marcel.android.marshell.ui.screen.editor
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +28,7 @@ import com.tambapps.marcel.android.marshell.ui.component.shellIconModifier
 @Composable
 fun EditorScreen(viewModel: EditorViewModel) {
   Column(modifier = Modifier.fillMaxSize()) {
-    TopBar()
+    TopBar(viewModel)
     Box(modifier = Modifier
       .weight(1f)
       .fillMaxWidth(),
@@ -53,12 +55,17 @@ fun EditorScreen(viewModel: EditorViewModel) {
 
 }
 @Composable
-private fun TopBar() {
+private fun TopBar(viewModel: EditorViewModel) {
   val context = LocalContext.current
+  val pickFileLauncher = rememberLauncherForActivityResult(
+    ActivityResultContracts.GetContent()
+  ) { imageUri ->
+    viewModel.loadScript(context, imageUri)
+  }
   TopBarLayout(horizontalArrangement = Arrangement.End) {
     TopBarIconButton(
       modifier = shellIconModifier(4.dp),
-      onClick = { /*TODO*/ },
+      onClick = { pickFileLauncher.launch("*/*") },
       drawable = R.drawable.folder,
       contentDescription = "Open file"
     )

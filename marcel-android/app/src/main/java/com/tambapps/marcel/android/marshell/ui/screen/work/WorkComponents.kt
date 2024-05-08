@@ -35,7 +35,7 @@ fun WorkScriptCard(viewModel: ScriptCardEditorViewModel, readOnly: Boolean = fal
     additionalLogos = if (readOnly) null else {
       {
         val context = LocalContext.current
-        val pickPictureLauncher = rememberLauncherForActivityResult(
+        val pickFileLauncher = rememberLauncherForActivityResult(
           ActivityResultContracts.GetContent()
         ) { imageUri ->
           viewModel.loadScript(context, imageUri)
@@ -44,7 +44,7 @@ fun WorkScriptCard(viewModel: ScriptCardEditorViewModel, readOnly: Boolean = fal
           modifier = Modifier
             .weight(1f)
             .size(24.dp),
-          onClick = { pickPictureLauncher.launch("*/*") }) {
+          onClick = { pickFileLauncher.launch("*/*") }) {
           Icon(
             modifier = Modifier.size(24.dp),
             painter = painterResource(id = R.drawable.folder),
