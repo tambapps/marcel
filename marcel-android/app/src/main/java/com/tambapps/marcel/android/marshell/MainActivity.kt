@@ -113,18 +113,13 @@ class MainActivity : ComponentActivity() {
                 WorkCreateScreen(viewModel, navController)
               }
               composable(Routes.WORK_VIEW + "/{${Routes.WORK_NAME_ARG}}", arguments = listOf(navArgument(Routes.WORK_NAME_ARG) { type = NavType.StringType })
-              ) { backStackEntry ->
+              ) {
                 val viewModel: WorkViewModel = viewModelFactory.newInstance()
-                val workName = backStackEntry.arguments?.getString(Routes.WORK_NAME_ARG)
-                if (workName != null) {
-                  viewModel.init(workName)
-                }
                 WorkViewScreen(viewModel)
               }
               composable(Routes.SETTINGS) {
                 // TODO
               }
-
             }
             TopBar(drawerState, scope) // putting it at the end because we want it to have top priority in terms of displaying
           }
@@ -204,7 +199,7 @@ fun NavigationDrawer(
           drawerState = drawerState,
           scope = scope,
           text = "Workouts",
-          selected = backStackState.value?.destination?.route?.let { it == Routes.WORK_LIST || it == Routes.WORK_CREATE || it.startsWith(Routes.WORK_VIEW) } ?: false,
+          selected = backStackState.value?.destination?.route?.startsWith("work") ?: false,
           route = Routes.WORK_LIST
         )
 

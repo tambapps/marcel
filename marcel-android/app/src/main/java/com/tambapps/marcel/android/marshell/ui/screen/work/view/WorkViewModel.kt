@@ -25,6 +25,7 @@ class WorkViewModel(
   private val shellWorkManager: ShellWorkManager,
   symbolResolver: ReplMarcelSymbolResolver,
   override val replCompiler: MarcelReplCompiler,
+  workName: String?
 ): ViewModel(), ScriptCardEditorViewModel {
 
   override var scriptTextInput by mutableStateOf(TextFieldValue())
@@ -38,28 +39,29 @@ class WorkViewModel(
   private val highlighter = SpannableHighlighter(symbolResolver, replCompiler)
   private val ioScope = CoroutineScope(Dispatchers.IO)
 
+  init {
+    if (workName != null) {
+      ioScope.launch {
+        val w = shellWorkManager.findByName(workName)
+        if (w != null) {
+          withContext(Dispatchers.Main) {
+            work = w
+            durationBetweenNowAndNext = work?.durationBetweenNowAndNext
+            if (w.scriptText != null) {
+              setScriptTextInput(w.scriptText)
+              scriptEdited = false
+            }
+          }
+        }
+      }
+    }
+  }
   override fun highlight(text: CharSequence) = highlighter.highlight(text).toAnnotatedString()
 
   override fun onScriptTextChange(text: TextFieldValue) {
     super.onScriptTextChange(text)
     if (work?.isPeriodic == true) {
       scriptEdited = true
-    }
-  }
-
-  fun init(workName: String) {
-    ioScope.launch {
-      val w = shellWorkManager.findByName(workName)
-      if (w != null) {
-        withContext(Dispatchers.Main) {
-          work = w
-          durationBetweenNowAndNext = work?.durationBetweenNowAndNext
-          if (w.scriptText != null) {
-            setScriptTextInput(w.scriptText)
-            scriptEdited = false
-          }
-        }
-      }
     }
   }
 

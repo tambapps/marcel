@@ -3,7 +3,10 @@ package com.tambapps.marcel.android.marshell.service
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorViewModel
@@ -28,8 +31,12 @@ class ViewModelFactory @Inject constructor(
   @Composable
   inline fun <reified VM : ViewModel> newInstance(): VM = viewModel(factory = this)
 
-  @Suppress("UNCHECKED_CAST")
   override fun <T : ViewModel> create(modelClass: Class<T>): T {
+    return create(modelClass, CreationExtras.Empty)
+  }
+
+  @Suppress("UNCHECKED_CAST")
+  override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
     return when (modelClass) {
       EditorViewModel::class.java -> {
         val classLoader = MarcelDexClassLoader()
@@ -48,7 +55,9 @@ class ViewModelFactory @Inject constructor(
         val classLoader = MarcelDexClassLoader()
         val symbolResolver = ReplMarcelSymbolResolver(classLoader, Binding())
         val replCompiler = MarcelReplCompiler(compilerConfiguration, classLoader, symbolResolver)
-        WorkViewModel(shellWorkManager, symbolResolver, replCompiler)
+        // argument should be accessible because of android compose navigation
+        val workName = extras.createSavedStateHandle().get<String>(Routes.WORK_NAME_ARG)
+        WorkViewModel(shellWorkManager, symbolResolver, replCompiler, workName)
       }
       WorksListViewModel::class.java -> WorksListViewModel(shellWorkManager)
       else -> throw UnsupportedOperationException("Cannot create ViewModel of class $modelClass")
