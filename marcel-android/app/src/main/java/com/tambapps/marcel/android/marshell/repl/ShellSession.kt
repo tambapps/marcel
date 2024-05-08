@@ -28,9 +28,9 @@ class ShellSession(compilerConfiguration: CompilerConfiguration, classesDir: Fil
 
   }
   private val coroutineScope = CoroutineScope(Dispatchers.IO)
-  private val binding = Binding()
+  internal val binding = Binding()
   private val classLoader = MarcelDexClassLoader()
-  private val symbolResolver = ReplMarcelSymbolResolver(classLoader, binding)
+  internal val symbolResolver = ReplMarcelSymbolResolver(classLoader, binding)
   private val replCompiler = MarcelReplCompiler(compilerConfiguration, classLoader, symbolResolver)
   private val evaluator = MarcelEvaluator(binding, replCompiler, classLoader, DexJarWriterFactory(), classesDir)
 

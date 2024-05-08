@@ -81,13 +81,16 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
   ) {
 
     SectionTitle(text = "Shell", sectionStyle = sectionStyle)
-    SettingItem(text = "Initialization script", onClick = { /* TODO */ })
+    SettingItem(
+      text = "Initialization script",
+      description = "Configure a script that will be executed at every shell session startup",
+      onClick = { /* TODO */ })
 
 
     SectionTitle(text = "Permissions", sectionStyle = sectionStyle)
     SettingItem(
       text = "Manage files",
-      description = "Manage files of your smartphone within Marcel scripts",
+      description = "Manage files of your device within Marcel scripts",
       onClick = {
         context.startActivity(Intent(
           Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
@@ -99,12 +102,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
 
     SectionTitle(text = "Dependency Management", sectionStyle = sectionStyle)
     SettingItem(
-      text = "Startup dumbbells",
-      description = "Manage dumbbells that will always be loaded at startup of any shell",
-      onClick = { /* TODO */ }
-    )
-    SettingItem(
-      text = "Repository",
+      text = "Maven Repository",
       description = "Manage fetched Maven artifacts",
       onClick = { /* TODO */ }
     )
