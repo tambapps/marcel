@@ -19,7 +19,7 @@
         android:theme="@style/Theme.MarcelAndroid"
         tools:targetApi="31">
         <activity
-            android:name=".FileExplorerActivity"
+            android:name=".FilePickerActivity"
             android:exported="false"
             android:label="@string/title_activity_file_explorer"
             android:theme="@style/Theme.MarcelAndroid" />

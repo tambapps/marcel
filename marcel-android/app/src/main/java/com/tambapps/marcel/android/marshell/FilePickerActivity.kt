@@ -1,12 +1,13 @@
 package com.tambapps.marcel.android.marshell
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.foundation.clickable
@@ -57,7 +58,7 @@ import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
 import com.tambapps.marcel.android.marshell.util.LifecycleStateListenerEffect
 import java.io.File
 
-class FileExplorerActivity : ComponentActivity() {
+class FilePickerActivity : ComponentActivity() {
 
   companion object {
     val SCRIPT_FILE_EXTENSIONS = arrayOf(".mcl", ".txt", ".marcel")
@@ -65,10 +66,21 @@ class FileExplorerActivity : ComponentActivity() {
     const val ALLOWED_FILE_EXTENSIONSKEY = "afek"
     const val DIRECTORY_ONLY_KEY = "pick_directoryk"
     const val START_DIRECTORY_KEY = "start_directory"
+
+    @Composable
+    fun rememberFilePickerForActivityResult(callback: (File?) -> Unit): ManagedActivityResultLauncher<Args, File?> {
+      return rememberLauncherForActivityResult(Contract(), callback)
+    }
   }
 
-  class Contract: ActivityResultContract<Intent, File?>() {
-    override fun createIntent(context: Context, input: Intent) = input
+  data class Args(val pickDirectory: Boolean = false, val allowedFileExtensions: List<String>? = null)
+  class Contract: ActivityResultContract<Args, File?>() {
+    override fun createIntent(context: Context, input: Args) = Intent(context, FilePickerActivity::class.java).apply {
+      if (input.pickDirectory) putExtra(DIRECTORY_ONLY_KEY, true)
+      input.allowedFileExtensions?.let {
+        putExtra(ALLOWED_FILE_EXTENSIONSKEY, it.toTypedArray())
+      }
+    }
 
     override fun parseResult(resultCode: Int, intent: Intent?)
         = if (resultCode == RESULT_OK && intent != null) File(intent.getStringExtra(PICKED_FILE_PATH_KEY)!!)
@@ -108,7 +120,7 @@ class FileExplorerActivity : ComponentActivity() {
                 viewModel = viewModel,
                 backPressedDispatcher = onBackPressedDispatcher
               )
-              ProposeFileDialog(viewModel, this@FileExplorerActivity::pickFile)
+              ProposeFileDialog(viewModel, this@FilePickerActivity::pickFile)
               if (!viewModel.dirOnly) {
                 FloatingActionButton(
                   modifier = Modifier

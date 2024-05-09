@@ -84,7 +84,6 @@ class MainActivity : ComponentActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    if (true) startActivity(Intent(this, FileExplorerActivity::class.java))
     setContent {
       val navController = rememberNavController()
       val drawerState = rememberDrawerState(DrawerValue.Closed)
