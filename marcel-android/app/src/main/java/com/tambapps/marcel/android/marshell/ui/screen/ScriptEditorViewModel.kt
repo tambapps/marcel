@@ -28,10 +28,10 @@ interface ScriptEditorViewModel: HighlightTransformation {
   }
 
   fun onScriptTextChange(text: TextFieldValue) {
-    scriptTextInput = text
-    if (scriptTextError != null) {
+    if (scriptTextError != null && scriptTextInput.text != text.text) {
       scriptTextError = null
     }
+    scriptTextInput = text
   }
 
   fun validateScriptText(): Boolean {

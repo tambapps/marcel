@@ -1,6 +1,7 @@
 package com.tambapps.marcel.android.marshell.ui.screen.editor
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,6 +11,10 @@ import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.ui.screen.ScriptEditorViewModel
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 class EditorViewModel(
@@ -23,6 +28,7 @@ class EditorViewModel(
   var file by mutableStateOf(file?.let { if (file.isFile || !file.exists()) file else null })
 
   private val highlighter = SpannableHighlighter(symbolResolver, replCompiler)
+  private val ioScope = CoroutineScope(Dispatchers.IO)
 
   init {
     if (file != null) {
@@ -38,6 +44,23 @@ class EditorViewModel(
     super.loadScript(context, file)
     if (file != null && file.isFile) {
       this.file = file
+    }
+  }
+
+  fun validateAndSave(context: Context, file: File): Boolean {
+    if (!validateScriptText()) return false
+    save(context, file)
+    return true
+  }
+
+  fun save(context: Context, file: File) {
+    ioScope.launch {
+      val result = runCatching { file.writeText(scriptTextInput.text) }
+      withContext(Dispatchers.Main) {
+        Toast.makeText(context,
+          if (result.isSuccess) "Saved successfully" else "An error occurred: ${result.exceptionOrNull()?.localizedMessage}"
+          , Toast.LENGTH_SHORT).show()
+      }
     }
   }
 }

@@ -1,8 +1,6 @@
 package com.tambapps.marcel.android.marshell.ui.screen.editor
 
-import android.content.Context
 import android.widget.Toast
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,11 +8,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,20 +28,12 @@ import com.tambapps.marcel.android.marshell.FilePickerActivity
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.ui.component.ScriptTextField
 import com.tambapps.marcel.android.marshell.ui.component.TopBarIconButton
-import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.component.shellIconModifier
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
-
 
 @Composable
 fun EditorScreen(viewModel: EditorViewModel) {
   val context = LocalContext.current
-  val scope = rememberCoroutineScope { Dispatchers.IO }
   Column(modifier = Modifier.fillMaxSize()) {
     TopBar(viewModel)
     Box(modifier = Modifier
@@ -53,19 +47,41 @@ fun EditorScreen(viewModel: EditorViewModel) {
       )
       val pickFileLauncher = FilePickerActivity.rememberFilePickerForActivityResult { file ->
         if (file != null) {
-          save(context, scope, viewModel, file)
+          viewModel.save(context, file)
           viewModel.file = file
         }
       }
+      val showErrorDialog = remember { mutableStateOf(false) }
+      WarningDialog(
+        showState = showErrorDialog,
+        error = viewModel.scriptTextError,
+        onConfirm = {
+          if (viewModel.file != null) {
+            viewModel.save(context, viewModel.file!!)
+            viewModel.file = viewModel.file!!
+          }
+          else {
+            Toast.makeText(context, "Please select a file to save", Toast.LENGTH_SHORT).show()
+            pickFileLauncher.launch(FilePickerActivity.Args(allowCreateNewFile = true))
+          }
+        }
+      )
       FloatingActionButton(
         modifier = Modifier.padding(all = 16.dp),
         onClick = {
           val file = viewModel.file
           if (file != null) {
-            save(context, scope, viewModel, file)
+            viewModel.file = file
+            if (!viewModel.validateAndSave(context, file)) {
+              showErrorDialog.value = true
+            }
           } else {
-            Toast.makeText(context, "Please select a file to save", Toast.LENGTH_SHORT).show()
-            pickFileLauncher.launch(FilePickerActivity.Args(allowCreateNewFile = true))
+            if (viewModel.validateScriptText()) {
+              Toast.makeText(context, "Please select a file to save", Toast.LENGTH_SHORT).show()
+              pickFileLauncher.launch(FilePickerActivity.Args(allowCreateNewFile = true))
+            } else {
+              showErrorDialog.value = true
+            }
           }
         }
       ) {
@@ -80,16 +96,35 @@ fun EditorScreen(viewModel: EditorViewModel) {
   }
 }
 
-private fun save(context: Context, scope: CoroutineScope, viewModel: EditorViewModel, file: File) {
-  // TODO validate code like in workCreate workView screen but allow the user to save even if it doesn't compile
-  scope.launch {
-    val result = runCatching { file.writeText(viewModel.scriptTextInput.text) }
-    withContext(Dispatchers.Main) {
-      Toast.makeText(context,
-        if (result.isSuccess) "Saved successfully" else "An error occurred: ${result.exceptionOrNull()?.localizedMessage}"
-        , Toast.LENGTH_SHORT).show()
+@Composable
+fun WarningDialog(
+  showState: MutableState<Boolean>,
+  error: String?,
+  onConfirm: () -> Unit
+) {
+  if (!showState.value) return
+  AlertDialog(
+    title = {
+       Text(text = "Compilation error")
+    },
+    text = {
+      Text(text =
+      (error?.let { "$it\n\n" } ?: "") +
+      "Your code doesn't compile. Do you want to save anyway?")
+    },
+    onDismissRequest = { showState.value = false },
+    confirmButton = {
+      TextButton(onClick = { onConfirm.invoke(); showState.value = false }) {
+        Text(text = "Yes")
+      }
+    },
+    dismissButton = {
+      TextButton(onClick = { showState.value = false }) {
+        Text(text = "No")
+      }
     }
-  }
+  )
+
 }
 
 @Composable
