@@ -8,12 +8,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import com.tambapps.marcel.android.marshell.repl.MarshellScript
 import com.tambapps.marcel.android.marshell.repl.ShellSession
+import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.repl.console.PromptPrinter
+import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.ui.screen.HighlightTransformation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,22 +27,37 @@ import java.io.File
 import java.io.IOException
 import java.io.OutputStream
 
-class ShellViewModel constructor(private val shellSession: ShellSession) : ViewModel(), HighlightTransformation {
+class ShellViewModel constructor(
+  context: Context,
+  shellSessionFactory: ShellSessionFactory
+) : ViewModel(), HighlightTransformation {
 
   // states
   var textInput by mutableStateOf(TextFieldValue())
   val prompts = mutableStateListOf<Prompt>()
   var isEvaluating by mutableStateOf(false)
+  val isShellReady get() = shellSession != null
   var singleLineInput by mutableStateOf(true)
 
   // services and miscellaneous
   private val historyNavigator = PromptHistoryNavigator(prompts)
-  private val highlighter = shellSession.newHighlighter()
+  private var shellSession by mutableStateOf<ShellSession?>(null)
+  private var highlighter: SpannableHighlighter? = null // = shellSession.newHighlighter()
   private val ioScope = CoroutineScope(Dispatchers.IO)
 
   init {
-    shellSession.scriptConfigurer = { script: Script ->
-      (script as MarshellScript).setPrinter(PromptPrinter(prompts))
+    val sessionResult = runCatching { shellSessionFactory.newSession(PromptPrinter(prompts)) }
+    if (sessionResult.isSuccess) {
+      sessionResult.getOrThrow().let {
+        shellSession = it
+        highlighter = it.newHighlighter()
+      }
+    } else {
+      Toast.makeText(
+        context,
+        "Error: ${sessionResult.exceptionOrNull()?.localizedMessage}",
+        Toast.LENGTH_LONG
+      ).show()
     }
   }
 
@@ -85,15 +103,16 @@ class ShellViewModel constructor(private val shellSession: ShellSession) : ViewM
 
   fun historyUp() {
     val text = historyNavigator.up() ?: return
-    textInput = TextFieldValue(annotatedString = highlighter.highlight(text).toAnnotatedString(), selection = TextRange(text.length))
+    textInput = TextFieldValue(annotatedString = highlight(text), selection = TextRange(text.length))
   }
 
   fun historyDown() {
     val text = historyNavigator.down() ?: return
-    textInput = TextFieldValue(annotatedString = highlighter.highlight(text).toAnnotatedString(), selection = TextRange(text.length))
+    textInput = TextFieldValue(annotatedString = highlight(text), selection = TextRange(text.length))
   }
 
   fun prompt(text: CharSequence) {
+    val shellSession = this.shellSession ?: return
     prompts.add(Prompt(Prompt.Type.INPUT, text))
     textInput = TextFieldValue() // reset text input
     isEvaluating = true
@@ -113,7 +132,7 @@ class ShellViewModel constructor(private val shellSession: ShellSession) : ViewM
     }
   }
 
-  override fun highlight(text: CharSequence) = highlighter.highlight(text).toAnnotatedString()
+  override fun highlight(text: CharSequence) = highlighter?.highlight(text)?.toAnnotatedString() ?: AnnotatedString(text.toString())
 
   fun loadScript(context: Context, file: File?) {
     if (file != null) {

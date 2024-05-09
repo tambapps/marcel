@@ -1,7 +1,6 @@
 
 package com.tambapps.marcel.android.marshell
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -37,6 +36,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.service.PreferencesDataStore
 import com.tambapps.marcel.android.marshell.service.ViewModelFactory
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellScreen
@@ -82,6 +82,8 @@ class MainActivity : ComponentActivity() {
   @Inject
   @Named("shellSessionsDirectory")
   lateinit var shellSessionsDirectory: File
+  @Inject
+  lateinit var shellSessionFactory: ShellSessionFactory
   @Inject
   @Named("initScriptFile")
   lateinit var initScriptFile: File

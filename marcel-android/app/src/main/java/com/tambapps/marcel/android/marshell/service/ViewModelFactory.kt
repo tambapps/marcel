@@ -1,5 +1,6 @@
 package com.tambapps.marcel.android.marshell.service
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -19,6 +20,7 @@ import com.tambapps.marcel.android.marshell.work.ShellWorkManager
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
+import dagger.hilt.android.qualifiers.ApplicationContext
 import marcel.lang.Binding
 import marcel.lang.MarcelDexClassLoader
 import java.io.File
@@ -28,6 +30,7 @@ import javax.inject.Inject
 
 class ViewModelFactory @Inject constructor(
   private val compilerConfiguration: CompilerConfiguration,
+  @ApplicationContext private val applicationContext: Context,
   private val shellSessionFactory: ShellSessionFactory,
   private val shellWorkManager: ShellWorkManager
 ): ViewModelProvider.Factory {
@@ -51,7 +54,7 @@ class ViewModelFactory @Inject constructor(
         }
         EditorViewModel(symbolResolver, replCompiler, fileArg)
       }
-      ShellViewModel::class.java -> ShellViewModel(shellSessionFactory.newSession())
+      ShellViewModel::class.java -> ShellViewModel(applicationContext, shellSessionFactory)
       WorkCreateViewModel::class.java -> {
         val classLoader = MarcelDexClassLoader()
         val symbolResolver = ReplMarcelSymbolResolver(classLoader, Binding())

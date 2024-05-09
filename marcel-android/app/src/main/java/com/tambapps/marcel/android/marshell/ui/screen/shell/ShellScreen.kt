@@ -35,7 +35,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -58,7 +57,7 @@ val HEADER = "Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSIO
 
 @Composable
 fun ShellScreen(
-  viewModel: ShellViewModel,
+  viewModel: ShellViewModel
 ) {
   Column(modifier = Modifier.fillMaxSize()) {
     TopBar(viewModel)
@@ -297,7 +296,7 @@ fun PromptButton(viewModel: ShellViewModel, onPrompt: () -> Unit) {
   IconButton(
     colors = IconButtonDefaults.iconButtonColors()
       .copy(containerColor = Color.White, disabledContainerColor = Color.Gray),
-    enabled = !viewModel.isEvaluating,
+    enabled = !viewModel.isEvaluating && viewModel.isShellReady,
     onClick = OnPromptButtonClick(context, onPrompt, viewModel),
   ) {
     Image(

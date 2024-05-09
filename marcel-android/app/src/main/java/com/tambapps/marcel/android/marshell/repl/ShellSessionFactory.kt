@@ -2,6 +2,7 @@ package com.tambapps.marcel.android.marshell.repl
 
 import android.os.Environment
 import android.util.Log
+import com.tambapps.marcel.android.marshell.repl.console.Printer
 import com.tambapps.marcel.android.marshell.repl.jar.DexJarWriterFactory
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.dumbbell.Dumbbell
@@ -27,7 +28,7 @@ class ShellSessionFactory @Inject constructor(
 
   private val autoIncrement = AtomicInteger()
 
-  fun newSession(): ShellSession {
+  fun newSession(printer: Printer): ShellSession {
     Dumbbell.setEngine(dumbbellEngine)
     val sessionDirectory = File(shellSessionsDirectory, "session_" + autoIncrement.incrementAndGet())
     if (!sessionDirectory.isDirectory && !sessionDirectory.mkdirs()) {
@@ -45,6 +46,10 @@ class ShellSessionFactory @Inject constructor(
       symbolResolver.defineBoundField(boundField)
       binding.setVariable(boundField.name, Environment.getExternalStorageDirectory())
     }
-    return ShellSession(symbolResolver, replCompiler, evaluator)
+    return ShellSession(symbolResolver, replCompiler, evaluator).apply {
+      scriptConfigurer = { script ->
+        (script as MarshellScript).setPrinter(printer)
+      }
+    }
   }
 }
