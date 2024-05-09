@@ -70,7 +70,6 @@ fun EditorScreen(viewModel: EditorViewModel) {
           tint = Color.White
         )
       }
-
     }
   }
 
@@ -84,7 +83,7 @@ private fun TopBar(viewModel: EditorViewModel) {
   TopBarLayout(horizontalArrangement = Arrangement.End) {
     TopBarIconButton(
       modifier = shellIconModifier(4.dp),
-      onClick = { pickFileLauncher.launch(FilePickerActivity.Args()) },
+      onClick = { pickFileLauncher.launch(FilePickerActivity.Args(allowCreateNewFile = true)) },
       drawable = R.drawable.folder,
       contentDescription = "Open file"
     )

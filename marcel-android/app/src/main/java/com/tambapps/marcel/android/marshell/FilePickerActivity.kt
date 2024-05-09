@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.addCallback
@@ -27,20 +28,24 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,7 +69,8 @@ class FilePickerActivity : ComponentActivity() {
   companion object {
     val SCRIPT_FILE_EXTENSIONS = listOf(".mcl", ".txt", ".marcel")
     const val PICKED_FILE_PATH_KEY = "pfpk"
-    const val ALLOWED_FILE_EXTENSIONSKEY = "afek"
+    const val ALLOWED_FILE_EXTENSIONS_KEY = "afek"
+    const val ALLOW_CREATE_FILE_KEY = "acfilek"
     const val DIRECTORY_ONLY_KEY = "pick_directoryk"
     const val START_DIRECTORY_KEY = "start_directory"
 
@@ -74,12 +80,17 @@ class FilePickerActivity : ComponentActivity() {
     }
   }
 
-  data class Args(val pickDirectory: Boolean = false, val allowedFileExtensions: List<String>? = SCRIPT_FILE_EXTENSIONS)
+  data class Args(
+    val pickDirectory: Boolean = false,
+    val allowedFileExtensions: List<String>? = SCRIPT_FILE_EXTENSIONS,
+    val allowCreateNewFile: Boolean = false
+  )
   class Contract: ActivityResultContract<Args, File?>() {
     override fun createIntent(context: Context, input: Args) = Intent(context, FilePickerActivity::class.java).apply {
       if (input.pickDirectory) putExtra(DIRECTORY_ONLY_KEY, true)
+      if (input.allowCreateNewFile) putExtra(ALLOW_CREATE_FILE_KEY, true)
       input.allowedFileExtensions?.let {
-        putExtra(ALLOWED_FILE_EXTENSIONSKEY, it.toTypedArray())
+        putExtra(ALLOWED_FILE_EXTENSIONS_KEY, it.toTypedArray())
       }
     }
 
@@ -102,7 +113,7 @@ class FilePickerActivity : ComponentActivity() {
           finish()
         }
       }
-      viewModel.init(intent.getStringArrayExtra(ALLOWED_FILE_EXTENSIONSKEY), intent.hasExtra(DIRECTORY_ONLY_KEY))
+      viewModel.init(intent.getStringArrayExtra(ALLOWED_FILE_EXTENSIONS_KEY), intent.hasExtra(DIRECTORY_ONLY_KEY), intent.hasExtra(ALLOW_CREATE_FILE_KEY))
       val context = LocalContext.current
       MarcelAndroidTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -131,15 +142,24 @@ class FilePickerActivity : ComponentActivity() {
                 backPressedDispatcher = onBackPressedDispatcher
               )
               ProposeFileDialog(viewModel, this@FilePickerActivity::finishWithResult)
-              if (viewModel.dirOnly) {
+              val showCreateFileDialog = remember { mutableStateOf(false) }
+              CreateFileDialog(viewModel, showCreateFileDialog)
+              if (viewModel.dirOnly || viewModel.allowCreateNewFile) {
                 FloatingActionButton(
                   modifier = Modifier
                     .padding(all = 16.dp)
                     .size(64.dp)
                     .align(Alignment.BottomEnd),
-                  onClick = { viewModel.proposedFile = viewModel.currentDir }
+                  onClick = {
+                    if (viewModel.dirOnly) {
+                      viewModel.proposedFile = viewModel.currentDir
+                    } else {
+                      showCreateFileDialog.value = true
+                    }
+                  }
                 ) {
-                  Icon(imageVector = Icons.Filled.Done, contentDescription = "Pick")
+                  Icon(imageVector = if (viewModel.dirOnly) Icons.Filled.Done else Icons.Filled.Add,
+                    contentDescription = if (viewModel.dirOnly) "Pick" else "Create new file")
                 }
               }
             }
@@ -155,6 +175,61 @@ class FilePickerActivity : ComponentActivity() {
     })
     finish()
   }
+}
+
+@Composable
+fun CreateFileDialog(viewModel: FileExplorerViewModel, show: MutableState<Boolean>) {
+  if (!show.value) return
+  val currentDir = viewModel.currentDir ?: return
+  var fileName by remember { mutableStateOf("")  }
+  var error by remember { mutableStateOf<String?>(null) }
+  val context = LocalContext.current
+  AlertDialog(
+    onDismissRequest = { show.value = false },
+    confirmButton = {
+      TextButton(onClick = {
+        if (fileName.isBlank()) {
+          error = "Filename cannot be empty"
+          return@TextButton
+        }
+        val file = File(currentDir, fileName)
+        if (!file.createNewFile()) {
+          error = "Invalid filename"
+          return@TextButton
+        }
+        error = null
+        Toast.makeText(context, "Created new file successfully", Toast.LENGTH_SHORT).show()
+        viewModel.move(currentDir) // force reload
+        show.value = false
+      }) {
+        Text(text = "Create")
+      }
+    },
+    title = {
+      Text(text = "Create new file")
+    },
+    text = {
+      OutlinedTextField(
+        value = fileName,
+        onValueChange = { fileName = it},
+        singleLine = true,
+        label = { Text("Filename") },
+        supportingText = error?.let { error -> {
+          Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = error,
+            color = MaterialTheme.colorScheme.error
+          )
+        }},
+        isError = error != null
+      )
+    },
+    dismissButton = {
+      TextButton(onClick = { show.value = false }) {
+        Text(text = "Cancel")
+      }
+    },
+  )
 }
 
 @Composable
@@ -270,8 +345,9 @@ class FileExplorerViewModel: ViewModel() {
   var proposedFile by mutableStateOf<File?>(null)
   val filesPath = mutableStateListOf<File>()
   val children = mutableStateListOf<File>()
+  var allowCreateNewFile by mutableStateOf(false)
+  var dirOnly by mutableStateOf(false)
 
-  var dirOnly = false
   var fileExtensions: Array<String>? = null
 
   fun move(file: File) {
@@ -311,8 +387,10 @@ class FileExplorerViewModel: ViewModel() {
   }
 
   fun fileName(f: File) = if (f == Environment.getExternalStorageDirectory()) "Internal Storage" else f.name
-  fun init(fileExtensions: Array<String>?, dirOnly: Boolean) {
+
+  fun init(fileExtensions: Array<String>?, dirOnly: Boolean, allowCreateNewFile: Boolean) {
     this.fileExtensions = fileExtensions
     this.dirOnly = dirOnly
+    this.allowCreateNewFile = allowCreateNewFile
   }
 }
