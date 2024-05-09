@@ -28,9 +28,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.tambapps.marcel.android.marshell.BuildConfig
+import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.util.LifecycleStateListenerEffect
+import java.io.File
+import java.net.URLEncoder
 
 
 val itemStyle = TextStyle.Default.copy(
@@ -44,7 +48,11 @@ val itemDescriptionStyle = TextStyle.Default.copy(
 val paddingStart = 40.dp
 
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel) {
+fun SettingsScreen(
+  viewModel: SettingsViewModel,
+  navController: NavController,
+  initScriptFile: File
+) {
   val context = LocalContext.current
 
   LifecycleStateListenerEffect(
@@ -70,7 +78,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
     SettingItem(
       text = "Initialization script",
       description = "Configure a script that will be executed at every shell session startup",
-      onClick = { /* TODO */ })
+      onClick = { navController.navigate(Routes.EDITOR + "?" + Routes.FILE_ARG + "=" + URLEncoder.encode(initScriptFile.canonicalPath, "UTF-8")) })
 
 
     SectionTitle(text = "Permissions", sectionStyle = sectionStyle)

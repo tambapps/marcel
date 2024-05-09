@@ -70,6 +70,7 @@ object Routes {
   const val SETTINGS = "settings"
 
   const val WORK_NAME_ARG = "workName"
+  const val FILE_ARG = "file"
 }
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -81,6 +82,9 @@ class MainActivity : ComponentActivity() {
   @Inject
   @Named("shellSessionsDirectory")
   lateinit var shellSessionsDirectory: File
+  @Inject
+  @Named("initScriptFile")
+  lateinit var initScriptFile: File
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -103,7 +107,10 @@ class MainActivity : ComponentActivity() {
               composable(Routes.SHELL) {
                 ShellScreen(shellViewModel)
               }
-              composable(Routes.EDITOR) {
+              composable(
+                Routes.EDITOR + "?${Routes.FILE_ARG}={${Routes.FILE_ARG}}",
+                arguments = listOf(navArgument(Routes.WORK_NAME_ARG) { type = NavType.StringType; nullable = true })
+              ) {
                 val viewModel: EditorViewModel = viewModelFactory.newInstance()
                 EditorScreen(viewModel)
               }
@@ -122,7 +129,7 @@ class MainActivity : ComponentActivity() {
               }
               composable(Routes.SETTINGS) {
                 val viewModel: SettingsViewModel = viewModelFactory.newInstance()
-                SettingsScreen(viewModel)
+                SettingsScreen(viewModel, navController, initScriptFile)
               }
             }
             TopBar(drawerState, scope) // putting it at the end because we want it to have top priority in terms of displaying
@@ -194,7 +201,7 @@ private fun NavigationDrawer(
           drawerState = drawerState,
           scope = scope,
           text = "Editor",
-          backStackState = backStackState,
+          selected = backStackState.value?.destination?.route?.startsWith("editor") ?: false,
           route = Routes.EDITOR
         )
 
@@ -229,7 +236,7 @@ private fun DrawerItem(
   scope: CoroutineScope,
   text: String,
   route: String,
-) = DrawerItem(navController, drawerState, backStackState.value?.destination?.route == route, scope, text, route)
+) = DrawerItem(navController, drawerState, backStackState.value?.destination?.route?.startsWith(route) ?: false, scope, text, route)
 
 @Composable
 private fun DrawerItem(

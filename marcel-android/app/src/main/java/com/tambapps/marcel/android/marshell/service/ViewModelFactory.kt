@@ -21,6 +21,9 @@ import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 import marcel.lang.Binding
 import marcel.lang.MarcelDexClassLoader
+import java.io.File
+import java.net.URLDecoder
+import java.net.URLEncoder
 import javax.inject.Inject
 
 class ViewModelFactory @Inject constructor(
@@ -43,7 +46,10 @@ class ViewModelFactory @Inject constructor(
         val classLoader = MarcelDexClassLoader()
         val symbolResolver = ReplMarcelSymbolResolver(classLoader, Binding())
         val replCompiler = MarcelReplCompiler(compilerConfiguration, classLoader, symbolResolver)
-        EditorViewModel(symbolResolver, replCompiler)
+        val fileArg = extras.createSavedStateHandle().get<String>(Routes.FILE_ARG)?.let {
+          File(URLDecoder.decode(it, "UTF-8"))
+        }
+        EditorViewModel(symbolResolver, replCompiler, fileArg)
       }
       ShellViewModel::class.java -> ShellViewModel(shellSessionFactory.newSession())
       WorkCreateViewModel::class.java -> {

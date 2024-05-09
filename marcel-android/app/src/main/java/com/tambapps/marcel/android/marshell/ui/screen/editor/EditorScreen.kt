@@ -1,5 +1,6 @@
 package com.tambapps.marcel.android.marshell.ui.screen.editor
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,10 +24,15 @@ import com.tambapps.marcel.android.marshell.ui.component.ScriptTextField
 import com.tambapps.marcel.android.marshell.ui.component.TopBarIconButton
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.component.shellIconModifier
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 @Composable
 fun EditorScreen(viewModel: EditorViewModel) {
+  val context = LocalContext.current
+  val scope = rememberCoroutineScope { Dispatchers.IO }
   Column(modifier = Modifier.fillMaxSize()) {
     TopBar(viewModel)
     Box(modifier = Modifier
@@ -39,7 +46,22 @@ fun EditorScreen(viewModel: EditorViewModel) {
       )
       FloatingActionButton(
         modifier = Modifier.padding(all = 16.dp),
-        onClick = { /*TODO*/ }
+        onClick = {
+          val file = viewModel.file
+          if (file != null) {
+            scope.launch {
+              val result = runCatching { file.writeText(viewModel.scriptTextInput.text) }
+              withContext(Dispatchers.Main) {
+                Toast.makeText(context,
+                  if (result.isSuccess) "Saved successfully" else "An error occurred: ${result.exceptionOrNull()?.localizedMessage}"
+                  , Toast.LENGTH_SHORT).show()
+              }
+            }
+          } else {
+            Toast.makeText(context, "todo", Toast.LENGTH_SHORT).show()
+            /*TODO pick file and then save on it. also allow creating new file in filePicker*/
+          }
+        }
       ) {
         Icon(
           modifier = Modifier.size(23.dp),
