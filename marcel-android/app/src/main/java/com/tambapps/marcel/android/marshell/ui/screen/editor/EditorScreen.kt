@@ -6,10 +6,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -18,12 +20,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.tambapps.marcel.android.marshell.FilePickerActivity
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.ui.component.ScriptTextField
 import com.tambapps.marcel.android.marshell.ui.component.TopBarIconButton
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.component.shellIconModifier
+import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -80,13 +84,18 @@ private fun TopBar(viewModel: EditorViewModel) {
   val pickFileLauncher = FilePickerActivity.rememberFilePickerForActivityResult { file ->
     viewModel.loadScript(context, file)
   }
-  TopBarLayout(horizontalArrangement = Arrangement.End) {
+  Box(modifier = Modifier
+    .fillMaxWidth()
+    .height(TopBarHeight)) {
     TopBarIconButton(
-      modifier = shellIconModifier(4.dp),
+      modifier = shellIconModifier(4.dp).align(Alignment.CenterEnd),
       onClick = { pickFileLauncher.launch(FilePickerActivity.Args(allowCreateNewFile = true)) },
       drawable = R.drawable.folder,
       contentDescription = "Open file"
     )
 
+    if (viewModel.file != null) {
+      Text(text = viewModel.file!!.name, fontSize = 20.sp, modifier = Modifier.align(Alignment.Center), color = Color.White)
+    }
   }
 }
