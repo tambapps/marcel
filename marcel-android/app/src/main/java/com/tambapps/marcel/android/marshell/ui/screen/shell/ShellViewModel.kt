@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -16,12 +15,12 @@ import com.tambapps.marcel.android.marshell.repl.MarshellScript
 import com.tambapps.marcel.android.marshell.repl.ShellSession
 import com.tambapps.marcel.android.marshell.repl.console.PromptPrinter
 import com.tambapps.marcel.android.marshell.ui.screen.HighlightTransformation
-import com.tambapps.marcel.android.marshell.util.readText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import marcel.lang.Script
+import java.io.File
 import java.io.IOException
 import java.io.OutputStream
 
@@ -116,9 +115,9 @@ class ShellViewModel constructor(private val shellSession: ShellSession) : ViewM
 
   override fun highlight(text: CharSequence) = highlighter.highlight(text).toAnnotatedString()
 
-  fun loadScript(context: Context, imageUri: Uri?) {
-    if (imageUri != null) {
-      val result = readText(context.contentResolver.openInputStream(imageUri))
+  fun loadScript(context: Context, file: File?) {
+    if (file != null) {
+      val result = runCatching { file.readText() }
       if (result.isFailure) {
         Toast.makeText(context, "Error: ${result.exceptionOrNull()?.localizedMessage}", Toast.LENGTH_SHORT).show()
         return

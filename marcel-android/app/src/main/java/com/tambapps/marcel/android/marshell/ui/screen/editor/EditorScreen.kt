@@ -1,7 +1,5 @@
 package com.tambapps.marcel.android.marshell.ui.screen.editor
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.tambapps.marcel.android.marshell.FilePickerActivity
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.ui.component.ScriptTextField
 import com.tambapps.marcel.android.marshell.ui.component.TopBarIconButton
@@ -57,15 +56,13 @@ fun EditorScreen(viewModel: EditorViewModel) {
 @Composable
 private fun TopBar(viewModel: EditorViewModel) {
   val context = LocalContext.current
-  val pickFileLauncher = rememberLauncherForActivityResult(
-    ActivityResultContracts.GetContent()
-  ) { imageUri ->
-    viewModel.loadScript(context, imageUri)
+  val pickFileLauncher = FilePickerActivity.rememberFilePickerForActivityResult { file ->
+    viewModel.loadScript(context, file)
   }
   TopBarLayout(horizontalArrangement = Arrangement.End) {
     TopBarIconButton(
       modifier = shellIconModifier(4.dp),
-      onClick = { pickFileLauncher.launch("*/*") },
+      onClick = { pickFileLauncher.launch(FilePickerActivity.Args()) },
       drawable = R.drawable.folder,
       contentDescription = "Open file"
     )

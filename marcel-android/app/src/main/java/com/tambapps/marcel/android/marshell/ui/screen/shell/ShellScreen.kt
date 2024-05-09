@@ -46,6 +46,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.tambapps.marcel.android.marshell.FilePickerActivity
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.ui.component.TopBarIconButton
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
@@ -173,15 +174,13 @@ private fun TopBar(viewModel: ShellViewModel) {
 
     Box(modifier = Modifier.width(10.dp))
 
-    val pickScriptLauncher = rememberLauncherForActivityResult(
-      ActivityResultContracts.GetContent()
-    ) { imageUri ->
-      viewModel.loadScript(context, imageUri)
+    val pickFileLauncher = FilePickerActivity.rememberFilePickerForActivityResult { file ->
+      viewModel.loadScript(context, file)
     }
     TopBarIconButton(
       modifier = shellIconModifier(),
       onClick = {
-        pickScriptLauncher.launch("*/*")
+        pickFileLauncher.launch(FilePickerActivity.Args())
       },
       drawable = R.drawable.downloads,
       contentDescription = "import script"

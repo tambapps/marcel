@@ -1,21 +1,20 @@
 package com.tambapps.marcel.android.marshell.ui.screen
 
 import android.content.Context
-import android.net.Uri
 import android.widget.Toast
 import androidx.compose.ui.text.input.TextFieldValue
 import com.tambapps.marcel.android.marshell.repl.ShellSession
-import com.tambapps.marcel.android.marshell.util.readText
 import com.tambapps.marcel.repl.MarcelReplCompiler
+import java.io.File
 
 interface ScriptEditorViewModel: HighlightTransformation {
   val replCompiler: MarcelReplCompiler
   var scriptTextInput: TextFieldValue
   var scriptTextError: String?
 
-  fun loadScript(context: Context, imageUri: Uri?) {
-    if (imageUri != null) {
-      val result = readText(context.contentResolver.openInputStream(imageUri))
+  fun loadScript(context: Context, file: File?) {
+    if (file != null) {
+      val result = runCatching { file.readText() }
       if (result.isFailure) {
         Toast.makeText(context, "Error: ${result.exceptionOrNull()?.localizedMessage}", Toast.LENGTH_SHORT).show()
         return

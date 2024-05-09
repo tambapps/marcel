@@ -61,7 +61,7 @@ import java.io.File
 class FilePickerActivity : ComponentActivity() {
 
   companion object {
-    val SCRIPT_FILE_EXTENSIONS = arrayOf(".mcl", ".txt", ".marcel")
+    val SCRIPT_FILE_EXTENSIONS = listOf(".mcl", ".txt", ".marcel")
     const val PICKED_FILE_PATH_KEY = "pfpk"
     const val ALLOWED_FILE_EXTENSIONSKEY = "afek"
     const val DIRECTORY_ONLY_KEY = "pick_directoryk"
@@ -73,7 +73,7 @@ class FilePickerActivity : ComponentActivity() {
     }
   }
 
-  data class Args(val pickDirectory: Boolean = false, val allowedFileExtensions: List<String>? = null)
+  data class Args(val pickDirectory: Boolean = false, val allowedFileExtensions: List<String>? = SCRIPT_FILE_EXTENSIONS)
   class Contract: ActivityResultContract<Args, File?>() {
     override fun createIntent(context: Context, input: Args) = Intent(context, FilePickerActivity::class.java).apply {
       if (input.pickDirectory) putExtra(DIRECTORY_ONLY_KEY, true)
@@ -120,7 +120,7 @@ class FilePickerActivity : ComponentActivity() {
                 viewModel = viewModel,
                 backPressedDispatcher = onBackPressedDispatcher
               )
-              ProposeFileDialog(viewModel, this@FilePickerActivity::pickFile)
+              ProposeFileDialog(viewModel, this@FilePickerActivity::finishWithResult)
               if (!viewModel.dirOnly) {
                 FloatingActionButton(
                   modifier = Modifier
@@ -139,10 +139,11 @@ class FilePickerActivity : ComponentActivity() {
     }
   }
 
-  private fun pickFile(file: File) {
+  private fun finishWithResult(file: File) {
     setResult(RESULT_OK, Intent(intent).apply {
       putExtra(PICKED_FILE_PATH_KEY, file.absolutePath)
     })
+    finish()
   }
 }
 
@@ -185,7 +186,7 @@ fun FileExplorerScreen(
           modifier = Modifier
             .clickable {
               if (file.isDirectory) viewModel.move(file)
-              else viewModel.proposedFile = viewModel.currentDir
+              else viewModel.proposedFile = file
             }
             .height(60.dp)
             .fillMaxWidth(),
@@ -297,7 +298,7 @@ class FileExplorerViewModel: ViewModel() {
   }
 
   private fun filter(file: File): Boolean {
-    return (fileExtensions == null || fileExtensions!!.any { file.name.endsWith(it) })
+    return (fileExtensions == null || file.isDirectory || fileExtensions!!.any { file.name.endsWith(it) })
         && (!dirOnly || file.isDirectory)
   }
 

@@ -1,7 +1,5 @@
 package com.tambapps.marcel.android.marshell.ui.screen.work
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -17,6 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.work.WorkInfo
+import com.tambapps.marcel.android.marshell.FilePickerActivity
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import com.tambapps.marcel.android.marshell.ui.component.ExpandableCard
@@ -35,16 +34,14 @@ fun WorkScriptCard(viewModel: ScriptCardEditorViewModel, readOnly: Boolean = fal
     additionalLogos = if (readOnly) null else {
       {
         val context = LocalContext.current
-        val pickFileLauncher = rememberLauncherForActivityResult(
-          ActivityResultContracts.GetContent()
-        ) { imageUri ->
-          viewModel.loadScript(context, imageUri)
+        val pickFileLauncher = FilePickerActivity.rememberFilePickerForActivityResult { file ->
+          viewModel.loadScript(context, file)
         }
         IconButton(
           modifier = Modifier
             .weight(1f)
             .size(24.dp),
-          onClick = { pickFileLauncher.launch("*/*") }) {
+          onClick = { pickFileLauncher.launch(FilePickerActivity.Args()) }) {
           Icon(
             modifier = Modifier.size(24.dp),
             painter = painterResource(id = R.drawable.folder),
@@ -54,7 +51,9 @@ fun WorkScriptCard(viewModel: ScriptCardEditorViewModel, readOnly: Boolean = fal
         }
       }
     }) {
-    ScriptTextField(viewModel = viewModel, readOnly = readOnly, modifier = Modifier.weight(1f).padding(top = 8.dp))
+    ScriptTextField(viewModel = viewModel, readOnly = readOnly, modifier = Modifier
+      .weight(1f)
+      .padding(top = 8.dp))
   }
 }
 
