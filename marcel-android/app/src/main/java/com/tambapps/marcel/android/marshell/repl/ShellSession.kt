@@ -9,14 +9,16 @@ import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 
 class ShellSession(
-  private val symbolResolver: ReplMarcelSymbolResolver,
-  private val replCompiler: MarcelReplCompiler,
-  private val evaluator: MarshellEvaluator,
+  internal val symbolResolver: ReplMarcelSymbolResolver,
+  internal val replCompiler: MarcelReplCompiler,
+  internal val evaluator: MarshellEvaluator,
 ) {
 
   companion object {
     fun isMarcelCompilerException(throwable: Throwable) = throwable is MarcelLexerException || throwable is MarcelParserException || throwable is MarcelSemanticException || throwable is MarcelCompilerException
   }
+
+  val binding get() = evaluator.binding
 
   fun eval(text: String) = evaluator.eval(text)
 

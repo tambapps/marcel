@@ -235,46 +235,6 @@ private fun PeriodPickerDialog(
     }
   )
 }
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun <T> ExposedDropdownMenu(
-  values: List<T>,
-  selectedItem: MutableState<T>
-) {
-  var dropDownExpanded by remember { mutableStateOf(false) }
-
-  ExposedDropdownMenuBox(
-    modifier = Modifier.width(150.dp),
-    expanded = dropDownExpanded,
-    onExpandedChange = {
-      dropDownExpanded = !dropDownExpanded
-    }
-  ) {
-    TextField(
-      value = selectedItem.value.toString(),
-      onValueChange = {},
-      readOnly = true,
-      trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropDownExpanded) },
-      modifier = Modifier.menuAnchor()
-    )
-
-    ExposedDropdownMenu(
-      expanded = dropDownExpanded,
-      onDismissRequest = { dropDownExpanded = false }
-    ) {
-
-      for (item in values) {
-        DropdownMenuItem(
-          text = { Text(text = item.toString()) },
-          onClick = {
-            selectedItem.value = item
-            dropDownExpanded = false
-          }
-        )
-      }
-    }
-  }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

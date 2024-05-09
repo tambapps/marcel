@@ -3,6 +3,7 @@ package com.tambapps.marcel.android.marshell.repl
 import android.content.Context
 import android.os.Environment
 import android.util.Log
+import com.tambapps.marcel.android.marshell.repl.console.NoOpPrinter
 import com.tambapps.marcel.android.marshell.repl.console.Printer
 import com.tambapps.marcel.android.marshell.repl.jar.DexJarWriterFactory
 import com.tambapps.marcel.compiler.CompilerConfiguration
@@ -11,6 +12,7 @@ import com.tambapps.marcel.dumbbell.DumbbellEngine
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 import com.tambapps.marcel.semantic.extensions.javaType
+import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.variable.field.BoundField
 import dagger.hilt.android.qualifiers.ApplicationContext
 import marcel.lang.Binding
@@ -30,6 +32,11 @@ class ShellSessionFactory @Inject constructor(
   private val initScriptFile: File,
 ) {
 
+  fun newSymbolResolverAndCompiler(): Pair<ReplMarcelSymbolResolver, MarcelReplCompiler> {
+    return newSession(NoOpPrinter).let {
+      Pair(it.symbolResolver, it.replCompiler)
+    }
+  }
   fun newSession(printer: Printer): ShellSession {
     Dumbbell.setEngine(dumbbellEngine) // initialize dumbbell
     val sessionDirectory = File(shellSessionsDirectory, "session_" + System.currentTimeMillis())
@@ -39,7 +46,7 @@ class ShellSessionFactory @Inject constructor(
     }
     val binding = Binding()
     val classLoader = MarcelDexClassLoader()
-    val symbolResolver = ReplMarcelSymbolResolver(classLoader, binding)
+    val symbolResolver = ReplMarcelSymbolResolver(classLoader)
     val replCompiler = MarcelReplCompiler(compilerConfiguration, classLoader, symbolResolver)
     val evaluator = MarshellEvaluator(binding, replCompiler, classLoader, DexJarWriterFactory(), sessionDirectory, printer)
 

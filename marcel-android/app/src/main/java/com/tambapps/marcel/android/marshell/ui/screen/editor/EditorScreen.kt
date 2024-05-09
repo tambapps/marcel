@@ -81,6 +81,7 @@ fun EditorScreen(viewModel: EditorViewModel) {
 }
 
 private fun save(context: Context, scope: CoroutineScope, viewModel: EditorViewModel, file: File) {
+  // TODO validate code like in workCreate workView screen
   scope.launch {
     val result = runCatching { file.writeText(viewModel.scriptTextInput.text) }
     withContext(Dispatchers.Main) {
