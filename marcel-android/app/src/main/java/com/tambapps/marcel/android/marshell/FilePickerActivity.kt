@@ -60,6 +60,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.screen.settings.askManageFilePermission
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
+import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
 import com.tambapps.marcel.android.marshell.util.LifecycleStateListenerEffect
 import java.io.File
@@ -297,9 +298,13 @@ fun FileExplorerScreen(
 
 @Composable
 fun TopBar(viewModel: FileExplorerViewModel, backPressedDispatcher: OnBackPressedDispatcher) {
-  TopBarLayout {
+  Box(modifier = Modifier
+    .fillMaxWidth()
+    .height(TopBarHeight)
+    .padding(horizontal = 8.dp)
+  ) {
     IconButton(
-      modifier = Modifier.size(TopBarIconSize),
+      modifier = Modifier.size(TopBarIconSize).align(Alignment.CenterStart),
       onClick = { backPressedDispatcher.onBackPressed() },
     ) {
       Icon(
@@ -310,7 +315,12 @@ fun TopBar(viewModel: FileExplorerViewModel, backPressedDispatcher: OnBackPresse
       )
     }
     if (viewModel.currentDir != null) {
-      Text(text = viewModel.fileName(viewModel.currentDir!!), fontWeight = FontWeight.Bold, fontSize = 20.sp)
+      Text(
+        text = viewModel.fileName(viewModel.currentDir!!),
+        fontWeight = FontWeight.Bold,
+        fontSize = 20.sp,
+        modifier = Modifier.align(Alignment.Center)
+      )
     }
   }
 }
