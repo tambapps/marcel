@@ -219,12 +219,11 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
       )
     }
 
-    // TODO display failure reason if present
     if (work.description != null) {
       Text(
         modifier = Modifier
           .padding(bottom = 16.dp)
-          .fillMaxWidth(0.75f),
+          .fillMaxWidth(),
         text = work.description,
         style = shellTextStyle,
         fontSize = 16.sp,
@@ -240,6 +239,18 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
         text = nextRunText(it),
         modifier = Modifier.padding(bottom = 16.dp),
         style = shellTextStyle, fontSize = 16.sp)
+    }
+
+    if (work.failedReason != null) {
+      Text(
+        modifier = Modifier
+          .padding(bottom = 16.dp)
+          .fillMaxWidth(),
+        text = "Failure reason: ${work.failedReason}",
+        style = shellTextStyle,
+        fontSize = 16.sp,
+        overflow = TextOverflow.Ellipsis
+      )
     }
 
     Box(modifier = Modifier.padding(16.dp))
