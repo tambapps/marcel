@@ -60,6 +60,9 @@ class WorkCreateViewModel(
       Toast.makeText(context, "Time must be at least 15 minutes from now", Toast.LENGTH_SHORT).show()
       return
     }
+    if (nameError != null && scriptTextError == null) {
+      scriptCardExpanded.value = false
+    }
     if (nameError != null || scriptTextError != null) {
       return
     }
