@@ -193,16 +193,14 @@ fun FileExplorerScreen(
           verticalAlignment = Alignment.CenterVertically
         ) {
           Box(modifier = Modifier.size(60.dp)) {
-            if (file.isDirectory) {
-              Icon(
-                modifier = Modifier
-                  .size(35.dp)
-                  .align(Alignment.Center),
-                painter = painterResource(id = R.drawable.folder),
-                contentDescription = "folder",
-                tint = Color.White,
-              )
-            }
+            Icon(
+              modifier = Modifier
+                .size(35.dp)
+                .align(Alignment.Center),
+              painter = painterResource(id = if (file.isDirectory) R.drawable.folder else R.drawable.document),
+              contentDescription = "file",
+              tint = Color.White,
+            )
           }
           Text(text = file.name)
         }
