@@ -79,14 +79,11 @@ class MarshellWorkout @AssistedInject constructor(
     try {
       val result = session.eval(scriptText)
       shellWorkDao.updateEndTime(work.name, LocalDateTime.now())
-      /* handling result */
-      val contentBuilder = StringBuilder("Work finished successfully")
-      if (result != null) {
-        shellWorkDao.updateResult(work.name, result.toString())
-        contentBuilder.append("\nResult: $result")
-      }
+      shellWorkDao.updateResult(work.name, result?.toString())
+
       //notification(content = contentBuilder.toString(), foregroundNotification = true)
       shellWorkDao.updateState(work.name, if (work.isPeriodic) WorkInfo.State.ENQUEUED else WorkInfo.State.SUCCEEDED)
+      shellWorkDao.updateFailureReason(work.name, null) // in case a previous work failed, we need to re initialise the value to null
       return Result.success()
     } catch (e: Throwable) {
       shellWorkDao.updateEndTime(work.name, LocalDateTime.now())

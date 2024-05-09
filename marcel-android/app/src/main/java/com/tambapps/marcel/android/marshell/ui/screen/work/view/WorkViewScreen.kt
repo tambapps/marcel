@@ -218,6 +218,7 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
       )
     }
 
+    // TODO display failure reason if present
     if (work.description != null) {
       Text(
         modifier = Modifier
