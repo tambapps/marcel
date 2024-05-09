@@ -20,7 +20,7 @@ class EditorViewModel(
 
   override var scriptTextInput by mutableStateOf(TextFieldValue())
   override var scriptTextError by mutableStateOf<String?>(null)
-  var file by mutableStateOf(file?.let { if (file.isFile) file else null })
+  var file by mutableStateOf(file?.let { if (file.isFile || !file.exists()) file else null })
 
   private val highlighter = SpannableHighlighter(symbolResolver, replCompiler)
 
