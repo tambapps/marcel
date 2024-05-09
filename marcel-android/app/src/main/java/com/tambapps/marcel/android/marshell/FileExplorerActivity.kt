@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -126,10 +127,11 @@ fun FilePathRow(viewModel: FileExplorerViewModel, currentDir: File) {
     modifier = Modifier.fillMaxWidth(),
     verticalAlignment = Alignment.CenterVertically
   ) {
-    val path = currentDir.path.split("/")
-    itemsIndexed(path) { i, dirName ->
-      Text(text = dirName)
-      if (i < path.lastIndex) {
+    itemsIndexed(viewModel.filesPath) { i, file ->
+      TextButton(onClick = { /*TODO*/ }) {
+        Text(text = viewModel.fileName(file), color = Color.White, fontWeight = FontWeight.Normal)
+      }
+      if (i < viewModel.filesPath.lastIndex) {
         Text(text = ">")
       }
     }
@@ -139,11 +141,21 @@ fun FilePathRow(viewModel: FileExplorerViewModel, currentDir: File) {
 class FileExplorerViewModel: ViewModel() {
   var canManageFiles by mutableStateOf(Environment.isExternalStorageManager())
   var currentDir by mutableStateOf<File?>(null)
+  val filesPath = mutableStateListOf<File>()
 
   fun refresh() {
     canManageFiles = Environment.isExternalStorageManager()
     if (canManageFiles && currentDir == null) {
       currentDir = Environment.getExternalStorageDirectory()
+    }
+    currentDir?.let {
+      filesPath.clear()
+      var f: File? = it
+      while (it != Environment.getExternalStorageDirectory() && f != null) {
+        filesPath.add(f)
+        f = f.parentFile
+      }
+      filesPath.add(Environment.getExternalStorageDirectory())
     }
   }
 
