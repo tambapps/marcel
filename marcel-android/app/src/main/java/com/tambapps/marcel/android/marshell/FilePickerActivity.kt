@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Environment
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.addCallback
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -92,6 +93,15 @@ class FilePickerActivity : ComponentActivity() {
 
     setContent {
       val viewModel: FileExplorerViewModel = viewModel()
+      onBackPressedDispatcher.addCallback {
+        val parentFile = viewModel.currentDir?.parentFile
+        if (parentFile != null && parentFile.canonicalPath.contains(Environment.getExternalStorageDirectory().canonicalPath)) {
+          viewModel.move(parentFile)
+        } else {
+          setResult(RESULT_CANCELED)
+          finish()
+        }
+      }
       viewModel.init(intent.getStringArrayExtra(ALLOWED_FILE_EXTENSIONSKEY), intent.hasExtra(DIRECTORY_ONLY_KEY))
       val context = LocalContext.current
       MarcelAndroidTheme {
