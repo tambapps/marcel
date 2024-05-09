@@ -1,6 +1,7 @@
 
 package com.tambapps.marcel.android.marshell
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -83,6 +84,7 @@ class MainActivity : ComponentActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    if (true) startActivity(Intent(this, FileExplorerActivity::class.java))
     setContent {
       val navController = rememberNavController()
       val drawerState = rememberDrawerState(DrawerValue.Closed)

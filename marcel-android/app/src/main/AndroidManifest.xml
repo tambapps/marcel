@@ -18,6 +18,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MarcelAndroid"
         tools:targetApi="31">
+        <activity
+            android:name=".FileExplorerActivity"
+            android:exported="false"
+            android:label="@string/title_activity_file_explorer"
+            android:theme="@style/Theme.MarcelAndroid" />
         <!-- Adjust resize in order to keep top bar on the screen when keyboard opens -->
         <activity
             android:name=".MainActivity"
@@ -30,13 +35,11 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <!-- In order for hilt to work with workmanager APIs -->
+        </activity> <!-- In order for hilt to work with workmanager APIs -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
-            tools:node="remove">
-        </provider>
+            tools:node="remove"></provider>
     </application>
 
 </manifest>
