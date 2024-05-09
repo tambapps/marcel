@@ -27,21 +27,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.work.WorkInfo
 import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import com.tambapps.marcel.android.marshell.ui.screen.work.WorkStateText
+import com.tambapps.marcel.android.marshell.ui.screen.work.nextRunText
 import com.tambapps.marcel.android.marshell.ui.screen.work.runtimeText
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
-import com.tambapps.marcel.android.marshell.util.TimeUtils
-import com.tambapps.marcel.android.marshell.work.ShellWorkManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import java.time.Duration
-import java.time.temporal.ChronoUnit
-
 
 @Composable
 fun WorksListScreen(
@@ -107,7 +102,7 @@ fun ShellWorkItem(shellWork: ShellWork, navController: NavController) {
 
     if (!shellWork.isFinished) {
       shellWork.durationBetweenNowAndNext?.let {
-        Text(text = "next run in " + TimeUtils.humanReadableFormat(it, ChronoUnit.SECONDS), style = shellTextStyle, fontSize = 16.sp)
+        Text(text = nextRunText(it), style = shellTextStyle, fontSize = 16.sp)
       }
     }
 

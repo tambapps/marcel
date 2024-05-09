@@ -23,6 +23,7 @@ import com.tambapps.marcel.android.marshell.ui.component.ScriptTextField
 import com.tambapps.marcel.android.marshell.ui.screen.ScriptCardEditorViewModel
 import com.tambapps.marcel.android.marshell.util.TimeUtils
 import java.time.Duration
+import java.time.temporal.ChronoUnit
 
 @Composable
 fun WorkScriptCard(viewModel: ScriptCardEditorViewModel, readOnly: Boolean = false) {
@@ -60,6 +61,10 @@ fun WorkScriptCard(viewModel: ScriptCardEditorViewModel, readOnly: Boolean = fal
 @Composable
 fun WorkStateText(shellWork: ShellWork, modifier: Modifier = Modifier, fontSize: TextUnit = TextUnit.Unspecified) {
   Text(text = stateText(shellWork), color = stateColor(shellWork), modifier = modifier, textAlign = TextAlign.Center, fontSize = fontSize)
+}
+
+fun nextRunText(durationBetweenNowAndNext: Duration): String {
+  return if (durationBetweenNowAndNext.isNegative) "Will run soon" else "next run in " + TimeUtils.humanReadableFormat(durationBetweenNowAndNext, ChronoUnit.SECONDS)
 }
 
 fun runtimeText(work: ShellWork) = when {

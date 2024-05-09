@@ -44,6 +44,7 @@ import com.tambapps.marcel.android.marshell.ui.component.EXPANDABLE_CARD_ANIMATI
 import com.tambapps.marcel.android.marshell.ui.component.ExpandableCard
 import com.tambapps.marcel.android.marshell.ui.screen.work.WorkScriptCard
 import com.tambapps.marcel.android.marshell.ui.screen.work.WorkStateText
+import com.tambapps.marcel.android.marshell.ui.screen.work.nextRunText
 import com.tambapps.marcel.android.marshell.ui.screen.work.runtimeText
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
@@ -233,9 +234,10 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
     Text(text = runtimeText(work),
       modifier = Modifier.padding(bottom = 16.dp),
       style = shellTextStyle, fontSize = 16.sp)
+    // TODO launch manually periodic work now if the duration is negative (do this on main activity, at startup)
     viewModel.durationBetweenNowAndNext?.let {
       Text(
-        text = "next run in " + TimeUtils.humanReadableFormat(it, ChronoUnit.SECONDS),
+        text = nextRunText(it),
         modifier = Modifier.padding(bottom = 16.dp),
         style = shellTextStyle, fontSize = 16.sp)
     }
