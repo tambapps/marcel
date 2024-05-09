@@ -8,7 +8,9 @@ import androidx.work.Data
 import androidx.work.WorkInfo
 import androidx.work.WorkerParameters
 import com.tambapps.marcel.android.marshell.repl.MarshellScript
+import com.tambapps.marcel.android.marshell.repl.ShellSession
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
+import com.tambapps.marcel.android.marshell.repl.console.Printer
 import com.tambapps.marcel.android.marshell.repl.jar.DexJarWriterFactory
 import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDao
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
@@ -57,16 +59,19 @@ class MarshellWorkout @AssistedInject constructor(
       //notification(content = "An unexpected work configuration error occurred", force = true)
       return Result.failure(Data.EMPTY)
     }
-    runWorkout(work, work.scriptText)
+    val printer = StringBuilderPrinter()
+    val sessionResult = runCatching { shellSessionFactory.newSession(printer) }
+    if (sessionResult.isFailure) {
+      val e = sessionResult.exceptionOrNull()!!
+      Log.e(TAG, "Couldn't start shell session", e)
+      shellWorkDao.updateFailureReason(work.name, e.message)
+      return Result.failure(Data.EMPTY)
+    }
+    runWorkout(work, work.scriptText, sessionResult.getOrThrow(), printer)
     return Result.success()
   }
 
-  private suspend fun runWorkout(work: ShellWork, scriptText: String): Result {
-    // setup
-    val printer = StringBuilderPrinter()
-    val session = shellSessionFactory.newSession(printer) // TODO try/catch this
-    Dumbbell.setEngine(dumbbellEngine)
-
+  private suspend fun runWorkout(work: ShellWork, scriptText: String, session: ShellSession, printer: StringBuilderPrinter): Result {
     //notification(content = "Executing Marshell work...")
     shellWorkDao.updateState(work.name, WorkInfo.State.RUNNING)
 

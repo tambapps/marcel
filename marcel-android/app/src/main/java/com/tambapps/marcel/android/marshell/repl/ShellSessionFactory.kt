@@ -27,7 +27,7 @@ class ShellSessionFactory @Inject constructor(
 ) {
 
   fun newSession(printer: Printer): ShellSession {
-    Dumbbell.setEngine(dumbbellEngine)
+    Dumbbell.setEngine(dumbbellEngine) // initialize dumbbell
     val sessionDirectory = File(shellSessionsDirectory, "session_" + System.currentTimeMillis())
     if (!sessionDirectory.isDirectory && !sessionDirectory.mkdirs()) {
       Log.e("ShellSessionFactory", "Couldn't create shell session directory")
