@@ -1,5 +1,6 @@
 package com.tambapps.marcel.android.marshell.ui.screen.editor
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,9 +29,11 @@ import com.tambapps.marcel.android.marshell.ui.component.TopBarIconButton
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.component.shellIconModifier
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 
 
 @Composable
@@ -48,22 +51,21 @@ fun EditorScreen(viewModel: EditorViewModel) {
         viewModel = viewModel,
         modifier = Modifier.fillMaxSize(),
       )
+      val pickFileLauncher = FilePickerActivity.rememberFilePickerForActivityResult { file ->
+        if (file != null) {
+          save(context, scope, viewModel, file)
+          viewModel.file = file
+        }
+      }
       FloatingActionButton(
         modifier = Modifier.padding(all = 16.dp),
         onClick = {
           val file = viewModel.file
           if (file != null) {
-            scope.launch {
-              val result = runCatching { file.writeText(viewModel.scriptTextInput.text) }
-              withContext(Dispatchers.Main) {
-                Toast.makeText(context,
-                  if (result.isSuccess) "Saved successfully" else "An error occurred: ${result.exceptionOrNull()?.localizedMessage}"
-                  , Toast.LENGTH_SHORT).show()
-              }
-            }
+            save(context, scope, viewModel, file)
           } else {
-            Toast.makeText(context, "todo", Toast.LENGTH_SHORT).show()
-            /*TODO pick file and then save on it. also allow creating new file in filePicker*/
+            Toast.makeText(context, "Please select a file to save", Toast.LENGTH_SHORT).show()
+            pickFileLauncher.launch(FilePickerActivity.Args(allowCreateNewFile = true))
           }
         }
       ) {
@@ -76,8 +78,19 @@ fun EditorScreen(viewModel: EditorViewModel) {
       }
     }
   }
-
 }
+
+private fun save(context: Context, scope: CoroutineScope, viewModel: EditorViewModel, file: File) {
+  scope.launch {
+    val result = runCatching { file.writeText(viewModel.scriptTextInput.text) }
+    withContext(Dispatchers.Main) {
+      Toast.makeText(context,
+        if (result.isSuccess) "Saved successfully" else "An error occurred: ${result.exceptionOrNull()?.localizedMessage}"
+        , Toast.LENGTH_SHORT).show()
+    }
+  }
+}
+
 @Composable
 private fun TopBar(viewModel: EditorViewModel) {
   val context = LocalContext.current
