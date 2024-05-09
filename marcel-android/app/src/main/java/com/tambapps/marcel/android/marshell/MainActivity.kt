@@ -4,10 +4,12 @@ package com.tambapps.marcel.android.marshell
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -25,8 +27,10 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -54,6 +58,7 @@ import com.tambapps.marcel.android.marshell.ui.screen.work.view.WorkViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.work.view.WorkViewScreen
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
+import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -184,7 +189,11 @@ private fun NavigationDrawer(
       ModalDrawerSheet(
         modifier = Modifier.fillMaxWidth(0.6f)
         ) {
-        Text("Marcel for Android", modifier = Modifier.padding(16.dp))
+        Box(modifier = Modifier.height(16.dp))
+        Image(modifier = Modifier
+          .align(Alignment.CenterHorizontally)
+          .size(64.dp), painter = painterResource(id = R.drawable.appicon), contentDescription = "marcel")
+        Text("Marcel for Android", modifier = Modifier.padding(16.dp).align(Alignment.CenterHorizontally), style = shellTextStyle,)
         HorizontalDivider()
 
         val backStackState = navController.currentBackStackEntryAsState()
