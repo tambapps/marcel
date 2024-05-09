@@ -8,7 +8,9 @@ import com.tambapps.marcel.semantic.variable.field.CompositeField
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
 
-class ReplMarcelSymbolResolver constructor(classLoader: MarcelClassLoader?, private val binding: Binding) : MarcelSymbolResolver(classLoader) {
+class ReplMarcelSymbolResolver constructor(
+  classLoader: MarcelClassLoader?
+) : MarcelSymbolResolver(classLoader) {
 
   private val _libraryClasses = mutableListOf<ClassNode>()
   private val _scriptVariables = mutableMapOf<String, BoundField>()

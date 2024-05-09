@@ -48,7 +48,7 @@ class Marshell(private val printer: PrintStream) {
 
   private val binding = Binding()
   private val classLoader = URLMarcelClassLoader(Marshell::class.java.classLoader)
-  private val symbolResolver = ReplMarcelSymbolResolver(classLoader, binding)
+  private val symbolResolver = ReplMarcelSymbolResolver(classLoader)
   private val replCompiler = MarcelReplCompiler(CompilerConfiguration(dumbbellEnabled = true), classLoader, symbolResolver)
   val evaluator = MarcelEvaluator(binding, replCompiler, classLoader, BasicJarWriterFactory(), tempDir())
 
