@@ -140,17 +140,8 @@ private fun TopBar(viewModel: ShellViewModel) {
   val context = LocalContext.current
   TopBarLayout(horizontalArrangement = Arrangement.End) {
     TopBarIconButton(
-      modifier = shellIconModifier(4.dp),
-      onClick = { Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show() },
-      drawable = R.drawable.dumbell,
-      contentDescription = "handle dumbbells"
-    )
-
-    Box(modifier = Modifier.width(10.dp))
-
-    TopBarIconButton(
       modifier = shellIconModifier(3.dp),
-      onClick = { Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show() },
+      onClick = { Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show() }, // TODO
       drawable = R.drawable.view,
       contentDescription = "view shell functions/variables"
     )
