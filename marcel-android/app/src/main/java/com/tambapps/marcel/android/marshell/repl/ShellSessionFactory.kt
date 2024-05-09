@@ -1,5 +1,6 @@
 package com.tambapps.marcel.android.marshell.repl
 
+import android.content.Context
 import android.os.Environment
 import android.util.Log
 import com.tambapps.marcel.android.marshell.repl.console.Printer
@@ -7,23 +8,26 @@ import com.tambapps.marcel.android.marshell.repl.jar.DexJarWriterFactory
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.dumbbell.DumbbellEngine
-import com.tambapps.marcel.repl.MarcelEvaluator
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.variable.field.BoundField
+import dagger.hilt.android.qualifiers.ApplicationContext
 import marcel.lang.Binding
 import marcel.lang.MarcelDexClassLoader
 import java.io.File
-import java.util.concurrent.atomic.AtomicInteger
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Named
 
 class ShellSessionFactory @Inject constructor(
   private val compilerConfiguration: CompilerConfiguration,
+  @ApplicationContext private val context: Context,
   @Named("shellSessionsDirectory")
   private val shellSessionsDirectory: File,
-  private val dumbbellEngine: DumbbellEngine
+  private val dumbbellEngine: DumbbellEngine,
+  @Named("initScriptFile")
+  private val initScriptFile: File,
 ) {
 
   fun newSession(printer: Printer): ShellSession {
@@ -31,7 +35,7 @@ class ShellSessionFactory @Inject constructor(
     val sessionDirectory = File(shellSessionsDirectory, "session_" + System.currentTimeMillis())
     if (!sessionDirectory.isDirectory && !sessionDirectory.mkdirs()) {
       Log.e("ShellSessionFactory", "Couldn't create shell session directory")
-      throw RuntimeException("Couldn't create shell session directory")
+      throw IOException("Couldn't create shell session directory")
     }
     val binding = Binding()
     val classLoader = MarcelDexClassLoader()
@@ -44,6 +48,21 @@ class ShellSessionFactory @Inject constructor(
       symbolResolver.defineBoundField(boundField)
       binding.setVariable(boundField.name, Environment.getExternalStorageDirectory())
     }
-    return ShellSession(symbolResolver, replCompiler, evaluator)
+    val session = ShellSession(symbolResolver, replCompiler, evaluator)
+    if (initScriptFile.isFile) {
+      val text = try {
+        initScriptFile.readText()
+      } catch (e: Throwable) {
+        throw IOException("Couldn't read initialization script: ${e.localizedMessage}")
+      }
+      if (text.isNotBlank()) {
+        try {
+          session.eval(text)
+        } catch (e: Throwable) {
+          throw IOException("Error while running initialization script: ${e.localizedMessage}")
+        }
+      }
+    }
+    return session
   }
 }

@@ -26,7 +26,6 @@ import javax.inject.Named
   SingletonComponent::class)
 class MarcelAndroidConfiguration {
 
-  // TODO it is not used
   @Named("initScriptFile")
   @Provides
   fun initScriptFile(@ApplicationContext context: Context): File {

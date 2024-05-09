@@ -46,18 +46,22 @@ class ShellViewModel constructor(
   private val ioScope = CoroutineScope(Dispatchers.IO)
 
   init {
-    val sessionResult = runCatching { shellSessionFactory.newSession(PromptPrinter(prompts)) }
-    if (sessionResult.isSuccess) {
-      sessionResult.getOrThrow().let {
-        shellSession = it
-        highlighter = it.newHighlighter()
+    ioScope.launch {
+      val sessionResult = runCatching { shellSessionFactory.newSession(PromptPrinter(prompts)) }
+      withContext(Dispatchers.Main) {
+        if (sessionResult.isSuccess) {
+          sessionResult.getOrThrow().let {
+            shellSession = it
+            highlighter = it.newHighlighter()
+          }
+        } else {
+          Toast.makeText(
+            context,
+            sessionResult.exceptionOrNull()?.localizedMessage,
+            Toast.LENGTH_LONG
+          ).show()
+        }
       }
-    } else {
-      Toast.makeText(
-        context,
-        "Error: ${sessionResult.exceptionOrNull()?.localizedMessage}",
-        Toast.LENGTH_LONG
-      ).show()
     }
   }
 
