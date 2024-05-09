@@ -25,7 +25,6 @@ open class MarcelEvaluator constructor(
   val definedTypes get() = replCompiler.symbolResolver.definedTypes.filter { !it.isScript }
   val definedFunctions get() = replCompiler.definedFunctions
   val imports get() = replCompiler.imports
-  var scriptConfigurer: ((Script) -> Unit)? = null
 
   @Throws(
     MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class,
@@ -54,7 +53,7 @@ open class MarcelEvaluator constructor(
     }
     try {
       val script = scriptLoader.loadScript(className, jarFile, binding)
-      scriptConfigurer?.invoke(script)
+      onScriptLoaded(script)
       return script.run()
     } finally {
       scriptLoader.removeJar(jarFile)
@@ -67,7 +66,7 @@ open class MarcelEvaluator constructor(
       return null
     } else {
       val script = scriptLoader.loadScript(className, jarFile, binding)
-      scriptConfigurer?.invoke(script)
+      onScriptLoaded(script)
       return script.run()
     }
   }
@@ -101,4 +100,6 @@ open class MarcelEvaluator constructor(
     // then run script
     return evalJarFile(jarFile, className)
   }
+
+  protected open fun onScriptLoaded(script: Script) {}
 }

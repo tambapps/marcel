@@ -8,6 +8,7 @@ import androidx.work.Data
 import androidx.work.WorkInfo
 import androidx.work.WorkerParameters
 import com.tambapps.marcel.android.marshell.repl.MarshellScript
+import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.repl.jar.DexJarWriterFactory
 import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDao
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
@@ -30,7 +31,7 @@ import javax.inject.Named
 class MarshellWorkout @AssistedInject constructor(
   @Assisted appContext: Context,
   @Assisted workerParams: WorkerParameters,
-  private val compilerConfiguration: CompilerConfiguration,
+  private val shellSessionFactory: ShellSessionFactory,
   private val shellWorkDao: ShellWorkDao,
   @Named("shellWorksDirectory")
   private val shellWorksDirectory: File,
@@ -56,44 +57,22 @@ class MarshellWorkout @AssistedInject constructor(
       //notification(content = "An unexpected work configuration error occurred", force = true)
       return Result.failure(Data.EMPTY)
     }
-    val workDirectory = File(shellWorksDirectory, "work_$id")
-    if (!workDirectory.isDirectory && !workDirectory.mkdirs()) {
-      Log.e(TAG, "Couldn't create workout directory of work $id")
-      //notification(content = "An unexpected work configuration error occurred", force = true)
-      return Result.failure(Data.EMPTY)
-    }
-    val classesDirectory = File(workDirectory, "classes")
-    if (!classesDirectory.isDirectory && !classesDirectory.mkdirs()) {
-      Log.e(TAG, "Couldn't create workout directory of work $id")
-      //notification(content = "An unexpected work configuration error occurred", force = true)
-      return Result.failure(Data.EMPTY)
-    }
-    try {
-      runWorkout(work, work.scriptText, classesDirectory)
-    } finally {
-      workDirectory.deleteRecursively()
-    }
+    runWorkout(work, work.scriptText)
     return Result.success()
   }
 
-  private suspend fun runWorkout(work: ShellWork, scriptText: String, classesDirectory: File): Result {
+  private suspend fun runWorkout(work: ShellWork, scriptText: String): Result {
     // setup
-    val binding = Binding()
-    val classLoader = MarcelDexClassLoader()
-    val symbolResolver = ReplMarcelSymbolResolver(classLoader, binding)
-    val replCompiler = MarcelReplCompiler(compilerConfiguration, classLoader, symbolResolver)
-    val evaluator = MarcelEvaluator(binding, replCompiler, classLoader, DexJarWriterFactory(), classesDirectory)
     val printer = StringBuilderPrinter()
+    val session = shellSessionFactory.newSession(printer) // TODO try/catch this
     Dumbbell.setEngine(dumbbellEngine)
-    evaluator.scriptConfigurer = { script ->
-      (script as MarshellScript).setPrinter(printer)
-    }
+
     //notification(content = "Executing Marshell work...")
     shellWorkDao.updateState(work.name, WorkInfo.State.RUNNING)
 
     shellWorkDao.updateStartTime(work.name, LocalDateTime.now())
     try {
-      val result = evaluator.eval(scriptText)
+      val result = session.eval(scriptText)
       shellWorkDao.updateEndTime(work.name, LocalDateTime.now())
       /* handling result */
       val contentBuilder = StringBuilder("Work finished successfully")
@@ -104,7 +83,7 @@ class MarshellWorkout @AssistedInject constructor(
       //notification(content = contentBuilder.toString(), foregroundNotification = true)
       shellWorkDao.updateState(work.name, if (work.isPeriodic) WorkInfo.State.ENQUEUED else WorkInfo.State.SUCCEEDED)
       return Result.success()
-    } catch (e: Exception) {
+    } catch (e: Throwable) {
       shellWorkDao.updateEndTime(work.name, LocalDateTime.now())
       Log.e(TAG, "An error occurred while executing script", e)
       //notification(content = "Error while executing script: ${e.message}", foregroundNotification = true, force = true)

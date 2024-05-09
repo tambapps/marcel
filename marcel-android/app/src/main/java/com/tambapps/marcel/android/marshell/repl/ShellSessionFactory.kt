@@ -26,11 +26,9 @@ class ShellSessionFactory @Inject constructor(
   private val dumbbellEngine: DumbbellEngine
 ) {
 
-  private val autoIncrement = AtomicInteger()
-
   fun newSession(printer: Printer): ShellSession {
     Dumbbell.setEngine(dumbbellEngine)
-    val sessionDirectory = File(shellSessionsDirectory, "session_" + autoIncrement.incrementAndGet())
+    val sessionDirectory = File(shellSessionsDirectory, "session_" + System.currentTimeMillis())
     if (!sessionDirectory.isDirectory && !sessionDirectory.mkdirs()) {
       Log.e("ShellSessionFactory", "Couldn't create shell session directory")
       throw RuntimeException("Couldn't create shell session directory")
@@ -39,17 +37,13 @@ class ShellSessionFactory @Inject constructor(
     val classLoader = MarcelDexClassLoader()
     val symbolResolver = ReplMarcelSymbolResolver(classLoader, binding)
     val replCompiler = MarcelReplCompiler(compilerConfiguration, classLoader, symbolResolver)
-    val evaluator = MarcelEvaluator(binding, replCompiler, classLoader, DexJarWriterFactory(), sessionDirectory)
+    val evaluator = MarshellEvaluator(binding, replCompiler, classLoader, DexJarWriterFactory(), sessionDirectory, printer)
 
     if (Environment.isExternalStorageManager()) {
       val boundField = BoundField(File::class.javaType, "ROOT_DIR", MarshellScript::class.javaType)
       symbolResolver.defineBoundField(boundField)
       binding.setVariable(boundField.name, Environment.getExternalStorageDirectory())
     }
-    return ShellSession(symbolResolver, replCompiler, evaluator).apply {
-      scriptConfigurer = { script ->
-        (script as MarshellScript).setPrinter(printer)
-      }
-    }
+    return ShellSession(symbolResolver, replCompiler, evaluator)
   }
 }
