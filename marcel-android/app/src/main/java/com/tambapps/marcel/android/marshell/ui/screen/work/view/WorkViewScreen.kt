@@ -89,7 +89,8 @@ fun WorkViewScreen(
     val context = LocalContext.current
 
     if (work != null) {
-      val isCancelable = work.state != WorkInfo.State.CANCELLED
+      val isCancelable = work.state == WorkInfo.State.ENQUEUED || work.state == WorkInfo.State.RUNNING
+          || work.state == WorkInfo.State.BLOCKED
       val showDialog = remember { mutableStateOf(false) }
       Fab(
         visible = true,
