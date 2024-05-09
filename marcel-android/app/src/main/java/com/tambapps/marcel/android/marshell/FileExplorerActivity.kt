@@ -1,10 +1,14 @@
 package com.tambapps.marcel.android.marshell
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,10 +25,9 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DrawerState
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -49,55 +52,108 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.screen.settings.askManageFilePermission
-import com.tambapps.marcel.android.marshell.ui.screen.settings.paddingStart
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
 import com.tambapps.marcel.android.marshell.util.LifecycleStateListenerEffect
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import java.io.File
 
 class FileExplorerActivity : ComponentActivity() {
 
+  companion object {
+    val SCRIPT_FILE_EXTENSIONS = arrayOf(".mcl", ".txt", ".marcel")
+    const val PICKED_FILE_PATH_KEY = "pfpk"
+    const val ALLOWED_FILE_EXTENSIONSKEY = "afek"
+    const val DIRECTORY_ONLY_KEY = "pick_directoryk"
+    const val START_DIRECTORY_KEY = "start_directory"
+  }
+
+  class Contract: ActivityResultContract<Intent, File?>() {
+    override fun createIntent(context: Context, input: Intent) = input
+
+    override fun parseResult(resultCode: Int, intent: Intent?)
+        = if (resultCode == RESULT_OK && intent != null) File(intent.getStringExtra(PICKED_FILE_PATH_KEY)!!)
+    else null
+  }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
     setContent {
       val viewModel: FileExplorerViewModel = viewModel()
+      viewModel.init(intent.getStringArrayExtra(ALLOWED_FILE_EXTENSIONSKEY), intent.hasExtra(DIRECTORY_ONLY_KEY))
       val context = LocalContext.current
       MarcelAndroidTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-          LifecycleStateListenerEffect(
-            onResume = viewModel::refresh
-          )
-          if (!viewModel.canManageFiles) {
-            AlertDialog(
-              title = {
-                Text(text = "File access permission")
-              },
-              text = {
-                Text(text = "To continue, please allow the app to access files of your device")
-              },
-              onDismissRequest = { /*TODO*/ },
-              confirmButton = {
-                TextButton(onClick = { askManageFilePermission(context) }) {
-                  Text(text = "Allow")
+          Box(modifier = Modifier.fillMaxSize()) {
+            LifecycleStateListenerEffect(
+              onResume = viewModel::refresh
+            )
+            if (!viewModel.canManageFiles) {
+              AlertDialog(
+                title = {
+                  Text(text = "File access permission")
+                },
+                text = {
+                  Text(text = "To continue, please allow the app to access files of your device")
+                },
+                onDismissRequest = {},
+                confirmButton = {
+                  TextButton(onClick = { askManageFilePermission(context) }) {
+                    Text(text = "Allow")
+                  }
+                }
+              )
+            } else {
+              FileExplorerScreen(
+                viewModel = viewModel,
+                backPressedDispatcher = onBackPressedDispatcher
+              )
+              ProposeFileDialog(viewModel, this@FileExplorerActivity::pickFile)
+              if (!viewModel.dirOnly) {
+                FloatingActionButton(
+                  modifier = Modifier
+                    .padding(all = 16.dp)
+                    .size(64.dp)
+                    .align(Alignment.BottomEnd),
+                  onClick = { viewModel.proposedFile = viewModel.currentDir }
+                ) {
+                  Icon(imageVector = Icons.Filled.Done, contentDescription = "Pick")
                 }
               }
-            )
-          } else {
-            FileExplorerScreen(
-              viewModel = viewModel,
-              backPressedDispatcher = onBackPressedDispatcher
-            )
+            }
           }
         }
       }
     }
   }
+
+  private fun pickFile(file: File) {
+    setResult(RESULT_OK, Intent(intent).apply {
+      putExtra(PICKED_FILE_PATH_KEY, file.absolutePath)
+    })
+  }
 }
 
+@Composable
+fun ProposeFileDialog(viewModel: FileExplorerViewModel, onConfirm: (File) -> Unit) {
+  val file = viewModel.proposedFile ?: return
+  AlertDialog(
+    onDismissRequest = { viewModel.proposedFile = null },
+    title = {
+      Text(text = "Pick ${file.name}?")
+    },
+    confirmButton = {
+      TextButton(onClick = { onConfirm.invoke(file) }) {
+        Text(text = "Yes")
+      }
+    },
+    dismissButton = {
+      TextButton(onClick = { viewModel.proposedFile = null }) {
+        Text(text = "No")
+      }
+    },
+  )
+}
 @Composable
 fun FileExplorerScreen(
   viewModel: FileExplorerViewModel,
@@ -115,7 +171,10 @@ fun FileExplorerScreen(
       items(viewModel.children) { file ->
         Row(
           modifier = Modifier
-            .clickable { viewModel.move(file) }
+            .clickable {
+              if (file.isDirectory) viewModel.move(file)
+              else viewModel.proposedFile = viewModel.currentDir
+            }
             .height(60.dp)
             .fillMaxWidth(),
           verticalAlignment = Alignment.CenterVertically
@@ -123,7 +182,9 @@ fun FileExplorerScreen(
           Box(modifier = Modifier.size(60.dp)) {
             if (file.isDirectory) {
               Icon(
-                modifier = Modifier.size(35.dp).align(Alignment.Center),
+                modifier = Modifier
+                  .size(35.dp)
+                  .align(Alignment.Center),
                 painter = painterResource(id = R.drawable.folder),
                 contentDescription = "folder",
                 tint = Color.White,
@@ -185,8 +246,12 @@ fun FilePathRow(viewModel: FileExplorerViewModel) {
 class FileExplorerViewModel: ViewModel() {
   var canManageFiles by mutableStateOf(Environment.isExternalStorageManager())
   var currentDir by mutableStateOf<File?>(null)
+  var proposedFile by mutableStateOf<File?>(null)
   val filesPath = mutableStateListOf<File>()
   val children = mutableStateListOf<File>()
+
+  var dirOnly = false
+  var fileExtensions: Array<String>? = null
 
   fun move(file: File) {
     currentDir = file
@@ -212,12 +277,21 @@ class FileExplorerViewModel: ViewModel() {
     filesPath.reverse()
 
     children.clear()
-    currentDir.listFiles()?.let {
+    currentDir.listFiles(this::filter)?.let { children ->
       // TODO make sorting criteria configurable
-      it.sortBy { child -> child.name }
-      children.addAll(it)
+      this.children.addAll(children)
+      this.children.sortBy { it.name }
     }
   }
 
+  private fun filter(file: File): Boolean {
+    return (fileExtensions == null || fileExtensions!!.any { file.name.endsWith(it) })
+        && (!dirOnly || file.isDirectory)
+  }
+
   fun fileName(f: File) = if (f == Environment.getExternalStorageDirectory()) "Internal Storage" else f.name
+  fun init(fileExtensions: Array<String>?, dirOnly: Boolean) {
+    this.fileExtensions = fileExtensions
+    this.dirOnly = dirOnly
+  }
 }
