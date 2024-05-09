@@ -16,18 +16,16 @@ import marcel.lang.Binding
 import marcel.lang.MarcelDexClassLoader
 import java.io.File
 
-class ShellSession(compilerConfiguration: CompilerConfiguration, classesDir: File) {
+class ShellSession(
+  private val symbolResolver: ReplMarcelSymbolResolver,
+  private val replCompiler: MarcelReplCompiler,
+  private val evaluator: MarcelEvaluator
+) {
 
   companion object {
     fun isMarcelCompilerException(throwable: Throwable) = throwable is MarcelLexerException || throwable is MarcelParserException || throwable is MarcelSemanticException || throwable is MarcelCompilerException
 
   }
-  private val coroutineScope = CoroutineScope(Dispatchers.IO)
-  internal val binding = Binding()
-  private val classLoader = MarcelDexClassLoader()
-  internal val symbolResolver = ReplMarcelSymbolResolver(classLoader, binding)
-  private val replCompiler = MarcelReplCompiler(compilerConfiguration, classLoader, symbolResolver)
-  private val evaluator = MarcelEvaluator(binding, replCompiler, classLoader, DexJarWriterFactory(), classesDir)
 
   var scriptConfigurer: ((marcel.lang.Script) -> Unit)?
     get() = evaluator.scriptConfigurer
