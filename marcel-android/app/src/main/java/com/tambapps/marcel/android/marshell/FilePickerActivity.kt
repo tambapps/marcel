@@ -131,7 +131,7 @@ class FilePickerActivity : ComponentActivity() {
                 backPressedDispatcher = onBackPressedDispatcher
               )
               ProposeFileDialog(viewModel, this@FilePickerActivity::finishWithResult)
-              if (!viewModel.dirOnly) {
+              if (viewModel.dirOnly) {
                 FloatingActionButton(
                   modifier = Modifier
                     .padding(all = 16.dp)
