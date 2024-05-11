@@ -1,13 +1,17 @@
 package com.tambapps.marcel.android.marshell.ui.theme
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 
+val primaryLight = Color(0xFFFC7209)
 val onPrimaryLight = Color(0xFFFFFFFF)
 val primaryContainerLight = Color(0xFFCDEDA3)
 val onPrimaryContainerLight = Color(0xFF102000)
-val secondaryLight = Color(0xFF586249)
+val secondaryLight = Color(0xFFA56E00)
 val onSecondaryLight = Color(0xFFFFFFFF)
-val secondaryContainerLight = Color(0xFF000000)
+val secondaryContainerLight = Color(0xFFF0F068)
 val onSecondaryContainerLight = Color(0xFF151E0B)
 val tertiaryLight = Color(0xFF386663)
 val onTertiaryLight = Color(0xFFFFFFFF)
@@ -18,14 +22,14 @@ val onErrorLight = Color(0xFFFFFFFF)
 val errorContainerLight = Color(0xFFFFDAD6)
 val onErrorContainerLight = Color(0xFF410002)
 val backgroundLight = Color(0xFFF9FAEF)
-val onBackgroundLight = Color(0xFFFFFFFF)
+val onBackgroundLight = Color(0xFF000000)
 val surfaceLight = Color(0xFFF9FAEF)
 val onSurfaceLight = Color(0xFF1A1C16)
 val surfaceVariantLight = Color(0xFFE1E4D5)
-val onSurfaceVariantLight = Color(0xFF44483D)
+val onSurfaceVariantLight = Color(0xFF000000)
 val outlineLight = Color(0xFF75796C)
 val outlineVariantLight = Color(0xFFC5C8BA)
-val scrimLight = Color(0xFF000000)
+val scrimLight = Color(0xFFFFFFFF)
 val inverseSurfaceLight = Color(0xFF2F312A)
 val inverseOnSurfaceLight = Color(0xFFF1F2E6)
 val inversePrimaryLight = Color(0xFFB1D18A)
@@ -39,14 +43,14 @@ val surfaceContainerHighestLight = Color(0xFFE2E3D8)
 
 val disabledPrimary = Color(0xFF81771F)
 
-val primary = Color(0xFFFFEB3B)
+val primaryDark = Color(0xFFFFEB3B)
 val onPrimaryDark = Color(0xFF000000)
-val primaryContainerDark = primary
+val primaryContainerDark = primaryDark
 val onPrimaryContainerDark = Color(0xFFCDEDA3)
 val secondaryDark = Color(0xFFBFCBAD)
 val onSecondaryDark = Color(0xFF2A331E)
 val secondaryContainerDark = Color(0xFF4A4A33) // drawer selected item background color
-val onSecondaryContainerDark = Color(0xFFFFFFFF) // drawer selected item color
+val onSecondaryContainerDark = Color(0xFFFFFFFF) // drawer selected text item color
 val tertiaryDark = Color(0xFFA0D0CB)
 val onTertiaryDark = Color(0xFF003735)
 val tertiaryContainerDark = Color(0xFF1F4E4B)
@@ -77,3 +81,8 @@ val surfaceContainerHighestDark = Color(0xFF33362E)
 
 val ColorScheme.iconButtonColor
   get() = this.onBackground
+
+val ColorScheme.accentTextColor
+@Composable
+@ReadOnlyComposable
+get() = if (isSystemInDarkTheme()) primary else secondaryLight

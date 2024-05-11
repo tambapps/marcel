@@ -32,6 +32,7 @@ import androidx.navigation.NavController
 import com.tambapps.marcel.android.marshell.BuildConfig
 import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
+import com.tambapps.marcel.android.marshell.ui.theme.accentTextColor
 import com.tambapps.marcel.android.marshell.util.LifecycleStateListenerEffect
 import java.io.File
 import java.net.URLEncoder
@@ -58,14 +59,6 @@ fun SettingsScreen(
   LifecycleStateListenerEffect(
     onResume = viewModel::refresh
   )
-  val colorScheme = MaterialTheme.colorScheme
-  val sectionStyle = remember {
-    TextStyle.Default.copy(
-      color = colorScheme.primary,
-      fontSize = 18.sp,
-      fontWeight = FontWeight.Bold
-    )
-  }
 
   val scrollState = rememberScrollState()
   Column(modifier = Modifier
@@ -74,14 +67,14 @@ fun SettingsScreen(
     .scrollable(scrollState, Orientation.Vertical)
   ) {
 
-    SectionTitle(text = "Shell", sectionStyle = sectionStyle)
+    SectionTitle(text = "Shell")
     SettingItem(
       text = "Initialization script",
       description = "Configure a script that will be executed at every shell session startup",
       onClick = { navController.navigate(Routes.EDITOR + "?" + Routes.FILE_ARG + "=" + URLEncoder.encode(initScriptFile.canonicalPath, "UTF-8")) })
 
 
-    SectionTitle(text = "Permissions", sectionStyle = sectionStyle)
+    SectionTitle(text = "Permissions")
     SettingItem(
       text = "Manage files",
       description = "Manage files of your device within Marcel scripts",
@@ -90,7 +83,7 @@ fun SettingsScreen(
     )
 
     /*
-    SectionTitle(text = "Dependency Management", sectionStyle = sectionStyle)
+    SectionTitle(text = "Dependency Management")
     SettingItem(
       text = "Maven Repository",
       description = "Manage fetched Maven artifacts",
@@ -108,13 +101,13 @@ fun askManageFilePermission(context: Context) {
 }
 
 @Composable
-private fun SectionTitle(
-  text: String,
-  sectionStyle: TextStyle) {
+private fun SectionTitle(text: String) {
   Text(
     modifier = Modifier.padding(start = paddingStart, top = 16.dp, bottom = 8.dp),
     text = text,
-    style = sectionStyle
+    style = MaterialTheme.typography.titleMedium,
+    color = MaterialTheme.colorScheme.accentTextColor,
+    fontWeight = FontWeight.SemiBold
   )
 }
 
