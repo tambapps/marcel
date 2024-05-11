@@ -82,7 +82,7 @@ object Routes {
   const val WORK_NAME_ARG = "workName"
   const val FILE_ARG = "file"
 }
-// TODO build theme with https://material-foundation.github.io/material-theme-builder/
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
