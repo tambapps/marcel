@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -195,7 +196,7 @@ private fun NavigationDrawer(
         Image(modifier = Modifier
           .align(Alignment.CenterHorizontally)
           .size(64.dp), painter = painterResource(id = R.drawable.appicon), contentDescription = "marcel")
-        Text("Marcel for Android", modifier = Modifier.padding(16.dp).align(Alignment.CenterHorizontally), style = shellTextStyle,)
+        Text("Marcel for Android", modifier = Modifier.padding(16.dp).align(Alignment.CenterHorizontally), style = shellTextStyle, fontWeight = FontWeight.Bold)
         HorizontalDivider()
 
         val backStackState = navController.currentBackStackEntryAsState()
@@ -261,7 +262,7 @@ private fun DrawerItem(
   route: String,
 ) {
   NavigationDrawerItem(
-    label = { Text(text = text) },
+    label = { Text(text = text, fontWeight = FontWeight.Bold) },
     selected = selected,
     shape = RectangleShape,
     onClick = {
