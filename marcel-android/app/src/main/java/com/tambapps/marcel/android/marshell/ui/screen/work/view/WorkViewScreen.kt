@@ -234,7 +234,6 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
     Text(text = runtimeText(work),
       modifier = Modifier.padding(bottom = 16.dp),
       style = shellTextStyle, fontSize = 16.sp)
-    // TODO launch manually periodic work now if the duration is negative (do this on main activity, at startup)
     viewModel.durationBetweenNowAndNext?.let {
       Text(
         text = nextRunText(it),

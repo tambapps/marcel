@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
+import androidx.work.WorkManager
 import com.tambapps.marcel.android.marshell.maven.DexRemoteSavingRepository
 import com.tambapps.marcel.android.marshell.repl.MarshellScript
 import com.tambapps.marcel.compiler.CompilerConfiguration
@@ -73,4 +74,6 @@ class MarcelAndroidConfiguration {
     return context.getDir("shell_works", Context.MODE_PRIVATE)
   }
 
+  @Provides
+  fun workManager(@ApplicationContext context: Context) = WorkManager.getInstance(context)
 }

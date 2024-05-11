@@ -7,6 +7,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
+import androidx.work.Operation
 import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
@@ -17,24 +18,19 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDao
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import com.tambapps.marcel.android.marshell.room.entity.WorkPeriod
-import com.tambapps.marcel.android.marshell.room.entity.WorkPeriodUnit
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.Duration
 import java.time.LocalDateTime
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class ShellWorkManager @Inject constructor(
-  @ApplicationContext private val applicationContext: Context,
+  private val workManager: WorkManager,
   private val shellWorkDao: ShellWorkDao
 ) {
 
   private companion object {
     const val SHELL_WORK_TAG = "type:shell_work"
   }
-
-  private val workManager by lazy { WorkManager.getInstance(applicationContext) }
 
   suspend fun list(): List<ShellWork> = shellWorkDao.findAll()
 
@@ -67,24 +63,7 @@ class ShellWorkManager @Inject constructor(
     requiresNetwork: Boolean,
     silent: Boolean
   ) {
-    val workRequest: WorkRequest.Builder<*, *> =
-      if (period != null) PeriodicWorkRequestBuilder<MarshellWorkout>(period.toMinutes(), TimeUnit.MINUTES)
-        .setInitialDelay(Duration.ZERO)
-      else OneTimeWorkRequest.Builder(MarshellWorkout::class.java)
-    workRequest.addTag(SHELL_WORK_TAG)
-      // useful to check uniqueness without fetching shell_work_data
-      .addTag("name:$name")
-
-    if (requiresNetwork) {
-      val constraints = Constraints.Builder()
-        .setRequiredNetworkType(NetworkType.CONNECTED)
-        .build()
-      workRequest.setConstraints(constraints)
-    }
-    workRequest.setInputData(Data.Builder().build())
-
-    val operation = if (workRequest is PeriodicWorkRequest.Builder) workManager.enqueueUniquePeriodicWork(name, ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE, workRequest.build())
-    else workManager.enqueueUniqueWork(name, ExistingWorkPolicy.REPLACE, workRequest.build() as OneTimeWorkRequest)
+    val operation = doWorkRequest(name, period, requiresNetwork)
     // waiting for the work to be created
     operation.result.get()
 
@@ -108,6 +87,31 @@ class ShellWorkManager @Inject constructor(
     shellWorkDao.upsert(data)
   }
 
+  private fun doWorkRequest(
+    name: String,
+    period: WorkPeriod?,
+    requiresNetwork: Boolean,
+  ): Operation {
+    val workRequest: WorkRequest.Builder<*, *> =
+      if (period != null) PeriodicWorkRequestBuilder<MarshellWorkout>(period.toMinutes(), TimeUnit.MINUTES)
+        .setInitialDelay(Duration.ZERO)
+      else OneTimeWorkRequest.Builder(MarshellWorkout::class.java)
+    workRequest.addTag(SHELL_WORK_TAG)
+      // useful to check uniqueness without fetching shell_works
+      .addTag("name:$name")
+
+    if (requiresNetwork) {
+      val constraints = Constraints.Builder()
+        .setRequiredNetworkType(NetworkType.CONNECTED)
+        .build()
+      workRequest.setConstraints(constraints)
+    }
+    workRequest.setInputData(Data.Builder().build())
+
+    return if (workRequest is PeriodicWorkRequest.Builder) workManager.enqueueUniquePeriodicWork(name, ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE, workRequest.build())
+    else workManager.enqueueUniqueWork(name, ExistingWorkPolicy.REPLACE, workRequest.build() as OneTimeWorkRequest)
+  }
+
   suspend fun cancel(name: String): ShellWork? {
     workManager.cancelUniqueWork(name).result.get()
     shellWorkDao.updateState(name, WorkInfo.State.CANCELLED)
@@ -119,5 +123,14 @@ class ShellWorkManager @Inject constructor(
     val data = shellWorkDao.findByName(name) ?: return false
     shellWorkDao.delete(data)
     return true
+  }
+
+  suspend fun runLateWorks() {
+    val lateWorks = list().filter { work ->
+      work.durationBetweenNowAndNext?.let { it.isNegative && it.abs().toMinutes() >= 10L } ?: false
+    }
+    lateWorks.forEach {
+      doWorkRequest(it.name, it.period, it.isNetworkRequired)
+    }
   }
 }

@@ -61,8 +61,10 @@ import com.tambapps.marcel.android.marshell.ui.screen.work.view.WorkViewScreen
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
+import com.tambapps.marcel.android.marshell.work.ShellWorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
@@ -84,6 +86,8 @@ object Routes {
 class MainActivity : ComponentActivity() {
 
   @Inject
+  lateinit var shellWorkManager: ShellWorkManager
+  @Inject
   lateinit var viewModelFactory: ViewModelFactory
   @Inject
   lateinit var preferencesDataStore: PreferencesDataStore
@@ -96,8 +100,10 @@ class MainActivity : ComponentActivity() {
   @Named("initScriptFile")
   lateinit var initScriptFile: File
 
+  private lateinit var ioScope: CoroutineScope
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    ioScope = CoroutineScope(Dispatchers.IO)
     setContent {
       val navController = rememberNavController()
       val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -152,6 +158,11 @@ class MainActivity : ComponentActivity() {
   override fun onDestroy() {
     shellSessionsDirectory.deleteRecursively()
     super.onDestroy()
+  }
+
+  override fun onResume() {
+    super.onResume()
+    ioScope.launch { shellWorkManager.runLateWorks() }
   }
 }
 
