@@ -33,10 +33,6 @@ val displayFontFamily = FontFamily(
   )
 )
 
-
-val Typography.shellTextStyle
-  get() = labelLarge
-
 fun AppTypography(textColor: Color): Typography {
   // Default Material 3 typography values
   val baseline = Typography()

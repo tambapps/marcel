@@ -32,7 +32,6 @@ import androidx.navigation.NavController
 import com.tambapps.marcel.android.marshell.BuildConfig
 import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
-import com.tambapps.marcel.android.marshell.ui.theme.accentTextColor
 import com.tambapps.marcel.android.marshell.util.LifecycleStateListenerEffect
 import java.io.File
 import java.net.URLEncoder
@@ -106,7 +105,7 @@ private fun SectionTitle(text: String) {
     modifier = Modifier.padding(start = paddingStart, top = 16.dp, bottom = 8.dp),
     text = text,
     style = MaterialTheme.typography.titleMedium,
-    color = MaterialTheme.colorScheme.accentTextColor,
+    color = MaterialTheme.colorScheme.primary,
     fontWeight = FontWeight.SemiBold
   )
 }

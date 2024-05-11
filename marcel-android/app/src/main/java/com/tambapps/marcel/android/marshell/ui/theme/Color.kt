@@ -1,8 +1,4 @@
 package com.tambapps.marcel.android.marshell.ui.theme
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 
 val primaryLight = Color(0xFFFC7209)
@@ -78,11 +74,3 @@ val surfaceContainerLowDark = Color(0xFF1A1C16)
 val surfaceContainerDark = Color(0xFF1E201A)
 val surfaceContainerHighDark = Color(0xFF282B24)
 val surfaceContainerHighestDark = Color(0xFF33362E)
-
-val ColorScheme.iconButtonColor
-  get() = this.onBackground
-
-val ColorScheme.accentTextColor
-@Composable
-@ReadOnlyComposable
-get() = if (isSystemInDarkTheme()) primary else secondaryLight

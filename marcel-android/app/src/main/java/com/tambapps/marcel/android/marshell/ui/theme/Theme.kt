@@ -2,8 +2,9 @@ package com.tambapps.marcel.android.marshell.ui.theme
 
 import android.app.Activity
 import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -93,7 +94,7 @@ private val darkScheme = darkColorScheme(
 
 @Composable
 fun MarcelAndroidTheme(
-  darkTheme: Boolean = isSystemInDarkTheme(),
+  darkTheme: Boolean = true, // isSystemInDarkTheme(),
   // Dynamic color is available on Android 12+
   dynamicColor: Boolean = false,
   content: @Composable () -> Unit
@@ -122,3 +123,10 @@ fun MarcelAndroidTheme(
     content = content
   )
 }
+
+val ColorScheme.iconButtonColor
+  get() = this.onBackground
+
+
+val Typography.shellTextStyle
+  get() = labelLarge

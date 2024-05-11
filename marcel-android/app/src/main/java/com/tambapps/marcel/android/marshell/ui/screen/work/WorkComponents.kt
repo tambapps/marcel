@@ -1,6 +1,5 @@
 package com.tambapps.marcel.android.marshell.ui.screen.work
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -88,7 +87,7 @@ fun runtimeText(work: ShellWork) = when {
 
 private val Orange = Color(0xFFFFA500)
 private val SkyBlue = Color(0xFF87CEEB)
-private val DeepBlue = Color(0xFF00338B)
+// private val DeepBlue = Color(0xFF00338B) it was for light theme when I supported it
 
 private fun stateText(work: ShellWork): String {
   return if (work.period != null && !work.state.isFinished) {
@@ -104,6 +103,6 @@ private fun stateColor(work: ShellWork) = when {
   work.state == WorkInfo.State.SUCCEEDED -> Color.Green
   work.state == WorkInfo.State.CANCELLED -> Orange
   work.state == WorkInfo.State.FAILED -> Color.Red
-  work.isPeriodic || work.state == WorkInfo.State.RUNNING -> if (isSystemInDarkTheme()) SkyBlue else DeepBlue
+  work.isPeriodic || work.state == WorkInfo.State.RUNNING -> SkyBlue
   else -> MaterialTheme.colorScheme.onSurface
 }
