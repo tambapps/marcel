@@ -53,6 +53,11 @@ class EditorViewModel(
     return true
   }
 
+  override fun validateScriptText(): Boolean {
+    return if (scriptTextInput.annotatedString.isBlank()) true
+    else super.validateScriptText()
+  }
+
   fun save(context: Context, file: File) {
     ioScope.launch {
       val result = runCatching { file.writeText(scriptTextInput.text) }
