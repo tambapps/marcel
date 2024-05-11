@@ -114,7 +114,7 @@ fun ShellWorkItem(shellWork: ShellWork, navController: NavController) {
 @Composable
 private fun Header() {
   Text(
-    text = "Shell Works",
+    text = "Shell Workouts",
     style = MaterialTheme.typography.shellTextStyle,
     modifier = Modifier
       .fillMaxWidth()

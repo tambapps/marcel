@@ -1,8 +1,10 @@
 package com.tambapps.marcel.android.marshell.ui.screen.work.create
 
+import android.net.Uri
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.tween
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
@@ -41,10 +45,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.room.entity.WorkPeriod
 import com.tambapps.marcel.android.marshell.room.entity.WorkPeriodUnit
@@ -52,6 +62,7 @@ import com.tambapps.marcel.android.marshell.ui.component.EXPANDABLE_CARD_ANIMATI
 import com.tambapps.marcel.android.marshell.ui.component.PickerExample
 import com.tambapps.marcel.android.marshell.ui.screen.work.WorkScriptCard
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
+import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
 import com.tambapps.marcel.android.marshell.ui.theme.iconButtonColor
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import java.time.Instant
@@ -61,6 +72,7 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+
 
 @Composable
 fun WorkCreateScreen(
@@ -327,14 +339,105 @@ private fun TextIconButton(fieldName: String, value: String, onClick: () -> Unit
 }
 @Composable
 private fun Header() {
-  // TODO write help button that opens a dialog and explain shell works to user
-  Text(
-    text = "New Workout",
-    style = MaterialTheme.typography.shellTextStyle,
-    modifier = Modifier
-      .fillMaxWidth()
-      .padding(vertical = 16.dp)
-      .height(TopBarHeight), textAlign = TextAlign.Center,
-    fontSize = 22.sp
+  val showHelpDialog = remember { mutableStateOf(false) }
+  Box(modifier = Modifier
+    .fillMaxWidth()
+    .height(TopBarHeight)) {
+    Text(
+      text = "New Shell Workout",
+      style = MaterialTheme.typography.shellTextStyle,
+      modifier = Modifier
+        .fillMaxWidth()
+        .padding(vertical = 12.dp)
+        .height(TopBarHeight), textAlign = TextAlign.Center,
+      fontSize = 22.sp
+    )
+
+    IconButton(
+      modifier = Modifier
+        .size(TopBarIconSize)
+        .align(Alignment.CenterEnd),
+      onClick = { showHelpDialog.value = true },
+    ) {
+      Icon(
+        modifier = Modifier.size(TopBarIconSize),
+        painter = painterResource(id = R.drawable.question),
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.onSurface
+      )
+    }
+  }
+  HelpDialog(show = showHelpDialog)
+}
+
+@Composable
+private fun HelpDialog(
+  show: MutableState<Boolean>
+) {
+  if (!show.value) return
+  val description = remember {
+    buildAnnotatedString {
+      append("Shell Workouts are jobs that execute Marcel scripts in the background.")
+      append("They can run even if you aren't on the app.\n")
+      append("The ")
+      pushStringAnnotation(tag = "workmanager", annotation = "https://developer.android.com/develop/background-work/background-tasks/persistent/getting-started")
+      withStyle(style = SpanStyle(color = Color(0xFF2196F3))) {
+        append("Android WorkManager API")
+      }
+      pop()
+      append(" is used to run such jobs\n\n")
+
+      withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+        append("Schedule Workouts\n")
+      }
+      append("Workouts run as soon as they are created, but you can schedule them to run at a specific time in the future.\n\n")
+
+      withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+        append("Periodic Workouts\n")
+      }
+      append("Workouts can run periodically, but note that due to WorkManager API restrictions, ")
+      withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+        append("the period interval might not be respected ")
+      }
+      append(", sometimes it may be longer than specified.\n\n")
+
+      withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+        append("Requiring Network\n")
+      }
+      append("If you script perform Network operations, enable this flag so that the workout will only run when your device")
+      append(" is connected to the internet.\n\n")
+
+      withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+        append("Run silently\n")
+      }
+      append("By default, a notification is displayed when a workout occurs. If you want to prevent that, enable this flag.")
+    }
+  }
+  AlertDialog(
+    onDismissRequest = { show.value = false },
+    title = {
+      Text(text = "Shell Workouts")
+    },
+    text = {
+      val context = LocalContext.current
+      val state = rememberScrollState()
+      ClickableText(
+        modifier = Modifier.scrollable(state, Orientation.Vertical),
+        text = description,
+        style = MaterialTheme.typography.bodyMedium.copy(textAlign = TextAlign.Justify),
+        onClick = { offset ->
+          description.getStringAnnotations(tag = "workmanager", start = offset, end = offset).firstOrNull()?.let {
+            val intent = CustomTabsIntent.Builder()
+              .build()
+            intent.launchUrl(context, Uri.parse(it.item))
+          }
+        }
+      )
+    },
+    confirmButton = {
+      TextButton(onClick = { show.value = false }) {
+        Text(text = "OK")
+      }
+    }
   )
 }

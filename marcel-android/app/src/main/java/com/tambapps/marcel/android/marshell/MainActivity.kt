@@ -235,7 +235,7 @@ private fun NavigationDrawer(
           navController = navController,
           drawerState = drawerState,
           scope = scope,
-          text = "Workouts",
+          text = "Shell Workouts",
           selected = backStackState.value?.destination?.route?.startsWith("work") ?: false,
           route = Routes.WORK_LIST
         )
