@@ -89,12 +89,14 @@ fun SettingsScreen(
       checked = viewModel.canManageFiles
     )
 
+    /*
     SectionTitle(text = "Dependency Management", sectionStyle = sectionStyle)
     SettingItem(
       text = "Maven Repository",
       description = "Manage fetched Maven artifacts",
-      onClick = { /* TODO */ }
+      onClick = {  }
     )
+     */
   }
 }
 
