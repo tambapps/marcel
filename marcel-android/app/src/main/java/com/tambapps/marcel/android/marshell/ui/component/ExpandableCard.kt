@@ -67,7 +67,7 @@ fun ExpandableCard(
                     modifier = Modifier
                         .weight(6f),
                     text = title,
-                    style = shellTextStyle,
+                    style = MaterialTheme.typography.shellTextStyle,
                     color = titleColor,
                     maxLines = 1,
                 )

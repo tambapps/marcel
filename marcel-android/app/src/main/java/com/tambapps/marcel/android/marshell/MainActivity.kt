@@ -18,6 +18,7 @@ import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -169,7 +170,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun TopBar(drawerState: DrawerState, scope: CoroutineScope) {
   TopBarLayout {
-    androidx.compose.material3.IconButton(
+    IconButton(
       modifier = Modifier.size(TopBarIconSize),
       onClick = {
         if (!drawerState.isAnimationRunning) {
@@ -183,8 +184,8 @@ fun TopBar(drawerState: DrawerState, scope: CoroutineScope) {
       Icon(
         modifier = Modifier.size(TopBarIconSize),
         imageVector = Icons.Filled.Menu,
-        contentDescription = null,
-        tint = Color.White
+        contentDescription = "Drawer",
+        tint = MaterialTheme.colorScheme.onSurface
       )
     }
   }
@@ -207,7 +208,7 @@ private fun NavigationDrawer(
         Image(modifier = Modifier
           .align(Alignment.CenterHorizontally)
           .size(64.dp), painter = painterResource(id = R.drawable.appicon), contentDescription = "marcel")
-        Text("Marcel for Android", modifier = Modifier.padding(16.dp).align(Alignment.CenterHorizontally), style = shellTextStyle, fontWeight = FontWeight.Bold)
+        Text("Marcel for Android", modifier = Modifier.padding(16.dp).align(Alignment.CenterHorizontally), style = MaterialTheme.typography.shellTextStyle, fontWeight = FontWeight.Bold)
         HorizontalDivider()
 
         val backStackState = navController.currentBackStackEntryAsState()

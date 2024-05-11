@@ -161,7 +161,6 @@ class FilePickerActivity : ComponentActivity() {
                 ) {
                   Icon(imageVector = if (viewModel.dirOnly) Icons.Filled.Done else Icons.Filled.Add,
                     contentDescription = if (viewModel.dirOnly) "Pick" else "Create new file",
-                    tint = MaterialTheme.colorScheme.onPrimary
                   )
                 }
               }
@@ -287,7 +286,6 @@ fun FileExplorerScreen(
                 .align(Alignment.Center),
               painter = painterResource(id = if (file.isDirectory) R.drawable.folder else R.drawable.document),
               contentDescription = "file",
-              tint = Color.White,
             )
           }
           Text(text = file.name)
@@ -313,7 +311,6 @@ fun TopBar(viewModel: FileExplorerViewModel, backPressedDispatcher: OnBackPresse
         modifier = Modifier.size(TopBarIconSize),
         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
         contentDescription = null,
-        tint = Color.White
       )
     }
     if (viewModel.currentDir != null) {

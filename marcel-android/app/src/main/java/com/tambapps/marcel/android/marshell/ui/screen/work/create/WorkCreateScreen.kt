@@ -52,6 +52,7 @@ import com.tambapps.marcel.android.marshell.ui.component.EXPANDABLE_CARD_ANIMATI
 import com.tambapps.marcel.android.marshell.ui.component.PickerExample
 import com.tambapps.marcel.android.marshell.ui.screen.work.WorkScriptCard
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
+import com.tambapps.marcel.android.marshell.ui.theme.iconButtonColor
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import java.time.Instant
 import java.time.LocalDate
@@ -92,7 +93,6 @@ fun WorkCreateScreen(
         Icons.Filled.Add,
         modifier = Modifier.size(23.dp),
         contentDescription = "Save",
-        tint = MaterialTheme.colorScheme.onPrimary
       )
     }
   }
@@ -306,7 +306,7 @@ private fun TextIconButton(fieldName: String, value: String, onClick: () -> Unit
     Text(
       modifier = Modifier.width(100.dp),
       text = fieldName,
-      style = shellTextStyle,
+      style = MaterialTheme.typography.shellTextStyle,
       color = MaterialTheme.colorScheme.primary
     )
 
@@ -315,12 +315,12 @@ private fun TextIconButton(fieldName: String, value: String, onClick: () -> Unit
         .width(150.dp)
         .padding(horizontal = 8.dp),
       text = value,
-      style = shellTextStyle,
+      style = MaterialTheme.typography.shellTextStyle,
       textAlign = TextAlign.Center
     )
 
     IconButton(onClick = onClick) {
-      Icon(Icons.Filled.Edit, "edit", tint = Color.White)
+      Icon(Icons.Filled.Edit, "edit", tint = MaterialTheme.colorScheme.iconButtonColor)
     }
   }
 
@@ -330,7 +330,7 @@ private fun Header() {
   // TODO write help button that opens a dialog and explain shell works to user
   Text(
     text = "New Workout",
-    style = shellTextStyle,
+    style = MaterialTheme.typography.shellTextStyle,
     modifier = Modifier
       .fillMaxWidth()
       .padding(vertical = 16.dp)

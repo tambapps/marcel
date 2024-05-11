@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -33,6 +34,7 @@ import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 @Composable
 fun ScriptTextField(viewModel: ScriptEditorViewModel, modifier: Modifier = Modifier, readOnly: Boolean = false) {
   var linesText by remember { mutableIntStateOf(1) }
+  val shellTextStyle = MaterialTheme.typography.shellTextStyle
   val style = remember { shellTextStyle.copy(lineHeight = 26.sp) }
 
   val linesTextScroll = rememberScrollState()
@@ -59,7 +61,7 @@ fun ScriptTextField(viewModel: ScriptEditorViewModel, modifier: Modifier = Modif
 
     VerticalDivider(
       modifier = Modifier.fillMaxHeight().padding(horizontal = 8.dp),
-      color = Color.White
+      color = MaterialTheme.colorScheme.onBackground
     )
     BasicTextField(
       modifier = Modifier
@@ -76,6 +78,7 @@ fun ScriptTextField(viewModel: ScriptEditorViewModel, modifier: Modifier = Modif
         if (nbLines != linesText) linesText = nbLines
         viewModel.onScriptTextChange(textFieldValue)
       },
+      cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
       visualTransformation = viewModel,
     )
   }

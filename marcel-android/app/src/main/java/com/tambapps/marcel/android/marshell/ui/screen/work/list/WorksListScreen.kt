@@ -26,7 +26,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
@@ -78,7 +77,6 @@ fun WorksListScreen(
         Icons.Filled.Add,
         modifier = Modifier.size(23.dp),
         contentDescription = "Save",
-        tint = MaterialTheme.colorScheme.onPrimary
       )
     }
   }
@@ -98,12 +96,12 @@ fun ShellWorkItem(shellWork: ShellWork, navController: NavController) {
       )
   ) {
     Box(modifier = Modifier.padding(8.dp))
-    Text(text = shellWork.name, style = shellTextStyle, fontSize = 18.sp)
-    Text(text = runtimeText(shellWork), style = shellTextStyle, fontSize = 16.sp)
+    Text(text = shellWork.name, style = MaterialTheme.typography.shellTextStyle, fontSize = 18.sp)
+    Text(text = runtimeText(shellWork), style = MaterialTheme.typography.shellTextStyle, fontSize = 16.sp)
 
     if (!shellWork.isFinished) {
       shellWork.durationBetweenNowAndNext?.let {
-        Text(text = nextRunText(it), style = shellTextStyle, fontSize = 16.sp)
+        Text(text = nextRunText(it), style = MaterialTheme.typography.shellTextStyle, fontSize = 16.sp)
       }
     }
 
@@ -117,7 +115,7 @@ fun ShellWorkItem(shellWork: ShellWork, navController: NavController) {
 private fun Header() {
   Text(
     text = "Shell Works",
-    style = shellTextStyle,
+    style = MaterialTheme.typography.shellTextStyle,
     modifier = Modifier
       .fillMaxWidth()
       .padding(vertical = 16.dp)

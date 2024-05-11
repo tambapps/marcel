@@ -90,7 +90,6 @@ fun EditorScreen(viewModel: EditorViewModel) {
           modifier = Modifier.size(23.dp),
           painter = painterResource(id = R.drawable.save),
           contentDescription = "Save",
-          tint = MaterialTheme.colorScheme.onPrimary
         )
       }
     }

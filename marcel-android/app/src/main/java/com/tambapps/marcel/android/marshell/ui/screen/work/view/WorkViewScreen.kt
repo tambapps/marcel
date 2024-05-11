@@ -49,11 +49,9 @@ import com.tambapps.marcel.android.marshell.ui.screen.work.nextRunText
 import com.tambapps.marcel.android.marshell.ui.screen.work.runtimeText
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
-import com.tambapps.marcel.android.marshell.util.TimeUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import java.time.temporal.ChronoUnit
 
 private val Orange = Color(0xFFFF9800)
 
@@ -98,18 +96,16 @@ fun WorkViewScreen(
         visible = true,
         modifier = Modifier.align(Alignment.BottomStart),
         onClick = { showDialog.value = true },
-        color = if (isCancelable) Orange else Color.Red,
-        icon = {
-          Icon(
-            Icons.Filled.Add,
-            modifier = Modifier
-              .size(23.dp)
-              .rotate(45f),
-            contentDescription = "Cancel",
-            tint = MaterialTheme.colorScheme.onPrimary
-          )
-        }
-      )
+        color = if (isCancelable) Orange else Color.Red
+      ) {
+        Icon(
+          Icons.Filled.Add,
+          modifier = Modifier
+            .size(23.dp)
+            .rotate(45f),
+          contentDescription = "Cancel",
+        )
+      }
       CancelOrDeleteDialog(
         viewModel = viewModel,
         work = work,
@@ -122,16 +118,14 @@ fun WorkViewScreen(
     Fab(
       visible = viewModel.scriptEdited,
       modifier = Modifier.align(Alignment.BottomEnd),
-      onClick = { viewModel.validateAndSave(context) },
-      icon = {
-        Icon(
-          painterResource(id = R.drawable.save),
-          modifier = Modifier.size(23.dp),
-          contentDescription = "Save",
-          tint = MaterialTheme.colorScheme.onPrimary
-        )
-      }
-    )
+      onClick = { viewModel.validateAndSave(context) }
+    ) {
+      Icon(
+        painterResource(id = R.drawable.save),
+        modifier = Modifier.size(23.dp),
+        contentDescription = "Save",
+      )
+    }
   }
 }
 
@@ -209,7 +203,7 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
         modifier = Modifier
           .fillMaxWidth(0.75f),
         text = work.name,
-        style = shellTextStyle,
+        style = MaterialTheme.typography.shellTextStyle,
         fontSize = 22.sp,
         overflow = TextOverflow.Ellipsis
       )
@@ -226,19 +220,19 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
           .padding(bottom = 16.dp)
           .fillMaxWidth(),
         text = work.description,
-        style = shellTextStyle,
+        style = MaterialTheme.typography.shellTextStyle,
         fontSize = 16.sp,
         overflow = TextOverflow.Ellipsis
       )
     }
     Text(text = runtimeText(work),
       modifier = Modifier.padding(bottom = 16.dp),
-      style = shellTextStyle, fontSize = 16.sp)
+      style = MaterialTheme.typography.shellTextStyle, fontSize = 16.sp)
     viewModel.durationBetweenNowAndNext?.let {
       Text(
         text = nextRunText(it),
         modifier = Modifier.padding(bottom = 16.dp),
-        style = shellTextStyle, fontSize = 16.sp)
+        style = MaterialTheme.typography.shellTextStyle, fontSize = 16.sp)
     }
 
     if (work.failedReason != null) {
@@ -247,7 +241,7 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
           .padding(bottom = 16.dp)
           .fillMaxWidth(),
         text = "Failure reason: ${work.failedReason}",
-        style = shellTextStyle,
+        style = MaterialTheme.typography.shellTextStyle,
         fontSize = 16.sp,
         overflow = TextOverflow.Ellipsis
       )
@@ -258,7 +252,7 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
       val logsExpanded = remember { mutableStateOf(false) }
       ExpandableCard(expanded = logsExpanded, title = "Logs") {
         SelectionContainer {
-          Text(text = work.logs, style = shellTextStyle)
+          Text(text = work.logs, style = MaterialTheme.typography.shellTextStyle)
         }
       }
     }
@@ -277,7 +271,7 @@ private fun LoadingComponent() {
 private fun Header() {
   Text(
     text = "Workout",
-    style = shellTextStyle,
+    style = MaterialTheme.typography.shellTextStyle,
     modifier = Modifier
       .fillMaxWidth()
       .padding(vertical = 16.dp)

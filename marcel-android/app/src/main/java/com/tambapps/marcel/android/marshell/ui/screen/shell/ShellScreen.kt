@@ -121,7 +121,7 @@ fun ShellScreen(
         value = viewModel.textInput,
         onValueChange = { viewModel.textInput = it },
         visualTransformation = viewModel,
-        textStyle = shellTextStyle,
+        textStyle = MaterialTheme.typography.shellTextStyle,
         modifier = Modifier.weight(1f),
         shape = RoundedCornerShape(36.dp),
         singleLine = singleLineInput,
@@ -264,7 +264,7 @@ fun HistoryText(
   Text(
     modifier = Modifier.padding(padding),
     text = text,
-    style = color?.let { shellTextStyle.copy(color = it) } ?: shellTextStyle,
+    style = color?.let { MaterialTheme.typography.shellTextStyle.copy(color = it) } ?: MaterialTheme.typography.shellTextStyle,
   )
 }
 
@@ -277,7 +277,7 @@ fun HistoryText(
   Text(
     modifier = Modifier.padding(padding),
     text = text,
-    style = color?.let { shellTextStyle.copy(color = it) } ?: shellTextStyle,
+    style = color?.let { MaterialTheme.typography.shellTextStyle.copy(color = it) } ?: MaterialTheme.typography.shellTextStyle,
   )
 }
 
