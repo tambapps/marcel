@@ -160,7 +160,9 @@ class FilePickerActivity : ComponentActivity() {
                   }
                 ) {
                   Icon(imageVector = if (viewModel.dirOnly) Icons.Filled.Done else Icons.Filled.Add,
-                    contentDescription = if (viewModel.dirOnly) "Pick" else "Create new file")
+                    contentDescription = if (viewModel.dirOnly) "Pick" else "Create new file",
+                    tint = MaterialTheme.colorScheme.onPrimary
+                  )
                 }
               }
             }

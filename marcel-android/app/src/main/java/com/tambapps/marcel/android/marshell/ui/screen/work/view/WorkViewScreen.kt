@@ -19,6 +19,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -54,7 +55,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.time.temporal.ChronoUnit
 
-private val Orange = Color(0xFF925F00)
+private val Orange = Color(0xFFFF9800)
 
 @Composable
 fun WorkViewScreen(
@@ -105,7 +106,7 @@ fun WorkViewScreen(
               .size(23.dp)
               .rotate(45f),
             contentDescription = "Cancel",
-            tint = Color.White
+            tint = MaterialTheme.colorScheme.onPrimary
           )
         }
       )
@@ -127,7 +128,7 @@ fun WorkViewScreen(
           painterResource(id = R.drawable.save),
           modifier = Modifier.size(23.dp),
           contentDescription = "Save",
-          tint = Color.White
+          tint = MaterialTheme.colorScheme.onPrimary
         )
       }
     )

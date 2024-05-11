@@ -19,10 +19,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CalendarLocale
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerState
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,7 +28,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.Composable
@@ -96,7 +92,7 @@ fun WorkCreateScreen(
         Icons.Filled.Add,
         modifier = Modifier.size(23.dp),
         contentDescription = "Save",
-        tint = Color.White
+        tint = MaterialTheme.colorScheme.onPrimary
       )
     }
   }

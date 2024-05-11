@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -89,7 +90,7 @@ fun EditorScreen(viewModel: EditorViewModel) {
           modifier = Modifier.size(23.dp),
           painter = painterResource(id = R.drawable.save),
           contentDescription = "Save",
-          tint = Color.White
+          tint = MaterialTheme.colorScheme.onPrimary
         )
       }
     }
