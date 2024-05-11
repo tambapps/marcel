@@ -27,6 +27,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -50,6 +51,7 @@ import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.ui.component.TopBarIconButton
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.component.shellIconModifier
+import com.tambapps.marcel.android.marshell.ui.theme.disabledPrimary
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import marcel.lang.util.MarcelVersion
 
@@ -76,25 +78,23 @@ fun ShellScreen(
           if (prompt.type == Prompt.Type.INPUT) {
             Row {
               HistoryText(
-                text = "> ", color = Color.White,
+                text = "> ",
                 padding = PaddingValues(top = 16.dp)
               )
               if (prompt.text is AnnotatedString) {
                 HistoryText(
-                  text = prompt.text, color = Color.White,
-                  padding = PaddingValues(top = 16.dp)
+                  text = prompt.text, padding = PaddingValues(top = 16.dp)
                 )
               } else {
                 HistoryText(
-                  text = prompt.text.toString(), color = Color.White,
-                  padding = PaddingValues(top = 16.dp)
+                  text = prompt.text.toString(), padding = PaddingValues(top = 16.dp)
                 )
               }
             }
           } else {
             HistoryText(
               text = prompt.text.toString(), color = when (prompt.type) {
-                Prompt.Type.INPUT, Prompt.Type.STDOUT -> Color.White
+                Prompt.Type.INPUT, Prompt.Type.STDOUT -> null
                 Prompt.Type.SUCCESS_OUTPUT -> Color.Green
                 Prompt.Type.ERROR_OUTPUT -> Color.Red
               },
@@ -286,7 +286,7 @@ fun PromptButton(viewModel: ShellViewModel, onPrompt: () -> Unit) {
   val context = LocalContext.current
   IconButton(
     colors = IconButtonDefaults.iconButtonColors()
-      .copy(containerColor = Color.White, disabledContainerColor = Color.Gray),
+      .copy(MaterialTheme.colorScheme.primary, disabledContainerColor = disabledPrimary),
     enabled = !viewModel.isEvaluating && viewModel.isShellReady,
     onClick = OnPromptButtonClick(context, onPrompt, viewModel),
   ) {
