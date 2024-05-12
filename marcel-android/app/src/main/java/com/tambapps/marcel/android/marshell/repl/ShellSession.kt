@@ -7,11 +7,13 @@ import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import java.io.File
 
 class ShellSession(
   internal val symbolResolver: ReplMarcelSymbolResolver,
   internal val replCompiler: MarcelReplCompiler,
   internal val evaluator: MarshellEvaluator,
+  val classesDirectory: File,
 ) {
 
   companion object {

@@ -40,6 +40,12 @@ class MarcelAndroidConfiguration {
     return context.getDir("shell_sessions", Context.MODE_PRIVATE)
   }
 
+  @Named("workSessionsDirectory")
+  @Provides
+  fun workSessionsDirectory(@ApplicationContext context: Context): File {
+    return context.getDir("work_sessions", Context.MODE_PRIVATE)
+  }
+
   @Named("dumbbellRootFile")
   @Provides
   fun dumbbellRootFile(@ApplicationContext context: Context): File {

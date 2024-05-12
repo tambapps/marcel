@@ -12,7 +12,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
-import com.tambapps.marcel.android.marshell.repl.MarshellScript
 import com.tambapps.marcel.android.marshell.repl.ShellSession
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.repl.console.PromptPrinter
@@ -50,7 +49,7 @@ class ShellViewModel @Inject constructor(
 
   init {
     ioScope.launch {
-      val sessionResult = runCatching { shellSessionFactory.newSession(PromptPrinter(prompts)) }
+      val sessionResult = runCatching { shellSessionFactory.newShellSession(PromptPrinter(prompts)) }
       withContext(Dispatchers.Main) {
         if (sessionResult.isSuccess) {
           sessionResult.getOrThrow().let {

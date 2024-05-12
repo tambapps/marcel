@@ -43,6 +43,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellScreen
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorScreen
@@ -81,8 +82,7 @@ class MainActivity : ComponentActivity() {
   @Inject
   lateinit var shellWorkManager: ShellWorkManager
   @Inject
-  @Named("shellSessionsDirectory")
-  lateinit var shellSessionsDirectory: File
+  lateinit var shellSessionFactory: ShellSessionFactory
 
   private lateinit var ioScope: CoroutineScope
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -135,8 +135,7 @@ class MainActivity : ComponentActivity() {
   }
 
   override fun onDestroy() {
-    // TODO problem. It might delete the directory of an on-going workout
-    shellSessionsDirectory.deleteRecursively()
+    shellSessionFactory.dispose()
     super.onDestroy()
   }
 

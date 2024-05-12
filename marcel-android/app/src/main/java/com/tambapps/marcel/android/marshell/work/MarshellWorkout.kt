@@ -7,27 +7,13 @@ import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkInfo
 import androidx.work.WorkerParameters
-import com.tambapps.marcel.android.marshell.repl.MarshellScript
 import com.tambapps.marcel.android.marshell.repl.ShellSession
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
-import com.tambapps.marcel.android.marshell.repl.console.Printer
-import com.tambapps.marcel.android.marshell.repl.jar.DexJarWriterFactory
 import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDao
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
-import com.tambapps.marcel.compiler.CompilerConfiguration
-import com.tambapps.marcel.dumbbell.Dumbbell
-import com.tambapps.marcel.dumbbell.DumbbellEngine
-import com.tambapps.marcel.repl.MarcelEvaluator
-import com.tambapps.marcel.repl.MarcelReplCompiler
-import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import marcel.lang.Binding
-import marcel.lang.MarcelDexClassLoader
-import java.io.File
-import java.lang.Exception
 import java.time.LocalDateTime
-import javax.inject.Named
 
 @HiltWorker
 class MarshellWorkout @AssistedInject constructor(
@@ -61,15 +47,19 @@ class MarshellWorkout @AssistedInject constructor(
       return Result.failure(Data.EMPTY)
     }
     val printer = StringBuilderPrinter()
-    val sessionResult = runCatching { shellSessionFactory.newSession(printer) }
+    val sessionResult = runCatching { shellSessionFactory.newWorkSession(printer) }
     if (sessionResult.isFailure) {
       val e = sessionResult.exceptionOrNull()!!
       Log.e(TAG, "Couldn't start shell session", e)
       shellWorkDao.updateFailureReason(work.name, e.message)
       return Result.failure(Data.EMPTY)
     }
-    runWorkout(work, work.scriptText, sessionResult.getOrThrow(), printer)
-    return Result.success()
+    val shellSession = sessionResult.getOrThrow()
+    try {
+      return runWorkout(work, work.scriptText, shellSession, printer)
+    } finally {
+      shellSession.classesDirectory.deleteRecursively()
+    }
   }
 
   private suspend fun runWorkout(work: ShellWork, scriptText: String, session: ShellSession, printer: StringBuilderPrinter): Result {
