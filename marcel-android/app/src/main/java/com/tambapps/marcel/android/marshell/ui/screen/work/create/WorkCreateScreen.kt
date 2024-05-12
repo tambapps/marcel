@@ -1,6 +1,13 @@
 package com.tambapps.marcel.android.marshell.ui.screen.work.create
 
+import android.annotation.SuppressLint
+import android.app.NotificationManager
 import android.net.Uri
+import android.os.Build
+import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.gestures.Orientation
@@ -90,13 +97,24 @@ fun WorkCreateScreen(
       Form(viewModel)
     }
 
+    val notificationManager = remember { context.getSystemService(NotificationManager::class.java) }
+    val requestNotificationsPermission = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { granted ->
+      Toast.makeText(context, "Notification permissions " + (if (granted) "granted" else "not granted"), Toast.LENGTH_SHORT).show()
+    }
+    val showEnabledNotificationDialog = remember { mutableStateOf(false) }
+    EnabledNotificationsDialog(showEnabledNotificationDialog, requestNotificationsPermission)
     FloatingActionButton(
       modifier = Modifier.padding(all = 16.dp),
       onClick = {
-        viewModel.validateAndSave(context) {
-          // navigate back to works list and force the screen to reload
-          navController.navigate(Routes.WORK_LIST) {
-            popUpTo(Routes.WORK_LIST) { inclusive = true }
+        // TODO need to check shouldShowRequestPermissionRationale() and use preferences
+        if (!viewModel.silent && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !notificationManager.areNotificationsEnabled()) {
+          showEnabledNotificationDialog.value = true
+        } else {
+          viewModel.validateAndSave(context) {
+            // navigate back to works list and force the screen to reload
+            navController.navigate(Routes.WORK_LIST) {
+              popUpTo(Routes.WORK_LIST) { inclusive = true }
+            }
           }
         }
       }
@@ -110,6 +128,36 @@ fun WorkCreateScreen(
   }
 }
 
+@SuppressLint("InlinedApi") // API version checked above
+@Composable
+private fun EnabledNotificationsDialog(
+  show: MutableState<Boolean>,
+  requestNotificationsPermission: ManagedActivityResultLauncher<String, Boolean>
+) {
+  if (!show.value) return
+  AlertDialog(
+    title = {
+       Text(text = "Allow notifications")
+    },
+    text = {
+      Text(text = "Notifications need to be allowed in order to run non-silent workouts")
+    },
+    onDismissRequest = { show.value = false },
+    confirmButton = {
+      TextButton(onClick = {
+        requestNotificationsPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        show.value = false
+      }) {
+        Text(text = "Allow")
+      }
+    },
+    dismissButton = {
+      TextButton(onClick = { show.value = false }) {
+        Text(text = "Cancel")
+      }
+    }
+  )
+}
 private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")
 
 @Composable
