@@ -7,19 +7,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
+import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.ui.screen.ScriptEditorViewModel
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import javax.inject.Inject
 
-class EditorViewModel(
-  symbolResolver: ReplMarcelSymbolResolver,
-  override val replCompiler: MarcelReplCompiler,
+@HiltViewModel
+class EditorViewModel @Inject constructor(
+  shellSessionFactory: ShellSessionFactory,
   file: File?
 ): ViewModel(), ScriptEditorViewModel {
 
@@ -27,10 +30,15 @@ class EditorViewModel(
   override var scriptTextError by mutableStateOf<String?>(null)
   var file by mutableStateOf(file?.let { if (file.isFile || !file.exists()) file else null })
 
-  private val highlighter = SpannableHighlighter(symbolResolver, replCompiler)
+  override val replCompiler: MarcelReplCompiler
+  private val highlighter: SpannableHighlighter
   private val ioScope = CoroutineScope(Dispatchers.IO)
 
   init {
+    val (symbolResolver, replCompiler) = shellSessionFactory.newSymbolResolverAndCompiler()
+    this.replCompiler = replCompiler
+    this.highlighter = SpannableHighlighter(symbolResolver, replCompiler)
+
     if (file != null) {
       val result = runCatching { file.readText() }
       if (result.isSuccess) {
@@ -38,6 +46,7 @@ class EditorViewModel(
       }
     }
   }
+
   override fun highlight(text: CharSequence) = highlighter.highlight(text).toAnnotatedString()
 
   override fun loadScript(context: Context, file: File?) {

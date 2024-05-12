@@ -44,19 +44,6 @@ class ViewModelFactory @Inject constructor(
   @Suppress("UNCHECKED_CAST")
   override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
     return when (modelClass) {
-      EditorViewModel::class.java -> {
-        val (symbolResolver, replCompiler) = newSymbolResolverAndCompiler()
-        val fileArg = extras.createSavedStateHandle().get<String>(Routes.FILE_ARG)?.let {
-          File(URLDecoder.decode(it, "UTF-8"))
-        }
-        EditorViewModel(symbolResolver, replCompiler, fileArg)
-      }
-      WorkViewModel::class.java -> {
-        val (symbolResolver, replCompiler) = newSymbolResolverAndCompiler()
-        // argument should be accessible because of android compose navigation
-        val workName = extras.createSavedStateHandle().get<String>(Routes.WORK_NAME_ARG)
-        WorkViewModel(shellWorkManager, symbolResolver, replCompiler, workName)
-      }
       else -> throw UnsupportedOperationException("Cannot create ViewModel of class $modelClass")
     } as T
   }

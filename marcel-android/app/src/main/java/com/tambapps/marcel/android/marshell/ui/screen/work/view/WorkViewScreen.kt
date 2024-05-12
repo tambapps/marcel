@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.work.WorkInfo
 import com.tambapps.marcel.android.marshell.R
@@ -57,9 +58,9 @@ private val Orange = Color(0xFFFF9800)
 
 @Composable
 fun WorkViewScreen(
-  viewModel: WorkViewModel,
   navController: NavController,
-) {
+  viewModel: WorkViewModel = hiltViewModel()
+  ) {
   val work = viewModel.work
   Box(
     modifier = Modifier.fillMaxSize(),

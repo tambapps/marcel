@@ -43,18 +43,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
-import com.tambapps.marcel.android.marshell.service.PreferencesDataStore
-import com.tambapps.marcel.android.marshell.service.ViewModelFactory
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellScreen
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorScreen
-import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.settings.SettingsScreen
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.work.create.WorkCreateScreen
 import com.tambapps.marcel.android.marshell.ui.screen.work.list.WorksListScreen
-import com.tambapps.marcel.android.marshell.ui.screen.work.view.WorkViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.work.view.WorkViewScreen
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
@@ -86,14 +81,8 @@ class MainActivity : ComponentActivity() {
   @Inject
   lateinit var shellWorkManager: ShellWorkManager
   @Inject
-  lateinit var viewModelFactory: ViewModelFactory
-  @Inject
-  lateinit var preferencesDataStore: PreferencesDataStore
-  @Inject
   @Named("shellSessionsDirectory")
   lateinit var shellSessionsDirectory: File
-  @Inject
-  lateinit var shellSessionFactory: ShellSessionFactory
 
   private lateinit var ioScope: CoroutineScope
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -122,8 +111,7 @@ class MainActivity : ComponentActivity() {
                 Routes.EDITOR + "?${Routes.FILE_ARG}={${Routes.FILE_ARG}}",
                 arguments = listOf(navArgument(Routes.WORK_NAME_ARG) { type = NavType.StringType; nullable = true })
               ) {
-                val viewModel: EditorViewModel = viewModelFactory.newInstance()
-                EditorScreen(viewModel)
+                EditorScreen()
               }
               composable(Routes.WORK_LIST) {
                 WorksListScreen(navController = navController)
@@ -133,8 +121,7 @@ class MainActivity : ComponentActivity() {
               }
               composable(Routes.WORK_VIEW + "/{${Routes.WORK_NAME_ARG}}", arguments = listOf(navArgument(Routes.WORK_NAME_ARG) { type = NavType.StringType })
               ) {
-                val viewModel: WorkViewModel = viewModelFactory.newInstance()
-                WorkViewScreen(viewModel, navController)
+                WorkViewScreen(navController)
               }
               composable(Routes.SETTINGS) {
                 SettingsScreen(navController)
@@ -148,6 +135,7 @@ class MainActivity : ComponentActivity() {
   }
 
   override fun onDestroy() {
+    // TODO problem. It might delete the directory of an on-going workout
     shellSessionsDirectory.deleteRecursively()
     super.onDestroy()
   }

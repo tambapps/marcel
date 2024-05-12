@@ -8,24 +8,29 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
+import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import com.tambapps.marcel.android.marshell.ui.screen.ScriptCardEditorViewModel
 import com.tambapps.marcel.android.marshell.work.ShellWorkManager
 import com.tambapps.marcel.repl.MarcelReplCompiler
-import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Duration
+import javax.inject.Inject
 
-class WorkViewModel(
+@HiltViewModel
+class WorkViewModel @Inject constructor(
   private val shellWorkManager: ShellWorkManager,
-  symbolResolver: ReplMarcelSymbolResolver,
-  override val replCompiler: MarcelReplCompiler,
-  workName: String?
+  shellSessionFactory: ShellSessionFactory,
+  w: ShellWork?
 ): ViewModel(), ScriptCardEditorViewModel {
+
+  override val replCompiler: MarcelReplCompiler
+  private val highlighter: SpannableHighlighter
 
   override var scriptTextInput by mutableStateOf(TextFieldValue())
   override var scriptTextError by mutableStateOf<String?>(null)
@@ -35,23 +40,19 @@ class WorkViewModel(
   var durationBetweenNowAndNext  by mutableStateOf<Duration?>(null) // storing this info in a state to benefit of android compose recomposition
   var scriptEdited by mutableStateOf(false)
 
-  private val highlighter = SpannableHighlighter(symbolResolver, replCompiler)
   private val ioScope = CoroutineScope(Dispatchers.IO)
 
   init {
-    if (workName != null) {
-      ioScope.launch {
-        val w = shellWorkManager.findByName(workName)
-        if (w != null) {
-          withContext(Dispatchers.Main) {
-            work = w
-            durationBetweenNowAndNext = work?.durationBetweenNowAndNext
-            if (w.scriptText != null) {
-              setScriptTextInput(w.scriptText)
-              scriptEdited = false
-            }
-          }
-        }
+    val (symbolResolver, replCompiler) = shellSessionFactory.newSymbolResolverAndCompiler()
+    this.replCompiler = replCompiler
+    this.highlighter = SpannableHighlighter(symbolResolver, replCompiler)
+
+    if (w != null) {
+      work = w
+      durationBetweenNowAndNext = work?.durationBetweenNowAndNext
+      if (w.scriptText != null) {
+        setScriptTextInput(w.scriptText)
+        scriptEdited = false
       }
     }
   }

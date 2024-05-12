@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.marshell.configuration
+package com.tambapps.marcel.android.marshell.hilt.module
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -22,7 +22,7 @@ import java.io.File
 import javax.inject.Named
 
 @Module
-@InstallIn(ActivityComponent::class, FragmentComponent::class,
+@InstallIn(ActivityComponent::class,
   // for workers
   SingletonComponent::class)
 class MarcelAndroidConfiguration {
