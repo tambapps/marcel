@@ -4,12 +4,15 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import com.tambapps.marcel.android.marshell.work.ShellWorkManager
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class WorksListViewModel(
+@HiltViewModel
+class WorksListViewModel @Inject constructor(
   private val shellWorkManager: ShellWorkManager
 ): ViewModel() {
 

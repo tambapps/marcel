@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavType
@@ -97,9 +98,6 @@ class MainActivity : ComponentActivity() {
   lateinit var shellSessionsDirectory: File
   @Inject
   lateinit var shellSessionFactory: ShellSessionFactory
-  @Inject
-  @Named("initScriptFile")
-  lateinit var initScriptFile: File
 
   private lateinit var ioScope: CoroutineScope
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,7 +113,7 @@ class MainActivity : ComponentActivity() {
             .background(MaterialTheme.colorScheme.background)
             .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
             // instantiating shell VM here because we want to keep state even if we changed route and then go back to ShellScreen
-            val shellViewModel: ShellViewModel = viewModelFactory.newInstance()
+            val shellViewModel: ShellViewModel = hiltViewModel()
             NavHost(
               navController = navController,
               startDestination = Routes.SHELL,
@@ -132,8 +130,7 @@ class MainActivity : ComponentActivity() {
                 EditorScreen(viewModel)
               }
               composable(Routes.WORK_LIST) {
-                val viewModel: WorksListViewModel = viewModelFactory.newInstance()
-                WorksListScreen(viewModel = viewModel, navController = navController)
+                WorksListScreen(navController = navController)
               }
               composable(Routes.WORK_CREATE) {
                 val viewModel: WorkCreateViewModel = viewModelFactory.newInstance()
@@ -145,8 +142,7 @@ class MainActivity : ComponentActivity() {
                 WorkViewScreen(viewModel, navController)
               }
               composable(Routes.SETTINGS) {
-                val viewModel: SettingsViewModel = viewModelFactory.newInstance()
-                SettingsScreen(viewModel, navController, initScriptFile)
+                SettingsScreen(navController)
               }
             }
             TopBar(drawerState, scope) // putting it at the end because we want it to have top priority in terms of displaying

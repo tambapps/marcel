@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
@@ -40,9 +41,9 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun WorksListScreen(
-  viewModel: WorksListViewModel,
-  navController: NavController
-) {
+  navController: NavController,
+  viewModel: WorksListViewModel = hiltViewModel()
+  ) {
   LaunchedEffect(Unit) {
     withContext(Dispatchers.IO) {
       while (true) {

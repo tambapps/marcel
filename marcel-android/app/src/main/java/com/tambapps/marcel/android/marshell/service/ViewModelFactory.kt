@@ -26,6 +26,7 @@ import java.io.File
 import java.net.URLDecoder
 import javax.inject.Inject
 
+// TODO to be deleted once all ViewModels will have been migrated to hilt
 class ViewModelFactory @Inject constructor(
   private val compilerConfiguration: CompilerConfiguration,
   @ApplicationContext private val applicationContext: Context,
@@ -50,7 +51,6 @@ class ViewModelFactory @Inject constructor(
         }
         EditorViewModel(symbolResolver, replCompiler, fileArg)
       }
-      ShellViewModel::class.java -> ShellViewModel(applicationContext, shellSessionFactory)
       WorkCreateViewModel::class.java -> {
         val (symbolResolver, replCompiler) = newSymbolResolverAndCompiler()
         WorkCreateViewModel(shellWorkManager, symbolResolver, replCompiler)
@@ -61,8 +61,6 @@ class ViewModelFactory @Inject constructor(
         val workName = extras.createSavedStateHandle().get<String>(Routes.WORK_NAME_ARG)
         WorkViewModel(shellWorkManager, symbolResolver, replCompiler, workName)
       }
-      WorksListViewModel::class.java -> WorksListViewModel(shellWorkManager)
-      SettingsViewModel::class.java -> SettingsViewModel()
       else -> throw UnsupportedOperationException("Cannot create ViewModel of class $modelClass")
     } as T
   }

@@ -28,6 +28,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.tambapps.marcel.android.marshell.BuildConfig
 import com.tambapps.marcel.android.marshell.Routes
@@ -49,10 +50,9 @@ val paddingStart = 40.dp
 
 @Composable
 fun SettingsScreen(
-  viewModel: SettingsViewModel,
   navController: NavController,
-  initScriptFile: File
-) {
+  viewModel: SettingsViewModel = hiltViewModel()
+  ) {
   val context = LocalContext.current
 
   LifecycleStateListenerEffect(
@@ -70,7 +70,7 @@ fun SettingsScreen(
     SettingItem(
       text = "Initialization script",
       description = "Configure a script that will be executed at every shell session startup",
-      onClick = { navController.navigate(Routes.EDITOR + "?" + Routes.FILE_ARG + "=" + URLEncoder.encode(initScriptFile.canonicalPath, "UTF-8")) })
+      onClick = { navController.navigate(Routes.EDITOR + "?" + Routes.FILE_ARG + "=" + URLEncoder.encode(viewModel.initScriptFile.canonicalPath, "UTF-8")) })
 
 
     SectionTitle(text = "Permissions")
@@ -125,7 +125,9 @@ private fun SettingItem(
     verticalAlignment = Alignment.CenterVertically
   ) {
     Box(modifier = Modifier.padding(start = paddingStart))
-    Column(modifier = Modifier.weight(1f).padding(vertical = 16.dp)) {
+    Column(modifier = Modifier
+      .weight(1f)
+      .padding(vertical = 16.dp)) {
       Text(text = text, style = itemStyle)
       if (description != null) {
         Text(text = description, style = itemDescriptionStyle, modifier = Modifier.padding(top = 4.dp))

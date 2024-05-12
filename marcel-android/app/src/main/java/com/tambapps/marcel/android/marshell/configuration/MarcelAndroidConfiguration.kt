@@ -68,12 +68,6 @@ class MarcelAndroidConfiguration {
     return PreferenceDataStoreFactory.create { context.preferencesDataStoreFile("preferences") }
   }
 
-  @Named("shellWorksDirectory")
-  @Provides
-  fun shellWorksDirectory(@ApplicationContext context: Context): File {
-    return context.getDir("shell_works", Context.MODE_PRIVATE)
-  }
-
   @Provides
   fun workManager(@ApplicationContext context: Context) = WorkManager.getInstance(context)
 }
