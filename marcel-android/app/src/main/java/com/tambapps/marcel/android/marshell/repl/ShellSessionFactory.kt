@@ -33,10 +33,18 @@ class ShellSessionFactory @Inject constructor(
 ) {
 
   fun newSymbolResolverAndCompiler(): Pair<ReplMarcelSymbolResolver, MarcelReplCompiler> {
-    return newSession(NoOpPrinter).let {
-      Pair(it.symbolResolver, it.replCompiler)
+    return try {
+      newSession(NoOpPrinter).let {
+        Pair(it.symbolResolver, it.replCompiler)
+      }
+    } catch (e: Throwable) {
+      Log.e("ViewModelFactory", "Error while attempting to create marcel session", e)
+      val classLoader = MarcelDexClassLoader()
+      val symbolResolver = ReplMarcelSymbolResolver(classLoader)
+      Pair(symbolResolver, MarcelReplCompiler(compilerConfiguration, classLoader, symbolResolver))
     }
   }
+
   fun newSession(printer: Printer): ShellSession {
     Dumbbell.setEngine(dumbbellEngine) // initialize dumbbell
     val sessionDirectory = File(shellSessionsDirectory, "session_" + System.currentTimeMillis())

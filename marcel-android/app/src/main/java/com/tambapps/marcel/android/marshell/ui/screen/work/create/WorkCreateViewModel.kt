@@ -7,26 +7,38 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
+import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.room.entity.WorkPeriod
 import com.tambapps.marcel.android.marshell.ui.screen.ScriptCardEditorViewModel
 import com.tambapps.marcel.android.marshell.work.ShellWorkManager
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
+import javax.inject.Inject
 
-class WorkCreateViewModel(
+@HiltViewModel
+class WorkCreateViewModel @Inject constructor(
   private val shellWorkManager: ShellWorkManager,
-  symbolResolver: ReplMarcelSymbolResolver,
-  override val replCompiler: MarcelReplCompiler,
+  shellSessionFactory: ShellSessionFactory
 ): ViewModel(), ScriptCardEditorViewModel {
 
   companion object {
     private val VALID_NAME_REGEX = Regex("^[A-Za-z0-9.\\s_-]+\$")
+  }
+
+  override val replCompiler: MarcelReplCompiler
+  private val highlighter: SpannableHighlighter
+
+  init {
+    val (symbolResolver, replCompiler) = shellSessionFactory.newSymbolResolverAndCompiler()
+    this.replCompiler = replCompiler
+    this.highlighter = SpannableHighlighter(symbolResolver, replCompiler)
   }
 
   override var scriptTextInput by mutableStateOf(TextFieldValue())
@@ -41,8 +53,6 @@ class WorkCreateViewModel(
   var period by mutableStateOf<WorkPeriod?>(null)
 
   var scheduleAt by mutableStateOf<LocalDateTime?>(null)
-
-  private val highlighter = SpannableHighlighter(symbolResolver, replCompiler)
 
   override fun highlight(text: CharSequence) = highlighter.highlight(text).toAnnotatedString()
 

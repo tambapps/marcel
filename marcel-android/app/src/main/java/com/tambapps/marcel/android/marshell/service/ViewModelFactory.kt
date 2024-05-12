@@ -51,10 +51,6 @@ class ViewModelFactory @Inject constructor(
         }
         EditorViewModel(symbolResolver, replCompiler, fileArg)
       }
-      WorkCreateViewModel::class.java -> {
-        val (symbolResolver, replCompiler) = newSymbolResolverAndCompiler()
-        WorkCreateViewModel(shellWorkManager, symbolResolver, replCompiler)
-      }
       WorkViewModel::class.java -> {
         val (symbolResolver, replCompiler) = newSymbolResolverAndCompiler()
         // argument should be accessible because of android compose navigation

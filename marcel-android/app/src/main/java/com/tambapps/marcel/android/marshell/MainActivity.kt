@@ -30,7 +30,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -52,12 +51,9 @@ import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorScreen
 import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.settings.SettingsScreen
-import com.tambapps.marcel.android.marshell.ui.screen.settings.SettingsViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.work.create.WorkCreateScreen
-import com.tambapps.marcel.android.marshell.ui.screen.work.create.WorkCreateViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.work.list.WorksListScreen
-import com.tambapps.marcel.android.marshell.ui.screen.work.list.WorksListViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.work.view.WorkViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.work.view.WorkViewScreen
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
@@ -133,8 +129,7 @@ class MainActivity : ComponentActivity() {
                 WorksListScreen(navController = navController)
               }
               composable(Routes.WORK_CREATE) {
-                val viewModel: WorkCreateViewModel = viewModelFactory.newInstance()
-                WorkCreateScreen(viewModel, navController)
+                WorkCreateScreen(navController)
               }
               composable(Routes.WORK_VIEW + "/{${Routes.WORK_NAME_ARG}}", arguments = listOf(navArgument(Routes.WORK_NAME_ARG) { type = NavType.StringType })
               ) {

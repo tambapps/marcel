@@ -60,6 +60,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.Routes
@@ -83,8 +84,8 @@ import java.time.temporal.ChronoUnit
 
 @Composable
 fun WorkCreateScreen(
-  viewModel: WorkCreateViewModel,
-  navController: NavController
+  navController: NavController,
+  viewModel: WorkCreateViewModel = hiltViewModel()
 ) {
   val context = LocalContext.current
   Box(modifier = Modifier
