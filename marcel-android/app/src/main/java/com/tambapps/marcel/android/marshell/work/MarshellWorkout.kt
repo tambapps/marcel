@@ -35,24 +35,25 @@ class MarshellWorkout @AssistedInject constructor(
   @Assisted workerParams: WorkerParameters,
   private val shellSessionFactory: ShellSessionFactory,
   private val shellWorkDao: ShellWorkDao,
-  @Named("shellWorksDirectory")
-  private val shellWorksDirectory: File,
-  private val dumbbellEngine: DumbbellEngine
 ): CoroutineWorker(appContext, workerParams) {
 
   companion object {
     const val TAG = "MarshellWorkout"
   }
 
-  private val notifier = WorkoutNotifier(applicationContext)
+  private var notification: WorkoutNotification? = null
 
   override suspend fun doWork(): Result {
-    notifier.init()
     val work = findWork()
     if (work == null) {
       Log.e(TAG, "Couldn't find work_data on database for work $id")
       //notification(content = "An unexpected work configuration error occurred", force = true)
       return Result.failure(Data.EMPTY)
+    }
+    if (!work.isSilent) {
+      notification = WorkoutNotification.newInstance(this, work.workId)?.apply {
+        notify(title = "Initializing Workout ${work.name}...")
+      }
     }
     if (work.scriptText == null) {
       Log.e(TAG, "Couldn't retrieve script text of work $id")
@@ -73,27 +74,31 @@ class MarshellWorkout @AssistedInject constructor(
 
   private suspend fun runWorkout(work: ShellWork, scriptText: String, session: ShellSession, printer: StringBuilderPrinter): Result {
     //notification(content = "Executing Marshell work...")
+    notification?.notify(title = "Running workout ${work.name}...")
     shellWorkDao.updateState(work.name, WorkInfo.State.RUNNING)
-
     shellWorkDao.updateStartTime(work.name, LocalDateTime.now())
-    try {
-      val result = session.eval(scriptText)
-      shellWorkDao.updateEndTime(work.name, LocalDateTime.now())
-      shellWorkDao.updateResult(work.name, result?.toString())
 
-      //notification(content = contentBuilder.toString(), foregroundNotification = true)
-      shellWorkDao.updateState(work.name, if (work.isPeriodic) WorkInfo.State.ENQUEUED else WorkInfo.State.SUCCEEDED)
-      shellWorkDao.updateFailureReason(work.name, null) // in case a previous work failed, we need to re initialise the value to null
-      return Result.success()
-    } catch (e: Throwable) {
-      shellWorkDao.updateEndTime(work.name, LocalDateTime.now())
-      Log.e(TAG, "An error occurred while executing script", e)
-      //notification(content = "Error while executing script: ${e.message}", foregroundNotification = true, force = true)
-      shellWorkDao.updateState(work.name, if (work.isPeriodic) WorkInfo.State.ENQUEUED else WorkInfo.State.FAILED)
-      shellWorkDao.updateFailureReason(work.name, "${e.javaClass.simpleName}: ${e.localizedMessage}")
-      return Result.failure()
-    } finally {
-      shellWorkDao.updateLogs(work.name, printer.toString())
+    val result = runCatching { session.eval(scriptText) }
+
+    shellWorkDao.update(
+      name = work.name,
+      endTime = LocalDateTime.now(),
+      result = result.getOrNull()?.toString(),
+      failureReason = result.exceptionOrNull()?.localizedMessage,
+      logs = printer.toString(),
+      state = if (work.isPeriodic) WorkInfo.State.ENQUEUED
+      else if (result.isSuccess) WorkInfo.State.SUCCEEDED
+      else WorkInfo.State.FAILED
+    )
+
+    return if (result.isSuccess) {
+      Log.d(TAG, "Finished successfully workout ${work.name}. Return value: ${result.getOrNull()}")
+      notification?.notify(title = "Workout ${work.name} ran successfully", onGoing = false)
+      Result.success()
+    } else {
+      Log.e(TAG, "An error occurred while executing script", result.exceptionOrNull())
+      notification?.notify(title = "Workout ${work.name} encountered an error", onGoing = false)
+      Result.failure()
     }
   }
 

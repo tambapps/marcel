@@ -2,7 +2,7 @@ package com.tambapps.marcel.android.marshell.work
 
 import com.tambapps.marcel.android.marshell.repl.console.Printer
 
-class StringBuilderPrinter: Printer {
+internal class StringBuilderPrinter: Printer {
   private val builder = StringBuilder()
 
   override fun print(o: Any?) {
