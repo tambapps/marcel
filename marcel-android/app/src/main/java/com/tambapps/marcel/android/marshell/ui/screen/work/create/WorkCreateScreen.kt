@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
@@ -469,9 +470,8 @@ private fun HelpDialog(
     },
     text = {
       val context = LocalContext.current
-      val state = rememberScrollState()
       ClickableText(
-        modifier = Modifier.scrollable(state, Orientation.Vertical),
+        modifier = Modifier.verticalScroll(rememberScrollState()),
         text = description,
         style = MaterialTheme.typography.bodyMedium.copy(textAlign = TextAlign.Justify),
         onClick = { offset ->
