@@ -2,29 +2,35 @@ package com.tambapps.marcel.android.marshell.work
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.graphics.BitmapFactory
 import androidx.core.app.NotificationCompat
-import androidx.work.ForegroundInfo
+import androidx.core.app.TaskStackBuilder
+import androidx.core.net.toUri
 import com.tambapps.marcel.android.marshell.R
-import java.util.UUID
+import com.tambapps.marcel.android.marshell.Routes
+import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 
 class WorkoutNotification private constructor(
+  private val context: Context,
   private val notificationManager: NotificationManager,
-  private val workout: MarshellWorkout,
-  private val notificationId: Int
+  private val work: ShellWork
   ) {
+
+  private val notificationId = work.workId.hashCode()
 
   companion object {
     private const val NOTIFICATION_CHANNEL_ID = "MarcelShellWorker"
 
-    fun newInstance(workout: MarshellWorkout, workId: UUID): WorkoutNotification? {
+    fun newInstance(workout: MarshellWorkout, woek: ShellWork): WorkoutNotification? {
       val notificationManager = workout.applicationContext.getSystemService(NotificationManager::class.java)
       if (!notificationManager.areNotificationsEnabled()) {
         return null
       }
       createChannelIfNeeded(notificationManager)
-      return WorkoutNotification(notificationManager, workout, workId.hashCode())
+      return WorkoutNotification(workout.applicationContext, notificationManager, woek)
     }
 
     private fun createChannelIfNeeded(notificationManager: NotificationManager) {
@@ -41,7 +47,6 @@ class WorkoutNotification private constructor(
     }
   }
 
-  private val context = workout.applicationContext
   private var title: String = ""
   private var message: String = ""
 
@@ -59,9 +64,28 @@ class WorkoutNotification private constructor(
       .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.appicon))
       .setSmallIcon(R.drawable.prompt)
       .setOngoing(onGoing)
+      .setOnlyAlertOnce(true)
     notificationBuilder.setContentText(this.message)
+    if (!onGoing) {
+      notificationBuilder.setContentIntent(getConsultIntent())
+    }
     val notification = notificationBuilder.build()
-    workout.setForegroundAsync(ForegroundInfo(notificationId, notification))
     notificationManager.notify(notificationId, notification)
+  }
+
+  private fun getConsultIntent(): PendingIntent? {
+    return TaskStackBuilder.create(context).run {
+      // TODO test this
+      addNextIntentWithParentStack(
+        Intent(
+          Intent.ACTION_VIEW,
+          "app://marshell/${Routes.WORK_VIEW}/${work.name}".toUri() // <-- Notice this
+        )
+      )
+      val flags = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+      else PendingIntent.FLAG_UPDATE_CURRENT
+
+      getPendingIntent(1234, flags)
+    }
   }
 }

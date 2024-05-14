@@ -37,7 +37,7 @@ class MarshellWorkout @AssistedInject constructor(
       return Result.failure(Data.EMPTY)
     }
     if (!work.isSilent) {
-      notification = WorkoutNotification.newInstance(this, work.workId)?.apply {
+      notification = WorkoutNotification.newInstance(this, work)?.apply {
         notify(title = "Initializing Workout ${work.name}...")
       }
     }
@@ -99,6 +99,10 @@ class MarshellWorkout @AssistedInject constructor(
       // sometimes it looks like the worker is created before the work_data could save the work in database
       Thread.sleep(1_000L)
       work = shellWorkDao.findById(id)
+    }
+    if (work != null && work.workId != id) {
+      work = work.copy(workId = id)
+      shellWorkDao.update(work)
     }
     return work
   }

@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -99,9 +100,15 @@ class MainActivity : ComponentActivity() {
             .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
             // instantiating shell VM here because we want to keep state even if we changed route and then go back to ShellScreen
             val shellViewModel: ShellViewModel = hiltViewModel()
+            // TODO navigation to work_view doesn't work. WorkArgModule can't find workName arg
+            val startDestination = remember {
+              if (intent.data?.toString()?.startsWith("app://marshell/") == true)
+                intent.data!!.toString().removePrefix("app://marshell/")
+              else Routes.SHELL
+            }
             NavHost(
               navController = navController,
-              startDestination = Routes.SHELL,
+              startDestination = startDestination,
               modifier = Modifier.fillMaxSize()
             ) {
               composable(Routes.SHELL) {
@@ -186,7 +193,9 @@ private fun NavigationDrawer(
         Image(modifier = Modifier
           .align(Alignment.CenterHorizontally)
           .size(64.dp), painter = painterResource(id = R.drawable.appicon), contentDescription = "marcel")
-        Text("Marcel for Android", modifier = Modifier.padding(16.dp).align(Alignment.CenterHorizontally), style = MaterialTheme.typography.shellTextStyle, fontWeight = FontWeight.Bold)
+        Text("Marcel for Android", modifier = Modifier
+          .padding(16.dp)
+          .align(Alignment.CenterHorizontally), style = MaterialTheme.typography.shellTextStyle, fontWeight = FontWeight.Bold)
         HorizontalDivider()
 
         val backStackState = navController.currentBackStackEntryAsState()

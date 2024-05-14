@@ -8,10 +8,13 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import androidx.core.app.NotificationCompat
 import androidx.core.app.TaskStackBuilder
+import androidx.core.net.toUri
 import androidx.work.ForegroundInfo
 import androidx.work.WorkManager
 import com.tambapps.marcel.android.marshell.R
+import com.tambapps.marcel.android.marshell.Routes.WORK_VIEW
 
+// TODO delete this class
 internal class WorkoutNotifier(
   private val applicationContext: Context,
 ) {
@@ -40,6 +43,17 @@ internal class WorkoutNotifier(
     return channel != null && channel.importance != NotificationManager.IMPORTANCE_NONE
   }
 
+  private fun getConsultIntent(workName: String) {
+    val notNestedIntent = TaskStackBuilder.create(applicationContext).run {
+      addNextIntentWithParentStack(
+        Intent(
+          Intent.ACTION_VIEW,
+          "app://marshell/${WORK_VIEW}/$workName".toUri() // <-- Notice this
+        )
+      )
+      getPendingIntent(1234, PendingIntent.FLAG_UPDATE_CURRENT)
+    }
+  }
   /* TODO view work intent
   private fun getConsultIntent(notifId: Int, workName: String): PendingIntent? {
     val resultIntent = Intent(applicationContext, ShellWorkViewActivity::class.java)
