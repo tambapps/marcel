@@ -46,8 +46,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.tambapps.marcel.android.marshell.FilePickerActivity
 import com.tambapps.marcel.android.marshell.R
+import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.ui.component.TopBarIconButton
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.component.shellIconModifier
@@ -59,10 +61,11 @@ val HEADER = "Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSIO
 
 @Composable
 fun ShellScreen(
+  navController: NavController,
   viewModel: ShellViewModel
 ) {
   Column(modifier = Modifier.fillMaxSize()) {
-    TopBar(viewModel)
+    TopBar(navController, viewModel)
     val listState = rememberLazyListState()
     SelectionContainer(
       Modifier
@@ -136,9 +139,18 @@ fun ShellScreen(
 }
 
 @Composable
-private fun TopBar(viewModel: ShellViewModel) {
+private fun TopBar(navController: NavController, viewModel: ShellViewModel) {
   val context = LocalContext.current
   TopBarLayout(horizontalArrangement = Arrangement.End) {
+    TopBarIconButton(
+      modifier = shellIconModifier(),
+      onClick = { navController.navigate("${Routes.SHELL}/new") },
+      drawable = R.drawable.document, // TODO icon +
+      contentDescription = "new session"
+    )
+
+    Box(modifier = Modifier.width(10.dp))
+
     TopBarIconButton(
       modifier = shellIconModifier(3.dp),
       onClick = { Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show() }, // TODO

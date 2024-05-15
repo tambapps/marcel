@@ -1,6 +1,7 @@
 package com.tambapps.marcel.android.marshell
 
 object Routes {
+  const val HOME = "home"
   const val SHELL = "shell"
   const val EDITOR = "editor"
   const val WORK_LIST = "work_list"
@@ -10,4 +11,5 @@ object Routes {
 
   const val WORK_NAME_ARG = "workName"
   const val FILE_ARG = "file"
+  const val SESSION_ID = "sessionId"
 }

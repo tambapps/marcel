@@ -25,7 +25,10 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +48,8 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.tambapps.marcel.android.marshell.Routes.EDITOR
 import com.tambapps.marcel.android.marshell.Routes.FILE_ARG
+import com.tambapps.marcel.android.marshell.Routes.HOME
+import com.tambapps.marcel.android.marshell.Routes.SESSION_ID
 import com.tambapps.marcel.android.marshell.Routes.SETTINGS
 import com.tambapps.marcel.android.marshell.Routes.SHELL
 import com.tambapps.marcel.android.marshell.Routes.WORK_CREATE
@@ -68,6 +73,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -87,19 +93,47 @@ class MainActivity : ComponentActivity() {
       val drawerState = rememberDrawerState(DrawerValue.Closed)
       val scope = rememberCoroutineScope()
       MarcelAndroidTheme {
-        NavigationDrawer(drawerState = drawerState, navController = navController, scope = scope) {
+        // instantiating shell VM here because we want to keep state even if we changed route and then go back to ShellScreen
+        val defaultShellViewModel: ShellViewModel = hiltViewModel()
+        val shellViewModels = remember {
+          mutableMapOf<String?, ShellViewModel>(Pair(null, defaultShellViewModel))
+        }
+        NavigationDrawer(drawerState = drawerState, navController = navController, scope = scope, shellViewModels = shellViewModels) {
           Box(modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
             .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
-            // instantiating shell VM here because we want to keep state even if we changed route and then go back to ShellScreen
-            val shellViewModel: ShellViewModel = hiltViewModel()
             NavHost(
               navController = navController,
-              startDestination = SHELL,
+              startDestination = HOME,
               modifier = Modifier.fillMaxSize()
             ) {
-              composable(SHELL) {
-                ShellScreen(shellViewModel)
+              // need a startDestination without any parameters for deep links to work
+              composable(HOME) {
+                ShellScreen(navController, shellViewModels.getValue(null))
+              }
+              composable("$SHELL/new") {
+                val viewModel: ShellViewModel = hiltViewModel()
+
+                LaunchedEffect(Unit) {
+                  val id = shellViewModels.size.toString()
+                  shellViewModels[id] = viewModel
+                  navController.navigate("$SHELL/$id")
+                }
+              }
+
+              composable(
+                "$SHELL/{$SESSION_ID}",
+                arguments = listOf(navArgument(SESSION_ID) { type = NavType.StringType })
+              ) {
+                val sessionId = it.arguments?.getString(SESSION_ID)
+                val viewModel = shellViewModels[sessionId]
+                if (sessionId != null && viewModel != null) {
+                  ShellScreen(navController, viewModel)
+                } else {
+                  LaunchedEffect(Unit) {
+                    navController.navigate(HOME)
+                  }
+                }
               }
               composable(
                 "$EDITOR?$FILE_ARG={$FILE_ARG}",
@@ -173,6 +207,7 @@ private fun NavigationDrawer(
   drawerState: DrawerState,
   navController: NavController,
   scope: CoroutineScope,
+  shellViewModels: Map<String?, ShellViewModel>,
   content: @Composable () -> Unit
 ) {
   ModalNavigationDrawer(
@@ -192,14 +227,31 @@ private fun NavigationDrawer(
 
         val backStackState = navController.currentBackStackEntryAsState()
 
-        DrawerItem(
-          navController = navController,
-          drawerState = drawerState,
-          scope = scope,
-          text = "Shell",
-          backStackState = backStackState,
-          route = SHELL
-        )
+        if (shellViewModels.size == 1) {
+          DrawerItem(
+            navController = navController,
+            drawerState = drawerState,
+            scope = scope,
+            text = "Shell",
+            backStackState = backStackState,
+            route = HOME
+          )
+        } else {
+          for (id in shellViewModels.keys) {
+            val route = if (id == null) HOME else "$SHELL/$id"
+            DrawerItem(
+              navController = navController,
+              drawerState = drawerState,
+              scope = scope,
+              text = "Shell " + (id ?: "0"),
+              selected = backStackState.value?.let {
+                id == null && it.destination.route == HOME || it.arguments?.getString(SESSION_ID) == id
+              } ?: false,
+              route = route
+            )
+          }
+          HorizontalDivider(Modifier.padding(vertical = 2.dp))
+        }
 
         DrawerItem(
           navController = navController,
