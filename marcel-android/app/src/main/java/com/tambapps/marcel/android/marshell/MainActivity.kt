@@ -43,6 +43,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
+import com.tambapps.marcel.android.marshell.Routes.EDITOR
+import com.tambapps.marcel.android.marshell.Routes.FILE_ARG
+import com.tambapps.marcel.android.marshell.Routes.SETTINGS
+import com.tambapps.marcel.android.marshell.Routes.SHELL
+import com.tambapps.marcel.android.marshell.Routes.WORK_CREATE
+import com.tambapps.marcel.android.marshell.Routes.WORK_LIST
+import com.tambapps.marcel.android.marshell.Routes.WORK_NAME_ARG
+import com.tambapps.marcel.android.marshell.Routes.WORK_VIEW
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellScreen
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
@@ -61,18 +69,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-object Routes {
-  const val SHELL = "shell"
-  const val EDITOR = "editor"
-  const val WORK_LIST = "work_list"
-  const val WORK_CREATE = "work_create"
-  const val WORK_VIEW = "work_view"
-  const val SETTINGS = "settings"
-
-  const val WORK_NAME_ARG = "workName"
-  const val FILE_ARG = "file"
-}
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -99,34 +95,34 @@ class MainActivity : ComponentActivity() {
             val shellViewModel: ShellViewModel = hiltViewModel()
             NavHost(
               navController = navController,
-              startDestination = Routes.SHELL,
+              startDestination = SHELL,
               modifier = Modifier.fillMaxSize()
             ) {
-              composable(Routes.SHELL) {
+              composable(SHELL) {
                 ShellScreen(shellViewModel)
               }
               composable(
-                Routes.EDITOR + "?${Routes.FILE_ARG}={${Routes.FILE_ARG}}",
-                arguments = listOf(navArgument(Routes.WORK_NAME_ARG) { type = NavType.StringType; nullable = true })
+                "$EDITOR?$FILE_ARG={$FILE_ARG}",
+                arguments = listOf(navArgument(WORK_NAME_ARG) { type = NavType.StringType; nullable = true })
               ) {
                 EditorScreen()
               }
-              composable(Routes.WORK_LIST) {
+              composable(WORK_LIST) {
                 WorksListScreen(navController = navController)
               }
-              composable(Routes.WORK_CREATE) {
+              composable(WORK_CREATE) {
                 WorkCreateScreen(navController)
               }
               composable(
-                route = Routes.WORK_VIEW + "/{${Routes.WORK_NAME_ARG}}",
-                arguments = listOf(navArgument(Routes.WORK_NAME_ARG) { type = NavType.StringType }),
+                route = "$WORK_VIEW/{$WORK_NAME_ARG}",
+                arguments = listOf(navArgument(WORK_NAME_ARG) { type = NavType.StringType }),
                 deepLinks = listOf(navDeepLink {
-                  uriPattern = "app://marshell/${Routes.WORK_VIEW}/{${Routes.WORK_NAME_ARG}}"
+                  uriPattern = "app://marshell/$WORK_VIEW/{$WORK_NAME_ARG}"
                 })
               ) {
                 WorkViewScreen(navController)
               }
-              composable(Routes.SETTINGS) {
+              composable(SETTINGS) {
                 SettingsScreen(navController)
               }
             }
@@ -202,7 +198,7 @@ private fun NavigationDrawer(
           scope = scope,
           text = "Shell",
           backStackState = backStackState,
-          route = Routes.SHELL
+          route = SHELL
         )
 
         DrawerItem(
@@ -210,8 +206,8 @@ private fun NavigationDrawer(
           drawerState = drawerState,
           scope = scope,
           text = "Editor",
-          selected = backStackState.value?.destination?.route?.startsWith("editor") ?: false,
-          route = Routes.EDITOR
+          backStackState = backStackState,
+          route = EDITOR
         )
 
         DrawerItem(
@@ -220,7 +216,7 @@ private fun NavigationDrawer(
           scope = scope,
           text = "Shell Workouts",
           selected = backStackState.value?.destination?.route?.startsWith("work") ?: false,
-          route = Routes.WORK_LIST
+          route = WORK_LIST
         )
 
         DrawerItem(
@@ -229,7 +225,7 @@ private fun NavigationDrawer(
           scope = scope,
           text = "Settings",
           backStackState = backStackState,
-          route = Routes.SETTINGS
+          route = SETTINGS
         )
 
       }
