@@ -23,6 +23,8 @@ class MarshellWorkout @AssistedInject constructor(
   private val shellWorkDao: ShellWorkDao,
 ): CoroutineWorker(appContext, workerParams) {
 
+  private val workTags = workerParams.tags
+
   companion object {
     const val TAG = "MarshellWorkout"
   }
@@ -32,7 +34,7 @@ class MarshellWorkout @AssistedInject constructor(
   override suspend fun doWork(): Result {
     val work = findWork()
     if (work == null) {
-      Log.e(TAG, "Couldn't find work_data on database for work $id")
+      Log.e(TAG, "Couldn't find shell_work on database for work with id $id and tags $workTags")
       //notification(content = "An unexpected work configuration error occurred", force = true)
       return Result.failure(Data.EMPTY)
     }

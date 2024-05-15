@@ -7,13 +7,12 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import androidx.core.app.NotificationCompat
-import androidx.core.app.TaskStackBuilder
 import androidx.core.net.toUri
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 
-class WorkoutNotification private constructor(
+internal class WorkoutNotification private constructor(
   private val context: Context,
   private val notificationManager: NotificationManager,
   private val work: ShellWork
@@ -68,24 +67,19 @@ class WorkoutNotification private constructor(
     notificationBuilder.setContentText(this.message)
     if (!onGoing) {
       notificationBuilder.setContentIntent(getConsultIntent())
+        .setAutoCancel(true)
     }
     val notification = notificationBuilder.build()
     notificationManager.notify(notificationId, notification)
   }
 
   private fun getConsultIntent(): PendingIntent? {
-    return TaskStackBuilder.create(context).run {
-      // TODO test this
-      addNextIntentWithParentStack(
-        Intent(
-          Intent.ACTION_VIEW,
-          "app://marshell/${Routes.WORK_VIEW}/${work.name}".toUri() // <-- Notice this
-        )
-      )
-      val flags = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-      else PendingIntent.FLAG_UPDATE_CURRENT
-
-      getPendingIntent(1234, flags)
-    }
+    val intent = Intent(
+      Intent.ACTION_VIEW,
+      "app://marshell/${Routes.WORK_VIEW}/${work.name}".toUri()
+    )
+    val flags = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    else PendingIntent.FLAG_UPDATE_CURRENT
+    return PendingIntent.getActivity(context, 1234, intent, flags)
   }
 }

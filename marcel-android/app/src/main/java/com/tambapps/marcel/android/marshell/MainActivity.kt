@@ -1,4 +1,3 @@
-
 package com.tambapps.marcel.android.marshell
 
 import android.os.Bundle
@@ -27,7 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +42,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellScreen
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
@@ -61,9 +60,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File
 import javax.inject.Inject
-import javax.inject.Named
 
 object Routes {
   const val SHELL = "shell"
@@ -100,15 +97,9 @@ class MainActivity : ComponentActivity() {
             .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
             // instantiating shell VM here because we want to keep state even if we changed route and then go back to ShellScreen
             val shellViewModel: ShellViewModel = hiltViewModel()
-            // TODO navigation to work_view doesn't work. WorkArgModule can't find workName arg
-            val startDestination = remember {
-              if (intent.data?.toString()?.startsWith("app://marshell/") == true)
-                intent.data!!.toString().removePrefix("app://marshell/")
-              else Routes.SHELL
-            }
             NavHost(
               navController = navController,
-              startDestination = startDestination,
+              startDestination = Routes.SHELL,
               modifier = Modifier.fillMaxSize()
             ) {
               composable(Routes.SHELL) {
@@ -126,7 +117,12 @@ class MainActivity : ComponentActivity() {
               composable(Routes.WORK_CREATE) {
                 WorkCreateScreen(navController)
               }
-              composable(Routes.WORK_VIEW + "/{${Routes.WORK_NAME_ARG}}", arguments = listOf(navArgument(Routes.WORK_NAME_ARG) { type = NavType.StringType })
+              composable(
+                route = Routes.WORK_VIEW + "/{${Routes.WORK_NAME_ARG}}",
+                arguments = listOf(navArgument(Routes.WORK_NAME_ARG) { type = NavType.StringType }),
+                deepLinks = listOf(navDeepLink {
+                  uriPattern = "app://marshell/${Routes.WORK_VIEW}/{${Routes.WORK_NAME_ARG}}"
+                })
               ) {
                 WorkViewScreen(navController)
               }
