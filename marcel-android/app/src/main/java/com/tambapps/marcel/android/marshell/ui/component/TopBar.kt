@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -45,6 +46,27 @@ fun TopBarIconButton(
   ) {
     Icon(
       painter = painterResource(id = drawable),
+      contentDescription = contentDescription,
+      tint = if (enabled) MaterialTheme.colorScheme.onSurface else Color.Gray
+    )
+  }
+}
+
+@Composable
+fun TopBarIconButton(
+  modifier: Modifier = Modifier,
+  onClick: () -> Unit,
+  enabled: Boolean = true,
+  icon: ImageVector,
+  contentDescription: String
+) {
+  IconButton(
+    onClick = onClick,
+    modifier = modifier,
+    enabled = enabled,
+  ) {
+    Icon(
+      imageVector = icon,
       contentDescription = contentDescription,
       tint = if (enabled) MaterialTheme.colorScheme.onSurface else Color.Gray
     )

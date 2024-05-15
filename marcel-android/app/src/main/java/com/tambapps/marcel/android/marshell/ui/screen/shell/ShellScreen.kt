@@ -145,7 +145,7 @@ private fun TopBar(navController: NavController, viewModel: ShellViewModel) {
     TopBarIconButton(
       modifier = shellIconModifier(),
       onClick = { navController.navigate("${Routes.SHELL}/new") },
-      drawable = R.drawable.document, // TODO icon +
+      drawable = R.drawable.plus,
       contentDescription = "new session"
     )
 
