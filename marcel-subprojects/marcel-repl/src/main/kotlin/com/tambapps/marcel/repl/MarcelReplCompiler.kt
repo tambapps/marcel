@@ -11,6 +11,7 @@ import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.repl.semantic.MarcelReplSemantic
+import com.tambapps.marcel.semantic.CompilationPurpose
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.imprt.ImportResolverGenerator
@@ -22,7 +23,10 @@ class MarcelReplCompiler constructor(
   compilerConfiguration: CompilerConfiguration,
   internal val marcelClassLoader: MarcelClassLoader,
   internal val symbolResolver: ReplMarcelSymbolResolver,
-): AbstractMarcelCompiler(compilerConfiguration) {
+): AbstractMarcelCompiler(
+  if (compilerConfiguration.purpose == CompilationPurpose.REPL) compilerConfiguration
+  else compilerConfiguration.copy(purpose = CompilationPurpose.REPL)
+) {
 
   val imports = MutableImportResolver.empty()
   private val lexer = MarcelLexer(false)
@@ -146,14 +150,14 @@ class MarcelReplCompiler constructor(
     defineSymbols(symbolResolver, semantic)
 
     // load transformations if any
-    val syntaxTreeTransformer = SyntaxTreeTransformer(symbolResolver)
-    syntaxTreeTransformer.loadTransformations(semantic)
+    val syntaxTreeTransformer = SyntaxTreeTransformer(configuration, symbolResolver)
+    syntaxTreeTransformer.applyCstTransformations(semantic)
 
     // apply semantic analysis
     val ast = semantic.apply()
 
     // apply transformations if any
-    syntaxTreeTransformer.applyTransformations(ast)
+    syntaxTreeTransformer.applyAstTransformations(ast)
 
     // checks
     check(ast, symbolResolver)

@@ -1,11 +1,13 @@
 package com.tambapps.marcel.compiler
 
+import com.tambapps.marcel.semantic.CompilationPurpose
 import marcel.lang.Script
 
 data class CompilerConfiguration(
   val classVersion: Int = computeClassVersion(),
   val dumbbellEnabled: Boolean = false,
-  val scriptClass: Class<*> = Script::class.java
+  val scriptClass: Class<*> = Script::class.java,
+  val purpose: CompilationPurpose = CompilationPurpose.COMPILATION
 ) {
 
   constructor(classVersion: Int, dumbbellEnabled: Boolean): this(classVersion, dumbbellEnabled, Script::class.java)
@@ -35,9 +37,12 @@ data class CompilerConfiguration(
     )
 
     @JvmStatic
+    fun getClassVersion(version: String?) = version?.let { VERSION_MAP[it] } ?: DEFAULT_VERSION
+
+    @JvmStatic
     fun computeClassVersion(): Int {
       val version: String? = System.getProperty("java.specification.version")
-      return version?.let { VERSION_MAP[it] } ?: DEFAULT_VERSION
+      return getClassVersion(version)
     }
   }
 }

@@ -1,5 +1,6 @@
 package com.tambapps.marcel.compiler.transform
 
+import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.AnnotationCstNode as AnnotationCstNode
 import com.tambapps.marcel.parser.cst.ClassCstNode as ClassCstNode
@@ -18,40 +19,53 @@ import java.lang.Exception
 import java.lang.annotation.ElementType
 
 class SyntaxTreeTransformer(
-  private val symbolResolver: MarcelSymbolResolver
+  private val compilerConfiguration: CompilerConfiguration,
+  private val symbolResolver: MarcelSymbolResolver,
 ) {
 
+  private val purpose = compilerConfiguration.purpose
   private val map = mutableMapOf<JavaAnnotationType, List<SyntaxTreeTransformation>>()
 
-  fun loadTransformations(semantic: MarcelSemantic) {
-    semantic.cst.classes.forEach { doLoadTransformations(semantic, it) }
-    semantic.cst.script?.let { doLoadTransformations(semantic, it) }
+
+  /**
+   * Apply the CST transformations (if any) on the node
+   *
+   * @param semantic the annotated CST node of the semantics
+   */
+  fun applyCstTransformations(semantic: MarcelSemantic) {
+    semantic.cst.classes.forEach { applyCstTransformations(semantic, it) }
+    semantic.cst.script?.let { applyCstTransformations(semantic, it) }
   }
 
-  fun applyTransformations(node: ModuleNode) {
+  /**
+   * Apply the AST transformations (if any) on the node
+   *
+   * @param node the annotated AST node
+   */
+  fun applyAstTransformations(node: ModuleNode) {
     if (map.isEmpty()) return // no need to iterate over everything if there aren't any transformations to apply
     for (classNode in node.classes) {
-      applyTransformations(classNode)
+      applyAstTransformations(classNode)
     }
   }
 
-  private fun applyTransformations(classNode: ClassNode) {
-    classNode.annotations.forEach { annotationNode -> applyTransformations(classNode, classNode, annotationNode) }
+  private fun applyAstTransformations(classNode: ClassNode) {
+    classNode.annotations.forEach { annotationNode -> applyAstTransformations(classNode, classNode, annotationNode) }
 
     for (fieldNode in classNode.fields.toList()) { // copying to avoid concurrent modifications
-      fieldNode.annotations.forEach { annotationNode -> applyTransformations(fieldNode, classNode, annotationNode) }
+      fieldNode.annotations.forEach { annotationNode -> applyAstTransformations(fieldNode, classNode, annotationNode) }
     }
 
     for (methodNode in classNode.methods.toList()) { // copying to avoid concurrent modifications
-      methodNode.annotations.forEach { annotationNode -> applyTransformations(methodNode, classNode, annotationNode) }
+      methodNode.annotations.forEach { annotationNode -> applyAstTransformations(methodNode, classNode, annotationNode) }
     }
 
     for (innerClass in classNode.innerClasses.toList()) { // copying to avoid concurrent modifications
-      applyTransformations(innerClass)
+      applyAstTransformations(innerClass)
     }
   }
 
-  private fun applyTransformations(node: AstNode, classNode: ClassNode, annotation: AnnotationNode) {
+  private fun applyAstTransformations(node: AstNode, classNode: ClassNode, annotation: AnnotationNode) {
     map[annotation.type]?.forEach { transformation ->
       try {
         transformation.transform(node, classNode, annotation)
@@ -62,7 +76,7 @@ class SyntaxTreeTransformer(
     }
   }
 
-  private fun doLoadTransformations(semantic: MarcelSemantic, classNode: ClassCstNode) {
+  private fun applyCstTransformations(semantic: MarcelSemantic, classNode: ClassCstNode) {
     val javaType = symbolResolver.of(classNode.className) as SourceJavaType
     loadFromAnnotations(semantic, classNode, ElementType.TYPE, javaType, classNode.annotations)
     classNode.fields.forEach { fieldNode ->
@@ -71,7 +85,7 @@ class SyntaxTreeTransformer(
     classNode.methods.forEach { methodNode ->
       loadFromAnnotations(semantic, methodNode, ElementType.METHOD, javaType, methodNode.annotations)
     }
-    classNode.innerClasses.forEach { doLoadTransformations(semantic, it) }
+    classNode.innerClasses.forEach { applyCstTransformations(semantic, it) }
   }
 
   private fun loadFromAnnotations(semantic: MarcelSemantic,
@@ -86,7 +100,7 @@ class SyntaxTreeTransformer(
         val transformations = map.computeIfAbsent(annotation.type, this::getTransformations)
         if (transformations.isNotEmpty()) {
           transformations.forEach { transformation ->
-            transformation.init(symbolResolver)
+            transformation.init(symbolResolver, purpose)
             try {
               transformation.transform(classType, node, annotation)
             } catch (e: Exception) {

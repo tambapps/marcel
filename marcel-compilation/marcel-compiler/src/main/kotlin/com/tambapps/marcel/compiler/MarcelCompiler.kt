@@ -71,14 +71,14 @@ class MarcelCompiler(configuration: CompilerConfiguration): AbstractMarcelCompil
     defineSymbols(symbolResolver, semantics)
 
     // load transformations if any
-    val syntaxTreeTransformer = SyntaxTreeTransformer(symbolResolver)
-    semantics.forEach { syntaxTreeTransformer.loadTransformations(it) }
+    val syntaxTreeTransformer = SyntaxTreeTransformer(configuration, symbolResolver)
+    semantics.forEach { syntaxTreeTransformer.applyCstTransformations(it) }
 
     // apply semantic analysis
     val asts = semantics.map { it.apply() }
 
     // apply transformations if any
-    asts.forEach { syntaxTreeTransformer.applyTransformations(it) }
+    asts.forEach { syntaxTreeTransformer.applyAstTransformations(it) }
 
     // checks
     asts.forEach { check(it, symbolResolver) }

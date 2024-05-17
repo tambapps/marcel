@@ -2,6 +2,7 @@ package com.tambapps.marcel.semantic.transform
 
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
+import com.tambapps.marcel.semantic.CompilationPurpose
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
@@ -13,6 +14,7 @@ import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.SourceJavaType
+import marcel.lang.Script
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -76,6 +78,10 @@ class CachedAstTransformation : GenerateMethodAstTransformation() {
 
     val threadSafe = annotation.getAttribute(THREAD_SAFE_OPTION)?.value == true
     val cacheField = fieldNode(Map::class.javaType, originalMethod.name + "\$cache")
+    // TODO make a ReplScript class/interface to differentiate non REPL script and REP script. don't forget to use it on marcel for android
+    if (purpose == CompilationPurpose.REPL && classNode.type.implements(Script::class.javaType)) {
+      TODO("use binding fields instead, with getters")
+    }
     addField(
       classNode, cacheField, constructorCall(
         method = symbolResolver.findMethodOrThrow(
