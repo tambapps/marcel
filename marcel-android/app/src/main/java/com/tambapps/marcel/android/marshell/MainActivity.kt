@@ -46,6 +46,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
+import com.tambapps.marcel.android.marshell.Routes.CONSULT
 import com.tambapps.marcel.android.marshell.Routes.EDITOR
 import com.tambapps.marcel.android.marshell.Routes.FILE_ARG
 import com.tambapps.marcel.android.marshell.Routes.HOME
@@ -61,6 +62,7 @@ import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellScreen
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorScreen
 import com.tambapps.marcel.android.marshell.ui.screen.settings.SettingsScreen
+import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellConsultScreen
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
 import com.tambapps.marcel.android.marshell.ui.screen.work.create.WorkCreateScreen
 import com.tambapps.marcel.android.marshell.ui.screen.work.list.WorksListScreen
@@ -111,7 +113,7 @@ class MainActivity : ComponentActivity() {
             ) {
               // need a startDestination without any parameters for deep links to work
               composable(HOME) {
-                ShellScreen(navController, shellViewModels.getValue(0))
+                ShellScreen(navController, shellViewModels.getValue(0), 0)
               }
               composable("$SHELL/new") {
                 val viewModel: ShellViewModel = hiltViewModel()
@@ -130,7 +132,18 @@ class MainActivity : ComponentActivity() {
                 val sessionId = it.arguments?.getInt(SESSION_ID, 0)
                 val viewModel = shellViewModels[sessionId]
                 if (sessionId != null && viewModel != null) {
-                  ShellScreen(navController, viewModel)
+                  ShellScreen(navController, viewModel, sessionId)
+                } else {
+                  LaunchedEffect(Unit) {
+                    navController.navigate(HOME)
+                  }
+                }
+              }
+              composable(CONSULT, arguments = listOf(navArgument(SESSION_ID) { type = NavType.IntType })) {
+                val sessionId = it.arguments?.getInt(SESSION_ID, 0)
+                val viewModel = shellViewModels[sessionId]
+                if (sessionId != null && viewModel != null) {
+                  ShellConsultScreen(viewModel)
                 } else {
                   LaunchedEffect(Unit) {
                     navController.navigate(HOME)

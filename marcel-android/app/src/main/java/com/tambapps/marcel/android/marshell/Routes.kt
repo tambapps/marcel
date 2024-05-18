@@ -12,4 +12,7 @@ object Routes {
   const val WORK_NAME_ARG = "workName"
   const val FILE_ARG = "file"
   const val SESSION_ID = "sessionId"
+
+  const val CONSULT = "$SHELL/{$SESSION_ID}/consult"
+  fun consult(sessionId: Any) = "$SHELL/$sessionId/consult"
 }

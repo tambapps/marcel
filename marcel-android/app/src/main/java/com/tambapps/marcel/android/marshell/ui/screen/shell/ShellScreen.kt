@@ -62,10 +62,11 @@ val HEADER = "Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSIO
 @Composable
 fun ShellScreen(
   navController: NavController,
-  viewModel: ShellViewModel
-) {
+  viewModel: ShellViewModel,
+  sessionId: Int
+  ) {
   Column(modifier = Modifier.fillMaxSize()) {
-    TopBar(navController, viewModel)
+    TopBar(navController, viewModel, sessionId)
     val listState = rememberLazyListState()
     SelectionContainer(
       Modifier
@@ -139,7 +140,7 @@ fun ShellScreen(
 }
 
 @Composable
-private fun TopBar(navController: NavController, viewModel: ShellViewModel) {
+private fun TopBar(navController: NavController, viewModel: ShellViewModel, sessionId: Int) {
   val context = LocalContext.current
   TopBarLayout(horizontalArrangement = Arrangement.End) {
     TopBarIconButton(
@@ -153,7 +154,7 @@ private fun TopBar(navController: NavController, viewModel: ShellViewModel) {
 
     TopBarIconButton(
       modifier = shellIconModifier(3.dp),
-      onClick = { Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show() }, // TODO
+      onClick = { navController.navigate(Routes.consult(sessionId)) },
       drawable = R.drawable.view,
       contentDescription = "view shell functions/variables"
     )
