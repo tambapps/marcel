@@ -245,7 +245,7 @@ private fun NavigationDrawer(
               scope = scope,
               text = "Shell " + (id ?: "0"),
               selected = backStackState.value?.let {
-                id == null && it.destination.route == HOME || it.arguments?.getString(SESSION_ID) == id
+                id == null && it.destination.route == HOME || id != null && it.arguments?.getString(SESSION_ID) == id
               } ?: false,
               route = route
             )
