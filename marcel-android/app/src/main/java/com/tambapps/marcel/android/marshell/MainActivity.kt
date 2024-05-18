@@ -85,6 +85,8 @@ class MainActivity : ComponentActivity() {
   lateinit var shellSessionFactory: ShellSessionFactory
 
   private lateinit var ioScope: CoroutineScope
+  private var sessionCount = 1
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     ioScope = CoroutineScope(Dispatchers.IO)
@@ -96,7 +98,7 @@ class MainActivity : ComponentActivity() {
         // instantiating shell VM here because we want to keep state even if we changed route and then go back to ShellScreen
         val defaultShellViewModel: ShellViewModel = hiltViewModel()
         val shellViewModels = remember {
-          mutableMapOf<String?, ShellViewModel>(Pair(null, defaultShellViewModel))
+          mutableMapOf(Pair(0, defaultShellViewModel))
         }
         NavigationDrawer(drawerState = drawerState, navController = navController, scope = scope, shellViewModels = shellViewModels) {
           Box(modifier = Modifier
@@ -109,13 +111,13 @@ class MainActivity : ComponentActivity() {
             ) {
               // need a startDestination without any parameters for deep links to work
               composable(HOME) {
-                ShellScreen(navController, shellViewModels.getValue(null))
+                ShellScreen(navController, shellViewModels.getValue(0))
               }
               composable("$SHELL/new") {
                 val viewModel: ShellViewModel = hiltViewModel()
 
                 LaunchedEffect(Unit) {
-                  val id = shellViewModels.size.toString()
+                  val id = sessionCount++
                   shellViewModels[id] = viewModel
                   navController.navigate("$SHELL/$id")
                 }
@@ -123,9 +125,9 @@ class MainActivity : ComponentActivity() {
 
               composable(
                 "$SHELL/{$SESSION_ID}",
-                arguments = listOf(navArgument(SESSION_ID) { type = NavType.StringType })
+                arguments = listOf(navArgument(SESSION_ID) { type = NavType.IntType })
               ) {
-                val sessionId = it.arguments?.getString(SESSION_ID)
+                val sessionId = it.arguments?.getInt(SESSION_ID, 0)
                 val viewModel = shellViewModels[sessionId]
                 if (sessionId != null && viewModel != null) {
                   ShellScreen(navController, viewModel)
@@ -207,7 +209,7 @@ private fun NavigationDrawer(
   drawerState: DrawerState,
   navController: NavController,
   scope: CoroutineScope,
-  shellViewModels: Map<String?, ShellViewModel>,
+  shellViewModels: Map<Int, ShellViewModel>,
   content: @Composable () -> Unit
 ) {
   ModalNavigationDrawer(
@@ -238,14 +240,14 @@ private fun NavigationDrawer(
           )
         } else {
           for (id in shellViewModels.keys) {
-            val route = if (id == null) HOME else "$SHELL/$id"
+            val route = "$SHELL/$id"
             DrawerItem(
               navController = navController,
               drawerState = drawerState,
               scope = scope,
-              text = "Shell " + (id ?: "0"),
+              text = "Shell $id",
               selected = backStackState.value?.let {
-                id == null && it.destination.route == HOME || id != null && it.arguments?.getString(SESSION_ID) == id
+                id == 0 && it.destination.route == HOME || it.arguments?.getInt(SESSION_ID) == id
               } ?: false,
               route = route
             )
