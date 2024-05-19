@@ -36,7 +36,8 @@ private fun VariableTable(variables: MutableMap<String, Any?>) {
     }
     for ((name, value) in variables) {
       item {
-        VariableTableRow(name, value)
+        val type = (value?.javaClass ?: java.lang.Object::class.java).name
+        VariableTableRow(name, value, dialogText = "Type: $type\nValue: $value")
         HorizontalDivider(color = MaterialTheme.colorScheme.onBackground)
       }
     }

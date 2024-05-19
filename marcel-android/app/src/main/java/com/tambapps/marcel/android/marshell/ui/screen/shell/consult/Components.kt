@@ -24,7 +24,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @Composable
-internal fun VariableTableRow(name: String, value: Any?, clickable: Boolean = true) {
+internal fun VariableTableRow(
+  name: String,
+  value: Any?,
+  clickable: Boolean = true,
+  dialogText: String? = null
+) {
   val valueStr = java.lang.String.valueOf(value)
   var modifier = Modifier
     .fillMaxWidth()
@@ -39,7 +44,7 @@ internal fun VariableTableRow(name: String, value: Any?, clickable: Boolean = tr
           Text(text = name, overflow = TextOverflow.Ellipsis)
         },
         text = {
-          Text(text = valueStr, modifier = modifier.verticalScroll(rememberScrollState()))
+          Text(text = dialogText ?: valueStr, modifier = modifier.verticalScroll(rememberScrollState()))
         },
         confirmButton = {
           TextButton(onClick = { showDialog = false }) {
