@@ -23,7 +23,7 @@ class SpannableHighlighter(typeResolver: MarcelSymbolResolver,
   override val defaultStyle: Color get() = Color.White
 
   override fun newHighlightedString(text: CharSequence): AnnotatedString.Builder {
-    return AnnotatedString.Builder()
+    return AnnotatedString.Builder().append(text)
   }
 
   override fun highlight(highlightedString: AnnotatedString.Builder, style: Color, string: String,
