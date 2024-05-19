@@ -247,7 +247,7 @@ private fun NavigationDrawer(
             drawerState = drawerState,
             scope = scope,
             text = "Shell",
-            backStackState = backStackState,
+            selected = backStackState.value?.let { it.destination.route?.startsWith(HOME) == true || it.arguments?.getInt(SESSION_ID) == 0 } == true,
             route = HOME
           )
         } else {
