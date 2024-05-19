@@ -20,7 +20,7 @@ fun DumbbellsScreen(shellViewModel: ShellViewModel) {
   Box(modifier = Modifier.fillMaxSize()) {
     if (dumbbells.isNullOrEmpty()) {
       Box(modifier = Modifier.fillMaxSize()) {
-        Text(text = "No imports were used.", modifier = Modifier.align(Alignment.Center))
+        Text(text = "No dumbbells were pulled.", modifier = Modifier.align(Alignment.Center))
       }
     } else {
       DumbbellsList(dumbbells)
