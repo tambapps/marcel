@@ -15,7 +15,7 @@ import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 
 @Composable
-fun ConsultFunctionsScreen(shellViewModel: ShellViewModel) {
+internal fun FunctionsScreen(shellViewModel: ShellViewModel) {
   val functions = getFunctionsOfInterest(shellViewModel)
   Box(modifier = Modifier.fillMaxSize()) {
     if (functions.isNullOrEmpty()) {

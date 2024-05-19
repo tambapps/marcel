@@ -126,16 +126,18 @@ private fun ColumnScope.NavigationGraph(
   navController: NavHostController,
   viewModel: ShellViewModel,
 ) {
-  NavHost(modifier = Modifier.weight(1f).padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
+  NavHost(modifier = Modifier
+    .weight(1f)
+    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
     navController = navController, startDestination = ConsultRoutes.VARIABLES) {
     composable(ConsultRoutes.VARIABLES) {
-      ConsultVariablesScreen(viewModel)
+      VariablesScreen(viewModel)
     }
     composable(ConsultRoutes.FUNCTIONS) {
-      ConsultFunctionsScreen(viewModel)
+      FunctionsScreen(viewModel)
     }
     composable(ConsultRoutes.CLASSES) {
-      Text(text = ConsultRoutes.CLASSES)
+      ClassesScreen(viewModel)
     }
     composable(ConsultRoutes.IMPORTS) {
       Text(text = ConsultRoutes.IMPORTS)

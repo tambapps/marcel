@@ -11,9 +11,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
 
-
 @Composable
-fun ConsultVariablesScreen(shellViewModel: ShellViewModel) {
+internal fun VariablesScreen(shellViewModel: ShellViewModel) {
   val variables: MutableMap<String, Any?>? = shellViewModel.binding?.variables
   Box(modifier = Modifier.fillMaxSize()) {
     if (variables.isNullOrEmpty()) {
