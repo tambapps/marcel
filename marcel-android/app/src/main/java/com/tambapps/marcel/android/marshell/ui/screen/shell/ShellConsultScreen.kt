@@ -2,20 +2,34 @@ package com.tambapps.marcel.android.marshell.ui.screen.shell
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 
 
 object ConsultRoutes {
   const val VARIABLES = "variables"
+  const val FUNCTIONS = "functions"
   const val IMPORTS = "imports"
   const val DUMBBELLS = "dumbbells"
 }
@@ -28,16 +42,86 @@ fun ShellConsultScreen(
   Column(modifier = Modifier.fillMaxSize()) {
     Box(modifier = Modifier.padding(TopBarHeight))
     NavigationGraph(navController = navController, modifier = Modifier.weight(1f))
-
+    BottomNavigationBar(navController)
   }
 }
 
+@Composable
+private fun BottomNavigationBar(navController: NavHostController) {
+  val backStackState = navController.currentBackStackEntryAsState()
+
+  NavigationBar {
+    BottomNavigationBarItem(
+      icon = R.drawable.variable,
+      route = ConsultRoutes.VARIABLES,
+      text = "Variables",
+      navController = navController,
+      backStackState = backStackState
+    )
+    BottomNavigationBarItem(
+      icon = R.drawable.function,
+      route = ConsultRoutes.FUNCTIONS,
+      text = "Functions",
+      navController = navController,
+      backStackState = backStackState
+    )
+    BottomNavigationBarItem(
+      icon = R.drawable.package_,
+      route = ConsultRoutes.IMPORTS,
+      text = "Imports",
+      navController = navController,
+      backStackState = backStackState
+    )
+
+    BottomNavigationBarItem(
+      icon = R.drawable.dumbell,
+      route = ConsultRoutes.DUMBBELLS,
+      text = "Dumbbells",
+      navController = navController,
+      backStackState = backStackState
+    )
+  }
+}
 
 @Composable
-fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
+private fun RowScope.BottomNavigationBarItem(
+  icon: Int,
+  route: String,
+  text: String,
+  navController: NavHostController,
+  backStackState: State<NavBackStackEntry?>
+) {
+  NavigationBarItem(
+    selected = backStackState.value?.destination?.route?.startsWith(route) == true,
+    onClick = {
+      val currentRoute = backStackState.value?.destination?.route
+      navController.navigate(route) {
+        if (currentRoute != null) {
+          popUpTo(currentRoute) { inclusive = true }
+        }
+      }
+    },
+    icon = {
+      Icon(
+        modifier = Modifier.size(32.dp),
+        painter = painterResource(id = icon),
+        contentDescription = text
+      )
+    },
+    label = {
+      Text(text = text)
+    }
+  )
+}
+@Composable
+
+private fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
   NavHost(modifier = modifier, navController = navController, startDestination = ConsultRoutes.VARIABLES) {
     composable(ConsultRoutes.VARIABLES) {
       Text(text = ConsultRoutes.VARIABLES)
+    }
+    composable(ConsultRoutes.FUNCTIONS) {
+      Text(text = ConsultRoutes.FUNCTIONS)
     }
     composable(ConsultRoutes.IMPORTS) {
       Text(text = ConsultRoutes.IMPORTS)
