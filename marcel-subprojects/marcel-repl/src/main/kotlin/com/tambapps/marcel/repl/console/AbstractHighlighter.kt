@@ -41,7 +41,7 @@ abstract class AbstractHighlighter<T, Style> constructor(
         && !tokenMap.containsKey(it.tokenStart)) {
         when (it) {
           is ReferenceNode -> tokenMap[it.tokenStart] = variableStyle
-          is com.tambapps.marcel.semantic.ast.expression.FunctionCallNode -> tokenMap[it.tokenStart] = functionStyle
+          is FunctionCallNode -> tokenMap[it.tokenStart] = functionStyle
         }
       }
     }
