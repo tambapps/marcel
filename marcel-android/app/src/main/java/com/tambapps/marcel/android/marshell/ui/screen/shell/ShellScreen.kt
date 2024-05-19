@@ -65,7 +65,7 @@ fun ShellScreen(
   viewModel: ShellViewModel,
   sessionId: Int
   ) {
-  Column(modifier = Modifier.fillMaxSize()) {
+  Column(modifier = Modifier.fillMaxSize().padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
     TopBar(navController, viewModel, sessionId)
     val listState = rememberLazyListState()
     SelectionContainer(

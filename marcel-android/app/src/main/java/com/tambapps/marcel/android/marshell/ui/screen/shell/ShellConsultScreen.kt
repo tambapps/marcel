@@ -116,7 +116,7 @@ private fun RowScope.BottomNavigationBarItem(
 @Composable
 
 private fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
-  NavHost(modifier = modifier, navController = navController, startDestination = ConsultRoutes.VARIABLES) {
+  NavHost(modifier = modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp), navController = navController, startDestination = ConsultRoutes.VARIABLES) {
     composable(ConsultRoutes.VARIABLES) {
       Text(text = ConsultRoutes.VARIABLES)
     }

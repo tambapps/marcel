@@ -63,7 +63,7 @@ fun WorkViewScreen(
   ) {
   val work = viewModel.work
   Box(
-    modifier = Modifier.fillMaxSize(),
+    modifier = Modifier.fillMaxSize().padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
   ) {
     Column(
       modifier = Modifier

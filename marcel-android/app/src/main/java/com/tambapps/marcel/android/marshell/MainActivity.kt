@@ -104,8 +104,7 @@ class MainActivity : ComponentActivity() {
         }
         NavigationDrawer(drawerState = drawerState, navController = navController, scope = scope, shellViewModels = shellViewModels) {
           Box(modifier = Modifier
-            .background(MaterialTheme.colorScheme.background)
-            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
+            .background(MaterialTheme.colorScheme.background)) {
             NavHost(
               navController = navController,
               startDestination = HOME,

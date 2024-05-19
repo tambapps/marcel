@@ -36,7 +36,7 @@ import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 @Composable
 fun EditorScreen(viewModel: EditorViewModel = hiltViewModel()) {
   val context = LocalContext.current
-  Column(modifier = Modifier.fillMaxSize()) {
+  Column(modifier = Modifier.fillMaxSize().padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
     TopBar(viewModel)
     Box(modifier = Modifier
       .weight(1f)

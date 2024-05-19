@@ -53,7 +53,7 @@ fun WorksListScreen(
     }
   }
   Box(modifier = Modifier
-    .fillMaxSize(),
+    .fillMaxSize().padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
     contentAlignment = Alignment.BottomEnd) {
     Column(modifier = Modifier.fillMaxSize()) {
       Header()

@@ -64,6 +64,7 @@ fun SettingsScreen(
     .fillMaxSize()
     .padding(top = TopBarHeight)
     .scrollable(scrollState, Orientation.Vertical)
+    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
   ) {
 
     SectionTitle(text = "Shell")

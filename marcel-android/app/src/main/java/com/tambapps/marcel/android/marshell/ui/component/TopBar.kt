@@ -26,7 +26,9 @@ fun TopBarLayout(
   horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
   content: @Composable RowScope.() -> Unit) {
   Row(modifier = Modifier.fillMaxWidth()
-    .height(TopBarHeight),
+    .height(TopBarHeight)
+    .padding(start = 8.dp, end = 8.dp)
+    ,
     horizontalArrangement = horizontalArrangement,
     verticalAlignment = Alignment.CenterVertically, content = content)
 }
