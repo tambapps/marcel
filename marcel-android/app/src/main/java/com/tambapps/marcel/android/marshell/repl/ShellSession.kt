@@ -22,6 +22,7 @@ class ShellSession(
 
   val binding get() = evaluator.binding
   val functions get() = evaluator.definedFunctions
+  val definedTypes get() = evaluator.definedTypes
 
   fun eval(text: String) = evaluator.eval(text)
 

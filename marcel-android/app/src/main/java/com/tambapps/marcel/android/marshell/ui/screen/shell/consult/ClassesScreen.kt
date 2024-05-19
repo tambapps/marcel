@@ -12,24 +12,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import com.tambapps.marcel.android.marshell.ui.component.ExpandableCard
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
-import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 import com.tambapps.marcel.semantic.Visibility
-import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
-import java.util.Optional
 
 @Composable
 internal fun ClassesScreen(shellViewModel: ShellViewModel) {
-  val classes = listOf(Optional::class.javaType) // TODO fetch real types
+  val classes = shellViewModel.definedTypes
   val symbolResolver = shellViewModel.symbolResolver
   Box(modifier = Modifier.fillMaxSize()) {
-    if (symbolResolver == null || classes.isEmpty()) {
+    if (symbolResolver == null || classes.isNullOrEmpty()) {
       Box(modifier = Modifier.fillMaxSize()) {
         Text(text = "No classes were defined in this session.", modifier = Modifier.align(Alignment.Center))
       }
