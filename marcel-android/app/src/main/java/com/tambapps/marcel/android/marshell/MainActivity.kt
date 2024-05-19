@@ -118,7 +118,9 @@ class MainActivity : ComponentActivity() {
                 LaunchedEffect(Unit) {
                   val id = sessionCount++
                   shellViewModels[id] = viewModel
-                  navController.navigate("$SHELL/$id")
+                  navController.navigate("$SHELL/$id") {
+                    popUpTo("$SHELL/new") { inclusive = true }
+                  }
                 }
               }
 
