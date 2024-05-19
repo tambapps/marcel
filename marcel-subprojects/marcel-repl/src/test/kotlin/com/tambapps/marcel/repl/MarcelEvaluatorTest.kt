@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 
+// TODO test definition of class. It may work here but doesn't in the marshells, maybe because of highlighter
 class MarcelEvaluatorTest {
 
   companion object {
