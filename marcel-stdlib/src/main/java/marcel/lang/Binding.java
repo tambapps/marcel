@@ -45,4 +45,8 @@ public class Binding {
     variables.remove(name);
     return wasHere;
   }
+
+  public int size() {
+    return variables.size();
+  }
 }
