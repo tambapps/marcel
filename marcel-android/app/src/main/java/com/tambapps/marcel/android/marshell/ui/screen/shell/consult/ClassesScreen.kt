@@ -12,12 +12,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import com.tambapps.marcel.android.marshell.ui.component.ExpandableCard
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
+import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.extensions.javaType
+import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import java.util.Optional
 
@@ -45,7 +48,7 @@ private fun ClassesList(symbolResolver: ReplMarcelSymbolResolver, classes: List<
         title = type.simpleName
       ) {
         Text(text = "Fields", style = MaterialTheme.typography.titleLarge)
-        val fields = symbolResolver.getDeclaredFields(type)
+        val fields = symbolResolver.getDeclaredFields(type).sortedWith(compareBy({ it.name }, { it.type.className }))
         if (fields.isEmpty()) {
           Text(text = "No fields")
         } else {
@@ -56,15 +59,34 @@ private fun ClassesList(symbolResolver: ReplMarcelSymbolResolver, classes: List<
 
         Box(modifier = Modifier.padding(8.dp))
         Text(text = "Methods", style = MaterialTheme.typography.titleLarge)
-        val methods = symbolResolver.getMethods(type)
+        val methods = symbolResolver.getDeclaredMethods(type).sortedWith(compareBy({ it.name }, { it.parameters.size }))
         if (methods.isEmpty()) {
           Text(text = "No methods")
         } else {
           for (method in methods) {
-            Text(text = method.toString(true))
+            Text(text = method.signature)
           }
         }
       }
     }
   }
 }
+
+private val JavaMethod.signature get() = StringBuilder().apply {
+  if (visibility != Visibility.PUBLIC) {
+    append(visibility.name.lowercase())
+    append(" ")
+  }
+  if (isConstructor) {
+    append(ownerClass.simpleName)
+  } else {
+    if (isAbstract) append("abstract ")
+    if (isStatic) append("static ")
+    if (isAsync) append("async ")
+    append("fun ")
+    append(returnType.simpleName)
+    append(" ")
+    append(name)
+  }
+  append(parameters.joinToString(separator = ",", prefix = "(", postfix = ")", transform = { "${it.type.simpleName} ${it.name}" }))
+}.toString()
