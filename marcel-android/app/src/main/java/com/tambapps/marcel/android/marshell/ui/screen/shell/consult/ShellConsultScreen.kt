@@ -55,28 +55,28 @@ private fun BottomNavigationBar(navController: NavHostController) {
     BottomNavigationBarItem(
       icon = R.drawable.variable,
       route = ConsultRoutes.VARIABLES,
-      text = "Variables",
+      text = "Variable",
       navController = navController,
       backStackState = backStackState
     )
     BottomNavigationBarItem(
       icon = R.drawable.function,
       route = ConsultRoutes.FUNCTIONS,
-      text = "Functions",
+      text = "Function",
       navController = navController,
       backStackState = backStackState
     )
     BottomNavigationBarItem(
       icon = R.drawable.brackets,
       route = ConsultRoutes.CLASSES,
-      text = "Classes",
+      text = "Class",
       navController = navController,
       backStackState = backStackState
     )
     BottomNavigationBarItem(
       icon = R.drawable.package_,
       route = ConsultRoutes.IMPORTS,
-      text = "Imports",
+      text = "Import",
       navController = navController,
       backStackState = backStackState
     )
@@ -84,7 +84,7 @@ private fun BottomNavigationBar(navController: NavHostController) {
     BottomNavigationBarItem(
       icon = R.drawable.dumbbell,
       route = ConsultRoutes.DUMBBELLS,
-      text = "Dumbbells",
+      text = "Dumbbell",
       navController = navController,
       backStackState = backStackState
     )
