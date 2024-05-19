@@ -45,6 +45,8 @@ class ShellViewModel @Inject constructor(
   val functions get() = shellSession?.functions
   val symbolResolver get() = shellSession?.symbolResolver
   val definedTypes get() = shellSession?.definedTypes
+  val imports get() = shellSession?.imports
+  val dumbbells get() = shellSession?.dumbbells
 
   // services and miscellaneous
   private val historyNavigator = PromptHistoryNavigator(prompts)

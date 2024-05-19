@@ -140,7 +140,7 @@ private fun ColumnScope.NavigationGraph(
       ClassesScreen(viewModel)
     }
     composable(ConsultRoutes.IMPORTS) {
-      Text(text = ConsultRoutes.IMPORTS)
+      ImportsScreen(viewModel)
     }
     composable(ConsultRoutes.DUMBBELLS) {
       Text(text = ConsultRoutes.DUMBBELLS)
