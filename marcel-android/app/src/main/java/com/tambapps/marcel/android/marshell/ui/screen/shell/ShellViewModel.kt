@@ -41,6 +41,8 @@ class ShellViewModel @Inject constructor(
   val isShellReady get() = shellSession != null
   var singleLineInput by mutableStateOf(true)
 
+  val binding get() = shellSession?.binding
+
   // services and miscellaneous
   private val historyNavigator = PromptHistoryNavigator(prompts)
   private var shellSession by mutableStateOf<ShellSession?>(null)
