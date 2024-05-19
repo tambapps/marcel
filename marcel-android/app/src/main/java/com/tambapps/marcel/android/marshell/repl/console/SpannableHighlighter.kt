@@ -22,8 +22,9 @@ class SpannableHighlighter(typeResolver: MarcelSymbolResolver,
   override val commentStyle = Color.LightGray
   override val defaultStyle: Color get() = Color.White
 
+  // TODO bugs sometimes, e.g. when entering character '&'
   override fun newHighlightedString(text: CharSequence): AnnotatedString.Builder {
-    return AnnotatedString.Builder().append(text)
+    return AnnotatedString.Builder()
   }
 
   override fun highlight(highlightedString: AnnotatedString.Builder, style: Color, string: String,

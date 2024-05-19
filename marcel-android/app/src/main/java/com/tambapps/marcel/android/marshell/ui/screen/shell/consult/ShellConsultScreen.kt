@@ -1,13 +1,12 @@
-package com.tambapps.marcel.android.marshell.ui.screen.shell
+package com.tambapps.marcel.android.marshell.ui.screen.shell.consult
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -24,6 +23,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.tambapps.marcel.android.marshell.R
+import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 
 
@@ -41,7 +41,7 @@ fun ShellConsultScreen(
 
   Column(modifier = Modifier.fillMaxSize()) {
     Box(modifier = Modifier.padding(TopBarHeight))
-    NavigationGraph(navController = navController, modifier = Modifier.weight(1f))
+    NavigationGraph(navController = navController, viewModel = viewModel)
     BottomNavigationBar(navController)
   }
 }
@@ -115,10 +115,14 @@ private fun RowScope.BottomNavigationBarItem(
 }
 @Composable
 
-private fun NavigationGraph(navController: NavHostController, modifier: Modifier) {
-  NavHost(modifier = modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp), navController = navController, startDestination = ConsultRoutes.VARIABLES) {
+private fun ColumnScope.NavigationGraph(
+  navController: NavHostController,
+  viewModel: ShellViewModel,
+) {
+  NavHost(modifier = Modifier.weight(1f).padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
+    navController = navController, startDestination = ConsultRoutes.VARIABLES) {
     composable(ConsultRoutes.VARIABLES) {
-      Text(text = ConsultRoutes.VARIABLES)
+      ConsultVariablesScreen(viewModel)
     }
     composable(ConsultRoutes.FUNCTIONS) {
       Text(text = ConsultRoutes.FUNCTIONS)
