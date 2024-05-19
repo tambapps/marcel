@@ -82,7 +82,7 @@ private fun BottomNavigationBar(navController: NavHostController) {
     )
 
     BottomNavigationBarItem(
-      icon = R.drawable.dumbell,
+      icon = R.drawable.dumbbell,
       route = ConsultRoutes.DUMBBELLS,
       text = "Dumbbells",
       navController = navController,
