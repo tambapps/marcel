@@ -95,7 +95,7 @@ object SemanticHelper {
       false,
       classNode.tokenStart,
       classNode.tokenEnd,
-      JavaType.void
+      classNode.type
     )
     defaultConstructorNode.blockStatement.addAll(
       listOf(
