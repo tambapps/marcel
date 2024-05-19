@@ -37,6 +37,7 @@ class MarcelReplCompiler constructor(
   var semanticResult: SemanticResult? = null
     private set
   private val dumbbells = mutableSetOf<String>()
+  val collectedDumbbells: Set<String> get() = dumbbells
 
   fun addRawImport(importString: String) {
     addImports(ImportResolverGenerator.generateImports(symbolResolver, listOf(MarcelParser(lexer.lex(importString)).import())))

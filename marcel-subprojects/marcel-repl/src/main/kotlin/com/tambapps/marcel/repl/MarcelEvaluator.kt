@@ -25,6 +25,7 @@ open class MarcelEvaluator constructor(
   val definedTypes get() = replCompiler.symbolResolver.definedTypes.filter { !it.isScript }
   val definedFunctions get() = replCompiler.definedFunctions
   val imports get() = replCompiler.imports
+  val collectedDumbbells get() = replCompiler.collectedDumbbells
 
   @Throws(
     MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class,
