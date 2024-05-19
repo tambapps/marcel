@@ -43,6 +43,7 @@ class ShellViewModel @Inject constructor(
 
   val binding get() = shellSession?.binding
   val functions get() = shellSession?.functions
+  val symbolResolver get() = shellSession?.symbolResolver
 
   // services and miscellaneous
   private val historyNavigator = PromptHistoryNavigator(prompts)
