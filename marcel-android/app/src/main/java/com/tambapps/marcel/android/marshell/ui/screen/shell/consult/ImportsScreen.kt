@@ -40,7 +40,7 @@ private fun ImportsLists(imports: MutableImportResolver) {
       }
       for ((memberName, type) in imports.typeImports) {
         item {
-          Text(text = "${type.className}.$memberName", modifier = elementModifier)
+          Text(text = "- ${type.className}.$memberName", modifier = elementModifier)
         }
       }
       item { Box(modifier = Modifier.padding(16.dp)) }
@@ -51,7 +51,7 @@ private fun ImportsLists(imports: MutableImportResolver) {
       }
       for ((importedName, type) in imports.typeImports) {
         item {
-          Text(text = if (importedName == type.simpleName) type.className else "${type.className} as $importedName", modifier = elementModifier)
+          Text(text = "- " + if (importedName == type.simpleName) type.className else "${type.className} as $importedName", modifier = elementModifier)
         }
       }
       item { Box(modifier = Modifier.padding(16.dp)) }
@@ -62,7 +62,7 @@ private fun ImportsLists(imports: MutableImportResolver) {
         Text(text = "Wildcard", style = MaterialTheme.typography.titleLarge, modifier = headerModifier)
       }
       items(imports.wildcardTypeImportPrefixes.sorted()) { prefix ->
-        Text(text = "$prefix.*", modifier = elementModifier)
+        Text(text = "- $prefix.*", modifier = elementModifier)
       }
     }
   }

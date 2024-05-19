@@ -143,7 +143,7 @@ private fun ColumnScope.NavigationGraph(
       ImportsScreen(viewModel)
     }
     composable(ConsultRoutes.DUMBBELLS) {
-      Text(text = ConsultRoutes.DUMBBELLS)
+      DumbbellsScreen(viewModel)
     }
   }
 }
