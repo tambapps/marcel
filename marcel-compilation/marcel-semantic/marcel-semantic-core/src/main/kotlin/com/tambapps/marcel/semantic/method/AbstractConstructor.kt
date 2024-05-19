@@ -15,8 +15,4 @@ abstract class AbstractConstructor(
   override val isStatic = false
   override val isAsync = false
 
-
-  override fun toString(): String {
-    return "${ownerClass.className}(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") "
-  }
 }

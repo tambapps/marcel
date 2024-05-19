@@ -36,7 +36,5 @@ class ExtensionJavaMethod private constructor(
       returnType,
       actualMethod.actualReturnType)
   }
-  override fun toString(): String {
-    return "$ownerClass.$name(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType
-  }
+
 }

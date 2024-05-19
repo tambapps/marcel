@@ -46,10 +46,6 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
   override val isVarArgs = method.isVarArgs
   override val asyncReturnType = method.getAnnotation(Async::class.java)?.returnType?.let { JavaType.of(it.java) }
 
-  override fun toString(): String {
-    return "$ownerClass.$name(" + parameters.joinToString(separator = ", ", transform = { "${it.type} ${it.name}"}) + ") " + returnType
-  }
-
   companion object {
 
     internal fun methodParameter(methodName: String, ownerType: JavaType, fromType: JavaType?, parameter: Parameter): MethodParameter {

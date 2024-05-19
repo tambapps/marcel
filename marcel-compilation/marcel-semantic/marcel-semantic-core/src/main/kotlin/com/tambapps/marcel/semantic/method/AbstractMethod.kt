@@ -19,6 +19,7 @@ abstract class AbstractMethod: JavaMethod {
   }
 
   override fun toString() = StringBuilder().apply {
+    append(visibility.name.lowercase())
     if (isConstructor) {
       append(ownerClass.simpleName)
     } else {
