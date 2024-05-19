@@ -1,5 +1,6 @@
 package com.tambapps.marcel.semantic.method
 
+import com.tambapps.marcel.semantic.Visibility
 import java.util.*
 
 abstract class AbstractMethod: JavaMethod {
@@ -19,7 +20,10 @@ abstract class AbstractMethod: JavaMethod {
   }
 
   override fun toString() = StringBuilder().apply {
-    append(visibility.name.lowercase())
+    if (visibility != Visibility.PUBLIC) {
+      append(visibility.name.lowercase())
+      append(" ")
+    }
     if (isConstructor) {
       append(ownerClass.simpleName)
     } else {
