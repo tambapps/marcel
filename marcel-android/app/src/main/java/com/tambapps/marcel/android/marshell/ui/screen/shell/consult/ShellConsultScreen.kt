@@ -27,6 +27,7 @@ import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 
 
+// TODO add a classes route
 object ConsultRoutes {
   const val VARIABLES = "variables"
   const val FUNCTIONS = "functions"
@@ -125,7 +126,7 @@ private fun ColumnScope.NavigationGraph(
       ConsultVariablesScreen(viewModel)
     }
     composable(ConsultRoutes.FUNCTIONS) {
-      Text(text = ConsultRoutes.FUNCTIONS)
+      ConsultFunctionsScreen(viewModel)
     }
     composable(ConsultRoutes.IMPORTS) {
       Text(text = ConsultRoutes.IMPORTS)
