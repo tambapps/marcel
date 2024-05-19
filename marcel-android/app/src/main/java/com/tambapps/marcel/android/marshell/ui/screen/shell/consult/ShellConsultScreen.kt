@@ -27,10 +27,10 @@ import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 
 
-// TODO add a classes route
 object ConsultRoutes {
   const val VARIABLES = "variables"
   const val FUNCTIONS = "functions"
+  const val CLASSES = "classes"
   const val IMPORTS = "imports"
   const val DUMBBELLS = "dumbbells"
 }
@@ -63,6 +63,13 @@ private fun BottomNavigationBar(navController: NavHostController) {
       icon = R.drawable.function,
       route = ConsultRoutes.FUNCTIONS,
       text = "Functions",
+      navController = navController,
+      backStackState = backStackState
+    )
+    BottomNavigationBarItem(
+      icon = R.drawable.brackets,
+      route = ConsultRoutes.CLASSES,
+      text = "Classes",
       navController = navController,
       backStackState = backStackState
     )
@@ -115,7 +122,6 @@ private fun RowScope.BottomNavigationBarItem(
   )
 }
 @Composable
-
 private fun ColumnScope.NavigationGraph(
   navController: NavHostController,
   viewModel: ShellViewModel,
@@ -127,6 +133,9 @@ private fun ColumnScope.NavigationGraph(
     }
     composable(ConsultRoutes.FUNCTIONS) {
       ConsultFunctionsScreen(viewModel)
+    }
+    composable(ConsultRoutes.CLASSES) {
+      Text(text = ConsultRoutes.CLASSES)
     }
     composable(ConsultRoutes.IMPORTS) {
       Text(text = ConsultRoutes.IMPORTS)
