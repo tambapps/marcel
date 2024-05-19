@@ -7,12 +7,12 @@ import marcel.lang.IntRanges
 import marcel.lang.URLMarcelClassLoader
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 
-// TODO test definition of class. It may work here but doesn't in the marshells, maybe because of highlighter
 class MarcelEvaluatorTest {
 
   companion object {
@@ -65,5 +65,11 @@ class MarcelEvaluatorTest {
   fun testDelegateFunctionCall() {
     evaluator.eval("delegate = Integer.valueOf(4)")
     assertEquals(4, evaluator.eval("intValue()"))
+  }
+
+  @Test
+  fun testDefineClass() {
+    evaluator.eval("class A {}")
+    assertNotNull(evaluator.eval("new A()"))
   }
 }

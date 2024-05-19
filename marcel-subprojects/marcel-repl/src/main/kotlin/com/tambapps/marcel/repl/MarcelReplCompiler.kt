@@ -16,6 +16,7 @@ import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.imprt.ImportResolverGenerator
 import com.tambapps.marcel.semantic.imprt.MutableImportResolver
+import com.tambapps.marcel.semantic.type.JavaType
 import marcel.lang.MarcelClassLoader
 import kotlin.jvm.Throws
 
@@ -32,6 +33,8 @@ class MarcelReplCompiler constructor(
   private val lexer = MarcelLexer(false)
   private val _definedFunctions = mutableSetOf<com.tambapps.marcel.parser.cst.MethodCstNode>()
   val definedFunctions: Set<com.tambapps.marcel.parser.cst.MethodCstNode> get() = _definedFunctions
+  private val _definedTypes = mutableSetOf<JavaType>()
+  val definedTypes: Set<JavaType> get() = _definedTypes
   private val classCompiler = MarcelClassCompiler(compilerConfiguration, symbolResolver)
   @Volatile
   var semanticResult: SemanticResult? = null
@@ -70,7 +73,7 @@ class MarcelReplCompiler constructor(
     val otherClasses = result.classes
       .filter { !it.isScript }
       .flatMap {
-        symbolResolver.defineLibraryClass(it)
+        _definedTypes.add(it.type)
         classCompiler.compileDefinedClass(it)
       }
 
@@ -119,9 +122,11 @@ class MarcelReplCompiler constructor(
   }
 
   private fun semanticallyCheck(text: String, fetchDumbbells: Boolean = true): SemanticResult {
-    if (semanticResult != null && semanticResult!!.scriptNode != null) {
-      symbolResolver.undefineClass(semanticResult!!.scriptNode!!) // some cleaning
-      if (semanticResult.hashCode() == text.hashCode()) return semanticResult!!
+    semanticResult?.let { previousResult ->
+      // don't need previous definitions, as we probably redefine some symbols that were present in the previous result
+      previousResult.scriptNode?.let(symbolResolver::undefineClass)
+      previousResult.classes.forEach(symbolResolver::undefineClass)
+      if (semanticResult.hashCode() == text.hashCode()) return previousResult
     }
     val tokens = lexer.lex(text)
     val parser = MarcelParser(tokens)

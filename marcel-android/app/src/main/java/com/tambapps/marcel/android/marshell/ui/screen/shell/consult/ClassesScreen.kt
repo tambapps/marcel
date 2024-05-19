@@ -22,7 +22,7 @@ import com.tambapps.marcel.semantic.type.JavaType
 
 @Composable
 internal fun ClassesScreen(shellViewModel: ShellViewModel) {
-  val classes = shellViewModel.definedTypes
+  val classes = shellViewModel.definedTypes?.sortedBy { it.simpleName }
   val symbolResolver = shellViewModel.symbolResolver
   Box(modifier = Modifier.fillMaxSize()) {
     if (symbolResolver == null || classes.isNullOrEmpty()) {

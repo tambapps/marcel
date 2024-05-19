@@ -12,16 +12,9 @@ class ReplMarcelSymbolResolver constructor(
   classLoader: MarcelClassLoader?
 ) : MarcelSymbolResolver(classLoader) {
 
-  private val _libraryClasses = mutableListOf<ClassNode>()
   private val _scriptVariables = mutableMapOf<String, BoundField>()
 
-  val libraryClasses: List<ClassNode> get() = _libraryClasses
   val scriptVariables: Map<String, BoundField> get() = _scriptVariables
-
-  fun defineLibraryClass(classNode: ClassNode) {
-    defineType(classNode)
-    _libraryClasses.add(classNode)
-  }
 
   fun defineBoundField(field: BoundField) {
     defineField(field.owner, field)

@@ -22,7 +22,7 @@ open class MarcelEvaluator constructor(
 ) {
 
   val lastNode: ClassNode? get() = replCompiler.semanticResult?.scriptNode
-  val definedTypes get() = replCompiler.symbolResolver.definedTypes.filter { !it.isScript }
+  val definedTypes get() = replCompiler.definedTypes
   val definedFunctions get() = replCompiler.definedFunctions
   val imports get() = replCompiler.imports
   val collectedDumbbells get() = replCompiler.collectedDumbbells

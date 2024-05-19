@@ -59,17 +59,17 @@ class ListCommand: AbstractShellCommand() {
       out.println("No functions defined")
       return
     }
-    definedMethods.forEach {
+    definedMethods.sortedWith(compareBy({ it.name }, { it.parameters.size })).forEach {
       out.println(it)
     }
   }
 
-  private fun printDefinedClasses(classes: List<JavaType>, out: PrintStream) {
+  private fun printDefinedClasses(classes: Collection<JavaType>, out: PrintStream) {
     if (classes.isEmpty()) {
       out.println("No classes defined")
       return
     }
-    for (c in classes) {
+    for (c in classes.sortedBy { it.simpleName }) {
       val className = c.type.className
       val displayedName = className.substring(className.indexOf('$') + 1)
       out.print("class $displayedName")
