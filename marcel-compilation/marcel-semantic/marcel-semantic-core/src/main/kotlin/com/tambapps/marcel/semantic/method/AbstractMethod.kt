@@ -26,7 +26,7 @@ abstract class AbstractMethod: JavaMethod {
       if (isStatic) append("static ")
       if (isAsync) append("async ")
       append("fun ")
-      append(returnType)
+      append(returnType.simpleName)
       append(" ")
       append(ownerClass.simpleName)
       append(".")
