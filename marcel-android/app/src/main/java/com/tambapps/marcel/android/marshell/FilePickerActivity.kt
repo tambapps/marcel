@@ -384,7 +384,6 @@ class FileExplorerViewModel: ViewModel() {
 
     children.clear()
     currentDir.listFiles(this::filter)?.let { children ->
-      // TODO make sorting criteria configurable
       this.children.addAll(children)
       this.children.sortBy { it.name }
     }
