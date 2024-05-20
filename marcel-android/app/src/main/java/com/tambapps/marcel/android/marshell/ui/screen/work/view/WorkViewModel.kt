@@ -29,8 +29,8 @@ class WorkViewModel @Inject constructor(
   w: ShellWork?
 ): ViewModel(), ScriptCardEditorViewModel {
 
-  override val replCompiler: MarcelReplCompiler
-  private val highlighter: SpannableHighlighter
+  override val replCompiler = shellSessionFactory.newReplCompiler()
+  private val highlighter = SpannableHighlighter(replCompiler)
 
   override var scriptTextInput by mutableStateOf(TextFieldValue())
   override var scriptTextError by mutableStateOf<String?>(null)
@@ -43,10 +43,6 @@ class WorkViewModel @Inject constructor(
   private val ioScope = CoroutineScope(Dispatchers.IO)
 
   init {
-    val (symbolResolver, replCompiler) = shellSessionFactory.newSymbolResolverAndCompiler()
-    this.replCompiler = replCompiler
-    this.highlighter = SpannableHighlighter(symbolResolver, replCompiler)
-
     if (w != null) {
       work = w
       durationBetweenNowAndNext = work?.durationBetweenNowAndNext
@@ -56,7 +52,7 @@ class WorkViewModel @Inject constructor(
       }
     }
   }
-  override fun highlight(text: CharSequence) = highlighter.highlight(text).toAnnotatedString()
+  override fun highlight(text: CharSequence) = highlighter.highlight(text)
 
   override fun onScriptTextChange(text: TextFieldValue) {
     super.onScriptTextChange(text)

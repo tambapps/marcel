@@ -51,7 +51,7 @@ class ShellViewModel @Inject constructor(
   // services and miscellaneous
   private val historyNavigator = PromptHistoryNavigator(prompts)
   private var shellSession by mutableStateOf<ShellSession?>(null)
-  private var highlighter: SpannableHighlighter? = null // = shellSession.newHighlighter()
+  private var highlighter: SpannableHighlighter? = null
   private val ioScope = CoroutineScope(Dispatchers.IO)
 
   init {
@@ -145,7 +145,7 @@ class ShellViewModel @Inject constructor(
     }
   }
 
-  override fun highlight(text: CharSequence) = highlighter?.highlight(text)?.toAnnotatedString() ?: AnnotatedString(text.toString())
+  override fun highlight(text: CharSequence) = highlighter?.highlight(text) ?: AnnotatedString(text.toString())
 
   fun loadScript(context: Context, file: File?) {
     if (file != null) {

@@ -30,15 +30,11 @@ class EditorViewModel @Inject constructor(
   override var scriptTextError by mutableStateOf<String?>(null)
   var file by mutableStateOf(file?.let { if (file.isFile || !file.exists()) file else null })
 
-  override val replCompiler: MarcelReplCompiler
-  private val highlighter: SpannableHighlighter
+  override val replCompiler = shellSessionFactory.newReplCompiler()
+  private val highlighter = SpannableHighlighter(replCompiler)
   private val ioScope = CoroutineScope(Dispatchers.IO)
 
   init {
-    val (symbolResolver, replCompiler) = shellSessionFactory.newSymbolResolverAndCompiler()
-    this.replCompiler = replCompiler
-    this.highlighter = SpannableHighlighter(symbolResolver, replCompiler)
-
     if (file != null) {
       val result = runCatching { file.readText() }
       if (result.isSuccess) {
@@ -47,7 +43,7 @@ class EditorViewModel @Inject constructor(
     }
   }
 
-  override fun highlight(text: CharSequence) = highlighter.highlight(text).toAnnotatedString()
+  override fun highlight(text: CharSequence) = highlighter.highlight(text)
 
   override fun loadScript(context: Context, file: File?) {
     super.loadScript(context, file)

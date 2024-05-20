@@ -32,14 +32,8 @@ class WorkCreateViewModel @Inject constructor(
     private val VALID_NAME_REGEX = Regex("^[A-Za-z0-9.\\s_-]+\$")
   }
 
-  override val replCompiler: MarcelReplCompiler
-  private val highlighter: SpannableHighlighter
-
-  init {
-    val (symbolResolver, replCompiler) = shellSessionFactory.newSymbolResolverAndCompiler()
-    this.replCompiler = replCompiler
-    this.highlighter = SpannableHighlighter(symbolResolver, replCompiler)
-  }
+  override val replCompiler = shellSessionFactory.newReplCompiler()
+  private val highlighter = SpannableHighlighter(replCompiler)
 
   override var scriptTextInput by mutableStateOf(TextFieldValue())
   override var scriptTextError by mutableStateOf<String?>(null)
@@ -54,7 +48,7 @@ class WorkCreateViewModel @Inject constructor(
 
   var scheduleAt by mutableStateOf<LocalDateTime?>(null)
 
-  override fun highlight(text: CharSequence) = highlighter.highlight(text).toAnnotatedString()
+  override fun highlight(text: CharSequence) = highlighter.highlight(text)
 
   fun onNameChange(newValue: String) {
     name = newValue

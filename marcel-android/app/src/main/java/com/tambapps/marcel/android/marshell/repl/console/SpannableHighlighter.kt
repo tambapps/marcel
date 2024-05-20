@@ -8,10 +8,10 @@ import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.console.AbstractHighlighter
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 
-class SpannableHighlighter(typeResolver: MarcelSymbolResolver,
-                           replCompiler: MarcelReplCompiler
+class SpannableHighlighter(
+  replCompiler: MarcelReplCompiler
 ) :
-  AbstractHighlighter<AnnotatedString.Builder, Color>(typeResolver, replCompiler) {
+  AbstractHighlighter<AnnotatedString, AnnotatedString.Builder, Color>(replCompiler) {
 
   override val keywordStyle = Color.Red
   override val functionStyle = Color.Yellow
@@ -22,14 +22,11 @@ class SpannableHighlighter(typeResolver: MarcelSymbolResolver,
   override val commentStyle = Color.LightGray
   override val defaultStyle: Color get() = Color.White
 
-  // TODO bugs sometimes, e.g. when entering character '&'
-  override fun newHighlightedString(text: CharSequence): AnnotatedString.Builder {
-    return AnnotatedString.Builder()
-  }
+  override fun newBuilder() = AnnotatedString.Builder()
 
-  override fun highlight(highlightedString: AnnotatedString.Builder, style: Color, string: String,
-                         startIndex: Int, endIndex: Int) {
-    highlightedString.withStyle(SpanStyle(color = style)) {
+  override fun build(builder: AnnotatedString.Builder): AnnotatedString = builder.toAnnotatedString()
+  override fun highlight(builder: AnnotatedString.Builder, style: Color, string: String) {
+    builder.withStyle(SpanStyle(color = style)) {
       append(text = string)
     }
   }

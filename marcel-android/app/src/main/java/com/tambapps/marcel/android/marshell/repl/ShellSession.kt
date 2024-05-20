@@ -12,7 +12,7 @@ import java.io.File
 class ShellSession(
   internal val symbolResolver: ReplMarcelSymbolResolver,
   internal val replCompiler: MarcelReplCompiler,
-  internal val evaluator: MarshellEvaluator,
+  private val evaluator: MarshellEvaluator,
   val classesDirectory: File,
 ) {
 
@@ -30,5 +30,5 @@ class ShellSession(
 
   fun evalAsResult(text: String) = runCatching { evaluator.eval(text) }
 
-  fun newHighlighter() = SpannableHighlighter(symbolResolver, replCompiler)
+  fun newHighlighter() = SpannableHighlighter(replCompiler)
 }
