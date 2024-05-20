@@ -2,15 +2,14 @@ package com.tambapps.marcel.repl.console
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.MarcelLexer
+import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.extensions.forEach
-import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 
-abstract class AbstractHighlighter<T, Style> constructor(
-  private val symbolResolver: MarcelSymbolResolver,
+abstract class AbstractHighlighter<HighlightedString, Builder, Style> constructor(
   private val replCompiler: MarcelReplCompiler
 ) {
 
@@ -25,10 +24,11 @@ abstract class AbstractHighlighter<T, Style> constructor(
   abstract val numberStyle: Style
   abstract val defaultStyle: Style
 
-  abstract fun newHighlightedString(text: CharSequence): T
+  protected abstract fun newBuilder(): Builder
+  protected abstract fun build(builder: Builder): HighlightedString
 
-  fun highlight(text: CharSequence): T {
-    val highlightedString = newHighlightedString(text)
+  fun highlight(text: CharSequence): HighlightedString {
+    val builder = newBuilder()
     val textStr = text.toString()
 
     val semanticResult = replCompiler.tryParse(textStr)
@@ -46,16 +46,23 @@ abstract class AbstractHighlighter<T, Style> constructor(
       }
     }
 
-    val tokens = semanticResult?.tokens ?: lexer.lexSafely(textStr)
+    val tokens = semanticResult?.tokens ?: tryLex(textStr)
 
-    doHighlight(text, highlightedString, tokens, tokenMap)
-    return highlightedString
+    if (tokens != null) {
+      doHighlight(text, builder, tokens, tokenMap)
+    } else {
+      highlight(builder, defaultStyle, textStr)
+    }
+    return build(builder)
   }
 
-  // exclusive end
-  protected abstract fun highlight(highlightedString: T, style: Style, string: String, startIndex: Int, endIndex: Int)
+  private fun tryLex(text: String): List<LexToken>? =
+    try { lexer.lex(text) } catch (e: MarcelLexerException) { null }
 
-  private fun doHighlight(text: CharSequence, highlightedString: T, tokens: List<LexToken>,
+  // exclusive end
+  protected abstract fun highlight(builder: Builder, style: Style, string: String)
+
+  private fun doHighlight(text: CharSequence, builder: Builder, tokens: List<LexToken>,
                           tokenMap: Map<LexToken, Style>) {
     for (i in 0 until tokens.size - 1) { // - 1 to avoid handling END_OF_FILE token
       val token = tokens[i]
@@ -77,7 +84,7 @@ abstract class AbstractHighlighter<T, Style> constructor(
         TokenType.SHORT_TEMPLATE_ENTRY_START, TokenType.LONG_TEMPLATE_ENTRY_START, TokenType.LONG_TEMPLATE_ENTRY_END -> stringTemplateStyle
         else -> defaultStyle
       }
-      highlight(highlightedString, style, string, token.start, token.end)
+      highlight(builder, style, string)
     }
   }
 }

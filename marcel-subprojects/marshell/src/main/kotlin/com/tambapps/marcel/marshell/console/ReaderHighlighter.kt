@@ -2,7 +2,6 @@ package com.tambapps.marcel.marshell.console
 
 import com.tambapps.marcel.marshell.console.style.HighlightTheme
 import com.tambapps.marcel.repl.MarcelReplCompiler
-import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 import com.tambapps.marcel.repl.console.AbstractHighlighter
 import org.jline.reader.Highlighter
 import org.jline.reader.LineReader
@@ -12,9 +11,8 @@ import org.jline.utils.AttributedStyle
 import java.util.regex.Pattern
 
 class ReaderHighlighter constructor(
-  symbolResolver: ReplMarcelSymbolResolver,
   replCompiler: MarcelReplCompiler
-): AbstractHighlighter<AttributedStringBuilder, AttributedStyle>(symbolResolver, replCompiler), Highlighter {
+): AbstractHighlighter<AttributedString, AttributedStringBuilder, AttributedStyle>(replCompiler), Highlighter {
 
   private val style = HighlightTheme()
   override val variableStyle: AttributedStyle = style.variable
@@ -26,19 +24,16 @@ class ReaderHighlighter constructor(
   override val numberStyle: AttributedStyle = style.number
   override val defaultStyle: AttributedStyle = AttributedStyle.DEFAULT
 
-  override fun highlight(reader: LineReader?, buffer: String): AttributedString {
-    return highlight(buffer).toAttributedString()
+  override fun highlight(reader: LineReader?, buffer: String) = highlight(buffer)
+
+  override fun newBuilder() = AttributedStringBuilder()
+
+  override fun highlight(builder: AttributedStringBuilder, style: AttributedStyle, string: String) {
+    builder.style(style)
+    builder.append(string)
   }
 
-  override fun newHighlightedString(text: CharSequence): AttributedStringBuilder {
-    return AttributedStringBuilder()
-  }
-
-  override fun highlight(highlightedString: AttributedStringBuilder, style: AttributedStyle, string: String,
-                         startIndex: Int, endIndex: Int) {
-    highlightedString.style(style)
-    highlightedString.append(string)
-  }
+  override fun build(builder: AttributedStringBuilder): AttributedString = builder.toAttributedString()
 
   override fun setErrorPattern(errorPattern: Pattern) {}
 

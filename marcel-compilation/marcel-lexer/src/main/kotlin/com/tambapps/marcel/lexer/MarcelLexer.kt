@@ -22,23 +22,6 @@ class MarcelLexer @JvmOverloads constructor(private val ignoreWhitespaces: Boole
    */
   @Throws(MarcelLexerException::class)
   fun lex(content: String): List<LexToken> {
-    return lex(content, false)
-  }
-
-  /**
-   * perform the lexical analysis safely, without throwing any error. If an error
-   * is caught the analysis will just stop there
-   *
-   * @param content a string representing Marcel source code
-   * @return the list of tokens resulting from the lexical analysis
-   */
-  @Throws(MarcelLexerException::class)
-  fun lexSafely(content: String): List<LexToken> {
-    return lex(content, true)
-  }
-
-  @Throws(MarcelLexerException::class)
-  private fun lex(content: String, catchAndStop: Boolean): List<LexToken> {
     val jflexer = MarcelJflexer()
     jflexer.reset(content, 0, content.length, MarcelJflexer.YYINITIAL)
     val tokens: MutableList<LexToken> = ArrayList()
@@ -47,9 +30,6 @@ class MarcelLexer @JvmOverloads constructor(private val ignoreWhitespaces: Boole
       try {
         token = jflexer.nextToken()
       } catch (e: MarcelJfexerException) {
-        if (catchAndStop) {
-          return tokens
-        }
         val line = jflexer.yyline
         val column = jflexer.yycolumn
         var message = e.message
@@ -60,9 +40,6 @@ class MarcelLexer @JvmOverloads constructor(private val ignoreWhitespaces: Boole
       }
       if (token == null) break
       if (token.type == TokenType.BAD_CHARACTER) {
-        if (catchAndStop) {
-          return tokens
-        }
         throw MarcelLexerException(token.line, token.column, "Bad character " + token.value)
       }
       if (!COMMENT_TOKENS.contains(token.type) && (!ignoreWhitespaces || token.type != TokenType.WHITE_SPACE)) {

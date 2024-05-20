@@ -56,7 +56,7 @@ class Marshell(private val printer: PrintStream) {
 
   private val initScriptFile: File get() = File(marcelHome, "marshell/init.mcl")
 
-  private val highlighter = ReaderHighlighter(symbolResolver, replCompiler)
+  private val highlighter = ReaderHighlighter(replCompiler)
   private val reader = LineReaderBuilder.builder()
     .highlighter(highlighter)
     // to store history into a file
