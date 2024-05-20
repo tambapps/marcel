@@ -16,6 +16,7 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -55,28 +56,28 @@ private fun BottomNavigationBar(navController: NavHostController) {
     BottomNavigationBarItem(
       icon = R.drawable.variable,
       route = ConsultRoutes.VARIABLES,
-      text = "Variable",
+      text = "Variables",
       navController = navController,
       backStackState = backStackState
     )
     BottomNavigationBarItem(
       icon = R.drawable.function,
       route = ConsultRoutes.FUNCTIONS,
-      text = "Function",
+      text = "Functions",
       navController = navController,
       backStackState = backStackState
     )
     BottomNavigationBarItem(
       icon = R.drawable.brackets,
       route = ConsultRoutes.CLASSES,
-      text = "Class",
+      text = "Classes",
       navController = navController,
       backStackState = backStackState
     )
     BottomNavigationBarItem(
       icon = R.drawable.package_,
       route = ConsultRoutes.IMPORTS,
-      text = "Import",
+      text = "Imports",
       navController = navController,
       backStackState = backStackState
     )
@@ -84,7 +85,7 @@ private fun BottomNavigationBar(navController: NavHostController) {
     BottomNavigationBarItem(
       icon = R.drawable.dumbbell,
       route = ConsultRoutes.DUMBBELLS,
-      text = "Dumbbell",
+      text = "Dumbbells",
       navController = navController,
       backStackState = backStackState
     )
@@ -117,7 +118,7 @@ private fun RowScope.BottomNavigationBarItem(
       )
     },
     label = {
-      Text(text = text)
+      Text(text = text, fontSize = 11.3.sp)
     }
   )
 }
