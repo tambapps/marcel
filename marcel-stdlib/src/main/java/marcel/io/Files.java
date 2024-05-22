@@ -16,7 +16,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// TODO review File APIs. maybe delete this class?
 /**
  * Class providing util methods to handle files
  */
