@@ -31,4 +31,7 @@ extension class FileExtensions for File {
   fun void writeBytes(byte[] bytes) -> JavaFiles.write(toPath(), bytes)
 
   fun void appendBytes(byte[] bytes) -> JavaFiles.write(toPath(), bytes, StandardOpenOption.APPEND)
+
+  fun File child(String path) -> new File(this, path)
+
 }
