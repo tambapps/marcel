@@ -47,6 +47,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.tambapps.marcel.android.marshell.FilePickerActivity
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.Routes
@@ -66,7 +67,9 @@ fun ShellScreen(
   sessionId: Int,
   shellsCount: Int
 ) {
-  Column(modifier = Modifier.fillMaxSize().padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
+  Column(modifier = Modifier
+    .fillMaxSize()
+    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
     TopBar(navController, viewModel, sessionId, shellsCount)
     val listState = rememberLazyListState()
     SelectionContainer(
@@ -150,10 +153,15 @@ private fun TopBar(
   val context = LocalContext.current
   TopBarLayout(horizontalArrangement = Arrangement.End) {
     if (shellsCount > 1) {
+      val showConfirmDialog = remember { mutableStateOf(false) }
+      ConfirmDeleteSessionDialog(
+        navController = navController,
+        show = showConfirmDialog,
+        sessionId = sessionId
+      )
       TopBarIconButton(
         modifier = shellIconModifier(),
-        // TODO confirm dialog
-        onClick = { navController.navigate(Routes.deleteShell(sessionId)) },
+        onClick = { showConfirmDialog.value = true },
         drawable = R.drawable.plus,
         iconModifier = Modifier.rotate(45f),
         iconTint = MaterialTheme.colorScheme.error,
@@ -218,6 +226,30 @@ private fun TopBar(
       contentDescription = "navigate down"
     )
   }
+}
+
+@Composable
+fun ConfirmDeleteSessionDialog(navController: NavController, show: MutableState<Boolean>, sessionId: Int) {
+  if (!show.value) return
+  AlertDialog(
+    title = {
+      Text(text = "Close this shell")
+    },
+    text = {
+      Text(text = "Do you want to close this shell?")
+    },
+    onDismissRequest = { show.value = false },
+    dismissButton = {
+      TextButton(onClick = { show.value = false }) {
+        Text(text = "Cancel")
+      }
+    },
+    confirmButton = {
+      TextButton(onClick = { navController.navigate(Routes.deleteShell(sessionId)) }) {
+        Text(text = "Confirm")
+      }
+    }
+  )
 }
 
 @Composable

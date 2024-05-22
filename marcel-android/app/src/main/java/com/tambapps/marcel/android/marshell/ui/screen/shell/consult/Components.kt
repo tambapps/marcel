@@ -48,7 +48,7 @@ internal fun VariableTableRow(
         },
         confirmButton = {
           TextButton(onClick = { showDialog = false }) {
-            Text(text = "Ok")
+            Text(text = "OK")
           }
         })
     }
