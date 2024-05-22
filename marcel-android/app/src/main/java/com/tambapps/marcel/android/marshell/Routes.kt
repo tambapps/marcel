@@ -3,6 +3,7 @@ package com.tambapps.marcel.android.marshell
 object Routes {
   const val HOME = "home"
   const val SHELL = "shell"
+  const val NEW_SHELL = "$SHELL/new"
   const val EDITOR = "editor"
   const val WORK_LIST = "work_list"
   const val WORK_CREATE = "work_create"

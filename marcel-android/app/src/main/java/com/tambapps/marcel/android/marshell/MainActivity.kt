@@ -49,6 +49,7 @@ import com.tambapps.marcel.android.marshell.Routes.CONSULT
 import com.tambapps.marcel.android.marshell.Routes.EDITOR
 import com.tambapps.marcel.android.marshell.Routes.FILE_ARG
 import com.tambapps.marcel.android.marshell.Routes.HOME
+import com.tambapps.marcel.android.marshell.Routes.NEW_SHELL
 import com.tambapps.marcel.android.marshell.Routes.SESSION_ID
 import com.tambapps.marcel.android.marshell.Routes.SETTINGS
 import com.tambapps.marcel.android.marshell.Routes.SHELL
@@ -112,14 +113,14 @@ class MainActivity : ComponentActivity() {
               composable(HOME) {
                 ShellScreen(navController, shellViewModels.getValue(0), 0)
               }
-              composable("$SHELL/new") {
+              composable(NEW_SHELL) {
                 val viewModel: ShellViewModel = hiltViewModel()
 
                 LaunchedEffect(Unit) {
                   val id = sessionCount++
                   shellViewModels[id] = viewModel
                   navController.navigate("$SHELL/$id") {
-                    popUpTo("$SHELL/new") { inclusive = true }
+                    popUpTo(NEW_SHELL) { inclusive = true }
                   }
                 }
               }
@@ -237,7 +238,7 @@ private fun NavigationDrawer(
         Text("Marcel for Android", modifier = Modifier
           .padding(16.dp)
           .align(Alignment.CenterHorizontally), style = MaterialTheme.typography.shellTextStyle, fontWeight = FontWeight.Bold)
-        HorizontalDivider()
+        HorizontalDivider(Modifier.padding(vertical = 2.dp))
 
         val backStackState = navController.currentBackStackEntryAsState()
 
@@ -264,8 +265,16 @@ private fun NavigationDrawer(
               route = route
             )
           }
-          HorizontalDivider(Modifier.padding(vertical = 2.dp))
         }
+        DrawerItem(
+          navController = navController,
+          drawerState = drawerState,
+          scope = scope,
+          text = "New shell",
+          backStackState = backStackState,
+          route = NEW_SHELL
+        )
+        HorizontalDivider(Modifier.padding(vertical = 2.dp))
 
         DrawerItem(
           navController = navController,
