@@ -63,10 +63,11 @@ val HEADER = "Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSIO
 fun ShellScreen(
   navController: NavController,
   viewModel: ShellViewModel,
-  sessionId: Int
-  ) {
+  sessionId: Int,
+  shellsCount: Int
+) {
   Column(modifier = Modifier.fillMaxSize().padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
-    TopBar(navController, viewModel, sessionId)
+    TopBar(navController, viewModel, sessionId, shellsCount)
     val listState = rememberLazyListState()
     SelectionContainer(
       Modifier
@@ -140,18 +141,25 @@ fun ShellScreen(
 }
 
 @Composable
-private fun TopBar(navController: NavController, viewModel: ShellViewModel, sessionId: Int) {
+private fun TopBar(
+  navController: NavController,
+  viewModel: ShellViewModel,
+  sessionId: Int,
+  shellsCount: Int
+) {
   val context = LocalContext.current
   TopBarLayout(horizontalArrangement = Arrangement.End) {
-    // TODO only show this button if there is one session
-    TopBarIconButton(
-      modifier = shellIconModifier(),
-      onClick = { navController.navigate(Routes.deleteShell(sessionId)) },
-      drawable = R.drawable.plus,
-      iconModifier = Modifier.rotate(45f),
-      iconTint = MaterialTheme.colorScheme.error,
-      contentDescription = "delete session"
-    )
+    if (shellsCount > 1) {
+      TopBarIconButton(
+        modifier = shellIconModifier(),
+        // TODO confirm dialog
+        onClick = { navController.navigate(Routes.deleteShell(sessionId)) },
+        drawable = R.drawable.plus,
+        iconModifier = Modifier.rotate(45f),
+        iconTint = MaterialTheme.colorScheme.error,
+        contentDescription = "delete session"
+      )
+    }
 
     Box(modifier = Modifier.width(10.dp))
 

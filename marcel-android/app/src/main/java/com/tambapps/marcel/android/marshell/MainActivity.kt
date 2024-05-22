@@ -27,6 +27,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -100,7 +101,7 @@ class MainActivity : ComponentActivity() {
         // instantiating shell VM here because we want to keep state even if we changed route and then go back to ShellScreen
         val defaultShellViewModel: ShellViewModel = hiltViewModel()
         val shellViewModels = remember {
-          mutableMapOf(Pair(0, defaultShellViewModel))
+          mutableStateMapOf(Pair(0, defaultShellViewModel))
         }
         NavigationDrawer(drawerState = drawerState, navController = navController, scope = scope, shellViewModels = shellViewModels) {
           Box(modifier = Modifier
@@ -113,7 +114,7 @@ class MainActivity : ComponentActivity() {
               // need a startDestination without any parameters for deep links to work
               composable(HOME) {
                 val sessionId = shellViewModels.keys.min()
-                ShellScreen(navController, shellViewModels.getValue(sessionId), sessionId)
+                ShellScreen(navController, shellViewModels.getValue(sessionId), sessionId, shellViewModels.size)
               }
               composable(NEW_SHELL) {
                 val viewModel: ShellViewModel = hiltViewModel()
@@ -146,7 +147,7 @@ class MainActivity : ComponentActivity() {
                 val sessionId = it.arguments?.getInt(SESSION_ID, 0)
                 val viewModel = shellViewModels[sessionId]
                 if (sessionId != null && viewModel != null) {
-                  ShellScreen(navController, viewModel, sessionId)
+                  ShellScreen(navController, viewModel, sessionId, shellViewModels.size)
                 } else {
                   LaunchedEffect(Unit) {
                     navController.navigate(HOME)
