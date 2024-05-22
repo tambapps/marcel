@@ -15,5 +15,7 @@ object Routes {
   const val SESSION_ID = "sessionId"
 
   const val CONSULT = "$SHELL/{$SESSION_ID}/consult"
+  const val DELETE_SHELL = "$SHELL/{$SESSION_ID}/delete"
   fun consult(sessionId: Any) = "$SHELL/$sessionId/consult"
+  fun deleteShell(sessionId: Any) = "$SHELL/$sessionId/delete"
 }

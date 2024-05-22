@@ -143,11 +143,14 @@ fun ShellScreen(
 private fun TopBar(navController: NavController, viewModel: ShellViewModel, sessionId: Int) {
   val context = LocalContext.current
   TopBarLayout(horizontalArrangement = Arrangement.End) {
+    // TODO only show this button if there is one session
     TopBarIconButton(
       modifier = shellIconModifier(),
-      onClick = { navController.navigate("${Routes.SHELL}/new") },
+      onClick = { navController.navigate(Routes.deleteShell(sessionId)) },
       drawable = R.drawable.plus,
-      contentDescription = "new session"
+      iconModifier = Modifier.rotate(45f),
+      iconTint = MaterialTheme.colorScheme.error,
+      contentDescription = "delete session"
     )
 
     Box(modifier = Modifier.width(10.dp))

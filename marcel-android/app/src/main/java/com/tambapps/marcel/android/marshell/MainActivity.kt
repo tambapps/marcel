@@ -46,6 +46,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.tambapps.marcel.android.marshell.Routes.CONSULT
+import com.tambapps.marcel.android.marshell.Routes.DELETE_SHELL
 import com.tambapps.marcel.android.marshell.Routes.EDITOR
 import com.tambapps.marcel.android.marshell.Routes.FILE_ARG
 import com.tambapps.marcel.android.marshell.Routes.HOME
@@ -86,7 +87,7 @@ class MainActivity : ComponentActivity() {
   lateinit var shellSessionFactory: ShellSessionFactory
 
   private lateinit var ioScope: CoroutineScope
-  private var sessionCount = 1
+  private var sessionsIdIncrement = 1
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -111,17 +112,30 @@ class MainActivity : ComponentActivity() {
             ) {
               // need a startDestination without any parameters for deep links to work
               composable(HOME) {
-                ShellScreen(navController, shellViewModels.getValue(0), 0)
+                val sessionId = shellViewModels.keys.min()
+                ShellScreen(navController, shellViewModels.getValue(sessionId), sessionId)
               }
               composable(NEW_SHELL) {
                 val viewModel: ShellViewModel = hiltViewModel()
 
                 LaunchedEffect(Unit) {
-                  val id = sessionCount++
+                  val id = sessionsIdIncrement++
                   shellViewModels[id] = viewModel
                   navController.navigate("$SHELL/$id") {
                     popUpTo(NEW_SHELL) { inclusive = true }
                   }
+                }
+              }
+              composable(
+                DELETE_SHELL,
+                arguments = listOf(navArgument(SESSION_ID) { type = NavType.IntType })
+              ) {
+                val sessionId = it.arguments?.getInt(SESSION_ID, Int.MAX_VALUE)
+                LaunchedEffect(Unit) {
+                  if (sessionId != null && shellViewModels.containsKey(sessionId) && shellViewModels.size > 1) {
+                    shellViewModels.remove(sessionId)
+                  }
+                  navController.navigate(HOME)
                 }
               }
 
@@ -242,13 +256,14 @@ private fun NavigationDrawer(
 
         val backStackState = navController.currentBackStackEntryAsState()
 
+        val defaultShellSessionId = shellViewModels.keys.min()
         if (shellViewModels.size == 1) {
           DrawerItem(
             navController = navController,
             drawerState = drawerState,
             scope = scope,
             text = "Shell",
-            selected = backStackState.value?.let { it.destination.route?.startsWith(HOME) == true || it.arguments?.getInt(SESSION_ID, Int.MAX_VALUE) == 0 } == true,
+            selected = backStackState.value?.let { it.destination.route?.startsWith(HOME) == true || it.arguments?.getInt(SESSION_ID, Int.MAX_VALUE) == defaultShellSessionId } == true,
             route = HOME
           )
         } else {
@@ -260,7 +275,7 @@ private fun NavigationDrawer(
               scope = scope,
               text = "Shell $id",
               selected = backStackState.value?.let {
-                id == 0 && it.destination.route == HOME || it.arguments?.getInt(SESSION_ID) == id
+                id == defaultShellSessionId && it.destination.route == HOME || it.arguments?.getInt(SESSION_ID) == id
               } ?: false,
               route = route
             )

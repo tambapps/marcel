@@ -39,7 +39,9 @@ fun TopBarIconButton(
   onClick: () -> Unit,
   enabled: Boolean = true,
   drawable: Int,
-  contentDescription: String
+  contentDescription: String,
+  iconTint: Color = if (enabled) MaterialTheme.colorScheme.onSurface else Color.Gray,
+  iconModifier: Modifier = Modifier
 ) {
   IconButton(
     onClick = onClick,
@@ -47,9 +49,10 @@ fun TopBarIconButton(
     enabled = enabled,
   ) {
     Icon(
+      modifier = iconModifier,
       painter = painterResource(id = drawable),
       contentDescription = contentDescription,
-      tint = if (enabled) MaterialTheme.colorScheme.onSurface else Color.Gray
+      tint = iconTint
     )
   }
 }
