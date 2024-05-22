@@ -1,17 +1,15 @@
 package com.tambapps.marcel.android.marshell.ui.screen.work.create
 
-import android.annotation.SuppressLint
-import android.app.NotificationManager
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -99,17 +97,15 @@ fun WorkCreateScreen(
       Form(viewModel)
     }
 
-    val notificationManager = remember { context.getSystemService(NotificationManager::class.java) }
     val requestNotificationsPermission = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { granted ->
       Toast.makeText(context, "Notification permissions " + (if (granted) "granted" else "not granted"), Toast.LENGTH_SHORT).show()
     }
     val showEnabledNotificationDialog = remember { mutableStateOf(false) }
-    EnabledNotificationsDialog(showEnabledNotificationDialog, requestNotificationsPermission)
+    EnabledNotificationsDialog(viewModel, showEnabledNotificationDialog, requestNotificationsPermission)
     FloatingActionButton(
       modifier = Modifier.padding(all = 16.dp),
       onClick = {
-        // TODO need to check shouldShowRequestPermissionRationale() and use preferences
-        if (!viewModel.silent && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !notificationManager.areNotificationsEnabled()) {
+        if (viewModel.shouldNotificationsPermission) {
           showEnabledNotificationDialog.value = true
         } else {
           viewModel.validateAndSave(context) {
@@ -130,9 +126,9 @@ fun WorkCreateScreen(
   }
 }
 
-@SuppressLint("InlinedApi") // API version checked above
 @Composable
 private fun EnabledNotificationsDialog(
+  viewModel: WorkCreateViewModel,
   show: MutableState<Boolean>,
   requestNotificationsPermission: ManagedActivityResultLauncher<String, Boolean>
 ) {
@@ -146,8 +142,18 @@ private fun EnabledNotificationsDialog(
     },
     onDismissRequest = { show.value = false },
     confirmButton = {
+      val canAskNotificationsPermission = viewModel.canAskNotificationsPermission
+      val context = LocalContext.current
       TextButton(onClick = {
-        requestNotificationsPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && canAskNotificationsPermission) {
+          viewModel.onNotificationsPermissionRequested()
+          requestNotificationsPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+          val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+          context.startActivity(intent, null)
+        }
         show.value = false
       }) {
         Text(text = "Allow")

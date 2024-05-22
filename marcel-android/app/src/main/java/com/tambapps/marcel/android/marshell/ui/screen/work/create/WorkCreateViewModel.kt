@@ -1,7 +1,10 @@
 package com.tambapps.marcel.android.marshell.ui.screen.work.create
 
+import android.app.NotificationManager
 import android.content.Context
+import android.os.Build
 import android.widget.Toast
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,10 +13,9 @@ import androidx.lifecycle.ViewModel
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.room.entity.WorkPeriod
+import com.tambapps.marcel.android.marshell.service.PreferencesDataStore
 import com.tambapps.marcel.android.marshell.ui.screen.ScriptCardEditorViewModel
 import com.tambapps.marcel.android.marshell.work.ShellWorkManager
-import com.tambapps.marcel.repl.MarcelReplCompiler
-import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +27,8 @@ import javax.inject.Inject
 @HiltViewModel
 class WorkCreateViewModel @Inject constructor(
   private val shellWorkManager: ShellWorkManager,
+  private val preferencesDataStore: PreferencesDataStore,
+  private val notificationManager: NotificationManager,
   shellSessionFactory: ShellSessionFactory
 ): ViewModel(), ScriptCardEditorViewModel {
 
@@ -47,6 +51,8 @@ class WorkCreateViewModel @Inject constructor(
   var period by mutableStateOf<WorkPeriod?>(null)
 
   var scheduleAt by mutableStateOf<LocalDateTime?>(null)
+
+  private val ioScope = CoroutineScope(Dispatchers.IO)
 
   override fun highlight(text: CharSequence) = highlighter.highlight(text)
 
@@ -104,5 +110,21 @@ class WorkCreateViewModel @Inject constructor(
       return
     }
     nameError = null
+  }
+
+  val shouldNotificationsPermission
+    get() = !silent // only ask permission if non silent
+        && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU // asking permission is only required since Android TIRAMISU
+        && !notificationManager.areNotificationsEnabled() // only ask if it isn't enabled
+
+  val canAskNotificationsPermission
+    @Composable
+    // This is an Android restriction and they want US to keep track of whether we did already asked or not
+    get() = !preferencesDataStore.askedNotificationPermissionsState.value
+
+  fun onNotificationsPermissionRequested() {
+    ioScope.launch {
+      preferencesDataStore.setAskedPermissionsPreferences(true)
+    }
   }
 }

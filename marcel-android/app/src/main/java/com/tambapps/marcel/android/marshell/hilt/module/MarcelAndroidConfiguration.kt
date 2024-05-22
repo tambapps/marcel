@@ -1,5 +1,6 @@
 package com.tambapps.marcel.android.marshell.hilt.module
 
+import android.app.NotificationManager
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
@@ -15,7 +16,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
-import dagger.hilt.android.components.FragmentComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import java.io.File
@@ -76,4 +76,7 @@ class MarcelAndroidConfiguration {
 
   @Provides
   fun workManager(@ApplicationContext context: Context) = WorkManager.getInstance(context)
+
+  @Provides
+  fun notificationManager(@ApplicationContext context: Context) = context.getSystemService(NotificationManager::class.java)
 }

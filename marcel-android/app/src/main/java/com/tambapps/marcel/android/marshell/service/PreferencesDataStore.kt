@@ -2,14 +2,12 @@ package com.tambapps.marcel.android.marshell.service
 
 import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
-import com.tambapps.marcel.android.marshell.data.ShellPreferences
 import com.tambapps.marcel.android.marshell.data.UserPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -25,10 +23,10 @@ class PreferencesDataStore @Inject constructor(
     const val TAG = "PreferencesService"
   }
   private object PreferencesKeys {
-    val SINGLE_LINE_PROMPT = booleanPreferencesKey("single_line_input")
+    val ASKED_NOTIFICATION_PERMISSIONS = booleanPreferencesKey("asked_notifications_permissions")
   }
 
-  val userPreferencesFlow: Flow<UserPreferences> = dataStore.data
+  private val userPreferencesFlow: Flow<UserPreferences> = dataStore.data
     .catch { exception ->
       // dataStore.data throws an IOException when an error is encountered when reading data
       if (exception is IOException) {
@@ -41,25 +39,22 @@ class PreferencesDataStore @Inject constructor(
       mapUserPreferences(preferences)
     }
 
-  val shellPreferencesFlow: Flow<ShellPreferences> = userPreferencesFlow.map { userPreferences ->
-    userPreferences.shellPreferences
-  }
+  val askedNotificationPermissionsState
+    @Composable
+    get() = userPreferencesFlow
+    .map { it.askedNotificationPermissions }
+    .collectAsState(initial = UserPreferences.DEFAULT.askedNotificationPermissions)
 
-  @Composable
-  fun collectShellPreferencesState(): State<ShellPreferences> {
-    return shellPreferencesFlow.collectAsState(initial = ShellPreferences.DEFAULT)
-  }
-
-  suspend fun setSingleLineInput(value: Boolean) {
+  suspend fun setAskedPermissionsPreferences(value: Boolean) {
     dataStore.edit { preferences ->
-      preferences[PreferencesKeys.SINGLE_LINE_PROMPT] = value
+      preferences[PreferencesKeys.ASKED_NOTIFICATION_PERMISSIONS] = value
     }
   }
 
   private fun mapUserPreferences(preferences: Preferences): UserPreferences {
-    val singleLineInput = preferences[PreferencesKeys.SINGLE_LINE_PROMPT]
-    val shellPreferences = ShellPreferences(singleLineInput ?: ShellPreferences.DEFAULT.singleLineInput)
-    return UserPreferences(shellPreferences)
+    return UserPreferences(
+      askedNotificationPermissions = preferences[PreferencesKeys.ASKED_NOTIFICATION_PERMISSIONS] ?: UserPreferences.DEFAULT.askedNotificationPermissions
+    )
   }
 
 }
