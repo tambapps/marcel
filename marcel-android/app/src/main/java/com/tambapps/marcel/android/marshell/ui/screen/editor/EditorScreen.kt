@@ -15,11 +15,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -43,9 +45,15 @@ fun EditorScreen(viewModel: EditorViewModel = hiltViewModel()) {
       .fillMaxWidth(),
       contentAlignment = Alignment.BottomEnd) {
 
+      val focusRequester = remember { FocusRequester() }
+      // request focus when entering editor screen
+      LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+      }
       ScriptTextField(
         viewModel = viewModel,
         modifier = Modifier.fillMaxSize(),
+        focusRequester = focusRequester
       )
       val pickFileLauncher = FilePickerActivity.rememberFilePickerForActivityResult { file ->
         if (file != null) {

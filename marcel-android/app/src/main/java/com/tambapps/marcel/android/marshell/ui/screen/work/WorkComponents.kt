@@ -7,7 +7,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -52,9 +55,16 @@ fun WorkScriptCard(viewModel: ScriptCardEditorViewModel, readOnly: Boolean = fal
         }
       }
     }) {
+    val focusRequester = remember { FocusRequester() }
+    // request focus when card is opened
+    LaunchedEffect(viewModel.scriptCardExpanded.value) {
+      if (viewModel.scriptCardExpanded.value) {
+        focusRequester.requestFocus()
+      }
+    }
     ScriptTextField(viewModel = viewModel, readOnly = readOnly, modifier = Modifier
       .weight(1f)
-      .padding(top = 8.dp))
+      .padding(top = 8.dp), focusRequester = focusRequester)
   }
 }
 

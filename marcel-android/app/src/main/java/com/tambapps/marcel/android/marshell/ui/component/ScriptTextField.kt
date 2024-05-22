@@ -18,6 +18,8 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.Key
@@ -32,7 +34,12 @@ import com.tambapps.marcel.android.marshell.ui.screen.ScriptEditorViewModel
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 
 @Composable
-fun ScriptTextField(viewModel: ScriptEditorViewModel, modifier: Modifier = Modifier, readOnly: Boolean = false) {
+fun ScriptTextField(
+  viewModel: ScriptEditorViewModel,
+  modifier: Modifier = Modifier,
+  readOnly: Boolean = false,
+  focusRequester: FocusRequester = remember { FocusRequester() }
+) {
   var linesText by remember { mutableIntStateOf(1) }
   val shellTextStyle = MaterialTheme.typography.shellTextStyle
   val style = remember { shellTextStyle.copy(lineHeight = 26.sp) }
@@ -48,6 +55,9 @@ fun ScriptTextField(viewModel: ScriptEditorViewModel, modifier: Modifier = Modif
     linesTextScroll.scrollTo(scriptTextScroll.value)
   }
 
+  LaunchedEffect(scriptTextScroll.value) {
+    linesTextScroll.scrollTo(scriptTextScroll.value)
+  }
   Row(modifier = modifier) {
     BasicTextField(
       modifier = Modifier
@@ -69,7 +79,8 @@ fun ScriptTextField(viewModel: ScriptEditorViewModel, modifier: Modifier = Modif
         .weight(1f)
         // this is a hack to prevent this https://stackoverflow.com/questions/76287857/when-parent-of-textfield-is-clickable-hardware-enter-return-button-triggers-its
         .onKeyEvent { it.type == KeyEventType.KeyUp && it.key == Key.Enter }
-        .verticalScroll(scriptTextScroll),
+        .verticalScroll(scriptTextScroll)
+        .focusRequester(focusRequester),
       value = viewModel.scriptTextInput,
       readOnly = readOnly,
       textStyle = style,
