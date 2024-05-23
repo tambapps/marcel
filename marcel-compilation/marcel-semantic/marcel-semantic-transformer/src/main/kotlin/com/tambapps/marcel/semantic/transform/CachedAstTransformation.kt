@@ -181,7 +181,7 @@ class CachedAstTransformation : GenerateMethodAstTransformation() {
       }
       return fCall(name = "getVariable", arguments = listOf(string(fieldName)), owner = thisRef(), castType = java.util.Map::class.javaType)
     } else {
-      val cacheField = fieldNode(Map::class.javaType, originalMethod.name + "\$cache")
+      val cacheField = fieldNode(Map::class.javaType, fieldName)
       addField(classNode, cacheField, cacheInitValueExpr)
 
       return ref(cacheField)
