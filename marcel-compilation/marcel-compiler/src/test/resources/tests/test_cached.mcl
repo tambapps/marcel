@@ -10,7 +10,7 @@ fun int fibonacci(int n) -> switch (n) {
 @cached(threadSafe=true)
 fun int fibonacci_ts(int n) -> switch (n) {
   0, 1 -> n
-  else -> fibonacci(n - 1) + fibonacci(n - 2)
+  else -> fibonacci_ts(n - 1) + fibonacci_ts(n - 2)
 }
 
 assertEquals(55, fibonacci(10))
