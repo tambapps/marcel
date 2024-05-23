@@ -3,11 +3,14 @@ package com.tambapps.marcel.semantic.transform
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.semantic.CompilationPurpose
+import com.tambapps.marcel.semantic.SemanticHelper
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
+import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
+import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSyntaxTreeTransformationException
 import com.tambapps.marcel.semantic.extensions.javaType
 
@@ -77,19 +80,7 @@ class CachedAstTransformation : GenerateMethodAstTransformation() {
     }
 
     val threadSafe = annotation.getAttribute(THREAD_SAFE_OPTION)?.value == true
-    val cacheField = fieldNode(Map::class.javaType, originalMethod.name + "\$cache")
-    // TODO make a ReplScript class/interface to differentiate non REPL script and REP script. don't forget to use it on marcel for android
-    if (purpose == CompilationPurpose.REPL && classNode.type.implements(Script::class.javaType)) {
-      TODO("use binding fields instead, with getters")
-    }
-    addField(
-      classNode, cacheField, constructorCall(
-        method = symbolResolver.findMethodOrThrow(
-          if (threadSafe) ConcurrentHashMap::class.javaType
-          else HashMap::class.javaType, JavaMethod.CONSTRUCTOR_NAME, emptyList()
-        ), arguments = emptyList()
-      )
-    )
+    val cacheExpr = getCacheExpression(classNode, originalMethod, threadSafe)
 
     // rewrite the original method
     originalMethod.blockStatement.statements.clear()
@@ -139,17 +130,17 @@ class CachedAstTransformation : GenerateMethodAstTransformation() {
         }
         returnStmt(
           fCall(
-            owner = ref(cacheField),
+            owner = cacheExpr,
             name = "computeIfAbsent",
             arguments = listOf(cacheKeyObjectRef, ciaLambda)
           )
         )
       } else {
         // generate code if (!cache.containsKey(key)) cache[key] = doCompute(key); return cache[key]
-        ifStmt(notExpr(fCall(owner = ref(cacheField), name = "containsKey", arguments = listOf(cacheKeyObjectRef)))) {
+        ifStmt(notExpr(fCall(owner = cacheExpr, name = "containsKey", arguments = listOf(cacheKeyObjectRef)))) {
           stmt(
             fCall(
-              owner = ref(cacheField), name = "put",
+              owner = cacheExpr, name = "put",
               arguments = listOf(
                 cacheKeyObjectRef,
                 cast(
@@ -162,9 +153,38 @@ class CachedAstTransformation : GenerateMethodAstTransformation() {
             )
           )
         }
-        returnStmt(fCall(owner = ref(cacheField), name = "get", arguments = listOf(cacheKeyObjectRef)))
+        returnStmt(fCall(owner = cacheExpr, name = "get", arguments = listOf(cacheKeyObjectRef)))
       }
     }
     return listOf(doComputeMethod)
+  }
+
+  private fun getCacheExpression(
+    classNode: ClassNode,
+    originalMethod: MethodNode,
+    threadSafe: Boolean
+  ): ExpressionNode {
+    val fieldName = originalMethod.name + "\$cache"
+    val cacheInitValueExpr = constructorCall(
+      method = symbolResolver.findMethodOrThrow(
+        if (threadSafe) ConcurrentHashMap::class.javaType
+        else HashMap::class.javaType, JavaMethod.CONSTRUCTOR_NAME, emptyList()
+      ), arguments = emptyList()
+    )
+    if (purpose == CompilationPurpose.REPL && classNode.type.implements(Script::class.javaType)) {
+      // init field in constructor
+      classNode.constructors.forEach {
+        SemanticHelper.addStatementLast(
+          ExpressionStatementNode(fCall("setVariable", listOf(string(fieldName), cacheInitValueExpr), thisRef())),
+          it.blockStatement
+        )
+      }
+      return fCall(name = "getVariable", arguments = listOf(string(fieldName)), owner = thisRef(), castType = java.util.Map::class.javaType)
+    } else {
+      val cacheField = fieldNode(Map::class.javaType, originalMethod.name + "\$cache")
+      addField(classNode, cacheField, cacheInitValueExpr)
+
+      return ref(cacheField)
+    }
   }
 }
