@@ -17,7 +17,6 @@ import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.SourceJavaType
-import marcel.lang.Script
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -171,7 +170,7 @@ class CachedAstTransformation : GenerateMethodAstTransformation() {
         else HashMap::class.javaType, JavaMethod.CONSTRUCTOR_NAME, emptyList()
       ), arguments = emptyList()
     )
-    if (purpose == SemanticPurpose.REPL && classNode.type.implements(Script::class.javaType)) {
+    if (purpose == SemanticPurpose.REPL && classNode.type.isScript) {
       // init field in constructor
       classNode.constructors.forEach {
         SemanticHelper.addStatementLast(
@@ -183,7 +182,6 @@ class CachedAstTransformation : GenerateMethodAstTransformation() {
     } else {
       val cacheField = fieldNode(Map::class.javaType, fieldName)
       addField(classNode, cacheField, cacheInitValueExpr)
-
       return ref(cacheField)
     }
   }
