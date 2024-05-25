@@ -9,6 +9,7 @@ plugins {
 
 val marcelProperties = Properties().apply { File(rootDir, "marcel.properties").inputStream().use(this::load) }
 val marcelVersion: String = marcelProperties.getProperty("marcel.version")
+val javaVersion: String = marcelProperties.getProperty("java.version")
 
 android {
   namespace = "com.tambapps.marcel.android.marshell"
@@ -38,11 +39,11 @@ android {
     }
   }
   compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.toVersion(javaVersion)
+    targetCompatibility = JavaVersion.toVersion(javaVersion)
   }
   kotlinOptions {
-    jvmTarget = "17"
+    jvmTarget = javaVersion
   }
   buildFeatures {
     compose = true

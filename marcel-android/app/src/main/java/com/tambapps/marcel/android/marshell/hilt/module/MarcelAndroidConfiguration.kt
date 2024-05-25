@@ -7,10 +7,12 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.work.WorkManager
+import com.tambapps.marcel.android.compiler.BuildConfig
 import com.tambapps.marcel.android.marshell.maven.DexRemoteSavingRepository
 import com.tambapps.marcel.android.marshell.repl.MarshellScript
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.dumbbell.DumbbellEngine
+import com.tambapps.marcel.semantic.CompilationPurpose
 import com.tambapps.maven.dependency.resolver.repository.RemoteSavingMavenRepository
 import dagger.Module
 import dagger.Provides
@@ -56,8 +58,9 @@ class MarcelAndroidConfiguration {
   fun compilerConfiguration(): CompilerConfiguration {
     return CompilerConfiguration(
       dumbbellEnabled = true,
-      classVersion = CompilerConfiguration.VERSION_MAP["17"]!!, // Java 8
-      scriptClass = MarshellScript::class.java
+      classVersion = CompilerConfiguration.getClassVersion(BuildConfig.JAVA_VERSION),
+      scriptClass = MarshellScript::class.java,
+      purpose = CompilationPurpose.REPL
     )
   }
 
