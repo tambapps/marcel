@@ -30,7 +30,8 @@ android {
 
   buildTypes {
     release {
-      isMinifyEnabled = true
+      // disabling it even for prod because marcel can use reflection
+      isMinifyEnabled = false
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
     }
     debug {

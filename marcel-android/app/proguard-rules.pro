@@ -22,6 +22,8 @@
 
 # Java stuff
 -keep class java.** { *; }
+# Needed in order for xml parsing to work
+-keep class javax.xml.** { *; }
 
 # Marcel stuff
 -keep class marcel.** { *; }
