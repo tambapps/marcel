@@ -12,7 +12,7 @@ import com.tambapps.marcel.android.marshell.maven.DexRemoteSavingRepository
 import com.tambapps.marcel.android.marshell.repl.MarshellScript
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.dumbbell.DumbbellEngine
-import com.tambapps.marcel.semantic.CompilationPurpose
+import com.tambapps.marcel.semantic.SemanticPurpose
 import com.tambapps.maven.dependency.resolver.repository.RemoteSavingMavenRepository
 import dagger.Module
 import dagger.Provides
@@ -60,7 +60,7 @@ class MarcelAndroidConfiguration {
       dumbbellEnabled = true,
       classVersion = CompilerConfiguration.getClassVersion(BuildConfig.JAVA_VERSION),
       scriptClass = MarshellScript::class.java,
-      purpose = CompilationPurpose.REPL
+      purpose = SemanticPurpose.REPL
     )
   }
 

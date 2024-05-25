@@ -7,6 +7,7 @@ plugins {
 
 val marcelProperties = Properties().apply { File(rootDir, "marcel.properties").inputStream().use(this::load) }
 val marcelVersion: String = marcelProperties.getProperty("marcel.version")
+val javaVersion: String = marcelProperties.getProperty("java.version")
 
 android {
   namespace = "marcel.lang"
@@ -26,11 +27,11 @@ android {
     }
   }
   compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.toVersion(javaVersion)
+    targetCompatibility = JavaVersion.toVersion(javaVersion)
   }
   kotlinOptions {
-    jvmTarget = "1.8"
+    jvmTarget = javaVersion
   }
 }
 
