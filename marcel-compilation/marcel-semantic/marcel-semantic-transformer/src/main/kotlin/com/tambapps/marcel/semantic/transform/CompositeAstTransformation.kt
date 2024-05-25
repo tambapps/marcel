@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.transform
 
 import com.tambapps.marcel.parser.cst.CstNode
-import com.tambapps.marcel.semantic.CompilationPurpose
+import com.tambapps.marcel.semantic.SemanticPurpose
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
@@ -12,7 +12,7 @@ abstract class CompositeAstTransformation(
   private val transformations: List<SyntaxTreeTransformation>
 ) : AbstractAstTransformation() {
 
-  override fun init(symbolResolver: MarcelSymbolResolver, purpose: CompilationPurpose) {
+  override fun init(symbolResolver: MarcelSymbolResolver, purpose: SemanticPurpose) {
     super.init(symbolResolver, purpose)
     for (t in transformations) {
       t.init(symbolResolver, purpose)

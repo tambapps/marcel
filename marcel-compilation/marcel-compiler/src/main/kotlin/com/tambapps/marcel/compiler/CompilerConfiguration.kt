@@ -1,13 +1,13 @@
 package com.tambapps.marcel.compiler
 
-import com.tambapps.marcel.semantic.CompilationPurpose
+import com.tambapps.marcel.semantic.SemanticPurpose
 import marcel.lang.Script
 
 data class CompilerConfiguration(
   val classVersion: Int = computeClassVersion(),
   val dumbbellEnabled: Boolean = false,
   val scriptClass: Class<*> = Script::class.java,
-  val purpose: CompilationPurpose = CompilationPurpose.COMPILATION
+  val purpose: SemanticPurpose = SemanticPurpose.COMPILATION
 ) {
 
   constructor(classVersion: Int, dumbbellEnabled: Boolean): this(classVersion, dumbbellEnabled, Script::class.java)

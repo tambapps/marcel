@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.transform
 
 import com.tambapps.marcel.parser.cst.TypeCstNode
-import com.tambapps.marcel.semantic.CompilationPurpose
+import com.tambapps.marcel.semantic.SemanticPurpose
 import com.tambapps.marcel.semantic.compose.AstNodeComposer
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
@@ -17,10 +17,10 @@ abstract class AbstractAstTransformation : AstNodeComposer(), SyntaxTreeTransfor
 
   override lateinit var symbolResolver: MarcelSymbolResolver
   override lateinit var caster: AstNodeCaster
-  protected lateinit var purpose: CompilationPurpose
+  protected lateinit var purpose: SemanticPurpose
 
 
-  override fun init(symbolResolver: MarcelSymbolResolver, purpose: CompilationPurpose) {
+  override fun init(symbolResolver: MarcelSymbolResolver, purpose: SemanticPurpose) {
     this.symbolResolver = symbolResolver
     this.caster = AstNodeCaster(symbolResolver)
     this.purpose = purpose

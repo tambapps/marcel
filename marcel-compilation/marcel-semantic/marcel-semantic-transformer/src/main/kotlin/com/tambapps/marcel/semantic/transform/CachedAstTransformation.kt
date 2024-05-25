@@ -2,7 +2,7 @@ package com.tambapps.marcel.semantic.transform
 
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
-import com.tambapps.marcel.semantic.CompilationPurpose
+import com.tambapps.marcel.semantic.SemanticPurpose
 import com.tambapps.marcel.semantic.SemanticHelper
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
@@ -171,7 +171,7 @@ class CachedAstTransformation : GenerateMethodAstTransformation() {
         else HashMap::class.javaType, JavaMethod.CONSTRUCTOR_NAME, emptyList()
       ), arguments = emptyList()
     )
-    if (purpose == CompilationPurpose.REPL && classNode.type.implements(Script::class.javaType)) {
+    if (purpose == SemanticPurpose.REPL && classNode.type.implements(Script::class.javaType)) {
       // init field in constructor
       classNode.constructors.forEach {
         SemanticHelper.addStatementLast(

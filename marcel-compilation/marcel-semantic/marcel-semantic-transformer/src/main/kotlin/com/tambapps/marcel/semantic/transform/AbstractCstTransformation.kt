@@ -6,7 +6,7 @@ import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
-import com.tambapps.marcel.semantic.CompilationPurpose
+import com.tambapps.marcel.semantic.SemanticPurpose
 import com.tambapps.marcel.semantic.compose.CstNodeComposer
 import com.tambapps.marcel.semantic.CstSemantic
 import com.tambapps.marcel.semantic.Visibility
@@ -27,11 +27,11 @@ import com.tambapps.marcel.semantic.type.SourceJavaType
 abstract class AbstractCstTransformation : CstNodeComposer(), CstSemantic, SyntaxTreeTransformation {
 
   lateinit var symbolResolver: MarcelSymbolResolver
-  protected lateinit var purpose: CompilationPurpose
+  protected lateinit var purpose: SemanticPurpose
 
   private var scope: ImportScope? = null
 
-  override fun init(symbolResolver: MarcelSymbolResolver, purpose: CompilationPurpose) {
+  override fun init(symbolResolver: MarcelSymbolResolver, purpose: SemanticPurpose) {
     this.symbolResolver = symbolResolver
     this.purpose = purpose
   }

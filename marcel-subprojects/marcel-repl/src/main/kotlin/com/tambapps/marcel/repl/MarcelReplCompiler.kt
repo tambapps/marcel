@@ -11,7 +11,7 @@ import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.repl.semantic.MarcelReplSemantic
-import com.tambapps.marcel.semantic.CompilationPurpose
+import com.tambapps.marcel.semantic.SemanticPurpose
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.imprt.ImportResolverGenerator
@@ -25,8 +25,8 @@ class MarcelReplCompiler constructor(
   internal val marcelClassLoader: MarcelClassLoader,
   internal val symbolResolver: ReplMarcelSymbolResolver,
 ): AbstractMarcelCompiler(
-  if (compilerConfiguration.purpose == CompilationPurpose.REPL) compilerConfiguration
-  else compilerConfiguration.copy(purpose = CompilationPurpose.REPL)
+  if (compilerConfiguration.purpose == SemanticPurpose.REPL) compilerConfiguration
+  else compilerConfiguration.copy(purpose = SemanticPurpose.REPL)
 ) {
 
   val imports = MutableImportResolver.empty()
