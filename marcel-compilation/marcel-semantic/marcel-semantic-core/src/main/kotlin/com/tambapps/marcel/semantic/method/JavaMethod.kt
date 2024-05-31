@@ -48,7 +48,7 @@ interface JavaMethod: JavaTyped {
   val varArgType: JavaType
     get() = varArgsType.elementsType
 
-  fun isAccessibleFrom(type: JavaType): Boolean {
+  fun isVisibleFrom(type: JavaType): Boolean {
     return visibility.canAccess(type, ownerClass)
   }
 

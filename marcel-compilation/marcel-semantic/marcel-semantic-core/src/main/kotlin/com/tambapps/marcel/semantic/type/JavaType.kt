@@ -140,7 +140,7 @@ interface JavaType: JavaTyped {
    * @param javaType the other type
    * @return whether this type is accessible from the provided type
    */
-  fun isAccessibleFrom(javaType: JavaType) = visibility.canAccess(javaType, this)
+  fun isVisibleFrom(javaType: JavaType) = visibility.canAccess(javaType, this)
 
   val isArray: Boolean
 

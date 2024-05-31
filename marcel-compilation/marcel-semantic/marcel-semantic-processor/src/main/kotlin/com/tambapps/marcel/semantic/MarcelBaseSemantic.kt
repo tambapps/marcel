@@ -18,6 +18,7 @@ import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.exception.MemberNotVisibleException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.method.JavaMethod
@@ -168,8 +169,9 @@ abstract class MarcelBaseSemantic {
       tokenStart,
       "Method $method is static but was call from an instance"
     )
-    if (!method.isAccessibleFrom(currentScope.classType)) {
-      throw MarcelSemanticException(tokenStart, "Method $method is not accessible from class" + currentScope.classType)
+    if (!method.isVisibleFrom(currentScope.classType)) {
+      throw
+      MemberNotVisibleException(tokenStart, method, currentScope.classType)
     }
     val node = FunctionCallNode(
       method,

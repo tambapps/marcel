@@ -6,6 +6,7 @@ import com.tambapps.marcel.parser.cst.ScriptCstNode
 import com.tambapps.marcel.semantic.MarcelSemantic
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.exception.MemberNotVisibleException
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.SourceJavaType
 
@@ -66,8 +67,8 @@ interface SymbolDefinerTrait {
       val superType =
         if (classCstNode is ScriptCstNode) scriptParentType
         else classCstNode.superType?.let { semantic.resolve(it) } ?: JavaType.Object
-      if (!superType.isAccessibleFrom(classType)) {
-        throw MarcelSemanticException(classCstNode, "Class $superType is not accessible from $classType")
+      if (!superType.isVisibleFrom(classType)) {
+        throw MemberNotVisibleException(classCstNode, superType, classType)
       }
       if (superType.isFinal) {
         throw MarcelSemanticException(classCstNode, "Class $superType is final and therefore cannot be extended")
@@ -81,8 +82,8 @@ interface SymbolDefinerTrait {
         if (!interfaceType.isInterface) {
           throw MarcelSemanticException(classCstNode, "Cannot implement a non-interface")
         }
-        if (!interfaceType.isAccessibleFrom(classType)) {
-          throw MarcelSemanticException(classCstNode, "Class $interfaceType is not accessible from $classType")
+        if (!interfaceType.isVisibleFrom(classType)) {
+          throw MemberNotVisibleException(classCstNode, interfaceType, classType)
         }
       }
     }

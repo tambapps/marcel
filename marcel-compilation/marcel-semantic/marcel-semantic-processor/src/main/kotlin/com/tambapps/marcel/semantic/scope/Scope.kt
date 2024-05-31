@@ -13,7 +13,6 @@ interface Scope {
   val classType: JavaType
   val forExtensionType: JavaType?
 
-  // TODO this method needs to check visibility (access) of the resolved type
   fun resolveTypeOrThrow(node: TypeCstNode): JavaType
 
   fun findField(name: String): MarcelField?

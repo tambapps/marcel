@@ -2,6 +2,7 @@ package com.tambapps.marcel.semantic.check
 
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.exception.MemberNotVisibleException
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.visitor.ClassNodeVisitor
 
@@ -18,11 +19,8 @@ internal object ExtendingClassCheck : ClassNodeVisitor {
     if (superType.isFinal) {
       throw MarcelSemanticException(classNode.token, "Cannot extend final class $superType")
     }
-    if (!superType.isAccessibleFrom(classNode.type)) {
-      throw MarcelSemanticException(
-        classNode.token,
-        "Class $superType isn't accessible from package ${classNode.type.packageName ?: ""}"
-      )
+    if (!superType.isVisibleFrom(classNode.type)) {
+      throw MemberNotVisibleException(classNode.token, superType, classNode.type)
     }
   }
 }

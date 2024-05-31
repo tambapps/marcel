@@ -1,6 +1,7 @@
 package com.tambapps.marcel.semantic.scope
 
 import com.tambapps.marcel.parser.cst.TypeCstNode
+import com.tambapps.marcel.semantic.exception.MemberNotVisibleException
 import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
@@ -23,7 +24,12 @@ abstract class AbstractScope(
       val classFullName = "$packageName.$classSimpleName"
       if (symbolResolver.isDefined(classFullName)) return of(classFullName, node).array(node.arrayDimensions)
     }
-    return of(classSimpleName, node)
+    val type = of(classSimpleName, node)
+    return of(classSimpleName, node).apply {
+      if (!type.isVisibleFrom(classType)) {
+        throw MemberNotVisibleException(node, type, classType)
+      }
+    }
   }
 
   protected fun of(simpleName: String, node: TypeCstNode): JavaType {
