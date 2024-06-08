@@ -47,7 +47,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.tambapps.marcel.android.marshell.FilePickerActivity
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.Routes
@@ -133,7 +132,7 @@ fun ShellScreen(
         modifier = Modifier.weight(1f),
         shape = RoundedCornerShape(36.dp),
         placeholder = {
-          Text(text = "Type code", color = Color.Gray)
+          Text(text = viewModel.hint ?: "Type code", color = Color.Gray)
         },
         singleLine = singleLineInput,
         keyboardOptions = if (singleLineInput) KeyboardOptions(imeAction = ImeAction.Done) else KeyboardOptions.Default,

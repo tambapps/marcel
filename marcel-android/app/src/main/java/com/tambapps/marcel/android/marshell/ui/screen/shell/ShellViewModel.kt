@@ -40,6 +40,7 @@ class ShellViewModel @Inject constructor(
   var isEvaluating by mutableStateOf(false)
   val isShellReady get() = shellSession != null
   var singleLineInput by mutableStateOf(true)
+  var hint by mutableStateOf<String?>(null)
 
   val binding get() = shellSession?.binding
   val functions get() = shellSession?.functions
@@ -141,6 +142,7 @@ class ShellViewModel @Inject constructor(
       withContext(Dispatchers.Main) {
         isEvaluating = false
         prompts.add(prompt)
+        hint = binding?.getVariableOrNull<Any?>("_hint")?.toString()
       }
     }
   }

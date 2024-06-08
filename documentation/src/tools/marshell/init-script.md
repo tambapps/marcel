@@ -10,21 +10,25 @@ With the below script, transform Marshell into a file explorer, with shell-like 
 
 
 ```marcel
-pwd = System.getProperty("user.home") ? new File(System.getProperty("user.home"))
+String pwdDir = System.getProperty("user.dir") ?: System.getProperty("user.home")
+pwd = pwdDir ? new File(pwdDir)
     // for Marshell android compatibility
     : getVariable<File>('ROOT_DIR')
-
 if (pwd == null) {
   println("WARNING: Couldn't initialise properly pwd")
 }
+_hint = pwd
+
 
 fun File cd(String path) {
   File f = pwd.child(path)
   if (!f.exists()) throw new IllegalArgumentException("Directory $f doesn't exists")
   if (!f.isDirectory()) throw new IllegalArgumentException("File $f isn't a directory")
   pwd = f
+  _hint = pwd
   return f
 }
+
 
 fun File file(String path) -> pwd.child(path)
 

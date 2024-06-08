@@ -17,6 +17,10 @@ public class Binding {
   }
 
   @SuppressWarnings("unchecked")
+  public <T> T getVariableOrNull(String name) {
+    return (T) variables.get(name);
+  }
+
   public <T> T getVariable(String name) {
     if (!variables.containsKey(name)) {
       throw new NoSuchPropertyException(null, name);

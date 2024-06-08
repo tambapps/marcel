@@ -95,7 +95,8 @@ class Marshell(private val printer: PrintStream) {
   private fun readLine(linesBufferSize: Int): String? {
     println()
     return try {
-      reader.readLine(String.format("marshell:%03d> ", linesBufferSize))
+      val hint = binding.getVariableOrNull<Any?>("_hint")?.toString() ?: "marshell"
+      reader.readLine(String.format("$hint:%03d> ", linesBufferSize))
     } catch (e: UserInterruptException) {
       exit()
       null
