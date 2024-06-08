@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.ui.screen.ScriptEditorViewModel
+import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,20 +18,29 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import marcel.lang.MarcelDexClassLoader
 import java.io.File
 import javax.inject.Inject
+import javax.inject.Named
 
 @HiltViewModel
 class EditorViewModel @Inject constructor(
   shellSessionFactory: ShellSessionFactory,
-  file: File?
+  @Named("initScriptFile") initScriptFile: File,
+  compilerConfiguration: CompilerConfiguration,
+  file: File?,
 ): ViewModel(), ScriptEditorViewModel {
 
   override var scriptTextInput by mutableStateOf(TextFieldValue())
   override var scriptTextError by mutableStateOf<String?>(null)
   var file by mutableStateOf(file?.let { if (file.isFile || !file.exists()) file else null })
 
-  override val replCompiler = shellSessionFactory.newReplCompiler()
+  // provide a new context for init script because we're not supposed to be in a current session when running it
+  // need to compare with canonicalPath, otherwise it doesn't match (because we gave canonicalPath in SettingsScreen)
+  override val replCompiler = if (file?.canonicalPath == initScriptFile.canonicalPath) MarcelDexClassLoader().let { classLoader ->
+    MarcelReplCompiler(compilerConfiguration, classLoader, ReplMarcelSymbolResolver(classLoader))
+  }
+  else shellSessionFactory.newReplCompiler()
   private val highlighter = SpannableHighlighter(replCompiler)
   private val ioScope = CoroutineScope(Dispatchers.IO)
 
