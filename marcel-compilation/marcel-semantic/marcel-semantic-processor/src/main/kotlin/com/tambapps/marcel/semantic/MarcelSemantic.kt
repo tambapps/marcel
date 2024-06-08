@@ -273,26 +273,6 @@ open class MarcelSemantic(
       }
       val classType = symbolResolver.of(scriptCstNode.className)
       val scriptNode = classNode(classType, scriptCstNode)
-      // need the binding constructor. the no-arg constructor should have been added in the classNode() method
-      scriptNode.methods.add(SemanticHelper.scriptBindingConstructor(scriptNode, symbolResolver, scriptType))
-      useScope(ClassScope(symbolResolver, classType, null, imports)) {
-        // add the run method
-        val runMethod = SemanticHelper.scriptRunMethod(classType, cst)
-        fillMethodNode(
-          it,
-          runMethod,
-          scriptCstNode.runMethodStatements,
-          emptyList(),
-          scriptRunMethod = true,
-          isAsync = false
-        )
-        scriptNode.methods.add(runMethod)
-      }
-      scriptNode.innerClasses.forEach { innerClassNode ->
-        if (innerClassNode is LambdaClassNode) {
-          defineLambda(innerClassNode)
-        }
-      }
       moduleNode.classes.add(scriptNode)
     }
   }
@@ -385,6 +365,24 @@ open class MarcelSemantic(
         classNode.annotations.add(annotation)
         (classNode.type as? SourceJavaType)?.addAnnotation(annotation)
       }
+
+      if (node is ScriptCstNode) {
+        // need the binding constructor. the no-arg constructor should have been added in the classNode() method
+        classNode.methods.add(SemanticHelper.scriptBindingConstructor(classNode, symbolResolver, scriptType))
+        useScope(ClassScope(symbolResolver, classType, null, imports)) {
+          // add the run method
+          val runMethod = SemanticHelper.scriptRunMethod(classType, cst)
+          fillMethodNode(
+            it,
+            runMethod,
+            node.runMethodStatements,
+            emptyList(),
+            scriptRunMethod = true,
+            isAsync = false
+          )
+          classNode.methods.add(runMethod)
+        }
+      }
       // iterating with i because we might add methods while
       node.methods.forEach { classNode.methods.add(methodNode(classNode, it, classScope)) }
       val staticFieldInitialValueMap = mutableMapOf<FieldNode, ExpressionNode>()
@@ -435,6 +433,15 @@ open class MarcelSemantic(
           0,
           toFieldAssignmentStatements(classType, staticFieldInitialValueMap, true)
         )
+      }
+
+      if (node is ScriptCstNode) {
+        // need this to be at the end of this function
+        classNode.innerClasses.forEach { innerClassNode ->
+          if (innerClassNode is LambdaClassNode) {
+            defineLambda(innerClassNode)
+          }
+        }
       }
       return@useScope classNode
     }
