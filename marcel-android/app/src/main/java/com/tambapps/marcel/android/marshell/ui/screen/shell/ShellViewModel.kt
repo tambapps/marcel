@@ -2,6 +2,7 @@ package com.tambapps.marcel.android.marshell.ui.screen.shell
 
 import android.content.Context
 import android.net.Uri
+import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.getValue
@@ -150,6 +151,7 @@ class ShellViewModel @Inject constructor(
 
   private fun updatePrompt() {
     hint = binding?.getVariableOrNull<Any?>("_hint")?.toString()
+      ?.replace(Environment.getExternalStorageDirectory().path, "~")
   }
   override fun highlight(text: CharSequence) = highlighter?.highlight(text) ?: AnnotatedString(text.toString())
 
