@@ -13,7 +13,7 @@ abstract class AbstractHighlighter<HighlightedString, Builder, Style> constructo
   private val replCompiler: MarcelReplCompiler
 ) {
 
-  private val lexer = MarcelLexer(false)
+  private val lexer = MarcelLexer()
   
   abstract val variableStyle: Style
   abstract val functionStyle: Style

@@ -30,7 +30,7 @@ class MarcelReplCompiler constructor(
 ) {
 
   val imports = MutableImportResolver.empty()
-  private val lexer = MarcelLexer(false)
+  private val lexer = MarcelLexer()
   private val _definedFunctions = mutableSetOf<com.tambapps.marcel.parser.cst.MethodCstNode>()
   val definedFunctions: Set<com.tambapps.marcel.parser.cst.MethodCstNode> get() = _definedFunctions
   private val _definedTypes = mutableSetOf<JavaType>()

@@ -3,10 +3,9 @@ package com.tambapps.marcel.lexer
 /**
  * Marcel lexer
  *
- * @property ignoreWhitespaces
- * @constructor Create empty Marcel lexer
+ * @constructor Create Marcel lexer instance
  */
-class MarcelLexer @JvmOverloads constructor(private val ignoreWhitespaces: Boolean = true) {
+class MarcelLexer {
 
   companion object {
     private val COMMENT_TOKENS: List<TokenType> = listOf(
@@ -44,9 +43,7 @@ class MarcelLexer @JvmOverloads constructor(private val ignoreWhitespaces: Boole
       if (token.type == TokenType.BAD_CHARACTER) {
         throw MarcelLexerException(token.line, token.column, "Bad character " + token.value)
       }
-      if (!ignoreWhitespaces || token.type != TokenType.WHITE_SPACE) {
-        tokens.add(token)
-      }
+      tokens.add(token)
     }
     tokens.add(
       LexToken(
