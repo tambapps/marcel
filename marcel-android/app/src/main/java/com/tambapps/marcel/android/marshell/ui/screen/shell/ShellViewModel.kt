@@ -63,6 +63,7 @@ class ShellViewModel @Inject constructor(
           sessionResult.getOrThrow().let {
             shellSession = it
             highlighter = it.newHighlighter()
+            updatePrompt()
           }
         } else {
           Toast.makeText(
@@ -142,11 +143,14 @@ class ShellViewModel @Inject constructor(
       withContext(Dispatchers.Main) {
         isEvaluating = false
         prompts.add(prompt)
-        hint = binding?.getVariableOrNull<Any?>("_hint")?.toString()
+        updatePrompt()
       }
     }
   }
 
+  private fun updatePrompt() {
+    hint = binding?.getVariableOrNull<Any?>("_hint")?.toString()
+  }
   override fun highlight(text: CharSequence) = highlighter?.highlight(text) ?: AnnotatedString(text.toString())
 
   fun loadScript(context: Context, file: File?) {
