@@ -24,6 +24,8 @@
 -keep class java.** { *; }
 # Needed in order for xml parsing to work
 -keep class javax.xml.** { *; }
+-keep class org.w3c.** { *; }
+-dontwarn org.w3c.**
 
 # Marcel stuff
 -keep class marcel.** { *; }

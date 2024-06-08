@@ -19,7 +19,7 @@ android {
     applicationId = "com.tambapps.marcel.android.marshell"
     minSdk = 30
     targetSdk = 34
-    versionCode = 5
+    versionCode = 7
     versionName = "1.0.1"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -30,8 +30,7 @@ android {
 
   buildTypes {
     release {
-      // disabling it even for prod because marcel can use reflection
-      isMinifyEnabled = false
+      isMinifyEnabled = true
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
     }
     debug {
