@@ -2,7 +2,7 @@
 
 Marcel comes with
 - [marcl](../tools/marcl.md)
-- [marshell](../tools/marshell.md)
+- [marshell](../tools/marshell/index)
 - [dumbbell](../tools/dumbbell.md)
 
 For now, the only way to install Marcel is compiling it from its source code.

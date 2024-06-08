@@ -10,3 +10,6 @@ With this app you can
 - Schedule Shell Works, a concept allowing you to run Marcel scripts in the background, with the possibility to schedules the works
 and make them periodic.
 
+## Initialization scripts
+
+You can also use [Marshell's initialization scripts](./marshell/init-script.md) to enhance your experience.

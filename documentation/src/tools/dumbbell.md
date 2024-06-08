@@ -27,7 +27,7 @@ Dependencies are pulled from Maven central. The list of repository to pull from 
 Note that this feature **only works when running scripts with [MarCL](./marcl.md)**.
 
 ## Import dependencies in Marshell
-Dumbbell is also used in [Marshell](./marshell.md). Use the `:pull` command to pull 
+Dumbbell is also used in [Marshell](marshell/index.md). Use the `:pull` command to pull 
 dependencies dynamically.
 
 

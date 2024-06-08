@@ -8,7 +8,7 @@ It is the equivalent of [groovysh](https://groovy-lang.org/groovysh.html) for Ma
 This shell supports syntax highlighting and also highlights defined functions/variables.
 
 ## Global variables
-In marshell, you can't have [class fields](../language-specification/source-file-structure/script.md#fields), **but** you can use global variables.
+In marshell, you can't have [class fields](../../language-specification/source-file-structure/script.md#fields), **but** you can use global variables.
 To declare a global variable, just assign to a variable a value, without specifying its type
 
 ```marcel
@@ -42,6 +42,7 @@ retrieve them/set them using methods like `Script.getVariable(name)`/`Script.set
 ## Define functions
 
 Define functions as you would in a Marcel script
+
 ## Define classes
 
 Define classes as you would in a Marcel script. All defined classes are top-level classes (they
