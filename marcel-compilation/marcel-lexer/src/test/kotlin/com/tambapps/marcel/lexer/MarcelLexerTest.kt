@@ -33,8 +33,11 @@ class MarcelLexerTest {
     Assertions.assertEquals(
       Arrays.asList(
         token(TokenType.TYPE_INT, "int"),
+        whitespace(),
         token(TokenType.IDENTIFIER, "myInt"),
+        whitespace(),
         token(TokenType.ASSIGNMENT),
+        whitespace(),
         token(TokenType.INTEGER, "898"),
         token(TokenType.END_OF_FILE)
       ),
@@ -47,8 +50,11 @@ class MarcelLexerTest {
     Assertions.assertEquals(
       Arrays.asList(
         token(TokenType.TYPE_BOOL, "bool"),
+        whitespace(),
         token(TokenType.IDENTIFIER, "myBool"),
+        whitespace(),
         token(TokenType.ASSIGNMENT),
+        whitespace(),
         token(TokenType.VALUE_TRUE),
         token(TokenType.END_OF_FILE)
       ),
@@ -82,12 +88,16 @@ class MarcelLexerTest {
     Assertions.assertEquals(
       Arrays.asList(
         token(TokenType.TYPE_INT, "int"),
+        whitespace(),
         token(TokenType.IDENTIFIER, "a"),
+        whitespace(),
         token(TokenType.ASSIGNMENT),
+        whitespace(),
         token(TokenType.IDENTIFIER, "foo"),
         token(TokenType.LPAR),
         token(TokenType.IDENTIFIER, "bar"),
         token(TokenType.COMMA),
+        whitespace(),
         token(TokenType.INTEGER, "2"),
         token(TokenType.RPAR),
         token(TokenType.END_OF_FILE)
@@ -101,19 +111,29 @@ class MarcelLexerTest {
     Assertions.assertEquals(
       Arrays.asList(
         token(TokenType.FUN),
+        whitespace(),
         token(TokenType.IDENTIFIER, "sum"),
         token(TokenType.LPAR),
         token(TokenType.TYPE_INT, "int"),
+        whitespace(),
         token(TokenType.IDENTIFIER, "a"),
         token(TokenType.COMMA),
+        whitespace(),
         token(TokenType.TYPE_INT, "int"),
+        whitespace(),
         token(TokenType.IDENTIFIER, "b"),
         token(TokenType.RPAR),
+        whitespace(),
         token(TokenType.BRACKETS_OPEN),
+        whitespace(),
         token(TokenType.RETURN),
+        whitespace(),
         token(TokenType.IDENTIFIER, "a"),
+        whitespace(),
         token(TokenType.PLUS),
+        whitespace(),
         token(TokenType.IDENTIFIER, "b"),
+        whitespace(),
         token(TokenType.BRACKETS_CLOSE),
         token(TokenType.END_OF_FILE)
       ), tokens
@@ -140,9 +160,13 @@ class MarcelLexerTest {
     Assertions.assertEquals(
       Arrays.asList(
         token(TokenType.INTEGER, "1"),
+        whitespace(),
         token(TokenType.DIV),
+        whitespace(),
         token(TokenType.IDENTIFIER, "a"),
+        whitespace(),
         token(TokenType.DIV),
+        whitespace(),
         token(TokenType.INTEGER, "2"),
         token(TokenType.END_OF_FILE)
       ), lexer!!.lex("1 / a / 2")
@@ -174,4 +198,5 @@ class MarcelLexerTest {
   private fun token(type: TokenType, value: String? = null): LexToken {
     return LexToken(0, 0, 0, 0, type, value)
   }
+  private fun whitespace() = token(TokenType.WHITE_SPACE)
 }
