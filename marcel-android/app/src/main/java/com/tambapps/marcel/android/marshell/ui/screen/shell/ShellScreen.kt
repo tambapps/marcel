@@ -132,6 +132,9 @@ fun ShellScreen(
         textStyle = MaterialTheme.typography.shellTextStyle,
         modifier = Modifier.weight(1f),
         shape = RoundedCornerShape(36.dp),
+        placeholder = {
+          Text(text = "Type code", color = Color.Gray)
+        },
         singleLine = singleLineInput,
         keyboardOptions = if (singleLineInput) KeyboardOptions(imeAction = ImeAction.Done) else KeyboardOptions.Default,
         keyboardActions = if (singleLineInput) KeyboardActions(
