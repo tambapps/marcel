@@ -1,6 +1,7 @@
 package com.tambapps.marcel.parser
 
 import com.tambapps.marcel.lexer.LexToken
+import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.ParserUtils.UNARY_PRIORITY
 import com.tambapps.marcel.parser.cst.AbstractMethodCstNode
@@ -86,7 +87,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
 
   constructor(tokens: List<LexToken>): this("MarcelRandomClass_" + abs(ThreadLocalRandom.current().nextInt()), tokens)
 
-  private val tokens = tokens.filter { it.type != TokenType.WHITE_SPACE }
+  private val tokens = tokens.filter { it.type != TokenType.WHITE_SPACE && !MarcelLexer.isCommentToken(it) }
 
   private var currentIndex = 0
 

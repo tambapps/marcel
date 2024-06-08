@@ -21,6 +21,11 @@ class HighlighterTest {
     fun test() = listOf(
       Arguments.of("a = 1"),
       Arguments.of("&"),
+      Arguments.of("""
+        |a = 1
+        | // some comment
+        |b = 2
+      """.trimMargin()),
     )
   }
 

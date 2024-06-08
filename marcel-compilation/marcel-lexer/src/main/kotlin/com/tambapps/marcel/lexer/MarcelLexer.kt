@@ -12,6 +12,8 @@ class MarcelLexer @JvmOverloads constructor(private val ignoreWhitespaces: Boole
     private val COMMENT_TOKENS: List<TokenType> = listOf(
       TokenType.BLOCK_COMMENT, TokenType.DOC_COMMENT, TokenType.HASH, TokenType.SHEBANG_COMMENT, TokenType.EOL_COMMENT
     )
+
+    fun isCommentToken(token: LexToken) = COMMENT_TOKENS.contains(token.type)
   }
 
   /**
@@ -42,7 +44,7 @@ class MarcelLexer @JvmOverloads constructor(private val ignoreWhitespaces: Boole
       if (token.type == TokenType.BAD_CHARACTER) {
         throw MarcelLexerException(token.line, token.column, "Bad character " + token.value)
       }
-      if (!COMMENT_TOKENS.contains(token.type) && (!ignoreWhitespaces || token.type != TokenType.WHITE_SPACE)) {
+      if (!ignoreWhitespaces || token.type != TokenType.WHITE_SPACE) {
         tokens.add(token)
       }
     }
