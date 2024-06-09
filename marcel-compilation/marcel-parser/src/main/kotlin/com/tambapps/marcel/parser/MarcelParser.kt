@@ -10,6 +10,7 @@ import com.tambapps.marcel.parser.cst.ClassCstNode
 import com.tambapps.marcel.parser.cst.ConstructorCstNode
 import com.tambapps.marcel.parser.cst.AccessCstNode
 import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.parser.cst.EnumCstNode
 import com.tambapps.marcel.parser.cst.FieldCstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
@@ -172,6 +173,8 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         is MethodCstNode -> classNode.methods.add(method)
         is ConstructorCstNode -> classNode.constructors.add(method)
       }
+    } else if (current.type == TokenType.ENUM) {
+      classNode.innerClasses.add(parseEnum(sourceFile, packageName, parentNode, annotations, access, outerClassNode))
     } else if (classNode is ScriptCstNode) {
       if (annotations.isNotEmpty() || access.isExplicit) {
         // class fields in script always have access specified, or annotations
@@ -310,6 +313,38 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     }
     accept(TokenType.BRACKETS_CLOSE)
     return classNode
+  }
+
+  private fun parseEnum(
+    sourceFile: SourceFileCstNode,
+    packageName: String?, parentNode: CstNode?, annotations: List<AnnotationCstNode>,
+    access: AccessCstNode,
+    outerClassNode: ClassCstNode? = null
+  ): EnumCstNode {
+    val classToken = accept(TokenType.ENUM)
+    val classSimpleName = accept(TokenType.IDENTIFIER).value
+    val className =
+      if (outerClassNode != null) "${outerClassNode.className}\$$classSimpleName"
+      else if (packageName != null) "$packageName.$classSimpleName"
+      else classSimpleName
+
+    val interfaces = mutableListOf<TypeCstNode>()
+    if (acceptOptional(TokenType.IMPLEMENTS) != null) {
+      while (current.type == TokenType.IDENTIFIER) {
+        interfaces.add(parseType(parentNode))
+        acceptOptional(TokenType.COMMA)
+      }
+    }
+    accept(TokenType.BRACKETS_OPEN)
+
+    val names = mutableListOf<String>()
+    while (current.type == TokenType.IDENTIFIER) {
+      names.add(accept(TokenType.IDENTIFIER).value)
+      acceptOptional(TokenType.COMMA)
+    }
+
+    accept(TokenType.BRACKETS_CLOSE)
+    return EnumCstNode(sourceFile, classToken, previous, access, className, names)
   }
 
   fun method(parentNode: ClassCstNode, annotations: List<AnnotationCstNode>, access: AccessCstNode): AbstractMethodCstNode {

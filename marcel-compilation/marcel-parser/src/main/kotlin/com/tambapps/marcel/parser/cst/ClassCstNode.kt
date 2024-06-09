@@ -3,7 +3,7 @@ package com.tambapps.marcel.parser.cst
 import com.tambapps.marcel.lexer.LexToken
 
 open class ClassCstNode constructor(
-  val parentSourceFileNode: SourceFileCstNode,
+  parentSourceFileNode: SourceFileCstNode,
   tokenStart: LexToken,
   tokenEnd: LexToken,
   val access: AccessCstNode,
@@ -12,6 +12,9 @@ open class ClassCstNode constructor(
   val interfaces: List<TypeCstNode>,
   val forExtensionType: TypeCstNode?,
 ) : AbstractCstNode(parentSourceFileNode, tokenStart, tokenEnd) {
+
+  override val parent: SourceFileCstNode
+    get() = super.parent as SourceFileCstNode
 
   val isExtensionClass: Boolean get() = forExtensionType != null
 

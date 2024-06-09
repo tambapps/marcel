@@ -302,6 +302,7 @@ LONELY_BACKTICK=`
 "bool"          { return valueToken(TYPE_BOOL); }
 "char"          { return valueToken(TYPE_CHAR); }
 "def"          { return token(DEF); }
+"enum"          { return token(ENUM); }
 "public"          { return token(VISIBILITY_PUBLIC); }
 "protected"          { return token(VISIBILITY_PROTECTED); }
 "internal"          { return token(VISIBILITY_INTERNAL); }

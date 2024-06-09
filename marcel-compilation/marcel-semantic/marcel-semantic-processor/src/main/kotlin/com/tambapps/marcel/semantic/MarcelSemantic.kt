@@ -7,6 +7,7 @@ import com.tambapps.marcel.parser.cst.AnnotationCstNode as AnnotationCstNode
 import com.tambapps.marcel.parser.cst.ClassCstNode as ClassCstNode
 import com.tambapps.marcel.parser.cst.ConstructorCstNode as ConstructorCstNode
 import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.parser.cst.EnumCstNode
 import com.tambapps.marcel.parser.cst.expression.AllInCstNode
 import com.tambapps.marcel.parser.cst.expression.AnyInCstNode
 import com.tambapps.marcel.parser.cst.expression.MapFilterCstNode
@@ -323,6 +324,7 @@ open class MarcelSemantic(
 
   private fun classNode(classType: JavaType, node: ClassCstNode): ClassNode =
     useScope(ClassScope(symbolResolver, classType, node.forExtensionType?.let(this::resolve), imports)) { classScope ->
+      if (node is EnumCstNode) TODO("Doesn't handle enums yet")
       val classNode = ClassNode(
         classType, Visibility.fromTokenType(node.access.visibility),
         classScope.forExtensionType,
