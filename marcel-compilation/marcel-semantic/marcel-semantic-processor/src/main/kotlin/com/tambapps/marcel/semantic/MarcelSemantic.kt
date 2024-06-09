@@ -283,7 +283,11 @@ open class MarcelSemantic(
     val interfaces = classCstNode.interfaces.map { resolve(it) }
     val classType = symbolResolver.defineType(
       classCstNode.tokenStart, Visibility.fromTokenType(classCstNode.access.visibility),
-      classCstNode.className, superType, false, interfaces
+      classCstNode.className, superType,
+      // don't support interfaces for now
+      isInterface = false, interfaces,
+      isScript = classCstNode is ScriptCstNode,
+      isEnum = classCstNode is EnumCstNode
     )
     defineClassMembers(classCstNode, classType)
   }
@@ -324,12 +328,12 @@ open class MarcelSemantic(
 
   private fun classNode(classType: JavaType, node: ClassCstNode): ClassNode =
     useScope(ClassScope(symbolResolver, classType, node.forExtensionType?.let(this::resolve), imports)) { classScope ->
-      if (node is EnumCstNode) TODO("Doesn't handle enums yet")
       val classNode = ClassNode(
         classType, Visibility.fromTokenType(node.access.visibility),
         classScope.forExtensionType,
         isStatic = classType.outerTypeName != null && node.access.isStatic,
         isScript = node is ScriptCstNode,
+        isEnum = node is EnumCstNode,
         fileName = fileName,
         cst.tokenStart, cst.tokenEnd
       )
@@ -356,7 +360,7 @@ open class MarcelSemantic(
         // default no arg constructor
         val noArgConstructor = SemanticHelper.noArgConstructor(
           classNode, symbolResolver,
-          visibility = if (classNode.isExtensionClass) Visibility.PRIVATE else Visibility.PUBLIC
+          visibility = if (classNode.isExtensionClass || classNode.isEnum) Visibility.PRIVATE else Visibility.PUBLIC
         )
         classNode.methods.add(noArgConstructor)
         symbolResolver.defineMethod(classType, noArgConstructor)
@@ -368,26 +372,37 @@ open class MarcelSemantic(
         (classNode.type as? SourceJavaType)?.addAnnotation(annotation)
       }
 
+      // will be used later but needs to be declared here because of enums
+      val staticFieldInitialValueMap = mutableMapOf<FieldNode, ExpressionNode>()
       if (node is ScriptCstNode) {
         // need the binding constructor. the no-arg constructor should have been added in the classNode() method
         classNode.methods.add(SemanticHelper.scriptBindingConstructor(classNode, symbolResolver, scriptType))
-        useScope(ClassScope(symbolResolver, classType, null, imports)) {
-          // add the run method
-          val runMethod = SemanticHelper.scriptRunMethod(classType, cst)
-          fillMethodNode(
-            it,
-            runMethod,
-            node.runMethodStatements,
-            emptyList(),
-            scriptRunMethod = true,
-            isAsync = false
-          )
-          classNode.methods.add(runMethod)
+        // add the run method
+        val runMethod = SemanticHelper.scriptRunMethod(classType, cst)
+        fillMethodNode(
+          classScope,
+          runMethod,
+          node.runMethodStatements,
+          emptyList(),
+          scriptRunMethod = true,
+          isAsync = false
+        )
+        classNode.methods.add(runMethod)
+      } else if (node is EnumCstNode) {
+        // create static fields
+        node.names.forEachIndexed { index, name ->
+          val enumConstructor = classNode.constructors.first() // doesn't support declaring constructors for enums so we can just assume there is only one, the default one
+          val fieldNode = FieldNode(classType, name, classType, emptyList(), isFinal = true, Visibility.PUBLIC, isStatic = true, classNode.tokenStart, classNode.tokenEnd)
+          classNode.fields.add(fieldNode)
+          staticFieldInitialValueMap[fieldNode] = NewInstanceNode(classType, enumConstructor, listOf(StringConstantNode(name, node), IntConstantNode(node.token, index)), node.token)
         }
+
+        // TODO add values() method and valueOf
+        // TODO default constructor of enum should not be a noArg. It should have a name and ordinal argument and should call super(String name, int ordinal)
+        TODO("Doesn't handle enums yet")
       }
       // iterating with i because we might add methods while
       node.methods.forEach { classNode.methods.add(methodNode(classNode, it, classScope)) }
-      val staticFieldInitialValueMap = mutableMapOf<FieldNode, ExpressionNode>()
       val fieldInitialValueMap = mutableMapOf<FieldNode, ExpressionNode>()
       node.fields.forEach { cstFieldNode ->
         val fieldNode = FieldNode(

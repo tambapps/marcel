@@ -2,11 +2,13 @@ package com.tambapps.marcel.semantic.symbol
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.ClassCstNode
+import com.tambapps.marcel.parser.cst.EnumCstNode
 import com.tambapps.marcel.parser.cst.ScriptCstNode
 import com.tambapps.marcel.semantic.MarcelSemantic
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.exception.MemberNotVisibleException
+import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.SourceJavaType
 
@@ -98,13 +100,19 @@ interface SymbolDefinerTrait {
     classNode: ClassCstNode,
     toDefineTypes: MutableList<Triple<MarcelSemantic, ClassCstNode, SourceJavaType>>
   ) {
+    val isEnum = classNode is EnumCstNode
     val classType = SourceJavaType(
       visibility = Visibility.fromTokenType(classNode.access.visibility),
       className = classNode.className,
       genericTypes = emptyList(),
       superType = null, // will be set later
-      isInterface = false, directlyImplementedInterfaces = mutableSetOf(), isScript = classNode is ScriptCstNode
+      isInterface = false, directlyImplementedInterfaces = mutableSetOf(),
+      isScript = classNode is ScriptCstNode,
+      isEnum = isEnum
     )
+    if (isEnum) {
+      classType.superType = java.lang.Enum::class.javaType.withGenericTypes(classType)
+    }
     defineType(classNode.token, classType)
     toDefineTypes.add(Triple(s, classNode, classType))
     classNode.innerClasses.forEach { predefineTypes(s, it, toDefineTypes) }

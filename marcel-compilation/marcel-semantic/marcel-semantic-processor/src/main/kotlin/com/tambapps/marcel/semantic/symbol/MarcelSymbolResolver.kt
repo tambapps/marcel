@@ -120,9 +120,10 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     superClass: JavaType,
     isInterface: Boolean,
     interfaces: List<JavaType>,
-    isScript: Boolean = false
+    isScript: Boolean = false,
+    isEnum: Boolean = false,
   ): SourceJavaType {
-    return defineType(token, visibility, null, className, superClass, isInterface, interfaces, isScript)
+    return defineType(token, visibility, null, className, superClass, isInterface, interfaces, isScript, isEnum)
   }
 
   fun defineType(
@@ -133,7 +134,8 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     superClass: JavaType,
     isInterface: Boolean,
     interfaces: List<JavaType>,
-    isScript: Boolean = false
+    isScript: Boolean = false,
+    isEnum: Boolean = false,
   ): SourceJavaType {
     val className = if (outerClassType != null) "${outerClassType.className}\$$cName" else cName
     checkTypeAlreadyDefined(token, className)
@@ -144,7 +146,8 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
       superClass,
       isInterface,
       interfaces.toMutableSet(),
-      isScript = isScript
+      isScript = isScript,
+      isEnum = isEnum
     )
     _definedTypes[className] = type
     return type

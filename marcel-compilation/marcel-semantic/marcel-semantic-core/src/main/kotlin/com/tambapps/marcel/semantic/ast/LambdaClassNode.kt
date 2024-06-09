@@ -22,6 +22,7 @@ class LambdaClassNode(
   null,
   isStatic = isStatic,
   isScript = false,
+  isEnum = false,
   fileName,
   cstNode.tokenStart,
   cstNode.tokenEnd

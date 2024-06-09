@@ -341,6 +341,7 @@ abstract class MarcelBaseSemantic {
       forExtensionType = null,
       isStatic = outerClassNode.isStatic,
       isScript = false,
+      isEnum = false,
       fileName = outerClassNode.fileName,
       tokenStart,
       tokenEnd

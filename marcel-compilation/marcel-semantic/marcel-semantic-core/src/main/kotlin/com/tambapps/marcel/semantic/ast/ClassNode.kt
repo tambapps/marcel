@@ -11,6 +11,7 @@ open class ClassNode(
   val forExtensionType: JavaType?, // if the class is an extension class
   val isStatic: Boolean,
   val isScript: Boolean,
+  val isEnum: Boolean,
   val fileName: String,
   tokenStart: LexToken, tokenEnd: LexToken
 ) : AbstractAstNode(tokenStart, tokenEnd), JavaTyped {
