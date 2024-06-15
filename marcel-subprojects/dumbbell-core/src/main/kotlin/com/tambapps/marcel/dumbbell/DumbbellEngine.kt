@@ -14,6 +14,13 @@ import java.util.stream.Collectors
 class DumbbellEngine(val repository: RemoteSavingMavenRepository) {
   constructor(dumbbellRoot: File?) : this(RemoteSavingMavenRepository(dumbbellRoot, RemoteRepositoryStorage()))
 
+  private companion object {
+    val EXCLUDED_ARTIFACTS = setOf(
+      Artifact("org.jetbrains.kotlin", "kotlin-stdlib", "*"),
+      Artifact("org.jetbrains.kotlin", "kotlin-stdlib-common", "*"),
+      Artifact("com.tambapps.marcel", "marcel-stdlib", "*"),
+    )
+  }
 
   @Throws(DumbbellException::class)
   fun pull(endorsedModule: String?): List<PulledArtifact> {
@@ -34,12 +41,7 @@ class DumbbellEngine(val repository: RemoteSavingMavenRepository) {
   @Throws(DumbbellException::class)
   fun pull(groupId: String, artifactId: String, version: String): List<PulledArtifact> {
     val resolver = DependencyResolver(repository)
-    resolver.excludedArtifacts = HashSet(
-      Arrays.asList(
-        Artifact("org.jetbrains.kotlin", "kotlin-stdlib", "*"),
-        Artifact("org.jetbrains.kotlin", "kotlin-stdlib-common", "*")
-      )
-    )
+    resolver.excludedArtifacts = EXCLUDED_ARTIFACTS.toMutableSet()
     try {
       resolver.resolve(groupId, artifactId, version)
     } catch (e: IOException) {
