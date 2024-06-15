@@ -38,13 +38,13 @@ private fun foo() {
 ```
 
 ## Function Calls
-Function calls are no different than  in any other language
+Function calls are no different from in any other language
 
 ```marcel
 int result = sum(1, 2)
 ```
 
-## Cast Results
+### Cast Results
 Marcel has a diamond operator for function calls which is different from Java's. It casts the 
 result of the function to the specified type.
 
@@ -62,7 +62,7 @@ Bar result = opt.get<Foo>().computeObject<Bar>()
 But note that this is useless if the function/property already returns the specified type in their declaration.
 
 ### Named Parameters Call
-You can also specify the name of your parameters. When doing so, the order in which
+You can also call a function by specifying its parameters by name. When doing so, the order in which
 you specify them doesn't matter.
 
 Such calls can also start with positional arguments.
@@ -73,9 +73,7 @@ int result = sum(b: 2, a: 1) // equivalent to sum(1, 2)
 int otherResult = sum(1, b: 0) // equivalent to sum(1, 0)
 ```
 
-#### Named parameters constructor calls
-Named parameters also works with constructors. It will find a constructor having the given parameters.
-
+It works the same with constructors.
 Here are some examples below.
 
 ```marcel
@@ -97,7 +95,6 @@ C c = new C(b: 2, a: 1) // will call new C(a, b)
 
 ```marcel
 int result = sum(2, b: 1) // equivalent to sum(2, 1)
-
 
 int otherResult = sum(a: 2, 1) // ERROR, positional argument is not at the start 
 ```
@@ -122,3 +119,14 @@ You can specify any expression from a static context (this means you can't call/
 
 These default parameter values are kept after compilation so you can also benefit them from other Marcel libraries.
 
+
+## Optional parenthesis
+When calling a function with at least one parameter, you can omit the parenthesis.
+
+Here are some examples
+```marcel
+int result = sum 1, 2
+println result
+
+doSomethingWithAnIntAndALambda 1, { /* my lambda */ }
+```

@@ -152,9 +152,13 @@ class MarcelParserTest {
         )
     }
 
-    @Test
-    fun testFunctionCallWithLambdaArg() {
-        val parser = parser("assertThrows(ErrorResponseException.class) { ->\n}")
+    @ParameterizedTest
+    @ValueSource(strings = [
+        "assertThrows(ErrorResponseException.class) { ->\n}",
+        "assertThrows ErrorResponseException.class \n{ ->\n}" // without parenthesis
+    ]) // six numbers
+    fun testFunctionCallWithLambdaArg(source: String) {
+        val parser = parser(source)
         val fCall = parser.expression(null)
         assertTrue(fCall is FunctionCallCstNode)
         fCall as FunctionCallCstNode
@@ -259,17 +263,34 @@ class MarcelParserTest {
             , parser("a(1, 2f, b)").statement())
 
     }
-    @Test
-    fun testFunctionCall() {
+
+    @ParameterizedTest
+    @ValueSource(strings = ["a(1, 2f, b)", "a 1, 2f, b"])
+    fun testFunctionCall1(source: String) {
         assertEquals(
             fCall(value = "a", positionalArgumentNodes = listOf(int(1), float(2f), ref("b")),)
-            , parser("a(1, 2f, b)").atom())
+            , parser(source).expression())
+    }
+
+    @Test
+    fun testFunctionCall2() {
         assertEquals(
             fCall(value = "zoo", castType = type("float"),
                 namedArgumentNodes = listOf(Pair("foo", int(123)), Pair("bar", double(23.0))),)
-            , parser("zoo<float>(foo: 123, bar: 23d)").atom())
+            , parser("zoo<float>(foo: 123, bar: 23d)").expression())
+    }
 
-        assertNotEquals(fCall(value = "a"), parser("a(1, 2f, b)").atom())
+    @Test
+    fun testFunctionCall2WithoutParenthesis() { // no cast type here
+        assertEquals(
+            fCall(value = "zoo", namedArgumentNodes = listOf(Pair("foo", int(123)), Pair("bar", double(23.0))),)
+            , parser("zoo foo: 123, bar: 23d").expression())
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["a(1, 2f, b)", "a 1, 2f, b"])
+    fun testFunctionCall3(source: String) { // testing the equals method
+        assertNotEquals(fCall(value = "a"), parser(source).expression())
     }
 
     @Test
