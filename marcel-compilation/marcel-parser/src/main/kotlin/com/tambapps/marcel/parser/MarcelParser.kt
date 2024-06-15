@@ -88,7 +88,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
 
   constructor(tokens: List<LexToken>): this("MarcelRandomClass_" + abs(ThreadLocalRandom.current().nextInt()), tokens)
 
-  private val tokens = tokens.filter { it.type != TokenType.WHITESPACE && !MarcelLexer.isCommentToken(it) }
+  private val tokens = tokens.filter { it.type != TokenType.WHITESPACE && it.type != TokenType.LINE_RETURN && !MarcelLexer.isCommentToken(it) }
 
   private var currentIndex = 0
 

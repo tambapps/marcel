@@ -107,9 +107,9 @@ class MarcelLexerTest {
 
   @Test
   fun testFunctionDefinition() {
-    val tokens = lexer!!.lex("fun sum(int a, int b) { return a + b }")
+    val tokens = lexer!!.lex("fun sum(int a, int b) {\nreturn a + b\n}")
     Assertions.assertEquals(
-      Arrays.asList(
+      listOf(
         token(TokenType.FUN),
         whitespace(),
         token(TokenType.IDENTIFIER, "sum"),
@@ -125,7 +125,7 @@ class MarcelLexerTest {
         token(TokenType.RPAR),
         whitespace(),
         token(TokenType.BRACKETS_OPEN),
-        whitespace(),
+        lineReturn(),
         token(TokenType.RETURN),
         whitespace(),
         token(TokenType.IDENTIFIER, "a"),
@@ -133,7 +133,7 @@ class MarcelLexerTest {
         token(TokenType.PLUS),
         whitespace(),
         token(TokenType.IDENTIFIER, "b"),
-        whitespace(),
+        lineReturn(),
         token(TokenType.BRACKETS_CLOSE),
         token(TokenType.END_OF_FILE)
       ), tokens
@@ -199,4 +199,5 @@ class MarcelLexerTest {
     return LexToken(0, 0, 0, 0, type, value)
   }
   private fun whitespace() = token(TokenType.WHITESPACE)
+  private fun lineReturn() = token(TokenType.LINE_RETURN)
 }
