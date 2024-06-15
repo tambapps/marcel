@@ -1,8 +1,6 @@
 package com.tambapps.marcel.lexer;
 import static com.tambapps.marcel.lexer.TokenType.*;
 import java.util.Stack;
-import java.io.IOException;
-import java.io.StringReader;
 
 /**
   * Marcel lang lexer
@@ -274,7 +272,7 @@ LONELY_BACKTICK=`
     [\s\S] {}
 }
 
-({WHITE_SPACE_CHAR})+ { return token(WHITE_SPACE); }
+({WHITE_SPACE_CHAR})+ { return token(WHITESPACE); }
 
 {EOL_COMMENT} { return token(TokenType.EOL_COMMENT); }
 {SHEBANG_COMMENT} {

@@ -3,8 +3,6 @@
 package com.tambapps.marcel.lexer;
 import static com.tambapps.marcel.lexer.TokenType.*;
 import java.util.Stack;
-import java.io.IOException;
-import java.io.StringReader;
 
 /**
   * Marcel lang lexer
@@ -1205,7 +1203,7 @@ public class MarcelJflexer {
             // fall through
           case 137: break;
           case 4: 
-            { return token(WHITE_SPACE);
+            { return token(WHITESPACE);
             } 
             // fall through
           case 138: break;

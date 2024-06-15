@@ -198,5 +198,5 @@ class MarcelLexerTest {
   private fun token(type: TokenType, value: String? = null): LexToken {
     return LexToken(0, 0, 0, 0, type, value)
   }
-  private fun whitespace() = token(TokenType.WHITE_SPACE)
+  private fun whitespace() = token(TokenType.WHITESPACE)
 }
