@@ -9,7 +9,6 @@ import java.io.File
 
 interface ScriptEditorViewModel: HighlightTransformation {
   val replCompiler: MarcelReplCompiler
-  var scriptTextInput: TextFieldValue
   var scriptTextError: String?
 
   fun loadScript(context: Context, file: File?) {
@@ -31,7 +30,7 @@ interface ScriptEditorViewModel: HighlightTransformation {
     if (scriptTextError != null && scriptTextInput.text != text.text) {
       scriptTextError = null
     }
-    scriptTextInput = text
+    scriptTextInput = completedInput(text)
   }
 
   fun validateScriptText(): Boolean {

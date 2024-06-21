@@ -118,15 +118,15 @@ fun ShellScreen(
     Row(verticalAlignment = Alignment.CenterVertically) {
       val onPrompt: () -> Unit = {
         // when we get the annotatedString here, it is not highlighted yet. So we have to
-        val input = viewModel.highlight(viewModel.textInput.annotatedString)
+        val input = viewModel.highlight(viewModel.scriptTextInput.annotatedString)
         if (input.isNotBlank()) {
           viewModel.prompt(input)
         }
       }
       val singleLineInput = viewModel.singleLineInput
       OutlinedTextField(
-        value = viewModel.textInput,
-        onValueChange = { viewModel.textInput = it },
+        value = viewModel.scriptTextInput,
+        onValueChange = viewModel::onScriptTextChange,
         visualTransformation = viewModel,
         textStyle = MaterialTheme.typography.shellTextStyle,
         modifier = Modifier.weight(1f),
@@ -366,7 +366,7 @@ private class OnPromptButtonClick(
 
   private var lastClickTimestamp = 0L
   override fun invoke() {
-    if (viewModel.textInput.annotatedString.isEmpty()) {
+    if (viewModel.scriptTextInput.annotatedString.isEmpty()) {
       val now = System.currentTimeMillis()
       if (now - lastClickTimestamp < 500L) {
         viewModel.singleLineInput = !viewModel.singleLineInput

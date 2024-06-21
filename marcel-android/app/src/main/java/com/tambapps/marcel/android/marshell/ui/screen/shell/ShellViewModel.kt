@@ -36,7 +36,7 @@ class ShellViewModel @Inject constructor(
 ) : ViewModel(), HighlightTransformation {
 
   // states
-  var textInput by mutableStateOf(TextFieldValue())
+  override var scriptTextInput by mutableStateOf(TextFieldValue())
   val prompts = mutableStateListOf<Prompt>()
   var isEvaluating by mutableStateOf(false)
   val isShellReady get() = shellSession != null
@@ -119,18 +119,18 @@ class ShellViewModel @Inject constructor(
 
   fun historyUp() {
     val text = historyNavigator.up() ?: return
-    textInput = TextFieldValue(annotatedString = highlight(text), selection = TextRange(text.length))
+    scriptTextInput = TextFieldValue(annotatedString = highlight(text), selection = TextRange(text.length))
   }
 
   fun historyDown() {
     val text = historyNavigator.down() ?: return
-    textInput = TextFieldValue(annotatedString = highlight(text), selection = TextRange(text.length))
+    scriptTextInput = TextFieldValue(annotatedString = highlight(text), selection = TextRange(text.length))
   }
 
   fun prompt(text: CharSequence) {
     val shellSession = this.shellSession ?: return
     prompts.add(Prompt(Prompt.Type.INPUT, text))
-    textInput = TextFieldValue() // reset text input
+    scriptTextInput = TextFieldValue() // reset text input
     isEvaluating = true
     historyNavigator.reset()
     ioScope.launch {
@@ -149,6 +149,9 @@ class ShellViewModel @Inject constructor(
     }
   }
 
+  fun onScriptTextChange(text: TextFieldValue) {
+    scriptTextInput = completedInput(text)
+  }
   private fun updatePrompt() {
     hint = binding?.getVariableOrNull<Any?>("_hint")?.toString()
       ?.replace(Environment.getExternalStorageDirectory().path, "~")
@@ -167,7 +170,7 @@ class ShellViewModel @Inject constructor(
   }
 
   private fun setTextInput(text: CharSequence) {
-    textInput = TextFieldValue(annotatedString = highlight(text))
+    scriptTextInput = TextFieldValue(annotatedString = highlight(text))
   }
 
   private fun export(prompts: List<Prompt>, outputStream: OutputStream?): Result<Unit> {
