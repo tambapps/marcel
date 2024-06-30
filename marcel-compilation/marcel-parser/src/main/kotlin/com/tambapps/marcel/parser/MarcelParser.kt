@@ -3,9 +3,7 @@ package com.tambapps.marcel.parser
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.TokenType
-import com.tambapps.marcel.lexer.TokenType.BRACKETS_CLOSE
 import com.tambapps.marcel.lexer.TokenType.BRACKETS_OPEN
-import com.tambapps.marcel.lexer.TokenType.COMMA
 import com.tambapps.marcel.lexer.TokenType.END_OF_FILE
 import com.tambapps.marcel.lexer.TokenType.FLOAT
 import com.tambapps.marcel.lexer.TokenType.IDENTIFIER
@@ -18,7 +16,6 @@ import com.tambapps.marcel.lexer.TokenType.OPEN_REGEX_QUOTE
 import com.tambapps.marcel.lexer.TokenType.OPEN_SIMPLE_QUOTE
 import com.tambapps.marcel.lexer.TokenType.RPAR
 import com.tambapps.marcel.lexer.TokenType.SEMI_COLON
-import com.tambapps.marcel.lexer.TokenType.SQUARE_BRACKETS_CLOSE
 import com.tambapps.marcel.lexer.TokenType.SQUARE_BRACKETS_OPEN
 import com.tambapps.marcel.lexer.TokenType.VALUE_FALSE
 import com.tambapps.marcel.lexer.TokenType.VALUE_TRUE
@@ -119,7 +116,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
   private var currentIndex = 0
 
   init {
-    while (currentIndex < tokens.size && tokens[currentIndex].type == LINE_RETURN) currentIndex++
+    while (currentIndex < this.tokens.size && this.tokens[currentIndex].type == LINE_RETURN) currentIndex++
   }
 
   private val current: LexToken get() {

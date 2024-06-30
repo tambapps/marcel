@@ -20,4 +20,5 @@ class StringNode(
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
     visitor.visit(this)
 
+  override fun toString() = parts.joinToString(separator = " + ")
 }

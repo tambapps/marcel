@@ -16,6 +16,7 @@ import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
 import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
 import com.tambapps.marcel.parser.cst.expression.LambdaCstNode
 import com.tambapps.marcel.parser.cst.expression.NotCstNode
+import com.tambapps.marcel.parser.cst.expression.TemplateStringCstNode
 import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
 import com.tambapps.marcel.parser.cst.expression.WrappedExpressionCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.DoubleCstNode
@@ -23,6 +24,7 @@ import com.tambapps.marcel.parser.cst.expression.literal.FloatCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.IntCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.LongCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.NullCstNode
+import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ClassReferenceCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.IndexAccessCstNode
 import com.tambapps.marcel.parser.cst.expression.reference.ReferenceCstNode
@@ -201,6 +203,13 @@ class MarcelParserTest {
     }
 
     @Test
+    fun testStartingWithComment() {
+        val result = parser("// HelloWorld.mcl\n" +
+            "println(\"Hello World!\")\n").statement()
+        assertEquals(result, stmt(fCall("println", positionalArgumentNodes = listOf(templateSting("Hello World!")))))
+    }
+
+    @Test
     fun testMethodWithParameter2() {
         testMethodWithParameter("fun int bar(int zoo) { return 25 + zoo }",
             returnNode(binaryOperator(TokenType.PLUS, int(25), ref("zoo"))))
@@ -364,6 +373,8 @@ class MarcelParserTest {
     private fun nullValue() = NullCstNode(token = token())
     private fun type(value: String, genericTypes: List<TypeCstNode> = emptyList(), arrayDimensions: Int = 0) = TypeCstNode(null, value, genericTypes, arrayDimensions, token(), token())
     private fun int(value: Int) = IntCstNode(value = value, token = token())
+    private fun string(value: Any) = StringCstNode(value = value.toString(), token = token())
+    private fun templateSting(value: Any) = TemplateStringCstNode(expressions = listOf(string(value)), tokenStart = token(), tokenEnd = token(), parent = null)
     private fun float(value: Float) = FloatCstNode(value = value, token = token())
     private fun long(value: Long) = LongCstNode(value = value, token = token())
     private fun double(value: Double) = DoubleCstNode(value = value, token = token())

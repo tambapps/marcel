@@ -13,4 +13,6 @@ class TemplateStringCstNode(
 
   override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
 
+  override fun toString() = expressions.joinToString(separator = " + ")
+
 }
