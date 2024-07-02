@@ -28,8 +28,11 @@ class ShellWorkManager @Inject constructor(
   private val shellWorkDao: ShellWorkDao
 ) {
 
-  private companion object {
-    const val SHELL_WORK_TAG = "type:shell_work"
+  companion object {
+    private const val SHELL_WORK_TAG = "type:shell_work"
+    private const val NAME_TAG_PREFIX = "name:"
+
+    fun getName(tags: Set<String>) = tags.find { it.startsWith(NAME_TAG_PREFIX) }?.substring(NAME_TAG_PREFIX.length)
   }
 
   suspend fun list(): List<ShellWork> = shellWorkDao.findAll()
@@ -97,8 +100,8 @@ class ShellWorkManager @Inject constructor(
         .setInitialDelay(Duration.ZERO)
       else OneTimeWorkRequest.Builder(MarshellWorkout::class.java)
     workRequest.addTag(SHELL_WORK_TAG)
-      // useful to check uniqueness without fetching shell_works
-      .addTag("name:$name")
+      // useful to check uniqueness without fetching shell_works, and to fetch work from workout
+      .addTag("$NAME_TAG_PREFIX$name")
 
     if (requiresNetwork) {
       val constraints = Constraints.Builder()
@@ -130,7 +133,8 @@ class ShellWorkManager @Inject constructor(
       work.durationBetweenNowAndNext?.let { it.isNegative && it.abs().toMinutes() >= 10L } ?: false
     }
     lateWorks.forEach {
-      doWorkRequest(it.name, it.period, it.isNetworkRequired)
+      val operation = doWorkRequest(it.name, it.period, it.isNetworkRequired)
+      println(operation.result.get())
     }
   }
 }

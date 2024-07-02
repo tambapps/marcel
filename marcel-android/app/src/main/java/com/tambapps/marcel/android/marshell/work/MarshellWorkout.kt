@@ -23,8 +23,6 @@ class MarshellWorkout @AssistedInject constructor(
   private val shellWorkDao: ShellWorkDao,
 ): CoroutineWorker(appContext, workerParams) {
 
-  private val workTags = workerParams.tags
-
   companion object {
     const val TAG = "MarshellWorkout"
   }
@@ -34,7 +32,7 @@ class MarshellWorkout @AssistedInject constructor(
   override suspend fun doWork(): Result {
     val work = findWork()
     if (work == null) {
-      Log.e(TAG, "Couldn't find shell_work on database for work with id $id and tags $workTags")
+      Log.e(TAG, "Couldn't find shell_work on database for work with id $id and tags $tags")
       //notification(content = "An unexpected work configuration error occurred", force = true)
       return Result.failure(Data.EMPTY)
     }
@@ -95,12 +93,17 @@ class MarshellWorkout @AssistedInject constructor(
   }
 
   private suspend fun findWork(): ShellWork? {
-    var work = shellWorkDao.findById(id)
+    val name = ShellWorkManager.getName(tags)
+    if (name == null) {
+      Log.e(TAG, "Couldn't extract work name from tags for work with id $id and tags $tags")
+      return null
+    }
+    var work: ShellWork? = shellWorkDao.findByName(name)
     var tries = 1
     while (work == null && tries++ < 4) {
       // sometimes it looks like the worker is created before the work_data could save the work in database
       Thread.sleep(1_000L)
-      work = shellWorkDao.findById(id)
+      work = shellWorkDao.findByName(name)
     }
     if (work != null && work.workId != id) {
       work = work.copy(workId = id)
