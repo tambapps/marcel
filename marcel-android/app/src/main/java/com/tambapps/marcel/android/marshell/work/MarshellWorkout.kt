@@ -33,7 +33,6 @@ class MarshellWorkout @AssistedInject constructor(
     val work = findWork()
     if (work == null) {
       Log.e(TAG, "Couldn't find shell_work on database for work with id $id and tags $tags")
-      //notification(content = "An unexpected work configuration error occurred", force = true)
       return Result.failure(Data.EMPTY)
     }
     if (!work.isSilent) {
@@ -43,7 +42,6 @@ class MarshellWorkout @AssistedInject constructor(
     }
     if (work.scriptText == null) {
       Log.e(TAG, "Couldn't retrieve script text of work $id")
-      //notification(content = "An unexpected work configuration error occurred", force = true)
       return Result.failure(Data.EMPTY)
     }
     val printer = StringBuilderPrinter()
@@ -63,7 +61,6 @@ class MarshellWorkout @AssistedInject constructor(
   }
 
   private suspend fun runWorkout(work: ShellWork, scriptText: String, session: ShellSession, printer: StringBuilderPrinter): Result {
-    //notification(content = "Executing Marshell work...")
     notification?.notify(title = "Running workout ${work.name}...")
     shellWorkDao.updateState(work.name, WorkInfo.State.RUNNING)
     shellWorkDao.updateStartTime(work.name, LocalDateTime.now())
