@@ -25,7 +25,9 @@ class WorksListViewModel @Inject constructor(
   val works = mutableStateListOf<ShellWork>()
 
   suspend fun refresh() {
-    val list = shellWorkManager.list().sortedByDescending { it.createdAt }
+    val list = shellWorkManager.list().sortedWith(
+      compareBy<ShellWork> { it.state.isFinished }
+        .thenByDescending { it.createdAt })
     withContext(Dispatchers.Main) {
       works.clear()
       works.addAll(list)
