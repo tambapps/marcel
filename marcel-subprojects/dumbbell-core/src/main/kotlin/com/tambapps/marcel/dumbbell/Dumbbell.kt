@@ -23,24 +23,20 @@ object Dumbbell {
   }
 
   @Throws(DumbbellException::class)
-  fun pull(endorsedModule: String): List<PulledArtifact> {
-    return engine.pull(endorsedModule)
-  }
+  fun pull(artifactString: String) = engine.pull(artifactString)
 
   @Throws(DumbbellException::class)
-  fun pull(artifact: Artifact): List<PulledArtifact> {
-    return engine.pull(artifact)
-  }
+  fun pull(artifact: Artifact) = engine.pull(artifact)
 
   @Throws(DumbbellException::class)
-  fun pull(groupId: String, artifactId: String, version: String): List<PulledArtifact> {
-    return engine.pull(groupId, artifactId, version)
-  }
+  fun pull(groupId: String, artifactId: String, version: String) = engine.pull(groupId, artifactId, version)
+
+  fun isPulled(groupId: String, artifactId: String, version: String) = engine.isPulled(groupId, artifactId, version)
+
+  fun isPulled(artifactString: String) = engine.isPulled(artifactString)
 
   @Throws(DumbbellException::class)
-  fun enumerateDumbbells(): Map<String, Map<String, List<String>>> {
-    return engine.enumerateDumbbells()
-  }
+  fun enumerateDumbbells() = engine.enumerateDumbbells()
 
   @get:Throws(DumbbellException::class)
   val allFetchedArtifacts: List<Artifact>

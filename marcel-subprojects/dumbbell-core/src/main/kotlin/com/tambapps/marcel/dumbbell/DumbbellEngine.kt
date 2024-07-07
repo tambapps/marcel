@@ -16,15 +16,15 @@ class DumbbellEngine(val repository: RemoteSavingMavenRepository) {
 
   private companion object {
     val EXCLUDED_ARTIFACTS = setOf(
-      Artifact("org.jetbrains.kotlin", "kotlin-stdlib", "*"),
-      Artifact("org.jetbrains.kotlin", "kotlin-stdlib-common", "*"),
+      // don't want any of kotlin dependencies as marcl and marshell should have them to be run
+      Artifact("org.jetbrains.kotlin", "*", "*"),
       Artifact("com.tambapps.marcel", "marcel-stdlib", "*"),
     )
   }
 
   @Throws(DumbbellException::class)
-  fun pull(endorsedModule: String?): List<PulledArtifact> {
-    val fields = Artifact.extractFields(endorsedModule)
+  fun pull(artifactString: String): List<PulledArtifact> {
+    val fields = Artifact.extractFields(artifactString)
     return pull(fields[0], fields[1], fields[2])
   }
 
@@ -69,6 +69,10 @@ class DumbbellEngine(val repository: RemoteSavingMavenRepository) {
       throw DumbbellException(e)
     }
   }
+
+  fun isPulled(groupId: String, artifactId: String, version: String): Boolean = repository.existsLocally(groupId, artifactId, version)
+
+  fun isPulled(artifactString: String): Boolean = repository.existsLocally(artifactString)
 
   val allFetchedArtifacts: List<Artifact>
     get() {
