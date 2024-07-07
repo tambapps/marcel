@@ -53,7 +53,7 @@ class ShellSessionFactory @Inject constructor(
       symbolResolver.defineBoundField(boundField)
       binding.setVariable(boundField.name, Environment.getExternalStorageDirectory())
     }
-    val session = ShellSession(symbolResolver, replCompiler, evaluator, sessionDirectory)
+    val session = ShellSession(symbolResolver, replCompiler, evaluator, printer, sessionDirectory)
     if (initScriptFile.isFile) {
       val text = try {
         initScriptFile.readText()

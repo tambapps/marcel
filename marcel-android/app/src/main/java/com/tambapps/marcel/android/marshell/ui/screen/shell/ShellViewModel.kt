@@ -18,6 +18,7 @@ import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.repl.console.PromptPrinter
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.ui.screen.HighlightTransformation
+import com.tambapps.marcel.dumbbell.Dumbbell
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -27,6 +28,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.io.OutputStream
+import java.util.concurrent.Executors
 import javax.inject.Inject
 
 @HiltViewModel

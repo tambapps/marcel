@@ -15,6 +15,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 
+// TODO remove this, along with dalvik jar
 public class DexUtils {
 
     public static boolean isDexJar(File jarFile) {
