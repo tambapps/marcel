@@ -103,7 +103,7 @@ import kotlin.math.abs
  */
 class MarcelParser constructor(private val classSimpleName: String, tokens: List<LexToken>) {
 
-  private companion object {
+  companion object {
     private val FCALL_WITHOUT_PARENTHESIS_ALLOWED_TOKENS: Set<TokenType> = EnumSet.copyOf(listOf(
       IDENTIFIER, OPEN_QUOTE, OPEN_CHAR_QUOTE, OPEN_REGEX_QUOTE, OPEN_SIMPLE_QUOTE, SQUARE_BRACKETS_OPEN, NEW,
       INTEGER, FLOAT, VALUE_TRUE, VALUE_FALSE
@@ -161,10 +161,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     }
     val packageName = parseOptPackage()
 
-    val dumbbells = mutableListOf<String>()
-    while (current.type == TokenType.DUMBBELL) {
-      dumbbells.add(dumbbell())
-    }
+    val dumbbells = dumbbells()
 
     val sourceFile = SourceFileCstNode(packageName = packageName, tokenStart = tokens.first(),
       dumbbells = dumbbells,
@@ -288,13 +285,21 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
       skip()
       parts.add(accept(IDENTIFIER).value)
     }
-    acceptOptional(TokenType.SEMI_COLON)
+    acceptOptional(SEMI_COLON)
     return parts.joinToString(separator = ".")
+  }
+
+  fun dumbbells(): List<String> {
+    val dumbbells = mutableListOf<String>()
+    while (current.type == TokenType.DUMBBELL) {
+      dumbbells.add(dumbbell())
+    }
+    return dumbbells
   }
 
   private fun dumbbell(): String {
     accept(TokenType.DUMBBELL)
-    accept(TokenType.OPEN_SIMPLE_QUOTE)
+    accept(OPEN_SIMPLE_QUOTE)
     val d = simpleStringPart()
     accept(TokenType.CLOSING_SIMPLE_QUOTE)
     return d
