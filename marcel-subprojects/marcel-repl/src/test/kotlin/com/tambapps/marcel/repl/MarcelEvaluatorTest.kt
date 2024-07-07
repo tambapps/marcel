@@ -1,7 +1,7 @@
 package com.tambapps.marcel.repl
 
 import com.tambapps.marcel.compiler.CompilerConfiguration
-import com.tambapps.marcel.repl.jar.BasicJarWriterFactory
+import com.tambapps.marcel.repl.jar.JarWriter
 import marcel.lang.Binding
 import marcel.lang.IntRanges
 import marcel.lang.URLMarcelClassLoader
@@ -30,7 +30,7 @@ class MarcelEvaluatorTest {
   private val binding: Binding = Binding()
   private val symbolResolver = ReplMarcelSymbolResolver(marcelClassLoader)
   private val replCompiler = MarcelReplCompiler(compilerConfiguration, marcelClassLoader, symbolResolver)
-  private val jarWriterFactory = BasicJarWriterFactory()
+  private val jarWriterFactory = JarWriter()
   private lateinit var evaluator: MarcelEvaluator
 
   @BeforeEach

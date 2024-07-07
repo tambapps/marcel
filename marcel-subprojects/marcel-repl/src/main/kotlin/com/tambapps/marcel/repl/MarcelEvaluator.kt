@@ -4,7 +4,7 @@ import com.tambapps.marcel.compiler.CompiledClass
 import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParserException
-import com.tambapps.marcel.repl.jar.JarWriterFactory
+import com.tambapps.marcel.repl.jar.JarWriter
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import marcel.lang.Binding
@@ -17,7 +17,7 @@ open class MarcelEvaluator constructor(
   val binding: Binding,
   private val replCompiler: MarcelReplCompiler,
   private val scriptLoader: MarcelClassLoader,
-  private val jarWriterFactory: JarWriterFactory,
+  private val jarWriter: JarWriter,
   private val tempDir: File
 ) {
 
@@ -48,10 +48,7 @@ open class MarcelEvaluator constructor(
 
     val className = scriptNode.type.simpleName
     val jarFile = File(tempDir.parentFile, "$className.jar")
-
-    jarWriterFactory.newJarWriter(jarFile).use {
-      it.writeClasses(result.compiledScript)
-    }
+    jarWriter.write(jarFile, result.compiledScript)
     try {
       val script = scriptLoader.loadScript(className, jarFile, binding)
       onScriptLoaded(script)
@@ -76,9 +73,7 @@ open class MarcelEvaluator constructor(
                             compiledClasses: List<CompiledClass>) {
     val actualPrefix = prefix ?: ThreadLocalRandom.current().nextInt(0, Int.MAX_VALUE - 1).toString()
     val libraryJar = File(tempDir, "${actualPrefix}_library.jar")
-    jarWriterFactory.newJarWriter(libraryJar).use {
-      it.writeClasses(compiledClasses)
-    }
+    jarWriter.write(libraryJar, compiledClasses)
     scriptLoader.addJar(libraryJar)
   }
 

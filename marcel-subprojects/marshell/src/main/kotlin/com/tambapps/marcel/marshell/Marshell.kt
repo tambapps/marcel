@@ -17,7 +17,7 @@ import com.tambapps.marcel.marshell.command.ShellCommand
 import com.tambapps.marcel.repl.MarcelEvaluator
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
-import com.tambapps.marcel.repl.jar.BasicJarWriterFactory
+import com.tambapps.marcel.repl.jar.JarWriter
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import marcel.lang.Binding
 import marcel.lang.URLMarcelClassLoader
@@ -50,7 +50,7 @@ class Marshell(private val printer: PrintStream) {
   private val classLoader = URLMarcelClassLoader(Marshell::class.java.classLoader)
   private val symbolResolver = ReplMarcelSymbolResolver(classLoader)
   private val replCompiler = MarcelReplCompiler(CompilerConfiguration(dumbbellEnabled = true), classLoader, symbolResolver)
-  val evaluator = MarcelEvaluator(binding, replCompiler, classLoader, BasicJarWriterFactory(), tempDir())
+  val evaluator = MarcelEvaluator(binding, replCompiler, classLoader, JarWriter(), tempDir())
 
   private val marcelHome get() = File(System.getenv("MARCEL_HOME") ?: (System.getenv("HOME") + "/.marcel/"))
 

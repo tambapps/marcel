@@ -8,7 +8,7 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
 import com.tambapps.marcel.compiler.CompilerConfiguration
-import com.tambapps.marcel.compiler.JarWriter
+import com.tambapps.marcel.compiler.MarcelJarOutputStream
 import com.tambapps.marcel.compiler.MarcelCompiler
 import com.tambapps.marcel.dumbbell.DumbbellException
 import com.tambapps.marcel.lexer.MarcelLexerException
@@ -136,7 +136,7 @@ fun compile(file: File, generateClassFiles: Boolean, generateJarFile: Boolean, p
   val scriptClassName = classes.find { it.isScript }?.className ?: return null
 
   val jarFile = File(file.parentFile, "$scriptClassName.jar")
-  JarWriter(jarFile).use {
+  MarcelJarOutputStream(jarFile).use {
     it.writeClasses(classes)
   }
   return Pair(scriptClassName, jarFile)

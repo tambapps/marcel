@@ -1,7 +1,7 @@
 package com.tambapps.marcel.cl
 
 import com.tambapps.marcel.compiler.CompilerConfiguration
-import com.tambapps.marcel.compiler.JarWriter
+import com.tambapps.marcel.compiler.MarcelJarOutputStream
 import com.tambapps.marcel.compiler.MarcelCompiler
 import java.lang.reflect.InvocationTargetException
 import java.net.URLClassLoader
@@ -24,7 +24,7 @@ abstract class AbstractCompilerTest {
     val result = compiler.compile(text = text, fileName = className)
 
     val jarFile = Files.createTempFile("", "$className.jar").toFile()
-    JarWriter(jarFile).use {
+    MarcelJarOutputStream(jarFile).use {
       it.writeClasses(result)
     }
 

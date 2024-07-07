@@ -26,7 +26,7 @@ class MarcelCompiler(configuration: CompilerConfiguration): AbstractMarcelCompil
     val classes = mutableListOf<CompiledClass>()
     compileSourceFiles(files, scriptLoader, classes::add)
 
-    JarWriter(outputJar).use {
+    MarcelJarOutputStream(outputJar).use {
       classes.forEach { compiledClass ->
         it.writeClass(compiledClass)
       }

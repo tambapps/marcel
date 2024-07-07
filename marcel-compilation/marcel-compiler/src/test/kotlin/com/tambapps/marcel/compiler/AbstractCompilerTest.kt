@@ -43,7 +43,7 @@ abstract class AbstractCompilerTest {
   }
   protected fun writeJar(result: List<CompiledClass>, className: String): File {
     val jarFile = Files.createTempFile("", "$className.jar").toFile()
-    JarWriter(jarFile).use {
+    MarcelJarOutputStream(jarFile).use {
       it.writeClasses(result)
     }
     return jarFile

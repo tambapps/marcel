@@ -14,15 +14,18 @@ import java.util.jar.JarOutputStream
 import java.util.jar.Manifest
 import kotlin.jvm.Throws
 
-// open because of DexJarWriter
-open class JarWriter constructor(outputStream: OutputStream, manifest: Manifest): Closeable, Consumer<CompiledClass> {
+class MarcelJarOutputStream constructor(outputStream: OutputStream, manifest: Manifest): Closeable, Consumer<CompiledClass> {
   constructor(outputStream: OutputStream): this(outputStream, Manifest())
   constructor(file: File): this(FileOutputStream(file))
 
-  // isn't private because it must be accessible for DexJarWriter
+  private companion object {
+    val MARCEL_VERSION_NAME = Attributes.Name("Marcel-Version")
+  }
+
   @JvmField
   protected val outputStream = JarOutputStream(outputStream, Manifest(manifest).apply {
-    mainAttributes[Attributes.Name.MANIFEST_VERSION] = MarcelVersion.VERSION
+    mainAttributes[MARCEL_VERSION_NAME] = MarcelVersion.VERSION
+    mainAttributes[Attributes.Name.MANIFEST_VERSION] = "1.0" // this is the only Manifest version
     mainAttributes[Attributes.Name("Created-By")] = "Marcel"
 
   })
@@ -32,7 +35,7 @@ open class JarWriter constructor(outputStream: OutputStream, manifest: Manifest)
   }
 
   @Throws(IOException::class)
-  open fun writeClass(compiledClass: CompiledClass) {
+  fun writeClass(compiledClass: CompiledClass) {
     val jarEntry = JarEntry(compiledClass.className.replace('.', '/') + ".class")
     outputStream.putNextEntry(jarEntry)
     outputStream.write(compiledClass.bytes)
