@@ -2,9 +2,9 @@ package com.tambapps.marcel.android.marshell.repl
 
 import android.os.Environment
 import android.util.Log
+import com.tambapps.marcel.android.compiler.DexJarWriter
 import com.tambapps.marcel.android.marshell.repl.console.NoOpPrinter
 import com.tambapps.marcel.android.marshell.repl.console.Printer
-import com.tambapps.marcel.android.marshell.repl.jar.DexJarWriterFactory
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.dumbbell.DumbbellEngine
@@ -46,7 +46,7 @@ class ShellSessionFactory @Inject constructor(
     val classLoader = MarcelDexClassLoader()
     val symbolResolver = ReplMarcelSymbolResolver(classLoader)
     val replCompiler = MarcelReplCompiler(compilerConfiguration, classLoader, symbolResolver)
-    val evaluator = MarshellEvaluator(binding, replCompiler, classLoader, DexJarWriterFactory(), sessionDirectory, printer)
+    val evaluator = MarshellEvaluator(binding, replCompiler, classLoader, DexJarWriter(), sessionDirectory, printer)
 
     if (Environment.isExternalStorageManager()) {
       val boundField = BoundField(File::class.javaType, "ROOT_DIR", MarshellScript::class.javaType)

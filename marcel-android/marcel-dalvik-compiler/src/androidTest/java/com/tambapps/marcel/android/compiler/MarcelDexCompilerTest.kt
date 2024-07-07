@@ -27,15 +27,6 @@ class MarcelDexCompilerTest {
   private val compiler = MarcelDexCompiler(classLoader)
 
   @Test
-  fun testCompileToDex() {
-    val dexFile = File(dir, "Test.dex")
-    compiler.compileToDex(SourceFile.from("TestDex.mcl", "1 + 1"), dexFile)
-
-    val script = classLoader.loadScript("TestDex", dexFile)
-    assertEquals(2, script.run())
-  }
-
-  @Test
   fun testCompileToDexJar() {
     val dexJarFile = File(dir, "Test.jar")
     compiler.compileToDexJar(SourceFile.from("TestDexJar.mcl", "1 + 1"), dexJarFile)

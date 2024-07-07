@@ -60,7 +60,7 @@ android {
 }
 
 dependencies {
-  // dalvik
+  // d8 (got from Android SDK, read README for more information)
   implementation(fileTree(Pair("dir", File(rootDir, "app/libs")), Pair("include", listOf("*.jar"))))
 
   // marcel

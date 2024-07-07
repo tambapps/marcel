@@ -8,11 +8,9 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.Paths
-import java.util.Random
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
-// TODO use it in DexJarWriter
 class DexConverter {
 
   private companion object {

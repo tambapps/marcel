@@ -3,7 +3,7 @@ package com.tambapps.marcel.android.marshell.repl
 import com.tambapps.marcel.android.marshell.repl.console.Printer
 import com.tambapps.marcel.repl.MarcelEvaluator
 import com.tambapps.marcel.repl.MarcelReplCompiler
-import com.tambapps.marcel.repl.jar.JarWriterFactory
+import com.tambapps.marcel.repl.jar.JarWriter
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
 import marcel.lang.Script
@@ -13,10 +13,10 @@ class MarshellEvaluator(
   binding: Binding,
   replCompiler: MarcelReplCompiler,
   scriptLoader: MarcelClassLoader,
-  jarWriterFactory: JarWriterFactory,
+  jarWriter: JarWriter,
   tempDir: File,
   private val printer: Printer
-) : MarcelEvaluator(binding, replCompiler, scriptLoader, jarWriterFactory, tempDir) {
+) : MarcelEvaluator(binding, replCompiler, scriptLoader, jarWriter, tempDir) {
 
   override fun onScriptLoaded(script: Script) {
     (script as MarshellScript).setPrinter(printer)

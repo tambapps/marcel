@@ -20,7 +20,7 @@ class DexRemoteSavingRepository(root: File) : RemoteSavingMavenRepository(root, 
       Files.copy(inputStream, tempJarFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
       dexConverter.toDexJar(tempJarFile, file)
       if (!file.setReadOnly()) { // needed because of an android security restriction
-        throw IOException("Couldn't make the file read only")
+        throw IOException("Couldn't make file $file read only")
       }
     } finally {
       tempJarFile.delete()
