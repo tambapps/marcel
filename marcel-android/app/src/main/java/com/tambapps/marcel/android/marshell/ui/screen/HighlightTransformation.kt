@@ -25,6 +25,7 @@ interface HighlightTransformation: VisualTransformation {
   }
 
   fun completedInput(textFieldValue: TextFieldValue): TextFieldValue {
+    /* TODO buggy sometimes, e.g. when copy/pasting a text that finish by a litteral string
     val oldText = scriptTextInput.text
     val newText = textFieldValue.text
     val newSelection = textFieldValue.selection
@@ -51,7 +52,7 @@ interface HighlightTransformation: VisualTransformation {
         val removedChar = oldText[removedCharIndex]
         println("Character removed: $removedChar at index $removedCharIndex")
       }
-    }
+    } */
     return textFieldValue
   }
 
