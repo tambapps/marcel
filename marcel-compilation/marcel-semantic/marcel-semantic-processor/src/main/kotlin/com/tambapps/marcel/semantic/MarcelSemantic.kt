@@ -2391,7 +2391,7 @@ open class MarcelSemantic(
       if (interfaceType != null && !interfaceType.className.startsWith("marcel.lang.lambda.Lambda")) {
         val interfaceMethod = symbolResolver.getInterfaceLambdaMethodOrThrow(interfaceType, lambdaNode.token)
         val lambdaParameters = mutableListOf<MethodParameter>()
-        interfaceMethod.parameters.forEachIndexed { index, methodParameter ->
+        interfaceMethod.parameters.forEachIndexed { index, _ ->
           lambdaParameters.add(MethodParameter(methodParameters[index].type, methodParameters[index].name))
         }
         val interfaceMethodNode = MethodNode(

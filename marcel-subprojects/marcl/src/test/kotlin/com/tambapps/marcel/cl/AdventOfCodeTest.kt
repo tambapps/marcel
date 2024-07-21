@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import java.io.File
+import java.net.URI
 import java.net.URL
 
 @Disabled("Only to be ran manually. These are just to check I didn't break compatibility with anything")
@@ -34,8 +35,8 @@ class AdventOfCodeTest: AbstractCompilerTest() {
   fun aocDay_2023_longDays(day: Int) = aocDay(2023, day)
 
   fun aocDay(year: Int, day: Int) {
-    File("input.txt").writeText(URL(URL_TEMPLATE.format(year, day, "input.txt")).readText())
-    val text = URL(URL_TEMPLATE.format(year, day, "solution.mcl")).readText()
+    File("input.txt").writeText(URI(URL_TEMPLATE.format(year, day, "input.txt")).toURL().readText())
+    val text = URI(URL_TEMPLATE.format(year, day, "solution.mcl")).toURL().readText()
     evalSource("AOC$day", text)
   }
 }

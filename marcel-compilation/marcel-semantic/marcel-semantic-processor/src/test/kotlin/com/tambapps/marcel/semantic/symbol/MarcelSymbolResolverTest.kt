@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.lang.CharSequence
 import java.util.function.Function
 import java.util.function.IntPredicate
 import java.util.stream.Stream

@@ -91,8 +91,7 @@ abstract class AstNodeComposer : MarcelBaseSemantic() {
     parameters: List<MethodParameter> = emptyList(),
     statementsSupplier: StatementsComposer.() -> Unit
   ) = methodNode(
-    classNode.type, visibility, JavaMethod.CONSTRUCTOR_NAME, parameters, JavaType.void, isDefault = false,
-    isAbstract = false, isStatic = false, emptyList()
+    classNode.type, visibility, JavaMethod.CONSTRUCTOR_NAME, parameters, JavaType.void, isStatic = false
   ) {
     // super method call
     stmt(SemanticHelper.superNoArgConstructorCall(classNode, symbolResolver))
@@ -108,8 +107,6 @@ abstract class AstNodeComposer : MarcelBaseSemantic() {
     name: String,
     parameters: List<MethodParameter> = emptyList(),
     returnType: JavaType,
-    isDefault: Boolean = false,
-    isAbstract: Boolean = false,
     isStatic: Boolean = false,
     annotations: List<AnnotationNode> = emptyList(),
     statementsSupplier: StatementsComposer.() -> Unit
