@@ -1,6 +1,7 @@
 package marcel.lang;
 
 import java.io.File;
+import java.util.Collection;
 
 abstract public class MarcelClassLoader {
 
@@ -44,11 +45,23 @@ abstract public class MarcelClassLoader {
    */
   public abstract void addJar(File jarFile);
 
+  public void addJars(Collection<File> jarFiles) {
+    for (File file : jarFiles) {
+      addJar(file);
+    }
+  }
+
   /**
    * Remove the jar from the classpath. Note that this method might delete the file
    * @param jarFile the jar to remove from the classpath
    */
   public abstract boolean removeJar(File jarFile);
+
+  public void removeJars(Collection<File> jarFiles) {
+    for (File file : jarFiles) {
+      removeJar(file);
+    }
+  }
 
   public abstract ClassLoader getClassLoader();
 

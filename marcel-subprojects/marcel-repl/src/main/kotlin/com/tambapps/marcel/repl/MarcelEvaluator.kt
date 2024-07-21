@@ -86,11 +86,8 @@ open class MarcelEvaluator constructor(
     // import dumbbells
     for (artifactString in dumbbells) {
       val pulledArtifacts = Dumbbell.pull(artifactString)
-      pulledArtifacts.forEach {
-        if (it.jarFile != null) {
-          replCompiler.marcelClassLoader.addJar(it.jarFile)
-        }
-      }
+      // jarFile can be null as there could be pom-only artifacts
+      replCompiler.marcelClassLoader.addJars(pulledArtifacts.mapNotNull { it.jarFile })
     }
 
     // then run script

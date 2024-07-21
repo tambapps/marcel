@@ -46,11 +46,8 @@ abstract class AbstractMarcelCompiler(protected val configuration: CompilerConfi
 
   protected fun handleDumbbell(marcelClassLoader: MarcelClassLoader, dumbbell: String) {
     val artifacts = Dumbbell.pull(dumbbell)
-    artifacts.forEach {
-      if (it.jarFile != null) { // can be null as there could be pom-only artifacs
-        marcelClassLoader.addJar(it.jarFile)
-      }
-    }
+    // jarFile can be null as there could be pom-only artifacts
+    marcelClassLoader.addJars(artifacts.mapNotNull { it.jarFile })
   }
 
   protected fun check(ast: ModuleNode, symbolResolver: MarcelSymbolResolver) {
