@@ -16,13 +16,23 @@
 
   <properties>
     <revision>1.1-SNAPSHOT</revision>
-    <kotlin.version>1.8.10</kotlin.version>
+    <kotlin.version>1.9.25</kotlin.version>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <java.version>1.8</java.version>
-    <jackson.version>2.16.1</jackson.version>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+
     <javadoc.skip>false</javadoc.skip>
+    <!-- dependency versions -->
+    <asm.version>9.5</asm.version>
+    <clikt.version>2.8.0</clikt.version>
+    <dokka.version>1.9.10</dokka.version>
+    <jackson.version>2.16.1</jackson.version>
+    <jline.version>3.25.0</jline.version>
+    <junit.version>5.1.0</junit.version>
+    <lombok.version>1.18.30</lombok.version>
+    <mockito.version>5.5.0</mockito.version>
+    <mvn-dep-resolver.version>3.3</mvn-dep-resolver.version>
+    <okhttp.version>4.12.0</okhttp.version>
   </properties>
 
   <modules>
@@ -39,12 +49,12 @@
       <dependency>
         <groupId>com.tambapps.maven</groupId>
         <artifactId>maven-dependency-resolver</artifactId>
-        <version>3.3</version>
+        <version>${mvn-dep-resolver.version}</version>
       </dependency>
       <dependency>
         <groupId>org.jline</groupId>
         <artifactId>jline</artifactId>
-        <version>3.25.0</version>
+        <version>${jline.version}</version>
       </dependency>
       <dependency>
         <groupId>org.jetbrains.kotlin</groupId>
@@ -54,7 +64,7 @@
       <dependency>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
-          <version>1.18.30</version>
+          <version>${lombok.version}</version>
         <scope>provided</scope>
       </dependency>
 
@@ -62,13 +72,13 @@
       <dependency>
         <groupId>com.squareup.okhttp3</groupId>
         <artifactId>okhttp</artifactId>
-        <version>4.12.0</version>
+        <version>${okhttp.version}</version>
       </dependency>
       <!-- bytecode manipulation -->
       <dependency>
         <groupId>org.ow2.asm</groupId>
         <artifactId>asm</artifactId>
-        <version>9.5</version>
+        <version>${asm.version}</version>
       </dependency>
 
       <!-- json -->
@@ -97,26 +107,26 @@
       <dependency>
         <groupId>com.github.ajalt</groupId>
         <artifactId>clikt</artifactId>
-        <version>2.8.0</version>
+        <version>${clikt.version}</version>
       </dependency>
 
       <!-- Tests -->
       <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-engine</artifactId>
-        <version>5.1.0</version>
+        <version>${junit.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-params</artifactId>
-        <version>5.1.0</version>
+        <version>${junit.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
-        <version>5.5.0</version>
+        <version>${mockito.version}</version>
         <scope>test</scope>
       </dependency>
 
@@ -211,7 +221,7 @@
           <!-- Kotlin doc -->
           <groupId>org.jetbrains.dokka</groupId>
           <artifactId>dokka-maven-plugin</artifactId>
-          <version>1.9.10</version>
+          <version>${dokka.version}</version>
           <executions>
             <execution>
               <id>dokka-kdoc</id>
