@@ -23,8 +23,8 @@
 
     <javadoc.skip>false</javadoc.skip>
     <!-- dependency versions -->
-    <asm.version>9.5</asm.version>
-    <clikt.version>2.8.0</clikt.version>
+    <asm.version>9.7</asm.version>
+    <clikt.version>4.4.0</clikt.version>
     <dokka.version>1.9.10</dokka.version>
     <jackson.version>2.16.1</jackson.version>
     <jline.version>3.25.0</jline.version>
@@ -105,8 +105,8 @@
 
       <!-- CL -->
       <dependency>
-        <groupId>com.github.ajalt</groupId>
-        <artifactId>clikt</artifactId>
+        <groupId>com.github.ajalt.clikt</groupId>
+        <artifactId>clikt-jvm</artifactId>
         <version>${clikt.version}</version>
       </dependency>
 

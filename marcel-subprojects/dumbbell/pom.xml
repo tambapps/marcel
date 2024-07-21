@@ -21,8 +21,8 @@
       <artifactId>dumbbell-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.github.ajalt</groupId>
-      <artifactId>clikt</artifactId>
+      <groupId>com.github.ajalt.clikt</groupId>
+      <artifactId>clikt-jvm</artifactId>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
