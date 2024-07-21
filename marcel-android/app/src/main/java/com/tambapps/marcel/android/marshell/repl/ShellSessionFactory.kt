@@ -64,6 +64,7 @@ class ShellSessionFactory @Inject constructor(
         try {
           session.eval(text)
         } catch (e: Throwable) {
+          Log.e("ShellSessionFactory", "Error while running initialization script: ${e.localizedMessage}", e)
           throw IOException("Error while running initialization script: ${e.localizedMessage}")
         }
       }

@@ -19,8 +19,8 @@ android {
     applicationId = "com.tambapps.marcel.android.marshell"
     minSdk = 30
     targetSdk = 34
-    versionCode = 8
-    versionName = "1.0.2"
+    versionCode = 9
+    versionName = "1.0.3"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     vectorDrawables {
@@ -34,7 +34,7 @@ android {
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
     }
     debug {
-      isMinifyEnabled = false
+      isMinifyEnabled = true
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
     }
   }
