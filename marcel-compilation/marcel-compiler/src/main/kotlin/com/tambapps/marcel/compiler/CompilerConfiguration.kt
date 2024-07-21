@@ -14,7 +14,7 @@ data class CompilerConfiguration(
 
   companion object {
     @JvmStatic
-    val DEFAULT_VERSION = 52 // 52 is for Java 8
+    val DEFAULT_VERSION = 61 // Java 17
     // https://stackoverflow.com/questions/9170832/list-of-java-class-file-format-major-version-numbers
     @JvmStatic
     val VERSION_MAP = mutableMapOf(

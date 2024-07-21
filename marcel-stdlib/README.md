@@ -3,7 +3,7 @@ This module regroups all classes accessible in Marcel, at compile-time and runti
 
 ## Threadmill
 Threadmill is the library handling asynchronous programming in Marcel, included in the Standard Library (stdlib).
-It is written in Java 8.
+It is written in Java 17.
 
 ### Etymology
 

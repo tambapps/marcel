@@ -1,8 +1,6 @@
 # Lambdas
 
-Marcel supports lambda expressions, but note that they are not compiled
-to Java 8 lambdas, they are compiled to anonymous classes instead. This is to guaranty
-Android supports, as some Android device doesn't support full Java 8+ features.
+Marcel supports lambda expressions, but note that they are not compiled to Java lambdas, they are compiled to anonymous classes instead.
 
 
 Lambda are declared like Kotlin's, and Groovy closures. They can be used for any functional interfaces, such as Runnable, Supplier...
