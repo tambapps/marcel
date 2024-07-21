@@ -183,7 +183,7 @@
 <p>Its features are inspired from many languages such as Groovy, Kotlin, Perl and Dart. You can consult the source code of
 this language <a href="https://github.com/tambapps/marcel">on GitHub</a></p>
 <br/>
-Marcel compiles to Java bytecode (.class files). You can execute marcel script/projects on any JVMs (8+), as long as the Marcel stdlib is included
+Marcel compiles to Java bytecode (.class files). You can execute marcel script/projects on any JVMs (17+), as long as the Marcel stdlib is included
 in your classpath.
 <p>As stated above, marcel is guaranteed to be compilable and executable on any Android devices. You can install the <a href="https://play.google.com/store/apps/details?id=com.tambapps.marcel.android.marshell">Marcel for Android</a>
 app to develop, compile and execute Marcel programs.</p>
@@ -1390,9 +1390,7 @@ println(when int a in [for int a in list -&gt; a + 3] -&gt; a % 2 == 0)
 </code></pre>
 <p>But this piece of code is hard to read, right? That is why the <code>&gt;&gt;</code> is here.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="lambdas"><a class="header" href="#lambdas">Lambdas</a></h1>
-<p>Marcel supports lambda expressions, but note that they are not compiled
-to Java 8 lambdas, they are compiled to anonymous classes instead. This is to guaranty
-Android supports, as some Android device doesn't support full Java 8+ features.</p>
+<p>Marcel supports lambda expressions, but note that they are not compiled to Java lambdas, they are compiled to anonymous classes instead.</p>
 <p>Lambda are declared like Kotlin's, and Groovy closures. They can be used for any functional interfaces, such as Runnable, Supplier...</p>
 <h2 id="lambdas-with-no-parameters"><a class="header" href="#lambdas-with-no-parameters">Lambdas with no parameters</a></h2>
 <pre><code class="language-marcel">Lambda0 l0 = {
