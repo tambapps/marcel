@@ -13,6 +13,9 @@ open class ClassCstNode constructor(
   val forExtensionType: TypeCstNode?,
 ) : AbstractCstNode(parentSourceFileNode, tokenStart, tokenEnd) {
 
+  open val isScript get() = false
+  open val isEnum get() = false
+
   override val parent: SourceFileCstNode
     get() = super.parent as SourceFileCstNode
 

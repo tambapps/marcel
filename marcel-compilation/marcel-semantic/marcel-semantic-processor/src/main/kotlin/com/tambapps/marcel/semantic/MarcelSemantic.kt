@@ -286,8 +286,8 @@ open class MarcelSemantic(
       classCstNode.className, superType,
       // don't support interfaces for now
       isInterface = false, interfaces,
-      isScript = classCstNode is ScriptCstNode,
-      isEnum = classCstNode is EnumCstNode
+      isScript = classCstNode.isScript,
+      isEnum = classCstNode.isEnum
     )
     defineClassMembers(classCstNode, classType)
   }

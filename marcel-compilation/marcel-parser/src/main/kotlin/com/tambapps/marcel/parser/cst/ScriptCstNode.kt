@@ -14,6 +14,8 @@ class ScriptCstNode(
   className, null, emptyList(), null
 ) {
 
+  override val isScript = true
+
   val runMethodStatements: MutableList<StatementCstNode> = mutableListOf()
 
   val isNotEmpty get() = runMethodStatements.isNotEmpty()
