@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.compose
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.semantic.MarcelBaseSemantic
+import com.tambapps.marcel.semantic.MarcelSemanticGenerator
 import com.tambapps.marcel.semantic.SemanticHelper
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
@@ -38,7 +38,6 @@ import com.tambapps.marcel.semantic.method.JavaMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.MethodScope
-import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.type.JavaArrayType
@@ -51,7 +50,7 @@ import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
 /**
  * Abstract class providing handy methods to constructor AST nodes in an elegant way
  */
-abstract class AstNodeComposer : MarcelBaseSemantic() {
+abstract class AstNodeComposer : MarcelSemanticGenerator() {
 
   protected fun parameter(type: JavaType, name: String) = MethodParameter(type, name)
 

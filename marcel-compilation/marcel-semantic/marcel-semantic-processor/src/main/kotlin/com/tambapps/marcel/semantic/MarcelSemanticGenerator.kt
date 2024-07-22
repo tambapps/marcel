@@ -33,7 +33,7 @@ import com.tambapps.marcel.semantic.variable.LocalVariable
 import marcel.lang.lambda.Lambda
 import java.util.*
 
-abstract class MarcelBaseSemantic {
+abstract class MarcelSemanticGenerator {
 
   /**
    * Object providing constants for class outer class levels.

@@ -12,9 +12,11 @@ import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.field.JavaClassFieldImpl
 import com.tambapps.marcel.semantic.variable.field.MarcelField
-import java.lang.annotation.ElementType
 
-interface CstSemantic {
+/**
+ * Interface providing util methods to generate semantic objects from CST members
+ */
+interface CstSymbolSemantic {
 
   fun toMarcelField(ownerType: JavaType, fieldNode: FieldCstNode): MarcelField {
     return JavaClassFieldImpl(

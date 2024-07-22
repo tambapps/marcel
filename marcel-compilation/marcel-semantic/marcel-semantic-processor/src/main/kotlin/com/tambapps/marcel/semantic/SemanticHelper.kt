@@ -22,6 +22,7 @@ import com.tambapps.marcel.semantic.variable.LocalVariable
 import marcel.lang.Binding
 import marcel.lang.lambda.*
 
+// TODO move all methods to MarcelSemanticGenerator
 object SemanticHelper {
 
   fun staticInitialisationMethod(classNode: ClassNode): MethodNode {

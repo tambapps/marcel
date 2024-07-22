@@ -8,7 +8,7 @@ import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.semantic.SemanticPurpose
 import com.tambapps.marcel.semantic.compose.CstNodeComposer
-import com.tambapps.marcel.semantic.CstSemantic
+import com.tambapps.marcel.semantic.CstSymbolSemantic
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
@@ -24,7 +24,7 @@ import com.tambapps.marcel.semantic.type.SourceJavaType
 /**
  * Base class for CST transformations providing handy methods to handle/generate CST nodes
  */
-abstract class AbstractCstTransformation : CstNodeComposer(), CstSemantic, SyntaxTreeTransformation {
+abstract class AbstractCstTransformation : CstNodeComposer(), CstSymbolSemantic, SyntaxTreeTransformation {
 
   lateinit var symbolResolver: MarcelSymbolResolver
   protected lateinit var purpose: SemanticPurpose
