@@ -1,6 +1,7 @@
 package com.tambapps.marcel.semantic.imprt
 
 import com.tambapps.marcel.parser.cst.imprt.*
+import com.tambapps.marcel.parser.cst.visitor.ImportCstVisitor
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.type.JavaType

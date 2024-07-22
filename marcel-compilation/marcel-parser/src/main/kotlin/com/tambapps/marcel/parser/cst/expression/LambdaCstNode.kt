@@ -5,6 +5,7 @@ import com.tambapps.marcel.parser.cst.AbstractCstNode
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.statement.BlockCstNode
+import com.tambapps.marcel.parser.cst.visitor.ExpressionCstNodeVisitor
 
 class LambdaCstNode(
   parent: CstNode?,

@@ -4,7 +4,7 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.expression.AbstractExpressionCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
-import com.tambapps.marcel.parser.cst.expression.ExpressionCstNodeVisitor
+import com.tambapps.marcel.parser.cst.visitor.ExpressionCstNodeVisitor
 
 class IndexAccessCstNode(parent: CstNode?,
                          val ownerNode: ExpressionCstNode, // the owner of the access, the 'a' in a[...]

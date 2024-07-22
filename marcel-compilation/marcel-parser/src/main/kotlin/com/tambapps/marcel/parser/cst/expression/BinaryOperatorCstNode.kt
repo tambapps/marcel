@@ -3,6 +3,7 @@ package com.tambapps.marcel.parser.cst.expression
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.parser.cst.visitor.ExpressionCstNodeVisitor
 
 class BinaryOperatorCstNode(
   val tokenType: TokenType,

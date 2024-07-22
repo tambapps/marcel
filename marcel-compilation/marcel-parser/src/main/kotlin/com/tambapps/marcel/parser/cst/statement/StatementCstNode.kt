@@ -3,6 +3,7 @@ package com.tambapps.marcel.parser.cst.statement
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.visitor.AnyStatementCstNodeVisitor
 import com.tambapps.marcel.parser.cst.visitor.ForEachNodeVisitor
+import com.tambapps.marcel.parser.cst.visitor.StatementCstNodeVisitor
 
 /**
  * CST node of a Marcel statement

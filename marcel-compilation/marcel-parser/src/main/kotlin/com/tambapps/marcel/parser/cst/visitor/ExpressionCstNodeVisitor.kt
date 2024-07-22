@@ -1,5 +1,25 @@
-package com.tambapps.marcel.parser.cst.expression
+package com.tambapps.marcel.parser.cst.visitor
 
+import com.tambapps.marcel.parser.cst.expression.AllInCstNode
+import com.tambapps.marcel.parser.cst.expression.AnyInCstNode
+import com.tambapps.marcel.parser.cst.expression.AsyncBlockCstNode
+import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
+import com.tambapps.marcel.parser.cst.expression.BinaryTypeOperatorCstNode
+import com.tambapps.marcel.parser.cst.expression.ElvisThrowCstNode
+import com.tambapps.marcel.parser.cst.expression.FindInCstNode
+import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode
+import com.tambapps.marcel.parser.cst.expression.LambdaCstNode
+import com.tambapps.marcel.parser.cst.expression.MapFilterCstNode
+import com.tambapps.marcel.parser.cst.expression.NewInstanceCstNode
+import com.tambapps.marcel.parser.cst.expression.NotCstNode
+import com.tambapps.marcel.parser.cst.expression.SuperConstructorCallCstNode
+import com.tambapps.marcel.parser.cst.expression.SwitchCstNode
+import com.tambapps.marcel.parser.cst.expression.TemplateStringCstNode
+import com.tambapps.marcel.parser.cst.expression.TernaryCstNode
+import com.tambapps.marcel.parser.cst.expression.ThisConstructorCallCstNode
+import com.tambapps.marcel.parser.cst.expression.TruthyVariableDeclarationCstNode
+import com.tambapps.marcel.parser.cst.expression.UnaryMinusCstNode
+import com.tambapps.marcel.parser.cst.expression.WhenCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.ArrayCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.BoolCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.CharCstNode

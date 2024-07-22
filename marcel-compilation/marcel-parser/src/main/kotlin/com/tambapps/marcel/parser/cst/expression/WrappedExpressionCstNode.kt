@@ -1,5 +1,7 @@
 package com.tambapps.marcel.parser.cst.expression
 
+import com.tambapps.marcel.parser.cst.visitor.ExpressionCstNodeVisitor
+
 /**
  * A wrapped expression. Useful for parenthesis expression, when checking where to put the NOT operator
  */

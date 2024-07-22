@@ -1,6 +1,7 @@
 package com.tambapps.marcel.parser.cst.expression
 
 import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.parser.cst.visitor.ExpressionCstNodeVisitor
 import com.tambapps.marcel.parser.cst.visitor.ForEachNodeVisitor
 
 /**

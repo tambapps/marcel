@@ -21,7 +21,7 @@ import com.tambapps.marcel.parser.cst.MethodParameterCstNode as MethodParameterC
 import com.tambapps.marcel.parser.cst.ScriptCstNode as ScriptCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode as SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode as TypeCstNode
-import com.tambapps.marcel.parser.cst.expression.ExpressionCstNodeVisitor as ExpressionCstNodeVisitor
+import com.tambapps.marcel.parser.cst.visitor.ExpressionCstNodeVisitor as ExpressionCstNodeVisitor
 import com.tambapps.marcel.parser.cst.expression.FunctionCallCstNode as FunctionCallCstNode
 import com.tambapps.marcel.parser.cst.expression.NewInstanceCstNode as NewInstanceCstNode
 import com.tambapps.marcel.parser.cst.expression.SuperConstructorCallCstNode as SuperConstructorCallCstNode
@@ -41,7 +41,7 @@ import com.tambapps.marcel.parser.cst.expression.reference.ThisReferenceCstNode 
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode as ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode as ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode as StatementCstNode
-import com.tambapps.marcel.parser.cst.statement.StatementCstNodeVisitor
+import com.tambapps.marcel.parser.cst.visitor.StatementCstNodeVisitor
 import com.tambapps.marcel.parser.cst.expression.literal.ArrayCstNode as ArrayCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.MapCstNode as MapCstNode
 import com.tambapps.marcel.parser.cst.expression.literal.StringCstNode as StringCstNode

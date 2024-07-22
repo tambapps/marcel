@@ -4,6 +4,7 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
+import com.tambapps.marcel.parser.cst.visitor.StatementCstNodeVisitor
 
 class ForInMultiVarCstNode(
   val declarations: List<Pair<TypeCstNode, String>>,

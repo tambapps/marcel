@@ -3,6 +3,7 @@ package com.tambapps.marcel.parser.cst.statement
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
+import com.tambapps.marcel.parser.cst.visitor.StatementCstNodeVisitor
 
 class TryCatchCstNode(
   parent: CstNode?,
