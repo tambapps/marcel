@@ -3,7 +3,6 @@ package com.tambapps.marcel.semantic.transform
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.semantic.SemanticPurpose
-import com.tambapps.marcel.semantic.SemanticHelper
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
@@ -173,7 +172,7 @@ class CachedAstTransformation : GenerateMethodAstTransformation() {
     if (purpose == SemanticPurpose.REPL && classNode.type.isScript) {
       // init field in constructor
       classNode.constructors.forEach {
-        SemanticHelper.addStatementLast(
+        addStatementLast(
           ExpressionStatementNode(fCall("setVariable", listOf(string(fieldName), cacheInitValueExpr), thisRef())),
           it.blockStatement
         )

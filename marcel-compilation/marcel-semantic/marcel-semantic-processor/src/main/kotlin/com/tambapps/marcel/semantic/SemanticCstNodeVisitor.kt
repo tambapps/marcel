@@ -1766,8 +1766,8 @@ abstract class SemanticCstNodeVisitor(
     classNodeMap[lambdaNode.type] = lambdaNode
     lambdaConstructor.blockStatement.addAll(
       listOf(
-        ExpressionStatementNode(SemanticHelper.superNoArgConstructorCall(lambdaNode, symbolResolver)),
-        SemanticHelper.returnVoid(lambdaNode)
+        ExpressionStatementNode(superNoArgConstructorCall(lambdaNode, symbolResolver)),
+        returnVoid(lambdaNode)
       )
     )
 
@@ -1839,14 +1839,14 @@ abstract class SemanticCstNodeVisitor(
             }) as BlockStatementNode
         } else {
           interfaceMethodBlockStatement.statements.add(
-            SemanticHelper.returnVoid(interfaceMethodBlockStatement)
+            returnVoid(interfaceMethodBlockStatement)
           )
         }
         interfaceMethodNode.blockStatement.addAll(interfaceMethodBlockStatement.statements)
         lambdaNode.methods.add(interfaceMethodNode)
       } else {
         // defining the lambda "invoke" method
-        val lambdaType = SemanticHelper.getLambdaType(lambdaNode, methodParameters)
+        val lambdaType = getLambdaType(lambdaNode, methodParameters)
         // needed because we don't want to add this twice
         if (interfaceType?.packageName != "marcel.lang.lambda") lambdaNode.type.addImplementedInterface(lambdaType)
 
@@ -2049,7 +2049,7 @@ abstract class SemanticCstNodeVisitor(
             )
           )
         } else {
-          statements.add(SemanticHelper.returnVoid(asyncMethodNode))
+          statements.add(returnVoid(asyncMethodNode))
         }
       }
       asyncMethodNode.blockStatement.addAll(
@@ -2071,7 +2071,7 @@ abstract class SemanticCstNodeVisitor(
         )
       )
       if (asyncReturnType == JavaType.void) {
-        asyncMethodNode.blockStatement.add(SemanticHelper.returnVoid(asyncMethodNode))
+        asyncMethodNode.blockStatement.add(returnVoid(asyncMethodNode))
       }
     }
     return fCall(
@@ -2170,7 +2170,7 @@ abstract class SemanticCstNodeVisitor(
     whenMethod.blockStatement.apply {
       add(whenStatement)
       // if it is not void, statements already have return nodes because of ReturningWhenIfBranchTransformer
-      if (whenReturnType == JavaType.void) add(SemanticHelper.returnVoid(this))
+      if (whenReturnType == JavaType.void) add(returnVoid(this))
     }
 
     // dispose switch expression variable

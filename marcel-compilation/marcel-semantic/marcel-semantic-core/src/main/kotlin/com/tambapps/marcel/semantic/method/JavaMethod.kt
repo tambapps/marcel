@@ -4,6 +4,7 @@ import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.type.JavaArrayType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTyped
+import com.tambapps.marcel.semantic.variable.LocalVariable
 
 interface JavaMethod: JavaTyped {
 
@@ -56,6 +57,22 @@ interface JavaMethod: JavaTyped {
     if (parameters.size != other.parameters.size) return false
     for (i in parameters.indices) if (parameters[i].type.raw() != other.parameters[i].type.raw()) return false
     return true
+  }
+
+  /**
+   * Generate a local variable corresponding to the provided method parameter, initializing correctly the index of the
+   * local variable based on previous method parameters index and nbSlots if any
+   *
+   * @param parameter the method parameter (should be a parameter of this method)
+   * @return a local variable corresponding to the method parameter
+   */
+  fun toLocalVariable(parameter: MethodParameter): LocalVariable {
+    var index = if (isStatic) 0 else 1
+    var i = 0
+    while (i < parameters.size && parameters[i] != parameter) {
+      index += parameters[i++].type.nbSlots
+    }
+    return LocalVariable(parameter.type, parameter.name, parameter.type.nbSlots, index, parameter.isFinal)
   }
 
   /**

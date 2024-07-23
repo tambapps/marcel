@@ -28,6 +28,7 @@ import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.imprt.ImportResolver
@@ -43,6 +44,7 @@ import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.type.SourceJavaType
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
+import marcel.lang.Binding
 import marcel.util.concurrent.Threadmill
 import java.lang.annotation.ElementType
 import java.util.concurrent.Callable
@@ -181,7 +183,7 @@ open class MarcelSemantic(
       node.constructors.forEach { classNode.methods.add(constructorNode(classNode, it, classScope)) }
       if (classNode.constructorCount == 0) {
         // default no arg constructor
-        val noArgConstructor = SemanticHelper.noArgConstructor(
+        val noArgConstructor = noArgConstructor(
           classNode, symbolResolver,
           visibility = if (classNode.isExtensionClass || classNode.isEnum) Visibility.PRIVATE else Visibility.PUBLIC
         )
@@ -199,9 +201,18 @@ open class MarcelSemantic(
       val staticFieldInitialValueMap = mutableMapOf<FieldNode, ExpressionNode>()
       if (node is ScriptCstNode) {
         // need the binding constructor. the no-arg constructor should have been added in the classNode() method
-        classNode.methods.add(SemanticHelper.scriptBindingConstructor(classNode, symbolResolver, scriptType))
+        classNode.methods.add(scriptBindingConstructor(classNode, symbolResolver, scriptType))
         // add the run method
-        val runMethod = SemanticHelper.scriptRunMethod(classType, cst)
+        val runMethod = MethodNode(
+          name = "run",
+          visibility = Visibility.PUBLIC, returnType = JavaType.Object,
+          isStatic = false,
+          ownerClass = classType,
+          parameters = mutableListOf(MethodParameter(JavaType.String.arrayType, "args")),
+          tokenStart = cst.tokenStart,
+          tokenEnd = cst.tokenEnd
+        )
+
         fillMethodNode(
           classScope,
           runMethod,
@@ -289,10 +300,53 @@ open class MarcelSemantic(
   private fun getOrCreateStaticInitialisationMethod(classNode: ClassNode): MethodNode {
     val m = classNode.methods.find { it.name == JavaMethod.STATIC_INITIALIZATION_BLOCK }
     if (m != null) return m
-    val newMethod = SemanticHelper.staticInitialisationMethod(classNode)
+    val newMethod = staticInitialisationMethod(classNode)
     classNode.methods.add(newMethod)
     return newMethod
   }
+
+  private fun scriptBindingConstructor(
+    classNode: ClassNode,
+    symbolResolver: MarcelSymbolResolver,
+    scriptType: JavaType
+  ): MethodNode {
+    val parameter = MethodParameter(Binding::class.javaType, "binding")
+    val methodNode = MethodNode(
+      JavaMethod.CONSTRUCTOR_NAME,
+      mutableListOf(parameter),
+      Visibility.PUBLIC,
+      JavaType.void,
+      false,
+      classNode.tokenStart,
+      classNode.tokenEnd,
+      JavaType.void
+    )
+    methodNode.blockStatement.addAll(
+      mutableListOf(
+        ExpressionStatementNode(
+
+          SuperConstructorCallNode(
+            classNode.superType,
+            symbolResolver.findMethod(scriptType, JavaMethod.CONSTRUCTOR_NAME, listOf(parameter))!!,
+            listOf(
+              ReferenceNode(
+                variable = LocalVariable(
+                  parameter.type,
+                  parameter.name,
+                  parameter.type.nbSlots,
+                  1,
+                  false
+                ), token = classNode.token
+              )
+            ), classNode.tokenStart, classNode.tokenEnd
+          )
+        ),
+        ReturnStatementNode(VoidExpressionNode(methodNode.token), methodNode.tokenStart, methodNode.tokenEnd)
+      )
+    )
+    return methodNode
+  }
+
   private fun toFieldAssignmentStatements(
     classType: JavaType,
     map: Map<FieldNode, ExpressionNode>,
@@ -416,7 +470,7 @@ open class MarcelSemantic(
             owner = ThisReferenceNode(classScope.classType, constructorCstNode.token), variable = field,
             // using index of method parameter. +1 because not in static context
             expression = ReferenceNode(
-              variable = SemanticHelper.parameterToLocalVariable(constructorNode, param),
+              variable = constructorNode.toLocalVariable(param),
               token = constructorCstNode.token
             ), node = constructorCstNode
           )
@@ -491,9 +545,9 @@ open class MarcelSemantic(
 
     if (!AllPathsReturnVisitor.test(statements)) {
       if (methodeNode.returnType == JavaType.void || methodeNode.asyncReturnType == JavaType.void) {
-        statements.add(SemanticHelper.returnVoid(methodeNode))
+        statements.add(returnVoid(methodeNode))
       } else if (scriptRunMethod) {
-        statements.add(SemanticHelper.returnNull(methodeNode))
+        statements.add(returnNull(methodeNode))
       } else {
         throw MarcelSemanticException(
           methodeNode.token,
@@ -566,7 +620,7 @@ open class MarcelSemantic(
           )
           if (returnsVoid) {
             add(ExpressionStatementNode(fCall))
-            add(SemanticHelper.returnVoid(lambdaMethod))
+            add(returnVoid(lambdaMethod))
           } else {
             add(ReturnStatementNode(fCall))
           }

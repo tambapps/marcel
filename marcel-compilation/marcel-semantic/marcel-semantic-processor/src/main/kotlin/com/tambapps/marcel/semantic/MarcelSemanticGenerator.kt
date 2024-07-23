@@ -2,6 +2,7 @@ package com.tambapps.marcel.semantic
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.LambdaClassNode
@@ -11,11 +12,15 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
+import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
+import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
+import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.exception.MemberNotVisibleException
@@ -30,7 +35,22 @@ import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.variable.LocalVariable
+import marcel.lang.lambda.CharLambda1
+import marcel.lang.lambda.DoubleLambda1
+import marcel.lang.lambda.FloatLambda1
+import marcel.lang.lambda.IntLambda1
 import marcel.lang.lambda.Lambda
+import marcel.lang.lambda.Lambda1
+import marcel.lang.lambda.Lambda10
+import marcel.lang.lambda.Lambda2
+import marcel.lang.lambda.Lambda3
+import marcel.lang.lambda.Lambda4
+import marcel.lang.lambda.Lambda5
+import marcel.lang.lambda.Lambda6
+import marcel.lang.lambda.Lambda7
+import marcel.lang.lambda.Lambda8
+import marcel.lang.lambda.Lambda9
+import marcel.lang.lambda.LongLambda1
 import java.util.*
 
 abstract class MarcelSemanticGenerator {
@@ -78,6 +98,46 @@ abstract class MarcelSemanticGenerator {
 
   protected fun newInnerScope() = MethodInnerScope(currentMethodScope)
   protected inline fun <U> useInnerScope(consumer: (MethodInnerScope) -> U) = useScope(newInnerScope(), consumer)
+
+  fun superNoArgConstructorCall(classNode: ClassNode, symbolResolver: MarcelSymbolResolver): SuperConstructorCallNode {
+    val superConstructorMethod =
+      symbolResolver.findMethodOrThrow(classNode.superType, JavaMethod.CONSTRUCTOR_NAME, emptyList(), classNode.token)
+    return SuperConstructorCallNode(
+      classNode.superType,
+      superConstructorMethod,
+      emptyList(),
+      classNode.tokenStart,
+      classNode.tokenEnd
+    )
+  }
+
+  fun noArgConstructor(
+    classNode: ClassNode,
+    symbolResolver: MarcelSymbolResolver,
+    visibility: Visibility = Visibility.PUBLIC
+  ): MethodNode {
+    val defaultConstructorNode = MethodNode(
+      JavaMethod.CONSTRUCTOR_NAME,
+      mutableListOf(),
+      visibility,
+      JavaType.void,
+      false,
+      classNode.tokenStart,
+      classNode.tokenEnd,
+      classNode.type
+    )
+    defaultConstructorNode.blockStatement.addAll(
+      listOf(
+        ExpressionStatementNode(superNoArgConstructorCall(classNode, symbolResolver)),
+        ReturnStatementNode(
+          VoidExpressionNode(defaultConstructorNode.token),
+          defaultConstructorNode.tokenStart,
+          defaultConstructorNode.tokenEnd
+        )
+      )
+    )
+    return defaultConstructorNode
+  }
 
   /**
    * Cast method arguments if necessary and transform them to handle varags if necessary
@@ -181,6 +241,68 @@ abstract class MarcelSemanticGenerator {
       tokenEnd
     )
     return if (castType != null) caster.cast(castType, node) else node
+  }
+
+  fun staticInitialisationMethod(classNode: ClassNode): MethodNode {
+    return MethodNode(
+      ownerClass = classNode.type,
+      name = JavaMethod.STATIC_INITIALIZATION_BLOCK,
+      parameters = mutableListOf(),
+      visibility = Visibility.PRIVATE,
+      isStatic = true,
+      returnType = JavaType.void,
+      tokenStart = classNode.tokenStart,
+      tokenEnd = classNode.tokenEnd
+    ).apply {
+      // all functions should finish with a return statement, even the void ones
+      blockStatement.add(ReturnStatementNode(null, tokenStart, tokenEnd))
+    }
+  }
+
+  /**
+   * Add statement last in the block, but before the return instruction if any
+   *
+   * @param statement the statement to add
+   * @param block the statement block
+   */
+  fun addStatementLast(statement: StatementNode, block: BlockStatementNode) {
+    addStatementLast(statement, block.statements)
+  }
+
+  private fun addStatementLast(statement: StatementNode, statements: MutableList<StatementNode>) {
+    if (statements.last() is ReturnStatementNode) {
+      statements.add(statements.lastIndex, statement)
+    } else statements.add(statement)
+  }
+
+  fun returnVoid(node: AstNode) = ReturnStatementNode(VoidExpressionNode(node.token), node.tokenStart, node.tokenEnd)
+  fun returnNull(node: AstNode) = ReturnStatementNode(NullValueNode(node.token), node.tokenStart, node.tokenEnd)
+
+  fun getLambdaType(node: AstNode, lambdaParameters: List<MethodParameter>): JavaType {
+    val returnType = JavaType.Object
+
+    return when (lambdaParameters.size) {
+      0 -> JavaType.of(Lambda1::class.java).withGenericTypes(JavaType.Object)
+      1 -> when (lambdaParameters.first().type) {
+        JavaType.int -> JavaType.of(IntLambda1::class.java).withGenericTypes(returnType)
+        JavaType.long -> JavaType.of(LongLambda1::class.java).withGenericTypes(returnType)
+        JavaType.float -> JavaType.of(FloatLambda1::class.java).withGenericTypes(returnType)
+        JavaType.double -> JavaType.of(DoubleLambda1::class.java).withGenericTypes(returnType)
+        JavaType.char -> JavaType.of(CharLambda1::class.java).withGenericTypes(returnType)
+        else -> JavaType.of(Lambda1::class.java).withGenericTypes(lambdaParameters.first().type.objectType, returnType)
+      }
+
+      2 -> JavaType.of(Lambda2::class.java).withGenericTypes(lambdaParameters.map { it.type } + returnType)
+      3 -> JavaType.of(Lambda3::class.java).withGenericTypes(lambdaParameters.map { it.type } + returnType)
+      4 -> JavaType.of(Lambda4::class.java).withGenericTypes(lambdaParameters.map { it.type } + returnType)
+      5 -> JavaType.of(Lambda5::class.java).withGenericTypes(lambdaParameters.map { it.type } + returnType)
+      6 -> JavaType.of(Lambda6::class.java).withGenericTypes(lambdaParameters.map { it.type } + returnType)
+      7 -> JavaType.of(Lambda7::class.java).withGenericTypes(lambdaParameters.map { it.type } + returnType)
+      8 -> JavaType.of(Lambda8::class.java).withGenericTypes(lambdaParameters.map { it.type } + returnType)
+      9 -> JavaType.of(Lambda9::class.java).withGenericTypes(lambdaParameters.map { it.type } + returnType)
+      10 -> JavaType.of(Lambda10::class.java).withGenericTypes(lambdaParameters.map { it.type } + returnType)
+      else -> throw MarcelSemanticException(node.token, "Doesn't handle lambdas with more than 10 parameters")
+    }
   }
 
   protected fun generateLambdaClassName(lambdaOuterClassNode: ClassNode): String {
@@ -360,8 +482,8 @@ abstract class MarcelSemanticGenerator {
     ).apply {
       blockStatement.addAll(
         listOf(
-          ExpressionStatementNode(SemanticHelper.superNoArgConstructorCall(lambdaClassNode, symbolResolver)),
-          SemanticHelper.returnVoid(lambdaClassNode)
+          ExpressionStatementNode(superNoArgConstructorCall(lambdaClassNode, symbolResolver)),
+          returnVoid(lambdaClassNode)
         )
       )
     }

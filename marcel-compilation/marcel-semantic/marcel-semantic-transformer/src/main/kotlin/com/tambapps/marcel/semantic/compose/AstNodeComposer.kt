@@ -2,7 +2,6 @@ package com.tambapps.marcel.semantic.compose
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.MarcelSemanticGenerator
-import com.tambapps.marcel.semantic.SemanticHelper
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.ClassNode
@@ -93,7 +92,7 @@ abstract class AstNodeComposer : MarcelSemanticGenerator() {
     classNode.type, visibility, JavaMethod.CONSTRUCTOR_NAME, parameters, JavaType.void, isStatic = false
   ) {
     // super method call
-    stmt(SemanticHelper.superNoArgConstructorCall(classNode, symbolResolver))
+    stmt(superNoArgConstructorCall(classNode, symbolResolver))
     statementsSupplier.invoke(this)
 
     // return void because constructor
@@ -129,7 +128,7 @@ abstract class AstNodeComposer : MarcelSemanticGenerator() {
     }
 
     if (!AllPathsReturnVisitor.test(statements) && returnType == JavaType.void) {
-      statements.add(SemanticHelper.returnVoid(methodNode))
+      statements.add(returnVoid(methodNode))
     }
     return methodNode
   }
@@ -142,7 +141,7 @@ abstract class AstNodeComposer : MarcelSemanticGenerator() {
     }
 
     if (!AllPathsReturnVisitor.test(statements) && methodNode.returnType == JavaType.void) {
-      statements.add(SemanticHelper.returnVoid(methodNode))
+      statements.add(returnVoid(methodNode))
     }
     return methodNode
   }
@@ -155,7 +154,7 @@ abstract class AstNodeComposer : MarcelSemanticGenerator() {
     classNode.fields.add(fieldNode)
     if (defaultValue != null) {
       classNode.constructors.forEach {
-        SemanticHelper.addStatementLast(
+        addStatementLast(
           ExpressionStatementNode(varAssignExpr(fieldNode, defaultValue, thisRef())),
           it.blockStatement
         )
@@ -405,7 +404,7 @@ abstract class AstNodeComposer : MarcelSemanticGenerator() {
       val statementComposer = StatementsComposer(statements)
       lambdaBodyStatementComposerFunc.invoke(statementComposer)
       if (!AllPathsReturnVisitor.test(statements) && returnType == JavaType.void) {
-        statements.add(SemanticHelper.returnVoid(lambdaMethod))
+        statements.add(returnVoid(lambdaMethod))
       }
     }
     return newInstanceNode

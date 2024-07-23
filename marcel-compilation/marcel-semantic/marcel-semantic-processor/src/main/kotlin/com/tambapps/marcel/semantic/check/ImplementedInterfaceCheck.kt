@@ -1,7 +1,6 @@
 package com.tambapps.marcel.semantic.check
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.semantic.SemanticHelper
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
@@ -9,6 +8,7 @@ import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
@@ -56,7 +56,7 @@ internal object ImplementedInterfaceCheck : ClassNodeVisitor {
                 implementationMethod.parameters[i].type,
                 ReferenceNode(
                   null,
-                  SemanticHelper.parameterToLocalVariable(rawMethodNode, rawMethodNode.parameters[i]),
+                  rawMethodNode.toLocalVariable(rawMethodNode.parameters[i]),
                   classNode.token
                 ),
                 classNode.token
@@ -79,7 +79,7 @@ internal object ImplementedInterfaceCheck : ClassNodeVisitor {
               ExpressionStatementNode(fCall, fCall.tokenStart, fCall.tokenEnd)
             )
             rawMethodNode.blockStatement.statements.add(
-              SemanticHelper.returnVoid(fCall)
+              ReturnStatementNode(VoidExpressionNode(fCall))
             )
           }
           classNode.methods.add(rawMethodNode)
