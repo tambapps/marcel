@@ -42,11 +42,9 @@ An `async` code block is a block in which you can perform async operations
 ```marcel
 async fun int doCompute() -> 1
 
-fun int computeInBackground() {
-  return async {
-    int result = await(doCompute())
-    result
-  }
+async {
+  int result = await(doCompute())
+  result
 }
 ```
 
