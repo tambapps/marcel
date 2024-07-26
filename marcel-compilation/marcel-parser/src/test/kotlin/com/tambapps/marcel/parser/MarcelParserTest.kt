@@ -9,6 +9,7 @@ import com.tambapps.marcel.parser.cst.ClassCstNode
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
+import com.tambapps.marcel.parser.cst.RegularClassCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.BinaryOperatorCstNode
@@ -43,7 +44,7 @@ import org.junit.jupiter.params.provider.ValueSource
 class MarcelParserTest {
 
     private val defaultAccess = AccessCstNode(null, token(), token(), false, false, false, TokenType.VISIBILITY_PUBLIC, false)
-    private val classNode = ClassCstNode(
+    private val classNode = RegularClassCstNode(
         SourceFileCstNode(LexToken.DUMMY, LexToken.DUMMY, null, emptyList()),
         token(), token(), defaultAccess, "Test", null, emptyList(), null)
 

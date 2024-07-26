@@ -7,11 +7,13 @@ import com.tambapps.marcel.parser.cst.ConstructorCstNode
 import com.tambapps.marcel.parser.cst.EnumCstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
+import com.tambapps.marcel.parser.cst.RegularClassCstNode
 import com.tambapps.marcel.parser.cst.ScriptCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
+import com.tambapps.marcel.parser.cst.visitor.ClassCstNodeVisitor
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.LambdaClassNode
@@ -54,7 +56,7 @@ open class MarcelSemantic(
   private val scriptType: JavaType,
   val cst: SourceFileCstNode,
   val fileName: String,
-) : SemanticCstNodeVisitor(symbolResolver, cst.packageName) {
+) : SemanticCstNodeVisitor(symbolResolver, cst.packageName), ClassCstNodeVisitor<ClassNode> {
 
   fun resolveImports() {
     imports.add(ImportResolverGenerator.generateImports(symbolResolver, cst.imports))
@@ -72,7 +74,6 @@ open class MarcelSemantic(
     } finally {
       extensionTypes.forEach(symbolResolver::unloadExtension)
     }
-
     return moduleNode
   }
 
@@ -80,7 +81,7 @@ open class MarcelSemantic(
     val scriptCstNode = cst.script
 
     for (cstClass in cst.classes) {
-      val classNode = classNode(symbolResolver.of(cstClass.className, emptyList(), cstClass.token), cstClass)
+      val classNode = cstClass.accept(this)
       moduleNode.classes.add(classNode)
       classNode.innerClasses.forEach { innerClassNode ->
         if (innerClassNode is LambdaClassNode) {
@@ -96,8 +97,7 @@ open class MarcelSemantic(
           "Cannot define constructors for scripts"
         )
       }
-      val classType = symbolResolver.of(scriptCstNode.className)
-      val scriptNode = classNode(classType, scriptCstNode)
+      val scriptNode = scriptCstNode.accept(this)
       moduleNode.classes.add(scriptNode)
     }
   }
@@ -150,20 +150,19 @@ open class MarcelSemantic(
     }
   }
 
-  // TODO try to use polymorphism to avoid having to if/else everywhere about isEnum, isScript
-  private fun classNode(classType: JavaType, node: ClassCstNode): ClassNode =
-    useScope(ClassScope(symbolResolver, classType, node.forExtensionType?.let(this::resolve), imports)) { classScope ->
-      val classNode = ClassNode(
-        classType, Visibility.fromTokenType(node.access.visibility),
-        classScope.forExtensionType,
-        isStatic = classType.outerTypeName != null && node.access.isStatic,
-        isScript = node.isScript,
-        isEnum = node.isEnum,
-        fileName = fileName,
-        cst.tokenStart, cst.tokenEnd
-      )
-      classNodeMap[classType] = classNode
+  /*
+   * Class semantic
+   */
+  private open inner class ClassSemantic<T: ClassCstNode>(
+    protected val node: T,
+    protected val classNode: ClassNode,
+    protected val classScope: ClassScope
+  ) {
+    protected val classType = classNode.type
+    protected val fieldInitialValueMap = mutableMapOf<FieldNode, ExpressionNode>()
+    protected val staticFieldInitialValueMap = mutableMapOf<FieldNode, ExpressionNode>()
 
+    fun apply() {
       // extension types check
       if (classNode.forExtensionType != null) {
         if (node.constructors.isNotEmpty()) {
@@ -178,7 +177,7 @@ open class MarcelSemantic(
 
       // must handle inner classes BEFORE handling this class being an inner class because in this case constructors will be modified
       node.innerClasses.forEach {
-        classNode.innerClasses.add(classNode(symbolResolver.of(it.className, emptyList(), it.token), it))
+        classNode.innerClasses.add(it.accept(this@MarcelSemantic))
       }
       node.constructors.forEach { classNode.methods.add(constructorNode(classNode, it, classScope)) }
       if (classNode.constructorCount == 0) {
@@ -197,47 +196,9 @@ open class MarcelSemantic(
         (classNode.type as? SourceJavaType)?.addAnnotation(annotation)
       }
 
-      // will be used later but needs to be declared here because of enums
-      val staticFieldInitialValueMap = mutableMapOf<FieldNode, ExpressionNode>()
-      if (node is ScriptCstNode) {
-        // need the binding constructor. the no-arg constructor should have been added in the classNode() method
-        classNode.methods.add(scriptBindingConstructor(classNode, symbolResolver, scriptType))
-        // add the run method
-        val runMethod = MethodNode(
-          name = "run",
-          visibility = Visibility.PUBLIC, returnType = JavaType.Object,
-          isStatic = false,
-          ownerClass = classType,
-          parameters = mutableListOf(MethodParameter(JavaType.String.arrayType, "args")),
-          tokenStart = cst.tokenStart,
-          tokenEnd = cst.tokenEnd
-        )
-
-        fillMethodNode(
-          classScope,
-          runMethod,
-          node.runMethodStatements,
-          emptyList(),
-          scriptRunMethod = true,
-          isAsync = false
-        )
-        classNode.methods.add(runMethod)
-      } else if (node is EnumCstNode) {
-        // create static fields
-        node.names.forEachIndexed { index, name ->
-          val enumConstructor = classNode.constructors.first() // doesn't support declaring constructors for enums so we can just assume there is only one, the default one
-          val fieldNode = FieldNode(classType, name, classType, emptyList(), isFinal = true, Visibility.PUBLIC, isStatic = true, classNode.tokenStart, classNode.tokenEnd)
-          classNode.fields.add(fieldNode)
-          staticFieldInitialValueMap[fieldNode] = NewInstanceNode(classType, enumConstructor, listOf(StringConstantNode(name, node), IntConstantNode(node.token, index)), node.token)
-        }
-
-        // TODO add values() method and valueOf
-        // TODO default constructor of enum should not be a noArg. It should have a name and ordinal argument and should call super(String name, int ordinal)
-        TODO("Doesn't handle enums yet")
-      }
+      beforeProcessingMethods()
       // iterating with i because we might add methods while
       node.methods.forEach { classNode.methods.add(methodNode(classNode, it, classScope)) }
-      val fieldInitialValueMap = mutableMapOf<FieldNode, ExpressionNode>()
       node.fields.forEach { cstFieldNode ->
         val fieldNode = FieldNode(
           resolve(cstFieldNode.type), cstFieldNode.name, classType,
@@ -252,7 +213,7 @@ open class MarcelSemantic(
           if (fieldNode.isStatic) {
             val stInitMethod = getOrCreateStaticInitialisationMethod(classNode)
             useScope(MethodScope(classScope, stInitMethod)) {
-              staticFieldInitialValueMap[fieldNode] = cstFieldNode.initialValue!!.accept(this, fieldNode.type)
+              staticFieldInitialValueMap[fieldNode] = cstFieldNode.initialValue!!.accept(this@MarcelSemantic, fieldNode.type)
             }
           } else {
             fieldInitialValueMap[fieldNode] = useScope(
@@ -261,12 +222,11 @@ open class MarcelSemantic(
                 JavaConstructorImpl(Visibility.PRIVATE, isVarArgs = false, classType, emptyList())
               )
             ) {
-              caster.cast(fieldNode.type, cstFieldNode.initialValue!!.accept(this, fieldNode.type))
+              caster.cast(fieldNode.type, cstFieldNode.initialValue!!.accept(this@MarcelSemantic, fieldNode.type))
             }
           }
         }
       }
-
 
       if (fieldInitialValueMap.isNotEmpty()) {
         val fieldAssignmentStatements = toFieldAssignmentStatements(classType, fieldInitialValueMap, false)
@@ -285,15 +245,92 @@ open class MarcelSemantic(
           toFieldAssignmentStatements(classType, staticFieldInitialValueMap, true)
         )
       }
+      onEnd()
+    }
 
-      if (node is ScriptCstNode) {
-        // need this to be at the end of this function
-        classNode.innerClasses.forEach { innerClassNode ->
-          if (innerClassNode is LambdaClassNode) {
-            defineLambda(innerClassNode)
-          }
+    protected open fun onEnd() {}
+    protected open fun beforeProcessingMethods() {}
+  }
+
+  private inner class RegularClassSemantic(node: RegularClassCstNode, classNode: ClassNode, classScope: ClassScope) :
+    ClassSemantic<RegularClassCstNode>(node, classNode, classScope)
+
+  private inner class ScriptClassSemantic(node: ScriptCstNode, classNode: ClassNode, classScope: ClassScope) :
+    ClassSemantic<ScriptCstNode>(node, classNode, classScope) {
+
+    override fun beforeProcessingMethods() {
+      // need the binding constructor. the no-arg constructor should already have been added
+      classNode.methods.add(scriptBindingConstructor(classNode, symbolResolver, scriptType))
+      // add the run method
+      val runMethod = MethodNode(
+        name = "run",
+        visibility = Visibility.PUBLIC, returnType = JavaType.Object,
+        isStatic = false,
+        ownerClass = classType,
+        parameters = mutableListOf(MethodParameter(JavaType.String.arrayType, "args")),
+        tokenStart = cst.tokenStart,
+        tokenEnd = cst.tokenEnd
+      )
+
+      fillMethodNode(
+        classScope,
+        runMethod,
+        node.runMethodStatements,
+        emptyList(),
+        scriptRunMethod = true,
+        isAsync = false
+      )
+      classNode.methods.add(runMethod)
+    }
+
+    override fun onEnd() {
+      // need this to be at the end of this function
+      classNode.innerClasses.forEach { innerClassNode ->
+        if (innerClassNode is LambdaClassNode) {
+          defineLambda(innerClassNode)
         }
       }
+    }
+  }
+
+  private inner class EnumClassSemantic(node: EnumCstNode, classNode: ClassNode, classScope: ClassScope) :
+    ClassSemantic<EnumCstNode>(node, classNode, classScope) {
+    override fun beforeProcessingMethods() {
+      // create static fields
+      node.names.forEachIndexed { index, name ->
+        val enumConstructor = classNode.constructors.first() // doesn't support declaring constructors for enums so we can just assume there is only one, the default one
+        val fieldNode = FieldNode(classType, name, classType, emptyList(), isFinal = true, Visibility.PUBLIC, isStatic = true, classNode.tokenStart, classNode.tokenEnd)
+        classNode.fields.add(fieldNode)
+        staticFieldInitialValueMap[fieldNode] = NewInstanceNode(classType, enumConstructor, listOf(StringConstantNode(name, node), IntConstantNode(node.token, index)), node.token)
+
+      }
+
+      // TODO add values() method and valueOf
+      // TODO default constructor of enum should not be a noArg. It should have a name and ordinal argument and should call super(String name, int ordinal)
+      TODO("Doesn't handle enums yet")
+    }
+  }
+
+  override fun visit(node: RegularClassCstNode) = classNode(node, ::RegularClassSemantic)
+
+  override fun visit(node: EnumCstNode) = classNode(node, ::EnumClassSemantic)
+
+  override fun visit(node: ScriptCstNode) = classNode(node, ::ScriptClassSemantic)
+
+  private inline fun <T: ClassCstNode> classNode(node: T, classNodeCreatorCreator: (T, ClassNode, ClassScope) -> ClassSemantic<T>): ClassNode =
+    useScope(ClassScope(symbolResolver, symbolResolver.of(node.className, emptyList(), node.token), node.forExtensionType?.let(this::resolve), imports)) { classScope ->
+      val classType = classScope.classType
+      val classNode = ClassNode(
+        classType, Visibility.fromTokenType(node.access.visibility),
+        classScope.forExtensionType,
+        isStatic = classType.outerTypeName != null && node.access.isStatic,
+        isScript = node.isScript,
+        isEnum = node.isEnum,
+        fileName = fileName,
+        cst.tokenStart, cst.tokenEnd
+      )
+      classNodeMap[classType] = classNode
+      classNodeCreatorCreator.invoke(node, classNode, classScope).apply()
       return@useScope classNode
     }
 
@@ -366,6 +403,9 @@ open class MarcelSemantic(
     }
   }
 
+  /*
+   * Method nodes
+   */
   private fun methodNode(classNode: ClassNode, methodCst: MethodCstNode, classScope: ClassScope): MethodNode {
     val (returnType, asyncReturnType) = resolveReturnType(methodCst)
     val methodNode = toMethodNode(
@@ -429,7 +469,7 @@ open class MarcelSemantic(
       )
     }
 
-    // because we want to add thisParameter varAssign AFTER outer class fields assignements
+    // because we want to add thisParameter varAssign AFTER outer class fields assignments
     val thisParameterInstructionsStart = 1 + outerClassFields.size
     if (outerClassFields.isNotEmpty()) {
       // now we also need to assign these outer class references fields

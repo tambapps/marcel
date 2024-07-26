@@ -31,6 +31,7 @@ import com.tambapps.marcel.parser.cst.EnumCstNode
 import com.tambapps.marcel.parser.cst.FieldCstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
+import com.tambapps.marcel.parser.cst.RegularClassCstNode
 import com.tambapps.marcel.parser.cst.ScriptCstNode
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
@@ -343,7 +344,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         acceptOptional(TokenType.COMMA)
       }
     }
-    val classNode = ClassCstNode(sourceFile, classToken, classToken, access, className, superType, interfaces, forExtensionClassType)
+    val classNode = RegularClassCstNode(sourceFile, classToken, classToken, access, className, superType, interfaces, forExtensionClassType)
     classNode.annotations.addAll(annotations)
 
     accept(TokenType.BRACKETS_OPEN)

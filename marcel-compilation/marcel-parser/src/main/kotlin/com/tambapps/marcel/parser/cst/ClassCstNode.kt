@@ -1,30 +1,29 @@
 package com.tambapps.marcel.parser.cst
 
-import com.tambapps.marcel.lexer.LexToken
+import com.tambapps.marcel.parser.cst.visitor.ClassCstNodeVisitor
 
-open class ClassCstNode constructor(
-  parentSourceFileNode: SourceFileCstNode,
-  tokenStart: LexToken,
-  tokenEnd: LexToken,
-  val access: AccessCstNode,
-  val className: String, // full class name. also handles inner class names
-  val superType: TypeCstNode?,
-  val interfaces: List<TypeCstNode>,
-  val forExtensionType: TypeCstNode?,
-) : AbstractCstNode(parentSourceFileNode, tokenStart, tokenEnd) {
+interface ClassCstNode: CstNode {
+  val isScript: Boolean
+  val isEnum: Boolean
+  fun <T> accept(visitor: ClassCstNodeVisitor<T>): T
 
-  open val isScript get() = false
-  open val isEnum get() = false
+  val access: AccessCstNode
+
+  /**
+   * Full class name. also handles inner class names
+   */
+  val className: String
+  val superType: TypeCstNode?
+  val interfaces: List<TypeCstNode>
+  val forExtensionType: TypeCstNode?
 
   override val parent: SourceFileCstNode
-    get() = super.parent as SourceFileCstNode
 
   val isExtensionClass: Boolean get() = forExtensionType != null
 
-  val annotations: MutableList<AnnotationCstNode> = mutableListOf()
-  val methods: MutableList<MethodCstNode> = mutableListOf()
-  val fields: MutableList<FieldCstNode> = mutableListOf()
-  val constructors: MutableList<ConstructorCstNode> = mutableListOf()
-  val innerClasses: MutableList<ClassCstNode> = mutableListOf()
-
+  val annotations: MutableList<AnnotationCstNode>
+  val methods: MutableList<MethodCstNode>
+  val fields: MutableList<FieldCstNode>
+  val constructors: MutableList<ConstructorCstNode>
+  val innerClasses: MutableList<ClassCstNode>
 }

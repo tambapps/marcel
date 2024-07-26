@@ -1,6 +1,7 @@
 package com.tambapps.marcel.parser.cst
 
 import com.tambapps.marcel.lexer.LexToken
+import com.tambapps.marcel.parser.cst.visitor.ClassCstNodeVisitor
 
 open class EnumCstNode constructor(
   parentSourceFileNode: SourceFileCstNode,
@@ -9,6 +10,10 @@ open class EnumCstNode constructor(
   access: AccessCstNode,
   className: String, // full class name. also handles inner class names
   val names: List<String>
-) : ClassCstNode(parentSourceFileNode, tokenStart, tokenEnd, access, className, null, emptyList(), null) {
+) : AbstractClassCstNode(parentSourceFileNode, tokenStart, tokenEnd, access, className, null, emptyList(), null) {
   override val isEnum = true
+  override val isScript = false
+
+  override fun <T> accept(visitor: ClassCstNodeVisitor<T>) = visitor.visit(this)
+
 }
