@@ -5,7 +5,6 @@ import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.cst.AnnotationCstNode
 import com.tambapps.marcel.parser.cst.AccessCstNode
-import com.tambapps.marcel.parser.cst.ClassCstNode
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.parser.cst.MethodParameterCstNode
@@ -288,6 +287,18 @@ class MarcelParserTest {
             fCall(value = "zoo", castType = type("float"),
                 namedArgumentNodes = listOf(Pair("foo", int(123)), Pair("bar", double(23.0))),)
             , parser("zoo<float>(foo: 123, bar: 23d)").expression())
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["println(await(compute()))", "println(await compute())", "println await(compute())"])
+    fun testNestedFunctionCall(source: String) {
+        assertEquals(
+            fCall(value = "println", positionalArgumentNodes = listOf(
+                fCall(value = "await", positionalArgumentNodes = listOf(
+                    fCall("compute")
+                ),)
+            ),)
+            , parser(source).expression())
     }
 
     @Test

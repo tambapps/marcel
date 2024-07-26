@@ -1185,7 +1185,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     val namedArguments = mutableListOf<Pair<String, ExpressionCstNode>>()
     while ((withParenthesis && current.type != RPAR)
       //
-      || (!withParenthesis && !wasEndOfLine && !eof && current.type != END_OF_FILE && current.type != BRACKETS_OPEN)) {
+      || (!withParenthesis && !wasEndOfLine && !eof && current.type != END_OF_FILE && current.type != BRACKETS_OPEN && current.type != RPAR)) {
       if (current.type == IDENTIFIER && lookup(1)?.type == TokenType.COLON) {
         val identifierToken = accept(IDENTIFIER)
         val name = identifierToken.value
