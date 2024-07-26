@@ -13,7 +13,6 @@ import static java.lang.annotation.ElementType.METHOD;
 @Target(value={METHOD})
 public @interface Async {
 
-  // TODO support (at least writting) generic types and remove this returnType attribute (?)
   /**
    * The return type of the Future
    * @return the return type of the future
