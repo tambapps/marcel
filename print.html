@@ -1715,11 +1715,9 @@ fun void computeInBackground() {
 <p>An <code>async</code> code block is a block in which you can perform async operations</p>
 <pre><code class="language-marcel">async fun int doCompute() -&gt; 1
 
-fun int computeInBackground() {
-  return async {
-    int result = await(doCompute())
-    result
-  }
+async {
+  int result = await(doCompute())
+  result
 }
 </code></pre>
 <p><code>async</code> blocks will always wait (at the end) for all asynchronous tasks to complete.
