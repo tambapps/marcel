@@ -1,13 +1,10 @@
-import java.util.Properties
-
 plugins {
   id("com.android.library")
   id("org.jetbrains.kotlin.android")
 }
 
-val marcelProperties = Properties().apply { File(rootDir, "marcel.properties").inputStream().use(this::load) }
-val marcelVersion: String = marcelProperties.getProperty("marcel.version")
-val javaVersion: String = marcelProperties.getProperty("java.version")
+val marcelVersion: String = project.findProperty("marcel.version") as String
+val javaVersion: String = project.findProperty("java.version") as String
 
 android {
   namespace = "com.tambapps.marcel.android.compiler"
