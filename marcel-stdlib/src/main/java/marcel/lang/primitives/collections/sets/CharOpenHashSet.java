@@ -7,7 +7,7 @@ import marcel.lang.primitives.iterators.CharIterator;
 import marcel.lang.primitives.iterators.CharIterators;
 import marcel.lang.primitives.spliterators.CharSpliterator;
 import marcel.lang.primitives.spliterators.CharSpliterators;
-import marcel.lang.util.function.CharConsumer;
+import marcel.util.function.CharConsumer;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -136,7 +136,7 @@ public class CharOpenHashSet extends AbstractCharSet implements java.io.Serializ
 	 */
 	public CharOpenHashSet(final char[] a, final int offset, final int length, final float f) {
 		this(length < 0 ? 0 : length, f);
-		marcel.lang.util.Arrays.ensureOffsetLength(a, offset, length);
+		marcel.util.Arrays.ensureOffsetLength(a, offset, length);
 		for(int i = 0; i < length; i++) add(a[offset + i]);
 	}
 	/** Creates a new hash set with {@link Hash#DEFAULT_LOAD_FACTOR} as load factor and fills it with the elements of a given array.

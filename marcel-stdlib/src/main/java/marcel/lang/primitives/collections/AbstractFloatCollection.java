@@ -1,9 +1,9 @@
 package marcel.lang.primitives.collections;
 
 import marcel.lang.primitives.iterators.FloatIterator;
-import marcel.lang.util.Arrays;
-import marcel.lang.util.function.FloatConsumer;
-import marcel.lang.util.function.FloatPredicate;
+import marcel.util.Arrays;
+import marcel.util.function.FloatConsumer;
+import marcel.util.function.FloatPredicate;
 
 import java.util.AbstractCollection;
 import java.util.Collection;

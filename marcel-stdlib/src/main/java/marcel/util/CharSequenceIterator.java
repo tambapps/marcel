@@ -1,8 +1,8 @@
-package marcel.lang.util;
+package marcel.util;
 
 import lombok.RequiredArgsConstructor;
 import marcel.lang.primitives.iterators.AbstractCharIterator;
-import marcel.lang.util.function.CharConsumer;
+import marcel.util.function.CharConsumer;
 
 @RequiredArgsConstructor
 public class CharSequenceIterator extends AbstractCharIterator {

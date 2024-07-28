@@ -5,9 +5,9 @@ import marcel.lang.primitives.iterators.FloatIterator;
 import marcel.lang.primitives.iterators.list.FloatListIterator;
 import marcel.lang.primitives.spliterators.FloatSpliterator;
 import marcel.lang.primitives.spliterators.FloatSpliterators;
-import marcel.lang.util.Arrays;
-import marcel.lang.util.SafeMath;
-import marcel.lang.util.function.FloatConsumer;
+import marcel.util.Arrays;
+import marcel.util.SafeMath;
+import marcel.util.function.FloatConsumer;
 
 import java.util.Collection;
 import java.util.Iterator;

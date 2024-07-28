@@ -6,7 +6,7 @@ import marcel.lang.primitives.collections.lists.CharList;
 import marcel.lang.primitives.collections.sets.CharOpenHashSet;
 import marcel.lang.primitives.collections.sets.CharSet;
 import marcel.lang.primitives.iterators.IntIterator;
-import marcel.lang.util.function.CharPredicate;
+import marcel.util.function.CharPredicate;
 
 import java.util.NoSuchElementException;
 

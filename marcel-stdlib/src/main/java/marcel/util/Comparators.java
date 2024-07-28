@@ -1,10 +1,10 @@
-package marcel.lang.util;
+package marcel.util;
 
-import marcel.lang.util.function.CharComparator;
-import marcel.lang.util.function.DoubleComparator;
-import marcel.lang.util.function.FloatComparator;
-import marcel.lang.util.function.IntComparator;
-import marcel.lang.util.function.LongComparator;
+import marcel.util.function.CharComparator;
+import marcel.util.function.DoubleComparator;
+import marcel.util.function.FloatComparator;
+import marcel.util.function.IntComparator;
+import marcel.util.function.LongComparator;
 
 import java.util.Comparator;
 

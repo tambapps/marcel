@@ -15,12 +15,11 @@
  */
 package marcel.lang.primitives.spliterators;
 import marcel.lang.primitives.iterators.DoubleIterator;
-import marcel.lang.util.Arrays;
-import marcel.lang.util.Comparators;
-import marcel.lang.util.SafeMath;
-import marcel.lang.util.function.DoubleComparator;
+import marcel.util.Arrays;
+import marcel.util.Comparators;
+import marcel.util.SafeMath;
+import marcel.util.function.DoubleComparator;
 
-import java.util.Comparator;
 import java.util.Spliterator;
 import java.util.Objects;
 import java.util.function.Consumer;

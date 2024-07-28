@@ -23,8 +23,8 @@ import marcel.lang.primitives.collections.sets.IntSet;
 import marcel.lang.primitives.collections.sets.LongOpenHashSet;
 import marcel.lang.primitives.collections.sets.LongSet;
 import marcel.lang.primitives.iterators.IntIterator;
-import marcel.lang.util.MapWithDefault;
-import marcel.lang.util.function.*;
+import marcel.util.MapWithDefault;
+import marcel.util.function.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

@@ -1,7 +1,7 @@
-package marcel.lang.util.function;
+package marcel.util.function;
 
 @FunctionalInterface
-public interface ToCharFunction<T> {
+public interface CharFunction<R> {
 
     /**
      * Applies this function to the given argument.
@@ -9,5 +9,5 @@ public interface ToCharFunction<T> {
      * @param value the function argument
      * @return the function result
      */
-    char applyAsChar(T value);
+    R apply(char value);
 }

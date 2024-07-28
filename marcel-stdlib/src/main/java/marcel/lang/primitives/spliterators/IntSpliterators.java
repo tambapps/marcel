@@ -1,10 +1,10 @@
 package marcel.lang.primitives.spliterators;
 
 import marcel.lang.primitives.iterators.IntIterator;
-import marcel.lang.util.Arrays;
-import marcel.lang.util.Comparators;
-import marcel.lang.util.SafeMath;
-import marcel.lang.util.function.IntComparator;
+import marcel.util.Arrays;
+import marcel.util.Comparators;
+import marcel.util.SafeMath;
+import marcel.util.function.IntComparator;
 
 import java.util.Objects;
 import java.util.Spliterator;

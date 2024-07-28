@@ -5,8 +5,8 @@ import marcel.lang.primitives.collections.FloatCollection;
 import marcel.lang.primitives.iterators.FloatIterator;
 import marcel.lang.primitives.iterators.list.FloatListIterator;
 import marcel.lang.primitives.spliterators.FloatSpliterator;
-import marcel.lang.util.Arrays;
-import marcel.lang.util.function.FloatUnaryOperator;
+import marcel.util.Arrays;
+import marcel.util.function.FloatUnaryOperator;
 
 import java.util.Collection;
 import java.util.Iterator;

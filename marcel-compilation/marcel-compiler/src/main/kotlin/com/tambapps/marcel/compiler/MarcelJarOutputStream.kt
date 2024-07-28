@@ -1,6 +1,6 @@
 package com.tambapps.marcel.compiler
 
-import marcel.lang.util.MarcelVersion
+import marcel.util.MarcelVersion
 import java.io.Closeable
 import java.io.File
 import java.io.FileOutputStream

@@ -5,17 +5,18 @@ import lombok.SneakyThrows;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Paths;
 
 public class URLMarcelClassLoader extends MarcelClassLoader {
 
-  private final MarcelURLClassLoader classLoader;
+  private final JavaURLClassLoader classLoader;
 
   public URLMarcelClassLoader(ClassLoader parentLoader) {
-    this.classLoader = new MarcelURLClassLoader(parentLoader);
+    this.classLoader = new JavaURLClassLoader(parentLoader);
   }
 
   @Override
-  public MarcelURLClassLoader getClassLoader() {
+  public ClassLoader getClassLoader() {
     return classLoader;
   }
 
@@ -26,13 +27,22 @@ public class URLMarcelClassLoader extends MarcelClassLoader {
   @SneakyThrows
   @Override
   public void addJar(File jarFile) {
-    classLoader.addURL(jarFile.toURI().toURL());
+    addJar(jarFile.toURI().toURL());
+  }
+
+  public void addJar(URL jarUrl) {
+    classLoader.addURL(jarUrl);
   }
 
   @Override
   public boolean removeJar(File jarFile) {
     // actually we can't remove URLs from URLClassLoader, so we'll have to delete the file
     return jarFile.delete();
+  }
+
+  @SneakyThrows
+  public void removeJar(URL jarUrl) {
+    removeJar(Paths.get(jarUrl.toURI()).toFile());
   }
 
   @SneakyThrows
@@ -43,9 +53,9 @@ public class URLMarcelClassLoader extends MarcelClassLoader {
   }
 
   // needed to make method addURL public
-  private static class MarcelURLClassLoader extends URLClassLoader {
+  private static class JavaURLClassLoader extends URLClassLoader {
 
-    public MarcelURLClassLoader(ClassLoader parent) {
+    public JavaURLClassLoader(ClassLoader parent) {
       super(new URL[0], parent);
     }
 

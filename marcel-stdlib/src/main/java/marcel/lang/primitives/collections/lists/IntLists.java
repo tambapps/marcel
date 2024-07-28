@@ -5,11 +5,10 @@ import marcel.lang.primitives.iterators.IntIterators;
 import marcel.lang.primitives.iterators.list.IntListIterator;
 import marcel.lang.primitives.spliterators.IntSpliterator;
 import marcel.lang.primitives.spliterators.IntSpliterators;
-import marcel.lang.util.Arrays;
+import marcel.util.Arrays;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Random;
 import java.util.RandomAccess;
 
 public final class IntLists {

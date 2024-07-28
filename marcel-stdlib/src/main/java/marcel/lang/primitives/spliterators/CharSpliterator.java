@@ -15,7 +15,7 @@
 	*/
 package marcel.lang.primitives.spliterators;
 
-import marcel.lang.util.function.CharConsumer;
+import marcel.util.function.CharConsumer;
 
 import java.util.Spliterator;
 import java.util.function.Consumer;

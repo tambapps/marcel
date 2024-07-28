@@ -16,7 +16,7 @@
 package marcel.lang.primitives.iterators;
 
 import marcel.lang.primitives.collections.FloatCollection;
-import marcel.lang.util.function.FloatConsumer;
+import marcel.util.function.FloatConsumer;
 
 import java.util.Iterator;
 import java.util.PrimitiveIterator;

@@ -5,8 +5,8 @@ import marcel.lang.primitives.iterators.DoubleIterator;
 import marcel.lang.primitives.iterators.list.DoubleListIterator;
 import marcel.lang.primitives.spliterators.DoubleSpliterator;
 import marcel.lang.primitives.spliterators.DoubleSpliterators;
-import marcel.lang.util.Arrays;
-import marcel.lang.util.SafeMath;
+import marcel.util.Arrays;
+import marcel.util.SafeMath;
 
 import java.util.Collection;
 import java.util.Iterator;

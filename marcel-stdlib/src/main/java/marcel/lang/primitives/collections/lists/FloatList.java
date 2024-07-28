@@ -23,9 +23,9 @@ import marcel.lang.primitives.iterators.FloatIterator;
 import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.iterators.list.FloatListIterator;
 import marcel.lang.primitives.spliterators.FloatSpliterator;
-import marcel.lang.util.Arrays;
-import marcel.lang.util.function.FloatPredicate;
-import marcel.lang.util.function.FloatUnaryOperator;
+import marcel.util.Arrays;
+import marcel.util.function.FloatPredicate;
+import marcel.util.function.FloatUnaryOperator;
 
 import java.util.Comparator;
 import java.util.List;

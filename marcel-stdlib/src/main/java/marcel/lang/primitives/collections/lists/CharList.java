@@ -23,9 +23,9 @@ import marcel.lang.primitives.iterators.CharIterator;
 import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.iterators.list.CharListIterator;
 import marcel.lang.primitives.spliterators.CharSpliterator;
-import marcel.lang.util.Arrays;
-import marcel.lang.util.function.CharPredicate;
-import marcel.lang.util.function.CharUnaryOperator;
+import marcel.util.Arrays;
+import marcel.util.function.CharPredicate;
+import marcel.util.function.CharUnaryOperator;
 
 import java.util.Comparator;
 import java.util.List;

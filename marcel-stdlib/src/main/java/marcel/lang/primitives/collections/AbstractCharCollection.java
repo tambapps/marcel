@@ -1,9 +1,9 @@
 package marcel.lang.primitives.collections;
 
 import marcel.lang.primitives.iterators.CharIterator;
-import marcel.lang.util.Arrays;
-import marcel.lang.util.function.CharConsumer;
-import marcel.lang.util.function.CharPredicate;
+import marcel.util.Arrays;
+import marcel.util.function.CharConsumer;
+import marcel.util.function.CharPredicate;
 
 import java.util.AbstractCollection;
 import java.util.Collection;

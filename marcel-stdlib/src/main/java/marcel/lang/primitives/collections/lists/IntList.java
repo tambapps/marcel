@@ -23,7 +23,7 @@ import marcel.lang.primitives.collections.sets.IntSet;
 import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.iterators.list.IntListIterator;
 import marcel.lang.primitives.spliterators.IntSpliterator;
-import marcel.lang.util.Arrays;
+import marcel.util.Arrays;
 
 import java.util.List;
 import java.util.NoSuchElementException;

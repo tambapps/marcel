@@ -5,8 +5,8 @@ import marcel.lang.primitives.iterators.LongIterator;
 import marcel.lang.primitives.iterators.list.LongListIterator;
 import marcel.lang.primitives.spliterators.LongSpliterator;
 import marcel.lang.primitives.spliterators.LongSpliterators;
-import marcel.lang.util.Arrays;
-import marcel.lang.util.SafeMath;
+import marcel.util.Arrays;
+import marcel.util.SafeMath;
 
 import java.util.Collection;
 import java.util.Iterator;

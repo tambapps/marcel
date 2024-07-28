@@ -5,7 +5,7 @@ import marcel.lang.primitives.collections.IntCollection;
 import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.iterators.list.IntListIterator;
 import marcel.lang.primitives.spliterators.IntSpliterator;
-import marcel.lang.util.Arrays;
+import marcel.util.Arrays;
 
 import java.util.Collection;
 import java.util.Iterator;

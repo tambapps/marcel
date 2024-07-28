@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import marcel.lang.primitives.iterators.list.IntListIterator;
 import marcel.lang.primitives.spliterators.IntSpliterator;
 import marcel.lang.primitives.spliterators.IntSpliterators;
-import marcel.lang.util.SafeMath;
+import marcel.util.SafeMath;
 
 import java.util.NoSuchElementException;
 

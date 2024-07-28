@@ -1,7 +1,7 @@
 package marcel.lang.primitives.iterators;
 
 import marcel.lang.primitives.iterators.list.DoubleListIterator;
-import marcel.lang.util.Arrays;
+import marcel.util.Arrays;
 
 import java.util.Iterator;
 import java.util.ListIterator;

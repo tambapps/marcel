@@ -30,8 +30,8 @@ import marcel.lang.primitives.collections.sets.FloatSet;
 import marcel.lang.primitives.iterable.FloatIterable;
 import marcel.lang.primitives.iterators.FloatIterator;
 import marcel.lang.primitives.spliterators.FloatSpliterator;
-import marcel.lang.util.function.FloatFunction;
-import marcel.lang.util.function.FloatPredicate;
+import marcel.util.function.FloatFunction;
+import marcel.util.function.FloatPredicate;
 
 import java.util.Collection;
 import java.util.HashSet;

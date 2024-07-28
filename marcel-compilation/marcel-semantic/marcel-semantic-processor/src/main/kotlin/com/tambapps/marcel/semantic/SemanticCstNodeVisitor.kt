@@ -179,7 +179,7 @@ import marcel.lang.primitives.iterators.FloatIterator
 import marcel.lang.primitives.iterators.IntIterator
 import marcel.lang.primitives.iterators.LongIterator
 import marcel.lang.runtime.BytecodeHelper
-import marcel.lang.util.CharSequenceIterator
+import marcel.util.CharSequenceIterator
 import marcel.util.concurrent.Async
 import marcel.util.concurrent.Threadmill
 import java.io.Closeable

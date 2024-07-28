@@ -6,9 +6,8 @@ abstract class AbstractIntRange implements IntRange {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == null) return false;
+    if (!(obj instanceof IntRange other)) return false;
     if (obj == this) return true;
-    IntRange other = (IntRange) obj;
     IntIterator thisIterator = iterator();
     IntIterator otherIterator = other.iterator();
     while (thisIterator.hasNext() && otherIterator.hasNext()) {

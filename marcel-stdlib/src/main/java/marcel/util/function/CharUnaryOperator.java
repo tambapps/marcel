@@ -1,4 +1,4 @@
-package marcel.lang.util.function;
+package marcel.util.function;
 
 import java.util.Objects;
 

@@ -1,4 +1,4 @@
-package marcel.lang.util.function;
+package marcel.util.function;
 
 @FunctionalInterface
 public interface ToFloatFunction<T> {

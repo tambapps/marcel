@@ -1,9 +1,9 @@
 package marcel.lang.primitives.iterators;
 
 import marcel.lang.primitives.iterators.list.CharListIterator;
-import marcel.lang.util.Arrays;
-import marcel.lang.util.function.CharConsumer;
-import marcel.lang.util.function.CharPredicate;
+import marcel.util.Arrays;
+import marcel.util.function.CharConsumer;
+import marcel.util.function.CharPredicate;
 
 import java.util.Iterator;
 import java.util.ListIterator;

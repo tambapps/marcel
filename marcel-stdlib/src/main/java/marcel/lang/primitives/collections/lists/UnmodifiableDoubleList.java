@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import marcel.lang.primitives.iterators.list.DoubleListIterator;
 import marcel.lang.primitives.spliterators.DoubleSpliterator;
 import marcel.lang.primitives.spliterators.DoubleSpliterators;
-import marcel.lang.util.SafeMath;
+import marcel.util.SafeMath;
 
 import java.util.NoSuchElementException;
 import java.util.function.DoubleConsumer;

@@ -21,7 +21,7 @@ import com.tambapps.marcel.repl.jar.JarWriter
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import marcel.lang.Binding
 import marcel.lang.URLMarcelClassLoader
-import marcel.lang.util.MarcelVersion
+import marcel.util.MarcelVersion
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReader
 import org.jline.reader.LineReaderBuilder

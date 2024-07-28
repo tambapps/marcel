@@ -16,7 +16,7 @@ import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import marcel.lang.MarcelClassLoader
 import marcel.lang.URLMarcelClassLoader
-import marcel.lang.util.MarcelVersion
+import marcel.util.MarcelVersion
 import java.io.File
 import java.io.IOException
 import kotlin.system.exitProcess

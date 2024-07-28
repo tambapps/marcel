@@ -135,7 +135,7 @@ public class LongOpenHashSet extends AbstractLongSet implements java.io.Serializ
 	 */
 	public LongOpenHashSet(final long[] a, final int offset, final int length, final float f) {
 		this(length < 0 ? 0 : length, f);
-		marcel.lang.util.Arrays.ensureOffsetLength(a, offset, length);
+		marcel.util.Arrays.ensureOffsetLength(a, offset, length);
 		for(int i = 0; i < length; i++) add(a[offset + i]);
 	}
 	/** Creates a new hash set with {@link Hash#DEFAULT_LOAD_FACTOR} as load factor and fills it with the elements of a given array.

@@ -16,7 +16,7 @@
 package marcel.lang.primitives.iterable;
 
 import marcel.lang.primitives.iterators.CharIterator;
-import marcel.lang.util.function.CharConsumer;
+import marcel.util.function.CharConsumer;
 
 import java.util.function.Consumer;
 

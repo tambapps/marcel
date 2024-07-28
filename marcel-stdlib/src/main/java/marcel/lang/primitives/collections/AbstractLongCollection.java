@@ -1,7 +1,7 @@
 package marcel.lang.primitives.collections;
 
 import marcel.lang.primitives.iterators.LongIterator;
-import marcel.lang.util.Arrays;
+import marcel.util.Arrays;
 
 import java.util.AbstractCollection;
 import java.util.Collection;

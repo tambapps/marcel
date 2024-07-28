@@ -31,8 +31,8 @@ import marcel.lang.primitives.collections.sets.CharSet;
 import marcel.lang.primitives.iterable.CharIterable;
 import marcel.lang.primitives.iterators.CharIterator;
 import marcel.lang.primitives.spliterators.CharSpliterator;
-import marcel.lang.util.function.CharFunction;
-import marcel.lang.util.function.CharPredicate;
+import marcel.util.function.CharFunction;
+import marcel.util.function.CharPredicate;
 
 import java.util.Collection;
 import java.util.HashSet;

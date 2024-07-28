@@ -23,7 +23,7 @@ import marcel.lang.primitives.iterators.DoubleIterator;
 import marcel.lang.primitives.iterators.IntIterator;
 import marcel.lang.primitives.iterators.list.DoubleListIterator;
 import marcel.lang.primitives.spliterators.DoubleSpliterator;
-import marcel.lang.util.Arrays;
+import marcel.util.Arrays;
 
 import java.util.Comparator;
 import java.util.List;

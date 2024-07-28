@@ -14,7 +14,7 @@ import com.tambapps.marcel.semantic.transform.SyntaxTreeTransformation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.type.SourceJavaType
-import marcel.lang.MarcelSyntaxTreeTransformationClass
+import marcel.transform.MarcelSyntaxTreeTransformationClass
 import java.lang.Exception
 import java.lang.annotation.ElementType
 

@@ -1,4 +1,4 @@
-package marcel.lang;
+package marcel.transform;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

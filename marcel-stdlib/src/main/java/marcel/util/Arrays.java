@@ -1,4 +1,4 @@
-package marcel.lang.util;
+package marcel.util;
 
 import java.util.ArrayList;
 

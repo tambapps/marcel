@@ -6,9 +6,8 @@ abstract class AbstractLongRange implements LongRange {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == null) return false;
+    if (!(obj instanceof LongRange other)) return false;
     if (obj == this) return true;
-    LongRange other = (LongRange) obj;
     LongIterator thisIterator = iterator();
     LongIterator otherIterator = other.iterator();
     while (thisIterator.hasNext() && otherIterator.hasNext()) {

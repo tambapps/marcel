@@ -5,8 +5,8 @@ import marcel.lang.primitives.collections.CharCollection;
 import marcel.lang.primitives.iterators.CharIterator;
 import marcel.lang.primitives.iterators.list.CharListIterator;
 import marcel.lang.primitives.spliterators.CharSpliterator;
-import marcel.lang.util.Arrays;
-import marcel.lang.util.function.CharUnaryOperator;
+import marcel.util.Arrays;
+import marcel.util.function.CharUnaryOperator;
 
 import java.util.Collection;
 import java.util.Iterator;

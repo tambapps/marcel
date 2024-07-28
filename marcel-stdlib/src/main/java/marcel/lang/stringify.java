@@ -1,5 +1,7 @@
 package marcel.lang;
 
+import marcel.transform.MarcelSyntaxTreeTransformationClass;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
