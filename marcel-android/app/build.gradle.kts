@@ -31,7 +31,7 @@ android {
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
     }
     debug {
-      isMinifyEnabled = true
+      isMinifyEnabled = false
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
     }
   }
@@ -41,6 +41,7 @@ android {
   }
   kotlinOptions {
     jvmTarget = javaVersion
+    javaParameters = true // important to keep metadata (annotations and names of method parameters)
   }
   buildFeatures {
     compose = true

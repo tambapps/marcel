@@ -80,6 +80,4 @@ class MarcelAndroidConfiguration {
   @Provides
   fun workManager(@ApplicationContext context: Context) = WorkManager.getInstance(context)
 
-  @Provides
-  fun notificationManager(@ApplicationContext context: Context) = context.getSystemService(NotificationManager::class.java)
 }

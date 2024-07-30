@@ -81,6 +81,7 @@ fun SettingsScreen(
       onClick = { askManageFilePermission(context) },
       checked = viewModel.canManageFiles
     )
+    // TODO add notifications permission. keep same logic as in shell workout notification checks
 
     /*
     SectionTitle(text = "Dependency Management")

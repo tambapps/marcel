@@ -29,17 +29,19 @@ android {
   }
   kotlinOptions {
     jvmTarget = javaVersion
+    javaParameters = true // important to keep metadata (annotations and names of method parameters)
   }
 }
 
 dependencies {
   // dalvik
   implementation(fileTree(Pair("dir", File(rootDir, "app/libs")), Pair("include", listOf("*.jar"))))
+  implementation("androidx.core:core-ktx:1.13.1")
 
   // marcel libs
   implementation("com.tambapps.marcel:marcel-stdlib:$marcelVersion")
 
   testImplementation("junit:junit:4.13.2")
-  androidTestImplementation("androidx.test.ext:junit:1.1.5")
-  androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+  androidTestImplementation("androidx.test.ext:junit:1.2.1")
+  androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }

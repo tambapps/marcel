@@ -1,51 +1,20 @@
 package com.tambapps.marcel.android.marshell.work
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
-import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
-import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.Routes
+import com.tambapps.marcel.android.marshell.os.AndroidNotifier
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 
-internal class WorkoutNotification private constructor(
+internal class WorkoutNotification constructor(
   private val context: Context,
-  private val notificationManager: NotificationManager,
+  private val notifier: AndroidNotifier,
   private val work: ShellWork
   ) {
 
   private val notificationId = work.workId.hashCode()
-
-  companion object {
-    private const val NOTIFICATION_CHANNEL_ID = "MarcelShellWorker"
-
-    fun newInstance(workout: MarshellWorkout, woek: ShellWork): WorkoutNotification? {
-      val notificationManager = workout.applicationContext.getSystemService(NotificationManager::class.java)
-      if (!notificationManager.areNotificationsEnabled()) {
-        return null
-      }
-      createChannelIfNeeded(notificationManager)
-      return WorkoutNotification(workout.applicationContext, notificationManager, woek)
-    }
-
-    private fun createChannelIfNeeded(notificationManager: NotificationManager) {
-      if (channelExists(notificationManager)) return
-      val channel = NotificationChannel(NOTIFICATION_CHANNEL_ID, "Marshell Workout Notifications", NotificationManager.IMPORTANCE_DEFAULT)
-      channel.description = "Shell Workouts notifications"
-      channel.enableLights(false)
-      notificationManager.createNotificationChannel(channel)
-    }
-
-    private fun channelExists(notificationManager: NotificationManager): Boolean {
-      val channel = notificationManager.getNotificationChannel(MarshellWorkout::javaClass.name)
-      return channel != null && channel.importance != NotificationManager.IMPORTANCE_NONE
-    }
-  }
-
   private var title: String = ""
   private var message: String = ""
 
@@ -56,21 +25,7 @@ internal class WorkoutNotification private constructor(
   ) {
     if (title != null) this.title = title
     if (message != null) this.message = message
-
-    val notificationBuilder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
-      .setContentTitle(this.title)
-      .setTicker(this.title)
-      .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.drawable.appicon))
-      .setSmallIcon(R.drawable.prompt)
-      .setOngoing(onGoing)
-      .setOnlyAlertOnce(true)
-    notificationBuilder.setContentText(this.message)
-    if (!onGoing) {
-      notificationBuilder.setContentIntent(getConsultIntent())
-        .setAutoCancel(true)
-    }
-    val notification = notificationBuilder.build()
-    notificationManager.notify(notificationId, notification)
+    notifier.notify(notificationId, this.title, this.message, onGoing, if (onGoing) null else getConsultIntent())
   }
 
   private fun getConsultIntent(): PendingIntent? {

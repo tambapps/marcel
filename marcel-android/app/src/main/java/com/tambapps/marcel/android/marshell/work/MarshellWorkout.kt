@@ -7,6 +7,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkInfo
 import androidx.work.WorkerParameters
+import com.tambapps.marcel.android.marshell.os.AndroidNotifier
 import com.tambapps.marcel.android.marshell.repl.ShellSession
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDao
@@ -14,6 +15,7 @@ import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.time.LocalDateTime
+import javax.inject.Named
 
 @HiltWorker
 class MarshellWorkout @AssistedInject constructor(
@@ -21,6 +23,8 @@ class MarshellWorkout @AssistedInject constructor(
   @Assisted workerParams: WorkerParameters,
   private val shellSessionFactory: ShellSessionFactory,
   private val shellWorkDao: ShellWorkDao,
+  @Named("workoutAndroidNotifier")
+  internal val androidNotifier: AndroidNotifier
 ): CoroutineWorker(appContext, workerParams) {
 
   companion object {
@@ -36,9 +40,9 @@ class MarshellWorkout @AssistedInject constructor(
       return Result.failure(Data.EMPTY)
     }
     if (!work.isSilent) {
-      notification = WorkoutNotification.newInstance(this, work)?.apply {
+      notification = if (androidNotifier.areNotificationEnabled) WorkoutNotification(applicationContext, androidNotifier, work).apply {
         notify(title = "Initializing Workout ${work.name}...")
-      }
+      } else null
     }
     if (work.scriptText == null) {
       Log.e(TAG, "Couldn't retrieve script text of work $id")

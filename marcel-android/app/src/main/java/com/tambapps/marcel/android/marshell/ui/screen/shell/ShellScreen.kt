@@ -55,7 +55,7 @@ import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.component.shellIconModifier
 import com.tambapps.marcel.android.marshell.ui.theme.disabledPrimary
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
-import marcel.lang.util.MarcelVersion
+import marcel.util.MarcelVersion
 
 val HEADER = "Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSION.RELEASE})"
 

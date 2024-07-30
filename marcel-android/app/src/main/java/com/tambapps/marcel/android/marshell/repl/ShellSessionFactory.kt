@@ -12,6 +12,7 @@ import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.variable.field.BoundField
+import marcel.lang.AndroidSystem
 import marcel.lang.Binding
 import marcel.lang.MarcelDexClassLoader
 import java.io.File
@@ -28,14 +29,18 @@ class ShellSessionFactory @Inject constructor(
   private val dumbbellEngine: DumbbellEngine,
   @Named("initScriptFile")
   private val initScriptFile: File,
+  @Named("shellAndroidSystem")
+  private val shellAndroidSystem: AndroidSystem,
+  @Named("workoutAndroidSystem")
+  private val workoutAndroidSystem: AndroidSystem,
 ) {
 
   fun newReplCompiler() = newShellSession(NoOpPrinter).replCompiler
 
-  fun newShellSession(printer: Printer) = newSession(shellSessionsDirectory, printer)
-  fun newWorkSession(printer: Printer) = newSession(workSessionsDirectory, printer)
+  fun newShellSession(printer: Printer) = newSession(shellSessionsDirectory, printer, shellAndroidSystem)
+  fun newWorkSession(printer: Printer) = newSession(workSessionsDirectory, printer, workoutAndroidSystem)
 
-  private fun newSession(sessionsDirectory: File, printer: Printer): ShellSession {
+  private fun newSession(sessionsDirectory: File, printer: Printer, androidSystem: AndroidSystem): ShellSession {
     Dumbbell.setEngine(dumbbellEngine) // initialize dumbbell
     val sessionDirectory = File(sessionsDirectory, "session_" + System.currentTimeMillis())
     if (!sessionDirectory.isDirectory && !sessionDirectory.mkdirs()) {
@@ -46,7 +51,7 @@ class ShellSessionFactory @Inject constructor(
     val classLoader = MarcelDexClassLoader()
     val symbolResolver = ReplMarcelSymbolResolver(classLoader)
     val replCompiler = MarcelReplCompiler(compilerConfiguration, classLoader, symbolResolver)
-    val evaluator = MarshellEvaluator(binding, replCompiler, classLoader, DexJarWriter(), sessionDirectory, printer)
+    val evaluator = MarshellEvaluator(binding, replCompiler, classLoader, DexJarWriter(), sessionDirectory, printer, androidSystem)
 
     if (Environment.isExternalStorageManager()) {
       val boundField = BoundField(File::class.javaType, "ROOT_DIR", MarshellScript::class.javaType)
