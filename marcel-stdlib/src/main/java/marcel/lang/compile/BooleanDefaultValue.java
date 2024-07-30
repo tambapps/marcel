@@ -6,8 +6,17 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.PARAMETER;
 
+/**
+ * Annotation allowing to specify the default value of a bool or {@link Boolean} method parameter
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value={PARAMETER})
 public @interface BooleanDefaultValue {
+
+    /**
+     * Returns the default value to use when the annotated method parameter is not specified
+     *
+     * @return the default value of the annotated method parameter
+     */
     boolean value() default false;
 }

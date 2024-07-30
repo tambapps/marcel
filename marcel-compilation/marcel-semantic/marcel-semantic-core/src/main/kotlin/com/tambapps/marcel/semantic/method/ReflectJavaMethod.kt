@@ -11,6 +11,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
+import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.type.JavaType
 import marcel.lang.compile.BooleanDefaultValue
 import marcel.lang.compile.CharDefaultValue
@@ -20,6 +21,7 @@ import marcel.lang.compile.IntDefaultValue
 import marcel.lang.compile.LongDefaultValue
 import marcel.lang.compile.MethodCallDefaultValue
 import marcel.lang.compile.NullDefaultValue
+import marcel.lang.compile.StringDefaultValue
 import marcel.util.concurrent.Async
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
@@ -53,7 +55,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
       val rawType = JavaType.of(parameter.type)
       val annotations = parameter.annotations
       val defaultValue: ExpressionNode? = when {
-        annotations.any { it is NullDefaultValue } -> NullValueNode(LexToken.DUMMY)
+        !type.primitive && annotations.any { it is NullDefaultValue } -> NullValueNode(LexToken.DUMMY)
         type == JavaType.int || type == JavaType.Integer -> annotations.firstNotNullOfOrNull { it as? IntDefaultValue }?.let {
           IntConstantNode(value = it.value, token = LexToken.DUMMY)
         }
@@ -71,6 +73,9 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
         }
         type == JavaType.boolean || type == JavaType.Boolean -> annotations.firstNotNullOfOrNull { it as? BooleanDefaultValue }?.let {
           BoolConstantNode(value = it.value, token = LexToken.DUMMY)
+        }
+        type == JavaType.String && annotations.any { it is StringDefaultValue } -> annotations.firstNotNullOf { it as? StringDefaultValue }.let {
+          StringConstantNode(value = it.value, LexToken.DUMMY, LexToken.DUMMY)
         }
         annotations.any { it is MethodCallDefaultValue } -> {
           val defaultValueMethodName = annotations.firstNotNullOfOrNull { it as? MethodCallDefaultValue }!!.methodName
