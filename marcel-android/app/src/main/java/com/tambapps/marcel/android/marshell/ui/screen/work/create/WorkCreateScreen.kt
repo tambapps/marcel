@@ -1,11 +1,7 @@
 package com.tambapps.marcel.android.marshell.ui.screen.work.create
 
-import android.content.Intent
 import android.net.Uri
-import android.os.Build
-import android.provider.Settings
 import android.widget.Toast
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.browser.customtabs.CustomTabsIntent
@@ -66,6 +62,7 @@ import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.room.entity.WorkPeriod
 import com.tambapps.marcel.android.marshell.room.entity.WorkPeriodUnit
 import com.tambapps.marcel.android.marshell.ui.component.EXPANDABLE_CARD_ANIMATION_SPEC
+import com.tambapps.marcel.android.marshell.ui.component.EnabledNotificationsDialog
 import com.tambapps.marcel.android.marshell.ui.component.PickerExample
 import com.tambapps.marcel.android.marshell.ui.screen.work.WorkScriptCard
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
@@ -79,7 +76,6 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-
 
 @Composable
 fun WorkCreateScreen(
@@ -100,13 +96,14 @@ fun WorkCreateScreen(
     val requestNotificationsPermission = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { granted ->
       Toast.makeText(context, "Notification permissions " + (if (granted) "granted" else "not granted"), Toast.LENGTH_SHORT).show()
     }
-    val showEnabledNotificationDialog = remember { mutableStateOf(false) }
-    EnabledNotificationsDialog(viewModel, showEnabledNotificationDialog, requestNotificationsPermission)
+    val showEnableNotificationDialog = remember { mutableStateOf(false) }
+    EnabledNotificationsDialog(viewModel.preferencesDataStore, showEnableNotificationDialog, requestNotificationsPermission,
+      description = "Notifications need to be allowed in order to run non-silent workouts")
     FloatingActionButton(
       modifier = Modifier.padding(all = 16.dp),
       onClick = {
         if (viewModel.shouldNotificationsPermission) {
-          showEnabledNotificationDialog.value = true
+          showEnableNotificationDialog.value = true
         } else {
           viewModel.validateAndSave(context) {
             // navigate back to works list and force the screen to reload
@@ -126,46 +123,6 @@ fun WorkCreateScreen(
   }
 }
 
-@Composable
-private fun EnabledNotificationsDialog(
-  viewModel: WorkCreateViewModel,
-  show: MutableState<Boolean>,
-  requestNotificationsPermission: ManagedActivityResultLauncher<String, Boolean>
-) {
-  if (!show.value) return
-  AlertDialog(
-    title = {
-       Text(text = "Allow notifications")
-    },
-    text = {
-      Text(text = "Notifications need to be allowed in order to run non-silent workouts")
-    },
-    onDismissRequest = { show.value = false },
-    confirmButton = {
-      val canAskNotificationsPermission = viewModel.canAskNotificationsPermission
-      val context = LocalContext.current
-      TextButton(onClick = {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && canAskNotificationsPermission) {
-          viewModel.onNotificationsPermissionRequested()
-          requestNotificationsPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-        } else {
-          val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-          context.startActivity(intent, null)
-        }
-        show.value = false
-      }) {
-        Text(text = "Allow")
-      }
-    },
-    dismissButton = {
-      TextButton(onClick = { show.value = false }) {
-        Text(text = "Cancel")
-      }
-    }
-  )
-}
 private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")
 
 @Composable

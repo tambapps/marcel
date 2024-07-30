@@ -4,7 +4,6 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import android.widget.Toast
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -27,7 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class WorkCreateViewModel @Inject constructor(
   private val shellWorkManager: ShellWorkManager,
-  private val preferencesDataStore: PreferencesDataStore,
+  val preferencesDataStore: PreferencesDataStore,
   private val notificationManager: NotificationManager,
   shellSessionFactory: ShellSessionFactory
 ): ViewModel(), ScriptCardEditorViewModel {
@@ -51,8 +50,6 @@ class WorkCreateViewModel @Inject constructor(
   var period by mutableStateOf<WorkPeriod?>(null)
 
   var scheduleAt by mutableStateOf<LocalDateTime?>(null)
-
-  private val ioScope = CoroutineScope(Dispatchers.IO)
 
   override fun highlight(text: CharSequence) = highlighter.highlight(text)
 
@@ -116,15 +113,4 @@ class WorkCreateViewModel @Inject constructor(
     get() = !silent // only ask permission if non silent
         && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU // asking permission is only required since Android TIRAMISU
         && !notificationManager.areNotificationsEnabled() // only ask if it isn't enabled
-
-  val canAskNotificationsPermission
-    @Composable
-    // This is an Android restriction and they want US to keep track of whether we did already asked or not
-    get() = !preferencesDataStore.askedNotificationPermissionsState.value
-
-  fun onNotificationsPermissionRequested() {
-    ioScope.launch {
-      preferencesDataStore.setAskedPermissionsPreferences(true)
-    }
-  }
 }

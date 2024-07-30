@@ -3,7 +3,11 @@ package com.tambapps.marcel.android.marshell.ui.screen.settings
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
@@ -19,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +37,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.tambapps.marcel.android.marshell.BuildConfig
 import com.tambapps.marcel.android.marshell.Routes
+import com.tambapps.marcel.android.marshell.ui.component.EnabledNotificationsDialog
+import com.tambapps.marcel.android.marshell.ui.component.startNotificationSettingsActivity
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.util.LifecycleStateListenerEffect
 import java.io.File
@@ -81,7 +88,27 @@ fun SettingsScreen(
       onClick = { askManageFilePermission(context) },
       checked = viewModel.canManageFiles
     )
-    // TODO add notifications permission. keep same logic as in shell workout notification checks
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // asking permission is only required since Android TIRAMISU
+      val showEnableNotificationDialog = remember { mutableStateOf(false) }
+      SettingItem(
+        text = "Notifications",
+        description = "Allow your scripts/workouts to push notifications",
+        onClick = {
+          if (viewModel.areNotificationEnabled) {
+            startNotificationSettingsActivity(context)
+          } else {
+            showEnableNotificationDialog.value = true
+          }
+        },
+        checked = viewModel.areNotificationEnabled
+      )
+      val requestNotificationsPermission = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { granted ->
+        Toast.makeText(context, "Notification permissions " + (if (granted) "granted" else "not granted"), Toast.LENGTH_SHORT).show()
+      }
+      EnabledNotificationsDialog(viewModel.preferencesDataStore, showEnableNotificationDialog, requestNotificationsPermission,
+        description = null)
+    }
 
     /*
     SectionTitle(text = "Dependency Management")
