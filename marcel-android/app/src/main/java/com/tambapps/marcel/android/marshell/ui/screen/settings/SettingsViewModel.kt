@@ -1,5 +1,6 @@
 package com.tambapps.marcel.android.marshell.ui.screen.settings
 
+import android.Manifest
 import android.app.NotificationManager
 import android.os.Environment
 import androidx.compose.runtime.getValue
@@ -22,6 +23,9 @@ class SettingsViewModel @Inject constructor(
 
   var canManageFiles by mutableStateOf(false)
     private set
+
+  var canSendSms by mutableStateOf(false)
+    private set
   var areNotificationEnabled by mutableStateOf(false)
     private set
 
@@ -32,6 +36,7 @@ class SettingsViewModel @Inject constructor(
   fun refresh() {
     canManageFiles = Environment.isExternalStorageManager()
     areNotificationEnabled = notificationManager.areNotificationsEnabled()
+    canSendSms = permissionManager.hasPermission(Manifest.permission.SEND_SMS)
   }
 
 

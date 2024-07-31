@@ -3,8 +3,11 @@ package com.tambapps.marcel.android.marshell.hilt.module
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.telephony.SmsManager
 import com.tambapps.marcel.android.marshell.os.AndroidNotifier
+import com.tambapps.marcel.android.marshell.os.AndroidSmsSender
 import com.tambapps.marcel.android.marshell.os.AndroidSystemImpl
+import com.tambapps.marcel.android.marshell.service.PermissionManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -59,16 +62,30 @@ class AndroidSystemConfiguration {
     return AndroidNotifier(context, notificationManager, workoutNotificationChannel)
   }
 
+  @Provides
+  fun smsManager(@ApplicationContext context: Context): SmsManager = context.getSystemService(SmsManager::class.java)
+
+  @Provides
+  fun smsSender(smsManager: SmsManager): AndroidSmsSender = AndroidSmsSender(smsManager)
+
   @Named("shellAndroidSystem")
   @Provides
-  fun shellAndroidSystem(@Named("shellAndroidNotifier") shellAndroidNotifier: AndroidNotifier): AndroidSystem {
-    return AndroidSystemImpl(shellAndroidNotifier)
+  fun shellAndroidSystem(
+    @Named("shellAndroidNotifier") shellAndroidNotifier: AndroidNotifier,
+    smsSender: AndroidSmsSender,
+    permissionManager: PermissionManager
+  ): AndroidSystem {
+    return AndroidSystemImpl(shellAndroidNotifier, smsSender, permissionManager)
   }
 
   @Named("workoutAndroidSystem")
   @Provides
-  fun workoutAndroidSystem(@Named("workoutAndroidNotifier") workoutAndroidNotifier: AndroidNotifier): AndroidSystem {
-    return AndroidSystemImpl(workoutAndroidNotifier)
+  fun workoutAndroidSystem(
+    @Named("workoutAndroidNotifier") workoutAndroidNotifier: AndroidNotifier,
+    smsSender: AndroidSmsSender,
+    permissionManager: PermissionManager
+  ): AndroidSystem {
+    return AndroidSystemImpl(workoutAndroidNotifier, smsSender, permissionManager)
   }
 
   private fun createOrGetChannel(

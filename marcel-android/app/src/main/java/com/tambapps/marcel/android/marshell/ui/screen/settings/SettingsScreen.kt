@@ -1,5 +1,6 @@
 package com.tambapps.marcel.android.marshell.ui.screen.settings
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -56,6 +57,7 @@ fun SettingsScreen(
   viewModel: SettingsViewModel = hiltViewModel()
   ) {
   val context = LocalContext.current
+  val permissionManager = viewModel.permissionManager
 
   LifecycleStateListenerEffect(
     onResume = viewModel::refresh
@@ -77,13 +79,6 @@ fun SettingsScreen(
 
 
     SectionTitle(text = "Permissions")
-    SettingItem(
-      text = "Manage files",
-      description = "Manage files of your device within Marcel scripts",
-      onClick = { askManageFilePermission(context) },
-      checked = viewModel.canManageFiles
-    )
-
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // asking permission is only required since Android TIRAMISU
       val showEnableNotificationDialog = remember { mutableStateOf(false) }
       SettingItem(
@@ -91,17 +86,34 @@ fun SettingsScreen(
         description = "Allow your scripts/workouts to push notifications",
         onClick = {
           if (viewModel.areNotificationEnabled) {
-            viewModel.permissionManager.startNotificationSettingsActivity(context)
+            permissionManager.startNotificationSettingsActivity(context)
           } else {
             showEnableNotificationDialog.value = true
           }
         },
         checked = viewModel.areNotificationEnabled
       )
-      val requestNotificationsPermission = viewModel.permissionManager.rememberPermissionRequestActivityLauncher()
-      EnabledNotificationsDialog(viewModel.permissionManager, showEnableNotificationDialog, requestNotificationsPermission,
+      val requestNotificationsPermission = permissionManager.rememberPermissionRequestActivityLauncher()
+      EnabledNotificationsDialog(permissionManager, showEnableNotificationDialog, requestNotificationsPermission,
         description = null)
     }
+    SettingItem(
+      text = "Manage files",
+      description = "Manage files of your device within Marcel scripts/workouts",
+      onClick = { askManageFilePermission(context) },
+      checked = viewModel.canManageFiles
+    )
+
+    val smsPermissionLauncher = permissionManager.rememberPermissionRequestActivityLauncher()
+    SettingItem(
+      text = "Send SMS",
+      description = "Allow your scripts/workouts to send SMS",
+      onClick = {
+        if (viewModel.canSendSms) permissionManager.openPermissionSettings(context)
+        else smsPermissionLauncher.launch(Manifest.permission.SEND_SMS)
+      },
+      checked = viewModel.canSendSms
+    )
 
     /*
     SectionTitle(text = "Dependency Management")
