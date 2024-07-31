@@ -84,7 +84,8 @@ fun WorkCreateScreen(
 ) {
   val context = LocalContext.current
   Box(modifier = Modifier
-    .fillMaxSize().padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
+    .fillMaxSize()
+    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
     contentAlignment = Alignment.BottomEnd) {
     Column(modifier = Modifier
       .fillMaxSize()
@@ -93,11 +94,9 @@ fun WorkCreateScreen(
       Form(viewModel)
     }
 
-    val requestNotificationsPermission = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { granted ->
-      Toast.makeText(context, "Notification permissions " + (if (granted) "granted" else "not granted"), Toast.LENGTH_SHORT).show()
-    }
+    val requestNotificationsPermission = viewModel.permissionManager.rememberPermissionRequestActivityLauncher()
     val showEnableNotificationDialog = remember { mutableStateOf(false) }
-    EnabledNotificationsDialog(viewModel.preferencesDataStore, showEnableNotificationDialog, requestNotificationsPermission,
+    EnabledNotificationsDialog(viewModel.permissionManager, showEnableNotificationDialog, requestNotificationsPermission,
       description = "Notifications need to be allowed in order to run non-silent workouts")
     FloatingActionButton(
       modifier = Modifier.padding(all = 16.dp),

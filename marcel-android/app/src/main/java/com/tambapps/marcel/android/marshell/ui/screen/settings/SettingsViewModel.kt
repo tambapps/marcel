@@ -6,7 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.tambapps.marcel.android.marshell.service.PreferencesDataStore
+import com.tambapps.marcel.android.marshell.service.PermissionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.io.File
 import javax.inject.Inject
@@ -14,7 +14,7 @@ import javax.inject.Named
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-  val preferencesDataStore: PreferencesDataStore,
+  val permissionManager: PermissionManager,
   private val notificationManager: NotificationManager,
   @Named("initScriptFile")
   val initScriptFile: File

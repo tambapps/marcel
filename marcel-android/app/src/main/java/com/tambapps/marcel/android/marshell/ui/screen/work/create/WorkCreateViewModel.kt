@@ -12,7 +12,7 @@ import androidx.lifecycle.ViewModel
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.room.entity.WorkPeriod
-import com.tambapps.marcel.android.marshell.service.PreferencesDataStore
+import com.tambapps.marcel.android.marshell.service.PermissionManager
 import com.tambapps.marcel.android.marshell.ui.screen.ScriptCardEditorViewModel
 import com.tambapps.marcel.android.marshell.work.ShellWorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,8 +25,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WorkCreateViewModel @Inject constructor(
+  val permissionManager: PermissionManager,
   private val shellWorkManager: ShellWorkManager,
-  val preferencesDataStore: PreferencesDataStore,
   private val notificationManager: NotificationManager,
   shellSessionFactory: ShellSessionFactory
 ): ViewModel(), ScriptCardEditorViewModel {

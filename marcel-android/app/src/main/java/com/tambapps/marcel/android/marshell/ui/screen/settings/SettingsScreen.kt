@@ -5,9 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
@@ -38,10 +35,8 @@ import androidx.navigation.NavController
 import com.tambapps.marcel.android.marshell.BuildConfig
 import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.ui.component.EnabledNotificationsDialog
-import com.tambapps.marcel.android.marshell.ui.component.startNotificationSettingsActivity
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.util.LifecycleStateListenerEffect
-import java.io.File
 import java.net.URLEncoder
 
 
@@ -96,17 +91,15 @@ fun SettingsScreen(
         description = "Allow your scripts/workouts to push notifications",
         onClick = {
           if (viewModel.areNotificationEnabled) {
-            startNotificationSettingsActivity(context)
+            viewModel.permissionManager.startNotificationSettingsActivity(context)
           } else {
             showEnableNotificationDialog.value = true
           }
         },
         checked = viewModel.areNotificationEnabled
       )
-      val requestNotificationsPermission = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { granted ->
-        Toast.makeText(context, "Notification permissions " + (if (granted) "granted" else "not granted"), Toast.LENGTH_SHORT).show()
-      }
-      EnabledNotificationsDialog(viewModel.preferencesDataStore, showEnableNotificationDialog, requestNotificationsPermission,
+      val requestNotificationsPermission = viewModel.permissionManager.rememberPermissionRequestActivityLauncher()
+      EnabledNotificationsDialog(viewModel.permissionManager, showEnableNotificationDialog, requestNotificationsPermission,
         description = null)
     }
 
