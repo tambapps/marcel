@@ -74,11 +74,9 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
         type == JavaType.boolean || type == JavaType.Boolean -> annotations.firstNotNullOfOrNull { it as? BooleanDefaultValue }?.let {
           BoolConstantNode(value = it.value, token = LexToken.DUMMY)
         }
-        type == JavaType.String && annotations.any { it is StringDefaultValue } -> annotations.firstNotNullOf { it as? StringDefaultValue }.let {
-          StringConstantNode(value = it.value, LexToken.DUMMY, LexToken.DUMMY)
-        }
+        type == JavaType.String && annotations.any { it is StringDefaultValue } -> StringConstantNode(value = annotations.firstNotNullOf { it as? StringDefaultValue }.value, LexToken.DUMMY, LexToken.DUMMY)
         annotations.any { it is MethodCallDefaultValue } -> {
-          val defaultValueMethodName = annotations.firstNotNullOfOrNull { it as? MethodCallDefaultValue }!!.methodName
+          val defaultValueMethodName = annotations.firstNotNullOf { it as? MethodCallDefaultValue }.methodName
           // using reflect to search method and not type resolver in order to avoid infinite recursion
           val match = try {
             // check to avoid infinite recursion
