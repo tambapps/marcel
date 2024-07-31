@@ -2,7 +2,7 @@ package com.tambapps.marcel.android.marshell.repl;
 
 import com.tambapps.marcel.android.marshell.repl.console.Printer;
 
-import marcel.lang.AndroidSystem;
+import marcel.lang.android.AndroidSystem;
 import marcel.lang.Binding;
 import marcel.lang.Script;
 

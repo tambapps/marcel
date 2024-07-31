@@ -4,7 +4,7 @@ import com.tambapps.marcel.android.marshell.repl.console.Printer
 import com.tambapps.marcel.repl.MarcelEvaluator
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.jar.JarWriter
-import marcel.lang.AndroidSystem
+import marcel.lang.android.AndroidSystem
 import marcel.lang.Binding
 import marcel.lang.MarcelClassLoader
 import marcel.lang.Script

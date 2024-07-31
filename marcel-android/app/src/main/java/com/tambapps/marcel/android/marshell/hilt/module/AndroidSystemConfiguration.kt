@@ -7,6 +7,7 @@ import android.telephony.SmsManager
 import com.tambapps.marcel.android.marshell.os.AndroidNotifier
 import com.tambapps.marcel.android.marshell.os.AndroidSmsSender
 import com.tambapps.marcel.android.marshell.os.AndroidSystemImpl
+import com.tambapps.marcel.android.marshell.room.dao.MessageDao
 import com.tambapps.marcel.android.marshell.service.PermissionManager
 import dagger.Module
 import dagger.Provides
@@ -14,7 +15,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import marcel.lang.AndroidSystem
+import marcel.lang.android.AndroidSystem
 import javax.inject.Named
 
 @Module
@@ -66,7 +67,7 @@ class AndroidSystemConfiguration {
   fun smsManager(@ApplicationContext context: Context): SmsManager = context.getSystemService(SmsManager::class.java)
 
   @Provides
-  fun smsSender(smsManager: SmsManager): AndroidSmsSender = AndroidSmsSender(smsManager)
+  fun smsSender(smsManager: SmsManager, messageDao: MessageDao): AndroidSmsSender = AndroidSmsSender(smsManager, messageDao)
 
   @Named("shellAndroidSystem")
   @Provides

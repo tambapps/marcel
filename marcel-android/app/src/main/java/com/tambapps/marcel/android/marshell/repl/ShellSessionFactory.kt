@@ -12,7 +12,7 @@ import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.variable.field.BoundField
-import marcel.lang.AndroidSystem
+import marcel.lang.android.AndroidSystem
 import marcel.lang.Binding
 import marcel.lang.MarcelDexClassLoader
 import java.io.File
