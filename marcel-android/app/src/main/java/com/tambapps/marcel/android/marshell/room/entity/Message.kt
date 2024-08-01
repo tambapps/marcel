@@ -2,6 +2,7 @@ package com.tambapps.marcel.android.marshell.room.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.tambapps.marcel.android.marshell.util.TimeUtils
 import marcel.lang.android.AndroidMessage
 import java.time.LocalDateTime
 
@@ -25,4 +26,18 @@ data class Message(
     sentAt = null,
     deliveredAt = null
   )
+
+  override fun toString() = StringBuilder().apply {
+    append("Message(id=$id, destination=$destination, text=$text, status=$status, createdAt=")
+    append(TimeUtils.DATE_TIME_FORMATTER.format(createdAt))
+    if (sentAt != null) {
+      append(", sentAt=")
+      append(TimeUtils.DATE_TIME_FORMATTER.format(sentAt))
+    }
+    if (deliveredAt != null) {
+      append(", deliveredAt=")
+      append(TimeUtils.DATE_TIME_FORMATTER.format(deliveredAt))
+    }
+    append(")")
+  }.toString()
 }

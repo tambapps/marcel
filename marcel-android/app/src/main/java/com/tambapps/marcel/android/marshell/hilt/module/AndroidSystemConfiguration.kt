@@ -67,7 +67,7 @@ class AndroidSystemConfiguration {
   fun smsManager(@ApplicationContext context: Context): SmsManager = context.getSystemService(SmsManager::class.java)
 
   @Provides
-  fun smsSender(smsManager: SmsManager, messageDao: MessageDao): AndroidSmsSender = AndroidSmsSender(smsManager, messageDao)
+  fun smsSender(@ApplicationContext context: Context, smsManager: SmsManager, messageDao: MessageDao): AndroidSmsSender = AndroidSmsSender(context, smsManager, messageDao)
 
   @Named("shellAndroidSystem")
   @Provides

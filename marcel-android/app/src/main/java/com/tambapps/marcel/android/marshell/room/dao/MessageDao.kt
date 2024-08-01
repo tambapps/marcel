@@ -19,6 +19,9 @@ interface MessageDao {
   @Query("SELECT * FROM messages WHERE id = :id")
   suspend fun get(id: Long): Message
 
+  @Query("SELECT * FROM messages WHERE id = :id")
+  suspend fun findById(id: Long): Message?
+
   @Insert
   suspend fun insert(data: Message): Long
 

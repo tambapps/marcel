@@ -69,6 +69,7 @@ import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
 import com.tambapps.marcel.android.marshell.ui.theme.iconButtonColor
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
+import com.tambapps.marcel.android.marshell.util.TimeUtils
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -122,8 +123,6 @@ fun WorkCreateScreen(
   }
 }
 
-private val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")
-
 @Composable
 private fun Form(viewModel: WorkCreateViewModel) {
   Box(modifier = Modifier
@@ -165,7 +164,7 @@ private fun Form(viewModel: WorkCreateViewModel) {
   val showSchedulePickerDialog = remember { mutableStateOf(false) }
   TextIconButton(
     fieldName = "Schedule for",
-    value = if (viewModel.scheduleAt == null) "now" else DATE_FORMATTER.format(viewModel.scheduleAt),
+    value = if (viewModel.scheduleAt == null) "now" else TimeUtils.DATE_TIME_FORMATTER.format(viewModel.scheduleAt),
     onClick = { showSchedulePickerDialog.value = true }
   )
   DateTimePickerDialog(
