@@ -332,10 +332,35 @@ abstract class SemanticCstNodeVisitor(
     return ReferenceNode(owner = owner, variable = field, token = node.token)
   }
 
-  override fun visit(node: ArrayCstNode, smartCastType: JavaType?) = ArrayNode(
-    elements = node.elements.map { it.accept(this) }.toMutableList(),
-    node = node
-  )
+  override fun visit(node: ArrayCstNode, smartCastType: JavaType?): ExpressionNode {
+    if (smartCastType == null) {
+      val elements = node.elements.map { it.accept(this) }
+      val elementsType = if (elements.isEmpty()) JavaType.objectArray else JavaType.commonType(elements)
+      return ArrayNode(
+        elements = elements.map { caster.cast(elementsType, it) }.toMutableList(),
+        node = node,
+        type = elementsType.arrayType
+      )
+    }
+    val arrayType = when {
+      smartCastType.isArray -> smartCastType.asArrayType
+      JavaType.intCollection.isAssignableFrom(smartCastType) -> JavaType.intArray
+      JavaType.longCollection.isAssignableFrom(smartCastType) -> JavaType.longArray
+      JavaType.floatCollection.isAssignableFrom(smartCastType) -> JavaType.floatArray
+      JavaType.doubleCollection.isAssignableFrom(smartCastType) -> JavaType.doubleArray
+      JavaType.charCollection.isAssignableFrom(smartCastType) -> JavaType.charArray
+      Collection::class.javaType.isAssignableFrom(smartCastType) -> JavaType.objectArray
+      else -> throw MarcelSemanticException(node, "Cannot cast array into $smartCastType")
+    }
+    val elementsType = arrayType.elementsType
+
+    val arrayNode = ArrayNode(
+      elements = node.elements.map { caster.cast(elementsType, it.accept(this, elementsType)) }.toMutableList(),
+      node = node,
+      type = arrayType)
+    // caster will take care of creating the collection if needed
+    return if (arrayType == smartCastType) arrayNode else caster.cast(smartCastType, arrayNode)
+  }
 
   override fun visit(node: MapFilterCstNode, smartCastType: JavaType?): ExpressionNode {
     val expectedType = smartCastType ?: List::class.javaType

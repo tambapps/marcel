@@ -5,11 +5,9 @@ import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
 import com.tambapps.marcel.semantic.ast.expression.NewLambdaInstanceNode
-import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.type.JavaArrayType
 import com.tambapps.marcel.semantic.type.JavaPrimitiveType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
@@ -53,7 +51,7 @@ class AstNodeCaster(
     expectedType: JavaType,
     node: ExpressionNode
   ): ExpressionNode {
-    var actualType = node.type
+    val actualType = node.type
     return when {
       expectedType == actualType -> node
       expectedType == JavaType.DynamicObject ->
@@ -167,25 +165,8 @@ class AstNodeCaster(
       }
       // Object to Object
       else -> when {
-        expectedType.isExtendedOrImplementedBy(actualType) ->
-          if (expectedType.isArray && node is ArrayNode) node.apply { _type = expectedType.asArrayType }
-          else node
-
+        expectedType.isExtendedOrImplementedBy(actualType) -> node
         actualType.isArray -> {
-          if (node is ArrayNode) { // override type
-            if (JavaType.intCollection.isAssignableFrom(expectedType)) castArrayNode(JavaType.intArray, node)
-            else if (JavaType.longCollection.isAssignableFrom(expectedType)) castArrayNode(JavaType.longArray, node)
-            else if (JavaType.floatCollection.isAssignableFrom(expectedType)) castArrayNode(JavaType.floatArray, node)
-            else if (JavaType.doubleCollection.isAssignableFrom(expectedType)) castArrayNode(JavaType.doubleArray, node)
-            else if (JavaType.charCollection.isAssignableFrom(expectedType)) castArrayNode(JavaType.charArray, node)
-            else if (Collection::class.javaType.isAssignableFrom(expectedType)) castArrayNode(
-              JavaType.objectArray,
-              node
-            )
-            else if (expectedType.isArray) castArrayNode(expectedType.asArrayType, node)
-          }
-          // need to recompute type as it might have been updated because of above castArrayNode calls
-          actualType = node.type
           when {
             // lists
             JavaType.intList.isAssignableFrom(expectedType) && actualType == JavaType.intArray -> functionCall(
@@ -257,11 +238,6 @@ class AstNodeCaster(
         else -> JavaCastNode(expectedType, node, node.token)
       }
     }
-  }
-
-  private fun castArrayNode(type: JavaArrayType, node: ArrayNode) {
-    node._type = type
-    node.elements.replaceAll { cast(type.elementsType, it) }
   }
 
   private fun incompatibleTypes(
