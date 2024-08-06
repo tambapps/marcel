@@ -498,4 +498,19 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	default IntList toImmutable() {
 		return new UnmodifiableIntList(new IntArrayList(this));
 	}
+
+	@Override
+	default IntList leftShift(int value) {
+		return (IntList) IntCollection.super.leftShift(value);
+	}
+
+	@Override
+	default IntList leftShift(int[] array) {
+		return (IntList)  IntCollection.super.leftShift(array);
+	}
+
+	@Override
+	default IntList leftShift(IntCollection value) {
+		return (IntList)  IntCollection.super.leftShift(value);
+	}
 }

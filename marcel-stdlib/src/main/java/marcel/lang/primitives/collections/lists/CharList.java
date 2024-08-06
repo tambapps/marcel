@@ -503,4 +503,24 @@ public interface CharList extends List<Character>, Comparable<List<? extends Cha
 	default CharList toImmutable() {
 		return new UnmodifiableCharList(new CharArrayList(this));
 	}
+
+	@Override
+	default CharList leftShift(char value) {
+		return (CharList) CharCollection.super.leftShift(value);
+	}
+
+	@Override
+	default CharList leftShift(char[] array) {
+		return (CharList) CharCollection.super.leftShift(array);
+	}
+
+	@Override
+	default CharList leftShift(String string) {
+		return (CharList) CharCollection.super.leftShift(string);
+	}
+
+	@Override
+	default CharList leftShift(CharCollection collection) {
+		return (CharList) CharCollection.super.leftShift(collection);
+	}
 }

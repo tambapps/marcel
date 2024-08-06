@@ -291,16 +291,19 @@ public interface IntCollection extends Collection<Integer>, IntIterable {
    * @param value the value to add
    * @return whether the value was added or not
    */
-  default boolean leftShift(int value) {
-    return add(value);
+  default IntCollection leftShift(int value) {
+    add(value);
+    return this;
   }
-  default boolean leftShift(IntCollection value) {
-    return addAll(value);
+
+  default IntCollection leftShift(IntCollection value) {
+    addAll(value);
+    return this;
   }
-  default boolean leftShift(int[] array) {
-    boolean b = false;
-    for (int c : array) if (add(c) && !b) b = true;
-    return b;
+
+  default IntCollection leftShift(int[] array) {
+    for (int c : array) add(c);
+    return this;
   }
 
   default <T> IntCollection unique(IntFunction<T> keyExtractor) {

@@ -520,4 +520,19 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 	default DoubleList toImmutable() {
 		return new UnmodifiableDoubleList(new DoubleArrayList(this));
 	}
+
+	@Override
+	default DoubleList leftShift(double value) {
+		return (DoubleList) DoubleCollection.super.leftShift(value);
+	}
+
+	@Override
+	default DoubleList leftShift(double[] value) {
+		return (DoubleList) DoubleCollection.super.leftShift(value);
+	}
+
+	@Override
+	default DoubleList leftShift(DoubleCollection value) {
+		return (DoubleList) DoubleCollection.super.leftShift(value);
+	}
 }

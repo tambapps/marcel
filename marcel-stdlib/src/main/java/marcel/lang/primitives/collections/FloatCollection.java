@@ -305,17 +305,18 @@ public interface FloatCollection extends Collection<Float>, FloatIterable {
    * @param value the value to add
    * @return whether the value was added or not
    */
-  default boolean leftShift(float value) {
-    return add(value);
+  default FloatCollection leftShift(float value) {
+    add(value);
+    return this;
   }
-  default boolean leftShift(FloatCollection value) {
-    return addAll(value);
+  default FloatCollection leftShift(FloatCollection value) {
+    addAll(value);
+    return this;
   }
 
-  default boolean leftShift(float[] value) {
-    boolean b = false;
-    for (float c : value) if (add(c) && !b) b = true;
-    return b;
+  default FloatCollection leftShift(float[] value) {
+    for (float c : value) add(c);
+    return this;
   }
 
   default boolean all(FloatPredicate predicate) {

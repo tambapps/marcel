@@ -101,4 +101,19 @@ public interface FloatSet extends FloatCollection, Set<Float> {
 	default FloatSet toUnmodifiable() {
 		return new UnmodifiableFloatSet(new FloatOpenHashSet(this));
 	}
+
+	@Override
+	default FloatSet leftShift(float[] value) {
+		return (FloatSet) FloatCollection.super.leftShift(value);
+	}
+
+	@Override
+	default FloatSet leftShift(float value) {
+		return (FloatSet) FloatCollection.super.leftShift(value);
+	}
+
+	@Override
+	default FloatSet leftShift(FloatCollection value) {
+		return (FloatSet) FloatCollection.super.leftShift(value);
+	}
 }

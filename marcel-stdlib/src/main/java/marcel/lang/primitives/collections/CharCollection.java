@@ -292,21 +292,23 @@ public interface CharCollection extends Collection<Character>, CharIterable {
    * @param value the value to add
    * @return whether the value was added or not
    */
-  default boolean leftShift(char value) {
-    return add(value);
+  default CharCollection leftShift(char value) {
+    add(value);
+    return this;
   }
 
-  default boolean leftShift(CharCollection collection) {
-    return addAll(collection);
+  default CharCollection leftShift(CharCollection collection) {
+    addAll(collection);
+    return this;
   }
-  default boolean leftShift(char[] array) {
-    boolean b = false;
-    for (char c : array) if (add(c) && !b) b = true;
-    return b;
+  default CharCollection leftShift(char[] array) {
+    for (char c : array) add(c);
+    return this;
   }
 
-  default boolean leftShift(String string) {
-    return addAll(string);
+  default CharCollection leftShift(String string) {
+    addAll(string);
+    return this;
   }
 
   default boolean all(CharPredicate predicate) {

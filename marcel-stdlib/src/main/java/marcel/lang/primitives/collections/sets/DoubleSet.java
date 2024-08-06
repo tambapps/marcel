@@ -1,6 +1,7 @@
 package marcel.lang.primitives.collections.sets;
 
 import marcel.lang.primitives.collections.DoubleCollection;
+import marcel.lang.primitives.collections.lists.DoubleList;
 import marcel.lang.primitives.iterators.DoubleIterator;
 import marcel.lang.primitives.spliterators.DoubleSpliterator;
 import marcel.lang.primitives.spliterators.DoubleSpliterators;
@@ -97,5 +98,20 @@ public interface DoubleSet extends DoubleCollection, Set<Double> {
 
 	default DoubleSet toImmutable() {
 		return new UnmodifiableDoubleSet(new DoubleOpenHashSet(this));
+	}
+
+	@Override
+	default DoubleSet leftShift(double value) {
+		return (DoubleSet) DoubleCollection.super.leftShift(value);
+	}
+
+	@Override
+	default DoubleSet leftShift(double[] value) {
+		return (DoubleSet) DoubleCollection.super.leftShift(value);
+	}
+
+	@Override
+	default DoubleSet leftShift(DoubleCollection value) {
+		return (DoubleSet) DoubleCollection.super.leftShift(value);
 	}
 }

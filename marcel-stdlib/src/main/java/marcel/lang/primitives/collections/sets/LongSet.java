@@ -104,4 +104,19 @@ public interface LongSet extends LongCollection, Set<Long> {
 	default LongSet toImmutable() {
 		return new UnmodifiableLongSet(new LongOpenHashSet(this));
 	}
+
+	@Override
+	default LongSet leftShift(long value) {
+		return (LongSet) LongCollection.super.leftShift(value);
+	}
+
+	@Override
+	default LongSet leftShift(long[] value) {
+		return (LongSet) LongCollection.super.leftShift(value);
+	}
+
+	@Override
+	default LongSet leftShift(LongCollection value) {
+		return (LongSet) LongCollection.super.leftShift(value);
+	}
 }

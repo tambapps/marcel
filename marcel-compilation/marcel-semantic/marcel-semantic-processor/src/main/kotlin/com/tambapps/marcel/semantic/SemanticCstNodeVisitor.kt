@@ -817,12 +817,14 @@ abstract class SemanticCstNodeVisitor(
         if (rightOperand is InOperationCstNode) rightOperand.apply { inExpr = leftOperand }.accept(this)
         else shiftOperator(
           leftOperand, rightOperand, "rightShift",
-          ::RightShiftNode
+          ::RightShiftNode,
+          smartCastType
         )
 
       TokenType.LEFT_SHIFT -> shiftOperator(
         leftOperand, rightOperand, "leftShift",
-        ::LeftShiftNode
+        ::LeftShiftNode,
+        smartCastType
       )
 
       TokenType.PLUS_ASSIGNMENT -> arithmeticAssignmentBinaryOperator(
@@ -1281,9 +1283,10 @@ abstract class SemanticCstNodeVisitor(
   private fun shiftOperator(
     leftOperand: ExpressionCstNode, rightOperand: ExpressionCstNode,
     operatorMethodName: String,
-    nodeSupplier: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode
+    nodeSupplier: (ExpressionNode, ExpressionNode) -> BinaryOperatorNode,
+    smartCastType: JavaType?
   ): ExpressionNode {
-    val left = leftOperand.accept(this)
+    val left = leftOperand.accept(this, if (operatorMethodName == "leftShift") smartCastType else null)
     val right = rightOperand.accept(this)
     val node = arithmeticBinaryOperator(left, right, operatorMethodName, nodeSupplier)
     if (JavaType.commonType(

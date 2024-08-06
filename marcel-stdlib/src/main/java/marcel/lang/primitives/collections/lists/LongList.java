@@ -521,4 +521,19 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 	default LongList toImmutable() {
 		return new UnmodifiableLongList(new LongArrayList(this));
 	}
+
+	@Override
+	default LongList leftShift(long value) {
+		return (LongList) LongCollection.super.leftShift(value);
+	}
+
+	@Override
+	default LongList leftShift(long[] value) {
+		return (LongList) LongCollection.super.leftShift(value);
+	}
+
+	@Override
+	default LongList leftShift(LongCollection value) {
+		return (LongList) LongCollection.super.leftShift(value);
+	}
 }

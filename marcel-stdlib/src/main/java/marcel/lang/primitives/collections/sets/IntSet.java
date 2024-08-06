@@ -103,4 +103,19 @@ public interface IntSet extends IntCollection, Set<Integer> {
 	default IntSet toImmutable() {
 		return new UnmodifiableIntSet(new IntOpenHashSet(this));
 	}
+
+	@Override
+	default IntSet leftShift(int value) {
+		return (IntSet) IntCollection.super.leftShift(value);
+	}
+
+	@Override
+	default IntSet leftShift(int[] array) {
+		return (IntSet)  IntCollection.super.leftShift(array);
+	}
+
+	@Override
+	default IntSet leftShift(IntCollection value) {
+		return (IntSet)  IntCollection.super.leftShift(value);
+	}
 }

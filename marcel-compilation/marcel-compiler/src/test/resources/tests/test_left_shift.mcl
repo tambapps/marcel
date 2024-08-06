@@ -1,0 +1,12 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertArrayEquals
+
+
+list<int> i = [1, 2, 3] << 4 << 5
+Map b = [a: 'a'] << [b: 'b'] << [b: 'c']
+
+
+assertEquals([1, 2, 3, 4, 5] as list<int>, i)
+assertEquals([a: 'a', b: 'c'], b)
+
+

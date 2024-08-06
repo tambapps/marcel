@@ -291,16 +291,17 @@ public interface LongCollection extends Collection<Long>, LongIterable {
    * @param value the value to add
    * @return whether the value was added or not
    */
-  default boolean leftShift(long value) {
-    return add(value);
+  default LongCollection leftShift(long value) {
+    add(value);
+    return this;
   }
-  default boolean leftShift(LongCollection value) {
-    return addAll(value);
+  default LongCollection leftShift(LongCollection value) {
+    addAll(value);
+    return this;
   }
-  default boolean leftShift(long[] value) {
-    boolean b = false;
-    for (long c : value) if (add(c) && !b) b = true;
-    return b;
+  default LongCollection leftShift(long[] value) {
+    for (long c : value) add(c);
+    return this;
   }
 
   default <T> LongCollection unique(LongFunction<T> keyExtractor) {

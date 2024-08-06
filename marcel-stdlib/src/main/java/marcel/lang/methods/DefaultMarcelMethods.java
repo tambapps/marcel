@@ -1394,6 +1394,19 @@ public final class DefaultMarcelMethods {
   }
 
   /**
+   * Add an element to the collection
+   *
+   * @param self  the list
+   * @param value the value to add
+   * @param <T>   the type of the list
+   * @return whether the value was added or not
+   */
+  public static <T> Collection<T> leftShift(Collection<T> self, T value) {
+    self.add(value);
+    return self;
+  }
+
+  /**
    * Add an element to the list
    *
    * @param self  the list
@@ -1401,12 +1414,40 @@ public final class DefaultMarcelMethods {
    * @param <T>   the type of the list
    * @return whether the value was added or not
    */
-  public static <T> boolean leftShift(Collection<T> self, T value) {
-    return self.add(value);
+  public static <T> List<T> leftShift(List<T> self, T value) {
+    self.add(value);
+    return self;
   }
 
-  public static <T, U> void leftShift(Map<T, U> self, Map<T, U> other) {
+  /**
+   * Add an element to the set
+   *
+   * @param self  the list
+   * @param value the value to add
+   * @param <T>   the type of the list
+   * @return whether the value was added or not
+   */
+  public static <T> Set<T> leftShift(Set<T> self, T value) {
+    self.add(value);
+    return self;
+  }
+
+  /**
+   * Add an element to the set
+   *
+   * @param self  the list
+   * @param value the value to add
+   * @param <T>   the type of the list
+   * @return whether the value was added or not
+   */
+  public static <T> Queue<T> leftShift(Queue<T> self, T value) {
+    self.add(value);
+    return self;
+  }
+
+  public static <T, U> Map<T, U> leftShift(Map<T, U> self, Map<T, U> other) {
     self.putAll(other);
+    return self;
   }
 
   /**

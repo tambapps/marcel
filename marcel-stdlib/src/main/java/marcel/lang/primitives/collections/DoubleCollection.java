@@ -269,16 +269,17 @@ public interface DoubleCollection extends Collection<Double>, DoubleIterable {
    * @param value the value to add
    * @return whether the value was added or not
    */
-  default boolean leftShift(double value) {
-    return add(value);
+  default DoubleCollection leftShift(double value) {
+    add(value);
+    return this;
   }
-  default boolean leftShift(DoubleCollection value) {
-    return addAll(value);
+  default DoubleCollection leftShift(DoubleCollection value) {
+    addAll(value);
+    return this;
   }
-  default boolean leftShift(double[] value) {
-    boolean b = false;
-    for (double c : value) if (add(c) && !b) b = true;
-    return b;
+  default DoubleCollection leftShift(double[] value) {
+    for (double c : value) add(c);
+    return this;
   }
 
   default <T> DoubleCollection unique(DoubleFunction<T> keyExtractor) {

@@ -522,4 +522,19 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 	default FloatList toImmutable() {
 		return new UnmodifiableFloatList(new FloatArrayList(this));
 	}
+
+	@Override
+	default FloatList leftShift(float value) {
+		return (FloatList) FloatCollection.super.leftShift(value);
+	}
+
+	@Override
+	default FloatList leftShift(float[] value) {
+		return (FloatList) FloatCollection.super.leftShift(value);
+	}
+
+	@Override
+	default FloatList leftShift(FloatCollection value) {
+		return (FloatList) FloatCollection.super.leftShift(value);
+	}
 }

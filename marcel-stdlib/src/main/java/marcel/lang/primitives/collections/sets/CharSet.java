@@ -1,6 +1,7 @@
 package marcel.lang.primitives.collections.sets;
 
 import marcel.lang.primitives.collections.CharCollection;
+import marcel.lang.primitives.collections.lists.CharList;
 import marcel.lang.primitives.iterators.CharIterator;
 import marcel.lang.primitives.spliterators.CharSpliterator;
 import marcel.lang.primitives.spliterators.CharSpliterators;
@@ -100,5 +101,25 @@ public interface CharSet extends CharCollection, Set<Character> {
 
 	default CharSet toImmutable() {
 		return new UnmodifiableCharSet(new CharOpenHashSet(this));
+	}
+
+	@Override
+	default CharSet leftShift(char value) {
+		return (CharSet) CharCollection.super.leftShift(value);
+	}
+
+	@Override
+	default CharSet leftShift(char[] array) {
+		return (CharSet) CharCollection.super.leftShift(array);
+	}
+
+	@Override
+	default CharSet leftShift(String string) {
+		return (CharSet) CharCollection.super.leftShift(string);
+	}
+
+	@Override
+	default CharSet leftShift(CharCollection collection) {
+		return (CharSet) CharCollection.super.leftShift(collection);
 	}
 }
