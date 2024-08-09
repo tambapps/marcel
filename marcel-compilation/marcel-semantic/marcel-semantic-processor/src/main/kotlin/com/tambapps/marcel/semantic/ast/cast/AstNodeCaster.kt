@@ -33,7 +33,6 @@ class AstNodeCaster(
     }
   }
 
-  // TODO rename smartCast
   /**
    * Cast the provided node (if necessary) so that it fits the expected type.
    * Throws a MarcelSemanticException in case of casting failure
