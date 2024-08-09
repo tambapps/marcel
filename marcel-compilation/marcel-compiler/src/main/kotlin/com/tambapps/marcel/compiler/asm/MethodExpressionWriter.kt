@@ -4,12 +4,7 @@ import com.tambapps.marcel.compiler.extensions.arrayStoreCode
 import com.tambapps.marcel.compiler.extensions.descriptor
 import com.tambapps.marcel.compiler.extensions.internalName
 import com.tambapps.marcel.compiler.extensions.typeCode
-import com.tambapps.marcel.compiler.extensions.visitMethodInsn
-import com.tambapps.marcel.compiler.extensions.visitSuperMethodInsn
-import com.tambapps.marcel.semantic.ast.expression.DupNode
-import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
-import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.PopNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
@@ -28,7 +23,6 @@ import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.ReflectJavaConstructor
 import com.tambapps.marcel.semantic.method.ReflectJavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
@@ -37,7 +31,7 @@ import java.lang.StringBuilder
 sealed class MethodExpressionWriter(
   protected val mv: MethodVisitor,
   protected val classScopeType: JavaType
-): com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor<Unit> {
+): ExpressionNodeVisitor<Unit> {
 
   private companion object {
     val HASH_MAP_CONSTRUCTOR = ReflectJavaConstructor(HashMap::class.java.getConstructor())
@@ -45,8 +39,9 @@ sealed class MethodExpressionWriter(
     val STRING_BUILDER_CONSTRUCTOR = ReflectJavaConstructor(StringBuilder::class.java.getConstructor())
     val STRING_BUILDER_TO_STRING_METHOD = ReflectJavaMethod(StringBuilder::class.java.getMethod("toString"))
   }
-  protected val loadVariableVisitor = LoadVariableVisitor(mv, classScopeType)
-  protected val storeVariableVisitor = StoreVariableVisitor(mv, classScopeType)
+  protected val methodCallWriter = MethodCallWriter(mv)
+  protected val loadVariableVisitor = LoadVariableVisitor(mv, classScopeType, methodCallWriter)
+  protected val storeVariableVisitor = StoreVariableVisitor(mv, classScopeType, methodCallWriter)
 
   internal abstract fun pushExpression(node: com.tambapps.marcel.semantic.ast.expression.ExpressionNode)
 
@@ -70,8 +65,8 @@ sealed class MethodExpressionWriter(
   override fun visit(node: com.tambapps.marcel.semantic.ast.expression.FunctionCallNode) {
     node.owner?.let { pushExpression(it) }
     node.arguments.forEach { pushExpression(it) }
-    if (node.owner !is SuperReferenceNode) mv.visitMethodInsn(node.javaMethod)
-    else mv.visitSuperMethodInsn(node.javaMethod)
+    if (node.owner !is SuperReferenceNode) node.javaMethod.accept(methodCallWriter)
+    else mv.visitMethodInsn(Opcodes.INVOKESPECIAL, node.javaMethod.ownerClass.internalName, node.javaMethod.name, node.javaMethod.descriptor, node.javaMethod.ownerClass.isInterface)
   }
 
   override fun visit(node: TernaryNode) {
@@ -158,9 +153,9 @@ sealed class MethodExpressionWriter(
       val method = ReflectJavaMethod(stringBuilderType.realClazz.getMethod("append",
         if (part.type.primitive) part.type.realClazz else Object::class.java
       ))
-      mv.visitMethodInsn(method)
+      method.accept(methodCallWriter)
     }
-    mv.visitMethodInsn(STRING_BUILDER_TO_STRING_METHOD)
+    STRING_BUILDER_TO_STRING_METHOD.accept(methodCallWriter)
   }
 
   override fun visit(node: VoidExpressionNode) {
@@ -195,7 +190,7 @@ sealed class MethodExpressionWriter(
 
   // visit and pop the value if necessary
   private fun invokeMethodAsStatement(method: JavaMethod) {
-    mv.visitMethodInsn(method)
+    method.accept(methodCallWriter)
     popStackIfNotVoid(method.returnType)
   }
 

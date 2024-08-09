@@ -9,6 +9,7 @@ import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.exception.TypeNotFoundException
 import com.tambapps.marcel.semantic.exception.VariableNotFoundException
 import com.tambapps.marcel.semantic.extensions.javaType
+import com.tambapps.marcel.semantic.method.CastMethod
 import com.tambapps.marcel.semantic.method.ExtensionJavaMethod
 import com.tambapps.marcel.semantic.method.JavaMethod
 import com.tambapps.marcel.semantic.method.MethodMatcherTrait
@@ -58,12 +59,18 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
 
   init {
     loadDefaultExtensions()
+    loadCustomMethods()
   }
 
   /* extensions */
   private fun loadDefaultExtensions() {
     loadExtensionUnsafe(DefaultMarcelMethods::class.javaType)
     loadExtensionsIfClassLoaded("FileExtensions", "StringMarcelMethods", "CharacterExtensions", "CharExtensions")
+  }
+
+  private fun loadCustomMethods() {
+    val methods = marcelMethods.computeIfAbsent(JavaType.Object.className) { mutableListOf() }
+    methods.addAll(CastMethod.METHODS)
   }
 
   private fun loadExtensionsIfClassLoaded(vararg classNames: String) {
@@ -380,6 +387,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     token: LexToken = LexToken.DUMMY
   ): JavaMethod? {
     var m = findMethod(javaType, name, { matches(it, name, argumentTypes) },
+      // TODO candidatePicker is always the same. stop passing lambda
       { candidates -> pickMethodCandidate(candidates, name, argumentTypes) }, excludeInterfaces, token
     )
     if (m == null && argumentTypes.isEmpty()) {
@@ -412,7 +420,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     excludeInterfaces: Boolean, token: LexToken? = null
   ): JavaMethod? {
     val methods = getMarcelMethods(javaType)
-    var m = methods.find(matcherPredicate)
+    var m = candidatesPicker.invoke(methods.filter(matcherPredicate))
     if (m != null) return m
 
     if (javaType.isLoaded) {

@@ -1,25 +1,12 @@
 import static org.junit.jupiter.api.Assertions.assertEquals
 
-float f = 2f
-float f2 = new Float(2f)
-Float f3 = f2
-assertEquals(f, f2)
-assertEquals(new Float(f), f3)
-
-double d = 2d
-double d2 = new Double(2d)
-Double d3 = d2
-assertEquals(d, d2)
-assertEquals(new Double(d), d3)
-
 int i = 1
-int i2 = new Integer(i)
-Integer i3 = i2
-assertEquals(i, i2)
-assertEquals(new Integer(i), i3)
+Integer I = cast<int>(i)
+long l = cast<long>(i)
 
-long l = 1l
-long l2 = new Long(l)
-Long l3 = l2
-assertEquals(l, l2)
-assertEquals(new Long(l), l3)
+assertEquals(I, Integer.valueOf(i))
+assertEquals(l, cast<long>(i))
+
+Object oir = 1..2
+IntRange ir = cast<IntRange>(oir)
+assertEquals(ir, oir)

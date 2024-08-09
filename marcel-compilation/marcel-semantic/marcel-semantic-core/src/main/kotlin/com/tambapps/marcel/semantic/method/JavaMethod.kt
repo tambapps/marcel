@@ -6,6 +6,8 @@ import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTyped
 import com.tambapps.marcel.semantic.variable.LocalVariable
 
+
+// TODO should find new name. Maybe MarcelMethod? because it now have subtypes that are not actual java method
 interface JavaMethod: JavaTyped {
 
   companion object {
@@ -32,7 +34,7 @@ interface JavaMethod: JavaTyped {
   val asyncReturnType: JavaType? get() = null // only use when isAsync is true
 
   val returnType: JavaType
-  val actualReturnType: JavaType
+  val actualReturnType: JavaType // TODO see what is it for and remove or rename and document it
   val isDefault: Boolean // for interface
   val isAbstract: Boolean
 
@@ -100,6 +102,8 @@ interface JavaMethod: JavaTyped {
     // from the first method's parameter
     return this
   }
+
+  fun <T> accept(visitor: JavaMethodVisitor<T>) = visitor.visit(this)
 
   val isGetter get() = name.startsWith("get") && name.getOrNull(3)?.isUpperCase() == true && parameters.isEmpty()
   val isSetter get() = name.startsWith("set") && name.getOrNull(3)?.isUpperCase() == true && parameters.size == 1

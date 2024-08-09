@@ -3,7 +3,6 @@ package com.tambapps.marcel.compiler.asm
 import com.tambapps.marcel.compiler.extensions.descriptor
 import com.tambapps.marcel.compiler.extensions.internalName
 import com.tambapps.marcel.compiler.extensions.storeCode
-import com.tambapps.marcel.compiler.extensions.visitMethodInsn
 import com.tambapps.marcel.semantic.method.ReflectJavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.LocalVariable
@@ -20,7 +19,8 @@ import org.objectweb.asm.Opcodes
 
 class StoreVariableVisitor(
   private val mv: MethodVisitor,
-  private val classScopeType: JavaType
+  private val classScopeType: JavaType,
+  private val methodCallWriter: MethodCallWriter
 ): VariableVisitor<Unit> {
 
   private companion object {
@@ -33,7 +33,7 @@ class StoreVariableVisitor(
   override fun visit(variable: BoundField) {
     mv.visitLdcInsn(variable.name)
     mv.visitInsn(Opcodes.SWAP) // need to swap because the value to store is before the name on the stack
-    mv.visitMethodInsn(SET_VARIABLE_METHOD)
+    SET_VARIABLE_METHOD.accept(methodCallWriter)
   }
 
   override fun visit(variable: DynamicMethodField) {
@@ -58,6 +58,6 @@ class StoreVariableVisitor(
 
   override fun visit(variable: MethodField) {
     val javaMethod = variable.setterMethod
-    mv.visitMethodInsn(javaMethod)
+    javaMethod.accept(methodCallWriter)
   }
 }

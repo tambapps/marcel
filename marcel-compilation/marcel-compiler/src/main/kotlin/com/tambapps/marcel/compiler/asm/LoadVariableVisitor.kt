@@ -3,7 +3,6 @@ package com.tambapps.marcel.compiler.asm
 import com.tambapps.marcel.compiler.extensions.descriptor
 import com.tambapps.marcel.compiler.extensions.internalName
 import com.tambapps.marcel.compiler.extensions.loadCode
-import com.tambapps.marcel.compiler.extensions.visitMethodInsn
 import com.tambapps.marcel.semantic.method.ReflectJavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.LocalVariable
@@ -23,7 +22,8 @@ import org.objectweb.asm.Opcodes
  */
 class LoadVariableVisitor(
   private val mv: MethodVisitor,
-  private val classScopeType: JavaType
+  private val classScopeType: JavaType,
+  private val methodCallWriter: MethodCallWriter
 ) : VariableVisitor<Unit> {
 
   private companion object {
@@ -35,7 +35,7 @@ class LoadVariableVisitor(
 
   override fun visit(variable: BoundField) {
     mv.visitLdcInsn(variable.name)
-    mv.visitMethodInsn(GET_VARIABLE_METHOD)
+    GET_VARIABLE_METHOD.accept(methodCallWriter)
     // bound variable type should always be an object, so no need to check primitive from/to object casting. this will always be object to object
     mv.visitTypeInsn(Opcodes.CHECKCAST, variable.type.internalName)
   }
@@ -57,6 +57,6 @@ class LoadVariableVisitor(
 
   override fun visit(variable: MethodField) {
     val javaMethod = variable.getterMethod
-    mv.visitMethodInsn(javaMethod)
+    javaMethod.accept(methodCallWriter)
   }
 }

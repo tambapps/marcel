@@ -2,12 +2,7 @@ package com.tambapps.marcel.compiler.asm
 
 import com.tambapps.marcel.compiler.extensions.addCode
 import com.tambapps.marcel.compiler.extensions.returnCode
-import com.tambapps.marcel.compiler.extensions.visitMethodInsn
 import com.tambapps.marcel.semantic.ast.AstNode
-import com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode
-import com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode
-import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
-import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
@@ -155,7 +150,7 @@ open class MethodInstructionWriter(
     // Verifying condition -> iterator.hasNext()
     val iteratorVarReference = ReferenceNode(variable = node.iteratorVariable, token = node.token)
     pushExpression(iteratorVarReference)
-    mv.visitMethodInsn(ITERATOR_HAS_NEXT_METHOD)
+    ITERATOR_HAS_NEXT_METHOD.accept(methodCallWriter)
 
     mv.visitJumpInsn(Opcodes.IFEQ, loopEnd)
 

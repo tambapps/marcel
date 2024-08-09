@@ -2,6 +2,7 @@ package com.tambapps.marcel.semantic.symbol
 
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.extensions.javaType
+import com.tambapps.marcel.semantic.method.CastMethod
 import com.tambapps.marcel.semantic.method.ExtensionJavaMethod
 import com.tambapps.marcel.semantic.method.JavaMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
@@ -114,6 +115,17 @@ class MarcelSymbolResolverTest {
     assertEquals(
       ReflectJavaMethod(IntCollection::class.java.getDeclaredMethod("any", IntPredicate::class.java)),
       symbolResolver.findMethod(IntList::class.javaType, "any", listOf(Lambda::class.javaType)))
+  }
 
+  @Test
+  fun testCastPrimitive() {
+    assertEquals(CastMethod.METHODS.find { it.returnType == JavaType.int },
+      symbolResolver.findMethod(JavaType.Object, "cast", listOf(JavaType.int)))
+  }
+
+  @Test
+  fun testCastObject() {
+    assertEquals(CastMethod.METHODS.find { it.returnType == JavaType.Object },
+      symbolResolver.findMethod(JavaType.Object, "cast", listOf(JavaType.Object)))
   }
 }
