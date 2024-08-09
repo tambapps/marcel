@@ -25,7 +25,7 @@ class AstNodeCaster(
   fun truthyCast(node: ExpressionNode): ExpressionNode {
     return when (node.type) {
       JavaType.boolean -> node
-      JavaType.Boolean -> cast(JavaType.boolean, node)
+      JavaType.Boolean -> javaCast(JavaType.boolean, node)
       else -> {
         if (node.type.primitive) throw MarcelSemanticException(node.token, "Cannot cast primitive into boolean")
         functionCall(MarcelTruth::class.javaType, "isTruthy", listOf(node), node)

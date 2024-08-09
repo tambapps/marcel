@@ -107,7 +107,7 @@ class AstNodeCasterTest {
 
   @Test
   fun testCastObjectToPrimitive() {
-    var node: com.tambapps.marcel.semantic.ast.expression.ExpressionNode = node(JavaType.Integer)
+    var node: ExpressionNode = node(JavaType.Integer)
     assertEquals(fCall(JavaType.Integer, "intValue", emptyList(), node), caster.cast(JavaType.int, node))
 
     node = node(JavaType.Long)
