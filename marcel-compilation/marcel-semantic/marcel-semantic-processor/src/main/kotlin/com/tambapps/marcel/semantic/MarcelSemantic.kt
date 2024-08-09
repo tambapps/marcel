@@ -37,7 +37,7 @@ import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.imprt.ImportResolverGenerator
 import com.tambapps.marcel.semantic.method.ExtensionJavaMethod
 import com.tambapps.marcel.semantic.method.JavaConstructorImpl
-import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.MethodScope
@@ -335,7 +335,7 @@ open class MarcelSemantic(
     }
 
   private fun getOrCreateStaticInitialisationMethod(classNode: ClassNode): MethodNode {
-    val m = classNode.methods.find { it.name == JavaMethod.STATIC_INITIALIZATION_BLOCK }
+    val m = classNode.methods.find { it.name == MarcelMethod.STATIC_INITIALIZATION_BLOCK }
     if (m != null) return m
     val newMethod = staticInitialisationMethod(classNode)
     classNode.methods.add(newMethod)
@@ -349,7 +349,7 @@ open class MarcelSemantic(
   ): MethodNode {
     val parameter = MethodParameter(Binding::class.javaType, "binding")
     val methodNode = MethodNode(
-      JavaMethod.CONSTRUCTOR_NAME,
+      MarcelMethod.CONSTRUCTOR_NAME,
       mutableListOf(parameter),
       Visibility.PUBLIC,
       JavaType.void,
@@ -364,7 +364,7 @@ open class MarcelSemantic(
 
           SuperConstructorCallNode(
             classNode.superType,
-            symbolResolver.findMethod(scriptType, JavaMethod.CONSTRUCTOR_NAME, listOf(parameter))!!,
+            symbolResolver.findMethod(scriptType, MarcelMethod.CONSTRUCTOR_NAME, listOf(parameter))!!,
             listOf(
               ReferenceNode(
                 variable = LocalVariable(
@@ -453,7 +453,7 @@ open class MarcelSemantic(
       || firstStatement.expressionNode !is ThisConstructorCallNode && firstStatement.expressionNode !is SuperConstructorCallNode
     ) {
       val superType = classScope.classType.superType!!
-      val superConstructorMethod = symbolResolver.findMethod(superType, JavaMethod.CONSTRUCTOR_NAME, emptyList())
+      val superConstructorMethod = symbolResolver.findMethod(superType, MarcelMethod.CONSTRUCTOR_NAME, emptyList())
         ?: throw MarcelSemanticException(constructorNode.token, "Class $superType doesn't have a no-arg constructor")
       constructorNode.blockStatement.statements.add(
         0,
@@ -521,7 +521,7 @@ open class MarcelSemantic(
   }
 
   private fun toConstructorNode(classNode: ClassNode, methodCst: AbstractMethodCstNode, classType: JavaType) =
-    toMethodNode(classNode, methodCst, JavaMethod.CONSTRUCTOR_NAME, JavaType.void, asyncReturnType = null, classType)
+    toMethodNode(classNode, methodCst, MarcelMethod.CONSTRUCTOR_NAME, JavaType.void, asyncReturnType = null, classType)
 
   private fun toMethodNode(
     classNode: ClassNode, methodCst: AbstractMethodCstNode, methodName: String,

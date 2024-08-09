@@ -4,7 +4,7 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.imprt.ImportResolver
-import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.variable.LocalVariable
@@ -15,7 +15,7 @@ import java.util.concurrent.ThreadLocalRandom
  */
 open class MethodScope internal constructor(
   protected val parentScope: Scope,
-  val method: JavaMethod,
+  val method: MarcelMethod,
   symbolResolver: MarcelSymbolResolver,
   override val classType: JavaType,
   importResolver: ImportResolver,
@@ -26,7 +26,7 @@ open class MethodScope internal constructor(
 
   override val forExtensionType = parentScope.forExtensionType
 
-  constructor(classScope: ClassScope, method: JavaMethod)
+  constructor(classScope: ClassScope, method: MarcelMethod)
       : this(
     classScope, method, classScope.symbolResolver, classScope.classType, classScope.importResolver,
     staticContext = method.isStatic, LocalVariablePool(method.isStatic), isAsync = method.isAsync

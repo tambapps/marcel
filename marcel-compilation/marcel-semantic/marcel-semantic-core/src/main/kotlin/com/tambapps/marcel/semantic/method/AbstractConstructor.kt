@@ -6,7 +6,7 @@ abstract class AbstractConstructor(
   override val ownerClass: JavaType,
   override val parameters: List<MethodParameter>
 ) : AbstractMethod() {
-  override val name: String = JavaMethod.CONSTRUCTOR_NAME
+  override val name: String = MarcelMethod.CONSTRUCTOR_NAME
   override val returnType = JavaType.void // yes, constructor returns void, especially for the descriptor
   override val actualReturnType get() = returnType
   override val isConstructor = true

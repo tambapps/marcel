@@ -141,7 +141,7 @@ import com.tambapps.marcel.semantic.extensions.getDefaultValueExpression
 import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.imprt.ImportResolver
-import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.AsyncScope
 import com.tambapps.marcel.semantic.scope.CatchBlockScope
@@ -278,7 +278,7 @@ abstract class SemanticCstNodeVisitor(
 
     var resolve = methodResolver.resolveMethod(
       node, type,
-      JavaMethod.CONSTRUCTOR_NAME, positionalArguments, namedArguments
+      MarcelMethod.CONSTRUCTOR_NAME, positionalArguments, namedArguments
     )
 
     // didn't find the constructor? maybe it was for an inner class with outer parameters
@@ -303,7 +303,7 @@ abstract class SemanticCstNodeVisitor(
         }
       }
       resolve =
-        methodResolver.resolveMethod(node, type, JavaMethod.CONSTRUCTOR_NAME, positionalArguments, namedArguments)
+        methodResolver.resolveMethod(node, type, MarcelMethod.CONSTRUCTOR_NAME, positionalArguments, namedArguments)
     }
     if (resolve != null) {
       return NewInstanceNode(type, resolve.first, castedArguments(resolve.first, resolve.second), node.token)
@@ -1537,7 +1537,7 @@ abstract class SemanticCstNodeVisitor(
     val arguments = node.arguments.map { it.accept(this) }
     val superType = currentScope.classType.superType!!
     val superConstructorMethod =
-      symbolResolver.findMethodOrThrow(superType, JavaMethod.CONSTRUCTOR_NAME, arguments, node.token)
+      symbolResolver.findMethodOrThrow(superType, MarcelMethod.CONSTRUCTOR_NAME, arguments, node.token)
 
     return SuperConstructorCallNode(
       superType,
@@ -1552,7 +1552,7 @@ abstract class SemanticCstNodeVisitor(
     val arguments = node.arguments.map { it.accept(this) }
     val classType = currentScope.classType
     val constructorMethod =
-      symbolResolver.findMethodOrThrow(classType, JavaMethod.CONSTRUCTOR_NAME, arguments, node.token)
+      symbolResolver.findMethodOrThrow(classType, MarcelMethod.CONSTRUCTOR_NAME, arguments, node.token)
     return ThisConstructorCallNode(
       classType,
       constructorMethod,
@@ -1767,7 +1767,7 @@ abstract class SemanticCstNodeVisitor(
     )
 
     val lambdaConstructor = MethodNode(
-      name = JavaMethod.CONSTRUCTOR_NAME,
+      name = MarcelMethod.CONSTRUCTOR_NAME,
       visibility = Visibility.INTERNAL,
       returnType = JavaType.void,
       isStatic = false,
@@ -2396,7 +2396,7 @@ abstract class SemanticCstNodeVisitor(
       inNode.type.implements(Iterator::class.javaType) -> inNode
       inNode.type.implements(CharSequence::class.javaType) -> NewInstanceNode(
         CharSequenceIterator::class.javaType,
-        symbolResolver.findMethod(CharSequenceIterator::class.javaType, JavaMethod.CONSTRUCTOR_NAME, listOf(inNode))!!,
+        symbolResolver.findMethod(CharSequenceIterator::class.javaType, MarcelMethod.CONSTRUCTOR_NAME, listOf(inNode))!!,
         listOf(inNode),
         node.token
       )
@@ -2700,7 +2700,7 @@ abstract class SemanticCstNodeVisitor(
   }
 
   protected fun fCall(
-    methodResolve: Pair<JavaMethod, List<ExpressionNode>>, owner: ExpressionNode?, castType: JavaType? = null,
+    methodResolve: Pair<MarcelMethod, List<ExpressionNode>>, owner: ExpressionNode?, castType: JavaType? = null,
     tokenStart: LexToken, tokenEnd: LexToken
   ) = fCall(
     tokenStart = tokenStart,
@@ -2908,10 +2908,10 @@ abstract class SemanticCstNodeVisitor(
   }
 
 
-  private fun newMethodScope(method: JavaMethod) =
+  private fun newMethodScope(method: MarcelMethod) =
     MethodScope(ClassScope(symbolResolver, currentScope.classType, null, imports), method)
 
-  private fun newMethodScope(classType: JavaType, forExtensionType: JavaType?, method: JavaMethod) =
+  private fun newMethodScope(classType: JavaType, forExtensionType: JavaType?, method: MarcelMethod) =
     MethodScope(ClassScope(symbolResolver, classType, forExtensionType, imports), method)
 
   fun visit(cstAnnotation: AnnotationCstNode, elementType: ElementType): AnnotationNode {

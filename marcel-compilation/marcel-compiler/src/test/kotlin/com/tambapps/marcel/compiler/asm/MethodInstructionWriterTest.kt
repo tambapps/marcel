@@ -6,8 +6,6 @@ import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.semantic.MarcelSemantic
-import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
-import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
@@ -17,7 +15,7 @@ import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import marcel.lang.Script
@@ -48,7 +46,7 @@ class MethodInstructionWriterTest {
   }
 
   private fun fCall(owner: JavaType, name: String, arguments: List<JavaType> = emptyList()) = fCall(symbolResolver.findMethod(owner, name, arguments)!!)
-  private fun fCall(method: JavaMethod) = com.tambapps.marcel.semantic.ast.expression.FunctionCallNode(
+  private fun fCall(method: MarcelMethod) = com.tambapps.marcel.semantic.ast.expression.FunctionCallNode(
     javaMethod = method,
     arguments = emptyList(),
     tokenStart = token(),

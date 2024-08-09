@@ -11,7 +11,7 @@ import com.tambapps.marcel.semantic.exception.VariableNotFoundException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.CastMethod
 import com.tambapps.marcel.semantic.method.ExtensionJavaMethod
-import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.MethodMatcherTrait
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.method.NoArgJavaConstructor
@@ -54,7 +54,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
   val definedTypes get() = _definedTypes.values.toList()
 
   // extension methods or methods of marcel source code we're compiling
-  private val marcelMethods = mutableMapOf<String, MutableList<JavaMethod>>()
+  private val marcelMethods = mutableMapOf<String, MutableList<MarcelMethod>>()
   private val fieldResolver = FieldResolver()
 
   init {
@@ -179,7 +179,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
 
   }
 
-  fun defineMethod(javaType: JavaType, method: JavaMethod) {
+  fun defineMethod(javaType: JavaType, method: MarcelMethod) {
     val methods = getMarcelMethods(javaType)
     if (methods.any { it.matches(method) }) {
       throw MarcelSemanticException(
@@ -192,7 +192,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     }
   }
 
-  fun undefineMethod(javaType: JavaType, method: JavaMethod) {
+  fun undefineMethod(javaType: JavaType, method: MarcelMethod) {
     getMarcelMethods(javaType).remove(method)
     if (method.isGetter || method.isSetter) {
       fieldResolver.undefineMethodField(method)
@@ -262,7 +262,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     javaType: JavaType, name: String,
     positionalArgumentTypes: List<JavaTyped>,
     namedParameters: Collection<MethodParameter>, token: LexToken = LexToken.DUMMY
-  ): JavaMethod {
+  ): MarcelMethod {
     return findMethodByParameters(javaType, name, positionalArgumentTypes, namedParameters, false, token)
       ?: throw MarcelSemanticException(token, "Method $javaType.$name with parameters $namedParameters is not defined")
   }
@@ -271,7 +271,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     javaType: JavaType, name: String,
     positionalArgumentTypes: List<JavaTyped>,
     namedParameters: Collection<MethodParameter>, excludeInterfaces: Boolean = false, token: LexToken = LexToken.DUMMY
-  ): JavaMethod? {
+  ): MarcelMethod? {
     val m = doFindMethodByParameters(javaType, name, positionalArgumentTypes, namedParameters, excludeInterfaces, token)
       ?: return null
     return if (javaType.genericTypes.isNotEmpty()) m.withGenericTypes(javaType.genericTypes)
@@ -283,7 +283,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     name: String,
     argumentTypes: List<JavaTyped>,
     token: LexToken = LexToken.DUMMY
-  ): JavaMethod {
+  ): MarcelMethod {
     return findMethod(javaType, name, argumentTypes, false, token) ?: throw MarcelSemanticException(
       token,
       "Method $javaType.$name with parameters ${argumentTypes.map { it.type }} is not defined"
@@ -296,13 +296,13 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     argumentTypes: List<JavaTyped>,
     excludeInterfaces: Boolean = false,
     token: LexToken = LexToken.DUMMY
-  ): JavaMethod? {
+  ): MarcelMethod? {
     val m = doFindMethod(javaType, name, argumentTypes, excludeInterfaces, token) ?: return null
     return if (javaType.genericTypes.isNotEmpty()) m.withGenericTypes(javaType.genericTypes)
     else m
   }
 
-  fun getDeclaredMethods(javaType: JavaType): List<JavaMethod> {
+  fun getDeclaredMethods(javaType: JavaType): List<MarcelMethod> {
     return if (javaType.isLoaded) javaType.realClazz.declaredMethods.map { ReflectJavaMethod(it, javaType) }
     else marcelMethods[javaType.className] ?: emptyList()
   }
@@ -319,19 +319,19 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     return fieldResolver.getAllFields(javaType).values
   }
 
-  fun getInterfaceLambdaMethodOrThrow(type: JavaType, token: LexToken): JavaMethod {
+  fun getInterfaceLambdaMethodOrThrow(type: JavaType, token: LexToken): MarcelMethod {
     return getInterfaceLambdaMethod(type) ?: throw MarcelSemanticException(
       token,
       "Interface isn't a functional interface"
     )
   }
 
-  override fun getInterfaceLambdaMethod(type: JavaType): JavaMethod? {
+  override fun getInterfaceLambdaMethod(type: JavaType): MarcelMethod? {
     return getDeclaredMethods(type).firstOrNull { it.isAbstract && it.name != "equals" && it.name != "hashCode" }
   }
 
-  private fun loadAllMethods(javaType: JavaType, excludeInterfaces: Boolean = false): Set<JavaMethod> {
-    val methods = mutableSetOf<JavaMethod>()
+  private fun loadAllMethods(javaType: JavaType, excludeInterfaces: Boolean = false): Set<MarcelMethod> {
+    val methods = mutableSetOf<MarcelMethod>()
     if (javaType.isLoaded) {
       javaType.realClazz.declaredMethods.forEach { methods.add(ReflectJavaMethod(it)) }
     }
@@ -348,9 +348,9 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     return methods
   }
 
-  fun getMethods(javaType: JavaType): List<JavaMethod> {
+  fun getMethods(javaType: JavaType): List<MarcelMethod> {
     if (javaType.isLoaded) return javaType.realClazz.methods.map { ReflectJavaMethod(it, javaType) }
-    val methods = mutableListOf<JavaMethod>()
+    val methods = mutableListOf<MarcelMethod>()
     var t: JavaType? = javaType
     while (t != null && !t.isLoaded) {
       methods.addAll(getDeclaredMethods(t))
@@ -366,7 +366,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     positionalArgumentTypes: List<JavaTyped>,
     namedParameters: Collection<MethodParameter>,
     excludeInterfaces: Boolean, token: LexToken? = null
-  ): JavaMethod? {
+  ): MarcelMethod? {
     return findMethod(javaType,
       name,
       { matchesUnorderedParameters(it, name, positionalArgumentTypes, namedParameters) },
@@ -385,7 +385,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     argumentTypes: List<JavaTyped>,
     excludeInterfaces: Boolean,
     token: LexToken = LexToken.DUMMY
-  ): JavaMethod? {
+  ): MarcelMethod? {
     var m = findMethod(javaType, name, { matches(it, name, argumentTypes) },
       { candidates -> pickMethodCandidate(candidates, name, argumentTypes) }, excludeInterfaces, token
     )
@@ -397,34 +397,34 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
 
 
   private fun pickMethodCandidate(
-    candidates: List<JavaMethod>,
+    candidates: List<MarcelMethod>,
     name: String,
     argumentTypes: List<JavaTyped>
-  ): JavaMethod? {
+  ): MarcelMethod? {
     val exactCandidates = candidates.filter { exactMatch(it, name, argumentTypes) }
     return if (exactCandidates.size == 1) exactCandidates.first() else getMoreSpecificMethod(
       if (exactCandidates.isNotEmpty()) exactCandidates else candidates
     )
   }
 
-  fun findMatchingMethod(methods: List<JavaMethod>, name: String, argumentTypes: List<JavaTyped>): JavaMethod? {
+  fun findMatchingMethod(methods: List<MarcelMethod>, name: String, argumentTypes: List<JavaTyped>): MarcelMethod? {
     val candidates = methods.filter { matches(it, argumentTypes) }
     return pickMethodCandidate(candidates, name, argumentTypes)
   }
 
   private fun findMethod(
     javaType: JavaType, name: String,
-    matcherPredicate: (JavaMethod) -> Boolean,
-    candidatesPicker: (List<JavaMethod>) -> JavaMethod?,
+    matcherPredicate: (MarcelMethod) -> Boolean,
+    candidatesPicker: (List<MarcelMethod>) -> MarcelMethod?,
     excludeInterfaces: Boolean, token: LexToken? = null
-  ): JavaMethod? {
+  ): MarcelMethod? {
     val methods = getMarcelMethods(javaType)
     var m = candidatesPicker.invoke(methods.filter(matcherPredicate))
     if (m != null) return m
 
     if (javaType.isLoaded) {
       val clazz = javaType.type.realClazz
-      val candidates = if (name == JavaMethod.CONSTRUCTOR_NAME) {
+      val candidates = if (name == MarcelMethod.CONSTRUCTOR_NAME) {
         clazz.declaredConstructors
           .map { ReflectJavaConstructor(it) }
           .filter(matcherPredicate)
@@ -447,7 +447,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
       }
     }
 
-    if (name == JavaMethod.CONSTRUCTOR_NAME) {
+    if (name == MarcelMethod.CONSTRUCTOR_NAME) {
       if (!javaType.isLoaded) {
         val noArgConstructor = NoArgJavaConstructor(javaType)
 
@@ -477,12 +477,12 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     return m
   }
 
-  private fun getMoreSpecificMethod(candidates: List<JavaMethod>): JavaMethod? {
+  private fun getMoreSpecificMethod(candidates: List<MarcelMethod>): MarcelMethod? {
     val nonExtensionMethods = candidates.filter { !it.isExtension }
     val toIterate = nonExtensionMethods.ifEmpty { candidates }
 
     // inspired from Class.searchMethods()
-    var m: JavaMethod? = null
+    var m: MarcelMethod? = null
     for (candidate in toIterate) {
       if (m == null
         || (m.returnType != candidate.returnType
@@ -492,7 +492,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     return m
   }
 
-  private fun getMarcelMethods(javaType: JavaType): MutableList<JavaMethod> {
+  private fun getMarcelMethods(javaType: JavaType): MutableList<MarcelMethod> {
     // return methods defined from MDK or from marcel source we're currently compiling
     return marcelMethods.computeIfAbsent(javaType.className) { mutableListOf() }
   }
@@ -557,7 +557,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
       }
     }
 
-    fun defineMethodField(method: JavaMethod) {
+    fun defineMethodField(method: MarcelMethod) {
       val compositeField = computeFieldIfAbsent(method.ownerClass, method.propertyName)
       if (method.isGetter) {
         compositeField.addGetter(MethodField.fromGetter(method))
@@ -566,7 +566,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
       }
     }
 
-    fun undefineMethodField(method: JavaMethod) {
+    fun undefineMethodField(method: MarcelMethod) {
       val compositeField = computeFieldIfAbsent(method.ownerClass, method.propertyName)
       if (method.isGetter) {
         compositeField.removeGetter(MethodField.fromGetter(method))

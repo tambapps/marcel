@@ -6,7 +6,7 @@ import com.tambapps.marcel.semantic.type.JavaType
 class CastMethod private constructor(argType: JavaType): CustomMethod() {
 
   companion object {
-    val METHODS = mutableListOf<JavaMethod>().apply {
+    val METHODS = mutableListOf<MarcelMethod>().apply {
       add(CastMethod(JavaType.Object))
       addAll(JavaType.PRIMITIVES.map(::CastMethod))
     }.toList()

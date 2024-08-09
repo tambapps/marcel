@@ -6,7 +6,7 @@ import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.exception.MarcelSyntaxTreeTransformationException
-import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.type.SourceJavaType
 
 /**
@@ -46,7 +46,7 @@ abstract class GenerateMethodAstTransformation : AbstractAstTransformation() {
     node: CstNode,
     javaType: SourceJavaType,
     annotation: AnnotationNode
-  ): List<JavaMethod> {
+  ): List<MarcelMethod> {
     return emptyList()
   }
 

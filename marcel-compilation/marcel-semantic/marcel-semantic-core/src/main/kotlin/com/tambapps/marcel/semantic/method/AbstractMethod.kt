@@ -3,11 +3,11 @@ package com.tambapps.marcel.semantic.method
 import com.tambapps.marcel.semantic.Visibility
 import java.util.*
 
-abstract class AbstractMethod: JavaMethod {
+abstract class AbstractMethod: MarcelMethod {
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
-    if (other !is JavaMethod) return false
+    if (other !is MarcelMethod) return false
     if (name != other.name) return false
     if (isConstructor && ownerClass != other.ownerClass) return false
     if (parameters != other.parameters) return false

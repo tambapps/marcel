@@ -9,7 +9,7 @@ import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.exception.MarcelSyntaxTreeTransformationException
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.SourceJavaType
 import marcel.lang.comparable
@@ -28,7 +28,7 @@ class ComparableAstTransformation : GenerateMethodAstTransformation() {
     node: CstNode,
     javaType: SourceJavaType,
     annotation: AnnotationNode
-  ): List<JavaMethod> {
+  ): List<MarcelMethod> {
     return listOf(
       signature(
         name = "compareTo",

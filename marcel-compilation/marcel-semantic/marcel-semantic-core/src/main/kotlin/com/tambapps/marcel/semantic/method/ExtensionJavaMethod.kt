@@ -3,7 +3,7 @@ package com.tambapps.marcel.semantic.method
 import com.tambapps.marcel.semantic.type.JavaType
 
 class ExtensionJavaMethod private constructor(
-  val actualMethod: JavaMethod,
+  val actualMethod: MarcelMethod,
   override val ownerClass: JavaType,
   override val name: String,
   override val parameters: List<MethodParameter>,
@@ -23,13 +23,13 @@ class ExtensionJavaMethod private constructor(
   override val actualParameters = actualMethod.actualParameters
 
   // could probably do some optimization here (with uses of java reflect API)
-  constructor(javaMethod: JavaMethod): this(javaMethod,
+  constructor(javaMethod: MarcelMethod): this(javaMethod,
     javaMethod.ownerClass, javaMethod.name,
     javaMethod.parameters.takeLast(javaMethod.parameters.size - 1),
     javaMethod.returnType,
     javaMethod.actualReturnType)
 
-  override fun withGenericTypes(types: List<JavaType>): JavaMethod {
+  override fun withGenericTypes(types: List<JavaType>): MarcelMethod {
     val actualOwnerClass = actualMethod.parameters.first().type.withGenericTypes(types)
     return ExtensionJavaMethod(actualMethod, ownerClass, name,
       actualMethod.parameters.takeLast(actualMethod.parameters.size - 1),

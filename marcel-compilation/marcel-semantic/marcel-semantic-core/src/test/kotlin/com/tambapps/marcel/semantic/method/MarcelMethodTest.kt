@@ -8,7 +8,7 @@ import com.tambapps.marcel.semantic.type.JavaType
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
 
-class JavaMethodTest {
+class MarcelMethodTest {
 
   @Test
   fun test() {

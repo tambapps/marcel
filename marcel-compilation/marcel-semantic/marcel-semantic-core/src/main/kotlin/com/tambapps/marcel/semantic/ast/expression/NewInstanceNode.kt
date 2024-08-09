@@ -1,12 +1,12 @@
 package com.tambapps.marcel.semantic.ast.expression
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.type.JavaType
 
 open class NewInstanceNode(
   type: JavaType,
-  val javaMethod: JavaMethod,
+  val javaMethod: MarcelMethod,
   open val arguments: List<ExpressionNode>,
   token: LexToken
 ) : AbstractExpressionNode(type, token) {

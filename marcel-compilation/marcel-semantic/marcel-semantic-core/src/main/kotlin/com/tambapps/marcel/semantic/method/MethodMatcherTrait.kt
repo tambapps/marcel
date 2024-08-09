@@ -16,9 +16,9 @@ interface MethodMatcherTrait {
    * @param type the interface type
    * @return the lambda method of a functional interface or null if ambiguous
    */
-  fun getInterfaceLambdaMethod(type: JavaType): JavaMethod?
+  fun getInterfaceLambdaMethod(type: JavaType): MarcelMethod?
 
-  fun exactMatch(method: JavaMethod, name: String, types: List<JavaTyped>): Boolean {
+  fun exactMatch(method: MarcelMethod, name: String, types: List<JavaTyped>): Boolean {
     return method.name == name && method.parameters.map { it.type.raw() } == types.map { it.type.raw() }
   }
 
@@ -26,12 +26,12 @@ interface MethodMatcherTrait {
    * Returns whether the method matches the provided method name and argument types. In other words
    * whether the provided method matches the provided name, and the argument types matches the method parameters
    *
-   * @param method the [JavaMethod]
+   * @param method the [MarcelMethod]
    * @param name the name of the method
    * @param argumentTypes the argument types
    * @return whether the method matches the provided method name and argument types
    */
-  fun matches(method: JavaMethod, name: String, argumentTypes: List<JavaTyped>): Boolean {
+  fun matches(method: MarcelMethod, name: String, argumentTypes: List<JavaTyped>): Boolean {
     return method.name == name && matches(method, argumentTypes)
   }
 
@@ -39,11 +39,11 @@ interface MethodMatcherTrait {
    * Returns whether the method matches the provided argument types. In other words
    * whether the provided method could be called with the provided argument types
    *
-   * @param method the [JavaMethod]
+   * @param method the [MarcelMethod]
    * @param argumentTypes
    * @return whether the method matches the provided argument types
    */
-  fun matches(method: JavaMethod, argumentTypes: List<JavaTyped>): Boolean {
+  fun matches(method: MarcelMethod, argumentTypes: List<JavaTyped>): Boolean {
     return matchesMethod(method, argumentTypes)
         || method.isVarArgs && matchesVarArgsMethod(method, argumentTypes)
   }
@@ -53,11 +53,11 @@ interface MethodMatcherTrait {
    * whether the provided method could be called with the provided argument types.
    * VarArgs methods are **not** handled by this method
    *
-   * @param method the [JavaMethod]
+   * @param method the [MarcelMethod]
    * @param argumentTypes
    * @return whether the method matches the provided argument types
    */
-  fun matchesMethod(method: JavaMethod, argumentTypes: List<JavaTyped>): Boolean {
+  fun matchesMethod(method: MarcelMethod, argumentTypes: List<JavaTyped>): Boolean {
     if (argumentTypes.size > method.parameters.size) return false
     var i = 0
     while (i < argumentTypes.size) {
@@ -75,7 +75,7 @@ interface MethodMatcherTrait {
     return i == max(method.parameters.size, argumentTypes.size)
   }
 
-  private fun matchesVarArgsMethod(method: JavaMethod, argumentTypes: List<JavaTyped>): Boolean {
+  private fun matchesVarArgsMethod(method: MarcelMethod, argumentTypes: List<JavaTyped>): Boolean {
     val varArgType = method.varArgType
     var i = 0
     while (i < argumentTypes.size) {
@@ -93,7 +93,7 @@ interface MethodMatcherTrait {
     else expectedType.isAssignableFrom(actualType)
   }
 
-  fun matchesUnorderedParameters(method: JavaMethod, name: String,
+  fun matchesUnorderedParameters(method: MarcelMethod, name: String,
                                  positionalArguments: List<JavaTyped>,
                                  arguments: Collection<MethodParameter>): Boolean {
     if (positionalArguments.isNotEmpty()) {

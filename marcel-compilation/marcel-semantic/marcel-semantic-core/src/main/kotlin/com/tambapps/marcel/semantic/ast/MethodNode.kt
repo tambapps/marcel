@@ -4,7 +4,7 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.method.AbstractMethod
-import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.type.JavaType
 
@@ -31,7 +31,7 @@ class MethodNode(
   ) : this(name, parameters, visibility, returnType, isStatic, null, tokenStart, tokenEnd, ownerClass)
 
   companion object {
-    fun fromJavaMethod(method: JavaMethod, tokenStart: LexToken, tokenEnd: LexToken): MethodNode {
+    fun fromJavaMethod(method: MarcelMethod, tokenStart: LexToken, tokenEnd: LexToken): MethodNode {
       return MethodNode(
         method.name,
         method.parameters.toMutableList(),
@@ -46,7 +46,7 @@ class MethodNode(
   }
 
   override val annotations: MutableList<AnnotationNode> = mutableListOf()
-  override val isConstructor = name == JavaMethod.CONSTRUCTOR_NAME
+  override val isConstructor = name == MarcelMethod.CONSTRUCTOR_NAME
 
   override val isAbstract = false
   override val isDefault = false

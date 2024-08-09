@@ -8,13 +8,13 @@ import com.tambapps.marcel.semantic.variable.LocalVariable
 
 
 // TODO should find new name. Maybe MarcelMethod? because it now have subtypes that are not actual java method
-interface JavaMethod: JavaTyped {
+interface MarcelMethod: JavaTyped {
 
   companion object {
     const val CONSTRUCTOR_NAME = "<init>"
     const val STATIC_INITIALIZATION_BLOCK = "<clinit>"
 
-    fun defaultParameterMethodName(method: JavaMethod, parameter: MethodParameter): String {
+    fun defaultParameterMethodName(method: MarcelMethod, parameter: MethodParameter): String {
       return defaultParameterMethodName(method.name, parameter.name)
     }
     fun defaultParameterMethodName(methodName: String, parameterName: String): String {
@@ -55,7 +55,7 @@ interface JavaMethod: JavaTyped {
     return visibility.canAccess(type, ownerClass)
   }
 
-  fun parameterMatches(other: JavaMethod): Boolean {
+  fun parameterMatches(other: MarcelMethod): Boolean {
     if (parameters.size != other.parameters.size) return false
     for (i in parameters.indices) if (parameters[i].type.raw() != other.parameters[i].type.raw()) return false
     return true
@@ -85,19 +85,19 @@ interface JavaMethod: JavaTyped {
    * @param other the other method
    * @return whether a method matches another
    */
-  fun matches(other: JavaMethod): Boolean {
+  fun matches(other: MarcelMethod): Boolean {
     if (name != other.name) return false
     if (!parameterMatches(other)) return false
     return true
   }
 
-  fun parametersAssignableTo(other: JavaMethod): Boolean {
+  fun parametersAssignableTo(other: MarcelMethod): Boolean {
     if (parameters.size != other.parameters.size) return false
     for (i in parameters.indices) if (!other.parameters[i].type.isAssignableFrom(parameters[i].type)) return false
     return true
   }
 
-  fun withGenericTypes(types: List<JavaType>): JavaMethod {
+  fun withGenericTypes(types: List<JavaType>): MarcelMethod {
     // this is especially for ExtensionMethod, which don't have generic actual parameters since the type was gotten
     // from the first method's parameter
     return this

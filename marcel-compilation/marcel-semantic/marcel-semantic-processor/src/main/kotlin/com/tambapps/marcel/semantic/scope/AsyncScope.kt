@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.scope
 
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import marcel.util.concurrent.Threadmill
 
@@ -15,7 +15,7 @@ import marcel.util.concurrent.Threadmill
  * @param method the generated method that will run the async block
  * @param originalScope the scope in which the async block was declared
  */
-class AsyncScope(symbolResolver: MarcelSymbolResolver, method: JavaMethod, originalScope: MethodScope) :
+class AsyncScope(symbolResolver: MarcelSymbolResolver, method: MarcelMethod, originalScope: MethodScope) :
   MethodInnerScope(
     MethodScope(
       ClassScope(

@@ -13,7 +13,7 @@ import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSyntaxTreeTransformationException
 import com.tambapps.marcel.semantic.extensions.javaType
 
-import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.SourceJavaType
 import java.util.concurrent.ConcurrentHashMap
@@ -31,7 +31,7 @@ class CachedAstTransformation : GenerateMethodAstTransformation() {
     node: CstNode,
     javaType: SourceJavaType,
     annotation: AnnotationNode
-  ): List<JavaMethod> {
+  ): List<MarcelMethod> {
     if ((node as? MethodCstNode)?.isAsync == true) {
       throw MarcelSyntaxTreeTransformationException(this, node.token, "Cannot cache async methods")
     }
@@ -166,7 +166,7 @@ class CachedAstTransformation : GenerateMethodAstTransformation() {
     val cacheInitValueExpr = constructorCall(
       method = symbolResolver.findMethodOrThrow(
         if (threadSafe) ConcurrentHashMap::class.javaType
-        else HashMap::class.javaType, JavaMethod.CONSTRUCTOR_NAME, emptyList()
+        else HashMap::class.javaType, MarcelMethod.CONSTRUCTOR_NAME, emptyList()
       ), arguments = emptyList()
     )
     if (purpose == SemanticPurpose.REPL && classNode.type.isScript) {

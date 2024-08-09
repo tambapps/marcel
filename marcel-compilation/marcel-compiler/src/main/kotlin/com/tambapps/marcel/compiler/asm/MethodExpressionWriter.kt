@@ -19,7 +19,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.NewArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.operator.ArrayIndexAssignmentNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
-import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.ReflectJavaConstructor
 import com.tambapps.marcel.semantic.method.ReflectJavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
@@ -168,7 +168,7 @@ sealed class MethodExpressionWriter(
     mv.visitInsn(Opcodes.DUP)
     node.arguments.forEach { pushExpression(it) }
     mv.visitMethodInsn(
-      Opcodes.INVOKESPECIAL, classInternalName, JavaMethod.CONSTRUCTOR_NAME, node.javaMethod.descriptor, false)
+      Opcodes.INVOKESPECIAL, classInternalName, MarcelMethod.CONSTRUCTOR_NAME, node.javaMethod.descriptor, false)
   }
 
   override fun visit(node: ThisConstructorCallNode) {
@@ -179,17 +179,17 @@ sealed class MethodExpressionWriter(
     visitOwnConstructorCall(node.classType, node.javaMethod, node.arguments)
   }
 
-  private fun visitOwnConstructorCall(type: JavaType, method: JavaMethod, arguments: List<com.tambapps.marcel.semantic.ast.expression.ExpressionNode>) {
+  private fun visitOwnConstructorCall(type: JavaType, method: MarcelMethod, arguments: List<com.tambapps.marcel.semantic.ast.expression.ExpressionNode>) {
     mv.visitVarInsn(Opcodes.ALOAD, 0)
     arguments.forEach { pushExpression(it) }
     mv.visitMethodInsn(
-      Opcodes.INVOKESPECIAL, type.internalName, JavaMethod.CONSTRUCTOR_NAME,
+      Opcodes.INVOKESPECIAL, type.internalName, MarcelMethod.CONSTRUCTOR_NAME,
       // void return type for constructors
       method.descriptor, false)
   }
 
   // visit and pop the value if necessary
-  private fun invokeMethodAsStatement(method: JavaMethod) {
+  private fun invokeMethodAsStatement(method: MarcelMethod) {
     method.accept(methodCallWriter)
     popStackIfNotVoid(method.returnType)
   }

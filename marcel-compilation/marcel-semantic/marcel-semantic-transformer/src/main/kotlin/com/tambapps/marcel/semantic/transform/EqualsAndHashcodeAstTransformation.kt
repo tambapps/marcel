@@ -9,7 +9,7 @@ import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.SourceJavaType
 import marcel.lang.data
@@ -25,7 +25,7 @@ class EqualsAndHashcodeAstTransformation : GenerateMethodAstTransformation() {
     node: CstNode,
     javaType: SourceJavaType,
     annotation: AnnotationNode
-  ): List<JavaMethod> {
+  ): List<MarcelMethod> {
     return listOf(
       signature(name = "equals", parameters = listOf(parameter(JavaType.Object, "obj")), returnType = JavaType.boolean),
       signature(name = "hashCode", returnType = JavaType.int)

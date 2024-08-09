@@ -32,7 +32,7 @@ import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.imprt.ImportResolver
-import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.JavaMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.ClassScope
@@ -62,7 +62,7 @@ abstract class AstNodeComposer : MarcelSemanticGenerator() {
     isAbstract: Boolean = false,
     isStatic: Boolean = false,
     isConstructor: Boolean = false
-  ): JavaMethod {
+  ): MarcelMethod {
     return JavaMethodImpl(
       currentScope.classType,
       visibility,
@@ -89,7 +89,7 @@ abstract class AstNodeComposer : MarcelSemanticGenerator() {
     parameters: List<MethodParameter> = emptyList(),
     statementsSupplier: StatementsComposer.() -> Unit
   ) = methodNode(
-    classNode.type, visibility, JavaMethod.CONSTRUCTOR_NAME, parameters, JavaType.void, isStatic = false
+    classNode.type, visibility, MarcelMethod.CONSTRUCTOR_NAME, parameters, JavaType.void, isStatic = false
   ) {
     // super method call
     stmt(superNoArgConstructorCall(classNode, symbolResolver))
@@ -233,7 +233,7 @@ abstract class AstNodeComposer : MarcelSemanticGenerator() {
   }
 
   protected fun fCall(
-    method: JavaMethod, arguments: List<ExpressionNode>,
+    method: MarcelMethod, arguments: List<ExpressionNode>,
     owner: ExpressionNode,
     castType: JavaType? = null
   ): ExpressionNode {
@@ -250,7 +250,7 @@ abstract class AstNodeComposer : MarcelSemanticGenerator() {
   }
 
   protected fun constructorCall(
-    method: JavaMethod,
+    method: MarcelMethod,
     arguments: List<ExpressionNode>
   ): NewInstanceNode {
     return NewInstanceNode(method.ownerClass, method, castedArguments(method, arguments), LexToken.DUMMY)

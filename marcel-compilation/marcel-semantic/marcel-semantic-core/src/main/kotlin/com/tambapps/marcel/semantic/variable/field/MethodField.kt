@@ -2,7 +2,7 @@ package com.tambapps.marcel.semantic.variable.field
 
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.method.ExtensionJavaMethod
-import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.VariableVisitor
 
@@ -10,13 +10,13 @@ import com.tambapps.marcel.semantic.variable.VariableVisitor
  * A Field using a getter and/or a setter
  */
 open class MethodField constructor(override val type: JavaType, override val name: String, override val owner: JavaType,
-                                   private val _getterMethod: JavaMethod?,
-                                   private val _setterMethod: JavaMethod?,
+                                   private val _getterMethod: MarcelMethod?,
+                                   private val _setterMethod: MarcelMethod?,
                                    override val isExtension: Boolean): AbstractField() {
   companion object {
 
-    fun fromGetter(method: JavaMethod) = MethodField(method.returnType, method.propertyName, method.ownerClass, method, null, method is ExtensionJavaMethod)
-    fun fromSetter(method: JavaMethod) = MethodField(method.parameters.first().type, method.propertyName, method.ownerClass, null, method, method is ExtensionJavaMethod)
+    fun fromGetter(method: MarcelMethod) = MethodField(method.returnType, method.propertyName, method.ownerClass, method, null, method is ExtensionJavaMethod)
+    fun fromSetter(method: MarcelMethod) = MethodField(method.parameters.first().type, method.propertyName, method.ownerClass, null, method, method is ExtensionJavaMethod)
 
   }
   override fun <T> accept(visitor: VariableVisitor<T>) = visitor.visit(this)

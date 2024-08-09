@@ -11,7 +11,7 @@ import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.exception.MarcelSyntaxTreeTransformationException
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.SourceJavaType
@@ -23,7 +23,7 @@ class AllArgsConstructorAstTransformation : GenerateMethodAstTransformation() {
     node: CstNode,
     javaType: SourceJavaType,
     annotation: AnnotationNode
-  ): List<JavaMethod> {
+  ): List<MarcelMethod> {
     val classNode = node as? ClassCstNode ?: throw MarcelSyntaxTreeTransformationException(
       this,
       node.token,
@@ -50,7 +50,7 @@ class AllArgsConstructorAstTransformation : GenerateMethodAstTransformation() {
     return listOf(
       signature(
         visibility = Visibility.PUBLIC,
-        name = JavaMethod.CONSTRUCTOR_NAME,
+        name = MarcelMethod.CONSTRUCTOR_NAME,
         parameters = fields.map { MethodParameter(resolve(it.type), it.name) },
         returnType = JavaType.void // constructor return void
       )

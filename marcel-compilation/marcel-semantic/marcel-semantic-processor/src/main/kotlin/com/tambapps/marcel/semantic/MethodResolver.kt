@@ -8,7 +8,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.getDefaultValueExpression
 import com.tambapps.marcel.semantic.imprt.ImportResolver
-import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
@@ -24,7 +24,7 @@ class MethodResolver(
   fun resolveMethodOrThrow(
     node: CstNode, ownerType: JavaType, name: String, positionalArguments: List<ExpressionNode>,
     namedArguments: List<Pair<String, ExpressionNode>>
-  ): Pair<JavaMethod, List<ExpressionNode>> {
+  ): Pair<MarcelMethod, List<ExpressionNode>> {
     return resolveMethod(node, ownerType, name, positionalArguments, namedArguments)
       ?: throw MarcelSemanticException(
         node.token,
@@ -36,7 +36,7 @@ class MethodResolver(
   fun resolveMethod(
     node: CstNode, ownerType: JavaType, name: String, positionalArguments: List<ExpressionNode>,
     namedArguments: List<Pair<String, ExpressionNode>>
-  ): Pair<JavaMethod, List<ExpressionNode>>? {
+  ): Pair<MarcelMethod, List<ExpressionNode>>? {
     if (namedArguments.isEmpty()) {
       val method = symbolResolver.findMethod(ownerType, name, positionalArguments)
       if (method != null) {
@@ -44,7 +44,7 @@ class MethodResolver(
       }
 
       // handle dynamic object method call
-      if (ownerType.implements(JavaType.DynamicObject) && name != JavaMethod.CONSTRUCTOR_NAME) {
+      if (ownerType.implements(JavaType.DynamicObject) && name != MarcelMethod.CONSTRUCTOR_NAME) {
         val dynamicInvokeMethod = symbolResolver.findMethod(
           JavaType.DynamicObject,
           "invokeMethod",
@@ -74,7 +74,7 @@ class MethodResolver(
   fun resolveMethodFromImports(
     node: CstNode, name: String, positionalArguments: List<ExpressionNode>,
     namedArguments: List<Pair<String, ExpressionNode>>, importResolver: ImportResolver
-  ): Pair<JavaMethod, List<ExpressionNode>>? {
+  ): Pair<MarcelMethod, List<ExpressionNode>>? {
 
     val ownerType = importResolver.resolveMemberOwnerType(name) ?: return null
     val result = resolveMethod(node, ownerType, name, positionalArguments, namedArguments)
@@ -84,7 +84,7 @@ class MethodResolver(
 
   // complete the arguments if necessary by looking on the method parameters default value and/or named parameters
   private fun completedArguments(
-    node: CstNode, method: JavaMethod, positionalArguments: List<ExpressionNode>,
+    node: CstNode, method: MarcelMethod, positionalArguments: List<ExpressionNode>,
     namedArguments: List<Pair<String, ExpressionNode>>
   ): List<ExpressionNode> {
     return if (positionalArguments.size >= method.parameters.size || method.isVarArgs) positionalArguments
@@ -107,7 +107,7 @@ class MethodResolver(
       positionalArguments.forEach { allParametersString.add(it.type.simpleName) }
       namedArguments.forEach { allParametersString.add("${it.first}: ${it.second.type.simpleName}") }
 
-      val displayedName = if (name == JavaMethod.CONSTRUCTOR_NAME) "Constructor $ownerType"
+      val displayedName = if (name == MarcelMethod.CONSTRUCTOR_NAME) "Constructor $ownerType"
       else "Method $ownerType.$name"
 
       return allParametersString.joinToString(

@@ -26,7 +26,7 @@ import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.exception.MemberNotVisibleException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.imprt.ImportResolver
-import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.MethodInnerScope
@@ -101,7 +101,7 @@ abstract class MarcelSemanticGenerator {
 
   fun superNoArgConstructorCall(classNode: ClassNode, symbolResolver: MarcelSymbolResolver): SuperConstructorCallNode {
     val superConstructorMethod =
-      symbolResolver.findMethodOrThrow(classNode.superType, JavaMethod.CONSTRUCTOR_NAME, emptyList(), classNode.token)
+      symbolResolver.findMethodOrThrow(classNode.superType, MarcelMethod.CONSTRUCTOR_NAME, emptyList(), classNode.token)
     return SuperConstructorCallNode(
       classNode.superType,
       superConstructorMethod,
@@ -117,7 +117,7 @@ abstract class MarcelSemanticGenerator {
     visibility: Visibility = Visibility.PUBLIC
   ): MethodNode {
     val defaultConstructorNode = MethodNode(
-      JavaMethod.CONSTRUCTOR_NAME,
+      MarcelMethod.CONSTRUCTOR_NAME,
       mutableListOf(),
       visibility,
       JavaType.void,
@@ -146,7 +146,7 @@ abstract class MarcelSemanticGenerator {
    * @param arguments the arguments
    * @return the list of arguments to call the provided method
    */
-  protected fun castedArguments(method: JavaMethod, arguments: List<ExpressionNode>): List<ExpressionNode> {
+  protected fun castedArguments(method: MarcelMethod, arguments: List<ExpressionNode>): List<ExpressionNode> {
     if (!method.isVarArgs
       // in case the provider did provide the array
       || symbolResolver.matchesMethod(method, arguments)
@@ -203,7 +203,7 @@ abstract class MarcelSemanticGenerator {
 
   protected fun fCall(
     node: CstNode,
-    method: JavaMethod,
+    method: MarcelMethod,
     arguments: List<ExpressionNode>,
     owner: ExpressionNode? = null,
     castType: JavaType? = null
@@ -216,7 +216,7 @@ abstract class MarcelSemanticGenerator {
   protected fun fCall(
     tokenStart: LexToken,
     tokenEnd: LexToken,
-    method: JavaMethod,
+    method: MarcelMethod,
     arguments: List<ExpressionNode>,
     owner: ExpressionNode? = null,
     castType: JavaType? = null
@@ -246,7 +246,7 @@ abstract class MarcelSemanticGenerator {
   fun staticInitialisationMethod(classNode: ClassNode): MethodNode {
     return MethodNode(
       ownerClass = classNode.type,
-      name = JavaMethod.STATIC_INITIALIZATION_BLOCK,
+      name = MarcelMethod.STATIC_INITIALIZATION_BLOCK,
       parameters = mutableListOf(),
       visibility = Visibility.PRIVATE,
       isStatic = true,
@@ -471,7 +471,7 @@ abstract class MarcelSemanticGenerator {
     outerClassNode.innerClasses.add(lambdaClassNode)
 
     val lambdaConstructor = MethodNode(
-      name = JavaMethod.CONSTRUCTOR_NAME,
+      name = MarcelMethod.CONSTRUCTOR_NAME,
       visibility = Visibility.INTERNAL,
       returnType = JavaType.void,
       isStatic = false,

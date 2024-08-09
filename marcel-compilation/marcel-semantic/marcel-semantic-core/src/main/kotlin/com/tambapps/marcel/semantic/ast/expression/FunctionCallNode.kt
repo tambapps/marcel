@@ -1,11 +1,10 @@
 package com.tambapps.marcel.semantic.ast.expression
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.semantic.method.JavaMethod
-import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.method.MarcelMethod
 
 open class FunctionCallNode(
-  val javaMethod: JavaMethod,
+  val javaMethod: MarcelMethod,
   override val owner: ExpressionNode?,
   val arguments: List<ExpressionNode>,
   tokenStart: LexToken,

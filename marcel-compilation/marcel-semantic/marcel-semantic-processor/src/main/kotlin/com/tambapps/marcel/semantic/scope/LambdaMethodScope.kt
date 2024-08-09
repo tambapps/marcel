@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.scope
 
 import com.tambapps.marcel.semantic.Visibility
-import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.field.JavaClassFieldImpl
 import com.tambapps.marcel.semantic.variable.field.MarcelField
@@ -11,7 +11,7 @@ import com.tambapps.marcel.semantic.variable.field.MarcelField
  */
 class LambdaMethodScope(
   classScope: ClassScope,
-  method: JavaMethod,
+  method: MarcelMethod,
   // local variables from the method in which the lambda is called
   private val outerScopeLocalVariable: List<LocalVariable>
 ) : MethodScope(classScope, method) {
