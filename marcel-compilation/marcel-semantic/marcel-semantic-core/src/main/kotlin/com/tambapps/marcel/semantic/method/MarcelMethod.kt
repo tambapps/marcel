@@ -6,8 +6,6 @@ import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTyped
 import com.tambapps.marcel.semantic.variable.LocalVariable
 
-
-// TODO should find new name. Maybe MarcelMethod? because it now have subtypes that are not actual java method
 interface MarcelMethod: JavaTyped {
 
   companion object {
