@@ -8,7 +8,6 @@ class ExtensionJavaMethod private constructor(
   override val name: String,
   override val parameters: List<MethodParameter>,
   override val returnType: JavaType,
-  override val actualReturnType: JavaType,
 ) : AbstractMethod() {
   override val isConstructor = false
   // the static is excluded here in purpose so that self is pushed to the stack
@@ -26,15 +25,12 @@ class ExtensionJavaMethod private constructor(
   constructor(javaMethod: MarcelMethod): this(javaMethod,
     javaMethod.ownerClass, javaMethod.name,
     javaMethod.parameters.takeLast(javaMethod.parameters.size - 1),
-    javaMethod.returnType,
-    javaMethod.actualReturnType)
+    javaMethod.returnType)
 
   override fun withGenericTypes(types: List<JavaType>): MarcelMethod {
-    val actualOwnerClass = actualMethod.parameters.first().type.withGenericTypes(types)
     return ExtensionJavaMethod(actualMethod, ownerClass, name,
       actualMethod.parameters.takeLast(actualMethod.parameters.size - 1),
-      returnType,
-      actualMethod.actualReturnType)
+      returnType)
   }
 
 }

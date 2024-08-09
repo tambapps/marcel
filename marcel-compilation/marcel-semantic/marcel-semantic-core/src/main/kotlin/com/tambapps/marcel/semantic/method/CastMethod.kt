@@ -21,6 +21,5 @@ class CastMethod private constructor(argType: JavaType): CustomMethod() {
   override val ownerClass = JavaType.Object
   override val isStatic = true
   override val returnType = argType
-  override val actualReturnType = argType
   override val isVarArgs = false
 }

@@ -21,7 +21,7 @@ interface MarcelMethod: JavaTyped {
   }
 
   override val type: JavaType
-    get() = actualReturnType
+    get() = returnType
   val ownerClass: JavaType
   val visibility: Visibility
   val name: String
@@ -32,7 +32,6 @@ interface MarcelMethod: JavaTyped {
   val asyncReturnType: JavaType? get() = null // only use when isAsync is true
 
   val returnType: JavaType
-  val actualReturnType: JavaType // TODO see what is it for and remove or rename and document it
   val isDefault: Boolean // for interface
   val isAbstract: Boolean
 

@@ -50,7 +50,6 @@ class MethodNode(
 
   override val isAbstract = false
   override val isDefault = false
-  override val actualReturnType = returnType
   override val isVarArgs = false
   val blockStatement = BlockStatementNode(mutableListOf(), tokenStart, tokenEnd)
 

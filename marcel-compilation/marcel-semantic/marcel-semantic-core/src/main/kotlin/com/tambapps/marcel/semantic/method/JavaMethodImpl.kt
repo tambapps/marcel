@@ -21,5 +21,4 @@ class JavaMethodImpl constructor(
   override val asyncReturnType: JavaType? = null
 ) : AbstractMethod() {
 
-  override val actualReturnType = returnType
 }
