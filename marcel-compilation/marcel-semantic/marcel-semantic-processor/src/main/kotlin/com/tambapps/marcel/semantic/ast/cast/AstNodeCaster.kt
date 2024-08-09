@@ -33,6 +33,7 @@ class AstNodeCaster(
     }
   }
 
+  // TODO rename smartCast
   /**
    * Cast the provided node (if necessary) so that it fits the expected type.
    * Throws a MarcelSemanticException in case of casting failure
@@ -51,6 +52,7 @@ class AstNodeCaster(
             cast(JavaType.Object, node) // to handle primitives
           ), node
         )
+      expectedType == JavaType.boolean -> truthyCast(node)
       actualType.primitive && expectedType.primitive -> primitiveToPrimitiveJavaCast(expectedType, node, actualType)
       expectedType.primitive && !actualType.primitive -> objectToPrimitiveJavaCast(expectedType, node, actualType)
       !expectedType.primitive && actualType.primitive -> primitiveToObjectJavaCast(expectedType, node, actualType)
@@ -222,15 +224,6 @@ class AstNodeCaster(
     )
 
     actualType == JavaType.Object -> cast(expectedType, cast(expectedType.objectType, node))
-    expectedType == JavaType.boolean ->
-      if (actualType.implements(MarcelTruth::class.javaType)) functionCall(
-        actualType,
-        "isTruthy",
-        emptyList(),
-        node
-      )
-      else functionCall(MarcelTruth::class.javaType, "isTruthy", listOf(node), node)
-
     else -> incompatibleTypes(node, expectedType, actualType)
   }
 

@@ -1,6 +1,6 @@
 # Marcel truth
 
-A truthy value is a value that is considered true for an if, or a while. 
+A truthy value is a value that is considered to be true for an if, or a while. 
 
 A falsey value is a value that is considered false in those places.
 
