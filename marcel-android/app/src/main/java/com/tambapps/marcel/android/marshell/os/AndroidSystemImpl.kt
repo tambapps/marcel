@@ -26,5 +26,5 @@ class AndroidSystemImpl constructor(
     return smsSender.sendSms(destinationAddress, text)
   }
 
-  override fun listSms() = smsSender.list()
+  override fun listSms(page: Int, pageSize: Int) = smsSender.list(page, pageSize)
 }

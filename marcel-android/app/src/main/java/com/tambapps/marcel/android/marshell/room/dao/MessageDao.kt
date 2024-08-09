@@ -13,8 +13,8 @@ import com.tambapps.marcel.android.marshell.room.entity.Message
 @Dao
 interface MessageDao {
 
-  @Query("SELECT * FROM messages ORDER BY createdAt DESC")
-  suspend fun listByRecency(): List<Message>
+  @Query("SELECT * FROM messages ORDER BY createdAt DESC LIMIT :limit OFFSET :offset")
+  suspend fun listByRecency(limit: Int, offset: Int): List<Message>
 
   @Query("SELECT * FROM messages WHERE id = :id")
   suspend fun get(id: Long): Message

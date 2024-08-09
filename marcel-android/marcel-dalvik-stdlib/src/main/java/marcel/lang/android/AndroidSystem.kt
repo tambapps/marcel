@@ -1,5 +1,6 @@
 package marcel.lang.android
 
+import marcel.lang.compile.IntDefaultValue
 import marcel.lang.compile.StringDefaultValue
 import java.util.concurrent.ThreadLocalRandom
 // using kotlin to benefit from javaParameters (see build.gradle)
@@ -29,5 +30,5 @@ interface AndroidSystem {
    * represent the state of the message had when this method was called. Information retrieved from those message
    * may not be up to date
    */
-  fun listSms(): List<AndroidMessage>
+  fun listSms(@IntDefaultValue(value = 0) page: Int, @IntDefaultValue(value = 10) pageSize: Int): List<AndroidMessage>
 }

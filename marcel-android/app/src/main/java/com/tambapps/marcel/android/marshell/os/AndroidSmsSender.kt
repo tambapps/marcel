@@ -44,7 +44,7 @@ class AndroidSmsSender(
     return MessageView(sms)
   }
 
-  fun list() = runBlocking { messageDao.listByRecency() }
+  fun list(page: Int, pageSize: Int) = runBlocking { messageDao.listByRecency(pageSize, pageSize * page) }
 
   private fun pendingIntent(clazz: KClass<*>, action: String,messageId: Long): PendingIntent {
     val intent = Intent(context, clazz.java).apply { setAction(action) }
