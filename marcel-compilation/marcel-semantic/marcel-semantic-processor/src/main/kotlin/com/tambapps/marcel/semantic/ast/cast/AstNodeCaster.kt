@@ -33,16 +33,6 @@ class AstNodeCaster(
     }
   }
 
-  fun castNumberConstant(value: Int, type: JavaPrimitiveType, token: LexToken): Any = when (type) {
-    JavaType.byte -> value.toByte()
-    JavaType.int -> value
-    JavaType.long -> value.toLong()
-    JavaType.float -> value.toFloat()
-    JavaType.double -> value.toDouble()
-    JavaType.short -> value.toShort()
-    else -> throw MarcelSemanticException(token, "Cannot convert value $value to $type")
-  }
-
   /**
    * Cast the provided node (if necessary) so that it fits the expected type.
    * Throws a MarcelSemanticException in case of casting failure
@@ -61,108 +51,9 @@ class AstNodeCaster(
             cast(JavaType.Object, node) // to handle primitives
           ), node
         )
-      // primitive to primitive
-      actualType.primitive && expectedType.primitive -> {
-        if (expectedType.asPrimitiveType.isNumber && !actualType.asPrimitiveType.isNumber
-          || actualType.asPrimitiveType.isNumber && !expectedType.asPrimitiveType.isNumber
-        ) incompatibleTypes(node, expectedType, actualType)
-        JavaCastNode(expectedType, node, node.token)
-      }
-      // Object to primitive
-      expectedType.primitive && !actualType.primitive -> when {
-        expectedType == JavaType.boolean && actualType == JavaType.Boolean -> functionCall(
-          JavaType.Boolean,
-          "booleanValue",
-          emptyList(),
-          node
-        )
-
-        expectedType == JavaType.int && actualType == JavaType.Integer -> functionCall(
-          JavaType.Integer,
-          "intValue",
-          emptyList(),
-          node
-        )
-
-        expectedType == JavaType.char && actualType == JavaType.Character -> functionCall(
-          JavaType.Character,
-          "charValue",
-          emptyList(),
-          node
-        )
-
-        expectedType == JavaType.long && actualType == JavaType.Long -> functionCall(
-          JavaType.Long,
-          "longValue",
-          emptyList(),
-          node
-        )
-
-        expectedType == JavaType.float && actualType == JavaType.Float -> functionCall(
-          JavaType.Float,
-          "floatValue",
-          emptyList(),
-          node
-        )
-
-        expectedType == JavaType.double && actualType == JavaType.Double -> functionCall(
-          JavaType.Double,
-          "doubleValue",
-          emptyList(),
-          node
-        )
-
-        expectedType == JavaType.byte && actualType == JavaType.Byte -> functionCall(
-          JavaType.Byte,
-          "byteValue",
-          emptyList(),
-          node
-        )
-
-        expectedType == JavaType.short && actualType == JavaType.Short -> functionCall(
-          JavaType.Short,
-          "shortValue",
-          emptyList(),
-          node
-        )
-
-        expectedType == JavaType.char && actualType == JavaType.String -> functionCall(
-          JavaType.String,
-          "charAt",
-          listOf(IntConstantNode(node.token, 0)),
-          node
-        )
-
-        actualType == JavaType.Object -> cast(expectedType, cast(expectedType.objectType, node))
-        expectedType == JavaType.boolean ->
-          if (actualType.implements(MarcelTruth::class.javaType)) functionCall(
-            actualType,
-            "isTruthy",
-            emptyList(),
-            node
-          )
-          else functionCall(MarcelTruth::class.javaType, "isTruthy", listOf(node), node)
-
-        else -> incompatibleTypes(node, expectedType, actualType)
-      }
-      // primitive to Object
-      !expectedType.primitive && actualType.primitive -> when {
-        JavaType.Boolean.isSelfOrSuper(expectedType) && actualType == JavaType.boolean
-            || JavaType.Integer.isSelfOrSuper(expectedType) && actualType == JavaType.int
-            || JavaType.Character.isSelfOrSuper(expectedType) && actualType == JavaType.char
-            || JavaType.Long.isSelfOrSuper(expectedType) && actualType == JavaType.long
-            || JavaType.Float.isSelfOrSuper(expectedType) && actualType == JavaType.float
-            || JavaType.Short.isSelfOrSuper(expectedType) && actualType == JavaType.short
-            || JavaType.Byte.isSelfOrSuper(expectedType) && actualType == JavaType.byte
-            || JavaType.Double.isSelfOrSuper(expectedType) && actualType == JavaType.double -> functionCall(
-          actualType.objectType,
-          "valueOf",
-          listOf(node),
-          node
-        )
-
-        else -> incompatibleTypes(node, expectedType, actualType)
-      }
+      actualType.primitive && expectedType.primitive -> primitiveToPrimitiveJavaCast(expectedType, node, actualType)
+      expectedType.primitive && !actualType.primitive -> objectToPrimitiveJavaCast(expectedType, node, actualType)
+      !expectedType.primitive && actualType.primitive -> primitiveToObjectJavaCast(expectedType, node, actualType)
       // Object to Object
       else -> when {
         expectedType.isExtendedOrImplementedBy(actualType) -> node
@@ -222,8 +113,6 @@ class AstNodeCaster(
               listOf(node),
               node
             )
-
-            expectedType.isExtendedOrImplementedBy(actualType) -> node
             else -> incompatibleTypes(node, expectedType, actualType)
           }
         }
@@ -238,6 +127,130 @@ class AstNodeCaster(
         else -> JavaCastNode(expectedType, node, node.token)
       }
     }
+  }
+
+  fun javaCast(expectedType: JavaType, node: ExpressionNode): ExpressionNode {
+    val actualType = node.type
+    return when {
+      actualType.primitive && expectedType.primitive -> primitiveToPrimitiveJavaCast(expectedType, node, actualType)
+      expectedType.primitive && !actualType.primitive -> objectToPrimitiveJavaCast(expectedType, node, actualType)
+      !expectedType.primitive && actualType.primitive -> primitiveToObjectJavaCast(expectedType, node, actualType)
+      expectedType.isExtendedOrImplementedBy(actualType) -> node
+      else -> JavaCastNode(expectedType, node, node.token)
+    }
+  }
+
+  fun castNumberConstant(value: Int, type: JavaPrimitiveType, token: LexToken): Any = when (type) {
+    JavaType.byte -> value.toByte()
+    JavaType.int -> value
+    JavaType.long -> value.toLong()
+    JavaType.float -> value.toFloat()
+    JavaType.double -> value.toDouble()
+    JavaType.short -> value.toShort()
+    else -> throw MarcelSemanticException(token, "Cannot convert value $value to $type")
+  }
+
+  private fun primitiveToPrimitiveJavaCast(expectedType: JavaType, node: ExpressionNode, actualType: JavaType): ExpressionNode {
+    if (expectedType.asPrimitiveType.isNumber && !actualType.asPrimitiveType.isNumber
+      || actualType.asPrimitiveType.isNumber && !expectedType.asPrimitiveType.isNumber
+    ) incompatibleTypes(node, expectedType, actualType)
+    return JavaCastNode(expectedType, node, node.token)
+  }
+
+  private fun objectToPrimitiveJavaCast(expectedType: JavaType, node: ExpressionNode, actualType: JavaType): ExpressionNode = when {
+    expectedType == JavaType.boolean && actualType == JavaType.Boolean -> functionCall(
+      JavaType.Boolean,
+      "booleanValue",
+      emptyList(),
+      node
+    )
+
+    expectedType == JavaType.int && actualType == JavaType.Integer -> functionCall(
+      JavaType.Integer,
+      "intValue",
+      emptyList(),
+      node
+    )
+
+    expectedType == JavaType.char && actualType == JavaType.Character -> functionCall(
+      JavaType.Character,
+      "charValue",
+      emptyList(),
+      node
+    )
+
+    expectedType == JavaType.long && actualType == JavaType.Long -> functionCall(
+      JavaType.Long,
+      "longValue",
+      emptyList(),
+      node
+    )
+
+    expectedType == JavaType.float && actualType == JavaType.Float -> functionCall(
+      JavaType.Float,
+      "floatValue",
+      emptyList(),
+      node
+    )
+
+    expectedType == JavaType.double && actualType == JavaType.Double -> functionCall(
+      JavaType.Double,
+      "doubleValue",
+      emptyList(),
+      node
+    )
+
+    expectedType == JavaType.byte && actualType == JavaType.Byte -> functionCall(
+      JavaType.Byte,
+      "byteValue",
+      emptyList(),
+      node
+    )
+
+    expectedType == JavaType.short && actualType == JavaType.Short -> functionCall(
+      JavaType.Short,
+      "shortValue",
+      emptyList(),
+      node
+    )
+
+    expectedType == JavaType.char && actualType == JavaType.String -> functionCall(
+      JavaType.String,
+      "charAt",
+      listOf(IntConstantNode(node.token, 0)),
+      node
+    )
+
+    actualType == JavaType.Object -> cast(expectedType, cast(expectedType.objectType, node))
+    expectedType == JavaType.boolean ->
+      if (actualType.implements(MarcelTruth::class.javaType)) functionCall(
+        actualType,
+        "isTruthy",
+        emptyList(),
+        node
+      )
+      else functionCall(MarcelTruth::class.javaType, "isTruthy", listOf(node), node)
+
+    else -> incompatibleTypes(node, expectedType, actualType)
+  }
+
+
+  private fun primitiveToObjectJavaCast(expectedType: JavaType, node: ExpressionNode, actualType: JavaType): ExpressionNode = when {
+    JavaType.Boolean.isSelfOrSuper(expectedType) && actualType == JavaType.boolean
+        || JavaType.Integer.isSelfOrSuper(expectedType) && actualType == JavaType.int
+        || JavaType.Character.isSelfOrSuper(expectedType) && actualType == JavaType.char
+        || JavaType.Long.isSelfOrSuper(expectedType) && actualType == JavaType.long
+        || JavaType.Float.isSelfOrSuper(expectedType) && actualType == JavaType.float
+        || JavaType.Short.isSelfOrSuper(expectedType) && actualType == JavaType.short
+        || JavaType.Byte.isSelfOrSuper(expectedType) && actualType == JavaType.byte
+        || JavaType.Double.isSelfOrSuper(expectedType) && actualType == JavaType.double -> functionCall(
+      actualType.objectType,
+      "valueOf",
+      listOf(node),
+      node
+    )
+
+    else -> incompatibleTypes(node, expectedType, actualType)
   }
 
   private fun incompatibleTypes(

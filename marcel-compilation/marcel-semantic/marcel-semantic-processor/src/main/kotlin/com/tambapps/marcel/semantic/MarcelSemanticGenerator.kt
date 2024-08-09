@@ -240,7 +240,7 @@ abstract class MarcelSemanticGenerator {
       tokenStart,
       tokenEnd
     )
-    return if (castType != null) caster.cast(castType, node) else node
+    return if (castType != null) caster.javaCast(castType, node) else node
   }
 
   fun staticInitialisationMethod(classNode: ClassNode): MethodNode {
