@@ -173,8 +173,28 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="as-type-casting"><a class="header" href="#as-type-casting">As (type casting)</a></h1>
-<p>The <code>as</code> keyword allows to cast variables to a provided type.</p>
+                        <h1 id="as-smart-casting"><a class="header" href="#as-smart-casting">As (smart casting)</a></h1>
+<p>The <code>as</code> keyword allows to <strong>smart</strong> cast variables to a provided type.</p>
+<h2 id="smart-casting"><a class="header" href="#smart-casting">Smart casting</a></h2>
+<p>Smart casting is like an enhanced Java cast. It can cast objects like a Java cast would, but it
+can also convert the object to make it fit the target type.</p>
+<h3 id="collections-smart-casting"><a class="header" href="#collections-smart-casting">Collections smart casting</a></h3>
+<p>The smart cast can transform arrays into (primitive) lists/sets</p>
+<pre><code class="language-marcel">int[] array = [1, 2, 3]
+
+list&lt;int&gt; intList = array as list&lt;int&gt;
+set&lt;long&gt; longSet = [1l, 2l, 3l] as set&lt;long&gt;
+</code></pre>
+<h3 id="boolean-truthy-smart-casting"><a class="header" href="#boolean-truthy-smart-casting">Boolean (truthy) smart casting</a></h3>
+<p>You can smart cast any value to a boolean. The value of the boolean will be determined based
+on the <a href="../control-flows/marcel-truth.html">Marcel truth</a>.</p>
+<h3 id="dynamic-object-smart-casting"><a class="header" href="#dynamic-object-smart-casting">Dynamic object smart casting</a></h3>
+<p>Any type can become a dynamic object</p>
+<pre><code class="language-marcel">dynobj obj = 1 as dynobj
+</code></pre>
+<h2 id="java-casting"><a class="header" href="#java-casting">(Java) casting</a></h2>
+<p>To perform a simple cast, you can use the function <code>cast</code> with the <a href="../source-file-structure/functions.html#cast-results">diamond operator</a>,
+provided specifically for this use-case</p>
 <pre><code class="language-marcel">int a = 1
 
 Integer b = a as Integer
