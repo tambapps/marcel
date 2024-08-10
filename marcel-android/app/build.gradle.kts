@@ -81,6 +81,9 @@ dependencies {
   implementation("androidx.compose.ui:ui-text-google-fonts:1.6.8")
   implementation("androidx.browser:browser:1.8.0")
 
+  implementation("org.commonmark:commonmark:0.22.0")
+  implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
   // hilt
   implementation("com.google.dagger:hilt-android:2.51.1")
   ksp("com.google.dagger:hilt-android-compiler:2.51.1")
