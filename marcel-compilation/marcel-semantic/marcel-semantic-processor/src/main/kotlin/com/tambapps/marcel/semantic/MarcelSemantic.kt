@@ -179,16 +179,7 @@ open class MarcelSemantic(
       node.innerClasses.forEach {
         classNode.innerClasses.add(it.accept(this@MarcelSemantic))
       }
-      node.constructors.forEach { classNode.methods.add(constructorNode(classNode, it, classScope)) }
-      if (classNode.constructorCount == 0) {
-        // default no arg constructor
-        val noArgConstructor = noArgConstructor(
-          classNode, symbolResolver,
-          visibility = if (classNode.isExtensionClass || classNode.isEnum) Visibility.PRIVATE else Visibility.PUBLIC
-        )
-        classNode.methods.add(noArgConstructor)
-        symbolResolver.defineMethod(classType, noArgConstructor)
-      }
+      processConstructors()
 
       node.annotations.forEach {
         val annotation = visit(it, ElementType.TYPE)
@@ -196,9 +187,7 @@ open class MarcelSemantic(
         (classNode.type as? SourceJavaType)?.addAnnotation(annotation)
       }
 
-      beforeProcessingMethods()
-      // iterating with i because we might add methods while
-      node.methods.forEach { classNode.methods.add(methodNode(classNode, it, classScope)) }
+      processMethods()
       node.fields.forEach { cstFieldNode ->
         val fieldNode = FieldNode(
           resolve(cstFieldNode.type), cstFieldNode.name, classType,
@@ -249,7 +238,22 @@ open class MarcelSemantic(
     }
 
     protected open fun onEnd() {}
-    protected open fun beforeProcessingMethods() {}
+    protected open fun processConstructors() {
+      node.constructors.forEach { classNode.methods.add(constructorNode(classNode, it, classScope)) }
+      if (classNode.constructorCount == 0) {
+        // default no arg constructor
+        val noArgConstructor = noArgConstructor(
+          classNode, symbolResolver,
+          visibility = if (classNode.isExtensionClass || classNode.isEnum) Visibility.PRIVATE else Visibility.PUBLIC
+        )
+        classNode.methods.add(noArgConstructor)
+        symbolResolver.defineMethod(classType, noArgConstructor)
+      }
+    }
+
+    protected open fun processMethods() {
+      node.methods.forEach { classNode.methods.add(methodNode(classNode, it, classScope)) }
+    }
   }
 
   private inner class RegularClassSemantic(node: RegularClassCstNode, classNode: ClassNode, classScope: ClassScope) :
@@ -258,9 +262,13 @@ open class MarcelSemantic(
   private inner class ScriptClassSemantic(node: ScriptCstNode, classNode: ClassNode, classScope: ClassScope) :
     ClassSemantic<ScriptCstNode>(node, classNode, classScope) {
 
-    override fun beforeProcessingMethods() {
+    override fun processConstructors() {
+      super.processConstructors()
       // need the binding constructor. the no-arg constructor should already have been added
       classNode.methods.add(scriptBindingConstructor(classNode, symbolResolver, scriptType))
+    }
+
+    override fun processMethods() {
       // add the run method
       val runMethod = MethodNode(
         name = "run",
@@ -281,6 +289,7 @@ open class MarcelSemantic(
         isAsync = false
       )
       classNode.methods.add(runMethod)
+      super.processMethods()
     }
 
     override fun onEnd() {
@@ -295,7 +304,7 @@ open class MarcelSemantic(
 
   private inner class EnumClassSemantic(node: EnumCstNode, classNode: ClassNode, classScope: ClassScope) :
     ClassSemantic<EnumCstNode>(node, classNode, classScope) {
-    override fun beforeProcessingMethods() {
+    override fun processMethods() {
       // create static fields
       node.names.forEachIndexed { index, name ->
         val enumConstructor = classNode.constructors.first() // doesn't support declaring constructors for enums so we can just assume there is only one, the default one
@@ -308,6 +317,7 @@ open class MarcelSemantic(
       // TODO add values() method and valueOf
       // TODO default constructor of enum should not be a noArg. It should have a name and ordinal argument and should call super(String name, int ordinal)
       TODO("Doesn't handle enums yet")
+      super.processMethods()
     }
   }
 
