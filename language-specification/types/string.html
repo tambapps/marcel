@@ -196,8 +196,8 @@ These strings are reserved for pattern only.</p>
 <p>Note that such strings <strong>doesn't</strong> resolve variables. If you want to construct a Pattern while resolving Strings, you could
 just call the <code>Pattern.compile(String)</code> method with an interpolated string.</p>
 <br/>
-It is good practise to end such regexes with a semi-colon (`;`) character, to make it clear to the compiler that what follows
-is not a regex flag (we'll talk about that just after) but a 'real' identifier.
+<p>It is good practise to end such regexes with a semi-colon (<code>;</code>) character, to make it clear to the compiler that what follows
+is not a regex flag (we'll talk about that just after) but a 'real' identifier.</p>
 <p>E.g.</p>
 <pre><code class="language-marcel">Pattern pattern = r/myPattern/; // without the semi-colon, Marcel would think that 'println' characters are regex flags
 println(pattern)

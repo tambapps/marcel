@@ -344,8 +344,8 @@ def (int d, String e, Object f) = functionReturningAnArrayOrList()
 </code></pre>
 <p>Note that if the array/list is shorter than the number of variable declared, this will lead to a runtime error</p>
 <br/>
-Sometimes you might want to ignore a specific item of a list,
-You can use the `_` identifier to let the compiler know that.
+<p>Sometimes you might want to ignore a specific item of a list,
+You can use the <code>_</code> identifier to let the compiler know that.</p>
 <p>E.g.</p>
 <pre><code class="language-marcel">def (_, String world) = ("hello world" =~ /hello (world)/).groups()
 </code></pre>
@@ -474,8 +474,8 @@ These strings are reserved for pattern only.</p>
 <p>Note that such strings <strong>doesn't</strong> resolve variables. If you want to construct a Pattern while resolving Strings, you could
 just call the <code>Pattern.compile(String)</code> method with an interpolated string.</p>
 <br/>
-It is good practise to end such regexes with a semi-colon (`;`) character, to make it clear to the compiler that what follows
-is not a regex flag (we'll talk about that just after) but a 'real' identifier.
+<p>It is good practise to end such regexes with a semi-colon (<code>;</code>) character, to make it clear to the compiler that what follows
+is not a regex flag (we'll talk about that just after) but a 'real' identifier.</p>
 <p>E.g.</p>
 <pre><code class="language-marcel">Pattern pattern = r/myPattern/; // without the semi-colon, Marcel would think that 'println' characters are regex flags
 println(pattern)
@@ -1045,7 +1045,7 @@ class B extends A {
 <p>Scripts don't need a main() function. You can just start writing statements of your script directly, without wrapping them in a method.
 Script can be executed easily with <a href="language-specification/source-file-structure/../../tools/marcl.html">MarCL</a>.</p>
 <br/>
-You can also define functions in your scripts.
+<p>You can also define functions in your scripts.</p>
 <p>E.g.</p>
 <pre><code class="language-marcel">println(fibonacci(10))
 
