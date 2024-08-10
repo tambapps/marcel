@@ -17,8 +17,7 @@ import com.tambapps.marcel.android.marshell.repl.ShellSession
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.repl.console.PromptPrinter
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
-import com.tambapps.marcel.android.marshell.ui.screen.HighlightTransformation
-import com.tambapps.marcel.dumbbell.Dumbbell
+import com.tambapps.marcel.android.marshell.ui.screen.ScriptViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -35,7 +34,7 @@ import javax.inject.Inject
 class ShellViewModel @Inject constructor(
   @ApplicationContext context: Context,
   shellSessionFactory: ShellSessionFactory
-) : ViewModel(), HighlightTransformation {
+) : ViewModel(), ScriptViewModel {
 
   // states
   override var scriptTextInput by mutableStateOf(TextFieldValue())

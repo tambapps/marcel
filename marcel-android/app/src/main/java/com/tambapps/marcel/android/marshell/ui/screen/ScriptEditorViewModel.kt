@@ -7,7 +7,7 @@ import com.tambapps.marcel.android.marshell.repl.ShellSession
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import java.io.File
 
-interface ScriptEditorViewModel: HighlightTransformation {
+interface ScriptEditorViewModel: ScriptViewModel {
   val replCompiler: MarcelReplCompiler
   var scriptTextError: String?
 

@@ -10,14 +10,19 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.runBlocking
+import java.io.File
+import java.net.URLDecoder
 
 /**
  * Module allowing to pass work argument from navigation to WorkViewModel
  */
 @Module
 @InstallIn(ViewModelComponent::class)
-class WorkArgModule {
+class NavigationArgsModule {
 
+  /**
+   * Method allowing to pass work argument from navigation to WorkViewModel
+   */
   @Provides
   @ViewModelScoped
   fun work(
@@ -26,6 +31,32 @@ class WorkArgModule {
   ): ShellWork? {
     return savedStateHandle.get<String>(Routes.WORK_NAME_ARG)?.let {
       runBlocking { shellWorkManager.findByName(it) }
+    }
+  }
+
+  /**
+   * method allowing to pass optional file argument from navigation to EditorViewModel
+   */
+  @Provides
+  @ViewModelScoped
+  fun file(
+    savedStateHandle: SavedStateHandle,
+  ): File? {
+    return savedStateHandle.get<String>(Routes.FILE_ARG)?.let {
+      File(URLDecoder.decode(it, "UTF-8"))
+    }
+  }
+
+  /**
+   * method allowing to pass optional file argument from navigation to DocumentationViewModel
+   */
+  @Provides
+  @ViewModelScoped
+  fun path(
+    savedStateHandle: SavedStateHandle,
+  ): String? {
+    return savedStateHandle.get<String>(Routes.PATH_ARG)?.let {
+      URLDecoder.decode(it, "UTF-8")
     }
   }
 }

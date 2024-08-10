@@ -38,8 +38,6 @@ import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.ui.component.EnabledNotificationsDialog
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.util.LifecycleStateListenerEffect
-import java.net.URLEncoder
-
 
 val itemStyle = TextStyle.Default.copy(
   color = Color.White,
@@ -75,8 +73,7 @@ fun SettingsScreen(
     SettingItem(
       text = "Initialization script",
       description = "Configure a script that will be executed at every shell session startup",
-      onClick = { navController.navigate(Routes.EDITOR + "?" + Routes.FILE_ARG + "=" + URLEncoder.encode(viewModel.initScriptFile.canonicalPath, "UTF-8")) })
-
+      onClick = { navController.navigate(Routes.edit(viewModel.initScriptFile)) })
 
     SectionTitle(text = "Permissions")
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // asking permission is only required since Android TIRAMISU

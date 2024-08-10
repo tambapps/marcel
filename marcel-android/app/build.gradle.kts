@@ -4,7 +4,7 @@ plugins {
   id("com.google.devtools.ksp")
   id("com.google.dagger.hilt.android")
 }
-
+// TODO test migration before releasing (by putting the last release, and then put back last commit)
 val marcelVersion: String = project.findProperty("marcel.version") as String
 val javaVersion: String = project.findProperty("java.version") as String
 

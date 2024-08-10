@@ -1,5 +1,8 @@
 package com.tambapps.marcel.android.marshell
 
+import java.io.File
+import java.net.URLEncoder
+
 object Routes {
   const val HOME = "home"
   const val SHELL = "shell"
@@ -9,8 +12,10 @@ object Routes {
   const val WORK_CREATE = "work_create"
   const val WORK_VIEW = "work_view"
   const val SETTINGS = "settings"
+  const val DOCUMENTATION = "documentation"
 
   const val WORK_NAME_ARG = "workName"
+  const val PATH_ARG = "path"
   const val FILE_ARG = "file"
   const val SESSION_ID = "sessionId"
 
@@ -18,4 +23,5 @@ object Routes {
   const val DELETE_SHELL = "$SHELL/{$SESSION_ID}/delete"
   fun consult(sessionId: Any) = "$SHELL/$sessionId/consult"
   fun deleteShell(sessionId: Any) = "$SHELL/$sessionId/delete"
+  fun edit(file: File) = EDITOR + "?" + FILE_ARG + "=" + URLEncoder.encode(file.canonicalPath, "UTF-8")
 }

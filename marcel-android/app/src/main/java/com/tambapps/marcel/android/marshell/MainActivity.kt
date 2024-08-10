@@ -48,10 +48,12 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.tambapps.marcel.android.marshell.Routes.CONSULT
 import com.tambapps.marcel.android.marshell.Routes.DELETE_SHELL
+import com.tambapps.marcel.android.marshell.Routes.DOCUMENTATION
 import com.tambapps.marcel.android.marshell.Routes.EDITOR
 import com.tambapps.marcel.android.marshell.Routes.FILE_ARG
 import com.tambapps.marcel.android.marshell.Routes.HOME
 import com.tambapps.marcel.android.marshell.Routes.NEW_SHELL
+import com.tambapps.marcel.android.marshell.Routes.PATH_ARG
 import com.tambapps.marcel.android.marshell.Routes.SESSION_ID
 import com.tambapps.marcel.android.marshell.Routes.SETTINGS
 import com.tambapps.marcel.android.marshell.Routes.SHELL
@@ -62,6 +64,7 @@ import com.tambapps.marcel.android.marshell.Routes.WORK_VIEW
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellScreen
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
+import com.tambapps.marcel.android.marshell.ui.screen.documentation.DocumentationScreen
 import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorScreen
 import com.tambapps.marcel.android.marshell.ui.screen.settings.SettingsScreen
 import com.tambapps.marcel.android.marshell.ui.screen.shell.consult.ShellConsultScreen
@@ -188,6 +191,11 @@ class MainActivity : ComponentActivity() {
               }
               composable(SETTINGS) {
                 SettingsScreen(navController)
+              }
+              composable("$DOCUMENTATION?$PATH_ARG={$PATH_ARG}",
+                arguments = listOf(navArgument(PATH_ARG) { type = NavType.StringType; nullable = true })
+              ) {
+                DocumentationScreen()
               }
             }
             TopBar(drawerState, scope) // putting it at the end because we want it to have top priority in terms of displaying
@@ -317,6 +325,14 @@ private fun NavigationDrawer(
           text = "Settings",
           backStackState = backStackState,
           route = SETTINGS
+        )
+        DrawerItem(
+          navController = navController,
+          drawerState = drawerState,
+          scope = scope,
+          text = "Documentation",
+          backStackState = backStackState,
+          route = DOCUMENTATION
         )
 
       }
