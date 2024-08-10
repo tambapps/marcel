@@ -4,6 +4,7 @@ Scripts don't need a main() function. You can just start writing statements of y
 Script can be executed easily with [MarCL](../../tools/marcl.md).
 
 <br/>
+
 You can also define functions in your scripts.
 
 E.g.

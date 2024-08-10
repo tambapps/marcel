@@ -23,6 +23,7 @@ def (int d, String e, Object f) = functionReturningAnArrayOrList()
 Note that if the array/list is shorter than the number of variable declared, this will lead to a runtime error
 
 <br/>
+
 Sometimes you might want to ignore a specific item of a list,
 You can use the `_` identifier to let the compiler know that.
 

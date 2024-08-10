@@ -42,6 +42,7 @@ Note that such strings **doesn't** resolve variables. If you want to construct a
 just call the `Pattern.compile(String)` method with an interpolated string.
 
 <br/>
+
 It is good practise to end such regexes with a semi-colon (`;`) character, to make it clear to the compiler that what follows
 is not a regex flag (we'll talk about that just after) but a 'real' identifier.
 
