@@ -82,6 +82,7 @@ dependencies {
   implementation("androidx.browser:browser:1.8.0")
 
   implementation("org.commonmark:commonmark:0.22.0")
+  implementation("org.commonmark:commonmark-ext-gfm-tables:0.22.0")
   implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
   // hilt

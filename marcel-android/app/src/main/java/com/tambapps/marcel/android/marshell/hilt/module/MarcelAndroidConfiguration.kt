@@ -21,6 +21,7 @@ import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
+import org.commonmark.ext.gfm.tables.TablesExtension
 import org.commonmark.parser.Parser
 import java.io.File
 import javax.inject.Named
@@ -83,7 +84,7 @@ class MarcelAndroidConfiguration {
   fun workManager(@ApplicationContext context: Context) = WorkManager.getInstance(context)
 
   @Provides
-  fun parser(): Parser = Parser.builder().build()
+  fun parser(): Parser = Parser.builder().extensions(listOf(TablesExtension.create())).build()
 
   @Provides
   fun okHttp() = OkHttpClient()

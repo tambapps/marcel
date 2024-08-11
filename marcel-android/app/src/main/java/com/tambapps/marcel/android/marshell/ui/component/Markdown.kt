@@ -1,16 +1,24 @@
 package com.tambapps.marcel.android.marshell.ui.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -24,8 +32,14 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
+import org.commonmark.ext.gfm.tables.TableBlock
+import org.commonmark.ext.gfm.tables.TableBody
+import org.commonmark.ext.gfm.tables.TableCell
+import org.commonmark.ext.gfm.tables.TableHead
+import org.commonmark.ext.gfm.tables.TableRow
 import org.commonmark.node.Block
 import org.commonmark.node.Code
+import org.commonmark.node.CustomNode
 import org.commonmark.node.FencedCodeBlock
 import org.commonmark.node.HardLineBreak
 import org.commonmark.node.Heading
@@ -39,7 +53,7 @@ import org.commonmark.node.SoftLineBreak
 import org.commonmark.node.StrongEmphasis
 import org.commonmark.node.Text
 
-class MarkdownComposer(
+class MarkdownComposer (
   private val highlighter: SpannableHighlighter
 ) {
 
@@ -53,6 +67,7 @@ class MarkdownComposer(
       is Heading -> Heading(node = node)
       is Text -> Text(node = node)
       is FencedCodeBlock -> FencedCodeBlock(node = node)
+      is TableBlock -> TableBlock(node = node)
       is Block -> Block(node = node)
     }
   }
@@ -95,11 +110,13 @@ class MarkdownComposer(
         .clip(shape = RoundedCornerShape(corner, corner, corner, corner))
         .background(Color.DarkGray)
     ) {
-      Text(
-        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-        text = if ("marcel" == node.info) highlighter.highlight(node.literal) else AnnotatedString(node.literal),
-        style = MaterialTheme.typography.shellTextStyle.copy(fontSize = MaterialTheme.typography.bodyMedium.fontSize),
-      )
+      SelectionContainer {
+        Text(
+          modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+          text = if ("marcel" == node.info) highlighter.highlight(node.literal) else AnnotatedString(node.literal),
+          style = MaterialTheme.typography.shellTextStyle.copy(fontSize = MaterialTheme.typography.bodyMedium.fontSize),
+        )
+      }
     }
   }
 
@@ -116,6 +133,48 @@ class MarkdownComposer(
       else -> Pair(MaterialTheme.typography.titleSmall, 4.dp)
     }
     Text(text = buildParagraph(node, MaterialTheme.typography.shellTextStyle), style = style, modifier = Modifier.padding(top = padding, bottom = padding))
+  }
+
+  @Composable
+  fun TableBlock(node: TableBlock) {
+    Column(modifier = Modifier
+      .fillMaxWidth()
+      .padding(horizontal = 4.dp, vertical = 16.dp)) {
+      node.forEach { child ->
+        if (child is TableHead || child is TableBody) {
+          TableHeadOrBody(node = child)
+        }
+      }
+    }
+  }
+
+  @Composable
+  fun TableHeadOrBody(node: Node) {
+    node.forEach { row ->
+      if (row !is TableRow) return@forEach
+      HorizontalDivider(color = MaterialTheme.colorScheme.onBackground)
+      Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+        VerticalDivider(modifier = Modifier
+          .height(50.dp), color = MaterialTheme.colorScheme.onBackground)
+        row.forEach { cell ->
+          if (cell is TableCell) {
+            Box(modifier = Modifier
+              .weight(1f)
+              .padding(all = 4.dp)) {
+              // need inner box to align content center
+              Box(modifier = Modifier
+                .align(Alignment.Center)
+                .wrapContentSize()) {
+                Markdown(node = cell.firstChild)
+              }
+            }
+            VerticalDivider(modifier = Modifier
+              .height(50.dp), color = MaterialTheme.colorScheme.onBackground)
+          }
+        }
+      }
+    }
+    HorizontalDivider(color = MaterialTheme.colorScheme.onBackground)
   }
 }
 
@@ -144,7 +203,7 @@ private fun buildParagraph(p: Block, shellTextStyle: TextStyle): AnnotatedString
 }
 
 
-private inline fun Block.forEach(consumer: (Node) -> Unit) {
+private inline fun Node.forEach(consumer: (Node) -> Unit) {
   var n: Node? = firstChild
   while (n != null) {
     while (n is Text && n.next is SoftLineBreak && n.next?.next is Text) {
