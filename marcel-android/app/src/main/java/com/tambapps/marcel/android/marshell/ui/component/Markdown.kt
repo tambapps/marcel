@@ -1,21 +1,32 @@
 package com.tambapps.marcel.android.marshell.ui.component
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
+import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import org.commonmark.node.Block
+import org.commonmark.node.Code
+import org.commonmark.node.FencedCodeBlock
 import org.commonmark.node.HardLineBreak
 import org.commonmark.node.Heading
 import org.commonmark.node.HtmlBlock
@@ -28,11 +39,12 @@ import org.commonmark.node.SoftLineBreak
 import org.commonmark.node.StrongEmphasis
 import org.commonmark.node.Text
 
-class MarkdownComposer {
+class MarkdownComposer(
+  private val highlighter: SpannableHighlighter
+) {
 
   private var listBlockDepth = 0
 
-  // TODO handle code blocks
   @Composable
   fun Markdown(node: Node) {
     when (node) {
@@ -40,6 +52,7 @@ class MarkdownComposer {
       is Paragraph -> Paragraph(node = node)
       is Heading -> Heading(node = node)
       is Text -> Text(node = node)
+      is FencedCodeBlock -> FencedCodeBlock(node = node)
       is Block -> Block(node = node)
     }
   }
@@ -69,12 +82,30 @@ class MarkdownComposer {
 
   @Composable
   fun Paragraph(node: Paragraph) {
-    Text(text = buildParagraph(node), textAlign = TextAlign.Justify)
+    Text(text = buildParagraph(node, MaterialTheme.typography.shellTextStyle), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Justify)
+  }
+
+  @Composable
+  fun FencedCodeBlock(node: FencedCodeBlock) {
+    val corner = 8.dp
+    Box(
+      modifier = Modifier
+        .padding(vertical = 16.dp)
+        .fillMaxWidth()
+        .clip(shape = RoundedCornerShape(corner, corner, corner, corner))
+        .background(Color.DarkGray)
+    ) {
+      Text(
+        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+        text = if ("marcel" == node.info) highlighter.highlight(node.literal) else AnnotatedString(node.literal),
+        style = MaterialTheme.typography.shellTextStyle.copy(fontSize = MaterialTheme.typography.bodyMedium.fontSize),
+      )
+    }
   }
 
   @Composable
   fun Text(node: Text) {
-    Text(text = node.literal, style = MaterialTheme.typography.bodyMedium)
+    Text(text = node.literal, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Justify)
   }
 
   @Composable
@@ -84,11 +115,11 @@ class MarkdownComposer {
       2 -> Pair(MaterialTheme.typography.titleMedium, 8.dp)
       else -> Pair(MaterialTheme.typography.titleSmall, 4.dp)
     }
-    Text(text = buildParagraph(node), style = style, modifier = Modifier.padding(top = padding, bottom = padding))
+    Text(text = buildParagraph(node, MaterialTheme.typography.shellTextStyle), style = style, modifier = Modifier.padding(top = padding, bottom = padding))
   }
 }
 
-private fun buildParagraph(p: Block): AnnotatedString {
+private fun buildParagraph(p: Block, shellTextStyle: TextStyle): AnnotatedString {
   return buildAnnotatedString {
     p.forEach { n ->
       when(n) {
@@ -102,6 +133,10 @@ private fun buildParagraph(p: Block): AnnotatedString {
         is StrongEmphasis -> withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
           append((n.firstChild as? Text)?.literal ?: "???")
         }
+        is Code -> withStyle(style = SpanStyle(background = Color.DarkGray, fontFamily = shellTextStyle.fontFamily)) {
+          append(n.literal)
+        }
+
       }
       append(" ")
     }

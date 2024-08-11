@@ -112,6 +112,7 @@ class DocumentationActivity : ComponentActivity() {
   }
 }
 
+// TODO do custom welcome page for marcel for android and skip the whole getting started block here
 @Composable
 private fun NavigationDrawer(
   drawerState: DrawerState,

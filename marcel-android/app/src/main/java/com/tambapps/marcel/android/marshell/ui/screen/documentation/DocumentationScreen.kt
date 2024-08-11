@@ -31,7 +31,7 @@ fun DocumentationScreen(viewModel: DocumentationViewModel = hiltViewModel()) {
     .verticalScroll(rememberScrollState())) {
     TopBar()
     viewModel.node?.let {
-      MarkdownComposer().Markdown(it)
+      MarkdownComposer(viewModel.highlighter).Markdown(it)
     }
   }
 }

@@ -25,7 +25,7 @@ class DocumentationViewModel @Inject constructor(
   private val documentationStore: DocumentationMdStore,
   private val path: String?,
 ): ViewModel(), HighlightTransformation {
-  private val highlighter = SpannableHighlighter(shellSessionFactory.newReplCompiler())
+  val highlighter = SpannableHighlighter(shellSessionFactory.newReplCompiler())
   private val ioScope = CoroutineScope(Dispatchers.IO)
   var node by mutableStateOf<Node?>(null)
 
