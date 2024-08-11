@@ -20,6 +20,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
+import org.commonmark.parser.Parser
 import java.io.File
 import javax.inject.Named
 
@@ -80,4 +82,9 @@ class MarcelAndroidConfiguration {
   @Provides
   fun workManager(@ApplicationContext context: Context) = WorkManager.getInstance(context)
 
+  @Provides
+  fun parser(): Parser = Parser.builder().build()
+
+  @Provides
+  fun okHttp() = OkHttpClient()
 }
