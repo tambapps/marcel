@@ -156,11 +156,13 @@ private fun DocumentationDrawerItem(
   text: String,
   path: String?,
 ) {
+  val routePath = backStackState.value?.arguments?.getString("path")
   DrawerItem(
-    selected = backStackState.value?.destination?.route?.let { route ->
-      if (path != null) route.contains("path=$path")
-      else !route.contains("path")
-    } == true,
+    selected = when {
+      routePath == path -> true
+      routePath != null && path != null -> routePath.contains(path)
+      else -> false
+    },
     text = text,
     onClick = {
       navController.navigate(Routes.documentation(path))
