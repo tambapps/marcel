@@ -91,6 +91,7 @@ class DocumentationActivity : ComponentActivity() {
     setContent {
       MarcelAndroidTheme {
         val navController = rememberNavController()
+        val backStackState = navController.currentBackStackEntryAsState()
         val drawerState = rememberDrawerState(DrawerValue.Closed)
         val scope = rememberCoroutineScope()
         onBackPressedDispatcher.addCallback {
@@ -100,7 +101,7 @@ class DocumentationActivity : ComponentActivity() {
             finish()
           }
         }
-        NavigationDrawer(drawerState = drawerState, navController = navController, scope = scope, viewModel = viewModel) {
+        NavigationDrawer(drawerState = drawerState, navController = navController, backStackState = backStackState, scope = scope, viewModel = viewModel) {
           Box(modifier = Modifier
             .background(MaterialTheme.colorScheme.background)) {
             NavHost(
@@ -111,7 +112,10 @@ class DocumentationActivity : ComponentActivity() {
               composable("$DOCUMENTATION?$PATH_ARG={$PATH_ARG}",
                 arguments = listOf(navArgument(PATH_ARG) { type = NavType.StringType; nullable = true })
               ) {
-                DocumentationScreen()
+                DocumentationScreen(
+                  onGoNext = { goNext(navController, backStackState) },
+                  onGoPrevious = { goPrevious(navController, backStackState) },
+                )
               }
             }
             TopBar(drawerState, scope) // putting it at the end because we want it to have top priority in terms of displaying
@@ -120,6 +124,25 @@ class DocumentationActivity : ComponentActivity() {
       }
     }
   }
+
+  private fun goPrevious(navController: NavController, backStackState: State<NavBackStackEntry?>) {
+    val currentIndex = findCurrentDrawerEntryIndex(backStackState)
+    if (currentIndex <= 0) return
+    navController.navigate(Routes.documentation(viewModel.drawerEntries[currentIndex - 1].path))
+  }
+
+  private fun goNext(navController: NavController, backStackState: State<NavBackStackEntry?>) {
+    val currentIndex = findCurrentDrawerEntryIndex(backStackState)
+    if (currentIndex < 0 || currentIndex >= viewModel.drawerEntries.lastIndex) return
+    navController.navigate(Routes.documentation(viewModel.drawerEntries[currentIndex + 1].path))
+
+  }
+
+  private fun findCurrentDrawerEntryIndex(backStackState: State<NavBackStackEntry?>): Int {
+    val routePath = backStackState.value?.arguments?.getString("path")
+    return viewModel.drawerEntries.indexOfFirst { entry -> isCurrentPath(entry.path, routePath) }
+
+  }
 }
 
 @Composable
@@ -127,6 +150,7 @@ private fun NavigationDrawer(
   drawerState: DrawerState,
   navController: NavController,
   scope: CoroutineScope,
+  backStackState: State<NavBackStackEntry?>,
   viewModel: DocumentationDrawerViewModel,
   content: @Composable () -> Unit
 ) {
@@ -140,7 +164,6 @@ private fun NavigationDrawer(
         Column(modifier = Modifier
           .fillMaxSize()
           .verticalScroll(rememberScrollState())) {
-          val backStackState = navController.currentBackStackEntryAsState()
           for (drawerEntry in viewModel.drawerEntries) {
             DocumentationDrawerItem(
               navController = navController,
@@ -168,17 +191,19 @@ private fun DocumentationDrawerItem(
 ) {
   val routePath = backStackState.value?.arguments?.getString("path")
   DrawerItem(
-    selected = when {
-      routePath == path -> true
-      routePath != null && path != null -> routePath.contains(path)
-      else -> false
-    },
+    selected = isCurrentPath(path, routePath),
     text = text,
     onClick = {
       navController.navigate(Routes.documentation(path))
       scope.launch { drawerState.close() }
     }
   )
+}
+
+private fun isCurrentPath(path: String?, routePath: String?) = when {
+  routePath == path -> true
+  routePath != null && path != null -> routePath.contains(path)
+  else -> false
 }
 
 @Composable
@@ -235,7 +260,8 @@ class SummaryMdVisitor: AbstractVisitor() {
       val stepText = (steps).joinToString(separator = ".", postfix = " ")
       drawerEntries.add(DrawerEntry(depth,
         "\t\t".repeat(steps.size - 1) + stepText + title,
-        linkNode.destination))
+        // null for first element to mark it as home
+        if (drawerEntries.isEmpty()) null else linkNode.destination))
     }
     super.visit(listItem)
   }
