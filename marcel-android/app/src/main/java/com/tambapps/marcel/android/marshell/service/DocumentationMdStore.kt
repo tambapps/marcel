@@ -12,8 +12,9 @@ class DocumentationMdStore @Inject constructor(
   private val parser: Parser,
   private val okHttp: OkHttpClient
 ) {
-  private companion object {
-    const val ROOT_URL = "https://raw.githubusercontent.com/tambapps/marcel/main/documentation/src"
+  companion object {
+    private const val ROOT_URL = "https://raw.githubusercontent.com/tambapps/marcel/main/documentation/src"
+    const val SUMMARY = "/SUMMARY.md"
   }
 
   suspend fun get(path: String?, onSuccess: (Node) -> Unit, onError: () -> Unit) {

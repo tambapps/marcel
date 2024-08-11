@@ -1,9 +1,7 @@
 package com.tambapps.marcel.android.marshell.ui.component
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,51 +28,64 @@ import org.commonmark.node.SoftLineBreak
 import org.commonmark.node.StrongEmphasis
 import org.commonmark.node.Text
 
+open class MarkdownComposer {
 
-@Composable
-fun Markdown(
-  node: Node,
-  listItemContent: ((ListItem, Int) -> @Composable RowScope.() -> Unit)? = null,
-  listBlockDepth: Int = 0
-  ) {
-  when (node) {
-    is ListItem -> {
+  protected var listBlockDepth = 0
 
-      Row {
-        if (listItemContent != null) {
-          listItemContent.invoke(node, listBlockDepth)
-        } else {
-          Text(text = "- ")
-          node.firstChild?.let { Markdown(it, null, listBlockDepth + 1) }
-        }
-     }
-    }
-    is Paragraph -> {
-      Text(text = buildParagraph(node), textAlign = TextAlign.Justify)
-    }
-    is Heading -> {
-      val (style, padding) = when(node.level) {
-        1 -> Pair(MaterialTheme.typography.titleLarge, 16.dp)
-        2 -> Pair(MaterialTheme.typography.titleMedium, 8.dp)
-        else -> Pair(MaterialTheme.typography.titleSmall, 4.dp)
-      }
-      Text(text = buildParagraph(node), style = style, modifier = Modifier.padding(top = padding, bottom = padding))
-    }
-    is Block -> {
-      Column(modifier = Modifier.padding(bottom = 8.dp)) {
-        val newDepth = if (node is ListBlock) listBlockDepth + 1 else listBlockDepth
-        node.forEach { child ->
-          Markdown(child, listItemContent, newDepth)
-        }
-      }
-    }
-    is Text -> {
-      Text(text = node.literal, style = MaterialTheme.typography.bodyMedium)
+  @Composable
+  fun Markdown(node: Node) {
+    when (node) {
+      is ListItem -> ListItem(node = node)
+      is Paragraph -> Paragraph(node = node)
+      is Heading -> Heading(node = node)
+      is Text -> Text(node = node)
+      is Block -> Block(node = node)
     }
   }
 
-}
+  @Composable
+  open fun Block(node: Block) {
+    Column(modifier = Modifier.padding(bottom = 8.dp)) {
+      if (node is ListBlock) {
+        listBlockDepth++
+      }
+      node.forEach { child ->
+        Markdown(child)
+      }
+      if (node is ListBlock) {
+        listBlockDepth--
+      }
+    }
+  }
 
+  @Composable
+  open fun ListItem(node: ListItem) {
+    Row {
+      Text(text ="\t".repeat(listBlockDepth) + "- ")
+      node.firstChild?.let { Markdown(it) }
+    }
+  }
+
+  @Composable
+  open fun Paragraph(node: Paragraph) {
+    Text(text = buildParagraph(node), textAlign = TextAlign.Justify)
+  }
+
+  @Composable
+  open fun Text(node: Text) {
+    Text(text = node.literal, style = MaterialTheme.typography.bodyMedium)
+  }
+
+  @Composable
+  open fun Heading(node: Heading) {
+    val (style, padding) = when(node.level) {
+      1 -> Pair(MaterialTheme.typography.titleLarge, 16.dp)
+      2 -> Pair(MaterialTheme.typography.titleMedium, 8.dp)
+      else -> Pair(MaterialTheme.typography.titleSmall, 4.dp)
+    }
+    Text(text = buildParagraph(node), style = style, modifier = Modifier.padding(top = padding, bottom = padding))
+  }
+}
 
 private fun buildParagraph(p: Block): AnnotatedString {
   return buildAnnotatedString {

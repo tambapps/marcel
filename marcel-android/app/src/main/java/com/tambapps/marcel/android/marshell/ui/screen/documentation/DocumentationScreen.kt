@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.tambapps.marcel.android.marshell.ui.component.Markdown
+import com.tambapps.marcel.android.marshell.ui.component.MarkdownComposer
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 
 @Composable
@@ -27,7 +27,9 @@ fun DocumentationScreen(viewModel: DocumentationViewModel = hiltViewModel()) {
     .fillMaxSize()
     .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)) {
     TopBar()
-    viewModel.node?.let { Markdown(node = it) }
+    viewModel.node?.let {
+      MarkdownComposer().Markdown(it)
+    }
   }
 }
 
