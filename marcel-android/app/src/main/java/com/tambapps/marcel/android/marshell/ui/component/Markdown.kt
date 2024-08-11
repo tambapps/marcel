@@ -28,10 +28,11 @@ import org.commonmark.node.SoftLineBreak
 import org.commonmark.node.StrongEmphasis
 import org.commonmark.node.Text
 
-open class MarkdownComposer {
+class MarkdownComposer {
 
-  protected var listBlockDepth = 0
+  private var listBlockDepth = 0
 
+  // TODO handle code blocks
   @Composable
   fun Markdown(node: Node) {
     when (node) {
@@ -44,7 +45,7 @@ open class MarkdownComposer {
   }
 
   @Composable
-  open fun Block(node: Block) {
+  fun Block(node: Block) {
     Column(modifier = Modifier.padding(bottom = 8.dp)) {
       if (node is ListBlock) {
         listBlockDepth++
@@ -59,7 +60,7 @@ open class MarkdownComposer {
   }
 
   @Composable
-  open fun ListItem(node: ListItem) {
+  fun ListItem(node: ListItem) {
     Row {
       Text(text ="\t".repeat(listBlockDepth) + "- ")
       node.firstChild?.let { Markdown(it) }
@@ -67,17 +68,17 @@ open class MarkdownComposer {
   }
 
   @Composable
-  open fun Paragraph(node: Paragraph) {
+  fun Paragraph(node: Paragraph) {
     Text(text = buildParagraph(node), textAlign = TextAlign.Justify)
   }
 
   @Composable
-  open fun Text(node: Text) {
+  fun Text(node: Text) {
     Text(text = node.literal, style = MaterialTheme.typography.bodyMedium)
   }
 
   @Composable
-  open fun Heading(node: Heading) {
+  fun Heading(node: Heading) {
     val (style, padding) = when(node.level) {
       1 -> Pair(MaterialTheme.typography.titleLarge, 16.dp)
       2 -> Pair(MaterialTheme.typography.titleMedium, 8.dp)

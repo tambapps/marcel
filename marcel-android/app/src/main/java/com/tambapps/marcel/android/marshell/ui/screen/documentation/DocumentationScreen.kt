@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,7 +27,8 @@ fun DocumentationScreen(viewModel: DocumentationViewModel = hiltViewModel()) {
   }
   Column(modifier = Modifier
     .fillMaxSize()
-    .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)) {
+    .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+    .verticalScroll(rememberScrollState())) {
     TopBar()
     viewModel.node?.let {
       MarkdownComposer().Markdown(it)

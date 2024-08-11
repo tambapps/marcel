@@ -8,10 +8,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DrawerState
@@ -42,7 +45,6 @@ import androidx.navigation.navArgument
 import com.tambapps.marcel.android.marshell.Routes.DOCUMENTATION
 import com.tambapps.marcel.android.marshell.Routes.PATH_ARG
 import com.tambapps.marcel.android.marshell.service.DocumentationMdStore
-import com.tambapps.marcel.android.marshell.ui.component.Markdown
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.screen.documentation.DocumentationScreen
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
@@ -121,26 +123,24 @@ private fun NavigationDrawer(
   ModalNavigationDrawer(
     drawerState = drawerState,
     drawerContent = {
-      val scrollState = rememberScrollState()
-
-      // TODO scrolling not working
-      ModalDrawerSheet(
-        modifier = Modifier.fillMaxWidth(0.6f)
-          .scrollable(scrollState, Orientation.Vertical)
-      ) {
+      ModalDrawerSheet(modifier = Modifier
+        .fillMaxHeight()
+        .fillMaxWidth(0.85f)) {
         NavigationDrawerHeader()
-        val backStackState = navController.currentBackStackEntryAsState()
+        Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+          val backStackState = navController.currentBackStackEntryAsState()
+          for (drawerEntry in viewModel.drawerEntries) {
+            // TODO handle depth
+            DocumentationDrawerItem(
+              navController = navController,
+              drawerState = drawerState,
+              backStackState = backStackState,
+              scope = scope,
+              text = drawerEntry.text,
+              path = drawerEntry.path
+            )
+          }
 
-        for (drawerEntry in viewModel.drawerEntries) {
-          // TODO handle depth
-          DocumentationDrawerItem(
-            navController = navController,
-            drawerState = drawerState,
-            backStackState = backStackState,
-            scope = scope,
-            text = drawerEntry.text,
-            path = drawerEntry.path
-          )
         }
       }
     }, content = content)
@@ -202,7 +202,7 @@ data class DrawerEntry(val depth: Int, val text: String, val path: String?)
 class SummaryMdVisitor: AbstractVisitor() {
 
   private var depth = 0
-  private val steps = mutableListOf<Int>()
+  private val steps = mutableListOf<Int>() // keeping track of steps, like 1.2.1
   private val drawerEntries = mutableListOf<DrawerEntry>()
   val collectedEntries: List<DrawerEntry> get() = drawerEntries
 
@@ -216,12 +216,12 @@ class SummaryMdVisitor: AbstractVisitor() {
 
   override fun visit(listItem: ListItem) {
     val linkNode = (listItem.firstChild as? Paragraph)?.firstChild as? Link
-    val text = (linkNode?.firstChild as? Text)?.literal
-    steps[steps.lastIndex] = steps.last() + 1
-    val prefix = (steps).joinToString(separator = ".", postfix = " ")
-    if (linkNode != null && text != null) {
+    val title = (linkNode?.firstChild as? Text)?.literal
+    if (linkNode != null && title != null) {
+      steps[steps.lastIndex] = steps.last() + 1
+      val stepText = (steps).joinToString(separator = ".", postfix = " ")
       drawerEntries.add(DrawerEntry(depth,
-        prefix + text,
+        "\t\t".repeat(steps.size - 1) + stepText + title,
         linkNode.destination))
     }
     super.visit(listItem)
