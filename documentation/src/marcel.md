@@ -12,7 +12,7 @@ this language [on GitHub](https://github.com/tambapps/marcel)
 Marcel compiles to Java bytecode (.class files). You can execute marcel script/projects on any JVMs (17+), as long as the Marcel stdlib is included
 in your classpath.
 
-As stated above, marcel is guaranteed to be compilable and executable on any Android devices. You can install the [Marcel for Android](https://play.google.com/store/apps/details?id=com.tambapps.marcel.android.marshell)
+As stated above, marcel is guaranteed to be compilable and executable on any Android devices running on Android 11 or +. You can install the [Marcel for Android](https://play.google.com/store/apps/details?id=com.tambapps.marcel.android.marshell)
 app to develop, compile and execute Marcel programs.
 
 
