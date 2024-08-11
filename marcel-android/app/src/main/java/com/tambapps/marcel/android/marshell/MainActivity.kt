@@ -1,11 +1,13 @@
 package com.tambapps.marcel.android.marshell
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -33,6 +35,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -48,12 +51,10 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.tambapps.marcel.android.marshell.Routes.CONSULT
 import com.tambapps.marcel.android.marshell.Routes.DELETE_SHELL
-import com.tambapps.marcel.android.marshell.Routes.DOCUMENTATION
 import com.tambapps.marcel.android.marshell.Routes.EDITOR
 import com.tambapps.marcel.android.marshell.Routes.FILE_ARG
 import com.tambapps.marcel.android.marshell.Routes.HOME
 import com.tambapps.marcel.android.marshell.Routes.NEW_SHELL
-import com.tambapps.marcel.android.marshell.Routes.PATH_ARG
 import com.tambapps.marcel.android.marshell.Routes.SESSION_ID
 import com.tambapps.marcel.android.marshell.Routes.SETTINGS
 import com.tambapps.marcel.android.marshell.Routes.SHELL
@@ -64,7 +65,6 @@ import com.tambapps.marcel.android.marshell.Routes.WORK_VIEW
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellScreen
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
-import com.tambapps.marcel.android.marshell.ui.screen.documentation.DocumentationScreen
 import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorScreen
 import com.tambapps.marcel.android.marshell.ui.screen.settings.SettingsScreen
 import com.tambapps.marcel.android.marshell.ui.screen.shell.consult.ShellConsultScreen
@@ -82,6 +82,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+// TODO close drawer on goback. do same on documentation activity
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -192,11 +193,6 @@ class MainActivity : ComponentActivity() {
               composable(SETTINGS) {
                 SettingsScreen(navController)
               }
-              composable("$DOCUMENTATION?$PATH_ARG={$PATH_ARG}",
-                arguments = listOf(navArgument(PATH_ARG) { type = NavType.StringType; nullable = true })
-              ) {
-                DocumentationScreen()
-              }
             }
             TopBar(drawerState, scope) // putting it at the end because we want it to have top priority in terms of displaying
           }
@@ -217,7 +213,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun TopBar(drawerState: DrawerState, scope: CoroutineScope) {
+private fun TopBar(drawerState: DrawerState, scope: CoroutineScope) {
   TopBarLayout {
     IconButton(
       modifier = Modifier.size(TopBarIconSize),
@@ -241,6 +237,18 @@ fun TopBar(drawerState: DrawerState, scope: CoroutineScope) {
 }
 
 @Composable
+fun ColumnScope.NavigationDrawerHeader() {
+  Box(modifier = Modifier.height(16.dp))
+  Image(modifier = Modifier
+    .align(Alignment.CenterHorizontally)
+    .size(64.dp), painter = painterResource(id = R.drawable.appicon), contentDescription = "marcel")
+  Text("Marcel for Android", modifier = Modifier
+    .padding(16.dp)
+    .align(Alignment.CenterHorizontally), style = MaterialTheme.typography.shellTextStyle, fontWeight = FontWeight.Bold)
+  HorizontalDivider(Modifier.padding(vertical = 2.dp))
+}
+
+@Composable
 private fun NavigationDrawer(
   drawerState: DrawerState,
   navController: NavController,
@@ -248,21 +256,14 @@ private fun NavigationDrawer(
   shellViewModels: Map<Int, ShellViewModel>,
   content: @Composable () -> Unit
 ) {
+  val context = LocalContext.current
   ModalNavigationDrawer(
     drawerState = drawerState,
     drawerContent = {
       ModalDrawerSheet(
         modifier = Modifier.fillMaxWidth(0.6f)
         ) {
-        Box(modifier = Modifier.height(16.dp))
-        Image(modifier = Modifier
-          .align(Alignment.CenterHorizontally)
-          .size(64.dp), painter = painterResource(id = R.drawable.appicon), contentDescription = "marcel")
-        Text("Marcel for Android", modifier = Modifier
-          .padding(16.dp)
-          .align(Alignment.CenterHorizontally), style = MaterialTheme.typography.shellTextStyle, fontWeight = FontWeight.Bold)
-        HorizontalDivider(Modifier.padding(vertical = 2.dp))
-
+        NavigationDrawerHeader()
         val backStackState = navController.currentBackStackEntryAsState()
 
         val defaultShellSessionId = shellViewModels.keys.min()
@@ -327,12 +328,12 @@ private fun NavigationDrawer(
           route = SETTINGS
         )
         DrawerItem(
-          navController = navController,
-          drawerState = drawerState,
-          scope = scope,
+          selected = false,
           text = "Documentation",
-          backStackState = backStackState,
-          route = DOCUMENTATION
+          onClick = {
+            context.startActivity(Intent(context, DocumentationActivity::class.java))
+            scope.launch { drawerState.close() }
+          }
         )
 
       }
@@ -341,7 +342,7 @@ private fun NavigationDrawer(
 }
 
 @Composable
-private fun DrawerItem(
+fun DrawerItem(
   navController: NavController,
   drawerState: DrawerState,
   backStackState: State<NavBackStackEntry?>,
@@ -359,13 +360,26 @@ private fun DrawerItem(
   text: String,
   route: String,
 ) {
-  NavigationDrawerItem(
-    label = { Text(text = text, fontWeight = FontWeight.Bold) },
+  DrawerItem(
     selected = selected,
-    shape = RectangleShape,
+    text = text,
     onClick = {
       navController.navigate(route)
       scope.launch { drawerState.close() }
     }
+  )
+}
+
+@Composable
+fun DrawerItem(
+  selected: Boolean,
+  text: String,
+  onClick: () -> Unit,
+) {
+  NavigationDrawerItem(
+    label = { Text(text = text, fontWeight = FontWeight.Bold) },
+    selected = selected,
+    shape = RectangleShape,
+    onClick = onClick
   )
 }

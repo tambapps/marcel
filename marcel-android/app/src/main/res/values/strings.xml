@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Marcel Android</string>
     <string name="title_activity_file_explorer">FileExplorerActivity</string>
+    <string name="title_activity_documentation">DocumentationActivity</string>
 </resources>

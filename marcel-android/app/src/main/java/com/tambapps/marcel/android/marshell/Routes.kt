@@ -24,4 +24,6 @@ object Routes {
   fun consult(sessionId: Any) = "$SHELL/$sessionId/consult"
   fun deleteShell(sessionId: Any) = "$SHELL/$sessionId/delete"
   fun edit(file: File) = EDITOR + "?" + FILE_ARG + "=" + URLEncoder.encode(file.canonicalPath, "UTF-8")
+  fun documentation(path: String?) = if (path != null) DOCUMENTATION + "?" + PATH_ARG + "=" + URLEncoder.encode(path, "UTF-8")
+  else DOCUMENTATION
 }
