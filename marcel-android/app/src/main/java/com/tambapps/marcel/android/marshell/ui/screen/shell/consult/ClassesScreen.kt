@@ -17,7 +17,7 @@ import com.tambapps.marcel.android.marshell.ui.component.ExpandableCard
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
 import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 import com.tambapps.marcel.semantic.Visibility
-import com.tambapps.marcel.semantic.method.JavaMethod
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.type.JavaType
 
 @Composable
@@ -68,7 +68,7 @@ private fun ClassesList(symbolResolver: ReplMarcelSymbolResolver, classes: List<
   }
 }
 
-private val JavaMethod.signature get() = StringBuilder().apply {
+private val MarcelMethod.signature get() = StringBuilder().apply {
   if (visibility != Visibility.PUBLIC) {
     append(visibility.name.lowercase())
     append(" ")

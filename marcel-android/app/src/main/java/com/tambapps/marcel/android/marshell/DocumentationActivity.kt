@@ -112,10 +112,11 @@ class DocumentationActivity : ComponentActivity() {
               composable("$DOCUMENTATION?$PATH_ARG={$PATH_ARG}",
                 arguments = listOf(navArgument(PATH_ARG) { type = NavType.StringType; nullable = true })
               ) {
+                val currentIndex = findCurrentDrawerEntryIndex(backStackState)
                 DocumentationScreen(
-                  onGoNext = { goNext(navController, backStackState) },
-                  onGoPrevious = { goPrevious(navController, backStackState) },
-                )
+                  onGoPrevious = if (currentIndex <= 0) null else { { goPrevious(navController, currentIndex) } },
+                  onGoNext = if (currentIndex >= viewModel.drawerEntries.lastIndex) null else { { goNext(navController, currentIndex) } },
+                  )
               }
             }
             TopBar(drawerState, scope) // putting it at the end because we want it to have top priority in terms of displaying
@@ -125,14 +126,12 @@ class DocumentationActivity : ComponentActivity() {
     }
   }
 
-  private fun goPrevious(navController: NavController, backStackState: State<NavBackStackEntry?>) {
-    val currentIndex = findCurrentDrawerEntryIndex(backStackState)
+  private fun goPrevious(navController: NavController, currentIndex: Int) {
     if (currentIndex <= 0) return
     navController.navigate(Routes.documentation(viewModel.drawerEntries[currentIndex - 1].path))
   }
 
-  private fun goNext(navController: NavController, backStackState: State<NavBackStackEntry?>) {
-    val currentIndex = findCurrentDrawerEntryIndex(backStackState)
+  private fun goNext(navController: NavController, currentIndex: Int) {
     if (currentIndex < 0 || currentIndex >= viewModel.drawerEntries.lastIndex) return
     navController.navigate(Routes.documentation(viewModel.drawerEntries[currentIndex + 1].path))
 
@@ -141,7 +140,6 @@ class DocumentationActivity : ComponentActivity() {
   private fun findCurrentDrawerEntryIndex(backStackState: State<NavBackStackEntry?>): Int {
     val routePath = backStackState.value?.arguments?.getString("path")
     return viewModel.drawerEntries.indexOfFirst { entry -> isCurrentPath(entry.path, routePath) }
-
   }
 }
 

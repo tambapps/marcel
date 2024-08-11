@@ -30,8 +30,8 @@ import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
 @Composable
 fun DocumentationScreen(
   viewModel: DocumentationViewModel = hiltViewModel(),
-  onGoPrevious: () -> Unit,
-  onGoNext: () -> Unit
+  onGoPrevious: (() -> Unit)?,
+  onGoNext: (() -> Unit)?
 ) {
   LaunchedEffect(Unit) {
     viewModel.fetchPage()
@@ -47,26 +47,30 @@ fun DocumentationScreen(
       MarkdownComposer(viewModel.highlighter).Markdown(node)
 
       Box(modifier = Modifier.fillMaxWidth().padding(top = 32.dp)) {
-        Button(
-          modifier = Modifier.align(Alignment.CenterStart),
-          onClick = onGoPrevious
-        ) {
-          Icon(
-            modifier = Modifier.size(TopBarIconSize),
-            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = null,
-          )
+        if (onGoPrevious != null) {
+          Button(
+            modifier = Modifier.align(Alignment.CenterStart),
+            onClick = onGoPrevious
+          ) {
+            Icon(
+              modifier = Modifier.size(TopBarIconSize),
+              imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+              contentDescription = null,
+            )
+          }
         }
 
-        Button(
-          modifier = Modifier.align(Alignment.CenterEnd),
-          onClick = onGoNext
-        ) {
-          Icon(
-            modifier = Modifier.size(TopBarIconSize).rotate(180f),
-            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = null,
-          )
+        if (onGoNext != null) {
+          Button(
+            modifier = Modifier.align(Alignment.CenterEnd),
+            onClick = onGoNext
+          ) {
+            Icon(
+              modifier = Modifier.size(TopBarIconSize).rotate(180f),
+              imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+              contentDescription = null,
+            )
+          }
         }
       }
     }
