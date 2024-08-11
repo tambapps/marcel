@@ -1,5 +1,7 @@
 package com.tambapps.marcel.android.marshell.ui.screen.documentation
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -29,7 +31,7 @@ class DocumentationViewModel @Inject constructor(
   private val ioScope = CoroutineScope(Dispatchers.IO)
   var node by mutableStateOf<Node?>(null)
 
-  fun fetchPage() {
+  fun fetchPage(context: Context) {
     ioScope.launch {
       documentationStore.get(
         path,
@@ -37,7 +39,11 @@ class DocumentationViewModel @Inject constructor(
           node = it
         },
         onError = {
-          // TODO handle error
+          Toast.makeText(
+            context,
+            "An error occurred, please retry",
+            Toast.LENGTH_SHORT
+          ).show()
         })
     }
   }

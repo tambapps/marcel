@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -33,8 +34,9 @@ fun DocumentationScreen(
   onGoPrevious: (() -> Unit)?,
   onGoNext: (() -> Unit)?
 ) {
+  val context = LocalContext.current
   LaunchedEffect(Unit) {
-    viewModel.fetchPage()
+    viewModel.fetchPage(context)
   }
   Column(modifier = Modifier
     .fillMaxSize()) {
