@@ -58,7 +58,7 @@ class StringifyAstTransformation : GenerateMethodAstTransformation() {
       }
     }
 
-    stringParts.removeLast() // remove trailing ", "
+    stringParts.removeAt(stringParts.size - 1) // remove trailing ", "
     stringParts.add(string(")"))
     val methodNode = methodNode(
       ownerClass = classNode.type,
