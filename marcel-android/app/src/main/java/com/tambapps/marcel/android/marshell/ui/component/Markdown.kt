@@ -31,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
+import com.tambapps.marcel.android.marshell.ui.theme.linkColor
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import org.commonmark.ext.gfm.tables.TableBlock
 import org.commonmark.ext.gfm.tables.TableBody
@@ -184,8 +185,7 @@ private fun buildParagraph(p: Block, shellTextStyle: TextStyle): AnnotatedString
       when(n) {
         is Text -> append(n.literal)
         is HardLineBreak -> append("\n\n")
-        // TODO make color a constant. it is used elsewhere
-        is Link -> withStyle(style = SpanStyle(color = Color(0xFF2196F3))) {
+        is Link -> withStyle(style = SpanStyle(color = linkColor)) {
           append((n.firstChild as? Text)?.literal ?: n.destination)
         }
         is HtmlBlock -> append("\n\n") // it's usually for <br/>

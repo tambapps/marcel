@@ -131,7 +131,6 @@ private fun NavigationDrawer(
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
           val backStackState = navController.currentBackStackEntryAsState()
           for (drawerEntry in viewModel.drawerEntries) {
-            // TODO handle depth
             DocumentationDrawerItem(
               navController = navController,
               drawerState = drawerState,

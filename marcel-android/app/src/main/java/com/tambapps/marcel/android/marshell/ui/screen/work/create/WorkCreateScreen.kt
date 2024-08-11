@@ -68,6 +68,7 @@ import com.tambapps.marcel.android.marshell.ui.screen.work.WorkScriptCard
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
 import com.tambapps.marcel.android.marshell.ui.theme.iconButtonColor
+import com.tambapps.marcel.android.marshell.ui.theme.linkColor
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import com.tambapps.marcel.android.marshell.util.TimeUtils
 import java.time.Instant
@@ -392,7 +393,7 @@ private fun HelpDialog(
       append("They can run even if you aren't on the app.\n")
       append("The ")
       pushStringAnnotation(tag = "workmanager", annotation = "https://developer.android.com/develop/background-work/background-tasks/persistent/getting-started")
-      withStyle(style = SpanStyle(color = Color(0xFF2196F3))) {
+      withStyle(style = SpanStyle(color = linkColor)) {
         append("Android WorkManager API")
       }
       pop()
