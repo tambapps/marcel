@@ -1,12 +1,12 @@
 package com.tambapps.marcel.android.marshell
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -27,11 +27,8 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavBackStackEntry
@@ -58,7 +55,6 @@ import org.commonmark.node.AbstractVisitor
 import org.commonmark.node.BulletList
 import org.commonmark.node.Link
 import org.commonmark.node.ListItem
-import org.commonmark.node.Node
 import org.commonmark.node.Paragraph
 import org.commonmark.node.Text
 import javax.inject.Inject
@@ -82,7 +78,14 @@ class DocumentationActivity : ComponentActivity() {
           viewModel.drawerEntries.clear()
           viewModel.drawerEntries.addAll(visitor.collectedEntries)
         },
-        onError = {}
+        onError = {
+          Toast.makeText(
+            this@DocumentationActivity,
+            "An error occurred, please retry",
+            Toast.LENGTH_SHORT
+          ).show()
+          finish()
+        }
       )
     }
     setContent {
@@ -90,6 +93,13 @@ class DocumentationActivity : ComponentActivity() {
         val navController = rememberNavController()
         val drawerState = rememberDrawerState(DrawerValue.Closed)
         val scope = rememberCoroutineScope()
+        onBackPressedDispatcher.addCallback {
+          if (drawerState.isOpen) {
+            scope.launch { drawerState.close() }
+          } else {
+            finish()
+          }
+        }
         NavigationDrawer(drawerState = drawerState, navController = navController, scope = scope, viewModel = viewModel) {
           Box(modifier = Modifier
             .background(MaterialTheme.colorScheme.background)) {
@@ -112,7 +122,6 @@ class DocumentationActivity : ComponentActivity() {
   }
 }
 
-// TODO do custom welcome page for marcel for android and skip the whole getting started block here
 @Composable
 private fun NavigationDrawer(
   drawerState: DrawerState,
@@ -128,7 +137,9 @@ private fun NavigationDrawer(
         .fillMaxHeight()
         .fillMaxWidth(0.85f)) {
         NavigationDrawerHeader()
-        Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+        Column(modifier = Modifier
+          .fillMaxSize()
+          .verticalScroll(rememberScrollState())) {
           val backStackState = navController.currentBackStackEntryAsState()
           for (drawerEntry in viewModel.drawerEntries) {
             DocumentationDrawerItem(

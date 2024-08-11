@@ -2,7 +2,9 @@ package com.tambapps.marcel.android.marshell
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -82,7 +84,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// TODO close drawer on goback. do same on documentation activity
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -93,6 +94,7 @@ class MainActivity : ComponentActivity() {
 
   private lateinit var ioScope: CoroutineScope
   private var sessionsIdIncrement = 1
+  private var closeTimestamp = System.currentTimeMillis()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -101,6 +103,17 @@ class MainActivity : ComponentActivity() {
       val navController = rememberNavController()
       val drawerState = rememberDrawerState(DrawerValue.Closed)
       val scope = rememberCoroutineScope()
+      onBackPressedDispatcher.addCallback {
+        if (drawerState.isOpen) {
+          scope.launch { drawerState.close() }
+        } else if (System.currentTimeMillis() - closeTimestamp >= 750) {
+          closeTimestamp = System.currentTimeMillis()
+          Toast.makeText(this@MainActivity, "Press back again to close the app", Toast.LENGTH_SHORT)
+            .show()
+        } else {
+          finish()
+        }
+      }
       MarcelAndroidTheme {
         // instantiating shell VM here because we want to keep state even if we changed route and then go back to ShellScreen
         val defaultShellViewModel: ShellViewModel = hiltViewModel()
