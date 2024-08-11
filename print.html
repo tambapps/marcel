@@ -1163,30 +1163,28 @@ a &lt;&lt; 2
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="comparison-operators"><a class="header" href="#comparison-operators">Comparison Operators</a></h1>
 <h2 id="equal-"><a class="header" href="#equal-">Equal (==)</a></h2>
-<p>Unlike in Java <code>==</code> operator refers to the Object.equals() method (for objects comparison), and some custom comparison added (e.g. for collections).
-This operator is null safe, meaning that if one of the operand is null, it won't throw a <code>NullPointerException</code>.</p>
+<p>Unlike in Java <code>==</code> operator will do its best to compare the 2 operands by value. This operator is null safe, meaning that if one of the operand is null, it won't throw a <code>NullPointerException</code>.</p>
 <p>This operator works as described below</p>
 <ul>
-<li>if both operand are primitives, Java-like <code>==</code> is performed</li>
+<li>if both operand are primitives, Java-like <code>==</code> will be performed</li>
+<li>if both operand are primitive arrays, Arrays.equals() will be used to compare the values</li>
+<li>if both operand are object arrays, Objects.deepEquals() will be used to compare the values</li>
+<li>otherwise it will call Objects.equals()</li>
+</ul>
+<p>This logic is applied at compile-time, meaning you won't have a runtime overhead because the program would have to check types.</p>
+<ul>
 <li>if at least one of the two operand is an Object, the other operand is casted as an object if needed and the Marcel <code>==</code> is applied.</li>
 </ul>
-<p>The Marcel <code>==</code> works with the following rules</p>
-<ul>
-<li>if the first operand <strong>is</strong> the second operand (same instance), it returns true</li>
-<li>if the left or the right operand is <code>null</code>, return false</li>
-<li>if the two operand are arrays, return true if arrays content are the same</li>
-<li>returns <code>operand1.equals(operand2)</code></li>
-</ul>
 <h2 id="not-equal-"><a class="header" href="#not-equal-">Not Equal (!=)</a></h2>
-<p>The not equal apply is the negation of the Marcel's <code>==</code></p>
+<p>The not equal is the negation of the Marcel's <code>==</code></p>
 <h2 id="lt-loe-gt-goe----"><a class="header" href="#lt-loe-gt-goe----">LT, LOE, GT, GOE (&lt;, &lt;= ,&gt;, &gt;=)</a></h2>
 <p>These operators works like in Java for primitive types. For object types, Marcel will check at compile-time if the first operand
 has a <code>compareTo()</code> method and apply it on the second operand. The result of the compareTo will be used to apply the given comparison.</p>
-<h2 id="is-same-instance-"><a class="header" href="#is-same-instance-">Is Same Instance (===)</a></h2>
-<p>This operator is the Java's <code>==</code> operator for Objects. It will check if the two operand are the same instance.
+<h2 id="is-same-"><a class="header" href="#is-same-">Is Same (===)</a></h2>
+<p>This operator is the Java's <code>==</code> operator for Objects. It will check if the two operand are the same instance, or are both null.
 (Note that it can't be used on primitives).</p>
-<h2 id="is-not-same-instance-"><a class="header" href="#is-not-same-instance-">Is Not Same Instance (!==)</a></h2>
-<p>It is the negation of the Is Same Instance operator.</p>
+<h2 id="is-not-same-"><a class="header" href="#is-not-same-">Is Not Same (!==)</a></h2>
+<p>It is the negation of the Is Same operator.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="as-smart-casting"><a class="header" href="#as-smart-casting">As (smart casting)</a></h1>
 <p>The <code>as</code> keyword allows to <strong>smart</strong> cast variables to a provided type.</p>
 <h2 id="smart-casting"><a class="header" href="#smart-casting">Smart casting</a></h2>
