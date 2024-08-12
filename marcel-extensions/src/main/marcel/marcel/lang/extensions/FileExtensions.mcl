@@ -8,11 +8,13 @@ extension class FileExtensions for File {
 
   fun String readText() -> new String(JavaFiles.readAllBytes(toPath()), StandardCharsets.UTF_8)
 
-  fun String readText(String charset) -> new String(JavaFiles.readAllBytes(toPath()), charset)
+  fun String readText(String charset) -> new String(JavaFiles.readAllBytes(toPath()), Charset.forName(charset))
 
   fun String readText(Charset charset) -> new String(JavaFiles.readAllBytes(toPath()), charset)
 
   fun List<String> readLines() -> JavaFiles.readAllLines(this.toPath(), StandardCharsets.UTF_8)
+
+  fun List<String> readLines(String charset) -> JavaFiles.readAllLines(toPath(), Charset.forName(charset))
 
   fun List<String> readLines(Charset charset) -> JavaFiles.readAllLines(toPath(), charset)
 
