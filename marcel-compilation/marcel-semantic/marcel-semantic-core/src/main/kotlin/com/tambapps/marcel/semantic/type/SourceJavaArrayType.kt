@@ -1,6 +1,7 @@
 package com.tambapps.marcel.semantic.type
 
 import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.type.annotation.JavaAnnotation
 
 /**
  * A java type representing an array of a class that is NOT loaded on the classpath

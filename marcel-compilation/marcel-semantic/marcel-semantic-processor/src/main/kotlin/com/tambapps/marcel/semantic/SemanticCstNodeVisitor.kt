@@ -151,7 +151,7 @@ import com.tambapps.marcel.semantic.scope.LambdaMethodScope
 import com.tambapps.marcel.semantic.scope.MethodInnerScope
 import com.tambapps.marcel.semantic.scope.MethodScope
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
-import com.tambapps.marcel.semantic.type.JavaAnnotation
+import com.tambapps.marcel.semantic.type.annotation.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.PrimitiveCollectionTypes

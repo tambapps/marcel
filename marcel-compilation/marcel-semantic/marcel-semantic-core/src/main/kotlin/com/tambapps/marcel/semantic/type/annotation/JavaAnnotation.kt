@@ -1,4 +1,8 @@
-package com.tambapps.marcel.semantic.type
+package com.tambapps.marcel.semantic.type.annotation
+
+import com.tambapps.marcel.semantic.type.JavaAnnotationType
+import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.type.JavaTyped
 
 /**
  * Abstraction of a Java annotation

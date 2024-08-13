@@ -13,7 +13,20 @@ class ExtensionJavaMethod  constructor(
 
   companion object {
 
-    fun instanceMethodExtension(javaMethod: MarcelMethod): ExtensionJavaMethod {
+    const val THIS_PARAMETER_NAME = "self"
+
+    fun toExtension(originalMethod: MarcelMethod, extendedType: JavaType = originalMethod.ownerClass.extendedType!!): ExtensionJavaMethod {
+      return if (isInstanceExtensionMethod(originalMethod, extendedType)) instanceMethodExtension(originalMethod)
+      else staticMethodExtension(originalMethod)
+    }
+
+    private fun isInstanceExtensionMethod(originalMethod: MarcelMethod, extendedType: JavaType = originalMethod.ownerClass.extendedType!!): Boolean {
+      return originalMethod.isStatic && originalMethod.parameters.isNotEmpty() && originalMethod.parameters.first().let {
+        it.type == extendedType
+      }
+    }
+
+    private fun instanceMethodExtension(javaMethod: MarcelMethod): ExtensionJavaMethod {
       return ExtensionJavaMethod(
         javaMethod,
         javaMethod.ownerClass, javaMethod.name,
@@ -23,7 +36,7 @@ class ExtensionJavaMethod  constructor(
       )
     }
 
-    fun staticMethodExtension(javaMethod: MarcelMethod): ExtensionJavaMethod {
+    private fun staticMethodExtension(javaMethod: MarcelMethod): ExtensionJavaMethod {
       return ExtensionJavaMethod(
         javaMethod,
         javaMethod.ownerClass, javaMethod.name,
@@ -50,5 +63,4 @@ class ExtensionJavaMethod  constructor(
       actualMethod.parameters.takeLast(actualMethod.parameters.size - 1),
       returnType, isMarcelStatic)
   }
-
 }

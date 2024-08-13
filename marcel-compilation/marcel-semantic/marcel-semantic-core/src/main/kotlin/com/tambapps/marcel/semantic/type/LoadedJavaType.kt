@@ -1,5 +1,9 @@
 package com.tambapps.marcel.semantic.type
 
+import com.tambapps.marcel.semantic.extensions.javaAnnotationType
+import com.tambapps.marcel.semantic.extensions.javaType
+import com.tambapps.marcel.semantic.type.annotation.JavaAnnotation
+import com.tambapps.marcel.semantic.type.annotation.LoadedJavaAnnotation
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 
@@ -46,7 +50,18 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
     get() = LoadedJavaArrayType(java.lang.reflect.Array.newInstance(this.realClazz, 0).javaClass)
 
   override fun getAnnotation(javaAnnotationType: JavaAnnotationType): JavaAnnotation? {
-    throw UnsupportedOperationException()
+    if (!javaAnnotationType.isLoaded) return null
+    val annotationClazz = javaAnnotationType.realClazz as? Class<Annotation> ?: return null
+    val annotationInstance = realClazz.getAnnotation(annotationClazz) ?: return null
+    val attributes = mutableMapOf<String, JavaAnnotation.Attribute>()
+    for (method in annotationClazz.declaredMethods) {
+      attributes[method.name] = JavaAnnotation.Attribute(
+        name = method.name,
+        type = method.returnType.javaType,
+        value = method.invoke(annotationInstance)
+      )
+    }
+    return LoadedJavaAnnotation(annotationClazz.javaAnnotationType, attributes)
   }
 
   override val directlyImplementedInterfaces: Collection<JavaType>

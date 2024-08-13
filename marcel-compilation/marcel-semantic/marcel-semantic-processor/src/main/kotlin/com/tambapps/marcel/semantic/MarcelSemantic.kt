@@ -14,6 +14,7 @@ import com.tambapps.marcel.parser.cst.statement.ExpressionStatementCstNode
 import com.tambapps.marcel.parser.cst.statement.ReturnCstNode
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 import com.tambapps.marcel.parser.cst.visitor.ClassCstNodeVisitor
+import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.LambdaClassNode
@@ -32,6 +33,7 @@ import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNo
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.imprt.ImportResolverGenerator
@@ -43,10 +45,12 @@ import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.MethodScope
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.semantic.type.annotation.JavaAnnotation
 import com.tambapps.marcel.semantic.type.SourceJavaType
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
 import marcel.lang.Binding
+import marcel.lang.compile.ExtensionClass
 import marcel.util.concurrent.Threadmill
 import java.lang.annotation.ElementType
 import java.util.concurrent.Callable
@@ -123,11 +127,12 @@ open class MarcelSemantic(
       val extensionCstType = classCstNode.forExtensionType!!
       val extensionType = resolve(extensionCstType)
       classCstNode.methods.forEach { m ->
+        // TODO to change when supporting static
         m.accessNode.isStatic = true
         // extension class methods first parameter is self, which can be considered as this
         m.parameters.add(
           0,
-          MethodParameterCstNode(m, m.tokenStart, m.tokenEnd, "self", extensionCstType, null, emptyList(), false)
+          MethodParameterCstNode(m, m.tokenStart, m.tokenEnd, ExtensionJavaMethod.THIS_PARAMETER_NAME, extensionCstType, null, emptyList(), false)
         )
         // define extension method so that we can reference them in methods of this extension class
         symbolResolver.defineExtensionMethod(extensionType, toJavaMethod(classType, extensionType, m))
@@ -170,6 +175,9 @@ open class MarcelSemantic(
             throw MarcelSemanticException(f, "Cannot have non static members in extension class")
           }
         }
+        classNode.annotations.add(AnnotationNode(ExtensionClass::class.javaAnnotationType, listOf(
+          JavaAnnotation.Attribute(name = "forClass", type = JavaType.Clazz, classNode.forExtensionType!!)
+        ), classNode.tokenStart, classNode.tokenEnd))
       }
 
       // must handle inner classes BEFORE handling this class being an inner class because in this case constructors will be modified

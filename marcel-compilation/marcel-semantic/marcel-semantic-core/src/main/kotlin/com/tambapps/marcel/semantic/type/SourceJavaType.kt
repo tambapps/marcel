@@ -1,6 +1,7 @@
 package com.tambapps.marcel.semantic.type
 
 import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.type.annotation.JavaAnnotation
 
 /**
  * A [JavaType] that is NOT loaded on the classpath. Such classes always represents an Object as Java

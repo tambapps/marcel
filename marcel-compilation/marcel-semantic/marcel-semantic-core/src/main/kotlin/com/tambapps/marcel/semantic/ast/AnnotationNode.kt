@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.ast
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.semantic.type.JavaAnnotation
+import com.tambapps.marcel.semantic.type.annotation.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
 
 class AnnotationNode(

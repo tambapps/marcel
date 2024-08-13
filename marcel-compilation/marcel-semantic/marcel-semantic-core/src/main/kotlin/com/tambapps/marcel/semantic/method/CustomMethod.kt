@@ -1,6 +1,7 @@
 package com.tambapps.marcel.semantic.method
 
 
+// TODO rename virtualMethod
 /**
  * Parent class to use for methods that are actually not java methods (e.g. cast<CastType>())
  */

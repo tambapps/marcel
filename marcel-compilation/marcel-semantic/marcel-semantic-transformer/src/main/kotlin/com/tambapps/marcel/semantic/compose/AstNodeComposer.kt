@@ -37,7 +37,7 @@ import com.tambapps.marcel.semantic.method.JavaMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.MethodScope
-import com.tambapps.marcel.semantic.type.JavaAnnotation
+import com.tambapps.marcel.semantic.type.annotation.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.type.JavaArrayType
 import com.tambapps.marcel.semantic.type.JavaType

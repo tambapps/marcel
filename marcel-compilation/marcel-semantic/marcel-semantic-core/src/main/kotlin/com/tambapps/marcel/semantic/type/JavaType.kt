@@ -1,6 +1,10 @@
 package com.tambapps.marcel.semantic.type
 
 import com.tambapps.marcel.semantic.Visibility
+import com.tambapps.marcel.semantic.extensions.javaAnnotationType
+import com.tambapps.marcel.semantic.extensions.javaType
+import com.tambapps.marcel.semantic.type.annotation.JavaAnnotation
+import marcel.lang.compile.ExtensionClass
 import marcel.lang.lambda.Lambda
 import marcel.lang.primitives.collections.CharCollection
 import marcel.lang.primitives.collections.DoubleCollection
@@ -74,6 +78,8 @@ interface JavaType: JavaTyped {
   val isScript: Boolean
   val objectType: JavaType get() = this
   val isTopLevel get() = !className.contains("$")
+  val isExtensionType: Boolean get() = getAnnotation(ExtensionClass::class.javaAnnotationType) != null
+  val extendedType: JavaType? get() = (getAnnotation(ExtensionClass::class.javaAnnotationType)?.getAttribute("forClass")?.value as? Class<*>)?.javaType
 
   val hasGenericTypes: Boolean get() = genericTypes.isNotEmpty()
   val innerName: String? get() {

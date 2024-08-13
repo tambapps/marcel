@@ -65,7 +65,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
   /* extensions */
   private fun loadDefaultExtensions() {
     loadExtensionUnsafe(DefaultMarcelMethods::class.javaType)
-    loadExtensionsIfClassLoaded("FileExtensions", "StringMarcelMethods", "CharacterExtensions", "CharExtensions")
+    loadExtensionsUnsafeIfClassLoaded("FileExtensions", "StringMarcelMethods", "CharacterExtensions", "CharExtensions")
   }
 
   private fun loadCustomMethods() {
@@ -73,11 +73,11 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     methods.addAll(CastMethod.METHODS)
   }
 
-  private fun loadExtensionsIfClassLoaded(vararg classNames: String) {
-    classNames.forEach { loadExtensionIfClassLoaded(it) }
+  private fun loadExtensionsUnsafeIfClassLoaded(vararg classNames: String) {
+    classNames.forEach { loadExtensionUnsafeIfClassLoaded(it) }
   }
 
-  private fun loadExtensionIfClassLoaded(className: String) {
+  private fun loadExtensionUnsafeIfClassLoaded(className: String) {
     val type = try {
       Class.forName("marcel.lang.extensions.$className").javaType
     } catch (e: ClassNotFoundException) {
@@ -101,10 +101,11 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
 
   // Not checking if method is already defined. will allow going faster
   private fun loadExtensionUnsafe(type: JavaType) {
+    val globalExtendedType = type.extendedType
     getDeclaredMethods(type).filter { it.isStatic && it.parameters.isNotEmpty() }
       .forEach {
-        val owner = it.parameters.first().type
-        defineExtensionMethodUnsafe(owner, it)
+        // extensions can be from a non-extension class, which can extend many types (see DefaultMarcelMethods)
+        defineExtensionMethodUnsafe(globalExtendedType ?: it.parameters.first().type, it)
       }
   }
 
@@ -179,13 +180,18 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
   }
 
   fun defineExtensionMethod(methodOwner: JavaType, originalMethod: MarcelMethod) {
-    defineExtensionMethodUnsafe(methodOwner, originalMethod)
+    if (!originalMethod.isExtension) {
+      throw MarcelSemanticException(
+        (originalMethod as? MethodNode)?.token ?: LexToken.DUMMY,
+        "Type $methodOwner is not an extension")
+    }
+    val extensionMethod = ExtensionJavaMethod.toExtension(originalMethod)
+    defineMethod(methodOwner, extensionMethod)
   }
 
-  private fun defineExtensionMethodUnsafe(methodOwner: JavaType, originalMethod: MarcelMethod) {
-    // TODO handle static method extensions. Note that for that the type should be specigied in a class annotation
-    val methods = getMarcelMethods(methodOwner)
-    methods.add(ExtensionJavaMethod.instanceMethodExtension(originalMethod))
+  private fun defineExtensionMethodUnsafe(extendedType: JavaType, originalMethod: MarcelMethod) {
+    val extensionMethod = ExtensionJavaMethod.toExtension(originalMethod, extendedType=extendedType)
+    defineMethodUnsafe(extendedType, extensionMethod)
   }
 
   fun defineMethod(javaType: JavaType, method: MarcelMethod) {
@@ -195,6 +201,11 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
         (method as? MethodNode)?.token ?: LexToken.DUMMY,
         "Method $method conflicts with method " + methods.find { it.matches(method) })
     }
+    defineMethodUnsafe(javaType, method)
+  }
+
+  private fun defineMethodUnsafe(javaType: JavaType, method: MarcelMethod) {
+    val methods = getMarcelMethods(javaType)
     methods.add(method)
     if (method.isGetter || method.isSetter) {
       fieldResolver.defineMethodField(method)
