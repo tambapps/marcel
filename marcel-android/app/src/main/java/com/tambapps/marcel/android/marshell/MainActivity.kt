@@ -1,11 +1,17 @@
 package com.tambapps.marcel.android.marshell
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.addCallback
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -31,9 +37,13 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -42,8 +52,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.NavDeepLink
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -94,7 +107,6 @@ class MainActivity : ComponentActivity() {
 
   private lateinit var ioScope: CoroutineScope
   private var sessionsIdIncrement = 1
-  private var closeTimestamp = System.currentTimeMillis()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -103,17 +115,6 @@ class MainActivity : ComponentActivity() {
       val navController = rememberNavController()
       val drawerState = rememberDrawerState(DrawerValue.Closed)
       val scope = rememberCoroutineScope()
-      onBackPressedDispatcher.addCallback {
-        if (drawerState.isOpen) {
-          scope.launch { drawerState.close() }
-        } else if (System.currentTimeMillis() - closeTimestamp >= 750) {
-          closeTimestamp = System.currentTimeMillis()
-          Toast.makeText(this@MainActivity, "Press back again to close the app", Toast.LENGTH_SHORT)
-            .show()
-        } else {
-          finish()
-        }
-      }
       MarcelAndroidTheme {
         // instantiating shell VM here because we want to keep state even if we changed route and then go back to ShellScreen
         val defaultShellViewModel: ShellViewModel = hiltViewModel()
@@ -129,11 +130,11 @@ class MainActivity : ComponentActivity() {
               modifier = Modifier.fillMaxSize()
             ) {
               // need a startDestination without any parameters for deep links to work
-              composable(HOME) {
+              composable(HOME, scope, navController, drawerState) {
                 val sessionId = shellViewModels.keys.min()
                 ShellScreen(navController, shellViewModels.getValue(sessionId), sessionId, shellViewModels.size)
               }
-              composable(NEW_SHELL) {
+              composable(NEW_SHELL, scope, navController, drawerState) {
                 val viewModel: ShellViewModel = hiltViewModel()
 
                 LaunchedEffect(Unit) {
@@ -145,7 +146,7 @@ class MainActivity : ComponentActivity() {
                 }
               }
               composable(
-                DELETE_SHELL,
+                DELETE_SHELL, scope, navController, drawerState,
                 arguments = listOf(navArgument(SESSION_ID) { type = NavType.IntType })
               ) {
                 val sessionId = it.arguments?.getInt(SESSION_ID, Int.MAX_VALUE)
@@ -158,7 +159,7 @@ class MainActivity : ComponentActivity() {
               }
 
               composable(
-                "$SHELL/{$SESSION_ID}",
+                "$SHELL/{$SESSION_ID}", scope, navController, drawerState,
                 arguments = listOf(navArgument(SESSION_ID) { type = NavType.IntType })
               ) {
                 val sessionId = it.arguments?.getInt(SESSION_ID, 0)
@@ -171,7 +172,8 @@ class MainActivity : ComponentActivity() {
                   }
                 }
               }
-              composable(CONSULT, arguments = listOf(navArgument(SESSION_ID) { type = NavType.IntType })) {
+              composable(CONSULT, scope, navController, drawerState,
+                arguments = listOf(navArgument(SESSION_ID) { type = NavType.IntType })) {
                 val sessionId = it.arguments?.getInt(SESSION_ID, 0)
                 val viewModel = shellViewModels[sessionId]
                 if (sessionId != null && viewModel != null) {
@@ -183,19 +185,19 @@ class MainActivity : ComponentActivity() {
                 }
               }
               composable(
-                "$EDITOR?$FILE_ARG={$FILE_ARG}",
+                "$EDITOR?$FILE_ARG={$FILE_ARG}", scope, navController, drawerState,
                 arguments = listOf(navArgument(WORK_NAME_ARG) { type = NavType.StringType; nullable = true })
               ) {
                 EditorScreen()
               }
-              composable(WORK_LIST) {
+              composable(WORK_LIST, scope, navController, drawerState) {
                 WorksListScreen(navController = navController)
               }
-              composable(WORK_CREATE) {
+              composable(WORK_CREATE, scope, navController, drawerState) {
                 WorkCreateScreen(navController)
               }
               composable(
-                route = "$WORK_VIEW/{$WORK_NAME_ARG}",
+                "$WORK_VIEW/{$WORK_NAME_ARG}", scope, navController, drawerState,
                 arguments = listOf(navArgument(WORK_NAME_ARG) { type = NavType.StringType }),
                 deepLinks = listOf(navDeepLink {
                   uriPattern = "app://marshell/$WORK_VIEW/{$WORK_NAME_ARG}"
@@ -203,7 +205,7 @@ class MainActivity : ComponentActivity() {
               ) {
                 WorkViewScreen(navController)
               }
-              composable(SETTINGS) {
+              composable(SETTINGS, scope, navController, drawerState) {
                 SettingsScreen(navController)
               }
             }
@@ -395,4 +397,52 @@ fun DrawerItem(
     shape = RectangleShape,
     onClick = onClick
   )
+}
+
+// util function that overrides the default navigation back press listener the way I want it
+fun NavGraphBuilder.composable(
+  route: String,
+  scope: CoroutineScope,
+  navController: NavController,
+  drawerState: DrawerState,
+  arguments: List<NamedNavArgument> = emptyList(),
+  deepLinks: List<NavDeepLink> = emptyList(),
+  enterTransition: (@JvmSuppressWildcards
+  AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = null,
+  exitTransition: (@JvmSuppressWildcards
+  AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = null,
+  popEnterTransition: (@JvmSuppressWildcards
+  AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? =
+    enterTransition,
+  popExitTransition: (@JvmSuppressWildcards
+  AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? =
+    exitTransition,
+  content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
+
+) {
+  composable(route, arguments, deepLinks, enterTransition, exitTransition, popEnterTransition, popExitTransition) {
+    content.invoke(this, it)
+    BackPressHandler(scope, navController, drawerState)
+  }
+}
+
+@Composable
+private fun BackPressHandler(scope: CoroutineScope, navController: NavController, drawerState: DrawerState) {
+  val context = LocalContext.current
+  var lastBackPressedTimestamp by remember { mutableLongStateOf(System.currentTimeMillis())  }
+
+  // the override of the default navigation back press listener
+  BackHandler {
+    if (drawerState.isOpen) {
+      scope.launch { drawerState.close() }
+    } else if (!navController.popBackStack()) {
+      if (System.currentTimeMillis() - lastBackPressedTimestamp < 750) {
+        (context as? Activity)?.finish()
+      } else {
+        lastBackPressedTimestamp = System.currentTimeMillis()
+        Toast.makeText(context, "Press back again to close the app", Toast.LENGTH_SHORT)
+          .show()
+      }
+    }
+  }
 }

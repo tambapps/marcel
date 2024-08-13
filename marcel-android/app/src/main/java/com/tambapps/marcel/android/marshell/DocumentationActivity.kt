@@ -94,13 +94,6 @@ class DocumentationActivity : ComponentActivity() {
         val backStackState = navController.currentBackStackEntryAsState()
         val drawerState = rememberDrawerState(DrawerValue.Closed)
         val scope = rememberCoroutineScope()
-        onBackPressedDispatcher.addCallback {
-          if (drawerState.isOpen) {
-            scope.launch { drawerState.close() }
-          } else {
-            finish()
-          }
-        }
         NavigationDrawer(drawerState = drawerState, navController = navController, backStackState = backStackState, scope = scope, viewModel = viewModel) {
           Box(modifier = Modifier
             .background(MaterialTheme.colorScheme.background)) {
@@ -109,7 +102,7 @@ class DocumentationActivity : ComponentActivity() {
               startDestination = DOCUMENTATION,
               modifier = Modifier.fillMaxSize()
             ) {
-              composable("$DOCUMENTATION?$PATH_ARG={$PATH_ARG}",
+              composable("$DOCUMENTATION?$PATH_ARG={$PATH_ARG}", scope, navController, drawerState,
                 arguments = listOf(navArgument(PATH_ARG) { type = NavType.StringType; nullable = true })
               ) {
                 val currentIndex = findCurrentDrawerEntryIndex(backStackState)
