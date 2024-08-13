@@ -20,13 +20,7 @@ class ExtensionMarcelMethod  constructor(
       else staticMethodExtension(originalMethod)
     }
 
-    private fun isInstanceExtensionMethod(originalMethod: MarcelMethod, extendedType: JavaType = originalMethod.ownerClass.extendedType!!): Boolean {
-      return originalMethod.isStatic && originalMethod.parameters.isNotEmpty() && originalMethod.parameters.first().let {
-        it.type == extendedType
-      }
-    }
-
-    private fun instanceMethodExtension(javaMethod: MarcelMethod): ExtensionMarcelMethod {
+    fun instanceMethodExtension(javaMethod: MarcelMethod): ExtensionMarcelMethod {
       return ExtensionMarcelMethod(
         javaMethod,
         javaMethod.ownerClass, javaMethod.name,
@@ -36,7 +30,7 @@ class ExtensionMarcelMethod  constructor(
       )
     }
 
-    private fun staticMethodExtension(javaMethod: MarcelMethod): ExtensionMarcelMethod {
+    fun staticMethodExtension(javaMethod: MarcelMethod): ExtensionMarcelMethod {
       return ExtensionMarcelMethod(
         javaMethod,
         javaMethod.ownerClass, javaMethod.name,
@@ -45,6 +39,16 @@ class ExtensionMarcelMethod  constructor(
         isMarcelStatic = true
       )
     }
+
+    private fun isInstanceExtensionMethod(originalMethod: MarcelMethod, extendedType: JavaType = originalMethod.ownerClass.extendedType!!): Boolean {
+      return originalMethod.isStatic && originalMethod.parameters.isNotEmpty() && originalMethod.parameters.first().let {
+        it.type == extendedType
+            // TODO rename all first parameters 'self' of DefaultMarcelMethods.
+            //  + test static method extensions
+            /* && it.name == THIS_PARAMETER_NAME */
+      }
+    }
+
   }
   override val isConstructor = false
   // the static is excluded here in purpose so that self is pushed to the stack

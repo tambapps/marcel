@@ -127,15 +127,21 @@ open class MarcelSemantic(
       val extensionCstType = classCstNode.forExtensionType!!
       val extensionType = resolve(extensionCstType)
       classCstNode.methods.forEach { m ->
-        // TODO to change when supporting static. for that need to have a isExplicit but only for static
-        m.accessNode.isStatic = true
-        // extension class methods first parameter is self, which can be considered as this
-        m.parameters.add(
-          0,
-          MethodParameterCstNode(m, m.tokenStart, m.tokenEnd, ExtensionMarcelMethod.THIS_PARAMETER_NAME, extensionCstType, null, emptyList(), false)
-        )
+        val extensionMethod = if (m.accessNode.isStatic) {
+          if (m.parameters.firstOrNull()?.name == ExtensionMarcelMethod.THIS_PARAMETER_NAME) {
+            throw MarcelSemanticException(m.tokenEnd, "Static method of an extension cannot have its first parameter named ${ExtensionMarcelMethod.THIS_PARAMETER_NAME}")
+          }
+          ExtensionMarcelMethod.staticMethodExtension(toJavaMethod(classType, extensionType, m))
+        } else {
+          // adding self parameter
+          m.parameters.add(
+            0,
+            MethodParameterCstNode(m, m.tokenStart, m.tokenEnd, ExtensionMarcelMethod.THIS_PARAMETER_NAME, extensionCstType, null, emptyList(), false)
+          )
+          ExtensionMarcelMethod.instanceMethodExtension(toJavaMethod(classType, extensionType, m))
+        }
         // define extension method so that we can reference them in methods of this extension class
-        symbolResolver.defineExtensionMethod(extensionType, toJavaMethod(classType, extensionType, m))
+        symbolResolver.defineMethod(extensionType, extensionMethod)
       }
     }
     classCstNode.methods.forEach {
