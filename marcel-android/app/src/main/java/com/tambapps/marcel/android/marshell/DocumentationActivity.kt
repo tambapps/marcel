@@ -35,7 +35,6 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
@@ -51,6 +50,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.commonmark.node.AbstractVisitor
 import org.commonmark.node.BulletList
 import org.commonmark.node.Link
@@ -70,23 +70,22 @@ class DocumentationActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     ioScope.launch {
-      documentationStore.get(
-        DocumentationMdStore.SUMMARY,
-        onSuccess = {
-          val visitor = SummaryMdVisitor()
-          it.accept(visitor)
-          viewModel.drawerEntries.clear()
-          viewModel.drawerEntries.addAll(visitor.collectedEntries)
-        },
-        onError = {
-          Toast.makeText(
-            this@DocumentationActivity,
-            "An error occurred, please retry",
-            Toast.LENGTH_SHORT
-          ).show()
-          finish()
-        }
-      )
+      val nodeResult = documentationStore.get(DocumentationMdStore.SUMMARY)
+      if (nodeResult.isFailure) {
+        Toast.makeText(
+          this@DocumentationActivity,
+          "An error occurred, please retry",
+          Toast.LENGTH_SHORT
+        ).show()
+        finish()
+        return@launch
+      }
+      withContext(Dispatchers.Main) {
+        val visitor = SummaryMdVisitor()
+        nodeResult.getOrNull()!!.accept(visitor)
+        viewModel.drawerEntries.clear()
+        viewModel.drawerEntries.addAll(visitor.collectedEntries)
+      }
     }
     setContent {
       MarcelAndroidTheme {

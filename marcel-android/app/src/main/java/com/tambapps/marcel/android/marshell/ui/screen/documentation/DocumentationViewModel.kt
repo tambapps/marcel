@@ -33,18 +33,18 @@ class DocumentationViewModel @Inject constructor(
 
   fun fetchPage(context: Context) {
     ioScope.launch {
-      documentationStore.get(
-        path,
-        onSuccess = {
-          node = it
-        },
-        onError = {
-          Toast.makeText(
-            context,
-            "An error occurred, please retry",
-            Toast.LENGTH_SHORT
-          ).show()
-        })
+      val nodeResult = documentationStore.get(path)
+      if (nodeResult.isFailure) {
+        Toast.makeText(
+          context,
+          "An error occurred, please retry",
+          Toast.LENGTH_SHORT
+        ).show()
+        return@launch
+      }
+      withContext(Dispatchers.Main) {
+        node = nodeResult.getOrNull()
+      }
     }
   }
 

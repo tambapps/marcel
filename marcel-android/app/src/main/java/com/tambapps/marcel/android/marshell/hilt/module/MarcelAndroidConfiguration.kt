@@ -88,4 +88,10 @@ class MarcelAndroidConfiguration {
 
   @Provides
   fun okHttp() = OkHttpClient()
+
+  @Named("documentationCacheDir")
+  @Provides
+  fun documentationCacheDir(@ApplicationContext context: Context): File {
+    return File(context.cacheDir, "md_doc")
+  }
 }
