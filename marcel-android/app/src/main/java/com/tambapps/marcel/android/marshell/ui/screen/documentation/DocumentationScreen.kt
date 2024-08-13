@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,7 +46,13 @@ fun DocumentationScreen(
       .fillMaxSize()
       .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
       .verticalScroll(rememberScrollState())) {
-      val node = viewModel.node ?: return
+      val node = viewModel.node
+      if (node == null) {
+        LinearProgressIndicator(
+          modifier = Modifier.fillMaxWidth().height(2.dp)
+        )
+        return
+      }
       MarkdownComposer(viewModel.highlighter).Markdown(node)
 
       Box(modifier = Modifier.fillMaxWidth().padding(top = 32.dp)) {
