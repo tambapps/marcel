@@ -12,10 +12,10 @@ class MarcelMethodTest {
 
   @Test
   fun test() {
-    val m1 = JavaMethodImpl(JavaType.Object, Visibility.PUBLIC, "name", mutableListOf(
+    val m1 = MarcelMethodImpl(JavaType.Object, Visibility.PUBLIC, "name", mutableListOf(
       MethodParameter(JavaType.String, "url")
     ), JavaType.void, isDefault = false, isAbstract = false, isStatic = false, isConstructor = true)
-    val m2 = JavaMethodImpl(JavaType.Object, Visibility.PUBLIC, "name", mutableListOf(
+    val m2 = MarcelMethodImpl(JavaType.Object, Visibility.PUBLIC, "name", mutableListOf(
       MethodParameter(JavaType.String, "url"),
       MethodParameter(JavaType.String, "contentType", StringConstantNode("", cstNode())),
       MethodParameter(JavaType.String, "url", StringConstantNode("", cstNode())),

@@ -2,7 +2,7 @@ package com.tambapps.marcel.semantic.method
 
 import com.tambapps.marcel.semantic.type.JavaType
 
-class ExtensionJavaMethod  constructor(
+class ExtensionMarcelMethod  constructor(
   val actualMethod: MarcelMethod,
   override val ownerClass: JavaType,
   override val name: String,
@@ -15,7 +15,7 @@ class ExtensionJavaMethod  constructor(
 
     const val THIS_PARAMETER_NAME = "self"
 
-    fun toExtension(originalMethod: MarcelMethod, extendedType: JavaType = originalMethod.ownerClass.extendedType!!): ExtensionJavaMethod {
+    fun toExtension(originalMethod: MarcelMethod, extendedType: JavaType = originalMethod.ownerClass.extendedType!!): ExtensionMarcelMethod {
       return if (isInstanceExtensionMethod(originalMethod, extendedType)) instanceMethodExtension(originalMethod)
       else staticMethodExtension(originalMethod)
     }
@@ -26,8 +26,8 @@ class ExtensionJavaMethod  constructor(
       }
     }
 
-    private fun instanceMethodExtension(javaMethod: MarcelMethod): ExtensionJavaMethod {
-      return ExtensionJavaMethod(
+    private fun instanceMethodExtension(javaMethod: MarcelMethod): ExtensionMarcelMethod {
+      return ExtensionMarcelMethod(
         javaMethod,
         javaMethod.ownerClass, javaMethod.name,
         javaMethod.parameters.takeLast(javaMethod.parameters.size - 1),
@@ -36,8 +36,8 @@ class ExtensionJavaMethod  constructor(
       )
     }
 
-    private fun staticMethodExtension(javaMethod: MarcelMethod): ExtensionJavaMethod {
-      return ExtensionJavaMethod(
+    private fun staticMethodExtension(javaMethod: MarcelMethod): ExtensionMarcelMethod {
+      return ExtensionMarcelMethod(
         javaMethod,
         javaMethod.ownerClass, javaMethod.name,
         javaMethod.parameters,
@@ -59,7 +59,7 @@ class ExtensionJavaMethod  constructor(
   override val actualParameters = actualMethod.actualParameters
 
   override fun withGenericTypes(types: List<JavaType>): MarcelMethod {
-    return ExtensionJavaMethod(actualMethod, ownerClass, name,
+    return ExtensionMarcelMethod(actualMethod, ownerClass, name,
       actualMethod.parameters.takeLast(actualMethod.parameters.size - 1),
       returnType, isMarcelStatic)
   }

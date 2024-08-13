@@ -33,7 +33,7 @@ import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.method.MarcelMethod
-import com.tambapps.marcel.semantic.method.JavaMethodImpl
+import com.tambapps.marcel.semantic.method.MarcelMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.MethodScope
@@ -63,7 +63,7 @@ abstract class AstNodeComposer : MarcelSemanticGenerator() {
     isStatic: Boolean = false,
     isConstructor: Boolean = false
   ): MarcelMethod {
-    return JavaMethodImpl(
+    return MarcelMethodImpl(
       currentScope.classType,
       visibility,
       name,

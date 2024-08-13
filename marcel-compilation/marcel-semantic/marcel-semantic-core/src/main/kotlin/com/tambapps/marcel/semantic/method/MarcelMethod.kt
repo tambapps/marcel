@@ -100,7 +100,7 @@ interface MarcelMethod: JavaTyped {
     return this
   }
 
-  fun <T> accept(visitor: JavaMethodVisitor<T>) = visitor.visit(this)
+  fun <T> accept(visitor: MarcelMethodVisitor<T>) = visitor.visit(this)
 
   val isGetter get() = name.startsWith("get") && name.getOrNull(3)?.isUpperCase() == true && parameters.isEmpty()
   val isSetter get() = name.startsWith("set") && name.getOrNull(3)?.isUpperCase() == true && parameters.size == 1

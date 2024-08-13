@@ -3,7 +3,7 @@ package com.tambapps.marcel.semantic.method
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.type.JavaType
 
-class CastMethod private constructor(argType: JavaType): CustomMethod() {
+class CastMethod private constructor(argType: JavaType): VirtualMarcelMethod() {
 
   companion object {
     val METHODS = mutableListOf<MarcelMethod>().apply {
@@ -11,7 +11,7 @@ class CastMethod private constructor(argType: JavaType): CustomMethod() {
       addAll(JavaType.PRIMITIVES.map(::CastMethod))
     }.toList()
   }
-  override fun <T> accept(visitor: JavaMethodVisitor<T>) = visitor.visit(this)
+  override fun <T> accept(visitor: MarcelMethodVisitor<T>) = visitor.visit(this)
 
   override val visibility = Visibility.PUBLIC
   override val name = "cast"

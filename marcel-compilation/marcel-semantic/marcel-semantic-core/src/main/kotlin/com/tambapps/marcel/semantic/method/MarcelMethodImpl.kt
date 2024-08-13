@@ -6,7 +6,7 @@ import com.tambapps.marcel.semantic.type.JavaType
 /**
  * Java Method impl useful to register to a TypeResolver
  */
-class JavaMethodImpl constructor(
+class MarcelMethodImpl constructor(
   override val ownerClass: JavaType,
   override val visibility: Visibility,
   override val name: String,

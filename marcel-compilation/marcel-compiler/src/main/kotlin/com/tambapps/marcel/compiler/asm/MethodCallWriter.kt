@@ -5,12 +5,12 @@ import com.tambapps.marcel.compiler.extensions.internalName
 import com.tambapps.marcel.compiler.extensions.invokeCode
 import com.tambapps.marcel.semantic.method.CastMethod
 import com.tambapps.marcel.semantic.method.MarcelMethod
-import com.tambapps.marcel.semantic.method.JavaMethodVisitor
+import com.tambapps.marcel.semantic.method.MarcelMethodVisitor
 import org.objectweb.asm.MethodVisitor
 
 class MethodCallWriter(
   private val methodVisitor: MethodVisitor
-): JavaMethodVisitor<Unit> {
+): MarcelMethodVisitor<Unit> {
   override fun visit(method: MarcelMethod) {
     methodVisitor.visitMethodInsn(method.invokeCode, method.ownerClass.internalName, method.name, method.descriptor, method.ownerClass.isInterface)
   }

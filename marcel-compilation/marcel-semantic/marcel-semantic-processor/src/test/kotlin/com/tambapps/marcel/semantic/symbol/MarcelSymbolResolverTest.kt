@@ -3,8 +3,8 @@ package com.tambapps.marcel.semantic.symbol
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.CastMethod
-import com.tambapps.marcel.semantic.method.ExtensionJavaMethod
-import com.tambapps.marcel.semantic.method.JavaMethodImpl
+import com.tambapps.marcel.semantic.method.ExtensionMarcelMethod
+import com.tambapps.marcel.semantic.method.MarcelMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.method.ReflectJavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
@@ -55,8 +55,8 @@ class MarcelSymbolResolverTest {
   fun getMethodWithLambdaParameterOfArray() {
     val stringArrayType = Array<String>::class.javaType
     val method = symbolResolver.findMethod(stringArrayType, "map", listOf(Lambda::class.javaType))
-    assertTrue(method is ExtensionJavaMethod)
-    method as ExtensionJavaMethod
+    assertTrue(method is ExtensionMarcelMethod)
+    method as ExtensionMarcelMethod
     assertEquals(ReflectJavaMethod(DefaultMarcelMethods::class.java.getDeclaredMethod("map", Array<Any>::class.java,Function::class.java)), method.actualMethod)
   }
 
@@ -98,7 +98,7 @@ class MarcelSymbolResolverTest {
 
   @Test
   fun testLambdaArgMatch() {
-    val method = JavaMethodImpl(
+    val method = MarcelMethodImpl(
       ownerClass = JavaType.Object,
       visibility = Visibility.PUBLIC,
       name = "assertThrows",

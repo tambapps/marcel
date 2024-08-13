@@ -7,7 +7,7 @@ import com.tambapps.marcel.parser.cst.MethodParameterCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.semantic.method.JavaConstructorImpl
 import com.tambapps.marcel.semantic.method.MarcelMethod
-import com.tambapps.marcel.semantic.method.JavaMethodImpl
+import com.tambapps.marcel.semantic.method.MarcelMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.variable.field.JavaClassFieldImpl
@@ -29,7 +29,7 @@ interface CstSymbolSemantic {
     val visibility = Visibility.fromTokenType(node.accessNode.visibility)
     val isStatic = node.accessNode.isStatic
     val (returnType, asyncReturnType) = resolveReturnType(node)
-    return JavaMethodImpl(
+    return MarcelMethodImpl(
       ownerType, Visibility.fromTokenType(node.accessNode.visibility), node.name,
       node.parameters.mapIndexed { index, methodParameterCstNode ->
         toMethodParameter(

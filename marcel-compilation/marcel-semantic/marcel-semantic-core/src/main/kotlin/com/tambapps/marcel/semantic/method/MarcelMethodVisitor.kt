@@ -1,6 +1,6 @@
 package com.tambapps.marcel.semantic.method
 
-interface JavaMethodVisitor<T> {
+interface MarcelMethodVisitor<T> {
 
   fun visit(method: MarcelMethod): T
   fun visit(method: CastMethod): T

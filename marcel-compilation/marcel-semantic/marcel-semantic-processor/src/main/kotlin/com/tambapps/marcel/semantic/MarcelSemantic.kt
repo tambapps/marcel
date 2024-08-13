@@ -37,7 +37,7 @@ import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.imprt.ImportResolverGenerator
-import com.tambapps.marcel.semantic.method.ExtensionJavaMethod
+import com.tambapps.marcel.semantic.method.ExtensionMarcelMethod
 import com.tambapps.marcel.semantic.method.JavaConstructorImpl
 import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
@@ -127,12 +127,12 @@ open class MarcelSemantic(
       val extensionCstType = classCstNode.forExtensionType!!
       val extensionType = resolve(extensionCstType)
       classCstNode.methods.forEach { m ->
-        // TODO to change when supporting static
+        // TODO to change when supporting static. for that need to have a isExplicit but only for static
         m.accessNode.isStatic = true
         // extension class methods first parameter is self, which can be considered as this
         m.parameters.add(
           0,
-          MethodParameterCstNode(m, m.tokenStart, m.tokenEnd, ExtensionJavaMethod.THIS_PARAMETER_NAME, extensionCstType, null, emptyList(), false)
+          MethodParameterCstNode(m, m.tokenStart, m.tokenEnd, ExtensionMarcelMethod.THIS_PARAMETER_NAME, extensionCstType, null, emptyList(), false)
         )
         // define extension method so that we can reference them in methods of this extension class
         symbolResolver.defineExtensionMethod(extensionType, toJavaMethod(classType, extensionType, m))

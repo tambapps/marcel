@@ -10,7 +10,7 @@ import com.tambapps.marcel.semantic.exception.TypeNotFoundException
 import com.tambapps.marcel.semantic.exception.VariableNotFoundException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.CastMethod
-import com.tambapps.marcel.semantic.method.ExtensionJavaMethod
+import com.tambapps.marcel.semantic.method.ExtensionMarcelMethod
 import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.MethodMatcherTrait
 import com.tambapps.marcel.semantic.method.MethodParameter
@@ -185,12 +185,12 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
         (originalMethod as? MethodNode)?.token ?: LexToken.DUMMY,
         "Type $methodOwner is not an extension")
     }
-    val extensionMethod = ExtensionJavaMethod.toExtension(originalMethod)
+    val extensionMethod = ExtensionMarcelMethod.toExtension(originalMethod)
     defineMethod(methodOwner, extensionMethod)
   }
 
   private fun defineExtensionMethodUnsafe(extendedType: JavaType, originalMethod: MarcelMethod) {
-    val extensionMethod = ExtensionJavaMethod.toExtension(originalMethod, extendedType=extendedType)
+    val extensionMethod = ExtensionMarcelMethod.toExtension(originalMethod, extendedType=extendedType)
     defineMethodUnsafe(extendedType, extensionMethod)
   }
 
