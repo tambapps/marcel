@@ -104,8 +104,8 @@
     </plugins>
   </build>
   <properties>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <maven.compiler.source>1.8</maven.compiler.source>
+    <source>${maven.compiler.source}</source>
+    <target>${maven.compiler.target}</target>
     <maven.version>3.9.4</maven.version>
   </properties>
 </project>
