@@ -38,7 +38,7 @@ interface MarcelMethod: JavaTyped {
   val isStatic: Boolean
   val isExtension: Boolean get() = false
   // extension field/methods are not considered static in marcel
-  val isMarcelStatic: Boolean get() = isStatic && !isExtension
+  val isMarcelStatic: Boolean get() = isStatic
 
   val isConstructor: Boolean
   val isInline: Boolean get() = false

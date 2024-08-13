@@ -130,10 +130,7 @@ open class MarcelSemantic(
           MethodParameterCstNode(m, m.tokenStart, m.tokenEnd, "self", extensionCstType, null, emptyList(), false)
         )
         // define extension method so that we can reference them in methods of this extension class
-        symbolResolver.defineMethod(
-          extensionType,
-          ExtensionJavaMethod(toJavaMethod(classType, classCstNode.forExtensionType?.let(this::resolve), m))
-        )
+        symbolResolver.defineExtensionMethod(extensionType, toJavaMethod(classType, extensionType, m))
       }
     }
     classCstNode.methods.forEach {

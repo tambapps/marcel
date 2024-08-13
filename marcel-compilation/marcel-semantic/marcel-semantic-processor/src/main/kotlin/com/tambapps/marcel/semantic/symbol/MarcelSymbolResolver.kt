@@ -94,7 +94,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     getDeclaredMethods(type).filter { it.isStatic && it.parameters.isNotEmpty() }
       .forEach {
         val owner = it.parameters.first().type
-        defineMethod(owner, ExtensionJavaMethod(it))
+        defineExtensionMethod(owner, it)
       }
   }
 
@@ -104,8 +104,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     getDeclaredMethods(type).filter { it.isStatic && it.parameters.isNotEmpty() }
       .forEach {
         val owner = it.parameters.first().type
-        val methods = getMarcelMethods(owner)
-        methods.add(ExtensionJavaMethod(it))
+        defineExtensionMethodUnsafe(owner, it)
       }
   }
 
@@ -177,6 +176,16 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
       "Class $className is already defined"
     )
 
+  }
+
+  fun defineExtensionMethod(methodOwner: JavaType, originalMethod: MarcelMethod) {
+    defineExtensionMethodUnsafe(methodOwner, originalMethod)
+  }
+
+  private fun defineExtensionMethodUnsafe(methodOwner: JavaType, originalMethod: MarcelMethod) {
+    // TODO handle static method extensions. Note that for that the type should be specigied in a class annotation
+    val methods = getMarcelMethods(methodOwner)
+    methods.add(ExtensionJavaMethod.instanceMethodExtension(originalMethod))
   }
 
   fun defineMethod(javaType: JavaType, method: MarcelMethod) {
