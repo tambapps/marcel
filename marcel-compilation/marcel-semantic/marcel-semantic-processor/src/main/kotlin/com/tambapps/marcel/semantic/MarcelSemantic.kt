@@ -106,7 +106,6 @@ open class MarcelSemantic(
     }
   }
 
-  // TODO may be deletable?
   private fun defineClass(classCstNode: ClassCstNode) {
     val superType = classCstNode.superType?.let { resolve(it) } ?: JavaType.Object
     val interfaces = classCstNode.interfaces.map { resolve(it) }
@@ -116,7 +115,8 @@ open class MarcelSemantic(
       // don't support interfaces for now
       isInterface = false, interfaces,
       isScript = classCstNode.isScript,
-      isEnum = classCstNode.isEnum
+      isEnum = classCstNode.isEnum,
+      extendedType = classCstNode.forExtensionType?.let { resolve(it) }
     )
     defineClassMembers(classCstNode, classType)
   }

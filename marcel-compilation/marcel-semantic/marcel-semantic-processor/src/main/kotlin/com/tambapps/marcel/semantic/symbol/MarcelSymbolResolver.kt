@@ -119,7 +119,6 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
       }
   }
 
-  // TODO pass extendedType
   /* definition */
   fun defineType(
     token: LexToken = LexToken.DUMMY,
@@ -130,8 +129,9 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     interfaces: List<JavaType>,
     isScript: Boolean = false,
     isEnum: Boolean = false,
+    extendedType: JavaType? = null
   ): SourceJavaType {
-    return defineType(token, visibility, null, className, superClass, isInterface, interfaces, isScript, isEnum)
+    return defineType(token, visibility, null, className, superClass, isInterface, interfaces, isScript, isEnum, extendedType)
   }
 
   fun defineType(
