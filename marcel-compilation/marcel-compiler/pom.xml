@@ -59,8 +59,8 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.0</version>
         <configuration>
+          <!-- to keep method parameter names and annotations -->
           <compilerArgument>-parameters</compilerArgument>
         </configuration>
       </plugin>

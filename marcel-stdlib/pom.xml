@@ -36,6 +36,8 @@
         <configuration>
           <source>${maven.compiler.source}</source>
           <target>${maven.compiler.target}</target>
+          <!-- to keep method parameter names and annotations -->
+          <compilerArgument>-parameters</compilerArgument>
         </configuration>
       </plugin>
     </plugins>
