@@ -106,6 +106,7 @@ open class MarcelSemantic(
     }
   }
 
+  // TODO may be deletable?
   private fun defineClass(classCstNode: ClassCstNode) {
     val superType = classCstNode.superType?.let { resolve(it) } ?: JavaType.Object
     val interfaces = classCstNode.interfaces.map { resolve(it) }
@@ -124,24 +125,25 @@ open class MarcelSemantic(
     ClassScope(symbolResolver, classType, classCstNode.forExtensionType?.let { resolve(it) }, imports)
   ) {
     if (classCstNode.isExtensionClass) {
-      val extensionCstType = classCstNode.forExtensionType!!
-      val extensionType = resolve(extensionCstType)
+      val extendedCstType = classCstNode.forExtensionType!!
+      val extendedType = resolve(extendedCstType)
       classCstNode.methods.forEach { m ->
+        if (m.parameters.firstOrNull()?.name == ExtensionMarcelMethod.THIS_PARAMETER_NAME) {
+          throw MarcelSemanticException(m.tokenEnd, "First parameter of a method extension cannot be named ${ExtensionMarcelMethod.THIS_PARAMETER_NAME}")
+        }
         val extensionMethod = if (m.accessNode.isStatic) {
-          if (m.parameters.firstOrNull()?.name == ExtensionMarcelMethod.THIS_PARAMETER_NAME) {
-            throw MarcelSemanticException(m.tokenEnd, "Static method of an extension cannot have its first parameter named ${ExtensionMarcelMethod.THIS_PARAMETER_NAME}")
-          }
-          ExtensionMarcelMethod.staticMethodExtension(toJavaMethod(classType, extensionType, m))
+          ExtensionMarcelMethod.staticMethodExtension(toJavaMethod(classType, extendedType, m))
         } else {
           // adding self parameter
           m.parameters.add(
             0,
-            MethodParameterCstNode(m, m.tokenStart, m.tokenEnd, ExtensionMarcelMethod.THIS_PARAMETER_NAME, extensionCstType, null, emptyList(), false)
+            MethodParameterCstNode(m, m.tokenStart, m.tokenEnd, ExtensionMarcelMethod.THIS_PARAMETER_NAME, extendedCstType, null, emptyList(), false)
           )
-          ExtensionMarcelMethod.instanceMethodExtension(toJavaMethod(classType, extensionType, m))
+          m.accessNode.isStatic = true // extension method is always java-static. that's why we are considering them static from now on
+          ExtensionMarcelMethod.instanceMethodExtension(toJavaMethod(classType, extendedType, m))
         }
         // define extension method so that we can reference them in methods of this extension class
-        symbolResolver.defineMethod(extensionType, extensionMethod)
+        symbolResolver.defineMethod(extendedType, extensionMethod)
       }
     }
     classCstNode.methods.forEach {

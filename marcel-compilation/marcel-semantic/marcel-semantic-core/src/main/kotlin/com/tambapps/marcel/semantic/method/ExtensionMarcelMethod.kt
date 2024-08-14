@@ -13,9 +13,9 @@ class ExtensionMarcelMethod  constructor(
 
   companion object {
 
-    const val THIS_PARAMETER_NAME = "self"
+    const val THIS_PARAMETER_NAME = "\$self"
 
-    fun toExtension(originalMethod: MarcelMethod, extendedType: JavaType = originalMethod.ownerClass.extendedType!!): ExtensionMarcelMethod {
+     fun toExtension(originalMethod: MarcelMethod, extendedType: JavaType = originalMethod.ownerClass.extendedType!!): ExtensionMarcelMethod {
       return if (isInstanceExtensionMethod(originalMethod, extendedType)) instanceMethodExtension(originalMethod)
       else staticMethodExtension(originalMethod)
     }
@@ -40,12 +40,9 @@ class ExtensionMarcelMethod  constructor(
       )
     }
 
-    private fun isInstanceExtensionMethod(originalMethod: MarcelMethod, extendedType: JavaType = originalMethod.ownerClass.extendedType!!): Boolean {
+    private fun isInstanceExtensionMethod(originalMethod: MarcelMethod, extendedType: JavaType): Boolean {
       return originalMethod.isStatic && originalMethod.parameters.isNotEmpty() && originalMethod.parameters.first().let {
-        it.type == extendedType
-            // TODO rename all first parameters 'self' of DefaultMarcelMethods.
-            //  + test static method extensions
-            /* && it.name == THIS_PARAMETER_NAME */
+        it.type == extendedType && it.name == THIS_PARAMETER_NAME
       }
     }
 

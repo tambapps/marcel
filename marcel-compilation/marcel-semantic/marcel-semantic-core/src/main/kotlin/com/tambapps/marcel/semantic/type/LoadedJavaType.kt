@@ -4,6 +4,7 @@ import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.annotation.JavaAnnotation
 import com.tambapps.marcel.semantic.type.annotation.LoadedJavaAnnotation
+import marcel.lang.compile.ExtensionClass
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 
@@ -19,6 +20,9 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
   override val className: String = realClazz.name
   override val isFinal = (realClazz.modifiers and Modifier.FINAL) != 0
   override val superType get() =  if (realClazz.superclass != null) JavaType.of(realClazz.superclass) else null
+
+  override val isExtensionType: Boolean get() = getAnnotation(ExtensionClass::class.javaAnnotationType) != null
+  override val extendedType: JavaType? get() = (getAnnotation(ExtensionClass::class.javaAnnotationType)?.getAttribute("forClass")?.value as? Class<*>)?.javaType
 
   override val isAnnotation = realClazz.isAnnotation
   override val asPrimitiveType: JavaPrimitiveType

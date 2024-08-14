@@ -141,6 +141,7 @@ import com.tambapps.marcel.semantic.extensions.getDefaultValueExpression
 import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.imprt.ImportResolver
+import com.tambapps.marcel.semantic.method.ExtensionMarcelMethod
 import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.AsyncScope
@@ -217,8 +218,8 @@ abstract class SemanticCstNodeVisitor(
   protected val currentClassNode get() = classNodeMap[currentMethodScope.classType]
 
   // for extension classes
-  private val selfLocalVariable: LocalVariable
-    get() = currentMethodScope.findLocalVariable("self") ?: throw RuntimeException("Compiler error.")
+  private val selfLocalVariable: LocalVariable?
+    get() = currentMethodScope.findLocalVariable(ExtensionMarcelMethod.THIS_PARAMETER_NAME)
 
   init {
     scopeQueue.push(ImportScope(symbolResolver, imports, packageName))
@@ -259,8 +260,7 @@ abstract class SemanticCstNodeVisitor(
 
   override fun visit(node: ThisReferenceCstNode, smartCastType: JavaType?): ExpressionNode {
     return if (currentClassNode?.isExtensionClass == true)
-    // if is extension, this is self
-      ReferenceNode(variable = selfLocalVariable, token = node.token)
+      ReferenceNode(variable = selfLocalVariable ?: throw MarcelSemanticException(node, "Cannot reference this in a static context"), token = node.token)
     else if (!currentMethodScope.staticContext) ThisReferenceNode(currentScope.classType, node.token)
     else throw MarcelSemanticException(node, "Cannot reference this in a static context")
   }
@@ -1519,10 +1519,12 @@ abstract class SemanticCstNodeVisitor(
     }
     // searching on extension class if it is one
     val extensionType = currentScope.forExtensionType
+    val selfLocalVariable = this.selfLocalVariable
     if (extensionType != null) {
       methodResolve = methodResolver.resolveMethod(node, extensionType, node.value, positionalArguments, namedArguments)
       if (methodResolve != null) {
-        val owner = ReferenceNode(variable = selfLocalVariable, token = node.token)
+        val owner = if (methodResolve.first.isMarcelStatic) null
+        else ReferenceNode(variable = selfLocalVariable ?: throw MarcelSemanticException(node, "Instance method ${methodResolve.first} cannot be referenced from a static context"), token = node.token)
         return fCall(
           methodResolve = methodResolve, owner = owner, castType = castType,
           tokenStart = node.tokenStart,

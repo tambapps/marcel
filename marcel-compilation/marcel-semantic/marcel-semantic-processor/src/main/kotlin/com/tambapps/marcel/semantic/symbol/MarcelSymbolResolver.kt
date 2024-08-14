@@ -119,6 +119,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
       }
   }
 
+  // TODO pass extendedType
   /* definition */
   fun defineType(
     token: LexToken = LexToken.DUMMY,
@@ -143,6 +144,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     interfaces: List<JavaType>,
     isScript: Boolean = false,
     isEnum: Boolean = false,
+    extendedType: JavaType? = null
   ): SourceJavaType {
     val className = if (outerClassType != null) "${outerClassType.className}\$$cName" else cName
     checkTypeAlreadyDefined(token, className)
@@ -154,7 +156,8 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
       isInterface,
       interfaces.toMutableSet(),
       isScript = isScript,
-      isEnum = isEnum
+      isEnum = isEnum,
+      extendedType = extendedType
     )
     _definedTypes[className] = type
     return type
@@ -180,10 +183,10 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
   }
 
   fun defineExtensionMethod(methodOwner: JavaType, originalMethod: MarcelMethod) {
-    if (!originalMethod.isExtension) {
+    if (!originalMethod.ownerClass.isExtensionType) {
       throw MarcelSemanticException(
         (originalMethod as? MethodNode)?.token ?: LexToken.DUMMY,
-        "Type $methodOwner is not an extension")
+        "Type ${originalMethod.ownerClass} is not an extension")
     }
     val extensionMethod = ExtensionMarcelMethod.toExtension(originalMethod)
     defineMethod(methodOwner, extensionMethod)

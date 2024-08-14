@@ -55,7 +55,7 @@ class MarcelSymbolResolverTest {
   fun getMethodWithLambdaParameterOfArray() {
     val stringArrayType = Array<String>::class.javaType
     val method = symbolResolver.findMethod(stringArrayType, "map", listOf(Lambda::class.javaType))
-    assertTrue(method is ExtensionMarcelMethod)
+    assertTrue(method is ExtensionMarcelMethod, "Expected an extension method but got ${method?.javaClass}")
     method as ExtensionMarcelMethod
     assertEquals(ReflectJavaMethod(DefaultMarcelMethods::class.java.getDeclaredMethod("map", Array<Any>::class.java,Function::class.java)), method.actualMethod)
   }
