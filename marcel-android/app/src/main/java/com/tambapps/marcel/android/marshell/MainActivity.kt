@@ -417,17 +417,18 @@ fun NavGraphBuilder.composable(
   popExitTransition: (@JvmSuppressWildcards
   AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? =
     exitTransition,
+  backPressedConfirmFinish: Boolean = true,
   content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
 
 ) {
   composable(route, arguments, deepLinks, enterTransition, exitTransition, popEnterTransition, popExitTransition) {
     content.invoke(this, it)
-    BackPressHandler(scope, navController, drawerState)
+    BackPressHandler(scope, navController, drawerState, backPressedConfirmFinish)
   }
 }
 
 @Composable
-private fun BackPressHandler(scope: CoroutineScope, navController: NavController, drawerState: DrawerState) {
+private fun BackPressHandler(scope: CoroutineScope, navController: NavController, drawerState: DrawerState, confirmFinish: Boolean) {
   val context = LocalContext.current
   var lastBackPressedTimestamp by remember { mutableLongStateOf(System.currentTimeMillis())  }
 
@@ -436,12 +437,16 @@ private fun BackPressHandler(scope: CoroutineScope, navController: NavController
     if (drawerState.isOpen) {
       scope.launch { drawerState.close() }
     } else if (!navController.popBackStack()) {
-      if (System.currentTimeMillis() - lastBackPressedTimestamp < 750) {
-        (context as? Activity)?.finish()
+      if (confirmFinish) {
+        if (System.currentTimeMillis() - lastBackPressedTimestamp < 750) {
+          (context as? Activity)?.finish()
+        } else {
+          lastBackPressedTimestamp = System.currentTimeMillis()
+          Toast.makeText(context, "Press back again to close the app", Toast.LENGTH_SHORT)
+            .show()
+        }
       } else {
-        lastBackPressedTimestamp = System.currentTimeMillis()
-        Toast.makeText(context, "Press back again to close the app", Toast.LENGTH_SHORT)
-          .show()
+        (context as? Activity)?.finish()
       }
     }
   }

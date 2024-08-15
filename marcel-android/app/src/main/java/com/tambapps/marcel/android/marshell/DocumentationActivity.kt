@@ -102,7 +102,8 @@ class DocumentationActivity : ComponentActivity() {
               modifier = Modifier.fillMaxSize()
             ) {
               composable("$DOCUMENTATION?$PATH_ARG={$PATH_ARG}", scope, navController, drawerState,
-                arguments = listOf(navArgument(PATH_ARG) { type = NavType.StringType; nullable = true })
+                arguments = listOf(navArgument(PATH_ARG) { type = NavType.StringType; nullable = true }),
+                backPressedConfirmFinish = false
               ) {
                 val currentIndex = findCurrentDrawerEntryIndex(backStackState)
                 DocumentationScreen(
