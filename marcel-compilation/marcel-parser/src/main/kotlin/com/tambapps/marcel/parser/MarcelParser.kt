@@ -6,6 +6,7 @@ import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.lexer.TokenType.BRACKETS_OPEN
 import com.tambapps.marcel.lexer.TokenType.END_OF_FILE
 import com.tambapps.marcel.lexer.TokenType.FLOAT
+import com.tambapps.marcel.lexer.TokenType.FOR
 import com.tambapps.marcel.lexer.TokenType.IDENTIFIER
 import com.tambapps.marcel.lexer.TokenType.INTEGER
 import com.tambapps.marcel.lexer.TokenType.LINE_RETURN
@@ -329,8 +330,9 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
       else if (packageName != null) "$packageName.$classSimpleName"
       else classSimpleName
 
-    val forExtensionClassType = if (isExtensionClass) {
-      accept(TokenType.FOR)
+    // forExtensionClassType is actually optional, but this is not documented, because flemme
+    val forExtensionClassType = if (isExtensionClass && current.type == FOR) {
+      accept(FOR)
       parseType(parentNode)
     } else null
 
@@ -344,7 +346,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         acceptOptional(TokenType.COMMA)
       }
     }
-    val classNode = RegularClassCstNode(sourceFile, classToken, classToken, access, className, superType, interfaces, forExtensionClassType)
+    val classNode = RegularClassCstNode(sourceFile, classToken, classToken, access, className, superType, interfaces, isExtensionClass, forExtensionClassType)
     classNode.annotations.addAll(annotations)
 
     accept(TokenType.BRACKETS_OPEN)

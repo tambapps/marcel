@@ -11,6 +11,7 @@ open class RegularClassCstNode constructor(
   className: String,
   superType: TypeCstNode?,
   interfaces: List<TypeCstNode>,
+  isExtensionClass: Boolean,
   forExtensionType: TypeCstNode?
 ) : AbstractClassCstNode(
   parentSourceFileNode,
@@ -20,6 +21,7 @@ open class RegularClassCstNode constructor(
   className,
   superType,
   interfaces,
+  isExtensionClass,
   forExtensionType
 ) {
 

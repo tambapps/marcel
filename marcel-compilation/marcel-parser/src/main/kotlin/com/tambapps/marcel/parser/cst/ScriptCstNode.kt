@@ -12,7 +12,7 @@ class ScriptCstNode(
   className: String
 ) : AbstractClassCstNode(parentSourceFileNode, tokenStart, tokenEnd,
   AccessCstNode(parentSourceFileNode, tokenStart, tokenEnd, isStatic = false, isInline = false, isFinal = false, TokenType.VISIBILITY_PUBLIC, isExplicit = false),
-  className, null, emptyList(), null
+  className, null, emptyList(), false, null
 ) {
 
   override val isEnum = false

@@ -78,7 +78,7 @@ interface JavaType: JavaTyped {
   val isScript: Boolean
   val objectType: JavaType get() = this
   val isTopLevel get() = !className.contains("$")
-  val isExtensionType: Boolean get() = extendedType != null
+  val isExtensionType: Boolean
   val extendedType: JavaType?
 
   val hasGenericTypes: Boolean get() = genericTypes.isNotEmpty()

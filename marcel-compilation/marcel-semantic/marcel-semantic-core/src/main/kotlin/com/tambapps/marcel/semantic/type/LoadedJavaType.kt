@@ -22,7 +22,7 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
   override val superType get() =  if (realClazz.superclass != null) JavaType.of(realClazz.superclass) else null
 
   override val isExtensionType: Boolean get() = getAnnotation(ExtensionClass::class.javaAnnotationType) != null
-  override val extendedType: JavaType? get() = (getAnnotation(ExtensionClass::class.javaAnnotationType)?.getAttribute("forClass")?.value as? Class<*>)?.javaType
+  override val extendedType: JavaType? get() = (getAnnotation(ExtensionClass::class.javaAnnotationType)?.getAttribute("forClass")?.value as? Class<*>)?.javaType?.takeIf { it != JavaType.Void }
 
   override val isAnnotation = realClazz.isAnnotation
   override val asPrimitiveType: JavaPrimitiveType

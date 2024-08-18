@@ -91,7 +91,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
   }
 
   fun loadExtension(type: JavaType) {
-    getDeclaredMethods(type).filter { it.isStatic && it.parameters.isNotEmpty() }
+    getDeclaredMethods(type).filter { it.isStatic && it.parameters.isNotEmpty() && it.visibility != Visibility.PRIVATE }
       .forEach {
         val owner = it.parameters.first().type
         defineExtensionMethod(owner, it)
@@ -101,11 +101,10 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
 
   // Not checking if method is already defined. will allow going faster
   private fun loadExtensionUnsafe(type: JavaType) {
-    val globalExtendedType = type.extendedType
-    getDeclaredMethods(type).filter { it.isStatic && it.parameters.isNotEmpty() }
+    getDeclaredMethods(type).filter { it.isStatic && it.parameters.isNotEmpty() && it.visibility != Visibility.PRIVATE }
       .forEach {
         // extensions can be from a non-extension class, which can extend many types (see DefaultMarcelMethods)
-        defineExtensionMethodUnsafe(globalExtendedType ?: it.parameters.first().type, it)
+        defineExtensionMethodUnsafe(it)
       }
   }
 
@@ -129,9 +128,10 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     interfaces: List<JavaType>,
     isScript: Boolean = false,
     isEnum: Boolean = false,
+    isExtensionType: Boolean = false,
     extendedType: JavaType? = null
   ): SourceJavaType {
-    return defineType(token, visibility, null, className, superClass, isInterface, interfaces, isScript, isEnum, extendedType)
+    return defineType(token, visibility, null, className, superClass, isInterface, interfaces, isScript, isEnum, isExtensionType, extendedType)
   }
 
   fun defineType(
@@ -144,6 +144,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     interfaces: List<JavaType>,
     isScript: Boolean = false,
     isEnum: Boolean = false,
+    isExtensionType: Boolean = false,
     extendedType: JavaType? = null
   ): SourceJavaType {
     val className = if (outerClassType != null) "${outerClassType.className}\$$cName" else cName
@@ -157,6 +158,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
       interfaces.toMutableSet(),
       isScript = isScript,
       isEnum = isEnum,
+      isExtensionType = isExtensionType,
       extendedType = extendedType
     )
     _definedTypes[className] = type
@@ -192,9 +194,9 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     defineMethod(methodOwner, extensionMethod)
   }
 
-  private fun defineExtensionMethodUnsafe(extendedType: JavaType, originalMethod: MarcelMethod) {
-    val extensionMethod = ExtensionMarcelMethod.toExtension(originalMethod, extendedType=extendedType)
-    defineMethodUnsafe(extendedType, extensionMethod)
+  private fun defineExtensionMethodUnsafe(originalMethod: MarcelMethod) {
+    val extensionMethod = ExtensionMarcelMethod.toExtension(originalMethod)
+    defineMethodUnsafe(extensionMethod.marcelOwnerClass, extensionMethod)
   }
 
   fun defineMethod(javaType: JavaType, method: MarcelMethod) {

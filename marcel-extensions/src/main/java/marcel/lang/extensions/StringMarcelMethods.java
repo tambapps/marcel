@@ -1,6 +1,7 @@
 package marcel.lang.extensions;
 
 import marcel.lang.IntRange;
+import marcel.lang.compile.ExtensionClass;
 import marcel.lang.primitives.collections.lists.CharArrayList;
 import marcel.lang.primitives.collections.lists.CharList;
 import marcel.lang.primitives.collections.sets.CharOpenHashSet;
@@ -11,6 +12,7 @@ import marcel.util.function.CharPredicate;
 import java.util.NoSuchElementException;
 
 // TODO convert to marcel
+@ExtensionClass
 @SuppressWarnings({"unused"})
 public class StringMarcelMethods {
 

@@ -109,8 +109,9 @@ interface SymbolDefinerTrait {
       superType = null, // will be set later
       extendedType = null, // will be set later
       isInterface = false, directlyImplementedInterfaces = mutableSetOf(),
-      isScript = classNode is ScriptCstNode,
-      isEnum = isEnum
+      isScript = classNode.isScript,
+      isEnum = isEnum,
+      isExtensionType = classNode.isExtensionClass
     )
     if (isEnum) {
       classType.superType = java.lang.Enum::class.javaType.withGenericTypes(classType)

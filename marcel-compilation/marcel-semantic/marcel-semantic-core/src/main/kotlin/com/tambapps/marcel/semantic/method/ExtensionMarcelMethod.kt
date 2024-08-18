@@ -3,45 +3,53 @@ package com.tambapps.marcel.semantic.method
 import com.tambapps.marcel.semantic.type.JavaType
 
 class ExtensionMarcelMethod  constructor(
-  val actualMethod: MarcelMethod,
   override val ownerClass: JavaType,
   override val name: String,
   override val parameters: List<MethodParameter>,
   override val returnType: JavaType,
-  override val isMarcelStatic: Boolean
+  override val isMarcelStatic: Boolean,
+  val actualMethod: MarcelMethod,
+  /**
+   * The extended type
+   */
+  val marcelOwnerClass: JavaType
 ) : AbstractMethod() {
 
   companion object {
 
     const val THIS_PARAMETER_NAME = "\$self"
 
-     fun toExtension(originalMethod: MarcelMethod, extendedType: JavaType = originalMethod.ownerClass.extendedType!!): ExtensionMarcelMethod {
-      return if (isInstanceExtensionMethod(originalMethod, extendedType)) instanceMethodExtension(originalMethod)
+     fun toExtension(originalMethod: MarcelMethod): ExtensionMarcelMethod {
+      return if (isInstanceExtensionMethod(originalMethod)) instanceMethodExtension(originalMethod)
       else staticMethodExtension(originalMethod)
     }
 
     fun instanceMethodExtension(javaMethod: MarcelMethod): ExtensionMarcelMethod {
       return ExtensionMarcelMethod(
-        javaMethod,
         javaMethod.ownerClass, javaMethod.name,
         javaMethod.parameters.takeLast(javaMethod.parameters.size - 1),
         javaMethod.returnType,
-        isMarcelStatic = false
-      )
+        isMarcelStatic = false,
+        javaMethod,
+        javaMethod.parameters.first().type
+        )
     }
 
-    fun staticMethodExtension(javaMethod: MarcelMethod): ExtensionMarcelMethod {
+    fun staticMethodExtension(javaMethod: MarcelMethod,  marcelOwnerClass: JavaType = javaMethod.ownerClass.extendedType!!): ExtensionMarcelMethod {
       return ExtensionMarcelMethod(
-        javaMethod,
         javaMethod.ownerClass, javaMethod.name,
         javaMethod.parameters,
         javaMethod.returnType,
-        isMarcelStatic = true
-      )
+        isMarcelStatic = true,
+        javaMethod,
+        marcelOwnerClass
+        )
     }
 
-    private fun isInstanceExtensionMethod(originalMethod: MarcelMethod, extendedType: JavaType): Boolean {
-      return originalMethod.isStatic && originalMethod.parameters.isNotEmpty() && originalMethod.parameters.first().let {
+    private fun isInstanceExtensionMethod(originalMethod: MarcelMethod): Boolean {
+      val extendedType = originalMethod.ownerClass.extendedType ?: originalMethod.parameters.firstOrNull()?.type
+
+      return extendedType != null && originalMethod.isStatic && originalMethod.parameters.isNotEmpty() && originalMethod.parameters.first().let {
         it.type == extendedType && it.name == THIS_PARAMETER_NAME
       }
     }
@@ -60,8 +68,8 @@ class ExtensionMarcelMethod  constructor(
   override val actualParameters = actualMethod.actualParameters
 
   override fun withGenericTypes(types: List<JavaType>): MarcelMethod {
-    return ExtensionMarcelMethod(actualMethod, ownerClass, name,
+    return ExtensionMarcelMethod(ownerClass, name,
       actualMethod.parameters.takeLast(actualMethod.parameters.size - 1),
-      returnType, isMarcelStatic)
+      returnType, isMarcelStatic, actualMethod, marcelOwnerClass)
   }
 }

@@ -1,6 +1,7 @@
 package marcel.lang.methods;
 
 import marcel.lang.IntRange;
+import marcel.lang.compile.ExtensionClass;
 import marcel.lang.primitives.collections.*;
 import marcel.lang.primitives.collections.lists.CharArrayList;
 import marcel.lang.primitives.collections.lists.CharList;
@@ -34,6 +35,7 @@ import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 // TODO convert this to marcel
+@ExtensionClass
 @SuppressWarnings({"unused"})
 public final class DefaultMarcelMethods {
 

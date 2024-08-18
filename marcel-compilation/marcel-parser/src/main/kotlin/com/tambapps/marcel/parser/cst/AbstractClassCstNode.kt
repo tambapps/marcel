@@ -10,6 +10,7 @@ abstract class AbstractClassCstNode(
   override val className: String,
   override val superType: TypeCstNode?,
   override val interfaces: List<TypeCstNode>,
+  override val isExtensionClass: Boolean,
   override val forExtensionType: TypeCstNode?,
 ): AbstractCstNode(parentSourceFileNode, tokenStart, tokenEnd), ClassCstNode {
 

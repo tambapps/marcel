@@ -45,7 +45,7 @@ class MarcelParserTest {
     private val defaultAccess = AccessCstNode(null, token(), token(), false, false, false, TokenType.VISIBILITY_PUBLIC, false)
     private val classNode = RegularClassCstNode(
         SourceFileCstNode(LexToken.DUMMY, LexToken.DUMMY, null, emptyList()),
-        token(), token(), defaultAccess, "Test", null, emptyList(), null)
+        token(), token(), defaultAccess, "Test", null, emptyList(), false, null)
 
     @Test
     fun testVariableDeclaration() {
