@@ -10,8 +10,8 @@ import com.tambapps.marcel.semantic.method.ReflectJavaMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import marcel.lang.lambda.Lambda
 import marcel.lang.methods.DefaultMarcelMethods
-import marcel.lang.primitives.collections.IntCollection
-import marcel.lang.primitives.collections.lists.IntList
+import marcel.util.primitives.collections.IntCollection
+import marcel.util.primitives.collections.lists.IntList
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue

@@ -6,8 +6,8 @@ import marcel.lang.DynamicObject;
 import marcel.lang.IntRange;
 import marcel.lang.MarcelTruth;
 import marcel.lang.lambda.DynamicObjectLambda1;
-import marcel.lang.primitives.collections.lists.IntList;
-import marcel.lang.primitives.collections.sets.IntSet;
+import marcel.util.primitives.collections.lists.IntList;
+import marcel.util.primitives.collections.sets.IntSet;
 
 import java.util.List;
 import java.util.stream.Collectors;

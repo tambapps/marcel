@@ -2,11 +2,11 @@ package marcel.lang.extensions;
 
 import marcel.lang.IntRange;
 import marcel.lang.compile.ExtensionClass;
-import marcel.lang.primitives.collections.lists.CharArrayList;
-import marcel.lang.primitives.collections.lists.CharList;
-import marcel.lang.primitives.collections.sets.CharOpenHashSet;
-import marcel.lang.primitives.collections.sets.CharSet;
-import marcel.lang.primitives.iterators.IntIterator;
+import marcel.util.primitives.collections.lists.CharArrayList;
+import marcel.util.primitives.collections.lists.CharList;
+import marcel.util.primitives.collections.sets.CharOpenHashSet;
+import marcel.util.primitives.collections.sets.CharSet;
+import marcel.util.primitives.iterators.IntIterator;
 import marcel.util.function.CharPredicate;
 
 import java.util.NoSuchElementException;

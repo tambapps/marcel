@@ -1,6 +1,6 @@
 package marcel.lang;
 
-import marcel.lang.primitives.iterators.IntIterator;
+import marcel.util.primitives.iterators.IntIterator;
 
 abstract class AbstractIntRange implements IntRange {
 

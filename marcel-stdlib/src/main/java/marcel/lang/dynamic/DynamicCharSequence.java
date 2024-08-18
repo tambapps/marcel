@@ -3,10 +3,10 @@ package marcel.lang.dynamic;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import marcel.lang.DynamicObject;
-import marcel.lang.primitives.collections.lists.CharArrayList;
-import marcel.lang.primitives.collections.lists.CharList;
-import marcel.lang.primitives.collections.sets.CharOpenHashSet;
-import marcel.lang.primitives.collections.sets.CharSet;
+import marcel.util.primitives.collections.lists.CharArrayList;
+import marcel.util.primitives.collections.lists.CharList;
+import marcel.util.primitives.collections.sets.CharOpenHashSet;
+import marcel.util.primitives.collections.sets.CharSet;
 
 @AllArgsConstructor
 public class DynamicCharSequence extends AbstractDynamicObject implements DynamicIndexable {

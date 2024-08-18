@@ -6,8 +6,8 @@ import marcel.lang.DynamicObject;
 import marcel.lang.LongRange;
 import marcel.lang.MarcelTruth;
 import marcel.lang.lambda.DynamicObjectLambda1;
-import marcel.lang.primitives.collections.lists.LongList;
-import marcel.lang.primitives.collections.sets.LongSet;
+import marcel.util.primitives.collections.lists.LongList;
+import marcel.util.primitives.collections.sets.LongSet;
 
 import java.util.List;
 import java.util.stream.Collectors;

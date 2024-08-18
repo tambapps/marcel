@@ -1,6 +1,6 @@
 package marcel.lang;
 
-import marcel.lang.primitives.iterators.LongIterator;
+import marcel.util.primitives.iterators.LongIterator;
 
 abstract class AbstractLongRange implements LongRange {
 

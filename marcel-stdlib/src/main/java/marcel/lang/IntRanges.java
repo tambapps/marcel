@@ -2,11 +2,11 @@ package marcel.lang;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import marcel.lang.primitives.collections.lists.IntList;
-import marcel.lang.primitives.collections.lists.IntLists;
-import marcel.lang.primitives.iterators.AbstractIntIterator;
-import marcel.lang.primitives.iterators.IntIterator;
-import marcel.lang.primitives.iterators.IntIterators;
+import marcel.util.primitives.collections.lists.IntList;
+import marcel.util.primitives.collections.lists.IntLists;
+import marcel.util.primitives.iterators.AbstractIntIterator;
+import marcel.util.primitives.iterators.IntIterator;
+import marcel.util.primitives.iterators.IntIterators;
 
 import java.util.NoSuchElementException;
 

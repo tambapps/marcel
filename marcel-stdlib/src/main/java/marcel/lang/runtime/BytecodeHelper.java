@@ -1,16 +1,16 @@
 package marcel.lang.runtime;
 
 import marcel.lang.MarcelTruth;
-import marcel.lang.primitives.collections.sets.CharOpenHashSet;
-import marcel.lang.primitives.collections.sets.CharSet;
-import marcel.lang.primitives.collections.sets.DoubleOpenHashSet;
-import marcel.lang.primitives.collections.sets.DoubleSet;
-import marcel.lang.primitives.collections.sets.FloatOpenHashSet;
-import marcel.lang.primitives.collections.sets.FloatSet;
-import marcel.lang.primitives.collections.sets.IntOpenHashSet;
-import marcel.lang.primitives.collections.sets.IntSet;
-import marcel.lang.primitives.collections.sets.LongOpenHashSet;
-import marcel.lang.primitives.collections.sets.LongSet;
+import marcel.util.primitives.collections.sets.CharOpenHashSet;
+import marcel.util.primitives.collections.sets.CharSet;
+import marcel.util.primitives.collections.sets.DoubleOpenHashSet;
+import marcel.util.primitives.collections.sets.DoubleSet;
+import marcel.util.primitives.collections.sets.FloatOpenHashSet;
+import marcel.util.primitives.collections.sets.FloatSet;
+import marcel.util.primitives.collections.sets.IntOpenHashSet;
+import marcel.util.primitives.collections.sets.IntSet;
+import marcel.util.primitives.collections.sets.LongOpenHashSet;
+import marcel.util.primitives.collections.sets.LongSet;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;

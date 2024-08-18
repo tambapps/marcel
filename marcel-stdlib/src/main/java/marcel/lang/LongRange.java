@@ -1,9 +1,9 @@
 package marcel.lang;
 
-import marcel.lang.primitives.collections.lists.LongArrayList;
-import marcel.lang.primitives.collections.lists.LongList;
-import marcel.lang.primitives.iterable.LongIterable;
-import marcel.lang.primitives.iterators.LongIterator;
+import marcel.util.primitives.collections.lists.LongArrayList;
+import marcel.util.primitives.collections.lists.LongList;
+import marcel.util.primitives.iterable.LongIterable;
+import marcel.util.primitives.iterators.LongIterator;
 
 public interface LongRange extends LongIterable {
 

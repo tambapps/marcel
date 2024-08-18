@@ -1,10 +1,10 @@
 package marcel.lang;
 
 
-import marcel.lang.primitives.collections.lists.IntArrayList;
-import marcel.lang.primitives.collections.lists.IntList;
-import marcel.lang.primitives.iterable.IntIterable;
-import marcel.lang.primitives.iterators.IntIterator;
+import marcel.util.primitives.collections.lists.IntArrayList;
+import marcel.util.primitives.collections.lists.IntList;
+import marcel.util.primitives.iterable.IntIterable;
+import marcel.util.primitives.iterators.IntIterator;
 
 public interface IntRange extends IntIterable {
 

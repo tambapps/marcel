@@ -14,16 +14,16 @@ import marcel.lang.dynamic.DynamicSet;
 import marcel.lang.dynamic.MissingMethodException;
 import marcel.lang.dynamic.MissingPropertyException;
 import marcel.lang.lambda.DynamicObjectLambda1;
-import marcel.lang.primitives.collections.lists.CharList;
-import marcel.lang.primitives.collections.lists.DoubleList;
-import marcel.lang.primitives.collections.lists.FloatList;
-import marcel.lang.primitives.collections.lists.IntList;
-import marcel.lang.primitives.collections.lists.LongList;
-import marcel.lang.primitives.collections.sets.CharSet;
-import marcel.lang.primitives.collections.sets.DoubleSet;
-import marcel.lang.primitives.collections.sets.FloatSet;
-import marcel.lang.primitives.collections.sets.IntSet;
-import marcel.lang.primitives.collections.sets.LongSet;
+import marcel.util.primitives.collections.lists.CharList;
+import marcel.util.primitives.collections.lists.DoubleList;
+import marcel.util.primitives.collections.lists.FloatList;
+import marcel.util.primitives.collections.lists.IntList;
+import marcel.util.primitives.collections.lists.LongList;
+import marcel.util.primitives.collections.sets.CharSet;
+import marcel.util.primitives.collections.sets.DoubleSet;
+import marcel.util.primitives.collections.sets.FloatSet;
+import marcel.util.primitives.collections.sets.IntSet;
+import marcel.util.primitives.collections.sets.LongSet;
 
 import java.util.*;
 
