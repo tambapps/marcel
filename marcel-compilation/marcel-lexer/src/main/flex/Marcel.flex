@@ -399,7 +399,7 @@ LONELY_BACKTICK=`
 
 
 // error fallback
-[\s\S]       { return token(BAD_CHARACTER); }
+[\s\S]       { return valueToken(BAD_CHARACTER); }
 // error fallback for exclusive states
 <STRING, RAW_STRING, SHORT_TEMPLATE_ENTRY, BLOCK_COMMENT, DOC_COMMENT> .
-             { return token(BAD_CHARACTER); }
+             { return valueToken(BAD_CHARACTER); }

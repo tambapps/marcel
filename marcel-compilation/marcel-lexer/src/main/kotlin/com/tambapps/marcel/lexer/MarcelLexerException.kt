@@ -10,5 +10,5 @@ package com.tambapps.marcel.lexer
  *
  * @param message the message of the error
  */
-class MarcelLexerException(val line: Int, val column: Int, message: String?) :
-  RuntimeException(String.format("Lexer error at line %d, column %d: %s", line, column, message))
+class MarcelLexerException constructor(val line: Int, val column: Int, message: String?) :
+  RuntimeException(String.format("Lexer error at line %d, column %d: %s", line + 1, column, message))

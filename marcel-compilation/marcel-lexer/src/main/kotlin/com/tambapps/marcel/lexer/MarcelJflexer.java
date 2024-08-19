@@ -1191,7 +1191,7 @@ public class MarcelJflexer {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1: 
-            { return token(BAD_CHARACTER);
+            { return valueToken(BAD_CHARACTER);
             } 
             // fall through
           case 136: break;
