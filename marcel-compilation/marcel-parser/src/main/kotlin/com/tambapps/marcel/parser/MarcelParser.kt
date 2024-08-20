@@ -533,7 +533,9 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         }
         IDENTIFIER -> {
           if ((current.type == IDENTIFIER && lookup(1)?.type == TokenType.ASSIGNMENT
-            || current.type == TokenType.LT)
+                || current.type == TokenType.LT)
+            // for object var decl without init expression
+            || (current.type == IDENTIFIER && lookup(1)?.type == TokenType.SEMI_COLON)
             // for array var decl
             || (current.type == TokenType.DOT && lookup(1)?.type == TokenType.CLASS
                 || current.type == TokenType.SQUARE_BRACKETS_OPEN && lookup(1)?.type == TokenType.SQUARE_BRACKETS_CLOSE
@@ -775,7 +777,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     }
 
     // method call without parenthesis
-    if (a is ReferenceCstNode && current.type != SEMI_COLON && !wasEndOfLine
+    if (a is ReferenceCstNode && current.type != SEMI_COLON && current.type != SEMI_COLON && !wasEndOfLine
       && FCALL_WITHOUT_PARENTHESIS_ALLOWED_TOKENS.contains(current.type)) {
       val (arguments, namedArguments) = parseFunctionArguments(parentNode = parentNode, withParenthesis = false)
       if (arguments.isNotEmpty() || namedArguments.isNotEmpty()) {
