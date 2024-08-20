@@ -125,10 +125,6 @@ public class LongRanges {
     }
   }
 
-  // TODO change empty range behaviour. it should behave like kotlin empty range:
-  //  - it should return the entered start and from
-  //  - is empty should return true
-
   private static final class EmptyRange extends AbstractLongRange {
 
     @Override

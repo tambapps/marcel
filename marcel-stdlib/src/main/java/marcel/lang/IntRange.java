@@ -6,7 +6,6 @@ import marcel.util.primitives.collections.lists.IntList;
 import marcel.util.primitives.iterable.IntIterable;
 import marcel.util.primitives.iterators.IntIterator;
 
-// TODO rename from/to start/end
 public interface IntRange extends IntIterable {
 
   int getFrom();

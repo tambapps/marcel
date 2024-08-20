@@ -38,7 +38,6 @@ import java.util.function.*;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
-// TODO convert this to marcel
 @ExtensionClass
 @SuppressWarnings({"unused"})
 public final class DefaultMarcelMethods {
