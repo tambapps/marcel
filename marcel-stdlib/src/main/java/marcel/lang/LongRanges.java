@@ -105,6 +105,11 @@ public class LongRanges {
     private boolean reverse;
 
     @Override
+    public long getToExclusive() {
+      return to + 1;
+    }
+
+    @Override
     public LongIterator iterator() {
       return reverse ? new LongDecrRangeIterator(from, to) : new LongIncrRangeIterator(from, to);
     }
@@ -119,6 +124,11 @@ public class LongRanges {
       return from + ".." + to;
     }
   }
+
+  // TODO change empty range behaviour. it should behave like kotlin empty range:
+  //  - it should return the entered start and from
+  //  - is empty should return true
+
   private static final class EmptyRange extends AbstractLongRange {
 
     @Override
@@ -128,6 +138,11 @@ public class LongRanges {
 
     @Override
     public long getTo() {
+      throw new NoSuchElementException();
+    }
+
+    @Override
+    public long getToExclusive() {
       throw new NoSuchElementException();
     }
 

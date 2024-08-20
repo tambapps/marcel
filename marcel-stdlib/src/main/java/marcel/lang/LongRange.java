@@ -11,6 +11,8 @@ public interface LongRange extends LongIterable {
 
   long getTo();
 
+  long getToExclusive();
+
   @Override
   LongIterator iterator();
 

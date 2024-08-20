@@ -65,7 +65,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
   /* extensions */
   private fun loadDefaultExtensions() {
     loadExtensionUnsafe(DefaultMarcelMethods::class.javaType)
-    loadExtensionsUnsafeIfClassLoaded("FileExtensions", "StringMarcelMethods", "CharacterExtensions", "CharExtensions")
+    loadExtensionsUnsafeIfClassLoaded("FileExtensions", "CharSequenceExtensions", "CharacterExtensions", "CharExtensions")
   }
 
   private fun loadCustomMethods() {

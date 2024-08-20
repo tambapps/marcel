@@ -1,0 +1,151 @@
+package marcel.lang.extensions
+
+import marcel.util.primitives.collections.lists.CharArrayList
+import marcel.util.primitives.collections.sets.CharOpenHashSet
+import marcel.util.function.CharPredicate
+
+import java.util.NoSuchElementException
+
+extension class CharSequenceExtensions for CharSequence {
+
+  fun char getAt(int i) -> charAt(i)
+
+  fun Character getAtSafe(int i) -> i >= 0 && i < length() ? charAt(i) : null
+
+  fun String getAt(IntRange r) {
+    if (r.isEmpty()) return ""
+    StringBuilder builder = new StringBuilder()
+    for (int i in r) builder.append(charAt(i))
+    return builder.toString();
+  }
+
+  fun String getAtSafe(IntRange r) {
+    if (r.isEmpty()) return ""
+    StringBuilder builder = new StringBuilder()
+    for (int i in r) if (i >= 0 && i < length()) builder.append(charAt(i))
+    return builder.toString();
+  }
+
+  fun list<char> toList() -> CharArrayList.wrap(toString().toCharArray())
+
+  fun set<char> toSet() -> new CharOpenHashSet(toString().toCharArray())
+
+  fun int toInt() -> Integer.parseInt(toString())
+
+  fun int toLong() -> Long.parseLong(toString())
+
+  fun float toFloat() -> Float.parseFloat(toString())
+
+  fun float toDouble() -> Double.parseDouble(toString())
+
+  fun Character find(CharPredicate predicate) {
+    Character c;
+    for (int i = length() - 1; i >= 0; i--) {
+      c = charAt(i)
+      if (predicate.test(c as char)) return c
+    }
+    return null
+  }
+
+  fun char findChar(CharPredicate predicate) {
+    char c;
+    for (int i = length() - 1; i >= 0; i--) {
+      c = charAt(i);
+      if (predicate.test(c)) return c;
+    }
+    throw new NoSuchElementException();
+  }
+
+  fun Character findLast(CharPredicate predicate) {
+    Character c;
+    for (int i = length() - 1; i >= 0; i--) {
+      c = charAt(i)
+      if (predicate.test(c as char)) return c
+    }
+    return null
+  }
+
+  fun char findLastChar(CharPredicate predicate) {
+    char c;
+    for (int i = length() - 1; i >= 0; i--) {
+      c = charAt(i);
+      if (predicate.test(c)) return c;
+    }
+    throw new NoSuchElementException();
+  }
+
+  fun bool contains(char c) {
+    for (int i = 0; i < length(); i++) {
+      if (charAt(i) == c) return true;
+    }
+    return false;
+  }
+
+  fun int indexOf(char c) {
+    for (int i = 0; i < length(); i++) {
+      if (charAt(i) == c) return i;
+    }
+    return -1;
+  }
+
+  fun int indexOf(CharPredicate predicate) {
+    for (int i = 0; i < length(); i++) {
+      if (predicate.test(charAt(i))) return i;
+    }
+    return -1;
+  }
+
+  fun int lastIndexOf(char c) {
+    for (int i = length() - 1; i >= 0; i--) {
+      if (charAt(i) == c) return i;
+    }
+    return -1;
+  }
+
+  fun int lastIndexOf(CharPredicate predicate) {
+    for (int i = length() - 1; i >= 0; i--) {
+      if (predicate.test(charAt(i))) return i;
+    }
+    return -1;
+  }
+
+  fun String reversed() -> new StringBuilder(this).reverse().toString();
+
+  fun int count(char c) {
+    int count = 0
+    for (int i = 0; i < length(); i++) {
+      if (charAt(i) == c) count++
+    }
+    return count;
+  }
+
+  fun int count(CharPredicate predicate) {
+    int count = 0
+    for (int i = 0; i < length(); i++) {
+      if (predicate.test(charAt(i))) count++
+    }
+    return count;
+  }
+
+  fun bool all(CharPredicate predicate) {
+    for (int i = 0; i < length(); i++) {
+      if (!predicate.test(charAt(i))) return false
+    }
+    return true
+  }
+
+  fun bool none(CharPredicate predicate) {
+    for (int i = 0; i < length(); i++) {
+      if (predicate.test(charAt(i))) return false
+    }
+    return true
+  }
+
+  fun bool any(CharPredicate predicate) {
+    for (int i = 0; i < length(); i++) {
+      if (predicate.test(charAt(i))) return true
+    }
+    return false
+  }
+
+}

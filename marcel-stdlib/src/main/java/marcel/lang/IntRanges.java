@@ -105,6 +105,11 @@ public class IntRanges {
     private boolean reverse;
 
     @Override
+    public int getToExclusive() {
+      return to + 1;
+    }
+
+    @Override
     public IntIterator iterator() {
       return reverse ? new IntDecrRangeIterator(from, to) : new IntIncrRangeIterator(from, to);
     }
@@ -128,6 +133,11 @@ public class IntRanges {
 
     @Override
     public int getTo() {
+      throw new NoSuchElementException();
+    }
+
+    @Override
+    public int getToExclusive() {
       throw new NoSuchElementException();
     }
 
