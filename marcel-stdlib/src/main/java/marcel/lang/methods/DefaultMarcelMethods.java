@@ -31,8 +31,6 @@ import marcel.util.primitives.iterators.IntIterator;
 import marcel.lang.runtime.MapWithDefault;
 import marcel.util.function.*;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.*;
 import java.util.regex.Matcher;
@@ -2186,13 +2184,4 @@ public final class DefaultMarcelMethods {
     return combos;
   }
 
-  /**
-   * Format the LocalDateTime using the provided pattern
-   * @param $self the LocalDateTime
-   * @param pattern the pattern
-   * @return the formatted LocalDateTime
-   */
-  public static String format(LocalDateTime $self, String pattern) {
-    return $self.format(DateTimeFormatter.ofPattern(pattern));
-  }
 }
