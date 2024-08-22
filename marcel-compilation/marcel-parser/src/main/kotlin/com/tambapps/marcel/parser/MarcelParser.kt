@@ -227,7 +227,10 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     while (current.type == TokenType.IMPORT) {
       if (lookup(1)?.type == TokenType.EXTENSION) {
         skip(2)
-        extensionTypes.add(parseType(parentNode))
+        val tokenStart = current
+        extensionTypes.add(
+          TypeCstNode(parentNode, importExtensionType(), emptyList(), 0, tokenStart, previous)
+        )
       } else {
         imports.add(import(parentNode))
       }
@@ -241,6 +244,15 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
    * @param parentNode the optional parent node
    * @return an import node
    */
+  private fun importExtensionType(): String {
+    val classParts = mutableListOf(accept(IDENTIFIER).value)
+    while (current.type == TokenType.DOT) {
+      skip()
+      classParts.add(accept(IDENTIFIER).value)
+    }
+    return classParts.joinToString(".")
+  }
+
   fun import(parentNode: CstNode? = null): ImportCstNode {
     val importToken = accept(TokenType.IMPORT)
     val staticImport = acceptOptional(TokenType.STATIC) != null
