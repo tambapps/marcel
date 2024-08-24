@@ -337,9 +337,10 @@ open class MarcelSemantic(
 
       }
 
-      // TODO add values() method and valueOf
-      // TODO default constructor of enum should not be a noArg. It should have a name and ordinal argument and should call super(String name, int ordinal)
-      TODO("Doesn't handle enums yet")
+     TODO("""Doesn't handle enum yet. Needs to
+        - add values() method and valueOf
+        - add private constructor. default constructor of enum should not be a noArg. It should have a name and ordinal argument and should call super(String name, int ordinal)
+      """.trimIndent())
       super.processMethods()
     }
   }
