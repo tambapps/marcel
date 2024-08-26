@@ -6,6 +6,7 @@ import marcel.lang.DynamicObject;
 import marcel.lang.IntRange;
 import marcel.lang.MarcelTruth;
 import marcel.lang.lambda.DynamicObjectLambda1;
+import marcel.util.primitives.collections.lists.IntArrayList;
 import marcel.util.primitives.collections.lists.IntList;
 import marcel.util.primitives.collections.sets.IntSet;
 
@@ -25,10 +26,24 @@ public class DynamicIntRange extends AbstractDynamicObject {
 
   @Override
   public DynamicObject find(DynamicObjectLambda1 lambda1) {
-    return DynamicObject.of(
-        value.toList().stream().filter(i -> MarcelTruth.isTruthy(lambda1.invoke(DynamicObject.of(i))))
-            .findFirst().orElse(null)
-    );
+    for (int i : value) {
+      DynamicObject o = DynamicObject.of(i);
+      if (MarcelTruth.isTruthy(lambda1.invoke(o))) {
+        return o;
+      }
+    }
+    return null;
+  }
+
+  @Override
+  public DynamicObject findAll(DynamicObjectLambda1 lambda1) {
+    IntList list = new IntArrayList();
+    for (int i : value) {
+      if (MarcelTruth.isTruthy(lambda1.invoke(DynamicObject.of(i)))) {
+        list.add(i);
+      }
+    }
+    return DynamicObject.of(list);
   }
 
   @Override

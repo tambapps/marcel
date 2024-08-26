@@ -66,6 +66,13 @@ abstract class DynamicCollection<T extends Collection> extends AbstractDynamicOb
   }
 
   @Override
+  public DynamicObject findAll(DynamicObjectLambda1 lambda1) {
+    return DynamicObject.of(
+        DefaultMarcelMethods.findAll(value, (e) -> MarcelTruth.isTruthy(lambda1.apply(DynamicObject.of(e))))
+    );
+  }
+
+  @Override
   public DynamicObject map(DynamicObjectLambda1 lambda1) {
     List<DynamicObject> list = new ArrayList<>();
     for (Object o : value) {

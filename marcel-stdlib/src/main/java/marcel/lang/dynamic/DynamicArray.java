@@ -86,6 +86,18 @@ public class DynamicArray extends AbstractDynamicObject implements DynamicIndexa
   }
 
   @Override
+  public DynamicObject findAll(DynamicObjectLambda1 lambda1) {
+    List<Object> list = new ArrayList<>();
+    for (int i = 0; i < size(); i++) {
+      DynamicObject e = DynamicObject.of(Array.get(value, i));
+      if (MarcelTruth.isTruthy(lambda1.apply(e))) {
+        list.add(e);
+      }
+    }
+    return DynamicObject.of(list);
+  }
+
+  @Override
   public String toString() {
     StringBuilder builder = new StringBuilder("[");
     for (int i = 0; i < size(); i++) {

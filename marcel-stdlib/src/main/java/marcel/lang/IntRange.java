@@ -29,6 +29,7 @@ public interface IntRange extends IntIterable {
     return list;
   }
 
+
   default boolean contains(int i) {
     return isReverse() ? getTo() >= i && getFrom() <= i : getFrom() >= i && getTo() <= i;
   }

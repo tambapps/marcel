@@ -88,6 +88,12 @@ public interface DynamicObject extends Iterable<DynamicObject>, MarcelTruth {
     return MarcelTruth.isTruthy(lambda1.invoke(this)) ? this : null;
   }
 
+  default DynamicObject findAll(DynamicObjectLambda1 lambda1) {
+    return DynamicObject.of(
+        MarcelTruth.isTruthy(lambda1.invoke(this)) ? List.of(this) : List.of()
+    );
+  }
+
   default DynamicObject map(DynamicObjectLambda1 lambda1) {
     return lambda1.invoke(this);
   }
