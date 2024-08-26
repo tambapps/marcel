@@ -350,6 +350,7 @@ abstract class SemanticCstNodeVisitor(
       JavaType.doubleCollection.isAssignableFrom(smartCastType) -> JavaType.doubleArray
       JavaType.charCollection.isAssignableFrom(smartCastType) -> JavaType.charArray
       Collection::class.javaType.isAssignableFrom(smartCastType) -> JavaType.objectArray
+      smartCastType == JavaType.DynamicObject -> JavaType.objectArray // will be casted yo dynamic array by the asNode visitor
       else -> throw MarcelSemanticException(node, "Cannot cast array into $smartCastType")
     }
     val elementsType = arrayType.elementsType
