@@ -2,7 +2,7 @@ package com.tambapps.marcel.semantic.method
 
 import com.tambapps.marcel.semantic.type.JavaType
 
-class ExtensionMarcelMethod  constructor(
+class ExtensionMarcelMethod constructor(
   override val ownerClass: JavaType,
   override val name: String,
   override val parameters: List<MethodParameter>,
@@ -19,9 +19,9 @@ class ExtensionMarcelMethod  constructor(
 
     const val THIS_PARAMETER_NAME = "\$self"
 
-     fun toExtension(originalMethod: MarcelMethod): ExtensionMarcelMethod {
+     fun toExtension(originalMethod: MarcelMethod, marcelOwnerClass: JavaType): ExtensionMarcelMethod {
       return if (isInstanceExtensionMethod(originalMethod)) instanceMethodExtension(originalMethod)
-      else staticMethodExtension(originalMethod)
+      else staticMethodExtension(originalMethod, marcelOwnerClass)
     }
 
     fun instanceMethodExtension(javaMethod: MarcelMethod): ExtensionMarcelMethod {
@@ -35,7 +35,7 @@ class ExtensionMarcelMethod  constructor(
         )
     }
 
-    fun staticMethodExtension(javaMethod: MarcelMethod,  marcelOwnerClass: JavaType = javaMethod.ownerClass.extendedType!!): ExtensionMarcelMethod {
+    fun staticMethodExtension(javaMethod: MarcelMethod,  marcelOwnerClass: JavaType): ExtensionMarcelMethod {
       return ExtensionMarcelMethod(
         javaMethod.ownerClass, javaMethod.name,
         javaMethod.parameters,

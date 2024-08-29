@@ -190,12 +190,15 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
         (originalMethod as? MethodNode)?.token ?: LexToken.DUMMY,
         "Type ${originalMethod.ownerClass} is not an extension")
     }
-    val extensionMethod = ExtensionMarcelMethod.toExtension(originalMethod)
+    val extensionMethod = ExtensionMarcelMethod.toExtension(originalMethod, originalMethod.ownerClass.extendedType!!)
     defineMethod(methodOwner, extensionMethod)
   }
 
   private fun defineExtensionMethodUnsafe(originalMethod: MarcelMethod) {
-    val extensionMethod = ExtensionMarcelMethod.toExtension(originalMethod)
+    val extensionMethod = ExtensionMarcelMethod.toExtension(originalMethod,
+      // some extension class like DefaultMarcelMethods are actually extension class without the @ExtensionClass class annotations, that provide extension for many types.
+      // that's why we fall back to the first parameter type
+      originalMethod.ownerClass.extendedType ?: originalMethod.parameters.first().type)
     defineMethodUnsafe(extensionMethod.marcelOwnerClass, extensionMethod)
   }
 

@@ -7,7 +7,8 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.TYPE;
 
 /**
- * Annotation allowing to specify the extended class of an extension class
+ * Annotation allowing to specify the extended class of an extension class. This is because of this annotation that we
+ * can define static extension methods.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value={TYPE})
