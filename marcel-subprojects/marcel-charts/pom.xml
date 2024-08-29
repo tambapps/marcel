@@ -6,23 +6,19 @@
 
   <parent>
     <groupId>com.tambapps.marcel</groupId>
-    <artifactId>marcel</artifactId>
+    <artifactId>marcel-subprojects</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>marcel-subprojects</artifactId>
 
-  <name>Marcel Subprojects</name>
-  <description>Subprojects enhancing your Marcel experience</description>
+  <artifactId>marcel-charts</artifactId>
+
+  <name>Marcel Charts</name>
+  <description>Marcel Charts module</description>
+
   <packaging>pom</packaging>
 
   <modules>
-    <module>dumbbell-core</module>
-    <module>dumbbell</module>
-    <module>marcel-charts</module>
-    <module>marcel-deps</module>
-    <module>marcel-repl</module>
-    <module>marcl</module>
-    <module>marshell</module>
+    <module>marcel-charts-core</module>
   </modules>
 
 </project>
