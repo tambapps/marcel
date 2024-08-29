@@ -68,9 +68,10 @@ class ShellViewModel @Inject constructor(
             updatePrompt()
           }
         } else {
+          Log.e("ShellViewModel", "An error occurred while attempting to start shell. Please restart the app", sessionResult.exceptionOrNull())
           Toast.makeText(
             context,
-            sessionResult.exceptionOrNull()?.localizedMessage,
+            sessionResult.exceptionOrNull()?.message ?: "An error occurred",
             Toast.LENGTH_LONG
           ).show()
         }

@@ -4,10 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.RoomWarnings
 import androidx.room.Update
-import androidx.room.Upsert
-import com.tambapps.marcel.android.marshell.room.entity.CacheableScript
 import com.tambapps.marcel.android.marshell.room.entity.Message
 
 @Dao
