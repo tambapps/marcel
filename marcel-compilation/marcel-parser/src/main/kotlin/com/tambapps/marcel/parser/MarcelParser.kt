@@ -4,6 +4,7 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.lexer.TokenType.BRACKETS_OPEN
+import com.tambapps.marcel.lexer.TokenType.DYNOBJ
 import com.tambapps.marcel.lexer.TokenType.END_OF_FILE
 import com.tambapps.marcel.lexer.TokenType.FLOAT
 import com.tambapps.marcel.lexer.TokenType.FOR
@@ -90,6 +91,7 @@ import com.tambapps.marcel.parser.cst.statement.ThrowCstNode
 import com.tambapps.marcel.parser.cst.statement.TryCatchCstNode
 import com.tambapps.marcel.parser.cst.statement.VariableDeclarationCstNode
 import com.tambapps.marcel.parser.cst.statement.WhileCstNode
+import marcel.lang.DynamicObject
 import java.lang.NumberFormatException
 import java.util.*
 import java.util.concurrent.ThreadLocalRandom
@@ -1008,12 +1010,13 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         node
       }
       TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_SHORT, TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE,
-      TokenType.TYPE_BOOL, TokenType.TYPE_BYTE, TokenType.TYPE_VOID, TokenType.TYPE_CHAR -> {
+      TokenType.TYPE_BOOL, TokenType.TYPE_BYTE, TokenType.TYPE_VOID, TokenType.TYPE_CHAR, TokenType.DYNOBJ -> {
         val arrayDimensions = parseArrayDimensions()
         accept(TokenType.DOT)
         accept(TokenType.CLASS)
         ClassReferenceCstNode(parentNode,
-          TypeCstNode(parentNode, token.value, emptyList(), arrayDimensions, token, previous), token, previous)
+          TypeCstNode(parentNode,
+            if (token.type == DYNOBJ) DynamicObject::class.java.name else token.value, emptyList(), arrayDimensions, token, previous), token, previous)
       }
       TokenType.WHEN, TokenType.SWITCH -> {
         if (token.type == TokenType.WHEN && current.type != TokenType.BRACKETS_OPEN) {
