@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import marcel.lang.DynamicObject;
 
 import java.io.IOException;
-class DynamicObjectSerializer extends JsonSerializer<DynamicObject> {
+public class DynamicObjectSerializer extends JsonSerializer<DynamicObject> {
 
   @Override
   public void serialize(DynamicObject dynamicObject, JsonGenerator gen, SerializerProvider serializers) throws IOException {

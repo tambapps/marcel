@@ -8,7 +8,7 @@ import marcel.lang.DynamicObject;
 
 import java.io.IOException;
 
-class DynamicObjectDeserializer extends JsonDeserializer<DynamicObject> {
+public class DynamicObjectDeserializer extends JsonDeserializer<DynamicObject> {
 
   @Override
   public DynamicObject deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
