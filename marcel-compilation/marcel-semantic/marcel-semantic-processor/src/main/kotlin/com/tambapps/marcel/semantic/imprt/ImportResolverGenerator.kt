@@ -1,5 +1,6 @@
 package com.tambapps.marcel.semantic.imprt
 
+import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.imprt.*
 import com.tambapps.marcel.parser.cst.visitor.ImportCstNodeVisitor
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
@@ -14,9 +15,14 @@ object ImportResolverGenerator {
     return builder.build()
   }
 
-  fun generateImports(symbolResolver: MarcelSymbolResolver, cstImports: List<ImportCstNode>): MutableImportResolver {
+  fun generateImports(
+    symbolResolver: MarcelSymbolResolver,
+    cstImports: List<ImportCstNode>,
+    extensionImports: List<TypeCstNode> = emptyList(),
+  ): MutableImportResolver {
     val builder = ImportResolverBuilder(symbolResolver)
     cstImports.forEach { it.accept(builder) }
+    extensionImports.forEach { builder.visitExtensionType(it) }
     return builder.buildImports()
   }
 
@@ -26,6 +32,7 @@ object ImportResolverGenerator {
     val typeImports = mutableMapOf<String, JavaType>()
     val wildcardTypeImportPrefixes = mutableSetOf<String>()
     val staticMemberImports = mutableMapOf<String, JavaType>()
+    val extensionImports = LinkedHashSet<JavaType>()
 
     override fun visit(node: SimpleImportCstNode) {
       val key = node.asName ?: node.className.let {
@@ -51,8 +58,16 @@ object ImportResolverGenerator {
       }
     }
 
-    fun build() = ImportResolver(typeImports, wildcardTypeImportPrefixes, staticMemberImports)
-    fun buildImports() = MutableImportResolver(typeImports, wildcardTypeImportPrefixes, staticMemberImports)
+    fun visitExtensionType(node: TypeCstNode) {
+      val type = symbolResolver.of(node.value, token = node.token)
+      if (!type.isExtensionType) {
+        throw MarcelSemanticException(node.token, "Type $type is not an extension")
+      }
+      extensionImports.add(type)
+    }
+
+    fun build() = ImportResolver(typeImports, wildcardTypeImportPrefixes, staticMemberImports, extensionImports)
+    fun buildImports() = MutableImportResolver(typeImports, wildcardTypeImportPrefixes, staticMemberImports, extensionImports)
 
   }
 }

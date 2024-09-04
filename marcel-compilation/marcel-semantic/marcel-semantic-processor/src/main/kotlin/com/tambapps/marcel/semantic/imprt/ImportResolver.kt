@@ -4,6 +4,7 @@ import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.type.JavaType
 
+// TODO move extension types into this
 /**
  * Class allowing to resolve types from imports
  */
@@ -11,6 +12,7 @@ open class ImportResolver internal constructor(
   val typeImports: Map<String, JavaType>, // valueSimpleName -> value, asName -> value
   val wildcardTypeImportPrefixes: Collection<String>,
   val staticMemberImports: Map<String, JavaType>, // memberName -> memberOwnerType
+  val extensionTypes: Set<JavaType>
 ) {
 
   companion object {
@@ -23,7 +25,8 @@ open class ImportResolver internal constructor(
         "marcel.lang",
         "marcel.io"
         ),
-      staticMemberImports = mapOf()
+      staticMemberImports = mapOf(),
+      extensionTypes = emptySet()
     )
   }
 
@@ -57,8 +60,9 @@ open class ImportResolver internal constructor(
   fun copy(
     typeImports: Map<String, JavaType> = this.typeImports,
     wildcardTypeImportPrefixes: Collection<String> = this.wildcardTypeImportPrefixes,
-    staticMemberImports: Map<String, JavaType> = this.staticMemberImports
-  ) = ImportResolver(typeImports, wildcardTypeImportPrefixes, staticMemberImports)
+    staticMemberImports: Map<String, JavaType> = this.staticMemberImports,
+    extensionTypes: Set<JavaType> = this.extensionTypes
+  ) = ImportResolver(typeImports, wildcardTypeImportPrefixes, staticMemberImports, extensionTypes)
 
-  fun toImports() = MutableImportResolver(typeImports.toMutableMap(), wildcardTypeImportPrefixes.toMutableSet(), staticMemberImports.toMutableMap())
+  fun toImports() = MutableImportResolver(typeImports.toMutableMap(), wildcardTypeImportPrefixes.toMutableSet(), staticMemberImports.toMutableMap(), LinkedHashSet(extensionTypes))
 }

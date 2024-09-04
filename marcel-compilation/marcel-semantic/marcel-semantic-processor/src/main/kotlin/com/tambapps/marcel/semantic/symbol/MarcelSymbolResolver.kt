@@ -115,7 +115,6 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
         val methods = getMarcelMethods(extensionMethod.marcelOwnerClass)
         // TODO need strictMatch here, not matches
         methods.removeIf { matches(it, extensionMethod.name, extensionMethod.parameters) }
-
       }
   }
 

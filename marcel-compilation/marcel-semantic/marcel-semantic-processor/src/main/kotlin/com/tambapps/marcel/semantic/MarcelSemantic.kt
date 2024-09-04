@@ -63,7 +63,7 @@ open class MarcelSemantic(
 ) : SemanticCstNodeVisitor(symbolResolver, cst.packageName), ClassCstNodeVisitor<ClassNode> {
 
   fun resolveImports() {
-    imports.add(ImportResolverGenerator.generateImports(symbolResolver, cst.imports))
+    imports.add(ImportResolverGenerator.generateImports(symbolResolver, cst.imports, cst.extensionImports))
   }
 
   fun apply(): ModuleNode {
@@ -722,12 +722,10 @@ open class MarcelSemantic(
   }
 
   private fun loadExtensions() {
-    val extensionTypes = cst.extensionImports.map(this::resolve)
-    extensionTypes.forEach(symbolResolver::loadExtension)
+    imports.extensionTypes.forEach(symbolResolver::loadExtension)
   }
 
   private fun unloadExtensions() {
-    val extensionTypes = cst.extensionImports.map(this::resolve)
-    extensionTypes.forEach(symbolResolver::unloadExtension)
+    imports.extensionTypes.forEach(symbolResolver::unloadExtension)
   }
 }
