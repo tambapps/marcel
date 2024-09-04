@@ -69,14 +69,12 @@ open class MarcelSemantic(
   fun apply(): ModuleNode {
     val moduleNode = ModuleNode(cst.tokenStart, cst.tokenEnd)
 
-    // load extension types
-    val extensionTypes = cst.extensionImports.map(this::resolve)
-    extensionTypes.forEach(symbolResolver::loadExtension)
+    loadExtensions()
 
     try {
       doApply(moduleNode)
     } finally {
-      extensionTypes.forEach(symbolResolver::unloadExtension)
+      unloadExtensions()
     }
     return moduleNode
   }
@@ -125,44 +123,49 @@ open class MarcelSemantic(
   fun defineClassMembers(classCstNode: ClassCstNode, classType: JavaType, recursive: Boolean = true) = useScope(
     ClassScope(symbolResolver, classType, classCstNode.forExtensionType?.let { resolve(it) }, imports)
   ) {
-    if (classCstNode.isExtensionClass) {
-      val extendedCstType = classCstNode.forExtensionType
-      val extendedType = extendedCstType?.let(this::resolve)
-      classCstNode.methods.forEach { m ->
-        if (extendedType != null && m.parameters.firstOrNull()?.name == ExtensionMarcelMethod.THIS_PARAMETER_NAME) {
-          throw MarcelSemanticException(m.tokenEnd, "First parameter of a method extension cannot be named ${ExtensionMarcelMethod.THIS_PARAMETER_NAME}")
-        }
-        val extensionMethod = if (m.accessNode.isStatic) {
-          if (extendedType == null) {
-            throw MarcelSemanticException(classCstNode, "Cannot define static method in a non-type specific extension class")
+    loadExtensions()
+    try {
+      if (classCstNode.isExtensionClass) {
+        val extendedCstType = classCstNode.forExtensionType
+        val extendedType = extendedCstType?.let(this::resolve)
+        classCstNode.methods.forEach { m ->
+          if (extendedType != null && m.parameters.firstOrNull()?.name == ExtensionMarcelMethod.THIS_PARAMETER_NAME) {
+            throw MarcelSemanticException(m.tokenEnd, "First parameter of a method extension cannot be named ${ExtensionMarcelMethod.THIS_PARAMETER_NAME}")
           }
-          ExtensionMarcelMethod.staticMethodExtension(toJavaMethod(classType, extendedType, m), extendedType)
-        } else {
-          if (extendedCstType != null) {
-            // adding self parameter
-            m.parameters.add(
-              0,
-              MethodParameterCstNode(m, m.tokenStart, m.tokenEnd, ExtensionMarcelMethod.THIS_PARAMETER_NAME, extendedCstType, null, emptyList(), false)
-            )
+          val extensionMethod = if (m.accessNode.isStatic) {
+            if (extendedType == null) {
+              throw MarcelSemanticException(classCstNode, "Cannot define static method in a non-type specific extension class")
+            }
+            ExtensionMarcelMethod.staticMethodExtension(toJavaMethod(classType, extendedType, m), extendedType)
+          } else {
+            if (extendedCstType != null) {
+              // adding self parameter
+              m.parameters.add(
+                0,
+                MethodParameterCstNode(m, m.tokenStart, m.tokenEnd, ExtensionMarcelMethod.THIS_PARAMETER_NAME, extendedCstType, null, emptyList(), false)
+              )
+            }
+            m.accessNode.isStatic = true // extension method is always java-static. that's why we are considering them static from now on
+            ExtensionMarcelMethod.instanceMethodExtension(toJavaMethod(classType, extendedType, m))
           }
-          m.accessNode.isStatic = true // extension method is always java-static. that's why we are considering them static from now on
-          ExtensionMarcelMethod.instanceMethodExtension(toJavaMethod(classType, extendedType, m))
+          // define extension method so that we can reference them in methods of this extension class
+          symbolResolver.defineMethod(extensionMethod.marcelOwnerClass, extensionMethod)
         }
-        // define extension method so that we can reference them in methods of this extension class
-        symbolResolver.defineMethod(extensionMethod.marcelOwnerClass, extensionMethod)
       }
-    }
-    classCstNode.methods.forEach {
-      symbolResolver.defineMethod(
-        classType,
-        toJavaMethod(classType, classCstNode.forExtensionType?.let(this::resolve), it)
-      )
-    }
-    classCstNode.fields.forEach { symbolResolver.defineField(classType, toMarcelField(classType, it)) }
-    classCstNode.constructors.forEach { symbolResolver.defineMethod(classType, toJavaConstructor(classType, it)) }
+      classCstNode.methods.forEach {
+        symbolResolver.defineMethod(
+          classType,
+          toJavaMethod(classType, classCstNode.forExtensionType?.let(this::resolve), it)
+        )
+      }
+      classCstNode.fields.forEach { symbolResolver.defineField(classType, toMarcelField(classType, it)) }
+      classCstNode.constructors.forEach { symbolResolver.defineMethod(classType, toJavaConstructor(classType, it)) }
 
-    if (recursive) {
-      classCstNode.innerClasses.forEach { defineClass(it) }
+      if (recursive) {
+        classCstNode.innerClasses.forEach { defineClass(it) }
+      }
+    } finally {
+      unloadExtensions()
     }
   }
 
@@ -716,5 +719,15 @@ open class MarcelSemantic(
         )
       }
     }
+  }
+
+  private fun loadExtensions() {
+    val extensionTypes = cst.extensionImports.map(this::resolve)
+    extensionTypes.forEach(symbolResolver::loadExtension)
+  }
+
+  private fun unloadExtensions() {
+    val extensionTypes = cst.extensionImports.map(this::resolve)
+    extensionTypes.forEach(symbolResolver::unloadExtension)
   }
 }

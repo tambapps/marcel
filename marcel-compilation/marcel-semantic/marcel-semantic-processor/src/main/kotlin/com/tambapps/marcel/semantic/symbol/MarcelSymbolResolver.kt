@@ -109,10 +109,11 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
   }
 
   fun unloadExtension(type: JavaType) {
-    getDeclaredMethods(type).filter { it.isStatic && it.parameters.isNotEmpty() }
-      .forEach { extensionMethod ->
-        val owner = extensionMethod.parameters.first().type
-        val methods = getMarcelMethods(owner)
+    getDeclaredMethods(type).filter { it.isStatic && it.parameters.isNotEmpty() && it.visibility != Visibility.PRIVATE }
+      .forEach { originalMethod ->
+        val extensionMethod = toExtensionMethod(originalMethod)
+        val methods = getMarcelMethods(extensionMethod.marcelOwnerClass)
+        // TODO need strictMatch here, not matches
         methods.removeIf { matches(it, extensionMethod.name, extensionMethod.parameters) }
 
       }
@@ -184,19 +185,24 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
 
   }
 
+  // TODO need to test these
   fun defineExtensionMethod(methodOwner: JavaType, originalMethod: MarcelMethod) {
+    val extensionMethod = toExtensionMethod(originalMethod)
+    defineMethod(methodOwner, extensionMethod)
+  }
+
+  private fun toExtensionMethod(originalMethod: MarcelMethod): ExtensionMarcelMethod {
     if (!originalMethod.ownerClass.isExtensionType) {
       throw MarcelSemanticException(
         (originalMethod as? MethodNode)?.token ?: LexToken.DUMMY,
         "Type ${originalMethod.ownerClass} is not an extension")
     }
     val extendedType = originalMethod.ownerClass.globalExtendedType ?: originalMethod.parameters.firstOrNull()
-        ?.takeIf { it.name == ExtensionMarcelMethod.THIS_PARAMETER_NAME }?.type
+      ?.takeIf { it.name == ExtensionMarcelMethod.THIS_PARAMETER_NAME }?.type
     if (extendedType == null) {
       throw MarcelSemanticException(LexToken.DUMMY, "Invalid extension method $originalMethod: couldn't retrieve owner type")
     }
-    val extensionMethod = ExtensionMarcelMethod.toExtension(originalMethod, extendedType)
-    defineMethod(methodOwner, extensionMethod)
+    return ExtensionMarcelMethod.toExtension(originalMethod, extendedType)
   }
 
   private fun defineExtensionMethodUnsafe(originalMethod: MarcelMethod) {
