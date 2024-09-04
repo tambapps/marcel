@@ -76,7 +76,7 @@ interface JavaType: JavaTyped {
   val objectType: JavaType get() = this
   val isTopLevel get() = !className.contains("$")
   val isExtensionType: Boolean
-  val extendedType: JavaType?
+  val globalExtendedType: JavaType?
 
   val hasGenericTypes: Boolean get() = genericTypes.isNotEmpty()
   val innerName: String? get() {

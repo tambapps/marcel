@@ -159,7 +159,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
       isScript = isScript,
       isEnum = isEnum,
       isExtensionType = isExtensionType,
-      extendedType = extendedType
+      globalExtendedType = extendedType
     )
     _definedTypes[className] = type
     return type
@@ -190,7 +190,12 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
         (originalMethod as? MethodNode)?.token ?: LexToken.DUMMY,
         "Type ${originalMethod.ownerClass} is not an extension")
     }
-    val extensionMethod = ExtensionMarcelMethod.toExtension(originalMethod, originalMethod.ownerClass.extendedType!!)
+    val extendedType = originalMethod.ownerClass.globalExtendedType ?: originalMethod.parameters.firstOrNull()
+        ?.takeIf { it.name == ExtensionMarcelMethod.THIS_PARAMETER_NAME }?.type
+    if (extendedType == null) {
+      throw MarcelSemanticException(LexToken.DUMMY, "Invalid extension method $originalMethod: couldn't retrieve owner type")
+    }
+    val extensionMethod = ExtensionMarcelMethod.toExtension(originalMethod, extendedType)
     defineMethod(methodOwner, extensionMethod)
   }
 
@@ -198,7 +203,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     val extensionMethod = ExtensionMarcelMethod.toExtension(originalMethod,
       // some extension class like DefaultMarcelMethods are actually extension class without the @ExtensionClass class annotations, that provide extension for many types.
       // that's why we fall back to the first parameter type
-      originalMethod.ownerClass.extendedType ?: originalMethod.parameters.first().type)
+      originalMethod.ownerClass.globalExtendedType ?: originalMethod.parameters.first().type)
     defineMethodUnsafe(extensionMethod.marcelOwnerClass, extensionMethod)
   }
 

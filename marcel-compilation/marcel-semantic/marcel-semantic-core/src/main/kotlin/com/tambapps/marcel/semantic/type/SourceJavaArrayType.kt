@@ -10,7 +10,7 @@ class SourceJavaArrayType internal constructor(
   override val elementsType: JavaType
 ): SourceJavaType(visibility = Visibility.PUBLIC,
   className = "[L${elementsType.className};",
-  genericTypes = emptyList(), superType = JavaType.Object, isInterface = false, directlyImplementedInterfaces = mutableSetOf(), isScript = false, isEnum = false, isExtensionType = false, extendedType = null), JavaArrayType {
+  genericTypes = emptyList(), superType = JavaType.Object, isInterface = false, directlyImplementedInterfaces = mutableSetOf(), isScript = false, isEnum = false, isExtensionType = false, globalExtendedType = null), JavaArrayType {
 
   override val isFinal = true
   override val asArrayType: JavaArrayType get() = this

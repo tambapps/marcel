@@ -17,7 +17,7 @@ open class SourceJavaType constructor(
   override val isScript: Boolean,
   override val isEnum: Boolean,
   override val isExtensionType: Boolean,
-  override var extendedType: JavaType?): AbstractJavaType() {
+  override var globalExtendedType: JavaType?): AbstractJavaType() {
 
   private val annotations = mutableListOf<JavaAnnotation>()
 

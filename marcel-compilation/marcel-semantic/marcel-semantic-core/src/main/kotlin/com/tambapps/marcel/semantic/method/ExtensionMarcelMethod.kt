@@ -47,7 +47,7 @@ class ExtensionMarcelMethod constructor(
     }
 
     private fun isInstanceExtensionMethod(originalMethod: MarcelMethod): Boolean {
-      val extendedType = originalMethod.ownerClass.extendedType ?: originalMethod.parameters.firstOrNull()?.type
+      val extendedType = originalMethod.ownerClass.globalExtendedType ?: originalMethod.parameters.firstOrNull()?.type
 
       return extendedType != null && originalMethod.isStatic && originalMethod.parameters.isNotEmpty() && originalMethod.parameters.first().let {
         it.type == extendedType && it.name == THIS_PARAMETER_NAME

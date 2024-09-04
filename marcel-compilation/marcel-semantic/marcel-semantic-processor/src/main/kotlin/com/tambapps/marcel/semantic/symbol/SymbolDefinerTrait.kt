@@ -79,7 +79,7 @@ interface SymbolDefinerTrait {
         throw MarcelSemanticException(classCstNode, "Cannot extend an interface")
       }
       classType.superType = superType
-      classCstNode.forExtensionType?.let { classType.extendedType = semantic.resolve(it) }
+      classCstNode.forExtensionType?.let { classType.globalExtendedType = semantic.resolve(it) }
       classType.directlyImplementedInterfaces.addAll(classCstNode.interfaces.map { semantic.resolve(it) })
       for (interfaceType in classType.directlyImplementedInterfaces) {
         if (!interfaceType.isInterface) {
@@ -107,7 +107,7 @@ interface SymbolDefinerTrait {
       className = classNode.className,
       genericTypes = emptyList(),
       superType = null, // will be set later
-      extendedType = null, // will be set later
+      globalExtendedType = null, // will be set later
       isInterface = false, directlyImplementedInterfaces = mutableSetOf(),
       isScript = classNode.isScript,
       isEnum = isEnum,
