@@ -43,7 +43,10 @@ class MarcelReplCompiler constructor(
   val collectedDumbbells: Set<String> get() = dumbbells
 
   fun addRawImport(importString: String) {
-    addImports(ImportResolverGenerator.generateImports(symbolResolver, listOf(MarcelParser(lexer.lex(importString)).import())))
+    addImports(ImportResolverGenerator.generateImports(
+      symbolResolver,
+      listOf(MarcelParser(lexer.lex(importString)).import())
+    ))
   }
 
   fun addImports(imports: ImportResolver) {
