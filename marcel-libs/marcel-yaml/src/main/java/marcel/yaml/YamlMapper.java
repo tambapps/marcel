@@ -5,11 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
-import marcel.json.JsonSlurper;
+import marcel.json.JsonMapper;
 
-public class YamlSlurper extends JsonSlurper {
+public class YamlMapper extends JsonMapper {
 
-  public YamlSlurper() {
+  // useful to handle json without having to instantiate a mapper
+  public static final YamlMapper INSTANCE = new YamlMapper();
+
+  public YamlMapper() {
     this(newObjectMapper(new ObjectMapper(newYamlFactory())));
     mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
   }
@@ -19,7 +22,7 @@ public class YamlSlurper extends JsonSlurper {
         .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER);
   }
 
-  public YamlSlurper(ObjectMapper mapper) {
+  public YamlMapper(ObjectMapper mapper) {
     super(mapper);
   }
 

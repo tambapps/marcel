@@ -13,6 +13,6 @@ public class DynamicObjectDeserializer extends JsonDeserializer<DynamicObject> {
   @Override
   public DynamicObject deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
     JsonNode jsonNode = p.getCodec().readTree(p);
-    return DynamicObject.of(JsonSlurper.toObject(jsonNode));
+    return DynamicObject.of(JsonMapper.toObject(jsonNode));
   }
 }

@@ -19,58 +19,86 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class JsonSlurper {
+public class JsonMapper {
+
+  // useful to handle json without having to instantiate a mapper
+  public static final JsonMapper INSTANCE = new JsonMapper();
+
   protected final ObjectMapper mapper;
 
-  public JsonSlurper() {
+  public JsonMapper() {
     this(newObjectMapper());
   }
 
-  public JsonSlurper(ObjectMapper mapper) {
+  public JsonMapper(ObjectMapper mapper) {
     this.mapper = mapper;
   }
 
-  public DynamicObject slurp(String text) throws JsonProcessingException {
-    return mapper.readValue(text, DynamicObject.class);
+  public DynamicObject read(String text) throws JsonProcessingException {
+    return read(text, DynamicObject.class);
   }
 
-  public DynamicObject slurp(byte[] bytes) throws IOException {
-    return mapper.readValue(bytes, DynamicObject.class);
+  public DynamicObject read(byte[] bytes) throws IOException {
+    return read(bytes, DynamicObject.class);
   }
 
-  public DynamicObject slurp(InputStream inputStream) throws IOException {
-    return mapper.readValue(inputStream, DynamicObject.class);
+  public DynamicObject read(InputStream inputStream) throws IOException {
+    return read(inputStream, DynamicObject.class);
   }
 
-  public DynamicObject slurp(File file) throws IOException {
-    return mapper.readValue(file, DynamicObject.class);
+  public DynamicObject read(File file) throws IOException {
+    return read(file, DynamicObject.class);
   }
 
-  public DynamicObject slurpFile(String path) throws IOException {
-    return slurp(new File(path));
+  public DynamicObject read(Reader reader) throws IOException {
+    return read(reader, DynamicObject.class);
   }
 
-  public DynamicObject slurpFile(Reader reader) throws IOException {
-    return mapper.readValue(reader, DynamicObject.class);
+  public DynamicObject readFile(String path) throws IOException {
+    return read(new File(path), DynamicObject.class);
   }
 
-  public String serializeToString(Object o) throws JsonProcessingException {
+  public <T> T read(String text, Class<T> clazz) throws JsonProcessingException {
+    return mapper.readValue(text, clazz);
+  }
+
+  public <T> T read(byte[] bytes, Class<T> clazz) throws IOException {
+    return mapper.readValue(bytes, clazz);
+  }
+
+  public <T> T read(InputStream inputStream, Class<T> clazz) throws IOException {
+    return mapper.readValue(inputStream, clazz);
+  }
+
+  public <T> T read(File file, Class<T> clazz) throws IOException {
+    return mapper.readValue(file, clazz);
+  }
+
+  public <T> T read(Reader reader, Class<T> clazz) throws IOException {
+    return mapper.readValue(reader, clazz);
+  }
+
+  public <T> T readFile(String path, Class<T> clazz) throws IOException {
+    return read(new File(path), clazz);
+  }
+
+  public String writeAsString(Object o) throws JsonProcessingException {
     return mapper.writeValueAsString(o);
   }
 
-  public byte[] serializeToBytes(Object o) throws JsonProcessingException {
+  public byte[] writeAsBytes(Object o) throws JsonProcessingException {
     return mapper.writeValueAsBytes(o);
   }
 
-  public void serialize(Object o, File file) throws IOException {
+  public void write(Object o, File file) throws IOException {
     mapper.writeValue(file, o);
   }
 
-  public void serializeInFile(Object o, String path) throws IOException {
-    serialize(o, new File(path));
+  public void writeInFile(Object o, String path) throws IOException {
+    write(o, new File(path));
   }
 
-  public void serializeIn(Object o, OutputStream outputStream) throws IOException {
+  public void write(Object o, OutputStream outputStream) throws IOException {
     mapper.writeValue(outputStream, o);
   }
 
