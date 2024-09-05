@@ -114,7 +114,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
         val extensionMethod = toExtensionMethod(originalMethod)
         val methods = getMarcelMethods(extensionMethod.marcelOwnerClass)
         // TODO need strictMatch here, not matches
-        methods.removeIf { matches(it, extensionMethod.name, extensionMethod.parameters) }
+        methods.removeIf { strictMatch(it, extensionMethod.name, extensionMethod.parameters) }
       }
   }
 
@@ -439,7 +439,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     name: String,
     argumentTypes: List<JavaTyped>
   ): MarcelMethod? {
-    val exactCandidates = candidates.filter { exactMatch(it, name, argumentTypes) }
+    val exactCandidates = candidates.filter { strictMatch(it, name, argumentTypes) }
     return if (exactCandidates.size == 1) exactCandidates.first() else getMoreSpecificMethod(
       if (exactCandidates.isNotEmpty()) exactCandidates else candidates
     )

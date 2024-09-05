@@ -18,7 +18,7 @@ interface MethodMatcherTrait {
    */
   fun getInterfaceLambdaMethod(type: JavaType): MarcelMethod?
 
-  fun exactMatch(method: MarcelMethod, name: String, types: List<JavaTyped>): Boolean {
+  fun strictMatch(method: MarcelMethod, name: String, types: List<JavaTyped>): Boolean {
     return method.name == name && method.parameters.map { it.type.raw() } == types.map { it.type.raw() }
   }
 
