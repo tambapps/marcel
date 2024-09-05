@@ -22,7 +22,14 @@ import java.util.Map;
 public class JsonMapper {
 
   // useful to handle json without having to instantiate a mapper
-  public static final JsonMapper INSTANCE = new JsonMapper();
+  private static JsonMapper _instance = new JsonMapper();
+
+  public static JsonMapper getInstance() {
+    if (_instance == null) {
+      _instance = new JsonMapper();
+    }
+    return _instance;
+  }
 
   protected final ObjectMapper mapper;
 

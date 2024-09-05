@@ -10,7 +10,14 @@ import marcel.json.JsonMapper;
 public class YamlMapper extends JsonMapper {
 
   // useful to handle json without having to instantiate a mapper
-  public static final YamlMapper INSTANCE = new YamlMapper();
+  private static YamlMapper _instance = new YamlMapper();
+
+  public static YamlMapper getInstance() {
+    if (_instance == null) {
+      _instance = new YamlMapper();
+    }
+    return _instance;
+  }
 
   public YamlMapper() {
     this(newObjectMapper(new ObjectMapper(newYamlFactory())));
