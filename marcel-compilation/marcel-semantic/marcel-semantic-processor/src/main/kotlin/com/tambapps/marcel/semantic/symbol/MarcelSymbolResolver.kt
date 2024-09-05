@@ -237,6 +237,8 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     }
   }
 
+  fun defineField(field: MarcelField) = defineField(field.owner, field)
+
   open fun defineField(javaType: JavaType, field: MarcelField) {
     if (javaType.isLoaded && field is JavaClassField) {
       throw MarcelSemanticException(

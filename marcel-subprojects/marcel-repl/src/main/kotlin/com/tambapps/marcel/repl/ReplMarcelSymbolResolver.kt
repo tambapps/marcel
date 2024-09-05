@@ -1,11 +1,10 @@
 package com.tambapps.marcel.repl
 
-import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.variable.field.BoundField
 import com.tambapps.marcel.semantic.variable.field.CompositeField
-import marcel.lang.Binding
+import com.tambapps.marcel.semantic.variable.field.MarcelField
 import marcel.lang.MarcelClassLoader
 
 class ReplMarcelSymbolResolver constructor(
@@ -16,9 +15,11 @@ class ReplMarcelSymbolResolver constructor(
 
   val scriptVariables: Map<String, BoundField> get() = _scriptVariables
 
-  fun defineBoundField(field: BoundField) {
-    defineField(field.owner, field)
-    _scriptVariables[field.name] = field
+  override fun defineField(javaType: JavaType, field: MarcelField) {
+    super.defineField(javaType, field)
+    if (field is BoundField) {
+      _scriptVariables[field.name] = field
+    }
   }
 
   fun getBoundField(name: String): BoundField? = _scriptVariables[name]

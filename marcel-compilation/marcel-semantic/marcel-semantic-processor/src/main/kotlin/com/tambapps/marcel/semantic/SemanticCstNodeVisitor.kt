@@ -158,6 +158,7 @@ import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.PrimitiveCollectionTypes
 import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.Variable
+import com.tambapps.marcel.semantic.variable.field.BoundField
 import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
 import com.tambapps.marcel.semantic.visitor.ReturningBranchTransformer
 import com.tambapps.marcel.semantic.visitor.ReturningWhenIfBranchTransformer
@@ -778,7 +779,7 @@ abstract class SemanticCstNodeVisitor(
     val leftOperand = node.leftOperand
     val rightOperand = node.rightOperand
     return when (val tokenType = node.tokenType) {
-      TokenType.ASSIGNMENT -> assignment(node, smartCastType)
+      TokenType.ASSIGNMENT -> assignmentOperator(node, smartCastType)
       TokenType.PLUS -> {
         val left = leftOperand.accept(this)
         val right = rightOperand.accept(this)
@@ -1024,12 +1025,33 @@ abstract class SemanticCstNodeVisitor(
     }
   }
 
-  protected open fun assignment(node: BinaryOperatorCstNode, smartCastType: JavaType?): ExpressionNode {
+  private fun assignmentOperator(node: BinaryOperatorCstNode, smartCastType: JavaType?): ExpressionNode {
+    val scope = currentMethodScope
     // passing smartCastType to indicate whether we need to check get access or not
-    return assignment(node, node.leftOperand.accept(this, smartCastType))
+    val leftResult = runCatching { node.leftOperand.accept(this, smartCastType) }
+    if (leftResult.isSuccess) return assignment(node, leftResult.getOrThrow())
+    else if (leftResult.isFailure &&
+      (leftResult.exceptionOrNull() !is VariableNotFoundException
+          // conditions making bound field assignment not feasible
+          || scope.staticContext || !scope.classType.isScript || node.leftOperand !is ReferenceCstNode)) leftResult.getOrThrow()
+
+    // bound field for scripts TODO document this, and add a test for it
+
+    // if we went here this means the field was not defined
+    val right = node.rightOperand.accept(this)
+
+    // this is important. We always want bound field to be object type as values are obtained from getVariable which returns an Object
+    val boundField = BoundField(right.type.objectType, (node.leftOperand as ReferenceCstNode).value, scope.classType)
+    symbolResolver.defineField(boundField)
+
+    return assignment(node, left = ReferenceNode(
+      owner = ThisReferenceNode(currentScope.classType, node.token),
+      variable = boundField,
+      token = node.token
+    ), right = caster.cast(boundField.type, right))
   }
 
-  protected fun assignment(
+  private fun assignment(
     node: BinaryOperatorCstNode,
     left: ExpressionNode,
     right: ExpressionNode = node.rightOperand.accept(this, left.type)
@@ -1037,7 +1059,7 @@ abstract class SemanticCstNodeVisitor(
     return assignment(left, right, node)
   }
 
-  protected fun assignment(left: ExpressionNode, right: ExpressionNode, node: CstNode): ExpressionNode {
+  private fun assignment(left: ExpressionNode, right: ExpressionNode, node: CstNode): ExpressionNode {
     return when (left) {
       is ReferenceNode -> {
         val variable = left.variable

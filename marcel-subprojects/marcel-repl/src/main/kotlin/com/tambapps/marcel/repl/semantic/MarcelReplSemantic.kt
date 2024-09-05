@@ -25,26 +25,6 @@ class MarcelReplSemantic(
     this.imports.add(imports)
   }
 
-  override fun assignment(node: BinaryOperatorCstNode, smartCastType: JavaType?): com.tambapps.marcel.semantic.ast.expression.ExpressionNode {
-    val scope = currentMethodScope
-    if (scope.staticContext || !scope.classType.isScript || node.leftOperand !is ReferenceCstNode) return super.assignment(node, smartCastType)
-    val leftResult = runCatching { node.leftOperand.accept(this) }
-    if (leftResult.isSuccess) return assignment(node, leftResult.getOrThrow())
-
-    // if we went here this means the field was not defined
-    val right = node.rightOperand.accept(this)
-
-    // this is important. We always want bound field to be object type as values are obtained from getVariable which returns an Object
-    val boundField = BoundField(right.type.objectType, (node.leftOperand as ReferenceCstNode).value, scope.classType)
-    replSymbolResolver.defineBoundField(boundField)
-
-    return assignment(node, left = ReferenceNode(
-      owner = ThisReferenceNode(currentScope.classType, node.token),
-      variable = boundField,
-      token = node.token
-    ), right = caster.cast(boundField.type, right))
-  }
-
   override fun resolveMethodCall(
     node: FunctionCallCstNode,
     positionalArguments: List<com.tambapps.marcel.semantic.ast.expression.ExpressionNode>,
