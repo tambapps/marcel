@@ -26,6 +26,14 @@
     </dependency>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
+      <artifactId>marcel-json</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.tambapps.marcel</groupId>
+      <artifactId>marcel-yaml</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.tambapps.marcel</groupId>
       <artifactId>dumbbell-core</artifactId>
     </dependency>
     <dependency>
