@@ -4,7 +4,7 @@ plugins {
   id("com.google.devtools.ksp")
   id("com.google.dagger.hilt.android")
 }
-// TODO test migration before releasing (by putting the last release, and then put back last commit)
+// TODO test room migration before releasing (by putting the last release, and then put back last commit)
 val marcelVersion: String = project.findProperty("marcel.version") as String
 val javaVersion: String = project.findProperty("java.version") as String
 
@@ -63,9 +63,14 @@ dependencies {
 
   // marcel
   implementation("com.tambapps.marcel:marcel-repl:$marcelVersion")
+  implementation("com.tambapps.marcel:marcel-json:$marcelVersion")
+  implementation("com.tambapps.marcel:marcel-yaml:$marcelVersion")
   implementation("com.tambapps.marcel:dumbbell-core:$marcelVersion")
   implementation(project(path = ":marcel-dalvik-compiler"))
   implementation(project(path = ":marcel-dalvik-stdlib"))
+
+  /// my libs
+  implementation("com.tambapps.http:hyperpoet-marcel:1.4.1-SNAPSHOT")
 
   implementation("androidx.core:core-ktx:1.13.1")
   implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3")
