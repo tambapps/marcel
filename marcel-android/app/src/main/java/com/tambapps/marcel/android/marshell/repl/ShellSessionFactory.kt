@@ -55,7 +55,7 @@ class ShellSessionFactory @Inject constructor(
 
     if (Environment.isExternalStorageManager()) {
       val boundField = BoundField(File::class.javaType, "ROOT_DIR", MarshellScript::class.javaType)
-      symbolResolver.defineBoundField(boundField)
+      symbolResolver.defineField(boundField)
       binding.setVariable(boundField.name, Environment.getExternalStorageDirectory())
     }
     val session = ShellSession(symbolResolver, replCompiler, evaluator, printer, sessionDirectory)
