@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.tambapps.marcel.android.marshell.BuildConfig
+import com.tambapps.marcel.android.marshell.FilePickerActivity
 import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.ui.component.EnabledNotificationsDialog
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
@@ -112,6 +113,17 @@ fun SettingsScreen(
       checked = viewModel.canSendSms
     )
 
+    if (viewModel.canManageFiles) {
+      SectionTitle(text = "Files")
+      val pickFileLauncher = FilePickerActivity.rememberFilePickerForActivityResult { file ->
+        if (file != null) viewModel.updateHomeDirectory(file)
+      }
+
+     SettingItem(
+        text = "Home directory",
+        description = if (viewModel.homeDirectory == null) "Configure the home directory" else viewModel.homeDirectory!!.absolutePath,
+        onClick = { pickFileLauncher.launch(FilePickerActivity.Args(pickDirectory = true)) })
+    }
     /*
     SectionTitle(text = "Dependency Management")
     SettingItem(

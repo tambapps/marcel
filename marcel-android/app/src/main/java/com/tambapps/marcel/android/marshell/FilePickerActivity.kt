@@ -57,14 +57,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.tambapps.marcel.android.marshell.service.PreferencesDataStore
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.screen.settings.askManageFilePermission
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
 import com.tambapps.marcel.android.marshell.util.LifecycleStateListenerEffect
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import java.io.File
+import javax.inject.Inject
 
+// TODO inject and use home directory here
+@AndroidEntryPoint
 class FilePickerActivity : ComponentActivity() {
 
   companion object {
@@ -73,13 +80,15 @@ class FilePickerActivity : ComponentActivity() {
     const val ALLOWED_FILE_EXTENSIONS_KEY = "afek"
     const val ALLOW_CREATE_FILE_KEY = "acfilek"
     const val DIRECTORY_ONLY_KEY = "pick_directoryk"
-    const val START_DIRECTORY_KEY = "start_directory"
 
     @Composable
     fun rememberFilePickerForActivityResult(callback: (File?) -> Unit): ManagedActivityResultLauncher<Args, File?> {
       return rememberLauncherForActivityResult(Contract(), callback)
     }
   }
+
+  @Inject
+  lateinit var preferencesDataStore: PreferencesDataStore
 
   data class Args(
     val pickDirectory: Boolean = false,
@@ -103,6 +112,7 @@ class FilePickerActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
+    val homeDirectory = runBlocking { preferencesDataStore.homeDirectory.first() }
     setContent {
       val viewModel: FileExplorerViewModel = viewModel()
       onBackPressedDispatcher.addCallback {
@@ -120,7 +130,7 @@ class FilePickerActivity : ComponentActivity() {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
           Box(modifier = Modifier.fillMaxSize()) {
             LifecycleStateListenerEffect(
-              onResume = viewModel::refresh
+              onResume = { viewModel.refresh(homeDirectory) }
             )
             if (!viewModel.canManageFiles) {
               AlertDialog(
@@ -364,10 +374,10 @@ class FileExplorerViewModel: ViewModel() {
     update(file)
   }
 
-  fun refresh() {
+  fun refresh(homeDirectory: File?) {
     canManageFiles = Environment.isExternalStorageManager()
     if (canManageFiles && currentDir == null) {
-      currentDir = Environment.getExternalStorageDirectory()
+      currentDir = homeDirectory ?: Environment.getExternalStorageDirectory()
     }
     currentDir?.let(this::update)
   }

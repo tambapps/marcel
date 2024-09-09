@@ -25,6 +25,7 @@ import org.commonmark.ext.gfm.tables.TablesExtension
 import org.commonmark.parser.Parser
 import java.io.File
 import javax.inject.Named
+import javax.inject.Singleton
 
 @Module
 @InstallIn(ActivityComponent::class,
@@ -74,11 +75,6 @@ class MarcelAndroidConfiguration {
 
   @Provides
   fun dumbbellEngine(dumbbellMavenRepository: RemoteSavingMavenRepository): DumbbellEngine = DumbbellEngine(dumbbellMavenRepository)
-
-  @Provides
-  fun dataStore(@ApplicationContext context: Context): DataStore<Preferences> {
-    return PreferenceDataStoreFactory.create { context.preferencesDataStoreFile("preferences") }
-  }
 
   @Provides
   fun workManager(@ApplicationContext context: Context) = WorkManager.getInstance(context)
