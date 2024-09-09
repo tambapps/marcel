@@ -53,7 +53,7 @@ fun DocumentationScreen(
         )
         return
       }
-      MarkdownComposer(viewModel.highlighter).Markdown(node)
+      viewModel.Markdown(node)
 
       Box(modifier = Modifier.fillMaxWidth().padding(top = 32.dp)) {
         if (onGoPrevious != null) {

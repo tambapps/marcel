@@ -54,7 +54,7 @@ import org.commonmark.node.SoftLineBreak
 import org.commonmark.node.StrongEmphasis
 import org.commonmark.node.Text
 
-class MarkdownComposer (
+class MarkdownComposer(
   private val highlighter: SpannableHighlighter
 ) {
 
