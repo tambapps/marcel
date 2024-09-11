@@ -100,7 +100,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
 
 
   // Not checking if method is already defined. will allow going faster
-  private fun loadExtensionUnsafe(type: JavaType) {
+  protected fun loadExtensionUnsafe(type: JavaType) {
     getDeclaredMethods(type).filter { it.isStatic && it.parameters.isNotEmpty() && it.visibility != Visibility.PRIVATE }
       .forEach {
         // extensions can be from a non-extension class, which can extend many types (see DefaultMarcelMethods)
@@ -113,7 +113,6 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
       .forEach { originalMethod ->
         val extensionMethod = toExtensionMethod(originalMethod)
         val methods = getMarcelMethods(extensionMethod.marcelOwnerClass)
-        // TODO need strictMatch here, not matches
         methods.removeIf { strictMatch(it, extensionMethod.name, extensionMethod.parameters) }
       }
   }
