@@ -20,6 +20,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import marcel.lang.Markdown
 import okhttp3.OkHttpClient
 import org.commonmark.ext.gfm.tables.TablesExtension
 import org.commonmark.parser.Parser
@@ -28,9 +29,7 @@ import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
-@InstallIn(ActivityComponent::class,
-  // for workers
-  SingletonComponent::class)
+@InstallIn(SingletonComponent::class)
 class MarcelAndroidConfiguration {
 
   @Named("initScriptFile")
@@ -68,6 +67,13 @@ class MarcelAndroidConfiguration {
     )
   }
 
+  // TODO maybe add Singleton on others?
+  @Provides
+  @Singleton // important. There must be only one instance of this or else it will crash
+  fun dataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+    return PreferenceDataStoreFactory.create { context.preferencesDataStoreFile("preferences") }
+  }
+
   @Provides
   fun dumbbellMavenRepository(@Named("dumbbellRootFile") dumbbellRootFile: File): RemoteSavingMavenRepository {
     return DexRemoteSavingRepository(dumbbellRootFile)
@@ -80,7 +86,7 @@ class MarcelAndroidConfiguration {
   fun workManager(@ApplicationContext context: Context) = WorkManager.getInstance(context)
 
   @Provides
-  fun parser(): Parser = Parser.builder().extensions(listOf(TablesExtension.create())).build()
+  fun parser(): Parser = Markdown.PARSER
 
   @Provides
   fun okHttp() = OkHttpClient()
