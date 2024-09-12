@@ -4,7 +4,6 @@ import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.type.JavaType
 
-// TODO move extension types into this
 /**
  * Class allowing to resolve types from imports
  */
