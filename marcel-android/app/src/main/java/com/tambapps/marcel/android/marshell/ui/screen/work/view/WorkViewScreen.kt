@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
@@ -194,6 +196,7 @@ fun Fab(
 private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
   Column(
     modifier = Modifier.animateContentSize(animationSpec = EXPANDABLE_CARD_ANIMATION_SPEC)
+      .verticalScroll(rememberScrollState())
   ) {
     if (viewModel.scriptCardExpanded.value) {
       return@Column
@@ -257,29 +260,23 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
           Text(text = work.logs, style = MaterialTheme.typography.shellTextStyle)
         }
       }
+      Box(modifier = Modifier.padding(16.dp))
     }
-    Box(modifier = Modifier.padding(16.dp))
+    if (work.result != null) {
+      val result = work.result
+      val isMarkdown = work.resultClassName == Markdown::class.java.name
+      SelectionContainer {
+        if (isMarkdown) {
+          viewModel.mdComposer.Markdown(node = Markdown.PARSER.parse(result))
+        } else {
+          Text(text = result, style = MaterialTheme.typography.shellTextStyle, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+        }
+      }
+      Box(modifier = Modifier.padding(16.dp))
+    }
   }
   // should stay outside of the Column in order to expand over everything else
   WorkScriptCard(viewModel = viewModel, readOnly = !work.isPeriodic || work.isFinished)
-
-  if (work.result != null) {
-    Box(modifier = Modifier.padding(16.dp))
-    val result = work.result
-    val isMarkdown = work.resultClassName == Markdown::class.java.name
-    SelectionContainer {
-      if (isMarkdown) {
-        viewModel.mdComposer.Markdown(node = Markdown.PARSER.parse(result))
-      } else if (result.contains("\n")) { // multiline
-        Column {
-          Text(text = "Result:", style = MaterialTheme.typography.shellTextStyle, modifier = Modifier.padding(bottom = 8.dp))
-          Text(text = result, style = MaterialTheme.typography.shellTextStyle, modifier = Modifier.padding(horizontal = 16.dp))
-        }
-      } else {
-        Text(text = "Result: $result", style = MaterialTheme.typography.shellTextStyle, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
-      }
-    }
-  }
 }
 
 @Composable
