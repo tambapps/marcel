@@ -11,7 +11,7 @@ import com.tambapps.marcel.android.marshell.room.entity.Message
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 
 @TypeConverters(LocalDateTimeConverter::class, WorkPeriodConverter::class)
-@Database(entities = [ShellWork::class, Message::class], version = 3)
+@Database(entities = [ShellWork::class, Message::class], version = 4)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun shellWorkDataDao(): ShellWorkDao
     abstract fun messageDao(): MessageDao

@@ -85,7 +85,7 @@ class ShellWorkManager @Inject constructor(
       createdAt = LocalDateTime.now(),
       lastUpdatedAt = LocalDateTime.now(),
       startTime = null, endTime = null,
-      logs = null, result = null, failedReason = null
+      logs = null, result = null, resultClassName = null, failedReason = null
     )
     shellWorkDao.upsert(data)
   }

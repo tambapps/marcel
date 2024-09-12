@@ -47,9 +47,6 @@ interface ShellWorkDao {
   @Query("UPDATE shell_works SET failure_reason = :failureReason WHERE name =:name")
   suspend fun updateFailureReason(name: String, failureReason: String?)
 
-  @Query("UPDATE shell_works SET result = :result WHERE name =:name")
-  suspend fun updateResult(name: String, result: String?)
-
   @Query("UPDATE shell_works SET state = :state WHERE name =:name")
   suspend fun updateState(name: String, state: State)
 
@@ -64,6 +61,6 @@ interface ShellWorkDao {
   suspend fun updateScriptText(name: String, scriptText: String, lastUpdatedAt: LocalDateTime)
   suspend fun updateScriptText(name: String, scriptText: String) = updateScriptText(name, scriptText, LocalDateTime.now())
 
-  @Query("UPDATE shell_works SET end_time = :endTime, result = :result, failure_reason = :failureReason, logs = :logs, state = :state WHERE name =:name")
-  suspend fun update(name: String, endTime: LocalDateTime, result: String?, failureReason: String?, logs: String, state: State)
+  @Query("UPDATE shell_works SET end_time = :endTime, result = :result, result_class_name = :resultClassName, failure_reason = :failureReason, logs = :logs, state = :state WHERE name =:name")
+  suspend fun update(name: String, endTime: LocalDateTime, result: String?, resultClassName: String?, failureReason: String?, logs: String, state: State)
 }

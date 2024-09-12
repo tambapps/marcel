@@ -1,5 +1,7 @@
 package marcel.lang;
 
+import androidx.annotation.NonNull;
+
 import org.commonmark.ext.gfm.tables.TablesExtension;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
@@ -31,5 +33,11 @@ public class Markdown {
 
   public Node getNode() {
     return node;
+  }
+
+  @NonNull
+  @Override
+  public String toString() {
+    return source;
   }
 }

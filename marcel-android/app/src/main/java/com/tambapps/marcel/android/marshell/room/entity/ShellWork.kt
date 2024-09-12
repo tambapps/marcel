@@ -26,6 +26,7 @@ data class ShellWork(
   @ColumnInfo(name = "scheduled_at") val scheduledAt: LocalDateTime?,
   @ColumnInfo val logs: String?,
   @ColumnInfo val result: String?,
+  @ColumnInfo(name = "result_class_name") val resultClassName: String?,
   @ColumnInfo(name = "failure_reason") val failedReason: String?,
   // not fetched by default. Only fetched for the byId
   @ColumnInfo(name = "script_text") val scriptText: String?,

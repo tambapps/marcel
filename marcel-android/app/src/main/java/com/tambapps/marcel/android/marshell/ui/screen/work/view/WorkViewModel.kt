@@ -11,6 +11,7 @@ import androidx.navigation.NavController
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
+import com.tambapps.marcel.android.marshell.ui.component.MarkdownComposer
 import com.tambapps.marcel.android.marshell.ui.screen.ScriptCardEditorViewModel
 import com.tambapps.marcel.android.marshell.work.ShellWorkManager
 import com.tambapps.marcel.repl.MarcelReplCompiler
@@ -31,6 +32,7 @@ class WorkViewModel @Inject constructor(
 
   override val replCompiler = shellSessionFactory.newReplCompiler()
   private val highlighter = SpannableHighlighter(replCompiler)
+  val mdComposer = MarkdownComposer(highlighter)
 
   override var scriptTextInput by mutableStateOf(TextFieldValue())
   override var scriptTextError by mutableStateOf<String?>(null)

@@ -75,6 +75,7 @@ class MarshellWorkout @AssistedInject constructor(
       name = work.name,
       endTime = LocalDateTime.now(),
       result = result.getOrNull()?.toString(),
+      resultClassName = result.getOrNull()?.javaClass?.name,
       failureReason = result.exceptionOrNull()?.localizedMessage,
       logs = printer.toString(),
       state = if (work.isPeriodic) WorkInfo.State.ENQUEUED
