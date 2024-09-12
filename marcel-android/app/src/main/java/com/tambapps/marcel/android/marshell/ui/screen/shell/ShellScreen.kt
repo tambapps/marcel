@@ -55,6 +55,7 @@ import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
 import com.tambapps.marcel.android.marshell.ui.component.shellIconModifier
 import com.tambapps.marcel.android.marshell.ui.theme.disabledPrimary
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
+import marcel.lang.Markdown
 import marcel.util.MarcelVersion
 
 val HEADER = "Marshell (Marcel: ${MarcelVersion.VERSION}, Android ${Build.VERSION.RELEASE})"
@@ -97,6 +98,12 @@ fun ShellScreen(
                   text = prompt.text.toString(), padding = PaddingValues(top = 16.dp)
                 )
               }
+            }
+          } else if (prompt.value is Markdown) {
+            if (viewModel.mdComposer != null) {
+              viewModel.mdComposer!!.Markdown(node = prompt.value.node)
+            } else {
+              HistoryText(text = prompt.text.toString())
             }
           } else {
             HistoryText(

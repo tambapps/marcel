@@ -8,12 +8,11 @@ import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.DumbbellsParser
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.repl.MarcelReplCompiler
-import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import java.io.File
 
 class ShellSession constructor(
-  internal val symbolResolver: ReplMarcelSymbolResolver,
+  internal val symbolResolver: MarshellSymbolResolver,
   internal val replCompiler: MarcelReplCompiler,
   private val evaluator: MarshellEvaluator,
   private val printer: Printer,

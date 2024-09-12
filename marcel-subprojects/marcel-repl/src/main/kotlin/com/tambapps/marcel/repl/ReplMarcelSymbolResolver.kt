@@ -7,7 +7,7 @@ import com.tambapps.marcel.semantic.variable.field.CompositeField
 import com.tambapps.marcel.semantic.variable.field.MarcelField
 import marcel.lang.MarcelClassLoader
 
-class ReplMarcelSymbolResolver constructor(
+open class ReplMarcelSymbolResolver constructor(
   classLoader: MarcelClassLoader?
 ) : MarcelSymbolResolver(classLoader) {
 

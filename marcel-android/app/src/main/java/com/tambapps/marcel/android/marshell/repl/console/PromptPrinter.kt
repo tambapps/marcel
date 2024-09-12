@@ -35,6 +35,6 @@ class PromptPrinter(private val prompts: MutableList<Prompt>): Printer {
         println("")
     }
 
-    private fun prompt(any: Any?) = Prompt(Prompt.Type.STDOUT, any?.toString() ?: "null")
+    private fun prompt(any: Any?) = Prompt(Prompt.Type.STDOUT, any)
 
 }

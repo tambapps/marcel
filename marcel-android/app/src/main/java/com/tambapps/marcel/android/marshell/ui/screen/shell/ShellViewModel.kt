@@ -17,6 +17,7 @@ import com.tambapps.marcel.android.marshell.repl.ShellSession
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.repl.console.PromptPrinter
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
+import com.tambapps.marcel.android.marshell.ui.component.MarkdownComposer
 import com.tambapps.marcel.android.marshell.ui.screen.ScriptViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -56,6 +57,8 @@ class ShellViewModel @Inject constructor(
   private var shellSession by mutableStateOf<ShellSession?>(null)
   private var highlighter: SpannableHighlighter? = null
   private val ioScope = CoroutineScope(Dispatchers.IO)
+  var mdComposer: MarkdownComposer? = null
+    private set
 
   init {
     ioScope.launch {
@@ -65,6 +68,7 @@ class ShellViewModel @Inject constructor(
           sessionResult.getOrThrow().let {
             shellSession = it
             highlighter = it.newHighlighter()
+            mdComposer = MarkdownComposer(highlighter!!)
             updatePrompt()
           }
         } else {
@@ -139,7 +143,7 @@ class ShellViewModel @Inject constructor(
     historyNavigator.reset()
     ioScope.launch {
       val result = shellSession.evalAsResult(text.toString())
-      val prompt = if (result.isSuccess) Prompt(Prompt.Type.SUCCESS_OUTPUT, java.lang.String.valueOf(result.getOrNull()))
+      val prompt = if (result.isSuccess) Prompt(Prompt.Type.SUCCESS_OUTPUT, result.getOrNull())
       else {
         val exception = result.exceptionOrNull()!!
         Log.e("ShellSession", "Error while running prompt", exception)

@@ -13,9 +13,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.tambapps.marcel.android.marshell.repl.MarshellSymbolResolver
 import com.tambapps.marcel.android.marshell.ui.component.ExpandableCard
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
-import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.type.JavaType
@@ -36,7 +36,7 @@ internal fun ClassesScreen(shellViewModel: ShellViewModel) {
 }
 
 @Composable
-private fun ClassesList(symbolResolver: ReplMarcelSymbolResolver, classes: List<JavaType>) {
+private fun ClassesList(symbolResolver: MarshellSymbolResolver, classes: List<JavaType>) {
   LazyColumn {
     items(classes) { type ->
       ExpandableCard(

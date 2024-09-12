@@ -29,7 +29,9 @@ android {
   }
   kotlinOptions {
     jvmTarget = javaVersion
-    javaParameters = true // important to keep metadata (annotations and names of method parameters)
+    // important to keep metadata (annotations and names of method parameters)
+    // be careful, it only works for kotlin source
+    javaParameters = true
   }
 }
 
@@ -37,6 +39,8 @@ dependencies {
   // dalvik
   implementation(fileTree(Pair("dir", File(rootDir, "app/libs")), Pair("include", listOf("*.jar"))))
   implementation("androidx.core:core-ktx:1.13.1")
+  implementation("org.commonmark:commonmark:0.22.0")
+  implementation("org.commonmark:commonmark-ext-gfm-tables:0.22.0")
 
   // marcel libs
   implementation("com.tambapps.marcel:marcel-stdlib:$marcelVersion")

@@ -7,12 +7,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
+import com.tambapps.marcel.android.marshell.repl.MarshellSymbolResolver
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.ui.screen.ScriptEditorViewModel
 import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.repl.MarcelReplCompiler
-import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,7 +38,7 @@ class EditorViewModel @Inject constructor(
   // provide a new context for init script because we're not supposed to be in a current session when running it
   // need to compare with canonicalPath, otherwise it doesn't match (because we gave canonicalPath in SettingsScreen)
   override val replCompiler = if (file?.canonicalPath == initScriptFile.canonicalPath) MarcelDexClassLoader().let { classLoader ->
-    MarcelReplCompiler(compilerConfiguration, classLoader, ReplMarcelSymbolResolver(classLoader))
+    MarcelReplCompiler(compilerConfiguration, classLoader, MarshellSymbolResolver(classLoader))
   }
   else shellSessionFactory.newReplCompiler()
   private val highlighter = SpannableHighlighter(replCompiler)

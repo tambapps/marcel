@@ -10,7 +10,6 @@ import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.dumbbell.DumbbellEngine
 import com.tambapps.marcel.repl.MarcelReplCompiler
-import com.tambapps.marcel.repl.ReplMarcelSymbolResolver
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.variable.field.BoundField
 import kotlinx.coroutines.flow.first
@@ -53,7 +52,7 @@ class ShellSessionFactory @Inject constructor(
     }
     val binding = Binding()
     val classLoader = MarcelDexClassLoader()
-    val symbolResolver = ReplMarcelSymbolResolver(classLoader)
+    val symbolResolver = MarshellSymbolResolver(classLoader)
     val replCompiler = MarcelReplCompiler(compilerConfiguration, classLoader, symbolResolver)
     val evaluator = MarshellEvaluator(binding, replCompiler, classLoader, DexJarWriter(), sessionDirectory, printer, androidSystem)
 
@@ -83,7 +82,7 @@ class ShellSessionFactory @Inject constructor(
     return session
   }
 
-  private fun addBoundField(symbolResolver: ReplMarcelSymbolResolver, binding: Binding, field: BoundField, value: Any) {
+  private fun addBoundField(symbolResolver: MarshellSymbolResolver, binding: Binding, field: BoundField, value: Any) {
     symbolResolver.defineField(field)
     binding.setVariable(field.name, value)
   }

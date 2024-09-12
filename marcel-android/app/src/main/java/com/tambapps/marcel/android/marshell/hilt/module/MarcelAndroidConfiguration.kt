@@ -1,6 +1,5 @@
 package com.tambapps.marcel.android.marshell.hilt.module
 
-import android.app.NotificationManager
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
@@ -17,12 +16,10 @@ import com.tambapps.maven.dependency.resolver.repository.RemoteSavingMavenReposi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import marcel.lang.Markdown
 import okhttp3.OkHttpClient
-import org.commonmark.ext.gfm.tables.TablesExtension
 import org.commonmark.parser.Parser
 import java.io.File
 import javax.inject.Named
@@ -67,7 +64,6 @@ class MarcelAndroidConfiguration {
     )
   }
 
-  // TODO maybe add Singleton on others?
   @Provides
   @Singleton // important. There must be only one instance of this or else it will crash
   fun dataStore(@ApplicationContext context: Context): DataStore<Preferences> {
