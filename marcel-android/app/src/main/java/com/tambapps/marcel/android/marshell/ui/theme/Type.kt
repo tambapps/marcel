@@ -50,7 +50,7 @@ fun AppTypography(textColor: Color): Typography {
     bodyMedium = baseline.bodyMedium.copy(fontFamily = bodyFontFamily, color = textColor),
     bodySmall = baseline.bodySmall.copy(fontFamily = bodyFontFamily, color = textColor),
     // shellTextStyle
-    labelLarge = baseline.labelLarge.copy(fontFamily = displayFontFamily, color = textColor, fontSize = 16.sp),
+    labelLarge = baseline.labelLarge.copy(fontFamily = displayFontFamily, color = textColor),
     labelMedium = baseline.labelMedium.copy(fontFamily = bodyFontFamily, color = textColor),
     labelSmall = baseline.labelSmall.copy(fontFamily = bodyFontFamily, color = textColor),
   )
