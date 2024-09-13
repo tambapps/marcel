@@ -1,5 +1,6 @@
 package com.tambapps.marcel.android.marshell.ui.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,12 +17,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -34,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tambapps.marcel.android.marshell.ui.screen.ScriptEditorViewModel
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
+
+private val LineOfInterestBackgroundColor = Color.LightGray.copy(alpha = 0.4f)
 
 @Composable
 fun ScriptTextField(
@@ -49,6 +54,7 @@ fun ScriptTextField(
   var textLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
   val lineCount = textLayoutResult?.lineCount ?: 1
   val lineComponentLength = 12.dp * lineCount.toString().length
+  var lineSelected by remember { mutableIntStateOf(0) }
 
   Row(modifier = modifier) {
     Column(modifier = Modifier
@@ -56,9 +62,13 @@ fun ScriptTextField(
       .verticalScroll(verticalScrollState)) {
       for (i in 0 until lineCount) {
         // using basic text field so that it has the same dimensions as the text text field
+        var lineNumberModifier = Modifier.width(lineComponentLength)
+        if (lineSelected == i) {
+          lineNumberModifier = lineNumberModifier.background(LineOfInterestBackgroundColor)
+        }
         BasicTextField(
-          modifier = Modifier.width(lineComponentLength),
-          value = (i + 1).toString(),
+          modifier = lineNumberModifier,
+          value = (i + 1).toString() + " ",
           readOnly = true,
           textStyle = style.copy(textAlign = TextAlign.End),
           onValueChange = {})
@@ -68,7 +78,7 @@ fun ScriptTextField(
     VerticalDivider(
       modifier = Modifier
         .fillMaxHeight()
-        .padding(horizontal = 8.dp),
+        .padding(end = 4.dp),
       color = MaterialTheme.colorScheme.onBackground
     )
     BasicTextField(
@@ -84,7 +94,13 @@ fun ScriptTextField(
       readOnly = readOnly,
       textStyle = style,
       onTextLayout = { textLayoutResult = it },
-      onValueChange = viewModel::onScriptTextChange,
+      onValueChange = {
+        val cursorOffset = it.selection.start
+        textLayoutResult?.let { layoutResult ->
+          lineSelected = layoutResult.getLineForOffset(cursorOffset)
+        }
+        viewModel.onScriptTextChange(it)
+      },
       cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
       visualTransformation = viewModel,
     )
