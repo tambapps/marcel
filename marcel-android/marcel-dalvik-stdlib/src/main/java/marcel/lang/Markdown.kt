@@ -19,33 +19,36 @@ class Markdown private constructor(val source: String, val node: Node) {
     }
 
     @JvmStatic
-    fun h1(text: String?) = h(1, text)
+    fun lr(): String = System.lineSeparator() + System.lineSeparator()
 
     @JvmStatic
-    fun h2(text: String?) = h(2, text)
+    fun h1(value: Any?) = h(1, value)
 
     @JvmStatic
-    fun h3(text: String?) = h(3, text)
+    fun h2(value: Any?) = h(2, value)
 
     @JvmStatic
-    fun h4(text: String?) = h(4, text)
+    fun h3(value: Any?) = h(3, value)
 
     @JvmStatic
-    fun h5(text: String?) = h(5, text)
+    fun h4(value: Any?) = h(4, value)
 
     @JvmStatic
-    fun h6(text: String?) = h(6, text)
+    fun h5(value: Any?) = h(5, value)
 
     @JvmStatic
-    fun link(text: String, url: String) = "[$text]($url)"
+    fun h6(value: Any?) = h(6, value)
 
     @JvmStatic
-    fun h(level: Int, text: String?): String {
+    fun link(value: Any?, url: String) = "[$value]($url) "
+
+    @JvmStatic
+    fun h(level: Int, value: Any?): String {
       val builder = StringBuilder()
       for (i in 0 until level) {
         builder.append('#')
       }
-      return builder.append(" ").append(text).toString()
+      return builder.append(" ").append(value).append(System.lineSeparator()).toString()
     }
   }
 
