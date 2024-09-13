@@ -28,6 +28,10 @@ abstract class AbstractHighlighter<HighlightedString, Builder, Style> constructo
   protected abstract fun build(builder: Builder): HighlightedString
 
   fun highlight(text: CharSequence): HighlightedString {
+    return build(highlightBuilder(text))
+  }
+
+  fun highlightBuilder(text: CharSequence): Builder {
     val builder = newBuilder()
     val textStr = text.toString()
 
@@ -53,7 +57,7 @@ abstract class AbstractHighlighter<HighlightedString, Builder, Style> constructo
     } else {
       highlight(builder, defaultStyle, textStr)
     }
-    return build(builder)
+    return builder
   }
 
   private fun tryLex(text: String): List<LexToken>? =
