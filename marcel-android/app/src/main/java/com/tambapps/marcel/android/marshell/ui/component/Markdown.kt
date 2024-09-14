@@ -1,17 +1,18 @@
 package com.tambapps.marcel.android.marshell.ui.component
 
+import android.net.Uri
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -40,7 +42,6 @@ import org.commonmark.ext.gfm.tables.TableHead
 import org.commonmark.ext.gfm.tables.TableRow
 import org.commonmark.node.Block
 import org.commonmark.node.Code
-import org.commonmark.node.CustomNode
 import org.commonmark.node.FencedCodeBlock
 import org.commonmark.node.HardLineBreak
 import org.commonmark.node.Heading
@@ -98,7 +99,7 @@ class MarkdownComposer(
 
   @Composable
   fun Paragraph(node: Paragraph) {
-    Text(text = buildParagraph(node, MaterialTheme.typography.shellTextStyle), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Justify)
+    ParagraphText(node = node, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Justify)
   }
 
   @Composable
@@ -133,7 +134,36 @@ class MarkdownComposer(
       2 -> Pair(MaterialTheme.typography.titleMedium, 8.dp)
       else -> Pair(MaterialTheme.typography.titleSmall, 4.dp)
     }
-    Text(text = buildParagraph(node, MaterialTheme.typography.shellTextStyle), style = style, modifier = Modifier.padding(top = padding, bottom = padding))
+    ParagraphText(
+      node = node,
+      modifier = Modifier.padding(top = padding, bottom = padding),
+      style = style,
+    )
+  }
+
+  @Composable
+  private fun ParagraphText(
+    node: Block,
+    modifier: Modifier = Modifier,
+    style: TextStyle,
+    textAlign: TextAlign? = null
+  ) {
+    val annotatedString = buildParagraph(node, MaterialTheme.typography.shellTextStyle)
+    val context = LocalContext.current
+    ClickableText(
+      text = annotatedString,
+      style = if (textAlign != null) style.copy(textAlign = textAlign) else style,
+      modifier = modifier,
+      onClick = { offset ->
+        // Detect which link was clicked
+        annotatedString.getStringAnnotations(start = offset, end = offset)
+          .firstOrNull()?.let { annotation ->
+            val intent = CustomTabsIntent.Builder()
+              .build()
+            intent.launchUrl(context, Uri.parse(annotation.item))
+          }
+      }
+    )
   }
 
   @Composable
@@ -186,7 +216,11 @@ private fun buildParagraph(p: Block, shellTextStyle: TextStyle): AnnotatedString
         is Text -> append(n.literal)
         is HardLineBreak -> append("\n\n")
         is Link -> withStyle(style = SpanStyle(color = linkColor)) {
-          append((n.firstChild as? Text)?.literal ?: n.destination)
+          val link = n.destination
+          // need unique tag, using hashCode for that
+          pushStringAnnotation(tag = p.hashCode().toString(), annotation = link)
+          append((n.firstChild as? Text)?.literal ?: link)
+          pop()
         }
         is HtmlBlock -> append("\n\n") // it's usually for <br/>
         is StrongEmphasis -> withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
@@ -201,7 +235,6 @@ private fun buildParagraph(p: Block, shellTextStyle: TextStyle): AnnotatedString
     }
   }
 }
-
 
 private inline fun Node.forEach(consumer: (Node) -> Unit) {
   var n: Node? = firstChild
