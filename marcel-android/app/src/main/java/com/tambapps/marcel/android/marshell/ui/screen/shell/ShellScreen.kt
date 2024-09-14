@@ -180,6 +180,22 @@ private fun TopBar(
 
     Box(modifier = Modifier.width(10.dp))
 
+    val clearSessionDialog = remember { mutableStateOf(false) }
+    TopBarIconButton(
+      modifier = shellIconModifier(3.dp),
+      onClick = { clearSessionDialog.value = true },
+      drawable = R.drawable.broom,
+      contentDescription = "Clear session"
+    )
+    ClearSessionDialog(
+      viewModel = viewModel,
+      isOpen = clearSessionDialog.value,
+      onDismissRequest = { clearSessionDialog.value = false }
+    )
+
+
+    Box(modifier = Modifier.width(10.dp))
+
     TopBarIconButton(
       modifier = shellIconModifier(3.dp),
       onClick = { navController.navigate(Routes.consult(sessionId)) },
@@ -261,6 +277,42 @@ fun ConfirmDeleteSessionDialog(navController: NavController, show: MutableState<
   )
 }
 
+@Composable
+private fun ClearSessionDialog(
+  isOpen: Boolean,
+  onDismissRequest: () -> Unit,
+  viewModel: ShellViewModel,
+) {
+  if (!isOpen) {
+    return
+  }
+  val context = LocalContext.current
+  AlertDialog(
+    title = {
+      Text(text = "Clear session")
+    },
+    text = {
+      Text(text = "Clear functions and variables defined in this shell session?")
+    },
+    onDismissRequest = onDismissRequest,
+    dismissButton = {
+      TextButton(onClick = onDismissRequest) {
+        Text("Cancel")
+      }
+    },
+    confirmButton = {
+      TextButton(
+        onClick = {
+          viewModel.clearSession(context)
+          onDismissRequest.invoke()
+        }
+      ) {
+        Text("Yes")
+      }
+    }
+  )
+
+}
 @Composable
 private fun ExportSessionDialog(
   isOpen: Boolean,

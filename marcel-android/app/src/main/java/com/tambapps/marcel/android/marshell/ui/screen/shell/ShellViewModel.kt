@@ -34,7 +34,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ShellViewModel @Inject constructor(
   @ApplicationContext context: Context,
-  shellSessionFactory: ShellSessionFactory
+  private val shellSessionFactory: ShellSessionFactory
 ) : ViewModel(), ScriptViewModel {
 
   // states
@@ -61,6 +61,10 @@ class ShellViewModel @Inject constructor(
     private set
 
   init {
+    init(context)
+  }
+
+  private fun init(context: Context) {
     ioScope.launch {
       val sessionResult = runCatching { shellSessionFactory.newShellSession(PromptPrinter(prompts)) }
       withContext(Dispatchers.Main) {
@@ -201,5 +205,13 @@ class ShellViewModel @Inject constructor(
       return Result.failure(e)
     }
     return Result.success(Unit)
+  }
+
+  fun clearSession(context: Context) {
+    scriptTextInput = TextFieldValue()
+    prompts.clear()
+    isEvaluating = false
+    hint = null
+    init(context)
   }
 }
