@@ -63,7 +63,7 @@ fun ScriptTextField(
       for (i in 0 until lineCount) {
         // using basic text field so that it has the same dimensions as the text text field
         var lineNumberModifier = Modifier.width(lineComponentLength)
-        if (lineSelected == i) {
+        if (!readOnly && lineSelected == i) {
           lineNumberModifier = lineNumberModifier.background(LineOfInterestBackgroundColor)
         }
         BasicTextField(
