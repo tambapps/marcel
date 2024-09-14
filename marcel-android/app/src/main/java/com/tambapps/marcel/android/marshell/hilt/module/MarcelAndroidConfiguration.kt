@@ -18,9 +18,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import marcel.lang.Markdown
 import okhttp3.OkHttpClient
-import org.commonmark.parser.Parser
 import java.io.File
 import javax.inject.Named
 import javax.inject.Singleton
@@ -45,6 +43,7 @@ class MarcelAndroidConfiguration {
   @Named("workSessionsDirectory")
   @Provides
   fun workSessionsDirectory(@ApplicationContext context: Context): File {
+    // TODO use cacheDir for work sessions because they are supposed to be ephemeral and can be deleted safely
     return context.getDir("work_sessions", Context.MODE_PRIVATE)
   }
 
@@ -80,9 +79,6 @@ class MarcelAndroidConfiguration {
 
   @Provides
   fun workManager(@ApplicationContext context: Context) = WorkManager.getInstance(context)
-
-  @Provides
-  fun parser(): Parser = Markdown.PARSER
 
   @Provides
   fun okHttp() = OkHttpClient()

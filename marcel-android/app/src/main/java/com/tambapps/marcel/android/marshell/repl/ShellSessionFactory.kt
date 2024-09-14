@@ -3,6 +3,8 @@ package com.tambapps.marcel.android.marshell.repl
 import android.os.Environment
 import android.util.Log
 import com.tambapps.marcel.android.compiler.DexJarWriter
+import com.tambapps.marcel.android.marshell.os.AndroidNotifier
+import com.tambapps.marcel.android.marshell.os.AndroidSystemImpl
 import com.tambapps.marcel.android.marshell.repl.console.NoOpPrinter
 import com.tambapps.marcel.android.marshell.repl.console.Printer
 import com.tambapps.marcel.android.marshell.service.PreferencesDataStore
@@ -32,16 +34,14 @@ class ShellSessionFactory @Inject constructor(
   private val preferencesDataStore: PreferencesDataStore,
   @Named("initScriptFile")
   private val initScriptFile: File,
-  @Named("shellAndroidSystem")
-  private val shellAndroidSystem: AndroidSystem,
-  @Named("workoutAndroidSystem")
-  private val workoutAndroidSystem: AndroidSystem,
+  private val androidSystem: AndroidSystemImpl,
 ) {
 
   fun newReplCompiler() = newShellSession(NoOpPrinter).replCompiler
 
-  fun newShellSession(printer: Printer) = newSession(shellSessionsDirectory, printer, shellAndroidSystem)
-  fun newWorkSession(printer: Printer) = newSession(workSessionsDirectory, printer, workoutAndroidSystem)
+  fun newShellSession(printer: Printer) = newSession(shellSessionsDirectory, printer, androidSystem)
+
+  fun newWorkSession(printer: Printer, notifier: AndroidNotifier) = newSession(workSessionsDirectory, printer, androidSystem.withNotifier(notifier))
 
   private fun newSession(sessionsDirectory: File, printer: Printer, androidSystem: AndroidSystem): ShellSession {
     Dumbbell.setEngine(dumbbellEngine) // initialize dumbbell

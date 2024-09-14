@@ -96,21 +96,13 @@ fun WorkCreateScreen(
       Form(viewModel)
     }
 
-    val requestNotificationsPermission = viewModel.permissionManager.rememberPermissionRequestActivityLauncher()
-    val showEnableNotificationDialog = remember { mutableStateOf(false) }
-    EnabledNotificationsDialog(viewModel.permissionManager, showEnableNotificationDialog, requestNotificationsPermission,
-      description = "Notifications need to be allowed in order to run non-silent workouts")
     FloatingActionButton(
       modifier = Modifier.padding(all = 16.dp),
       onClick = {
-        if (viewModel.shouldNotificationsPermission) {
-          showEnableNotificationDialog.value = true
-        } else {
-          viewModel.validateAndSave(context) {
-            // navigate back to works list and force the screen to reload
-            navController.navigate(Routes.WORK_LIST) {
-              popUpTo(Routes.WORK_LIST) { inclusive = true }
-            }
+        viewModel.validateAndSave(context) {
+          // navigate back to works list and force the screen to reload
+          navController.navigate(Routes.WORK_LIST) {
+            popUpTo(Routes.WORK_LIST) { inclusive = true }
           }
         }
       }
@@ -183,7 +175,6 @@ private fun Form(viewModel: WorkCreateViewModel) {
   )
 
   TextIconButton(fieldName = "Requires Network?", value = if (viewModel.requiresNetwork) "Yes" else "No", onClick = { viewModel.requiresNetwork = !viewModel.requiresNetwork })
-  TextIconButton(fieldName = "Run silently?", value = if (viewModel.silent) "Yes" else "No", onClick = { viewModel.silent = !viewModel.silent })
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -418,11 +409,6 @@ private fun HelpDialog(
       }
       append("If you script perform Network operations, enable this flag so that the workout will only run when your device")
       append(" is connected to the internet.\n\n")
-
-      withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-        append("Run silently\n")
-      }
-      append("By default, a notification is displayed when a workout occurs. If you want to prevent that, enable this flag.")
     }
   }
   AlertDialog(

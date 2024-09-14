@@ -64,7 +64,6 @@ class ShellWorkManager @Inject constructor(
     period: WorkPeriod?,
     scheduleAt: LocalDateTime?,
     requiresNetwork: Boolean,
-    silent: Boolean
   ) {
     val operation = doWorkRequest(name, period, requiresNetwork)
     // waiting for the work to be created
@@ -79,7 +78,6 @@ class ShellWorkManager @Inject constructor(
       description = description,
       period = period,
       scheduledAt = scheduleAt,
-      isSilent = silent,
       scriptText = scriptText,
       state = WorkInfo.State.ENQUEUED,
       createdAt = LocalDateTime.now(),

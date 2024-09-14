@@ -8,8 +8,8 @@ import android.graphics.BitmapFactory
 import androidx.core.app.NotificationCompat
 import com.tambapps.marcel.android.marshell.R
 
-class AndroidNotifier(
-  private val context: Context,
+open class AndroidNotifier(
+  protected val context: Context,
   private val notificationManager: NotificationManager,
   private val channel: NotificationChannel
 ) {
@@ -18,7 +18,7 @@ class AndroidNotifier(
 
   val areNotificationEnabled: Boolean get() = notificationManager.areNotificationsEnabled()
 
-  fun notify(
+  open fun notify(
     notificationId: Int,
     title: String,
     message: String,

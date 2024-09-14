@@ -16,7 +16,6 @@ data class ShellWork(
   @ColumnInfo(name = "work_id") val workId: UUID,
   @ColumnInfo val description: String?,
   @ColumnInfo(name = "is_network_required") val isNetworkRequired: Boolean,
-  @ColumnInfo(name = "is_silent") val isSilent: Boolean,
   @ColumnInfo(name = "state") val state: State,
   @ColumnInfo(name = "created_at") val createdAt: LocalDateTime,
   @ColumnInfo(name = "last_updated_at") val lastUpdatedAt: LocalDateTime,

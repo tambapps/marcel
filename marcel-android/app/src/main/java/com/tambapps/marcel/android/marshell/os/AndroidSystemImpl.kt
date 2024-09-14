@@ -27,4 +27,6 @@ class AndroidSystemImpl constructor(
   }
 
   override fun listSms(page: Int, pageSize: Int) = smsSender.list(page, pageSize)
+
+  fun withNotifier(notifier: AndroidNotifier) = AndroidSystemImpl(notifier, smsSender, permissionManager)
 }

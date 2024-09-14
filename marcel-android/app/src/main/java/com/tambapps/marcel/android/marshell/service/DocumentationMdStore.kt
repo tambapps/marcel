@@ -5,6 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import marcel.lang.Markdown
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.commonmark.node.Node
@@ -19,7 +20,6 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 class DocumentationMdStore @Inject constructor(
-  private val parser: Parser,
   private val okHttp: OkHttpClient,
   @Named("documentationCacheDir") private val documentationCacheDir: File
 ) {
@@ -50,7 +50,7 @@ class DocumentationMdStore @Inject constructor(
       okHttp.newCall(Request.Builder().get().url(getUrl(path)).get().build()).execute().use { response ->
         if (response.isSuccessful && response.body != null) {
           val content = response.body!!.string()
-          val node = parser.parse(content)
+          val node = Markdown.PARSER.parse(content)
           storeInCacheIfNecessary(path, content)
           Result.success(node)
         } else {
@@ -67,7 +67,7 @@ class DocumentationMdStore @Inject constructor(
   private fun tryGetFromCache(cachedFile: File): Result<Node> {
     Log.d(TAG, "Getting from cache md doc $cachedFile")
     try {
-      val node = parser.parse(cachedFile.readText())
+      val node = Markdown.PARSER.parse(cachedFile.readText())
       return Result.success(node)
     } catch (e: Exception) {
       Log.e(TAG, "An error occurred while getting from cache md doc $cachedFile", e)

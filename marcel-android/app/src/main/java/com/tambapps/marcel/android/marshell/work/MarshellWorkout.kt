@@ -1,5 +1,6 @@
 package com.tambapps.marcel.android.marshell.work
 
+import android.app.NotificationChannel
 import android.content.Context
 import android.util.Log
 import androidx.hilt.work.HiltWorker
@@ -7,7 +8,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkInfo
 import androidx.work.WorkerParameters
-import com.tambapps.marcel.android.marshell.os.AndroidNotifier
+import com.tambapps.marcel.android.marshell.os.WorkoutAndroidNotifier
 import com.tambapps.marcel.android.marshell.repl.ShellSession
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDao
@@ -23,15 +24,12 @@ class MarshellWorkout @AssistedInject constructor(
   @Assisted workerParams: WorkerParameters,
   private val shellSessionFactory: ShellSessionFactory,
   private val shellWorkDao: ShellWorkDao,
-  @Named("workoutAndroidNotifier")
-  internal val androidNotifier: AndroidNotifier
+  @Named("workoutNotificationChannel") private val workoutNotificationChannel: NotificationChannel
 ): CoroutineWorker(appContext, workerParams) {
 
   companion object {
     const val TAG = "MarshellWorkout"
   }
-
-  private var notification: WorkoutNotification? = null
 
   override suspend fun doWork(): Result {
     val work = findWork()
@@ -39,17 +37,13 @@ class MarshellWorkout @AssistedInject constructor(
       Log.e(TAG, "Couldn't find shell_work on database for work with id $id and tags $tags")
       return Result.failure(Data.EMPTY)
     }
-    if (!work.isSilent) {
-      notification = if (androidNotifier.areNotificationEnabled) WorkoutNotification(applicationContext, androidNotifier, work).apply {
-        notify(title = "Initializing Workout ${work.name}...")
-      } else null
-    }
+    val androidNotifier = WorkoutAndroidNotifier(applicationContext, workoutNotificationChannel, work)
     if (work.scriptText == null) {
       Log.e(TAG, "Couldn't retrieve script text of work $id")
       return Result.failure(Data.EMPTY)
     }
     val printer = StringBuilderPrinter()
-    val sessionResult = runCatching { shellSessionFactory.newWorkSession(printer) }
+    val sessionResult = runCatching { shellSessionFactory.newWorkSession(printer, androidNotifier) }
     if (sessionResult.isFailure) {
       val e = sessionResult.exceptionOrNull()!!
       Log.e(TAG, "Couldn't start shell session", e)
@@ -58,14 +52,13 @@ class MarshellWorkout @AssistedInject constructor(
     }
     val shellSession = sessionResult.getOrThrow()
     try {
-      return runWorkout(work, work.scriptText, shellSession, printer)
+      return runWorkout(work, work.scriptText, shellSession, printer, androidNotifier)
     } finally {
       shellSession.classesDirectory.deleteRecursively()
     }
   }
 
-  private suspend fun runWorkout(work: ShellWork, scriptText: String, session: ShellSession, printer: StringBuilderPrinter): Result {
-    notification?.notify(title = "Running workout ${work.name}...")
+  private suspend fun runWorkout(work: ShellWork, scriptText: String, session: ShellSession, printer: StringBuilderPrinter, androidNotifier: WorkoutAndroidNotifier): Result {
     shellWorkDao.updateState(work.name, WorkInfo.State.RUNNING)
     shellWorkDao.updateStartTime(work.name, LocalDateTime.now())
 
@@ -85,11 +78,11 @@ class MarshellWorkout @AssistedInject constructor(
 
     return if (result.isSuccess) {
       Log.d(TAG, "Finished successfully workout ${work.name}. Return value: ${result.getOrNull()}")
-      notification?.notify(title = "Workout ${work.name} ran successfully", onGoing = false)
       Result.success()
     } else {
-      Log.e(TAG, "An error occurred while executing script", result.exceptionOrNull())
-      notification?.notify(title = "Workout ${work.name} encountered an error", onGoing = false)
+      val e = result.exceptionOrNull()
+      Log.e(TAG, "An error occurred while executing script", e)
+      androidNotifier.notifyIfEnabled("Workout ${work.name} encountered an error", e?.message ?: "<no message>", onGoing = false)
       Result.failure()
     }
   }

@@ -19,10 +19,7 @@ import marcel.lang.android.AndroidSystem
 import javax.inject.Named
 
 @Module
-@InstallIn(
-  ActivityComponent::class,
-  // for workers
-  SingletonComponent::class)
+@InstallIn(SingletonComponent::class)
 class AndroidSystemConfiguration {
 
   @Provides
@@ -47,20 +44,11 @@ class AndroidSystemConfiguration {
     description = "Shell session notifications"
   )
 
-  @Named("shellAndroidNotifier")
   @Provides
-  fun shellAndroidNotifier(@ApplicationContext context: Context,
-                             notificationManager: NotificationManager,
-                             @Named("shellNotificationChannel") shellNotificationChannel: NotificationChannel): AndroidNotifier {
+  fun androidNotifier(@ApplicationContext context: Context,
+                      notificationManager: NotificationManager,
+                      @Named("shellNotificationChannel") shellNotificationChannel: NotificationChannel): AndroidNotifier {
     return AndroidNotifier(context, notificationManager, shellNotificationChannel)
-  }
-
-  @Named("workoutAndroidNotifier")
-  @Provides
-  fun workoutAndroidNotifier(@ApplicationContext context: Context,
-                             notificationManager: NotificationManager,
-                             @Named("workoutNotificationChannel") workoutNotificationChannel: NotificationChannel): AndroidNotifier {
-    return AndroidNotifier(context, notificationManager, workoutNotificationChannel)
   }
 
   @Provides
@@ -69,24 +57,13 @@ class AndroidSystemConfiguration {
   @Provides
   fun smsSender(@ApplicationContext context: Context, smsManager: SmsManager, messageDao: MessageDao): AndroidSmsSender = AndroidSmsSender(context, smsManager, messageDao)
 
-  @Named("shellAndroidSystem")
   @Provides
-  fun shellAndroidSystem(
-    @Named("shellAndroidNotifier") shellAndroidNotifier: AndroidNotifier,
+  fun androidSystem(
+    androidNotifier: AndroidNotifier,
     smsSender: AndroidSmsSender,
     permissionManager: PermissionManager
-  ): AndroidSystem {
-    return AndroidSystemImpl(shellAndroidNotifier, smsSender, permissionManager)
-  }
-
-  @Named("workoutAndroidSystem")
-  @Provides
-  fun workoutAndroidSystem(
-    @Named("workoutAndroidNotifier") workoutAndroidNotifier: AndroidNotifier,
-    smsSender: AndroidSmsSender,
-    permissionManager: PermissionManager
-  ): AndroidSystem {
-    return AndroidSystemImpl(workoutAndroidNotifier, smsSender, permissionManager)
+  ): AndroidSystemImpl {
+    return AndroidSystemImpl(androidNotifier, smsSender, permissionManager)
   }
 
   private fun createOrGetChannel(
