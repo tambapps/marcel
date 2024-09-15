@@ -22,6 +22,9 @@ class Markdown private constructor(val source: String, val node: Node) {
     fun lr(): String = System.lineSeparator() + System.lineSeparator()
 
     @JvmStatic
+    fun horizontalLine(): String = lr() + "---" + lr()
+
+    @JvmStatic
     fun h1(value: Any?) = h(1, value)
 
     @JvmStatic

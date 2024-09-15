@@ -1,6 +1,7 @@
 package com.tambapps.marcel.android.marshell.ui.component
 
 import android.net.Uri
+import android.util.Log
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -54,6 +55,7 @@ import org.commonmark.node.Paragraph
 import org.commonmark.node.SoftLineBreak
 import org.commonmark.node.StrongEmphasis
 import org.commonmark.node.Text
+import org.commonmark.node.ThematicBreak
 
 class MarkdownComposer(
   private val highlighter: SpannableHighlighter
@@ -70,8 +72,19 @@ class MarkdownComposer(
       is Text -> Text(node = node)
       is FencedCodeBlock -> FencedCodeBlock(node = node)
       is TableBlock -> TableBlock(node = node)
+      is ThematicBreak -> HorizontalSeparator()
       is Block -> Block(node = node)
+      else -> Log.w("MarkdownComposer", "Doesn't handle node ${node.javaClass}")
     }
+  }
+
+  @Composable
+  private fun HorizontalSeparator() {
+    HorizontalDivider(
+      modifier = Modifier.fillMaxWidth().padding(start = 8.dp, end = 8.dp, top = 16.dp),
+      color = MaterialTheme.colorScheme.onBackground,
+      thickness = 2.dp
+    )
   }
 
   @Composable
