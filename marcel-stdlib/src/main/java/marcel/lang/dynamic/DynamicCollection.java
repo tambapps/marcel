@@ -38,10 +38,21 @@ abstract class DynamicCollection<T extends Collection> extends AbstractDynamicOb
   public DynamicObject plus(Object object) {
     Object o = getRealValue(object);
     if (!(o instanceof Collection)) {
-      throw new MissingMethodException(getValue().getClass(), "plus", new Object[]{object});
+      super.plus(object);
     }
     T c = copy();
     c.addAll((Collection) o);
+    return DynamicObject.of(c);
+  }
+
+  @Override
+  public DynamicObject minus(Object object) {
+    Object o = getRealValue(object);
+    if (!(o instanceof Collection)) {
+      super.minus(object);
+    }
+    T c = copy();
+    c.removeAll((Collection) o);
     return DynamicObject.of(c);
   }
 
@@ -167,10 +178,12 @@ abstract class DynamicCollection<T extends Collection> extends AbstractDynamicOb
   }
 
   @Override
+  public void registerField(String name, Object value) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public DynamicObject getProperty(String name) {
-    if ("size".equals(name) || "length".equals(name)) {
-      return DynamicObject.of(value.size());
-    }
     T c = newEmptyInstance();
     for (DynamicObject o : this) {
       c.add(o.getProperty(name));

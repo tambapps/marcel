@@ -37,7 +37,7 @@ public class DynamicNumber extends AbstractDynamicObject {
   public DynamicObject plus(Object object) {
     Object o = getRealValue(object);
     if (!(o instanceof Number)) {
-      throw new MissingMethodException(getValue().getClass(), "plus", new Object[]{object});
+      super.plus(object);
     }
     Number n = (Number) o;
     if (value instanceof Double || n instanceof Double) {
@@ -55,7 +55,7 @@ public class DynamicNumber extends AbstractDynamicObject {
   public DynamicObject minus(Object object) {
     Object o = getRealValue(object);
     if (!(o instanceof Number)) {
-      throw new MissingMethodException(getValue().getClass(), "minus", new Object[]{object});
+      super.minus(object);
     }
     Number n = (Number) o;
     if (value instanceof Double || n instanceof Double) {

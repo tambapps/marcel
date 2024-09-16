@@ -13,7 +13,7 @@ import marcel.lang.dynamic.DynamicQueue;
 import marcel.lang.dynamic.DynamicSet;
 import marcel.lang.dynamic.MissingMethodException;
 import marcel.lang.dynamic.MissingPropertyException;
-import marcel.lang.lambda.DynamicObjectLambda1;
+import marcel.lang.lambda.*;
 import marcel.util.primitives.collections.lists.CharList;
 import marcel.util.primitives.collections.lists.DoubleList;
 import marcel.util.primitives.collections.lists.FloatList;
@@ -92,6 +92,61 @@ public interface DynamicObject extends Iterable<DynamicObject>, MarcelTruth {
     return DynamicObject.of(
         MarcelTruth.isTruthy(lambda1.invoke(this)) ? List.of(this) : List.of()
     );
+  }
+
+  // TODO document this along with registerField
+  default void registerMethod(String name, Lambda0<?> lambda) {
+    throw new UnsupportedOperationException();
+  }
+
+  default void registerMethod(String name, Class<?> arg0, Lambda1<?, ?> lambda) {
+    throw new UnsupportedOperationException();
+  }
+
+  default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Lambda2<?, ?, ?> lambda) {
+    throw new UnsupportedOperationException();
+  }
+
+  default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Class<?> arg2, Lambda3<?, ?, ?, ?> lambda) {
+    throw new UnsupportedOperationException();
+  }
+
+  default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Class<?> arg2, Class<?> arg3, Lambda4<?, ?, ?, ?, ?> lambda) {
+    throw new UnsupportedOperationException();
+  }
+
+  default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Class<?> arg2, Class<?> arg3, Class<?> arg4, Lambda5<?, ?, ?, ?, ?, ?> lambda) {
+    throw new UnsupportedOperationException();
+  }
+
+  default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Class<?> arg2, Class<?> arg3, Class<?> arg4, Class<?> arg5, Lambda6<?, ?, ?, ?, ?, ?, ?> lambda) {
+    throw new UnsupportedOperationException();
+  }
+
+  default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Class<?> arg2, Class<?> arg3, Class<?> arg4, Class<?> arg5, Class<?> arg6,
+                              Lambda7<?, ?, ?, ?, ?, ?, ?, ?> lambda) {
+    throw new UnsupportedOperationException();
+  }
+
+  default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Class<?> arg2, Class<?> arg3, Class<?> arg4, Class<?> arg5, Class<?> arg6, Class<?> arg7,
+                              Lambda8<?, ?, ?, ?, ?, ?, ?, ?, ?> lambda) {
+    throw new UnsupportedOperationException();
+  }
+
+  default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Class<?> arg2, Class<?> arg3, Class<?> arg4, Class<?> arg5, Class<?> arg6,
+                              Class<?> arg7, Class<?> arg8,
+                              Lambda9<?, ?, ?, ?, ?, ?, ?, ?, ?, ?> lambda) {
+    throw new UnsupportedOperationException();
+  }
+
+  default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Class<?> arg2, Class<?> arg3, Class<?> arg4, Class<?> arg5, Class<?> arg6,
+                              Class<?> arg7, Class<?> arg8, Class<?> arg9,
+                              Lambda10<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> lambda) {
+    throw new UnsupportedOperationException();
+  }
+
+  default void registerField(String name, Object value) {
+    throw new UnsupportedOperationException();
   }
 
   default DynamicObject map(DynamicObjectLambda1 lambda1) {

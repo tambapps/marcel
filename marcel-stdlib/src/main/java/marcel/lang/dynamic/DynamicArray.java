@@ -66,6 +66,11 @@ public class DynamicArray extends AbstractDynamicObject implements DynamicIndexa
   }
 
   @Override
+  public void registerField(String name, Object value) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public DynamicObject getProperty(String name) {
     Object[] array = new Object[size()];
     for (int i = 0; i < size(); i++) {

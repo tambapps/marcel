@@ -3,6 +3,7 @@ package marcel.lang.dynamic;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import marcel.lang.DynamicObject;
+import marcel.lang.methods.DefaultMarcelMethods;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +30,11 @@ public class DynamicMap extends AbstractDynamicObject {
   }
 
   @Override
+  public void registerField(String name, Object value) {
+    putAt(name, value);
+  }
+
+  @Override
   public DynamicObject setProperty(String name, DynamicObject object) {
     return putAt(name, object != null ? object.getValue() : null);
   }
@@ -47,9 +53,7 @@ public class DynamicMap extends AbstractDynamicObject {
   public DynamicObject plus(Object object) {
     Object o = getRealValue(object);
     if (o instanceof Map) {
-      Map m = new HashMap(value);
-      m.putAll((Map) o);
-      return DynamicObject.of(m);
+      return DynamicObject.of(DefaultMarcelMethods.plus(value, (Map) o));
     }
     return super.plus(object);
   }

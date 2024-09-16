@@ -1,0 +1,16 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertThrows
+
+import marcel.lang.dynamic.MissingMethodException
+
+dynobj o = 1
+
+assertThrows(MissingMethodException.class) {
+  o.foo()
+}
+o.registerMethod("foo") { "foo" }
+
+assertEquals("foo", o.foo().value)
+
+o.registerMethod("incr", Integer.class) { Integer i -> i + 1 }
+assertEquals(2, o.incr(1).value)

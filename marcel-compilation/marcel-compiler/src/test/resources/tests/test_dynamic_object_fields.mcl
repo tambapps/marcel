@@ -1,0 +1,16 @@
+import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertThrows
+
+import marcel.lang.dynamic.MissingPropertyException
+
+dynobj o = 1
+
+assertThrows(MissingPropertyException.class) {
+  o.foo
+}
+o.registerField("foo", "foo")
+
+assertEquals("foo", o.foo.value)
+
+o.foo = "bar"
+assertEquals("bar", o.foo.value)

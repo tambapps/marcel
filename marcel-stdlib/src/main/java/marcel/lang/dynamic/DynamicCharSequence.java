@@ -18,7 +18,7 @@ public class DynamicCharSequence extends AbstractDynamicObject implements Dynami
   public DynamicObject plus(Object object) {
     Object o = getRealValue(object);
     if (o instanceof CharSequence) return DynamicObject.of(value.toString() + o);
-    throw new MissingMethodException(getValue().getClass(), "plus", new Object[]{object});
+    return super.plus(object);
   }
 
   @Override
