@@ -11,8 +11,9 @@ import java.util.*;
 
 public abstract class AbstractDynamicObject implements DynamicObject {
 
-  private final Map<String, DynamicObject> fieldMap = new HashMap<>();
-  private final Map<String, List<DynamicMethod>> methodMap = new HashMap<>();
+  // lazy initialized
+  private Map<String, DynamicObject> fieldMap;
+  private Map<String, List<DynamicMethod>> methodMap;
 
   @Override
   public String toString() {
@@ -100,7 +101,7 @@ public abstract class AbstractDynamicObject implements DynamicObject {
   }
 
   private void registerMethod(String name, DynamicMethod method) {
-    List<DynamicMethod> methods = methodMap.computeIfAbsent(name, __ -> new ArrayList<>());
+    List<DynamicMethod> methods = getMethodMap().computeIfAbsent(name, __ -> new ArrayList<>());
     if (methods.stream().anyMatch(m -> m.getParameters().equals(method.getParameters()))) {
       throw new IllegalArgumentException("Duplicate method '%s' with parameters %s".formatted(name, method.getParameters()));
     }
@@ -109,6 +110,7 @@ public abstract class AbstractDynamicObject implements DynamicObject {
 
   @Override
   public void registerField(String name, Object value) {
+    Map<String, DynamicObject> fieldMap = getFieldMap();
     if (fieldMap.containsKey(name)) {
       throw new IllegalArgumentException("Field '%s' already exists".formatted(name));
     }
@@ -117,7 +119,7 @@ public abstract class AbstractDynamicObject implements DynamicObject {
 
   @Override
   public DynamicObject getProperty(String name) {
-    if (fieldMap.containsKey(name)) {
+    if (fieldMap != null && fieldMap.containsKey(name)) {
       return fieldMap.get(name);
     }
     return DynamicObject.super.getProperty(name);
@@ -125,7 +127,7 @@ public abstract class AbstractDynamicObject implements DynamicObject {
 
   @Override
   public DynamicObject setProperty(String name, DynamicObject value) {
-    if (fieldMap.containsKey(name)) {
+    if (fieldMap != null && fieldMap.containsKey(name)) {
       return fieldMap.put(name, DynamicObject.of(value));
     }
     return DynamicObject.super.setProperty(name, value);
@@ -137,15 +139,17 @@ public abstract class AbstractDynamicObject implements DynamicObject {
     for (int i = 0; i < argTypes.length; i++) {
       argTypes[i] = args[i] != null ? args[i].getClass() : Object.class;
     }
-    // find on registered methods
-    List<DynamicMethod> methods = methodMap.get(name);
-    if (methods != null && !methods.isEmpty()) {
-      DynamicMethod method = methods.stream()
-              .filter(m -> m.matches(args))
-              .findFirst()
-                      .orElse(null);
-      if (method != null) {
-        return method.invoke(args);
+    if (methodMap != null) {
+      // find on registered methods
+      List<DynamicMethod> methods = methodMap.get(name);
+      if (methods != null && !methods.isEmpty()) {
+        DynamicMethod method = methods.stream()
+                .filter(m -> m.matches(args))
+                .findFirst()
+                .orElse(null);
+        if (method != null) {
+          return method.invoke(args);
+        }
       }
     }
 
@@ -157,5 +161,19 @@ public abstract class AbstractDynamicObject implements DynamicObject {
     } catch (InvocationTargetException e) {
       throw e.getCause();
     }
+  }
+
+  private Map<String, DynamicObject> getFieldMap() {
+    if (fieldMap == null) {
+      fieldMap = new HashMap<>();
+    }
+    return fieldMap;
+  }
+
+  private Map<String, List<DynamicMethod>> getMethodMap() {
+    if (methodMap == null) {
+      methodMap = new HashMap<>();
+    }
+    return methodMap;
   }
 }
