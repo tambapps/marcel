@@ -8,6 +8,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
@@ -16,23 +18,27 @@ import com.tambapps.marcel.parser.cst.TypeCstNode
 
 @Composable
 internal fun FunctionsScreen(shellViewModel: ShellViewModel) {
-  val functions = getFunctionsOfInterest(shellViewModel)
+  val functions = remember {
+    mutableStateListOf<MethodCstNode>().apply {
+      if (shellViewModel.functions != null) {
+        addAll(shellViewModel.functions!!)
+      }
+      sortBy { it.name }
+    }
+  }
   Box(modifier = Modifier.fillMaxSize()) {
-    if (functions.isNullOrEmpty()) {
+    if (functions.isEmpty()) {
       Box(modifier = Modifier.fillMaxSize()) {
         Text(text = "No functions are defined.", modifier = Modifier.align(Alignment.Center))
       }
     } else {
-      FunctionTable(functions)
+      FunctionTable(shellViewModel, functions)
     }
   }
 }
 
-private fun getFunctionsOfInterest(shellViewModel: ShellViewModel): List<MethodCstNode>? {
-  return shellViewModel.functions?.sortedBy { it.name }
-}
 @Composable
-private fun FunctionTable(functions: List<MethodCstNode>) {
+private fun FunctionTable(shellViewModel: ShellViewModel, functions: MutableList<MethodCstNode>) {
   LazyColumn {
     item {
       HorizontalDivider(color = MaterialTheme.colorScheme.onBackground)
@@ -40,7 +46,11 @@ private fun FunctionTable(functions: List<MethodCstNode>) {
       HorizontalDivider(color = MaterialTheme.colorScheme.onBackground)
     }
     items(functions) { method ->
-      VariableTableRow(method.name, method.signature)
+      VariableTableRow(method.name, method.signature,
+        onDelete = {
+          shellViewModel.removeMethod(method)
+          functions.remove(method) // needed in order for the view to recompose
+        })
       HorizontalDivider(color = MaterialTheme.colorScheme.onBackground)
     }
   }

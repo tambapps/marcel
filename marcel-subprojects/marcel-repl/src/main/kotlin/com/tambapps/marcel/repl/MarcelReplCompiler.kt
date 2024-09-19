@@ -10,6 +10,7 @@ import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.MarcelParserException
+import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.repl.semantic.MarcelReplSemantic
 import com.tambapps.marcel.semantic.SemanticPurpose
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
@@ -31,8 +32,8 @@ class MarcelReplCompiler constructor(
 
   val imports = MutableImportResolver.empty()
   private val lexer = MarcelLexer()
-  private val _definedFunctions = mutableSetOf<com.tambapps.marcel.parser.cst.MethodCstNode>()
-  val definedFunctions: Set<com.tambapps.marcel.parser.cst.MethodCstNode> get() = _definedFunctions
+  private val _definedFunctions = mutableSetOf<MethodCstNode>()
+  val definedFunctions: Set<MethodCstNode> get() = _definedFunctions
   private val _definedTypes = mutableSetOf<JavaType>()
   val definedTypes: Set<JavaType> get() = _definedTypes
   private val classCompiler = MarcelClassCompiler(compilerConfiguration, symbolResolver)
@@ -51,6 +52,10 @@ class MarcelReplCompiler constructor(
 
   fun addImports(imports: ImportResolver) {
     this.imports.add(imports)
+  }
+
+  fun removeMethod(method: MethodCstNode) {
+    _definedFunctions.remove(method)
   }
 
   fun compile(text: String): ReplCompilerResult {

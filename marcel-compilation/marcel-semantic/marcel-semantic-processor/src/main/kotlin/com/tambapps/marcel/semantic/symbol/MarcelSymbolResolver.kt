@@ -354,7 +354,10 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
   }
 
   fun undefineField(javaType: JavaType, fieldName: String) = fieldResolver.undefineField(javaType, fieldName)
-  open fun getDeclaredFields(javaType: JavaType): Collection<CompositeField> {
+
+  fun undefineField(field: MarcelField) = fieldResolver.undefineField(field.owner, field.name)
+
+  fun getDeclaredFields(javaType: JavaType): Collection<CompositeField> {
     return fieldResolver.getAllFields(javaType).values
   }
 

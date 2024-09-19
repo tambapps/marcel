@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -28,7 +29,8 @@ internal fun VariableTableRow(
   name: String,
   value: Any?,
   clickable: Boolean = true,
-  dialogText: String? = null
+  dialogText: String? = null,
+  onDelete: (() -> Unit)? = null,
 ) {
   val valueStr = java.lang.String.valueOf(value)
   var modifier = Modifier
@@ -47,6 +49,14 @@ internal fun VariableTableRow(
           Text(text = dialogText ?: valueStr, modifier = modifier.verticalScroll(rememberScrollState()))
         },
         confirmButton = {
+          if (onDelete != null) {
+            TextButton(onClick = {
+              onDelete.invoke()
+              showDialog = false
+            }) {
+              Text(text = "Remove", color = Color.Red)
+            }
+          }
           TextButton(onClick = { showDialog = false }) {
             Text(text = "OK")
           }

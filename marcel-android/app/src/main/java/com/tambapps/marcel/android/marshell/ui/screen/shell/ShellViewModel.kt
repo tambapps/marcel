@@ -19,6 +19,7 @@ import com.tambapps.marcel.android.marshell.repl.console.PromptPrinter
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.ui.component.MarkdownComposer
 import com.tambapps.marcel.android.marshell.ui.screen.ScriptViewModel
+import com.tambapps.marcel.parser.cst.MethodCstNode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -28,7 +29,6 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.io.OutputStream
-import java.util.concurrent.Executors
 import javax.inject.Inject
 
 @HiltViewModel
@@ -213,5 +213,17 @@ class ShellViewModel @Inject constructor(
     isEvaluating = false
     hint = null
     init(context)
+  }
+
+  fun removeMethod(method: MethodCstNode) {
+    shellSession?.replCompiler?.removeMethod(method)
+  }
+
+  fun removeVariable(name: String) {
+    shellSession?.binding?.removeVariable(name)
+    val boundField = shellSession?.symbolResolver?.getBoundField(name)
+    if (boundField != null) {
+      shellSession?.symbolResolver?.undefineField(boundField)
+    }
   }
 }
