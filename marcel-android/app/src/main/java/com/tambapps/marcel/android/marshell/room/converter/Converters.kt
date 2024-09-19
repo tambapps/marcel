@@ -1,10 +1,12 @@
 package com.tambapps.marcel.android.marshell.room.converter
 
 import androidx.room.TypeConverter
+import com.tambapps.marcel.android.marshell.room.entity.WorkPeriod
 import java.time.LocalDateTime
 
+
 // automatically used by room
-class LocalDateTimeConverter {
+class Converters {
 
   @TypeConverter
   fun localDateTimeFromString(s: String?) = s?.let(LocalDateTime::parse)
@@ -17,4 +19,11 @@ class LocalDateTimeConverter {
 
   @TypeConverter
   fun stringListToString(list: List<String>?) = list?.joinToString(",")
+
+  @TypeConverter
+  fun workPeriodFromString(s: String?) = s?.let(WorkPeriod::parse)
+
+  @TypeConverter
+  fun workPeriodToString(workPeriod: WorkPeriod?) = workPeriod?.toString()
+
 }
