@@ -3,6 +3,7 @@ package com.tambapps.marcel.android.marshell.ui.screen.work.create
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
@@ -17,6 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -42,6 +44,7 @@ class WorkCreateViewModel @Inject constructor(
   var description by mutableStateOf("")
   var requiresNetwork by mutableStateOf(false)
   var period by mutableStateOf<WorkPeriod?>(null)
+  val initScripts = mutableStateListOf<File>()
 
   var scheduleAt by mutableStateOf<LocalDateTime?>(null)
 
@@ -75,6 +78,7 @@ class WorkCreateViewModel @Inject constructor(
         period = period,
         scheduleAt = scheduleAt,
         requiresNetwork = requiresNetwork,
+        initScripts = initScripts.map { it.absolutePath }.takeIf { it.isNotEmpty() }
       )
       withContext(Dispatchers.Main) {
         onSuccess.invoke()

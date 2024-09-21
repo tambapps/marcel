@@ -29,10 +29,10 @@ import java.time.Duration
 import java.time.temporal.ChronoUnit
 
 @Composable
-fun WorkScriptCard(viewModel: ScriptCardEditorViewModel, readOnly: Boolean = false) {
+fun WorkScriptCard(viewModel: ScriptCardEditorViewModel, readOnly: Boolean = false, title: String = "Script") {
   val tintColor = if (viewModel.scriptTextError != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
   ExpandableCard(expanded = viewModel.scriptCardExpanded,
-    title = "Script",
+    title = title,
     titleColor = tintColor,
     logoTint = tintColor,
     additionalLogos = if (readOnly) null else {

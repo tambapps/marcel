@@ -64,6 +64,7 @@ class ShellWorkManager @Inject constructor(
     period: WorkPeriod?,
     scheduleAt: LocalDateTime?,
     requiresNetwork: Boolean,
+    initScripts: List<String>?
   ) {
     val operation = doWorkRequest(name, period, requiresNetwork)
     // waiting for the work to be created
@@ -83,8 +84,7 @@ class ShellWorkManager @Inject constructor(
       createdAt = LocalDateTime.now(),
       lastUpdatedAt = LocalDateTime.now(),
       startTime = null, endTime = null,
-      logs = null, result = null, resultClassName = null, failedReason = null
-    )
+      logs = null, result = null, resultClassName = null, failedReason = null, initScripts = initScripts)
     shellWorkDao.upsert(data)
   }
 

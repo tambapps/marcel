@@ -1,9 +1,11 @@
 package com.tambapps.marcel.android.marshell.ui.screen.work.view
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -56,6 +58,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import marcel.lang.Markdown
+import java.io.File
 
 private val Orange = Color(0xFFFF9800)
 
@@ -201,6 +204,7 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
     if (viewModel.scriptCardExpanded.value) {
       return@Column
     }
+    val context = LocalContext.current
     Box(modifier = Modifier
       .fillMaxWidth()
       .padding(bottom = 16.dp)) {
@@ -251,8 +255,18 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
         overflow = TextOverflow.Ellipsis
       )
     }
-
     Box(modifier = Modifier.padding(16.dp))
+
+    if (!work.initScripts.isNullOrEmpty()) {
+      val initScripts = remember { work.initScripts.map { File(it) } }
+      Text(text = "Initialization scripts", style = MaterialTheme.typography.titleMedium)
+      for (initScript in initScripts) {
+        Text(text = "- " + initScript.name,
+          modifier = Modifier.clickable { Toast.makeText(context, initScript.path, Toast.LENGTH_SHORT).show() },
+          style = MaterialTheme.typography.bodyMedium)
+      }
+      Box(modifier = Modifier.padding(16.dp))
+    }
     if (!work.logs.isNullOrEmpty()) {
       val logsExpanded = remember { mutableStateOf(false) }
       ExpandableCard(expanded = logsExpanded, title = "Logs") {

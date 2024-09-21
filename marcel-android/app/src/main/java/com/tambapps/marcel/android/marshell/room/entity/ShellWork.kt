@@ -27,6 +27,7 @@ data class ShellWork(
   @ColumnInfo val result: String?,
   @ColumnInfo(name = "result_class_name") val resultClassName: String?,
   @ColumnInfo(name = "failure_reason") val failedReason: String?,
+  @ColumnInfo(name = "init_scripts") val initScripts: List<String>?,
   // not fetched by default. Only fetched for the byId
   @ColumnInfo(name = "script_text") val scriptText: String?,
 ) {

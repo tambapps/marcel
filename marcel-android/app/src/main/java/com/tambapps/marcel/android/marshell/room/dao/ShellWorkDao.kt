@@ -18,7 +18,7 @@ interface ShellWorkDao {
   companion object {
     // we don't fetch scriptText and logs for list endpoint
     const val MAIN_COLUMNS = "work_id, name, description, period, state, created_at, last_updated_at," +
-        "start_time, end_time, scheduled_at, result, failure_reason, is_network_required"
+        "start_time, end_time, scheduled_at, result, failure_reason, is_network_required, init_scripts"
   }
 
   @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)

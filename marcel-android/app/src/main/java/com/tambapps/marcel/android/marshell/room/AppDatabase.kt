@@ -10,7 +10,7 @@ import com.tambapps.marcel.android.marshell.room.entity.Message
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 
 @TypeConverters(Converters::class)
-@Database(entities = [ShellWork::class, Message::class], version = 6)
+@Database(entities = [ShellWork::class, Message::class], version = 7)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun shellWorkDataDao(): ShellWorkDao
     abstract fun messageDao(): MessageDao

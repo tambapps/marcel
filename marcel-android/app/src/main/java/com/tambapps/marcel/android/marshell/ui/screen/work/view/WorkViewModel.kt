@@ -14,7 +14,6 @@ import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import com.tambapps.marcel.android.marshell.ui.component.MarkdownComposer
 import com.tambapps.marcel.android.marshell.ui.screen.ScriptCardEditorViewModel
 import com.tambapps.marcel.android.marshell.work.ShellWorkManager
-import com.tambapps.marcel.repl.MarcelReplCompiler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

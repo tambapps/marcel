@@ -15,6 +15,8 @@ import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDao
 import com.tambapps.marcel.android.marshell.room.entity.ShellWork
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import java.io.File
+import java.io.IOException
 import java.time.LocalDateTime
 import javax.inject.Named
 
@@ -62,14 +64,20 @@ class MarshellWorkout @AssistedInject constructor(
     shellWorkDao.updateState(work.name, WorkInfo.State.RUNNING)
     shellWorkDao.updateStartTime(work.name, LocalDateTime.now())
 
-    val result = runCatching { session.eval(scriptText) }
+    var result: marcel.util.Result<Any?> = marcel.util.Result.success(null)
+    Log.d(TAG, "Evaluating init scripts")
+    for (initScript in work.initScripts ?: emptyList()) {
+      result = result.then { session.eval(readInitScriptText(initScript)) }
+    }
+    Log.d(TAG, "Evaluating work script")
+    result = result.then { session.eval(scriptText) }
 
     shellWorkDao.update(
       name = work.name,
       endTime = LocalDateTime.now(),
       result = result.getOrNull()?.toString(),
       resultClassName = result.getOrNull()?.javaClass?.name,
-      failureReason = result.exceptionOrNull()?.localizedMessage,
+      failureReason = result.exceptionOrNull?.localizedMessage,
       logs = printer.toString(),
       state = if (work.isPeriodic) WorkInfo.State.ENQUEUED
       else if (result.isSuccess) WorkInfo.State.SUCCEEDED
@@ -77,10 +85,10 @@ class MarshellWorkout @AssistedInject constructor(
     )
 
     return if (result.isSuccess) {
-      Log.d(TAG, "Finished successfully workout ${work.name}. Return value: ${result.getOrNull()}")
+      Log.d(TAG, "Finished successfully workout ${work.name}. Return value: ${result.get()}")
       Result.success()
     } else {
-      val e = result.exceptionOrNull()
+      val e = result.exceptionOrNull
       Log.e(TAG, "An error occurred while executing script", e)
       androidNotifier.notifyIfEnabled("Workout ${work.name} encountered an error", e?.message ?: "<no message>", onGoing = false)
       Result.failure()
@@ -105,5 +113,16 @@ class MarshellWorkout @AssistedInject constructor(
       shellWorkDao.update(work)
     }
     return work
+  }
+
+  private fun readInitScriptText(initScriptPath: String): String {
+    val f = File(initScriptPath)
+    if (!f.exists()) {
+      throw IOException("File $initScriptPath doesn't exists")
+    }
+    if (!f.isFile) {
+      throw IOException("File $initScriptPath is not a regular file")
+    }
+    return f.readText()
   }
 }

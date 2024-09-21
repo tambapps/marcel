@@ -6,9 +6,12 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,7 +22,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CalendarLocale
@@ -57,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.tambapps.marcel.android.marshell.FilePickerActivity
 import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.room.entity.WorkPeriod
@@ -125,6 +131,7 @@ private fun Form(viewModel: WorkCreateViewModel) {
     if (viewModel.scriptCardExpanded.value) {
       return@Box
     }
+    val context = LocalContext.current
     Column {
       OutlinedTextField(
         value = viewModel.name,
@@ -147,11 +154,48 @@ private fun Form(viewModel: WorkCreateViewModel) {
         onValueChange = { viewModel.description = it },
         label = { Text("Description (optional)") }
       )
+      Box(modifier = Modifier.padding(8.dp))
+
+      val filePickerLauncher = FilePickerActivity.rememberFilePickerForActivityResult {
+        if (it != null) {
+          // TODO parse the script to the replCompiler so that when we're aware of symbols defined by init scripts
+          viewModel.initScripts.add(it)
+        }
+      }
+      val onInitScriptAdd: () -> Unit = { filePickerLauncher.launch(FilePickerActivity.Args()) }
+      if (viewModel.initScripts.isEmpty()) {
+        TextButton(onClick = onInitScriptAdd) {
+          Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
+          Text(text = "Add initialization script")
+        }
+      } else {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          Text(text = "Initialization scripts",
+            style = MaterialTheme.typography.titleMedium)
+
+          Spacer(modifier = Modifier.width(16.dp))
+
+          TextButton(onClick = onInitScriptAdd) {
+            Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
+            Text(text = "Add")
+          }
+        }
+        for (initScript in viewModel.initScripts) {
+          Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(text = "- " + initScript.name,
+              modifier = Modifier.clickable { Toast.makeText(context, initScript.path, Toast.LENGTH_SHORT).show() },
+              style = MaterialTheme.typography.bodyMedium)
+            IconButton(onClick = { viewModel.initScripts.remove(initScript) }) {
+              Icon(imageVector = Icons.Filled.Clear , contentDescription = "Clear", tint = Color.Red)
+            }
+          }
+        }
+      }
+      Box(modifier = Modifier.padding(8.dp))
     }
-    Box(modifier = Modifier.padding(8.dp))
   }
 
-  WorkScriptCard(viewModel = viewModel)
+  WorkScriptCard(viewModel = viewModel, title = "Workout Script")
   Box(modifier = Modifier.padding(8.dp))
 
   val showSchedulePickerDialog = remember { mutableStateOf(false) }
