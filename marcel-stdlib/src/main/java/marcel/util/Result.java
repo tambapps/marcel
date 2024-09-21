@@ -35,18 +35,15 @@ public interface Result<T> {
 
     /**
      * Returns an instance that encapsulates the given value as successful value if the callable succeeds, or
-     * else an instance that encapsulates the given Throwable as failure.
+     * else an instance that encapsulates the given Throwable as failure. The callable is lazily evaluated. It is
+     * executed at most once, only when required (e.g. when calling isSuccess())
      *
      * @param callable the callable to get the value from
      * @param <U>      the type of the success value
      * @return a result
      */
     static <U> Result<U> of(Callable<U> callable) {
-        try {
-            return success(callable.call());
-        } catch (Exception e) {
-            return failure(e);
-        }
+        return new LazyCallableResult<>(callable);
     }
 
     /**
@@ -70,6 +67,13 @@ public interface Result<T> {
      * @return the encapsulated value if this instance represents success or the defaultValue if it is failure
      */
     T getOrDefault(T value);
+
+    /**
+     * Returns the encapsulated value if this instance represents success or throw the exception if it is a failure
+     *
+     * @return the encapsulated value if this instance represents success or throw the exception if it is a failure
+     */
+    T get() throws Throwable;
 
     /**
      * Returns the encapsulated value if this instance represents success or the result of fallback function for the encapsulated Throwable exception if it is failure.
@@ -127,6 +131,27 @@ public interface Result<T> {
      * @return the encapsulated result of the given transform function applied to the encapsulated value if this instance represents success or the original encapsulated Throwable exception if it is failure.
      */
     <U> Result<U> flatMap(Function<? super T, Result<U>> f);
+
+
+    /**
+     * Returns the encapsulated result of the given result parameter if this instance represents success or the original encapsulated Throwable exception if it is failure.
+     *
+     * @param <U> the type of the mapping
+     * @return the encapsulated result of the given result parameter if this instance represents success or the original encapsulated Throwable exception if it is failure.
+     */
+    <U> Result<U> then(Result<U> result);
+
+
+    /**
+     * Returns the encapsulated result of the given callable if this instance represents success or the original encapsulated Throwable exception if it is failure.
+     *
+     * @param <U> the type of the mapping
+     * @param callable the callable to get the value from
+     * @return the encapsulated result of the given callable if this instance represents success or the original encapsulated Throwable exception if it is failure.
+     */
+    default <U> Result<U> then(Callable<U> callable) {
+        return then(of(callable));
+    }
 
     /**
      * Returns the encapsulated result of the given fallback function applied to the encapsulated Throwable exception if this instance represents failure or the original encapsulated value if it is success.

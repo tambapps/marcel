@@ -1,11 +1,10 @@
 package marcel.util;
 
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 
+import java.util.Objects;
 import java.util.function.Function;
 
-@EqualsAndHashCode
 @AllArgsConstructor
 final class SuccessResult<T> implements Result<T> {
 
@@ -23,6 +22,11 @@ final class SuccessResult<T> implements Result<T> {
 
     @Override
     public T getOrDefault(T value) {
+        return result;
+    }
+
+    @Override
+    public T get() {
         return result;
     }
 
@@ -66,7 +70,26 @@ final class SuccessResult<T> implements Result<T> {
     }
 
     @Override
+    public <U> Result<U> then(Result<U> result) {
+        return result;
+    }
+
+    @Override
     public Result<T> recover(Function<Throwable, T> fallback) {
         return this;
+    }
+
+    @Override
+    public int hashCode() {
+        // Objects.hashCode() because result can be null
+        return Objects.hashCode(result);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Result<?>) {
+            return LazyCallableResult.equals(this, (Result<?>) obj);
+        }
+        return super.equals(obj);
     }
 }

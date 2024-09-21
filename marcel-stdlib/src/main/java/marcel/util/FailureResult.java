@@ -26,6 +26,11 @@ final class FailureResult<T> implements Result<T> {
     }
 
     @Override
+    public T get() throws Throwable {
+        throw exception;
+    }
+
+    @Override
     public T getOrElse(Function<Throwable, ? extends T> fallback) {
         return fallback.apply(exception);
     }
@@ -62,7 +67,25 @@ final class FailureResult<T> implements Result<T> {
     }
 
     @Override
+    public <U> Result<U> then(Result<U> result) {
+        return new FailureResult<>(exception);
+    }
+
+    @Override
     public Result<T> recover(Function<Throwable, T> fallback) {
         return new SuccessResult<>(fallback.apply(exception));
+    }
+
+    @Override
+    public int hashCode() {
+        return exception.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Result<?>) {
+            return LazyCallableResult.equals(this, (Result<?>) obj);
+        }
+        return super.equals(obj);
     }
 }
