@@ -57,11 +57,6 @@ final class FailureResult<T> implements Result<T> {
     }
 
     @Override
-    public <U> Result<U> tryMap(Function<? super T, ? extends U> transform) {
-        return new FailureResult<>(exception);
-    }
-
-    @Override
     public <U> Result<U> flatMap(Function<? super T, Result<U>> f) {
         return new FailureResult<>(exception);
     }
@@ -79,6 +74,11 @@ final class FailureResult<T> implements Result<T> {
     @Override
     public int hashCode() {
         return exception.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Result[exception=" + exception + "]";
     }
 
     @Override

@@ -52,13 +52,8 @@ final class SuccessResult<T> implements Result<T> {
 
     @Override
     public <U> Result<U> map(Function<? super T, ? extends U> transform) {
-        return new SuccessResult<>(transform.apply(result));
-    }
-
-    @Override
-    public <U> Result<U> tryMap(Function<? super T, ? extends U> transform) {
         try {
-            return map(transform);
+            return new SuccessResult<>(transform.apply(result));
         } catch (Exception e) {
             return new FailureResult<>(e);
         }
@@ -66,7 +61,11 @@ final class SuccessResult<T> implements Result<T> {
 
     @Override
     public <U> Result<U> flatMap(Function<? super T, Result<U>> f) {
-        return f.apply(result);
+        try {
+            return f.apply(result);
+        } catch (Exception e) {
+            return new FailureResult<>(e);
+        }
     }
 
     @Override
@@ -77,6 +76,11 @@ final class SuccessResult<T> implements Result<T> {
     @Override
     public Result<T> recover(Function<Throwable, T> fallback) {
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "Result[value=" + result + "]";
     }
 
     @Override

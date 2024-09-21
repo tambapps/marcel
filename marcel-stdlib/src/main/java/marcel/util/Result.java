@@ -105,15 +105,6 @@ public interface Result<T> {
     Throwable getExceptionOrNull();
 
     /**
-     * Returns the encapsulated result of the given transform function applied to the encapsulated value if this instance represents success or the original encapsulated Throwable exception if it is failure.
-     *
-     * @param transform the mapping function
-     * @param <U>       the type of the mapping
-     * @return the encapsulated result of the given transform function applied to the encapsulated value if this instance represents success or the original encapsulated Throwable exception if it is failure.
-     */
-    <U> Result<U> map(Function<? super T, ? extends U> transform);
-
-    /**
      * Returns the encapsulated result of the given transform function applied to the encapsulated value if this instance represents success or the original encapsulated Throwable exception if it is failure or an error
      * occured while applying the transformation.
      *
@@ -121,7 +112,7 @@ public interface Result<T> {
      * @param <U>       the type of the mapping
      * @return the encapsulated result of the given transform function applied to the encapsulated value if this instance represents success or the original encapsulated Throwable exception if it is failure.
      */
-    <U> Result<U> tryMap(Function<? super T, ? extends U> transform);
+    <U> Result<U> map(Function<? super T, ? extends U> transform);
 
     /**
      * Returns the encapsulated result of the given transform function applied to the encapsulated value if this instance represents success or the original encapsulated Throwable exception if it is failure.

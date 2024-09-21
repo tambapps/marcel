@@ -59,11 +59,6 @@ final class LazyCallableResult<T> implements Result<T> {
   }
 
   @Override
-  public <U> Result<U> tryMap(Function<? super T, ? extends U> transform) {
-    return getActualResult().tryMap(transform);
-  }
-
-  @Override
   public <U> Result<U> flatMap(Function<? super T, Result<U>> f) {
     return getActualResult().flatMap(f);
   }
@@ -92,6 +87,11 @@ final class LazyCallableResult<T> implements Result<T> {
   @Override
   public int hashCode() {
     return getActualResult().hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return getActualResult().toString();
   }
 
   @Override
