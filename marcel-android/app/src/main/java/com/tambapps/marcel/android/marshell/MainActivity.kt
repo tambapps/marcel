@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
@@ -281,14 +282,28 @@ private fun NavigationDrawer(
 
         val defaultShellSessionId = shellViewModels.keys.min()
         if (shellViewModels.size == 1) {
-          DrawerItem(
-            navController = navController,
-            drawerState = drawerState,
-            scope = scope,
-            text = "Shell",
-            selected = backStackState.value?.let { it.destination.route?.startsWith(HOME) == true || it.arguments?.getInt(SESSION_ID, Int.MAX_VALUE) == defaultShellSessionId } == true,
-            route = HOME
-          )
+          Box {
+            DrawerItem(
+              navController = navController,
+              drawerState = drawerState,
+              scope = scope,
+              text = "Shell",
+              selected = backStackState.value?.let { it.destination.route?.startsWith(HOME) == true || it.arguments?.getInt(SESSION_ID, Int.MAX_VALUE) == defaultShellSessionId } == true,
+              route = HOME
+            )
+            if (shellViewModels.size <= 8) {
+              IconButton(onClick = {
+                navController.navigate(NEW_SHELL)
+                scope.launch { drawerState.close() }
+              }, modifier = Modifier.align(Alignment.CenterEnd)) {
+                Icon(
+                  Icons.Filled.Add,
+                  modifier = Modifier.size(23.dp),
+                  contentDescription = "Save",
+                )
+              }
+            }
+          }
         } else {
           for (id in shellViewModels.keys) {
             val route = "$SHELL/$id"
@@ -304,15 +319,7 @@ private fun NavigationDrawer(
             )
           }
         }
-        DrawerItem(
-          navController = navController,
-          drawerState = drawerState,
-          scope = scope,
-          text = "New shell",
-          backStackState = backStackState,
-          route = NEW_SHELL
-        )
-        HorizontalDivider(Modifier.padding(vertical = 2.dp))
+        if (shellViewModels.size > 1) HorizontalDivider(Modifier.padding(vertical = 2.dp))
 
         DrawerItem(
           navController = navController,
