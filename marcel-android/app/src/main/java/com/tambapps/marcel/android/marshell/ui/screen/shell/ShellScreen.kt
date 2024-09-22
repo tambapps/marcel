@@ -65,12 +65,11 @@ fun ShellScreen(
   navController: NavController,
   viewModel: ShellViewModel,
   sessionId: Int,
-  shellsCount: Int
 ) {
   Column(modifier = Modifier
     .fillMaxSize()
     .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
-    TopBar(navController, viewModel, sessionId, shellsCount)
+    TopBar(navController, viewModel, sessionId)
     val listState = rememberLazyListState()
     SelectionContainer(
       Modifier
@@ -157,27 +156,9 @@ private fun TopBar(
   navController: NavController,
   viewModel: ShellViewModel,
   sessionId: Int,
-  shellsCount: Int
 ) {
   val context = LocalContext.current
   TopBarLayout(horizontalArrangement = Arrangement.End) {
-    if (shellsCount > 1) {
-      val showConfirmDialog = remember { mutableStateOf(false) }
-      ConfirmDeleteSessionDialog(
-        navController = navController,
-        show = showConfirmDialog,
-        sessionId = sessionId
-      )
-      TopBarIconButton(
-        modifier = shellIconModifier(),
-        onClick = { showConfirmDialog.value = true },
-        drawable = R.drawable.plus,
-        iconModifier = Modifier.rotate(45f),
-        iconTint = MaterialTheme.colorScheme.error,
-        contentDescription = "delete session"
-      )
-    }
-
     Box(modifier = Modifier.width(10.dp))
 
     val clearSessionDialog = remember { mutableStateOf(false) }
@@ -253,29 +234,6 @@ private fun TopBar(
   }
 }
 
-@Composable
-fun ConfirmDeleteSessionDialog(navController: NavController, show: MutableState<Boolean>, sessionId: Int) {
-  if (!show.value) return
-  AlertDialog(
-    title = {
-      Text(text = "Close this shell")
-    },
-    text = {
-      Text(text = "Do you want to close this shell?")
-    },
-    onDismissRequest = { show.value = false },
-    dismissButton = {
-      TextButton(onClick = { show.value = false }) {
-        Text(text = "Cancel")
-      }
-    },
-    confirmButton = {
-      TextButton(onClick = { navController.navigate(Routes.deleteShell(sessionId)) }) {
-        Text(text = "Confirm")
-      }
-    }
-  )
-}
 
 @Composable
 private fun ClearSessionDialog(
