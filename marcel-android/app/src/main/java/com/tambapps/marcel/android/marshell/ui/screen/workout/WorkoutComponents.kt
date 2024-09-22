@@ -69,8 +69,8 @@ fun WorkScriptCard(viewModel: ScriptCardEditorViewModel, readOnly: Boolean = fal
 }
 
 @Composable
-fun WorkStateText(shellWorkout: ShellWorkout, modifier: Modifier = Modifier, fontSize: TextUnit = TextUnit.Unspecified) {
-  Text(text = stateText(shellWorkout), color = stateColor(shellWorkout), modifier = modifier, textAlign = TextAlign.Center, fontSize = fontSize)
+fun WorkStateText(workout: ShellWorkout, modifier: Modifier = Modifier, fontSize: TextUnit = TextUnit.Unspecified) {
+  Text(text = stateText(workout), color = stateColor(workout), modifier = modifier, textAlign = TextAlign.Center, fontSize = fontSize)
 }
 
 fun nextRunText(durationBetweenNowAndNext: Duration): String {
@@ -99,20 +99,20 @@ private val Orange = Color(0xFFFFA500)
 private val SkyBlue = Color(0xFF87CEEB)
 // private val DeepBlue = Color(0xFF00338B) it was for light theme when I supported it
 
-private fun stateText(work: ShellWorkout): String {
-  return if (work.period != null && !work.state.isFinished) {
-    val unitStr = work.period.unit.name.lowercase()
-    if (work.state == WorkInfo.State.RUNNING) "RUNNING"
-    else if (work.period.amount == 1) "PERIODIC\n(every ${unitStr.removeSuffix("s")})"
-    else "PERIODIC\n(every ${work.period.amount} $unitStr)"
-  } else work.state.name
+private fun stateText(workout: ShellWorkout): String {
+  return if (workout.period != null && !workout.state.isFinished) {
+    val unitStr = workout.period.unit.name.lowercase()
+    if (workout.state == WorkInfo.State.RUNNING) "RUNNING"
+    else if (workout.period.amount == 1) "PERIODIC\n(every ${unitStr.removeSuffix("s")})"
+    else "PERIODIC\n(every ${workout.period.amount} $unitStr)"
+  } else workout.state.name
 }
 
 @Composable
-private fun stateColor(work: ShellWorkout) = when {
-  work.state == WorkInfo.State.SUCCEEDED -> Color.Green
-  work.state == WorkInfo.State.CANCELLED -> Orange
-  work.state == WorkInfo.State.FAILED -> Color.Red
-  work.isPeriodic || work.state == WorkInfo.State.RUNNING -> SkyBlue
+private fun stateColor(workout: ShellWorkout) = when {
+  workout.state == WorkInfo.State.SUCCEEDED -> Color.Green
+  workout.state == WorkInfo.State.CANCELLED -> Orange
+  workout.state == WorkInfo.State.FAILED -> Color.Red
+  workout.isPeriodic || workout.state == WorkInfo.State.RUNNING -> SkyBlue
   else -> MaterialTheme.colorScheme.onSurface
 }

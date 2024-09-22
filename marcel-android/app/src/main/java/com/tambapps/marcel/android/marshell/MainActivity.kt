@@ -18,14 +18,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AlertDialog
@@ -80,10 +78,10 @@ import com.tambapps.marcel.android.marshell.Routes.HOME
 import com.tambapps.marcel.android.marshell.Routes.SESSION_ID
 import com.tambapps.marcel.android.marshell.Routes.SETTINGS
 import com.tambapps.marcel.android.marshell.Routes.SHELL
-import com.tambapps.marcel.android.marshell.Routes.WORK_CREATE
-import com.tambapps.marcel.android.marshell.Routes.WORK_LIST
-import com.tambapps.marcel.android.marshell.Routes.WORK_NAME_ARG
-import com.tambapps.marcel.android.marshell.Routes.WORK_VIEW
+import com.tambapps.marcel.android.marshell.Routes.WORKOUT_CREATE
+import com.tambapps.marcel.android.marshell.Routes.WORKOUT_LIST
+import com.tambapps.marcel.android.marshell.Routes.WORKOUT_NAME_ARG
+import com.tambapps.marcel.android.marshell.Routes.WORKOUT_VIEW
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellScreen
 import com.tambapps.marcel.android.marshell.ui.component.TopBarLayout
@@ -174,21 +172,21 @@ class MainActivity : ComponentActivity() {
               }
               composable(
                 "$EDITOR?$FILE_ARG={$FILE_ARG}", scope, navController, drawerState,
-                arguments = listOf(navArgument(WORK_NAME_ARG) { type = NavType.StringType; nullable = true })
+                arguments = listOf(navArgument(WORKOUT_NAME_ARG) { type = NavType.StringType; nullable = true })
               ) {
                 EditorScreen()
               }
-              composable(WORK_LIST, scope, navController, drawerState) {
+              composable(WORKOUT_LIST, scope, navController, drawerState) {
                 WorksListScreen(navController = navController)
               }
-              composable(WORK_CREATE, scope, navController, drawerState) {
+              composable(WORKOUT_CREATE, scope, navController, drawerState) {
                 WorkCreateScreen(navController)
               }
               composable(
-                "$WORK_VIEW/{$WORK_NAME_ARG}", scope, navController, drawerState,
-                arguments = listOf(navArgument(WORK_NAME_ARG) { type = NavType.StringType }),
+                "$WORKOUT_VIEW/{$WORKOUT_NAME_ARG}", scope, navController, drawerState,
+                arguments = listOf(navArgument(WORKOUT_NAME_ARG) { type = NavType.StringType }),
                 deepLinks = listOf(navDeepLink {
-                  uriPattern = "app://marshell/$WORK_VIEW/{$WORK_NAME_ARG}"
+                  uriPattern = "app://marshell/$WORKOUT_VIEW/{$WORKOUT_NAME_ARG}"
                 })
               ) {
                 WorkViewScreen(navController)
@@ -309,8 +307,8 @@ class MainActivity : ComponentActivity() {
             drawerState = drawerState,
             scope = scope,
             text = "Shell Workouts",
-            selected = backStackState.value?.destination?.route?.startsWith("work") ?: false,
-            route = WORK_LIST
+            selected = backStackState.value?.destination?.route?.startsWith("workout") ?: false,
+            route = WORKOUT_LIST
           )
 
           DrawerItem(

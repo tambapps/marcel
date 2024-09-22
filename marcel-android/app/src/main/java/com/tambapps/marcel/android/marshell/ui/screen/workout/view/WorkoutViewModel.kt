@@ -81,7 +81,7 @@ class WorkoutViewModel @Inject constructor(
       withContext(Dispatchers.Main) {
         workout = updatedWork
         scriptEdited = false
-        Toast.makeText(context, "Work successfully updated", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Workout successfully updated", Toast.LENGTH_SHORT).show()
       }
     }
   }
@@ -92,7 +92,7 @@ class WorkoutViewModel @Inject constructor(
       withContext(Dispatchers.Main) {
         workout = updatedWork
         scriptEdited = false
-        Toast.makeText(context, "Work successfully cancelled", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Workout successfully cancelled", Toast.LENGTH_SHORT).show()
       }
     }
   }
@@ -102,7 +102,7 @@ class WorkoutViewModel @Inject constructor(
       shellWorkoutManager.delete(workName)
       withContext(Dispatchers.Main) {
         navController.navigateUp()
-        Toast.makeText(context, "Work successfully deleted", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Workout successfully deleted", Toast.LENGTH_SHORT).show()
       }
     }
   }

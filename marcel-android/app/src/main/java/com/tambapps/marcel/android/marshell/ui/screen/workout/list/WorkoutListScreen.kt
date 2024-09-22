@@ -70,7 +70,7 @@ fun WorksListScreen(
     FloatingActionButton(
       modifier = Modifier.padding(all = 16.dp),
       onClick = {
-        navController.navigate(Routes.WORK_CREATE)
+        navController.navigate(Routes.WORKOUT_CREATE)
       }
     ) {
       Icon(
@@ -90,7 +90,7 @@ fun ShellWorkItem(shellWorkout: ShellWorkout, navController: NavController) {
       .fillMaxWidth()
       .combinedClickable(
         onClick = {
-          navController.navigate(Routes.WORK_VIEW + "/" + shellWorkout.name)
+          navController.navigate(Routes.WORKOUT_VIEW + "/" + shellWorkout.name)
         },
         onLongClick = {}
       )
@@ -105,7 +105,7 @@ fun ShellWorkItem(shellWorkout: ShellWorkout, navController: NavController) {
       }
     }
 
-    WorkStateText(shellWorkout = shellWorkout, modifier = Modifier.align(Alignment.End), fontSize = 14.sp)
+    WorkStateText(workout = shellWorkout, modifier = Modifier.align(Alignment.End), fontSize = 14.sp)
     Box(modifier = Modifier.padding(8.dp))
     HorizontalDivider()
   }

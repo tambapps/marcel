@@ -8,9 +8,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -70,7 +68,7 @@ fun WorkViewScreen(
   navController: NavController,
   viewModel: WorkoutViewModel = hiltViewModel()
   ) {
-  val work = viewModel.workout
+  val workout = viewModel.workout
   Box(
     modifier = Modifier
       .fillMaxSize()
@@ -86,13 +84,13 @@ fun WorkViewScreen(
 
     Column(modifier = columnModifier) {
       Header()
-      if (work == null) {
+      if (workout == null) {
         LoadingComponent()
       } else {
-        WorkComponent(viewModel, work)
+        WorkComponent(viewModel, workout)
         Spacer(Modifier.height(128.dp)) // just so we can scroll past the buttons displayed at the bottom
         LaunchedEffect(Unit) {
-          if (work.isPeriodic) {
+          if (workout.isPeriodic) {
             withContext(Dispatchers.IO) {
               while (true) {
                 delay(1_000L)
@@ -105,9 +103,9 @@ fun WorkViewScreen(
     }
     val context = LocalContext.current
 
-    if (work != null) {
-      val isCancelable = work.state == WorkInfo.State.ENQUEUED || work.state == WorkInfo.State.RUNNING
-          || work.state == WorkInfo.State.BLOCKED
+    if (workout != null) {
+      val isCancelable = workout.state == WorkInfo.State.ENQUEUED || workout.state == WorkInfo.State.RUNNING
+          || workout.state == WorkInfo.State.BLOCKED
       val showDialog = remember { mutableStateOf(false) }
       Fab(
         visible = true,
@@ -125,7 +123,7 @@ fun WorkViewScreen(
       }
       CancelOrDeleteDialog(
         viewModel = viewModel,
-        work = work,
+        workout = workout,
         isCancelable = isCancelable,
         navController = navController,
         show = showDialog
@@ -149,7 +147,7 @@ fun WorkViewScreen(
 @Composable
 fun CancelOrDeleteDialog(
   viewModel: WorkoutViewModel,
-  work: ShellWorkout,
+  workout: ShellWorkout,
   isCancelable: Boolean,
   navController: NavController,
   show: MutableState<Boolean>,
@@ -167,14 +165,14 @@ fun CancelOrDeleteDialog(
     },
     confirmButton = {
       TextButton(onClick = {
-        if (isCancelable) viewModel.cancelWork(context, work.name)
-        else viewModel.deleteWork(context, work.name, navController)
+        if (isCancelable) viewModel.cancelWork(context, workout.name)
+        else viewModel.deleteWork(context, workout.name, navController)
       }) {
         Text(text = "Confirm", color = Color.Red)
       }
     },
     title = {
-      Text(text = if (isCancelable) "Cancel workout?" else "Delete work?")
+      Text(text = if (isCancelable) "Cancel workout?" else "Delete workout?")
     },
     text = {
       Text(text = if (isCancelable) "The workout won't run anymore" else "This action is not reversible")
@@ -224,7 +222,7 @@ private fun WorkComponent(viewModel: WorkoutViewModel, workout: ShellWorkout) {
         overflow = TextOverflow.Ellipsis
       )
       WorkStateText(
-        shellWorkout = workout,
+        workout = workout,
         fontSize = 16.sp,
         modifier = Modifier.align(Alignment.TopEnd),
       )
@@ -310,7 +308,7 @@ private fun LoadingComponent() {
 @Composable
 private fun Header() {
   Text(
-    text = "Workout",
+    text = "Shell Workout",
     style = MaterialTheme.typography.shellTextStyle,
     modifier = Modifier
       .fillMaxWidth()

@@ -103,8 +103,8 @@ fun WorkCreateScreen(
       onClick = {
         viewModel.validateAndSave(context) {
           // navigate back to works list and force the screen to reload
-          navController.navigate(Routes.WORK_LIST) {
-            popUpTo(Routes.WORK_LIST) { inclusive = true }
+          navController.navigate(Routes.WORKOUT_LIST) {
+            popUpTo(Routes.WORKOUT_LIST) { inclusive = true }
           }
         }
       }

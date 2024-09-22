@@ -25,11 +25,11 @@ class NavigationArgsModule {
    */
   @Provides
   @ViewModelScoped
-  fun work(
+  fun workout(
     savedStateHandle: SavedStateHandle,
     shellWorkoutManager: ShellWorkoutManager
   ): ShellWorkout? {
-    return savedStateHandle.get<String>(Routes.WORK_NAME_ARG)?.let {
+    return savedStateHandle.get<String>(Routes.WORKOUT_NAME_ARG)?.let {
       runBlocking { shellWorkoutManager.findByName(it) }
     }
   }

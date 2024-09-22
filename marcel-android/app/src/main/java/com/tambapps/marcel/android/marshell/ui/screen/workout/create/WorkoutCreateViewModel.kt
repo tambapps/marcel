@@ -143,7 +143,7 @@ class WorkoutCreateViewModel @Inject constructor(
       return
     }
     if (shellWorkoutManager.existsByName(name)) {
-      nameError = "A work with this name already exists"
+      nameError = "A workout with this name already exists"
       return
     }
     nameError = null

@@ -11,10 +11,10 @@ import com.tambapps.marcel.android.marshell.room.entity.ShellWorkout
 /**
  * Android Notifier for a workout, allowing to redirect to the work when clicking on the notification
  */
-class WorkoutAndroidNotifier(context: Context, channel: NotificationChannel, private val work: ShellWorkout) :
+class WorkoutAndroidNotifier(context: Context, channel: NotificationChannel, private val workout: ShellWorkout) :
   AndroidNotifier(context, channel) {
 
-  private val notificationId = work.workId.hashCode()
+  private val notificationId = workout.workId.hashCode()
 
   fun notifyIfEnabled(
     title: String,
@@ -41,7 +41,7 @@ class WorkoutAndroidNotifier(context: Context, channel: NotificationChannel, pri
   private fun getConsultIntent(): PendingIntent? {
     val intent = Intent(
       Intent.ACTION_VIEW,
-      "app://marshell/${Routes.WORK_VIEW}/${work.name}".toUri()
+      "app://marshell/${Routes.WORKOUT_VIEW}/${workout.name}".toUri()
     )
     val flags = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     else PendingIntent.FLAG_UPDATE_CURRENT
