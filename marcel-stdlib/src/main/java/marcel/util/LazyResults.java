@@ -112,6 +112,15 @@ final class LazyResults {
   }
 
   @RequiredArgsConstructor
+  static final class NullResult<T> extends LazyResults.AbstractLazyResult<T> {
+
+    @Override
+    Result<T> computeResult() {
+      return Result.success(null);
+    }
+  }
+
+  @RequiredArgsConstructor
   static final class MapResult<T, U> extends LazyResults.AbstractLazyResult<U> {
 
     private final Result<T> source;

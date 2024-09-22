@@ -46,6 +46,16 @@ public interface Result<T> {
     }
 
     /**
+     * Returns an instance of a success result that lazily encapsulates the following operations applied on it. All the result pipeline will be lazily evaluated.
+     *
+     * @param <U>      the type of the success value
+     * @return a result
+     */
+    static <U> Result<U> lazy() {
+        return new LazyResults.NullResult<>();
+    }
+
+    /**
      * Returns true if this instance represents a successful outcome. In this case isFailure returns false.
      *
      * @return true if this instance represents a successful outcome. In this case isFailure returns false.
