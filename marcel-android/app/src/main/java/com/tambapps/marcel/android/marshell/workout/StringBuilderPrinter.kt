@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.marshell.work
+package com.tambapps.marcel.android.marshell.workout
 
 import com.tambapps.marcel.android.marshell.repl.console.Printer
 

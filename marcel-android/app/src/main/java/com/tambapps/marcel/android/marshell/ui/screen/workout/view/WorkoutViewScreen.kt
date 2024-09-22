@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.marshell.ui.screen.work.view
+package com.tambapps.marcel.android.marshell.ui.screen.workout.view
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -45,13 +45,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.work.WorkInfo
 import com.tambapps.marcel.android.marshell.R
-import com.tambapps.marcel.android.marshell.room.entity.ShellWork
+import com.tambapps.marcel.android.marshell.room.entity.ShellWorkout
 import com.tambapps.marcel.android.marshell.ui.component.EXPANDABLE_CARD_ANIMATION_SPEC
 import com.tambapps.marcel.android.marshell.ui.component.ExpandableCard
-import com.tambapps.marcel.android.marshell.ui.screen.work.WorkScriptCard
-import com.tambapps.marcel.android.marshell.ui.screen.work.WorkStateText
-import com.tambapps.marcel.android.marshell.ui.screen.work.nextRunText
-import com.tambapps.marcel.android.marshell.ui.screen.work.runtimeText
+import com.tambapps.marcel.android.marshell.ui.screen.workout.WorkScriptCard
+import com.tambapps.marcel.android.marshell.ui.screen.workout.WorkStateText
+import com.tambapps.marcel.android.marshell.ui.screen.workout.nextRunText
+import com.tambapps.marcel.android.marshell.ui.screen.workout.runtimeText
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import kotlinx.coroutines.Dispatchers
@@ -65,9 +65,9 @@ private val Orange = Color(0xFFFF9800)
 @Composable
 fun WorkViewScreen(
   navController: NavController,
-  viewModel: WorkViewModel = hiltViewModel()
+  viewModel: WorkoutViewModel = hiltViewModel()
   ) {
-  val work = viewModel.work
+  val work = viewModel.workout
   Box(
     modifier = Modifier
       .fillMaxSize()
@@ -88,7 +88,7 @@ fun WorkViewScreen(
             withContext(Dispatchers.IO) {
               while (true) {
                 delay(1_000L)
-                viewModel.refresh(viewModel.work!!.name)
+                viewModel.refresh(viewModel.workout!!.name)
               }
             }
           }
@@ -140,8 +140,8 @@ fun WorkViewScreen(
 
 @Composable
 fun CancelOrDeleteDialog(
-  viewModel: WorkViewModel,
-  work: ShellWork,
+  viewModel: WorkoutViewModel,
+  work: ShellWorkout,
   isCancelable: Boolean,
   navController: NavController,
   show: MutableState<Boolean>,
@@ -196,7 +196,7 @@ fun Fab(
   }
 }
 @Composable
-private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
+private fun WorkComponent(viewModel: WorkoutViewModel, workout: ShellWorkout) {
   Column(
     modifier = Modifier.animateContentSize(animationSpec = EXPANDABLE_CARD_ANIMATION_SPEC)
       .verticalScroll(rememberScrollState())
@@ -211,30 +211,30 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
       Text(
         modifier = Modifier
           .fillMaxWidth(0.75f),
-        text = work.name,
+        text = workout.name,
         style = MaterialTheme.typography.shellTextStyle,
         fontSize = 22.sp,
         overflow = TextOverflow.Ellipsis
       )
       WorkStateText(
-        shellWork = work,
+        shellWorkout = workout,
         fontSize = 16.sp,
         modifier = Modifier.align(Alignment.TopEnd),
       )
     }
 
-    if (work.description != null) {
+    if (workout.description != null) {
       Text(
         modifier = Modifier
           .padding(bottom = 16.dp)
           .fillMaxWidth(),
-        text = work.description,
+        text = workout.description,
         style = MaterialTheme.typography.shellTextStyle,
         fontSize = 16.sp,
         overflow = TextOverflow.Ellipsis
       )
     }
-    Text(text = runtimeText(work),
+    Text(text = runtimeText(workout),
       modifier = Modifier.padding(bottom = 16.dp),
       style = MaterialTheme.typography.shellTextStyle, fontSize = 16.sp)
     viewModel.durationBetweenNowAndNext?.let {
@@ -244,12 +244,12 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
         style = MaterialTheme.typography.shellTextStyle, fontSize = 16.sp)
     }
 
-    if (work.failedReason != null) {
+    if (workout.failedReason != null) {
       Text(
         modifier = Modifier
           .padding(bottom = 16.dp)
           .fillMaxWidth(),
-        text = "Failure reason: ${work.failedReason}",
+        text = "Failure reason: ${workout.failedReason}",
         style = MaterialTheme.typography.shellTextStyle,
         fontSize = 16.sp,
         overflow = TextOverflow.Ellipsis
@@ -257,8 +257,8 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
     }
     Box(modifier = Modifier.padding(16.dp))
 
-    if (!work.initScripts.isNullOrEmpty()) {
-      val initScripts = remember { work.initScripts.map { File(it) } }
+    if (!workout.initScripts.isNullOrEmpty()) {
+      val initScripts = remember { workout.initScripts.map { File(it) } }
       Text(text = "Initialization scripts", style = MaterialTheme.typography.titleMedium)
       for (initScript in initScripts) {
         Text(text = "- " + initScript.name,
@@ -267,18 +267,18 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
       }
       Box(modifier = Modifier.padding(16.dp))
     }
-    if (!work.logs.isNullOrEmpty()) {
+    if (!workout.logs.isNullOrEmpty()) {
       val logsExpanded = remember { mutableStateOf(false) }
       ExpandableCard(expanded = logsExpanded, title = "Logs") {
         SelectionContainer {
-          Text(text = work.logs, style = MaterialTheme.typography.shellTextStyle)
+          Text(text = workout.logs, style = MaterialTheme.typography.shellTextStyle)
         }
       }
       Box(modifier = Modifier.padding(16.dp))
     }
-    if (work.result != null) {
-      val result = work.result
-      val isMarkdown = work.resultClassName == Markdown::class.java.name
+    if (workout.result != null) {
+      val result = workout.result
+      val isMarkdown = workout.resultClassName == Markdown::class.java.name
       SelectionContainer {
         if (isMarkdown) {
           viewModel.mdComposer.Markdown(node = Markdown.PARSER.parse(result))
@@ -290,7 +290,7 @@ private fun WorkComponent(viewModel: WorkViewModel, work: ShellWork) {
     }
   }
   // should stay outside of the Column in order to expand over everything else
-  WorkScriptCard(viewModel = viewModel, readOnly = !work.isPeriodic || work.isFinished)
+  WorkScriptCard(viewModel = viewModel, readOnly = !workout.isPeriodic || workout.isFinished)
 }
 
 @Composable

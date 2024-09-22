@@ -6,12 +6,12 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.net.toUri
 import com.tambapps.marcel.android.marshell.Routes
-import com.tambapps.marcel.android.marshell.room.entity.ShellWork
+import com.tambapps.marcel.android.marshell.room.entity.ShellWorkout
 
 /**
  * Android Notifier for a workout, allowing to redirect to the work when clicking on the notification
  */
-class WorkoutAndroidNotifier(context: Context, channel: NotificationChannel, private val work: ShellWork) :
+class WorkoutAndroidNotifier(context: Context, channel: NotificationChannel, private val work: ShellWorkout) :
   AndroidNotifier(context, channel) {
 
   private val notificationId = work.workId.hashCode()

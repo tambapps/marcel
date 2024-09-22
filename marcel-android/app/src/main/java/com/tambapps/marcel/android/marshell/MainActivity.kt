@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.addCallback
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedContentScope
@@ -40,7 +39,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -84,13 +82,13 @@ import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorScreen
 import com.tambapps.marcel.android.marshell.ui.screen.settings.SettingsScreen
 import com.tambapps.marcel.android.marshell.ui.screen.shell.consult.ShellConsultScreen
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
-import com.tambapps.marcel.android.marshell.ui.screen.work.create.WorkCreateScreen
-import com.tambapps.marcel.android.marshell.ui.screen.work.list.WorksListScreen
-import com.tambapps.marcel.android.marshell.ui.screen.work.view.WorkViewScreen
+import com.tambapps.marcel.android.marshell.ui.screen.workout.create.WorkCreateScreen
+import com.tambapps.marcel.android.marshell.ui.screen.workout.list.WorksListScreen
+import com.tambapps.marcel.android.marshell.ui.screen.workout.view.WorkViewScreen
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
-import com.tambapps.marcel.android.marshell.work.ShellWorkManager
+import com.tambapps.marcel.android.marshell.workout.ShellWorkoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -101,7 +99,7 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
 
   @Inject
-  lateinit var shellWorkManager: ShellWorkManager
+  lateinit var shellWorkoutManager: ShellWorkoutManager
   @Inject
   lateinit var shellSessionFactory: ShellSessionFactory
 
@@ -223,7 +221,7 @@ class MainActivity : ComponentActivity() {
 
   override fun onResume() {
     super.onResume()
-    ioScope.launch { shellWorkManager.runLateWorks() }
+    ioScope.launch { shellWorkoutManager.runLateWorkouts() }
   }
 }
 

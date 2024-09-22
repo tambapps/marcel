@@ -43,7 +43,7 @@ class MarcelAndroidConfiguration {
   @Named("workSessionsDirectory")
   @Provides
   fun workSessionsDirectory(@ApplicationContext context: Context): File {
-    // TODO use cacheDir for work sessions because they are supposed to be ephemeral and can be deleted safely
+    // TODO use cacheDir for workout sessions because they are supposed to be ephemeral and can be deleted safely
     return context.getDir("work_sessions", Context.MODE_PRIVATE)
   }
 

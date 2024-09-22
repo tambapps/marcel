@@ -10,8 +10,8 @@ import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.UUID
 
-@Entity("shell_works")
-data class ShellWork(
+@Entity("shell_workouts")
+data class ShellWorkout(
   @PrimaryKey val name: String, // yes, works are unique by name and their "id" may vary
   @ColumnInfo(name = "work_id") val workId: UUID,
   @ColumnInfo val description: String?,

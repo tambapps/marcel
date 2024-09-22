@@ -4,8 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.tambapps.marcel.android.marshell.room.AppDatabase
 import com.tambapps.marcel.android.marshell.room.dao.MessageDao
-import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDao
-import com.tambapps.marcel.android.marshell.room.migration.MIGRATION_1_2
+import com.tambapps.marcel.android.marshell.room.dao.ShellWorkoutDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,7 +30,7 @@ class RoomConfiguration {
   }
 
   @Provides
-  fun shellWorkDataDao(appDatabase: AppDatabase): ShellWorkDao {
+  fun shellWorkDataDao(appDatabase: AppDatabase): ShellWorkoutDao {
     return appDatabase.shellWorkDataDao()
   }
 

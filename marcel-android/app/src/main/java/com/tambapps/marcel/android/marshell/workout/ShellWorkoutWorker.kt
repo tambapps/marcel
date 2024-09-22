@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.marshell.work
+package com.tambapps.marcel.android.marshell.workout
 
 import android.app.NotificationChannel
 import android.content.Context
@@ -11,8 +11,8 @@ import androidx.work.WorkerParameters
 import com.tambapps.marcel.android.marshell.os.WorkoutAndroidNotifier
 import com.tambapps.marcel.android.marshell.repl.ShellSession
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
-import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDao
-import com.tambapps.marcel.android.marshell.room.entity.ShellWork
+import com.tambapps.marcel.android.marshell.room.dao.ShellWorkoutDao
+import com.tambapps.marcel.android.marshell.room.entity.ShellWorkout
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.io.File
@@ -21,11 +21,11 @@ import java.time.LocalDateTime
 import javax.inject.Named
 
 @HiltWorker
-class MarshellWorkout @AssistedInject constructor(
+class ShellWorkoutWorker @AssistedInject constructor(
   @Assisted appContext: Context,
   @Assisted workerParams: WorkerParameters,
   private val shellSessionFactory: ShellSessionFactory,
-  private val shellWorkDao: ShellWorkDao,
+  private val shellWorkoutDao: ShellWorkoutDao,
   @Named("workoutNotificationChannel") private val workoutNotificationChannel: NotificationChannel
 ): CoroutineWorker(appContext, workerParams) {
 
@@ -34,14 +34,14 @@ class MarshellWorkout @AssistedInject constructor(
   }
 
   override suspend fun doWork(): Result {
-    val work = findWork()
-    if (work == null) {
-      Log.e(TAG, "Couldn't find shell_work on database for work with id $id and tags $tags")
+    val workout = findWork()
+    if (workout == null) {
+      Log.e(TAG, "Couldn't find shell_workout on database for workout with id $id and tags $tags")
       return Result.failure(Data.EMPTY)
     }
-    val androidNotifier = WorkoutAndroidNotifier(applicationContext, workoutNotificationChannel, work)
-    if (work.scriptText == null) {
-      Log.e(TAG, "Couldn't retrieve script text of work $id")
+    val androidNotifier = WorkoutAndroidNotifier(applicationContext, workoutNotificationChannel, workout)
+    if (workout.scriptText == null) {
+      Log.e(TAG, "Couldn't retrieve script text of workout $id")
       return Result.failure(Data.EMPTY)
     }
     val printer = StringBuilderPrinter()
@@ -49,70 +49,70 @@ class MarshellWorkout @AssistedInject constructor(
     if (sessionResult.isFailure) {
       val e = sessionResult.exceptionOrNull()!!
       Log.e(TAG, "Couldn't start shell session", e)
-      shellWorkDao.updateFailureReason(work.name, e.message)
+      shellWorkoutDao.updateFailureReason(workout.name, e.message)
       return Result.failure(Data.EMPTY)
     }
     val shellSession = sessionResult.getOrThrow()
     try {
-      return runWorkout(work, work.scriptText, shellSession, printer, androidNotifier)
+      return runWorkout(workout, workout.scriptText, shellSession, printer, androidNotifier)
     } finally {
       shellSession.classesDirectory.deleteRecursively()
     }
   }
 
-  private suspend fun runWorkout(work: ShellWork, scriptText: String, session: ShellSession, printer: StringBuilderPrinter, androidNotifier: WorkoutAndroidNotifier): Result {
-    shellWorkDao.updateState(work.name, WorkInfo.State.RUNNING)
-    shellWorkDao.updateStartTime(work.name, LocalDateTime.now())
+  private suspend fun runWorkout(workout: ShellWorkout, scriptText: String, session: ShellSession, printer: StringBuilderPrinter, androidNotifier: WorkoutAndroidNotifier): Result {
+    shellWorkoutDao.updateState(workout.name, WorkInfo.State.RUNNING)
+    shellWorkoutDao.updateStartTime(workout.name, LocalDateTime.now())
 
     var result: marcel.util.Result<Any?> = marcel.util.Result.success(null)
     Log.d(TAG, "Evaluating init scripts")
-    for (initScript in work.initScripts ?: emptyList()) {
+    for (initScript in workout.initScripts ?: emptyList()) {
       result = result.then { session.eval(readInitScriptText(initScript)) }
     }
-    Log.d(TAG, "Evaluating work script")
+    Log.d(TAG, "Evaluating workout script")
     result = result.then { session.eval(scriptText) }
 
-    shellWorkDao.update(
-      name = work.name,
+    shellWorkoutDao.update(
+      name = workout.name,
       endTime = LocalDateTime.now(),
       result = result.getOrNull()?.toString(),
       resultClassName = result.getOrNull()?.javaClass?.name,
       failureReason = result.exceptionOrNull?.localizedMessage,
       logs = printer.toString(),
-      state = if (work.isPeriodic) WorkInfo.State.ENQUEUED
+      state = if (workout.isPeriodic) WorkInfo.State.ENQUEUED
       else if (result.isSuccess) WorkInfo.State.SUCCEEDED
       else WorkInfo.State.FAILED
     )
 
     return if (result.isSuccess) {
-      Log.d(TAG, "Finished successfully workout ${work.name}. Return value: ${result.get()}")
+      Log.d(TAG, "Finished successfully workout ${workout.name}. Return value: ${result.get()}")
       Result.success()
     } else {
       val e = result.exceptionOrNull
       Log.e(TAG, "An error occurred while executing script", e)
-      androidNotifier.notifyIfEnabled("Workout ${work.name} encountered an error", e?.message ?: "<no message>", onGoing = false)
+      androidNotifier.notifyIfEnabled("Workout ${workout.name} encountered an error", e?.message ?: "<no message>", onGoing = false)
       Result.failure()
     }
   }
 
-  private suspend fun findWork(): ShellWork? {
-    val name = ShellWorkManager.getName(tags)
+  private suspend fun findWork(): ShellWorkout? {
+    val name = ShellWorkoutManager.getName(tags)
     if (name == null) {
-      Log.e(TAG, "Couldn't extract work name from tags for work with id $id and tags $tags")
+      Log.e(TAG, "Couldn't extract workout name from tags for workout with id $id and tags $tags")
       return null
     }
-    var work: ShellWork? = shellWorkDao.findByName(name)
+    var workout: ShellWorkout? = shellWorkoutDao.findByName(name)
     var tries = 1
-    while (work == null && tries++ < 4) {
-      // sometimes it looks like the worker is created before the work_data could save the work in database
+    while (workout == null && tries++ < 4) {
+      // sometimes it looks like the worker is created before the work_data could save the workout in database
       Thread.sleep(1_000L)
-      work = shellWorkDao.findByName(name)
+      workout = shellWorkoutDao.findByName(name)
     }
-    if (work != null && work.workId != id) {
-      work = work.copy(workId = id)
-      shellWorkDao.update(work)
+    if (workout != null && workout.workId != id) {
+      workout = workout.copy(workId = id)
+      shellWorkoutDao.update(workout)
     }
-    return work
+    return workout
   }
 
   private fun readInitScriptText(initScriptPath: String): String {

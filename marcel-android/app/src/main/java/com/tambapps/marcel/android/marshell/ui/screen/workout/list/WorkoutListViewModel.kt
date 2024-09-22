@@ -1,9 +1,9 @@
-package com.tambapps.marcel.android.marshell.ui.screen.work.list
+package com.tambapps.marcel.android.marshell.ui.screen.workout.list
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import com.tambapps.marcel.android.marshell.room.entity.ShellWork
-import com.tambapps.marcel.android.marshell.work.ShellWorkManager
+import com.tambapps.marcel.android.marshell.room.entity.ShellWorkout
+import com.tambapps.marcel.android.marshell.workout.ShellWorkoutManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -12,8 +12,8 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class WorksListViewModel @Inject constructor(
-  private val shellWorkManager: ShellWorkManager
+class WorkoutListViewModel @Inject constructor(
+  private val shellWorkoutManager: ShellWorkoutManager
 ): ViewModel() {
 
   init {
@@ -22,11 +22,11 @@ class WorksListViewModel @Inject constructor(
     }
   }
 
-  val works = mutableStateListOf<ShellWork>()
+  val works = mutableStateListOf<ShellWorkout>()
 
   suspend fun refresh() {
-    val list = shellWorkManager.list().sortedWith(
-      compareBy<ShellWork> { it.state.isFinished }
+    val list = shellWorkoutManager.list().sortedWith(
+      compareBy<ShellWorkout> { it.state.isFinished }
         .thenByDescending { it.createdAt })
     withContext(Dispatchers.Main) {
       works.clear()

@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.marshell.ui.screen.work.view
+package com.tambapps.marcel.android.marshell.ui.screen.workout.view
 
 import android.content.Context
 import android.widget.Toast
@@ -10,10 +10,10 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
-import com.tambapps.marcel.android.marshell.room.entity.ShellWork
+import com.tambapps.marcel.android.marshell.room.entity.ShellWorkout
 import com.tambapps.marcel.android.marshell.ui.component.MarkdownComposer
 import com.tambapps.marcel.android.marshell.ui.screen.ScriptCardEditorViewModel
-import com.tambapps.marcel.android.marshell.work.ShellWorkManager
+import com.tambapps.marcel.android.marshell.workout.ShellWorkoutManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,10 +23,10 @@ import java.time.Duration
 import javax.inject.Inject
 
 @HiltViewModel
-class WorkViewModel @Inject constructor(
-  private val shellWorkManager: ShellWorkManager,
+class WorkoutViewModel @Inject constructor(
+  private val shellWorkoutManager: ShellWorkoutManager,
   shellSessionFactory: ShellSessionFactory,
-  w: ShellWork?
+  w: ShellWorkout?
 ): ViewModel(), ScriptCardEditorViewModel {
 
   override val replCompiler = shellSessionFactory.newReplCompiler()
@@ -37,7 +37,7 @@ class WorkViewModel @Inject constructor(
   override var scriptTextError by mutableStateOf<String?>(null)
   override val scriptCardExpanded = mutableStateOf(false)
 
-  var work by mutableStateOf<ShellWork?>(null)
+  var workout by mutableStateOf<ShellWorkout?>(null)
   var durationBetweenNowAndNext  by mutableStateOf<Duration?>(null) // storing this info in a state to benefit of android compose recomposition
   var scriptEdited by mutableStateOf(false)
 
@@ -45,8 +45,8 @@ class WorkViewModel @Inject constructor(
 
   init {
     if (w != null) {
-      work = w
-      durationBetweenNowAndNext = work?.durationBetweenNowAndNext
+      workout = w
+      durationBetweenNowAndNext = workout?.durationBetweenNowAndNext
       if (w.scriptText != null) {
         setScriptTextInput(w.scriptText)
         scriptEdited = false
@@ -57,29 +57,29 @@ class WorkViewModel @Inject constructor(
 
   override fun onScriptTextChange(text: TextFieldValue) {
     super.onScriptTextChange(text)
-    if (work?.isPeriodic == true) {
+    if (workout?.isPeriodic == true) {
       scriptEdited = true
     }
   }
 
   suspend fun refresh(workName: String) {
-    val w = shellWorkManager.findByName(workName)
+    val w = shellWorkoutManager.findByName(workName)
     withContext(Dispatchers.Main) {
-      work = w
-      durationBetweenNowAndNext = work?.durationBetweenNowAndNext
+      workout = w
+      durationBetweenNowAndNext = workout?.durationBetweenNowAndNext
     }
   }
 
   fun validateAndSave(context: Context) {
-    val workName = this.work?.name ?: return
+    val workName = this.workout?.name ?: return
     validateScriptText()
     if (scriptTextError != null) {
       return
     }
     ioScope.launch {
-      val updatedWork = shellWorkManager.update(workName, scriptTextInput.text)
+      val updatedWork = shellWorkoutManager.update(workName, scriptTextInput.text)
       withContext(Dispatchers.Main) {
-        work = updatedWork
+        workout = updatedWork
         scriptEdited = false
         Toast.makeText(context, "Work successfully updated", Toast.LENGTH_SHORT).show()
       }
@@ -88,9 +88,9 @@ class WorkViewModel @Inject constructor(
 
   fun cancelWork(context: Context, workName: String) {
     ioScope.launch {
-      val updatedWork = shellWorkManager.cancel(workName)
+      val updatedWork = shellWorkoutManager.cancel(workName)
       withContext(Dispatchers.Main) {
-        work = updatedWork
+        workout = updatedWork
         scriptEdited = false
         Toast.makeText(context, "Work successfully cancelled", Toast.LENGTH_SHORT).show()
       }
@@ -99,7 +99,7 @@ class WorkViewModel @Inject constructor(
 
   fun deleteWork(context: Context, workName: String, navController: NavController) {
     ioScope.launch {
-      shellWorkManager.delete(workName)
+      shellWorkoutManager.delete(workName)
       withContext(Dispatchers.Main) {
         navController.navigateUp()
         Toast.makeText(context, "Work successfully deleted", Toast.LENGTH_SHORT).show()

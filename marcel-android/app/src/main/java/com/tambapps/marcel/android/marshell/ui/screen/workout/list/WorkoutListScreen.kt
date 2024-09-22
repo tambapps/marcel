@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.marshell.ui.screen.work.list
+package com.tambapps.marcel.android.marshell.ui.screen.workout.list
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -22,17 +22,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.tambapps.marcel.android.marshell.Routes
-import com.tambapps.marcel.android.marshell.room.entity.ShellWork
-import com.tambapps.marcel.android.marshell.ui.screen.work.WorkStateText
-import com.tambapps.marcel.android.marshell.ui.screen.work.nextRunText
-import com.tambapps.marcel.android.marshell.ui.screen.work.runtimeText
+import com.tambapps.marcel.android.marshell.room.entity.ShellWorkout
+import com.tambapps.marcel.android.marshell.ui.screen.workout.WorkStateText
+import com.tambapps.marcel.android.marshell.ui.screen.workout.nextRunText
+import com.tambapps.marcel.android.marshell.ui.screen.workout.runtimeText
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.ui.theme.shellTextStyle
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +41,7 @@ import kotlinx.coroutines.withContext
 @Composable
 fun WorksListScreen(
   navController: NavController,
-  viewModel: WorksListViewModel = hiltViewModel()
+  viewModel: WorkoutListViewModel = hiltViewModel()
   ) {
   LaunchedEffect(Unit) {
     withContext(Dispatchers.IO) {
@@ -85,28 +84,28 @@ fun WorksListScreen(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ShellWorkItem(shellWork: ShellWork, navController: NavController) {
+fun ShellWorkItem(shellWorkout: ShellWorkout, navController: NavController) {
   Column(
     modifier = Modifier
       .fillMaxWidth()
       .combinedClickable(
         onClick = {
-          navController.navigate(Routes.WORK_VIEW + "/" + shellWork.name)
+          navController.navigate(Routes.WORK_VIEW + "/" + shellWorkout.name)
         },
         onLongClick = {}
       )
   ) {
     Box(modifier = Modifier.padding(8.dp))
-    Text(text = shellWork.name, style = MaterialTheme.typography.shellTextStyle, fontSize = 18.sp)
-    Text(text = runtimeText(shellWork), style = MaterialTheme.typography.shellTextStyle, fontSize = 16.sp)
+    Text(text = shellWorkout.name, style = MaterialTheme.typography.shellTextStyle, fontSize = 18.sp)
+    Text(text = runtimeText(shellWorkout), style = MaterialTheme.typography.shellTextStyle, fontSize = 16.sp)
 
-    if (!shellWork.isFinished) {
-      shellWork.durationBetweenNowAndNext?.let {
+    if (!shellWorkout.isFinished) {
+      shellWorkout.durationBetweenNowAndNext?.let {
         Text(text = nextRunText(it), style = MaterialTheme.typography.shellTextStyle, fontSize = 16.sp)
       }
     }
 
-    WorkStateText(shellWork = shellWork, modifier = Modifier.align(Alignment.End), fontSize = 14.sp)
+    WorkStateText(shellWorkout = shellWorkout, modifier = Modifier.align(Alignment.End), fontSize = 14.sp)
     Box(modifier = Modifier.padding(8.dp))
     HorizontalDivider()
   }

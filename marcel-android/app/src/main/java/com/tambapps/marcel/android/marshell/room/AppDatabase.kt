@@ -5,13 +5,13 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.tambapps.marcel.android.marshell.room.converter.Converters
 import com.tambapps.marcel.android.marshell.room.dao.MessageDao
-import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDao
+import com.tambapps.marcel.android.marshell.room.dao.ShellWorkoutDao
 import com.tambapps.marcel.android.marshell.room.entity.Message
-import com.tambapps.marcel.android.marshell.room.entity.ShellWork
+import com.tambapps.marcel.android.marshell.room.entity.ShellWorkout
 
 @TypeConverters(Converters::class)
-@Database(entities = [ShellWork::class, Message::class], version = 7)
+@Database(entities = [ShellWorkout::class, Message::class], version = 8)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun shellWorkDataDao(): ShellWorkDao
+    abstract fun shellWorkDataDao(): ShellWorkoutDao
     abstract fun messageDao(): MessageDao
 }

@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.marshell.ui.screen.work.create
+package com.tambapps.marcel.android.marshell.ui.screen.workout.create
 
 import android.net.Uri
 import android.widget.Toast
@@ -67,7 +67,7 @@ import com.tambapps.marcel.android.marshell.room.entity.WorkPeriod
 import com.tambapps.marcel.android.marshell.room.entity.WorkPeriodUnit
 import com.tambapps.marcel.android.marshell.ui.component.EXPANDABLE_CARD_ANIMATION_SPEC
 import com.tambapps.marcel.android.marshell.ui.component.PickerExample
-import com.tambapps.marcel.android.marshell.ui.screen.work.WorkScriptCard
+import com.tambapps.marcel.android.marshell.ui.screen.workout.WorkScriptCard
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarIconSize
 import com.tambapps.marcel.android.marshell.ui.theme.iconButtonColor
@@ -84,7 +84,7 @@ import java.time.temporal.ChronoUnit
 @Composable
 fun WorkCreateScreen(
   navController: NavController,
-  viewModel: WorkCreateViewModel = hiltViewModel()
+  viewModel: WorkoutCreateViewModel = hiltViewModel()
 ) {
   val context = LocalContext.current
   Box(modifier = Modifier
@@ -120,7 +120,7 @@ fun WorkCreateScreen(
 }
 
 @Composable
-private fun Form(viewModel: WorkCreateViewModel) {
+private fun Form(viewModel: WorkoutCreateViewModel) {
   Box(modifier = Modifier
     .fillMaxWidth()
     .animateContentSize(animationSpec = EXPANDABLE_CARD_ANIMATION_SPEC)
@@ -231,7 +231,7 @@ private class TodayOrAfter: SelectableDates {
 }
 @Composable
 private fun PeriodPickerDialog(
-  viewModel: WorkCreateViewModel,
+  viewModel: WorkoutCreateViewModel,
   show: MutableState<Boolean>,
   onDismissRequest: () -> Unit
 ) {
@@ -290,7 +290,7 @@ private fun PeriodPickerDialog(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DateTimePickerDialog(
-  viewModel: WorkCreateViewModel,
+  viewModel: WorkoutCreateViewModel,
   show: MutableState<Boolean>,
   onDismissRequest: () -> Unit
 ) {
@@ -480,7 +480,7 @@ private fun HelpDialog(
 }
 
 @Composable
-private fun ProgressDialogIfPresent(viewModel: WorkCreateViewModel) {
+private fun ProgressDialogIfPresent(viewModel: WorkoutCreateViewModel) {
   val progressDialogTitle = viewModel.progressDialogTitle ?: return
   Dialog(
     onDismissRequest = { /*not dismissible*/ },

@@ -1,6 +1,5 @@
-package com.tambapps.marcel.android.marshell.work
+package com.tambapps.marcel.android.marshell.workout
 
-import android.content.Context
 import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -15,17 +14,17 @@ import androidx.work.WorkManager
 import androidx.work.WorkQuery
 import androidx.work.WorkRequest
 import com.google.common.util.concurrent.ListenableFuture
-import com.tambapps.marcel.android.marshell.room.dao.ShellWorkDao
-import com.tambapps.marcel.android.marshell.room.entity.ShellWork
+import com.tambapps.marcel.android.marshell.room.dao.ShellWorkoutDao
+import com.tambapps.marcel.android.marshell.room.entity.ShellWorkout
 import com.tambapps.marcel.android.marshell.room.entity.WorkPeriod
 import java.time.Duration
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class ShellWorkManager @Inject constructor(
+class ShellWorkoutManager @Inject constructor(
   private val workManager: WorkManager,
-  private val shellWorkDao: ShellWorkDao
+  private val shellWorkoutDao: ShellWorkoutDao
 ) {
 
   companion object {
@@ -35,9 +34,9 @@ class ShellWorkManager @Inject constructor(
     fun getName(tags: Set<String>) = tags.find { it.startsWith(NAME_TAG_PREFIX) }?.substring(NAME_TAG_PREFIX.length)
   }
 
-  suspend fun list(): List<ShellWork> = shellWorkDao.findAll()
+  suspend fun list(): List<ShellWorkout> = shellWorkoutDao.findAll()
 
-  suspend fun findByName(name: String) = shellWorkDao.findByName(name)
+  suspend fun findByName(name: String) = shellWorkoutDao.findByName(name)
 
   private fun listWorkInfo(): ListenableFuture<MutableList<WorkInfo>> {
     return workManager.getWorkInfos(WorkQuery.fromTags(SHELL_WORK_TAG))
@@ -47,15 +46,15 @@ class ShellWorkManager @Inject constructor(
     return works.any { it.tags.contains("name:$name") }
   }
 
-  suspend fun update(name: String, scriptText: String?): ShellWork? {
+  suspend fun update(name: String, scriptText: String?): ShellWorkout? {
     if (scriptText != null) {
-      shellWorkDao.updateScriptText(name, scriptText)
+      shellWorkoutDao.updateScriptText(name, scriptText)
     }
-    return shellWorkDao.findByName(name)
+    return shellWorkoutDao.findByName(name)
   }
 
   /**
-   * Upsert a ShellWork (the ID being the name)
+   * Upsert a ShellWorkout (the ID being the name)
    */
   suspend fun save(
     name: String,
@@ -67,12 +66,12 @@ class ShellWorkManager @Inject constructor(
     initScripts: List<String>?
   ) {
     val operation = doWorkRequest(name, period, requiresNetwork)
-    // waiting for the work to be created
+    // waiting for the workout to be created
     operation.result.get()
 
     val workId = listWorkInfo().get().find { it.tags.contains("name:$name") }!!.id
     // now create shell_work_data
-    val data = ShellWork(
+    val data = ShellWorkout(
       workId = workId,
       isNetworkRequired = requiresNetwork,
       name = name,
@@ -85,7 +84,7 @@ class ShellWorkManager @Inject constructor(
       lastUpdatedAt = LocalDateTime.now(),
       startTime = null, endTime = null,
       logs = null, result = null, resultClassName = null, failedReason = null, initScripts = initScripts)
-    shellWorkDao.upsert(data)
+    shellWorkoutDao.upsert(data)
   }
 
   private fun doWorkRequest(
@@ -94,11 +93,11 @@ class ShellWorkManager @Inject constructor(
     requiresNetwork: Boolean,
   ): Operation {
     val workRequest: WorkRequest.Builder<*, *> =
-      if (period != null) PeriodicWorkRequestBuilder<MarshellWorkout>(period.toMinutes(), TimeUnit.MINUTES)
+      if (period != null) PeriodicWorkRequestBuilder<ShellWorkoutWorker>(period.toMinutes(), TimeUnit.MINUTES)
         .setInitialDelay(Duration.ZERO)
-      else OneTimeWorkRequest.Builder(MarshellWorkout::class.java)
+      else OneTimeWorkRequest.Builder(ShellWorkoutWorker::class.java)
     workRequest.addTag(SHELL_WORK_TAG)
-      // useful to check uniqueness without fetching shell_works, and to fetch work from workout
+      // useful to check uniqueness without fetching shell workouts, and to fetch workout from workout
       .addTag("$NAME_TAG_PREFIX$name")
 
     if (requiresNetwork) {
@@ -113,24 +112,24 @@ class ShellWorkManager @Inject constructor(
     else workManager.enqueueUniqueWork(name, ExistingWorkPolicy.REPLACE, workRequest.build() as OneTimeWorkRequest)
   }
 
-  suspend fun cancel(name: String): ShellWork? {
+  suspend fun cancel(name: String): ShellWorkout? {
     workManager.cancelUniqueWork(name).result.get()
-    shellWorkDao.updateState(name, WorkInfo.State.CANCELLED)
+    shellWorkoutDao.updateState(name, WorkInfo.State.CANCELLED)
     return findByName(name)
   }
 
   suspend fun delete(name: String): Boolean {
     workManager.cancelUniqueWork(name).result.get()
-    val data = shellWorkDao.findByName(name) ?: return false
-    shellWorkDao.delete(data)
+    val data = shellWorkoutDao.findByName(name) ?: return false
+    shellWorkoutDao.delete(data)
     return true
   }
 
-  suspend fun runLateWorks() {
-    val lateWorks = list().filter { work ->
-      work.durationBetweenNowAndNext?.let { it.isNegative && it.abs().toMinutes() >= 10L } ?: false
+  suspend fun runLateWorkouts() {
+    val lateWorkouts = list().filter { workout ->
+      workout.durationBetweenNowAndNext?.let { it.isNegative && it.abs().toMinutes() >= 10L } ?: false
     }
-    lateWorks.forEach {
+    lateWorkouts.forEach {
       val operation = doWorkRequest(it.name, it.period, it.isNetworkRequired)
       println(operation.result.get())
     }

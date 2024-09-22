@@ -1,4 +1,4 @@
-package com.tambapps.marcel.android.marshell.ui.screen.work.create
+package com.tambapps.marcel.android.marshell.ui.screen.workout.create
 
 import android.content.Context
 import android.widget.Toast
@@ -12,7 +12,7 @@ import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.room.entity.WorkPeriod
 import com.tambapps.marcel.android.marshell.ui.screen.ScriptCardEditorViewModel
-import com.tambapps.marcel.android.marshell.work.ShellWorkManager
+import com.tambapps.marcel.android.marshell.workout.ShellWorkoutManager
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.parser.MarcelParserException
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
@@ -27,8 +27,8 @@ import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
-class WorkCreateViewModel @Inject constructor(
-  private val shellWorkManager: ShellWorkManager,
+class WorkoutCreateViewModel @Inject constructor(
+  private val shellWorkoutManager: ShellWorkoutManager,
   private val shellSessionFactory: ShellSessionFactory
 ): ViewModel(), ScriptCardEditorViewModel {
 
@@ -78,7 +78,7 @@ class WorkCreateViewModel @Inject constructor(
       return
     }
     CoroutineScope(Dispatchers.IO).launch {
-      shellWorkManager.save(
+      shellWorkoutManager.save(
         name = name,
         description = description,
         scriptText = scriptTextInput.text,
@@ -142,7 +142,7 @@ class WorkCreateViewModel @Inject constructor(
       nameError = "Must not be longer than 100 chars"
       return
     }
-    if (shellWorkManager.existsByName(name)) {
+    if (shellWorkoutManager.existsByName(name)) {
       nameError = "A work with this name already exists"
       return
     }
