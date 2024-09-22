@@ -55,11 +55,11 @@ fun WorkScriptCard(viewModel: ScriptCardEditorViewModel, readOnly: Boolean = fal
         }
       }
     }) {
-    val focusRequester = remember { FocusRequester() }
+    val focusRequester = remember { if (!readOnly) FocusRequester() else null }
     // request focus when card is opened
     LaunchedEffect(viewModel.scriptCardExpanded.value) {
       if (viewModel.scriptCardExpanded.value) {
-        focusRequester.requestFocus()
+        focusRequester?.requestFocus()
       }
     }
     ScriptTextField(viewModel = viewModel, readOnly = readOnly, modifier = Modifier

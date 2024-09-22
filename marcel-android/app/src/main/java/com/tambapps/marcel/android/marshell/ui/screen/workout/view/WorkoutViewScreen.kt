@@ -170,7 +170,7 @@ fun CancelOrDeleteDialog(
         if (isCancelable) viewModel.cancelWork(context, work.name)
         else viewModel.deleteWork(context, work.name, navController)
       }) {
-        Text(text = "Confirm")
+        Text(text = "Confirm", color = Color.Red)
       }
     },
     title = {
@@ -204,7 +204,7 @@ fun Fab(
   }
 }
 @Composable
-private fun ColumnScope.WorkComponent(viewModel: WorkoutViewModel, workout: ShellWorkout) {
+private fun WorkComponent(viewModel: WorkoutViewModel, workout: ShellWorkout) {
   Column(
     modifier = Modifier.animateContentSize(animationSpec = EXPANDABLE_CARD_ANIMATION_SPEC)
   ) {
@@ -266,7 +266,7 @@ private fun ColumnScope.WorkComponent(viewModel: WorkoutViewModel, workout: Shel
 
     if (!workout.initScripts.isNullOrEmpty()) {
       val initScripts = remember { workout.initScripts.map { File(it) } }
-      Text(text = "Initialization scripts", style = MaterialTheme.typography.titleMedium)
+      Text(text = "Warmup scripts", style = MaterialTheme.typography.titleMedium)
       for (initScript in initScripts) {
         Text(text = "- " + initScript.name,
           modifier = Modifier.clickable { Toast.makeText(context, initScript.path, Toast.LENGTH_SHORT).show() },
@@ -285,7 +285,7 @@ private fun ColumnScope.WorkComponent(viewModel: WorkoutViewModel, workout: Shel
     }
   }
   // should stay outside of the Column in order to expand over everything else
-  WorkScriptCard(viewModel = viewModel, readOnly = !workout.isPeriodic || workout.isFinished)
+  WorkScriptCard(viewModel = viewModel, readOnly = true, title = "Workout script")
 
   if (workout.result != null) {
     Box(modifier = Modifier.padding(16.dp))

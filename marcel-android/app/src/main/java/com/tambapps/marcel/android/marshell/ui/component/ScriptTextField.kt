@@ -45,7 +45,7 @@ fun ScriptTextField(
   viewModel: ScriptEditorViewModel,
   modifier: Modifier = Modifier,
   readOnly: Boolean = false,
-  focusRequester: FocusRequester = remember { FocusRequester() }
+  focusRequester: FocusRequester?
 ) {
   val shellTextStyle = MaterialTheme.typography.shellTextStyle
   val style = remember { shellTextStyle.copy(lineHeight = 26.sp) }
@@ -81,16 +81,17 @@ fun ScriptTextField(
         .padding(end = 4.dp),
       color = MaterialTheme.colorScheme.onBackground
     )
-    BasicTextField(
-      modifier = Modifier
-        .fillMaxHeight()
-        .horizontalScroll(rememberScrollState())
-        .wrapContentWidth()
-        // this is a hack to prevent this https://stackoverflow.com/questions/76287857/when-parent-of-textfield-is-clickable-hardware-enter-return-button-triggers-its
-        .onKeyEvent { it.type == KeyEventType.KeyUp && it.key == Key.Enter }
-        .verticalScroll(verticalScrollState)
-        // TODO make focus requester optional
-        .focusRequester(focusRequester),
+    var textFieldModifier = Modifier
+      .fillMaxHeight()
+      .horizontalScroll(rememberScrollState())
+      .wrapContentWidth()
+      // this is a hack to prevent this https://stackoverflow.com/questions/76287857/when-parent-of-textfield-is-clickable-hardware-enter-return-button-triggers-its
+      .onKeyEvent { it.type == KeyEventType.KeyUp && it.key == Key.Enter }
+      .verticalScroll(verticalScrollState)
+    if (focusRequester != null) {
+      textFieldModifier = textFieldModifier.focusRequester(focusRequester)
+    }
+    BasicTextField(modifier = textFieldModifier,
       value = viewModel.scriptTextInput,
       readOnly = readOnly,
       textStyle = style,
