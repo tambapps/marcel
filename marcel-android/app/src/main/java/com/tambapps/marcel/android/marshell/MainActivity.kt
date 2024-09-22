@@ -1,6 +1,7 @@
 package com.tambapps.marcel.android.marshell
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -70,11 +71,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.tambapps.marcel.android.marshell.Routes.CONSULT
-import com.tambapps.marcel.android.marshell.Routes.DELETE_SHELL
 import com.tambapps.marcel.android.marshell.Routes.EDITOR
 import com.tambapps.marcel.android.marshell.Routes.FILE_ARG
 import com.tambapps.marcel.android.marshell.Routes.HOME
-import com.tambapps.marcel.android.marshell.Routes.NEW_SHELL
 import com.tambapps.marcel.android.marshell.Routes.SESSION_ID
 import com.tambapps.marcel.android.marshell.Routes.SETTINGS
 import com.tambapps.marcel.android.marshell.Routes.SHELL
@@ -100,6 +99,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -126,7 +126,7 @@ class MainActivity : ComponentActivity() {
         val shellViewModels = remember {
           mutableStateMapOf(Pair(0, defaultShellViewModel))
         }
-        NavigationDrawer(drawerState = drawerState, navController = navController, scope = scope, shellViewModels = shellViewModels) {
+        NavigationDrawer(drawerState = drawerState, navController = navController, scope = scope, shellViewModels = shellViewModels, shellSessionFactory = shellSessionFactory) {
           Box(modifier = Modifier
             .background(MaterialTheme.colorScheme.background)) {
             NavHost(
@@ -139,30 +139,6 @@ class MainActivity : ComponentActivity() {
                 val sessionId = shellViewModels.keys.min()
                 ShellScreen(navController, shellViewModels.getValue(sessionId), sessionId)
               }
-              composable(NEW_SHELL, scope, navController, drawerState) {
-                val viewModel: ShellViewModel = hiltViewModel()
-
-                LaunchedEffect(Unit) {
-                  val id = sessionsIdIncrement++
-                  shellViewModels[id] = viewModel
-                  navController.navigate("$SHELL/$id") {
-                    popUpTo(NEW_SHELL) { inclusive = true }
-                  }
-                }
-              }
-              composable(
-                DELETE_SHELL, scope, navController, drawerState,
-                arguments = listOf(navArgument(SESSION_ID) { type = NavType.IntType })
-              ) {
-                val sessionId = it.arguments?.getInt(SESSION_ID, Int.MAX_VALUE)
-                LaunchedEffect(Unit) {
-                  if (sessionId != null && shellViewModels.containsKey(sessionId) && shellViewModels.size > 1) {
-                    shellViewModels.remove(sessionId)
-                  }
-                  navController.navigate(HOME)
-                }
-              }
-
               composable(
                 "$SHELL/{$SESSION_ID}", scope, navController, drawerState,
                 arguments = listOf(navArgument(SESSION_ID) { type = NavType.IntType })
@@ -230,6 +206,139 @@ class MainActivity : ComponentActivity() {
     super.onResume()
     ioScope.launch { shellWorkoutManager.runLateWorkouts() }
   }
+
+  @Composable
+  private fun NavigationDrawer(
+    drawerState: DrawerState,
+    navController: NavController,
+    scope: CoroutineScope,
+    shellViewModels: MutableMap<Int, ShellViewModel>,
+    shellSessionFactory: ShellSessionFactory,
+    content: @Composable () -> Unit
+  ) {
+    val context = LocalContext.current
+    val showConfirmRemoveSessionDialog = remember { mutableStateOf<ShellViewModel?>(null) }
+    ModalNavigationDrawer(
+      drawerState = drawerState,
+      drawerContent = {
+        ModalDrawerSheet(
+          modifier = Modifier.fillMaxWidth(0.6f)
+        ) {
+          NavigationDrawerHeader()
+          val backStackState = navController.currentBackStackEntryAsState()
+
+          val defaultShellSessionId = shellViewModels.keys.min()
+
+          if (shellViewModels.size == 1) {
+            Box {
+              DrawerItem(
+                navController = navController,
+                drawerState = drawerState,
+                scope = scope,
+                text = "Shell",
+                selected = backStackState.value?.let { it.destination.route?.startsWith(HOME) == true || it.arguments?.getInt(SESSION_ID, Int.MAX_VALUE) == defaultShellSessionId } == true,
+                route = HOME
+              )
+              if (shellViewModels.size <= 8) {
+                IconButton(onClick = {
+                  scope.launch {
+                    drawerState.close()
+                    withContext(Dispatchers.IO) {
+                      val shellViewModel = ShellViewModel(context, shellSessionFactory)
+                      val id = sessionsIdIncrement++
+                      shellViewModels[id] = shellViewModel
+                      withContext(Dispatchers.Main) {
+                        navController.navigate("$SHELL/$id")
+                        Toast.makeText(
+                          context,
+                          "New shell $id has been started",
+                          Toast.LENGTH_SHORT
+                        ).show()
+                      }
+                    }
+                  }
+                }, modifier = Modifier.align(Alignment.CenterEnd)) {
+                  Icon(
+                    Icons.Filled.Add,
+                    modifier = Modifier.size(23.dp),
+                    contentDescription = "New session",
+                  )
+                }
+              }
+            }
+          } else {
+            for ((id, shellViewModel) in shellViewModels) {
+              val route = "$SHELL/$id"
+              Box {
+                DrawerItem(
+                  navController = navController,
+                  drawerState = drawerState,
+                  scope = scope,
+                  text = "Shell $id",
+                  selected = backStackState.value?.let {
+                    id == defaultShellSessionId && it.destination.route == HOME || it.arguments?.getInt(SESSION_ID) == id
+                  } ?: false,
+                  route = route
+                )
+
+                IconButton(onClick = {
+                  showConfirmRemoveSessionDialog.value = shellViewModel
+                  scope.launch { drawerState.close() }
+                }, modifier = Modifier.align(Alignment.CenterEnd)) {
+                  Icon(
+                    Icons.Filled.Clear,
+                    tint = Color.Red,
+                    modifier = Modifier.size(23.dp),
+                    contentDescription = "Remove session",
+                  )
+                }
+              }
+            }
+          }
+          if (shellViewModels.size > 1) HorizontalDivider(Modifier.padding(vertical = 2.dp))
+
+          DrawerItem(
+            navController = navController,
+            drawerState = drawerState,
+            scope = scope,
+            text = "Editor",
+            backStackState = backStackState,
+            route = EDITOR
+          )
+
+          DrawerItem(
+            navController = navController,
+            drawerState = drawerState,
+            scope = scope,
+            text = "Shell Workouts",
+            selected = backStackState.value?.destination?.route?.startsWith("work") ?: false,
+            route = WORK_LIST
+          )
+
+          DrawerItem(
+            navController = navController,
+            drawerState = drawerState,
+            scope = scope,
+            text = "Settings",
+            backStackState = backStackState,
+            route = SETTINGS
+          )
+          DrawerItem(
+            selected = false,
+            text = "Documentation",
+            onClick = {
+              context.startActivity(Intent(context, DocumentationActivity::class.java))
+              scope.launch { drawerState.close() }
+            }
+          )
+        }
+      }
+      , content = content)
+    val toDeleteShellViewModel = showConfirmRemoveSessionDialog.value ?: return
+    val toDeleteShellSessionId = shellViewModels.entries.find { it.value == toDeleteShellViewModel }!!.key
+    ConfirmDeleteSessionDialog(context, navController, showConfirmRemoveSessionDialog, shellViewModels, toDeleteShellSessionId)
+  }
+
 }
 
 @Composable
@@ -268,123 +377,6 @@ fun ColumnScope.NavigationDrawerHeader() {
   HorizontalDivider(Modifier.padding(vertical = 2.dp))
 }
 
-@Composable
-private fun NavigationDrawer(
-  drawerState: DrawerState,
-  navController: NavController,
-  scope: CoroutineScope,
-  shellViewModels: Map<Int, ShellViewModel>,
-  content: @Composable () -> Unit
-) {
-  val context = LocalContext.current
-  val showConfirmRemoveSessionDialog = remember { mutableStateOf<ShellViewModel?>(null) }
-  ModalNavigationDrawer(
-    drawerState = drawerState,
-    drawerContent = {
-      ModalDrawerSheet(
-        modifier = Modifier.fillMaxWidth(0.6f)
-        ) {
-        NavigationDrawerHeader()
-        val backStackState = navController.currentBackStackEntryAsState()
-
-        val defaultShellSessionId = shellViewModels.keys.min()
-
-        if (shellViewModels.size == 1) {
-          Box {
-            DrawerItem(
-              navController = navController,
-              drawerState = drawerState,
-              scope = scope,
-              text = "Shell",
-              selected = backStackState.value?.let { it.destination.route?.startsWith(HOME) == true || it.arguments?.getInt(SESSION_ID, Int.MAX_VALUE) == defaultShellSessionId } == true,
-              route = HOME
-            )
-            if (shellViewModels.size <= 8) {
-              IconButton(onClick = {
-                navController.navigate(NEW_SHELL)
-                scope.launch { drawerState.close() }
-              }, modifier = Modifier.align(Alignment.CenterEnd)) {
-                Icon(
-                  Icons.Filled.Add,
-                  modifier = Modifier.size(23.dp),
-                  contentDescription = "New session",
-                )
-              }
-            }
-          }
-        } else {
-          for ((id, shellViewModel) in shellViewModels) {
-            val route = "$SHELL/$id"
-            Box {
-              DrawerItem(
-                navController = navController,
-                drawerState = drawerState,
-                scope = scope,
-                text = "Shell $id",
-                selected = backStackState.value?.let {
-                  id == defaultShellSessionId && it.destination.route == HOME || it.arguments?.getInt(SESSION_ID) == id
-                } ?: false,
-                route = route
-              )
-
-              IconButton(onClick = {
-                showConfirmRemoveSessionDialog.value = shellViewModel
-                scope.launch { drawerState.close() }
-              }, modifier = Modifier.align(Alignment.CenterEnd)) {
-                Icon(
-                  Icons.Filled.Clear,
-                  tint = Color.Red,
-                  modifier = Modifier.size(23.dp),
-                  contentDescription = "Remove session",
-                )
-              }
-            }
-          }
-        }
-        if (shellViewModels.size > 1) HorizontalDivider(Modifier.padding(vertical = 2.dp))
-
-        DrawerItem(
-          navController = navController,
-          drawerState = drawerState,
-          scope = scope,
-          text = "Editor",
-          backStackState = backStackState,
-          route = EDITOR
-        )
-
-        DrawerItem(
-          navController = navController,
-          drawerState = drawerState,
-          scope = scope,
-          text = "Shell Workouts",
-          selected = backStackState.value?.destination?.route?.startsWith("work") ?: false,
-          route = WORK_LIST
-        )
-
-        DrawerItem(
-          navController = navController,
-          drawerState = drawerState,
-          scope = scope,
-          text = "Settings",
-          backStackState = backStackState,
-          route = SETTINGS
-        )
-        DrawerItem(
-          selected = false,
-          text = "Documentation",
-          onClick = {
-            context.startActivity(Intent(context, DocumentationActivity::class.java))
-            scope.launch { drawerState.close() }
-          }
-        )
-
-      }
-    }
-    , content = content)
-  val toDeleteShellViewModel = showConfirmRemoveSessionDialog.value ?: return
-  val toDeleteShellSessionId = shellViewModels.entries.find { it.value == toDeleteShellViewModel }!!.key
-  ConfirmDeleteSessionDialog(navController, showConfirmRemoveSessionDialog, toDeleteShellSessionId)
-}
 
 @Composable
 fun DrawerItem(
@@ -430,7 +422,7 @@ fun DrawerItem(
 }
 
 @Composable
-fun ConfirmDeleteSessionDialog(navController: NavController, show: MutableState<ShellViewModel?>, sessionId: Int) {
+fun ConfirmDeleteSessionDialog(context: Context, navController: NavController, show: MutableState<ShellViewModel?>, shellViewModels: MutableMap<Int, ShellViewModel>, sessionId: Int) {
   AlertDialog(
     title = {
       Text(text = "Close Shell $sessionId?")
@@ -445,7 +437,14 @@ fun ConfirmDeleteSessionDialog(navController: NavController, show: MutableState<
       }
     },
     confirmButton = {
-      TextButton(onClick = { navController.navigate(Routes.deleteShell(sessionId)) }) {
+      TextButton(onClick = {
+        show.value = null
+        if (shellViewModels.containsKey(sessionId) && shellViewModels.size > 1) {
+          shellViewModels.remove(sessionId)
+        }
+        navController.navigate(HOME)
+        Toast.makeText(context, "Shell $sessionId has been closed", Toast.LENGTH_SHORT).show()
+      }) {
         Text(text = "Confirm", color = Color.Red)
       }
     }

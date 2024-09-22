@@ -6,7 +6,7 @@ import java.net.URLEncoder
 object Routes {
   const val HOME = "home"
   const val SHELL = "shell"
-  const val NEW_SHELL = "$SHELL/new"
+  const val NEW_SHELL = "$SHELL/new" // TODO get rid of this and delete
   const val EDITOR = "editor"
   const val WORK_LIST = "work_list"
   const val WORK_CREATE = "work_create"
@@ -20,9 +20,7 @@ object Routes {
   const val SESSION_ID = "sessionId"
 
   const val CONSULT = "$SHELL/{$SESSION_ID}/consult"
-  const val DELETE_SHELL = "$SHELL/{$SESSION_ID}/delete"
   fun consult(sessionId: Any) = "$SHELL/$sessionId/consult"
-  fun deleteShell(sessionId: Any) = "$SHELL/$sessionId/delete"
   fun edit(file: File) = EDITOR + "?" + FILE_ARG + "=" + URLEncoder.encode(file.canonicalPath, "UTF-8")
   fun documentation(path: String?) = if (path != null) DOCUMENTATION + "?" + PATH_ARG + "=" + URLEncoder.encode(path, "UTF-8")
   else DOCUMENTATION
