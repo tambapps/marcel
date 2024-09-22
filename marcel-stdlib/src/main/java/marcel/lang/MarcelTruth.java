@@ -1,5 +1,7 @@
 package marcel.lang;
 
+import marcel.util.Result;
+
 import java.io.File;
 import java.lang.reflect.Array;
 import java.util.Collection;
@@ -47,6 +49,8 @@ public interface MarcelTruth {
       return isTruthy((Matcher) o);
     } else if (clazz == File.class) {
       return isTruthy((File) o);
+    } else if (o instanceof Result) {
+      return isTruthy((Result<?>) o);
     } else if (o instanceof MarcelTruth) {
       return isTruthy((MarcelTruth) o);
     } else {
@@ -56,6 +60,10 @@ public interface MarcelTruth {
 
   public static boolean isTruthy(String s) {
     return s != null && !s.isEmpty();
+  }
+
+  public static boolean isTruthy(Result<?> r) {
+    return r != null && !r.isSuccess();
   }
 
   public static boolean isTruthy(File file) {

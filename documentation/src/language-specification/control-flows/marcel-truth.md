@@ -15,6 +15,7 @@ The only falsey values are the following:
 - An empty String
 - A [Matcher](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html) who's `find()` method would return false
 - A [File](https://docs.oracle.com/javase/8/docs/api/java/io/File.html) who's `exists()` method would return false
+- A failure [Result](https://github.com/tambapps/marcel/blob/main/marcel-stdlib/src/main/java/marcel/util/Result.java)
 - An object implementing MarcelTruth who's `isTruthy()` method would return false
 
 Any other value is truthy.
