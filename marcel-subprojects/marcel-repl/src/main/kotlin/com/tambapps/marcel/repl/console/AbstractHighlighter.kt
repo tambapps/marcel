@@ -35,7 +35,7 @@ abstract class AbstractHighlighter<HighlightedString, Builder, Style> constructo
     val builder = newBuilder()
     val textStr = text.toString()
 
-    val semanticResult = replCompiler.tryParse(textStr)
+    val semanticResult = replCompiler.tryApplySemantic(textStr)
 
     val methodNode = semanticResult?.runMethodNode
     val tokenMap = mutableMapOf<LexToken, Style>()

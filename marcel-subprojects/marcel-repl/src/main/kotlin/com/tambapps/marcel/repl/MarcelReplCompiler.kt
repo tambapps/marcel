@@ -58,8 +58,9 @@ class MarcelReplCompiler constructor(
     _definedFunctions.remove(method)
   }
 
-  fun compile(text: String): ReplCompilerResult {
-    val result = parse(text)
+  @Throws(MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class)
+  fun applyAndLoadSemantic(text: String): SemanticResult {
+    val result = applySemantic(text)
 
     // keeping function for next runs.
     result.cst.script?.methods?.forEach {
@@ -76,21 +77,29 @@ class MarcelReplCompiler constructor(
         }
       }
     }
+    // compiling other classes first so that the script can find them
+    for (clazz in result.classes) {
+      if (!clazz.type.isScript) {
+        _definedTypes.add(clazz.type)
+      }
+    }
+    imports.add(result.imports)
+    return result
+  }
+
+  fun compile(text: String): ReplCompilerResult {
+    val result = applyAndLoadSemantic(text)
     var compiledScriptClass = emptyList<CompiledClass>()
     // compiling other classes first so that the script can find them
     val otherClasses = result.classes
       .filter { !it.isScript }
-      .flatMap {
-        _definedTypes.add(it.type)
-        classCompiler.compileDefinedClass(it)
-      }
+      .flatMap { classCompiler.compileDefinedClass(it) }
 
     val scriptNode = result.scriptNode
     if (scriptNode != null) {
       // writing script. class members were defined when parsing
       compiledScriptClass = classCompiler.compileDefinedClass(scriptNode)
     }
-
     return ReplCompilerResult(result, compiledScriptClass, otherClasses)
   }
 
@@ -113,7 +122,7 @@ class MarcelReplCompiler constructor(
     }
   }
 
-  fun tryParse(text: String, fetchDumbbells: Boolean = false): SemanticResult? {
+  fun tryApplySemantic(text: String, fetchDumbbells: Boolean = false): SemanticResult? {
     return try {
       updateAndGet(text, fetchDumbbells)
     }  catch (e: Exception) {
@@ -125,7 +134,7 @@ class MarcelReplCompiler constructor(
   }
 
   @Throws(MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class)
-  fun parse(text: String): SemanticResult {
+  fun applySemantic(text: String): SemanticResult {
     return updateAndGet(text)
   }
 
