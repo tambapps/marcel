@@ -12,10 +12,13 @@ import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -129,6 +132,7 @@ class MainActivity : ComponentActivity() {
         NavigationDrawer(drawerState = drawerState, navController = navController, scope = scope, shellViewModels = shellViewModels, shellSessionFactory = shellSessionFactory) {
           Box(modifier = Modifier
             .background(MaterialTheme.colorScheme.background)) {
+            val createNewShell: () -> Unit = remember { ({ createNewShell(scope, navController, drawerState, this@MainActivity, shellViewModels)}) }
             NavHost(
               navController = navController,
               startDestination = HOME,
@@ -137,16 +141,19 @@ class MainActivity : ComponentActivity() {
               // need a startDestination without any parameters for deep links to work
               composable(HOME, scope, navController, drawerState) {
                 val sessionId = shellViewModels.keys.min()
-                ShellScreen(navController, shellViewModels.getValue(sessionId), sessionId)
+                ShellScreen(navController, shellViewModels.getValue(sessionId), sessionId, shellViewModels.size, createNewShell)
               }
               composable(
                 "$SHELL/{$SESSION_ID}", scope, navController, drawerState,
-                arguments = listOf(navArgument(SESSION_ID) { type = NavType.IntType })
+                arguments = listOf(navArgument(SESSION_ID) { type = NavType.IntType }),
+                enterTransition = {
+                  return@composable expandIn(tween(700))
+                }
               ) {
                 val sessionId = it.arguments?.getInt(SESSION_ID, 0)
                 val viewModel = shellViewModels[sessionId]
                 if (sessionId != null && viewModel != null) {
-                  ShellScreen(navController, viewModel, sessionId)
+                  ShellScreen(navController, viewModel, sessionId, shellViewModels.size, createNewShell)
                 } else {
                   LaunchedEffect(Unit) {
                     navController.navigate(HOME)
@@ -197,6 +204,25 @@ class MainActivity : ComponentActivity() {
     }
   }
 
+  private fun createNewShell(scope: CoroutineScope, navController: NavController, drawerState: DrawerState, context: Context, shellViewModels: MutableMap<Int, ShellViewModel>) {
+    scope.launch {
+      drawerState.close()
+      withContext(Dispatchers.IO) {
+        val shellViewModel = ShellViewModel(context, shellSessionFactory)
+        val id = sessionsIdIncrement++
+        shellViewModels[id] = shellViewModel
+        withContext(Dispatchers.Main) {
+          navController.navigate("$SHELL/$id")
+          Toast.makeText(
+            context,
+            "New shell $id has been started",
+            Toast.LENGTH_SHORT
+          ).show()
+        }
+      }
+    }
+  }
+
   override fun onDestroy() {
     shellSessionFactory.dispose()
     super.onDestroy()
@@ -230,42 +256,15 @@ class MainActivity : ComponentActivity() {
           val defaultShellSessionId = shellViewModels.keys.min()
 
           if (shellViewModels.size == 1) {
-            Box {
-              DrawerItem(
-                navController = navController,
-                drawerState = drawerState,
-                scope = scope,
-                text = "Shell",
-                selected = backStackState.value?.let { it.destination.route?.startsWith(HOME) == true || it.arguments?.getInt(SESSION_ID, Int.MAX_VALUE) == defaultShellSessionId } == true,
-                route = HOME
-              )
-              if (shellViewModels.size <= 8) {
-                IconButton(onClick = {
-                  scope.launch {
-                    drawerState.close()
-                    withContext(Dispatchers.IO) {
-                      val shellViewModel = ShellViewModel(context, shellSessionFactory)
-                      val id = sessionsIdIncrement++
-                      shellViewModels[id] = shellViewModel
-                      withContext(Dispatchers.Main) {
-                        navController.navigate("$SHELL/$id")
-                        Toast.makeText(
-                          context,
-                          "New shell $id has been started",
-                          Toast.LENGTH_SHORT
-                        ).show()
-                      }
-                    }
-                  }
-                }, modifier = Modifier.align(Alignment.CenterEnd)) {
-                  Icon(
-                    Icons.Filled.Add,
-                    modifier = Modifier.size(23.dp),
-                    contentDescription = "New session",
-                  )
-                }
-              }
-            }
+            DrawerItem(
+              navController = navController,
+              drawerState = drawerState,
+              scope = scope,
+              text = "Shell",
+              selected = backStackState.value?.let { it.destination.route?.startsWith(HOME) == true || it.arguments?.getInt(SESSION_ID, Int.MAX_VALUE) == defaultShellSessionId } == true,
+              route = HOME
+            )
+
           } else {
             for ((id, shellViewModel) in shellViewModels) {
               val route = "$SHELL/$id"
@@ -280,7 +279,6 @@ class MainActivity : ComponentActivity() {
                   } ?: false,
                   route = route
                 )
-
                 IconButton(onClick = {
                   showConfirmRemoveSessionDialog.value = shellViewModel
                   scope.launch { drawerState.close() }

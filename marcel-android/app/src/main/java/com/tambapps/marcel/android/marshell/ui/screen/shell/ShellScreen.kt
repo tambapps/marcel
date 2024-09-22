@@ -23,6 +23,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.IconButton
@@ -65,11 +67,13 @@ fun ShellScreen(
   navController: NavController,
   viewModel: ShellViewModel,
   sessionId: Int,
+  shellsCount: Int,
+  createNewShellClick: () -> Unit
 ) {
   Column(modifier = Modifier
     .fillMaxSize()
     .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
-    TopBar(navController, viewModel, sessionId)
+    TopBar(navController, viewModel, sessionId, shellsCount, createNewShellClick)
     val listState = rememberLazyListState()
     SelectionContainer(
       Modifier
@@ -156,9 +160,25 @@ private fun TopBar(
   navController: NavController,
   viewModel: ShellViewModel,
   sessionId: Int,
+  shellsCount: Int,
+  createNewShellClick: () -> Unit,
 ) {
   val context = LocalContext.current
   TopBarLayout(horizontalArrangement = Arrangement.End) {
+   if (shellsCount <= 8) {
+     val showConfirmDialog = remember { mutableStateOf(false) }
+     ConfirmCreateSessionDialog(
+       show = showConfirmDialog,
+       createNewShellClick = createNewShellClick
+     )
+     TopBarIconButton(
+       modifier = shellIconModifier(3.dp),
+       onClick = { showConfirmDialog.value = true },
+       icon = Icons.Filled.Add,
+       contentDescription = "New session"
+     )
+   }
+
     Box(modifier = Modifier.width(10.dp))
 
     val clearSessionDialog = remember { mutableStateOf(false) }
@@ -234,6 +254,32 @@ private fun TopBar(
   }
 }
 
+@Composable
+fun ConfirmCreateSessionDialog(show: MutableState<Boolean>, createNewShellClick: () -> Unit) {
+  if (!show.value) return
+  AlertDialog(
+    title = {
+      Text(text = "Create a new shell?")
+    },
+    text = {
+      Text(text = "Do you want to create a new shell?")
+    },
+    onDismissRequest = { show.value = false },
+    dismissButton = {
+      TextButton(onClick = { show.value = false }) {
+        Text(text = "No")
+      }
+    },
+    confirmButton = {
+      TextButton(onClick = {
+        createNewShellClick.invoke()
+        show.value = false
+      }) {
+        Text(text = "Yes")
+      }
+    }
+  )
+}
 
 @Composable
 private fun ClearSessionDialog(
