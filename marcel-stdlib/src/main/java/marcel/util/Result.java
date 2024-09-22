@@ -19,7 +19,7 @@ public interface Result<T> {
      * @return an instance that encapsulates the given value as successful value.
      */
     static <U> Result<U> success(U value) {
-        return new SuccessResult<>(value);
+        return new Results.SuccessResult<>(value);
     }
 
     /**
@@ -30,20 +30,19 @@ public interface Result<T> {
      * @return an instance that encapsulates the given Throwable as failure.
      */
     static <U> Result<U> failure(Throwable throwable) {
-        return new FailureResult<>(throwable);
+        return new Results.FailureResult<>(throwable);
     }
 
     /**
-     * Returns an instance that encapsulates the given value as successful value if the callable succeeds, or
-     * else an instance that encapsulates the given Throwable as failure. The callable is lazily evaluated. It is
-     * executed at most once, only when required (e.g. when calling isSuccess())
+     * Returns an instance that lazily encapsulates the given value as successful value if the callable succeeds, or
+     * else an instance that encapsulates the given Throwable as failure. All the result pipeline will be lazily evaluated.
      *
      * @param callable the callable to get the value from
      * @param <U>      the type of the success value
      * @return a result
      */
-    static <U> Result<U> of(Callable<U> callable) {
-        return new LazyCallableResult<>(callable);
+    static <U> Result<U> lazy(Callable<U> callable) {
+        return new LazyResults.CallableResult<>(callable);
     }
 
     /**
@@ -141,7 +140,7 @@ public interface Result<T> {
      * @return the encapsulated result of the given callable if this instance represents success or the original encapsulated Throwable exception if it is failure.
      */
     default <U> Result<U> then(Callable<U> callable) {
-        return then(of(callable));
+        return then(lazy(callable));
     }
 
     /**
