@@ -13,11 +13,15 @@ import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
 import com.tambapps.marcel.android.marshell.room.entity.WorkPeriod
 import com.tambapps.marcel.android.marshell.ui.screen.ScriptCardEditorViewModel
 import com.tambapps.marcel.android.marshell.work.ShellWorkManager
+import com.tambapps.marcel.lexer.MarcelLexerException
+import com.tambapps.marcel.parser.MarcelParserException
+import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import marcel.util.Result
 import java.io.File
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -25,15 +29,16 @@ import javax.inject.Inject
 @HiltViewModel
 class WorkCreateViewModel @Inject constructor(
   private val shellWorkManager: ShellWorkManager,
-  shellSessionFactory: ShellSessionFactory
+  private val shellSessionFactory: ShellSessionFactory
 ): ViewModel(), ScriptCardEditorViewModel {
 
   companion object {
     private val VALID_NAME_REGEX = Regex("^[A-Za-z0-9.\\s_-]+\$")
   }
 
-  override val replCompiler = shellSessionFactory.newReplCompiler()
-  private val highlighter = SpannableHighlighter(replCompiler)
+  private val ioScope = CoroutineScope(Dispatchers.IO)
+  override var replCompiler = shellSessionFactory.newReplCompiler()
+  private var highlighter = SpannableHighlighter(replCompiler)
 
   override var scriptTextInput by mutableStateOf(TextFieldValue())
   override var scriptTextError by mutableStateOf<String?>(null)
@@ -45,6 +50,8 @@ class WorkCreateViewModel @Inject constructor(
   var requiresNetwork by mutableStateOf(false)
   var period by mutableStateOf<WorkPeriod?>(null)
   val initScripts = mutableStateListOf<File>()
+  // if not null we show the progress dialog
+  var progressDialogTitle by mutableStateOf<String?>(null)
 
   var scheduleAt by mutableStateOf<LocalDateTime?>(null)
 
@@ -86,6 +93,42 @@ class WorkCreateViewModel @Inject constructor(
     }
   }
 
+  fun loadInitScript(context: Context, file: File) {
+    progressDialogTitle = "Loading script ${file.name}..."
+    ioScope.launch {
+      val result = Result.of { file.readText() }
+        .map(replCompiler::applyAndLoadSemantic)
+
+      withContext(Dispatchers.Main) {
+        progressDialogTitle = null
+        if (result.isFailure) {
+          val e = result.exceptionOrNull
+          val message = if (e is MarcelSemanticException || e is MarcelLexerException || e is MarcelParserException)
+            "The script doesn't seem to compile. Please fix it before re-importing it."
+          else "An error occurred while loading script : ${result.exceptionOrNull?.message}"
+          Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        } else {
+          initScripts.add(file)
+        }
+      }
+    }
+  }
+
+  fun unloadInitScript(file: File) {
+    if (!initScripts.remove(file)) return
+    progressDialogTitle = "Unloading script ${file.name}..."
+    resetReplCompiler()
+    ioScope.launch {
+      for (initScript in initScripts) {
+        val initScriptText = file.readText()
+        replCompiler.applyAndLoadSemantic(initScriptText)
+      }
+      withContext(Dispatchers.Main) {
+        progressDialogTitle = null
+      }
+    }
+  }
+
   private fun validateName() {
     if (name.isBlank()) {
       nameError = "Must not be blank"
@@ -104,5 +147,10 @@ class WorkCreateViewModel @Inject constructor(
       return
     }
     nameError = null
+  }
+
+  private fun resetReplCompiler() {
+    replCompiler = shellSessionFactory.newReplCompiler()
+    highlighter = SpannableHighlighter(replCompiler)
   }
 }

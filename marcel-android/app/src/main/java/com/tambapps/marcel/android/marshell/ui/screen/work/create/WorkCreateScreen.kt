@@ -2,11 +2,8 @@ package com.tambapps.marcel.android.marshell.ui.screen.work.create
 
 import android.net.Uri
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,12 +19,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CalendarLocale
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -60,6 +57,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.tambapps.marcel.android.marshell.FilePickerActivity
@@ -68,7 +66,6 @@ import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.room.entity.WorkPeriod
 import com.tambapps.marcel.android.marshell.room.entity.WorkPeriodUnit
 import com.tambapps.marcel.android.marshell.ui.component.EXPANDABLE_CARD_ANIMATION_SPEC
-import com.tambapps.marcel.android.marshell.ui.component.EnabledNotificationsDialog
 import com.tambapps.marcel.android.marshell.ui.component.PickerExample
 import com.tambapps.marcel.android.marshell.ui.screen.work.WorkScriptCard
 import com.tambapps.marcel.android.marshell.ui.theme.TopBarHeight
@@ -82,7 +79,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
 @Composable
@@ -120,6 +116,7 @@ fun WorkCreateScreen(
       )
     }
   }
+  ProgressDialogIfPresent(viewModel)
 }
 
 @Composable
@@ -158,19 +155,18 @@ private fun Form(viewModel: WorkCreateViewModel) {
 
       val filePickerLauncher = FilePickerActivity.rememberFilePickerForActivityResult {
         if (it != null) {
-          // TODO parse the script to the replCompiler so that when we're aware of symbols defined by init scripts
-          viewModel.initScripts.add(it)
+          viewModel.loadInitScript(context, it)
         }
       }
       val onInitScriptAdd: () -> Unit = { filePickerLauncher.launch(FilePickerActivity.Args()) }
       if (viewModel.initScripts.isEmpty()) {
         TextButton(onClick = onInitScriptAdd) {
           Icon(imageVector = Icons.Filled.Add, contentDescription = "Add")
-          Text(text = "Add initialization script")
+          Text(text = "Add warmup script")
         }
       } else {
         Row(verticalAlignment = Alignment.CenterVertically) {
-          Text(text = "Initialization scripts",
+          Text(text = "Warmup scripts",
             style = MaterialTheme.typography.titleMedium)
 
           Spacer(modifier = Modifier.width(16.dp))
@@ -185,7 +181,7 @@ private fun Form(viewModel: WorkCreateViewModel) {
             Text(text = "- " + initScript.name,
               modifier = Modifier.clickable { Toast.makeText(context, initScript.path, Toast.LENGTH_SHORT).show() },
               style = MaterialTheme.typography.bodyMedium)
-            IconButton(onClick = { viewModel.initScripts.remove(initScript) }) {
+            IconButton(onClick = { viewModel.unloadInitScript(initScript) }) {
               Icon(imageVector = Icons.Filled.Clear , contentDescription = "Clear", tint = Color.Red)
             }
           }
@@ -481,4 +477,17 @@ private fun HelpDialog(
       }
     }
   )
+}
+
+@Composable
+private fun ProgressDialogIfPresent(viewModel: WorkCreateViewModel) {
+  val progressDialogTitle = viewModel.progressDialogTitle ?: return
+  Dialog(
+    onDismissRequest = { /*not dismissible*/ },
+    content = {
+      Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(progressDialogTitle)
+        CircularProgressIndicator()
+      }
+    })
 }
