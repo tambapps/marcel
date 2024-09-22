@@ -8,6 +8,9 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -73,16 +76,21 @@ fun WorkViewScreen(
       .fillMaxSize()
       .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
   ) {
-    Column(
-      modifier = Modifier
-        .fillMaxSize()
-        .padding(horizontal = 8.dp)
-    ) {
+    var columnModifier = Modifier.fillMaxSize()
+      .padding(horizontal = 8.dp)
+
+    if (!viewModel.scriptCardExpanded.value) {
+      // important, otherwise the expanded script doesn't expand because it can't compute the fill height
+      columnModifier = columnModifier.verticalScroll(rememberScrollState())
+    }
+
+    Column(modifier = columnModifier) {
       Header()
       if (work == null) {
         LoadingComponent()
       } else {
         WorkComponent(viewModel, work)
+        Spacer(Modifier.height(128.dp)) // just so we can scroll past the buttons displayed at the bottom
         LaunchedEffect(Unit) {
           if (work.isPeriodic) {
             withContext(Dispatchers.IO) {
@@ -196,10 +204,9 @@ fun Fab(
   }
 }
 @Composable
-private fun WorkComponent(viewModel: WorkoutViewModel, workout: ShellWorkout) {
+private fun ColumnScope.WorkComponent(viewModel: WorkoutViewModel, workout: ShellWorkout) {
   Column(
     modifier = Modifier.animateContentSize(animationSpec = EXPANDABLE_CARD_ANIMATION_SPEC)
-      .verticalScroll(rememberScrollState())
   ) {
     if (viewModel.scriptCardExpanded.value) {
       return@Column
@@ -276,21 +283,22 @@ private fun WorkComponent(viewModel: WorkoutViewModel, workout: ShellWorkout) {
       }
       Box(modifier = Modifier.padding(16.dp))
     }
-    if (workout.result != null) {
-      val result = workout.result
-      val isMarkdown = workout.resultClassName == Markdown::class.java.name
-      SelectionContainer {
-        if (isMarkdown) {
-          viewModel.mdComposer.Markdown(node = Markdown.PARSER.parse(result))
-        } else {
-          Text(text = result, style = MaterialTheme.typography.shellTextStyle, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
-        }
-      }
-      Box(modifier = Modifier.padding(16.dp))
-    }
   }
   // should stay outside of the Column in order to expand over everything else
   WorkScriptCard(viewModel = viewModel, readOnly = !workout.isPeriodic || workout.isFinished)
+
+  if (workout.result != null) {
+    Box(modifier = Modifier.padding(16.dp))
+    val result = workout.result
+    val isMarkdown = workout.resultClassName == Markdown::class.java.name
+    SelectionContainer {
+      if (isMarkdown) {
+        viewModel.mdComposer.Markdown(node = Markdown.PARSER.parse(result))
+      } else {
+        Text(text = result, style = MaterialTheme.typography.shellTextStyle, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+      }
+    }
+  }
 }
 
 @Composable

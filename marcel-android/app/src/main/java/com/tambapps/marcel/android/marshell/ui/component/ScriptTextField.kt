@@ -89,6 +89,7 @@ fun ScriptTextField(
         // this is a hack to prevent this https://stackoverflow.com/questions/76287857/when-parent-of-textfield-is-clickable-hardware-enter-return-button-triggers-its
         .onKeyEvent { it.type == KeyEventType.KeyUp && it.key == Key.Enter }
         .verticalScroll(verticalScrollState)
+        // TODO make focus requester optional
         .focusRequester(focusRequester),
       value = viewModel.scriptTextInput,
       readOnly = readOnly,
