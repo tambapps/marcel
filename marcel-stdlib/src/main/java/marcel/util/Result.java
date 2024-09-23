@@ -42,7 +42,7 @@ public interface Result<T> {
      * @return a result
      */
     static <U> Result<U> lazy(Callable<U> callable) {
-        return new LazyResults.CallableResult<>(callable);
+        return new Results.CallableResult<>(callable);
     }
 
     /**
@@ -52,7 +52,7 @@ public interface Result<T> {
      * @return a result
      */
     static <U> Result<U> lazy() {
-        return new LazyResults.NullResult<>();
+        return new Results.NullResult<>();
     }
 
     /**
