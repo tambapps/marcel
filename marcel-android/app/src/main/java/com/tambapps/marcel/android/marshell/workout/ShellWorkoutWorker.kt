@@ -85,7 +85,7 @@ class ShellWorkoutWorker @AssistedInject constructor(
     )
 
     return if (result.isSuccess) {
-      Log.d(TAG, "Finished successfully workout ${workout.name}. Return value: ${result.get()}")
+      Log.d(TAG, "Finished successfully workout ${workout.name}. Return value: ${result.orNull}")
       Result.success()
     } else {
       val e = result.exceptionOrNull

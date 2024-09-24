@@ -19,7 +19,7 @@ public interface Result<T> {
      * @return an instance that encapsulates the given value as successful value.
      */
     static <U> Result<U> success(U value) {
-        return new Results.SuccessResult<>(value);
+        return new SuccessResult<>(value);
     }
 
     /**
@@ -30,29 +30,23 @@ public interface Result<T> {
      * @return an instance that encapsulates the given Throwable as failure.
      */
     static <U> Result<U> failure(Throwable throwable) {
-        return new Results.FailureResult<>(throwable);
+        return new FailureResult<>(throwable);
     }
 
     /**
-     * Returns an instance that lazily encapsulates the given value as successful value if the callable succeeds, or
-     * else an instance that encapsulates the given Throwable as failure. All the result pipeline will be lazily evaluated.
+     * Returns an instance that encapsulates the given value as successful value if the callable succeeds, or
+     * else an instance that encapsulates the given Throwable as failure.
      *
      * @param callable the callable to get the value from
      * @param <U>      the type of the success value
      * @return a result
      */
-    static <U> Result<U> lazy(Callable<U> callable) {
-        return new Results.CallableResult<>(callable);
-    }
-
-    /**
-     * Returns an instance of a success result that lazily encapsulates the following operations applied on it. All the result pipeline will be lazily evaluated.
-     *
-     * @param <U>      the type of the success value
-     * @return a result
-     */
-    static <U> Result<U> lazy() {
-        return new Results.NullResult<>();
+    static <U> Result<U> of(Callable<U> callable) {
+        try {
+            return success(callable.call());
+        } catch (Exception e) {
+            return failure(e);
+        }
     }
 
     /**
@@ -76,13 +70,6 @@ public interface Result<T> {
      * @return the encapsulated value if this instance represents success or the defaultValue if it is failure
      */
     T getOrDefault(T value);
-
-    /**
-     * Returns the encapsulated value if this instance represents success or throw the exception if it is a failure
-     *
-     * @return the encapsulated value if this instance represents success or throw the exception if it is a failure
-     */
-    T get() throws Throwable;
 
     /**
      * Returns the encapsulated value if this instance represents success or the result of fallback function for the encapsulated Throwable exception if it is failure.
@@ -150,7 +137,7 @@ public interface Result<T> {
      * @return the encapsulated result of the given callable if this instance represents success or the original encapsulated Throwable exception if it is failure.
      */
     default <U> Result<U> then(Callable<U> callable) {
-        return then(lazy(callable));
+        return then(of(callable));
     }
 
     /**

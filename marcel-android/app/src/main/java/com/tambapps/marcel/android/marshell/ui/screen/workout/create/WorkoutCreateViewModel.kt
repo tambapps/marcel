@@ -96,7 +96,7 @@ class WorkoutCreateViewModel @Inject constructor(
   fun loadInitScript(context: Context, file: File) {
     progressDialogTitle = "Loading script ${file.name}..."
     ioScope.launch {
-      val result = Result.lazy { file.readText() }
+      val result = Result.of { file.readText() }
         .map(replCompiler::applyAndLoadSemantic)
 
       withContext(Dispatchers.Main) {
