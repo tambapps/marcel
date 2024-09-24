@@ -100,35 +100,35 @@ abstract class DynamicCollection<T extends Collection> extends AbstractDynamicOb
   @Override
   public IntList asIntList() {
     IntList list = new IntArrayList();
-    value.forEach(e -> list.add((Integer) e));
+    value.forEach(e -> list.add(DynamicObject.of(e).asInt()));
     return list;
   }
 
   @Override
   public LongList asLongList() {
     LongList list = new LongArrayList();
-    value.forEach(e -> list.add((Long) e));
+    value.forEach(e -> list.add(DynamicObject.of(e).asLong()));
     return list;
   }
 
   @Override
   public FloatList asFloatList() {
     FloatList list = new FloatArrayList();
-    value.forEach(e -> list.add((Float) e));
+    value.forEach(e -> list.add(DynamicObject.of(e).asFloat()));
     return list;
   }
 
   @Override
   public DoubleList asDoubleList() {
     DoubleList list = new DoubleArrayList();
-    value.forEach(e -> list.add((Float) e));
+    value.forEach(e -> list.add(DynamicObject.of(e).asDouble()));
     return list;
   }
 
   @Override
   public CharList asCharList() {
     CharList list = new CharArrayList();
-    value.forEach(e -> list.add((Character) e));
+    value.forEach(e -> list.add(DynamicObject.of(e).asChar()));
     return list;
   }
 
@@ -140,35 +140,35 @@ abstract class DynamicCollection<T extends Collection> extends AbstractDynamicOb
   @Override
   public IntSet asIntSet() {
     IntSet set = new IntOpenHashSet();
-    value.forEach(e -> set.add((Integer) e));
+    value.forEach(e -> set.add(DynamicObject.of(e).asInt()));
     return set;
   }
 
   @Override
   public LongSet asLongSet() {
     LongSet set = new LongOpenHashSet();
-    value.forEach(e -> set.add((Long) e));
+    value.forEach(e -> set.add(DynamicObject.of(e).asLong()));
     return set;
   }
 
   @Override
   public FloatSet asFloatSet() {
     FloatSet set = new FloatOpenHashSet();
-    value.forEach(e -> set.add((Float) e));
+    value.forEach(e -> set.add(DynamicObject.of(e).asFloat()));
     return set;
   }
 
   @Override
   public DoubleSet asDoubleSet() {
     DoubleSet set = new DoubleOpenHashSet();
-    value.forEach(e -> set.add((Double) e));
+    value.forEach(e -> set.add(DynamicObject.of(e).asDouble()));
     return set;
   }
 
   @Override
   public CharSet asCharSet() {
     CharSet set = new CharOpenHashSet();
-    value.forEach(e -> set.add((Character) e));
+    value.forEach(e -> set.add(DynamicObject.of(e).asChar()));
     return set;
   }
 
