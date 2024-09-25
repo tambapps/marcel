@@ -70,7 +70,6 @@ import kotlinx.coroutines.runBlocking
 import java.io.File
 import javax.inject.Inject
 
-// TODO inject and use home directory here
 @AndroidEntryPoint
 class FilePickerActivity : ComponentActivity() {
 
