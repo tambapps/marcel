@@ -22,7 +22,8 @@ open class ImportResolver internal constructor(
         "java.util",
         "java.io",
         "marcel.lang",
-        "marcel.io"
+        "marcel.util",
+        "marcel.io",
         ),
       staticMemberImports = mapOf(),
       extensionTypes = emptySet()
