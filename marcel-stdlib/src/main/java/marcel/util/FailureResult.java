@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
 @AllArgsConstructor
@@ -83,5 +84,10 @@ final class FailureResult<T> implements Result<T> {
           return other.isFailure() && Objects.equals(other.getExceptionOrNull(), exception);
         }
         return super.equals(obj);
+    }
+
+    @Override
+    public Optional<T> toOptional() {
+        return Optional.empty();
     }
 }

@@ -1,5 +1,6 @@
 package marcel.util;
 
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 
@@ -147,4 +148,6 @@ public interface Result<T> {
      * @return the encapsulated result of the given transform function applied to the encapsulated Throwable exception if this instance represents failure or the original encapsulated value if it is success.
      */
     Result<T> recover(Function<Throwable, T> fallback);
+
+    Optional<T> toOptional();
 }

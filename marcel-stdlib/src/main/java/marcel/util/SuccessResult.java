@@ -3,6 +3,7 @@ package marcel.util;
 import lombok.AllArgsConstructor;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
 @AllArgsConstructor
@@ -90,5 +91,10 @@ final class SuccessResult<T> implements Result<T> {
           return other.isSuccess() && Objects.equals(other.getOrNull(), result);
         }
         return super.equals(obj);
+    }
+
+    @Override
+    public Optional<T> toOptional() {
+        return Optional.ofNullable(result);
     }
 }
