@@ -90,7 +90,7 @@ fun ShellWorkItem(shellWorkout: ShellWorkout, navController: NavController) {
       .fillMaxWidth()
       .combinedClickable(
         onClick = {
-          navController.navigate(Routes.WORKOUT_VIEW + "/" + shellWorkout.name)
+          navController.navigate(Routes.consultWorkout(shellWorkout.name))
         },
         onLongClick = {}
       )

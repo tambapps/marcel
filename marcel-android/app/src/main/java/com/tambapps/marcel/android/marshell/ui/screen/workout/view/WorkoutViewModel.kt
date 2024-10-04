@@ -39,7 +39,6 @@ class WorkoutViewModel @Inject constructor(
 
   var workout by mutableStateOf<ShellWorkout?>(null)
   var durationBetweenNowAndNext  by mutableStateOf<Duration?>(null) // storing this info in a state to benefit of android compose recomposition
-  var scriptEdited by mutableStateOf(false)
 
   private val ioScope = CoroutineScope(Dispatchers.IO)
 
@@ -49,18 +48,10 @@ class WorkoutViewModel @Inject constructor(
       durationBetweenNowAndNext = workout?.durationBetweenNowAndNext
       if (w.scriptText != null) {
         setScriptTextInput(w.scriptText)
-        scriptEdited = false
       }
     }
   }
   override fun highlight(text: CharSequence) = highlighter.highlight(text)
-
-  override fun onScriptTextChange(text: TextFieldValue) {
-    super.onScriptTextChange(text)
-    if (workout?.isPeriodic == true) {
-      scriptEdited = true
-    }
-  }
 
   suspend fun refresh(workName: String) {
     val w = shellWorkoutManager.findByName(workName)
@@ -70,28 +61,11 @@ class WorkoutViewModel @Inject constructor(
     }
   }
 
-  fun validateAndSave(context: Context) {
-    val workName = this.workout?.name ?: return
-    validateScriptText()
-    if (scriptTextError != null) {
-      return
-    }
-    ioScope.launch {
-      val updatedWork = shellWorkoutManager.update(workName, scriptTextInput.text)
-      withContext(Dispatchers.Main) {
-        workout = updatedWork
-        scriptEdited = false
-        Toast.makeText(context, "Workout successfully updated", Toast.LENGTH_SHORT).show()
-      }
-    }
-  }
-
   fun cancelWork(context: Context, workName: String) {
     ioScope.launch {
       val updatedWork = shellWorkoutManager.cancel(workName)
       withContext(Dispatchers.Main) {
         workout = updatedWork
-        scriptEdited = false
         Toast.makeText(context, "Workout successfully cancelled", Toast.LENGTH_SHORT).show()
       }
     }

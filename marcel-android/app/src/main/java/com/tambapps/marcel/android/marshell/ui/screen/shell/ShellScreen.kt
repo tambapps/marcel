@@ -199,7 +199,7 @@ private fun TopBar(
 
     TopBarIconButton(
       modifier = shellIconModifier(3.dp),
-      onClick = { navController.navigate(Routes.consult(sessionId)) },
+      onClick = { navController.navigate(Routes.consultShell(sessionId)) },
       drawable = R.drawable.view,
       contentDescription = "view shell functions/variables"
     )

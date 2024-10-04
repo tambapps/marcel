@@ -41,7 +41,7 @@ class WorkoutAndroidNotifier(context: Context, channel: NotificationChannel, pri
   private fun getConsultIntent(): PendingIntent? {
     val intent = Intent(
       Intent.ACTION_VIEW,
-      "app://marshell/${Routes.WORKOUT_VIEW}/${workout.name}".toUri()
+      ("app://marshell/" + Routes.consultWorkout(workout.name)).toUri()
     )
     val flags = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     else PendingIntent.FLAG_UPDATE_CURRENT

@@ -19,6 +19,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -74,7 +75,8 @@ fun WorkViewScreen(
       .fillMaxSize()
       .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
   ) {
-    var columnModifier = Modifier.fillMaxSize()
+    var columnModifier = Modifier
+      .fillMaxSize()
       .padding(horizontal = 8.dp)
 
     if (!viewModel.scriptCardExpanded.value) {
@@ -128,18 +130,18 @@ fun WorkViewScreen(
         navController = navController,
         show = showDialog
       )
-    }
 
-    Fab(
-      visible = viewModel.scriptEdited,
-      modifier = Modifier.align(Alignment.BottomEnd),
-      onClick = { viewModel.validateAndSave(context) }
-    ) {
-      Icon(
-        painterResource(id = R.drawable.save),
-        modifier = Modifier.size(23.dp),
-        contentDescription = "Save",
-      )
+      Fab(
+        visible = workout.isPeriodic,
+        modifier = Modifier.align(Alignment.BottomEnd),
+        onClick = { Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show() }
+      ) {
+        Icon(
+          Icons.Filled.Edit,
+          modifier = Modifier.size(23.dp),
+          contentDescription = "Edit",
+        )
+      }
     }
   }
 }

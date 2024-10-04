@@ -74,7 +74,7 @@ fun SettingsScreen(
     SettingItem(
       text = "Initialization script",
       description = "Configure a script that will be executed at every shell session startup",
-      onClick = { navController.navigate(Routes.edit(viewModel.initScriptFile)) })
+      onClick = { navController.navigate(Routes.editScript(viewModel.initScriptFile)) })
 
     SectionTitle(text = "Permissions")
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // asking permission is only required since Android TIRAMISU

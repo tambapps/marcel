@@ -19,8 +19,10 @@ object Routes {
   const val SESSION_ID = "sessionId"
 
   const val CONSULT = "$SHELL/{$SESSION_ID}/consult"
-  fun consult(sessionId: Any) = "$SHELL/$sessionId/consult"
-  fun edit(file: File) = EDITOR + "?" + FILE_ARG + "=" + URLEncoder.encode(file.canonicalPath, "UTF-8")
+
+  fun consultWorkout(workoutName: String) = "$WORKOUT_VIEW/$workoutName"
+  fun consultShell(sessionId: Any) = "$SHELL/$sessionId/consult"
+  fun editScript(file: File) = EDITOR + "?" + FILE_ARG + "=" + URLEncoder.encode(file.canonicalPath, "UTF-8")
   fun documentation(path: String?) = if (path != null) DOCUMENTATION + "?" + PATH_ARG + "=" + URLEncoder.encode(path, "UTF-8")
   else DOCUMENTATION
 }
