@@ -70,7 +70,7 @@ fun WorksListScreen(
     FloatingActionButton(
       modifier = Modifier.padding(all = 16.dp),
       onClick = {
-        navController.navigate(Routes.WORKOUT_CREATE)
+        navController.navigate(Routes.WORKOUT_FORM)
       }
     ) {
       Icon(

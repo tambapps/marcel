@@ -10,6 +10,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.repl.console.SpannableHighlighter
+import com.tambapps.marcel.android.marshell.room.entity.ShellWorkout
 import com.tambapps.marcel.android.marshell.room.entity.WorkPeriod
 import com.tambapps.marcel.android.marshell.ui.screen.ScriptCardEditorViewModel
 import com.tambapps.marcel.android.marshell.workout.ShellWorkoutManager
@@ -27,9 +28,10 @@ import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
-class WorkoutCreateViewModel @Inject constructor(
+class WorkoutFormViewModel @Inject constructor(
   private val shellWorkoutManager: ShellWorkoutManager,
-  private val shellSessionFactory: ShellSessionFactory
+  private val shellSessionFactory: ShellSessionFactory,
+  private val workout: ShellWorkout?
 ): ViewModel(), ScriptCardEditorViewModel {
 
   companion object {
@@ -44,6 +46,7 @@ class WorkoutCreateViewModel @Inject constructor(
   override var scriptTextError by mutableStateOf<String?>(null)
   override val scriptCardExpanded = mutableStateOf(false)
 
+  val isEdit get() = workout != null
   var name by mutableStateOf("")
   var nameError by mutableStateOf<String?>(null)
   var description by mutableStateOf("")
@@ -65,10 +68,12 @@ class WorkoutCreateViewModel @Inject constructor(
   }
 
   fun validateAndSave(context: Context, onSuccess: () -> Unit) {
-    validateName()
+    if (!isEdit) {
+      validateName()
+    }
     validateScriptText()
     if (scheduleAt?.isBefore(LocalDateTime.now().plusMinutes(1)) == true) {
-      Toast.makeText(context, "Time must be at least 15 minutes from now", Toast.LENGTH_SHORT).show()
+      Toast.makeText(context, "Schedule time must be at least 15 minutes from now", Toast.LENGTH_SHORT).show()
       return
     }
     if (nameError != null && scriptTextError == null) {
@@ -89,6 +94,35 @@ class WorkoutCreateViewModel @Inject constructor(
       )
       withContext(Dispatchers.Main) {
         onSuccess.invoke()
+      }
+    }
+  }
+
+  fun loadEditedWorkout(context: Context) {
+    val workout = this.workout ?: return
+    name = workout.name
+    description = workout.description ?: ""
+    requiresNetwork = workout.isNetworkRequired
+    period = workout.period
+    workout.durationBetweenNowAndNext?.let { scheduleAt = LocalDateTime.now().plus(it) }
+    loadWorkoutScripts(context, workout)
+  }
+
+  private fun loadWorkoutScripts(context: Context, workout: ShellWorkout) {
+    progressDialogTitle = "Loading warmup scripts..."
+    val initScripts = workout.initScripts?.map(::File) ?: emptyList()
+    ioScope.launch {
+      val results = initScripts.map {
+        Result.of { it.readText() }
+          .map(replCompiler::applyAndLoadSemantic)
+      }
+      withContext(Dispatchers.Main) {
+        progressDialogTitle = null
+        if (results.any { it.isFailure }) {
+          Toast.makeText(context, "An error occurred while loading some warmup scripts", Toast.LENGTH_LONG).show()
+        }
+        this@WorkoutFormViewModel.initScripts.addAll(initScripts)
+        workout.scriptText?.let { setScriptTextInput(it) }
       }
     }
   }

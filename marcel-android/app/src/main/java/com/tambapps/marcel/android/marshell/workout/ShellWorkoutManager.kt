@@ -65,10 +65,12 @@ class ShellWorkoutManager @Inject constructor(
     requiresNetwork: Boolean,
     initScripts: List<String>?
   ) {
-    val operation = doWorkRequest(name, period, requiresNetwork)
+    val operation = doWorkRequest(name, period, requiresNetwork, scheduleAt)
     // waiting for the workout to be created
     operation.result.get()
 
+    // useful in order not to erase existing data when updating an existing periodic work
+    val currentWork = findByName(name)?.takeIf { it.isPeriodic }
     val workId = listWorkInfo().get().find { it.tags.contains("name:$name") }!!.id
     // now create shell_work_data
     val data = ShellWorkout(
@@ -82,8 +84,8 @@ class ShellWorkoutManager @Inject constructor(
       state = WorkInfo.State.ENQUEUED,
       createdAt = LocalDateTime.now(),
       lastUpdatedAt = LocalDateTime.now(),
-      startTime = null, endTime = null,
-      logs = null, result = null, resultClassName = null, failedReason = null, initScripts = initScripts)
+      startTime = currentWork?.startTime, endTime = currentWork?.endTime,
+      logs = currentWork?.logs, result = currentWork?.result, resultClassName = currentWork?.resultClassName, failedReason = currentWork?.failedReason, initScripts = initScripts)
     shellWorkoutDao.upsert(data)
   }
 
@@ -91,10 +93,11 @@ class ShellWorkoutManager @Inject constructor(
     name: String,
     period: WorkPeriod?,
     requiresNetwork: Boolean,
+    scheduleAt: LocalDateTime? = null
   ): Operation {
     val workRequest: WorkRequest.Builder<*, *> =
       if (period != null) PeriodicWorkRequestBuilder<ShellWorkoutWorker>(period.toMinutes(), TimeUnit.MINUTES)
-        .setInitialDelay(Duration.ZERO)
+        .setInitialDelay(scheduleAt?.let { Duration.between(LocalDateTime.now(), it) } ?: Duration.ZERO)
       else OneTimeWorkRequest.Builder(ShellWorkoutWorker::class.java)
     workRequest.addTag(SHELL_WORK_TAG)
       // useful to check uniqueness without fetching shell workouts, and to fetch workout from workout

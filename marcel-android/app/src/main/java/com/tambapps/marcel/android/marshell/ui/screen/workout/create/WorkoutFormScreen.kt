@@ -39,6 +39,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -82,11 +83,16 @@ import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
 @Composable
-fun WorkCreateScreen(
+fun WorkFormScreen(
   navController: NavController,
-  viewModel: WorkoutCreateViewModel = hiltViewModel()
+  viewModel: WorkoutFormViewModel = hiltViewModel()
 ) {
   val context = LocalContext.current
+  if (viewModel.isEdit) {
+    LaunchedEffect(Unit) {
+      viewModel.loadEditedWorkout(context)
+    }
+  }
   Box(modifier = Modifier
     .fillMaxSize()
     .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
@@ -109,18 +115,26 @@ fun WorkCreateScreen(
         }
       }
     ) {
-      Icon(
-        Icons.Filled.Add,
-        modifier = Modifier.size(23.dp),
-        contentDescription = "Save",
-      )
+      if (viewModel.isEdit) {
+        Icon(
+          painterResource(R.drawable.save),
+          modifier = Modifier.size(23.dp),
+          contentDescription = "Save",
+        )
+      } else {
+        Icon(
+          Icons.Filled.Add,
+          modifier = Modifier.size(23.dp),
+          contentDescription = "Save",
+        )
+      }
     }
   }
   ProgressDialogIfPresent(viewModel)
 }
 
 @Composable
-private fun Form(viewModel: WorkoutCreateViewModel) {
+private fun Form(viewModel: WorkoutFormViewModel) {
   Box(modifier = Modifier
     .fillMaxWidth()
     .animateContentSize(animationSpec = EXPANDABLE_CARD_ANIMATION_SPEC)
@@ -133,6 +147,7 @@ private fun Form(viewModel: WorkoutCreateViewModel) {
       OutlinedTextField(
         value = viewModel.name,
         singleLine = true,
+        readOnly = viewModel.isEdit,
         onValueChange = viewModel::onNameChange,
         label = { Text("Name") },
         supportingText = viewModel.nameError?.let { error -> {
@@ -231,7 +246,7 @@ private class TodayOrAfter: SelectableDates {
 }
 @Composable
 private fun PeriodPickerDialog(
-  viewModel: WorkoutCreateViewModel,
+  viewModel: WorkoutFormViewModel,
   show: MutableState<Boolean>,
   onDismissRequest: () -> Unit
 ) {
@@ -290,7 +305,7 @@ private fun PeriodPickerDialog(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DateTimePickerDialog(
-  viewModel: WorkoutCreateViewModel,
+  viewModel: WorkoutFormViewModel,
   show: MutableState<Boolean>,
   onDismissRequest: () -> Unit
 ) {
@@ -480,7 +495,7 @@ private fun HelpDialog(
 }
 
 @Composable
-private fun ProgressDialogIfPresent(viewModel: WorkoutCreateViewModel) {
+private fun ProgressDialogIfPresent(viewModel: WorkoutFormViewModel) {
   val progressDialogTitle = viewModel.progressDialogTitle ?: return
   Dialog(
     onDismissRequest = { /*not dismissible*/ },

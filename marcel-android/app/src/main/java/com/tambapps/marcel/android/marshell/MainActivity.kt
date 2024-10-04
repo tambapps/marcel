@@ -78,7 +78,7 @@ import com.tambapps.marcel.android.marshell.Routes.HOME
 import com.tambapps.marcel.android.marshell.Routes.SESSION_ID
 import com.tambapps.marcel.android.marshell.Routes.SETTINGS
 import com.tambapps.marcel.android.marshell.Routes.SHELL
-import com.tambapps.marcel.android.marshell.Routes.WORKOUT_CREATE
+import com.tambapps.marcel.android.marshell.Routes.WORKOUT_FORM
 import com.tambapps.marcel.android.marshell.Routes.WORKOUT_LIST
 import com.tambapps.marcel.android.marshell.Routes.WORKOUT_NAME_ARG
 import com.tambapps.marcel.android.marshell.Routes.WORKOUT_VIEW
@@ -89,7 +89,7 @@ import com.tambapps.marcel.android.marshell.ui.screen.editor.EditorScreen
 import com.tambapps.marcel.android.marshell.ui.screen.settings.SettingsScreen
 import com.tambapps.marcel.android.marshell.ui.screen.shell.consult.ShellConsultScreen
 import com.tambapps.marcel.android.marshell.ui.screen.shell.ShellViewModel
-import com.tambapps.marcel.android.marshell.ui.screen.workout.create.WorkCreateScreen
+import com.tambapps.marcel.android.marshell.ui.screen.workout.create.WorkFormScreen
 import com.tambapps.marcel.android.marshell.ui.screen.workout.list.WorksListScreen
 import com.tambapps.marcel.android.marshell.ui.screen.workout.view.WorkViewScreen
 import com.tambapps.marcel.android.marshell.ui.theme.MarcelAndroidTheme
@@ -172,15 +172,17 @@ class MainActivity : ComponentActivity() {
               }
               composable(
                 "$EDITOR?$FILE_ARG={$FILE_ARG}", scope, navController, drawerState,
-                arguments = listOf(navArgument(WORKOUT_NAME_ARG) { type = NavType.StringType; nullable = true })
+                arguments = listOf(navArgument(FILE_ARG) { type = NavType.StringType; nullable = true })
               ) {
                 EditorScreen()
               }
               composable(WORKOUT_LIST, scope, navController, drawerState) {
                 WorksListScreen(navController = navController)
               }
-              composable(WORKOUT_CREATE, scope, navController, drawerState) {
-                WorkCreateScreen(navController)
+              composable("$WORKOUT_FORM?$WORKOUT_NAME_ARG={$WORKOUT_NAME_ARG}", scope, navController, drawerState,
+                arguments = listOf(navArgument(WORKOUT_NAME_ARG) { type = NavType.StringType; nullable = true }),
+              ) {
+                WorkFormScreen(navController)
               }
               composable(
                 "$WORKOUT_VIEW/{$WORKOUT_NAME_ARG}", scope, navController, drawerState,

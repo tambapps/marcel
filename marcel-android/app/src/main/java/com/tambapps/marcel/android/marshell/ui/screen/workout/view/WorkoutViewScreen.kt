@@ -19,6 +19,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
@@ -38,7 +39,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.work.WorkInfo
-import com.tambapps.marcel.android.marshell.R
+import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.room.entity.ShellWorkout
 import com.tambapps.marcel.android.marshell.ui.component.EXPANDABLE_CARD_ANIMATION_SPEC
 import com.tambapps.marcel.android.marshell.ui.component.ExpandableCard
@@ -103,8 +103,6 @@ fun WorkViewScreen(
         }
       }
     }
-    val context = LocalContext.current
-
     if (workout != null) {
       val isCancelable = workout.state == WorkInfo.State.ENQUEUED || workout.state == WorkInfo.State.RUNNING
           || workout.state == WorkInfo.State.BLOCKED
@@ -116,10 +114,9 @@ fun WorkViewScreen(
         color = if (isCancelable) Orange else Color.Red
       ) {
         Icon(
-          Icons.Filled.Add,
+          Icons.Filled.Close,
           modifier = Modifier
-            .size(23.dp)
-            .rotate(45f),
+            .size(23.dp),
           contentDescription = "Cancel",
         )
       }
@@ -134,7 +131,7 @@ fun WorkViewScreen(
       Fab(
         visible = workout.isPeriodic,
         modifier = Modifier.align(Alignment.BottomEnd),
-        onClick = { Toast.makeText(context, "TODO", Toast.LENGTH_SHORT).show() }
+        onClick = { navController.navigate(Routes.editWorkout(workout.name)) }
       ) {
         Icon(
           Icons.Filled.Edit,

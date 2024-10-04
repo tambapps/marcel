@@ -8,7 +8,7 @@ object Routes {
   const val SHELL = "shell"
   const val EDITOR = "editor"
   const val WORKOUT_LIST = "workout_list"
-  const val WORKOUT_CREATE = "workout_create"
+  const val WORKOUT_FORM = "workout_form"
   const val WORKOUT_VIEW = "workout_view"
   const val SETTINGS = "settings"
   const val DOCUMENTATION = "documentation"
@@ -21,6 +21,7 @@ object Routes {
   const val CONSULT = "$SHELL/{$SESSION_ID}/consult"
 
   fun consultWorkout(workoutName: String) = "$WORKOUT_VIEW/$workoutName"
+  fun editWorkout(workoutName: String) = "$WORKOUT_FORM?$WORKOUT_NAME_ARG=$workoutName"
   fun consultShell(sessionId: Any) = "$SHELL/$sessionId/consult"
   fun editScript(file: File) = EDITOR + "?" + FILE_ARG + "=" + URLEncoder.encode(file.canonicalPath, "UTF-8")
   fun documentation(path: String?) = if (path != null) DOCUMENTATION + "?" + PATH_ARG + "=" + URLEncoder.encode(path, "UTF-8")
