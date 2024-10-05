@@ -1,21 +1,44 @@
 # Dynamic Objects
 
-Dynamic objects a little dynamic feature in Marcel. They allow you to evaluate dynamically property/operator calls instead of
-at compile time.
+Dynamic Objects are the one and only dynamic feature in Marcel. They allow you to manipulate any kind of objects using 
+dynamic properties and method calls.
 
-E.g.
+## What does it do
+[DynamicObject](https://github.com/tambapps/marcel/blob/main/marcel-stdlib/src/main/java/marcel/lang/DynamicObject.java) (or `dynobj`)
+is an interface that is handled specially by the Marcel compiler. All field access, method calls and operator uses on a DynamicObject 
+are resolved at runtime instead of compile-time.
+
+The DynamicObject wraps an actual (and non dynamic) object. Various types are handled in order to make them easy to manipulate through the 
+DynamicObject API. For example, you can manipulate maps like objects with properties.
+
+```marcel
+dynobj dMap = [foo: 'bar', zoo: 'pew'] as dynobj
+
+println(dMap.foo)
+dMap.zoo = 8
+```
+
+
+Note that dynamic method calls won't be applicable for all methods of the actual object wrapped by the dynobj, this feature is limited.
+And if you attempt to call a method that isn't defined/handled, you will get an error **at runtime**.
 
 ```marcel
 dynobj o = 1
 println(o[1]) // will throw MissingMethodException at runtime, instead of a semantic error at compile time
 ```
+The same behaviour applies for field access.
 
-But the following code will run without throwing any exception
+## Register fields/methods
+Dynamic Objects allow you to register method/fields to specific instances. Use the `registerMethod`/`registerField` methods for that.
+
 ```marcel
-dynobj o = DynamicObject.of([1, 2, 3] as list<int>)
-println(o[1]) // will print 2
+dynobj o = 1
+
+o.registerMethod("foo", Integer.class) { Integer i -> i * 2 + 1 }
+println(o.foo(1)) // 3
+
+o.registerField("bar", "value")
+println(o.bar) // value
+o.bar = "new value"
+println(o.bar) // new value
 ```
-
-
-DynamicObject could potentially handle dynamic method calls and handle properties, but this is **not** done as Marcel
-is not designed to be a dynamic language in the first place.

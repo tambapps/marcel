@@ -4,7 +4,6 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 
-// TODO document this
 /**
  * Class representing an abstraction of the result of any operation having to possible outcomes: success or failure.
  *

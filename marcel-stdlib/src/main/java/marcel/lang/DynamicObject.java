@@ -94,7 +94,6 @@ public interface DynamicObject extends Iterable<DynamicObject>, MarcelTruth {
     );
   }
 
-  // TODO document this along with registerField
   default void registerMethod(String name, Lambda0<?> lambda) {
     throw new UnsupportedOperationException();
   }

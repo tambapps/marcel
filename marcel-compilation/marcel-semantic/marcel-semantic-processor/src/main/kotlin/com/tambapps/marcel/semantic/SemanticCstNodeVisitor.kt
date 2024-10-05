@@ -1035,8 +1035,6 @@ abstract class SemanticCstNodeVisitor(
           // conditions making bound field assignment not feasible
           || scope.staticContext || !scope.classType.isScript || node.leftOperand !is ReferenceCstNode)) leftResult.getOrThrow()
 
-    // bound field for scripts TODO document this, and add a test for it
-
     // if we went here this means the field was not defined
     val right = node.rightOperand.accept(this)
 

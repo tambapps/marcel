@@ -40,8 +40,10 @@ internal int myField1 = 2
 protected myfield2
 ```
 
-Note that global variables are a lot like field variables so you don't need to use both. Just use global variables or field variables
-based on your preferences.
+
+## Global variables
+Global variables are similar to fields. They were created especially for [Marshell](../../tools/marshell/index.md), in which you can't
+declare fields.
 
 ## Classes
 
