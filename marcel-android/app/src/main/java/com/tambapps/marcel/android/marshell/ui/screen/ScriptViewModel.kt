@@ -13,7 +13,7 @@ interface ScriptViewModel: HighlightTransformation {
   var scriptTextInput: TextFieldValue
 
   fun completedInput(textFieldValue: TextFieldValue): TextFieldValue {
-    /* TODO buggy sometimes, e.g. when copy/pasting a text that finish by a litteral string
+    /* buggy sometimes, e.g. when copy/pasting a text that finish by a litteral string
     val oldText = scriptTextInput.text
     val newText = textFieldValue.text
     val newSelection = textFieldValue.selection
