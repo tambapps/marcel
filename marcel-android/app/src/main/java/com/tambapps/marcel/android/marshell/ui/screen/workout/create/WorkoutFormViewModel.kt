@@ -31,7 +31,8 @@ import javax.inject.Inject
 class WorkoutFormViewModel @Inject constructor(
   private val shellWorkoutManager: ShellWorkoutManager,
   private val shellSessionFactory: ShellSessionFactory,
-  private val workout: ShellWorkout?
+  private val workout: ShellWorkout?,
+  editFlag: Boolean
 ): ViewModel(), ScriptCardEditorViewModel {
 
   companion object {
@@ -46,7 +47,7 @@ class WorkoutFormViewModel @Inject constructor(
   override var scriptTextError by mutableStateOf<String?>(null)
   override val scriptCardExpanded = mutableStateOf(false)
 
-  val isEdit get() = workout != null
+  val isEdit = workout != null && editFlag
   var name by mutableStateOf("")
   var nameError by mutableStateOf<String?>(null)
   var description by mutableStateOf("")
@@ -98,7 +99,7 @@ class WorkoutFormViewModel @Inject constructor(
     }
   }
 
-  fun loadEditedWorkout(context: Context) {
+  fun initForm(context: Context) {
     val workout = this.workout ?: return
     name = workout.name
     description = workout.description ?: ""

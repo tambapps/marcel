@@ -14,14 +14,14 @@ import java.io.File
 import java.net.URLDecoder
 
 /**
- * Module allowing to pass workout argument from navigation to WorkViewModel
+ * Module allowing to pass workout argument from navigation to ViewModels
  */
 @Module
 @InstallIn(ViewModelComponent::class)
 class NavigationArgsModule {
 
   /**
-   * Method allowing to pass workout argument from navigation to WorkViewModel
+   * Method allowing to pass workout argument from navigation to WorkoutViewModel or WorkoutFormViewModel
    */
   @Provides
   @ViewModelScoped
@@ -32,6 +32,15 @@ class NavigationArgsModule {
     return savedStateHandle.get<String>(Routes.WORKOUT_NAME_ARG)?.let {
       runBlocking { shellWorkoutManager.findByName(it) }
     }
+  }
+
+  /**
+   * Method allowing to pass workout argument from navigation to WorkoutFormViewModel
+   */
+  @Provides
+  @ViewModelScoped
+  fun editFlag(savedStateHandle: SavedStateHandle, ): Boolean {
+    return savedStateHandle.get<Boolean>(Routes.EDIT_ARG) == true
   }
 
   /**

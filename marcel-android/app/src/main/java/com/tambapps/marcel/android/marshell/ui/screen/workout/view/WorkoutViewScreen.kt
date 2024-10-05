@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -46,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.work.WorkInfo
+import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.Routes
 import com.tambapps.marcel.android.marshell.room.entity.ShellWorkout
 import com.tambapps.marcel.android.marshell.ui.component.EXPANDABLE_CARD_ANIMATION_SPEC
@@ -129,9 +131,21 @@ fun WorkViewScreen(
       )
 
       Fab(
+        visible = true,
+        modifier = Modifier.align(if (workout.isPeriodic) Alignment.BottomCenter else Alignment.BottomEnd),
+        onClick = { navController.navigate(Routes.editWorkout(workout.name, edit = false)) }
+      ) {
+        Icon(
+          painterResource(R.drawable.copy),
+          modifier = Modifier.size(23.dp),
+          contentDescription = "Duplicate",
+        )
+      }
+
+      Fab(
         visible = workout.isPeriodic,
         modifier = Modifier.align(Alignment.BottomEnd),
-        onClick = { navController.navigate(Routes.editWorkout(workout.name)) }
+        onClick = { navController.navigate(Routes.editWorkout(workout.name, edit = true)) }
       ) {
         Icon(
           Icons.Filled.Edit,

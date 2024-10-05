@@ -73,6 +73,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.tambapps.marcel.android.marshell.Routes.CONSULT
 import com.tambapps.marcel.android.marshell.Routes.EDITOR
+import com.tambapps.marcel.android.marshell.Routes.EDIT_ARG
 import com.tambapps.marcel.android.marshell.Routes.FILE_ARG
 import com.tambapps.marcel.android.marshell.Routes.HOME
 import com.tambapps.marcel.android.marshell.Routes.SESSION_ID
@@ -179,8 +180,11 @@ class MainActivity : ComponentActivity() {
               composable(WORKOUT_LIST, scope, navController, drawerState) {
                 WorksListScreen(navController = navController)
               }
-              composable("$WORKOUT_FORM?$WORKOUT_NAME_ARG={$WORKOUT_NAME_ARG}", scope, navController, drawerState,
-                arguments = listOf(navArgument(WORKOUT_NAME_ARG) { type = NavType.StringType; nullable = true }),
+              composable("$WORKOUT_FORM?$WORKOUT_NAME_ARG={$WORKOUT_NAME_ARG}&${EDIT_ARG}={${EDIT_ARG}}", scope, navController, drawerState,
+                arguments = listOf(
+                  navArgument(WORKOUT_NAME_ARG) { type = NavType.StringType; nullable = true },
+                  navArgument(EDIT_ARG) { type = NavType.BoolType; defaultValue = false }
+                ),
               ) {
                 WorkFormScreen(navController)
               }

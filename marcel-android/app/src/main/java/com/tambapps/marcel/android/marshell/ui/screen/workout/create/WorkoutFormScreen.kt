@@ -88,11 +88,10 @@ fun WorkFormScreen(
   viewModel: WorkoutFormViewModel = hiltViewModel()
 ) {
   val context = LocalContext.current
-  if (viewModel.isEdit) {
-    LaunchedEffect(Unit) {
-      viewModel.loadEditedWorkout(context)
-    }
+  LaunchedEffect(Unit) {
+    viewModel.initForm(context)
   }
+
   Box(modifier = Modifier
     .fillMaxSize()
     .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
@@ -100,7 +99,7 @@ fun WorkFormScreen(
     Column(modifier = Modifier
       .fillMaxSize()
       .padding(horizontal = 8.dp)) {
-      Header()
+      Header(viewModel)
       Form(viewModel)
     }
 
@@ -396,13 +395,13 @@ private fun TextIconButton(fieldName: String, value: String, onClick: () -> Unit
 
 }
 @Composable
-private fun Header() {
+private fun Header(viewModel: WorkoutFormViewModel) {
   val showHelpDialog = remember { mutableStateOf(false) }
   Box(modifier = Modifier
     .fillMaxWidth()
     .height(TopBarHeight)) {
     Text(
-      text = "New Shell Workout",
+      text = if (viewModel.isEdit) "Edit Shell Workout" else "New Shell Workout",
       style = MaterialTheme.typography.shellTextStyle,
       modifier = Modifier
         .fillMaxWidth()
