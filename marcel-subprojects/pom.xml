@@ -18,7 +18,6 @@
   <modules>
     <module>dumbbell-core</module>
     <module>dumbbell</module>
-    <module>marcel-charts</module>
     <module>marcel-deps</module>
     <module>marcel-repl</module>
     <module>marcl</module>
