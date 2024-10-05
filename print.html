@@ -582,18 +582,37 @@ int end = computeEnd()
 for (int i in start..(end - 1)) println(i)
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="dynamic-objects"><a class="header" href="#dynamic-objects">Dynamic Objects</a></h1>
-<p>Dynamic objects a little dynamic feature in Marcel. They allow you to evaluate dynamically property/operator calls instead of
-at compile time.</p>
-<p>E.g.</p>
+<p>Dynamic Objects are the one and only dynamic feature in Marcel. They allow you to manipulate any kind of objects using
+dynamic properties and method calls.</p>
+<h2 id="what-does-it-do"><a class="header" href="#what-does-it-do">What does it do</a></h2>
+<p><a href="https://github.com/tambapps/marcel/blob/main/marcel-stdlib/src/main/java/marcel/lang/DynamicObject.java">DynamicObject</a> (or <code>dynobj</code>)
+is an interface that is handled specially by the Marcel compiler. All field access, method calls and operator uses on a DynamicObject
+are resolved at runtime instead of compile-time.</p>
+<p>The DynamicObject wraps an actual (and non dynamic) object. Various types are handled in order to make them easy to manipulate through the
+DynamicObject API. For example, you can manipulate maps like objects with properties.</p>
+<pre><code class="language-marcel">dynobj dMap = [foo: 'bar', zoo: 'pew'] as dynobj
+
+println(dMap.foo)
+dMap.zoo = 8
+</code></pre>
+<p>Note that dynamic method calls won't be applicable for all methods of the actual object wrapped by the dynobj, this feature is limited.
+And if you attempt to call a method that isn't defined/handled, you will get an error <strong>at runtime</strong>.</p>
 <pre><code class="language-marcel">dynobj o = 1
 println(o[1]) // will throw MissingMethodException at runtime, instead of a semantic error at compile time
 </code></pre>
-<p>But the following code will run without throwing any exception</p>
-<pre><code class="language-marcel">dynobj o = DynamicObject.of([1, 2, 3] as list&lt;int&gt;)
-println(o[1]) // will print 2
+<p>The same behaviour applies for field access.</p>
+<h2 id="register-fieldsmethods"><a class="header" href="#register-fieldsmethods">Register fields/methods</a></h2>
+<p>Dynamic Objects allow you to register method/fields to specific instances. Use the <code>registerMethod</code>/<code>registerField</code> methods for that.</p>
+<pre><code class="language-marcel">dynobj o = 1
+
+o.registerMethod("foo", Integer.class) { Integer i -&gt; i * 2 + 1 }
+println(o.foo(1)) // 3
+
+o.registerField("bar", "value")
+println(o.bar) // value
+o.bar = "new value"
+println(o.bar) // new value
 </code></pre>
-<p>DynamicObject could potentially handle dynamic method calls and handle properties, but this is <strong>not</strong> done as Marcel
-is not designed to be a dynamic language in the first place.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="control-flows"><a class="header" href="#control-flows">Control flows</a></h1>
 <p>In this chapter you'll explore all control flows thar Marcels offers, in particular how to perform</p>
 <ul>
@@ -1068,8 +1087,9 @@ considered as a local variable.</p>
 <pre><code class="language-marcel">internal int myField1 = 2
 protected myfield2
 </code></pre>
-<p>Note that global variables are a lot like field variables so you don't need to use both. Just use global variables or field variables
-based on your preferences.</p>
+<h2 id="global-variables"><a class="header" href="#global-variables">Global variables</a></h2>
+<p>Global variables are similar to fields. They were created especially for <a href="language-specification/source-file-structure/../../tools/marshell/index.html">Marshell</a>, in which you can't
+declare fields.</p>
 <h2 id="classes-1"><a class="header" href="#classes-1">Classes</a></h2>
 <p>You can also define classes in a script, but note that such classes will <strong>not</strong> be an inner class of your script. They will be
 top-level classes.</p>
@@ -1925,7 +1945,7 @@ Options:
 a Read Eval Print Loop tool.</p>
 <p>It is the equivalent of <a href="https://groovy-lang.org/groovysh.html">groovysh</a> for Marcel.</p>
 <p>This shell supports syntax highlighting and also highlights defined functions/variables.</p>
-<h2 id="global-variables"><a class="header" href="#global-variables">Global variables</a></h2>
+<h2 id="global-variables-1"><a class="header" href="#global-variables-1">Global variables</a></h2>
 <p>In marshell, you can't have <a href="tools/marshell/../../language-specification/source-file-structure/script.html#fields">class fields</a>, <strong>but</strong> you can use global variables.
 To declare a global variable, just assign to a variable a value, without specifying its type</p>
 <pre><code class="language-marcel">a = 1 // this will create a global variable a
