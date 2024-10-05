@@ -5,8 +5,6 @@ private int tryEndCount = 0
 private int catchCount = 0
 private int finallyCount = 0
 
-// TODO test try with resources
-
 tryFinally(1)
 assertEquals(1, tryEndCount, "try end")
 assertEquals(0, catchCount, "catch")

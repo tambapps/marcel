@@ -9,7 +9,6 @@ class TryNode(
   var tryStatementNode: StatementNode,
   val catchNodes: List<CatchNode>,
   val finallyNode: FinallyNode?,
-
   ) : AbstractStatementNode(node) {
   data class CatchNode(
     val throwableTypes: List<JavaType>,
@@ -25,4 +24,5 @@ class TryNode(
 
   override fun <T> accept(visitor: StatementNodeVisitor<T>) = visitor.visit(this)
 
+  override val isEmpty get() = tryStatementNode.isEmpty
 }

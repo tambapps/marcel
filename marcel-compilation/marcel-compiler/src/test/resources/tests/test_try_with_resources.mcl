@@ -1,0 +1,34 @@
+import java.util.concurrent.atomic.AtomicBoolean
+
+import static org.junit.jupiter.api.Assertions.assertFalse
+import static org.junit.jupiter.api.Assertions.assertTrue
+import static org.junit.jupiter.api.Assertions.fail
+
+atomicB = new AtomicBoolean()
+
+try (MyCloseable c = new MyCloseable(atomicB)) {
+  c.doSomething()
+} catch (Exception e) {
+  fail("Shouldn't go there")
+}
+
+assertTrue(atomicB.get())
+atomicB.set(false)
+assertFalse(atomicB.get())
+
+try (MyCloseable c = new MyCloseable(atomicB)) {
+  throw new RuntimeException('Yup.')
+} catch (Exception e) {
+
+}
+assertTrue(atomicB.get())
+
+class MyCloseable implements Closeable {
+
+  private AtomicBoolean atomicB
+
+  constructor(this.atomicB)
+  fun void close() -> atomicB.set(true)
+
+  fun void doSomething() {}
+}

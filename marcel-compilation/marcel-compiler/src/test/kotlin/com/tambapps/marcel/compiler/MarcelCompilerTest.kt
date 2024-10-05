@@ -93,7 +93,7 @@ class MarcelCompilerTest: AbstractCompilerTest() {
   @Disabled
   @Test
   fun manualTest() {
-    val eval = eval("/tests/test_dynamic_object_fields.mcl")
+    val eval = eval("/tests/test_try_with_resources.mcl")
     println(eval)
   }
 }

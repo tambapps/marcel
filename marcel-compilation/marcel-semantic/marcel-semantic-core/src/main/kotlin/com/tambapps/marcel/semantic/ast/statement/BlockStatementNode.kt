@@ -12,6 +12,8 @@ class BlockStatementNode(val statements: MutableList<StatementNode>, tokenStart:
 
   override fun <T> accept(visitor: StatementNodeVisitor<T>) = visitor.visit(this)
 
+  override val isEmpty get() = statements.isEmpty()
+
   fun add(statementNode: StatementNode) = statements.add(statementNode)
 
   fun addAll(statements: Collection<StatementNode>) = this.statements.addAll(statements)

@@ -2686,6 +2686,9 @@ abstract class SemanticCstNodeVisitor(
     }
 
     val tryCatchNode = TryNode(node, tryBlock, catchNodes, finallyNode)
+    if (tryBlock.isEmpty) {
+      throw MarcelSemanticException(tryCatchNode.token, "Try block must have at least one statement")
+    }
 
     if (hasReturnStatements && node.finallyNode != null && !AllPathsReturnVisitor.test(tryCatchNode)) {
       // yup. throw error in this case because I don't know how to properly handle 'finally' block otherwise.
