@@ -24,13 +24,13 @@ internal object RecursiveConstructorCheck : ClassNodeVisitor {
     var currentConstructor = constructorNode
     while (true) {
       val firstStatement =
-        (constructorNode.blockStatement.statements.firstOrNull() as? ExpressionStatementNode)?.expressionNode ?: break
+        (currentConstructor.blockStatement.statements.firstOrNull() as? ExpressionStatementNode)?.expressionNode ?: break
       if (firstStatement !is ThisConstructorCallNode) break
       val nextConstructor = classNode.constructors.find { it.matches(firstStatement.javaMethod) } ?: break
       if (visitedConstructors.contains(nextConstructor)) {
         throw MarcelSemanticException(
           constructorNode.token,
-          "Constructor $currentConstructor has an infinite constructor call cycle"
+          "Constructor $constructorNode has an infinite constructor call cycle"
         )
       }
       visitedConstructors.add(nextConstructor)
