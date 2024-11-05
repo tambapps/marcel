@@ -6,7 +6,8 @@ import com.tambapps.marcel.parser.cst.visitor.ExpressionCstNodeVisitor
 
 class ThisConstructorCallCstNode(
   parent: CstNode?,
-  val arguments: List<ExpressionCstNode>,
+  val positionalArgumentNodes: List<ExpressionCstNode>,
+  val namedArgumentNodes: List<Pair<String, ExpressionCstNode>>,
   tokenStart: LexToken,
   tokenEnd: LexToken
 ) : AbstractExpressionCstNode(parent, tokenStart, tokenEnd) {
@@ -15,7 +16,8 @@ class ThisConstructorCallCstNode(
 
   override fun toString() = StringBuilder().apply {
     append("this(")
-    arguments.joinTo(buffer = this, separator = ", ")
+    (positionalArgumentNodes + namedArgumentNodes.map { it.first + ": " + it.second })
+      .joinTo(this, separator = ",")
     append(")")
   }.toString()
 
@@ -24,14 +26,14 @@ class ThisConstructorCallCstNode(
     if (other !is ThisConstructorCallCstNode) return false
     if (!super.equals(other)) return false
 
-    if (arguments != other.arguments) return false
+    if (positionalArgumentNodes != other.positionalArgumentNodes) return false
 
     return true
   }
 
   override fun hashCode(): Int {
     var result = super.hashCode()
-    result = 31 * result + arguments.hashCode()
+    result = 31 * result + positionalArgumentNodes.hashCode()
     return result
   }
 

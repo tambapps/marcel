@@ -211,12 +211,12 @@ class ForEachNodeVisitor(
 
   override fun visit(node: SuperConstructorCallCstNode, smartCastType: Unit?) {
     consume(node)
-    node.arguments.forEach { it.accept(this) }
+    node.positionalArgumentNodes.forEach { it.accept(this) }
   }
 
   override fun visit(node: ThisConstructorCallCstNode, smartCastType: Unit?) {
     consume(node)
-    node.arguments.forEach { it.accept(this) }
+    node.positionalArgumentNodes.forEach { it.accept(this) }
   }
 
   override fun visit(node: NewInstanceCstNode, smartCastType: Unit?) {

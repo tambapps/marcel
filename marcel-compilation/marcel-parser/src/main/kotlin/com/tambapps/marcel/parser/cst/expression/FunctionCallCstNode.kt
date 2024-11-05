@@ -23,8 +23,8 @@ class FunctionCallCstNode(
       append("<$castType>")
     }
     append("(")
-    positionalArgumentNodes.joinTo(buffer = this, separator = ", ")
-    namedArgumentNodes.joinTo(buffer = this, separator = ", ", transform = { it.first + ": " + it.second })
+    (positionalArgumentNodes + namedArgumentNodes.map { it.first + ": " + it.second })
+      .joinTo(this, separator = ",")
     append(")")
   }.toString()
 

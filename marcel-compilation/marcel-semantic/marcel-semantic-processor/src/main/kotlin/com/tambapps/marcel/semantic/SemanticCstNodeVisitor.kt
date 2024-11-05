@@ -1557,10 +1557,10 @@ abstract class SemanticCstNodeVisitor(
   }
 
   override fun visit(node: SuperConstructorCallCstNode, smartCastType: JavaType?): ExpressionNode {
-    val arguments = node.arguments.map { it.accept(this) }
     val superType = currentScope.classType.superType!!
-    val superConstructorMethod =
-      symbolResolver.findMethodOrThrow(superType, MarcelMethod.CONSTRUCTOR_NAME, arguments, node.token)
+    val (superConstructorMethod, arguments) = methodResolver.resolveConstructorCallOrThrow(node, superType,
+      node.positionalArgumentNodes.map { it.accept(this) },
+      node.namedArgumentNodes.map { it.first to it.second.accept(this) })
 
     return SuperConstructorCallNode(
       superType,
@@ -1572,10 +1572,11 @@ abstract class SemanticCstNodeVisitor(
   }
 
   override fun visit(node: ThisConstructorCallCstNode, smartCastType: JavaType?): ExpressionNode {
-    val arguments = node.arguments.map { it.accept(this) }
     val classType = currentScope.classType
-    val constructorMethod =
-      symbolResolver.findMethodOrThrow(classType, MarcelMethod.CONSTRUCTOR_NAME, arguments, node.token)
+    val (constructorMethod, arguments) = methodResolver.resolveConstructorCallOrThrow(node, classType,
+      node.positionalArgumentNodes.map { it.accept(this) },
+      node.namedArgumentNodes.map { it.first to it.second.accept(this) })
+
     return ThisConstructorCallNode(
       classType,
       constructorMethod,

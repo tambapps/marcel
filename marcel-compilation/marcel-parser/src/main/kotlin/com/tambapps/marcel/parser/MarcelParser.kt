@@ -952,8 +952,8 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
               "Cannot have named arguments on super constructor call"
             )
           }
-          if (token.type == TokenType.SUPER) SuperConstructorCallCstNode(parentNode, arguments, token, arguments.lastOrNull()?.tokenEnd ?: token)
-          else ThisConstructorCallCstNode(parentNode, arguments, token, arguments.lastOrNull()?.tokenEnd ?: token)
+          if (token.type == TokenType.SUPER) SuperConstructorCallCstNode(parentNode, arguments, namedArguments, token, arguments.lastOrNull()?.tokenEnd ?: token)
+          else ThisConstructorCallCstNode(parentNode, arguments, namedArguments, token, arguments.lastOrNull()?.tokenEnd ?: token)
         } else if (current.type == TokenType.SQUARE_BRACKETS_OPEN || current.type == TokenType.QUESTION_SQUARE_BRACKETS_OPEN) {
           indexAccessCstNode(parentNode, ThisReferenceCstNode(parentNode, token))
         } else {

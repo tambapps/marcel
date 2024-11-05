@@ -21,17 +21,20 @@ class MethodResolver(
   private val nodeCaster: AstNodeCaster,
 ) {
 
-  fun resolveMethodOrThrow(
-    node: CstNode, ownerType: JavaType, name: String, positionalArguments: List<ExpressionNode>,
+  fun resolveConstructorCallOrThrow(
+    node: CstNode, ownerType: JavaType, positionalArguments: List<ExpressionNode>,
     namedArguments: List<Pair<String, ExpressionNode>>
-  ): Pair<MarcelMethod, List<ExpressionNode>> {
-    return resolveMethod(node, ownerType, name, positionalArguments, namedArguments)
-      ?: throw MarcelSemanticException(
-        node.token,
-        methodResolveErrorMessage(positionalArguments, namedArguments, ownerType, name)
-      )
-  }
+  ) = resolveConstructorCall(node, ownerType, positionalArguments, namedArguments)
+    ?: throw MarcelSemanticException(
+  node.token,
+  methodResolveErrorMessage(positionalArguments, namedArguments, ownerType, MarcelMethod.CONSTRUCTOR_NAME)
+  )
 
+
+  fun resolveConstructorCall(
+    node: CstNode, ownerType: JavaType, positionalArguments: List<ExpressionNode>,
+    namedArguments: List<Pair<String, ExpressionNode>>
+  ) = resolveMethod(node, ownerType, MarcelMethod.CONSTRUCTOR_NAME, positionalArguments, namedArguments)
 
   fun resolveMethod(
     node: CstNode, ownerType: JavaType, name: String, positionalArguments: List<ExpressionNode>,
