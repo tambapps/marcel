@@ -19,17 +19,15 @@ class LambdaMethodScope(
   val usedOuterScopeLocalVariable get() = usedOuterScopeLocalVariableMap.keys
 
   override fun findField(name: String): MarcelField? {
-    var f = super.findField(name)
-    if (f == null) {
-      f = outerScopeLocalVariable.find { it.name == name }?.let { lv ->
-        usedOuterScopeLocalVariableMap.computeIfAbsent(lv) {
-          JavaClassFieldImpl(
-            it.type, it.name, isFinal = true, visibility = Visibility.PUBLIC,
-            isStatic = false, owner = classType, isSettable = false
-          )
-        }
+    // local variables of outer scope come first
+    return outerScopeLocalVariable.find { it.name == name }?.let { lv ->
+      usedOuterScopeLocalVariableMap.computeIfAbsent(lv) {
+        JavaClassFieldImpl(
+          it.type, it.name, isFinal = true, visibility = Visibility.PUBLIC,
+          isStatic = false, owner = classType, isSettable = false
+        )
       }
-    }
-    return f
+      // then we search on the fields
+    } ?: super.findField(name)
   }
 }
