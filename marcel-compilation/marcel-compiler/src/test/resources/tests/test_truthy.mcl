@@ -9,7 +9,7 @@ class A implements MarcelTruth {
 
   constructor(this.a)
 
-  fun bool isTruthy() {
+  override fun bool isTruthy() {
     return a == 2
   }
 }

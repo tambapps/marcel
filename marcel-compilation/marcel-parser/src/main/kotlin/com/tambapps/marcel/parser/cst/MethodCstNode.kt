@@ -10,6 +10,7 @@ class MethodCstNode constructor(
   val name: String,
   val returnTypeNode: TypeCstNode,
   val isAsync: Boolean = false,
+  val isOverride: Boolean? = null, // null means not specified, useful for code generated methods
 ) :
   AbstractMethodCstNode(parentClassNode, tokenStart, tokenEnd, accessNode) {
     var isSingleStatementFunction = false // whether if is fun type method() -> statement()

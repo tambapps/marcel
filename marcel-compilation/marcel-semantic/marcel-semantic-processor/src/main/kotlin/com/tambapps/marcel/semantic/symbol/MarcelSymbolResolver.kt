@@ -329,6 +329,11 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     )
   }
 
+  fun findSuperMethod(method: MarcelMethod): MarcelMethod? {
+    return method.ownerClass.directlyImplementedInterfaces.firstNotNullOfOrNull { findMethod(it, method.name, method.parameters) }
+      ?: method.ownerClass.superType?.let { findMethod(it, method.name, method.parameters) }
+  }
+
   fun findMethod(
     javaType: JavaType,
     name: String,

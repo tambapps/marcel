@@ -301,6 +301,7 @@ LONG_TEMPLATE_ENTRY_START=\$\{
 "char"          { return valueToken(TYPE_CHAR); }
 "def"          { return token(DEF); }
 "enum"          { return token(ENUM); }
+"override"          { return token(OVERRIDE); }
 "public"          { return token(VISIBILITY_PUBLIC); }
 "protected"          { return token(VISIBILITY_PROTECTED); }
 "internal"          { return token(VISIBILITY_INTERNAL); }

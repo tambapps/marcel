@@ -36,24 +36,24 @@ class DynImpl implements DynamicObject {
 
   String name
 
-  fun dynobj setProperty(String name, dynobj o) {
+  override fun dynobj setProperty(String name, dynobj o) {
     if (name == "name") this.name = o?.value?.toString()
     return null
   }
 
-  fun dynobj getProperty(String name) {
+  override fun dynobj getProperty(String name) {
     return name == "name" ? DynamicObject.of(this.name) : null
   }
 
-  fun dynobj invokeMethod(String name, Object[] args) {
+  override fun dynobj invokeMethod(String name, Object[] args) {
       return DynamicObject.of(name)
   }
 
-  fun Object getValue() {
+  override fun Object getValue() {
     return name
   }
 
-  fun bool isTruthy() {
+  override fun bool isTruthy() {
     return false
   }
 }

@@ -28,7 +28,7 @@ class MyCloseable implements Closeable {
   private AtomicBoolean atomicB
 
   constructor(this.atomicB)
-  fun void close() -> atomicB.set(true)
+  override fun void close() -> atomicB.set(true)
 
   fun void doSomething() {}
 }

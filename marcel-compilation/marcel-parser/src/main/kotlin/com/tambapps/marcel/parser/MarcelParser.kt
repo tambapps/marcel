@@ -16,6 +16,7 @@ import com.tambapps.marcel.lexer.TokenType.OPEN_CHAR_QUOTE
 import com.tambapps.marcel.lexer.TokenType.OPEN_QUOTE
 import com.tambapps.marcel.lexer.TokenType.OPEN_REGEX_QUOTE
 import com.tambapps.marcel.lexer.TokenType.OPEN_SIMPLE_QUOTE
+import com.tambapps.marcel.lexer.TokenType.OVERRIDE
 import com.tambapps.marcel.lexer.TokenType.RPAR
 import com.tambapps.marcel.lexer.TokenType.SEMI_COLON
 import com.tambapps.marcel.lexer.TokenType.SQUARE_BRACKETS_OPEN
@@ -201,17 +202,21 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     outerClassNode: ClassCstNode?
   ) {
     val annotations = parseAnnotations(parentNode)
+    val isOverride = acceptOptional(OVERRIDE) != null
     val access = parseAccess(parentNode)
     if (current.type == TokenType.CLASS || current.type == TokenType.EXTENSION) {
+      checkOverrideUse(isOverride)
       classNode.innerClasses.add(parseClass(sourceFile, packageName, parentNode, annotations, access, outerClassNode))
-    } else if (current.type == TokenType.FUN || current.type == TokenType.CONSTRUCTOR || current.type == TokenType.ASYNC && lookup(1)?.type == TokenType.FUN) {
-      when (val method = method(classNode, annotations, access)) {
+    } else if (current.type == TokenType.FUN || current.type == TokenType.CONSTRUCTOR || current.type == TokenType.OVERRIDE || current.type == TokenType.ASYNC && lookup(1)?.type == TokenType.FUN) {
+      when (val method = method(classNode, annotations, access, isOverride)) {
         is MethodCstNode -> classNode.methods.add(method)
         is ConstructorCstNode -> classNode.constructors.add(method)
       }
     } else if (current.type == TokenType.ENUM) {
+      checkOverrideUse(isOverride)
       classNode.innerClasses.add(parseEnum(sourceFile, packageName, parentNode, annotations, access, outerClassNode))
     } else if (classNode is ScriptCstNode) {
+      checkOverrideUse(isOverride)
       if (annotations.isNotEmpty() || access.isExplicit) {
         // class fields in script always have access specified, or annotations
         classNode.fields.add(field(classNode, annotations, access))
@@ -219,11 +224,15 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
         classNode.runMethodStatements.add(statement(parentNode))
       }
     } else {
+      checkOverrideUse(isOverride)
       // it must be a field
       classNode.fields.add(field(classNode, annotations, access))
     }
   }
 
+  private fun checkOverrideUse(isOverride: Boolean) {
+    if (isOverride) throw MarcelParserException(previous, "Invalid use of override keyword")
+  }
   private fun parseImports(parentNode: CstNode?): Pair<List<ImportCstNode>, List<TypeCstNode>>  {
     val imports = mutableListOf<ImportCstNode>()
     val extensionTypes = mutableListOf<TypeCstNode>()
@@ -404,15 +413,16 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     return EnumCstNode(sourceFile, classToken, previous, access, className, names)
   }
 
-  fun method(parentNode: ClassCstNode, annotations: List<AnnotationCstNode>, access: AccessCstNode): AbstractMethodCstNode {
+  fun method(parentNode: ClassCstNode, annotations: List<AnnotationCstNode>, access: AccessCstNode, isOverride: Boolean = false): AbstractMethodCstNode {
     val token = current
     val isAsync = acceptOptional(TokenType.ASYNC) != null
     val isConstructor = acceptOneOf(TokenType.FUN, TokenType.CONSTRUCTOR).type == TokenType.CONSTRUCTOR
     if (isAsync && isConstructor) throw MarcelParserException(current, "Constructors cannot be async")
+    if (isAsync && isOverride) throw MarcelParserException(current, "Constructors cannot override")
     val node = if (!isConstructor) {
       val returnType = parseType(parentNode)
       val methodName = accept(IDENTIFIER).value
-      MethodCstNode(parentNode, token, token, access, methodName, returnType, isAsync)
+      MethodCstNode(parentNode, token, token, access, methodName, returnType, isAsync=isAsync, isOverride=isOverride)
     } else ConstructorCstNode(parentNode, token, token, access)
     node.annotations.addAll(annotations)
 

@@ -449,6 +449,12 @@ open class MarcelSemantic(
       classNode, methodCst, methodCst.name,
       returnType, asyncReturnType, classScope.classType
     )
+    val superMethod = symbolResolver.findSuperMethod(methodNode)
+    if (superMethod != null && methodCst.isOverride == false) {
+      throw MarcelSemanticException(methodCst.token, "override keyword should be used for overridden methods")
+    } else if (superMethod == null && methodCst.isOverride == true) {
+      throw MarcelSemanticException(methodCst.token, "method $methodNode doesn't override anything")
+    }
     fillMethodNode(
       classScope, methodNode, methodCst.statements, methodCst.annotations,
       isAsync = methodCst.isAsync,
