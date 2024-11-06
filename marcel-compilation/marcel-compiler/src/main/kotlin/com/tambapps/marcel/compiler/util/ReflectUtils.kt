@@ -10,7 +10,8 @@ object ReflectUtils {
   fun computeAccess(visibility: Visibility, isStatic: Boolean, isAbstract: Boolean = false, isFinal: Boolean = false,
                     isSynchronized: Boolean = false,
                     isTransient: Boolean = false,
-                    isSynthetic: Boolean = false): Int {
+                    isSynthetic: Boolean = false,
+                    isVarArgs: Boolean = false): Int {
     var result = when (visibility) {
       Visibility.PUBLIC -> Modifier.PUBLIC
       Visibility.PROTECTED -> Modifier.PROTECTED
@@ -23,6 +24,7 @@ object ReflectUtils {
     if (isSynchronized) result = result or Opcodes.ACC_SYNCHRONIZED
     if (isTransient) result = result or Opcodes.ACC_TRANSIENT
     if (isSynthetic) result = result or Opcodes.ACC_SYNTHETIC
+    if (isVarArgs) result = result or Opcodes.ACC_VARARGS
     return result
   }
 }

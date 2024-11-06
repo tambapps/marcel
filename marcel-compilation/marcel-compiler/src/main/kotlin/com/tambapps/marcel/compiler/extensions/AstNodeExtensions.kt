@@ -11,7 +11,7 @@ val ClassNode.access: Int get() = ReflectUtils.computeAccess(
 )
 
 val MethodNode.access: Int get() = ReflectUtils.computeAccess(
-  visibility, isStatic = isStatic, isAbstract = isAbstract,
+  visibility, isStatic = isStatic, isAbstract = isAbstract, isVarArgs = isVarArgs
 )
 
 val FieldNode.access: Int get() = ReflectUtils.computeAccess(

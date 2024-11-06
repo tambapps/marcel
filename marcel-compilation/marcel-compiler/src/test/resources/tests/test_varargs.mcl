@@ -7,3 +7,22 @@ assertEquals("", String.join(",", [] as CharSequence[]))
 
 assertEquals(Objects.hash(["true", "false"] as Object[]), Objects.hash("true", "false"))
 assertEquals(1, Objects.hash())
+
+
+fun list<int> foo(int... ints) -> ints as list<int>
+assertEquals([] as list<int>, foo())
+assertEquals([1] as list<int>, foo(1))
+assertEquals([1, 2, 3] as list<int>, foo(1, 2, 3))
+
+
+assertEquals([] as list<int>, new Foo().value)
+assertEquals([1] as list<int>, new Foo(1).value)
+assertEquals([1, 2, 3] as list<int>, new Foo(1, 2, 3).value)
+
+class Foo {
+
+  list<int> value
+  constructor(int... ints) {
+    value = ints as list<int>
+  }
+}

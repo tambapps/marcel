@@ -43,7 +43,7 @@ interface CstSymbolSemantic {
         )
       },
       returnType, isDefault = false, isAbstract = false, isStatic = isStatic, isConstructor = false,
-      isAsync = node.isAsync, asyncReturnType = asyncReturnType
+      isAsync = node.isAsync, asyncReturnType = asyncReturnType, isVarArgs = node.isVarArgs
     )
   }
 
@@ -51,7 +51,7 @@ interface CstSymbolSemantic {
     val visibility = Visibility.fromTokenType(node.accessNode.visibility)
     return JavaConstructorImpl(
       visibility,
-      isVarArgs = false,
+      isVarArgs = node.isVarArgs,
       ownerType,
       node.parameters.mapIndexed { index, methodParameterCstNode ->
         toMethodParameter(

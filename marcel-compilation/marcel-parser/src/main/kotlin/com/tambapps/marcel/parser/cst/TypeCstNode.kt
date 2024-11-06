@@ -22,6 +22,8 @@ class TypeCstNode(
   tokenEnd: LexToken
 ) : AbstractCstNode(parent, tokenStart, tokenEnd) {
 
+    fun withDimensions(arrayDimensions: Int) = TypeCstNode(parent, value, genericTypes, arrayDimensions, tokenStart, tokenEnd)
+
     override fun toString(): String {
         val builder = StringBuilder()
             .append(value)

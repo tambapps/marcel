@@ -8,7 +8,7 @@ import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.type.JavaType
 
-class MethodNode(
+class MethodNode constructor(
   override val name: String,
   override val parameters: MutableList<MethodParameter>,
   override val visibility: Visibility,
@@ -17,6 +17,7 @@ class MethodNode(
   override val asyncReturnType: JavaType?,
   override val tokenStart: LexToken, override val tokenEnd: LexToken,
   override var ownerClass: JavaType,
+  override val isVarArgs: Boolean = false
 ) : AstNode, AbstractMethod(), Annotable {
 
   // constructor for non async functions
@@ -28,7 +29,8 @@ class MethodNode(
     isStatic: Boolean,
     tokenStart: LexToken, tokenEnd: LexToken,
     ownerClass: JavaType,
-  ) : this(name, parameters, visibility, returnType, isStatic, null, tokenStart, tokenEnd, ownerClass)
+    isVarArgs: Boolean = false
+  ) : this(name, parameters, visibility, returnType, isStatic, null, tokenStart, tokenEnd, ownerClass, isVarArgs)
 
   companion object {
     fun fromJavaMethod(method: MarcelMethod, tokenStart: LexToken, tokenEnd: LexToken): MethodNode {
@@ -40,7 +42,8 @@ class MethodNode(
         method.isStatic,
         tokenStart,
         tokenEnd,
-        method.ownerClass
+        method.ownerClass,
+        method.isVarArgs
       )
     }
   }
@@ -50,7 +53,6 @@ class MethodNode(
 
   override val isAbstract = false
   override val isDefault = false
-  override val isVarArgs = false
   val blockStatement = BlockStatementNode(mutableListOf(), tokenStart, tokenEnd)
 
 }

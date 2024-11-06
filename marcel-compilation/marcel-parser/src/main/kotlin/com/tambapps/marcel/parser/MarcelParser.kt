@@ -19,6 +19,7 @@ import com.tambapps.marcel.lexer.TokenType.OPEN_SIMPLE_QUOTE
 import com.tambapps.marcel.lexer.TokenType.RPAR
 import com.tambapps.marcel.lexer.TokenType.SEMI_COLON
 import com.tambapps.marcel.lexer.TokenType.SQUARE_BRACKETS_OPEN
+import com.tambapps.marcel.lexer.TokenType.THREE_DOTS
 import com.tambapps.marcel.lexer.TokenType.VALUE_FALSE
 import com.tambapps.marcel.lexer.TokenType.VALUE_TRUE
 import com.tambapps.marcel.lexer.TokenType.WHITESPACE
@@ -418,6 +419,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     // parameters
     accept(TokenType.LPAR)
     val parameters = node.parameters
+    var isVarArgs = false
     while (current.type != TokenType.RPAR) {
       val parameterTokenStart = current
       val parameterAnnotations = parseAnnotations(parentNode)
@@ -425,11 +427,19 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
       val type =
         if (!isThisParameter) parseType(parentNode)
         else TypeCstNode(parentNode, "", emptyList(), 0, previous, previous)
+      if (isVarArgs) {
+        // if it is true, and we went there, it means the three dots were not on the last parameter
+        throw MarcelParserException(parameters.last().token, "Vararg parameter can only be the last parameter")
+      } else {
+        isVarArgs = !isThisParameter && acceptOptional(THREE_DOTS) != null
+      }
       val parameterName = accept(IDENTIFIER).value
+
       val defaultValue = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(parentNode) else null
-      parameters.add(MethodParameterCstNode(parentNode, parameterTokenStart, previous, parameterName, type, defaultValue, parameterAnnotations, isThisParameter))
+      parameters.add(MethodParameterCstNode(parentNode, parameterTokenStart, previous, parameterName, if (isVarArgs) type.withDimensions(type.arrayDimensions + 1) else type, defaultValue, parameterAnnotations, isThisParameter))
       acceptOptional(TokenType.COMMA)
     }
+    node.isVarArgs = isVarArgs
     skip() // skip RPAR
 
     val statements = mutableListOf<StatementCstNode>()

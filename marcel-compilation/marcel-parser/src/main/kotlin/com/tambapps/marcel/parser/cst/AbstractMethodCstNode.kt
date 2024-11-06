@@ -7,6 +7,7 @@ sealed class AbstractMethodCstNode(parent: CstNode?, tokenStart: LexToken, token
                                    val accessNode: AccessCstNode) :
   AbstractCstNode(parent, tokenStart, tokenEnd) {
 
+  var isVarArgs = false
   val parameters = mutableListOf<MethodParameterCstNode>()
   val annotations = mutableListOf<AnnotationCstNode>()
   val statements = mutableListOf<StatementCstNode>()
