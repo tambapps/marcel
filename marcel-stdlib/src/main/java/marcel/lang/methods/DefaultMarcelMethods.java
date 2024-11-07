@@ -1829,6 +1829,42 @@ public final class DefaultMarcelMethods {
     return MapWithDefault.newInstance($self, defaultFunction, insert);
   }
 
+  public static boolean isEmpty(Object[] $self) {
+    return $self.length == 0;
+  }
+
+  public static boolean isEmpty(int[] $self) {
+    return $self.length == 0;
+  }
+
+  public static boolean isEmpty(long[] $self) {
+    return $self.length == 0;
+  }
+
+  public static boolean isEmpty(float[] $self) {
+    return $self.length == 0;
+  }
+
+  public static boolean isEmpty(double[] $self) {
+    return $self.length == 0;
+  }
+
+  public static boolean isEmpty(char[] $self) {
+    return $self.length == 0;
+  }
+
+  public static boolean isEmpty(boolean[] $self) {
+    return $self.length == 0;
+  }
+
+  public static boolean isEmpty(short[] $self) {
+    return $self.length == 0;
+  }
+
+  public static boolean isEmpty(byte[] $self) {
+    return $self.length == 0;
+  }
+
   /**
    * Get the element at the specified key
    *
