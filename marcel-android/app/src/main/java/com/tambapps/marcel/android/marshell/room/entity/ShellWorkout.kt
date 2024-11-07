@@ -38,6 +38,7 @@ data class ShellWorkout(
   val isPeriodic = period != null
 
   val durationBetweenNowAndNext: Duration?
+    @Ignore
     get() {
       if (endTime == null || period == null) return null
     return Duration.between(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS), endTime.plusMinutes(period.toMinutes()))
