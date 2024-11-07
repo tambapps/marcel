@@ -1366,6 +1366,8 @@ abstract class SemanticCstNodeVisitor(
         "Cannot apply operator on non number types"
       )
       nodeSupplier.invoke(caster.cast(commonPrimitiveType, left), caster.cast(commonPrimitiveType, right))
+    } else if (left.type == JavaType.String) {
+      return StringNode(listOf(left, right))
     } else {
       val arguments = listOf(right)
       val method = symbolResolver.findMethodOrThrow(left.type, operatorMethodName, arguments, left.token)

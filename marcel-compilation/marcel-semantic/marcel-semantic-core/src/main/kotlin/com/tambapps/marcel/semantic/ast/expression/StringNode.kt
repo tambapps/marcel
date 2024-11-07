@@ -17,6 +17,8 @@ class StringNode(
     node.tokenEnd
   )
 
+  constructor(parts: List<ExpressionNode>): this(parts, parts.first().tokenStart, parts.last().tokenEnd)
+
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
     visitor.visit(this)
 
