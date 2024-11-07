@@ -4,6 +4,7 @@ import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
+import com.tambapps.marcel.semantic.ast.expression.literal.MapNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.getDefaultValueExpression
@@ -46,16 +47,17 @@ class MethodResolver(
         return Pair(method, completedArguments(node, method, positionalArguments, namedArguments))
       }
 
-      // handle dynamic object method call
+      // handle dynamic object method call without named parameters
       if (ownerType.implements(JavaType.DynamicObject) && name != MarcelMethod.CONSTRUCTOR_NAME) {
         val dynamicInvokeMethod = symbolResolver.findMethod(
           JavaType.DynamicObject,
           "invokeMethod",
-          listOf(JavaType.String, JavaType.objectArray)
+          listOf(JavaType.String, JavaType.Map, JavaType.objectArray)
         )!!
         return Pair(
           dynamicInvokeMethod, listOf(
             StringConstantNode(name, node),
+            MapNode(emptyList(), node), // no named parameters
             ArrayNode(
               positionalArguments.map { nodeCaster.cast(JavaType.Object, it) }.toMutableList(),
               node, JavaType.objectArray
@@ -70,6 +72,25 @@ class MethodResolver(
     val method = symbolResolver.findMethodByParameters(ownerType, name, positionalArguments, namedMethodParameters)
     if (method != null) {
       return Pair(method, completedArguments(node, method, positionalArguments, namedArguments))
+    }
+
+    // handle dynamic object method call with named parameters
+    if (ownerType.implements(JavaType.DynamicObject) && name != MarcelMethod.CONSTRUCTOR_NAME) {
+      val dynamicInvokeMethod = symbolResolver.findMethod(
+        JavaType.DynamicObject,
+        "invokeMethod",
+        listOf(JavaType.String, JavaType.Map, JavaType.objectArray)
+      )!!
+      return Pair(
+        dynamicInvokeMethod, listOf(
+          StringConstantNode(name, node),
+          MapNode(namedArguments.map { Pair(StringConstantNode(it.first, node), it.second) }, node),
+          ArrayNode(
+            positionalArguments.map { nodeCaster.cast(JavaType.Object, it) }.toMutableList(),
+            node, JavaType.objectArray
+          )
+        )
+      )
     }
     return null
   }

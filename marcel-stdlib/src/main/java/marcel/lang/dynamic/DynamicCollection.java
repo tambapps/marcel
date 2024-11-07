@@ -173,8 +173,8 @@ abstract class DynamicCollection<T extends Collection> extends AbstractDynamicOb
   }
 
   @Override
-  public DynamicObject invokeMethod(String name, Object... args) {
-    return invokeMethod(Collection.class, name, args);
+  public DynamicObject invokeMethod(String name, Map<String, Object> namedArgs, Object... args) {
+    return invokeMethod(Collection.class, name, namedArgs, args);
   }
 
   @Override

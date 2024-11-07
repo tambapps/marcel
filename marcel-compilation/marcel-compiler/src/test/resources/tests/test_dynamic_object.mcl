@@ -45,7 +45,7 @@ class DynImpl implements DynamicObject {
     return name == "name" ? DynamicObject.of(this.name) : null
   }
 
-  override fun dynobj invokeMethod(String name, Object[] args) {
+  override fun dynobj invokeMethod(String name, Map<String, Object> namedArgs, Object... args) {
       return DynamicObject.of(name)
   }
 

@@ -4,6 +4,7 @@ import marcel.lang.DynamicObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class DynamicList extends DynamicCollection<List> implements DynamicIndexable {
   public DynamicList(List value) {
@@ -31,11 +32,11 @@ public class DynamicList extends DynamicCollection<List> implements DynamicIndex
   }
 
   @Override
-  public DynamicObject invokeMethod(String name, Object... args) {
+  public DynamicObject invokeMethod(String name, Map<String, Object> namedArgs, Object... args) {
     try {
-      return super.invokeMethod(name, args);
+      return super.invokeMethod(name, namedArgs, args);
     } catch (MissingMethodException e) {
-      return invokeMethod(List.class, name, args);
+      return invokeMethod(List.class, name, namedArgs, args);
     }
   }
 }

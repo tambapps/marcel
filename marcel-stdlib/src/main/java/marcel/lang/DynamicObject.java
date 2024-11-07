@@ -11,6 +11,7 @@ import marcel.lang.dynamic.DynamicMap;
 import marcel.lang.dynamic.DynamicNumber;
 import marcel.lang.dynamic.DynamicQueue;
 import marcel.lang.dynamic.DynamicSet;
+import marcel.lang.dynamic.MethodParameter;
 import marcel.lang.dynamic.MissingMethodException;
 import marcel.lang.dynamic.MissingPropertyException;
 import marcel.lang.lambda.*;
@@ -52,7 +53,7 @@ public interface DynamicObject extends Iterable<DynamicObject>, MarcelTruth {
     throw new MissingPropertyException(getValue().getClass(), name);
   }
 
-  default DynamicObject invokeMethod(String name, Object... args) {
+  default DynamicObject invokeMethod(String name, Map<String, Object> namedArgs, Object... args) {
     throw new MissingMethodException(getValue().getClass(), name, args);
   }
 
@@ -99,48 +100,82 @@ public interface DynamicObject extends Iterable<DynamicObject>, MarcelTruth {
   }
 
   default void registerMethod(String name, Class<?> arg0, Lambda1<?, ?> lambda) {
+    registerMethod(name, new MethodParameter(arg0, "arg0"), lambda);
+  }
+
+  default void registerMethod(String name, MethodParameter param0, Lambda1<?, ?> lambda) {
     throw new UnsupportedOperationException();
   }
 
   default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Lambda2<?, ?, ?> lambda) {
+    registerMethod(name, new MethodParameter(arg0, "arg0"), new MethodParameter(arg1, "arg1"), lambda);
+  }
+
+  default void registerMethod(String name, MethodParameter param0, MethodParameter param1, Lambda2<?, ?, ?> lambda) {
     throw new UnsupportedOperationException();
   }
 
   default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Class<?> arg2, Lambda3<?, ?, ?, ?> lambda) {
+    registerMethod(name, new MethodParameter(arg0, "arg0"), new MethodParameter(arg1, "arg1"), new MethodParameter(arg2, "arg2"), lambda);
+  }
+
+  default void registerMethod(String name, MethodParameter param0, MethodParameter param1, MethodParameter param2, Lambda3<?, ?, ?, ?> lambda) {
     throw new UnsupportedOperationException();
   }
 
   default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Class<?> arg2, Class<?> arg3, Lambda4<?, ?, ?, ?, ?> lambda) {
+    registerMethod(name, new MethodParameter(arg0, "arg0"), new MethodParameter(arg1, "arg1"), new MethodParameter(arg2, "arg2"), new MethodParameter(arg3, "arg3"), lambda);
+  }
+
+  default void registerMethod(String name, MethodParameter param0, MethodParameter param1, MethodParameter param2, MethodParameter param3, Lambda4<?, ?, ?, ?, ?> lambda) {
     throw new UnsupportedOperationException();
   }
 
   default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Class<?> arg2, Class<?> arg3, Class<?> arg4, Lambda5<?, ?, ?, ?, ?, ?> lambda) {
+    registerMethod(name, new MethodParameter(arg0, "arg0"), new MethodParameter(arg1, "arg1"), new MethodParameter(arg2, "arg2"), new MethodParameter(arg3, "arg3"), new MethodParameter(arg4, "arg4"), lambda);
+  }
+
+  default void registerMethod(String name, MethodParameter param0, MethodParameter param1, MethodParameter param2, MethodParameter param3, MethodParameter param4, Lambda5<?, ?, ?, ?, ?, ?> lambda) {
     throw new UnsupportedOperationException();
   }
 
   default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Class<?> arg2, Class<?> arg3, Class<?> arg4, Class<?> arg5, Lambda6<?, ?, ?, ?, ?, ?, ?> lambda) {
+    registerMethod(name, new MethodParameter(arg0, "arg0"), new MethodParameter(arg1, "arg1"), new MethodParameter(arg2, "arg2"), new MethodParameter(arg3, "arg3"), new MethodParameter(arg4, "arg4"), new MethodParameter(arg5, "arg5"), lambda);
+  }
+
+  default void registerMethod(String name, MethodParameter param0, MethodParameter param1, MethodParameter param2, MethodParameter param3, MethodParameter param4, MethodParameter param5, Lambda6<?, ?, ?, ?, ?, ?, ?> lambda) {
     throw new UnsupportedOperationException();
   }
 
-  default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Class<?> arg2, Class<?> arg3, Class<?> arg4, Class<?> arg5, Class<?> arg6,
-                              Lambda7<?, ?, ?, ?, ?, ?, ?, ?> lambda) {
+  default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Class<?> arg2, Class<?> arg3, Class<?> arg4, Class<?> arg5, Class<?> arg6, Lambda7<?, ?, ?, ?, ?, ?, ?, ?> lambda) {
+    registerMethod(name, new MethodParameter(arg0, "arg0"), new MethodParameter(arg1, "arg1"), new MethodParameter(arg2, "arg2"), new MethodParameter(arg3, "arg3"), new MethodParameter(arg4, "arg4"), new MethodParameter(arg5, "arg5"), new MethodParameter(arg6, "arg6"), lambda);
+  }
+
+  default void registerMethod(String name, MethodParameter param0, MethodParameter param1, MethodParameter param2, MethodParameter param3, MethodParameter param4, MethodParameter param5, MethodParameter param6, Lambda7<?, ?, ?, ?, ?, ?, ?, ?> lambda) {
     throw new UnsupportedOperationException();
   }
 
-  default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Class<?> arg2, Class<?> arg3, Class<?> arg4, Class<?> arg5, Class<?> arg6, Class<?> arg7,
-                              Lambda8<?, ?, ?, ?, ?, ?, ?, ?, ?> lambda) {
+  default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Class<?> arg2, Class<?> arg3, Class<?> arg4, Class<?> arg5, Class<?> arg6, Class<?> arg7, Lambda8<?, ?, ?, ?, ?, ?, ?, ?, ?> lambda) {
+    registerMethod(name, new MethodParameter(arg0, "arg0"), new MethodParameter(arg1, "arg1"), new MethodParameter(arg2, "arg2"), new MethodParameter(arg3, "arg3"), new MethodParameter(arg4, "arg4"), new MethodParameter(arg5, "arg5"), new MethodParameter(arg6, "arg6"), new MethodParameter(arg7, "arg7"), lambda);
+  }
+
+  default void registerMethod(String name, MethodParameter param0, MethodParameter param1, MethodParameter param2, MethodParameter param3, MethodParameter param4, MethodParameter param5, MethodParameter param6, MethodParameter param7, Lambda8<?, ?, ?, ?, ?, ?, ?, ?, ?> lambda) {
     throw new UnsupportedOperationException();
   }
 
-  default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Class<?> arg2, Class<?> arg3, Class<?> arg4, Class<?> arg5, Class<?> arg6,
-                              Class<?> arg7, Class<?> arg8,
-                              Lambda9<?, ?, ?, ?, ?, ?, ?, ?, ?, ?> lambda) {
+  default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Class<?> arg2, Class<?> arg3, Class<?> arg4, Class<?> arg5, Class<?> arg6, Class<?> arg7, Class<?> arg8, Lambda9<?, ?, ?, ?, ?, ?, ?, ?, ?, ?> lambda) {
+    registerMethod(name, new MethodParameter(arg0, "arg0"), new MethodParameter(arg1, "arg1"), new MethodParameter(arg2, "arg2"), new MethodParameter(arg3, "arg3"), new MethodParameter(arg4, "arg4"), new MethodParameter(arg5, "arg5"), new MethodParameter(arg6, "arg6"), new MethodParameter(arg7, "arg7"), new MethodParameter(arg8, "arg8"), lambda);
+  }
+
+  default void registerMethod(String name, MethodParameter param0, MethodParameter param1, MethodParameter param2, MethodParameter param3, MethodParameter param4, MethodParameter param5, MethodParameter param6, MethodParameter param7, MethodParameter param8, Lambda9<?, ?, ?, ?, ?, ?, ?, ?, ?, ?> lambda) {
     throw new UnsupportedOperationException();
   }
 
-  default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Class<?> arg2, Class<?> arg3, Class<?> arg4, Class<?> arg5, Class<?> arg6,
-                              Class<?> arg7, Class<?> arg8, Class<?> arg9,
-                              Lambda10<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> lambda) {
+  default void registerMethod(String name, Class<?> arg0, Class<?> arg1, Class<?> arg2, Class<?> arg3, Class<?> arg4, Class<?> arg5, Class<?> arg6, Class<?> arg7, Class<?> arg8, Class<?> arg9, Lambda10<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> lambda) {
+    registerMethod(name, new MethodParameter(arg0, "arg0"), new MethodParameter(arg1, "arg1"), new MethodParameter(arg2, "arg2"), new MethodParameter(arg3, "arg3"), new MethodParameter(arg4, "arg4"), new MethodParameter(arg5, "arg5"), new MethodParameter(arg6, "arg6"), new MethodParameter(arg7, "arg7"), new MethodParameter(arg8, "arg8"), new MethodParameter(arg9, "arg9"), lambda);
+  }
+
+  default void registerMethod(String name, MethodParameter param0, MethodParameter param1, MethodParameter param2, MethodParameter param3, MethodParameter param4, MethodParameter param5, MethodParameter param6, MethodParameter param7, MethodParameter param8, MethodParameter param9, Lambda10<?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?> lambda) {
     throw new UnsupportedOperationException();
   }
 

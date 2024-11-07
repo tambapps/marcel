@@ -3,6 +3,8 @@ package marcel.lang.dynamic;
 import lombok.AllArgsConstructor;
 import marcel.lang.DynamicObject;
 
+import java.util.Map;
+
 @AllArgsConstructor
 public class DynamicNumber extends AbstractDynamicObject {
 
@@ -106,7 +108,7 @@ public class DynamicNumber extends AbstractDynamicObject {
   }
 
   @Override
-  public DynamicObject invokeMethod(String name, Object... args) {
-    return invokeMethod(Number.class, name, args);
+  public DynamicObject invokeMethod(String name, Map<String, Object> namedArgs, Object... args) {
+    return invokeMethod(Number.class, name, namedArgs, args);
   }
 }

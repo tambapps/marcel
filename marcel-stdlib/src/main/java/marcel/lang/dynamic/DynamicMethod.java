@@ -8,12 +8,13 @@ import marcel.lang.lambda.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 class DynamicMethod {
 
-    public static DynamicMethod of(Lambda lambda, Class<?>... parameters) {
-        if (Arrays.stream(parameters).anyMatch(Class::isPrimitive)) {
+    public static DynamicMethod of(Lambda lambda, MethodParameter... parameters) {
+        if (Arrays.stream(parameters).map(MethodParameter::getType).anyMatch(Class::isPrimitive)) {
             throw new IllegalArgumentException("Parameter types must not be primitive types");
         }
         return new DynamicMethod(lambda, List.of(parameters));
@@ -21,15 +22,19 @@ class DynamicMethod {
 
     private final Lambda lambda;
     @Getter
-    private final List<Class<?>> parameters;
+    private final List<MethodParameter> parameters;
 
-    public boolean matches(Object[] args) {
+    public boolean matches(Map<String, Object> namedArgs, Object[] args) {
+        if (!namedArgs.isEmpty()) {
+            // TODO handle namedArgs
+            throw new UnsupportedOperationException("named arguments are not handled yet");
+        }
         if (args.length != parameters.size()) {
             return false;
         }
         for (int i = 0; i < args.length; i++) {
             if (args[i] == null) continue;
-            if (!parameters.get(i).isInstance(args[i])) return false;
+            if (!parameters.get(i).getType().isInstance(args[i])) return false;
         }
         return true;
     }
