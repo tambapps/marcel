@@ -12,6 +12,7 @@ interface Variable : JavaTyped {
   }
   fun <T> accept(visitor: VariableVisitor<T>): T
 
+  fun isVisibleFrom(javaType: JavaType): Boolean = isVisibleFrom(javaType, Access.ANY)
   fun isVisibleFrom(javaType: JavaType, access: Access): Boolean
 
   override val type: JavaType

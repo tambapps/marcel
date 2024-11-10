@@ -4,6 +4,7 @@ import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.method.ExtensionMarcelMethod
 import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.type.JavaType
+import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.variable.VariableVisitor
 
 /**
@@ -37,6 +38,13 @@ open class MethodField constructor(override val type: JavaType, override val nam
     return if (v1 > v2) v1 else v2
   }
 
+  override fun isVisibleFrom(javaType: JavaType, access: Variable.Access): Boolean {
+    return super.isVisibleFrom(javaType, access) && when (access) {
+      Variable.Access.GET -> _getterMethod?.visibility?.canAccess(javaType, owner) == true
+      Variable.Access.SET -> _setterMethod?.visibility?.canAccess(javaType, owner) == true
+      Variable.Access.ANY -> _setterMethod?.visibility?.canAccess(javaType, owner) == true || _getterMethod?.visibility?.canAccess(javaType, owner) == true
+    }
+  }
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is MethodField) return false

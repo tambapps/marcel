@@ -2746,7 +2746,9 @@ abstract class SemanticCstNodeVisitor(
     checkGet: Boolean = false,
     checkSet: Boolean = false
   ) {
-    if (checkGet && !variable.isVisibleFrom(currentScope.classType, Variable.Access.GET)
+    if (!variable.isVisibleFrom(currentScope.classType) // not visible globally, from either get or set
+      // these 2 below check are in fact just for MethodField, which can have different visibilities between the getter and the setter
+      || checkGet && !variable.isVisibleFrom(currentScope.classType, Variable.Access.GET)
       || checkSet && !variable.isVisibleFrom(currentScope.classType, Variable.Access.SET)
     ) {
       throw MarcelSemanticException(node, "Variable ${variable.name} is not visible from ${currentScope.classType}")
