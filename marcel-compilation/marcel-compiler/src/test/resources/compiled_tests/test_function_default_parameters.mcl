@@ -38,7 +38,7 @@ assertEquals("", a.bar2())
 assertEquals("Hello World", a.bar2("Hello World"))
 
 assertEquals(3, a.bar3())
-assertEquals(0, a.bar3([] as list<int>))
+assertEquals(0, a.bar3([] as List<int>))
 
 
 assertEquals("6null", a.add("6"))

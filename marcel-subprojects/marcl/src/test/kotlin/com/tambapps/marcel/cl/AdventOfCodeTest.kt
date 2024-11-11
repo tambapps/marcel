@@ -31,7 +31,7 @@ class AdventOfCodeTest: AbstractCompilerTest() {
 
   // AOC that takes long to run
   @ParameterizedTest(name = "AOC 2023 day {arguments}")
-  @ValueSource(ints = [12, 14, 16])
+  @ValueSource(ints = [12, 14, 16]) // 5 is not put there because it is very long
   fun aocDay_2023_longDays(day: Int) = aocDay(2023, day)
 
   fun aocDay(year: Int, day: Int) {

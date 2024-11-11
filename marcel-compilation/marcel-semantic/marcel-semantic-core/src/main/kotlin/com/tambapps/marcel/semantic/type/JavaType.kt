@@ -370,8 +370,9 @@ interface JavaType: JavaTyped {
     val Byte: JavaType = LoadedObjectType(java.lang.Byte::class.java)
     val Short: JavaType = LoadedObjectType(java.lang.Short::class.java)
     val Void: JavaType = LoadedObjectType(java.lang.Void::class.java)
-    val Map: JavaType = LoadedObjectType(java.util.Map::class.java)
+    val List: JavaType = LoadedObjectType(java.util.List::class.java)
     val Set: JavaType = LoadedObjectType(java.util.Set::class.java)
+    val Map: JavaType = LoadedObjectType(java.util.Map::class.java)
 
     val Future: JavaType = LoadedObjectType(java.util.concurrent.Future::class.java)
 

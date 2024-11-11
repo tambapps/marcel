@@ -332,10 +332,10 @@ class MarcelParserTest {
             parser("int").parseType())
         assertEquals(type(value = "DynamicObject"),
             parser("dynobj").parseType())
-        assertEquals(type(value = "list", genericTypes = listOf(type("int"))),
-            parser("list<int>").parseType())
-        assertEquals(type(value = "list", genericTypes = listOf(type("int")), arrayDimensions = 2),
-            parser("list<int>[][]").parseType())
+        assertEquals(type(value = "List", genericTypes = listOf(type("int"))),
+            parser("List<int>").parseType())
+        assertEquals(type(value = "List", genericTypes = listOf(type("int")), arrayDimensions = 2),
+            parser("List<int>[][]").parseType())
         assertEquals(type(value = "DynamicObject", arrayDimensions = 1),
             parser("dynobj[]").parseType())
         assertEquals(type(value = "Optional", arrayDimensions = 1),

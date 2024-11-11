@@ -21,14 +21,14 @@ assertEquals("test", o.value)
 assertEquals("test", o.name.value)
 assertFalse(o as bool)
 
-o = DynamicObject.of([1, 2 , 3] as list<int>)
+o = DynamicObject.of([1, 2 , 3] as List<int>)
 
 assertEquals(2, o[1].value)
 o[0] = 2
 assertEquals(2, o[0].value)
 assertTrue(o as bool)
 
-assertFalse(DynamicObject.of([] as list<int>) as bool)
+assertFalse(DynamicObject.of([] as List<int>) as bool)
 assertEquals(123, DynamicObject.of("123").asInt())
 assertEquals("123", DynamicObject.of("123").toString())
 

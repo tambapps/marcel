@@ -9,7 +9,7 @@ assertEquals(2, a.array[1])
 
 class A {
 
-  list<int> ints = [1, 2 ,3]
+  List<int> ints = [1, 2 ,3]
   Map m = [a: 'b']
   int[] array = [1, 2, 3]
 }

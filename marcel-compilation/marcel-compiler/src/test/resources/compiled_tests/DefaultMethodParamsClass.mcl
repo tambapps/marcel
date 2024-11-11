@@ -40,7 +40,7 @@ class DefaultMethodParamsClass {
       return String.valueOf(a)
     }
 
-   fun int bar3(list<int> a = [1, 2, 3] as list<int>) {
+   fun int bar3(List<int> a = [1, 2, 3] as List<int>) {
      return a.size()
    }
 }

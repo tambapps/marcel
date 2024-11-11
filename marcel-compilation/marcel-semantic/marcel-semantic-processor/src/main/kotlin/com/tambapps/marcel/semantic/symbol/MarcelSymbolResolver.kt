@@ -43,8 +43,8 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
 
   companion object {
     private val PRIMITIVE_COLLECTION_TYPE_MAP = mapOf(
-      Pair("list", PRIMITIVE_LIST_MAP),
-      Pair("set", PRIMITIVE_SET_MAP),
+      Pair("List", PRIMITIVE_LIST_MAP),
+      Pair("Set", PRIMITIVE_SET_MAP),
     )
   }
 

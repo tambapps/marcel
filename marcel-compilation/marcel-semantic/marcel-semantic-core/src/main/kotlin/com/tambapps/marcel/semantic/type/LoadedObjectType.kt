@@ -20,6 +20,14 @@ open class LoadedObjectType(
 
   override fun withGenericTypes(genericTypes: List<JavaType>): JavaType {
     if (genericTypes == this.genericTypes) return this
+    // primitive collection
+    if ((this == JavaType.List || this == JavaType.Set) && genericTypes.size == 1 && genericTypes.first().primitive) {
+      val map = if (this == JavaType.List) JavaType.PRIMITIVE_LIST_MAP else JavaType.PRIMITIVE_SET_MAP
+      val primitiveType = genericTypes.first()
+      if (map[primitiveType] != null) {
+        return map[primitiveType]!!
+      }
+    }
     if (genericTypes.any { it.primitive }) throw MarcelSemanticException(LexToken.DUMMY, "Cannot have a primitive generic type")
     if (isLambda && genericTypes.size == realClazz.typeParameters.size - 1) {
       return LoadedObjectType(realClazz, genericTypes + JavaType.Object)

@@ -1,9 +1,9 @@
 import static org.junit.jupiter.api.Assertions.assertEquals
 
 
-list<int> ints = [1, 2, 3]
+List<int> ints = [1, 2, 3]
 ints.reverse()
-assertEquals([3, 2, 1] as list<int>, ints)
+assertEquals([3, 2, 1] as List<int>, ints)
 
 ints << 0
-assertEquals([3, 2, 1, 0] as list<int>, ints)
+assertEquals([3, 2, 1, 0] as List<int>, ints)

@@ -3,15 +3,15 @@ import static org.junit.jupiter.api.Assertions.assertFalse
 import static org.junit.jupiter.api.Assertions.assertNull
 import static org.junit.jupiter.api.Assertions.assertTrue
 
-list<int> list = [1, 2, 3, 4]
+List<int> list = [1, 2, 3, 4]
 
 /*
  * map and/or filter
  */
-assertEquals([2, 3, 4, 5] as list<int>, [for int a in list -> a + 1])
+assertEquals([2, 3, 4, 5] as List<int>, [for int a in list -> a + 1])
 
-assertEquals([2, 3] as list<int>, [for int a in list -> a + 1 if a <= 2])
-assertEquals([1, 2, 3] as list<int>, [for int a in list if a < 4])
+assertEquals([2, 3] as List<int>, [for int a in list -> a + 1 if a <= 2])
+assertEquals([1, 2, 3] as List<int>, [for int a in list if a < 4])
 
 /*
  * find

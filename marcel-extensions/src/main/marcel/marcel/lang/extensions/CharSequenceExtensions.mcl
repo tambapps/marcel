@@ -26,9 +26,9 @@ extension class CharSequenceExtensions for CharSequence {
     return builder.toString();
   }
 
-  fun list<char> toList() -> CharArrayList.wrap(toString().toCharArray())
+  fun List<char> toList() -> CharArrayList.wrap(toString().toCharArray())
 
-  fun set<char> toSet() -> new CharOpenHashSet(toString().toCharArray())
+  fun Set<char> toSet() -> new CharOpenHashSet(toString().toCharArray())
 
   fun int toInt() -> Integer.parseInt(toString())
 

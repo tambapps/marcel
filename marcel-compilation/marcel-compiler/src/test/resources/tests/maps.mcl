@@ -12,7 +12,7 @@ assertEquals(2, m.size())
 
 Map myMap = [1: 1, 2: 2, 3: 3]
 
-assertEquals(myMap.keySet(), [1, 2, 3] as set<int>)
+assertEquals(myMap.keySet(), [1, 2, 3] as Set<int>)
 
 int sum = 0
 for ((int key, int value) in myMap) {
