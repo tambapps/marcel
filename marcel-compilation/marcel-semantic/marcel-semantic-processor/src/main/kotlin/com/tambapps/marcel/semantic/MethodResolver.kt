@@ -84,7 +84,7 @@ class MethodResolver(
       return Pair(
         dynamicInvokeMethod, listOf(
           StringConstantNode(name, node),
-          MapNode(namedArguments.map { Pair(StringConstantNode(it.first, node), it.second) }, node),
+          MapNode(namedArguments.map { Pair(StringConstantNode(it.first, node), nodeCaster.cast(JavaType.Object, it.second)) }, node),
           ArrayNode(
             positionalArguments.map { nodeCaster.cast(JavaType.Object, it) }.toMutableList(),
             node, JavaType.objectArray
