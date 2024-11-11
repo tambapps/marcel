@@ -9,6 +9,7 @@ import marcel.lang.lambda.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 class DynamicMethod {
@@ -25,22 +26,47 @@ class DynamicMethod {
     private final List<MethodParameter> parameters;
 
     public boolean matches(Map<String, Object> namedArgs, Object[] args) {
-        if (!namedArgs.isEmpty()) {
-            // TODO handle namedArgs
-            throw new UnsupportedOperationException("named arguments are not handled yet");
-        }
-        if (args.length != parameters.size()) {
+        if (args.length + namedArgs.size() > parameters.size()) {
             return false;
         }
         for (int i = 0; i < args.length; i++) {
             if (args[i] == null) continue;
-            if (!parameters.get(i).getType().isInstance(args[i])) return false;
+            if (!matches(parameters.get(i), args[i])) return false;
+        }
+        if (namedArgs.isEmpty()) {
+            for (int i = args.length; i < parameters.size(); i++) {
+                if (!parameters.get(i).hasDefaultValue()) return false;
+            }
+            return true;
+        }
+        List<MethodParameter> remainingParameters = parameters.subList(args.length, parameters.size());
+        for (MethodParameter parameter : remainingParameters) {
+            if (namedArgs.entrySet().stream().noneMatch(namedParameter -> matches(parameter, namedParameter.getValue()) && Objects.equals(namedParameter.getKey(), parameter.getName())) && !parameter.hasDefaultValue()) {
+                return false;
+            }
         }
         return true;
     }
 
-    public DynamicObject invoke(Object[] args) {
-        return DynamicObject.of(doInvoke(args));
+    private boolean matches(MethodParameter parameter, Object value) {
+        return value == null || parameter.getType().isInstance(value);
+    }
+
+    public DynamicObject invoke(Map<String, Object> namedArgs, Object[] args) {
+        return DynamicObject.of(doInvoke(arrangedArgs(namedArgs, args)));
+    }
+
+    private Object[] arrangedArgs(Map<String, Object> namedArgs, Object[] args) {
+        if (namedArgs.isEmpty()) {
+            return args;
+        }
+        Object[] arrangedArgs = new Object[args.length + namedArgs.size()];
+        System.arraycopy(args, 0, arrangedArgs, 0, args.length);
+        int i = args.length;
+        for (MethodParameter remainingParameter : parameters.subList(args.length, parameters.size())) {
+            arrangedArgs[i++] = namedArgs.entrySet().stream().filter(entry -> entry.getKey().equals(remainingParameter.getName())).findFirst().map(Map.Entry::getValue).orElse(null);
+        }
+        return arrangedArgs;
     }
 
     private Object doInvoke(Object[] args) {

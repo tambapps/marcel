@@ -108,7 +108,7 @@ public class DynamicNumber extends AbstractDynamicObject {
   }
 
   @Override
-  public DynamicObject invokeMethod(String name, Map<String, Object> namedArgs, Object... args) {
-    return invokeMethod(Number.class, name, namedArgs, args);
+  public DynamicObject invokeMethod(String name, Map<String, Object> namedArgs, Object... positionalArgs) {
+    return invokeMethod(Number.class, name, namedArgs, positionalArgs);
   }
 }

@@ -45,8 +45,8 @@ public class DynamicMap extends AbstractDynamicObject {
   }
 
   @Override
-  public DynamicObject invokeMethod(String name, Map<String, Object> namedArgs, Object... args) {
-    return invokeMethod(Map.class, name, namedArgs, args);
+  public DynamicObject invokeMethod(String name, Map<String, Object> namedArgs, Object... positionalArgs) {
+    return invokeMethod(Map.class, name, namedArgs, positionalArgs);
   }
 
   @Override

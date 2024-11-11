@@ -17,11 +17,11 @@ public class DynamicSet extends DynamicCollection<Set> {
   }
 
   @Override
-  public DynamicObject invokeMethod(String name, Map<String, Object> namedArgs, Object... args) {
+  public DynamicObject invokeMethod(String name, Map<String, Object> namedArgs, Object... positionalArgs) {
     try {
-      return super.invokeMethod(name, namedArgs, args);
+      return super.invokeMethod(name, namedArgs, positionalArgs);
     } catch (MissingMethodException e) {
-      return invokeMethod(Set.class, name, namedArgs, args);
+      return invokeMethod(Set.class, name, namedArgs, positionalArgs);
     }
   }
 }

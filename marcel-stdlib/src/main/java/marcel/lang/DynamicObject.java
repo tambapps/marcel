@@ -53,8 +53,8 @@ public interface DynamicObject extends Iterable<DynamicObject>, MarcelTruth {
     throw new MissingPropertyException(getValue().getClass(), name);
   }
 
-  default DynamicObject invokeMethod(String name, Map<String, Object> namedArgs, Object... args) {
-    throw new MissingMethodException(getValue().getClass(), name, args);
+  default DynamicObject invokeMethod(String name, Map<String, Object> namedArgs, Object... positionalArgs) {
+    throw new MissingMethodException(getValue().getClass(), name, positionalArgs);
   }
 
   default DynamicObject plus(Object object) {

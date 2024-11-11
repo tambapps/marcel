@@ -17,11 +17,11 @@ public class DynamicQueue extends DynamicCollection<Queue> {
   }
 
   @Override
-  public DynamicObject invokeMethod(String name, Map<String, Object> namedArgs, Object... args) {
+  public DynamicObject invokeMethod(String name, Map<String, Object> namedArgs, Object... positionalArgs) {
     try {
-      return super.invokeMethod(name, namedArgs, args);
+      return super.invokeMethod(name, namedArgs, positionalArgs);
     } catch (MissingMethodException e) {
-      return invokeMethod(Queue.class, name, namedArgs, args);
+      return invokeMethod(Queue.class, name, namedArgs, positionalArgs);
     }
   }
 }

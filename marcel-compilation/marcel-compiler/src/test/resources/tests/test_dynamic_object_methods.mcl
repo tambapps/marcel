@@ -1,5 +1,6 @@
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertThrows
+import marcel.lang.dynamic.MethodParameter as MP
 
 import marcel.lang.dynamic.MissingMethodException
 
@@ -14,3 +15,11 @@ assertEquals("foo", o.foo().value)
 
 o.registerMethod("incr", Integer.class) { Integer i -> i + 1 }
 assertEquals(2, o.incr(1).value)
+
+o.registerMethod("bar", new MP(Integer.class, "zoo"), new MP(Integer.class, "dee")) { Integer zoo, Integer dee ->
+  "$zoo:$dee"
+}
+
+assertEquals("2:4", o.bar(2, 4).value)
+assertEquals("2:4", o.bar(zoo: 2, dee: 4).value)
+assertEquals("2:4", o.bar(2, dee: 4).value)

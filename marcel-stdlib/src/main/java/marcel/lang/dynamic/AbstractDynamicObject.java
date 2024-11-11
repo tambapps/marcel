@@ -134,30 +134,30 @@ public abstract class AbstractDynamicObject implements DynamicObject {
   }
 
   @SneakyThrows
-  final protected DynamicObject invokeMethod(Class<?> clazz, String name, Map<String, Object> namedArgs, Object... args) {
-    Class<?>[] argTypes = new Class[args.length];
-    for (int i = 0; i < argTypes.length; i++) {
-      argTypes[i] = args[i] != null ? args[i].getClass() : Object.class;
-    }
+  final protected DynamicObject invokeMethod(Class<?> clazz, String name, Map<String, Object> namedArgs, Object... positionalArgs) {
     if (methodMap != null) {
       // find on registered methods
       List<DynamicMethod> methods = methodMap.get(name);
       if (methods != null && !methods.isEmpty()) {
         DynamicMethod method = methods.stream()
-                .filter(m -> m.matches(namedArgs, args))
+                .filter(m -> m.matches(namedArgs, positionalArgs))
                 .findFirst()
                 .orElse(null);
         if (method != null) {
-          return method.invoke(args);
+          return method.invoke(namedArgs, positionalArgs);
         }
       }
     }
 
     // then find on class methods
+    Class<?>[] argTypes = new Class[positionalArgs.length];
+    for (int i = 0; i < argTypes.length; i++) {
+      argTypes[i] = positionalArgs[i] != null ? positionalArgs[i].getClass() : Object.class;
+    }
     Method method = findMethod(clazz, name, argTypes);
     Object owner = (method.getModifiers() & Modifier.STATIC) != 0 ? null : getValue();
     try {
-      return DynamicObject.of(method.invoke(owner, args));
+      return DynamicObject.of(method.invoke(owner, positionalArgs));
     } catch (InvocationTargetException e) {
       throw e.getCause();
     }
