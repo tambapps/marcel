@@ -7,11 +7,11 @@ In this section we'll explore ways to use Marcel Collections APIs enhancements
 You can declare collections using the literal array syntax as shown below 
 
 ```marcel
-list<int> ints = [1, 2, 3, 4]
+List<int> ints = [1, 2, 3, 4]
 List list = [1 new Object(), 1..2]
 
 
-set<char> chars = [`A`, `C`, `B`, `D`]
+Set<char> chars = [`A`, `C`, `B`, `D`]
 ```
 ## Operate on Collections and Arrays
 
@@ -22,10 +22,10 @@ Collections and Arrays have useful functions allowing you to operate on them
 This operator allows you to map each element of the collection to another.
 
 ```marcel
-list<int> ints = [1, 2, 3]
-list<float> floats = ints.mapToFloat { it + 1f } // mapping to another collection of primitive
+List<int> ints = [1, 2, 3]
+List<float> floats = ints.mapToFloat { it + 1f } // mapping to another collection of primitive
 int[] intArray = [3, 4, 5, 6]
-list<int> otherInts = intArray.mapToInt { it - 1 }
+List<int> otherInts = intArray.mapToInt { it - 1 }
 
 List list = ints.map { new Foo(list) }
 // specified type explicitely
@@ -43,11 +43,11 @@ The `find` operator finds and return the first element of the collection/array m
 `findAll` returns a list of all elements matching the given predicate
 
 ```marcel
-set<int> ints = [1, 2, 3]
+Set<int> ints = [1, 2, 3]
 int myInt = ints.find { it == 2 }
 int[] intArray = [3, 4, 5, 6]
 int myInt2 = intArray.find { it == 5 }
-list<int> myInts = ints.findAll { it >= 2 }
+List<int> myInts = ints.findAll { it >= 2 }
 
 
 List list = [1..1, 2..3, 3..4]

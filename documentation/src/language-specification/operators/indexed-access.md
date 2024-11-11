@@ -6,7 +6,7 @@ items of your list using the same syntax as for an array
 
 ```marcel
 
-list<int> list = [1, 2, 3]
+List<int> list = [1, 2, 3]
 
 println(list[0])
 
@@ -30,7 +30,7 @@ This operator checks that the index provided is within the list/array's bounds (
 You can also set elements safely with the `putAtSafe` operator
 
 ```marcel
-list<int> = [1, 2, 3]
+List<int> = [1, 2, 3]
 
 list?[1] = 5 // will actually set the value
 list?[10] = 4 // will not set the value as the index is not within bounds

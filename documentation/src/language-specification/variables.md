@@ -8,7 +8,7 @@ Marcel variable declarations are the same as Java's
 int a = 2
 Object o = new Object()
 
-list<int> l = [1, 2] // collection of primivites
+List<int> l = [1, 2] // collection of primivites
 ````
 
 ### Multiple declarations

@@ -9,7 +9,7 @@ Let's learn by example
 
 ## Lists
 ````marcel
-list<int> list = [1, 2, 3, 4]
+List<int> list = [1, 2, 3, 4]
 
 println(list[1])
 
@@ -17,27 +17,27 @@ list[1] = 1
 println(list[1])
 ````
 
-Here, we're declaring a `list<int>`. This type isn't actually generic, it is in fact an IntList (you can see this class in the marcel stdlib), and the
+Here, we're declaring a `List<int>`. This type isn't actually generic, it is in fact an IntList (you can see this class in the marcel stdlib), and the
 literal array will be converted into a IntArrayList (a int list that store elements in an int array).
 
 
 Here is the list of all list of primitives supported
-- list\<int> -> IntList
-- list\<long> -> LongList
-- list\<float> -> FloatList
-- list\<double> -> DoubleList
-- list\<char> -> CharacterList
+- List\<int> -> IntList
+- List\<long> -> LongList
+- List\<float> -> FloatList
+- List\<double> -> DoubleList
+- List\<char> -> CharacterList
 
 ## Sets
 You can do the same with sets
 
 ````marcel
-set<int> mySet = [1, 2, 3, 3] // will actually contain just 1, 2 and 3
+Set<int> mySet = [1, 2, 3, 3] // will actually contain just 1, 2 and 3
 ````
 
 Here is the list of all set of primitives supported
-- set\<int> -> IntSet
-- set\<long> -> LongSet
-- set\<float> -> FloatSet
-- set\<double> -> DoubleSet
-- set\<char> -> CharacterSet
+- Set\<int> -> IntSet
+- Set\<long> -> LongSet
+- Set\<float> -> FloatSet
+- Set\<double> -> DoubleSet
+- Set\<char> -> CharacterSet

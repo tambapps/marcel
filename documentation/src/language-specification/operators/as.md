@@ -15,8 +15,8 @@ The smart cast can transform arrays into (primitive) lists/sets
 ```marcel
 int[] array = [1, 2, 3]
 
-list<int> intList = array as list<int>
-set<long> longSet = [1l, 2l, 3l] as set<long>
+List<int> intList = array as List<int>
+Set<long> longSet = [1l, 2l, 3l] as Set<long>
 ```
 ### Boolean (truthy) smart casting
 You can smart cast any value to a boolean. The value of the boolean will be determined based

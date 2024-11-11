@@ -5,7 +5,7 @@ is possible using the below syntax.
 
 ## Any
 ```marcel
-list<int> list = [1, 2, 3, 4]
+List<int> list = [1, 2, 3, 4]
 println(when int a in list |> a >= 3) // true
 ```
 
@@ -13,7 +13,7 @@ The `|>` arrow is used to check if at least one element matches the predicate.
 
 ## All
 ```marcel
-list<int> list = [1, 2, 3, 4]
+List<int> list = [1, 2, 3, 4]
 println(when int a in list &> a >= 3) // false
 ```
 

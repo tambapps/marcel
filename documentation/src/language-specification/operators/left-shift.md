@@ -3,7 +3,7 @@
 Left shift operator allows to add elements to collections
 
 ```marcel
-list<int> a = [1, 2, 3]
+List<int> a = [1, 2, 3]
 
 a << 2
 ```

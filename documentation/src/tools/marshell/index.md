@@ -31,7 +31,7 @@ a = "2" // Semantic Error: Expected expression of type int but gave String
 To specify explicitly the type of the global variable, use the `as` keyword.
 
 ```marcel
-a = [1, 2] as set<int>
+a = [1, 2] as Set<int>
 ```
 
 ### How global variables works

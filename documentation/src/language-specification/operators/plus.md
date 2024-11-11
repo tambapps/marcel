@@ -11,10 +11,10 @@ It works well with lists
 
 ```marcel
 
-list<int> myList1 = [1, 2, 3]
-list<int> myList2 = [4, 5, 6]
+List<int> myList1 = [1, 2, 3]
+List<int> myList2 = [4, 5, 6]
 
-list<int> myList3 = mySet1 + mySet2
+List<int> myList3 = mySet1 + mySet2
 println(myList3) // [1, 2, 3, 4, 5, 6]
 ```
 
@@ -22,10 +22,10 @@ and sets
 
 ```marcel
 
-set<int> mySet1 = [1, 2, 3]
-set<int> mySet2 = [3, 4, 5]
+Set<int> mySet1 = [1, 2, 3]
+Set<int> mySet2 = [3, 4, 5]
 
-set<int> mySetUnion = mySet1 + mySet2
+Set<int> mySetUnion = mySet1 + mySet2
 mySetUnion(myList3) // [1, 2, 3, 4, 5]
 ```
 
@@ -34,6 +34,6 @@ mySetUnion(myList3) // [1, 2, 3, 4, 5]
 You can also add different kind of collections. The type of the returned collection will be the same as the first operand
 
 ```marcel
-set<int> newSet = mySet1 + myList1
-list<int> newList = myList1 + mySet1
+Set<int> newSet = mySet1 + myList1
+List<int> newList = myList1 + mySet1
 ```
