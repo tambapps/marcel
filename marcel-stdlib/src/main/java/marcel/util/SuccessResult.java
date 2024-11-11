@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 @AllArgsConstructor
 final class SuccessResult<T> implements Result<T> {
@@ -71,6 +72,11 @@ final class SuccessResult<T> implements Result<T> {
 
     @Override
     public Result<T> recover(Function<Throwable, T> fallback) {
+        return this;
+    }
+
+    @Override
+    public Result<T> recover(Class<? extends Throwable> type, Supplier<T> fallback) {
         return this;
     }
 

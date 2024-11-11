@@ -3,6 +3,7 @@ package marcel.util;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Class representing an abstraction of the result of any operation having to possible outcomes: success or failure.
@@ -147,6 +148,15 @@ public interface Result<T> {
      * @return the encapsulated result of the given transform function applied to the encapsulated Throwable exception if this instance represents failure or the original encapsulated value if it is success.
      */
     Result<T> recover(Function<Throwable, T> fallback);
+
+    /**
+     * Returns the encapsulated result of the given fallback supplier applied to the encapsulated Throwable exception if this instance represents failure of the provided type or the original encapsulated value if it is success.
+     *
+     * @param type the exception class
+     * @param fallback the fallback supplier
+     * @return the encapsulated result of the given transform function applied to the encapsulated Throwable exception if this instance represents failure or the original encapsulated value if it is success.
+     */
+    Result<T> recover(Class<? extends Throwable> type, Supplier<T> fallback);
 
     Optional<T> toOptional();
 }

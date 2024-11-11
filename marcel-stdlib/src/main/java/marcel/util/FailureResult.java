@@ -6,6 +6,7 @@ import lombok.SneakyThrows;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 @AllArgsConstructor
 final class FailureResult<T> implements Result<T> {
@@ -66,6 +67,11 @@ final class FailureResult<T> implements Result<T> {
     @Override
     public Result<T> recover(Function<Throwable, T> fallback) {
         return new SuccessResult<>(fallback.apply(exception));
+    }
+
+    @Override
+    public Result<T> recover(Class<? extends Throwable> type, Supplier<T> fallback) {
+        return type.isInstance(exception) ? new SuccessResult<>(fallback.get()) : this;
     }
 
     @Override
