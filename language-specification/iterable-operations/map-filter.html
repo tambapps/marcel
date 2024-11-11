@@ -176,25 +176,25 @@
                         <h1 id="map-andor-filter"><a class="header" href="#map-andor-filter">Map and/or Filter</a></h1>
 <h2 id="map"><a class="header" href="#map">Map</a></h2>
 <p>You can create a new collection resulting of the mapping of another.</p>
-<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
-list&lt;int&gt; list2 = [for int i in list -&gt; i + 1] // [2, 3, 4, 5]
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
+List&lt;int&gt; list2 = [for int i in list -&gt; i + 1] // [2, 3, 4, 5]
 </code></pre>
 <h2 id="filter"><a class="header" href="#filter">Filter</a></h2>
 <p>Filtering is also possible using a similar syntax.</p>
-<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
-list&lt;int&gt; list2 = [for int i in list if i &lt;= 2] // [1, 2]
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
+List&lt;int&gt; list2 = [for int i in list if i &lt;= 2] // [1, 2]
 </code></pre>
 <h2 id="map-and-filter"><a class="header" href="#map-and-filter">Map and Filter</a></h2>
 <p>You can do both in one operation.</p>
-<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
-list&lt;float&gt; list2 = [for int i in list -&gt; i + 0.1f if i &lt;= 2] // [1.1f, 2.2f]
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
+List&lt;float&gt; list2 = [for int i in list -&gt; i + 0.1f if i &lt;= 2] // [1.1f, 2.2f]
 </code></pre>
 <h2 id="casting"><a class="header" href="#casting">Casting</a></h2>
 <p>All the above operations can return Lists, primitive Lists, Sets, or primitive Sets. The type is
 usually guessed by the compiler when possible (e.g. looking at the type of the variable you're trying to set), but
 you can explicitly specify the wanted type using the <a href="../operators/as.html">as operator</a>.</p>
-<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
-set&lt;int&gt; list2 = [for int i in list -&gt; i % 2] // [0, 1]
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
+Set&lt;int&gt; list2 = [for int i in list -&gt; i % 2] // [0, 1]
 println([for int i in list -&gt; Optional.of(i % 2)] as Set) // [Optional(0), Optional(1)]
 </code></pre>
 

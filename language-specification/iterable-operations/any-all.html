@@ -177,12 +177,12 @@
 <p>Checking if any/all elements of an Iterable, CharSequence or array all matches a given predicates
 is possible using the below syntax.</p>
 <h2 id="any"><a class="header" href="#any">Any</a></h2>
-<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
 println(when int a in list |&gt; a &gt;= 3) // true
 </code></pre>
 <p>The <code>|&gt;</code> arrow is used to check if at least one element matches the predicate.</p>
 <h2 id="all"><a class="header" href="#all">All</a></h2>
-<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
 println(when int a in list &amp;&gt; a &gt;= 3) // false
 </code></pre>
 <p>The <code>&amp;&gt;</code> arrow is used to check if all elements matches the predicate.</p>

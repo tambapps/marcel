@@ -334,7 +334,7 @@ println(Object.class)
 <pre><code class="language-marcel">int a = 2
 Object o = new Object()
 
-list&lt;int&gt; l = [1, 2] // collection of primivites
+List&lt;int&gt; l = [1, 2] // collection of primivites
 </code></pre>
 <h3 id="multiple-declarations"><a class="header" href="#multiple-declarations">Multiple declarations</a></h3>
 <p>Marcel supports multiple assignments in one statement</p>
@@ -511,34 +511,34 @@ related Object class (e.g. store an int into an Integer). The elements will be s
 <p>Iterating over such collections will only use primitives, no (un)boxing will be done.</p>
 <p>Let's learn by example</p>
 <h2 id="lists"><a class="header" href="#lists">Lists</a></h2>
-<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
 
 println(list[1])
 
 list[1] = 1
 println(list[1])
 </code></pre>
-<p>Here, we're declaring a <code>list&lt;int&gt;</code>. This type isn't actually generic, it is in fact an IntList (you can see this class in the marcel stdlib), and the
+<p>Here, we're declaring a <code>List&lt;int&gt;</code>. This type isn't actually generic, it is in fact an IntList (you can see this class in the marcel stdlib), and the
 literal array will be converted into a IntArrayList (a int list that store elements in an int array).</p>
 <p>Here is the list of all list of primitives supported</p>
 <ul>
-<li>list&lt;int&gt; -&gt; IntList</li>
-<li>list&lt;long&gt; -&gt; LongList</li>
-<li>list&lt;float&gt; -&gt; FloatList</li>
-<li>list&lt;double&gt; -&gt; DoubleList</li>
-<li>list&lt;char&gt; -&gt; CharacterList</li>
+<li>List&lt;int&gt; -&gt; IntList</li>
+<li>List&lt;long&gt; -&gt; LongList</li>
+<li>List&lt;float&gt; -&gt; FloatList</li>
+<li>List&lt;double&gt; -&gt; DoubleList</li>
+<li>List&lt;char&gt; -&gt; CharacterList</li>
 </ul>
 <h2 id="sets"><a class="header" href="#sets">Sets</a></h2>
 <p>You can do the same with sets</p>
-<pre><code class="language-marcel">set&lt;int&gt; mySet = [1, 2, 3, 3] // will actually contain just 1, 2 and 3
+<pre><code class="language-marcel">Set&lt;int&gt; mySet = [1, 2, 3, 3] // will actually contain just 1, 2 and 3
 </code></pre>
 <p>Here is the list of all set of primitives supported</p>
 <ul>
-<li>set&lt;int&gt; -&gt; IntSet</li>
-<li>set&lt;long&gt; -&gt; LongSet</li>
-<li>set&lt;float&gt; -&gt; FloatSet</li>
-<li>set&lt;double&gt; -&gt; DoubleSet</li>
-<li>set&lt;char&gt; -&gt; CharacterSet</li>
+<li>Set&lt;int&gt; -&gt; IntSet</li>
+<li>Set&lt;long&gt; -&gt; LongSet</li>
+<li>Set&lt;float&gt; -&gt; FloatSet</li>
+<li>Set&lt;double&gt; -&gt; DoubleSet</li>
+<li>Set&lt;char&gt; -&gt; CharacterSet</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="maps"><a class="header" href="#maps">Maps</a></h1>
 <p>Square brackets can also be used to define maps</p>
@@ -1131,24 +1131,24 @@ but there are also operators that can be used on specific types.</p>
 added to it.</p>
 <p>It works well with lists</p>
 <pre><code class="language-marcel">
-list&lt;int&gt; myList1 = [1, 2, 3]
-list&lt;int&gt; myList2 = [4, 5, 6]
+List&lt;int&gt; myList1 = [1, 2, 3]
+List&lt;int&gt; myList2 = [4, 5, 6]
 
-list&lt;int&gt; myList3 = mySet1 + mySet2
+List&lt;int&gt; myList3 = mySet1 + mySet2
 println(myList3) // [1, 2, 3, 4, 5, 6]
 </code></pre>
 <p>and sets</p>
 <pre><code class="language-marcel">
-set&lt;int&gt; mySet1 = [1, 2, 3]
-set&lt;int&gt; mySet2 = [3, 4, 5]
+Set&lt;int&gt; mySet1 = [1, 2, 3]
+Set&lt;int&gt; mySet2 = [3, 4, 5]
 
-set&lt;int&gt; mySetUnion = mySet1 + mySet2
+Set&lt;int&gt; mySetUnion = mySet1 + mySet2
 mySetUnion(myList3) // [1, 2, 3, 4, 5]
 </code></pre>
 <br/>
 <p>You can also add different kind of collections. The type of the returned collection will be the same as the first operand</p>
-<pre><code class="language-marcel">set&lt;int&gt; newSet = mySet1 + myList1
-list&lt;int&gt; newList = myList1 + mySet1
+<pre><code class="language-marcel">Set&lt;int&gt; newSet = mySet1 + myList1
+List&lt;int&gt; newList = myList1 + mySet1
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="minus-operator--"><a class="header" href="#minus-operator--">Minus operator (-)</a></h1>
 <p>The minus operator is used for arithmetic but in Marcel it also has other uses.</p>
@@ -1157,28 +1157,28 @@ list&lt;int&gt; newList = myList1 + mySet1
 of the first operand having removed all elements from the second operand if any.</p>
 <p>It works well with lists</p>
 <pre><code class="language-marcel">
-list&lt;int&gt; myList1 = [1, 2, 3]
-list&lt;int&gt; myList2 = [3, 4, 5]
+List&lt;int&gt; myList1 = [1, 2, 3]
+List&lt;int&gt; myList2 = [3, 4, 5]
 
-list&lt;int&gt; myList3 = mySet1 - mySet2
+List&lt;int&gt; myList3 = mySet1 - mySet2
 println(myList3) // [1, 2]
 </code></pre>
 <p>and sets</p>
 <pre><code class="language-marcel">
-set&lt;int&gt; mySet1 = [1, 2, 3]
-set&lt;int&gt; mySet2 = [3, 4, 5]
+Set&lt;int&gt; mySet1 = [1, 2, 3]
+Set&lt;int&gt; mySet2 = [3, 4, 5]
 
-set&lt;int&gt; mySetUnion = mySet1 - mySet2
+Set&lt;int&gt; mySetUnion = mySet1 - mySet2
 println(mySetUnion) // [1, 2]
 </code></pre>
 <br/>
 <p>You can also add different kind of collections. The type of the returned collection will be the same as the first operand</p>
-<pre><code class="language-marcel">set&lt;int&gt; newSet = mySet1 - myList1
-list&lt;int&gt; newList = myList1 - mySet1
+<pre><code class="language-marcel">Set&lt;int&gt; newSet = mySet1 - myList1
+List&lt;int&gt; newList = myList1 - mySet1
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="left-shift-operator-"><a class="header" href="#left-shift-operator-">Left Shift operator (&lt;&lt;)</a></h1>
 <p>Left shift operator allows to add elements to collections</p>
-<pre><code class="language-marcel">list&lt;int&gt; a = [1, 2, 3]
+<pre><code class="language-marcel">List&lt;int&gt; a = [1, 2, 3]
 
 a &lt;&lt; 2
 </code></pre>
@@ -1215,8 +1215,8 @@ can also convert the object to make it fit the target type.</p>
 <p>The smart cast can transform arrays into (primitive) lists/sets</p>
 <pre><code class="language-marcel">int[] array = [1, 2, 3]
 
-list&lt;int&gt; intList = array as list&lt;int&gt;
-set&lt;long&gt; longSet = [1l, 2l, 3l] as set&lt;long&gt;
+List&lt;int&gt; intList = array as List&lt;int&gt;
+Set&lt;long&gt; longSet = [1l, 2l, 3l] as Set&lt;long&gt;
 </code></pre>
 <h3 id="boolean-truthy-smart-casting"><a class="header" href="#boolean-truthy-smart-casting">Boolean (truthy) smart casting</a></h3>
 <p>You can smart cast any value to a boolean. The value of the boolean will be determined based
@@ -1257,7 +1257,7 @@ println(a !instanceof Long) // true
 but in Marcel you can also use it to access lists. You can get/set
 items of your list using the same syntax as for an array</p>
 <pre><code class="language-marcel">
-list&lt;int&gt; list = [1, 2, 3]
+List&lt;int&gt; list = [1, 2, 3]
 
 println(list[0])
 
@@ -1271,7 +1271,7 @@ list[1] = 4
 </code></pre>
 <p>This operator checks that the index provided is within the list/array's bounds (<code>0 &lt;= index &lt; length</code>)</p>
 <p>You can also set elements safely with the <code>putAtSafe</code> operator</p>
-<pre><code class="language-marcel">list&lt;int&gt; = [1, 2, 3]
+<pre><code class="language-marcel">List&lt;int&gt; = [1, 2, 3]
 
 list?[1] = 5 // will actually set the value
 list?[10] = 4 // will not set the value as the index is not within bounds
@@ -1361,37 +1361,37 @@ Foo foo = new Foo()
 <div style="break-before: page; page-break-before: always;"></div><h1 id="map-andor-filter"><a class="header" href="#map-andor-filter">Map and/or Filter</a></h1>
 <h2 id="map"><a class="header" href="#map">Map</a></h2>
 <p>You can create a new collection resulting of the mapping of another.</p>
-<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
-list&lt;int&gt; list2 = [for int i in list -&gt; i + 1] // [2, 3, 4, 5]
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
+List&lt;int&gt; list2 = [for int i in list -&gt; i + 1] // [2, 3, 4, 5]
 </code></pre>
 <h2 id="filter"><a class="header" href="#filter">Filter</a></h2>
 <p>Filtering is also possible using a similar syntax.</p>
-<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
-list&lt;int&gt; list2 = [for int i in list if i &lt;= 2] // [1, 2]
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
+List&lt;int&gt; list2 = [for int i in list if i &lt;= 2] // [1, 2]
 </code></pre>
 <h2 id="map-and-filter"><a class="header" href="#map-and-filter">Map and Filter</a></h2>
 <p>You can do both in one operation.</p>
-<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
-list&lt;float&gt; list2 = [for int i in list -&gt; i + 0.1f if i &lt;= 2] // [1.1f, 2.2f]
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
+List&lt;float&gt; list2 = [for int i in list -&gt; i + 0.1f if i &lt;= 2] // [1.1f, 2.2f]
 </code></pre>
 <h2 id="casting"><a class="header" href="#casting">Casting</a></h2>
 <p>All the above operations can return Lists, primitive Lists, Sets, or primitive Sets. The type is
 usually guessed by the compiler when possible (e.g. looking at the type of the variable you're trying to set), but
 you can explicitly specify the wanted type using the <a href="language-specification/iterable-operations/../operators/as.html">as operator</a>.</p>
-<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
-set&lt;int&gt; list2 = [for int i in list -&gt; i % 2] // [0, 1]
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
+Set&lt;int&gt; list2 = [for int i in list -&gt; i % 2] // [0, 1]
 println([for int i in list -&gt; Optional.of(i % 2)] as Set) // [Optional(0), Optional(1)]
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="any-all"><a class="header" href="#any-all">Any, All</a></h1>
 <p>Checking if any/all elements of an Iterable, CharSequence or array all matches a given predicates
 is possible using the below syntax.</p>
 <h2 id="any"><a class="header" href="#any">Any</a></h2>
-<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
 println(when int a in list |&gt; a &gt;= 3) // true
 </code></pre>
 <p>The <code>|&gt;</code> arrow is used to check if at least one element matches the predicate.</p>
 <h2 id="all"><a class="header" href="#all">All</a></h2>
-<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
 println(when int a in list &amp;&gt; a &gt;= 3) // false
 </code></pre>
 <p>The <code>&amp;&gt;</code> arrow is used to check if all elements matches the predicate.</p>
@@ -1409,21 +1409,21 @@ avoid any ambiguity</p>
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="find"><a class="header" href="#find">Find</a></h1>
 <p>This iterable operation allows to find an element on an Iterable, CharSequence or array and return it, or null.
-As the element may not be found, this operator always return an object, even for collections of primitive (e.g. Integer for a <code>list&lt;int&gt;</code>).</p>
-<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
+As the element may not be found, this operator always return an object, even for collections of primitive (e.g. Integer for a <code>List&lt;int&gt;</code>).</p>
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
 println(when int a in list -&gt; a % 2 == 0) // 2
 println(when int a in list -&gt; a % 2 == 5) // null
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="chain-operations"><a class="header" href="#chain-operations">Chain operations</a></h1>
 <p>You can chain multiple iterable operations in a same expression using the right shift (<code>&gt;&gt;</code>) operator.</p>
-<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
 println(list &gt;&gt; when int a -&gt; a % 2 == 0)
 println([for int a in list -&gt; a + 3] &gt;&gt; when int a -&gt; a % 2 == 0)
 </code></pre>
 <p>In those example you can see that we omit the <code>in something</code> part of the operations, this is because the left operand
 of the <code>&gt;&gt;</code> operator is used instead.</p>
 <p>So the above code is equivalent of the below code.</p>
-<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
 println(when int a in list -&gt; a % 2 == 0)
 println(when int a in [for int a in list -&gt; a + 3] -&gt; a % 2 == 0)
 </code></pre>
@@ -1822,20 +1822,20 @@ how to implement a given pattern (or play with a given feature) in Marcel.</p>
 <p>In this section we'll explore ways to use Marcel Collections APIs enhancements</p>
 <h2 id="literals"><a class="header" href="#literals">Literals</a></h2>
 <p>You can declare collections using the literal array syntax as shown below</p>
-<pre><code class="language-marcel">list&lt;int&gt; ints = [1, 2, 3, 4]
+<pre><code class="language-marcel">List&lt;int&gt; ints = [1, 2, 3, 4]
 List list = [1 new Object(), 1..2]
 
 
-set&lt;char&gt; chars = [`A`, `C`, `B`, `D`]
+Set&lt;char&gt; chars = [`A`, `C`, `B`, `D`]
 </code></pre>
 <h2 id="operate-on-collections-and-arrays"><a class="header" href="#operate-on-collections-and-arrays">Operate on Collections and Arrays</a></h2>
 <p>Collections and Arrays have useful functions allowing you to operate on them</p>
 <h3 id="map-1"><a class="header" href="#map-1">map</a></h3>
 <p>This operator allows you to map each element of the collection to another.</p>
-<pre><code class="language-marcel">list&lt;int&gt; ints = [1, 2, 3]
-list&lt;float&gt; floats = ints.mapToFloat { it + 1f } // mapping to another collection of primitive
+<pre><code class="language-marcel">List&lt;int&gt; ints = [1, 2, 3]
+List&lt;float&gt; floats = ints.mapToFloat { it + 1f } // mapping to another collection of primitive
 int[] intArray = [3, 4, 5, 6]
-list&lt;int&gt; otherInts = intArray.mapToInt { it - 1 }
+List&lt;int&gt; otherInts = intArray.mapToInt { it - 1 }
 
 List list = ints.map { new Foo(list) }
 // specified type explicitely
@@ -1847,11 +1847,11 @@ But for non-primitive lists, as Marcel <a href="guides/../language-specification
 <h3 id="find-findall"><a class="header" href="#find-findall">find, findAll</a></h3>
 <p>The <code>find</code> operator finds and return the first element of the collection/array matching the provided predicate (or null if no element matched).</p>
 <p><code>findAll</code> returns a list of all elements matching the given predicate</p>
-<pre><code class="language-marcel">set&lt;int&gt; ints = [1, 2, 3]
+<pre><code class="language-marcel">Set&lt;int&gt; ints = [1, 2, 3]
 int myInt = ints.find { it == 2 }
 int[] intArray = [3, 4, 5, 6]
 int myInt2 = intArray.find { it == 5 }
-list&lt;int&gt; myInts = ints.findAll { it &gt;= 2 }
+List&lt;int&gt; myInts = ints.findAll { it &gt;= 2 }
 
 
 List list = [1..1, 2..3, 3..4]
@@ -1960,7 +1960,7 @@ doSomething(a)
 a = "2" // Semantic Error: Expected expression of type int but gave String
 </code></pre>
 <p>To specify explicitly the type of the global variable, use the <code>as</code> keyword.</p>
-<pre><code class="language-marcel">a = [1, 2] as set&lt;int&gt;
+<pre><code class="language-marcel">a = [1, 2] as Set&lt;int&gt;
 </code></pre>
 <h3 id="how-global-variables-works"><a class="header" href="#how-global-variables-works">How global variables works</a></h3>
 <p>Global variables are variables that are stored in the script's <a href="https://github.com/tambapps/marcel/blob/main/marcel-stdlib/src/main/java/marcel/lang/Binding.java">Binding</a>. The means you could also

@@ -178,7 +178,7 @@
 but in Marcel you can also use it to access lists. You can get/set
 items of your list using the same syntax as for an array</p>
 <pre><code class="language-marcel">
-list&lt;int&gt; list = [1, 2, 3]
+List&lt;int&gt; list = [1, 2, 3]
 
 println(list[0])
 
@@ -192,7 +192,7 @@ list[1] = 4
 </code></pre>
 <p>This operator checks that the index provided is within the list/array's bounds (<code>0 &lt;= index &lt; length</code>)</p>
 <p>You can also set elements safely with the <code>putAtSafe</code> operator</p>
-<pre><code class="language-marcel">list&lt;int&gt; = [1, 2, 3]
+<pre><code class="language-marcel">List&lt;int&gt; = [1, 2, 3]
 
 list?[1] = 5 // will actually set the value
 list?[10] = 4 // will not set the value as the index is not within bounds

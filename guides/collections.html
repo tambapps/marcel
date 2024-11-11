@@ -177,20 +177,20 @@
 <p>In this section we'll explore ways to use Marcel Collections APIs enhancements</p>
 <h2 id="literals"><a class="header" href="#literals">Literals</a></h2>
 <p>You can declare collections using the literal array syntax as shown below</p>
-<pre><code class="language-marcel">list&lt;int&gt; ints = [1, 2, 3, 4]
+<pre><code class="language-marcel">List&lt;int&gt; ints = [1, 2, 3, 4]
 List list = [1 new Object(), 1..2]
 
 
-set&lt;char&gt; chars = [`A`, `C`, `B`, `D`]
+Set&lt;char&gt; chars = [`A`, `C`, `B`, `D`]
 </code></pre>
 <h2 id="operate-on-collections-and-arrays"><a class="header" href="#operate-on-collections-and-arrays">Operate on Collections and Arrays</a></h2>
 <p>Collections and Arrays have useful functions allowing you to operate on them</p>
 <h3 id="map"><a class="header" href="#map">map</a></h3>
 <p>This operator allows you to map each element of the collection to another.</p>
-<pre><code class="language-marcel">list&lt;int&gt; ints = [1, 2, 3]
-list&lt;float&gt; floats = ints.mapToFloat { it + 1f } // mapping to another collection of primitive
+<pre><code class="language-marcel">List&lt;int&gt; ints = [1, 2, 3]
+List&lt;float&gt; floats = ints.mapToFloat { it + 1f } // mapping to another collection of primitive
 int[] intArray = [3, 4, 5, 6]
-list&lt;int&gt; otherInts = intArray.mapToInt { it - 1 }
+List&lt;int&gt; otherInts = intArray.mapToInt { it - 1 }
 
 List list = ints.map { new Foo(list) }
 // specified type explicitely
@@ -202,11 +202,11 @@ But for non-primitive lists, as Marcel <a href="../language-specification/types/
 <h3 id="find-findall"><a class="header" href="#find-findall">find, findAll</a></h3>
 <p>The <code>find</code> operator finds and return the first element of the collection/array matching the provided predicate (or null if no element matched).</p>
 <p><code>findAll</code> returns a list of all elements matching the given predicate</p>
-<pre><code class="language-marcel">set&lt;int&gt; ints = [1, 2, 3]
+<pre><code class="language-marcel">Set&lt;int&gt; ints = [1, 2, 3]
 int myInt = ints.find { it == 2 }
 int[] intArray = [3, 4, 5, 6]
 int myInt2 = intArray.find { it == 5 }
-list&lt;int&gt; myInts = ints.findAll { it &gt;= 2 }
+List&lt;int&gt; myInts = ints.findAll { it &gt;= 2 }
 
 
 List list = [1..1, 2..3, 3..4]

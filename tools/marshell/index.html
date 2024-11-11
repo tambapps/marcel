@@ -193,7 +193,7 @@ doSomething(a)
 a = "2" // Semantic Error: Expected expression of type int but gave String
 </code></pre>
 <p>To specify explicitly the type of the global variable, use the <code>as</code> keyword.</p>
-<pre><code class="language-marcel">a = [1, 2] as set&lt;int&gt;
+<pre><code class="language-marcel">a = [1, 2] as Set&lt;int&gt;
 </code></pre>
 <h3 id="how-global-variables-works"><a class="header" href="#how-global-variables-works">How global variables works</a></h3>
 <p>Global variables are variables that are stored in the script's <a href="https://github.com/tambapps/marcel/blob/main/marcel-stdlib/src/main/java/marcel/lang/Binding.java">Binding</a>. The means you could also

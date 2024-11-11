@@ -179,34 +179,34 @@ related Object class (e.g. store an int into an Integer). The elements will be s
 <p>Iterating over such collections will only use primitives, no (un)boxing will be done.</p>
 <p>Let's learn by example</p>
 <h2 id="lists"><a class="header" href="#lists">Lists</a></h2>
-<pre><code class="language-marcel">list&lt;int&gt; list = [1, 2, 3, 4]
+<pre><code class="language-marcel">List&lt;int&gt; list = [1, 2, 3, 4]
 
 println(list[1])
 
 list[1] = 1
 println(list[1])
 </code></pre>
-<p>Here, we're declaring a <code>list&lt;int&gt;</code>. This type isn't actually generic, it is in fact an IntList (you can see this class in the marcel stdlib), and the
+<p>Here, we're declaring a <code>List&lt;int&gt;</code>. This type isn't actually generic, it is in fact an IntList (you can see this class in the marcel stdlib), and the
 literal array will be converted into a IntArrayList (a int list that store elements in an int array).</p>
 <p>Here is the list of all list of primitives supported</p>
 <ul>
-<li>list&lt;int&gt; -&gt; IntList</li>
-<li>list&lt;long&gt; -&gt; LongList</li>
-<li>list&lt;float&gt; -&gt; FloatList</li>
-<li>list&lt;double&gt; -&gt; DoubleList</li>
-<li>list&lt;char&gt; -&gt; CharacterList</li>
+<li>List&lt;int&gt; -&gt; IntList</li>
+<li>List&lt;long&gt; -&gt; LongList</li>
+<li>List&lt;float&gt; -&gt; FloatList</li>
+<li>List&lt;double&gt; -&gt; DoubleList</li>
+<li>List&lt;char&gt; -&gt; CharacterList</li>
 </ul>
 <h2 id="sets"><a class="header" href="#sets">Sets</a></h2>
 <p>You can do the same with sets</p>
-<pre><code class="language-marcel">set&lt;int&gt; mySet = [1, 2, 3, 3] // will actually contain just 1, 2 and 3
+<pre><code class="language-marcel">Set&lt;int&gt; mySet = [1, 2, 3, 3] // will actually contain just 1, 2 and 3
 </code></pre>
 <p>Here is the list of all set of primitives supported</p>
 <ul>
-<li>set&lt;int&gt; -&gt; IntSet</li>
-<li>set&lt;long&gt; -&gt; LongSet</li>
-<li>set&lt;float&gt; -&gt; FloatSet</li>
-<li>set&lt;double&gt; -&gt; DoubleSet</li>
-<li>set&lt;char&gt; -&gt; CharacterSet</li>
+<li>Set&lt;int&gt; -&gt; IntSet</li>
+<li>Set&lt;long&gt; -&gt; LongSet</li>
+<li>Set&lt;float&gt; -&gt; FloatSet</li>
+<li>Set&lt;double&gt; -&gt; DoubleSet</li>
+<li>Set&lt;char&gt; -&gt; CharacterSet</li>
 </ul>
 
                     </main>
