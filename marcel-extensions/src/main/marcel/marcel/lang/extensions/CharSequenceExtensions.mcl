@@ -10,6 +10,8 @@ extension class CharSequenceExtensions for CharSequence {
 
   fun char getAt(int i) -> charAt(i)
 
+  fun int size() -> length()
+
   fun Character getAtSafe(int i) -> i >= 0 && i < length() ? charAt(i) : null
 
   fun String getAt(IntRange r) {
