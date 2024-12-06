@@ -1182,6 +1182,12 @@ abstract class SemanticCstNodeVisitor(
         ReferenceNode(null, variable, rightOperand.token)
       }
 
+      is IncrCstNode -> {
+        val variable = symbolResolver.findFieldOrThrow(ownerType, rightOperand.value, rightOperand.token)
+        if (!variable.isStatic) throw MarcelSemanticException(node, "Variable $variable is not static")
+        checkVariableAccess(variable, node, checkGet = true, checkSet = true)
+        incr(rightOperand, variable, owner = null)
+      }
       else -> throw MarcelSemanticException(node, "Invalid dot operator use")
     }
 
