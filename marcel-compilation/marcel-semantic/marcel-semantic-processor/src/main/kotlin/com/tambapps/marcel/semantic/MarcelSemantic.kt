@@ -221,6 +221,9 @@ open class MarcelSemantic(
           cstFieldNode.access.isFinal, Visibility.fromTokenType(cstFieldNode.access.visibility),
           cstFieldNode.access.isStatic, cstFieldNode.tokenStart, cstFieldNode.tokenEnd
         )
+        if (classNode.fields.any { it.name == fieldNode.name }) {
+          throw MarcelSemanticException(cstFieldNode, "Field ${cstFieldNode.name} already exists")
+        }
         classNode.fields.add(fieldNode)
 
         if (cstFieldNode.initialValue != null) {
