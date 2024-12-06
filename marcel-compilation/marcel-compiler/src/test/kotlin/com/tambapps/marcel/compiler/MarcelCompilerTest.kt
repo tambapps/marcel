@@ -24,7 +24,7 @@ class MarcelCompilerTest: AbstractCompilerTest() {
   @Disabled
   @Test
   fun manualTest() {
-    val eval = eval("/tests/dynamic_object_methods.mcl")
+    val eval = eval("/tests/comparison.mcl")
     println(eval)
   }
 }

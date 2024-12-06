@@ -1254,8 +1254,9 @@ abstract class SemanticCstNodeVisitor(
       if (!left.type.isPrimitiveObjectType || !left.type.isPrimitiveObjectType) {
         throw MarcelSemanticException(leftOperand.token, "Cannot compare ${left.type} with ${right.type}")
       }
-      val leftType = left.type.asPrimitiveType
-      val rightType = right.type.asPrimitiveType
+      // getting the object type (not primitive because as one is originally an object, it can be null)
+      val leftType = left.type.asPrimitiveType.objectType
+      val rightType = right.type.asPrimitiveType.objectType
       val commonType = JavaType.commonType(leftType, rightType)
       nodeCreator.invoke(
         caster.cast(commonType, caster.cast(leftType, left)),

@@ -1,0 +1,13 @@
+import static org.junit.jupiter.api.Assertions.assertFalse
+import static org.junit.jupiter.api.Assertions.assertTrue
+
+Character c = null
+
+assertFalse(c == `z`)
+
+c = `e`
+assertFalse(c == `z`)
+
+c = `z`
+assertTrue(c == `z`)
+
