@@ -209,6 +209,8 @@ abstract class SemanticCstNodeVisitor(
     const val PUT_AT_SAFE_METHOD_NAME = "putAtSafe"
     const val GET_AT_METHOD_NAME = "getAt"
     const val GET_AT_SAFE_METHOD_NAME = "getAtSafe"
+    const val WHEN_METHOD_PREFIX = "__when_"
+    const val ASYNC_METHOD_PREFIX = "__async_"
   }
 
   final override val caster = AstNodeCaster(symbolResolver)
@@ -2061,7 +2063,7 @@ abstract class SemanticCstNodeVisitor(
     }
     val asyncReturnType = smartCastType ?: JavaType.void
     val asyncMethodNode = generateOrGetMethod(
-      "__async_", asyncMethodParameters,
+      ASYNC_METHOD_PREFIX, asyncMethodParameters,
       returnType = if (asyncReturnType == JavaType.void) JavaType.void else asyncReturnType.objectType, node
     )
     // generating method body
@@ -2149,9 +2151,6 @@ abstract class SemanticCstNodeVisitor(
 
   override fun visit(node: WhenCstNode, smartCastType: JavaType?) = switchWhen(node, smartCastType)
 
-  // TODO find a way to make local variables in switch/when read only to avoid ambiguity as modifying them
-  //  won't have any effect as switch/when are run in their own function created at compile time
-  //    same for async
   private fun switchWhen(
     node: WhenCstNode,
     smartCastType: JavaType?,
@@ -2219,7 +2218,7 @@ abstract class SemanticCstNodeVisitor(
     /*
      * generating method
      */
-    val whenMethod = generateOrGetMethod("__when_", whenMethodParameters, whenReturnType, node)
+    val whenMethod = generateOrGetMethod(WHEN_METHOD_PREFIX, whenMethodParameters, whenReturnType, node)
     val whenStatement = useScope(newMethodScope(whenMethod)) { visit(rootIfCstNode, smartCastType) }
     if (shouldReturnValue) {
       var tmpIfNode: IfStatementNode? = whenStatement
@@ -2771,7 +2770,14 @@ abstract class SemanticCstNodeVisitor(
       throw MarcelSemanticException(node, "Cannot get value of variable ${variable.name}")
     }
     if (checkSet && !variable.isSettable) {
-      throw MarcelSemanticException(node, "Cannot set value for variable ${variable.name}")
+      val message = when {
+        // prevented because it would be useless, as async/switch/when generate and are executed on a new method
+        (currentScope as? MethodScope)?.method?.name?.contains(WHEN_METHOD_PREFIX) == true -> "Cannot set value of local variables in switch/when. Use if/else instead"
+        (currentScope as? MethodScope)?.method?.name?.contains(ASYNC_METHOD_PREFIX) == true -> "Cannot set value of local variables in async blocks"
+        else -> "Cannot set value for variable ${variable.name}"
+      }
+      println((currentScope as? MethodScope)?.method?.name)
+      throw MarcelSemanticException(node, message)
     }
   }
 
