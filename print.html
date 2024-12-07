@@ -1625,27 +1625,6 @@ class Foo {
   String b = "b"
 }
 </code></pre>
-<h2 id="generate-an-all-args-constructor"><a class="header" href="#generate-an-all-args-constructor">Generate an all args constructor</a></h2>
-<p>You can generate a constructor for your class using the <code>withConstructor</code> flag.</p>
-<pre><code class="language-marcel">@data(withConstructor=true)
-class Foo {
-  int a
-  String b
-}
-println(new Foo(1, "b"))
-</code></pre>
-<p>This code will generate the constructor <code>constructor(this.a, this.b)</code>.</p>
-<p>To omit a particular field for the generated constructor, annotate the field with <code>@data.Exclude</code>.</p>
-<pre><code class="language-marcel">@data(withConstructor=true)
-class Foo {
-  int a
-  @data.Exclude
-  String b
-}
-
-println(new Foo(1))
-</code></pre>
-<p>This code will generate the constructor <code>constructor(this.a)</code>.</p>
 <h3 id="exclude-particular-fieldsmethods-2"><a class="header" href="#exclude-particular-fieldsmethods-2">Exclude particular fields/methods</a></h3>
 <p>You can use the <code>@data.Exclude</code>, <code>@comparable.Exclude</code> or <code>@stringify.Exclude</code> annotations to exclude properties from the sring representation,</p>
 <p><code>@data.Exclude</code> will exclude the property from both the <code>toString()</code>, and the <code>equals()</code>,<code>hashCode()</code> methods.
