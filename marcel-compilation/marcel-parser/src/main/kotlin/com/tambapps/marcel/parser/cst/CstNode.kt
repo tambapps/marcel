@@ -16,6 +16,7 @@ interface CstNode {
   val parent: CstNode?
   val tokenStart: LexToken
   val tokenEnd: LexToken
+  val value: Any?
 
   val token get() = tokenStart
 

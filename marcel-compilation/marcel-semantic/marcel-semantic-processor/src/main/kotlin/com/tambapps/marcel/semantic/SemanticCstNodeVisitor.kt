@@ -637,8 +637,8 @@ abstract class SemanticCstNodeVisitor(
     val referencedLocalVariables =
       LinkedHashSet<LocalVariable>() // want a constant order, so linkedhashset which is retains insertion order
     val consumer: (CstNode) -> Unit = { cstNode ->
-      if (cstNode is ReferenceCstNode && currentScope.hasLocalVariable(cstNode.value)) {
-        referencedLocalVariables.add(currentScope.findLocalVariable(cstNode.value)!!)
+      if ((cstNode is ReferenceCstNode || cstNode is IncrCstNode) && currentScope.hasLocalVariable(cstNode.value.toString())) {
+        referencedLocalVariables.add(currentScope.findLocalVariable(cstNode.value.toString())!!)
       }
     }
     bodyCstNodes.forEach { bodyCstNode -> bodyCstNode.forEach(consumer) }
@@ -2043,8 +2043,8 @@ abstract class SemanticCstNodeVisitor(
         node,
         "Cannot have return statement in an async block"
       )
-      else if (cstNode is ReferenceCstNode && currentMethodScope.hasLocalVariable(cstNode.value)) {
-        referencedLocalVariables.add(currentMethodScope.findLocalVariable(cstNode.value)!!)
+      else if ((cstNode is ReferenceCstNode || cstNode is IncrCstNode) && currentMethodScope.hasLocalVariable(cstNode.value.toString())) {
+        referencedLocalVariables.add(currentMethodScope.findLocalVariable(cstNode.value.toString())!!)
       }
     }
 
@@ -2054,8 +2054,10 @@ abstract class SemanticCstNodeVisitor(
     val asyncMethodParameters = mutableListOf<MethodParameter>()
     val asyncMethodArguments = mutableListOf<ReferenceNode>()
     for (lv in referencedLocalVariables) {
-      asyncMethodParameters.add(MethodParameter(lv.type, lv.name, isFinal = true))
-      asyncMethodArguments.add(ReferenceNode(variable = lv, token = node.token))
+      if (asyncMethodParameters.none { it.name == lv.name }) {
+        asyncMethodParameters.add(MethodParameter(lv.type, lv.name, isFinal = true))
+        asyncMethodArguments.add(ReferenceNode(variable = lv, token = node.token))
+      }
     }
     val asyncReturnType = smartCastType ?: JavaType.void
     val asyncMethodNode = generateOrGetMethod(
@@ -2105,7 +2107,8 @@ abstract class SemanticCstNodeVisitor(
           statements[statements.lastIndex] = ExpressionStatementNode(
             VariableAssignmentNode(
               localVariable = returnValueVar!!,
-              expression = caster.cast(asyncReturnType, lastStatement.expressionNode),
+              // always return an object
+              expression = caster.cast(asyncReturnType.objectType, lastStatement.expressionNode),
               node = node
             )
           )
@@ -2139,12 +2142,16 @@ abstract class SemanticCstNodeVisitor(
       node = node,
       owner = ThisReferenceNode(currentScope.classType, node.token),
       method = asyncMethodNode,
-      arguments = asyncMethodArguments
+      arguments = asyncMethodArguments,
+      castType = asyncReturnType
     )
   }
 
   override fun visit(node: WhenCstNode, smartCastType: JavaType?) = switchWhen(node, smartCastType)
 
+  // TODO find a way to make local variables in switch/when read only to avoid ambiguity as modifying them
+  //  won't have any effect as switch/when are run in their own function created at compile time
+  //    same for async
   private fun switchWhen(
     node: WhenCstNode,
     smartCastType: JavaType?,
