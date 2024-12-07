@@ -91,13 +91,12 @@ public class Threadmill {
    * @param collection a collection holding futures
    * @return all the results put into an array
    */
-  public Object[] await(Collection<?> collection) {
+  public static Object[] await(Collection<?> collection) {
     Object[] result = new Object[collection.size()];
     Iterator<?> iterator = collection.iterator();
     int i = 0;
     while (iterator.hasNext()) {
-      result[i] = await((Future<?>) iterator.next());
-
+      result[i++] = await((Future<?>) iterator.next());
     }
     return result;
   }
@@ -107,7 +106,7 @@ public class Threadmill {
    * @param array an array holding futures
    * @return all the results put into an array
    */
-  public Object[] await(Object[] array) {
+  public static Object[] await(Object[] array) {
     Object[] result = new Object[array.length];
     for (int i = 0; i < array.length; i++) {
       result[i] = await((Future<?>) array[i]);
