@@ -38,7 +38,7 @@ class ShellWorkoutManager @Inject constructor(
 
   suspend fun findByName(name: String) = shellWorkoutDao.findByName(name)
 
-  private fun listWorkInfo(): ListenableFuture<MutableList<WorkInfo>> {
+  private fun listWorkInfo(): ListenableFuture<List<WorkInfo>> {
     return workManager.getWorkInfos(WorkQuery.fromTags(SHELL_WORK_TAG))
   }
   fun existsByName(name: String): Boolean {

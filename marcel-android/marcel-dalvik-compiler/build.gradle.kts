@@ -8,7 +8,7 @@ val javaVersion: String = project.findProperty("java.version") as String
 
 android {
   namespace = "com.tambapps.marcel.android.compiler"
-  compileSdk = 34
+  compileSdk = 35
 
   defaultConfig {
     minSdk = 30

@@ -75,51 +75,52 @@ fun ShellScreen(
     .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
     TopBar(navController, viewModel, sessionId, shellsCount, createNewShellClick)
     val listState = rememberLazyListState()
-    SelectionContainer(
-      Modifier
-        .weight(1f)
-        .fillMaxWidth()) {
-      LazyColumn(
-        modifier = Modifier.fillMaxWidth(), state = listState
-      ) {
-        item {
-          HistoryText(text = HEADER)
-        }
-        items(viewModel.prompts) { prompt: Prompt ->
-          if (prompt.type == Prompt.Type.INPUT) {
-            Row {
-              HistoryText(
-                text = "> ",
-                padding = PaddingValues(top = 16.dp)
-              )
-              if (prompt.text is AnnotatedString) {
+    Column(modifier = Modifier
+      .weight(1f)) {
+      SelectionContainer {
+        LazyColumn(
+          modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), state = listState
+        ) {
+          item {
+            HistoryText(text = HEADER)
+          }
+          items(viewModel.prompts) { prompt: Prompt ->
+            if (prompt.type == Prompt.Type.INPUT) {
+              Row {
                 HistoryText(
-                  text = prompt.text, padding = PaddingValues(top = 16.dp)
+                  text = "> ",
+                  padding = PaddingValues(top = 16.dp)
                 )
-              } else {
-                HistoryText(
-                  text = prompt.text.toString(), padding = PaddingValues(top = 16.dp)
-                )
+                if (prompt.text is AnnotatedString) {
+                  HistoryText(
+                    text = prompt.text, padding = PaddingValues(top = 16.dp)
+                  )
+                } else {
+                  HistoryText(
+                    text = prompt.text.toString(), padding = PaddingValues(top = 16.dp)
+                  )
+                }
               }
-            }
-          } else if (prompt.value is Markdown) {
-            if (viewModel.mdComposer != null) {
-              viewModel.mdComposer!!.Markdown(node = prompt.value.node)
+            } else if (prompt.value is Markdown) {
+              if (viewModel.mdComposer != null) {
+                viewModel.mdComposer!!.Markdown(node = prompt.value.node)
+              } else {
+                HistoryText(text = prompt.text.toString())
+              }
             } else {
-              HistoryText(text = prompt.text.toString())
+              HistoryText(
+                text = prompt.text.toString(), color = when (prompt.type) {
+                  Prompt.Type.INPUT, Prompt.Type.STDOUT -> null
+                  Prompt.Type.SUCCESS_OUTPUT -> Color.Green
+                  Prompt.Type.ERROR_OUTPUT -> Color.Red
+                },
+                padding = PaddingValues(top = 8.dp)
+              )
             }
-          } else {
-            HistoryText(
-              text = prompt.text.toString(), color = when (prompt.type) {
-                Prompt.Type.INPUT, Prompt.Type.STDOUT -> null
-                Prompt.Type.SUCCESS_OUTPUT -> Color.Green
-                Prompt.Type.ERROR_OUTPUT -> Color.Red
-              },
-              padding = PaddingValues(top = 8.dp)
-            )
           }
         }
       }
+
     }
     LaunchedEffect(viewModel.prompts.size) {
       // make sure to scroll to the end each time a new item is added on the prompts list
