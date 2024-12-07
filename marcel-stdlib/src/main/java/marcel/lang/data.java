@@ -34,14 +34,6 @@ public @interface data {
    */
   boolean comparable() default false;
 
-  // TODO remove this arg. Marcel offers a simple way to declare constructors and it is always nice
-  //   to have explicit constructors declared
-  /**
-   * Whether to generate a constructor to initialize all class fields.
-   * @return whether to generate a constructor to initialize all class fields
-   */
-  boolean withConstructor() default false;
-
   /**
    * Whether to include getters for equals and hashCode (and toString, compareTo if corresponding flag enabled) methods
    */
