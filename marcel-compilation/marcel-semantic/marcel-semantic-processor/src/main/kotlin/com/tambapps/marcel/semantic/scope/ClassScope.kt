@@ -22,7 +22,7 @@ class ClassScope(
     var type: JavaType? = classType
     while (type != null) {
       val f = symbolResolver.findField(type, name)
-      if (f != null && f.isVisibleFrom(classType, Variable.Access.ANY)) return f
+      if (f != null) return f
       type = type.outerTypeName?.let { symbolResolver.of(it, emptyList(), LexToken.DUMMY) }
     }
 
