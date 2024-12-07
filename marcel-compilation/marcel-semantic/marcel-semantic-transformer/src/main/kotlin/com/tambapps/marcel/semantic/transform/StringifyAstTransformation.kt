@@ -1,5 +1,6 @@
 package com.tambapps.marcel.semantic.transform
 
+import com.tambapps.marcel.parser.cst.ClassCstNode
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.ast.Annotable
 import com.tambapps.marcel.semantic.ast.AnnotationNode
@@ -9,6 +10,7 @@ import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.SourceJavaType
 import marcel.lang.data
@@ -20,11 +22,15 @@ import java.util.Arrays
  */
 class StringifyAstTransformation : GenerateMethodAstTransformation() {
 
-  override fun generateSignatures(node: CstNode, javaType: SourceJavaType, annotation: AnnotationNode) = listOf(
-    signature(name = "toString", returnType = JavaType.String)
-  )
-
+  override fun generateSignatures(node: CstNode, javaType: SourceJavaType, annotation: AnnotationNode): List<MarcelMethod> {
+    return if (node is ClassCstNode && node.methods.none { method -> method.name == "toString" && method.parameters.isEmpty() })
+      listOf(signature(name = "toString", returnType = JavaType.String))
+    else emptyList()
+  }
   override fun generateMethodNodes(node: AstNode, classNode: ClassNode, annotation: AnnotationNode): List<MethodNode> {
+    if (classNode.methods.any { method -> method.name == "toString" && method.parameters.isEmpty() }) {
+      return emptyList()
+    }
     val stringParts = mutableListOf<ExpressionNode>(
       string(classNode.type.simpleName + "(")
     )
