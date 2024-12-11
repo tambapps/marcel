@@ -115,6 +115,9 @@ interface SymbolDefinerTrait {
     )
     if (isEnum) {
       classType.superType = java.lang.Enum::class.javaType.withGenericTypes(classType)
+      classType.directlyImplementedInterfaces.add(java.lang.Comparable::class.javaType.withGenericTypes(classType))
+      classType.directlyImplementedInterfaces.add(java.io.Serializable::class.javaType)
+      // TODO define static fields and static methods that enum class provides
     }
     defineType(classNode.token, classType)
     toDefineTypes.add(Triple(s, classNode, classType))

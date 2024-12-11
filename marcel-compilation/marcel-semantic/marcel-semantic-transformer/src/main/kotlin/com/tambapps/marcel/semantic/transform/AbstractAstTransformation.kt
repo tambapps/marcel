@@ -1,5 +1,6 @@
 package com.tambapps.marcel.semantic.transform
 
+import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.semantic.SemanticPurpose
 import com.tambapps.marcel.semantic.compose.AstNodeComposer
@@ -13,7 +14,7 @@ import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 /**
  * Base class for AST transformations providing handy methods to handle/generate AST nodes
  */
-abstract class AbstractAstTransformation : AstNodeComposer(), SyntaxTreeTransformation {
+abstract class AbstractAstTransformation : AstNodeComposer(LexToken.DUMMY, LexToken.DUMMY), SyntaxTreeTransformation {
 
   override lateinit var symbolResolver: MarcelSymbolResolver
   override lateinit var caster: AstNodeCaster

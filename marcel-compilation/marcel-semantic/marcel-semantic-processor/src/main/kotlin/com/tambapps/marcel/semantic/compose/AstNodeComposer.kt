@@ -37,6 +37,7 @@ import com.tambapps.marcel.semantic.method.MarcelMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.MethodScope
+import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.type.annotation.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.type.JavaArrayType
@@ -45,12 +46,16 @@ import com.tambapps.marcel.semantic.variable.LocalVariable
 import com.tambapps.marcel.semantic.variable.Variable
 import com.tambapps.marcel.semantic.variable.field.MarcelField
 import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
+import java.util.*
 
 /**
  * Abstract class providing handy methods to constructor AST nodes in an elegant way
  */
-abstract class AstNodeComposer : MarcelSemanticGenerator() {
-
+abstract class AstNodeComposer(
+  val tokenStart: LexToken,
+  val tokenEnd: LexToken,
+  scopeQueue: LinkedList<Scope> = LinkedList<Scope>(),
+) : MarcelSemanticGenerator(scopeQueue) {
   protected fun parameter(type: JavaType, name: String) = MethodParameter(type, name)
 
   protected fun signature(
@@ -80,7 +85,7 @@ abstract class AstNodeComposer : MarcelSemanticGenerator() {
     type: JavaAnnotationType,
     attributes: List<JavaAnnotation.Attribute> = emptyList()
   ): AnnotationNode {
-    return AnnotationNode(type, attributes, LexToken.DUMMY, LexToken.DUMMY)
+    return AnnotationNode(type, attributes, tokenStart, tokenEnd)
   }
 
   protected inline fun constructorNode(
@@ -96,7 +101,7 @@ abstract class AstNodeComposer : MarcelSemanticGenerator() {
     statementsSupplier.invoke(this)
 
     // return void because constructor
-    returnStmt(VoidExpressionNode(LexToken.DUMMY))
+    returnStmt(VoidExpressionNode(tokenStart))
   }
 
   protected inline fun methodNode(
@@ -115,8 +120,8 @@ abstract class AstNodeComposer : MarcelSemanticGenerator() {
       visibility,
       returnType,
       isStatic,
-      LexToken.DUMMY,
-      LexToken.DUMMY,
+      tokenStart,
+      tokenEnd,
       ownerClass
     )
     methodNode.annotations.addAll(annotations)
@@ -155,7 +160,14 @@ abstract class AstNodeComposer : MarcelSemanticGenerator() {
     if (defaultValue != null) {
       classNode.constructors.forEach {
         addStatementLast(
-          ExpressionStatementNode(varAssignExpr(fieldNode, defaultValue, thisRef())),
+          ExpressionStatementNode(VariableAssignmentNode(
+            variable = fieldNode,
+            expression = caster.cast(fieldNode.type, defaultValue),
+            owner = ThisReferenceNode(currentScope.classType, tokenStart),
+            tokenStart = tokenStart,
+            tokenEnd = tokenEnd
+          )
+          ),
           it.blockStatement
         )
       }
@@ -169,161 +181,163 @@ abstract class AstNodeComposer : MarcelSemanticGenerator() {
     isFinal: Boolean = false,
     isStatic: Boolean = false
   ): FieldNode {
-    return FieldNode(type, name, owner, annotations, isFinal, visibility, isStatic, LexToken.DUMMY, LexToken.DUMMY)
+    return FieldNode(type, name, owner, annotations, isFinal, visibility, isStatic, tokenStart, tokenEnd)
   }
 
-  protected fun superRef() = SuperReferenceNode(currentScope.classType.superType!!, LexToken.DUMMY)
-  protected fun ref(
-    field: MarcelField,
-    owner: ExpressionNode? = if (field.isMarcelStatic) null else ThisReferenceNode(
-      field.owner,
-      LexToken.DUMMY
-    )
-  ): ReferenceNode {
-    return ReferenceNode(
-      owner = owner,
-      variable = field,
-      token = LexToken.DUMMY
-    )
-  }
-
-  // 0 is outer, 1 is outer of outer, and so on...
-  protected fun outerRef(level: Int = 0) = ref(currentMethodScope.findField("this$$level")!!)
-
-  protected fun cast(
-    expr: ExpressionNode,
-    type: JavaType
-  ): ExpressionNode = caster.cast(type, expr)
-
-  protected fun ref(methodParameter: MethodParameter) = ReferenceNode(
-    owner = null,
-    variable = currentMethodScope.findLocalVariable(methodParameter.name)!!, token = LexToken.DUMMY
-  )
-
-  protected fun ref(lv: LocalVariable) = ReferenceNode(owner = null, variable = lv, token = LexToken.DUMMY)
-
-  protected fun string(value: String) = StringConstantNode(value, LexToken.DUMMY, LexToken.DUMMY)
-  protected fun string(parts: List<ExpressionNode>) =
-    StringNode(parts, LexToken.DUMMY, LexToken.DUMMY)
-
-  protected fun array(
-    asType: JavaArrayType,
-    vararg elements: ExpressionNode
-  ): ArrayNode {
-    return array(asType, elements.toMutableList())
-  }
-
-  protected fun array(
-    arrayType: JavaArrayType,
-    elements: List<ExpressionNode>
-  ): ArrayNode {
-    return ArrayNode(
-      if (elements is MutableList) elements else elements.toMutableList(),
-      LexToken.DUMMY, LexToken.DUMMY, arrayType
-    )
-  }
-
-  protected fun fCall(
-    name: String, arguments: List<ExpressionNode>,
-    owner: ExpressionNode,
-    castType: JavaType? = null
-  ): ExpressionNode {
-    val method = symbolResolver.findMethodOrThrow(owner.type, name, arguments, LexToken.DUMMY)
-    return fCall(LexToken.DUMMY, LexToken.DUMMY, method, arguments, owner, castType)
-  }
-
-  protected fun fCall(
-    method: MarcelMethod, arguments: List<ExpressionNode>,
-    owner: ExpressionNode,
-    castType: JavaType? = null
-  ): ExpressionNode {
-    return fCall(LexToken.DUMMY, LexToken.DUMMY, method, arguments, owner, castType)
-  }
-
-  protected fun fCall(
-    name: String, arguments: List<ExpressionNode>,
-    ownerType: JavaType,
-    castType: JavaType? = null
-  ): ExpressionNode {
-    val method = symbolResolver.findMethodOrThrow(ownerType, name, arguments, LexToken.DUMMY)
-    return fCall(LexToken.DUMMY, LexToken.DUMMY, method, arguments, null, castType)
-  }
-
-  protected fun constructorCall(
-    method: MarcelMethod,
-    arguments: List<ExpressionNode>
-  ): NewInstanceNode {
-    return NewInstanceNode(method.ownerClass, method, castedArguments(method, arguments), LexToken.DUMMY)
-  }
-
-  protected fun thisRef() = ThisReferenceNode(currentScope.classType, LexToken.DUMMY)
-
-  protected fun bool(b: Boolean) = BoolConstantNode(LexToken.DUMMY, b)
-  protected fun int(i: Int) = IntConstantNode(LexToken.DUMMY, i)
-
-  protected fun argRef(i: Int) =
-    ref(currentMethodScope.findLocalVariable(currentMethodScope.method.parameters[i].name)!!)
-
-  protected fun lvRef(name: String) = ref(currentMethodScope.findLocalVariable(name)!!)
-
-  protected fun notExpr(expr: ExpressionNode) = NotNode(expr)
-  protected fun isEqualExpr(
-    op1: ExpressionNode,
-    op2: ExpressionNode
-  ) = IsEqualNode(op1, op2)
-
-  protected fun isNotEqualExpr(
-    op1: ExpressionNode,
-    op2: ExpressionNode
-  ) = IsNotEqualNode(op1, op2)
-
-  protected fun isInstanceExpr(type: JavaType, op2: ExpressionNode) =
-    InstanceOfNode(type, op2, LexToken.DUMMY, LexToken.DUMMY)
-
-  protected fun varAssignExpr(
-    variable: Variable,
-    expr: ExpressionNode,
-    owner: ExpressionNode? = null
-  ): ExpressionNode {
-    return VariableAssignmentNode(
-      variable = variable,
-      expression = caster.cast(variable.type, expr),
-      owner = owner,
-      tokenStart = LexToken.DUMMY,
-      tokenEnd = LexToken.DUMMY
-    )
-  }
-
-  protected fun plus(
-    e1: ExpressionNode,
-    e2: ExpressionNode
-  ): ExpressionNode {
-    val commonType = JavaType.commonType(e1, e2)
-    return PlusNode(caster.cast(commonType, e1), caster.cast(commonType, e2))
-  }
-
-  protected fun minus(
-    e1: ExpressionNode,
-    e2: ExpressionNode
-  ): ExpressionNode {
-    val commonType = JavaType.commonType(e1, e2)
-    return MinusNode(caster.cast(commonType, e1), caster.cast(commonType, e2))
-  }
-
-  protected fun mul(
-    e1: ExpressionNode,
-    e2: ExpressionNode
-  ): ExpressionNode {
-    val commonType = JavaType.commonType(e1, e2)
-    return MulNode(caster.cast(commonType, e1), caster.cast(commonType, e2))
-  }
-
-  protected inner class StatementsComposer(
+  // TODO make it non inner class
+  inner class StatementsComposer(
     private val statements: MutableList<StatementNode>
   ) {
 
     fun addAllStmt(statements: List<StatementNode>) = this.statements.addAll(statements)
     fun addStmt(statement: StatementNode) = this.statements.add(statement)
+
+    fun superRef() = SuperReferenceNode(currentScope.classType.superType!!, tokenStart)
+
+    fun ref(
+      field: MarcelField,
+      owner: ExpressionNode? = if (field.isMarcelStatic) null else ThisReferenceNode(
+        field.owner,
+        tokenStart
+      )
+    ): ReferenceNode {
+      return ReferenceNode(
+        owner = owner,
+        variable = field,
+        token = tokenStart
+      )
+    }
+
+    // 0 is outer, 1 is outer of outer, and so on...
+    fun outerRef(level: Int = 0) = ref(currentMethodScope.findField("this$$level")!!)
+
+    fun cast(
+      expr: ExpressionNode,
+      type: JavaType
+    ): ExpressionNode = caster.cast(type, expr)
+
+    fun ref(methodParameter: MethodParameter) = ReferenceNode(
+      owner = null,
+      variable = currentMethodScope.findLocalVariable(methodParameter.name)!!, token = tokenStart
+    )
+
+    fun ref(lv: LocalVariable) = ReferenceNode(owner = null, variable = lv, token = tokenStart)
+
+    fun string(value: String) = StringConstantNode(value, tokenStart, tokenEnd)
+    fun string(parts: List<ExpressionNode>) =
+      StringNode(parts, tokenStart, tokenEnd)
+
+    fun array(
+      asType: JavaArrayType,
+      vararg elements: ExpressionNode
+    ): ArrayNode {
+      return array(asType, elements.toMutableList())
+    }
+
+    fun array(
+      arrayType: JavaArrayType,
+      elements: List<ExpressionNode>
+    ): ArrayNode {
+      return ArrayNode(
+        if (elements is MutableList) elements else elements.toMutableList(),
+        tokenStart, tokenEnd, arrayType
+      )
+    }
+
+    fun fCall(
+      name: String, arguments: List<ExpressionNode>,
+      owner: ExpressionNode,
+      castType: JavaType? = null
+    ): ExpressionNode {
+      val method = symbolResolver.findMethodOrThrow(owner.type, name, arguments, tokenStart)
+      return fCall(tokenStart, tokenEnd, method, arguments, owner, castType)
+    }
+
+    fun fCall(
+      method: MarcelMethod, arguments: List<ExpressionNode>,
+      owner: ExpressionNode,
+      castType: JavaType? = null
+    ): ExpressionNode {
+      return fCall(tokenStart, tokenEnd, method, arguments, owner, castType)
+    }
+
+    fun fCall(
+      name: String, arguments: List<ExpressionNode>,
+      ownerType: JavaType,
+      castType: JavaType? = null
+    ): ExpressionNode {
+      val method = symbolResolver.findMethodOrThrow(ownerType, name, arguments, tokenStart)
+      return fCall(tokenStart, tokenEnd, method, arguments, null, castType)
+    }
+
+    fun constructorCall(
+      method: MarcelMethod,
+      arguments: List<ExpressionNode>
+    ): NewInstanceNode {
+      return NewInstanceNode(method.ownerClass, method, castedArguments(method, arguments), tokenStart)
+    }
+
+    fun thisRef() = ThisReferenceNode(currentScope.classType, tokenStart)
+
+    fun bool(b: Boolean) = BoolConstantNode(tokenStart, b)
+    fun int(i: Int) = IntConstantNode(tokenStart, i)
+
+    fun argRef(i: Int) =
+      ref(currentMethodScope.findLocalVariable(currentMethodScope.method.parameters[i].name)!!)
+
+    fun lvRef(name: String) = ref(currentMethodScope.findLocalVariable(name)!!)
+
+    fun notExpr(expr: ExpressionNode) = NotNode(expr)
+    fun isEqualExpr(
+      op1: ExpressionNode,
+      op2: ExpressionNode
+    ) = IsEqualNode(op1, op2)
+
+    fun isNotEqualExpr(
+      op1: ExpressionNode,
+      op2: ExpressionNode
+    ) = IsNotEqualNode(op1, op2)
+
+    fun isInstanceExpr(type: JavaType, op2: ExpressionNode) =
+      InstanceOfNode(type, op2, tokenStart, tokenEnd)
+
+    fun varAssignExpr(
+      variable: Variable,
+      expr: ExpressionNode,
+      owner: ExpressionNode? = null
+    ): ExpressionNode {
+      return VariableAssignmentNode(
+        variable = variable,
+        expression = caster.cast(variable.type, expr),
+        owner = owner,
+        tokenStart = tokenStart,
+        tokenEnd = tokenEnd
+      )
+    }
+
+    fun plus(
+      e1: ExpressionNode,
+      e2: ExpressionNode
+    ): ExpressionNode {
+      val commonType = JavaType.commonType(e1, e2)
+      return PlusNode(caster.cast(commonType, e1), caster.cast(commonType, e2))
+    }
+
+    fun minus(
+      e1: ExpressionNode,
+      e2: ExpressionNode
+    ): ExpressionNode {
+      val commonType = JavaType.commonType(e1, e2)
+      return MinusNode(caster.cast(commonType, e1), caster.cast(commonType, e2))
+    }
+
+    fun mul(
+      e1: ExpressionNode,
+      e2: ExpressionNode
+    ): ExpressionNode {
+      val commonType = JavaType.commonType(e1, e2)
+      return MulNode(caster.cast(commonType, e1), caster.cast(commonType, e2))
+    }
 
     fun stmt(expr: ExpressionNode, add: Boolean = true): StatementNode {
       val statement = ExpressionStatementNode(expr)
@@ -345,7 +359,7 @@ abstract class AstNodeComposer : MarcelSemanticGenerator() {
     ): StatementNode {
       val statement =
         if (expr != null) ReturnStatementNode(caster.cast(currentMethodScope.method.returnType, expr))
-        else ReturnStatementNode(null, LexToken.DUMMY, LexToken.DUMMY)
+        else ReturnStatementNode(null, tokenStart, tokenEnd)
       if (add) statements.add(statement)
       return statement
     }
@@ -356,7 +370,7 @@ abstract class AstNodeComposer : MarcelSemanticGenerator() {
       falseStmt: StatementNode? = null,
       add: Boolean = true
     ): IfStatementNode {
-      val statement = IfStatementNode(caster.truthyCast(condition), trueStmt, falseStmt, LexToken.DUMMY, LexToken.DUMMY)
+      val statement = IfStatementNode(caster.truthyCast(condition), trueStmt, falseStmt, tokenStart, tokenEnd)
       if (add) statements.add(statement)
       return statement
     }
@@ -373,17 +387,17 @@ abstract class AstNodeComposer : MarcelSemanticGenerator() {
       val statement = IfStatementNode(
         caster.truthyCast(condition),
         trueStatementBlock, null,
-        LexToken.DUMMY, LexToken.DUMMY
+        tokenStart, tokenEnd
       )
 
       if (add) statements.add(statement)
       return statement
     }
 
-    private fun asBlockStatement() = BlockStatementNode(statements, LexToken.DUMMY, LexToken.DUMMY)
+    private fun asBlockStatement() = BlockStatementNode(statements, tokenStart, tokenEnd)
   }
 
-  protected fun newLambda(
+  fun newLambda(
     classNode: ClassNode,
     parameters: List<MethodParameter>, returnType: JavaType, interfaceType: JavaType,
     lambdaBodyStatementComposerFunc: StatementsComposer.() -> Unit
@@ -395,8 +409,8 @@ abstract class AstNodeComposer : MarcelSemanticGenerator() {
       lambdaMethodParameters = parameters,
       returnType = returnType,
       interfaceType = interfaceType,
-      tokenStart = LexToken.DUMMY,
-      tokenEnd = LexToken.DUMMY
+      tokenStart = tokenStart,
+      tokenEnd = tokenEnd
     )
 
     val statements = lambdaMethod.blockStatement.statements

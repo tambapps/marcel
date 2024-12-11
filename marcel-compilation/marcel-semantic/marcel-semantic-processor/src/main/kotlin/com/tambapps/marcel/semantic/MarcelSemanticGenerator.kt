@@ -53,7 +53,9 @@ import marcel.lang.lambda.Lambda9
 import marcel.lang.lambda.LongLambda1
 import java.util.*
 
-abstract class MarcelSemanticGenerator {
+abstract class MarcelSemanticGenerator(
+  val scopeQueue: LinkedList<Scope> = LinkedList<Scope>()
+) {
 
   /**
    * Object providing constants for class outer class levels.
@@ -72,10 +74,9 @@ abstract class MarcelSemanticGenerator {
     // OUTER.OUTER would be 1, and so on
   }
 
-  protected abstract val symbolResolver: MarcelSymbolResolver
-  protected abstract val caster: AstNodeCaster
+  abstract val symbolResolver: MarcelSymbolResolver
+  abstract val caster: AstNodeCaster
 
-  val scopeQueue = LinkedList<Scope>()
   protected val currentScope: Scope get() = scopeQueue.peek() // FIFO
   protected val currentMethodScope
     get() = currentScope as? MethodScope ?: throw MarcelSemanticException(

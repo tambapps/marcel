@@ -134,6 +134,8 @@ import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.ast.statement.ThrowNode
 import com.tambapps.marcel.semantic.ast.statement.TryNode
 import com.tambapps.marcel.semantic.ast.statement.WhileNode
+import com.tambapps.marcel.semantic.compose.AstNodeComposer
+import com.tambapps.marcel.semantic.compose.AstNodeComposer.StatementsComposer
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.exception.TypeNotFoundException
 import com.tambapps.marcel.semantic.exception.VariableNotFoundException
@@ -151,6 +153,7 @@ import com.tambapps.marcel.semantic.scope.ImportScope
 import com.tambapps.marcel.semantic.scope.LambdaMethodScope
 import com.tambapps.marcel.semantic.scope.MethodInnerScope
 import com.tambapps.marcel.semantic.scope.MethodScope
+import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.type.annotation.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
@@ -3116,4 +3119,19 @@ abstract class SemanticCstNodeVisitor(
     "Incompatible type for annotation member ${attribute.name} of annotation ${annotation}. Wanted ${attribute.type} but got ${attrValue.javaClass}"
   )
 
+  fun compose(methodeNode: MethodNode, statementsSupplier: StatementsComposer.() -> Unit) {
+    statementsSupplier.invoke(AstNodeComposerImpl(this, methodeNode.tokenStart, methodeNode.tokenEnd).StatementsComposer(methodeNode.blockStatement.statements))
+  }
+
+  private class AstNodeComposerImpl(
+    override val symbolResolver: MarcelSymbolResolver,
+    override val caster: AstNodeCaster,
+    scopeQueue: LinkedList<Scope>,
+    tokenStart: LexToken,
+    tokenEnd: LexToken,
+  ) : AstNodeComposer(tokenStart, tokenEnd, scopeQueue) {
+
+    constructor(semantic: MarcelSemanticGenerator,tokenStart: LexToken,
+                tokenEnd: LexToken,): this(semantic.symbolResolver, semantic.caster, semantic.scopeQueue, tokenStart, tokenEnd)
+  }
 }

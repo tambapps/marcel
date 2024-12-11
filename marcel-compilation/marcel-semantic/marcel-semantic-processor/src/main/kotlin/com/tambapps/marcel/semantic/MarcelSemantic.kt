@@ -26,6 +26,7 @@ import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.ThisConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
+import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
@@ -62,6 +63,9 @@ open class MarcelSemantic(
   val fileName: String,
 ) : SemanticCstNodeVisitor(symbolResolver, cst.packageName), ClassCstNodeVisitor<ClassNode> {
 
+  companion object {
+    private const val ENUM_VALUES_FIELD_NAME = "\$VALUES"
+  }
   fun resolveImports() {
     imports.add(ImportResolverGenerator.generateImports(symbolResolver, cst.imports, cst.extensionImports))
   }
@@ -214,37 +218,7 @@ open class MarcelSemantic(
       }
 
       processMethods()
-      node.fields.forEach { cstFieldNode ->
-        val fieldNode = FieldNode(
-          resolve(cstFieldNode.type), cstFieldNode.name, classType,
-          cstFieldNode.annotations.map { visit(it, ElementType.FIELD) },
-          cstFieldNode.access.isFinal, Visibility.fromTokenType(cstFieldNode.access.visibility),
-          cstFieldNode.access.isStatic, cstFieldNode.tokenStart, cstFieldNode.tokenEnd
-        )
-        if (classNode.fields.any { it.name == fieldNode.name }) {
-          throw MarcelSemanticException(cstFieldNode, "Field ${cstFieldNode.name} already exists")
-        }
-        classNode.fields.add(fieldNode)
-
-        if (cstFieldNode.initialValue != null) {
-          // need to create method scope to properly resolve everything
-          if (fieldNode.isStatic) {
-            val stInitMethod = getOrCreateStaticInitialisationMethod(classNode)
-            useScope(MethodScope(classScope, stInitMethod)) {
-              staticFieldInitialValueMap[fieldNode] = cstFieldNode.initialValue!!.accept(this@MarcelSemantic, fieldNode.type)
-            }
-          } else {
-            fieldInitialValueMap[fieldNode] = useScope(
-              MethodScope(
-                classScope,
-                JavaConstructorImpl(Visibility.PRIVATE, isVarArgs = false, classType, emptyList())
-              )
-            ) {
-              caster.cast(fieldNode.type, cstFieldNode.initialValue!!.accept(this@MarcelSemantic, fieldNode.type))
-            }
-          }
-        }
-      }
+      processFields()
 
       if (fieldInitialValueMap.isNotEmpty()) {
         val fieldAssignmentStatements = toFieldAssignmentStatements(classType, fieldInitialValueMap, false)
@@ -282,6 +256,40 @@ open class MarcelSemantic(
 
     protected open fun processMethods() {
       node.methods.forEach { classNode.methods.add(methodNode(classNode, it, classScope)) }
+    }
+
+    protected open fun processFields() {
+      node.fields.forEach { cstFieldNode ->
+        val fieldNode = FieldNode(
+          resolve(cstFieldNode.type), cstFieldNode.name, classType,
+          cstFieldNode.annotations.map { visit(it, ElementType.FIELD) },
+          cstFieldNode.access.isFinal, Visibility.fromTokenType(cstFieldNode.access.visibility),
+          cstFieldNode.access.isStatic, cstFieldNode.tokenStart, cstFieldNode.tokenEnd
+        )
+        if (classNode.fields.any { it.name == fieldNode.name }) {
+          throw MarcelSemanticException(cstFieldNode, "Field ${cstFieldNode.name} already exists")
+        }
+        classNode.fields.add(fieldNode)
+
+        if (cstFieldNode.initialValue != null) {
+          // need to create method scope to properly resolve everything
+          if (fieldNode.isStatic) {
+            val stInitMethod = getOrCreateStaticInitialisationMethod(classNode)
+            useScope(MethodScope(classScope, stInitMethod)) {
+              staticFieldInitialValueMap[fieldNode] = cstFieldNode.initialValue!!.accept(this@MarcelSemantic, fieldNode.type)
+            }
+          } else {
+            fieldInitialValueMap[fieldNode] = useScope(
+              MethodScope(
+                classScope,
+                JavaConstructorImpl(Visibility.PRIVATE, isVarArgs = false, classType, emptyList())
+              )
+            ) {
+              caster.cast(fieldNode.type, cstFieldNode.initialValue!!.accept(this@MarcelSemantic, fieldNode.type))
+            }
+          }
+        }
+      }
     }
   }
 
@@ -333,16 +341,87 @@ open class MarcelSemantic(
 
   private inner class EnumClassSemantic(node: EnumCstNode, classNode: ClassNode, classScope: ClassScope) :
     ClassSemantic<EnumCstNode>(node, classNode, classScope) {
-    override fun processMethods() {
-      // create static fields
-      node.names.forEachIndexed { index, name ->
-        val enumConstructor = classNode.constructors.first() // doesn't support declaring constructors for enums so we can just assume there is only one, the default one
-        val fieldNode = FieldNode(classType, name, classType, emptyList(), isFinal = true, Visibility.PUBLIC, isStatic = true, classNode.tokenStart, classNode.tokenEnd)
-        classNode.fields.add(fieldNode)
-        staticFieldInitialValueMap[fieldNode] = NewInstanceNode(classType, enumConstructor, listOf(StringConstantNode(name, node), IntConstantNode(node.token, index)), node.token)
 
+    private val valuesField = FieldNode(
+      type = classType.arrayType,
+      name = ENUM_VALUES_FIELD_NAME,
+      owner = classType, annotations = emptyList(), isFinal = true, Visibility.PRIVATE, isStatic = true, classNode.tokenStart, classNode.tokenEnd)
+
+    override fun processConstructors() {
+      // enum classes actually have one private constructor that is called to instantiate every instance
+      val constructorNode = MethodNode(
+        name = MarcelMethod.CONSTRUCTOR_NAME,
+        parameters = mutableListOf(
+          MethodParameter(JavaType.String, "name"),
+          MethodParameter(JavaType.int, "ordinal")
+        ),
+        visibility = Visibility.PRIVATE,
+        returnType = JavaType.void,
+        isStatic = false,
+        isVarArgs = false,
+        ownerClass = classType,
+        tokenStart = node.tokenStart,
+        tokenEnd = node.tokenEnd).apply {
+        blockStatement.add(ExpressionStatementNode(
+          SuperConstructorCallNode(
+            classNode.superType,
+            symbolResolver.findMethod(java.lang.Enum::class.javaType, MarcelMethod.CONSTRUCTOR_NAME, listOf(JavaType.String, JavaType.int))!!,
+            emptyList(),
+            classNode.tokenStart,
+            classNode.tokenEnd
+          )
+        ))
       }
 
+      classNode.methods.add(constructorNode)
+      symbolResolver.defineMethod(classType, constructorNode)
+    }
+
+    override fun processFields() {
+      val enumConstructor = classNode.constructors.first() // doesn't support declaring constructors for enums so we can just assume there is only one, the default one
+
+      // enum fields
+      val valueFields = node.names.mapIndexed { index, name ->
+        val fieldNode = FieldNode(
+          type = classType,
+          name = name,
+          owner = classType, annotations = emptyList(), isFinal = true, Visibility.PUBLIC, isStatic = true, classNode.tokenStart, classNode.tokenEnd)
+        classNode.fields.add(fieldNode)
+        staticFieldInitialValueMap[fieldNode] = NewInstanceNode(classType, enumConstructor, listOf(StringConstantNode(name, node), IntConstantNode(node.token, index)), node.token)
+        fieldNode
+      }
+
+      // values field, for values() method that will clone this array
+      classNode.fields.add(valuesField)
+
+      staticFieldInitialValueMap[valuesField] = ArrayNode(
+        elements = valueFields.asSequence().map { ReferenceNode(variable = it, token = node.tokenEnd) }.toMutableList(),
+        node = node,
+        type = classType.arrayType
+      )
+    }
+    override fun processMethods() {
+
+      val valuesMethod = MethodNode(
+        name = MarcelMethod.CONSTRUCTOR_NAME,
+        parameters = mutableListOf(
+          MethodParameter(JavaType.String, "name"),
+          MethodParameter(JavaType.int, "ordinal")
+        ),
+        visibility = Visibility.PRIVATE,
+        returnType = JavaType.void,
+        isStatic = false,
+        isVarArgs = false,
+        ownerClass = classType,
+        tokenStart = node.tokenStart,
+        tokenEnd = node.tokenEnd)
+
+      compose(valuesMethod) {
+        returnStmt(fCall(node = node, name = "clone", arguments = emptyList(), owner = ref(valuesField)))
+      }
+
+      // https://chatgpt.com/c/6759239f-ede4-8012-b99b-daa74614b684
+      // TODO implement comparable
      TODO("""Doesn't handle enum yet. Needs to
         - add values() method and valueOf
         - add private constructor. default constructor of enum should not be a noArg. It should have a name and ordinal argument and should call super(String name, int ordinal)

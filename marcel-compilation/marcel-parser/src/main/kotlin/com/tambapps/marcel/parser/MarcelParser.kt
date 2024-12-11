@@ -410,7 +410,9 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     }
 
     accept(TokenType.BRACKETS_CLOSE)
-    return EnumCstNode(sourceFile, classToken, previous, access, className, names)
+    return EnumCstNode(sourceFile, classToken, previous, access, className, names).apply {
+      this.annotations.addAll(annotations)
+    }
   }
 
   fun method(parentNode: ClassCstNode, annotations: List<AnnotationCstNode>, access: AccessCstNode, isOverride: Boolean = false): AbstractMethodCstNode {
