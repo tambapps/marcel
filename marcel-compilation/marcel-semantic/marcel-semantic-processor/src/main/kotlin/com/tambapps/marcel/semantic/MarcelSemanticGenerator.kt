@@ -22,6 +22,7 @@ import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
+import com.tambapps.marcel.semantic.compose.StatementsComposer
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.exception.MemberNotVisibleException
 import com.tambapps.marcel.semantic.extensions.javaType
@@ -89,7 +90,7 @@ abstract class MarcelSemanticGenerator(
       "Not in a inner scope"
     )
 
-  protected inline fun <T : Scope, U> useScope(scope: T, consumer: (T) -> U): U {
+  inline fun <T : Scope, U> useScope(scope: T, consumer: (T) -> U): U {
     scopeQueue.push(scope)
     val u = consumer.invoke(scope)
     scope.dispose()
@@ -260,20 +261,13 @@ abstract class MarcelSemanticGenerator(
     }
   }
 
-  /**
-   * Add statement last in the block, but before the return instruction if any
-   *
-   * @param statement the statement to add
-   * @param block the statement block
-   */
-  fun addStatementLast(statement: StatementNode, block: BlockStatementNode) {
-    addStatementLast(statement, block.statements)
-  }
+  inline fun compose(methodNode: MethodNode, composer: StatementsComposer.() -> Unit) {
+    val statements = methodNode.blockStatement.statements
 
-  private fun addStatementLast(statement: StatementNode, statements: MutableList<StatementNode>) {
-    if (statements.last() is ReturnStatementNode) {
-      statements.add(statements.lastIndex, statement)
-    } else statements.add(statement)
+    useScope(MethodScope(ClassScope(symbolResolver, methodNode.ownerClass, null, ImportResolver.DEFAULT_IMPORTS), methodNode)) {
+      val statementComposer = StatementsComposer(scopeQueue, caster, symbolResolver, statements, methodNode.tokenStart, methodNode.tokenEnd)
+      composer.invoke(statementComposer)
+    }
   }
 
   fun returnVoid(node: AstNode) = ReturnStatementNode(VoidExpressionNode(node.token), node.tokenStart, node.tokenEnd)

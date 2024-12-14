@@ -8,6 +8,7 @@ import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
+import com.tambapps.marcel.semantic.compose.StatementsComposer
 import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.MarcelMethod
@@ -130,7 +131,7 @@ class EqualsAndHashcodeAstTransformation : GenerateMethodAstTransformation() {
     return generatedMethods
   }
 
-  private fun hash(propertyExpr: ExpressionNode): ExpressionNode {
+  private fun StatementsComposer.hash(propertyExpr: ExpressionNode): ExpressionNode {
     val type = propertyExpr.type
     return when {
       type.isArray -> fCall(
@@ -143,7 +144,7 @@ class EqualsAndHashcodeAstTransformation : GenerateMethodAstTransformation() {
     }
   }
 
-  private fun notEqual(
+  private fun StatementsComposer.notEqual(
     ownPropertyRef: ExpressionNode,
     otherPropertyRef: ExpressionNode
   ): ExpressionNode {

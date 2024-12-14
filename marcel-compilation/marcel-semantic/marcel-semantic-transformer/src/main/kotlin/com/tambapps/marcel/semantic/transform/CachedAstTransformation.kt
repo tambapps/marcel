@@ -10,6 +10,7 @@ import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
+import com.tambapps.marcel.semantic.compose.StatementsComposer
 import com.tambapps.marcel.semantic.exception.MarcelSyntaxTreeTransformationException
 import com.tambapps.marcel.semantic.extensions.javaType
 
@@ -78,11 +79,12 @@ class CachedAstTransformation : GenerateMethodAstTransformation() {
     }
 
     val threadSafe = annotation.getAttribute(THREAD_SAFE_OPTION)?.value == true
-    val cacheExpr = getCacheExpression(classNode, originalMethod, threadSafe)
 
     // rewrite the original method
     originalMethod.blockStatement.statements.clear()
     addStatements(originalMethod) {
+      val cacheExpr = getCacheExpression(classNode, originalMethod, threadSafe)
+
       val isMultiParams = originalMethod.parameters.size > 1
       val cacheKeyRef = if (!isMultiParams) argRef(0)
       else {
@@ -157,7 +159,7 @@ class CachedAstTransformation : GenerateMethodAstTransformation() {
     return listOf(doComputeMethod)
   }
 
-  private fun getCacheExpression(
+  private fun StatementsComposer.getCacheExpression(
     classNode: ClassNode,
     originalMethod: MethodNode,
     threadSafe: Boolean

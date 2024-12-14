@@ -8,6 +8,7 @@ import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
+import com.tambapps.marcel.semantic.compose.StatementsComposer
 import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.MarcelMethod
@@ -31,53 +32,53 @@ class StringifyAstTransformation : GenerateMethodAstTransformation() {
     if (classNode.methods.any { method -> method.name == "toString" && method.parameters.isEmpty() }) {
       return emptyList()
     }
-    val stringParts = mutableListOf<ExpressionNode>(
-      string(classNode.type.simpleName + "(")
-    )
-    if (classNode.superType != JavaType.Object) {
-      stringParts.add(string("super="))
-      stringParts.add(toString(fCall(name = "toString", owner = superRef(), arguments = emptyList())))
-    }
-
-    for (field in classNode.fields) {
-      if (isAnnotableExcluded(field) || field.isStatic) continue
-      stringParts.add(string(field.name + "="))
-      stringParts.add(toString(ref(field)))
-      stringParts.add(string(", "))
-    }
-    if (annotation.getAttribute("includeGetters")?.value == true) {
-      for (method in classNode.methods) {
-        if (isAnnotableExcluded(method) || !method.isGetter
-          || method.isStatic
-        ) continue
-        stringParts.add(string(method.propertyName + "="))
-        stringParts.add(
-          toString(
-            fCall(
-              owner = thisRef(),
-              name = method.name,
-              arguments = emptyList()
-            )
-          )
-        )
-        stringParts.add(string(", "))
-      }
-    }
-
-    stringParts.removeAt(stringParts.size - 1) // remove trailing ", "
-    stringParts.add(string(")"))
     val methodNode = methodNode(
       ownerClass = classNode.type,
       name = "toString",
       returnType = JavaType.String,
       annotations = listOf(annotationNode(Override::class.javaAnnotationType))
     ) {
+      val stringParts = mutableListOf<ExpressionNode>(
+        string(classNode.type.simpleName + "(")
+      )
+      if (classNode.superType != JavaType.Object) {
+        stringParts.add(string("super="))
+        stringParts.add(toString(fCall(name = "toString", owner = superRef(), arguments = emptyList())))
+      }
+
+      for (field in classNode.fields) {
+        if (isAnnotableExcluded(field) || field.isStatic) continue
+        stringParts.add(string(field.name + "="))
+        stringParts.add(toString(ref(field)))
+        stringParts.add(string(", "))
+      }
+      if (annotation.getAttribute("includeGetters")?.value == true) {
+        for (method in classNode.methods) {
+          if (isAnnotableExcluded(method) || !method.isGetter
+            || method.isStatic
+          ) continue
+          stringParts.add(string(method.propertyName + "="))
+          stringParts.add(
+            toString(
+              fCall(
+                owner = thisRef(),
+                name = method.name,
+                arguments = emptyList()
+              )
+            )
+          )
+          stringParts.add(string(", "))
+        }
+      }
+
+      stringParts.removeAt(stringParts.size - 1) // remove trailing ", "
+      stringParts.add(string(")"))
       returnStmt(string(stringParts))
     }
     return listOf(methodNode)
   }
 
-  private fun toString(expr: ExpressionNode): ExpressionNode {
+  private fun StatementsComposer.toString(expr: ExpressionNode): ExpressionNode {
     return when {
       expr.type.isArray -> if (expr.type.asArrayType.elementsType.primitive) fCall(
         name = "toString",

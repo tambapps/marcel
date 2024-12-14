@@ -416,9 +416,11 @@ open class MarcelSemantic(
         tokenStart = node.tokenStart,
         tokenEnd = node.tokenEnd)
 
+      /*
       compose(valuesMethod) {
         returnStmt(fCall(node = node, name = "clone", arguments = emptyList(), owner = ref(valuesField)))
       }
+       */
 
       // https://chatgpt.com/c/6759239f-ede4-8012-b99b-daa74614b684
       // TODO implement comparable

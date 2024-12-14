@@ -7,6 +7,7 @@ import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
+import com.tambapps.marcel.semantic.compose.StatementsComposer
 import com.tambapps.marcel.semantic.exception.MarcelSyntaxTreeTransformationException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.MarcelMethod
@@ -85,7 +86,7 @@ class ComparableAstTransformation : GenerateMethodAstTransformation() {
   }
 
   // own and other should be of same type
-  private fun compare(
+  private fun StatementsComposer.compare(
     ownProperty: ExpressionNode,
     otherProperty: ExpressionNode,
     propertyName: String
@@ -106,7 +107,7 @@ class ComparableAstTransformation : GenerateMethodAstTransformation() {
         fCall(owner = ownProperty, name = "compareTo", arguments = listOf(otherProperty))
 
       else -> throw MarcelSyntaxTreeTransformationException(
-        this,
+        this@ComparableAstTransformation,
         ownProperty.token,
         "Property $propertyName is not comparable"
       )
