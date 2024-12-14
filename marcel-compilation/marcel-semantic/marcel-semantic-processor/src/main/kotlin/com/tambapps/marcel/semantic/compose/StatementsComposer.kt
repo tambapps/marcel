@@ -8,12 +8,14 @@ import com.tambapps.marcel.semantic.ast.expression.InstanceOfNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.StringNode
+import com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.SuperReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.StringConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.IsNotEqualNode
 import com.tambapps.marcel.semantic.ast.expression.operator.MinusNode
@@ -130,6 +132,14 @@ class StatementsComposer(
     return fCall(tokenStart, tokenEnd, method, arguments, null, castType)
   }
 
+  fun superConstructorCall(method: MarcelMethod, arguments: List<ExpressionNode>) = SuperConstructorCallNode(
+    method.ownerClass,
+    method,
+    arguments,
+    tokenStart,
+    tokenEnd
+  )
+
   fun constructorCall(
     method: MarcelMethod,
     arguments: List<ExpressionNode>
@@ -199,29 +209,30 @@ class StatementsComposer(
     return MulNode(caster.cast(commonType, e1), caster.cast(commonType, e2))
   }
 
-  fun stmt(expr: ExpressionNode, add: Boolean = true): StatementNode {
+  fun stmt(statement: StatementNode) {
+    statements.add(statement)
+  }
+
+  fun stmt(expr: ExpressionNode) {
     val statement = ExpressionStatementNode(expr)
-    if (add) statements.add(statement)
-    return statement
+    statements.add(statement)
   }
 
   fun varAssignStmt(
     variable: Variable,
     expr: ExpressionNode,
     owner: ExpressionNode? = null
-  ): StatementNode {
-    return stmt(varAssignExpr(variable, expr, owner))
-  }
+  ) = stmt(varAssignExpr(variable, expr, owner))
+
+  fun returnVoidStmt() = returnStmt(VoidExpressionNode(tokenStart, tokenEnd))
 
   fun returnStmt(
     expr: ExpressionNode? = null,
-    add: Boolean = true
-  ): StatementNode {
+  ) {
     val statement =
       if (expr != null) ReturnStatementNode(caster.cast(currentMethodScope.method.returnType, expr))
       else ReturnStatementNode(null, tokenStart, tokenEnd)
-    if (add) statements.add(statement)
-    return statement
+    statements.add(statement)
   }
 
   fun ifStmt(

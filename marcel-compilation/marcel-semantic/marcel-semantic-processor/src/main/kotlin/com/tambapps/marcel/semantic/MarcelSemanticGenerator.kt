@@ -261,17 +261,18 @@ abstract class MarcelSemanticGenerator(
     }
   }
 
-  inline fun compose(methodNode: MethodNode, composer: StatementsComposer.() -> Unit) {
-    val statements = methodNode.blockStatement.statements
-
-    useScope(MethodScope(ClassScope(symbolResolver, methodNode.ownerClass, null, ImportResolver.DEFAULT_IMPORTS), methodNode)) {
-      val statementComposer = StatementsComposer(scopeQueue, caster, symbolResolver, statements, methodNode.tokenStart, methodNode.tokenEnd)
-      composer.invoke(statementComposer)
+  inline fun compose(methodNode: MethodNode, composer: StatementsComposer.(MethodScope) -> Unit): MethodNode {
+    return compose(methodNode, MethodScope(ClassScope(symbolResolver, methodNode.ownerClass, null, ImportResolver.DEFAULT_IMPORTS), methodNode), composer)
+  }
+  inline fun compose(methodNode: MethodNode, methodScope: MethodScope, composer: StatementsComposer.(MethodScope) -> Unit): MethodNode {
+    useScope(methodScope) { scope ->
+      val statementComposer = StatementsComposer(scopeQueue, caster, symbolResolver, methodNode.blockStatement.statements, methodNode.tokenStart, methodNode.tokenEnd)
+      composer.invoke(statementComposer, scope)
     }
+    return methodNode
   }
 
   fun returnVoid(node: AstNode) = ReturnStatementNode(VoidExpressionNode(node.token), node.tokenStart, node.tokenEnd)
-  fun returnNull(node: AstNode) = ReturnStatementNode(NullValueNode(node.token), node.tokenStart, node.tokenEnd)
 
   fun getLambdaType(node: AstNode, lambdaParameters: List<MethodParameter>): JavaType {
     val returnType = JavaType.Object

@@ -28,6 +28,7 @@ import com.tambapps.marcel.semantic.ast.expression.ThisConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
@@ -36,7 +37,6 @@ import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.imprt.ImportResolver
 import com.tambapps.marcel.semantic.imprt.ImportResolverGenerator
 import com.tambapps.marcel.semantic.method.ExtensionMarcelMethod
 import com.tambapps.marcel.semantic.method.JavaConstructorImpl
@@ -349,28 +349,22 @@ open class MarcelSemantic(
 
     override fun processConstructors() {
       // enum classes actually have one private constructor that is called to instantiate every instance
-      val constructorNode = MethodNode(
-        name = MarcelMethod.CONSTRUCTOR_NAME,
-        parameters = mutableListOf(
-          MethodParameter(JavaType.String, "name"),
-          MethodParameter(JavaType.int, "ordinal")
-        ),
-        visibility = Visibility.PRIVATE,
-        returnType = JavaType.void,
-        isStatic = false,
-        isVarArgs = false,
-        ownerClass = classType,
-        tokenStart = node.tokenStart,
-        tokenEnd = node.tokenEnd).apply {
-        blockStatement.add(ExpressionStatementNode(
-          SuperConstructorCallNode(
-            classNode.superType,
-            symbolResolver.findMethod(java.lang.Enum::class.javaType, MarcelMethod.CONSTRUCTOR_NAME, listOf(JavaType.String, JavaType.int))!!,
-            emptyList(),
-            classNode.tokenStart,
-            classNode.tokenEnd
-          )
-        ))
+      val constructorNode = compose(
+        MethodNode(
+          name = MarcelMethod.CONSTRUCTOR_NAME,
+          parameters = mutableListOf(
+            MethodParameter(JavaType.String, "name"),
+            MethodParameter(JavaType.int, "ordinal")
+          ),
+          visibility = Visibility.PRIVATE,
+          returnType = JavaType.void,
+          isStatic = false,
+          isVarArgs = false,
+          ownerClass = classType,
+          tokenStart = node.tokenStart,
+          tokenEnd = node.tokenEnd)
+      ) {
+        stmt(superConstructorCall(symbolResolver.findMethod(java.lang.Enum::class.javaType, MarcelMethod.CONSTRUCTOR_NAME, listOf(JavaType.String, JavaType.int))!!, emptyList()))
       }
 
       classNode.methods.add(constructorNode)
@@ -402,7 +396,7 @@ open class MarcelSemantic(
     }
     override fun processMethods() {
 
-      val valuesMethod = MethodNode(
+      val valuesMethod = compose(MethodNode(
         name = MarcelMethod.CONSTRUCTOR_NAME,
         parameters = mutableListOf(
           MethodParameter(JavaType.String, "name"),
@@ -415,12 +409,10 @@ open class MarcelSemantic(
         ownerClass = classType,
         tokenStart = node.tokenStart,
         tokenEnd = node.tokenEnd)
-
-      /*
-      compose(valuesMethod) {
+      ) {
         returnStmt(fCall(node = node, name = "clone", arguments = emptyList(), owner = ref(valuesField)))
       }
-       */
+      classNode.methods.add(valuesMethod)
 
       // https://chatgpt.com/c/6759239f-ede4-8012-b99b-daa74614b684
       // TODO implement comparable
@@ -469,40 +461,24 @@ open class MarcelSemantic(
     scriptType: JavaType
   ): MethodNode {
     val parameter = MethodParameter(Binding::class.javaType, "binding")
-    val methodNode = MethodNode(
-      MarcelMethod.CONSTRUCTOR_NAME,
-      mutableListOf(parameter),
-      Visibility.PUBLIC,
-      JavaType.void,
-      false,
-      classNode.tokenStart,
-      classNode.tokenEnd,
-      JavaType.void
-    )
-    methodNode.blockStatement.addAll(
-      mutableListOf(
-        ExpressionStatementNode(
-
-          SuperConstructorCallNode(
-            classNode.superType,
-            symbolResolver.findMethod(scriptType, MarcelMethod.CONSTRUCTOR_NAME, listOf(parameter))!!,
-            listOf(
-              ReferenceNode(
-                variable = LocalVariable(
-                  parameter.type,
-                  parameter.name,
-                  parameter.type.nbSlots,
-                  1,
-                  false
-                ), token = classNode.token
-              )
-            ), classNode.tokenStart, classNode.tokenEnd
-          )
-        ),
-        ReturnStatementNode(VoidExpressionNode(methodNode.token), methodNode.tokenStart, methodNode.tokenEnd)
+    return compose(
+      MethodNode(
+        MarcelMethod.CONSTRUCTOR_NAME,
+        mutableListOf(parameter),
+        Visibility.PUBLIC,
+        JavaType.void,
+        false,
+        classNode.tokenStart,
+        classNode.tokenEnd,
+        JavaType.void
       )
-    )
-    return methodNode
+    ) {
+      stmt(superConstructorCall(
+        symbolResolver.findMethod(scriptType, MarcelMethod.CONSTRUCTOR_NAME, listOf(parameter))!!,
+        listOf(ref(parameter))
+      ))
+      returnVoidStmt()
+    }
   }
 
   private fun toFieldAssignmentStatements(
@@ -715,7 +691,7 @@ open class MarcelSemantic(
       if (methodeNode.returnType == JavaType.void || methodeNode.asyncReturnType == JavaType.void) {
         statements.add(returnVoid(methodeNode))
       } else if (scriptRunMethod) {
-        statements.add(returnNull(methodeNode))
+        statements.add(ReturnStatementNode(NullValueNode(methodeNode.token)))
       } else {
         throw MarcelSemanticException(
           methodeNode.token,
@@ -728,7 +704,7 @@ open class MarcelSemantic(
     } else {
       // generate doMethod which will have the actual statements
       val doMethodNode = MethodNode(
-        name = "_do" + methodeNode.name[0].uppercase() + methodeNode.name.substring(1),
+        name = "_doAsync" + methodeNode.name[0].uppercase() + methodeNode.name.substring(1),
         parameters = methodeNode.parameters,
         visibility = Visibility.INTERNAL,
         returnType = methodeNode.asyncReturnType!!,
@@ -761,54 +737,46 @@ open class MarcelSemantic(
         tokenStart = methodeNode.tokenStart,
         tokenEnd = methodeNode.tokenEnd
       )
-      useScope(
-        MethodScope(
-          ClassScope(symbolResolver, lambdaClassNode.type, null, ImportResolver.DEFAULT_IMPORTS),
-          lambdaMethod
+
+      compose(lambdaMethod) { scope ->
+        val fCall = fCall(
+          arguments = doMethodNode.parameters.map {
+            ReferenceNode(
+              owner = ThisReferenceNode(
+                lambdaClassNode.type,
+                lambdaClassNode.token
+              ), variable = scope.findField(it.name)!!, token = methodeNode.tokenStart
+            )
+          },
+          owner = if (doMethodNode.isStatic) null else getOuterLevelReference(
+            scope,
+            methodeNode.tokenStart,
+            ClassOuterLevels.OUTER
+          ),
+          method = doMethodNode,
+          tokenStart = methodeNode.tokenStart,
+          tokenEnd = methodeNode.tokenEnd
         )
-      ) { scope ->
-        lambdaMethod.blockStatement.statements.apply {
-          val fCall = fCall(
-            arguments = doMethodNode.parameters.map {
-              ReferenceNode(
-                owner = ThisReferenceNode(
-                  lambdaClassNode.type,
-                  lambdaClassNode.token
-                ), variable = scope.findField(it.name)!!, token = methodeNode.tokenStart
-              )
-            },
-            owner = if (doMethodNode.isStatic) null else getOuterLevelReference(
-              scope,
-              methodeNode.tokenStart,
-              ClassOuterLevels.OUTER
-            ),
-            method = doMethodNode,
-            tokenStart = methodeNode.tokenStart,
-            tokenEnd = methodeNode.tokenEnd
-          )
-          if (returnsVoid) {
-            add(ExpressionStatementNode(fCall))
-            add(returnVoid(lambdaMethod))
-          } else {
-            add(ReturnStatementNode(fCall))
-          }
+        if (returnsVoid) {
+          stmt(fCall)
+          returnStmt(VoidExpressionNode(lambdaMethod))
+        } else {
+          returnStmt(fCall)
         }
       }
 
       // now fill the method with the call to Threadmill
-      methodeNode.blockStatement.apply {
-        add(
-          ReturnStatementNode(
-            fCall(
-              ownerType = Threadmill::class.javaType,
-              name = if (returnsVoid) "runAsync" else "supplyAsync",
-              arguments = listOf(newInstanceNode),
-              tokenStart = methodeNode.tokenStart,
-              tokenEnd = methodeNode.tokenEnd
-            )
+      methodeNode.blockStatement.add(
+        ReturnStatementNode(
+          fCall(
+            ownerType = Threadmill::class.javaType,
+            name = if (returnsVoid) "runAsync" else "supplyAsync",
+            arguments = listOf(newInstanceNode),
+            tokenStart = methodeNode.tokenStart,
+            tokenEnd = methodeNode.tokenEnd
           )
         )
-      }
+      )
     }
   }
 

@@ -2066,35 +2066,17 @@ abstract class SemanticCstNodeVisitor(
       ASYNC_METHOD_PREFIX, asyncMethodParameters,
       returnType = if (asyncReturnType == JavaType.void) JavaType.void else asyncReturnType.objectType, node
     )
-    // generating method body
-    useScope(
+
+    compose(
+      asyncMethodNode,
       AsyncScope(
         symbolResolver = symbolResolver,
         method = asyncMethodNode,
         originalScope = currentMethodScope,
-      )
-    ) { asyncScope ->
+      )) { asyncScope ->
       // initializing Threadmill context. Needs to be declared BEFORE the block as we will initialize this variable
       // before running the block instructions
       val threadmillResourceVariable = asyncScope.addLocalVariable(Closeable::class.javaType)
-      val resourceAssignment = VariableAssignmentNode(
-        localVariable = threadmillResourceVariable,
-        expression = fCall(
-          node = node,
-          ownerType = Threadmill::class.javaType,
-          name = "startNewContext",
-          arguments = emptyList()
-        ),
-        node = node
-      )
-      val resourceCloseStmt = ExpressionStatementNode(
-        fCall(
-          node = node,
-          owner = ReferenceNode(variable = threadmillResourceVariable, token = node.token),
-          name = "close",
-          arguments = emptyList()
-        )
-      )
 
       // store return expression in local variable to be able to execute finally block
       val returnValueVar = if (asyncReturnType != JavaType.void) asyncScope.addLocalVariable(asyncMethodNode.returnType)
@@ -2118,28 +2100,39 @@ abstract class SemanticCstNodeVisitor(
           statements.add(returnVoid(asyncMethodNode))
         }
       }
-      asyncMethodNode.blockStatement.addAll(
-        listOf(
-          // Closeable context = Threadmill.startNewContext()
-          ExpressionStatementNode(resourceAssignment),
-          // try { runAsyncBlock() } finally { context.close() }
-          TryNode(
-            node = node,
-            tryStatementNode = asyncStatementTryBlock,
-            catchNodes = emptyList(),
-            finallyNode =
-            useInnerScope { finallyScope ->
-              TryNode.FinallyNode(
-                finallyScope.addLocalVariable(Throwable::class.javaType), block(resourceCloseStmt), returnValueVar
+
+      // Closeable context = Threadmill.startNewContext()
+      varAssignStmt(variable = threadmillResourceVariable, expr = fCall(
+        node = node,
+        ownerType = Threadmill::class.javaType,
+        name = "startNewContext",
+        arguments = emptyList()
+      ))
+
+      // try { runAsyncBlock() } finally { context.close() }
+      stmt(TryNode(
+        node = node,
+        tryStatementNode = asyncStatementTryBlock,
+        catchNodes = emptyList(),
+        finallyNode = useInnerScope { finallyScope ->
+          TryNode.FinallyNode(
+            finallyScope.addLocalVariable(Throwable::class.javaType), block(ExpressionStatementNode(
+              fCall(
+                node = node,
+                owner = ReferenceNode(variable = threadmillResourceVariable, token = node.token),
+                name = "close",
+                arguments = emptyList()
               )
-            }
+            )), returnValueVar
           )
-        )
-      )
+        }
+      ))
+
       if (asyncReturnType == JavaType.void) {
-        asyncMethodNode.blockStatement.add(returnVoid(asyncMethodNode))
+        returnVoidStmt()
       }
     }
+
     return fCall(
       node = node,
       owner = ThisReferenceNode(currentScope.classType, node.token),
