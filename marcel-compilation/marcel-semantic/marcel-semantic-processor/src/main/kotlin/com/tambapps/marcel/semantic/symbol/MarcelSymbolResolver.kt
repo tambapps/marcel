@@ -334,6 +334,13 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
       ?: method.ownerClass.superType?.let { findMethod(it, method.name, method.parameters) }
   }
 
+  fun findConstructor(
+    javaType: JavaType,
+    argumentTypes: List<JavaTyped>,
+    excludeInterfaces: Boolean = false,
+    token: LexToken = LexToken.DUMMY
+  ) = findMethod(javaType, MarcelMethod.CONSTRUCTOR_NAME, argumentTypes, excludeInterfaces, token)
+
   fun findMethod(
     javaType: JavaType,
     name: String,

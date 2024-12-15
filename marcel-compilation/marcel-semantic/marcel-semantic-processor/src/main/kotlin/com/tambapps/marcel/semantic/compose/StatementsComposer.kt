@@ -28,8 +28,10 @@ import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
+import com.tambapps.marcel.semantic.ast.statement.ThrowNode
 import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.MethodParameter
+import com.tambapps.marcel.semantic.scope.MethodScope
 import com.tambapps.marcel.semantic.scope.Scope
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.type.JavaArrayType
@@ -46,9 +48,9 @@ class StatementsComposer(
   scopeQueue: LinkedList<Scope>,
   override val caster: AstNodeCaster,
   override val symbolResolver: MarcelSymbolResolver,
-  private val statements: MutableList<StatementNode>,
-  private val tokenStart: LexToken,
-  private val tokenEnd: LexToken,
+  val statements: MutableList<StatementNode>,
+  val tokenStart: LexToken,
+  val tokenEnd: LexToken,
 ): MarcelSemanticGenerator(scopeQueue) {
 
   fun addAllStmt(statements: List<StatementNode>) = this.statements.addAll(statements)
@@ -246,9 +248,8 @@ class StatementsComposer(
     return statement
   }
 
-  fun ifStmt(
-    condition: ExpressionNode,
-    add: Boolean = true, trueStatementsComposerFunc: StatementsComposer.() -> Unit
+  inline fun ifStmt(
+    condition: ExpressionNode, trueStatementsComposerFunc: StatementsComposer.() -> Unit
   ): IfStatementNode {
     val trueStatementBlock = useInnerScope {
       val trueStatementsComposer = StatementsComposer(scopeQueue, caster, symbolResolver, mutableListOf(), tokenStart, tokenEnd)
@@ -261,9 +262,23 @@ class StatementsComposer(
       tokenStart, tokenEnd
     )
 
-    if (add) statements.add(statement)
+    statements.add(statement)
     return statement
   }
+
+  inline fun forInArrayStmt(array: ExpressionNode, forStatementsComposerFunc: StatementsComposer.(MethodScope, LocalVariable) -> Unit) {
+    useInnerScope { forScope ->
+      val iVar = forScope.addLocalVariable(JavaType.int, token = tokenStart)
+      val forVariable = forScope.addLocalVariable(array.type.asArrayType.elementsType, token = tokenStart)
+      val forStmt = forInArrayNode(tokenStart, tokenEnd, forScope = forScope, inNode = array, iVar = iVar, forVariable = forVariable) {
+        val forStatementsComposer = StatementsComposer(scopeQueue, caster, symbolResolver, mutableListOf(), tokenStart, tokenEnd)
+        forStatementsComposerFunc.invoke(forStatementsComposer, forScope, forVariable)
+        forStatementsComposer.asBlockStatement()
+      }
+      statements.add(forStmt)
+    }
+  }
+  fun throwStmt(expr: ExpressionNode) = stmt(ThrowNode(tokenStart, tokenEnd, expr))
 
   fun asBlockStatement() = BlockStatementNode(statements, tokenStart, tokenEnd)
 }

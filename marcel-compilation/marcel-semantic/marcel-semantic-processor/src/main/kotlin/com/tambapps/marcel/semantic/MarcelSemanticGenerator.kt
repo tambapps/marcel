@@ -8,6 +8,7 @@ import com.tambapps.marcel.semantic.ast.FieldNode
 import com.tambapps.marcel.semantic.ast.LambdaClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
+import com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.NewInstanceNode
@@ -15,11 +16,16 @@ import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.SuperConstructorCallNode
 import com.tambapps.marcel.semantic.ast.expression.ThisReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ArrayNode
+import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
+import com.tambapps.marcel.semantic.ast.expression.operator.IncrNode
+import com.tambapps.marcel.semantic.ast.expression.operator.LtNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
+import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
+import com.tambapps.marcel.semantic.ast.statement.ForStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.compose.StatementsComposer
@@ -52,6 +58,12 @@ import marcel.lang.lambda.Lambda7
 import marcel.lang.lambda.Lambda8
 import marcel.lang.lambda.Lambda9
 import marcel.lang.lambda.LongLambda1
+import marcel.lang.runtime.CharSequenceIterator
+import marcel.util.primitives.iterators.CharIterator
+import marcel.util.primitives.iterators.DoubleIterator
+import marcel.util.primitives.iterators.FloatIterator
+import marcel.util.primitives.iterators.IntIterator
+import marcel.util.primitives.iterators.LongIterator
 import java.util.*
 
 abstract class MarcelSemanticGenerator(
@@ -98,8 +110,8 @@ abstract class MarcelSemanticGenerator(
     return u
   }
 
-  protected fun newInnerScope() = MethodInnerScope(currentMethodScope)
-  protected inline fun <U> useInnerScope(consumer: (MethodInnerScope) -> U) = useScope(newInnerScope(), consumer)
+  fun newInnerScope() = MethodInnerScope(currentMethodScope)
+  inline fun <U> useInnerScope(consumer: (MethodInnerScope) -> U) = useScope(newInnerScope(), consumer)
 
   fun superNoArgConstructorCall(classNode: ClassNode, symbolResolver: MarcelSymbolResolver): SuperConstructorCallNode {
     val superConstructorMethod =
@@ -177,7 +189,7 @@ abstract class MarcelSemanticGenerator(
     return castedArguments
   }
 
-  protected fun fCall(
+  fun fCall(
     node: CstNode, name: String, arguments: List<ExpressionNode>,
     owner: ExpressionNode,
     castType: JavaType? = null
@@ -185,7 +197,7 @@ abstract class MarcelSemanticGenerator(
     return fCall(node, owner.type, name, arguments, owner, castType)
   }
 
-  protected fun fCall(
+  fun fCall(
     node: CstNode, ownerType: JavaType, name: String, arguments: List<ExpressionNode>,
     owner: ExpressionNode? = null,
     castType: JavaType? = null
@@ -194,7 +206,7 @@ abstract class MarcelSemanticGenerator(
     return fCall(node, method, arguments, owner, castType)
   }
 
-  protected fun fCall(
+  fun fCall(
     tokenStart: LexToken, tokenEnd: LexToken, ownerType: JavaType, name: String, arguments: List<ExpressionNode>,
     owner: ExpressionNode? = null,
     castType: JavaType? = null
@@ -203,7 +215,7 @@ abstract class MarcelSemanticGenerator(
     return fCall(tokenStart, tokenEnd, method, arguments, owner, castType)
   }
 
-  protected fun fCall(
+  fun fCall(
     node: CstNode,
     method: MarcelMethod,
     arguments: List<ExpressionNode>,
@@ -215,7 +227,7 @@ abstract class MarcelSemanticGenerator(
     method, arguments, owner, castType
   )
 
-  protected fun fCall(
+  fun fCall(
     tokenStart: LexToken,
     tokenEnd: LexToken,
     method: MarcelMethod,
@@ -243,6 +255,142 @@ abstract class MarcelSemanticGenerator(
       tokenEnd
     )
     return if (castType != null) caster.javaCast(castType, node) else node
+  }
+
+  fun forInArrayNode(
+    node: CstNode,
+    forScope: MethodScope,
+    inNode: ExpressionNode,
+    iVar: LocalVariable,
+    forVariable: LocalVariable,
+    statementNode: StatementNode
+  ): ForStatementNode {
+    return forInArrayNode(node, forScope, inNode, iVar, forVariable) { statementNode }
+  }
+
+  inline fun forInArrayNode(
+    node: CstNode, forScope: MethodScope, inNode: ExpressionNode, iVar: LocalVariable, forVariable: LocalVariable,
+    // lambda because we want the body to be semantically checked AFTER we created the iteratorVariable
+    bodyCreator: () -> StatementNode
+  ) = forInArrayNode(node.tokenStart, node.tokenEnd, forScope, inNode, iVar, forVariable, bodyCreator)
+
+  inline fun forInArrayNode(
+    tokenStart: LexToken, tokenEnd: LexToken, forScope: MethodScope, inNode: ExpressionNode, iVar: LocalVariable, forVariable: LocalVariable,
+    // lambda because we want the body to be semantically checked AFTER we created the iteratorVariable
+    bodyCreator: () -> StatementNode
+  ): ForStatementNode {
+    val iRef = ReferenceNode(variable = iVar, token = tokenStart)
+    val arrayVar = forScope.addLocalVariable(inNode.type)
+    val arrayRef = ReferenceNode(variable = arrayVar, token = tokenStart)
+
+    // init variable
+    val initStatement = BlockStatementNode(
+      mutableListOf(
+        ExpressionStatementNode(VariableAssignmentNode(localVariable = arrayVar, expression = inNode, tokenStart, tokenEnd)),
+        ExpressionStatementNode(
+          VariableAssignmentNode(
+            localVariable = iVar,
+            expression = IntConstantNode(tokenStart, 0),
+            tokenStart, tokenEnd
+          )
+        )
+      ), tokenStart, tokenEnd
+    )
+
+    // i < array.length
+    val condition = LtNode(
+      leftOperand = iRef,
+      rightOperand = ReferenceNode(owner = arrayRef, symbolResolver.findField(arrayVar.type, "length")!!, tokenStart)
+    )
+
+    // i++
+    val iteratorStatement = ExpressionStatementNode(IncrNode(tokenStart, iVar, 1, JavaType.int, false))
+
+    // body
+    val body = BlockStatementNode(
+      mutableListOf(
+        ExpressionStatementNode(
+          VariableAssignmentNode(
+            localVariable = forVariable, expression = caster.cast(
+              forVariable.type,
+              ArrayAccessNode(owner = arrayRef, indexNode = iRef, tokenStart, tokenEnd)
+            ), tokenStart, tokenEnd
+          )
+        ),
+        bodyCreator.invoke()
+      ), tokenStart, tokenEnd
+    )
+
+    val forNode = ForStatementNode(tokenStart, tokenEnd, initStatement, condition, iteratorStatement, body)
+
+    forScope.freeLocalVariable(iVar.name)
+    forScope.freeLocalVariable(arrayVar.name)
+    return forNode
+  }
+
+  fun forInIteratorNode(
+    node: CstNode, forScope: MethodScope, variable: LocalVariable, inNode: ExpressionNode,
+    bodtStmt: StatementNode
+  ) = forInIteratorNode(node, forScope, variable, inNode) { bodtStmt }
+
+  inline fun forInIteratorNode(
+    node: CstNode, forScope: MethodScope, variable: LocalVariable, inNode: ExpressionNode,
+    // lambda because we want the body to be semantically checked AFTER we created the iteratorVariable
+    bodyCreator: () -> StatementNode
+  ): ForInIteratorStatementNode {
+    val iteratorExpression = when {
+      inNode.type.implements(Iterable::class.javaType) -> fCall(node, inNode.type, "iterator", emptyList(), inNode)
+      inNode.type.implements(Iterator::class.javaType) -> inNode
+      inNode.type.implements(CharSequence::class.javaType) -> NewInstanceNode(
+        CharSequenceIterator::class.javaType,
+        symbolResolver.findMethod(CharSequenceIterator::class.javaType, MarcelMethod.CONSTRUCTOR_NAME, listOf(inNode))!!,
+        listOf(inNode),
+        node.token
+      )
+
+      else -> throw MarcelSemanticException(node.token, "Cannot iterate over an expression of type ${inNode.type}")
+    }
+    val iteratorExpressionType = iteratorExpression.type
+    return forScope.useTempLocalVariable(iteratorExpressionType) { iteratorVariable ->
+      val (nextMethodOwnerType, nextMethodName) = if (IntIterator::class.javaType.isAssignableFrom(
+          iteratorExpressionType
+        )
+      ) Pair(IntIterator::class.javaType, "nextInt")
+      else if (LongIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(
+        LongIterator::class.javaType,
+        "nextLong"
+      )
+      else if (FloatIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(
+        FloatIterator::class.javaType,
+        "nextFloat"
+      )
+      else if (DoubleIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(
+        DoubleIterator::class.javaType,
+        "nextDouble"
+      )
+      else if (CharIterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(
+        CharIterator::class.javaType, "nextChar"
+      )
+      else if (Iterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(Iterator::class.javaType, "next")
+      else throw UnsupportedOperationException("wtf")
+
+      val iteratorVarReference = ReferenceNode(variable = iteratorVariable, token = node.token)
+
+      val nextMethod = symbolResolver.findMethodOrThrow(nextMethodOwnerType, nextMethodName, emptyList())
+      // cast to fit the declared variable type
+      val nextMethodCall = caster.cast(
+        variable.type,
+        fCall(node = node, method = nextMethod, arguments = emptyList(), owner = iteratorVarReference)
+      )
+      ForInIteratorStatementNode(
+        node,
+        variable,
+        iteratorVariable,
+        iteratorExpression,
+        nextMethodCall,
+        bodyCreator.invoke()
+      )
+    }
   }
 
   fun staticInitialisationMethod(classNode: ClassNode): MethodNode {

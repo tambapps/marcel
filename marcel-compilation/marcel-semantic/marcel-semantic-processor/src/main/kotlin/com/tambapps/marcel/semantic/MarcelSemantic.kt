@@ -53,6 +53,8 @@ import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
 import marcel.lang.Binding
 import marcel.lang.compile.ExtensionClass
 import marcel.util.concurrent.Threadmill
+import java.lang.IllegalArgumentException
+import java.lang.NullPointerException
 import java.lang.annotation.ElementType
 import java.util.concurrent.Callable
 
@@ -339,6 +341,9 @@ open class MarcelSemantic(
     }
   }
 
+
+  // TODO test enum classes
+  // note to self https://chatgpt.com/c/6759239f-ede4-8012-b99b-daa74614b684
   private inner class EnumClassSemantic(node: EnumCstNode, classNode: ClassNode, classScope: ClassScope) :
     ClassSemantic<EnumCstNode>(node, classNode, classScope) {
 
@@ -364,7 +369,7 @@ open class MarcelSemantic(
           tokenStart = node.tokenStart,
           tokenEnd = node.tokenEnd)
       ) {
-        stmt(superConstructorCall(symbolResolver.findMethod(java.lang.Enum::class.javaType, MarcelMethod.CONSTRUCTOR_NAME, listOf(JavaType.String, JavaType.int))!!, emptyList()))
+        stmt(superConstructorCall(symbolResolver.findConstructor(java.lang.Enum::class.javaType, listOf(JavaType.String, JavaType.int))!!, emptyList()))
       }
 
       classNode.methods.add(constructorNode)
@@ -394,32 +399,62 @@ open class MarcelSemantic(
         type = classType.arrayType
       )
     }
-    override fun processMethods() {
 
+    override fun processMethods() {
       val valuesMethod = compose(MethodNode(
-        name = MarcelMethod.CONSTRUCTOR_NAME,
-        parameters = mutableListOf(
-          MethodParameter(JavaType.String, "name"),
-          MethodParameter(JavaType.int, "ordinal")
-        ),
-        visibility = Visibility.PRIVATE,
-        returnType = JavaType.void,
-        isStatic = false,
+        name = "values",
+        parameters = mutableListOf(),
+        visibility = Visibility.PUBLIC,
+        returnType = valuesField.type,
+        isStatic = true,
         isVarArgs = false,
         ownerClass = classType,
         tokenStart = node.tokenStart,
         tokenEnd = node.tokenEnd)
       ) {
-        returnStmt(fCall(node = node, name = "clone", arguments = emptyList(), owner = ref(valuesField)))
+        returnStmt(fCall(name = "clone", arguments = emptyList(), owner = ref(valuesField)))
       }
-      classNode.methods.add(valuesMethod)
 
-      // https://chatgpt.com/c/6759239f-ede4-8012-b99b-daa74614b684
-      // TODO implement comparable
-     TODO("""Doesn't handle enum yet. Needs to
-        - add values() method and valueOf
-        - add private constructor. default constructor of enum should not be a noArg. It should have a name and ordinal argument and should call super(String name, int ordinal)
-      """.trimIndent())
+      val valueOfMethod = compose(MethodNode(
+        name = "valueOf",
+        parameters = mutableListOf(
+          MethodParameter(JavaType.String, "name"),
+        ),
+        visibility = Visibility.PUBLIC,
+        returnType = classNode.type,
+        isStatic = true,
+        isVarArgs = false,
+        ownerClass = classType,
+        tokenStart = node.tokenStart,
+        tokenEnd = node.tokenEnd)
+      ) { scope ->
+        val nameParameterRef = ref(scope.getMethodParameterVariable(0))
+        ifStmt(isEqualExpr(nameParameterRef, NullValueNode(node.token))) {
+          throwStmt(constructorCall(
+            method = symbolResolver.findConstructor(NullPointerException::class.javaType, listOf(JavaType.String))!!,
+            listOf(string("Name is null")
+            )
+          ))
+        }
+        forInArrayStmt(array = ref(valuesField)) { _, forVar ->
+          ifStmt(isEqualExpr(
+            fCall(name = "name", arguments = emptyList(), owner = ref(forVar)),
+            nameParameterRef
+          )) {
+            returnStmt(ref(forVar))
+          }
+        }
+        throwStmt(constructorCall(
+          method = symbolResolver.findConstructor(IllegalArgumentException::class.javaType, listOf(JavaType.String))!!,
+          listOf(string(listOf(string("No enum constant ${classNode.type}."), nameParameterRef))
+          )
+        ))
+      }
+
+      classNode.methods.apply {
+        add(valuesMethod)
+        add(valueOfMethod)
+      }
       super.processMethods()
     }
   }
@@ -474,7 +509,7 @@ open class MarcelSemantic(
       )
     ) {
       stmt(superConstructorCall(
-        symbolResolver.findMethod(scriptType, MarcelMethod.CONSTRUCTOR_NAME, listOf(parameter))!!,
+        symbolResolver.findConstructor(scriptType, listOf(parameter))!!,
         listOf(ref(parameter))
       ))
       returnVoidStmt()
@@ -556,7 +591,7 @@ open class MarcelSemantic(
       || firstStatement.expressionNode !is ThisConstructorCallNode && firstStatement.expressionNode !is SuperConstructorCallNode
     ) {
       val superType = classScope.classType.superType!!
-      val superConstructorMethod = symbolResolver.findMethod(superType, MarcelMethod.CONSTRUCTOR_NAME, emptyList())
+      val superConstructorMethod = symbolResolver.findConstructor(superType, emptyList())
         ?: throw MarcelSemanticException(constructorNode.token, "Class $superType doesn't have a no-arg constructor")
       constructorNode.blockStatement.statements.add(
         0,
