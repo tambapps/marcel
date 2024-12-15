@@ -398,8 +398,9 @@ abstract class MarcelSemanticGenerator(
       ownerClass = classNode.type,
       name = MarcelMethod.STATIC_INITIALIZATION_BLOCK,
       parameters = mutableListOf(),
-      visibility = Visibility.PRIVATE,
+      visibility = Visibility.PUBLIC,
       isStatic = true,
+      isSynthetic = true,
       returnType = JavaType.void,
       tokenStart = classNode.tokenStart,
       tokenEnd = classNode.tokenEnd
@@ -498,7 +499,7 @@ abstract class MarcelSemanticGenerator(
       // if we're here we know the context is not static as the above method only generates fields if it is not static
       val outerClassField = outerClassFields[i]
       // adding at the beginning
-      lambdaConstructor.parameters.add(i, MethodParameter(outerClassField.type, outerClassField.name))
+      lambdaConstructor.parameters.add(i, MethodParameter(outerClassField.type, outerClassField.name, isSynthetic = true))
       val (outerLevel, _) = outerLevel(token, lambdaNode.type, outerClassField.type)
         ?: throw MarcelSemanticException(token, "Lambda cannot be generated in this context")
 
@@ -608,9 +609,10 @@ abstract class MarcelSemanticGenerator(
       isStatic = outerClassNode.isStatic,
       isScript = false,
       isEnum = false,
+      isFinal = true,
       fileName = outerClassNode.fileName,
-      tokenStart,
-      tokenEnd
+      tokenStart = tokenStart,
+      tokenEnd = tokenEnd
     )
     outerClassNode.innerClasses.add(lambdaClassNode)
 

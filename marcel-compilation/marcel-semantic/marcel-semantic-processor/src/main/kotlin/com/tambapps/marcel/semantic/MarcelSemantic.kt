@@ -41,6 +41,7 @@ import com.tambapps.marcel.semantic.imprt.ImportResolverGenerator
 import com.tambapps.marcel.semantic.method.ExtensionMarcelMethod
 import com.tambapps.marcel.semantic.method.JavaConstructorImpl
 import com.tambapps.marcel.semantic.method.MarcelMethod
+import com.tambapps.marcel.semantic.method.MarcelMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.scope.MethodScope
@@ -49,6 +50,7 @@ import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.type.annotation.JavaAnnotation
 import com.tambapps.marcel.semantic.type.SourceJavaType
 import com.tambapps.marcel.semantic.variable.LocalVariable
+import com.tambapps.marcel.semantic.variable.field.JavaClassFieldImpl
 import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
 import marcel.lang.Binding
 import marcel.lang.compile.ExtensionClass
@@ -114,12 +116,18 @@ open class MarcelSemantic(
     val superType = classCstNode.superType?.let { resolve(it) } ?: JavaType.Object
     val interfaces = classCstNode.interfaces.map { resolve(it) }
     val classType = symbolResolver.defineType(
-      classCstNode.tokenStart, Visibility.fromTokenType(classCstNode.access.visibility),
-      classCstNode.className, superType,
-      // don't support interfaces for now
-      isInterface = false, interfaces,
+      token = classCstNode.token,
+      visibility = Visibility.fromTokenType(classCstNode.access.visibility),
+      outerClassType = null, // TODO fix this. it should be supported
+      cName = classCstNode.className,
+      superClass = superType,
+      interfaces = interfaces,
+      isInterface = false, // not supported yet
+      isAbstract = false, // not supported
+      isAnnotation = false, // not supported
       isScript = classCstNode.isScript,
       isEnum = classCstNode.isEnum,
+      isFinal = classCstNode.access.isFinal || classCstNode.isEnum,
       isExtensionType = classCstNode.isExtensionClass,
       extendedType = classCstNode.forExtensionType?.let { resolve(it) }
     )
@@ -131,6 +139,17 @@ open class MarcelSemantic(
   ) {
     loadExtensions()
     try {
+      if (classCstNode.isEnum) {
+        classCstNode as EnumCstNode
+        for (enumName in classCstNode.names) {
+          symbolResolver.defineField(JavaClassFieldImpl(classType, enumName, classType, isFinal = true, Visibility.PUBLIC, isStatic = true, isSettable = false))
+        }
+        symbolResolver.defineMethod(classType, MarcelMethodImpl(classType, Visibility.PUBLIC, "valueOf", mutableListOf(
+          MethodParameter(JavaType.String, "name")
+        ), classType, isStatic = true))
+        symbolResolver.defineMethod(classType, MarcelMethodImpl(classType, Visibility.PUBLIC, "values", emptyList(), classType.arrayType, isStatic = true))
+
+      }
       if (classCstNode.isExtensionClass) {
         val extendedCstType = classCstNode.forExtensionType
         val extendedType = extendedCstType?.let(this::resolve)
@@ -284,7 +303,8 @@ open class MarcelSemantic(
             fieldInitialValueMap[fieldNode] = useScope(
               MethodScope(
                 classScope,
-                JavaConstructorImpl(Visibility.PRIVATE, isVarArgs = false, classType, emptyList())
+                // static block initialization is considered synthetic
+                JavaConstructorImpl(Visibility.PRIVATE, isVarArgs = false, isSynthetic = true, classType, emptyList())
               )
             ) {
               caster.cast(fieldNode.type, cstFieldNode.initialValue!!.accept(this@MarcelSemantic, fieldNode.type))
@@ -342,7 +362,7 @@ open class MarcelSemantic(
   }
 
 
-  // TODO test enum classes
+  // TODO document enums
   // note to self https://chatgpt.com/c/6759239f-ede4-8012-b99b-daa74614b684
   private inner class EnumClassSemantic(node: EnumCstNode, classNode: ClassNode, classScope: ClassScope) :
     ClassSemantic<EnumCstNode>(node, classNode, classScope) {
@@ -350,7 +370,13 @@ open class MarcelSemantic(
     private val valuesField = FieldNode(
       type = classType.arrayType,
       name = ENUM_VALUES_FIELD_NAME,
-      owner = classType, annotations = emptyList(), isFinal = true, Visibility.PRIVATE, isStatic = true, classNode.tokenStart, classNode.tokenEnd)
+      owner = classType, annotations = emptyList(),
+      isFinal = true,
+      visibility = Visibility.PRIVATE,
+      isStatic = true,
+      isSynthetic = true,
+      tokenStart = classNode.tokenStart,
+      tokenEnd = classNode.tokenEnd)
 
     override fun processConstructors() {
       // enum classes actually have one private constructor that is called to instantiate every instance
@@ -358,8 +384,8 @@ open class MarcelSemantic(
         MethodNode(
           name = MarcelMethod.CONSTRUCTOR_NAME,
           parameters = mutableListOf(
-            MethodParameter(JavaType.String, "name"),
-            MethodParameter(JavaType.int, "ordinal")
+            MethodParameter(JavaType.String, "name", isSynthetic = true),
+            MethodParameter(JavaType.int, "ordinal", isSynthetic = true)
           ),
           visibility = Visibility.PRIVATE,
           returnType = JavaType.void,
@@ -368,8 +394,11 @@ open class MarcelSemantic(
           ownerClass = classType,
           tokenStart = node.tokenStart,
           tokenEnd = node.tokenEnd)
-      ) {
-        stmt(superConstructorCall(symbolResolver.findConstructor(java.lang.Enum::class.javaType, listOf(JavaType.String, JavaType.int))!!, emptyList()))
+      ) { scope ->
+        stmt(superConstructorCall(
+          method = symbolResolver.findConstructor(java.lang.Enum::class.javaType, listOf(JavaType.String, JavaType.int))!!,
+          listOf(ref(scope.getMethodParameterVariable(0)), ref(scope.getMethodParameterVariable(1)))))
+        returnVoidStmt()
       }
 
       classNode.methods.add(constructorNode)
@@ -384,7 +413,12 @@ open class MarcelSemantic(
         val fieldNode = FieldNode(
           type = classType,
           name = name,
-          owner = classType, annotations = emptyList(), isFinal = true, Visibility.PUBLIC, isStatic = true, classNode.tokenStart, classNode.tokenEnd)
+          owner = classType, annotations = emptyList(),
+          isFinal = true,
+          isStatic = true,
+          isEnum = true,
+          visibility = Visibility.PUBLIC,
+          tokenStart = classNode.tokenStart, tokenEnd = classNode.tokenEnd)
         classNode.fields.add(fieldNode)
         staticFieldInitialValueMap[fieldNode] = NewInstanceNode(classType, enumConstructor, listOf(StringConstantNode(name, node), IntConstantNode(node.token, index)), node.token)
         fieldNode
@@ -474,8 +508,9 @@ open class MarcelSemantic(
         isStatic = classType.outerTypeName != null && node.access.isStatic,
         isScript = node.isScript,
         isEnum = node.isEnum,
+        isFinal = node.access.isFinal || node.isEnum,
         fileName = fileName,
-        cst.tokenStart, cst.tokenEnd
+        tokenStart = cst.tokenStart, tokenEnd = cst.tokenEnd
       )
       classNodeMap[classType] = classNode
       classNodeCreatorCreator.invoke(node, classNode, classScope).apply()

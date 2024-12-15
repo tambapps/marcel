@@ -14,6 +14,7 @@ class FieldNode(
   override val tokenStart: LexToken,
   override val tokenEnd: LexToken,
   val isSynthetic: Boolean = false,
+  val isEnum: Boolean = false,
 ) : AstNode, Annotable,
   JavaClassField(type, name, owner) {
 

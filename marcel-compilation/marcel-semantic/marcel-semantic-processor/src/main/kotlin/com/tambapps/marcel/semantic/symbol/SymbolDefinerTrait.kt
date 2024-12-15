@@ -78,7 +78,9 @@ interface SymbolDefinerTrait {
       if (superType.isInterface) {
         throw MarcelSemanticException(classCstNode, "Cannot extend an interface")
       }
-      classType.superType = superType
+      if (!classType.isEnum) { // we don't want to override the Enum super class given in the pre-definition
+        classType.superType = superType
+      }
       classCstNode.forExtensionType?.let { classType.globalExtendedType = semantic.resolve(it) }
       classType.directlyImplementedInterfaces.addAll(classCstNode.interfaces.map { semantic.resolve(it) })
       for (interfaceType in classType.directlyImplementedInterfaces) {
@@ -111,12 +113,14 @@ interface SymbolDefinerTrait {
       isInterface = false, directlyImplementedInterfaces = mutableSetOf(),
       isScript = classNode.isScript,
       isEnum = isEnum,
-      isExtensionType = classNode.isExtensionClass
+      isExtensionType = classNode.isExtensionClass,
+      isFinal = classNode.access.isFinal || classNode.isEnum,
+      isAnnotation = false, // not supported
+      isAbstract = false // not supported
     )
     if (isEnum) {
       classType.superType = java.lang.Enum::class.javaType.withGenericTypes(classType)
-      classType.directlyImplementedInterfaces.add(java.lang.Comparable::class.javaType.withGenericTypes(classType))
-      classType.directlyImplementedInterfaces.add(java.io.Serializable::class.javaType)
+
       // TODO define static fields and static methods that enum class provides
     }
     defineType(classNode.token, classType)

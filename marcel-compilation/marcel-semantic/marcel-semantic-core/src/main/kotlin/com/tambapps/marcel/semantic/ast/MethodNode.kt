@@ -17,7 +17,8 @@ class MethodNode constructor(
   override val asyncReturnType: JavaType?,
   override val tokenStart: LexToken, override val tokenEnd: LexToken,
   override var ownerClass: JavaType,
-  override val isVarArgs: Boolean = false
+  override val isVarArgs: Boolean = false,
+  override val isSynthetic: Boolean = false
 ) : AstNode, AbstractMethod(), Annotable {
 
   // constructor for non async functions
@@ -29,8 +30,9 @@ class MethodNode constructor(
     isStatic: Boolean,
     tokenStart: LexToken, tokenEnd: LexToken,
     ownerClass: JavaType,
-    isVarArgs: Boolean = false
-  ) : this(name, parameters, visibility, returnType, isStatic, null, tokenStart, tokenEnd, ownerClass, isVarArgs)
+    isVarArgs: Boolean = false,
+    isSynthetic: Boolean = false,
+  ) : this(name, parameters, visibility, returnType, isStatic, null, tokenStart, tokenEnd, ownerClass, isVarArgs, isSynthetic)
 
   companion object {
     fun fromJavaMethod(method: MarcelMethod, tokenStart: LexToken, tokenEnd: LexToken): MethodNode {
@@ -43,7 +45,8 @@ class MethodNode constructor(
         tokenStart,
         tokenEnd,
         method.ownerClass,
-        method.isVarArgs
+        method.isVarArgs,
+        method.isSynthetic
       )
     }
   }

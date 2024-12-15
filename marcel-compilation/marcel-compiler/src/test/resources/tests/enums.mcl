@@ -1,0 +1,23 @@
+import static org.junit.jupiter.api.Assertions.assertNotNull
+import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertThrows
+
+
+enum Day {
+  MONDAY,
+  TUESDAY,
+  WEDNESDAY,
+  THURSDAY,
+  FRIDAY,
+  SATURDAY,
+  SUNDAY
+}
+
+assertEquals(Day.MONDAY, Day.MONDAY)
+assertEquals(Day.MONDAY, Day.valueOf("MONDAY"))
+assertEquals(-1, Day.MONDAY.compareTo(Day.TUESDAY))
+assertEquals(2, Day.SATURDAY.compareTo(Day.THURSDAY))
+assertEquals(7, Day.values().length)
+assertThrows(IllegalArgumentException.class) {
+  Day.valueOf("not a day")
+}

@@ -17,5 +17,6 @@ class ReflectJavaConstructor(constructor: Constructor<*>): AbstractConstructor(
 ) {
   override val visibility = Visibility.fromAccess(constructor.modifiers)
   override val isVarArgs = constructor.isVarArgs
+  override val isSynthetic = constructor.isSynthetic
 
 }

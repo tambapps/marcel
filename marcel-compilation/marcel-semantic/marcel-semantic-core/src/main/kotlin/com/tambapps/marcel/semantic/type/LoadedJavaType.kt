@@ -13,12 +13,14 @@ import java.lang.reflect.ParameterizedType
  */
 abstract class LoadedJavaType internal constructor(final override val realClazz: Class<*>, final override val genericTypes: List<JavaType>): AbstractJavaType() {
   override val isLoaded = true
+  override val isInterface = realClazz.isInterface
+  override val isAbstract = (realClazz.modifiers and Modifier.ABSTRACT) != 0
+  override val isFinal = (realClazz.modifiers and Modifier.FINAL) != 0
   override val isEnum = realClazz.isEnum
   override val isScript = false
   override val isArray = realClazz.isArray
 
   override val className: String = realClazz.name
-  override val isFinal = (realClazz.modifiers and Modifier.FINAL) != 0
   override val superType get() =  if (realClazz.superclass != null) JavaType.of(realClazz.superclass) else null
 
   override val isExtensionType: Boolean get() = getAnnotation(ExtensionClass::class.javaAnnotationType) != null
@@ -38,7 +40,6 @@ abstract class LoadedJavaType internal constructor(final override val realClazz:
       else -> super.asPrimitiveType
     }
 
-  override val isInterface = realClazz.isInterface
   private var _interfaces: Set<JavaType>? = null
   override val allImplementedInterfaces: Collection<JavaType>
     get() {

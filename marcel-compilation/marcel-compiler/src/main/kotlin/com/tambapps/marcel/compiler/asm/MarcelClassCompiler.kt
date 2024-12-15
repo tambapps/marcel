@@ -42,10 +42,16 @@ class MarcelClassCompiler(
   private fun compileRec(classes: MutableList<CompiledClass>, classNode: ClassNode) {
     val classWriter = MarcelAsmClassWriter(symbolResolver)
     // creating class
-    classWriter.visit(compilerConfiguration.classVersion, classNode.access, classNode.type.internalName,
-      if (classNode.type.superType?.hasGenericTypes == true || classNode.type.directlyImplementedInterfaces.any { it.hasGenericTypes }) classNode.type.signature else null,
+    //         cw.visit(V1_8, ACC_PUBLIC + ACC_FINAL + ACC_SUPER + ACC_ENUM, enumName, "Ljava/lang/Enum<L" + enumName + ";>;", "java/lang/Enum", null);
+    classWriter.visit(
+      compilerConfiguration.classVersion,
+      classNode.access,
+      classNode.type.internalName,
+      // it's actually not the signature but rather the generic signature. As marcel doesn't support generic we only write it for enum classes
+      if (classNode.type.isEnum) ("Ljava/lang/Enum<L" + classNode.type.className.replace('.', '/') + ";>;") else null,
       classNode.type.superType!!.internalName, // we know it has a super type as it is not the Object class
-      classNode.type.directlyImplementedInterfaces.map { it.internalName }.toTypedArray())
+      // When creating an enum class using the ASM ClassWriter, the interfaces argument in the visit method is typically set to null because enums in Java do not implement any additional interfaces by default.
+      if (!classNode.isEnum) classNode.type.directlyImplementedInterfaces.map { it.internalName }.toTypedArray() else null)
 
     // Set the source file name
     classWriter.visitSource(classNode.fileName, null)
@@ -81,7 +87,7 @@ class MarcelClassCompiler(
 
   private fun writeField(classWriter: ClassWriter, field: FieldNode) {
     val fieldVisitor = classWriter.visitField(field.access, field.name, field.type.descriptor,
-      if (field.type.superType?.hasGenericTypes == true || field.type.directlyImplementedInterfaces.any { it.hasGenericTypes }) field.type.signature else null,
+      null,
       null
     )
 
@@ -94,7 +100,10 @@ class MarcelClassCompiler(
   }
 
   private fun writeMethod(classWriter: ClassWriter, classNode: ClassNode, methodNode: MethodNode) {
-    val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.descriptor, methodNode.signature, null)
+    val mv = classWriter.visitMethod(methodNode.access, methodNode.name, methodNode.descriptor,
+      methodNode.signature,
+
+      null)
 
     // writing annotations
     for (annotation in methodNode.annotations) {
@@ -123,7 +132,7 @@ class MarcelClassCompiler(
     for (i in methodNode.parameters.indices) {
       val parameter = methodNode.parameters[i]
       // this is important, to be able to resolve marcel method parameter names
-      mv.visitParameter(parameter.name, if (parameter.isFinal) Opcodes.ACC_FINAL else 0)
+      mv.visitParameter(parameter.name, parameter.access)
       parameter.annotations.forEach {
         if (it.type.retentionPolicy != RetentionPolicy.SOURCE) {
           writeAnnotation(mv.visitParameterAnnotation(i, it.type.descriptor, true), it)

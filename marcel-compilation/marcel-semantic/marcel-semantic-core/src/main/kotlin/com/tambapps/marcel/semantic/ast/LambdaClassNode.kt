@@ -8,7 +8,7 @@ import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.SourceJavaType
 import com.tambapps.marcel.semantic.variable.LocalVariable
 
-class LambdaClassNode(
+class LambdaClassNode constructor(
   override val type: SourceJavaType,
   val constructorNode: MethodNode,
   isStatic: Boolean,
@@ -23,9 +23,10 @@ class LambdaClassNode(
   isStatic = isStatic,
   isScript = false,
   isEnum = false,
-  fileName,
-  cstNode.tokenStart,
-  cstNode.tokenEnd
+  isFinal = true,
+  fileName = fileName,
+  tokenStart = cstNode.tokenStart,
+  tokenEnd = cstNode.tokenEnd
 ) {
 
   data class MethodParameter(val type: JavaType?, val name: String)

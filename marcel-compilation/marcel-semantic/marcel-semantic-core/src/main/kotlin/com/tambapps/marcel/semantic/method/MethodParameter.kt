@@ -7,11 +7,12 @@ import com.tambapps.marcel.semantic.type.JavaTyped
 
 open class MethodParameter constructor(override val type: JavaType, val rawType: JavaType, val name: String,
                                        val isFinal: Boolean = false,
+                                       val isSynthetic: Boolean = false,
                                        val annotations: List<AnnotationNode>,
                                        val defaultValue: ExpressionNode? = null): JavaTyped {
-  constructor(type: JavaType, name: String, annotations: List<AnnotationNode>, defaultValue: ExpressionNode?, isFinal: Boolean = false): this(type, type, name, isFinal, annotations, defaultValue)
-  constructor(type: JavaType, name: String, annotations: List<AnnotationNode>, isFinal: Boolean = false): this(type, name, annotations, null, isFinal)
-  constructor(type: JavaType, name: String, isFinal: Boolean = false): this(type, name, emptyList(), isFinal)
+  constructor(type: JavaType, name: String, annotations: List<AnnotationNode>, defaultValue: ExpressionNode?, isFinal: Boolean = false, isSynthetic: Boolean = false): this(type, type, name, isFinal, isSynthetic, annotations, defaultValue)
+  constructor(type: JavaType, name: String, annotations: List<AnnotationNode>, isFinal: Boolean = false, isSynthetic: Boolean = false): this(type, name, annotations, null, isFinal, isSynthetic)
+  constructor(type: JavaType, name: String, isFinal: Boolean = false, isSynthetic: Boolean = false): this(type, name, emptyList(), isFinal, isSynthetic)
   constructor(type: JavaType, name: String, defaultValue: ExpressionNode?): this(type, name, emptyList(), defaultValue)
 
   val hasDefaultValue get() = defaultValue != null

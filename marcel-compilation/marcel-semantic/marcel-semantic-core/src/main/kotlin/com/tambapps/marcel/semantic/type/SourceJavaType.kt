@@ -16,6 +16,9 @@ open class SourceJavaType constructor(
   override val directlyImplementedInterfaces: MutableCollection<JavaType>,
   override val isScript: Boolean,
   override val isEnum: Boolean,
+  override val isAbstract: Boolean,
+  override val isFinal: Boolean,
+  override val isAnnotation: Boolean,
   override val isExtensionType: Boolean,
   override var globalExtendedType: JavaType?): AbstractJavaType() {
 
@@ -26,17 +29,14 @@ open class SourceJavaType constructor(
   }
 
   override val isArray = false
-
-  override val isFinal = false
+  override val primitive = false
+  override val isLoaded = false
 
   override val packageName: String?
     get() = if (className.contains('.')) className.substring(0, className.lastIndexOf(".")) else null
 
-  override val isLoaded = false
   override val realClazz: Class<*>
     get() = throw RuntimeException("Class $className is not loaded")
-  override val primitive = false
-  override val isAnnotation = false
 
   override val allImplementedInterfaces: Collection<JavaType>
     get() {

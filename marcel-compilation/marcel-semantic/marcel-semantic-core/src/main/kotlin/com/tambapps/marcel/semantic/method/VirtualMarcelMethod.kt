@@ -6,6 +6,7 @@ package com.tambapps.marcel.semantic.method
  */
 abstract class VirtualMarcelMethod: AbstractMethod() {
   override val isConstructor = false
+  override val isSynthetic = false
   override val isAbstract = false
   override val isDefault = false
   override val isAsync = false

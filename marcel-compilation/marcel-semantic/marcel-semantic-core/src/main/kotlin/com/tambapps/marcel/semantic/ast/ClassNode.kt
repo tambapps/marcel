@@ -10,6 +10,7 @@ open class ClassNode(
   val visibility: Visibility,
   val forExtensionType: JavaType?, // if the class is an extension class
   val isStatic: Boolean,
+  val isFinal: Boolean,
   val isScript: Boolean,
   val isEnum: Boolean,
   val fileName: String,

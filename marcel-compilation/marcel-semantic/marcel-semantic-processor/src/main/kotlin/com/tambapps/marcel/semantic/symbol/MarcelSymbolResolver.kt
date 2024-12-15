@@ -121,21 +121,6 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
   fun defineType(
     token: LexToken = LexToken.DUMMY,
     visibility: Visibility,
-    className: String,
-    superClass: JavaType,
-    isInterface: Boolean,
-    interfaces: List<JavaType>,
-    isScript: Boolean = false,
-    isEnum: Boolean = false,
-    isExtensionType: Boolean = false,
-    extendedType: JavaType? = null
-  ): SourceJavaType {
-    return defineType(token, visibility, null, className, superClass, isInterface, interfaces, isScript, isEnum, isExtensionType, extendedType)
-  }
-
-  fun defineType(
-    token: LexToken = LexToken.DUMMY,
-    visibility: Visibility,
     outerClassType: JavaType?,
     cName: String,
     superClass: JavaType,
@@ -143,6 +128,9 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     interfaces: List<JavaType>,
     isScript: Boolean = false,
     isEnum: Boolean = false,
+    isFinal: Boolean = false,
+    isAbstract: Boolean = false,
+    isAnnotation: Boolean = false,
     isExtensionType: Boolean = false,
     extendedType: JavaType? = null
   ): SourceJavaType {
@@ -157,6 +145,9 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
       interfaces.toMutableSet(),
       isScript = isScript,
       isEnum = isEnum,
+      isFinal = isFinal,
+      isAbstract = isAbstract,
+      isAnnotation = isAnnotation,
       isExtensionType = isExtensionType,
       globalExtendedType = extendedType
     )

@@ -72,6 +72,18 @@ open class CstNodeComposer {
     visibility = visibility,
     isExplicit = isExplicit
   )
+
+  protected fun access(node: ClassCstNode, isStatic: Boolean = false, isFinal: Boolean = false, isExplicit: Boolean = true,
+                       visibility: TokenType) = AccessCstNode(
+    parent = node,
+    tokenStart = LexToken.DUMMY,
+    tokenEnd = LexToken.DUMMY,
+    isStatic = isStatic,
+    isFinal = isFinal || node.isEnum,
+    isInline = false,
+    visibility = visibility,
+    isExplicit = isExplicit
+  )
   protected fun type(type: KClass<*>): TypeCstNode = type(type.javaType)
   protected fun type(type: JavaType): TypeCstNode =
     TypeCstNode(null, type.className, emptyList(), 0, LexToken.DUMMY, LexToken.DUMMY)

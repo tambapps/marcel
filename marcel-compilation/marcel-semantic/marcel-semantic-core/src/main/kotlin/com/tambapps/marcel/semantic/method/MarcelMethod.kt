@@ -42,6 +42,7 @@ interface MarcelMethod: JavaTyped {
 
   val isConstructor: Boolean
   val isInline: Boolean get() = false
+  val isSynthetic: Boolean
   val isVarArgs: Boolean
   val varArgsType: JavaArrayType
     get() = parameters.last().type.asArrayType

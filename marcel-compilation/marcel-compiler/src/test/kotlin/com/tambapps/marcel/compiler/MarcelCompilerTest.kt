@@ -24,7 +24,7 @@ class MarcelCompilerTest: AbstractCompilerTest() {
   @Disabled
   @Test
   fun manualTest() {
-    val eval = eval("/tests/comparison.mcl")
+    val eval = eval("/tests/enums.mcl")
     println(eval)
   }
 }

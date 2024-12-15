@@ -44,6 +44,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
   override val isAbstract = (method.modifiers and Modifier.ABSTRACT) != 0
   override val isDefault = method.isDefault
   override val isStatic = (method.modifiers and Modifier.STATIC) != 0
+  override val isSynthetic = method.isSynthetic
   override val isVarArgs = method.isVarArgs
   override val asyncReturnType = method.getAnnotation(Async::class.java)?.returnType?.let { JavaType.of(it.java) }
 
@@ -91,7 +92,7 @@ class ReflectJavaMethod constructor(method: Method, fromType: JavaType?): Abstra
         else -> null
       }
 
-      return MethodParameter(type, rawType, parameter.name, (parameter.modifiers and Modifier.FINAL) != 0, emptyList(),  defaultValue)
+      return MethodParameter(type, rawType, parameter.name, isFinal = (parameter.modifiers and Modifier.FINAL) != 0, isSynthetic = parameter.isSynthetic, emptyList(),  defaultValue)
     }
 
     private fun methodParameterType(javaType: JavaType?, methodParameter: Parameter): JavaType {

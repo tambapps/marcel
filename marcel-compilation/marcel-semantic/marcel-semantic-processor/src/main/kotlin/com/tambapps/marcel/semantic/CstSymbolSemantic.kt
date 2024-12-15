@@ -52,6 +52,7 @@ interface CstSymbolSemantic {
     return JavaConstructorImpl(
       visibility,
       isVarArgs = node.isVarArgs,
+      isSynthetic = false,
       ownerType,
       node.parameters.mapIndexed { index, methodParameterCstNode ->
         toMethodParameter(

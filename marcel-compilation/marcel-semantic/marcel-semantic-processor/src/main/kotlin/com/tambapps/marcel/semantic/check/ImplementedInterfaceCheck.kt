@@ -25,7 +25,15 @@ internal object ImplementedInterfaceCheck : ClassNodeVisitor {
     for (interfaze in classNode.type.directlyImplementedInterfaces) {
       for (interfaceMethod in symbolResolver.getDeclaredMethods(interfaze)
         .filter { it.isAbstract && it.name != "equals" && it.name != "hashCode" }) {
-        val implementationMethod = symbolResolver.findMethod(classNode.type, interfaceMethod.name, interfaceMethod.parameters, excludeInterfaces = true)
+        val implementationMethod =
+          // sometimes some generated class methods are only defined in the node but not on the symbol resolver
+           classNode.methods.find {
+            it.name == interfaceMethod.name
+                && it.parameters.size == interfaceMethod.parameters.size
+                && it.parametersAssignableTo(interfaceMethod)
+          }
+             ?: symbolResolver.findMethod(classNode.type, interfaceMethod.name, interfaceMethod.parameters, excludeInterfaces = true)
+
 
         if (implementationMethod == null || implementationMethod.isAbstract) {
           // maybe there is a generic implementation, in which case we have to generate the method with raw types
@@ -82,5 +90,9 @@ internal object ImplementedInterfaceCheck : ClassNodeVisitor {
         }
       }
     }
+  }
+
+  private fun findImplementationMethod() {
+
   }
 }

@@ -116,6 +116,7 @@ interface JavaType: JavaTyped {
   override val type get() = this
   val genericTypes: List<JavaType>
   val isInterface: Boolean
+  val isAbstract: Boolean
   val isLambda get() = JavaType.lambda.isAssignableFrom(this)
   val primitive: Boolean
   val isPrimitiveObjectType get() = PRIMITIVES.any { it.objectType == this }

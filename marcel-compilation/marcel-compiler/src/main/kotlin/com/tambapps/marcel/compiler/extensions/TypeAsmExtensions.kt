@@ -62,9 +62,12 @@ val JavaArrayType.arrayStoreCode get() = when {
 val JavaType.descriptor: String get() {
   val type = this.type
   return if (type.isLoaded) AsmUtils.getClassDescriptor(type.realClazz)
-  else {
-    val descriptor = AsmUtils.getObjectClassDescriptor(type.className)
-    if (type.isAnnotation) "@$descriptor" else descriptor
+  else when {
+    type.isArray -> type.className.replace('.', '/')
+    else -> {
+      val descriptor = AsmUtils.getObjectClassDescriptor(type.className)
+      if (type.isAnnotation) "@$descriptor" else descriptor
+    }
   }
 }
 
