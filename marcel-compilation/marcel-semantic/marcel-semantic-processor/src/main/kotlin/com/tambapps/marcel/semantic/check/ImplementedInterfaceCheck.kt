@@ -25,11 +25,7 @@ internal object ImplementedInterfaceCheck : ClassNodeVisitor {
     for (interfaze in classNode.type.directlyImplementedInterfaces) {
       for (interfaceMethod in symbolResolver.getDeclaredMethods(interfaze)
         .filter { it.isAbstract && it.name != "equals" && it.name != "hashCode" }) {
-        val implementationMethod = classNode.methods.find {
-          it.name == interfaceMethod.name
-              && it.parameters.size == interfaceMethod.parameters.size
-              && it.parametersAssignableTo(interfaceMethod)
-        }
+        val implementationMethod = symbolResolver.findMethod(classNode.type, interfaceMethod.name, interfaceMethod.parameters, excludeInterfaces = true)
 
         if (implementationMethod == null || implementationMethod.isAbstract) {
           // maybe there is a generic implementation, in which case we have to generate the method with raw types
