@@ -1997,6 +1997,22 @@ public final class DefaultMarcelMethods {
   }
 
   /**
+   * Returns a new List containing the content of the List then the content of the array
+   *
+   * @param $self the List
+   * @param b the array
+   * @return a new List containing the content of the List then the content of the array
+   */
+  public static <T> List<T> plus(List<T> $self, T[] b) {
+    List<T> sum = new ArrayList<>($self.size() + b.length);
+    sum.addAll($self);
+    for (T t : b) {
+      sum.add(t);
+    }
+    return sum;
+  }
+
+  /**
    * Returns a new collection containing the content of the first one then the content of the second
    *
    * @param $self the first collection
@@ -2017,10 +2033,40 @@ public final class DefaultMarcelMethods {
    * @param b the second collection
    * @return a new array containing the content of the first one then the content of the second
    */
-  public static <T> Queue<T> plus(Queue<T> $self, Collection<T> b) {
-    Queue<T> sum = new LinkedList<>();
+  public static <T> Set<T> plus(Set<T> $self, T[] b) {
+    Set<T> sum = new HashSet<>($self.size() + b.length);
     sum.addAll($self);
+    for (T t : b) {
+      sum.add(t);
+    }
+    return sum;
+  }
+
+  /**
+   * Returns a new collection containing the content of the first one then the content of the second
+   *
+   * @param $self the first collection
+   * @param b the second collection
+   * @return a new array containing the content of the first one then the content of the second
+   */
+  public static <T> Queue<T> plus(Queue<T> $self, Collection<T> b) {
+    Queue<T> sum = new LinkedList<>($self);
     sum.addAll(b);
+    return sum;
+  }
+
+  /**
+   * Returns a new collection containing the content of the first one then the content of the second
+   *
+   * @param $self the first collection
+   * @param b the second collection
+   * @return a new array containing the content of the first one then the content of the second
+   */
+  public static <T> Queue<T> plus(Queue<T> $self, T[] b) {
+    Queue<T> sum = new LinkedList<>($self);
+    for (T t : b) {
+      sum.add(t);
+    }
     return sum;
   }
 
@@ -2044,6 +2090,21 @@ public final class DefaultMarcelMethods {
    * @param b the second collection
    * @return a new collection containing the content of the first without the content of the second
    */
+  public static <T> List<T> minus(List<T> $self, T[] b) {
+    List<T> sum = new ArrayList<>($self);
+    for (T t : b) {
+      sum.remove(t);
+    }
+    return sum;
+  }
+
+  /**
+   * Returns a new collection containing the content of the first without the content of the second
+   *
+   * @param $self the first collection
+   * @param b the second collection
+   * @return a new collection containing the content of the first without the content of the second
+   */
   public static <T> Set<T> minus(Set<T> $self, Collection<T> b) {
     Set<T> sum = new HashSet<>($self);
     sum.removeAll(b);
@@ -2057,9 +2118,39 @@ public final class DefaultMarcelMethods {
    * @param b the second collection
    * @return a new collection containing the content of the first without the content of the second
    */
+  public static <T> Set<T> minus(Set<T> $self, T[] b) {
+    Set<T> sum = new HashSet<>($self);
+    for (T t : b) {
+      sum.remove(t);
+    }
+    return sum;
+  }
+
+  /**
+   * Returns a new collection containing the content of the first without the content of the second
+   *
+   * @param $self the first collection
+   * @param b the second collection
+   * @return a new collection containing the content of the first without the content of the second
+   */
   public static <T> Queue<T> minus(Queue<T> $self, Collection<T> b) {
     Queue<T> sum = new LinkedList<>($self);
     sum.removeAll(b);
+    return sum;
+  }
+
+  /**
+   * Returns a new collection containing the content of the first without the content of the second
+   *
+   * @param $self the first collection
+   * @param b the second collection
+   * @return a new collection containing the content of the first without the content of the second
+   */
+  public static <T> Queue<T> minus(Queue<T> $self, T[] b) {
+    Queue<T> sum = new LinkedList<>($self);
+    for (T t : b) {
+      sum.remove(t);
+    }
     return sum;
   }
 
