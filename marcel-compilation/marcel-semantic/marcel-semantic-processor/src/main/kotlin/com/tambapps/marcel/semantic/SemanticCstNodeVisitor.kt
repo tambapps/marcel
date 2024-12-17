@@ -1945,6 +1945,8 @@ abstract class SemanticCstNodeVisitor(
       if (usedLocalVariables.isNotEmpty()) {
         val lambdaConstructor = lambdaNode.constructors.first()
         val constructorParameters = lambdaConstructor.parameters
+        // + 1 because we are not in a static context
+        var lvIndex = constructorParameters.sumOf { it.type.nbSlots } + 1
         for (lv in usedLocalVariables) {
           val field = FieldNode(
             lv.type,
@@ -1965,14 +1967,14 @@ abstract class SemanticCstNodeVisitor(
               VariableAssignmentNode(
                 owner = ThisReferenceNode(lambdaNode.type, lambdaNode.token),
                 variable = field,
-                // using index of method parameter. +1 because not in static context
-                expression = ReferenceNode(variable = lv.withIndex(constructorParameters.indexOfFirst { it.name == lv.name } + 1),
+                expression = ReferenceNode(variable = lv.withIndex(lvIndex),
                   token = lambdaNode.token),
                 tokenStart = lambdaNode.tokenStart,
                 tokenEnd = lambdaNode.tokenEnd
               )
             )
           )
+          lvIndex += lv.type.nbSlots
           lambdaNode.constructorArguments.add(ReferenceNode(variable = lv, token = lambdaNode.token))
         }
       }
