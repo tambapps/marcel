@@ -573,8 +573,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
             // for object var decl without init expression
             || (current.type == IDENTIFIER && lookup(1)?.type == TokenType.SEMI_COLON)
             // for array var decl
-            || (current.type == TokenType.DOT && lookup(1)?.type == TokenType.CLASS
-                || current.type == TokenType.SQUARE_BRACKETS_OPEN && lookup(1)?.type == TokenType.SQUARE_BRACKETS_CLOSE
+            || (current.type == TokenType.SQUARE_BRACKETS_OPEN && lookup(1)?.type == TokenType.SQUARE_BRACKETS_CLOSE
                 && lookup(2)?.type == IDENTIFIER))  {
             rollback()
             varDecl(parentNode)
