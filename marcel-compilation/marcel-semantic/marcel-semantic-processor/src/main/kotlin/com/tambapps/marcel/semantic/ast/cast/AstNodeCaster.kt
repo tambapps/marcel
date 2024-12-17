@@ -61,24 +61,14 @@ class AstNodeCaster(
         actualType.isArray -> {
           when {
             // lists
-            JavaType.intList.isAssignableFrom(expectedType) && actualType == JavaType.intArray
-                || JavaType.longList.isAssignableFrom(expectedType) && actualType == JavaType.longArray
-                || JavaType.floatList.isAssignableFrom(expectedType) && actualType == JavaType.floatArray
-                || JavaType.doubleList.isAssignableFrom(expectedType) && actualType == JavaType.doubleArray
-                || JavaType.charList.isAssignableFrom(expectedType) && actualType == JavaType.charArray
-                || List::class.javaType.isAssignableFrom(expectedType) && actualType.isArray -> functionCall(
+            JavaType.isListConvertable(expectedType, actualType) -> functionCall(
               BytecodeHelper::class.javaType,
               "createList",
               listOf(node),
               node
             )
             // sets
-            JavaType.intSet.isAssignableFrom(expectedType) && actualType == JavaType.intArray
-                || JavaType.longSet.isAssignableFrom(expectedType) && actualType == JavaType.longArray
-                || JavaType.floatSet.isAssignableFrom(expectedType) && actualType == JavaType.floatArray
-                || JavaType.doubleSet.isAssignableFrom(expectedType) && actualType == JavaType.doubleArray
-                || JavaType.characterSet.isAssignableFrom(expectedType) && actualType == JavaType.charArray
-                || Set::class.javaType.isAssignableFrom(expectedType) && actualType.isArray -> functionCall(
+            JavaType.isSetConvertable(expectedType, actualType) -> functionCall(
               BytecodeHelper::class.javaType,
               "createSet",
               listOf(node),

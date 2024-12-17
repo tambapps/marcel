@@ -1,5 +1,6 @@
 package com.tambapps.marcel.semantic.method
 
+import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.JavaTyped
 import kotlin.math.max
@@ -90,7 +91,7 @@ interface MethodMatcherTrait {
   private fun methodParameterTypeMatches(expectedType: JavaType, actualType: JavaType): Boolean {
     return if (expectedType.isInterface && actualType.isLambda)
       getInterfaceLambdaMethod(expectedType) != null // lambda parameter matches will be done by lambda handler
-    else expectedType.isAssignableFrom(actualType)
+    else expectedType.isAssignableFrom(actualType) || JavaType.isListConvertable(expectedType, actualType)  || JavaType.isSetConvertable(expectedType, actualType)
   }
 
   fun matchesUnorderedParameters(method: MarcelMethod, name: String,

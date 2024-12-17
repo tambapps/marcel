@@ -4,6 +4,7 @@ import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.CastMethod
 import com.tambapps.marcel.semantic.method.ExtensionMarcelMethod
+import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.MarcelMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.method.ReflectJavaMethod
@@ -14,6 +15,7 @@ import marcel.util.primitives.collections.IntCollection
 import marcel.util.primitives.collections.lists.IntList
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.util.function.Function
@@ -44,6 +46,35 @@ class MarcelSymbolResolverTest {
     Assertions.assertFalse(symbolResolver.matches(joinMethod, listOf(JavaType.String, Int::class.javaType.arrayType)))
   }
 
+  @Test
+  fun testListArgMatchesArray() {
+    val method = method(name = "foo", parameters = listOf(MethodParameter(JavaType.List, "bar")), returnType = JavaType.void)
+    for (arrayType in JavaType.ARRAYS) assertTrue(symbolResolver.matches(method, listOf(arrayType)))
+    assertFalse(symbolResolver.matches(method, listOf(JavaType.Object)))
+    // primitive matches
+    for (primitiveType in listOf(JavaType.int, JavaType.long, JavaType.float, JavaType.double, JavaType.char)) {
+      assertTrue(symbolResolver.matches(
+        method(name = "foo",
+          parameters = listOf(MethodParameter(JavaType.PRIMITIVE_LIST_MAP.getValue(primitiveType), "bar")),
+          returnType = JavaType.void)
+        , listOf(primitiveType.arrayType)))
+    }
+  }
+
+  @Test
+  fun testSetArgMatchesArray() {
+    val method = method(name = "foo", parameters = listOf(MethodParameter(JavaType.Set, "bar")), returnType = JavaType.void)
+    for (arrayType in JavaType.ARRAYS) assertTrue(symbolResolver.matches(method, listOf(arrayType)))
+    assertFalse(symbolResolver.matches(method, listOf(JavaType.Object)))
+    // primitive matches
+    for (primitiveType in listOf(JavaType.int, JavaType.long, JavaType.float, JavaType.double, JavaType.char)) {
+      assertTrue(symbolResolver.matches(
+        method(name = "foo",
+          parameters = listOf(MethodParameter(JavaType.PRIMITIVE_SET_MAP.getValue(primitiveType), "bar")),
+          returnType = JavaType.void)
+        , listOf(primitiveType.arrayType)))
+    }
+  }
 
   @Test
   fun getMethodWithLambdaParameter() {
@@ -127,5 +158,9 @@ class MarcelSymbolResolverTest {
   fun testCastObject() {
     assertEquals(CastMethod.METHODS.find { it.returnType == JavaType.Object },
       symbolResolver.findMethod(JavaType.Object, "cast", listOf(JavaType.Object)))
+  }
+
+  private fun method(visibility: Visibility = Visibility.PUBLIC, ownerType: JavaType = JavaType.Object, name: String, parameters: List<MethodParameter>, returnType: JavaType): MarcelMethod {
+    return MarcelMethodImpl(ownerClass = ownerType, visibility = visibility, name = name, parameters = parameters, returnType = returnType)
   }
 }
