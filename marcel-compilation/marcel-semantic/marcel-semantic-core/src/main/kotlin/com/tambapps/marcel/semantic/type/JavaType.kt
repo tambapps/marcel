@@ -450,24 +450,22 @@ interface JavaType: JavaTyped {
       Pair(char, characterSet),
     )
 
-    // TODO there may be a bug. We might want to have a strict match on the expectedType because what if we expect a concrete implementation class
-    //    like LinkedList? the compiler will not generate a LinkedList
     fun isListConvertable(expectedType: JavaType, actualType: JavaType): Boolean {
-      return intList.isAssignableFrom(expectedType) && actualType == intArray
-          || longList.isAssignableFrom(expectedType) && actualType == longArray
-          || floatList.isAssignableFrom(expectedType) && actualType == floatArray
-          || doubleList.isAssignableFrom(expectedType) && actualType == doubleArray
-          || charList.isAssignableFrom(expectedType) && actualType == charArray
-          || List.isAssignableFrom(expectedType) && actualType.isArray
+      return intList == expectedType && actualType == intArray
+          || longList == expectedType && actualType == longArray
+          || floatList == expectedType && actualType == floatArray
+          || doubleList == expectedType && actualType == doubleArray
+          || charList == expectedType && actualType == charArray
+          || List == expectedType && actualType.isArray
     }
 
     fun isSetConvertable(expectedType: JavaType, actualType: JavaType): Boolean {
-      return intSet.isAssignableFrom(expectedType) && actualType == intArray
-          || longSet.isAssignableFrom(expectedType) && actualType == longArray
-          || floatSet.isAssignableFrom(expectedType) && actualType == floatArray
-          || doubleSet.isAssignableFrom(expectedType) && actualType == doubleArray
-          || characterSet.isAssignableFrom(expectedType) && actualType == charArray
-          || Set.isAssignableFrom(expectedType) && actualType.isArray
+      return intSet == expectedType && actualType == intArray
+          || longSet == expectedType && actualType == longArray
+          || floatSet == expectedType && actualType == floatArray
+          || doubleSet == expectedType && actualType == doubleArray
+          || characterSet == expectedType && actualType == charArray
+          || Set == expectedType && actualType.isArray
     }
   }
 }
