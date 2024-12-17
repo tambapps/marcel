@@ -34,11 +34,11 @@ extension class CharSequenceExtensions for CharSequence {
 
   fun int toInt() -> Integer.parseInt(toString())
 
-  fun int toLong() -> Long.parseLong(toString())
+  fun long toLong() -> Long.parseLong(toString())
 
   fun float toFloat() -> Float.parseFloat(toString())
 
-  fun float toDouble() -> Double.parseDouble(toString())
+  fun double toDouble() -> Double.parseDouble(toString())
 
   fun Character find(CharPredicate predicate) {
     Character c;
