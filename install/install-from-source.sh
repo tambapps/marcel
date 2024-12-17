@@ -30,7 +30,11 @@ mkdir -p $marcelDir/bin
 version=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout)
 
 echo "Installing marcel..."
-mvn clean package -Djavadoc.skip=true
+if command -v mvnd &> /dev/null; then
+    mvnd clean package -Djavadoc.skip=true
+else
+    mvn clean package -Djavadoc.skip=true
+fi
 
 # compilation modules
 cp marcel-compilation/marcel-lexer/target/marcel-lexer-$version.jar $marcelDir/lib/marcel-lexer.jar
