@@ -61,42 +61,12 @@ class AstNodeCaster(
         actualType.isArray -> {
           when {
             // lists
-            JavaType.intList.isAssignableFrom(expectedType) && actualType == JavaType.intArray -> functionCall(
-              JavaType.intListImpl,
-              "wrap",
-              listOf(node),
-              node
-            )
-
-            JavaType.longList.isAssignableFrom(expectedType) && actualType == JavaType.longArray -> functionCall(
-              JavaType.longListImpl,
-              "wrap",
-              listOf(node),
-              node
-            )
-
-            JavaType.floatList.isAssignableFrom(expectedType) && actualType == JavaType.floatArray -> functionCall(
-              JavaType.floatListImpl,
-              "wrap",
-              listOf(node),
-              node
-            )
-
-            JavaType.doubleList.isAssignableFrom(expectedType) && actualType == JavaType.doubleArray -> functionCall(
-              JavaType.doubleListImpl,
-              "wrap",
-              listOf(node),
-              node
-            )
-
-            JavaType.charList.isAssignableFrom(expectedType) && actualType == JavaType.charArray -> functionCall(
-              JavaType.charListImpl,
-              "wrap",
-              listOf(node),
-              node
-            )
-
-            List::class.javaType.isAssignableFrom(expectedType) && actualType.isArray -> functionCall(
+            JavaType.intList.isAssignableFrom(expectedType) && actualType == JavaType.intArray
+                || JavaType.longList.isAssignableFrom(expectedType) && actualType == JavaType.longArray
+                || JavaType.floatList.isAssignableFrom(expectedType) && actualType == JavaType.floatArray
+                || JavaType.doubleList.isAssignableFrom(expectedType) && actualType == JavaType.doubleArray
+                || JavaType.charList.isAssignableFrom(expectedType) && actualType == JavaType.charArray
+                || List::class.javaType.isAssignableFrom(expectedType) && actualType.isArray -> functionCall(
               BytecodeHelper::class.javaType,
               "createList",
               listOf(node),

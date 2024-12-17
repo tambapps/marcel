@@ -1,6 +1,16 @@
 package marcel.lang.runtime;
 
 import marcel.lang.MarcelTruth;
+import marcel.util.primitives.collections.lists.CharArrayList;
+import marcel.util.primitives.collections.lists.CharList;
+import marcel.util.primitives.collections.lists.DoubleArrayList;
+import marcel.util.primitives.collections.lists.DoubleList;
+import marcel.util.primitives.collections.lists.FloatArrayList;
+import marcel.util.primitives.collections.lists.FloatList;
+import marcel.util.primitives.collections.lists.IntArrayList;
+import marcel.util.primitives.collections.lists.IntList;
+import marcel.util.primitives.collections.lists.LongArrayList;
+import marcel.util.primitives.collections.lists.LongList;
 import marcel.util.primitives.collections.sets.CharOpenHashSet;
 import marcel.util.primitives.collections.sets.CharSet;
 import marcel.util.primitives.collections.sets.DoubleOpenHashSet;
@@ -26,8 +36,25 @@ import java.util.Set;
  */
 public final class BytecodeHelper {
 
-  // Object parameter to handle all kinds of arrays. Object[], char[][], etc...
   // list
+  public static IntList createList(int[] array) {
+    return IntArrayList.wrap(array);
+  }
+  public static LongList createList(long[] array) {
+    return LongArrayList.wrap(array);
+  }
+  public static FloatList createList(float[] array) {
+    return FloatArrayList.wrap(array);
+  }
+  public static DoubleList createList(double[] array) {
+    return DoubleArrayList.wrap(array);
+  }
+  public static CharList createList(char[] array) {
+    return CharArrayList.wrap(array);
+  }
+
+  // TODO convert to Object[] because Any[] extends Object[] (at least I think so)
+  // Object parameter to handle all kinds of arrays. Object[], char[][], etc...
   public static List<?> createList(Object array) {
     int length = Array.getLength(array);
     List<Object> list = new ArrayList<>(length);
