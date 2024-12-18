@@ -1,6 +1,7 @@
 package com.tambapps.marcel.semantic.compose
 
 import com.tambapps.marcel.lexer.LexToken
+import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.semantic.MarcelSemanticGenerator
 import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
@@ -266,6 +267,18 @@ class StatementsComposer(
     return statement
   }
 
+  inline fun forInIteratorNodeStmt(forVariable: LocalVariable, inNode: ExpressionNode,
+                                   forStatementsComposerFunc: StatementsComposer.(MethodScope, LocalVariable) -> Unit
+  ) {
+    useInnerScope { forScope ->
+      val forStmt = forInIteratorNode(tokenStart, tokenEnd, forScope, forVariable, inNode) {
+        val forStatementsComposer = StatementsComposer(scopeQueue, caster, symbolResolver, mutableListOf(), tokenStart, tokenEnd)
+        forStatementsComposerFunc.invoke(forStatementsComposer, forScope, forVariable)
+        forStatementsComposer.asBlockStatement()
+      }
+      statements.add(forStmt)
+    }
+  }
   inline fun forInArrayStmt(array: ExpressionNode, forStatementsComposerFunc: StatementsComposer.(MethodScope, LocalVariable) -> Unit) {
     useInnerScope { forScope ->
       val iVar = forScope.addLocalVariable(JavaType.int, token = tokenStart)

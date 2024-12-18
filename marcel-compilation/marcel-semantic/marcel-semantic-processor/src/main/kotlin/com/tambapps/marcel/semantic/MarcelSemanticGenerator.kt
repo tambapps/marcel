@@ -337,18 +337,24 @@ abstract class MarcelSemanticGenerator(
     node: CstNode, forScope: MethodScope, variable: LocalVariable, inNode: ExpressionNode,
     // lambda because we want the body to be semantically checked AFTER we created the iteratorVariable
     bodyCreator: () -> StatementNode
+  ) = forInIteratorNode(node.tokenStart, node.tokenEnd, forScope, variable, inNode, bodyCreator)
+
+  inline fun forInIteratorNode(
+    tokenStart: LexToken, tokenEnd: LexToken, forScope: MethodScope, variable: LocalVariable, inNode: ExpressionNode,
+    // lambda because we want the body to be semantically checked AFTER we created the iteratorVariable
+    bodyCreator: () -> StatementNode
   ): ForInIteratorStatementNode {
     val iteratorExpression = when {
-      inNode.type.implements(Iterable::class.javaType) -> fCall(node, inNode.type, "iterator", emptyList(), inNode)
+      inNode.type.implements(Iterable::class.javaType) -> fCall(tokenStart, tokenEnd, inNode.type, "iterator", emptyList(), inNode)
       inNode.type.implements(Iterator::class.javaType) -> inNode
       inNode.type.implements(CharSequence::class.javaType) -> NewInstanceNode(
         CharSequenceIterator::class.javaType,
         symbolResolver.findMethod(CharSequenceIterator::class.javaType, MarcelMethod.CONSTRUCTOR_NAME, listOf(inNode))!!,
         listOf(inNode),
-        node.token
+        tokenStart
       )
 
-      else -> throw MarcelSemanticException(node.token, "Cannot iterate over an expression of type ${inNode.type}")
+      else -> throw MarcelSemanticException(tokenStart, "Cannot iterate over an expression of type ${inNode.type}")
     }
     val iteratorExpressionType = iteratorExpression.type
     return forScope.useTempLocalVariable(iteratorExpressionType) { iteratorVariable ->
@@ -374,16 +380,17 @@ abstract class MarcelSemanticGenerator(
       else if (Iterator::class.javaType.isAssignableFrom(iteratorExpressionType)) Pair(Iterator::class.javaType, "next")
       else throw UnsupportedOperationException("wtf")
 
-      val iteratorVarReference = ReferenceNode(variable = iteratorVariable, token = node.token)
+      val iteratorVarReference = ReferenceNode(variable = iteratorVariable, token = tokenStart)
 
       val nextMethod = symbolResolver.findMethodOrThrow(nextMethodOwnerType, nextMethodName, emptyList())
       // cast to fit the declared variable type
       val nextMethodCall = caster.cast(
         variable.type,
-        fCall(node = node, method = nextMethod, arguments = emptyList(), owner = iteratorVarReference)
+        fCall(tokenStart, tokenEnd, method = nextMethod, arguments = emptyList(), owner = iteratorVarReference)
       )
       ForInIteratorStatementNode(
-        node,
+        tokenStart,
+        tokenEnd,
         variable,
         iteratorVariable,
         iteratorExpression,
@@ -419,6 +426,15 @@ abstract class MarcelSemanticGenerator(
       composer.invoke(statementComposer, scope)
     }
     return methodNode
+  }
+
+  inline fun compose(node: CstNode, scope: MethodScope, composer: StatementsComposer.(MethodScope) -> Unit): StatementNode {
+    return useScope(scope) {
+      val statements = mutableListOf<StatementNode>()
+      val statementComposer = StatementsComposer(scopeQueue, caster, symbolResolver, statements, node.tokenStart, node.tokenEnd)
+      composer.invoke(statementComposer, scope)
+      BlockStatementNode(statements)
+    }
   }
 
   fun returnVoid(node: AstNode) = ReturnStatementNode(VoidExpressionNode(node.token), node.tokenStart, node.tokenEnd)

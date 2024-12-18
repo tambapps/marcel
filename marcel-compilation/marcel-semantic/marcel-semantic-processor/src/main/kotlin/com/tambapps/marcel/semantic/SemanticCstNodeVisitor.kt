@@ -764,16 +764,8 @@ abstract class SemanticCstNodeVisitor(
       is LongCstNode -> LongConstantNode(node.token, -expr.value)
       is FloatCstNode -> FloatConstantNode(node.token, -expr.value)
       is DoubleCstNode -> DoubleConstantNode(node.token, -expr.value)
-      else -> visit(
-        BinaryOperatorCstNode(
-          TokenType.MINUS,
-          IntCstNode(node.parent, 0, node.token),
-          expr,
-          node.parent,
-          node.tokenStart,
-          node.tokenEnd
-        )
-      )
+      // TODO document this operator overloading
+      else -> fCall(node = node, name = "negate", arguments = emptyList(), owner = expr.accept(this))
     }
   }
 
@@ -2365,44 +2357,27 @@ abstract class SemanticCstNodeVisitor(
       val keyVar = localVars.first()
       val valueVar = localVars.last()
 
-      // need to init map variable before going in the loop
-      BlockStatementNode(mutableListOf(
-        ExpressionStatementNode(
+      compose(node, currentMethodScope) {
+        // need to init map variable before going in the loop
+        // valueVar = map[keyVar]. keyVar is initialized before, in MethodInstructionWriter
+        varAssignStmt(variable = mapVar, expr = inNode)
+
+        forInIteratorNodeStmt(forVariable = keyVar, inNode = fCall(
+          node = node,
+          owner = ReferenceNode(variable = mapVar, token = node.token),
+          name = "keySet",
+          arguments = emptyList()
+        )) { forVar, scope ->
           // valueVar = map[keyVar]. keyVar is initialized before, in MethodInstructionWriter
-          VariableAssignmentNode(
-            localVariable = mapVar,
-            expression = inNode, node
-          )
-        ),
-        forInIteratorNode(
-          node = node, forScope = it, variable = keyVar,
-          // iterating over keys
-          inNode = fCall(
-            node = node,
-            owner = ReferenceNode(variable = mapVar, token = node.token),
-            name = "keySet",
-            arguments = emptyList()
-          )
-        ) {
-          // body statement generator
-          BlockStatementNode(
-            mutableListOf(
-              ExpressionStatementNode(
-                // valueVar = map[keyVar]. keyVar is initialized before, in MethodInstructionWriter
-                VariableAssignmentNode(
-                  localVariable = valueVar,
-                  expression = fCall(
-                    castType = valueVar.type, owner = ReferenceNode(variable = mapVar, token = node.token),
-                    method = symbolResolver.findMethod(JavaType.Map, "get", listOf(JavaType.Object))!!,
-                    arguments = listOf(ReferenceNode(variable = keyVar, token = node.token)), node = node
-                  ), node
-                )
-              ),
-              node.statementNode.accept(this)
-            ), node.tokenStart, node.tokenEnd
-          )
+          varAssignStmt(variable = valueVar,
+            expr = fCall(
+              castType = valueVar.type, owner = ReferenceNode(variable = mapVar, token = node.token),
+              method = symbolResolver.findMethod(JavaType.Map, "get", listOf(JavaType.Object))!!,
+              arguments = listOf(ReferenceNode(variable = keyVar, token = node.token)), node = node
+            ))
+          stmt(node.statementNode.accept(this@SemanticCstNodeVisitor))
         }
-      ), node.tokenStart, node.tokenEnd)
+      }
     } else {
       throw MarcelSemanticException(
         node.token,
