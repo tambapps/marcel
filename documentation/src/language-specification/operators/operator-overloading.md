@@ -13,6 +13,7 @@ Here is the table of functions to define for each operator
 |------------|-------------------|
 | a + b      | a.plus(b)         |
 | a - b      | a.minus(b)        |
+| - a        | a.negate()        |
 | a * b      | a.multiply(b)     |
 | a % b      | a.mod(b)          |
 | a / b      | a.div(b)          |

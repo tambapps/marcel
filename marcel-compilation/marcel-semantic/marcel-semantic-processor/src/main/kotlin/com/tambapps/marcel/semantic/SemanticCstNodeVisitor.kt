@@ -759,13 +759,17 @@ abstract class SemanticCstNodeVisitor(
   )
 
   override fun visit(node: UnaryMinusCstNode, smartCastType: JavaType?): ExpressionNode {
-    return when (val expr = node.expression) {
-      is IntCstNode -> IntConstantNode(node.token, -expr.value)
-      is LongCstNode -> LongConstantNode(node.token, -expr.value)
-      is FloatCstNode -> FloatConstantNode(node.token, -expr.value)
-      is DoubleCstNode -> DoubleConstantNode(node.token, -expr.value)
-      // TODO document this operator overloading
-      else -> fCall(node = node, name = "negate", arguments = emptyList(), owner = expr.accept(this))
+    val expr = node.expression.accept(this)
+    return when  {
+      expr is IntConstantNode -> IntConstantNode(node.token, -expr.value)
+      expr is LongConstantNode -> LongConstantNode(node.token, -expr.value)
+      expr is FloatConstantNode -> FloatConstantNode(node.token, -expr.value)
+      expr is DoubleConstantNode -> DoubleConstantNode(node.token, -expr.value)
+      Number::class.javaType.isAssignableFrom(expr.type) -> arithmeticBinaryOperator(
+        IntConstantNode(node.token, 0), expr, "minus",
+        ::MinusNode
+      )
+      else -> fCall(node = node, name = "negate", arguments = emptyList(), owner = expr)
     }
   }
 
