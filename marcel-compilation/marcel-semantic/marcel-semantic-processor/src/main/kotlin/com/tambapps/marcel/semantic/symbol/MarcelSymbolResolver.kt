@@ -121,8 +121,7 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
   fun defineType(
     token: LexToken = LexToken.DUMMY,
     visibility: Visibility,
-    outerClassType: JavaType?,
-    cName: String,
+    className: String,
     superClass: JavaType,
     isInterface: Boolean,
     interfaces: List<JavaType>,
@@ -134,7 +133,6 @@ open class MarcelSymbolResolver(private val classLoader: MarcelClassLoader?) : M
     isExtensionType: Boolean = false,
     extendedType: JavaType? = null
   ): SourceJavaType {
-    val className = if (outerClassType != null) "${outerClassType.className}\$$cName" else cName
     checkTypeAlreadyDefined(token, className)
     val type = SourceJavaType(
       visibility,

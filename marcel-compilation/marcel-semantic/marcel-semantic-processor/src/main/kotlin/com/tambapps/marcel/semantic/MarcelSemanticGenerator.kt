@@ -611,8 +611,7 @@ abstract class MarcelSemanticGenerator(
     val lambdaType = symbolResolver.defineType(
       tokenStart,
       Visibility.INTERNAL,
-      outerClassNode.type,
-      generateLambdaClassName(outerClassNode),
+      "${outerClassNode.type.className}\$${generateLambdaClassName(outerClassNode)}",
       JavaType.Object,
       false,
       lambdaImplementedInterfaces

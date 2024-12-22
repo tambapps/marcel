@@ -112,14 +112,13 @@ open class MarcelSemantic(
     }
   }
 
-  private fun defineClass(classCstNode: ClassCstNode) {
+  private fun defineClass(classCstNode: ClassCstNode, recursive: Boolean) {
     val superType = classCstNode.superType?.let { resolve(it) } ?: JavaType.Object
     val interfaces = classCstNode.interfaces.map { resolve(it) }
     val classType = symbolResolver.defineType(
       token = classCstNode.token,
       visibility = Visibility.fromTokenType(classCstNode.access.visibility),
-      outerClassType = null, // TODO fix this. it should be supported
-      cName = classCstNode.className,
+      className = classCstNode.className,
       superClass = superType,
       interfaces = interfaces,
       isInterface = false, // not supported yet
@@ -131,7 +130,7 @@ open class MarcelSemantic(
       isExtensionType = classCstNode.isExtensionClass,
       extendedType = classCstNode.forExtensionType?.let { resolve(it) }
     )
-    defineClassMembers(classCstNode, classType)
+    defineClassMembers(classCstNode, classType, recursive=recursive)
   }
 
   fun defineClassMembers(classCstNode: ClassCstNode, classType: JavaType, recursive: Boolean = true) = useScope(
@@ -187,7 +186,7 @@ open class MarcelSemantic(
       classCstNode.constructors.forEach { symbolResolver.defineMethod(classType, toJavaConstructor(classType, it)) }
 
       if (recursive) {
-        classCstNode.innerClasses.forEach { defineClass(it) }
+        classCstNode.innerClasses.forEach { defineClass(it, recursive) }
       }
     } finally {
       unloadExtensions()

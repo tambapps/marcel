@@ -1790,8 +1790,7 @@ abstract class SemanticCstNodeVisitor(
     val lambdaType = symbolResolver.defineType(
       node.token,
       Visibility.INTERNAL,
-      lambdaOuterClassNode.type,
-      lambdaClassName,
+      "${lambdaOuterClassNode.type}\$$lambdaClassName",
       JavaType.Object,
       false,
       lambdaImplementedInterfaces
