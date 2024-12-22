@@ -361,7 +361,6 @@ open class MarcelSemantic(
   }
 
 
-  // TODO document enums
   // note to self https://chatgpt.com/c/6759239f-ede4-8012-b99b-daa74614b684
   private inner class EnumClassSemantic(node: EnumCstNode, classNode: ClassNode, classScope: ClassScope) :
     ClassSemantic<EnumCstNode>(node, classNode, classScope) {

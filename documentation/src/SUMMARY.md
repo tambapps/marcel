@@ -30,6 +30,7 @@
     - [Visibility and Access](language-specification/source-file-structure/visibility.md)
     - [Functions](language-specification/source-file-structure/functions.md)
     - [Classes](language-specification/source-file-structure/classes.md)
+    - [Enums](language-specification/source-file-structure/enums.md)
     - [Script](language-specification/source-file-structure/script.md)
     - [Annotations](language-specification/source-file-structure/annotations.md)
   - [Operators](language-specification/operators/index.md)
