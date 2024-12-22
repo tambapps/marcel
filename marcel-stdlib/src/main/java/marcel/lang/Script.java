@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Console;
+import java.util.Arrays;
 
 /**
  * Base class for any Marcel scripts
@@ -41,8 +42,80 @@ public abstract class Script {
     System.out.println(o);
   }
 
+  public void println(Object[] o) {
+    System.out.println(Arrays.toString(o));
+  }
+
+  public void println(int[] o) {
+    System.out.println(Arrays.toString(o));
+  }
+
+  public void println(long[] o) {
+    System.out.println(Arrays.toString(o));
+  }
+
+  public void println(float[] o) {
+    System.out.println(Arrays.toString(o));
+  }
+
+  public void println(double[] o) {
+    System.out.println(Arrays.toString(o));
+  }
+
+  public void println(short[] o) {
+    System.out.println(Arrays.toString(o));
+  }
+
+  public void println(byte[] o) {
+    System.out.println(Arrays.toString(o));
+  }
+
+  public void println(boolean[] o) {
+    System.out.println(Arrays.toString(o));
+  }
+
+  public void println(char[] o) {
+    System.out.println(Arrays.toString(o));
+  }
+
   public void print(Object o) {
     System.out.print(o);
+  }
+
+  public void print(Object[] o) {
+    System.out.print(Arrays.toString(o));
+  }
+
+  public void print(int[] o) {
+    System.out.print(Arrays.toString(o));
+  }
+
+  public void print(long[] o) {
+    System.out.print(Arrays.toString(o));
+  }
+
+  public void print(float[] o) {
+    System.out.print(Arrays.toString(o));
+  }
+
+  public void print(double[] o) {
+    System.out.print(Arrays.toString(o));
+  }
+
+  public void print(short[] o) {
+    System.out.print(Arrays.toString(o));
+  }
+
+  public void print(byte[] o) {
+    System.out.print(Arrays.toString(o));
+  }
+
+  public void print(boolean[] o) {
+    System.out.print(Arrays.toString(o));
+  }
+
+  public void print(char[] o) {
+    System.out.print(Arrays.toString(o));
   }
 
   public String readLine() {
