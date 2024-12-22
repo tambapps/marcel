@@ -22,7 +22,6 @@ import marcel.util.primitives.collections.sets.IntSet;
 import marcel.util.primitives.collections.sets.LongOpenHashSet;
 import marcel.util.primitives.collections.sets.LongSet;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -52,14 +51,10 @@ public final class BytecodeHelper {
   public static CharList createList(char[] array) {
     return CharArrayList.wrap(array);
   }
-
-  // TODO convert to Object[] because Any[] extends Object[] (at least I think so)
-  // Object parameter to handle all kinds of arrays. Object[], char[][], etc...
-  public static List<?> createList(Object array) {
-    int length = Array.getLength(array);
-    List<Object> list = new ArrayList<>(length);
-    for (int i = 0; i < length; i++) {
-      list.add(Array.get(array, i));
+  public static List<?> createList(Object[] array) {
+    List<Object> list = new ArrayList<>(array.length);
+    for (int i = 0; i < array.length; i++) {
+      list.add(array[i]);
     }
     return list;
   }
@@ -80,13 +75,10 @@ public final class BytecodeHelper {
   public static CharSet createSet(char[] array) {
     return new CharOpenHashSet(array);
   }
-
-  // Object parameter to handle all kinds of arrays. Object[], char[][], etc...
-  public static Set<?> createSet(Object array) {
-    int length = Array.getLength(array);
-    Set<Object> set = new HashSet<>(length);
-    for (int i = 0; i < length; i++) {
-      set.add(Array.get(array, i));
+  public static Set<?> createSet(Object[] array) {
+    Set<Object> set = new HashSet<>(array.length);
+    for (int i = 0; i < array.length; i++) {
+      set.add(array[i]);
     }
     return set;
   }
