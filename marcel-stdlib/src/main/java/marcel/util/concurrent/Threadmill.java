@@ -5,8 +5,11 @@ import lombok.SneakyThrows;
 import java.io.Closeable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -91,14 +94,24 @@ public class Threadmill {
    * @param collection a collection holding futures
    * @return all the results put into an array
    */
+  @SneakyThrows
   public static Object[] await(Collection<?> collection) {
     Object[] result = new Object[collection.size()];
     Iterator<?> iterator = collection.iterator();
+    List<Throwable> errors = new ArrayList<>();
     int i = 0;
     while (iterator.hasNext()) {
-      result[i++] = await((Future<?>) iterator.next());
+      Future<?> future = (Future<?>) iterator.next();
+      try {
+        result[i++] = future.get();
+      } catch (ExecutionException e) {
+        if (e.getCause() != null) errors.add(e.getCause());
+        else throw e;
+      }
     }
-    return result;
+    if (errors.isEmpty()) return result;
+    else if (errors.size() == 1) throw errors.get(0);
+    else throw new CompositeException(errors);
   }
 
   /**
@@ -107,11 +120,7 @@ public class Threadmill {
    * @return all the results put into an array
    */
   public static Object[] await(Object[] array) {
-    Object[] result = new Object[array.length];
-    for (int i = 0; i < array.length; i++) {
-      result[i] = await((Future<?>) array[i]);
-    }
-    return result;
+    return await(Arrays.asList(array));
   }
 
   /**
@@ -119,9 +128,7 @@ public class Threadmill {
    */
   public static void await() {
     ThredmillContext context = getCurrentContext();
-    for (Future<?> future : context.futures) {
-      await(future);
-    }
+    await(context.futures);
     context.futures.clear();
   }
 
@@ -145,9 +152,7 @@ public class Threadmill {
         break;
       }
     }
-    for (Future<?> future : context.futures) {
-      await(future); // useful to throw exception if an error occured
-    }
+    await(context.futures); // useful to throw exception if an error occurred
     context.futures.clear();
   }
 

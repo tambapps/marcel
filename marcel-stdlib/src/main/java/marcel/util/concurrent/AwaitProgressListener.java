@@ -4,9 +4,9 @@ public interface AwaitProgressListener {
 
   /**
    * Listen for the progress of Threadmill
-   * @param completedTasks the number of completed tasks
+   * @param finishedTasks the number of finished (completed or failed) tasks
    * @param total the total number of tasks
    */
-  void onProgress(int completedTasks, int total);
+  void onProgress(int finishedTasks, int total);
 
 }
