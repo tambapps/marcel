@@ -48,6 +48,10 @@ cp marcel-compilation/marcel-compiler/target/marcel-compiler-$version.jar $marce
 cp marcel-stdlib/target/marcel-stdlib-$version.jar $marcelDir/lib/marcel-stdlib.jar
 cp marcel-extensions/target/marcel-extensions-$version.jar $marcelDir/lib/marcel-extensions.jar
 
+# libs
+cp marcel-libs/marcel-json/target/marcel-json-$version.jar $marcelDir/lib/marcel-json.jar
+cp marcel-libs/marcel-yaml/target/marcel-yaml-$version.jar $marcelDir/lib/marcel-yaml.jar
+
 # subprojects
 cp marcel-subprojects/marcl/target/marcl-$version.jar $marcelDir/lib/marcl.jar
 cp marcel-subprojects/dumbbell-core/target/dumbbell-core-$version.jar $marcelDir/lib/dumbbell-core.jar
