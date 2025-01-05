@@ -19,6 +19,7 @@ import marcel.lang.URLMarcelClassLoader
 import marcel.util.MarcelVersion
 import java.io.File
 import java.io.IOException
+import java.nio.file.Files
 import kotlin.system.exitProcess
 
 // useful commands to add later: doctor, upgrade
@@ -53,13 +54,8 @@ class ExecuteCommand(private val scriptArguments: Array<String>) : CliktCommand(
 
   override fun run() {
     val scriptLoader = URLMarcelClassLoader()
+    val (className, jarFile) = compile(file, keepClassFiles, keepJarFile, printStackTrace, scriptLoader) ?: return
 
-    // we want to keep jar because we will run it
-    val (className, jarFile) = compile(file, keepClassFiles, true, printStackTrace, scriptLoader) ?: return
-
-    if (!keepJarFile) {
-      jarFile.deleteOnExit()
-    }
     // and then run it with the new classLoader
     scriptLoader.loadScript(className, jarFile)
       .run(scriptArguments)
@@ -95,9 +91,9 @@ fun main(args : Array<String>) {
   }
 }
 
-fun compile(file: File, generateClassFiles: Boolean, generateJarFile: Boolean, printStackTrace: Boolean, scriptLoader: MarcelClassLoader? = null): Pair<String, File>? {
+fun compile(sourceFile: File, keepClassFiles: Boolean, keepJarFile: Boolean, printStackTrace: Boolean, scriptLoader: MarcelClassLoader? = null): Pair<String, File>? {
   val classes = try {
-    MarcelCompiler(CompilerConfiguration(dumbbellEnabled = true)).compile(file, scriptLoader)
+    MarcelCompiler(CompilerConfiguration(dumbbellEnabled = true)).compile(sourceFile, scriptLoader)
   } catch (e: IOException) {
     println("An error occurred while reading file: ${e.message}")
     if (printStackTrace) e.printStackTrace()
@@ -123,19 +119,18 @@ fun compile(file: File, generateClassFiles: Boolean, generateJarFile: Boolean, p
     if (printStackTrace) e.printStackTrace()
     return null
   }
-
-  for (compiledClass in classes) {
-    if (!generateClassFiles && !generateJarFile // if no option is specified
-      || generateClassFiles) {
+  if (keepClassFiles) {
+    for (compiledClass in classes) {
       File("${compiledClass.className}.class").writeBytes(compiledClass.bytes)
     }
   }
 
-  if (!generateJarFile) return null
   // script can have a package. That's why we need to lookup className from compiled classes
   val scriptClassName = classes.find { it.isScript }?.className ?: return null
 
-  val jarFile = File(file.parentFile, "$scriptClassName.jar")
+  val jarFile =
+    if (!keepJarFile) Files.createTempFile("marcl", "$scriptClassName.jar").toFile().apply { deleteOnExit() }
+    else File(sourceFile.parentFile, "$scriptClassName.jar")
   MarcelJarOutputStream(jarFile).use {
     it.writeClasses(classes)
   }
