@@ -6,6 +6,8 @@ import java.nio.file.Files as JavaFiles
 
 extension class FileExtensions for File {
 
+  fun byte[] readBytes() -> JavaFiles.readAllBytes(toPath())
+
   fun String readText() -> new String(JavaFiles.readAllBytes(toPath()), StandardCharsets.UTF_8)
 
   fun String readText(String charset) -> new String(JavaFiles.readAllBytes(toPath()), Charset.forName(charset))
