@@ -145,6 +145,9 @@ public class Threadmill {
         break;
       }
     }
+    for (Future<?> future : context.futures) {
+      await(future); // useful to throw exception if an error occured
+    }
     context.futures.clear();
   }
 
