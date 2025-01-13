@@ -126,52 +126,50 @@ class FilePickerActivity : ComponentActivity() {
       viewModel.init(intent.getStringArrayExtra(ALLOWED_FILE_EXTENSIONS_KEY), intent.hasExtra(DIRECTORY_ONLY_KEY), intent.hasExtra(ALLOW_CREATE_FILE_KEY))
       val context = LocalContext.current
       MarcelAndroidTheme {
-        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-          Box(modifier = Modifier.fillMaxSize()) {
-            LifecycleStateListenerEffect(
-              onResume = { viewModel.refresh(homeDirectory) }
+        Box(modifier = Modifier.fillMaxSize()) {
+          LifecycleStateListenerEffect(
+            onResume = { viewModel.refresh(homeDirectory) }
+          )
+          if (!viewModel.canManageFiles) {
+            AlertDialog(
+              title = {
+                Text(text = "File access permission")
+              },
+              text = {
+                Text(text = "To continue, please allow the app to access files of your device")
+              },
+              onDismissRequest = {},
+              confirmButton = {
+                TextButton(onClick = { askManageFilePermission(context) }) {
+                  Text(text = "Allow")
+                }
+              }
             )
-            if (!viewModel.canManageFiles) {
-              AlertDialog(
-                title = {
-                  Text(text = "File access permission")
-                },
-                text = {
-                  Text(text = "To continue, please allow the app to access files of your device")
-                },
-                onDismissRequest = {},
-                confirmButton = {
-                  TextButton(onClick = { askManageFilePermission(context) }) {
-                    Text(text = "Allow")
+          } else {
+            FileExplorerScreen(
+              viewModel = viewModel,
+              backPressedDispatcher = onBackPressedDispatcher
+            )
+            ProposeFileDialog(viewModel, this@FilePickerActivity::finishWithResult)
+            val showCreateFileDialog = remember { mutableStateOf(false) }
+            CreateFileDialog(viewModel, showCreateFileDialog)
+            if (viewModel.dirOnly || viewModel.allowCreateNewFile) {
+              FloatingActionButton(
+                modifier = Modifier
+                  .padding(all = 16.dp)
+                  .size(64.dp)
+                  .align(Alignment.BottomEnd),
+                onClick = {
+                  if (viewModel.dirOnly) {
+                    viewModel.proposedFile = viewModel.currentDir
+                  } else {
+                    showCreateFileDialog.value = true
                   }
                 }
-              )
-            } else {
-              FileExplorerScreen(
-                viewModel = viewModel,
-                backPressedDispatcher = onBackPressedDispatcher
-              )
-              ProposeFileDialog(viewModel, this@FilePickerActivity::finishWithResult)
-              val showCreateFileDialog = remember { mutableStateOf(false) }
-              CreateFileDialog(viewModel, showCreateFileDialog)
-              if (viewModel.dirOnly || viewModel.allowCreateNewFile) {
-                FloatingActionButton(
-                  modifier = Modifier
-                    .padding(all = 16.dp)
-                    .size(64.dp)
-                    .align(Alignment.BottomEnd),
-                  onClick = {
-                    if (viewModel.dirOnly) {
-                      viewModel.proposedFile = viewModel.currentDir
-                    } else {
-                      showCreateFileDialog.value = true
-                    }
-                  }
-                ) {
-                  Icon(imageVector = if (viewModel.dirOnly) Icons.Filled.Done else Icons.Filled.Add,
-                    contentDescription = if (viewModel.dirOnly) "Pick" else "Create new file",
-                  )
-                }
+              ) {
+                Icon(imageVector = if (viewModel.dirOnly) Icons.Filled.Done else Icons.Filled.Add,
+                  contentDescription = if (viewModel.dirOnly) "Pick" else "Create new file",
+                )
               }
             }
           }

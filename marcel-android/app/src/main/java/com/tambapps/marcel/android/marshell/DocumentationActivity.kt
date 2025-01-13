@@ -94,8 +94,7 @@ class DocumentationActivity : ComponentActivity() {
         val drawerState = rememberDrawerState(DrawerValue.Closed)
         val scope = rememberCoroutineScope()
         NavigationDrawer(drawerState = drawerState, navController = navController, backStackState = backStackState, scope = scope, viewModel = viewModel) {
-          Box(modifier = Modifier
-            .background(MaterialTheme.colorScheme.background)) {
+          Box {
             NavHost(
               navController = navController,
               startDestination = DOCUMENTATION,

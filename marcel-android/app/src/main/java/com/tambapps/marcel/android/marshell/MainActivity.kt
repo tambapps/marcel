@@ -129,8 +129,7 @@ class MainActivity : ComponentActivity() {
           mutableStateMapOf(Pair(0, defaultShellViewModel))
         }
         NavigationDrawer(drawerState = drawerState, navController = navController, scope = scope, shellViewModels = shellViewModels, shellSessionFactory = shellSessionFactory) {
-          Box(modifier = Modifier
-            .background(MaterialTheme.colorScheme.background)) {
+          Box {
             val createNewShell: () -> Unit = remember { ({ createNewShell(scope, navController, drawerState, this@MainActivity, shellViewModels)}) }
             NavHost(
               navController = navController,
