@@ -253,8 +253,8 @@ class PushingMethodExpressionWriter(mv: MethodVisitor, classScopeType: JavaType)
     mv.visitInsn(insCode)
   }
 
-  override fun visit(node: com.tambapps.marcel.semantic.ast.expression.ClassReferenceNode) {
-    if (node.classType.primitive) {Integer.TYPE
+  override fun visit(node: ClassReferenceNode) {
+    if (node.classType.primitive) {
       visit(ReferenceNode(
         owner = null,
         variable = ReflectJavaField(node.classType.objectType.realClazz.getField("TYPE")),
@@ -293,7 +293,7 @@ class PushingMethodExpressionWriter(mv: MethodVisitor, classScopeType: JavaType)
     }
   }
 
-  override fun visit(node: com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode) {
+  override fun visit(node: ArrayAccessNode) {
     pushExpression(node.owner)
     pushExpression(node.indexNode)
     mv.visitInsn(node.arrayType.arrayLoadCode)
@@ -302,7 +302,7 @@ class PushingMethodExpressionWriter(mv: MethodVisitor, classScopeType: JavaType)
   override fun visit(node: ArrayIndexAssignmentNode) {
     super.visit(node)
     visit(
-      com.tambapps.marcel.semantic.ast.expression.ArrayAccessNode(
+      ArrayAccessNode(
         node.owner,
         node.indexExpr,
         node.tokenStart,
@@ -331,5 +331,5 @@ class PushingMethodExpressionWriter(mv: MethodVisitor, classScopeType: JavaType)
     mv.visitTypeInsn(Opcodes.INSTANCEOF, node.instanceType.internalName)
   }
 
-  override fun pushExpression(node: com.tambapps.marcel.semantic.ast.expression.ExpressionNode) = node.accept(this)
+  override fun pushExpression(node: ExpressionNode) = node.accept(this)
 }
