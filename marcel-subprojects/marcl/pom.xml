@@ -22,6 +22,10 @@
     <!-- Needed in order to load default extensions -->
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
+      <artifactId>marcel-clargs</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.tambapps.marcel</groupId>
       <artifactId>marcel-extensions</artifactId>
     </dependency>
     <dependency>

@@ -23,7 +23,7 @@ public abstract class Script {
   public abstract Object run(String[] args);
 
   public Object run() {
-    return run(null);
+    return run(new String[0]);
   }
 
   public <T> T getVariable(String name) {

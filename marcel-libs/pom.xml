@@ -16,6 +16,7 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>marcel-clargs</module>
     <module>marcel-json</module>
     <module>marcel-yaml</module>
   </modules>
