@@ -110,7 +110,9 @@ interface SymbolDefinerTrait {
       genericTypes = emptyList(),
       superType = null, // will be set later
       globalExtendedType = null, // will be set later
-      isInterface = false, directlyImplementedInterfaces = mutableSetOf(),
+      isInterface = classNode.isInterface,
+      isFunctionalInterface = classNode.isInterface && classNode.methods.count { it.isAbstract } == 1,
+      directlyImplementedInterfaces = mutableSetOf(),
       isScript = classNode.isScript,
       isEnum = isEnum,
       isExtensionType = classNode.isExtensionClass,

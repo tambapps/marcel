@@ -5,6 +5,8 @@ import com.tambapps.marcel.parser.cst.visitor.ClassCstNodeVisitor
 interface ClassCstNode: CstNode {
   val isScript: Boolean
   val isEnum: Boolean
+  // does not support declaring interfaces for now
+  val isInterface: Boolean get() = false
   fun <T> accept(visitor: ClassCstNodeVisitor<T>): T
 
   val access: AccessCstNode

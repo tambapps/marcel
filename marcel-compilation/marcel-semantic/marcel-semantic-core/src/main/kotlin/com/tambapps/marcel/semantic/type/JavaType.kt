@@ -116,6 +116,8 @@ interface JavaType: JavaTyped {
   override val type get() = this
   val genericTypes: List<JavaType>
   val isInterface: Boolean
+  // whether the lambda exactly have one abstract method without default implementation
+  val isFunctionalInterface: Boolean
   val isAbstract: Boolean
   val isLambda get() = JavaType.lambda.isAssignableFrom(this)
   val primitive: Boolean

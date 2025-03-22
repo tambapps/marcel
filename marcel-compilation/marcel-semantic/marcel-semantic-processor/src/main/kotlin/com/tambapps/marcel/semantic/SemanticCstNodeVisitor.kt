@@ -1792,7 +1792,7 @@ abstract class SemanticCstNodeVisitor(
       Visibility.INTERNAL,
       "${lambdaOuterClassNode.type}\$$lambdaClassName",
       JavaType.Object,
-      false,
+      isInterface = false,
       lambdaImplementedInterfaces
     )
 
@@ -2619,7 +2619,6 @@ abstract class SemanticCstNodeVisitor(
         (currentScope as? MethodScope)?.method?.name?.contains(ASYNC_METHOD_PREFIX) == true -> "Cannot set value of local variables in async blocks"
         else -> "Cannot set value for variable ${variable.name}"
       }
-      println((currentScope as? MethodScope)?.method?.name)
       throw MarcelSemanticException(node, message)
     }
   }

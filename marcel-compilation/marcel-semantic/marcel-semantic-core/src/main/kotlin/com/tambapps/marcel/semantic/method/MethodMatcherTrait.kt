@@ -89,7 +89,7 @@ interface MethodMatcherTrait {
   }
 
   private fun methodParameterTypeMatches(expectedType: JavaType, actualType: JavaType): Boolean {
-    return if (expectedType.isInterface && actualType.isLambda)
+    return if (expectedType.isFunctionalInterface && actualType.isLambda)
       getInterfaceLambdaMethod(expectedType) != null // lambda parameter matches will be done by lambda handler
     else expectedType.isAssignableFrom(actualType) || JavaType.isListConvertable(expectedType, actualType)  || JavaType.isSetConvertable(expectedType, actualType)
   }

@@ -13,6 +13,7 @@ open class SourceJavaType constructor(
   override val genericTypes: List<JavaType>,
   override var superType: JavaType?,
   override val isInterface: Boolean,
+  override val isFunctionalInterface: Boolean,
   override val directlyImplementedInterfaces: MutableCollection<JavaType>,
   override val isScript: Boolean,
   override val isEnum: Boolean,

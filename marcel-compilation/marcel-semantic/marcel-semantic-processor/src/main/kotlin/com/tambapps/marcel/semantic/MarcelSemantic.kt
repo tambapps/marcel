@@ -122,6 +122,7 @@ open class MarcelSemantic(
       superClass = superType,
       interfaces = interfaces,
       isInterface = false, // not supported yet
+      isFunctionalInterface = false,
       isAbstract = false, // not supported
       isAnnotation = false, // not supported
       isScript = classCstNode.isScript,

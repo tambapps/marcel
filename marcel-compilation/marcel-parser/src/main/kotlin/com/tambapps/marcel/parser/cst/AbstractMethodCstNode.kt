@@ -8,6 +8,8 @@ sealed class AbstractMethodCstNode(parent: CstNode?, tokenStart: LexToken, token
   AbstractCstNode(parent, tokenStart, tokenEnd) {
 
   var isVarArgs = false
+  // not supporting declaring abstract methods for now
+  val isAbstract: Boolean get() = false
   val parameters = mutableListOf<MethodParameterCstNode>()
   val annotations = mutableListOf<AnnotationCstNode>()
   val statements = mutableListOf<StatementCstNode>()

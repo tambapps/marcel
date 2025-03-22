@@ -613,7 +613,7 @@ abstract class MarcelSemanticGenerator(
       Visibility.INTERNAL,
       "${outerClassNode.type.className}\$${generateLambdaClassName(outerClassNode)}",
       JavaType.Object,
-      false,
+      isInterface = false,
       lambdaImplementedInterfaces
     )
 

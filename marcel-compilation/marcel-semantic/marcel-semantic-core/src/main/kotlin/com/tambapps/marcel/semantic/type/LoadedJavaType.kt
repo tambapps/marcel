@@ -14,6 +14,11 @@ import java.lang.reflect.ParameterizedType
 abstract class LoadedJavaType internal constructor(final override val realClazz: Class<*>, final override val genericTypes: List<JavaType>): AbstractJavaType() {
   override val isLoaded = true
   override val isInterface = realClazz.isInterface
+  override val isFunctionalInterface: Boolean
+    get() = isInterface
+        // if it only has one abstract method
+        && realClazz.declaredMethods.count { ((it.modifiers and Modifier.ABSTRACT) != 0) && it.name != "equals" && it.name != "hashCode" } == 1
+
   override val isAbstract = (realClazz.modifiers and Modifier.ABSTRACT) != 0
   override val isFinal = (realClazz.modifiers and Modifier.FINAL) != 0
   override val isEnum = realClazz.isEnum
