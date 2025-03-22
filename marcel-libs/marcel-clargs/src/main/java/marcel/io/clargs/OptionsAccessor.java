@@ -39,11 +39,14 @@ public class OptionsAccessor {
         cliOption.setConverter(Boolean::parseBoolean);
       }
     }
+    if (optionValue == null) {
+      return null;
+    }
     try {
       return cliOption.getConverter().apply(optionValue);
     } catch (Throwable e) {
-      // TODO wrap exception with appropriate error message
-      throw new RuntimeException(e);
+      throw new OptionParserException(
+          "Malformed option %s: %s".formatted(getOptionName(optionAnnotation, field), e.getMessage()), e);
     }
   }
 
@@ -52,7 +55,7 @@ public class OptionsAccessor {
     return allOptions.stream().filter((opt) -> opt.getOpt().equals(optName)).findFirst();
   }
 
-  private String getOptionName(Option option, Field field) {
+  static String getOptionName(Option option, Field field) {
     if (!option.shortName().isEmpty()) {
       return option.shortName();
     } else {

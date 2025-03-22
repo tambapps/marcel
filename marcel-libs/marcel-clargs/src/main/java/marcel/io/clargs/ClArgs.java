@@ -2,7 +2,7 @@ package marcel.io.clargs;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
+import marcel.lang.Script;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -17,7 +17,23 @@ import java.util.Objects;
 
 @Getter
 @Setter
-public class ClArgsBuilder {
+public class ClArgs {
+
+  // util methods to use when using marcel scripts
+  public static void init(Script instance, String[] args) {
+    init(instance, args, () -> System.exit(1));
+  }
+
+  public static void init(Script instance, String[] args, Runnable onError) {
+    ClArgs builder = new ClArgs();
+    try {
+      builder.parseFromInstance(instance, args);
+    } catch (OptionParserException e) {
+      System.out.println(e.getMessage());
+      builder.usageFromInstance(instance);
+      onError.run();
+    }
+  }
 
   /**
    * Usage summary displayed as the first line when <code>cli.usage()</code> is called.
@@ -71,7 +87,7 @@ public class ClArgsBuilder {
     Options options = new Options();
     for (Field field : clazz.getDeclaredFields()) {
       Option optionAnnotation = field.getAnnotation(Option.class);
-      if (optionAnnotation == null || (field.getModifiers() & Modifier.STATIC) != 0) continue;
+      if (optionAnnotation == null) continue;
       org.apache.commons.cli.Option cliOption = toCliOption(optionAnnotation, field);
       options.addOption(cliOption);
     }
@@ -128,12 +144,11 @@ public class ClArgsBuilder {
   public void setOptionsFromAnnotations(OptionsAccessor optionsAccessor, Object instance, Class<?> clazz) {
     for (Field field : clazz.getDeclaredFields()) {
       Option optionAnnotation = field.getAnnotation(Option.class);
-      if (optionAnnotation == null || (field.getModifiers() & Modifier.STATIC) != 0) continue;
-
+      if (optionAnnotation == null) continue;
       Object optionValue = optionsAccessor.getOptionValue(optionAnnotation, field);
       if (optionValue == null) {
-        if (optionAnnotation.optional()) {
-          // TODO throw exception
+        if (!optionAnnotation.optional()) {
+          throw new OptionParserException("Option %s is required".formatted(OptionsAccessor.getOptionName(optionAnnotation, field)));
         } else {
           continue;
         }
@@ -146,7 +161,6 @@ public class ClArgsBuilder {
       } catch (IllegalAccessException e) {
         throw new RuntimeException(e);
       }
-
     }
   }
 
