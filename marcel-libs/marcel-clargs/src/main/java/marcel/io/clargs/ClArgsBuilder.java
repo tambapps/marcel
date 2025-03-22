@@ -58,6 +58,7 @@ public class ClArgsBuilder {
   public void parseFromInstance(Object instance, List<String> args) {
     parseFromInstance(instance, args.toArray(String[]::new));
   }
+
   public void parseFromInstance(Object instance, String[] args) {
     Objects.requireNonNull(instance, "instance must not be null");
     Class<?> clazz = instance.getClass();
@@ -71,15 +72,14 @@ public class ClArgsBuilder {
     for (Field field : clazz.getDeclaredFields()) {
       Option optionAnnotation = field.getAnnotation(Option.class);
       if (optionAnnotation == null || (field.getModifiers() & Modifier.STATIC) != 0) continue;
-      CliOption cliOption = toCliOption(optionAnnotation, field);
+      org.apache.commons.cli.Option cliOption = toCliOption(optionAnnotation, field);
       options.addOption(cliOption);
     }
     return options;
   }
 
-  private CliOption toCliOption(Option annotation, Field field) {
+  private org.apache.commons.cli.Option toCliOption(Option annotation, Field field) {
     String description = annotation.description();
-    String defaultValue = annotation.defaultValue();
     char valueSeparator = 0;
     if (!annotation.valueSeparator().isEmpty()) valueSeparator = annotation.valueSeparator().charAt(0);
     boolean optionalArg = annotation.optional();
@@ -104,9 +104,6 @@ public class ClArgsBuilder {
     Class<?> type = PrimitiveToWrapperUtil.getWrapperClassOrSelf(field.getType());
     builder.type(type);
 
-    if (optionalArg && !type.isArray()) { // TODO check this. Why?
-      throw new RuntimeException("Attempted to set optional argument for non array type");
-    }
     boolean isFlag = type.getSimpleName().toLowerCase().equals("boolean");
     int nbArgs;
     if (numberOfArgumentsString != null) {
@@ -124,7 +121,7 @@ public class ClArgsBuilder {
       builder.hasArg(true);
       builder.numberOfArgs(nbArgs);
     }
-    return new CliOption(builder.build(), defaultValue);
+    return builder.build();
   }
 
 
@@ -133,56 +130,31 @@ public class ClArgsBuilder {
       Option optionAnnotation = field.getAnnotation(Option.class);
       if (optionAnnotation == null || (field.getModifiers() & Modifier.STATIC) != 0) continue;
 
-      CliOption option = optionsAccessor.getOption(optionAnnotation, field);
-      if (option == null) continue;
+      Object optionValue = optionsAccessor.getOptionValue(optionAnnotation, field);
+      if (optionValue == null) {
+        if (optionAnnotation.optional()) {
+          // TODO throw exception
+        } else {
+          continue;
+        }
+      }
       if ((field.getModifiers() & Modifier.PUBLIC) == 0) {
         field.setAccessible(true);
       }
-      setFieldValue(field, option, instance);
-    }
-  }
+      try {
+        field.set(instance, optionValue);
+      } catch (IllegalAccessException e) {
+        throw new RuntimeException(e);
+      }
 
-  @SneakyThrows
-  private void setFieldValue(Field field, CliOption option, Object instance) {
-    if (option.getConverter() != null) {
-      // TODO wrap exception in runtime exception and provide info about context in which it happened
-      field.set(instance, option.getConverter().apply(option.getValue()));
-      return;
     }
-    Object value;
-    if (field.getType() == boolean.class) {
-      value = Boolean.parseBoolean(option.getValue());
-    } else if (field.getType() == int.class) {
-      value = Integer.parseInt(option.getValue());
-    } else if (field.getType() == long.class) {
-      value = Long.parseLong(option.getValue());
-    } else if (field.getType() == short.class) {
-      value = Short.parseShort(option.getValue());
-    } else if (field.getType() == byte.class) {
-      value = Byte.parseByte(option.getValue());
-    } else if (field.getType() == char.class) {
-      value = option.getValue().charAt(0);
-    } else if (field.getType() == double.class) {
-      value = Double.parseDouble(option.getValue());
-    } else if (field.getType() == float.class) {
-      value = Float.parseFloat(option.getValue());
-    } else if (field.getType() == void.class) {
-      value = option.getValue();
-    } else if (field.getType() == String.class) {
-      value = option.getValue();
-    } else if (field.getType().isArray()) {
-      throw new UnsupportedOperationException("Not supported yet.");
-    } else {
-      throw new UnsupportedOperationException("Unsupported type: " + field.getType());
-    }
-    field.set(instance, value);
   }
 
   public OptionsAccessor parse(Options options, String[] args) {
     DefaultParser parser = new DefaultParser();
     try {
       CommandLine commandLine = parser.parse(options, args, stopAtNonOption);
-      return new OptionsAccessor(commandLine);
+      return new OptionsAccessor(commandLine, options);
     } catch (ParseException pe) {
       writer.println("error: " + pe.getMessage());
       usage(options);
