@@ -5,7 +5,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-// TODO handle this
 /**
  * Indicates that a property will contain the remaining arguments.
  */
@@ -19,4 +18,6 @@ public @interface Arguments {
      * @return the description for the remaining non-option arguments
      */
     String description() default "ARGUMENTS";
+
+    // TODO add converter field and use it
 }

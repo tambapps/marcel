@@ -23,6 +23,10 @@ public class OptionsAccessor {
         .toList();
   }
 
+  public List<String> getArguments() {
+    return commandLine.getArgList();
+  }
+
   public Object getOptionValue(Option optionAnnotation, Field field) {
     Optional<org.apache.commons.cli.Option> optOption = findOption(optionAnnotation, field, parsedOptions)
         .or(() -> findOption(optionAnnotation, field, allOptions));

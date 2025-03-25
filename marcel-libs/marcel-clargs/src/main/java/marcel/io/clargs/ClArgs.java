@@ -3,6 +3,7 @@ package marcel.io.clargs;
 import lombok.Getter;
 import lombok.Setter;
 import marcel.lang.Script;
+import marcel.lang.compile.NullDefaultValue;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -12,20 +13,55 @@ import org.apache.commons.cli.ParseException;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Queue;
+import java.util.Set;
 
 @Getter
 @Setter
 public class ClArgs {
 
   // util methods to use when using marcel scripts
-  public static void init(Script instance, String[] args) {
-    init(instance, args, () -> System.exit(1));
+  public static void init(
+      Script instance,
+      String[] args,
+      @NullDefaultValue String usage,
+      @NullDefaultValue String header,
+      @NullDefaultValue String footer,
+      @NullDefaultValue Boolean stopAtNonOption,
+      @NullDefaultValue Integer width) {
+    init(instance, args, () -> System.exit(1), usage, header, footer, stopAtNonOption, width);
   }
 
-  public static void init(Script instance, String[] args, Runnable onError) {
+  public static void init(
+      Script instance,
+      String[] args,
+      Runnable onError,
+      @NullDefaultValue String usage,
+      @NullDefaultValue String header,
+      @NullDefaultValue String footer,
+      @NullDefaultValue Boolean stopAtNonOption,
+      @NullDefaultValue Integer width) {
     ClArgs builder = new ClArgs();
+    if (usage != null) {
+      builder.setUsage(usage);
+    }
+    if (header != null) {
+      builder.setHeader(header);
+    }
+    if (footer != null) {
+      builder.setFooter(footer);
+    }
+    if (stopAtNonOption != null) {
+      builder.setStopAtNonOption(stopAtNonOption);
+    }
+    if (width != null) {
+      builder.setWidth(width);
+    }
     try {
       builder.parseFromInstance(instance, args);
     } catch (OptionParserException e) {
@@ -79,8 +115,13 @@ public class ClArgs {
     Objects.requireNonNull(instance, "instance must not be null");
     Class<?> clazz = instance.getClass();
     Options options = getOptionsFromInstance(clazz);
-    OptionsAccessor optionsAccessor = parse(options, args);
-    setOptionsFromAnnotations(optionsAccessor, instance, clazz);
+    try {
+      OptionsAccessor optionsAccessor = parse(options, args);
+      setOptionsFromAnnotations(optionsAccessor, instance, clazz);
+    } catch (ParseException pe) {
+      writer.println("error: " + pe.getMessage());
+      usage(options, findArgumentsFromInstance(instance));
+    }
   }
 
   private Options getOptionsFromInstance(Class<?> clazz) {
@@ -144,44 +185,75 @@ public class ClArgs {
   public void setOptionsFromAnnotations(OptionsAccessor optionsAccessor, Object instance, Class<?> clazz) {
     for (Field field : clazz.getDeclaredFields()) {
       Option optionAnnotation = field.getAnnotation(Option.class);
-      if (optionAnnotation == null) continue;
-      Object optionValue = optionsAccessor.getOptionValue(optionAnnotation, field);
-      if (optionValue == null) {
-        if (!optionAnnotation.optional()) {
-          throw new OptionParserException("Option %s is required".formatted(OptionsAccessor.getOptionName(optionAnnotation, field)));
-        } else {
-          continue;
-        }
-      }
-      if ((field.getModifiers() & Modifier.PUBLIC) == 0) {
-        field.setAccessible(true);
-      }
-      try {
-        field.set(instance, optionValue);
-      } catch (IllegalAccessException e) {
-        throw new RuntimeException(e);
+      Arguments argumentsAnnotation = field.getAnnotation(Arguments.class);
+      if (optionAnnotation != null) {
+        setOptionsFromAnnotation(optionsAccessor, instance, field, optionAnnotation);
+      } else if (argumentsAnnotation != null) {
+        setArgumentsFromAnnotation(optionsAccessor, instance, field);
       }
     }
   }
 
-  public OptionsAccessor parse(Options options, String[] args) {
+  private void setArgumentsFromAnnotation(OptionsAccessor optionsAccessor, Object instance, Field field) {
+    Class<?> type = field.getType();
+    if (type == String.class) {
+      setFieldValue(field, instance, String.join(" ", optionsAccessor.getArguments()));
+    } else if (type == List.class || type == Queue.class) {
+      setFieldValue(field, instance, new LinkedList<>(optionsAccessor.getArguments()));
+    } else if (type == Set.class) {
+      setFieldValue(field, instance, new HashSet<>(optionsAccessor.getArguments()));
+    } else {
+      throw new OptionParserException("Unsupported arguments field type %s".formatted(type));
+    }
+  }
+
+  private void setOptionsFromAnnotation(OptionsAccessor optionsAccessor, Object instance, Field field, Option optionAnnotation) {
+    Object optionValue = optionsAccessor.getOptionValue(optionAnnotation, field);
+    if (optionValue == null) {
+      if (!optionAnnotation.optional()) {
+        throw new OptionParserException("Option %s is required".formatted(OptionsAccessor.getOptionName(optionAnnotation, field)));
+      } else {
+        return;
+      }
+    }
+    setFieldValue(field, instance, optionValue);
+  }
+
+  public OptionsAccessor parse(Options options, String[] args) throws ParseException {
     DefaultParser parser = new DefaultParser();
+    CommandLine commandLine = parser.parse(options, args, stopAtNonOption);
+    return new OptionsAccessor(commandLine, options);
+  }
+
+  private void setFieldValue(Field field, Object instance, Object value) {
+    if ((field.getModifiers() & Modifier.PUBLIC) == 0) {
+      field.setAccessible(true);
+    }
     try {
-      CommandLine commandLine = parser.parse(options, args, stopAtNonOption);
-      return new OptionsAccessor(commandLine, options);
-    } catch (ParseException pe) {
-      writer.println("error: " + pe.getMessage());
-      usage(options);
-      return null;
+      field.set(instance, value);
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
     }
   }
 
   public void usageFromInstance(Object instance) {
     Options options = getOptionsFromInstance(instance.getClass());
-    usage(options);
+    usage(options, findArgumentsFromInstance(instance));
   }
 
-  private void usage(Options options) {
+  private Arguments findArgumentsFromInstance(Object instance) {
+    return Arrays.stream(instance.getClass().getDeclaredFields())
+        .map(f -> f.getAnnotation(Arguments.class))
+        .filter(Objects::nonNull)
+        .findFirst()
+        .orElse(null);
+  }
+
+  private void usage(Options options, Arguments arguments) {
+    String usage = this.getUsage();
+    if (arguments != null) {
+      usage += " " + arguments.description();
+    }
     formatter.printHelp(writer, width, usage, header, options, HelpFormatter.DEFAULT_LEFT_PAD, HelpFormatter.DEFAULT_DESC_PAD, footer);
     writer.flush();
   }

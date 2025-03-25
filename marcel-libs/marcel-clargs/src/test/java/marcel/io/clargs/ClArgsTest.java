@@ -3,6 +3,7 @@ package marcel.io.clargs;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -22,6 +23,7 @@ public class ClArgsTest {
         "--foo", "bar",
         "-h",
         "-path", "/some/path",
+        "arg1", "arg2", "arg3"
     });
     assertEquals(10, script.getN());
     assertEquals(Integer.valueOf(5), script.getSize());
@@ -29,6 +31,8 @@ public class ClArgsTest {
     assertTrue(script.isHelp());
     assertEquals("default", script.getUnspecified());
     assertEquals(new File("/some/path"), script.getPath());
+    assertEquals(List.of("arg1", "arg2", "arg3"), script.getArgs());
+    assertEquals("arg1 arg2 arg3", script.getJoinedArgs());
   }
 
 

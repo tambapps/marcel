@@ -4,6 +4,7 @@ import lombok.Getter;
 import marcel.lang.Script;
 
 import java.io.File;
+import java.util.List;
 
 @Getter
 public class CliScript extends Script {
@@ -25,6 +26,12 @@ public class CliScript extends Script {
 
   @Option
   private File path;
+
+  @Arguments
+  private List<String> args;
+
+  @Arguments
+  private String joinedArgs;
 
   @Override
   public Object run(String[] args) {
