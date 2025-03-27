@@ -1,14 +1,56 @@
 package marcel.io.clargs;
 
+import marcel.util.primitives.collections.lists.CharArrayList;
+import marcel.util.primitives.collections.lists.CharList;
+import marcel.util.primitives.collections.lists.DoubleArrayList;
+import marcel.util.primitives.collections.lists.DoubleList;
+import marcel.util.primitives.collections.lists.FloatArrayList;
+import marcel.util.primitives.collections.lists.FloatList;
+import marcel.util.primitives.collections.lists.IntArrayList;
+import marcel.util.primitives.collections.lists.IntList;
+import marcel.util.primitives.collections.lists.LongArrayList;
+import marcel.util.primitives.collections.lists.LongList;
+import marcel.util.primitives.collections.sets.CharOpenHashSet;
+import marcel.util.primitives.collections.sets.CharSet;
+import marcel.util.primitives.collections.sets.DoubleOpenHashSet;
+import marcel.util.primitives.collections.sets.DoubleSet;
+import marcel.util.primitives.collections.sets.FloatOpenHashSet;
+import marcel.util.primitives.collections.sets.FloatSet;
+import marcel.util.primitives.collections.sets.IntOpenHashSet;
+import marcel.util.primitives.collections.sets.IntSet;
+import marcel.util.primitives.collections.sets.LongOpenHashSet;
+import marcel.util.primitives.collections.sets.LongSet;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class OptionsAccessor {
+
+  private static final Map<Class<?>, Collector<?, ?, ?>> COLLECTION_COLLECTORS = Map.ofEntries(
+      // lists
+      Map.entry(List.class, Collectors.toList()),
+      Map.entry(IntList.class, Collector.of(() -> (IntList) new IntArrayList(), (list, element) -> list.add(Integer.parseInt(element.toString())), IntList::leftShift)),
+      Map.entry(LongList.class, Collector.of(() -> (LongList) new LongArrayList(), (list, element) -> list.add(Long.parseLong(element.toString())), LongList::leftShift)),
+      Map.entry(FloatList.class, Collector.of(() -> (FloatList) new FloatArrayList(), (list, element) -> list.add(Float.parseFloat(element.toString())), FloatList::leftShift)),
+      Map.entry(DoubleList.class, Collector.of(() -> (DoubleList) new DoubleArrayList(), (list, element) -> list.add(Double.parseDouble(element.toString())), DoubleList::leftShift)),
+      Map.entry(CharList.class, Collector.of(() -> (CharList) new CharArrayList(), (list, element) -> list.add(element.toString().charAt(0)), CharList::leftShift)),
+      // sets
+      Map.entry(Set.class, Collectors.toSet()),
+      Map.entry(IntSet.class, Collector.of(() -> (IntSet) new IntOpenHashSet(), (set, element) -> set.add(Integer.parseInt(element.toString())), IntSet::leftShift)),
+      Map.entry(LongSet.class, Collector.of(() -> (LongSet) new LongOpenHashSet(), (set, element) -> set.add(Long.parseLong(element.toString())), LongSet::leftShift)),
+      Map.entry(FloatSet.class, Collector.of(() -> (FloatSet) new FloatOpenHashSet(), (set, element) -> set.add(Float.parseFloat(element.toString())), FloatSet::leftShift)),
+      Map.entry(DoubleSet.class, Collector.of(() -> (DoubleSet) new DoubleOpenHashSet(), (set, element) -> set.add(Double.parseDouble(element.toString())), DoubleSet::leftShift)),
+      Map.entry(CharSet.class, Collector.of(() -> (CharSet) new CharOpenHashSet(), (set, element) -> set.add(element.toString().charAt(0)), CharSet::leftShift))
+  );
 
   private final CommandLine commandLine;
   private final List<org.apache.commons.cli.Option> allOptions;
@@ -27,6 +69,17 @@ public class OptionsAccessor {
     return commandLine.getArgList();
   }
 
+  public Object getArguments(Class<?> expectedType) {
+    if (expectedType == String.class) {
+      return String.join(" ", getArguments());
+    }
+    Collector collector = COLLECTION_COLLECTORS.get(expectedType);
+    if (collector == null) {
+      throw new OptionParserException("Unsupported type " + expectedType + " for arguments");
+    }
+    return commandLine.getArgList().stream().collect(collector);
+  }
+
   public Object getOptionValue(Option optionAnnotation, Field field) {
     Optional<org.apache.commons.cli.Option> optOption = findOption(optionAnnotation, field, parsedOptions)
         .or(() -> findOption(optionAnnotation, field, allOptions));
@@ -34,7 +87,19 @@ public class OptionsAccessor {
       return null;
     }
     org.apache.commons.cli.Option cliOption = optOption.get();
-    String optionValue = cliOption.getValue();
+
+    // handling collection
+    if (Collection.class.isAssignableFrom(field.getType())) {
+      Collector collector = COLLECTION_COLLECTORS.get(field.getType());
+      if (collector == null) {
+        throw new OptionParserException("Unsupported collection type " + field.getType().getSimpleName() + " for option " + getOptionName(optionAnnotation, field));
+      }
+      List<String> optionValues = List.of(commandLine.getOptionValues(cliOption));
+      return optionValues.stream()
+          .map(optionValue -> convertOptionValue(cliOption, optionAnnotation, field, optionValue))
+          .collect(collector);
+    }
+    String optionValue = commandLine.getOptionValue(cliOption);
     if (optionValue == null) {
       if (!optionAnnotation.defaultValue().isEmpty()) {
         optionValue = optionAnnotation.defaultValue();
@@ -46,6 +111,11 @@ public class OptionsAccessor {
     if (optionValue == null) {
       return null;
     }
+    return convertOptionValue(cliOption, optionAnnotation, field, optionValue);
+  }
+
+  private Object convertOptionValue(org.apache.commons.cli.Option cliOption,
+                                    Option optionAnnotation, Field field, String  optionValue) {
     try {
       return cliOption.getConverter().apply(optionValue);
     } catch (Throwable e) {

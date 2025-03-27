@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+// TODO document it
 /**
  * Indicates that a property can be used to set a CLI option.
  */
@@ -49,24 +50,15 @@ public @interface Option {
     boolean optional() default false;
 
     /**
-     * How many arguments this option has.
-     * A value greater than 1 is only allowed for array-typed arguments.
-     * Ignored for boolean options which are assumed to have a default of 0
-     * or if {@code numberOfArgumentsString} is set.
-     *
-     * @return the number of arguments
-     */
-    int numberOfArguments() default 1;
-
-    /**
      * How many arguments this option has represented as a String.
-     * Only allowed for array-typed arguments.
-     * Overrides {@code numberOfArguments} if set.
+     * Only allowed for collection-typed arguments.
+     * Can be a number, or the following.
      * The special values of '+' means one or more and '*' as 0 or more.
+     * You can also combine a number with a '+', e.g. 2+ to specify at least 2
      *
      * @return the number of arguments (as a String)
      */
-    String numberOfArgumentsString() default "";
+    String numberOfArguments() default "1";
 
     /**
      * The default value for this option as a String; subject to type conversion and 'convert'.

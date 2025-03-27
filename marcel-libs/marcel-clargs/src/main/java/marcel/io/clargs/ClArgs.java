@@ -14,12 +14,16 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
+
+import static marcel.io.clargs.OptionsAccessor.getOptionName;
+import static org.apache.commons.cli.Option.UNLIMITED_VALUES;
 
 @Getter
 @Setter
@@ -140,8 +144,6 @@ public class ClArgs {
     char valueSeparator = 0;
     if (!annotation.valueSeparator().isEmpty()) valueSeparator = annotation.valueSeparator().charAt(0);
     boolean optionalArg = annotation.optional();
-    int numberOfArguments = annotation.numberOfArguments();
-    String numberOfArgumentsString = annotation.numberOfArgumentsString().isEmpty() ? null : annotation.numberOfArgumentsString();
 
     // TODO handle convert. For that I will have to handle Lambdas as annotation parameters first
     Class<?> convert = annotation.convert() != Void.class ? annotation.convert() : null;
@@ -153,30 +155,25 @@ public class ClArgs {
       // yes, because if only the longName was specified, the longName is the main option name as passed in the builder
       builder.longOpt(longName);
     }
-    if (numberOfArguments != 1) {
-      if (numberOfArgumentsString != null) {
-        throw new RuntimeException("You can't specify both 'numberOfArguments' and 'numberOfArgumentsString'");
-      }
-    }
     Class<?> type = PrimitiveToWrapperUtil.getWrapperClassOrSelf(field.getType());
     builder.type(type);
-
-    boolean isFlag = type.getSimpleName().toLowerCase().equals("boolean");
-    int nbArgs;
-    if (numberOfArgumentsString != null) {
-      throw new UnsupportedOperationException("Not supported yet.");
-    } else {
-      nbArgs = isFlag ? 0 : numberOfArguments;
-    }
 
     if (description != null) builder.desc(description);
     if (valueSeparator != 0) builder.valueSeparator(valueSeparator);
     if (type.isArray()) {
       builder.optionalArg(optionalArg);
     }
+    boolean isFlag = type.getSimpleName().toLowerCase().equals("boolean");
     if (!isFlag) {
-      builder.hasArg(true);
-      builder.numberOfArgs(nbArgs);
+      String numberOfArguments = annotation.numberOfArguments();
+      if (!numberOfArguments.matches("(\\d+)|((\\d+)?\\+)|\\*")) {
+        throw new OptionParserException("Invalid number of arguments " + numberOfArguments + " for option " + (shortName != null ? shortName : longName));
+      }
+      if (numberOfArguments.matches("\\d+")) {
+        builder.numberOfArgs(Integer.parseInt(numberOfArguments));
+      } else if (numberOfArguments.equals("*") || numberOfArguments.endsWith("+")) {
+        builder.numberOfArgs(UNLIMITED_VALUES);
+      }
     }
     return builder.build();
   }
@@ -189,21 +186,8 @@ public class ClArgs {
       if (optionAnnotation != null) {
         setOptionsFromAnnotation(optionsAccessor, instance, field, optionAnnotation);
       } else if (argumentsAnnotation != null) {
-        setArgumentsFromAnnotation(optionsAccessor, instance, field);
+        setFieldValue(field, instance, optionsAccessor.getArguments(field.getType()));
       }
-    }
-  }
-
-  private void setArgumentsFromAnnotation(OptionsAccessor optionsAccessor, Object instance, Field field) {
-    Class<?> type = field.getType();
-    if (type == String.class) {
-      setFieldValue(field, instance, String.join(" ", optionsAccessor.getArguments()));
-    } else if (type == List.class || type == Queue.class) {
-      setFieldValue(field, instance, new LinkedList<>(optionsAccessor.getArguments()));
-    } else if (type == Set.class) {
-      setFieldValue(field, instance, new HashSet<>(optionsAccessor.getArguments()));
-    } else {
-      throw new OptionParserException("Unsupported arguments field type %s".formatted(type));
     }
   }
 
@@ -211,9 +195,26 @@ public class ClArgs {
     Object optionValue = optionsAccessor.getOptionValue(optionAnnotation, field);
     if (optionValue == null) {
       if (!optionAnnotation.optional()) {
-        throw new OptionParserException("Option %s is required".formatted(OptionsAccessor.getOptionName(optionAnnotation, field)));
+        throw new OptionParserException("Option %s is required".formatted(getOptionName(optionAnnotation, field)));
       } else {
         return;
+      }
+    }
+    if (optionValue instanceof Collection<?>) {
+      Collection<?> optionValues = (Collection<?>) optionValue;
+      // verifying the number of arguments
+      String numberOfArguments = optionAnnotation.numberOfArguments();
+      if (numberOfArguments.matches("\\d+")) {
+        int number = Integer.parseInt(numberOfArguments);
+        if (number != optionValues.size()) {
+          throw new OptionParserException("Expected %d values but got %d for option %s".formatted(number, optionValues.size(), getOptionName(optionAnnotation, field)));
+        }
+      } else if (numberOfArguments.matches("(\\d+)?\\+")) {
+        numberOfArguments = numberOfArguments.substring(0, numberOfArguments.length() - 1);
+        int number = numberOfArguments.isEmpty() ? 1 : Integer.parseInt(numberOfArguments);
+        if (number != optionValues.size()) {
+          throw new OptionParserException("Expected at least %d values but got %d for option %s".formatted(number, optionValues.size(), getOptionName(optionAnnotation, field)));
+        }
       }
     }
     setFieldValue(field, instance, optionValue);
