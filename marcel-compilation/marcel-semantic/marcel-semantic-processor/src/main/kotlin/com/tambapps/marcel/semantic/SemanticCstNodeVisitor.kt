@@ -126,7 +126,6 @@ import com.tambapps.marcel.semantic.ast.statement.BreakNode
 import com.tambapps.marcel.semantic.ast.statement.ContinueNode
 import com.tambapps.marcel.semantic.ast.statement.DoWhileNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
-import com.tambapps.marcel.semantic.ast.statement.ForInIteratorStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ForStatementNode
 import com.tambapps.marcel.semantic.ast.statement.IfStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
@@ -175,13 +174,7 @@ import marcel.lang.compile.MethodCallDefaultValue
 import marcel.lang.compile.NullDefaultValue
 import marcel.lang.compile.StringDefaultValue
 import marcel.lang.lambda.Lambda
-import marcel.util.primitives.iterators.CharIterator
-import marcel.util.primitives.iterators.DoubleIterator
-import marcel.util.primitives.iterators.FloatIterator
-import marcel.util.primitives.iterators.IntIterator
-import marcel.util.primitives.iterators.LongIterator
 import marcel.lang.runtime.BytecodeHelper
-import marcel.lang.runtime.CharSequenceIterator
 import marcel.util.concurrent.Async
 import marcel.util.concurrent.Threadmill
 import java.io.Closeable
@@ -196,9 +189,10 @@ import java.util.regex.Pattern
  *
  * @param packageName the package name to use to apply the semantic
  */
-abstract class SemanticCstNodeVisitor(
+abstract class SemanticCstNodeVisitor constructor(
   final override val symbolResolver: MarcelSymbolResolver,
-  packageName: String?
+  packageName: String?,
+  val fileName: String
 ) : MarcelSemanticGenerator(),
   CstSymbolSemantic,
   ExpressionCstNodeVisitor<ExpressionNode, JavaType>,
@@ -217,8 +211,9 @@ abstract class SemanticCstNodeVisitor(
   val imports = ImportResolver.DEFAULT_IMPORTS.toImports()
 
   protected val classNodeMap = mutableMapOf<JavaType, ClassNode>() // useful to add methods while performing analysis
+  protected val lambdaMap = mutableMapOf<LambdaCstNode, LambdaClassNode>()
   protected val methodResolver = MethodResolver(symbolResolver, caster)
-  protected val currentClassNode get() = classNodeMap[currentMethodScope.classType]
+  protected val currentClassNode: ClassNode? get() = currentScope.let { it as? MethodScope }?.let { classNodeMap[it.classType] }
 
   // for extension classes
   private val selfLocalVariable: LocalVariable?
@@ -1768,29 +1763,53 @@ abstract class SemanticCstNodeVisitor(
    * to get potential wanted cast types of the lambda
    */
   override fun visit(node: LambdaCstNode, smartCastType: JavaType?): ExpressionNode {
-    val parameters =
-      node.parameters.map { param -> LambdaClassNode.MethodParameter(param.type?.let { resolve(it) }, param.name) }
     // search for already generated lambdaNode if not empty
-    val lambdaOuterClassNode =
-      currentClassNode ?: throw MarcelSemanticException(node.token, "Cannot use lambdas in such context")
+    val lambdaOuterClassNode = currentClassNode
 
-    val lambdaClassName = generateLambdaClassName(lambdaOuterClassNode)
-    val alreadyExistingLambdaNode = lambdaOuterClassNode.innerClasses
-      .find { it.type.simpleName == lambdaClassName } as? LambdaClassNode
-
-    if (alreadyExistingLambdaNode != null) {
-      return alreadyExistingLambdaNode.constructorCallNode
+    if (lambdaOuterClassNode != null) {
+      val alreadyExistingLambdaNode = lambdaMap[node]
+      if (alreadyExistingLambdaNode != null) {
+        return alreadyExistingLambdaNode.constructorCallNode
+      }
+      val lambdaNode = createLambdaNode(node, lambdaOuterClassNode, smartCastType)
+      lambdaMap[node] = lambdaNode
+      val constructorCallNode = NewLambdaInstanceNode(
+        lambdaNode.type, lambdaNode.constructorNode,
+        // this part is important, as we will compute the constructorParameters later
+        lambdaNode.constructorArguments, lambdaNode, node.token
+      )
+      lambdaNode.constructorCallNode = constructorCallNode
+      return constructorCallNode
+    } else {
+      // part for top level lambdas, that are lambda defined in annotations, for a Class attribute
+      val alreadyExistingLambdaNode = lambdaMap[node]
+      if (alreadyExistingLambdaNode != null) {
+        return ClassReferenceNode(alreadyExistingLambdaNode.type, node.token)
+      }
+      // TODO document this, lambdas can be used as annotation attribute values
+      // smartCastType = null because we actually expect a Class here, and that is not something the lambda should implement
+      val lambdaNode = createLambdaNode(node, lambdaOuterClassNode = null, smartCastType = null)
+      defineLambda(lambdaNode)
+      lambdaMap[node] = lambdaNode
+      return ClassReferenceNode(lambdaNode.type, node.token)
     }
+  }
 
+  private fun createLambdaNode(node: LambdaCstNode, lambdaOuterClassNode: ClassNode?, smartCastType: JavaType?): LambdaClassNode {
     val interfaceType =
       if (smartCastType != null && !Lambda::class.javaType.isAssignableFrom(smartCastType)) smartCastType else null
+
+    val lambdaClassName =
+      if (lambdaOuterClassNode != null) generateLambdaClassName(lambdaOuterClassNode)
+      else generateTopLevelLambdaClassName(node)
 
     // useful for method type resolver, when matching method parameters.
     val lambdaImplementedInterfaces = listOf(Lambda::class.javaType)
     val lambdaType = symbolResolver.defineType(
       node.token,
       Visibility.INTERNAL,
-      "${lambdaOuterClassNode.type}\$$lambdaClassName",
+      if (lambdaOuterClassNode != null) "${lambdaOuterClassNode.type}\$$lambdaClassName"
+      else lambdaClassName,
       JavaType.Object,
       isInterface = false,
       lambdaImplementedInterfaces
@@ -1806,42 +1825,37 @@ abstract class SemanticCstNodeVisitor(
       parameters = mutableListOf(),
       ownerClass = lambdaType
     )
+    val parameters =
+      node.parameters.map { param -> LambdaClassNode.MethodParameter(param.type?.let { resolve(it) }, param.name) }
 
     val lambdaNode = LambdaClassNode(
       lambdaType,
       lambdaConstructor,
-      isStatic = lambdaOuterClassNode.isStatic,
+      isStatic = lambdaOuterClassNode?.isStatic ?: false,
       node,
-      fileName = currentClassNode?.fileName ?: throw MarcelSemanticException(
-        node.token,
-        "Cannot use lambdas in such context"
-      ),
+      fileName = fileName,
       parameters,
-      currentMethodScope.localVariablesSnapshot
+      (currentScope as? MethodScope)?.localVariablesSnapshot ?: emptyList()
     ).apply {
       interfaceType?.let { interfaceTypes.add(it) }
     }
-    classNodeMap[lambdaNode.type] = lambdaNode
     lambdaConstructor.blockStatement.addAll(
       listOf(
         ExpressionStatementNode(superNoArgConstructorCall(lambdaNode, symbolResolver)),
         returnVoid(lambdaNode)
       )
     )
+    if (lambdaOuterClassNode != null) {
+      classNodeMap[lambdaNode.type] = lambdaNode
+      // handling inner class fields if any
+      handleLambdaInnerClassFields(lambdaNode, lambdaConstructor, lambdaNode.constructorArguments, node.token)
+      lambdaOuterClassNode.innerClasses.add(lambdaNode)
+    }
+    return lambdaNode
+  }
 
-
-    // handling inner class fields if any
-    handleLambdaInnerClassFields(lambdaNode, lambdaConstructor, lambdaNode.constructorArguments, node.token)
-
-    lambdaOuterClassNode.innerClasses.add(lambdaNode)
-
-    val constructorCallNode = NewLambdaInstanceNode(
-      lambdaNode.type, lambdaConstructor,
-      // this part is important, as we will compute the constructorParameters later
-      lambdaNode.constructorArguments, lambdaNode, node.token
-    )
-    lambdaNode.constructorCallNode = constructorCallNode
-    return constructorCallNode
+  private fun generateTopLevelLambdaClassName(lambdaCstNode: LambdaCstNode): String {
+    return currentScope.classType.simpleName + "_lambda" + lambdaMap.size
   }
 
   /**
@@ -2862,10 +2876,12 @@ abstract class SemanticCstNodeVisitor(
       JavaAnnotation.Attribute(attribute.name, attribute.type, specifiedName)
     } else {
       val specifiedValueNode = specifiedAttr.second.accept(this, attribute.type)
-          as? JavaConstantExpression ?: throw MarcelSemanticException(
-        node,
-        "Specified a non constant value for attribute ${attribute.name}"
-      )
+      if (specifiedValueNode !is JavaConstantExpression) {
+        throw MarcelSemanticException(
+          node,
+          "Specified a non constant value for attribute ${attribute.name}"
+        )
+      }
       val attrValue = (specifiedValueNode.value ?: attribute.defaultValue)
         ?: throw MarcelSemanticException(node, "Attribute value cannot be null${attribute.name}")
 

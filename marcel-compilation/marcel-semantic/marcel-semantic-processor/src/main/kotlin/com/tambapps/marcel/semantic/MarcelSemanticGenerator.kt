@@ -2,6 +2,7 @@ package com.tambapps.marcel.semantic
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.CstNode
+import com.tambapps.marcel.parser.cst.expression.LambdaCstNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.FieldNode
@@ -467,10 +468,14 @@ abstract class MarcelSemanticGenerator(
   }
 
   protected fun generateLambdaClassName(lambdaOuterClassNode: ClassNode): String {
-    return (
-        if (currentMethodScope.method.isConstructor) "init"
-        else currentMethodScope.method.name
-        ) + "_lambda" + (lambdaOuterClassNode.innerClasses.count { it is LambdaClassNode } + 1)
+    val scope = currentScope
+    if (scope is MethodScope) {
+      return (
+          if (scope.method.isConstructor) "init"
+          else scope.method.name
+          ) + "_lambda" + (lambdaOuterClassNode.innerClasses.count { it is LambdaClassNode } + 1)
+    }
+    return lambdaOuterClassNode.type.simpleName + "_lambda" + (lambdaOuterClassNode.innerClasses.count { it is LambdaClassNode } + 1)
   }
 
   protected fun generateOutClassFields(classType: JavaType, classNode: ClassNode): List<FieldNode> {

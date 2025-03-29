@@ -10,6 +10,7 @@ import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
+import com.tambapps.marcel.semantic.scope.ClassScope
 import com.tambapps.marcel.semantic.transform.SyntaxTreeTransformation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
@@ -92,26 +93,28 @@ class SyntaxTreeTransformer(
                                   node: CstNode,
                                   elementType: ElementType,
                                   classType: SourceJavaType, annotations: List<AnnotationCstNode>) {
-    annotations.asSequence()
-      .map { semantic.visit(it, elementType) }
-      .filter { annotation -> annotation.type.isLoaded
-          && annotation.type.realClazz.getAnnotation(MarcelSyntaxTreeTransformationClass::class.java) != null }
-      .forEach { annotation ->
-        val transformations = map.computeIfAbsent(annotation.type, this::getTransformations)
-        if (transformations.isNotEmpty()) {
-          transformations.forEach { transformation ->
-            transformation.init(symbolResolver, purpose)
-            try {
-              transformation.transform(classType, node, annotation)
-            } catch (e: Exception) {
-              if (e !is MarcelSemanticException) System.err.println("Error while applying AST transformation ${transformation.javaClass} from annotation ${annotation.type}")
-              throw e
+    semantic.useScope(ClassScope(symbolResolver, classType, null, semantic.imports)) {
+      annotations.asSequence()
+        .map { semantic.visit(it, elementType) }
+        .filter { annotation -> annotation.type.isLoaded
+            && annotation.type.realClazz.getAnnotation(MarcelSyntaxTreeTransformationClass::class.java) != null }
+        .forEach { annotation ->
+          val transformations = map.computeIfAbsent(annotation.type, this::getTransformations)
+          if (transformations.isNotEmpty()) {
+            transformations.forEach { transformation ->
+              transformation.init(symbolResolver, purpose)
+              try {
+                transformation.transform(classType, node, annotation)
+              } catch (e: Exception) {
+                if (e !is MarcelSemanticException) System.err.println("Error while applying AST transformation ${transformation.javaClass} from annotation ${annotation.type}")
+                throw e
+              }
             }
+          } else {
+            map.remove(annotation.type)
           }
-        } else {
-          map.remove(annotation.type)
         }
-      }
+    }
   }
 
   private fun getTransformations(annotationType: JavaAnnotationType): List<SyntaxTreeTransformation> {

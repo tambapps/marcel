@@ -29,6 +29,7 @@ class LambdaClassNode constructor(
   tokenEnd = cstNode.tokenEnd
 ) {
 
+  val isTopLevel get() = type.isTopLevel
   data class MethodParameter(val type: JavaType?, val name: String)
 
   val explicit0Parameters = cstNode.explicit0Parameters

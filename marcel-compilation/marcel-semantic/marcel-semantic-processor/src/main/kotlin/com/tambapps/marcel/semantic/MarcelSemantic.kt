@@ -64,8 +64,8 @@ open class MarcelSemantic(
   symbolResolver: MarcelSymbolResolver,
   private val scriptType: JavaType,
   val cst: SourceFileCstNode,
-  val fileName: String,
-) : SemanticCstNodeVisitor(symbolResolver, cst.packageName), ClassCstNodeVisitor<ClassNode> {
+  fileName: String,
+) : SemanticCstNodeVisitor(symbolResolver, cst.packageName, fileName), ClassCstNodeVisitor<ClassNode> {
 
   companion object {
     private const val ENUM_VALUES_FIELD_NAME = "\$VALUES"
@@ -110,6 +110,7 @@ open class MarcelSemantic(
       val scriptNode = scriptCstNode.accept(this)
       moduleNode.classes.add(scriptNode)
     }
+    moduleNode.classes.addAll(lambdaMap.values.filter { it.isTopLevel })
   }
 
   private fun defineClass(classCstNode: ClassCstNode, recursive: Boolean) {
