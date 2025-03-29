@@ -69,9 +69,9 @@ public @interface Option {
     String defaultValue() default "";
 
     /**
-     * A conversion closure to convert the incoming String into the desired object
+     * A conversion lambda to convert the incoming String into the desired object
      *
      * @return the closure to convert this option's argument(s)
      */
-    Class<?> convert() default Void.class;
+    Class<?> converter() default Void.class;
 }

@@ -4,23 +4,23 @@ import lombok.Getter;
 import lombok.Setter;
 import marcel.lang.Script;
 import marcel.lang.compile.NullDefaultValue;
+import marcel.lang.lambda.Lambda1;
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Converter;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Queue;
-import java.util.Set;
 
 import static marcel.io.clargs.OptionsAccessor.getOptionName;
 import static org.apache.commons.cli.Option.UNLIMITED_VALUES;
@@ -145,8 +145,6 @@ public class ClArgs {
     if (!annotation.valueSeparator().isEmpty()) valueSeparator = annotation.valueSeparator().charAt(0);
     boolean optionalArg = annotation.optional();
 
-    // TODO handle convert. For that I will have to handle Lambdas as annotation parameters first
-    Class<?> convert = annotation.convert() != Void.class ? annotation.convert() : null;
     String longName = annotation.longName().isEmpty() ? field.getName() : annotation.longName();
     String shortName = annotation.shortName().isEmpty() ? null : annotation.shortName();
 
@@ -154,6 +152,12 @@ public class ClArgs {
     if (shortName != null) {
       // yes, because if only the longName was specified, the longName is the main option name as passed in the builder
       builder.longOpt(longName);
+    }
+
+    Class<?> converterClass = annotation.converter() != Void.class ? annotation.converter() : null;
+    if (converterClass != null) {
+      Converter<?, ?> converter = instantiateConverter(converterClass);
+      builder.converter(converter);
     }
     Class<?> type = PrimitiveToWrapperUtil.getWrapperClassOrSelf(field.getType());
     builder.type(type);
@@ -176,6 +180,22 @@ public class ClArgs {
       }
     }
     return builder.build();
+  }
+
+  private Converter<?, ?> instantiateConverter(Class<?> converterClass) {
+    if (!Lambda1.class.isAssignableFrom(converterClass)) {
+      throw new OptionParserException("Invalid converter. Expected a lambda with 1 argument");
+    }
+    try {
+      Constructor<?> constructor = converterClass.getDeclaredConstructor();
+      if (!Modifier.isPublic(constructor.getModifiers())) {
+        constructor.setAccessible(true);
+      }
+      Lambda1 lambda = (Lambda1) constructor.newInstance();
+      return lambda::apply;
+    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+      throw new OptionParserException("Failed to instantiate converter (%s)".formatted(e.getMessage()), e);
+    }
   }
 
 
@@ -227,13 +247,17 @@ public class ClArgs {
   }
 
   private void setFieldValue(Field field, Object instance, Object value) {
-    if ((field.getModifiers() & Modifier.PUBLIC) == 0) {
+    if (!Modifier.isPublic(field.getModifiers())) {
       field.setAccessible(true);
     }
     try {
       field.set(instance, value);
     } catch (IllegalAccessException e) {
       throw new RuntimeException(e);
+    } catch (IllegalArgumentException e) {
+      String message = value != null ? "ERROR: Tried to set incompatible value '%s' of type %s to field %s of type %s".formatted(value, value.getClass().getSimpleName(), field.getName(), field.getType().getSimpleName())
+          : "ERROR: Tried to set incompatible value %s to field %s of type %s".formatted(value, field.getName(), field.getType().getSimpleName());
+      throw new OptionParserException(message, e);
     }
   }
 
