@@ -122,14 +122,17 @@ public class ClArgsTest {
   @Test
   public void testDefaultValue() {
     class MyScript {
-      @Option(longName = "unspecified", shortName = "u", defaultValue = "default", optional = true)
-      private String unspecified;
+      @Option(longName = "unspecified", shortName = "u", optional = true)
+      private String unspecified = "default";
 
     }
     MyScript script = new MyScript();
 
     clArgs.parseFromInstance(script, new String[]{});
     assertEquals("default", script.unspecified);
+
+    clArgs.parseFromInstance(script, new String[]{"-u", "specified"});
+    assertEquals("specified", script.unspecified);
   }
 
   @Test

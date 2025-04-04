@@ -61,14 +61,6 @@ public @interface Option {
     String numberOfArguments() default "1";
 
     /**
-     * The default value for this option as a String; subject to type conversion and 'convert'.
-     * Ignored for Boolean options.
-     *
-     * @return the default value for this option
-     */
-    String defaultValue() default "";
-
-    /**
      * A conversion lambda to convert the incoming String into the desired object
      *
      * @return the closure to convert this option's argument(s)

@@ -100,13 +100,9 @@ public class OptionsAccessor {
           .collect(collector);
     }
     String optionValue = commandLine.getOptionValue(cliOption);
-    if (optionValue == null) {
-      if (!optionAnnotation.defaultValue().isEmpty()) {
-        optionValue = optionAnnotation.defaultValue();
-      } else if (cliOption.getType().equals(boolean.class) || cliOption.getType().equals(Boolean.class)) {
-        optionValue = String.valueOf(commandLine.hasOption(cliOption.getOpt()));
-        cliOption.setConverter(Boolean::parseBoolean);
-      }
+    if (optionValue == null && (cliOption.getType().equals(boolean.class) || cliOption.getType().equals(Boolean.class))) {
+      optionValue = String.valueOf(commandLine.hasOption(cliOption.getOpt()));
+      cliOption.setConverter(Boolean::parseBoolean);
     }
     if (optionValue == null) {
       return null;

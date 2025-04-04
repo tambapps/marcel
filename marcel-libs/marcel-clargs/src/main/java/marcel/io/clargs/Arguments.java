@@ -19,5 +19,4 @@ public @interface Arguments {
      */
     String description() default "ARGUMENTS";
 
-    // TODO add converter field and use it
 }
