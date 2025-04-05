@@ -13,10 +13,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import java.io.PrintWriter;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -159,7 +156,7 @@ public class ClArgs {
       Converter<?, ?> converter = instantiateConverter(converterClass);
       builder.converter(converter);
     }
-    Class<?> type = PrimitiveToWrapperUtil.getWrapperClassOrSelf(field.getType());
+    Class<?> type = ReflectionUtils.getObjectClass(field.getType());
     builder.type(type);
 
     if (description != null) builder.desc(description);
@@ -186,16 +183,8 @@ public class ClArgs {
     if (!Lambda1.class.isAssignableFrom(converterClass)) {
       throw new OptionParserException("Invalid converter. Expected a lambda with 1 argument");
     }
-    try {
-      Constructor<?> constructor = converterClass.getDeclaredConstructor();
-      if (!Modifier.isPublic(constructor.getModifiers())) {
-        constructor.setAccessible(true);
-      }
-      Lambda1 lambda = (Lambda1) constructor.newInstance();
-      return lambda::apply;
-    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-      throw new OptionParserException("Failed to instantiate converter (%s)".formatted(e.getMessage()), e);
-    }
+    Lambda1 lambda = ReflectionUtils.newInstance(converterClass);
+    return lambda::apply;
   }
 
 
@@ -240,15 +229,7 @@ public class ClArgs {
   }
 
   private boolean hasDefaultValue(Object instance, Field field) {
-    if (!Modifier.isPublic(field.getModifiers())) {
-      field.setAccessible(true);
-    }
-    Object value;
-    try {
-      value = field.get(instance);
-    } catch (IllegalAccessException e) {
-      return false;
-    }
+    Object value = ReflectionUtils.getFieldValue(instance, field);
     if (value == null) {
       return false;
     }
@@ -269,13 +250,8 @@ public class ClArgs {
   }
 
   private void setFieldValue(Field field, Object instance, Object value) {
-    if (!Modifier.isPublic(field.getModifiers())) {
-      field.setAccessible(true);
-    }
     try {
-      field.set(instance, value);
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
+      ReflectionUtils.setFieldValue(field, instance, value);
     } catch (IllegalArgumentException e) {
       String message = value != null ? "ERROR: Tried to set incompatible value '%s' of type %s to field %s of type %s".formatted(value, value.getClass().getSimpleName(), field.getName(), field.getType().getSimpleName())
           : "ERROR: Tried to set incompatible value %s to field %s of type %s".formatted(value, field.getName(), field.getType().getSimpleName());
