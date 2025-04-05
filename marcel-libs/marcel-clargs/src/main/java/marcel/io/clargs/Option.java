@@ -42,12 +42,12 @@ public @interface Option {
     String valueSeparator() default "";
 
     /**
-     * Whether this option can have an optional argument.
-     * Only supported for array-typed arguments to indicate that the array may be empty.
+     * Whether this option is required, must be provided.
+     * Note this flag will be ignored when the annotated field has a non-null/zero/false value, as it would mean a default value was specified for this field.
      *
-     * @return true if this array-typed option can have an optional argument (i.e. could be empty)
+     * @return true if this option must be provided.
      */
-    boolean optional() default false;
+    boolean required() default true;
 
     /**
      * How many arguments this option has represented as a String.

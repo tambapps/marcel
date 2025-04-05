@@ -143,7 +143,7 @@ public class ClArgs {
     String description = annotation.description();
     char valueSeparator = 0;
     if (!annotation.valueSeparator().isEmpty()) valueSeparator = annotation.valueSeparator().charAt(0);
-    boolean optionalArg = annotation.optional();
+    boolean optionalArg = annotation.required();
 
     String longName = annotation.longName().isEmpty() ? field.getName() : annotation.longName();
     String shortName = annotation.shortName().isEmpty() ? null : annotation.shortName();
@@ -214,14 +214,13 @@ public class ClArgs {
   private void setOptionsFromAnnotation(OptionsAccessor optionsAccessor, Object instance, Field field, Option optionAnnotation) {
     Object optionValue = optionsAccessor.getOptionValue(optionAnnotation, field);
     if (optionValue == null) {
-      if (!optionAnnotation.optional()) {
+      if (optionAnnotation.required() && !hasDefaultValue(instance, field)) {
         throw new OptionParserException("Option %s is required".formatted(getOptionName(optionAnnotation, field)));
       } else {
         return;
       }
     }
-    if (optionValue instanceof Collection<?>) {
-      Collection<?> optionValues = (Collection<?>) optionValue;
+    if (optionValue instanceof Collection<?> optionValues) {
       // verifying the number of arguments
       String numberOfArguments = optionAnnotation.numberOfArguments();
       if (numberOfArguments.matches("\\d+")) {
@@ -238,6 +237,29 @@ public class ClArgs {
       }
     }
     setFieldValue(field, instance, optionValue);
+  }
+
+  private boolean hasDefaultValue(Object instance, Field field) {
+    if (!Modifier.isPublic(field.getModifiers())) {
+      field.setAccessible(true);
+    }
+    Object value;
+    try {
+      value = field.get(instance);
+    } catch (IllegalAccessException e) {
+      return false;
+    }
+    if (value == null) {
+      return false;
+    }
+    if (value instanceof Number n) {
+      return n.intValue() != 0;
+    } else if (value instanceof Boolean b) {
+      return b;
+    } else if (value instanceof Character c) {
+      return c == '\0';
+    }
+    return true;
   }
 
   public OptionsAccessor parse(Options options, String[] args) throws ParseException {

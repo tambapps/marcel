@@ -122,7 +122,7 @@ public class ClArgsTest {
   @Test
   public void testDefaultValue() {
     class MyScript {
-      @Option(longName = "unspecified", shortName = "u", optional = true)
+      @Option(longName = "unspecified", shortName = "u")
       private String unspecified = "default";
 
     }

@@ -21,7 +21,7 @@ public class CliScript extends Script {
   @Option(longName = "help", shortName = "h")
   private boolean help;
 
-  @Option(longName = "unspecified", shortName = "u", optional = true)
+  @Option(longName = "unspecified", shortName = "u", required = false)
   private String unspecified = "default";
 
   @Option
