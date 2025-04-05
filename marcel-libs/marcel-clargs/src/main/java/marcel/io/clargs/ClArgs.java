@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-import static marcel.io.clargs.OptionsAccessor.getOptionName;
+import static marcel.io.clargs.OptionsAccessor.getOptionDisplayedName;
 import static org.apache.commons.cli.Option.UNLIMITED_VALUES;
 
 @Getter
@@ -153,7 +153,8 @@ public class ClArgs {
 
     Class<?> converterClass = annotation.converter() != Void.class ? annotation.converter() : null;
     if (converterClass != null) {
-      Converter<?, ?> converter = instantiateConverter(converterClass);
+      Lambda1 lambda1 = instantiateLambda(converterClass);
+      Converter<?, ?> converter = lambda1::apply;
       builder.converter(converter);
     }
     Class<?> type = ReflectionUtils.getObjectClass(field.getType());
@@ -179,12 +180,11 @@ public class ClArgs {
     return builder.build();
   }
 
-  private Converter<?, ?> instantiateConverter(Class<?> converterClass) {
+  private Lambda1<?, ?> instantiateLambda(Class<?> converterClass) {
     if (!Lambda1.class.isAssignableFrom(converterClass)) {
-      throw new OptionParserException("Invalid converter. Expected a lambda with 1 argument");
+      throw new OptionParserException("Invalid lambda. Expected a lambda with 1 argument");
     }
-    Lambda1 lambda = ReflectionUtils.newInstance(converterClass);
-    return lambda::apply;
+    return ReflectionUtils.newInstance(converterClass);
   }
 
 
@@ -204,7 +204,7 @@ public class ClArgs {
     Object optionValue = optionsAccessor.getOptionValue(optionAnnotation, field);
     if (optionValue == null) {
       if (optionAnnotation.required() && !hasDefaultValue(instance, field)) {
-        throw new OptionParserException("Option %s is required".formatted(getOptionName(optionAnnotation, field)));
+        throw new OptionParserException("Option %s is required".formatted(getOptionDisplayedName(optionAnnotation, field)));
       } else {
         return;
       }
@@ -215,14 +215,22 @@ public class ClArgs {
       if (numberOfArguments.matches("\\d+")) {
         int number = Integer.parseInt(numberOfArguments);
         if (number != optionValues.size()) {
-          throw new OptionParserException("Expected %d values but got %d for option %s".formatted(number, optionValues.size(), getOptionName(optionAnnotation, field)));
+          throw new OptionParserException("Expected %d values but got %d for option %s".formatted(number, optionValues.size(), getOptionDisplayedName(optionAnnotation, field)));
         }
       } else if (numberOfArguments.matches("(\\d+)?\\+")) {
         numberOfArguments = numberOfArguments.substring(0, numberOfArguments.length() - 1);
         int number = numberOfArguments.isEmpty() ? 1 : Integer.parseInt(numberOfArguments);
         if (number != optionValues.size()) {
-          throw new OptionParserException("Expected at least %d values but got %d for option %s".formatted(number, optionValues.size(), getOptionName(optionAnnotation, field)));
+          throw new OptionParserException("Expected at least %d values but got %d for option %s".formatted(number, optionValues.size(), getOptionDisplayedName(optionAnnotation, field)));
         }
+      }
+    }
+    if (optionAnnotation.validator() != Void.class) {
+      Lambda1 lambda1 = instantiateLambda(optionAnnotation.validator());
+      try {
+        lambda1.apply(optionValue);
+      } catch (IllegalArgumentException iae) {
+        throw new OptionParserException("Invalid option %s: %s".formatted(getOptionDisplayedName(optionAnnotation, field), iae.getMessage()), iae);
       }
     }
     setFieldValue(field, instance, optionValue);

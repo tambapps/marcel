@@ -92,7 +92,7 @@ public class OptionsAccessor {
     if (Collection.class.isAssignableFrom(field.getType())) {
       Collector collector = COLLECTION_COLLECTORS.get(field.getType());
       if (collector == null) {
-        throw new OptionParserException("Unsupported collection type " + field.getType().getSimpleName() + " for option " + getOptionName(optionAnnotation, field));
+        throw new OptionParserException("Unsupported collection type " + field.getType().getSimpleName() + " for option " + getOptionDisplayedName(optionAnnotation, field));
       }
       List<String> optionValues = List.of(commandLine.getOptionValues(cliOption));
       return optionValues.stream()
@@ -114,9 +114,12 @@ public class OptionsAccessor {
                                     Option optionAnnotation, Field field, String  optionValue) {
     try {
       return cliOption.getConverter().apply(optionValue);
+    } catch (NumberFormatException e) {
+      throw new OptionParserException(
+          "Invalid option %s: invalid number".formatted(getOptionDisplayedName(optionAnnotation, field)), e);
     } catch (Throwable e) {
       throw new OptionParserException(
-          "Malformed option %s: %s".formatted(getOptionName(optionAnnotation, field), e.getMessage()), e);
+          "Malformed option %s: %s".formatted(getOptionDisplayedName(optionAnnotation, field), e.getMessage()), e);
     }
   }
 
@@ -125,11 +128,21 @@ public class OptionsAccessor {
     return allOptions.stream().filter((opt) -> opt.getOpt().equals(optName)).findFirst();
   }
 
-  static String getOptionName(Option option, Field field) {
+  private String getOptionName(Option option, Field field) {
     if (!option.shortName().isEmpty()) {
       return option.shortName();
     } else {
       return option.longName().isEmpty() ? field.getName() : option.longName();
     }
+  }
+
+  static String getOptionDisplayedName(Option option, Field field) {
+    if (!option.longName().isEmpty()) {
+      return option.longName();
+    }
+    if (!option.shortName().isEmpty()) {
+      return option.shortName();
+    }
+    return field.getName();
   }
 }

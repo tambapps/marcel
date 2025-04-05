@@ -1,5 +1,7 @@
 package marcel.io.clargs;
 
+import marcel.lang.lambda.Lambda;
+import marcel.lang.lambda.Lambda1;
 import marcel.util.primitives.collections.lists.FloatArrayList;
 import marcel.util.primitives.collections.lists.FloatList;
 import marcel.util.primitives.collections.lists.LongArrayList;
@@ -181,6 +183,56 @@ public class ClArgsTest {
     });
     assertEquals(FloatArrayList.of(1f, 2.2f, 3.33f
     ), script.multipleOptions);
+  }
+
+  static class OptValidator implements Lambda1<Integer, Object> {
+
+    @Override
+    public Object invoke(Integer arg0) {
+      if (arg0 < 5 || arg0 > 8) {
+        throw new IllegalArgumentException("arg0 must be between 5 and 8");
+      }
+      return null;
+    }
+  }
+
+  @Test
+  public void testValidator() {
+    class MyScript {
+      @Option(shortName = "o", validator = OptValidator.class)
+      private int opt;
+    }
+
+    OptionParserException exception = assertThrows(OptionParserException.class, () -> clArgs.parseFromInstance(new MyScript(), new String[]{
+        "-o", "1"
+    }));
+    assertTrue(exception.getMessage().contains("Invalid option o"));
+
+    MyScript script = new MyScript();
+    clArgs.parseFromInstance(script, new String[]{
+        "-o", "5"
+    });
+    assertEquals(5, script.opt);
+  }
+
+  static class OptConverter implements Lambda1<String, Integer> {
+
+    @Override
+    public Integer invoke(String arg0) {
+      return Integer.parseInt(arg0) + 1;
+    }
+  }
+  @Test
+  public void testConverter() {
+    class MyScript {
+      @Option(shortName = "o", converter = OptConverter.class)
+      private int opt;
+    }
+    MyScript script = new MyScript();
+    clArgs.parseFromInstance(script, new String[]{
+        "-o", "5"
+    });
+    assertEquals(6, script.opt);
   }
 
   @Test

@@ -61,9 +61,18 @@ public @interface Option {
     String numberOfArguments() default "1";
 
     /**
-     * A conversion lambda to convert the incoming String into the desired object
+     * A lambda to convert the incoming String into the desired object. If the field is of a collection type (for multivalued options),
+     * the converter will be applied to each value.
      *
-     * @return the closure to convert this option's argument(s)
+     * @return the lambda class to convert this option's argument(s)
      */
     Class<?> converter() default Void.class;
+
+    /**
+     * A lambda to validate the value of the option. Throw an {@link java.lang.IllegalArgumentException} in the lambda
+     * to indicate a validation error.
+     *
+     * @return the lambda class to validate this option's value
+     */
+    Class<?> validator() default Void.class;
 }
