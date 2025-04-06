@@ -1,10 +1,17 @@
 package marcel.lang;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class IntRangeTest {
 
@@ -55,4 +62,35 @@ public class IntRangeTest {
   }
 
 
+  @MethodSource
+  @ParameterizedTest
+  public void testContains(int from, int to, List<Integer> tests) {
+    IntRange intRange = IntRanges.of(from, to);
+    for (int i : tests) {
+      assertTrue(intRange.contains(i));
+    }
+  }
+
+  private static Stream<Arguments> testContains() {
+    return Stream.of(
+        Arguments.of(1, 5, List.of(1, 2, 3, 4, 5)),
+        Arguments.of(5, 1, List.of(1, 2, 3, 4, 5))
+    );
+  }
+
+  @MethodSource
+  @ParameterizedTest
+  public void testNotContains(int from, int to, List<Integer> tests) {
+    IntRange intRange = IntRanges.of(from, to);
+    for (int i : tests) {
+      assertFalse(intRange.contains(i));
+    }
+  }
+
+  private static Stream<Arguments> testNotContains() {
+    return Stream.of(
+        Arguments.of(1, 5, List.of(0, -1, 6, 7, 8)),
+        Arguments.of(5, 1, List.of(0, -1, 6, 7, 8))
+    );
+  }
 }

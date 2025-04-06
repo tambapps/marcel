@@ -31,7 +31,7 @@ public interface IntRange extends IntIterable {
 
 
   default boolean contains(int i) {
-    return isReverse() ? getTo() >= i && getFrom() <= i : getFrom() >= i && getTo() <= i;
+    return isReverse() ? i >= getTo() && i <= getFrom() : i >= getFrom() && i <= getTo();
   }
 
   /**

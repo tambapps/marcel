@@ -31,7 +31,7 @@ public interface LongRange extends LongIterable {
 
 
   default boolean contains(long i) {
-    return isReverse() ? getTo() >= i && getFrom() <= i : getFrom() >= i && getTo() <= i;
+    return isReverse() ? i >= getTo() && i <= getFrom() : i >= getFrom() && i <= getTo();
   }
 
   /**
