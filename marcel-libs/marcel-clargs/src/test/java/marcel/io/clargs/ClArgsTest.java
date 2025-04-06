@@ -1,6 +1,5 @@
 package marcel.io.clargs;
 
-import marcel.lang.lambda.Lambda;
 import marcel.lang.lambda.Lambda1;
 import marcel.util.primitives.collections.lists.FloatArrayList;
 import marcel.util.primitives.collections.lists.FloatList;
@@ -159,7 +158,7 @@ public class ClArgsTest {
   @Test
   public void testMultipleOptions() {
     class MyScript {
-      @Option(shortName = "m", numberOfArguments = "*")
+      @Option(shortName = "m", arity = "*")
       private List<String> multipleOptions;
     }
     MyScript script = new MyScript();
@@ -173,7 +172,7 @@ public class ClArgsTest {
   @Test
   public void testMultipleFloatOptions() {
     class MyScript {
-      @Option(shortName = "m", numberOfArguments = "*")
+      @Option(shortName = "m", arity = "*")
       private FloatList multipleOptions;
     }
     MyScript script = new MyScript();
@@ -183,6 +182,46 @@ public class ClArgsTest {
     });
     assertEquals(FloatArrayList.of(1f, 2.2f, 3.33f
     ), script.multipleOptions);
+  }
+
+  @Test
+  public void testArityAtLeast() {
+    class MyScript {
+      @Option(shortName = "m", arity = "3+")
+      private FloatList multipleOptions;
+    }
+    MyScript script = new MyScript();
+
+    clArgs.parseFromInstance(script, new String[]{
+        "-m", "1", "-m", "2.2", "-m", "3.33"
+    });
+    assertEquals(FloatArrayList.of(1f, 2.2f, 3.33f
+    ), script.multipleOptions);
+
+    OptionParserException exception = assertThrows(OptionParserException.class, () -> clArgs.parseFromInstance(new MyScript(), new String[]{
+        "-m", "1", "-m", "2.2"
+    }));
+    assertTrue(exception.getMessage().contains("Expected at least 3 value(s) for option m"));
+  }
+
+  @Test
+  public void testArityAtMost() {
+    class MyScript {
+      @Option(shortName = "m", arity = "*..3")
+      private FloatList multipleOptions;
+    }
+    MyScript script = new MyScript();
+
+    clArgs.parseFromInstance(script, new String[]{
+        "-m", "1", "-m", "2.2", "-m", "3.33"
+    });
+    assertEquals(FloatArrayList.of(1f, 2.2f, 3.33f
+    ), script.multipleOptions);
+
+    OptionParserException exception = assertThrows(OptionParserException.class, () -> clArgs.parseFromInstance(new MyScript(), new String[]{
+        "-m", "1", "-m", "2.2", "-m", "3.33", "-m", "4444"
+    }));
+    assertTrue(exception.getMessage().contains("Expected at most 3 value(s) for option m"));
   }
 
   static class OptValidator implements Lambda1<Integer, Object> {
@@ -238,7 +277,7 @@ public class ClArgsTest {
   @Test
   public void testNotEnoughOptions() {
     class MyScript {
-      @Option(shortName = "m", numberOfArguments = "3+")
+      @Option(shortName = "m", arity = "3+")
       private List<String> multipleOptions;
     }
     MyScript script = new MyScript();

@@ -32,6 +32,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class OptionsAccessor {
 
@@ -94,8 +95,8 @@ public class OptionsAccessor {
       if (collector == null) {
         throw new OptionParserException("Unsupported collection type " + field.getType().getSimpleName() + " for option " + getOptionDisplayedName(optionAnnotation, field));
       }
-      List<String> optionValues = List.of(commandLine.getOptionValues(cliOption));
-      return optionValues.stream()
+      String[] optionValues = commandLine.getOptionValues(cliOption);
+      return (optionValues != null ? Arrays.stream(optionValues) : Stream.<String>empty())
           .map(optionValue -> convertOptionValue(cliOption, optionAnnotation, field, optionValue))
           .collect(collector);
     }

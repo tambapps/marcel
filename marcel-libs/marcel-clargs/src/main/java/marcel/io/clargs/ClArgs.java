@@ -167,13 +167,11 @@ public class ClArgs {
     }
     boolean isFlag = type.getSimpleName().toLowerCase().equals("boolean");
     if (!isFlag) {
-      String numberOfArguments = annotation.numberOfArguments();
-      if (!numberOfArguments.matches("(\\d+)|((\\d+)?\\+)|\\*")) {
-        throw new OptionParserException("Invalid number of arguments " + numberOfArguments + " for option " + (shortName != null ? shortName : longName));
-      }
-      if (numberOfArguments.matches("\\d+")) {
-        builder.numberOfArgs(Integer.parseInt(numberOfArguments));
-      } else if (numberOfArguments.equals("*") || numberOfArguments.endsWith("+")) {
+      OptionArity arity = OptionArity.of(annotation.arity());
+      if (arity.isConstant()) {
+        builder.numberOfArgs(arity.getN());
+      } else {
+        // we'll manually check the number of args when extracting args
         builder.numberOfArgs(UNLIMITED_VALUES);
       }
     }
@@ -211,18 +209,9 @@ public class ClArgs {
     }
     if (optionValue instanceof Collection<?> optionValues) {
       // verifying the number of arguments
-      String numberOfArguments = optionAnnotation.numberOfArguments();
-      if (numberOfArguments.matches("\\d+")) {
-        int number = Integer.parseInt(numberOfArguments);
-        if (number != optionValues.size()) {
-          throw new OptionParserException("Expected %d values but got %d for option %s".formatted(number, optionValues.size(), getOptionDisplayedName(optionAnnotation, field)));
-        }
-      } else if (numberOfArguments.matches("(\\d+)?\\+")) {
-        numberOfArguments = numberOfArguments.substring(0, numberOfArguments.length() - 1);
-        int number = numberOfArguments.isEmpty() ? 1 : Integer.parseInt(numberOfArguments);
-        if (number != optionValues.size()) {
-          throw new OptionParserException("Expected at least %d values but got %d for option %s".formatted(number, optionValues.size(), getOptionDisplayedName(optionAnnotation, field)));
-        }
+      OptionArity arity = OptionArity.of(optionAnnotation.arity());
+      if (!arity.respects(optionValues.size())) {
+        throw new OptionParserException("Expected %s value(s) for option %s".formatted(arity, getOptionDisplayedName(optionAnnotation, field)));
       }
     }
     if (optionAnnotation.validator() != Void.class) {
@@ -246,7 +235,7 @@ public class ClArgs {
     } else if (value instanceof Boolean b) {
       return b;
     } else if (value instanceof Character c) {
-      return c == '\0';
+      return c != '\0';
     }
     return true;
   }
