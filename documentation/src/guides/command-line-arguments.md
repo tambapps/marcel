@@ -8,7 +8,7 @@ All classes referenced in this guide are available under the package `marcel.io.
 
 An option can be defined as a field, annotated with `@Option`.
 
-```groovy
+```marcel
 @Option
 private int depth;
 ```
@@ -18,7 +18,7 @@ The above piece of code declares an option named `depth`.
 ### Specify option names
 You can specify short and/or long name of your option through the annotation.
 
-```groovy
+```marcel
 @Option(shortName = "d", longName = "depth")
 private int depth
 ```
@@ -37,7 +37,7 @@ When no longName was specified, Marcel fallbacks to the name of the annotated fi
 By default an option is **required**. You can change this behaviour by marking it as `required = false` **or**
 by giving it a default value.
 
-```groovy
+```marcel
 @Option(required = false)
 private int depth
 
@@ -54,7 +54,7 @@ List and Sets ([even of primitives](../language-specification/types/collections-
 
 for example the below example allows to specify multiple `depth`
 
-```groovy
+```marcel
 @Option(shortName = "d", longName = "depth", arity = "*")
 private List<int> depths
 ```
