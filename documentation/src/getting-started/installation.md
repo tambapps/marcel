@@ -5,18 +5,29 @@ Marcel comes with
 - [marshell](../tools/marshell/index)
 - [dumbbell](../tools/dumbbell.md)
 
-For now, the only way to install Marcel is compiling it from its source code.
 
 ## Install from release
+### Using the script
 You can run the below command in order to install a Marcel release in a specific directory.
 
 ```shell
 curl -s https://raw.githubusercontent.com/tambapps/marcel/main/install/install-from-release.sh | bash -s
 ```
 
+It will install Marcel in the `$HOME/.marcel` folder. 
+
+You can also specify a directory by passing it as an argument as shown below
+```shell
+# Will install in ./my-folder
+curl -s https://raw.githubusercontent.com/tambapps/marcel/main/install/install-from-release.sh | bash -s ./my-folder
+```
+
+### Downloading the release
+
 You can download the `release.zip` of a [Marcel Release](https://github.com/tambapps/marcel/releases). Unzip it where you want.
 
-Then set the `MARCEL_HOME` environment to the path of the release you just unzipped. You can set it in your `.bashrc` or `.zshrc` so that
+### Set MARCEL_HOME
+Set the `MARCEL_HOME` environment to the path of the release you just unzipped. You can set it in your `.bashrc` or `.zshrc` so that
 this variable is set in all your sessions.
 You can also add `$MARCEL_HOME/bin` to your `PATH` so your shell recognize marcel commands.
 
