@@ -178,13 +178,13 @@
 <p>All classes referenced in this guide are available under the package <code>marcel.io.clargs</code>.</p>
 <h2 id="define-options"><a class="header" href="#define-options">Define options</a></h2>
 <p>An option can be defined as a field, annotated with <code>@Option</code>.</p>
-<pre><code class="language-groovy">@Option
+<pre><code class="language-marcel">@Option
 private int depth;
 </code></pre>
 <p>The above piece of code declares an option named <code>depth</code>.</p>
 <h3 id="specify-option-names"><a class="header" href="#specify-option-names">Specify option names</a></h3>
 <p>You can specify short and/or long name of your option through the annotation.</p>
-<pre><code class="language-groovy">@Option(shortName = "d", longName = "depth")
+<pre><code class="language-marcel">@Option(shortName = "d", longName = "depth")
 private int depth
 </code></pre>
 <p>The difference between short and long names are how you specify the option when running the script.
@@ -197,7 +197,7 @@ marcl script.mcl --depth 1
 <h3 id="optional-options-and-default-values"><a class="header" href="#optional-options-and-default-values">Optional options and default values</a></h3>
 <p>By default an option is <strong>required</strong>. You can change this behaviour by marking it as <code>required = false</code> <strong>or</strong>
 by giving it a default value.</p>
-<pre><code class="language-groovy">@Option(required = false)
+<pre><code class="language-marcel">@Option(required = false)
 private int depth
 
 @Option(required = false)
@@ -209,7 +209,7 @@ private int depth2 = 5 // not required as it has a default value
 <p>Sometimes you may want an option to be specifiable multiple times. In such case you'll need to declare the field as a Collection.
 List and Sets (<a href="../language-specification/types/collections-of-primitives.html">even of primitives</a>) are supported.</p>
 <p>for example the below example allows to specify multiple <code>depth</code></p>
-<pre><code class="language-groovy">@Option(shortName = "d", longName = "depth", arity = "*")
+<pre><code class="language-marcel">@Option(shortName = "d", longName = "depth", arity = "*")
 private List&lt;int&gt; depths
 </code></pre>
 <p>The <code>arity</code> annotation property is a String specifying how many arguments there can be for the given option (defaults to 1).
