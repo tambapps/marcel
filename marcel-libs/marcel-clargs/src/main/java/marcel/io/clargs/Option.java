@@ -56,6 +56,7 @@ public @interface Option {
      * - a range, like 2..5 (from 2 inclusive to 5 inclusive)
      * - a range with one infinite bound. E.g. 2..* for at least 2, or *..4 for at most 4
      * - a number n followed be a '+' to specify at least n (e.g. 5+)
+     * - a number, for exactly n arguments
      *
      * @return the number of arguments (as a String)
      */

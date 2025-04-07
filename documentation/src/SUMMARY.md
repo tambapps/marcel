@@ -62,6 +62,7 @@
 - [Asynchronous Programmming](./asynchronous-programming/index.md)
 - [Guides](./guides/index.md)
   - [Collections](./guides/collections.md)
+  - [Command Line Options/Arguments](./guides/command-line-arguments.md)
   - [Regular Expressions](./guides/regular-expressions.md)
 - [Tools](./tools/index.md)
   - [MarCL - Marcel's Command Line tool](./tools/marcl.md)
