@@ -34,7 +34,8 @@ public @interface Option {
     String longName() default "";
 
     /**
-     * The value separator for this multivalued option. Only allowed for array-typed arguments.
+     * The value separator for this multivalued option. Only allowed for multivalued options.
+     * Only the first char of is taken into account.
      *
      * @return the value separator for this multivalued option
      */

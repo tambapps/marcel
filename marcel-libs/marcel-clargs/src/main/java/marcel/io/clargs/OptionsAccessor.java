@@ -1,5 +1,6 @@
 package marcel.io.clargs;
 
+import lombok.SneakyThrows;
 import marcel.util.primitives.collections.lists.CharArrayList;
 import marcel.util.primitives.collections.lists.CharList;
 import marcel.util.primitives.collections.lists.DoubleArrayList;
@@ -39,17 +40,17 @@ public class OptionsAccessor {
   private static final Map<Class<?>, Collector<?, ?, ?>> COLLECTION_COLLECTORS = Map.ofEntries(
       // lists
       Map.entry(List.class, Collectors.toList()),
-      Map.entry(IntList.class, Collector.of(() -> (IntList) new IntArrayList(), (list, element) -> list.add(Integer.parseInt(element.toString())), IntList::leftShift)),
-      Map.entry(LongList.class, Collector.of(() -> (LongList) new LongArrayList(), (list, element) -> list.add(Long.parseLong(element.toString())), LongList::leftShift)),
-      Map.entry(FloatList.class, Collector.of(() -> (FloatList) new FloatArrayList(), (list, element) -> list.add(Float.parseFloat(element.toString())), FloatList::leftShift)),
-      Map.entry(DoubleList.class, Collector.of(() -> (DoubleList) new DoubleArrayList(), (list, element) -> list.add(Double.parseDouble(element.toString())), DoubleList::leftShift)),
+      Map.entry(IntList.class, Collector.of(() -> (IntList) new IntArrayList(), (list, element) -> list.add(Parsers.parseInt(element.toString())), IntList::leftShift)),
+      Map.entry(LongList.class, Collector.of(() -> (LongList) new LongArrayList(), (list, element) -> list.add(Parsers.parseLong(element.toString())), LongList::leftShift)),
+      Map.entry(FloatList.class, Collector.of(() -> (FloatList) new FloatArrayList(), (list, element) -> list.add(Parsers.parseFloat(element.toString())), FloatList::leftShift)),
+      Map.entry(DoubleList.class, Collector.of(() -> (DoubleList) new DoubleArrayList(), (list, element) -> list.add(Parsers.parseDouble(element.toString())), DoubleList::leftShift)),
       Map.entry(CharList.class, Collector.of(() -> (CharList) new CharArrayList(), (list, element) -> list.add(element.toString().charAt(0)), CharList::leftShift)),
       // sets
       Map.entry(Set.class, Collectors.toSet()),
-      Map.entry(IntSet.class, Collector.of(() -> (IntSet) new IntOpenHashSet(), (set, element) -> set.add(Integer.parseInt(element.toString())), IntSet::leftShift)),
-      Map.entry(LongSet.class, Collector.of(() -> (LongSet) new LongOpenHashSet(), (set, element) -> set.add(Long.parseLong(element.toString())), LongSet::leftShift)),
-      Map.entry(FloatSet.class, Collector.of(() -> (FloatSet) new FloatOpenHashSet(), (set, element) -> set.add(Float.parseFloat(element.toString())), FloatSet::leftShift)),
-      Map.entry(DoubleSet.class, Collector.of(() -> (DoubleSet) new DoubleOpenHashSet(), (set, element) -> set.add(Double.parseDouble(element.toString())), DoubleSet::leftShift)),
+      Map.entry(IntSet.class, Collector.of(() -> (IntSet) new IntOpenHashSet(), (set, element) -> set.add(Parsers.parseInt(element.toString())), IntSet::leftShift)),
+      Map.entry(LongSet.class, Collector.of(() -> (LongSet) new LongOpenHashSet(), (set, element) -> set.add(Parsers.parseLong(element.toString())), LongSet::leftShift)),
+      Map.entry(FloatSet.class, Collector.of(() -> (FloatSet) new FloatOpenHashSet(), (set, element) -> set.add(Parsers.parseFloat(element.toString())), FloatSet::leftShift)),
+      Map.entry(DoubleSet.class, Collector.of(() -> (DoubleSet) new DoubleOpenHashSet(), (set, element) -> set.add(Parsers.parseDouble(element.toString())), DoubleSet::leftShift)),
       Map.entry(CharSet.class, Collector.of(() -> (CharSet) new CharOpenHashSet(), (set, element) -> set.add(element.toString().charAt(0)), CharSet::leftShift))
   );
 
@@ -111,6 +112,7 @@ public class OptionsAccessor {
     return convertOptionValue(cliOption, optionAnnotation, field, optionValue);
   }
 
+  @SneakyThrows
   private Object convertOptionValue(org.apache.commons.cli.Option cliOption,
                                     Option optionAnnotation, Field field, String  optionValue) {
     try {
@@ -118,7 +120,7 @@ public class OptionsAccessor {
     } catch (NumberFormatException e) {
       throw new OptionParserException(
           "Invalid option %s: invalid number".formatted(getOptionDisplayedName(optionAnnotation, field)), e);
-    } catch (Throwable e) {
+    } catch (IllegalArgumentException e) {
       throw new OptionParserException(
           "Malformed option %s: %s".formatted(getOptionDisplayedName(optionAnnotation, field), e.getMessage()), e);
     }

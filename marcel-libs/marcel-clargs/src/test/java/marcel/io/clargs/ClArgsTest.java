@@ -170,6 +170,20 @@ public class ClArgsTest {
   }
 
   @Test
+  public void testArgsSeparatorOptions() {
+    class MyScript {
+      @Option(shortName = "m", valueSeparator = ",", arity = "*")
+      private List<String> multipleOptions;
+    }
+    MyScript script = new MyScript();
+
+    clArgs.parseFromInstance(script, new String[]{
+        "-m", "one,2,three"
+    });
+    assertEquals(List.of("one", "2", "three"), script.multipleOptions);
+  }
+
+  @Test
   public void testMultipleFloatOptions() {
     class MyScript {
       @Option(shortName = "m", arity = "*")
