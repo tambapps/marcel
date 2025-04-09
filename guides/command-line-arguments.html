@@ -200,11 +200,11 @@ by giving it a default value.</p>
 <pre><code class="language-marcel">@Option(required = false)
 private int depth
 
-@Option(required = false)
+@Option
 private int depth2 = 5 // not required as it has a default value
 </code></pre>
 <p>As you can see above, you can specify the default value of an option by assigning a value to a field.</p>
-<p>Note that fir <code>null</code> or 0 vakues, you'll need to explicitely specify the <code>required = false</code> flag in order for the option to be optional.</p>
+<p>Note that for <code>null</code> or 0 values, you'll still need to explicitly specify the <code>required = false</code> flag in order for the option to be optional.</p>
 <h3 id="multivalued-options"><a class="header" href="#multivalued-options">Multivalued options</a></h3>
 <p>Sometimes you may want an option to be specifiable multiple times. In such case you'll need to declare the field as a Collection.
 List and Sets (<a href="../language-specification/types/collections-of-primitives.html">even of primitives</a>) are supported.</p>
@@ -233,9 +233,13 @@ It supports many formats:</p>
 </ul>
 <p>You can declare an option field of one of the above type, and Marcel will
 automatically know how to convert the option's value (String) into the target type.</p>
-<p>For other types, you can specify the <code>converter</code>, a Lambda TODO EXPLAIN LAMBDA AND WHY IT IS DECLARED AS A CLASS FIELD</p>
-<h4 id="multivalued-option-conversion"><a class="header" href="#multivalued-option-conversion">Multivalued option conversion</a></h4>
-<p>for Multi-valued types Marcel supports</p>
+<p>For other types, you can specify a <code>converter</code> as shown below</p>
+<pre><code class="language-marcel">@Option(converter = { String s -&gt; Duration.parse(s) })
+private Duration duration
+</code></pre>
+<p>You can throw an <code>IllegalArgumentException</code> in those lambda to specify that the option value is incorrect.</p>
+<h3 id="multivalued-options-1"><a class="header" href="#multivalued-options-1">Multivalued options</a></h3>
+<p>for Multi-valued options, Marcel supports</p>
 <ul>
 <li>List</li>
 <li>Set</li>
@@ -243,8 +247,121 @@ automatically know how to convert the option's value (String) into the target ty
 </ul>
 <p>But as Marcel does not support generic types if you declare a field as a List/Set (Java's List/Set, not of primitives),
 it will put the raw value as a String in it.</p>
-<p>To have elements of the wanted type, you can specify the <code>converter</code>, which will be applied on <strong>each</strong>
-value of the option.</p>
+<p>You can still specify a custom <code>converter</code> for such options, it will be applied on <strong>each</strong> value of the option.</p>
+<p>Let's look at the below options</p>
+<pre><code class="language-marcel">@Option(longName = "int", arity = '*') // no need for a converter as it is a list of primitive ints
+private List&lt;int&gt; ints
+@Option(longName = "duration", arity = '*', converter = { String s -&gt; Duration.parse(s) })
+private List durations
+</code></pre>
+<p>For the command</p>
+<pre><code class="language-shell"> marcl Test.marcel -duration PT1S PT1M -int 1 -int 2 -int 3
+</code></pre>
+<p>We will have <code>ints = [1, 2, 3]</code> and <code>durations = [PT1S, PT1M]</code>.</p>
+<h4 id="value-separator"><a class="header" href="#value-separator">Value separator</a></h4>
+<p>As seen above, we provide multiple values to a multivalued option by using multiple times the same option,
+but there is another way to pass those: using a <code>valueSeparator</code>.</p>
+<p>The value separator will force the user to pass all the values of the option at once, separated by the <code>valueSeparator</code>.</p>
+<p>For example, the option</p>
+<pre><code class="language-marcel">@Option(longName = "int", arity = '*', valueSeparator = ',')
+private List&lt;int&gt; ints
+</code></pre>
+<p>with the command</p>
+<pre><code class="language-shell"> marcl Test.marcel -int 1,2,3
+</code></pre>
+<p>Will result in <code>ints = [1, 2, 3]</code>.</p>
+<h3 id="validator"><a class="header" href="#validator">Validator</a></h3>
+<p>Sometimes you may want to add validation to an option. You can do so by specifying
+a lambda under the <code>validation</code> annotation parameter. Any <code>IllegalArgumentException</code> thrown in this lambda
+will be considered as a validation error.</p>
+<pre><code class="language-marcel">@Option(shortName = "n", validator = { int n -&gt;
+    if (n % 2 != 0) throw new IllegalArgumentException("n should be even")
+  })
+private int number
+</code></pre>
+<h2 id="define-arguments"><a class="header" href="#define-arguments">Define arguments</a></h2>
+<p>The arguments of your programs are the value passed, not assigned to any options. For example, in the example below</p>
+<pre><code>marcl script.mcl -d 1 -n "a value" arg1 arg2 arg3
+</code></pre>
+<p>There is</p>
+<ul>
+<li>the option <code>d=1</code></li>
+<li>the option <code>n="a value"</code></li>
+<li>the arguments <code>arg1</code>, <code>arg2</code>, <code>arg3</code></li>
+</ul>
+<p>You can assign these arguments values to a field thanks to the <code>@Arguments</code> annotation.</p>
+<pre><code class="language-marcel">@Arguments
+private List args
+</code></pre>
+<h2 id="parse-options"><a class="header" href="#parse-options">Parse options</a></h2>
+<p>After having declared the options and/or arguments, we want to assign them values based on the command line arguments passed
+to execute the script.</p>
+<p>This can be done with one line</p>
+<pre><code>ClArgs.init(this, args)
+</code></pre>
+<p>This line of code will parse the command line <code>args</code> and assign the appropriate values to your options.</p>
+<p>In more details it will</p>
+<ul>
+<li>parse the command line arguments</li>
+<li>if any error occurred (e.g. arity not respected, type not respected, validation error): print the error, print the usage of this script, and then exit (<code>System.exit(1)</code>)</li>
+<li>if no error occurred, you option fields are ready to be used</li>
+</ul>
+<h3 id="help-option"><a class="header" href="#help-option">Help option</a></h3>
+<p>You can use the <code>@HelpOption</code> annotation on a <code>boolean</code> field to specify an option that should print usage and then exit the program
+(this behaviour is handled automatically by the <code>ClArgs.init(...)</code> method), as shown below.</p>
+<pre><code class="language-marcel">@HelpOption
+private boolean help
+</code></pre>
+<h2 id="document-the-usage-of-your-script"><a class="header" href="#document-the-usage-of-your-script">Document the usage of your script</a></h2>
+<p>We've seen that the usage of your script will be printed in case of error.
+You can provide more data to annotations and the <code>ClArgs.init(...)</code> method call in order to print a well explained usage.</p>
+<h3 id="option-description"><a class="header" href="#option-description">Option description</a></h3>
+<p>Use the <code>description</code> annotation parameter to describe what your option does</p>
+<pre><code>@Option(description = "the max depth at which to search files")
+private int depth
+</code></pre>
+<h3 id="customize-usage"><a class="header" href="#customize-usage">Customize usage</a></h3>
+<p>The <code>ClArgs.init(...)</code> has several optional arguments allowing to enrich the <code>usage</code> message.</p>
+<h4 id="usage"><a class="header" href="#usage">usage</a></h4>
+<p>Usage summary displayed as the first line.</p>
+<h4 id="header"><a class="header" href="#header">header</a></h4>
+<p>Optional additional message for usage; displayed after the usage summary but before the options are displayed.</p>
+<h4 id="footer"><a class="header" href="#footer">footer</a></h4>
+<p>Optional additional message for usage; displayed after the options are displayed.</p>
+<h2 id="full-example"><a class="header" href="#full-example">Full example</a></h2>
+<p>Take a look at the below script.</p>
+<pre><code class="language-marcel">import marcel.io.clargs.*
+import java.time.Duration
+
+@Option(shortName = "d", validator = { int d -&gt;
+    if (d &lt;= 0) throw new IllegalArgumentException("should be positive")
+  }, description = "The depth limit of the search")
+private int depth = 100
+
+@Option(shortName = "n", description = "The name to search")
+private String name
+
+@Option(shortName = "i", longName = "ignore-case", description = "whether to ignore case when matching the name", required = false)
+private boolean ignoreCase
+
+
+@HelpOption
+private boolean help
+
+@Arguments
+private List filePaths
+
+ClArgs.init(this, args, usage: 'marcl script.mcl')
+
+// process options and arguments
+</code></pre>
+<p>The usage of this script would result as shown below</p>
+<pre><code class="language-text">usage: marcl script.mcl ARGUMENTS
+ -d,--depth &lt;arg&gt;   The depth limit of the search. default: 100
+ -h,--help          Prints usage information
+ -i,--ignore-case   whether to ignore case when matching the name. default: false
+ -n,--name &lt;arg&gt;    The name to search
+</code></pre>
 
                     </main>
 
