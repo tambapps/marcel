@@ -82,6 +82,10 @@ public class OptionsAccessor {
     return commandLine.getArgList().stream().collect(collector);
   }
 
+  public boolean getOptionValue(HelpOption optionAnnotation) {
+    return parsedOptions.stream().anyMatch((opt) -> opt.getOpt().equals(optionAnnotation.shortName()));
+  }
+
   public Object getOptionValue(Option optionAnnotation, Field field) {
     Optional<org.apache.commons.cli.Option> optOption = findOption(optionAnnotation, field, parsedOptions)
         .or(() -> findOption(optionAnnotation, field, allOptions));
@@ -142,9 +146,6 @@ public class OptionsAccessor {
   static String getOptionDisplayedName(Option option, Field field) {
     if (!option.longName().isEmpty()) {
       return option.longName();
-    }
-    if (!option.shortName().isEmpty()) {
-      return option.shortName();
     }
     return field.getName();
   }

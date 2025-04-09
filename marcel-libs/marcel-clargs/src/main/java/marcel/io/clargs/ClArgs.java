@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import static marcel.io.clargs.OptionsAccessor.getOptionDisplayedName;
 import static org.apache.commons.cli.Option.UNLIMITED_VALUES;
@@ -35,13 +36,13 @@ public class ClArgs {
       @NullDefaultValue String footer,
       @NullDefaultValue Boolean stopAtNonOption,
       @NullDefaultValue Integer width) {
-    init(instance, args, () -> System.exit(1), usage, header, footer, stopAtNonOption, width);
+    init(instance, args, System::exit, usage, header, footer, stopAtNonOption, width);
   }
 
   public static void init(
       Script instance,
       String[] args,
-      Runnable onError,
+      Consumer<Integer> exit,
       @NullDefaultValue String usage,
       @NullDefaultValue String header,
       @NullDefaultValue String footer,
@@ -64,11 +65,15 @@ public class ClArgs {
       builder.setWidth(width);
     }
     try {
-      builder.parseFromInstance(instance, args);
+      boolean help = builder.parseFromInstance(instance, args);
+      if (help) {
+        builder.usageFromInstance(instance);
+        exit.accept(0);
+      }
     } catch (OptionParserException e) {
       System.out.println(e.getMessage());
       builder.usageFromInstance(instance);
-      onError.run();
+      exit.accept(1);
     }
   }
 
@@ -106,37 +111,43 @@ public class ClArgs {
   /**
    * Allows customisation of the usage message width.
    */
-  private int width = HelpFormatter.DEFAULT_WIDTH;
+  private int width = 100;
 
-  public void parseFromInstance(Object instance, List<String> args) {
-    parseFromInstance(instance, args.toArray(String[]::new));
+  public boolean parseFromInstance(Object instance, List<String> args) {
+    return parseFromInstance(instance, args.toArray(String[]::new));
   }
 
-  public void parseFromInstance(Object instance, String[] args) {
+  public boolean parseFromInstance(Object instance, String[] args) {
     Objects.requireNonNull(instance, "instance must not be null");
     Class<?> clazz = instance.getClass();
-    Options options = getOptionsFromInstance(clazz);
+    Options options = getOptionsFromInstance(clazz, instance);
     try {
       OptionsAccessor optionsAccessor = parse(options, args);
-      setOptionsFromAnnotations(optionsAccessor, instance, clazz);
+      return setOptionsFromAnnotations(optionsAccessor, instance, clazz);
     } catch (ParseException pe) {
       writer.println("error: " + pe.getMessage());
       usage(options, findArgumentsFromInstance(instance));
+      return false;
     }
   }
 
-  private Options getOptionsFromInstance(Class<?> clazz) {
+  private Options getOptionsFromInstance(Class<?> clazz, Object instance) {
     Options options = new Options();
     for (Field field : clazz.getDeclaredFields()) {
       Option optionAnnotation = field.getAnnotation(Option.class);
-      if (optionAnnotation == null) continue;
-      org.apache.commons.cli.Option cliOption = toCliOption(optionAnnotation, field);
-      options.addOption(cliOption);
+      if (optionAnnotation != null) {
+        options.addOption(toCliOption(instance, optionAnnotation, field));
+      }
+      HelpOption helpOptionAnnotation = field.getAnnotation(HelpOption.class);
+      if (helpOptionAnnotation != null) {
+        options.addOption(toCliOption(helpOptionAnnotation, field));
+      }
     }
     return options;
   }
 
-  private org.apache.commons.cli.Option toCliOption(Option annotation, Field field) {
+  // first arg nullable
+  private org.apache.commons.cli.Option toCliOption(Object instance, Option annotation, Field field) {
     String description = annotation.description();
     char valueSeparator = 0;
     if (!annotation.valueSeparator().isEmpty()) valueSeparator = annotation.valueSeparator().charAt(0);
@@ -160,6 +171,9 @@ public class ClArgs {
     Class<?> type = ReflectionUtils.getObjectClass(field.getType());
     builder.type(type);
 
+    if (instance != null && (!hasDefaultValue(instance, field) || !annotation.required())) {
+      description += ". default: " + ReflectionUtils.getFieldValue(instance, field);
+    }
     if (description != null) builder.desc(description);
     if (valueSeparator != 0) builder.valueSeparator(valueSeparator);
     if (type.isArray()) {
@@ -177,6 +191,16 @@ public class ClArgs {
     }
     return builder.build();
   }
+  private org.apache.commons.cli.Option toCliOption(HelpOption annotation, Field field) {
+    if (field.getType() != boolean.class) {
+      throw new OptionParserException("Help option field " + field.getName() + " should be of boolean type");
+    }
+    return org.apache.commons.cli.Option.builder(annotation.shortName())
+        .longOpt(annotation.longName())
+        .type(boolean.class)
+        .desc(annotation.description())
+        .build();
+  }
 
   private Lambda1<?, ?> instantiateLambda(Class<?> converterClass) {
     if (!Lambda1.class.isAssignableFrom(converterClass)) {
@@ -186,22 +210,28 @@ public class ClArgs {
   }
 
 
-  public void setOptionsFromAnnotations(OptionsAccessor optionsAccessor, Object instance, Class<?> clazz) {
+  public boolean setOptionsFromAnnotations(OptionsAccessor optionsAccessor, Object instance, Class<?> clazz) {
+    boolean help = false;
     for (Field field : clazz.getDeclaredFields()) {
       Option optionAnnotation = field.getAnnotation(Option.class);
+      HelpOption helpOptionAnnotation = field.getAnnotation(HelpOption.class);
       Arguments argumentsAnnotation = field.getAnnotation(Arguments.class);
       if (optionAnnotation != null) {
         setOptionsFromAnnotation(optionsAccessor, instance, field, optionAnnotation);
       } else if (argumentsAnnotation != null) {
         setFieldValue(field, instance, optionsAccessor.getArguments(field.getType()));
+      } else if (helpOptionAnnotation != null) {
+        help = optionsAccessor.getOptionValue(helpOptionAnnotation);
+        setFieldValue(field, instance, help);
       }
     }
+    return help;
   }
 
   private void setOptionsFromAnnotation(OptionsAccessor optionsAccessor, Object instance, Field field, Option optionAnnotation) {
     Object optionValue = optionsAccessor.getOptionValue(optionAnnotation, field);
     if (optionValue == null) {
-      if (optionAnnotation.required() && !hasDefaultValue(instance, field)) {
+      if (optionAnnotation.required() && hasDefaultValue(instance, field)) {
         throw new OptionParserException("Option %s is required".formatted(getOptionDisplayedName(optionAnnotation, field)));
       } else {
         return;
@@ -228,16 +258,16 @@ public class ClArgs {
   private boolean hasDefaultValue(Object instance, Field field) {
     Object value = ReflectionUtils.getFieldValue(instance, field);
     if (value == null) {
-      return false;
+      return true;
     }
     if (value instanceof Number n) {
-      return n.intValue() != 0;
+      return n.intValue() == 0;
     } else if (value instanceof Boolean b) {
-      return b;
+      return !b;
     } else if (value instanceof Character c) {
-      return c != '\0';
+      return c == '\0';
     }
-    return true;
+    return false;
   }
 
   public OptionsAccessor parse(Options options, String[] args) throws ParseException {
@@ -257,7 +287,7 @@ public class ClArgs {
   }
 
   public void usageFromInstance(Object instance) {
-    Options options = getOptionsFromInstance(instance.getClass());
+    Options options = getOptionsFromInstance(instance.getClass(), instance);
     usage(options, findArgumentsFromInstance(instance));
   }
 

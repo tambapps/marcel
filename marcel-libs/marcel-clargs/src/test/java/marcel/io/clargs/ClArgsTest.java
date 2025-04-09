@@ -76,6 +76,29 @@ public class ClArgsTest {
   }
 
   @Test
+  public void testHelpOption() {
+    class MyScript {
+      @HelpOption
+      private boolean help;
+    }
+    MyScript script = new MyScript();
+
+    clArgs.parseFromInstance(script, new String[]{});
+    assertFalse(script.help);
+
+    clArgs.parseFromInstance(script, new String[]{
+        "-h"
+    });
+    assertTrue(script.help);
+    script.help = false;
+
+    clArgs.parseFromInstance(script, new String[]{
+        "--help"
+    });
+    assertTrue(script.help);
+  }
+
+  @Test
   public void testArgs() {
     class MyScript {
       @Arguments
