@@ -27,7 +27,7 @@ import com.tambapps.marcel.semantic.type.JavaType
 open class ReturningBranchTransformer(
   private val node: CstNode,
   // useful to cast
-  private val nodeTransformer: ((com.tambapps.marcel.semantic.ast.expression.ExpressionNode) -> com.tambapps.marcel.semantic.ast.expression.ExpressionNode)? = null
+  private val nodeTransformer: ((ExpressionNode) -> ExpressionNode)? = null
 ) : StatementNodeVisitor<StatementNode> {
   val collectedTypes = mutableListOf<JavaType>()
 
@@ -67,14 +67,14 @@ open class ReturningBranchTransformer(
     return node
   }
 
-  override fun visit(node: IfStatementNode) = invalidStatement("if")
+  override fun visit(node: IfStatementNode) = stmtThenReturnNull(node)
 
-  override fun visit(node: ForInIteratorStatementNode) = invalidStatement("for loop")
+  override fun visit(node: ForInIteratorStatementNode) = stmtThenReturnNull(node)
 
-  override fun visit(node: WhileNode) = invalidStatement("while loop")
-  override fun visit(node: DoWhileNode) = invalidStatement("do while loop")
+  override fun visit(node: WhileNode) = stmtThenReturnNull(node)
+  override fun visit(node: DoWhileNode) = stmtThenReturnNull(node)
 
-  override fun visit(node: ForStatementNode) = invalidStatement("for loop")
+  override fun visit(node: ForStatementNode) = stmtThenReturnNull(node)
 
   override fun visit(node: BreakNode) = invalidStatement("break")
 
@@ -82,7 +82,9 @@ open class ReturningBranchTransformer(
 
   override fun visit(node: ThrowNode) = node
 
-  override fun visit(node: TryNode) = invalidStatement("try/catch")
+  override fun visit(node: TryNode) = stmtThenReturnNull(node)
+
+  private fun stmtThenReturnNull(node: StatementNode) = BlockStatementNode(mutableListOf(node, ReturnStatementNode(NullValueNode(node.token))))
 
   private fun invalidStatement(stmtName: String): StatementNode {
     throw MarcelSemanticException(node.token, "Cannot have a $stmtName as last statement of a when/switch branch")
