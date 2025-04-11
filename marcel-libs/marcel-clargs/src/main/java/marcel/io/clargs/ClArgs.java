@@ -16,9 +16,11 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static marcel.io.clargs.OptionsAccessor.getOptionDisplayedName;
 import static org.apache.commons.cli.Option.UNLIMITED_VALUES;
@@ -148,7 +150,6 @@ public class ClArgs {
 
   // first arg nullable
   private org.apache.commons.cli.Option toCliOption(Object instance, Option annotation, Field field) {
-    String description = annotation.description();
     char valueSeparator = 0;
     if (!annotation.valueSeparator().isEmpty()) valueSeparator = annotation.valueSeparator().charAt(0);
     boolean optionalArg = annotation.required();
@@ -171,10 +172,23 @@ public class ClArgs {
     Class<?> type = ReflectionUtils.getObjectClass(field.getType());
     builder.type(type);
 
-    if (instance != null && (!hasDefaultValue(instance, field) || !annotation.required())) {
-      description += ". default: " + ReflectionUtils.getFieldValue(instance, field);
+    boolean hasDefaultValue = instance != null && hasDefaultValue(instance, field);
+
+    if (!annotation.description().isEmpty()) {
+      StringBuilder descriptionBuilder = new StringBuilder(annotation.description());
+      if (!annotation.required() || hasDefaultValue) {
+        descriptionBuilder.insert(0, "(optional) ");
+      }
+      if (type.isEnum()) {
+        descriptionBuilder.append(". Possible values: " + EnumSet.allOf((Class) type).stream()
+            .map(Object::toString)
+            .collect(Collectors.joining(", ", "[", "]")));
+      }
+      if (!hasDefaultValue || !annotation.required()) {
+        descriptionBuilder.append(". Default: ").append(ReflectionUtils.getFieldValue(instance, field));
+      }
+      builder.desc(descriptionBuilder.toString());
     }
-    if (description != null) builder.desc(description);
     if (valueSeparator != 0) builder.valueSeparator(valueSeparator);
     if (type.isArray()) {
       builder.optionalArg(optionalArg);

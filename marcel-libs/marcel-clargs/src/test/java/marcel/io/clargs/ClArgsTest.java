@@ -8,6 +8,7 @@ import marcel.util.primitives.collections.lists.LongList;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.time.Month;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -309,6 +310,19 @@ public class ClArgsTest {
         "-o", "5"
     });
     assertEquals(6, script.opt);
+  }
+
+  @Test
+  public void testEnum() {
+    class MyScript {
+      @Option(shortName = "m")
+      private Month month;
+    }
+    MyScript script = new MyScript();
+    clArgs.parseFromInstance(script, new String[]{
+        "-m", "MARCH"
+    });
+    assertEquals(Month.MARCH, script.month);
   }
 
   @Test

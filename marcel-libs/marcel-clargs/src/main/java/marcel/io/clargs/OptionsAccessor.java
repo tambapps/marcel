@@ -1,6 +1,7 @@
 package marcel.io.clargs;
 
 import lombok.SneakyThrows;
+import marcel.lang.methods.DefaultMarcelMethods;
 import marcel.util.primitives.collections.lists.CharArrayList;
 import marcel.util.primitives.collections.lists.CharList;
 import marcel.util.primitives.collections.lists.DoubleArrayList;
@@ -65,6 +66,7 @@ public class OptionsAccessor {
         .toList();
     this.parsedOptions = Arrays.stream(commandLine.getOptions())
         .toList();
+    initCliOptionConverters();
   }
 
   public List<String> getArguments() {
@@ -104,12 +106,10 @@ public class OptionsAccessor {
       return (optionValues != null ? Arrays.stream(optionValues) : Stream.<String>empty())
           .map(optionValue -> convertOptionValue(cliOption, optionAnnotation, field, optionValue))
           .collect(collector);
+    } else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) {
+      return commandLine.hasOption(cliOption.getOpt());
     }
     String optionValue = commandLine.getOptionValue(cliOption);
-    if (optionValue == null && (cliOption.getType().equals(boolean.class) || cliOption.getType().equals(Boolean.class))) {
-      optionValue = String.valueOf(commandLine.hasOption(cliOption.getOpt()));
-      cliOption.setConverter(Boolean::parseBoolean);
-    }
     if (optionValue == null) {
       return null;
     }
@@ -118,7 +118,7 @@ public class OptionsAccessor {
 
   @SneakyThrows
   private Object convertOptionValue(org.apache.commons.cli.Option cliOption,
-                                    Option optionAnnotation, Field field, String  optionValue) {
+                                    Option optionAnnotation, Field field, String optionValue) {
     try {
       return cliOption.getConverter().apply(optionValue);
     } catch (NumberFormatException e) {
@@ -140,6 +140,15 @@ public class OptionsAccessor {
       return option.shortName();
     } else {
       return option.longName().isEmpty() ? field.getName() : option.longName();
+    }
+  }
+
+  private void initCliOptionConverters() {
+    for (org.apache.commons.cli.Option cliOption : DefaultMarcelMethods.plus(allOptions, parsedOptions)) {
+      Class<?> type = (Class<?>) cliOption.getType();
+      if (type.isEnum()) {
+        cliOption.setConverter(value -> Enum.valueOf((Class<Enum>) type, value));
+      }
     }
   }
 

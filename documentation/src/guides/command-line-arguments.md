@@ -75,6 +75,7 @@ Marcel supports argument of the following types
 - BigDecimal
 - File
 - Path
+- Enum classes
 
 You can declare an option field of one of the above type, and Marcel will
 automatically know how to convert the option's value (String) into the target type.
