@@ -64,6 +64,13 @@ public @interface Option {
     String arity() default "1";
 
     /**
+     * A class specifying elements type, as Marcel doesn't support generic types. For collection options only.
+     *
+     * @return a class specifying elements type
+     */
+    Class<?> elementsType() default Void.class;
+
+    /**
      * A lambda to convert the incoming String into the desired object. If the field is of a collection type (for multivalued options),
      * the converter will be applied to each value.
      *

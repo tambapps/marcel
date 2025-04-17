@@ -19,4 +19,26 @@ public @interface Arguments {
      */
     String description() default "ARGUMENTS";
 
+    /**
+     * A class specifying elements type, as Marcel doesn't support generic types.
+     *
+     * @return a class specifying elements type
+     */
+    Class<?> elementsType() default Void.class;
+
+    /**
+     * A lambda to convert the incoming String into the desired object. the converter will be applied to each argument.
+     *
+     * @return the lambda class to convert this option's argument(s)
+     */
+    Class<?> converter() default Void.class;
+
+    /**
+     * A lambda to validate the value of the arguments. Throw an {@link java.lang.IllegalArgumentException} in the lambda
+     * to indicate a validation error.
+     *
+     * @return the lambda class to validate this option's value
+     */
+    Class<?> validator() default Void.class;
+
 }

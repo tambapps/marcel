@@ -1,6 +1,7 @@
 package marcel.io.clargs;
 
 import lombok.SneakyThrows;
+import marcel.lang.lambda.Lambda1;
 import marcel.lang.methods.DefaultMarcelMethods;
 import marcel.util.primitives.collections.lists.CharArrayList;
 import marcel.util.primitives.collections.lists.CharList;
@@ -23,7 +24,9 @@ import marcel.util.primitives.collections.sets.IntSet;
 import marcel.util.primitives.collections.sets.LongOpenHashSet;
 import marcel.util.primitives.collections.sets.LongSet;
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Converter;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.TypeHandler;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -32,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -69,19 +73,41 @@ public class OptionsAccessor {
     initCliOptionConverters();
   }
 
-  public List<String> getArguments() {
-    return commandLine.getArgList();
-  }
-
-  public Object getArguments(Class<?> expectedType) {
+  public Object getArguments(Class<?> expectedType, Arguments arguments,
+                             // nullable
+                             Converter converter) {
     if (expectedType == String.class) {
-      return String.join(" ", getArguments());
+      return String.join(" ", commandLine.getArgList());
     }
     Collector collector = COLLECTION_COLLECTORS.get(expectedType);
     if (collector == null) {
       throw new OptionParserException("Unsupported type " + expectedType + " for arguments");
     }
-    return commandLine.getArgList().stream().collect(collector);
+    Function<String, ?> function;
+    if (converter != null) {
+      function = (arg) -> convertArgument(arg, converter);
+    } else if (arguments.elementsType() == Void.class || arguments.elementsType() == String.class) {
+      function = Function.identity();
+    } else {
+      function = (arg) -> convertArgument(arg, TypeHandler.getDefault().getConverter(arguments.elementsType()));
+    }
+    return commandLine.getArgList()
+        .stream()
+        .map(function)
+        .collect(collector);
+  }
+
+  @SneakyThrows
+  private Object convertArgument(String arg, Converter converter) {
+    try {
+      return converter.apply(arg);
+    } catch (NumberFormatException e) {
+      throw new OptionParserException(
+          "Invalid argument '%s': invalid number".formatted(arg), e);
+    } catch (IllegalArgumentException e) {
+      throw new OptionParserException(
+          "Malformed argument '%s': %s".formatted(arg, e.getMessage()), e);
+    }
   }
 
   public boolean getOptionValue(HelpOption optionAnnotation) {
@@ -103,9 +129,16 @@ public class OptionsAccessor {
         throw new OptionParserException("Unsupported collection type " + field.getType().getSimpleName() + " for option " + getOptionDisplayedName(optionAnnotation, field));
       }
       String[] optionValues = commandLine.getOptionValues(cliOption);
-      return (optionValues != null ? Arrays.stream(optionValues) : Stream.<String>empty())
-          .map(optionValue -> convertOptionValue(cliOption, optionAnnotation, field, optionValue))
-          .collect(collector);
+      Stream<String> optionValuesStream = optionValues != null ? Arrays.stream(optionValues) : Stream.<String>empty();
+      if (optionAnnotation.elementsType() != Void.class) {
+        TypeHandler typeHandler = TypeHandler.getDefault();
+        return optionValuesStream.map(optionValue -> doConvert(typeHandler.getConverter(optionAnnotation.elementsType()), optionValue, optionAnnotation, field))
+            .collect(collector);
+      } else {
+        return optionValuesStream
+            .map(optionValue -> convertOptionValue(cliOption, optionAnnotation, field, optionValue))
+            .collect(collector);
+      }
     } else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) {
       return commandLine.hasOption(cliOption.getOpt());
     }
@@ -116,11 +149,15 @@ public class OptionsAccessor {
     return convertOptionValue(cliOption, optionAnnotation, field, optionValue);
   }
 
-  @SneakyThrows
   private Object convertOptionValue(org.apache.commons.cli.Option cliOption,
                                     Option optionAnnotation, Field field, String optionValue) {
+    return doConvert(cliOption.getConverter(), optionValue, optionAnnotation, field);
+  }
+
+  @SneakyThrows
+  private Object doConvert(Converter<?, ?> converter, String optionValue, Option optionAnnotation, Field field) {
     try {
-      return cliOption.getConverter().apply(optionValue);
+      return converter.apply(optionValue);
     } catch (NumberFormatException e) {
       throw new OptionParserException(
           "Invalid option %s: invalid number".formatted(getOptionDisplayedName(optionAnnotation, field)), e);

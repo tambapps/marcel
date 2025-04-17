@@ -3,11 +3,14 @@ package marcel.io.clargs;
 import marcel.lang.lambda.Lambda1;
 import marcel.util.primitives.collections.lists.FloatArrayList;
 import marcel.util.primitives.collections.lists.FloatList;
+import marcel.util.primitives.collections.lists.IntArrayList;
+import marcel.util.primitives.collections.lists.IntList;
 import marcel.util.primitives.collections.lists.LongArrayList;
 import marcel.util.primitives.collections.lists.LongList;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.time.Month;
 import java.util.List;
 
@@ -194,6 +197,34 @@ public class ClArgsTest {
   }
 
   @Test
+  public void testElementsType() {
+    class MyScript {
+      @Option(shortName = "n", arity = "*", elementsType = BigDecimal.class)
+      private List<BigDecimal> numbers;
+    }
+    MyScript script = new MyScript();
+
+    clArgs.parseFromInstance(script, new String[]{
+        "-n", "1", "-n", "2", "-n", "2344444"
+    });
+    assertEquals(List.of(BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(2344444)), script.numbers);
+  }
+
+  @Test
+  public void testArgumentsElementsType() {
+    class MyScript {
+      @Arguments(elementsType = BigDecimal.class)
+      private List<BigDecimal> numbers;
+    }
+    MyScript script = new MyScript();
+
+    clArgs.parseFromInstance(script, new String[]{
+        "1", "2", "2344444"
+    });
+    assertEquals(List.of(BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(2344444)), script.numbers);
+  }
+
+  @Test
   public void testArgsSeparatorOptions() {
     class MyScript {
       @Option(shortName = "m", valueSeparator = ",", arity = "*")
@@ -292,17 +323,18 @@ public class ClArgsTest {
     assertEquals(5, script.opt);
   }
 
-  static class OptConverter implements Lambda1<String, Integer> {
+  static class PlusOneConverter implements Lambda1<String, Integer> {
 
     @Override
     public Integer invoke(String arg0) {
       return Integer.parseInt(arg0) + 1;
     }
   }
+
   @Test
   public void testConverter() {
     class MyScript {
-      @Option(shortName = "o", converter = OptConverter.class)
+      @Option(shortName = "o", converter = PlusOneConverter.class)
       private int opt;
     }
     MyScript script = new MyScript();
@@ -310,6 +342,19 @@ public class ClArgsTest {
         "-o", "5"
     });
     assertEquals(6, script.opt);
+  }
+
+  @Test
+  public void testArgsConverter() {
+    class MyScript {
+      @Arguments(converter = PlusOneConverter.class)
+      private IntList args;
+    }
+    MyScript script = new MyScript();
+    clArgs.parseFromInstance(script, new String[]{
+        "1", "3", "5"
+    });
+    assertEquals(new IntArrayList(new int[] {2, 4, 6}), script.args);
   }
 
   @Test

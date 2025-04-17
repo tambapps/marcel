@@ -233,13 +233,32 @@ public class ClArgs {
       if (optionAnnotation != null) {
         setOptionsFromAnnotation(optionsAccessor, instance, field, optionAnnotation);
       } else if (argumentsAnnotation != null) {
-        setFieldValue(field, instance, optionsAccessor.getArguments(field.getType()));
+        setArgumentsFromAnnotation(optionsAccessor, instance, field, argumentsAnnotation);
       } else if (helpOptionAnnotation != null) {
         help = optionsAccessor.getOptionValue(helpOptionAnnotation);
         setFieldValue(field, instance, help);
       }
     }
     return help;
+  }
+
+  private void setArgumentsFromAnnotation(OptionsAccessor optionsAccessor, Object instance, Field field, Arguments argumentsAnnotation) {
+    Class<?> converterClass = argumentsAnnotation.converter() != Void.class ? argumentsAnnotation.converter() : null;
+    Converter converter = null;
+    if (converterClass != null) {
+      Lambda1 lambda1 = instantiateLambda(converterClass);
+      converter = lambda1::apply;
+    }
+    Object argumentValue = optionsAccessor.getArguments(field.getType(), argumentsAnnotation, converter);
+    if (argumentsAnnotation.validator() != Void.class) {
+      Lambda1 lambda1 = instantiateLambda(argumentsAnnotation.validator());
+      try {
+        lambda1.apply(argumentValue);
+      } catch (IllegalArgumentException iae) {
+        throw new OptionParserException("Invalid arguments: %s".formatted(iae.getMessage()), iae);
+      }
+    }
+    setFieldValue(field, instance, argumentValue);
   }
 
   private void setOptionsFromAnnotation(OptionsAccessor optionsAccessor, Object instance, Field field, Option optionAnnotation) {
