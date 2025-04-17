@@ -1896,6 +1896,11 @@ List and Sets (<a href="guides/../language-specification/types/collections-of-pr
 <pre><code class="language-marcel">@Option(shortName = "d", longName = "depth", arity = "*")
 private List&lt;int&gt; depths
 </code></pre>
+<p>As Marcel doesn't really support generic types, you must use the <code>elementsType</code> annotation property to specify the wanted type of the
+multivalued option.</p>
+<pre><code class="language-marcel">@Option(shortName = "d", longName = "depth", elementsType = BigDecimal.class, arity = "*")
+private List&lt;BigDecimal&gt; depths
+</code></pre>
 <p>The <code>arity</code> annotation property is a String specifying how many arguments there can be for the given option (defaults to 1).
 It supports many formats:</p>
 <ul>
@@ -1964,8 +1969,11 @@ will be considered as a validation error.</p>
   })
 private int number
 </code></pre>
-<h2 id="define-arguments"><a class="header" href="#define-arguments">Define arguments</a></h2>
-<p>The arguments of your programs are the value passed, not assigned to any options. For example, in the example below</p>
+<h2 id="options-vs-arguments"><a class="header" href="#options-vs-arguments">Options VS Arguments</a></h2>
+<p>When running a script, there are options and arguments.
+The arguments of your programs are the value passed, not assigned to any name.
+Whereas the options are values assigned to specific names.</p>
+<p>For example, in the example below</p>
 <pre><code>marcl script.mcl -d 1 -n "a value" arg1 arg2 arg3
 </code></pre>
 <p>There is</p>
@@ -1974,10 +1982,6 @@ private int number
 <li>the option <code>n="a value"</code></li>
 <li>the arguments <code>arg1</code>, <code>arg2</code>, <code>arg3</code></li>
 </ul>
-<p>You can assign these arguments values to a field thanks to the <code>@Arguments</code> annotation.</p>
-<pre><code class="language-marcel">@Arguments
-private List args
-</code></pre>
 <h2 id="parse-options"><a class="header" href="#parse-options">Parse options</a></h2>
 <p>After having declared the options and/or arguments, we want to assign them values based on the command line arguments passed
 to execute the script.</p>
@@ -1997,6 +2001,14 @@ to execute the script.</p>
 <pre><code class="language-marcel">@HelpOption
 private boolean help
 </code></pre>
+<h2 id="define-arguments"><a class="header" href="#define-arguments">Define arguments</a></h2>
+<p>You can assign the arguments values to a field thanks to the <code>@Arguments</code> annotation.</p>
+<pre><code class="language-marcel">@Arguments
+private List args
+</code></pre>
+<h3 id="arguments-conversion-and-validation"><a class="header" href="#arguments-conversion-and-validation">Arguments conversion and validation</a></h3>
+<p>This annotation also has the <code>elementsType</code>, <code>converter</code> and <code>validator</code> annotation properties allowing you to customize
+the parsing/validation.</p>
 <h2 id="document-the-usage-of-your-script"><a class="header" href="#document-the-usage-of-your-script">Document the usage of your script</a></h2>
 <p>We've seen that the usage of your script will be printed in case of error.
 You can provide more data to annotations and the <code>ClArgs.init(...)</code> method call in order to print a well explained usage.</p>
