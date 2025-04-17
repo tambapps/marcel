@@ -59,6 +59,13 @@ for example the below example allows to specify multiple `depth`
 private List<int> depths
 ```
 
+As Marcel doesn't really support generic types, you must use the `elementsType` annotation property to specify the wanted type of the
+multivalued option.
+```marcel
+@Option(shortName = "d", longName = "depth", elementsType = BigDecimal.class, arity = "*")
+private List<BigDecimal> depths
+```
+
 The `arity` annotation property is a String specifying how many arguments there can be for the given option (defaults to 1).
 It supports many formats:
 - `*` corresponds to any arity (0, or more)
@@ -145,9 +152,14 @@ will be considered as a validation error.
 private int number
 ```
 
-## Define arguments
+## Options VS Arguments
 
-The arguments of your programs are the value passed, not assigned to any options. For example, in the example below
+When running a script, there are options and arguments. 
+The arguments of your programs are the value passed, not assigned to any name.
+Whereas the options are values assigned to specific names.
+
+
+For example, in the example below
 ```
 marcl script.mcl -d 1 -n "a value" arg1 arg2 arg3
 ```
@@ -155,13 +167,6 @@ There is
 - the option `d=1`
 - the option `n="a value"`
 - the arguments `arg1`, `arg2`, `arg3`
-
-You can assign these arguments values to a field thanks to the `@Arguments` annotation.
-
-```marcel
-@Arguments
-private List args
-```
 
 ## Parse options
 
@@ -189,6 +194,19 @@ You can use the `@HelpOption` annotation on a `boolean` field to specify an opti
 @HelpOption
 private boolean help
 ```
+
+## Define arguments
+
+You can assign the arguments values to a field thanks to the `@Arguments` annotation.
+
+```marcel
+@Arguments
+private List args
+```
+
+### Arguments conversion and validation
+This annotation also has the `elementsType`, `converter` and `validator` annotation properties allowing you to customize
+the parsing/validation.
 
 ## Document the usage of your script
 
