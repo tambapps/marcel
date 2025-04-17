@@ -4,6 +4,22 @@ Marcel provides utilities to parse command-line options and arguments.
 
 All classes referenced in this guide are available under the package `marcel.io.clargs`.
 
+
+## Options VS Arguments
+
+When running a script, there are options and arguments.
+The arguments of your programs are the value passed, not assigned to any name, whereas the options are values assigned to specific names.
+
+For example, in the example below
+```
+marcl script.mcl -d 1 -n "a value" arg1 arg2 arg3
+```
+There is
+- the option `d=1`
+- the option `n="a value"`
+- the arguments `arg1`, `arg2`, `arg3`
+
+
 ## Define options
 
 An option can be defined as a field, annotated with `@Option`.
@@ -152,40 +168,6 @@ will be considered as a validation error.
 private int number
 ```
 
-## Options VS Arguments
-
-When running a script, there are options and arguments. 
-The arguments of your programs are the value passed, not assigned to any name.
-Whereas the options are values assigned to specific names.
-
-
-For example, in the example below
-```
-marcl script.mcl -d 1 -n "a value" arg1 arg2 arg3
-```
-There is
-- the option `d=1`
-- the option `n="a value"`
-- the arguments `arg1`, `arg2`, `arg3`
-
-## Parse options
-
-After having declared the options and/or arguments, we want to assign them values based on the command line arguments passed
-to execute the script.
-
-This can be done with one line
-
-```
-ClArgs.init(this, args)
-```
-
-This line of code will parse the command line `args` and assign the appropriate values to your options.
-
-In more details it will
-- parse the command line arguments
-- if any error occurred (e.g. arity not respected, type not respected, validation error): print the error, print the usage of this script, and then exit (`System.exit(1)`)
-- if no error occurred, you option fields are ready to be used
-
 ### Help option
 You can use the `@HelpOption` annotation on a `boolean` field to specify an option that should print usage and then exit the program 
 (this behaviour is handled automatically by the `ClArgs.init(...)` method), as shown below.
@@ -207,6 +189,25 @@ private List args
 ### Arguments conversion and validation
 This annotation also has the `elementsType`, `converter` and `validator` annotation properties allowing you to customize
 the parsing/validation.
+
+
+## Parse options and arguments
+
+After having declared the options and/or arguments, we want to assign them values based on the command line arguments passed
+to execute the script.
+
+This can be done with one line
+
+```
+ClArgs.init(this, args)
+```
+
+This line of code will parse the command line `args` and assign the appropriate values to your options.
+
+In more details it will
+- parse the command line arguments
+- if any error occurred (e.g. arity not respected, type not respected, validation error): print the error, print the usage of this script, and then exit (`System.exit(1)`)
+- if no error occurred, you option fields are ready to be used
 
 ## Document the usage of your script
 
