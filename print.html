@@ -1860,6 +1860,18 @@ List myRanges = list.findAll { IntRange range -&gt; range.contains(2) }
 <div style="break-before: page; page-break-before: always;"></div><h1 id="command-line-optionsarguments"><a class="header" href="#command-line-optionsarguments">Command Line options/arguments</a></h1>
 <p>Marcel provides utilities to parse command-line options and arguments.</p>
 <p>All classes referenced in this guide are available under the package <code>marcel.io.clargs</code>.</p>
+<h2 id="options-vs-arguments"><a class="header" href="#options-vs-arguments">Options VS Arguments</a></h2>
+<p>When running a script, there are options and arguments.
+The arguments of your programs are the value passed, not assigned to any name, whereas the options are values assigned to specific names.</p>
+<p>For example, in the example below</p>
+<pre><code>marcl script.mcl -d 1 -n "a value" arg1 arg2 arg3
+</code></pre>
+<p>There is</p>
+<ul>
+<li>the option <code>d=1</code></li>
+<li>the option <code>n="a value"</code></li>
+<li>the arguments <code>arg1</code>, <code>arg2</code>, <code>arg3</code></li>
+</ul>
 <h2 id="define-options"><a class="header" href="#define-options">Define options</a></h2>
 <p>An option can be defined as a field, annotated with <code>@Option</code>.</p>
 <pre><code class="language-marcel">@Option
@@ -1969,32 +1981,6 @@ will be considered as a validation error.</p>
   })
 private int number
 </code></pre>
-<h2 id="options-vs-arguments"><a class="header" href="#options-vs-arguments">Options VS Arguments</a></h2>
-<p>When running a script, there are options and arguments.
-The arguments of your programs are the value passed, not assigned to any name.
-Whereas the options are values assigned to specific names.</p>
-<p>For example, in the example below</p>
-<pre><code>marcl script.mcl -d 1 -n "a value" arg1 arg2 arg3
-</code></pre>
-<p>There is</p>
-<ul>
-<li>the option <code>d=1</code></li>
-<li>the option <code>n="a value"</code></li>
-<li>the arguments <code>arg1</code>, <code>arg2</code>, <code>arg3</code></li>
-</ul>
-<h2 id="parse-options"><a class="header" href="#parse-options">Parse options</a></h2>
-<p>After having declared the options and/or arguments, we want to assign them values based on the command line arguments passed
-to execute the script.</p>
-<p>This can be done with one line</p>
-<pre><code>ClArgs.init(this, args)
-</code></pre>
-<p>This line of code will parse the command line <code>args</code> and assign the appropriate values to your options.</p>
-<p>In more details it will</p>
-<ul>
-<li>parse the command line arguments</li>
-<li>if any error occurred (e.g. arity not respected, type not respected, validation error): print the error, print the usage of this script, and then exit (<code>System.exit(1)</code>)</li>
-<li>if no error occurred, you option fields are ready to be used</li>
-</ul>
 <h3 id="help-option"><a class="header" href="#help-option">Help option</a></h3>
 <p>You can use the <code>@HelpOption</code> annotation on a <code>boolean</code> field to specify an option that should print usage and then exit the program
 (this behaviour is handled automatically by the <code>ClArgs.init(...)</code> method), as shown below.</p>
@@ -2009,6 +1995,19 @@ private List args
 <h3 id="arguments-conversion-and-validation"><a class="header" href="#arguments-conversion-and-validation">Arguments conversion and validation</a></h3>
 <p>This annotation also has the <code>elementsType</code>, <code>converter</code> and <code>validator</code> annotation properties allowing you to customize
 the parsing/validation.</p>
+<h2 id="parse-options-and-arguments"><a class="header" href="#parse-options-and-arguments">Parse options and arguments</a></h2>
+<p>After having declared the options and/or arguments, we want to assign them values based on the command line arguments passed
+to execute the script.</p>
+<p>This can be done with one line</p>
+<pre><code>ClArgs.init(this, args)
+</code></pre>
+<p>This line of code will parse the command line <code>args</code> and assign the appropriate values to your options.</p>
+<p>In more details it will</p>
+<ul>
+<li>parse the command line arguments</li>
+<li>if any error occurred (e.g. arity not respected, type not respected, validation error): print the error, print the usage of this script, and then exit (<code>System.exit(1)</code>)</li>
+<li>if no error occurred, you option fields are ready to be used</li>
+</ul>
 <h2 id="document-the-usage-of-your-script"><a class="header" href="#document-the-usage-of-your-script">Document the usage of your script</a></h2>
 <p>We've seen that the usage of your script will be printed in case of error.
 You can provide more data to annotations and the <code>ClArgs.init(...)</code> method call in order to print a well explained usage.</p>
