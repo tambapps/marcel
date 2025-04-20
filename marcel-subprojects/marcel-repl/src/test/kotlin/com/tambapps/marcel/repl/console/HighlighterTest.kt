@@ -45,19 +45,20 @@ class HighlighterTest {
 
 }
 
+val THEME = HighlightTheme(
+  variable = Unit,
+  function = Unit,
+  string = Unit,
+  stringTemplate = Unit,
+  keyword = Unit,
+  comment = Unit,
+  number = Unit,
+  default = Unit,
+)
 
 private class HighlighterImpl(
   replCompiler: MarcelReplCompiler
-) : AbstractHighlighter<String, StringBuilder, Unit>(replCompiler) {
-  override val variableStyle = Unit
-  override val functionStyle = Unit
-  override val stringStyle = Unit
-  override val stringTemplateStyle = Unit
-  override val keywordStyle = Unit
-  override val commentStyle = Unit
-  override val numberStyle = Unit
-  override val defaultStyle = Unit
-
+) : AbstractHighlighter<String, StringBuilder, Unit>(replCompiler, THEME) {
 
   override fun newBuilder() = StringBuilder()
 
@@ -66,6 +67,5 @@ private class HighlighterImpl(
   override fun highlight(builder: StringBuilder, style: Unit, string: String) {
     builder.append(string)
   }
-
 
 }

@@ -1,8 +1,8 @@
 package com.tambapps.marcel.marshell.console
 
-import com.tambapps.marcel.marshell.console.style.HighlightTheme
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.console.AbstractHighlighter
+import com.tambapps.marcel.repl.console.HighlightTheme
 import org.jline.reader.Highlighter
 import org.jline.reader.LineReader
 import org.jline.utils.AttributedString
@@ -12,17 +12,24 @@ import java.util.regex.Pattern
 
 class ReaderHighlighter constructor(
   replCompiler: MarcelReplCompiler
-): AbstractHighlighter<AttributedString, AttributedStringBuilder, AttributedStyle>(replCompiler), Highlighter {
+): AbstractHighlighter<AttributedString, AttributedStringBuilder, AttributedStyle>(
+  replCompiler, THEME
+), Highlighter {
 
-  private val style = HighlightTheme()
-  override val variableStyle: AttributedStyle = style.variable
-  override val functionStyle: AttributedStyle = style.function
-  override val stringStyle: AttributedStyle = style.string
-  override val stringTemplateStyle: AttributedStyle = style.stringTemplate
-  override val keywordStyle: AttributedStyle = style.keyword
-  override val commentStyle: AttributedStyle = style.comment
-  override val numberStyle: AttributedStyle = style.number
-  override val defaultStyle: AttributedStyle = AttributedStyle.DEFAULT
+  companion object {
+    val THEME = HighlightTheme(
+      keyword = AttributedStyle.BOLD.foreground(AttributedStyle.RED),
+      function = AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW),
+      variable = AttributedStyle.DEFAULT.foreground(AttributedStyle.MAGENTA),
+      string = AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN),
+      stringTemplate = AttributedStyle.BOLD.foreground(
+        AttributedStyle.YELLOW
+      ),
+      number = AttributedStyle.DEFAULT.foreground(AttributedStyle.CYAN),
+      comment = AttributedStyle.DEFAULT.foreground(AttributedStyle.BRIGHT),
+      default = AttributedStyle.DEFAULT
+    )
+  }
 
   override fun highlight(reader: LineReader?, buffer: String) = highlight(buffer)
 
