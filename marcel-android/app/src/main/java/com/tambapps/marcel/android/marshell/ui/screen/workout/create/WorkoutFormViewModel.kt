@@ -1,6 +1,7 @@
 package com.tambapps.marcel.android.marshell.ui.screen.workout.create
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -37,6 +38,7 @@ class WorkoutFormViewModel @Inject constructor(
 
   companion object {
     private val VALID_NAME_REGEX = Regex("^[A-Za-z0-9.\\s_-]+\$")
+    private const val TAG = "WorkoutFormViewModel"
   }
 
   private val ioScope = CoroutineScope(Dispatchers.IO)
@@ -121,6 +123,8 @@ class WorkoutFormViewModel @Inject constructor(
         progressDialogTitle = null
         if (results.any { it.isFailure }) {
           Toast.makeText(context, "An error occurred while loading some warmup scripts", Toast.LENGTH_LONG).show()
+          val e = results.first { it.isFailure }.exceptionOrNull!!
+          Log.e(TAG, "Couldn't load warmup script", e)
         }
         this@WorkoutFormViewModel.initScripts.addAll(initScripts)
         workout.scriptText?.let { setScriptTextInput(it) }
