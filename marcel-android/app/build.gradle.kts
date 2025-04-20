@@ -15,7 +15,7 @@ android {
     applicationId = "com.tambapps.marcel.android.marshell"
     minSdk = 30
     targetSdk = 35
-    versionCode = 9
+    versionCode = 10
     versionName = "1.0.3"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
