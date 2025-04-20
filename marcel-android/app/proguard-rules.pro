@@ -20,8 +20,17 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+# VERY IMPORTANT
+-keepattributes MethodParameters
+
 # Java stuff
 -keep class java.** { *; }
+-keep interface java.** { *; }
+-keep enum java.** { *; }
+-keepclassmembernames class java.** { *; }
+-keepclassmembernames interface java.** { *; }
+-keepclassmembernames enum java.** { *; }
+
 # Needed in order for xml parsing to work
 -keep class javax.xml.** { *; }
 -keep class org.w3c.** { *; }
@@ -29,8 +38,25 @@
 
 # Marcel stuff
 -keep class marcel.** { *; }
--keep class com.tambapps.marcel.** { *; }
+-keep interface marcel.** { *; }
+-keep enum marcel.** { *; }
+-keepclassmembernames class marcel.** { *; }
+-keepclassmembernames interface marcel.** { *; }
+-keepclassmembernames enum marcel.** { *; }
+
+-keep class com.tambapps.** { *; }
+-keep interface com.tambapps.** { *; }
+-keep enum com.tambapps.** { *; }
+-keepclassmembernames class com.tambapps.** { *; }
+-keepclassmembernames interface com.tambapps.** { *; }
+-keepclassmembernames enum com.tambapps.** { *; }
+
 -keep class org.codehaus.** { *; }
 
 # Android stuff
 -keep class android.** { *; }
+-keep interface android.** { *; }
+-keep enum android.** { *; }
+-keepclassmembernames class android.** { *; }
+-keepclassmembernames interface android.** { *; }
+-keepclassmembernames enum android.** { *; }
