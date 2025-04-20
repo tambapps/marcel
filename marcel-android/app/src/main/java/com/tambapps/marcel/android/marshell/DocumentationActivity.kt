@@ -239,7 +239,7 @@ class SummaryMdVisitor: AbstractVisitor() {
     steps.add(0)
     super.visit(bulletList)
     depth--
-    steps.removeLast()
+    steps.remove(steps.lastIndex)
   }
 
   override fun visit(listItem: ListItem) {
