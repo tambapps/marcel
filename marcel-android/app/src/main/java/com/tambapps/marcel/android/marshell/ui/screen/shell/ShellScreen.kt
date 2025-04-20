@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -72,7 +73,8 @@ fun ShellScreen(
 ) {
   Column(modifier = Modifier
     .fillMaxSize()
-    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)) {
+    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+    .imePadding()) {
     TopBar(navController, viewModel, sessionId, shellsCount, createNewShellClick)
     val listState = rememberLazyListState()
     Column(modifier = Modifier

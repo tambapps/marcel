@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -90,6 +91,20 @@ fun ScriptTextField(
       .verticalScroll(verticalScrollState)
     if (focusRequester != null) {
       textFieldModifier = textFieldModifier.focusRequester(focusRequester)
+    }
+
+    // This makes sure it scrolls to the bottom whenever we're at the bottom and
+    // a new line is added
+    LaunchedEffect(verticalScrollState.maxValue) {
+      val cursorOffset = viewModel.scriptTextInput.selection.start
+      val layout = textLayoutResult
+      if (layout != null) {
+        val lineForOffset = layout.getLineForOffset(cursorOffset)
+        // if is last line
+        if (lineForOffset == layout.lineCount - 1) {
+          verticalScrollState.scrollTo(verticalScrollState.maxValue)
+        }
+      }
     }
     BasicTextField(modifier = textFieldModifier,
       value = viewModel.scriptTextInput,

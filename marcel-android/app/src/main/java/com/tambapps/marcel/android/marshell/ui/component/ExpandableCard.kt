@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -51,6 +52,7 @@ fun ExpandableCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .imePadding()
             .animateContentSize(
                 animationSpec = EXPANDABLE_CARD_ANIMATION_SPEC)
             .clickable { expanded.value = !expanded.value },
