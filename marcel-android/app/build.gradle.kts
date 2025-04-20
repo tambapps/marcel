@@ -15,8 +15,8 @@ android {
     applicationId = "com.tambapps.marcel.android.marshell"
     minSdk = 30
     targetSdk = 35
-    versionCode = 10
-    versionName = "1.0.3"
+    versionCode = 12
+    versionName = "1.1.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     vectorDrawables {
