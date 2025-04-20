@@ -6,21 +6,25 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.withStyle
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.repl.console.AbstractHighlighter
-import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.repl.console.HighlightTheme
 
 class SpannableHighlighter(
   replCompiler: MarcelReplCompiler
 ) :
-  AbstractHighlighter<AnnotatedString, AnnotatedString.Builder, Color>(replCompiler) {
+  AbstractHighlighter<AnnotatedString, AnnotatedString.Builder, Color>(replCompiler, THEME) {
 
-  override val keywordStyle = Color.Red
-  override val functionStyle = Color.Yellow
-  override val variableStyle = Color.Magenta
-  override val stringStyle = Color.Green
-  override val stringTemplateStyle = Color.Yellow
-  override val numberStyle = Color.Cyan
-  override val commentStyle = Color.LightGray
-  override val defaultStyle: Color get() = Color.White
+  companion object {
+    val THEME = HighlightTheme(
+      keyword = Color.Red,
+      function = Color.Yellow,
+      variable = Color.Magenta,
+      string = Color.Green,
+      stringTemplate = Color.Yellow,
+      number = Color.Cyan,
+      comment = Color.LightGray,
+      default = Color.White
+    )
+  }
 
   override fun newBuilder() = AnnotatedString.Builder()
 
