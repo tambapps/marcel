@@ -8,13 +8,14 @@ import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.compose.StatementsComposer
-import com.tambapps.marcel.semantic.exception.MarcelSyntaxTreeTransformationException
+import com.tambapps.marcel.semantic.transform.exception.MarcelSyntaxTreeTransformationException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.SourceJavaType
 import marcel.lang.comparable
 import marcel.lang.data
+import java.lang.Comparable
 
 /**
  * AST Transformation making a class implement
@@ -22,7 +23,7 @@ import marcel.lang.data
 class ComparableAstTransformation : GenerateMethodAstTransformation() {
 
   override fun doTransformType(javaType: SourceJavaType, annotation: AnnotationNode, node: CstNode) {
-    javaType.addImplementedInterface(java.lang.Comparable::class.javaType)
+    javaType.addImplementedInterface(Comparable::class.javaType)
   }
 
   override fun generateSignatures(
@@ -103,7 +104,7 @@ class ComparableAstTransformation : GenerateMethodAstTransformation() {
         arguments = listOf(ownProperty, otherProperty)
       )
 
-      type.implements(java.lang.Comparable::class.javaType) ->
+      type.implements(Comparable::class.javaType) ->
         fCall(owner = ownProperty, name = "compareTo", arguments = listOf(otherProperty))
 
       else -> throw MarcelSyntaxTreeTransformationException(

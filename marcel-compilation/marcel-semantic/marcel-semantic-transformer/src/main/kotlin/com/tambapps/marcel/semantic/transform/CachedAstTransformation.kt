@@ -11,13 +11,14 @@ import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.compose.StatementsComposer
-import com.tambapps.marcel.semantic.exception.MarcelSyntaxTreeTransformationException
+import com.tambapps.marcel.semantic.transform.exception.MarcelSyntaxTreeTransformationException
 import com.tambapps.marcel.semantic.extensions.javaType
 
 import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.type.JavaType
 import com.tambapps.marcel.semantic.type.SourceJavaType
 import java.util.concurrent.ConcurrentHashMap
+import java.util.function.Function
 
 /**
  * AST Transformations caching results of the annotated method
@@ -105,7 +106,7 @@ class CachedAstTransformation : GenerateMethodAstTransformation() {
           classNode,
           parameters = listOf(parameter(cacheKeyObjectRef.type, "param")),
           returnType = doComputeMethod.returnType.objectType,
-          interfaceType = java.util.function.Function::class.javaType,
+          interfaceType = Function::class.javaType,
         ) {
           val doComputeMethodCall = if (isMultiParams) {
             val listLv = currentMethodScope.addLocalVariable(List::class.javaType)

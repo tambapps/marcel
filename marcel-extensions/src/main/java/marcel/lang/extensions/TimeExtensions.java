@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-
+// TODO document this (1.days)
 // not loaded by default. Need explicit import extension
 @ExtensionClass
 public class TimeExtensions {

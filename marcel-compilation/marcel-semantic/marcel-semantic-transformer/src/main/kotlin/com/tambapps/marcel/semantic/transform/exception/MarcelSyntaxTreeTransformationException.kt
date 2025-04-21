@@ -1,6 +1,7 @@
-package com.tambapps.marcel.semantic.exception
+package com.tambapps.marcel.semantic.transform.exception
 
 import com.tambapps.marcel.lexer.LexToken
+import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.transform.SyntaxTreeTransformation
 
 class MarcelSyntaxTreeTransformationException(instance: SyntaxTreeTransformation, token: LexToken, message: String) :

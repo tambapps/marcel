@@ -1,4 +1,4 @@
-package com.tambapps.marcel.semantic.compose
+package com.tambapps.marcel.semantic.transform.compose
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType

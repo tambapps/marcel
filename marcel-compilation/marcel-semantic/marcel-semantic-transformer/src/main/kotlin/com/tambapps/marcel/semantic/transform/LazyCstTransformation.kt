@@ -4,7 +4,7 @@ import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.FieldCstNode
 import com.tambapps.marcel.semantic.ast.AnnotationNode
-import com.tambapps.marcel.semantic.exception.MarcelSyntaxTreeTransformationException
+import com.tambapps.marcel.semantic.transform.exception.MarcelSyntaxTreeTransformationException
 import com.tambapps.marcel.semantic.type.SourceJavaType
 
 /**
