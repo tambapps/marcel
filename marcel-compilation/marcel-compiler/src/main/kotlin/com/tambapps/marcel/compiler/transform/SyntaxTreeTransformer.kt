@@ -4,16 +4,16 @@ import com.tambapps.marcel.compiler.CompilerConfiguration
 import com.tambapps.marcel.parser.cst.CstNode
 import com.tambapps.marcel.parser.cst.AnnotationCstNode as AnnotationCstNode
 import com.tambapps.marcel.parser.cst.ClassCstNode as ClassCstNode
-import com.tambapps.marcel.semantic.MarcelSemantic
+import com.tambapps.marcel.semantic.processor.MarcelSemantic
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
-import com.tambapps.marcel.semantic.scope.ClassScope
+import com.tambapps.marcel.semantic.processor.scope.ClassScope
 import com.tambapps.marcel.semantic.transform.SyntaxTreeTransformation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
-import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.type.SourceJavaType
 import marcel.transform.MarcelSyntaxTreeTransformationClass
 import java.lang.Exception

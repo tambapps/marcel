@@ -2,10 +2,8 @@ package com.tambapps.marcel.semantic.ast.cast
 
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.lexer.TokenType
-import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
-import com.tambapps.marcel.semantic.ast.expression.AbstractExpressionNode
+import com.tambapps.marcel.semantic.processor.cast.AstNodeCaster
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
-import com.tambapps.marcel.semantic.ast.expression.ExpressionNodeVisitor
 import com.tambapps.marcel.semantic.ast.expression.JavaCastNode
 import com.tambapps.marcel.semantic.ast.expression.literal.BoolConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.CharConstantNode
@@ -16,7 +14,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Test

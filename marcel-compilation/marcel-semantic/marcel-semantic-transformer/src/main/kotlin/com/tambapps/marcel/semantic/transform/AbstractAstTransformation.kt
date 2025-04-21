@@ -5,11 +5,11 @@ import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.semantic.SemanticPurpose
 import com.tambapps.marcel.semantic.transform.compose.AstNodeComposer
 import com.tambapps.marcel.semantic.ast.ClassNode
-import com.tambapps.marcel.semantic.ast.cast.AstNodeCaster
-import com.tambapps.marcel.semantic.imprt.ImportResolver
-import com.tambapps.marcel.semantic.scope.ClassScope
+import com.tambapps.marcel.semantic.processor.cast.AstNodeCaster
+import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
+import com.tambapps.marcel.semantic.processor.scope.ClassScope
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 
 /**
  * Base class for AST transformations providing handy methods to handle/generate AST nodes

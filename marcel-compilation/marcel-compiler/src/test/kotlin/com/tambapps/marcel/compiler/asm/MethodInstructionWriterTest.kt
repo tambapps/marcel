@@ -5,7 +5,7 @@ import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.parser.MarcelParser
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
-import com.tambapps.marcel.semantic.MarcelSemantic
+import com.tambapps.marcel.semantic.processor.MarcelSemantic
 import com.tambapps.marcel.semantic.ast.expression.literal.DoubleConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.FloatConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
@@ -17,7 +17,7 @@ import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import marcel.lang.Script
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock

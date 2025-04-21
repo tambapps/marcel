@@ -4,10 +4,13 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
-import com.tambapps.marcel.semantic.imprt.ImportResolver
+import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
+import com.tambapps.marcel.semantic.processor.scope.ClassScope
+import com.tambapps.marcel.semantic.processor.scope.MethodInnerScope
+import com.tambapps.marcel.semantic.processor.scope.MethodScope
 import com.tambapps.marcel.semantic.type.JavaType.Companion.Object
 import com.tambapps.marcel.semantic.type.JavaType.Companion.int
-import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertSame

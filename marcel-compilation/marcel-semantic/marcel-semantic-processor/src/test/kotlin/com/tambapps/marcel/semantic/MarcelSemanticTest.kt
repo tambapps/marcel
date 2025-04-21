@@ -17,11 +17,12 @@ import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.imprt.ImportResolver
-import com.tambapps.marcel.semantic.scope.ClassScope
-import com.tambapps.marcel.semantic.scope.MethodScope
+import com.tambapps.marcel.semantic.processor.MarcelSemantic
+import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
+import com.tambapps.marcel.semantic.processor.scope.ClassScope
+import com.tambapps.marcel.semantic.processor.scope.MethodScope
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import marcel.lang.Script
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals

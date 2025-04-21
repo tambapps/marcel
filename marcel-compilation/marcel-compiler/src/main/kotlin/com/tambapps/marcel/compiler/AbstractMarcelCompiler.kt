@@ -4,13 +4,13 @@ import com.tambapps.marcel.compiler.exception.MarcelCompilerException
 import com.tambapps.marcel.dumbbell.Dumbbell
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
-import com.tambapps.marcel.semantic.MarcelSemantic
+import com.tambapps.marcel.semantic.processor.MarcelSemantic
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.ModuleNode
-import com.tambapps.marcel.semantic.check.ClassNodeChecks
+import com.tambapps.marcel.semantic.processor.check.ClassNodeChecks
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
 import com.tambapps.marcel.semantic.extensions.javaType
-import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import marcel.lang.MarcelClassLoader
 import marcel.lang.Script
 

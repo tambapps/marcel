@@ -7,7 +7,7 @@ import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
-import com.tambapps.marcel.semantic.extensions.forEach
+import com.tambapps.marcel.semantic.processor.extensions.forEach
 
 abstract class AbstractHighlighter<HighlightedString, Builder, Style> constructor(
   private val replCompiler: MarcelReplCompiler,

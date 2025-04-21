@@ -8,7 +8,7 @@ import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
-import com.tambapps.marcel.semantic.compose.StatementsComposer
+import com.tambapps.marcel.semantic.processor.compose.StatementsComposer
 import com.tambapps.marcel.semantic.extensions.javaAnnotationType
 import com.tambapps.marcel.semantic.extensions.javaType
 import com.tambapps.marcel.semantic.method.MarcelMethod

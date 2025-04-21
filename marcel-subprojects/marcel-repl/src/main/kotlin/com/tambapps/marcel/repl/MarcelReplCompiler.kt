@@ -14,9 +14,9 @@ import com.tambapps.marcel.parser.cst.MethodCstNode
 import com.tambapps.marcel.repl.semantic.MarcelReplSemantic
 import com.tambapps.marcel.semantic.SemanticPurpose
 import com.tambapps.marcel.semantic.exception.MarcelSemanticException
-import com.tambapps.marcel.semantic.imprt.ImportResolver
-import com.tambapps.marcel.semantic.imprt.ImportResolverGenerator
-import com.tambapps.marcel.semantic.imprt.MutableImportResolver
+import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
+import com.tambapps.marcel.semantic.processor.imprt.ImportResolverGenerator
+import com.tambapps.marcel.semantic.processor.imprt.MutableImportResolver
 import com.tambapps.marcel.semantic.type.JavaType
 import marcel.lang.MarcelClassLoader
 import kotlin.jvm.Throws

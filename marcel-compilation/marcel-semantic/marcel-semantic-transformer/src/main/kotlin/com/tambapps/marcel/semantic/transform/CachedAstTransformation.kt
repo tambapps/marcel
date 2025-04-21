@@ -10,7 +10,7 @@ import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.MethodNode
 import com.tambapps.marcel.semantic.ast.expression.ExpressionNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
-import com.tambapps.marcel.semantic.compose.StatementsComposer
+import com.tambapps.marcel.semantic.processor.compose.StatementsComposer
 import com.tambapps.marcel.semantic.transform.exception.MarcelSyntaxTreeTransformationException
 import com.tambapps.marcel.semantic.extensions.javaType
 

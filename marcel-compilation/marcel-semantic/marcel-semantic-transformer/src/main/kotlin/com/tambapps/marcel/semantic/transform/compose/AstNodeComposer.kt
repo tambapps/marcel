@@ -1,7 +1,7 @@
 package com.tambapps.marcel.semantic.transform.compose
 
 import com.tambapps.marcel.lexer.LexToken
-import com.tambapps.marcel.semantic.MarcelSemanticGenerator
+import com.tambapps.marcel.semantic.processor.MarcelSemanticGenerator
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.ClassNode
@@ -16,18 +16,18 @@ import com.tambapps.marcel.semantic.ast.statement.BlockStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ExpressionStatementNode
 import com.tambapps.marcel.semantic.ast.statement.ReturnStatementNode
 import com.tambapps.marcel.semantic.ast.statement.StatementNode
-import com.tambapps.marcel.semantic.compose.StatementsComposer
-import com.tambapps.marcel.semantic.imprt.ImportResolver
+import com.tambapps.marcel.semantic.processor.compose.StatementsComposer
+import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
 import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.MarcelMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
-import com.tambapps.marcel.semantic.scope.ClassScope
-import com.tambapps.marcel.semantic.scope.MethodScope
-import com.tambapps.marcel.semantic.scope.Scope
+import com.tambapps.marcel.semantic.processor.scope.ClassScope
+import com.tambapps.marcel.semantic.processor.scope.MethodScope
+import com.tambapps.marcel.semantic.processor.scope.Scope
 import com.tambapps.marcel.semantic.type.annotation.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.visitor.AllPathsReturnVisitor
+import com.tambapps.marcel.semantic.processor.visitor.AllPathsReturnVisitor
 import java.util.*
 
 /**

@@ -3,7 +3,7 @@ package com.tambapps.marcel.repl
 import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
-import com.tambapps.marcel.semantic.imprt.MutableImportResolver
+import com.tambapps.marcel.semantic.processor.imprt.MutableImportResolver
 
 data class SemanticResult(val tokens: List<LexToken>,
                           val cst: SourceFileCstNode,

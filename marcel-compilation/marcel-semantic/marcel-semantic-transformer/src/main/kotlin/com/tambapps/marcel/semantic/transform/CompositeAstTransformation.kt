@@ -5,7 +5,7 @@ import com.tambapps.marcel.semantic.SemanticPurpose
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
-import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.type.SourceJavaType
 
 abstract class CompositeAstTransformation(

@@ -8,6 +8,7 @@ import com.tambapps.marcel.semantic.method.MarcelMethod
 import com.tambapps.marcel.semantic.method.MarcelMethodImpl
 import com.tambapps.marcel.semantic.method.MethodParameter
 import com.tambapps.marcel.semantic.method.ReflectJavaMethod
+import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.type.JavaType
 import marcel.lang.lambda.Lambda
 import marcel.lang.methods.DefaultMarcelMethods

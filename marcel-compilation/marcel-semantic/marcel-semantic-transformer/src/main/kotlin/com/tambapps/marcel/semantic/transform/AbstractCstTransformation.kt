@@ -8,17 +8,17 @@ import com.tambapps.marcel.parser.cst.SourceFileCstNode
 import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.semantic.SemanticPurpose
 import com.tambapps.marcel.semantic.transform.compose.CstNodeComposer
-import com.tambapps.marcel.semantic.CstSymbolSemantic
+import com.tambapps.marcel.semantic.processor.CstSymbolSemantic
 import com.tambapps.marcel.semantic.Visibility
 import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
-import com.tambapps.marcel.semantic.imprt.ImportResolver
-import com.tambapps.marcel.semantic.imprt.ImportResolverGenerator
+import com.tambapps.marcel.semantic.processor.imprt.ImportResolver
+import com.tambapps.marcel.semantic.processor.imprt.ImportResolverGenerator
 import com.tambapps.marcel.semantic.method.MethodParameter
-import com.tambapps.marcel.semantic.scope.ImportScope
+import com.tambapps.marcel.semantic.processor.scope.ImportScope
 import com.tambapps.marcel.semantic.type.JavaType
-import com.tambapps.marcel.semantic.symbol.MarcelSymbolResolver
+import com.tambapps.marcel.semantic.processor.symbol.MarcelSymbolResolver
 import com.tambapps.marcel.semantic.type.SourceJavaType
 
 /**
