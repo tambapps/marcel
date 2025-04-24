@@ -15,7 +15,7 @@ class VariableAssignmentNode(
   val owner: ExpressionNode? = null,
   tokenStart: LexToken,
   tokenEnd: LexToken,
-  val variableToken: LexToken? = null
+  val identifierToken: LexToken? = null
 ) : AbstractExpressionNode(variable.type, tokenStart, tokenEnd),
   AstVariableNode {
   override fun <T> accept(visitor: ExpressionNodeVisitor<T>) =
@@ -25,9 +25,9 @@ class VariableAssignmentNode(
     localVariable: LocalVariable,
     expression: ExpressionNode,
     node: CstNode,
-    variableToken: LexToken? = null
+    identifierToken: LexToken? = null
   )
-      : this(localVariable, expression, null, node.tokenStart, node.tokenEnd, variableToken)
+      : this(localVariable, expression, null, node.tokenStart, node.tokenEnd, identifierToken)
 
   constructor(
     localVariable: LocalVariable,

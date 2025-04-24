@@ -334,10 +334,10 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
   fun field(parentNode: ClassCstNode, annotations: List<AnnotationCstNode>, access: AccessCstNode): FieldCstNode {
     val tokenStart = current
     val type = parseType(parentNode)
-    val name = accept(IDENTIFIER).value
+    val identifierToken = accept(IDENTIFIER)
     val initialValue = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(parentNode) else null
-    acceptOptional(TokenType.SEMI_COLON)
-    return FieldCstNode(parentNode, tokenStart, previous, access, annotations, type, name, initialValue)
+    acceptOptional(SEMI_COLON)
+    return FieldCstNode(parentNode, tokenStart, previous, access, annotations, type, identifierToken, initialValue)
   }
 
   private fun parseClass(

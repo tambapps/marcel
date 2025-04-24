@@ -19,7 +19,7 @@ class HighlighterTest {
   companion object {
     @JvmStatic
     fun test() = listOf(
-      Arguments.of("int a = 1"),
+      Arguments.of("private int a = 1\nprintln(\"\$a\")"),
 
     )
   }

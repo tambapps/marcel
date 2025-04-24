@@ -2437,6 +2437,7 @@ abstract class SemanticCstNodeVisitor constructor(
       localVariable = variable,
       expression = caster.cast(variable.type, expression),
       node = node,
+      identifierToken = node.identifierToken
     )
   }
 

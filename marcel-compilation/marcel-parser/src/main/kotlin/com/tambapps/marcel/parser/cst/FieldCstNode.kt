@@ -10,10 +10,13 @@ class FieldCstNode(
   var access: AccessCstNode,
   val annotations: List<AnnotationCstNode>,
   val type: TypeCstNode,
-  var name: String,
+  val identifierToken: LexToken,
   var initialValue: ExpressionCstNode?
 ) :
   AbstractCstNode(parentClassNode, tokenStart, tokenEnd) {
+
+  // var because names can be modified in CstTransformation
+  var name: String = identifierToken.value
 
   override fun toString(): String {
     return "$type $name"

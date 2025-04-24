@@ -37,10 +37,15 @@ abstract class AbstractHighlighter<HighlightedString, Builder, Style> constructo
       if (node.tokenEnd != LexToken.DUMMY // this is a mark used to recognize nodes of marcel-generated code (not in the source)
         && !tokenMap.containsKey(node.tokenStart)) {
         when (node) {
-         is VariableAssignmentNode -> node.variableToken?.let { token -> tokenMap[token] = style.variable}
+          is VariableAssignmentNode -> node.identifierToken?.let { token -> tokenMap[token] = style.variable}
           is ReferenceNode -> tokenMap[node.tokenStart] = style.variable
           is FunctionCallNode -> tokenMap[node.tokenStart] = style.function
         }
+      }
+    }
+    semanticResult?.scriptNode?.let { scriptNode ->
+      for (fieldNode in scriptNode.fields) {
+        fieldNode.identifierToken?.let { token -> tokenMap[token] = style.variable }
       }
     }
 

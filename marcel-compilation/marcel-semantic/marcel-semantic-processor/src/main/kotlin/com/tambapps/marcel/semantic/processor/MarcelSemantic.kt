@@ -289,7 +289,7 @@ open class MarcelSemantic(
           resolve(cstFieldNode.type), cstFieldNode.name, classType,
           cstFieldNode.annotations.map { visit(it, ElementType.FIELD) },
           cstFieldNode.access.isFinal, Visibility.fromTokenType(cstFieldNode.access.visibility),
-          cstFieldNode.access.isStatic, cstFieldNode.tokenStart, cstFieldNode.tokenEnd
+          cstFieldNode.access.isStatic, cstFieldNode.tokenStart, cstFieldNode.tokenEnd, identifierToken = cstFieldNode.identifierToken
         )
         if (classNode.fields.any { it.name == fieldNode.name }) {
           throw MarcelSemanticException(cstFieldNode, "Field ${cstFieldNode.name} already exists")
