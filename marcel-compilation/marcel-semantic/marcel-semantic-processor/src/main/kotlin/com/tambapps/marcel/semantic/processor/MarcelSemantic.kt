@@ -719,7 +719,8 @@ open class MarcelSemantic(
       parameters = parameters,
       ownerClass = classType,
       asyncReturnType = asyncReturnType,
-      isVarArgs = methodCst.isVarArgs
+      isVarArgs = methodCst.isVarArgs,
+      identifierToken = methodCst.identifierToken
     )
   }
 

@@ -423,8 +423,8 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
     if (isAsync && isOverride) throw MarcelParserException(current, "Constructors cannot override")
     val node = if (!isConstructor) {
       val returnType = parseType(parentNode)
-      val methodName = accept(IDENTIFIER).value
-      MethodCstNode(parentNode, token, token, access, methodName, returnType, isAsync=isAsync, isOverride=isOverride)
+      val identifierToken = accept(IDENTIFIER)
+      MethodCstNode(parentNode, token, token, access, identifierToken.value, returnType, isAsync=isAsync, isOverride=isOverride, identifierToken=identifierToken)
     } else ConstructorCstNode(parentNode, token, token, access)
     node.annotations.addAll(annotations)
 

@@ -5,6 +5,8 @@ import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.repl.MarcelReplCompiler
+import com.tambapps.marcel.semantic.ast.AstNode
+import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
@@ -30,31 +32,21 @@ abstract class AbstractHighlighter<HighlightedString, Builder, Style> constructo
 
     val semanticResult = replCompiler.tryApplySemantic(textStr)
 
-    val methodNode = semanticResult?.runMethodNode
-    val tokenMap = mutableMapOf<LexToken, Style>()
-    // getting ast nodes of interest and mapping them to styles
-    methodNode?.blockStatement?.forEachNode { node ->
-      if (node.tokenEnd != LexToken.DUMMY // this is a mark used to recognize nodes of marcel-generated code (not in the source)
-        && !tokenMap.containsKey(node.tokenStart)) {
-        when (node) {
-          is VariableAssignmentNode -> node.identifierToken?.let { token -> tokenMap[token] = style.variable}
-          is ReferenceNode -> tokenMap[node.tokenStart] = style.variable
-          is FunctionCallNode -> tokenMap[node.tokenStart] = style.function
-        }
+    if (semanticResult != null) {
+      val highlightTokenMapBuilder = HighlightTokenMapBuilder()
+      for (classNode in semanticResult.classes) {
+        highlightTokenMapBuilder.accept(classNode)
       }
-    }
-    semanticResult?.scriptNode?.let { scriptNode ->
-      for (fieldNode in scriptNode.fields) {
-        fieldNode.identifierToken?.let { token -> tokenMap[token] = style.variable }
-      }
-    }
-
-    val tokens = semanticResult?.tokens ?: tryLex(textStr)
-
-    if (tokens != null) {
-      doHighlight(text, builder, tokens, tokenMap)
+      val tokens = semanticResult.tokens
+      val tokenMap = highlightTokenMapBuilder.tokenMap
+      applyHighlight(text, builder, tokens, tokenMap)
     } else {
-      highlight(builder, style.default, textStr)
+      val tokens = tryLex(textStr)
+      if (tokens != null) {
+        applyHighlight(text, builder, tokens, emptyMap())
+      } else {
+        highlight(builder, style.default, textStr)
+      }
     }
     return builder
   }
@@ -65,8 +57,8 @@ abstract class AbstractHighlighter<HighlightedString, Builder, Style> constructo
   // exclusive end
   protected abstract fun highlight(builder: Builder, style: Style, string: String)
 
-  private fun doHighlight(text: CharSequence, builder: Builder, tokens: List<LexToken>,
-                          tokenMap: Map<LexToken, Style>) {
+  private fun applyHighlight(text: CharSequence, builder: Builder, tokens: List<LexToken>,
+                             tokenMap: Map<LexToken, Style>) {
     for (i in 0 until tokens.size - 1) { // - 1 to avoid handling END_OF_FILE token
       val token = tokens[i]
       val string = text.substring(token.start, token.end)
@@ -89,5 +81,33 @@ abstract class AbstractHighlighter<HighlightedString, Builder, Style> constructo
       }
       highlight(builder, style, string)
     }
+  }
+
+  // maps tokens to styles
+  private inner class HighlightTokenMapBuilder {
+    val tokenMap = mutableMapOf<LexToken, Style>()
+
+    fun accept(classNode: ClassNode) {
+      for (fieldNode in classNode.fields) {
+        fieldNode.identifierToken?.let { token -> tokenMap[token] = style.variable }
+      }
+      for (methodNode in classNode.methods) {
+        methodNode.identifierToken?.let { token -> tokenMap[token] = style.function }
+        methodNode.blockStatement.forEachNode { node ->
+          if (shouldBeProcessed(node)) {
+            when (node) {
+              is VariableAssignmentNode -> node.identifierToken?.let { token -> tokenMap[token] = style.variable}
+              is ReferenceNode -> tokenMap[node.tokenStart] = style.variable
+              is FunctionCallNode -> tokenMap[node.tokenStart] = style.function
+            }
+          }
+        }
+      }
+    }
+    private fun shouldBeProcessed(node: AstNode): Boolean {
+      return node.tokenEnd != LexToken.DUMMY // this is a mark used to recognize nodes of marcel-generated code (not in the source)
+          && !tokenMap.containsKey(node.tokenStart) // don't really remember what this condition is for
+    }
+
   }
 }

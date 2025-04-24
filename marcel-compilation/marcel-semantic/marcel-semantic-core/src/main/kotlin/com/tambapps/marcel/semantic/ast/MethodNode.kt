@@ -18,7 +18,8 @@ class MethodNode constructor(
   override val tokenStart: LexToken, override val tokenEnd: LexToken,
   override var ownerClass: JavaType,
   override val isVarArgs: Boolean = false,
-  override val isSynthetic: Boolean = false
+  override val isSynthetic: Boolean = false,
+  val identifierToken: LexToken? = null,
 ) : AstNode, AbstractMethod(), Annotable {
 
   // constructor for non async functions

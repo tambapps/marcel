@@ -4,7 +4,8 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.parser.cst.statement.StatementCstNode
 
 sealed class AbstractMethodCstNode(parent: CstNode?, tokenStart: LexToken, tokenEnd: LexToken,
-                                   val accessNode: AccessCstNode) :
+                                   val accessNode: AccessCstNode,
+  val identifierToken: LexToken? = null) :
   AbstractCstNode(parent, tokenStart, tokenEnd) {
 
   var isVarArgs = false
