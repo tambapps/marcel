@@ -379,7 +379,8 @@ class MarcelParserTest {
         BinaryOperatorCstNode(type, left, right, null, token(), token())
     private fun indexAccess(owner: ExpressionCstNode, indexes: List<ExpressionCstNode>, isSafeAccess: Boolean = false) =
         IndexAccessCstNode(null, owner, indexes, isSafeAccess, token(), token())
-    private fun varDecl(typeNode: TypeCstNode, name: String, expr: ExpressionCstNode?) = VariableDeclarationCstNode(typeNode, name, expr, null, token(), token())
+    private fun varDecl(typeNode: TypeCstNode, name: String, expr: ExpressionCstNode?) = VariableDeclarationCstNode(typeNode,
+        LexToken.dummy(name), expr, null, token(), token())
     private fun stmt(expr: ExpressionCstNode) = ExpressionStatementCstNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
     private fun returnNode(expr: ExpressionCstNode? = null) = ReturnCstNode(expressionNode = expr, tokenStart = token(), tokenEnd = token())
     private fun nullValue() = NullCstNode(token = token())

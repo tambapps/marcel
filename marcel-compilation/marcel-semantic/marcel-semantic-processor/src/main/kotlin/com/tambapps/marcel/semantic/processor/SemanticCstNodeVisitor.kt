@@ -1616,7 +1616,7 @@ abstract class SemanticCstNodeVisitor constructor(
     return ExpressionStatementNode(
       VariableAssignmentNode(variable,
         node.expressionNode?.accept(this, variable.type)?.let { caster.cast(variable.type, it) }
-          ?: variable.type.getDefaultValueExpression(node.token), null, node.tokenStart, node.tokenEnd)
+          ?: variable.type.getDefaultValueExpression(node.token), null, node.tokenStart, node.tokenEnd, node.variableToken)
     )
   }
 
@@ -2436,7 +2436,7 @@ abstract class SemanticCstNodeVisitor constructor(
     return VariableAssignmentNode(
       localVariable = variable,
       expression = caster.cast(variable.type, expression),
-      node = node
+      node = node,
     )
   }
 

@@ -11,6 +11,10 @@ public class LexToken {
 
   public static final LexToken DUMMY = new LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, "");
 
+  public static LexToken dummy(String value) {
+    return new LexToken(0, 0, 0, 0, TokenType.END_OF_FILE, value);
+  }
+
   int start;
   int end;
   int line;

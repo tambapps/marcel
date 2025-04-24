@@ -10,9 +10,11 @@ class TruthyVariableDeclarationCstNode(
   tokenStart: LexToken,
   tokenEnd: LexToken,
   val type: TypeCstNode,
-  override val value: String,
+  val variableToken: LexToken,
   val expression: ExpressionCstNode
 ) :
   AbstractExpressionCstNode(parent, tokenStart, tokenEnd) {
+  override val value: String = variableToken.value
+
   override fun <T, U> accept(visitor: ExpressionCstNodeVisitor<T, U>, arg: U?) = visitor.visit(this, arg)
 }

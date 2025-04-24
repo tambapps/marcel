@@ -6,13 +6,15 @@ import com.tambapps.marcel.parser.cst.TypeCstNode
 import com.tambapps.marcel.parser.cst.expression.ExpressionCstNode
 import com.tambapps.marcel.parser.cst.visitor.StatementCstNodeVisitor
 
-class VariableDeclarationCstNode(
+class VariableDeclarationCstNode constructor(
   val type: TypeCstNode,
-  override val value: String,
+  val variableToken: LexToken,
   val expressionNode: ExpressionCstNode?,
   parent: CstNode?, tokenStart: LexToken, tokenEnd: LexToken
 ) :
   AbstractStatementCstNode(parent, tokenStart, tokenEnd) {
+
+  override val value: String = variableToken.value
 
   override fun <T> accept(visitor: StatementCstNodeVisitor<T>) = visitor.visit(this)
 

@@ -749,10 +749,10 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
   private fun ifConditionExpression(parentNode: CstNode?): ExpressionCstNode {
     return if (ParserUtils.isTypeToken(current.type) && lookup(1)?.type == IDENTIFIER) {
       val type = parseType(parentNode)
-      val variableName = accept(IDENTIFIER).value
+      val variableToken = accept(IDENTIFIER)
       accept(TokenType.ASSIGNMENT)
       val expression = expression(parentNode)
-      TruthyVariableDeclarationCstNode(parentNode, type.tokenStart, expression.tokenEnd, type, variableName, expression)
+      TruthyVariableDeclarationCstNode(parentNode, type.tokenStart, expression.tokenEnd, type, variableToken, expression)
     } else expression(parentNode)
   }
 
@@ -760,7 +760,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
   private fun varDecl(parentNode: CstNode?, type: TypeCstNode): VariableDeclarationCstNode {
     val identifierToken = accept(IDENTIFIER)
     val expression = if (acceptOptional(TokenType.ASSIGNMENT) != null) expression(parentNode) else null
-    return VariableDeclarationCstNode(type, identifierToken.value, expression, parentNode, type.tokenStart, expression?.tokenEnd ?: identifierToken)
+    return VariableDeclarationCstNode(type, identifierToken, expression, parentNode, type.tokenStart, expression?.tokenEnd ?: identifierToken)
   }
 
   private fun block(parentNode: CstNode?, acceptBracketOpen: Boolean = true): BlockCstNode {
@@ -1049,8 +1049,8 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
           accept(TokenType.LPAR)
           if (ParserUtils.isTypeToken(current.type) && lookup(1)?.type == IDENTIFIER && lookup(2)?.type == TokenType.ASSIGNMENT) {
             val type = parseType(parentNode)
-            val varName = accept(IDENTIFIER).value
-            varDecl = VariableDeclarationCstNode(type, varName, null, parentNode, type.tokenStart, current)
+            val variableToken = accept(IDENTIFIER)
+            varDecl = VariableDeclarationCstNode(type, variableToken, null, parentNode, type.tokenStart, current)
             accept(TokenType.ASSIGNMENT)
           }
           switchExpression = expression(parentNode)

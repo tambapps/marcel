@@ -7,7 +7,8 @@ import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.repl.MarcelReplCompiler
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
-import com.tambapps.marcel.semantic.processor.extensions.forEach
+import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
+import com.tambapps.marcel.semantic.processor.extensions.forEachNode
 
 abstract class AbstractHighlighter<HighlightedString, Builder, Style> constructor(
   private val replCompiler: MarcelReplCompiler,
@@ -32,12 +33,13 @@ abstract class AbstractHighlighter<HighlightedString, Builder, Style> constructo
     val methodNode = semanticResult?.runMethodNode
     val tokenMap = mutableMapOf<LexToken, Style>()
     // getting ast nodes of interest and mapping them to styles
-    methodNode?.blockStatement?.forEach {
-      if (it.tokenEnd != LexToken.DUMMY
-        && !tokenMap.containsKey(it.tokenStart)) {
-        when (it) {
-          is ReferenceNode -> tokenMap[it.tokenStart] = style.variable
-          is FunctionCallNode -> tokenMap[it.tokenStart] = style.function
+    methodNode?.blockStatement?.forEachNode { node ->
+      if (node.tokenEnd != LexToken.DUMMY // this is a mark used to recognize nodes of marcel-generated code (not in the source)
+        && !tokenMap.containsKey(node.tokenStart)) {
+        when (node) {
+         is VariableAssignmentNode -> node.variableToken?.let { token -> tokenMap[token] = style.variable}
+          is ReferenceNode -> tokenMap[node.tokenStart] = style.variable
+          is FunctionCallNode -> tokenMap[node.tokenStart] = style.function
         }
       }
     }

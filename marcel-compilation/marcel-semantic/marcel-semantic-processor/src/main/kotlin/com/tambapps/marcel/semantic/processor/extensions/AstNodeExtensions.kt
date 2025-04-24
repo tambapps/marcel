@@ -7,7 +7,7 @@ import com.tambapps.marcel.semantic.processor.visitor.ForEachNodeVisitor
 import kotlin.reflect.KClass
 
 
-fun AstNode.forEach(consumer: (AstNode) -> Unit) {
+fun AstNode.forEachNode(consumer: (AstNode) -> Unit) {
   when (this) {
     is ExpressionNode -> accept(ForEachNodeVisitor(consumer))
     is StatementNode -> accept(ForEachNodeVisitor(consumer))
@@ -18,8 +18,8 @@ fun AstNode.forEach(consumer: (AstNode) -> Unit) {
 /**
  * Apply the provided consumer on the given node and all descending nodes attached to it if any
  */
-fun <T: AstNode> AstNode.forEach(clazz: KClass<T>, consumer: (T) -> Unit) {
-  forEach {
+fun <T: AstNode> AstNode.forEachNode(clazz: KClass<T>, consumer: (T) -> Unit) {
+  forEachNode {
     if (clazz.isInstance(it)) consumer(it as T)
   }
 }
