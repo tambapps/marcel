@@ -5,12 +5,16 @@ import com.tambapps.marcel.lexer.MarcelLexer
 import com.tambapps.marcel.lexer.MarcelLexerException
 import com.tambapps.marcel.lexer.TokenType
 import com.tambapps.marcel.repl.MarcelReplCompiler
+import com.tambapps.marcel.semantic.ast.AnnotationNode
 import com.tambapps.marcel.semantic.ast.AstNode
 import com.tambapps.marcel.semantic.ast.ClassNode
 import com.tambapps.marcel.semantic.ast.expression.FunctionCallNode
 import com.tambapps.marcel.semantic.ast.expression.ReferenceNode
 import com.tambapps.marcel.semantic.ast.expression.operator.VariableAssignmentNode
 import com.tambapps.marcel.semantic.processor.extensions.forEachNode
+import com.tambapps.marcel.semantic.variable.Variable
+import com.tambapps.marcel.semantic.variable.field.MarcelField
+import com.tambapps.marcel.semantic.variable.field.MethodField
 
 abstract class AbstractHighlighter<HighlightedString, Builder, Style> constructor(
   private val replCompiler: MarcelReplCompiler,
@@ -89,21 +93,42 @@ abstract class AbstractHighlighter<HighlightedString, Builder, Style> constructo
 
     fun accept(classNode: ClassNode) {
       for (fieldNode in classNode.fields) {
-        fieldNode.identifierToken?.let { token -> tokenMap[token] = style.variable }
+        fieldNode.identifierToken?.let { token -> tokenMap[token] = style.field }
+      }
+      for (annotation in classNode.annotations) {
+        acceptAnnotation(annotation)
+      }
+      for (annotation in classNode.fields.flatMap { it.annotations }) {
+        acceptAnnotation(annotation)
+      }
+      for (annotation in classNode.methods.flatMap { it.annotations }) {
+        acceptAnnotation(annotation)
       }
       for (methodNode in classNode.methods) {
         methodNode.identifierToken?.let { token -> tokenMap[token] = style.function }
         methodNode.blockStatement.forEachNode { node ->
           if (shouldBeProcessed(node)) {
             when (node) {
-              is VariableAssignmentNode -> node.identifierToken?.let { token -> tokenMap[token] = style.variable}
-              is ReferenceNode -> tokenMap[node.tokenStart] = style.variable
+              is VariableAssignmentNode -> node.identifierToken?.let { token -> tokenMap[token] = variableStyle(node.variable) }
+              is ReferenceNode -> tokenMap[node.tokenStart] = variableStyle(node.variable)
               is FunctionCallNode -> tokenMap[node.tokenStart] = style.function
             }
           }
         }
       }
     }
+
+    fun acceptAnnotation(annotationNode: AnnotationNode) {
+      tokenMap[annotationNode.tokenStart] = style.annotation
+      annotationNode.identifierToken?.let { token -> tokenMap[token] = style.annotation }
+    }
+
+    private fun variableStyle(variable: Variable) = when (variable) {
+      is MethodField -> style.function
+      is MarcelField -> style.field
+      else -> style.variable
+    }
+
     private fun shouldBeProcessed(node: AstNode): Boolean {
       return node.tokenEnd != LexToken.DUMMY // this is a mark used to recognize nodes of marcel-generated code (not in the source)
           && !tokenMap.containsKey(node.tokenStart) // don't really remember what this condition is for

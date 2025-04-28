@@ -41,8 +41,10 @@ class HighlighterTest {
 }
 
 val THEME = HighlightTheme(
-  variable = Unit,
+  field = Unit,
   function = Unit,
+  variable = Unit,
+  annotation = Unit,
   string = Unit,
   stringTemplate = Unit,
   keyword = Unit,

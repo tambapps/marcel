@@ -20,14 +20,16 @@ class ReaderHighlighter constructor(
     val THEME = HighlightTheme(
       keyword = AttributedStyle.BOLD.foreground(AttributedStyle.RED),
       function = AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW),
-      variable = AttributedStyle.DEFAULT.foreground(AttributedStyle.MAGENTA),
+      field = AttributedStyle.DEFAULT.foreground(AttributedStyle.MAGENTA),
       string = AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN),
       stringTemplate = AttributedStyle.BOLD.foreground(
         AttributedStyle.YELLOW
       ),
+      annotation = AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW),
       number = AttributedStyle.DEFAULT.foreground(AttributedStyle.CYAN),
       comment = AttributedStyle.DEFAULT.foreground(AttributedStyle.BRIGHT),
-      default = AttributedStyle.DEFAULT
+      default = AttributedStyle.DEFAULT,
+      variable = AttributedStyle.DEFAULT,
     )
   }
 

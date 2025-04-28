@@ -4,10 +4,12 @@ import com.tambapps.marcel.lexer.LexToken
 import com.tambapps.marcel.semantic.type.annotation.JavaAnnotation
 import com.tambapps.marcel.semantic.type.JavaAnnotationType
 
-class AnnotationNode(
+class AnnotationNode constructor(
   override val type: JavaAnnotationType,
   val attributes: List<JavaAnnotation.Attribute>,
-  override val tokenStart: LexToken, override val tokenEnd: LexToken
+  override val tokenStart: LexToken,
+  override val tokenEnd: LexToken,
+  val identifierToken: LexToken? = null
 ) : JavaAnnotation, AstNode {
 
   override fun getAttribute(name: String): JavaAnnotation.Attribute? {

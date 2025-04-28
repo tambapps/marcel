@@ -2842,7 +2842,8 @@ abstract class SemanticCstNodeVisitor constructor(
       type = annotationType.asAnnotationType,
       tokenStart = cstAnnotation.tokenStart,
       attributes = cstAnnotation.attributes.map { annotationAttribute(cstAnnotation, javaAnnotationType, it) },
-      tokenEnd = cstAnnotation.tokenEnd
+      tokenEnd = cstAnnotation.tokenEnd,
+      identifierToken = cstAnnotation.identifierToken
     )
 
     // check attributes without default values that weren't specified

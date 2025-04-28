@@ -2,7 +2,9 @@ package com.tambapps.marcel.repl.console
 
 
 data class HighlightTheme<T>(
+  val field: T,
   val variable: T,
+  val annotation: T,
   val function: T,
   val string: T,
   val stringTemplate: T,

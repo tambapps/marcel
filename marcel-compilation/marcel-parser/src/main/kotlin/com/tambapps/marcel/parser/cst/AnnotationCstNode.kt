@@ -8,7 +8,8 @@ class AnnotationCstNode(
   tokenStart: LexToken,
   tokenEnd: LexToken,
   val typeNode: TypeCstNode,
-  val attributes: List<Pair<String, ExpressionCstNode>>
+  val attributes: List<Pair<String, ExpressionCstNode>>,
+  val identifierToken: LexToken? = null
 ) :
   AbstractCstNode(parent, tokenStart, tokenEnd) {
 }

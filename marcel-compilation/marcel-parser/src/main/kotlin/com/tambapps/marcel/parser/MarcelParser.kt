@@ -1284,6 +1284,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
 
   private fun parseAnnotation(parentNode: CstNode?): AnnotationCstNode {
     val token = next()
+    val identifierToken = current
     val type = parseType(parentNode)
     val attributes = mutableListOf<Pair<String, ExpressionCstNode>>()
     if (current.type == TokenType.LPAR) {
@@ -1302,7 +1303,7 @@ class MarcelParser constructor(private val classSimpleName: String, tokens: List
       }
       accept(TokenType.RPAR)
     }
-    return AnnotationCstNode(parentNode, token, previous, type, attributes)
+    return AnnotationCstNode(parentNode, token, previous, type, attributes, identifierToken = identifierToken)
   }
 
   private fun parseNumberConstant(parentNode: CstNode? = null, token: LexToken): ExpressionCstNode {
