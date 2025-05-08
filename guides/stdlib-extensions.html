@@ -179,10 +179,37 @@
 <h2 id="automatically-imported-extensions"><a class="header" href="#automatically-imported-extensions">Automatically imported extensions</a></h2>
 <p>Marcel imports by default a large panel of extensions, which you can consult under the
 <a href="https://github.com/tambapps/marcel/blob/main/marcel-stdlib/src/main/java/marcel/lang/methods/DefaultMarcelMethods.java">DefaultMarcelMethods class</a>.</p>
+<p>There are also methods defined in separate classes.</p>
 <h3 id="character-extensions"><a class="header" href="#character-extensions">Character extensions</a></h3>
-<p>TODO</p>
-<h3 id="fileextensions"><a class="header" href="#fileextensions">FileExtensions</a></h3>
-<p>TODO</p>
+<p>You can call static methods from <code>Character</code> class as if they were instance methods, even on primitive <code>char</code> values.</p>
+<pre><code class="language-marcel">println(`c`.isLowerCase()) // true
+
+Character foo = `s`
+println(foo.isDigit()) // false
+</code></pre>
+<h3 id="charsequence-extensions"><a class="header" href="#charsequence-extensions">CharSequence Extensions</a></h3>
+<p>There are some extensions on classes implementing <code>CharSequence</code> to handle them like a collection of characters.</p>
+<pre><code class="language-marcel">CharSequence foo = "a simple string 2"
+println(foo[0])
+List&lt;char&gt; charList = foo.toList()
+
+int index = foo.indexOf { it == ` ` }
+int lastIndex = foo.lastIndexOf { it == `s` }
+
+if (Character c = foo.find { it.isDigit() }) {
+  println("There is a digit char: '$c'")
+}
+println("There are " + foo.count { it == `s` } + " 's'")
+if (foo.any { it.isWhitespace() }) {
+  println("The string contains spaces")
+}
+</code></pre>
+<p>And other useful methods</p>
+<pre><code class="language-marcel">CharSequence foo = "string"
+println(foo.reversed())
+
+println("123".toInt()) // there is also toDouble, toFloat, toLong
+</code></pre>
 <h2 id="other-extensions"><a class="header" href="#other-extensions">Other extensions</a></h2>
 <p>There are other extensions in Marcel's Standrard Library you can use, by explicitely importing them. E.g.</p>
 <pre><code>import extension marcel.lang.extensions.TimeExtensions
