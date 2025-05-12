@@ -71,7 +71,7 @@
     - [Initialization Script](tools/marshell/init-script.md)
   - [Marcel for Android](tools/marcel-for-android/index.md)
     - [Shell Workout (Background scripts)](tools/marcel-for-android/shell-workout.md)
-    - [Send SMS from Marcel cript](tools/marcel-for-android/send-sms.md)
+    - [Send SMS from Marcel Script](tools/marcel-for-android/send-sms.md)
     - [Send Notification from Marcel Script](tools/marcel-for-android/send-notification.md)
   - [Dumbbell - Marcel's Dependency Manager](./tools/dumbbell.md)
   - [Maven Plugin for Marcel](./tools/maven-plugin.md)
