@@ -176,13 +176,39 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="marcel-for-android-privacy-policy"><a class="header" href="#marcel-for-android-privacy-policy">Marcel for Android Privacy Policy</a></h1>
-<p>Marcel for Android is an open-source which you can <a href="https://github.com/tambapps/marcel">consult the source on github</a>.</p>
-<p>This application collects no analytics data about the user.</p>
-<p>You may <a href="./send-sms.html">send SMS from a Marcel script</a>. If you do so, the message sent will be stored in the app,
-in order for you to be able to consult it. </br>
-Only messages sent from this app are saved, this app doesn't treat messages sent from other apps. </br>
-Note that any saved messages will <strong>not</strong> be sent to a third party.</p>
+                        <h1 id="marcel-for-android--privacy-policy"><a class="header" href="#marcel-for-android--privacy-policy">Marcel for Android – Privacy Policy</a></h1>
+<p><strong>Marcel for Android</strong> is an open-source application. You can consult its full source code on <a href="https://github.com/tambapps/marcel">GitHub</a>.</p>
+<p>This application <strong>does not collect any analytics or personal data</strong> from its users.</p>
+<hr />
+<h2 id="sms-permission"><a class="header" href="#sms-permission">SMS Permission</a></h2>
+<p>Marcel includes functionality that allows users to <a href="./send-sms.html">send SMS messages via user-defined scripts</a> within the app.</p>
+<ul>
+<li>
+<p><strong>Permission Requested at Runtime</strong><br />
+The app requests the <code>SEND_SMS</code> permission only if the user explicitly initiates an action to send an SMS via a script. This is handled through Android’s <strong>runtime permission system</strong>, which means <strong>users always choose whether to allow access</strong>, and it’s never requested without direct interaction.</p>
+</li>
+<li>
+<p><strong>Optional Feature</strong><br />
+Granting the SMS permission is <strong>completely optional</strong>. Marcel will work normally and provide full access to all other features even if you choose not to grant this permission. Only the SMS-sending feature will be unavailable.</p>
+</li>
+<li>
+<p><strong>Purpose of SMS Usage</strong><br />
+The permission is used exclusively to allow user-triggered scripts to send SMS messages. The functionality is visible in the app's interface and is fully under the user's control.</p>
+</li>
+<li>
+<p><strong>No Access to Other Messages or Logs</strong><br />
+Marcel <strong>does not access, read, or collect</strong> incoming SMS messages, call logs, or any messages sent outside the app.</p>
+</li>
+<li>
+<p><strong>Local-Only Storage</strong><br />
+Any SMS messages sent from within Marcel may be saved <strong>locally</strong> in the app for later reference. These messages <strong>never leave your device</strong> and are <strong>not shared</strong> with anyone.</p>
+</li>
+<li>
+<p><strong>No Background or Hidden Actions</strong><br />
+Marcel never sends SMS messages in the background. Every SMS is sent only in response to an explicit user action.</p>
+</li>
+</ul>
+<p>If you do not wish to use the SMS feature, simply ignore or deny the permission request. The rest of the application will remain fully functional.</p>
 
                     </main>
 
