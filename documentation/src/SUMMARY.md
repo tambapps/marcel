@@ -73,6 +73,7 @@
     - [Shell Workout (Background scripts)](tools/marcel-for-android/shell-workout.md)
     - [Send SMS from Marcel Script](tools/marcel-for-android/send-sms.md)
     - [Send Notification from Marcel Script](tools/marcel-for-android/send-notification.md)
+    - [Privacy Policy](tools/marcel-for-android/privacy-policy.md)
   - [Dumbbell - Marcel's Dependency Manager](./tools/dumbbell.md)
   - [Maven Plugin for Marcel](./tools/maven-plugin.md)
   - [IntelIJ Plugin for Marcel](./tools/intelij-plugin.md)
