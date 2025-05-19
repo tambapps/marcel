@@ -181,6 +181,9 @@
 <p>Marcel for Android has integration with your Android system APIs. You can write code
 that sends SMS. This also applies to <a href="./shell-workout.html">Shell Workouts</a>, meaning that you can
 schedule for later a SMS.</p>
+<h2 id="sms-permission"><a class="header" href="#sms-permission">SMS Permission</a></h2>
+<p>Before being able to send an SMS from a Marcel script, you must allow the app to do so. Go to the Settings screen, and
+then enable the 'Send SMS' permission, as shown in the below screenshot.</p>
 <h2 id="send-sms"><a class="header" href="#send-sms">Send SMS</a></h2>
 <p>Here is an example of code to send SMS.</p>
 <pre><code class="language-marcel">system.sendSms('+331234567890', 'Hello World')
@@ -190,7 +193,11 @@ schedule for later a SMS.</p>
 <p>You can list sent SMS to track their status.</p>
 <pre><code class="language-marcel">system.listSms()
 </code></pre>
-<p><img src="../../images/send_sms.jpg" alt="Screenshot" /></p>
+<h2 id="screenshots"><a class="header" href="#screenshots">Screenshots</a></h2>
+<p align="center">
+  <img src="../../images/sms_permission.jpg" alt="Image 1" style="width: 40%; max-width: 300px;"/>
+  <img src="../../images/send_sms.jpg" alt="Image 2" style="width: 40%; max-width: 300px;"/>
+</p>
 
                     </main>
 

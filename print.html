@@ -2296,6 +2296,9 @@ so that they are run every x hours.</p>
 <p>Marcel for Android has integration with your Android system APIs. You can write code
 that sends SMS. This also applies to <a href="tools/marcel-for-android/./shell-workout.html">Shell Workouts</a>, meaning that you can
 schedule for later a SMS.</p>
+<h2 id="sms-permission"><a class="header" href="#sms-permission">SMS Permission</a></h2>
+<p>Before being able to send an SMS from a Marcel script, you must allow the app to do so. Go to the Settings screen, and
+then enable the 'Send SMS' permission, as shown in the below screenshot.</p>
 <h2 id="send-sms"><a class="header" href="#send-sms">Send SMS</a></h2>
 <p>Here is an example of code to send SMS.</p>
 <pre><code class="language-marcel">system.sendSms('+331234567890', 'Hello World')
@@ -2305,7 +2308,11 @@ schedule for later a SMS.</p>
 <p>You can list sent SMS to track their status.</p>
 <pre><code class="language-marcel">system.listSms()
 </code></pre>
-<p><img src="tools/marcel-for-android/../../images/send_sms.jpg" alt="Screenshot" /></p>
+<h2 id="screenshots"><a class="header" href="#screenshots">Screenshots</a></h2>
+<p align="center">
+  <img src="tools/marcel-for-android/../../images/sms_permission.jpg" alt="Image 1" style="width: 40%; max-width: 300px;"/>
+  <img src="tools/marcel-for-android/../../images/send_sms.jpg" alt="Image 2" style="width: 40%; max-width: 300px;"/>
+</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="send-system-notifications-from-marcel-script"><a class="header" href="#send-system-notifications-from-marcel-script">Send System Notifications from Marcel Script</a></h1>
 <p><strong>NOT RELEASED YET</strong></p>
 <p>Marcel for Android has integration with your Android system APIs. You can write code
@@ -2317,7 +2324,12 @@ notify your device in your script executed in the background.</p>
 </code></pre>
 <p><img src="tools/marcel-for-android/../../images/notification_sent.jpg" alt="Screenshot" /></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="marcel-for-android-privacy-policy"><a class="header" href="#marcel-for-android-privacy-policy">Marcel for Android Privacy Policy</a></h1>
-<p>Marcel collects no analytics data about the user. It is an open-source which you can <a href="https://github.com/tambapps/marcel">consult the source on github</a>.</p>
+<p>Marcel for Android is an open-source which you can <a href="https://github.com/tambapps/marcel">consult the source on github</a>.</p>
+<p>This application collects no analytics data about the user.</p>
+<p>You may <a href="tools/marcel-for-android/./send-sms.html">send SMS from a Marcel script</a>. If you do so, the message sent will be stored in the app,
+in order for you to be able to consult it. </br>
+Only messages sent from this app are saved, this app doesn't treat messages sent from other apps. </br>
+Note that any saved messages will <strong>not</strong> be sent to a third party.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="dumbbell---marcels-dependency-manager"><a class="header" href="#dumbbell---marcels-dependency-manager">Dumbbell - Marcel's dependency manager</a></h1>
 <p>Dumbbell is a dependency manager for Marcel. It allows you to easily import dependencies in your scripts,
 without having to create a Maven/Gradle project.</p>
