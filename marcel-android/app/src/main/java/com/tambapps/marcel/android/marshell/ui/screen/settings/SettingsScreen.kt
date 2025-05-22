@@ -102,16 +102,18 @@ fun SettingsScreen(
       checked = viewModel.canManageFiles
     )
 
-    val smsPermissionLauncher = permissionManager.rememberPermissionRequestActivityLauncher()
-    SettingItem(
-      text = "Send SMS",
-      description = "Allow your scripts/workouts to send SMS",
-      onClick = {
-        if (viewModel.canSendSms) permissionManager.openPermissionSettings(context)
-        else smsPermissionLauncher.launch(Manifest.permission.SEND_SMS)
-      },
-      checked = viewModel.canSendSms
-    )
+    if (BuildConfig.SMS_ENABLED) {
+      val smsPermissionLauncher = permissionManager.rememberPermissionRequestActivityLauncher()
+      SettingItem(
+        text = "Send SMS",
+        description = "Allow your scripts/workouts to send SMS",
+        onClick = {
+          if (viewModel.canSendSms) permissionManager.openPermissionSettings(context)
+          else smsPermissionLauncher.launch(Manifest.permission.SEND_SMS)
+        },
+        checked = viewModel.canSendSms
+      )
+    }
 
     if (viewModel.canManageFiles) {
       SectionTitle(text = "Files")

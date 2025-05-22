@@ -8,13 +8,11 @@ import android.graphics.BitmapFactory
 import androidx.core.app.NotificationCompat
 import com.tambapps.marcel.android.marshell.R
 
-open class AndroidNotifier(
-  protected val context: Context,
+class AndroidNotifier constructor(
+  private val context: Context,
   private val notificationManager: NotificationManager,
   private val channel: NotificationChannel
 ) {
-
-  constructor(context: Context, channel: NotificationChannel): this(context, context.getSystemService(NotificationManager::class.java), channel)
 
   val areNotificationEnabled: Boolean get() = notificationManager.areNotificationsEnabled()
 

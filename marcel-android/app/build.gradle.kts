@@ -15,7 +15,7 @@ android {
     applicationId = "com.tambapps.marcel.android.marshell"
     minSdk = 30
     targetSdk = 35
-    versionCode = 12
+    versionCode = 13
     versionName = "1.1.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -28,10 +28,12 @@ android {
     release {
       isMinifyEnabled = true
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+      buildConfigField("boolean", "SMS_ENABLED", "false")
     }
     debug {
       isMinifyEnabled = false
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+      buildConfigField("boolean", "SMS_ENABLED", "true")
     }
   }
   compileOptions {

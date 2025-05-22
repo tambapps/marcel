@@ -18,11 +18,13 @@ class SpannableHighlighter(
       keyword = Color.Red,
       function = Color.Yellow,
       variable = Color.Magenta,
+      field = Color.Magenta,
       string = Color.Green,
       stringTemplate = Color.Yellow,
+      annotation = Color.Yellow,
       number = Color.Cyan,
       comment = Color.LightGray,
-      default = Color.White
+      default = Color.White,
     )
   }
 

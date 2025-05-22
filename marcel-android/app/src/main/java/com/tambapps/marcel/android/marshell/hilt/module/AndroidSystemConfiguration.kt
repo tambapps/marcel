@@ -12,10 +12,9 @@ import com.tambapps.marcel.android.marshell.service.PermissionManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import marcel.lang.android.AndroidSystem
+import marcel.lang.android.AndroidSystemHandler
 import javax.inject.Named
 
 @Module
@@ -35,6 +34,15 @@ class AndroidSystemConfiguration {
     description = "Shell Workouts notifications"
   )
 
+  @Named("marcelMessageNotificationChannel")
+  @Provides
+  fun marcelMessageNotificationChannel(notificationManager: NotificationManager) = createOrGetChannel(
+    notificationManager,
+    id = "MarcelMessage",
+    name = "Marshell Message Notifications",
+    description = "Messages sent from Marcel scripts"
+  )
+
   @Named("shellNotificationChannel")
   @Provides
   fun shellNotificationChannel(notificationManager: NotificationManager) = createOrGetChannel(
@@ -47,8 +55,8 @@ class AndroidSystemConfiguration {
   @Provides
   fun androidNotifier(@ApplicationContext context: Context,
                       notificationManager: NotificationManager,
-                      @Named("shellNotificationChannel") shellNotificationChannel: NotificationChannel): AndroidNotifier {
-    return AndroidNotifier(context, notificationManager, shellNotificationChannel)
+                      @Named("marcelMessageNotificationChannel") marcelMessageNotificationChannel: NotificationChannel): AndroidNotifier {
+    return AndroidNotifier(context, notificationManager, marcelMessageNotificationChannel)
   }
 
   @Provides
@@ -62,7 +70,7 @@ class AndroidSystemConfiguration {
     androidNotifier: AndroidNotifier,
     smsSender: AndroidSmsSender,
     permissionManager: PermissionManager
-  ): AndroidSystemImpl {
+  ): AndroidSystemHandler {
     return AndroidSystemImpl(androidNotifier, smsSender, permissionManager)
   }
 

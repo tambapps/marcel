@@ -2,14 +2,12 @@ package com.tambapps.marcel.android.marshell.repl;
 
 import com.tambapps.marcel.android.marshell.repl.console.Printer;
 
-import marcel.lang.android.AndroidSystem;
 import marcel.lang.Binding;
 import marcel.lang.Script;
 
 public abstract class MarshellScript extends Script {
 
     private Printer printer;
-    private AndroidSystem system;
 
     public MarshellScript() {
         super();
@@ -38,11 +36,4 @@ public abstract class MarshellScript extends Script {
         this.printer = printer;
     }
 
-    public void setSystem(AndroidSystem system) {
-        this.system = system;
-    }
-
-    public AndroidSystem getSystem() {
-        return system;
-    }
 }

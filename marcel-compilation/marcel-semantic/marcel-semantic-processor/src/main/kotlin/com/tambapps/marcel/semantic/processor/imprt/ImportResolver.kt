@@ -8,10 +8,10 @@ import com.tambapps.marcel.semantic.type.JavaType
  * Class allowing to resolve types from imports
  */
 open class ImportResolver internal constructor(
-  val typeImports: Map<String, JavaType>, // valueSimpleName -> value, asName -> value
-  val wildcardTypeImportPrefixes: Collection<String>,
-  val staticMemberImports: Map<String, JavaType>, // memberName -> memberOwnerType
-  val extensionTypes: Set<JavaType>
+  open val typeImports: Map<String, JavaType>, // valueSimpleName -> value, asName -> value
+  open val wildcardTypeImportPrefixes: Collection<String>,
+  open val staticMemberImports: Map<String, JavaType>, // memberName -> memberOwnerType
+  open val extensionTypes: Set<JavaType>
 ) {
 
   companion object {

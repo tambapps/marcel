@@ -1,20 +1,25 @@
 package com.tambapps.marcel.android.marshell.workout
 
 import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkInfo
 import androidx.work.WorkerParameters
-import com.tambapps.marcel.android.marshell.os.WorkoutAndroidNotifier
+import com.tambapps.marcel.android.marshell.R
 import com.tambapps.marcel.android.marshell.repl.ShellSession
 import com.tambapps.marcel.android.marshell.repl.ShellSessionFactory
 import com.tambapps.marcel.android.marshell.room.dao.ShellWorkoutDao
 import com.tambapps.marcel.android.marshell.room.entity.ShellWorkout
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import marcel.lang.android.AndroidSystem
+import marcel.lang.android.AndroidSystemHandler
 import java.io.File
 import java.io.IOException
 import java.time.LocalDateTime
@@ -26,6 +31,8 @@ class ShellWorkoutWorker @AssistedInject constructor(
   @Assisted workerParams: WorkerParameters,
   private val shellSessionFactory: ShellSessionFactory,
   private val shellWorkoutDao: ShellWorkoutDao,
+  private val androidSystem: AndroidSystemHandler,
+  private val notificationManager: NotificationManager,
   @Named("workoutNotificationChannel") private val workoutNotificationChannel: NotificationChannel
 ): CoroutineWorker(appContext, workerParams) {
 
@@ -39,13 +46,12 @@ class ShellWorkoutWorker @AssistedInject constructor(
       Log.e(TAG, "Couldn't find shell_workout on database for workout with id $id and tags $tags")
       return Result.failure(Data.EMPTY)
     }
-    val androidNotifier = WorkoutAndroidNotifier(applicationContext, workoutNotificationChannel, workout)
     if (workout.scriptText == null) {
       Log.e(TAG, "Couldn't retrieve script text of workout $id")
       return Result.failure(Data.EMPTY)
     }
     val printer = StringBuilderPrinter()
-    val sessionResult = runCatching { shellSessionFactory.newWorkSession(printer, androidNotifier) }
+    val sessionResult = runCatching { shellSessionFactory.newWorkSession(printer) }
     if (sessionResult.isFailure) {
       val e = sessionResult.exceptionOrNull()!!
       Log.e(TAG, "Couldn't start shell session", e)
@@ -54,13 +60,14 @@ class ShellWorkoutWorker @AssistedInject constructor(
     }
     val shellSession = sessionResult.getOrThrow()
     try {
-      return runWorkout(workout, workout.scriptText, shellSession, printer, androidNotifier)
+      AndroidSystem.init(androidSystem)
+      return runWorkout(workout, workout.scriptText, shellSession, printer)
     } finally {
       shellSession.classesDirectory.deleteRecursively()
     }
   }
 
-  private suspend fun runWorkout(workout: ShellWorkout, scriptText: String, session: ShellSession, printer: StringBuilderPrinter, androidNotifier: WorkoutAndroidNotifier): Result {
+  private suspend fun runWorkout(workout: ShellWorkout, scriptText: String, session: ShellSession, printer: StringBuilderPrinter): Result {
     shellWorkoutDao.updateState(workout.name, WorkInfo.State.RUNNING)
     shellWorkoutDao.updateStartTime(workout.name, LocalDateTime.now())
 
@@ -90,11 +97,23 @@ class ShellWorkoutWorker @AssistedInject constructor(
     } else {
       val e = result.exceptionOrNull
       Log.e(TAG, "An error occurred while executing script", e)
-      androidNotifier.notifyIfEnabled("Workout ${workout.name} encountered an error", e?.message ?: "<no message>", onGoing = false)
+      notifyError(workout, e)
       Result.failure()
     }
   }
 
+  private fun notifyError(workout: ShellWorkout, e: Throwable?) {
+    val message = e?.message ?: "<no message>"
+    val notificationBuilder = NotificationCompat.Builder(applicationContext, workoutNotificationChannel.id)
+      .setContentTitle("Workout ${workout.name} encountered an error")
+      .setTicker(message)
+      .setLargeIcon(BitmapFactory.decodeResource(applicationContext.resources, R.drawable.appicon))
+      .setSmallIcon(R.drawable.prompt)
+      .setOngoing(false)
+      .setOnlyAlertOnce(true)
+    notificationBuilder.setContentText(message)
+    notificationManager.notify(workout.workId.hashCode(), notificationBuilder.build())
+  }
   private suspend fun findWork(): ShellWorkout? {
     val name = ShellWorkoutManager.getName(tags)
     if (name == null) {

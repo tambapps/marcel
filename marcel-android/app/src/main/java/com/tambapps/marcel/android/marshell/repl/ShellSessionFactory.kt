@@ -19,6 +19,7 @@ import kotlinx.coroutines.runBlocking
 import marcel.lang.android.AndroidSystem
 import marcel.lang.Binding
 import marcel.lang.MarcelDexClassLoader
+import marcel.lang.android.AndroidSystemHandler
 import java.io.File
 import java.io.IOException
 import javax.inject.Inject
@@ -34,16 +35,16 @@ class ShellSessionFactory @Inject constructor(
   private val preferencesDataStore: PreferencesDataStore,
   @Named("initScriptFile")
   private val initScriptFile: File,
-  private val androidSystem: AndroidSystemImpl,
+  private val androidSystem: AndroidSystemHandler
 ) {
 
   fun newReplCompiler() = newShellSession(NoOpPrinter).replCompiler
 
-  fun newShellSession(printer: Printer) = newSession(shellSessionsDirectory, printer, androidSystem)
+  fun newShellSession(printer: Printer) = newSession(shellSessionsDirectory, printer)
 
-  fun newWorkSession(printer: Printer, notifier: AndroidNotifier) = newSession(workSessionsDirectory, printer, androidSystem.withNotifier(notifier))
+  fun newWorkSession(printer: Printer) = newSession(workSessionsDirectory, printer)
 
-  private fun newSession(sessionsDirectory: File, printer: Printer, androidSystem: AndroidSystem): ShellSession {
+  private fun newSession(sessionsDirectory: File, printer: Printer): ShellSession {
     Dumbbell.setEngine(dumbbellEngine) // initialize dumbbell
     val sessionDirectory = File(sessionsDirectory, "session_" + System.currentTimeMillis())
     if (!sessionDirectory.isDirectory && !sessionDirectory.mkdirs()) {
@@ -64,6 +65,7 @@ class ShellSessionFactory @Inject constructor(
       }
     }
     val session = ShellSession(symbolResolver, replCompiler, evaluator, printer, sessionDirectory)
+    session.imports.wildcardTypeImportPrefixes.add("marcel.lang.android")
     if (initScriptFile.isFile) {
       val text = try {
         initScriptFile.readText()
