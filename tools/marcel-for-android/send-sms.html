@@ -177,7 +177,8 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="send-sms-from-marcel-script"><a class="header" href="#send-sms-from-marcel-script">Send SMS from Marcel Script</a></h1>
-<p><strong>NOT RELEASED YET</strong></p>
+<p><strong>FEATURE NOT ACCESSIBLE FROM PLAYSTORE RELEASE</strong>:
+sending SMS is not a core functionality of my app, that's why, unfortunately, Google prevents me from enabling this feature on the published app in the PlayStore.</p>
 <p>Marcel for Android has integration with your Android system APIs. You can write code
 that sends SMS. This also applies to <a href="./shell-workout.html">Shell Workouts</a>, meaning that you can
 schedule for later a SMS.</p>
@@ -186,12 +187,12 @@ schedule for later a SMS.</p>
 then enable the 'Send SMS' permission, as shown in the below screenshot.</p>
 <h2 id="send-sms"><a class="header" href="#send-sms">Send SMS</a></h2>
 <p>Here is an example of code to send SMS.</p>
-<pre><code class="language-marcel">system.sendSms('+331234567890', 'Hello World')
+<pre><code class="language-marcel">AndroidSystem.sendSms('+331234567890', 'Hello World')
 </code></pre>
 <p>Marcel cannot access your contacts, so you'll have to put the international phone numbers, in E.164 format (the format starting with <code>+</code>).</p>
 <h2 id="list-sms"><a class="header" href="#list-sms">List SMS</a></h2>
 <p>You can list sent SMS to track their status.</p>
-<pre><code class="language-marcel">system.listSms()
+<pre><code class="language-marcel">AndroidSystem.listSms()
 </code></pre>
 <h2 id="screenshots"><a class="header" href="#screenshots">Screenshots</a></h2>
 <p align="center">
