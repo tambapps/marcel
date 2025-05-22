@@ -11,7 +11,7 @@ notify your device in your script executed in the background.
 Here is an example of code to notify.
 
 ```marcel
-system.notify('Hello World', 'This is a notification')
+AndroidSystem.notify('Hello World', 'This is a notification')
 ```
 
 ![Screenshot](../../images/notification_sent.jpg)
