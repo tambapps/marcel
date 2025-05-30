@@ -28,6 +28,7 @@ import marcel.util.primitives.collections.sets.LongSet;
 
 import java.util.*;
 
+// TODO implement size method (for collection, arrays, string, and csvLine)
 /**
  * Interface providing dynamic features to an object
  */

@@ -28,6 +28,9 @@
     <commons-cli.version>1.9.0</commons-cli.version>
     <dokka.version>2.0.0</dokka.version>
     <jackson.version>2.16.1</jackson.version>
+    <opencsv.version>5.11</opencsv.version>
+    <kotest.version>5.9.1</kotest.version>
+    <mockk.version>1.14.2</mockk.version>
     <jline.version>3.25.0</jline.version>
     <junit.version>5.1.0</junit.version>
     <lombok.version>1.18.30</lombok.version>
@@ -99,6 +102,11 @@
         <version>${jackson.version}</version>
       </dependency>
       <dependency>
+        <groupId>com.opencsv</groupId>
+        <artifactId>opencsv</artifactId>
+        <version>${opencsv.version}</version>
+      </dependency>
+      <dependency>
         <groupId>com.fasterxml.jackson.dataformat</groupId>
         <artifactId>jackson-dataformat-yaml</artifactId>
         <version>${jackson.version}</version>
@@ -133,6 +141,30 @@
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
         <version>${mockito.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.kotest</groupId>
+        <artifactId>kotest-runner-junit5</artifactId>
+        <version>${kotest.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.kotest</groupId>
+        <artifactId>kotest-assertions-core</artifactId>
+        <version>${kotest.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.kotest</groupId>
+        <artifactId>kotest-property</artifactId>
+        <version>${kotest.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.mockk</groupId>
+        <artifactId>mockk</artifactId>
+        <version>${mockk.version}</version>
         <scope>test</scope>
       </dependency>
 
@@ -215,6 +247,11 @@
       <dependency>
         <groupId>com.tambapps.marcel</groupId>
         <artifactId>marcel-json</artifactId>
+        <version>${revision}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tambapps.marcel</groupId>
+        <artifactId>marcel-csv</artifactId>
         <version>${revision}</version>
       </dependency>
       <dependency>

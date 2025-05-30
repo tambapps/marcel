@@ -67,6 +67,8 @@ dependencies {
   // marcel
   implementation("com.tambapps.marcel:marcel-repl:$marcelVersion")
   implementation("com.tambapps.marcel:marcel-json:$marcelVersion")
+  implementation("com.tambapps.marcel:marcel-csv:$marcelVersion")
+  implementation("com.tambapps.marcel:marcel-clargs:$marcelVersion")
   implementation("com.tambapps.marcel:marcel-yaml:$marcelVersion")
   implementation("com.tambapps.marcel:dumbbell-core:$marcelVersion")
   implementation(project(path = ":marcel-dalvik-compiler"))

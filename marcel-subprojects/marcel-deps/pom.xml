@@ -46,6 +46,12 @@
       <artifactId>jackson-core</artifactId>
     </dependency>
 
+    <!-- for marcel-csv -->
+    <dependency>
+      <groupId>com.opencsv</groupId>
+      <artifactId>opencsv</artifactId>
+    </dependency>
+
     <!-- for marcel-clargs -->
     <dependency>
       <groupId>commons-cli</groupId>

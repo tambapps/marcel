@@ -49,9 +49,10 @@ cp marcel-stdlib/target/marcel-stdlib-$version.jar $marcelDir/lib/marcel-stdlib.
 cp marcel-extensions/target/marcel-extensions-$version.jar $marcelDir/lib/marcel-extensions.jar
 
 # libs
+cp marcel-libs/marcel-clargs/target/marcel-clargs-$version.jar $marcelDir/lib/marcel-clargs.jar
+cp marcel-libs/marcel-csv/target/marcel-csv-$version.jar $marcelDir/lib/marcel-csv.jar
 cp marcel-libs/marcel-json/target/marcel-json-$version.jar $marcelDir/lib/marcel-json.jar
 cp marcel-libs/marcel-yaml/target/marcel-yaml-$version.jar $marcelDir/lib/marcel-yaml.jar
-cp marcel-libs/marcel-clargs/target/marcel-clargs-$version.jar $marcelDir/lib/marcel-clargs.jar
 
 # subprojects
 cp marcel-subprojects/marcl/target/marcl-$version.jar $marcelDir/lib/marcl.jar

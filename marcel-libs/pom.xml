@@ -17,6 +17,7 @@
 
   <modules>
     <module>marcel-clargs</module>
+    <module>marcel-csv</module>
     <module>marcel-json</module>
     <module>marcel-yaml</module>
   </modules>

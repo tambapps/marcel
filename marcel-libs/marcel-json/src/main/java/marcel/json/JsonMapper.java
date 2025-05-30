@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// TODO rename this DynamicJson (same for Yaml. Also handle side projects)
 public class JsonMapper {
 
   // useful to handle json without having to instantiate a mapper

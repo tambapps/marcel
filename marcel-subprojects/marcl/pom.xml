@@ -38,6 +38,10 @@
     </dependency>
     <dependency>
       <groupId>com.tambapps.marcel</groupId>
+      <artifactId>marcel-csv</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.tambapps.marcel</groupId>
       <artifactId>dumbbell-core</artifactId>
     </dependency>
     <dependency>
