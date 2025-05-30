@@ -1,4 +1,4 @@
-package marcel.yaml;
+package marcel.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import marcel.lang.DynamicObject;
@@ -9,23 +9,23 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class YamlMapperTest {
+public class DynamicJsonTest {
 
-  private final YamlMapper slurper = new YamlMapper();
+  private final DynamicJson slurper = new DynamicJson();
 
   @Test
-  void testSlurpInt() throws JsonProcessingException {
+  void testReadInt() throws JsonProcessingException {
     assertEquals(1, slurper.read("1").asInt());
   }
 
   @Test
-  void testSlurpString() throws JsonProcessingException {
+  void testReadString() throws JsonProcessingException {
     assertEquals("Hello World", slurper.read("\"Hello World\"").asString());
   }
 
   @Test
-  void testSlurpObject() throws JsonProcessingException {
-    DynamicObject object = slurper.read("a: b\nc: 23");
+  void testReadObject() throws JsonProcessingException {
+    DynamicObject object = slurper.read("{\"a\": \"b\", \"c\": 23}");
     assertEquals("b", object.getAt("a").asString());
     assertEquals(23, object.getAt("c").asInt());
 
@@ -37,14 +37,14 @@ public class YamlMapperTest {
 
   @Test
   void testSerializeInt() throws JsonProcessingException {
-    assertEquals("1", slurper.writeAsString(1).trim());
-    assertEquals("1", slurper.writeAsString(DynamicObject.of(1)).trim());
+    assertEquals("1", slurper.writeAsString(1));
+    assertEquals("1", slurper.writeAsString(DynamicObject.of(1)));
   }
 
   @Test
   void testSerializeString() throws JsonProcessingException {
-    assertEquals("\"Hello World\"", slurper.writeAsString("Hello World").trim());
-    assertEquals("\"Hello World\"", slurper.writeAsString(DynamicObject.of("Hello World")).trim());
+    assertEquals("\"Hello World\"", slurper.writeAsString("Hello World"));
+    assertEquals("\"Hello World\"", slurper.writeAsString(DynamicObject.of("Hello World")));
   }
 
   @Test
@@ -53,9 +53,7 @@ public class YamlMapperTest {
     map.put("a", "b");
     map.put("c", 23);
 
-    String expected = "a: \"b\"\n" +
-        "c: 23";
-    assertEquals(expected, slurper.writeAsString(map).trim());
-    assertEquals(expected, slurper.writeAsString(DynamicObject.of(map)).trim());
+    assertEquals("{\"a\":\"b\",\"c\":23}", slurper.writeAsString(map));
+    assertEquals("{\"a\":\"b\",\"c\":23}", slurper.writeAsString(DynamicObject.of(map)));
   }
 }

@@ -19,26 +19,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// TODO rename this DynamicJson (same for Yaml. Also handle side projects)
-public class JsonMapper {
+public class DynamicJson {
 
   // useful to handle json without having to instantiate a mapper
-  private static JsonMapper _instance = new JsonMapper();
+  private static DynamicJson _instance = new DynamicJson();
 
-  public static JsonMapper getInstance() {
+  public static DynamicJson getInstance() {
     if (_instance == null) {
-      _instance = new JsonMapper();
+      _instance = new DynamicJson();
     }
     return _instance;
   }
 
   protected final ObjectMapper mapper;
 
-  public JsonMapper() {
+  public DynamicJson() {
     this(newObjectMapper());
   }
 
-  public JsonMapper(ObjectMapper mapper) {
+  public DynamicJson(ObjectMapper mapper) {
     this.mapper = mapper;
   }
 
@@ -92,6 +91,11 @@ public class JsonMapper {
 
   public String writeAsString(Object o) throws JsonProcessingException {
     return mapper.writeValueAsString(o);
+  }
+
+  public String writeAsPrettyString(Object o) throws JsonProcessingException {
+    return mapper.writerWithDefaultPrettyPrinter()
+        .writeValueAsString(o);
   }
 
   public byte[] writeAsBytes(Object o) throws JsonProcessingException {
