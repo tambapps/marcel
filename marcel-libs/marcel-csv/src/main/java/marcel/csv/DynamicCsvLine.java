@@ -1,7 +1,6 @@
 package marcel.csv;
 
 import marcel.lang.DynamicObject;
-import marcel.lang.dynamic.DynamicCharSequence;
 import marcel.lang.dynamic.DynamicList;
 import marcel.lang.dynamic.MissingMethodException;
 import marcel.lang.dynamic.MissingPropertyException;

@@ -5,8 +5,6 @@ import marcel.lang.DynamicObject;
 
 interface DynamicIndexable extends DynamicObject {
 
-  int size();
-
   default DynamicObject getAtSafe(Object object) {
     if (object instanceof Integer) {
       int i = (Integer) object;

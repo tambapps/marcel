@@ -68,12 +68,12 @@ abstract class AbstractHighlighter<HighlightedString, Builder, Style> constructo
       val string = text.substring(token.start, token.end)
       val style = when (token.type) {
         TokenType.IDENTIFIER -> tokenMap[token] ?: style.default
-        TokenType.TYPE_INT, TokenType.TYPE_LONG, TokenType.TYPE_SHORT, TokenType.TYPE_FLOAT, TokenType.TYPE_DOUBLE, TokenType.TYPE_BOOL, TokenType.TYPE_BYTE, TokenType.TYPE_VOID, TokenType.TYPE_CHAR, TokenType.FUN, TokenType.RETURN,
-        TokenType.VALUE_TRUE, TokenType.VALUE_FALSE, TokenType.NEW, TokenType.IMPORT, TokenType.AS, TokenType.INLINE, TokenType.STATIC, TokenType.FOR, TokenType.IN, TokenType.IF, TokenType.ELSE, TokenType.NULL, TokenType.BREAK, TokenType.CONTINUE, TokenType.DEF,
-        TokenType.CLASS, TokenType.EXTENSION, TokenType.PACKAGE, TokenType.EXTENDS, TokenType.IMPLEMENTS, TokenType.FINAL, TokenType.SWITCH, TokenType.WHEN, TokenType.THIS, TokenType.SUPER, TokenType.DUMBBELL, TokenType.TRY, TokenType.CATCH, TokenType.FINALLY,
-        TokenType.INSTANCEOF, TokenType.THROW, TokenType.THROWS, TokenType.CONSTRUCTOR, TokenType.DYNOBJ,
+        TYPE_INT, TYPE_LONG, TYPE_SHORT, TYPE_FLOAT, TYPE_DOUBLE, TYPE_BOOL, TYPE_BYTE, TYPE_VOID, TYPE_CHAR, FUN, RETURN,
+        VALUE_TRUE, VALUE_FALSE, NEW, IMPORT, AS, INLINE, STATIC, FOR, IN, IF, ELSE, NULL, BREAK, CONTINUE, DEF, DO,
+        CLASS, EXTENSION, PACKAGE, EXTENDS, IMPLEMENTS, FINAL, SWITCH, WHEN, NOT_WHEN, THIS, SUPER, DUMBBELL, TRY, CATCH, FINALLY, WHILE,
+        INSTANCEOF, NOT_INSTANCEOF("!instanceof"), THROW, THROWS, CONSTRUCTOR, DYNOBJ, ASYNC, ENUM, OVERRIDE,
           // visibilities
-        TokenType.VISIBILITY_PUBLIC, TokenType.VISIBILITY_PROTECTED, TokenType.VISIBILITY_INTERNAL, TokenType.VISIBILITY_PRIVATE -> style.keyword
+        VISIBILITY_PUBLIC, VISIBILITY_PROTECTED, VISIBILITY_INTERNAL, VISIBILITY_PRIVATE, -> style.keyword
         TokenType.INTEGER, TokenType.FLOAT -> style.number
         TokenType.BLOCK_COMMENT, TokenType.DOC_COMMENT, TokenType.HASH, TokenType.SHEBANG_COMMENT, TokenType.EOL_COMMENT -> style.comment
         TokenType.OPEN_QUOTE, TokenType.CLOSING_QUOTE, TokenType.REGULAR_STRING_PART,

@@ -28,7 +28,6 @@ import marcel.util.primitives.collections.sets.LongSet;
 
 import java.util.*;
 
-// TODO implement size method (for collection, arrays, string, and csvLine)
 /**
  * Interface providing dynamic features to an object
  */
@@ -186,6 +185,10 @@ public interface DynamicObject extends Iterable<DynamicObject>, MarcelTruth {
 
   default DynamicObject map(DynamicObjectLambda1 lambda1) {
     return lambda1.invoke(this);
+  }
+
+  default int size() {
+    return 1;
   }
 
   @Override

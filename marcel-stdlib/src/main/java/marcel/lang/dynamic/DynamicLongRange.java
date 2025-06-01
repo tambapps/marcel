@@ -63,4 +63,9 @@ public class DynamicLongRange extends AbstractDynamicObject {
   public LongSet asLongSet() {
     return value.toList().toSet();
   }
+
+  @Override
+  public int size() {
+    return value.size();
+  }
 }

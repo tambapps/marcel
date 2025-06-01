@@ -57,4 +57,9 @@ public class DynamicMap extends AbstractDynamicObject {
     }
     return super.plus(object);
   }
+
+  @Override
+  public int size() {
+    return value.size();
+  }
 }

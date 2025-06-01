@@ -63,4 +63,9 @@ public class DynamicIntRange extends AbstractDynamicObject {
   public IntSet asIntSet() {
     return value.toList().toSet();
   }
+
+  @Override
+  public int size() {
+    return value.size();
+  }
 }
