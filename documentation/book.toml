@@ -8,3 +8,6 @@ title = "The Marcel Programming Language"
 
 [output.html]
 git-repository-url = "https://github.com/tambapps/marcel"
+
+[output.html.templates]
+head = "theme/head.hbs"

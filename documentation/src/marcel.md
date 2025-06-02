@@ -15,4 +15,6 @@ in your classpath.
 As stated above, marcel is guaranteed to be compilable and executable on any Android devices running on Android 11 or +. You can install the [Marcel for Android](https://play.google.com/store/apps/details?id=com.tambapps.marcel.android.marshell)
 app to develop, compile and execute Marcel programs.
 
-
+<p align="center">
+  <img src="./images/marcel_logo.png" alt="Image 2" style="width: 30%; max-width: 300px;"/>
+</p>
