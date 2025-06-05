@@ -112,6 +112,14 @@ public final class DefaultMarcelMethods {
     $self[j] = temp;
   }
 
+  public static <T extends Comparable<T>> void sortedAdd(List<T> $self, T element) {
+    int i = 0;
+    while (i < $self.size() && $self.get(i).compareTo(element) < 0) {
+      i++;
+    }
+    $self.add(i, element);
+  }
+
   public static <T> List<T> unique(Collection<T> $self, Function<T, ?> keyExtractor) {
     Set<Object> set = new HashSet<>($self.size());
     List<T> list = new ArrayList<>();
