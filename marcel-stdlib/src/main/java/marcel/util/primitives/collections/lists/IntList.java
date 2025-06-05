@@ -513,4 +513,12 @@ public interface IntList extends List<Integer>, Comparable<List<? extends Intege
 	default IntList leftShift(IntCollection value) {
 		return (IntList)  IntCollection.super.leftShift(value);
 	}
+
+	default void sortedAdd(int element) {
+		int i = 0;
+		while (i < size() && get(i).compareTo(element) < 0) {
+			i++;
+		}
+		add(i, element);
+	}
 }

@@ -536,4 +536,12 @@ public interface LongList extends List<Long>, Comparable<List<? extends Long>>, 
 	default LongList leftShift(LongCollection value) {
 		return (LongList) LongCollection.super.leftShift(value);
 	}
+
+	default void sortedAdd(long element) {
+		int i = 0;
+		while (i < size() && get(i).compareTo(element) < 0) {
+			i++;
+		}
+		add(i, element);
+	}
 }

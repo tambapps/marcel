@@ -537,4 +537,12 @@ public interface FloatList extends List<Float>, Comparable<List<? extends Float>
 	default FloatList leftShift(FloatCollection value) {
 		return (FloatList) FloatCollection.super.leftShift(value);
 	}
+
+	default void sortedAdd(float element) {
+		int i = 0;
+		while (i < size() && get(i).compareTo(element) < 0) {
+			i++;
+		}
+		add(i, element);
+	}
 }

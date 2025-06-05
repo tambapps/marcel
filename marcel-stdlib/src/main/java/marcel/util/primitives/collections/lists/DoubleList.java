@@ -535,4 +535,12 @@ public interface DoubleList extends List<Double>, Comparable<List<? extends Doub
 	default DoubleList leftShift(DoubleCollection value) {
 		return (DoubleList) DoubleCollection.super.leftShift(value);
 	}
+
+	default void sortedAdd(double element) {
+		int i = 0;
+		while (i < size() && get(i).compareTo(element) < 0) {
+			i++;
+		}
+		add(i, element);
+	}
 }

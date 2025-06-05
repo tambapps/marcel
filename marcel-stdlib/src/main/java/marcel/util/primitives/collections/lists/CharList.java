@@ -523,4 +523,12 @@ public interface CharList extends List<Character>, Comparable<List<? extends Cha
 	default CharList leftShift(CharCollection collection) {
 		return (CharList) CharCollection.super.leftShift(collection);
 	}
+
+	default void sortedAdd(char element) {
+		int i = 0;
+		while (i < size() && get(i).compareTo(element) < 0) {
+			i++;
+		}
+		add(i, element);
+	}
 }
