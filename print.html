@@ -1137,6 +1137,14 @@ type your attribute value between parentheses.</p>
 <p>When specifying enum attributes you just have to specify the enum's name, without its class</p>
 <pre><code class="language-marcel">@MyAnnotation(timeUnit = MILLISECONDS)
 </code></pre>
+<h3 id="class-attributes"><a class="header" href="#class-attributes">Class attributes</a></h3>
+<p>For attributes of type <code>Class</code>, you can specify any class as you would in Java</p>
+<pre><code class="language-marcel">@MyAnnotation(converter = MyConverter.class)
+</code></pre>
+<p>But like in Groovy, you can also specify Lambdas</p>
+<pre><code class="language-marcel">@MyAnnotation(converter = { it.toString() })
+</code></pre>
+<p>A lambda generates a class at compilation. This generated class will be used as the value for this attribute.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="operators"><a class="header" href="#operators">Operators</a></h1>
 <p>Marcel provides arithmetic operators to work with numbers (+, -, /, * and soonish %)
 but there are also operators that can be used on specific types.</p>
@@ -1939,11 +1947,12 @@ It supports many formats:</p>
 </ul>
 <p>You can declare an option field of one of the above type, and Marcel will
 automatically know how to convert the option's value (String) into the target type.</p>
-<p>For other types, you can specify a <code>converter</code> as shown below</p>
+<p>For other types, you can specify a custom <code>converter</code> as shown below</p>
 <pre><code class="language-marcel">@Option(converter = { String s -&gt; Duration.parse(s) })
 private Duration duration
 </code></pre>
 <p>You can throw an <code>IllegalArgumentException</code> in those lambda to specify that the option value is incorrect.</p>
+<p>Yes, in Marcel (like in Groovy) you <a href="guides/../language-specification/source-file-structure/annotations.html#class-attributes">can specify lambdas as an annotation attribute value</a>.</p>
 <h3 id="multivalued-options-1"><a class="header" href="#multivalued-options-1">Multivalued options</a></h3>
 <p>for Multi-valued options, Marcel supports</p>
 <ul>

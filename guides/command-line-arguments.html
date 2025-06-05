@@ -253,11 +253,12 @@ It supports many formats:</p>
 </ul>
 <p>You can declare an option field of one of the above type, and Marcel will
 automatically know how to convert the option's value (String) into the target type.</p>
-<p>For other types, you can specify a <code>converter</code> as shown below</p>
+<p>For other types, you can specify a custom <code>converter</code> as shown below</p>
 <pre><code class="language-marcel">@Option(converter = { String s -&gt; Duration.parse(s) })
 private Duration duration
 </code></pre>
 <p>You can throw an <code>IllegalArgumentException</code> in those lambda to specify that the option value is incorrect.</p>
+<p>Yes, in Marcel (like in Groovy) you <a href="../language-specification/source-file-structure/annotations.html#class-attributes">can specify lambdas as an annotation attribute value</a>.</p>
 <h3 id="multivalued-options-1"><a class="header" href="#multivalued-options-1">Multivalued options</a></h3>
 <p>for Multi-valued options, Marcel supports</p>
 <ul>

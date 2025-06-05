@@ -202,6 +202,14 @@ type your attribute value between parentheses.</p>
 <p>When specifying enum attributes you just have to specify the enum's name, without its class</p>
 <pre><code class="language-marcel">@MyAnnotation(timeUnit = MILLISECONDS)
 </code></pre>
+<h3 id="class-attributes"><a class="header" href="#class-attributes">Class attributes</a></h3>
+<p>For attributes of type <code>Class</code>, you can specify any class as you would in Java</p>
+<pre><code class="language-marcel">@MyAnnotation(converter = MyConverter.class)
+</code></pre>
+<p>But like in Groovy, you can also specify Lambdas</p>
+<pre><code class="language-marcel">@MyAnnotation(converter = { it.toString() })
+</code></pre>
+<p>A lambda generates a class at compilation. This generated class will be used as the value for this attribute.</p>
 
                     </main>
 
