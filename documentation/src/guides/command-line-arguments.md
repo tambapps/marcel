@@ -103,13 +103,14 @@ Marcel supports argument of the following types
 You can declare an option field of one of the above type, and Marcel will
 automatically know how to convert the option's value (String) into the target type.
 
-For other types, you can specify a `converter` as shown below
+For other types, you can specify a custom `converter` as shown below
 ```marcel
 @Option(converter = { String s -> Duration.parse(s) })
 private Duration duration
 ```
 You can throw an `IllegalArgumentException` in those lambda to specify that the option value is incorrect.
 
+Yes, in Marcel (like in Groovy) you [can specify lambdas as an annotation attribute value](../language-specification/source-file-structure/annotations.md#class-attributes).
 ### Multivalued options
 for Multi-valued options, Marcel supports
 - List

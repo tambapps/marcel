@@ -33,15 +33,17 @@ class DynamicMethod {
             if (args[i] == null) continue;
             if (!matches(parameters.get(i), args[i])) return false;
         }
+        /*
         if (namedArgs.isEmpty()) {
             for (int i = args.length; i < parameters.size(); i++) {
                 if (!parameters.get(i).hasDefaultValue()) return false;
             }
             return true;
         }
+         */
         List<MethodParameter> remainingParameters = parameters.subList(args.length, parameters.size());
         for (MethodParameter parameter : remainingParameters) {
-            if (namedArgs.entrySet().stream().noneMatch(namedParameter -> matches(parameter, namedParameter.getValue()) && Objects.equals(namedParameter.getKey(), parameter.getName())) && !parameter.hasDefaultValue()) {
+            if (namedArgs.entrySet().stream().noneMatch(namedParameter -> matches(parameter, namedParameter.getValue()) && Objects.equals(namedParameter.getKey(), parameter.getName()))) {
                 return false;
             }
         }

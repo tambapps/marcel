@@ -1787,7 +1787,6 @@ abstract class SemanticCstNodeVisitor constructor(
       if (alreadyExistingLambdaNode != null) {
         return ClassReferenceNode(alreadyExistingLambdaNode.type, node.token)
       }
-      // TODO document this, lambdas can be used as annotation attribute values
       // smartCastType = null because we actually expect a Class here, and that is not something the lambda should implement
       val lambdaNode = createLambdaNode(node, lambdaOuterClassNode = null, smartCastType = null)
       defineLambda(lambdaNode)

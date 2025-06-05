@@ -41,3 +41,18 @@ When specifying enum attributes you just have to specify the enum's name, withou
 ```marcel
 @MyAnnotation(timeUnit = MILLISECONDS)
 ```
+
+### Class attributes
+
+For attributes of type `Class`, you can specify any class as you would in Java
+
+```marcel
+@MyAnnotation(converter = MyConverter.class)
+```
+
+But like in Groovy, you can also specify Lambdas
+
+```marcel
+@MyAnnotation(converter = { it.toString() })
+```
+A lambda generates a class at compilation. This generated class will be used as the value for this attribute.

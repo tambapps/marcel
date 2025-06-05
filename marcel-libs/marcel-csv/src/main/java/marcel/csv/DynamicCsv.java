@@ -64,7 +64,6 @@ public class DynamicCsv {
     return this;
   }
 
-  // TODO document this, and Yaml, and Json, and that the caller of those functions should call try with resources
   public CsvReader reader(String text) throws IOException, CsvValidationException {
     return reader(new StringReader(text));
   }
