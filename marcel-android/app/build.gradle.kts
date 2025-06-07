@@ -78,17 +78,17 @@ dependencies {
   implementation("com.tambapps.http:hyperpoet-marcel:1.4.1-SNAPSHOT")
 
   implementation("androidx.core:core-ktx:1.16.0")
-  implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
+  implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.1")
   implementation("androidx.activity:activity-compose:1.10.1")
-  implementation("androidx.navigation:navigation-compose:2.8.9")
-  implementation(platform("androidx.compose:compose-bom:2025.04.00"))
+  implementation("androidx.navigation:navigation-compose:2.9.0")
+  implementation(platform("androidx.compose:compose-bom:2025.06.00"))
   implementation("androidx.compose.ui:ui")
   implementation("androidx.compose.ui:ui-graphics")
   implementation("androidx.compose.ui:ui-tooling-preview")
   implementation("androidx.compose.material3:material3")
-  implementation("androidx.datastore:datastore-preferences:1.1.4")
-  implementation("androidx.work:work-runtime-ktx:2.10.0")
-  implementation("androidx.compose.ui:ui-text-google-fonts:1.7.8")
+  implementation("androidx.datastore:datastore-preferences:1.1.7")
+  implementation("androidx.work:work-runtime-ktx:2.10.1")
+  implementation("androidx.compose.ui:ui-text-google-fonts:1.8.2")
   implementation("androidx.browser:browser:1.8.0")
 
   implementation("org.commonmark:commonmark:0.22.0")
@@ -103,6 +103,7 @@ dependencies {
   implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
   // room
+  // TODO upgrade those below dependencies is not easy
   implementation("androidx.room:room-runtime:2.6.1")
   implementation("androidx.room:room-ktx:2.6.1")
   annotationProcessor("androidx.room:room-compiler:2.6.1")
