@@ -128,7 +128,7 @@ class MainActivity : ComponentActivity() {
         val shellViewModels = remember {
           mutableStateMapOf(Pair(0, defaultShellViewModel))
         }
-        NavigationDrawer(drawerState = drawerState, navController = navController, scope = scope, shellViewModels = shellViewModels, shellSessionFactory = shellSessionFactory) {
+        NavigationDrawer(drawerState = drawerState, navController = navController, scope = scope, shellViewModels = shellViewModels) {
           Box {
             val createNewShell: () -> Unit = remember { ({ createNewShell(scope, navController, drawerState, this@MainActivity, shellViewModels)}) }
             NavHost(
@@ -242,7 +242,6 @@ class MainActivity : ComponentActivity() {
     navController: NavController,
     scope: CoroutineScope,
     shellViewModels: MutableMap<Int, ShellViewModel>,
-    shellSessionFactory: ShellSessionFactory,
     content: @Composable () -> Unit
   ) {
     val context = LocalContext.current
