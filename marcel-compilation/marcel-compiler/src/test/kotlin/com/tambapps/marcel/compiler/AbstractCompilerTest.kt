@@ -6,6 +6,7 @@ import java.net.URLClassLoader
 import java.nio.file.Files
 import kotlin.math.absoluteValue
 
+// TODO migrate to kotest
 abstract class AbstractCompilerTest {
 
   protected val compiler = MarcelCompiler(CompilerConfiguration())

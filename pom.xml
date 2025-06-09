@@ -169,7 +169,8 @@
       </dependency>
       <dependency>
         <groupId>io.mockk</groupId>
-        <artifactId>mockk</artifactId>
+        <!-- need to depend on mockk-jvm rather than mockk because maven does not understand multiplatform projects. -->
+        <artifactId>mockk-jvm</artifactId>
         <version>${mockk.version}</version>
         <scope>test</scope>
       </dependency>
