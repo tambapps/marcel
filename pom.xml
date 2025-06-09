@@ -138,6 +138,12 @@
         <scope>test</scope>
       </dependency>
       <dependency>
+        <groupId>org.junit.platform</groupId>
+        <artifactId>junit-platform-engine</artifactId>
+        <version>1.13.1</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
         <version>${mockito.version}</version>
@@ -165,6 +171,12 @@
         <groupId>io.mockk</groupId>
         <artifactId>mockk</artifactId>
         <version>${mockk.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.kotest</groupId>
+        <artifactId>kotest-framework-engine</artifactId>
+        <version>${kotest.version}</version>
         <scope>test</scope>
       </dependency>
 
