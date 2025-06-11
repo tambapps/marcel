@@ -22,6 +22,14 @@ class MarcelCompiler(configuration: CompilerConfiguration): AbstractMarcelCompil
   constructor(): this(CompilerConfiguration())
 
   @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class, MarcelCompilerException::class)
+  fun compileToJar(className: String, text: String, jarFile: File) {
+    val compiledClasses = compile(text = text, fileName = className)
+    MarcelJarOutputStream(jarFile).use {
+      it.writeClasses(compiledClasses)
+    }
+  }
+
+  @Throws(IOException::class, MarcelLexerException::class, MarcelParserException::class, MarcelSemanticException::class, MarcelCompilerException::class)
   fun compileToJar(scriptLoader: MarcelClassLoader? = null, files: Collection<SourceFile>, outputJar: File) {
     val classes = mutableListOf<CompiledClass>()
     compileSourceFiles(files, scriptLoader, classes::add)
