@@ -178,15 +178,15 @@
                         <h1 id="parsing-and-producing-csv"><a class="header" href="#parsing-and-producing-csv">Parsing and producing CSV</a></h1>
 <p>Marcel comes with integrated support for converting between Marcel objects and CSV.
 The classes dedicated to CSV parsing are found in the <code>marcel.csv</code> package.</p>
+<p>The CSV (de)serialization is backed by <a href="https://opencsv.sourceforge.net/">OpenCSV</a>. All is handled by the <code>DynamicCsv</code> class.</p>
 <h2 id="parsing-csv"><a class="header" href="#parsing-csv">Parsing CSV</a></h2>
-<p>The CSV deserialization is backed by <a href="https://opencsv.sourceforge.net/">Jackson</a>.</p>
-<p>All is handled by the <code>DynamicCsv</code> class. It takes
-advantage of <a href="../language-specification/types/dynamic-objects.html">Dynamic Objects</a> to make this API easy to use.</p>
+<p>The parsing of CSV takes advantage of <a href="../language-specification/types/dynamic-objects.html">Dynamic Objects</a> to make the API easy to use.</p>
 <p>Here is an example:</p>
 <pre><code class="language-marcel">import marcel.csv.*
+
 List companies;
 // with headers to parse the first line of the CSV as the field names
-try (CsvReader reader = DynamicCsv.instance.reader(new File('companies.csv'), withHeader: true)) {
+try (CsvReader reader = DynamicCsv.reader(new File('companies.csv'), withHeader: true)) {
   companies = [
     for dynobj line in reader -&gt; line.companyName 
       if line.keywords.asString().split(',').find { it == 'Java' } 
@@ -196,16 +196,25 @@ println(companies)
 </code></pre>
 <p>You can also access a line's values by index:</p>
 <pre><code class="language-marcel">import marcel.csv.*
+
 List companies = []
-try (CsvReader reader = DynamicCsv.instance.reader(new File('companies.csv'))) {
-    while (dynobj line = reader.readNext()) {
-      if (line[2].asString().split(',').find { it == 'Java' }) {
-        companies &lt;&lt; line[0]
-      }
+try (CsvReader reader = DynamicCsv.reader(new File('companies.csv'))) {
+  while (dynobj line = reader.readNext()) {
+    if (line[2].asString().split(',').find { it == 'Java' }) {
+      companies &lt;&lt; line[0]
     }
+  }
 }
 println(companies)
 </code></pre>
+<p>There are many optional parameters to the <code>reader()</code> methods:</p>
+<ul>
+<li>separator: the separator character of the CSV (defaults to <code>,</code>)</li>
+<li>quoteChar: the quote character of the CSV (defaults to <code>"</code>)</li>
+<li>escapeChar: the escape character (defaults to <code>\</code>)</li>
+<li>withHeader: whether the first line should be considered as an header and parsed automatically (defaults to <code>false</code>)</li>
+<li>strictQuotes: whether to ignore characters outside the quotes (defaults to <code>false</code>)</li>
+</ul>
 <p>Here is the CSV used for the above examples</p>
 <pre><code class="language-csv">companyName,website,keywords,nbEmployees
 Company A,https://company.a.fr,"Java, Spring Boot",10
@@ -214,7 +223,24 @@ Company C,https://company.c.fr,"Java, Quarkus",250
 Company D,https://company.d.fr,"Python",43
 </code></pre>
 <h2 id="producing-csv"><a class="header" href="#producing-csv">Producing CSV</a></h2>
-<p>TODO</p>
+<p>Writing a CSV is pretty much straight-forward</p>
+<pre><code class="language-marcel">import marcel.csv.*
+List companies;
+
+try (CsvWriter writer = DynamicCsv.writer(new File('output.csv'))) {
+  writer.write(['companyName','website','keywords','nbEmployees'])
+  writer.write(List.of("company A", "http://company.a/", 5))
+  writer.write(DynamicObject.of(["Company B","https://company.b.fr","Javascript",5000]))
+  writer.write(["company, C", "http://company.c/", IntRanges.of(1, 10)])
+}
+</code></pre>
+<p>There are many optional parameters to the <code>writer()</code> methods:</p>
+<ul>
+<li>separator: the separator character of the CSV (defaults to <code>,</code>)</li>
+<li>quoteChar: the quote character of the CSV (defaults to <code>"</code>)</li>
+<li>escapeChar: the escape character (defaults to <code>\</code>)</li>
+<li>applyQuotesToAll: whether all cells should be quoted even when not necessary (defaults to <code>false</code>)</li>
+</ul>
 
                     </main>
 
