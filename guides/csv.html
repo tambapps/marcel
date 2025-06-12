@@ -175,32 +175,46 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="parsing-csv"><a class="header" href="#parsing-csv">Parsing CSV</a></h1>
+                        <h1 id="parsing-and-producing-csv"><a class="header" href="#parsing-and-producing-csv">Parsing and producing CSV</a></h1>
 <p>Marcel comes with integrated support for converting between Marcel objects and CSV.
 The classes dedicated to CSV parsing are found in the <code>marcel.csv</code> package.</p>
+<h2 id="parsing-csv"><a class="header" href="#parsing-csv">Parsing CSV</a></h2>
 <p>The CSV deserialization is backed by <a href="https://opencsv.sourceforge.net/">Jackson</a>.</p>
 <p>All is handled by the <code>DynamicCsv</code> class. It takes
 advantage of <a href="../language-specification/types/dynamic-objects.html">Dynamic Objects</a> to make this API easy to use.</p>
 <p>Here is an example:</p>
-<pre><code class="language-marcel">List companies;
+<pre><code class="language-marcel">import marcel.csv.*
+List companies;
 // with headers to parse the first line of the CSV as the field names
-try (CsvReader reader = DynamicCsv.instance.withHeader()
-    .reader(new File('dlcsv.csv'))) {
-  companies = [for dynobj line in reader -&gt; line.companyName if line.keywords.find { it == 'Java' } ]
+try (CsvReader reader = DynamicCsv.instance.reader(new File('companies.csv'), withHeader: true)) {
+  companies = [
+    for dynobj line in reader -&gt; line.companyName 
+      if line.keywords.asString().split(',').find { it == 'Java' } 
+  ]
 }
 println(companies)
 </code></pre>
 <p>You can also access a line's values by index:</p>
-<pre><code class="language-marcel">List companies = []
-try (CsvReader reader = DynamicCsv.instance.reader(new File('dlcsv.csv'))) {
+<pre><code class="language-marcel">import marcel.csv.*
+List companies = []
+try (CsvReader reader = DynamicCsv.instance.reader(new File('companies.csv'))) {
     while (dynobj line = reader.readNext()) {
-      if (line[7].find { it == 'Java' }) {
+      if (line[2].asString().split(',').find { it == 'Java' }) {
         companies &lt;&lt; line[0]
       }
     }
 }
 println(companies)
 </code></pre>
+<p>Here is the CSV used for the above examples</p>
+<pre><code class="language-csv">companyName,website,keywords,nbEmployees
+Company A,https://company.a.fr,"Java, Spring Boot",10
+Company B,https://company.b.fr,"Javascript",5000
+Company C,https://company.c.fr,"Java, Quarkus",250
+Company D,https://company.d.fr,"Python",43
+</code></pre>
+<h2 id="producing-csv"><a class="header" href="#producing-csv">Producing CSV</a></h2>
+<p>TODO</p>
 
                     </main>
 
