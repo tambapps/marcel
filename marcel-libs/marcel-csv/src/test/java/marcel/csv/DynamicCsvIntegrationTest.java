@@ -14,7 +14,7 @@ public class DynamicCsvIntegrationTest {
         Foo Inc,http://example.foo/,24
         Bar Corporation,http://example.bar/,0
         """;
-    try (CsvReader reader = new DynamicCsv().withHeader(true).reader(csv)) {
+    try (CsvReader reader = new DynamicCsv().reader(csv, null, null, null, true, null)) {
       DynamicObject line1 = reader.readNext();
       assertEquals(DynamicObject.of("Foo Inc"), line1.getAt(0));
       assertEquals(DynamicObject.of("Foo Inc"), line1.getAt("companyName"));

@@ -35,7 +35,7 @@ class DynamicCsvLine extends DynamicList {
         }
       }
     }
-    throw new MissingMethodException(getValue().getClass(), "getAt", new Object[]{key});
+    throw new MissingMethodException(getClass(), "getAt", new Object[]{key});
   }
 
   @Override
@@ -43,7 +43,7 @@ class DynamicCsvLine extends DynamicList {
     try {
       return getAt(name);
     } catch (MissingMethodException e) {
-      throw new MissingPropertyException(getValue().getClass(), name);
+      throw new MissingPropertyException(getClass(), name);
     }
   }
 

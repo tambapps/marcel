@@ -4,6 +4,7 @@ import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
+import marcel.lang.compile.NullDefaultValue;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -16,10 +17,8 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+// TODO handle serialization, don't forget to complete mdbook doc
 public class DynamicCsv {
-
-  private final CSVParserBuilder parserBuilder = new CSVParserBuilder();
-  private boolean withHeader = false;
 
   // useful to handle csv without having to instantiate a mapper
   private static DynamicCsv _instance = new DynamicCsv();
@@ -31,65 +30,75 @@ public class DynamicCsv {
     return _instance;
   }
 
-  public DynamicCsv withSeparator(char c) {
-    parserBuilder.withSeparator(c);
-    return this;
+  public CsvReader reader(String text,
+                          @NullDefaultValue Character separator,
+                          @NullDefaultValue Character quoteChar,
+                          @NullDefaultValue Character escapeChar,
+                          @NullDefaultValue Boolean withHeader,
+                          @NullDefaultValue Boolean strictQuotes) throws IOException, CsvValidationException {
+    return reader(new StringReader(text), separator, quoteChar, escapeChar, withHeader, strictQuotes);
   }
 
-  public DynamicCsv withHeader() {
-    return withHeader(true);
+  public CsvReader reader(byte[] bytes,
+                          @NullDefaultValue Character separator,
+                          @NullDefaultValue Character quoteChar,
+                          @NullDefaultValue Character escapeChar,
+                          @NullDefaultValue Boolean withHeader,
+                          @NullDefaultValue Boolean strictQuotes) throws IOException, CsvValidationException {
+    return reader(new ByteArrayInputStream(bytes), separator, quoteChar, escapeChar, withHeader, strictQuotes);
   }
 
-  public DynamicCsv withoutHeader() {
-    return withHeader(false);
+  public CsvReader reader(InputStream inputStream,
+                          @NullDefaultValue Character separator,
+                          @NullDefaultValue Character quoteChar,
+                          @NullDefaultValue Character escapeChar,
+                          @NullDefaultValue Boolean withHeader,
+                          @NullDefaultValue Boolean strictQuotes) throws IOException, CsvValidationException {
+    return reader(new InputStreamReader(inputStream, StandardCharsets.UTF_8), separator, quoteChar, escapeChar, withHeader, strictQuotes);
   }
 
-  public DynamicCsv withHeader(boolean withHeader) {
-    this.withHeader = withHeader;
-    return this;
+  public CsvReader reader(File file,
+                          @NullDefaultValue Character separator,
+                          @NullDefaultValue Character quoteChar,
+                          @NullDefaultValue Character escapeChar,
+                          @NullDefaultValue Boolean withHeader,
+                          @NullDefaultValue Boolean strictQuotes) throws IOException, CsvValidationException {
+    return reader(new FileReader(file), separator, quoteChar, escapeChar, withHeader, strictQuotes);
   }
 
-  public DynamicCsv withQuoteChar(char quoteChar) {
-    parserBuilder.withQuoteChar(quoteChar);
-    return this;
+  public CsvReader fileReader(String path,
+                              @NullDefaultValue Character separator,
+                              @NullDefaultValue Character quoteChar,
+                              @NullDefaultValue Character escapeChar,
+                              @NullDefaultValue Boolean withHeader,
+                              @NullDefaultValue Boolean strictQuotes) throws IOException, CsvValidationException {
+    return reader(new File(path), separator, quoteChar, escapeChar, withHeader, strictQuotes);
   }
 
-  public DynamicCsv withEscapeChar(char escapeChar) {
-    parserBuilder.withEscapeChar(escapeChar);
-    return this;
-  }
-
-  public DynamicCsv withStrictQuotes(boolean strictQuotes) {
-    parserBuilder.withStrictQuotes(strictQuotes);
-    return this;
-  }
-
-  public CsvReader reader(String text) throws IOException, CsvValidationException {
-    return reader(new StringReader(text));
-  }
-
-  public CsvReader reader(byte[] bytes) throws IOException, CsvValidationException {
-    return reader(new ByteArrayInputStream(bytes));
-  }
-
-  public CsvReader reader(InputStream inputStream) throws IOException, CsvValidationException {
-    return reader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-  }
-
-  public CsvReader reader(File file) throws IOException, CsvValidationException {
-    return reader(new FileReader(file));
-  }
-
-  public CsvReader reader(Reader reader) throws IOException, CsvValidationException {
+  public CsvReader reader(Reader reader,
+                          @NullDefaultValue Character separator,
+                          @NullDefaultValue Character quoteChar,
+                          @NullDefaultValue Character escapeChar,
+                          @NullDefaultValue Boolean withHeader,
+                          @NullDefaultValue Boolean strictQuotes) throws IOException, CsvValidationException {
+    CSVParserBuilder parserBuilder = new CSVParserBuilder();
+    if (separator != null) {
+      parserBuilder.withSeparator(separator);
+    }
+    if (quoteChar != null) {
+      parserBuilder.withQuoteChar(quoteChar);
+    }
+    if (escapeChar != null) {
+      parserBuilder.withEscapeChar(escapeChar);
+    }
+    if (strictQuotes != null) {
+      parserBuilder.withStrictQuotes(strictQuotes);
+    }
     CSVReader csvReader = new CSVReaderBuilder(reader).withCSVParser(parserBuilder.build()).build();
     List<String> headers = null;
-    if (withHeader) {
+    if (withHeader != null && withHeader) {
       headers = List.of(csvReader.readNext());
     }
     return new CsvReader(csvReader, headers);
-  }
-
-  public CsvReader readFile(String path) throws IOException, CsvValidationException {
-    return reader(new File(path));
   }
 }
