@@ -11,6 +11,7 @@ import com.tambapps.marcel.semantic.ast.expression.literal.IntConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.LongConstantNode
 import com.tambapps.marcel.semantic.ast.expression.literal.NullValueNode
 import com.tambapps.marcel.semantic.ast.expression.literal.ShortConstantNode
+import com.tambapps.marcel.semantic.ast.expression.literal.VoidExpressionNode
 import com.tambapps.marcel.semantic.type.JavaType
 
 fun JavaType.getDefaultValueExpression(it: LexToken): ExpressionNode {
@@ -24,6 +25,7 @@ fun JavaType.getDefaultValueExpression(it: LexToken): ExpressionNode {
     JavaType.boolean -> BoolConstantNode(it, value = false)
     JavaType.short -> ShortConstantNode(it, value = 0)
     JavaType.byte -> ByteConstantNode(it, value = 0)
-    else -> throw RuntimeException("Unexpected error")
+    JavaType.void -> VoidExpressionNode(it)
+    else -> throw RuntimeException("Unexpected error, got type ${this.javaClass}")
   }
 }
